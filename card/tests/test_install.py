@@ -119,8 +119,10 @@ class TestCardInstall(IntegrationTestCase):
 	def test_desk_icon_adopts_legacy_standard_zero(self):
 		# Simulate the production case: a legacy standard=0, Administrator-owned
 		# "Card" Desktop Icon with no logo. Rolled back by the test transaction.
+		# Use a raw DB delete (not frappe.delete_doc): in developer mode deleting
+		# a standard Desktop Icon doc also removes the app's shipped export file.
 		if frappe.db.exists("Desktop Icon", install.DESK_ICON_LABEL):
-			frappe.delete_doc("Desktop Icon", install.DESK_ICON_LABEL, force=1, ignore_permissions=True)
+			frappe.db.delete("Desktop Icon", {"name": install.DESK_ICON_LABEL})
 		legacy = frappe.new_doc("Desktop Icon")
 		legacy.label = install.DESK_ICON_LABEL
 		legacy.standard = 0

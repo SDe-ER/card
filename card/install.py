@@ -170,28 +170,33 @@ def _ensure_print_default_property_setter():
 
 
 def _ensure_card_desk_icon():
-	"""Guarantee exactly ONE app-owned Desk launcher for Card.
+	"""Guarantee exactly ONE app-owned Desk launcher for Card, with the logo.
 
-	- Adopts/replaces any pre-existing (legacy standard=0, Administrator-
-	  owned) "Card" Desktop Icon so a normal System Manager also sees it and
-	  it carries the official logo — never leaving two icons.
-	- On a fresh site the icon also arrives from card/desktop_icon/card.json
-	  during sync; this keeps it correct and deduplicated regardless of
-	  order. Link validation is bypassed because the Card Workspace Sidebar
-	  may sync after this runs.
+	The canonical icon is the STANDARD one shipped as card/desktop_icon/card.json
+	(name "Card"); install/migrate sync it and migrate's orphan-prune keeps it
+	because it is file-backed. This function's job is to (1) remove any LEGACY
+	standard=0 "Card" launcher (production had one, no backing file) so it does
+	not shadow or duplicate the app icon, and (2) make sure the standard icon
+	exists with the right fields.
+
+	It NEVER force-deletes a standard=1 icon: in developer mode deleting a
+	standard Desktop Icon also deletes its export file (card/desktop_icon/
+	card.json), after which orphan-prune would drop the icon entirely. Only
+	standard=0 rows (which have no backing file) are deleted.
 	"""
-	# Scope to Card-launcher icons only: the app-owned one, the legacy standard=0
-	# "Card", or any row that links to the Card Workspace. An unrelated icon that
-	# merely shares the label "Card" (another app, standard=1, different link) is
-	# never deleted or overwritten.
 	rows = frappe.get_all(
 		"Desktop Icon",
 		filters={"label": DESK_ICON_LABEL},
 		fields=["name", "link_to", "app", "standard"],
 	)
-	existing = [r.name for r in rows if r.app == APP_NAME or r.link_to == MODULE or not r.standard]
-	for extra in existing[1:]:
-		frappe.delete_doc("Desktop Icon", extra, force=1, ignore_permissions=True)
+	# Card-launcher candidates only; an unrelated standard icon merely sharing
+	# the label "Card" (another app, different link) is left untouched.
+	candidates = [r for r in rows if r.app == APP_NAME or r.link_to == MODULE or not r.standard]
+
+	# 1) Remove legacy standard=0 launchers only (no backing file -> safe).
+	for r in candidates:
+		if not r.standard:
+			frappe.delete_doc("Desktop Icon", r.name, force=1, ignore_permissions=True)
 
 	fields = {
 		"standard": 1,
@@ -202,9 +207,14 @@ def _ensure_card_desk_icon():
 		"logo_url": CARD_LOGO_URL,
 		"hidden": 0,
 	}
-	if existing:
-		frappe.db.set_value("Desktop Icon", existing[0], fields, update_modified=False)
-	else:
+	# 2) Ensure the standard icon. Upsert an existing standard launcher; else
+	#    create it as name "Card" so it coincides with the shipped file (no
+	#    duplicate after sync). Any extra unbacked standard row is removed by
+	#    migrate's orphan-prune, never force-deleted here.
+	standard = [r.name for r in candidates if r.standard]
+	if standard:
+		frappe.db.set_value("Desktop Icon", standard[0], fields, update_modified=False)
+	elif not frappe.db.exists("Desktop Icon", MODULE):
 		icon = frappe.new_doc("Desktop Icon")
 		icon.label = DESK_ICON_LABEL
 		for key, value in fields.items():
