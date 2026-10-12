@@ -12,7 +12,15 @@ def recompute_supplier(supplier):
 	cards = frappe.get_all(
 		"Card Monthly Card",
 		filters=[["supplier", "=", supplier], ["docstatus", "=", 1], ["ownership", "!=", "ملك"]],
-		fields=["equipment", "total_working_hours", "amount", "total_additions", "total_deductions", "year", "month"],
+		fields=[
+			"equipment",
+			"total_working_hours",
+			"amount",
+			"total_additions",
+			"total_deductions",
+			"year",
+			"month",
+		],
 		limit_page_length=0,
 	)
 	eqs = set()
@@ -55,11 +63,22 @@ def refresh_supplier(supplier=None):
 	if supplier:
 		suppliers = [supplier]
 	else:
-		suppliers = sorted(list(set(frappe.get_all(
-			"Card Monthly Card",
-			filters=[["docstatus", "=", 1], ["ownership", "!=", "ملك"], ["supplier", "is", "set"]],
-			pluck="supplier", limit_page_length=0,
-		))))
+		suppliers = sorted(
+			list(
+				set(
+					frappe.get_all(
+						"Card Monthly Card",
+						filters=[
+							["docstatus", "=", 1],
+							["ownership", "!=", "ملك"],
+							["supplier", "is", "set"],
+						],
+						pluck="supplier",
+						limit_page_length=0,
+					)
+				)
+			)
+		)
 
 	done = []
 	for one in suppliers:

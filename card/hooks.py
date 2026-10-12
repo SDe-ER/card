@@ -263,7 +263,6 @@ after_install = "card.install.after_install"
 # ignore_translatable_strings_from = []
 
 
-
 # Fixtures (UI config shipped with the app; exact records exported from card-dev).
 # NOTE: Property Setter "Card Monthly Card-main-default_print_format" is intentionally
 # EXCLUDED here — it is created idempotently by card.install.after_install.
@@ -273,13 +272,22 @@ fixtures = [
 	{"dt": "Number Card", "filters": [["module", "=", "Card"]]},
 	{"dt": "Dashboard Chart", "filters": [["module", "=", "Card"]]},
 	{"dt": "Print Format", "filters": [["module", "=", "Card"]]},
-	{"dt": "Property Setter", "filters": [["name", "in", [
-		"Card Monthly Card-operator_name-in_list_view",
-		"Card Monthly Card-month-in_list_view",
-		"Card Monthly Card-shift-in_list_view",
-		"Card Monthly Card-equipment-in_list_view",
-		"Card Monthly Card-equipment_name-in_list_view",
-	]]]},
+	{
+		"dt": "Property Setter",
+		"filters": [
+			[
+				"name",
+				"in",
+				[
+					"Card Monthly Card-operator_name-in_list_view",
+					"Card Monthly Card-month-in_list_view",
+					"Card Monthly Card-shift-in_list_view",
+					"Card Monthly Card-equipment-in_list_view",
+					"Card Monthly Card-equipment_name-in_list_view",
+				],
+			]
+		],
+	},
 ]
 
 add_to_apps_screen = [
@@ -291,4 +299,7 @@ add_to_apps_screen = [
 	}
 ]
 
-app_logo_url = "/assets/card/images/card-logo.svg"
+# NOTE: app_logo_url is intentionally NOT set. On a shared site the last
+# installed app's app_logo_url replaces the navbar/login logo for every user;
+# a standalone app must not rebrand the host. The Card launcher logo is carried
+# by the Desktop Icon (card/desktop_icon/card.json) and add_to_apps_screen.

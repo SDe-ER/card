@@ -69,6 +69,9 @@ def before_install():
 	_adopt_module_def()
 	_adopt_doctypes()
 	_ensure_card_desk_icon()
+	# Raw set_value writes above bypass doc hooks; clear caches so the DocType
+	# sync that install-app runs next sees the adopted ownership.
+	frappe.clear_cache()
 	frappe.db.commit()
 
 
@@ -88,6 +91,11 @@ def _reconcile():
 	disable_legacy_scripts()
 	_ensure_card_desk_icon()
 	_append_card_to_user_layouts()
+	# disable_legacy_scripts() writes Server/Client Script rows via set_value
+	# (no doc hooks), so the server_script_map / client-script caches would keep
+	# the legacy scripts live alongside the new controllers. Clear so the
+	# disabled state takes effect immediately, not only at the next cache clear.
+	frappe.clear_cache()
 
 
 def _adopt_module_def():
@@ -100,7 +108,9 @@ def _adopt_module_def():
 	if not frappe.db.exists("Module Def", MODULE):
 		return
 	current = frappe.db.get_value("Module Def", MODULE, ["app_name", "custom"], as_dict=True)
-	if current.app_name != APP_NAME or current.custom:
+	# Only adopt a LEGACY custom module (custom=1). Never re-point a Module Def
+	# that another installed app already owns as standard (custom=0, app!=card).
+	if current.custom:
 		frappe.db.set_value(
 			"Module Def",
 			MODULE,
@@ -122,20 +132,16 @@ def _adopt_doctypes():
 		if not frappe.db.exists("DocType", dt):
 			continue
 		current = frappe.db.get_value("DocType", dt, ["custom", "module"], as_dict=True)
-		updates = {}
-		if current.custom:
-			updates["custom"] = 0
-		if current.module != MODULE:
-			updates["module"] = MODULE
-		if updates:
-			frappe.db.set_value("DocType", dt, updates, update_modified=False)
+		# Only adopt a LEGACY custom DocType (custom=1). A standard DocType of
+		# the same name owned by another app is left untouched (never stolen).
+		if not current.custom:
+			continue
+		frappe.db.set_value("DocType", dt, {"custom": 0, "module": MODULE}, update_modified=False)
 
 	if frappe.db.exists("DocType", CMC_DOCTYPE) and frappe.db.get_value(
 		"DocType", CMC_DOCTYPE, "default_print_format"
 	):
-		frappe.db.set_value(
-			"DocType", CMC_DOCTYPE, "default_print_format", None, update_modified=False
-		)
+		frappe.db.set_value("DocType", CMC_DOCTYPE, "default_print_format", None, update_modified=False)
 
 
 def _ensure_print_default_property_setter():
@@ -174,7 +180,16 @@ def _ensure_card_desk_icon():
 	  order. Link validation is bypassed because the Card Workspace Sidebar
 	  may sync after this runs.
 	"""
-	existing = frappe.get_all("Desktop Icon", filters={"label": DESK_ICON_LABEL}, pluck="name")
+	# Scope to Card-launcher icons only: the app-owned one, the legacy standard=0
+	# "Card", or any row that links to the Card Workspace. An unrelated icon that
+	# merely shares the label "Card" (another app, standard=1, different link) is
+	# never deleted or overwritten.
+	rows = frappe.get_all(
+		"Desktop Icon",
+		filters={"label": DESK_ICON_LABEL},
+		fields=["name", "link_to", "app", "standard"],
+	)
+	existing = [r.name for r in rows if r.app == APP_NAME or r.link_to == MODULE or not r.standard]
 	for extra in existing[1:]:
 		frappe.delete_doc("Desktop Icon", extra, force=1, ignore_permissions=True)
 
@@ -236,7 +251,18 @@ def _card_layout_entry(existing_items):
 	icon = frappe.db.get_value(
 		"Desktop Icon",
 		DESK_ICON_LABEL,
-		["label", "icon_type", "link_type", "link_to", "app", "icon", "logo_url", "bg_color", "standard", "restrict_removal"],
+		[
+			"label",
+			"icon_type",
+			"link_type",
+			"link_to",
+			"app",
+			"icon",
+			"logo_url",
+			"bg_color",
+			"standard",
+			"restrict_removal",
+		],
 		as_dict=True,
 	)
 	max_idx = max([i.get("idx", 0) for i in existing_items if isinstance(i, dict)] + [-1])
@@ -308,11 +334,18 @@ def _append_card_to_user_layouts():
 			changed = True
 
 		if changed:
-			frappe.db.set_value("Desktop Layout", name, "layout", json.dumps(items), update_modified=False)
+			frappe.db.set_value(
+				"Desktop Layout",
+				name,
+				"layout",
+				json.dumps(items, ensure_ascii=False),
+				update_modified=False,
+			)
 			updated.append(user)
 
 	if updated:
-		frappe.logger("card").info("card: reconciled Card launcher in Desktop Layouts: %s" % updated)
+		# Log the count only, not the user ids (avoid PII in logs).
+		frappe.logger("card").info("card: reconciled Card launcher in %d Desktop Layout(s)" % len(updated))
 	return updated
 
 
@@ -323,13 +356,15 @@ def disable_legacy_scripts():
 	``after_install`` and the ``v1_0`` migration patch.
 	"""
 	for name in LEGACY_SERVER_SCRIPTS:
-		if frappe.db.exists("Server Script", name) and frappe.db.get_value(
-			"Server Script", name, "disabled"
-		) != 1:
+		if (
+			frappe.db.exists("Server Script", name)
+			and frappe.db.get_value("Server Script", name, "disabled") != 1
+		):
 			frappe.db.set_value("Server Script", name, "disabled", 1, update_modified=False)
 
 	for name in LEGACY_CLIENT_SCRIPTS:
-		if frappe.db.exists("Client Script", name) and frappe.db.get_value(
-			"Client Script", name, "enabled"
-		) != 0:
+		if (
+			frappe.db.exists("Client Script", name)
+			and frappe.db.get_value("Client Script", name, "enabled") != 0
+		):
 			frappe.db.set_value("Client Script", name, "enabled", 0, update_modified=False)

@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from frappe.utils import flt, cint, getdate, nowdate, get_last_day
+from frappe.utils import cint, flt, get_last_day, getdate, nowdate
 
 from card.api import recompute_supplier
 
@@ -17,8 +17,17 @@ class CardMonthlyCard(Document):
 			frappe.throw("الشهر والسنة مطلوبين")
 
 		eq = frappe.db.get_value(
-			"Card Equipment", self.equipment,
-			["company", "ownership", "rate_type", "rate", "daily_hours", "rental_start_date", "rental_end_date"],
+			"Card Equipment",
+			self.equipment,
+			[
+				"company",
+				"ownership",
+				"rate_type",
+				"rate",
+				"daily_hours",
+				"rental_start_date",
+				"rental_end_date",
+			],
 			as_dict=True,
 		)
 		if not eq:
@@ -86,7 +95,7 @@ class CardMonthlyCard(Document):
 		# ---- additions / deductions (v4) ----
 		total_additions = 0.0
 		total_deductions = 0.0
-		for adj in (self.adjustments or []):
+		for adj in self.adjustments or []:
 			a = flt(adj.amount)
 			if a <= 0:
 				frappe.throw("مبلغ الإضافة/الخصم لازم يكون أكبر من صفر: " + str(adj.description or ""))
@@ -104,10 +113,15 @@ class CardMonthlyCard(Document):
 		dup = frappe.get_all(
 			"Card Monthly Card",
 			filters={
-				"equipment": self.equipment, "month": self.month, "year": self.year,
-				"shift": self.shift, "docstatus": ["!=", 2], "name": ["!=", self.name],
+				"equipment": self.equipment,
+				"month": self.month,
+				"year": self.year,
+				"shift": self.shift,
+				"docstatus": ["!=", 2],
+				"name": ["!=", self.name],
 			},
-			pluck="name", limit=1,
+			pluck="name",
+			limit=1,
 		)
 		if dup:
 			frappe.throw("يوجد كارت " + str(self.shift) + " لنفس المعدة ونفس الشهر: " + dup[0])
@@ -115,19 +129,32 @@ class CardMonthlyCard(Document):
 		# ---- shift length warning (per card, per day; each shift card stands alone) ----
 		shift_hours = flt(eq.daily_hours)
 		if shift_hours > 0:
-			over = [k + " (" + str(hours_by_date[k]) + ")" for k in sorted(hours_by_date.keys()) if hours_by_date[k] > shift_hours]
+			over = [
+				k + " (" + str(hours_by_date[k]) + ")"
+				for k in sorted(hours_by_date.keys())
+				if hours_by_date[k] > shift_hours
+			]
 			if over:
-				frappe.msgprint("أيام تخطت ساعات الدوام (" + str(shift_hours) + " ساعة): " + "، ".join(over),
-								title="تحذير تخطي الدوام", indicator="orange")
+				frappe.msgprint(
+					"أيام تخطت ساعات الدوام (" + str(shift_hours) + " ساعة): " + "، ".join(over),
+					title="تحذير تخطي الدوام",
+					indicator="orange",
+				)
 		else:
-			frappe.msgprint("لم يتم تحديد ساعات الدوام للمعدة " + str(self.equipment) + "، لن يظهر تحذير تخطي الدوام.",
-							title="ساعات الدوام", indicator="orange")
+			frappe.msgprint(
+				"لم يتم تحديد ساعات الدوام للمعدة " + str(self.equipment) + "، لن يظهر تحذير تخطي الدوام.",
+				title="ساعات الدوام",
+				indicator="orange",
+			)
 
 		# ---- rental period (flag for review, hours still counted) ----
 		if eq.ownership != "ملك" and hours_by_date:
 			if not eq.rental_start_date:
-				frappe.msgprint("المعدة ليس لها تاريخ بداية إيجار. راجع بيانات الإيجار.",
-								title="مراجعة فترة الإيجار", indicator="orange")
+				frappe.msgprint(
+					"المعدة ليس لها تاريخ بداية إيجار. راجع بيانات الإيجار.",
+					title="مراجعة فترة الإيجار",
+					indicator="orange",
+				)
 			else:
 				rs = getdate(eq.rental_start_date)
 				re_end = getdate(eq.rental_end_date) if eq.rental_end_date else None
@@ -137,8 +164,11 @@ class CardMonthlyCard(Document):
 					if d < rs or (re_end and d > re_end):
 						outside.append(k)
 				if outside:
-					frappe.msgprint("أيام فيها تشغيل خارج فترة الإيجار (محسوبة، تحتاج مراجعة): " + "، ".join(outside),
-									title="مراجعة فترة الإيجار", indicator="orange")
+					frappe.msgprint(
+						"أيام فيها تشغيل خارج فترة الإيجار (محسوبة، تحتاج مراجعة): " + "، ".join(outside),
+						title="مراجعة فترة الإيجار",
+						indicator="orange",
+					)
 
 	def on_submit(self):
 		self._sync_supplier()
@@ -152,7 +182,14 @@ class CardMonthlyCard(Document):
 			try:
 				recompute_supplier(self.supplier)
 			except Exception:
-				frappe.log_error(title="Card Equipment Supplier sync failed: " + str(self.supplier),
-								 message="Card " + str(self.name) + " (event " + str(self.docstatus) + ")")
-				frappe.msgprint("تعذّر تحديث سجل المورد " + str(self.supplier) + ". الكارت اتحفظ عادي؛ استخدم زرار «تحديث الأرقام» في سجل المورد.",
-								title="سجل المورد", indicator="orange")
+				frappe.log_error(
+					title="Card Equipment Supplier sync failed: " + str(self.supplier),
+					message="Card " + str(self.name) + " (event " + str(self.docstatus) + ")",
+				)
+				frappe.msgprint(
+					"تعذّر تحديث سجل المورد "
+					+ str(self.supplier)
+					+ ". الكارت اتحفظ عادي؛ استخدم زرار «تحديث الأرقام» في سجل المورد.",
+					title="سجل المورد",
+					indicator="orange",
+				)

@@ -16,6 +16,9 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   quality:
     name: Lint & Format
@@ -27,7 +30,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.14"
 
       - name: Install ruff
         run: pip install ruff
@@ -48,16 +51,19 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mariadb:
-        image: mariadb:10.6
+        image: mariadb:10.8
         env:
           MARIADB_ROOT_PASSWORD: root
         ports:
           - 3306:3306
+        # Frappe requires utf8mb4 (Arabic data in this app).
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+          --character-set-server=utf8mb4
+          --collation-server=utf8mb4_unicode_ci
       redis:
         image: redis:6
         ports:
@@ -77,12 +83,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.14"
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "24"
 
       - name: Install frappe-bench
         run: pip install frappe-bench
@@ -113,6 +119,10 @@ jobs:
         run: |
           bench --site test_site install-app erpnext
           bench --site test_site install-app card
+
+      - name: Enable tests
+        working-directory: frappe-bench
+        run: bench --site test_site set-config allow_tests true
 
       - name: Run card tests
         working-directory: frappe-bench

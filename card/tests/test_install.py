@@ -9,6 +9,7 @@ install paths are proven as integration in the T9b rehearsal.
 
 import json
 import os
+from typing import ClassVar
 
 import frappe
 from frappe.tests import IntegrationTestCase
@@ -40,8 +41,11 @@ class TestCardInstall(IntegrationTestCase):
 		# simulate a legacy custom DocType + stray row-level print default
 		frappe.db.set_value("DocType", "Card Equipment", {"custom": 1}, update_modified=False)
 		frappe.db.set_value(
-			"DocType", install.CMC_DOCTYPE, "default_print_format",
-			install.CMC_DEFAULT_PRINT_FORMAT, update_modified=False,
+			"DocType",
+			install.CMC_DOCTYPE,
+			"default_print_format",
+			install.CMC_DEFAULT_PRINT_FORMAT,
+			update_modified=False,
 		)
 		install._adopt_doctypes()
 		install._adopt_doctypes()  # re-run
@@ -56,9 +60,14 @@ class TestCardInstall(IntegrationTestCase):
 		install._reconcile()
 		self.assertEqual(frappe.db.count("Desktop Icon", {"label": install.DESK_ICON_LABEL}), 1)
 		self.assertEqual(
-			frappe.db.count("Property Setter", {
-				"doc_type": install.CMC_DOCTYPE, "doctype_or_field": "DocType",
-				"property": "default_print_format"}),
+			frappe.db.count(
+				"Property Setter",
+				{
+					"doc_type": install.CMC_DOCTYPE,
+					"doctype_or_field": "DocType",
+					"property": "default_print_format",
+				},
+			),
 			1,
 		)
 
@@ -78,7 +87,11 @@ class TestCardInstall(IntegrationTestCase):
 		install._ensure_print_default_property_setter()
 		rows = frappe.get_all(
 			"Property Setter",
-			filters={"doc_type": install.CMC_DOCTYPE, "doctype_or_field": "DocType", "property": "default_print_format"},
+			filters={
+				"doc_type": install.CMC_DOCTYPE,
+				"doctype_or_field": "DocType",
+				"property": "default_print_format",
+			},
 			pluck="name",
 		)
 		self.assertEqual(len(rows), 1)
@@ -92,7 +105,8 @@ class TestCardInstall(IntegrationTestCase):
 		install._ensure_card_desk_icon()
 		install._ensure_card_desk_icon()
 		icons = frappe.get_all(
-			"Desktop Icon", filters={"label": install.DESK_ICON_LABEL},
+			"Desktop Icon",
+			filters={"label": install.DESK_ICON_LABEL},
 			fields=["name", "standard", "app", "logo_url", "icon_type", "link_type", "link_to"],
 		)
 		self.assertEqual(len(icons), 1)
@@ -120,7 +134,8 @@ class TestCardInstall(IntegrationTestCase):
 		install._ensure_card_desk_icon()
 
 		icons = frappe.get_all(
-			"Desktop Icon", filters={"label": install.DESK_ICON_LABEL},
+			"Desktop Icon",
+			filters={"label": install.DESK_ICON_LABEL},
 			fields=["name", "standard", "app", "logo_url"],
 		)
 		self.assertEqual(len(icons), 1)  # never two
@@ -149,8 +164,9 @@ class TestCardInstall(IntegrationTestCase):
 			("card", "report", "equipment_suppliers_summary", "equipment_suppliers_summary.json"),
 			("card", "report", "equipment_supplier_statement", "equipment_supplier_statement.json"),
 		]
-		missing = [os.path.join(*parts) for parts in rel
-			if not os.path.exists(frappe.get_app_path("card", *parts))]
+		missing = [
+			os.path.join(*parts) for parts in rel if not os.path.exists(frappe.get_app_path("card", *parts))
+		]
 		self.assertEqual(missing, [], "missing app backing files: %s" % missing)
 
 
@@ -159,8 +175,15 @@ class TestCardDeskLayoutAppend(IntegrationTestCase):
 	Desktop Layouts (option B). All records roll back with the transaction."""
 
 	# a non-Card grid that predates the Card launcher
-	BASE_GRID = [
-		{"name": "System", "label": "System", "link_to": "System", "icon_type": "Link", "idx": 0, "standard": 1},
+	BASE_GRID: ClassVar = [
+		{
+			"name": "System",
+			"label": "System",
+			"link_to": "System",
+			"icon_type": "Link",
+			"idx": 0,
+			"standard": 1,
+		},
 		{"name": "Users", "label": "Users", "link_to": "Users", "icon_type": "Link", "idx": 1, "standard": 1},
 	]
 
@@ -223,9 +246,17 @@ class TestCardDeskLayoutAppend(IntegrationTestCase):
 	def test_existing_legacy_card_logo_backfilled_only(self):
 		# production case: a legacy Card entry already present, WITHOUT the logo.
 		user = self._make_user(system_manager=True)
-		grid = self.BASE_GRID + [
-			{"name": "Card", "label": "Card", "link_to": "Card", "icon_type": "Link",
-			 "idx": 2, "standard": 0, "logo_url": None}
+		grid = [
+			*self.BASE_GRID,
+			{
+				"name": "Card",
+				"label": "Card",
+				"link_to": "Card",
+				"icon_type": "Link",
+				"idx": 2,
+				"standard": 0,
+				"logo_url": None,
+			},
 		]
 		self._make_layout(user, grid)
 
@@ -247,9 +278,17 @@ class TestCardDeskLayoutAppend(IntegrationTestCase):
 
 	def test_existing_card_with_logo_untouched(self):
 		user = self._make_user(system_manager=True)
-		grid = self.BASE_GRID + [
-			{"name": "Card", "label": "Card", "link_to": "Card", "icon_type": "Link",
-			 "idx": 2, "standard": 1, "logo_url": install.CARD_LOGO_URL}
+		grid = [
+			*self.BASE_GRID,
+			{
+				"name": "Card",
+				"label": "Card",
+				"link_to": "Card",
+				"icon_type": "Link",
+				"idx": 2,
+				"standard": 1,
+				"logo_url": install.CARD_LOGO_URL,
+			},
 		]
 		self._make_layout(user, grid)
 		self.assertEqual(install._append_card_to_user_layouts().count(user), 0)  # nothing to do
