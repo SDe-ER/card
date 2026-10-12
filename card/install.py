@@ -13,6 +13,8 @@ idempotent and is a safe no-op when there is nothing to adopt, so a fresh
 install and an in-place re-run behave identically.
 """
 
+import json
+
 import frappe
 
 APP_NAME = "card"
@@ -85,6 +87,7 @@ def _reconcile():
 	_ensure_print_default_property_setter()
 	disable_legacy_scripts()
 	_ensure_card_desk_icon()
+	_append_card_to_user_layouts()
 
 
 def _adopt_module_def():
@@ -194,6 +197,123 @@ def _ensure_card_desk_icon():
 		icon.flags.ignore_links = True
 		icon.flags.ignore_mandatory = True
 		icon.insert(ignore_permissions=True)
+
+
+def _user_can_see_card(user):
+	"""Whether ``user`` is entitled to the Card launcher.
+
+	Administrator always qualifies. Otherwise the Card Desktop Icon's own
+	role restriction decides: if it carries explicit roles, the user must
+	hold one of them; if it is unrestricted, fall back to the "System
+	Manager" role (the production CARD audience).
+	"""
+	if user == "Administrator":
+		return True
+	roles = set(frappe.get_roles(user))
+	icon_roles = frappe.get_all(
+		"Has Role", filters={"parenttype": "Desktop Icon", "parent": DESK_ICON_LABEL}, pluck="role"
+	)
+	if icon_roles:
+		return bool(roles & set(icon_roles))
+	return "System Manager" in roles
+
+
+def _is_card_layout_entry(item):
+	"""True if a Desktop Layout entry is the Card launcher (any shape the
+	legacy adopted icon or an earlier run may have left)."""
+	if not isinstance(item, dict):
+		return False
+	return (
+		item.get("name") == MODULE
+		or item.get("label") == DESK_ICON_LABEL
+		or (item.get("link_to") == MODULE and item.get("icon_type") == "Link")
+	)
+
+
+def _card_layout_entry(existing_items):
+	"""Build the Card grid entry from the app-owned Desktop Icon so its shape
+	matches every other entry. Placed at the end (max idx + 1)."""
+	icon = frappe.db.get_value(
+		"Desktop Icon",
+		DESK_ICON_LABEL,
+		["label", "icon_type", "link_type", "link_to", "app", "icon", "logo_url", "bg_color", "standard", "restrict_removal"],
+		as_dict=True,
+	)
+	max_idx = max([i.get("idx", 0) for i in existing_items if isinstance(i, dict)] + [-1])
+	return {
+		"label": icon.label,
+		"bg_color": icon.bg_color,
+		"link": None,
+		"link_type": icon.link_type,
+		"app": icon.app,
+		"icon_type": icon.icon_type,
+		"parent_icon": None,
+		"icon": icon.icon,
+		"link_to": icon.link_to,
+		"idx": max_idx + 1,
+		"standard": icon.standard,
+		"logo_url": icon.logo_url,
+		"hidden": 0,
+		"name": DESK_ICON_LABEL,
+		"restrict_removal": icon.restrict_removal or 0,
+	}
+
+
+def _append_card_to_user_layouts():
+	"""Reconcile the Card launcher in every existing per-user Desktop Layout
+	(append-only, option B).
+
+	A user whose saved Desk grid predates Card would never see the standard
+	Card icon (the grid is driven by their stored layout, not the icon
+	table). For each layout:
+
+	- if it does NOT contain a Card entry and the owner is entitled to Card,
+	  the Card entry is appended at the END — nothing else is reordered;
+	- if it ALREADY contains a Card entry (incl. the legacy adopted one), it
+	  is never duplicated and never reordered; only that entry's ``logo_url``
+	  is backfilled to the official logo when missing, so the icon always
+	  renders with the logo. No other entry and no other field is touched.
+
+	Idempotent; the list of updated users is logged.
+	"""
+	if not frappe.db.exists("DocType", "Desktop Layout"):
+		return []
+	if not frappe.db.exists("Desktop Icon", DESK_ICON_LABEL):
+		return []
+
+	updated = []
+	for name in frappe.get_all("Desktop Layout", pluck="name"):
+		user = frappe.db.get_value("Desktop Layout", name, "user")
+		if not user:
+			continue
+		raw = frappe.db.get_value("Desktop Layout", name, "layout")
+		try:
+			items = json.loads(raw) if raw else []
+		except (ValueError, TypeError):
+			continue
+		if not isinstance(items, list):
+			continue
+
+		card_positions = [i for i, it in enumerate(items) if _is_card_layout_entry(it)]
+		changed = False
+		if card_positions:
+			# Present already: never add a second one, never reorder, never
+			# touch any other entry — only backfill the official logo.
+			entry = items[card_positions[0]]
+			if entry.get("logo_url") != CARD_LOGO_URL:
+				entry["logo_url"] = CARD_LOGO_URL
+				changed = True
+		elif _user_can_see_card(user):
+			items.append(_card_layout_entry(items))
+			changed = True
+
+		if changed:
+			frappe.db.set_value("Desktop Layout", name, "layout", json.dumps(items), update_modified=False)
+			updated.append(user)
+
+	if updated:
+		frappe.logger("card").info("card: reconciled Card launcher in Desktop Layouts: %s" % updated)
+	return updated
 
 
 def disable_legacy_scripts():
