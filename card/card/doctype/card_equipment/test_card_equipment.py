@@ -1,22 +1,10 @@
-# Copyright (c) 2026, Ahmed Shehab and Contributors
-# See license.txt
+# Copyright (c) 2026, Ahmed Shehab and contributors
+# For license information, please see license.txt
 
-# import frappe
-from frappe.tests import IntegrationTestCase
-
-
-# On IntegrationTestCase, the doctype test records and all
-# link-field test record dependencies are recursively loaded
-# Use these module variables to add/remove to/from that list
-EXTRA_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
-IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
+from frappe.tests import UnitTestCase
 
 
-
-class IntegrationTestCardEquipment(IntegrationTestCase):
-	"""
-	Integration tests for CardEquipment.
-	Use this class for testing interactions between multiple components.
-	"""
-
+# Behavioural controller tests live in card/tests/test_controllers.py (app-level,
+# so Frappe does not auto-build dependency test records for linked DocTypes).
+class TestCardEquipment(UnitTestCase):
 	pass
