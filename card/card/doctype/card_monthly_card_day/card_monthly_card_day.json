@@ -1,0 +1,81 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-10-11 00:25:01.904248",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "day_section",
+  "operation_date",
+  "day_name",
+  "day_status",
+  "working_hours",
+  "idle_reason",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "day_section",
+   "fieldtype": "Section Break",
+   "label": "\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u064a\u0648\u0645"
+  },
+  {
+   "fieldname": "operation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "\u0627\u0644\u062a\u0627\u0631\u064a\u062e",
+   "reqd": 1
+  },
+  {
+   "fieldname": "day_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "\u0627\u0644\u064a\u0648\u0645",
+   "read_only": 1
+  },
+  {
+   "default": "\u0639\u0645\u0644",
+   "fieldname": "day_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "\u062d\u0627\u0644\u0629 \u0627\u0644\u064a\u0648\u0645",
+   "options": "\u0639\u0645\u0644\n\u0625\u062c\u0627\u0632\u0629\n\u0639\u0637\u0644\n\u062a\u0648\u0642\u0641 \u0645\u0646 \u0627\u0644\u0639\u0645\u064a\u0644"
+  },
+  {
+   "fieldname": "working_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "\u0633\u0627\u0639\u0627\u062a \u0627\u0644\u062a\u0634\u063a\u064a\u0644",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "idle_reason",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "\u0633\u0628\u0628 \u0627\u0644\u062a\u0648\u0642\u0641"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-12 21:21:14.908779",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Monthly Card Day",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

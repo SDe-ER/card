@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Node / build artefacts
+node_modules/
+
+# Local scratch / parity harnesses (never shipped)
+local/
+
+# Editor / OS
+*.swp
+.DS_Store
+
+# Never commit site config or secrets
+**/site_config.json
+*.sql
+*.sql.gz
+*.enc
+*.pem
+*.key

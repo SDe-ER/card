@@ -1,0 +1,21 @@
+{
+ "app": "card",
+ "bg_color": "gray",
+ "creation": "2026-10-12 21:11:56.636172",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "Card",
+ "link_to": "Card",
+ "link_type": "Workspace Sidebar",
+ "logo_url": "/assets/card/images/card-logo.svg",
+ "modified": "2026-10-12 22:20:01.456629",
+ "modified_by": "Administrator",
+ "name": "Card",
+ "owner": "Administrator",
+ "restrict_removal": 0,
+ "roles": [],
+ "standard": 1
+}

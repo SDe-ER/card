@@ -1,0 +1,291 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "autoname": "format:EOMC-{year}-{month}-{####}",
+ "creation": "2026-10-11 00:34:40.802017",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "header_section",
+  "equipment",
+  "project",
+  "company",
+  "project_name",
+  "site_location",
+  "operator_name",
+  "shift",
+  "month",
+  "year",
+  "column_break_xdga",
+  "image",
+  "equipment_name",
+  "ownership",
+  "supplier",
+  "from_date",
+  "to_date",
+  "days_section",
+  "days",
+  "totals_section",
+  "rate_type",
+  "rate",
+  "column_break_eubn",
+  "working_days",
+  "total_working_hours",
+  "amount",
+  "amended_from",
+  "adjustments_section",
+  "adjustments",
+  "adjustments_col",
+  "total_additions",
+  "total_deductions",
+  "net_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "header_section",
+   "fieldtype": "Section Break",
+   "label": "\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0643\u0627\u0631\u062a"
+  },
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "\u0627\u0644\u0645\u0639\u062f\u0629",
+   "options": "Card Equipment",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "equipment.current_project",
+   "fetch_if_empty": 1,
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "\u0627\u0644\u0645\u0634\u0631\u0648\u0639",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "equipment.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "\u0627\u0644\u0634\u0631\u0643\u0629",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0634\u0631\u0648\u0639",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "equipment.site_location",
+   "fetch_if_empty": 1,
+   "fieldname": "site_location",
+   "fieldtype": "Data",
+   "label": "\u0627\u0644\u0645\u0648\u0642\u0639"
+  },
+  {
+   "fieldname": "operator_name",
+   "fieldtype": "Data",
+   "label": "\u0627\u0644\u0633\u0627\u0626\u0642 / \u0627\u0644\u0645\u0634\u063a\u0651\u0644"
+  },
+  {
+   "default": "\u0646\u0647\u0627\u0631\u064a",
+   "fieldname": "shift",
+   "fieldtype": "Select",
+   "label": "\u0627\u0644\u0648\u0631\u062f\u064a\u0629",
+   "options": "\u0646\u0647\u0627\u0631\u064a\n\u0644\u064a\u0644\u064a",
+   "reqd": 1
+  },
+  {
+   "fieldname": "month",
+   "fieldtype": "Select",
+   "label": "\u0627\u0644\u0634\u0647\u0631",
+   "options": "\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12",
+   "reqd": 1
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Int",
+   "label": "\u0627\u0644\u0633\u0646\u0629",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_xdga",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "equipment.image",
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "hidden": 1,
+   "label": "\u0627\u0644\u0635\u0648\u0631\u0629"
+  },
+  {
+   "fetch_from": "equipment.equipment_name",
+   "fieldname": "equipment_name",
+   "fieldtype": "Data",
+   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0639\u062f\u0629",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "equipment.ownership",
+   "fieldname": "ownership",
+   "fieldtype": "Data",
+   "label": "\u0627\u0644\u0645\u0644\u0643\u064a\u0629",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "equipment.supplier",
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "\u0627\u0644\u0645\u0627\u0644\u0643",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "\u0645\u0646 \u062a\u0627\u0631\u064a\u062e",
+   "read_only": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "\u0625\u0644\u0649 \u062a\u0627\u0631\u064a\u062e",
+   "read_only": 1
+  },
+  {
+   "fieldname": "days_section",
+   "fieldtype": "Section Break",
+   "label": "\u0623\u064a\u0627\u0645 \u0627\u0644\u0634\u0647\u0631"
+  },
+  {
+   "fieldname": "days",
+   "fieldtype": "Table",
+   "label": "\u0627\u0644\u0623\u064a\u0627\u0645",
+   "options": "Card Monthly Card Day",
+   "reqd": 1
+  },
+  {
+   "fieldname": "totals_section",
+   "fieldtype": "Section Break",
+   "label": "\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a\u0627\u062a"
+  },
+  {
+   "fetch_from": "equipment.rate_type",
+   "fieldname": "rate_type",
+   "fieldtype": "Data",
+   "label": "\u0637\u0631\u064a\u0642\u0629 \u0627\u0644\u062d\u0633\u0627\u0628",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "equipment.rate",
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "label": "\u0627\u0644\u0633\u0639\u0631",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_eubn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "working_days",
+   "fieldtype": "Int",
+   "label": "\u0623\u064a\u0627\u0645 \u0627\u0644\u0639\u0645\u0644",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_working_hours",
+   "fieldtype": "Float",
+   "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0633\u0627\u0639\u0627\u062a \u0627\u0644\u062a\u0634\u063a\u064a\u0644",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "\u0627\u0644\u0642\u064a\u0645\u0629 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a\u0629",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Card Monthly Card",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "adjustments_section",
+   "fieldtype": "Section Break",
+   "label": "\u0625\u0636\u0627\u0641\u0627\u062a \u0648\u062e\u0635\u0648\u0645\u0627\u062a"
+  },
+  {
+   "fieldname": "adjustments",
+   "fieldtype": "Table",
+   "label": "\u0627\u0644\u0625\u0636\u0627\u0641\u0627\u062a \u0648\u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a",
+   "options": "Card Monthly Card Adjustment"
+  },
+  {
+   "fieldname": "adjustments_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_additions",
+   "fieldtype": "Currency",
+   "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0625\u0636\u0627\u0641\u0627\u062a",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_deductions",
+   "fieldtype": "Currency",
+   "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "label": "\u0627\u0644\u0635\u0627\u0641\u064a \u0627\u0644\u0645\u0633\u062a\u062d\u0642",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-10-12 21:22:33.579071",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Monthly Card",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "equipment_name",
+ "track_changes": 1
+}

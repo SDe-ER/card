@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "field:supplier",
+ "creation": "2026-10-12 19:24:05.443829",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "supplier",
+  "supplier_name",
+  "col_main",
+  "first_month",
+  "last_month",
+  "stats_section",
+  "equipment_count",
+  "card_count",
+  "col_stats",
+  "total_hours",
+  "total_net",
+  "last_refreshed"
+ ],
+ "fields": [
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "\u0627\u0644\u0645\u0648\u0631\u062f",
+   "options": "Supplier",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fetch_from": "supplier.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0648\u0631\u062f",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "first_month",
+   "fieldtype": "Data",
+   "label": "\u0623\u0648\u0644 \u0634\u0647\u0631 \u062a\u0634\u063a\u064a\u0644",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_month",
+   "fieldtype": "Data",
+   "label": "\u0622\u062e\u0631 \u0634\u0647\u0631 \u062a\u0634\u063a\u064a\u0644",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stats_section",
+   "fieldtype": "Section Break",
+   "label": "\u0627\u0644\u0625\u062d\u0635\u0627\u0626\u064a\u0627\u062a"
+  },
+  {
+   "fieldname": "equipment_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "\u0639\u062f\u062f \u0627\u0644\u0645\u0639\u062f\u0627\u062a",
+   "read_only": 1
+  },
+  {
+   "fieldname": "card_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "\u0639\u062f\u062f \u0627\u0644\u0643\u0631\u0648\u062a \u0627\u0644\u0645\u0639\u062a\u0645\u062f\u0629",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_stats",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_hours",
+   "fieldtype": "Float",
+   "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0633\u0627\u0639\u0627\u062a",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_net",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0635\u0627\u0641\u064a \u0627\u0644\u0643\u0631\u0648\u062a",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_refreshed",
+   "fieldtype": "Datetime",
+   "label": "\u0622\u062e\u0631 \u062a\u062d\u062f\u064a\u062b",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-12 21:22:33.820192",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Equipment Supplier",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "supplier_name",
+ "track_changes": 1
+}

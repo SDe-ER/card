@@ -1,0 +1,140 @@
+[
+ {
+  "app": null,
+  "charts": [
+   {
+    "chart_name": "مبالغ الكروت الشهرية",
+    "label": "مبالغ الكروت الشهرية"
+   }
+  ],
+  "content": "[{\"id\": \"fc7f83c403\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0627\\u0644\\u0645\\u0639\\u062f\\u0627\\u062a \\u0627\\u0644\\u0645\\u0624\\u062c\\u0631\\u0629\", \"col\": 3}}, {\"id\": \"08b419e221\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0643\\u0631\\u0648\\u062a \\u0645\\u0633\\u0648\\u062f\\u0629\", \"col\": 3}}, {\"id\": \"c10fb94725\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0645\\u0628\\u0627\\u0644\\u063a \\u0627\\u0644\\u0634\\u0647\\u0631 \\u0627\\u0644\\u0645\\u0627\\u0636\\u064a\", \"col\": 3}}, {\"id\": \"7e7ff69701\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0643\\u0631\\u0648\\u062a \\u0627\\u0644\\u0634\\u0647\\u0631 \\u0627\\u0644\\u0645\\u0627\\u0636\\u064a\", \"col\": 3}}, {\"id\": \"347da02358\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"653b7d14db\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0627\\u0644\\u0643\\u0631\\u0648\\u062a \\u0627\\u0644\\u0634\\u0647\\u0631\\u064a\\u0629\", \"col\": 3}}, {\"id\": \"2ebe838d65\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0627\\u0644\\u062a\\u0639\\u064a\\u064a\\u0646\\u0627\\u062a\", \"col\": 3}}, {\"id\": \"08ba743f86\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0627\\u0644\\u0645\\u0639\\u062f\\u0627\\u062a\", \"col\": 3}}, {\"id\": \"3bdcf4f0d0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0643\\u0627\\u0631\\u062a \\u062c\\u062f\\u064a\\u062f\", \"col\": 3}}, {\"id\": \"75ae2f17e1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"cd88ae12cb\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0645\\u0644\\u062e\\u0635 \\u0627\\u0644\\u0645\\u0648\\u0631\\u062f\\u064a\\u0646\", \"col\": 3}}, {\"id\": \"b5d770e332\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0643\\u0634\\u0641 \\u062d\\u0633\\u0627\\u0628 \\u0645\\u0648\\u0631\\u062f\", \"col\": 3}}, {\"id\": \"b5d8ba5503\", \"type\": \"chart\", \"data\": {\"chart_name\": \"\\u0645\\u0628\\u0627\\u0644\\u063a \\u0627\\u0644\\u0643\\u0631\\u0648\\u062a \\u0627\\u0644\\u0634\\u0647\\u0631\\u064a\\u0629\", \"col\": 12}}]",
+  "custom_blocks": [],
+  "docstatus": 0,
+  "doctype": "Workspace",
+  "external_link": null,
+  "for_user": null,
+  "hide_custom": 0,
+  "icon": "clipboard",
+  "indicator_color": "green",
+  "is_hidden": 0,
+  "label": "Card",
+  "link_to": null,
+  "link_type": "DocType",
+  "links": [],
+  "modified": "2026-10-12 21:11:56.168607",
+  "module": "",
+  "name": "Card",
+  "number_cards": [
+   {
+    "label": "المعدات المؤجرة",
+    "number_card_name": "المعدات المؤجرة"
+   },
+   {
+    "label": "كروت مسودة",
+    "number_card_name": "كروت مسودة"
+   },
+   {
+    "label": "مبالغ الشهر الماضي",
+    "number_card_name": "مبالغ الشهر الماضي"
+   },
+   {
+    "label": "كروت الشهر الماضي",
+    "number_card_name": "كروت الشهر الماضي"
+   }
+  ],
+  "parent_page": null,
+  "public": 1,
+  "quick_lists": [],
+  "restrict_to_domain": null,
+  "roles": [],
+  "sequence_id": 0.0,
+  "shortcuts": [
+   {
+    "color": "Red",
+    "doc_view": "List",
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "label": "الكروت الشهرية",
+    "link_to": "Card Monthly Card",
+    "report_ref_doctype": null,
+    "restrict_to_domain": null,
+    "stats_filter": null,
+    "type": "DocType",
+    "url": null
+   },
+   {
+    "color": "Grey",
+    "doc_view": "List",
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "label": "كشف حساب مورد",
+    "link_to": "Equipment Supplier Statement",
+    "report_ref_doctype": "Card Monthly Card",
+    "restrict_to_domain": null,
+    "stats_filter": null,
+    "type": "Report",
+    "url": null
+   },
+   {
+    "color": "Grey",
+    "doc_view": "List",
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "label": "ملخص الموردين",
+    "link_to": "Equipment Suppliers Summary",
+    "report_ref_doctype": "Card Monthly Card",
+    "restrict_to_domain": null,
+    "stats_filter": null,
+    "type": "Report",
+    "url": null
+   },
+   {
+    "color": "Grey",
+    "doc_view": "List",
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "label": "التعيينات",
+    "link_to": "Card Equipment Assignment",
+    "report_ref_doctype": null,
+    "restrict_to_domain": null,
+    "stats_filter": null,
+    "type": "DocType",
+    "url": null
+   },
+   {
+    "color": "Grey",
+    "doc_view": "List",
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "label": "المعدات",
+    "link_to": "Card Equipment",
+    "report_ref_doctype": null,
+    "restrict_to_domain": null,
+    "stats_filter": null,
+    "type": "DocType",
+    "url": null
+   },
+   {
+    "color": "Grey",
+    "doc_view": "List",
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "label": "كارت جديد",
+    "link_to": null,
+    "report_ref_doctype": null,
+    "restrict_to_domain": null,
+    "stats_filter": null,
+    "type": "URL",
+    "url": "/desk/card-monthly-card/new"
+   }
+  ],
+  "title": "Card",
+  "type": "Workspace"
+ }
+]
