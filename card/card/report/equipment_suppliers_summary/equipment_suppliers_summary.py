@@ -159,7 +159,9 @@ def execute(filters=None):
          "indicator": "Green" if abs(tot["diff"]) < 0.01 else "Red"},
         {"label": "إجمالي أرصدة الموردين", "value": flt(tot["closing"], 2), "datatype": "Currency", "indicator": "Orange"},
     ]
-    message = ("مؤسسة شمس دبي للمقاولات — ملخص موردي المعدات — الفترة من " + str(start) + " إلى " + str(end)
+    _company = frappe.defaults.get_global_default("company") or ""
+    _prefix = (_company + " — ") if _company else ""
+    message = (_prefix + "ملخص موردي المعدات — الفترة من " + str(start) + " إلى " + str(end)
                + ". اضغط على اسم المورد لفتح كشف حسابه.")
 
     data = [columns, result, message, None, summary, True]

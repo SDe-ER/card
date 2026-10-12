@@ -16,6 +16,8 @@ def execute(filters=None):
     stype = filters.get("statement_type") or "مورد"
     supplier = filters.get("supplier")
     no_supplier = stype == "مورد" and not supplier
+    _company = frappe.defaults.get_global_default("company") or ""
+    _prefix = (_company + " — ") if _company else ""
 
     fm = cint(filters.get("from_month"))
     fy = cint(filters.get("from_year"))
@@ -244,12 +246,12 @@ def execute(filters=None):
             {"label": "رصيد المورد آخر المدة", "value": flt(closing, 2), "datatype": "Currency",
              "indicator": "Red" if closing > 0 else "Green"},
         ]
-        message = ("مؤسسة شمس دبي للمقاولات — كشف حساب مورد معدات: " + str(supplier)
+        message = (_prefix + "كشف حساب مورد معدات: " + str(supplier)
                    + " — الفترة من " + str(start) + " إلى " + str(end)
                    + " — تاريخ الإصدار " + frappe.utils.nowdate()
                    + ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق.")
     else:
-        message = ("مؤسسة شمس دبي للمقاولات — تشغيل المعدات الملك حسب المشروع — الفترة من " + str(start)
+        message = (_prefix + "تشغيل المعدات الملك حسب المشروع — الفترة من " + str(start)
                    + " إلى " + str(end) + " — الساعات فقط لحين تحديد الأسعار الداخلية.")
 
     data = [columns, data_rows, message, None, summary, True]

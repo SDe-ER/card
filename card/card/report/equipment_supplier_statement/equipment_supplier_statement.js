@@ -6,20 +6,20 @@
     const py = prev.getFullYear();
     const months = ['', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].join('\n');
 
-    // v1.2: RTL datatable fix. Print Style "SDCE Arabic" sets .dt-scrollable{direction:rtl} (body) but not the header,
+    // v1.2: RTL datatable fix. an Arabic print style sets .dt-scrollable{direction:rtl} (body) but not the header,
     // and frappe-datatable syncs the header with translateX(-scrollLeft), which is invalid for negative RTL scrollLeft.
-    function sdce_rtl_datatable(dt) {
-        if (!document.getElementById('sdce-rtl-dt-header')) {
+    function card_rtl_datatable(dt) {
+        if (!document.getElementById('card-rtl-dt-header')) {
             const s = document.createElement('style');
-            s.id = 'sdce-rtl-dt-header';
+            s.id = 'card-rtl-dt-header';
             s.textContent = '.datatable .dt-header { direction: rtl; }';
             document.head.appendChild(s);
         }
         const wrap = dt && dt.wrapper;
         const sc = wrap && wrap.querySelector('.dt-scrollable');
         const hdr = wrap && wrap.querySelector('.dt-header');
-        if (!sc || !hdr || sc._sdce_rtl) return;
-        sc._sdce_rtl = true;
+        if (!sc || !hdr || sc._card_rtl) return;
+        sc._card_rtl = true;
         const sync = () => { hdr.style.transform = `translateX(${-sc.scrollLeft}px)`; };
         sc.addEventListener('scroll', sync);
         sync();
@@ -44,7 +44,7 @@
         name_field: 'row_id',
         parent_field: 'parent_row',
         initial_depth: 1,
-        after_datatable_render: sdce_rtl_datatable,
+        after_datatable_render: card_rtl_datatable,
         formatter(value, row, column, data, default_formatter) {
             value = default_formatter(value, row, column, data);
             if (data && data.bold) value = `<b>${value}</b>`;
