@@ -1,0 +1,4 @@
+# Normalize all text files to LF in the repository and on checkout,
+# so a Windows working copy never ships CRLF into the Linux Frappe bench.
+* text=auto eol=lf
+*.svg text eol=lf
