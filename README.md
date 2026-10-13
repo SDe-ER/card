@@ -1,32 +1,4 @@
-<!doctype html><meta charset="utf-8">
-<style>
-body{max-width:900px;margin:24px auto;padding:0 32px;font:16px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1f2328;background:#fff}
-h1,h2{border-bottom:1px solid #d1d9e0;padding-bottom:.3em;font-weight:600}
-h2{font-size:1.4em;margin-top:28px} h3{font-size:1.1em}
-code{background:#eff1f3;padding:2px 6px;border-radius:6px;font-size:85%}
-pre{background:#f6f8fa;padding:14px;border-radius:8px;overflow:auto} pre code{background:none;padding:0}
-table{border-collapse:collapse} td,th{border:1px solid #d1d9e0;padding:6px 13px}
-img{vertical-align:middle} a{color:#0969da;text-decoration:none} div[align=center]{text-align:center}
-</style>
-<div align="center">
-	<a target="_blank" rel="noopener noreferrer" href="card/public/images/card-logo.svg"><svg width="72" height="72" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M38.5714 0H15.4286C6.90761 0 0 6.90761 0 15.4286V38.5714C0 47.0924 6.90761 54 15.4286 54H38.5714C47.0924 54 54 47.0924 54 38.5714V15.4286C54 6.90761 47.0924 0 38.5714 0Z" fill="#06B58B" fill-opacity="0.1"/>
-<g stroke="#1F876C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
-<path d="M21 40.5H14.5C13.4 40.5 12.5 39.6 12.5 38.5V14.5C12.5 13.4 13.4 12.5 14.5 12.5H31.5C32.6 12.5 33.5 13.4 33.5 14.5V23"/>
-<path d="M18 20.5H28"/>
-<path d="M18 26.5H24"/>
-</g>
-<rect x="17.5" y="9.5" width="11" height="6" rx="2" fill="#1F876C"/>
-<g fill="#1F876C">
-<path d="M22.5 33H28.5L29.5 42H23.5Z"/>
-<path d="M28 35.6L33.4 32.6L34.6 35.4L29.2 38.4Z"/>
-<rect x="32" y="34.5" width="14" height="7" rx="1.6"/>
-<path d="M37 26H43.5C44.3 26 45 26.7 45 27.5V35H35.5V27.5C35.5 26.7 36.2 26 37 26Z"/>
-<circle cx="35.5" cy="43.2" r="3.3"/>
-<circle cx="42.7" cy="43.2" r="3.3"/>
-</g>
-<rect x="38" y="28.4" width="4.6" height="3.6" rx="0.8" fill="#E6F7F3"/>
-</svg></a>
+
 	<h2>CARD</h2>
 	<p><b>Monthly equipment operation cards for ERPNext</b><br>
 	Track rented and owned equipment, daily working hours and monthly amounts, with supplier reconciliation against the General Ledger and an Arabic (RTL) interface.</p>
