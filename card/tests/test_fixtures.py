@@ -95,10 +95,11 @@ class TestCardSidebarFold(IntegrationTestCase):
 	def setUp(self):
 		if not frappe.db.exists("DocType", "Sidebar"):
 			self.skipTest("Sidebar doctype is frappe 16.50+")
-		# guarantee the rename-path precondition (rolled back by the test transaction)
+		# clean slate (DB-level, no validate/permission) — rolled back by the test transaction
 		for nm in (install.MODULE, install.LEGACY_MODULE):
 			if frappe.db.exists("Sidebar", nm):
-				frappe.delete_doc("Sidebar", nm, ignore_permissions=True, force=True)
+				frappe.db.delete("Sidebar Item", {"parent": nm, "parenttype": "Sidebar"})
+				frappe.db.delete("Sidebar", {"name": nm})
 		if not frappe.db.exists("Module Def", install.LEGACY_MODULE):
 			md = frappe.new_doc("Module Def")
 			md.module_name = install.LEGACY_MODULE
@@ -107,11 +108,23 @@ class TestCardSidebarFold(IntegrationTestCase):
 			md.insert(ignore_permissions=True)
 
 	def _mk_sidebar(self, title, module, items):
-		doc = frappe.get_doc(
-			{"doctype": "Sidebar", "title": title, "module": module, "standard": 0, "items": list(items)}
-		)
-		doc.insert(ignore_permissions=True)
-		return doc
+		"""Build an app-owned Sidebar at DB level (db_insert), so Sidebar.validate's
+		app-owned/developer-mode guard is never invoked in the test."""
+		s = frappe.new_doc("Sidebar")
+		s.title = title
+		s.module = module
+		s.standard = 0
+		s.app = "card"
+		s.name = title  # Sidebar autoname = field:title
+		s.owner = s.modified_by = frappe.session.user or "Administrator"
+		s.creation = s.modified = frappe.utils.now()
+		s.db_insert()
+		for idx, it in enumerate(items, start=1):
+			install._db_insert_sidebar_item(frappe._dict(it), parent=title, idx=idx)
+		return s
+
+	def _item_count(self, parent):
+		return frappe.db.count("Sidebar Item", {"parent": parent, "parenttype": "Sidebar"})
 
 	def test_rename_path_keeps_all_items(self):
 		self._mk_sidebar(install.LEGACY_MODULE, install.LEGACY_MODULE, self.ITEMS)
@@ -119,7 +132,8 @@ class TestCardSidebarFold(IntegrationTestCase):
 		self.assertTrue(frappe.db.exists("Sidebar", install.MODULE))
 		self.assertFalse(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
 		self.assertEqual(frappe.db.get_value("Sidebar", install.MODULE, "module"), install.MODULE)
-		self.assertEqual(len(frappe.get_doc("Sidebar", install.MODULE).items), len(self.ITEMS))
+		self.assertEqual(frappe.db.get_value("Sidebar", install.MODULE, "title"), install.MODULE)
+		self.assertEqual(self._item_count(install.MODULE), len(self.ITEMS))
 		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
 
 	def test_merge_path_appends_missing_then_deletes(self):
@@ -127,7 +141,7 @@ class TestCardSidebarFold(IntegrationTestCase):
 		self._mk_sidebar(install.LEGACY_MODULE, install.LEGACY_MODULE, self.ITEMS)  # legacy has all
 		install._retire_legacy_custom_module()
 		self.assertFalse(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
-		self.assertEqual(len(frappe.get_doc("Sidebar", install.MODULE).items), len(self.ITEMS))
+		self.assertEqual(self._item_count(install.MODULE), len(self.ITEMS))
 		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
 
 	def test_idempotent(self):
@@ -136,4 +150,5 @@ class TestCardSidebarFold(IntegrationTestCase):
 		install._retire_legacy_custom_module()  # re-run: legacy already gone
 		self.assertTrue(frappe.db.exists("Sidebar", install.MODULE))
 		self.assertFalse(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
+		self.assertEqual(self._item_count(install.MODULE), len(self.ITEMS))
 		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))

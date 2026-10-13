@@ -16,12 +16,18 @@ install and an in-place re-run behave identically.
 import json
 
 import frappe
+from frappe.utils import now
 
 APP_NAME = "card"
 MODULE = "Card"
 # Legacy Module Def left by the original in-site customization (the app ships
 # only MODULE in modules.txt). Retired idempotently by _retire_legacy_custom_module().
 LEGACY_MODULE = "Card (Custom)"
+# Child/meta columns never copied when cloning a Sidebar Item row at DB level.
+_SIDEBAR_CHILD_META = (
+	"name", "parent", "parentfield", "parenttype", "idx",
+	"creation", "modified", "owner", "modified_by", "docstatus",
+)
 
 CARD_DOCTYPES = (
 	"Card Equipment",
@@ -147,42 +153,66 @@ def _fold_legacy_sidebar():
 		return
 	for name in frappe.get_all("Sidebar", filters={"module": LEGACY_MODULE}, pluck="name"):
 		if not frappe.db.exists("Sidebar", MODULE):
-			# no canonical sidebar yet -> rename this one (keeps all items/header_icon/merged_from)
-			frappe.rename_doc("Sidebar", name, MODULE, merge=False, force=True)
+			# No canonical sidebar yet -> rename this one. frappe.rename_doc is validate-free (it
+			# runs before/after_rename hooks, not Sidebar.validate, and updates links + dependent
+			# dock rows via after_rename), so it bypasses the app-owned/developer-mode guard. Then
+			# set title+module so the record is title==module ("Card"), which a later normal desk
+			# save validates cleanly (validate_title_is_its_own / _has_its_own_url).
+			frappe.rename_doc("Sidebar", name, MODULE, merge=False, force=True, ignore_permissions=True)
 			frappe.db.set_value(
 				"Sidebar", MODULE, {"module": MODULE, "title": MODULE}, update_modified=False
 			)
 			continue
-		# a canonical "Card" sidebar already exists -> append only the missing items
-		dst = frappe.get_doc("Sidebar", MODULE)
-		src = frappe.get_doc("Sidebar", name)
-		have = {_sidebar_item_key(i.as_dict()) for i in dst.items}
-		appended = 0
-		for it in src.items:
-			if _sidebar_item_key(it.as_dict()) in have:
+		# A canonical "Card" sidebar already exists -> append only the missing items at DB level
+		# (no parent .save(), so Sidebar.validate is never invoked).
+		dst_keys = {
+			_sidebar_item_key(i)
+			for i in frappe.get_all(
+				"Sidebar Item",
+				filters={"parent": MODULE, "parenttype": "Sidebar"},
+				fields=["type", "link_type", "link_to", "label"],
+			)
+		}
+		src_items = frappe.get_all(
+			"Sidebar Item",
+			filters={"parent": name, "parenttype": "Sidebar"},
+			fields=["*"],
+			order_by="idx asc",
+		)
+		next_idx = frappe.db.sql(
+			"SELECT COALESCE(MAX(idx), 0) FROM `tabSidebar Item` WHERE parent=%s AND parenttype='Sidebar'",
+			MODULE,
+		)[0][0]
+		for it in src_items:
+			if _sidebar_item_key(it) in dst_keys:
 				continue
-			row = {
-				k: v
-				for k, v in it.as_dict().items()
-				if k
-				not in (
-					"name", "parent", "parentfield", "parenttype", "idx",
-					"creation", "modified", "owner", "modified_by", "docstatus",
-				)
-			}
-			dst.append("items", row)
-			appended += 1
-		if appended:
-			dst.save(ignore_permissions=True)
-			dst.reload()
+			next_idx += 1
+			_db_insert_sidebar_item(it, parent=MODULE, idx=next_idx)
+			dst_keys.add(_sidebar_item_key(it))
 		# delete the legacy ONLY if every one of its items is now present canonically
-		have = {_sidebar_item_key(i.as_dict()) for i in dst.items}
-		if all(_sidebar_item_key(i.as_dict()) in have for i in src.items):
-			frappe.delete_doc("Sidebar", name, ignore_permissions=True, force=True)
+		if all(_sidebar_item_key(it) in dst_keys for it in src_items):
+			frappe.db.delete("Sidebar Item", {"parent": name, "parenttype": "Sidebar"})
+			frappe.db.delete("Sidebar", {"name": name})
 		else:
 			frappe.logger("card").warning(
 				"card: kept Sidebar '%s' — not all items present in '%s'" % (name, MODULE)
 			)
+
+
+def _db_insert_sidebar_item(src_row, parent, idx):
+	"""Insert one ``Sidebar Item`` child row directly (no parent save → no Sidebar.validate)."""
+	child = frappe.new_doc("Sidebar Item")
+	for key, value in src_row.items():
+		if key not in _SIDEBAR_CHILD_META:
+			child.set(key, value)
+	child.parent = parent
+	child.parenttype = "Sidebar"
+	child.parentfield = "items"
+	child.idx = idx
+	child.name = frappe.generate_hash(length=10)
+	child.owner = child.modified_by = frappe.session.user or "Administrator"
+	child.creation = child.modified = now()
+	child.db_insert()
 
 
 def _retire_legacy_custom_module():
