@@ -95,7 +95,7 @@ CARD is built on the [Frappe Framework](https://frappeframework.com) and runs al
 
 Runtime: Python 3.14, Node.js 24, MariaDB 10.6, Redis.
 
-> CARD is an independent, open-source app. It is not affiliated with, endorsed by, or maintained by Frappe Technologies.
+> CARD is an independent product of Shams Dubai Contracting Est. (SDCE). It is not developed, endorsed or maintained by Frappe Technologies.
 
 ## Installation
 
@@ -179,14 +179,14 @@ Please report vulnerabilities privately to **info@sdce.sa**. Do not open public 
 
 ## License
 
-MIT © 2026 Ahmed Shehab ([@SDe-ER](https://github.com/SDe-ER)). See [LICENSE](LICENSE).
+MIT © 2026 Shams Dubai Contracting Est. (SDCE). See [LICENSE](LICENSE).
 
 ## Logo and Trademark Policy
 
-The CARD name and logo belong to the project's author. "Frappe", "ERPNext" and "Frappe HR" are trademarks of Frappe Technologies Pvt. Ltd. and are used here only to describe compatibility, in line with the [ERPNext trademark policy](https://github.com/frappe/erpnext/blob/develop/TRADEMARK_POLICY.md).
+The CARD name and logo belong to SDCE. "Frappe", "ERPNext" and "Frappe HR" are trademarks of Frappe Technologies Pvt. Ltd. and are used here only to describe compatibility, in line with the [ERPNext trademark policy](https://github.com/frappe/erpnext/blob/develop/TRADEMARK_POLICY.md).
 
 <br>
 
 <div align="center">
-<sub>Built by <a href="https://github.com/SDe-ER">Ahmed Shehab</a> · Screenshots use fictional demo data.</sub>
+<sub>Screenshots use fictional demo data.</sub>
 </div>
