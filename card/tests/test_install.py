@@ -1,5 +1,5 @@
-# Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
+# For license information, please see LICENSE
 """Tests for the install-time automation (card.install).
 
 These cover the idempotent reconciliation helpers and the legacy-adoption

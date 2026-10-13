@@ -1,5 +1,5 @@
-# Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
+# For license information, please see LICENSE
 """Backfill net_amount on submitted Card Monthly Card rows that predate CARD v1.0.
 
 Cards submitted under the legacy Server Script left ``net_amount`` at 0/NULL

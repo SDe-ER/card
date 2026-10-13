@@ -1,5 +1,5 @@
-# Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
+# For license information, please see LICENSE
 """Guards on the shipped fixtures and the legacy-module retirement.
 
 frappe 16.51 made ``Workspace.module`` mandatory: a fixture doc with an empty or
@@ -78,9 +78,7 @@ class TestCardFixtures(IntegrationTestCase):
 
 		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
 		if frappe.db.exists("Workspace", install.MODULE):
-			self.assertEqual(
-				frappe.db.get_value("Workspace", install.MODULE, "module"), install.MODULE
-			)
+			self.assertEqual(frappe.db.get_value("Workspace", install.MODULE, "module"), install.MODULE)
 
 
 class TestCardSidebarFold(IntegrationTestCase):

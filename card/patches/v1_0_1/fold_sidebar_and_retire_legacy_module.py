@@ -1,5 +1,5 @@
-# Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
+# For license information, please see LICENSE
 """v1.0.1: fold the frappe-16.50 `Sidebar` + retire the legacy ``Card (Custom)`` Module Def.
 
 A NEW patch entry on purpose. The reconciliation lives in ``card.install._reconcile`` and was

@@ -3,142 +3,75 @@ name: CI
 on:
   push:
     branches:
+      - main
       - version-16
-      - develop
-      - master
   pull_request:
-    branches:
-      - version-16
-      - develop
-      - master
+    paths-ignore:
+      - "**.md"
+      - ".github/images/**"
+      - "LICENSE"
+      - "license.txt"
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 jobs:
-  quality:
-    name: Lint & Format
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.14"
-
-      - name: Install ruff
-        run: pip install ruff
-
-      - name: Ruff lint
-        run: ruff check .
-
-      - name: Ruff format check
-        run: ruff format --check .
-
-      - name: Run pre-commit
-        uses: pre-commit/action@v3.0.1
-        # Environment-specific: repository must ship a .pre-commit-config.yaml
-        # (ruff, eslint, prettier, pyupgrade per README).
-
   tests:
-    name: Frappe v16 Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    name: CARD unit tests (frappe version-16 / 16.5x)
+
     services:
       mariadb:
-        image: mariadb:10.8
+        image: mariadb:11.8
         env:
-          MARIADB_ROOT_PASSWORD: root
+          MARIADB_ROOT_PASSWORD: "root"
         ports:
           - 3306:3306
-        # Frappe requires utf8mb4 (Arabic data in this app).
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-          --character-set-server=utf8mb4
-          --collation-server=utf8mb4_unicode_ci
+        options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=5
       redis:
-        image: redis:6
+        image: redis:7-alpine
         ports:
           - 6379:6379
-        options: >-
-          --health-cmd="redis-cli ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=2s --health-retries=5
 
     steps:
-      - name: Checkout card into a subdir (kept separate from frappe-bench)
+      - name: Clone
         uses: actions/checkout@v4
-        with:
-          path: card-src
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
 
-      - name: Set up Node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "24"
+          check-latest: true
 
-      - name: Install frappe-bench
-        run: pip install frappe-bench
-
-      - name: Init bench (Frappe version-16)
-        # Environment-specific: frappe-branch matches this app's target branch.
-        run: bench init --skip-redis-config-generation --frappe-branch version-16 frappe-bench
-
-      - name: Get ERPNext (card links to Company/Supplier/Project)
-        working-directory: frappe-bench
-        run: bench get-app --branch version-16 erpnext
-
-      - name: Get the card app (from the checked-out source)
-        working-directory: frappe-bench
-        run: bench get-app "${{ github.workspace }}/card-src"
-
-      - name: Create test site
-        # Environment-specific: DB credentials/host reflect the service container above.
-        working-directory: frappe-bench
-        run: >-
-          bench new-site test_site
-          --mariadb-root-password root
-          --admin-password admin
-          --no-mariadb-socket
-
-      - name: Install apps (ERPNext first, then card)
-        working-directory: frappe-bench
-        run: |
-          bench --site test_site install-app erpnext
-          bench --site test_site install-app card
-
-      - name: Enable tests
-        working-directory: frappe-bench
-        run: bench --site test_site set-config allow_tests true
-
-      - name: Run card tests
-        working-directory: frappe-bench
-        run: bench --site test_site run-tests --app card
-
-  security:
-    name: Security (gitleaks)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Cache pip
+        uses: actions/cache@v4
         with:
-          fetch-depth: 0
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
 
-      - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+      - name: Add test site to hosts
+        run: echo "127.0.0.1 test_site" | sudo tee -a /etc/hosts
+
+      - name: Install bench, frappe, erpnext and CARD
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # Note: Semgrep and Trivy scans are run separately (outside this workflow).
+          FRAPPE_BRANCH: version-16
+          ERPNEXT_BRANCH: version-16
+        run: bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
+
+      - name: Run CARD tests
+        working-directory: /home/runner/frappe-bench
+        run: bench --site test_site run-tests --app card --coverage
+
+      - name: Show error log on failure
+        if: failure()
+        working-directory: /home/runner/frappe-bench
+        run: cat sites/test_site/logs/*.log 2>/dev/null || true

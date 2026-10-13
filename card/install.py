@@ -1,5 +1,5 @@
-# Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
+# For license information, please see LICENSE
 """Install-time automation for the CARD app.
 
 These hooks make ``bench install-app card`` + ``bench migrate`` fully
@@ -26,8 +26,16 @@ MODULE = "Card"
 LEGACY_MODULE = "Card (Custom)"
 # Child/meta columns never copied when cloning a Sidebar Item row at DB level.
 _SIDEBAR_CHILD_META = (
-	"name", "parent", "parentfield", "parenttype", "idx",
-	"creation", "modified", "owner", "modified_by", "docstatus",
+	"name",
+	"parent",
+	"parentfield",
+	"parenttype",
+	"idx",
+	"creation",
+	"modified",
+	"owner",
+	"modified_by",
+	"docstatus",
 )
 
 CARD_DOCTYPES = (
@@ -162,8 +170,14 @@ def _fold_legacy_sidebar():
 			# is title==module ("Card"), which a later normal desk save validates cleanly
 			# (validate_title_is_its_own / validate_title_has_its_own_url).
 			_rename_doc(
-				"Sidebar", name, MODULE, force=True, merge=False,
-				validate=False, show_alert=False, rebuild_search=False,
+				"Sidebar",
+				name,
+				MODULE,
+				force=True,
+				merge=False,
+				validate=False,
+				show_alert=False,
+				rebuild_search=False,
 			)
 			frappe.db.set_value("Sidebar", MODULE, "module", MODULE, update_modified=False)
 			frappe.db.set_value("Sidebar", MODULE, "title", MODULE, update_modified=False)
@@ -486,7 +500,7 @@ def _append_card_to_user_layouts():
 		raw = frappe.db.get_value("Desktop Layout", name, "layout")
 		try:
 			items = json.loads(raw) if raw else []
-		except (ValueError, TypeError):
+		except ValueError, TypeError:
 			continue
 		if not isinstance(items, list):
 			continue

@@ -1,5 +1,5 @@
-# Copyright (c) 2026, Ahmed Shehab and Contributors
-# See license.txt
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
+# See LICENSE
 
 # import frappe
 from frappe.tests import IntegrationTestCase

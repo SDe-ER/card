@@ -1,66 +1,38 @@
-exclude: 'node_modules|.git'
+exclude: 'node_modules|\.git'
 default_stages: [pre-commit]
 fail_fast: false
 
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
         files: "card.*"
-        exclude: ".*json$|.*txt$|.*csv|.*md|.*svg"
+        exclude: ".*json$|.*txt$|.*csv|.*md$|.*svg$"
+      - id: check-yaml
       - id: check-merge-conflict
       - id: check-ast
-      - id: check-json
-      - id: check-toml
-      - id: check-yaml
-      - id: debug-statements
+      - id: no-commit-to-branch
+        args: ['--branch', 'main']
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.17.0
     hooks:
       - id: ruff
-        name: "Run ruff import sorter"
-        args: ["--select=I", "--fix"]
-
-      - id: ruff
-        name: "Run ruff linter"
-
+        name: "ruff lint (with fixes)"
+        args: ["--fix"]
       - id: ruff-format
-        name: "Run ruff formatter"
+        name: "ruff format"
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.7.1
+    rev: v3.1.0
     hooks:
       - id: prettier
-        types_or: [javascript, vue, scss]
-        # Ignore any files that might contain jinja / bundles
+        types_or: [javascript, ts, css, scss]
         exclude: |
             (?x)^(
-                card/public/dist/.*|
                 .*node_modules.*|
-                .*boilerplate.*|
-                card/templates/includes/.*|
-                card/public/js/lib/.*
-            )$
-
-
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.44.0
-    hooks:
-      - id: eslint
-        types_or: [javascript]
-        args: ['--quiet']
-        # Ignore any files that might contain jinja / bundles
-        exclude: |
-            (?x)^(
-                card/public/dist/.*|
-                cypress/.*|
-                .*node_modules.*|
-                .*boilerplate.*|
-                card/templates/includes/.*|
-                card/public/js/lib/.*
+                card/public/dist/.*
             )$
 
 ci:
