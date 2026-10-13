@@ -18,6 +18,8 @@ local/
 
 # Never commit site config or secrets
 **/site_config.json
+# except the CI fixture (test-only placeholders, no real secrets) — mirrors frappe apps
+!.github/helper/site_config.json
 *.sql
 *.sql.gz
 *.enc
