@@ -1,132 +1,192 @@
 <div align="center">
-	<img src="card/public/images/card-logo.svg" alt="CARD logo" height="80" width="80"/>
-	<h2>CARD</h2>
-	<p><b>Monthly equipment operation cards for ERPNext</b><br/>
-	Track rented and owned equipment, daily working hours and monthly amounts, with supplier reconciliation against the General Ledger and an Arabic (RTL) interface.</p>
+
+<img src="card/public/images/card-logo.svg" alt="CARD logo" height="96">
+
+<h1>CARD</h1>
+
+**Equipment rental and operation cards for ERPNext**
+
+إدارة المعدات وكروت التشغيل الشهرية
 
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/badge/release-v1.0.1-06B58B)](https://github.com/SDe-ER/card/releases)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](license.txt)
-[![Frappe](https://img.shields.io/badge/frappe-%E2%89%A5%2016.50-1F876C)](https://frappeframework.com)
+![Release](https://img.shields.io/badge/release-v1.0.1-1F876C)
+![Frappe](https://img.shields.io/badge/frappe-v16-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+<br>
+
+<img src=".github/images/card-landing.png" alt="CARD workspace" width="90%">
+
+<br>
+
+[Features](#key-features) · [Installation](#installation) · [Development](#development) · [Releases](#release-history) · [Contributing](#contributing)
 
 </div>
 
-<!-- Hero and feature screenshots (captured on a throwaway demo site, fake data only) are added
-     under .github/images/ in a follow-up commit; see the "Screenshots" section. -->
+---
 
 ## What is CARD
 
-CARD is a standalone [Frappe](https://frappeframework.com) v16 app that manages **monthly equipment operation cards** and **supplier reconciliation** for contracting and equipment-rental operations. It is **built on the Frappe Framework** and requires **ERPNext** for the shared company, supplier and accounting backbone.
+CARD is a standalone Frappe application for contractors that own and rent heavy equipment. It tracks every machine, assigns it to projects, records daily operating hours on a monthly card, and turns that card into a supplier-ready amount with additions and deductions.
 
-It packages a set of equipment DocTypes, the monthly-card workflow, two script reports, and a *Card* workspace with an app-owned desktop icon — all installable on any Frappe v16 site with a single `install-app`.
+CARD follows the same design principles as Frappe HR: one master record per asset (like **Employee**), one transaction per period (like **Salary Slip**), and everything linked to ERPNext's Company, Project and Supplier.
 
-## Key features
+## Key Features
 
-- **Equipment registry** — DocTypes for equipment, categories, types, suppliers and equipment assignments.
-- **Monthly operation cards** — record hours worked per day; the monthly amount = total working hours × approved hourly rate.
-- **Rate derivation** — the hourly rate is derived from the daily rate ÷ the daily hours; owned equipment (`ملك`) carries an amount of 0 (hours only).
-- **Adjustments** — a child table of additions/deductions produces the net monthly amount.
-- **Supplier reconciliation** — *Equipment Suppliers Summary* and *Equipment Supplier Statement* reports reconcile card totals against supplier GL entries (accrual credits / payment debits, opening/closing, matching difference).
-- **Desk workspace** — a *Card* workspace (number cards, dashboard chart, shortcuts) and a single app-owned desktop icon with the CARD logo.
-- **Arabic (RTL) UI** — labels and layout designed for right-to-left use; the monthly print format is `كارت تشغيل شهري`.
+<details open>
+<summary><b>Equipment master</b></summary>
 
-## Screenshots
+- **Card Equipment** with type, category, ownership (owned or rented), owner/supplier and company.
+- **Card Equipment Type** and **Card Equipment Category** for clean classification.
+- Standard daily hours per equipment, used to prorate daily rates.
 
-> UI screenshots are captured on a throwaway demo site seeded with **fake data only** and stored under `.github/images/`. They are added in a follow-up commit on this branch — **no real company, supplier, operator, project or financial data is ever committed.**
+<img src=".github/images/card-equipment.png" alt="Card Equipment" width="85%">
+</details>
 
-## Under the hood
+<details open>
+<summary><b>Project assignment</b></summary>
 
-- [**Frappe Framework**](https://frappeframework.com) — the full-stack Python/JavaScript web framework CARD is built on (database layer, auth, REST API, Desk UI). *Dependency.*
-- [**ERPNext**](https://github.com/frappe/erpnext) — provides Company, Cost Center, Project, Supplier, Asset and the General Ledger that CARD reconciles against. *Required app.*
-- [**Frappe HR (HRMS)**](https://github.com/frappe/hrms) — Employee links used by equipment assignments. *Optional at runtime.*
+- **Card Equipment Assignment** links a machine to a project and site for a period.
+- Prevents a machine from being double-counted across projects.
+</details>
 
-CARD links only to standard Frappe/ERPNext/HR doctypes and its own doctypes — it has **no dependency on any other custom app**.
+<details open>
+<summary><b>Monthly operation card</b></summary>
 
-## Compatibility
+- **Card Monthly Card** per equipment, shift and month, with a day-by-day grid (date, weekday, day status, operating hours, stoppage).
+- Automatic totals: working days, total operating hours, amount, additions, deductions and **net amount**.
+- Validations: one card per equipment, shift and month; every day must fall inside the card month.
+- Owned equipment produces no supplier amount; rented equipment syncs to its supplier on submit.
 
-| | Version |
-|---|---|
-| Frappe | **≥ 16.50** (validated on 16.51.1; v1.0.1+ required for ≥ 16.51) |
-| ERPNext | **v16** (required app) |
-| Frappe HR | **v16** (optional) |
-| Python | **3.14** |
+<img src=".github/images/card-monthly-card.png" alt="Card Monthly Card" width="85%">
+</details>
+
+<details open>
+<summary><b>Suppliers and reports</b></summary>
+
+- **Card Equipment Supplier** with running balances.
+- **Equipment Suppliers Summary** and **Equipment Supplier Statement** reports.
+- Workspace with number cards (rented equipment, draft cards, last month amounts, last month cards) and a monthly amounts chart.
+
+<img src=".github/images/supplier-statement.png" alt="Equipment Supplier Statement" width="85%">
+</details>
+
+### Billing rule (daily rate)
+
+For equipment billed **per day**, CARD prorates by actual operating hours:
+
+```
+hourly_rate = daily_rate / standard_daily_hours
+amount      = total_operating_hours × hourly_rate
+net_amount  = amount + total_additions − total_deductions
+```
+
+Example: daily rate 600, standard day 10 hours, 88 operating hours → 88 × 60 = **5,280**.
+
+## Under the Hood
+
+CARD is built on the [Frappe Framework](https://frappeframework.com) and runs alongside these open-source applications:
+
+| Dependency | Role | Tested with |
+|---|---|---|
+| [Frappe Framework](https://github.com/frappe/frappe) | Full-stack web framework | 16.51.1 |
+| [ERPNext](https://github.com/frappe/erpnext) | Company, Project, Supplier, accounting | 16.50.0 |
+| [Frappe HR](https://github.com/frappe/hrms) | Optional, for HR-linked workflows | 16.50.0 |
+
+Runtime: Python 3.14, Node.js 24, MariaDB 10.6, Redis.
+
+> CARD is an independent product of Shams Dubai Contracting Est. (SDCE). It is not developed, endorsed or maintained by Frappe Technologies.
 
 ## Installation
 
-### Fresh site (bench)
+### Bench
 
 ```bash
-cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch version-16
-bench --site <site> install-app card
-bench --site <site> migrate
+cd frappe-bench
+bench get-app https://github.com/SDe-ER/card --branch main
+bench --site your-site.local install-app card
+bench --site your-site.local migrate
 ```
 
-### Site that already has a legacy custom Module Def "Card"
+### Docker (frappe_docker)
 
-If the site already carries a custom Module Def named `Card` (e.g. a setup built with client/server scripts before this app existed), install with `--force`. The installer **adopts** the existing Module Def (re-points it to this app, `custom=0`) and never deletes it — deleting it would cascade-delete the data. It also, idempotently: flips the 8 Card DocTypes to `custom=0 / module=Card`, creates the `default_print_format` Property Setter, disables (never deletes) the legacy server/client scripts, ensures exactly one app-owned desktop icon, folds the frappe-16.50 navigation sidebar into the canonical `Card` one, and appends the Card launcher to each entitled user's desktop layout (append-only).
+Add CARD to your `apps.json` and build a custom image:
+
+```json
+[
+  { "url": "https://github.com/frappe/erpnext", "branch": "version-16" },
+  { "url": "https://github.com/SDe-ER/card", "branch": "main" }
+]
+```
 
 ```bash
-bench --site <site> install-app card --force
-bench --site <site> migrate
+docker build \
+  --build-arg APPS_JSON_BASE64=$(base64 -w 0 apps.json) \
+  --tag your-registry/erp:card-v1.0.1 \
+  --file images/custom/Containerfile .
 ```
 
-### Baked into a Docker image (production)
-
-Where Frappe apps are baked into the image rather than fetched on the host, add CARD from a verified source archive of the tag and install it inside the running backend container:
-
-```dockerfile
-# add on top of your existing Frappe/ERPNext v16 image
-COPY --chown=frappe:frappe card-src /home/frappe/frappe-bench/apps/card
-RUN env/bin/pip install --no-cache-dir -e apps/card \
- && bench build --app card \
- && mkdir -p assets/card && cp -aL apps/card/card/public/. assets/card/ \
- && rm -rf sites/assets
-```
-
-> **Asset note:** if your runtime mounts `sites/` as a volume whose `sites/assets` is a symlink to the image's `assets/` directory, CARD's static files must live in the image's bench-root `assets/card` (as above) — otherwise the volume masks them and `/assets/card/...` 404s.
-
-Then, inside the backend container, ensure `card` is listed in `sites/apps.txt` and run `install-app card [--force]` + `migrate`.
-
-## Development setup
+Then deploy the image and run:
 
 ```bash
-# inside an existing bench with frappe >=16.50 and erpnext v16
-bench get-app /path/to/card
-bench --site <dev-site> install-app card
-cd apps/card && pre-commit install
+bench --site your-site.local install-app card
+bench --site your-site.local migrate
+```
+
+### Upgrading
+
+Always take a full backup and run `bench migrate` on a restored copy of production first. CARD ships idempotent patches; a migrate that fails on the copy must never be run on production.
+
+## Development
+
+```bash
+bench get-app https://github.com/SDe-ER/card --branch main
+bench new-site card.localhost --install-app erpnext
+bench --site card.localhost install-app card
+bench --site card.localhost set-config developer_mode 1
+bench start
 ```
 
 Run the tests:
 
 ```bash
-bench --site <site> run-tests --app card
+bench --site card.localhost set-config allow_tests true
+bench --site card.localhost run-tests --app card
 ```
 
-The suite covers the controllers plus install / desktop-icon / sidebar-fold / idempotency behaviour.
+Code style is enforced with `pre-commit` (ruff, prettier, semgrep). Commits follow [Conventional Commits](https://www.conventionalcommits.org).
+
+## Release History
+
+| Version | Date | Highlights |
+|---|---|---|
+| **v1.0.1** | 2026-10-13 | Workspace moved to module `Card`; Frappe 16.50 sidebar migrated with all items; legacy `Card (Custom)` module retired; `net_amount` backfilled for cards submitted before v1.0. |
+| **v1.0.0** | 2026-10-13 | First standalone release: equipment master, assignments, monthly cards, suppliers, reports and workspace. |
+
+Full notes: [CHANGELOG.md](CHANGELOG.md) · [Releases](https://github.com/SDe-ER/card/releases)
 
 ## Contributing
 
-Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and our [Code of Conduct](CODE_OF_CONDUCT.md). This app uses `pre-commit` (ruff, ruff-format, prettier) and conventional PR titles.
+1. Open an issue describing the bug or feature.
+2. Create a branch, add tests, and keep `pre-commit` green.
+3. Open a pull request with a Conventional Commits title.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Security
 
-Please report security issues privately to **info@sdce.sa** — see [SECURITY.md](SECURITY.md). Do not open public issues for vulnerabilities.
-
-## Release history
-
-See [CHANGELOG.md](CHANGELOG.md) and the [Releases](https://github.com/SDe-ER/card/releases) page.
+Please report vulnerabilities privately to **info@sdce.sa**. Do not open public issues for security reports. See [SECURITY.md](SECURITY.md).
 
 ## License
 
-[MIT](license.txt) © 2026 Shams Dubai Contracting Est. (SDCE). Contact: info@sdce.sa
+MIT © 2026 Shams Dubai Contracting Est. (SDCE). See [LICENSE](LICENSE).
 
 ## Logo and Trademark Policy
 
-The **CARD** name and the CARD logo are © Shams Dubai Contracting Est. (SDCE).
+The CARD name and logo belong to SDCE. "Frappe", "ERPNext" and "Frappe HR" are trademarks of Frappe Technologies Pvt. Ltd. and are used here only to describe compatibility, in line with the [ERPNext trademark policy](https://github.com/frappe/erpnext/blob/develop/TRADEMARK_POLICY.md).
 
-CARD is an independent application developed by SDCE and is **built on the Frappe Framework**. CARD is **not** a product of, and is **not** endorsed, sponsored or maintained by Frappe Technologies Pvt. Ltd. "Frappe", "Frappe Framework", "ERPNext" and "Frappe HR" are trademarks of Frappe Technologies Pvt. Ltd., referenced here only to identify the framework and the applications CARD depends on. Use of those names does not imply any affiliation or endorsement, and this project follows the [ERPNext Logo and Trademark Policy](https://github.com/frappe/erpnext/blob/develop/TRADEMARK_POLICY.md). No Frappe or ERPNext logos or wordmarks are used as CARD's own branding.
+<br>
 
 <div align="center">
-	<img src="card/public/images/card-logo.svg" alt="CARD" height="40" width="40"/>
+<sub>Screenshots use fictional demo data.</sub>
 </div>
