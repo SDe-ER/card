@@ -19,6 +19,9 @@ import frappe
 
 APP_NAME = "card"
 MODULE = "Card"
+# Legacy Module Def left by the original in-site customization (the app ships
+# only MODULE in modules.txt). Retired idempotently by _retire_legacy_custom_module().
+LEGACY_MODULE = "Card (Custom)"
 
 CARD_DOCTYPES = (
 	"Card Equipment",
@@ -87,6 +90,7 @@ def _reconcile():
 	"""Idempotent post-install reconciliation. Shared by after_install and
 	the v1_0 migration patch so the install hook and the patch can never
 	drift apart."""
+	_retire_legacy_custom_module()
 	_ensure_print_default_property_setter()
 	disable_legacy_scripts()
 	_ensure_card_desk_icon()
@@ -117,6 +121,55 @@ def _adopt_module_def():
 			{"app_name": APP_NAME, "custom": 0},
 			update_modified=False,
 		)
+
+
+def _retire_legacy_custom_module():
+	"""Retire the legacy ``Card (Custom)`` Module Def left by the original
+	in-site customization (the app ships only ``Card`` in modules.txt).
+
+	Idempotent: no-op when the legacy module is already gone. Reassigns any
+	doc still scoped to ``Card (Custom)`` to the canonical ``Card`` module
+	across every module-scoped DocType, then deletes the Module Def ONLY if
+	nothing references it anymore. If anything still does (or the delete is
+	refused), it logs and keeps the row — never force-deletes, so it is safe
+	on a production target and never breaks ``bench migrate``.
+	"""
+	if not frappe.db.exists("Module Def", LEGACY_MODULE):
+		return
+
+	# Every DocType that scopes records by Module Def (a standard Link field
+	# "module" -> "Module Def"), plus DocType itself (direct column).
+	scoped = frappe.get_all(
+		"DocField",
+		filters={"fieldname": "module", "fieldtype": "Link", "options": "Module Def"},
+		pluck="parent",
+	)
+	scoped = sorted(set(scoped) | {"DocType"})
+
+	for dt in scoped:
+		if not frappe.db.has_column(dt, "module"):
+			continue
+		for nm in frappe.get_all(dt, filters={"module": LEGACY_MODULE}, pluck="name"):
+			frappe.db.set_value(dt, nm, "module", MODULE, update_modified=False)
+
+	remaining = 0
+	for dt in scoped:
+		if not frappe.db.has_column(dt, "module"):
+			continue
+		remaining += frappe.db.count(dt, {"module": LEGACY_MODULE})
+
+	if remaining:
+		frappe.logger("card").warning(
+			"card: kept Module Def '%s' — %d doc(s) still reference it" % (LEGACY_MODULE, remaining)
+		)
+		return
+	try:
+		frappe.delete_doc("Module Def", LEGACY_MODULE, ignore_permissions=True)
+		frappe.logger("card").info("card: retired legacy Module Def '%s'" % LEGACY_MODULE)
+	except Exception:
+		# A residual link we did not reassign can make core refuse the delete;
+		# keep the empty module rather than fail migrate.
+		frappe.logger("card").warning("card: could not delete Module Def '%s' (kept)" % LEGACY_MODULE)
 
 
 def _adopt_doctypes():

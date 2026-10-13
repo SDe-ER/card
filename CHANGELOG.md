@@ -5,8 +5,41 @@ All notable changes to the Card app are documented here. Format based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) from the next release.
 
 ## [Unreleased]
-### Planned
-- Align the packaged `__version__` to `1.1.0` (it is `0.0.1` under tag `v1.0.0` — see the note in `1.0.0`).
+
+## [1.0.1] — 2026-10-13
+Hotfix for Frappe **16.51** compatibility (the production framework upgrade to frappe 16.51.1 /
+erpnext 16.50.0 / hrms 16.50.0 exposed a fixture that older Frappe accepted). No functional change
+to the monthly‑card workflow.
+
+### Fixed
+- **Workspace fixture `module`:** `card/fixtures/workspace.json` shipped the *Card* Workspace with an
+  empty `module`. Frappe ≥16.51 makes `Workspace.module` mandatory, so `bench migrate` failed in
+  `sync_fixtures` with `MandatoryError [Workspace, Card]: module`. The fixture now carries
+  `module: "Card"`, and the 5 `Card Monthly Card *-in_list_view` Property Setters carry
+  `module: "Card"` (were empty).
+- **Legacy `Card (Custom)` Module Def:** the installer now retires the orphan Module Def left by the
+  original in‑site customization — idempotently reassigns any doc still scoped to it to the canonical
+  `Card` module, then deletes the Module Def only if nothing references it (otherwise logs and keeps
+  it; never force‑deletes). Runs on both install and migrate via the shared `_reconcile()`.
+- **`net_amount` backfill:** cards submitted before v1.0 (under the legacy Server Script) kept
+  `net_amount` at 0/NULL while `amount` was non‑zero. An idempotent patch sets
+  `net_amount = amount + total_additions − total_deductions` for submitted rows (field‑only
+  `db_set`, no re‑submit, no GL impact); genuinely‑zero cards are left untouched. New cards already
+  compute `net_amount` on validate.
+
+### Added
+- Test `card/tests/test_fixtures.py`: asserts every fixture doc with a `module` key names a non‑empty
+  Module Def owned by app `card` (prevents a recurrence of the empty‑module incident), and that the
+  legacy‑module retirement is idempotent.
+- Tests for the `net_amount` backfill (restores net; idempotent; owned/zero cards untouched).
+
+### Changed
+- Packaged `__version__` aligned to **`1.0.1`** (was `0.0.1`). This resolves the v1.0.0 known
+  limitation; the About dialog now shows `Card card: 1.0.1`.
+
+### Compatibility
+- Frappe/ERPNext **v16** including **16.51.1 / 16.50.0** (validated on 16.33.0, 16.36.1, and the
+  16.51 production upgrade). v1.0.1 is required for Frappe ≥16.51.
 
 ## [1.0.0] — 2026-10-13
 First official release as a standalone Frappe v16 app, at **exact production parity** with the

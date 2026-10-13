@@ -22,7 +22,7 @@ Card packages, as an official standalone Frappe app, a set of equipment DocTypes
 
 | | Version |
 |---|---|
-| Frappe | **v16** (tested on 16.33.0 and 16.36.1) |
+| Frappe | **v16** (tested on 16.33.0, 16.36.1, and 16.51.1 — v1.0.1+ required for ≥16.51) |
 | ERPNext | **v16** (required app) |
 | HRMS | **v16** (Employee link; optional at runtime) |
 | Python | 3.11+ |
@@ -102,10 +102,6 @@ bench --site <site> run-tests --app card
 ```
 
 The suite covers the controllers plus install / desktop‑icon / idempotency behaviour (append‑only layout, adopt‑idempotent, reconcile‑idempotent, backing‑file guard).
-
-## Known limitations
-
-- **Package version string:** the packaged `__version__` is `0.0.1` (the bench scaffold default), while the first release is tagged `v1.0.0`. The two intentionally differ for the v1.0.0 release — the About dialog shows `Card card: 0.0.1`. This will be aligned to `1.1.0` in the next release (see `CHANGELOG.md`).
 
 ## Contributing
 

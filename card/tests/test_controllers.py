@@ -122,6 +122,32 @@ class TestCardMonthlyCard(IntegrationTestCase):
 		self.assertEqual(flt(c.total_deductions), 200.0)
 		self.assertEqual(flt(c.net_amount), 8475.0)
 
+	def test_net_amount_backfill(self):
+		# Reproduce EOMC-2026-09-0240: amount 5,280 (88h x 600/10), net wiped to 0
+		# by the legacy pre-v1.0 submit. The v1.0.1 backfill restores net = amount.
+		from card.patches.v1_0 import backfill_net_amount
+
+		eq = self._equipment(rate=600, daily_hours=10)  # hourly 60
+		c = self._card(eq, [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8], submit=True)  # 88h
+		self.assertEqual(flt(c.amount), 5280.0)
+		# simulate the legacy submitted row with net_amount wiped
+		frappe.db.set_value("Card Monthly Card", c.name, "net_amount", 0, update_modified=False)
+		backfill_net_amount.execute()
+		self.assertEqual(flt(frappe.db.get_value("Card Monthly Card", c.name, "net_amount")), 5280.0)
+		# idempotent: a second run changes nothing
+		backfill_net_amount.execute()
+		self.assertEqual(flt(frappe.db.get_value("Card Monthly Card", c.name, "net_amount")), 5280.0)
+
+	def test_owned_card_net_not_backfilled(self):
+		# genuinely-zero cards (owned equipment, amount 0) must stay 0 after backfill
+		from card.patches.v1_0 import backfill_net_amount
+
+		eq = self._equipment(ownership="ملك", rate=600, daily_hours=10)
+		c = self._card(eq, [8, 8, 8], submit=True)
+		self.assertEqual(flt(c.amount), 0.0)
+		backfill_net_amount.execute()
+		self.assertEqual(flt(frappe.db.get_value("Card Monthly Card", c.name, "net_amount")), 0.0)
+
 	def test_duplicate_card_raises(self):
 		eq = self._equipment()
 		self._card(eq, [10, 10])
