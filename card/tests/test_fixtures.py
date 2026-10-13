@@ -78,9 +78,7 @@ class TestCardFixtures(IntegrationTestCase):
 
 		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
 		if frappe.db.exists("Workspace", install.MODULE):
-			self.assertEqual(
-				frappe.db.get_value("Workspace", install.MODULE, "module"), install.MODULE
-			)
+			self.assertEqual(frappe.db.get_value("Workspace", install.MODULE, "module"), install.MODULE)
 
 
 class TestCardSidebarFold(IntegrationTestCase):
