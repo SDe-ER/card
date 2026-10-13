@@ -123,19 +123,88 @@ def _adopt_module_def():
 		)
 
 
+def _sidebar_item_key(item):
+	"""Identity of a Sidebar Item for de-duplication in the merge path:
+	(type, link_type, link_to, label) — as the owner specified."""
+	return (item.get("type"), item.get("link_type"), item.get("link_to"), item.get("label"))
+
+
+def _fold_legacy_sidebar():
+	"""Fold the frappe-16.50 ``Sidebar`` the upgrade built for the legacy module into the
+	canonical ``Card`` sidebar.
+
+	16.50 added the ``Sidebar`` doctype. ``frappe/patches/v16_0/convert_sidebars.py`` runs
+	before this app patch and — while the module was still ``Card (Custom)`` — built a
+	``Sidebar`` named and moduled ``Card (Custom)`` from the Card navigation. The desk resolves
+	a module's sidebar by ``{"name": module, "module": module}`` then ``{"module": module}``
+	(frappe ``sidebar.py`` ``get_module_shell``), so that record must become
+	name=``Card`` / module=``Card`` or the Card desk falls back to a generated sidebar.
+
+	Guarded for pre-16.50 sites (no ``Sidebar`` doctype). Idempotent. Never deletes a legacy
+	sidebar whose items are not all present in the canonical one.
+	"""
+	if not frappe.db.exists("DocType", "Sidebar"):
+		return
+	for name in frappe.get_all("Sidebar", filters={"module": LEGACY_MODULE}, pluck="name"):
+		if not frappe.db.exists("Sidebar", MODULE):
+			# no canonical sidebar yet -> rename this one (keeps all items/header_icon/merged_from)
+			frappe.rename_doc("Sidebar", name, MODULE, merge=False, force=True)
+			frappe.db.set_value(
+				"Sidebar", MODULE, {"module": MODULE, "title": MODULE}, update_modified=False
+			)
+			continue
+		# a canonical "Card" sidebar already exists -> append only the missing items
+		dst = frappe.get_doc("Sidebar", MODULE)
+		src = frappe.get_doc("Sidebar", name)
+		have = {_sidebar_item_key(i.as_dict()) for i in dst.items}
+		appended = 0
+		for it in src.items:
+			if _sidebar_item_key(it.as_dict()) in have:
+				continue
+			row = {
+				k: v
+				for k, v in it.as_dict().items()
+				if k
+				not in (
+					"name", "parent", "parentfield", "parenttype", "idx",
+					"creation", "modified", "owner", "modified_by", "docstatus",
+				)
+			}
+			dst.append("items", row)
+			appended += 1
+		if appended:
+			dst.save(ignore_permissions=True)
+			dst.reload()
+		# delete the legacy ONLY if every one of its items is now present canonically
+		have = {_sidebar_item_key(i.as_dict()) for i in dst.items}
+		if all(_sidebar_item_key(i.as_dict()) in have for i in src.items):
+			frappe.delete_doc("Sidebar", name, ignore_permissions=True, force=True)
+		else:
+			frappe.logger("card").warning(
+				"card: kept Sidebar '%s' — not all items present in '%s'" % (name, MODULE)
+			)
+
+
 def _retire_legacy_custom_module():
 	"""Retire the legacy ``Card (Custom)`` Module Def left by the original
 	in-site customization (the app ships only ``Card`` in modules.txt).
 
-	Idempotent: no-op when the legacy module is already gone. Reassigns any
-	doc still scoped to ``Card (Custom)`` to the canonical ``Card`` module
-	across every module-scoped DocType, then deletes the Module Def ONLY if
-	nothing references it anymore. If anything still does (or the delete is
-	refused), it logs and keeps the row — never force-deletes, so it is safe
-	on a production target and never breaks ``bench migrate``.
+	Idempotent: no-op when the legacy module is already gone. First folds the
+	frappe-16.50 ``Sidebar`` into the canonical ``Card`` one (see
+	_fold_legacy_sidebar), then reassigns any other doc still scoped to
+	``Card (Custom)`` to the canonical ``Card`` module across every
+	module-scoped DocType, then deletes the Module Def ONLY if nothing
+	references it anymore. If anything still does (or the delete is refused),
+	it logs and keeps the row — never force-deletes, so it is safe on a
+	production target and never breaks ``bench migrate``.
 	"""
 	if not frappe.db.exists("Module Def", LEGACY_MODULE):
 		return
+
+	# frappe 16.50 `Sidebar` first: the desk resolves a module's sidebar by name==module, so a
+	# blind module-reassignment is not enough — the record must be RENAMED to "Card". Handle it
+	# authoritatively here (guarded for pre-16.50 sites).
+	_fold_legacy_sidebar()
 
 	# Every DocType that scopes records by Module Def (a standard Link field
 	# "module" -> "Module Def"), plus DocType itself (direct column).
@@ -146,12 +215,16 @@ def _retire_legacy_custom_module():
 	)
 	scoped = sorted(set(scoped) | {"DocType"})
 
+	# `Sidebar` is owned by _fold_legacy_sidebar() above (a rename, which a blind module write
+	# cannot do); reassign every OTHER module-scoped doctype to the canonical module.
 	for dt in scoped:
-		if not frappe.db.has_column(dt, "module"):
+		if dt == "Sidebar" or not frappe.db.has_column(dt, "module"):
 			continue
 		for nm in frappe.get_all(dt, filters={"module": LEGACY_MODULE}, pluck="name"):
 			frappe.db.set_value(dt, nm, "module", MODULE, update_modified=False)
 
+	# reference count INCLUDES Sidebar: a legacy sidebar the fold deliberately KEPT (its items
+	# are not all present canonically) legitimately blocks retirement of the Module Def.
 	remaining = 0
 	for dt in scoped:
 		if not frappe.db.has_column(dt, "module"):

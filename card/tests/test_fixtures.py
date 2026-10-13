@@ -12,6 +12,7 @@ idempotent.
 
 import json
 import os
+from typing import ClassVar
 
 import frappe
 from frappe.tests import IntegrationTestCase
@@ -78,3 +79,61 @@ class TestCardFixtures(IntegrationTestCase):
 			self.assertEqual(
 				frappe.db.get_value("Workspace", install.MODULE, "module"), install.MODULE
 			)
+
+
+class TestCardSidebarFold(IntegrationTestCase):
+	"""frappe 16.50 `Sidebar` fold (see install._fold_legacy_sidebar)."""
+
+	ITEMS: ClassVar = [
+		{"type": "Link", "link_type": "Workspace", "link_to": "Card", "label": "الصفحة الرئيسية"},
+		{"type": "Section Break", "label": "المعدات"},
+		{"type": "Link", "link_type": "DocType", "link_to": "Card Equipment"},
+		{"type": "Link", "link_type": "DocType", "link_to": "Card Monthly Card"},
+		{"type": "Link", "link_type": "Report", "link_to": "Equipment Suppliers Summary"},
+	]
+
+	def setUp(self):
+		if not frappe.db.exists("DocType", "Sidebar"):
+			self.skipTest("Sidebar doctype is frappe 16.50+")
+		# guarantee the rename-path precondition (rolled back by the test transaction)
+		for nm in (install.MODULE, install.LEGACY_MODULE):
+			if frappe.db.exists("Sidebar", nm):
+				frappe.delete_doc("Sidebar", nm, ignore_permissions=True, force=True)
+		if not frappe.db.exists("Module Def", install.LEGACY_MODULE):
+			md = frappe.new_doc("Module Def")
+			md.module_name = install.LEGACY_MODULE
+			md.app_name = "card"
+			md.custom = 1
+			md.insert(ignore_permissions=True)
+
+	def _mk_sidebar(self, title, module, items):
+		doc = frappe.get_doc(
+			{"doctype": "Sidebar", "title": title, "module": module, "standard": 0, "items": list(items)}
+		)
+		doc.insert(ignore_permissions=True)
+		return doc
+
+	def test_rename_path_keeps_all_items(self):
+		self._mk_sidebar(install.LEGACY_MODULE, install.LEGACY_MODULE, self.ITEMS)
+		install._retire_legacy_custom_module()
+		self.assertTrue(frappe.db.exists("Sidebar", install.MODULE))
+		self.assertFalse(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
+		self.assertEqual(frappe.db.get_value("Sidebar", install.MODULE, "module"), install.MODULE)
+		self.assertEqual(len(frappe.get_doc("Sidebar", install.MODULE).items), len(self.ITEMS))
+		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
+
+	def test_merge_path_appends_missing_then_deletes(self):
+		self._mk_sidebar(install.MODULE, install.MODULE, self.ITEMS[:1])  # canonical has item[0]
+		self._mk_sidebar(install.LEGACY_MODULE, install.LEGACY_MODULE, self.ITEMS)  # legacy has all
+		install._retire_legacy_custom_module()
+		self.assertFalse(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
+		self.assertEqual(len(frappe.get_doc("Sidebar", install.MODULE).items), len(self.ITEMS))
+		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
+
+	def test_idempotent(self):
+		self._mk_sidebar(install.LEGACY_MODULE, install.LEGACY_MODULE, self.ITEMS)
+		install._retire_legacy_custom_module()
+		install._retire_legacy_custom_module()  # re-run: legacy already gone
+		self.assertTrue(frappe.db.exists("Sidebar", install.MODULE))
+		self.assertFalse(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
+		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
