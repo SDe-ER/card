@@ -1,4 +1,4 @@
-# Copyright (c) 2026, Ahmed Shehab and Contributors
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # See LICENSE
 
 # import frappe

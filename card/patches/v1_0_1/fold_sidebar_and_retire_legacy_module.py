@@ -1,4 +1,4 @@
-# Copyright (c) 2026, Ahmed Shehab and contributors
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
 """v1.0.1: fold the frappe-16.50 `Sidebar` + retire the legacy ``Card (Custom)`` Module Def.
 

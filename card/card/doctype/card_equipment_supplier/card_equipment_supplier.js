@@ -1,4 +1,4 @@
-// Copyright (c) 2026, Ahmed Shehab and contributors
+// Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 // For license information, please see LICENSE
 // Ported from Client Script "Card Equipment Supplier - Buttons".
 // Button method updated for the app: card_supplier_refresh -> card.api.refresh_supplier.

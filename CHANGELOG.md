@@ -25,6 +25,9 @@ All notable changes to the Card app are documented here. Format based on
   `كشف الحساب`) are wrapped in `__()` to satisfy the semgrep translation rule; no behaviour change.
 - Repository presentation overhaul (README, `.github` templates, CI / linters / release workflows,
   pre-commit config, demo screenshots) — docs and tooling only; no app-code behaviour change.
+- **Copyright headers** in all app source files (`.py` / `.js`) normalized to
+  `Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors` — comment header
+  lines only; no code, metadata, fixtures, patch or test logic changed.
 
 ## [1.0.1] — 2026-10-13
 Hotfix for Frappe **16.51** compatibility (the production framework upgrade to frappe 16.51.1 /
