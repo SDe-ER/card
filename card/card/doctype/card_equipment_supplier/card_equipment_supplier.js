@@ -1,5 +1,5 @@
 // Copyright (c) 2026, Ahmed Shehab and contributors
-// For license information, please see license.txt
+// For license information, please see LICENSE
 // Ported from Client Script "Card Equipment Supplier - Buttons".
 // Button method updated for the app: card_supplier_refresh -> card.api.refresh_supplier.
 frappe.ui.form.on('Card Equipment Supplier', {

@@ -1,5 +1,5 @@
 # Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# For license information, please see LICENSE
 """Controller-logic tests for the CARD app (app-level so Frappe does not
 auto-build dependency test records). All records are created explicitly
 against the site's existing master data and rolled back by the test

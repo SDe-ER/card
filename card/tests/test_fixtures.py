@@ -1,5 +1,5 @@
 # Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# For license information, please see LICENSE
 """Guards on the shipped fixtures and the legacy-module retirement.
 
 frappe 16.51 made ``Workspace.module`` mandatory: a fixture doc with an empty or

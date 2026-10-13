@@ -1,5 +1,5 @@
 # Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# For license information, please see LICENSE
 """Install-time automation for the CARD app.
 
 These hooks make ``bench install-app card`` + ``bench migrate`` fully

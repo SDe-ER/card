@@ -1,5 +1,5 @@
 # Copyright (c) 2026, Ahmed Shehab and Contributors
-# See license.txt
+# See LICENSE
 
 # import frappe
 from frappe.tests import IntegrationTestCase

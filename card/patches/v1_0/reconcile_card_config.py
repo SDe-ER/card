@@ -1,5 +1,5 @@
 # Copyright (c) 2026, Ahmed Shehab and contributors
-# For license information, please see license.txt
+# For license information, please see LICENSE
 """Idempotently reconcile the CARD app's post-install invariants.
 
 Runs on every ``bench migrate``. Complements ``card.install.after_install``
