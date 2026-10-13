@@ -1,6 +1,6 @@
 # Contributing to CARD
 
-Thanks for your interest in improving CARD. CARD is a standalone app built on the Frappe Framework and maintained by SDCE.
+Thanks for your interest in improving CARD. CARD is a standalone, open-source app built on the Frappe Framework and maintained by [Ahmed Shehab](https://github.com/SDe-ER).
 
 ## Ground rules
 

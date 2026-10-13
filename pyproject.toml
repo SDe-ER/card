@@ -1,7 +1,7 @@
 [project]
 name = "card"
 authors = [
-    { name = "SDCE", email = "info@sdce.sa"}
+    { name = "Ahmed Shehab", email = "info@sdce.sa"}
 ]
 description = "Monthly equipment operation cards (standalone CARD app)"
 requires-python = ">=3.14"
