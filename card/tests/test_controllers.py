@@ -10,9 +10,83 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
 
-def _first(dt, filters=None):
-	rows = frappe.get_all(dt, filters=filters or {}, pluck="name", limit=1)
-	return rows[0] if rows else None
+def _ensure_masters():
+	# ERPNext Company.on_insert builds default warehouses that reference the
+	# "Transit" Warehouse Type, which a clean test_site does not have.
+	if not frappe.db.exists("Warehouse Type", "Transit"):
+		frappe.get_doc({"doctype": "Warehouse Type", "name": "Transit"}).insert(ignore_permissions=True)
+
+	company = frappe.get_all("Company", pluck="name", limit=1)
+	company = company[0] if company else None
+	if not company:
+		frappe.get_doc(
+			{
+				"doctype": "Company",
+				"company_name": "Test Equipment Co",
+				"abbr": "TEC",
+				"default_currency": "SAR",
+				"country": "Saudi Arabia",
+			}
+		).insert(ignore_permissions=True)
+		company = "Test Equipment Co"
+
+	category = "Test Category"
+	if not frappe.db.exists("Card Equipment Category", category):
+		frappe.get_doc({"doctype": "Card Equipment Category", "category_name": category}).insert(
+			ignore_permissions=True
+		)
+
+	etype = "Test Type"
+	if not frappe.db.exists("Card Equipment Type", etype):
+		frappe.get_doc(
+			{
+				"doctype": "Card Equipment Type",
+				"equipment_type_name": etype,
+				"equipment_category": category,
+				"meter_type": "ساعات",
+			}
+		).insert(ignore_permissions=True)
+
+	project = frappe.get_all("Project", pluck="name", limit=1)
+	project = project[0] if project else None
+	if not project:
+		frappe.get_doc(
+			{
+				"doctype": "Project",
+				"project_name": "Test Project",
+				"status": "Open",
+				"company": company,
+			}
+		).insert(ignore_permissions=True)
+		project = "Test Project"
+
+	supplier_group = frappe.db.get_value("Supplier Group", {"is_group": 0}, "name")
+	if not supplier_group:
+		root = "All Supplier Groups"
+		if not frappe.db.exists("Supplier Group", root):
+			frappe.get_doc({"doctype": "Supplier Group", "supplier_group_name": root, "is_group": 1}).insert(
+				ignore_permissions=True
+			)
+		supplier_group = "Test Supplier Group"
+		if not frappe.db.exists("Supplier Group", supplier_group):
+			frappe.get_doc(
+				{
+					"doctype": "Supplier Group",
+					"supplier_group_name": supplier_group,
+					"parent_supplier_group": root,
+					"is_group": 0,
+				}
+			).insert(ignore_permissions=True)
+
+	# Persist across the per-test transaction rollback (setUpClass runs outside it).
+	frappe.db.commit()
+	return {
+		"company": company,
+		"category": category,
+		"etype": etype,
+		"project": project,
+		"supplier_group": supplier_group,
+	}
 
 
 def _days(hours_list, year=2026, month=9):
@@ -23,10 +97,15 @@ def _days(hours_list, year=2026, month=9):
 
 
 class TestCardEquipment(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._m = _ensure_masters()
+
 	def _make_equipment(self, **kw):
 		d = frappe.new_doc("Card Equipment")
-		d.company = _first("Company")
-		d.equipment_type = _first("Card Equipment Type")
+		d.company = self._m["company"]
+		d.equipment_type = self._m["etype"]
 		d.ownership = kw.pop("ownership", "إيجار")
 		d.equipment_name = kw.pop("equipment_name", "TEST-EQ-" + frappe.generate_hash(length=8))
 		for key, value in kw.items():
@@ -50,12 +129,17 @@ class TestCardEquipment(IntegrationTestCase):
 
 
 class TestCardMonthlyCard(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._m = _ensure_masters()
+
 	def setUp(self):
 		self.token = frappe.generate_hash(length=8)
-		self.company = _first("Company")
-		self.etype = _first("Card Equipment Type")
-		self.project = _first("Project")
-		sg = _first("Supplier Group", {"is_group": 0}) or _first("Supplier Group")
+		self.company = self._m["company"]
+		self.etype = self._m["etype"]
+		self.project = self._m["project"]
+		sg = self._m["supplier_group"]
 		sup = frappe.new_doc("Supplier")
 		sup.supplier_name = "TEST-SUP-" + self.token
 		sup.supplier_group = sg
