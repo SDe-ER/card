@@ -18,6 +18,14 @@ All notable changes to the Card app are documented here. Format based on
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 
+### Changed (repo-presentation PR, formatting only — to ship with v1.1 after the mandatory rehearsal)
+- **Formatting-only changes to app files, no behaviour change:** `ruff-format` and `prettier`
+  applied to the Python and client scripts flagged by the new linters gate (tabs / double quotes).
+- **Two i18n wraps:** the *Card Equipment Supplier* form button labels (`تحديث الأرقام`,
+  `كشف الحساب`) are wrapped in `__()` to satisfy the semgrep translation rule; no behaviour change.
+- Repository presentation overhaul (README, `.github` templates, CI / linters / release workflows,
+  pre-commit config, demo screenshots) — docs and tooling only; no app-code behaviour change.
+
 ## [1.0.1] — 2026-10-13
 Hotfix for Frappe **16.51** compatibility (the production framework upgrade to frappe 16.51.1 /
 erpnext 16.50.0 / hrms 16.50.0 exposed a fixture that older Frappe accepted). No functional change
