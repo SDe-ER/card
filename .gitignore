@@ -23,3 +23,8 @@ local/
 *.enc
 *.pem
 *.key
+
+# Never commit exported production bodies (company source code; lives only under Projects\card\reports)
+card_prod_export.txt
+*prod_export*
+*prod-export*
