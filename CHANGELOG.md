@@ -5,6 +5,12 @@ All notable changes to the Card app are documented here. Format based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) from the next release.
 
 ## [Unreleased]
+### Planned (v1.1)
+- **Configurable billing basis for the "باليوم" (per‑day) method**, per equipment/contract: the
+  current behaviour is **hours‑prorated** — `amount = total_working_hours × (rate / daily_hours)`
+  (e.g. 88 h at rate 600 / 10 h‑day → 5,280). Add an option for **full‑day** billing
+  (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
+  default and the switch.
 
 ## [1.0.1] — 2026-10-13
 Hotfix for Frappe **16.51** compatibility (the production framework upgrade to frappe 16.51.1 /
