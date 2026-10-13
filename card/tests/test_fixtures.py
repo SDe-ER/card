@@ -13,11 +13,13 @@ idempotent.
 import json
 import os
 from typing import ClassVar
+from unittest.mock import patch
 
 import frappe
 from frappe.tests import IntegrationTestCase
 
 from card import install
+from card.patches.v1_0_1 import fold_sidebar_and_retire_legacy_module as fold_patch
 
 FIXTURES_DIR = frappe.get_app_path("card", "fixtures")
 
@@ -152,3 +154,31 @@ class TestCardSidebarFold(IntegrationTestCase):
 		self.assertFalse(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
 		self.assertEqual(self._item_count(install.MODULE), len(self.ITEMS))
 		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
+
+	# ---- the v1_0_1 patch entrypoint (savepoint + resilience) ----
+	def test_patch_execute_folds_and_retires(self):
+		self._mk_sidebar(install.LEGACY_MODULE, install.LEGACY_MODULE, self.ITEMS)
+		fold_patch.execute()
+		self.assertTrue(frappe.db.exists("Sidebar", install.MODULE))
+		self.assertFalse(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
+		self.assertEqual(frappe.db.get_value("Sidebar", install.MODULE, "title"), install.MODULE)
+		self.assertEqual(self._item_count(install.MODULE), len(self.ITEMS))
+		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
+
+	def test_patch_execute_idempotent(self):
+		self._mk_sidebar(install.LEGACY_MODULE, install.LEGACY_MODULE, self.ITEMS)
+		fold_patch.execute()
+		fold_patch.execute()  # second run: Module Def already gone -> no-op
+		self.assertTrue(frappe.db.exists("Sidebar", install.MODULE))
+		self.assertFalse(frappe.db.exists("Module Def", install.LEGACY_MODULE))
+
+	def test_patch_execute_failure_is_logged_and_does_not_raise(self):
+		self._mk_sidebar(install.LEGACY_MODULE, install.LEGACY_MODULE, self.ITEMS)
+		before = frappe.db.count("Error Log")
+		with patch.object(install, "_retire_legacy_custom_module", side_effect=RuntimeError("boom")):
+			fold_patch.execute()  # must NOT raise
+		# the failure was logged and bench migrate would continue
+		self.assertGreater(frappe.db.count("Error Log"), before)
+		# savepoint rollback left the legacy state untouched (no partial corruption)
+		self.assertTrue(frappe.db.exists("Sidebar", install.LEGACY_MODULE))
+		self.assertTrue(frappe.db.exists("Module Def", install.LEGACY_MODULE))

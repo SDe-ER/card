@@ -16,6 +16,7 @@ install and an in-place re-run behave identically.
 import json
 
 import frappe
+from frappe.model.rename_doc import rename_doc as _rename_doc
 from frappe.utils import now
 
 APP_NAME = "card"
@@ -153,15 +154,19 @@ def _fold_legacy_sidebar():
 		return
 	for name in frappe.get_all("Sidebar", filters={"module": LEGACY_MODULE}, pluck="name"):
 		if not frappe.db.exists("Sidebar", MODULE):
-			# No canonical sidebar yet -> rename this one. frappe.rename_doc is validate-free (it
-			# runs before/after_rename hooks, not Sidebar.validate, and updates links + dependent
-			# dock rows via after_rename), so it bypasses the app-owned/developer-mode guard. Then
-			# set title+module so the record is title==module ("Card"), which a later normal desk
-			# save validates cleanly (validate_title_is_its_own / _has_its_own_url).
-			frappe.rename_doc("Sidebar", name, MODULE, merge=False, force=True, ignore_permissions=True)
-			frappe.db.set_value(
-				"Sidebar", MODULE, {"module": MODULE, "title": MODULE}, update_modified=False
+			# No canonical sidebar yet -> rename this one. The module-level rename_doc with
+			# validate=False runs the rename mechanics (name + child parent + link/dynamic-link
+			# updates + after_rename -> dock rows) but SKIPS before_rename/validate_rename and
+			# never calls Sidebar.validate (verified in frappe v16.51.1 model/rename_doc.py), so
+			# the app-owned/developer-mode guard is bypassed. Then set title+module so the record
+			# is title==module ("Card"), which a later normal desk save validates cleanly
+			# (validate_title_is_its_own / validate_title_has_its_own_url).
+			_rename_doc(
+				"Sidebar", name, MODULE, force=True, merge=False,
+				validate=False, show_alert=False, rebuild_search=False,
 			)
+			frappe.db.set_value("Sidebar", MODULE, "module", MODULE, update_modified=False)
+			frappe.db.set_value("Sidebar", MODULE, "title", MODULE, update_modified=False)
 			continue
 		# A canonical "Card" sidebar already exists -> append only the missing items at DB level
 		# (no parent .save(), so Sidebar.validate is never invoked).

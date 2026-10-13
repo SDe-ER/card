@@ -45,7 +45,13 @@ to the monthly‑card workflow.
   guard is never tripped during migrate. Delivered via a **new** patch
   `card.patches.v1_0_1.fold_sidebar_and_retire_legacy_module` (the v1.0 reconcile patch is already in
   the Patch Log of installed sites, and there is no `after_migrate` hook, so a fresh entry is required
-  to reach already‑installed sites on upgrade).
+  to reach already‑installed sites on upgrade). The fold is **cosmetic (desk navigation) and never
+  aborts `bench migrate`**: the patch runs it inside a DB savepoint and, on any error, rolls back to
+  the savepoint, logs to Error Log, and returns normally — the Workspace `module` fix (fixture) and
+  the `net_amount` backfill (separate patch) are independent and unaffected. All frappe APIs used are
+  pinned to the real v16.51.1 signatures (the rename uses `frappe.model.rename_doc.rename_doc(…,
+  validate=False)`, which does the rename mechanics without `before_rename`/`validate_rename` and
+  never calls `Sidebar.validate`).
 - **`net_amount` backfill:** cards submitted before v1.0 (under the legacy Server Script) kept
   `net_amount` at 0/NULL while `amount` was non‑zero. An idempotent patch sets
   `net_amount = amount + total_additions − total_deductions` for submitted rows (field‑only
