@@ -131,7 +131,9 @@ class TestEquipmentHeatmap(IntegrationTestCase):
         days2 = [{"operation_date": date2, "day_status": "عمل", "working_hours": 7.0}]
         c_draft = self._make_card(eq, hours_list=[], submit=False, days_override=days1)
         self.assertEqual(c_draft.docstatus, 0)
-        c_cancel = self._make_card(eq, hours_list=[], submit=True, days_override=days2)
+        # ليلي shift: the duplicate guard blocks a second card with the same
+        # equipment+month+year+shift while the draft (نهاري) one exists.
+        c_cancel = self._make_card(eq, hours_list=[], shift="ليلي", submit=True, days_override=days2)
         c_cancel.cancel()
         c_cancel.reload()
         self.assertEqual(c_cancel.docstatus, 2)
