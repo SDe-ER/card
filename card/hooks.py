@@ -1,6 +1,6 @@
 app_name = "card"
-app_title = "Card"
-app_publisher = "Ahmed Shehab"
+app_title = "CARD"
+app_publisher = "SDCE"
 app_description = "Monthly equipment operation cards (standalone CARD app)"
 app_email = "info@sdce.sa"
 app_license = "mit"
