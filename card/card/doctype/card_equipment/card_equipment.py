@@ -13,6 +13,7 @@ from card.settings import setting
 class CardEquipment(Document):
 	def validate(self):
 		self.apply_new_record_defaults()
+		self.validate_unique_asset()
 		# Ported from Server Script "Card Equipment - Hourly Rate" (Before Validate).
 		# Computes the read-only approved_hourly_rate shown on the equipment.
 		rate = flt(self.rate)
@@ -24,6 +25,19 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = rate
 		else:
 			self.approved_hourly_rate = 0
+
+	def validate_unique_asset(self):
+		# One ERPNext Asset <-> at most one Card Equipment.
+		asset = self.get("الأصل_في_erpnext")
+		if not asset:
+			return
+		other = frappe.db.get_value(
+			"Card Equipment",
+			{"الأصل_في_erpnext": asset, "name": ["!=", self.name or ""]},
+			"name",
+		)
+		if other:
+			frappe.throw(_("Asset {0} is already linked to equipment {1}").format(asset, other))
 
 	def apply_new_record_defaults(self):
 		# Card Settings pre-fill for NEW equipment only; a provided value is never overridden.

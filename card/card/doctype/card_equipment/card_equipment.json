@@ -53,6 +53,10 @@
   "approved_hourly_rate",
   "owned_section",
   "\u0627\u0644\u0623\u0635\u0644_\u0641\u064a_erpnext",
+  "asset_item",
+  "asset_location",
+  "asset_cost_center",
+  "asset_purchase_value",
   "column_break_bjjv",
   "internal_hourly_rate",
   "meter_tab",
@@ -362,6 +366,35 @@
    "options": "Asset"
   },
   {
+   "fetch_from": "\u0627\u0644\u0623\u0635\u0644_\u0641\u064a_erpnext.item_code",
+   "fieldname": "asset_item",
+   "fieldtype": "Data",
+   "label": "Asset item",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "\u0627\u0644\u0623\u0635\u0644_\u0641\u064a_erpnext.location",
+   "fieldname": "asset_location",
+   "fieldtype": "Data",
+   "label": "Asset location",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "\u0627\u0644\u0623\u0635\u0644_\u0641\u064a_erpnext.cost_center",
+   "fieldname": "asset_cost_center",
+   "fieldtype": "Link",
+   "label": "Asset cost center",
+   "options": "Cost Center",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "\u0627\u0644\u0623\u0635\u0644_\u0641\u064a_erpnext.gross_purchase_amount",
+   "fieldname": "asset_purchase_value",
+   "fieldtype": "Currency",
+   "label": "Asset purchase value",
+   "read_only": 1
+  },
+  {
    "fieldname": "column_break_bjjv",
    "fieldtype": "Column Break"
   },
@@ -588,7 +621,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-10-12 21:21:14.216459",
+ "modified": "2026-10-14 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

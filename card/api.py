@@ -109,3 +109,62 @@ def card_suppliers_query(doctype, txt, searchfield, start, page_len, filters):
 		""",
 		{"txt": like, "start": start, "page_len": page_len},
 	)
+
+
+@frappe.whitelist(methods=["POST"])
+def create_equipment_from_asset(asset):
+	"""Return a NEW, UNSAVED Card Equipment prefilled from a submitted ERPNext Asset.
+
+	Nothing is inserted: the client opens the prefilled form and the user completes the
+	remaining mandatory fields (e.g. daily hours, equipment type) before saving."""
+	frappe.has_permission("Card Equipment", "create", throw=True)
+	frappe.has_permission("Asset", "read", asset, throw=True)
+
+	values = frappe.db.get_value("Asset", asset, ["name", "asset_name", "company", "docstatus"], as_dict=True)
+	if not values:
+		frappe.throw(_("Asset {0} does not exist").format(asset))
+	if values.docstatus != 1:
+		frappe.throw(_("Asset {0} must be submitted").format(asset))
+	linked = frappe.db.get_value("Card Equipment", {"الأصل_في_erpnext": asset}, "name")
+	if linked:
+		frappe.throw(_("Asset {0} is already linked to equipment {1}").format(asset, linked))
+
+	doc = frappe.new_doc("Card Equipment")
+	doc.company = values.company
+	doc.ownership = "ملك"
+	doc.equipment_name = values.asset_name or values.name
+	doc.set("الأصل_في_erpnext", values.name)
+	return doc.as_dict()
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def available_assets_query(doctype, txt, searchfield, start, page_len, filters):
+	"""Link-filter query for Card Equipment.الأصل_في_erpnext: submitted Assets of the
+	given company that are not Scrapped/Sold and not already linked to a Card Equipment."""
+	filters = filters or {}
+	if isinstance(filters, str):
+		filters = frappe.parse_json(filters)
+	like = "%" + (txt or "") + "%"
+	return frappe.db.sql(
+		"""
+		select a.name, a.asset_name
+		from `tabAsset` a
+		where a.docstatus = 1
+		and a.status not in ('Scrapped', 'Sold')
+		and (%(company)s = '' or a.company = %(company)s)
+		and not exists (
+			select 1 from `tabCard Equipment` e
+			where e.`الأصل_في_erpnext` = a.name
+		)
+		and (a.name like %(txt)s or a.asset_name like %(txt)s)
+		order by a.name
+		limit %(start)s, %(page_len)s
+		""",
+		{
+			"company": filters.get("company") or "",
+			"txt": like,
+			"start": frappe.utils.cint(start),
+			"page_len": frappe.utils.cint(page_len),
+		},
+	)

@@ -212,6 +212,12 @@ doc_events = {
 # override_doctype_dashboards = {
 # 	"Task": "card.task.get_dashboard_data"
 # }
+override_doctype_dashboards = {
+	"Supplier": "card.dashboards.supplier_dashboard",
+	"Asset": "card.dashboards.asset_dashboard",
+	"Project": "card.dashboards.project_dashboard",
+	"Customer": "card.dashboards.customer_dashboard",
+}
 
 # exempt linked doctypes from being automatically cancelled
 #

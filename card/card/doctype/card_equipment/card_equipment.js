@@ -159,12 +159,64 @@ function card_render_equipment_links(frm) {
 		});
 }
 
+// Owned equipment <-> official ERPNext Asset (rented equipment has no asset).
+// Offer only submitted, live Assets of the company that no other equipment links yet.
+function card_set_asset_query(frm) {
+	frm.set_query("الأصل_في_erpnext", () => ({
+		query: "card.api.available_assets_query",
+		filters: { company: frm.doc.company || "" },
+	}));
+}
+
+// New-form shortcut: pick an Asset, get a prefilled (unsaved) equipment form.
+function card_add_create_from_asset(frm) {
+	if (!frm.is_new() || frm.doc["الأصل_في_erpnext"]) return;
+	frm.add_custom_button(__("Create from Asset"), () => {
+		frappe.prompt(
+			[
+				{
+					fieldname: "asset",
+					fieldtype: "Link",
+					label: __("Asset"),
+					options: "Asset",
+					reqd: 1,
+					get_query: () => ({
+						query: "card.api.available_assets_query",
+						filters: { company: frm.doc.company || "" },
+					}),
+				},
+			],
+			(values) => {
+				frappe
+					.call({
+						method: "card.api.create_equipment_from_asset",
+						args: { asset: values.asset },
+					})
+					.then((r) => {
+						if (!r || !r.message) return;
+						const d = r.message;
+						frappe.new_doc("Card Equipment", {
+							company: d.company,
+							ownership: d.ownership,
+							equipment_name: d.equipment_name,
+							"الأصل_في_erpnext": d["الأصل_في_erpnext"],
+						});
+					});
+			},
+			__("Create from Asset"),
+			__("Create"),
+		);
+	});
+}
+
 frappe.ui.form.on("Card Equipment", {
 	setup(frm) {
 		card_patch_heatmap(frm);
+		card_set_asset_query(frm);
 	},
 	refresh(frm) {
 		card_patch_heatmap(frm);
+		card_add_create_from_asset(frm);
 		card_render_shift_heatmaps(frm);
 		card_render_equipment_links(frm);
 	},

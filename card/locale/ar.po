@@ -1701,3 +1701,39 @@ msgstr "الإعدادات"
 
 msgid "GL Posting Log"
 msgstr "سجل الترحيل المحاسبي"
+
+msgid "Asset {0} is already linked to equipment {1}"
+msgstr "الأصل {0} مربوط بالفعل بالمعدة {1}"
+
+msgid "Asset {0} does not exist"
+msgstr "الأصل {0} غير موجود"
+
+msgid "Asset {0} must be submitted"
+msgstr "يجب اعتماد الأصل {0}"
+
+msgid "Create from Asset"
+msgstr "إنشاء من أصل"
+
+msgid "Asset"
+msgstr "الأصل"
+
+msgid "Create"
+msgstr "إنشاء"
+
+msgid "Asset item"
+msgstr "صنف الأصل"
+
+msgid "Asset location"
+msgstr "موقع الأصل"
+
+msgid "Asset cost center"
+msgstr "مركز تكلفة الأصل"
+
+msgid "Asset purchase value"
+msgstr "قيمة شراء الأصل"
+
+msgid "Fuel & Transport"
+msgstr "الوقود والنقل"
+
+msgid "Linked records"
+msgstr "السجلات المرتبطة"
