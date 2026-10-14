@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 10:49+0000\n"
+"POT-Creation-Date: 2026-10-14 10:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -85,6 +85,7 @@ msgstr ""
 #: card/card/doctype/equipment_transport/equipment_transport.json
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 #: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:20
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py:10
 msgid "Amount"
 msgstr "المبلغ"
 
@@ -195,6 +196,8 @@ msgstr "الرصيد آخر المدة"
 #: card/card/doctype/equipment_transport/equipment_transport.json
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 #: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:6
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.js:6
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.js:6
 msgid "Company"
 msgstr "الشركة"
 
@@ -335,6 +338,7 @@ msgid "Description"
 msgstr "البيان"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:281
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.py:9
 msgid "Diesel"
 msgstr "الديزل"
 
@@ -498,6 +502,8 @@ msgstr "من"
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:11
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.js:11
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.js:11
 msgid "From date"
 msgstr "من تاريخ"
 
@@ -779,6 +785,11 @@ msgstr "عدد الموردين"
 msgid "Opening balance"
 msgstr "رصيد أول المدة"
 
+#. Name of a report
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.json
+msgid "Operating Cost by Project"
+msgstr "تكلفة التشغيل بالمشروع"
+
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:282
 msgid "Operating amount"
 msgstr "قيمة التشغيل"
@@ -881,6 +892,10 @@ msgstr "رقم اللوحة"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:80
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:269
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:64
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.js:13
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.py:8
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.js:13
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py:8
 msgid "Project"
 msgstr "المشروع"
 
@@ -1153,6 +1168,8 @@ msgstr "إلى"
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:12
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.js:12
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.js:12
 msgid "To date"
 msgstr "إلى تاريخ"
 
@@ -1196,6 +1213,10 @@ msgstr "إجمالي الساعات"
 msgid "Total net cards"
 msgstr "إجمالي صافي الكروت"
 
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.py:11
+msgid "Total operating cost"
+msgstr "إجمالي تكلفة التشغيل"
+
 #. Label of the total_working_hours (Float) field in DocType 'Card Monthly
 #. Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
@@ -1212,11 +1233,24 @@ msgstr "إجمالي أرصدة الموردين"
 msgid "Totals"
 msgstr "الإجماليات"
 
+#: card/card/report/operating_cost_by_project/operating_cost_by_project.py:10
+msgid "Transport"
+msgstr "النقل"
+
+#. Name of a report
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.json
+msgid "Transport Cost by Project"
+msgstr "تكلفة النقل بالمشروع"
+
 #. Label of the transport_supplier (Link) field in DocType 'Equipment
 #. Transport'
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Transport supplier"
 msgstr "مورد النقل"
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py:9
+msgid "Transports"
+msgstr "عدد النقلات"
 
 #. Label of the adjustment_type (Select) field in DocType 'Card Monthly Card
 #. Adjustment'
