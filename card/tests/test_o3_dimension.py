@@ -167,6 +167,84 @@ class TestCardEquipmentDimension(IntegrationTestCase):
 		vouchers = {r.get("voucher_no") for r in rows if isinstance(r, dict) and r.get("voucher_no")}
 		self.assertIn(je, vouchers, "GL report filtered by the dimension misses the depreciation JE")
 
+		# ---- the official statements run with the dimension filter (TB / P&L / BS / AR) ----
+		d = getdate(first_row.schedule_date)
+		fy = frappe.db.get_value(
+			"Fiscal Year",
+			{"year_start_date": ["<=", d], "year_end_date": [">=", d]},
+			"name",
+		)
+		self.assertTrue(fy, "no fiscal year covers the depreciation date")
+		dim = {DIMENSION_FIELD: [eq.name]}
+
+		from erpnext.accounts.report.trial_balance.trial_balance import execute as tb_report
+
+		_c, tb_rows = tb_report(
+			frappe._dict(
+				company=self.company,
+				fiscal_year=fy,
+				from_date=str(get_first_day(d)),
+				to_date=str(get_last_day(d)),
+				**dim,
+			)
+		)[:2]
+		self.assertTrue(
+			any(isinstance(r, dict) and (flt(r.get("debit")) or flt(r.get("credit"))) for r in tb_rows),
+			"trial balance filtered by the dimension shows no movement",
+		)
+
+		from erpnext.accounts.report.profit_and_loss_statement.profit_and_loss_statement import (
+			execute as pnl_report,
+		)
+
+		pnl_rows = pnl_report(
+			frappe._dict(
+				company=self.company,
+				filter_based_on="Fiscal Year",
+				from_fiscal_year=fy,
+				to_fiscal_year=fy,
+				periodicity="Yearly",
+				**dim,
+			)
+		)[1]
+		self.assertTrue(
+			any(isinstance(r, dict) and flt(r.get("total")) for r in pnl_rows),
+			"P&L filtered by the dimension shows no depreciation expense",
+		)
+
+		from erpnext.accounts.report.balance_sheet.balance_sheet import execute as bs_report
+
+		bs_rows = bs_report(
+			frappe._dict(
+				company=self.company,
+				filter_based_on="Fiscal Year",
+				from_fiscal_year=fy,
+				to_fiscal_year=fy,
+				periodicity="Yearly",
+				**dim,
+			)
+		)[1]
+		self.assertTrue(
+			any(isinstance(r, dict) and flt(r.get("total")) for r in bs_rows),
+			"balance sheet filtered by the dimension shows no accumulated depreciation",
+		)
+
+		from erpnext.accounts.report.accounts_receivable.accounts_receivable import execute as ar_report
+
+		ar_result = ar_report(
+			frappe._dict(
+				company=self.company,
+				report_date=str(get_last_day(d)),
+				party_type="Customer",
+				range1=30,
+				range2=60,
+				range3=90,
+				range4=120,
+				**dim,
+			)
+		)
+		self.assertTrue(ar_result is not None)  # AR accepts the dimension filter (no rows until S3)
+
 	# ---- 4. guard report: expense lines without the dimension ----
 	def test_expenses_without_equipment_report(self):
 		from card.card.report.equipment_expenses_without_equipment.equipment_expenses_without_equipment import (
