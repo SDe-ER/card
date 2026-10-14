@@ -1689,3 +1689,15 @@ msgstr "الفترة مقفولة حتى {0}؛ غير مسموح بـ{1} لـ{2}
 
 msgid "CARD period lock override"
 msgstr "تجاوز قفل الفترة في كارت"
+
+msgid "Dashboard"
+msgstr "الرئيسية"
+
+msgid "Suppliers & Customers"
+msgstr "الموردين والعملاء"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "GL Posting Log"
+msgstr "سجل الترحيل المحاسبي"
