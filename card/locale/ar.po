@@ -1709,3 +1709,33 @@ msgstr "الشركة {0} لا تطابق شركة المعدة {1}."
 
 msgid "Account {0} belongs to company {1}, not {2}."
 msgstr "الحساب {0} يخص الشركة {1} وليس الشركة {2}."
+
+msgid "Prepared By"
+msgstr "أعدّه"
+
+msgid "Reviewed By"
+msgstr "راجعه"
+
+msgid "Approved By"
+msgstr "اعتمده"
+
+msgid "Received By"
+msgstr "استلمه"
+
+msgid "Name / Signature"
+msgstr "الاسم / التوقيع"
+
+msgid "Transport method"
+msgstr "طريقة النقل"
+
+msgid "Truck Head"
+msgstr "رأس تريلا"
+
+msgid "Winch"
+msgstr "ونش"
+
+msgid "Low-bed"
+msgstr "لوبد"
+
+msgid "Self-driven"
+msgstr "سير ذاتي"

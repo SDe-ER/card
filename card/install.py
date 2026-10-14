@@ -52,7 +52,7 @@ CARD_DOCTYPES = (
 CARD_ROLES = ("Card Manager", "Card User")
 
 CMC_DOCTYPE = "Card Monthly Card"
-CMC_DEFAULT_PRINT_FORMAT = "كارت تشغيل شهري"
+CMC_DEFAULT_PRINT_FORMAT = "Card Monthly Card Print"  # F.8: the professional RTL format (legacy fixture stays as an alternative)
 
 # The app-native Desk launcher ("Card appears on the Desk immediately after
 # install"). Shipped as an app-owned STANDARD Desktop Icon (file-backed at

@@ -30,19 +30,29 @@ class TestBaselineRegression(IntegrationTestCase):
 		super().setUpClass()
 		cls.base = _fixture()
 		cls.company = cls.base.get("company")
-		cls.n_cards = frappe.db.count("Card Monthly Card", {"docstatus": 1})
 
 	def _skip_if_unseeded(self):
-		if not self.n_cards or self.n_cards != self.base.get("cards_count"):
+		# seed-scope guard: the gate watches the FIXTURE's cards by name, so later
+		# additive demo/customer data never silences it; a clean DB still self-skips.
+		names = [c["name"] for c in self.base.get("cards") or []]
+		if not names:
+			self.skipTest("baseline fixture carries no card names")
+		present = frappe.db.count("Card Monthly Card", {"name": ["in", names], "docstatus": 1})
+		if present != len(names):
 			self.skipTest(
 				f"baseline regression needs the seeded site "
-				f"(fixture cards={self.base.get('cards_count')}, site={self.n_cards})"
+				f"(fixture cards={len(names)}, found={present})"
 			)
 
 	def test_cards_net_sum_unchanged(self):
 		self._skip_if_unseeded()
-		rows = frappe.get_all("Card Monthly Card", filters={"docstatus": 1}, fields=["net_amount"])
-		self.assertEqual(flt(sum(flt(r.net_amount) for r in rows), 2), self.base["cards_net_sum"])
+		# every seed card keeps its exact stored net (stronger than the grand sum)
+		total = 0.0
+		for c in self.base["cards"]:
+			net = flt(frappe.db.get_value("Card Monthly Card", c["name"], "net_amount"), 2)
+			self.assertEqual(net, flt(c["net_amount"], 2), c["name"])
+			total += net
+		self.assertEqual(flt(total, 2), self.base["cards_net_sum"])
 
 	def test_diesel_transport_sums_unchanged(self):
 		self._skip_if_unseeded()
