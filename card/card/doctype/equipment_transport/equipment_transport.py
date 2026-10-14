@@ -3,7 +3,7 @@
 
 from frappe.model.document import Document
 
-from card.transfer import apply_transfer, reverse_transfer
+from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
 
 class EquipmentTransport(Document):
@@ -12,6 +12,10 @@ class EquipmentTransport(Document):
 	def on_submit(self):
 		# Transport = a location transfer: move the equipment to the new project.
 		apply_transfer(self)
+
+	def before_cancel(self):
+		# Guards run before docstatus flips, so a block keeps the doc submitted.
+		check_cancel_allowed(self)
 
 	def on_cancel(self):
 		reverse_transfer(self)

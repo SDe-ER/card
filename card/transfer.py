@@ -89,7 +89,9 @@ def apply_transfer(txn):
 	frappe.db.set_value("Card Equipment", equipment, "current_project", txn.project)
 
 
-def reverse_transfer(txn):
+def check_cancel_allowed(txn):
+	"""Guards, run in before_cancel (before docstatus flips) so a block leaves
+	the document submitted."""
 	equipment = txn.equipment
 	if not equipment or not txn.date:
 		return
@@ -108,6 +110,13 @@ def reverse_transfer(txn):
 				txn.project
 			)
 		)
+
+
+def reverse_transfer(txn):
+	"""Undo the transfer, run in on_cancel (guards already passed)."""
+	equipment = txn.equipment
+	if not equipment or not txn.date:
+		return
 	if txn.created_assignment and frappe.db.exists("Card Equipment Assignment", txn.created_assignment):
 		frappe.delete_doc(
 			"Card Equipment Assignment", txn.created_assignment, force=1, ignore_permissions=True
