@@ -25,6 +25,8 @@
   "column_break_items",
   "transport_item",
   "rental_out_item",
+  "pricing_section",
+  "diesel_unit_price",
   "settlement_section",
   "bank_cash_account",
   "column_break_settlement",
@@ -162,6 +164,19 @@
    "fieldtype": "Link",
    "label": "Rental-out item",
    "options": "Item",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "pricing_section",
+   "fieldtype": "Section Break",
+   "label": "Pricing",
+   "permlevel": 1
+  },
+  {
+   "description": "Default diesel price per litre for this company; source for Project Diesel Fill (applied when accounting is enabled).",
+   "fieldname": "diesel_unit_price",
+   "fieldtype": "Currency",
+   "label": "Diesel unit price (per litre)",
    "permlevel": 1
   },
   {
