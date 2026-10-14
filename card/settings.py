@@ -1,7 +1,10 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
 """Card Settings (Single) readers. Every value falls back to the baseline
-default so behaviour is unchanged when settings are unconfigured."""
+default so behaviour is unchanged when a value is unconfigured. Reads the
+raw Singles row directly so a MISSING row (never configured) is distinguished
+from an explicit 0/empty — frappe.db.get_single_value casts a missing numeric
+field to 0.0, which would mask the default."""
 
 import frappe
 
@@ -9,8 +12,8 @@ _DEFAULTS = {
 	"enable_accounting": 0,
 	"auto_submit": 0,
 	"default_shift": "نهاري",
-	"max_hours_per_day": 24,
-	"default_daily_hours": 0,
+	"max_hours_per_day": 24.0,
+	"default_daily_hours": 0.0,
 	"default_fuel_charged_to": "",
 	"default_operator_on": "",
 	"reconciliation_tolerance": 0.01,
@@ -27,11 +30,19 @@ _DEFAULTS = {
 
 
 def setting(fieldname):
-	"""Return a Card Settings value, or its baseline default when unset."""
-	try:
-		val = frappe.db.get_single_value("Card Settings", fieldname)
-	except Exception:
-		val = None
+	"""Return a Card Settings value, or its baseline default when the field
+	has no stored Singles row (never configured) or is empty."""
+	row = frappe.db.sql(
+		"select value from tabSingles where doctype='Card Settings' and field=%s",
+		fieldname,
+	)
+	val = row[0][0] if row else None
 	if val is None or val == "":
 		return _DEFAULTS.get(fieldname)
+	default = _DEFAULTS.get(fieldname)
+	if isinstance(default, (int, float)):
+		try:
+			return float(val)
+		except (TypeError, ValueError):
+			return default
 	return val
