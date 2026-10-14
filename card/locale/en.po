@@ -26,3 +26,6 @@ msgstr "Equipment Supplier"
 
 msgid "Card Settings"
 msgstr "Settings"
+
+msgid "Card Equipment Customer"
+msgstr "Equipment Customer"
