@@ -71,7 +71,7 @@ class TestCardEquipmentDimension(IntegrationTestCase):
 		a.location = location
 		a.is_existing_asset = 1
 		a.gross_purchase_amount = 120000
-		a.purchase_amount = 120000  # v16: "Net Purchase Amount" is mandatory
+		a.net_purchase_amount = 120000  # v16 mandatory; purchase_amount derives from it
 		a.asset_quantity = 1
 		a.purchase_date = start
 		a.available_for_use_date = start
