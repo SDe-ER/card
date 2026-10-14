@@ -57,6 +57,7 @@
 				fieldtype: "Link",
 				options: "Supplier",
 				depends_on: "eval:doc.statement_type=='مورد'",
+				get_query: () => ({ query: "card.api.card_suppliers_query" }),
 			},
 			{
 				fieldname: "from_month",

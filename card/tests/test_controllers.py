@@ -191,6 +191,22 @@ class TestCardMonthlyCard(IntegrationTestCase):
 		self.assertEqual(flt(c.amount), 8175.0)
 		self.assertEqual(flt(c.net_amount), 8175.0)
 
+	def test_card_suppliers_query_lists_only_suppliers_with_cards(self):
+		from card.api import card_suppliers_query
+
+		# self.supplier gets a card (rental equipment -> supplier set)
+		eq = self._equipment()
+		self._card(eq, [10, 10, 10])
+		# a second supplier with NO card at all
+		other = frappe.new_doc("Supplier")
+		other.supplier_name = "TEST-NOCARD-" + self.token
+		other.supplier_group = self._m["supplier_group"]
+		other.insert(ignore_permissions=True)
+
+		names = [r[0] for r in card_suppliers_query("Supplier", "", "name", 0, 50, None)]
+		self.assertIn(self.supplier, names)  # supplier with a card is listed
+		self.assertNotIn(other.name, names)  # supplier without any card is not
+
 	def test_owned_equipment_zero_amount(self):
 		eq = self._equipment(ownership="ملك", rate=750, daily_hours=10)
 		c = self._card(eq, [10, 10, 10])
