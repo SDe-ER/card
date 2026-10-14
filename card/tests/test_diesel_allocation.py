@@ -139,8 +139,9 @@ class TestDieselAllocation(IntegrationTestCase):
 		cards = [self._make_card(eq, [self._day(2, 10)]) for eq in eqs]  # 10 h each
 		fill = self._make_fill(litres=100, unit_price=1)  # amount 100, splits 1/3 each
 		shares = [get_card_diesel(c.name)["amount"] for c in cards]
-		self.assertAlmostEqual(sum(shares), flt(fill.amount))  # sums EXACTLY to the fill
-		self.assertTrue(all(abs(s - 100.0 / 3) <= 0.02 for s in shares))  # ~33.33 each
+		# sums EXACTLY to the fill at currency precision (last row absorbs the cent)
+		self.assertEqual(flt(sum(shares), 2), flt(fill.amount, 2))
+		self.assertTrue(all(flt(s, 2) in (33.33, 33.34) for s in shares))  # 100/3 split
 
 	def test_cancelled_fill_excluded(self):
 		eq = self._make_equipment("EQ1")
