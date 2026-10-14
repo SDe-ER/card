@@ -63,6 +63,24 @@ def _components(unit):
 	]
 
 
+def _periods_text(equipment, project):
+	"""Human-readable assignment periods of `equipment` on `project` (for the
+	unit error message), e.g. '2026-08-01 → 2026-08-10، 2026-08-13 → (open)'."""
+	rows = frappe.get_all(
+		"Card Equipment Assignment",
+		filters={"equipment": equipment, "project": project},
+		fields=["from_date", "to_date"],
+		order_by="from_date",
+	)
+	parts = []
+	for r in rows:
+		if not r.from_date:
+			continue
+		end = getdate(r.to_date) if r.to_date else _("(open)")
+		parts.append("%s → %s" % (getdate(r.from_date), end))
+	return "، ".join(parts) if parts else _("no assignment on this project")
+
+
 # ---------- transfer (Equipment Transport on_submit / on_cancel) ----------
 def apply_transfer(txn):
 	equipment = txn.equipment
@@ -159,9 +177,22 @@ def validate_card_days(card):
 		if not d.operation_date or flt(d.working_hours) <= 0:
 			continue
 		day = getdate(d.operation_date)
-		if not all(_assigned_on(m, project, day) for m in members):
+		missing = [m for m in members if not _assigned_on(m, project, day)]
+		if not missing:
+			continue
+		if is_unit:
+			details = []
+			for m in missing:
+				mname = frappe.db.get_value("Card Equipment", m, "equipment_name") or m
+				details.append("%s (%s)" % (mname, _periods_text(m, project)))
 			frappe.throw(
-				_("Operation day {0} is outside the equipment's assignment period for project {1}.").format(
-					day, project
-				)
+				_(
+					"Unit card for project {0}: on {1} these components are not assigned to this project: {2}. "
+					"Move every component to the project before recording this day."
+				).format(project, day, "؛ ".join(details))
 			)
+		frappe.throw(
+			_("Operation day {0} is outside the equipment's assignment period for project {1}.").format(
+				day, project
+			)
+		)

@@ -253,9 +253,12 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		self._assign(generator.name, p1, 1, 12)
 		self._assign(generator.name, p2, 13)
 
-		# P1: day 11 -> crusher already left
-		with self.assertRaises(frappe.ValidationError):
+		# P1: day 11 -> crusher already left; the error names the missing component + its dates
+		with self.assertRaises(frappe.ValidationError) as ctx:
 			self._card(unit.name, p1, [11]).insert(ignore_permissions=True)
+		msg = str(ctx.exception)
+		self.assertIn("TEST-TR-CRUSHER", msg)  # names the missing component
+		self.assertIn(self._d(10), msg)  # ... and its assignment end date on this project
 		# P2: day 12 -> generator not yet arrived
 		with self.assertRaises(frappe.ValidationError):
 			self._card(unit.name, p2, [12]).insert(ignore_permissions=True)

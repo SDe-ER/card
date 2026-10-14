@@ -1743,3 +1743,15 @@ msgstr "أقصى ساعات الوردية النهارية"
 
 msgid "Max night-shift hours"
 msgstr "أقصى ساعات الوردية الليلية"
+
+msgid "Days over the {0}-hour shift limit for shift {1} (recorded and billed — review): {2}"
+msgstr "أيام تجاوزت حد الساعات {0} ساعة للوردية {1} (مسجّلة ومحتسبة — للمراجعة): {2}"
+
+msgid "(open)"
+msgstr "(مفتوحة)"
+
+msgid "no assignment on this project"
+msgstr "لا يوجد إسناد على هذا المشروع"
+
+msgid "Unit card for project {0}: on {1} these components are not assigned to this project: {2}. Move every component to the project before recording this day."
+msgstr "كارت وحدة للمشروع {0}: في {1} المكوّنات التالية غير مُسندة لهذا المشروع: {2}. انقل كل المكوّنات إلى المشروع قبل تسجيل هذا اليوم."

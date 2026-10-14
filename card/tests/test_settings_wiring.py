@@ -271,22 +271,43 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		frappe.db.set_value("Card Equipment", eq.name, "الوقود_على", "الشركة")
 		self.assertTrue(get_card_diesel(card.name)["company_bears"])
 
-	# ---------- 4. per-shift hour limits ----------
+	# ---------- 4. per-shift hour limits are ADVISORY (warn, never block) ----------
+	# Owner 2026-10-14: every recorded hour is billed; a day over the shift limit
+	# is flagged for review (orange warning) but must still save AND submit.
 
-	def test_day_shift_limit(self):
+	def _shift_messages(self):
+		return " | ".join(str(m.get("message", "")) for m in frappe.get_message_log())
+
+	def test_day_shift_over_limit_warns_not_blocks(self):
 		_set("max_day_shift_hours", 12)
-		with self.assertRaises(frappe.ValidationError):
-			self._card(self._equipment("-D13"), [13])
+		frappe.local.message_log = []
+		card = self._card(self._equipment("-D13"), [13])  # 13 > 12: must NOT raise
+		self.assertEqual(flt(card.total_working_hours), 13.0)  # every hour recorded/billed
+		self.assertIn("13", self._shift_messages())  # a warning was shown
+		card.submit()  # never blocked on submit either
+		card.reload()
+		self.assertEqual(card.docstatus, 1)
+		# a day within the limit saves with no shift-limit warning
 		self.assertEqual(flt(self._card(self._equipment("-D12"), [12]).total_working_hours), 12.0)
 
-	def test_night_card_uses_night_limit(self):
+	def test_night_over_limit_warns_not_blocks(self):
 		_set("max_day_shift_hours", 12)
 		_set("max_night_shift_hours", 8)
-		# a 10h night day exceeds the night limit (8) ...
-		with self.assertRaises(frappe.ValidationError):
-			self._card(self._equipment("-N10"), [10], shift="ليلي")
-		# ... while the same 10h on a day-shift card is within the day limit (12)
+		# a 10h night day exceeds the night limit (8) but still saves and submits
+		card = self._card(self._equipment("-N10"), [10], shift="ليلي")
+		self.assertEqual(flt(card.total_working_hours), 10.0)
+		card.submit()
+		card.reload()
+		self.assertEqual(card.docstatus, 1)
+		# the same 10h on a day-shift card is within the day limit (12) -> also fine
 		self.assertEqual(flt(self._card(self._equipment("-D10"), [10]).total_working_hours), 10.0)
+
+	def test_over_shift_limit_is_billed(self):
+		# the over-limit hours flow into the billed amount (rented equipment: 750/day over 10h = 75/h)
+		_set("max_day_shift_hours", 12)
+		card = self._card(self._equipment("-BILL"), [13], submit=True)
+		self.assertEqual(flt(card.total_working_hours), 13.0)
+		self.assertEqual(flt(card.net_amount), flt(13 * (750.0 / 10.0), 2))  # 975.0
 
 	def test_shift_limits_default_to_12_when_unset(self):
 		frappe.db.delete(
@@ -296,9 +317,8 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		frappe.clear_document_cache("Card Settings", "Card Settings")
 		self.assertEqual(setting("max_day_shift_hours"), 12.0)
 		self.assertEqual(setting("max_night_shift_hours"), 12.0)
-		with self.assertRaises(frappe.ValidationError):
-			self._card(self._equipment("-U13"), [13])
-		with self.assertRaises(frappe.ValidationError):
-			self._card(self._equipment("-U13N"), [13], shift="ليلي")
+		# over the default limit: warns, still saves (never raises) on both shifts
+		self.assertEqual(flt(self._card(self._equipment("-U13"), [13]).total_working_hours), 13.0)
+		self.assertEqual(flt(self._card(self._equipment("-U13N"), [13], shift="ليلي").total_working_hours), 13.0)
 		self._card(self._equipment("-U12"), [12])
 		self._card(self._equipment("-U12N"), [12], shift="ليلي")

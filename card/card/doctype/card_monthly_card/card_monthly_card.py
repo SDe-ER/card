@@ -65,6 +65,7 @@ class CardMonthlyCard(Document):
 		work_days = 0
 		limit_field = "max_day_shift_hours" if self.shift == "نهاري" else "max_night_shift_hours"
 		max_hours = flt(setting(limit_field)) or 12
+		over_shift_limit = []
 		for row in self.days:
 			if not row.operation_date:
 				frappe.throw(_("There is a day row without a date"))
@@ -80,14 +81,26 @@ class CardMonthlyCard(Document):
 			h = flt(row.working_hours)
 			if h < 0:
 				frappe.throw(_("Negative hours on day {0}").format(key))
-			if h > max_hours:
-				frappe.throw(_("Number of hours on day {0} exceeds {1} hours").format(key, max_hours))
 			if h > 0 and d > today:
 				frappe.throw(_("Cannot record operating hours for a future day: {0}").format(key))
+			if h > max_hours:
+				# Shift limit is advisory only: every recorded hour is billed, so a day
+				# over the limit is flagged for review, never blocked (owner 2026-10-14).
+				over_shift_limit.append(key + " (" + str(h) + ")")
 			if h > 0:
 				total_hours = total_hours + h
 				work_days = work_days + 1
 				hours_by_date[key] = h
+
+		# ---- shift limit (advisory warning, never blocks; every recorded hour is billed) ----
+		if over_shift_limit:
+			frappe.msgprint(
+				_("Days over the {0}-hour shift limit for shift {1} (recorded and billed — review): {2}").format(
+					max_hours, self.shift, "، ".join(over_shift_limit)
+				),
+				title=_("Shift hours exceeded warning"),
+				indicator="orange",
+			)
 
 		# ---- hourly rate ----
 		rate = flt(eq.rate)
