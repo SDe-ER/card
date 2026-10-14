@@ -7,10 +7,16 @@ from frappe.model.document import Document
 from frappe.query_builder.functions import Sum, UnixTimestamp
 from frappe.utils import flt
 
+from card.dimension import sync_asset_dimension
 from card.settings import setting
 
 
 class CardEquipment(Document):
+	def on_update(self):
+		# O3: the linked Asset carries the equipment as its accounting dimension,
+		# so depreciation entries land on the equipment in GL. No-op without the dimension.
+		sync_asset_dimension(self)
+
 	def validate(self):
 		self.apply_new_record_defaults()
 		self.validate_unique_asset()

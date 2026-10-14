@@ -1848,3 +1848,24 @@ msgstr "ملخص عملاء المعدات — الفترة من "
 
 msgid ". Click on the customer name to open their statement."
 msgstr ". اضغط على اسم العميل لفتح كشف حسابه."
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "مصروفات معدات بدون معدة"
+
+msgid "The Card Equipment accounting dimension is not set up on this site yet."
+msgstr "بُعد المحاسبة «معدة الكارت» غير مفعّل على هذا الموقع بعد."
+
+msgid "Set the CARD expense accounts in Card Settings for company {0} first."
+msgstr "اضبط حسابات مصروفات الكارت في الإعدادات للشركة {0} أولاً."
+
+msgid "Lines without equipment"
+msgstr "سطور بدون معدة"
+
+msgid "Net amount without equipment"
+msgstr "صافي المبالغ بدون معدة"
+
+msgid "Expense lines on the CARD expense accounts with no Card Equipment dimension. Fix them at the source document so the per-equipment P&L stays complete."
+msgstr "سطور مصروفات على حسابات الكارت بدون بُعد «معدة الكارت». صحّحها من المستند الأصلي حتى تظل أرباح/خسائر كل معدة مكتملة."
+
+msgid "Select a company"
+msgstr "اختر الشركة"
