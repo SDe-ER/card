@@ -120,6 +120,12 @@ def _reconcile():
 	drift apart."""
 	_retire_legacy_custom_module()
 	_ensure_print_default_property_setter()
+	# F.8: fresh installs mark all patches as completed, so the v1_2 print-default
+	# patch never runs for them — call the same idempotent logic here (voucher
+	# print defaults + CARD Letter Head).
+	from card.patches.v1_2.ensure_print_defaults import execute as _ensure_v12_print_defaults
+
+	_ensure_v12_print_defaults()
 	disable_legacy_scripts()
 	_ensure_card_desk_icon()
 	_append_card_to_user_layouts()

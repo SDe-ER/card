@@ -30,6 +30,10 @@ class CardSettings(Document):
 							account, account_company, row.company
 						)
 					)
+		# F.1: a fixed diesel-supplier policy is meaningless without the supplier
+		# (server-side: mandatory_depends_on is client-only)
+		if (self.get("diesel_supplier_policy") or "").strip() == "ثابت" and not self.get("diesel_supplier"):
+			frappe.throw(_("Diesel supplier policy is fixed; set the diesel supplier."))
 		# F.1: one transport price per project
 		projects = set()
 		for row in self.get("project_transport_prices") or []:

@@ -1760,3 +1760,12 @@ msgstr "قطعة فعلية تتبع وحدة تشغيل؛ لا يُعمل له�
 
 msgid "Shift type"
 msgstr "نوع الوردية"
+
+msgid "Asset {0} must be submitted"
+msgstr "يجب اعتماد الأصل {0}"
+
+msgid "Select a company"
+msgstr "اختر الشركة"
+
+msgid "Diesel supplier policy is fixed; set the diesel supplier."
+msgstr "سياسة مورد الديزل ثابتة؛ حدد مورد الديزل."

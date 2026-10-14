@@ -40,7 +40,13 @@ class EquipmentTransport(Document):
 		if flt(self.amount) == configured:
 			return
 		before = self.get_doc_before_save()
-		if before is not None and flt(before.get("amount")) == flt(self.amount):
+		# "unchanged" only counts for the SAME project: switching an amount typed
+		# under free entry onto a configured project must re-pass the role gate.
+		if (
+			before is not None
+			and flt(before.get("amount")) == flt(self.amount)
+			and before.get("project") == self.project
+		):
 			return
 		role = setting("transport_price_editor_role") or "Card Manager"
 		if frappe.session.user != "Administrator" and role not in frappe.get_roles():

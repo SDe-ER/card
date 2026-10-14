@@ -11,7 +11,11 @@ from frappe import _
 
 
 def single_company():
-	"""The default company of this system (the first one; None before setup)."""
+	"""The default company of this system (the configured global default when it
+	exists, else the first one; None before setup)."""
+	default = frappe.defaults.get_global_default("default_company")
+	if default and frappe.db.exists("Company", default):
+		return default
 	return frappe.db.get_value("Company", {}, "name", order_by="creation asc")
 
 

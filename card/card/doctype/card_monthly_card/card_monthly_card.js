@@ -172,7 +172,7 @@ function card_calc(frm) {
 		hours += flt(r.working_hours);
 		if (flt(r.working_hours) > 0) work_days++;
 	});
-	const amount = frm._card_owned ? 0 : flt(hours * flt(frm._card_hourly), 2);
+	const amount = frm._card_supplier_side ? flt(hours * flt(frm._card_hourly), 2) : 0;
 
 	// v4: additions / deductions (display only; the server recalculates on save)
 	let additions = 0,
