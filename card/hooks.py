@@ -163,8 +163,6 @@ doc_events = {
 	"Card Monthly Card": dict(_PERIOD_LOCK_EVENTS),
 	"Project Diesel Fill": dict(_PERIOD_LOCK_EVENTS),
 	"Equipment Transport": dict(_PERIOD_LOCK_EVENTS),
-	# F.8: single-company system — block additional/subsidiary companies
-	"Company": {"before_insert": "card.company.block_additional_companies"},
 }
 
 # Scheduled Tasks

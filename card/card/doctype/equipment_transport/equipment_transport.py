@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
-from card.company import single_company
+from card.company import single_company, validate_equipment_company
 from card.settings import setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
@@ -14,7 +14,8 @@ from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 class EquipmentTransport(Document):
 	def validate(self):
 		if not self.company:
-			self.company = single_company()  # F.8: single-company system
+			self.company = single_company()  # F.8: default to THE company
+		validate_equipment_company(self)  # F.8: consistency, never a creation block
 		self._apply_transport_price()
 
 	def _apply_transport_price(self):

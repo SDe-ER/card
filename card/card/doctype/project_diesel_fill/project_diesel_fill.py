@@ -6,14 +6,15 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
-from card.company import single_company
+from card.company import single_company, validate_equipment_company
 from card.settings import setting
 
 
 class ProjectDieselFill(Document):
 	def validate(self):
 		if not self.company:
-			self.company = single_company()  # F.8: single-company system
+			self.company = single_company()  # F.8: default to THE company
+		validate_equipment_company(self, "card_equipment")  # F.8 consistency
 		self._enforce_diesel_supplier()
 		# Default the unit price from Card Company Settings only when left blank;
 		# an explicitly entered price is kept. Independent of enable_accounting.

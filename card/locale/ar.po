@@ -1701,8 +1701,11 @@ msgstr "تغيير قيمة النقل للمشروع {1} متاح فقط لمن
 msgid "Duplicate project in transport prices: {0}"
 msgstr "مشروع مكرر في أسعار النقل: {0}"
 
-msgid "CARD runs on a single company ({0}); creating additional companies is not allowed."
-msgstr "النظام يعمل بشركة واحدة ({0})؛ إنشاء شركات إضافية غير مسموح."
-
 msgid "Expected = operating hours x (daily diesel consumption / daily standard hours). Actual = litres allocated from submitted diesel fills. Display only — no accounting."
 msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الفعلي = اللترات الموزعة من تعبئات الديزل المعتمدة. للعرض فقط — بدون محاسبة."
+
+msgid "Company {0} does not match the equipment's company {1}."
+msgstr "الشركة {0} لا تطابق شركة المعدة {1}."
+
+msgid "Account {0} belongs to company {1}, not {2}."
+msgstr "الحساب {0} يخص الشركة {1} وليس الشركة {2}."

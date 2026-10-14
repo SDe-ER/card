@@ -1,35 +1,27 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""F.8: CARD runs on exactly ONE company (owner 2026-10-14). Whenever a company
-is needed it is THE existing company, and creating/importing additional
-(subsidiary) companies is blocked — via a standard doc_events hook, no core
-edits. The first company (setup wizard / install) is always allowed, and
-tests/migrations are exempt so QA suites that build scratch companies keep
-working."""
+"""F.8 company helpers (owner amendment 2026-10-14): the system practically
+runs ONE company, so whenever a company is needed it DEFAULTS to the existing
+one — but a second company is never blocked. CARD enforces CONSISTENCY
+instead: a document's company must match its equipment's company, and every
+configured account must belong to its row's company."""
 
 import frappe
 from frappe import _
 
 
 def single_company():
-	"""THE company of this system (None only before setup)."""
+	"""The default company of this system (the first one; None before setup)."""
 	return frappe.db.get_value("Company", {}, "name", order_by="creation asc")
 
 
-def block_additional_companies(doc, method=None):
-	"""doc_events: Company.before_insert."""
-	if (
-		frappe.flags.in_test
-		or frappe.flags.in_install
-		or frappe.flags.in_setup_wizard
-		or frappe.flags.in_migrate
-		or frappe.flags.in_patch
-	):
+def validate_equipment_company(doc, equipment_fieldname="equipment"):
+	"""The document's company must match its equipment's company."""
+	equipment = doc.get(equipment_fieldname)
+	if not equipment or not doc.get("company"):
 		return
-	existing = single_company()
-	if existing:
+	eq_company = frappe.db.get_value("Card Equipment", equipment, "company")
+	if eq_company and doc.company != eq_company:
 		frappe.throw(
-			_("CARD runs on a single company ({0}); creating additional companies is not allowed.").format(
-				existing
-			)
+			_("Company {0} does not match the equipment's company {1}.").format(doc.company, eq_company)
 		)

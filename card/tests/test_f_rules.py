@@ -77,21 +77,90 @@ class TestFiscalYearWindow(IntegrationTestCase):
 			c.insert(ignore_permissions=True)
 
 
-class TestSingleCompany(IntegrationTestCase):
-	def test_additional_company_blocked(self):
+class TestCompanyConsistency(IntegrationTestCase):
+	"""F.8 (owner amendment): a second company is NEVER blocked — CARD validates
+	consistency instead: document company = equipment company, and configured
+	accounts belong to their row's company."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._m = _ensure_masters()
+
+	def setUp(self):
+		self.token = frappe.generate_hash(length=8)
+		frappe.db.set_single_value("Card Settings", "period_lock_date", None)
+		comp = frappe.new_doc("Company")
+		comp.company_name = "TEST-F8-OTHER-" + self.token
+		comp.abbr = "F8" + self.token[:3]
+		comp.default_currency = "SAR"
+		comp.country = "Saudi Arabia"
+		comp.insert(ignore_permissions=True)  # allowed: creation is never blocked
+		self.other_company = comp.name
+
+	def tearDown(self):
+		try:
+			frappe.db.rollback()
+		except Exception:
+			pass
+
+	def _equipment(self):
+		d = frappe.new_doc("Card Equipment")
+		d.company = self._m["company"]
+		d.equipment_type = self._m["etype"]
+		d.ownership = "ملك"
+		d.equipment_name = "TEST-F8-EQ-" + frappe.generate_hash(length=6)
+		d.rate_type = "باليوم"
+		d.rate = 750
+		d.daily_hours = 10
+		d.insert(ignore_permissions=True)
+		return d
+
+	def _supplier(self):
+		sup = frappe.new_doc("Supplier")
+		sup.supplier_name = "TEST-F8-SUP-" + self.token
+		sup.supplier_group = self._m["supplier_group"]
+		sup.insert(ignore_permissions=True)
+		return sup.name
+
+	def test_second_company_is_allowed(self):
 		from card.company import single_company
 
 		self.assertTrue(single_company())
-		comp = frappe.new_doc("Company")
-		comp.company_name = "TEST-F8-SUB-" + frappe.generate_hash(length=6)
-		comp.abbr = "F8" + frappe.generate_hash(length=3)
-		comp.default_currency = "SAR"
-		comp.country = "Saudi Arabia"
-		old_flag = frappe.flags.in_test
-		frappe.flags.in_test = False  # the guard exempts test runs; simulate real usage
-		try:
-			with self.assertRaises(frappe.ValidationError):
-				comp.insert(ignore_permissions=True)
-		finally:
-			frappe.flags.in_test = old_flag
-			frappe.db.rollback()
+		self.assertTrue(frappe.db.exists("Company", self.other_company))
+
+	def test_transport_company_must_match_equipment(self):
+		eq = self._equipment()
+		t = frappe.new_doc("Equipment Transport")
+		t.equipment = eq.name
+		t.project = self._m["project"]
+		t.date = frappe.utils.nowdate()
+		t.transport_supplier = self._supplier()
+		t.company = self.other_company
+		t.amount = 100
+		with self.assertRaises(frappe.ValidationError):
+			t.insert(ignore_permissions=True)
+
+	def test_diesel_fill_company_must_match_equipment(self):
+		eq = self._equipment()
+		f = frappe.new_doc("Project Diesel Fill")
+		f.date = frappe.utils.nowdate()
+		f.project = self._m["project"]
+		f.supplier = self._supplier()
+		f.card_equipment = eq.name
+		f.company = self.other_company
+		f.litres = 10
+		f.unit_price = 2
+		with self.assertRaises(frappe.ValidationError):
+			f.insert(ignore_permissions=True)
+
+	def test_settings_account_must_belong_to_row_company(self):
+		cash_other = frappe.db.get_value(
+			"Account", {"company": self.other_company, "account_type": "Cash", "is_group": 0}, "name"
+		)
+		self.assertTrue(cash_other, "the scratch company has no Cash account")
+		settings = frappe.get_doc("Card Settings")
+		row = next(r for r in settings.company_settings if r.company == self._m["company"])
+		row.bank_cash_account = cash_other  # other company's account on TEC's row
+		with self.assertRaises(frappe.ValidationError):
+			settings.save(ignore_permissions=True)
