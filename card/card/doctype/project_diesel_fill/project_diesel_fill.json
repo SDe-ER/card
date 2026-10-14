@@ -10,6 +10,7 @@
   "date",
   "project",
   "supplier",
+  "card_equipment",
   "company",
   "column_break_main",
   "litres",
@@ -45,6 +46,13 @@
    "label": "Supplier",
    "options": "Supplier",
    "reqd": 1
+  },
+  {
+   "description": "Optional: charge the whole fill to this equipment. Leave empty to split across the project's equipment by operating hours.",
+   "fieldname": "card_equipment",
+   "fieldtype": "Link",
+   "label": "Equipment (direct charge)",
+   "options": "Card Equipment"
   },
   {
    "fieldname": "company",

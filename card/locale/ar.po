@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 10:11+0000\n"
+"POT-Creation-Date: 2026-10-14 10:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -332,6 +332,22 @@ msgstr "الخصومات"
 msgid "Description"
 msgstr "البيان"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:281
+msgid "Diesel"
+msgstr "الديزل"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:259
+msgid "Diesel (litres)"
+msgstr "الديزل (لتر)"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:264
+msgid "Diesel cost"
+msgstr "تكلفة الديزل"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:278
+msgid "Display only — does not affect the rental amount."
+msgstr "عرض فقط — لا يؤثّر على قيمة الإيجار."
+
 #. Label of the documents_tab (Tab Break) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Documents"
@@ -353,6 +369,11 @@ msgstr "السائق / المشغّل"
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:197
 msgid "Equipment"
 msgstr "المعدات"
+
+#. Label of the card_equipment (Link) field in DocType 'Project Diesel Fill'
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Equipment (direct charge)"
+msgstr "المعدة (تحميل مباشر)"
 
 #. Name of a report
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.json
@@ -480,6 +501,10 @@ msgstr "من شهر"
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:54
 msgid "From year"
 msgstr "من سنة"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:272
+msgid "Fuel borne by the company — this diesel is our cost."
+msgstr "الوقود على الشركة — الديزل ده تكلفة علينا."
 
 #. Label of the الوقود_على (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -794,6 +819,12 @@ msgstr "جوال المشغّل"
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Operator name"
 msgstr "اسم المشغّل"
+
+#. Description of the 'Equipment (direct charge)' (Link) field in DocType
+#. 'Project Diesel Fill'
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Optional: charge the whole fill to this equipment. Leave empty to split across the project's equipment by operating hours."
+msgstr ""
 
 #. Label of the supplier (Link) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json

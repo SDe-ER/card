@@ -247,11 +247,47 @@ function card_render_card_links(frm) {
 	}
 }
 
+// Read-only diesel line: diesel allocated to THIS card's equipment for its
+// project + month (owner 2026-10-14). Display only — it NEVER changes net_amount.
+function card_render_diesel(frm) {
+	if (frm.is_new() || !frm.doc.equipment || !frm.doc.project || !frm.dashboard) return;
+	frappe.call({ method: "card.diesel.get_card_diesel", args: { card: frm.doc.name } }).then((r) => {
+		const d = (r && r.message) || {};
+		if (!frm.dashboard) return;
+		const parts = [
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Diesel (litres)") +
+				":</span> " +
+				format_number(flt(d.litres), null, 2) +
+				"</div>",
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Diesel cost") +
+				":</span> " +
+				format_currency(flt(d.amount)) +
+				"</div>",
+		];
+		if (d.company_bears) {
+			parts.push(
+				'<div class="text-muted small">' +
+					__("Fuel borne by the company — this diesel is our cost.") +
+					"</div>",
+			);
+		}
+		parts.push(
+			'<div class="text-muted small">' +
+				__("Display only — does not affect the rental amount.") +
+				"</div>",
+		);
+		frm.dashboard.add_section(parts.join(""), __("Diesel"));
+	});
+}
+
 frappe.ui.form.on("Card Monthly Card", {
 	refresh(frm) {
 		card_color_fridays(frm);
 		if (frm.doc.docstatus === 0) card_load_hourly(frm);
 		card_render_card_links(frm);
+		card_render_diesel(frm);
 	},
 	equipment: card_load_hourly,
 	month: card_build,
