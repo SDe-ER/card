@@ -18,18 +18,13 @@
   "operations_column_break",
   "default_fuel_charged_to",
   "default_operator_on",
-  "precision_section",
-  "amount_precision",
-  "hours_precision",
-  "litres_precision",
-  "reconciliation_tolerance",
   "warnings_section",
   "warn_on_shift_hours_exceeded",
   "warn_outside_rental_period",
   "report_defaults_section",
+  "reconciliation_tolerance",
   "default_statement_type",
   "include_draft_in_reports",
-  "report_default_period",
   "period_lock_tab",
   "period_lock_section",
   "period_lock_date",
@@ -123,29 +118,6 @@
    "options": "\nالمؤجر\nالشركة"
   },
   {
-   "fieldname": "precision_section",
-   "fieldtype": "Section Break",
-   "label": "Rounding"
-  },
-  {
-   "default": "2",
-   "fieldname": "amount_precision",
-   "fieldtype": "Int",
-   "label": "Amount precision"
-  },
-  {
-   "default": "2",
-   "fieldname": "hours_precision",
-   "fieldtype": "Int",
-   "label": "Hours precision"
-  },
-  {
-   "default": "3",
-   "fieldname": "litres_precision",
-   "fieldtype": "Int",
-   "label": "Litres precision"
-  },
-  {
    "default": "0.01",
    "fieldname": "reconciliation_tolerance",
    "fieldtype": "Currency",
@@ -185,13 +157,6 @@
    "fieldname": "include_draft_in_reports",
    "fieldtype": "Check",
    "label": "Include draft cards in reports"
-  },
-  {
-   "default": "Previous month",
-   "fieldname": "report_default_period",
-   "fieldtype": "Select",
-   "label": "Report default period",
-   "options": "Previous month\nCurrent month"
   },
   {
    "fieldname": "period_lock_tab",

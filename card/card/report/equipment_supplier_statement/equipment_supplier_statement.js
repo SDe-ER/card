@@ -47,9 +47,7 @@
 				fieldname: "statement_type",
 				label: __("Statement type"),
 				fieldtype: "Select",
-				options: "مورد\nمعدات ملك",
-				default: "مورد",
-				reqd: 1,
+				options: "\nمورد\nمعدات ملك",
 			},
 			{
 				fieldname: "supplier",
@@ -90,8 +88,25 @@
 				fieldtype: "Link",
 				options: "Card Equipment Type",
 			},
-			{ fieldname: "include_draft", label: __("Include drafts"), fieldtype: "Check", default: 0 },
+			{ fieldname: "include_draft", label: __("Include drafts"), fieldtype: "Check" },
 		],
+		onload(report) {
+			// Seed the UI defaults from Card Settings (server also falls back to the
+			// same settings for API callers). The user can still override.
+			frappe.db
+				.get_value("Card Settings", "Card Settings", [
+					"default_statement_type",
+					"include_draft_in_reports",
+				])
+				.then((r) => {
+					const v = (r && r.message) || {};
+					const st = report.get_filter("statement_type");
+					if (st && v.default_statement_type && !st.get_value())
+						st.set_value(v.default_statement_type);
+					const idf = report.get_filter("include_draft");
+					if (idf) idf.set_value(v.include_draft_in_reports ? 1 : 0);
+				});
+		},
 		tree: true,
 		name_field: "row_id",
 		parent_field: "parent_row",

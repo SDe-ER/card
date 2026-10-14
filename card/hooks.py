@@ -152,6 +152,19 @@ after_install = "card.install.after_install"
 # 	}
 # }
 
+# Period lock (card.period_lock) on the three CARD transactions — validate covers
+# save/submit/amend/import; on_cancel + on_trash cover cancel + delete.
+_PERIOD_LOCK_EVENTS = {
+	"validate": "card.period_lock.on_validate",
+	"on_cancel": "card.period_lock.on_cancel",
+	"on_trash": "card.period_lock.on_trash",
+}
+doc_events = {
+	"Card Monthly Card": dict(_PERIOD_LOCK_EVENTS),
+	"Project Diesel Fill": dict(_PERIOD_LOCK_EVENTS),
+	"Equipment Transport": dict(_PERIOD_LOCK_EVENTS),
+}
+
 # Scheduled Tasks
 # ---------------
 

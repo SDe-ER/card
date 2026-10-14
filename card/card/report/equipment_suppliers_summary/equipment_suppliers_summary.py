@@ -1,6 +1,8 @@
 import frappe
 from frappe import _
 
+from card.settings import setting
+
 
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
@@ -213,7 +215,7 @@ def execute(filters=None):
 			"label": _("Reconciliation difference"),
 			"value": flt(tot["diff"], 2),
 			"datatype": "Currency",
-			"indicator": "Green" if abs(tot["diff"]) < 0.01 else "Red",
+			"indicator": "Green" if abs(tot["diff"]) < flt(setting("reconciliation_tolerance")) else "Red",
 		},
 		{
 			"label": _("Total supplier balances"),

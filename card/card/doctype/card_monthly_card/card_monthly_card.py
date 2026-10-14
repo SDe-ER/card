@@ -7,6 +7,8 @@ from frappe.model.document import Document
 from frappe.utils import cint, flt, get_last_day, getdate, nowdate
 
 from card.api import recompute_supplier
+from card.notifications import notify
+from card.settings import setting
 
 
 class CardMonthlyCard(Document):
@@ -16,6 +18,9 @@ class CardMonthlyCard(Document):
 		doc_year = cint(self.year)
 		if not doc_month or not doc_year:
 			frappe.throw(_("Month and year are required"))
+
+		if not self.shift:
+			self.shift = setting("default_shift")
 
 		eq = frappe.db.get_value(
 			"Card Equipment",
@@ -48,6 +53,7 @@ class CardMonthlyCard(Document):
 		hours_by_date = {}
 		total_hours = 0.0
 		work_days = 0
+		max_hours = flt(setting("max_hours_per_day")) or 24
 		for row in self.days:
 			if not row.operation_date:
 				frappe.throw(_("There is a day row without a date"))
@@ -63,8 +69,8 @@ class CardMonthlyCard(Document):
 			h = flt(row.working_hours)
 			if h < 0:
 				frappe.throw(_("Negative hours on day {0}").format(key))
-			if h > 24:
-				frappe.throw(_("Number of hours on day {0} exceeds 24 hours").format(key))
+			if h > max_hours:
+				frappe.throw(_("Number of hours on day {0} exceeds {1} hours").format(key, max_hours))
 			if h > 0 and d > today:
 				frappe.throw(_("Cannot record operating hours for a future day: {0}").format(key))
 			if h > 0:
@@ -128,28 +134,29 @@ class CardMonthlyCard(Document):
 			frappe.throw(_("A {0} card already exists for the same equipment and month: {1}").format(self.shift, dup[0]))
 
 		# ---- shift length warning (per card, per day; each shift card stands alone) ----
-		shift_hours = flt(eq.daily_hours)
-		if shift_hours > 0:
-			over = [
-				k + " (" + str(hours_by_date[k]) + ")"
-				for k in sorted(hours_by_date.keys())
-				if hours_by_date[k] > shift_hours
-			]
-			if over:
+		if setting("warn_on_shift_hours_exceeded"):
+			shift_hours = flt(eq.daily_hours)
+			if shift_hours > 0:
+				over = [
+					k + " (" + str(hours_by_date[k]) + ")"
+					for k in sorted(hours_by_date.keys())
+					if hours_by_date[k] > shift_hours
+				]
+				if over:
+					frappe.msgprint(
+						_("Days exceeding shift hours ({0} hours): {1}").format(shift_hours, "، ".join(over)),
+						title=_("Shift hours exceeded warning"),
+						indicator="orange",
+					)
+			else:
 				frappe.msgprint(
-					_("Days exceeding shift hours ({0} hours): {1}").format(shift_hours, "، ".join(over)),
-					title=_("Shift hours exceeded warning"),
+					_("Shift hours are not set for equipment {0}; the shift-hours-exceeded warning will not appear.").format(self.equipment),
+					title=_("Shift hours"),
 					indicator="orange",
 				)
-		else:
-			frappe.msgprint(
-				_("Shift hours are not set for equipment {0}; the shift-hours-exceeded warning will not appear.").format(self.equipment),
-				title=_("Shift hours"),
-				indicator="orange",
-			)
 
 		# ---- rental period (flag for review, hours still counted) ----
-		if eq.ownership != "ملك" and hours_by_date:
+		if setting("warn_outside_rental_period") and eq.ownership != "ملك" and hours_by_date:
 			if not eq.rental_start_date:
 				frappe.msgprint(
 					_("The equipment has no rental start date. Review the rental data."),
@@ -172,10 +179,35 @@ class CardMonthlyCard(Document):
 					)
 
 	def on_submit(self):
+		self._snapshot_settings_used()
 		self._sync_supplier()
+		notify(
+			"notify_on_card_submit",
+			[self.owner],
+			_("Monthly operation card submitted: {0}").format(self.name),
+			_("Card {0} for equipment {1} was submitted.").format(self.name, self.equipment_name or self.equipment),
+			self,
+		)
 
 	def on_cancel(self):
 		self._sync_supplier()
+
+	def _snapshot_settings_used(self):
+		"""Store the calculation-affecting values used at submit time so a
+		submitted card never depends on later equipment/settings changes.
+		Read-only snapshot; never changes net_amount or any amount field."""
+		eq = (
+			frappe.db.get_value("Card Equipment", self.equipment, ["daily_hours", "الوقود_على"], as_dict=True)
+			or frappe._dict()
+		)
+		daily_hours = flt(eq.daily_hours)
+		if self.rate_type == "باليوم" and daily_hours > 0:
+			hourly = flt(self.rate) / daily_hours
+		else:
+			hourly = flt(self.rate)
+		self.db_set("daily_hours_used", daily_hours, update_modified=False)
+		self.db_set("hourly_rate_used", hourly, update_modified=False)
+		self.db_set("diesel_policy_used", eq.get("الوقود_على"), update_modified=False)
 
 	def _sync_supplier(self):
 		# Ported from Server Scripts "Card Equipment Supplier - Sync on Submit/Cancel" (non-blocking).

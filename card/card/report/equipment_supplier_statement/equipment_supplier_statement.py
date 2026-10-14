@@ -1,6 +1,8 @@
 import frappe
 from frappe import _
 
+from card.settings import setting
+
 
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
@@ -14,7 +16,7 @@ def execute(filters=None):
 	cint = frappe.utils.cint
 	getdate = frappe.utils.getdate
 
-	stype = filters.get("statement_type") or "مورد"
+	stype = filters.get("statement_type") or setting("default_statement_type")
 	supplier = filters.get("supplier")
 	no_supplier = stype == "مورد" and not supplier
 	_company = frappe.defaults.get_global_default("company") or ""
@@ -31,8 +33,11 @@ def execute(filters=None):
 	if end < start:
 		frappe.throw(_("Invalid period: end is before start"))
 
+	include_draft = filters.get("include_draft")
+	if include_draft is None:
+		include_draft = setting("include_draft_in_reports")
 	statuses = [1]
-	if filters.get("include_draft"):
+	if include_draft:
 		statuses = [0, 1]
 
 	cf = [
@@ -347,7 +352,7 @@ def execute(filters=None):
 				"label": _("Reconciliation difference"),
 				"value": diff,
 				"datatype": "Currency",
-				"indicator": "Green" if abs(diff) < 0.01 else "Red",
+				"indicator": "Green" if abs(diff) < flt(setting("reconciliation_tolerance")) else "Red",
 			},
 			{
 				"label": _("Opening balance"),

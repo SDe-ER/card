@@ -8,3 +8,4 @@ card.patches.v1_0.reconcile_card_config
 card.patches.v1_0.backfill_net_amount
 card.patches.v1_0_1.fold_sidebar_and_retire_legacy_module
 card.patches.v1_2.ensure_card_roles
+card.patches.v1_2.backfill_snapshot

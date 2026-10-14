@@ -7,9 +7,12 @@ from frappe.model.document import Document
 from frappe.query_builder.functions import Sum, UnixTimestamp
 from frappe.utils import flt
 
+from card.settings import setting
+
 
 class CardEquipment(Document):
 	def validate(self):
+		self.apply_new_record_defaults()
 		# Ported from Server Script "Card Equipment - Hourly Rate" (Before Validate).
 		# Computes the read-only approved_hourly_rate shown on the equipment.
 		rate = flt(self.rate)
@@ -21,6 +24,20 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = rate
 		else:
 			self.approved_hourly_rate = 0
+
+	def apply_new_record_defaults(self):
+		# Card Settings pre-fill for NEW equipment only; a provided value is never overridden.
+		if not self.is_new():
+			return
+		default_hours = flt(setting("default_daily_hours"))
+		if not flt(self.daily_hours) and default_hours > 0:
+			self.daily_hours = default_hours
+		fuel_on = setting("default_fuel_charged_to")
+		if not self.get("الوقود_على") and fuel_on:
+			self.set("الوقود_على", fuel_on)
+		operator_on = setting("default_operator_on")
+		if not self.operator_on and operator_on:
+			self.operator_on = operator_on
 
 
 def get_timeline_data(doctype: str, name: str) -> dict:

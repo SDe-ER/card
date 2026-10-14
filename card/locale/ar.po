@@ -1674,3 +1674,18 @@ msgstr "إشعار عند الترحيل المحاسبي"
 
 msgid "Notify on period lock override"
 msgstr "إشعار عند تجاوز قفل الفترة"
+
+msgid "Number of hours on day {0} exceeds {1} hours"
+msgstr "عدد الساعات في يوم {0} يتجاوز {1} ساعة"
+
+msgid "Monthly operation card submitted: {0}"
+msgstr "تم اعتماد كارت التشغيل الشهري: {0}"
+
+msgid "Card {0} for equipment {1} was submitted."
+msgstr "تم اعتماد الكارت {0} للمعدة {1}."
+
+msgid "Period is locked up to {0}; {1} of a {2} dated on or before that date is not allowed."
+msgstr "الفترة مقفولة حتى {0}؛ غير مسموح بـ{1} لـ{2} بتاريخ في ذلك اليوم أو قبله."
+
+msgid "CARD period lock override"
+msgstr "تجاوز قفل الفترة في كارت"
