@@ -7,11 +7,11 @@ from frappe import _
 def get_data():
 	return {
 		"heatmap": True,
-		"heatmap_message": _("ساعات التشغيل اليومية من كروت التشغيل الشهرية"),
+		"heatmap_message": _("Daily operating hours from the monthly operation cards"),
 		"fieldname": "equipment",
 		"transactions": [
 			{
-				"label": _("التشغيل"),
+				"label": _("Operation"),
 				"items": ["Card Monthly Card", "Card Equipment Assignment"],
 			},
 		],

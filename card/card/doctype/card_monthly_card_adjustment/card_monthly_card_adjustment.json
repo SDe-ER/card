@@ -16,7 +16,7 @@
    "fieldname": "adjustment_type",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "\u0627\u0644\u0646\u0648\u0639",
+   "label": "Type",
    "options": "\u0625\u0636\u0627\u0641\u0629\n\u062e\u0635\u0645",
    "reqd": 1
   },
@@ -24,14 +24,14 @@
    "fieldname": "description",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "\u0627\u0644\u0628\u064a\u0627\u0646",
+   "label": "Description",
    "reqd": 1
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "\u0627\u0644\u0645\u0628\u0644\u063a",
+   "label": "Amount",
    "non_negative": 1,
    "reqd": 1
   }

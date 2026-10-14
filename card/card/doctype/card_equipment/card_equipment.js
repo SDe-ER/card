@@ -23,7 +23,7 @@ function card_patch_heatmap(frm) {
 			// frappe-charts Heatmap reads options.countLabel (camelCase); the stock
 			// dashboard passes count_label, which the chart ignores — hence the native
 			// heatmap shows no label. We set countLabel so the tooltip reads "N ساعة".
-			countLabel: __("ساعة"),
+			countLabel: __("hour"),
 			discreteDomains: 1,
 			radius: 3,
 			colors: CARD_HEATMAP_COLORS,

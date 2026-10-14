@@ -24,7 +24,7 @@
    "fieldname": "equipment",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "\u0627\u0644\u0645\u0639\u062f\u0629",
+   "label": "Equipment",
    "options": "Card Equipment",
    "reqd": 1
   },
@@ -32,19 +32,19 @@
    "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "\u0627\u0644\u0645\u0634\u0631\u0648\u0639",
+   "label": "Project",
    "options": "Project",
    "reqd": 1
   },
   {
    "fieldname": "from_date",
    "fieldtype": "Date",
-   "label": "\u0645\u0646 \u062a\u0627\u0631\u064a\u062e"
+   "label": "From date"
   },
   {
    "fieldname": "to_date",
    "fieldtype": "Date",
-   "label": "\u0625\u0644\u0649 \u062a\u0627\u0631\u064a\u062e"
+   "label": "To date"
   },
   {
    "fieldname": "column_break_hvfw",
@@ -54,24 +54,24 @@
    "fetch_from": "equipment.equipment_name",
    "fieldname": "equipment_name",
    "fieldtype": "Data",
-   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0639\u062f\u0629",
+   "label": "Equipment name",
    "read_only": 1
   },
   {
    "fieldname": "cost_center",
    "fieldtype": "Link",
-   "label": "\u0645\u0631\u0643\u0632 \u0627\u0644\u062a\u0643\u0644\u0641\u0629",
+   "label": "Cost center",
    "options": "Cost Center"
   },
   {
    "fieldname": "site_location",
    "fieldtype": "Data",
-   "label": "\u0627\u0644\u0645\u0648\u0642\u0639"
+   "label": "Location"
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "label": "\u0627\u0644\u062d\u0627\u0644\u0629",
+   "label": "Status",
    "options": "\u0646\u0634\u0637\n\u0645\u0646\u062a\u0647\u064a"
   },
   {
@@ -81,7 +81,7 @@
   {
    "fieldname": "notes",
    "fieldtype": "Small Text",
-   "label": "\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Notes"
   }
  ],
  "grid_page_length": 50,

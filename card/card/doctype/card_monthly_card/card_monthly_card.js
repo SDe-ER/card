@@ -175,7 +175,7 @@ function card_check_duplicate(frm) {
 		})
 		.then((r) => {
 			if (r.length) {
-				frappe.throw(__("يوجد كارت {0} لنفس المعدة ونفس الشهر: {1}", [frm.doc.shift, r[0].name]));
+				frappe.throw(__("A {0} card already exists for the same equipment and month: {1}", [frm.doc.shift, r[0].name]));
 			}
 		});
 }

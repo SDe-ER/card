@@ -1,0 +1,669 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CARD VERSION\n"
+"Report-Msgid-Bugs-To: info@sdce.sa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+
+
+msgid " (Draft)"
+msgstr " (مسودة)"
+
+msgid " to "
+msgstr " إلى "
+
+msgid " — Hours only until internal rates are defined."
+msgstr " — الساعات فقط لحين تحديد الأسعار الداخلية."
+
+msgid " — Issue date "
+msgstr " — تاريخ الإصدار "
+
+msgid " — Period from "
+msgstr " — الفترة من "
+
+msgid ". Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
+msgstr ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
+
+msgid ". Click on the supplier name to open their statement."
+msgstr ". اضغط على اسم المورد لفتح كشف حسابه."
+
+msgid "A {0} card already exists for the same equipment and month: {1}"
+msgstr "يوجد كارت {0} لنفس المعدة ونفس الشهر: {1}"
+
+msgid "Accrual entries"
+msgstr "قيود الاستحقاق"
+
+msgid "Accrual entries (Credit)"
+msgstr "قيود الاستحقاق (دائن)"
+
+msgid "Active"
+msgstr "نشط"
+
+msgid "Addition"
+msgstr "إضافة"
+
+msgid "Additions"
+msgstr "الإضافات"
+
+msgid "Additions and deductions"
+msgstr "إضافات وخصومات"
+
+msgid "Amount"
+msgstr "المبلغ"
+
+msgid "Asset in ERPNext"
+msgstr "الأصل في ERPNext"
+
+msgid "Assignment date"
+msgstr "تاريخ التعيين"
+
+msgid "Basic details"
+msgstr "البيانات الأساسية"
+
+msgid "Brand"
+msgstr "الماركة"
+
+msgid "Breakdown"
+msgstr "عطل"
+
+msgid "Cannot record operating hours for a future day: {0}"
+msgstr "لا يمكن تسجيل ساعات تشغيل ليوم لم يأت بعد: {0}"
+
+msgid "Card details"
+msgstr "بيانات الكارت"
+
+msgid "Cards"
+msgstr "الكروت"
+
+msgid "Category name"
+msgstr "اسم الفئة"
+
+msgid "Chassis number"
+msgstr "رقم الشاسيه"
+
+msgid "Closing balance"
+msgstr "الرصيد آخر المدة"
+
+msgid "Company"
+msgstr "الشركة"
+
+msgid "Connections"
+msgstr "الارتباطات"
+
+msgid "Contract number"
+msgstr "رقم العقد"
+
+msgid "Cost and rental"
+msgstr "التكلفة والإيجار"
+
+msgid "Cost center"
+msgstr "مركز التكلفة"
+
+msgid "Could not update the supplier record {0}. The card was saved normally; use the \\\"Refresh numbers\\\" button in the supplier record."
+msgstr "تعذّر تحديث سجل المورد {0}. الكارت اتحفظ عادي؛ استخدم زرار «تحديث الأرقام» في سجل المورد."
+
+msgid "Current assignment"
+msgstr "التعيين الحالي"
+
+msgid "Current lessor"
+msgstr "المورد الحالي"
+
+msgid "Current project"
+msgstr "المشروع الحالي"
+
+msgid "Customer"
+msgstr "العميل"
+
+msgid "Daily operating hours from the monthly operation cards"
+msgstr "ساعات التشغيل اليومية من كروت التشغيل الشهرية"
+
+msgid "Daily working hours"
+msgstr "ساعات العمل اليومية"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Date {0} is duplicated in the card"
+msgstr "التاريخ {0} مكرر في الكارت"
+
+msgid "Date {0} is outside the card's month"
+msgstr "التاريخ {0} خارج شهر الكارت"
+
+msgid "Day"
+msgstr "اليوم"
+
+msgid "Day details"
+msgstr "بيانات اليوم"
+
+msgid "Day status"
+msgstr "حالة اليوم"
+
+msgid "Days"
+msgstr "الأيام"
+
+msgid "Days exceeding shift hours ({0} hours): {1}"
+msgstr "أيام تخطت ساعات الدوام ({0} ساعة): {1}"
+
+msgid "Days of month"
+msgstr "أيام الشهر"
+
+msgid "Days with operation outside the rental period (calculated, needs review): {0}"
+msgstr "أيام فيها تشغيل خارج فترة الإيجار (محسوبة، تحتاج مراجعة): {0}"
+
+msgid "Deduction"
+msgstr "خصم"
+
+msgid "Deductions"
+msgstr "الخصومات"
+
+msgid "Description"
+msgstr "البيان"
+
+msgid "Documents"
+msgstr "المستندات"
+
+msgid "Driver / Operator"
+msgstr "السائق / المشغّل"
+
+msgid "Ended"
+msgstr "منتهي"
+
+msgid "Equipment"
+msgstr "المعدات"
+
+msgid "Equipment category"
+msgstr "فئة المعدة"
+
+msgid "Equipment details"
+msgstr "بيانات المعدة"
+
+msgid "Equipment documents"
+msgstr "مستندات المعدة"
+
+msgid "Equipment exit"
+msgstr "إنهاء المعدة"
+
+msgid "Equipment name"
+msgstr "اسم المعدة"
+
+msgid "Equipment not found: {0}"
+msgstr "المعدة غير موجودة: {0}"
+
+msgid "Equipment number"
+msgstr "رقم المعدة"
+
+msgid "Equipment rate type is not defined: {0}"
+msgstr "طريقة حساب المعدة غير محددة: {0}"
+
+msgid "Equipment supplier statement: "
+msgstr "كشف حساب مورد معدات: "
+
+msgid "Equipment suppliers summary — Period from "
+msgstr "ملخص موردي المعدات — الفترة من "
+
+msgid "Equipment type"
+msgstr "نوع المعدة"
+
+msgid "Exit"
+msgstr "الخروج"
+
+msgid "Exit date"
+msgstr "تاريخ الإنهاء"
+
+msgid "Exit reason"
+msgstr "سبب الإنهاء"
+
+msgid "Expected consumption (liter/hour)"
+msgstr "الاستهلاك المتوقع (لتر/ساعة)"
+
+msgid "First operating month"
+msgstr "أول شهر تشغيل"
+
+msgid "First operation"
+msgstr "أول تشغيل"
+
+msgid "From date"
+msgstr "من تاريخ"
+
+msgid "From month"
+msgstr "من شهر"
+
+msgid "From year"
+msgstr "من سنة"
+
+msgid "Fuel charged to"
+msgstr "الوقود على"
+
+msgid "Grand total"
+msgstr "الإجمالي العام"
+
+msgid "Hourly rate"
+msgstr "سعر الساعة"
+
+msgid "Hours"
+msgstr "الساعات"
+
+msgid "Idle reason"
+msgstr "سبب التوقف"
+
+msgid "Image"
+msgstr "الصورة"
+
+msgid "Include drafts"
+msgstr "تشمل المسودات"
+
+msgid "Inspection certificate"
+msgstr "شهادة الفحص"
+
+msgid "Insurance company"
+msgstr "شركة التأمين"
+
+msgid "Insurance expiry"
+msgstr "انتهاء التأمين"
+
+msgid "Insurance file"
+msgstr "ملف التأمين"
+
+msgid "Insurance policy number"
+msgstr "رقم وثيقة التأمين"
+
+msgid "Internal cost"
+msgstr "التكلفة الداخلية"
+
+msgid "Internal hourly rate"
+msgstr "سعر الساعة الداخلي"
+
+msgid "Invalid period: end is before start"
+msgstr "فترة غير صحيحة: النهاية قبل البداية"
+
+msgid "Kilometers"
+msgstr "كيلومترات"
+
+msgid "Last maintenance date"
+msgstr "تاريخ آخر صيانة"
+
+msgid "Last operating month"
+msgstr "آخر شهر تشغيل"
+
+msgid "Last operation"
+msgstr "آخر تشغيل"
+
+msgid "Last reading"
+msgstr "آخر قراءة"
+
+msgid "Last updated"
+msgstr "آخر تحديث"
+
+msgid "Leave"
+msgstr "إجازة"
+
+msgid "Lessor"
+msgstr "المؤجر"
+
+msgid "Lessor / Owner"
+msgstr "المؤجر / المالك"
+
+msgid "Location"
+msgstr "الموقع"
+
+msgid "Maintenance"
+msgstr "الصيانة"
+
+msgid "Maintenance every (hour)"
+msgstr "الصيانة كل (ساعة)"
+
+msgid "Maintenance every (liter of diesel)"
+msgstr "الصيانة كل (لتر ديزل)"
+
+msgid "Manufacture year"
+msgstr "سنة الصنع"
+
+msgid "Meter"
+msgstr "العداد"
+
+msgid "Meter and maintenance"
+msgstr "العداد والصيانة"
+
+msgid "Meter reading at exit"
+msgstr "قراءة العداد عند الإنهاء"
+
+msgid "Meter reading at last maintenance"
+msgstr "قراءة العداد عند آخر صيانة"
+
+msgid "Meter reading at receipt"
+msgstr "قراءة العداد عند الاستلام"
+
+msgid "Meter type"
+msgstr "نوع العداد"
+
+msgid "Minimum hours per month"
+msgstr "الحد الأدنى للساعات شهرياً"
+
+msgid "Model"
+msgstr "الموديل"
+
+msgid "Month"
+msgstr "الشهر"
+
+msgid "Month and year are required"
+msgstr "الشهر والسنة مطلوبين"
+
+msgid "Negative hours on day {0}"
+msgstr "ساعات بالسالب في يوم {0}"
+
+msgid "Net"
+msgstr "الصافي"
+
+msgid "Net cards"
+msgstr "صافي الكروت"
+
+msgid "Net due"
+msgstr "الصافي المستحق"
+
+msgid "Night"
+msgstr "ليلي"
+
+msgid "No customer is linked to the project"
+msgstr "لا يوجد عميل مرتبط بالمشروع"
+
+msgid "No meter"
+msgstr "بدون عداد"
+
+msgid "Not allowed: this operation is for System Managers only"
+msgstr "غير مسموح: هذه العملية لمدير النظام فقط"
+
+msgid "Not settled"
+msgstr "لم تتم"
+
+msgid "Notes"
+msgstr "ملاحظات"
+
+msgid "Number of approved cards"
+msgstr "عدد الكروت المعتمدة"
+
+msgid "Number of equipment"
+msgstr "عدد المعدات"
+
+msgid "Number of hours on day {0} exceeds 24 hours"
+msgstr "عدد ساعات يوم {0} أكبر من 24 ساعة"
+
+msgid "Number of suppliers"
+msgstr "عدد الموردين"
+
+msgid "Opening balance"
+msgstr "رصيد أول المدة"
+
+msgid "Operating amount"
+msgstr "قيمة التشغيل"
+
+msgid "Operating days"
+msgstr "أيام التشغيل"
+
+msgid "Operating hours"
+msgstr "ساعات التشغيل"
+
+msgid "Operating owned equipment by project — Period from "
+msgstr "تشغيل المعدات الملك حسب المشروع — الفترة من "
+
+msgid "Operation"
+msgstr "التشغيل"
+
+msgid "Operation and assignment"
+msgstr "التشغيل والتعيين"
+
+msgid "Operator"
+msgstr "المشغّل"
+
+msgid "Operator charged to"
+msgstr "المشغّل على"
+
+msgid "Operator mobile"
+msgstr "جوال المشغّل"
+
+msgid "Operator name"
+msgstr "اسم المشغّل"
+
+msgid "Owned"
+msgstr "ملك"
+
+msgid "Owner"
+msgstr "المالك"
+
+msgid "Ownership"
+msgstr "الملكية"
+
+msgid "Paid"
+msgstr "المدفوع"
+
+msgid "Paid (Debit)"
+msgstr "المدفوع (مدين)"
+
+msgid "Per day"
+msgstr "باليوم"
+
+msgid "Per hour"
+msgstr "بالساعة"
+
+msgid "Periodic inspection expiry"
+msgstr "انتهاء الفحص الدوري"
+
+msgid "Plate number"
+msgstr "رقم اللوحة"
+
+msgid "Project"
+msgstr "المشروع"
+
+msgid "Project name"
+msgstr "اسم المشروع"
+
+msgid "Projects"
+msgstr "المشاريع"
+
+msgid "Rate"
+msgstr "السعر"
+
+msgid "Rate type"
+msgstr "طريقة الحساب"
+
+msgid "Reconciliation difference"
+msgstr "فرق المطابقة"
+
+msgid "Reference"
+msgstr "المرجع"
+
+msgid "Refresh numbers"
+msgstr "تحديث الأرقام"
+
+msgid "Registration expiry"
+msgstr "انتهاء الاستمارة"
+
+msgid "Registration image"
+msgstr "صورة الاستمارة"
+
+msgid "Registration number"
+msgstr "رقم الاستمارة"
+
+msgid "Rental"
+msgstr "إيجار"
+
+msgid "Rental details"
+msgstr "بيانات الإيجار"
+
+msgid "Rental end"
+msgstr "نهاية الإيجار"
+
+msgid "Rental expiry"
+msgstr "انتهاء الإيجار"
+
+msgid "Rental start"
+msgstr "بداية الإيجار"
+
+msgid "Returned to lessor"
+msgstr "إرجاع للمؤجر"
+
+msgid "Review rental period"
+msgstr "مراجعة فترة الإيجار"
+
+msgid "Sale"
+msgstr "بيع"
+
+msgid "Scrap"
+msgstr "تكهين"
+
+msgid "Select a supplier to display the statement."
+msgstr "اختار المورد لعرض الكشف."
+
+msgid "Select the start month and year"
+msgstr "حدد شهر وسنة البداية"
+
+msgid "Set the daily working hours (shift) to calculate the hourly rate"
+msgstr "حدد ساعات العمل اليومية (الدوام) لحساب سعر الساعة"
+
+msgid "Set the daily working hours for equipment {0}"
+msgstr "حدد ساعات العمل اليومية للمعدة {0}"
+
+msgid "Settled"
+msgstr "تمت"
+
+msgid "Settlement status"
+msgstr "حالة التسوية"
+
+msgid "Shift"
+msgstr "الوردية"
+
+msgid "Shift hours"
+msgstr "ساعات الدوام"
+
+msgid "Shift hours are not set for equipment {0}; the shift-hours-exceeded warning will not appear."
+msgstr "لم يتم تحديد ساعات الدوام للمعدة {0}، لن يظهر تحذير تخطي الدوام."
+
+msgid "Shift hours exceeded warning"
+msgstr "تحذير تخطي الدوام"
+
+msgid "Statement"
+msgstr "كشف الحساب"
+
+msgid "Statement type"
+msgstr "نوع الكشف"
+
+msgid "Statistics"
+msgstr "الإحصائيات"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Stopped"
+msgstr "متوقفة"
+
+msgid "Stopped by client"
+msgstr "توقف من العميل"
+
+msgid "Supplier"
+msgstr "المورد"
+
+msgid "Supplier closing balance"
+msgstr "رصيد المورد آخر المدة"
+
+msgid "Supplier code"
+msgstr "كود المورد"
+
+msgid "Supplier name"
+msgstr "اسم المورد"
+
+msgid "Supplier record"
+msgstr "سجل المورد"
+
+msgid "Suppliers"
+msgstr "الموردين"
+
+msgid "TUV expiry"
+msgstr "انتهاء TUV"
+
+msgid "TUV image"
+msgstr "صورة TUV"
+
+msgid "TUV number "
+msgstr "رقم TUV "
+
+msgid "Tank capacity (liter)"
+msgstr "سعة الخزان (لتر)"
+
+msgid "The addition/deduction amount must be greater than zero: {0}"
+msgstr "مبلغ الإضافة/الخصم لازم يكون أكبر من صفر: {0}"
+
+msgid "The card's company does not match the equipment's company"
+msgstr "شركة الكارت لا تطابق شركة المعدة"
+
+msgid "The equipment has no rental start date. Review the rental data."
+msgstr "المعدة ليس لها تاريخ بداية إيجار. راجع بيانات الإيجار."
+
+msgid "There is a day row without a date"
+msgstr "يوجد صف أيام بدون تاريخ"
+
+msgid "Third party"
+msgstr "طرف ثالث"
+
+msgid "To date"
+msgstr "إلى تاريخ"
+
+msgid "To month"
+msgstr "إلى شهر"
+
+msgid "To year"
+msgstr "إلى سنة"
+
+msgid "Total"
+msgstr "الإجمالي"
+
+msgid "Total additions"
+msgstr "إجمالي الإضافات"
+
+msgid "Total amount"
+msgstr "القيمة الإجمالية"
+
+msgid "Total deductions"
+msgstr "إجمالي الخصومات"
+
+msgid "Total hours"
+msgstr "إجمالي الساعات"
+
+msgid "Total net cards"
+msgstr "إجمالي صافي الكروت"
+
+msgid "Total operating hours"
+msgstr "إجمالي ساعات التشغيل"
+
+msgid "Total supplier balances"
+msgstr "إجمالي أرصدة الموردين"
+
+msgid "Totals"
+msgstr "الإجماليات"
+
+msgid "Transferred to another branch"
+msgstr "نقل لفرع آخر"
+
+msgid "Type"
+msgstr "النوع"
+
+msgid "Type name"
+msgstr "اسم النوع"
+
+msgid "Under maintenance"
+msgstr "في الصيانة"
+
+msgid "Unknown type in additions and deductions: {0}"
+msgstr "نوع غير معروف في الإضافات والخصومات: {0}"
+
+msgid "Work"
+msgstr "عمل"
+
+msgid "Working days"
+msgstr "أيام العمل"
+
+msgid "Year"
+msgstr "السنة"
+
+msgid "hour"
+msgstr "ساعة"

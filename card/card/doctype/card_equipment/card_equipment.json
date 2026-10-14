@@ -97,18 +97,18 @@
   {
    "fieldname": "basic_tab",
    "fieldtype": "Tab Break",
-   "label": "\u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0623\u0633\u0627\u0633\u064a\u0629"
+   "label": "Basic details"
   },
   {
    "fieldname": "basic_section",
    "fieldtype": "Section Break",
-   "label": "\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0645\u0639\u062f\u0629"
+   "label": "Equipment details"
   },
   {
    "fieldname": "company",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "\u0627\u0644\u0634\u0631\u0643\u0629",
+   "label": "Company",
    "options": "Company",
    "reqd": 1
   },
@@ -116,34 +116,34 @@
    "fieldname": "ownership",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "\u0627\u0644\u0645\u0644\u0643\u064a\u0629",
+   "label": "Ownership",
    "options": "\u0645\u0644\u0643\n\u0625\u064a\u062c\u0627\u0631\n\u0637\u0631\u0641 \u062b\u0627\u0644\u062b",
    "reqd": 1
   },
   {
    "fieldname": "brand",
    "fieldtype": "Data",
-   "label": "\u0627\u0644\u0645\u0627\u0631\u0643\u0629"
+   "label": "Brand"
   },
   {
    "fieldname": "model",
    "fieldtype": "Data",
-   "label": "\u0627\u0644\u0645\u0648\u062f\u064a\u0644"
+   "label": "Model"
   },
   {
    "fieldname": "manufacture_year",
    "fieldtype": "Int",
-   "label": "\u0633\u0646\u0629 \u0627\u0644\u0635\u0646\u0639"
+   "label": "Manufacture year"
   },
   {
    "fieldname": "serial_no",
    "fieldtype": "Data",
-   "label": "\u0631\u0642\u0645 \u0627\u0644\u0634\u0627\u0633\u064a\u0647"
+   "label": "Chassis number"
   },
   {
    "fieldname": "plate_no",
    "fieldtype": "Data",
-   "label": "\u0631\u0642\u0645 \u0627\u0644\u0644\u0648\u062d\u0629"
+   "label": "Plate number"
   },
   {
    "fieldname": "column_break_hadg",
@@ -153,7 +153,7 @@
    "fetch_from": "equipment_type.equipment_category",
    "fieldname": "equipment_category",
    "fieldtype": "Link",
-   "label": "\u0641\u0626\u0629 \u0627\u0644\u0645\u0639\u062f\u0629",
+   "label": "Equipment category",
    "options": "Card Equipment Category",
    "read_only": 1
   },
@@ -161,14 +161,14 @@
    "fieldname": "equipment_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0639\u062f\u0629",
+   "label": "Equipment name",
    "reqd": 1
   },
   {
    "fieldname": "equipment_type",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "\u0646\u0648\u0639 \u0627\u0644\u0645\u0639\u062f\u0629",
+   "label": "Equipment type",
    "options": "Card Equipment Type",
    "reqd": 1
   },
@@ -176,48 +176,48 @@
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "hidden": 1,
-   "label": "\u0627\u0644\u0635\u0648\u0631\u0629"
+   "label": "Image"
   },
   {
    "default": "\u0646\u0634\u0637\u0629",
    "fieldname": "status",
    "fieldtype": "Select",
-   "label": "\u0627\u0644\u062d\u0627\u0644\u0629",
+   "label": "Status",
    "options": "\u0646\u0634\u0637\u0629\n\u0645\u062a\u0648\u0642\u0641\u0629\n\u0641\u064a \u0627\u0644\u0635\u064a\u0627\u0646\u0629\n\u0645\u0646\u062a\u0647\u064a\u0629"
   },
   {
    "fieldname": "operation_tab",
    "fieldtype": "Tab Break",
-   "label": "\u0627\u0644\u062a\u0634\u063a\u064a\u0644 \u0648\u0627\u0644\u062a\u0639\u064a\u064a\u0646"
+   "label": "Operation and assignment"
   },
   {
    "fieldname": "assignment_section",
    "fieldtype": "Section Break",
-   "label": "\u0627\u0644\u062a\u0639\u064a\u064a\u0646 \u0627\u0644\u062d\u0627\u0644\u064a"
+   "label": "Current assignment"
   },
   {
    "fieldname": "current_project",
    "fieldtype": "Link",
-   "label": "\u0627\u0644\u0645\u0634\u0631\u0648\u0639 \u0627\u0644\u062d\u0627\u0644\u064a",
+   "label": "Current project",
    "options": "Project"
   },
   {
    "depends_on": "eval:doc.ownership!='\u0645\u0644\u0643' && doc.operator_on!='\u0627\u0644\u0634\u0631\u0643\u0629'",
    "fieldname": "external_operator_name",
    "fieldtype": "Data",
-   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0634\u063a\u0651\u0644"
+   "label": "Operator name"
   },
   {
    "depends_on": "eval:doc.ownership=='\u0645\u0644\u0643' || doc.operator_on=='\u0627\u0644\u0634\u0631\u0643\u0629'",
    "fieldname": "operator",
    "fieldtype": "Link",
-   "label": "\u0627\u0644\u0645\u0634\u063a\u0651\u0644",
+   "label": "Operator",
    "options": "Employee"
   },
   {
    "fieldname": "assignment_date",
    "fieldtype": "Date",
-   "label": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062a\u0639\u064a\u064a\u0646"
+   "label": "Assignment date"
   },
   {
    "fieldname": "column_break_lmli",
@@ -226,61 +226,61 @@
   {
    "fieldname": "cost_center",
    "fieldtype": "Link",
-   "label": "\u0645\u0631\u0643\u0632 \u0627\u0644\u062a\u0643\u0644\u0641\u0629",
+   "label": "Cost center",
    "options": "Cost Center"
   },
   {
    "depends_on": "eval:doc.ownership!='\u0645\u0644\u0643' && doc.operator_on!='\u0627\u0644\u0634\u0631\u0643\u0629'",
    "fieldname": "external_operator_phone",
    "fieldtype": "Data",
-   "label": "\u062c\u0648\u0627\u0644 \u0627\u0644\u0645\u0634\u063a\u0651\u0644"
+   "label": "Operator mobile"
   },
   {
    "depends_on": "eval:doc.ownership=='\u0645\u0644\u0643' || doc.operator_on=='\u0627\u0644\u0634\u0631\u0643\u0629'",
    "fetch_from": "operator.employee_name",
    "fieldname": "operator_name",
    "fieldtype": "Data",
-   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0634\u063a\u0651\u0644",
+   "label": "Operator name",
    "read_only": 1
   },
   {
    "fieldname": "site_location",
    "fieldtype": "Data",
-   "label": "\u0627\u0644\u0645\u0648\u0642\u0639"
+   "label": "Location"
   },
   {
    "fieldname": "cost_tab",
    "fieldtype": "Tab Break",
-   "label": "\u0627\u0644\u062a\u0643\u0644\u0641\u0629 \u0648\u0627\u0644\u0625\u064a\u062c\u0627\u0631"
+   "label": "Cost and rental"
   },
   {
    "depends_on": "eval:doc.ownership!='\u0645\u0644\u0643'",
    "fieldname": "rental_section",
    "fieldtype": "Section Break",
-   "label": "\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0625\u064a\u062c\u0627\u0631"
+   "label": "Rental details"
   },
   {
    "fieldname": "supplier",
    "fieldtype": "Link",
-   "label": "\u0627\u0644\u0645\u0624\u062c\u0631 / \u0627\u0644\u0645\u0627\u0644\u0643",
+   "label": "Lessor / Owner",
    "mandatory_depends_on": "eval:doc.ownership!='\u0645\u0644\u0643'",
    "options": "Supplier"
   },
   {
    "fieldname": "rental_start_date",
    "fieldtype": "Date",
-   "label": "\u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u0625\u064a\u062c\u0627\u0631"
+   "label": "Rental start"
   },
   {
    "fieldname": "rate_type",
    "fieldtype": "Select",
-   "label": "\u0637\u0631\u064a\u0642\u0629 \u0627\u0644\u062d\u0633\u0627\u0628",
+   "label": "Rate type",
    "options": "\u0628\u0627\u0644\u064a\u0648\u0645\n\u0628\u0627\u0644\u0633\u0627\u0639\u0629"
   },
   {
    "fieldname": "daily_hours",
    "fieldtype": "Float",
-   "label": "\u0633\u0627\u0639\u0627\u062a \u0627\u0644\u0639\u0645\u0644 \u0627\u0644\u064a\u0648\u0645\u064a\u0629",
+   "label": "Daily working hours",
    "non_negative": 1,
    "reqd": 1
   },
@@ -288,13 +288,13 @@
    "fieldname": "min_hours",
    "fieldtype": "Float",
    "hidden": 1,
-   "label": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649 \u0644\u0644\u0633\u0627\u0639\u0627\u062a \u0634\u0647\u0631\u064a\u0627\u064b"
+   "label": "Minimum hours per month"
   },
   {
    "default": "\u0627\u0644\u0645\u0624\u062c\u0631",
    "fieldname": "operator_on",
    "fieldtype": "Select",
-   "label": "\u0627\u0644\u0645\u0634\u063a\u0651\u0644 \u0639\u0644\u0649",
+   "label": "Operator charged to",
    "options": "\u0627\u0644\u0645\u0624\u062c\u0631\n\u0627\u0644\u0634\u0631\u0643\u0629"
   },
   {
@@ -304,40 +304,40 @@
   {
    "fieldname": "contract_no",
    "fieldtype": "Data",
-   "label": "\u0631\u0642\u0645 \u0627\u0644\u0639\u0642\u062f"
+   "label": "Contract number"
   },
   {
    "fieldname": "rental_end_date",
    "fieldtype": "Date",
-   "label": "\u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u0625\u064a\u062c\u0627\u0631"
+   "label": "Rental end"
   },
   {
    "fieldname": "rate",
    "fieldtype": "Currency",
-   "label": "\u0627\u0644\u0633\u0639\u0631"
+   "label": "Rate"
   },
   {
    "fieldname": "\u0627\u0644\u0648\u0642\u0648\u062f_\u0639\u0644\u0649",
    "fieldtype": "Select",
-   "label": "\u0627\u0644\u0648\u0642\u0648\u062f \u0639\u0644\u0649",
+   "label": "Fuel charged to",
    "options": "\u0627\u0644\u0645\u0624\u062c\u0631\n\u0627\u0644\u0634\u0631\u0643\u0629"
   },
   {
    "fieldname": "approved_hourly_rate",
    "fieldtype": "Currency",
-   "label": "\u0633\u0639\u0631 \u0627\u0644\u0633\u0627\u0639\u0629",
+   "label": "Hourly rate",
    "read_only": 1
   },
   {
    "depends_on": "eval:doc.ownership=='\u0645\u0644\u0643'",
    "fieldname": "owned_section",
    "fieldtype": "Section Break",
-   "label": "\u0627\u0644\u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u062f\u0627\u062e\u0644\u064a\u0629"
+   "label": "Internal cost"
   },
   {
    "fieldname": "\u0627\u0644\u0623\u0635\u0644_\u0641\u064a_erpnext",
    "fieldtype": "Link",
-   "label": "\u0627\u0644\u0623\u0635\u0644 \u0641\u064a ERPNext",
+   "label": "Asset in ERPNext",
    "options": "Asset"
   },
   {
@@ -347,30 +347,30 @@
   {
    "fieldname": "internal_hourly_rate",
    "fieldtype": "Currency",
-   "label": "\u0633\u0639\u0631 \u0627\u0644\u0633\u0627\u0639\u0629 \u0627\u0644\u062f\u0627\u062e\u0644\u064a"
+   "label": "Internal hourly rate"
   },
   {
    "fieldname": "meter_tab",
    "fieldtype": "Tab Break",
-   "label": "\u0627\u0644\u0639\u062f\u0627\u062f \u0648\u0627\u0644\u0635\u064a\u0627\u0646\u0629"
+   "label": "Meter and maintenance"
   },
   {
    "fieldname": "meter_section",
    "fieldtype": "Section Break",
-   "label": "\u0627\u0644\u0639\u062f\u0627\u062f"
+   "label": "Meter"
   },
   {
    "fetch_from": "equipment_type.meter_type",
    "fetch_if_empty": 1,
    "fieldname": "meter_type",
    "fieldtype": "Select",
-   "label": "\u0646\u0648\u0639 \u0627\u0644\u0639\u062f\u0627\u062f",
+   "label": "Meter type",
    "options": "\u0633\u0627\u0639\u0627\u062a\n\u0643\u064a\u0644\u0648\u0645\u062a\u0631\u0627\u062a\n\u0628\u062f\u0648\u0646 \u0639\u062f\u0627\u062f"
   },
   {
    "fieldname": "opening_meter",
    "fieldtype": "Float",
-   "label": "\u0642\u0631\u0627\u0621\u0629 \u0627\u0644\u0639\u062f\u0627\u062f \u0639\u0646\u062f \u0627\u0644\u0627\u0633\u062a\u0644\u0627\u0645"
+   "label": "Meter reading at receipt"
   },
   {
    "fieldname": "column_break_xhsl",
@@ -379,34 +379,34 @@
   {
    "fieldname": "current_meter",
    "fieldtype": "Float",
-   "label": "\u0622\u062e\u0631 \u0642\u0631\u0627\u0621\u0629",
+   "label": "Last reading",
    "read_only": 1
   },
   {
    "fieldname": "tank_capacity",
    "fieldtype": "Float",
-   "label": "\u0633\u0639\u0629 \u0627\u0644\u062e\u0632\u0627\u0646 (\u0644\u062a\u0631)"
+   "label": "Tank capacity (liter)"
   },
   {
    "fieldname": "expected_consumption",
    "fieldtype": "Float",
-   "label": "\u0627\u0644\u0627\u0633\u062a\u0647\u0644\u0627\u0643 \u0627\u0644\u0645\u062a\u0648\u0642\u0639 (\u0644\u062a\u0631/\u0633\u0627\u0639\u0629)"
+   "label": "Expected consumption (liter/hour)"
   },
   {
    "depends_on": "eval:doc.ownership=='\u0645\u0644\u0643'",
    "fieldname": "maintenance_section",
    "fieldtype": "Section Break",
-   "label": "\u0627\u0644\u0635\u064a\u0627\u0646\u0629"
+   "label": "Maintenance"
   },
   {
    "fieldname": "service_interval_hours",
    "fieldtype": "Float",
-   "label": "\u0627\u0644\u0635\u064a\u0627\u0646\u0629 \u0643\u0644 (\u0633\u0627\u0639\u0629)"
+   "label": "Maintenance every (hour)"
   },
   {
    "fieldname": "last_service_date",
    "fieldtype": "Date",
-   "label": "\u062a\u0627\u0631\u064a\u062e \u0622\u062e\u0631 \u0635\u064a\u0627\u0646\u0629"
+   "label": "Last maintenance date"
   },
   {
    "fieldname": "column_break_bitf",
@@ -415,47 +415,47 @@
   {
    "fieldname": "service_interval_liters",
    "fieldtype": "Float",
-   "label": "\u0627\u0644\u0635\u064a\u0627\u0646\u0629 \u0643\u0644 (\u0644\u062a\u0631 \u062f\u064a\u0632\u0644)"
+   "label": "Maintenance every (liter of diesel)"
   },
   {
    "fieldname": "last_service_meter",
    "fieldtype": "Float",
-   "label": "\u0642\u0631\u0627\u0621\u0629 \u0627\u0644\u0639\u062f\u0627\u062f \u0639\u0646\u062f \u0622\u062e\u0631 \u0635\u064a\u0627\u0646\u0629"
+   "label": "Meter reading at last maintenance"
   },
   {
    "fieldname": "documents_tab",
    "fieldtype": "Tab Break",
-   "label": "\u0627\u0644\u0645\u0633\u062a\u0646\u062f\u0627\u062a"
+   "label": "Documents"
   },
   {
    "fieldname": "documents_section",
    "fieldtype": "Section Break",
-   "label": "\u0645\u0633\u062a\u0646\u062f\u0627\u062a \u0627\u0644\u0645\u0639\u062f\u0629"
+   "label": "Equipment documents"
   },
   {
    "fieldname": "registration_no",
    "fieldtype": "Data",
-   "label": "\u0631\u0642\u0645 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0631\u0629"
+   "label": "Registration number"
   },
   {
    "fieldname": "registration_expiry",
    "fieldtype": "Date",
-   "label": "\u0627\u0646\u062a\u0647\u0627\u0621 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0631\u0629"
+   "label": "Registration expiry"
   },
   {
    "fieldname": "registration_file",
    "fieldtype": "Attach",
-   "label": "\u0635\u0648\u0631\u0629 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0631\u0629"
+   "label": "Registration image"
   },
   {
    "fieldname": "inspection_expiry",
    "fieldtype": "Date",
-   "label": "\u0627\u0646\u062a\u0647\u0627\u0621 \u0627\u0644\u0641\u062d\u0635 \u0627\u0644\u062f\u0648\u0631\u064a"
+   "label": "Periodic inspection expiry"
   },
   {
    "fieldname": "inspection_file",
    "fieldtype": "Attach",
-   "label": "\u0634\u0647\u0627\u062f\u0629 \u0627\u0644\u0641\u062d\u0635"
+   "label": "Inspection certificate"
   },
   {
    "fieldname": "column_break_qqic",
@@ -464,22 +464,22 @@
   {
    "fieldname": "insurance_company",
    "fieldtype": "Data",
-   "label": "\u0634\u0631\u0643\u0629 \u0627\u0644\u062a\u0623\u0645\u064a\u0646"
+   "label": "Insurance company"
   },
   {
    "fieldname": "insurance_policy_no",
    "fieldtype": "Data",
-   "label": "\u0631\u0642\u0645 \u0648\u062b\u064a\u0642\u0629 \u0627\u0644\u062a\u0623\u0645\u064a\u0646"
+   "label": "Insurance policy number"
   },
   {
    "fieldname": "insurance_expiry",
    "fieldtype": "Date",
-   "label": "\u0627\u0646\u062a\u0647\u0627\u0621 \u0627\u0644\u062a\u0623\u0645\u064a\u0646"
+   "label": "Insurance expiry"
   },
   {
    "fieldname": "insurance_file",
    "fieldtype": "Attach",
-   "label": "\u0645\u0644\u0641 \u0627\u0644\u062a\u0623\u0645\u064a\u0646"
+   "label": "Insurance file"
   },
   {
    "fieldname": "column_break_rgdb",
@@ -488,37 +488,37 @@
   {
    "fieldname": "tuv_no",
    "fieldtype": "Data",
-   "label": "\u0631\u0642\u0645 TUV "
+   "label": "TUV number "
   },
   {
    "fieldname": "tuv_expiry",
    "fieldtype": "Date",
-   "label": "\u0627\u0646\u062a\u0647\u0627\u0621 TUV"
+   "label": "TUV expiry"
   },
   {
    "fieldname": "tuv_file",
    "fieldtype": "Attach",
-   "label": "\u0635\u0648\u0631\u0629 TUV"
+   "label": "TUV image"
   },
   {
    "fieldname": "exit_tab",
    "fieldtype": "Tab Break",
-   "label": "\u0627\u0644\u062e\u0631\u0648\u062c"
+   "label": "Exit"
   },
   {
    "fieldname": "exit_section",
    "fieldtype": "Section Break",
-   "label": "\u0625\u0646\u0647\u0627\u0621 \u0627\u0644\u0645\u0639\u062f\u0629"
+   "label": "Equipment exit"
   },
   {
    "fieldname": "exit_date",
    "fieldtype": "Date",
-   "label": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0625\u0646\u0647\u0627\u0621"
+   "label": "Exit date"
   },
   {
    "fieldname": "exit_reason",
    "fieldtype": "Select",
-   "label": "\u0633\u0628\u0628 \u0627\u0644\u0625\u0646\u0647\u0627\u0621",
+   "label": "Exit reason",
    "options": "\u0627\u0646\u062a\u0647\u0627\u0621 \u0627\u0644\u0625\u064a\u062c\u0627\u0631\n\u0625\u0631\u062c\u0627\u0639 \u0644\u0644\u0645\u0624\u062c\u0631\n\u0628\u064a\u0639\n\u062a\u0643\u0647\u064a\u0646\n\u0646\u0642\u0644 \u0644\u0641\u0631\u0639 \u0622\u062e\u0631"
   },
   {
@@ -528,12 +528,12 @@
   {
    "fieldname": "exit_meter",
    "fieldtype": "Float",
-   "label": "\u0642\u0631\u0627\u0621\u0629 \u0627\u0644\u0639\u062f\u0627\u062f \u0639\u0646\u062f \u0627\u0644\u0625\u0646\u0647\u0627\u0621"
+   "label": "Meter reading at exit"
   },
   {
    "fieldname": "settlement_status",
    "fieldtype": "Select",
-   "label": "\u062d\u0627\u0644\u0629 \u0627\u0644\u062a\u0633\u0648\u064a\u0629",
+   "label": "Settlement status",
    "options": "\u0644\u0645 \u062a\u062a\u0645\n\u062a\u0645\u062a"
   },
   {
@@ -543,12 +543,12 @@
   {
    "fieldname": "exit_notes",
    "fieldtype": "Small Text",
-   "label": "\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Notes"
   },
   {
    "fieldname": "connections_tab",
    "fieldtype": "Tab Break",
-   "label": "\u0627\u0644\u0627\u0631\u062a\u0628\u0627\u0637\u0627\u062a",
+   "label": "Connections",
    "show_dashboard": 1
   }
  ],
@@ -557,22 +557,22 @@
  "index_web_pages_for_search": 1,
  "links": [
   {
-   "group": "\u0627\u0644\u062a\u0634\u063a\u064a\u0644",
+   "group": "Operation",
    "link_doctype": "Card Equipment Assignment",
    "link_fieldname": "equipment"
   },
   {
-   "group": "\u0627\u0644\u062a\u0634\u063a\u064a\u0644",
+   "group": "Operation",
    "link_doctype": "Card Monthly Card",
    "link_fieldname": "equipment"
   },
   {
-   "group": "\u0627\u0644\u0645\u0631\u062c\u0639",
+   "group": "Reference",
    "link_doctype": "Supplier",
    "link_fieldname": "supplier"
   },
   {
-   "group": "\u0627\u0644\u0645\u0631\u062c\u0639",
+   "group": "Reference",
    "link_doctype": "Project",
    "link_fieldname": "current_project"
   }

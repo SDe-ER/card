@@ -15,14 +15,14 @@
    "fieldname": "category_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "\u0627\u0633\u0645 \u0627\u0644\u0641\u0626\u0629",
+   "label": "Category name",
    "reqd": 1,
    "unique": 1
   },
   {
    "fieldname": "description",
    "fieldtype": "Small Text",
-   "label": "\u0627\u0644\u0648\u0635\u0641"
+   "label": "Description"
   }
  ],
  "grid_page_length": 50,

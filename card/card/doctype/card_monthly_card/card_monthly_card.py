@@ -15,7 +15,7 @@ class CardMonthlyCard(Document):
 		doc_month = cint(self.month)
 		doc_year = cint(self.year)
 		if not doc_month or not doc_year:
-			frappe.throw(_("الشهر والسنة مطلوبين"))
+			frappe.throw(_("Month and year are required"))
 
 		eq = frappe.db.get_value(
 			"Card Equipment",
@@ -32,9 +32,9 @@ class CardMonthlyCard(Document):
 			as_dict=True,
 		)
 		if not eq:
-			frappe.throw(_("المعدة غير موجودة: {0}").format(self.equipment))
+			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
 		if self.company and self.company != eq.company:
-			frappe.throw(_("شركة الكارت لا تطابق شركة المعدة"))
+			frappe.throw(_("The card's company does not match the equipment's company"))
 
 		# ---- period of the card ----
 		first_day = getdate(str(doc_year) + "-" + str(doc_month).zfill(2) + "-01")
@@ -50,23 +50,23 @@ class CardMonthlyCard(Document):
 		work_days = 0
 		for row in self.days:
 			if not row.operation_date:
-				frappe.throw(_("يوجد صف أيام بدون تاريخ"))
+				frappe.throw(_("There is a day row without a date"))
 			d = getdate(row.operation_date)
 			key = str(d)
 			if d < first_day or d > last_day:
-				frappe.throw(_("التاريخ {0} خارج شهر الكارت").format(key))
+				frappe.throw(_("Date {0} is outside the card's month").format(key))
 			if key in seen:
-				frappe.throw(_("التاريخ {0} مكرر في الكارت").format(key))
+				frappe.throw(_("Date {0} is duplicated in the card").format(key))
 			seen[key] = 1
 			if row.day_status != "عمل":
 				row.working_hours = 0
 			h = flt(row.working_hours)
 			if h < 0:
-				frappe.throw(_("ساعات بالسالب في يوم {0}").format(key))
+				frappe.throw(_("Negative hours on day {0}").format(key))
 			if h > 24:
-				frappe.throw(_("عدد ساعات يوم {0} أكبر من 24 ساعة").format(key))
+				frappe.throw(_("Number of hours on day {0} exceeds 24 hours").format(key))
 			if h > 0 and d > today:
-				frappe.throw(_("لا يمكن تسجيل ساعات تشغيل ليوم لم يأت بعد: {0}").format(key))
+				frappe.throw(_("Cannot record operating hours for a future day: {0}").format(key))
 			if h > 0:
 				total_hours = total_hours + h
 				work_days = work_days + 1
@@ -77,12 +77,12 @@ class CardMonthlyCard(Document):
 		if eq.rate_type == "باليوم":
 			daily_hours = flt(eq.daily_hours)
 			if daily_hours <= 0:
-				frappe.throw(_("حدد ساعات العمل اليومية للمعدة {0}").format(self.equipment))
+				frappe.throw(_("Set the daily working hours for equipment {0}").format(self.equipment))
 			hourly_rate = rate / daily_hours
 		elif eq.rate_type == "بالساعة":
 			hourly_rate = rate
 		else:
-			frappe.throw(_("طريقة حساب المعدة غير محددة: {0}").format(self.equipment))
+			frappe.throw(_("Equipment rate type is not defined: {0}").format(self.equipment))
 
 		self.rate_type = eq.rate_type
 		self.rate = rate
@@ -99,13 +99,13 @@ class CardMonthlyCard(Document):
 		for adj in self.adjustments or []:
 			a = flt(adj.amount)
 			if a <= 0:
-				frappe.throw(_("مبلغ الإضافة/الخصم لازم يكون أكبر من صفر: {0}").format(adj.description or ""))
+				frappe.throw(_("The addition/deduction amount must be greater than zero: {0}").format(adj.description or ""))
 			if adj.adjustment_type == "إضافة":
 				total_additions = total_additions + a
 			elif adj.adjustment_type == "خصم":
 				total_deductions = total_deductions + a
 			else:
-				frappe.throw(_("نوع غير معروف في الإضافات والخصومات: {0}").format(adj.adjustment_type))
+				frappe.throw(_("Unknown type in additions and deductions: {0}").format(adj.adjustment_type))
 		self.total_additions = flt(total_additions, 2)
 		self.total_deductions = flt(total_deductions, 2)
 		self.net_amount = flt(flt(self.amount) + total_additions - total_deductions, 2)
@@ -125,7 +125,7 @@ class CardMonthlyCard(Document):
 			limit=1,
 		)
 		if dup:
-			frappe.throw(_("يوجد كارت {0} لنفس المعدة ونفس الشهر: {1}").format(self.shift, dup[0]))
+			frappe.throw(_("A {0} card already exists for the same equipment and month: {1}").format(self.shift, dup[0]))
 
 		# ---- shift length warning (per card, per day; each shift card stands alone) ----
 		shift_hours = flt(eq.daily_hours)
@@ -137,14 +137,14 @@ class CardMonthlyCard(Document):
 			]
 			if over:
 				frappe.msgprint(
-					_("أيام تخطت ساعات الدوام ({0} ساعة): {1}").format(shift_hours, "، ".join(over)),
-					title=_("تحذير تخطي الدوام"),
+					_("Days exceeding shift hours ({0} hours): {1}").format(shift_hours, "، ".join(over)),
+					title=_("Shift hours exceeded warning"),
 					indicator="orange",
 				)
 		else:
 			frappe.msgprint(
-				_("لم يتم تحديد ساعات الدوام للمعدة {0}، لن يظهر تحذير تخطي الدوام.").format(self.equipment),
-				title=_("ساعات الدوام"),
+				_("Shift hours are not set for equipment {0}; the shift-hours-exceeded warning will not appear.").format(self.equipment),
+				title=_("Shift hours"),
 				indicator="orange",
 			)
 
@@ -152,8 +152,8 @@ class CardMonthlyCard(Document):
 		if eq.ownership != "ملك" and hours_by_date:
 			if not eq.rental_start_date:
 				frappe.msgprint(
-					_("المعدة ليس لها تاريخ بداية إيجار. راجع بيانات الإيجار."),
-					title=_("مراجعة فترة الإيجار"),
+					_("The equipment has no rental start date. Review the rental data."),
+					title=_("Review rental period"),
 					indicator="orange",
 				)
 			else:
@@ -166,8 +166,8 @@ class CardMonthlyCard(Document):
 						outside.append(k)
 				if outside:
 					frappe.msgprint(
-						_("أيام فيها تشغيل خارج فترة الإيجار (محسوبة، تحتاج مراجعة): {0}").format("، ".join(outside)),
-						title=_("مراجعة فترة الإيجار"),
+						_("Days with operation outside the rental period (calculated, needs review): {0}").format("، ".join(outside)),
+						title=_("Review rental period"),
 						indicator="orange",
 					)
 
@@ -188,7 +188,7 @@ class CardMonthlyCard(Document):
 					message="Card " + str(self.name) + " (event " + str(self.docstatus) + ")",
 				)
 				frappe.msgprint(
-					_("تعذّر تحديث سجل المورد {0}. الكارت اتحفظ عادي؛ استخدم زرار «تحديث الأرقام» في سجل المورد.").format(self.supplier),
-					title=_("سجل المورد"),
+					_("Could not update the supplier record {0}. The card was saved normally; use the \"Refresh numbers\" button in the supplier record.").format(self.supplier),
+					title=_("Supplier record"),
 					indicator="orange",
 				)

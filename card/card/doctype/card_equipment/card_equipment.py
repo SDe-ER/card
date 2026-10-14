@@ -15,7 +15,7 @@ class CardEquipment(Document):
 		rate = flt(self.rate)
 		if self.rate_type == "باليوم":
 			if flt(self.daily_hours) <= 0:
-				frappe.throw(_("حدد ساعات العمل اليومية (الدوام) لحساب سعر الساعة"))
+				frappe.throw(_("Set the daily working hours (shift) to calculate the hourly rate"))
 			self.approved_hourly_rate = flt(rate / flt(self.daily_hours), 2)
 		elif self.rate_type == "بالساعة":
 			self.approved_hourly_rate = rate
