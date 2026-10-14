@@ -21,6 +21,19 @@ OWNED = "ملك"
 RENTED = "إيجار"
 
 
+def _leaf(doctype, name_field, root):
+	"""A non-group row of a tree master (Customer needs leaf group/territory)."""
+	leaf = frappe.db.get_value(doctype, {"is_group": 0}, "name")
+	if leaf:
+		return leaf
+	leaf = "Test " + doctype
+	if not frappe.db.exists(doctype, leaf):
+		frappe.get_doc(
+			{"doctype": doctype, name_field: leaf, "parent_" + frappe.scrub(doctype): root, "is_group": 0}
+		).insert(ignore_permissions=True)
+	return leaf
+
+
 class TestCardDirection(IntegrationTestCase):
 	@classmethod
 	def setUpClass(cls):
@@ -43,8 +56,8 @@ class TestCardDirection(IntegrationTestCase):
 		self.supplier = sup.name
 		cust = frappe.new_doc("Customer")
 		cust.customer_name = "TEST-CUST-" + self.token
-		cust.customer_group = "All Customer Groups"
-		cust.territory = "All Territories"
+		cust.customer_group = _leaf("Customer Group", "customer_group_name", "All Customer Groups")
+		cust.territory = _leaf("Territory", "territory_name", "All Territories")
 		cust.insert(ignore_permissions=True)
 		self.customer = cust.name
 
