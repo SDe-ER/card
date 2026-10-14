@@ -64,6 +64,10 @@ def project_dashboard(data):
 
 
 def customer_dashboard(data):
-	# Card customer links are added in phase E (Card Equipment Customer + card.customer).
-	# Registered now so phase E only edits this function.
-	return data
+	return _append_card_group(
+		data,
+		[
+			("Card Equipment Customer", "customer"),
+			("Card Monthly Card", "customer"),
+		],
+	)

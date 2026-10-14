@@ -1791,3 +1791,18 @@ msgstr "سجل العميل"
 
 msgid "Could not update the customer record {0}. The card was saved normally; use the «Refresh numbers» button in the customer record."
 msgstr "تعذّر تحديث سجل العميل {0}. الكارت اتحفظ بشكل طبيعي؛ استخدم زر «تحديث الأرقام» في سجل العميل."
+
+msgid "Suppliers & Customers"
+msgstr "الموردين والعملاء"
+
+msgid "Card Equipment Customer"
+msgstr "عميل المعدات"
+
+msgid "Equipment Customer Statement"
+msgstr "كشف حساب العميل"
+
+msgid "Equipment Customers Summary"
+msgstr "ملخص العملاء"
+
+msgid "Customer name"
+msgstr "اسم العميل"

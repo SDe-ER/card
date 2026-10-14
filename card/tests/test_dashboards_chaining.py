@@ -5,7 +5,6 @@ each ``override_doctype_dashboards`` function. These tests use a synthetic
 pre-existing ``data`` to prove other apps' connections survive.
 """
 
-import copy
 
 from frappe.tests import IntegrationTestCase
 
@@ -100,19 +99,24 @@ class TestDashboardsChaining(IntegrationTestCase):
 		self.assertEqual(result["non_standard_fieldnames"]["Other App Doctype"], "yfield")
 		self.assertEqual(result["non_standard_fieldnames"]["Some Existing Doctype"], "xfield")
 
-	def test_customer_is_noop_for_now(self):
+	def test_customer_appends_not_replaces(self):
+		# phase E: the Customer dashboard gains a Card group; native groups survive
 		data = _existing()
-		before = copy.deepcopy(data)
 		result = dashboards.customer_dashboard(data)
-		self.assertEqual(result, before)
 		self.assertIn("Existing HRMS", _labels(result))
-		self.assertNotIn("Card", _labels(result))
+		self.assertIn("Card", _labels(result))
+		card_group = [g for g in result["transactions"] if g["label"] == "Card"][0]
+		self.assertIn("Card Equipment Customer", card_group["items"])
+		self.assertIn("Card Monthly Card", card_group["items"])
+		self.assertEqual(result["non_standard_fieldnames"]["Card Equipment Customer"], "customer")
+		self.assertEqual(result["non_standard_fieldnames"]["Card Monthly Card"], "customer")
 
 	def test_dashboards_handle_empty_data(self):
 		for fn in (
 			dashboards.supplier_dashboard,
 			dashboards.asset_dashboard,
 			dashboards.project_dashboard,
+			dashboards.customer_dashboard,
 		):
 			result = fn({})
 			self.assertIsInstance(result["transactions"], list)
