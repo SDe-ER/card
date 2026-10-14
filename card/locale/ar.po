@@ -116,7 +116,7 @@ msgstr "لا يمكن تسجيل ساعات تشغيل ليوم لم يأت بع
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr ""
+msgstr "Card"
 
 #. Name of a DocType
 #: card/card/doctype/card_equipment/card_equipment.json
