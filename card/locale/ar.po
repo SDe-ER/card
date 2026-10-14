@@ -68,27 +68,6 @@ msgstr "الإضافات"
 msgid "Additions and deductions"
 msgstr "إضافات وخصومات"
 
-#. Label of the amended_from (Link) field in DocType 'Card Monthly Card'
-#. Label of the amended_from (Link) field in DocType 'Equipment Transport'
-#. Label of the amended_from (Link) field in DocType 'Project Diesel Fill'
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-#: card/card/doctype/equipment_transport/equipment_transport.json
-#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-msgid "Amended From"
-msgstr ""
-
-#. Label of the amount (Currency) field in DocType 'Card Monthly Card
-#. Adjustment'
-#. Label of the amount (Currency) field in DocType 'Equipment Transport'
-#. Label of the amount (Currency) field in DocType 'Project Diesel Fill'
-#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
-#: card/card/doctype/equipment_transport/equipment_transport.json
-#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:20
-#: card/card/report/transport_cost_by_project/transport_cost_by_project.py:10
-msgid "Amount"
-msgstr "المبلغ"
-
 #. Label of the الأصل_في_erpnext (Link) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Asset in ERPNext"
@@ -103,11 +82,6 @@ msgstr "تاريخ التعيين"
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Basic details"
 msgstr "البيانات الأساسية"
-
-#. Label of the brand (Data) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Brand"
-msgstr "الماركة"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:69
 msgid "Cannot record operating hours for a future day: {0}"
@@ -169,10 +143,6 @@ msgstr ""
 msgid "Card details"
 msgstr "بيانات الكارت"
 
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:198
-msgid "Cards"
-msgstr "الكروت"
-
 #. Label of the category_name (Data) field in DocType 'Card Equipment Category'
 #: card/card/doctype/card_equipment_category/card_equipment_category.json
 msgid "Category name"
@@ -187,46 +157,10 @@ msgstr "رقم الشاسيه"
 msgid "Closing balance"
 msgstr "الرصيد آخر المدة"
 
-#. Label of the company (Link) field in DocType 'Card Equipment'
-#. Label of the company (Link) field in DocType 'Card Monthly Card'
-#. Label of the company (Link) field in DocType 'Equipment Transport'
-#. Label of the company (Link) field in DocType 'Project Diesel Fill'
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-#: card/card/doctype/equipment_transport/equipment_transport.json
-#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:6
-#: card/card/report/operating_cost_by_project/operating_cost_by_project.js:6
-#: card/card/report/transport_cost_by_project/transport_cost_by_project.js:6
-msgid "Company"
-msgstr "الشركة"
-
-#. Label of the component (Link) field in DocType 'Card Equipment Component'
-#: card/card/doctype/card_equipment_component/card_equipment_component.json
-msgid "Component"
-msgstr "المكوّن"
-
-#. Label of the components (Table) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Components"
-msgstr "المكوّنات"
-
-#. Label of the connections_tab (Tab Break) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Connections"
-msgstr "الارتباطات"
-
 #. Label of the contract_no (Data) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Contract number"
 msgstr "رقم العقد"
-
-#. Label of the cost_center (Link) field in DocType 'Equipment Transport'
-#. Label of the cost_center (Link) field in DocType 'Project Diesel Fill'
-#: card/card/doctype/equipment_transport/equipment_transport.json
-#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-msgid "Cost Center"
-msgstr ""
 
 #. Label of the cost_tab (Tab Break) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -265,15 +199,6 @@ msgstr "ساعات التشغيل اليومية من كروت التشغيل ا
 msgid "Daily working hours"
 msgstr "ساعات العمل اليومية"
 
-#. Label of the operation_date (Date) field in DocType 'Card Monthly Card Day'
-#. Label of the date (Date) field in DocType 'Equipment Transport'
-#. Label of the date (Date) field in DocType 'Project Diesel Fill'
-#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
-#: card/card/doctype/equipment_transport/equipment_transport.json
-#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-msgid "Date"
-msgstr "التاريخ"
-
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:59
 msgid "Date {0} is duplicated in the card"
 msgstr "التاريخ {0} مكرر في الكارت"
@@ -281,11 +206,6 @@ msgstr "التاريخ {0} مكرر في الكارت"
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:57
 msgid "Date {0} is outside the card's month"
 msgstr "التاريخ {0} خارج شهر الكارت"
-
-#. Label of the day_name (Data) field in DocType 'Card Monthly Card Day'
-#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
-msgid "Day"
-msgstr "اليوم"
 
 #. Label of the day_section (Section Break) field in DocType 'Card Monthly Card
 #. Day'
@@ -301,11 +221,6 @@ msgstr "حالة اليوم"
 #: card/card/doctype/card_equipment/card_equipment.js:76
 msgid "Day-shift activity"
 msgstr "نشاط الوردية النهارية"
-
-#. Label of the days (Table) field in DocType 'Card Monthly Card'
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "Days"
-msgstr "الأيام"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:140
 msgid "Days exceeding shift hours ({0} hours): {1}"
@@ -325,23 +240,6 @@ msgstr "أيام فيها تشغيل خارج فترة الإيجار (محسو�
 msgid "Deductions"
 msgstr "الخصومات"
 
-#. Label of the description (Small Text) field in DocType 'Card Equipment
-#. Category'
-#. Label of the description (Small Text) field in DocType 'Card Equipment Type'
-#. Label of the description (Data) field in DocType 'Card Monthly Card
-#. Adjustment'
-#: card/card/doctype/card_equipment_category/card_equipment_category.json
-#: card/card/doctype/card_equipment_type/card_equipment_type.json
-#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:260
-msgid "Description"
-msgstr "البيان"
-
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:281
-#: card/card/report/operating_cost_by_project/operating_cost_by_project.py:9
-msgid "Diesel"
-msgstr "الديزل"
-
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:259
 msgid "Diesel (litres)"
 msgstr "الديزل (لتر)"
@@ -353,11 +251,6 @@ msgstr "تكلفة الديزل"
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:278
 msgid "Display only — does not affect the rental amount."
 msgstr "عرض فقط — لا يؤثّر على قيمة الإيجار."
-
-#. Label of the documents_tab (Tab Break) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Documents"
-msgstr "المستندات"
 
 #. Label of the operator_name (Data) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
@@ -463,11 +356,6 @@ msgstr "ملخص موردي المعدات — الفترة من "
 msgid "Equipment type"
 msgstr "نوع المعدة"
 
-#. Label of the exit_tab (Tab Break) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Exit"
-msgstr "الخروج"
-
 #. Label of the exit_date (Date) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Exit date"
@@ -537,22 +425,10 @@ msgstr "الإجمالي العام"
 msgid "Hourly rate"
 msgstr "سعر الساعة"
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:274
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:200
-msgid "Hours"
-msgstr "الساعات"
-
 #. Label of the idle_reason (Data) field in DocType 'Card Monthly Card Day'
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Idle reason"
 msgstr "سبب التوقف"
-
-#. Label of the image (Attach Image) field in DocType 'Card Equipment'
-#. Label of the image (Attach Image) field in DocType 'Card Monthly Card'
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "Image"
-msgstr "الصورة"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:93
 msgid "Include drafts"
@@ -672,11 +548,6 @@ msgstr "الصيانة كل (لتر ديزل)"
 msgid "Manufacture year"
 msgstr "سنة الصنع"
 
-#. Label of the meter_section (Section Break) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Meter"
-msgstr "العداد"
-
 #. Label of the meter_tab (Tab Break) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Meter and maintenance"
@@ -708,17 +579,6 @@ msgstr "نوع العداد"
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Minimum hours per month"
 msgstr "الحد الأدنى للساعات شهرياً"
-
-#. Label of the model (Data) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Model"
-msgstr "الموديل"
-
-#. Label of the month (Select) field in DocType 'Card Monthly Card'
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:18
-msgid "Month"
-msgstr "الشهر"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:18
 msgid "Month and year are required"
@@ -809,21 +669,10 @@ msgstr "ساعات التشغيل"
 msgid "Operating owned equipment by project — Period from "
 msgstr "تشغيل المعدات الملك حسب المشروع — الفترة من "
 
-#. Group in Card Equipment's connections
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_equipment/card_equipment_dashboard.py:14
-msgid "Operation"
-msgstr "التشغيل"
-
 #. Label of the operation_tab (Tab Break) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Operation and assignment"
 msgstr "التشغيل والتعيين"
-
-#. Label of the operator (Link) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Operator"
-msgstr "المشغّل"
 
 #. Label of the operator_on (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -853,17 +702,6 @@ msgstr ""
 msgid "Owner"
 msgstr "المالك"
 
-#. Label of the ownership (Select) field in DocType 'Card Equipment'
-#. Label of the ownership (Data) field in DocType 'Card Monthly Card'
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "Ownership"
-msgstr "الملكية"
-
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:205
-msgid "Paid"
-msgstr "المدفوع"
-
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:358
 msgid "Paid (Debit)"
 msgstr "المدفوع (مدين)"
@@ -878,27 +716,6 @@ msgstr "انتهاء الفحص الدوري"
 msgid "Plate number"
 msgstr "رقم اللوحة"
 
-#. Label of the project (Link) field in DocType 'Card Equipment Assignment'
-#. Label of the project (Link) field in DocType 'Card Monthly Card'
-#. Label of the project (Link) field in DocType 'Equipment Transport'
-#. Label of the project (Link) field in DocType 'Project Diesel Fill'
-#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:230
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-#: card/card/doctype/equipment_transport/equipment_transport.json
-#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:13
-#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:17
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:80
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:269
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:64
-#: card/card/report/operating_cost_by_project/operating_cost_by_project.js:13
-#: card/card/report/operating_cost_by_project/operating_cost_by_project.py:8
-#: card/card/report/transport_cost_by_project/transport_cost_by_project.js:13
-#: card/card/report/transport_cost_by_project/transport_cost_by_project.py:8
-msgid "Project"
-msgstr "المشروع"
-
 #. Name of a DocType
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Project Diesel Fill"
@@ -912,21 +729,6 @@ msgstr "اسم المشروع"
 #: card/card/doctype/card_equipment/card_equipment.js:150
 msgid "Projects worked on"
 msgstr "المشاريع التي عملت عليها"
-
-#. Label of the purchase_invoice (Link) field in DocType 'Equipment Transport'
-#. Label of the purchase_invoice (Link) field in DocType 'Project Diesel Fill'
-#: card/card/doctype/equipment_transport/equipment_transport.json
-#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-msgid "Purchase Invoice"
-msgstr ""
-
-#. Label of the rate (Currency) field in DocType 'Card Equipment'
-#. Label of the rate (Currency) field in DocType 'Card Monthly Card'
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:280
-msgid "Rate"
-msgstr "السعر"
 
 #. Label of the rate_type (Select) field in DocType 'Card Equipment'
 #. Label of the rate_type (Data) field in DocType 'Card Monthly Card'
@@ -994,11 +796,6 @@ msgstr "بداية الإيجار"
 msgid "Review rental period"
 msgstr "مراجعة فترة الإيجار"
 
-#. Label of the role (Data) field in DocType 'Card Equipment Component'
-#: card/card/doctype/card_equipment_component/card_equipment_component.json
-msgid "Role"
-msgstr "الدور"
-
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:296
 msgid "Select a supplier to display the statement."
 msgstr "اختار المورد لعرض الكشف."
@@ -1033,12 +830,6 @@ msgstr "حدد ساعات العمل اليومية للمعدة {0}"
 msgid "Settlement status"
 msgstr "حالة التسوية"
 
-#. Label of the shift (Select) field in DocType 'Card Monthly Card'
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:270
-msgid "Shift"
-msgstr "الوردية"
-
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:147
 msgid "Shift hours"
 msgstr "ساعات الدوام"
@@ -1064,12 +855,6 @@ msgstr "كشف الحساب"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:48
 msgid "Statement type"
 msgstr "نوع الكشف"
-
-#. Label of the stats_section (Section Break) field in DocType 'Card Equipment
-#. Supplier'
-#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
-msgid "Statistics"
-msgstr "الإحصائيات"
 
 #. Label of the status (Select) field in DocType 'Card Equipment'
 #. Label of the status (Select) field in DocType 'Card Equipment Assignment'
@@ -1104,18 +889,6 @@ msgstr "اسم المورد"
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:192
 msgid "Supplier record"
 msgstr "سجل المورد"
-
-#. Name of a role
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
-#: card/card/doctype/card_equipment_category/card_equipment_category.json
-#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
-#: card/card/doctype/card_equipment_type/card_equipment_type.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-#: card/card/doctype/equipment_transport/equipment_transport.json
-#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-msgid "System Manager"
-msgstr ""
 
 #. Label of the tuv_expiry (Date) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -1183,10 +956,6 @@ msgstr "إلى شهر"
 msgid "To year"
 msgstr "إلى سنة"
 
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:173
-msgid "Total"
-msgstr "الإجمالي"
-
 #. Label of the total_additions (Currency) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Total additions"
@@ -1226,12 +995,6 @@ msgstr "إجمالي ساعات التشغيل"
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:219
 msgid "Total supplier balances"
 msgstr "إجمالي أرصدة الموردين"
-
-#. Label of the totals_section (Section Break) field in DocType 'Card Monthly
-#. Card'
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "Totals"
-msgstr "الإجماليات"
 
 #: card/card/report/operating_cost_by_project/operating_cost_by_project.py:10
 msgid "Transport"
@@ -1288,11 +1051,6 @@ msgstr "نوع غير معروف في الإضافات والخصومات: {0}"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:273
 msgid "Working days"
 msgstr "أيام العمل"
-
-#. Label of the year (Int) field in DocType 'Card Monthly Card'
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "Year"
-msgstr "السنة"
 
 #: card/card/doctype/card_equipment/card_equipment.js:28
 #: card/card/doctype/card_equipment/card_equipment.js:51
@@ -1477,23 +1235,14 @@ msgstr ""
 msgid "Diesel & Transport"
 msgstr "الديزل والنقل"
 
-msgid "Operations"
-msgstr "التشغيل"
-
 msgid "Suppliers"
 msgstr "الموردين"
-
-msgid "Reports"
-msgstr "التقارير"
 
 msgid "Card Settings"
 msgstr "الإعدادات"
 
 msgid "Card Company Settings"
 msgstr "إعدادات كارت للشركة"
-
-msgid "Policy"
-msgstr "السياسة"
 
 msgid "Enable accounting posting"
 msgstr "تفعيل الترحيل المحاسبي"
@@ -1540,9 +1289,6 @@ msgstr "قالب ضريبة المشتريات"
 msgid "Sales tax template"
 msgstr "قالب ضريبة المبيعات"
 
-msgid "Items"
-msgstr "الأصناف"
-
 msgid "Rental item"
 msgstr "صنف الإيجار"
 
@@ -1573,26 +1319,14 @@ msgstr "الشركة مطلوبة لمحاسبة كارت."
 msgid "Duplicate company in Card Company Settings: {0}"
 msgstr "شركة مكررة في إعدادات كارت للشركة: {0}"
 
-msgid "Unallocated"
-msgstr "غير مخصّص"
-
 msgid "Accounting"
 msgstr "المحاسبة"
 
 msgid "Period Lock"
 msgstr "قفل الفترة"
 
-msgid "Notifications"
-msgstr "الإشعارات"
-
-msgid "Defaults"
-msgstr "الافتراضيات"
-
 msgid "Rounding"
 msgstr "التقريب"
-
-msgid "Warnings"
-msgstr "التنبيهات"
 
 msgid "Report defaults"
 msgstr "افتراضيات التقارير"
@@ -1690,14 +1424,8 @@ msgstr "الفترة مقفولة حتى {0}؛ غير مسموح بـ{1} لـ{2}
 msgid "CARD period lock override"
 msgstr "تجاوز قفل الفترة في كارت"
 
-msgid "Dashboard"
-msgstr "الرئيسية"
-
 msgid "Suppliers & Customers"
 msgstr "الموردين والعملاء"
-
-msgid "Settings"
-msgstr "الإعدادات"
 
 msgid "GL Posting Log"
 msgstr "سجل الترحيل المحاسبي"
@@ -1708,17 +1436,8 @@ msgstr "الأصل {0} مربوط بالفعل بالمعدة {1}"
 msgid "Asset {0} does not exist"
 msgstr "الأصل {0} غير موجود"
 
-msgid "Asset {0} must be submitted"
-msgstr "يجب اعتماد الأصل {0}"
-
 msgid "Create from Asset"
 msgstr "إنشاء من أصل"
-
-msgid "Asset"
-msgstr "الأصل"
-
-msgid "Create"
-msgstr "إنشاء"
 
 msgid "Asset item"
 msgstr "صنف الأصل"
@@ -1804,9 +1523,6 @@ msgstr "ملخص العملاء"
 msgid "Customer name"
 msgstr "اسم العميل"
 
-msgid "Period"
-msgstr "الفترة"
-
 msgid "Customer"
 msgstr "العميل"
 
@@ -1824,9 +1540,6 @@ msgstr "قيود الفوترة"
 
 msgid "Received (Credit)"
 msgstr "المحصّل (دائن)"
-
-msgid "Received"
-msgstr "المحصّل"
 
 msgid "Customer closing balance"
 msgstr "رصيد العميل آخر المدة"
@@ -1867,5 +1580,3 @@ msgstr "صافي المبالغ بدون معدة"
 msgid "Expense lines on the CARD expense accounts with no Card Equipment dimension. Fix them at the source document so the per-equipment P&L stays complete."
 msgstr "سطور مصروفات على حسابات الكارت بدون بُعد «معدة الكارت». صحّحها من المستند الأصلي حتى تظل أرباح/خسائر كل معدة مكتملة."
 
-msgid "Select a company"
-msgstr "اختر الشركة"
