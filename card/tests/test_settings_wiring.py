@@ -23,6 +23,9 @@ OWNED_STATEMENT = "معدات ملك"
 
 def _set(field, value):
 	frappe.db.set_single_value("Card Settings", field, value)
+	# flipping single values mid-test: drop any cached single value so the next
+	# setting() read is fresh (production rarely re-reads within one request).
+	frappe.clear_document_cache("Card Settings", "Card Settings")
 
 
 def _statement(filters):
@@ -135,10 +138,10 @@ class TestCardSettingsWiring(IntegrationTestCase):
 			d.reload()
 			return d
 
-		# daily_hours / fuel left blank. operator_on carries a DocType default
-		# (المؤجر) that is applied to every new doc, so "blank" is passed
-		# explicitly as "" (the API/import case where no value was chosen).
-		eq = make(operator_on="")
+		# daily_hours / fuel / operator_on left blank -> defaulted from settings.
+		# operator_on no longer carries a hardcoded DocType default, so the
+		# Card Settings value governs a new record.
+		eq = make()
 		self.assertEqual(flt(eq.daily_hours), 8.0)
 		self.assertEqual(eq.get(FUEL_FIELD), COMPANY)
 		self.assertEqual(eq.operator_on, COMPANY)
@@ -168,7 +171,7 @@ class TestCardSettingsWiring(IntegrationTestCase):
 			make()
 		eq4 = make(daily_hours=7)
 		self.assertFalse(eq4.get(FUEL_FIELD))
-		self.assertEqual(eq4.operator_on, LESSOR)  # the DocType's own default
+		self.assertFalse(eq4.operator_on)  # no hardcoded default; blank setting -> stays empty
 
 	# ---------- 2a. statement_type default ----------
 
