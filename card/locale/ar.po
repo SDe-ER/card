@@ -101,7 +101,7 @@ msgstr "التكلفة والإيجار"
 msgid "Cost center"
 msgstr "مركز التكلفة"
 
-msgid "Could not update the supplier record {0}. The card was saved normally; use the \\\"Refresh numbers\\\" button in the supplier record."
+msgid "Could not update the supplier record {0}. The card was saved normally; use the «Refresh numbers» button in the supplier record."
 msgstr "تعذّر تحديث سجل المورد {0}. الكارت اتحفظ عادي؛ استخدم زرار «تحديث الأرقام» في سجل المورد."
 
 msgid "Current assignment"

@@ -188,7 +188,7 @@ class CardMonthlyCard(Document):
 					message="Card " + str(self.name) + " (event " + str(self.docstatus) + ")",
 				)
 				frappe.msgprint(
-					_("Could not update the supplier record {0}. The card was saved normally; use the \"Refresh numbers\" button in the supplier record.").format(self.supplier),
+					_("Could not update the supplier record {0}. The card was saved normally; use the «Refresh numbers» button in the supplier record.").format(self.supplier),
 					title=_("Supplier record"),
 					indicator="orange",
 				)
