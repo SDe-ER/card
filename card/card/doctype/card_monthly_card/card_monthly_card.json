@@ -325,6 +325,7 @@
   },
   {
    "fetch_from": "project.customer",
+   "fetch_if_empty": 1,
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
@@ -332,6 +333,7 @@
   },
   {
    "fetch_from": "equipment.customer_rate_type",
+   "fetch_if_empty": 1,
    "fieldname": "customer_rate_type",
    "fieldtype": "Select",
    "label": "Customer rate type",
@@ -339,6 +341,7 @@
   },
   {
    "fetch_from": "equipment.customer_rate",
+   "fetch_if_empty": 1,
    "fieldname": "customer_rate",
    "fieldtype": "Currency",
    "label": "Customer rate"
