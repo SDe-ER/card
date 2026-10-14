@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 09:38+0000\n"
-"PO-Revision-Date: 2026-10-14 09:38+0000\n"
+"POT-Creation-Date: 2026-10-14 09:47+0000\n"
+"PO-Revision-Date: 2026-10-14 09:47+0000\n"
 "Last-Translator: info@sdce.sa\n"
 "Language-Team: info@sdce.sa\n"
 "MIME-Version: 1.0\n"
@@ -126,6 +126,11 @@ msgid "Card Equipment Category"
 msgstr ""
 
 #. Name of a DocType
+#: card/card/doctype/card_equipment_component/card_equipment_component.json
+msgid "Card Equipment Component"
+msgstr ""
+
+#. Name of a DocType
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Card Equipment Supplier"
 msgstr ""
@@ -179,6 +184,16 @@ msgstr ""
 #: card/card/doctype/card_equipment/card_equipment.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Company"
+msgstr ""
+
+#. Label of the component (Link) field in DocType 'Card Equipment Component'
+#: card/card/doctype/card_equipment_component/card_equipment_component.json
+msgid "Component"
+msgstr ""
+
+#. Label of the components (Table) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Components"
 msgstr ""
 
 #. Label of the connections_tab (Tab Break) field in DocType 'Card Equipment'
@@ -859,6 +874,11 @@ msgstr ""
 msgid "Review rental period"
 msgstr ""
 
+#. Label of the role (Data) field in DocType 'Card Equipment Component'
+#: card/card/doctype/card_equipment_component/card_equipment_component.json
+msgid "Role"
+msgstr ""
+
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:296
 msgid "Select a supplier to display the statement."
 msgstr ""
@@ -1064,6 +1084,16 @@ msgstr ""
 #. Type'
 #: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "Type name"
+msgstr ""
+
+#. Label of the is_unit (Check) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Unit (two machines bundled)"
+msgstr ""
+
+#. Label of the unit_section (Section Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Unit components"
 msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:108

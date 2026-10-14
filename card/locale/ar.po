@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 09:38+0000\n"
+"POT-Creation-Date: 2026-10-14 09:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -124,6 +124,11 @@ msgid "Card Equipment Category"
 msgstr ""
 
 #. Name of a DocType
+#: card/card/doctype/card_equipment_component/card_equipment_component.json
+msgid "Card Equipment Component"
+msgstr ""
+
+#. Name of a DocType
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Card Equipment Supplier"
 msgstr ""
@@ -178,6 +183,16 @@ msgstr "الرصيد آخر المدة"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Company"
 msgstr "الشركة"
+
+#. Label of the component (Link) field in DocType 'Card Equipment Component'
+#: card/card/doctype/card_equipment_component/card_equipment_component.json
+msgid "Component"
+msgstr "المكوّن"
+
+#. Label of the components (Table) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Components"
+msgstr "المكوّنات"
 
 #. Label of the connections_tab (Tab Break) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -857,6 +872,11 @@ msgstr "بداية الإيجار"
 msgid "Review rental period"
 msgstr "مراجعة فترة الإيجار"
 
+#. Label of the role (Data) field in DocType 'Card Equipment Component'
+#: card/card/doctype/card_equipment_component/card_equipment_component.json
+msgid "Role"
+msgstr "الدور"
+
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:296
 msgid "Select a supplier to display the statement."
 msgstr "اختار المورد لعرض الكشف."
@@ -1063,6 +1083,16 @@ msgstr "النوع"
 #: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "Type name"
 msgstr "اسم النوع"
+
+#. Label of the is_unit (Check) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Unit (two machines bundled)"
+msgstr "وحدة (معدتين مع بعض)"
+
+#. Label of the unit_section (Section Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Unit components"
+msgstr "مكوّنات الوحدة"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:108
 msgid "Unknown type in additions and deductions: {0}"
