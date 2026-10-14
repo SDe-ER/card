@@ -1,669 +1,1237 @@
+
 msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
+"POT-Creation-Date: 2026-10-14 07:31+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ar\n"
+"Language-Team: ar <LL@li.org>\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ar\n"
+"Generated-By: Babel 2.16.0\n"
 
-
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:183
 msgid " (Draft)"
 msgstr " (مسودة)"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:372
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:383
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:231
 msgid " to "
 msgstr " إلى "
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:385
 msgid " — Hours only until internal rates are defined."
 msgstr " — الساعات فقط لحين تحديد الأسعار الداخلية."
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:374
 msgid " — Issue date "
 msgstr " — تاريخ الإصدار "
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:370
 msgid " — Period from "
 msgstr " — الفترة من "
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:376
 msgid ". Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
 msgstr ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:233
 msgid ". Click on the supplier name to open their statement."
 msgstr ". اضغط على اسم المورد لفتح كشف حسابه."
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:178
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:128
 msgid "A {0} card already exists for the same equipment and month: {1}"
 msgstr "يوجد كارت {0} لنفس المعدة ونفس الشهر: {1}"
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:202
 msgid "Accrual entries"
 msgstr "قيود الاستحقاق"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:341
 msgid "Accrual entries (Credit)"
 msgstr "قيود الاستحقاق (دائن)"
 
-msgid "Active"
-msgstr "نشط"
-
-msgid "Addition"
-msgstr "إضافة"
-
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:283
 msgid "Additions"
 msgstr "الإضافات"
 
+#. Label of the adjustments_section (Section Break) field in DocType 'Card
+#. Monthly Card'
+#. Label of the adjustments (Table) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Additions and deductions"
 msgstr "إضافات وخصومات"
 
+#. Label of the amended_from (Link) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Amended From"
+msgstr ""
+
+#. Label of the amount (Currency) field in DocType 'Card Monthly Card
+#. Adjustment'
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
 msgid "Amount"
 msgstr "المبلغ"
 
+#. Label of the الأصل_في_erpnext (Link) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Asset in ERPNext"
 msgstr "الأصل في ERPNext"
 
+#. Label of the assignment_date (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Assignment date"
 msgstr "تاريخ التعيين"
 
+#. Label of the basic_tab (Tab Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Basic details"
 msgstr "البيانات الأساسية"
 
+#. Label of the brand (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Brand"
 msgstr "الماركة"
 
-msgid "Breakdown"
-msgstr "عطل"
-
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:69
 msgid "Cannot record operating hours for a future day: {0}"
 msgstr "لا يمكن تسجيل ساعات تشغيل ليوم لم يأت بعد: {0}"
 
+#. Name of a DocType
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Card Equipment"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+msgid "Card Equipment Assignment"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/card_equipment_category/card_equipment_category.json
+msgid "Card Equipment Category"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
+msgid "Card Equipment Supplier"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Card Equipment Type"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Card Monthly Card"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Card Monthly Card Adjustment"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Card Monthly Card Day"
+msgstr ""
+
+#. Label of the header_section (Section Break) field in DocType 'Card Monthly
+#. Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Card details"
 msgstr "بيانات الكارت"
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:198
 msgid "Cards"
 msgstr "الكروت"
 
+#. Label of the category_name (Data) field in DocType 'Card Equipment Category'
+#: card/card/doctype/card_equipment_category/card_equipment_category.json
 msgid "Category name"
 msgstr "اسم الفئة"
 
+#. Label of the serial_no (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Chassis number"
 msgstr "رقم الشاسيه"
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:206
 msgid "Closing balance"
 msgstr "الرصيد آخر المدة"
 
+#. Label of the company (Link) field in DocType 'Card Equipment'
+#. Label of the company (Link) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Company"
 msgstr "الشركة"
 
+#. Label of the connections_tab (Tab Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Connections"
 msgstr "الارتباطات"
 
+#. Label of the contract_no (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Contract number"
 msgstr "رقم العقد"
 
+#. Label of the cost_tab (Tab Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Cost and rental"
 msgstr "التكلفة والإيجار"
 
+#. Label of the cost_center (Link) field in DocType 'Card Equipment'
+#. Label of the cost_center (Link) field in DocType 'Card Equipment Assignment'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 msgid "Cost center"
 msgstr "مركز التكلفة"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:191
 msgid "Could not update the supplier record {0}. The card was saved normally; use the «Refresh numbers» button in the supplier record."
 msgstr "تعذّر تحديث سجل المورد {0}. الكارت اتحفظ عادي؛ استخدم زرار «تحديث الأرقام» في سجل المورد."
 
+#. Label of the assignment_section (Section Break) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Current assignment"
 msgstr "التعيين الحالي"
 
-msgid "Current lessor"
-msgstr "المورد الحالي"
-
+#. Label of the current_project (Link) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Current project"
 msgstr "المشروع الحالي"
 
-msgid "Customer"
-msgstr "العميل"
-
+#: card/card/doctype/card_equipment/card_equipment_dashboard.py:10
 msgid "Daily operating hours from the monthly operation cards"
 msgstr "ساعات التشغيل اليومية من كروت التشغيل الشهرية"
 
+#. Label of the daily_hours (Float) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Daily working hours"
 msgstr "ساعات العمل اليومية"
 
+#. Label of the operation_date (Date) field in DocType 'Card Monthly Card Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Date"
 msgstr "التاريخ"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:59
 msgid "Date {0} is duplicated in the card"
 msgstr "التاريخ {0} مكرر في الكارت"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:57
 msgid "Date {0} is outside the card's month"
 msgstr "التاريخ {0} خارج شهر الكارت"
 
+#. Label of the day_name (Data) field in DocType 'Card Monthly Card Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Day"
 msgstr "اليوم"
 
+#. Label of the day_section (Section Break) field in DocType 'Card Monthly Card
+#. Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Day details"
 msgstr "بيانات اليوم"
 
+#. Label of the day_status (Select) field in DocType 'Card Monthly Card Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Day status"
 msgstr "حالة اليوم"
 
+#. Label of the days (Table) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Days"
 msgstr "الأيام"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:140
 msgid "Days exceeding shift hours ({0} hours): {1}"
 msgstr "أيام تخطت ساعات الدوام ({0} ساعة): {1}"
 
+#. Label of the days_section (Section Break) field in DocType 'Card Monthly
+#. Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Days of month"
 msgstr "أيام الشهر"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:169
 msgid "Days with operation outside the rental period (calculated, needs review): {0}"
 msgstr "أيام فيها تشغيل خارج فترة الإيجار (محسوبة، تحتاج مراجعة): {0}"
 
-msgid "Deduction"
-msgstr "خصم"
-
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:284
 msgid "Deductions"
 msgstr "الخصومات"
 
+#. Label of the description (Small Text) field in DocType 'Card Equipment
+#. Category'
+#. Label of the description (Small Text) field in DocType 'Card Equipment Type'
+#. Label of the description (Data) field in DocType 'Card Monthly Card
+#. Adjustment'
+#: card/card/doctype/card_equipment_category/card_equipment_category.json
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:260
 msgid "Description"
 msgstr "البيان"
 
+#. Label of the documents_tab (Tab Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Documents"
 msgstr "المستندات"
 
+#. Label of the operator_name (Data) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Driver / Operator"
 msgstr "السائق / المشغّل"
 
-msgid "Ended"
-msgstr "منتهي"
-
+#. Label of the equipment (Link) field in DocType 'Card Equipment Assignment'
+#. Label of the equipment (Link) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:83
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:197
 msgid "Equipment"
 msgstr "المعدات"
 
+#. Name of a report
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.json
+msgid "Equipment Supplier Statement"
+msgstr ""
+
+#. Name of a report
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.json
+msgid "Equipment Suppliers Summary"
+msgstr ""
+
+#. Label of the equipment_category (Link) field in DocType 'Card Equipment'
+#. Label of the equipment_category (Link) field in DocType 'Card Equipment
+#. Type'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "Equipment category"
 msgstr "فئة المعدة"
 
+#. Label of the basic_section (Section Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Equipment details"
 msgstr "بيانات المعدة"
 
+#. Label of the documents_section (Section Break) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Equipment documents"
 msgstr "مستندات المعدة"
 
+#. Label of the exit_section (Section Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Equipment exit"
 msgstr "إنهاء المعدة"
 
+#. Label of the equipment_name (Data) field in DocType 'Card Equipment'
+#. Label of the equipment_name (Data) field in DocType 'Card Equipment
+#. Assignment'
+#. Label of the equipment_name (Data) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Equipment name"
 msgstr "اسم المعدة"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:35
 msgid "Equipment not found: {0}"
 msgstr "المعدة غير موجودة: {0}"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:263
 msgid "Equipment number"
 msgstr "رقم المعدة"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:85
 msgid "Equipment rate type is not defined: {0}"
 msgstr "طريقة حساب المعدة غير محددة: {0}"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:368
 msgid "Equipment supplier statement: "
 msgstr "كشف حساب مورد معدات: "
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:229
 msgid "Equipment suppliers summary — Period from "
 msgstr "ملخص موردي المعدات — الفترة من "
 
+#. Label of the equipment_type (Link) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:89
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:268
 msgid "Equipment type"
 msgstr "نوع المعدة"
 
+#. Label of the exit_tab (Tab Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Exit"
 msgstr "الخروج"
 
+#. Label of the exit_date (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Exit date"
 msgstr "تاريخ الإنهاء"
 
+#. Label of the exit_reason (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Exit reason"
 msgstr "سبب الإنهاء"
 
+#. Label of the expected_consumption (Float) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Expected consumption (liter/hour)"
 msgstr "الاستهلاك المتوقع (لتر/ساعة)"
 
+#. Label of the first_month (Data) field in DocType 'Card Equipment Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "First operating month"
 msgstr "أول شهر تشغيل"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:271
 msgid "First operation"
 msgstr "أول تشغيل"
 
+#. Label of the from_date (Date) field in DocType 'Card Equipment Assignment'
+#. Label of the from_date (Date) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "From date"
 msgstr "من تاريخ"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:64
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:48
 msgid "From month"
 msgstr "من شهر"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:70
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:54
 msgid "From year"
 msgstr "من سنة"
 
+#. Label of the الوقود_على (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Fuel charged to"
 msgstr "الوقود على"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:248
 msgid "Grand total"
 msgstr "الإجمالي العام"
 
+#. Label of the approved_hourly_rate (Currency) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:281
 msgid "Hourly rate"
 msgstr "سعر الساعة"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:274
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:200
 msgid "Hours"
 msgstr "الساعات"
 
+#. Label of the idle_reason (Data) field in DocType 'Card Monthly Card Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Idle reason"
 msgstr "سبب التوقف"
 
+#. Label of the image (Attach Image) field in DocType 'Card Equipment'
+#. Label of the image (Attach Image) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Image"
 msgstr "الصورة"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:93
 msgid "Include drafts"
 msgstr "تشمل المسودات"
 
+#. Label of the inspection_file (Attach) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Inspection certificate"
 msgstr "شهادة الفحص"
 
+#. Label of the insurance_company (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Insurance company"
 msgstr "شركة التأمين"
 
+#. Label of the insurance_expiry (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Insurance expiry"
 msgstr "انتهاء التأمين"
 
+#. Label of the insurance_file (Attach) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Insurance file"
 msgstr "ملف التأمين"
 
+#. Label of the insurance_policy_no (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Insurance policy number"
 msgstr "رقم وثيقة التأمين"
 
+#. Label of the owned_section (Section Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Internal cost"
 msgstr "التكلفة الداخلية"
 
+#. Label of the internal_hourly_rate (Currency) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Internal hourly rate"
 msgstr "سعر الساعة الداخلي"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:32
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:25
 msgid "Invalid period: end is before start"
 msgstr "فترة غير صحيحة: النهاية قبل البداية"
 
-msgid "Kilometers"
-msgstr "كيلومترات"
-
+#. Label of the last_service_date (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Last maintenance date"
 msgstr "تاريخ آخر صيانة"
 
+#. Label of the last_month (Data) field in DocType 'Card Equipment Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Last operating month"
 msgstr "آخر شهر تشغيل"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:272
 msgid "Last operation"
 msgstr "آخر تشغيل"
 
+#. Label of the current_meter (Float) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Last reading"
 msgstr "آخر قراءة"
 
+#. Label of the last_refreshed (Datetime) field in DocType 'Card Equipment
+#. Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Last updated"
 msgstr "آخر تحديث"
 
-msgid "Leave"
-msgstr "إجازة"
-
-msgid "Lessor"
-msgstr "المؤجر"
-
+#. Label of the supplier (Link) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Lessor / Owner"
 msgstr "المؤجر / المالك"
 
+#. Label of the site_location (Data) field in DocType 'Card Equipment'
+#. Label of the site_location (Data) field in DocType 'Card Equipment
+#. Assignment'
+#. Label of the site_location (Data) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Location"
 msgstr "الموقع"
 
+#. Label of the maintenance_section (Section Break) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Maintenance"
 msgstr "الصيانة"
 
+#. Label of the service_interval_hours (Float) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Maintenance every (hour)"
 msgstr "الصيانة كل (ساعة)"
 
+#. Label of the service_interval_liters (Float) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Maintenance every (liter of diesel)"
 msgstr "الصيانة كل (لتر ديزل)"
 
+#. Label of the manufacture_year (Int) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Manufacture year"
 msgstr "سنة الصنع"
 
+#. Label of the meter_section (Section Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Meter"
 msgstr "العداد"
 
+#. Label of the meter_tab (Tab Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Meter and maintenance"
 msgstr "العداد والصيانة"
 
+#. Label of the exit_meter (Float) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Meter reading at exit"
 msgstr "قراءة العداد عند الإنهاء"
 
+#. Label of the last_service_meter (Float) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Meter reading at last maintenance"
 msgstr "قراءة العداد عند آخر صيانة"
 
+#. Label of the opening_meter (Float) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Meter reading at receipt"
 msgstr "قراءة العداد عند الاستلام"
 
+#. Label of the meter_type (Select) field in DocType 'Card Equipment'
+#. Label of the meter_type (Select) field in DocType 'Card Equipment Type'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "Meter type"
 msgstr "نوع العداد"
 
+#. Label of the min_hours (Float) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Minimum hours per month"
 msgstr "الحد الأدنى للساعات شهرياً"
 
+#. Label of the model (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Model"
 msgstr "الموديل"
 
+#. Label of the month (Select) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Month"
 msgstr "الشهر"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:18
 msgid "Month and year are required"
 msgstr "الشهر والسنة مطلوبين"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:65
 msgid "Negative hours on day {0}"
 msgstr "ساعات بالسالب في يوم {0}"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:285
 msgid "Net"
 msgstr "الصافي"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:335
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:201
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:211
 msgid "Net cards"
 msgstr "صافي الكروت"
 
+#. Label of the net_amount (Currency) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Net due"
 msgstr "الصافي المستحق"
 
-msgid "Night"
-msgstr "ليلي"
-
-msgid "No customer is linked to the project"
-msgstr "لا يوجد عميل مرتبط بالمشروع"
-
-msgid "No meter"
-msgstr "بدون عداد"
-
+#: card/api.py:62
 msgid "Not allowed: this operation is for System Managers only"
 msgstr "غير مسموح: هذه العملية لمدير النظام فقط"
 
-msgid "Not settled"
-msgstr "لم تتم"
-
+#. Label of the exit_notes (Small Text) field in DocType 'Card Equipment'
+#. Label of the notes (Small Text) field in DocType 'Card Equipment Assignment'
+#. Label of the notes (Data) field in DocType 'Card Monthly Card Day'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Notes"
 msgstr "ملاحظات"
 
+#. Label of the card_count (Int) field in DocType 'Card Equipment Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Number of approved cards"
 msgstr "عدد الكروت المعتمدة"
 
+#. Label of the equipment_count (Int) field in DocType 'Card Equipment
+#. Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:289
 msgid "Number of equipment"
 msgstr "عدد المعدات"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:67
 msgid "Number of hours on day {0} exceeds 24 hours"
 msgstr "عدد ساعات يوم {0} أكبر من 24 ساعة"
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:210
 msgid "Number of suppliers"
 msgstr "عدد الموردين"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:353
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:204
 msgid "Opening balance"
 msgstr "رصيد أول المدة"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:282
 msgid "Operating amount"
 msgstr "قيمة التشغيل"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:290
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:199
 msgid "Operating days"
 msgstr "أيام التشغيل"
 
+#. Label of the working_hours (Float) field in DocType 'Card Monthly Card Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:291
 msgid "Operating hours"
 msgstr "ساعات التشغيل"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:381
 msgid "Operating owned equipment by project — Period from "
 msgstr "تشغيل المعدات الملك حسب المشروع — الفترة من "
 
+#. Group in Card Equipment's connections
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment/card_equipment_dashboard.py:14
 msgid "Operation"
 msgstr "التشغيل"
 
+#. Label of the operation_tab (Tab Break) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Operation and assignment"
 msgstr "التشغيل والتعيين"
 
+#. Label of the operator (Link) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Operator"
 msgstr "المشغّل"
 
+#. Label of the operator_on (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Operator charged to"
 msgstr "المشغّل على"
 
+#. Label of the external_operator_phone (Data) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Operator mobile"
 msgstr "جوال المشغّل"
 
+#. Label of the external_operator_name (Data) field in DocType 'Card Equipment'
+#. Label of the operator_name (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Operator name"
 msgstr "اسم المشغّل"
 
-msgid "Owned"
-msgstr "ملك"
-
+#. Label of the supplier (Link) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Owner"
 msgstr "المالك"
 
+#. Label of the ownership (Select) field in DocType 'Card Equipment'
+#. Label of the ownership (Data) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Ownership"
 msgstr "الملكية"
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:205
 msgid "Paid"
 msgstr "المدفوع"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:358
 msgid "Paid (Debit)"
 msgstr "المدفوع (مدين)"
 
-msgid "Per day"
-msgstr "باليوم"
-
-msgid "Per hour"
-msgstr "بالساعة"
-
+#. Label of the inspection_expiry (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Periodic inspection expiry"
 msgstr "انتهاء الفحص الدوري"
 
+#. Label of the plate_no (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Plate number"
 msgstr "رقم اللوحة"
 
+#. Label of the project (Link) field in DocType 'Card Equipment Assignment'
+#. Label of the project (Link) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:80
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:269
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:64
 msgid "Project"
 msgstr "المشروع"
 
+#. Label of the project_name (Data) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Project name"
 msgstr "اسم المشروع"
 
-msgid "Projects"
-msgstr "المشاريع"
-
+#. Label of the rate (Currency) field in DocType 'Card Equipment'
+#. Label of the rate (Currency) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:280
 msgid "Rate"
 msgstr "السعر"
 
+#. Label of the rate_type (Select) field in DocType 'Card Equipment'
+#. Label of the rate_type (Data) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:279
 msgid "Rate type"
 msgstr "طريقة الحساب"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:347
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:203
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:213
 msgid "Reconciliation difference"
 msgstr "فرق المطابقة"
 
+#. Group in Card Equipment's connections
+#. Group in Card Monthly Card's connections
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Reference"
 msgstr "المرجع"
 
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:9
 msgid "Refresh numbers"
 msgstr "تحديث الأرقام"
 
+#. Label of the registration_expiry (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Registration expiry"
 msgstr "انتهاء الاستمارة"
 
+#. Label of the registration_file (Attach) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Registration image"
 msgstr "صورة الاستمارة"
 
+#. Label of the registration_no (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Registration number"
 msgstr "رقم الاستمارة"
 
-msgid "Rental"
-msgstr "إيجار"
-
+#. Label of the rental_section (Section Break) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Rental details"
 msgstr "بيانات الإيجار"
 
+#. Label of the rental_end_date (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Rental end"
 msgstr "نهاية الإيجار"
 
-msgid "Rental expiry"
-msgstr "انتهاء الإيجار"
-
+#. Label of the rental_start_date (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Rental start"
 msgstr "بداية الإيجار"
 
-msgid "Returned to lessor"
-msgstr "إرجاع للمؤجر"
-
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:156
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:170
 msgid "Review rental period"
 msgstr "مراجعة فترة الإيجار"
 
-msgid "Sale"
-msgstr "بيع"
-
-msgid "Scrap"
-msgstr "تكهين"
-
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:296
 msgid "Select a supplier to display the statement."
 msgstr "اختار المورد لعرض الكشف."
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:28
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:21
 msgid "Select the start month and year"
 msgstr "حدد شهر وسنة البداية"
 
+#: card/card/doctype/card_equipment/card_equipment.py:18
 msgid "Set the daily working hours (shift) to calculate the hourly rate"
 msgstr "حدد ساعات العمل اليومية (الدوام) لحساب سعر الساعة"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:80
 msgid "Set the daily working hours for equipment {0}"
 msgstr "حدد ساعات العمل اليومية للمعدة {0}"
 
-msgid "Settled"
-msgstr "تمت"
-
+#. Label of the settlement_status (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Settlement status"
 msgstr "حالة التسوية"
 
+#. Label of the shift (Select) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:270
 msgid "Shift"
 msgstr "الوردية"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:147
 msgid "Shift hours"
 msgstr "ساعات الدوام"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:146
 msgid "Shift hours are not set for equipment {0}; the shift-hours-exceeded warning will not appear."
 msgstr "لم يتم تحديد ساعات الدوام للمعدة {0}، لن يظهر تحذير تخطي الدوام."
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:141
 msgid "Shift hours exceeded warning"
 msgstr "تحذير تخطي الدوام"
 
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:20
 msgid "Statement"
 msgstr "كشف الحساب"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:48
 msgid "Statement type"
 msgstr "نوع الكشف"
 
+#. Label of the stats_section (Section Break) field in DocType 'Card Equipment
+#. Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Statistics"
 msgstr "الإحصائيات"
 
+#. Label of the status (Select) field in DocType 'Card Equipment'
+#. Label of the status (Select) field in DocType 'Card Equipment Assignment'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 msgid "Status"
 msgstr "الحالة"
 
-msgid "Stopped"
-msgstr "متوقفة"
-
-msgid "Stopped by client"
-msgstr "توقف من العميل"
-
+#. Label of the supplier (Link) field in DocType 'Card Equipment Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:56
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:189
 msgid "Supplier"
 msgstr "المورد"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:360
 msgid "Supplier closing balance"
 msgstr "رصيد المورد آخر المدة"
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:192
 msgid "Supplier code"
 msgstr "كود المورد"
 
+#. Label of the supplier_name (Data) field in DocType 'Card Equipment Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Supplier name"
 msgstr "اسم المورد"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:192
 msgid "Supplier record"
 msgstr "سجل المورد"
 
-msgid "Suppliers"
-msgstr "الموردين"
+#. Name of a role
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_equipment_category/card_equipment_category.json
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "System Manager"
+msgstr ""
 
+#. Label of the tuv_expiry (Date) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "TUV expiry"
 msgstr "انتهاء TUV"
 
+#. Label of the tuv_file (Attach) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "TUV image"
 msgstr "صورة TUV"
 
+#. Label of the tuv_no (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "TUV number "
 msgstr "رقم TUV "
 
+#. Label of the tank_capacity (Float) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Tank capacity (liter)"
 msgstr "سعة الخزان (لتر)"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:102
 msgid "The addition/deduction amount must be greater than zero: {0}"
 msgstr "مبلغ الإضافة/الخصم لازم يكون أكبر من صفر: {0}"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:37
 msgid "The card's company does not match the equipment's company"
 msgstr "شركة الكارت لا تطابق شركة المعدة"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:155
 msgid "The equipment has no rental start date. Review the rental data."
 msgstr "المعدة ليس لها تاريخ بداية إيجار. راجع بيانات الإيجار."
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:53
 msgid "There is a day row without a date"
 msgstr "يوجد صف أيام بدون تاريخ"
 
-msgid "Third party"
-msgstr "طرف ثالث"
-
+#. Label of the to_date (Date) field in DocType 'Card Equipment Assignment'
+#. Label of the to_date (Date) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "To date"
 msgstr "إلى تاريخ"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:73
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:57
 msgid "To month"
 msgstr "إلى شهر"
 
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:79
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:63
 msgid "To year"
 msgstr "إلى سنة"
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:173
 msgid "Total"
 msgstr "الإجمالي"
 
+#. Label of the total_additions (Currency) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Total additions"
 msgstr "إجمالي الإضافات"
 
+#. Label of the amount (Currency) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Total amount"
 msgstr "القيمة الإجمالية"
 
+#. Label of the total_deductions (Currency) field in DocType 'Card Monthly
+#. Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Total deductions"
 msgstr "إجمالي الخصومات"
 
+#. Label of the total_hours (Float) field in DocType 'Card Equipment Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Total hours"
 msgstr "إجمالي الساعات"
 
+#. Label of the total_net (Currency) field in DocType 'Card Equipment Supplier'
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Total net cards"
 msgstr "إجمالي صافي الكروت"
 
+#. Label of the total_working_hours (Float) field in DocType 'Card Monthly
+#. Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Total operating hours"
 msgstr "إجمالي ساعات التشغيل"
 
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:219
 msgid "Total supplier balances"
 msgstr "إجمالي أرصدة الموردين"
 
+#. Label of the totals_section (Section Break) field in DocType 'Card Monthly
+#. Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Totals"
 msgstr "الإجماليات"
 
-msgid "Transferred to another branch"
-msgstr "نقل لفرع آخر"
-
+#. Label of the adjustment_type (Select) field in DocType 'Card Monthly Card
+#. Adjustment'
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
 msgid "Type"
 msgstr "النوع"
 
+#. Label of the equipment_type_name (Data) field in DocType 'Card Equipment
+#. Type'
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "Type name"
 msgstr "اسم النوع"
 
-msgid "Under maintenance"
-msgstr "في الصيانة"
-
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:108
 msgid "Unknown type in additions and deductions: {0}"
 msgstr "نوع غير معروف في الإضافات والخصومات: {0}"
 
-msgid "Work"
-msgstr "عمل"
-
+#. Label of the working_days (Int) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:273
 msgid "Working days"
 msgstr "أيام العمل"
 
+#. Label of the year (Int) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Year"
 msgstr "السنة"
 
+#: card/card/doctype/card_equipment/card_equipment.js:26
 msgid "hour"
 msgstr "ساعة"
+
+#. Option for the 'Day status' (Select) field in DocType 'Card Monthly Card
+#. Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "إجازة"
+msgstr ""
+
+#. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "إرجاع للمؤجر"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'Card Monthly Card
+#. Adjustment'
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "إضافة"
+msgstr ""
+
+#. Option for the 'Ownership' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "إيجار"
+msgstr ""
+
+#. Option for the 'Operator charged to' (Select) field in DocType 'Card
+#. Equipment'
+#. Option for the 'Fuel charged to' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "الشركة"
+msgstr ""
+
+#. Option for the 'Operator charged to' (Select) field in DocType 'Card
+#. Equipment'
+#. Option for the 'Fuel charged to' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "المؤجر"
+msgstr ""
+
+#. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "انتهاء الإيجار"
+msgstr ""
+
+#. Option for the 'Rate type' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "بالساعة"
+msgstr ""
+
+#. Option for the 'Rate type' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "باليوم"
+msgstr ""
+
+#. Option for the 'Meter type' (Select) field in DocType 'Card Equipment'
+#. Option for the 'Meter type' (Select) field in DocType 'Card Equipment Type'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "بدون عداد"
+msgstr ""
+
+#. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "بيع"
+msgstr ""
+
+#. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "تكهين"
+msgstr ""
+
+#. Option for the 'Settlement status' (Select) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "تمت"
+msgstr ""
+
+#. Option for the 'Day status' (Select) field in DocType 'Card Monthly Card
+#. Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "توقف من العميل"
+msgstr ""
+
+#. Option for the 'Type' (Select) field in DocType 'Card Monthly Card
+#. Adjustment'
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "خصم"
+msgstr ""
+
+#. Option for the 'Meter type' (Select) field in DocType 'Card Equipment'
+#. Option for the 'Meter type' (Select) field in DocType 'Card Equipment Type'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "ساعات"
+msgstr ""
+
+#. Option for the 'Ownership' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "طرف ثالث"
+msgstr ""
+
+#. Option for the 'Day status' (Select) field in DocType 'Card Monthly Card
+#. Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "عطل"
+msgstr ""
+
+#. Option for the 'Day status' (Select) field in DocType 'Card Monthly Card
+#. Day'
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "عمل"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "في الصيانة"
+msgstr ""
+
+#. Option for the 'Meter type' (Select) field in DocType 'Card Equipment'
+#. Option for the 'Meter type' (Select) field in DocType 'Card Equipment Type'
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "كيلومترات"
+msgstr ""
+
+#. Option for the 'Settlement status' (Select) field in DocType 'Card
+#. Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "لم تتم"
+msgstr ""
+
+#. Option for the 'Shift' (Select) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "ليلي"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "متوقفة"
+msgstr ""
+
+#. Option for the 'Ownership' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "ملك"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Card Equipment
+#. Assignment'
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+msgid "منتهي"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "منتهية"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Card Equipment
+#. Assignment'
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+msgid "نشط"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "نشطة"
+msgstr ""
+
+#. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "نقل لفرع آخر"
+msgstr ""
+
+#. Option for the 'Shift' (Select) field in DocType 'Card Monthly Card'
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "نهاري"
+msgstr ""
+

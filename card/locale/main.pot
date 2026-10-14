@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 07:24+0000\n"
-"PO-Revision-Date: 2026-10-14 07:24+0000\n"
+"POT-Creation-Date: 2026-10-14 07:31+0000\n"
+"PO-Revision-Date: 2026-10-14 07:31+0000\n"
 "Last-Translator: info@sdce.sa\n"
 "Language-Team: info@sdce.sa\n"
 "MIME-Version: 1.0\n"
@@ -199,7 +199,7 @@ msgid "Cost center"
 msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:191
-msgid "Could not update the supplier record {0}. The card was saved normally; use the \"Refresh numbers\" button in the supplier record."
+msgid "Could not update the supplier record {0}. The card was saved normally; use the «Refresh numbers» button in the supplier record."
 msgstr ""
 
 #. Label of the assignment_section (Section Break) field in DocType 'Card
