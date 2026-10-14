@@ -18,7 +18,7 @@ ASSET_FIELDS = {
 	"asset_item": "item_code",
 	"asset_location": "location",
 	"asset_cost_center": "cost_center",
-	"asset_purchase_value": "gross_purchase_amount",
+	"asset_purchase_value": "net_purchase_amount",
 }
 
 
@@ -46,6 +46,7 @@ class TestAssetLink(IntegrationTestCase):
 					"company": self._m["company"],
 					"is_existing_asset": 1,
 					"gross_purchase_amount": 1000,
+					"net_purchase_amount": 1000,  # v16 mandatory; gross kept for older schemas
 					"purchase_date": frappe.utils.today(),
 					"available_for_use_date": frappe.utils.today(),
 				}
