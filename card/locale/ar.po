@@ -1782,3 +1782,12 @@ msgstr "الاتجاه {0} غير صالح لمعدة مستأجرة."
 
 msgid "Select a customer before submitting a {0} card."
 msgstr "اختر العميل قبل اعتماد كارت {0}."
+
+msgid "Total accrued (cards)"
+msgstr "إجمالي المستحق (من الكروت)"
+
+msgid "Customer record"
+msgstr "سجل العميل"
+
+msgid "Could not update the customer record {0}. The card was saved normally; use the «Refresh numbers» button in the customer record."
+msgstr "تعذّر تحديث سجل العميل {0}. الكارت اتحفظ بشكل طبيعي؛ استخدم زر «تحديث الأرقام» في سجل العميل."

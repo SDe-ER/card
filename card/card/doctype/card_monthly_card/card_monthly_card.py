@@ -6,18 +6,20 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, flt, get_last_day, getdate, nowdate
 
-from card.api import recompute_supplier
+from card.api import recompute_customer, recompute_supplier
 from card.notifications import notify
 from card.settings import setting
 from card.transfer import validate_card_days
 
-OWNED = "ملك"
-# card direction (customer side) — stored Arabic values
-DIR_RENTED_IN = "مستأجَرة من مورد"  # we rent it from a supplier (supplier PI side)
-DIR_RENTED_OUT = "مؤجَّرة لعميل"  # we rent owned equipment to a customer (customer SI side)
-DIR_SUBRENTAL = "إيجار من الباطن"  # rented from a supplier AND rented out to a customer
-DIR_INTERNAL = "تشغيل داخلي"  # owned, used internally, no billing
-CUSTOMER_BILLING_DIRECTIONS = (DIR_RENTED_OUT, DIR_SUBRENTAL)
+# direction constants live in card.constants (re-exported here for callers/tests)
+from card.constants import (  # noqa: F401
+	CUSTOMER_BILLING_DIRECTIONS,
+	DIR_INTERNAL,
+	DIR_RENTED_IN,
+	DIR_RENTED_OUT,
+	DIR_SUBRENTAL,
+	OWNED,
+)
 
 
 class CardMonthlyCard(Document):
@@ -264,6 +266,7 @@ class CardMonthlyCard(Document):
 	def on_submit(self):
 		self._snapshot_settings_used()
 		self._sync_supplier()
+		self._sync_customer()
 		notify(
 			"notify_on_card_submit",
 			[self.owner],
@@ -274,6 +277,7 @@ class CardMonthlyCard(Document):
 
 	def on_cancel(self):
 		self._sync_supplier()
+		self._sync_customer()
 
 	def _snapshot_settings_used(self):
 		"""Store the calculation-affecting values used at submit time so a
@@ -293,6 +297,22 @@ class CardMonthlyCard(Document):
 		self.db_set("diesel_policy_used", eq.get("الوقود_على"), update_modified=False)
 		# customer-side snapshot (phase E): the hourly rate the customer amount used
 		self.db_set("customer_rate_used", self._customer_hourly(daily_hours), update_modified=False)
+
+	def _sync_customer(self):
+		# Customer registry sync (phase E, non-blocking like the supplier one).
+		if self.customer and self.card_direction in CUSTOMER_BILLING_DIRECTIONS:
+			try:
+				recompute_customer(self.customer)
+			except Exception:
+				frappe.log_error(
+					title="Card Equipment Customer sync failed: " + str(self.customer),
+					message="Card " + str(self.name) + " (event " + str(self.docstatus) + ")",
+				)
+				frappe.msgprint(
+					_("Could not update the customer record {0}. The card was saved normally; use the «Refresh numbers» button in the customer record.").format(self.customer),
+					title=_("Customer record"),
+					indicator="orange",
+				)
 
 	def _sync_supplier(self):
 		# Ported from Server Scripts "Card Equipment Supplier - Sync on Submit/Cancel" (non-blocking).

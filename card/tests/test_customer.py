@@ -168,7 +168,36 @@ class TestCardDirection(IntegrationTestCase):
 		self.assertEqual(flt(card.customer_amount), 900.0)  # 10h * 90/h fetched from equipment
 		self.assertEqual(flt(card.customer_rate_used), 90.0)
 
-	# ---- 4. backfill patch classifies pre-E cards ----
+	# ---- 4. customer registry (Card Equipment Customer) ----
+	def test_registry_sync_on_submit_and_cancel(self):
+		eq = self._equipment(OWNED)
+		card = self._card(eq, [10, 10], customer=self.customer, customer_rate=1000, submit=True)
+		rec = frappe.get_doc("Card Equipment Customer", self.customer)
+		self.assertEqual(rec.card_count, 1)
+		self.assertEqual(rec.equipment_count, 1)
+		self.assertEqual(flt(rec.total_hours), 20.0)
+		self.assertEqual(flt(rec.total_accrued), 2000.0)  # operational accrual, not a balance
+		self.assertTrue(rec.first_month)
+		card.cancel()
+		rec.reload()
+		self.assertEqual(rec.card_count, 0)
+		self.assertEqual(flt(rec.total_accrued), 0)
+
+	def test_customers_query_lists_only_customers_with_cards(self):
+		from card.api import card_customers_query
+
+		other = frappe.new_doc("Customer")
+		other.customer_name = "TEST-CUST-NONE-" + self.token
+		other.customer_group = _leaf("Customer Group", "customer_group_name", "All Customer Groups")
+		other.territory = _leaf("Territory", "territory_name", "All Territories")
+		other.insert(ignore_permissions=True)
+		self._card(self._equipment(OWNED), [10], customer=self.customer, customer_rate=1000, submit=True)
+
+		names = [r[0] for r in card_customers_query("Customer", "TEST-CUST", "name", 0, 50, {})]
+		self.assertIn(self.customer, names)
+		self.assertNotIn(other.name, names)
+
+	# ---- 5. backfill patch classifies pre-E cards ----
 	def test_backfill_patch(self):
 		from card.patches.v1_2.backfill_card_direction import execute
 
