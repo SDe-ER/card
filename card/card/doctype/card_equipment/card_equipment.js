@@ -220,4 +220,14 @@ frappe.ui.form.on("Card Equipment", {
 		card_render_shift_heatmaps(frm);
 		card_render_equipment_links(frm);
 	},
+	ownership(frm) {
+		// F.7: suggest the direction as soon as ownership is picked, so the
+		// direction-driven sections appear immediately (server re-derives anyway).
+		if (!frm.doc.rental_direction) {
+			frm.set_value(
+				"rental_direction",
+				frm.doc.ownership === "ملك" ? "تشغيل داخلي" : "مستأجَرة من مورد",
+			);
+		}
+	},
 });

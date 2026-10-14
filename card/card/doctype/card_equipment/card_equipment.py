@@ -7,6 +7,12 @@ from frappe.model.document import Document
 from frappe.query_builder.functions import Sum, UnixTimestamp
 from frappe.utils import flt
 
+from card.constants import (
+	CUSTOMER_BILLING_DIRECTIONS,
+	SUPPLIER_BILLING_DIRECTIONS,
+	allowed_directions,
+	derive_direction,
+)
 from card.dimension import sync_asset_dimension
 from card.settings import setting
 
@@ -19,6 +25,7 @@ class CardEquipment(Document):
 
 	def validate(self):
 		self.apply_new_record_defaults()
+		self.validate_rental_direction()
 		self.validate_unique_asset()
 		# Ported from Server Script "Card Equipment - Hourly Rate" (Before Validate).
 		# Computes the read-only approved_hourly_rate shown on the equipment.
@@ -29,8 +36,34 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = flt(rate / flt(self.daily_hours), 2)
 		elif self.rate_type == "بالساعة":
 			self.approved_hourly_rate = rate
+		elif self.rate_type == "بالشهر":
+			# F.5: monthly basis spreads the rate over the standard month hours
+			month_hours = flt(setting("standard_month_hours")) or 260
+			self.approved_hourly_rate = flt(rate / month_hours, 2)
 		else:
 			self.approved_hourly_rate = 0
+
+	def validate_rental_direction(self):
+		"""F.7: rental_direction is the single source of truth. A blank one is
+		derived from ownership (legacy rows keep working); a chosen one must
+		match the ownership; the mandatory party/rate of each direction is
+		enforced server-side (depends_on in the form is client-side only)."""
+		if not self.rental_direction:
+			self.rental_direction = derive_direction(self.ownership)
+		if self.rental_direction not in allowed_directions(self.ownership):
+			frappe.throw(
+				_("Direction {0} is not valid for ownership {1}.").format(self.rental_direction, self.ownership)
+			)
+		if self.rental_direction in SUPPLIER_BILLING_DIRECTIONS:
+			if not self.supplier:
+				frappe.throw(_("Direction {0} requires a supplier.").format(self.rental_direction))
+			if not self.rate_type or not flt(self.rate):
+				frappe.throw(_("Direction {0} requires the supplier rate and its basis.").format(self.rental_direction))
+		if self.rental_direction in CUSTOMER_BILLING_DIRECTIONS:
+			if not self.default_customer:
+				frappe.throw(_("Direction {0} requires a customer.").format(self.rental_direction))
+			if not self.customer_rate_type or not flt(self.customer_rate):
+				frappe.throw(_("Direction {0} requires the customer rate and its basis.").format(self.rental_direction))
 
 	def validate_unique_asset(self):
 		# One ERPNext Asset <-> at most one Card Equipment.
@@ -58,6 +91,13 @@ class CardEquipment(Document):
 		operator_on = setting("default_operator_on")
 		if not self.operator_on and operator_on:
 			self.operator_on = operator_on
+		# F.5: default calculation basis for both sides (new records only)
+		basis = setting("default_rate_basis")
+		if basis:
+			if not self.rate_type:
+				self.rate_type = basis
+			if not self.customer_rate_type:
+				self.customer_rate_type = basis
 
 
 def get_timeline_data(doctype: str, name: str) -> dict:

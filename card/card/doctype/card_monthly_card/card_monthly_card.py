@@ -9,7 +9,7 @@ from frappe.utils import cint, flt, get_last_day, getdate, nowdate
 from card.api import recompute_customer, recompute_supplier
 from card.notifications import notify
 from card.settings import setting
-from card.transfer import validate_card_days
+from card.transfer import covering_assignment, validate_card_days
 
 # direction constants live in card.constants (re-exported here for callers/tests)
 from card.constants import (  # noqa: F401
@@ -19,6 +19,9 @@ from card.constants import (  # noqa: F401
 	DIR_RENTED_OUT,
 	DIR_SUBRENTAL,
 	OWNED,
+	SUPPLIER_BILLING_DIRECTIONS,
+	allowed_directions,
+	derive_direction,
 )
 
 
@@ -39,12 +42,14 @@ class CardMonthlyCard(Document):
 			[
 				"company",
 				"ownership",
+				"rental_direction",
 				"rate_type",
 				"rate",
 				"daily_hours",
 				"rental_start_date",
 				"rental_end_date",
 				"is_unit_component",
+				"default_customer",
 				"customer_rate_type",
 				"customer_rate",
 			],
@@ -59,19 +64,56 @@ class CardMonthlyCard(Document):
 		if self.company and self.company != eq.company:
 			frappe.throw(_("The card's company does not match the equipment's company"))
 
-		# ---- card direction (customer side, phase E) ----
-		self._resolve_card_direction(eq)
-
-		# location/assignment constraint (phase A): working days must fall inside
-		# an assignment period for the card's project (units check every component).
-		validate_card_days(self)
-
-		# ---- period of the card ----
+		# ---- period of the card (first: the fiscal-year and project rules need it) ----
 		first_day = getdate(str(doc_year) + "-" + str(doc_month).zfill(2) + "-01")
 		last_day = get_last_day(first_day)
 		self.from_date = first_day
 		self.to_date = last_day
 		today = getdate(nowdate())
+
+		# retro entry window (owner 2026-10-14): past periods only within the CURRENT fiscal year
+		self._validate_fiscal_year_window(first_day, last_day, today)
+
+		# ---- F.7: the equipment is the single source of truth — mirror it LIVE.
+		# fetch_from does not refresh on the submit save (docstatus is already 1 by
+		# then), so this explicit read keeps submit-time direction/rates current.
+		self.card_direction = eq.rental_direction or derive_direction(eq.ownership)
+		if self.card_direction not in allowed_directions(eq.ownership):
+			frappe.throw(
+				_("Equipment {0}: direction {1} is not valid for ownership {2}. Fix the equipment first.").format(
+					self.equipment, self.card_direction, eq.ownership
+				)
+			)
+		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS:
+			self.customer = eq.default_customer
+			self.customer_rate_type = eq.customer_rate_type
+			self.customer_rate = flt(eq.customer_rate)
+		else:
+			self.customer = None
+			self.customer_rate_type = None
+			self.customer_rate = 0
+
+		# ---- F.7: the project follows the assignment covering the card's month
+		# (retro months keep their historical project); free entry when none covers it
+		covering = covering_assignment(self.equipment, first_day, last_day)
+		if covering:
+			self.project = covering.project
+
+		# customer mismatch is a review flag, never a block (owner F.7.3)
+		if self.project and self.customer:
+			project_customer = frappe.db.get_value("Project", self.project, "customer")
+			if project_customer and project_customer != self.customer:
+				frappe.msgprint(
+					_(
+						"The project's customer ({0}) differs from the equipment's customer ({1}). Review before submitting."
+					).format(project_customer, self.customer),
+					title=_("Customer mismatch"),
+					indicator="orange",
+				)
+
+		# location/assignment constraint (phase A): working days must fall inside
+		# an assignment period for the card's project (units check every component).
+		validate_card_days(self)
 
 		# ---- day rows ----
 		seen = {}
@@ -117,26 +159,16 @@ class CardMonthlyCard(Document):
 				indicator="orange",
 			)
 
-		# ---- hourly rate ----
-		rate = flt(eq.rate)
-		if eq.rate_type == "باليوم":
-			daily_hours = flt(eq.daily_hours)
-			if daily_hours <= 0:
-				frappe.throw(_("Set the daily working hours for equipment {0}").format(self.equipment))
-			hourly_rate = rate / daily_hours
-		elif eq.rate_type == "بالساعة":
-			hourly_rate = rate
-		else:
-			frappe.throw(_("Equipment rate type is not defined: {0}").format(self.equipment))
-
+		# ---- supplier-side amount (only directions that bill a supplier; F.5 bases) ----
 		self.rate_type = eq.rate_type
-		self.rate = rate
+		self.rate = flt(eq.rate)
 		self.total_working_hours = total_hours
 		self.working_days = work_days
-		if eq.ownership == "ملك":
-			self.amount = 0  # owned equipment: no supplier billing
-		else:
+		if self.card_direction in SUPPLIER_BILLING_DIRECTIONS:
+			hourly_rate = self._hourly_for(eq.rate_type, flt(eq.rate), eq.daily_hours, required=True)
 			self.amount = flt(total_hours * hourly_rate, 2)
+		else:
+			self.amount = 0  # internal / rented-out: no supplier billing
 
 		# ---- additions / deductions (v4) ----
 		total_additions = 0.0
@@ -155,15 +187,12 @@ class CardMonthlyCard(Document):
 		self.total_deductions = flt(total_deductions, 2)
 		self.net_amount = flt(flt(self.amount) + total_additions - total_deductions, 2)
 
-		# ---- customer billing side (phase E; the Sales Invoice itself is created in S3) ----
+		# ---- customer-side amount (rate mirrored from the equipment; the SI itself is S3) ----
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS:
-			# default the customer rate from the equipment when the card has none
-			# (server-side too — fetch_from only helps in the browser form)
-			if not self.customer_rate_type:
-				self.customer_rate_type = eq.customer_rate_type
-			if not flt(self.customer_rate):
-				self.customer_rate = eq.customer_rate
-			self.customer_amount = flt(total_hours * self._customer_hourly(eq.daily_hours), 2)
+			customer_hourly = self._hourly_for(
+				self.customer_rate_type, flt(self.customer_rate), eq.daily_hours, required=False
+			)
+			self.customer_amount = flt(total_hours * customer_hourly, 2)
 		else:
 			self.customer_amount = 0
 
@@ -229,39 +258,52 @@ class CardMonthlyCard(Document):
 						indicator="orange",
 					)
 
-	def _resolve_card_direction(self, eq):
-		"""Classify the card (phase E) and keep the customer field consistent.
-		Owned equipment runs internally or is rented out; rented equipment is a
-		plain rental or a sub-rental. A blank direction is defaulted from
-		ownership + customer; a chosen one is validated against ownership."""
-		if not self.card_direction:
-			if eq.ownership == OWNED:
-				self.card_direction = DIR_RENTED_OUT if self.customer else DIR_INTERNAL
-			else:
-				self.card_direction = DIR_SUBRENTAL if self.customer else DIR_RENTED_IN
-		if eq.ownership == OWNED and self.card_direction in (DIR_RENTED_IN, DIR_SUBRENTAL):
-			frappe.throw(_("Direction {0} is not valid for owned equipment.").format(self.card_direction))
-		if eq.ownership != OWNED and self.card_direction in (DIR_RENTED_OUT, DIR_INTERNAL):
-			frappe.throw(_("Direction {0} is not valid for rented equipment.").format(self.card_direction))
-		if self.card_direction not in CUSTOMER_BILLING_DIRECTIONS:
-			self.customer = None  # internal / rented-in: no customer billing
-
-	def _customer_hourly(self, equipment_daily_hours):
-		"""Customer hourly rate from the card's customer rate (mirrors the
-		supplier hourly computation; a باليوم rate is spread over the equipment's
-		daily working hours)."""
-		cust_rate = flt(self.customer_rate)
-		if self.customer_rate_type == "باليوم":
+	def _hourly_for(self, basis, rate, equipment_daily_hours, required):
+		"""Hourly rate for a F.5 basis, shared by both sides: بالساعة = rate;
+		باليوم = rate over the equipment's daily hours; بالشهر = rate over the
+		standard month hours (Card Settings, default 260). With required=True a
+		missing basis/divisor throws (supplier-billing cards must price)."""
+		if basis == "باليوم":
 			dh = flt(equipment_daily_hours)
-			return cust_rate / dh if dh > 0 else 0.0
-		if self.customer_rate_type == "بالساعة":
-			return cust_rate
+			if dh <= 0:
+				if required:
+					frappe.throw(_("Set the daily working hours for equipment {0}").format(self.equipment))
+				return 0.0
+			return rate / dh
+		if basis == "بالساعة":
+			return rate
+		if basis == "بالشهر":
+			month_hours = flt(setting("standard_month_hours")) or 260
+			return rate / month_hours
+		if required:
+			frappe.throw(_("Equipment rate type is not defined: {0}").format(self.equipment))
 		return 0.0
 
+	def _validate_fiscal_year_window(self, first_day, last_day, today):
+		"""Owner rule (2026-10-14): cards may be back-entered for past months, but
+		only within the CURRENT fiscal year. Skipped when no fiscal year exists."""
+		try:
+			from erpnext.accounts.utils import get_fiscal_year
+
+			fy = get_fiscal_year(today, company=self.company)
+		except Exception:
+			return
+		fy_name, fy_start, fy_end = fy[0], getdate(fy[1]), getdate(fy[2])
+		if last_day < fy_start or first_day > fy_end:
+			frappe.throw(
+				_(
+					"Card period {0}-{1} is outside the current fiscal year {2}; past cards are allowed only within it."
+				).format(self.year, self.month, fy_name)
+			)
+
 	def before_submit(self):
-		# A card that bills a customer must know the customer before it is final.
+		# A card that bills a customer is final only when its EQUIPMENT carries the customer.
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS and not self.customer:
-			frappe.throw(_("Select a customer before submitting a {0} card.").format(self.card_direction))
+			frappe.throw(
+				_(
+					"The equipment has no customer; set the customer on the equipment before submitting a {0} card."
+				).format(self.card_direction)
+			)
 
 	def on_submit(self):
 		self._snapshot_settings_used()
@@ -288,15 +330,20 @@ class CardMonthlyCard(Document):
 			or frappe._dict()
 		)
 		daily_hours = flt(eq.daily_hours)
-		if self.rate_type == "باليوم" and daily_hours > 0:
-			hourly = flt(self.rate) / daily_hours
-		else:
-			hourly = flt(self.rate)
+		hourly = self._hourly_for(self.rate_type, flt(self.rate), daily_hours, required=False)
 		self.db_set("daily_hours_used", daily_hours, update_modified=False)
 		self.db_set("hourly_rate_used", hourly, update_modified=False)
 		self.db_set("diesel_policy_used", eq.get("الوقود_على"), update_modified=False)
 		# customer-side snapshot (phase E): the hourly rate the customer amount used
-		self.db_set("customer_rate_used", self._customer_hourly(daily_hours), update_modified=False)
+		self.db_set(
+			"customer_rate_used",
+			self._hourly_for(self.customer_rate_type, flt(self.customer_rate), daily_hours, required=False),
+			update_modified=False,
+		)
+		# F.7 snapshot: direction, customer and the supplier rate basis used at submit
+		self.db_set("direction_used", self.card_direction, update_modified=False)
+		self.db_set("customer_used", self.customer, update_modified=False)
+		self.db_set("rate_basis_used", self.rate_type, update_modified=False)
 
 	def _sync_customer(self):
 		# Customer registry sync (phase E, non-blocking like the supplier one).

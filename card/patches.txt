@@ -13,3 +13,5 @@ card.patches.v1_2.init_card_settings_defaults
 card.patches.v1_2.set_operator_fuel_defaults
 card.patches.v1_2.init_shift_limits
 card.patches.v1_2.backfill_card_direction
+card.patches.v1_2.backfill_rental_direction
+card.patches.v1_2.rederive_draft_cards

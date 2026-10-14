@@ -114,16 +114,49 @@ function card_check_period(frm) {
 function card_load_hourly(frm) {
 	if (!frm.doc.equipment) {
 		frm._card_hourly = 0;
-		frm._card_owned = false;
+		frm._card_supplier_side = false;
 		return Promise.resolve();
 	}
 	return frappe.db
-		.get_value("Card Equipment", frm.doc.equipment, ["approved_hourly_rate", "ownership"])
+		.get_value("Card Equipment", frm.doc.equipment, [
+			"approved_hourly_rate",
+			"rental_direction",
+			"ownership",
+		])
 		.then((r) => {
 			const v = (r && r.message) || {};
 			frm._card_hourly = flt(v.approved_hourly_rate);
-			frm._card_owned = v.ownership === "ملك";
+			// F.7: only supplier-billing directions accrue a supplier amount
+			const dir =
+				v.rental_direction || (v.ownership === "ملك" ? "تشغيل داخلي" : "مستأجَرة من مورد");
+			frm._card_supplier_side = ["مستأجَرة من مورد", "إيجار من الباطن"].includes(dir);
 			card_calc(frm);
+		});
+}
+
+// F.7: the card's project follows the assignment covering the card's month
+// (client mirror of the server rule — display convenience; the server enforces).
+function card_lock_project(frm) {
+	if (frm.doc.docstatus !== 0 || !frm.doc.equipment) return;
+	const m = parseInt(frm.doc.month);
+	const y = parseInt(frm.doc.year);
+	if (!m || !y || y < 2000) return;
+	const first = `${y}-${card_pad(m)}-01`;
+	const last = `${y}-${card_pad(m)}-${card_pad(new Date(y, m, 0).getDate())}`;
+	frappe.db
+		.get_list("Card Equipment Assignment", {
+			filters: { equipment: frm.doc.equipment, from_date: ["<=", last] },
+			fields: ["project", "from_date", "to_date"],
+			limit: 0,
+		})
+		.then((rows) => {
+			let best = null;
+			(rows || []).forEach((a) => {
+				if (a.to_date && a.to_date < first) return;
+				if (!best || a.from_date > best.from_date) best = a;
+			});
+			frm.set_df_property("project", "read_only", best ? 1 : 0);
+			if (best && frm.doc.project !== best.project) frm.set_value("project", best.project);
 		});
 }
 
@@ -286,12 +319,22 @@ frappe.ui.form.on("Card Monthly Card", {
 	refresh(frm) {
 		card_color_fridays(frm);
 		if (frm.doc.docstatus === 0) card_load_hourly(frm);
+		card_lock_project(frm);
 		card_render_card_links(frm);
 		card_render_diesel(frm);
 	},
-	equipment: card_load_hourly,
-	month: card_build,
-	year: card_build,
+	equipment(frm) {
+		card_load_hourly(frm);
+		card_lock_project(frm);
+	},
+	month(frm) {
+		card_build(frm);
+		card_lock_project(frm);
+	},
+	year(frm) {
+		card_build(frm);
+		card_lock_project(frm);
+	},
 	rate: card_calc,
 	rate_type: card_calc,
 	validate(frm) {

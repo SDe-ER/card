@@ -8,33 +8,35 @@
  "field_order": [
   "header_section",
   "equipment",
-  "project",
-  "company",
-  "project_name",
-  "site_location",
-  "operator_name",
   "shift",
   "month",
   "year",
   "column_break_xdga",
+  "operator_name",
+  "project",
+  "company",
+  "equipment_info_section",
   "image",
   "equipment_name",
   "ownership",
   "card_direction",
+  "project_name",
+  "site_location",
+  "equipment_info_col",
   "supplier",
   "customer",
+  "rate_type",
+  "rate",
+  "customer_rate_type",
+  "customer_rate",
   "from_date",
   "to_date",
   "days_section",
   "days",
   "totals_section",
-  "rate_type",
-  "rate",
-  "customer_rate_type",
-  "customer_rate",
-  "column_break_eubn",
   "working_days",
   "total_working_hours",
+  "column_break_eubn",
   "amount",
   "amended_from",
   "adjustments_section",
@@ -52,7 +54,10 @@
   "daily_hours_used",
   "hourly_rate_used",
   "customer_rate_used",
-  "diesel_policy_used"
+  "diesel_policy_used",
+  "direction_used",
+  "customer_used",
+  "rate_basis_used"
  ],
  "fields": [
   {
@@ -102,6 +107,8 @@
    "label": "Location"
   },
   {
+   "fetch_from": "equipment.operator_name",
+   "fetch_if_empty": 1,
    "fieldname": "operator_name",
    "fieldtype": "Data",
    "label": "Driver / Operator"
@@ -318,33 +325,35 @@
    "read_only": 1
   },
   {
+   "fetch_from": "equipment.rental_direction",
    "fieldname": "card_direction",
    "fieldtype": "Select",
    "label": "Card direction",
-   "options": "\nمستأجَرة من مورد\nمؤجَّرة لعميل\nإيجار من الباطن\nتشغيل داخلي"
+   "options": "\nمستأجَرة من مورد\nمؤجَّرة لعميل\nإيجار من الباطن\nتشغيل داخلي",
+   "read_only": 1
   },
   {
-   "fetch_from": "project.customer",
-   "fetch_if_empty": 1,
+   "fetch_from": "equipment.default_customer",
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Customer"
+   "options": "Customer",
+   "read_only": 1
   },
   {
    "fetch_from": "equipment.customer_rate_type",
-   "fetch_if_empty": 1,
    "fieldname": "customer_rate_type",
    "fieldtype": "Select",
    "label": "Customer rate type",
-   "options": "\nباليوم\nبالساعة"
+   "options": "\nباليوم\nبالساعة",
+   "read_only": 1
   },
   {
    "fetch_from": "equipment.customer_rate",
-   "fetch_if_empty": 1,
    "fieldname": "customer_rate",
    "fieldtype": "Currency",
-   "label": "Customer rate"
+   "label": "Customer rate",
+   "read_only": 1
   },
   {
    "fieldname": "customer_amount",
@@ -357,6 +366,34 @@
    "fieldtype": "Currency",
    "label": "Customer hourly rate used",
    "read_only": 1
+  },
+  {
+   "fieldname": "direction_used",
+   "fieldtype": "Data",
+   "label": "Direction used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_used",
+   "fieldtype": "Data",
+   "label": "Customer used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rate_basis_used",
+   "fieldtype": "Data",
+   "label": "Rate basis used",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "equipment_info_section",
+   "fieldtype": "Section Break",
+   "label": "Equipment information"
+  },
+  {
+   "fieldname": "equipment_info_col",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,

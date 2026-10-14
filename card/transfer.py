@@ -37,6 +37,26 @@ def _has_any_assignment(equipment):
 	return bool(frappe.db.exists("Card Equipment Assignment", {"equipment": equipment}))
 
 
+def covering_assignment(equipment, first_day, last_day):
+	"""Latest assignment whose period overlaps [first_day, last_day] (F.7: the
+	card's project follows it; retro months keep their historical project).
+	None when nothing overlaps — the card's project is then free entry."""
+	best = None
+	for a in frappe.get_all(
+		"Card Equipment Assignment",
+		filters={"equipment": equipment},
+		fields=["name", "project", "from_date", "to_date"],
+	):
+		if not a.from_date:
+			continue
+		f = getdate(a.from_date)
+		t = getdate(a.to_date) if a.to_date else None
+		if f <= getdate(last_day) and (t is None or t >= getdate(first_day)):
+			if best is None or f > getdate(best.from_date):
+				best = a
+	return best
+
+
 def _assigned_on(equipment, project, day):
 	"""Is `equipment` assigned to `project` on `day` (within an assignment period)?"""
 	for a in frappe.get_all(
