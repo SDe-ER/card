@@ -113,7 +113,9 @@ class TestCardEquipment(IntegrationTestCase):
 		d = frappe.new_doc("Card Equipment")
 		d.company = self._m["company"]
 		d.equipment_type = self._m["etype"]
-		d.ownership = kw.pop("ownership", "إيجار")
+		# owned by default: the hourly-rate math is direction-independent, and F.7
+		# makes a rented direction require a supplier + rate on the equipment.
+		d.ownership = kw.pop("ownership", "ملك")
 		d.equipment_name = kw.pop("equipment_name", "TEST-EQ-" + frappe.generate_hash(length=8))
 		for key, value in kw.items():
 			setattr(d, key, value)

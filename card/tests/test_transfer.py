@@ -219,14 +219,17 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		self.assertFalse(frappe.db.get_value("Card Equipment Assignment", a_old.name, "to_date"))
 		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "current_project"), proj_a)
 
-	# ---- 8. one piece cannot be on two projects the same day ----
-	def test_overlap_rejected(self):
+	# ---- 8. the project is not user-choosable while an assignment covers the month ----
+	def test_project_follows_covering_assignment(self):
 		proj_a, proj_b = self._project("A"), self._project("B")
 		eq = self._equipment(current_project=proj_a)
 		self._assign(eq.name, proj_a, 1)  # open on A, never assigned to B
 
-		with self.assertRaises(frappe.ValidationError):
-			self._card(eq.name, proj_b, [5, 6]).insert(ignore_permissions=True)
+		# F.7: the user's B is overwritten by the covering assignment's project (A),
+		# so one piece can never carry a card on a project it is not assigned to.
+		card = self._card(eq.name, proj_b, [5, 6])
+		card.insert(ignore_permissions=True)
+		self.assertEqual(card.project, proj_a)
 
 	# ---- 9. unit component takes no card ----
 	def test_unit_component_takes_no_card(self):
