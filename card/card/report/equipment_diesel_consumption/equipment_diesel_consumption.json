@@ -1,0 +1,24 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letterhead": null,
+ "module": "Card",
+ "name": "Equipment Diesel Consumption",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Project Diesel Fill",
+ "report_name": "Equipment Diesel Consumption",
+ "report_script": "",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

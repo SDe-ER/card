@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 10:23+0000\n"
+"POT-Creation-Date: 2026-10-14 10:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -84,6 +84,7 @@ msgstr ""
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
 #: card/card/doctype/equipment_transport/equipment_transport.json
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:20
 msgid "Amount"
 msgstr "المبلغ"
 
@@ -193,6 +194,7 @@ msgstr "الرصيد آخر المدة"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/doctype/equipment_transport/equipment_transport.json
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:6
 msgid "Company"
 msgstr "الشركة"
 
@@ -365,6 +367,7 @@ msgstr "السائق / المشغّل"
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:221
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:12
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:83
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:197
 msgid "Equipment"
@@ -374,6 +377,11 @@ msgstr "المعدات"
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Equipment (direct charge)"
 msgstr "المعدة (تحميل مباشر)"
+
+#. Name of a report
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.json
+msgid "Equipment Diesel Consumption"
+msgstr "استهلاك ديزل المعدات"
 
 #. Name of a report
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.json
@@ -489,6 +497,7 @@ msgstr "من"
 #. Label of the from_date (Date) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:11
 msgid "From date"
 msgstr "من تاريخ"
 
@@ -620,6 +629,7 @@ msgstr "المؤجر / المالك"
 
 #. Label of the litres (Float) field in DocType 'Project Diesel Fill'
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:19
 msgid "Litres"
 msgstr "اللترات"
 
@@ -700,6 +710,7 @@ msgstr "الموديل"
 
 #. Label of the month (Select) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:18
 msgid "Month"
 msgstr "الشهر"
 
@@ -865,6 +876,8 @@ msgstr "رقم اللوحة"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/doctype/equipment_transport/equipment_transport.json
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:13
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:17
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:80
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:269
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:64
@@ -1139,6 +1152,7 @@ msgstr "إلى"
 #. Label of the to_date (Date) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.js:12
 msgid "To date"
 msgstr "إلى تاريخ"
 
