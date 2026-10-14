@@ -392,7 +392,7 @@
    "read_only": 1
   },
   {
-   "fetch_from": "\u0627\u0644\u0623\u0635\u0644_\u0641\u064a_erpnext.gross_purchase_amount",
+   "fetch_from": "\u0627\u0644\u0623\u0635\u0644_\u0641\u064a_erpnext.net_purchase_amount",
    "fieldname": "asset_purchase_value",
    "fieldtype": "Currency",
    "label": "Asset purchase value",
