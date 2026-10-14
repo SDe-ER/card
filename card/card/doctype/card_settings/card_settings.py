@@ -13,3 +13,9 @@ class CardSettings(Document):
 			if row.company in seen:
 				frappe.throw(_("Duplicate company in Card Company Settings: {0}").format(row.company))
 			seen.add(row.company)
+		# F.1: one transport price per project
+		projects = set()
+		for row in self.get("project_transport_prices") or []:
+			if row.project in projects:
+				frappe.throw(_("Duplicate project in transport prices: {0}").format(row.project))
+			projects.add(row.project)

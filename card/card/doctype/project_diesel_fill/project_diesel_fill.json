@@ -7,11 +7,11 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "company",
   "date",
   "project",
   "supplier",
   "card_equipment",
-  "company",
   "column_break_main",
   "litres",
   "unit_price",

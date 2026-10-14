@@ -1580,3 +1580,129 @@ msgstr "صافي المبالغ بدون معدة"
 msgid "Expense lines on the CARD expense accounts with no Card Equipment dimension. Fix them at the source document so the per-equipment P&L stays complete."
 msgstr "سطور مصروفات على حسابات الكارت بدون بُعد «معدة الكارت». صحّحها من المستند الأصلي حتى تظل أرباح/خسائر كل معدة مكتملة."
 
+
+msgid "Rental direction"
+msgstr "اتجاه التأجير"
+
+msgid "Operation standards"
+msgstr "معايير التشغيل"
+
+msgid "Customer side"
+msgstr "جانب العميل"
+
+msgid "Equipment information"
+msgstr "بيانات المعدة"
+
+msgid "Daily diesel consumption (litres per standard day)"
+msgstr "استهلاك الديزل اليومي (لتر لليوم القياسي)"
+
+msgid "Default rate basis"
+msgstr "أساس السعر الافتراضي"
+
+msgid "Standard month hours"
+msgstr "ساعات الشهر القياسي"
+
+msgid "Fills the supplier and customer rate basis on NEW equipment when left blank."
+msgstr "يملأ أساس سعر المورد والعميل في المعدات الجديدة عند تركه فارغاً."
+
+msgid "Hours a monthly (بالشهر) rate is spread over. Default 260 = 26 days x 10 hours."
+msgstr "الساعات التي يوزَّع عليها السعر الشهري. الافتراضي 260 = 26 يوم × 10 ساعات."
+
+msgid "Diesel supplier"
+msgstr "مورد الديزل"
+
+msgid "Diesel supplier policy"
+msgstr "سياسة مورد الديزل"
+
+msgid "Fixed: the supplier below is forced on every fill and nobody can change it. Variable: it is the default; only the permitted role may change it."
+msgstr "ثابت: المورد أدناه يُفرض على كل تعبئة ولا يمكن لأحد تغييره. متغير: هو الافتراضي؛ وتغييره متاح للدور المصرّح له فقط."
+
+msgid "Diesel supplier editor role"
+msgstr "دور تعديل مورد الديزل"
+
+msgid "Transport prices"
+msgstr "أسعار النقل"
+
+msgid "Transport price per project"
+msgstr "سعر النقل لكل مشروع"
+
+msgid "Transport amount"
+msgstr "قيمة النقل"
+
+msgid "Transport price editor role"
+msgstr "دور تعديل سعر النقل"
+
+msgid "Direction used"
+msgstr "الاتجاه المستخدم"
+
+msgid "Customer used"
+msgstr "العميل المستخدم"
+
+msgid "Rate basis used"
+msgstr "أساس السعر المستخدم"
+
+msgid "Equipment Diesel Analysis"
+msgstr "تحليل ديزل المعدات"
+
+msgid "Expected litres"
+msgstr "اللترات المتوقعة"
+
+msgid "Actual litres"
+msgstr "اللترات الفعلية"
+
+msgid "Litres variance"
+msgstr "فرق اللترات"
+
+msgid "Variance %"
+msgstr "نسبة الفرق %"
+
+msgid "Operating month"
+msgstr "شهر التشغيل"
+
+msgid "Direction {0} is not valid for ownership {1}."
+msgstr "الاتجاه {0} غير صالح للملكية {1}."
+
+msgid "Direction {0} requires a supplier."
+msgstr "الاتجاه {0} يتطلب مورداً."
+
+msgid "Direction {0} requires the supplier rate and its basis."
+msgstr "الاتجاه {0} يتطلب سعر المورد وأساسه."
+
+msgid "Direction {0} requires a customer."
+msgstr "الاتجاه {0} يتطلب عميلاً."
+
+msgid "Direction {0} requires the customer rate and its basis."
+msgstr "الاتجاه {0} يتطلب سعر العميل وأساسه."
+
+msgid "Equipment {0}: direction {1} is not valid for ownership {2}. Fix the equipment first."
+msgstr "المعدة {0}: الاتجاه {1} غير صالح للملكية {2}. صحّح المعدة أولاً."
+
+msgid "Card period {0}-{1} is outside the current fiscal year {2}; past cards are allowed only within it."
+msgstr "فترة الكارت {0}-{1} خارج السنة المالية الحالية {2}؛ الكروت السابقة مسموح بها داخلها فقط."
+
+msgid "The project's customer ({0}) differs from the equipment's customer ({1}). Review before submitting."
+msgstr "عميل المشروع ({0}) مختلف عن عميل المعدة ({1}). راجع قبل الاعتماد."
+
+msgid "Customer mismatch"
+msgstr "اختلاف العميل"
+
+msgid "The equipment has no customer; set the customer on the equipment before submitting a {0} card."
+msgstr "المعدة بدون عميل؛ سجّل العميل على المعدة قبل اعتماد كارت {0}."
+
+msgid "The diesel supplier is fixed in Settings ({0}) and cannot be changed."
+msgstr "مورد الديزل ثابت في الإعدادات ({0}) ولا يمكن تغييره."
+
+msgid "Only users with role {0} may change the diesel supplier."
+msgstr "تغيير مورد الديزل متاح فقط لمن لديه دور {0}."
+
+msgid "Only users with role {0} may change the transport amount for project {1} (configured: {2})."
+msgstr "تغيير قيمة النقل للمشروع {1} متاح فقط لمن لديه دور {0} (المحدد: {2})."
+
+msgid "Duplicate project in transport prices: {0}"
+msgstr "مشروع مكرر في أسعار النقل: {0}"
+
+msgid "CARD runs on a single company ({0}); creating additional companies is not allowed."
+msgstr "النظام يعمل بشركة واحدة ({0})؛ إنشاء شركات إضافية غير مسموح."
+
+msgid "Expected = operating hours x (daily diesel consumption / daily standard hours). Actual = litres allocated from submitted diesel fills. Display only — no accounting."
+msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الفعلي = اللترات الموزعة من تعبئات الديزل المعتمدة. للعرض فقط — بدون محاسبة."

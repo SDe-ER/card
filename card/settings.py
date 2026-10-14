@@ -27,6 +27,14 @@ _DEFAULTS = {
 	"notify_on_card_submit": 0,
 	"notify_on_posting": 0,
 	"notify_on_period_lock_override": 0,
+	# F.5: calculation bases
+	"default_rate_basis": "",
+	"standard_month_hours": 260.0,
+	# F.1: diesel supplier policy + per-project transport prices
+	"diesel_supplier_policy": "متغير",
+	"diesel_supplier": "",
+	"diesel_supplier_editor_role": "Card Manager",
+	"transport_price_editor_role": "Card Manager",
 }
 
 

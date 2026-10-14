@@ -149,20 +149,21 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		self.assertFalse(t.previous_assignment)
 		self.assertEqual(t.created_assignment, rows[0].name)
 
-	# ---- 3. old project: days after the transfer are rejected ----
-	def test_old_project_day_after_transfer_rejected(self):
+	# ---- 3. after a transfer the month's card follows the NEW assignment (F.7) ----
+	def test_card_follows_covering_assignment_after_transfer(self):
 		proj_a, proj_b = self._project("A"), self._project("B")
 		eq = self._equipment(current_project=proj_a)
 		self._assign(eq.name, proj_a, 1)
 		self._transport(eq.name, proj_b, 10)
 
-		# a day after the transfer date on the old project is outside A's period
-		with self.assertRaises(frappe.ValidationError):
-			self._card(eq.name, proj_a, [5, 12]).insert(ignore_permissions=True)
-		# days on/before the transfer date are accepted
-		card = self._card(eq.name, proj_a, [5, 10])
+		# the card month overlaps both assignments; the LATEST (B) wins and the
+		# user's project choice is overwritten by the covering-assignment rule
+		card = self._card(eq.name, proj_a, [11, 12])
 		card.insert(ignore_permissions=True)
-		self.assertTrue(card.name)
+		self.assertEqual(card.project, proj_b)
+		# days before the equipment arrived on B are rejected
+		with self.assertRaises(frappe.ValidationError):
+			self._card(eq.name, proj_b, [5, 12]).insert(ignore_permissions=True)
 
 	# ---- 4. new project: days from D+1 accepted ----
 	def test_new_project_day_accepted(self):
