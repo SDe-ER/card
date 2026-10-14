@@ -180,10 +180,63 @@ function card_check_duplicate(frm) {
 		});
 }
 
+// Direct read-only link to an EXISTING record (no create affordance).
+function card_doc_link(doctype, name) {
+	return (
+		'<a href="/app/' +
+		frappe.router.slug(doctype) +
+		"/" +
+		encodeURIComponent(name) +
+		'">' +
+		frappe.utils.escape_html(name) +
+		"</a>"
+	);
+}
+
+// Owner decision 2026-10-14: show the card's equipment, project and lessor (supplier)
+// as DIRECT read-only links inside the Connections («الارتباطات») tab — links to the
+// EXISTING records only, never a "create new" card (Frappe's native connection cards
+// always render a "+ New" button, which the owner rejected).
+function card_render_card_links(frm) {
+	if (frm.is_new()) return;
+	const parts = [];
+	if (frm.doc.equipment) {
+		parts.push(
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Equipment") +
+				":</span> " +
+				card_doc_link("Card Equipment", frm.doc.equipment) +
+				"</div>",
+		);
+	}
+	if (frm.doc.project) {
+		parts.push(
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Project") +
+				":</span> " +
+				card_doc_link("Project", frm.doc.project) +
+				"</div>",
+		);
+	}
+	if (frm.doc.ownership !== "ملك" && frm.doc.supplier) {
+		parts.push(
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Supplier") +
+				":</span> " +
+				card_doc_link("Supplier", frm.doc.supplier) +
+				"</div>",
+		);
+	}
+	if (parts.length) {
+		frm.dashboard.add_section(parts.join(""), __("Related records"));
+	}
+}
+
 frappe.ui.form.on("Card Monthly Card", {
 	refresh(frm) {
 		card_color_fridays(frm);
 		if (frm.doc.docstatus === 0) card_load_hourly(frm);
+		card_render_card_links(frm);
 	},
 	equipment: card_load_hourly,
 	month: card_build,

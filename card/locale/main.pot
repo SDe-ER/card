@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 07:31+0000\n"
-"PO-Revision-Date: 2026-10-14 07:31+0000\n"
+"POT-Creation-Date: 2026-10-14 08:12+0000\n"
+"PO-Revision-Date: 2026-10-14 08:12+0000\n"
 "Last-Translator: info@sdce.sa\n"
 "Language-Team: info@sdce.sa\n"
 "MIME-Version: 1.0\n"
@@ -103,6 +103,11 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:69
 msgid "Cannot record operating hours for a future day: {0}"
+msgstr ""
+
+#. Label of a Desktop Icon
+#: card/desktop_icon/card.json
+msgid "Card"
 msgstr ""
 
 #. Name of a DocType
@@ -209,6 +214,7 @@ msgid "Current assignment"
 msgstr ""
 
 #. Label of the current_project (Link) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.js:79
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Current project"
 msgstr ""
@@ -299,6 +305,7 @@ msgstr ""
 #. Label of the equipment (Link) field in DocType 'Card Equipment Assignment'
 #. Label of the equipment (Link) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:206
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:83
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:197
@@ -523,6 +530,10 @@ msgstr ""
 #. Supplier'
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Last updated"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.js:70
+msgid "Lessor"
 msgstr ""
 
 #. Label of the supplier (Link) field in DocType 'Card Equipment'
@@ -756,6 +767,7 @@ msgstr ""
 #. Label of the project (Link) field in DocType 'Card Equipment Assignment'
 #. Label of the project (Link) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:215
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:80
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:269
@@ -766,6 +778,10 @@ msgstr ""
 #. Label of the project_name (Data) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Project name"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.js:89
+msgid "Projects worked on"
 msgstr ""
 
 #. Label of the rate (Currency) field in DocType 'Card Equipment'
@@ -790,13 +806,6 @@ msgstr ""
 msgid "Reconciliation difference"
 msgstr ""
 
-#. Group in Card Equipment's connections
-#. Group in Card Monthly Card's connections
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "Reference"
-msgstr ""
-
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:9
 msgid "Refresh numbers"
 msgstr ""
@@ -814,6 +823,11 @@ msgstr ""
 #. Label of the registration_no (Data) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Registration number"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.js:96
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:231
+msgid "Related records"
 msgstr ""
 
 #. Label of the rental_section (Section Break) field in DocType 'Card
@@ -900,6 +914,7 @@ msgstr ""
 
 #. Label of the supplier (Link) field in DocType 'Card Equipment Supplier'
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:224
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:56
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:189
 msgid "Supplier"

@@ -565,16 +565,6 @@
    "group": "Operation",
    "link_doctype": "Card Monthly Card",
    "link_fieldname": "equipment"
-  },
-  {
-   "group": "Reference",
-   "link_doctype": "Supplier",
-   "link_fieldname": "supplier"
-  },
-  {
-   "group": "Reference",
-   "link_doctype": "Project",
-   "link_fieldname": "current_project"
   }
  ],
  "modified": "2026-10-12 21:21:14.216459",

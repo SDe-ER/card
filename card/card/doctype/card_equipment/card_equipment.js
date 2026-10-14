@@ -33,13 +33,77 @@ function card_patch_heatmap(frm) {
 	};
 }
 
-// The current supplier and project are surfaced in the Connections («الارتباطات»)
-// tab via this DocType's dashboard links (internal links) — see card_equipment.json.
+// Build a read-only anchor to an EXISTING record (no "create new" affordance).
+function card_doc_link(doctype, name) {
+	return (
+		'<a href="/app/' +
+		frappe.router.slug(doctype) +
+		"/" +
+		encodeURIComponent(name) +
+		'">' +
+		frappe.utils.escape_html(name) +
+		"</a>"
+	);
+}
+
+// Owner decision 2026-10-14: surface, inside the Connections («الارتباطات») tab, a
+// DIRECT read-only link to the EXISTING lessor (supplier), the current project, and
+// the projects this equipment has actually worked on (distinct projects taken from
+// its monthly operation cards). This is a custom dashboard section on purpose:
+// Frappe's native connection cards are reverse-only and always render a "+ New"
+// create button, which the owner explicitly rejected. No record is ever created here.
+function card_render_equipment_links(frm) {
+	if (frm.is_new()) return;
+	frappe.db
+		.get_list("Card Monthly Card", {
+			filters: { equipment: frm.doc.name, project: ["is", "set"] },
+			fields: ["project"],
+			group_by: "project",
+			order_by: "project asc",
+			limit: 0,
+		})
+		.then((recs) => {
+			const parts = [];
+			if (frm.doc.ownership !== "ملك" && frm.doc.supplier) {
+				parts.push(
+					'<div class="mb-2"><span class="text-muted">' +
+						__("Lessor") +
+						":</span> " +
+						card_doc_link("Supplier", frm.doc.supplier) +
+						"</div>",
+				);
+			}
+			if (frm.doc.current_project) {
+				parts.push(
+					'<div class="mb-2"><span class="text-muted">' +
+						__("Current project") +
+						":</span> " +
+						card_doc_link("Project", frm.doc.current_project) +
+						"</div>",
+				);
+			}
+			const projects = (recs || []).map((r) => r.project).filter(Boolean);
+			if (projects.length) {
+				parts.push(
+					'<div class="mb-2"><span class="text-muted">' +
+						__("Projects worked on") +
+						":</span> " +
+						projects.map((p) => card_doc_link("Project", p)).join("، ") +
+						"</div>",
+				);
+			}
+			if (parts.length) {
+				frm.dashboard.add_section(parts.join(""), __("Related records"));
+			}
+		});
+}
+
 frappe.ui.form.on("Card Equipment", {
 	setup(frm) {
 		card_patch_heatmap(frm);
 	},
 	refresh(frm) {
 		card_patch_heatmap(frm);
+		card_render_equipment_links(frm);
 	},
 });
