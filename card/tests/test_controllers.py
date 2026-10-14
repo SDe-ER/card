@@ -50,15 +50,20 @@ def _ensure_masters():
 	project = frappe.get_all("Project", pluck="name", limit=1)
 	project = project[0] if project else None
 	if not project:
-		frappe.get_doc(
-			{
-				"doctype": "Project",
-				"project_name": "Test Project",
-				"status": "Open",
-				"company": company,
-			}
-		).insert(ignore_permissions=True)
-		project = "Test Project"
+		# Project may be named by series (e.g. PROJ-0001) depending on the site's
+		# "Project Naming By" default, so use the real inserted name.
+		project = (
+			frappe.get_doc(
+				{
+					"doctype": "Project",
+					"project_name": "Test Project",
+					"status": "Open",
+					"company": company,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
 
 	supplier_group = frappe.db.get_value("Supplier Group", {"is_group": 0}, "name")
 	if not supplier_group:
