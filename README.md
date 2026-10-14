@@ -99,6 +99,7 @@ CARD follows the same design principles as Frappe HR: one master record per asse
 - A non-mandatory **Card Equipment accounting dimension** on the GL-bearing ERPNext doctypes: per-equipment General Ledger, Trial Balance, P&amp;L and Balance Sheet with the standard reports — including the depreciation path from linked Assets.
 - Guard report **Equipment Expenses Without Equipment** catches expense lines that missed the dimension.
 - Period lock, role model (**Card Manager** / **Card User** / Accounts Manager read), and a per-company settings page keep policies in one place.
+- **Note:** users running the supplier/customer statement reports also need a standard ERPNext role with read access to Supplier/Customer (e.g. **Accounts User**) — Frappe validates report link-filters against those doctypes, and CARD does not modify ERPNext doctype permissions.
 </details>
 
 <details open>
