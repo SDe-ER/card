@@ -87,6 +87,8 @@ required_apps = ["erpnext"]
 
 before_install = "card.install.before_install"
 after_install = "card.install.after_install"
+# F.8: the bundled print fonts install themselves on every migrate (user fontconfig)
+after_migrate = ["card.fonts.ensure_fonts"]
 
 # Uninstallation
 # ------------
