@@ -73,7 +73,9 @@ class TestCardLocaleCardStringsOnly(IntegrationTestCase):
 				for msgid, msgstr in card_entries.items():
 					if msgid in allow or msgid not in other:
 						continue
-					if other[msgid] != msgstr:
+					# an EMPTY msgstr ships no translation (not compiled into the MO),
+					# so card translating such a msgid overrides nothing site-wide
+					if other[msgid] and other[msgid] != msgstr:
 						violations.append(f"{po}: {msgid!r} (card={msgstr!r} vs {app}={other[msgid]!r})")
 		self.assertFalse(
 			violations,
