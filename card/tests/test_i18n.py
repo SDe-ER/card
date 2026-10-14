@@ -27,3 +27,13 @@ class TestCardNameNotTranslated(IntegrationTestCase):
 				block.group("v"), "Card", f"{po}: 'Card' must not be translated (got {block.group('v')!r})"
 			)
 		self.assertGreater(checked, 0, "no locale listed msgid \"Card\" to check")
+
+
+class TestCardSettingsDisplayName(IntegrationTestCase):
+	def test_card_settings_display_name(self):
+		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
+		expected = {"ar.po": "الإعدادات", "en.po": "Settings"}
+		for po, value in expected.items():
+			text = open(os.path.join(locale_dir, po), encoding="utf-8").read()
+			block = re.findall(r'^msgid "Card Settings"\nmsgstr "(.*)"', text, re.M)
+			self.assertEqual(block, [value], f"{po}: 'Card Settings' must map to {value!r} exactly once")

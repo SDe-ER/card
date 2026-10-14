@@ -15,9 +15,12 @@
   "equipment",
   "from_location",
   "to_location",
+  "transport_method",
   "amount",
   "cost_center",
   "section_break_links",
+  "created_assignment",
+  "previous_assignment",
   "purchase_invoice",
   "gl_posting",
   "posted",
@@ -128,6 +131,26 @@
    "fieldname": "posted",
    "fieldtype": "Check",
    "label": "Posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transport_method",
+   "fieldtype": "Select",
+   "label": "Transport method",
+   "options": "\nTruck Head\nWinch\nLow-bed\nSelf-driven\nOther"
+  },
+  {
+   "fieldname": "previous_assignment",
+   "fieldtype": "Link",
+   "label": "Previous assignment",
+   "options": "Card Equipment Assignment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_assignment",
+   "fieldtype": "Link",
+   "label": "Created assignment",
+   "options": "Card Equipment Assignment",
    "read_only": 1
   }
  ],

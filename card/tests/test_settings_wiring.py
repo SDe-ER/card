@@ -98,11 +98,11 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		d.reload()
 		return d
 
-	def _card(self, eq, hours_list, submit=False):
+	def _card(self, eq, hours_list, submit=False, shift="نهاري"):
 		c = frappe.new_doc("Card Monthly Card")
 		c.equipment = eq.name
 		c.project = self.project
-		c.shift = "نهاري"
+		c.shift = shift
 		c.month = "09"
 		c.year = 2026
 		for row in _days(hours_list):
@@ -270,3 +270,35 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		# الشركة -> company bears
 		frappe.db.set_value("Card Equipment", eq.name, "الوقود_على", "الشركة")
 		self.assertTrue(get_card_diesel(card.name)["company_bears"])
+
+	# ---------- 4. per-shift hour limits ----------
+
+	def test_day_shift_limit(self):
+		_set("max_day_shift_hours", 12)
+		with self.assertRaises(frappe.ValidationError):
+			self._card(self._equipment("-D13"), [13])
+		self.assertEqual(flt(self._card(self._equipment("-D12"), [12]).total_working_hours), 12.0)
+
+	def test_night_card_uses_night_limit(self):
+		_set("max_day_shift_hours", 12)
+		_set("max_night_shift_hours", 8)
+		# a 10h night day exceeds the night limit (8) ...
+		with self.assertRaises(frappe.ValidationError):
+			self._card(self._equipment("-N10"), [10], shift="ليلي")
+		# ... while the same 10h on a day-shift card is within the day limit (12)
+		self.assertEqual(flt(self._card(self._equipment("-D10"), [10]).total_working_hours), 10.0)
+
+	def test_shift_limits_default_to_12_when_unset(self):
+		frappe.db.delete(
+			"Singles",
+			{"doctype": "Card Settings", "field": ("in", ("max_day_shift_hours", "max_night_shift_hours"))},
+		)
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+		self.assertEqual(setting("max_day_shift_hours"), 12.0)
+		self.assertEqual(setting("max_night_shift_hours"), 12.0)
+		with self.assertRaises(frappe.ValidationError):
+			self._card(self._equipment("-U13"), [13])
+		with self.assertRaises(frappe.ValidationError):
+			self._card(self._equipment("-U13N"), [13], shift="ليلي")
+		self._card(self._equipment("-U12"), [12])
+		self._card(self._equipment("-U12N"), [12], shift="ليلي")

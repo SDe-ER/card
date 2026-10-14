@@ -1,15 +1,10 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION
-"
-"MIME-Version: 1.0
-"
-"Content-Type: text/plain; charset=utf-8
-"
-"Content-Transfer-Encoding: 8bit
-"
-"Language: en
-"
+"Project-Id-Version: CARD VERSION\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
 
 msgid "Card Equipment"
 msgstr "Equipment"
@@ -28,3 +23,6 @@ msgstr "Monthly Operation Card"
 
 msgid "Card Equipment Supplier"
 msgstr "Equipment Supplier"
+
+msgid "Card Settings"
+msgstr "Settings"

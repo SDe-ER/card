@@ -9,6 +9,7 @@ from frappe.utils import cint, flt, get_last_day, getdate, nowdate
 from card.api import recompute_supplier
 from card.notifications import notify
 from card.settings import setting
+from card.transfer import validate_card_days
 
 
 class CardMonthlyCard(Document):
@@ -33,13 +34,22 @@ class CardMonthlyCard(Document):
 				"daily_hours",
 				"rental_start_date",
 				"rental_end_date",
+				"is_unit_component",
 			],
 			as_dict=True,
 		)
 		if not eq:
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
+		if eq.is_unit_component:
+			frappe.throw(
+				_("This equipment is a unit component; the monthly card is kept on the unit, not the component.")
+			)
 		if self.company and self.company != eq.company:
 			frappe.throw(_("The card's company does not match the equipment's company"))
+
+		# location/assignment constraint (phase A): working days must fall inside
+		# an assignment period for the card's project (units check every component).
+		validate_card_days(self)
 
 		# ---- period of the card ----
 		first_day = getdate(str(doc_year) + "-" + str(doc_month).zfill(2) + "-01")
@@ -53,7 +63,8 @@ class CardMonthlyCard(Document):
 		hours_by_date = {}
 		total_hours = 0.0
 		work_days = 0
-		max_hours = flt(setting("max_hours_per_day")) or 24
+		limit_field = "max_day_shift_hours" if self.shift == "نهاري" else "max_night_shift_hours"
+		max_hours = flt(setting(limit_field)) or 12
 		for row in self.days:
 			if not row.operation_date:
 				frappe.throw(_("There is a day row without a date"))

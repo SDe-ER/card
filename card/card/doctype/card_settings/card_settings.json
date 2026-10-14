@@ -13,7 +13,8 @@
   "operations_tab",
   "operations_defaults_section",
   "default_shift",
-  "max_hours_per_day",
+  "max_day_shift_hours",
+  "max_night_shift_hours",
   "default_daily_hours",
   "operations_column_break",
   "default_fuel_charged_to",
@@ -89,10 +90,16 @@
    "options": "نهاري\nليلي"
   },
   {
-   "default": "24",
-   "fieldname": "max_hours_per_day",
+   "default": "12",
+   "fieldname": "max_day_shift_hours",
    "fieldtype": "Float",
-   "label": "Max operating hours per day"
+   "label": "Max day-shift hours"
+  },
+  {
+   "default": "12",
+   "fieldname": "max_night_shift_hours",
+   "fieldtype": "Float",
+   "label": "Max night-shift hours"
   },
   {
    "default": "0",

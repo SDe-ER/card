@@ -15,7 +15,6 @@ FIELDS = (
 	"enable_accounting",
 	"auto_submit",
 	"default_shift",
-	"max_hours_per_day",
 	"default_daily_hours",
 	"default_fuel_charged_to",
 	"default_operator_on",

@@ -24,6 +24,7 @@
   "image",
   "status",
   "is_unit",
+  "is_unit_component",
   "unit_section",
   "components",
   "operation_tab",
@@ -604,6 +605,13 @@
    "fieldtype": "Tab Break",
    "label": "Connections",
    "show_dashboard": 1
+  },
+  {
+   "default": "0",
+   "description": "A physical piece that belongs to an operating unit; it gets no monthly operation card (the unit does).",
+   "fieldname": "is_unit_component",
+   "fieldtype": "Check",
+   "label": "Unit component (no monthly card)"
   }
  ],
  "grid_page_length": 50,

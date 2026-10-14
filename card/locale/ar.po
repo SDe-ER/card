@@ -1487,7 +1487,7 @@ msgid "Reports"
 msgstr "التقارير"
 
 msgid "Card Settings"
-msgstr "إعدادات كارت"
+msgstr "الإعدادات"
 
 msgid "Card Company Settings"
 msgstr "إعدادات كارت للشركة"
@@ -1737,3 +1737,9 @@ msgstr "الوقود والنقل"
 
 msgid "Linked records"
 msgstr "السجلات المرتبطة"
+
+msgid "Max day-shift hours"
+msgstr "أقصى ساعات الوردية النهارية"
+
+msgid "Max night-shift hours"
+msgstr "أقصى ساعات الوردية الليلية"
