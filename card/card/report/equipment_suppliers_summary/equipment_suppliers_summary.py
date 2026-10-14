@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 
 
 def execute(filters=None):
@@ -17,11 +18,11 @@ def execute(filters=None):
 	tm = cint(filters.get("to_month")) or fm
 	ty = cint(filters.get("to_year")) or fy
 	if not fm or not fy:
-		frappe.throw("حدد شهر وسنة البداية")
+		frappe.throw(_("حدد شهر وسنة البداية"))
 	start = getdate(str(fy) + "-" + str(fm).zfill(2) + "-01")
 	end = frappe.utils.get_last_day(getdate(str(ty) + "-" + str(tm).zfill(2) + "-01"))
 	if end < start:
-		frappe.throw("فترة غير صحيحة: النهاية قبل البداية")
+		frappe.throw(_("فترة غير صحيحة: النهاية قبل البداية"))
 
 	cf = [
 		["from_date", ">=", start],
@@ -169,7 +170,7 @@ def execute(filters=None):
 		result.append(
 			{
 				"supplier": None,
-				"supplier_name": "الإجمالي",
+				"supplier_name": _("الإجمالي"),
 				"is_total": 1,
 				"equipment_count": tot["eq"],
 				"card_count": tot["cards"],
@@ -185,37 +186,37 @@ def execute(filters=None):
 		)
 
 	columns = [
-		{"fieldname": "supplier_name", "label": "المورد", "fieldtype": "Data", "width": 240},
+		{"fieldname": "supplier_name", "label": _("المورد"), "fieldtype": "Data", "width": 240},
 		{
 			"fieldname": "supplier",
-			"label": "كود المورد",
+			"label": _("كود المورد"),
 			"fieldtype": "Link",
 			"options": "Supplier",
 			"width": 160,
 		},
-		{"fieldname": "equipment_count", "label": "المعدات", "fieldtype": "Int", "width": 70},
-		{"fieldname": "card_count", "label": "الكروت", "fieldtype": "Int", "width": 70},
-		{"fieldname": "working_days", "label": "أيام التشغيل", "fieldtype": "Int", "width": 90},
-		{"fieldname": "hours", "label": "الساعات", "fieldtype": "Float", "precision": 2, "width": 90},
-		{"fieldname": "net", "label": "صافي الكروت", "fieldtype": "Currency", "width": 120},
-		{"fieldname": "accrued", "label": "قيود الاستحقاق", "fieldtype": "Currency", "width": 120},
-		{"fieldname": "diff", "label": "فرق المطابقة", "fieldtype": "Currency", "width": 120},
-		{"fieldname": "opening", "label": "رصيد أول المدة", "fieldtype": "Currency", "width": 120},
-		{"fieldname": "paid", "label": "المدفوع", "fieldtype": "Currency", "width": 110},
-		{"fieldname": "closing", "label": "الرصيد آخر المدة", "fieldtype": "Currency", "width": 130},
+		{"fieldname": "equipment_count", "label": _("المعدات"), "fieldtype": "Int", "width": 70},
+		{"fieldname": "card_count", "label": _("الكروت"), "fieldtype": "Int", "width": 70},
+		{"fieldname": "working_days", "label": _("أيام التشغيل"), "fieldtype": "Int", "width": 90},
+		{"fieldname": "hours", "label": _("الساعات"), "fieldtype": "Float", "precision": 2, "width": 90},
+		{"fieldname": "net", "label": _("صافي الكروت"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "accrued", "label": _("قيود الاستحقاق"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "diff", "label": _("فرق المطابقة"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "opening", "label": _("رصيد أول المدة"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "paid", "label": _("المدفوع"), "fieldtype": "Currency", "width": 110},
+		{"fieldname": "closing", "label": _("الرصيد آخر المدة"), "fieldtype": "Currency", "width": 130},
 	]
 
 	summary = [
-		{"label": "عدد الموردين", "value": len(order), "datatype": "Int", "indicator": "Blue"},
-		{"label": "صافي الكروت", "value": flt(tot["net"], 2), "datatype": "Currency", "indicator": "Green"},
+		{"label": _("عدد الموردين"), "value": len(order), "datatype": "Int", "indicator": "Blue"},
+		{"label": _("صافي الكروت"), "value": flt(tot["net"], 2), "datatype": "Currency", "indicator": "Green"},
 		{
-			"label": "فرق المطابقة",
+			"label": _("فرق المطابقة"),
 			"value": flt(tot["diff"], 2),
 			"datatype": "Currency",
 			"indicator": "Green" if abs(tot["diff"]) < 0.01 else "Red",
 		},
 		{
-			"label": "إجمالي أرصدة الموردين",
+			"label": _("إجمالي أرصدة الموردين"),
 			"value": flt(tot["closing"], 2),
 			"datatype": "Currency",
 			"indicator": "Orange",
@@ -225,11 +226,11 @@ def execute(filters=None):
 	_prefix = (_company + " — ") if _company else ""
 	message = (
 		_prefix
-		+ "ملخص موردي المعدات — الفترة من "
+		+ _("ملخص موردي المعدات — الفترة من ")
 		+ str(start)
-		+ " إلى "
+		+ _(" إلى ")
 		+ str(end)
-		+ ". اضغط على اسم المورد لفتح كشف حسابه."
+		+ _(". اضغط على اسم المورد لفتح كشف حسابه.")
 	)
 
 	data = [columns, result, message, None, summary, True]

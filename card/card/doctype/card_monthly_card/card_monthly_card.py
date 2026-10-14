@@ -2,6 +2,7 @@
 # For license information, please see LICENSE
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, flt, get_last_day, getdate, nowdate
 
@@ -14,7 +15,7 @@ class CardMonthlyCard(Document):
 		doc_month = cint(self.month)
 		doc_year = cint(self.year)
 		if not doc_month or not doc_year:
-			frappe.throw("الشهر والسنة مطلوبين")
+			frappe.throw(_("الشهر والسنة مطلوبين"))
 
 		eq = frappe.db.get_value(
 			"Card Equipment",
@@ -31,9 +32,9 @@ class CardMonthlyCard(Document):
 			as_dict=True,
 		)
 		if not eq:
-			frappe.throw("المعدة غير موجودة: " + str(self.equipment))
+			frappe.throw(_("المعدة غير موجودة: {0}").format(self.equipment))
 		if self.company and self.company != eq.company:
-			frappe.throw("شركة الكارت لا تطابق شركة المعدة")
+			frappe.throw(_("شركة الكارت لا تطابق شركة المعدة"))
 
 		# ---- period of the card ----
 		first_day = getdate(str(doc_year) + "-" + str(doc_month).zfill(2) + "-01")
@@ -49,23 +50,23 @@ class CardMonthlyCard(Document):
 		work_days = 0
 		for row in self.days:
 			if not row.operation_date:
-				frappe.throw("يوجد صف أيام بدون تاريخ")
+				frappe.throw(_("يوجد صف أيام بدون تاريخ"))
 			d = getdate(row.operation_date)
 			key = str(d)
 			if d < first_day or d > last_day:
-				frappe.throw("التاريخ " + key + " خارج شهر الكارت")
+				frappe.throw(_("التاريخ {0} خارج شهر الكارت").format(key))
 			if key in seen:
-				frappe.throw("التاريخ " + key + " مكرر في الكارت")
+				frappe.throw(_("التاريخ {0} مكرر في الكارت").format(key))
 			seen[key] = 1
 			if row.day_status != "عمل":
 				row.working_hours = 0
 			h = flt(row.working_hours)
 			if h < 0:
-				frappe.throw("ساعات بالسالب في يوم " + key)
+				frappe.throw(_("ساعات بالسالب في يوم {0}").format(key))
 			if h > 24:
-				frappe.throw("عدد ساعات يوم " + key + " أكبر من 24 ساعة")
+				frappe.throw(_("عدد ساعات يوم {0} أكبر من 24 ساعة").format(key))
 			if h > 0 and d > today:
-				frappe.throw("لا يمكن تسجيل ساعات تشغيل ليوم لم يأت بعد: " + key)
+				frappe.throw(_("لا يمكن تسجيل ساعات تشغيل ليوم لم يأت بعد: {0}").format(key))
 			if h > 0:
 				total_hours = total_hours + h
 				work_days = work_days + 1
@@ -76,12 +77,12 @@ class CardMonthlyCard(Document):
 		if eq.rate_type == "باليوم":
 			daily_hours = flt(eq.daily_hours)
 			if daily_hours <= 0:
-				frappe.throw("حدد ساعات العمل اليومية للمعدة " + str(self.equipment))
+				frappe.throw(_("حدد ساعات العمل اليومية للمعدة {0}").format(self.equipment))
 			hourly_rate = rate / daily_hours
 		elif eq.rate_type == "بالساعة":
 			hourly_rate = rate
 		else:
-			frappe.throw("طريقة حساب المعدة غير محددة: " + str(self.equipment))
+			frappe.throw(_("طريقة حساب المعدة غير محددة: {0}").format(self.equipment))
 
 		self.rate_type = eq.rate_type
 		self.rate = rate
@@ -98,13 +99,13 @@ class CardMonthlyCard(Document):
 		for adj in self.adjustments or []:
 			a = flt(adj.amount)
 			if a <= 0:
-				frappe.throw("مبلغ الإضافة/الخصم لازم يكون أكبر من صفر: " + str(adj.description or ""))
+				frappe.throw(_("مبلغ الإضافة/الخصم لازم يكون أكبر من صفر: {0}").format(adj.description or ""))
 			if adj.adjustment_type == "إضافة":
 				total_additions = total_additions + a
 			elif adj.adjustment_type == "خصم":
 				total_deductions = total_deductions + a
 			else:
-				frappe.throw("نوع غير معروف في الإضافات والخصومات: " + str(adj.adjustment_type))
+				frappe.throw(_("نوع غير معروف في الإضافات والخصومات: {0}").format(adj.adjustment_type))
 		self.total_additions = flt(total_additions, 2)
 		self.total_deductions = flt(total_deductions, 2)
 		self.net_amount = flt(flt(self.amount) + total_additions - total_deductions, 2)
@@ -124,7 +125,7 @@ class CardMonthlyCard(Document):
 			limit=1,
 		)
 		if dup:
-			frappe.throw("يوجد كارت " + str(self.shift) + " لنفس المعدة ونفس الشهر: " + dup[0])
+			frappe.throw(_("يوجد كارت {0} لنفس المعدة ونفس الشهر: {1}").format(self.shift, dup[0]))
 
 		# ---- shift length warning (per card, per day; each shift card stands alone) ----
 		shift_hours = flt(eq.daily_hours)
@@ -136,14 +137,14 @@ class CardMonthlyCard(Document):
 			]
 			if over:
 				frappe.msgprint(
-					"أيام تخطت ساعات الدوام (" + str(shift_hours) + " ساعة): " + "، ".join(over),
-					title="تحذير تخطي الدوام",
+					_("أيام تخطت ساعات الدوام ({0} ساعة): {1}").format(shift_hours, "، ".join(over)),
+					title=_("تحذير تخطي الدوام"),
 					indicator="orange",
 				)
 		else:
 			frappe.msgprint(
-				"لم يتم تحديد ساعات الدوام للمعدة " + str(self.equipment) + "، لن يظهر تحذير تخطي الدوام.",
-				title="ساعات الدوام",
+				_("لم يتم تحديد ساعات الدوام للمعدة {0}، لن يظهر تحذير تخطي الدوام.").format(self.equipment),
+				title=_("ساعات الدوام"),
 				indicator="orange",
 			)
 
@@ -151,8 +152,8 @@ class CardMonthlyCard(Document):
 		if eq.ownership != "ملك" and hours_by_date:
 			if not eq.rental_start_date:
 				frappe.msgprint(
-					"المعدة ليس لها تاريخ بداية إيجار. راجع بيانات الإيجار.",
-					title="مراجعة فترة الإيجار",
+					_("المعدة ليس لها تاريخ بداية إيجار. راجع بيانات الإيجار."),
+					title=_("مراجعة فترة الإيجار"),
 					indicator="orange",
 				)
 			else:
@@ -165,8 +166,8 @@ class CardMonthlyCard(Document):
 						outside.append(k)
 				if outside:
 					frappe.msgprint(
-						"أيام فيها تشغيل خارج فترة الإيجار (محسوبة، تحتاج مراجعة): " + "، ".join(outside),
-						title="مراجعة فترة الإيجار",
+						_("أيام فيها تشغيل خارج فترة الإيجار (محسوبة، تحتاج مراجعة): {0}").format("، ".join(outside)),
+						title=_("مراجعة فترة الإيجار"),
 						indicator="orange",
 					)
 
@@ -187,9 +188,7 @@ class CardMonthlyCard(Document):
 					message="Card " + str(self.name) + " (event " + str(self.docstatus) + ")",
 				)
 				frappe.msgprint(
-					"تعذّر تحديث سجل المورد "
-					+ str(self.supplier)
-					+ ". الكارت اتحفظ عادي؛ استخدم زرار «تحديث الأرقام» في سجل المورد.",
-					title="سجل المورد",
+					_("تعذّر تحديث سجل المورد {0}. الكارت اتحفظ عادي؛ استخدم زرار «تحديث الأرقام» في سجل المورد.").format(self.supplier),
+					title=_("سجل المورد"),
 					indicator="orange",
 				)

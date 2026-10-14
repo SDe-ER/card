@@ -2,6 +2,7 @@
 # For license information, please see LICENSE
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
@@ -13,7 +14,7 @@ class CardEquipment(Document):
 		rate = flt(self.rate)
 		if self.rate_type == "باليوم":
 			if flt(self.daily_hours) <= 0:
-				frappe.throw("حدد ساعات العمل اليومية (الدوام) لحساب سعر الساعة")
+				frappe.throw(_("حدد ساعات العمل اليومية (الدوام) لحساب سعر الساعة"))
 			self.approved_hourly_rate = flt(rate / flt(self.daily_hours), 2)
 		elif self.rate_type == "بالساعة":
 			self.approved_hourly_rate = rate
