@@ -2,6 +2,7 @@
 # For license information, please see LICENSE
 
 import frappe
+from frappe import _
 from frappe.utils import flt
 
 
@@ -58,7 +59,7 @@ def refresh_supplier(supplier=None):
 	"""Refresh one supplier, or all suppliers with submitted non-owned cards.
 	Ported from Server Script "Card Equipment Supplier - Refresh" v1.1. System Manager only."""
 	if "System Manager" not in frappe.get_roles(frappe.session.user):
-		frappe.throw("غير مسموح: هذه العملية لمدير النظام فقط")
+		frappe.throw(_("غير مسموح: هذه العملية لمدير النظام فقط"))
 
 	if supplier:
 		suppliers = [supplier]
