@@ -84,3 +84,27 @@ def refresh_supplier(supplier=None):
 	for one in suppliers:
 		done.append(recompute_supplier(one))
 	return done
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def card_suppliers_query(doctype, txt, searchfield, start, page_len, filters):
+	"""Link-filter query for the supplier reports: list every Supplier that has
+	at least one Card Monthly Card (any period, drafts + submitted; cancelled
+	excluded). This makes the "supplier" filter findable by name regardless of
+	the selected month/year — a supplier that last worked years ago still shows."""
+	like = "%" + (txt or "") + "%"
+	return frappe.db.sql(
+		"""
+		select s.name, s.supplier_name
+		from `tabSupplier` s
+		where exists (
+			select 1 from `tabCard Monthly Card` c
+			where c.supplier = s.name and c.docstatus < 2
+		)
+		and (s.name like %(txt)s or s.supplier_name like %(txt)s)
+		order by s.name
+		limit %(start)s, %(page_len)s
+		""",
+		{"txt": like, "start": start, "page_len": page_len},
+	)
