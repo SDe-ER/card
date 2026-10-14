@@ -10,3 +10,4 @@ card.patches.v1_0_1.fold_sidebar_and_retire_legacy_module
 card.patches.v1_2.ensure_card_roles
 card.patches.v1_2.backfill_snapshot
 card.patches.v1_2.init_card_settings_defaults
+card.patches.v1_2.set_operator_fuel_defaults

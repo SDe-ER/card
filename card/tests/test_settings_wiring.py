@@ -253,3 +253,20 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		_set("reconciliation_tolerance", 1000000000)
 		self.assertEqual(_indicator(_statement(statement_filters)[3], label), "Green")
 		self.assertEqual(_indicator(_summary_report(summary_filters)[3], label), "Green")
+
+	# ---------- 3. empty operator_on / الوقود_على handled where read ----------
+
+	def test_empty_fuel_company_bears(self):
+		from card.diesel import get_card_diesel
+
+		eq = self._equipment()
+		card = self._card(eq, [10, 10], submit=True)
+		# empty fuel -> the company does not bear the diesel (no crash)
+		frappe.db.set_value("Card Equipment", eq.name, "الوقود_على", "")
+		self.assertFalse(get_card_diesel(card.name)["company_bears"])
+		# المؤجر (the restored default) also means the company does not bear it
+		frappe.db.set_value("Card Equipment", eq.name, "الوقود_على", "المؤجر")
+		self.assertFalse(get_card_diesel(card.name)["company_bears"])
+		# الشركة -> company bears
+		frappe.db.set_value("Card Equipment", eq.name, "الوقود_على", "الشركة")
+		self.assertTrue(get_card_diesel(card.name)["company_bears"])
