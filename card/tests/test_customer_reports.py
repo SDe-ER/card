@@ -1,22 +1,24 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""Customer-side reports (phase E): "Equipment Customer Statement" and "Equipment
-Customers Summary", the mirrors of the two supplier reports. CARD stores no
-customer balance: the accrued customer amount comes from the cards and every
-money number (invoiced / received / balances) comes from the official GL, so
-until Sales Invoices are posted (S3) those numbers are zero and the
-reconciliation difference equals the accrued amount. App-level tests (Frappe
-does not auto-build dependency test records); every record and setting write is
-rolled back by the test transaction."""
+"""Customer-side reports (phase E, F.7 equipment-level model): "Equipment
+Customer Statement" and "Equipment Customers Summary", the mirrors of the two
+supplier reports. The customer billing side now lives ON the equipment
+(rental_direction + default_customer + customer rate) and the cards mirror it.
+CARD stores no customer balance: the accrued customer amount comes from the
+cards and every money number (invoiced / received / balances) comes from the
+official GL, so until Sales Invoices are posted (S3) those numbers are zero and
+the reconciliation difference equals the accrued amount. App-level tests
+(Frappe does not auto-build dependency test records); every record and setting
+write is rolled back by the test transaction."""
 
 import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
+from card.constants import DIR_RENTED_OUT, DIR_SUBRENTAL, OWNED
 from card.settings import setting
 from card.tests.test_controllers import _days, _ensure_masters
 
-OWNED = "ملك"
 RENTED = "إيجار"
 
 
@@ -117,7 +119,8 @@ class TestCustomerReports(IntegrationTestCase):
 		cust.insert(ignore_permissions=True)
 		return cust.name
 
-	def _equipment(self, ownership=OWNED, suffix=""):
+	def _equipment(self, suffix, ownership=OWNED, direction=None, customer=None, customer_rate=None):
+		"""F.7: the billing configuration lives on the equipment, not the card."""
 		d = frappe.new_doc("Card Equipment")
 		d.company = self.company
 		d.equipment_type = self._m["etype"]
@@ -128,22 +131,35 @@ class TestCustomerReports(IntegrationTestCase):
 		d.daily_hours = 10
 		if ownership != OWNED:
 			d.supplier = self.supplier
+		if direction:
+			d.rental_direction = direction
+		if customer:
+			d.default_customer = customer
+			d.customer_rate_type = "باليوم"
+			d.customer_rate = customer_rate if customer_rate is not None else 1000
 		d.insert(ignore_permissions=True)
 		d.reload()
 		return d
 
-	def _card(self, eq, hours_list, customer=None, customer_rate=None, submit=False):
+	def _rented_out(self, suffix, customer=None, customer_rate=1000):
+		# owned equipment to a customer: 1000/day over 10h = 100/h
+		return self._equipment(suffix, OWNED, DIR_RENTED_OUT, customer or self.customer, customer_rate)
+
+	def _sub_rental(self, suffix, customer=None, customer_rate=1200):
+		# rented at 750/day, rented out at 1200/day (120/h)
+		return self._equipment(suffix, RENTED, DIR_SUBRENTAL, customer or self.customer, customer_rate)
+
+	def _rented_in(self, suffix):
+		# a plain rental with no customer side (derives مستأجَرة من مورد)
+		return self._equipment(suffix, RENTED)
+
+	def _card(self, eq, hours_list, submit=False):
 		c = frappe.new_doc("Card Monthly Card")
 		c.equipment = eq.name
 		c.project = self.project
 		c.shift = "نهاري"
 		c.month = "09"
 		c.year = 2026
-		if customer:
-			c.customer = customer
-		if customer_rate is not None:
-			c.customer_rate = customer_rate
-			c.customer_rate_type = "باليوم"
 		for row in _days(hours_list):
 			c.append("days", row)
 		c.insert(ignore_permissions=True)
@@ -164,11 +180,9 @@ class TestCustomerReports(IntegrationTestCase):
 
 	def test_statement_lists_rented_out_card_not_rented_in(self):
 		# owned equipment to a customer: 1000/day over 10h = 100/h; 20h -> 2000
-		card = self._card(
-			self._equipment(OWNED, "-OUT"), [10, 10], customer=self.customer, customer_rate=1000, submit=True
-		)
-		# a plain rental (no customer) never belongs to a customer statement
-		rented_in = self._card(self._equipment(RENTED, "-IN"), [10, 10], submit=True)
+		card = self._card(self._rented_out("-OUT"), [10, 10], submit=True)
+		# a plain rental (no customer on the equipment) never belongs to a customer statement
+		rented_in = self._card(self._rented_in("-IN"), [10, 10], submit=True)
 
 		_cols, rows, _msg, _summary = _statement(self._filters(customer=self.customer))
 		card_rows = self._card_rows(rows)
@@ -197,9 +211,7 @@ class TestCustomerReports(IntegrationTestCase):
 
 	def test_statement_includes_sub_rental_card(self):
 		# rented at 750/day, rented out at 1200/day (120/h); 10h -> customer side 1200
-		card = self._card(
-			self._equipment(RENTED, "-SUB"), [10], customer=self.customer, customer_rate=1200, submit=True
-		)
+		card = self._card(self._sub_rental("-SUB"), [10], submit=True)
 		_cols, rows, _msg, _summary = _statement(self._filters(customer=self.customer))
 		card_rows = self._card_rows(rows)
 		self.assertEqual([r["card"] for r in card_rows], [card.name])
@@ -207,9 +219,7 @@ class TestCustomerReports(IntegrationTestCase):
 		self.assertEqual(flt(card_rows[0]["hourly_rate"]), 120.0)
 
 	def test_cancelled_card_is_not_listed(self):
-		card = self._card(
-			self._equipment(OWNED, "-CAN"), [10], customer=self.customer, customer_rate=1000, submit=True
-		)
+		card = self._card(self._rented_out("-CAN"), [10], submit=True)
 		card.cancel()
 		_cols, rows, _msg, _summary = _statement(self._filters(customer=self.customer, include_draft=1))
 		self.assertEqual(self._card_rows(rows), [])
@@ -217,10 +227,8 @@ class TestCustomerReports(IntegrationTestCase):
 	# ---------- 2. include_draft ----------
 
 	def test_draft_card_only_when_include_draft(self):
-		submitted = self._card(
-			self._equipment(OWNED, "-S"), [10, 10], customer=self.customer, customer_rate=1000, submit=True
-		)
-		draft = self._card(self._equipment(OWNED, "-D"), [10], customer=self.customer, customer_rate=1000)
+		submitted = self._card(self._rented_out("-S"), [10, 10], submit=True)
+		draft = self._card(self._rented_out("-D"), [10])
 		self.assertEqual(draft.docstatus, 0)
 
 		def card_rows(**kw):
@@ -248,10 +256,8 @@ class TestCustomerReports(IntegrationTestCase):
 
 	def test_summary_counts_submitted_cards_only(self):
 		# like the supplier summary: drafts are never part of the summary report
-		self._card(
-			self._equipment(OWNED, "-S"), [10, 10], customer=self.customer, customer_rate=1000, submit=True
-		)
-		self._card(self._equipment(OWNED, "-D"), [10], customer=self.customer, customer_rate=1000)
+		self._card(self._rented_out("-S"), [10, 10], submit=True)
+		self._card(self._rented_out("-D"), [10])
 		_set("include_draft_in_reports", 1)
 		_cols, rows, _msg, _summary = _summary_report(self._filters())
 		data = [r for r in rows if not r.get("is_total")]
@@ -264,15 +270,11 @@ class TestCustomerReports(IntegrationTestCase):
 	def test_summary_one_row_per_customer(self):
 		customer_b = self._customer("-B")
 		# customer A: two cards (2000 + 1000); customer B: one card (10h at 500/day = 50/h -> 500)
-		self._card(
-			self._equipment(OWNED, "-A1"), [10, 10], customer=self.customer, customer_rate=1000, submit=True
-		)
-		self._card(
-			self._equipment(OWNED, "-A2"), [10], customer=self.customer, customer_rate=1000, submit=True
-		)
-		self._card(self._equipment(OWNED, "-B1"), [10], customer=customer_b, customer_rate=500, submit=True)
-		# a rented-in card (no customer) must not create a row
-		self._card(self._equipment(RENTED, "-IN"), [10], submit=True)
+		self._card(self._rented_out("-A1"), [10, 10], submit=True)
+		self._card(self._rented_out("-A2"), [10], submit=True)
+		self._card(self._rented_out("-B1", customer=customer_b, customer_rate=500), [10], submit=True)
+		# a rented-in card (no customer on the equipment) must not create a row
+		self._card(self._rented_in("-IN"), [10], submit=True)
 
 		_cols, rows, _msg, summary = _summary_report(self._filters())
 		data = [r for r in rows if not r.get("is_total")]
@@ -308,9 +310,7 @@ class TestCustomerReports(IntegrationTestCase):
 		self.assertEqual(flt(_value(summary, "Reconciliation difference")), 3500.0)
 
 	def test_statement_money_columns_zero_without_ar(self):
-		self._card(
-			self._equipment(OWNED, "-Z"), [10, 10], customer=self.customer, customer_rate=1000, submit=True
-		)
+		self._card(self._rented_out("-Z"), [10, 10], submit=True)
 		_cols, _rows, msg, summary = _statement(self._filters(customer=self.customer))
 		self.assertEqual(flt(_value(summary, "Total accrued (cards)")), 2000.0)
 		self.assertEqual(flt(_value(summary, "Invoiced entries (Debit)")), 0.0)
@@ -326,9 +326,7 @@ class TestCustomerReports(IntegrationTestCase):
 		# of the summary item labelled "Reconciliation difference" (Green = within tolerance,
 		# Red = over tolerance); that is what is asserted. Both are limited to this test's own
 		# project so other data cannot offset the difference.
-		self._card(
-			self._equipment(OWNED, "-T"), [10, 10], customer=self.customer, customer_rate=1000, submit=True
-		)
+		self._card(self._rented_out("-T"), [10, 10], submit=True)
 
 		# default reproduces the supplier-side 0.01 when the setting is unset
 		frappe.db.delete("Singles", {"doctype": "Card Settings", "field": "reconciliation_tolerance"})
@@ -351,9 +349,7 @@ class TestCustomerReports(IntegrationTestCase):
 	# ---------- 4. empty filters ----------
 
 	def test_reports_with_empty_filters_do_not_crash(self):
-		self._card(
-			self._equipment(OWNED, "-E"), [10], customer=self.customer, customer_rate=1000, submit=True
-		)
+		self._card(self._rented_out("-E"), [10], submit=True)
 
 		# no customer selected: empty statement + hint, columns still returned, no money items
 		cols, rows, msg, summary = _statement({"from_month": 9, "from_year": 2026, "project": self.project})

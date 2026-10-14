@@ -10,6 +10,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
+from card.constants import DIR_RENTED_OUT
 from card.settings import setting
 from card.tests.test_controllers import _days, _ensure_masters
 
@@ -322,3 +323,465 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		self.assertEqual(flt(self._card(self._equipment("-U13N"), [13], shift="ليلي").total_working_hours), 13.0)
 		self._card(self._equipment("-U12"), [12])
 		self._card(self._equipment("-U12N"), [12], shift="ليلي")
+
+
+# =====================================================================
+# F-phase settings (F.1 diesel/transport policies, F.5 bases, F.8 company)
+# =====================================================================
+
+
+def _leaf(doctype, name_field, root):
+	"""A non-group row of a tree master (Customer needs leaf group/territory)."""
+	leaf = frappe.db.get_value(doctype, {"is_group": 0}, "name")
+	if leaf:
+		return leaf
+	leaf = "Test " + doctype
+	if not frappe.db.exists(doctype, leaf):
+		frappe.get_doc(
+			{"doctype": doctype, name_field: leaf, "parent_" + frappe.scrub(doctype): root, "is_group": 0}
+		).insert(ignore_permissions=True)
+	return leaf
+
+
+def _role_user(*roles):
+	"""A throwaway user carrying exactly the given roles, for the F.1 role gates.
+	Callers switch with frappe.set_user and MUST restore Administrator in finally."""
+	u = frappe.new_doc("User")
+	u.email = "test-wiring-" + frappe.generate_hash(length=8) + "@example.com"
+	u.first_name = "Test Wiring User"
+	u.send_welcome_email = 0
+	for role in roles:
+		u.append("roles", {"role": role})
+	u.flags.ignore_permissions = True
+	u.insert(ignore_permissions=True)
+	return u.name
+
+
+class TestDieselSupplierPolicy(IntegrationTestCase):
+	"""F.1: the Settings diesel supplier is the default (متغير) or forced (ثابت);
+	changing it away from the default needs the editor role (Administrator is
+	exempt under متغير, nobody is exempt under ثابت); a historical fill resaved
+	with its supplier unchanged always passes."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._m = _ensure_masters()
+
+	def setUp(self):
+		self.token = frappe.generate_hash(length=8)
+		self.company = self._m["company"]
+		frappe.db.set_single_value("Card Settings", "period_lock_date", None)
+		self.project = (
+			frappe.get_doc(
+				{
+					"doctype": "Project",
+					"project_name": "TEST-F1D-PRJ-" + self.token,
+					"status": "Open",
+					"company": self.company,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+		self.default_supplier = self._supplier("-DEF")
+		self.other_supplier = self._supplier("-OTH")
+		_set("diesel_supplier", self.default_supplier)
+		_set("diesel_supplier_policy", "متغير")
+
+	def tearDown(self):
+		try:
+			frappe.db.rollback()
+		except Exception:
+			pass
+
+	# ---------- helpers ----------
+
+	def _supplier(self, suffix):
+		sup = frappe.new_doc("Supplier")
+		sup.supplier_name = "TEST-F1D-SUP-" + self.token + suffix
+		sup.supplier_group = self._m["supplier_group"]
+		sup.insert(ignore_permissions=True)
+		return sup.name
+
+	def _fill(self, supplier=None):
+		f = frappe.new_doc("Project Diesel Fill")
+		f.date = "2026-09-15"
+		f.project = self.project
+		f.company = self.company
+		f.litres = 100
+		f.unit_price = 2
+		if supplier:
+			f.supplier = supplier
+		f.insert(ignore_permissions=True)
+		f.reload()
+		return f
+
+	# ---------- متغير (variable) ----------
+
+	def test_variable_policy_defaults_blank_supplier(self):
+		self.assertEqual(self._fill().supplier, self.default_supplier)
+
+	def test_variable_policy_administrator_changes_freely(self):
+		self.assertEqual(self._fill(supplier=self.other_supplier).supplier, self.other_supplier)
+
+	def test_variable_policy_blocks_user_without_role(self):
+		user = _role_user("Card User")
+		try:
+			frappe.set_user(user)
+			with self.assertRaises(frappe.ValidationError):
+				self._fill(supplier=self.other_supplier)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_variable_policy_allows_default_editor_role(self):
+		# the editor role falls back to "Card Manager" when never configured
+		frappe.db.delete("Singles", {"doctype": "Card Settings", "field": "diesel_supplier_editor_role"})
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+		self.assertEqual(setting("diesel_supplier_editor_role"), "Card Manager")
+		user = _role_user("Card User", "Card Manager")
+		try:
+			frappe.set_user(user)
+			f = self._fill(supplier=self.other_supplier)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(f.supplier, self.other_supplier)
+
+	# ---------- ثابت (fixed) ----------
+
+	def test_fixed_policy_blocks_any_change(self):
+		_set("diesel_supplier_policy", "ثابت")
+		with self.assertRaises(frappe.ValidationError):
+			self._fill(supplier=self.other_supplier)  # even as Administrator
+
+	def test_fixed_policy_forces_blank_supplier(self):
+		_set("diesel_supplier_policy", "ثابت")
+		self.assertEqual(self._fill().supplier, self.default_supplier)
+
+	def test_legacy_fill_resaved_unchanged_passes(self):
+		# built while the policy allows the historical supplier...
+		f = self._fill(supplier=self.other_supplier)
+		# ...then the policy is locked down: a resave that does NOT touch the
+		# supplier must still pass (historical data keeps saving)
+		_set("diesel_supplier_policy", "ثابت")
+		f.remarks = "legacy resave"
+		f.save(ignore_permissions=True)
+		f.reload()
+		self.assertEqual(f.supplier, self.other_supplier)
+
+
+class TestTransportPricePolicy(IntegrationTestCase):
+	"""F.1: the per-project transport price table defaults the amount; overriding
+	a configured price needs the editor role (default "Card Manager", Administrator
+	exempt); projects without a row keep free manual entry."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._m = _ensure_masters()
+
+	def setUp(self):
+		self.token = frappe.generate_hash(length=8)
+		self.company = self._m["company"]
+		frappe.db.set_single_value("Card Settings", "period_lock_date", None)
+
+		def make_project(label):
+			return (
+				frappe.get_doc(
+					{
+						"doctype": "Project",
+						"project_name": "TEST-F1T-" + label + "-" + self.token,
+						"status": "Open",
+						"company": self.company,
+					}
+				)
+				.insert(ignore_permissions=True)
+				.name
+			)
+
+		self.project = make_project("A")
+		self.free_project = make_project("B")  # no configured transport price
+		sup = frappe.new_doc("Supplier")
+		sup.supplier_name = "TEST-F1T-SUP-" + self.token
+		sup.supplier_group = self._m["supplier_group"]
+		sup.insert(ignore_permissions=True)
+		self.supplier = sup.name
+		eq = frappe.new_doc("Card Equipment")
+		eq.company = self.company
+		eq.equipment_type = self._m["etype"]
+		eq.ownership = OWNED
+		eq.equipment_name = "TEST-F1T-EQ-" + self.token
+		eq.rate_type = "باليوم"
+		eq.rate = 750
+		eq.daily_hours = 10
+		eq.insert(ignore_permissions=True)
+		self.equipment = eq.name
+		# configure the price table: project A costs 500 per transport
+		settings = frappe.get_single("Card Settings")
+		settings.append("project_transport_prices", {"project": self.project, "amount": 500})
+		settings.save(ignore_permissions=True)
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+
+	def tearDown(self):
+		try:
+			frappe.db.rollback()
+		except Exception:
+			pass
+
+	def _transport(self, project, amount=None):
+		t = frappe.new_doc("Equipment Transport")
+		t.equipment = self.equipment
+		t.project = project
+		t.date = "2026-09-15"
+		t.transport_supplier = self.supplier
+		t.company = self.company
+		if amount is not None:
+			t.amount = amount
+		t.insert(ignore_permissions=True)  # draft only: no transfer side effects
+		t.reload()
+		return t
+
+	def test_blank_amount_defaults_from_settings(self):
+		self.assertEqual(flt(self._transport(self.project).amount), 500.0)
+
+	def test_administrator_overrides_configured_amount(self):
+		self.assertEqual(flt(self._transport(self.project, amount=600).amount), 600.0)
+
+	def test_non_role_user_cannot_override(self):
+		user = _role_user("Card User")
+		try:
+			frappe.set_user(user)
+			with self.assertRaises(frappe.ValidationError):
+				self._transport(self.project, amount=600)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_project_without_configured_row_is_free(self):
+		# no row for this project: any amount passes, even without the editor role
+		user = _role_user("Card User")
+		try:
+			frappe.set_user(user)
+			t = self._transport(self.free_project, amount=777)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(flt(t.amount), 777.0)
+
+
+class TestRateBasisSettings(IntegrationTestCase):
+	"""F.5 calculation bases: بالشهر spreads the rate over standard_month_hours
+	(Card Settings, default 260) on BOTH billing sides; بالساعة passes through;
+	باليوم keeps the legacy daily behaviour; default_rate_basis pre-fills the
+	rate types of NEW equipment only."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._m = _ensure_masters()
+
+	def setUp(self):
+		self.token = frappe.generate_hash(length=8)
+		self.company = self._m["company"]
+		frappe.db.set_single_value("Card Settings", "period_lock_date", None)
+		# deterministic F.5 baseline (the site may be configured otherwise)
+		_set("standard_month_hours", 260)
+		_set("default_rate_basis", "")
+		self.project = (
+			frappe.get_doc(
+				{
+					"doctype": "Project",
+					"project_name": "TEST-F5-PRJ-" + self.token,
+					"status": "Open",
+					"company": self.company,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+		sup = frappe.new_doc("Supplier")
+		sup.supplier_name = "TEST-F5-SUP-" + self.token
+		sup.supplier_group = self._m["supplier_group"]
+		sup.insert(ignore_permissions=True)
+		self.supplier = sup.name
+		cust = frappe.new_doc("Customer")
+		cust.customer_name = "TEST-F5-CUST-" + self.token
+		cust.customer_group = _leaf("Customer Group", "customer_group_name", "All Customer Groups")
+		cust.territory = _leaf("Territory", "territory_name", "All Territories")
+		cust.insert(ignore_permissions=True)
+		self.customer = cust.name
+
+	def tearDown(self):
+		try:
+			frappe.db.rollback()
+		except Exception:
+			pass
+
+	# ---------- helpers ----------
+
+	def _equipment(self, ownership="إيجار", rate_type="باليوم", rate=750, **kw):
+		d = frappe.new_doc("Card Equipment")
+		d.company = self.company
+		d.equipment_type = self._m["etype"]
+		d.ownership = ownership
+		d.equipment_name = "TEST-F5-EQ-" + frappe.generate_hash(length=6)
+		if rate_type:
+			d.rate_type = rate_type
+		if rate is not None:
+			d.rate = rate
+		d.daily_hours = 10
+		if ownership != OWNED:
+			d.supplier = self.supplier
+		for k, v in kw.items():
+			setattr(d, k, v)
+		d.insert(ignore_permissions=True)
+		d.reload()
+		return d
+
+	def _card(self, eq, hours_list, submit=False):
+		c = frappe.new_doc("Card Monthly Card")
+		c.equipment = eq.name
+		c.project = self.project
+		c.shift = "نهاري"
+		c.month = "09"
+		c.year = 2026
+		for row in _days(hours_list):
+			c.append("days", row)
+		c.insert(ignore_permissions=True)
+		if submit:
+			c.submit()
+		c.reload()
+		return c
+
+	# ---------- بالشهر on both sides ----------
+
+	def test_monthly_basis_prices_supplier_side(self):
+		eq = self._equipment(rate_type="بالشهر", rate=26000)
+		self.assertEqual(flt(eq.approved_hourly_rate), 100.0)  # 26000 / 260
+		card = self._card(eq, [10], submit=True)
+		self.assertEqual(flt(card.amount), 1000.0)  # 10h x 100/h
+		self.assertEqual(flt(card.net_amount), 1000.0)
+		self.assertEqual(flt(card.hourly_rate_used), 100.0)
+		self.assertEqual(card.rate_basis_used, "بالشهر")
+
+	def test_monthly_basis_prices_customer_side(self):
+		eq = self._equipment(
+			ownership=OWNED,
+			rental_direction=DIR_RENTED_OUT,
+			default_customer=self.customer,
+			customer_rate_type="بالشهر",
+			customer_rate=52000,
+		)
+		card = self._card(eq, [10], submit=True)
+		self.assertEqual(flt(card.amount), 0)  # rented-out: no supplier billing
+		self.assertEqual(flt(card.customer_amount), 2000.0)  # 52000/260 = 200/h x 10h
+		self.assertEqual(flt(card.customer_rate_used), 200.0)
+
+	# ---------- the other bases ----------
+
+	def test_hourly_basis_passes_through(self):
+		eq = self._equipment(rate_type="بالساعة", rate=60)
+		self.assertEqual(flt(eq.approved_hourly_rate), 60.0)
+		card = self._card(eq, [10], submit=True)
+		self.assertEqual(flt(card.amount), 600.0)
+		self.assertEqual(flt(card.hourly_rate_used), 60.0)
+
+	def test_daily_basis_unchanged(self):
+		card = self._card(self._equipment(), [10], submit=True)  # legacy: 750/day over 10h
+		self.assertEqual(flt(card.amount), 750.0)
+		self.assertEqual(flt(card.hourly_rate_used), 75.0)
+
+	# ---------- standard_month_hours wiring ----------
+
+	def test_month_hours_change_reprices_draft_not_submitted(self):
+		draft = self._card(self._equipment(rate_type="بالشهر", rate=26000), [10])
+		submitted = self._card(self._equipment(rate_type="بالشهر", rate=26000), [10], submit=True)
+		self.assertEqual(flt(draft.amount), 1000.0)
+		self.assertEqual(flt(submitted.amount), 1000.0)
+		_set("standard_month_hours", 130)
+		draft.save(ignore_permissions=True)
+		draft.reload()
+		self.assertEqual(flt(draft.amount), 2000.0)  # 26000/130 = 200/h x 10h
+		submitted.reload()
+		self.assertEqual(flt(submitted.amount), 1000.0)  # submitted card stays frozen
+		self.assertEqual(flt(submitted.hourly_rate_used), 100.0)
+
+	def test_standard_month_hours_defaults_to_260(self):
+		frappe.db.delete("Singles", {"doctype": "Card Settings", "field": "standard_month_hours"})
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+		self.assertEqual(setting("standard_month_hours"), 260.0)
+		eq = self._equipment(rate_type="بالشهر", rate=26000)
+		self.assertEqual(flt(eq.approved_hourly_rate), 100.0)
+
+	# ---------- default_rate_basis pre-fill ----------
+
+	def test_default_rate_basis_prefills_new_equipment_only(self):
+		_set("default_rate_basis", "بالشهر")
+		eq = self._equipment(ownership=OWNED, rate_type=None, rate=0)
+		self.assertEqual(eq.rate_type, "بالشهر")
+		self.assertEqual(eq.customer_rate_type, "بالشهر")
+		# a provided value is never overridden (the blank side is still pre-filled)
+		eq2 = self._equipment(ownership=OWNED)
+		self.assertEqual(eq2.rate_type, "باليوم")
+		self.assertEqual(eq2.customer_rate_type, "بالشهر")
+		# existing equipment is untouched when the setting changes later
+		_set("default_rate_basis", "بالساعة")
+		eq.save(ignore_permissions=True)
+		eq.reload()
+		self.assertEqual(eq.rate_type, "بالشهر")
+		self.assertEqual(eq.customer_rate_type, "بالشهر")
+		# blank setting pre-fills nothing (baseline behaviour)
+		_set("default_rate_basis", "")
+		eq3 = self._equipment(ownership=OWNED, rate_type=None, rate=0)
+		self.assertFalse(eq3.rate_type)
+		self.assertFalse(eq3.customer_rate_type)
+
+
+class TestSingleCompanyDefaults(IntegrationTestCase):
+	"""F.8: documents created without a company get THE single company."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._m = _ensure_masters()
+
+	def setUp(self):
+		self.token = frappe.generate_hash(length=8)
+		self.company = self._m["company"]
+		frappe.db.set_single_value("Card Settings", "period_lock_date", None)
+		# keep the F.1 diesel supplier policy out of this test's way
+		_set("diesel_supplier", "")
+		self.project = (
+			frappe.get_doc(
+				{
+					"doctype": "Project",
+					"project_name": "TEST-F8-PRJ-" + self.token,
+					"status": "Open",
+					"company": self.company,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+		sup = frappe.new_doc("Supplier")
+		sup.supplier_name = "TEST-F8-SUP-" + self.token
+		sup.supplier_group = self._m["supplier_group"]
+		sup.insert(ignore_permissions=True)
+		self.supplier = sup.name
+
+	def tearDown(self):
+		try:
+			frappe.db.rollback()
+		except Exception:
+			pass
+
+	def test_diesel_fill_defaults_to_the_company(self):
+		from card.company import single_company
+
+		f = frappe.new_doc("Project Diesel Fill")
+		f.date = "2026-09-15"
+		f.project = self.project
+		f.supplier = self.supplier
+		f.litres = 10
+		f.unit_price = 2
+		f.insert(ignore_permissions=True)  # company left blank on purpose
+		self.assertTrue(f.company)
+		self.assertEqual(f.company, single_company())
