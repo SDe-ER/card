@@ -1757,3 +1757,6 @@ msgstr "مكوّن وحدة (بدون كارت شهري)"
 
 msgid "A physical piece that belongs to an operating unit; it gets no monthly operation card (the unit does)."
 msgstr "قطعة فعلية تتبع وحدة تشغيل؛ لا يُعمل لها كارت شهري (الكارت على الوحدة)."
+
+msgid "Shift type"
+msgstr "نوع الوردية"

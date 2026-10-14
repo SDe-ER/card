@@ -256,7 +256,7 @@ def execute(filters=None):
 			"options": "Project",
 			"width": 100,
 		},
-		{"fieldname": "shift", "label": _("Shift"), "fieldtype": "Data", "width": 70},
+		{"fieldname": "shift", "label": _("Shift type"), "fieldtype": "Data", "width": 70},
 		{"fieldname": "period", "label": _("Period"), "fieldtype": "Data", "width": 80},
 		{"fieldname": "first_date", "label": _("First operation"), "fieldtype": "Date", "width": 100},
 		{"fieldname": "last_date", "label": _("Last operation"), "fieldtype": "Date", "width": 100},

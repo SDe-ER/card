@@ -117,7 +117,7 @@
    "default": "نهاري",
    "fieldname": "shift",
    "fieldtype": "Select",
-   "label": "Shift",
+   "label": "Shift type",
    "options": "نهاري\nليلي",
    "reqd": 1
   },

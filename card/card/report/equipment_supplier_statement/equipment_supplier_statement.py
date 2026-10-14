@@ -272,7 +272,7 @@ def execute(filters=None):
 		},
 		{"fieldname": "equipment_type", "label": _("Equipment type"), "fieldtype": "Data", "width": 110},
 		{"fieldname": "project", "label": _("Project"), "fieldtype": "Link", "options": "Project", "width": 100},
-		{"fieldname": "shift", "label": _("Shift"), "fieldtype": "Data", "width": 70},
+		{"fieldname": "shift", "label": _("Shift type"), "fieldtype": "Data", "width": 70},
 		{"fieldname": "first_date", "label": _("First operation"), "fieldtype": "Date", "width": 100},
 		{"fieldname": "last_date", "label": _("Last operation"), "fieldtype": "Date", "width": 100},
 		{"fieldname": "working_days", "label": _("Working days"), "fieldtype": "Int", "width": 80},
