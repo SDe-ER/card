@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 09:47+0000\n"
-"PO-Revision-Date: 2026-10-14 09:47+0000\n"
+"POT-Creation-Date: 2026-10-14 10:11+0000\n"
+"PO-Revision-Date: 2026-10-14 10:11+0000\n"
 "Last-Translator: info@sdce.sa\n"
 "Language-Team: info@sdce.sa\n"
 "MIME-Version: 1.0\n"
@@ -71,13 +71,21 @@ msgid "Additions and deductions"
 msgstr ""
 
 #. Label of the amended_from (Link) field in DocType 'Card Monthly Card'
+#. Label of the amended_from (Link) field in DocType 'Equipment Transport'
+#. Label of the amended_from (Link) field in DocType 'Project Diesel Fill'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Amended From"
 msgstr ""
 
 #. Label of the amount (Currency) field in DocType 'Card Monthly Card
 #. Adjustment'
+#. Label of the amount (Currency) field in DocType 'Equipment Transport'
+#. Label of the amount (Currency) field in DocType 'Project Diesel Fill'
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Amount"
 msgstr ""
 
@@ -181,8 +189,12 @@ msgstr ""
 
 #. Label of the company (Link) field in DocType 'Card Equipment'
 #. Label of the company (Link) field in DocType 'Card Monthly Card'
+#. Label of the company (Link) field in DocType 'Equipment Transport'
+#. Label of the company (Link) field in DocType 'Project Diesel Fill'
 #: card/card/doctype/card_equipment/card_equipment.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Company"
 msgstr ""
 
@@ -204,6 +216,13 @@ msgstr ""
 #. Label of the contract_no (Data) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Contract number"
+msgstr ""
+
+#. Label of the cost_center (Link) field in DocType 'Equipment Transport'
+#. Label of the cost_center (Link) field in DocType 'Project Diesel Fill'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Cost Center"
 msgstr ""
 
 #. Label of the cost_tab (Tab Break) field in DocType 'Card Equipment'
@@ -244,7 +263,11 @@ msgid "Daily working hours"
 msgstr ""
 
 #. Label of the operation_date (Date) field in DocType 'Card Monthly Card Day'
+#. Label of the date (Date) field in DocType 'Equipment Transport'
+#. Label of the date (Date) field in DocType 'Project Diesel Fill'
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Date"
 msgstr ""
 
@@ -323,9 +346,11 @@ msgstr ""
 
 #. Label of the equipment (Link) field in DocType 'Card Equipment Assignment'
 #. Label of the equipment (Link) field in DocType 'Card Monthly Card'
+#. Label of the equipment (Link) field in DocType 'Equipment Transport'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:221
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/doctype/equipment_transport/equipment_transport.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:83
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:197
 msgid "Equipment"
@@ -339,6 +364,11 @@ msgstr ""
 #. Name of a report
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.json
 msgid "Equipment Suppliers Summary"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Equipment Transport"
 msgstr ""
 
 #. Label of the equipment_category (Link) field in DocType 'Card Equipment'
@@ -429,6 +459,11 @@ msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:271
 msgid "First operation"
+msgstr ""
+
+#. Label of the from_location (Data) field in DocType 'Equipment Transport'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "From"
 msgstr ""
 
 #. Label of the from_date (Date) field in DocType 'Card Equipment Assignment'
@@ -558,6 +593,11 @@ msgstr ""
 #. Label of the supplier (Link) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Lessor / Owner"
+msgstr ""
+
+#. Label of the litres (Float) field in DocType 'Project Diesel Fill'
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Litres"
 msgstr ""
 
 #. Label of the site_location (Data) field in DocType 'Card Equipment'
@@ -789,13 +829,22 @@ msgstr ""
 
 #. Label of the project (Link) field in DocType 'Card Equipment Assignment'
 #. Label of the project (Link) field in DocType 'Card Monthly Card'
+#. Label of the project (Link) field in DocType 'Equipment Transport'
+#. Label of the project (Link) field in DocType 'Project Diesel Fill'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:230
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:80
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:269
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.js:64
 msgid "Project"
+msgstr ""
+
+#. Name of a DocType
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Project Diesel Fill"
 msgstr ""
 
 #. Label of the project_name (Data) field in DocType 'Card Monthly Card'
@@ -805,6 +854,13 @@ msgstr ""
 
 #: card/card/doctype/card_equipment/card_equipment.js:150
 msgid "Projects worked on"
+msgstr ""
+
+#. Label of the purchase_invoice (Link) field in DocType 'Equipment Transport'
+#. Label of the purchase_invoice (Link) field in DocType 'Project Diesel Fill'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Purchase Invoice"
 msgstr ""
 
 #. Label of the rate (Currency) field in DocType 'Card Equipment'
@@ -853,6 +909,13 @@ msgstr ""
 msgid "Related records"
 msgstr ""
 
+#. Label of the remarks (Small Text) field in DocType 'Equipment Transport'
+#. Label of the remarks (Small Text) field in DocType 'Project Diesel Fill'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Remarks"
+msgstr ""
+
 #. Label of the rental_section (Section Break) field in DocType 'Card
 #. Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -888,6 +951,18 @@ msgstr ""
 msgid "Select the start month and year"
 msgstr ""
 
+#. Description of the 'Purchase Invoice' (Link) field in DocType 'Project
+#. Diesel Fill'
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Set automatically when the fill is posted to accounting (added later)."
+msgstr ""
+
+#. Description of the 'Purchase Invoice' (Link) field in DocType 'Equipment
+#. Transport'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Set automatically when the transport is posted to accounting (added later)."
+msgstr ""
+
 #: card/card/doctype/card_equipment/card_equipment.py:18
 msgid "Set the daily working hours (shift) to calculate the hourly rate"
 msgstr ""
@@ -919,6 +994,12 @@ msgstr ""
 msgid "Shift hours exceeded warning"
 msgstr ""
 
+#. Description of the 'Amount' (Currency) field in DocType 'Equipment
+#. Transport'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Single amount for the move (reflects the distance)."
+msgstr ""
+
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:20
 msgid "Statement"
 msgstr ""
@@ -941,8 +1022,10 @@ msgid "Status"
 msgstr ""
 
 #. Label of the supplier (Link) field in DocType 'Card Equipment Supplier'
+#. Label of the supplier (Link) field in DocType 'Project Diesel Fill'
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:239
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:56
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:189
 msgid "Supplier"
@@ -972,6 +1055,8 @@ msgstr ""
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 #: card/card/doctype/card_equipment_type/card_equipment_type.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/doctype/equipment_transport/equipment_transport.json
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "System Manager"
 msgstr ""
 
@@ -1007,8 +1092,18 @@ msgstr ""
 msgid "The equipment has no rental start date. Review the rental data."
 msgstr ""
 
+#. Description of the 'Equipment' (Link) field in DocType 'Equipment Transport'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "The equipment or unit being moved (optional)."
+msgstr ""
+
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:53
 msgid "There is a day row without a date"
+msgstr ""
+
+#. Label of the to_location (Data) field in DocType 'Equipment Transport'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "To"
 msgstr ""
 
 #. Label of the to_date (Date) field in DocType 'Card Equipment Assignment'
@@ -1074,6 +1169,12 @@ msgstr ""
 msgid "Totals"
 msgstr ""
 
+#. Label of the transport_supplier (Link) field in DocType 'Equipment
+#. Transport'
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Transport supplier"
+msgstr ""
+
 #. Label of the adjustment_type (Select) field in DocType 'Card Monthly Card
 #. Adjustment'
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
@@ -1094,6 +1195,11 @@ msgstr ""
 #. Label of the unit_section (Section Break) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Unit components"
+msgstr ""
+
+#. Label of the unit_price (Currency) field in DocType 'Project Diesel Fill'
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Unit price"
 msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:108
