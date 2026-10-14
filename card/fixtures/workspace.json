@@ -216,8 +216,8 @@
     "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": null,
-    "type": "DocType",
-    "url": null
+    "type": "URL",
+    "url": "/app/purchase-invoice"
    },
    {
     "color": "Grey",
@@ -230,8 +230,8 @@
     "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": null,
-    "type": "DocType",
-    "url": null
+    "type": "URL",
+    "url": "/app/sales-invoice"
    },
    {
     "color": "Grey",
@@ -244,8 +244,8 @@
     "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": null,
-    "type": "DocType",
-    "url": null
+    "type": "URL",
+    "url": "/app/payment-entry"
    },
    {
     "color": "Grey",
@@ -258,8 +258,8 @@
     "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": null,
-    "type": "DocType",
-    "url": null
+    "type": "URL",
+    "url": "/app/supplier"
    },
    {
     "color": "Grey",
@@ -272,8 +272,8 @@
     "report_ref_doctype": null,
     "restrict_to_domain": null,
     "stats_filter": null,
-    "type": "DocType",
-    "url": null
+    "type": "URL",
+    "url": "/app/customer"
    }
   ],
   "standard": 0,

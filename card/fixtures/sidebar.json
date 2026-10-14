@@ -290,14 +290,14 @@
     "keep_closed": 0,
     "key": null,
     "label": "Supplier",
-    "link_to": "Supplier",
-    "link_type": "DocType",
+    "link_to": "",
+    "link_type": "URL",
     "navigate_to_tab": null,
     "open_in_new_tab": 1,
     "route_options": null,
     "show_arrow": 0,
     "type": "Link",
-    "url": null
+    "url": "/app/supplier"
    },
    {
     "added": 0,
@@ -311,14 +311,14 @@
     "keep_closed": 0,
     "key": null,
     "label": "Customer",
-    "link_to": "Customer",
-    "link_type": "DocType",
+    "link_to": "",
+    "link_type": "URL",
     "navigate_to_tab": null,
     "open_in_new_tab": 1,
     "route_options": null,
     "show_arrow": 0,
     "type": "Link",
-    "url": null
+    "url": "/app/customer"
    },
    {
     "added": 0,
@@ -374,14 +374,14 @@
     "keep_closed": 0,
     "key": null,
     "label": "Purchase Invoice",
-    "link_to": "Purchase Invoice",
-    "link_type": "DocType",
+    "link_to": "",
+    "link_type": "URL",
     "navigate_to_tab": null,
     "open_in_new_tab": 1,
     "route_options": null,
     "show_arrow": 0,
     "type": "Link",
-    "url": null
+    "url": "/app/purchase-invoice"
    },
    {
     "added": 0,
@@ -395,14 +395,14 @@
     "keep_closed": 0,
     "key": null,
     "label": "Sales Invoice",
-    "link_to": "Sales Invoice",
-    "link_type": "DocType",
+    "link_to": "",
+    "link_type": "URL",
     "navigate_to_tab": null,
     "open_in_new_tab": 1,
     "route_options": null,
     "show_arrow": 0,
     "type": "Link",
-    "url": null
+    "url": "/app/sales-invoice"
    },
    {
     "added": 0,
@@ -416,14 +416,14 @@
     "keep_closed": 0,
     "key": null,
     "label": "Payment Entry",
-    "link_to": "Payment Entry",
-    "link_type": "DocType",
+    "link_to": "",
+    "link_type": "URL",
     "navigate_to_tab": null,
     "open_in_new_tab": 1,
     "route_options": null,
     "show_arrow": 0,
     "type": "Link",
-    "url": null
+    "url": "/app/payment-entry"
    },
    {
     "added": 0,
