@@ -83,8 +83,10 @@ def _ensure_masters():
 				}
 			).insert(ignore_permissions=True)
 
-	# Persist across the per-test transaction rollback (setUpClass runs outside it).
-	frappe.db.commit()
+	# NOTE: do NOT frappe.db.commit() here. setUpClass data lives before the
+	# per-test savepoint, so it stays visible to the class's tests and is rolled
+	# back at class teardown. A commit would flush stray data onto a seeded site
+	# (v11-dev), corrupting the baseline — see the DSL/default_daily_hours leak.
 	return {
 		"company": company,
 		"category": category,
