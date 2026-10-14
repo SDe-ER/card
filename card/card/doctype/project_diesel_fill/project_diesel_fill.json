@@ -19,6 +19,8 @@
   "cost_center",
   "section_break_links",
   "purchase_invoice",
+  "gl_posting",
+  "posted",
   "remarks",
   "amended_from"
  ],
@@ -115,6 +117,19 @@
    "no_copy": 1,
    "options": "Project Diesel Fill",
    "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "gl_posting",
+   "fieldtype": "Link",
+   "label": "GL posting",
+   "options": "GL Posting Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted",
+   "fieldtype": "Check",
+   "label": "Posted",
    "read_only": 1
   }
  ],

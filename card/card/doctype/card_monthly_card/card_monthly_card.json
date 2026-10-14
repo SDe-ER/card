@@ -38,7 +38,15 @@
   "adjustments_col",
   "total_additions",
   "total_deductions",
-  "net_amount"
+  "net_amount",
+  "accounting_section",
+  "gl_posting",
+  "posted",
+  "purchase_invoice",
+  "snapshot_column",
+  "daily_hours_used",
+  "hourly_rate_used",
+  "diesel_policy_used"
  ],
  "fields": [
   {
@@ -93,11 +101,11 @@
    "label": "Driver / Operator"
   },
   {
-   "default": "\u0646\u0647\u0627\u0631\u064a",
+   "default": "نهاري",
    "fieldname": "shift",
    "fieldtype": "Select",
    "label": "Shift",
-   "options": "\u0646\u0647\u0627\u0631\u064a\n\u0644\u064a\u0644\u064a",
+   "options": "نهاري\nليلي",
    "reqd": 1
   },
   {
@@ -253,6 +261,54 @@
    "fieldname": "net_amount",
    "fieldtype": "Currency",
    "label": "Net due",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "gl_posting",
+   "fieldtype": "Link",
+   "label": "GL posting",
+   "options": "GL Posting Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted",
+   "fieldtype": "Check",
+   "label": "Posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice",
+   "options": "Purchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "snapshot_column",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "daily_hours_used",
+   "fieldtype": "Float",
+   "label": "Daily hours (used)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hourly_rate_used",
+   "fieldtype": "Currency",
+   "label": "Hourly rate (used)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "diesel_policy_used",
+   "fieldtype": "Data",
+   "label": "Fuel charged to (used)",
    "read_only": 1
   }
  ],

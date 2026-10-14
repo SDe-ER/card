@@ -4,13 +4,48 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "accounting_tab",
   "policy_section",
   "enable_accounting",
   "auto_submit",
   "company_config_section",
-  "company_settings"
+  "company_settings",
+  "operations_tab",
+  "operations_defaults_section",
+  "default_shift",
+  "max_hours_per_day",
+  "default_daily_hours",
+  "operations_column_break",
+  "default_fuel_charged_to",
+  "default_operator_on",
+  "precision_section",
+  "amount_precision",
+  "hours_precision",
+  "litres_precision",
+  "reconciliation_tolerance",
+  "warnings_section",
+  "warn_on_shift_hours_exceeded",
+  "warn_outside_rental_period",
+  "report_defaults_section",
+  "default_statement_type",
+  "include_draft_in_reports",
+  "report_default_period",
+  "period_lock_tab",
+  "period_lock_section",
+  "period_lock_date",
+  "period_lock_override_role",
+  "notifications_tab",
+  "notifications_section",
+  "notify_on_card_submit",
+  "notify_on_posting",
+  "notify_on_period_lock_override"
  ],
  "fields": [
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "Accounting"
+  },
   {
    "fieldname": "policy_section",
    "fieldtype": "Section Break",
@@ -40,6 +75,174 @@
    "fieldtype": "Table",
    "label": "Company settings",
    "options": "Card Company Settings"
+  },
+  {
+   "fieldname": "operations_tab",
+   "fieldtype": "Tab Break",
+   "label": "Operations"
+  },
+  {
+   "fieldname": "operations_defaults_section",
+   "fieldtype": "Section Break",
+   "label": "Defaults"
+  },
+  {
+   "default": "نهاري",
+   "fieldname": "default_shift",
+   "fieldtype": "Select",
+   "label": "Default shift",
+   "options": "نهاري\nليلي"
+  },
+  {
+   "default": "24",
+   "fieldname": "max_hours_per_day",
+   "fieldtype": "Float",
+   "label": "Max operating hours per day"
+  },
+  {
+   "default": "0",
+   "description": "0 = no default; only pre-fills new equipment",
+   "fieldname": "default_daily_hours",
+   "fieldtype": "Float",
+   "label": "Default daily hours (new equipment only)"
+  },
+  {
+   "fieldname": "operations_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_fuel_charged_to",
+   "fieldtype": "Select",
+   "label": "Default fuel charged to (new equipment)",
+   "options": "\nالمؤجر\nالشركة"
+  },
+  {
+   "fieldname": "default_operator_on",
+   "fieldtype": "Select",
+   "label": "Default operator charged to (new equipment)",
+   "options": "\nالمؤجر\nالشركة"
+  },
+  {
+   "fieldname": "precision_section",
+   "fieldtype": "Section Break",
+   "label": "Rounding"
+  },
+  {
+   "default": "2",
+   "fieldname": "amount_precision",
+   "fieldtype": "Int",
+   "label": "Amount precision"
+  },
+  {
+   "default": "2",
+   "fieldname": "hours_precision",
+   "fieldtype": "Int",
+   "label": "Hours precision"
+  },
+  {
+   "default": "3",
+   "fieldname": "litres_precision",
+   "fieldtype": "Int",
+   "label": "Litres precision"
+  },
+  {
+   "default": "0.01",
+   "fieldname": "reconciliation_tolerance",
+   "fieldtype": "Currency",
+   "label": "Reconciliation tolerance"
+  },
+  {
+   "fieldname": "warnings_section",
+   "fieldtype": "Section Break",
+   "label": "Warnings"
+  },
+  {
+   "default": "1",
+   "fieldname": "warn_on_shift_hours_exceeded",
+   "fieldtype": "Check",
+   "label": "Warn when day hours exceed daily hours"
+  },
+  {
+   "default": "1",
+   "fieldname": "warn_outside_rental_period",
+   "fieldtype": "Check",
+   "label": "Warn when card dates fall outside rental period"
+  },
+  {
+   "fieldname": "report_defaults_section",
+   "fieldtype": "Section Break",
+   "label": "Report defaults"
+  },
+  {
+   "default": "مورد",
+   "fieldname": "default_statement_type",
+   "fieldtype": "Select",
+   "label": "Default statement type",
+   "options": "مورد\nمعدات ملك"
+  },
+  {
+   "default": "0",
+   "fieldname": "include_draft_in_reports",
+   "fieldtype": "Check",
+   "label": "Include draft cards in reports"
+  },
+  {
+   "default": "Previous month",
+   "fieldname": "report_default_period",
+   "fieldtype": "Select",
+   "label": "Report default period",
+   "options": "Previous month\nCurrent month"
+  },
+  {
+   "fieldname": "period_lock_tab",
+   "fieldtype": "Tab Break",
+   "label": "Period Lock"
+  },
+  {
+   "fieldname": "period_lock_section",
+   "fieldtype": "Section Break",
+   "label": "Period lock"
+  },
+  {
+   "description": "Cards, diesel fills and transports dated on or before this date are locked (create/edit/submit/cancel/amend/delete) unless the override role is held.",
+   "fieldname": "period_lock_date",
+   "fieldtype": "Date",
+   "label": "Period lock date"
+  },
+  {
+   "description": "Users with this role may bypass the lock; every override is logged.",
+   "fieldname": "period_lock_override_role",
+   "fieldtype": "Link",
+   "label": "Period lock override role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "notifications_tab",
+   "fieldtype": "Tab Break",
+   "label": "Notifications"
+  },
+  {
+   "fieldname": "notifications_section",
+   "fieldtype": "Section Break",
+   "label": "Notifications (all off by default)"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_on_card_submit",
+   "fieldtype": "Check",
+   "label": "Notify on card submit"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_on_posting",
+   "fieldtype": "Check",
+   "label": "Notify on accounting posting"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_on_period_lock_override",
+   "fieldtype": "Check",
+   "label": "Notify on period lock override"
   }
  ],
  "index_web_pages_for_search": 1,

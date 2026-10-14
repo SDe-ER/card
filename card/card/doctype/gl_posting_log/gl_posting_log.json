@@ -1,0 +1,175 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 16:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "party_type",
+  "party",
+  "column_break_key",
+  "month",
+  "year",
+  "posting_type",
+  "status",
+  "posting_section",
+  "posting_doctype",
+  "posting_doc",
+  "amount",
+  "column_break_posting",
+  "posting_key",
+  "failure_reason",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Party type",
+   "options": "Supplier\nCustomer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Party",
+   "options": "party_type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_key",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "month",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Month",
+   "reqd": 1
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posting_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Posting type",
+   "options": "Purchase Invoice\nSales Invoice\nJournal Entry",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nCancelled\nFailed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posting_section",
+   "fieldtype": "Section Break",
+   "label": "Posting document"
+  },
+  {
+   "fieldname": "posting_doctype",
+   "fieldtype": "Data",
+   "label": "Posting DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posting_doc",
+   "fieldtype": "Dynamic Link",
+   "label": "Posting document",
+   "options": "posting_doctype",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_posting",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Deterministic uniqueness guard: company|party_type|party|month|year|posting_type for active (Draft/Submitted) rows; cleared (NULL) when Cancelled/Failed so a corrected posting can be re-created.",
+   "fieldname": "posting_key",
+   "fieldtype": "Data",
+   "label": "Posting key",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "depends_on": "eval:doc.status==\"Failed\"",
+   "fieldname": "failure_reason",
+   "fieldtype": "Small Text",
+   "label": "Failure reason"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-14 16:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "GL Posting Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

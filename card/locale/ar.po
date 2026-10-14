@@ -1575,3 +1575,102 @@ msgstr "شركة مكررة في إعدادات كارت للشركة: {0}"
 
 msgid "Unallocated"
 msgstr "غير مخصّص"
+
+msgid "Accounting"
+msgstr "المحاسبة"
+
+msgid "Period Lock"
+msgstr "قفل الفترة"
+
+msgid "Notifications"
+msgstr "الإشعارات"
+
+msgid "Defaults"
+msgstr "الافتراضيات"
+
+msgid "Rounding"
+msgstr "التقريب"
+
+msgid "Warnings"
+msgstr "التنبيهات"
+
+msgid "Report defaults"
+msgstr "افتراضيات التقارير"
+
+msgid "Period lock"
+msgstr "قفل الفترة"
+
+msgid "Default shift"
+msgstr "الوردية الافتراضية"
+
+msgid "Max operating hours per day"
+msgstr "أقصى ساعات تشغيل في اليوم"
+
+msgid "Default daily hours (new equipment only)"
+msgstr "الساعات اليومية الافتراضية (للمعدات الجديدة فقط)"
+
+msgid "0 = no default; only pre-fills new equipment"
+msgstr "0 = بدون قيمة افتراضية؛ تُعبّأ تلقائيًا للمعدات الجديدة فقط"
+
+msgid "Default fuel charged to (new equipment)"
+msgstr "الوقود على حساب (افتراضي للمعدات الجديدة)"
+
+msgid "Default operator charged to (new equipment)"
+msgstr "المشغّل على حساب (افتراضي للمعدات الجديدة)"
+
+msgid "Amount precision"
+msgstr "دقة المبالغ"
+
+msgid "Hours precision"
+msgstr "دقة الساعات"
+
+msgid "Litres precision"
+msgstr "دقة اللترات"
+
+msgid "Reconciliation tolerance"
+msgstr "سماحية المطابقة"
+
+msgid "Warn when day hours exceed daily hours"
+msgstr "تنبيه عند تجاوز ساعات اليوم للساعات اليومية"
+
+msgid "Warn when card dates fall outside rental period"
+msgstr "تنبيه عند وقوع تواريخ الكارت خارج فترة الإيجار"
+
+msgid "Default statement type"
+msgstr "نوع كشف الحساب الافتراضي"
+
+msgid "Include draft cards in reports"
+msgstr "تضمين الكروت المسودة في التقارير"
+
+msgid "Report default period"
+msgstr "الفترة الافتراضية للتقارير"
+
+msgid "Previous month"
+msgstr "الشهر السابق"
+
+msgid "Current month"
+msgstr "الشهر الحالي"
+
+msgid "Period lock date"
+msgstr "تاريخ قفل الفترة"
+
+msgid "Cards, diesel fills and transports dated on or before this date are locked (create/edit/submit/cancel/amend/delete) unless the override role is held."
+msgstr "الكروت وتعبئات الديزل والنقلات المؤرخة في هذا التاريخ أو قبله تكون مقفلة (إنشاء/تعديل/اعتماد/إلغاء/تعديل بعد الاعتماد/حذف) ما لم يكن المستخدم يملك دور التجاوز."
+
+msgid "Period lock override role"
+msgstr "دور تجاوز قفل الفترة"
+
+msgid "Users with this role may bypass the lock; every override is logged."
+msgstr "يمكن للمستخدمين أصحاب هذا الدور تجاوز القفل؛ ويتم تسجيل كل تجاوز."
+
+msgid "Notifications (all off by default)"
+msgstr "الإشعارات (كلها متوقفة افتراضيًا)"
+
+msgid "Notify on card submit"
+msgstr "إشعار عند اعتماد الكارت"
+
+msgid "Notify on accounting posting"
+msgstr "إشعار عند الترحيل المحاسبي"
+
+msgid "Notify on period lock override"
+msgstr "إشعار عند تجاوز قفل الفترة"

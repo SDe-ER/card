@@ -190,6 +190,34 @@ class TestDieselAllocation(IntegrationTestCase):
 		f = self._make_fill(litres=500, unit_price=2.5, submit=False)
 		self.assertAlmostEqual(flt(f.amount), 1250.0)
 
+	def test_diesel_unit_price_defaults_from_settings(self):
+		settings = frappe.get_single("Card Settings")
+		row = next((r for r in settings.get("company_settings") or [] if r.company == self.company), None)
+		if row:
+			row.diesel_unit_price = 1.75
+		else:
+			settings.append("company_settings", {"company": self.company, "diesel_unit_price": 1.75})
+		settings.save(ignore_permissions=True)
+
+		# blank price -> defaulted from settings, amount follows
+		f = self._make_fill(litres=100, unit_price=0, submit=False)
+		self.assertAlmostEqual(flt(f.unit_price), 1.75)
+		self.assertAlmostEqual(flt(f.amount), 175.0)
+
+		# explicit price is kept (editable per fill)
+		f2 = self._make_fill(litres=100, unit_price=2.0, submit=False)
+		self.assertAlmostEqual(flt(f2.unit_price), 2.0)
+		self.assertAlmostEqual(flt(f2.amount), 200.0)
+
+		# company with no settings row -> price stays as entered, no throw
+		f3 = frappe.new_doc("Project Diesel Fill")
+		f3.company = "NO-SETTINGS-CO-" + self.token
+		f3.litres = 10
+		f3.unit_price = 0
+		f3.validate()
+		self.assertAlmostEqual(flt(f3.unit_price), 0.0)
+		self.assertAlmostEqual(flt(f3.amount), 0.0)
+
 	def test_transport_amount_stored(self):
 		t = frappe.new_doc("Equipment Transport")
 		t.date = f"{self.year_str}-{self.month_str}-15"
