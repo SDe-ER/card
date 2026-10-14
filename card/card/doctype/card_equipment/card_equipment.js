@@ -34,16 +34,32 @@ function card_patch_heatmap(frm) {
 }
 
 // Build a read-only anchor to an EXISTING record (no "create new" affordance).
+// get_form_link gives the site-correct URL (fallback for middle-click / new tab);
+// the actual click is handled by card_bind_direct_links → frappe.set_route so it
+// routes in-app (SPA) instead of a full page reload, and resolves non-ASCII
+// docnames + permissions the native way.
 function card_doc_link(doctype, name) {
 	return (
-		'<a href="/app/' +
-		frappe.router.slug(doctype) +
-		"/" +
-		encodeURIComponent(name) +
+		'<a href="' +
+		frappe.utils.get_form_link(doctype, name) +
+		'" class="card-direct-link" data-dt="' +
+		frappe.utils.escape_html(doctype) +
+		'" data-dn="' +
+		frappe.utils.escape_html(name) +
 		'">' +
 		frappe.utils.escape_html(name) +
 		"</a>"
 	);
+}
+
+// Delegate clicks on the direct links to the in-app router (no full reload).
+function card_bind_direct_links(body) {
+	$(body)
+		.off("click.carddirect")
+		.on("click.carddirect", "a.card-direct-link", function (e) {
+			e.preventDefault();
+			frappe.set_route("Form", $(this).attr("data-dt"), $(this).attr("data-dn"));
+		});
 }
 
 // Owner decision 2026-10-14: surface, inside the Connections («الارتباطات») tab, a
@@ -93,7 +109,7 @@ function card_render_equipment_links(frm) {
 				);
 			}
 			if (parts.length) {
-				frm.dashboard.add_section(parts.join(""), __("Related records"));
+				card_bind_direct_links(frm.dashboard.add_section(parts.join(""), __("Related records")));
 			}
 		});
 }
