@@ -132,6 +132,9 @@ class TestCardSettingsWiring(IntegrationTestCase):
 			d.equipment_type = self.etype
 			d.ownership = "إيجار"
 			d.supplier = self.supplier
+			# F.7: a rented direction requires the supplier rate on the equipment
+			d.rate_type = "باليوم"
+			d.rate = 750
 			d.equipment_name = "TEST-EQ-" + frappe.generate_hash(length=8)
 			for key, value in kw.items():
 				d.set(key, value)
