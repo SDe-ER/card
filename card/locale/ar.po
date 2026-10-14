@@ -1792,9 +1792,6 @@ msgstr "سجل العميل"
 msgid "Could not update the customer record {0}. The card was saved normally; use the «Refresh numbers» button in the customer record."
 msgstr "تعذّر تحديث سجل العميل {0}. الكارت اتحفظ بشكل طبيعي؛ استخدم زر «تحديث الأرقام» في سجل العميل."
 
-msgid "Suppliers & Customers"
-msgstr "الموردين والعملاء"
-
 msgid "Card Equipment Customer"
 msgstr "عميل المعدات"
 
@@ -1806,3 +1803,48 @@ msgstr "ملخص العملاء"
 
 msgid "Customer name"
 msgstr "اسم العميل"
+
+msgid "Period"
+msgstr "الفترة"
+
+msgid "Customer"
+msgstr "العميل"
+
+msgid "Customer code"
+msgstr "كود العميل"
+
+msgid "Select a customer to display the statement."
+msgstr "اختار العميل لعرض الكشف."
+
+msgid "Invoiced entries (Debit)"
+msgstr "قيود الفوترة (مدين)"
+
+msgid "Invoiced entries"
+msgstr "قيود الفوترة"
+
+msgid "Received (Credit)"
+msgstr "المحصّل (دائن)"
+
+msgid "Received"
+msgstr "المحصّل"
+
+msgid "Customer closing balance"
+msgstr "رصيد العميل آخر المدة"
+
+msgid "Equipment customer statement: "
+msgstr "كشف حساب عميل معدات: "
+
+msgid ". Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
+msgstr ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = المستحق من الكروت − قيود الفوترة."
+
+msgid "Number of customers"
+msgstr "عدد العملاء"
+
+msgid "Total customer balances"
+msgstr "إجمالي أرصدة العملاء"
+
+msgid "Equipment customers summary — Period from "
+msgstr "ملخص عملاء المعدات — الفترة من "
+
+msgid ". Click on the customer name to open their statement."
+msgstr ". اضغط على اسم العميل لفتح كشف حسابه."

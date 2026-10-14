@@ -9,6 +9,8 @@ from frappe.tests import IntegrationTestCase
 REPORTS = (
 	"Equipment Supplier Statement",
 	"Equipment Suppliers Summary",
+	"Equipment Customer Statement",
+	"Equipment Customers Summary",
 	"Equipment Diesel Consumption",
 	"Transport Cost by Project",
 	"Operating Cost by Project",
