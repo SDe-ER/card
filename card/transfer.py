@@ -21,9 +21,11 @@ from frappe.utils import add_days, flt, getdate
 
 # ---------- assignment helpers ----------
 def _open_assignment(equipment):
+	# An open assignment has an empty to_date (stored as NULL for a Date field);
+	# `in (NULL,'')` never matches NULL in SQL, so use "is not set".
 	rows = frappe.get_all(
 		"Card Equipment Assignment",
-		filters={"equipment": equipment, "to_date": ["in", [None, ""]]},
+		filters={"equipment": equipment, "to_date": ["is", "not set"]},
 		fields=["name", "project"],
 		order_by="from_date desc, creation desc",
 		limit=1,
