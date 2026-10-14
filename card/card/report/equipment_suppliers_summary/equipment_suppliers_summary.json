@@ -19,6 +19,15 @@
  "roles": [
   {
    "role": "System Manager"
+  },
+  {
+   "role": "Card Manager"
+  },
+  {
+   "role": "Card User"
+  },
+  {
+   "role": "Accounts Manager"
   }
  ]
 }

@@ -49,6 +49,8 @@ CARD_DOCTYPES = (
 	"Card Monthly Card Day",
 )
 
+CARD_ROLES = ("Card Manager", "Card User")
+
 CMC_DOCTYPE = "Card Monthly Card"
 CMC_DEFAULT_PRINT_FORMAT = "كارت تشغيل شهري"
 
@@ -77,6 +79,16 @@ LEGACY_CLIENT_SCRIPTS = (
 )
 
 
+def ensure_card_roles():
+	"""Idempotently create the Card roles. Shared by before_install and the
+	v1_2 patch so fresh installs and existing sites end up identical."""
+	for role in CARD_ROLES:
+		if not frappe.db.exists("Role", role):
+			frappe.get_doc({"doctype": "Role", "role_name": role, "desk_access": 1}).insert(
+				ignore_permissions=True
+			)
+
+
 def before_install():
 	"""Run before the app's DocTypes/entities are synced by install-app.
 
@@ -84,6 +96,7 @@ def before_install():
 	sync onto the existing tables/records with no data loss and no
 	collision.
 	"""
+	ensure_card_roles()
 	_adopt_module_def()
 	_adopt_doctypes()
 	_ensure_card_desk_icon()
@@ -500,7 +513,7 @@ def _append_card_to_user_layouts():
 		raw = frappe.db.get_value("Desktop Layout", name, "layout")
 		try:
 			items = json.loads(raw) if raw else []
-		except ValueError, TypeError:
+		except (ValueError, TypeError):
 			continue
 		if not isinstance(items, list):
 			continue

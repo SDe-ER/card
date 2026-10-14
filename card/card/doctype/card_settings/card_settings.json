@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "policy_section",
+  "enable_accounting",
+  "auto_submit",
+  "company_config_section",
+  "company_settings"
+ ],
+ "fields": [
+  {
+   "fieldname": "policy_section",
+   "fieldtype": "Section Break",
+   "label": "Policy"
+  },
+  {
+   "default": "0",
+   "description": "When off, all CARD accounting features are disabled.",
+   "fieldname": "enable_accounting",
+   "fieldtype": "Check",
+   "label": "Enable accounting posting"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.enable_accounting",
+   "fieldname": "auto_submit",
+   "fieldtype": "Check",
+   "label": "Auto-submit postings"
+  },
+  {
+   "fieldname": "company_config_section",
+   "fieldtype": "Section Break",
+   "label": "Company Configuration"
+  },
+  {
+   "fieldname": "company_settings",
+   "fieldtype": "Table",
+   "label": "Company settings",
+   "options": "Card Company Settings"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-14 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Card Manager"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -12,7 +12,8 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import flt, getdate, nowdate
 
-from card.diesel import allocate_project_diesel, get_card_diesel
+from card.card.report.equipment_diesel_consumption.equipment_diesel_consumption import execute
+from card.diesel import UNALLOCATED, allocate_project_diesel, get_card_diesel
 from card.tests.test_controllers import _ensure_masters
 
 
@@ -165,6 +166,24 @@ class TestDieselAllocation(IntegrationTestCase):
 		c = self._make_card(eq, [self._day(2, 10)])
 		self._make_fill(litres=10, unit_price=2, card_equipment=eq.name)
 		self.assertTrue(get_card_diesel(c.name)["company_bears"])
+
+	def test_unallocated_fill_surfaces_and_total_matches(self):
+		# project-tank fill in a project/month with NO submitted card hours
+		fill = self._make_fill(litres=250, unit_price=2)  # amount 500
+		# backward-compat: default call drops it
+		self.assertNotIn(UNALLOCATED, allocate_project_diesel(self.project, self.month_str, self.year_str))
+		alloc = allocate_project_diesel(self.project, self.month_str, self.year_str, include_unallocated=True)
+		self.assertIn(UNALLOCATED, alloc)
+		self.assertAlmostEqual(alloc[UNALLOCATED]["litres"], flt(fill.litres))
+		self.assertAlmostEqual(alloc[UNALLOCATED]["amount"], flt(fill.amount))
+		# the report total for this project equals the submitted fill total
+		_cols, data = execute({"project": self.project})
+		self.assertAlmostEqual(sum(flt(r["litres"]) for r in data), flt(fill.litres))
+		self.assertAlmostEqual(sum(flt(r["amount"]) for r in data), flt(fill.amount))
+		self.assertEqual(len(data), 1)
+		# an equipment filter hides the synthetic row
+		_cols, data = execute({"project": self.project, "equipment": "no-such-equipment"})
+		self.assertEqual(data, [])
 
 	# ---- D1 amount fields ----
 	def test_diesel_fill_amount_is_litres_times_price(self):

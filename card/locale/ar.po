@@ -1485,3 +1485,93 @@ msgstr "الموردين"
 
 msgid "Reports"
 msgstr "التقارير"
+
+msgid "Card Settings"
+msgstr "إعدادات كارت"
+
+msgid "Card Company Settings"
+msgstr "إعدادات كارت للشركة"
+
+msgid "Policy"
+msgstr "السياسة"
+
+msgid "Enable accounting posting"
+msgstr "تفعيل الترحيل المحاسبي"
+
+msgid "When off, all CARD accounting features are disabled."
+msgstr "عند الإيقاف، تتعطل جميع ميزات المحاسبة في كارت."
+
+msgid "Auto-submit postings"
+msgstr "ترحيل تلقائي"
+
+msgid "Company Configuration"
+msgstr "إعدادات الشركات"
+
+msgid "Company settings"
+msgstr "إعدادات الشركة"
+
+msgid "Accounts"
+msgstr "الحسابات"
+
+msgid "Equipment rental expense account"
+msgstr "حساب مصروف إيجار المعدات"
+
+msgid "Diesel expense account"
+msgstr "حساب مصروف الديزل"
+
+msgid "Transport/mobilization expense account"
+msgstr "حساب مصروف النقل والتجهيز"
+
+msgid "Equipment rental income account"
+msgstr "حساب إيراد إيجار المعدات"
+
+msgid "Payable (Creditors)"
+msgstr "الدائنون (حسابات الدفع)"
+
+msgid "Receivable (Debtors)"
+msgstr "المدينون (حسابات القبض)"
+
+msgid "Tax templates"
+msgstr "قوالب الضرائب"
+
+msgid "Purchase tax template"
+msgstr "قالب ضريبة المشتريات"
+
+msgid "Sales tax template"
+msgstr "قالب ضريبة المبيعات"
+
+msgid "Items"
+msgstr "الأصناف"
+
+msgid "Rental item"
+msgstr "صنف الإيجار"
+
+msgid "Diesel item"
+msgstr "صنف الديزل"
+
+msgid "Transport item"
+msgstr "صنف النقل"
+
+msgid "Rental-out item"
+msgstr "صنف التأجير للغير"
+
+msgid "Settlement"
+msgstr "التسوية"
+
+msgid "Bank / cash account"
+msgstr "حساب البنك / النقدية"
+
+msgid "Mode of payment"
+msgstr "طريقة الدفع"
+
+msgid "Configure Card Settings for company {0}"
+msgstr "قم بإعداد إعدادات كارت للشركة {0}"
+
+msgid "Company is required for Card accounting."
+msgstr "الشركة مطلوبة لمحاسبة كارت."
+
+msgid "Duplicate company in Card Company Settings: {0}"
+msgstr "شركة مكررة في إعدادات كارت للشركة: {0}"
+
+msgid "Unallocated"
+msgstr "غير مخصّص"

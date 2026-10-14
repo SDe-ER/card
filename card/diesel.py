@@ -14,15 +14,20 @@ rounding difference so the shares sum to the fill amount/litres exactly.
 import frappe
 from frappe.utils import flt, getdate
 
+# Sentinel key for project-tank diesel in a period with no operating hours (opt-in, see below)
+UNALLOCATED = "__unallocated__"
+
 
 def _month_year(date_value):
 	d = getdate(date_value)
 	return "%02d" % d.month, str(d.year)
 
 
-def allocate_project_diesel(project, month, year):
+def allocate_project_diesel(project, month, year, include_unallocated=False):
 	"""Return {equipment: {"litres": float, "amount": float}} for one
-	project + month across all SUBMITTED Project Diesel Fills in that period."""
+	project + month across all SUBMITTED Project Diesel Fills in that period.
+	When include_unallocated is True, project-tank fills in a period with NO operating
+	hours accumulate under the UNALLOCATED key instead of being dropped."""
 	result = {}
 
 	def add(equipment, litres, amount):
@@ -64,6 +69,8 @@ def allocate_project_diesel(project, month, year):
 		# project-tank fill: pro-rata by operating hours; last row absorbs rounding
 		total_hours = sum(hours_map.values())
 		if total_hours <= 0:
+			if include_unallocated:
+				add(UNALLOCATED, f.litres, f.amount)
 			continue
 		equipments = sorted(hours_map.keys())
 		done_amt = 0.0

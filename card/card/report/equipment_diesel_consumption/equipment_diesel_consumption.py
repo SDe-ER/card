@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt, getdate
 
-from card.diesel import allocate_project_diesel
+from card.diesel import UNALLOCATED, allocate_project_diesel
 
 
 def get_columns():
@@ -56,14 +56,14 @@ def execute(filters=None):
 	eq_filter = filters.get("equipment")
 	data = []
 	for project, month, year in sorted(periods, key=lambda p: (p[0], p[2], p[1])):
-		allocation = allocate_project_diesel(project, month, year)
+		allocation = allocate_project_diesel(project, month, year, include_unallocated=True)
 		for equipment in sorted(allocation):
 			if eq_filter and equipment != eq_filter:
 				continue
 			share = allocation[equipment]
 			data.append(
 				{
-					"equipment": equipment,
+					"equipment": _("Unallocated") if equipment == UNALLOCATED else equipment,
 					"project": project,
 					"month": year + "-" + month,
 					"litres": flt(share.get("litres"), 3),

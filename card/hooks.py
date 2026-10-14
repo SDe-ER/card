@@ -273,6 +273,7 @@ fixtures = [
 	{"dt": "Number Card", "filters": [["module", "=", "Card"]]},
 	{"dt": "Dashboard Chart", "filters": [["module", "=", "Card"]]},
 	{"dt": "Print Format", "filters": [["module", "=", "Card"]]},
+	{"dt": "Role", "filters": [["name", "in", ["Card Manager", "Card User"]]]},
 	{
 		"dt": "Property Setter",
 		"filters": [
