@@ -259,7 +259,23 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
+ "links": [
+  {
+   "group": "\u0627\u0644\u0645\u0631\u062c\u0639",
+   "link_doctype": "Project",
+   "link_fieldname": "project"
+  },
+  {
+   "group": "\u0627\u0644\u0645\u0631\u062c\u0639",
+   "link_doctype": "Supplier",
+   "link_fieldname": "supplier"
+  },
+  {
+   "group": "\u0627\u0644\u0645\u0631\u062c\u0639",
+   "link_doctype": "Card Equipment",
+   "link_fieldname": "equipment"
+  }
+ ],
  "modified": "2026-10-12 21:22:33.579071",
  "modified_by": "Administrator",
  "module": "Card",

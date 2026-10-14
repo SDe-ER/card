@@ -33,42 +33,13 @@ function card_patch_heatmap(frm) {
 	};
 }
 
-// Quick-link buttons on the equipment profile (grouped under «الارتباطات»).
-function card_equipment_links(frm) {
-	if (frm.is_new()) return;
-	const group = __("الارتباطات");
-
-	// Current lessor (the supplier stored on this equipment).
-	if (frm.doc.supplier) {
-		frm.add_custom_button(
-			__("المورد الحالي"),
-			() => frappe.set_route("Form", "Supplier", frm.doc.supplier),
-			group,
-		);
-	}
-
-	// Suppliers that billed this equipment — shown via its monthly cards
-	// (each card carries its supplier), across every period.
-	frm.add_custom_button(
-		__("الموردين"),
-		() => frappe.set_route("List", "Card Monthly Card", { equipment: frm.doc.name }),
-		group,
-	);
-
-	// Projects this equipment worked on — its assignments (equipment ↔ project).
-	frm.add_custom_button(
-		__("المشاريع"),
-		() => frappe.set_route("List", "Card Equipment Assignment", { equipment: frm.doc.name }),
-		group,
-	);
-}
-
+// The current supplier and project are surfaced in the Connections («الارتباطات»)
+// tab via this DocType's dashboard links (internal links) — see card_equipment.json.
 frappe.ui.form.on("Card Equipment", {
 	setup(frm) {
 		card_patch_heatmap(frm);
 	},
 	refresh(frm) {
 		card_patch_heatmap(frm);
-		card_equipment_links(frm);
 	},
 });
