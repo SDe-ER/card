@@ -121,17 +121,17 @@ msgstr ""
 #. Name of a DocType
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Card Equipment"
-msgstr ""
+msgstr "المعدات"
 
 #. Name of a DocType
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 msgid "Card Equipment Assignment"
-msgstr ""
+msgstr "تعيين معدة على مشروع"
 
 #. Name of a DocType
 #: card/card/doctype/card_equipment_category/card_equipment_category.json
 msgid "Card Equipment Category"
-msgstr ""
+msgstr "فئة المعدات"
 
 #. Name of a DocType
 #: card/card/doctype/card_equipment_component/card_equipment_component.json
@@ -141,17 +141,17 @@ msgstr ""
 #. Name of a DocType
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
 msgid "Card Equipment Supplier"
-msgstr ""
+msgstr "مورد المعدات"
 
 #. Name of a DocType
 #: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "Card Equipment Type"
-msgstr ""
+msgstr "نوع المعدة"
 
 #. Name of a DocType
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Card Monthly Card"
-msgstr ""
+msgstr "كارت التشغيل الشهري"
 
 #. Name of a DocType
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
@@ -390,12 +390,12 @@ msgstr "استهلاك ديزل المعدات"
 #. Name of a report
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.json
 msgid "Equipment Supplier Statement"
-msgstr ""
+msgstr "كشف حساب المورد"
 
 #. Name of a report
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.json
 msgid "Equipment Suppliers Summary"
-msgstr ""
+msgstr "ملخص الموردين"
 
 #. Name of a DocType
 #: card/card/doctype/equipment_transport/equipment_transport.json
