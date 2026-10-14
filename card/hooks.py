@@ -269,6 +269,7 @@ after_install = "card.install.after_install"
 fixtures = [
 	{"dt": "Workspace", "filters": [["name", "=", "Card"]]},
 	{"dt": "Workspace Sidebar", "filters": [["name", "=", "Card"]]},
+	{"dt": "Sidebar", "filters": [["name", "=", "Card"]]},
 	{"dt": "Number Card", "filters": [["module", "=", "Card"]]},
 	{"dt": "Dashboard Chart", "filters": [["module", "=", "Card"]]},
 	{"dt": "Print Format", "filters": [["module", "=", "Card"]]},

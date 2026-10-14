@@ -1474,3 +1474,14 @@ msgstr ""
 msgid "نهاري"
 msgstr ""
 
+msgid "Diesel & Transport"
+msgstr "الديزل والنقل"
+
+msgid "Operations"
+msgstr "التشغيل"
+
+msgid "Suppliers"
+msgstr "الموردين"
+
+msgid "Reports"
+msgstr "التقارير"
