@@ -20,7 +20,9 @@
   "image",
   "equipment_name",
   "ownership",
+  "card_direction",
   "supplier",
+  "customer",
   "from_date",
   "to_date",
   "days_section",
@@ -28,6 +30,8 @@
   "totals_section",
   "rate_type",
   "rate",
+  "customer_rate_type",
+  "customer_rate",
   "column_break_eubn",
   "working_days",
   "total_working_hours",
@@ -39,6 +43,7 @@
   "total_additions",
   "total_deductions",
   "net_amount",
+  "customer_amount",
   "accounting_section",
   "gl_posting",
   "posted",
@@ -46,6 +51,7 @@
   "snapshot_column",
   "daily_hours_used",
   "hourly_rate_used",
+  "customer_rate_used",
   "diesel_policy_used"
  ],
  "fields": [
@@ -309,6 +315,44 @@
    "fieldname": "diesel_policy_used",
    "fieldtype": "Data",
    "label": "Fuel charged to (used)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "card_direction",
+   "fieldtype": "Select",
+   "label": "Card direction",
+   "options": "\nمستأجَرة من مورد\nمؤجَّرة لعميل\nإيجار من الباطن\nتشغيل داخلي"
+  },
+  {
+   "fetch_from": "project.customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fetch_from": "equipment.customer_rate_type",
+   "fieldname": "customer_rate_type",
+   "fieldtype": "Select",
+   "label": "Customer rate type",
+   "options": "\nباليوم\nبالساعة"
+  },
+  {
+   "fetch_from": "equipment.customer_rate",
+   "fieldname": "customer_rate",
+   "fieldtype": "Currency",
+   "label": "Customer rate"
+  },
+  {
+   "fieldname": "customer_amount",
+   "fieldtype": "Currency",
+   "label": "Customer amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_rate_used",
+   "fieldtype": "Currency",
+   "label": "Customer hourly rate used",
    "read_only": 1
   }
  ],

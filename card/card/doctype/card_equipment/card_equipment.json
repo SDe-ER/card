@@ -60,6 +60,9 @@
   "asset_purchase_value",
   "column_break_bjjv",
   "internal_hourly_rate",
+  "customer_rate_type",
+  "customer_rate",
+  "default_customer",
   "meter_tab",
   "meter_section",
   "meter_type",
@@ -612,6 +615,23 @@
    "fieldname": "is_unit_component",
    "fieldtype": "Check",
    "label": "Unit component (no monthly card)"
+  },
+  {
+   "fieldname": "customer_rate_type",
+   "fieldtype": "Select",
+   "label": "Customer rate type",
+   "options": "\n\u0628\u0627\u0644\u064a\u0648\u0645\n\u0628\u0627\u0644\u0633\u0627\u0639\u0629"
+  },
+  {
+   "fieldname": "customer_rate",
+   "fieldtype": "Currency",
+   "label": "Customer rate"
+  },
+  {
+   "fieldname": "default_customer",
+   "fieldtype": "Link",
+   "label": "Default customer",
+   "options": "Customer"
   }
  ],
  "grid_page_length": 50,

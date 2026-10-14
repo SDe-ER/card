@@ -1755,3 +1755,30 @@ msgstr "لا يوجد إسناد على هذا المشروع"
 
 msgid "Unit card for project {0}: on {1} these components are not assigned to this project: {2}. Move every component to the project before recording this day."
 msgstr "كارت وحدة للمشروع {0}: في {1} المكوّنات التالية غير مُسندة لهذا المشروع: {2}. انقل كل المكوّنات إلى المشروع قبل تسجيل هذا اليوم."
+
+msgid "Card direction"
+msgstr "اتجاه الكارت"
+
+msgid "Customer rate type"
+msgstr "نوع سعر العميل"
+
+msgid "Customer rate"
+msgstr "سعر العميل"
+
+msgid "Customer amount"
+msgstr "مبلغ العميل"
+
+msgid "Customer hourly rate used"
+msgstr "سعر الساعة للعميل المستخدم"
+
+msgid "Default customer"
+msgstr "العميل الافتراضي"
+
+msgid "Direction {0} is not valid for owned equipment."
+msgstr "الاتجاه {0} غير صالح لمعدة ملك."
+
+msgid "Direction {0} is not valid for rented equipment."
+msgstr "الاتجاه {0} غير صالح لمعدة مستأجرة."
+
+msgid "Select a customer before submitting a {0} card."
+msgstr "اختر العميل قبل اعتماد كارت {0}."
