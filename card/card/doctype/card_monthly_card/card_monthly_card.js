@@ -180,10 +180,48 @@ function card_check_duplicate(frm) {
 		});
 }
 
+function card_add_links(frm) {
+	if (frm.is_new()) return;
+	const group = __("الارتباطات");
+	if (frm.doc.project) {
+		frm.add_custom_button(
+			__("المشروع"),
+			() => frappe.set_route("Form", "Project", frm.doc.project),
+			group,
+		);
+		frm.add_custom_button(
+			__("العميل"),
+			() => {
+				frappe.db.get_value("Project", frm.doc.project, "customer").then((r) => {
+					const customer = r && r.message && r.message.customer;
+					if (customer) frappe.set_route("Form", "Customer", customer);
+					else frappe.msgprint(__("لا يوجد عميل مرتبط بالمشروع"));
+				});
+			},
+			group,
+		);
+	}
+	if (frm.doc.supplier) {
+		frm.add_custom_button(
+			__("المورد"),
+			() => frappe.set_route("Form", "Supplier", frm.doc.supplier),
+			group,
+		);
+	}
+	if (frm.doc.equipment) {
+		frm.add_custom_button(
+			__("المعدة"),
+			() => frappe.set_route("Form", "Card Equipment", frm.doc.equipment),
+			group,
+		);
+	}
+}
+
 frappe.ui.form.on("Card Monthly Card", {
 	refresh(frm) {
 		card_color_fridays(frm);
 		if (frm.doc.docstatus === 0) card_load_hourly(frm);
+		card_add_links(frm);
 	},
 	equipment: card_load_hourly,
 	month: card_build,
