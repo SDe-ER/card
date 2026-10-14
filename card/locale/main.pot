@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 08:12+0000\n"
-"PO-Revision-Date: 2026-10-14 08:12+0000\n"
+"POT-Creation-Date: 2026-10-14 09:38+0000\n"
+"PO-Revision-Date: 2026-10-14 09:38+0000\n"
 "Last-Translator: info@sdce.sa\n"
 "Language-Team: info@sdce.sa\n"
 "MIME-Version: 1.0\n"
@@ -214,7 +214,7 @@ msgid "Current assignment"
 msgstr ""
 
 #. Label of the current_project (Link) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.js:79
+#: card/card/doctype/card_equipment/card_equipment.js:140
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Current project"
 msgstr ""
@@ -255,6 +255,10 @@ msgstr ""
 #. Label of the day_status (Select) field in DocType 'Card Monthly Card Day'
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Day status"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.js:76
+msgid "Day-shift activity"
 msgstr ""
 
 #. Label of the days (Table) field in DocType 'Card Monthly Card'
@@ -305,7 +309,7 @@ msgstr ""
 #. Label of the equipment (Link) field in DocType 'Card Equipment Assignment'
 #. Label of the equipment (Link) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:206
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:221
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:83
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:197
@@ -532,7 +536,7 @@ msgstr ""
 msgid "Last updated"
 msgstr ""
 
-#: card/card/doctype/card_equipment/card_equipment.js:70
+#: card/card/doctype/card_equipment/card_equipment.js:131
 msgid "Lessor"
 msgstr ""
 
@@ -642,6 +646,10 @@ msgstr ""
 #. Label of the net_amount (Currency) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Net due"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.js:77
+msgid "Night-shift activity"
 msgstr ""
 
 #: card/api.py:62
@@ -767,7 +775,7 @@ msgstr ""
 #. Label of the project (Link) field in DocType 'Card Equipment Assignment'
 #. Label of the project (Link) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:215
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:230
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:80
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:269
@@ -780,7 +788,7 @@ msgstr ""
 msgid "Project name"
 msgstr ""
 
-#: card/card/doctype/card_equipment/card_equipment.js:89
+#: card/card/doctype/card_equipment/card_equipment.js:150
 msgid "Projects worked on"
 msgstr ""
 
@@ -825,8 +833,8 @@ msgstr ""
 msgid "Registration number"
 msgstr ""
 
-#: card/card/doctype/card_equipment/card_equipment.js:96
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:231
+#: card/card/doctype/card_equipment/card_equipment.js:157
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:246
 msgid "Related records"
 msgstr ""
 
@@ -914,7 +922,7 @@ msgstr ""
 
 #. Label of the supplier (Link) field in DocType 'Card Equipment Supplier'
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:224
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:239
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:56
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:189
 msgid "Supplier"
@@ -1073,7 +1081,8 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: card/card/doctype/card_equipment/card_equipment.js:26
+#: card/card/doctype/card_equipment/card_equipment.js:28
+#: card/card/doctype/card_equipment/card_equipment.js:51
 msgid "hour"
 msgstr ""
 

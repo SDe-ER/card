@@ -49,3 +49,33 @@ def get_timeline_data(doctype: str, name: str) -> dict:
 	).run()
 
 	return {int(timestamp): flt(hours) for timestamp, hours in rows}
+
+
+@frappe.whitelist()
+def get_shift_heatmap(name):
+	"""Per-shift daily operating hours, so two-shift equipment can show the day
+	(نهاري) and night (ليلي) activity as two separate heatmaps with distinct
+	palettes. Mirrors get_timeline_data but also groups by the card's shift.
+	Returns {"day": {ts: hours}, "night": {ts: hours}, "has_night": bool}.
+	"""
+	frappe.has_permission("Card Equipment", "read", name, throw=True)
+	frappe.has_permission("Card Monthly Card", "read", throw=True)
+
+	card = frappe.qb.DocType("Card Monthly Card")
+	day = frappe.qb.DocType("Card Monthly Card Day")
+	total_hours = Sum(day.working_hours)
+
+	rows = (
+		frappe.qb.from_(day)
+		.join(card)
+		.on(day.parent == card.name)
+		.select(UnixTimestamp(day.operation_date), card.shift, total_hours)
+		.where((card.equipment == name) & (card.docstatus == 1))
+		.groupby(day.operation_date, card.shift)
+		.having(total_hours > 0)
+	).run()
+
+	day_map, night_map = {}, {}
+	for timestamp, shift, hours in rows:
+		(night_map if shift == "ليلي" else day_map)[int(timestamp)] = flt(hours)
+	return {"day": day_map, "night": night_map, "has_night": bool(night_map)}

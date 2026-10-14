@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-10-14 08:12+0000\n"
+"POT-Creation-Date: 2026-10-14 09:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -212,7 +212,7 @@ msgid "Current assignment"
 msgstr "التعيين الحالي"
 
 #. Label of the current_project (Link) field in DocType 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.js:79
+#: card/card/doctype/card_equipment/card_equipment.js:140
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Current project"
 msgstr "المشروع الحالي"
@@ -254,6 +254,10 @@ msgstr "بيانات اليوم"
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Day status"
 msgstr "حالة اليوم"
+
+#: card/card/doctype/card_equipment/card_equipment.js:76
+msgid "Day-shift activity"
+msgstr "نشاط الوردية النهارية"
 
 #. Label of the days (Table) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
@@ -303,7 +307,7 @@ msgstr "السائق / المشغّل"
 #. Label of the equipment (Link) field in DocType 'Card Equipment Assignment'
 #. Label of the equipment (Link) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:206
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:221
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:83
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:197
@@ -530,7 +534,7 @@ msgstr "آخر قراءة"
 msgid "Last updated"
 msgstr "آخر تحديث"
 
-#: card/card/doctype/card_equipment/card_equipment.js:70
+#: card/card/doctype/card_equipment/card_equipment.js:131
 msgid "Lessor"
 msgstr "المورد (المؤجِّر)"
 
@@ -641,6 +645,10 @@ msgstr "صافي الكروت"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Net due"
 msgstr "الصافي المستحق"
+
+#: card/card/doctype/card_equipment/card_equipment.js:77
+msgid "Night-shift activity"
+msgstr "نشاط الوردية الليلية"
 
 #: card/api.py:62
 msgid "Not allowed: this operation is for System Managers only"
@@ -765,7 +773,7 @@ msgstr "رقم اللوحة"
 #. Label of the project (Link) field in DocType 'Card Equipment Assignment'
 #. Label of the project (Link) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:215
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:230
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:80
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:269
@@ -778,7 +786,7 @@ msgstr "المشروع"
 msgid "Project name"
 msgstr "اسم المشروع"
 
-#: card/card/doctype/card_equipment/card_equipment.js:89
+#: card/card/doctype/card_equipment/card_equipment.js:150
 msgid "Projects worked on"
 msgstr "المشاريع التي عملت عليها"
 
@@ -823,8 +831,8 @@ msgstr "صورة الاستمارة"
 msgid "Registration number"
 msgstr "رقم الاستمارة"
 
-#: card/card/doctype/card_equipment/card_equipment.js:96
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:231
+#: card/card/doctype/card_equipment/card_equipment.js:157
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:246
 msgid "Related records"
 msgstr "السجلات المرتبطة"
 
@@ -912,7 +920,7 @@ msgstr "الحالة"
 
 #. Label of the supplier (Link) field in DocType 'Card Equipment Supplier'
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.js:224
+#: card/card/doctype/card_monthly_card/card_monthly_card.js:239
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.js:56
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:189
 msgid "Supplier"
@@ -1071,7 +1079,8 @@ msgstr "أيام العمل"
 msgid "Year"
 msgstr "السنة"
 
-#: card/card/doctype/card_equipment/card_equipment.js:26
+#: card/card/doctype/card_equipment/card_equipment.js:28
+#: card/card/doctype/card_equipment/card_equipment.js:51
 msgid "hour"
 msgstr "ساعة"
 

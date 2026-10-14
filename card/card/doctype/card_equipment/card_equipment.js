@@ -3,6 +3,8 @@
 
 // CARD brand 5-level heatmap palette (zero level first, like frappe-charts expects).
 const CARD_HEATMAP_COLORS = ["#ebedf0", "#b9e9dd", "#74d2bb", "#27b495", "#0b7f63"];
+// Distinct night-shift palette (indigo) so ليلي is told apart from نهاري at a glance.
+const CARD_NIGHT_COLORS = ["#ebedf0", "#c7d2fe", "#a5b4fc", "#6366f1", "#3730a3"];
 
 // The form-dashboard heatmap hard-codes count_label "interactions" and the default
 // palette (frappe/public/js/frappe/form/dashboard.js render_heatmap). Owner decision
@@ -31,6 +33,49 @@ function card_patch_heatmap(frm) {
 		});
 		this.heatmap_area.body.find("svg").css({ margin: "auto" });
 	};
+}
+
+// Render one labelled heatmap into `container` from a {unixTs: hours} map.
+function card_build_heatmap(container, title, dataPoints, colors) {
+	$('<div class="text-muted" style="margin:10px 0 2px;font-weight:600"></div>')
+		.text(title)
+		.appendTo(container);
+	const el = $("<div></div>").appendTo(container)[0];
+	new frappe.Chart(el, {
+		type: "heatmap",
+		data: {
+			dataPoints: dataPoints || {},
+			start: new Date(moment().subtract(1, "year").toDate()),
+			end: new Date(),
+		},
+		countLabel: __("hour"),
+		discreteDomains: 1,
+		radius: 3,
+		colors: colors,
+	});
+	$(el).find("svg").css({ margin: "auto" });
+}
+
+// Two-shift equipment: split the Activity heatmap into نهاري + ليلي, each with its
+// own palette, so night is told apart from day (owner request 2026-10-14). Single-
+// shift equipment keep the one brand heatmap from card_patch_heatmap.
+function card_render_shift_heatmaps(frm) {
+	if (frm.is_new() || !frm.dashboard || !frm.dashboard.heatmap_area) return;
+	frappe.call({
+		method: "card.card.doctype.card_equipment.card_equipment.get_shift_heatmap",
+		args: { name: frm.doc.name },
+	}).then((r) => {
+		const d = (r && r.message) || {};
+		const body = frm.dashboard.heatmap_area.body;
+		body.find(".card-shift-heatmaps").remove();
+		if (!d.has_night) return; // single shift → keep the default single heatmap
+		// Take over: hide the native single heatmap and stop its async data overwrite.
+		body.find("#heatmap-" + frappe.model.scrub(frm.doctype)).hide();
+		frm.dashboard.heatmap = { update: function () {} };
+		const wrap = $('<div class="card-shift-heatmaps"></div>').appendTo(body);
+		card_build_heatmap(wrap, __("Day-shift activity"), d.day, CARD_HEATMAP_COLORS);
+		card_build_heatmap(wrap, __("Night-shift activity"), d.night, CARD_NIGHT_COLORS);
+	});
 }
 
 // Build a read-only anchor to an EXISTING record (no "create new" affordance).
@@ -120,6 +165,7 @@ frappe.ui.form.on("Card Equipment", {
 	},
 	refresh(frm) {
 		card_patch_heatmap(frm);
+		card_render_shift_heatmaps(frm);
 		card_render_equipment_links(frm);
 	},
 });
