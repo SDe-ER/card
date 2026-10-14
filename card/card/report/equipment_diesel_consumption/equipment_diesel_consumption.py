@@ -53,10 +53,13 @@ def execute(filters=None):
 		fill_date = getdate(fill.date)
 		periods.add((fill.project, "%02d" % fill_date.month, str(fill_date.year)))
 
+	eq_filter = filters.get("equipment")
 	data = []
 	for project, month, year in sorted(periods, key=lambda p: (p[0], p[2], p[1])):
 		allocation = allocate_project_diesel(project, month, year)
 		for equipment in sorted(allocation):
+			if eq_filter and equipment != eq_filter:
+				continue
 			share = allocation[equipment]
 			data.append(
 				{
