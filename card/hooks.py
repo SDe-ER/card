@@ -161,10 +161,25 @@ _PERIOD_LOCK_EVENTS = {
 	"on_cancel": "card.period_lock.on_cancel",
 	"on_trash": "card.period_lock.on_trash",
 }
+# S3 (4a): a source held by a draft/submitted posting cannot be cancelled
+# (and therefore cannot be amended) until the posting is cancelled/deleted.
+_SOURCE_EVENTS = dict(_PERIOD_LOCK_EVENTS)
+_SOURCE_EVENTS["before_cancel"] = "card.gl.events.block_source_cancel"
+
+# S3 (4b): CARD-created Purchase/Sales Invoices reserve/post/free their source
+# documents. The handlers no-op for every invoice without a GL Posting Log row.
+_POSTING_EVENTS = {
+	"validate": "card.gl.events.validate",
+	"on_submit": "card.gl.events.on_submit",
+	"before_cancel": "card.gl.events.before_cancel",
+	"on_trash": "card.gl.events.on_trash",
+}
 doc_events = {
-	"Card Monthly Card": dict(_PERIOD_LOCK_EVENTS),
-	"Project Diesel Fill": dict(_PERIOD_LOCK_EVENTS),
-	"Equipment Transport": dict(_PERIOD_LOCK_EVENTS),
+	"Card Monthly Card": dict(_SOURCE_EVENTS),
+	"Project Diesel Fill": dict(_SOURCE_EVENTS),
+	"Equipment Transport": dict(_SOURCE_EVENTS),
+	"Purchase Invoice": dict(_POSTING_EVENTS),
+	"Sales Invoice": dict(_POSTING_EVENTS),
 }
 
 # Scheduled Tasks
@@ -229,7 +244,9 @@ override_doctype_dashboards = {
 # Ignore links to specified DocTypes when deleting documents
 # -----------------------------------------------------------
 
-# ignore_links_on_delete = ["Communication", "ToDo"]
+# S3: the GL Posting Log's posting_doc link must never block deleting a DRAFT
+# posting (the log row itself flips to Cancelled in card.gl.events.on_trash).
+ignore_links_on_delete = ["GL Posting Log"]
 
 # Request Events
 # ----------------
