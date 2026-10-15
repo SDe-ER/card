@@ -26,7 +26,7 @@ from frappe.utils import flt, getdate
 
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
-from card.diesel import UNALLOCATED, allocate_project_diesel
+from card.diesel import project_operating_hours
 from card.gl import preflight
 from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters
@@ -38,10 +38,6 @@ def _month_bounds(month, year):
 	year = int(year)
 	last = calendar.monthrange(year, month)[1]
 	return datetime.date(year, month, 1), datetime.date(year, month, last)
-
-
-def _dimension_field_available(doctype):
-	return frappe.get_meta(doctype).has_field("card_equipment")
 
 
 def _held_by_active_log(doctype, names, posting_type):
@@ -92,22 +88,21 @@ def _assert_identity(card, lines_total, expected, side_label):
 
 def _split_fill_by_allocation(fill, month, year):
 	"""[(card_equipment or None, amount)] for one diesel fill. A fill bound to
-	an equipment is one line; a project-tank fill is split per equipment by the
-	allocation's litre shares (largest-remainder rounding keeps the sum exact);
-	a period with no operating hours stays one unallocated line."""
+	an equipment is one line; a project-tank fill is split per equipment
+	pro-rata by the project+month OPERATING HOURS (owner checkpoint C: direct
+	fills must never influence tank weights; largest-remainder rounding keeps
+	the sum halala-exact); a period with no eligible hours stays one
+	unallocated line at project level."""
 	amount = flt(fill.amount, 2)
 	if fill.card_equipment:
 		return [(fill.card_equipment, amount)]
-	alloc = allocate_project_diesel(fill.project, month, year)
-	litres = {
-		eq: flt(v.get("litres")) for eq, v in alloc.items() if eq != UNALLOCATED and flt(v.get("litres")) > 0
-	}
-	total_litres = sum(litres.values())
-	if not total_litres:
+	hours = project_operating_hours(fill.project, month, year)
+	total_hours = sum(hours.values())
+	if not total_hours:
 		return [(None, amount)]
 	shares = []
-	for eq, lt in sorted(litres.items()):
-		shares.append([eq, flt(amount * lt / total_litres, 2)])
+	for eq, hrs in sorted(hours.items()):
+		shares.append([eq, flt(amount * hrs / total_hours, 2)])
 	drift = flt(amount - sum(s[1] for s in shares), 2)
 	if drift:
 		largest = max(shares, key=lambda s: s[1])
@@ -170,7 +165,7 @@ def _customer_cards(company, party, month, year):
 	)
 
 
-def _card_lines(card_name, side, row, types, has_dim):
+def _card_lines(card_name, side, row, types):
 	"""The invoice lines one card contributes on one side."""
 	card = frappe.get_doc("Card Monthly Card", card_name)
 	lines = []
@@ -194,7 +189,7 @@ def _card_lines(card_name, side, row, types, has_dim):
 			"rate": base_rate,
 			"account": base_account,
 			"project": card.project,
-			"card_equipment": card.equipment if has_dim else None,
+			"card_equipment": card.equipment,
 			"taxable": 1,
 			"description": _("Monthly operation card {0} — {1}").format(
 				card.name, card.equipment_name or card.equipment
@@ -235,7 +230,7 @@ def _card_lines(card_name, side, row, types, has_dim):
 				"rate": signed,
 				"account": typ.account if typ else base_account,
 				"project": card.project,
-				"card_equipment": card.equipment if has_dim else None,
+				"card_equipment": card.equipment,
 				"taxable": 1 if (typ is None or typ.taxable) else 0,
 				"description": "{0} — {1} — {2}".format(
 					(typ.type_name if typ else adj.adjustment_type), card.name, adj.description or ""
@@ -255,6 +250,8 @@ def build_monthly_posting(company, party_type, party, month, year):
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
 	preflight.check_period_open(company, last_day, posting_doctype)
 	preflight.check_invoice_settings(party_type)
+	# fail-closed: never build GL without the equipment dimension (checkpoint B)
+	preflight.require_equipment_dimension(posting_doctype)
 	ensure_posting_masters(company)
 	row = preflight.company_settings_row(company)  # re-read after provisioning
 
@@ -299,7 +296,6 @@ def build_monthly_posting(company, party_type, party, month, year):
 		sequence = max(sequence, (active.sequence or 1) + 1)
 
 	types = _types_map(company)
-	has_dim = _dimension_field_available(posting_doctype + " Item")
 
 	# ---- collect lines ----
 	lines = []
@@ -311,7 +307,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 		fills = _exclude_held(fills, "Project Diesel Fill", posting_doctype)
 		transports = _exclude_held(transports, "Equipment Transport", posting_doctype)
 		for c in cards:
-			card, card_lines, _discount = _card_lines(c.name, "Supplier", row, types, has_dim)
+			card, card_lines, _discount = _card_lines(c.name, "Supplier", row, types)
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
@@ -322,7 +318,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 						"rate": amount,
 						"account": row.diesel_expense_account,
 						"project": fill.project,
-						"card_equipment": equipment if has_dim else None,
+						"card_equipment": equipment,
 						"taxable": 1,
 						"description": _("Diesel fill {0} — {1} L").format(fill.name, fill.litres),
 					}
@@ -335,7 +331,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 					"rate": flt(t.amount, 2),
 					"account": row.transport_expense_account,
 					"project": t.project,
-					"card_equipment": (t.equipment or None) if has_dim else None,
+					"card_equipment": t.equipment or None,
 					"taxable": 1,
 					"description": _("Equipment transport {0}: {1} → {2}").format(
 						t.name, t.from_location or "", t.to_location or ""
@@ -348,7 +344,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 			_customer_cards(company, party, month, year), "Card Monthly Card", posting_doctype
 		)
 		for c in customer_cards:
-			card, card_lines, discount = _card_lines(c.name, "Customer", row, types, has_dim)
+			card, card_lines, discount = _card_lines(c.name, "Customer", row, types)
 			lines.extend(card_lines)
 			total_discount = flt(total_discount + discount, 2)
 			sources["Card Monthly Card"].append((card.name, flt(card.customer_net_amount, 2)))

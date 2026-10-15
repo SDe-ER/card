@@ -23,6 +23,23 @@ def _month_year(date_value):
 	return "%02d" % d.month, str(d.year)
 
 
+def project_operating_hours(project, month, year):
+	"""{equipment: total operating hours} for one project + month across all
+	SUBMITTED Card Monthly Cards (all shifts). The allocation basis for
+	project-tank diesel — direct fills never influence these weights."""
+	rows = frappe.db.sql(
+		"""
+		select equipment, sum(total_working_hours) as hrs
+		from `tabCard Monthly Card`
+		where project = %s and month = %s and year = %s and docstatus = 1
+		group by equipment
+		""",
+		(project, "%02d" % int(month), str(year)),
+		as_dict=True,
+	)
+	return {r.equipment: flt(r.hrs) for r in rows if flt(r.hrs) > 0}
+
+
 def allocate_project_diesel(project, month, year, include_unallocated=False):
 	"""Return {equipment: {"litres": float, "amount": float}} for one
 	project + month across all SUBMITTED Project Diesel Fills in that period.
@@ -39,19 +56,7 @@ def allocate_project_diesel(project, month, year, include_unallocated=False):
 		return result
 	month = "%02d" % int(month)
 	year = str(year)
-
-	# total operating hours per equipment in this project + month (submitted cards, all shifts)
-	hours_rows = frappe.db.sql(
-		"""
-		select equipment, sum(total_working_hours) as hrs
-		from `tabCard Monthly Card`
-		where project = %s and month = %s and year = %s and docstatus = 1
-		group by equipment
-		""",
-		(project, month, year),
-		as_dict=True,
-	)
-	hours_map = {r.equipment: flt(r.hrs) for r in hours_rows if flt(r.hrs) > 0}
+	hours_map = project_operating_hours(project, month, year)
 
 	fills = frappe.get_all(
 		"Project Diesel Fill",

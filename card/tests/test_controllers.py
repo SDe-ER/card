@@ -120,11 +120,16 @@ def _ensure_masters():
 	for doctype, root, name_field, leaf in (
 		("Customer Group", "All Customer Groups", "customer_group_name", "Test Customer Group"),
 		("Territory", "All Territories", "territory_name", "Test Territory"),
+		# S3 masters create their own Item Group leaves (Card Services/Adjustments);
+		# only the ERPNext root must exist on a clean CI site (leaf=None skips it).
+		("Item Group", "All Item Groups", "item_group_name", None),
 	):
 		if not frappe.db.exists(doctype, root):
 			frappe.get_doc({"doctype": doctype, name_field: root, "is_group": 1}).insert(
 				ignore_permissions=True
 			)
+		if not leaf:
+			continue
 		if not frappe.db.get_value(doctype, {"is_group": 0}, "name") and not frappe.db.exists(doctype, leaf):
 			frappe.get_doc(
 				{

@@ -269,6 +269,139 @@ class TestAggregationAndDiesel(_PostingBase):
 		self.assertEqual(fill_line.expense_account, self.exp_diesel)
 		self.assertEqual(fill_line.card_equipment, eq.name)
 
+	def test_mixed_direct_and_tank_fill_split_by_hours_only(self):
+		"""Checkpoint C: direct fills must never influence tank-fill weights."""
+		eq_a = self._equipment()
+		eq_b = self._equipment()
+		self._card(eq_a, [5], submit=True)  # 5h
+		self._card(eq_b, [5], submit=True)  # 5h -> hours say 50/50
+
+		def _fill(**kw):
+			f = frappe.get_doc(
+				{
+					"doctype": "Project Diesel Fill",
+					"date": "2026-09-12",
+					"project": self.project,
+					"supplier": self.supplier,
+					"company": self.company,
+					**kw,
+				}
+			)
+			f.insert(ignore_permissions=True)
+			f.submit()
+			return f
+
+		direct = _fill(card_equipment=eq_a.name, litres=1000, unit_price=2)  # 2,000 all to A
+		tank = _fill(litres=100, unit_price=1)  # 100 -> 50/50 by hours, NOT by litres
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		direct_lines = [i for i in pi.items if direct.name in i.description]
+		self.assertEqual(len(direct_lines), 1)
+		self.assertEqual(flt(direct_lines[0].rate, 2), 2000.0)
+		self.assertEqual(direct_lines[0].card_equipment, eq_a.name)
+		tank_by_eq = {i.card_equipment: flt(i.rate, 2) for i in pi.items if tank.name in i.description}
+		self.assertEqual(tank_by_eq, {eq_a.name: 50.0, eq_b.name: 50.0})
+
+	def test_tank_fill_without_hours_stays_unallocated(self):
+		"""Checkpoint C: no eligible operating hours -> the whole cost is kept
+		as ONE project-level line with no invented equipment attribution."""
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-10-10",  # a month with no submitted cards on the project
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 300,
+				"unit_price": 2,
+			}
+		)
+		fill.insert(ignore_permissions=True)
+		fill.submit()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 10, 2026)
+		)
+		self.assertEqual(len(pi.items), 1)
+		self.assertEqual(flt(pi.items[0].rate, 2), 600.0)
+		self.assertEqual(pi.items[0].project, self.project)
+		self.assertFalse(pi.items[0].card_equipment)
+
+	def test_tank_fill_rounding_preserves_total_to_the_halala(self):
+		"""Checkpoint C: equal thirds cannot split 100.00 evenly — the
+		largest-remainder line absorbs the halala and the sum stays exact."""
+		for _ in range(3):
+			self._card(self._equipment(), [1], submit=True)  # 1h each
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-12",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 50,
+				"unit_price": 2,
+			}
+		)
+		fill.insert(ignore_permissions=True)
+		fill.submit()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		tank_lines = sorted(flt(i.rate, 2) for i in pi.items if fill.name in i.description)
+		self.assertEqual(tank_lines, [33.33, 33.33, 33.34])
+		self.assertEqual(flt(sum(tank_lines), 2), 100.0)
+
+	def test_tank_allocation_isolated_by_project_and_month(self):
+		"""Checkpoint C: only the fill's own project + month hours weigh the
+		split — other projects and other months contribute nothing."""
+		from card.tests.test_controllers import _days
+
+		eq_a = self._equipment()
+		eq_b = self._equipment()
+		eq_c = self._equipment()
+		self._card(eq_a, [8], submit=True)  # self.project, month 09
+		proj2 = frappe.get_doc(
+			{
+				"doctype": "Project",
+				"project_name": "TEST-S3-ISO-" + self.token,
+				"status": "Open",
+				"company": self.company,
+			}
+		).insert(ignore_permissions=True)
+		self._card(eq_b, [8], submit=True, project=proj2.name)  # other project, same month
+		other_month = frappe.new_doc("Card Monthly Card")  # same project, month 08
+		other_month.equipment = eq_c.name
+		other_month.project = self.project
+		other_month.shift = "نهاري"
+		other_month.month = "08"
+		other_month.year = 2026
+		for day in _days([8], month=8):
+			other_month.append("days", day)
+		other_month.insert(ignore_permissions=True)
+		other_month.submit()
+
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-12",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 100,
+				"unit_price": 1,
+			}
+		)
+		fill.insert(ignore_permissions=True)
+		fill.submit()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		tank_lines = [i for i in pi.items if fill.name in i.description]
+		self.assertEqual(len(tank_lines), 1)  # ONLY eq_a operated on this project in 09
+		self.assertEqual(tank_lines[0].card_equipment, eq_a.name)
+		self.assertEqual(flt(tank_lines[0].rate, 2), 100.0)
+
 	def test_tank_fill_splits_per_equipment_by_hours(self):
 		eq_a = self._equipment()
 		eq_b = self._equipment()
@@ -403,6 +536,78 @@ class TestPreflights(_PostingBase):
 	def test_nothing_to_post_message(self):
 		with self.assertRaises(frappe.ValidationError):
 			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+
+	def _assert_no_posting_artifacts(self, card):
+		"""A failed preflight must leave NO invoice, log or reservation behind."""
+		self.assertFalse(
+			frappe.get_all("Purchase Invoice", filters={"supplier": self.supplier, "docstatus": 0})
+		)
+		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
+		self.assertFalse(frappe.db.get_value("Card Monthly Card", card.name, "gl_posting"))
+		self.assertFalse(frappe.get_all("GL Posting Source", filters={"source_name": card.name}))
+
+	def test_posting_rejected_when_dimension_disabled(self):
+		"""Checkpoint B (fail-closed): no posting without an ACTIVE Card
+		Equipment accounting dimension — and no bypass toggle."""
+		_eq, card = self._example_card()
+		dim = frappe.db.get_value("Accounting Dimension", {"document_type": "Card Equipment"}, "name")
+		self.assertTrue(dim, "fixture sites must carry the dimension (before_tests provisions it)")
+		frappe.db.set_value("Accounting Dimension", dim, "disabled", 1, update_modified=False)
+		try:
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+			self.fail("posting must fail closed while the dimension is disabled")
+		except frappe.ValidationError as e:
+			self.assertIn("ensure_card_equipment_dimension", str(e))
+		finally:
+			frappe.db.set_value("Accounting Dimension", dim, "disabled", 0, update_modified=False)
+		self._assert_no_posting_artifacts(card)
+		# re-enabled -> the same month builds normally
+		self.assertTrue(build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026))
+
+	def test_posting_rejected_when_dimension_record_missing(self):
+		"""Checkpoint B: a site whose dimension record was removed (fields may
+		still exist) must also fail closed, atomically."""
+		_eq, card = self._example_card()
+		# transactional raw delete: rolled back with the test
+		frappe.db.delete("Accounting Dimension", {"document_type": "Card Equipment"})
+		try:
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+			self.fail("posting must fail closed while the dimension record is missing")
+		except frappe.ValidationError as e:
+			self.assertIn("ensure_card_equipment_dimension", str(e))
+		self._assert_no_posting_artifacts(card)
+
+	def test_gate_rejects_missing_dimension_fields(self):
+		"""Checkpoint B: the gate also refuses when the custom field is gone
+		from the invoice-item doctype or from GL Entry (meta checked per
+		doctype; simulated — dropping real fields is DDL)."""
+		from unittest.mock import patch
+
+		from card.gl import preflight
+
+		real_get_meta = frappe.get_meta
+
+		def _hiding(target_dt):
+			class _Meta:
+				def __init__(self, real):
+					self._real = real
+
+				def has_field(self, fieldname):
+					return False if fieldname == "card_equipment" else self._real.has_field(fieldname)
+
+				def __getattr__(self, name):
+					return getattr(self._real, name)
+
+			def _get_meta(dt, *args, **kwargs):
+				meta = real_get_meta(dt, *args, **kwargs)
+				return _Meta(meta) if dt == target_dt else meta
+
+			return _get_meta
+
+		for target in ("Purchase Invoice Item", "GL Entry"):
+			with patch.object(frappe, "get_meta", side_effect=_hiding(target)):
+				with self.assertRaises(frappe.ValidationError):
+					preflight.require_equipment_dimension("Purchase Invoice")
 
 
 class TestCustomerMirror(_PostingBase):

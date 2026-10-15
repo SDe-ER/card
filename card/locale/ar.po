@@ -1935,3 +1935,9 @@ msgstr "نوع الإضافة/الخصم {0} على الكارت {1} غير مُ
 
 msgid "This equipment is a unit component; the monthly card is kept on the unit, not the component."
 msgstr "هذه المعدة مكوّن ضمن وحدة؛ الكارت الشهري يُسجّل على الوحدة لا على المكوّن."
+
+msgid "The Card Equipment accounting dimension is missing or disabled on this site; an administrator must run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+msgstr "البُعد المحاسبي «معدة كارت» غير موجود أو معطّل على هذا الموقع؛ يجب أن ينفّذ مدير النظام: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+
+msgid "The {0} field is missing on {1}; re-run the Card Equipment dimension setup before posting."
+msgstr "الحقل {0} غير موجود على {1}؛ أعد تنفيذ إعداد بُعد معدة كارت قبل الترحيل."

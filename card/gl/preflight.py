@@ -117,6 +117,31 @@ def check_period_open(company, posting_date, doctype):
 			)
 
 
+def require_equipment_dimension(posting_doctype):
+	"""Fail-closed (owner checkpoint B): with CARD accounting enabled, posting
+	requires the official Card Equipment Accounting Dimension — otherwise the
+	generated GL would silently lose the equipment attribution that the
+	per-equipment statements (O4) depend on. No bypass toggle."""
+	from card.dimension import DIMENSION_DOCTYPE, DIMENSION_FIELD
+
+	dim = frappe.db.get_value(
+		"Accounting Dimension", {"document_type": DIMENSION_DOCTYPE}, ["name", "disabled"], as_dict=True
+	)
+	if not dim or dim.disabled:
+		frappe.throw(
+			_(
+				"The Card Equipment accounting dimension is missing or disabled on this site; an administrator must run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+			)
+		)
+	for doctype in (posting_doctype + " Item", "GL Entry"):
+		if not frappe.get_meta(doctype).has_field(DIMENSION_FIELD):
+			frappe.throw(
+				_(
+					"The {0} field is missing on {1}; re-run the Card Equipment dimension setup before posting."
+				).format(DIMENSION_FIELD, _(doctype))
+			)
+
+
 def check_invoice_settings(party_type):
 	if party_type == "Customer" and frappe.db.get_single_value("Selling Settings", "validate_selling_price"):
 		frappe.throw(
