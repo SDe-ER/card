@@ -170,6 +170,7 @@ _SOURCE_EVENTS["before_cancel"] = "card.gl.events.block_source_cancel"
 # documents. The handlers no-op for every invoice without a GL Posting Log row.
 _POSTING_EVENTS = {
 	"validate": "card.gl.events.validate",
+	"before_submit": "card.gl.events.before_submit",
 	"on_submit": "card.gl.events.on_submit",
 	"before_cancel": "card.gl.events.before_cancel",
 	"on_trash": "card.gl.events.on_trash",

@@ -38,7 +38,9 @@ class TestDieselAllocation(IntegrationTestCase):
 		self.etype = self._m["etype"]
 		self.month_str, self.year_str = _past_month_year()
 		# F.1: a site-configured diesel supplier policy must never gate these fills
+		# (pin the policy too: a fixed policy with no supplier rejects every save)
 		frappe.db.set_single_value("Card Settings", "diesel_supplier", None)
+		frappe.db.set_single_value("Card Settings", "diesel_supplier_policy", "متغير")
 		frappe.clear_document_cache("Card Settings", "Card Settings")
 		# a UNIQUE project per test so the allocation sees only this test's cards
 		proj = frappe.new_doc("Project")

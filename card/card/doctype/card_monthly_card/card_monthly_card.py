@@ -210,6 +210,12 @@ class CardMonthlyCard(Document):
 						).format(adj.description or adj.adjustment_type_ref or "")
 					)
 				adj.side = default_side
+			if adj.side not in sided:
+				frappe.throw(
+					_("Invalid side {0} on addition/deduction {1}; it must be Supplier or Customer.").format(
+						adj.side, adj.description or adj.adjustment_type_ref or ""
+					)
+				)
 			if adj.adjustment_type_ref:
 				if adj.side == "Customer" and not self.customer:
 					frappe.throw(

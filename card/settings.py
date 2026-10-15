@@ -49,7 +49,7 @@ def setting(fieldname):
 	if val is None or val == "":
 		return _DEFAULTS.get(fieldname)
 	default = _DEFAULTS.get(fieldname)
-	if isinstance(default, (int, float)):
+	if isinstance(default, int | float):
 		try:
 			return float(val)
 		except (TypeError, ValueError):

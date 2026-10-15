@@ -2,13 +2,16 @@
 # For license information, please see LICENSE
 """S3 lifecycle (owner items 4a/4b).
 
-Reservation model (no schema beyond S2):
-- A DRAFT posting reserves its party+month implicitly through the GL Posting
-  Log's unique posting_key — sources carry only the informational
-  `gl_posting` link to the LOG (never to the invoice), so frappe's backlink
-  check still allows deleting the draft.
+Reservation model:
+- The GL Posting Log's `sources` child table is the AUTHORITATIVE list of the
+  documents a posting includes (written at build time, card/gl/posting.py).
+  The sources' own `gl_posting` link is display-only and may point at either
+  side's log for sub-rental cards.
+- A DRAFT posting reserves its party+month through the log's unique
+  posting_key; sources never link to the invoice at draft, so frappe's
+  backlink check still allows deleting the draft.
 - On SUBMIT the side's invoice link (`purchase_invoice` / `sales_invoice`)
-  is written onto every source and `posted` flips to 1.
+  is written onto every source in the log's list and `posted` flips to 1.
 - `before_cancel` of the invoice clears those links FIRST (frappe runs
   before_cancel at document.py:1420, the backlink check only at :1463), so a
   submitted posting can be cancelled and its sources are freed.
@@ -20,9 +23,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
-from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES, build_posting_key
-
-SOURCE_DOCTYPES = ("Card Monthly Card", "Project Diesel Fill", "Equipment Transport")
+from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 
 
 def _log_for(doc):
@@ -36,25 +37,36 @@ def _side_field(invoice_doctype):
 	return "purchase_invoice" if invoice_doctype == "Purchase Invoice" else "sales_invoice"
 
 
-def _reserved_sources(log):
-	"""Sources a log row reserved at build time (gl_posting -> log)."""
-	out = []
-	for doctype in SOURCE_DOCTYPES:
-		for name in frappe.get_all(doctype, filters={"gl_posting": log.name}, pluck="name"):
-			out.append((doctype, name))
-	return out
+def _log_sources(log):
+	"""The posting's authoritative source list (build-time child rows)."""
+	return [(row.source_doctype, row.source_name) for row in log.get("sources") or []]
 
 
-def _linked_sources(doc):
-	"""Sources carrying the submitted invoice's link."""
-	field = _side_field(doc.doctype)
-	out = []
-	for doctype in SOURCE_DOCTYPES:
-		if not frappe.get_meta(doctype).has_field(field):
-			continue
-		for name in frappe.get_all(doctype, filters={field: doc.name}, pluck="name"):
-			out.append((doctype, field, name))
-	return out
+def active_log_holding(doctype, name):
+	"""The active (Draft/Submitted) GL Posting Log that includes this source,
+	if any — exact membership through the GL Posting Source child rows."""
+	for parent in frappe.get_all(
+		"GL Posting Source",
+		filters={"parenttype": "GL Posting Log", "source_doctype": doctype, "source_name": name},
+		pluck="parent",
+	):
+		log = frappe.db.get_value(
+			"GL Posting Log", parent, ["name", "status", "posting_doc", "posting_doctype"], as_dict=True
+		)
+		if log and log.status in ACTIVE_STATES:
+			return log
+	return None
+
+
+def _point_display(doctype, name, log_name):
+	"""Keep the source's informational gl_posting link on an ACTIVE log without
+	stealing the pointer from the other side's active posting (sub-rental)."""
+	current = frappe.db.get_value(doctype, name, "gl_posting")
+	if current == log_name:
+		return
+	if current and frappe.db.get_value("GL Posting Log", current, "status") in ACTIVE_STATES:
+		return
+	frappe.db.set_value(doctype, name, "gl_posting", log_name, update_modified=False)
 
 
 def _other_side_still_posted(doctype, name, cleared_field):
@@ -65,7 +77,9 @@ def _other_side_still_posted(doctype, name, cleared_field):
 
 
 def validate(doc, method=None):
-	"""Reject user edits that would skew the generated draft's arithmetic."""
+	"""Reject amendments of CARD postings and user edits that would skew the
+	generated draft's arithmetic."""
+	_block_amended_copy(doc)
 	if doc.flags.get("card_gl_build"):
 		return
 	if not _log_for(doc):
@@ -87,15 +101,61 @@ def validate(doc, method=None):
 		)
 
 
+def _block_amended_copy(doc):
+	"""An amendment of a cancelled CARD posting would submit the same source
+	lines a second time outside the log lifecycle — the only supported paths
+	are rebuilding the month or a supplementary posting."""
+	if not doc.get("amended_from"):
+		return
+	if frappe.db.exists("GL Posting Log", {"posting_doc": doc.amended_from, "posting_doctype": doc.doctype}):
+		frappe.throw(
+			_(
+				"{0} amends CARD posting {1}; amendments would post the same source documents twice. Build the month again from CARD instead."
+			).format(doc.name or _("This invoice"), doc.amended_from)
+		)
+
+
+def before_submit(doc, method=None):
+	log = _log_for(doc)
+	if not log:
+		return
+	# KSA VAT input: the supplier's own invoice number/date must be on the PI.
+	if doc.doctype == "Purchase Invoice" and frappe.db.get_value("Supplier", doc.supplier, "tax_id"):
+		if not (doc.get("bill_no") and doc.get("bill_date")):
+			frappe.throw(
+				_(
+					"Enter the supplier's invoice number and date (Bill No / Bill Date) on {0} before submitting; VAT input requires them."
+				).format(doc.name)
+			)
+	# Re-verify the reservation at submit time (guards the build->submit gap).
+	field = _side_field(doc.doctype)
+	for doctype, name in _log_sources(log):
+		if frappe.db.get_value(doctype, name, "docstatus") != 1:
+			frappe.throw(
+				_("Source {0} {1} is no longer submitted; rebuild the posting before submitting {2}.").format(
+					_(doctype), name, doc.name
+				)
+			)
+		if frappe.get_meta(doctype).has_field(field):
+			linked = frappe.db.get_value(doctype, name, field)
+			if linked and linked != doc.name:
+				frappe.throw(
+					_(
+						"Source {0} {1} is already invoiced by {2}; rebuild the posting before submitting {3}."
+					).format(_(doctype), name, linked, doc.name)
+				)
+
+
 def on_submit(doc, method=None):
 	log = _log_for(doc)
 	if not log:
 		return
 	field = _side_field(doc.doctype)
-	for doctype, name in _reserved_sources(log):
+	for doctype, name in _log_sources(log):
 		if frappe.get_meta(doctype).has_field(field):
 			frappe.db.set_value(doctype, name, field, doc.name, update_modified=False)
 		frappe.db.set_value(doctype, name, "posted", 1, update_modified=False)
+		_point_display(doctype, name, log.name)
 	log.db_set("status", "Submitted")
 	log.db_set("amount", doc.grand_total)
 
@@ -106,8 +166,12 @@ def before_cancel(doc, method=None):
 	if not log:
 		return
 	field = _side_field(doc.doctype)
-	for doctype, _field, name in _linked_sources(doc):
-		frappe.db.set_value(doctype, name, field, "", update_modified=False)
+	for doctype, name in _log_sources(log):
+		if (
+			frappe.get_meta(doctype).has_field(field)
+			and frappe.db.get_value(doctype, name, field) == doc.name
+		):
+			frappe.db.set_value(doctype, name, field, "", update_modified=False)
 		frappe.db.set_value(
 			doctype,
 			name,
@@ -115,9 +179,11 @@ def before_cancel(doc, method=None):
 			1 if _other_side_still_posted(doctype, name, field) else 0,
 			update_modified=False,
 		)
-		frappe.db.set_value(doctype, name, "gl_posting", "", update_modified=False)
+		if frappe.db.get_value(doctype, name, "gl_posting") == log.name:
+			frappe.db.set_value(doctype, name, "gl_posting", "", update_modified=False)
 	log.db_set("status", "Cancelled")
 	log.db_set("posting_key", None)
+	_repoint_freed_sources(log)
 
 
 def on_trash(doc, method=None):
@@ -125,46 +191,39 @@ def on_trash(doc, method=None):
 	log = _log_for(doc)
 	if not log:
 		return
-	for doctype, name in _reserved_sources(log):
-		frappe.db.set_value(doctype, name, "gl_posting", "", update_modified=False)
+	for doctype, name in _log_sources(log):
+		if frappe.db.get_value(doctype, name, "gl_posting") == log.name:
+			frappe.db.set_value(doctype, name, "gl_posting", "", update_modified=False)
 	log.db_set("status", "Cancelled")
 	log.db_set("posting_key", None)
 	log.db_set("remarks", _("Posting document deleted; sources freed."))
+	_repoint_freed_sources(log)
+
+
+def _repoint_freed_sources(log):
+	"""Sub-rental: the other side's posting may still hold a freed source —
+	point the display link back at that active log."""
+	for doctype, name in _log_sources(log):
+		if not frappe.db.get_value(doctype, name, "gl_posting"):
+			other = active_log_holding(doctype, name)
+			if other:
+				frappe.db.set_value(doctype, name, "gl_posting", other.name, update_modified=False)
 
 
 def block_source_cancel(doc, method=None):
-	"""4a: a source held by any active posting cannot be cancelled or amended."""
-	for field in ("purchase_invoice", "sales_invoice"):
-		if frappe.get_meta(doc.doctype).has_field(field) and doc.get(field):
-			frappe.throw(
-				_("{0} is linked to posting {1}; cancel that invoice first.").format(doc.name, doc.get(field))
-			)
-	if doc.get("gl_posting"):
-		log = frappe.db.get_value("GL Posting Log", doc.gl_posting, ["status", "posting_doc"], as_dict=True)
-		if log and log.status in ACTIVE_STATES:
-			frappe.throw(
-				_("{0} is reserved by draft posting {1}; delete that invoice first.").format(
-					doc.name, log.posting_doc
-				)
-			)
-	# Sub-rental: the single display link may point at the other side's log, so
-	# conservatively block while ANY active posting covers this document's
-	# party+period (the draft's scope is exactly that key).
-	month = doc.get("month") or (doc.get("date") and frappe.utils.getdate(doc.date).strftime("%m"))
-	year = doc.get("year") or (doc.get("date") and frappe.utils.getdate(doc.date).year)
-	if not (month and year):
+	"""4a: a source included in any active posting cannot be cancelled (and so
+	cannot be amended) until that posting is cancelled or its draft deleted."""
+	log = active_log_holding(doc.doctype, doc.name)
+	if not log:
 		return
-	keys = []
-	supplier = doc.get("supplier") or doc.get("transport_supplier")
-	if supplier:
-		keys.append(build_posting_key(doc.company, "Supplier", supplier, month, year, "Purchase Invoice"))
-	if doc.get("customer"):
-		keys.append(build_posting_key(doc.company, "Customer", doc.customer, month, year, "Sales Invoice"))
-	for key in keys:
-		log = frappe.db.get_value("GL Posting Log", {"posting_key": ["like", key + "%"]}, "posting_doc")
-		if log:
-			frappe.throw(
-				_("{0} falls inside active posting {1}; cancel or delete that invoice first.").format(
-					doc.name, log
-				)
+	if log.status == "Submitted":
+		frappe.throw(
+			_("{0} is included in submitted posting {1}; cancel that invoice first.").format(
+				doc.name, log.posting_doc
 			)
+		)
+	frappe.throw(
+		_("{0} is reserved by draft posting {1}; delete or rebuild that invoice first.").format(
+			doc.name, log.posting_doc
+		)
+	)

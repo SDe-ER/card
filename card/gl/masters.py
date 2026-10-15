@@ -58,33 +58,68 @@ def _ensure_item(code, name, group):
 	return code
 
 
+def _template_vat_head(template, child_dt):
+	"""The template's single VAT account head. Shape-asserted: exactly one
+	'On Net Total' row with rate > 0 and no 'Actual' rows (an Actual row is
+	copied verbatim onto the invoice regardless of the per-line overrides,
+	so it would silently corrupt the generated posting's VAT)."""
+	rows = frappe.get_all(
+		child_dt,
+		filters={
+			"parent": template,
+			"parenttype": child_dt.replace("Taxes and Charges", "Taxes and Charges Template"),
+		},
+		fields=["account_head", "rate", "charge_type"],
+	)
+	vat_rows = [d for d in rows if d.charge_type == "On Net Total" and flt(d.rate) > 0]
+	actual_rows = [d for d in rows if d.charge_type == "Actual"]
+	if len(vat_rows) != 1 or actual_rows:
+		frappe.throw(
+			_(
+				"Tax template {0} must carry exactly one 'On Net Total' VAT row and no 'Actual' rows (found {1} VAT row(s), {2} 'Actual' row(s)); fix the template before posting."
+			).format(template, len(vat_rows), len(actual_rows))
+		)
+	if not vat_rows[0].account_head:
+		frappe.throw(_("Tax template {0}: the VAT row has no account head.").format(template))
+	return vat_rows[0].account_head
+
+
 def vat_account_heads(row):
 	"""The VAT account heads of the company's purchase AND sales tax templates
-	(the On Net Total rows the per-line templates must override)."""
+	— one shape-asserted 'On Net Total' row each (the rows the per-line item
+	tax templates must override)."""
 	heads = set()
 	for template_field, child_dt in (
 		("purchase_tax_template", "Purchase Taxes and Charges"),
 		("sales_tax_template", "Sales Taxes and Charges"),
 	):
 		template = row.get(template_field)
-		if not template:
-			continue
-		for d in frappe.get_all(
-			child_dt,
-			filters={
-				"parent": template,
-				"parenttype": child_dt.replace("Taxes and Charges", "Taxes and Charges Template"),
-			},
-			fields=["account_head", "rate"],
-		):
-			if flt(d.rate) > 0 and d.account_head:
-				heads.add(d.account_head)
+		if template:
+			heads.add(_template_vat_head(template, child_dt))
 	return heads
+
+
+def _reconcile_item_tax_template(name, heads, rate):
+	"""A drifted template (the company's VAT account heads changed) is
+	re-pointed at the current heads instead of dead-ending every posting."""
+	expected = {head: flt(rate) for head in heads}
+	current = {
+		d.tax_type: flt(d.tax_rate)
+		for d in frappe.get_all(
+			"Item Tax Template Detail", filters={"parent": name}, fields=["tax_type", "tax_rate"]
+		)
+	}
+	if current == expected:
+		return
+	doc = frappe.get_doc("Item Tax Template", name)
+	doc.set("taxes", [{"tax_type": head, "tax_rate": rate} for head in sorted(heads)])
+	doc.save(ignore_permissions=True)
 
 
 def _ensure_item_tax_template(company, title, heads, rate):
 	existing = frappe.db.get_value("Item Tax Template", {"title": title, "company": company}, "name")
 	if existing:
+		_reconcile_item_tax_template(existing, heads, rate)
 		return existing
 	doc = frappe.get_doc(
 		{
@@ -120,18 +155,18 @@ def ensure_posting_masters(company):
 	heads = vat_account_heads(row)
 	abbr = _abbr(company)
 	if heads:
-		if not row.get("vat_item_tax_template"):
-			row.db_set(
-				"vat_item_tax_template",
-				_ensure_item_tax_template(company, f"CARD VAT 15% - {abbr}", heads, 15),
-				update_modified=False,
-			)
-		if not row.get("vat_zero_item_tax_template"):
-			row.db_set(
-				"vat_zero_item_tax_template",
-				_ensure_item_tax_template(company, f"CARD VAT 0% - {abbr}", heads, 0),
-				update_modified=False,
-			)
+		for fieldname, title, rate in (
+			("vat_item_tax_template", f"CARD VAT 15% - {abbr}", 15),
+			("vat_zero_item_tax_template", f"CARD VAT 0% - {abbr}", 0),
+		):
+			if not row.get(fieldname):
+				row.db_set(
+					fieldname,
+					_ensure_item_tax_template(company, title, heads, rate),
+					update_modified=False,
+				)
+			else:
+				_reconcile_item_tax_template(row.get(fieldname), heads, rate)
 
 	for t in settings.get("adjustment_types") or []:
 		if t.company != company or t.disabled:

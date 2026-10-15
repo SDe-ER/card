@@ -100,6 +100,7 @@ class _PostingBase(_CustomerCardsBase):
 		settings.set("adjustment_types", [])
 		for name, kind, account, taxable in (
 			("Mobilization", "إضافة", self.acc_mob, 1),
+			("MobilizationNT", "إضافة", self.acc_mob, 0),
 			("Penalty", "خصم", self.acc_pen, 1),
 			("DieselNT", "خصم", self.acc_dnt, 0),
 		):
@@ -111,6 +112,10 @@ class _PostingBase(_CustomerCardsBase):
 
 		frappe.db.set_single_value("Card Settings", "enable_accounting", 1)
 		frappe.db.set_single_value("Card Settings", "period_lock_date", None)
+		# self-contained: a previous suite leaves the seeded fixed-diesel policy
+		# behind on the site; the posting fixture bills its own test supplier
+		frappe.db.set_single_value("Card Settings", "diesel_supplier", "")
+		frappe.db.set_single_value("Card Settings", "diesel_supplier_policy", "متغير")
 		frappe.db.set_single_value("Buying Settings", "allow_multiple_items", 1)
 		frappe.db.set_single_value("Buying Settings", "allow_negative_rates_for_items", 1)
 		frappe.db.set_single_value("Selling Settings", "allow_negative_rates_for_items", 1)
@@ -119,6 +124,10 @@ class _PostingBase(_CustomerCardsBase):
 		frappe.db.set_single_value("Selling Settings", "validate_selling_price", 0)
 		frappe.db.set_single_value("Selling Settings", "so_required", "No")
 		frappe.db.set_single_value("Selling Settings", "dn_required", "No")
+		# dual-head CARD item tax templates: the copy-toggles would append the
+		# other side's VAT head onto generated invoices (preflight gates them)
+		frappe.db.set_single_value("Accounts Settings", "add_taxes_from_item_tax_template", 0)
+		frappe.db.set_single_value("Accounts Settings", "add_taxes_from_taxes_and_charges_template", 0)
 		frappe.clear_cache(doctype="Card Settings")
 
 	def _vat_supplier(self):
@@ -422,6 +431,186 @@ class TestCustomerMirror(_PostingBase):
 		self.assertEqual(adj.income_account, self.acc_mob)
 
 
+class TestSubRentalDualSide(_PostingBase):
+	"""Review CRITICAL #1: one card billed on BOTH sides keeps each side's
+	lifecycle independent — the log's sources table drives submit/cancel, so
+	neither side can double-post or free the other side's reservation."""
+
+	def _dual(self):
+		eq = self._sub_rental()  # supplier 75/h, customer 120/h
+		card = self._card(eq, [8, 8], submit=True)  # 1,200 / 1,920
+		pi = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		si = build_monthly_posting(self.company, "Customer", self.customer, 9, 2026)
+		return card, pi, si
+
+	def test_customer_build_not_blocked_by_supplier_hold(self):
+		eq = self._sub_rental()
+		self._card(eq, [8, 8], submit=True)
+		build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		si_name = build_monthly_posting(self.company, "Customer", self.customer, 9, 2026)
+		si = frappe.get_doc("Sales Invoice", si_name)
+		self.assertEqual(len(si.items), 1)
+		self.assertEqual(flt(si.items[0].rate, 2), 1920.0)
+
+	def test_both_sides_submit_write_both_links(self):
+		card, pi_name, si_name = self._dual()
+		frappe.get_doc("Purchase Invoice", pi_name).submit()
+		frappe.get_doc("Sales Invoice", si_name).submit()
+		card.reload()
+		self.assertEqual(card.purchase_invoice, pi_name)
+		self.assertEqual(card.sales_invoice, si_name)
+		self.assertEqual(card.posted, 1)
+		for doctype, inv in (("Purchase Invoice", pi_name), ("Sales Invoice", si_name)):
+			log = frappe.db.get_value(
+				"GL Posting Log",
+				{"posting_doc": inv, "posting_doctype": doctype},
+				["status", "sequence"],
+				as_dict=True,
+			)
+			self.assertEqual(log.status, "Submitted")
+			self.assertEqual(log.sequence, 1)
+
+	def test_cancel_one_side_frees_only_that_side(self):
+		card, pi_name, si_name = self._dual()
+		pi = frappe.get_doc("Purchase Invoice", pi_name)
+		pi.submit()
+		si = frappe.get_doc("Sales Invoice", si_name)
+		si.submit()
+		pi.reload()
+		pi.cancel()
+		card.reload()
+		self.assertFalse(card.purchase_invoice)
+		self.assertEqual(card.sales_invoice, si_name)
+		self.assertEqual(card.posted, 1)  # the customer side is still posted
+		with self.assertRaises(frappe.ValidationError):
+			card.cancel()  # still held by the submitted SI
+		si.reload()
+		si.cancel()
+		card.reload()
+		self.assertFalse(card.sales_invoice)
+		self.assertEqual(card.posted, 0)
+		card.cancel()  # both sides freed -> allowed
+		self.assertEqual(card.docstatus, 2)
+
+	def test_draft_delete_one_side_keeps_other_side_hold_and_display(self):
+		card, pi_name, si_name = self._dual()
+		frappe.delete_doc("Purchase Invoice", pi_name, ignore_permissions=True)
+		with self.assertRaises(frappe.ValidationError):
+			card.cancel()  # the customer draft still holds the card
+		gl_link = frappe.db.get_value("Card Monthly Card", card.name, "gl_posting")
+		self.assertEqual(
+			frappe.db.get_value("GL Posting Log", gl_link, "posting_doc"), si_name
+		)  # display repointed at the surviving active log
+
+
+class TestReviewGuards(_PostingBase):
+	"""Review #3/#6/#7/#8/#11 + P1 regression tests."""
+
+	def test_amended_posting_blocked(self):
+		self._example_card()
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi = frappe.get_doc("Purchase Invoice", pi_name)
+		pi.submit()
+		pi.reload()
+		pi.cancel()
+		amended = frappe.copy_doc(pi)
+		amended.docstatus = 0
+		amended.amended_from = pi.name
+		with self.assertRaises(frappe.ValidationError):
+			amended.insert(ignore_permissions=True)
+
+	def test_gl_rows_not_merged_across_equipment(self):
+		card1 = self._card(self._equipment(), [8], submit=True)  # 600
+		card2 = self._card(self._equipment(), [4], submit=True)  # 300
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		frappe.get_doc("Purchase Invoice", pi_name).submit()
+		gl = frappe.get_all(
+			"GL Entry",
+			filters={"voucher_no": pi_name, "account": self.exp_rental, "is_cancelled": 0},
+			fields=["debit", "card_equipment"],
+		)
+		self.assertEqual(len(gl), 2)  # same account, distinct dimension -> NOT merged
+		by_eq = {g.card_equipment: flt(g.debit, 2) for g in gl}
+		self.assertEqual(by_eq[card1.equipment], 600.0)
+		self.assertEqual(by_eq[card2.equipment], 300.0)
+
+	def test_vat_supplier_without_purchase_template_throws(self):
+		self._vat_supplier()
+		self._example_card()
+		settings = frappe.get_doc("Card Settings")
+		row = next(r for r in settings.company_settings if r.company == self.company)
+		row.db_set("purchase_tax_template", "", update_modified=False)
+		frappe.clear_cache(doctype="Card Settings")
+		with self.assertRaises(frappe.ValidationError):
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+
+	def test_vat_pi_requires_bill_no_on_submit(self):
+		self._vat_supplier()
+		self._example_card()
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi = frappe.get_doc("Purchase Invoice", pi_name)
+		with self.assertRaises(frappe.ValidationError):
+			pi.submit()
+		pi.reload()
+		pi.bill_no = "BILL-" + self.token
+		pi.bill_date = pi.posting_date
+		pi.submit()
+		self.assertEqual(pi.docstatus, 1)
+
+	def test_submit_reverifies_source_docstatus(self):
+		_eq, card = self._example_card()
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		# simulate an out-of-band cancel that slipped past the hooks
+		frappe.db.set_value("Card Monthly Card", card.name, "docstatus", 2, update_modified=False)
+		pi = frappe.get_doc("Purchase Invoice", pi_name)
+		with self.assertRaises(frappe.ValidationError):
+			pi.submit()
+
+	def test_si_zero_rated_addition_with_discount_refused(self):
+		eq = self._rented_out(customer_rate=1000)
+		self._card(
+			eq,
+			[8, 8],
+			adjustments=[
+				{
+					"adjustment_type_ref": "MobilizationNT",
+					"side": "Customer",
+					"description": "nt-add",
+					"amount": 100,
+				},
+				{"adjustment_type_ref": "Penalty", "side": "Customer", "description": "p", "amount": 200},
+			],
+			submit=True,
+		)
+		with self.assertRaises(frappe.ValidationError):
+			build_monthly_posting(self.company, "Customer", self.customer, 9, 2026)
+
+	def test_second_supplementary_wave_rebuilds_draft(self):
+		from card.gl.posting import rebuild_monthly_posting
+
+		self._card(self._equipment(), [8], submit=True)
+		first = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		frappe.get_doc("Purchase Invoice", first).submit()
+		late1 = self._card(self._equipment(), [4], submit=True)
+		second = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		late2 = self._card(self._equipment(), [2], submit=True)
+		try:
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+			self.fail("a draft supplementary posting must block a third build")
+		except frappe.ValidationError as e:
+			self.assertIn(second, str(e))
+		rebuilt = rebuild_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi = frappe.get_doc("Purchase Invoice", rebuilt)
+		descriptions = " | ".join(i.description for i in pi.items)
+		self.assertIn(late1.name, descriptions)
+		self.assertIn(late2.name, descriptions)
+		self.assertEqual(len(pi.items), 2)  # the submitted primary's card stays out
+		self.assertEqual(
+			frappe.db.get_value("GL Posting Log", {"posting_doc": rebuilt, "status": "Draft"}, "sequence"),
+			2,
+		)
+
+
 class TestBaselineUntouched(IntegrationTestCase):
 	def test_accounting_disabled_blocks_builder(self):
 		frappe.db.set_single_value("Card Settings", "enable_accounting", 0)
@@ -492,12 +681,27 @@ class TestLateSources(_PostingBase):
 			self.fail("a draft posting must block a second build")
 		except frappe.ValidationError as e:
 			self.assertIn(first, str(e))
-		rebuilt = rebuild_monthly_posting(
-			self.company, "Supplier", self.supplier, 9, 2026
+		rebuilt = rebuild_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		# The old draft is deleted and frappe reverts the naming-series counter
+		# for the latest name, so the new draft may legitimately REUSE the old
+		# name — identity is checked through the logs, not the invoice name.
+		logs = frappe.get_all(
+			"GL Posting Log",
+			filters={
+				"company": self.company,
+				"party_type": "Supplier",
+				"party": self.supplier,
+				"month": "09",
+				"year": 2026,
+				"posting_type": "Purchase Invoice",
+			},
+			fields=["status", "posting_doc"],
 		)
-		self.assertNotEqual(rebuilt, first)
-		self.assertFalse(frappe.db.exists("Purchase Invoice", first))
+		self.assertEqual(sorted(log.status for log in logs), ["Cancelled", "Draft"])
+		active = next(log for log in logs if log.status == "Draft")
+		self.assertEqual(active.posting_doc, rebuilt)
 		pi = frappe.get_doc("Purchase Invoice", rebuilt)
+		self.assertEqual(pi.docstatus, 0)
 		descriptions = " | ".join(i.description for i in pi.items)
 		self.assertIn(late.name, descriptions)
 		self.assertEqual(len(pi.items), 2)

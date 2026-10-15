@@ -58,11 +58,11 @@ def check_period_open(company, posting_date, doctype):
 	posting_date = getdate(posting_date)
 
 	# 1) fiscal year exists and is not disabled
-	from erpnext.accounts.utils import get_fiscal_year
+	from erpnext.accounts.utils import FiscalYearError, get_fiscal_year
 
 	try:
 		fy = get_fiscal_year(posting_date, company=company, as_dict=True)
-	except Exception:
+	except FiscalYearError:
 		frappe.throw(
 			_("No fiscal year covers {0} for company {1}; create it before posting.").format(
 				posting_date, company
@@ -154,10 +154,34 @@ def check_invoice_settings(party_type):
 				)
 
 
+def _configured_posting_items(row):
+	"""Every item the builder can put on a generated invoice line."""
+	items = {
+		row.get(f) for f in ("rental_item", "diesel_item", "transport_item", "rental_out_item") if row.get(f)
+	}
+	settings = frappe.get_doc("Card Settings")
+	for t in settings.get("adjustment_types") or []:
+		if t.company == row.company and t.item:
+			items.add(t.item)
+	return items
+
+
 def check_template_mapping(row):
 	"""The per-line VAT override only works while the templates still point at
-	the live VAT account heads AND the adjustment items carry no item-level
-	taxes (else the engine silently swaps the row template)."""
+	the live VAT account heads AND the posting items carry no item-level
+	taxes (else the engine silently swaps the row template). vat_account_heads
+	also shape-asserts each tax template: exactly one 'On Net Total' VAT row,
+	no 'Actual' rows."""
+	# Accounts Settings copy-toggles would ADD tax rows from the dual-head
+	# item tax templates (e.g. the sales VAT head onto a purchase invoice).
+	accounts_meta = frappe.get_meta("Accounts Settings")
+	for toggle in ("add_taxes_from_item_tax_template", "add_taxes_from_taxes_and_charges_template"):
+		if accounts_meta.has_field(toggle) and frappe.db.get_single_value("Accounts Settings", toggle):
+			frappe.throw(
+				_(
+					"Accounts Settings option {0} must be off: it would copy extra tax rows onto the generated postings."
+				).format(_(accounts_meta.get_label(toggle)))
+			)
 	heads = vat_account_heads(row)
 	for fieldname, expected_rate in (("vat_item_tax_template", 15), ("vat_zero_item_tax_template", 0)):
 		template = row.get(fieldname)
@@ -179,12 +203,24 @@ def check_template_mapping(row):
 				frappe.throw(
 					_("Item tax template {0} must carry a flat {1}% rate.").format(template, expected_rate)
 				)
-	tainted = frappe.get_all(
-		"Item Tax",
-		filters={"parenttype": "Item", "parent": ["like", "CARD-%"]},
-		pluck="parent",
-		limit=1,
+	configured = _configured_posting_items(row)
+	tainted = (
+		frappe.get_all(
+			"Item Tax",
+			filters={"parenttype": "Item", "parent": ["in", sorted(configured)]},
+			pluck="parent",
+			limit=1,
+		)
+		if configured
+		else []
 	)
+	if not tainted:
+		tainted = frappe.get_all(
+			"Item Tax",
+			filters={"parenttype": "Item", "parent": ["like", "CARD-%"]},
+			pluck="parent",
+			limit=1,
+		)
 	if tainted:
 		frappe.throw(
 			_(

@@ -24,10 +24,11 @@ import frappe
 from frappe import _
 from frappe.utils import flt, getdate
 
-from card.card.doctype.gl_posting_log.gl_posting_log import build_posting_key
+from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
 from card.diesel import UNALLOCATED, allocate_project_diesel
 from card.gl import preflight
+from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters
 from card.settings import setting
 
@@ -41,6 +42,33 @@ def _month_bounds(month, year):
 
 def _dimension_field_available(doctype):
 	return frappe.get_meta(doctype).has_field("card_equipment")
+
+
+def _held_by_active_log(doctype, names, posting_type):
+	"""Sources already included in an ACTIVE (Draft/Submitted) posting of the
+	same type. The side's invoice link appears only on submit, so GL Posting
+	Source membership is the check that also covers drafts."""
+	if not names:
+		return set()
+	held = set()
+	for row in frappe.get_all(
+		"GL Posting Source",
+		filters={
+			"parenttype": "GL Posting Log",
+			"source_doctype": doctype,
+			"source_name": ["in", names],
+		},
+		fields=["source_name", "parent"],
+	):
+		log = frappe.db.get_value("GL Posting Log", row.parent, ["status", "posting_type"], as_dict=True)
+		if log and log.status in ACTIVE_STATES and log.posting_type == posting_type:
+			held.add(row.source_name)
+	return held
+
+
+def _exclude_held(rows, doctype, posting_type):
+	held = _held_by_active_log(doctype, [r.name for r in rows], posting_type)
+	return [r for r in rows if r.name not in held]
 
 
 def _types_map(company):
@@ -246,10 +274,17 @@ def build_monthly_posting(company, party_type, party, month, year):
 			row, ["equipment_rental_income_account", "receivable_account", "cost_center"]
 		)
 
-	base_key = build_posting_key(company, party_type, party, month, year, posting_doctype)
 	actives = frappe.get_all(
 		"GL Posting Log",
-		filters={"posting_key": ["like", base_key + "%"]},
+		filters={
+			"company": company,
+			"party_type": party_type,
+			"party": party,
+			"month": "%02d" % int(month),
+			"year": int(year),
+			"posting_type": posting_doctype,
+			"status": ["in", list(ACTIVE_STATES)],
+		},
 		fields=["name", "posting_doc", "sequence"],
 		order_by="sequence asc",
 	)
@@ -272,10 +307,13 @@ def build_monthly_posting(company, party_type, party, month, year):
 	sources = {"Card Monthly Card": [], "Project Diesel Fill": [], "Equipment Transport": []}
 	if party_type == "Supplier":
 		cards, fills, transports = _supplier_sources(company, party, first_day, last_day, month, year)
+		cards = _exclude_held(cards, "Card Monthly Card", posting_doctype)
+		fills = _exclude_held(fills, "Project Diesel Fill", posting_doctype)
+		transports = _exclude_held(transports, "Equipment Transport", posting_doctype)
 		for c in cards:
 			card, card_lines, _discount = _card_lines(c.name, "Supplier", row, types, has_dim)
 			lines.extend(card_lines)
-			sources["Card Monthly Card"].append(card.name)
+			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
 			for equipment, amount in _split_fill_by_allocation(fill, int(month), int(year)):
 				lines.append(
@@ -289,7 +327,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 						"description": _("Diesel fill {0} — {1} L").format(fill.name, fill.litres),
 					}
 				)
-			sources["Project Diesel Fill"].append(fill.name)
+			sources["Project Diesel Fill"].append((fill.name, flt(fill.amount, 2)))
 		for t in transports:
 			lines.append(
 				{
@@ -304,13 +342,25 @@ def build_monthly_posting(company, party_type, party, month, year):
 					),
 				}
 			)
-			sources["Equipment Transport"].append(t.name)
+			sources["Equipment Transport"].append((t.name, flt(t.amount, 2)))
 	else:
-		for c in _customer_cards(company, party, month, year):
+		customer_cards = _exclude_held(
+			_customer_cards(company, party, month, year), "Card Monthly Card", posting_doctype
+		)
+		for c in customer_cards:
 			card, card_lines, discount = _card_lines(c.name, "Customer", row, types, has_dim)
 			lines.extend(card_lines)
 			total_discount = flt(total_discount + discount, 2)
-			sources["Card Monthly Card"].append(card.name)
+			sources["Card Monthly Card"].append((card.name, flt(card.customer_net_amount, 2)))
+		if total_discount and any(not line["taxable"] for line in lines):
+			# A Net Total discount is apportioned across ALL lines, so a
+			# zero-rated line would absorb part of a fully-taxable deduction
+			# and shift the VAT base (ZATCA). Refuse the mix.
+			frappe.throw(
+				_(
+					"Customer {0} has both a zero-rated addition line and a deduction discount in {1}/{2}; the discount would shift the VAT base across the zero-rated line. Post them in separate months or ask the owner."
+				).format(party, month, year)
+			)
 
 	if not lines:
 		frappe.throw(
@@ -323,6 +373,12 @@ def build_monthly_posting(company, party_type, party, month, year):
 	if party_type == "Supplier":
 		vat_registered = bool(frappe.db.get_value("Supplier", party, "tax_id"))
 		tax_template = row.purchase_tax_template if vat_registered else None
+		if vat_registered and not tax_template:
+			frappe.throw(
+				_(
+					"Supplier {0} is VAT-registered (tax ID set) but Card Settings for company {1} has no Purchase tax template; posting would silently drop the VAT."
+				).format(party, company)
+			)
 	else:
 		vat_registered = True  # owned rental revenue is always 15% ZATCA per the design
 		tax_template = row.sales_tax_template
@@ -342,7 +398,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 
 	total = flt(sum(flt(line["rate"], 2) for line in lines) - total_discount, 2)
 	if total < 0:
-		offenders = ", ".join(sorted(set(sources["Card Monthly Card"]))) or party
+		offenders = ", ".join(sorted({name for name, _amt in sources["Card Monthly Card"]})) or party
 		frappe.throw(
 			_(
 				"The monthly total for {0} {1} is negative ({2}); deductions exceed the dues. Resolve the cards ({3}) or ask the owner how to carry the balance."
@@ -426,21 +482,19 @@ def build_monthly_posting(company, party_type, party, month, year):
 			"amount": flt(inv.grand_total, 2),
 		}
 	)
+	# The sources child table is the AUTHORITATIVE reservation list; the
+	# lifecycle handlers (card/gl/events.py) iterate it on submit/cancel/trash.
+	for doctype, rows in sources.items():
+		for name, amount in rows:
+			log.append("sources", {"source_doctype": doctype, "source_name": name, "amount": amount})
 	log.insert(ignore_permissions=True)
 
-	# Reservation = gl_posting -> the LOG row (never the invoice itself: a
+	# gl_posting on the source is DISPLAY-ONLY (never the invoice itself: a
 	# backlink from a submitted source would block cancelling the invoice).
 	# The invoice link fields are written only on submit (card/gl/events.py).
-	for doctype, names in sources.items():
-		for name in names:
-			current = frappe.db.get_value(doctype, name, "gl_posting")
-			if current and current != log.name:
-				status = frappe.db.get_value("GL Posting Log", current, "status")
-				if status in ("Draft", "Submitted"):
-					# sub-rental: the other side's hold stays visible; this
-					# posting is still tracked through its own log row
-					continue
-			frappe.db.set_value(doctype, name, "gl_posting", log.name, update_modified=False)
+	for doctype, rows in sources.items():
+		for name, _amount in rows:
+			_point_display(doctype, name, log.name)
 
 	return inv.name
 
@@ -450,10 +504,17 @@ def rebuild_monthly_posting(company, party_type, party, month, year):
 	are freed by card.gl.events.on_trash) and build the month again so the new
 	draft includes every unposted submitted document."""
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
-	base_key = build_posting_key(company, party_type, party, month, year, posting_doctype)
 	for active in frappe.get_all(
 		"GL Posting Log",
-		filters={"posting_key": ["like", base_key + "%"]},
+		filters={
+			"company": company,
+			"party_type": party_type,
+			"party": party,
+			"month": "%02d" % int(month),
+			"year": int(year),
+			"posting_type": posting_doctype,
+			"status": "Draft",
+		},
 		fields=["posting_doc"],
 	):
 		if frappe.db.get_value(posting_doctype, active.posting_doc, "docstatus") == 0:
@@ -461,25 +522,33 @@ def rebuild_monthly_posting(company, party_type, party, month, year):
 	return build_monthly_posting(company, party_type, party, month, year)
 
 
-@frappe.whitelist()
+def _checked_endpoint_args(party_type, month, year):
+	"""Shared gate for the whitelisted entry points: role, party type, period."""
+	if not ({"Card Manager", "System Manager"} & set(frappe.get_roles())):
+		frappe.throw(
+			_("Only Card Manager or System Manager may build monthly postings."), frappe.PermissionError
+		)
+	if party_type not in ("Supplier", "Customer"):
+		frappe.throw(_("Party type must be Supplier or Customer."))
+	try:
+		month = int(month)
+		year = int(year)
+	except (TypeError, ValueError):
+		frappe.throw(_("Month and year must be numbers."))
+	if not 1 <= month <= 12:
+		frappe.throw(_("Month must be between 1 and 12."))
+	return month, year
+
+
+@frappe.whitelist(methods=["POST"])
 def rebuild_month(company: str, party_type: str, party: str, month: str, year: str):
 	"""Desk entry point for rebuilding a draft posting after late documents."""
-	if not ({"Card Manager", "System Manager"} & set(frappe.get_roles())):
-		frappe.throw(
-			_("Only Card Manager or System Manager may build monthly postings."), frappe.PermissionError
-		)
-	if party_type not in ("Supplier", "Customer"):
-		frappe.throw(_("Party type must be Supplier or Customer."))
-	return rebuild_monthly_posting(company, party_type, party, int(month), int(year))
+	month, year = _checked_endpoint_args(party_type, month, year)
+	return rebuild_monthly_posting(company, party_type, party, month, year)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def post_month(company: str, party_type: str, party: str, month: str, year: str):
 	"""Desk entry point (S4 wires the button). Card Manager / System Manager only."""
-	if not ({"Card Manager", "System Manager"} & set(frappe.get_roles())):
-		frappe.throw(
-			_("Only Card Manager or System Manager may build monthly postings."), frappe.PermissionError
-		)
-	if party_type not in ("Supplier", "Customer"):
-		frappe.throw(_("Party type must be Supplier or Customer."))
-	return build_monthly_posting(company, party_type, party, int(month), int(year))
+	month, year = _checked_endpoint_args(party_type, month, year)
+	return build_monthly_posting(company, party_type, party, month, year)
