@@ -30,6 +30,37 @@ def _ensure_masters():
 		).insert(ignore_permissions=True)
 		company = "Test Equipment Co"
 
+	# S3 posting preflights need an ACTIVE fiscal year covering the fixed test
+	# year (2026); a clean CI site has none for the test company.
+	from erpnext.accounts.utils import FiscalYearError, get_fiscal_year
+
+	probe = "2026-09-30"
+	try:
+		get_fiscal_year(probe, company=company)
+	except FiscalYearError:
+		existing = frappe.db.get_value(
+			"Fiscal Year",
+			{"year_start_date": ["<=", probe], "year_end_date": [">=", probe]},
+			"name",
+		)
+		if existing:
+			fy = frappe.get_doc("Fiscal Year", existing)
+			if fy.disabled:
+				fy.db_set("disabled", 0)
+			if fy.get("companies") and company not in [c.company for c in fy.companies]:
+				fy.append("companies", {"company": company})
+				fy.save(ignore_permissions=True)
+		else:
+			frappe.get_doc(
+				{
+					"doctype": "Fiscal Year",
+					"year": "CARD TEST 2026",
+					"year_start_date": "2026-01-01",
+					"year_end_date": "2026-12-31",
+				}
+			).insert(ignore_permissions=True)
+		frappe.cache().delete_value("fiscal_years")
+
 	category = "Test Category"
 	if not frappe.db.exists("Card Equipment Category", category):
 		frappe.get_doc({"doctype": "Card Equipment Category", "category_name": category}).insert(
