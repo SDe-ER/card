@@ -158,7 +158,10 @@ class TestCompanyConsistency(IntegrationTestCase):
 		)
 		self.assertTrue(cash_other, "the scratch company has no Cash account")
 		settings = frappe.get_doc("Card Settings")
-		row = next(r for r in settings.company_settings if r.company == self._m["company"])
+		# a clean CI site has no seeded company rows; the check is per-row anyway
+		row = next((r for r in settings.company_settings if r.company == self._m["company"]), None)
+		if row is None:
+			row = settings.append("company_settings", {"company": self._m["company"]})
 		row.bank_cash_account = cash_other  # other company's account on TEC's row
 		with self.assertRaises(frappe.ValidationError):
 			settings.save(ignore_permissions=True)
