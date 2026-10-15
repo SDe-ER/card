@@ -540,7 +540,7 @@ def _append_card_to_user_layouts():
 		raw = frappe.db.get_value("Desktop Layout", name, "layout")
 		try:
 			items = json.loads(raw) if raw else []
-		except (ValueError, TypeError):
+		except ValueError, TypeError:
 			continue
 		if not isinstance(items, list):
 			continue

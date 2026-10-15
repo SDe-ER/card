@@ -52,6 +52,6 @@ def setting(fieldname):
 	if isinstance(default, (int, float)):
 		try:
 			return float(val)
-		except (TypeError, ValueError):
+		except TypeError, ValueError:
 			return default
 	return val
