@@ -83,10 +83,32 @@ def _ensure_masters():
 				}
 			).insert(ignore_permissions=True)
 
+	# Customer-side tree masters: a clean CI site may lack even the ERPNext
+	# roots, and the customer tests only look up / create LEAVES (their _leaf
+	# helper assumes the root exists).
+	for doctype, root, name_field, leaf in (
+		("Customer Group", "All Customer Groups", "customer_group_name", "Test Customer Group"),
+		("Territory", "All Territories", "territory_name", "Test Territory"),
+	):
+		if not frappe.db.exists(doctype, root):
+			frappe.get_doc({"doctype": doctype, name_field: root, "is_group": 1}).insert(
+				ignore_permissions=True
+			)
+		if not frappe.db.get_value(doctype, {"is_group": 0}, "name") and not frappe.db.exists(doctype, leaf):
+			frappe.get_doc(
+				{
+					"doctype": doctype,
+					name_field: leaf,
+					"parent_" + frappe.scrub(doctype): root,
+					"is_group": 0,
+				}
+			).insert(ignore_permissions=True)
+
 	# NOTE: do NOT frappe.db.commit() here. setUpClass data lives before the
 	# per-test savepoint, so it stays visible to the class's tests and is rolled
-	# back at class teardown. A commit would flush stray data onto a seeded site
-	# (v11-dev), corrupting the baseline — see the DSL/default_daily_hours leak.
+	# back at class teardown (card.install.before_tests is the committed-once
+	# path for clean CI sites). A commit HERE would flush stray data onto a
+	# seeded site (v11-dev) mid-suite — see the DSL/default_daily_hours leak.
 	return {
 		"company": company,
 		"category": category,
