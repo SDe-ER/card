@@ -335,6 +335,8 @@ def build_monthly_posting(company, party_type, party, month, year):
 	inv.posting_date = last_day
 	inv.update_stock = 0
 	inv.ignore_pricing_rule = 1
+	# halala-exact postings: no rounded_total / Round Off entry on generated invoices
+	inv.disable_rounded_total = 1
 	if party_type == "Supplier":
 		inv.supplier = party
 		inv.credit_to = row.payable_account
