@@ -16,6 +16,10 @@ def _ensure_masters():
 	if not frappe.db.exists("Warehouse Type", "Transit"):
 		frappe.get_doc({"doctype": "Warehouse Type", "name": "Transit"}).insert(ignore_permissions=True)
 
+	# the S3 posting items/lines use the ERPNext default UOM, also absent there
+	if not frappe.db.exists("UOM", "Nos"):
+		frappe.get_doc({"doctype": "UOM", "uom_name": "Nos"}).insert(ignore_permissions=True)
+
 	company = frappe.get_all("Company", pluck="name", limit=1)
 	company = company[0] if company else None
 	if not company:
