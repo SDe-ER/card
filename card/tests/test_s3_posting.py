@@ -296,7 +296,7 @@ class TestLifecycleGuards(_PostingBase):
 			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 
 	def test_source_cancel_blocked_then_freed_by_draft_delete(self):
-		eq, card = self._example_card()
+		_eq, card = self._example_card()
 		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		with self.assertRaises(frappe.ValidationError):
 			card.cancel()
@@ -308,7 +308,7 @@ class TestLifecycleGuards(_PostingBase):
 
 	def test_cancel_frees_sources_and_allows_repost(self):
 		self._vat_supplier()
-		eq, card = self._example_card()
+		_eq, card = self._example_card()
 		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		pi = frappe.get_doc("Purchase Invoice", pi_name)
 		pi.bill_no = "B1"
