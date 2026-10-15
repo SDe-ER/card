@@ -16,6 +16,10 @@ def _ensure_masters():
 	if not frappe.db.exists("Warehouse Type", "Transit"):
 		frappe.get_doc({"doctype": "Warehouse Type", "name": "Transit"}).insert(ignore_permissions=True)
 
+	# the S3 posting items/lines use the ERPNext default UOM, also absent there
+	if not frappe.db.exists("UOM", "Nos"):
+		frappe.get_doc({"doctype": "UOM", "uom_name": "Nos"}).insert(ignore_permissions=True)
+
 	company = frappe.get_all("Company", pluck="name", limit=1)
 	company = company[0] if company else None
 	if not company:
@@ -29,6 +33,37 @@ def _ensure_masters():
 			}
 		).insert(ignore_permissions=True)
 		company = "Test Equipment Co"
+
+	# S3 posting preflights need an ACTIVE fiscal year covering the fixed test
+	# year (2026); a clean CI site has none for the test company.
+	from erpnext.accounts.utils import FiscalYearError, get_fiscal_year
+
+	probe = "2026-09-30"
+	try:
+		get_fiscal_year(probe, company=company)
+	except FiscalYearError:
+		existing = frappe.db.get_value(
+			"Fiscal Year",
+			{"year_start_date": ["<=", probe], "year_end_date": [">=", probe]},
+			"name",
+		)
+		if existing:
+			fy = frappe.get_doc("Fiscal Year", existing)
+			if fy.disabled:
+				fy.db_set("disabled", 0)
+			if fy.get("companies") and company not in [c.company for c in fy.companies]:
+				fy.append("companies", {"company": company})
+				fy.save(ignore_permissions=True)
+		else:
+			frappe.get_doc(
+				{
+					"doctype": "Fiscal Year",
+					"year": "CARD TEST 2026",
+					"year_start_date": "2026-01-01",
+					"year_end_date": "2026-12-31",
+				}
+			).insert(ignore_permissions=True)
+		frappe.cache().delete_value("fiscal_years")
 
 	category = "Test Category"
 	if not frappe.db.exists("Card Equipment Category", category):
@@ -89,11 +124,16 @@ def _ensure_masters():
 	for doctype, root, name_field, leaf in (
 		("Customer Group", "All Customer Groups", "customer_group_name", "Test Customer Group"),
 		("Territory", "All Territories", "territory_name", "Test Territory"),
+		# S3 masters create their own Item Group leaves (Card Services/Adjustments);
+		# only the ERPNext root must exist on a clean CI site (leaf=None skips it).
+		("Item Group", "All Item Groups", "item_group_name", None),
 	):
 		if not frappe.db.exists(doctype, root):
 			frappe.get_doc({"doctype": doctype, name_field: root, "is_group": 1}).insert(
 				ignore_permissions=True
 			)
+		if not leaf:
+			continue
 		if not frappe.db.get_value(doctype, {"is_group": 0}, "name") and not frappe.db.exists(doctype, leaf):
 			frappe.get_doc(
 				{

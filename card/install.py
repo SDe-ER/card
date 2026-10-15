@@ -127,10 +127,16 @@ def before_tests():
 	test class erases them for every later class (Supplier inserts then fail
 	link validation on "Test Supplier Group"). A seeded site already has all
 	of these, so this is a no-op there."""
+	from card.dimension import ensure_card_equipment_dimension
 	from card.tests.test_controllers import _ensure_masters
 
 	frappe.clear_cache()
 	_ensure_masters()
+	# S3 posting is fail-closed on the Card Equipment accounting dimension
+	# (preflight.require_equipment_dimension), so a clean test site must get it
+	# here — the committed bootstrap is the only automated caller (its ALTER
+	# TABLEs must never run inside a test transaction).
+	ensure_card_equipment_dimension()
 	# Test-bootstrap context, outside any test transaction by design.
 	frappe.db.commit()  # nosemgrep
 

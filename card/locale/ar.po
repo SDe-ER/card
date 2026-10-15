@@ -1752,3 +1752,213 @@ msgstr "ملخص موردي المعدات — الفترة من {0} إلى {1}.
 
 msgid "Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
 msgstr "تشغيل المعدات الملك حسب المشروع — الفترة من {0} إلى {1} — الساعات فقط لحين تحديد الأسعار الداخلية."
+
+msgid "Addition/Deduction Types"
+msgstr "أنواع الإضافات والخصومات"
+
+msgid "Adjustment type"
+msgstr "نوع الإضافة/الخصم"
+
+msgid "Side"
+msgstr "الجانب"
+
+msgid "Customer net amount"
+msgstr "صافي جانب العميل"
+
+msgid "VAT 15% item tax template"
+msgstr "قالب ضريبة الصنف 15%"
+
+msgid "VAT 0% item tax template"
+msgstr "قالب ضريبة الصنف 0%"
+
+msgid "Duplicate addition/deduction type {0} for company {1}."
+msgstr "نوع إضافة/خصم مكرر {0} للشركة {1}."
+
+msgid "Account {0} does not exist."
+msgstr "الحساب {0} غير موجود."
+
+msgid "Account {0} is a group; pick a leaf account for type {1}."
+msgstr "الحساب {0} مجموعة؛ اختر حساباً فرعياً للنوع {1}."
+
+msgid "Account {0} is disabled; pick an active account for type {1}."
+msgstr "الحساب {0} معطّل؛ اختر حساباً فعالاً للنوع {1}."
+
+msgid "Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings."
+msgstr "نوع الإضافة/الخصم {0} غير معرّف (أو معطّل) للشركة {1} في إعدادات كارت."
+
+msgid "Sub-rental cards bill both parties; choose the side (Supplier/Customer) for the addition/deduction {0}."
+msgstr "كروت إيجار الباطن تُفوتر للطرفين؛ حدد الجانب (مورد/عميل) للإضافة/الخصم {0}."
+
+msgid "The card has no customer; a customer-side addition/deduction needs one: {0}."
+msgstr "الكارت بلا عميل؛ الإضافة/الخصم على جانب العميل تحتاج عميلاً: {0}."
+
+msgid "The card has no supplier; a supplier-side addition/deduction needs one: {0}."
+msgstr "الكارت بلا مورد؛ الإضافة/الخصم على جانب المورد تحتاج مورداً: {0}."
+
+msgid "Configure Card Settings for company {0}: {1} is not set."
+msgstr "قم بإعداد إعدادات كارت للشركة {0}: ‏{1} غير محدد."
+
+msgid "Accounting posting is disabled; enable it in Card Settings first."
+msgstr "الترحيل المحاسبي معطّل؛ فعّله من إعدادات كارت أولاً."
+
+msgid "{0} {1} ({2}) must be an active leaf record of company {3}."
+msgstr "{0} {1} ({2}) يجب أن يكون سجلاً فرعياً فعالاً للشركة {3}."
+
+msgid "No fiscal year covers {0} for company {1}; create it before posting."
+msgstr "لا توجد سنة مالية تغطي {0} للشركة {1}؛ أنشئها قبل الترحيل."
+
+msgid "Fiscal year {0} is disabled; nothing can be posted into it."
+msgstr "السنة المالية {0} معطّلة؛ لا يمكن الترحيل فيها."
+
+msgid "Accounting period {0} is closed for {1}; choose another posting date."
+msgstr "الفترة المحاسبية {0} مقفلة لـ{1}؛ اختر تاريخ ترحيل آخر."
+
+msgid "Books are frozen up to {0} for company {1}; the posting date {2} is inside the frozen period."
+msgstr "الدفاتر مجمّدة حتى {0} للشركة {1}؛ تاريخ الترحيل {2} داخل فترة التجميد."
+
+msgid "Card period lock: {0} is on or before the lock date {1}; posting is blocked."
+msgstr "قفل فترة كارت: ‏{0} في أو قبل تاريخ القفل {1}؛ الترحيل ممنوع."
+
+msgid "Selling Settings validates selling prices, which rejects deduction lines; disable it before posting."
+msgstr "إعدادات البيع تتحقق من أسعار البيع وسترفض بنود الخصم؛ عطّل الخيار قبل الترحيل."
+
+msgid "{0} must allow negative rates for items (deduction lines post as negative rates)."
+msgstr "{0} يجب أن تسمح بأسعار سالبة للأصناف (بنود الخصم تُرحَّل بسعر سالب)."
+
+msgid "{0} must allow the same item on multiple rows (one line per source document)."
+msgstr "{0} يجب أن تسمح بتكرار الصنف في أكثر من بند (بند لكل مستند مصدر)."
+
+msgid "Buying Settings requires a Purchase Order; the monthly posting has none."
+msgstr "إعدادات الشراء تشترط أمر شراء؛ الترحيل الشهري بلا أوامر شراء."
+
+msgid "Selling Settings requires a {0}; the monthly posting has none."
+msgstr "إعدادات البيع تشترط {0}؛ الترحيل الشهري بدونه."
+
+msgid "Item tax template {0} no longer matches the company's VAT accounts; re-run the posting master setup."
+msgstr "قالب ضريبة الصنف {0} لم يعد مطابقاً لحسابات الضريبة للشركة؛ أعد تهيئة بيانات الترحيل."
+
+msgid "Item tax template {0} must carry a flat {1}% rate."
+msgstr "قالب ضريبة الصنف {0} يجب أن يكون بنسبة ثابتة {1}%."
+
+msgid "Item {0} carries item-level tax templates; CARD items must have none (the line template must win)."
+msgstr "الصنف {0} عليه قوالب ضريبة على مستوى الصنف؛ أصناف كارت يجب أن تكون بدونها (قالب البند هو الحاكم)."
+
+msgid "Item group {0} carries tax templates; it must have none."
+msgstr "مجموعة الأصناف {0} عليها قوالب ضريبة؛ يجب أن تكون بدونها."
+
+msgid "Reconciliation mismatch on card {0} ({1} side): invoice lines total {2} but the card stores {3}."
+msgstr "عدم تطابق في كارت {0} (جانب {1}): إجمالي بنود الفاتورة {2} بينما الكارت يخزن {3}."
+
+msgid "Monthly operation card {0} — {1}"
+msgstr "كارت تشغيل شهري {0} — {1}"
+
+msgid "Diesel fill {0} — {1} L"
+msgstr "تعبئة ديزل {0} — {1} لتر"
+
+msgid "Equipment transport {0}: {1} → {2}"
+msgstr "نقل معدة {0}: ‏{1} ← {2}"
+
+msgid "A draft posting already exists for {0} {1} in {2}/{3}: {4}. Submit it, or rebuild it to include newer documents."
+msgstr "توجد مسودة ترحيل بالفعل لـ{0} {1} في {2}/{3}: ‏{4}. اعتمدها، أو أعد بناءها لتشمل المستندات الأحدث."
+
+msgid "Nothing to post: no unposted submitted documents for {0} {1} in {2}/{3}."
+msgstr "لا شيء للترحيل: لا مستندات معتمدة غير مرحّلة لـ{0} {1} في {2}/{3}."
+
+msgid "Configure Card Settings for company {0}: Sales tax template is not set."
+msgstr "قم بإعداد إعدادات كارت للشركة {0}: قالب ضريبة المبيعات غير محدد."
+
+msgid "The monthly total for {0} {1} is negative ({2}); deductions exceed the dues. Resolve the cards ({3}) or ask the owner how to carry the balance."
+msgstr "الإجمالي الشهري لـ{0} {1} سالب ({2})؛ الخصومات تتجاوز المستحق. عالج الكروت ({3}) أو راجع المالك في طريقة ترحيل الرصيد."
+
+msgid "Only Card Manager or System Manager may build monthly postings."
+msgstr "إنشاء الترحيلات الشهرية متاح فقط لمدير كارت أو مدير النظام."
+
+msgid "Party type must be Supplier or Customer."
+msgstr "نوع الطرف يجب أن يكون مورداً أو عميلاً."
+
+msgid "{0} was generated by CARD; apply discounts as addition/deduction rows on the cards, not on the invoice."
+msgstr "{0} أنشأه تطبيق كارت؛ طبّق الخصومات كبنود إضافة/خصم على الكروت لا على الفاتورة."
+
+msgid "Posting document deleted; sources freed."
+msgstr "تم حذف مستند الترحيل؛ تم تحرير المستندات المصدر."
+
+msgid "{0} is included in submitted posting {1}; cancel that invoice first."
+msgstr "{0} مُدرج في الترحيل المعتمد {1}؛ ألغِ تلك الفاتورة أولاً."
+
+msgid "{0} is reserved by draft posting {1}; delete or rebuild that invoice first."
+msgstr "{0} محجوز بمسودة الترحيل {1}؛ احذف تلك الفاتورة أو أعد بناءها أولاً."
+
+msgid "{0} amends CARD posting {1}; amendments would post the same source documents twice. Build the month again from CARD instead."
+msgstr "{0} يعدّل ترحيل كارت {1}؛ التعديل سيرحّل نفس المستندات المصدر مرتين. أعد بناء الشهر من كارت بدلاً من ذلك."
+
+msgid "This invoice"
+msgstr "هذه الفاتورة"
+
+msgid "Enter the supplier's invoice number and date (Bill No / Bill Date) on {0} before submitting; VAT input requires them."
+msgstr "أدخل رقم فاتورة المورد وتاريخها (رقم الفاتورة / تاريخ الفاتورة) على {0} قبل الاعتماد؛ ضريبة المدخلات تتطلبهما."
+
+msgid "Source {0} {1} is no longer submitted; rebuild the posting before submitting {2}."
+msgstr "المستند المصدر {0} {1} لم يعد معتمداً؛ أعد بناء الترحيل قبل اعتماد {2}."
+
+msgid "Source {0} {1} is already invoiced by {2}; rebuild the posting before submitting {3}."
+msgstr "المستند المصدر {0} {1} مفوتر بالفعل في {2}؛ أعد بناء الترحيل قبل اعتماد {3}."
+
+msgid "Supplier {0} is VAT-registered (tax ID set) but Card Settings for company {1} has no Purchase tax template; posting would silently drop the VAT."
+msgstr "المورد {0} مسجّل في ضريبة القيمة المضافة (الرقم الضريبي محدد) لكن إعدادات كارت للشركة {1} بلا قالب ضريبة مشتريات؛ الترحيل سيُسقط الضريبة بصمت."
+
+msgid "Customer {0} has both a zero-rated addition line and a deduction discount in {1}/{2}; the discount would shift the VAT base across the zero-rated line. Post them in separate months or ask the owner."
+msgstr "العميل {0} لديه بند إضافة بنسبة صفرية وخصم استقطاع معاً في {1}/{2}؛ الخصم سيحرّف وعاء الضريبة عبر البند الصفري. رحّلهما في شهرين منفصلين أو راجع المالك."
+
+msgid "Non-taxable customer-side deduction {0} on card {1} is not supported on a Sales Invoice (ZATCA: no negative lines; a Net Total discount would change the VAT base). Ask the owner for the representation."
+msgstr "خصم جهة العميل غير الخاضع للضريبة {0} على الكارت {1} غير مدعوم في فاتورة مبيعات (زاتكا: لا بنود سالبة؛ وخصم صافي الإجمالي سيغيّر وعاء الضريبة). راجع المالك لتحديد طريقة التمثيل."
+
+msgid "Month and year must be numbers."
+msgstr "الشهر والسنة يجب أن يكونا رقمين."
+
+msgid "Month must be between 1 and 12."
+msgstr "الشهر يجب أن يكون بين 1 و12."
+
+msgid "Accounts Settings option {0} must be off: it would copy extra tax rows onto the generated postings."
+msgstr "خيار إعدادات الحسابات {0} يجب أن يكون مُعطّلاً: سينسخ صفوف ضرائب إضافية على الترحيلات المُنشأة."
+
+msgid "Invalid side {0} on addition/deduction {1}; it must be Supplier or Customer."
+msgstr "جهة غير صالحة {0} في الإضافة/الخصم {1}؛ يجب أن تكون مورداً أو عميلاً."
+
+msgid "Addition/deduction type {0} on card {1} is not configured (or is disabled) in Card Settings."
+msgstr "نوع الإضافة/الخصم {0} على الكارت {1} غير مُعد (أو معطّل) في إعدادات كارت."
+
+msgid "{0} no longer matches its source documents (lines total {1}, sources total {2}); rebuild the posting instead of editing it."
+msgstr "{0} لم تعد مطابقة لمستنداتها المصدر (إجمالي البنود {1} وإجمالي المصادر {2})؛ أعد بناء الترحيل بدلاً من تعديله."
+
+msgid "Source {0} {1} is now included in another active posting unit ({2}); rebuild before submitting {3}."
+msgstr "المستند المصدر {0} {1} أصبح مُدرجاً في وحدة ترحيل نشطة أخرى ({2})؛ أعد البناء قبل اعتماد {3}."
+
+msgid "Posting log {0} is {1}; cancel or delete its posting documents first — the log itself is the audit record."
+msgstr "سجل الترحيل {0} حالته {1}؛ ألغِ أو احذف مستندات الترحيل أولاً — السجل نفسه هو سجل التدقيق."
+
+msgid "Posting log {0} still references {1} {2}; it cannot be deleted."
+msgstr "سجل الترحيل {0} ما يزال يشير إلى {1} {2}؛ لا يمكن حذفه."
+
+msgid "Tax template {0} must contain only 'On Net Total' rows with non-negative rates; found a '{1}' row. Fix the template before posting."
+msgstr "قالب الضريبة {0} يجب أن يحتوي على صفوف من نوع 'On Net Total' فقط بنسب غير سالبة؛ وُجد صف من نوع '{1}'. صحّح القالب قبل الترحيل."
+
+msgid "Tax template {0}: a VAT row has no account head."
+msgstr "قالب الضريبة {0}: أحد صفوف الضريبة بلا حساب."
+
+msgid "Tax template {0} carries multiple VAT rows; posting through multi-rate templates is not supported yet (the per-line overrides are single-rate) — configure a single-rate template for posting."
+msgstr "قالب الضريبة {0} يحتوي على عدة صفوف ضريبة؛ الترحيل عبر قوالب متعددة النسب غير مدعوم بعد (التجاوزات الصفّية أحادية النسبة) — استخدم قالباً أحادي النسبة للترحيل."
+
+msgid "{0} was retargeted to another company; rebuild the posting instead of editing it."
+msgstr "{0} أُعيد توجيهها لشركة أخرى؛ أعد بناء الترحيل بدلاً من تعديله."
+
+msgid "{0} is dated {1}, outside its posting unit's month {2}/{3}; keep the posting date inside the unit's month."
+msgstr "{0} مؤرخة في {1} خارج شهر وحدة الترحيل {2}/{3}؛ أبقِ تاريخ الترحيل داخل شهر الوحدة."
+
+msgid "This equipment is a unit component; the monthly card is kept on the unit, not the component."
+msgstr "هذه المعدة مكوّن ضمن وحدة؛ الكارت الشهري يُسجّل على الوحدة لا على المكوّن."
+
+msgid "The Card Equipment accounting dimension is missing or disabled on this site; an administrator must run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+msgstr "البُعد المحاسبي «معدة كارت» غير موجود أو معطّل على هذا الموقع؛ يجب أن ينفّذ مدير النظام: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+
+msgid "The {0} field is missing on {1}; re-run the Card Equipment dimension setup before posting."
+msgstr "الحقل {0} غير موجود على {1}؛ أعد تنفيذ إعداد بُعد معدة كارت قبل الترحيل."

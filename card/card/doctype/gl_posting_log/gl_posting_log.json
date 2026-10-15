@@ -11,6 +11,7 @@
   "month",
   "year",
   "posting_type",
+  "sequence",
   "status",
   "posting_section",
   "posting_doctype",
@@ -19,7 +20,8 @@
   "column_break_posting",
   "posting_key",
   "failure_reason",
-  "remarks"
+  "remarks",
+  "sources"
  ],
  "fields": [
   {
@@ -78,12 +80,14 @@
   },
   {
    "default": "Draft",
+   "description": "Driven exclusively by the posting lifecycle (card.gl.events); hand-editing the status would detach the reservation from accounting reality.",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
    "options": "Draft\nSubmitted\nCancelled\nFailed",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -132,11 +136,27 @@
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
+  },
+  {
+   "default": "1",
+   "description": "1 = the month's primary posting; 2+ = supplementary postings for late source documents after the primary was submitted.",
+   "fieldname": "sequence",
+   "fieldtype": "Int",
+   "label": "Sequence",
+   "read_only": 1
+  },
+  {
+   "description": "The exact source documents this posting includes — the authoritative reservation list (the sources' gl_posting link is display-only).",
+   "fieldname": "sources",
+   "fieldtype": "Table",
+   "label": "Sources",
+   "options": "GL Posting Source",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-14 16:00:00.000000",
+ "modified": "2026-10-15 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "GL Posting Log",

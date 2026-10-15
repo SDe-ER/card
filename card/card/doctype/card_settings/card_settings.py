@@ -40,3 +40,46 @@ class CardSettings(Document):
 			if row.project in projects:
 				frappe.throw(_("Duplicate project in transport prices: {0}").format(row.project))
 			projects.add(row.project)
+		self._validate_adjustment_types()
+
+	def _validate_adjustment_types(self):
+		"""S3/F.4: every configured addition/deduction type must point at a safe,
+		postable account (leaf, same company, enabled, not tax-withholding).
+		The posting builder re-checks at posting time; this keeps bad rows from
+		being saved in the first place."""
+		seen = set()
+		for row in self.get("adjustment_types") or []:
+			key = (row.company, (row.type_name or "").strip())
+			if key in seen:
+				frappe.throw(
+					_("Duplicate addition/deduction type {0} for company {1}.").format(
+						row.type_name, row.company
+					)
+				)
+			seen.add(key)
+			acc = frappe.db.get_value(
+				"Account",
+				row.account,
+				["company", "is_group", "disabled"],
+				as_dict=True,
+			)
+			if not acc:
+				frappe.throw(_("Account {0} does not exist.").format(row.account))
+			if acc.company != row.company:
+				frappe.throw(
+					_("Account {0} belongs to company {1}, not {2}.").format(
+						row.account, acc.company, row.company
+					)
+				)
+			if acc.is_group:
+				frappe.throw(
+					_("Account {0} is a group; pick a leaf account for type {1}.").format(
+						row.account, row.type_name
+					)
+				)
+			if acc.disabled:
+				frappe.throw(
+					_("Account {0} is disabled; pick an active account for type {1}.").format(
+						row.account, row.type_name
+					)
+				)

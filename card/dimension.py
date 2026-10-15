@@ -10,8 +10,11 @@ on each), so it is an EXPLICIT, MANUAL step:
         bench --site <site> execute card.dimension.ensure_card_equipment_dimension
 
 It is never run by migrate/patches, and on production only after the owner's
-deploy approval. Everything else in this module is a no-op until the
-dimension exists, so a site without it (v1.1 behaviour) keeps working.
+deploy approval. The one automated caller is card.install.before_tests (the
+committed test bootstrap): clean test sites need the dimension because the S3
+posting preflight is fail-closed on it. Everything else in this module is a
+no-op until the dimension exists, so a v1.1-style site keeps working — except
+GL posting, which refuses to build without it (owner checkpoint B).
 """
 
 import frappe
@@ -33,9 +36,10 @@ def gl_has_dimension_field():
 def ensure_card_equipment_dimension():
 	"""Create the dimension (idempotent, non-mandatory for BS/PL).
 
-	MANUAL OPERATION ONLY (see module docstring): the operator's runbook calls
-	frappe.db.commit() after it returns — this function never commits itself,
-	so it must still never be called from controllers, patches or tests."""
+	MANUAL OPERATION ONLY plus the committed test bootstrap (see module
+	docstring): the caller commits after it returns — this function never
+	commits itself, so it must never run from controllers, patches or inside
+	a test transaction."""
 	if has_dimension():
 		return "exists"
 	from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (

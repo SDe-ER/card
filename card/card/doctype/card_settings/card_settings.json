@@ -10,6 +10,8 @@
   "auto_submit",
   "company_config_section",
   "company_settings",
+  "adjustment_types_section",
+  "adjustment_types",
   "operations_tab",
   "operations_defaults_section",
   "default_shift",
@@ -294,12 +296,25 @@
    "fieldtype": "Table",
    "label": "Transport price per project",
    "options": "Card Project Transport Price"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "adjustment_types_section",
+   "fieldtype": "Section Break",
+   "label": "Addition/Deduction Types"
+  },
+  {
+   "description": "Configured addition/deduction types per company. Each type posts to its own account as an invoice line; taxable types carry 15% VAT, non-taxable 0%.",
+   "fieldname": "adjustment_types",
+   "fieldtype": "Table",
+   "label": "Addition/Deduction Types",
+   "options": "Card Adjustment Type"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-14 12:00:00.000000",
+ "modified": "2026-10-15 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",
