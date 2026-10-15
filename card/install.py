@@ -119,6 +119,22 @@ def after_install():
 	frappe.db.commit()  # nosemgrep
 
 
+def before_tests():
+	"""Create the shared test masters COMMITTED, once per test run.
+
+	The suite's _ensure_masters() creates missing masters inside the test
+	transaction; on a clean CI site a full rollback anywhere in an earlier
+	test class erases them for every later class (Supplier inserts then fail
+	link validation on "Test Supplier Group"). A seeded site already has all
+	of these, so this is a no-op there."""
+	from card.tests.test_controllers import _ensure_masters
+
+	frappe.clear_cache()
+	_ensure_masters()
+	# Test-bootstrap context, outside any test transaction by design.
+	frappe.db.commit()  # nosemgrep
+
+
 def _reconcile():
 	"""Idempotent post-install reconciliation. Shared by after_install and
 	the v1_0 migration patch so the install hook and the patch can never
