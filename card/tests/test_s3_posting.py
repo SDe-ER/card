@@ -428,3 +428,113 @@ class TestBaselineUntouched(IntegrationTestCase):
 		frappe.clear_cache(doctype="Card Settings")
 		with self.assertRaises(frappe.ValidationError):
 			build_monthly_posting("Any", "Supplier", "Nobody", 9, 2026)
+
+
+class TestZatcaSalesRules(_PostingBase):
+	"""Owner 2026-10-15: Sales Invoices must carry NO negative lines; taxable
+	customer deductions become a Net Total discount (same VAT base)."""
+
+	def test_si_taxable_deduction_becomes_net_total_discount(self):
+		eq = self._rented_out(customer_rate=1000)  # 16h -> 1600
+		card = self._card(
+			eq,
+			[8, 8],
+			adjustments=[
+				{
+					"adjustment_type_ref": "Mobilization",
+					"side": "Customer",
+					"description": "m",
+					"amount": 400,
+				},
+				{"adjustment_type_ref": "Penalty", "side": "Customer", "description": "p", "amount": 200},
+			],
+			submit=True,
+		)
+		self.assertEqual(flt(card.customer_net_amount), 1800.0)
+		si_name = build_monthly_posting(self.company, "Customer", self.customer, 9, 2026)
+		si = frappe.get_doc("Sales Invoice", si_name)
+		for item in si.items:
+			self.assertGreater(flt(item.rate), 0, "no negative lines on a Sales Invoice")
+		self.assertEqual(len(si.items), 2)  # revenue 1600 + addition 400
+		self.assertEqual(si.apply_discount_on, "Net Total")
+		self.assertEqual(flt(si.discount_amount, 2), 200.0)
+		self.assertEqual(flt(si.net_total, 2), 1800.0)
+		self.assertEqual(flt(si.taxes[0].tax_amount, 2), 270.0)  # 15% of 1800
+		self.assertEqual(flt(si.grand_total, 2), 2070.0)
+
+	def test_si_nontaxable_customer_deduction_refused(self):
+		eq = self._rented_out(customer_rate=1000)
+		self._card(
+			eq,
+			[8, 8],
+			adjustments=[
+				{"adjustment_type_ref": "DieselNT", "side": "Customer", "description": "d", "amount": 100}
+			],
+			submit=True,
+		)
+		with self.assertRaises(frappe.ValidationError):
+			build_monthly_posting(self.company, "Customer", self.customer, 9, 2026)
+
+
+class TestLateSources(_PostingBase):
+	"""Owner 2026-10-15 item 3: a submitted card after the month's posting must
+	never be silently lost — rebuild a draft, or supplement a submitted one."""
+
+	def test_late_card_blocked_by_draft_then_rebuild_includes_it(self):
+		from card.gl.posting import rebuild_monthly_posting
+
+		eq1 = self._equipment()
+		self._card(eq1, [8], submit=True)  # 600
+		first = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		late = self._card(self._equipment(), [4], submit=True)  # 300, after the draft
+		try:
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+			self.fail("a draft posting must block a second build")
+		except frappe.ValidationError as e:
+			self.assertIn(first, str(e))
+		rebuilt = rebuild_monthly_posting(
+			self.company, "Supplier", self.supplier, 9, 2026
+		)
+		self.assertNotEqual(rebuilt, first)
+		self.assertFalse(frappe.db.exists("Purchase Invoice", first))
+		pi = frappe.get_doc("Purchase Invoice", rebuilt)
+		descriptions = " | ".join(i.description for i in pi.items)
+		self.assertIn(late.name, descriptions)
+		self.assertEqual(len(pi.items), 2)
+
+	def test_late_card_after_submit_gets_supplementary_posting(self):
+		eq1 = self._equipment()
+		self._card(eq1, [8], submit=True)
+		first = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi1 = frappe.get_doc("Purchase Invoice", first)
+		pi1.submit()
+		late = self._card(self._equipment(), [4], submit=True)
+		second = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		self.assertNotEqual(second, first)
+		pi2 = frappe.get_doc("Purchase Invoice", second)
+		self.assertEqual(len(pi2.items), 1)
+		self.assertIn(late.name, pi2.items[0].description)
+		self.assertEqual(frappe.db.get_value("GL Posting Log", {"posting_doc": second}, "sequence"), 2)
+
+	def test_fill_cancel_blocked_while_draft_posting_exists(self):
+		self._card(self._equipment(), [8], submit=True)
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-15",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 50,
+				"unit_price": 2,
+			}
+		)
+		fill.insert(ignore_permissions=True)
+		fill.submit()
+		draft = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		try:
+			fill.reload()
+			fill.cancel()
+			self.fail("fill cancel must be blocked while the draft posting holds it")
+		except frappe.ValidationError as e:
+			self.assertIn(draft, str(e))

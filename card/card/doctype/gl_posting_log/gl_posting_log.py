@@ -31,5 +31,9 @@ class GLPostingLog(Document):
 			self.posting_key = build_posting_key(
 				self.company, self.party_type, self.party, self.month, self.year, self.posting_type
 			)
+			# supplementary postings (late sources after the primary was
+			# submitted) stay unique per sequence
+			if (self.sequence or 1) > 1:
+				self.posting_key = "{0}|{1}".format(self.posting_key, self.sequence)
 		else:
 			self.posting_key = None
