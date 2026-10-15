@@ -60,7 +60,7 @@ class CardSettings(Document):
 			acc = frappe.db.get_value(
 				"Account",
 				row.account,
-				["company", "is_group", "disabled", "is_tax_withholding_account"],
+				["company", "is_group", "disabled"],
 				as_dict=True,
 			)
 			if not acc:
@@ -80,12 +80,6 @@ class CardSettings(Document):
 			if acc.disabled:
 				frappe.throw(
 					_("Account {0} is disabled; pick an active account for type {1}.").format(
-						row.account, row.type_name
-					)
-				)
-			if acc.is_tax_withholding_account:
-				frappe.throw(
-					_("Account {0} is a tax-withholding account and cannot be used for type {1}.").format(
 						row.account, row.type_name
 					)
 				)

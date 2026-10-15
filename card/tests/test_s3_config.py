@@ -85,21 +85,23 @@ class TestAdjustmentTypeConfig(_AdjBase):
 		with self.assertRaises(frappe.ValidationError):
 			self._add_type("Grp-" + self.token, account=group)
 
-	def test_tax_withholding_account_rejected(self):
+	def test_disabled_account_rejected(self):
+		# NOTE: ERPNext 16.50 has no withholding flag on Account (handled at the
+		# supplier level); the disabled/leaf/company trio is the account gate here.
 		self._clear_types()
 		acc = frappe.get_doc("Account", _expense_account(self.company))
-		twh = frappe.get_doc(
+		dis = frappe.get_doc(
 			{
 				"doctype": "Account",
-				"account_name": "Test TWH " + self.token,
+				"account_name": "Test Disabled " + self.token,
 				"parent_account": acc.parent_account,
 				"company": self.company,
 				"root_type": "Expense",
-				"is_tax_withholding_account": 1,
+				"disabled": 1,
 			}
 		).insert(ignore_permissions=True)
 		with self.assertRaises(frappe.ValidationError):
-			self._add_type("TWH-" + self.token, account=twh.name)
+			self._add_type("Dis-" + self.token, account=dis.name)
 
 
 class TestAdjustmentSides(_AdjBase):
