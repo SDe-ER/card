@@ -45,52 +45,68 @@
 		filters: [
 			{
 				fieldname: "statement_type",
-				label: "نوع الكشف",
+				label: __("Statement type"),
 				fieldtype: "Select",
-				options: "مورد\nمعدات ملك",
-				default: "مورد",
-				reqd: 1,
+				options: "\nمورد\nمعدات ملك",
 			},
 			{
 				fieldname: "supplier",
-				label: "المورد",
+				label: __("Supplier"),
 				fieldtype: "Link",
 				options: "Supplier",
 				depends_on: "eval:doc.statement_type=='مورد'",
+				get_query: () => ({ query: "card.api.card_suppliers_query" }),
 			},
 			{
 				fieldname: "from_month",
-				label: "من شهر",
+				label: __("From month"),
 				fieldtype: "Select",
 				options: months,
 				default: pm,
 				reqd: 1,
 			},
-			{ fieldname: "from_year", label: "من سنة", fieldtype: "Int", default: py, reqd: 1 },
+			{ fieldname: "from_year", label: __("From year"), fieldtype: "Int", default: py, reqd: 1 },
 			{
 				fieldname: "to_month",
-				label: "إلى شهر",
+				label: __("To month"),
 				fieldtype: "Select",
 				options: months,
 				default: pm,
 				reqd: 1,
 			},
-			{ fieldname: "to_year", label: "إلى سنة", fieldtype: "Int", default: py, reqd: 1 },
-			{ fieldname: "project", label: "المشروع", fieldtype: "Link", options: "Project" },
+			{ fieldname: "to_year", label: __("To year"), fieldtype: "Int", default: py, reqd: 1 },
+			{ fieldname: "project", label: __("Project"), fieldtype: "Link", options: "Project" },
 			{
 				fieldname: "equipment",
-				label: "المعدة",
+				label: __("Equipment"),
 				fieldtype: "Link",
 				options: "Card Equipment",
 			},
 			{
 				fieldname: "equipment_type",
-				label: "نوع المعدة",
+				label: __("Equipment type"),
 				fieldtype: "Link",
 				options: "Card Equipment Type",
 			},
-			{ fieldname: "include_draft", label: "تشمل المسودات", fieldtype: "Check", default: 0 },
+			{ fieldname: "include_draft", label: __("Include drafts"), fieldtype: "Check" },
 		],
+		onload(report) {
+			// Seed the UI defaults from Card Settings (server also falls back to the
+			// same settings for API callers). The user can still override.
+			frappe.db
+				.get_value("Card Settings", "Card Settings", [
+					"default_statement_type",
+					"include_draft_in_reports",
+				])
+				.then((r) => {
+					const v = (r && r.message) || {};
+					const st = report.get_filter("statement_type");
+					if (st && v.default_statement_type && !st.get_value())
+						st.set_value(v.default_statement_type);
+					const idf = report.get_filter("include_draft");
+					if (idf) idf.set_value(v.include_draft_in_reports ? 1 : 0);
+				});
+		},
 		tree: true,
 		name_field: "row_id",
 		parent_field: "parent_row",

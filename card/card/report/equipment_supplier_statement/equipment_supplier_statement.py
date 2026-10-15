@@ -1,4 +1,7 @@
 import frappe
+from frappe import _
+
+from card.settings import setting
 
 
 def execute(filters=None):
@@ -13,7 +16,7 @@ def execute(filters=None):
 	cint = frappe.utils.cint
 	getdate = frappe.utils.getdate
 
-	stype = filters.get("statement_type") or "مورد"
+	stype = filters.get("statement_type") or setting("default_statement_type")
 	supplier = filters.get("supplier")
 	no_supplier = stype == "مورد" and not supplier
 	_company = frappe.defaults.get_global_default("company") or ""
@@ -24,14 +27,17 @@ def execute(filters=None):
 	tm = cint(filters.get("to_month")) or fm
 	ty = cint(filters.get("to_year")) or fy
 	if not fm or not fy:
-		frappe.throw("حدد شهر وسنة البداية")
+		frappe.throw(_("Select the start month and year"))
 	start = getdate(str(fy) + "-" + str(fm).zfill(2) + "-01")
 	end = frappe.utils.get_last_day(getdate(str(ty) + "-" + str(tm).zfill(2) + "-01"))
 	if end < start:
-		frappe.throw("فترة غير صحيحة: النهاية قبل البداية")
+		frappe.throw(_("Invalid period: end is before start"))
 
+	include_draft = filters.get("include_draft")
+	if include_draft is None:
+		include_draft = setting("include_draft_in_reports")
 	statuses = [1]
-	if filters.get("include_draft"):
+	if include_draft:
 		statuses = [0, 1]
 
 	cf = [
@@ -179,7 +185,7 @@ def execute(filters=None):
 						"row_id": e_id + "|C|" + c.name,
 						"parent_row": e_id,
 						"indent": 2,
-						"label": c.name + (" (مسودة)" if c.docstatus == 0 else ""),
+						"label": c.name + (_(" (Draft)") if c.docstatus == 0 else ""),
 						"card": c.name,
 						"equipment": c.equipment,
 						"project": c.project,
@@ -244,7 +250,7 @@ def execute(filters=None):
 				"row_id": "TOTAL",
 				"parent_row": None,
 				"indent": 0,
-				"label": "الإجمالي العام",
+				"label": _("Grand total"),
 				"working_days": grand["days"],
 				"hours": flt(grand["hours"], 2),
 				"amount": flt(grand["amount"], 2),
@@ -256,43 +262,43 @@ def execute(filters=None):
 		)
 
 	columns = [
-		{"fieldname": "label", "label": "البيان", "fieldtype": "Data", "width": 260},
+		{"fieldname": "label", "label": _("Description"), "fieldtype": "Data", "width": 260},
 		{
 			"fieldname": "equipment",
-			"label": "رقم المعدة",
+			"label": _("Equipment number"),
 			"fieldtype": "Link",
 			"options": "Card Equipment",
 			"width": 100,
 		},
-		{"fieldname": "equipment_type", "label": "نوع المعدة", "fieldtype": "Data", "width": 110},
-		{"fieldname": "project", "label": "المشروع", "fieldtype": "Link", "options": "Project", "width": 100},
-		{"fieldname": "shift", "label": "الوردية", "fieldtype": "Data", "width": 70},
-		{"fieldname": "first_date", "label": "أول تشغيل", "fieldtype": "Date", "width": 100},
-		{"fieldname": "last_date", "label": "آخر تشغيل", "fieldtype": "Date", "width": 100},
-		{"fieldname": "working_days", "label": "أيام العمل", "fieldtype": "Int", "width": 80},
-		{"fieldname": "hours", "label": "الساعات", "fieldtype": "Float", "precision": 2, "width": 90},
+		{"fieldname": "equipment_type", "label": _("Equipment type"), "fieldtype": "Data", "width": 110},
+		{"fieldname": "project", "label": _("Project"), "fieldtype": "Link", "options": "Project", "width": 100},
+		{"fieldname": "shift", "label": _("Shift type"), "fieldtype": "Data", "width": 70},
+		{"fieldname": "first_date", "label": _("First operation"), "fieldtype": "Date", "width": 100},
+		{"fieldname": "last_date", "label": _("Last operation"), "fieldtype": "Date", "width": 100},
+		{"fieldname": "working_days", "label": _("Working days"), "fieldtype": "Int", "width": 80},
+		{"fieldname": "hours", "label": _("Hours"), "fieldtype": "Float", "precision": 2, "width": 90},
 	]
 	if not owned:
 		columns = [
 			*columns,
-			{"fieldname": "rate_type", "label": "طريقة الحساب", "fieldtype": "Data", "width": 90},
-			{"fieldname": "rate", "label": "السعر", "fieldtype": "Currency", "width": 100},
-			{"fieldname": "hourly_rate", "label": "سعر الساعة", "fieldtype": "Currency", "width": 100},
-			{"fieldname": "amount", "label": "قيمة التشغيل", "fieldtype": "Currency", "width": 120},
-			{"fieldname": "additions", "label": "الإضافات", "fieldtype": "Currency", "width": 100},
-			{"fieldname": "deductions", "label": "الخصومات", "fieldtype": "Currency", "width": 100},
-			{"fieldname": "net", "label": "الصافي", "fieldtype": "Currency", "width": 120},
+			{"fieldname": "rate_type", "label": _("Rate type"), "fieldtype": "Data", "width": 90},
+			{"fieldname": "rate", "label": _("Rate"), "fieldtype": "Currency", "width": 100},
+			{"fieldname": "hourly_rate", "label": _("Hourly rate"), "fieldtype": "Currency", "width": 100},
+			{"fieldname": "amount", "label": _("Operating amount"), "fieldtype": "Currency", "width": 120},
+			{"fieldname": "additions", "label": _("Additions"), "fieldtype": "Currency", "width": 100},
+			{"fieldname": "deductions", "label": _("Deductions"), "fieldtype": "Currency", "width": 100},
+			{"fieldname": "net", "label": _("Net"), "fieldtype": "Currency", "width": 120},
 		]
 
 	summary = [
-		{"label": "عدد المعدات", "value": len(grand["eq"]), "datatype": "Int", "indicator": "Blue"},
-		{"label": "أيام التشغيل", "value": grand["days"], "datatype": "Int", "indicator": "Blue"},
-		{"label": "ساعات التشغيل", "value": flt(grand["hours"], 2), "datatype": "Float", "indicator": "Blue"},
+		{"label": _("Number of equipment"), "value": len(grand["eq"]), "datatype": "Int", "indicator": "Blue"},
+		{"label": _("Operating days"), "value": grand["days"], "datatype": "Int", "indicator": "Blue"},
+		{"label": _("Operating hours"), "value": flt(grand["hours"], 2), "datatype": "Float", "indicator": "Blue"},
 	]
 
 	message = None
 	if no_supplier:
-		message = "اختار المورد لعرض الكشف."
+		message = _("Select a supplier to display the statement.")
 	elif not owned:
 		# supplier GL: credit = accrual (liability up), debit = payment (liability down)
 		gl_open = frappe.get_all(
@@ -331,32 +337,32 @@ def execute(filters=None):
 		summary = [
 			*summary,
 			{
-				"label": "صافي الكروت",
+				"label": _("Net cards"),
 				"value": flt(grand["net"], 2),
 				"datatype": "Currency",
 				"indicator": "Green",
 			},
 			{
-				"label": "قيود الاستحقاق (دائن)",
+				"label": _("Accrual entries (Credit)"),
 				"value": flt(accrued, 2),
 				"datatype": "Currency",
 				"indicator": "Blue",
 			},
 			{
-				"label": "فرق المطابقة",
+				"label": _("Reconciliation difference"),
 				"value": diff,
 				"datatype": "Currency",
-				"indicator": "Green" if abs(diff) < 0.01 else "Red",
+				"indicator": "Green" if abs(diff) < flt(setting("reconciliation_tolerance")) else "Red",
 			},
 			{
-				"label": "رصيد أول المدة",
+				"label": _("Opening balance"),
 				"value": flt(opening, 2),
 				"datatype": "Currency",
 				"indicator": "Grey",
 			},
-			{"label": "المدفوع (مدين)", "value": flt(paid, 2), "datatype": "Currency", "indicator": "Orange"},
+			{"label": _("Paid (Debit)"), "value": flt(paid, 2), "datatype": "Currency", "indicator": "Orange"},
 			{
-				"label": "رصيد المورد آخر المدة",
+				"label": _("Supplier closing balance"),
 				"value": flt(closing, 2),
 				"datatype": "Currency",
 				"indicator": "Red" if closing > 0 else "Green",
@@ -364,24 +370,24 @@ def execute(filters=None):
 		]
 		message = (
 			_prefix
-			+ "كشف حساب مورد معدات: "
+			+ _("Equipment supplier statement: ")
 			+ str(supplier)
-			+ " — الفترة من "
+			+ _(" — Period from ")
 			+ str(start)
-			+ " إلى "
+			+ _(" to ")
 			+ str(end)
-			+ " — تاريخ الإصدار "
+			+ _(" — Issue date ")
 			+ frappe.utils.nowdate()
-			+ ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
+			+ _(". Balance from accounting entries only; reconciliation difference = net cards − accrual entries.")
 		)
 	else:
 		message = (
 			_prefix
-			+ "تشغيل المعدات الملك حسب المشروع — الفترة من "
+			+ _("Operating owned equipment by project — Period from ")
 			+ str(start)
-			+ " إلى "
+			+ _(" to ")
 			+ str(end)
-			+ " — الساعات فقط لحين تحديد الأسعار الداخلية."
+			+ _(" — Hours only until internal rates are defined.")
 		)
 
 	data = [columns, data_rows, message, None, summary, True]

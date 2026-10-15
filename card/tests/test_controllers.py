@@ -50,15 +50,20 @@ def _ensure_masters():
 	project = frappe.get_all("Project", pluck="name", limit=1)
 	project = project[0] if project else None
 	if not project:
-		frappe.get_doc(
-			{
-				"doctype": "Project",
-				"project_name": "Test Project",
-				"status": "Open",
-				"company": company,
-			}
-		).insert(ignore_permissions=True)
-		project = "Test Project"
+		# Project may be named by series (e.g. PROJ-0001) depending on the site's
+		# "Project Naming By" default, so use the real inserted name.
+		project = (
+			frappe.get_doc(
+				{
+					"doctype": "Project",
+					"project_name": "Test Project",
+					"status": "Open",
+					"company": company,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
 
 	supplier_group = frappe.db.get_value("Supplier Group", {"is_group": 0}, "name")
 	if not supplier_group:
@@ -78,8 +83,10 @@ def _ensure_masters():
 				}
 			).insert(ignore_permissions=True)
 
-	# Persist across the per-test transaction rollback (setUpClass runs outside it).
-	frappe.db.commit()
+	# NOTE: do NOT frappe.db.commit() here. setUpClass data lives before the
+	# per-test savepoint, so it stays visible to the class's tests and is rolled
+	# back at class teardown. A commit would flush stray data onto a seeded site
+	# (v11-dev), corrupting the baseline — see the DSL/default_daily_hours leak.
 	return {
 		"company": company,
 		"category": category,
@@ -106,7 +113,9 @@ class TestCardEquipment(IntegrationTestCase):
 		d = frappe.new_doc("Card Equipment")
 		d.company = self._m["company"]
 		d.equipment_type = self._m["etype"]
-		d.ownership = kw.pop("ownership", "إيجار")
+		# owned by default: the hourly-rate math is direction-independent, and F.7
+		# makes a rented direction require a supplier + rate on the equipment.
+		d.ownership = kw.pop("ownership", "ملك")
 		d.equipment_name = kw.pop("equipment_name", "TEST-EQ-" + frappe.generate_hash(length=8))
 		for key, value in kw.items():
 			setattr(d, key, value)
@@ -185,6 +194,22 @@ class TestCardMonthlyCard(IntegrationTestCase):
 		self.assertEqual(c.working_days, 11)
 		self.assertEqual(flt(c.amount), 8175.0)
 		self.assertEqual(flt(c.net_amount), 8175.0)
+
+	def test_card_suppliers_query_lists_only_suppliers_with_cards(self):
+		from card.api import card_suppliers_query
+
+		# self.supplier gets a card (rental equipment -> supplier set)
+		eq = self._equipment()
+		self._card(eq, [10, 10, 10])
+		# a second supplier with NO card at all
+		other = frappe.new_doc("Supplier")
+		other.supplier_name = "TEST-NOCARD-" + self.token
+		other.supplier_group = self._m["supplier_group"]
+		other.insert(ignore_permissions=True)
+
+		names = [r[0] for r in card_suppliers_query("Supplier", "", "name", 0, 50, None)]
+		self.assertIn(self.supplier, names)  # supplier with a card is listed
+		self.assertNotIn(other.name, names)  # supplier without any card is not
 
 	def test_owned_equipment_zero_amount(self):
 		eq = self._equipment(ownership="ملك", rate=750, daily_hours=10)

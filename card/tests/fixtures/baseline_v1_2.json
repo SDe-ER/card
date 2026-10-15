@@ -1,0 +1,531 @@
+{
+  "_meta": {
+    "purpose": "CARD v1.2 S0 pre-GL regression baseline (ADDENDUM E) + per-supplier/per-project granularity"
+  },
+  "cards": [
+    {
+      "amount": 15600.0,
+      "month": "05",
+      "name": "EOMC-2026-05-0011",
+      "net_amount": 15600.0,
+      "project": "PROJ-0002",
+      "shift": "نهاري",
+      "supplier": "سعيد المطيري",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 15600.0,
+      "month": "05",
+      "name": "EOMC-2026-05-0014",
+      "net_amount": 15600.0,
+      "project": "PROJ-0003",
+      "shift": "نهاري",
+      "supplier": "عبدالله القحطاني",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 10920.0,
+      "month": "05",
+      "name": "EOMC-2026-05-0017",
+      "net_amount": 10920.0,
+      "project": "PROJ-0003",
+      "shift": "ليلي",
+      "supplier": "عبدالله القحطاني",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 182.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 11700.0,
+      "month": "05",
+      "name": "EOMC-2026-05-0020",
+      "net_amount": 11700.0,
+      "project": "PROJ-0005",
+      "shift": "نهاري",
+      "supplier": "ناصر الشهري",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 15600.0,
+      "month": "06",
+      "name": "EOMC-2026-06-0015",
+      "net_amount": 15600.0,
+      "project": "PROJ-0003",
+      "shift": "نهاري",
+      "supplier": "عبدالله القحطاني",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 19500.0,
+      "month": "06",
+      "name": "EOMC-2026-06-0018",
+      "net_amount": 19500.0,
+      "project": "PROJ-0004",
+      "shift": "نهاري",
+      "supplier": "فهد الدوسري",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 11700.0,
+      "month": "06",
+      "name": "EOMC-2026-06-0023",
+      "net_amount": 11700.0,
+      "project": "PROJ-0002",
+      "shift": "نهاري",
+      "supplier": "خالد العتيبي",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 8190.0,
+      "month": "06",
+      "name": "EOMC-2026-06-0026",
+      "net_amount": 8190.0,
+      "project": "PROJ-0002",
+      "shift": "ليلي",
+      "supplier": "خالد العتيبي",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 182.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 16350.0,
+      "month": "07",
+      "name": "EOMC-2026-07-0002",
+      "net_amount": 16350.0,
+      "project": "PROJ-0001",
+      "shift": "نهاري",
+      "supplier": "مورد تجريبي للمعدات",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 218.0,
+      "working_days": 25,
+      "year": 2026
+    },
+    {
+      "amount": 15600.0,
+      "month": "07",
+      "name": "EOMC-2026-07-0012",
+      "net_amount": 15600.0,
+      "project": "PROJ-0002",
+      "shift": "نهاري",
+      "supplier": "سعيد المطيري",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 19500.0,
+      "month": "07",
+      "name": "EOMC-2026-07-0019",
+      "net_amount": 19500.0,
+      "project": "PROJ-0004",
+      "shift": "نهاري",
+      "supplier": "فهد الدوسري",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 11700.0,
+      "month": "07",
+      "name": "EOMC-2026-07-0024",
+      "net_amount": 11700.0,
+      "project": "PROJ-0002",
+      "shift": "نهاري",
+      "supplier": "خالد العتيبي",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 31200.0,
+      "month": "07",
+      "name": "EOMC-2026-07-0027",
+      "net_amount": 31200.0,
+      "project": "PROJ-0003",
+      "shift": "نهاري",
+      "supplier": "سلطان الحربي",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 16800.0,
+      "month": "08",
+      "name": "EOMC-2026-08-0003",
+      "net_amount": 16800.0,
+      "project": "PROJ-0001",
+      "shift": "نهاري",
+      "supplier": "مورد تجريبي للمعدات",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 224.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 16200.0,
+      "month": "08",
+      "name": "EOMC-2026-08-0016",
+      "net_amount": 16200.0,
+      "project": "PROJ-0003",
+      "shift": "نهاري",
+      "supplier": "عبدالله القحطاني",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 270.0,
+      "working_days": 27,
+      "year": 2026
+    },
+    {
+      "amount": 12150.0,
+      "month": "08",
+      "name": "EOMC-2026-08-0021",
+      "net_amount": 12150.0,
+      "project": "PROJ-0005",
+      "shift": "نهاري",
+      "supplier": "ناصر الشهري",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 270.0,
+      "working_days": 27,
+      "year": 2026
+    },
+    {
+      "amount": 32400.0,
+      "month": "08",
+      "name": "EOMC-2026-08-0028",
+      "net_amount": 32400.0,
+      "project": "PROJ-0003",
+      "shift": "نهاري",
+      "supplier": "سلطان الحربي",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 270.0,
+      "working_days": 27,
+      "year": 2026
+    },
+    {
+      "amount": 16050.0,
+      "month": "09",
+      "name": "EOMC-2026-09-0004",
+      "net_amount": 16050.0,
+      "project": "PROJ-0001",
+      "shift": "نهاري",
+      "supplier": "مورد تجريبي للمعدات",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 214.0,
+      "working_days": 25,
+      "year": 2026
+    },
+    {
+      "amount": 15600.0,
+      "month": "09",
+      "name": "EOMC-2026-09-0013",
+      "net_amount": 15600.0,
+      "project": "PROJ-0002",
+      "shift": "نهاري",
+      "supplier": "سعيد المطيري",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 11700.0,
+      "month": "09",
+      "name": "EOMC-2026-09-0022",
+      "net_amount": 11700.0,
+      "project": "PROJ-0005",
+      "shift": "نهاري",
+      "supplier": "ناصر الشهري",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    },
+    {
+      "amount": 11700.0,
+      "month": "09",
+      "name": "EOMC-2026-09-0025",
+      "net_amount": 11700.0,
+      "project": "PROJ-0002",
+      "shift": "نهاري",
+      "supplier": "خالد العتيبي",
+      "total_additions": 0.0,
+      "total_deductions": 0.0,
+      "total_working_hours": 260.0,
+      "working_days": 26,
+      "year": 2026
+    }
+  ],
+  "cards_count": 21,
+  "cards_net_sum": 335760.0,
+  "company": "Test Equipment Co",
+  "diesel_amount_sum": 4327.0,
+  "diesel_litres_sum": 2300.0,
+  "r_equipment_diesel_consumption": {
+    "amount": 4327.0,
+    "litres": 2300.0,
+    "n": 2,
+    "rows": [
+      {
+        "amount": 2327.0,
+        "equipment": "Unallocated",
+        "litres": 1300.0,
+        "month": "2026-10",
+        "project": "PROJ-0001"
+      },
+      {
+        "amount": 2000.0,
+        "equipment": "CEQ-0005",
+        "litres": 1000.0,
+        "month": "2026-05",
+        "project": "PROJ-0002"
+      }
+    ]
+  },
+  "r_equipment_supplier_statement_per_supplier": {
+    "خالد العتيبي": {
+      "additions": 0.0,
+      "amount": 43290.0,
+      "deductions": 0.0,
+      "hours": 962.0,
+      "net": 43290.0,
+      "rows": 7
+    },
+    "سعيد المطيري": {
+      "additions": 0.0,
+      "amount": 46800.0,
+      "deductions": 0.0,
+      "hours": 780.0,
+      "net": 46800.0,
+      "rows": 6
+    },
+    "سلطان الحربي": {
+      "additions": 0.0,
+      "amount": 63600.0,
+      "deductions": 0.0,
+      "hours": 530.0,
+      "net": 63600.0,
+      "rows": 5
+    },
+    "عبدالله القحطاني": {
+      "additions": 0.0,
+      "amount": 58320.0,
+      "deductions": 0.0,
+      "hours": 972.0,
+      "net": 58320.0,
+      "rows": 7
+    },
+    "فهد الدوسري": {
+      "additions": 0.0,
+      "amount": 39000.0,
+      "deductions": 0.0,
+      "hours": 520.0,
+      "net": 39000.0,
+      "rows": 5
+    },
+    "مورد تجريبي للمعدات": {
+      "additions": 0.0,
+      "amount": 49200.0,
+      "deductions": 0.0,
+      "hours": 656.0,
+      "net": 49200.0,
+      "rows": 6
+    },
+    "ناصر الشهري": {
+      "additions": 0.0,
+      "amount": 35550.0,
+      "deductions": 0.0,
+      "hours": 790.0,
+      "net": 35550.0,
+      "rows": 6
+    }
+  },
+  "r_equipment_suppliers_summary": {
+    "accrued": 0.0,
+    "card_count": 21.0,
+    "closing": 0.0,
+    "diff": 335760.0,
+    "equipment_count": 7.0,
+    "hours": 5210.0,
+    "net": 335760.0,
+    "opening": 0.0,
+    "paid": 0.0,
+    "per_supplier": [
+      {
+        "accrued": 0.0,
+        "card_count": 4.0,
+        "closing": 0.0,
+        "diff": 43290.0,
+        "equipment_count": 1.0,
+        "hours": 962.0,
+        "net": 43290.0,
+        "opening": 0.0,
+        "paid": 0.0,
+        "supplier": "خالد العتيبي",
+        "supplier_name": "خالد العتيبي",
+        "working_days": 78.0
+      },
+      {
+        "accrued": 0.0,
+        "card_count": 3.0,
+        "closing": 0.0,
+        "diff": 46800.0,
+        "equipment_count": 1.0,
+        "hours": 780.0,
+        "net": 46800.0,
+        "opening": 0.0,
+        "paid": 0.0,
+        "supplier": "سعيد المطيري",
+        "supplier_name": "سعيد المطيري",
+        "working_days": 78.0
+      },
+      {
+        "accrued": 0.0,
+        "card_count": 2.0,
+        "closing": 0.0,
+        "diff": 63600.0,
+        "equipment_count": 1.0,
+        "hours": 530.0,
+        "net": 63600.0,
+        "opening": 0.0,
+        "paid": 0.0,
+        "supplier": "سلطان الحربي",
+        "supplier_name": "سلطان الحربي",
+        "working_days": 53.0
+      },
+      {
+        "accrued": 0.0,
+        "card_count": 4.0,
+        "closing": 0.0,
+        "diff": 58320.0,
+        "equipment_count": 1.0,
+        "hours": 972.0,
+        "net": 58320.0,
+        "opening": 0.0,
+        "paid": 0.0,
+        "supplier": "عبدالله القحطاني",
+        "supplier_name": "عبدالله القحطاني",
+        "working_days": 79.0
+      },
+      {
+        "accrued": 0.0,
+        "card_count": 2.0,
+        "closing": 0.0,
+        "diff": 39000.0,
+        "equipment_count": 1.0,
+        "hours": 520.0,
+        "net": 39000.0,
+        "opening": 0.0,
+        "paid": 0.0,
+        "supplier": "فهد الدوسري",
+        "supplier_name": "فهد الدوسري",
+        "working_days": 52.0
+      },
+      {
+        "accrued": 0.0,
+        "card_count": 3.0,
+        "closing": 0.0,
+        "diff": 49200.0,
+        "equipment_count": 1.0,
+        "hours": 656.0,
+        "net": 49200.0,
+        "opening": 0.0,
+        "paid": 0.0,
+        "supplier": "مورد تجريبي للمعدات",
+        "supplier_name": "مورد تجريبي للمعدات",
+        "working_days": 76.0
+      },
+      {
+        "accrued": 0.0,
+        "card_count": 3.0,
+        "closing": 0.0,
+        "diff": 35550.0,
+        "equipment_count": 1.0,
+        "hours": 790.0,
+        "net": 35550.0,
+        "opening": 0.0,
+        "paid": 0.0,
+        "supplier": "ناصر الشهري",
+        "supplier_name": "ناصر الشهري",
+        "working_days": 79.0
+      }
+    ],
+    "supplier_rows": 7,
+    "working_days": 495.0
+  },
+  "r_operating_cost_by_project": {
+    "diesel": 4327.0,
+    "n": 2,
+    "rows": [
+      {
+        "diesel": 2327.0,
+        "project": "PROJ-0001",
+        "total": 2327.0,
+        "transport": 0.0
+      },
+      {
+        "diesel": 2000.0,
+        "project": "PROJ-0002",
+        "total": 5500.0,
+        "transport": 3500.0
+      }
+    ],
+    "total": 7827.0,
+    "transport": 3500.0
+  },
+  "r_transport_cost_by_project": {
+    "amount": 3500.0,
+    "n": 1,
+    "rows": [
+      {
+        "amount": 3500.0,
+        "project": "PROJ-0002",
+        "transports": 1
+      }
+    ],
+    "transports": 1
+  },
+  "transport_amount_sum": 3500.0
+}

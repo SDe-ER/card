@@ -9,7 +9,8 @@
 إدارة المعدات وكروت التشغيل الشهرية
 
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
-![Release](https://img.shields.io/badge/release-v1.0.1-1F876C)
+![Release](https://img.shields.io/badge/release-v1.1.0-1F876C)
+![In development](https://img.shields.io/badge/v1.2-in%20development-orange)
 ![Frappe](https://img.shields.io/badge/frappe-v16-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -71,12 +72,53 @@ CARD follows the same design principles as Frappe HR: one master record per asse
 <img src=".github/images/supplier-statement.png" alt="Equipment Supplier Statement" width="85%">
 </details>
 
-### Billing rule (daily rate)
+<details open>
+<summary><b>Rental directions &amp; the customer side</b> <sub>(v1.2 — in development)</sub></summary>
 
-For equipment billed **per day**, CARD prorates by actual operating hours:
+- Every equipment carries a **rental direction**: rented from a supplier, rented out to a customer, sub-rental (both sides on one card), or internal operation. The form shows only the side that applies.
+- **Card Equipment Customer** registry mirrors the supplier registry; **Equipment Customer Statement** and **Equipment Customers Summary** read the official receivables only — CARD never keeps a parallel ledger.
+- Cards are **hours entry only**: equipment, shift, month, year and the driver — everything else (project, company, direction, parties, rates) flows in automatically and sits in a collapsed info section.
+
+<img src=".github/images/equipment-direction.png" alt="Rental direction on the equipment" width="85%">
+<img src=".github/images/card-entry.png" alt="Fast monthly card entry" width="85%">
+</details>
+
+<details open>
+<summary><b>Diesel &amp; transport management</b> <sub>(v1.2 — in development)</sub></summary>
+
+- Per-company diesel litre price; a **diesel supplier policy** (fixed supplier enforced on every fill, or variable behind a permitted role).
+- Per-project **transport prices** defaulting every Equipment Transport, change-gated by role.
+- **Equipment Diesel Analysis**: expected litres (from each machine's daily consumption) vs actually allocated litres, with variance per equipment, project and month.
+
+<img src=".github/images/diesel-analysis.png" alt="Equipment Diesel Analysis" width="85%">
+</details>
+
+<details open>
+<summary><b>Accounting on official ERPNext documents</b> <sub>(v1.2 — in development)</sub></summary>
+
+- A non-mandatory **Card Equipment accounting dimension** on the GL-bearing ERPNext doctypes: per-equipment General Ledger, Trial Balance, P&amp;L and Balance Sheet with the standard reports — including the depreciation path from linked Assets.
+- Guard report **Equipment Expenses Without Equipment** catches expense lines that missed the dimension.
+- Period lock, role model (**Card Manager** / **Card User** / Accounts Manager read), and a per-company settings page keep policies in one place.
+- **Note:** users running the supplier/customer statement reports also need a standard ERPNext role with read access to Supplier/Customer (e.g. **Accounts User**) — Frappe validates report link-filters against those doctypes, and CARD does not modify ERPNext doctype permissions.
+</details>
+
+<details open>
+<summary><b>Professional print formats</b> <sub>(v1.2 — in development)</sub></summary>
+
+- RTL Arabic-first print formats for the monthly card, diesel fill and transport — header, logo and company details pulled from the system, applied automatically on print.
+
+<img src=".github/images/print-card.png" alt="Monthly card print format" width="85%">
+</details>
+
+### Billing rule (rate bases)
+
+CARD bills by actual operating hours on any of three bases, on both the supplier (cost) and customer (revenue) sides:
 
 ```
-hourly_rate = daily_rate / standard_daily_hours
+hourly  : hourly_rate = rate
+daily   : hourly_rate = rate / standard_daily_hours
+monthly : hourly_rate = rate / standard_month_hours   (default 260 = 26 days × 10 h)
+
 amount      = total_operating_hours × hourly_rate
 net_amount  = amount + total_additions − total_deductions
 ```
@@ -160,6 +202,8 @@ Code style is enforced with `pre-commit` (ruff, prettier, semgrep). Commits foll
 
 | Version | Date | Highlights |
 |---|---|---|
+| **v1.2.0** | _Unreleased — in development_ | Rental directions on the equipment (hours-only cards), customer registry + statements on official receivables, Card Settings with per-company configuration, diesel supplier policy + per-project transport prices + diesel analysis, three rate bases (hour/day/month), Card Equipment accounting dimension with depreciation support, equipment location transfers with assignment tracking, per-shift hour warnings, fiscal-year back-entry window, professional RTL print formats, Card Manager / Card User roles, period lock. |
+| **v1.1.0** | 2026-10-14 | English-source i18n with full Arabic translation; Desk connections between equipment, cards, suppliers and projects; workspace and sidebar polish; shift heatmaps. |
 | **v1.0.1** | 2026-10-13 | Workspace moved to module `Card`; Frappe 16.50 sidebar migrated with all items; legacy `Card (Custom)` module retired; `net_amount` backfilled for cards submitted before v1.0. |
 | **v1.0.0** | 2026-10-13 | First standalone release: equipment master, assignments, monthly cards, suppliers, reports and workspace. |
 

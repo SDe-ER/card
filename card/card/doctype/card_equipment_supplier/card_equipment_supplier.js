@@ -6,7 +6,7 @@ frappe.ui.form.on("Card Equipment Supplier", {
 	refresh(frm) {
 		if (frm.is_new()) return;
 
-		frm.add_custom_button(__("تحديث الأرقام"), () => {
+		frm.add_custom_button(__("Refresh numbers"), () => {
 			frappe
 				.call({
 					method: "card.api.refresh_supplier",
@@ -17,7 +17,7 @@ frappe.ui.form.on("Card Equipment Supplier", {
 				.then(() => frm.reload_doc());
 		});
 
-		frm.add_custom_button(__("كشف الحساب"), () => {
+		frm.add_custom_button(__("Statement"), () => {
 			// default period = last operating month on record, else previous calendar month
 			let y, m;
 			if (frm.doc.last_month) {

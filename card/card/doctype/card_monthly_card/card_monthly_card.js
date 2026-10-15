@@ -114,16 +114,49 @@ function card_check_period(frm) {
 function card_load_hourly(frm) {
 	if (!frm.doc.equipment) {
 		frm._card_hourly = 0;
-		frm._card_owned = false;
+		frm._card_supplier_side = false;
 		return Promise.resolve();
 	}
 	return frappe.db
-		.get_value("Card Equipment", frm.doc.equipment, ["approved_hourly_rate", "ownership"])
+		.get_value("Card Equipment", frm.doc.equipment, [
+			"approved_hourly_rate",
+			"rental_direction",
+			"ownership",
+		])
 		.then((r) => {
 			const v = (r && r.message) || {};
 			frm._card_hourly = flt(v.approved_hourly_rate);
-			frm._card_owned = v.ownership === "ملك";
+			// F.7: only supplier-billing directions accrue a supplier amount
+			const dir =
+				v.rental_direction || (v.ownership === "ملك" ? "تشغيل داخلي" : "مستأجَرة من مورد");
+			frm._card_supplier_side = ["مستأجَرة من مورد", "إيجار من الباطن"].includes(dir);
 			card_calc(frm);
+		});
+}
+
+// F.7: the card's project follows the assignment covering the card's month
+// (client mirror of the server rule — display convenience; the server enforces).
+function card_lock_project(frm) {
+	if (frm.doc.docstatus !== 0 || !frm.doc.equipment) return;
+	const m = parseInt(frm.doc.month);
+	const y = parseInt(frm.doc.year);
+	if (!m || !y || y < 2000) return;
+	const first = `${y}-${card_pad(m)}-01`;
+	const last = `${y}-${card_pad(m)}-${card_pad(new Date(y, m, 0).getDate())}`;
+	frappe.db
+		.get_list("Card Equipment Assignment", {
+			filters: { equipment: frm.doc.equipment, from_date: ["<=", last] },
+			fields: ["project", "from_date", "to_date"],
+			limit: 0,
+		})
+		.then((rows) => {
+			let best = null;
+			(rows || []).forEach((a) => {
+				if (a.to_date && a.to_date < first) return;
+				if (!best || a.from_date > best.from_date) best = a;
+			});
+			frm.set_df_property("project", "read_only", best ? 1 : 0);
+			if (best && frm.doc.project !== best.project) frm.set_value("project", best.project);
 		});
 }
 
@@ -139,7 +172,7 @@ function card_calc(frm) {
 		hours += flt(r.working_hours);
 		if (flt(r.working_hours) > 0) work_days++;
 	});
-	const amount = frm._card_owned ? 0 : flt(hours * flt(frm._card_hourly), 2);
+	const amount = frm._card_supplier_side ? flt(hours * flt(frm._card_hourly), 2) : 0;
 
 	// v4: additions / deductions (display only; the server recalculates on save)
 	let additions = 0,
@@ -175,19 +208,133 @@ function card_check_duplicate(frm) {
 		})
 		.then((r) => {
 			if (r.length) {
-				frappe.throw(`يوجد كارت ${frm.doc.shift} لنفس المعدة ونفس الشهر: ${r[0].name}`);
+				frappe.throw(__("A {0} card already exists for the same equipment and month: {1}", [frm.doc.shift, r[0].name]));
 			}
 		});
+}
+
+// Direct read-only link to an EXISTING record (no create affordance). get_form_link
+// gives the site-correct URL (fallback for middle-click / new tab); the click is
+// handled by card_bind_direct_links → frappe.set_route so it routes in-app (SPA)
+// instead of a full page reload, and resolves non-ASCII docnames + permissions natively.
+function card_doc_link(doctype, name) {
+	return (
+		'<a href="' +
+		frappe.utils.get_form_link(doctype, name) +
+		'" class="card-direct-link" data-dt="' +
+		frappe.utils.escape_html(doctype) +
+		'" data-dn="' +
+		frappe.utils.escape_html(name) +
+		'">' +
+		frappe.utils.escape_html(name) +
+		"</a>"
+	);
+}
+
+// Delegate clicks on the direct links to the in-app router (no full reload).
+function card_bind_direct_links(body) {
+	$(body)
+		.off("click.carddirect")
+		.on("click.carddirect", "a.card-direct-link", function (e) {
+			e.preventDefault();
+			frappe.set_route("Form", $(this).attr("data-dt"), $(this).attr("data-dn"));
+		});
+}
+
+// Owner decision 2026-10-14: show the card's equipment, project and lessor (supplier)
+// as DIRECT read-only links inside the Connections («الارتباطات») tab — links to the
+// EXISTING records only, never a "create new" card (Frappe's native connection cards
+// always render a "+ New" button, which the owner rejected).
+function card_render_card_links(frm) {
+	if (frm.is_new()) return;
+	const parts = [];
+	if (frm.doc.equipment) {
+		parts.push(
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Equipment") +
+				":</span> " +
+				card_doc_link("Card Equipment", frm.doc.equipment) +
+				"</div>",
+		);
+	}
+	if (frm.doc.project) {
+		parts.push(
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Project") +
+				":</span> " +
+				card_doc_link("Project", frm.doc.project) +
+				"</div>",
+		);
+	}
+	if (frm.doc.ownership !== "ملك" && frm.doc.supplier) {
+		parts.push(
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Supplier") +
+				":</span> " +
+				card_doc_link("Supplier", frm.doc.supplier) +
+				"</div>",
+		);
+	}
+	if (parts.length) {
+		card_bind_direct_links(frm.dashboard.add_section(parts.join(""), __("Related records")));
+	}
+}
+
+// Read-only diesel line: diesel allocated to THIS card's equipment for its
+// project + month (owner 2026-10-14). Display only — it NEVER changes net_amount.
+function card_render_diesel(frm) {
+	if (frm.is_new() || !frm.doc.equipment || !frm.doc.project || !frm.dashboard) return;
+	frappe.call({ method: "card.diesel.get_card_diesel", args: { card: frm.doc.name } }).then((r) => {
+		const d = (r && r.message) || {};
+		if (!frm.dashboard) return;
+		const parts = [
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Diesel (litres)") +
+				":</span> " +
+				format_number(flt(d.litres), null, 2) +
+				"</div>",
+			'<div class="mb-2"><span class="text-muted">' +
+				__("Diesel cost") +
+				":</span> " +
+				format_currency(flt(d.amount)) +
+				"</div>",
+		];
+		if (d.company_bears) {
+			parts.push(
+				'<div class="text-muted small">' +
+					__("Fuel borne by the company — this diesel is our cost.") +
+					"</div>",
+			);
+		}
+		parts.push(
+			'<div class="text-muted small">' +
+				__("Display only — does not affect the rental amount.") +
+				"</div>",
+		);
+		frm.dashboard.add_section(parts.join(""), __("Diesel"));
+	});
 }
 
 frappe.ui.form.on("Card Monthly Card", {
 	refresh(frm) {
 		card_color_fridays(frm);
 		if (frm.doc.docstatus === 0) card_load_hourly(frm);
+		card_lock_project(frm);
+		card_render_card_links(frm);
+		card_render_diesel(frm);
 	},
-	equipment: card_load_hourly,
-	month: card_build,
-	year: card_build,
+	equipment(frm) {
+		card_load_hourly(frm);
+		card_lock_project(frm);
+	},
+	month(frm) {
+		card_build(frm);
+		card_lock_project(frm);
+	},
+	year(frm) {
+		card_build(frm);
+		card_lock_project(frm);
+	},
 	rate: card_calc,
 	rate_type: card_calc,
 	validate(frm) {

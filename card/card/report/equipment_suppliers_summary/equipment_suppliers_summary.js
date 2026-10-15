@@ -45,23 +45,23 @@
 		filters: [
 			{
 				fieldname: "from_month",
-				label: "من شهر",
+				label: __("From month"),
 				fieldtype: "Select",
 				options: months,
 				default: pm,
 				reqd: 1,
 			},
-			{ fieldname: "from_year", label: "من سنة", fieldtype: "Int", default: py, reqd: 1 },
+			{ fieldname: "from_year", label: __("From year"), fieldtype: "Int", default: py, reqd: 1 },
 			{
 				fieldname: "to_month",
-				label: "إلى شهر",
+				label: __("To month"),
 				fieldtype: "Select",
 				options: months,
 				default: pm,
 				reqd: 1,
 			},
-			{ fieldname: "to_year", label: "إلى سنة", fieldtype: "Int", default: py, reqd: 1 },
-			{ fieldname: "project", label: "المشروع", fieldtype: "Link", options: "Project" },
+			{ fieldname: "to_year", label: __("To year"), fieldtype: "Int", default: py, reqd: 1 },
+			{ fieldname: "project", label: __("Project"), fieldtype: "Link", options: "Project" },
 		],
 		after_datatable_render: card_rtl_datatable,
 		formatter(value, row, column, data, default_formatter) {

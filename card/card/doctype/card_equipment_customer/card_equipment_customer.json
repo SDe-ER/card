@@ -1,0 +1,158 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "field:customer",
+ "creation": "2026-10-14 21:30:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "customer_name",
+  "col_main",
+  "first_month",
+  "last_month",
+  "stats_section",
+  "equipment_count",
+  "card_count",
+  "col_stats",
+  "total_hours",
+  "total_accrued",
+  "last_refreshed"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Customer name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "first_month",
+   "fieldtype": "Data",
+   "label": "First operating month",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_month",
+   "fieldtype": "Data",
+   "label": "Last operating month",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stats_section",
+   "fieldtype": "Section Break",
+   "label": "Statistics"
+  },
+  {
+   "fieldname": "equipment_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Number of equipment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "card_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Number of approved cards",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_stats",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_hours",
+   "fieldtype": "Float",
+   "label": "Total hours",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_accrued",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total accrued (cards)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_refreshed",
+   "fieldtype": "Datetime",
+   "label": "Last updated",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-14 21:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Equipment Customer",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "customer_name",
+ "track_changes": 1
+}

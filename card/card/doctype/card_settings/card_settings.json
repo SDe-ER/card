@@ -1,0 +1,345 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "accounting_tab",
+  "policy_section",
+  "enable_accounting",
+  "auto_submit",
+  "company_config_section",
+  "company_settings",
+  "operations_tab",
+  "operations_defaults_section",
+  "default_shift",
+  "max_day_shift_hours",
+  "max_night_shift_hours",
+  "default_daily_hours",
+  "operations_column_break",
+  "default_fuel_charged_to",
+  "default_operator_on",
+  "default_rate_basis",
+  "standard_month_hours",
+  "warnings_section",
+  "warn_on_shift_hours_exceeded",
+  "warn_outside_rental_period",
+  "report_defaults_section",
+  "reconciliation_tolerance",
+  "default_statement_type",
+  "include_draft_in_reports",
+  "diesel_transport_tab",
+  "diesel_section",
+  "diesel_supplier_policy",
+  "diesel_supplier",
+  "diesel_col",
+  "diesel_supplier_editor_role",
+  "transport_section",
+  "transport_price_editor_role",
+  "project_transport_prices",
+  "period_lock_tab",
+  "period_lock_section",
+  "period_lock_date",
+  "period_lock_override_role",
+  "notifications_tab",
+  "notifications_section",
+  "notify_on_card_submit",
+  "notify_on_posting",
+  "notify_on_period_lock_override"
+ ],
+ "fields": [
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "policy_section",
+   "fieldtype": "Section Break",
+   "label": "Policy"
+  },
+  {
+   "default": "0",
+   "description": "When off, all CARD accounting features are disabled.",
+   "fieldname": "enable_accounting",
+   "fieldtype": "Check",
+   "label": "Enable accounting posting"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.enable_accounting",
+   "fieldname": "auto_submit",
+   "fieldtype": "Check",
+   "label": "Auto-submit postings"
+  },
+  {
+   "fieldname": "company_config_section",
+   "fieldtype": "Section Break",
+   "label": "Company Configuration"
+  },
+  {
+   "fieldname": "company_settings",
+   "fieldtype": "Table",
+   "label": "Company settings",
+   "options": "Card Company Settings"
+  },
+  {
+   "fieldname": "operations_tab",
+   "fieldtype": "Tab Break",
+   "label": "Operations"
+  },
+  {
+   "fieldname": "operations_defaults_section",
+   "fieldtype": "Section Break",
+   "label": "Defaults"
+  },
+  {
+   "default": "نهاري",
+   "fieldname": "default_shift",
+   "fieldtype": "Select",
+   "label": "Default shift",
+   "options": "نهاري\nليلي"
+  },
+  {
+   "default": "12",
+   "fieldname": "max_day_shift_hours",
+   "fieldtype": "Float",
+   "label": "Max day-shift hours"
+  },
+  {
+   "default": "12",
+   "fieldname": "max_night_shift_hours",
+   "fieldtype": "Float",
+   "label": "Max night-shift hours"
+  },
+  {
+   "default": "0",
+   "description": "0 = no default; only pre-fills new equipment",
+   "fieldname": "default_daily_hours",
+   "fieldtype": "Float",
+   "label": "Default daily hours (new equipment only)"
+  },
+  {
+   "fieldname": "operations_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_fuel_charged_to",
+   "fieldtype": "Select",
+   "label": "Default fuel charged to (new equipment)",
+   "options": "\nالمؤجر\nالشركة"
+  },
+  {
+   "fieldname": "default_operator_on",
+   "fieldtype": "Select",
+   "label": "Default operator charged to (new equipment)",
+   "options": "\nالمؤجر\nالشركة"
+  },
+  {
+   "default": "0.01",
+   "fieldname": "reconciliation_tolerance",
+   "fieldtype": "Currency",
+   "label": "Reconciliation tolerance"
+  },
+  {
+   "fieldname": "warnings_section",
+   "fieldtype": "Section Break",
+   "label": "Warnings"
+  },
+  {
+   "default": "1",
+   "fieldname": "warn_on_shift_hours_exceeded",
+   "fieldtype": "Check",
+   "label": "Warn when day hours exceed daily hours"
+  },
+  {
+   "default": "1",
+   "fieldname": "warn_outside_rental_period",
+   "fieldtype": "Check",
+   "label": "Warn when card dates fall outside rental period"
+  },
+  {
+   "fieldname": "report_defaults_section",
+   "fieldtype": "Section Break",
+   "label": "Report defaults"
+  },
+  {
+   "default": "مورد",
+   "fieldname": "default_statement_type",
+   "fieldtype": "Select",
+   "label": "Default statement type",
+   "options": "مورد\nمعدات ملك"
+  },
+  {
+   "default": "0",
+   "fieldname": "include_draft_in_reports",
+   "fieldtype": "Check",
+   "label": "Include draft cards in reports"
+  },
+  {
+   "fieldname": "period_lock_tab",
+   "fieldtype": "Tab Break",
+   "label": "Period Lock"
+  },
+  {
+   "fieldname": "period_lock_section",
+   "fieldtype": "Section Break",
+   "label": "Period lock"
+  },
+  {
+   "description": "Cards, diesel fills and transports dated on or before this date are locked (create/edit/submit/cancel/amend/delete) unless the override role is held.",
+   "fieldname": "period_lock_date",
+   "fieldtype": "Date",
+   "label": "Period lock date"
+  },
+  {
+   "description": "Users with this role may bypass the lock; every override is logged.",
+   "fieldname": "period_lock_override_role",
+   "fieldtype": "Link",
+   "label": "Period lock override role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "notifications_tab",
+   "fieldtype": "Tab Break",
+   "label": "Notifications"
+  },
+  {
+   "fieldname": "notifications_section",
+   "fieldtype": "Section Break",
+   "label": "Notifications (all off by default)"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_on_card_submit",
+   "fieldtype": "Check",
+   "label": "Notify on card submit"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_on_posting",
+   "fieldtype": "Check",
+   "label": "Notify on accounting posting"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_on_period_lock_override",
+   "fieldtype": "Check",
+   "label": "Notify on period lock override"
+  },
+  {
+   "description": "Fills the supplier and customer rate basis on NEW equipment when left blank.",
+   "fieldname": "default_rate_basis",
+   "fieldtype": "Select",
+   "label": "Default rate basis",
+   "options": "\nباليوم\nبالساعة\nبالشهر"
+  },
+  {
+   "default": "260",
+   "description": "Hours a monthly (بالشهر) rate is spread over. Default 260 = 26 days x 10 hours.",
+   "fieldname": "standard_month_hours",
+   "fieldtype": "Float",
+   "label": "Standard month hours"
+  },
+  {
+   "fieldname": "diesel_transport_tab",
+   "fieldtype": "Tab Break",
+   "label": "Diesel & Transport"
+  },
+  {
+   "fieldname": "diesel_section",
+   "fieldtype": "Section Break",
+   "label": "Diesel supplier"
+  },
+  {
+   "default": "متغير",
+   "description": "Fixed: the supplier below is forced on every fill and nobody can change it. Variable: it is the default; only the permitted role may change it.",
+   "fieldname": "diesel_supplier_policy",
+   "fieldtype": "Select",
+   "label": "Diesel supplier policy",
+   "options": "ثابت\nمتغير"
+  },
+  {
+   "fieldname": "diesel_supplier",
+   "fieldtype": "Link",
+   "label": "Diesel supplier",
+   "mandatory_depends_on": "eval:doc.diesel_supplier_policy=='ثابت'",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "diesel_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Card Manager",
+   "fieldname": "diesel_supplier_editor_role",
+   "fieldtype": "Link",
+   "label": "Diesel supplier editor role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "transport_section",
+   "fieldtype": "Section Break",
+   "label": "Transport prices"
+  },
+  {
+   "default": "Card Manager",
+   "fieldname": "transport_price_editor_role",
+   "fieldtype": "Link",
+   "label": "Transport price editor role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "project_transport_prices",
+   "fieldtype": "Table",
+   "label": "Transport price per project",
+   "options": "Card Project Transport Price"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-14 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Card Manager"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

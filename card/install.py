@@ -49,8 +49,10 @@ CARD_DOCTYPES = (
 	"Card Monthly Card Day",
 )
 
+CARD_ROLES = ("Card Manager", "Card User")
+
 CMC_DOCTYPE = "Card Monthly Card"
-CMC_DEFAULT_PRINT_FORMAT = "كارت تشغيل شهري"
+CMC_DEFAULT_PRINT_FORMAT = "Card Monthly Card Print"  # F.8: the professional RTL format (legacy fixture stays as an alternative)
 
 # The app-native Desk launcher ("Card appears on the Desk immediately after
 # install"). Shipped as an app-owned STANDARD Desktop Icon (file-backed at
@@ -77,6 +79,16 @@ LEGACY_CLIENT_SCRIPTS = (
 )
 
 
+def ensure_card_roles():
+	"""Idempotently create the Card roles. Shared by before_install and the
+	v1_2 patch so fresh installs and existing sites end up identical."""
+	for role in CARD_ROLES:
+		if not frappe.db.exists("Role", role):
+			frappe.get_doc({"doctype": "Role", "role_name": role, "desk_access": 1}).insert(
+				ignore_permissions=True
+			)
+
+
 def before_install():
 	"""Run before the app's DocTypes/entities are synced by install-app.
 
@@ -84,6 +96,7 @@ def before_install():
 	sync onto the existing tables/records with no data loss and no
 	collision.
 	"""
+	ensure_card_roles()
 	_adopt_module_def()
 	_adopt_doctypes()
 	_ensure_card_desk_icon()
@@ -107,6 +120,12 @@ def _reconcile():
 	drift apart."""
 	_retire_legacy_custom_module()
 	_ensure_print_default_property_setter()
+	# F.8: fresh installs mark all patches as completed, so the v1_2 print-default
+	# patch never runs for them — call the same idempotent logic here (voucher
+	# print defaults + CARD Letter Head).
+	from card.patches.v1_2.ensure_print_defaults import execute as _ensure_v12_print_defaults
+
+	_ensure_v12_print_defaults()
 	disable_legacy_scripts()
 	_ensure_card_desk_icon()
 	_append_card_to_user_layouts()
@@ -500,7 +519,7 @@ def _append_card_to_user_layouts():
 		raw = frappe.db.get_value("Desktop Layout", name, "layout")
 		try:
 			items = json.loads(raw) if raw else []
-		except ValueError, TypeError:
+		except (ValueError, TypeError):
 			continue
 		if not isinstance(items, list):
 			continue

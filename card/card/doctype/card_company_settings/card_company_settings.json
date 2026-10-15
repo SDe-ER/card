@@ -1,0 +1,222 @@
+{
+ "actions": [],
+ "creation": "2026-10-14 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "accounts_section",
+  "equipment_rental_expense_account",
+  "diesel_expense_account",
+  "transport_expense_account",
+  "column_break_accounts",
+  "equipment_rental_income_account",
+  "payable_account",
+  "receivable_account",
+  "cost_center",
+  "tax_templates_section",
+  "purchase_tax_template",
+  "column_break_tax",
+  "sales_tax_template",
+  "items_section",
+  "rental_item",
+  "diesel_item",
+  "column_break_items",
+  "transport_item",
+  "rental_out_item",
+  "pricing_section",
+  "diesel_unit_price",
+  "settlement_section",
+  "bank_cash_account",
+  "column_break_settlement",
+  "mode_of_payment"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "permlevel": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "equipment_rental_expense_account",
+   "fieldtype": "Link",
+   "label": "Equipment rental expense account",
+   "options": "Account",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "diesel_expense_account",
+   "fieldtype": "Link",
+   "label": "Diesel expense account",
+   "options": "Account",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "transport_expense_account",
+   "fieldtype": "Link",
+   "label": "Transport/mobilization expense account",
+   "options": "Account",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "column_break_accounts",
+   "fieldtype": "Column Break",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "equipment_rental_income_account",
+   "fieldtype": "Link",
+   "label": "Equipment rental income account",
+   "options": "Account",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "payable_account",
+   "fieldtype": "Link",
+   "label": "Payable (Creditors)",
+   "options": "Account",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "receivable_account",
+   "fieldtype": "Link",
+   "label": "Receivable (Debtors)",
+   "options": "Account",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost center",
+   "options": "Cost Center",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "tax_templates_section",
+   "fieldtype": "Section Break",
+   "label": "Tax templates",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "purchase_tax_template",
+   "fieldtype": "Link",
+   "label": "Purchase tax template",
+   "options": "Purchase Taxes and Charges Template",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "column_break_tax",
+   "fieldtype": "Column Break",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "sales_tax_template",
+   "fieldtype": "Link",
+   "label": "Sales tax template",
+   "options": "Sales Taxes and Charges Template",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "Items",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "rental_item",
+   "fieldtype": "Link",
+   "label": "Rental item",
+   "options": "Item",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "diesel_item",
+   "fieldtype": "Link",
+   "label": "Diesel item",
+   "options": "Item",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "column_break_items",
+   "fieldtype": "Column Break",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "transport_item",
+   "fieldtype": "Link",
+   "label": "Transport item",
+   "options": "Item",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "rental_out_item",
+   "fieldtype": "Link",
+   "label": "Rental-out item",
+   "options": "Item",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "pricing_section",
+   "fieldtype": "Section Break",
+   "label": "Pricing",
+   "permlevel": 1
+  },
+  {
+   "description": "Default diesel price per litre for this company; source for Project Diesel Fill (applied when accounting is enabled).",
+   "fieldname": "diesel_unit_price",
+   "fieldtype": "Currency",
+   "label": "Diesel unit price (per litre)",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "settlement_section",
+   "fieldtype": "Section Break",
+   "label": "Settlement",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "bank_cash_account",
+   "fieldtype": "Link",
+   "label": "Bank / cash account",
+   "options": "Account",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "column_break_settlement",
+   "fieldtype": "Column Break",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of payment",
+   "options": "Mode of Payment",
+   "permlevel": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-14 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Company Settings",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -8,29 +8,35 @@
  "field_order": [
   "header_section",
   "equipment",
-  "project",
-  "company",
-  "project_name",
-  "site_location",
-  "operator_name",
   "shift",
   "month",
   "year",
   "column_break_xdga",
+  "operator_name",
+  "project",
+  "company",
+  "equipment_info_section",
   "image",
   "equipment_name",
   "ownership",
+  "card_direction",
+  "project_name",
+  "site_location",
+  "equipment_info_col",
   "supplier",
+  "customer",
+  "rate_type",
+  "rate",
+  "customer_rate_type",
+  "customer_rate",
   "from_date",
   "to_date",
   "days_section",
   "days",
   "totals_section",
-  "rate_type",
-  "rate",
-  "column_break_eubn",
   "working_days",
   "total_working_hours",
+  "column_break_eubn",
   "amount",
   "amended_from",
   "adjustments_section",
@@ -38,19 +44,32 @@
   "adjustments_col",
   "total_additions",
   "total_deductions",
-  "net_amount"
+  "net_amount",
+  "customer_amount",
+  "accounting_section",
+  "gl_posting",
+  "posted",
+  "purchase_invoice",
+  "snapshot_column",
+  "daily_hours_used",
+  "hourly_rate_used",
+  "customer_rate_used",
+  "diesel_policy_used",
+  "direction_used",
+  "customer_used",
+  "rate_basis_used"
  ],
  "fields": [
   {
    "fieldname": "header_section",
    "fieldtype": "Section Break",
-   "label": "\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0643\u0627\u0631\u062a"
+   "label": "Card details"
   },
   {
    "fieldname": "equipment",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "\u0627\u0644\u0645\u0639\u062f\u0629",
+   "label": "Equipment",
    "options": "Card Equipment",
    "reqd": 1
   },
@@ -59,7 +78,7 @@
    "fetch_if_empty": 1,
    "fieldname": "project",
    "fieldtype": "Link",
-   "label": "\u0627\u0644\u0645\u0634\u0631\u0648\u0639",
+   "label": "Project",
    "options": "Project",
    "reqd": 1
   },
@@ -67,7 +86,7 @@
    "fetch_from": "equipment.company",
    "fieldname": "company",
    "fieldtype": "Link",
-   "label": "\u0627\u0644\u0634\u0631\u0643\u0629",
+   "label": "Company",
    "options": "Company",
    "read_only": 1,
    "reqd": 1
@@ -77,7 +96,7 @@
    "fieldname": "project_name",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0634\u0631\u0648\u0639",
+   "label": "Project name",
    "read_only": 1
   },
   {
@@ -85,32 +104,34 @@
    "fetch_if_empty": 1,
    "fieldname": "site_location",
    "fieldtype": "Data",
-   "label": "\u0627\u0644\u0645\u0648\u0642\u0639"
+   "label": "Location"
   },
   {
+   "fetch_from": "equipment.operator_name",
+   "fetch_if_empty": 1,
    "fieldname": "operator_name",
    "fieldtype": "Data",
-   "label": "\u0627\u0644\u0633\u0627\u0626\u0642 / \u0627\u0644\u0645\u0634\u063a\u0651\u0644"
+   "label": "Driver / Operator"
   },
   {
-   "default": "\u0646\u0647\u0627\u0631\u064a",
+   "default": "نهاري",
    "fieldname": "shift",
    "fieldtype": "Select",
-   "label": "\u0627\u0644\u0648\u0631\u062f\u064a\u0629",
-   "options": "\u0646\u0647\u0627\u0631\u064a\n\u0644\u064a\u0644\u064a",
+   "label": "Shift type",
+   "options": "نهاري\nليلي",
    "reqd": 1
   },
   {
    "fieldname": "month",
    "fieldtype": "Select",
-   "label": "\u0627\u0644\u0634\u0647\u0631",
+   "label": "Month",
    "options": "\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12",
    "reqd": 1
   },
   {
    "fieldname": "year",
    "fieldtype": "Int",
-   "label": "\u0627\u0644\u0633\u0646\u0629",
+   "label": "Year",
    "reqd": 1
   },
   {
@@ -122,71 +143,71 @@
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "hidden": 1,
-   "label": "\u0627\u0644\u0635\u0648\u0631\u0629"
+   "label": "Image"
   },
   {
    "fetch_from": "equipment.equipment_name",
    "fieldname": "equipment_name",
    "fieldtype": "Data",
-   "label": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0639\u062f\u0629",
+   "label": "Equipment name",
    "read_only": 1
   },
   {
    "fetch_from": "equipment.ownership",
    "fieldname": "ownership",
    "fieldtype": "Data",
-   "label": "\u0627\u0644\u0645\u0644\u0643\u064a\u0629",
+   "label": "Ownership",
    "read_only": 1
   },
   {
    "fetch_from": "equipment.supplier",
    "fieldname": "supplier",
    "fieldtype": "Link",
-   "label": "\u0627\u0644\u0645\u0627\u0644\u0643",
+   "label": "Owner",
    "options": "Supplier",
    "read_only": 1
   },
   {
    "fieldname": "from_date",
    "fieldtype": "Date",
-   "label": "\u0645\u0646 \u062a\u0627\u0631\u064a\u062e",
+   "label": "From date",
    "read_only": 1
   },
   {
    "fieldname": "to_date",
    "fieldtype": "Date",
-   "label": "\u0625\u0644\u0649 \u062a\u0627\u0631\u064a\u062e",
+   "label": "To date",
    "read_only": 1
   },
   {
    "fieldname": "days_section",
    "fieldtype": "Section Break",
-   "label": "\u0623\u064a\u0627\u0645 \u0627\u0644\u0634\u0647\u0631"
+   "label": "Days of month"
   },
   {
    "fieldname": "days",
    "fieldtype": "Table",
-   "label": "\u0627\u0644\u0623\u064a\u0627\u0645",
+   "label": "Days",
    "options": "Card Monthly Card Day",
    "reqd": 1
   },
   {
    "fieldname": "totals_section",
    "fieldtype": "Section Break",
-   "label": "\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a\u0627\u062a"
+   "label": "Totals"
   },
   {
    "fetch_from": "equipment.rate_type",
    "fieldname": "rate_type",
    "fieldtype": "Data",
-   "label": "\u0637\u0631\u064a\u0642\u0629 \u0627\u0644\u062d\u0633\u0627\u0628",
+   "label": "Rate type",
    "read_only": 1
   },
   {
    "fetch_from": "equipment.rate",
    "fieldname": "rate",
    "fieldtype": "Currency",
-   "label": "\u0627\u0644\u0633\u0639\u0631",
+   "label": "Rate",
    "read_only": 1
   },
   {
@@ -196,19 +217,19 @@
   {
    "fieldname": "working_days",
    "fieldtype": "Int",
-   "label": "\u0623\u064a\u0627\u0645 \u0627\u0644\u0639\u0645\u0644",
+   "label": "Working days",
    "read_only": 1
   },
   {
    "fieldname": "total_working_hours",
    "fieldtype": "Float",
-   "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0633\u0627\u0639\u0627\u062a \u0627\u0644\u062a\u0634\u063a\u064a\u0644",
+   "label": "Total operating hours",
    "read_only": 1
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
-   "label": "\u0627\u0644\u0642\u064a\u0645\u0629 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a\u0629",
+   "label": "Total amount",
    "read_only": 1
   },
   {
@@ -224,12 +245,12 @@
   {
    "fieldname": "adjustments_section",
    "fieldtype": "Section Break",
-   "label": "\u0625\u0636\u0627\u0641\u0627\u062a \u0648\u062e\u0635\u0648\u0645\u0627\u062a"
+   "label": "Additions and deductions"
   },
   {
    "fieldname": "adjustments",
    "fieldtype": "Table",
-   "label": "\u0627\u0644\u0625\u0636\u0627\u0641\u0627\u062a \u0648\u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a",
+   "label": "Additions and deductions",
    "options": "Card Monthly Card Adjustment"
   },
   {
@@ -239,21 +260,140 @@
   {
    "fieldname": "total_additions",
    "fieldtype": "Currency",
-   "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0625\u0636\u0627\u0641\u0627\u062a",
+   "label": "Total additions",
    "read_only": 1
   },
   {
    "fieldname": "total_deductions",
    "fieldtype": "Currency",
-   "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u062e\u0635\u0648\u0645\u0627\u062a",
+   "label": "Total deductions",
    "read_only": 1
   },
   {
    "bold": 1,
    "fieldname": "net_amount",
    "fieldtype": "Currency",
-   "label": "\u0627\u0644\u0635\u0627\u0641\u064a \u0627\u0644\u0645\u0633\u062a\u062d\u0642",
+   "label": "Net due",
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "gl_posting",
+   "fieldtype": "Link",
+   "label": "GL posting",
+   "options": "GL Posting Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted",
+   "fieldtype": "Check",
+   "label": "Posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice",
+   "options": "Purchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "snapshot_column",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "daily_hours_used",
+   "fieldtype": "Float",
+   "label": "Daily hours (used)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hourly_rate_used",
+   "fieldtype": "Currency",
+   "label": "Hourly rate (used)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "diesel_policy_used",
+   "fieldtype": "Data",
+   "label": "Fuel charged to (used)",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "equipment.rental_direction",
+   "fieldname": "card_direction",
+   "fieldtype": "Select",
+   "label": "Card direction",
+   "options": "\nمستأجَرة من مورد\nمؤجَّرة لعميل\nإيجار من الباطن\nتشغيل داخلي",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "equipment.default_customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "equipment.customer_rate_type",
+   "fieldname": "customer_rate_type",
+   "fieldtype": "Select",
+   "label": "Customer rate type",
+   "options": "\nباليوم\nبالساعة\nبالشهر",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "equipment.customer_rate",
+   "fieldname": "customer_rate",
+   "fieldtype": "Currency",
+   "label": "Customer rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_amount",
+   "fieldtype": "Currency",
+   "label": "Customer amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_rate_used",
+   "fieldtype": "Currency",
+   "label": "Customer hourly rate used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "direction_used",
+   "fieldtype": "Data",
+   "label": "Direction used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_used",
+   "fieldtype": "Data",
+   "label": "Customer used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rate_basis_used",
+   "fieldtype": "Data",
+   "label": "Rate basis used",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "equipment_info_section",
+   "fieldtype": "Section Break",
+   "label": "Equipment information"
+  },
+  {
+   "fieldname": "equipment_info_col",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
@@ -268,6 +408,8 @@
  "owner": "Administrator",
  "permissions": [
   {
+   "amend": 1,
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -279,6 +421,37 @@
    "share": 1,
    "submit": 1,
    "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
   }
  ],
  "row_format": "Dynamic",

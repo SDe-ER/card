@@ -87,6 +87,8 @@ required_apps = ["erpnext"]
 
 before_install = "card.install.before_install"
 after_install = "card.install.after_install"
+# F.8: the bundled print fonts install themselves on every migrate (user fontconfig)
+after_migrate = ["card.fonts.ensure_fonts"]
 
 # Uninstallation
 # ------------
@@ -152,6 +154,19 @@ after_install = "card.install.after_install"
 # 	}
 # }
 
+# Period lock (card.period_lock) on the three CARD transactions — validate covers
+# save/submit/amend/import; on_cancel + on_trash cover cancel + delete.
+_PERIOD_LOCK_EVENTS = {
+	"validate": "card.period_lock.on_validate",
+	"on_cancel": "card.period_lock.on_cancel",
+	"on_trash": "card.period_lock.on_trash",
+}
+doc_events = {
+	"Card Monthly Card": dict(_PERIOD_LOCK_EVENTS),
+	"Project Diesel Fill": dict(_PERIOD_LOCK_EVENTS),
+	"Equipment Transport": dict(_PERIOD_LOCK_EVENTS),
+}
+
 # Scheduled Tasks
 # ---------------
 
@@ -199,6 +214,12 @@ after_install = "card.install.after_install"
 # override_doctype_dashboards = {
 # 	"Task": "card.task.get_dashboard_data"
 # }
+override_doctype_dashboards = {
+	"Supplier": "card.dashboards.supplier_dashboard",
+	"Asset": "card.dashboards.asset_dashboard",
+	"Project": "card.dashboards.project_dashboard",
+	"Customer": "card.dashboards.customer_dashboard",
+}
 
 # exempt linked doctypes from being automatically cancelled
 #
@@ -269,9 +290,11 @@ after_install = "card.install.after_install"
 fixtures = [
 	{"dt": "Workspace", "filters": [["name", "=", "Card"]]},
 	{"dt": "Workspace Sidebar", "filters": [["name", "=", "Card"]]},
+	{"dt": "Sidebar", "filters": [["name", "=", "Card"]]},
 	{"dt": "Number Card", "filters": [["module", "=", "Card"]]},
 	{"dt": "Dashboard Chart", "filters": [["module", "=", "Card"]]},
-	{"dt": "Print Format", "filters": [["module", "=", "Card"]]},
+	{"dt": "Print Format", "filters": [["module", "=", "Card"], ["standard", "=", "No"]]},
+	{"dt": "Role", "filters": [["name", "in", ["Card Manager", "Card User"]]]},
 	{
 		"dt": "Property Setter",
 		"filters": [
