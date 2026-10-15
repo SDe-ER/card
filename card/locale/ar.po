@@ -15,34 +15,22 @@ msgstr ""
 "Generated-By: Babel 2.16.0\n"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:183
-msgid " (Draft)"
-msgstr " (مسودة)"
+msgid "(Draft)"
+msgstr "(مسودة)"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:372
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:383
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:231
-msgid " to "
-msgstr " إلى "
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:385
-msgid " — Hours only until internal rates are defined."
-msgstr " — الساعات فقط لحين تحديد الأسعار الداخلية."
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:374
-msgid " — Issue date "
-msgstr " — تاريخ الإصدار "
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:370
-msgid " — Period from "
-msgstr " — الفترة من "
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:376
-msgid ". Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
-msgstr ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
 
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:233
-msgid ". Click on the supplier name to open their statement."
-msgstr ". اضغط على اسم المورد لفتح كشف حسابه."
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:178
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:128
@@ -342,12 +330,8 @@ msgid "Equipment rate type is not defined: {0}"
 msgstr "طريقة حساب المعدة غير محددة: {0}"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:368
-msgid "Equipment supplier statement: "
-msgstr "كشف حساب مورد معدات: "
 
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:229
-msgid "Equipment suppliers summary — Period from "
-msgstr "ملخص موردي المعدات — الفترة من "
 
 #. Label of the equipment_type (Link) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -666,8 +650,6 @@ msgid "Operating hours"
 msgstr "ساعات التشغيل"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:381
-msgid "Operating owned equipment by project — Period from "
-msgstr "تشغيل المعدات الملك حسب المشروع — الفترة من "
 
 #. Label of the operation_tab (Tab Break) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -1544,11 +1526,7 @@ msgstr "المحصّل (دائن)"
 msgid "Customer closing balance"
 msgstr "رصيد العميل آخر المدة"
 
-msgid "Equipment customer statement: "
-msgstr "كشف حساب عميل معدات: "
 
-msgid ". Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
-msgstr ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = المستحق من الكروت − قيود الفوترة."
 
 msgid "Number of customers"
 msgstr "عدد العملاء"
@@ -1556,11 +1534,7 @@ msgstr "عدد العملاء"
 msgid "Total customer balances"
 msgstr "إجمالي أرصدة العملاء"
 
-msgid "Equipment customers summary — Period from "
-msgstr "ملخص عملاء المعدات — الفترة من "
 
-msgid ". Click on the customer name to open their statement."
-msgstr ". اضغط على اسم العميل لفتح كشف حسابه."
 
 msgid "Equipment Expenses Without Equipment"
 msgstr "مصروفات معدات بدون معدة"
@@ -1763,3 +1737,18 @@ msgstr "نوع الوردية"
 
 msgid "Diesel supplier policy is fixed; set the diesel supplier."
 msgstr "سياسة مورد الديزل ثابتة؛ حدد مورد الديزل."
+
+msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
+msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = المستحق من الكروت − قيود الفوترة."
+
+msgid "Equipment customers summary — Period from {0} to {1}. Click on the customer name to open their statement."
+msgstr "ملخص عملاء المعدات — الفترة من {0} إلى {1}. اضغط على اسم العميل لفتح كشف حسابه."
+
+msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
+msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
+
+msgid "Equipment suppliers summary — Period from {0} to {1}. Click on the supplier name to open their statement."
+msgstr "ملخص موردي المعدات — الفترة من {0} إلى {1}. اضغط على اسم المورد لفتح كشف حسابه."
+
+msgid "Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
+msgstr "تشغيل المعدات الملك حسب المشروع — الفترة من {0} إلى {1} — الساعات فقط لحين تحديد الأسعار الداخلية."

@@ -71,10 +71,14 @@ class TestPeriodLockAndSnapshot(IntegrationTestCase):
 		d.month = self.month_str
 		d.year = int(self.year_str)
 		for i, h in enumerate(hours, start=1):
-			d.append("days", {
-				"operation_date": "%s-%s-%02d" % (self.year_str, self.month_str, i),
-				"day_status": "عمل", "working_hours": h,
-			})
+			d.append(
+				"days",
+				{
+					"operation_date": "%s-%s-%02d" % (self.year_str, self.month_str, i),
+					"day_status": "عمل",
+					"working_hours": h,
+				},
+			)
 		return d
 
 	def _equip(self):
@@ -152,10 +156,15 @@ class TestPeriodLockAndSnapshot(IntegrationTestCase):
 	def test_notify_gating(self):
 		user = "nlog-" + frappe.generate_hash(length=6) + "@card.test"
 		if not frappe.db.exists("User", user):
-			frappe.get_doc({
-				"doctype": "User", "email": user, "first_name": "NLog",
-				"send_welcome_email": 0, "enabled": 1,
-			}).insert(ignore_permissions=True)
+			frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": user,
+					"first_name": "NLog",
+					"send_welcome_email": 0,
+					"enabled": 1,
+				}
+			).insert(ignore_permissions=True)
 		self._set("notify_on_card_submit", 0)
 		self.assertEqual(notify("notify_on_card_submit", [user], "s", "m"), 0)
 		self._set("notify_on_card_submit", 1)

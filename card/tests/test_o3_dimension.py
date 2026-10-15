@@ -138,9 +138,7 @@ class TestCardEquipmentDimension(IntegrationTestCase):
 		)[0]
 		make_depreciation_entry(schedule, str(first_row.schedule_date))
 
-		je = frappe.db.get_value(
-			"Depreciation Schedule", first_row.name, "journal_entry"
-		)
+		je = frappe.db.get_value("Depreciation Schedule", first_row.name, "journal_entry")
 		self.assertTrue(je, "depreciation journal entry was not created")
 		gl_rows = frappe.get_all(
 			"GL Entry",
@@ -262,7 +260,9 @@ class TestCardEquipmentDimension(IntegrationTestCase):
 		if not accounts:
 			self.skipTest("CARD expense accounts not configured for this company (O3 seed missing)")
 		expense = accounts[0]
-		cash = frappe.db.get_value("Account", {"account_type": "Cash", "is_group": 0, "company": self.company}, "name")
+		cash = frappe.db.get_value(
+			"Account", {"account_type": "Cash", "is_group": 0, "company": self.company}, "name"
+		)
 		eq = self._equipment()
 		posting = get_first_day(add_months(getdate(nowdate()), -1))
 
@@ -292,7 +292,7 @@ class TestCardEquipmentDimension(IntegrationTestCase):
 		listed = {r.voucher_no for r in rows}
 		self.assertIn(je_without.name, listed)
 		self.assertNotIn(je_with.name, listed)
-		count = [s for s in summary if s["label"] == frappe._("Lines without equipment")][0]
+		count = next(s for s in summary if s["label"] == frappe._("Lines without equipment"))
 		self.assertGreaterEqual(count["value"], 1)
 
 	# ---- 5. first-run guard: no traceback without configuration ----

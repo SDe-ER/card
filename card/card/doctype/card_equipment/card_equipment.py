@@ -52,18 +52,24 @@ class CardEquipment(Document):
 			self.rental_direction = derive_direction(self.ownership)
 		if self.rental_direction not in allowed_directions(self.ownership):
 			frappe.throw(
-				_("Direction {0} is not valid for ownership {1}.").format(self.rental_direction, self.ownership)
+				_("Direction {0} is not valid for ownership {1}.").format(
+					self.rental_direction, self.ownership
+				)
 			)
 		if self.rental_direction in SUPPLIER_BILLING_DIRECTIONS:
 			if not self.supplier:
 				frappe.throw(_("Direction {0} requires a supplier.").format(self.rental_direction))
 			if not self.rate_type or not flt(self.rate):
-				frappe.throw(_("Direction {0} requires the supplier rate and its basis.").format(self.rental_direction))
+				frappe.throw(
+					_("Direction {0} requires the supplier rate and its basis.").format(self.rental_direction)
+				)
 		if self.rental_direction in CUSTOMER_BILLING_DIRECTIONS:
 			if not self.default_customer:
 				frappe.throw(_("Direction {0} requires a customer.").format(self.rental_direction))
 			if not self.customer_rate_type or not flt(self.customer_rate):
-				frappe.throw(_("Direction {0} requires the customer rate and its basis.").format(self.rental_direction))
+				frappe.throw(
+					_("Direction {0} requires the customer rate and its basis.").format(self.rental_direction)
+				)
 
 	def validate_unique_asset(self):
 		# One ERPNext Asset <-> at most one Card Equipment.
@@ -129,7 +135,7 @@ def get_timeline_data(doctype: str, name: str) -> dict:
 
 
 @frappe.whitelist()
-def get_shift_heatmap(name):
+def get_shift_heatmap(name: str):
 	"""Per-shift daily operating hours, so two-shift equipment can show the day
 	(نهاري) and night (ليلي) activity as two separate heatmaps with distinct
 	palettes. Mirrors get_timeline_data but also groups by the card's shift.

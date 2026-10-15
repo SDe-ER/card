@@ -61,21 +61,23 @@ function card_build_heatmap(container, title, dataPoints, colors) {
 // shift equipment keep the one brand heatmap from card_patch_heatmap.
 function card_render_shift_heatmaps(frm) {
 	if (frm.is_new() || !frm.dashboard || !frm.dashboard.heatmap_area) return;
-	frappe.call({
-		method: "card.card.doctype.card_equipment.card_equipment.get_shift_heatmap",
-		args: { name: frm.doc.name },
-	}).then((r) => {
-		const d = (r && r.message) || {};
-		const body = frm.dashboard.heatmap_area.body;
-		body.find(".card-shift-heatmaps").remove();
-		if (!d.has_night) return; // single shift → keep the default single heatmap
-		// Take over: hide the native single heatmap and stop its async data overwrite.
-		body.find("#heatmap-" + frappe.model.scrub(frm.doctype)).hide();
-		frm.dashboard.heatmap = { update: function () {} };
-		const wrap = $('<div class="card-shift-heatmaps"></div>').appendTo(body);
-		card_build_heatmap(wrap, __("Day-shift activity"), d.day, CARD_HEATMAP_COLORS);
-		card_build_heatmap(wrap, __("Night-shift activity"), d.night, CARD_NIGHT_COLORS);
-	});
+	frappe
+		.call({
+			method: "card.card.doctype.card_equipment.card_equipment.get_shift_heatmap",
+			args: { name: frm.doc.name },
+		})
+		.then((r) => {
+			const d = (r && r.message) || {};
+			const body = frm.dashboard.heatmap_area.body;
+			body.find(".card-shift-heatmaps").remove();
+			if (!d.has_night) return; // single shift → keep the default single heatmap
+			// Take over: hide the native single heatmap and stop its async data overwrite.
+			body.find("#heatmap-" + frappe.model.scrub(frm.doctype)).hide();
+			frm.dashboard.heatmap = { update: function () {} };
+			const wrap = $('<div class="card-shift-heatmaps"></div>').appendTo(body);
+			card_build_heatmap(wrap, __("Day-shift activity"), d.day, CARD_HEATMAP_COLORS);
+			card_build_heatmap(wrap, __("Night-shift activity"), d.night, CARD_NIGHT_COLORS);
+		});
 }
 
 // Build a read-only anchor to an EXISTING record (no "create new" affordance).
@@ -154,7 +156,9 @@ function card_render_equipment_links(frm) {
 				);
 			}
 			if (parts.length) {
-				card_bind_direct_links(frm.dashboard.add_section(parts.join(""), __("Related records")));
+				card_bind_direct_links(
+					frm.dashboard.add_section(parts.join(""), __("Related records")),
+				);
 			}
 		});
 }
@@ -199,7 +203,7 @@ function card_add_create_from_asset(frm) {
 							company: d.company,
 							ownership: d.ownership,
 							equipment_name: d.equipment_name,
-							"الأصل_في_erpnext": d["الأصل_في_erpnext"],
+							الأصل_في_erpnext: d["الأصل_في_erpnext"],
 						});
 					});
 			},

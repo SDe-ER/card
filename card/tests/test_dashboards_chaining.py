@@ -5,7 +5,6 @@ each ``override_doctype_dashboards`` function. These tests use a synthetic
 pre-existing ``data`` to prove other apps' connections survive.
 """
 
-
 from frappe.tests import IntegrationTestCase
 
 from card import dashboards
@@ -105,7 +104,7 @@ class TestDashboardsChaining(IntegrationTestCase):
 		result = dashboards.customer_dashboard(data)
 		self.assertIn("Existing HRMS", _labels(result))
 		self.assertIn("Card", _labels(result))
-		card_group = [g for g in result["transactions"] if g["label"] == "Card"][0]
+		card_group = next(g for g in result["transactions"] if g["label"] == "Card")
 		self.assertIn("Card Equipment Customer", card_group["items"])
 		self.assertIn("Card Monthly Card", card_group["items"])
 		self.assertEqual(result["non_standard_fieldnames"]["Card Equipment Customer"], "customer")

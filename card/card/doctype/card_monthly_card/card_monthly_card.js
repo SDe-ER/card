@@ -208,7 +208,12 @@ function card_check_duplicate(frm) {
 		})
 		.then((r) => {
 			if (r.length) {
-				frappe.throw(__("A {0} card already exists for the same equipment and month: {1}", [frm.doc.shift, r[0].name]));
+				frappe.throw(
+					__("A {0} card already exists for the same equipment and month: {1}", [
+						frm.doc.shift,
+						r[0].name,
+					]),
+				);
 			}
 		});
 }
@@ -284,35 +289,37 @@ function card_render_card_links(frm) {
 // project + month (owner 2026-10-14). Display only — it NEVER changes net_amount.
 function card_render_diesel(frm) {
 	if (frm.is_new() || !frm.doc.equipment || !frm.doc.project || !frm.dashboard) return;
-	frappe.call({ method: "card.diesel.get_card_diesel", args: { card: frm.doc.name } }).then((r) => {
-		const d = (r && r.message) || {};
-		if (!frm.dashboard) return;
-		const parts = [
-			'<div class="mb-2"><span class="text-muted">' +
-				__("Diesel (litres)") +
-				":</span> " +
-				format_number(flt(d.litres), null, 2) +
-				"</div>",
-			'<div class="mb-2"><span class="text-muted">' +
-				__("Diesel cost") +
-				":</span> " +
-				format_currency(flt(d.amount)) +
-				"</div>",
-		];
-		if (d.company_bears) {
+	frappe
+		.call({ method: "card.diesel.get_card_diesel", args: { card: frm.doc.name } })
+		.then((r) => {
+			const d = (r && r.message) || {};
+			if (!frm.dashboard) return;
+			const parts = [
+				'<div class="mb-2"><span class="text-muted">' +
+					__("Diesel (litres)") +
+					":</span> " +
+					format_number(flt(d.litres), null, 2) +
+					"</div>",
+				'<div class="mb-2"><span class="text-muted">' +
+					__("Diesel cost") +
+					":</span> " +
+					format_currency(flt(d.amount)) +
+					"</div>",
+			];
+			if (d.company_bears) {
+				parts.push(
+					'<div class="text-muted small">' +
+						__("Fuel borne by the company — this diesel is our cost.") +
+						"</div>",
+				);
+			}
 			parts.push(
 				'<div class="text-muted small">' +
-					__("Fuel borne by the company — this diesel is our cost.") +
+					__("Display only — does not affect the rental amount.") +
 					"</div>",
 			);
-		}
-		parts.push(
-			'<div class="text-muted small">' +
-				__("Display only — does not affect the rental amount.") +
-				"</div>",
-		);
-		frm.dashboard.add_section(parts.join(""), __("Diesel"));
-	});
+			frm.dashboard.add_section(parts.join(""), __("Diesel"));
+		});
 }
 
 frappe.ui.form.on("Card Monthly Card", {

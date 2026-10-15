@@ -48,7 +48,9 @@ class ProjectDieselFill(Document):
 		policy = setting("diesel_supplier_policy") or "متغير"
 		if policy == "ثابت":
 			frappe.throw(
-				_("The diesel supplier is fixed in Settings ({0}) and cannot be changed.").format(default_supplier)
+				_("The diesel supplier is fixed in Settings ({0}) and cannot be changed.").format(
+					default_supplier
+				)
 			)
 		role = setting("diesel_supplier_editor_role") or "Card Manager"
 		if frappe.session.user != "Administrator" and role not in frappe.get_roles():

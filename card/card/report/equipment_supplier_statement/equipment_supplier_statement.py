@@ -185,7 +185,7 @@ def execute(filters=None):
 						"row_id": e_id + "|C|" + c.name,
 						"parent_row": e_id,
 						"indent": 2,
-						"label": c.name + (_(" (Draft)") if c.docstatus == 0 else ""),
+						"label": c.name + (" " + _("(Draft)") if c.docstatus == 0 else ""),
 						"card": c.name,
 						"equipment": c.equipment,
 						"project": c.project,
@@ -271,7 +271,13 @@ def execute(filters=None):
 			"width": 100,
 		},
 		{"fieldname": "equipment_type", "label": _("Equipment type"), "fieldtype": "Data", "width": 110},
-		{"fieldname": "project", "label": _("Project"), "fieldtype": "Link", "options": "Project", "width": 100},
+		{
+			"fieldname": "project",
+			"label": _("Project"),
+			"fieldtype": "Link",
+			"options": "Project",
+			"width": 100,
+		},
 		{"fieldname": "shift", "label": _("Shift type"), "fieldtype": "Data", "width": 70},
 		{"fieldname": "first_date", "label": _("First operation"), "fieldtype": "Date", "width": 100},
 		{"fieldname": "last_date", "label": _("Last operation"), "fieldtype": "Date", "width": 100},
@@ -291,9 +297,19 @@ def execute(filters=None):
 		]
 
 	summary = [
-		{"label": _("Number of equipment"), "value": len(grand["eq"]), "datatype": "Int", "indicator": "Blue"},
+		{
+			"label": _("Number of equipment"),
+			"value": len(grand["eq"]),
+			"datatype": "Int",
+			"indicator": "Blue",
+		},
 		{"label": _("Operating days"), "value": grand["days"], "datatype": "Int", "indicator": "Blue"},
-		{"label": _("Operating hours"), "value": flt(grand["hours"], 2), "datatype": "Float", "indicator": "Blue"},
+		{
+			"label": _("Operating hours"),
+			"value": flt(grand["hours"], 2),
+			"datatype": "Float",
+			"indicator": "Blue",
+		},
 	]
 
 	message = None
@@ -360,7 +376,12 @@ def execute(filters=None):
 				"datatype": "Currency",
 				"indicator": "Grey",
 			},
-			{"label": _("Paid (Debit)"), "value": flt(paid, 2), "datatype": "Currency", "indicator": "Orange"},
+			{
+				"label": _("Paid (Debit)"),
+				"value": flt(paid, 2),
+				"datatype": "Currency",
+				"indicator": "Orange",
+			},
 			{
 				"label": _("Supplier closing balance"),
 				"value": flt(closing, 2),
@@ -368,27 +389,13 @@ def execute(filters=None):
 				"indicator": "Red" if closing > 0 else "Green",
 			},
 		]
-		message = (
-			_prefix
-			+ _("Equipment supplier statement: ")
-			+ str(supplier)
-			+ _(" — Period from ")
-			+ str(start)
-			+ _(" to ")
-			+ str(end)
-			+ _(" — Issue date ")
-			+ frappe.utils.nowdate()
-			+ _(". Balance from accounting entries only; reconciliation difference = net cards − accrual entries.")
-		)
+		message = _prefix + _(
+			"Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
+		).format(supplier, start, end, frappe.utils.nowdate())
 	else:
-		message = (
-			_prefix
-			+ _("Operating owned equipment by project — Period from ")
-			+ str(start)
-			+ _(" to ")
-			+ str(end)
-			+ _(" — Hours only until internal rates are defined.")
-		)
+		message = _prefix + _(
+			"Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
+		).format(start, end)
 
 	data = [columns, data_rows, message, None, summary, True]
 	return data

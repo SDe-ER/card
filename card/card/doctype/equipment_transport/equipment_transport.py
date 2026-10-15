@@ -51,9 +51,9 @@ class EquipmentTransport(Document):
 		role = setting("transport_price_editor_role") or "Card Manager"
 		if frappe.session.user != "Administrator" and role not in frappe.get_roles():
 			frappe.throw(
-				_("Only users with role {0} may change the transport amount for project {1} (configured: {2}).").format(
-					role, self.project, configured
-				)
+				_(
+					"Only users with role {0} may change the transport amount for project {1} (configured: {2})."
+				).format(role, self.project, configured)
 			)
 
 	# The accounting posting (Purchase Invoice to the transport supplier, cost on the

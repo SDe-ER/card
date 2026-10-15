@@ -226,14 +226,9 @@ def execute(filters=None):
 	]
 	_company = frappe.defaults.get_global_default("company") or ""
 	_prefix = (_company + " — ") if _company else ""
-	message = (
-		_prefix
-		+ _("Equipment suppliers summary — Period from ")
-		+ str(start)
-		+ _(" to ")
-		+ str(end)
-		+ _(". Click on the supplier name to open their statement.")
-	)
+	message = _prefix + _(
+		"Equipment suppliers summary — Period from {0} to {1}. Click on the supplier name to open their statement."
+	).format(start, end)
 
 	data = [columns, result, message, None, summary, True]
 	return data

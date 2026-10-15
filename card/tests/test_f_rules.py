@@ -20,9 +20,7 @@ DIRECTION_OPTIONS = "\n" + "\n".join([DIR_RENTED_IN, DIR_RENTED_OUT, DIR_SUBRENT
 
 class TestDirectionOptionBytes(IntegrationTestCase):
 	def _field(self, doctype_dir, fname, fieldname):
-		path = os.path.join(
-			frappe.get_app_path("card"), "card", "doctype", doctype_dir, fname
-		)
+		path = os.path.join(frappe.get_app_path("card"), "card", "doctype", doctype_dir, fname)
 		data = json.load(open(path, encoding="utf-8"))
 		return next(f for f in data["fields"] if f.get("fieldname") == fieldname)
 

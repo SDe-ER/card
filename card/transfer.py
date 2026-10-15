@@ -76,9 +76,7 @@ def _assigned_on(equipment, project, day):
 def _components(unit):
 	return [
 		c.component
-		for c in frappe.get_all(
-			"Card Equipment Component", filters={"parent": unit}, fields=["component"]
-		)
+		for c in frappe.get_all("Card Equipment Component", filters={"parent": unit}, fields=["component"])
 		if c.component
 	]
 
