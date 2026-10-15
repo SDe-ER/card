@@ -11,6 +11,11 @@ import frappe
 
 
 def execute():
+	# frappe skips an app's schema sync when its version is unchanged, and a
+	# failed earlier migrate can leave patches pending on an old schema —
+	# reload the doctypes this patch touches before reading their columns.
+	frappe.reload_doctype("Card Monthly Card")
+	frappe.reload_doctype("Card Equipment")
 	if not frappe.db.has_column("Card Monthly Card", "card_direction"):
 		return
 	frappe.db.sql(
