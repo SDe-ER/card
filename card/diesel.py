@@ -90,7 +90,7 @@ def allocate_project_diesel(project, month, year, include_unallocated=False):
 
 
 @frappe.whitelist()
-def get_card_diesel(card):
+def get_card_diesel(card: str):
 	"""Diesel allocated to one Card Monthly Card's equipment for its project +
 	month. Display only; it is NEVER written back and NEVER affects net_amount."""
 	doc = frappe.get_doc("Card Monthly Card", card)

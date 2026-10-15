@@ -15,15 +15,17 @@ def notify(flag, recipients, subject, message, doc=None):
 	sent = 0
 	for user in sorted({u for u in (recipients or []) if u and u not in ("Administrator", "Guest")}):
 		try:
-			frappe.get_doc({
-				"doctype": "Notification Log",
-				"for_user": user,
-				"type": "Alert",
-				"subject": subject,
-				"email_content": message,
-				"document_type": doc.doctype if doc else None,
-				"document_name": doc.name if doc else None,
-			}).insert(ignore_permissions=True)
+			frappe.get_doc(
+				{
+					"doctype": "Notification Log",
+					"for_user": user,
+					"type": "Alert",
+					"subject": subject,
+					"email_content": message,
+					"document_type": doc.doctype if doc else None,
+					"document_name": doc.name if doc else None,
+				}
+			).insert(ignore_permissions=True)
 			sent += 1
 		except Exception:
 			frappe.logger("card.notifications").warning("notify failed for %s" % user)

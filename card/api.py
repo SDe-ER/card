@@ -55,7 +55,7 @@ def recompute_supplier(supplier):
 
 
 @frappe.whitelist(methods=["POST"])
-def refresh_supplier(supplier=None):
+def refresh_supplier(supplier: str | None = None):
 	"""Refresh one supplier, or all suppliers with submitted non-owned cards.
 	Ported from Server Script "Card Equipment Supplier - Refresh" v1.1. System Manager only."""
 	if "System Manager" not in frappe.get_roles(frappe.session.user):
@@ -89,7 +89,7 @@ def refresh_supplier(supplier=None):
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
-def card_suppliers_query(doctype, txt, searchfield, start, page_len, filters):
+def card_suppliers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
 	"""Link-filter query for the supplier reports: list every Supplier that has
 	at least one Card Monthly Card (any period, drafts + submitted; cancelled
 	excluded). This makes the "supplier" filter findable by name regardless of
@@ -160,7 +160,7 @@ def recompute_customer(customer):
 
 
 @frappe.whitelist(methods=["POST"])
-def refresh_customer(customer=None):
+def refresh_customer(customer: str | None = None):
 	"""Refresh one customer, or all customers with submitted billing cards.
 	Mirror of refresh_supplier. System Manager only."""
 	if "System Manager" not in frappe.get_roles(frappe.session.user):
@@ -194,7 +194,7 @@ def refresh_customer(customer=None):
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
-def card_customers_query(doctype, txt, searchfield, start, page_len, filters):
+def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
 	"""Link-filter query for the customer reports: list every Customer that has
 	at least one Card Monthly Card (any period, drafts + submitted; cancelled
 	excluded) — the owner's "customers with at least one card" rule."""
@@ -216,7 +216,7 @@ def card_customers_query(doctype, txt, searchfield, start, page_len, filters):
 
 
 @frappe.whitelist(methods=["POST"])
-def create_equipment_from_asset(asset):
+def create_equipment_from_asset(asset: str):
 	"""Return a NEW, UNSAVED Card Equipment prefilled from a submitted ERPNext Asset.
 
 	Nothing is inserted: the client opens the prefilled form and the user completes the
@@ -243,7 +243,9 @@ def create_equipment_from_asset(asset):
 
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
-def available_assets_query(doctype, txt, searchfield, start, page_len, filters):
+def available_assets_query(
+	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict
+):
 	"""Link-filter query for Card Equipment.الأصل_في_erpnext: submitted Assets of the
 	given company that are not Scrapped/Sold and not already linked to a Card Equipment."""
 	filters = filters or {}

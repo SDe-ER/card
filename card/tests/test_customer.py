@@ -77,8 +77,15 @@ class _CustomerCardsBase(IntegrationTestCase):
 		cust.insert(ignore_permissions=True)
 		return cust.name
 
-	def _equipment(self, ownership=RENTED, direction=None, customer=None,
-			customer_rate=None, customer_rate_type=None, **kw):
+	def _equipment(
+		self,
+		ownership=RENTED,
+		direction=None,
+		customer=None,
+		customer_rate=None,
+		customer_rate_type=None,
+		**kw,
+	):
 		"""F.7: billing is configured ON the equipment. Supplier side 750/day
 		over 10h (= 75/h) for rented ownerships; customer side only when asked."""
 		d = frappe.new_doc("Card Equipment")
@@ -107,15 +114,21 @@ class _CustomerCardsBase(IntegrationTestCase):
 	def _rented_out(self, customer=None, customer_rate=1000, **kw):
 		# owned equipment billed to a customer: 1000/day over 10h = 100/h
 		return self._equipment(
-			OWNED, direction=DIR_RENTED_OUT, customer=customer or self.customer,
-			customer_rate=customer_rate, **kw
+			OWNED,
+			direction=DIR_RENTED_OUT,
+			customer=customer or self.customer,
+			customer_rate=customer_rate,
+			**kw,
 		)
 
 	def _sub_rental(self, customer=None, customer_rate=1200, **kw):
 		# rented at 750/day (75/h), rented out at 1200/day (120/h)
 		return self._equipment(
-			RENTED, direction=DIR_SUBRENTAL, customer=customer or self.customer,
-			customer_rate=customer_rate, **kw
+			RENTED,
+			direction=DIR_SUBRENTAL,
+			customer=customer or self.customer,
+			customer_rate=customer_rate,
+			**kw,
 		)
 
 	def _card(self, eq, hours_list, submit=False, **presets):
@@ -186,8 +199,11 @@ class TestCardDirection(_CustomerCardsBase):
 		eq = self._rented_out()
 		other = self._customer("-OTHER")
 		card = self._card(
-			eq, [10],
-			customer=other, customer_rate=555, customer_rate_type="بالساعة",
+			eq,
+			[10],
+			customer=other,
+			customer_rate=555,
+			customer_rate_type="بالساعة",
 			card_direction=DIR_INTERNAL,
 		)
 		# whatever was typed on the card is overwritten from the equipment
@@ -198,8 +214,11 @@ class TestCardDirection(_CustomerCardsBase):
 		self.assertEqual(flt(card.customer_amount), 1000.0)
 		# non-billing direction: a typed customer is cleared, nothing billed
 		internal = self._card(
-			self._equipment(OWNED), [10],
-			customer=other, customer_rate=555, customer_rate_type="بالساعة",
+			self._equipment(OWNED),
+			[10],
+			customer=other,
+			customer_rate=555,
+			customer_rate_type="بالساعة",
 		)
 		self.assertFalse(internal.customer)
 		self.assertFalse(internal.customer_rate_type)
@@ -322,7 +341,8 @@ class TestDirectionPatches(_CustomerCardsBase):
 		eq_sub = self._sub_rental()
 		card = self._card(eq_sub, [10], submit=True)
 		frappe.db.set_value(
-			"Card Monthly Card", card.name,
+			"Card Monthly Card",
+			card.name,
 			{
 				"card_direction": DIR_SUBRENTAL,
 				"customer": self.customer,
@@ -332,7 +352,8 @@ class TestDirectionPatches(_CustomerCardsBase):
 			update_modified=False,
 		)
 		frappe.db.set_value(
-			"Card Equipment", eq_sub.name,
+			"Card Equipment",
+			eq_sub.name,
 			{"default_customer": None, "customer_rate_type": None, "customer_rate": 0},
 			update_modified=False,
 		)
@@ -349,7 +370,8 @@ class TestDirectionPatches(_CustomerCardsBase):
 		self.assertEqual(direction(eq_rented.name), DIR_RENTED_IN)
 		self.assertEqual(direction(eq_out.name), DIR_RENTED_OUT)
 		lifted = frappe.db.get_value(
-			"Card Equipment", eq_sub.name,
+			"Card Equipment",
+			eq_sub.name,
 			["rental_direction", "default_customer", "customer_rate_type", "customer_rate"],
 			as_dict=True,
 		)

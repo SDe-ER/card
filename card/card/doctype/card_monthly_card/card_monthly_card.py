@@ -7,12 +7,9 @@ from frappe.model.document import Document
 from frappe.utils import cint, flt, get_last_day, getdate, nowdate
 
 from card.api import recompute_customer, recompute_supplier
-from card.notifications import notify
-from card.settings import setting
-from card.transfer import covering_assignment, validate_card_days
 
 # direction constants live in card.constants (re-exported here for callers/tests)
-from card.constants import (  # noqa: F401
+from card.constants import (
 	CUSTOMER_BILLING_DIRECTIONS,
 	DIR_INTERNAL,
 	DIR_RENTED_IN,
@@ -23,6 +20,9 @@ from card.constants import (  # noqa: F401
 	allowed_directions,
 	derive_direction,
 )
+from card.notifications import notify
+from card.settings import setting
+from card.transfer import covering_assignment, validate_card_days
 
 
 class CardMonthlyCard(Document):
@@ -59,7 +59,9 @@ class CardMonthlyCard(Document):
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
 		if eq.is_unit_component:
 			frappe.throw(
-				_("This equipment is a unit component; the monthly card is kept on the unit, not the component.")
+				_(
+					"This equipment is a unit component; the monthly card is kept on the unit, not the component."
+				)
 			)
 		if self.company and self.company != eq.company:
 			frappe.throw(_("The card's company does not match the equipment's company"))
@@ -80,9 +82,9 @@ class CardMonthlyCard(Document):
 		self.card_direction = eq.rental_direction or derive_direction(eq.ownership)
 		if self.card_direction not in allowed_directions(eq.ownership):
 			frappe.throw(
-				_("Equipment {0}: direction {1} is not valid for ownership {2}. Fix the equipment first.").format(
-					self.equipment, self.card_direction, eq.ownership
-				)
+				_(
+					"Equipment {0}: direction {1} is not valid for ownership {2}. Fix the equipment first."
+				).format(self.equipment, self.card_direction, eq.ownership)
 			)
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS:
 			self.customer = eq.default_customer
@@ -152,9 +154,9 @@ class CardMonthlyCard(Document):
 		# ---- shift limit (advisory warning, never blocks; every recorded hour is billed) ----
 		if over_shift_limit:
 			frappe.msgprint(
-				_("Days over the {0}-hour shift limit for shift {1} (recorded and billed — review): {2}").format(
-					max_hours, self.shift, "، ".join(over_shift_limit)
-				),
+				_(
+					"Days over the {0}-hour shift limit for shift {1} (recorded and billed — review): {2}"
+				).format(max_hours, self.shift, "، ".join(over_shift_limit)),
 				title=_("Shift hours exceeded warning"),
 				indicator="orange",
 			)
@@ -176,7 +178,11 @@ class CardMonthlyCard(Document):
 		for adj in self.adjustments or []:
 			a = flt(adj.amount)
 			if a <= 0:
-				frappe.throw(_("The addition/deduction amount must be greater than zero: {0}").format(adj.description or ""))
+				frappe.throw(
+					_("The addition/deduction amount must be greater than zero: {0}").format(
+						adj.description or ""
+					)
+				)
 			if adj.adjustment_type == "إضافة":
 				total_additions = total_additions + a
 			elif adj.adjustment_type == "خصم":
@@ -211,7 +217,11 @@ class CardMonthlyCard(Document):
 			limit=1,
 		)
 		if dup:
-			frappe.throw(_("A {0} card already exists for the same equipment and month: {1}").format(self.shift, dup[0]))
+			frappe.throw(
+				_("A {0} card already exists for the same equipment and month: {1}").format(
+					self.shift, dup[0]
+				)
+			)
 
 		# ---- shift length warning (per card, per day; each shift card stands alone) ----
 		if setting("warn_on_shift_hours_exceeded"):
@@ -230,7 +240,9 @@ class CardMonthlyCard(Document):
 					)
 			else:
 				frappe.msgprint(
-					_("Shift hours are not set for equipment {0}; the shift-hours-exceeded warning will not appear.").format(self.equipment),
+					_(
+						"Shift hours are not set for equipment {0}; the shift-hours-exceeded warning will not appear."
+					).format(self.equipment),
 					title=_("Shift hours"),
 					indicator="orange",
 				)
@@ -253,7 +265,9 @@ class CardMonthlyCard(Document):
 						outside.append(k)
 				if outside:
 					frappe.msgprint(
-						_("Days with operation outside the rental period (calculated, needs review): {0}").format("، ".join(outside)),
+						_(
+							"Days with operation outside the rental period (calculated, needs review): {0}"
+						).format("، ".join(outside)),
 						title=_("Review rental period"),
 						indicator="orange",
 					)
@@ -313,7 +327,9 @@ class CardMonthlyCard(Document):
 			"notify_on_card_submit",
 			[self.owner],
 			_("Monthly operation card submitted: {0}").format(self.name),
-			_("Card {0} for equipment {1} was submitted.").format(self.name, self.equipment_name or self.equipment),
+			_("Card {0} for equipment {1} was submitted.").format(
+				self.name, self.equipment_name or self.equipment
+			),
 			self,
 		)
 
@@ -356,7 +372,9 @@ class CardMonthlyCard(Document):
 					message="Card " + str(self.name) + " (event " + str(self.docstatus) + ")",
 				)
 				frappe.msgprint(
-					_("Could not update the customer record {0}. The card was saved normally; use the «Refresh numbers» button in the customer record.").format(self.customer),
+					_(
+						"Could not update the customer record {0}. The card was saved normally; use the «Refresh numbers» button in the customer record."
+					).format(self.customer),
 					title=_("Customer record"),
 					indicator="orange",
 				)
@@ -372,7 +390,9 @@ class CardMonthlyCard(Document):
 					message="Card " + str(self.name) + " (event " + str(self.docstatus) + ")",
 				)
 				frappe.msgprint(
-					_("Could not update the supplier record {0}. The card was saved normally; use the «Refresh numbers» button in the supplier record.").format(self.supplier),
+					_(
+						"Could not update the supplier record {0}. The card was saved normally; use the «Refresh numbers» button in the supplier record."
+					).format(self.supplier),
 					title=_("Supplier record"),
 					indicator="orange",
 				)

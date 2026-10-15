@@ -65,7 +65,13 @@
 				default: pm,
 				reqd: 1,
 			},
-			{ fieldname: "from_year", label: __("From year"), fieldtype: "Int", default: py, reqd: 1 },
+			{
+				fieldname: "from_year",
+				label: __("From year"),
+				fieldtype: "Int",
+				default: py,
+				reqd: 1,
+			},
 			{
 				fieldname: "to_month",
 				label: __("To month"),

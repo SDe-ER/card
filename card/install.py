@@ -52,7 +52,9 @@ CARD_DOCTYPES = (
 CARD_ROLES = ("Card Manager", "Card User")
 
 CMC_DOCTYPE = "Card Monthly Card"
-CMC_DEFAULT_PRINT_FORMAT = "Card Monthly Card Print"  # F.8: the professional RTL format (legacy fixture stays as an alternative)
+CMC_DEFAULT_PRINT_FORMAT = (
+	"Card Monthly Card Print"  # F.8: the professional RTL format (legacy fixture stays as an alternative)
+)
 
 # The app-native Desk launcher ("Card appears on the Desk immediately after
 # install"). Shipped as an app-owned STANDARD Desktop Icon (file-backed at
@@ -103,7 +105,9 @@ def before_install():
 	# Raw set_value writes above bypass doc hooks; clear caches so the DocType
 	# sync that install-app runs next sees the adopted ownership.
 	frappe.clear_cache()
-	frappe.db.commit()
+	# Install hooks run outside a request transaction; the adopted ownership must
+	# be persisted before install-app's DocType sync reads it.
+	frappe.db.commit()  # nosemgrep
 
 
 def after_install():
@@ -111,7 +115,24 @@ def after_install():
 	post-sync invariants (print default, disabled legacy scripts, single
 	Desk launcher)."""
 	_reconcile()
-	frappe.db.commit()
+	# Same install-hook context as before_install: persist the reconciliation.
+	frappe.db.commit()  # nosemgrep
+
+
+def before_tests():
+	"""Create the shared test masters COMMITTED, once per test run.
+
+	The suite's _ensure_masters() creates missing masters inside the test
+	transaction; on a clean CI site a full rollback anywhere in an earlier
+	test class erases them for every later class (Supplier inserts then fail
+	link validation on "Test Supplier Group"). A seeded site already has all
+	of these, so this is a no-op there."""
+	from card.tests.test_controllers import _ensure_masters
+
+	frappe.clear_cache()
+	_ensure_masters()
+	# Test-bootstrap context, outside any test transaction by design.
+	frappe.db.commit()  # nosemgrep
 
 
 def _reconcile():
@@ -519,7 +540,7 @@ def _append_card_to_user_layouts():
 		raw = frappe.db.get_value("Desktop Layout", name, "layout")
 		try:
 			items = json.loads(raw) if raw else []
-		except (ValueError, TypeError):
+		except ValueError, TypeError:
 			continue
 		if not isinstance(items, list):
 			continue

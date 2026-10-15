@@ -26,7 +26,7 @@ class TestCardNameNotTranslated(IntegrationTestCase):
 			self.assertEqual(
 				block.group("v"), "Card", f"{po}: 'Card' must not be translated (got {block.group('v')!r})"
 			)
-		self.assertGreater(checked, 0, "no locale listed msgid \"Card\" to check")
+		self.assertGreater(checked, 0, 'no locale listed msgid "Card" to check')
 
 
 class TestCardLocaleCardStringsOnly(IntegrationTestCase):

@@ -33,8 +33,9 @@ def gl_has_dimension_field():
 def ensure_card_equipment_dimension():
 	"""Create the dimension (idempotent, non-mandatory for BS/PL).
 
-	MANUAL OPERATION ONLY (see module docstring): it commits, so it must never
-	be called from controllers, patches or tests."""
+	MANUAL OPERATION ONLY (see module docstring): the operator's runbook calls
+	frappe.db.commit() after it returns — this function never commits itself,
+	so it must still never be called from controllers, patches or tests."""
 	if has_dimension():
 		return "exists"
 	from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
@@ -53,7 +54,6 @@ def ensure_card_equipment_dimension():
 	# synchronously so this manual run is complete when it returns (the queued
 	# job finds them existing and is a no-op).
 	make_dimension_in_accounting_doctypes(doc=doc)
-	frappe.db.commit()
 	return doc.name
 
 

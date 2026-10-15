@@ -180,7 +180,7 @@ def execute(filters=None):
 						"row_id": e_id + "|C|" + c.name,
 						"parent_row": e_id,
 						"indent": 2,
-						"label": c.name + (_(" (Draft)") if c.docstatus == 0 else ""),
+						"label": c.name + (" " + _("(Draft)") if c.docstatus == 0 else ""),
 						"card": c.name,
 						"equipment": c.equipment,
 						"project": c.project,
@@ -371,20 +371,9 @@ def execute(filters=None):
 				"indicator": "Orange" if closing > 0 else "Green",
 			},
 		]
-		message = (
-			prefix
-			+ _("Equipment customer statement: ")
-			+ str(customer)
-			+ _(" — Period from ")
-			+ str(start)
-			+ _(" to ")
-			+ str(end)
-			+ _(" — Issue date ")
-			+ frappe.utils.nowdate()
-			+ _(
-				". Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
-			)
-		)
+		message = prefix + _(
+			"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
+		).format(customer, start, end, frappe.utils.nowdate())
 
 	data = [columns, data_rows, message, None, summary, True]
 	return data

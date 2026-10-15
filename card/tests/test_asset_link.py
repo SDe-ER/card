@@ -51,7 +51,7 @@ class TestAssetLink(IntegrationTestCase):
 					"available_for_use_date": frappe.utils.today(),
 				}
 			).insert(ignore_permissions=True)
-		except Exception as e:  # noqa: BLE001 - environment cannot build an Asset
+		except Exception as e:
 			if isinstance(e, unittest.SkipTest):
 				raise
 			self.skipTest("Cannot create an Asset in this test environment: %s" % e)
@@ -97,4 +97,3 @@ class TestAssetLink(IntegrationTestCase):
 			self.assertIsNotNone(field, fieldname)
 			self.assertEqual(field.fetch_from, "الأصل_في_erpnext." + source)
 			self.assertTrue(field.read_only)
-

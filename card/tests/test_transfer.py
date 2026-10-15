@@ -123,7 +123,10 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		a_old = self._assign(eq.name, proj_a, 1)
 		t = self._transport(eq.name, proj_b, 10)
 
-		self.assertEqual(getdate(frappe.db.get_value("Card Equipment Assignment", a_old.name, "to_date")), getdate(self._d(10)))
+		self.assertEqual(
+			getdate(frappe.db.get_value("Card Equipment Assignment", a_old.name, "to_date")),
+			getdate(self._d(10)),
+		)
 		new_rows = self._assignments(eq.name, proj_b)
 		self.assertEqual(len(new_rows), 1)
 		self.assertEqual(getdate(new_rows[0].from_date), getdate(add_days(self._d(10), 1)))
@@ -139,7 +142,9 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		t = self._transport(eq.name, proj_b, 10)
 
 		rows = frappe.get_all(
-			"Card Equipment Assignment", filters={"equipment": eq.name}, fields=["name", "project", "from_date", "to_date"]
+			"Card Equipment Assignment",
+			filters={"equipment": eq.name},
+			fields=["name", "project", "from_date", "to_date"],
 		)
 		self.assertEqual(len(rows), 1)
 		self.assertEqual(rows[0].project, proj_b)

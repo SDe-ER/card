@@ -129,7 +129,13 @@ def execute(filters=None):
 			"width": 110,
 		},
 		{"fieldname": "period", "label": _("Operating month"), "fieldtype": "Data", "width": 85},
-		{"fieldname": "hours", "label": _("Operating hours"), "fieldtype": "Float", "precision": 2, "width": 90},
+		{
+			"fieldname": "hours",
+			"label": _("Operating hours"),
+			"fieldtype": "Float",
+			"precision": 2,
+			"width": 90,
+		},
 		{
 			"fieldname": "daily_consumption",
 			"label": _("Daily diesel consumption (litres per standard day)"),
@@ -137,16 +143,44 @@ def execute(filters=None):
 			"precision": 2,
 			"width": 110,
 		},
-		{"fieldname": "expected_litres", "label": _("Expected litres"), "fieldtype": "Float", "precision": 3, "width": 110},
-		{"fieldname": "actual_litres", "label": _("Actual litres"), "fieldtype": "Float", "precision": 3, "width": 110},
-		{"fieldname": "variance", "label": _("Litres variance"), "fieldtype": "Float", "precision": 3, "width": 110},
+		{
+			"fieldname": "expected_litres",
+			"label": _("Expected litres"),
+			"fieldtype": "Float",
+			"precision": 3,
+			"width": 110,
+		},
+		{
+			"fieldname": "actual_litres",
+			"label": _("Actual litres"),
+			"fieldtype": "Float",
+			"precision": 3,
+			"width": 110,
+		},
+		{
+			"fieldname": "variance",
+			"label": _("Litres variance"),
+			"fieldtype": "Float",
+			"precision": 3,
+			"width": 110,
+		},
 		{"fieldname": "variance_pct", "label": _("Variance %"), "fieldtype": "Percent", "width": 90},
 	]
 
 	diff = flt(tot_actual - tot_expected, 3)
 	summary = [
-		{"label": _("Operating hours"), "value": flt(sum(r["hours"] for r in rows), 2), "datatype": "Float", "indicator": "Blue"},
-		{"label": _("Expected litres"), "value": flt(tot_expected, 3), "datatype": "Float", "indicator": "Blue"},
+		{
+			"label": _("Operating hours"),
+			"value": flt(sum(r["hours"] for r in rows), 2),
+			"datatype": "Float",
+			"indicator": "Blue",
+		},
+		{
+			"label": _("Expected litres"),
+			"value": flt(tot_expected, 3),
+			"datatype": "Float",
+			"indicator": "Blue",
+		},
 		{"label": _("Actual litres"), "value": flt(tot_actual, 3), "datatype": "Float", "indicator": "Blue"},
 		{
 			"label": _("Litres variance"),

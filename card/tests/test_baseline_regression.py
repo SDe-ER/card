@@ -40,8 +40,7 @@ class TestBaselineRegression(IntegrationTestCase):
 		present = frappe.db.count("Card Monthly Card", {"name": ["in", names], "docstatus": 1})
 		if present != len(names):
 			self.skipTest(
-				f"baseline regression needs the seeded site "
-				f"(fixture cards={len(names)}, found={present})"
+				f"baseline regression needs the seeded site (fixture cards={len(names)}, found={present})"
 			)
 
 	def test_cards_net_sum_unchanged(self):
@@ -56,9 +55,24 @@ class TestBaselineRegression(IntegrationTestCase):
 
 	def test_diesel_transport_sums_unchanged(self):
 		self._skip_if_unseeded()
-		dl = flt(frappe.db.sql("select coalesce(sum(litres),0) from `tabProject Diesel Fill` where docstatus=1")[0][0], 3)
-		da = flt(frappe.db.sql("select coalesce(sum(amount),0) from `tabProject Diesel Fill` where docstatus=1")[0][0], 2)
-		ta = flt(frappe.db.sql("select coalesce(sum(amount),0) from `tabEquipment Transport` where docstatus=1")[0][0], 2)
+		dl = flt(
+			frappe.db.sql("select coalesce(sum(litres),0) from `tabProject Diesel Fill` where docstatus=1")[
+				0
+			][0],
+			3,
+		)
+		da = flt(
+			frappe.db.sql("select coalesce(sum(amount),0) from `tabProject Diesel Fill` where docstatus=1")[
+				0
+			][0],
+			2,
+		)
+		ta = flt(
+			frappe.db.sql("select coalesce(sum(amount),0) from `tabEquipment Transport` where docstatus=1")[
+				0
+			][0],
+			2,
+		)
 		self.assertEqual(dl, self.base["diesel_litres_sum"])
 		self.assertEqual(da, self.base["diesel_amount_sum"])
 		self.assertEqual(ta, self.base["transport_amount_sum"])
@@ -71,16 +85,31 @@ class TestBaselineRegression(IntegrationTestCase):
 		from card.card.report.transport_cost_by_project import transport_cost_by_project as tcp
 
 		d = edc.execute(dict(f))[1]
-		self.assertEqual(flt(sum(flt(r.get("litres")) for r in d), 3), self.base["r_equipment_diesel_consumption"]["litres"])
-		self.assertEqual(flt(sum(flt(r.get("amount")) for r in d), 2), self.base["r_equipment_diesel_consumption"]["amount"])
+		self.assertEqual(
+			flt(sum(flt(r.get("litres")) for r in d), 3),
+			self.base["r_equipment_diesel_consumption"]["litres"],
+		)
+		self.assertEqual(
+			flt(sum(flt(r.get("amount")) for r in d), 2),
+			self.base["r_equipment_diesel_consumption"]["amount"],
+		)
 
 		d = tcp.execute(dict(f))[1]
-		self.assertEqual(flt(sum(flt(r.get("amount")) for r in d), 2), self.base["r_transport_cost_by_project"]["amount"])
+		self.assertEqual(
+			flt(sum(flt(r.get("amount")) for r in d), 2), self.base["r_transport_cost_by_project"]["amount"]
+		)
 
 		d = ocp.execute(dict(f))[1]
-		self.assertEqual(flt(sum(flt(r.get("diesel")) for r in d), 2), self.base["r_operating_cost_by_project"]["diesel"])
-		self.assertEqual(flt(sum(flt(r.get("transport")) for r in d), 2), self.base["r_operating_cost_by_project"]["transport"])
-		self.assertEqual(flt(sum(flt(r.get("total")) for r in d), 2), self.base["r_operating_cost_by_project"]["total"])
+		self.assertEqual(
+			flt(sum(flt(r.get("diesel")) for r in d), 2), self.base["r_operating_cost_by_project"]["diesel"]
+		)
+		self.assertEqual(
+			flt(sum(flt(r.get("transport")) for r in d), 2),
+			self.base["r_operating_cost_by_project"]["transport"],
+		)
+		self.assertEqual(
+			flt(sum(flt(r.get("total")) for r in d), 2), self.base["r_operating_cost_by_project"]["total"]
+		)
 
 	def test_supplier_summary_net_unchanged(self):
 		self._skip_if_unseeded()
@@ -88,5 +117,9 @@ class TestBaselineRegression(IntegrationTestCase):
 
 		data = m.execute({"from_month": "01", "from_year": 2026, "to_month": "12", "to_year": 2026})[1]
 		total = next((r for r in data if r.get("is_total")), None)
-		net = flt(total["net"], 2) if total else flt(sum(flt(r.get("net")) for r in data if not r.get("is_total")), 2)
+		net = (
+			flt(total["net"], 2)
+			if total
+			else flt(sum(flt(r.get("net")) for r in data if not r.get("is_total")), 2)
+		)
 		self.assertEqual(net, self.base["r_equipment_suppliers_summary"]["net"])

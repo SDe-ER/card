@@ -9,14 +9,16 @@ ACTIVE_STATES = ("Draft", "Submitted")
 
 def build_posting_key(company, party_type, party, month, year, posting_type):
 	"""Deterministic composite key for the uniqueness guard."""
-	return "|".join([
-		str(company or ""),
-		str(party_type or ""),
-		str(party or ""),
-		"%02d" % int(month) if str(month).isdigit() else str(month or ""),
-		str(int(year)) if str(year).isdigit() else str(year or ""),
-		str(posting_type or ""),
-	])
+	return "|".join(
+		[
+			str(company or ""),
+			str(party_type or ""),
+			str(party or ""),
+			"%02d" % int(month) if str(month).isdigit() else str(month or ""),
+			str(int(year)) if str(year).isdigit() else str(year or ""),
+			str(posting_type or ""),
+		]
+	)
 
 
 class GLPostingLog(Document):

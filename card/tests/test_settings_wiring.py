@@ -323,7 +323,9 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		self.assertEqual(setting("max_night_shift_hours"), 12.0)
 		# over the default limit: warns, still saves (never raises) on both shifts
 		self.assertEqual(flt(self._card(self._equipment("-U13"), [13]).total_working_hours), 13.0)
-		self.assertEqual(flt(self._card(self._equipment("-U13N"), [13], shift="ليلي").total_working_hours), 13.0)
+		self.assertEqual(
+			flt(self._card(self._equipment("-U13N"), [13], shift="ليلي").total_working_hours), 13.0
+		)
 		self._card(self._equipment("-U12"), [12])
 		self._card(self._equipment("-U12N"), [12], shift="ليلي")
 

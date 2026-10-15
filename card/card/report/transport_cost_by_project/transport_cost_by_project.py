@@ -5,7 +5,13 @@ from frappe.utils import flt
 
 def get_columns():
 	return [
-		{"fieldname": "project", "label": _("Project"), "fieldtype": "Link", "options": "Project", "width": 200},
+		{
+			"fieldname": "project",
+			"label": _("Project"),
+			"fieldtype": "Link",
+			"options": "Project",
+			"width": 200,
+		},
 		{"fieldname": "transports", "label": _("Transports"), "fieldtype": "Int", "width": 100},
 		{"fieldname": "amount", "label": _("Amount"), "fieldtype": "Currency", "width": 140},
 	]

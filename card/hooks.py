@@ -191,7 +191,8 @@ doc_events = {
 # Testing
 # -------
 
-# before_tests = "card.install.before_tests"
+# Committed-once shared test masters (clean CI sites; no-op on seeded sites).
+before_tests = "card.install.before_tests"
 
 # Extend DocType Class
 # ------------------------------
