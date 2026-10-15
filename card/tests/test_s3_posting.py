@@ -636,6 +636,7 @@ class TestCustomerMirror(_PostingBase):
 		self.assertEqual(si.docstatus, 0)
 		# company currency always wins over the site/user default currency
 		self.assertEqual(si.currency, frappe.db.get_value("Company", self.company, "default_currency"))
+		self.assertTrue(si.selling_price_list)  # mandatory on SI; resolved deterministically
 		self.assertEqual(len(si.items), 2)
 		self.assertEqual(flt(si.net_total, 2), 2000.0)
 		self.assertEqual(flt(si.taxes[0].tax_amount, 2), 300.0)

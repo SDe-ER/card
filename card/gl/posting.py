@@ -29,7 +29,7 @@ from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTI
 from card.diesel import project_operating_hours
 from card.gl import preflight
 from card.gl.events import _point_display
-from card.gl.masters import ensure_posting_masters
+from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
 from card.settings import setting
 
 
@@ -427,6 +427,9 @@ def build_monthly_posting(company, party_type, party, month, year):
 	else:
 		inv.customer = party
 		inv.debit_to = row.receivable_account
+		# SI makes the selling price list mandatory; resolve it deterministically
+		# (rates are explicit and pricing rules are ignored — it is a reference)
+		inv.selling_price_list = ensure_selling_price_list(company)
 	inv.cost_center = row.cost_center
 	for line in lines:
 		item = {

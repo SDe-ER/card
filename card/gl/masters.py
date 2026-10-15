@@ -133,6 +133,31 @@ def _ensure_item_tax_template(company, title, heads, rate):
 	return doc.name
 
 
+def ensure_selling_price_list(company):
+	"""Sales Invoice REQUIRES a selling price list (mandatory field). Resolve it
+	deterministically: the Selling Settings default, else any enabled selling
+	list, else create the ERPNext-standard 'Standard Selling' in the company
+	currency (only a bare site reaches the create branch — seeded sites and
+	production already carry one)."""
+	default = frappe.db.get_single_value("Selling Settings", "selling_price_list")
+	if default:
+		return default
+	enabled = frappe.db.get_value("Price List", {"selling": 1, "enabled": 1}, "name")
+	if enabled:
+		return enabled
+	if not frappe.db.exists("Price List", "Standard Selling"):
+		frappe.get_doc(
+			{
+				"doctype": "Price List",
+				"price_list_name": "Standard Selling",
+				"selling": 1,
+				"enabled": 1,
+				"currency": frappe.get_cached_value("Company", company, "default_currency"),
+			}
+		).insert(ignore_permissions=True)
+	return "Standard Selling"
+
+
 def ensure_posting_masters(company):
 	"""Idempotent: service items for the posting lines + the two VAT override
 	templates + per-type adjustment items. Fills the blanks in the company's
