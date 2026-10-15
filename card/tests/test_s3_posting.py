@@ -154,6 +154,15 @@ class _PostingBase(_CustomerCardsBase):
 			card.reload()
 		return eq, card
 
+	def _assert_no_posting_artifacts(self, card):
+		"""A failed preflight must leave NO invoice, log or reservation behind."""
+		self.assertFalse(
+			frappe.get_all("Purchase Invoice", filters={"supplier": self.supplier, "docstatus": 0})
+		)
+		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
+		self.assertFalse(frappe.db.get_value("Card Monthly Card", card.name, "gl_posting"))
+		self.assertFalse(frappe.get_all("GL Posting Source", filters={"source_name": card.name}))
+
 	def _card(self, eq, hours_list, adjustments=None, submit=False, **presets):
 		c = frappe.new_doc("Card Monthly Card")
 		c.equipment = eq.name
@@ -546,15 +555,6 @@ class TestPreflights(_PostingBase):
 		with self.assertRaises(frappe.ValidationError):
 			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 
-	def _assert_no_posting_artifacts(self, card):
-		"""A failed preflight must leave NO invoice, log or reservation behind."""
-		self.assertFalse(
-			frappe.get_all("Purchase Invoice", filters={"supplier": self.supplier, "docstatus": 0})
-		)
-		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
-		self.assertFalse(frappe.db.get_value("Card Monthly Card", card.name, "gl_posting"))
-		self.assertFalse(frappe.get_all("GL Posting Source", filters={"source_name": card.name}))
-
 	def test_posting_rejected_when_dimension_disabled(self):
 		"""Checkpoint B (fail-closed): no posting without an ACTIVE Card
 		Equipment accounting dimension — and no bypass toggle."""
@@ -826,6 +826,235 @@ class TestReviewGuards(_PostingBase):
 			frappe.db.get_value("GL Posting Log", {"posting_doc": rebuilt, "status": "Draft"}, "sequence"),
 			2,
 		)
+
+
+class TestG0LifecycleDebt(_PostingBase):
+	"""G0 (owner-authorized): review-debt fixes on the SHARED lifecycle layer.
+	H1 status-filtered unit resolution; H2 log tamper guards; H3 submit-time
+	identity + period re-assert; M5 generalized template shape; M6 shared
+	rounding; §5a type-free reservation scope."""
+
+	def _draft_je(self, submit=False):
+		"""A minimal Journal Entry standing in for a G2 posting document."""
+		je = frappe.new_doc("Journal Entry")
+		je.company = self.company
+		je.posting_date = "2026-09-30"
+		cc = frappe.db.get_value("Cost Center", {"company": self.company, "is_group": 0}, "name")
+		je.append(
+			"accounts",
+			{"account": self.exp_rental, "debit_in_account_currency": 100, "cost_center": cc},
+		)
+		je.append(
+			"accounts",
+			{"account": self.exp_diesel, "credit_in_account_currency": 100, "cost_center": cc},
+		)
+		je.insert(ignore_permissions=True)
+		if submit:
+			je.submit()
+		return je
+
+	def _je_log(self, je, status="Draft", sources=None, sequence=1):
+		log = frappe.get_doc(
+			{
+				"doctype": "GL Posting Log",
+				"company": self.company,
+				"party_type": "Supplier",
+				"party": self.supplier,
+				"month": "09",
+				"year": 2026,
+				"posting_type": "Journal Entry",
+				"sequence": sequence,
+				"status": status,
+				"posting_doctype": "Journal Entry",
+				"posting_doc": je.name,
+			}
+		)
+		for doctype, name in sources or []:
+			log.append("sources", {"source_doctype": doctype, "source_name": name, "amount": 0})
+		log.insert(ignore_permissions=True)
+		return log
+
+	# ---- H1: unit resolution must bind the ACTIVE log, not a cancelled namesake ----
+	def test_submit_binds_the_active_log_after_name_reuse(self):
+		from card.gl.posting import rebuild_monthly_posting
+
+		self._card(self._equipment(), [8], submit=True)
+		first = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		old_log = frappe.db.get_value("GL Posting Log", {"posting_doc": first, "status": "Draft"}, "name")
+		self._card(self._equipment(), [4], submit=True)
+		rebuilt = rebuild_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		new_log = frappe.db.get_value("GL Posting Log", {"posting_doc": rebuilt, "status": "Draft"}, "name")
+		self.assertNotEqual(old_log, new_log)
+		# make the CANCELLED log the most recently touched (reviewer scenario)
+		frappe.db.set_value("GL Posting Log", old_log, "remarks", "touched")
+		frappe.get_doc("Purchase Invoice", rebuilt).submit()
+		self.assertEqual(frappe.db.get_value("GL Posting Log", new_log, "status"), "Submitted")
+		self.assertEqual(frappe.db.get_value("GL Posting Log", old_log, "status"), "Cancelled")
+
+	# ---- H2: the authoritative log cannot be deleted while active ----
+	def test_active_log_delete_refused(self):
+		self._example_card()
+		pi = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		log = frappe.db.get_value("GL Posting Log", {"posting_doc": pi, "status": "Draft"}, "name")
+		with self.assertRaises(frappe.ValidationError):
+			frappe.delete_doc("GL Posting Log", log, ignore_permissions=True)
+
+	# ---- H3: value edits and period locks are re-asserted at submit ----
+	def test_edited_draft_total_refused_at_submit(self):
+		self._example_card()
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi = frappe.get_doc("Purchase Invoice", pi_name)
+		pi.items[0].rate = flt(pi.items[0].rate) - 1000
+		pi.save(ignore_permissions=True)
+		with self.assertRaises(frappe.ValidationError):
+			pi.submit()
+
+	def test_card_period_lock_reasserted_at_submit(self):
+		self._example_card()
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		frappe.db.set_single_value("Card Settings", "period_lock_date", "2026-10-31")
+		frappe.db.set_single_value("Card Settings", "period_lock_override_role", None)
+		frappe.clear_cache(doctype="Card Settings")
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc("Purchase Invoice", pi_name).submit()
+
+	# ---- M5: multi-row VAT templates are a valid shape; foreign charge types are not ----
+	def test_multi_row_vat_template_shape_accepted(self):
+		from card.gl.masters import vat_account_heads
+
+		head2 = _leaf_under(self.company, "Asset", "Test VAT Input Second", "Tax")
+		template = frappe.get_doc(
+			{
+				"doctype": "Purchase Taxes and Charges Template",
+				"title": "Test CGST-SGST style " + self.token,
+				"company": self.company,
+				"taxes": [
+					{
+						"charge_type": "On Net Total",
+						"account_head": self.vat_in,
+						"rate": 9,
+						"description": "A",
+						"category": "Total",
+						"add_deduct_tax": "Add",
+					},
+					{
+						"charge_type": "On Net Total",
+						"account_head": head2,
+						"rate": 6,
+						"description": "B",
+						"category": "Total",
+						"add_deduct_tax": "Add",
+					},
+				],
+			}
+		).insert(ignore_permissions=True)
+		row = frappe._dict(purchase_tax_template=template.name, sales_tax_template=None)
+		self.assertEqual(vat_account_heads(row), {self.vat_in, head2})
+
+	def test_foreign_charge_type_still_refused(self):
+		from card.gl.masters import vat_account_heads
+
+		template = frappe.get_doc(
+			{
+				"doctype": "Purchase Taxes and Charges Template",
+				"title": "Test foreign charge " + self.token,
+				"company": self.company,
+				"taxes": [
+					{
+						"charge_type": "On Net Total",
+						"account_head": self.vat_in,
+						"rate": 15,
+						"description": "A",
+						"category": "Total",
+						"add_deduct_tax": "Add",
+					},
+					{
+						"charge_type": "On Previous Row Total",
+						"row_id": "1",
+						"account_head": self.vat_in,
+						"rate": 1,
+						"description": "B",
+						"category": "Total",
+						"add_deduct_tax": "Add",
+					},
+				],
+			}
+		).insert(ignore_permissions=True)
+		row = frappe._dict(purchase_tax_template=template.name, sales_tax_template=None)
+		with self.assertRaises(frappe.ValidationError):
+			vat_account_heads(row)
+
+	# ---- M6: posting and display put the rounding halala on the SAME equipment ----
+	def test_posting_and_display_remainder_agree(self):
+		from card.diesel import allocate_project_diesel
+
+		eqs = [self._equipment() for _ in range(3)]
+		for eq in eqs:
+			self._card(eq, [1], submit=True)
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-12",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 50,
+				"unit_price": 2,
+			}
+		)
+		fill.insert(ignore_permissions=True)
+		fill.submit()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		posted = {i.card_equipment: flt(i.rate, 2) for i in pi.items if fill.name in i.description}
+		display = {
+			eq: flt(v["amount"], 2) for eq, v in allocate_project_diesel(self.project, 9, 2026).items()
+		}
+		self.assertEqual(posted, display)
+
+	# ---- §5a: reservation is type-free (one active unit per party-month-side) ----
+	def test_draft_unit_of_another_type_blocks_build(self):
+		_eq, card = self._example_card()
+		je = self._draft_je()
+		self._je_log(je, status="Draft")
+		logs_before = len(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
+		try:
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+			self.fail("a draft unit of ANY document type must block a second build")
+		except frappe.ValidationError as e:
+			self.assertIn(je.name, str(e))
+		# the refused build left no NEW artifacts (the synthetic JE unit remains)
+		self.assertFalse(
+			frappe.get_all("Purchase Invoice", filters={"supplier": self.supplier, "docstatus": 0})
+		)
+		self.assertEqual(len(frappe.get_all("GL Posting Log", filters={"party": self.supplier})), logs_before)
+		self.assertFalse(frappe.db.get_value("Card Monthly Card", card.name, "gl_posting"))
+		self.assertFalse(frappe.get_all("GL Posting Source", filters={"source_name": card.name}))
+
+	def test_cross_type_supplementary_sequence_and_exclusion(self):
+		card1 = self._card(self._equipment(), [8], submit=True)
+		card2 = self._card(self._equipment(), [4], submit=True)
+		je = self._draft_je(submit=True)
+		self._je_log(je, status="Submitted", sources=[("Card Monthly Card", card1.name)])
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi = frappe.get_doc("Purchase Invoice", pi_name)
+		descriptions = " | ".join(i.description for i in pi.items)
+		self.assertIn(card2.name, descriptions)
+		self.assertNotIn(card1.name, descriptions)  # held by the submitted JE unit
+		self.assertEqual(
+			frappe.db.get_value("GL Posting Log", {"posting_doc": pi_name, "status": "Draft"}, "sequence"),
+			2,
+		)
+
+	def test_submit_reverifies_membership_in_other_active_units(self):
+		_eq, card = self._example_card()
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		# a second active unit grabs the card out-of-band after the build
+		je = self._draft_je(submit=True)
+		self._je_log(je, status="Submitted", sources=[("Card Monthly Card", card.name)], sequence=2)
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc("Purchase Invoice", pi_name).submit()
 
 
 class TestBaselineUntouched(IntegrationTestCase):

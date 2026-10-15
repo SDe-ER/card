@@ -7,8 +7,9 @@ A Project Diesel Fill is either charged in full to one equipment (its
 `card_equipment` is set) or, for a project-tank fill (`card_equipment` empty),
 split across the equipment that operated in the same project + month, pro-rata
 by their total operating hours (all shifts) from submitted Card Monthly Cards.
-When splitting, the last equipment (stable alphabetical order) absorbs the
-rounding difference so the shares sum to the fill amount/litres exactly.
+Splitting uses the ONE shared largest-remainder rule (split_by_weights), so the
+GL posting and every display put the rounding difference on the SAME equipment
+and the shares sum to the fill amount/litres exactly.
 """
 
 import frappe
@@ -21,6 +22,22 @@ UNALLOCATED = "__unallocated__"
 def _month_year(date_value):
 	d = getdate(date_value)
 	return "%02d" % d.month, str(d.year)
+
+
+def split_by_weights(amount, weights, precision=2):
+	"""M6 — THE one largest-remainder split used by posting AND display:
+	{key: share} summing EXACTLY to amount; the largest share absorbs the
+	rounding drift (ties broken by sorted key order, deterministically).
+	Empty/zero weights -> {} (callers keep the amount unallocated)."""
+	total = sum(weights.values())
+	if not total:
+		return {}
+	shares = {k: flt(flt(amount) * w / total, precision) for k, w in weights.items()}
+	drift = flt(flt(amount) - sum(shares.values()), precision)
+	if drift:
+		largest = max(sorted(shares), key=lambda k: shares[k])
+		shares[largest] = flt(shares[largest] + drift, precision)
+	return shares
 
 
 def project_operating_hours(project, month, year):
@@ -71,26 +88,16 @@ def allocate_project_diesel(project, month, year, include_unallocated=False):
 		if f.card_equipment:
 			add(f.card_equipment, f.litres, f.amount)
 			continue
-		# project-tank fill: pro-rata by operating hours; last row absorbs rounding
-		total_hours = sum(hours_map.values())
-		if total_hours <= 0:
+		# project-tank fill: pro-rata by operating hours via the SHARED split
+		# rule (M6 — the remainder lands on the same equipment as in GL posting)
+		amt_shares = split_by_weights(f.amount, hours_map, 2)
+		if not amt_shares:
 			if include_unallocated:
 				add(UNALLOCATED, f.litres, f.amount)
 			continue
-		equipments = sorted(hours_map.keys())
-		done_amt = 0.0
-		done_lit = 0.0
-		for i, eq in enumerate(equipments):
-			if i == len(equipments) - 1:
-				share_amt = flt(flt(f.amount) - done_amt, 2)
-				share_lit = flt(flt(f.litres) - done_lit, 3)
-			else:
-				ratio = hours_map[eq] / total_hours
-				share_amt = flt(flt(f.amount) * ratio, 2)
-				share_lit = flt(flt(f.litres) * ratio, 3)
-				done_amt += share_amt
-				done_lit += share_lit
-			add(eq, share_lit, share_amt)
+		lit_shares = split_by_weights(f.litres, hours_map, 3)
+		for eq in sorted(amt_shares):
+			add(eq, lit_shares.get(eq, 0), amt_shares[eq])
 	return result
 
 

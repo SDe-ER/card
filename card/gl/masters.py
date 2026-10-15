@@ -58,11 +58,12 @@ def _ensure_item(code, name, group):
 	return code
 
 
-def _template_vat_head(template, child_dt):
-	"""The template's single VAT account head. Shape-asserted: exactly one
-	'On Net Total' row with rate > 0 and no 'Actual' rows (an Actual row is
-	copied verbatim onto the invoice regardless of the per-line overrides,
-	so it would silently corrupt the generated posting's VAT)."""
+def _template_vat_heads(template, child_dt):
+	"""The template's VAT account heads. Shape-asserted (M5, generalized): EVERY
+	row must be 'On Net Total' with a non-negative rate — multi-row VAT regimes
+	(e.g. CGST+SGST) are a valid shape, while 'Actual' or any other charge type
+	is copied verbatim onto the invoice regardless of the per-line overrides and
+	would silently corrupt the generated posting."""
 	rows = frappe.get_all(
 		child_dt,
 		filters={
@@ -71,23 +72,22 @@ def _template_vat_head(template, child_dt):
 		},
 		fields=["account_head", "rate", "charge_type"],
 	)
-	vat_rows = [d for d in rows if d.charge_type == "On Net Total" and flt(d.rate) > 0]
-	actual_rows = [d for d in rows if d.charge_type == "Actual"]
-	if len(vat_rows) != 1 or actual_rows:
-		frappe.throw(
-			_(
-				"Tax template {0} must carry exactly one 'On Net Total' VAT row and no 'Actual' rows (found {1} VAT row(s), {2} 'Actual' row(s)); fix the template before posting."
-			).format(template, len(vat_rows), len(actual_rows))
-		)
-	if not vat_rows[0].account_head:
-		frappe.throw(_("Tax template {0}: the VAT row has no account head.").format(template))
-	return vat_rows[0].account_head
+	for d in rows:
+		if d.charge_type != "On Net Total" or flt(d.rate) < 0:
+			frappe.throw(
+				_(
+					"Tax template {0} must contain only 'On Net Total' rows with non-negative rates; found a '{1}' row. Fix the template before posting."
+				).format(template, d.charge_type)
+			)
+		if flt(d.rate) > 0 and not d.account_head:
+			frappe.throw(_("Tax template {0}: a VAT row has no account head.").format(template))
+	return {d.account_head for d in rows if flt(d.rate) > 0}
 
 
 def vat_account_heads(row):
 	"""The VAT account heads of the company's purchase AND sales tax templates
-	— one shape-asserted 'On Net Total' row each (the rows the per-line item
-	tax templates must override)."""
+	— shape-asserted per template (the rows the per-line item tax templates
+	must override)."""
 	heads = set()
 	for template_field, child_dt in (
 		("purchase_tax_template", "Purchase Taxes and Charges"),
@@ -95,7 +95,7 @@ def vat_account_heads(row):
 	):
 		template = row.get(template_field)
 		if template:
-			heads.add(_template_vat_head(template, child_dt))
+			heads |= _template_vat_heads(template, child_dt)
 	return heads
 
 

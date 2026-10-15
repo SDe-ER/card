@@ -26,7 +26,7 @@ from frappe.utils import flt, getdate
 
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
-from card.diesel import project_operating_hours
+from card.diesel import project_operating_hours, split_by_weights
 from card.gl import preflight
 from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
@@ -40,10 +40,12 @@ def _month_bounds(month, year):
 	return datetime.date(year, month, 1), datetime.date(year, month, last)
 
 
-def _held_by_active_log(doctype, names, posting_type):
-	"""Sources already included in an ACTIVE (Draft/Submitted) posting of the
-	same type. The side's invoice link appears only on submit, so GL Posting
-	Source membership is the check that also covers drafts."""
+def _held_by_active_log(doctype, names, party_type):
+	"""Sources already included in ANY ACTIVE (Draft/Submitted) posting unit of
+	the same SIDE — G0 §5a: the discriminator is the log's party_type, never the
+	document type (a JE and a PI must not both recognize a source). The side's
+	invoice link appears only on submit, so GL Posting Source membership is the
+	check that also covers drafts."""
 	if not names:
 		return set()
 	held = set()
@@ -56,14 +58,14 @@ def _held_by_active_log(doctype, names, posting_type):
 		},
 		fields=["source_name", "parent"],
 	):
-		log = frappe.db.get_value("GL Posting Log", row.parent, ["status", "posting_type"], as_dict=True)
-		if log and log.status in ACTIVE_STATES and log.posting_type == posting_type:
+		log = frappe.db.get_value("GL Posting Log", row.parent, ["status", "party_type"], as_dict=True)
+		if log and log.status in ACTIVE_STATES and log.party_type == party_type:
 			held.add(row.source_name)
 	return held
 
 
-def _exclude_held(rows, doctype, posting_type):
-	held = _held_by_active_log(doctype, [r.name for r in rows], posting_type)
+def _exclude_held(rows, doctype, party_type):
+	held = _held_by_active_log(doctype, [r.name for r in rows], party_type)
 	return [r for r in rows if r.name not in held]
 
 
@@ -97,17 +99,11 @@ def _split_fill_by_allocation(fill, month, year):
 	if fill.card_equipment:
 		return [(fill.card_equipment, amount)]
 	hours = project_operating_hours(fill.project, month, year)
-	total_hours = sum(hours.values())
-	if not total_hours:
+	# M6: ONE shared split rule for posting and display (card.diesel.split_by_weights)
+	shares = split_by_weights(amount, hours, 2)
+	if not shares:
 		return [(None, amount)]
-	shares = []
-	for eq, hrs in sorted(hours.items()):
-		shares.append([eq, flt(amount * hrs / total_hours, 2)])
-	drift = flt(amount - sum(s[1] for s in shares), 2)
-	if drift:
-		largest = max(shares, key=lambda s: s[1])
-		largest[1] = flt(largest[1] + drift, 2)
-	return [(eq, amt) for eq, amt in shares if amt]
+	return [(eq, amt) for eq, amt in sorted(shares.items()) if amt]
 
 
 def _supplier_sources(company, party, first_day, last_day, month, year):
@@ -271,6 +267,8 @@ def build_monthly_posting(company, party_type, party, month, year):
 			row, ["equipment_rental_income_account", "receivable_account", "cost_center"]
 		)
 
+	# G0 §5a: TYPE-FREE — one active posting unit per party-month-side, whatever
+	# document type carries it; supplementary sequences count across all types.
 	actives = frappe.get_all(
 		"GL Posting Log",
 		filters={
@@ -279,15 +277,14 @@ def build_monthly_posting(company, party_type, party, month, year):
 			"party": party,
 			"month": "%02d" % int(month),
 			"year": int(year),
-			"posting_type": posting_doctype,
 			"status": ["in", list(ACTIVE_STATES)],
 		},
-		fields=["name", "posting_doc", "sequence"],
+		fields=["name", "posting_doc", "posting_doctype", "sequence"],
 		order_by="sequence asc",
 	)
 	sequence = 1
 	for active in actives:
-		if frappe.db.get_value(posting_doctype, active.posting_doc, "docstatus") == 0:
+		if frappe.db.get_value(active.posting_doctype, active.posting_doc, "docstatus") == 0:
 			frappe.throw(
 				_(
 					"A draft posting already exists for {0} {1} in {2}/{3}: {4}. Submit it, or rebuild it to include newer documents."
@@ -303,9 +300,9 @@ def build_monthly_posting(company, party_type, party, month, year):
 	sources = {"Card Monthly Card": [], "Project Diesel Fill": [], "Equipment Transport": []}
 	if party_type == "Supplier":
 		cards, fills, transports = _supplier_sources(company, party, first_day, last_day, month, year)
-		cards = _exclude_held(cards, "Card Monthly Card", posting_doctype)
-		fills = _exclude_held(fills, "Project Diesel Fill", posting_doctype)
-		transports = _exclude_held(transports, "Equipment Transport", posting_doctype)
+		cards = _exclude_held(cards, "Card Monthly Card", party_type)
+		fills = _exclude_held(fills, "Project Diesel Fill", party_type)
+		transports = _exclude_held(transports, "Equipment Transport", party_type)
 		for c in cards:
 			card, card_lines, _discount = _card_lines(c.name, "Supplier", row, types)
 			lines.extend(card_lines)
@@ -341,7 +338,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 			sources["Equipment Transport"].append((t.name, flt(t.amount, 2)))
 	else:
 		customer_cards = _exclude_held(
-			_customer_cards(company, party, month, year), "Card Monthly Card", posting_doctype
+			_customer_cards(company, party, month, year), "Card Monthly Card", party_type
 		)
 		for c in customer_cards:
 			card, card_lines, discount = _card_lines(c.name, "Customer", row, types)

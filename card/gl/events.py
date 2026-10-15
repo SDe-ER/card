@@ -27,8 +27,19 @@ from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 
 
 def _log_for(doc):
+	"""The ACTIVE log this document belongs to. H1: status-filtered — invoice
+	names are legitimately reused after a rebuild (frappe reverts the naming
+	series), so a cancelled namesake log must never be resolved here. The
+	anti-resurrection guard (_block_amended_copy) deliberately looks across
+	ALL statuses instead."""
 	name = frappe.db.get_value(
-		"GL Posting Log", {"posting_doc": doc.name, "posting_doctype": doc.doctype}, "name"
+		"GL Posting Log",
+		{
+			"posting_doc": doc.name,
+			"posting_doctype": doc.doctype,
+			"status": ["in", list(ACTIVE_STATES)],
+		},
+		"name",
 	)
 	return frappe.get_doc("GL Posting Log", name) if name else None
 
@@ -67,6 +78,22 @@ def _point_display(doctype, name, log_name):
 	if current and frappe.db.get_value("GL Posting Log", current, "status") in ACTIVE_STATES:
 		return
 	frappe.db.set_value(doctype, name, "gl_posting", log_name, update_modified=False)
+
+
+def _other_active_holder(doctype, name, log):
+	"""Another ACTIVE log of the SAME side that also lists this source — the
+	submit-time membership re-check of §5a (type-free, party_type = the side)."""
+	for parent in frappe.get_all(
+		"GL Posting Source",
+		filters={"parenttype": "GL Posting Log", "source_doctype": doctype, "source_name": name},
+		pluck="parent",
+	):
+		if parent == log.name:
+			continue
+		other = frappe.db.get_value("GL Posting Log", parent, ["name", "status", "party_type"], as_dict=True)
+		if other and other.status in ACTIVE_STATES and other.party_type == log.party_type:
+			return other.name
+	return None
 
 
 def _other_side_still_posted(doctype, name, cleared_field):
@@ -127,6 +154,21 @@ def before_submit(doc, method=None):
 					"Enter the supplier's invoice number and date (Bill No / Bill Date) on {0} before submitting; VAT input requires them."
 				).format(doc.name)
 			)
+	# H3: value edits after build and the period gates are re-asserted at submit
+	# (the build-time checks guard the build; nothing guarded the gap until now).
+	from card.gl import preflight
+	from card.settings import setting
+
+	preflight.check_period_open(log.company, doc.posting_date, doc.doctype)
+	expected = flt(sum(flt(row.amount) for row in log.get("sources") or []), 2)
+	actual = flt(doc.net_total, 2)
+	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
+	if abs(actual - expected) > tolerance:
+		frappe.throw(
+			_(
+				"{0} no longer matches its source documents (lines total {1}, sources total {2}); rebuild the posting instead of editing it."
+			).format(doc.name, actual, expected)
+		)
 	# Re-verify the reservation at submit time (guards the build->submit gap).
 	field = _side_field(doc.doctype)
 	for doctype, name in _log_sources(log):
@@ -144,6 +186,13 @@ def before_submit(doc, method=None):
 						"Source {0} {1} is already invoiced by {2}; rebuild the posting before submitting {3}."
 					).format(_(doctype), name, linked, doc.name)
 				)
+		other = _other_active_holder(doctype, name, log)
+		if other:
+			frappe.throw(
+				_(
+					"Source {0} {1} is now included in another active posting unit ({2}); rebuild before submitting {3}."
+				).format(_(doctype), name, other, doc.name)
+			)
 
 
 def on_submit(doc, method=None):

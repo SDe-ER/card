@@ -80,12 +80,14 @@
   },
   {
    "default": "Draft",
+   "description": "Driven exclusively by the posting lifecycle (card.gl.events); hand-editing the status would detach the reservation from accounting reality.",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
    "options": "Draft\nSubmitted\nCancelled\nFailed",
+   "read_only": 1,
    "reqd": 1
   },
   {

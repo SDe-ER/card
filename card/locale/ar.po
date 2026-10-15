@@ -1918,12 +1918,6 @@ msgstr "الشهر والسنة يجب أن يكونا رقمين."
 msgid "Month must be between 1 and 12."
 msgstr "الشهر يجب أن يكون بين 1 و12."
 
-msgid "Tax template {0} must carry exactly one 'On Net Total' VAT row and no 'Actual' rows (found {1} VAT row(s), {2} 'Actual' row(s)); fix the template before posting."
-msgstr "قالب الضريبة {0} يجب أن يحتوي على صف ضريبة قيمة مضافة واحد بالضبط من نوع 'On Net Total' وبلا صفوف 'Actual' (وُجد {1} صف ضريبة و{2} صف 'Actual')؛ صحّح القالب قبل الترحيل."
-
-msgid "Tax template {0}: the VAT row has no account head."
-msgstr "قالب الضريبة {0}: صف الضريبة بلا حساب."
-
 msgid "Accounts Settings option {0} must be off: it would copy extra tax rows onto the generated postings."
 msgstr "خيار إعدادات الحسابات {0} يجب أن يكون مُعطّلاً: سينسخ صفوف ضرائب إضافية على الترحيلات المُنشأة."
 
@@ -1932,6 +1926,24 @@ msgstr "جهة غير صالحة {0} في الإضافة/الخصم {1}؛ يجب
 
 msgid "Addition/deduction type {0} on card {1} is not configured (or is disabled) in Card Settings."
 msgstr "نوع الإضافة/الخصم {0} على الكارت {1} غير مُعد (أو معطّل) في إعدادات كارت."
+
+msgid "{0} no longer matches its source documents (lines total {1}, sources total {2}); rebuild the posting instead of editing it."
+msgstr "{0} لم تعد مطابقة لمستنداتها المصدر (إجمالي البنود {1} وإجمالي المصادر {2})؛ أعد بناء الترحيل بدلاً من تعديله."
+
+msgid "Source {0} {1} is now included in another active posting unit ({2}); rebuild before submitting {3}."
+msgstr "المستند المصدر {0} {1} أصبح مُدرجاً في وحدة ترحيل نشطة أخرى ({2})؛ أعد البناء قبل اعتماد {3}."
+
+msgid "Posting log {0} is {1}; cancel or delete its posting documents first — the log itself is the audit record."
+msgstr "سجل الترحيل {0} حالته {1}؛ ألغِ أو احذف مستندات الترحيل أولاً — السجل نفسه هو سجل التدقيق."
+
+msgid "Posting log {0} still references {1} {2}; it cannot be deleted."
+msgstr "سجل الترحيل {0} ما يزال يشير إلى {1} {2}؛ لا يمكن حذفه."
+
+msgid "Tax template {0} must contain only 'On Net Total' rows with non-negative rates; found a '{1}' row. Fix the template before posting."
+msgstr "قالب الضريبة {0} يجب أن يحتوي على صفوف من نوع 'On Net Total' فقط بنسب غير سالبة؛ وُجد صف من نوع '{1}'. صحّح القالب قبل الترحيل."
+
+msgid "Tax template {0}: a VAT row has no account head."
+msgstr "قالب الضريبة {0}: أحد صفوف الضريبة بلا حساب."
 
 msgid "This equipment is a unit component; the monthly card is kept on the unit, not the component."
 msgstr "هذه المعدة مكوّن ضمن وحدة؛ الكارت الشهري يُسجّل على الوحدة لا على المكوّن."
