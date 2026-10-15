@@ -28,18 +28,27 @@ def company_settings_row(company):
 
 
 def require_accounts(row, fieldnames):
+	meta = frappe.get_meta("Card Company Settings")
 	for fieldname in fieldnames:
-		account = row.get(fieldname)
-		label = _(frappe.get_meta("Card Company Settings").get_label(fieldname))
-		if not account:
+		value = row.get(fieldname)
+		field = meta.get_field(fieldname)
+		label = _(field.label)
+		if not value:
 			frappe.throw(
 				_("Configure Card Settings for company {0}: {1} is not set.").format(row.company, label)
 			)
-		acc = frappe.db.get_value("Account", account, ["company", "is_group", "disabled"], as_dict=True)
-		if not acc or acc.company != row.company or acc.is_group or acc.disabled:
+		link_doctype = field.options  # Account or Cost Center
+		link_meta = frappe.get_meta(link_doctype)
+		props = ["company"]
+		if link_meta.has_field("is_group"):
+			props.append("is_group")
+		if link_meta.has_field("disabled"):
+			props.append("disabled")
+		rec = frappe.db.get_value(link_doctype, value, props, as_dict=True)
+		if not rec or rec.company != row.company or rec.get("is_group") or rec.get("disabled"):
 			frappe.throw(
-				_("Account {0} ({1}) must be an active leaf account of company {2}.").format(
-					account, label, row.company
+				_("{0} {1} ({2}) must be an active leaf record of company {3}.").format(
+					_(link_doctype), value, label, row.company
 				)
 			)
 
