@@ -404,6 +404,11 @@ def build_monthly_posting(company, party_type, party, month, year):
 	# ---- build the invoice ----
 	inv = frappe.new_doc(posting_doctype)
 	inv.company = company
+	# deterministic: generated postings are ALWAYS in the company currency —
+	# never the ambient user/Global Defaults currency (a clean site defaults
+	# to INR and ERPNext then rejects the SAR party account).
+	inv.currency = frappe.get_cached_value("Company", company, "default_currency")
+	inv.conversion_rate = 1
 	inv.set_posting_time = 1
 	inv.posting_date = last_day
 	inv.update_stock = 0

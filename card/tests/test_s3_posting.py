@@ -183,6 +183,8 @@ class TestNumericExample(_PostingBase):
 		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		pi = frappe.get_doc("Purchase Invoice", pi_name)
 		self.assertEqual(pi.docstatus, 0)
+		# company currency always wins over the site/user default currency
+		self.assertEqual(pi.currency, frappe.db.get_value("Company", self.company, "default_currency"))
 		self.assertEqual(len(pi.items), 4)
 		self.assertEqual(flt(pi.net_total, 2), 10277.81)
 		self.assertEqual(flt(pi.taxes[0].tax_amount, 2), 1586.67)
@@ -469,13 +471,20 @@ class TestLifecycleGuards(_PostingBase):
 		self.assertNotEqual(pi2, pi_name)
 
 	def test_foreign_invoice_untouched(self):
-		item = frappe.db.get_value("Item", {"is_stock_item": 0}, "name") or "CARD-RENTAL"
+		# self-contained on a clean site: provision the CARD items instead of
+		# assuming ANY non-stock Item exists (clean-site CI regression)
+		from card.gl.masters import ensure_posting_masters
+
+		row = ensure_posting_masters(self.company)
 		pi = frappe.get_doc(
 			{
 				"doctype": "Purchase Invoice",
 				"company": self.company,
 				"supplier": self.supplier,
-				"items": [{"item_code": item, "qty": 1, "rate": 10, "expense_account": self.exp_rental}],
+				"currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"items": [
+					{"item_code": row.rental_item, "qty": 1, "rate": 10, "expense_account": self.exp_rental}
+				],
 			}
 		)
 		pi.insert(ignore_permissions=True)
@@ -625,6 +634,8 @@ class TestCustomerMirror(_PostingBase):
 		si_name = build_monthly_posting(self.company, "Customer", self.customer, 9, 2026)
 		si = frappe.get_doc("Sales Invoice", si_name)
 		self.assertEqual(si.docstatus, 0)
+		# company currency always wins over the site/user default currency
+		self.assertEqual(si.currency, frappe.db.get_value("Company", self.company, "default_currency"))
 		self.assertEqual(len(si.items), 2)
 		self.assertEqual(flt(si.net_total, 2), 2000.0)
 		self.assertEqual(flt(si.taxes[0].tax_amount, 2), 300.0)
