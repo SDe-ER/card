@@ -1053,7 +1053,7 @@ class TestG0LifecycleDebt(_PostingBase):
 		through it must be REFUSED (flat per-head overrides would multiply VAT),
 		never silently corrupted."""
 		self._vat_supplier()
-		_eq, card = self._example_card()
+		self._example_card()
 		head2 = _leaf_under(self.company, "Asset", "Test VAT Input Second", "Tax")
 		multi = frappe.get_doc(
 			{
