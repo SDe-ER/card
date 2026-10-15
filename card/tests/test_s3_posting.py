@@ -112,6 +112,8 @@ class _PostingBase(_CustomerCardsBase):
 		frappe.db.set_single_value("Card Settings", "enable_accounting", 1)
 		frappe.db.set_single_value("Card Settings", "period_lock_date", None)
 		frappe.db.set_single_value("Buying Settings", "allow_multiple_items", 1)
+		frappe.db.set_single_value("Buying Settings", "allow_negative_rates_for_items", 1)
+		frappe.db.set_single_value("Selling Settings", "allow_negative_rates_for_items", 1)
 		frappe.db.set_single_value("Buying Settings", "po_required", "No")
 		frappe.db.set_single_value("Selling Settings", "allow_multiple_items", 1)
 		frappe.db.set_single_value("Selling Settings", "validate_selling_price", 0)

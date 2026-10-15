@@ -125,6 +125,14 @@ def check_invoice_settings(party_type):
 			)
 		)
 	settings_doctype = "Selling Settings" if party_type == "Customer" else "Buying Settings"
+	# v16.50 gate (newer than the design's extracts): deduction lines are
+	# negative-rate items and the submit path rejects them unless allowed.
+	if not frappe.db.get_single_value(settings_doctype, "allow_negative_rates_for_items"):
+		frappe.throw(
+			_(
+				"{0} must allow negative rates for items (deduction lines post as negative rates)."
+			).format(_(settings_doctype))
+		)
 	if not frappe.db.get_single_value(settings_doctype, "allow_multiple_items"):
 		frappe.throw(
 			_("{0} must allow the same item on multiple rows (one line per source document).").format(
