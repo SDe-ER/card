@@ -19,6 +19,8 @@
   "purchase_tax_template",
   "column_break_tax",
   "sales_tax_template",
+  "vat_item_tax_template",
+  "vat_zero_item_tax_template",
   "items_section",
   "rental_item",
   "diesel_item",
@@ -203,13 +205,29 @@
    "label": "Mode of payment",
    "options": "Mode of Payment",
    "permlevel": 1
+  },
+  {
+   "description": "Per-line 15% VAT override template (auto-provisioned: CARD VAT 15% - <abbr>).",
+   "fieldname": "vat_item_tax_template",
+   "fieldtype": "Link",
+   "label": "VAT 15% item tax template",
+   "options": "Item Tax Template",
+   "permlevel": 1
+  },
+  {
+   "description": "Per-line 0% VAT override template for non-taxable adjustment lines (auto-provisioned: CARD VAT 0% - <abbr>).",
+   "fieldname": "vat_zero_item_tax_template",
+   "fieldtype": "Link",
+   "label": "VAT 0% item tax template",
+   "options": "Item Tax Template",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-10-14 12:00:00.000000",
+ "modified": "2026-10-15 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",

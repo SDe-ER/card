@@ -46,10 +46,12 @@
   "total_deductions",
   "net_amount",
   "customer_amount",
+  "customer_net_amount",
   "accounting_section",
   "gl_posting",
   "posted",
   "purchase_invoice",
+  "sales_invoice",
   "snapshot_column",
   "daily_hours_used",
   "hourly_rate_used",
@@ -394,13 +396,27 @@
   {
    "fieldname": "equipment_info_col",
    "fieldtype": "Column Break"
+  },
+  {
+   "description": "Customer side: customer amount + customer-side additions − customer-side deductions.",
+   "fieldname": "customer_net_amount",
+   "fieldtype": "Currency",
+   "label": "Customer net amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-12 21:22:33.579071",
+ "modified": "2026-10-15 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card",
