@@ -25,7 +25,7 @@ packages = []
 
 [tool.ruff]
 line-length = 110
-target-version = "py314"
+target-version = "py311"  # keep formatted syntax portable (ruff-format with py314 strips except-parens, PEP 758)
 
 [tool.ruff.lint]
 select = [
