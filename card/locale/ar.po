@@ -1945,6 +1945,15 @@ msgstr "قالب الضريبة {0} يجب أن يحتوي على صفوف من 
 msgid "Tax template {0}: a VAT row has no account head."
 msgstr "قالب الضريبة {0}: أحد صفوف الضريبة بلا حساب."
 
+msgid "Tax template {0} carries multiple VAT rows; posting through multi-rate templates is not supported yet (the per-line overrides are single-rate) — configure a single-rate template for posting."
+msgstr "قالب الضريبة {0} يحتوي على عدة صفوف ضريبة؛ الترحيل عبر قوالب متعددة النسب غير مدعوم بعد (التجاوزات الصفّية أحادية النسبة) — استخدم قالباً أحادي النسبة للترحيل."
+
+msgid "{0} was retargeted to another company; rebuild the posting instead of editing it."
+msgstr "{0} أُعيد توجيهها لشركة أخرى؛ أعد بناء الترحيل بدلاً من تعديله."
+
+msgid "{0} is dated {1}, outside its posting unit's month {2}/{3}; keep the posting date inside the unit's month."
+msgstr "{0} مؤرخة في {1} خارج شهر وحدة الترحيل {2}/{3}؛ أبقِ تاريخ الترحيل داخل شهر الوحدة."
+
 msgid "This equipment is a unit component; the monthly card is kept on the unit, not the component."
 msgstr "هذه المعدة مكوّن ضمن وحدة؛ الكارت الشهري يُسجّل على الوحدة لا على المكوّن."
 

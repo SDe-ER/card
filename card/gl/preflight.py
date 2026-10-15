@@ -191,12 +191,45 @@ def _configured_posting_items(row):
 	return items
 
 
+def _refuse_multi_rate_templates(row):
+	"""G0 review HIGH-1: a multi-row template is a VALID SHAPE (M5) but the
+	per-line item tax templates are still flat-rate per head — posting through
+	a multi-rate template would multiply VAT per row (e.g. 15% applied on each
+	of two heads = 30%). Fail closed until the tax-classification phase carries
+	per-head rates; never corrupt silently."""
+	for template_field, child_dt in (
+		("purchase_tax_template", "Purchase Taxes and Charges"),
+		("sales_tax_template", "Sales Taxes and Charges"),
+	):
+		template = row.get(template_field)
+		if not template:
+			continue
+		rows = frappe.get_all(
+			child_dt,
+			filters={
+				"parent": template,
+				"parenttype": child_dt.replace("Taxes and Charges", "Taxes and Charges Template"),
+			},
+			fields=["account_head", "rate"],
+		)
+		positive = [d for d in rows if flt(d.rate) > 0]
+		heads = [d.account_head for d in rows]
+		if len(positive) > 1 or len(heads) != len(set(heads)):
+			frappe.throw(
+				_(
+					"Tax template {0} carries multiple VAT rows; posting through multi-rate templates is not supported yet (the per-line overrides are single-rate) — configure a single-rate template for posting."
+				).format(template)
+			)
+
+
 def check_template_mapping(row):
 	"""The per-line VAT override only works while the templates still point at
 	the live VAT account heads AND the posting items carry no item-level
 	taxes (else the engine silently swaps the row template). vat_account_heads
-	also shape-asserts each tax template: exactly one 'On Net Total' VAT row,
-	no 'Actual' rows."""
+	shape-asserts each tax template (only 'On Net Total' rows, non-negative
+	rates); multi-rate templates are additionally refused for POSTING until the
+	override layer carries per-head rates (_refuse_multi_rate_templates)."""
+	_refuse_multi_rate_templates(row)
 	# Accounts Settings copy-toggles would ADD tax rows from the dual-head
 	# item tax templates (e.g. the sales VAT head onto a purchase invoice).
 	accounts_meta = frappe.get_meta("Accounts Settings")

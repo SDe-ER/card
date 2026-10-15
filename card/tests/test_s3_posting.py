@@ -884,6 +884,7 @@ class TestG0LifecycleDebt(_PostingBase):
 		self._card(self._equipment(), [4], submit=True)
 		rebuilt = rebuild_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		new_log = frappe.db.get_value("GL Posting Log", {"posting_doc": rebuilt, "status": "Draft"}, "name")
+		self.assertEqual(first, rebuilt)  # premise: frappe reverts the series -> same name
 		self.assertNotEqual(old_log, new_log)
 		# make the CANCELLED log the most recently touched (reviewer scenario)
 		frappe.db.set_value("GL Posting Log", old_log, "remarks", "touched")
@@ -1047,6 +1048,63 @@ class TestG0LifecycleDebt(_PostingBase):
 			2,
 		)
 
+	def test_multi_rate_template_refused_at_posting(self):
+		"""G0 review HIGH-1: a multi-row template is a valid SHAPE but posting
+		through it must be REFUSED (flat per-head overrides would multiply VAT),
+		never silently corrupted."""
+		self._vat_supplier()
+		_eq, card = self._example_card()
+		head2 = _leaf_under(self.company, "Asset", "Test VAT Input Second", "Tax")
+		multi = frappe.get_doc(
+			{
+				"doctype": "Purchase Taxes and Charges Template",
+				"title": "Test multi-rate " + self.token,
+				"company": self.company,
+				"taxes": [
+					{
+						"charge_type": "On Net Total",
+						"account_head": self.vat_in,
+						"rate": 9,
+						"description": "A",
+						"category": "Total",
+						"add_deduct_tax": "Add",
+					},
+					{
+						"charge_type": "On Net Total",
+						"account_head": head2,
+						"rate": 6,
+						"description": "B",
+						"category": "Total",
+						"add_deduct_tax": "Add",
+					},
+				],
+			}
+		).insert(ignore_permissions=True)
+		settings = frappe.get_doc("Card Settings")
+		row = next(r for r in settings.company_settings if r.company == self.company)
+		row.db_set("purchase_tax_template", multi.name, update_modified=False)
+		frappe.clear_cache(doctype="Card Settings")
+		with self.assertRaises(frappe.ValidationError):
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		self.assertFalse(
+			frappe.get_all("Purchase Invoice", filters={"supplier": self.supplier, "docstatus": 0})
+		)
+
+	def test_redated_draft_refused_at_submit(self):
+		"""G0 review MEDIUM-4: the posting date must stay inside the unit's
+		month — forward-dating a draft would post the value in another period."""
+		self._example_card()
+		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		# back-dating exercises the month guard without tripping ERPNext's own
+		# due-date checks (forward-dating is caught by those checks anyway)
+		frappe.db.set_value("Purchase Invoice", pi_name, "posting_date", "2026-08-15", update_modified=False)
+		pi = frappe.get_doc("Purchase Invoice", pi_name)
+		try:
+			pi.submit()
+			self.fail("a redated draft must be refused at submit")
+		except frappe.ValidationError as e:
+			self.assertIn("2026-08-15", str(e))
+
 	def test_submit_reverifies_membership_in_other_active_units(self):
 		_eq, card = self._example_card()
 		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
@@ -1096,6 +1154,10 @@ class TestZatcaSalesRules(_PostingBase):
 		self.assertEqual(flt(si.net_total, 2), 1800.0)
 		self.assertEqual(flt(si.taxes[0].tax_amount, 2), 270.0)  # 15% of 1800
 		self.assertEqual(flt(si.grand_total, 2), 2070.0)
+		# G0 exit gate: the discounted composition must SUBMIT green under the
+		# H3 identity (net_total is post-discount == customer_net_amount)
+		si.submit()
+		self.assertEqual(si.docstatus, 1)
 
 	def test_si_nontaxable_customer_deduction_refused(self):
 		eq = self._rented_out(customer_rate=1000)
@@ -1164,7 +1226,12 @@ class TestLateSources(_PostingBase):
 		pi2 = frappe.get_doc("Purchase Invoice", second)
 		self.assertEqual(len(pi2.items), 1)
 		self.assertIn(late.name, pi2.items[0].description)
-		self.assertEqual(frappe.db.get_value("GL Posting Log", {"posting_doc": second}, "sequence"), 2)
+		self.assertEqual(
+			frappe.db.get_value("GL Posting Log", {"posting_doc": second, "status": "Draft"}, "sequence"), 2
+		)
+		# G0 exit gate: the supplementary composition must SUBMIT green under H3
+		pi2.submit()
+		self.assertEqual(frappe.db.get_value("Card Monthly Card", late.name, "purchase_invoice"), second)
 
 	def test_fill_cancel_blocked_while_draft_posting_exists(self):
 		self._card(self._equipment(), [8], submit=True)

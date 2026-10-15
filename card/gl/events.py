@@ -156,9 +156,24 @@ def before_submit(doc, method=None):
 			)
 	# H3: value edits after build and the period gates are re-asserted at submit
 	# (the build-time checks guard the build; nothing guarded the gap until now).
+	from frappe.utils import get_last_day, getdate
+
 	from card.gl import preflight
 	from card.settings import setting
 
+	if doc.company != log.company:
+		frappe.throw(
+			_("{0} was retargeted to another company; rebuild the posting instead of editing it.").format(
+				doc.name
+			)
+		)
+	month_start = getdate("{0}-{1:02d}-01".format(int(log.year), int(log.month)))
+	if not (month_start <= getdate(doc.posting_date) <= get_last_day(month_start)):
+		frappe.throw(
+			_(
+				"{0} is dated {1}, outside its posting unit's month {2}/{3}; keep the posting date inside the unit's month."
+			).format(doc.name, doc.posting_date, log.month, log.year)
+		)
 	preflight.check_period_open(log.company, doc.posting_date, doc.doctype)
 	expected = flt(sum(flt(row.amount) for row in log.get("sources") or []), 2)
 	actual = flt(doc.net_total, 2)
