@@ -11,6 +11,7 @@ import re
 import frappe
 from frappe.utils import fmt_money
 
+from card.constants import OWNED
 from card.print_utils import card_amount_in_words
 from card.tests.test_controllers import _days
 from card.tests.test_customer import RENTED, _CustomerCardsBase
@@ -112,6 +113,28 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3600))
 		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
 
+	def test_a_v1_1_row_without_side_prints_on_the_supplier_side(self):
+		card = self._card_with(self._equipment(RENTED), [(DED, 600, "Supplier", "TEST-PRINT-V11")])
+		frappe.db.set_value(
+			"Card Monthly Card Adjustment", card.adjustments[0].name, "side", None, update_modified=False
+		)
+		card.reload()
+		html = self._print(card)
+		self.assertEqual(_cell(html, "خصومات المورد"), fmt_money(600))
+		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3000))
+		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
+
+	def test_internal_card_prints_no_settlement(self):
+		html = self._print(self._card_with(self._equipment(OWNED), []))
+		self.assertIsNone(_cell(html, "صافي المورد قبل الضريبة"))
+		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
+
+	def test_adjustment_text_is_escaped(self):
+		card = self._card_with(self._equipment(RENTED), [(DED, 10, "Supplier", "<b>TEST-PRINT-ESC</b>")])
+		html = self._print(card)
+		self.assertIn("&lt;b&gt;TEST-PRINT-ESC&lt;/b&gt;", html)
+		self.assertNotIn("<b>TEST-PRINT-ESC</b>", html)
+
 	def test_printing_changes_no_stored_value(self):
 		card = self._card_with(self._sub_rental(), [(DED, 200, "Customer", "TEST-PRINT-K")])
 		fields = ["amount", "net_amount", "customer_amount", "customer_net_amount", "modified"]
@@ -162,9 +185,20 @@ class TestDieselTransportPrints(_CustomerCardsBase):
 			}
 		)
 		transport.insert(ignore_permissions=True)
-		for doc, amount in ((fill, 2000), (transport, 3500)):
-			html = frappe.get_print(doc.doctype, doc.name, print_format=doc.doctype + " Print")
-			self.assertIn(card_amount_in_words(amount, self.company), html)
+		currency = frappe.get_cached_value("Company", self.company, "default_currency")
+		symbol = frappe.get_cached_value("Currency", currency, "symbol")
+		lang = frappe.local.lang
+		try:
+			frappe.local.lang = "ar"
+			for doc, amount in ((fill, 2000), (transport, 3500)):
+				html = frappe.get_print(doc.doctype, doc.name, print_format=doc.doctype + " Print")
+				words = card_amount_in_words(amount, self.company)
+				self.assertIn(words, html)
+				if symbol and symbol != currency:
+					# the old line printed core money_in_words: the ISO code first
+					self.assertNotIn(frappe.utils.money_in_words(amount, currency), html)
+		finally:
+			frappe.local.lang = lang
 
 	def test_arabic_words_use_the_currency_symbol_not_its_code(self):
 		currency = frappe.get_cached_value("Company", self.company, "default_currency")

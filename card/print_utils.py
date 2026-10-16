@@ -20,8 +20,9 @@ def card_amount_in_words(amount, company=None):
 	words = money_in_words(flt(amount), currency)
 	if not words or not currency or not (frappe.local.lang or "").startswith("ar"):
 		return words
+	if _(currency, context="Currency") != currency:
+		return words  # the code has a real translation: keep it
 	symbol = frappe.get_cached_value("Currency", currency, "symbol")
-	code = _(currency, context="Currency")
-	if symbol and code in words:
-		words = words.replace(code, symbol, 1)
+	if symbol:
+		words = words.replace(currency + " ", symbol + " ", 1)
 	return words
