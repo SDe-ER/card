@@ -46,6 +46,39 @@ def _value(summary, label):
 	return None
 
 
+def _js_filters(module):
+	"""The report's filter definitions as its JS declares them — the same
+	fieldname/fieldtype/options the Desk sends to query_report.run as js_filters."""
+	import os
+
+	path = os.path.join(frappe.get_app_path("card"), "card", "report", module, module + ".js")
+	filters, current = [], None
+	for line in open(path, encoding="utf-8"):
+		for key in ("fieldname", "fieldtype", "options"):
+			marker = key + ': "'
+			if marker in line:
+				value = line.split(marker, 1)[1].split('"', 1)[0]
+				if key == "fieldname":
+					current = {"fieldname": value}
+					filters.append(current)
+				elif current is not None and key not in current:
+					current[key] = value
+	return [f for f in filters if f.get("fieldtype")]
+
+
+REPORT_MODULES = (
+	"equipment_supplier_statement",
+	"equipment_suppliers_summary",
+	"equipment_customer_statement",
+	"equipment_customers_summary",
+	"equipment_diesel_analysis",
+	"equipment_diesel_consumption",
+	"equipment_expenses_without_equipment",
+	"operating_cost_by_project",
+	"transport_cost_by_project",
+)
+
+
 def _fieldnames(columns):
 	return {c["fieldname"] if isinstance(c, dict) else c for c in columns}
 
@@ -362,12 +395,13 @@ class TestReportAccess(IntegrationTestCase):
 		for query, doctype in (
 			(api.card_suppliers_query, "Supplier"),
 			(api.card_customers_query, "Customer"),
-			(api.card_projects_query, "Project"),
-			(api.card_companies_query, "Company"),
 			(api.available_assets_query, "Asset"),
 		):
 			with self.assertRaises(frappe.PermissionError, msg=doctype):
 				query(doctype, "", "name", 0, 20, {})
+		for method in (api.card_project_options, api.card_company_options, api.report_defaults):
+			with self.assertRaises(frappe.PermissionError, msg=method.__name__):
+				method()
 
 	def test_supplier_query_hides_parties_seen_only_in_other_companies(self):
 		self._card(self._equipment("Q1"), [10])
@@ -381,28 +415,103 @@ class TestReportAccess(IntegrationTestCase):
 		restricted = [r[0] for r in api.card_suppliers_query("Supplier", "", "name", 0, 500, {})]
 		self.assertIn(self.supplier, restricted)
 		self.assertNotIn(other_only, restricted)
-		self.assertEqual(
-			[r[0] for r in api.card_companies_query("Company", "", "name", 0, 50, {})], [self.company]
-		)
-		self.assertEqual(
-			list(api.card_projects_query("Project", "", "name", 0, 50, {"company": self.other})), []
-		)
+		self.assertEqual(api.card_company_options(), [self.company])
+		self.assertEqual(api.card_project_options(company=self.other), [])
+		self.assertIn(self.project, [o["value"] for o in api.card_project_options(txt=self.project)])
 
 	def test_link_filters_work_through_frappe_link_validation(self):
-		"""The real path the report filters take: search_link for the dropdown and
-		validate_link_and_fetch on blur — with no Project read/select grant."""
+		"""The real path the supplier filter takes: search_link for the dropdown and
+		validate_link_and_fetch on blur — with no Supplier read/select grant."""
 		from frappe.client import validate_link_and_fetch
 		from frappe.desk.search import search_link
 
+		self._card(self._equipment("V1"), [10])
 		frappe.set_user(self._user(["Card User"]))
-		self.assertFalse(frappe.has_permission("Project", "select"), "premise: no Project grant")
-		query = "card.api.card_projects_query"
+		self.assertFalse(frappe.has_permission("Supplier", "select"), "premise: no Supplier grant")
+		query = "card.api.card_suppliers_query"
 		filters = {"company": self.company}
-		found = search_link("Project", self.project, query=query, filters=filters)
-		self.assertIn(self.project, [r.get("value") for r in found])
+		found = search_link("Card Equipment Supplier", self.supplier, query=query, filters=filters)
+		self.assertIn(self.supplier, [r.get("value") for r in found])
 		frappe.local.request = frappe._dict(method="POST")
-		validated = validate_link_and_fetch("Project", self.project, query=query, filters=filters)
-		self.assertEqual(validated.get("name"), self.project)
+		validated = validate_link_and_fetch(
+			"Card Equipment Supplier", self.supplier, query=query, filters=filters
+		)
+		self.assertEqual(validated.get("name"), self.supplier)
+
+	def test_no_report_filter_links_to_an_erpnext_master(self):
+		# Frappe validates report Link filter values against the user's own
+		# permissions; operational roles cannot read these masters
+		for module in REPORT_MODULES:
+			for f in _js_filters(module):
+				if f["fieldtype"] == "Link":
+					self.assertNotIn(
+						f.get("options"), {"Supplier", "Customer", "Project", "Company"}, (module, f)
+					)
+
+	def test_card_user_runs_filtered_reports_through_query_report(self):
+		"""The exact server path the Desk uses, with the UI's own filter
+		definitions: Link filter values are permission-checked by Frappe."""
+		import json
+
+		from frappe.desk.query_report import run
+
+		customer = self._customer()
+		self._card(self._equipment("R1"), [10])
+		self._card(self._equipment("R2", customer=customer), [10])
+		frappe.set_user(self._user(["Card User"]))
+		period = {"company": self.company, "from_month": "09", "from_year": 2026, "project": self.project}
+		cases = {
+			"Equipment Supplier Statement": {**period, "statement_type": "مورد", "supplier": self.supplier},
+			"Equipment Customer Statement": {**period, "customer": customer},
+			"Equipment Suppliers Summary": period,
+			"Equipment Customers Summary": period,
+			"Equipment Diesel Analysis": period,
+			"Equipment Diesel Consumption": {"company": self.company, "project": self.project},
+			"Operating Cost by Project": {"company": self.company, "project": self.project},
+			"Transport Cost by Project": {"company": self.company, "project": self.project},
+		}
+		for report, filters in cases.items():
+			module = frappe.scrub(report)
+			frappe.local.message_log = []
+			result = run(
+				report,
+				filters=json.dumps(filters),
+				js_filters=json.dumps(_js_filters(module)),
+				ignore_prepared_report=True,
+			)
+			self.assertIn("result", result, report)
+			# master Link columns the user cannot read come back as Data, so the
+			# Desk posts no permission message resolving their titles
+			for column in result["columns"]:
+				if isinstance(column, dict) and column.get("fieldname") in (
+					"project",
+					"supplier",
+					"customer",
+				):
+					self.assertNotEqual(column.get("fieldtype"), "Link", (report, column))
+			self.assertFalse([m for m in frappe.local.message_log if "role permission" in str(m)], report)
+		defaults = api.report_defaults()
+		self.assertIn("include_draft_in_reports", defaults)
+
+	def test_first_draft_card_makes_the_party_selectable(self):
+		supplier = self._supplier("DRAFT")
+		self.assertFalse(frappe.db.exists("Card Equipment Supplier", supplier))
+		self._card(self._equipment("DR1", supplier=supplier), [10], submit=False)
+		self.assertTrue(frappe.db.exists("Card Equipment Supplier", supplier))
+		frappe.set_user(self._user(["Card User"]))
+		names = [r[0] for r in api.card_suppliers_query("Card Equipment Supplier", "", "name", 0, 500, {})]
+		self.assertIn(supplier, names)
+
+	def test_registry_backfill_patch_is_idempotent(self):
+		from card.patches.v1_2_1.ensure_party_registries import execute
+
+		supplier = self._supplier("PATCH")
+		self._card(self._equipment("PT1", supplier=supplier), [10], submit=False)
+		frappe.db.delete("Card Equipment Supplier", {"name": supplier})
+		execute()
+		self.assertTrue(frappe.db.exists("Card Equipment Supplier", supplier))
+		execute()
+		self.assertEqual(frappe.db.count("Card Equipment Supplier", {"name": supplier}), 1)
 
 	def test_card_roles_gain_no_erpnext_grants(self):
 		frappe.set_user(self._user(["Card User"]))

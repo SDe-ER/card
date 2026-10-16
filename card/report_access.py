@@ -121,5 +121,24 @@ def strip_ledger(columns, rows, summary, keys, tile_labels):
 	return columns, summary
 
 
+def readable_links(columns):
+	"""Link columns to a doctype the user cannot read become Data columns: the
+	value still shows, but the Desk does not try to resolve its title (Frappe
+	then posts a permission message on every run) or open a record the user may
+	not see."""
+	result = []
+	for column in columns:
+		if (
+			isinstance(column, dict)
+			and column.get("fieldtype") == "Link"
+			and column.get("options")
+			and not frappe.permissions.has_permission(column["options"], "read", print_logs=False)
+		):
+			column = {key: value for key, value in column.items() if key != "options"}
+			column["fieldtype"] = "Data"
+		result.append(column)
+	return result
+
+
 def ledger_notice():
 	return _("Ledger balances are shown only to users with General Ledger access.")

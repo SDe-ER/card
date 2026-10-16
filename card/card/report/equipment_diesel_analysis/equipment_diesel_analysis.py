@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 
 from card.diesel import allocate_project_diesel
-from card.report_access import resolve_company
+from card.report_access import readable_links, resolve_company
 from card.settings import setting
 
 
@@ -196,4 +196,4 @@ def execute(filters=None):
 		"Expected = operating hours x (daily diesel consumption / daily standard hours). "
 		"Actual = litres allocated from submitted diesel fills. Display only — no accounting."
 	)
-	return [columns, rows, message, None, summary, True]
+	return [readable_links(columns), rows, message, None, summary, True]

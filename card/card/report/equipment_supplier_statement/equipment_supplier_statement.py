@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 
-from card.report_access import can_view_ledger, ledger_notice, resolve_company
+from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
 
@@ -420,5 +420,6 @@ def execute(filters=None):
 			"Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
 		).format(start, end)
 
+	columns = readable_links(columns)
 	data = [columns, data_rows, message, None, summary, True]
 	return data

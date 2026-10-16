@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
-from card.report_access import resolve_company
+from card.report_access import readable_links, resolve_company
 
 
 def get_columns():
@@ -69,4 +69,4 @@ def execute(filters=None):
 			}
 		)
 
-	return get_columns(), data
+	return readable_links(get_columns()), data

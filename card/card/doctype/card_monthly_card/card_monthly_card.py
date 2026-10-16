@@ -374,6 +374,22 @@ class CardMonthlyCard(Document):
 				).format(self.card_direction)
 			)
 
+	def on_update(self):
+		# report filters link to the party registries; a party must be selectable
+		# from its first card, draft included (submit/cancel keep the totals)
+		if (
+			self.supplier
+			and self.ownership != "ملك"
+			and not frappe.db.exists("Card Equipment Supplier", self.supplier)
+		):
+			self._sync_supplier()
+		if (
+			self.customer
+			and self.card_direction in CUSTOMER_BILLING_DIRECTIONS
+			and not frappe.db.exists("Card Equipment Customer", self.customer)
+		):
+			self._sync_customer()
+
 	def on_submit(self):
 		self._snapshot_settings_used()
 		self._sync_supplier()

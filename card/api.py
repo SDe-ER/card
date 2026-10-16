@@ -6,6 +6,7 @@ from frappe import _
 from frappe.utils import cint, flt
 
 from card.report_access import assert_report_role, permitted_companies, query_companies
+from card.settings import setting
 
 
 def recompute_supplier(supplier):
@@ -92,11 +93,12 @@ def refresh_supplier(supplier: str | None = None):
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
 def card_suppliers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
-	"""Link-filter query for the supplier reports: list every Supplier that has
-	at least one Card Monthly Card (any period, drafts + submitted; cancelled
-	excluded). This makes the "supplier" filter findable by name regardless of
-	the selected month/year — a supplier that last worked years ago still shows.
-	Report roles only; cards of the companies the user may see only."""
+	"""Link-filter query for the supplier reports: rows of the CARD supplier
+	registry (Card Equipment Supplier, named by the supplier) with at least one
+	Card Monthly Card in a company the user may see (drafts + submitted;
+	cancelled excluded). The filter links to the registry — readable by every
+	report role — because Frappe validates report Link filter values against the
+	user's own permissions, and operational roles cannot read Supplier."""
 	assert_report_role()
 	companies = query_companies(filters)
 	if not companies:
@@ -104,14 +106,14 @@ def card_suppliers_query(doctype: str, txt: str, searchfield: str, start: int, p
 	like = "%" + (txt or "") + "%"
 	return frappe.db.sql(
 		"""
-		select s.name, s.supplier_name
-		from `tabSupplier` s
+		select r.name, r.supplier_name
+		from `tabCard Equipment Supplier` r
 		where exists (
 			select 1 from `tabCard Monthly Card` c
-			where c.supplier = s.name and c.docstatus < 2 and c.company in %(companies)s
+			where c.supplier = r.name and c.docstatus < 2 and c.company in %(companies)s
 		)
-		and (s.name like %(txt)s or s.supplier_name like %(txt)s)
-		order by s.name
+		and (r.name like %(txt)s or r.supplier_name like %(txt)s)
+		order by r.name
 		limit %(start)s, %(page_len)s
 		""",
 		{"txt": like, "start": start, "page_len": page_len, "companies": companies},
@@ -202,10 +204,11 @@ def refresh_customer(customer: str | None = None):
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
 def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
-	"""Link-filter query for the customer reports: list every Customer that has
-	at least one Card Monthly Card (any period, drafts + submitted; cancelled
-	excluded) — the owner's "customers with at least one card" rule. Report
-	roles only; cards of the companies the user may see only."""
+	"""Link-filter query for the customer reports: rows of the CARD customer
+	registry (Card Equipment Customer, named by the customer) with at least one
+	Card Monthly Card in a company the user may see — the owner's "customers
+	with at least one card" rule. Links to the registry for the same reason as
+	card_suppliers_query."""
 	assert_report_role()
 	companies = query_companies(filters)
 	if not companies:
@@ -213,14 +216,14 @@ def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, p
 	like = "%" + (txt or "") + "%"
 	return frappe.db.sql(
 		"""
-		select s.name, s.customer_name
-		from `tabCustomer` s
+		select r.name, r.customer_name
+		from `tabCard Equipment Customer` r
 		where exists (
 			select 1 from `tabCard Monthly Card` c
-			where c.customer = s.name and c.docstatus < 2 and c.company in %(companies)s
+			where c.customer = r.name and c.docstatus < 2 and c.company in %(companies)s
 		)
-		and (s.name like %(txt)s or s.customer_name like %(txt)s)
-		order by s.name
+		and (r.name like %(txt)s or r.customer_name like %(txt)s)
+		order by r.name
 		limit %(start)s, %(page_len)s
 		""",
 		{"txt": like, "start": start, "page_len": page_len, "companies": companies},
@@ -228,37 +231,53 @@ def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, p
 
 
 @frappe.whitelist()
-@frappe.validate_and_sanitize_search_inputs
-def card_projects_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
-	"""Link-filter query for report Project filters: projects of the companies
-	the user may see. Lets operational roles filter by project without any
-	read or select permission on Project."""
+def card_project_options(txt: str | None = None, company: str | None = None):
+	"""Options for the reports' Project filter (an Autocomplete, not a Link:
+	Frappe validates report Link filter values against the user's own
+	permissions, and operational roles cannot read Project). Projects of the
+	companies the user may see; the reports scope their rows by company too."""
 	assert_report_role()
-	companies = query_companies(filters)
+	companies = query_companies({"company": company} if company else {})
 	if not companies:
 		return []
 	like = "%" + (txt or "") + "%"
-	return frappe.db.sql(
+	rows = frappe.db.sql(
 		"""
 		select p.name, p.project_name
 		from `tabProject` p
 		where p.company in %(companies)s
 		and (p.name like %(txt)s or p.project_name like %(txt)s)
 		order by p.name
-		limit %(start)s, %(page_len)s
+		limit 50
 		""",
-		{"txt": like, "start": start, "page_len": page_len, "companies": companies},
+		{"txt": like, "companies": companies},
+		as_dict=True,
 	)
+	return [
+		{"value": r.name, "label": f"{r.name}: {r.project_name}" if r.project_name else r.name} for r in rows
+	]
 
 
 @frappe.whitelist()
-@frappe.validate_and_sanitize_search_inputs
-def card_companies_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
-	"""Link-filter query for report Company filters: the companies the user may see."""
+def report_defaults():
+	"""Report filter defaults for any report role (Card Settings itself is not
+	readable by Card User)."""
+	assert_report_role()
+	return {
+		"default_statement_type": setting("default_statement_type"),
+		"include_draft_in_reports": setting("include_draft_in_reports"),
+	}
+
+
+@frappe.whitelist()
+def card_company_options(txt: str | None = None):
+	"""Options for the reports' Company filter: the companies the user may see.
+	An Autocomplete rather than a Link — Frappe checks Link filter values for
+	read before select and posts a permission message for every operational
+	user; each report validates the company server-side (resolve_company)."""
 	assert_report_role()
 	needle = (txt or "").lower()
-	matches = [c for c in permitted_companies() if needle in c.lower()]
-	return [[c] for c in matches[cint(start) : cint(start) + cint(page_len)]]
+	return [c for c in permitted_companies() if needle in c.lower()][:50]
 
 
 @frappe.whitelist(methods=["POST"])
