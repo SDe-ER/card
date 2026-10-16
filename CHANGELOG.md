@@ -16,7 +16,8 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
   reports). On QA the case was already blocked late, and incidentally, by ERPNext's party-account
   permission check; the gate is now explicit.
 - **Supplier/customer registries no longer expose other companies** (#23). Registry rows store no
-  figures any more (the stored party-wide counts, hours and totals are cleared by a patch); the form
+  figures any more (the stored party-wide counts, hours and totals are cleared by a patch, and only the
+  registry history entries that carry those figures are deleted — identity-only history is kept); the form
   shows figures per company the user may see. A user restricted to some companies lists and opens only
   parties with cards there (list, form and REST).
 - **Commercial terms of equipment are protected** (rates, rate basis, daily hours, direction, parties,
@@ -34,8 +35,12 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
   shown as *estimated*, direct fills as *recorded*; "Actual litres" is now "Allocated litres".
 - **Monthly posting lines** (#34): fill/transport lines use the source's own cost center when set;
   split diesel lines state their own estimated litres share.
-- **Like-for-like reconciliation**: statements and summaries compare card nets with the invoiced net
-  **before VAT** (new "Invoiced net (before VAT)" figure); GL figures stay as the VAT-inclusive balance.
+- **Reconciliation in three separate figures** (statements and summaries, net before VAT): **invoiced
+  through Card** (from Card's own posting trail), **not invoiced through Card** (card net − invoiced through
+  Card; cards in a Card draft invoice count here until it is submitted) and **ERPNext invoices outside
+  Card — to reconcile** (submitted invoices of the party in the period that Card did not create). Invoices
+  outside Card are shown for manual reconciliation only: never matched to cards by party and month, and no
+  existing invoice, GL entry or amount is relinked or changed. GL figures stay as the VAT-inclusive balance.
 
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
