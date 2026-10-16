@@ -84,7 +84,7 @@
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Amount",
+   "label": "Fill amount",
    "read_only": 1
   },
   {
@@ -135,7 +135,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-14 11:00:00.000000",
+ "modified": "2026-10-16 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Project Diesel Fill",
