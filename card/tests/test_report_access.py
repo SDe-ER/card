@@ -21,8 +21,24 @@ from card.tests.test_customer_reports import _leaf
 
 RENTED = "إيجار"
 LEDGER_KEYS = {
-	"equipment_suppliers_summary": {"accrued", "diff", "opening", "paid", "closing"},
-	"equipment_customers_summary": {"invoiced", "diff", "opening", "received", "closing"},
+	"equipment_suppliers_summary": {
+		"accrued",
+		"invoiced_net",
+		"diff",
+		"external_net",
+		"opening",
+		"paid",
+		"closing",
+	},
+	"equipment_customers_summary": {
+		"invoiced",
+		"invoiced_net",
+		"diff",
+		"external_net",
+		"opening",
+		"received",
+		"closing",
+	},
 }
 NOTICE = "Ledger balances are shown only to users with General Ledger access."
 
@@ -303,7 +319,12 @@ class TestReportAccess(IntegrationTestCase):
 			self.assertFalse(keys & _fieldnames(cols), module)
 			for row in rows:
 				self.assertFalse(keys & set(row), module)
-			self.assertNotIn(frappe._("Reconciliation difference"), _labels(summary), module)
+			self.assertNotIn(frappe._("Not invoiced through Card"), _labels(summary), module)
+			self.assertNotIn(
+				frappe._("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+				_labels(summary),
+				module,
+			)
 
 	def test_customer_statement_hides_ledger_for_card_user(self):
 		customer = self._customer()

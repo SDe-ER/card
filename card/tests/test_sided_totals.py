@@ -180,19 +180,58 @@ class TestSidedTotals(_CustomerCardsBase):
 		self.assertEqual(_registry_figures("Supplier", self.supplier).total, 3700)
 		self.assertEqual(_registry_figures("Customer", self.customer).total, 5560)
 
-	def test_registry_history_is_purged_and_not_recreated(self):
+	def _version(self, ref_doctype, docname, data):
+		raw = data if isinstance(data, str) else frappe.as_json(data)
+		return (
+			frappe.get_doc(
+				{"doctype": "Version", "ref_doctype": ref_doctype, "docname": docname, "data": raw}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+
+	def test_registry_history_purge_keeps_identity_and_unrelated_history(self):
+		"""Owner decision (PR #39): delete only registry Versions that carry the
+		legacy aggregate fields; identity-only and unrelated history stays."""
 		from card.patches.v1_2_2.purge_registry_versions import execute
 
-		frappe.get_doc(
-			{
-				"doctype": "Version",
-				"ref_doctype": "Card Equipment Supplier",
-				"docname": self.supplier,
-				"data": frappe.as_json({"changed": [["total_net", 1, 2]]}),
-			}
-		).insert(ignore_permissions=True)
+		sup, cus = "Card Equipment Supplier", "Card Equipment Customer"
+		purged = {
+			"aggregate only": self._version(sup, self.supplier, {"changed": [["total_net", 1, 2]]}),
+			"mixed identity + aggregate": self._version(
+				sup, self.supplier, {"changed": [["supplier_name", "A", "B"], ["card_count", 1, 2]]}
+			),
+			"customer aggregate": self._version(cus, self.customer, {"changed": [["total_accrued", 0, 9]]}),
+			"customer months": self._version(
+				cus, self.customer, {"changed": [["first_month", None, "2026-09"]]}
+			),
+			"unparseable mentioning an aggregate": self._version(
+				sup, self.supplier, '{"changed": [["total_hours", 1,'
+			),
+		}
+		kept = {
+			"identity only": self._version(sup, self.supplier, {"changed": [["supplier_name", "A", "B"]]}),
+			"customer identity only": self._version(
+				cus, self.customer, {"changed": [["customer_name", "X", "Y"]]}
+			),
+			"insert record": self._version(sup, self.supplier, {"creation": "2026-09-01 10:00:00"}),
+			"figure name only as a value": self._version(
+				sup, self.supplier, {"changed": [["supplier_name", "total_net", "card_count"]]}
+			),
+			"unparseable without aggregates": self._version(sup, self.supplier, "{not json"),
+			# same field names on another doctype are not registry history
+			"other doctype": self._version(
+				"Card Monthly Card", self.card.name, {"changed": [["card_count", 1, 2]]}
+			),
+		}
 		execute()
-		self.assertFalse(frappe.get_all("Version", filters={"ref_doctype": "Card Equipment Supplier"}))
+		execute()  # idempotent
+		for label, name in purged.items():
+			self.assertFalse(frappe.db.exists("Version", name), label)
+		for label, name in kept.items():
+			self.assertTrue(frappe.db.exists("Version", name), label)
+
+	def test_registry_history_is_not_recreated(self):
 		recompute_supplier(self.supplier)
 		self.assertFalse(
 			frappe.get_all(
