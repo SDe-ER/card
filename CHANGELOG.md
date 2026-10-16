@@ -57,7 +57,8 @@ each side's own additions and deductions. Merged through PRs #22, #26 and #27.
 ### Migration
 - `bench --site <site> migrate` runs three idempotent v1.2.1 patches, in order:
   `backfill_customer_net_amount` (fills `customer_net_amount` on customer-billing cards saved before
-  that column was computed), `ensure_party_registries` (creates missing registry rows),
+  that column was computed), `ensure_party_registries` (creates missing registry rows and realigns rows an earlier party
+  rename left misnamed),
   `recompute_party_registries` (refreshes every stored registry total). They write only that derived
   card column and the CARD registry rows; no submitted accounting document (invoice, journal, GL
   entry) is touched. A party whose recompute fails is logged in Error Log and counted in the
@@ -70,6 +71,10 @@ each side's own additions and deductions. Merged through PRs #22, #26 and #27.
 - Frappe / ERPNext v16 (16.5x), as 1.2.0. No field is removed or renamed; only the labels of
   `amount` on Project Diesel Fill / Equipment Transport change. The default monthly-card print format
   stays "Card Monthly Card Print"; an existing site-level default is not overwritten.
+- The internal whitelisted Link-query endpoints `card.api.card_projects_query` and
+  `card.api.card_companies_query` are replaced by `card.api.card_project_options` /
+  `card.api.card_company_options` (Autocomplete contract). A custom client calling the old names
+  must switch.
 
 ### Test evidence
 - CI green on every merged head (unit tests on Frappe 16.5x, pre-commit, Semgrep, CodeQL).
