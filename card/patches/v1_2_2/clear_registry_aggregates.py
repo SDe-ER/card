@@ -36,8 +36,14 @@ def execute():
 	for registry, fields in FIELDS.items():
 		if not frappe.db.table_exists(registry):
 			continue
-		present = [f for f in fields if frappe.db.has_column(registry, f)]
-		if present:
-			frappe.db.sql(
-				"update `tab{}` set {}".format(registry, ", ".join(f"`{f}` = null" for f in present))
-			)
+		meta = frappe.get_meta(registry)
+		assignments = []
+		for field in fields:
+			df = meta.get_field(field)
+			if not df or not frappe.db.has_column(registry, field):
+				continue
+			# numeric columns are NOT NULL in Frappe: their "empty" value is 0
+			numeric = df.fieldtype in ("Int", "Float", "Currency", "Percent")
+			assignments.append(f"`{field}` = {'0' if numeric else 'null'}")
+		if assignments:
+			frappe.db.sql("update `tab{}` set {}".format(registry, ", ".join(assignments)))

@@ -174,8 +174,8 @@ class TestSidedTotals(_CustomerCardsBase):
 		recompute()
 		clear()
 		clear()  # idempotent
-		self.assertIsNone(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"))
-		self.assertIsNone(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"))
+		self.assertFalse(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"))
+		self.assertFalse(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"))
 		# the figures are still available, computed from the cards
 		self.assertEqual(_registry_figures("Supplier", self.supplier).total, 3700)
 		self.assertEqual(_registry_figures("Customer", self.customer).total, 5560)

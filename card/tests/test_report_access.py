@@ -652,7 +652,7 @@ class TestReportAccess(IntegrationTestCase):
 		self._move_to_other(self._card(self._equipment("OT1", supplier=other_only), [10]))
 		for party in (shared, other_only):
 			api.recompute_supplier(party)
-			self.assertIsNone(frappe.db.get_value("Card Equipment Supplier", party, "total_net"))
+			self.assertFalse(frappe.db.get_value("Card Equipment Supplier", party, "total_net"))
 
 		frappe.set_user(self._user(["Card User"], restrict_to=self.company))
 		listed = frappe.get_list("Card Equipment Supplier", pluck="name", limit_page_length=0)

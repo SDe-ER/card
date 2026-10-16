@@ -358,7 +358,7 @@ class TestCardMonthlyCard(IntegrationTestCase):
 		self._card(eq, [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9], submit=True)  # 109h -> 8175
 		self.assertTrue(frappe.db.exists("Card Equipment Supplier", self.supplier))
 		rec = frappe.get_doc("Card Equipment Supplier", self.supplier)
-		self.assertIsNone(rec.total_net)  # no figures stored on the registry (#23)
+		self.assertFalse(rec.total_net)  # no figures stored on the registry (#23)
 		fig = _registry_figures("Supplier", self.supplier)
 		self.assertEqual(fig.card_count, 1)
 		self.assertEqual(fig.equipment_count, 1)
