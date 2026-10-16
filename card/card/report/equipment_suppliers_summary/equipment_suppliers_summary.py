@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 
+from card.reconciliation import invoiced_net
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
 from card.settings import setting
 
@@ -114,6 +115,9 @@ def execute(filters=None):
 				x["accrued"] = x["accrued"] + flt(g.credit)
 				x["paid"] = x["paid"] + flt(g.debit)
 
+	# like-for-like reconciliation: card nets are before VAT, GL credits include it
+	inv_net = invoiced_net("Supplier", order, company, start, end) if show_ledger else {}
+
 	names = {}
 	if order:
 		for s in frappe.get_all(
@@ -129,6 +133,7 @@ def execute(filters=None):
 		"hours": 0.0,
 		"net": 0.0,
 		"accrued": 0.0,
+		"invoiced_net": 0.0,
 		"diff": 0.0,
 		"opening": 0.0,
 		"paid": 0.0,
@@ -144,7 +149,8 @@ def execute(filters=None):
 			days = days + len(eq_dates.get(s + "|" + e) or set())
 		net = flt(a["net"], 2)
 		closing = flt(x["opening"] + x["accrued"] - x["paid"], 2)
-		diff = flt(net - x["accrued"], 2)
+		inv = flt(inv_net.get(s), 2)
+		diff = flt(net - inv, 2)
 		result.append(
 			{
 				"supplier": s,
@@ -155,6 +161,7 @@ def execute(filters=None):
 				"hours": flt(a["hours"], 2),
 				"net": net,
 				"accrued": flt(x["accrued"], 2),
+				"invoiced_net": inv,
 				"diff": diff,
 				"opening": flt(x["opening"], 2),
 				"paid": flt(x["paid"], 2),
@@ -167,6 +174,7 @@ def execute(filters=None):
 		tot["hours"] = tot["hours"] + a["hours"]
 		tot["net"] = tot["net"] + net
 		tot["accrued"] = tot["accrued"] + x["accrued"]
+		tot["invoiced_net"] = tot["invoiced_net"] + inv
 		tot["diff"] = tot["diff"] + diff
 		tot["opening"] = tot["opening"] + x["opening"]
 		tot["paid"] = tot["paid"] + x["paid"]
@@ -184,6 +192,7 @@ def execute(filters=None):
 				"hours": flt(tot["hours"], 2),
 				"net": flt(tot["net"], 2),
 				"accrued": flt(tot["accrued"], 2),
+				"invoiced_net": flt(tot["invoiced_net"], 2),
 				"diff": flt(tot["diff"], 2),
 				"opening": flt(tot["opening"], 2),
 				"paid": flt(tot["paid"], 2),
@@ -206,6 +215,12 @@ def execute(filters=None):
 		{"fieldname": "hours", "label": _("Hours"), "fieldtype": "Float", "precision": 2, "width": 90},
 		{"fieldname": "net", "label": _("Net cards"), "fieldtype": "Currency", "width": 120},
 		{"fieldname": "accrued", "label": _("Accrual entries"), "fieldtype": "Currency", "width": 120},
+		{
+			"fieldname": "invoiced_net",
+			"label": _("Invoiced net (before VAT)"),
+			"fieldtype": "Currency",
+			"width": 130,
+		},
 		{"fieldname": "diff", "label": _("Reconciliation difference"), "fieldtype": "Currency", "width": 120},
 		{"fieldname": "opening", "label": _("Opening balance"), "fieldtype": "Currency", "width": 120},
 		{"fieldname": "paid", "label": _("Paid"), "fieldtype": "Currency", "width": 110},
@@ -241,7 +256,7 @@ def execute(filters=None):
 			columns,
 			result,
 			summary,
-			("accrued", "diff", "opening", "paid", "closing"),
+			("accrued", "invoiced_net", "diff", "opening", "paid", "closing"),
 			(_("Reconciliation difference"), _("Total supplier balances")),
 		)
 		message = message + " " + ledger_notice()

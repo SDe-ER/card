@@ -1738,14 +1738,14 @@ msgstr "نوع الوردية"
 msgid "Diesel supplier policy is fixed; set the diesel supplier."
 msgstr "سياسة مورد الديزل ثابتة؛ حدد مورد الديزل."
 
-msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
-msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = المستحق من الكروت − قيود الفوترة."
+msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included); reconciliation difference = accrued cards − invoiced net before VAT."
+msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)؛ فرق المطابقة = المستحق من الكروت − صافي المفوتر قبل الضريبة."
 
 msgid "Equipment customers summary — Period from {0} to {1}. Click on the customer name to open their statement."
 msgstr "ملخص عملاء المعدات — الفترة من {0} إلى {1}. اضغط على اسم العميل لفتح كشف حسابه."
 
-msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
-msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
+msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included); reconciliation difference = net cards − invoiced net before VAT."
+msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)؛ فرق المطابقة = صافي الكروت − صافي المفوتر قبل الضريبة."
 
 msgid "Equipment suppliers summary — Period from {0} to {1}. Click on the supplier name to open their statement."
 msgstr "ملخص موردي المعدات — الفترة من {0} إلى {1}. اضغط على اسم المورد لفتح كشف حسابه."
@@ -2028,3 +2028,6 @@ msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} م�
 
 msgid "Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
 msgstr "تعبئة ديزل {0} — {1} لتر حصة تقديرية من {2} لتر (توزيع بالساعات)"
+
+msgid "Invoiced net (before VAT)"
+msgstr "صافي المفوتر (قبل الضريبة)"

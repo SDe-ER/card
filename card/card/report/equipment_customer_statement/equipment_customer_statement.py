@@ -3,6 +3,7 @@ from frappe import _
 
 from card.adjustments import sided_adjustments
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
+from card.reconciliation import invoiced_net
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
@@ -384,7 +385,9 @@ def execute(filters=None):
 			invoiced = invoiced + flt(g.debit)
 			received = received + flt(g.credit)
 		closing = opening + invoiced - received
-		diff = flt(grand["net"] - invoiced, 2)
+		# like-for-like: card nets are before VAT; the invoiced debits include it
+		inv = flt(invoiced_net("Customer", [customer], company, start, end).get(customer), 2)
+		diff = flt(grand["net"] - inv, 2)
 		summary = [
 			*summary,
 			{
@@ -396,6 +399,12 @@ def execute(filters=None):
 			{
 				"label": _("Invoiced entries (Debit)"),
 				"value": flt(invoiced, 2),
+				"datatype": "Currency",
+				"indicator": "Blue",
+			},
+			{
+				"label": _("Invoiced net (before VAT)"),
+				"value": inv,
 				"datatype": "Currency",
 				"indicator": "Blue",
 			},
@@ -425,7 +434,7 @@ def execute(filters=None):
 			},
 		]
 		message = prefix + _(
-			"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
+			"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included); reconciliation difference = accrued cards − invoiced net before VAT."
 		).format(customer, start, end, frappe.utils.nowdate())
 
 	columns = readable_links(columns, data_rows)

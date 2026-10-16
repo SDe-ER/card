@@ -94,3 +94,43 @@ class TestPostingLines(_PostingBase):
 		direct_line = next(i for i in pi.items if direct.name in i.description)
 		self.assertNotIn("estimated", direct_line.description)
 		self.assertEqual(flt(sum(flt(i.rate) for i in pi.items if tank.name in i.description), 2), 1000.0)
+
+
+class TestLikeForLikeReconciliation(_PostingBase):
+	def test_difference_closes_against_the_invoiced_net_not_the_vat_inclusive_gl(self):
+		"""Card nets are before VAT; after the monthly PI (net + 15% VAT) is
+		submitted the reconciliation difference is 0, while the GL accrual
+		(VAT included) is shown separately."""
+		self._vat_supplier()
+		_eq, _card = self._example_card()  # net 10,277.81 ; VAT 1,586.67
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		pi.bill_no = "TEST-BILL-REC-" + self.token
+		pi.bill_date = pi.posting_date
+		pi.submit()
+		from card.card.report.equipment_supplier_statement.equipment_supplier_statement import execute
+
+		filters = frappe._dict(
+			company=self.company,
+			statement_type="مورد",
+			supplier=self.supplier,
+			from_month=9,
+			from_year=2026,
+			to_month=9,
+			to_year=2026,
+		)
+		_c, _rows, _msg, _chart, summary, _f = execute(filters)
+		tiles = {s["label"]: s["value"] for s in summary}
+		self.assertEqual(tiles[frappe._("Net cards")], 10277.81)
+		self.assertEqual(tiles[frappe._("Invoiced net (before VAT)")], 10277.81)
+		self.assertEqual(tiles[frappe._("Reconciliation difference")], 0)
+		self.assertEqual(tiles[frappe._("Accrual entries (Credit)")], 11864.48)  # GL, VAT included
+
+		from card.card.report.equipment_suppliers_summary.equipment_suppliers_summary import execute as summ
+
+		_c, rows, _msg, _chart, _s, _f = summ(
+			frappe._dict(company=self.company, from_month=9, from_year=2026, to_month=9, to_year=2026)
+		)
+		row = next(r for r in rows if r.get("supplier") == self.supplier)
+		self.assertEqual((row["invoiced_net"], row["diff"], row["accrued"]), (10277.81, 0, 11864.48))
