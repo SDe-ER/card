@@ -3,7 +3,9 @@
 
 import frappe
 from frappe import _
-from frappe.utils import flt
+from frappe.utils import cint, flt
+
+from card.report_access import assert_report_role, permitted_companies, query_companies
 
 
 def recompute_supplier(supplier):
@@ -93,7 +95,12 @@ def card_suppliers_query(doctype: str, txt: str, searchfield: str, start: int, p
 	"""Link-filter query for the supplier reports: list every Supplier that has
 	at least one Card Monthly Card (any period, drafts + submitted; cancelled
 	excluded). This makes the "supplier" filter findable by name regardless of
-	the selected month/year — a supplier that last worked years ago still shows."""
+	the selected month/year — a supplier that last worked years ago still shows.
+	Report roles only; cards of the companies the user may see only."""
+	assert_report_role()
+	companies = query_companies(filters)
+	if not companies:
+		return []
 	like = "%" + (txt or "") + "%"
 	return frappe.db.sql(
 		"""
@@ -101,13 +108,13 @@ def card_suppliers_query(doctype: str, txt: str, searchfield: str, start: int, p
 		from `tabSupplier` s
 		where exists (
 			select 1 from `tabCard Monthly Card` c
-			where c.supplier = s.name and c.docstatus < 2
+			where c.supplier = s.name and c.docstatus < 2 and c.company in %(companies)s
 		)
 		and (s.name like %(txt)s or s.supplier_name like %(txt)s)
 		order by s.name
 		limit %(start)s, %(page_len)s
 		""",
-		{"txt": like, "start": start, "page_len": page_len},
+		{"txt": like, "start": start, "page_len": page_len, "companies": companies},
 	)
 
 
@@ -197,7 +204,12 @@ def refresh_customer(customer: str | None = None):
 def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
 	"""Link-filter query for the customer reports: list every Customer that has
 	at least one Card Monthly Card (any period, drafts + submitted; cancelled
-	excluded) — the owner's "customers with at least one card" rule."""
+	excluded) — the owner's "customers with at least one card" rule. Report
+	roles only; cards of the companies the user may see only."""
+	assert_report_role()
+	companies = query_companies(filters)
+	if not companies:
+		return []
 	like = "%" + (txt or "") + "%"
 	return frappe.db.sql(
 		"""
@@ -205,14 +217,48 @@ def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, p
 		from `tabCustomer` s
 		where exists (
 			select 1 from `tabCard Monthly Card` c
-			where c.customer = s.name and c.docstatus < 2
+			where c.customer = s.name and c.docstatus < 2 and c.company in %(companies)s
 		)
 		and (s.name like %(txt)s or s.customer_name like %(txt)s)
 		order by s.name
 		limit %(start)s, %(page_len)s
 		""",
-		{"txt": like, "start": start, "page_len": page_len},
+		{"txt": like, "start": start, "page_len": page_len, "companies": companies},
 	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def card_projects_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
+	"""Link-filter query for report Project filters: projects of the companies
+	the user may see. Lets operational roles filter by project without any
+	read or select permission on Project."""
+	assert_report_role()
+	companies = query_companies(filters)
+	if not companies:
+		return []
+	like = "%" + (txt or "") + "%"
+	return frappe.db.sql(
+		"""
+		select p.name, p.project_name
+		from `tabProject` p
+		where p.company in %(companies)s
+		and (p.name like %(txt)s or p.project_name like %(txt)s)
+		order by p.name
+		limit %(start)s, %(page_len)s
+		""",
+		{"txt": like, "start": start, "page_len": page_len, "companies": companies},
+	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def card_companies_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
+	"""Link-filter query for report Company filters: the companies the user may see."""
+	assert_report_role()
+	needle = (txt or "").lower()
+	matches = [c for c in permitted_companies() if needle in c.lower()]
+	return [[c] for c in matches[cint(start) : cint(start) + cint(page_len)]]
 
 
 @frappe.whitelist(methods=["POST"])

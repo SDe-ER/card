@@ -2,6 +2,8 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
+from card.report_access import resolve_company
+
 
 def get_columns():
 	return [
@@ -21,6 +23,7 @@ def execute(filters=None):
 	# Report: "Transport Cost by Project" (Script Report, standard, ref doctype: Equipment Transport)
 	# Read-only. One row per project: number and total amount of SUBMITTED Equipment Transport docs in range.
 	filters = frappe._dict(filters or {})
+	filters.company = resolve_company(filters)
 
 	transport_filters = [["docstatus", "=", 1]]
 	if filters.get("company"):

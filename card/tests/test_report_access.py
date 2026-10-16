@@ -17,7 +17,10 @@ from card.tests.test_controllers import _days, _ensure_masters
 
 RENTED = "إيجار"
 OTHER = "Other Isolated Co"
-LEDGER_KEYS = {"accrued", "diff", "opening", "paid", "closing"}
+LEDGER_KEYS = {
+	"equipment_suppliers_summary": {"accrued", "diff", "opening", "paid", "closing"},
+	"equipment_customers_summary": {"invoiced", "diff", "opening", "received", "closing"},
+}
 
 
 def _run(module, filters):
@@ -170,7 +173,9 @@ class TestReportAccess(IntegrationTestCase):
 		self.assertEqual(flt(_value(summary, "Net cards")), flt(card.net_amount))
 		self.assertNotIn(frappe._("Accrual entries (Credit)"), _labels(summary))
 		self.assertNotIn(frappe._("Supplier closing balance"), _labels(summary))
-		self.assertIn(frappe._("Ledger balances are shown only to users with General Ledger access."), message)
+		self.assertIn(
+			frappe._("Ledger balances are shown only to users with General Ledger access."), message
+		)
 
 	def test_ledger_user_sees_only_own_company_entries(self):
 		self._rented_card([10])
@@ -183,11 +188,11 @@ class TestReportAccess(IntegrationTestCase):
 		self._rented_card([10])
 		self._raw_gl(self.company, credit=999)
 		frappe.set_user(self._user(["Card User"]))
-		for module in ("equipment_suppliers_summary", "equipment_customers_summary"):
+		for module, keys in LEDGER_KEYS.items():
 			cols, rows, _msg, summary = _run(module, {"from_month": 9, "from_year": 2026})
-			self.assertFalse(LEDGER_KEYS & _fieldnames(cols), module)
+			self.assertFalse(keys & _fieldnames(cols), module)
 			for row in rows:
-				self.assertFalse(LEDGER_KEYS & set(row), module)
+				self.assertFalse(keys & set(row), module)
 			self.assertNotIn(frappe._("Reconciliation difference"), _labels(summary), module)
 
 	def test_customer_statement_hides_ledger_for_card_user(self):
@@ -196,7 +201,9 @@ class TestReportAccess(IntegrationTestCase):
 			"equipment_customer_statement", {"from_month": 9, "from_year": 2026, "customer": "x"}
 		)
 		self.assertNotIn(frappe._("Invoiced entries (Debit)"), _labels(summary))
-		self.assertIn(frappe._("Ledger balances are shown only to users with General Ledger access."), message)
+		self.assertIn(
+			frappe._("Ledger balances are shown only to users with General Ledger access."), message
+		)
 
 	def test_expenses_without_equipment_refuses_users_without_ledger(self):
 		frappe.set_user(self._user(["Card User"]))
@@ -239,9 +246,15 @@ class TestReportAccess(IntegrationTestCase):
 
 	def test_party_queries_refuse_users_without_card_role(self):
 		frappe.set_user(self._user([], website=True))
-		for query in (api.card_suppliers_query, api.card_customers_query, api.card_projects_query):
-			with self.assertRaises(frappe.PermissionError):
-				query("X", "", "name", 0, 20, {})
+		# real doctypes: the search decorator returns [] early for an unknown one
+		for query, doctype in (
+			(api.card_suppliers_query, "Supplier"),
+			(api.card_customers_query, "Customer"),
+			(api.card_projects_query, "Project"),
+			(api.card_companies_query, "Company"),
+		):
+			with self.assertRaises(frappe.PermissionError, msg=doctype):
+				query(doctype, "", "name", 0, 20, {})
 
 	def test_queries_are_company_scoped(self):
 		self._rented_card([10])
@@ -252,8 +265,12 @@ class TestReportAccess(IntegrationTestCase):
 		self.assertIn(self.project, projects)
 		companies = [r[0] for r in api.card_companies_query("Company", "", "name", 0, 50, {})]
 		self.assertEqual(companies, [self.company])
-		for query in (api.card_suppliers_query, api.card_projects_query, api.card_customers_query):
-			self.assertEqual(list(query("X", "", "name", 0, 50, {"company": OTHER})), [])
+		for query, doctype in (
+			(api.card_suppliers_query, "Supplier"),
+			(api.card_projects_query, "Project"),
+			(api.card_customers_query, "Customer"),
+		):
+			self.assertEqual(list(query(doctype, "", "name", 0, 50, {"company": OTHER})), [], doctype)
 
 	def test_card_roles_gain_no_erpnext_grants(self):
 		frappe.set_user(self._user(["Card User"]))

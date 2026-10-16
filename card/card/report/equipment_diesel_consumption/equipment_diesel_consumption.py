@@ -3,6 +3,7 @@ from frappe import _
 from frappe.utils import flt, getdate
 
 from card.diesel import UNALLOCATED, allocate_project_diesel
+from card.report_access import resolve_company
 
 
 def get_columns():
@@ -34,6 +35,7 @@ def execute(filters=None):
 	# Display/costing only: never posts GL and never touches a card's net amount.
 	# Note: allocation is per whole calendar month; the date filter only selects which (project, month) pairs appear.
 	filters = frappe._dict(filters or {})
+	filters.company = resolve_company(filters)
 
 	fill_filters = [["docstatus", "=", 1]]
 	if filters.get("company"):
