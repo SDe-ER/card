@@ -9,8 +9,7 @@
 إدارة المعدات وكروت التشغيل الشهرية
 
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
-![Release](https://img.shields.io/badge/release-v1.1.0-1F876C)
-![In development](https://img.shields.io/badge/v1.2-in%20development-orange)
+![Release](https://img.shields.io/badge/release-v1.2.0-1F876C)
 ![Frappe](https://img.shields.io/badge/frappe-v16-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -73,7 +72,7 @@ CARD follows the same design principles as Frappe HR: one master record per asse
 </details>
 
 <details open>
-<summary><b>Rental directions &amp; the customer side</b> <sub>(v1.2 — in development)</sub></summary>
+<summary><b>Rental directions &amp; the customer side</b></summary>
 
 - Every equipment carries a **rental direction**: rented from a supplier, rented out to a customer, sub-rental (both sides on one card), or internal operation. The form shows only the side that applies.
 - **Card Equipment Customer** registry mirrors the supplier registry; **Equipment Customer Statement** and **Equipment Customers Summary** read the official receivables only — CARD never keeps a parallel ledger.
@@ -84,7 +83,7 @@ CARD follows the same design principles as Frappe HR: one master record per asse
 </details>
 
 <details open>
-<summary><b>Diesel &amp; transport management</b> <sub>(v1.2 — in development)</sub></summary>
+<summary><b>Diesel &amp; transport management</b></summary>
 
 - Per-company diesel litre price; a **diesel supplier policy** (fixed supplier enforced on every fill, or variable behind a permitted role).
 - Per-project **transport prices** defaulting every Equipment Transport, change-gated by role.
@@ -94,7 +93,7 @@ CARD follows the same design principles as Frappe HR: one master record per asse
 </details>
 
 <details open>
-<summary><b>Accounting on official ERPNext documents</b> <sub>(v1.2 — in development)</sub></summary>
+<summary><b>Accounting on official ERPNext documents</b></summary>
 
 - A non-mandatory **Card Equipment accounting dimension** on the GL-bearing ERPNext doctypes: per-equipment General Ledger, Trial Balance, P&amp;L and Balance Sheet with the standard reports — including the depreciation path from linked Assets.
 - Guard report **Equipment Expenses Without Equipment** catches expense lines that missed the dimension.
@@ -103,7 +102,7 @@ CARD follows the same design principles as Frappe HR: one master record per asse
 </details>
 
 <details open>
-<summary><b>Professional print formats</b> <sub>(v1.2 — in development)</sub></summary>
+<summary><b>Professional print formats</b></summary>
 
 - RTL Arabic-first print formats for the monthly card, diesel fill and transport — header, logo and company details pulled from the system, applied automatically on print.
 
@@ -164,7 +163,7 @@ Add CARD to your `apps.json` and build a custom image:
 ```bash
 docker build \
   --build-arg APPS_JSON_BASE64=$(base64 -w 0 apps.json) \
-  --tag your-registry/erp:card-v1.0.1 \
+  --tag your-registry/erp:card-v1.2.0 \
   --file images/custom/Containerfile .
 ```
 
@@ -202,8 +201,8 @@ Code style is enforced with `pre-commit` (ruff, prettier, semgrep). Commits foll
 
 | Version | Date | Highlights |
 |---|---|---|
-| **v1.2.0** | _Unreleased — in development_ | Rental directions on the equipment (hours-only cards), customer registry + statements on official receivables, Card Settings with per-company configuration, diesel supplier policy + per-project transport prices + diesel analysis, three rate bases (hour/day/month), Card Equipment accounting dimension with depreciation support, equipment location transfers with assignment tracking, per-shift hour warnings, fiscal-year back-entry window, professional RTL print formats, Card Manager / Card User roles, period lock. |
-| **v1.1.0** | 2026-10-14 | English-source i18n with full Arabic translation; Desk connections between equipment, cards, suppliers and projects; workspace and sidebar polish; shift heatmaps. |
+| **v1.2.0** | 2026-10-16 | Everything from the v1.1 line (English-source i18n with full Arabic translation, Desk connections, workspace polish, heatmaps) plus rental directions with hours-only cards, customer registry and statements, Card Settings per company with Card Manager / Card User roles, diesel and transport management, three rate bases, the Card Equipment accounting dimension, period lock, RTL print formats, opt-in monthly draft supplier/customer postings, and company-scoped reports with ledger figures limited to General Ledger users. |
+| _v1.1_ | _not released_ | Developed and merged, never tagged — its content ships in v1.2.0. |
 | **v1.0.1** | 2026-10-13 | Workspace moved to module `Card`; Frappe 16.50 sidebar migrated with all items; legacy `Card (Custom)` module retired; `net_amount` backfilled for cards submitted before v1.0. |
 | **v1.0.0** | 2026-10-13 | First standalone release: equipment master, assignments, monthly cards, suppliers, reports and workspace. |
 
