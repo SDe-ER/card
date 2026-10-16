@@ -168,14 +168,11 @@ class TestLikeForLikeReconciliation(_PostingBase):
 		self.assertEqual((row["invoiced_net"], row["diff"], row["external_net"]), (0, 10277.81, 0))
 
 
-class TestReconciliationCategories(_PostingBase):
-	"""Owner decision (PR #39): the reconciliation keeps three things apart —
-	cards invoiced through CARD, cards not invoiced through CARD, and ERPNext
-	invoices of the party made outside CARD (shown for manual reconciliation,
-	never matched to cards by party and month). Nothing existing is relinked."""
+class _ReconciliationBase(_PostingBase):
+	"""Builders shared by the reconciliation tests (no test_* of its own)."""
 
 	def _manual_invoice(self, doctype, posting_date, rate, submit=True, qty=1):
-		from card.gl.masters import ensure_posting_masters
+		from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
 
 		row = ensure_posting_masters(self.company)
 		doc = {
@@ -203,7 +200,7 @@ class TestReconciliationCategories(_PostingBase):
 		else:
 			doc.update(
 				customer=self.customer,
-				selling_price_list=frappe.db.get_value("Price List", {"selling": 1, "enabled": 1}, "name"),
+				selling_price_list=ensure_selling_price_list(self.company),
 				items=[
 					{
 						"item_code": row.rental_item,
@@ -240,6 +237,13 @@ class TestReconciliationCategories(_PostingBase):
 			frappe._dict(company=self.company, from_month=9, from_year=2026, to_month=9, to_year=2026)
 		)
 		return next(r for r in rows if r.get(party_field) == party)
+
+
+class TestReconciliationCategories(_ReconciliationBase):
+	"""Owner decision (PR #39): the reconciliation keeps three things apart —
+	cards invoiced through CARD, cards not invoiced through CARD, and ERPNext
+	invoices of the party made outside CARD (shown for manual reconciliation,
+	never matched to cards by party and month). Nothing existing is relinked."""
 
 	def test_manual_invoice_is_shown_apart_and_not_matched_to_cards(self):
 		self._vat_supplier()
@@ -374,7 +378,7 @@ class TestSourceCostCenterGuard(_PostingBase):
 		self.assertIn("estimated", line.description)
 
 
-class TestReconciliationEdgeCases(TestReconciliationCategories):
+class TestReconciliationEdgeCases(_ReconciliationBase):
 	"""PR #39 owner pre-merge tests: cancellation, returns / credit notes,
 	company isolation and the project filter — the reconciliation as designed,
 	no behaviour change."""
