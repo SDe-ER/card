@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 
-from card.report_access import can_view_ledger, ledger_notice, resolve_company, strip_ledger
+from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
 from card.settings import setting
 
 
@@ -247,5 +247,6 @@ def execute(filters=None):
 		)
 		message = message + " " + ledger_notice()
 
+	columns = readable_links(columns)
 	data = [columns, result, message, None, summary, True]
 	return data

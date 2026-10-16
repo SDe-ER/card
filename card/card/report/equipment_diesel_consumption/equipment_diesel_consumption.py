@@ -3,7 +3,7 @@ from frappe import _
 from frappe.utils import flt, getdate
 
 from card.diesel import UNALLOCATED, allocate_project_diesel
-from card.report_access import resolve_company
+from card.report_access import readable_links, resolve_company
 
 
 def get_columns():
@@ -79,4 +79,4 @@ def execute(filters=None):
 				}
 			)
 
-	return get_columns(), data
+	return readable_links(get_columns()), data

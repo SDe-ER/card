@@ -178,6 +178,15 @@ doc_events = {
 	"Equipment Transport": dict(_SOURCE_EVENTS),
 	"Purchase Invoice": dict(_POSTING_EVENTS),
 	"Sales Invoice": dict(_POSTING_EVENTS),
+	# the CARD party registries follow ERPNext renames and merges
+	"Supplier": {
+		"before_rename": "card.party_registry.before_rename",
+		"after_rename": "card.party_registry.after_rename",
+	},
+	"Customer": {
+		"before_rename": "card.party_registry.before_rename",
+		"after_rename": "card.party_registry.after_rename",
+	},
 }
 
 # Scheduled Tasks

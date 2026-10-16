@@ -46,17 +46,16 @@
 			{
 				fieldname: "company",
 				label: __("Company"),
-				fieldtype: "Link",
-				options: "Company",
+				fieldtype: "Autocomplete",
 				reqd: 1,
 				default: frappe.defaults.get_user_default("Company"),
-				get_query: () => ({ query: "card.api.card_companies_query" }),
+				get_query: () => ({ query: "card.api.card_company_options" }),
 			},
 			{
 				fieldname: "customer",
 				label: __("Customer"),
 				fieldtype: "Link",
-				options: "Customer",
+				options: "Card Equipment Customer",
 				get_query: () => ({
 					query: "card.api.card_customers_query",
 					filters: { company: frappe.query_report.get_filter_value("company") },
@@ -89,11 +88,10 @@
 			{
 				fieldname: "project",
 				label: __("Project"),
-				fieldtype: "Link",
-				options: "Project",
+				fieldtype: "Autocomplete",
 				get_query: () => ({
-					query: "card.api.card_projects_query",
-					filters: { company: frappe.query_report.get_filter_value("company") },
+					query: "card.api.card_project_options",
+					params: { company: frappe.query_report.get_filter_value("company") },
 				}),
 			},
 			{
@@ -113,13 +111,11 @@
 		onload(report) {
 			// Seed the UI default from Card Settings (server also falls back to the
 			// same setting for API callers). The user can still override.
-			frappe.db
-				.get_value("Card Settings", "Card Settings", ["include_draft_in_reports"])
-				.then((r) => {
-					const v = (r && r.message) || {};
-					const idf = report.get_filter("include_draft");
-					if (idf) idf.set_value(v.include_draft_in_reports ? 1 : 0);
-				});
+			frappe.call("card.api.report_defaults").then((r) => {
+				const v = (r && r.message) || {};
+				const idf = report.get_filter("include_draft");
+				if (idf) idf.set_value(v.include_draft_in_reports ? 1 : 0);
+			});
 		},
 		tree: true,
 		name_field: "row_id",
