@@ -113,7 +113,7 @@ def apply_transfer(txn):
 		# save (not db.set_value) so the change is in the assignment's history
 		closing = frappe.get_doc("Card Equipment Assignment", prev.name)
 		closing.to_date = tdate
-		closing.save(ignore_permissions=True)
+		closing.save(ignore_permissions=True, ignore_version=False)
 		txn.db_set("previous_assignment", prev.name, update_modified=False)
 		new_from = add_days(tdate, 1)
 	else:
@@ -163,7 +163,7 @@ def reverse_transfer(txn):
 	if txn.previous_assignment and frappe.db.exists("Card Equipment Assignment", txn.previous_assignment):
 		reopened = frappe.get_doc("Card Equipment Assignment", txn.previous_assignment)
 		reopened.to_date = None
-		reopened.save(ignore_permissions=True)
+		reopened.save(ignore_permissions=True, ignore_version=False)
 		prev_project = frappe.db.get_value("Card Equipment Assignment", txn.previous_assignment, "project")
 		frappe.db.set_value("Card Equipment", equipment, "current_project", prev_project)
 	else:

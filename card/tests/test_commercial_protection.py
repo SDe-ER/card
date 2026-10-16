@@ -54,7 +54,7 @@ class TestCommercialProtection(_CustomerCardsBase):
 		doc = frappe.get_doc("Card Equipment", eq.name)
 		doc.rate = 800
 		doc.commercial_change_reason = "Contract renewal 2026"
-		doc.save()
+		doc.save(ignore_version=False)  # Frappe skips versions in tests by default
 		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "rate"), 800)
 		version = frappe.get_all(
 			"Version",
