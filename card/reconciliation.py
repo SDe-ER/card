@@ -10,6 +10,7 @@ company, party and period. The GL figures stay in the reports as the official
 balance, VAT included."""
 
 import frappe
+from frappe.query_builder.functions import Sum
 from frappe.utils import flt
 
 INVOICE = {"Supplier": ("Purchase Invoice", "supplier"), "Customer": ("Sales Invoice", "customer")}
@@ -22,15 +23,16 @@ def invoiced_net(party_type, parties, company, start, end):
 	if not parties:
 		return {}
 	doctype, field = INVOICE[party_type]
-	rows = frappe.db.sql(
-		f"""
-		select `{field}` as party, sum(base_net_total) as amount
-		from `tab{doctype}`
-		where docstatus = 1 and company = %(company)s and `{field}` in %(parties)s
-			and posting_date between %(start)s and %(end)s
-		group by `{field}`
-		""",
-		{"company": company, "parties": parties, "start": start, "end": end},
-		as_dict=True,
-	)
+	inv = frappe.qb.DocType(doctype)
+	rows = (
+		frappe.qb.from_(inv)
+		.select(inv[field].as_("party"), Sum(inv.base_net_total).as_("amount"))
+		.where(
+			(inv.docstatus == 1)
+			& (inv.company == company)
+			& (inv[field].isin(parties))
+			& (inv.posting_date[start:end])
+		)
+		.groupby(inv[field])
+	).run(as_dict=True)
 	return {r.party: flt(r.amount, 2) for r in rows}

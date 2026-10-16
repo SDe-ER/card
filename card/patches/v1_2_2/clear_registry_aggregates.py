@@ -37,13 +37,16 @@ def execute():
 		if not frappe.db.table_exists(registry):
 			continue
 		meta = frappe.get_meta(registry)
-		assignments = []
+		table = frappe.qb.DocType(registry)
+		query = frappe.qb.update(table)
+		touched = False
 		for field in fields:
 			df = meta.get_field(field)
 			if not df or not frappe.db.has_column(registry, field):
 				continue
 			# numeric columns are NOT NULL in Frappe: their "empty" value is 0
 			numeric = df.fieldtype in ("Int", "Float", "Currency", "Percent")
-			assignments.append(f"`{field}` = {'0' if numeric else 'null'}")
-		if assignments:
-			frappe.db.sql("update `tab{}` set {}".format(registry, ", ".join(assignments)))
+			query = query.set(table[field], 0 if numeric else None)
+			touched = True
+		if touched:
+			query.run()
