@@ -8,6 +8,35 @@ All notable changes to the Card app are documented here. Format based on
 > runs on a given site is a deployment fact, verified on that site — never inferred from this file.
 
 ## [Unreleased]
+Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
+
+### Security
+- **Monthly-posting endpoints are company-scoped** (#36). `post_month` / `rebuild_month` refuse,
+  before any work, a company outside the caller's permitted companies (User Permission rule of the
+  reports). On QA the case was already blocked late, and incidentally, by ERPNext's party-account
+  permission check; the gate is now explicit.
+- **Supplier/customer registries no longer expose other companies** (#23). Registry rows store no
+  figures any more (the stored party-wide counts, hours and totals are cleared by a patch); the form
+  shows figures per company the user may see. A user restricted to some companies lists and opens only
+  parties with cards there (list, form and REST).
+- **Commercial terms of equipment are protected** (rates, rate basis, daily hours, direction, parties,
+  contract, fuel): permission level 1 (Card Manager writes, Card User reads), a new reason is required
+  for every change, and the change history is kept. Card User no longer creates equipment.
+- **Equipment assignments** are written by Card Manager only and validated (dates, company, no overlap);
+  transfers record their assignment changes in the history.
+- **Card Settings**: Accounts Manager can now save the per-company accounting fields (the previous
+  level-1 grant could not be used); policy fields moved to permission level 2 (System Manager writes).
+- Change history on Project Diesel Fill and Equipment Transport.
+
+### Fixed
+- **Project names in reports for operational roles** (#29, PR #30).
+- **Diesel reports mark estimates** (#33): litres split from project-tank fills by operating hours are
+  shown as *estimated*, direct fills as *recorded*; "Actual litres" is now "Allocated litres".
+- **Monthly posting lines** (#34): fill/transport lines use the source's own cost center when set;
+  split diesel lines state their own estimated litres share.
+- **Like-for-like reconciliation**: statements and summaries compare card nets with the invoiced net
+  **before VAT** (new "Invoiced net (before VAT)" figure); GL figures stay as the VAT-inclusive balance.
+
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
   deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;
