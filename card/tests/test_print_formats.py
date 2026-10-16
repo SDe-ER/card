@@ -132,6 +132,9 @@ class TestDieselTransportPrints(_CustomerCardsBase):
 			self.assertEqual(frappe.get_meta(doctype).get_label("amount"), label)
 
 	def test_prints_render_the_amount_in_words(self):
+		# variable diesel supplier policy (rolled back): the site may pin one
+		frappe.db.set_single_value("Card Settings", "diesel_supplier", None)
+		frappe.db.set_single_value("Card Settings", "diesel_supplier_policy", "متغير")
 		fill = frappe.new_doc("Project Diesel Fill")
 		fill.update(
 			{
