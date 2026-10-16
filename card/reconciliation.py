@@ -18,7 +18,14 @@ Three figures are kept apart (owner decision, PR #39):
   invoice stay here until the invoice is submitted);
 - ERPNext invoices of the party made outside CARD — ``invoices_outside_card``,
   shown for manual reconciliation. They are never matched to cards by party and
-  month, and nothing is relinked or rewritten."""
+  month, and nothing is relinked or rewritten.
+
+Scope: both invoice figures are per company, party and period. A report's
+project filter narrows the CARDS only — an invoice is not per project — so under
+a project filter "not invoiced through Card" compares the project's cards with
+the party's invoices (it can go negative). Cancelled invoices are excluded;
+returns / credit notes count with their sign (a credit note against Card's own
+invoice is not Card's, so it shows, negative, among the invoices outside Card)."""
 
 import frappe
 from frappe import _
