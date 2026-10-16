@@ -40,7 +40,12 @@ class TestPostingEndpointCompanyAccess(_PostingBase):
 				"first_name": "Posting Access",
 				"send_welcome_email": 0,
 				# a realistic poster: building a PI/SI reads accounts and items
-				"roles": [{"role": "Card Manager"}, {"role": "Accounts Manager"}],
+				"roles": [
+					{"role": "Card Manager"},
+					{"role": "Accounts Manager"},
+					{"role": "Purchase User"},
+					{"role": "Sales User"},
+				],
 			}
 		).insert(ignore_permissions=True)
 		if restrict_to:
