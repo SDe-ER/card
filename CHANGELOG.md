@@ -8,7 +8,15 @@ All notable changes to the Card app are documented here. Format based on
 > runs on a given site is a deployment fact, verified on that site — never inferred from this file.
 
 ## [Unreleased]
+### Fixed
+- **Project names in reports for operational roles** (#29, PR #30). Since 1.2.1 a report's Project
+  column showed the record code (e.g. `PROJ-0001`) to users who cannot read Project; it now shows the
+  project name. Supplier, customer and account values are unchanged (the summaries' statement links
+  use them).
+
 ### Planned
+- **Equipment Diesel Management & Consumption Analytics** (epic #31, tentatively 1.3.0) — architecture
+  approval required before implementation.
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
   deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;
   fresh installs currently get frappe's computed fallback. When the app drops pre‑16.50 support, ship
