@@ -9,7 +9,7 @@
 إدارة المعدات وكروت التشغيل الشهرية
 
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
-![Release](https://img.shields.io/badge/release-v1.2.0-1F876C)
+![Release](https://img.shields.io/badge/release-v1.2.1-1F876C)
 ![Frappe](https://img.shields.io/badge/frappe-v16-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -163,7 +163,7 @@ Add CARD to your `apps.json` and build a custom image:
 ```bash
 docker build \
   --build-arg APPS_JSON_BASE64=$(base64 -w 0 apps.json) \
-  --tag your-registry/erp:card-v1.2.0 \
+  --tag your-registry/erp:card-v1.2.1 \
   --file images/custom/Containerfile .
 ```
 
@@ -201,6 +201,7 @@ Code style is enforced with `pre-commit` (ruff, prettier, semgrep). Commits foll
 
 | Version | Date | Highlights |
 |---|---|---|
+| **v1.2.1** | 2026-10-16 | Operational roles run filtered reports without ERPNext grants; monthly-card print shows each billed side's gross, adjustments and net before VAT (customer card net 6,000 instead of 0); diesel/transport money labels and Arabic amount in words; supplier and customer totals keep each side's adjustments. Multi-company registry isolation (#23) still open. |
 | **v1.2.0** | 2026-10-16 | Everything from the v1.1 line (English-source i18n with full Arabic translation, Desk connections, workspace polish, heatmaps) plus rental directions with hours-only cards, customer registry and statements, Card Settings per company with Card Manager / Card User roles, diesel and transport management, three rate bases, the Card Equipment accounting dimension, period lock, RTL print formats, opt-in monthly draft supplier/customer postings, and company-scoped reports with ledger figures limited to General Ledger users. |
 | _v1.1_ | _not released_ | Developed and merged, never tagged — its content ships in v1.2.0. |
 | **v1.0.1** | 2026-10-13 | Workspace moved to module `Card`; Frappe 16.50 sidebar migrated with all items; legacy `Card (Custom)` module retired; `net_amount` backfilled for cards submitted before v1.0. |
