@@ -128,13 +128,18 @@ def _role_reads(doctype):
 	return bool(perms.get("read")) and "read" not in (perms.get("if_owner") or {})
 
 
+SHOW_TITLE_FOR = ("Project",)
+
+
 def readable_links(columns, rows=None):
 	"""Link columns to a doctype the user cannot read become Data columns: the
 	value still shows, but the Desk does not try to resolve its title (Frappe
 	then posts a permission message on every run) or open a record the user may
-	not see. With ``rows``, such a column shows the record's title instead of
-	its name (a project's name, not PROJ-0001) — the title the Desk would have
-	resolved; the rows are already scoped to the user's company."""
+	not see. With ``rows``, a downgraded Project column shows the project's
+	name instead of its record name (PROJ-0001) — the title the Desk would have
+	resolved; the rows are already scoped to the user's company. Only Project:
+	supplier/customer values feed the summaries' statement drill-downs and are
+	named after the party already, and account-like codes must stay intact."""
 	result = []
 	downgraded = {}
 	for column in columns:
@@ -148,6 +153,7 @@ def readable_links(columns, rows=None):
 			column = {key: value for key, value in column.items() if key != "options"}
 			column["fieldtype"] = "Data"
 		result.append(column)
+	downgraded = {field: dt for field, dt in downgraded.items() if dt in SHOW_TITLE_FOR}
 	if rows and downgraded:
 		_show_titles(rows, downgraded)
 	return result

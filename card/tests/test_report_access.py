@@ -624,8 +624,19 @@ class TestReportAccess(IntegrationTestCase):
 		self.assertEqual(result[0]["fieldtype"], "Data")
 		self.assertEqual(rows[0]["project"], "TEST-RACC-PTITLE-" + self.token)
 		self.assertIsNone(rows[1]["project"])
-		# a reader keeps the Link column and the record name (the Desk resolves the title)
+		# party values stay record names: the summaries' statement drill-downs use them
+		party_columns = [
+			{"fieldname": "customer", "fieldtype": "Link", "options": "Customer"},
+			{"fieldname": "supplier", "fieldtype": "Link", "options": "Supplier"},
+		]
+		party_rows = [{"customer": self._customer(), "supplier": self.supplier}]
+		before = dict(party_rows[0])
+		readable_links(party_columns, party_rows)
+		self.assertEqual(party_rows[0], before)
+		# a role-based Project reader keeps the Link column and the record name
 		frappe.set_user("Administrator")
+		reader = self._user(["Card User", "Projects User"])
+		frappe.set_user(reader)
 		rows = [{"project": code}]
 		self.assertEqual(readable_links(columns, rows)[0]["fieldtype"], "Link")
 		self.assertEqual(rows[0]["project"], code)
