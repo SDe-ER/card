@@ -560,6 +560,19 @@ class TestReportAccess(IntegrationTestCase):
 		self.assertFalse(frappe.db.exists("Card Equipment Supplier", supplier + "-OLD"))
 		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", renamed, "supplier"), renamed)
 
+	def test_rename_onto_a_name_held_by_a_stale_row(self):
+		supplier = self._supplier("STL")
+		other = self._supplier("STX")
+		self._card(self._equipment("ST1", supplier=supplier), [10])
+		self._card(self._equipment("ST2", supplier=other), [10])
+		renamed = supplier + "-NEW"
+		# a stale row holds the target name while linking another party
+		frappe.db.sql("update `tabCard Equipment Supplier` set name = %s where name = %s", (renamed, other))
+		frappe.rename_doc("Supplier", supplier, renamed, force=True)
+		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", renamed, "supplier"), renamed)
+		self.assertEqual(frappe.db.count("Card Equipment Supplier", {"supplier": renamed}), 1)
+		self.assertFalse(frappe.db.exists("Card Equipment Supplier", supplier))
+
 	def test_registry_follows_customer_rename_and_merge(self):
 		customer = self._customer()
 		self._card(self._equipment("CR1", customer=customer), [10])

@@ -32,7 +32,11 @@ def after_rename(doc, method, old, new, merge=False):
 	registry, field = REGISTRIES[doc.doctype]
 	# links are rewritten by now, so the party's row carries ``new`` in its link
 	row = frappe.db.get_value(registry, {field: new})
-	if row and row != new and not frappe.db.exists(registry, new):
+	# a case-only rename resolves under the collation already: nothing to move
+	if row and row.lower() != new.lower():
+		if frappe.db.get_value(registry, new, field) not in (None, new):
+			# a stale row (left by a pre-hook rename) holds the name; it is regenerable
+			frappe.delete_doc(registry, new, ignore_permissions=True, force=True)
 		rename_doc(registry, row, new, force=True, ignore_permissions=True, show_alert=False)
 	if merge:
 		recompute(doc.doctype, new)
