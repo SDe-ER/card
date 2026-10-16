@@ -507,43 +507,85 @@ class TestReconciliationEdgeCases(_ReconciliationBase):
 			)
 			self.assertFalse([r for r in rows if r.get(field) == party], report)
 
-	def test_project_filter_scopes_cards_not_invoices(self):
-		"""As designed today: the project filter narrows the CARDS (net, count,
-		hours); the invoice figures - invoiced through Card and ERPNext invoices
-		outside Card - are per party, company and period, whatever the project
-		(an invoice is not per project). Documented in card/reconciliation.py."""
-		self._vat_supplier()
-		self._example_card()  # project A: 10,277.81
+	def _second_project(self):
 		second = frappe.new_doc("Project")
 		second.project_name = "TEST-REC-PRJ-B-" + self.token
 		second.company = self.company
 		second.insert(ignore_permissions=True)
-		eq_b = self._equipment(rate_type="بالساعة", rate=100)
-		self._card(eq_b, [8, 8], submit=True, project=second.name)  # project B: 1,600
-		self._card_pi()  # one invoice for the month bills both projects: 11,877.81
-		self._manual_invoice("Purchase Invoice", "2026-09-20", 4000)
+		return second.name
+
+	def _supplier_summary_row(self, **filters):
 		from card.card.report.equipment_suppliers_summary.equipment_suppliers_summary import execute
 
-		def row_for(project=None):
-			_c, rows, _m, _ch, _s, _f = execute(
-				frappe._dict(
-					company=self.company,
-					from_month=9,
-					from_year=2026,
-					to_month=9,
-					to_year=2026,
-					project=project,
-				)
+		_c, rows, _m, _ch, _s, _f = execute(
+			frappe._dict(
+				company=self.company, from_month=9, from_year=2026, to_month=9, to_year=2026, **filters
 			)
-			return next(r for r in rows if r.get("supplier") == self.supplier)
+		)
+		return next(r for r in rows if r.get("supplier") == self.supplier)
 
-		whole = row_for()
+	def test_multi_project_invoice_is_split_by_the_cards_it_billed(self):
+		"""Owner requirement (PR #39): under a project filter, "Not invoiced
+		through Card" compares the project's cards with what Card invoiced FOR
+		THOSE CARDS — never with the whole multi-project invoice. Invoices
+		outside Card stay per party (an invoice is not per project)."""
+		self._vat_supplier()
+		self._example_card()  # project A: 10,277.81
+		project_b = self._second_project()
+		eq_b = self._equipment(rate_type="بالساعة", rate=100)
+		self._card(eq_b, [8, 8], submit=True, project=project_b)  # project B: 1,600
+		self._card_pi()  # ONE invoice for the month bills both projects: 11,877.81
+		self._manual_invoice("Purchase Invoice", "2026-09-20", 4000)
+
+		whole = self._supplier_summary_row()
 		self.assertEqual(
 			(whole["net"], whole["invoiced_net"], whole["diff"], whole["external_net"]),
 			(11877.81, 11877.81, 0, 4000),
 		)
-		only_a = row_for(self.project)
-		self.assertEqual(only_a["net"], 10277.81)  # cards: project A only
-		self.assertEqual(only_a["invoiced_net"], 11877.81)  # invoices: whole party
-		self.assertEqual(only_a["external_net"], 4000)
-		self.assertEqual(only_a["diff"], -1600)  # mixed scopes under a project filter
+		only_a = self._supplier_summary_row(project=self.project)
+		self.assertEqual(
+			(only_a["net"], only_a["invoiced_net"], only_a["diff"], only_a["external_net"]),
+			(10277.81, 10277.81, 0, 4000),
+		)
+		only_b = self._supplier_summary_row(project=project_b)
+		self.assertEqual(
+			(only_b["net"], only_b["invoiced_net"], only_b["diff"], only_b["external_net"]),
+			(1600, 1600, 0, 4000),
+		)
+		# the per-project figures add up to the whole invoice
+		self.assertEqual(flt(only_a["invoiced_net"] + only_b["invoiced_net"], 2), whole["invoiced_net"])
+
+		from card.card.report.equipment_supplier_statement.equipment_supplier_statement import execute
+
+		_c, _rows, _msg, _chart, summary, _f = execute(
+			frappe._dict(
+				company=self.company,
+				statement_type="مورد",
+				supplier=self.supplier,
+				project=project_b,
+				from_month=9,
+				from_year=2026,
+				to_month=9,
+				to_year=2026,
+			)
+		)
+		tiles = {s["label"]: s["value"] for s in summary}
+		self.assertEqual(tiles[frappe._("Net cards")], 1600)
+		self.assertEqual(tiles[frappe._("Invoiced through Card (net before VAT)")], 1600)
+		self.assertEqual(tiles[frappe._("Not invoiced through Card")], 0)
+
+	def test_project_filter_with_one_project_still_uninvoiced(self):
+		"""Project B's card is not on any Card invoice yet: filtered on B the
+		whole B net is "not invoiced"; filtered on A nothing is."""
+		self._vat_supplier()
+		self._example_card()  # project A: 10,277.81
+		self._card_pi()  # invoices project A only (B does not exist yet)
+		project_b = self._second_project()
+		eq_b = self._equipment(rate_type="بالساعة", rate=100)
+		self._card(eq_b, [8, 8], submit=True, project=project_b)  # 1,600, never posted
+		only_a = self._supplier_summary_row(project=self.project)
+		self.assertEqual((only_a["invoiced_net"], only_a["diff"]), (10277.81, 0))
+		only_b = self._supplier_summary_row(project=project_b)
+		self.assertEqual((only_b["invoiced_net"], only_b["diff"]), (0, 1600))
+		whole = self._supplier_summary_row()
+		self.assertEqual((whole["invoiced_net"], whole["diff"]), (10277.81, 1600))
