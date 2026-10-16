@@ -33,6 +33,7 @@ COMMERCIAL_FIELDS = (
 	"customer_rate",
 	"default_customer",
 	"rental_direction",
+	"operator_on",
 )
 
 

@@ -17,8 +17,30 @@ class CardEquipmentAssignment(Document):
 
 	def validate(self):
 		self.validate_dates()
-		self.validate_company()
-		self.validate_no_overlap()
+		# only what changed is re-validated, so a legacy row is not blocked by an
+		# unrelated save (security review LOW-2)
+		if self.is_new() or self.has_value_changed("equipment") or self.has_value_changed("project"):
+			self.validate_company()
+		if self._period_grew():
+			self.validate_no_overlap()
+
+	def _period_grew(self):
+		"""True for a new row, a changed equipment, or a period that now covers
+		days it did not cover (an earlier start or a later/open end). Shortening a
+		period — what a transfer does when it closes an assignment — cannot create
+		an overlap, so it is not re-checked."""
+		if self.is_new() or self.has_value_changed("equipment"):
+			return True
+		before = self.get_doc_before_save()
+		if not before:
+			return True
+		if self.from_date and before.from_date and getdate(self.from_date) < getdate(before.from_date):
+			return True
+		if not self.to_date and before.to_date:
+			return True  # reopened (open-ended)
+		if self.to_date and before.to_date and getdate(self.to_date) > getdate(before.to_date):
+			return True
+		return bool(self.from_date and not before.from_date)
 
 	def validate_dates(self):
 		if self.from_date and self.to_date and getdate(self.to_date) < getdate(self.from_date):

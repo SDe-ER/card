@@ -179,3 +179,23 @@ class TestSidedTotals(_CustomerCardsBase):
 		# the figures are still available, computed from the cards
 		self.assertEqual(_registry_figures("Supplier", self.supplier).total, 3700)
 		self.assertEqual(_registry_figures("Customer", self.customer).total, 5560)
+
+	def test_registry_history_is_purged_and_not_recreated(self):
+		from card.patches.v1_2_2.purge_registry_versions import execute
+
+		frappe.get_doc(
+			{
+				"doctype": "Version",
+				"ref_doctype": "Card Equipment Supplier",
+				"docname": self.supplier,
+				"data": frappe.as_json({"changed": [["total_net", 1, 2]]}),
+			}
+		).insert(ignore_permissions=True)
+		execute()
+		self.assertFalse(frappe.get_all("Version", filters={"ref_doctype": "Card Equipment Supplier"}))
+		recompute_supplier(self.supplier)
+		self.assertFalse(
+			frappe.get_all(
+				"Version", filters={"ref_doctype": "Card Equipment Supplier", "docname": self.supplier}
+			)
+		)

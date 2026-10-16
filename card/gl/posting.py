@@ -578,7 +578,12 @@ def _checked_endpoint_args(company, party_type, month, year):
 		frappe.throw(
 			_("Only Card Manager or System Manager may build monthly postings."), frappe.PermissionError
 		)
-	if not company or company not in permitted_companies(*POSTING_SOURCE_DOCTYPES):
+	# the sources it reads AND the documents it writes (security review LOW-1)
+	written = (
+		("Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"),
+		"GL Posting Log",
+	)
+	if not company or company not in permitted_companies(*POSTING_SOURCE_DOCTYPES, *written):
 		frappe.throw(
 			_("You are not permitted to build postings for company {0}.").format(company),
 			frappe.PermissionError,
@@ -595,10 +600,21 @@ def _checked_endpoint_args(company, party_type, month, year):
 	return month, year
 
 
+def _check_party(party_type, party):
+	"""The caller must be able to read the party (a User Permission on Supplier /
+	Customer applies too) — security review LOW-1."""
+	if not party or not frappe.has_permission(party_type, "read", party):
+		frappe.throw(
+			_("You are not permitted to build postings for {0} {1}.").format(_(party_type), party),
+			frappe.PermissionError,
+		)
+
+
 @frappe.whitelist(methods=["POST"])
 def rebuild_month(company: str, party_type: str, party: str, month: str, year: str):
 	"""Desk entry point for rebuilding a draft posting after late documents."""
 	month, year = _checked_endpoint_args(company, party_type, month, year)
+	_check_party(party_type, party)
 	return rebuild_monthly_posting(company, party_type, party, month, year)
 
 
@@ -606,4 +622,5 @@ def rebuild_month(company: str, party_type: str, party: str, month: str, year: s
 def post_month(company: str, party_type: str, party: str, month: str, year: str):
 	"""Desk entry point (S4 wires the button). Card Manager / System Manager only."""
 	month, year = _checked_endpoint_args(company, party_type, month, year)
+	_check_party(party_type, party)
 	return build_monthly_posting(company, party_type, party, month, year)

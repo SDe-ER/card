@@ -86,6 +86,30 @@ class TestPostingEndpointCompanyAccess(_PostingBase):
 		frappe.set_user("Administrator")
 		self.assertTrue(frappe.db.exists("Purchase Invoice", invoice))
 
+	def test_party_user_permission_is_honoured(self):
+		self._submitted_card()
+		other_supplier = frappe.get_doc(
+			{
+				"doctype": "Supplier",
+				"supplier_name": "TEST-PACC-OTHER-" + self.token,
+				"supplier_group": self._m["supplier_group"],
+			}
+		).insert(ignore_permissions=True)
+		email = self._manager()
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": email,
+				"allow": "Supplier",
+				"for_value": other_supplier.name,
+				"apply_to_all_doctypes": 1,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=email)
+		frappe.set_user(email)
+		with self.assertRaisesRegex(frappe.PermissionError, "not permitted to build postings"):
+			post_month(self.company, "Supplier", self.supplier, "9", "2026")
+
 	def test_unknown_company_is_refused(self):
 		frappe.set_user(self._manager())
 		with self.assertRaisesRegex(frappe.PermissionError, "not permitted to build postings"):

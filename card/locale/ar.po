@@ -2046,3 +2046,9 @@ msgstr "الكروت المفوترة (الصافي قبل الضريبة)"
 
 msgid "{0} {1}: cost center {2} cannot be used for company {3} (it must be an enabled, non-group cost center of that company)."
 msgstr "{0} {1}: مركز التكلفة {2} لا يصلح للشركة {3} (يجب أن يكون مركز تكلفة مفعّلاً وغير تجميعي تابعاً لتلك الشركة)."
+
+msgid "You are not permitted to change the Card settings of company {0}."
+msgstr "غير مسموح لك بتعديل إعدادات Card الخاصة بالشركة {0}."
+
+msgid "You are not permitted to build postings for {0} {1}."
+msgstr "غير مسموح لك بإنشاء ترحيلات لـ {0} {1}."

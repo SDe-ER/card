@@ -87,7 +87,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-16 19:00:00.000000",
+ "modified": "2026-10-16 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment Assignment",
@@ -124,7 +124,7 @@
    "read": 1,
    "report": 1,
    "role": "Card User",
-   "share": 1,
+   "share": 0,
    "write": 0
   },
   {

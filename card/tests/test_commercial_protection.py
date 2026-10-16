@@ -72,6 +72,31 @@ class TestCommercialProtection(_CustomerCardsBase):
 		with self.assertRaisesRegex(frappe.ValidationError, "reason"):
 			doc.save()
 
+	def test_card_user_cannot_change_other_commercial_terms(self):
+		eq = self._equipment(RENTED)
+		fields = ["ownership", "supplier", "rental_direction", "daily_hours"]
+		before = frappe.db.get_value("Card Equipment", eq.name, fields, as_dict=True)
+		self._login(["Card User"])
+		doc = frappe.get_doc("Card Equipment", eq.name)
+		doc.daily_hours = 4
+		doc.rental_direction = "مؤجَّرة لعميل"
+		doc.supplier = None
+		try:
+			doc.save()
+		except (frappe.PermissionError, frappe.ValidationError):
+			pass
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, fields, as_dict=True), before)
+
+	def test_whitespace_reason_is_not_a_reason(self):
+		eq = self._equipment(RENTED)
+		self._login(["Card Manager"])
+		doc = frappe.get_doc("Card Equipment", eq.name)
+		doc.rate = 900
+		doc.commercial_change_reason = "   "
+		with self.assertRaisesRegex(frappe.ValidationError, "reason"):
+			doc.save()
+
 	def test_non_commercial_change_needs_no_reason(self):
 		eq = self._equipment(RENTED)
 		self._login(["Card Manager"])

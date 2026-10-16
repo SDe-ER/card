@@ -368,3 +368,40 @@ class TestEquipmentTransfer(IntegrationTestCase):
 			self.assertFalse(frappe.has_permission("Card Equipment Assignment", "create"))
 		finally:
 			frappe.set_user("Administrator")
+
+	def test_card_user_cannot_regain_write_by_sharing(self):
+		"""security review MEDIUM-3: sharing must not hand out what the role lacks"""
+		from frappe.share import add as share_add
+
+		eq = self._equipment()
+		a = self._assign(eq.name, self._project("SH"), 1)
+		email = f"tr-sh-{frappe.generate_hash(length=6)}@example.com"
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": email,
+				"first_name": "Share",
+				"send_welcome_email": 0,
+				"roles": [{"role": "Card User"}],
+			}
+		).insert(ignore_permissions=True)
+		try:
+			frappe.set_user(email)
+			with self.assertRaises(frappe.PermissionError):
+				share_add("Card Equipment Assignment", a.name, email, write=1)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_transfer_closes_a_legacy_overlapping_assignment(self):
+		"""security review LOW-2: shortening a period never re-checks overlap, so
+		legacy overlapping rows do not block a transfer"""
+		eq = self._equipment()
+		p1, p2, p3 = self._project("L1"), self._project("L2"), self._project("L3")
+		first = self._assign(eq.name, p1, 1)
+		legacy = frappe.new_doc("Card Equipment Assignment")
+		legacy.update({"equipment": eq.name, "project": p2, "from_date": self._d(3), "to_date": self._d(6)})
+		legacy.db_insert()  # pre-1.2.2 data: overlaps `first`
+		self._transport(eq.name, p3, 12)
+		self.assertEqual(
+			str(frappe.db.get_value("Card Equipment Assignment", first.name, "to_date")), self._d(12)
+		)
