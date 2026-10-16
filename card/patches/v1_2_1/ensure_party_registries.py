@@ -21,8 +21,7 @@ def execute():
 		and not exists (select 1 from `tabCard Equipment Supplier` r where r.name = c.supplier)
 		"""
 	)
-	for supplier in suppliers:
-		_safely(recompute_supplier, supplier)
+	failed = [s for s in suppliers if not _safely(recompute_supplier, s)]
 	customers = frappe.db.sql_list(
 		"""
 		select distinct c.customer from `tabCard Monthly Card` c
@@ -31,12 +30,16 @@ def execute():
 		""",
 		{"directions": list(CUSTOMER_BILLING_DIRECTIONS)},
 	)
-	for customer in customers:
-		_safely(recompute_customer, customer)
+	failed += [c for c in customers if not _safely(recompute_customer, c)]
+	if failed:
+		# visible in the migrate output; each failure also has its own Error Log
+		print(f"CARD registry backfill: {len(failed)} of {len(suppliers) + len(customers)} parties failed")
 
 
 def _safely(recompute, party):
 	try:
 		recompute(party)
+		return True
 	except Exception:
 		frappe.log_error(title="CARD registry backfill failed: " + str(party))
+		return False

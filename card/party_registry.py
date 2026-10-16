@@ -15,21 +15,25 @@ import frappe
 from frappe.model.rename_doc import rename_doc
 
 REGISTRIES = {
-	"Supplier": "Card Equipment Supplier",
-	"Customer": "Card Equipment Customer",
+	"Supplier": ("Card Equipment Supplier", "supplier"),
+	"Customer": ("Card Equipment Customer", "customer"),
 }
 
 
 def before_rename(doc, method, old, new, merge=False):
-	registry = REGISTRIES[doc.doctype]
-	if merge and frappe.db.exists(registry, old):
-		frappe.delete_doc(registry, old, ignore_permissions=True, force=True)
+	registry, field = REGISTRIES[doc.doctype]
+	# by name or by link: a row a pre-hook rename left misnamed must go too
+	row = registry_row(registry, field, old) if merge else None
+	if row:
+		frappe.delete_doc(registry, row, ignore_permissions=True, force=True)
 
 
 def after_rename(doc, method, old, new, merge=False):
-	registry = REGISTRIES[doc.doctype]
-	if old != new and frappe.db.exists(registry, old):
-		rename_doc(registry, old, new, force=True, ignore_permissions=True, show_alert=False)
+	registry, field = REGISTRIES[doc.doctype]
+	# links are rewritten by now, so the party's row carries ``new`` in its link
+	row = frappe.db.get_value(registry, {field: new})
+	if row and row != new and not frappe.db.exists(registry, new):
+		rename_doc(registry, row, new, force=True, ignore_permissions=True, show_alert=False)
 	if merge:
 		recompute(doc.doctype, new)
 

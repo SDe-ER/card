@@ -530,7 +530,53 @@ class TestReportAccess(IntegrationTestCase):
 		self._card(self._equipment("MG2", supplier=gone), [10])
 		frappe.rename_doc("Supplier", gone, keep, merge=True, force=True)
 		self.assertFalse(frappe.db.exists("Card Equipment Supplier", gone))
+		row = frappe.db.get_value(
+			"Card Equipment Supplier", keep, ["card_count", "equipment_count", "total_hours"], as_dict=True
+		)
+		self.assertEqual((row.card_count, row.equipment_count, row.total_hours), (2, 2, 20))
+
+	def _misname(self, registry, name):
+		# what a rename before the hooks existed left behind: row name != party
+		frappe.db.sql(f"update `tab{registry}` set name = %s where name = %s", (name + "-OLD", name))
+
+	def test_merge_drops_a_misnamed_row_of_the_merged_party(self):
+		keep = self._supplier("MKEEP")
+		gone = self._supplier("MGONE")
+		self._card(self._equipment("MM1", supplier=keep), [10])
+		self._card(self._equipment("MM2", supplier=gone), [10])
+		self._misname("Card Equipment Supplier", gone)
+		# the misnamed row's link would be rewritten onto keep's unique link
+		frappe.rename_doc("Supplier", gone, keep, merge=True, force=True)
+		self.assertFalse(frappe.db.exists("Card Equipment Supplier", gone + "-OLD"))
+		self.assertEqual(frappe.db.count("Card Equipment Supplier", {"supplier": keep}), 1)
 		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", keep, "card_count"), 2)
+
+	def test_rename_realigns_a_misnamed_row(self):
+		supplier = self._supplier("RMIS")
+		self._card(self._equipment("RM1", supplier=supplier), [10])
+		self._misname("Card Equipment Supplier", supplier)
+		renamed = supplier + "-NEW"
+		frappe.rename_doc("Supplier", supplier, renamed, force=True)
+		self.assertFalse(frappe.db.exists("Card Equipment Supplier", supplier + "-OLD"))
+		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", renamed, "supplier"), renamed)
+
+	def test_registry_follows_customer_rename_and_merge(self):
+		customer = self._customer()
+		self._card(self._equipment("CR1", customer=customer), [10])
+		renamed = customer + "-NEW"
+		frappe.rename_doc("Customer", customer, renamed, force=True)
+		self.assertFalse(frappe.db.exists("Card Equipment Customer", customer))
+		self.assertEqual(frappe.db.get_value("Card Equipment Customer", renamed, "customer"), renamed)
+
+		other = frappe.new_doc("Customer")
+		other.customer_name = renamed + "-B"
+		other.customer_group = _leaf("Customer Group", "customer_group_name", "All Customer Groups")
+		other.territory = _leaf("Territory", "territory_name", "All Territories")
+		other.insert(ignore_permissions=True)
+		self._card(self._equipment("CR2", customer=other.name), [10])
+		frappe.rename_doc("Customer", renamed, other.name, merge=True, force=True)
+		self.assertFalse(frappe.db.exists("Card Equipment Customer", renamed))
+		self.assertEqual(frappe.db.get_value("Card Equipment Customer", other.name, "card_count"), 2)
 
 	def test_backfill_realigns_a_misnamed_registry_row(self):
 		from card.patches.v1_2_1.ensure_party_registries import execute
