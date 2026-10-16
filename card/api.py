@@ -21,9 +21,7 @@ def recompute_supplier(supplier):
 		fields=[
 			"equipment",
 			"total_working_hours",
-			"amount",
-			"total_additions",
-			"total_deductions",
+			"net_amount",
 			"year",
 			"month",
 		],
@@ -36,7 +34,7 @@ def recompute_supplier(supplier):
 	for c in cards:
 		eqs.add(c.equipment)
 		hours = hours + flt(c.total_working_hours)
-		net = net + flt(c.amount) + flt(c.total_additions) - flt(c.total_deductions)
+		net = net + flt(c.net_amount)  # supplier side only (sub-rental customer rows excluded)
 		periods.append(str(c.year) + "-" + str(c.month).zfill(2))
 	periods = sorted(periods)
 
@@ -144,7 +142,7 @@ def recompute_customer(customer):
 			["docstatus", "=", 1],
 			["card_direction", "in", list(CUSTOMER_BILLING_DIRECTIONS)],
 		],
-		fields=["equipment", "total_working_hours", "customer_amount", "year", "month"],
+		fields=["equipment", "total_working_hours", "customer_net_amount", "year", "month"],
 		limit_page_length=0,
 	)
 	eqs = set()
@@ -154,7 +152,7 @@ def recompute_customer(customer):
 	for c in cards:
 		eqs.add(c.equipment)
 		hours = hours + flt(c.total_working_hours)
-		accrued = accrued + flt(c.customer_amount)
+		accrued = accrued + flt(c.customer_net_amount)  # what the Sales Invoice bills
 		periods.append(str(c.year) + "-" + str(c.month).zfill(2))
 	periods = sorted(periods)
 

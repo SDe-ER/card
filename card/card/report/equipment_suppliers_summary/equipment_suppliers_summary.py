@@ -48,9 +48,7 @@ def execute(filters=None):
 			"supplier",
 			"equipment",
 			"total_working_hours",
-			"amount",
-			"total_additions",
-			"total_deductions",
+			"net_amount",
 		],
 		limit_page_length=0,
 	)
@@ -89,7 +87,8 @@ def execute(filters=None):
 		a["eq"].add(c.equipment)
 		a["cards"] = a["cards"] + 1
 		a["hours"] = a["hours"] + flt(c.total_working_hours)
-		a["net"] = a["net"] + flt(c.amount) + flt(c.total_additions) - flt(c.total_deductions)
+		# supplier-side net (the PI's figure): customer-side rows of a sub-rental card are not the supplier's
+		a["net"] = a["net"] + flt(c.net_amount)
 
 	# GL per supplier (only suppliers that have cards in the period)
 	gl = {}

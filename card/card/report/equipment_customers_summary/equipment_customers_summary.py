@@ -51,7 +51,7 @@ def execute(filters=None):
 			"customer",
 			"equipment",
 			"total_working_hours",
-			"customer_amount",
+			"customer_net_amount",
 		],
 		limit_page_length=0,
 	)
@@ -90,7 +90,8 @@ def execute(filters=None):
 		a["eq"].add(c.equipment)
 		a["cards"] = a["cards"] + 1
 		a["hours"] = a["hours"] + flt(c.total_working_hours)
-		a["accrued"] = a["accrued"] + flt(c.customer_amount)
+		# customer net after customer-side additions/deductions = what the Sales Invoice bills
+		a["accrued"] = a["accrued"] + flt(c.customer_net_amount)
 
 	# GL per customer (only customers that have cards in the period)
 	gl = {}
