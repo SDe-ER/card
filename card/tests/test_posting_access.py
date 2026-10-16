@@ -69,11 +69,15 @@ class TestPostingEndpointCompanyAccess(_PostingBase):
 		self._submitted_card()
 		frappe.set_user(self._manager(restrict_to=self.other))
 		for endpoint in (post_month, rebuild_month):
-			with self.assertRaises(frappe.PermissionError, msg=endpoint.__name__):
+			# refused by CARD's own gate, before any build work — not by a later
+			# incidental ERPNext account check
+			with self.assertRaisesRegex(frappe.PermissionError, "not permitted to build postings"):
 				endpoint(self.company, "Supplier", self.supplier, "9", "2026")
 		frappe.set_user("Administrator")
 		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
-		self.assertFalse(frappe.get_all("Purchase Invoice", filters={"supplier": self.supplier, "docstatus": 0}))
+		self.assertFalse(
+			frappe.get_all("Purchase Invoice", filters={"supplier": self.supplier, "docstatus": 0})
+		)
 
 	def test_permitted_manager_still_posts(self):
 		self._submitted_card()
@@ -84,5 +88,5 @@ class TestPostingEndpointCompanyAccess(_PostingBase):
 
 	def test_unknown_company_is_refused(self):
 		frappe.set_user(self._manager())
-		with self.assertRaises(frappe.PermissionError):
+		with self.assertRaisesRegex(frappe.PermissionError, "not permitted to build postings"):
 			post_month("TEST-NO-SUCH-CO-" + self.token, "Supplier", self.supplier, "9", "2026")

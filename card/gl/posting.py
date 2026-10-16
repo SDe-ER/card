@@ -30,7 +30,12 @@ from card.diesel import project_operating_hours, split_by_weights
 from card.gl import preflight
 from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
+from card.report_access import permitted_companies
 from card.settings import setting
+
+# documents the builder reads; a User Permission on Company scoped to any of
+# them limits what the caller may post
+POSTING_SOURCE_DOCTYPES = ("Card Monthly Card", "Project Diesel Fill", "Equipment Transport")
 
 
 def _month_bounds(month, year):
@@ -523,11 +528,18 @@ def rebuild_monthly_posting(company, party_type, party, month, year):
 	return build_monthly_posting(company, party_type, party, month, year)
 
 
-def _checked_endpoint_args(party_type, month, year):
-	"""Shared gate for the whitelisted entry points: role, party type, period."""
+def _checked_endpoint_args(company, party_type, month, year):
+	"""Shared gate for the whitelisted entry points: role, company scope, party
+	type, period. The builder inserts with ignore_permissions, so the company the
+	caller may see is enforced here, before any work (#36)."""
 	if not ({"Card Manager", "System Manager"} & set(frappe.get_roles())):
 		frappe.throw(
 			_("Only Card Manager or System Manager may build monthly postings."), frappe.PermissionError
+		)
+	if not company or company not in permitted_companies(*POSTING_SOURCE_DOCTYPES):
+		frappe.throw(
+			_("You are not permitted to build postings for company {0}.").format(company),
+			frappe.PermissionError,
 		)
 	if party_type not in ("Supplier", "Customer"):
 		frappe.throw(_("Party type must be Supplier or Customer."))
@@ -544,12 +556,12 @@ def _checked_endpoint_args(party_type, month, year):
 @frappe.whitelist(methods=["POST"])
 def rebuild_month(company: str, party_type: str, party: str, month: str, year: str):
 	"""Desk entry point for rebuilding a draft posting after late documents."""
-	month, year = _checked_endpoint_args(party_type, month, year)
+	month, year = _checked_endpoint_args(company, party_type, month, year)
 	return rebuild_monthly_posting(company, party_type, party, month, year)
 
 
 @frappe.whitelist(methods=["POST"])
 def post_month(company: str, party_type: str, party: str, month: str, year: str):
 	"""Desk entry point (S4 wires the button). Card Manager / System Manager only."""
-	month, year = _checked_endpoint_args(party_type, month, year)
+	month, year = _checked_endpoint_args(company, party_type, month, year)
 	return build_monthly_posting(company, party_type, party, month, year)
