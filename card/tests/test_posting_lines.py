@@ -174,7 +174,7 @@ class TestReconciliationCategories(_PostingBase):
 	invoices of the party made outside CARD (shown for manual reconciliation,
 	never matched to cards by party and month). Nothing existing is relinked."""
 
-	def _manual_invoice(self, doctype, posting_date, rate, submit=True):
+	def _manual_invoice(self, doctype, posting_date, rate, submit=True, qty=1):
 		from card.gl.masters import ensure_posting_masters
 
 		row = ensure_posting_masters(self.company)
@@ -189,10 +189,15 @@ class TestReconciliationCategories(_PostingBase):
 		if doctype == "Purchase Invoice":
 			doc.update(
 				supplier=self.supplier,
-				bill_no=f"TEST-MANUAL-{self.token}-{rate}",
+				bill_no=f"TEST-MANUAL-{self.token}-{frappe.generate_hash(length=6)}",
 				bill_date=posting_date,
 				items=[
-					{"item_code": row.rental_item, "qty": 1, "rate": rate, "expense_account": self.exp_rental}
+					{
+						"item_code": row.rental_item,
+						"qty": qty,
+						"rate": rate,
+						"expense_account": self.exp_rental,
+					}
 				],
 			)
 		else:
@@ -200,7 +205,12 @@ class TestReconciliationCategories(_PostingBase):
 				customer=self.customer,
 				selling_price_list=frappe.db.get_value("Price List", {"selling": 1, "enabled": 1}, "name"),
 				items=[
-					{"item_code": row.rental_item, "qty": 1, "rate": rate, "income_account": self.inc_rental}
+					{
+						"item_code": row.rental_item,
+						"qty": qty,
+						"rate": rate,
+						"income_account": self.inc_rental,
+					}
 				],
 			)
 		inv = frappe.get_doc(doc).insert(ignore_permissions=True)
@@ -362,3 +372,174 @@ class TestSourceCostCenterGuard(_PostingBase):
 		)
 		line = next(i for i in pi.items if fill.name in i.description)
 		self.assertIn("estimated", line.description)
+
+
+class TestReconciliationEdgeCases(TestReconciliationCategories):
+	"""PR #39 owner pre-merge tests: cancellation, returns / credit notes,
+	company isolation and the project filter — the reconciliation as designed,
+	no behaviour change."""
+
+	OUTSIDE = "ERPNext invoices outside Card — to reconcile (net before VAT)"
+
+	def _card_pi(self):
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		pi.bill_no = "TEST-BILL-EDGE-" + frappe.generate_hash(length=6)
+		pi.bill_date = pi.posting_date
+		pi.submit()
+		return pi
+
+	def _return_of(self, invoice, qty):
+		from erpnext.controllers.sales_and_purchase_return import make_return_doc
+
+		ret = make_return_doc(invoice.doctype, invoice.name)
+		ret.set_posting_time = 1
+		ret.posting_date = invoice.posting_date
+		if ret.doctype == "Purchase Invoice":
+			ret.bill_no = "TEST-RET-" + frappe.generate_hash(length=6)
+		for item in ret.items:
+			item.qty = qty
+		ret.insert(ignore_permissions=True)
+		ret.submit()
+		return ret
+
+	def _other_company(self):
+		name = "TEST-REC-CO-" + self.token
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": name,
+				"abbr": "R" + self.token[:6].upper(),
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
+		)
+		co.name = name
+		co.db_insert()
+		return name
+
+	def test_cancelled_invoices_are_excluded(self):
+		self._vat_supplier()
+		self._example_card()  # net 10,277.81
+		self._manual_invoice("Purchase Invoice", "2026-09-20", 4000).cancel()
+		self._manual_invoice("Purchase Invoice", "2026-09-22", 300)
+		card_pi = self._card_pi()
+		card_pi.cancel()  # its log turns Cancelled: the card is free again
+		self.assertEqual(
+			frappe.db.get_value("GL Posting Log", {"posting_doc": card_pi.name}, "status"), "Cancelled"
+		)
+		tiles, _msg = self._supplier_statement()
+		self.assertEqual(tiles[frappe._("Invoiced through Card (net before VAT)")], 0)
+		self.assertEqual(tiles[frappe._("Not invoiced through Card")], 10277.81)
+		self.assertEqual(tiles[frappe._(self.OUTSIDE)], 300)
+
+		self._manual_invoice("Sales Invoice", "2026-09-20", 500).cancel()
+		from card.reconciliation import invoices_outside_card
+
+		self.assertEqual(
+			invoices_outside_card("Customer", [self.customer], self.company, "2026-09-01", "2026-09-30"), {}
+		)
+
+	def test_returns_and_credit_notes_count_with_their_sign(self):
+		self._vat_supplier()
+		self._example_card()
+		manual = self._manual_invoice("Purchase Invoice", "2026-09-20", 1000, qty=4)  # 4,000
+		debit_note = self._return_of(manual, -1)  # -1,000
+		self.assertEqual(flt(debit_note.base_net_total, 2), -1000)
+		tiles, _msg = self._supplier_statement()
+		self.assertEqual(tiles[frappe._(self.OUTSIDE)], 3000)
+		self.assertEqual(tiles[frappe._("Invoiced through Card (net before VAT)")], 0)
+
+		# customer: a manual invoice and its credit note; a credit note against
+		# Card's own invoice is NOT Card's - it shows (negative) to reconcile,
+		# while the invoiced-through-Card figure keeps what Card billed
+		eq = self._rented_out(customer_rate=1000)  # 16h -> 1,600
+		self._card(eq, [8, 8], submit=True)
+		card_si = frappe.get_doc(
+			"Sales Invoice", build_monthly_posting(self.company, "Customer", self.customer, 9, 2026)
+		)
+		card_si.submit()
+		manual_si = self._manual_invoice("Sales Invoice", "2026-09-20", 100, qty=5)  # 500
+		self._return_of(manual_si, -2)  # -200
+		self._return_of(card_si, -1)  # -1,600
+		row = self._summary_row("equipment_customers_summary", "customer", self.customer)
+		self.assertEqual((row["invoiced_net"], row["diff"], row["external_net"]), (1600, 0, -1300))
+
+	def test_company_isolation(self):
+		from card.reconciliation import cards_invoiced, invoices_outside_card
+
+		self._vat_supplier()
+		self._example_card()
+		self._card_pi()
+		self._manual_invoice("Purchase Invoice", "2026-09-20", 4000)
+		eq = self._rented_out(customer_rate=1000)
+		self._card(eq, [8, 8], submit=True)
+		self._manual_invoice("Sales Invoice", "2026-09-20", 500)
+		other = self._other_company()
+		period = ("2026-09-01", "2026-09-30")
+		# the figures exist in the posting company ...
+		self.assertEqual(
+			cards_invoiced("Supplier", [self.supplier], self.company, *period), {self.supplier: 10277.81}
+		)
+		self.assertEqual(
+			invoices_outside_card("Supplier", [self.supplier], self.company, *period), {self.supplier: 4000}
+		)
+		self.assertEqual(
+			invoices_outside_card("Customer", [self.customer], self.company, *period), {self.customer: 500}
+		)
+		# ... and never leak into another company's reconciliation
+		self.assertEqual(cards_invoiced("Supplier", [self.supplier], other, *period), {})
+		self.assertEqual(invoices_outside_card("Supplier", [self.supplier], other, *period), {})
+		self.assertEqual(cards_invoiced("Customer", [self.customer], other, *period), {})
+		self.assertEqual(invoices_outside_card("Customer", [self.customer], other, *period), {})
+		for report, field, party in (
+			("equipment_suppliers_summary", "supplier", self.supplier),
+			("equipment_customers_summary", "customer", self.customer),
+		):
+			execute = frappe.get_attr(f"card.card.report.{report}.{report}.execute")
+			_c, rows, _m, _ch, _s, _f = execute(
+				frappe._dict(company=other, from_month=9, from_year=2026, to_month=9, to_year=2026)
+			)
+			self.assertFalse([r for r in rows if r.get(field) == party], report)
+
+	def test_project_filter_scopes_cards_not_invoices(self):
+		"""As designed today: the project filter narrows the CARDS (net, count,
+		hours); the invoice figures - invoiced through Card and ERPNext invoices
+		outside Card - are per party, company and period, whatever the project
+		(an invoice is not per project). Documented in card/reconciliation.py."""
+		self._vat_supplier()
+		self._example_card()  # project A: 10,277.81
+		second = frappe.new_doc("Project")
+		second.project_name = "TEST-REC-PRJ-B-" + self.token
+		second.company = self.company
+		second.insert(ignore_permissions=True)
+		eq_b = self._equipment(rate_type="بالساعة", rate=100)
+		self._card(eq_b, [8, 8], submit=True, project=second.name)  # project B: 1,600
+		self._card_pi()  # one invoice for the month bills both projects: 11,877.81
+		self._manual_invoice("Purchase Invoice", "2026-09-20", 4000)
+		from card.card.report.equipment_suppliers_summary.equipment_suppliers_summary import execute
+
+		def row_for(project=None):
+			_c, rows, _m, _ch, _s, _f = execute(
+				frappe._dict(
+					company=self.company,
+					from_month=9,
+					from_year=2026,
+					to_month=9,
+					to_year=2026,
+					project=project,
+				)
+			)
+			return next(r for r in rows if r.get("supplier") == self.supplier)
+
+		whole = row_for()
+		self.assertEqual(
+			(whole["net"], whole["invoiced_net"], whole["diff"], whole["external_net"]),
+			(11877.81, 11877.81, 0, 4000),
+		)
+		only_a = row_for(self.project)
+		self.assertEqual(only_a["net"], 10277.81)  # cards: project A only
+		self.assertEqual(only_a["invoiced_net"], 11877.81)  # invoices: whole party
+		self.assertEqual(only_a["external_net"], 4000)
+		self.assertEqual(only_a["diff"], -1600)  # mixed scopes under a project filter
