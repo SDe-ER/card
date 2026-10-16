@@ -20,7 +20,7 @@ PERIOD = {"from_month": 9, "from_year": 2026, "to_month": 9, "to_year": 2026}
 
 def _run(module, filters):
 	execute = frappe.get_attr(f"card.card.report.{module}.{module}.execute")
-	columns, rows, _message, _chart, summary, _flag = execute(frappe._dict(filters))
+	_columns, rows, _message, _chart, summary, _flag = execute(frappe._dict(filters))
 	return rows, summary
 
 

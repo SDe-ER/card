@@ -34,7 +34,7 @@ def execute():
 			limit_page_length=0,
 		)
 	)
-	failed = [s for s in sorted(filter(None, suppliers)) if not _safely(recompute_supplier, s)]
-	failed += [c for c in sorted(filter(None, customers)) if not _safely(recompute_customer, c)]
+	failed = [s for s in sorted(s for s in suppliers if s) if not _safely(recompute_supplier, s)]
+	failed += [c for c in sorted(c for c in customers if c) if not _safely(recompute_customer, c)]
 	if failed:
 		print(f"CARD registry recompute: {len(failed)} of {len(suppliers) + len(customers)} parties failed")
