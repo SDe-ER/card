@@ -1977,3 +1977,15 @@ msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إل�
 
 msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}."
 msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}."
+
+msgid "Party type"
+msgstr "نوع الطرف"
+
+msgid "Posting type"
+msgstr "نوع الترحيل"
+
+msgid "Posting key"
+msgstr "مفتاح الترحيل"
+
+msgid "Posting DocType"
+msgstr "نوع مستند الترحيل"
