@@ -102,7 +102,23 @@ class TestLikeForLikeReconciliation(_PostingBase):
 		submitted the reconciliation difference is 0, while the GL accrual
 		(VAT included) is shown separately."""
 		self._vat_supplier()
-		_eq, _card = self._example_card()  # net 10,277.81 ; VAT 1,586.67
+		eq, _card = self._example_card()  # card net 10,277.81
+		# a diesel fill billed on the SAME invoice is not a card: it must not move
+		# the cards reconciliation (reviewer MEDIUM-1)
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-12",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"card_equipment": eq.name,
+				"litres": 100,
+				"unit_price": 20,
+			}
+		)
+		fill.insert(ignore_permissions=True)
+		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		)
@@ -123,9 +139,11 @@ class TestLikeForLikeReconciliation(_PostingBase):
 		_c, _rows, _msg, _chart, summary, _f = execute(filters)
 		tiles = {s["label"]: s["value"] for s in summary}
 		self.assertEqual(tiles[frappe._("Net cards")], 10277.81)
-		self.assertEqual(tiles[frappe._("Invoiced net (before VAT)")], 10277.81)
+		self.assertEqual(tiles[frappe._("Cards invoiced (net before VAT)")], 10277.81)
 		self.assertEqual(tiles[frappe._("Reconciliation difference")], 0)
-		self.assertEqual(tiles[frappe._("Accrual entries (Credit)")], 11864.48)  # GL, VAT included
+		# the GL accrual is the whole invoice, VAT included (cards + diesel 2,000)
+		self.assertEqual(tiles[frappe._("Accrual entries (Credit)")], flt(pi.grand_total, 2))
+		self.assertGreater(flt(pi.grand_total, 2), 11864.48)
 
 		from card.card.report.equipment_suppliers_summary.equipment_suppliers_summary import execute as summ
 
@@ -133,4 +151,63 @@ class TestLikeForLikeReconciliation(_PostingBase):
 			frappe._dict(company=self.company, from_month=9, from_year=2026, to_month=9, to_year=2026)
 		)
 		row = next(r for r in rows if r.get("supplier") == self.supplier)
-		self.assertEqual((row["invoiced_net"], row["diff"], row["accrued"]), (10277.81, 0, 11864.48))
+		self.assertEqual((row["invoiced_net"], row["diff"]), (10277.81, 0))
+		self.assertEqual(row["accrued"], flt(pi.grand_total, 2))
+
+	def test_unbilled_cards_keep_a_positive_difference(self):
+		self._vat_supplier()
+		self._example_card()  # submitted, never invoiced
+		from card.card.report.equipment_suppliers_summary.equipment_suppliers_summary import execute as summ
+
+		_c, rows, _msg, _chart, _s, _f = summ(
+			frappe._dict(company=self.company, from_month=9, from_year=2026, to_month=9, to_year=2026)
+		)
+		row = next(r for r in rows if r.get("supplier") == self.supplier)
+		self.assertEqual((row["invoiced_net"], row["diff"]), (0, 10277.81))
+
+
+class TestSourceCostCenterGuard(_PostingBase):
+	def test_a_group_cost_center_on_a_fill_is_refused_before_any_reservation(self):
+		eq = self._equipment()
+		self._card(eq, [5], submit=True)
+		group = frappe.db.get_value("Cost Center", {"company": self.company, "is_group": 1}, "name")
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-12",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"card_equipment": eq.name,
+				"litres": 10,
+				"unit_price": 2,
+			}
+		)
+		fill.insert(ignore_permissions=True)
+		fill.submit()
+		frappe.db.set_value("Project Diesel Fill", fill.name, "cost_center", group, update_modified=False)
+		with self.assertRaisesRegex(frappe.ValidationError, "cost center"):
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
+
+	def test_a_single_share_tank_fill_is_still_marked_estimated(self):
+		eq = self._equipment()
+		self._card(eq, [5], submit=True)  # the only equipment with hours
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-12",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 30,
+				"unit_price": 2,
+			}
+		)
+		fill.insert(ignore_permissions=True)
+		fill.submit()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		line = next(i for i in pi.items if fill.name in i.description)
+		self.assertIn("estimated", line.description)

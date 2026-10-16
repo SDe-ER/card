@@ -102,13 +102,32 @@ def _split_fill_by_allocation(fill, month, year, company):
 	unallocated line at project level."""
 	amount = flt(fill.amount, 2)
 	if fill.card_equipment:
-		return [(fill.card_equipment, amount)]
+		return [(fill.card_equipment, amount, flt(fill.litres, 3))]
 	hours = project_operating_hours(fill.project, month, year, company)
-	# M6: ONE shared split rule for posting and display (card.diesel.split_by_weights)
+	# M6: ONE shared split rule for posting and display (card.diesel.split_by_weights);
+	# the litres shares use the same rule as the diesel reports (sum exactly)
 	shares = split_by_weights(amount, hours, 2)
 	if not shares:
-		return [(None, amount)]
-	return [(eq, amt) for eq, amt in sorted(shares.items()) if amt]
+		return [(None, amount, flt(fill.litres, 3))]
+	litres = split_by_weights(fill.litres, hours, 3)
+	return [(eq, amt, flt(litres.get(eq), 3)) for eq, amt in sorted(shares.items()) if amt]
+
+
+def _source_cost_center(doctype, source, company):
+	"""The source document's own cost center, if it can carry the line: a leaf,
+	enabled cost center of the posting's company. Refused before anything is
+	reserved — otherwise the draft invoice could never be submitted (#34)."""
+	cc = source.get("cost_center")
+	if not cc:
+		return None
+	row = frappe.db.get_value("Cost Center", cc, ["company", "is_group", "disabled"], as_dict=True)
+	if not row or row.company != company or row.is_group or row.disabled:
+		frappe.throw(
+			_(
+				"{0} {1}: cost center {2} cannot be used for company {3} (it must be an enabled, non-group cost center of that company)."
+			).format(_(doctype), source.get("name"), cc, company)
+		)
+	return cc
 
 
 def _supplier_sources(company, party, first_day, last_day, month, year):
@@ -322,14 +341,14 @@ def build_monthly_posting(company, party_type, party, month, year):
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
-			shares = _split_fill_by_allocation(fill, int(month), int(year), company)
-			for equipment, amount in shares:
-				if len(shares) == 1:
-					description = _("Diesel fill {0} — {1} L").format(fill.name, flt(fill.litres, 3))
+			cost_center = _source_cost_center("Project Diesel Fill", fill, company)
+			for equipment, amount, share in _split_fill_by_allocation(fill, int(month), int(year), company):
+				if fill.card_equipment or not equipment:
+					# a direct fill (recorded) or a project-level line (unallocated)
+					description = _("Diesel fill {0} — {1} L").format(fill.name, share)
 				else:
-					# each split line states ITS share of the litres, marked as an
-					# estimate (split by operating hours, not measured) — #34
-					share = flt(flt(fill.litres) * amount / flt(fill.amount), 3) if flt(fill.amount) else 0
+					# a project-tank fill split by operating hours: each line states ITS
+					# share of the litres, marked as an estimate (not measured) — #34
 					description = _(
 						"Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
 					).format(fill.name, share, flt(fill.litres, 3))
@@ -339,7 +358,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 						"rate": amount,
 						"account": row.diesel_expense_account,
 						"project": fill.project,
-						"cost_center": fill.cost_center,
+						"cost_center": cost_center,
 						"card_equipment": equipment,
 						"taxable": 1,
 						"description": description,
@@ -353,7 +372,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 					"rate": flt(t.amount, 2),
 					"account": row.transport_expense_account,
 					"project": t.project,
-					"cost_center": t.cost_center,
+					"cost_center": _source_cost_center("Equipment Transport", t, company),
 					"card_equipment": t.equipment or None,
 					"taxable": 1,
 					"description": _("Equipment transport {0}: {1} → {2}").format(

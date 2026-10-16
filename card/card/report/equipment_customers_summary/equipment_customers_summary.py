@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
-from card.reconciliation import invoiced_net
+from card.reconciliation import cards_invoiced
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
 from card.settings import setting
 
@@ -119,7 +119,7 @@ def execute(filters=None):
 				x["received"] = x["received"] + flt(g.credit)
 
 	# like-for-like reconciliation: card nets are before VAT, GL debits include it
-	inv_net = invoiced_net("Customer", order, company, start, end) if show_ledger else {}
+	inv_net = cards_invoiced("Customer", order, company, start, end) if show_ledger else {}
 
 	names = {}
 	if order:
@@ -220,7 +220,7 @@ def execute(filters=None):
 		{"fieldname": "invoiced", "label": _("Invoiced entries"), "fieldtype": "Currency", "width": 120},
 		{
 			"fieldname": "invoiced_net",
-			"label": _("Invoiced net (before VAT)"),
+			"label": _("Cards invoiced (net before VAT)"),
 			"fieldtype": "Currency",
 			"width": 130,
 		},

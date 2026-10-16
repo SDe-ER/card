@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 
-from card.reconciliation import invoiced_net
+from card.reconciliation import cards_invoiced
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
 from card.settings import setting
 
@@ -116,7 +116,7 @@ def execute(filters=None):
 				x["paid"] = x["paid"] + flt(g.debit)
 
 	# like-for-like reconciliation: card nets are before VAT, GL credits include it
-	inv_net = invoiced_net("Supplier", order, company, start, end) if show_ledger else {}
+	inv_net = cards_invoiced("Supplier", order, company, start, end) if show_ledger else {}
 
 	names = {}
 	if order:
@@ -217,7 +217,7 @@ def execute(filters=None):
 		{"fieldname": "accrued", "label": _("Accrual entries"), "fieldtype": "Currency", "width": 120},
 		{
 			"fieldname": "invoiced_net",
-			"label": _("Invoiced net (before VAT)"),
+			"label": _("Cards invoiced (net before VAT)"),
 			"fieldtype": "Currency",
 			"width": 130,
 		},

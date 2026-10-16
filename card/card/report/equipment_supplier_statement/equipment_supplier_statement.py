@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 
 from card.adjustments import sided_adjustments
-from card.reconciliation import invoiced_net
+from card.reconciliation import cards_invoiced
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
@@ -375,7 +375,7 @@ def execute(filters=None):
 			paid = paid + flt(g.debit)
 		closing = opening + accrued - paid
 		# like-for-like: card nets are before VAT; the accrual credits include it
-		inv = flt(invoiced_net("Supplier", [supplier], _company, start, end).get(supplier), 2)
+		inv = flt(cards_invoiced("Supplier", [supplier], _company, start, end).get(supplier), 2)
 		diff = flt(grand["net"] - inv, 2)
 		summary = [
 			*summary,
@@ -392,7 +392,7 @@ def execute(filters=None):
 				"indicator": "Blue",
 			},
 			{
-				"label": _("Invoiced net (before VAT)"),
+				"label": _("Cards invoiced (net before VAT)"),
 				"value": inv,
 				"datatype": "Currency",
 				"indicator": "Blue",
@@ -423,7 +423,7 @@ def execute(filters=None):
 			},
 		]
 		message = _prefix + _(
-			"Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included); reconciliation difference = net cards − invoiced net before VAT."
+			"Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included); reconciliation difference = net cards − cards invoiced (net before VAT)."
 		).format(supplier, start, end, frappe.utils.nowdate())
 	else:
 		message = _prefix + _(

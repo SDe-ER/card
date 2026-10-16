@@ -2,37 +2,59 @@
 # For license information, please see LICENSE
 """Like-for-like reconciliation for the CARD statements and summaries.
 
-Card nets are amounts BEFORE VAT (what the monthly PI/SI bills as its net
-total), while a party's GL credits/debits include VAT. The reconciliation
-difference therefore compares the card net with the invoices' net total
-(base_net_total, company currency; returns count negative) for the same
-company, party and period. The GL figures stay in the reports as the official
+The reports' card figures are card nets BEFORE VAT. A party's GL credits/debits
+include VAT, and its invoices also carry diesel, transport and purchases CARD
+never built — none of which is a card. The invoiced side of the reconciliation
+is therefore read from CARD's own posting trail: the GL Posting Source rows of
+type Card Monthly Card on logs whose invoice is SUBMITTED, for the company,
+party and card months of the period. Each row's amount is exactly the card net
+the invoice billed (posting asserts it), so the difference is 0 once every card
+of the period is invoiced. The GL figures stay in the reports as the official
 balance, VAT included."""
 
 import frappe
-from frappe.query_builder.functions import Sum
-from frappe.utils import flt
+from frappe.utils import cint, flt, getdate
 
-INVOICE = {"Supplier": ("Purchase Invoice", "supplier"), "Customer": ("Sales Invoice", "customer")}
+POSTING_TYPE = {"Supplier": "Purchase Invoice", "Customer": "Sales Invoice"}
 
 
-def invoiced_net(party_type, parties, company, start, end):
-	"""{party: Σ base_net_total} of the party's submitted invoices posted in
-	[start, end] for ``company``."""
+def cards_invoiced(party_type, parties, company, start, end):
+	"""{party: Σ card net billed by SUBMITTED monthly invoices} for the card
+	months from ``start`` to ``end`` (inclusive)."""
 	parties = [p for p in parties or [] if p]
 	if not parties:
 		return {}
-	doctype, field = INVOICE[party_type]
-	inv = frappe.qb.DocType(doctype)
-	rows = (
-		frappe.qb.from_(inv)
-		.select(inv[field].as_("party"), Sum(inv.base_net_total).as_("amount"))
-		.where(
-			(inv.docstatus == 1)
-			& (inv.company == company)
-			& (inv[field].isin(parties))
-			& (inv.posting_date[start:end])
-		)
-		.groupby(inv[field])
-	).run(as_dict=True)
-	return {r.party: flt(r.amount, 2) for r in rows}
+	first = getdate(start).year * 100 + getdate(start).month
+	last = getdate(end).year * 100 + getdate(end).month
+	logs = frappe.get_all(
+		"GL Posting Log",
+		filters={
+			"company": company,
+			"party_type": party_type,
+			"party": ["in", parties],
+			"posting_type": POSTING_TYPE[party_type],
+			"status": "Submitted",
+			"year": ["between", [getdate(start).year, getdate(end).year]],
+		},
+		fields=["name", "party", "month", "year"],
+		limit_page_length=0,
+	)
+	party_of = {
+		log.name: log.party for log in logs if first <= cint(log.year) * 100 + cint(log.month) <= last
+	}
+	if not party_of:
+		return {}
+	result = {}
+	for row in frappe.get_all(
+		"GL Posting Source",
+		filters={
+			"parent": ["in", list(party_of)],
+			"parenttype": "GL Posting Log",
+			"source_doctype": "Card Monthly Card",
+		},
+		fields=["parent", "amount"],
+		limit_page_length=0,
+	):
+		party = party_of[row.parent]
+		result[party] = flt(result.get(party, 0) + flt(row.amount), 2)
+	return result
