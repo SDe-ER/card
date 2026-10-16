@@ -96,10 +96,11 @@ def customer_query_conditions(user=None):
 def has_registry_permission(doc, ptype=None, user=None, debug=False):
 	"""Document-level twin of the query conditions: a restricted user may open
 	only a party that has a draft or submitted card in one of their companies.
-	Returns None (no opinion) for unrestricted users."""
+	Frappe 16 (permissions.has_controller_permissions) treats ANY falsy return as
+	a denial — a controller can only deny — so "no objection" must be True."""
 	companies = _restricted_companies(user or frappe.session.user)
 	if companies is None or doc.is_new():
-		return None
+		return True
 	_registry, field = REGISTRIES["Supplier" if doc.doctype == "Card Equipment Supplier" else "Customer"]
 	return bool(
 		companies
