@@ -95,9 +95,7 @@ class TestSidedTotals(_CustomerCardsBase):
 		)
 		self.assertEqual(_tile(summary, "Total accrued (cards)"), 5560)
 		# nothing invoiced yet: the reconciliation difference is the customer net, not the gross
-		diff = _tile(summary, "Reconciliation difference")
-		if diff is not None:
-			self.assertEqual(diff, 5560)
+		self.assertEqual(_tile(summary, "Reconciliation difference"), 5560)
 
 	def test_a_v1_1_row_without_side_counts_on_the_supplier_side(self):
 		from card.adjustments import sided_adjustments
@@ -154,3 +152,30 @@ class TestSidedTotals(_CustomerCardsBase):
 			"equipment_customer_statement", {"company": self.company, "customer": self.customer, **PERIOD}
 		)
 		self.assertNotIn(moved.name, [r.get("card") for r in rows])
+
+	def test_patch_backfills_customer_net_of_pre_s3_cards(self):
+		from card.patches.v1_2_1.backfill_customer_net_amount import execute
+
+		frappe.db.set_value(
+			"Card Monthly Card", self.card.name, "customer_net_amount", 0, update_modified=False
+		)
+		execute()
+		self.assertEqual(
+			frappe.db.get_value("Card Monthly Card", self.card.name, "customer_net_amount"), 5560
+		)
+		execute()  # idempotent
+		self.assertEqual(
+			frappe.db.get_value("Card Monthly Card", self.card.name, "customer_net_amount"), 5560
+		)
+
+	def test_patch_recomputes_stale_registry_totals(self):
+		from card.patches.v1_2_1.recompute_party_registries import execute
+
+		recompute_supplier(self.supplier)
+		recompute_customer(self.customer)
+		# what the pre-fix code stored: the mixed-side net and the gross accrual
+		frappe.db.set_value("Card Equipment Supplier", self.supplier, "total_net", 3500)
+		frappe.db.set_value("Card Equipment Customer", self.customer, "total_accrued", 5760)
+		execute()
+		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), 3700)
+		self.assertEqual(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), 5560)
