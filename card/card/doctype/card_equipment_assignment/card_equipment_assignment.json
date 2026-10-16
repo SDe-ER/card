@@ -72,7 +72,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "\u0646\u0634\u0637\n\u0645\u0646\u062a\u0647\u064a"
+   "options": "نشط\nمنتهي"
   },
   {
    "fieldname": "section_break_hjhf",
@@ -87,7 +87,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-12 21:21:14.685584",
+ "modified": "2026-10-16 19:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment Assignment",
@@ -118,14 +118,14 @@
    "write": 1
   },
   {
-   "create": 1,
+   "create": 0,
    "email": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "Card User",
    "share": 1,
-   "write": 1
+   "write": 0
   },
   {
    "export": 1,
