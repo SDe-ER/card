@@ -2004,3 +2004,24 @@ msgstr "غير مسموح لك بإنشاء ترحيلات للشركة {0}."
 
 msgid "Figures per company"
 msgstr "الأرقام حسب الشركة"
+
+msgid "Reason for commercial change"
+msgstr "سبب تغيير الشروط التجارية"
+
+msgid "Required when a commercial term (rate, rate type, daily hours, direction, parties, contract, fuel) changes; kept in the document history."
+msgstr "مطلوب عند تغيير أي شرط تجاري (السعر، نوع السعر، الساعات اليومية، الاتجاه، الأطراف، العقد، الوقود)، ويُحفظ في سجل المستند."
+
+msgid "Enter the reason for changing the commercial terms: {0}"
+msgstr "أدخل سبب تغيير الشروط التجارية: {0}"
+
+msgid "Reason required"
+msgstr "السبب مطلوب"
+
+msgid "The assignment end date is before its start date."
+msgstr "تاريخ نهاية التعيين قبل تاريخ بدايته."
+
+msgid "Equipment {0} belongs to company {1}; project {2} belongs to {3}."
+msgstr "المعدة {0} تابعة للشركة {1}، والمشروع {2} تابع للشركة {3}."
+
+msgid "Equipment {0} is already assigned to project {1} from {2} to {3}."
+msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} من {2} إلى {3}."
