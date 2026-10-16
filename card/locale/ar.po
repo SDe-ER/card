@@ -1962,3 +1962,15 @@ msgstr "البُعد المحاسبي «معدة كارت» غير موجود أ
 
 msgid "The {0} field is missing on {1}; re-run the Card Equipment dimension setup before posting."
 msgstr "الحقل {0} غير موجود على {1}؛ أعد تنفيذ إعداد بُعد معدة كارت قبل الترحيل."
+
+msgid "Party type"
+msgstr "نوع الطرف"
+
+msgid "Posting type"
+msgstr "نوع الترحيل"
+
+msgid "Posting key"
+msgstr "مفتاح الترحيل"
+
+msgid "Posting DocType"
+msgstr "نوع مستند الترحيل"
