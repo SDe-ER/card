@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 
 from card.dimension import DIMENSION_FIELD, gl_has_dimension_field
-from card.report_access import can_view_ledger, resolve_company
+from card.report_access import can_view_ledger, readable_links, resolve_company
 
 # The CARD-mapped expense account fields on Card Company Settings (owner O3
 # amendment 4: the account list comes from settings, never hardcoded).
@@ -139,4 +139,4 @@ def execute(filters=None):
 		"Expense lines on the CARD expense accounts with no Card Equipment dimension. "
 		"Fix them at the source document so the per-equipment P&L stays complete."
 	)
-	return [columns, rows, message, None, summary, True]
+	return [readable_links(columns), rows, message, None, summary, True]

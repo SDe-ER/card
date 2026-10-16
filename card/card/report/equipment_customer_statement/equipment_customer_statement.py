@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
-from card.report_access import can_view_ledger, ledger_notice, resolve_company
+from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
 
@@ -398,5 +398,6 @@ def execute(filters=None):
 			"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
 		).format(customer, start, end, frappe.utils.nowdate())
 
+	columns = readable_links(columns)
 	data = [columns, data_rows, message, None, summary, True]
 	return data
