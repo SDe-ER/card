@@ -10,6 +10,12 @@ by their total operating hours (all shifts) from submitted Card Monthly Cards.
 Splitting uses the ONE shared largest-remainder rule (split_by_weights), so the
 GL posting and every display put the rounding difference on the SAME equipment
 and the shares sum to the fill amount/litres exactly.
+
+Basis (#33): a direct fill's litres are RECORDED for that equipment; a tank
+fill's per-equipment share is an ESTIMATE (hours split, nothing is measured).
+Every allocation row carries both parts next to the unchanged totals:
+litres = litres_recorded + litres_estimated (same for amount). The UNALLOCATED
+row is neither (no equipment), so only its totals are set.
 """
 
 import frappe
@@ -60,17 +66,34 @@ def project_operating_hours(project, month, year, company):
 
 
 def allocate_project_diesel(project, month, year, company, include_unallocated=False):
-	"""Return {equipment: {"litres": float, "amount": float}} for one
+	"""Return {equipment: {"litres", "amount", "litres_recorded",
+	"litres_estimated", "amount_recorded", "amount_estimated"}} for one
 	project + month across all SUBMITTED Project Diesel Fills of ONE company in
 	that period (fills and hour weights both scoped to ``company``).
+	``litres``/``amount`` are the allocated totals (unchanged); ``*_recorded`` is
+	the part from direct fills, ``*_estimated`` the part split from project-tank
+	fills by operating hours.
 	When include_unallocated is True, project-tank fills in a period with NO operating
 	hours accumulate under the UNALLOCATED key instead of being dropped."""
 	result = {}
 
-	def add(equipment, litres, amount):
-		row = result.setdefault(equipment, {"litres": 0.0, "amount": 0.0})
+	def add(equipment, litres, amount, basis=None):
+		row = result.setdefault(
+			equipment,
+			{
+				"litres": 0.0,
+				"amount": 0.0,
+				"litres_recorded": 0.0,
+				"litres_estimated": 0.0,
+				"amount_recorded": 0.0,
+				"amount_estimated": 0.0,
+			},
+		)
 		row["litres"] = flt(row["litres"] + flt(litres), 3)
 		row["amount"] = flt(row["amount"] + flt(amount), 2)
+		if basis:
+			row["litres_" + basis] = flt(row["litres_" + basis] + flt(litres), 3)
+			row["amount_" + basis] = flt(row["amount_" + basis] + flt(amount), 2)
 
 	if not project:
 		return result
@@ -89,7 +112,7 @@ def allocate_project_diesel(project, month, year, company, include_unallocated=F
 			continue
 		# direct fill: whole amount to the chosen equipment
 		if f.card_equipment:
-			add(f.card_equipment, f.litres, f.amount)
+			add(f.card_equipment, f.litres, f.amount, "recorded")
 			continue
 		# project-tank fill: pro-rata by operating hours via the SHARED split
 		# rule (M6 — the remainder lands on the same equipment as in GL posting)
@@ -100,24 +123,24 @@ def allocate_project_diesel(project, month, year, company, include_unallocated=F
 			continue
 		lit_shares = split_by_weights(f.litres, hours_map, 3)
 		for eq in sorted(amt_shares):
-			add(eq, lit_shares.get(eq, 0), amt_shares[eq])
+			add(eq, lit_shares.get(eq, 0), amt_shares[eq], "estimated")
 	return result
 
 
 @frappe.whitelist()
 def get_card_diesel(card: str):
 	"""Diesel allocated to one Card Monthly Card's equipment for its project +
-	month. Display only; it is NEVER written back and NEVER affects net_amount."""
+	month, with its recorded (direct fill) and estimated (hours split) parts.
+	Display only; it is NEVER written back and NEVER affects net_amount."""
 	doc = frappe.get_doc("Card Monthly Card", card)
 	frappe.has_permission("Card Monthly Card", "read", doc.name, throw=True)
+	keys = ("litres", "amount", "litres_recorded", "litres_estimated", "amount_recorded", "amount_estimated")
 	if not (doc.project and doc.month and doc.year and doc.equipment):
-		return {"litres": 0.0, "amount": 0.0, "company_bears": False}
+		return dict(dict.fromkeys(keys, 0.0), company_bears=False)
 	alloc = allocate_project_diesel(doc.project, doc.month, doc.year, doc.company)
-	share = alloc.get(doc.equipment, {"litres": 0.0, "amount": 0.0})
+	share = alloc.get(doc.equipment) or {}
 	# flag when the company bears the fuel (الوقود_على = الشركة) → the diesel is our cost
 	fuel_on = frappe.db.get_value("Card Equipment", doc.equipment, "الوقود_على")
-	return {
-		"litres": flt(share["litres"], 3),
-		"amount": flt(share["amount"], 2),
-		"company_bears": fuel_on == "الشركة",
-	}
+	out = {k: flt(share.get(k), 3 if k.startswith("litres") else 2) for k in keys}
+	out["company_bears"] = fuel_on == "الشركة"
+	return out

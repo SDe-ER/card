@@ -293,6 +293,8 @@ function card_render_card_links(frm) {
 
 // Read-only diesel line: diesel allocated to THIS card's equipment for its
 // project + month (owner 2026-10-14). Display only — it NEVER changes net_amount.
+// The allocated litres = recorded (direct fills) + estimated (tank fills split
+// by card hours, #33); the estimated part is shown as such, never as measured.
 function card_render_diesel(frm) {
 	if (frm.is_new() || !frm.doc.equipment || !frm.doc.project || !frm.dashboard) return;
 	frappe
@@ -300,18 +302,33 @@ function card_render_diesel(frm) {
 		.then((r) => {
 			const d = (r && r.message) || {};
 			if (!frm.dashboard) return;
-			const parts = [
+			const line = (label, value) =>
 				'<div class="mb-2"><span class="text-muted">' +
-					__("Diesel (litres)") +
-					":</span> " +
-					format_number(flt(d.litres), null, 2) +
-					"</div>",
-				'<div class="mb-2"><span class="text-muted">' +
-					__("Diesel cost") +
-					":</span> " +
-					format_currency(flt(d.amount)) +
-					"</div>",
-			];
+				label +
+				":</span> " +
+				value +
+				"</div>";
+			const parts = [line(__("Allocated litres"), format_number(flt(d.litres), null, 2))];
+			if (flt(d.litres_estimated)) {
+				parts.push(
+					line(
+						__("Recorded litres (direct fills)"),
+						format_number(flt(d.litres_recorded), null, 2),
+					),
+					line(
+						__("Estimated litres (hours split)"),
+						format_number(flt(d.litres_estimated), null, 2),
+					),
+				);
+			}
+			parts.push(line(__("Diesel cost"), format_currency(flt(d.amount))));
+			if (flt(d.litres_estimated)) {
+				parts.push(
+					'<div class="text-muted small">' +
+						__("Estimated = project-tank fills split by card hours, not measured.") +
+						"</div>",
+				);
+			}
 			if (d.company_bears) {
 				parts.push(
 					'<div class="text-muted small">' +
@@ -324,7 +341,7 @@ function card_render_diesel(frm) {
 					__("Display only — does not affect the rental amount.") +
 					"</div>",
 			);
-			frm.dashboard.add_section(parts.join(""), __("Diesel"));
+			frm.dashboard.add_section(parts.join(""), __("Allocated diesel"));
 		});
 }
 

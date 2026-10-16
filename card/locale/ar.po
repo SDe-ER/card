@@ -1621,11 +1621,23 @@ msgstr "تحليل ديزل المعدات"
 msgid "Expected litres"
 msgstr "اللترات المتوقعة"
 
-msgid "Actual litres"
-msgstr "اللترات الفعلية"
+msgid "Allocated litres"
+msgstr "اللترات الموزعة"
 
-msgid "Litres variance"
-msgstr "فرق اللترات"
+msgid "Recorded litres (direct fills)"
+msgstr "لترات مسجلة (تعبئة مباشرة)"
+
+msgid "Estimated litres (hours split)"
+msgstr "لترات تقديرية (توزيع بالساعات)"
+
+msgid "Litres variance (expected vs allocated)"
+msgstr "فرق اللترات (المتوقع مقابل الموزع)"
+
+msgid "Allocated diesel"
+msgstr "الديزل الموزع"
+
+msgid "Estimated = project-tank fills split by card hours, not measured."
+msgstr "التقديري = تعبئات خزان المشروع موزعة بساعات الكارت، غير مقاس."
 
 msgid "Variance %"
 msgstr "نسبة الفرق %"
@@ -1675,8 +1687,8 @@ msgstr "تغيير قيمة النقل للمشروع {1} متاح فقط لمن
 msgid "Duplicate project in transport prices: {0}"
 msgstr "مشروع مكرر في أسعار النقل: {0}"
 
-msgid "Expected = operating hours x (daily diesel consumption / daily standard hours). Actual = litres allocated from submitted diesel fills. Display only — no accounting."
-msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الفعلي = اللترات الموزعة من تعبئات الديزل المعتمدة. للعرض فقط — بدون محاسبة."
+msgid "Expected = operating hours x (daily diesel consumption / daily standard hours). Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) plus estimated (project-tank fills split by card hours, not measured). The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
+msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الموزع = اللترات الموزعة من تعبئات الديزل المعتمدة: المسجلة (تعبئة مباشرة للمعدة) زائد التقديرية (تعبئات خزان المشروع موزعة بساعات الكارت، غير مقاسة). الفرق يقارن المتوقع بالموزع، وليس الاستهلاك المقاس. للعرض فقط — بدون محاسبة."
 
 msgid "Company {0} does not match the equipment's company {1}."
 msgstr "الشركة {0} لا تطابق شركة المعدة {1}."
