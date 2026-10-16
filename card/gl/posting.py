@@ -134,7 +134,7 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
 		},
-		fields=["name", "project", "card_equipment", "litres", "amount", "date"],
+		fields=["name", "project", "card_equipment", "litres", "amount", "date", "cost_center"],
 	)
 	transports = frappe.get_all(
 		"Equipment Transport",
@@ -145,7 +145,16 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
 		},
-		fields=["name", "project", "equipment", "amount", "date", "from_location", "to_location"],
+		fields=[
+			"name",
+			"project",
+			"equipment",
+			"amount",
+			"date",
+			"from_location",
+			"to_location",
+			"cost_center",
+		],
 	)
 	return cards, fills, transports
 
@@ -313,16 +322,27 @@ def build_monthly_posting(company, party_type, party, month, year):
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
-			for equipment, amount in _split_fill_by_allocation(fill, int(month), int(year), company):
+			shares = _split_fill_by_allocation(fill, int(month), int(year), company)
+			for equipment, amount in shares:
+				if len(shares) == 1:
+					description = _("Diesel fill {0} — {1} L").format(fill.name, flt(fill.litres, 3))
+				else:
+					# each split line states ITS share of the litres, marked as an
+					# estimate (split by operating hours, not measured) — #34
+					share = flt(flt(fill.litres) * amount / flt(fill.amount), 3) if flt(fill.amount) else 0
+					description = _(
+						"Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
+					).format(fill.name, share, flt(fill.litres, 3))
 				lines.append(
 					{
 						"item_code": row.diesel_item,
 						"rate": amount,
 						"account": row.diesel_expense_account,
 						"project": fill.project,
+						"cost_center": fill.cost_center,
 						"card_equipment": equipment,
 						"taxable": 1,
-						"description": _("Diesel fill {0} — {1} L").format(fill.name, fill.litres),
+						"description": description,
 					}
 				)
 			sources["Project Diesel Fill"].append((fill.name, flt(fill.amount, 2)))
@@ -333,6 +353,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 					"rate": flt(t.amount, 2),
 					"account": row.transport_expense_account,
 					"project": t.project,
+					"cost_center": t.cost_center,
 					"card_equipment": t.equipment or None,
 					"taxable": 1,
 					"description": _("Equipment transport {0}: {1} → {2}").format(
@@ -442,7 +463,9 @@ def build_monthly_posting(company, party_type, party, month, year):
 			"rate": line["rate"],
 			"description": line["description"],
 			"project": line["project"],
-			"cost_center": row.cost_center,
+			# the source document's own cost center when it has one, else the
+			# company default from Card Company Settings (#34)
+			"cost_center": line.get("cost_center") or row.cost_center,
 		}
 		if party_type == "Supplier":
 			item["expense_account"] = line["account"]
