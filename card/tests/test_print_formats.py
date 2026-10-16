@@ -57,9 +57,10 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertEqual(card.customer_net_amount, 6000)
 		self.assertEqual(card.net_amount, 0)
 		html = self._print(card)
-		self.assertEqual(_cell(html, "الصافي المستحق على العميل"), fmt_money(6000))
+		self.assertEqual(_cell(html, "صافي العميل قبل الضريبة"), fmt_money(6000))
+		self.assertEqual(_cell(html, "إجمالي العميل"), fmt_money(7200))
 		self.assertEqual(_cell(html, "خصومات العميل"), fmt_money(1200))
-		self.assertIsNone(_cell(html, "الصافي المستحق للمورد"))
+		self.assertIsNone(_cell(html, "صافي المورد قبل الضريبة"))
 		self.assertIn("TEST-PRINT-DED", html)
 
 	def test_supplier_card_prints_the_supplier_net(self):
@@ -67,9 +68,9 @@ class TestPrintFormats(_CustomerCardsBase):
 		card = self._card_with(self._equipment(RENTED), [(DED, 600, "Supplier", "TEST-PRINT-SUP")])
 		self.assertEqual(card.net_amount, 3000)
 		html = self._print(card)
-		self.assertEqual(_cell(html, "الصافي المستحق للمورد"), fmt_money(3000))
+		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3000))
 		self.assertEqual(_cell(html, "خصومات المورد"), fmt_money(600))
-		self.assertIsNone(_cell(html, "الصافي المستحق على العميل"))
+		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
 
 	def test_sub_rental_prints_each_side_with_its_own_rows(self):
 		# supplier 3,600 + 100 = 3,700; customer 1200/day = 120/h x 48 = 5,760 - 200 = 5,560
@@ -79,17 +80,33 @@ class TestPrintFormats(_CustomerCardsBase):
 		)
 		self.assertEqual((card.net_amount, card.customer_net_amount), (3700, 5560))
 		html = self._print(card)
+		self.assertEqual(_cell(html, "إجمالي المورد"), fmt_money(3600))
 		self.assertEqual(_cell(html, "إضافات المورد"), fmt_money(100))
 		self.assertEqual(_cell(html, "خصومات المورد"), fmt_money(0))
-		self.assertEqual(_cell(html, "الصافي المستحق للمورد"), fmt_money(3700))
+		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3700))
+		self.assertEqual(_cell(html, "إجمالي العميل"), fmt_money(5760))
 		self.assertEqual(_cell(html, "إضافات العميل"), fmt_money(0))
 		self.assertEqual(_cell(html, "خصومات العميل"), fmt_money(200))
-		self.assertEqual(_cell(html, "الصافي المستحق على العميل"), fmt_money(5560))
+		self.assertEqual(_cell(html, "صافي العميل قبل الضريبة"), fmt_money(5560))
+		# the printed nets are what the monthly invoices bill before VAT
+		from card.gl.posting import _card_lines
 
-	def test_no_adjustments_prints_no_net_block(self):
+		row = frappe._dict(
+			rental_item="X",
+			rental_out_item="X",
+			equipment_rental_expense_account="X",
+			equipment_rental_income_account="X",
+		)
+		for side, label in (("Supplier", "صافي المورد قبل الضريبة"), ("Customer", "صافي العميل قبل الضريبة")):
+			_doc, lines, discount = _card_lines(card.name, side, row, {})
+			self.assertEqual(_cell(html, label), fmt_money(sum(line["rate"] for line in lines) - discount))
+
+	def test_no_adjustments_prints_gross_equal_to_net(self):
 		html = self._print(self._card_with(self._equipment(RENTED), []))
-		self.assertIsNone(_cell(html, "الصافي المستحق للمورد"))
 		self.assertNotIn('class="emc-adj"', html)
+		self.assertEqual(_cell(html, "إجمالي المورد"), fmt_money(3600))
+		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3600))
+		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
 
 	def test_printing_changes_no_stored_value(self):
 		card = self._card_with(self._sub_rental(), [(DED, 200, "Customer", "TEST-PRINT-K")])
