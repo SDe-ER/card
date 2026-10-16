@@ -2001,3 +2001,6 @@ msgstr "المبلغ كتابةً"
 
 msgid "You are not permitted to build postings for company {0}."
 msgstr "غير مسموح لك بإنشاء ترحيلات للشركة {0}."
+
+msgid "Figures per company"
+msgstr "الأرقام حسب الشركة"

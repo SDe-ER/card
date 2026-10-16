@@ -11,7 +11,7 @@ per-test and rolled back."""
 import frappe
 
 from card.api import recompute_customer, recompute_supplier
-from card.tests.test_controllers import _days
+from card.tests.test_controllers import _days, _registry_figures
 from card.tests.test_customer import _CustomerCardsBase
 
 ADD, DED = "إضافة", "خصم"
@@ -63,8 +63,8 @@ class TestSidedTotals(_CustomerCardsBase):
 	def test_registries_keep_each_side(self):
 		recompute_supplier(self.supplier)
 		recompute_customer(self.customer)
-		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), 3700)
-		self.assertEqual(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), 5560)
+		self.assertEqual(_registry_figures("Supplier", self.supplier).total, 3700)
+		self.assertEqual(_registry_figures("Customer", self.customer).total, 5560)
 
 	def test_summaries_keep_each_side(self):
 		rows, _ = _run("equipment_suppliers_summary", {"company": self.company, **PERIOD})
@@ -122,12 +122,8 @@ class TestSidedTotals(_CustomerCardsBase):
 			billed[side] = sum(line["rate"] for line in lines) - discount
 		recompute_supplier(self.supplier)
 		recompute_customer(self.customer)
-		self.assertEqual(
-			frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), billed["Supplier"]
-		)
-		self.assertEqual(
-			frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), billed["Customer"]
-		)
+		self.assertEqual(_registry_figures("Supplier", self.supplier).total, billed["Supplier"])
+		self.assertEqual(_registry_figures("Customer", self.customer).total, billed["Customer"])
 
 	def test_reports_stay_scoped_to_the_company(self):
 		other = "TEST-SIDED-CO-" + self.token
@@ -168,14 +164,18 @@ class TestSidedTotals(_CustomerCardsBase):
 			frappe.db.get_value("Card Monthly Card", self.card.name, "customer_net_amount"), 5560
 		)
 
-	def test_patch_recomputes_stale_registry_totals(self):
-		from card.patches.v1_2_1.recompute_party_registries import execute
+	def test_patches_leave_no_stored_registry_totals(self):
+		from card.patches.v1_2_1.recompute_party_registries import execute as recompute
+		from card.patches.v1_2_2.clear_registry_aggregates import execute as clear
 
-		recompute_supplier(self.supplier)
-		recompute_customer(self.customer)
-		# what the pre-fix code stored: the mixed-side net and the gross accrual
+		# what pre-1.2.2 code stored: party-wide (cross-company) figures
 		frappe.db.set_value("Card Equipment Supplier", self.supplier, "total_net", 3500)
 		frappe.db.set_value("Card Equipment Customer", self.customer, "total_accrued", 5760)
-		execute()
-		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), 3700)
-		self.assertEqual(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), 5560)
+		recompute()
+		clear()
+		clear()  # idempotent
+		self.assertIsNone(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"))
+		self.assertIsNone(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"))
+		# the figures are still available, computed from the cards
+		self.assertEqual(_registry_figures("Supplier", self.supplier).total, 3700)
+		self.assertEqual(_registry_figures("Customer", self.customer).total, 5560)
