@@ -50,6 +50,9 @@ class TestCommercialProtection(_CustomerCardsBase):
 		doc.rate = 800
 		with self.assertRaisesRegex(frappe.ValidationError, "reason"):
 			doc.save()
+		# a refused save leaves the in-memory doc stale (timestamp): reload it
+		doc = frappe.get_doc("Card Equipment", eq.name)
+		doc.rate = 800
 		doc.commercial_change_reason = "Contract renewal 2026"
 		doc.save()
 		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "rate"), 800)
