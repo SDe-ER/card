@@ -21,6 +21,78 @@ All notable changes to the Card app are documented here. Format based on
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 
+## [1.2.1] — 2026-10-16
+
+Patch release on top of 1.2.0: operational roles can run filtered reports, monthly-card and
+diesel/transport prints show the right money on the right side, and supplier/customer totals keep
+each side's own additions and deductions. Merged through PRs #22, #26 and #27.
+
+### Fixed
+- **Filtered reports for operational roles** (#21, PR #22). A Card User could not run any CARD
+  report filtered by supplier, customer or project: Frappe v16 validates report Link-filter values
+  against the user's own read/select permission. Supplier and customer filters now link to the CARD
+  registries (*Card Equipment Supplier* / *Customer*), Company and Project are CARD-scoped
+  Autocomplete filters, and master Link columns the user cannot read are returned as plain text — no
+  ERPNext permission is granted to any Card role. The registries follow ERPNext Supplier/Customer
+  renames and merges, and a row now exists from a party's first draft card (backfilled on migrate).
+- **Monthly card print** (#25, PR #26). Each billed side prints the figures of its invoice — gross,
+  that side's additions, deductions, and the net before VAT (supplier: `amount → net_amount`;
+  customer: `customer_amount → customer_net_amount`); sub-rental cards print both sides and name the
+  customer. A rented-out card with a 1,200 customer deduction printed "net due 0.00"; it now prints
+  6,000. The supplier "total" box printed the net under a gross label; it now prints the gross. The
+  Arabic overlap of mixed bold/regular text on the adjustments line is gone. The legacy alternative
+  format prints the customer amount on customer-only cards.
+- **Diesel fill and transport prints** (#25, PR #26). The money field is labelled "Fill amount"
+  («قيمة التعبئة») / "Transport cost" («تكلفة النقل») instead of "Amount", which core Arabic
+  translates as a quantity («كمية»); the two report columns read "Diesel cost" / "Transport cost".
+  The amount in words is labelled «المبلغ كتابةً» and, in Arabic, shows the currency symbol (ر.س)
+  instead of the ISO code. No core translation is overridden.
+- **Supplier and customer totals keep each side's adjustments** (#24, PR #27). The supplier
+  registry, *Equipment Suppliers Summary* and *Equipment Supplier Statement* no longer fold
+  customer-side rows of sub-rental cards into the supplier net; the customer registry, *Equipment
+  Customers Summary* and *Equipment Customer Statement* now use the customer net (what the Sales
+  Invoice bills) instead of the gross, and the customer statement gains Additions / Deductions / Net
+  columns. The card form's displayed net counts supplier-side rows only.
+
+### Migration
+- `bench --site <site> migrate` runs three idempotent v1.2.1 patches, in order:
+  `backfill_customer_net_amount` (fills `customer_net_amount` on customer-billing cards saved before
+  that column was computed), `ensure_party_registries` (creates missing registry rows),
+  `recompute_party_registries` (refreshes every stored registry total). They write only that derived
+  card column and the CARD registry rows; no submitted accounting document (invoice, journal, GL
+  entry) is touched. A party whose recompute fails is logged in Error Log and counted in the
+  migrate output.
+- New Arabic strings: compile translations (`bench build`, or
+  `bench compile-po-to-mo --app card --force`) and `bench --site <site> clear-cache`, otherwise the
+  new labels show in English.
+
+### Compatibility
+- Frappe / ERPNext v16 (16.5x), as 1.2.0. No field is removed or renamed; only the labels of
+  `amount` on Project Diesel Fill / Equipment Transport change. The default monthly-card print format
+  stays "Card Monthly Card Print"; an existing site-level default is not overwritten.
+
+### Test evidence
+- CI green on every merged head (unit tests on Frappe 16.5x, pre-commit, Semgrep, CodeQL).
+- QA v16 bench, full suite on each final head: PR #22 259/259, PR #26 260/260, PR #27 268/268;
+  integrated main + all three: 280/280.
+- Real PDFs rendered with wkhtmltopdf 0.12.6 (Arabic, fictional data): customer-only card (6,000),
+  supplier card with additions/deductions over 31 days, sub-rental with mixed sides
+  (16,200→15,900 / 24,300→24,150), diesel fill, transport — all single page, no overlap.
+- Independent review of every PR, findings resolved before merge.
+
+### Known limitations
+- **Multi-company registry isolation is not resolved (#23, open).** *Card Equipment Supplier* /
+  *Customer* rows and their stored totals are per party across all companies. Reports and their
+  filters are company-scoped, but the registry totals are not — do not rely on them on a
+  multi-company site until #23 ships.
+- The reconciliation difference compares card nets **before VAT** with party GL totals that include
+  VAT, so it does not reach zero for VAT-registered parties (pre-existing; owner decision pending).
+- The legacy alternative print format «كارت تشغيل شهري» keeps pre-existing wkhtmltopdf layout
+  defects (overlapping header text); use the default "Card Monthly Card Print".
+- Amount in words uses the company's default currency (single-currency sites).
+
+> Published ≠ deployed: this release is not deployed to any production site.
+
 ## [1.2.0] — 2026-10-16
 
 First release since v1.0.1. The v1.1 line was developed and merged but **never tagged**; its
