@@ -121,6 +121,13 @@ def strip_ledger(columns, rows, summary, keys, tile_labels):
 	return columns, summary
 
 
+def _role_reads(doctype):
+	if frappe.session.user == "Administrator":
+		return True
+	perms = frappe.permissions.get_role_permissions(frappe.get_meta(doctype))
+	return bool(perms.get("read")) and "read" not in (perms.get("if_owner") or {})
+
+
 def readable_links(columns):
 	"""Link columns to a doctype the user cannot read become Data columns: the
 	value still shows, but the Desk does not try to resolve its title (Frappe
@@ -132,7 +139,7 @@ def readable_links(columns):
 			isinstance(column, dict)
 			and column.get("fieldtype") == "Link"
 			and column.get("options")
-			and not frappe.permissions.has_permission(column["options"], "read", print_logs=False)
+			and not _role_reads(column["options"])
 		):
 			column = {key: value for key, value in column.items() if key != "options"}
 			column["fieldtype"] = "Data"

@@ -513,6 +513,38 @@ class TestReportAccess(IntegrationTestCase):
 		execute()
 		self.assertEqual(frappe.db.count("Card Equipment Supplier", {"name": supplier}), 1)
 
+	def test_registry_follows_supplier_rename(self):
+		supplier = self._supplier("REN")
+		self._card(self._equipment("RN1", supplier=supplier), [10])
+		renamed = supplier + "-NEW"
+		frappe.rename_doc("Supplier", supplier, renamed, force=True)
+		self.assertFalse(frappe.db.exists("Card Equipment Supplier", supplier))
+		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", renamed, "supplier"), renamed)
+		names = [r[0] for r in api.card_suppliers_query("Card Equipment Supplier", "", "name", 0, 500, {})]
+		self.assertIn(renamed, names)
+
+	def test_registry_survives_supplier_merge(self):
+		keep = self._supplier("KEEP")
+		gone = self._supplier("GONE")
+		self._card(self._equipment("MG1", supplier=keep), [10])
+		self._card(self._equipment("MG2", supplier=gone), [10])
+		frappe.rename_doc("Supplier", gone, keep, merge=True, force=True)
+		self.assertFalse(frappe.db.exists("Card Equipment Supplier", gone))
+		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", keep, "card_count"), 2)
+
+	def test_backfill_realigns_a_misnamed_registry_row(self):
+		from card.patches.v1_2_1.ensure_party_registries import execute
+
+		supplier = self._supplier("MIS")
+		self._card(self._equipment("MS1", supplier=supplier), [10])
+		# what a rename before the hooks existed left behind: row name != party
+		frappe.db.sql(
+			"update `tabCard Equipment Supplier` set name = %s where name = %s", (supplier + "-OLD", supplier)
+		)
+		execute()
+		self.assertTrue(frappe.db.exists("Card Equipment Supplier", supplier))
+		self.assertFalse(frappe.db.exists("Card Equipment Supplier", supplier + "-OLD"))
+
 	def test_card_roles_gain_no_erpnext_grants(self):
 		frappe.set_user(self._user(["Card User"]))
 		for doctype in ("GL Entry", "Project", "Supplier", "Customer"):

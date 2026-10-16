@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt
 
+from card.party_registry import registry_row
 from card.report_access import assert_report_role, permitted_companies, query_companies
 from card.settings import setting
 
@@ -38,8 +39,13 @@ def recompute_supplier(supplier):
 		periods.append(str(c.year) + "-" + str(c.month).zfill(2))
 	periods = sorted(periods)
 
-	if frappe.db.exists("Card Equipment Supplier", supplier):
-		rec = frappe.get_doc("Card Equipment Supplier", supplier)
+	row = registry_row("Card Equipment Supplier", "supplier", supplier)
+	if row and row != supplier:
+		# a row left misnamed by an old rename: realign it to the party's name
+		frappe.rename_doc("Card Equipment Supplier", row, supplier, force=True, ignore_permissions=True)
+		row = supplier
+	if row:
+		rec = frappe.get_doc("Card Equipment Supplier", row)
 	else:
 		rec = frappe.new_doc("Card Equipment Supplier")
 		rec.supplier = supplier
@@ -149,8 +155,12 @@ def recompute_customer(customer):
 		periods.append(str(c.year) + "-" + str(c.month).zfill(2))
 	periods = sorted(periods)
 
-	if frappe.db.exists("Card Equipment Customer", customer):
-		rec = frappe.get_doc("Card Equipment Customer", customer)
+	row = registry_row("Card Equipment Customer", "customer", customer)
+	if row and row != customer:
+		frappe.rename_doc("Card Equipment Customer", row, customer, force=True, ignore_permissions=True)
+		row = customer
+	if row:
+		rec = frappe.get_doc("Card Equipment Customer", row)
 	else:
 		rec = frappe.new_doc("Card Equipment Customer")
 		rec.customer = customer
