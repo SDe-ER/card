@@ -24,7 +24,7 @@ def get_columns():
 		},
 		{"fieldname": "month", "label": _("Month"), "fieldtype": "Data", "width": 100},
 		{"fieldname": "litres", "label": _("Litres"), "fieldtype": "Float", "precision": 3, "width": 110},
-		{"fieldname": "amount", "label": _("Amount"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "amount", "label": _("Diesel cost"), "fieldtype": "Currency", "width": 120},
 	]
 
 

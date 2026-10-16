@@ -1989,3 +1989,12 @@ msgstr "مفتاح الترحيل"
 
 msgid "Posting DocType"
 msgstr "نوع مستند الترحيل"
+
+msgid "Fill amount"
+msgstr "قيمة التعبئة"
+
+msgid "Transport cost"
+msgstr "تكلفة النقل"
+
+msgid "Amount in words"
+msgstr "المبلغ كتابةً"

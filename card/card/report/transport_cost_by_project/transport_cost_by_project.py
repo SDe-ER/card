@@ -15,7 +15,7 @@ def get_columns():
 			"width": 200,
 		},
 		{"fieldname": "transports", "label": _("Transports"), "fieldtype": "Int", "width": 100},
-		{"fieldname": "amount", "label": _("Amount"), "fieldtype": "Currency", "width": 140},
+		{"fieldname": "amount", "label": _("Transport cost"), "fieldtype": "Currency", "width": 140},
 	]
 
 
