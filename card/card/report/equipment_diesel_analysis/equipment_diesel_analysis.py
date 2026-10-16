@@ -196,4 +196,4 @@ def execute(filters=None):
 		"Expected = operating hours x (daily diesel consumption / daily standard hours). "
 		"Actual = litres allocated from submitted diesel fills. Display only — no accounting."
 	)
-	return [readable_links(columns), rows, message, None, summary, True]
+	return [readable_links(columns, rows), rows, message, None, summary, True]

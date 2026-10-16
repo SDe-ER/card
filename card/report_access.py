@@ -128,12 +128,20 @@ def _role_reads(doctype):
 	return bool(perms.get("read")) and "read" not in (perms.get("if_owner") or {})
 
 
-def readable_links(columns):
+SHOW_TITLE_FOR = ("Project",)
+
+
+def readable_links(columns, rows=None):
 	"""Link columns to a doctype the user cannot read become Data columns: the
 	value still shows, but the Desk does not try to resolve its title (Frappe
 	then posts a permission message on every run) or open a record the user may
-	not see."""
+	not see. With ``rows``, a downgraded Project column shows the project's
+	name instead of its record name (PROJ-0001) — the title the Desk would have
+	resolved; the rows are already scoped to the user's company. Only Project:
+	supplier/customer values feed the summaries' statement drill-downs and are
+	named after the party already, and account-like codes must stay intact."""
 	result = []
+	downgraded = {}
 	for column in columns:
 		if (
 			isinstance(column, dict)
@@ -141,10 +149,33 @@ def readable_links(columns):
 			and column.get("options")
 			and not _role_reads(column["options"])
 		):
+			downgraded[column.get("fieldname")] = column["options"]
 			column = {key: value for key, value in column.items() if key != "options"}
 			column["fieldtype"] = "Data"
 		result.append(column)
+	downgraded = {field: dt for field, dt in downgraded.items() if dt in SHOW_TITLE_FOR}
+	if rows and downgraded:
+		_show_titles(rows, downgraded)
 	return result
+
+
+def _show_titles(rows, downgraded):
+	dict_rows = [row for row in rows if isinstance(row, dict)]
+	for field, doctype in downgraded.items():
+		title_field = frappe.get_meta(doctype).get_title_field()
+		if not field or not title_field or title_field == "name":
+			continue
+		names = list({row.get(field) for row in dict_rows if row.get(field)})
+		if not names:
+			continue
+		titles = dict(
+			frappe.get_all(
+				doctype, filters={"name": ["in", names]}, fields=["name", title_field], as_list=True
+			)
+		)
+		for row in dict_rows:
+			if titles.get(row.get(field)):
+				row[field] = titles[row[field]]
 
 
 def ledger_notice():

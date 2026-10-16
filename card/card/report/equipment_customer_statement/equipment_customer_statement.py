@@ -428,6 +428,6 @@ def execute(filters=None):
 			"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
 		).format(customer, start, end, frappe.utils.nowdate())
 
-	columns = readable_links(columns)
+	columns = readable_links(columns, data_rows)
 	data = [columns, data_rows, message, None, summary, True]
 	return data
