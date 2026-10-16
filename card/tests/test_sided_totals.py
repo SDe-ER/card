@@ -1,0 +1,108 @@
+# Copyright (c) 2026, SDCE and contributors
+# For license information, please see LICENSE
+"""#24: supplier and customer totals keep each side's additions/deductions.
+
+A sub-rental card bills a supplier (Purchase Invoice: net_amount) and a
+customer (Sales Invoice: customer_net_amount). The registries, summaries and
+statements used to fold every row into the supplier net and leave the customer
+side gross, so both reconciliations drifted from the invoices. All data is
+per-test and rolled back."""
+
+import frappe
+
+from card.api import recompute_customer, recompute_supplier
+from card.tests.test_controllers import _days
+from card.tests.test_customer import _CustomerCardsBase
+
+ADD, DED = "إضافة", "خصم"
+PERIOD = {"from_month": 9, "from_year": 2026, "to_month": 9, "to_year": 2026}
+
+
+def _run(module, filters):
+	execute = frappe.get_attr(f"card.card.report.{module}.{module}.execute")
+	columns, rows, _message, _chart, summary, _flag = execute(frappe._dict(filters))
+	return rows, summary
+
+
+def _tile(summary, label):
+	return next((i["value"] for i in summary if i["label"] == frappe._(label)), None)
+
+
+class TestSidedTotals(_CustomerCardsBase):
+	def setUp(self):
+		super().setUp()
+		# supplier 75/h x 48 h = 3,600 (+100 supplier addition) = 3,700
+		# customer 120/h x 48 h = 5,760 (-200 customer deduction) = 5,560
+		self.card = self._sub_card(
+			[(ADD, 100, "Supplier", "TEST-SIDED-S"), (DED, 200, "Customer", "TEST-SIDED-C")]
+		)
+
+	def _sub_card(self, adjustments):
+		c = frappe.new_doc("Card Monthly Card")
+		c.equipment = self._sub_rental().name
+		c.project = self.project
+		c.shift = "نهاري"
+		c.month = "09"
+		c.year = 2026
+		for row in _days([10, 10, 10, 10, 8]):
+			c.append("days", row)
+		for kind, amount, side, description in adjustments:
+			c.append(
+				"adjustments",
+				{"adjustment_type": kind, "amount": amount, "side": side, "description": description},
+			)
+		c.insert(ignore_permissions=True)
+		c.submit()
+		c.reload()
+		return c
+
+	def test_card_nets_are_the_invoice_figures(self):
+		self.assertEqual((self.card.amount, self.card.net_amount), (3600, 3700))
+		self.assertEqual((self.card.customer_amount, self.card.customer_net_amount), (5760, 5560))
+
+	def test_registries_keep_each_side(self):
+		recompute_supplier(self.supplier)
+		recompute_customer(self.customer)
+		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), 3700)
+		self.assertEqual(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), 5560)
+
+	def test_summaries_keep_each_side(self):
+		rows, _ = _run("equipment_suppliers_summary", {"company": self.company, **PERIOD})
+		row = next(r for r in rows if r.get("supplier") == self.supplier)
+		self.assertEqual(row["net"], 3700)
+		rows, _ = _run("equipment_customers_summary", {"company": self.company, **PERIOD})
+		row = next(r for r in rows if r.get("customer") == self.customer)
+		self.assertEqual(row["accrued"], 5560)
+
+	def test_statements_keep_each_side(self):
+		rows, summary = _run(
+			"equipment_supplier_statement",
+			{"company": self.company, "statement_type": "مورد", "supplier": self.supplier, **PERIOD},
+		)
+		card = next(r for r in rows if r.get("card") == self.card.name)
+		self.assertEqual((card["additions"], card["deductions"], card["net"]), (100, 0, 3700))
+		total = next(r for r in rows if r.get("row_id") == "TOTAL")
+		self.assertEqual(total["net"], 3700)
+
+		rows, summary = _run(
+			"equipment_customer_statement",
+			{"company": self.company, "customer": self.customer, **PERIOD},
+		)
+		card = next(r for r in rows if r.get("card") == self.card.name)
+		self.assertEqual(
+			(card["customer_amount"], card["additions"], card["deductions"], card["net"]),
+			(5760, 0, 200, 5560),
+		)
+		self.assertEqual(_tile(summary, "Total accrued (cards)"), 5560)
+		# nothing invoiced yet: the reconciliation difference is the customer net, not the gross
+		diff = _tile(summary, "Reconciliation difference")
+		if diff is not None:
+			self.assertEqual(diff, 5560)
+
+	def test_a_v1_1_row_without_side_counts_on_the_supplier_side(self):
+		from card.adjustments import sided_adjustments
+
+		row = self.card.adjustments[0]
+		frappe.db.set_value(row.doctype, row.name, "side", None, update_modified=False)
+		self.assertEqual(sided_adjustments([self.card.name], "Supplier"), {self.card.name: (100, 0)})
+		self.assertEqual(sided_adjustments([self.card.name], "Customer"), {self.card.name: (0, 200)})

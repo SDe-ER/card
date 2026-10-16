@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 
+from card.adjustments import sided_adjustments
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
@@ -78,8 +79,6 @@ def execute(filters=None):
 				"working_days",
 				"total_working_hours",
 				"amount",
-				"total_additions",
-				"total_deductions",
 				"docstatus",
 				"from_date",
 			],
@@ -101,6 +100,9 @@ def execute(filters=None):
 			eq_type[e.name] = e.equipment_type or ""
 	if filters.get("equipment_type"):
 		cards = [c for c in cards if eq_type.get(c.equipment) == filters.get("equipment_type")]
+
+	# supplier-side rows only: a sub-rental card's customer rows belong to the Sales Invoice
+	sided = sided_adjustments([c.name for c in cards], "Supplier")
 
 	# operating dates per card (hours > 0) -> distinct days per equipment, first/last date
 	card_dates = {}
@@ -174,8 +176,7 @@ def execute(filters=None):
 				for d in cd:
 					dates.add(d)
 				c_amount = 0 if owned else flt(c.amount, 2)
-				c_add = flt(c.total_additions, 2)
-				c_ded = flt(c.total_deductions, 2)
+				c_add, c_ded = sided.get(c.name, (0.0, 0.0))
 				c_net = 0 if owned else flt(c_amount + c_add - c_ded, 2)
 				hours = hours + flt(c.total_working_hours)
 				amount = amount + c_amount
