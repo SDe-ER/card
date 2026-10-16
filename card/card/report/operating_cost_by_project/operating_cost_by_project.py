@@ -69,4 +69,4 @@ def execute(filters=None):
 			}
 		)
 
-	return readable_links(get_columns()), data
+	return readable_links(get_columns(), data), data

@@ -421,6 +421,6 @@ def execute(filters=None):
 			"Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
 		).format(start, end)
 
-	columns = readable_links(columns)
+	columns = readable_links(columns, data_rows)
 	data = [columns, data_rows, message, None, summary, True]
 	return data

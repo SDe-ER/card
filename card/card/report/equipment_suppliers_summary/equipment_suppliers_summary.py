@@ -246,6 +246,6 @@ def execute(filters=None):
 		)
 		message = message + " " + ledger_notice()
 
-	columns = readable_links(columns)
+	columns = readable_links(columns, result)
 	data = [columns, result, message, None, summary, True]
 	return data

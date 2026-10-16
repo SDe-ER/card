@@ -139,4 +139,4 @@ def execute(filters=None):
 		"Expense lines on the CARD expense accounts with no Card Equipment dimension. "
 		"Fix them at the source document so the per-equipment P&L stays complete."
 	)
-	return [readable_links(columns), rows, message, None, summary, True]
+	return [readable_links(columns, rows), rows, message, None, summary, True]

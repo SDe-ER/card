@@ -15,7 +15,7 @@ from frappe.utils import flt
 from card import api
 from card.constants import DIR_RENTED_OUT, OWNED
 from card.diesel import allocate_project_diesel, project_operating_hours
-from card.report_access import can_view_ledger, permitted_companies
+from card.report_access import can_view_ledger, permitted_companies, readable_links
 from card.tests.test_controllers import _days, _ensure_masters
 from card.tests.test_customer_reports import _leaf
 
@@ -603,6 +603,32 @@ class TestReportAccess(IntegrationTestCase):
 		execute()
 		self.assertTrue(frappe.db.exists("Card Equipment Supplier", supplier))
 		self.assertFalse(frappe.db.exists("Card Equipment Supplier", supplier + "-OLD"))
+
+	def test_unreadable_project_column_shows_the_project_name(self):
+		# a project whose record name differs from its title (naming series)
+		code = "TEST-RACC-PCODE-" + self.token
+		project = frappe.get_doc(
+			{
+				"doctype": "Project",
+				"project_name": "TEST-RACC-PTITLE-" + self.token,
+				"status": "Open",
+				"company": self.company,
+			}
+		)
+		project.name = code
+		project.db_insert()
+		columns = [{"fieldname": "project", "fieldtype": "Link", "options": "Project"}]
+		rows = [{"project": code}, {"project": None}, ["a list row is left alone"]]
+		frappe.set_user(self._user(["Card User"]))
+		result = readable_links(columns, rows)
+		self.assertEqual(result[0]["fieldtype"], "Data")
+		self.assertEqual(rows[0]["project"], "TEST-RACC-PTITLE-" + self.token)
+		self.assertIsNone(rows[1]["project"])
+		# a reader keeps the Link column and the record name (the Desk resolves the title)
+		frappe.set_user("Administrator")
+		rows = [{"project": code}]
+		self.assertEqual(readable_links(columns, rows)[0]["fieldtype"], "Link")
+		self.assertEqual(rows[0]["project"], code)
 
 	def test_card_roles_gain_no_erpnext_grants(self):
 		frappe.set_user(self._user(["Card User"]))
