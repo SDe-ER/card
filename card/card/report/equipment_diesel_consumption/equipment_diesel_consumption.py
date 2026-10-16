@@ -35,7 +35,7 @@ def execute(filters=None):
 	# Display/costing only: never posts GL and never touches a card's net amount.
 	# Note: allocation is per whole calendar month; the date filter only selects which (project, month) pairs appear.
 	filters = frappe._dict(filters or {})
-	filters.company = resolve_company(filters)
+	filters.company = resolve_company(filters, "Project Diesel Fill")
 
 	fill_filters = [["docstatus", "=", 1]]
 	if filters.get("company"):
@@ -64,7 +64,7 @@ def execute(filters=None):
 	eq_filter = filters.get("equipment")
 	data = []
 	for project, month, year in sorted(periods, key=lambda p: (p[0], p[2], p[1])):
-		allocation = allocate_project_diesel(project, month, year, include_unallocated=True)
+		allocation = allocate_project_diesel(project, month, year, filters.company, include_unallocated=True)
 		for equipment in sorted(allocation):
 			if eq_filter and equipment != eq_filter:
 				continue

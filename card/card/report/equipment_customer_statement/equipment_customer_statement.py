@@ -24,7 +24,7 @@ def execute(filters=None):
 	no_customer = not customer
 	company = resolve_company(filters)
 	prefix = company + " — "
-	show_ledger = can_view_ledger()
+	show_ledger = can_view_ledger(company)
 
 	fm = cint(filters.get("from_month"))
 	fy = cint(filters.get("from_year"))

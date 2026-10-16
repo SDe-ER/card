@@ -23,7 +23,7 @@ def execute(filters=None):
 	# Report: "Transport Cost by Project" (Script Report, standard, ref doctype: Equipment Transport)
 	# Read-only. One row per project: number and total amount of SUBMITTED Equipment Transport docs in range.
 	filters = frappe._dict(filters or {})
-	filters.company = resolve_company(filters)
+	filters.company = resolve_company(filters, "Equipment Transport")
 
 	transport_filters = [["docstatus", "=", 1]]
 	if filters.get("company"):

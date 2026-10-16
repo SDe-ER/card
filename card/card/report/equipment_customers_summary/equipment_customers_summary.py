@@ -30,7 +30,7 @@ def execute(filters=None):
 	if end < start:
 		frappe.throw(_("Invalid period: end is before start"))
 	company = resolve_company(filters)
-	show_ledger = can_view_ledger()
+	show_ledger = can_view_ledger(company)
 
 	cf = [
 		["company", "=", company],

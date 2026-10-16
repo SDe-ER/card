@@ -1010,7 +1010,8 @@ class TestG0LifecycleDebt(_PostingBase):
 		)
 		posted = {i.card_equipment: flt(i.rate, 2) for i in pi.items if fill.name in i.description}
 		display = {
-			eq: flt(v["amount"], 2) for eq, v in allocate_project_diesel(self.project, 9, 2026).items()
+			eq: flt(v["amount"], 2)
+			for eq, v in allocate_project_diesel(self.project, 9, 2026, self.company).items()
 		}
 		self.assertEqual(posted, display)
 

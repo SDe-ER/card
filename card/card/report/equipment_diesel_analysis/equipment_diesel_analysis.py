@@ -77,7 +77,7 @@ def execute(filters=None):
 	def allocated(project, month, year, equipment):
 		ck = (project, month, year)
 		if ck not in alloc_cache:
-			alloc_cache[ck] = allocate_project_diesel(project, month, year)
+			alloc_cache[ck] = allocate_project_diesel(project, month, year, filters.company)
 		share = alloc_cache[ck].get(equipment) or {}
 		return flt(share.get("litres"))
 

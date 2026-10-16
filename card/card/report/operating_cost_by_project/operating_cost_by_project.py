@@ -51,7 +51,7 @@ def execute(filters=None):
 	# Read-only. Per project: SUBMITTED Project Diesel Fill amount + SUBMITTED Equipment Transport amount.
 	# Project totals come straight from the documents (no pro-rata allocation); display only, no GL.
 	filters = frappe._dict(filters or {})
-	filters.company = resolve_company(filters)
+	filters.company = resolve_company(filters, "Project Diesel Fill")
 
 	diesel = get_project_totals("Project Diesel Fill", filters)
 	transport = get_project_totals("Equipment Transport", filters)

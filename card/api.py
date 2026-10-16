@@ -293,10 +293,16 @@ def available_assets_query(
 	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict
 ):
 	"""Link-filter query for Card Equipment.الأصل_في_erpnext: submitted Assets of the
-	given company that are not Scrapped/Sold and not already linked to a Card Equipment."""
-	filters = filters or {}
-	if isinstance(filters, str):
-		filters = frappe.parse_json(filters)
+	given company that are not Scrapped/Sold and not already linked to a Card Equipment.
+	Only for users who may create or edit Card Equipment, and only within the
+	companies they may see for it."""
+	if not (
+		frappe.has_permission("Card Equipment", "create") or frappe.has_permission("Card Equipment", "write")
+	):
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	companies = query_companies(filters, "Card Equipment")
+	if not companies:
+		return []
 	like = "%" + (txt or "") + "%"
 	return frappe.db.sql(
 		"""
@@ -304,7 +310,7 @@ def available_assets_query(
 		from `tabAsset` a
 		where a.docstatus = 1
 		and a.status not in ('Scrapped', 'Sold')
-		and (%(company)s = '' or a.company = %(company)s)
+		and a.company in %(companies)s
 		and not exists (
 			select 1 from `tabCard Equipment` e
 			where e.`الأصل_في_erpnext` = a.name
@@ -314,7 +320,7 @@ def available_assets_query(
 		limit %(start)s, %(page_len)s
 		""",
 		{
-			"company": filters.get("company") or "",
+			"companies": companies,
 			"txt": like,
 			"start": frappe.utils.cint(start),
 			"page_len": frappe.utils.cint(page_len),

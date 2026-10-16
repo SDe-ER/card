@@ -24,9 +24,9 @@ def execute(filters=None):
 	flt = frappe.utils.flt
 
 	# a pure General Ledger listing: operational roles never reach it
-	if not can_view_ledger():
+	company = resolve_company(filters, "GL Entry")
+	if not can_view_ledger(company):
 		frappe.throw(_("This report requires General Ledger access."), frappe.PermissionError)
-	company = resolve_company(filters)
 
 	columns = [
 		{"fieldname": "posting_date", "label": _("Posting date"), "fieldtype": "Date", "width": 100},

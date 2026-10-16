@@ -22,7 +22,7 @@ def execute(filters=None):
 	no_supplier = stype == "مورد" and not supplier
 	_company = resolve_company(filters)
 	_prefix = _company + " — "
-	show_ledger = can_view_ledger()
+	show_ledger = can_view_ledger(_company)
 
 	fm = cint(filters.get("from_month"))
 	fy = cint(filters.get("from_year"))

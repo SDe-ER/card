@@ -40,26 +40,29 @@ def split_by_weights(amount, weights, precision=2):
 	return shares
 
 
-def project_operating_hours(project, month, year):
+def project_operating_hours(project, month, year, company):
 	"""{equipment: total operating hours} for one project + month across all
-	SUBMITTED Card Monthly Cards (all shifts). The allocation basis for
-	project-tank diesel — direct fills never influence these weights."""
+	SUBMITTED Card Monthly Cards (all shifts) of ONE company. The allocation
+	basis for project-tank diesel — direct fills never influence these weights.
+	``company`` is required: a project is not tied to one company, so an
+	unscoped read would weight one company's fill by another's equipment."""
 	rows = frappe.db.sql(
 		"""
 		select equipment, sum(total_working_hours) as hrs
 		from `tabCard Monthly Card`
-		where project = %s and month = %s and year = %s and docstatus = 1
+		where project = %s and month = %s and year = %s and company = %s and docstatus = 1
 		group by equipment
 		""",
-		(project, "%02d" % int(month), str(year)),
+		(project, "%02d" % int(month), str(year), company),
 		as_dict=True,
 	)
 	return {r.equipment: flt(r.hrs) for r in rows if flt(r.hrs) > 0}
 
 
-def allocate_project_diesel(project, month, year, include_unallocated=False):
+def allocate_project_diesel(project, month, year, company, include_unallocated=False):
 	"""Return {equipment: {"litres": float, "amount": float}} for one
-	project + month across all SUBMITTED Project Diesel Fills in that period.
+	project + month across all SUBMITTED Project Diesel Fills of ONE company in
+	that period (fills and hour weights both scoped to ``company``).
 	When include_unallocated is True, project-tank fills in a period with NO operating
 	hours accumulate under the UNALLOCATED key instead of being dropped."""
 	result = {}
@@ -73,11 +76,11 @@ def allocate_project_diesel(project, month, year, include_unallocated=False):
 		return result
 	month = "%02d" % int(month)
 	year = str(year)
-	hours_map = project_operating_hours(project, month, year)
+	hours_map = project_operating_hours(project, month, year, company)
 
 	fills = frappe.get_all(
 		"Project Diesel Fill",
-		filters={"project": project, "docstatus": 1},
+		filters={"project": project, "company": company, "docstatus": 1},
 		fields=["name", "card_equipment", "litres", "amount", "date"],
 	)
 	for f in fills:
@@ -109,7 +112,7 @@ def get_card_diesel(card: str):
 	frappe.has_permission("Card Monthly Card", "read", doc.name, throw=True)
 	if not (doc.project and doc.month and doc.year and doc.equipment):
 		return {"litres": 0.0, "amount": 0.0, "company_bears": False}
-	alloc = allocate_project_diesel(doc.project, doc.month, doc.year)
+	alloc = allocate_project_diesel(doc.project, doc.month, doc.year, doc.company)
 	share = alloc.get(doc.equipment, {"litres": 0.0, "amount": 0.0})
 	# flag when the company bears the fuel (الوقود_على = الشركة) → the diesel is our cost
 	fuel_on = frappe.db.get_value("Card Equipment", doc.equipment, "الوقود_على")

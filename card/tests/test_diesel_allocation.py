@@ -176,8 +176,12 @@ class TestDieselAllocation(IntegrationTestCase):
 		# project-tank fill in a project/month with NO submitted card hours
 		fill = self._make_fill(litres=250, unit_price=2)  # amount 500
 		# backward-compat: default call drops it
-		self.assertNotIn(UNALLOCATED, allocate_project_diesel(self.project, self.month_str, self.year_str))
-		alloc = allocate_project_diesel(self.project, self.month_str, self.year_str, include_unallocated=True)
+		self.assertNotIn(
+			UNALLOCATED, allocate_project_diesel(self.project, self.month_str, self.year_str, self.company)
+		)
+		alloc = allocate_project_diesel(
+			self.project, self.month_str, self.year_str, self.company, include_unallocated=True
+		)
 		self.assertIn(UNALLOCATED, alloc)
 		self.assertAlmostEqual(alloc[UNALLOCATED]["litres"], flt(fill.litres))
 		self.assertAlmostEqual(alloc[UNALLOCATED]["amount"], flt(fill.amount))

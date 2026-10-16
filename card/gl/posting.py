@@ -88,7 +88,7 @@ def _assert_identity(card, lines_total, expected, side_label):
 		)
 
 
-def _split_fill_by_allocation(fill, month, year):
+def _split_fill_by_allocation(fill, month, year, company):
 	"""[(card_equipment or None, amount)] for one diesel fill. A fill bound to
 	an equipment is one line; a project-tank fill is split per equipment
 	pro-rata by the project+month OPERATING HOURS (owner checkpoint C: direct
@@ -98,7 +98,7 @@ def _split_fill_by_allocation(fill, month, year):
 	amount = flt(fill.amount, 2)
 	if fill.card_equipment:
 		return [(fill.card_equipment, amount)]
-	hours = project_operating_hours(fill.project, month, year)
+	hours = project_operating_hours(fill.project, month, year, company)
 	# M6: ONE shared split rule for posting and display (card.diesel.split_by_weights)
 	shares = split_by_weights(amount, hours, 2)
 	if not shares:
@@ -308,7 +308,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
-			for equipment, amount in _split_fill_by_allocation(fill, int(month), int(year)):
+			for equipment, amount in _split_fill_by_allocation(fill, int(month), int(year), company):
 				lines.append(
 					{
 						"item_code": row.diesel_item,
