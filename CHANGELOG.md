@@ -37,7 +37,8 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
   split diesel lines state their own estimated litres share.
 - **Reconciliation in three separate figures** (statements and summaries, net before VAT): **invoiced
   through Card** (from Card's own posting trail), **not invoiced through Card** (card net − invoiced through
-  Card; cards in a Card draft invoice count here until it is submitted) and **ERPNext invoices outside
+  Card; cards in a Card draft invoice count here until it is submitted; under a project or equipment-type
+  filter only the shown cards' share of a Card invoice counts) and **ERPNext invoices outside
   Card — to reconcile** (submitted invoices of the party in the period that Card did not create). Invoices
   outside Card are shown for manual reconciliation only: never matched to cards by party and month, and no
   existing invoice, GL entry or amount is relinked or changed. GL figures stay as the VAT-inclusive balance.

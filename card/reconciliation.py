@@ -20,12 +20,13 @@ Three figures are kept apart (owner decision, PR #39):
   shown for manual reconciliation. They are never matched to cards by party and
   month, and nothing is relinked or rewritten.
 
-Scope: both invoice figures are per company, party and period. A report's
-project filter narrows the CARDS only — an invoice is not per project — so under
-a project filter "not invoiced through Card" compares the project's cards with
-the party's invoices (it can go negative). Cancelled invoices are excluded;
-returns / credit notes count with their sign (a credit note against Card's own
-invoice is not Card's, so it shows, negative, among the invoices outside Card)."""
+Scope: per company, party and period. "Invoiced through Card" counts only the
+posting sources of the cards the report shows, so under a project (or
+equipment type) filter a multi-project invoice is split by the cards it billed.
+ERPNext invoices outside Card stay per party — an invoice is not per project.
+Cancelled invoices are excluded; returns / credit notes count with their sign
+(a credit note against Card's own invoice is not Card's, so it shows, negative,
+among the invoices outside Card)."""
 
 import frappe
 from frappe import _
@@ -44,12 +45,17 @@ def reconciliation_notice():
 		+ _(
 			"ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
 		)
+		+ " "
+		+ _("They are per party for the whole period, whatever the project or equipment filter.")
 	)
 
 
-def cards_invoiced(party_type, parties, company, start, end):
+def cards_invoiced(party_type, parties, company, start, end, cards=None):
 	"""{party: Σ card net billed by SUBMITTED monthly invoices} for the card
-	months from ``start`` to ``end`` (inclusive)."""
+	months from ``start`` to ``end`` (inclusive). With ``cards`` (the card names
+	a report shows), only those cards' own posting sources count — so a report
+	narrowed by project or equipment type compares its cards with what Card
+	invoiced for THEM, never with a whole multi-project invoice."""
 	parties = [p for p in parties or [] if p]
 	if not parties:
 		return {}
@@ -73,6 +79,7 @@ def cards_invoiced(party_type, parties, company, start, end):
 	}
 	if not party_of:
 		return {}
+	shown = None if cards is None else set(cards)
 	result = {}
 	for row in frappe.get_all(
 		"GL Posting Source",
@@ -81,9 +88,11 @@ def cards_invoiced(party_type, parties, company, start, end):
 			"parenttype": "GL Posting Log",
 			"source_doctype": "Card Monthly Card",
 		},
-		fields=["parent", "amount"],
+		fields=["parent", "source_name", "amount"],
 		limit_page_length=0,
 	):
+		if shown is not None and row.source_name not in shown:
+			continue
 		party = party_of[row.parent]
 		result[party] = flt(result.get(party, 0) + flt(row.amount), 2)
 	return result

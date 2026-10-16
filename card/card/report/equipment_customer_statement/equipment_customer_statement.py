@@ -386,7 +386,12 @@ def execute(filters=None):
 			received = received + flt(g.credit)
 		closing = opening + invoiced - received
 		# like-for-like: card nets are before VAT; the invoiced debits include it
-		inv = flt(cards_invoiced("Customer", [customer], company, start, end).get(customer), 2)
+		inv = flt(
+			cards_invoiced("Customer", [customer], company, start, end, cards=[c.name for c in cards]).get(
+				customer
+			),
+			2,
+		)
 		diff = flt(grand["net"] - inv, 2)
 		outside = flt(invoices_outside_card("Customer", [customer], company, start, end).get(customer), 2)
 		summary = [

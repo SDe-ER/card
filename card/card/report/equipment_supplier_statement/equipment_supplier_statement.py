@@ -375,7 +375,12 @@ def execute(filters=None):
 			paid = paid + flt(g.debit)
 		closing = opening + accrued - paid
 		# like-for-like: card nets are before VAT; the accrual credits include it
-		inv = flt(cards_invoiced("Supplier", [supplier], _company, start, end).get(supplier), 2)
+		inv = flt(
+			cards_invoiced("Supplier", [supplier], _company, start, end, cards=[c.name for c in cards]).get(
+				supplier
+			),
+			2,
+		)
 		diff = flt(grand["net"] - inv, 2)
 		outside = flt(invoices_outside_card("Supplier", [supplier], _company, start, end).get(supplier), 2)
 		summary = [

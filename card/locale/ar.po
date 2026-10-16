@@ -2053,6 +2053,9 @@ msgstr "غير مفوتر عبر Card = صافي الكروت − المفوتر
 msgid "ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
 msgstr "فواتير ERPNext خارج Card تُعرض للمطابقة اليدوية ولا تُربط بالكروت تلقائيًا."
 
+msgid "They are per party for the whole period, whatever the project or equipment filter."
+msgstr "وهي على مستوى المورد أو العميل للفترة كلها، بغض النظر عن فلتر المشروع أو نوع المعدة."
+
 msgid "{0} {1}: cost center {2} cannot be used for company {3} (it must be an enabled, non-group cost center of that company)."
 msgstr "{0} {1}: مركز التكلفة {2} لا يصلح للشركة {3} (يجب أن يكون مركز تكلفة مفعّلاً وغير تجميعي تابعاً لتلك الشركة)."
 

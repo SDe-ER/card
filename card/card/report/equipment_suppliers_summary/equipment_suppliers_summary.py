@@ -116,7 +116,11 @@ def execute(filters=None):
 				x["paid"] = x["paid"] + flt(g.debit)
 
 	# like-for-like reconciliation: card nets are before VAT, GL credits include it
-	inv_net = cards_invoiced("Supplier", order, company, start, end) if show_ledger else {}
+	inv_net = (
+		cards_invoiced("Supplier", order, company, start, end, cards=[c.name for c in cards])
+		if show_ledger
+		else {}
+	)
 	# ERPNext invoices CARD did not create: shown apart, never matched to cards
 	outside = invoices_outside_card("Supplier", order, company, start, end) if show_ledger else {}
 
