@@ -46,7 +46,9 @@ def reconciliation_notice():
 			"ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
 		)
 		+ " "
-		+ _("They are per party for the whole period, whatever the project or equipment filter.")
+		+ _(
+			"ERPNext invoices outside Card are per party for the whole period, whatever the project or equipment filter."
+		)
 	)
 
 

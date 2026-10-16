@@ -380,8 +380,8 @@ class TestSourceCostCenterGuard(_PostingBase):
 
 class TestReconciliationEdgeCases(_ReconciliationBase):
 	"""PR #39 owner pre-merge tests: cancellation, returns / credit notes,
-	company isolation and the project filter — the reconciliation as designed,
-	no behaviour change."""
+	company isolation, and the project filter (a multi-project Card invoice is
+	split by the cards it billed; invoices outside Card stay per party)."""
 
 	OUTSIDE = "ERPNext invoices outside Card — to reconcile (net before VAT)"
 
@@ -589,3 +589,35 @@ class TestReconciliationEdgeCases(_ReconciliationBase):
 		self.assertEqual((only_b["invoiced_net"], only_b["diff"]), (0, 1600))
 		whole = self._supplier_summary_row()
 		self.assertEqual((whole["invoiced_net"], whole["diff"]), (10277.81, 1600))
+
+	def test_customer_side_multi_project_invoice_is_split_too(self):
+		eq_a = self._rented_out(customer_rate=1000)  # project A: 16h -> 1,600
+		self._card(eq_a, [8, 8], submit=True)
+		project_b = self._second_project()
+		eq_b = self._rented_out(customer_rate=500)  # project B: 16h -> 800
+		self._card(eq_b, [8, 8], submit=True, project=project_b)
+		si = frappe.get_doc(
+			"Sales Invoice", build_monthly_posting(self.company, "Customer", self.customer, 9, 2026)
+		)
+		si.submit()
+		self.assertEqual(flt(si.net_total, 2), 2400)
+		from card.card.report.equipment_customers_summary.equipment_customers_summary import execute
+
+		def row_for(project=None):
+			_c, rows, _m, _ch, _s, _f = execute(
+				frappe._dict(
+					company=self.company,
+					from_month=9,
+					from_year=2026,
+					to_month=9,
+					to_year=2026,
+					project=project,
+				)
+			)
+			return next(r for r in rows if r.get("customer") == self.customer)
+
+		for project, accrued in ((None, 2400), (self.project, 1600), (project_b, 800)):
+			row = row_for(project)
+			self.assertEqual(
+				(row["accrued"], row["invoiced_net"], row["diff"]), (accrued, accrued, 0), project
+			)
