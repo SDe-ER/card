@@ -1,236 +1,146 @@
 <div align="center">
 
-<img src="card/public/images/card-logo.svg" alt="CARD logo" height="96">
+<img src="card/public/images/card-logo.svg" alt="CARD application logo" height="92">
 
-<h1>CARD</h1>
+# CARD
 
-**Equipment rental and operation cards for ERPNext**
+**Equipment operations, rentals and monthly cards for ERPNext**
 
-إدارة المعدات وكروت التشغيل الشهرية
+**إدارة المعدات والإيجارات وكروت التشغيل الشهرية**
 
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
-![Release](https://img.shields.io/badge/release-v1.2.1-1F876C)
-![Frappe](https://img.shields.io/badge/frappe-v16-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+[![Release](https://img.shields.io/github/v/release/SDe-ER/card?label=release)](https://github.com/SDe-ER/card/releases)
+![Frappe v16](https://img.shields.io/badge/Frappe-v16-blue)
+[![MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-<br>
+**[Documentation portal source](https://github.com/SDe-ER/card-docs)** · **[Releases](https://github.com/SDe-ER/card/releases)** · **[Changelog](CHANGELOG.md)** · **[Report an issue](https://github.com/SDe-ER/card/issues)**
 
-<img src=".github/images/card-landing.png" alt="CARD workspace" width="90%">
-
-<br>
-
-[Features](#key-features) · [Installation](#installation) · [Development](#development) · [Releases](#release-history) · [Contributing](#contributing)
+<img src=".github/images/card-landing.png" alt="CARD workspace using fictional demonstration data" width="90%">
 
 </div>
 
----
+> [!IMPORTANT]
+> **Release is not deployment.** A GitHub release does not establish what is installed on any ERPNext site. Verify the site's installed app version and deployed commit before upgrading. Features on `main` may not be included in the latest release.
 
-## What is CARD
+## Overview
 
-CARD is a standalone Frappe application for contractors that own and rent heavy equipment. It tracks every machine, assigns it to projects, records daily operating hours on a monthly card, and turns that card into a supplier-ready amount with additions and deductions.
+CARD is a standalone [Frappe Framework](https://frappeframework.com) application integrated with ERPNext for contractors managing owned and rented heavy equipment. It connects equipment, project assignments, daily operating hours, supplier costs, customer revenue and accounting-ready records without maintaining a separate general ledger.
 
-CARD follows the same design principles as Frappe HR: one master record per asset (like **Employee**), one transaction per period (like **Salary Slip**), and everything linked to ERPNext's Company, Project and Supplier.
+**Who it serves:** equipment operators, project teams, procurement, commercial teams and accountants. **Where it runs:** a compatible Frappe/ERPNext v16 bench.
 
-## Key Features
+## Explore CARD
 
-<details open>
-<summary><b>Equipment master</b></summary>
+| Area | What it does | Guide |
+| --- | --- | --- |
+| Equipment | Owned/rented equipment, types, categories, rental direction and standard hours | [Equipment guide](https://github.com/SDe-ER/card-docs/blob/main/docs/en/user-guide/equipment.md) |
+| Assignments | Equipment-to-project/site assignments with date ranges and overlap controls | [Documentation index](https://github.com/SDe-ER/card-docs) |
+| Monthly cards | Day status, operating hours, additions, deductions and supplier/customer amounts | [Monthly cards](https://github.com/SDe-ER/card-docs/blob/main/docs/en/user-guide/monthly-cards.md) |
+| Suppliers & customers | Party registries, statements and summary reports | [Supplier guide](https://github.com/SDe-ER/card-docs/blob/main/docs/en/user-guide/suppliers.md) |
+| Diesel & transport | Project fills, allocation analysis, transport pricing and operational reporting | [Diesel analysis](https://github.com/SDe-ER/card-docs/blob/main/docs/en/reports/diesel-analysis.md) |
+| Accounting | Equipment dimension, guard reports and **opt-in** draft invoice generation for accountant review | [Monthly posting](https://github.com/SDe-ER/card-docs/blob/main/docs/en/accounting/monthly-posting.md) |
+| Administration | Per-company settings, roles, reporting access and period controls | [Card Settings](https://github.com/SDe-ER/card-docs/blob/main/docs/en/administration/card-settings.md) |
 
-- **Card Equipment** with type, category, ownership (owned or rented), owner/supplier and company.
-- **Card Equipment Type** and **Card Equipment Category** for clean classification.
-- Standard daily hours per equipment, used to prorate daily rates.
+<div align="center">
+<img src=".github/images/card-equipment.png" alt="Equipment master" width="46%">
+<img src=".github/images/card-monthly-card.png" alt="Monthly operation card" width="46%">
+</div>
 
-<img src=".github/images/card-equipment.png" alt="Card Equipment" width="85%">
-</details>
+### How the workflow fits together
 
-<details open>
-<summary><b>Project assignment</b></summary>
-
-- **Card Equipment Assignment** links a machine to a project and site for a period.
-- Prevents a machine from being double-counted across projects.
-</details>
-
-<details open>
-<summary><b>Monthly operation card</b></summary>
-
-- **Card Monthly Card** per equipment, shift and month, with a day-by-day grid (date, weekday, day status, operating hours, stoppage).
-- Automatic totals: working days, total operating hours, amount, additions, deductions and **net amount**.
-- Validations: one card per equipment, shift and month; every day must fall inside the card month.
-- Owned equipment produces no supplier amount; rented equipment syncs to its supplier on submit.
-
-<img src=".github/images/card-monthly-card.png" alt="Card Monthly Card" width="85%">
-</details>
-
-<details open>
-<summary><b>Suppliers and reports</b></summary>
-
-- **Card Equipment Supplier** with running balances.
-- **Equipment Suppliers Summary** and **Equipment Supplier Statement** reports.
-- Workspace with number cards (rented equipment, draft cards, last month amounts, last month cards) and a monthly amounts chart.
-
-<img src=".github/images/supplier-statement.png" alt="Equipment Supplier Statement" width="85%">
-</details>
-
-<details open>
-<summary><b>Rental directions &amp; the customer side</b></summary>
-
-- Every equipment carries a **rental direction**: rented from a supplier, rented out to a customer, sub-rental (both sides on one card), or internal operation. The form shows only the side that applies.
-- **Card Equipment Customer** registry mirrors the supplier registry; **Equipment Customer Statement** and **Equipment Customers Summary** read the official receivables only — CARD never keeps a parallel ledger.
-- Cards are **hours entry only**: equipment, shift, month, year and the driver — everything else (project, company, direction, parties, rates) flows in automatically and sits in a collapsed info section.
-
-<img src=".github/images/equipment-direction.png" alt="Rental direction on the equipment" width="85%">
-<img src=".github/images/card-entry.png" alt="Fast monthly card entry" width="85%">
-</details>
-
-<details open>
-<summary><b>Diesel &amp; transport management</b></summary>
-
-- Per-company diesel litre price; a **diesel supplier policy** (fixed supplier enforced on every fill, or variable behind a permitted role).
-- Per-project **transport prices** defaulting every Equipment Transport, change-gated by role.
-- **Equipment Diesel Analysis**: expected litres (from each machine's daily consumption) vs actually allocated litres, with variance per equipment, project and month.
-
-<img src=".github/images/diesel-analysis.png" alt="Equipment Diesel Analysis" width="85%">
-</details>
-
-<details open>
-<summary><b>Accounting on official ERPNext documents</b></summary>
-
-- A non-mandatory **Card Equipment accounting dimension** on the GL-bearing ERPNext doctypes: per-equipment General Ledger, Trial Balance, P&amp;L and Balance Sheet with the standard reports — including the depreciation path from linked Assets.
-- Guard report **Equipment Expenses Without Equipment** catches expense lines that missed the dimension.
-- Period lock, role model (**Card Manager** / **Card User** / Accounts Manager read), and a per-company settings page keep policies in one place.
-- **Note:** users running the supplier/customer statement reports also need a standard ERPNext role with read access to Supplier/Customer (e.g. **Accounts User**) — Frappe validates report link-filters against those doctypes, and CARD does not modify ERPNext doctype permissions.
-</details>
-
-<details open>
-<summary><b>Professional print formats</b></summary>
-
-- RTL Arabic-first print formats for the monthly card, diesel fill and transport — header, logo and company details pulled from the system, applied automatically on print.
-
-<img src=".github/images/print-card.png" alt="Monthly card print format" width="85%">
-</details>
-
-### Billing rule (rate bases)
-
-CARD bills by actual operating hours on any of three bases, on both the supplier (cost) and customer (revenue) sides:
-
-```
-hourly  : hourly_rate = rate
-daily   : hourly_rate = rate / standard_daily_hours
-monthly : hourly_rate = rate / standard_month_hours   (default 260 = 26 days × 10 h)
-
-amount      = total_operating_hours × hourly_rate
-net_amount  = amount + total_additions − total_deductions
+```text
+Equipment master → Project assignment → Monthly operation card
+                                            ├─ Supplier costs / statements
+                                            ├─ Customer revenue / statements
+                                            └─ Optional draft ERPNext invoices → Accountant review
+Diesel fills / transport ──────────────────→ Project and equipment cost analysis
 ```
 
-Example: daily rate 600, standard day 10 hours, 88 operating hours → 88 × 60 = **5,280**.
+### Billing, in brief
 
-## Under the Hood
+Both supplier and customer billing use **recorded operating hours**, with three supported rate bases:
 
-CARD is built on the [Frappe Framework](https://frappeframework.com) and runs alongside these open-source applications:
+| Rate basis | Effective hourly rate |
+| --- | --- |
+| Hourly | `rate` |
+| Daily | `rate / standard_daily_hours` |
+| Monthly | `rate / standard_month_hours` |
 
-| Dependency | Role | Tested with |
-|---|---|---|
-| [Frappe Framework](https://github.com/frappe/frappe) | Full-stack web framework | 16.51.1 |
-| [ERPNext](https://github.com/frappe/erpnext) | Company, Project, Supplier, accounting | 16.50.0 |
-| [Frappe HR](https://github.com/frappe/hrms) | Optional, for HR-linked workflows | 16.50.0 |
+`amount = total_operating_hours × effective_hourly_rate`
 
-Runtime: Python 3.14, Node.js 24, MariaDB 10.6, Redis.
+`net = amount + applicable_additions − applicable_deductions`
 
-> CARD is an independent product of Shams Dubai Contracting Est. (SDCE). It is not developed, endorsed or maintained by Frappe Technologies.
+For example, a daily rate of 600 with a 10-hour standard day and 88 actual hours yields **5,280** before applicable adjustments and tax. **Daily-rate billing is hours-prorated, not full-day billing.** Supplier and customer adjustments are calculated separately.
 
-## Installation
+## Release and feature status
 
-### Bench
+| Status | Meaning |
+| --- | --- |
+| **Released** | Included in a published, tagged CARD release; not proof of production deployment |
+| **Main only** | Merged into `main`, but not part of the latest release |
+| **In development** | Being built or reviewed; not shipped |
+| **Design only** | Proposed or approved architecture, not implemented |
+
+Use the [release notes](https://github.com/SDe-ER/card/releases), [CHANGELOG](CHANGELOG.md) and the [version-aware documentation source](https://github.com/SDe-ER/card-docs) together. Do not interpret future design pages as available features.
+
+> [!WARNING]
+> **Known limitations:** Multi-company supplier/customer registry totals are not fully isolated ([#23](https://github.com/SDe-ER/card/issues/23)). The pre-VAT card-to-VAT-inclusive-GL reconciliation difference also requires attention. See the [v1.2.1 changelog](CHANGELOG.md#121--2026-10-16) and open issues before multi-company or accounting use. Accounting posting is disabled until explicitly configured per company; generated invoices are drafts, not submitted invoices.
+
+## Requirements and compatibility
+
+| Component | Supported/tested reference |
+| --- | --- |
+| Frappe Framework | v16; tested with 16.51.1 |
+| ERPNext | v16; tested with 16.50.0 |
+| Frappe HR | Optional; tested with 16.50.0 |
+| Runtime used in tests | Python 3.14, Node.js 24, MariaDB 10.6, Redis |
+
+The exact compatible versions and migration requirements depend on the release. Check the [release notes](https://github.com/SDe-ER/card/releases) before installation.
+
+## Installation and upgrade
+
+**For a reproducible release installation**, use a specific reviewed tag rather than tracking `main`:
 
 ```bash
 cd frappe-bench
-bench get-app https://github.com/SDe-ER/card --branch main
+bench get-app https://github.com/SDe-ER/card --branch v1.2.1
 bench --site your-site.local install-app card
-bench --site your-site.local migrate
 ```
 
-### Docker (frappe_docker)
+The installation command is for a **new development/test site**, not an instruction to upgrade production. For an existing site, take a full backup, rehearse migration on a restored copy, verify the exact target commit and follow the [upgrade guide](https://github.com/SDe-ER/card-docs/blob/main/docs/en/deployment/upgrade.md). Docker installations require a custom image containing CARD; see the documentation and your deployment procedure.
 
-Add CARD to your `apps.json` and build a custom image:
+**Developer checkout:** `bench get-app https://github.com/SDe-ER/card --branch main` is for development, not a pinned production release.
 
-```json
-[
-  { "url": "https://github.com/frappe/erpnext", "branch": "version-16" },
-  { "url": "https://github.com/SDe-ER/card", "branch": "main" }
-]
-```
-
-```bash
-docker build \
-  --build-arg APPS_JSON_BASE64=$(base64 -w 0 apps.json) \
-  --tag your-registry/erp:card-v1.2.1 \
-  --file images/custom/Containerfile .
-```
-
-Then deploy the image and run:
-
-```bash
-bench --site your-site.local install-app card
-bench --site your-site.local migrate
-```
-
-### Upgrading
-
-Always take a full backup and run `bench migrate` on a restored copy of production first. CARD ships idempotent patches; a migrate that fails on the copy must never be run on production.
-
-## Development
-
-```bash
-bench get-app https://github.com/SDe-ER/card --branch main
-bench new-site card.localhost --install-app erpnext
-bench --site card.localhost install-app card
-bench --site card.localhost set-config developer_mode 1
-bench start
-```
-
-Run the tests:
+## Development and quality
 
 ```bash
 bench --site card.localhost set-config allow_tests true
 bench --site card.localhost run-tests --app card
+pre-commit run --all-files
 ```
 
-Code style is enforced with `pre-commit` (ruff, prettier, semgrep). Commits follow [Conventional Commits](https://www.conventionalcommits.org).
+Use a configured **non-production** development site. Follow [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, PR conventions, code review and CI. Do not change Frappe/ERPNext core; business rules belong in the app's server-side code.
 
-## Release History
+## Documentation
 
-| Version | Date | Highlights |
-|---|---|---|
-| **v1.2.1** | 2026-10-16 | Operational roles run filtered reports without ERPNext grants; monthly-card print shows each billed side's gross, adjustments and net before VAT (customer card net 6,000 instead of 0); diesel/transport money labels and Arabic amount in words; supplier and customer totals keep each side's adjustments. Multi-company registry isolation (#23) still open. |
-| **v1.2.0** | 2026-10-16 | Everything from the v1.1 line (English-source i18n with full Arabic translation, Desk connections, workspace polish, heatmaps) plus rental directions with hours-only cards, customer registry and statements, Card Settings per company with Card Manager / Card User roles, diesel and transport management, three rate bases, the Card Equipment accounting dimension, period lock, RTL print formats, opt-in monthly draft supplier/customer postings, and company-scoped reports with ledger figures limited to General Ledger users. |
-| _v1.1_ | _not released_ | Developed and merged, never tagged — its content ships in v1.2.0. |
-| **v1.0.1** | 2026-10-13 | Workspace moved to module `Card`; Frappe 16.50 sidebar migrated with all items; legacy `Card (Custom)` module retired; `net_amount` backfilled for cards submitted before v1.0. |
-| **v1.0.0** | 2026-10-13 | First standalone release: equipment master, assignments, monthly cards, suppliers, reports and workspace. |
+The **application source of truth** lives here in `SDe-ER/card`; the **documentation source of truth** lives in **[SDe-ER/card-docs](https://github.com/SDe-ER/card-docs)**.
 
-Full notes: [CHANGELOG.md](CHANGELOG.md) · [Releases](https://github.com/SDe-ER/card/releases)
+- [English documentation index](https://github.com/SDe-ER/card-docs/blob/main/docs/en/index.md) · [فهرس التوثيق العربي](https://github.com/SDe-ER/card-docs/blob/main/docs/ar/index.md)
+- [Installation](https://github.com/SDe-ER/card-docs/blob/main/docs/en/getting-started/install.md) · [Administration](https://github.com/SDe-ER/card-docs/blob/main/docs/en/administration/card-settings.md) · [Accounting](https://github.com/SDe-ER/card-docs/blob/main/docs/en/accounting/monthly-posting.md)
+- [Reports](https://github.com/SDe-ER/card-docs/tree/main/docs/en/reports) · [API](https://github.com/SDe-ER/card-docs/blob/main/docs/en/api/posting-endpoints.md) · [Troubleshooting](https://github.com/SDe-ER/card-docs/blob/main/docs/en/troubleshooting/posting-refusals.md)
 
-## Contributing
+The documentation portal's publication is independently controlled. These source links work without assuming a public website is deployed or available.
 
-1. Open an issue describing the bug or feature.
-2. Create a branch, add tests, and keep `pre-commit` green.
-3. Open a pull request with a Conventional Commits title.
+## Project information
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+| Resource | Link |
+| --- | --- |
+| Release history | [Releases](https://github.com/SDe-ER/card/releases) / [CHANGELOG](CHANGELOG.md) |
+| Contributing | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Code of conduct | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
+| Security reports | [SECURITY.md](SECURITY.md) — private disclosure to **info@sdce.sa** |
+| License | [MIT](LICENSE) |
+| Documentation contributions | [card-docs/CONTRIBUTING.md](https://github.com/SDe-ER/card-docs/blob/main/CONTRIBUTING.md) |
 
-## Security
+CARD is an independent product of **Shams Dubai Contracting Est. (SDCE)**, not developed, endorsed or maintained by Frappe Technologies. Frappe, ERPNext and Frappe HR names are used solely to describe compatibility. CARD branding belongs to SDCE.
 
-Please report vulnerabilities privately to **info@sdce.sa**. Do not open public issues for security reports. See [SECURITY.md](SECURITY.md).
-
-## License
-
-MIT © 2026 Shams Dubai Contracting Est. (SDCE). See [LICENSE](LICENSE).
-
-## Logo and Trademark Policy
-
-The CARD name and logo belong to SDCE. "Frappe", "ERPNext" and "Frappe HR" are trademarks of Frappe Technologies Pvt. Ltd. and are used here only to describe compatibility, in line with the [ERPNext trademark policy](https://github.com/frappe/erpnext/blob/develop/TRADEMARK_POLICY.md).
-
-<br>
-
-<div align="center">
-<sub>Screenshots use fictional demo data.</sub>
-</div>
+<div align="center"><sub>Illustrations and screenshots use fictional demonstration data.</sub></div>
