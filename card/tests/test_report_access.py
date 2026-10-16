@@ -323,6 +323,11 @@ class TestReportAccess(IntegrationTestCase):
 			with self.assertRaises(frappe.PermissionError, msg=module):
 				_run(module, {**period, **extra, "company": self.other})
 
+	def test_ledger_follows_gl_entry_user_permissions(self):
+		frappe.set_user(self._user(["Accounts Manager"], restrict_to=self.company, applicable_for="GL Entry"))
+		self.assertTrue(can_view_ledger(self.company))
+		self.assertFalse(can_view_ledger(self.other))
+
 	def test_user_permission_honours_applicable_for(self):
 		frappe.set_user(self._user(["Card User"], restrict_to=self.company, applicable_for="Sales Invoice"))
 		self.assertIn(self.other, permitted_companies())
@@ -340,6 +345,10 @@ class TestReportAccess(IntegrationTestCase):
 		eq_b = self._equipment("D2")
 		self._move_to_other(self._card(eq_b, [10]))
 		self._fill(100, 1)
+		other_fill = self._fill(40, 1)
+		frappe.db.set_value(
+			"Project Diesel Fill", other_fill.name, "company", self.other, update_modified=False
+		)
 		self.assertEqual(set(project_operating_hours(self.project, 9, 2026, self.company)), {eq_a.name})
 		alloc = allocate_project_diesel(self.project, "09", "2026", self.company)
 		self.assertEqual(set(alloc), {eq_a.name})
@@ -393,7 +402,7 @@ class TestReportAccess(IntegrationTestCase):
 		self.assertIn(self.project, [r.get("value") for r in found])
 		frappe.local.request = frappe._dict(method="POST")
 		validated = validate_link_and_fetch("Project", self.project, query=query, filters=filters)
-		self.assertTrue(validated)
+		self.assertEqual(validated.get("name"), self.project)
 
 	def test_card_roles_gain_no_erpnext_grants(self):
 		frappe.set_user(self._user(["Card User"]))

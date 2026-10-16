@@ -8,7 +8,7 @@ from card.settings import setting
 
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
-	filters.company = resolve_company(filters)
+	filters.company = resolve_company(filters, "Card Monthly Card", "Project Diesel Fill")
 	# Report: "Equipment Diesel Analysis" (F.2). Read-only, no accounting.
 	# Per equipment x project x month: expected litres = operating hours x
 	# (daily_diesel_consumption / daily standard hours) vs the litres actually

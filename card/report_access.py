@@ -29,29 +29,44 @@ def assert_report_role():
 	"Role Permission for Page and Report" override, via Report.is_permitted)."""
 	if frappe.session.user == "Administrator":
 		return
-	for name in frappe.get_all("Report", filters={"module": "Card"}, pluck="name"):
-		if frappe.get_cached_doc("Report", name).is_permitted():
+	reports = frappe.get_all(
+		"Report", filters={"module": "Card", "is_standard": "Yes", "disabled": 0}, pluck="name"
+	)
+	for name in reports:
+		report = frappe.get_cached_doc("Report", name)
+		# a report saved without roles is open to everyone in Frappe; it must not
+		# open the CARD queries
+		if report.roles and report.is_permitted():
 			return
 	frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 
-def permitted_companies(doctype=CARD_DOCTYPE):
-	"""Companies the session user may see for ``doctype``, sorted. A User
-	Permission on Company counts when it applies to every doctype or to this one."""
-	entries = [
-		entry
-		for entry in frappe.permissions.get_user_permissions(frappe.session.user).get("Company") or []
-		if not entry.get("applicable_for") or entry.get("applicable_for") == doctype
-	]
-	if entries:
-		return sorted({entry.get("doc") for entry in entries})
-	return frappe.get_all("Company", pluck="name", order_by="name")
+def permitted_companies(*doctypes):
+	"""Companies the session user may see for EVERY one of ``doctypes`` (default:
+	Card Monthly Card), sorted. A User Permission on Company counts for a doctype
+	when it applies to every doctype or to that one; a report reading several
+	doctypes gets the intersection."""
+	entries = frappe.permissions.get_user_permissions(frappe.session.user).get("Company") or []
+	every = None
+	result = None
+	for doctype in doctypes or (CARD_DOCTYPE,):
+		scoped = {
+			entry.get("doc")
+			for entry in entries
+			if not entry.get("applicable_for") or entry.get("applicable_for") == doctype
+		}
+		if not scoped:
+			if every is None:
+				every = set(frappe.get_all("Company", pluck="name"))
+			scoped = every
+		result = scoped if result is None else result & scoped
+	return sorted(result)
 
 
-def resolve_company(filters, doctype=CARD_DOCTYPE):
-	"""The single company a report runs for; refuses one the user may not see.
-	Defaults are used only when the user may see them."""
-	allowed = permitted_companies(doctype)
+def resolve_company(filters, *doctypes):
+	"""The single company a report runs for; refuses one the user may not see for
+	any of the report's ``doctypes``. Defaults are used only when permitted."""
+	allowed = permitted_companies(*doctypes)
 	company = (filters or {}).get("company")
 	if not company:
 		for default in (

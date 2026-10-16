@@ -35,7 +35,7 @@ def execute(filters=None):
 	# Display/costing only: never posts GL and never touches a card's net amount.
 	# Note: allocation is per whole calendar month; the date filter only selects which (project, month) pairs appear.
 	filters = frappe._dict(filters or {})
-	filters.company = resolve_company(filters, "Project Diesel Fill")
+	filters.company = resolve_company(filters, "Project Diesel Fill", "Card Monthly Card")
 
 	fill_filters = [["docstatus", "=", 1]]
 	if filters.get("company"):

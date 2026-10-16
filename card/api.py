@@ -296,9 +296,9 @@ def available_assets_query(
 	given company that are not Scrapped/Sold and not already linked to a Card Equipment.
 	Only for users who may create or edit Card Equipment, and only within the
 	companies they may see for it."""
-	if not (
-		frappe.has_permission("Card Equipment", "create") or frappe.has_permission("Card Equipment", "write")
-	):
+	# role permissions only: a shared Card Equipment must not open the Asset list
+	perms = frappe.permissions.get_role_permissions(frappe.get_meta("Card Equipment"))
+	if frappe.session.user != "Administrator" and not (perms.get("create") or perms.get("write")):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	companies = query_companies(filters, "Card Equipment")
 	if not companies:
