@@ -6,16 +6,23 @@ rows hold the old party-wide (cross-company) counts, totals and months — and a
 form load returns recent Versions to any user who may open the party.
 
 Owner decision (PR #39): delete ONLY the registry Versions that carry one of
-the legacy aggregate fields (a Version mixing identity and aggregate changes is
-deleted whole: it cannot be trimmed without rewriting history). Identity-only
-registry history and every other doctype's history are kept. A Version whose
-data cannot be parsed is deleted only if it names an aggregate field. Idempotent."""
+the legacy aggregate FIGURES — months, counts, hours, totals (a Version mixing
+identity and figure changes is deleted whole: it cannot be trimmed without
+rewriting history). Identity-only history, refresh-timestamp-only history
+(``last_refreshed`` holds no company figure) and every other doctype's history
+are kept. A Version whose data cannot be parsed is deleted only if it names a
+figure field. Idempotent."""
 
 import json
 
 import frappe
 
 from card.patches.v1_2_2.clear_registry_aggregates import FIELDS
+
+# the cleared registry fields that held party-wide (cross-company) figures
+FIGURE_FIELDS = {
+	registry: tuple(f for f in fields if f != "last_refreshed") for registry, fields in FIELDS.items()
+}
 
 
 def carries_aggregates(data, fields):
@@ -28,7 +35,7 @@ def carries_aggregates(data, fields):
 
 
 def execute():
-	for registry, fields in FIELDS.items():
+	for registry, fields in FIGURE_FIELDS.items():
 		doomed = [
 			v.name
 			for v in frappe.get_all(

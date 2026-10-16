@@ -202,6 +202,9 @@ class TestSidedTotals(_CustomerCardsBase):
 				sup, self.supplier, {"changed": [["supplier_name", "A", "B"], ["card_count", 1, 2]]}
 			),
 			"customer aggregate": self._version(cus, self.customer, {"changed": [["total_accrued", 0, 9]]}),
+			"timestamp + figure": self._version(
+				sup, self.supplier, {"changed": [["last_refreshed", "a", "b"], ["total_hours", 1, 2]]}
+			),
 			"customer months": self._version(
 				cus, self.customer, {"changed": [["first_month", None, "2026-09"]]}
 			),
@@ -215,6 +218,12 @@ class TestSidedTotals(_CustomerCardsBase):
 				cus, self.customer, {"changed": [["customer_name", "X", "Y"]]}
 			),
 			"insert record": self._version(sup, self.supplier, {"creation": "2026-09-01 10:00:00"}),
+			# what production holds today: refresh timestamps only, no company figure
+			"refresh timestamp only": self._version(
+				sup,
+				self.supplier,
+				{"changed": [["last_refreshed", "2026-10-12 13:32:38", "2026-10-12 13:32:41"]]},
+			),
 			"figure name only as a value": self._version(
 				sup, self.supplier, {"changed": [["supplier_name", "total_net", "card_count"]]}
 			),
