@@ -1963,6 +1963,21 @@ msgstr "البُعد المحاسبي «معدة كارت» غير موجود أ
 msgid "The {0} field is missing on {1}; re-run the Card Equipment dimension setup before posting."
 msgstr "الحقل {0} غير موجود على {1}؛ أعد تنفيذ إعداد بُعد معدة كارت قبل الترحيل."
 
+msgid "Ledger balances are shown only to users with General Ledger access."
+msgstr "أرصدة دفتر الأستاذ تظهر فقط للمستخدمين الذين لديهم صلاحية الاطلاع على دفتر الأستاذ العام."
+
+msgid "You are not permitted to view data of company {0}"
+msgstr "غير مسموح لك بالاطلاع على بيانات الشركة {0}"
+
+msgid "This report requires General Ledger access."
+msgstr "هذا التقرير يتطلب صلاحية الاطلاع على دفتر الأستاذ العام."
+
+msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}."
+msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}."
+
+msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}."
+msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}."
+
 msgid "Party type"
 msgstr "نوع الطرف"
 

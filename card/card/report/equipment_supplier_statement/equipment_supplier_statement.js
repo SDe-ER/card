@@ -44,6 +44,15 @@
 	frappe.query_reports["Equipment Supplier Statement"] = {
 		filters: [
 			{
+				fieldname: "company",
+				label: __("Company"),
+				fieldtype: "Link",
+				options: "Company",
+				reqd: 1,
+				default: frappe.defaults.get_user_default("Company"),
+				get_query: () => ({ query: "card.api.card_companies_query" }),
+			},
+			{
 				fieldname: "statement_type",
 				label: __("Statement type"),
 				fieldtype: "Select",
@@ -55,7 +64,10 @@
 				fieldtype: "Link",
 				options: "Supplier",
 				depends_on: "eval:doc.statement_type=='مورد'",
-				get_query: () => ({ query: "card.api.card_suppliers_query" }),
+				get_query: () => ({
+					query: "card.api.card_suppliers_query",
+					filters: { company: frappe.query_report.get_filter_value("company") },
+				}),
 			},
 			{
 				fieldname: "from_month",
@@ -81,7 +93,16 @@
 				reqd: 1,
 			},
 			{ fieldname: "to_year", label: __("To year"), fieldtype: "Int", default: py, reqd: 1 },
-			{ fieldname: "project", label: __("Project"), fieldtype: "Link", options: "Project" },
+			{
+				fieldname: "project",
+				label: __("Project"),
+				fieldtype: "Link",
+				options: "Project",
+				get_query: () => ({
+					query: "card.api.card_projects_query",
+					filters: { company: frappe.query_report.get_filter_value("company") },
+				}),
+			},
 			{
 				fieldname: "equipment",
 				label: __("Equipment"),

@@ -44,6 +44,15 @@
 	frappe.query_reports["Equipment Customers Summary"] = {
 		filters: [
 			{
+				fieldname: "company",
+				label: __("Company"),
+				fieldtype: "Link",
+				options: "Company",
+				reqd: 1,
+				default: frappe.defaults.get_user_default("Company"),
+				get_query: () => ({ query: "card.api.card_companies_query" }),
+			},
+			{
 				fieldname: "from_month",
 				label: __("From month"),
 				fieldtype: "Select",
@@ -67,7 +76,16 @@
 				reqd: 1,
 			},
 			{ fieldname: "to_year", label: __("To year"), fieldtype: "Int", default: py, reqd: 1 },
-			{ fieldname: "project", label: __("Project"), fieldtype: "Link", options: "Project" },
+			{
+				fieldname: "project",
+				label: __("Project"),
+				fieldtype: "Link",
+				options: "Project",
+				get_query: () => ({
+					query: "card.api.card_projects_query",
+					filters: { company: frappe.query_report.get_filter_value("company") },
+				}),
+			},
 		],
 		after_datatable_render: card_rtl_datatable,
 		formatter(value, row, column, data, default_formatter) {
@@ -83,6 +101,7 @@
 					to_month: f.to_month,
 					to_year: f.to_year,
 				});
+				if (f.company) q.set("company", f.company);
 				if (f.project) q.set("project", f.project);
 				return `<a href="/desk/query-report/Equipment Customer Statement?${q.toString()}"><b>${value}</b></a>`;
 			}

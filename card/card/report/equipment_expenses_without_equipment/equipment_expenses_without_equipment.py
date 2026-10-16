@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 
 from card.dimension import DIMENSION_FIELD, gl_has_dimension_field
+from card.report_access import can_view_ledger, resolve_company
 
 # The CARD-mapped expense account fields on Card Company Settings (owner O3
 # amendment 4: the account list comes from settings, never hardcoded).
@@ -21,6 +22,11 @@ def execute(filters=None):
 	# it returns a translated message, never a traceback.
 
 	flt = frappe.utils.flt
+
+	# a pure General Ledger listing: operational roles never reach it
+	company = resolve_company(filters, "GL Entry")
+	if not can_view_ledger(company):
+		frappe.throw(_("This report requires General Ledger access."), frappe.PermissionError)
 
 	columns = [
 		{"fieldname": "posting_date", "label": _("Posting date"), "fieldtype": "Date", "width": 100},
@@ -67,10 +73,6 @@ def execute(filters=None):
 			[],
 			True,
 		]
-
-	company = filters.get("company") or frappe.defaults.get_global_default("company")
-	if not company:
-		frappe.throw(_("Select a company"))
 
 	row = frappe.db.get_value(
 		"Card Company Settings",

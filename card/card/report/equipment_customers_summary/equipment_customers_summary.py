@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
+from card.report_access import can_view_ledger, ledger_notice, resolve_company, strip_ledger
 from card.settings import setting
 
 
@@ -28,8 +29,11 @@ def execute(filters=None):
 	end = frappe.utils.get_last_day(getdate(str(ty) + "-" + str(tm).zfill(2) + "-01"))
 	if end < start:
 		frappe.throw(_("Invalid period: end is before start"))
+	company = resolve_company(filters)
+	show_ledger = can_view_ledger(company)
 
 	cf = [
+		["company", "=", company],
 		["from_date", ">=", start],
 		["from_date", "<=", end],
 		["docstatus", "=", 1],
@@ -92,10 +96,11 @@ def execute(filters=None):
 	gl = {}
 	for s in order:
 		gl[s] = {"opening": 0.0, "invoiced": 0.0, "received": 0.0}
-	if order:
+	if order and show_ledger:
 		for g in frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", company],
 				["party_type", "=", "Customer"],
 				["party", "in", order],
 				["is_cancelled", "=", 0],
@@ -230,11 +235,23 @@ def execute(filters=None):
 			"indicator": "Orange",
 		},
 	]
-	company = frappe.defaults.get_global_default("company") or ""
-	prefix = (company + " — ") if company else ""
-	message = prefix + _(
-		"Equipment customers summary — Period from {0} to {1}. Click on the customer name to open their statement."
-	).format(start, end)
+	message = (
+		company
+		+ " — "
+		+ _(
+			"Equipment customers summary — Period from {0} to {1}. Click on the customer name to open their statement."
+		).format(start, end)
+	)
+
+	if not show_ledger:
+		columns, summary = strip_ledger(
+			columns,
+			result,
+			summary,
+			("invoiced", "diff", "opening", "received", "closing"),
+			(_("Reconciliation difference"), _("Total customer balances")),
+		)
+		message = message + " " + ledger_notice()
 
 	data = [columns, result, message, None, summary, True]
 	return data

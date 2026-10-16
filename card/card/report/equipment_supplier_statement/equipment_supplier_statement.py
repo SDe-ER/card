@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 
+from card.report_access import can_view_ledger, ledger_notice, resolve_company
 from card.settings import setting
 
 
@@ -19,8 +20,9 @@ def execute(filters=None):
 	stype = filters.get("statement_type") or setting("default_statement_type")
 	supplier = filters.get("supplier")
 	no_supplier = stype == "مورد" and not supplier
-	_company = frappe.defaults.get_global_default("company") or ""
-	_prefix = (_company + " — ") if _company else ""
+	_company = resolve_company(filters)
+	_prefix = _company + " — "
+	show_ledger = can_view_ledger(_company)
 
 	fm = cint(filters.get("from_month"))
 	fy = cint(filters.get("from_year"))
@@ -41,6 +43,7 @@ def execute(filters=None):
 		statuses = [0, 1]
 
 	cf = [
+		["company", "=", _company],
 		["from_date", ">=", start],
 		["from_date", "<=", end],
 		["docstatus", "in", statuses],
@@ -315,11 +318,30 @@ def execute(filters=None):
 	message = None
 	if no_supplier:
 		message = _("Select a supplier to display the statement.")
+	elif not owned and not show_ledger:
+		summary = [
+			*summary,
+			{
+				"label": _("Net cards"),
+				"value": flt(grand["net"], 2),
+				"datatype": "Currency",
+				"indicator": "Green",
+			},
+		]
+		message = (
+			_prefix
+			+ _("Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}.").format(
+				supplier, start, end, frappe.utils.nowdate()
+			)
+			+ " "
+			+ ledger_notice()
+		)
 	elif not owned:
 		# supplier GL: credit = accrual (liability up), debit = payment (liability down)
 		gl_open = frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", _company],
 				["party_type", "=", "Supplier"],
 				["party", "=", supplier],
 				["is_cancelled", "=", 0],
@@ -331,6 +353,7 @@ def execute(filters=None):
 		gl_period = frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", _company],
 				["party_type", "=", "Supplier"],
 				["party", "=", supplier],
 				["is_cancelled", "=", 0],

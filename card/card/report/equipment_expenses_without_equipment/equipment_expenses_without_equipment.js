@@ -7,6 +7,7 @@ frappe.query_reports["Equipment Expenses Without Equipment"] = {
 			label: __("Company"),
 			fieldtype: "Link",
 			options: "Company",
+			get_query: () => ({ query: "card.api.card_companies_query" }),
 			default: frappe.defaults.get_user_default("Company"),
 			reqd: 1,
 		},

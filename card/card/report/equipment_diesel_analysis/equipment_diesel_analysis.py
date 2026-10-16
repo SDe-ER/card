@@ -2,11 +2,13 @@ import frappe
 from frappe import _
 
 from card.diesel import allocate_project_diesel
+from card.report_access import resolve_company
 from card.settings import setting
 
 
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
+	filters.company = resolve_company(filters, "Card Monthly Card", "Project Diesel Fill")
 	# Report: "Equipment Diesel Analysis" (F.2). Read-only, no accounting.
 	# Per equipment x project x month: expected litres = operating hours x
 	# (daily_diesel_consumption / daily standard hours) vs the litres actually
@@ -31,6 +33,7 @@ def execute(filters=None):
 		frappe.throw(_("Invalid period: end is before start"))
 
 	cf = [
+		["company", "=", filters.company],
 		["from_date", ">=", start],
 		["from_date", "<=", end],
 		["docstatus", "=", 1],
@@ -74,7 +77,7 @@ def execute(filters=None):
 	def allocated(project, month, year, equipment):
 		ck = (project, month, year)
 		if ck not in alloc_cache:
-			alloc_cache[ck] = allocate_project_diesel(project, month, year)
+			alloc_cache[ck] = allocate_project_diesel(project, month, year, filters.company)
 		share = alloc_cache[ck].get(equipment) or {}
 		return flt(share.get("litres"))
 

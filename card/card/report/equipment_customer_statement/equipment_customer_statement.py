@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
+from card.report_access import can_view_ledger, ledger_notice, resolve_company
 from card.settings import setting
 
 
@@ -21,8 +22,9 @@ def execute(filters=None):
 
 	customer = filters.get("customer")
 	no_customer = not customer
-	company = frappe.defaults.get_global_default("company") or ""
-	prefix = (company + " — ") if company else ""
+	company = resolve_company(filters)
+	prefix = company + " — "
+	show_ledger = can_view_ledger(company)
 
 	fm = cint(filters.get("from_month"))
 	fy = cint(filters.get("from_year"))
@@ -43,6 +45,7 @@ def execute(filters=None):
 		statuses = [0, 1]
 
 	cf = [
+		["company", "=", company],
 		["from_date", ">=", start],
 		["from_date", "<=", end],
 		["docstatus", "in", statuses],
@@ -297,11 +300,30 @@ def execute(filters=None):
 	message = None
 	if no_customer:
 		message = _("Select a customer to display the statement.")
+	elif not show_ledger:
+		summary = [
+			*summary,
+			{
+				"label": _("Total accrued (cards)"),
+				"value": flt(grand["amount"], 2),
+				"datatype": "Currency",
+				"indicator": "Green",
+			},
+		]
+		message = (
+			prefix
+			+ _("Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}.").format(
+				customer, start, end, frappe.utils.nowdate()
+			)
+			+ " "
+			+ ledger_notice()
+		)
 	else:
 		# customer GL (official AR): debit = invoice (receivable up), credit = receipt (receivable down)
 		gl_open = frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", company],
 				["party_type", "=", "Customer"],
 				["party", "=", customer],
 				["is_cancelled", "=", 0],
@@ -313,6 +335,7 @@ def execute(filters=None):
 		gl_period = frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", company],
 				["party_type", "=", "Customer"],
 				["party", "=", customer],
 				["is_cancelled", "=", 0],
