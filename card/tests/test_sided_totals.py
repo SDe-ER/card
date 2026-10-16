@@ -106,3 +106,51 @@ class TestSidedTotals(_CustomerCardsBase):
 		frappe.db.set_value(row.doctype, row.name, "side", None, update_modified=False)
 		self.assertEqual(sided_adjustments([self.card.name], "Supplier"), {self.card.name: (100, 0)})
 		self.assertEqual(sided_adjustments([self.card.name], "Customer"), {self.card.name: (0, 200)})
+
+	def test_totals_equal_what_the_invoices_bill(self):
+		# posting._card_lines builds the PI/SI lines of one card and side; its lines
+		# minus the Net Total discount are the invoice net before VAT
+		from card.gl.posting import _card_lines
+
+		row = frappe._dict(
+			rental_item="X",
+			rental_out_item="X",
+			equipment_rental_expense_account="X",
+			equipment_rental_income_account="X",
+		)
+		billed = {}
+		for side in ("Supplier", "Customer"):
+			_doc, lines, discount = _card_lines(self.card.name, side, row, {})
+			billed[side] = sum(line["rate"] for line in lines) - discount
+		recompute_supplier(self.supplier)
+		recompute_customer(self.customer)
+		self.assertEqual(
+			frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), billed["Supplier"]
+		)
+		self.assertEqual(
+			frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), billed["Customer"]
+		)
+
+	def test_reports_stay_scoped_to_the_company(self):
+		other = "TEST-SIDED-CO-" + self.token
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": other,
+				"abbr": "S" + self.token[:6].upper(),
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
+		)
+		co.name = other
+		co.db_insert()
+		moved = self._sub_card([(DED, 50, "Customer", "TEST-SIDED-OTHER")])
+		frappe.db.set_value("Card Monthly Card", moved.name, "company", other, update_modified=False)
+		rows, _ = _run("equipment_suppliers_summary", {"company": self.company, **PERIOD})
+		self.assertEqual(next(r for r in rows if r.get("supplier") == self.supplier)["net"], 3700)
+		rows, _ = _run("equipment_customers_summary", {"company": self.company, **PERIOD})
+		self.assertEqual(next(r for r in rows if r.get("customer") == self.customer)["accrued"], 5560)
+		rows, _ = _run(
+			"equipment_customer_statement", {"company": self.company, "customer": self.customer, **PERIOD}
+		)
+		self.assertNotIn(moved.name, [r.get("card") for r in rows])
