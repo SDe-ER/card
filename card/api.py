@@ -3,6 +3,7 @@
 
 import frappe
 from frappe import _
+from frappe.model.rename_doc import rename_doc
 from frappe.utils import cint, flt
 
 from card.party_registry import registry_row
@@ -42,7 +43,7 @@ def recompute_supplier(supplier):
 	row = registry_row("Card Equipment Supplier", "supplier", supplier)
 	if row and row != supplier:
 		# a row left misnamed by an old rename: realign it to the party's name
-		frappe.rename_doc("Card Equipment Supplier", row, supplier, force=True, ignore_permissions=True)
+		rename_doc("Card Equipment Supplier", row, supplier, force=True, ignore_permissions=True)
 		row = supplier
 	if row:
 		rec = frappe.get_doc("Card Equipment Supplier", row)
@@ -157,7 +158,7 @@ def recompute_customer(customer):
 
 	row = registry_row("Card Equipment Customer", "customer", customer)
 	if row and row != customer:
-		frappe.rename_doc("Card Equipment Customer", row, customer, force=True, ignore_permissions=True)
+		rename_doc("Card Equipment Customer", row, customer, force=True, ignore_permissions=True)
 		row = customer
 	if row:
 		rec = frappe.get_doc("Card Equipment Customer", row)

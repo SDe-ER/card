@@ -12,6 +12,7 @@ always carry its party's current name.
   blocking the ERPNext merge); B's row is recomputed afterwards."""
 
 import frappe
+from frappe.model.rename_doc import rename_doc
 
 REGISTRIES = {
 	"Supplier": "Card Equipment Supplier",
@@ -28,7 +29,7 @@ def before_rename(doc, method, old, new, merge=False):
 def after_rename(doc, method, old, new, merge=False):
 	registry = REGISTRIES[doc.doctype]
 	if old != new and frappe.db.exists(registry, old):
-		frappe.rename_doc(registry, old, new, force=True, ignore_permissions=True, show_alert=False)
+		rename_doc(registry, old, new, force=True, ignore_permissions=True, show_alert=False)
 	if merge:
 		recompute(doc.doctype, new)
 
