@@ -3,7 +3,7 @@ from frappe import _
 
 from card.adjustments import sided_adjustments
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
-from card.reconciliation import cards_invoiced
+from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
@@ -388,6 +388,7 @@ def execute(filters=None):
 		# like-for-like: card nets are before VAT; the invoiced debits include it
 		inv = flt(cards_invoiced("Customer", [customer], company, start, end).get(customer), 2)
 		diff = flt(grand["net"] - inv, 2)
+		outside = flt(invoices_outside_card("Customer", [customer], company, start, end).get(customer), 2)
 		summary = [
 			*summary,
 			{
@@ -403,16 +404,22 @@ def execute(filters=None):
 				"indicator": "Blue",
 			},
 			{
-				"label": _("Cards invoiced (net before VAT)"),
+				"label": _("Invoiced through Card (net before VAT)"),
 				"value": inv,
 				"datatype": "Currency",
 				"indicator": "Blue",
 			},
 			{
-				"label": _("Reconciliation difference"),
+				"label": _("Not invoiced through Card"),
 				"value": diff,
 				"datatype": "Currency",
 				"indicator": "Green" if abs(diff) < flt(setting("reconciliation_tolerance")) else "Red",
+			},
+			{
+				"label": _("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+				"value": outside,
+				"datatype": "Currency",
+				"indicator": "Orange" if outside else "Green",
 			},
 			{
 				"label": _("Opening balance"),
@@ -433,9 +440,14 @@ def execute(filters=None):
 				"indicator": "Orange" if closing > 0 else "Green",
 			},
 		]
-		message = prefix + _(
-			"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included); reconciliation difference = accrued cards − cards invoiced (net before VAT)."
-		).format(customer, start, end, frappe.utils.nowdate())
+		message = (
+			prefix
+			+ _(
+				"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+			).format(customer, start, end, frappe.utils.nowdate())
+			+ " "
+			+ reconciliation_notice()
+		)
 
 	columns = readable_links(columns, data_rows)
 	data = [columns, data_rows, message, None, summary, True]

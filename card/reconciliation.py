@@ -10,12 +10,34 @@ type Card Monthly Card on logs whose invoice is SUBMITTED, for the company,
 party and card months of the period. Each row's amount is exactly the card net
 the invoice billed (posting asserts it), so the difference is 0 once every card
 of the period is invoiced. The GL figures stay in the reports as the official
-balance, VAT included."""
+balance, VAT included.
+
+Three figures are kept apart (owner decision, PR #39):
+- invoiced through CARD — ``cards_invoiced``;
+- not invoiced through CARD — card net minus the above (cards in a CARD draft
+  invoice stay here until the invoice is submitted);
+- ERPNext invoices of the party made outside CARD — ``invoices_outside_card``,
+  shown for manual reconciliation. They are never matched to cards by party and
+  month, and nothing is relinked or rewritten."""
 
 import frappe
+from frappe import _
 from frappe.utils import cint, flt, getdate
 
 POSTING_TYPE = {"Supplier": "Purchase Invoice", "Customer": "Sales Invoice"}
+PARTY_FIELD = {"Supplier": "supplier", "Customer": "customer"}
+
+
+def reconciliation_notice():
+	return (
+		_(
+			"Not invoiced through Card = card net − invoiced through Card; a card in a Card draft invoice counts here until the invoice is submitted."
+		)
+		+ " "
+		+ _(
+			"ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
+		)
+	)
 
 
 def cards_invoiced(party_type, parties, company, start, end):
@@ -57,4 +79,43 @@ def cards_invoiced(party_type, parties, company, start, end):
 	):
 		party = party_of[row.parent]
 		result[party] = flt(result.get(party, 0) + flt(row.amount), 2)
+	return result
+
+
+def invoices_outside_card(party_type, parties, company, start, end):
+	"""{party: Σ net before VAT (company currency) of the SUBMITTED ERPNext
+	invoices dated in the period that CARD did not create} — every invoice no
+	GL Posting Log points to, whatever it bills. For manual reconciliation only."""
+	parties = [p for p in parties or [] if p]
+	if not parties:
+		return {}
+	doctype = POSTING_TYPE[party_type]
+	party_field = PARTY_FIELD[party_type]
+	invoices = frappe.get_all(
+		doctype,
+		filters={
+			"company": company,
+			party_field: ["in", parties],
+			"docstatus": 1,
+			"posting_date": ["between", [getdate(start), getdate(end)]],
+		},
+		fields=["name", party_field, "base_net_total"],
+		limit_page_length=0,
+	)
+	if not invoices:
+		return {}
+	card_made = set(
+		frappe.get_all(
+			"GL Posting Log",
+			filters={"posting_doctype": doctype, "posting_doc": ["in", [i.name for i in invoices]]},
+			pluck="posting_doc",
+			limit_page_length=0,
+		)
+	)
+	result = {}
+	for inv in invoices:
+		if inv.name in card_made:
+			continue
+		party = inv.get(party_field)
+		result[party] = flt(result.get(party, 0) + flt(inv.base_net_total), 2)
 	return result

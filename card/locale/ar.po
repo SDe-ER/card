@@ -723,8 +723,8 @@ msgstr "طريقة الحساب"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:347
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:203
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:213
-msgid "Reconciliation difference"
-msgstr "فرق المطابقة"
+msgid "Not invoiced through Card"
+msgstr "غير مفوتر عبر Card"
 
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:9
 msgid "Refresh numbers"
@@ -1750,14 +1750,14 @@ msgstr "نوع الوردية"
 msgid "Diesel supplier policy is fixed; set the diesel supplier."
 msgstr "سياسة مورد الديزل ثابتة؛ حدد مورد الديزل."
 
-msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included); reconciliation difference = accrued cards − cards invoiced (net before VAT)."
-msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)؛ فرق المطابقة = المستحق من الكروت − الكروت المفوترة (الصافي قبل الضريبة)."
+msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)."
 
 msgid "Equipment customers summary — Period from {0} to {1}. Click on the customer name to open their statement."
 msgstr "ملخص عملاء المعدات — الفترة من {0} إلى {1}. اضغط على اسم العميل لفتح كشف حسابه."
 
-msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included); reconciliation difference = net cards − cards invoiced (net before VAT)."
-msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)؛ فرق المطابقة = صافي الكروت − الكروت المفوترة (الصافي قبل الضريبة)."
+msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)."
 
 msgid "Equipment suppliers summary — Period from {0} to {1}. Click on the supplier name to open their statement."
 msgstr "ملخص موردي المعدات — الفترة من {0} إلى {1}. اضغط على اسم المورد لفتح كشف حسابه."
@@ -2041,8 +2041,17 @@ msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} م�
 msgid "Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
 msgstr "تعبئة ديزل {0} — {1} لتر حصة تقديرية من {2} لتر (توزيع بالساعات)"
 
-msgid "Cards invoiced (net before VAT)"
-msgstr "الكروت المفوترة (الصافي قبل الضريبة)"
+msgid "Invoiced through Card (net before VAT)"
+msgstr "مفوتر عبر Card (الصافي قبل الضريبة)"
+
+msgid "ERPNext invoices outside Card — to reconcile (net before VAT)"
+msgstr "فواتير ERPNext خارج Card — تحتاج مطابقة (الصافي قبل الضريبة)"
+
+msgid "Not invoiced through Card = card net − invoiced through Card; a card in a Card draft invoice counts here until the invoice is submitted."
+msgstr "غير مفوتر عبر Card = صافي الكروت − المفوتر عبر Card؛ والكارت الموجود في مسودة فاتورة من Card يُحسب هنا لحين اعتماد الفاتورة."
+
+msgid "ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
+msgstr "فواتير ERPNext خارج Card تُعرض للمطابقة اليدوية ولا تُربط بالكروت تلقائيًا."
 
 msgid "{0} {1}: cost center {2} cannot be used for company {3} (it must be an enabled, non-group cost center of that company)."
 msgstr "{0} {1}: مركز التكلفة {2} لا يصلح للشركة {3} (يجب أن يكون مركز تكلفة مفعّلاً وغير تجميعي تابعاً لتلك الشركة)."

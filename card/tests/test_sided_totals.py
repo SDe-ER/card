@@ -95,7 +95,7 @@ class TestSidedTotals(_CustomerCardsBase):
 		)
 		self.assertEqual(_tile(summary, "Total accrued (cards)"), 5560)
 		# nothing invoiced yet: the reconciliation difference is the customer net, not the gross
-		self.assertEqual(_tile(summary, "Reconciliation difference"), 5560)
+		self.assertEqual(_tile(summary, "Not invoiced through Card"), 5560)
 
 	def test_a_v1_1_row_without_side_counts_on_the_supplier_side(self):
 		from card.adjustments import sided_adjustments

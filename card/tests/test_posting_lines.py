@@ -247,7 +247,12 @@ class TestReconciliationCategories(_PostingBase):
 		self.assertEqual(
 			tiles[frappe._("ERPNext invoices outside Card — to reconcile (net before VAT)")], 4000
 		)
-		self.assertIn(frappe._("Not matched automatically"), msg)
+		self.assertIn(
+			frappe._(
+				"ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
+			),
+			msg,
+		)
 		row = self._summary_row("equipment_suppliers_summary", "supplier", self.supplier)
 		self.assertEqual((row["invoiced_net"], row["diff"], row["external_net"]), (0, 10277.81, 4000))
 
