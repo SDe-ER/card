@@ -91,22 +91,44 @@ class TestSettingsPermlevel(IntegrationTestCase):
 		self.assertEqual(frappe.db.get_single_value("Card Settings", "reconciliation_tolerance"), tolerance)
 
 	def test_restricted_accounts_manager_cannot_touch_another_companys_row(self):
+		"""Refused — by Frappe's User Permission check on the child rows' Company
+		links (Frappe 16 checks them on the parent's write) and, as a second
+		layer, by CardSettings._validate_company_scope. Known limitation: while
+		rows of other companies exist, a company-restricted Accounts Manager
+		cannot save Card Settings at all; an unrestricted accountant maintains
+		them."""
 		other = self._other_company()
 		self._ensure_row(self.company)
+		self._ensure_row(other)
+		before = frappe.db.get_value(
+			"Card Company Settings", {"parent": "Card Settings", "company": other}, "cost_center"
+		)
+		frappe.set_user(self._accounts_manager(restrict_to=self.company))
+		settings = frappe.get_doc("Card Settings")
+		row = next(r for r in settings.company_settings if r.company == other)
+		row.cost_center = self._leaf_cost_center(self.company)
+		with self.assertRaises(frappe.PermissionError):
+			settings.save()
+		settings = frappe.get_doc("Card Settings")
+		settings.company_settings = [r for r in settings.company_settings if r.company != other]
+		with self.assertRaises(frappe.PermissionError):
+			settings.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(
+			frappe.db.get_value(
+				"Card Company Settings", {"parent": "Card Settings", "company": other}, "cost_center"
+			),
+			before,
+		)
+
+	def test_company_scope_check_is_a_second_layer(self):
+		"""CardSettings._validate_company_scope on its own (Frappe's link check
+		bypassed with ignore_permissions, as a script or another app might)."""
+		other = self._other_company()
 		self._ensure_row(other)
 		frappe.set_user(self._accounts_manager(restrict_to=self.company))
 		settings = frappe.get_doc("Card Settings")
 		row = next(r for r in settings.company_settings if r.company == other)
 		row.cost_center = self._leaf_cost_center(self.company)
 		with self.assertRaisesRegex(frappe.PermissionError, "not permitted to change the Card settings"):
-			settings.save()
-		# removing the other company's row is refused too
-		settings = frappe.get_doc("Card Settings")
-		settings.company_settings = [r for r in settings.company_settings if r.company != other]
-		with self.assertRaises(frappe.PermissionError):
-			settings.save()
-		# their own company's row is fine
-		settings = frappe.get_doc("Card Settings")
-		row = next(r for r in settings.company_settings if r.company == self.company)
-		row.cost_center = self._leaf_cost_center(self.company)
-		settings.save()
+			settings.save(ignore_permissions=True)
