@@ -203,45 +203,7 @@ class CardEquipment(Document):
 		if before and not self.has_value_changed("is_unit") and not self._company_changed():
 			if [row.component for row in before.get("components") or []] == components:
 				return
-		if components and not self.is_unit:
-			frappe.throw(_("Only a unit can list components."))
-		if self.is_unit and self.name:
-			parent = frappe.db.get_value(
-				"Card Equipment Component", {"parenttype": "Card Equipment", "component": self.name}, "parent"
-			)
-			if parent:
-				frappe.throw(
-					_("Equipment {0} is a component of unit {1}; a component cannot be a unit.").format(
-						self.name, parent
-					)
-				)
-		seen = set()
-		for component in components:
-			if not component:
-				continue
-			if component == self.name:
-				frappe.throw(_("A unit cannot be its own component."))
-			if component in seen:
-				frappe.throw(_("Component {0} is listed twice.").format(component))
-			seen.add(component)
-			info = frappe.db.get_value("Card Equipment", component, ["company", "is_unit"], as_dict=True)
-			if not info:
-				continue  # frappe's link validation reports the missing equipment
-			if info.is_unit:
-				frappe.throw(_("Component {0} is itself a unit.").format(component))
-			if info.company != self.company:
-				frappe.throw(
-					_("Component {0} belongs to company {1}; the unit belongs to {2}.").format(
-						component, info.company, self.company
-					)
-				)
-			other = frappe.db.get_value(
-				"Card Equipment Component",
-				{"parenttype": "Card Equipment", "component": component, "parent": ["!=", self.name or ""]},
-				"parent",
-			)
-			if other:
-				frappe.throw(_("Component {0} already belongs to unit {1}.").format(component, other))
+		check_unit_components(self.name, self.company, self.is_unit, components)
 
 	def apply_new_record_defaults(self):
 		# Card Settings pre-fill for NEW equipment only; a provided value is never overridden.
@@ -263,6 +225,51 @@ class CardEquipment(Document):
 				self.rate_type = basis
 			if not self.customer_rate_type:
 				self.customer_rate_type = basis
+
+
+def check_unit_components(unit, company, is_unit, components):
+	"""#56: the component rules of a unit, shared by the unit's save
+	(CardEquipment.validate_components) and a component row saved on its own
+	(CardEquipmentComponent.validate)."""
+	if components and not is_unit:
+		frappe.throw(_("Only a unit can list components."))
+	if is_unit and unit:
+		parent = frappe.db.get_value(
+			"Card Equipment Component", {"parenttype": "Card Equipment", "component": unit}, "parent"
+		)
+		if parent:
+			frappe.throw(
+				_("Equipment {0} is a component of unit {1}; a component cannot be a unit.").format(
+					unit, parent
+				)
+			)
+	seen = set()
+	for component in components:
+		if not component:
+			continue
+		if component == unit:
+			frappe.throw(_("A unit cannot be its own component."))
+		if component in seen:
+			frappe.throw(_("Component {0} is listed twice.").format(component))
+		seen.add(component)
+		info = frappe.db.get_value("Card Equipment", component, ["company", "is_unit"], as_dict=True)
+		if not info:
+			continue  # frappe's link validation reports the missing equipment
+		if info.is_unit:
+			frappe.throw(_("Component {0} is itself a unit.").format(component))
+		if info.company != company:
+			frappe.throw(
+				_("Component {0} belongs to company {1}; the unit belongs to {2}.").format(
+					component, info.company, company
+				)
+			)
+		other = frappe.db.get_value(
+			"Card Equipment Component",
+			{"parenttype": "Card Equipment", "component": component, "parent": ["!=", unit or ""]},
+			"parent",
+		)
+		if other:
+			frappe.throw(_("Component {0} already belongs to unit {1}.").format(component, other))
 
 
 def get_timeline_data(doctype: str, name: str) -> dict:

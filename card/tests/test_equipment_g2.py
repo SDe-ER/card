@@ -418,6 +418,136 @@ class TestG2Components(_G2Base):
 		self.assertTrue(unit.name)
 
 
+class TestG2ComponentRows(_G2Base):
+	"""A component row saved on its own (PUT /api/resource/Card Equipment
+	Component/<row>, frappe.client.save) follows the unit's rules: the unit's
+	re-save that update_doc does next sees no change in its rows."""
+
+	def _unit(self, components):
+		return self._owned(is_unit=1, components=[{"component": c} for c in components])
+
+	def _row(self, unit, component):
+		return frappe.get_all(
+			"Card Equipment Component", filters={"parent": unit.name, "component": component}, pluck="name"
+		)[0]
+
+	def _stored(self, unit):
+		return frappe.get_all(
+			"Card Equipment Component", filters={"parent": unit.name}, pluck="component", order_by="idx"
+		)
+
+	def _put_row(self, row, values):
+		frappe.local.form_dict = frappe._dict(data=json.dumps(values))
+		try:
+			return self._try(update_doc, "Card Equipment Component", row)
+		finally:
+			frappe.local.form_dict = frappe._dict()
+
+	def test_direct_row_put_cannot_break_the_unit_rules(self):
+		a, b, c = self._owned(), self._owned(), self._owned()
+		unit = self._unit([a.name, c.name])
+		self._unit([b.name])  # b belongs to another unit
+		another_unit = self._owned(is_unit=1)
+		foreign = self._owned(company=self._other_company())
+		cases = {
+			"other company": foreign.name,
+			"a unit": another_unit.name,
+			"the unit itself": unit.name,
+			"in another unit": b.name,
+			"listed twice": c.name,
+		}
+		for roles, companies in ((["Card Manager"], ()), (["Card Manager"], (self.company,))):
+			self._login(roles, companies)
+			for label, component in cases.items():
+				self.assertFalse(
+					self._put_row(self._row(unit, a.name), {"component": component}), f"{label} {companies}"
+				)
+			frappe.set_user("Administrator")
+			self.assertEqual(self._stored(unit), [a.name, c.name])
+
+	def test_direct_row_save_through_frappe_client_follows_the_same_rules(self):
+		from frappe.client import save
+
+		a = self._owned()
+		unit = self._unit([a.name])
+		foreign = self._owned(company=self._other_company())
+		row = frappe.get_doc("Card Equipment Component", self._row(unit, a.name)).as_dict()
+		row["component"] = foreign.name
+		self._login(["Card Manager"])
+		self.assertFalse(self._try(save, row))
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(unit), [a.name])
+
+	def test_a_row_cannot_be_moved_to_another_unit(self):
+		a, b, free = self._owned(), self._owned(), self._owned()
+		unit, other = self._unit([a.name]), self._unit([b.name])
+		for companies in ((), (self.company,)):
+			self._login(["Card Manager"], companies)
+			# with a free component the moved row would pass the unit rules: only the move check stops it
+			for values in ({"parent": other.name}, {"parent": other.name, "component": free.name}):
+				self.assertFalse(self._put_row(self._row(unit, a.name), values), (values, companies))
+			frappe.set_user("Administrator")
+			self.assertEqual((self._stored(unit), self._stored(other)), ([a.name], [b.name]))
+
+	def test_role_edit_on_a_legacy_unit_row_is_not_blocked(self):
+		a = self._owned()
+		unit = self._unit([a.name])
+		# legacy: a foreign component written directly, before #56
+		foreign = self._owned(company=self._other_company())
+		frappe.get_doc(
+			{
+				"doctype": "Card Equipment Component",
+				"parent": unit.name,
+				"parenttype": "Card Equipment",
+				"parentfield": "components",
+				"component": foreign.name,
+				"idx": 2,
+			}
+		).db_insert()
+		self._login(["Card Manager"])
+		self.assertTrue(self._put_row(self._row(unit, a.name), {"role": "Prime mover"}))
+		self.assertFalse(self._put_row(self._row(unit, a.name), {"component": self._owned().name}))
+		frappe.set_user("Administrator")
+		self.assertEqual(
+			frappe.db.get_value("Card Equipment Component", self._row(unit, a.name), "role"), "Prime mover"
+		)
+
+	def test_card_manager_valid_row_edits_still_save(self):
+		a, free = self._owned(), self._owned()
+		unit = self._unit([a.name])
+		self._login(["Card Manager"])
+		self.assertTrue(self._put_row(self._row(unit, a.name), {"role": "Prime mover"}))
+		self.assertTrue(self._put_row(self._row(unit, a.name), {"component": free.name}))
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(unit), [free.name])
+		self.assertEqual(
+			frappe.db.get_value("Card Equipment Component", self._row(unit, free.name), "role"), "Prime mover"
+		)
+
+	def test_card_user_cannot_put_a_row_valid_or_not(self):
+		a, free = self._owned(), self._owned()
+		unit = self._unit([a.name])
+		foreign = self._owned(company=self._other_company())
+		self._login(["Card User"])
+		for values in ({"component": foreign.name}, {"component": free.name}, {"role": "x"}):
+			self.assertFalse(self._put_row(self._row(unit, a.name), values), values)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(unit), [a.name])
+
+	def test_unit_save_still_checks_and_accepts_its_rows(self):
+		a, free = self._owned(), self._owned()
+		unit = self._unit([a.name])
+		foreign = self._owned(company=self._other_company())
+		self._login(["Card Manager"])
+		for path in self.PATHS:
+			self.assertFalse(
+				getattr(self, path)(unit.name, {"components": [{"component": foreign.name}]}), path
+			)
+		self.assertTrue(self._via_rest(unit.name, {"components": [{"component": free.name}]}))
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(unit), [free.name])
+
+
 class TestG2UnitDays(_G2Base):
 	def test_unit_days_outside_its_own_assignment_are_refused(self):
 		"""G2-2 reproduction: a component without history used to switch the
@@ -598,8 +728,6 @@ class TestG2Location(_G2Base):
 class TestG2Overlap(_G2Base):
 	"""Overlapping assignments in force are recorded, never guessed."""
 
-	OVERLAP_TITLE = "CARD equipment location overlap"
-
 	def _legacy_assignment(self, eq, project, start):
 		doc = frappe.get_doc(
 			{
@@ -621,8 +749,11 @@ class TestG2Overlap(_G2Base):
 	def _overlap_comments(self, eq):
 		return [c for c in self._comments(eq) if transfer.OVERLAP_MARK in c]
 
-	def _overlap_errors(self):
-		return frappe.db.count("Error Log", {"method": ["like", "%" + self.OVERLAP_TITLE + "%"]})
+	def _overlap_errors(self, eq):
+		# by reference, not by the (translated) title: language-independent
+		return frappe.db.count(
+			"Error Log", {"reference_doctype": "Card Equipment", "reference_name": eq.name}
+		)
 
 	def test_overlap_is_recorded_with_its_assignments_and_date_even_with_empty_fields(self):
 		eq = self._owned()
@@ -657,19 +788,27 @@ class TestG2Overlap(_G2Base):
 		eq = self._owned()
 		self._assign(eq.name, self.project, self._days_from(-5))
 		self._enable_daily(True)
-		before = self._overlap_errors()
+		before = self._overlap_errors(eq)
 		transfer.sync_equipment_locations_daily()
 		self.assertFalse(self._overlap_comments(eq))
-		self.assertEqual(self._overlap_errors(), before)
+		self.assertEqual(self._overlap_errors(eq), before)
 
 	def test_daily_job_logs_a_new_overlap_once_not_every_day(self):
 		eq = self._owned()
 		self._overlapping(eq)
 		self._enable_daily(True)
-		before = self._overlap_errors()
+		before = self._overlap_errors(eq)
 		transfer.sync_equipment_locations_daily()
 		transfer.sync_equipment_locations_daily()
-		self.assertEqual(self._overlap_errors(), before + 1)
+		self.assertEqual(self._overlap_errors(eq), before + 1)
+		logged = frappe.get_all(
+			"Error Log",
+			filters={"reference_doctype": "Card Equipment", "reference_name": eq.name},
+			pluck="error",
+			order_by="creation desc",
+			limit=1,
+		)
+		self.assertIn(eq.name, logged[0])  # the entry names the equipment
 		self.assertEqual(len(self._overlap_comments(eq)), 1)
 
 	def test_a_failure_to_record_does_not_stop_the_other_equipment(self):
@@ -703,11 +842,10 @@ class TestG2Overlap(_G2Base):
 			return real_sync(equipment, **kwargs)
 
 		self._enable_daily(True)
-		before = frappe.db.count("Error Log", {"method": ["like", "%CARD daily location sync%"]})
+		failed_log = {"error": ["like", "%" + first.name + "%"]}  # language-independent
+		before = frappe.db.count("Error Log", failed_log)
 		with patch.object(transfer, "sync_equipment_location", side_effect=failing_for_first):
 			transfer.sync_equipment_locations_daily()
 		self.assertIsNone(self._loc(first).current_project)
 		self.assertEqual(self._loc(second).current_project, self.project)
-		self.assertEqual(
-			frappe.db.count("Error Log", {"method": ["like", "%CARD daily location sync%"]}), before + 1
-		)
+		self.assertEqual(frappe.db.count("Error Log", failed_log), before + 1)

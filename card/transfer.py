@@ -189,7 +189,12 @@ def _record_overlap(equipment, assignments, day, source):
 			}
 		).insert(ignore_permissions=True)
 		if source == "daily":
-			frappe.log_error(title=_("CARD equipment location overlap"), message=message)
+			frappe.log_error(
+				title=_("CARD equipment location overlap"),
+				message="%s: %s" % (equipment, message),
+				reference_doctype="Card Equipment",
+				reference_name=equipment,
+			)
 	except Exception:
 		frappe.db.rollback(save_point="card_location_overlap")
 

@@ -33,11 +33,13 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
   are written by Card Manager only (Card User reads them). Server-side checks:
   - the company cannot change once the equipment is used;
   - a linked Asset must be of the same company, not cancelled, and readable by the user;
-  - components must be of the same company, not units and not in another unit.
+  - components must be of the same company, not units and not in another unit, also when a
+    component row is saved on its own (REST on the row).
 - **Current project and assignment date are read-only.** They follow the assignment in force today
   (project and start date) and are re-synced whenever an assignment changes or a transfer is
   submitted or cancelled; an overwritten value leaves a comment. A future assignment does not move
-  them; a transfer takes effect the day after its date. The free-text location is never changed.
+  them; a transfer that ends a previous assignment takes effect the day after its date (a first
+  assignment starts on the transfer date). The free-text location is never changed.
   Moves that only come into force with time (a future start, an end date passing) are applied by an
   optional daily job, **off by default** (Card Settings); without it they wait for the next
   assignment event.
