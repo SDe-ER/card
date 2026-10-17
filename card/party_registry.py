@@ -12,12 +12,32 @@ always carry its party's current name.
   blocking the ERPNext merge); B's row is recomputed afterwards."""
 
 import frappe
+from frappe import _
 from frappe.model.rename_doc import rename_doc
+from frappe.utils import cint
 
 REGISTRIES = {
 	"Supplier": ("Card Equipment Supplier", "supplier"),
 	"Customer": ("Card Equipment Customer", "customer"),
 }
+REGISTRY_DOCTYPES = tuple(registry for registry, _field in REGISTRIES.values())
+
+
+def guard_registry_track_changes(doc, method=None):
+	"""Property Setter before_validate (insert and every later save; it runs even
+	when a caller sets ignore_validate): the registries' Versions keep pre-1.2.2
+	party-wide (cross-company) figures as audit history (Owner decision
+	2026-10-17, #23). Frappe shows a document's Versions on its form only while
+	the DocType tracks changes, so track_changes may not be turned on for a
+	registry — Customize Form, REST, frappe.client and imports all save a
+	Property Setter. Direct database writes bypass any application hook
+	(governance: #61)."""
+	if doc.doc_type in REGISTRY_DOCTYPES and doc.property == "track_changes" and cint(doc.value):
+		frappe.throw(
+			_(
+				"Change tracking cannot be turned on for {0}: its earlier history holds figures of every company."
+			).format(_(doc.doc_type))
+		)
 
 
 def before_rename(doc, method, old, new, merge=False):

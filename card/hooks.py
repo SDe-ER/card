@@ -191,6 +191,8 @@ doc_events = {
 		"before_rename": "card.party_registry.before_rename",
 		"after_rename": "card.party_registry.after_rename",
 	},
+	# the registries' change history stays hidden from their form (#23)
+	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
 }
 
 # Scheduled Tasks

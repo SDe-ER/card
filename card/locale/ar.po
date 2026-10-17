@@ -1960,6 +1960,9 @@ msgstr "سجلات الترحيل تُنشأ فقط من خلال الترحيل
 msgid "The sources of a posting log cannot be changed."
 msgstr "لا يمكن تغيير مصادر سجل الترحيل."
 
+msgid "Change tracking cannot be turned on for {0}: its earlier history holds figures of every company."
+msgstr "لا يمكن تفعيل تتبع التغييرات على {0}: سجله السابق يحتوي على أرقام كل الشركات."
+
 msgid "Tax template {0} must contain only 'On Net Total' rows with non-negative rates; found a '{1}' row. Fix the template before posting."
 msgstr "قالب الضريبة {0} يجب أن يحتوي على صفوف من نوع 'On Net Total' فقط بنسب غير سالبة؛ وُجد صف من نوع '{1}'. صحّح القالب قبل الترحيل."
 

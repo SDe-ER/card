@@ -2,16 +2,17 @@
 # For license information, please see LICENSE
 """#23 (security review MEDIUM-1): before 1.2.2 every registry recompute saved
 the Card Equipment Supplier / Customer row with track_changes on, so Version
-rows hold the old party-wide (cross-company) counts, totals and months — and a
-form load returns recent Versions to any user who may open the party.
+rows hold the old party-wide (cross-company) counts, totals and months.
 
-Owner decision (PR #39): delete ONLY the registry Versions that carry one of
-the legacy aggregate FIGURES — months, counts, hours, totals (a Version mixing
-identity and figure changes is deleted whole: it cannot be trimmed without
-rewriting history). Identity-only history, refresh-timestamp-only history
-(``last_refreshed`` holds no company figure) and every other doctype's history
-are kept. A Version whose data cannot be parsed is deleted only if it names a
-figure field. Idempotent."""
+Owner decision (2026-10-17): this history is audit evidence and is KEPT as is —
+no Version is deleted or rewritten. This patch only counts and reports the
+registry Versions that carry a legacy figure. They are not exposed:
+- the form shows a document's Versions only while its DocType tracks changes;
+  both registries have track_changes off, and
+  card.party_registry.guard_registry_track_changes refuses turning it on through
+  a Property Setter (Customize Form, REST, imports);
+- the Version DocType is readable by System Manager / Administrator only (audit).
+Direct database writes bypass any application hook. Idempotent (read-only)."""
 
 import json
 
@@ -35,16 +36,23 @@ def carries_aggregates(data, fields):
 
 
 def execute():
-	for registry, fields in FIGURE_FIELDS.items():
-		doomed = [
-			v.name
+	counts = {
+		registry: sum(
+			1
 			for v in frappe.get_all(
 				"Version",
 				filters={"ref_doctype": registry},
-				fields=["name", "data"],
+				fields=["data"],
 				limit_page_length=0,
 			)
 			if carries_aggregates(v.data, fields)
-		]
-		for start in range(0, len(doomed), 500):
-			frappe.db.delete("Version", {"name": ["in", doomed[start : start + 500]]})
+		)
+		for registry, fields in FIGURE_FIELDS.items()
+	}
+	if any(counts.values()):
+		# visible in the migrate output; nothing is deleted or changed
+		print(
+			"CARD registry history kept (legacy figures, not exposed): "
+			+ ", ".join(f"{registry} {count}" for registry, count in counts.items())
+		)
+	return counts

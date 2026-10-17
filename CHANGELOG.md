@@ -16,10 +16,15 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
   reports). On QA the case was already blocked late, and incidentally, by ERPNext's party-account
   permission check; the gate is now explicit.
 - **Supplier/customer registries no longer expose other companies** (#23). Registry rows store no
-  figures any more (the stored party-wide counts, hours and totals are cleared by a patch, and only the
-  registry history entries that carry those figures are deleted — identity-only history is kept); the form
+  figures any more (the stored party-wide counts, hours and totals are cleared by a patch); the form
   shows figures per company the user may see. A user restricted to some companies lists and opens only
-  parties with cards there (list, form and REST).
+  parties with cards there (list, form and REST). The registries' earlier change history, which holds
+  those figures, is **kept unchanged as audit history** and is not shown: the registries do not track
+  changes (turning it on through Customize Form or a Property Setter is refused), and Version records
+  are readable by System Manager only. A patch only counts that history; nothing is deleted.
+- **The Monthly Card keeps its current default print format.** On upgrade, an existing print-format
+  default (e.g. the legacy «كارت تشغيل شهري») is kept; the new "Card Monthly Card Print" stays
+  available in the print menu, and new installs use it as the default.
 - **Commercial terms of equipment are protected** (rates, rate basis, daily hours, direction, parties,
   contract, fuel): permission level 1 (Card Manager writes, Card User reads), a new reason is required
   for every change, and the change history is kept. Card User no longer creates equipment.

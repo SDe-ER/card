@@ -190,13 +190,14 @@ class TestSidedTotals(_CustomerCardsBase):
 			.name
 		)
 
-	def test_registry_history_purge_keeps_identity_and_unrelated_history(self):
-		"""Owner decision (PR #39): delete only registry Versions that carry the
-		legacy aggregate fields; identity-only and unrelated history stays."""
+	def test_registry_history_patch_keeps_every_version_unchanged(self):
+		"""Owner decision (2026-10-17): the registry history is audit evidence —
+		the patch only counts the Versions carrying a legacy figure; no Version is
+		deleted or rewritten (identity-only and unrelated history included)."""
 		from card.patches.v1_2_2.purge_registry_versions import execute
 
 		sup, cus = "Card Equipment Supplier", "Card Equipment Customer"
-		purged = {
+		with_figures = {
 			"aggregate only": self._version(sup, self.supplier, {"changed": [["total_net", 1, 2]]}),
 			"mixed identity + aggregate": self._version(
 				sup, self.supplier, {"changed": [["supplier_name", "A", "B"], ["card_count", 1, 2]]}
@@ -212,7 +213,7 @@ class TestSidedTotals(_CustomerCardsBase):
 				sup, self.supplier, '{"changed": [["total_hours", 1,'
 			),
 		}
-		kept = {
+		without_figures = {
 			"identity only": self._version(sup, self.supplier, {"changed": [["supplier_name", "A", "B"]]}),
 			"customer identity only": self._version(
 				cus, self.customer, {"changed": [["customer_name", "X", "Y"]]}
@@ -233,12 +234,15 @@ class TestSidedTotals(_CustomerCardsBase):
 				"Card Monthly Card", self.card.name, {"changed": [["card_count", 1, 2]]}
 			),
 		}
-		execute()
-		execute()  # idempotent
-		for label, name in purged.items():
-			self.assertFalse(frappe.db.exists("Version", name), label)
-		for label, name in kept.items():
-			self.assertTrue(frappe.db.exists("Version", name), label)
+		every = {**with_figures, **without_figures}
+		before = {name: frappe.db.get_value("Version", name, ["data", "modified"]) for name in every.values()}
+		counts = execute()
+		self.assertEqual(execute(), counts)  # idempotent, read-only
+		# the counts include the seeded figure Versions (4 Supplier + 2 Customer here)
+		self.assertGreaterEqual(counts[sup], 4)
+		self.assertGreaterEqual(counts[cus], 2)
+		for label, name in every.items():
+			self.assertEqual(frappe.db.get_value("Version", name, ["data", "modified"]), before[name], label)
 
 	def test_registry_history_is_not_recreated(self):
 		recompute_supplier(self.supplier)
