@@ -45,6 +45,13 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
   assignment event.
 - **A unit's card days are checked against the unit's own assignments too.** A component without
   assignment history no longer switches the check off.
+- **The GL Posting Log is a permanent audit record** (#57): no role can create, edit, delete or share
+  a log (System Manager keeps read, report and export), and the server refuses these operations even
+  for Administrator, shared documents or a Custom DocPerm. Only CARD's monthly posting creates a log, for
+  its own draft invoice; the lifecycle (submit, cancel, draft deletion, rebuild) is unchanged. Cancelled
+  and stale logs are kept, so a cancelled Card invoice can no longer become amendable by deleting or
+  rebinding its log. The source rows cannot be changed on their own. Delete Company Transactions and
+  app uninstall keep working.
 
 ### Fixed
 - **Project names in reports for operational roles** (#29, PR #30).
