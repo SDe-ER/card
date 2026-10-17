@@ -11,7 +11,7 @@ per-test and rolled back."""
 import frappe
 
 from card.api import recompute_customer, recompute_supplier
-from card.tests.test_controllers import _days
+from card.tests.test_controllers import _days, _registry_figures
 from card.tests.test_customer import _CustomerCardsBase
 
 ADD, DED = "إضافة", "خصم"
@@ -63,8 +63,8 @@ class TestSidedTotals(_CustomerCardsBase):
 	def test_registries_keep_each_side(self):
 		recompute_supplier(self.supplier)
 		recompute_customer(self.customer)
-		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), 3700)
-		self.assertEqual(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), 5560)
+		self.assertEqual(_registry_figures("Supplier", self.supplier).total, 3700)
+		self.assertEqual(_registry_figures("Customer", self.customer).total, 5560)
 
 	def test_summaries_keep_each_side(self):
 		rows, _ = _run("equipment_suppliers_summary", {"company": self.company, **PERIOD})
@@ -95,7 +95,7 @@ class TestSidedTotals(_CustomerCardsBase):
 		)
 		self.assertEqual(_tile(summary, "Total accrued (cards)"), 5560)
 		# nothing invoiced yet: the reconciliation difference is the customer net, not the gross
-		self.assertEqual(_tile(summary, "Reconciliation difference"), 5560)
+		self.assertEqual(_tile(summary, "Not invoiced through Card"), 5560)
 
 	def test_a_v1_1_row_without_side_counts_on_the_supplier_side(self):
 		from card.adjustments import sided_adjustments
@@ -122,12 +122,8 @@ class TestSidedTotals(_CustomerCardsBase):
 			billed[side] = sum(line["rate"] for line in lines) - discount
 		recompute_supplier(self.supplier)
 		recompute_customer(self.customer)
-		self.assertEqual(
-			frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), billed["Supplier"]
-		)
-		self.assertEqual(
-			frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), billed["Customer"]
-		)
+		self.assertEqual(_registry_figures("Supplier", self.supplier).total, billed["Supplier"])
+		self.assertEqual(_registry_figures("Customer", self.customer).total, billed["Customer"])
 
 	def test_reports_stay_scoped_to_the_company(self):
 		other = "TEST-SIDED-CO-" + self.token
@@ -168,14 +164,86 @@ class TestSidedTotals(_CustomerCardsBase):
 			frappe.db.get_value("Card Monthly Card", self.card.name, "customer_net_amount"), 5560
 		)
 
-	def test_patch_recomputes_stale_registry_totals(self):
-		from card.patches.v1_2_1.recompute_party_registries import execute
+	def test_patches_leave_no_stored_registry_totals(self):
+		from card.patches.v1_2_1.recompute_party_registries import execute as recompute
+		from card.patches.v1_2_2.clear_registry_aggregates import execute as clear
 
-		recompute_supplier(self.supplier)
-		recompute_customer(self.customer)
-		# what the pre-fix code stored: the mixed-side net and the gross accrual
+		# what pre-1.2.2 code stored: party-wide (cross-company) figures
 		frappe.db.set_value("Card Equipment Supplier", self.supplier, "total_net", 3500)
 		frappe.db.set_value("Card Equipment Customer", self.customer, "total_accrued", 5760)
+		recompute()
+		clear()
+		clear()  # idempotent
+		self.assertFalse(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"))
+		self.assertFalse(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"))
+		# the figures are still available, computed from the cards
+		self.assertEqual(_registry_figures("Supplier", self.supplier).total, 3700)
+		self.assertEqual(_registry_figures("Customer", self.customer).total, 5560)
+
+	def _version(self, ref_doctype, docname, data):
+		raw = data if isinstance(data, str) else frappe.as_json(data)
+		return (
+			frappe.get_doc(
+				{"doctype": "Version", "ref_doctype": ref_doctype, "docname": docname, "data": raw}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+
+	def test_registry_history_purge_keeps_identity_and_unrelated_history(self):
+		"""Owner decision (PR #39): delete only registry Versions that carry the
+		legacy aggregate fields; identity-only and unrelated history stays."""
+		from card.patches.v1_2_2.purge_registry_versions import execute
+
+		sup, cus = "Card Equipment Supplier", "Card Equipment Customer"
+		purged = {
+			"aggregate only": self._version(sup, self.supplier, {"changed": [["total_net", 1, 2]]}),
+			"mixed identity + aggregate": self._version(
+				sup, self.supplier, {"changed": [["supplier_name", "A", "B"], ["card_count", 1, 2]]}
+			),
+			"customer aggregate": self._version(cus, self.customer, {"changed": [["total_accrued", 0, 9]]}),
+			"timestamp + figure": self._version(
+				sup, self.supplier, {"changed": [["last_refreshed", "a", "b"], ["total_hours", 1, 2]]}
+			),
+			"customer months": self._version(
+				cus, self.customer, {"changed": [["first_month", None, "2026-09"]]}
+			),
+			"unparseable mentioning an aggregate": self._version(
+				sup, self.supplier, '{"changed": [["total_hours", 1,'
+			),
+		}
+		kept = {
+			"identity only": self._version(sup, self.supplier, {"changed": [["supplier_name", "A", "B"]]}),
+			"customer identity only": self._version(
+				cus, self.customer, {"changed": [["customer_name", "X", "Y"]]}
+			),
+			"insert record": self._version(sup, self.supplier, {"creation": "2026-09-01 10:00:00"}),
+			# what production holds today: refresh timestamps only, no company figure
+			"refresh timestamp only": self._version(
+				sup,
+				self.supplier,
+				{"changed": [["last_refreshed", "2026-10-12 13:32:38", "2026-10-12 13:32:41"]]},
+			),
+			"figure name only as a value": self._version(
+				sup, self.supplier, {"changed": [["supplier_name", "total_net", "card_count"]]}
+			),
+			"unparseable without aggregates": self._version(sup, self.supplier, "{not json"),
+			# same field names on another doctype are not registry history
+			"other doctype": self._version(
+				"Card Monthly Card", self.card.name, {"changed": [["card_count", 1, 2]]}
+			),
+		}
 		execute()
-		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", self.supplier, "total_net"), 3700)
-		self.assertEqual(frappe.db.get_value("Card Equipment Customer", self.customer, "total_accrued"), 5560)
+		execute()  # idempotent
+		for label, name in purged.items():
+			self.assertFalse(frappe.db.exists("Version", name), label)
+		for label, name in kept.items():
+			self.assertTrue(frappe.db.exists("Version", name), label)
+
+	def test_registry_history_is_not_recreated(self):
+		recompute_supplier(self.supplier)
+		self.assertFalse(
+			frappe.get_all(
+				"Version", filters={"ref_doctype": "Card Equipment Supplier", "docname": self.supplier}
+			)
+		)

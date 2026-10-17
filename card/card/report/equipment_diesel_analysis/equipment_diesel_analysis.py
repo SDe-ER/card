@@ -11,9 +11,11 @@ def execute(filters=None):
 	filters.company = resolve_company(filters, "Card Monthly Card", "Project Diesel Fill")
 	# Report: "Equipment Diesel Analysis" (F.2). Read-only, no accounting.
 	# Per equipment x project x month: expected litres = operating hours x
-	# (daily_diesel_consumption / daily standard hours) vs the litres actually
-	# allocated from submitted Project Diesel Fills (card.diesel allocation),
-	# with the variance and variance %. Equipment without a daily consumption
+	# (daily_diesel_consumption / daily standard hours) vs the litres ALLOCATED
+	# from submitted Project Diesel Fills (card.diesel allocation), shown split
+	# into recorded (direct fills) and estimated (tank fills split by hours, #33),
+	# with the variance (expected vs allocated — not measured consumption) and
+	# variance %. Equipment without a daily consumption
 	# figure falls back to the older per-hour expected_consumption; with neither,
 	# the expected side is left empty (flagged, never a crash).
 
@@ -71,19 +73,20 @@ def execute(filters=None):
 		):
 			eq_info[e.name] = e
 
-	# actual allocated litres per (project, period) -> equipment
+	# allocated litres (recorded + estimated) per (project, period) -> equipment
 	alloc_cache = {}
 
 	def allocated(project, month, year, equipment):
 		ck = (project, month, year)
 		if ck not in alloc_cache:
 			alloc_cache[ck] = allocate_project_diesel(project, month, year, filters.company)
-		share = alloc_cache[ck].get(equipment) or {}
-		return flt(share.get("litres"))
+		return alloc_cache[ck].get(equipment) or {}
 
 	rows = []
 	tot_expected = 0.0
 	tot_actual = 0.0
+	tot_recorded = 0.0
+	tot_estimated = 0.0
 	for key in order:
 		equipment, project, year, month = key
 		a = agg[key]
@@ -95,7 +98,11 @@ def execute(filters=None):
 			expected = flt(hours * flt(info.daily_diesel_consumption) / flt(info.daily_hours), 3)
 		elif flt(info.get("expected_consumption")):
 			expected = flt(hours * flt(info.expected_consumption), 3)
-		actual = allocated(project, month, year, equipment)
+		share = allocated(project, month, year, equipment)
+		# "actual_litres" keeps its fieldname; it holds the ALLOCATED litres
+		actual = flt(share.get("litres"))
+		recorded = flt(share.get("litres_recorded"), 3)
+		estimated = flt(share.get("litres_estimated"), 3)
 		variance = flt(actual - expected, 3) if expected is not None else None
 		variance_pct = flt(variance / expected * 100, 2) if expected else None
 		rows.append(
@@ -108,12 +115,16 @@ def execute(filters=None):
 				"daily_consumption": flt(info.get("daily_diesel_consumption")) or None,
 				"expected_litres": expected,
 				"actual_litres": actual,
+				"litres_recorded": recorded,
+				"litres_estimated": estimated,
 				"variance": variance,
 				"variance_pct": variance_pct,
 			}
 		)
 		tot_expected = tot_expected + (expected or 0)
 		tot_actual = tot_actual + actual
+		tot_recorded = tot_recorded + recorded
+		tot_estimated = tot_estimated + estimated
 
 	columns = [
 		{"fieldname": "equipment_name", "label": _("Equipment name"), "fieldtype": "Data", "width": 200},
@@ -155,14 +166,28 @@ def execute(filters=None):
 		},
 		{
 			"fieldname": "actual_litres",
-			"label": _("Actual litres"),
+			"label": _("Allocated litres"),
+			"fieldtype": "Float",
+			"precision": 3,
+			"width": 110,
+		},
+		{
+			"fieldname": "litres_recorded",
+			"label": _("Recorded litres (direct fills)"),
+			"fieldtype": "Float",
+			"precision": 3,
+			"width": 110,
+		},
+		{
+			"fieldname": "litres_estimated",
+			"label": _("Estimated litres (hours split)"),
 			"fieldtype": "Float",
 			"precision": 3,
 			"width": 110,
 		},
 		{
 			"fieldname": "variance",
-			"label": _("Litres variance"),
+			"label": _("Litres variance (expected vs allocated)"),
 			"fieldtype": "Float",
 			"precision": 3,
 			"width": 110,
@@ -184,9 +209,26 @@ def execute(filters=None):
 			"datatype": "Float",
 			"indicator": "Blue",
 		},
-		{"label": _("Actual litres"), "value": flt(tot_actual, 3), "datatype": "Float", "indicator": "Blue"},
 		{
-			"label": _("Litres variance"),
+			"label": _("Allocated litres"),
+			"value": flt(tot_actual, 3),
+			"datatype": "Float",
+			"indicator": "Blue",
+		},
+		{
+			"label": _("Recorded litres (direct fills)"),
+			"value": flt(tot_recorded, 3),
+			"datatype": "Float",
+			"indicator": "Blue",
+		},
+		{
+			"label": _("Estimated litres (hours split)"),
+			"value": flt(tot_estimated, 3),
+			"datatype": "Float",
+			"indicator": "Orange" if flt(tot_estimated, 3) else "Blue",
+		},
+		{
+			"label": _("Litres variance (expected vs allocated)"),
 			"value": diff,
 			"datatype": "Float",
 			"indicator": "Green" if abs(diff) <= flt(setting("reconciliation_tolerance")) else "Orange",
@@ -194,6 +236,8 @@ def execute(filters=None):
 	]
 	message = _(
 		"Expected = operating hours x (daily diesel consumption / daily standard hours). "
-		"Actual = litres allocated from submitted diesel fills. Display only — no accounting."
+		"Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) "
+		"plus estimated (project-tank fills split by card hours, not measured). "
+		"The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
 	)
 	return [readable_links(columns, rows), rows, message, None, summary, True]

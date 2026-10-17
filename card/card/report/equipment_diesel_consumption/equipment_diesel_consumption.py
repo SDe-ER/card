@@ -23,7 +23,27 @@ def get_columns():
 			"width": 160,
 		},
 		{"fieldname": "month", "label": _("Month"), "fieldtype": "Data", "width": 100},
-		{"fieldname": "litres", "label": _("Litres"), "fieldtype": "Float", "precision": 3, "width": 110},
+		{
+			"fieldname": "litres",
+			"label": _("Allocated litres"),
+			"fieldtype": "Float",
+			"precision": 3,
+			"width": 110,
+		},
+		{
+			"fieldname": "litres_recorded",
+			"label": _("Recorded litres (direct fills)"),
+			"fieldtype": "Float",
+			"precision": 3,
+			"width": 120,
+		},
+		{
+			"fieldname": "litres_estimated",
+			"label": _("Estimated litres (hours split)"),
+			"fieldtype": "Float",
+			"precision": 3,
+			"width": 120,
+		},
 		{"fieldname": "amount", "label": _("Diesel cost"), "fieldtype": "Currency", "width": 120},
 	]
 
@@ -32,6 +52,8 @@ def execute(filters=None):
 	# Report: "Equipment Diesel Consumption" (Script Report, standard, ref doctype: Project Diesel Fill)
 	# Read-only. Per (project, month): reuses card.diesel.allocate_project_diesel, which returns the diesel
 	# litres/amount attributed to each equipment (direct fills in full, project-tank fills pro-rata by hours).
+	# The allocated litres are shown split into recorded (direct fills) and estimated (hours split, #33);
+	# the Unallocated row has no equipment, so it carries neither part.
 	# Display/costing only: never posts GL and never touches a card's net amount.
 	# Note: allocation is per whole calendar month; the date filter only selects which (project, month) pairs appear.
 	filters = frappe._dict(filters or {})
@@ -69,12 +91,15 @@ def execute(filters=None):
 			if eq_filter and equipment != eq_filter:
 				continue
 			share = allocation[equipment]
+			unallocated = equipment == UNALLOCATED
 			data.append(
 				{
-					"equipment": _("Unallocated") if equipment == UNALLOCATED else equipment,
+					"equipment": _("Unallocated") if unallocated else equipment,
 					"project": project,
 					"month": year + "-" + month,
 					"litres": flt(share.get("litres"), 3),
+					"litres_recorded": None if unallocated else flt(share.get("litres_recorded"), 3),
+					"litres_estimated": None if unallocated else flt(share.get("litres_estimated"), 3),
 					"amount": flt(share.get("amount"), 2),
 				}
 			)

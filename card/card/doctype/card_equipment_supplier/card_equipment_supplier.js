@@ -1,41 +1,76 @@
 // Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 // For license information, please see LICENSE
-// Ported from Client Script "Card Equipment Supplier - Buttons".
-// Button method updated for the app: card_supplier_refresh -> card.api.refresh_supplier.
+// The registry row stores no figures (#23): they are fetched per company the
+// user may see (card.api.party_figures) and shown on the form.
 frappe.ui.form.on("Card Equipment Supplier", {
 	refresh(frm) {
 		if (frm.is_new()) return;
-
-		frm.add_custom_button(__("Refresh numbers"), () => {
-			frappe
-				.call({
-					method: "card.api.refresh_supplier",
-					args: { supplier: frm.doc.supplier },
-					freeze: true,
-					freeze_message: "جاري تحديث أرقام المورد...",
-				})
-				.then(() => frm.reload_doc());
-		});
-
-		frm.add_custom_button(__("Statement"), () => {
-			// default period = last operating month on record, else previous calendar month
-			let y, m;
-			if (frm.doc.last_month) {
-				y = parseInt(frm.doc.last_month.slice(0, 4));
-				m = frm.doc.last_month.slice(5, 7);
-			} else {
-				const p = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
-				y = p.getFullYear();
-				m = String(p.getMonth() + 1).padStart(2, "0");
-			}
-			frappe.set_route("query-report", "Equipment Supplier Statement", {
-				statement_type: "مورد",
-				supplier: frm.doc.supplier,
-				from_month: m,
-				from_year: y,
-				to_month: m,
-				to_year: y,
+		frappe
+			.call({
+				method: "card.api.party_figures",
+				args: { party_type: "Supplier", party: frm.doc.name },
+			})
+			.then((r) => {
+				const rows = r.message || [];
+				card_show_party_figures(frm, rows, __("Net cards"));
+				frm.add_custom_button(__("Statement"), () => {
+					// default period = last operating month on record, else previous calendar month
+					const last = rows
+						.map((x) => x.last_month)
+						.filter(Boolean)
+						.sort()
+						.pop();
+					let y, m;
+					if (last) {
+						y = parseInt(last.slice(0, 4));
+						m = last.slice(5, 7);
+					} else {
+						const p = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+						y = p.getFullYear();
+						m = String(p.getMonth() + 1).padStart(2, "0");
+					}
+					const route = {
+						statement_type: "مورد",
+						supplier: frm.doc.name,
+						from_month: m,
+						from_year: y,
+						to_month: m,
+						to_year: y,
+					};
+					if (rows.length === 1) route.company = rows[0].company;
+					frappe.set_route("query-report", "Equipment Supplier Statement", route);
+				}).addClass("btn-primary");
 			});
-		}).addClass("btn-primary");
 	},
 });
+
+function card_show_party_figures(frm, rows, money_label) {
+	if (!rows.length) return;
+	const esc = frappe.utils.escape_html;
+	const head = [
+		__("Company"),
+		__("Equipment"),
+		__("Cards"),
+		__("Operating hours"),
+		money_label,
+		__("Period"),
+	]
+		.map((h) => `<th>${esc(h)}</th>`)
+		.join("");
+	const body = rows
+		.map(
+			(x) =>
+				`<tr><td>${esc(x.company)}</td><td>${x.equipment_count}</td><td>${
+					x.card_count
+				}</td>` +
+				`<td>${format_number(x.total_hours, null, 2)}</td><td>${format_currency(
+					x.total,
+				)}</td>` +
+				`<td>${esc(x.first_month || "")} – ${esc(x.last_month || "")}</td></tr>`,
+		)
+		.join("");
+	frm.dashboard.add_section(
+		`<table class="table table-bordered table-sm"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`,
+		__("Figures per company"),
+	);
+}

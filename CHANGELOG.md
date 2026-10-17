@@ -8,6 +8,47 @@ All notable changes to the Card app are documented here. Format based on
 > runs on a given site is a deployment fact, verified on that site — never inferred from this file.
 
 ## [Unreleased]
+Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
+
+### Security
+- **Monthly-posting endpoints are company-scoped** (#36). `post_month` / `rebuild_month` refuse,
+  before any work, a company outside the caller's permitted companies (User Permission rule of the
+  reports). On QA the case was already blocked late, and incidentally, by ERPNext's party-account
+  permission check; the gate is now explicit.
+- **Supplier/customer registries no longer expose other companies** (#23). Registry rows store no
+  figures any more (the stored party-wide counts, hours and totals are cleared by a patch, and only the
+  registry history entries that carry those figures are deleted — identity-only history is kept); the form
+  shows figures per company the user may see. A user restricted to some companies lists and opens only
+  parties with cards there (list, form and REST).
+- **Commercial terms of equipment are protected** (rates, rate basis, daily hours, direction, parties,
+  contract, fuel): permission level 1 (Card Manager writes, Card User reads), a new reason is required
+  for every change, and the change history is kept. Card User no longer creates equipment.
+- **Equipment assignments** are written by Card Manager only and validated (dates, company, no overlap);
+  transfers record their assignment changes in the history.
+- **Card Settings**: Accounts Manager can now save the per-company accounting fields (the previous
+  level-1 grant could not be used); policy fields moved to permission level 2 (System Manager writes).
+- Change history on Project Diesel Fill and Equipment Transport.
+
+### Fixed
+- **Project names in reports for operational roles** (#29, PR #30).
+- **Diesel reports mark estimates** (#33): litres split from project-tank fills by operating hours are
+  shown as *estimated*, direct fills as *recorded*; "Actual litres" is now "Allocated litres".
+- **Monthly posting lines** (#34): fill/transport lines use the source's own cost center when set;
+  split diesel lines state their own estimated litres share.
+- **Reconciliation in three separate figures** (statements and summaries, net before VAT): **invoiced
+  through Card** (from Card's own posting trail), **not invoiced through Card** (card net − invoiced through
+  Card; cards in a Card draft invoice count here until it is submitted; under a project or equipment-type
+  filter only the shown cards' share of a Card invoice counts) and **ERPNext invoices outside
+  Card — to reconcile** (submitted invoices of the party in the period that Card did not create). Invoices
+  outside Card are shown for manual reconciliation only: never matched to cards by party and month, and no
+  existing invoice, GL entry or amount is relinked or changed. GL figures stay as the VAT-inclusive balance.
+  A manual invoice that takes the number of a deleted Card draft (frappe reuses the last number) is still
+  counted outside Card: only a **submitted** Card posting makes an invoice Card's.
+- **Clear message when a poster cannot read Items.** Building a monthly invoice needs Item read access
+  (ERPNext prices the lines with the caller's rights); a Card Manager without it (e.g. Accounts Manager
+  only) is now refused up front with a message naming the needed role, instead of an empty permission
+  error from inside ERPNext. No rights are granted automatically.
+
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
   deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;

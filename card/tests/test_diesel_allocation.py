@@ -190,9 +190,95 @@ class TestDieselAllocation(IntegrationTestCase):
 		self.assertAlmostEqual(sum(flt(r["litres"]) for r in data), flt(fill.litres))
 		self.assertAlmostEqual(sum(flt(r["amount"]) for r in data), flt(fill.amount))
 		self.assertEqual(len(data), 1)
+		# #33: the unallocated diesel is neither recorded nor estimated for any equipment
+		self.assertEqual(flt(alloc[UNALLOCATED]["litres_recorded"]), 0.0)
+		self.assertEqual(flt(alloc[UNALLOCATED]["litres_estimated"]), 0.0)
+		self.assertIsNone(data[0]["litres_recorded"])
+		self.assertIsNone(data[0]["litres_estimated"])
 		# an equipment filter hides the synthetic row
 		_cols, data = execute({"project": self.project, "equipment": "no-such-equipment"})
 		self.assertEqual(data, [])
+
+	# ---- #33: recorded (direct fill) vs estimated (hours split) ----
+	def _alloc(self):
+		return allocate_project_diesel(self.project, self.month_str, self.year_str, self.company)
+
+	def test_direct_fill_counts_only_as_recorded(self):
+		eq = self._make_equipment("EQ1")
+		c = self._make_card(eq, [self._day(2, 10)])
+		self._make_fill(litres=200, unit_price=2, card_equipment=eq.name)  # amount 400
+		share = self._alloc()[eq.name]
+		self.assertEqual(flt(share["litres"]), 200.0)
+		self.assertEqual(flt(share["litres_recorded"]), 200.0)
+		self.assertEqual(flt(share["litres_estimated"]), 0.0)
+		self.assertEqual(flt(share["amount_recorded"]), 400.0)
+		self.assertEqual(flt(share["amount_estimated"]), 0.0)
+		d = get_card_diesel(c.name)
+		self.assertAlmostEqual(d["litres_recorded"], 200.0)
+		self.assertAlmostEqual(d["litres_estimated"], 0.0)
+
+	def test_tank_fill_split_counts_only_as_estimated(self):
+		eq1 = self._make_equipment("EQ1")
+		eq2 = self._make_equipment("EQ2")
+		c1 = self._make_card(eq1, [self._day(2, 10)])  # 10 h
+		self._make_card(eq2, [self._day(2, 10), self._day(3, 10), self._day(4, 10)])  # 30 h
+		self._make_fill(litres=400, unit_price=1)  # project tank, amount 400
+		alloc = self._alloc()
+		for eq, litres in ((eq1, 100.0), (eq2, 300.0)):
+			share = alloc[eq.name]
+			self.assertEqual(flt(share["litres"]), litres)
+			self.assertEqual(flt(share["litres_estimated"]), litres)
+			self.assertEqual(flt(share["litres_recorded"]), 0.0)
+			self.assertEqual(flt(share["amount_estimated"]), flt(share["amount"]))
+			self.assertEqual(flt(share["amount_recorded"]), 0.0)
+		d1 = get_card_diesel(c1.name)
+		self.assertAlmostEqual(d1["litres_estimated"], 100.0)
+		self.assertAlmostEqual(d1["litres_recorded"], 0.0)
+
+	def test_mixed_month_recorded_plus_estimated_equals_allocated(self):
+		eq1 = self._make_equipment("EQ1")
+		eq2 = self._make_equipment("EQ2")
+		self._make_card(eq1, [self._day(2, 10)])  # 10 h
+		self._make_card(eq2, [self._day(2, 10), self._day(3, 10), self._day(4, 10)])  # 30 h
+		direct = self._make_fill(litres=50, unit_price=2, card_equipment=eq1.name)  # amount 100
+		tank = self._make_fill(litres=400, unit_price=1)  # amount 400, split 100 / 300
+		alloc = self._alloc()
+		e1, e2 = alloc[eq1.name], alloc[eq2.name]
+		self.assertEqual(flt(e1["litres_recorded"]), 50.0)
+		self.assertEqual(flt(e1["litres_estimated"]), 100.0)
+		self.assertEqual(flt(e1["litres"]), 150.0)
+		self.assertEqual(flt(e2["litres_recorded"]), 0.0)
+		self.assertEqual(flt(e2["litres_estimated"]), 300.0)
+		for share in (e1, e2):
+			self.assertEqual(
+				flt(share["litres_recorded"] + share["litres_estimated"], 3), flt(share["litres"], 3)
+			)
+			self.assertEqual(
+				flt(share["amount_recorded"] + share["amount_estimated"], 2), flt(share["amount"], 2)
+			)
+		# totals unchanged: allocated litres/amount still sum to the submitted fills
+		self.assertEqual(
+			flt(sum(s["litres"] for s in alloc.values()), 3), flt(direct.litres + tank.litres, 3)
+		)
+		self.assertEqual(
+			flt(sum(s["amount"] for s in alloc.values()), 2), flt(direct.amount + tank.amount, 2)
+		)
+		# the consumption report carries the same split and the same totals
+		_cols, data = execute({"company": self.company, "project": self.project})
+		self.assertEqual(flt(sum(flt(r["litres"]) for r in data), 3), 450.0)
+		self.assertEqual(flt(sum(flt(r["amount"]) for r in data), 2), 500.0)
+		self.assertEqual(flt(sum(flt(r["litres_recorded"]) for r in data), 3), 50.0)
+		self.assertEqual(flt(sum(flt(r["litres_estimated"]) for r in data), 3), 400.0)
+		for r in data:
+			self.assertEqual(flt(r["litres_recorded"] + r["litres_estimated"], 3), flt(r["litres"], 3))
+
+	def test_consumption_report_columns_label_allocated_and_split(self):
+		cols, _data = execute({"company": self.company, "project": self.project})
+		labels = {c["fieldname"]: c["label"] for c in cols}
+		self.assertEqual(labels["litres"], frappe._("Allocated litres"))
+		self.assertEqual(labels["litres_recorded"], frappe._("Recorded litres (direct fills)"))
+		self.assertEqual(labels["litres_estimated"], frappe._("Estimated litres (hours split)"))
+		self.assertIn("amount", labels)
 
 	# ---- D1 amount fields ----
 	def test_diesel_fill_amount_is_litres_times_price(self):

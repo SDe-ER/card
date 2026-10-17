@@ -165,6 +165,22 @@ def _days(hours_list, year=2026, month=9):
 	]
 
 
+def _registry_figures(party_type, party):
+	"""A registry party's figures summed over every company (the registry row
+	stores none since #23; card.api computes them from the cards)."""
+	from card.api import _figures_by_company, _party_cards
+
+	rows = _figures_by_company(_party_cards(party_type, party))
+	return frappe._dict(
+		card_count=sum(r["card_count"] for r in rows),
+		equipment_count=sum(r["equipment_count"] for r in rows),
+		total_hours=flt(sum(r["total_hours"] for r in rows), 2),
+		total=flt(sum(r["total"] for r in rows), 2),
+		first_month=min((r["first_month"] for r in rows if r["first_month"]), default=None),
+		companies=[r["company"] for r in rows],
+	)
+
+
 class TestCardEquipment(IntegrationTestCase):
 	@classmethod
 	def setUpClass(cls):
@@ -342,7 +358,9 @@ class TestCardMonthlyCard(IntegrationTestCase):
 		self._card(eq, [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9], submit=True)  # 109h -> 8175
 		self.assertTrue(frappe.db.exists("Card Equipment Supplier", self.supplier))
 		rec = frappe.get_doc("Card Equipment Supplier", self.supplier)
-		self.assertEqual(rec.card_count, 1)
-		self.assertEqual(rec.equipment_count, 1)
-		self.assertEqual(flt(rec.total_hours), 109.0)
-		self.assertEqual(flt(rec.total_net), 8175.0)
+		self.assertFalse(rec.total_net)  # no figures stored on the registry (#23)
+		fig = _registry_figures("Supplier", self.supplier)
+		self.assertEqual(fig.card_count, 1)
+		self.assertEqual(fig.equipment_count, 1)
+		self.assertEqual(fig.total_hours, 109.0)
+		self.assertEqual(fig.total, 8175.0)

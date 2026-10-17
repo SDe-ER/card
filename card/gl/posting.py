@@ -30,7 +30,12 @@ from card.diesel import project_operating_hours, split_by_weights
 from card.gl import preflight
 from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
+from card.report_access import permitted_companies
 from card.settings import setting
+
+# documents the builder reads; a User Permission on Company scoped to any of
+# them limits what the caller may post
+POSTING_SOURCE_DOCTYPES = ("Card Monthly Card", "Project Diesel Fill", "Equipment Transport")
 
 
 def _month_bounds(month, year):
@@ -97,13 +102,32 @@ def _split_fill_by_allocation(fill, month, year, company):
 	unallocated line at project level."""
 	amount = flt(fill.amount, 2)
 	if fill.card_equipment:
-		return [(fill.card_equipment, amount)]
+		return [(fill.card_equipment, amount, flt(fill.litres, 3))]
 	hours = project_operating_hours(fill.project, month, year, company)
-	# M6: ONE shared split rule for posting and display (card.diesel.split_by_weights)
+	# M6: ONE shared split rule for posting and display (card.diesel.split_by_weights);
+	# the litres shares use the same rule as the diesel reports (sum exactly)
 	shares = split_by_weights(amount, hours, 2)
 	if not shares:
-		return [(None, amount)]
-	return [(eq, amt) for eq, amt in sorted(shares.items()) if amt]
+		return [(None, amount, flt(fill.litres, 3))]
+	litres = split_by_weights(fill.litres, hours, 3)
+	return [(eq, amt, flt(litres.get(eq), 3)) for eq, amt in sorted(shares.items()) if amt]
+
+
+def _source_cost_center(doctype, source, company):
+	"""The source document's own cost center, if it can carry the line: a leaf,
+	enabled cost center of the posting's company. Refused before anything is
+	reserved — otherwise the draft invoice could never be submitted (#34)."""
+	cc = source.get("cost_center")
+	if not cc:
+		return None
+	row = frappe.db.get_value("Cost Center", cc, ["company", "is_group", "disabled"], as_dict=True)
+	if not row or row.company != company or row.is_group or row.disabled:
+		frappe.throw(
+			_(
+				"{0} {1}: cost center {2} cannot be used for company {3} (it must be an enabled, non-group cost center of that company)."
+			).format(_(doctype), source.get("name"), cc, company)
+		)
+	return cc
 
 
 def _supplier_sources(company, party, first_day, last_day, month, year):
@@ -129,7 +153,7 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
 		},
-		fields=["name", "project", "card_equipment", "litres", "amount", "date"],
+		fields=["name", "project", "card_equipment", "litres", "amount", "date", "cost_center"],
 	)
 	transports = frappe.get_all(
 		"Equipment Transport",
@@ -140,7 +164,16 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
 		},
-		fields=["name", "project", "equipment", "amount", "date", "from_location", "to_location"],
+		fields=[
+			"name",
+			"project",
+			"equipment",
+			"amount",
+			"date",
+			"from_location",
+			"to_location",
+			"cost_center",
+		],
 	)
 	return cards, fills, transports
 
@@ -244,6 +277,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 	row = preflight.company_settings_row(company)
 	first_day, last_day = _month_bounds(month, year)
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
+	preflight.require_item_read(posting_doctype)
 	preflight.check_period_open(company, last_day, posting_doctype)
 	preflight.check_invoice_settings(party_type)
 	# fail-closed: never build GL without the equipment dimension (checkpoint B)
@@ -308,16 +342,27 @@ def build_monthly_posting(company, party_type, party, month, year):
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
-			for equipment, amount in _split_fill_by_allocation(fill, int(month), int(year), company):
+			cost_center = _source_cost_center("Project Diesel Fill", fill, company)
+			for equipment, amount, share in _split_fill_by_allocation(fill, int(month), int(year), company):
+				if fill.card_equipment or not equipment:
+					# a direct fill (recorded) or a project-level line (unallocated)
+					description = _("Diesel fill {0} — {1} L").format(fill.name, share)
+				else:
+					# a project-tank fill split by operating hours: each line states ITS
+					# share of the litres, marked as an estimate (not measured) — #34
+					description = _(
+						"Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
+					).format(fill.name, share, flt(fill.litres, 3))
 				lines.append(
 					{
 						"item_code": row.diesel_item,
 						"rate": amount,
 						"account": row.diesel_expense_account,
 						"project": fill.project,
+						"cost_center": cost_center,
 						"card_equipment": equipment,
 						"taxable": 1,
-						"description": _("Diesel fill {0} — {1} L").format(fill.name, fill.litres),
+						"description": description,
 					}
 				)
 			sources["Project Diesel Fill"].append((fill.name, flt(fill.amount, 2)))
@@ -328,6 +373,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 					"rate": flt(t.amount, 2),
 					"account": row.transport_expense_account,
 					"project": t.project,
+					"cost_center": _source_cost_center("Equipment Transport", t, company),
 					"card_equipment": t.equipment or None,
 					"taxable": 1,
 					"description": _("Equipment transport {0}: {1} → {2}").format(
@@ -437,7 +483,9 @@ def build_monthly_posting(company, party_type, party, month, year):
 			"rate": line["rate"],
 			"description": line["description"],
 			"project": line["project"],
-			"cost_center": row.cost_center,
+			# the source document's own cost center when it has one, else the
+			# company default from Card Company Settings (#34)
+			"cost_center": line.get("cost_center") or row.cost_center,
 		}
 		if party_type == "Supplier":
 			item["expense_account"] = line["account"]
@@ -505,6 +553,7 @@ def rebuild_monthly_posting(company, party_type, party, month, year):
 	are freed by card.gl.events.on_trash) and build the month again so the new
 	draft includes every unposted submitted document."""
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
+	preflight.require_item_read(posting_doctype)  # before deleting the old draft
 	for active in frappe.get_all(
 		"GL Posting Log",
 		filters={
@@ -523,11 +572,23 @@ def rebuild_monthly_posting(company, party_type, party, month, year):
 	return build_monthly_posting(company, party_type, party, month, year)
 
 
-def _checked_endpoint_args(party_type, month, year):
-	"""Shared gate for the whitelisted entry points: role, party type, period."""
+def _checked_endpoint_args(company, party_type, month, year):
+	"""Shared gate for the whitelisted entry points: role, company scope, party
+	type, period. The builder inserts with ignore_permissions, so the company the
+	caller may see is enforced here, before any work (#36)."""
 	if not ({"Card Manager", "System Manager"} & set(frappe.get_roles())):
 		frappe.throw(
 			_("Only Card Manager or System Manager may build monthly postings."), frappe.PermissionError
+		)
+	# the sources it reads AND the documents it writes (security review LOW-1)
+	written = (
+		("Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"),
+		"GL Posting Log",
+	)
+	if not company or company not in permitted_companies(*POSTING_SOURCE_DOCTYPES, *written):
+		frappe.throw(
+			_("You are not permitted to build postings for company {0}.").format(company),
+			frappe.PermissionError,
 		)
 	if party_type not in ("Supplier", "Customer"):
 		frappe.throw(_("Party type must be Supplier or Customer."))
@@ -541,15 +602,27 @@ def _checked_endpoint_args(party_type, month, year):
 	return month, year
 
 
+def _check_party(party_type, party):
+	"""The caller must be able to read the party (a User Permission on Supplier /
+	Customer applies too) — security review LOW-1."""
+	if not party or not frappe.has_permission(party_type, "read", party):
+		frappe.throw(
+			_("You are not permitted to build postings for {0} {1}.").format(_(party_type), party),
+			frappe.PermissionError,
+		)
+
+
 @frappe.whitelist(methods=["POST"])
 def rebuild_month(company: str, party_type: str, party: str, month: str, year: str):
 	"""Desk entry point for rebuilding a draft posting after late documents."""
-	month, year = _checked_endpoint_args(party_type, month, year)
+	month, year = _checked_endpoint_args(company, party_type, month, year)
+	_check_party(party_type, party)
 	return rebuild_monthly_posting(company, party_type, party, month, year)
 
 
 @frappe.whitelist(methods=["POST"])
 def post_month(company: str, party_type: str, party: str, month: str, year: str):
 	"""Desk entry point (S4 wires the button). Card Manager / System Manager only."""
-	month, year = _checked_endpoint_args(party_type, month, year)
+	month, year = _checked_endpoint_args(company, party_type, month, year)
+	_check_party(party_type, party)
 	return build_monthly_posting(company, party_type, party, month, year)

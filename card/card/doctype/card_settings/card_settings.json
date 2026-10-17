@@ -65,14 +65,16 @@
    "description": "When off, all CARD accounting features are disabled.",
    "fieldname": "enable_accounting",
    "fieldtype": "Check",
-   "label": "Enable accounting posting"
+   "label": "Enable accounting posting",
+   "permlevel": 2
   },
   {
    "default": "0",
    "depends_on": "eval:doc.enable_accounting",
    "fieldname": "auto_submit",
    "fieldtype": "Check",
-   "label": "Auto-submit postings"
+   "label": "Auto-submit postings",
+   "permlevel": 2
   },
   {
    "fieldname": "company_config_section",
@@ -100,26 +102,30 @@
    "fieldname": "default_shift",
    "fieldtype": "Select",
    "label": "Default shift",
-   "options": "نهاري\nليلي"
+   "options": "نهاري\nليلي",
+   "permlevel": 2
   },
   {
    "default": "12",
    "fieldname": "max_day_shift_hours",
    "fieldtype": "Float",
-   "label": "Max day-shift hours"
+   "label": "Max day-shift hours",
+   "permlevel": 2
   },
   {
    "default": "12",
    "fieldname": "max_night_shift_hours",
    "fieldtype": "Float",
-   "label": "Max night-shift hours"
+   "label": "Max night-shift hours",
+   "permlevel": 2
   },
   {
    "default": "0",
    "description": "0 = no default; only pre-fills new equipment",
    "fieldname": "default_daily_hours",
    "fieldtype": "Float",
-   "label": "Default daily hours (new equipment only)"
+   "label": "Default daily hours (new equipment only)",
+   "permlevel": 2
   },
   {
    "fieldname": "operations_column_break",
@@ -129,19 +135,22 @@
    "fieldname": "default_fuel_charged_to",
    "fieldtype": "Select",
    "label": "Default fuel charged to (new equipment)",
-   "options": "\nالمؤجر\nالشركة"
+   "options": "\nالمؤجر\nالشركة",
+   "permlevel": 2
   },
   {
    "fieldname": "default_operator_on",
    "fieldtype": "Select",
    "label": "Default operator charged to (new equipment)",
-   "options": "\nالمؤجر\nالشركة"
+   "options": "\nالمؤجر\nالشركة",
+   "permlevel": 2
   },
   {
    "default": "0.01",
    "fieldname": "reconciliation_tolerance",
    "fieldtype": "Currency",
-   "label": "Reconciliation tolerance"
+   "label": "Reconciliation tolerance",
+   "permlevel": 2
   },
   {
    "fieldname": "warnings_section",
@@ -152,13 +161,15 @@
    "default": "1",
    "fieldname": "warn_on_shift_hours_exceeded",
    "fieldtype": "Check",
-   "label": "Warn when day hours exceed daily hours"
+   "label": "Warn when day hours exceed daily hours",
+   "permlevel": 2
   },
   {
    "default": "1",
    "fieldname": "warn_outside_rental_period",
    "fieldtype": "Check",
-   "label": "Warn when card dates fall outside rental period"
+   "label": "Warn when card dates fall outside rental period",
+   "permlevel": 2
   },
   {
    "fieldname": "report_defaults_section",
@@ -170,13 +181,15 @@
    "fieldname": "default_statement_type",
    "fieldtype": "Select",
    "label": "Default statement type",
-   "options": "مورد\nمعدات ملك"
+   "options": "مورد\nمعدات ملك",
+   "permlevel": 2
   },
   {
    "default": "0",
    "fieldname": "include_draft_in_reports",
    "fieldtype": "Check",
-   "label": "Include draft cards in reports"
+   "label": "Include draft cards in reports",
+   "permlevel": 2
   },
   {
    "fieldname": "period_lock_tab",
@@ -192,14 +205,16 @@
    "description": "Cards, diesel fills and transports dated on or before this date are locked (create/edit/submit/cancel/amend/delete) unless the override role is held.",
    "fieldname": "period_lock_date",
    "fieldtype": "Date",
-   "label": "Period lock date"
+   "label": "Period lock date",
+   "permlevel": 2
   },
   {
    "description": "Users with this role may bypass the lock; every override is logged.",
    "fieldname": "period_lock_override_role",
    "fieldtype": "Link",
    "label": "Period lock override role",
-   "options": "Role"
+   "options": "Role",
+   "permlevel": 2
   },
   {
    "fieldname": "notifications_tab",
@@ -215,33 +230,38 @@
    "default": "0",
    "fieldname": "notify_on_card_submit",
    "fieldtype": "Check",
-   "label": "Notify on card submit"
+   "label": "Notify on card submit",
+   "permlevel": 2
   },
   {
    "default": "0",
    "fieldname": "notify_on_posting",
    "fieldtype": "Check",
-   "label": "Notify on accounting posting"
+   "label": "Notify on accounting posting",
+   "permlevel": 2
   },
   {
    "default": "0",
    "fieldname": "notify_on_period_lock_override",
    "fieldtype": "Check",
-   "label": "Notify on period lock override"
+   "label": "Notify on period lock override",
+   "permlevel": 2
   },
   {
    "description": "Fills the supplier and customer rate basis on NEW equipment when left blank.",
    "fieldname": "default_rate_basis",
    "fieldtype": "Select",
    "label": "Default rate basis",
-   "options": "\nباليوم\nبالساعة\nبالشهر"
+   "options": "\nباليوم\nبالساعة\nبالشهر",
+   "permlevel": 2
   },
   {
    "default": "260",
    "description": "Hours a monthly (بالشهر) rate is spread over. Default 260 = 26 days x 10 hours.",
    "fieldname": "standard_month_hours",
    "fieldtype": "Float",
-   "label": "Standard month hours"
+   "label": "Standard month hours",
+   "permlevel": 2
   },
   {
    "fieldname": "diesel_transport_tab",
@@ -259,14 +279,16 @@
    "fieldname": "diesel_supplier_policy",
    "fieldtype": "Select",
    "label": "Diesel supplier policy",
-   "options": "ثابت\nمتغير"
+   "options": "ثابت\nمتغير",
+   "permlevel": 2
   },
   {
    "fieldname": "diesel_supplier",
    "fieldtype": "Link",
    "label": "Diesel supplier",
    "mandatory_depends_on": "eval:doc.diesel_supplier_policy=='ثابت'",
-   "options": "Supplier"
+   "options": "Supplier",
+   "permlevel": 2
   },
   {
    "fieldname": "diesel_col",
@@ -277,7 +299,8 @@
    "fieldname": "diesel_supplier_editor_role",
    "fieldtype": "Link",
    "label": "Diesel supplier editor role",
-   "options": "Role"
+   "options": "Role",
+   "permlevel": 2
   },
   {
    "fieldname": "transport_section",
@@ -289,13 +312,15 @@
    "fieldname": "transport_price_editor_role",
    "fieldtype": "Link",
    "label": "Transport price editor role",
-   "options": "Role"
+   "options": "Role",
+   "permlevel": 2
   },
   {
    "fieldname": "project_transport_prices",
    "fieldtype": "Table",
    "label": "Transport price per project",
-   "options": "Card Project Transport Price"
+   "options": "Card Project Transport Price",
+   "permlevel": 2
   },
   {
    "collapsible": 1,
@@ -314,7 +339,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-15 10:00:00.000000",
+ "modified": "2026-10-16 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",
@@ -322,14 +347,9 @@
  "permissions": [
   {
    "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
+   "permlevel": 0,
    "read": 1,
-   "report": 1,
    "role": "System Manager",
-   "share": 1,
    "write": 1
   },
   {
@@ -339,8 +359,16 @@
    "write": 1
   },
   {
+   "permlevel": 2,
    "read": 1,
-   "role": "Accounts Manager"
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 1
   },
   {
    "permlevel": 1,
@@ -349,6 +377,17 @@
    "write": 1
   },
   {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "role": "Card Manager"
+  },
+  {
+   "permlevel": 2,
    "read": 1,
    "role": "Card Manager"
   }

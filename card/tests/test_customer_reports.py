@@ -307,7 +307,7 @@ class TestCustomerReports(IntegrationTestCase):
 
 		self.assertEqual(_value(summary, "Number of customers"), 2)
 		self.assertEqual(flt(_value(summary, "Total accrued (cards)")), 3500.0)
-		self.assertEqual(flt(_value(summary, "Reconciliation difference")), 3500.0)
+		self.assertEqual(flt(_value(summary, "Not invoiced through Card")), 3500.0)
 
 	def test_statement_money_columns_zero_without_ar(self):
 		self._card(self._rented_out("-Z"), [10, 10], submit=True)
@@ -317,13 +317,13 @@ class TestCustomerReports(IntegrationTestCase):
 		self.assertEqual(flt(_value(summary, "Received (Credit)")), 0.0)
 		self.assertEqual(flt(_value(summary, "Opening balance")), 0.0)
 		self.assertEqual(flt(_value(summary, "Customer closing balance")), 0.0)
-		self.assertEqual(flt(_value(summary, "Reconciliation difference")), 2000.0)  # accrued - invoiced
+		self.assertEqual(flt(_value(summary, "Not invoiced through Card")), 2000.0)  # accrued - invoiced
 		self.assertIn(self.customer, msg)
 
 	def test_reconciliation_indicator_follows_tolerance_setting(self):
 		# A submitted billing card with NO customer GL entries: accrued > 0, invoiced = 0, so the
 		# reconciliation difference is large (2,000). Both reports expose the flag as the "indicator"
-		# of the summary item labelled "Reconciliation difference" (Green = within tolerance,
+		# of the summary item labelled "Not invoiced through Card" (Green = within tolerance,
 		# Red = over tolerance); that is what is asserted. Both are limited to this test's own
 		# project so other data cannot offset the difference.
 		self._card(self._rented_out("-T"), [10, 10], submit=True)
@@ -332,7 +332,7 @@ class TestCustomerReports(IntegrationTestCase):
 		frappe.db.delete("Singles", {"doctype": "Card Settings", "field": "reconciliation_tolerance"})
 		self.assertEqual(flt(setting("reconciliation_tolerance")), 0.01)
 
-		label = "Reconciliation difference"
+		label = "Not invoiced through Card"
 		statement_filters = self._filters(customer=self.customer)
 		summary_filters = self._filters()
 

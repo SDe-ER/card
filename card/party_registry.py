@@ -57,3 +57,55 @@ def registry_row(registry, field, party):
 	if frappe.db.exists(registry, party):
 		return party
 	return frappe.db.get_value(registry, {field: party})
+
+
+def _restricted_companies(user):
+	"""The companies ``user`` is limited to for monthly cards, or None when the
+	user is not restricted (sees every company) — then no extra condition."""
+	from card.report_access import permitted_companies
+
+	if user == "Administrator":
+		return None
+	allowed = permitted_companies(user=user)
+	if set(allowed) >= set(frappe.get_all("Company", pluck="name")):
+		return None
+	return allowed
+
+
+def _query_conditions(user, registry, field):
+	companies = _restricted_companies(user or frappe.session.user)
+	if companies is None:
+		return ""
+	if not companies:
+		return "1=0"
+	values = ", ".join(frappe.db.escape(c) for c in companies)
+	return (
+		f"exists (select 1 from `tabCard Monthly Card` c where c.`{field}` = `tab{registry}`.`name`"
+		f" and c.docstatus < 2 and c.company in ({values}))"
+	)
+
+
+def supplier_query_conditions(user=None):
+	return _query_conditions(user, "Card Equipment Supplier", "supplier")
+
+
+def customer_query_conditions(user=None):
+	return _query_conditions(user, "Card Equipment Customer", "customer")
+
+
+def has_registry_permission(doc, ptype=None, user=None, debug=False):
+	"""Document-level twin of the query conditions: a restricted user may open
+	only a party that has a draft or submitted card in one of their companies.
+	Frappe 16 (permissions.has_controller_permissions) treats ANY falsy return as
+	a denial — a controller can only deny — so "no objection" must be True."""
+	companies = _restricted_companies(user or frappe.session.user)
+	if companies is None or doc.is_new():
+		return True
+	_registry, field = REGISTRIES["Supplier" if doc.doctype == "Card Equipment Supplier" else "Customer"]
+	return bool(
+		companies
+		and frappe.db.exists(
+			"Card Monthly Card",
+			{field: doc.name, "docstatus": ["<", 2], "company": ["in", companies]},
+		)
+	)

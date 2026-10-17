@@ -16,13 +16,29 @@ from card import api
 from card.constants import DIR_RENTED_OUT, OWNED
 from card.diesel import allocate_project_diesel, project_operating_hours
 from card.report_access import can_view_ledger, permitted_companies, readable_links
-from card.tests.test_controllers import _days, _ensure_masters
+from card.tests.test_controllers import _days, _ensure_masters, _registry_figures
 from card.tests.test_customer_reports import _leaf
 
 RENTED = "إيجار"
 LEDGER_KEYS = {
-	"equipment_suppliers_summary": {"accrued", "diff", "opening", "paid", "closing"},
-	"equipment_customers_summary": {"invoiced", "diff", "opening", "received", "closing"},
+	"equipment_suppliers_summary": {
+		"accrued",
+		"invoiced_net",
+		"diff",
+		"external_net",
+		"opening",
+		"paid",
+		"closing",
+	},
+	"equipment_customers_summary": {
+		"invoiced",
+		"invoiced_net",
+		"diff",
+		"external_net",
+		"opening",
+		"received",
+		"closing",
+	},
 }
 NOTICE = "Ledger balances are shown only to users with General Ledger access."
 
@@ -303,7 +319,12 @@ class TestReportAccess(IntegrationTestCase):
 			self.assertFalse(keys & _fieldnames(cols), module)
 			for row in rows:
 				self.assertFalse(keys & set(row), module)
-			self.assertNotIn(frappe._("Reconciliation difference"), _labels(summary), module)
+			self.assertNotIn(frappe._("Not invoiced through Card"), _labels(summary), module)
+			self.assertNotIn(
+				frappe._("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+				_labels(summary),
+				module,
+			)
 
 	def test_customer_statement_hides_ledger_for_card_user(self):
 		customer = self._customer()
@@ -530,9 +551,7 @@ class TestReportAccess(IntegrationTestCase):
 		self._card(self._equipment("MG2", supplier=gone), [10])
 		frappe.rename_doc("Supplier", gone, keep, merge=True, force=True)
 		self.assertFalse(frappe.db.exists("Card Equipment Supplier", gone))
-		row = frappe.db.get_value(
-			"Card Equipment Supplier", keep, ["card_count", "equipment_count", "total_hours"], as_dict=True
-		)
+		row = _registry_figures("Supplier", keep)
 		self.assertEqual((row.card_count, row.equipment_count, row.total_hours), (2, 2, 20))
 
 	def _misname(self, registry, name):
@@ -549,7 +568,7 @@ class TestReportAccess(IntegrationTestCase):
 		frappe.rename_doc("Supplier", gone, keep, merge=True, force=True)
 		self.assertFalse(frappe.db.exists("Card Equipment Supplier", gone + "-OLD"))
 		self.assertEqual(frappe.db.count("Card Equipment Supplier", {"supplier": keep}), 1)
-		self.assertEqual(frappe.db.get_value("Card Equipment Supplier", keep, "card_count"), 2)
+		self.assertEqual(_registry_figures("Supplier", keep).card_count, 2)
 
 	def test_rename_realigns_a_misnamed_row(self):
 		supplier = self._supplier("RMIS")
@@ -589,7 +608,7 @@ class TestReportAccess(IntegrationTestCase):
 		self._card(self._equipment("CR2", customer=other.name), [10])
 		frappe.rename_doc("Customer", renamed, other.name, merge=True, force=True)
 		self.assertFalse(frappe.db.exists("Card Equipment Customer", renamed))
-		self.assertEqual(frappe.db.get_value("Card Equipment Customer", other.name, "card_count"), 2)
+		self.assertEqual(_registry_figures("Customer", other.name).card_count, 2)
 
 	def test_backfill_realigns_a_misnamed_registry_row(self):
 		from card.patches.v1_2_1.ensure_party_registries import execute
@@ -640,6 +659,45 @@ class TestReportAccess(IntegrationTestCase):
 		rows = [{"project": code}]
 		self.assertEqual(readable_links(columns, rows)[0]["fieldtype"], "Link")
 		self.assertEqual(rows[0]["project"], code)
+
+	def test_registry_is_scoped_to_the_users_companies(self):
+		"""#23: registry rows are per party across companies; a restricted user
+		sees only parties with cards in their companies, and figures only for
+		those companies — in the list, the document, REST and party_figures."""
+		from frappe.client import get as client_get
+
+		shared = self._supplier("SHR")
+		other_only = self._supplier("OTH")
+		self._card(self._equipment("SH1", supplier=shared), [10])
+		self._move_to_other(self._card(self._equipment("SH2", supplier=shared), [10, 10]))
+		self._move_to_other(self._card(self._equipment("OT1", supplier=other_only), [10]))
+		for party in (shared, other_only):
+			api.recompute_supplier(party)
+			self.assertFalse(frappe.db.get_value("Card Equipment Supplier", party, "total_net"))
+
+		frappe.set_user(self._user(["Card User"], restrict_to=self.company))
+		listed = frappe.get_list("Card Equipment Supplier", pluck="name", limit_page_length=0)
+		self.assertIn(shared, listed)
+		self.assertNotIn(other_only, listed)
+		self.assertTrue(frappe.has_permission("Card Equipment Supplier", "read", shared))
+		self.assertFalse(frappe.has_permission("Card Equipment Supplier", "read", other_only))
+		with self.assertRaises(frappe.PermissionError):
+			client_get("Card Equipment Supplier", other_only)
+		with self.assertRaises(frappe.PermissionError):
+			api.party_figures("Supplier", other_only)
+		figures = api.party_figures("Supplier", shared)
+		self.assertEqual([f["company"] for f in figures], [self.company])
+		self.assertEqual(figures[0]["card_count"], 1)
+
+		# an unrestricted reader sees both parties and both companies' figures
+		frappe.set_user("Administrator")
+		frappe.set_user(self._user(["Card User"]))
+		listed = frappe.get_list("Card Equipment Supplier", pluck="name", limit_page_length=0)
+		self.assertIn(other_only, listed)
+		self.assertEqual(
+			sorted(f["company"] for f in api.party_figures("Supplier", shared)),
+			sorted([self.company, self.other]),
+		)
 
 	def test_card_roles_gain_no_erpnext_grants(self):
 		frappe.set_user(self._user(["Card User"]))

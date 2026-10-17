@@ -41,12 +41,12 @@ def assert_report_role():
 	frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 
-def permitted_companies(*doctypes):
-	"""Companies the session user may see for EVERY one of ``doctypes`` (default:
-	Card Monthly Card), sorted. A User Permission on Company counts for a doctype
-	when it applies to every doctype or to that one; a report reading several
-	doctypes gets the intersection."""
-	entries = frappe.permissions.get_user_permissions(frappe.session.user).get("Company") or []
+def permitted_companies(*doctypes, user=None):
+	"""Companies ``user`` (default: the session user) may see for EVERY one of
+	``doctypes`` (default: Card Monthly Card), sorted. A User Permission on
+	Company counts for a doctype when it applies to every doctype or to that one;
+	a report reading several doctypes gets the intersection."""
+	entries = frappe.permissions.get_user_permissions(user or frappe.session.user).get("Company") or []
 	every = None
 	result = None
 	for doctype in doctypes or (CARD_DOCTYPE,):

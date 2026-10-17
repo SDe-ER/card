@@ -107,6 +107,10 @@
 			if (column.fieldname === "diff" && Math.abs(data.diff || 0) >= 0.01) {
 				return `<span style="color:var(--red-600)">${value}</span>`;
 			}
+			// ERPNext invoices outside Card: to reconcile by hand, never matched automatically
+			if (column.fieldname === "external_net" && Math.abs(data.external_net || 0) >= 0.01) {
+				return `<span style="color:var(--orange-600)">${value}</span>`;
+			}
 			return value;
 		},
 	};

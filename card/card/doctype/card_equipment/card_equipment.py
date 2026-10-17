@@ -16,6 +16,26 @@ from card.constants import (
 from card.dimension import sync_asset_dimension
 from card.settings import setting
 
+# Commercial terms: permlevel 1 (Card Manager writes, Card User reads) and every
+# change needs a reason, recorded with the change in the document history.
+COMMERCIAL_FIELDS = (
+	"ownership",
+	"supplier",
+	"rental_start_date",
+	"rental_end_date",
+	"contract_no",
+	"rate_type",
+	"rate",
+	"daily_hours",
+	"الوقود_على",
+	"internal_hourly_rate",
+	"customer_rate_type",
+	"customer_rate",
+	"default_customer",
+	"rental_direction",
+	"operator_on",
+)
+
 
 class CardEquipment(Document):
 	def on_update(self):
@@ -26,6 +46,7 @@ class CardEquipment(Document):
 	def validate(self):
 		self.apply_new_record_defaults()
 		self.validate_rental_direction()
+		self.validate_commercial_change_reason()
 		self.validate_unique_asset()
 		# Ported from Server Script "Card Equipment - Hourly Rate" (Before Validate).
 		# Computes the read-only approved_hourly_rate shown on the equipment.
@@ -42,6 +63,26 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = flt(rate / month_hours, 2)
 		else:
 			self.approved_hourly_rate = 0
+
+	def validate_commercial_change_reason(self):
+		"""A change to a commercial term of an existing equipment needs a NEW
+		reason (enforced server-side, so REST and imports are covered too).
+		Migrations and installs are exempt."""
+		if self.is_new() or frappe.flags.in_patch or frappe.flags.in_install or frappe.flags.in_migrate:
+			return
+		before = self.get_doc_before_save()
+		if not before:
+			return
+		changed = [f for f in COMMERCIAL_FIELDS if _differs(before.get(f), self.get(f))]
+		if not changed:
+			return
+		reason = (self.commercial_change_reason or "").strip()
+		if not reason or reason == (before.commercial_change_reason or "").strip():
+			labels = ", ".join(_(self.meta.get_label(f)) for f in changed)
+			frappe.throw(
+				_("Enter the reason for changing the commercial terms: {0}").format(labels),
+				title=_("Reason required"),
+			)
 
 	def validate_rental_direction(self):
 		"""F.7: rental_direction is the single source of truth. A blank one is
@@ -162,3 +203,13 @@ def get_shift_heatmap(name: str):
 	for timestamp, shift, hours in rows:
 		(night_map if shift == "ليلي" else day_map)[int(timestamp)] = flt(hours)
 	return {"day": day_map, "night": night_map, "has_night": bool(night_map)}
+
+
+def _differs(old, new):
+	"""Compare stored vs incoming values without false positives from type
+	(1 vs 1.0, None vs "", date vs "YYYY-MM-DD")."""
+	if (old in (None, "")) and (new in (None, "")):
+		return False
+	if isinstance(old, (int, float)) or isinstance(new, (int, float)):
+		return flt(old) != flt(new)
+	return str(old) != str(new)

@@ -93,6 +93,12 @@ class TestBaselineRegression(IntegrationTestCase):
 			flt(sum(flt(r.get("amount")) for r in d), 2),
 			self.base["r_equipment_diesel_consumption"]["amount"],
 		)
+		# #33: each equipment row's recorded + estimated litres == its allocated litres
+		for r in d:
+			if r.get("litres_recorded") is not None:
+				self.assertEqual(
+					flt(flt(r["litres_recorded"]) + flt(r["litres_estimated"]), 3), flt(r["litres"], 3)
+				)
 
 		d = tcp.execute(dict(f))[1]
 		self.assertEqual(
