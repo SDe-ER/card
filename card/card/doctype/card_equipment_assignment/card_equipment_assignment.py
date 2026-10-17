@@ -6,6 +6,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import getdate
 
+from card.transfer import sync_equipment_location
+
 # far future for an open-ended (to_date empty) assignment
 OPEN_END = "9999-12-31"
 
@@ -23,6 +25,19 @@ class CardEquipmentAssignment(Document):
 			self.validate_company()
 		if self._period_grew():
 			self.validate_no_overlap()
+
+	def on_update(self):
+		# #56: the equipment's current project / assignment date follow the
+		# assignment in force today (a transfer syncs once itself)
+		if not frappe.flags.get("card_defer_location_sync"):
+			sync_equipment_location(self.equipment)
+			before = self.get_doc_before_save()
+			if before and before.equipment and before.equipment != self.equipment:
+				sync_equipment_location(before.equipment)
+
+	def on_trash(self):
+		if not frappe.flags.get("card_defer_location_sync"):
+			sync_equipment_location(self.equipment, exclude=self.name)
 
 	def _period_grew(self):
 		"""True for a new row, a changed equipment, or a period that now covers

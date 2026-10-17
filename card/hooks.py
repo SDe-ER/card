@@ -196,6 +196,11 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
+scheduler_events = {
+	# #56: no-op unless Card Settings enables the daily location sync
+	"daily": ["card.transfer.sync_equipment_locations_daily"],
+}
+
 # scheduler_events = {
 # 	"all": [
 # 		"card.tasks.all"

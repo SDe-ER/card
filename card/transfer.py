@@ -4,7 +4,7 @@
 
 Submitting an Equipment Transport moves the equipment to a new project:
 it closes the current open Card Equipment Assignment at the transfer date,
-opens a new one for the new project, and updates current_project. Card days
+opens a new one for the new project, and re-syncs current_project. Card days
 must then fall inside an assignment period for the card's project. Units (a
 Card Equipment with components) derive their effective project from their
 component pieces: a day is valid for the unit on a project only when EVERY
@@ -12,11 +12,19 @@ component is assigned there that day.
 
 Backward-compatible: equipment with NO assignment history is not constrained,
 so existing/seed cards and controller tests are unaffected.
+
+#56: the equipment's current_project / assignment_date are read-only and
+derived from the assignment in force TODAY (sync_equipment_location). A
+transfer opens the new assignment the day after its date, so the fields move
+to the new project from that day on: through the next assignment event, or
+the daily job when Card Settings enables it.
 """
 
 import frappe
 from frappe import _
-from frappe.utils import add_days, flt, getdate
+from frappe.utils import add_days, cint, flt, getdate, nowdate
+
+from card.settings import setting
 
 
 # ---------- assignment helpers ----------
@@ -73,6 +81,142 @@ def _assigned_on(equipment, project, day):
 	return False
 
 
+def _in_force(rows, day):
+	"""Assignments whose period contains `day` (an empty to_date is open)."""
+	return [
+		a
+		for a in rows
+		if a.from_date and getdate(a.from_date) <= day and (not a.to_date or getdate(a.to_date) >= day)
+	]
+
+
+# ---------- equipment location (#56) ----------
+def sync_equipment_location(equipment, exclude=None, source="assignment"):
+	"""Set the equipment's current_project / assignment_date from the assignment
+	in force TODAY: its project and its start date. A future assignment never
+	moves them; with none in force, or two overlapping, they are emptied —
+	nothing is invented. Called only from assignment events (and the opt-in
+	daily job, which visits only equipment that has assignments), so equipment
+	without assignment history keeps its values. Writes only these two fields
+	(db.set_value: the equipment's validate/on_update, and so the Asset
+	dimension sync, do not run); an overwritten value leaves a comment."""
+	if not equipment or not frappe.db.exists("Card Equipment", equipment):
+		return
+	filters = {"equipment": equipment}
+	if exclude:
+		filters["name"] = ["!=", exclude]
+	rows = frappe.get_all(
+		"Card Equipment Assignment", filters=filters, fields=["name", "project", "from_date", "to_date"]
+	)
+	today = getdate(nowdate())
+	in_force = _in_force(rows, today)
+	project, start = None, None
+	if len(in_force) == 1:
+		project, start = in_force[0].project, getdate(in_force[0].from_date)
+	elif len(in_force) > 1:
+		_record_overlap(equipment, sorted(a.name for a in in_force), today, source)
+	stored = frappe.db.get_value(
+		"Card Equipment", equipment, ["current_project", "assignment_date"], as_dict=True
+	)
+	old_project = stored.current_project or None
+	old_start = getdate(stored.assignment_date) if stored.assignment_date else None
+	if (old_project, old_start) == (project, start):
+		return
+	if old_project or old_start:
+		message = {
+			"assignment": _(
+				"Location sync after an assignment change: project {0} → {1}; assignment date {2} → {3}"
+			),
+			"transfer": _("Location sync after a transfer: project {0} → {1}; assignment date {2} → {3}"),
+			"daily": _("Daily location sync: project {0} → {1}; assignment date {2} → {3}"),
+		}[source]
+		frappe.get_doc(
+			{
+				"doctype": "Comment",
+				"comment_type": "Info",
+				"reference_doctype": "Card Equipment",
+				"reference_name": equipment,
+				"content": message.format(old_project or "-", project or "-", old_start or "-", start or "-"),
+			}
+		).insert(ignore_permissions=True)
+	frappe.db.set_value(
+		"Card Equipment",
+		equipment,
+		{"current_project": project, "assignment_date": start},
+		update_modified=False,
+	)
+
+
+# plain-text tag (comment HTML is sanitized), the same in every language
+OVERLAP_MARK = "(overlap:"
+
+
+def _record_overlap(equipment, assignments, day, source):
+	"""Overlapping assignments in force: nothing is guessed (the location stays
+	empty) and the case is recorded — a comment on the equipment's timeline,
+	whatever its current fields hold, once per distinct set of assignments (a
+	changed set is recorded again); the user acting in a request also gets a
+	message, and the daily job adds one Error Log entry per newly recorded set.
+	A failure to record never stops the location sync."""
+	key = OVERLAP_MARK + ",".join(assignments) + ")"
+	message = _(
+		"Overlapping assignments in force on {0}: {1}. The current project and assignment date stay empty until the overlap is corrected."
+	).format(day, ", ".join(assignments))
+	frappe.msgprint(message, indicator="orange")  # shown to the user acting in a request
+	frappe.db.savepoint("card_location_overlap")
+	try:
+		latest = frappe.get_all(
+			"Comment",
+			filters={
+				"reference_doctype": "Card Equipment",
+				"reference_name": equipment,
+				"comment_type": "Info",
+				"content": ["like", "%" + OVERLAP_MARK + "%"],
+			},
+			pluck="content",
+			order_by="creation desc",
+			limit=1,
+		)
+		if latest and key in latest[0]:
+			return  # this exact set is already recorded
+		frappe.get_doc(
+			{
+				"doctype": "Comment",
+				"comment_type": "Info",
+				"reference_doctype": "Card Equipment",
+				"reference_name": equipment,
+				"content": "%s %s" % (message, key),
+			}
+		).insert(ignore_permissions=True)
+		if source == "daily":
+			frappe.log_error(title=_("CARD equipment location overlap"), message=message)
+	except Exception:
+		frappe.db.rollback(save_point="card_location_overlap")
+
+
+def sync_equipment_locations_daily():
+	"""Daily job (hooks.scheduler_events): off unless Card Settings enables it.
+	Each equipment runs in its own savepoint, so one failure neither stops nor
+	undoes the others; the failures are reported in a single Error Log entry."""
+	if not cint(setting("sync_equipment_location_daily")):
+		return
+	failed = []
+	for equipment in sorted(
+		{a.equipment for a in frappe.get_all("Card Equipment Assignment", fields=["equipment"])}
+	):
+		frappe.db.savepoint("card_location_sync")
+		try:
+			sync_equipment_location(equipment, source="daily")
+		except Exception:
+			frappe.db.rollback(save_point="card_location_sync")
+			failed.append(equipment)
+	if failed:
+		frappe.log_error(
+			title=_("CARD daily location sync"),
+			message=_("The location of these equipment could not be synced: {0}").format(", ".join(failed)),
+		)
+
+
 def _components(unit):
 	return [
 		c.component
@@ -109,23 +253,29 @@ def apply_transfer(txn):
 	if prev and prev.project == txn.project:
 		# already on this project; nothing to move
 		return
-	if prev:
-		# save (not db.set_value) so the change is in the assignment's history
-		closing = frappe.get_doc("Card Equipment Assignment", prev.name)
-		closing.to_date = tdate
-		closing.save(ignore_permissions=True, ignore_version=False)
-		txn.db_set("previous_assignment", prev.name, update_modified=False)
-		new_from = add_days(tdate, 1)
-	else:
-		new_from = tdate
-	na = frappe.new_doc("Card Equipment Assignment")
-	na.equipment = equipment
-	na.project = txn.project
-	na.from_date = new_from
-	na.equipment_name = frappe.db.get_value("Card Equipment", equipment, "equipment_name")
-	na.insert(ignore_permissions=True)
-	txn.db_set("created_assignment", na.name, update_modified=False)
-	frappe.db.set_value("Card Equipment", equipment, "current_project", txn.project)
+	# one location sync for the whole transfer, not one per assignment write
+	deferred = frappe.flags.get("card_defer_location_sync")
+	frappe.flags.card_defer_location_sync = True
+	try:
+		if prev:
+			# save (not db.set_value) so the change is in the assignment's history
+			closing = frappe.get_doc("Card Equipment Assignment", prev.name)
+			closing.to_date = tdate
+			closing.save(ignore_permissions=True, ignore_version=False)
+			txn.db_set("previous_assignment", prev.name, update_modified=False)
+			new_from = add_days(tdate, 1)
+		else:
+			new_from = tdate
+		na = frappe.new_doc("Card Equipment Assignment")
+		na.equipment = equipment
+		na.project = txn.project
+		na.from_date = new_from
+		na.equipment_name = frappe.db.get_value("Card Equipment", equipment, "equipment_name")
+		na.insert(ignore_permissions=True)
+		txn.db_set("created_assignment", na.name, update_modified=False)
+	finally:
+		frappe.flags.card_defer_location_sync = deferred
+	sync_equipment_location(equipment, source="transfer")
 
 
 def check_cancel_allowed(txn):
@@ -156,18 +306,20 @@ def reverse_transfer(txn):
 	equipment = txn.equipment
 	if not equipment or not txn.date:
 		return
-	if txn.created_assignment and frappe.db.exists("Card Equipment Assignment", txn.created_assignment):
-		frappe.delete_doc(
-			"Card Equipment Assignment", txn.created_assignment, force=1, ignore_permissions=True
-		)
-	if txn.previous_assignment and frappe.db.exists("Card Equipment Assignment", txn.previous_assignment):
-		reopened = frappe.get_doc("Card Equipment Assignment", txn.previous_assignment)
-		reopened.to_date = None
-		reopened.save(ignore_permissions=True, ignore_version=False)
-		prev_project = frappe.db.get_value("Card Equipment Assignment", txn.previous_assignment, "project")
-		frappe.db.set_value("Card Equipment", equipment, "current_project", prev_project)
-	else:
-		frappe.db.set_value("Card Equipment", equipment, "current_project", None)
+	deferred = frappe.flags.get("card_defer_location_sync")
+	frappe.flags.card_defer_location_sync = True
+	try:
+		if txn.created_assignment and frappe.db.exists("Card Equipment Assignment", txn.created_assignment):
+			frappe.delete_doc(
+				"Card Equipment Assignment", txn.created_assignment, force=1, ignore_permissions=True
+			)
+		if txn.previous_assignment and frappe.db.exists("Card Equipment Assignment", txn.previous_assignment):
+			reopened = frappe.get_doc("Card Equipment Assignment", txn.previous_assignment)
+			reopened.to_date = None
+			reopened.save(ignore_permissions=True, ignore_version=False)
+	finally:
+		frappe.flags.card_defer_location_sync = deferred
+	sync_equipment_location(equipment, source="transfer")
 
 
 def _card_day_after(equipment, project, tdate):
@@ -192,9 +344,17 @@ def validate_card_days(card):
 	if not equipment or not project:
 		return
 	is_unit = frappe.db.get_value("Card Equipment", equipment, "is_unit")
-	members = _components(equipment) if is_unit else [equipment]
-	# constrain only when assignment data exists for at least one member
-	if not any(_has_any_assignment(m) for m in members):
+	if is_unit:
+		# components are checked as before: all of them once any has history.
+		# #56: the unit's own assignments are checked too — components without
+		# history no longer switch the whole check off.
+		components = _components(equipment)
+		members = components if any(_has_any_assignment(m) for m in components) else []
+		if _has_any_assignment(equipment):
+			members = [equipment, *members]
+	else:
+		members = [equipment] if _has_any_assignment(equipment) else []
+	if not members:
 		return
 	for d in card.days:
 		if not d.operation_date or flt(d.working_hours) <= 0:

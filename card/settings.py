@@ -35,6 +35,8 @@ _DEFAULTS = {
 	"diesel_supplier": "",
 	"diesel_supplier_editor_role": "Card Manager",
 	"transport_price_editor_role": "Card Manager",
+	# #56: the daily location sync is off until the owner enables it
+	"sync_equipment_location_daily": 0,
 }
 
 
