@@ -128,6 +128,7 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
+   "permlevel": 1,
    "reqd": 1
   },
   {
@@ -208,7 +209,8 @@
    "default": "0",
    "fieldname": "is_unit",
    "fieldtype": "Check",
-   "label": "Unit (two machines bundled)"
+   "label": "Unit (two machines bundled)",
+   "permlevel": 1
   },
   {
    "depends_on": "eval:doc.is_unit",
@@ -221,7 +223,8 @@
    "fieldname": "components",
    "fieldtype": "Table",
    "label": "Components",
-   "options": "Card Equipment Component"
+   "options": "Card Equipment Component",
+   "permlevel": 1
   },
   {
    "fieldname": "operation_tab",
@@ -237,7 +240,8 @@
    "fieldname": "current_project",
    "fieldtype": "Link",
    "label": "Current project",
-   "options": "Project"
+   "options": "Project",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.ownership!='ملك' && doc.operator_on!='الشركة'",
@@ -255,7 +259,8 @@
   {
    "fieldname": "assignment_date",
    "fieldtype": "Date",
-   "label": "Assignment date"
+   "label": "Assignment date",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_lmli",
@@ -394,7 +399,8 @@
    "fieldname": "الأصل_في_erpnext",
    "fieldtype": "Link",
    "label": "Asset in ERPNext",
-   "options": "Asset"
+   "options": "Asset",
+   "permlevel": 1
   },
   {
    "fetch_from": "الأصل_في_erpnext.item_code",
@@ -476,7 +482,8 @@
   {
    "fieldname": "expected_consumption",
    "fieldtype": "Float",
-   "label": "Expected consumption (liter/hour)"
+   "label": "Expected consumption (liter/hour)",
+   "permlevel": 1
   },
   {
    "depends_on": "eval:doc.ownership=='ملك'",
@@ -642,7 +649,8 @@
    "description": "A physical piece that belongs to an operating unit; it gets no monthly operation card (the unit does).",
    "fieldname": "is_unit_component",
    "fieldtype": "Check",
-   "label": "Unit component (no monthly card)"
+   "label": "Unit component (no monthly card)",
+   "permlevel": 1
   },
   {
    "depends_on": "eval:[\"مؤجَّرة لعميل\",\"إيجار من الباطن\"].includes(doc.rental_direction)",
@@ -690,7 +698,8 @@
   {
    "fieldname": "daily_diesel_consumption",
    "fieldtype": "Float",
-   "label": "Daily diesel consumption (litres per standard day)"
+   "label": "Daily diesel consumption (litres per standard day)",
+   "permlevel": 1
   },
   {
    "fieldname": "operation_standards_section",
@@ -727,7 +736,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-10-16 21:00:00.000000",
+ "modified": "2026-10-17 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

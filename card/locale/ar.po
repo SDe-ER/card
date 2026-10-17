@@ -2067,3 +2067,66 @@ msgstr "غير مسموح لك بتعديل إعدادات Card الخاصة ب�
 
 msgid "You are not permitted to build postings for {0} {1}."
 msgstr "غير مسموح لك بإنشاء ترحيلات لـ {0} {1}."
+
+msgid "Equipment {0} is already used in {1}; its company cannot change. Create a new equipment record for the other company."
+msgstr "المعدة {0} مستخدمة بالفعل في {1}؛ لا يمكن تغيير شركتها. أنشئ سجل معدة جديداً للشركة الأخرى."
+
+msgid "Asset {0} is cancelled and cannot be linked."
+msgstr "الأصل {0} ملغى ولا يمكن ربطه."
+
+msgid "Asset {0} belongs to company {1}; equipment {2} belongs to {3}."
+msgstr "الأصل {0} تابع للشركة {1}؛ والمعدة {2} تابعة للشركة {3}."
+
+msgid "You are not permitted to read Asset {0}, so you cannot link it."
+msgstr "غير مسموح لك بقراءة الأصل {0}، لذلك لا يمكنك ربطه."
+
+msgid "Only a unit can list components."
+msgstr "الوحدة فقط هي التي يمكن أن تحتوي على مكونات."
+
+msgid "A unit cannot be its own component."
+msgstr "لا يمكن أن تكون الوحدة مكوناً لنفسها."
+
+msgid "Component {0} is listed twice."
+msgstr "المكون {0} مذكور مرتين."
+
+msgid "Component {0} is itself a unit."
+msgstr "المكون {0} هو نفسه وحدة."
+
+msgid "Component {0} belongs to company {1}; the unit belongs to {2}."
+msgstr "المكون {0} تابع للشركة {1}؛ والوحدة تابعة للشركة {2}."
+
+msgid "Component {0} already belongs to unit {1}."
+msgstr "المكون {0} تابع بالفعل للوحدة {1}."
+
+msgid "A component row cannot be moved to another unit."
+msgstr "لا يمكن نقل صف مكون إلى وحدة أخرى."
+
+msgid "Location sync after an assignment change: project {0} → {1}; assignment date {2} → {3}"
+msgstr "مزامنة الموقع بعد تغيير تعيين: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Location sync after a transfer: project {0} → {1}; assignment date {2} → {3}"
+msgstr "مزامنة الموقع بعد نقل: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Daily location sync: project {0} → {1}; assignment date {2} → {3}"
+msgstr "المزامنة اليومية للموقع: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Daily equipment location sync"
+msgstr "المزامنة اليومية لموقع المعدات"
+
+msgid "Off by default. When on, a daily job sets each equipment's current project and assignment date from the assignment in force today (an overwritten value leaves a comment). Equipment without any assignment history is never changed."
+msgstr "معطلة افتراضياً. عند تفعيلها تضبط مهمة يومية المشروع الحالي وتاريخ التعيين لكل معدة من التعيين الساري اليوم (أي قيمة يُكتب فوقها تُسجَّل في تعليق). المعدات التي ليس لها أي تاريخ تعيينات لا تتغير أبداً."
+
+msgid "Equipment {0} is a component of unit {1}; a component cannot be a unit."
+msgstr "المعدة {0} مكون في الوحدة {1}؛ لا يمكن أن يكون المكون وحدة."
+
+msgid "Overlapping assignments in force on {0}: {1}. The current project and assignment date stay empty until the overlap is corrected."
+msgstr "تعيينات متداخلة سارية في {0}: {1}. يبقى المشروع الحالي وتاريخ التعيين فارغين حتى يُصحَّح التداخل."
+
+msgid "CARD equipment location overlap"
+msgstr "تداخل تعيينات موقع معدة في CARD"
+
+msgid "CARD daily location sync"
+msgstr "المزامنة اليومية لموقع المعدات في CARD"
+
+msgid "The location of these equipment could not be synced: {0}"
+msgstr "تعذّرت مزامنة موقع هذه المعدات: {0}"

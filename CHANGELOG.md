@@ -28,6 +28,23 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
 - **Card Settings**: Accounts Manager can now save the per-company accounting fields (the previous
   level-1 grant could not be used); policy fields moved to permission level 2 (System Manager writes).
 - Change history on Project Diesel Fill and Equipment Transport.
+- **Equipment fields that drive company, accounting and the assignment control are protected** (#56):
+  company, the linked Asset, unit / components / unit-component and the diesel consumption baselines
+  are written by Card Manager only (Card User reads them). Server-side checks:
+  - the company cannot change once the equipment is used;
+  - a linked Asset must be of the same company, not cancelled, and readable by the user;
+  - components must be of the same company, not units and not in another unit, also when a
+    component row is saved on its own (REST on the row).
+- **Current project and assignment date are read-only.** They follow the assignment in force today
+  (project and start date) and are re-synced whenever an assignment changes or a transfer is
+  submitted or cancelled; an overwritten value leaves a comment. A future assignment does not move
+  them; a transfer that ends a previous assignment takes effect the day after its date (a first
+  assignment starts on the transfer date). The free-text location is never changed.
+  Moves that only come into force with time (a future start, an end date passing) are applied by an
+  optional daily job, **off by default** (Card Settings); without it they wait for the next
+  assignment event.
+- **A unit's card days are checked against the unit's own assignments too.** A component without
+  assignment history no longer switches the check off.
 
 ### Fixed
 - **Project names in reports for operational roles** (#29, PR #30).
