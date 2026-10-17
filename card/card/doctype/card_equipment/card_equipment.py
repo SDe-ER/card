@@ -13,8 +13,38 @@ from card.constants import (
 	allowed_directions,
 	derive_direction,
 )
-from card.dimension import sync_asset_dimension
+from card.dimension import ASSET_LINK_FIELD, sync_asset_dimension
 from card.settings import setting
+
+# Commercial terms: permlevel 1 (Card Manager writes, Card User reads) and every
+# change needs a reason, recorded with the change in the document history.
+COMMERCIAL_FIELDS = (
+	"ownership",
+	"supplier",
+	"rental_start_date",
+	"rental_end_date",
+	"contract_no",
+	"rate_type",
+	"rate",
+	"daily_hours",
+	"الوقود_على",
+	"internal_hourly_rate",
+	"customer_rate_type",
+	"customer_rate",
+	"default_customer",
+	"rental_direction",
+	"operator_on",
+)
+
+# #56: documents whose company follows the equipment's; once one exists the
+# equipment's company is fixed (cards, postings and reports keep their company)
+COMPANY_BOUND_REFERENCES = (
+	("Card Monthly Card", "equipment"),
+	("Card Equipment Assignment", "equipment"),
+	("Project Diesel Fill", "card_equipment"),
+	("Equipment Transport", "equipment"),
+	("Card Equipment Component", "component"),
+)
 
 
 class CardEquipment(Document):
@@ -26,7 +56,15 @@ class CardEquipment(Document):
 	def validate(self):
 		self.apply_new_record_defaults()
 		self.validate_rental_direction()
+		self.validate_commercial_change_reason()
 		self.validate_unique_asset()
+		if not (frappe.flags.in_patch or frappe.flags.in_install or frappe.flags.in_migrate):
+			self.keep_derived_location()
+			# #56: checked only when the value changes, so a legacy row is never
+			# blocked by an unrelated save
+			self.validate_company_change()
+			self.validate_asset_link()
+			self.validate_components()
 		# Ported from Server Script "Card Equipment - Hourly Rate" (Before Validate).
 		# Computes the read-only approved_hourly_rate shown on the equipment.
 		rate = flt(self.rate)
@@ -42,6 +80,26 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = flt(rate / month_hours, 2)
 		else:
 			self.approved_hourly_rate = 0
+
+	def validate_commercial_change_reason(self):
+		"""A change to a commercial term of an existing equipment needs a NEW
+		reason (enforced server-side, so REST and imports are covered too).
+		Migrations and installs are exempt."""
+		if self.is_new() or frappe.flags.in_patch or frappe.flags.in_install or frappe.flags.in_migrate:
+			return
+		before = self.get_doc_before_save()
+		if not before:
+			return
+		changed = [f for f in COMMERCIAL_FIELDS if _differs(before.get(f), self.get(f))]
+		if not changed:
+			return
+		reason = (self.commercial_change_reason or "").strip()
+		if not reason or reason == (before.commercial_change_reason or "").strip():
+			labels = ", ".join(_(self.meta.get_label(f)) for f in changed)
+			frappe.throw(
+				_("Enter the reason for changing the commercial terms: {0}").format(labels),
+				title=_("Reason required"),
+			)
 
 	def validate_rental_direction(self):
 		"""F.7: rental_direction is the single source of truth. A blank one is
@@ -84,6 +142,69 @@ class CardEquipment(Document):
 		if other:
 			frappe.throw(_("Asset {0} is already linked to equipment {1}").format(asset, other))
 
+	def keep_derived_location(self):
+		"""#56: current_project / assignment_date are written only by
+		card.transfer.sync_equipment_location (db.set_value). read_only is a Desk
+		property, so a save (REST and imports included) never sets them: a new
+		equipment starts empty, an existing one keeps the stored values."""
+		before = None if self.is_new() else self.get_doc_before_save()
+		for fieldname in ("current_project", "assignment_date"):
+			self.set(fieldname, before.get(fieldname) if before else None)
+
+	def validate_company_change(self):
+		"""#56: the equipment's company decides the company of its cards, postings
+		and reports; once anything references the equipment it cannot move."""
+		if not self._company_changed():
+			return
+		references = list(COMPANY_BOUND_REFERENCES)
+		if frappe.get_meta("GL Entry").has_field("card_equipment"):
+			references.append(("GL Entry", "card_equipment"))  # e.g. Asset depreciation
+		for doctype, field in references:
+			if frappe.db.exists(doctype, {field: self.name}):
+				frappe.throw(
+					_(
+						"Equipment {0} is already used in {1}; its company cannot change. Create a new equipment record for the other company."
+					).format(self.name, _(doctype))
+				)
+
+	def _company_changed(self):
+		return not self.is_new() and self.has_value_changed("company")
+
+	def validate_asset_link(self):
+		"""#56: linking an Asset writes the equipment onto it as its accounting
+		dimension (card.dimension.sync_asset_dimension), so the Asset must be of
+		the equipment's company, not cancelled, and readable by the user."""
+		asset = self.get(ASSET_LINK_FIELD)
+		changed = self.is_new() or self.has_value_changed(ASSET_LINK_FIELD) or self._company_changed()
+		if not asset or not changed:
+			return
+		values = frappe.db.get_value("Asset", asset, ["company", "docstatus"], as_dict=True)
+		if not values:
+			return  # frappe's link validation reports the missing Asset
+		if not frappe.has_permission("Asset", "read", asset):
+			frappe.throw(
+				_("You are not permitted to read Asset {0}, so you cannot link it.").format(asset),
+				frappe.PermissionError,
+			)
+		if values.docstatus == 2:
+			frappe.throw(_("Asset {0} is cancelled and cannot be linked.").format(asset))
+		if values.company != self.company:
+			frappe.throw(
+				_("Asset {0} belongs to company {1}; equipment {2} belongs to {3}.").format(
+					asset, values.company, self.name or self.equipment_name, self.company
+				)
+			)
+
+	def validate_components(self):
+		"""#56: a unit's components decide which assignments its card days are
+		checked against (card.transfer.validate_card_days)."""
+		components = [row.component for row in self.get("components") or []]
+		before = self.get_doc_before_save()
+		if before and not self.has_value_changed("is_unit") and not self._company_changed():
+			if [row.component for row in before.get("components") or []] == components:
+				return
+		check_unit_components(self.name, self.company, self.is_unit, components)
+
 	def apply_new_record_defaults(self):
 		# Card Settings pre-fill for NEW equipment only; a provided value is never overridden.
 		if not self.is_new():
@@ -104,6 +225,51 @@ class CardEquipment(Document):
 				self.rate_type = basis
 			if not self.customer_rate_type:
 				self.customer_rate_type = basis
+
+
+def check_unit_components(unit, company, is_unit, components):
+	"""#56: the component rules of a unit, shared by the unit's save
+	(CardEquipment.validate_components) and a component row saved on its own
+	(CardEquipmentComponent.validate)."""
+	if components and not is_unit:
+		frappe.throw(_("Only a unit can list components."))
+	if is_unit and unit:
+		parent = frappe.db.get_value(
+			"Card Equipment Component", {"parenttype": "Card Equipment", "component": unit}, "parent"
+		)
+		if parent:
+			frappe.throw(
+				_("Equipment {0} is a component of unit {1}; a component cannot be a unit.").format(
+					unit, parent
+				)
+			)
+	seen = set()
+	for component in components:
+		if not component:
+			continue
+		if component == unit:
+			frappe.throw(_("A unit cannot be its own component."))
+		if component in seen:
+			frappe.throw(_("Component {0} is listed twice.").format(component))
+		seen.add(component)
+		info = frappe.db.get_value("Card Equipment", component, ["company", "is_unit"], as_dict=True)
+		if not info:
+			continue  # frappe's link validation reports the missing equipment
+		if info.is_unit:
+			frappe.throw(_("Component {0} is itself a unit.").format(component))
+		if info.company != company:
+			frappe.throw(
+				_("Component {0} belongs to company {1}; the unit belongs to {2}.").format(
+					component, info.company, company
+				)
+			)
+		other = frappe.db.get_value(
+			"Card Equipment Component",
+			{"parenttype": "Card Equipment", "component": component, "parent": ["!=", unit or ""]},
+			"parent",
+		)
+		if other:
+			frappe.throw(_("Component {0} already belongs to unit {1}.").format(component, other))
 
 
 def get_timeline_data(doctype: str, name: str) -> dict:
@@ -162,3 +328,13 @@ def get_shift_heatmap(name: str):
 	for timestamp, shift, hours in rows:
 		(night_map if shift == "ليلي" else day_map)[int(timestamp)] = flt(hours)
 	return {"day": day_map, "night": night_map, "has_night": bool(night_map)}
+
+
+def _differs(old, new):
+	"""Compare stored vs incoming values without false positives from type
+	(1 vs 1.0, None vs "", date vs "YYYY-MM-DD")."""
+	if (old in (None, "")) and (new in (None, "")):
+		return False
+	if isinstance(old, (int, float)) or isinstance(new, (int, float)):
+		return flt(old) != flt(new)
+	return str(old) != str(new)

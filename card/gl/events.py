@@ -31,7 +31,7 @@ def _log_for(doc):
 	names are legitimately reused after a rebuild (frappe reverts the naming
 	series), so a cancelled namesake log must never be resolved here. The
 	anti-resurrection guard (_block_amended_copy) deliberately looks across
-	ALL statuses instead."""
+	ALL statuses instead, keeping only logs written at or after the invoice."""
 	name = frappe.db.get_value(
 		"GL Posting Log",
 		{
@@ -131,15 +131,32 @@ def validate(doc, method=None):
 def _block_amended_copy(doc):
 	"""An amendment of a cancelled CARD posting would submit the same source
 	lines a second time outside the log lifecycle — the only supported paths
-	are rebuilding the month or a supplementary posting."""
-	if not doc.get("amended_from"):
-		return
-	if frappe.db.exists("GL Posting Log", {"posting_doc": doc.amended_from, "posting_doctype": doc.doctype}):
-		frappe.throw(
-			_(
-				"{0} amends CARD posting {1}; amendments would post the same source documents twice. Build the month again from CARD instead."
-			).format(doc.name or _("This invoice"), doc.amended_from)
+	are rebuilding the month or a supplementary posting.
+
+	A log belongs to an invoice only when it was written at or after that
+	invoice's creation: the builder inserts the invoice, then its log, in one
+	transaction. Frappe reverts the naming series when the last draft is
+	deleted, so a later manual invoice can carry the number of a deleted CARD
+	draft whose log stays behind; that older log does not make the manual
+	invoice a CARD posting. Every invoice up the amendment chain is checked,
+	and a missing timestamp or an equal one refuses (fail-closed)."""
+	name, seen = doc.get("amended_from"), set()
+	while name and name not in seen:
+		seen.add(name)
+		logged = frappe.get_all(
+			"GL Posting Log",
+			filters={"posting_doc": name, "posting_doctype": doc.doctype},
+			pluck="creation",
 		)
+		if logged:
+			created = frappe.db.get_value(doc.doctype, name, "creation")
+			if not created or any(not at or at >= created for at in logged):
+				frappe.throw(
+					_(
+						"{0} amends CARD posting {1}; amendments would post the same source documents twice. Build the month again from CARD instead."
+					).format(doc.name or _("This invoice"), name)
+				)
+		name = frappe.db.get_value(doc.doctype, name, "amended_from")
 
 
 def before_submit(doc, method=None):

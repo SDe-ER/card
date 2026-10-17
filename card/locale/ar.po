@@ -723,8 +723,8 @@ msgstr "طريقة الحساب"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:347
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:203
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:213
-msgid "Reconciliation difference"
-msgstr "فرق المطابقة"
+msgid "Not invoiced through Card"
+msgstr "غير مفوتر عبر Card"
 
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:9
 msgid "Refresh numbers"
@@ -1295,6 +1295,9 @@ msgstr "طريقة الدفع"
 msgid "Configure Card Settings for company {0}"
 msgstr "قم بإعداد إعدادات كارت للشركة {0}"
 
+msgid "You cannot build a {0}: your roles do not allow reading Items, which ERPNext needs to price the invoice lines. Ask an administrator for a standard role with Item read access (for example Purchase User, Sales User or Accounts User)."
+msgstr "لا يمكنك إنشاء {0}: أدوارك لا تسمح بقراءة الأصناف، وERPNext يحتاجها لتسعير بنود الفاتورة. اطلب من المسؤول دورًا قياسيًا يسمح بقراءة الأصناف (مثل Purchase User أو Sales User أو Accounts User)."
+
 msgid "Company is required for Card accounting."
 msgstr "الشركة مطلوبة لمحاسبة كارت."
 
@@ -1621,11 +1624,23 @@ msgstr "تحليل ديزل المعدات"
 msgid "Expected litres"
 msgstr "اللترات المتوقعة"
 
-msgid "Actual litres"
-msgstr "اللترات الفعلية"
+msgid "Allocated litres"
+msgstr "اللترات الموزعة"
 
-msgid "Litres variance"
-msgstr "فرق اللترات"
+msgid "Recorded litres (direct fills)"
+msgstr "لترات مسجلة (تعبئة مباشرة)"
+
+msgid "Estimated litres (hours split)"
+msgstr "لترات تقديرية (توزيع بالساعات)"
+
+msgid "Litres variance (expected vs allocated)"
+msgstr "فرق اللترات (المتوقع مقابل الموزع)"
+
+msgid "Allocated diesel"
+msgstr "الديزل الموزع"
+
+msgid "Estimated = project-tank fills split by card hours, not measured."
+msgstr "التقديري = تعبئات خزان المشروع موزعة بساعات الكارت، غير مقاس."
 
 msgid "Variance %"
 msgstr "نسبة الفرق %"
@@ -1675,8 +1690,8 @@ msgstr "تغيير قيمة النقل للمشروع {1} متاح فقط لمن
 msgid "Duplicate project in transport prices: {0}"
 msgstr "مشروع مكرر في أسعار النقل: {0}"
 
-msgid "Expected = operating hours x (daily diesel consumption / daily standard hours). Actual = litres allocated from submitted diesel fills. Display only — no accounting."
-msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الفعلي = اللترات الموزعة من تعبئات الديزل المعتمدة. للعرض فقط — بدون محاسبة."
+msgid "Expected = operating hours x (daily diesel consumption / daily standard hours). Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) plus estimated (project-tank fills split by card hours, not measured). The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
+msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الموزع = اللترات الموزعة من تعبئات الديزل المعتمدة: المسجلة (تعبئة مباشرة للمعدة) زائد التقديرية (تعبئات خزان المشروع موزعة بساعات الكارت، غير مقاسة). الفرق يقارن المتوقع بالموزع، وليس الاستهلاك المقاس. للعرض فقط — بدون محاسبة."
 
 msgid "Company {0} does not match the equipment's company {1}."
 msgstr "الشركة {0} لا تطابق شركة المعدة {1}."
@@ -1738,14 +1753,14 @@ msgstr "نوع الوردية"
 msgid "Diesel supplier policy is fixed; set the diesel supplier."
 msgstr "سياسة مورد الديزل ثابتة؛ حدد مورد الديزل."
 
-msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
-msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = المستحق من الكروت − قيود الفوترة."
+msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)."
 
 msgid "Equipment customers summary — Period from {0} to {1}. Click on the customer name to open their statement."
 msgstr "ملخص عملاء المعدات — الفترة من {0} إلى {1}. اضغط على اسم العميل لفتح كشف حسابه."
 
-msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
-msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
+msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)."
 
 msgid "Equipment suppliers summary — Period from {0} to {1}. Click on the supplier name to open their statement."
 msgstr "ملخص موردي المعدات — الفترة من {0} إلى {1}. اضغط على اسم المورد لفتح كشف حسابه."
@@ -1933,11 +1948,20 @@ msgstr "{0} لم تعد مطابقة لمستنداتها المصدر (إجما
 msgid "Source {0} {1} is now included in another active posting unit ({2}); rebuild before submitting {3}."
 msgstr "المستند المصدر {0} {1} أصبح مُدرجاً في وحدة ترحيل نشطة أخرى ({2})؛ أعد البناء قبل اعتماد {3}."
 
-msgid "Posting log {0} is {1}; cancel or delete its posting documents first — the log itself is the audit record."
-msgstr "سجل الترحيل {0} حالته {1}؛ ألغِ أو احذف مستندات الترحيل أولاً — السجل نفسه هو سجل التدقيق."
+msgid "Posting log {0} is the audit record of a CARD posting and cannot be deleted."
+msgstr "سجل الترحيل {0} هو سجل التدقيق لترحيل من CARD ولا يمكن حذفه."
 
-msgid "Posting log {0} still references {1} {2}; it cannot be deleted."
-msgstr "سجل الترحيل {0} ما يزال يشير إلى {1} {2}؛ لا يمكن حذفه."
+msgid "Posting log {0} is an audit record and cannot be edited."
+msgstr "سجل الترحيل {0} سجل تدقيق ولا يمكن تعديله."
+
+msgid "Posting logs are created only by CARD's monthly posting."
+msgstr "سجلات الترحيل تُنشأ فقط من خلال الترحيل الشهري في CARD."
+
+msgid "The sources of a posting log cannot be changed."
+msgstr "لا يمكن تغيير مصادر سجل الترحيل."
+
+msgid "Change tracking cannot be turned on for {0}: its earlier history holds figures of every company."
+msgstr "لا يمكن تفعيل تتبع التغييرات على {0}: سجله السابق يحتوي على أرقام كل الشركات."
 
 msgid "Tax template {0} must contain only 'On Net Total' rows with non-negative rates; found a '{1}' row. Fix the template before posting."
 msgstr "قالب الضريبة {0} يجب أن يحتوي على صفوف من نوع 'On Net Total' فقط بنسب غير سالبة؛ وُجد صف من نوع '{1}'. صحّح القالب قبل الترحيل."
@@ -1998,3 +2022,120 @@ msgstr "تكلفة النقل"
 
 msgid "Amount in words"
 msgstr "المبلغ كتابةً"
+
+msgid "You are not permitted to build postings for company {0}."
+msgstr "غير مسموح لك بإنشاء ترحيلات للشركة {0}."
+
+msgid "Figures per company"
+msgstr "الأرقام حسب الشركة"
+
+msgid "Reason for commercial change"
+msgstr "سبب تغيير الشروط التجارية"
+
+msgid "Required when a commercial term (rate, rate type, daily hours, direction, parties, contract, fuel) changes; kept in the document history."
+msgstr "مطلوب عند تغيير أي شرط تجاري (السعر، نوع السعر، الساعات اليومية، الاتجاه، الأطراف، العقد، الوقود)، ويُحفظ في سجل المستند."
+
+msgid "Enter the reason for changing the commercial terms: {0}"
+msgstr "أدخل سبب تغيير الشروط التجارية: {0}"
+
+msgid "Reason required"
+msgstr "السبب مطلوب"
+
+msgid "The assignment end date is before its start date."
+msgstr "تاريخ نهاية التعيين قبل تاريخ بدايته."
+
+msgid "Equipment {0} belongs to company {1}; project {2} belongs to {3}."
+msgstr "المعدة {0} تابعة للشركة {1}، والمشروع {2} تابع للشركة {3}."
+
+msgid "Equipment {0} is already assigned to project {1} from {2} to {3}."
+msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} من {2} إلى {3}."
+
+msgid "Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
+msgstr "تعبئة ديزل {0} — {1} لتر حصة تقديرية من {2} لتر (توزيع بالساعات)"
+
+msgid "Invoiced through Card (net before VAT)"
+msgstr "مفوتر عبر Card (الصافي قبل الضريبة)"
+
+msgid "ERPNext invoices outside Card — to reconcile (net before VAT)"
+msgstr "فواتير ERPNext خارج Card — تحتاج مطابقة (الصافي قبل الضريبة)"
+
+msgid "Not invoiced through Card = card net − invoiced through Card; a card in a Card draft invoice counts here until the invoice is submitted."
+msgstr "غير مفوتر عبر Card = صافي الكروت − المفوتر عبر Card؛ والكارت الموجود في مسودة فاتورة من Card يُحسب هنا لحين اعتماد الفاتورة."
+
+msgid "ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
+msgstr "فواتير ERPNext خارج Card تُعرض للمطابقة اليدوية ولا تُربط بالكروت تلقائيًا."
+
+msgid "ERPNext invoices outside Card are per party for the whole period, whatever the project or equipment filter."
+msgstr "فواتير ERPNext خارج Card على مستوى المورد أو العميل للفترة كلها، بغض النظر عن فلتر المشروع أو نوع المعدة."
+
+msgid "{0} {1}: cost center {2} cannot be used for company {3} (it must be an enabled, non-group cost center of that company)."
+msgstr "{0} {1}: مركز التكلفة {2} لا يصلح للشركة {3} (يجب أن يكون مركز تكلفة مفعّلاً وغير تجميعي تابعاً لتلك الشركة)."
+
+msgid "You are not permitted to change the Card settings of company {0}."
+msgstr "غير مسموح لك بتعديل إعدادات Card الخاصة بالشركة {0}."
+
+msgid "You are not permitted to build postings for {0} {1}."
+msgstr "غير مسموح لك بإنشاء ترحيلات لـ {0} {1}."
+
+msgid "Equipment {0} is already used in {1}; its company cannot change. Create a new equipment record for the other company."
+msgstr "المعدة {0} مستخدمة بالفعل في {1}؛ لا يمكن تغيير شركتها. أنشئ سجل معدة جديداً للشركة الأخرى."
+
+msgid "Asset {0} is cancelled and cannot be linked."
+msgstr "الأصل {0} ملغى ولا يمكن ربطه."
+
+msgid "Asset {0} belongs to company {1}; equipment {2} belongs to {3}."
+msgstr "الأصل {0} تابع للشركة {1}؛ والمعدة {2} تابعة للشركة {3}."
+
+msgid "You are not permitted to read Asset {0}, so you cannot link it."
+msgstr "غير مسموح لك بقراءة الأصل {0}، لذلك لا يمكنك ربطه."
+
+msgid "Only a unit can list components."
+msgstr "الوحدة فقط هي التي يمكن أن تحتوي على مكونات."
+
+msgid "A unit cannot be its own component."
+msgstr "لا يمكن أن تكون الوحدة مكوناً لنفسها."
+
+msgid "Component {0} is listed twice."
+msgstr "المكون {0} مذكور مرتين."
+
+msgid "Component {0} is itself a unit."
+msgstr "المكون {0} هو نفسه وحدة."
+
+msgid "Component {0} belongs to company {1}; the unit belongs to {2}."
+msgstr "المكون {0} تابع للشركة {1}؛ والوحدة تابعة للشركة {2}."
+
+msgid "Component {0} already belongs to unit {1}."
+msgstr "المكون {0} تابع بالفعل للوحدة {1}."
+
+msgid "A component row cannot be moved to another unit."
+msgstr "لا يمكن نقل صف مكون إلى وحدة أخرى."
+
+msgid "Location sync after an assignment change: project {0} → {1}; assignment date {2} → {3}"
+msgstr "مزامنة الموقع بعد تغيير تعيين: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Location sync after a transfer: project {0} → {1}; assignment date {2} → {3}"
+msgstr "مزامنة الموقع بعد نقل: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Daily location sync: project {0} → {1}; assignment date {2} → {3}"
+msgstr "المزامنة اليومية للموقع: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Daily equipment location sync"
+msgstr "المزامنة اليومية لموقع المعدات"
+
+msgid "Off by default. When on, a daily job sets each equipment's current project and assignment date from the assignment in force today (an overwritten value leaves a comment). Equipment without any assignment history is never changed."
+msgstr "معطلة افتراضياً. عند تفعيلها تضبط مهمة يومية المشروع الحالي وتاريخ التعيين لكل معدة من التعيين الساري اليوم (أي قيمة يُكتب فوقها تُسجَّل في تعليق). المعدات التي ليس لها أي تاريخ تعيينات لا تتغير أبداً."
+
+msgid "Equipment {0} is a component of unit {1}; a component cannot be a unit."
+msgstr "المعدة {0} مكون في الوحدة {1}؛ لا يمكن أن يكون المكون وحدة."
+
+msgid "Overlapping assignments in force on {0}: {1}. The current project and assignment date stay empty until the overlap is corrected."
+msgstr "تعيينات متداخلة سارية في {0}: {1}. يبقى المشروع الحالي وتاريخ التعيين فارغين حتى يُصحَّح التداخل."
+
+msgid "CARD equipment location overlap"
+msgstr "تداخل تعيينات موقع معدة في CARD"
+
+msgid "CARD daily location sync"
+msgstr "المزامنة اليومية لموقع المعدات في CARD"
+
+msgid "The location of these equipment could not be synced: {0}"
+msgstr "تعذّرت مزامنة موقع هذه المعدات: {0}"

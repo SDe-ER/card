@@ -131,13 +131,17 @@ after_migrate = ["card.fonts.ensure_fonts"]
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+# The CARD party registries are per party across companies: a user restricted
+# to some companies sees only the parties that have cards there (#23).
+permission_query_conditions = {
+	"Card Equipment Supplier": "card.party_registry.supplier_query_conditions",
+	"Card Equipment Customer": "card.party_registry.customer_query_conditions",
+}
+
+has_permission = {
+	"Card Equipment Supplier": "card.party_registry.has_registry_permission",
+	"Card Equipment Customer": "card.party_registry.has_registry_permission",
+}
 
 # Document Events
 # ---------------
@@ -187,10 +191,17 @@ doc_events = {
 		"before_rename": "card.party_registry.before_rename",
 		"after_rename": "card.party_registry.after_rename",
 	},
+	# the registries' change history stays hidden from their form (#23)
+	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
 }
 
 # Scheduled Tasks
 # ---------------
+
+scheduler_events = {
+	# #56: no-op unless Card Settings enables the daily location sync
+	"daily": ["card.transfer.sync_equipment_locations_daily"],
+}
 
 # scheduler_events = {
 # 	"all": [

@@ -10,58 +10,113 @@ from card.party_registry import registry_row
 from card.report_access import assert_report_role, permitted_companies, query_companies
 from card.settings import setting
 
+# Registry aggregates (counts, hours, totals, months) are NOT stored: a registry
+# row is per party across every company, so any stored figure would expose
+# other companies' activity (#23). Figures are computed on request, per company
+# the caller may see (party_figures).
+REGISTRY_AGGREGATES = (
+	"first_month",
+	"last_month",
+	"equipment_count",
+	"card_count",
+	"total_hours",
+	"last_refreshed",
+)
+REGISTRY_MONEY = {"Supplier": "total_net", "Customer": "total_accrued"}
 
-def recompute_supplier(supplier):
-	"""Recompute one supplier's registry record from ALL its submitted, non-owned cards.
-	Shared by the refresh API and the Card Monthly Card submit/cancel events.
-	Writes only to "Card Equipment Supplier"."""
-	cards = frappe.get_all(
+
+def _party_cards(party_type, party, companies=None):
+	"""Submitted cards that bill ``party`` on its side (supplier: non-owned;
+	customer: customer-billing directions), optionally limited to companies."""
+	from card.constants import CUSTOMER_BILLING_DIRECTIONS
+
+	if party_type == "Supplier":
+		filters = [["supplier", "=", party], ["docstatus", "=", 1], ["ownership", "!=", "ملك"]]
+		money = "net_amount"
+	else:
+		filters = [
+			["customer", "=", party],
+			["docstatus", "=", 1],
+			["card_direction", "in", list(CUSTOMER_BILLING_DIRECTIONS)],
+		]
+		money = "customer_net_amount"
+	if companies is not None:
+		filters.append(["company", "in", list(companies) or [""]])
+	return frappe.get_all(
 		"Card Monthly Card",
-		filters=[["supplier", "=", supplier], ["docstatus", "=", 1], ["ownership", "!=", "ملك"]],
-		fields=[
-			"equipment",
-			"total_working_hours",
-			"net_amount",
-			"year",
-			"month",
-		],
+		filters=filters,
+		fields=["company", "equipment", "total_working_hours", money + " as money", "year", "month"],
 		limit_page_length=0,
 	)
-	eqs = set()
-	hours = 0.0
-	net = 0.0
-	periods = []
-	for c in cards:
-		eqs.add(c.equipment)
-		hours = hours + flt(c.total_working_hours)
-		net = net + flt(c.net_amount)  # supplier side only (sub-rental customer rows excluded)
-		periods.append(str(c.year) + "-" + str(c.month).zfill(2))
-	periods = sorted(periods)
 
-	row = registry_row("Card Equipment Supplier", "supplier", supplier)
-	if row and row != supplier:
-		# a row left misnamed by an old rename: realign it to the party's name
-		rename_doc(
-			"Card Equipment Supplier", row, supplier, force=True, ignore_permissions=True, show_alert=False
+
+def _figures_by_company(cards):
+	by = {}
+	for c in cards:
+		f = by.setdefault(c.company, {"eq": set(), "cards": 0, "hours": 0.0, "money": 0.0, "periods": []})
+		f["eq"].add(c.equipment)
+		f["cards"] = f["cards"] + 1
+		f["hours"] = f["hours"] + flt(c.total_working_hours)
+		f["money"] = f["money"] + flt(c.money)
+		f["periods"].append(str(c.year) + "-" + str(c.month).zfill(2))
+	result = []
+	for company in sorted(by):
+		f = by[company]
+		periods = sorted(f["periods"])
+		result.append(
+			{
+				"company": company,
+				"equipment_count": len(f["eq"]),
+				"card_count": f["cards"],
+				"total_hours": flt(f["hours"], 2),
+				"total": flt(f["money"], 2),
+				"first_month": periods[0] if periods else None,
+				"last_month": periods[-1] if periods else None,
+			}
 		)
-		row = supplier
-	if row:
-		rec = frappe.get_doc("Card Equipment Supplier", row)
-	else:
-		rec = frappe.new_doc("Card Equipment Supplier")
-		rec.supplier = supplier
-	rec.equipment_count = len(eqs)
-	rec.card_count = len(cards)
-	rec.total_hours = flt(hours, 2)
-	rec.total_net = flt(net, 2)
-	rec.first_month = periods[0] if periods else None
-	rec.last_month = periods[-1] if periods else None
-	rec.last_refreshed = frappe.utils.now_datetime()
+	return result
+
+
+@frappe.whitelist()
+def party_figures(party_type: str, party: str):
+	"""Per-company figures of one registry party (supplier net / customer
+	accrued = customer net), for the companies the caller may see only."""
+	assert_report_role()
+	registry = {"Supplier": "Card Equipment Supplier", "Customer": "Card Equipment Customer"}.get(party_type)
+	if not registry:
+		frappe.throw(_("Party type must be Supplier or Customer."))
+	if not frappe.db.exists(registry, party) or not frappe.has_permission(registry, "read", party):
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	return _figures_by_company(_party_cards(party_type, party, permitted_companies()))
+
+
+def _sync_registry_row(registry, field, party):
+	"""Make sure ``party`` has its registry row, named after the party (a row a
+	pre-hook rename left misnamed is realigned), with no stored aggregates."""
+	row = registry_row(registry, field, party)
+	if row and row != party:
+		# a row left misnamed by an old rename: realign it to the party's name
+		rename_doc(registry, row, party, force=True, ignore_permissions=True, show_alert=False)
+		row = party
+	rec = frappe.get_doc(registry, row) if row else frappe.new_doc(registry)
+	if rec.is_new():
+		rec.set(field, party)
+	for fieldname in (*REGISTRY_AGGREGATES, *REGISTRY_MONEY.values()):
+		if rec.meta.has_field(fieldname):
+			rec.set(fieldname, None)
 	if rec.is_new():
 		rec.insert(ignore_permissions=True)
 	else:
 		rec.save(ignore_permissions=True)
-	return {"supplier": supplier, "cards": len(cards), "net": flt(net, 2)}
+	return rec.name
+
+
+def recompute_supplier(supplier):
+	"""Keep the supplier's registry row (Card Equipment Supplier) in sync. Shared
+	by the refresh API and the Card Monthly Card events; no figures are stored
+	(see REGISTRY_AGGREGATES)."""
+	_sync_registry_row("Card Equipment Supplier", "supplier", supplier)
+	return {"supplier": supplier}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -128,57 +183,11 @@ def card_suppliers_query(doctype: str, txt: str, searchfield: str, start: int, p
 
 
 def recompute_customer(customer):
-	"""Recompute one customer's registry record from ALL its submitted
-	customer-billing cards (rented-out + sub-rental). Operational counters and
-	the card-accrued total only — balances are never stored in CARD; they live
-	in the official AR (Sales Invoice / Payment Entry / GL Entry).
-	Writes only to "Card Equipment Customer"."""
-	from card.constants import CUSTOMER_BILLING_DIRECTIONS
-
-	cards = frappe.get_all(
-		"Card Monthly Card",
-		filters=[
-			["customer", "=", customer],
-			["docstatus", "=", 1],
-			["card_direction", "in", list(CUSTOMER_BILLING_DIRECTIONS)],
-		],
-		fields=["equipment", "total_working_hours", "customer_net_amount", "year", "month"],
-		limit_page_length=0,
-	)
-	eqs = set()
-	hours = 0.0
-	accrued = 0.0
-	periods = []
-	for c in cards:
-		eqs.add(c.equipment)
-		hours = hours + flt(c.total_working_hours)
-		accrued = accrued + flt(c.customer_net_amount)  # what the Sales Invoice bills
-		periods.append(str(c.year) + "-" + str(c.month).zfill(2))
-	periods = sorted(periods)
-
-	row = registry_row("Card Equipment Customer", "customer", customer)
-	if row and row != customer:
-		rename_doc(
-			"Card Equipment Customer", row, customer, force=True, ignore_permissions=True, show_alert=False
-		)
-		row = customer
-	if row:
-		rec = frappe.get_doc("Card Equipment Customer", row)
-	else:
-		rec = frappe.new_doc("Card Equipment Customer")
-		rec.customer = customer
-	rec.equipment_count = len(eqs)
-	rec.card_count = len(cards)
-	rec.total_hours = flt(hours, 2)
-	rec.total_accrued = flt(accrued, 2)
-	rec.first_month = periods[0] if periods else None
-	rec.last_month = periods[-1] if periods else None
-	rec.last_refreshed = frappe.utils.now_datetime()
-	if rec.is_new():
-		rec.insert(ignore_permissions=True)
-	else:
-		rec.save(ignore_permissions=True)
-	return {"customer": customer, "cards": len(cards), "accrued": flt(accrued, 2)}
+	"""Keep the customer's registry row (Card Equipment Customer) in sync; no
+	figures are stored. Balances live in the official AR (Sales Invoice /
+	Payment Entry / GL Entry)."""
+	_sync_registry_row("Card Equipment Customer", "customer", customer)
+	return {"customer": customer}
 
 
 @frappe.whitelist(methods=["POST"])

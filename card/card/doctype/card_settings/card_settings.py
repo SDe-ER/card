@@ -5,9 +5,13 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+# per-company tables: a row steers that company's postings
+COMPANY_TABLES = ("company_settings", "adjustment_types")
+
 
 class CardSettings(Document):
 	def validate(self):
+		self._validate_company_scope()
 		seen = set()
 		account_fields = [
 			f.fieldname
@@ -41,6 +45,40 @@ class CardSettings(Document):
 				frappe.throw(_("Duplicate project in transport prices: {0}").format(row.project))
 			projects.add(row.project)
 		self._validate_adjustment_types()
+
+	def _validate_company_scope(self):
+		"""A user may add, change or remove the per-company rows (accounts, tax
+		templates, items, adjustment types) only for companies they may see —
+		otherwise an Accounts Manager restricted to company A could re-point
+		company B's posting accounts (security review). Child-row links are not
+		User-Permission-checked by Frappe, so this is enforced here."""
+		if frappe.session.user == "Administrator" or frappe.flags.in_patch or frappe.flags.in_install:
+			return
+		from card.report_access import permitted_companies
+
+		allowed = set(permitted_companies())
+		before = self.get_doc_before_save()
+		touched = set()
+		for table in COMPANY_TABLES:
+			old = {r.name: r for r in (before.get(table) if before else []) or []}
+			new = {r.name: r for r in self.get(table) or []}
+			for name, row in new.items():
+				prev = old.get(name)
+				if prev is None or _row_values(prev) != _row_values(row):
+					touched.add(row.company)
+					if prev is not None:
+						touched.add(prev.company)
+			for name, row in old.items():
+				if name not in new:
+					touched.add(row.company)
+		denied = sorted(c for c in touched if c and c not in allowed)
+		if denied:
+			frappe.throw(
+				_("You are not permitted to change the Card settings of company {0}.").format(
+					", ".join(denied)
+				),
+				frappe.PermissionError,
+			)
 
 	def _validate_adjustment_types(self):
 		"""S3/F.4: every configured addition/deduction type must point at a safe,
@@ -83,3 +121,12 @@ class CardSettings(Document):
 						row.account, row.type_name
 					)
 				)
+
+
+def _row_values(row):
+	"""A child row's data fields, for change detection (no meta/ordering fields)."""
+	return {
+		df.fieldname: row.get(df.fieldname)
+		for df in row.meta.fields
+		if df.fieldtype not in ("Section Break", "Column Break", "Tab Break")
+	}

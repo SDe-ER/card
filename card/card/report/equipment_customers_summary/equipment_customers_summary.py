@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
+from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
 from card.settings import setting
 
@@ -117,6 +118,15 @@ def execute(filters=None):
 				x["invoiced"] = x["invoiced"] + flt(g.debit)
 				x["received"] = x["received"] + flt(g.credit)
 
+	# like-for-like reconciliation: card nets are before VAT, GL debits include it
+	inv_net = (
+		cards_invoiced("Customer", order, company, start, end, cards=[c.name for c in cards])
+		if show_ledger
+		else {}
+	)
+	# ERPNext invoices CARD did not create: shown apart, never matched to cards
+	outside = invoices_outside_card("Customer", order, company, start, end) if show_ledger else {}
+
 	names = {}
 	if order:
 		for s in frappe.get_all(
@@ -132,7 +142,9 @@ def execute(filters=None):
 		"hours": 0.0,
 		"accrued": 0.0,
 		"invoiced": 0.0,
+		"invoiced_net": 0.0,
 		"diff": 0.0,
+		"external_net": 0.0,
 		"opening": 0.0,
 		"received": 0.0,
 		"closing": 0.0,
@@ -147,7 +159,9 @@ def execute(filters=None):
 			days = days + len(eq_dates.get(s + "|" + e) or set())
 		accrued = flt(a["accrued"], 2)
 		closing = flt(x["opening"] + x["invoiced"] - x["received"], 2)
-		diff = flt(accrued - x["invoiced"], 2)
+		inv = flt(inv_net.get(s), 2)
+		diff = flt(accrued - inv, 2)
+		ext = flt(outside.get(s), 2)
 		result.append(
 			{
 				"customer": s,
@@ -158,7 +172,9 @@ def execute(filters=None):
 				"hours": flt(a["hours"], 2),
 				"accrued": accrued,
 				"invoiced": flt(x["invoiced"], 2),
+				"invoiced_net": inv,
 				"diff": diff,
+				"external_net": ext,
 				"opening": flt(x["opening"], 2),
 				"received": flt(x["received"], 2),
 				"closing": closing,
@@ -170,7 +186,9 @@ def execute(filters=None):
 		tot["hours"] = tot["hours"] + a["hours"]
 		tot["accrued"] = tot["accrued"] + accrued
 		tot["invoiced"] = tot["invoiced"] + x["invoiced"]
+		tot["invoiced_net"] = tot["invoiced_net"] + inv
 		tot["diff"] = tot["diff"] + diff
+		tot["external_net"] = tot["external_net"] + ext
 		tot["opening"] = tot["opening"] + x["opening"]
 		tot["received"] = tot["received"] + x["received"]
 		tot["closing"] = tot["closing"] + closing
@@ -187,7 +205,9 @@ def execute(filters=None):
 				"hours": flt(tot["hours"], 2),
 				"accrued": flt(tot["accrued"], 2),
 				"invoiced": flt(tot["invoiced"], 2),
+				"invoiced_net": flt(tot["invoiced_net"], 2),
 				"diff": flt(tot["diff"], 2),
+				"external_net": flt(tot["external_net"], 2),
 				"opening": flt(tot["opening"], 2),
 				"received": flt(tot["received"], 2),
 				"closing": flt(tot["closing"], 2),
@@ -209,7 +229,19 @@ def execute(filters=None):
 		{"fieldname": "hours", "label": _("Hours"), "fieldtype": "Float", "precision": 2, "width": 90},
 		{"fieldname": "accrued", "label": _("Total accrued (cards)"), "fieldtype": "Currency", "width": 120},
 		{"fieldname": "invoiced", "label": _("Invoiced entries"), "fieldtype": "Currency", "width": 120},
-		{"fieldname": "diff", "label": _("Reconciliation difference"), "fieldtype": "Currency", "width": 120},
+		{
+			"fieldname": "invoiced_net",
+			"label": _("Invoiced through Card (net before VAT)"),
+			"fieldtype": "Currency",
+			"width": 130,
+		},
+		{"fieldname": "diff", "label": _("Not invoiced through Card"), "fieldtype": "Currency", "width": 120},
+		{
+			"fieldname": "external_net",
+			"label": _("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+			"fieldtype": "Currency",
+			"width": 150,
+		},
 		{"fieldname": "opening", "label": _("Opening balance"), "fieldtype": "Currency", "width": 120},
 		{"fieldname": "received", "label": _("Received"), "fieldtype": "Currency", "width": 110},
 		{"fieldname": "closing", "label": _("Closing balance"), "fieldtype": "Currency", "width": 130},
@@ -224,10 +256,16 @@ def execute(filters=None):
 			"indicator": "Green",
 		},
 		{
-			"label": _("Reconciliation difference"),
+			"label": _("Not invoiced through Card"),
 			"value": flt(tot["diff"], 2),
 			"datatype": "Currency",
 			"indicator": "Green" if abs(tot["diff"]) < flt(setting("reconciliation_tolerance")) else "Red",
+		},
+		{
+			"label": _("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+			"value": flt(tot["external_net"], 2),
+			"datatype": "Currency",
+			"indicator": "Orange" if flt(tot["external_net"], 2) else "Green",
 		},
 		{
 			"label": _("Total customer balances"),
@@ -249,10 +287,16 @@ def execute(filters=None):
 			columns,
 			result,
 			summary,
-			("invoiced", "diff", "opening", "received", "closing"),
-			(_("Reconciliation difference"), _("Total customer balances")),
+			("invoiced", "invoiced_net", "diff", "external_net", "opening", "received", "closing"),
+			(
+				_("Not invoiced through Card"),
+				_("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+				_("Total customer balances"),
+			),
 		)
 		message = message + " " + ledger_notice()
+	else:
+		message = message + " " + reconciliation_notice()
 
 	columns = readable_links(columns, result)
 	data = [columns, result, message, None, summary, True]

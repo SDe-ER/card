@@ -8,12 +8,11 @@ Everything here is idempotent and safe to re-run:
 1. ``default_print_format`` Property Setters — one per CARD transaction
    doctype, pointing at the app's standard print formats ("Card Monthly Card
    Print", "Project Diesel Fill Print", "Equipment Transport Print"). This
-   part needs no Company, so it always runs. An existing Property Setter is
-   respected, with ONE deliberate exception: the Card Monthly Card setter
-   that ``card.install._ensure_print_default_property_setter`` created with
-   the legacy fixture format ("كارت تشغيل شهري") is converged to the new
-   standard format. A value the owner picked manually (anything else) is
-   never overwritten.
+   part needs no Company, so it always runs. A setter is created when missing
+   and filled when its value is empty; any non-empty value is kept — including
+   the legacy Card Monthly Card format ("كارت تشغيل شهري"), which stays the
+   default on sites that have it (Owner decision 2026-10-17, until a real
+   Arabic PDF of the new format is approved). The new formats stay selectable.
 
 2. "CARD" Letter Head — created ONLY when the site has no Letter Head at
    all, built from the default/first Company entirely out of system data
@@ -32,11 +31,6 @@ PRINT_FORMAT_DEFAULTS = {
 	"Project Diesel Fill": "Project Diesel Fill Print",
 	"Equipment Transport": "Equipment Transport Print",
 }
-
-CMC_DOCTYPE = "Card Monthly Card"
-# Legacy default installed by card.install._ensure_print_default_property_setter;
-# the only pre-existing value this patch is allowed to replace.
-LEGACY_CMC_PRINT_FORMAT = "كارت تشغيل شهري"
 
 LETTER_HEAD_NAME = "CARD"
 FONT_STACK = "'Segoe UI', Tahoma, Arial, sans-serif"
@@ -68,7 +62,7 @@ def _ensure_default_print_formats():
 			as_dict=True,
 		)
 		if existing:
-			if doctype == CMC_DOCTYPE and (existing.value or "") in ("", LEGACY_CMC_PRINT_FORMAT):
+			if not (existing.value or "").strip():
 				frappe.db.set_value(
 					"Property Setter", existing.name, "value", print_format, update_modified=False
 				)

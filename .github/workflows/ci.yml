@@ -5,12 +5,7 @@ on:
     branches:
       - main
       - version-16
-  pull_request:
-    paths-ignore:
-      - "**.md"
-      - ".github/images/**"
-      - "LICENSE"
-      - "license.txt"
+  pull_request: {}  # no path filter: the required unit-test check must also report on docs-only PRs (#37)
   workflow_dispatch:
 
 concurrency:
@@ -19,7 +14,7 @@ concurrency:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: ubuntu-latest moves to Ubuntu 26 from 2026-10-19 (#62)
     timeout-minutes: 45
     name: CARD unit tests (frappe version-16 / 16.5x)
 
@@ -39,21 +34,21 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
           check-latest: true
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}

@@ -8,6 +8,82 @@ All notable changes to the Card app are documented here. Format based on
 > runs on a given site is a deployment fact, verified on that site — never inferred from this file.
 
 ## [Unreleased]
+Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
+
+### Security
+- **Monthly-posting endpoints are company-scoped** (#36). `post_month` / `rebuild_month` refuse,
+  before any work, a company outside the caller's permitted companies (User Permission rule of the
+  reports). On QA the case was already blocked late, and incidentally, by ERPNext's party-account
+  permission check; the gate is now explicit.
+- **Supplier/customer registries no longer expose other companies** (#23). Registry rows store no
+  figures any more (the stored party-wide counts, hours and totals are cleared by a patch); the form
+  shows figures per company the user may see. A user restricted to some companies lists and opens only
+  parties with cards there (list, form and REST). The registries' earlier change history, which holds
+  those figures, is **kept unchanged as audit history** and is not shown: the registries do not track
+  changes (turning it on through Customize Form or a Property Setter is refused), and Version records
+  are readable by System Manager only. A patch only counts that history; nothing is deleted.
+- **The Monthly Card keeps its current default print format.** On upgrade, an existing print-format
+  default (e.g. the legacy «كارت تشغيل شهري») is kept; the new "Card Monthly Card Print" stays
+  available in the print menu, and new installs use it as the default.
+- **Commercial terms of equipment are protected** (rates, rate basis, daily hours, direction, parties,
+  contract, fuel): permission level 1 (Card Manager writes, Card User reads), a new reason is required
+  for every change, and the change history is kept. Card User no longer creates equipment.
+- **Equipment assignments** are written by Card Manager only and validated (dates, company, no overlap);
+  transfers record their assignment changes in the history.
+- **Card Settings**: Accounts Manager can now save the per-company accounting fields (the previous
+  level-1 grant could not be used); policy fields moved to permission level 2 (System Manager writes).
+- Change history on Project Diesel Fill and Equipment Transport.
+- **Equipment fields that drive company, accounting and the assignment control are protected** (#56):
+  company, the linked Asset, unit / components / unit-component and the diesel consumption baselines
+  are written by Card Manager only (Card User reads them). Server-side checks:
+  - the company cannot change once the equipment is used;
+  - a linked Asset must be of the same company, not cancelled, and readable by the user;
+  - components must be of the same company, not units and not in another unit, also when a
+    component row is saved on its own (REST on the row).
+- **Current project and assignment date are read-only.** They follow the assignment in force today
+  (project and start date) and are re-synced whenever an assignment changes or a transfer is
+  submitted or cancelled; an overwritten value leaves a comment. A future assignment does not move
+  them; a transfer that ends a previous assignment takes effect the day after its date (a first
+  assignment starts on the transfer date). The free-text location is never changed.
+  Moves that only come into force with time (a future start, an end date passing) are applied by an
+  optional daily job, **off by default** (Card Settings); without it they wait for the next
+  assignment event.
+- **A unit's card days are checked against the unit's own assignments too.** A component without
+  assignment history no longer switches the check off.
+- **The GL Posting Log is a permanent audit record** (#57): no role can create, edit, delete or share
+  a log (System Manager keeps read, report and export), and the server refuses these operations even
+  for Administrator, shared documents or a Custom DocPerm. Only CARD's monthly posting creates a log, for
+  its own draft invoice; the lifecycle (submit, cancel, draft deletion, rebuild) is unchanged. Cancelled
+  and stale logs are kept, so a cancelled Card invoice can no longer become amendable by deleting or
+  rebinding its log. The source rows cannot be changed on their own. Delete Company Transactions and
+  app uninstall keep working.
+
+### Fixed
+- **Project names in reports for operational roles** (#29, PR #30).
+- **Diesel reports mark estimates** (#33): litres split from project-tank fills by operating hours are
+  shown as *estimated*, direct fills as *recorded*; "Actual litres" is now "Allocated litres".
+- **Monthly posting lines** (#34): fill/transport lines use the source's own cost center when set;
+  split diesel lines state their own estimated litres share.
+- **Reconciliation in three separate figures** (statements and summaries, net before VAT): **invoiced
+  through Card** (from Card's own posting trail), **not invoiced through Card** (card net − invoiced through
+  Card; cards in a Card draft invoice count here until it is submitted; under a project or equipment-type
+  filter only the shown cards' share of a Card invoice counts) and **ERPNext invoices outside
+  Card — to reconcile** (submitted invoices of the party in the period that Card did not create). Invoices
+  outside Card are shown for manual reconciliation only: never matched to cards by party and month, and no
+  existing invoice, GL entry or amount is relinked or changed. GL figures stay as the VAT-inclusive balance.
+  A manual invoice that takes the number of a deleted Card draft (frappe reuses the last number) is still
+  counted outside Card: only a **submitted** Card posting makes an invoice Card's.
+- **Clear message when a poster cannot read Items.** Building a monthly invoice needs Item read access
+  (ERPNext prices the lines with the caller's rights); a Card Manager without it (e.g. Accounts Manager
+  only) is now refused up front with a message naming the needed role, instead of an empty permission
+  error from inside ERPNext. No rights are granted automatically.
+- **Manual invoices that reuse a deleted Card draft's number can be amended again.** frappe reuses the
+  last number after a draft is deleted, and Card refused every amendment of such a manual invoice. An
+  amendment is now refused only when a Card posting record was written at or after the amended invoice
+  (Card creates its invoice and that record together), and the whole amendment chain is checked: amending
+  a cancelled Card posting — directly or through an earlier amendment — is still refused. Equal or
+  missing timestamps refuse.
+
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
   deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;

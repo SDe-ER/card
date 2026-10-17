@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 
 from card.adjustments import sided_adjustments
+from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
@@ -373,7 +374,15 @@ def execute(filters=None):
 			accrued = accrued + flt(g.credit)
 			paid = paid + flt(g.debit)
 		closing = opening + accrued - paid
-		diff = flt(grand["net"] - accrued, 2)
+		# like-for-like: card nets are before VAT; the accrual credits include it
+		inv = flt(
+			cards_invoiced("Supplier", [supplier], _company, start, end, cards=[c.name for c in cards]).get(
+				supplier
+			),
+			2,
+		)
+		diff = flt(grand["net"] - inv, 2)
+		outside = flt(invoices_outside_card("Supplier", [supplier], _company, start, end).get(supplier), 2)
 		summary = [
 			*summary,
 			{
@@ -389,10 +398,22 @@ def execute(filters=None):
 				"indicator": "Blue",
 			},
 			{
-				"label": _("Reconciliation difference"),
+				"label": _("Invoiced through Card (net before VAT)"),
+				"value": inv,
+				"datatype": "Currency",
+				"indicator": "Blue",
+			},
+			{
+				"label": _("Not invoiced through Card"),
 				"value": diff,
 				"datatype": "Currency",
 				"indicator": "Green" if abs(diff) < flt(setting("reconciliation_tolerance")) else "Red",
+			},
+			{
+				"label": _("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+				"value": outside,
+				"datatype": "Currency",
+				"indicator": "Orange" if outside else "Green",
 			},
 			{
 				"label": _("Opening balance"),
@@ -413,9 +434,14 @@ def execute(filters=None):
 				"indicator": "Red" if closing > 0 else "Green",
 			},
 		]
-		message = _prefix + _(
-			"Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
-		).format(supplier, start, end, frappe.utils.nowdate())
+		message = (
+			_prefix
+			+ _(
+				"Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+			).format(supplier, start, end, frappe.utils.nowdate())
+			+ " "
+			+ reconciliation_notice()
+		)
 	else:
 		message = _prefix + _(
 			"Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."

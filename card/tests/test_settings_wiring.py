@@ -234,7 +234,7 @@ class TestCardSettingsWiring(IntegrationTestCase):
 	def test_reconciliation_tolerance_from_settings(self):
 		# A submitted card with NO supplier GL entries: net cards > 0, accrual = 0, so the
 		# reconciliation difference is large (2,250). The report exposes the flag as the
-		# "indicator" of the summary item labelled "Reconciliation difference"
+		# "indicator" of the summary item labelled "Not invoiced through Card"
 		# (Green = within tolerance, Red = over tolerance); that is what is asserted.
 		# The summary report is limited to this test's own project so other data cannot
 		# offset the total difference.
@@ -244,7 +244,7 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		frappe.db.delete("Singles", {"doctype": "Card Settings", "field": "reconciliation_tolerance"})
 		self.assertEqual(flt(setting("reconciliation_tolerance")), 0.01)
 
-		label = "Reconciliation difference"
+		label = "Not invoiced through Card"
 		statement_filters = self._statement_filters(supplier=self.supplier, statement_type=SUPPLIER_STATEMENT)
 		summary_filters = {"from_month": 9, "from_year": 2026, "project": self.project}
 

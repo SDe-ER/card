@@ -19,7 +19,7 @@ from card.constants import (
 	DIR_SUBRENTAL,
 	OWNED,
 )
-from card.tests.test_controllers import _days, _ensure_masters
+from card.tests.test_controllers import _days, _ensure_masters, _registry_figures
 
 RENTED = "إيجار"
 
@@ -304,16 +304,17 @@ class TestCustomerRegistry(_CustomerCardsBase):
 	def test_registry_sync_on_submit_and_cancel(self):
 		# recompute_customer counts submitted cards by card_direction + customer
 		card = self._card(self._rented_out(), [10, 10], submit=True)
-		rec = frappe.get_doc("Card Equipment Customer", self.customer)
-		self.assertEqual(rec.card_count, 1)
-		self.assertEqual(rec.equipment_count, 1)
-		self.assertEqual(flt(rec.total_hours), 20.0)
-		self.assertEqual(flt(rec.total_accrued), 2000.0)  # operational accrual, not a balance
-		self.assertTrue(rec.first_month)
+		self.assertTrue(frappe.db.exists("Card Equipment Customer", self.customer))
+		fig = _registry_figures("Customer", self.customer)
+		self.assertEqual(fig.card_count, 1)
+		self.assertEqual(fig.equipment_count, 1)
+		self.assertEqual(fig.total_hours, 20.0)
+		self.assertEqual(fig.total, 2000.0)  # operational accrual, not a balance
+		self.assertTrue(fig.first_month)
 		card.cancel()
-		rec.reload()
-		self.assertEqual(rec.card_count, 0)
-		self.assertEqual(flt(rec.total_accrued), 0)
+		fig = _registry_figures("Customer", self.customer)
+		self.assertEqual(fig.card_count, 0)
+		self.assertEqual(fig.total, 0)
 
 	def test_customers_query_lists_only_customers_with_cards(self):
 		from card.api import card_customers_query

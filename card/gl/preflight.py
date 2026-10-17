@@ -19,6 +19,20 @@ def require_enabled():
 		frappe.throw(_("Accounting posting is disabled; enable it in Card Settings first."))
 
 
+def require_item_read(posting_doctype):
+	"""ERPNext prices every invoice line through get_item_details, which checks
+	that the CALLER may read Item, although the builder inserts the invoice with
+	ignore_permissions. Refuse up front with a clear message instead of a bare
+	PermissionError from inside ERPNext; the caller's rights are never widened."""
+	if not frappe.has_permission("Item", "read"):
+		frappe.throw(
+			_(
+				"You cannot build a {0}: your roles do not allow reading Items, which ERPNext needs to price the invoice lines. Ask an administrator for a standard role with Item read access (for example Purchase User, Sales User or Accounts User)."
+			).format(_(posting_doctype)),
+			frappe.PermissionError,
+		)
+
+
 def company_settings_row(company):
 	settings = frappe.get_doc("Card Settings")
 	row = next((r for r in settings.get("company_settings") or [] if r.company == company), None)
