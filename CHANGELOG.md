@@ -48,6 +48,12 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
   (ERPNext prices the lines with the caller's rights); a Card Manager without it (e.g. Accounts Manager
   only) is now refused up front with a message naming the needed role, instead of an empty permission
   error from inside ERPNext. No rights are granted automatically.
+- **Manual invoices that reuse a deleted Card draft's number can be amended again.** frappe reuses the
+  last number after a draft is deleted, and Card refused every amendment of such a manual invoice. An
+  amendment is now refused only when a Card posting record was written at or after the amended invoice
+  (Card creates its invoice and that record together), and the whole amendment chain is checked: amending
+  a cancelled Card posting — directly or through an earlier amendment — is still refused. Equal or
+  missing timestamps refuse.
 
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
