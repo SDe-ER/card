@@ -8,6 +8,14 @@ All notable changes to the Card app are documented here. Format based on
 > runs on a given site is a deployment fact, verified on that site — never inferred from this file.
 
 ## [Unreleased]
+
+### Template library
+- Add a versioned document-design library under `card/templates/documents/` and archive the
+  SDCE monthly equipment card D0.6 (Arabic/English, landscape front, portrait reverse, 31 days,
+  overtime, signatures and totals) with editable sources, logo, PDF, previews and validation.
+- Document the required home for future invoice, receipt, account-statement, diesel-report and
+  other printable designs. No runtime Print Format, schema or deployment change.
+
 Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
 
 ### Security
