@@ -223,9 +223,9 @@ class TestReportAccess(IntegrationTestCase):
 	def _move_to_other(self, card):
 		frappe.db.set_value("Card Monthly Card", card.name, "company", self.other, update_modified=False)
 
-	def _customer(self):
+	def _customer(self, suffix=""):
 		cust = frappe.new_doc("Customer")
-		cust.customer_name = "TEST-RACC-CUST-" + self.token
+		cust.customer_name = "TEST-RACC-CUST-" + self.token + suffix
 		cust.customer_group = _leaf("Customer Group", "customer_group_name", "All Customer Groups")
 		cust.territory = _leaf("Territory", "territory_name", "All Territories")
 		cust.insert(ignore_permissions=True)
@@ -696,6 +696,90 @@ class TestReportAccess(IntegrationTestCase):
 		self.assertIn(other_only, listed)
 		self.assertEqual(
 			sorted(f["company"] for f in api.party_figures("Supplier", shared)),
+			sorted([self.company, self.other]),
+		)
+
+	def test_customer_registry_is_scoped_to_the_users_companies(self):
+		"""#23, customer side of the test above: a restricted user sees only the
+		customers with cards in their companies — in the list (Desk, REST,
+		frappe.client), the document (REST, frappe.client), party_figures and
+		the reports' link query — and figures only for those companies."""
+		import json
+
+		from frappe.api.v1 import document_list, read_doc
+		from frappe.client import get as client_get
+		from frappe.client import get_list as client_get_list
+		from frappe.desk.reportview import get as reportview_get
+
+		registry = "Card Equipment Customer"
+		shared = self._customer("SHR")
+		other_only = self._customer("OTH")
+		self._card(self._equipment("CS1", customer=shared), [10])
+		self._move_to_other(self._card(self._equipment("CS2", customer=shared), [10, 10]))
+		self._move_to_other(self._card(self._equipment("CO1", customer=other_only), [10]))
+		for party in (shared, other_only):
+			api.recompute_customer(party)
+			self.assertFalse(frappe.db.get_value(registry, party, "total_accrued"))
+		parties = json.dumps([["name", "in", [shared, other_only]]])
+
+		def rest(fn, *args, **form):
+			frappe.local.form_dict = frappe._dict(form)
+			try:
+				return fn(*args)
+			finally:
+				frappe.local.form_dict = frappe._dict()
+
+		def listed_on_every_path():
+			return {
+				"frappe.get_list": set(
+					frappe.get_list(registry, filters={"name": ["in", [shared, other_only]]}, pluck="name")
+				),
+				"REST GET /api/resource": {r["name"] for r in rest(document_list, registry, filters=parties)},
+				"frappe.client.get_list": {
+					r["name"]
+					for r in client_get_list(registry, filters={"name": ["in", [shared, other_only]]})
+				},
+				"list view (reportview)": {
+					v[0]
+					for v in rest(reportview_get, doctype=registry, fields='["name"]', filters=parties)[
+						"values"
+					]
+				},
+			}
+
+		def queried():
+			return {r[0] for r in api.card_customers_query("Customer", "", "name", 0, 500, {})}
+
+		frappe.set_user(self._user(["Card User"], restrict_to=self.company))
+		for path, names in listed_on_every_path().items():
+			self.assertEqual(names, {shared}, path)
+		self.assertTrue(frappe.has_permission(registry, "read", shared))
+		self.assertFalse(frappe.has_permission(registry, "read", other_only))
+		self.assertEqual(client_get(registry, shared)["name"], shared)
+		self.assertEqual(read_doc(registry, shared).name, shared)
+		for path, fn in {
+			"REST GET /api/resource/<name>": lambda: read_doc(registry, other_only),
+			"frappe.client.get": lambda: client_get(registry, other_only),
+			"party_figures": lambda: api.party_figures("Customer", other_only),
+		}.items():
+			with self.assertRaises(frappe.PermissionError, msg=path):
+				fn()
+		figures = api.party_figures("Customer", shared)
+		self.assertEqual([f["company"] for f in figures], [self.company])
+		self.assertEqual(figures[0]["card_count"], 1)
+		self.assertIn(shared, queried())
+		self.assertNotIn(other_only, queried())
+		self.assertEqual(api.card_company_options(), [self.company])
+
+		# an unrestricted reader sees both customers and both companies' figures
+		frappe.set_user("Administrator")
+		frappe.set_user(self._user(["Card User"]))
+		for path, names in listed_on_every_path().items():
+			self.assertEqual(names, {shared, other_only}, path)
+		self.assertEqual(client_get(registry, other_only)["name"], other_only)
+		self.assertLessEqual({shared, other_only}, queried())
+		self.assertEqual(
+			sorted(f["company"] for f in api.party_figures("Customer", shared)),
 			sorted([self.company, self.other]),
 		)
 
