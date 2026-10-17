@@ -103,7 +103,10 @@ def cards_invoiced(party_type, parties, company, start, end, cards=None):
 def invoices_outside_card(party_type, parties, company, start, end):
 	"""{party: Σ net before VAT (company currency) of the SUBMITTED ERPNext
 	invoices dated in the period that CARD did not create} — every invoice no
-	GL Posting Log points to, whatever it bills. For manual reconciliation only."""
+	SUBMITTED GL Posting Log points to, whatever it bills. For manual
+	reconciliation only. Status-filtered like card.gl.events._log_for: frappe
+	reverts the naming series when a draft is deleted, so a manual invoice can
+	take the name of a deleted Card draft whose log stays behind as Cancelled."""
 	parties = [p for p in parties or [] if p]
 	if not parties:
 		return {}
@@ -125,7 +128,11 @@ def invoices_outside_card(party_type, parties, company, start, end):
 	card_made = set(
 		frappe.get_all(
 			"GL Posting Log",
-			filters={"posting_doctype": doctype, "posting_doc": ["in", [i.name for i in invoices]]},
+			filters={
+				"posting_doctype": doctype,
+				"posting_doc": ["in", [i.name for i in invoices]],
+				"status": "Submitted",
+			},
 			pluck="posting_doc",
 			limit_page_length=0,
 		)

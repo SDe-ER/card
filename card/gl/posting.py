@@ -277,6 +277,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 	row = preflight.company_settings_row(company)
 	first_day, last_day = _month_bounds(month, year)
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
+	preflight.require_item_read(posting_doctype)
 	preflight.check_period_open(company, last_day, posting_doctype)
 	preflight.check_invoice_settings(party_type)
 	# fail-closed: never build GL without the equipment dimension (checkpoint B)
@@ -552,6 +553,7 @@ def rebuild_monthly_posting(company, party_type, party, month, year):
 	are freed by card.gl.events.on_trash) and build the month again so the new
 	draft includes every unposted submitted document."""
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
+	preflight.require_item_read(posting_doctype)  # before deleting the old draft
 	for active in frappe.get_all(
 		"GL Posting Log",
 		filters={

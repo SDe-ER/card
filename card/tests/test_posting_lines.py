@@ -445,6 +445,25 @@ class TestReconciliationEdgeCases(_ReconciliationBase):
 			invoices_outside_card("Customer", [self.customer], self.company, "2026-09-01", "2026-09-30"), {}
 		)
 
+	def test_manual_invoice_reusing_a_deleted_card_draft_name_counts_outside_card(self):
+		"""D1 (functional tests 2026-10-17): deleting the last draft reverts the
+		naming series, so the next manual invoice takes the deleted Card draft's
+		name while that draft's log stays behind as Cancelled. The manual invoice
+		is not Card's and must still show among the invoices outside Card."""
+		self._vat_supplier()
+		self._example_card()  # net 10,277.81
+		draft = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		frappe.delete_doc("Purchase Invoice", draft, ignore_permissions=True)
+		self.assertEqual(frappe.db.get_value("GL Posting Log", {"posting_doc": draft}, "status"), "Cancelled")
+		manual = self._manual_invoice("Purchase Invoice", "2026-09-20", 777)
+		self.assertEqual(manual.name, draft)  # the reproduction: the number is reused
+		tiles, _msg = self._supplier_statement()
+		self.assertEqual(tiles[frappe._(self.OUTSIDE)], 777)
+		self.assertEqual(tiles[frappe._("Invoiced through Card (net before VAT)")], 0)
+		self.assertEqual(tiles[frappe._("Not invoiced through Card")], 10277.81)
+		row = self._summary_row("equipment_suppliers_summary", "supplier", self.supplier)
+		self.assertEqual(row["external_net"], 777)
+
 	def test_returns_and_credit_notes_count_with_their_sign(self):
 		self._vat_supplier()
 		self._example_card()

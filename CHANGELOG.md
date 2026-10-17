@@ -42,6 +42,12 @@ Candidate **1.2.2** (branch `dev/v1.2.2`; not released, not deployed).
   Card — to reconcile** (submitted invoices of the party in the period that Card did not create). Invoices
   outside Card are shown for manual reconciliation only: never matched to cards by party and month, and no
   existing invoice, GL entry or amount is relinked or changed. GL figures stay as the VAT-inclusive balance.
+  A manual invoice that takes the number of a deleted Card draft (frappe reuses the last number) is still
+  counted outside Card: only a **submitted** Card posting makes an invoice Card's.
+- **Clear message when a poster cannot read Items.** Building a monthly invoice needs Item read access
+  (ERPNext prices the lines with the caller's rights); a Card Manager without it (e.g. Accounts Manager
+  only) is now refused up front with a message naming the needed role, instead of an empty permission
+  error from inside ERPNext. No rights are granted automatically.
 
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the

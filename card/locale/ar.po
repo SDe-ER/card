@@ -1295,6 +1295,9 @@ msgstr "طريقة الدفع"
 msgid "Configure Card Settings for company {0}"
 msgstr "قم بإعداد إعدادات كارت للشركة {0}"
 
+msgid "You cannot build a {0}: your roles do not allow reading Items, which ERPNext needs to price the invoice lines. Ask an administrator for a standard role with Item read access (for example Purchase User, Sales User or Accounts User)."
+msgstr "لا يمكنك إنشاء {0}: أدوارك لا تسمح بقراءة الأصناف، وERPNext يحتاجها لتسعير بنود الفاتورة. اطلب من المسؤول دورًا قياسيًا يسمح بقراءة الأصناف (مثل Purchase User أو Sales User أو Accounts User)."
+
 msgid "Company is required for Card accounting."
 msgstr "الشركة مطلوبة لمحاسبة كارت."
 
