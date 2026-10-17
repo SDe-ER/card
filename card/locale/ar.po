@@ -1948,11 +1948,17 @@ msgstr "{0} لم تعد مطابقة لمستنداتها المصدر (إجما
 msgid "Source {0} {1} is now included in another active posting unit ({2}); rebuild before submitting {3}."
 msgstr "المستند المصدر {0} {1} أصبح مُدرجاً في وحدة ترحيل نشطة أخرى ({2})؛ أعد البناء قبل اعتماد {3}."
 
-msgid "Posting log {0} is {1}; cancel or delete its posting documents first — the log itself is the audit record."
-msgstr "سجل الترحيل {0} حالته {1}؛ ألغِ أو احذف مستندات الترحيل أولاً — السجل نفسه هو سجل التدقيق."
+msgid "Posting log {0} is the audit record of a CARD posting and cannot be deleted."
+msgstr "سجل الترحيل {0} هو سجل التدقيق لترحيل من CARD ولا يمكن حذفه."
 
-msgid "Posting log {0} still references {1} {2}; it cannot be deleted."
-msgstr "سجل الترحيل {0} ما يزال يشير إلى {1} {2}؛ لا يمكن حذفه."
+msgid "Posting log {0} is an audit record and cannot be edited."
+msgstr "سجل الترحيل {0} سجل تدقيق ولا يمكن تعديله."
+
+msgid "Posting logs are created only by CARD's monthly posting."
+msgstr "سجلات الترحيل تُنشأ فقط من خلال الترحيل الشهري في CARD."
+
+msgid "The sources of a posting log cannot be changed."
+msgstr "لا يمكن تغيير مصادر سجل الترحيل."
 
 msgid "Tax template {0} must contain only 'On Net Total' rows with non-negative rates; found a '{1}' row. Fix the template before posting."
 msgstr "قالب الضريبة {0} يجب أن يحتوي على صفوف من نوع 'On Net Total' فقط بنسب غير سالبة؛ وُجد صف من نوع '{1}'. صحّح القالب قبل الترحيل."

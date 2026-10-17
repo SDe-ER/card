@@ -536,6 +536,7 @@ def build_monthly_posting(company, party_type, party, month, year):
 	for doctype, rows in sources.items():
 		for name, amount in rows:
 			log.append("sources", {"source_doctype": doctype, "source_name": name, "amount": amount})
+	log.flags.card_gl_build = True  # #57: only the builder creates logs (GLPostingLog.validate)
 	log.insert(ignore_permissions=True)
 
 	# gl_posting on the source is DISPLAY-ONLY (never the invoice itself: a

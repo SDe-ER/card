@@ -871,6 +871,7 @@ class TestG0LifecycleDebt(_PostingBase):
 		)
 		for doctype, name in sources or []:
 			log.append("sources", {"source_doctype": doctype, "source_name": name, "amount": 0})
+		log.flags.card_gl_build = True  # #57: an out-of-band unit, inserted as the builder would
 		log.insert(ignore_permissions=True)
 		return log
 
