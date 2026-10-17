@@ -48,3 +48,16 @@ pre-commit run --all-files
 ## Reporting bugs and requesting features
 
 Use the issue templates. For **security vulnerabilities**, do not open a public issue — email **info@sdce.sa** (see [SECURITY.md](SECURITY.md)).
+
+## Document design library
+
+All newly created or revised printable designs belong under `card/templates/documents/`:
+operation cards, invoices, receipts, account statements, diesel reports and other forms.
+Follow `card/templates/AGENTS.md` and the template catalog before adding a design.
+Commit editable sources, required assets, print-ready PDF, previews and validation notes together.
+Company-specific branding explicitly supplied for a template stays within that template; do not
+hardcode it into shared application behavior. Blank branded forms may be archived with the owner's
+explicit permission; real transactions, personal data and financial records remain prohibited.
+
+Archiving a design is not a deployment or installation of an ERPNext Print Format. Existing
+runtime templates and fixtures remain at their canonical application paths.
