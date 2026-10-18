@@ -7,6 +7,12 @@ All notable changes to the Card app are documented here. Format based on
 > **Published ≠ deployed.** A version listed here is a published GitHub release. Which version
 > runs on a given site is a deployment fact, verified on that site — never inferred from this file.
 
+Per-version documentation (complete feature inventory, comparison matrix, upgrade guidance):
+[docs/releases/](docs/releases/VERSION-HISTORY.md) —
+[Version History](docs/releases/VERSION-HISTORY.md) ·
+[Version Comparison](docs/releases/VERSION-COMPARISON.md) ·
+[Which Version Should I Use?](docs/releases/WHICH-VERSION.md)
+
 ## [Unreleased]
 
 ### Planned
