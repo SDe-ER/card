@@ -1476,3 +1476,39 @@ msgstr ""
 msgid "نهاري"
 msgstr ""
 
+
+#: card/dock/card/card.json
+msgid "Card Dashboard"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Fleet"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Movement"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Operating Units"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Operation Cards"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Expenses"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Parties"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Reports"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Setup"
+msgstr ""

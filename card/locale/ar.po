@@ -2139,3 +2139,31 @@ msgstr "المزامنة اليومية لموقع المعدات في CARD"
 
 msgid "The location of these equipment could not be synced: {0}"
 msgstr "تعذّرت مزامنة موقع هذه المعدات: {0}"
+
+# v3.0.0 launcher: Dock rows / Sidebar shells (card/dock, card/card/sidebar)
+msgid "Card Dashboard"
+msgstr "لوحة القيادة"
+
+msgid "Card Fleet"
+msgstr "المعدات"
+
+msgid "Card Movement"
+msgstr "الحركة والنقل"
+
+msgid "Card Operating Units"
+msgstr "الوحدات التشغيلية"
+
+msgid "Card Operation Cards"
+msgstr "كروت التشغيل"
+
+msgid "Card Expenses"
+msgstr "المصروفات"
+
+msgid "Card Parties"
+msgstr "الموردون والعملاء"
+
+msgid "Card Reports"
+msgstr "التقارير"
+
+msgid "Card Setup"
+msgstr "الإعدادات"
