@@ -5,10 +5,13 @@
 
 ## Design
 
-Blank Arabic/English monthly equipment operation card, designed for Shams Dubai Contracting
-Est. (SDCE) and archived on the owner's explicit request. Front: A4 landscape, days 01–16 on
-the right and 17–31 on the left, operating hours, overtime, signatures, notes and monthly
-totals. Reverse: A4 portrait, 3 equipment-transfer rows and 13 maintenance/parts/notes rows.
+Blank Arabic/English monthly equipment operation card, originally designed for Shams Dubai
+Contracting Est. (SDCE) and archived on the owner's explicit request. The public template in
+this folder ships with a **neutral placeholder identity** (header «اسم المؤسسة / COMPANY
+NAME», generic logo alt text, footer form code `FORM-CODE`) — no company is the default.
+Front: A4 landscape, days 01–16 on the right and 17–31 on the left, operating hours,
+overtime, signatures, notes and monthly totals. Reverse: A4 portrait, 3 equipment-transfer
+rows and 13 maintenance/parts/notes rows.
 
 Status: delivered design D0.6; operational approval is not recorded. The owner requested
 removal of the printed review label. This does not confer electronic approval.
@@ -22,19 +25,24 @@ unchanged, on the original delivery branch `codex/document-template-library`
 `card/templates/documents/operation-cards/sdce-monthly/d0.6/`.
 
 To use this template, supply your own logo as `company-logo.png` next to `monthly-card.html`
-(both the front and the back reference that file name), and replace the institution name in
-the HTML header with your own. The SDCE name and logo belong to SDCE (see the repository's
-Logo and Trademark Policy in README.md).
+(both the front and the back reference that file name), and set your institution name in the
+two header blocks («اسم المؤسسة / COMPANY NAME») and your form code in the two footers
+(`FORM-CODE`). The SDCE name and logo belong to SDCE (see the repository's Logo and
+Trademark Policy in README.md).
 
-> Dated note (2026-10-18, relocation): two deltas exist against the delivered D0.6 revision on
-> the archive branch. (1) The logo file reference in `monthly-card.html` was changed
-> `shams-dubai-logo.png` → `company-logo.png` (2 occurrences). (2) Line endings were
-> normalized CRLF → LF by this repository's `.gitattributes` policy (`* text=auto eol=lf`);
-> the delivered files were committed through the GitHub API, which bypassed that
-> normalization. Content is otherwise unchanged. `manifest.json` is kept verbatim as
-> delivery evidence: its SHA-256 values describe the delivered files exactly as archived on
-> the delivery branch (PR #64, commit `caae620`), including the logo, PDF and previews that
-> live only there — they are not the checksums of the normalized files in this folder.
+> Dated note (2026-10-18, relocation): three deltas exist against the delivered D0.6 revision
+> on the archive branch, all in `monthly-card.html`'s identity and line endings — the form
+> layout is unchanged. (1) Logo file reference `shams-dubai-logo.png` → `company-logo.png`
+> (2 occurrences). (2) SDCE identity text replaced with neutral placeholders: institution
+> header → «اسم المؤسسة / COMPANY NAME» (×2), logo alt → «شعار المؤسسة / Company logo» (×2),
+> footer form code `SDCE-CARD-01` → `FORM-CODE` (×2). (3) Line endings normalized CRLF → LF
+> by this repository's `.gitattributes` policy (`* text=auto eol=lf`); the delivered files
+> were committed through the GitHub API, which bypassed that normalization.
+> `manifest.json` is kept verbatim as **archival delivery evidence**: its SHA-256 values
+> describe the delivered files exactly as archived on the delivery branch (PR #64, commit
+> `caae620`), including the logo, PDF and previews that live only there — they are NOT the
+> checksums of the files in this folder. The current files' checksums are recorded in
+> [`manifest-current.json`](manifest-current.json).
 
 ## Edit and print
 

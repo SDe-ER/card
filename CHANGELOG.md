@@ -20,7 +20,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operating card D0.6 (Arabic/English, landscape front, portrait reverse, 31 days, overtime,
   signatures and totals) with editable HTML/CSS sources, field mapping, font license and
   validation evidence. Proprietary SDCE assets (logo, branded PDF and previews) are not
-  distributed; the sources reference a `company-logo.png` placeholder. Documents the required
+  distributed, and the public template ships with a neutral placeholder identity
+  (`company-logo.png`, «اسم المؤسسة / COMPANY NAME», `FORM-CODE`). Documents the required
   home for future printable designs — design assets never ship inside the installable `card/`
   package. No runtime Print Format, schema or deployment change.
 
