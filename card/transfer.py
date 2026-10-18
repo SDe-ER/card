@@ -263,8 +263,9 @@ def _periods_text(equipment, project):
 def current_location(equipment, exclude=None):
 	"""Where the equipment is now (Owner 2026-10-19): on the project of its open
 	assignment; otherwise wherever its last approved transport sent it (workshop,
-	storage, supplier); otherwise Unknown, which is shown as such and never guessed.
-	`exclude` leaves out the transport being edited."""
+	storage, supplier); otherwise in storage — equipment never assigned to a project is
+	recorded as coming from storage on its first move. `exclude` leaves out the
+	transport being edited."""
 	open_row = _open_assignment(equipment)
 	if open_row:
 		return frappe._dict(type="Project", project=open_row.project, location=None)
@@ -281,14 +282,16 @@ def current_location(equipment, exclude=None):
 		return frappe._dict(
 			type=last[0].destination_type, project=None, location=last[0].destination_location
 		)
-	return frappe._dict(type="Unknown", project=None, location=None)
+	return frappe._dict(type="Storage", project=None, location=None, initial=1)
 
 
 # ---------- transfer (Equipment Transport on_submit / on_cancel) ----------
 # v3.0.0: a transport moves every equipment in its `items` table; each row keeps its
 # own previous/created assignment so cancel undoes exactly what submit did.
 def apply_transfer(txn):
-	if not txn.project or not txn.date:
+	if not txn.date:
+		return
+	if (txn.get("destination_type") or "Project") == "Project" and not txn.project:
 		return
 	for row in txn.get("items") or []:
 		if row.card_equipment:

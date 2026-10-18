@@ -46,7 +46,11 @@ check the frappe version of a site before upgrading it.
   as the machine is picked, and shown as Unknown when no opening place exists — never guessed. A move
   to where the machine already is is refused (another site of the same project needs To). Moving to a
   workshop, storage or the supplier ends the project assignment on the transport date: no new card
-  days after it, earlier cards stay, and the cost stays on the project left. **Transport cost borne by**: Company (billed by the transport supplier, as
+  days after it, earlier cards stay. From and To are never typed: From is the machine's current
+  place, To is an ERPNext project or a registered place (the old free-text From/To are kept hidden
+  for older documents). The cost is always charged to where the equipment goes: the destination
+  project's cost center, or the workshop/storage place's cost center set per company in Card
+  Settings; a return to the supplier stays on the project it leaves. **Transport cost borne by**: Company (billed by the transport supplier, as
   before), Equipment Supplier (no cost, no invoice) or Customer (recorded for follow-up, not invoiced
   yet). Only Company-borne moves reach the supplier posting and the transport/operating cost reports.
 - **Dated unit components.** A unit is still one equipment on its monthly card (billing unchanged).

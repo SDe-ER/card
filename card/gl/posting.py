@@ -173,6 +173,10 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"date",
 			"from_location",
 			"to_location",
+			"source_project",
+			"source_location",
+			"destination_type",
+			"destination_location",
 			"cost_center",
 		],
 	)
@@ -389,7 +393,11 @@ def build_monthly_posting(company, party_type, party, month, year):
 		for t in transports:
 			cost_center = _source_cost_center("Equipment Transport", t, company)
 			description = _("Equipment transport {0}: {1} → {2}").format(
-				t.name, t.from_location or "", t.to_location or ""
+				t.name,
+				t.source_project or t.source_location or t.from_location or "",
+				(t.project if (t.destination_type or "Project") == "Project" else t.destination_location)
+				or t.to_location
+				or "",
 			)
 			# v3.0.0: one line per equipment share (the shares add up to the trip cost,
 			# enforced on save), so each machine carries its own transport cost; a

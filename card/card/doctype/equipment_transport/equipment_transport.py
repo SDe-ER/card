@@ -29,6 +29,7 @@ class EquipmentTransport(Document):
 			validate_equipment_company(frappe._dict(company=self.company, equipment=row.card_equipment))
 		self._detect_movements()
 		self._apply_cost_bearer()
+		self._apply_destination_cost_center()
 		self._apply_transport_price()
 		self._split_amount()
 
@@ -43,7 +44,7 @@ class EquipmentTransport(Document):
 		destination = self.destination_type or "Project"
 		self.destination_type = destination
 		if destination != "Project":
-			# the cost stays on the project the machines leave (set below)
+			# the project left is kept per row (from_project); a supplier return sets it below
 			self.project = None
 		if destination not in ("Workshop", "Storage"):
 			self.destination_location = None
@@ -55,15 +56,15 @@ class EquipmentTransport(Document):
 				sources.add(here.project)
 			if destination == "Project":
 				if here.type == "Project" and here.project == self.project:
-					if not self.to_location:
-						frappe.throw(
-							_(
-								"Equipment {0} is already on project {1}. Fill in To for a move to another site of the project."
-							).format(row.card_equipment, self.project)
-						)
-					row.movement = "Within project"
+					# Owner 2026-10-19: To is an ERPNext project, never typed text, so a
+					# move to the project the machine is already on is no move at all
+					frappe.throw(
+						_("Equipment {0} is already on project {1}.").format(row.card_equipment, self.project)
+					)
 				else:
-					row.movement = "First entry" if here.type in ("Unknown", "Supplier") else "Transfer"
+					row.movement = (
+						"First entry" if here.get("initial") or here.type == "Supplier" else "Transfer"
+					)
 				continue
 			if here.type == destination and (
 				destination == "Supplier" or here.location == self.destination_location
@@ -83,7 +84,13 @@ class EquipmentTransport(Document):
 				"Storage": "To storage",
 				"Supplier": "Return to supplier",
 			}[destination]
-		if destination != "Project":
+		# the header "From" shows the first machine's place (each row keeps its own)
+		first = self.items[0] if self.items else None
+		self.source_type = first.from_type if first else None
+		self.source_project = first.from_project if first else None
+		self.source_location = first.from_location if first else None
+		if destination == "Supplier":
+			# Owner 2026-10-19: a return to the supplier is charged to the project it leaves
 			if len(sources) > 1:
 				frappe.throw(
 					_(
@@ -91,6 +98,32 @@ class EquipmentTransport(Document):
 					).format(", ".join(sorted(sources)))
 				)
 			self.project = sources.pop() if sources else None
+
+	def _apply_destination_cost_center(self):
+		"""Owner 2026-10-19: a move is always charged to where the equipment goes — the
+		destination project's cost center, or the workshop/storage place's cost center from
+		Card Settings (per company: a Location is not company-bound). A return to the
+		supplier stays on the project it leaves. Only needed when the company pays."""
+		self.cost_center = None
+		if self.destination_type in ("Workshop", "Storage"):
+			self.cost_center = frappe.db.get_value(
+				"Card Location Cost Center",
+				{
+					"parent": "Card Settings",
+					"parenttype": "Card Settings",
+					"company": self.company,
+					"location": self.destination_location,
+				},
+				"cost_center",
+			)
+			if not self.cost_center and self.cost_borne_by == "Company":
+				frappe.throw(
+					_(
+						"Set the cost center of {0} for company {1} in Card Settings (Transport) before charging a move there."
+					).format(self.destination_location, self.company)
+				)
+		elif self.project:
+			self.cost_center = frappe.db.get_value("Project", self.project, "cost_center")
 
 	def _apply_cost_bearer(self):
 		"""Owner decision 2026-10-19: who pays the move. Company: the transport supplier bills

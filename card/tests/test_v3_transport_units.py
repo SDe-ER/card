@@ -192,7 +192,9 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 		self._assign(moved, pa, 1)
 		t = self._trip(pb, 10, [new, moved])
 		self.assertEqual(
-			[(r.movement, r.from_project) for r in t.items], [("First entry", None), ("Transfer", pa)]
+			[(r.movement, r.from_type, r.from_project) for r in t.items],
+			# never assigned: recorded as coming from storage (Owner 2026-10-19)
+			[("First entry", "Storage", None), ("Transfer", "Project", pa)],
 		)
 
 	def _place(self, label):
@@ -227,7 +229,7 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 		t = self._move(10, eq, "Workshop", shop)
 		row = t.items[0]
 		self.assertEqual(
-			(t.project, row.movement, row.from_type, row.from_project), (pa, "To workshop", "Project", pa)
+			(t.project, row.movement, row.from_type, row.from_project), (None, "To workshop", "Project", pa)
 		)
 		self.assertEqual(
 			getdate(frappe.db.get_value("Card Equipment Assignment", a.name, "to_date")), getdate(self._d(10))
@@ -249,26 +251,19 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._move(16, eq, "Storage", store, submit=False)  # already there
 
-	def test_same_project_needs_another_site(self):
+	def test_same_project_is_refused(self):
 		pa = self._project("A")
 		eq = self._equipment().name
 		self._assign(eq, pa, 1)
 		with self.assertRaises(frappe.ValidationError):
 			self._trip(pa, 10, [eq])
-		t = frappe.new_doc("Equipment Transport")
-		t.update(
-			{
-				"date": self._d(10),
-				"company": self.company,
-				"project": pa,
-				"to_location": "Site 2",
-				"transport_supplier": self.supplier,
-				"amount": 100,
-			}
-		)
-		t.append("items", {"card_equipment": eq})
-		t.insert(ignore_permissions=True)
-		self.assertEqual(t.items[0].movement, "Within project")
+
+	def test_header_from_is_automatic(self):
+		pa, pb = self._project("A"), self._project("B")
+		eq = self._equipment().name
+		self._assign(eq, pa, 1)
+		t = self._trip(pb, 10, [eq])
+		self.assertEqual((t.source_type, t.source_project), ("Project", pa))
 
 	def test_only_rented_equipment_returns_to_supplier(self):
 		pa = self._project("A")
@@ -299,3 +294,47 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 			self.company, self.supplier, self._d(1), self._d(28), int(self.month_str), int(self.year_str)
 		)
 		self.assertEqual({t.name for t in transports}, {paid.name})
+
+	# ---- cost goes where the equipment goes (Owner 2026-10-19) ----
+	def _leaf_cost_center(self):
+		return frappe.db.get_value(
+			"Cost Center", {"company": self.company, "is_group": 0, "disabled": 0}, "name"
+		)
+
+	def test_cost_center_follows_the_destination(self):
+		cc = self._leaf_cost_center()
+		p = self._project("CC")
+		frappe.db.set_value("Project", p, "cost_center", cc)
+		t = self._trip(p, 5, [self._equipment().name])
+		self.assertEqual(t.cost_center, cc)
+
+	def test_workshop_cost_center_comes_from_settings(self):
+		cc = self._leaf_cost_center()
+		shop = self._place("SHOP")
+		eq = self._equipment().name
+		self._assign(eq, self._project("A"), 1)
+
+		def paid_move():
+			t = frappe.new_doc("Equipment Transport")
+			t.update(
+				{
+					"date": self._d(10),
+					"company": self.company,
+					"destination_type": "Workshop",
+					"destination_location": shop,
+					"transport_supplier": self.supplier,
+					"amount": 250,
+				}
+			)
+			t.append("items", {"card_equipment": eq})
+			return t.insert(ignore_permissions=True)
+
+		with self.assertRaises(frappe.ValidationError):
+			paid_move()  # no cost center for the place yet
+		settings = frappe.get_single("Card Settings")
+		settings.append(
+			"location_cost_centers", {"company": self.company, "location": shop, "cost_center": cc}
+		)
+		settings.save(ignore_permissions=True)
+		t = paid_move()
+		self.assertEqual((t.cost_center, t.project), (cc, None))

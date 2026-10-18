@@ -2279,9 +2279,6 @@ msgstr "المعدة رايحة فين. الورشة والمستودع بينه
 msgid "Destination place"
 msgstr "مكان الوجهة"
 
-msgid "The destination project. For a move to a workshop, storage or the supplier, it is filled from the equipment's current project, which keeps the cost."
-msgstr "المشروع اللي رايحة له. لو رايحة ورشة أو مستودع أو للمورد، بيتملى من مشروعها الحالي، وهو اللي بيشيل التكلفة."
-
 msgid "Workshop"
 msgstr "ورشة صيانة"
 
@@ -2297,9 +2294,6 @@ msgstr "بيتجاب من آخر حركة معتمدة. «غير معروف» ي
 msgid "From place"
 msgstr "من مكان"
 
-msgid "Within project"
-msgstr "داخل نفس المشروع"
-
 msgid "To workshop"
 msgstr "للورشة"
 
@@ -2309,9 +2303,6 @@ msgstr "للمستودع"
 msgid "Return to supplier"
 msgstr "رجوع للمورد"
 
-msgid "Equipment {0} is already on project {1}. Fill in To for a move to another site of the project."
-msgstr "المعدة {0} موجودة بالفعل على المشروع {1}. اكتب «إلى» لو هتتنقل لموقع تاني في نفس المشروع."
-
 msgid "Equipment {0} is already there."
 msgstr "المعدة {0} موجودة هناك بالفعل."
 
@@ -2320,3 +2311,47 @@ msgstr "المعدة {0} ملك، والرجوع للمورد للمعدات ا�
 
 msgid "These machines come from different projects ({0}); record one transport per project."
 msgstr "المعدات دي جاية من مشاريع مختلفة ({0})، سجّل نقل لكل مشروع لوحده."
+
+# v3.0.0: transport cost follows the destination
+msgid "Card Location Cost Center"
+msgstr "مركز تكلفة المكان"
+
+msgid "Place"
+msgstr "المكان"
+
+msgid "A workshop or storage place used as a transport destination."
+msgstr "ورشة أو مستودع بيتنقل لهم المعدات."
+
+msgid "Cost center per workshop / storage place"
+msgstr "مركز التكلفة لكل ورشة / مستودع"
+
+msgid "A move to a workshop or storage place is charged to that place's cost center (Owner 2026-10-19)."
+msgstr "نقل المعدة لورشة أو مستودع بيتحمل على مركز تكلفة المكان ده."
+
+msgid "Set from where the equipment goes: the destination project's cost center, or the workshop/storage place's cost center in Card Settings. A return to the supplier stays on the project left."
+msgstr "بيتحدد من المكان اللي المعدة رايحة له: مركز تكلفة المشروع الجديد، أو مركز تكلفة الورشة/المستودع من إعدادات CARD. الرجوع للمورد بيفضل على المشروع اللي خرجت منه."
+
+msgid "Set the cost center of {0} for company {1} in Card Settings (Transport) before charging a move there."
+msgstr "حدد مركز تكلفة {0} للشركة {1} في إعدادات CARD (النقل) قبل ما تحمّل نقل عليه."
+
+# v3.0.0: From is automatic, To is an ERPNext project or place
+msgid "Where the equipment is now, read from its last approved move. Never typed."
+msgstr "مكان المعدة الحالي، من آخر حركة معتمدة. مبيتكتبش بالإيد."
+
+msgid "To project"
+msgstr "إلى مشروع"
+
+msgid "To place"
+msgstr "إلى مكان"
+
+msgid "From (old text)"
+msgstr "من (نص قديم)"
+
+msgid "To (old text)"
+msgstr "إلى (نص قديم)"
+
+msgid "A project registered in ERPNext. For a return to the supplier, it is filled from the project the equipment leaves."
+msgstr "مشروع مسجل على ERPNext. في الرجوع للمورد، بيتملى من المشروع اللي المعدة خرجت منه."
+
+msgid "Equipment {0} is already on project {1}."
+msgstr "المعدة {0} موجودة بالفعل على المشروع {1}."

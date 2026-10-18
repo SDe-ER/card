@@ -51,6 +51,8 @@ class TestPostingLines(_PostingBase):
 		own = self._cost_center("FILL")
 		with_cc = self._fill(card_equipment=eq.name, litres=10, unit_price=2, cost_center=own)
 		without_cc = self._fill(card_equipment=eq.name, litres=5, unit_price=2)
+		# v3.0.0 (Owner 2026-10-19): a transport is charged to its destination's cost center
+		frappe.db.set_value("Project", self.project, "cost_center", own)
 		transport = frappe.get_doc(
 			{
 				"doctype": "Equipment Transport",
@@ -59,7 +61,6 @@ class TestPostingLines(_PostingBase):
 				"transport_supplier": self.supplier,
 				"company": self.company,
 				"amount": 300,
-				"cost_center": own,
 			}
 		)
 		transport.insert(ignore_permissions=True)

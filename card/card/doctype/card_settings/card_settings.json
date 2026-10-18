@@ -40,6 +40,7 @@
   "transport_section",
   "transport_price_editor_role",
   "project_transport_prices",
+  "location_cost_centers",
   "period_lock_tab",
   "period_lock_section",
   "period_lock_date",
@@ -343,12 +344,19 @@
    "fieldtype": "Table",
    "label": "Addition/Deduction Types",
    "options": "Card Adjustment Type"
+  },
+  {
+   "fieldname": "location_cost_centers",
+   "fieldtype": "Table",
+   "label": "Cost center per workshop / storage place",
+   "options": "Card Location Cost Center",
+   "permlevel": 2
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-17 12:00:00.000000",
+ "modified": "2026-10-19 04:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

@@ -36,10 +36,18 @@ frappe.ui.form.on("Equipment Transport Item", {
 			.then((r) => {
 				const here = (r && r.message) || {};
 				frappe.model.set_value(cdt, cdn, {
-					from_type: here.type || "Unknown",
+					from_type: here.type || "Storage",
 					from_project: here.project || null,
 					from_location: here.location || null,
 				});
+				// the header "From" follows the first machine
+				if (row.idx === 1) {
+					frm.set_value({
+						source_type: here.type || "Storage",
+						source_project: here.project || null,
+						source_location: here.location || null,
+					});
+				}
 			});
 	},
 });

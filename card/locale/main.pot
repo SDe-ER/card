@@ -1621,9 +1621,6 @@ msgstr ""
 msgid "Destination place"
 msgstr ""
 
-msgid "The destination project. For a move to a workshop, storage or the supplier, it is filled from the equipment's current project, which keeps the cost."
-msgstr ""
-
 msgid "Workshop"
 msgstr ""
 
@@ -1639,9 +1636,6 @@ msgstr ""
 msgid "From place"
 msgstr ""
 
-msgid "Within project"
-msgstr ""
-
 msgid "To workshop"
 msgstr ""
 
@@ -1651,9 +1645,6 @@ msgstr ""
 msgid "Return to supplier"
 msgstr ""
 
-msgid "Equipment {0} is already on project {1}. Fill in To for a move to another site of the project."
-msgstr ""
-
 msgid "Equipment {0} is already there."
 msgstr ""
 
@@ -1661,4 +1652,46 @@ msgid "Equipment {0} is owned; only rented equipment returns to a supplier."
 msgstr ""
 
 msgid "These machines come from different projects ({0}); record one transport per project."
+msgstr ""
+
+msgid "Card Location Cost Center"
+msgstr ""
+
+msgid "Place"
+msgstr ""
+
+msgid "A workshop or storage place used as a transport destination."
+msgstr ""
+
+msgid "Cost center per workshop / storage place"
+msgstr ""
+
+msgid "A move to a workshop or storage place is charged to that place's cost center (Owner 2026-10-19)."
+msgstr ""
+
+msgid "Set from where the equipment goes: the destination project's cost center, or the workshop/storage place's cost center in Card Settings. A return to the supplier stays on the project left."
+msgstr ""
+
+msgid "Set the cost center of {0} for company {1} in Card Settings (Transport) before charging a move there."
+msgstr ""
+
+msgid "Where the equipment is now, read from its last approved move. Never typed."
+msgstr ""
+
+msgid "To project"
+msgstr ""
+
+msgid "To place"
+msgstr ""
+
+msgid "From (old text)"
+msgstr ""
+
+msgid "To (old text)"
+msgstr ""
+
+msgid "A project registered in ERPNext. For a return to the supplier, it is filled from the project the equipment leaves."
+msgstr ""
+
+msgid "Equipment {0} is already on project {1}."
 msgstr ""

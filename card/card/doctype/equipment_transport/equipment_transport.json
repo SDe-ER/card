@@ -10,6 +10,9 @@
   "date",
   "ownership",
   "equipment_supplier",
+  "source_type",
+  "source_project",
+  "source_location",
   "destination_type",
   "project",
   "destination_location",
@@ -44,12 +47,11 @@
    "reqd": 1
   },
   {
-   "depends_on": "eval:doc.destination_type == \"Project\" || doc.docstatus > 0",
-   "description": "The destination project. For a move to a workshop, storage or the supplier, it is filled from the equipment's current project, which keeps the cost.",
+   "depends_on": "eval:doc.destination_type == \"Project\" || doc.docstatus > 0 || doc.project",
    "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Project",
+   "label": "To project",
    "mandatory_depends_on": "eval:doc.destination_type == \"Project\"",
    "options": "Project"
   },
@@ -74,7 +76,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "First equipment of the trip, kept for links and older documents. Set from the equipment table.",
    "fieldname": "equipment",
    "fieldtype": "Link",
    "hidden": 1,
@@ -85,16 +86,19 @@
   {
    "fieldname": "from_location",
    "fieldtype": "Data",
-   "label": "From"
+   "hidden": 1,
+   "label": "From (old text)",
+   "read_only": 1
   },
   {
    "fieldname": "to_location",
    "fieldtype": "Data",
-   "label": "To"
+   "hidden": 1,
+   "label": "To (old text)",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.cost_borne_by != \"Equipment Supplier\"",
-   "description": "Total cost of the trip (reflects the distance); split over the equipment below.",
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -105,14 +109,14 @@
    "fieldname": "cost_center",
    "fieldtype": "Link",
    "label": "Cost Center",
-   "options": "Cost Center"
+   "options": "Cost Center",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_items",
    "fieldtype": "Section Break"
   },
   {
-   "description": "The equipment or units moved in this trip (optional). The transport cost is split equally; a share can be edited as long as the shares add up to the transport cost.",
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Equipment",
@@ -123,7 +127,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "description": "Set automatically when the transport is posted to accounting (added later).",
    "fieldname": "purchase_invoice",
    "fieldtype": "Link",
    "label": "Purchase Invoice",
@@ -178,7 +181,6 @@
    "read_only": 1
   },
   {
-   "description": "Filters the equipment list below; not stored on the equipment.",
    "fieldname": "ownership",
    "fieldtype": "Select",
    "label": "Equipment ownership",
@@ -186,7 +188,6 @@
   },
   {
    "depends_on": "eval:doc.ownership && doc.ownership != \"ملك\"",
-   "description": "Shows only this supplier's equipment, including equipment registered long ago.",
    "fieldname": "equipment_supplier",
    "fieldtype": "Link",
    "label": "Equipment supplier",
@@ -194,7 +195,6 @@
   },
   {
    "default": "Company",
-   "description": "Company: billed by the transport supplier. Equipment Supplier: no cost for us. Customer: recorded for follow-up, not invoiced yet.",
    "fieldname": "cost_borne_by",
    "fieldtype": "Select",
    "label": "Transport cost borne by",
@@ -202,7 +202,6 @@
   },
   {
    "default": "Project",
-   "description": "Where the equipment goes. Workshop and Storage end its project assignment; Supplier returns rented equipment.",
    "fieldname": "destination_type",
    "fieldtype": "Select",
    "label": "Destination",
@@ -213,14 +212,40 @@
    "depends_on": "eval:[\"Workshop\", \"Storage\"].includes(doc.destination_type)",
    "fieldname": "destination_location",
    "fieldtype": "Link",
-   "label": "Destination place",
+   "label": "To place",
    "mandatory_depends_on": "eval:[\"Workshop\", \"Storage\"].includes(doc.destination_type)",
    "options": "Location"
+  },
+  {
+   "fieldname": "source_type",
+   "fieldtype": "Select",
+   "label": "From",
+   "no_copy": 1,
+   "options": "\nProject\nWorkshop\nStorage\nSupplier",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.source_type == \"Project\"",
+   "fieldname": "source_project",
+   "fieldtype": "Link",
+   "label": "From project",
+   "no_copy": 1,
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:[\"Workshop\", \"Storage\"].includes(doc.source_type)",
+   "fieldname": "source_location",
+   "fieldtype": "Link",
+   "label": "From place",
+   "no_copy": 1,
+   "options": "Location",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-19 01:00:00.000000",
+ "modified": "2026-10-19 04:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport",
