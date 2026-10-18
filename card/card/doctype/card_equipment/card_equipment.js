@@ -199,18 +199,108 @@ function card_add_create_from_asset(frm) {
 					.then((r) => {
 						if (!r || !r.message) return;
 						const d = r.message;
-						frappe.new_doc("Card Equipment", {
-							company: d.company,
-							ownership: d.ownership,
-							equipment_name: d.equipment_name,
-							الأصل_في_erpnext: d["الأصل_في_erpnext"],
-						});
+						const values = {};
+						CARD_ASSET_NEW_FIELDS.forEach((f) => d[f] && (values[f] = d[f]));
+						frappe.new_doc("Card Equipment", values);
 					});
 			},
 			__("Create from Asset"),
 			__("Create"),
 		);
 	});
+}
+
+// F.7: suggest the direction as soon as ownership is known, so the direction-driven
+// sections appear immediately (server re-derives anyway). Owned machines are run and
+// fuelled by the company.
+function card_apply_ownership_defaults(frm) {
+	if (!frm.doc.ownership) return;
+	const owned = frm.doc.ownership === "ملك";
+	// same rule as card.constants.allowed_directions
+	const allowed = owned ? ["مؤجَّرة لعميل", "تشغيل داخلي"] : ["مستأجَرة من مورد", "إيجار من الباطن"];
+	if (!allowed.includes(frm.doc.rental_direction)) {
+		frm.set_value("rental_direction", owned ? "تشغيل داخلي" : "مستأجَرة من مورد");
+	}
+	// remember what was filled here, so a later switch away from ملك takes it back
+	frm._card_auto = frm._card_auto || {};
+	["operator_on", "الوقود_على"].forEach((field) => {
+		if (owned && !frm.doc[field]) {
+			frm.set_value(field, "الشركة");
+			frm._card_auto[field] = true;
+		} else if (!owned && frm._card_auto[field]) {
+			frm.set_value(field, "");
+			delete frm._card_auto[field];
+		}
+	});
+	// rented machines are not company Assets
+	if (!["ملك", "طرف ثالث"].includes(frm.doc.ownership) && frm.doc["الأصل_في_erpnext"]) {
+		frm.set_value("الأصل_في_erpnext", "");
+	}
+}
+
+const CARD_ASSET_NEW_FIELDS = [
+	"company",
+	"ownership",
+	"equipment_name",
+	"الأصل_في_erpnext",
+	"operator_on",
+	"الوقود_على",
+	"image",
+	"cost_center",
+	"operator",
+	"insurance_company",
+	"insurance_policy_no",
+	"insurance_expiry",
+];
+
+// The machine is already an ERPNext Asset: take what the Asset knows (name, image,
+// cost center, custodian as operator, insurance) and keep anything already typed.
+function card_fill_from_asset(frm) {
+	const asset = frm.doc["الأصل_في_erpnext"];
+	if (!asset) return;
+	frappe
+		.call({
+			method: "card.api.get_asset_prefill",
+			args: { asset },
+			type: "GET",
+		})
+		.then((r) => {
+			const d = (r && r.message) || {};
+			Object.keys(d).forEach((field) => {
+				if (field === "operator" && frm.doc.ownership !== "ملك") return;
+				if (!frm.doc[field]) frm.set_value(field, d[field]);
+			});
+		});
+}
+
+// Documents matter on every machine: say which ones expired or expire within 30 days.
+const CARD_DOCUMENT_EXPIRY = ["registration_expiry", "inspection_expiry", "insurance_expiry", "tuv_expiry"];
+
+function card_show_document_alerts(frm) {
+	if (frm.is_new()) return;
+	const today = frappe.datetime.get_today();
+	const expired = [];
+	const soon = [];
+	CARD_DOCUMENT_EXPIRY.forEach((field) => {
+		const date = frm.doc[field];
+		if (!date) return;
+		const label = __(frappe.meta.get_label(frm.doctype, field));
+		const days = frappe.datetime.get_day_diff(date, today);
+		if (days < 0) expired.push(label);
+		else if (days <= 30) soon.push(label);
+	});
+	if (expired.length || soon.length) frm._card_doc_alert = true;
+	if (expired.length) {
+		frm.dashboard.set_headline_alert(__("Expired documents: {0}", [expired.join("، ")]), "red");
+	} else if (soon.length) {
+		frm.dashboard.set_headline_alert(
+			__("Documents expiring within 30 days: {0}", [soon.join("، ")]),
+			"orange",
+		);
+	} else if (frm._card_doc_alert) {
+		frm.dashboard.clear_headline();
+		frm._card_doc_alert = false;
+	}
 }
 
 // v3.0.0: dated changes of a unit's pieces. The unit stays one equipment on its card;
@@ -293,15 +383,22 @@ frappe.ui.form.on("Card Equipment", {
 		card_add_unit_actions(frm);
 		card_render_shift_heatmaps(frm);
 		card_render_equipment_links(frm);
+		card_show_document_alerts(frm);
+	},
+	الأصل_في_erpnext(frm) {
+		card_fill_from_asset(frm);
+	},
+	onload(frm) {
+		// a new form starts on ملك: apply its defaults without waiting for a change
+		if (frm.is_new()) card_apply_ownership_defaults(frm);
+		// one company only: fill it, the field stays editable
+		if (frm.is_new() && !frm.doc.company) {
+			frappe.call({ method: "card.api.get_only_company", type: "GET" }).then((r) => {
+				if (r && r.message && !frm.doc.company) frm.set_value("company", r.message);
+			});
+		}
 	},
 	ownership(frm) {
-		// F.7: suggest the direction as soon as ownership is picked, so the
-		// direction-driven sections appear immediately (server re-derives anyway).
-		if (!frm.doc.rental_direction) {
-			frm.set_value(
-				"rental_direction",
-				frm.doc.ownership === "ملك" ? "تشغيل داخلي" : "مستأجَرة من مورد",
-			);
-		}
+		card_apply_ownership_defaults(frm);
 	},
 });

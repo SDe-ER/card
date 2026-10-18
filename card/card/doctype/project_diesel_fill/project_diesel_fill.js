@@ -8,6 +8,12 @@ frappe.ui.form.on("Project Diesel Fill", {
 		if (frm.is_new() && !frm.doc.company) {
 			frm.set_value("company", frappe.defaults.get_user_default("Company"));
 		}
+		// one company only: fill it, the field stays editable
+		if (frm.is_new() && !frm.doc.company) {
+			frappe.call({ method: "card.api.get_only_company", type: "GET" }).then((r) => {
+				if (r && r.message && !frm.doc.company) frm.set_value("company", r.message);
+			});
+		}
 	},
 	refresh(frm) {
 		if (frm.doc.docstatus !== 0) return;

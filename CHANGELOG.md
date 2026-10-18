@@ -61,6 +61,13 @@ check the frappe version of a site before upgrading it.
   month: the card is refused with the reason. A project outside the assignments is refused, also
   through the API. Company operators are picked from Employee; a rented machine's operator is typed.
   The card's rate is unchanged (dated rate agreements are planned for a later release).
+- **Equipment from its ERPNext Asset.** The Asset field sits next to ownership (owned and
+  managed equipment); picking it fills the name, image, cost center, custodian as operator and the
+  insurance details, keeping anything already typed. Owned equipment defaults to company operator
+  and fuel. The Documents tab comes second and the form warns about documents that expired or
+  expire within 30 days.
+- **Company filled automatically** on new equipment, transport and diesel forms when the user can
+  see only one company; the field stays visible and editable.
 - **Dated unit components.** A unit is still one equipment on its monthly card (billing unchanged).
   Each component now has From/To dates, and the unit form offers **Replace component** and **Move to
   another unit**. Both are refused inside an approved card period, and a piece must be on the unit's

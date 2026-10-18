@@ -7,11 +7,12 @@ test site cannot provide them the Asset-dependent tests skip with a clear reason
 instead of failing."""
 
 import unittest
+from unittest.mock import patch
 
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from card.api import create_equipment_from_asset
+from card.api import create_equipment_from_asset, get_asset_prefill, get_only_company
 from card.tests.test_controllers import _ensure_masters
 
 ASSET_FIELDS = {
@@ -97,3 +98,51 @@ class TestAssetLink(IntegrationTestCase):
 			self.assertIsNotNone(field, fieldname)
 			self.assertEqual(field.fetch_from, "الأصل_في_erpnext." + source)
 			self.assertTrue(field.read_only)
+
+	def test_prefill_takes_asset_details(self):
+		asset = self._make_asset()
+		frappe.db.set_value(
+			"Asset",
+			asset,
+			{"insurer": "TEST-INSURER", "policy_number": "POL-1", "insurance_end_date": "2030-01-31"},
+		)
+		values = get_asset_prefill(asset)
+		self.assertEqual(values["insurance_company"], "TEST-INSURER")
+		self.assertEqual(values["insurance_policy_no"], "POL-1")
+		self.assertEqual(str(values["insurance_expiry"]), "2030-01-31")
+		self.assertEqual(values["company"], self._m["company"])
+		doc = create_equipment_from_asset(asset)
+		self.assertEqual(doc.get("operator_on"), "الشركة")
+		self.assertEqual(doc.get("الوقود_على"), "الشركة")
+		self.assertEqual(doc.get("insurance_policy_no"), "POL-1")
+
+	def test_fields_stay_in_their_tabs(self):
+		# Owner 2026-10-19: Asset next to ownership, documents second, everything else in its own tab
+		meta = frappe.get_meta("Card Equipment")
+		order = [f.fieldname for f in meta.fields]
+		self.assertEqual(order.index("الأصل_في_erpnext"), order.index("rental_direction") + 1)
+		tabs = [f for f in order if meta.get_field(f).fieldtype == "Tab Break"]
+		self.assertEqual(tabs[:2], ["basic_tab", "documents_tab"])
+
+		def tab_of(fieldname):
+			return [t for t in tabs if order.index(t) < order.index(fieldname)][-1]
+
+		expected = {
+			"operator": "operation_tab",
+			"cost_center": "operation_tab",
+			"daily_hours": "cost_tab",
+			"tank_capacity": "meter_tab",
+			"daily_diesel_consumption": "meter_tab",
+			"service_interval_hours": "meter_tab",
+		}
+		for fieldname, tab in expected.items():
+			self.assertEqual(tab_of(fieldname), tab, fieldname)
+		self.assertFalse([f.fieldname for f in meta.fields if f.description])
+
+	def test_only_company_fills_when_single(self):
+		with patch("frappe.get_list", return_value=["A"]):
+			self.assertEqual(get_only_company(), "A")
+		with patch("frappe.get_list", return_value=["A", "B"]):
+			self.assertIsNone(get_only_company())
+		with patch("frappe.get_list", return_value=[]):
+			self.assertIsNone(get_only_company())

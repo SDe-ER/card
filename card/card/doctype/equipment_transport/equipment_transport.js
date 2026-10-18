@@ -14,6 +14,14 @@ frappe.ui.form.on("Equipment Transport", {
 			return { filters };
 		});
 	},
+	onload(frm) {
+		// one company only: fill it, the field stays editable
+		if (frm.is_new() && !frm.doc.company) {
+			frappe.call({ method: "card.api.get_only_company", type: "GET" }).then((r) => {
+				if (r && r.message && !frm.doc.company) frm.set_value("company", r.message);
+			});
+		}
+	},
 	ownership(frm) {
 		if (frm.doc.ownership === "ملك" && frm.doc.equipment_supplier) {
 			frm.set_value("equipment_supplier", null);

@@ -1710,3 +1710,10 @@ msgstr ""
 
 msgid "Operator provided by"
 msgstr ""
+
+
+msgid "Expired documents: {0}"
+msgstr ""
+
+msgid "Documents expiring within 30 days: {0}"
+msgstr ""

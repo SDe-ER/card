@@ -2371,3 +2371,10 @@ msgstr "في {0}/{1} المعدة {2} اتنقلت بين {3}. اختار الم
 
 msgid "Operator provided by"
 msgstr "المشغّل على"
+
+
+msgid "Expired documents: {0}"
+msgstr "وثائق منتهية: {0}"
+
+msgid "Documents expiring within 30 days: {0}"
+msgstr "وثائق هتنتهي خلال 30 يوم: {0}"
