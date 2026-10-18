@@ -163,6 +163,8 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"transport_supplier": party,
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
+			# only a move the company pays is billed by the transport supplier (Owner 2026-10-19)
+			"cost_borne_by": ["in", ["Company", "", None]],
 		},
 		fields=[
 			"name",

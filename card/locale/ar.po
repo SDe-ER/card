@@ -2240,3 +2240,83 @@ msgstr "أول معدة في الرحلة، محفوظة عشان الروابط
 
 msgid "You are not permitted to change the components of {0}."
 msgstr "مش مسموح لك تغيّر مكونات {0}."
+
+# v3.0.0: simplified transport (ownership, supplier, exit, cost bearer)
+msgid "Equipment ownership"
+msgstr "ملكية المعدة"
+
+msgid "Filters the equipment list below; not stored on the equipment."
+msgstr "بيفلتر قايمة المعدات اللي تحت، ومش بيتسجل على المعدة."
+
+msgid "Equipment supplier"
+msgstr "مورد المعدة"
+
+msgid "Shows only this supplier's equipment, including equipment registered long ago."
+msgstr "بيعرض معدات المورد ده بس، حتى المعدات المسجلة من زمان."
+
+msgid "Transport cost borne by"
+msgstr "تكلفة النقل على"
+
+msgid "Equipment Supplier"
+msgstr "مورد المعدة"
+
+msgid "Company: billed by the transport supplier. Equipment Supplier: no cost for us. Customer: recorded for follow-up, not invoiced yet."
+msgstr "المؤسسة: مورد النقل بيفوترها لنا. مورد المعدة: مفيش تكلفة علينا. العميل: بتتسجل للمتابعة ومن غير فاتورة دلوقتي."
+
+msgid "From project"
+msgstr "من مشروع"
+
+msgid "First entry"
+msgstr "أول دخول"
+
+# v3.0.0: transport destinations (project, workshop, storage, supplier)
+msgid "Destination"
+msgstr "الوجهة"
+
+msgid "Where the equipment goes. Workshop and Storage end its project assignment; Supplier returns rented equipment."
+msgstr "المعدة رايحة فين. الورشة والمستودع بينهوا تخصيصها على المشروع، والمورد يعني رجوع معدة إيجار لصاحبها."
+
+msgid "Destination place"
+msgstr "مكان الوجهة"
+
+msgid "The destination project. For a move to a workshop, storage or the supplier, it is filled from the equipment's current project, which keeps the cost."
+msgstr "المشروع اللي رايحة له. لو رايحة ورشة أو مستودع أو للمورد، بيتملى من مشروعها الحالي، وهو اللي بيشيل التكلفة."
+
+msgid "Workshop"
+msgstr "ورشة صيانة"
+
+msgid "Storage"
+msgstr "مستودع"
+
+msgid "Current place"
+msgstr "مكانها الحالي"
+
+msgid "Read from the last approved move. Unknown: no opening place recorded yet."
+msgstr "بيتجاب من آخر حركة معتمدة. «غير معروف» يعني لسه متسجلش لها مكان افتتاحي."
+
+msgid "From place"
+msgstr "من مكان"
+
+msgid "Within project"
+msgstr "داخل نفس المشروع"
+
+msgid "To workshop"
+msgstr "للورشة"
+
+msgid "To storage"
+msgstr "للمستودع"
+
+msgid "Return to supplier"
+msgstr "رجوع للمورد"
+
+msgid "Equipment {0} is already on project {1}. Fill in To for a move to another site of the project."
+msgstr "المعدة {0} موجودة بالفعل على المشروع {1}. اكتب «إلى» لو هتتنقل لموقع تاني في نفس المشروع."
+
+msgid "Equipment {0} is already there."
+msgstr "المعدة {0} موجودة هناك بالفعل."
+
+msgid "Equipment {0} is owned; only rented equipment returns to a supplier."
+msgstr "المعدة {0} ملك، والرجوع للمورد للمعدات الإيجار بس."
+
+msgid "These machines come from different projects ({0}); record one transport per project."
+msgstr "المعدات دي جاية من مشاريع مختلفة ({0})، سجّل نقل لكل مشروع لوحده."

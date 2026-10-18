@@ -260,6 +260,30 @@ def _periods_text(equipment, project):
 	return "، ".join(parts) if parts else _("no assignment on this project")
 
 
+def current_location(equipment, exclude=None):
+	"""Where the equipment is now (Owner 2026-10-19): on the project of its open
+	assignment; otherwise wherever its last approved transport sent it (workshop,
+	storage, supplier); otherwise Unknown, which is shown as such and never guessed.
+	`exclude` leaves out the transport being edited."""
+	open_row = _open_assignment(equipment)
+	if open_row:
+		return frappe._dict(type="Project", project=open_row.project, location=None)
+	last = frappe.db.sql(
+		"""select t.destination_type, t.project, t.destination_location
+		from `tabEquipment Transport Item` i
+		join `tabEquipment Transport` t on t.name = i.parent and i.parenttype = 'Equipment Transport'
+		where i.card_equipment=%s and t.docstatus=1 and t.name != %s
+		order by t.date desc, t.creation desc limit 1""",
+		(equipment, exclude or ""),
+		as_dict=True,
+	)
+	if last and last[0].destination_type and last[0].destination_type != "Project":
+		return frappe._dict(
+			type=last[0].destination_type, project=None, location=last[0].destination_location
+		)
+	return frappe._dict(type="Unknown", project=None, location=None)
+
+
 # ---------- transfer (Equipment Transport on_submit / on_cancel) ----------
 # v3.0.0: a transport moves every equipment in its `items` table; each row keeps its
 # own previous/created assignment so cancel undoes exactly what submit did.
@@ -275,6 +299,23 @@ def _apply_row_transfer(txn, row):
 	equipment = row.card_equipment
 	tdate = getdate(txn.date)
 	prev = _open_assignment(equipment)
+	if (txn.get("destination_type") or "Project") != "Project":
+		# workshop / storage / supplier: the project assignment (if any) ends on the
+		# transport date and nothing new opens, so card days after it are refused
+		# (validate_card_days); earlier cards stay as they are
+		if not prev:
+			return  # not on a project: the move is recorded on the transport only
+		deferred = frappe.flags.get("card_defer_location_sync")
+		frappe.flags.card_defer_location_sync = True
+		try:
+			closing = frappe.get_doc("Card Equipment Assignment", prev.name)
+			closing.to_date = tdate
+			closing.save(ignore_permissions=True, ignore_version=False)
+			_set_link(txn, row, "previous_assignment", prev.name)
+		finally:
+			frappe.flags.card_defer_location_sync = deferred
+		sync_equipment_location(equipment, source="transfer")
+		return
 	if prev and prev.project == txn.project:
 		# already on this project; nothing to move
 		return

@@ -7,6 +7,10 @@
  "field_order": [
   "card_equipment",
   "equipment_name",
+  "movement",
+  "from_type",
+  "from_project",
+  "from_location",
   "amount",
   "manual_share",
   "previous_assignment",
@@ -60,11 +64,47 @@
    "no_copy": 1,
    "options": "Card Equipment Assignment",
    "read_only": 1
+  },
+  {
+   "fieldname": "movement",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Movement",
+   "no_copy": 1,
+   "options": "\nFirst entry\nTransfer\nWithin project\nTo workshop\nTo storage\nReturn to supplier",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.from_type == \"Project\"",
+   "fieldname": "from_project",
+   "fieldtype": "Link",
+   "label": "From project",
+   "no_copy": 1,
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "description": "Read from the last approved move. Unknown: no opening place recorded yet.",
+   "fieldname": "from_type",
+   "fieldtype": "Select",
+   "label": "Current place",
+   "no_copy": 1,
+   "options": "\nProject\nWorkshop\nStorage\nSupplier\nUnknown",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:[\"Workshop\", \"Storage\"].includes(doc.from_type)",
+   "fieldname": "from_location",
+   "fieldtype": "Link",
+   "label": "From place",
+   "no_copy": 1,
+   "options": "Location",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2026-10-18 23:00:00.000000",
+ "modified": "2026-10-19 01:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport Item",

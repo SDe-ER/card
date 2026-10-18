@@ -1584,3 +1584,81 @@ msgstr ""
 
 msgid "You are not permitted to change the components of {0}."
 msgstr ""
+
+msgid "Equipment ownership"
+msgstr ""
+
+msgid "Filters the equipment list below; not stored on the equipment."
+msgstr ""
+
+msgid "Equipment supplier"
+msgstr ""
+
+msgid "Shows only this supplier's equipment, including equipment registered long ago."
+msgstr ""
+
+msgid "Transport cost borne by"
+msgstr ""
+
+msgid "Equipment Supplier"
+msgstr ""
+
+msgid "Company: billed by the transport supplier. Equipment Supplier: no cost for us. Customer: recorded for follow-up, not invoiced yet."
+msgstr ""
+
+msgid "From project"
+msgstr ""
+
+msgid "First entry"
+msgstr ""
+
+msgid "Destination"
+msgstr ""
+
+msgid "Where the equipment goes. Workshop and Storage end its project assignment; Supplier returns rented equipment."
+msgstr ""
+
+msgid "Destination place"
+msgstr ""
+
+msgid "The destination project. For a move to a workshop, storage or the supplier, it is filled from the equipment's current project, which keeps the cost."
+msgstr ""
+
+msgid "Workshop"
+msgstr ""
+
+msgid "Storage"
+msgstr ""
+
+msgid "Current place"
+msgstr ""
+
+msgid "Read from the last approved move. Unknown: no opening place recorded yet."
+msgstr ""
+
+msgid "From place"
+msgstr ""
+
+msgid "Within project"
+msgstr ""
+
+msgid "To workshop"
+msgstr ""
+
+msgid "To storage"
+msgstr ""
+
+msgid "Return to supplier"
+msgstr ""
+
+msgid "Equipment {0} is already on project {1}. Fill in To for a move to another site of the project."
+msgstr ""
+
+msgid "Equipment {0} is already there."
+msgstr ""
+
+msgid "Equipment {0} is owned; only rented equipment returns to a supplier."
+msgstr ""
+
+msgid "These machines come from different projects ({0}); record one transport per project."
+msgstr ""

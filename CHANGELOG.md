@@ -39,6 +39,16 @@ check the frappe version of a site before upgrading it.
   the shares must add up to the trip cost. Submitting moves every listed machine to the project, and
   cancelling reverses each one. The monthly supplier posting carries one transport line per machine, so
   each machine gets its own share on the equipment dimension (the total is unchanged).
+- **Simplified transport entry.** Pick the equipment ownership and supplier to narrow the equipment
+  list (all of the supplier's machines, however old), then the **destination**: a project, a workshop,
+  storage (an ERPNext `Location`) or back to the supplier (rented equipment only). Each machine's
+  current place ("From") is read from its open assignment or its last approved move, filled in as soon
+  as the machine is picked, and shown as Unknown when no opening place exists — never guessed. A move
+  to where the machine already is is refused (another site of the same project needs To). Moving to a
+  workshop, storage or the supplier ends the project assignment on the transport date: no new card
+  days after it, earlier cards stay, and the cost stays on the project left. **Transport cost borne by**: Company (billed by the transport supplier, as
+  before), Equipment Supplier (no cost, no invoice) or Customer (recorded for follow-up, not invoiced
+  yet). Only Company-borne moves reach the supplier posting and the transport/operating cost reports.
 - **Dated unit components.** A unit is still one equipment on its monthly card (billing unchanged).
   Each component now has From/To dates, and the unit form offers **Replace component** and **Move to
   another unit**. Both are refused inside an approved card period, and a piece must be on the unit's

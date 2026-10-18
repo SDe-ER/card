@@ -11,6 +11,15 @@ from card.settings import setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
 
+@frappe.whitelist(methods=["GET"])
+def get_equipment_location(equipment: str):
+	"""The current place of one machine, shown in the transport form as soon as it is picked."""
+	from card.transfer import current_location
+
+	frappe.get_doc("Card Equipment", equipment).check_permission("read")
+	return current_location(equipment)
+
+
 class EquipmentTransport(Document):
 	def validate(self):
 		if not self.company:
@@ -18,8 +27,81 @@ class EquipmentTransport(Document):
 		self._sync_items()
 		for row in self.items:
 			validate_equipment_company(frappe._dict(company=self.company, equipment=row.card_equipment))
+		self._detect_movements()
+		self._apply_cost_bearer()
 		self._apply_transport_price()
 		self._split_amount()
+
+	def _detect_movements(self):
+		"""Owner 2026-10-19: the user picks the equipment and the destination (project,
+		workshop, storage, or back to the supplier); where each machine is now is read from
+		its open assignment or its last approved transport (card.transfer.current_location),
+		never typed. A move to where the machine already is is refused, except a move to
+		another site of the same project (To filled in)."""
+		from card.transfer import current_location
+
+		destination = self.destination_type or "Project"
+		self.destination_type = destination
+		if destination != "Project":
+			# the cost stays on the project the machines leave (set below)
+			self.project = None
+		if destination not in ("Workshop", "Storage"):
+			self.destination_location = None
+		sources = set()
+		for row in self.items:
+			here = current_location(row.card_equipment, exclude=self.name)
+			row.from_type, row.from_project, row.from_location = here.type, here.project, here.location
+			if here.project:
+				sources.add(here.project)
+			if destination == "Project":
+				if here.type == "Project" and here.project == self.project:
+					if not self.to_location:
+						frappe.throw(
+							_(
+								"Equipment {0} is already on project {1}. Fill in To for a move to another site of the project."
+							).format(row.card_equipment, self.project)
+						)
+					row.movement = "Within project"
+				else:
+					row.movement = "First entry" if here.type in ("Unknown", "Supplier") else "Transfer"
+				continue
+			if here.type == destination and (
+				destination == "Supplier" or here.location == self.destination_location
+			):
+				frappe.throw(_("Equipment {0} is already there.").format(row.card_equipment))
+			if (
+				destination == "Supplier"
+				and frappe.db.get_value("Card Equipment", row.card_equipment, "ownership") == "ملك"
+			):
+				frappe.throw(
+					_("Equipment {0} is owned; only rented equipment returns to a supplier.").format(
+						row.card_equipment
+					)
+				)
+			row.movement = {
+				"Workshop": "To workshop",
+				"Storage": "To storage",
+				"Supplier": "Return to supplier",
+			}[destination]
+		if destination != "Project":
+			if len(sources) > 1:
+				frappe.throw(
+					_(
+						"These machines come from different projects ({0}); record one transport per project."
+					).format(", ".join(sorted(sources)))
+				)
+			self.project = sources.pop() if sources else None
+
+	def _apply_cost_bearer(self):
+		"""Owner decision 2026-10-19: who pays the move. Company: the transport supplier bills
+		us (Purchase Invoice, as before). Equipment Supplier: no cost for us, no invoice.
+		Customer: the cost is recorded for follow-up only; how it is charged is decided later."""
+		if not self.cost_borne_by:
+			self.cost_borne_by = "Company"
+		if self.cost_borne_by == "Equipment Supplier":
+			self.amount = 0
+			for row in self.items:
+				row.amount, row.manual_share = 0, 0
 
 	def _sync_items(self):
 		"""v3.0.0: the equipment table is the source; the header `equipment` mirrors its
@@ -89,7 +171,7 @@ class EquipmentTransport(Document):
 		"""F.1: the amount defaults from the Settings per-project price table;
 		changing a configured price needs the permitted role. Projects without a
 		row keep free manual entry. Historical docs resaved unchanged pass."""
-		if not self.project:
+		if not self.project or self.cost_borne_by == "Equipment Supplier":
 			return
 		rows = frappe.get_all(
 			"Card Project Transport Price",

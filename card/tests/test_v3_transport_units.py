@@ -184,3 +184,118 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 		other = self._assign(self._equipment().name, p, 1)
 		t = self._trip(p, 5, [{"card_equipment": a, "created_assignment": other.name}])
 		self.assertFalse(t.items[0].created_assignment)
+
+	# ---- simplified transport (Owner 2026-10-19) ----
+	def test_movement_is_detected(self):
+		pa, pb = self._project("A"), self._project("B")
+		new, moved = self._equipment().name, self._equipment().name
+		self._assign(moved, pa, 1)
+		t = self._trip(pb, 10, [new, moved])
+		self.assertEqual(
+			[(r.movement, r.from_project) for r in t.items], [("First entry", None), ("Transfer", pa)]
+		)
+
+	def _place(self, label):
+		loc = frappe.new_doc("Location")
+		loc.location_name = "TEST-V3-%s-%s" % (label, self.token)
+		loc.insert(ignore_permissions=True)
+		return loc.name
+
+	def _move(self, day, equipment, destination, place=None, project=None, submit=True):
+		t = frappe.new_doc("Equipment Transport")
+		t.update(
+			{
+				"date": self._d(day),
+				"company": self.company,
+				"destination_type": destination,
+				"destination_location": place,
+				"project": project,
+				"cost_borne_by": "Equipment Supplier",
+			}
+		)
+		t.append("items", {"card_equipment": equipment})
+		t.insert(ignore_permissions=True)
+		if submit:
+			t.submit()
+		return t
+
+	def test_workshop_ends_assignment_and_blocks_later_days(self):
+		pa = self._project("A")
+		eq = self._equipment().name
+		a = self._assign(eq, pa, 1)
+		shop = self._place("SHOP")
+		t = self._move(10, eq, "Workshop", shop)
+		row = t.items[0]
+		self.assertEqual(
+			(t.project, row.movement, row.from_type, row.from_project), (pa, "To workshop", "Project", pa)
+		)
+		self.assertEqual(
+			getdate(frappe.db.get_value("Card Equipment Assignment", a.name, "to_date")), getdate(self._d(10))
+		)
+		self.assertEqual(frappe.db.count("Card Equipment Assignment", {"equipment": eq}), 1)
+		self._card(eq, pa, [5]).insert(ignore_permissions=True)  # before the move: fine
+		with self.assertRaises(frappe.ValidationError):
+			self._card(eq, pa, [12]).insert(ignore_permissions=True)  # after it: refused
+
+	def test_from_place_follows_the_last_move(self):
+		pa, pb = self._project("A"), self._project("B")
+		eq = self._equipment().name
+		self._assign(eq, pa, 1)
+		store = self._place("STORE")
+		self._move(10, eq, "Storage", store)
+		back = self._move(15, eq, "Project", project=pb, submit=False)
+		row = back.items[0]
+		self.assertEqual((row.from_type, row.from_location, row.movement), ("Storage", store, "Transfer"))
+		with self.assertRaises(frappe.ValidationError):
+			self._move(16, eq, "Storage", store, submit=False)  # already there
+
+	def test_same_project_needs_another_site(self):
+		pa = self._project("A")
+		eq = self._equipment().name
+		self._assign(eq, pa, 1)
+		with self.assertRaises(frappe.ValidationError):
+			self._trip(pa, 10, [eq])
+		t = frappe.new_doc("Equipment Transport")
+		t.update(
+			{
+				"date": self._d(10),
+				"company": self.company,
+				"project": pa,
+				"to_location": "Site 2",
+				"transport_supplier": self.supplier,
+				"amount": 100,
+			}
+		)
+		t.append("items", {"card_equipment": eq})
+		t.insert(ignore_permissions=True)
+		self.assertEqual(t.items[0].movement, "Within project")
+
+	def test_only_rented_equipment_returns_to_supplier(self):
+		pa = self._project("A")
+		eq = self._equipment().name  # owned
+		self._assign(eq, pa, 1)
+		with self.assertRaises(frappe.ValidationError):
+			self._move(10, eq, "Supplier", submit=False)
+
+	def test_only_company_borne_moves_are_billed(self):
+		from card.gl.posting import _supplier_sources
+
+		p = self._project("S")
+		paid = self._trip(p, 5, [self._equipment().name], amount=400, submit=True)
+		theirs = frappe.new_doc("Equipment Transport")
+		theirs.update(
+			{
+				"date": self._d(6),
+				"company": self.company,
+				"project": p,
+				"transport_supplier": self.supplier,
+				"cost_borne_by": "Customer",
+				"amount": 300,
+			}
+		)
+		theirs.insert(ignore_permissions=True)
+		theirs.submit()
+		_cards, _fills, transports = _supplier_sources(
+			self.company, self.supplier, self._d(1), self._d(28), int(self.month_str), int(self.year_str)
+		)
+		self.assertEqual({t.name for t in transports}, {paid.name})
