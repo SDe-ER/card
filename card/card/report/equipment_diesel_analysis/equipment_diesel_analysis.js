@@ -3,6 +3,14 @@
 frappe.query_reports["Equipment Diesel Analysis"] = {
 	filters: [
 		{
+			fieldname: "company",
+			label: __("Company"),
+			fieldtype: "Autocomplete",
+			reqd: 1,
+			default: frappe.defaults.get_user_default("Company"),
+			get_query: () => ({ query: "card.api.card_company_options" }),
+		},
+		{
 			fieldname: "from_month",
 			label: __("From month"),
 			fieldtype: "Select",
@@ -33,8 +41,11 @@ frappe.query_reports["Equipment Diesel Analysis"] = {
 		{
 			fieldname: "project",
 			label: __("Project"),
-			fieldtype: "Link",
-			options: "Project",
+			fieldtype: "Autocomplete",
+			get_query: () => ({
+				query: "card.api.card_project_options",
+				params: { company: frappe.query_report.get_filter_value("company") },
+			}),
 		},
 		{
 			fieldname: "equipment",

@@ -44,6 +44,14 @@
 	frappe.query_reports["Equipment Customers Summary"] = {
 		filters: [
 			{
+				fieldname: "company",
+				label: __("Company"),
+				fieldtype: "Autocomplete",
+				reqd: 1,
+				default: frappe.defaults.get_user_default("Company"),
+				get_query: () => ({ query: "card.api.card_company_options" }),
+			},
+			{
 				fieldname: "from_month",
 				label: __("From month"),
 				fieldtype: "Select",
@@ -67,7 +75,15 @@
 				reqd: 1,
 			},
 			{ fieldname: "to_year", label: __("To year"), fieldtype: "Int", default: py, reqd: 1 },
-			{ fieldname: "project", label: __("Project"), fieldtype: "Link", options: "Project" },
+			{
+				fieldname: "project",
+				label: __("Project"),
+				fieldtype: "Autocomplete",
+				get_query: () => ({
+					query: "card.api.card_project_options",
+					params: { company: frappe.query_report.get_filter_value("company") },
+				}),
+			},
 		],
 		after_datatable_render: card_rtl_datatable,
 		formatter(value, row, column, data, default_formatter) {
@@ -83,11 +99,16 @@
 					to_month: f.to_month,
 					to_year: f.to_year,
 				});
+				if (f.company) q.set("company", f.company);
 				if (f.project) q.set("project", f.project);
 				return `<a href="/desk/query-report/Equipment Customer Statement?${q.toString()}"><b>${value}</b></a>`;
 			}
 			if (column.fieldname === "diff" && Math.abs(data.diff || 0) >= 0.01) {
 				return `<span style="color:var(--red-600)">${value}</span>`;
+			}
+			// ERPNext invoices outside Card: to reconcile by hand, never matched automatically
+			if (column.fieldname === "external_net" && Math.abs(data.external_net || 0) >= 0.01) {
+				return `<span style="color:var(--orange-600)">${value}</span>`;
 			}
 			return value;
 		},

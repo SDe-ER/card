@@ -172,9 +172,19 @@ class CardMonthlyCard(Document):
 		else:
 			self.amount = 0  # internal / rented-out: no supplier billing
 
-		# ---- additions / deductions (v4) ----
+		# ---- additions / deductions (v4; S3 adds configured types + sides) ----
+		# Side default = the card's billed side; sub-rental rows must say which
+		# invoice they belong to. Typed rows (adjustment_type_ref) are validated
+		# against Card Settings and mirror the type's kind; legacy untyped rows
+		# keep the v1.1 behaviour (counted on the supplier side).
+		default_side = "Customer" if self.card_direction == DIR_RENTED_OUT else "Supplier"
+		configured = {
+			(t.company, t.type_name): t
+			for t in (frappe.get_doc("Card Settings").get("adjustment_types") or [])
+		}
 		total_additions = 0.0
 		total_deductions = 0.0
+		sided = {"Supplier": 0.0, "Customer": 0.0}
 		for adj in self.adjustments or []:
 			a = flt(adj.amount)
 			if a <= 0:
@@ -183,15 +193,55 @@ class CardMonthlyCard(Document):
 						adj.description or ""
 					)
 				)
+			if adj.adjustment_type_ref:
+				typ = configured.get((self.company, adj.adjustment_type_ref))
+				if not typ or typ.disabled:
+					frappe.throw(
+						_(
+							"Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings."
+						).format(adj.adjustment_type_ref, self.company)
+					)
+				adj.adjustment_type = typ.kind
+			if not adj.side:
+				if self.card_direction == DIR_SUBRENTAL:
+					frappe.throw(
+						_(
+							"Sub-rental cards bill both parties; choose the side (Supplier/Customer) for the addition/deduction {0}."
+						).format(adj.description or adj.adjustment_type_ref or "")
+					)
+				adj.side = default_side
+			if adj.side not in sided:
+				frappe.throw(
+					_("Invalid side {0} on addition/deduction {1}; it must be Supplier or Customer.").format(
+						adj.side, adj.description or adj.adjustment_type_ref or ""
+					)
+				)
+			if adj.adjustment_type_ref:
+				if adj.side == "Customer" and not self.customer:
+					frappe.throw(
+						_(
+							"The card has no customer; a customer-side addition/deduction needs one: {0}."
+						).format(adj.adjustment_type_ref)
+					)
+				if adj.side == "Supplier" and not self.supplier:
+					frappe.throw(
+						_(
+							"The card has no supplier; a supplier-side addition/deduction needs one: {0}."
+						).format(adj.adjustment_type_ref)
+					)
+			signed = a if adj.adjustment_type == "إضافة" else -a
 			if adj.adjustment_type == "إضافة":
 				total_additions = total_additions + a
 			elif adj.adjustment_type == "خصم":
 				total_deductions = total_deductions + a
 			else:
 				frappe.throw(_("Unknown type in additions and deductions: {0}").format(adj.adjustment_type))
+			sided[adj.side] = sided[adj.side] + signed
 		self.total_additions = flt(total_additions, 2)
 		self.total_deductions = flt(total_deductions, 2)
-		self.net_amount = flt(flt(self.amount) + total_additions - total_deductions, 2)
+		# Supplier net: rental amount + supplier-side rows only (legacy rows are
+		# all Supplier after the backfill, so stored baselines are unchanged).
+		self.net_amount = flt(flt(self.amount) + sided["Supplier"], 2)
 
 		# ---- customer-side amount (rate mirrored from the equipment; the SI itself is S3) ----
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS:
@@ -201,6 +251,11 @@ class CardMonthlyCard(Document):
 			self.customer_amount = flt(total_hours * customer_hourly, 2)
 		else:
 			self.customer_amount = 0
+		self.customer_net_amount = (
+			flt(flt(self.customer_amount) + sided["Customer"], 2)
+			if flt(self.customer_amount) or sided["Customer"]
+			else 0
+		)
 
 		# ---- duplicate card: same equipment + month + year + shift ----
 		dup = frappe.get_all(
@@ -318,6 +373,22 @@ class CardMonthlyCard(Document):
 					"The equipment has no customer; set the customer on the equipment before submitting a {0} card."
 				).format(self.card_direction)
 			)
+
+	def on_update(self):
+		# report filters link to the party registries; a party must be selectable
+		# from its first card, draft included (submit/cancel keep the totals)
+		if (
+			self.supplier
+			and self.ownership != "ملك"
+			and not frappe.db.exists("Card Equipment Supplier", self.supplier)
+		):
+			self._sync_supplier()
+		if (
+			self.customer
+			and self.card_direction in CUSTOMER_BILLING_DIRECTIONS
+			and not frappe.db.exists("Card Equipment Customer", self.customer)
+		):
+			self._sync_customer()
 
 	def on_submit(self):
 		self._snapshot_settings_used()

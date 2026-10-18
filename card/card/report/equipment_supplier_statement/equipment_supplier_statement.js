@@ -44,6 +44,14 @@
 	frappe.query_reports["Equipment Supplier Statement"] = {
 		filters: [
 			{
+				fieldname: "company",
+				label: __("Company"),
+				fieldtype: "Autocomplete",
+				reqd: 1,
+				default: frappe.defaults.get_user_default("Company"),
+				get_query: () => ({ query: "card.api.card_company_options" }),
+			},
+			{
 				fieldname: "statement_type",
 				label: __("Statement type"),
 				fieldtype: "Select",
@@ -53,9 +61,12 @@
 				fieldname: "supplier",
 				label: __("Supplier"),
 				fieldtype: "Link",
-				options: "Supplier",
+				options: "Card Equipment Supplier",
 				depends_on: "eval:doc.statement_type=='مورد'",
-				get_query: () => ({ query: "card.api.card_suppliers_query" }),
+				get_query: () => ({
+					query: "card.api.card_suppliers_query",
+					filters: { company: frappe.query_report.get_filter_value("company") },
+				}),
 			},
 			{
 				fieldname: "from_month",
@@ -81,7 +92,15 @@
 				reqd: 1,
 			},
 			{ fieldname: "to_year", label: __("To year"), fieldtype: "Int", default: py, reqd: 1 },
-			{ fieldname: "project", label: __("Project"), fieldtype: "Link", options: "Project" },
+			{
+				fieldname: "project",
+				label: __("Project"),
+				fieldtype: "Autocomplete",
+				get_query: () => ({
+					query: "card.api.card_project_options",
+					params: { company: frappe.query_report.get_filter_value("company") },
+				}),
+			},
 			{
 				fieldname: "equipment",
 				label: __("Equipment"),
@@ -99,19 +118,14 @@
 		onload(report) {
 			// Seed the UI defaults from Card Settings (server also falls back to the
 			// same settings for API callers). The user can still override.
-			frappe.db
-				.get_value("Card Settings", "Card Settings", [
-					"default_statement_type",
-					"include_draft_in_reports",
-				])
-				.then((r) => {
-					const v = (r && r.message) || {};
-					const st = report.get_filter("statement_type");
-					if (st && v.default_statement_type && !st.get_value())
-						st.set_value(v.default_statement_type);
-					const idf = report.get_filter("include_draft");
-					if (idf) idf.set_value(v.include_draft_in_reports ? 1 : 0);
-				});
+			frappe.call("card.api.report_defaults").then((r) => {
+				const v = (r && r.message) || {};
+				const st = report.get_filter("statement_type");
+				if (st && v.default_statement_type && !st.get_value())
+					st.set_value(v.default_statement_type);
+				const idf = report.get_filter("include_draft");
+				if (idf) idf.set_value(v.include_draft_in_reports ? 1 : 0);
+			});
 		},
 		tree: true,
 		name_field: "row_id",

@@ -1,6 +1,9 @@
 import frappe
 from frappe import _
 
+from card.adjustments import sided_adjustments
+from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
+from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
 
@@ -19,8 +22,9 @@ def execute(filters=None):
 	stype = filters.get("statement_type") or setting("default_statement_type")
 	supplier = filters.get("supplier")
 	no_supplier = stype == "مورد" and not supplier
-	_company = frappe.defaults.get_global_default("company") or ""
-	_prefix = (_company + " — ") if _company else ""
+	_company = resolve_company(filters)
+	_prefix = _company + " — "
+	show_ledger = can_view_ledger(_company)
 
 	fm = cint(filters.get("from_month"))
 	fy = cint(filters.get("from_year"))
@@ -41,6 +45,7 @@ def execute(filters=None):
 		statuses = [0, 1]
 
 	cf = [
+		["company", "=", _company],
 		["from_date", ">=", start],
 		["from_date", "<=", end],
 		["docstatus", "in", statuses],
@@ -75,8 +80,6 @@ def execute(filters=None):
 				"working_days",
 				"total_working_hours",
 				"amount",
-				"total_additions",
-				"total_deductions",
 				"docstatus",
 				"from_date",
 			],
@@ -98,6 +101,9 @@ def execute(filters=None):
 			eq_type[e.name] = e.equipment_type or ""
 	if filters.get("equipment_type"):
 		cards = [c for c in cards if eq_type.get(c.equipment) == filters.get("equipment_type")]
+
+	# supplier-side rows only: a sub-rental card's customer rows belong to the Sales Invoice
+	sided = sided_adjustments([c.name for c in cards], "Supplier")
 
 	# operating dates per card (hours > 0) -> distinct days per equipment, first/last date
 	card_dates = {}
@@ -171,8 +177,7 @@ def execute(filters=None):
 				for d in cd:
 					dates.add(d)
 				c_amount = 0 if owned else flt(c.amount, 2)
-				c_add = flt(c.total_additions, 2)
-				c_ded = flt(c.total_deductions, 2)
+				c_add, c_ded = sided.get(c.name, (0.0, 0.0))
 				c_net = 0 if owned else flt(c_amount + c_add - c_ded, 2)
 				hours = hours + flt(c.total_working_hours)
 				amount = amount + c_amount
@@ -315,11 +320,30 @@ def execute(filters=None):
 	message = None
 	if no_supplier:
 		message = _("Select a supplier to display the statement.")
+	elif not owned and not show_ledger:
+		summary = [
+			*summary,
+			{
+				"label": _("Net cards"),
+				"value": flt(grand["net"], 2),
+				"datatype": "Currency",
+				"indicator": "Green",
+			},
+		]
+		message = (
+			_prefix
+			+ _("Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}.").format(
+				supplier, start, end, frappe.utils.nowdate()
+			)
+			+ " "
+			+ ledger_notice()
+		)
 	elif not owned:
 		# supplier GL: credit = accrual (liability up), debit = payment (liability down)
 		gl_open = frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", _company],
 				["party_type", "=", "Supplier"],
 				["party", "=", supplier],
 				["is_cancelled", "=", 0],
@@ -331,6 +355,7 @@ def execute(filters=None):
 		gl_period = frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", _company],
 				["party_type", "=", "Supplier"],
 				["party", "=", supplier],
 				["is_cancelled", "=", 0],
@@ -349,7 +374,15 @@ def execute(filters=None):
 			accrued = accrued + flt(g.credit)
 			paid = paid + flt(g.debit)
 		closing = opening + accrued - paid
-		diff = flt(grand["net"] - accrued, 2)
+		# like-for-like: card nets are before VAT; the accrual credits include it
+		inv = flt(
+			cards_invoiced("Supplier", [supplier], _company, start, end, cards=[c.name for c in cards]).get(
+				supplier
+			),
+			2,
+		)
+		diff = flt(grand["net"] - inv, 2)
+		outside = flt(invoices_outside_card("Supplier", [supplier], _company, start, end).get(supplier), 2)
 		summary = [
 			*summary,
 			{
@@ -365,10 +398,22 @@ def execute(filters=None):
 				"indicator": "Blue",
 			},
 			{
-				"label": _("Reconciliation difference"),
+				"label": _("Invoiced through Card (net before VAT)"),
+				"value": inv,
+				"datatype": "Currency",
+				"indicator": "Blue",
+			},
+			{
+				"label": _("Not invoiced through Card"),
 				"value": diff,
 				"datatype": "Currency",
 				"indicator": "Green" if abs(diff) < flt(setting("reconciliation_tolerance")) else "Red",
+			},
+			{
+				"label": _("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+				"value": outside,
+				"datatype": "Currency",
+				"indicator": "Orange" if outside else "Green",
 			},
 			{
 				"label": _("Opening balance"),
@@ -389,13 +434,19 @@ def execute(filters=None):
 				"indicator": "Red" if closing > 0 else "Green",
 			},
 		]
-		message = _prefix + _(
-			"Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
-		).format(supplier, start, end, frappe.utils.nowdate())
+		message = (
+			_prefix
+			+ _(
+				"Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+			).format(supplier, start, end, frappe.utils.nowdate())
+			+ " "
+			+ reconciliation_notice()
+		)
 	else:
 		message = _prefix + _(
 			"Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
 		).format(start, end)
 
+	columns = readable_links(columns, data_rows)
 	data = [columns, data_rows, message, None, summary, True]
 	return data

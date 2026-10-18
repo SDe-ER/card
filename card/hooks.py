@@ -77,10 +77,7 @@ required_apps = ["erpnext"]
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "card.utils.jinja_methods",
-# 	"filters": "card.utils.jinja_filters"
-# }
+jinja = {"methods": ["card.print_utils.card_amount_in_words"]}
 
 # Installation
 # ------------
@@ -134,13 +131,17 @@ after_migrate = ["card.fonts.ensure_fonts"]
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+# The CARD party registries are per party across companies: a user restricted
+# to some companies sees only the parties that have cards there (#23).
+permission_query_conditions = {
+	"Card Equipment Supplier": "card.party_registry.supplier_query_conditions",
+	"Card Equipment Customer": "card.party_registry.customer_query_conditions",
+}
+
+has_permission = {
+	"Card Equipment Supplier": "card.party_registry.has_registry_permission",
+	"Card Equipment Customer": "card.party_registry.has_registry_permission",
+}
 
 # Document Events
 # ---------------
@@ -161,14 +162,46 @@ _PERIOD_LOCK_EVENTS = {
 	"on_cancel": "card.period_lock.on_cancel",
 	"on_trash": "card.period_lock.on_trash",
 }
+# S3 (4a): a source held by a draft/submitted posting cannot be cancelled
+# (and therefore cannot be amended) until the posting is cancelled/deleted.
+_SOURCE_EVENTS = dict(_PERIOD_LOCK_EVENTS)
+_SOURCE_EVENTS["before_cancel"] = "card.gl.events.block_source_cancel"
+
+# S3 (4b): CARD-created Purchase/Sales Invoices reserve/post/free their source
+# documents. The handlers no-op for every invoice without a GL Posting Log row.
+_POSTING_EVENTS = {
+	"validate": "card.gl.events.validate",
+	"before_submit": "card.gl.events.before_submit",
+	"on_submit": "card.gl.events.on_submit",
+	"before_cancel": "card.gl.events.before_cancel",
+	"on_trash": "card.gl.events.on_trash",
+}
 doc_events = {
-	"Card Monthly Card": dict(_PERIOD_LOCK_EVENTS),
-	"Project Diesel Fill": dict(_PERIOD_LOCK_EVENTS),
-	"Equipment Transport": dict(_PERIOD_LOCK_EVENTS),
+	"Card Monthly Card": dict(_SOURCE_EVENTS),
+	"Project Diesel Fill": dict(_SOURCE_EVENTS),
+	"Equipment Transport": dict(_SOURCE_EVENTS),
+	"Purchase Invoice": dict(_POSTING_EVENTS),
+	"Sales Invoice": dict(_POSTING_EVENTS),
+	# the CARD party registries follow ERPNext renames and merges
+	"Supplier": {
+		"before_rename": "card.party_registry.before_rename",
+		"after_rename": "card.party_registry.after_rename",
+	},
+	"Customer": {
+		"before_rename": "card.party_registry.before_rename",
+		"after_rename": "card.party_registry.after_rename",
+	},
+	# the registries' change history stays hidden from their form (#23)
+	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
 }
 
 # Scheduled Tasks
 # ---------------
+
+scheduler_events = {
+	# #56: no-op unless Card Settings enables the daily location sync
+	"daily": ["card.transfer.sync_equipment_locations_daily"],
+}
 
 # scheduler_events = {
 # 	"all": [
@@ -229,7 +262,9 @@ override_doctype_dashboards = {
 # Ignore links to specified DocTypes when deleting documents
 # -----------------------------------------------------------
 
-# ignore_links_on_delete = ["Communication", "ToDo"]
+# S3: the GL Posting Log's posting_doc link must never block deleting a DRAFT
+# posting (the log row itself flips to Cancelled in card.gl.events.on_trash).
+ignore_links_on_delete = ["GL Posting Log"]
 
 # Request Events
 # ----------------

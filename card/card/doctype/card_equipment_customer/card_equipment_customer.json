@@ -44,14 +44,18 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Not stored since v1.2.2 (per-party totals mixed companies, #23); see the per-company figures on the form.",
    "fieldname": "first_month",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "First operating month",
    "read_only": 1
   },
   {
+   "description": "Not stored since v1.2.2 (per-party totals mixed companies, #23); see the per-company figures on the form.",
    "fieldname": "last_month",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Last operating month",
    "read_only": 1
   },
@@ -61,15 +65,19 @@
    "label": "Statistics"
   },
   {
+   "description": "Not stored since v1.2.2 (per-party totals mixed companies, #23); see the per-company figures on the form.",
    "fieldname": "equipment_count",
    "fieldtype": "Int",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Number of equipment",
    "read_only": 1
   },
   {
+   "description": "Not stored since v1.2.2 (per-party totals mixed companies, #23); see the per-company figures on the form.",
    "fieldname": "card_count",
    "fieldtype": "Int",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Number of approved cards",
    "read_only": 1
@@ -79,21 +87,27 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Not stored since v1.2.2 (per-party totals mixed companies, #23); see the per-company figures on the form.",
    "fieldname": "total_hours",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Total hours",
    "read_only": 1
   },
   {
+   "description": "Not stored since v1.2.2 (per-party totals mixed companies, #23); see the per-company figures on the form.",
    "fieldname": "total_accrued",
    "fieldtype": "Currency",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Total accrued (cards)",
    "read_only": 1
   },
   {
+   "description": "Not stored since v1.2.2 (per-party totals mixed companies, #23); see the per-company figures on the form.",
    "fieldname": "last_refreshed",
    "fieldtype": "Datetime",
+   "hidden": 1,
    "label": "Last updated",
    "read_only": 1
   }
@@ -101,7 +115,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-14 21:30:00.000000",
+ "modified": "2026-10-16 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment Customer",
@@ -131,14 +145,14 @@
    "write": 1
   },
   {
-   "create": 1,
+   "create": 0,
    "email": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "Card User",
-   "share": 1,
-   "write": 1
+   "share": 0,
+   "write": 0
   },
   {
    "export": 1,
@@ -154,5 +168,5 @@
  "sort_order": "DESC",
  "states": [],
  "title_field": "customer_name",
- "track_changes": 1
+ "track_changes": 0
 }

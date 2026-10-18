@@ -2,6 +2,8 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
+from card.report_access import readable_links, resolve_company
+
 
 def get_columns():
 	return [
@@ -13,7 +15,7 @@ def get_columns():
 			"width": 200,
 		},
 		{"fieldname": "transports", "label": _("Transports"), "fieldtype": "Int", "width": 100},
-		{"fieldname": "amount", "label": _("Amount"), "fieldtype": "Currency", "width": 140},
+		{"fieldname": "amount", "label": _("Transport cost"), "fieldtype": "Currency", "width": 140},
 	]
 
 
@@ -21,6 +23,7 @@ def execute(filters=None):
 	# Report: "Transport Cost by Project" (Script Report, standard, ref doctype: Equipment Transport)
 	# Read-only. One row per project: number and total amount of SUBMITTED Equipment Transport docs in range.
 	filters = frappe._dict(filters or {})
+	filters.company = resolve_company(filters, "Equipment Transport")
 
 	transport_filters = [["docstatus", "=", 1]]
 	if filters.get("company"):
@@ -57,4 +60,4 @@ def execute(filters=None):
 			}
 		)
 
-	return get_columns(), data
+	return readable_links(get_columns(), data), data

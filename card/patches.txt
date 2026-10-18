@@ -15,4 +15,11 @@ card.patches.v1_2.init_shift_limits
 card.patches.v1_2.backfill_card_direction
 card.patches.v1_2.backfill_rental_direction
 card.patches.v1_2.rederive_draft_cards
+card.patches.v1_2.backfill_adjustment_side
 card.patches.v1_2.ensure_print_defaults
+card.patches.v1_2.recompute_posting_keys
+card.patches.v1_2_1.backfill_customer_net_amount
+card.patches.v1_2_1.ensure_party_registries
+card.patches.v1_2_1.recompute_party_registries
+card.patches.v1_2_2.clear_registry_aggregates
+card.patches.v1_2_2.purge_registry_versions

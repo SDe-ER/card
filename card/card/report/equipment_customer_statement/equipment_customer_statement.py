@@ -1,7 +1,10 @@
 import frappe
 from frappe import _
 
+from card.adjustments import sided_adjustments
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
+from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
+from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
 
 
@@ -21,8 +24,9 @@ def execute(filters=None):
 
 	customer = filters.get("customer")
 	no_customer = not customer
-	company = frappe.defaults.get_global_default("company") or ""
-	prefix = (company + " — ") if company else ""
+	company = resolve_company(filters)
+	prefix = company + " — "
+	show_ledger = can_view_ledger(company)
 
 	fm = cint(filters.get("from_month"))
 	fy = cint(filters.get("from_year"))
@@ -43,6 +47,7 @@ def execute(filters=None):
 		statuses = [0, 1]
 
 	cf = [
+		["company", "=", company],
 		["from_date", ">=", start],
 		["from_date", "<=", end],
 		["docstatus", "in", statuses],
@@ -97,6 +102,9 @@ def execute(filters=None):
 	if filters.get("equipment_type"):
 		cards = [c for c in cards if eq_type.get(c.equipment) == filters.get("equipment_type")]
 
+	# customer-side additions/deductions: the Sales Invoice bills the customer net
+	sided = sided_adjustments([c.name for c in cards], "Customer")
+
 	# operating dates per card (hours > 0) -> distinct days per equipment, first/last date
 	card_dates = {}
 	if cards:
@@ -118,7 +126,7 @@ def execute(filters=None):
 			card_dates[k].append(str(getdate(r.operation_date)))
 
 	data_rows = []
-	grand = {"days": 0, "hours": 0.0, "amount": 0.0, "eq": set()}
+	grand = {"days": 0, "hours": 0.0, "amount": 0.0, "add": 0.0, "ded": 0.0, "net": 0.0, "eq": set()}
 
 	projects = []
 	by_project = {}
@@ -145,6 +153,9 @@ def execute(filters=None):
 			"working_days": 0,
 			"hours": 0.0,
 			"customer_amount": 0.0,
+			"additions": 0.0,
+			"deductions": 0.0,
+			"net": 0.0,
 			"bold": 1,
 		}
 		data_rows.append(p_row)
@@ -154,6 +165,8 @@ def execute(filters=None):
 			dates = set()
 			hours = 0.0
 			amount = 0.0
+			add = 0.0
+			ded = 0.0
 			rates = set()
 			rtypes = set()
 			card_rows = []
@@ -163,8 +176,11 @@ def execute(filters=None):
 					dates.add(d)
 				c_hours = flt(c.total_working_hours)
 				c_amount = flt(c.customer_amount, 2)
+				c_add, c_ded = sided.get(c.name, (0.0, 0.0))
 				hours = hours + c_hours
 				amount = amount + c_amount
+				add = add + c_add
+				ded = ded + c_ded
 				rates.add(flt(c.customer_rate))
 				rtypes.add(c.customer_rate_type or "")
 				# submitted cards carry the hourly-rate snapshot taken at submit; a draft has none yet,
@@ -194,6 +210,9 @@ def execute(filters=None):
 						"customer_rate": flt(c.customer_rate),
 						"hourly_rate": c_hourly,
 						"customer_amount": c_amount,
+						"additions": c_add,
+						"deductions": c_ded,
+						"net": flt(c_amount + c_add - c_ded, 2),
 					}
 				)
 			sorted_dates = sorted(dates)
@@ -213,6 +232,9 @@ def execute(filters=None):
 				"customer_rate": next(iter(rates)) if len(rates) == 1 else None,
 				"hourly_rate": None if not hours else flt(amount / hours, 2),
 				"customer_amount": flt(amount, 2),
+				"additions": flt(add, 2),
+				"deductions": flt(ded, 2),
+				"net": flt(amount + add - ded, 2),
 				"bold": 1,
 			}
 			data_rows.append(e_row)
@@ -220,10 +242,16 @@ def execute(filters=None):
 			p_row["working_days"] = p_row["working_days"] + len(dates)
 			p_row["hours"] = flt(p_row["hours"] + hours, 2)
 			p_row["customer_amount"] = flt(p_row["customer_amount"] + amount, 2)
+			p_row["additions"] = flt(p_row["additions"] + add, 2)
+			p_row["deductions"] = flt(p_row["deductions"] + ded, 2)
+			p_row["net"] = flt(p_row["net"] + amount + add - ded, 2)
 			grand["eq"].add(e)
 		grand["days"] = grand["days"] + p_row["working_days"]
 		grand["hours"] = grand["hours"] + p_row["hours"]
 		grand["amount"] = grand["amount"] + p_row["customer_amount"]
+		grand["add"] = grand["add"] + p_row["additions"]
+		grand["ded"] = grand["ded"] + p_row["deductions"]
+		grand["net"] = grand["net"] + p_row["net"]
 
 	if data_rows:
 		data_rows.append(
@@ -235,6 +263,9 @@ def execute(filters=None):
 				"working_days": grand["days"],
 				"hours": flt(grand["hours"], 2),
 				"customer_amount": flt(grand["amount"], 2),
+				"additions": flt(grand["add"], 2),
+				"deductions": flt(grand["ded"], 2),
+				"net": flt(grand["net"], 2),
 				"bold": 1,
 			}
 		)
@@ -276,6 +307,9 @@ def execute(filters=None):
 			"fieldtype": "Currency",
 			"width": 120,
 		},
+		{"fieldname": "additions", "label": _("Additions"), "fieldtype": "Currency", "width": 100},
+		{"fieldname": "deductions", "label": _("Deductions"), "fieldtype": "Currency", "width": 100},
+		{"fieldname": "net", "label": _("Net"), "fieldtype": "Currency", "width": 120},
 	]
 
 	summary = [
@@ -297,11 +331,30 @@ def execute(filters=None):
 	message = None
 	if no_customer:
 		message = _("Select a customer to display the statement.")
+	elif not show_ledger:
+		summary = [
+			*summary,
+			{
+				"label": _("Total accrued (cards)"),
+				"value": flt(grand["net"], 2),
+				"datatype": "Currency",
+				"indicator": "Green",
+			},
+		]
+		message = (
+			prefix
+			+ _("Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}.").format(
+				customer, start, end, frappe.utils.nowdate()
+			)
+			+ " "
+			+ ledger_notice()
+		)
 	else:
 		# customer GL (official AR): debit = invoice (receivable up), credit = receipt (receivable down)
 		gl_open = frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", company],
 				["party_type", "=", "Customer"],
 				["party", "=", customer],
 				["is_cancelled", "=", 0],
@@ -313,6 +366,7 @@ def execute(filters=None):
 		gl_period = frappe.get_all(
 			"GL Entry",
 			filters=[
+				["company", "=", company],
 				["party_type", "=", "Customer"],
 				["party", "=", customer],
 				["is_cancelled", "=", 0],
@@ -331,12 +385,20 @@ def execute(filters=None):
 			invoiced = invoiced + flt(g.debit)
 			received = received + flt(g.credit)
 		closing = opening + invoiced - received
-		diff = flt(grand["amount"] - invoiced, 2)
+		# like-for-like: card nets are before VAT; the invoiced debits include it
+		inv = flt(
+			cards_invoiced("Customer", [customer], company, start, end, cards=[c.name for c in cards]).get(
+				customer
+			),
+			2,
+		)
+		diff = flt(grand["net"] - inv, 2)
+		outside = flt(invoices_outside_card("Customer", [customer], company, start, end).get(customer), 2)
 		summary = [
 			*summary,
 			{
 				"label": _("Total accrued (cards)"),
-				"value": flt(grand["amount"], 2),
+				"value": flt(grand["net"], 2),
 				"datatype": "Currency",
 				"indicator": "Green",
 			},
@@ -347,10 +409,22 @@ def execute(filters=None):
 				"indicator": "Blue",
 			},
 			{
-				"label": _("Reconciliation difference"),
+				"label": _("Invoiced through Card (net before VAT)"),
+				"value": inv,
+				"datatype": "Currency",
+				"indicator": "Blue",
+			},
+			{
+				"label": _("Not invoiced through Card"),
 				"value": diff,
 				"datatype": "Currency",
 				"indicator": "Green" if abs(diff) < flt(setting("reconciliation_tolerance")) else "Red",
+			},
+			{
+				"label": _("ERPNext invoices outside Card — to reconcile (net before VAT)"),
+				"value": outside,
+				"datatype": "Currency",
+				"indicator": "Orange" if outside else "Green",
 			},
 			{
 				"label": _("Opening balance"),
@@ -371,9 +445,15 @@ def execute(filters=None):
 				"indicator": "Orange" if closing > 0 else "Green",
 			},
 		]
-		message = prefix + _(
-			"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
-		).format(customer, start, end, frappe.utils.nowdate())
+		message = (
+			prefix
+			+ _(
+				"Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+			).format(customer, start, end, frappe.utils.nowdate())
+			+ " "
+			+ reconciliation_notice()
+		)
 
+	columns = readable_links(columns, data_rows)
 	data = [columns, data_rows, message, None, summary, True]
 	return data

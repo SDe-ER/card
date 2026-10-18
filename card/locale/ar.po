@@ -723,8 +723,8 @@ msgstr "طريقة الحساب"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:347
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:203
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:213
-msgid "Reconciliation difference"
-msgstr "فرق المطابقة"
+msgid "Not invoiced through Card"
+msgstr "غير مفوتر عبر Card"
 
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:9
 msgid "Refresh numbers"
@@ -1295,6 +1295,9 @@ msgstr "طريقة الدفع"
 msgid "Configure Card Settings for company {0}"
 msgstr "قم بإعداد إعدادات كارت للشركة {0}"
 
+msgid "You cannot build a {0}: your roles do not allow reading Items, which ERPNext needs to price the invoice lines. Ask an administrator for a standard role with Item read access (for example Purchase User, Sales User or Accounts User)."
+msgstr "لا يمكنك إنشاء {0}: أدوارك لا تسمح بقراءة الأصناف، وERPNext يحتاجها لتسعير بنود الفاتورة. اطلب من المسؤول دورًا قياسيًا يسمح بقراءة الأصناف (مثل Purchase User أو Sales User أو Accounts User)."
+
 msgid "Company is required for Card accounting."
 msgstr "الشركة مطلوبة لمحاسبة كارت."
 
@@ -1621,11 +1624,23 @@ msgstr "تحليل ديزل المعدات"
 msgid "Expected litres"
 msgstr "اللترات المتوقعة"
 
-msgid "Actual litres"
-msgstr "اللترات الفعلية"
+msgid "Allocated litres"
+msgstr "اللترات الموزعة"
 
-msgid "Litres variance"
-msgstr "فرق اللترات"
+msgid "Recorded litres (direct fills)"
+msgstr "لترات مسجلة (تعبئة مباشرة)"
+
+msgid "Estimated litres (hours split)"
+msgstr "لترات تقديرية (توزيع بالساعات)"
+
+msgid "Litres variance (expected vs allocated)"
+msgstr "فرق اللترات (المتوقع مقابل الموزع)"
+
+msgid "Allocated diesel"
+msgstr "الديزل الموزع"
+
+msgid "Estimated = project-tank fills split by card hours, not measured."
+msgstr "التقديري = تعبئات خزان المشروع موزعة بساعات الكارت، غير مقاس."
 
 msgid "Variance %"
 msgstr "نسبة الفرق %"
@@ -1675,8 +1690,8 @@ msgstr "تغيير قيمة النقل للمشروع {1} متاح فقط لمن
 msgid "Duplicate project in transport prices: {0}"
 msgstr "مشروع مكرر في أسعار النقل: {0}"
 
-msgid "Expected = operating hours x (daily diesel consumption / daily standard hours). Actual = litres allocated from submitted diesel fills. Display only — no accounting."
-msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الفعلي = اللترات الموزعة من تعبئات الديزل المعتمدة. للعرض فقط — بدون محاسبة."
+msgid "Expected = operating hours x (daily diesel consumption / daily standard hours). Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) plus estimated (project-tank fills split by card hours, not measured). The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
+msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الموزع = اللترات الموزعة من تعبئات الديزل المعتمدة: المسجلة (تعبئة مباشرة للمعدة) زائد التقديرية (تعبئات خزان المشروع موزعة بساعات الكارت، غير مقاسة). الفرق يقارن المتوقع بالموزع، وليس الاستهلاك المقاس. للعرض فقط — بدون محاسبة."
 
 msgid "Company {0} does not match the equipment's company {1}."
 msgstr "الشركة {0} لا تطابق شركة المعدة {1}."
@@ -1738,17 +1753,389 @@ msgstr "نوع الوردية"
 msgid "Diesel supplier policy is fixed; set the diesel supplier."
 msgstr "سياسة مورد الديزل ثابتة؛ حدد مورد الديزل."
 
-msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = accrued cards − invoiced entries."
-msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = المستحق من الكروت − قيود الفوترة."
+msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)."
 
 msgid "Equipment customers summary — Period from {0} to {1}. Click on the customer name to open their statement."
 msgstr "ملخص عملاء المعدات — الفترة من {0} إلى {1}. اضغط على اسم العميل لفتح كشف حسابه."
 
-msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
-msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
+msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
+msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}. الرصيد من القيود المحاسبية فقط (شامل الضريبة)."
 
 msgid "Equipment suppliers summary — Period from {0} to {1}. Click on the supplier name to open their statement."
 msgstr "ملخص موردي المعدات — الفترة من {0} إلى {1}. اضغط على اسم المورد لفتح كشف حسابه."
 
 msgid "Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
 msgstr "تشغيل المعدات الملك حسب المشروع — الفترة من {0} إلى {1} — الساعات فقط لحين تحديد الأسعار الداخلية."
+
+msgid "Addition/Deduction Types"
+msgstr "أنواع الإضافات والخصومات"
+
+msgid "Adjustment type"
+msgstr "نوع الإضافة/الخصم"
+
+msgid "Side"
+msgstr "الجانب"
+
+msgid "Customer net amount"
+msgstr "صافي جانب العميل"
+
+msgid "VAT 15% item tax template"
+msgstr "قالب ضريبة الصنف 15%"
+
+msgid "VAT 0% item tax template"
+msgstr "قالب ضريبة الصنف 0%"
+
+msgid "Duplicate addition/deduction type {0} for company {1}."
+msgstr "نوع إضافة/خصم مكرر {0} للشركة {1}."
+
+msgid "Account {0} does not exist."
+msgstr "الحساب {0} غير موجود."
+
+msgid "Account {0} is a group; pick a leaf account for type {1}."
+msgstr "الحساب {0} مجموعة؛ اختر حساباً فرعياً للنوع {1}."
+
+msgid "Account {0} is disabled; pick an active account for type {1}."
+msgstr "الحساب {0} معطّل؛ اختر حساباً فعالاً للنوع {1}."
+
+msgid "Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings."
+msgstr "نوع الإضافة/الخصم {0} غير معرّف (أو معطّل) للشركة {1} في إعدادات كارت."
+
+msgid "Sub-rental cards bill both parties; choose the side (Supplier/Customer) for the addition/deduction {0}."
+msgstr "كروت إيجار الباطن تُفوتر للطرفين؛ حدد الجانب (مورد/عميل) للإضافة/الخصم {0}."
+
+msgid "The card has no customer; a customer-side addition/deduction needs one: {0}."
+msgstr "الكارت بلا عميل؛ الإضافة/الخصم على جانب العميل تحتاج عميلاً: {0}."
+
+msgid "The card has no supplier; a supplier-side addition/deduction needs one: {0}."
+msgstr "الكارت بلا مورد؛ الإضافة/الخصم على جانب المورد تحتاج مورداً: {0}."
+
+msgid "Configure Card Settings for company {0}: {1} is not set."
+msgstr "قم بإعداد إعدادات كارت للشركة {0}: ‏{1} غير محدد."
+
+msgid "Accounting posting is disabled; enable it in Card Settings first."
+msgstr "الترحيل المحاسبي معطّل؛ فعّله من إعدادات كارت أولاً."
+
+msgid "{0} {1} ({2}) must be an active leaf record of company {3}."
+msgstr "{0} {1} ({2}) يجب أن يكون سجلاً فرعياً فعالاً للشركة {3}."
+
+msgid "No fiscal year covers {0} for company {1}; create it before posting."
+msgstr "لا توجد سنة مالية تغطي {0} للشركة {1}؛ أنشئها قبل الترحيل."
+
+msgid "Fiscal year {0} is disabled; nothing can be posted into it."
+msgstr "السنة المالية {0} معطّلة؛ لا يمكن الترحيل فيها."
+
+msgid "Accounting period {0} is closed for {1}; choose another posting date."
+msgstr "الفترة المحاسبية {0} مقفلة لـ{1}؛ اختر تاريخ ترحيل آخر."
+
+msgid "Books are frozen up to {0} for company {1}; the posting date {2} is inside the frozen period."
+msgstr "الدفاتر مجمّدة حتى {0} للشركة {1}؛ تاريخ الترحيل {2} داخل فترة التجميد."
+
+msgid "Card period lock: {0} is on or before the lock date {1}; posting is blocked."
+msgstr "قفل فترة كارت: ‏{0} في أو قبل تاريخ القفل {1}؛ الترحيل ممنوع."
+
+msgid "Selling Settings validates selling prices, which rejects deduction lines; disable it before posting."
+msgstr "إعدادات البيع تتحقق من أسعار البيع وسترفض بنود الخصم؛ عطّل الخيار قبل الترحيل."
+
+msgid "{0} must allow negative rates for items (deduction lines post as negative rates)."
+msgstr "{0} يجب أن تسمح بأسعار سالبة للأصناف (بنود الخصم تُرحَّل بسعر سالب)."
+
+msgid "{0} must allow the same item on multiple rows (one line per source document)."
+msgstr "{0} يجب أن تسمح بتكرار الصنف في أكثر من بند (بند لكل مستند مصدر)."
+
+msgid "Buying Settings requires a Purchase Order; the monthly posting has none."
+msgstr "إعدادات الشراء تشترط أمر شراء؛ الترحيل الشهري بلا أوامر شراء."
+
+msgid "Selling Settings requires a {0}; the monthly posting has none."
+msgstr "إعدادات البيع تشترط {0}؛ الترحيل الشهري بدونه."
+
+msgid "Item tax template {0} no longer matches the company's VAT accounts; re-run the posting master setup."
+msgstr "قالب ضريبة الصنف {0} لم يعد مطابقاً لحسابات الضريبة للشركة؛ أعد تهيئة بيانات الترحيل."
+
+msgid "Item tax template {0} must carry a flat {1}% rate."
+msgstr "قالب ضريبة الصنف {0} يجب أن يكون بنسبة ثابتة {1}%."
+
+msgid "Item {0} carries item-level tax templates; CARD items must have none (the line template must win)."
+msgstr "الصنف {0} عليه قوالب ضريبة على مستوى الصنف؛ أصناف كارت يجب أن تكون بدونها (قالب البند هو الحاكم)."
+
+msgid "Item group {0} carries tax templates; it must have none."
+msgstr "مجموعة الأصناف {0} عليها قوالب ضريبة؛ يجب أن تكون بدونها."
+
+msgid "Reconciliation mismatch on card {0} ({1} side): invoice lines total {2} but the card stores {3}."
+msgstr "عدم تطابق في كارت {0} (جانب {1}): إجمالي بنود الفاتورة {2} بينما الكارت يخزن {3}."
+
+msgid "Monthly operation card {0} — {1}"
+msgstr "كارت تشغيل شهري {0} — {1}"
+
+msgid "Diesel fill {0} — {1} L"
+msgstr "تعبئة ديزل {0} — {1} لتر"
+
+msgid "Equipment transport {0}: {1} → {2}"
+msgstr "نقل معدة {0}: ‏{1} ← {2}"
+
+msgid "A draft posting already exists for {0} {1} in {2}/{3}: {4}. Submit it, or rebuild it to include newer documents."
+msgstr "توجد مسودة ترحيل بالفعل لـ{0} {1} في {2}/{3}: ‏{4}. اعتمدها، أو أعد بناءها لتشمل المستندات الأحدث."
+
+msgid "Nothing to post: no unposted submitted documents for {0} {1} in {2}/{3}."
+msgstr "لا شيء للترحيل: لا مستندات معتمدة غير مرحّلة لـ{0} {1} في {2}/{3}."
+
+msgid "Configure Card Settings for company {0}: Sales tax template is not set."
+msgstr "قم بإعداد إعدادات كارت للشركة {0}: قالب ضريبة المبيعات غير محدد."
+
+msgid "The monthly total for {0} {1} is negative ({2}); deductions exceed the dues. Resolve the cards ({3}) or ask the owner how to carry the balance."
+msgstr "الإجمالي الشهري لـ{0} {1} سالب ({2})؛ الخصومات تتجاوز المستحق. عالج الكروت ({3}) أو راجع المالك في طريقة ترحيل الرصيد."
+
+msgid "Only Card Manager or System Manager may build monthly postings."
+msgstr "إنشاء الترحيلات الشهرية متاح فقط لمدير كارت أو مدير النظام."
+
+msgid "Party type must be Supplier or Customer."
+msgstr "نوع الطرف يجب أن يكون مورداً أو عميلاً."
+
+msgid "{0} was generated by CARD; apply discounts as addition/deduction rows on the cards, not on the invoice."
+msgstr "{0} أنشأه تطبيق كارت؛ طبّق الخصومات كبنود إضافة/خصم على الكروت لا على الفاتورة."
+
+msgid "Posting document deleted; sources freed."
+msgstr "تم حذف مستند الترحيل؛ تم تحرير المستندات المصدر."
+
+msgid "{0} is included in submitted posting {1}; cancel that invoice first."
+msgstr "{0} مُدرج في الترحيل المعتمد {1}؛ ألغِ تلك الفاتورة أولاً."
+
+msgid "{0} is reserved by draft posting {1}; delete or rebuild that invoice first."
+msgstr "{0} محجوز بمسودة الترحيل {1}؛ احذف تلك الفاتورة أو أعد بناءها أولاً."
+
+msgid "{0} amends CARD posting {1}; amendments would post the same source documents twice. Build the month again from CARD instead."
+msgstr "{0} يعدّل ترحيل كارت {1}؛ التعديل سيرحّل نفس المستندات المصدر مرتين. أعد بناء الشهر من كارت بدلاً من ذلك."
+
+msgid "This invoice"
+msgstr "هذه الفاتورة"
+
+msgid "Enter the supplier's invoice number and date (Bill No / Bill Date) on {0} before submitting; VAT input requires them."
+msgstr "أدخل رقم فاتورة المورد وتاريخها (رقم الفاتورة / تاريخ الفاتورة) على {0} قبل الاعتماد؛ ضريبة المدخلات تتطلبهما."
+
+msgid "Source {0} {1} is no longer submitted; rebuild the posting before submitting {2}."
+msgstr "المستند المصدر {0} {1} لم يعد معتمداً؛ أعد بناء الترحيل قبل اعتماد {2}."
+
+msgid "Source {0} {1} is already invoiced by {2}; rebuild the posting before submitting {3}."
+msgstr "المستند المصدر {0} {1} مفوتر بالفعل في {2}؛ أعد بناء الترحيل قبل اعتماد {3}."
+
+msgid "Supplier {0} is VAT-registered (tax ID set) but Card Settings for company {1} has no Purchase tax template; posting would silently drop the VAT."
+msgstr "المورد {0} مسجّل في ضريبة القيمة المضافة (الرقم الضريبي محدد) لكن إعدادات كارت للشركة {1} بلا قالب ضريبة مشتريات؛ الترحيل سيُسقط الضريبة بصمت."
+
+msgid "Customer {0} has both a zero-rated addition line and a deduction discount in {1}/{2}; the discount would shift the VAT base across the zero-rated line. Post them in separate months or ask the owner."
+msgstr "العميل {0} لديه بند إضافة بنسبة صفرية وخصم استقطاع معاً في {1}/{2}؛ الخصم سيحرّف وعاء الضريبة عبر البند الصفري. رحّلهما في شهرين منفصلين أو راجع المالك."
+
+msgid "Non-taxable customer-side deduction {0} on card {1} is not supported on a Sales Invoice (ZATCA: no negative lines; a Net Total discount would change the VAT base). Ask the owner for the representation."
+msgstr "خصم جهة العميل غير الخاضع للضريبة {0} على الكارت {1} غير مدعوم في فاتورة مبيعات (زاتكا: لا بنود سالبة؛ وخصم صافي الإجمالي سيغيّر وعاء الضريبة). راجع المالك لتحديد طريقة التمثيل."
+
+msgid "Month and year must be numbers."
+msgstr "الشهر والسنة يجب أن يكونا رقمين."
+
+msgid "Month must be between 1 and 12."
+msgstr "الشهر يجب أن يكون بين 1 و12."
+
+msgid "Accounts Settings option {0} must be off: it would copy extra tax rows onto the generated postings."
+msgstr "خيار إعدادات الحسابات {0} يجب أن يكون مُعطّلاً: سينسخ صفوف ضرائب إضافية على الترحيلات المُنشأة."
+
+msgid "Invalid side {0} on addition/deduction {1}; it must be Supplier or Customer."
+msgstr "جهة غير صالحة {0} في الإضافة/الخصم {1}؛ يجب أن تكون مورداً أو عميلاً."
+
+msgid "Addition/deduction type {0} on card {1} is not configured (or is disabled) in Card Settings."
+msgstr "نوع الإضافة/الخصم {0} على الكارت {1} غير مُعد (أو معطّل) في إعدادات كارت."
+
+msgid "{0} no longer matches its source documents (lines total {1}, sources total {2}); rebuild the posting instead of editing it."
+msgstr "{0} لم تعد مطابقة لمستنداتها المصدر (إجمالي البنود {1} وإجمالي المصادر {2})؛ أعد بناء الترحيل بدلاً من تعديله."
+
+msgid "Source {0} {1} is now included in another active posting unit ({2}); rebuild before submitting {3}."
+msgstr "المستند المصدر {0} {1} أصبح مُدرجاً في وحدة ترحيل نشطة أخرى ({2})؛ أعد البناء قبل اعتماد {3}."
+
+msgid "Posting log {0} is the audit record of a CARD posting and cannot be deleted."
+msgstr "سجل الترحيل {0} هو سجل التدقيق لترحيل من CARD ولا يمكن حذفه."
+
+msgid "Posting log {0} is an audit record and cannot be edited."
+msgstr "سجل الترحيل {0} سجل تدقيق ولا يمكن تعديله."
+
+msgid "Posting logs are created only by CARD's monthly posting."
+msgstr "سجلات الترحيل تُنشأ فقط من خلال الترحيل الشهري في CARD."
+
+msgid "The sources of a posting log cannot be changed."
+msgstr "لا يمكن تغيير مصادر سجل الترحيل."
+
+msgid "Change tracking cannot be turned on for {0}: its earlier history holds figures of every company."
+msgstr "لا يمكن تفعيل تتبع التغييرات على {0}: سجله السابق يحتوي على أرقام كل الشركات."
+
+msgid "Tax template {0} must contain only 'On Net Total' rows with non-negative rates; found a '{1}' row. Fix the template before posting."
+msgstr "قالب الضريبة {0} يجب أن يحتوي على صفوف من نوع 'On Net Total' فقط بنسب غير سالبة؛ وُجد صف من نوع '{1}'. صحّح القالب قبل الترحيل."
+
+msgid "Tax template {0}: a VAT row has no account head."
+msgstr "قالب الضريبة {0}: أحد صفوف الضريبة بلا حساب."
+
+msgid "Tax template {0} carries multiple VAT rows; posting through multi-rate templates is not supported yet (the per-line overrides are single-rate) — configure a single-rate template for posting."
+msgstr "قالب الضريبة {0} يحتوي على عدة صفوف ضريبة؛ الترحيل عبر قوالب متعددة النسب غير مدعوم بعد (التجاوزات الصفّية أحادية النسبة) — استخدم قالباً أحادي النسبة للترحيل."
+
+msgid "{0} was retargeted to another company; rebuild the posting instead of editing it."
+msgstr "{0} أُعيد توجيهها لشركة أخرى؛ أعد بناء الترحيل بدلاً من تعديله."
+
+msgid "{0} is dated {1}, outside its posting unit's month {2}/{3}; keep the posting date inside the unit's month."
+msgstr "{0} مؤرخة في {1} خارج شهر وحدة الترحيل {2}/{3}؛ أبقِ تاريخ الترحيل داخل شهر الوحدة."
+
+msgid "This equipment is a unit component; the monthly card is kept on the unit, not the component."
+msgstr "هذه المعدة مكوّن ضمن وحدة؛ الكارت الشهري يُسجّل على الوحدة لا على المكوّن."
+
+msgid "The Card Equipment accounting dimension is missing or disabled on this site; an administrator must run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+msgstr "البُعد المحاسبي «معدة كارت» غير موجود أو معطّل على هذا الموقع؛ يجب أن ينفّذ مدير النظام: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+
+msgid "The {0} field is missing on {1}; re-run the Card Equipment dimension setup before posting."
+msgstr "الحقل {0} غير موجود على {1}؛ أعد تنفيذ إعداد بُعد معدة كارت قبل الترحيل."
+
+msgid "Ledger balances are shown only to users with General Ledger access."
+msgstr "أرصدة دفتر الأستاذ تظهر فقط للمستخدمين الذين لديهم صلاحية الاطلاع على دفتر الأستاذ العام."
+
+msgid "You are not permitted to view data of company {0}"
+msgstr "غير مسموح لك بالاطلاع على بيانات الشركة {0}"
+
+msgid "This report requires General Ledger access."
+msgstr "هذا التقرير يتطلب صلاحية الاطلاع على دفتر الأستاذ العام."
+
+msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}."
+msgstr "كشف حساب مورد معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}."
+
+msgid "Equipment customer statement: {0} — Period from {1} to {2} — Issue date {3}."
+msgstr "كشف حساب عميل معدات: {0} — الفترة من {1} إلى {2} — تاريخ الإصدار {3}."
+
+msgid "Party type"
+msgstr "نوع الطرف"
+
+msgid "Posting type"
+msgstr "نوع الترحيل"
+
+msgid "Posting key"
+msgstr "مفتاح الترحيل"
+
+msgid "Posting DocType"
+msgstr "نوع مستند الترحيل"
+
+msgid "Fill amount"
+msgstr "قيمة التعبئة"
+
+msgid "Transport cost"
+msgstr "تكلفة النقل"
+
+msgid "Amount in words"
+msgstr "المبلغ كتابةً"
+
+msgid "You are not permitted to build postings for company {0}."
+msgstr "غير مسموح لك بإنشاء ترحيلات للشركة {0}."
+
+msgid "Figures per company"
+msgstr "الأرقام حسب الشركة"
+
+msgid "Reason for commercial change"
+msgstr "سبب تغيير الشروط التجارية"
+
+msgid "Required when a commercial term (rate, rate type, daily hours, direction, parties, contract, fuel) changes; kept in the document history."
+msgstr "مطلوب عند تغيير أي شرط تجاري (السعر، نوع السعر، الساعات اليومية، الاتجاه، الأطراف، العقد، الوقود)، ويُحفظ في سجل المستند."
+
+msgid "Enter the reason for changing the commercial terms: {0}"
+msgstr "أدخل سبب تغيير الشروط التجارية: {0}"
+
+msgid "Reason required"
+msgstr "السبب مطلوب"
+
+msgid "The assignment end date is before its start date."
+msgstr "تاريخ نهاية التعيين قبل تاريخ بدايته."
+
+msgid "Equipment {0} belongs to company {1}; project {2} belongs to {3}."
+msgstr "المعدة {0} تابعة للشركة {1}، والمشروع {2} تابع للشركة {3}."
+
+msgid "Equipment {0} is already assigned to project {1} from {2} to {3}."
+msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} من {2} إلى {3}."
+
+msgid "Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
+msgstr "تعبئة ديزل {0} — {1} لتر حصة تقديرية من {2} لتر (توزيع بالساعات)"
+
+msgid "Invoiced through Card (net before VAT)"
+msgstr "مفوتر عبر Card (الصافي قبل الضريبة)"
+
+msgid "ERPNext invoices outside Card — to reconcile (net before VAT)"
+msgstr "فواتير ERPNext خارج Card — تحتاج مطابقة (الصافي قبل الضريبة)"
+
+msgid "Not invoiced through Card = card net − invoiced through Card; a card in a Card draft invoice counts here until the invoice is submitted."
+msgstr "غير مفوتر عبر Card = صافي الكروت − المفوتر عبر Card؛ والكارت الموجود في مسودة فاتورة من Card يُحسب هنا لحين اعتماد الفاتورة."
+
+msgid "ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
+msgstr "فواتير ERPNext خارج Card تُعرض للمطابقة اليدوية ولا تُربط بالكروت تلقائيًا."
+
+msgid "ERPNext invoices outside Card are per party for the whole period, whatever the project or equipment filter."
+msgstr "فواتير ERPNext خارج Card على مستوى المورد أو العميل للفترة كلها، بغض النظر عن فلتر المشروع أو نوع المعدة."
+
+msgid "{0} {1}: cost center {2} cannot be used for company {3} (it must be an enabled, non-group cost center of that company)."
+msgstr "{0} {1}: مركز التكلفة {2} لا يصلح للشركة {3} (يجب أن يكون مركز تكلفة مفعّلاً وغير تجميعي تابعاً لتلك الشركة)."
+
+msgid "You are not permitted to change the Card settings of company {0}."
+msgstr "غير مسموح لك بتعديل إعدادات Card الخاصة بالشركة {0}."
+
+msgid "You are not permitted to build postings for {0} {1}."
+msgstr "غير مسموح لك بإنشاء ترحيلات لـ {0} {1}."
+
+msgid "Equipment {0} is already used in {1}; its company cannot change. Create a new equipment record for the other company."
+msgstr "المعدة {0} مستخدمة بالفعل في {1}؛ لا يمكن تغيير شركتها. أنشئ سجل معدة جديداً للشركة الأخرى."
+
+msgid "Asset {0} is cancelled and cannot be linked."
+msgstr "الأصل {0} ملغى ولا يمكن ربطه."
+
+msgid "Asset {0} belongs to company {1}; equipment {2} belongs to {3}."
+msgstr "الأصل {0} تابع للشركة {1}؛ والمعدة {2} تابعة للشركة {3}."
+
+msgid "You are not permitted to read Asset {0}, so you cannot link it."
+msgstr "غير مسموح لك بقراءة الأصل {0}، لذلك لا يمكنك ربطه."
+
+msgid "Only a unit can list components."
+msgstr "الوحدة فقط هي التي يمكن أن تحتوي على مكونات."
+
+msgid "A unit cannot be its own component."
+msgstr "لا يمكن أن تكون الوحدة مكوناً لنفسها."
+
+msgid "Component {0} is listed twice."
+msgstr "المكون {0} مذكور مرتين."
+
+msgid "Component {0} is itself a unit."
+msgstr "المكون {0} هو نفسه وحدة."
+
+msgid "Component {0} belongs to company {1}; the unit belongs to {2}."
+msgstr "المكون {0} تابع للشركة {1}؛ والوحدة تابعة للشركة {2}."
+
+msgid "Component {0} already belongs to unit {1}."
+msgstr "المكون {0} تابع بالفعل للوحدة {1}."
+
+msgid "A component row cannot be moved to another unit."
+msgstr "لا يمكن نقل صف مكون إلى وحدة أخرى."
+
+msgid "Location sync after an assignment change: project {0} → {1}; assignment date {2} → {3}"
+msgstr "مزامنة الموقع بعد تغيير تعيين: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Location sync after a transfer: project {0} → {1}; assignment date {2} → {3}"
+msgstr "مزامنة الموقع بعد نقل: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Daily location sync: project {0} → {1}; assignment date {2} → {3}"
+msgstr "المزامنة اليومية للموقع: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
+
+msgid "Daily equipment location sync"
+msgstr "المزامنة اليومية لموقع المعدات"
+
+msgid "Off by default. When on, a daily job sets each equipment's current project and assignment date from the assignment in force today (an overwritten value leaves a comment). Equipment without any assignment history is never changed."
+msgstr "معطلة افتراضياً. عند تفعيلها تضبط مهمة يومية المشروع الحالي وتاريخ التعيين لكل معدة من التعيين الساري اليوم (أي قيمة يُكتب فوقها تُسجَّل في تعليق). المعدات التي ليس لها أي تاريخ تعيينات لا تتغير أبداً."
+
+msgid "Equipment {0} is a component of unit {1}; a component cannot be a unit."
+msgstr "المعدة {0} مكون في الوحدة {1}؛ لا يمكن أن يكون المكون وحدة."
+
+msgid "Overlapping assignments in force on {0}: {1}. The current project and assignment date stay empty until the overlap is corrected."
+msgstr "تعيينات متداخلة سارية في {0}: {1}. يبقى المشروع الحالي وتاريخ التعيين فارغين حتى يُصحَّح التداخل."
+
+msgid "CARD equipment location overlap"
+msgstr "تداخل تعيينات موقع معدة في CARD"
+
+msgid "CARD daily location sync"
+msgstr "المزامنة اليومية لموقع المعدات في CARD"
+
+msgid "The location of these equipment could not be synced: {0}"
+msgstr "تعذّرت مزامنة موقع هذه المعدات: {0}"

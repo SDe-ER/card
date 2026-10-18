@@ -1,11 +1,21 @@
 # Changelog
 
 All notable changes to the Card app are documented here. Format based on
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project will adopt
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html) from the next release.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+> **Published ≠ deployed.** A version listed here is a published GitHub release. Which version
+> runs on a given site is a deployment fact, verified on that site — never inferred from this file.
+
+Per-version documentation (complete feature inventory, comparison matrix, upgrade guidance):
+[docs/releases/](docs/releases/VERSION-HISTORY.md) —
+[Version History](docs/releases/VERSION-HISTORY.md) ·
+[Version Comparison](docs/releases/VERSION-COMPARISON.md) ·
+[Which Version Should I Use?](docs/releases/WHICH-VERSION.md)
 
 ## [Unreleased]
-### Planned (v1.1)
+
+### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
   deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;
   fresh installs currently get frappe's computed fallback. When the app drops pre‑16.50 support, ship
@@ -18,16 +28,261 @@ All notable changes to the Card app are documented here. Format based on
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 
-### Changed (repo-presentation PR, formatting only — to ship with v1.1 after the mandatory rehearsal)
-- **Formatting-only changes to app files, no behaviour change:** `ruff-format` and `prettier`
-  applied to the Python and client scripts flagged by the new linters gate (tabs / double quotes).
-- **Two i18n wraps:** the *Card Equipment Supplier* form button labels (`تحديث الأرقام`,
-  `كشف الحساب`) are wrapped in `__()` to satisfy the semgrep translation rule; no behaviour change.
-- Repository presentation overhaul (README, `.github` templates, CI / linters / release workflows,
-  pre-commit config, demo screenshots) — docs and tooling only; no app-code behaviour change.
-- **Copyright headers** in all app source files (`.py` / `.js`) normalized to
-  `Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors` — comment header
-  lines only; no code, metadata, fixtures, patch or test logic changed.
+## [1.2.2] — 2026-10-17
+
+Patch release on top of 1.2.1: company isolation of the registries and the posting endpoints,
+protected commercial terms and equipment fields, a permanent GL Posting Log, and posting, diesel,
+report and reconciliation fixes. Merged through PRs #30, #39, #55, #58, #60 and #65; CI and test
+maintenance in PRs #63, #66 and #67.
+
+### Security
+- **Monthly-posting endpoints are company-scoped** (#36). `post_month` / `rebuild_month` refuse,
+  before any work, a company outside the caller's permitted companies (User Permission rule of the
+  reports). On QA the case was already blocked late, and incidentally, by ERPNext's party-account
+  permission check; the gate is now explicit.
+- **Supplier/customer registries no longer expose other companies** (#23). Registry rows store no
+  figures any more (the stored party-wide counts, hours and totals are cleared by a patch); the form
+  shows figures per company the user may see. A user restricted to some companies lists and opens only
+  parties with cards there (list, form and REST). The registries' earlier change history, which holds
+  those figures, is **kept unchanged as audit history** and is not shown: the registries do not track
+  changes (turning it on through Customize Form or a Property Setter is refused), and Version records
+  are readable by System Manager only. A patch only counts that history; nothing is deleted.
+- **The Monthly Card keeps its current default print format.** On upgrade, an existing print-format
+  default (e.g. the legacy «كارت تشغيل شهري») is kept; the new "Card Monthly Card Print" stays
+  available in the print menu, and new installs use it as the default.
+- **Commercial terms of equipment are protected** (rates, rate basis, daily hours, direction, parties,
+  contract, fuel): permission level 1 (Card Manager writes, Card User reads), a new reason is required
+  for every change, and the change history is kept. Card User no longer creates equipment.
+- **Equipment assignments** are written by Card Manager only and validated (dates, company, no overlap);
+  transfers record their assignment changes in the history.
+- **Card Settings**: Accounts Manager can now save the per-company accounting fields (the previous
+  level-1 grant could not be used); policy fields moved to permission level 2 (System Manager writes).
+- Change history on Project Diesel Fill and Equipment Transport.
+- **Equipment fields that drive company, accounting and the assignment control are protected** (#56):
+  company, the linked Asset, unit / components / unit-component and the diesel consumption baselines
+  are written by Card Manager only (Card User reads them). Server-side checks:
+  - the company cannot change once the equipment is used;
+  - a linked Asset must be of the same company, not cancelled, and readable by the user;
+  - components must be of the same company, not units and not in another unit, also when a
+    component row is saved on its own (REST on the row).
+- **Current project and assignment date are read-only.** They follow the assignment in force today
+  (project and start date) and are re-synced whenever an assignment changes or a transfer is
+  submitted or cancelled; an overwritten value leaves a comment. A future assignment does not move
+  them; a transfer that ends a previous assignment takes effect the day after its date (a first
+  assignment starts on the transfer date). The free-text location is never changed.
+  Moves that only come into force with time (a future start, an end date passing) are applied by an
+  optional daily job, **off by default** (Card Settings); without it they wait for the next
+  assignment event.
+- **A unit's card days are checked against the unit's own assignments too.** A component without
+  assignment history no longer switches the check off.
+- **The GL Posting Log is a permanent audit record** (#57): no role can create, edit, delete or share
+  a log (System Manager keeps read, report and export), and the server refuses these operations even
+  for Administrator, shared documents or a Custom DocPerm. Only CARD's monthly posting creates a log, for
+  its own draft invoice; the lifecycle (submit, cancel, draft deletion, rebuild) is unchanged. Cancelled
+  and stale logs are kept, so a cancelled Card invoice can no longer become amendable by deleting or
+  rebinding its log. The source rows cannot be changed on their own. Delete Company Transactions and
+  app uninstall keep working.
+
+### Fixed
+- **Project names in reports for operational roles** (#29, PR #30).
+- **Diesel reports mark estimates** (#33): litres split from project-tank fills by operating hours are
+  shown as *estimated*, direct fills as *recorded*; "Actual litres" is now "Allocated litres".
+- **Monthly posting lines** (#34): fill/transport lines use the source's own cost center when set;
+  split diesel lines state their own estimated litres share.
+- **Reconciliation in three separate figures** (statements and summaries, net before VAT): **invoiced
+  through Card** (from Card's own posting trail), **not invoiced through Card** (card net − invoiced through
+  Card; cards in a Card draft invoice count here until it is submitted; under a project or equipment-type
+  filter only the shown cards' share of a Card invoice counts) and **ERPNext invoices outside
+  Card — to reconcile** (submitted invoices of the party in the period that Card did not create). Invoices
+  outside Card are shown for manual reconciliation only: never matched to cards by party and month, and no
+  existing invoice, GL entry or amount is relinked or changed. GL figures stay as the VAT-inclusive balance.
+  A manual invoice that takes the number of a deleted Card draft (frappe reuses the last number) is still
+  counted outside Card: only a **submitted** Card posting makes an invoice Card's.
+- **Clear message when a poster cannot read Items.** Building a monthly invoice needs Item read access
+  (ERPNext prices the lines with the caller's rights); a Card Manager without it (e.g. Accounts Manager
+  only) is now refused up front with a message naming the needed role, instead of an empty permission
+  error from inside ERPNext. No rights are granted automatically.
+- **Manual invoices that reuse a deleted Card draft's number can be amended again.** frappe reuses the
+  last number after a draft is deleted, and Card refused every amendment of such a manual invoice. An
+  amendment is now refused only when a Card posting record was written at or after the amended invoice
+  (Card creates its invoice and that record together), and the whole amendment chain is checked: amending
+  a cancelled Card posting — directly or through an earlier amendment — is still refused. Equal or
+  missing timestamps refuse.
+
+### Migration
+- Upgrading from 1.0.1 runs the `v1_2`, `v1_2_1` and `v1_2_2` patches once each (all post-model-sync,
+  idempotent). None writes GL entries, invoices or card amounts. On existing cards:
+  - **submitted cards** get their snapshot fields (`daily_hours_used`, `hourly_rate_used`,
+    `diesel_policy_used`) from the card's rate and the equipment's **current** daily hours and fuel
+    policy;
+  - an empty card direction is derived, and adjustment rows get `side = Supplier`;
+  - draft cards are re-derived from their equipment.
+- The supplier/customer registries are created or recomputed, and their stored figures are cleared
+  (#23). Their earlier change history is only counted: nothing is deleted. An existing default print
+  format is kept.
+- The roles **Card Manager** and **Card User** are created; assign them to the users who operate Card.
+- Accounting stays off (`enable_accounting = 0`), the `card_equipment` Accounting Dimension is not
+  created (separate manual step), and the daily location sync is off.
+- Rehearse the upgrade on a copy of production before deploying it.
+
+### Known limitations
+- The diesel *cost* totals (Equipment Diesel Consumption, monthly card form) still add recorded and
+  estimated amounts into one figure; only the litres are split (#33).
+- Rebuilding a monthly posting deletes CARD's draft invoice and creates a new one, which may take the
+  same number; edits made on the deleted draft are lost. Affects only sites with accounting enabled.
+
+## [1.2.1] — 2026-10-16
+
+Patch release on top of 1.2.0: operational roles can run filtered reports, monthly-card and
+diesel/transport prints show the right money on the right side, and supplier/customer totals keep
+each side's own additions and deductions. Merged through PRs #22, #26 and #27.
+
+### Fixed
+- **Filtered reports for operational roles** (#21, PR #22). A Card User could not run any CARD
+  report filtered by supplier, customer or project: Frappe v16 validates report Link-filter values
+  against the user's own read/select permission. Supplier and customer filters now link to the CARD
+  registries (*Card Equipment Supplier* / *Customer*), Company and Project are CARD-scoped
+  Autocomplete filters, and master Link columns the user cannot read are returned as plain text — no
+  ERPNext permission is granted to any Card role. The registries follow ERPNext Supplier/Customer
+  renames and merges, and a row now exists from a party's first draft card (backfilled on migrate).
+- **Monthly card print** (#25, PR #26). Each billed side prints the figures of its invoice — gross,
+  that side's additions, deductions, and the net before VAT (supplier: `amount → net_amount`;
+  customer: `customer_amount → customer_net_amount`); sub-rental cards print both sides and name the
+  customer. A rented-out card with a 1,200 customer deduction printed "net due 0.00"; it now prints
+  6,000. The supplier "total" box printed the net under a gross label; it now prints the gross. The
+  Arabic overlap of mixed bold/regular text on the adjustments line is gone. The legacy alternative
+  format prints the customer amount on customer-only cards.
+- **Diesel fill and transport prints** (#25, PR #26). The money field is labelled "Fill amount"
+  («قيمة التعبئة») / "Transport cost" («تكلفة النقل») instead of "Amount", which core Arabic
+  translates as a quantity («كمية»); the two report columns read "Diesel cost" / "Transport cost".
+  The amount in words is labelled «المبلغ كتابةً» and, in Arabic, shows the currency symbol (ر.س)
+  instead of the ISO code. No core translation is overridden.
+- **Supplier and customer totals keep each side's adjustments** (#24, PR #27). The supplier
+  registry, *Equipment Suppliers Summary* and *Equipment Supplier Statement* no longer fold
+  customer-side rows of sub-rental cards into the supplier net; the customer registry, *Equipment
+  Customers Summary* and *Equipment Customer Statement* now use the customer net (what the Sales
+  Invoice bills) instead of the gross, and the customer statement gains Additions / Deductions / Net
+  columns. The card form's displayed net counts supplier-side rows only.
+
+### Migration
+- `bench --site <site> migrate` runs three idempotent v1.2.1 patches, in order:
+  `backfill_customer_net_amount` (fills `customer_net_amount` on customer-billing cards saved before
+  that column was computed), `ensure_party_registries` (creates missing registry rows and realigns rows an earlier party
+  rename left misnamed),
+  `recompute_party_registries` (refreshes every stored registry total). They write only that derived
+  card column and the CARD registry rows; no submitted accounting document (invoice, journal, GL
+  entry) is touched. A party whose recompute fails is logged in Error Log and counted in the
+  migrate output.
+- New Arabic strings: compile translations (`bench build`, or
+  `bench compile-po-to-mo --app card --force`) and `bench --site <site> clear-cache`, otherwise the
+  new labels show in English.
+
+### Compatibility
+- Frappe / ERPNext v16 (16.5x), as 1.2.0. No field is removed or renamed; only the labels of
+  `amount` on Project Diesel Fill / Equipment Transport change. The default monthly-card print format
+  stays "Card Monthly Card Print"; an existing site-level default is not overwritten.
+- The internal whitelisted Link-query endpoints `card.api.card_projects_query` and
+  `card.api.card_companies_query` are replaced by `card.api.card_project_options` /
+  `card.api.card_company_options` (Autocomplete contract). A custom client calling the old names
+  must switch.
+
+### Test evidence
+- CI green on every merged head (unit tests on Frappe 16.5x, pre-commit, Semgrep, CodeQL).
+- QA v16 bench, full suite on each final head: PR #22 259/259, PR #26 260/260, PR #27 268/268;
+  integrated main + all three: 280/280.
+- Real PDFs rendered with wkhtmltopdf 0.12.6 (Arabic, fictional data): customer-only card (6,000),
+  supplier card with additions/deductions over 31 days, sub-rental with mixed sides
+  (16,200→15,900 / 24,300→24,150), diesel fill, transport — all single page, no overlap.
+- Independent review of every PR, findings resolved before merge.
+
+### Known limitations
+- **Multi-company registry isolation is not resolved (#23, open).** *Card Equipment Supplier* /
+  *Customer* rows and their stored totals are per party across all companies. Reports and their
+  filters are company-scoped, but the registry totals are not — do not rely on them on a
+  multi-company site until #23 ships.
+- The reconciliation difference compares card nets **before VAT** with party GL totals that include
+  VAT, so it does not reach zero for VAT-registered parties (pre-existing; owner decision pending).
+- The legacy alternative print format «كارت تشغيل شهري» keeps pre-existing wkhtmltopdf layout
+  defects (overlapping header text); use the default "Card Monthly Card Print".
+- Amount in words uses the company's default currency (single-currency sites).
+
+> Published ≠ deployed: this release is not deployed to any production site.
+
+## [1.2.0] — 2026-10-16
+
+First release since v1.0.1. The v1.1 line was developed and merged but **never tagged**; its
+content ships here. Merged through PRs #1–#5, #12, #14, #16 and #18.
+
+### Added
+- **English-source UI with a complete Arabic translation** (v1.1 line). The app/module name
+  "Card" is never translated; `card/locale` carries CARD strings only (guard test).
+- **Desk connections** between equipment, cards, suppliers, customers and projects; workspace and
+  sidebar polish; per-shift hour heatmaps.
+- **Card Settings** (single) with one **Card Company Settings** row per company; **Card Manager** /
+  **Card User** roles; permission levels (accounting fields at level 1 for Accounts Manager).
+- **Rental directions on the equipment** (rented-in, rented-out, sub-rental, owned) with hours-only
+  monthly cards; **customer registry**, *Equipment Customer Statement* and *Equipment Customers
+  Summary* on official receivables.
+- **Three rate bases** (hourly, daily, monthly) — all bill operating hours (see README).
+- **Diesel and transport:** *Project Diesel Fill* with project-tank allocation by operating hours
+  (one shared rounding rule for display and posting), unallocated fills reported explicitly;
+  *Equipment Transport* with per-project prices; diesel supplier policy; reports *Equipment Diesel
+  Analysis*, *Equipment Diesel Consumption*, *Operating Cost by Project*, *Transport Cost by Project*.
+- **Card Equipment accounting dimension** (manual one-time setup step, documented in the module),
+  guard report *Equipment Expenses Without Equipment*, period lock, equipment transfers with
+  assignment tracking, professional RTL print formats (monthly card, diesel fill, transport).
+- **Monthly supplier/customer postings (opt-in per company):** draft Purchase/Sales Invoices built
+  from submitted CARD documents — one line per source document with project, cost center and
+  equipment dimension — tracked by **GL Posting Log** units with fail-closed preflights (settings,
+  items, tax template shape, dimension, open period) and lifecycle guards (active-unit resolution,
+  submit-time re-assertion of period, month anchor and source totals, type-free reservation keys,
+  multi-rate tax templates refused). Documents are always created as drafts for accountant review.
+
+### Fixed
+- **Report access** (#13 / PR #14): all nine CARD reports now run for one validated company; card
+  and GL reads are scoped to it; ledger figures are shown only to users whose roles read GL Entry
+  (a shared document or an owner-only read does not count); link filters use CARD-owned queries, so
+  no ERPNext permission grant is needed to filter by company, project, supplier or customer.
+  Previously an operational user could see ledger balances, and a multi-company site mixed companies.
+- **Diesel allocation** now requires a company and scopes both fills and hour weights to it — a
+  project spanning companies no longer mixes them in reports or in posting lines (PR #14).
+- **Workspace number cards** no longer pin SAR: counts and litres were rendered as SAR amounts and
+  non-SAR companies saw SAR (#15 / PR #16).
+- **Arabic labels** for GL Posting Log fields (#17 / PR #18).
+
+### Changed
+- Report filters: **Company is required** (defaults to the user's company). *Equipment Expenses
+  Without Equipment* is limited to System Manager and Accounts Manager.
+- Repository presentation, CI (clean-site tests, linters, CodeQL, Semgrep) and copyright headers.
+
+### Upgrade notes (from v1.0.1)
+- Tested on **Frappe/ERPNext v16.50+** (earlier v16 minors are not tested for this release). Back up,
+  then `bench --site <site> migrate`.
+- Patches run once: `ensure_card_roles`, `backfill_snapshot`, `init_card_settings_defaults`,
+  `set_operator_fuel_defaults`, `init_shift_limits`, `backfill_card_direction`,
+  `backfill_rental_direction`, `rederive_draft_cards`, `backfill_adjustment_side`,
+  `ensure_print_defaults`, `recompute_posting_keys`.
+- **Accounting stays off** after upgrade: no posting happens until accounting is enabled and a
+  company row is configured in Card Settings. Assign **Card Manager / Card User** to operational users.
+- Users who should see ledger columns in CARD reports need a role that reads GL Entry
+  (e.g. Accounts User / Accounts Manager).
+- Before upgrading a multi-company site, list projects whose cards or diesel fills span companies;
+  their diesel allocation is now per company.
+
+### Compatibility
+- Frappe 16.51.1 / ERPNext 16.50.0 (clean-site CI on 16.5x); `required_apps = ["erpnext"]`.
+
+### Test evidence
+- 246 app tests green on a Frappe 16.51.1 bench; clean-site install + full suite in CI; independent
+  security/accounting review of the report-access change (two rounds, approved).
+
+### Known limitations
+- **Not deployed to any production site by this release.** A rehearsal of v1.0.1 → v1.2.0 on a
+  copy of production data is required before a production upgrade.
+- The broader accounting phases (per-company activation workflow, tax classes, claims, allocation
+  shares) are an approved design and are **not** in this release.
+- Some Arabic labels come from Frappe/ERPNext core translations (e.g. the list "ID" column, "Amount",
+  "Total"); they can be adjusted per site with Translation records.
 
 ## [1.0.1] — 2026-10-13
 Hotfix for Frappe **16.51** compatibility (the production framework upgrade to frappe 16.51.1 /

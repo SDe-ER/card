@@ -7,8 +7,15 @@ A Project Diesel Fill is either charged in full to one equipment (its
 `card_equipment` is set) or, for a project-tank fill (`card_equipment` empty),
 split across the equipment that operated in the same project + month, pro-rata
 by their total operating hours (all shifts) from submitted Card Monthly Cards.
-When splitting, the last equipment (stable alphabetical order) absorbs the
-rounding difference so the shares sum to the fill amount/litres exactly.
+Splitting uses the ONE shared largest-remainder rule (split_by_weights), so the
+GL posting and every display put the rounding difference on the SAME equipment
+and the shares sum to the fill amount/litres exactly.
+
+Basis (#33): a direct fill's litres are RECORDED for that equipment; a tank
+fill's per-equipment share is an ESTIMATE (hours split, nothing is measured).
+Every allocation row carries both parts next to the unchanged totals:
+litres = litres_recorded + litres_estimated (same for amount). The UNALLOCATED
+row is neither (no equipment), so only its totals are set.
 """
 
 import frappe
@@ -23,39 +30,80 @@ def _month_year(date_value):
 	return "%02d" % d.month, str(d.year)
 
 
-def allocate_project_diesel(project, month, year, include_unallocated=False):
-	"""Return {equipment: {"litres": float, "amount": float}} for one
-	project + month across all SUBMITTED Project Diesel Fills in that period.
+def split_by_weights(amount, weights, precision=2):
+	"""M6 — THE one largest-remainder split used by posting AND display:
+	{key: share} summing EXACTLY to amount; the largest share absorbs the
+	rounding drift (ties broken by sorted key order, deterministically).
+	Empty/zero weights -> {} (callers keep the amount unallocated)."""
+	total = sum(weights.values())
+	if not total:
+		return {}
+	shares = {k: flt(flt(amount) * w / total, precision) for k, w in weights.items()}
+	drift = flt(flt(amount) - sum(shares.values()), precision)
+	if drift:
+		largest = max(sorted(shares), key=lambda k: shares[k])
+		shares[largest] = flt(shares[largest] + drift, precision)
+	return shares
+
+
+def project_operating_hours(project, month, year, company):
+	"""{equipment: total operating hours} for one project + month across all
+	SUBMITTED Card Monthly Cards (all shifts) of ONE company. The allocation
+	basis for project-tank diesel — direct fills never influence these weights.
+	``company`` is required: a project is not tied to one company, so an
+	unscoped read would weight one company's fill by another's equipment."""
+	rows = frappe.db.sql(
+		"""
+		select equipment, sum(total_working_hours) as hrs
+		from `tabCard Monthly Card`
+		where project = %s and month = %s and year = %s and company = %s and docstatus = 1
+		group by equipment
+		""",
+		(project, "%02d" % int(month), str(year), company),
+		as_dict=True,
+	)
+	return {r.equipment: flt(r.hrs) for r in rows if flt(r.hrs) > 0}
+
+
+def allocate_project_diesel(project, month, year, company, include_unallocated=False):
+	"""Return {equipment: {"litres", "amount", "litres_recorded",
+	"litres_estimated", "amount_recorded", "amount_estimated"}} for one
+	project + month across all SUBMITTED Project Diesel Fills of ONE company in
+	that period (fills and hour weights both scoped to ``company``).
+	``litres``/``amount`` are the allocated totals (unchanged); ``*_recorded`` is
+	the part from direct fills, ``*_estimated`` the part split from project-tank
+	fills by operating hours.
 	When include_unallocated is True, project-tank fills in a period with NO operating
 	hours accumulate under the UNALLOCATED key instead of being dropped."""
 	result = {}
 
-	def add(equipment, litres, amount):
-		row = result.setdefault(equipment, {"litres": 0.0, "amount": 0.0})
+	def add(equipment, litres, amount, basis=None):
+		row = result.setdefault(
+			equipment,
+			{
+				"litres": 0.0,
+				"amount": 0.0,
+				"litres_recorded": 0.0,
+				"litres_estimated": 0.0,
+				"amount_recorded": 0.0,
+				"amount_estimated": 0.0,
+			},
+		)
 		row["litres"] = flt(row["litres"] + flt(litres), 3)
 		row["amount"] = flt(row["amount"] + flt(amount), 2)
+		if basis:
+			row["litres_" + basis] = flt(row["litres_" + basis] + flt(litres), 3)
+			row["amount_" + basis] = flt(row["amount_" + basis] + flt(amount), 2)
 
 	if not project:
 		return result
 	month = "%02d" % int(month)
 	year = str(year)
-
-	# total operating hours per equipment in this project + month (submitted cards, all shifts)
-	hours_rows = frappe.db.sql(
-		"""
-		select equipment, sum(total_working_hours) as hrs
-		from `tabCard Monthly Card`
-		where project = %s and month = %s and year = %s and docstatus = 1
-		group by equipment
-		""",
-		(project, month, year),
-		as_dict=True,
-	)
-	hours_map = {r.equipment: flt(r.hrs) for r in hours_rows if flt(r.hrs) > 0}
+	hours_map = project_operating_hours(project, month, year, company)
 
 	fills = frappe.get_all(
 		"Project Diesel Fill",
-		filters={"project": project, "docstatus": 1},
+		filters={"project": project, "company": company, "docstatus": 1},
 		fields=["name", "card_equipment", "litres", "amount", "date"],
 	)
 	for f in fills:
@@ -64,45 +112,35 @@ def allocate_project_diesel(project, month, year, include_unallocated=False):
 			continue
 		# direct fill: whole amount to the chosen equipment
 		if f.card_equipment:
-			add(f.card_equipment, f.litres, f.amount)
+			add(f.card_equipment, f.litres, f.amount, "recorded")
 			continue
-		# project-tank fill: pro-rata by operating hours; last row absorbs rounding
-		total_hours = sum(hours_map.values())
-		if total_hours <= 0:
+		# project-tank fill: pro-rata by operating hours via the SHARED split
+		# rule (M6 — the remainder lands on the same equipment as in GL posting)
+		amt_shares = split_by_weights(f.amount, hours_map, 2)
+		if not amt_shares:
 			if include_unallocated:
 				add(UNALLOCATED, f.litres, f.amount)
 			continue
-		equipments = sorted(hours_map.keys())
-		done_amt = 0.0
-		done_lit = 0.0
-		for i, eq in enumerate(equipments):
-			if i == len(equipments) - 1:
-				share_amt = flt(flt(f.amount) - done_amt, 2)
-				share_lit = flt(flt(f.litres) - done_lit, 3)
-			else:
-				ratio = hours_map[eq] / total_hours
-				share_amt = flt(flt(f.amount) * ratio, 2)
-				share_lit = flt(flt(f.litres) * ratio, 3)
-				done_amt += share_amt
-				done_lit += share_lit
-			add(eq, share_lit, share_amt)
+		lit_shares = split_by_weights(f.litres, hours_map, 3)
+		for eq in sorted(amt_shares):
+			add(eq, lit_shares.get(eq, 0), amt_shares[eq], "estimated")
 	return result
 
 
 @frappe.whitelist()
 def get_card_diesel(card: str):
 	"""Diesel allocated to one Card Monthly Card's equipment for its project +
-	month. Display only; it is NEVER written back and NEVER affects net_amount."""
+	month, with its recorded (direct fill) and estimated (hours split) parts.
+	Display only; it is NEVER written back and NEVER affects net_amount."""
 	doc = frappe.get_doc("Card Monthly Card", card)
 	frappe.has_permission("Card Monthly Card", "read", doc.name, throw=True)
+	keys = ("litres", "amount", "litres_recorded", "litres_estimated", "amount_recorded", "amount_estimated")
 	if not (doc.project and doc.month and doc.year and doc.equipment):
-		return {"litres": 0.0, "amount": 0.0, "company_bears": False}
-	alloc = allocate_project_diesel(doc.project, doc.month, doc.year)
-	share = alloc.get(doc.equipment, {"litres": 0.0, "amount": 0.0})
+		return dict(dict.fromkeys(keys, 0.0), company_bears=False)
+	alloc = allocate_project_diesel(doc.project, doc.month, doc.year, doc.company)
+	share = alloc.get(doc.equipment) or {}
 	# flag when the company bears the fuel (الوقود_على = الشركة) → the diesel is our cost
 	fuel_on = frappe.db.get_value("Card Equipment", doc.equipment, "الوقود_على")
-	return {
-		"litres": flt(share["litres"], 3),
-		"amount": flt(share["amount"], 2),
-		"company_bears": fuel_on == "الشركة",
-	}
+	out = {k: flt(share.get(k), 3 if k.startswith("litres") else 2) for k in keys}
+	out["company_bears"] = fuel_on == "الشركة"
+	return out

@@ -3,55 +3,120 @@
 
 import frappe
 from frappe import _
-from frappe.utils import flt
+from frappe.model.rename_doc import rename_doc
+from frappe.utils import cint, flt
+
+from card.party_registry import registry_row
+from card.report_access import assert_report_role, permitted_companies, query_companies
+from card.settings import setting
+
+# Registry aggregates (counts, hours, totals, months) are NOT stored: a registry
+# row is per party across every company, so any stored figure would expose
+# other companies' activity (#23). Figures are computed on request, per company
+# the caller may see (party_figures).
+REGISTRY_AGGREGATES = (
+	"first_month",
+	"last_month",
+	"equipment_count",
+	"card_count",
+	"total_hours",
+	"last_refreshed",
+)
+REGISTRY_MONEY = {"Supplier": "total_net", "Customer": "total_accrued"}
 
 
-def recompute_supplier(supplier):
-	"""Recompute one supplier's registry record from ALL its submitted, non-owned cards.
-	Shared by the refresh API and the Card Monthly Card submit/cancel events.
-	Writes only to "Card Equipment Supplier"."""
-	cards = frappe.get_all(
+def _party_cards(party_type, party, companies=None):
+	"""Submitted cards that bill ``party`` on its side (supplier: non-owned;
+	customer: customer-billing directions), optionally limited to companies."""
+	from card.constants import CUSTOMER_BILLING_DIRECTIONS
+
+	if party_type == "Supplier":
+		filters = [["supplier", "=", party], ["docstatus", "=", 1], ["ownership", "!=", "ملك"]]
+		money = "net_amount"
+	else:
+		filters = [
+			["customer", "=", party],
+			["docstatus", "=", 1],
+			["card_direction", "in", list(CUSTOMER_BILLING_DIRECTIONS)],
+		]
+		money = "customer_net_amount"
+	if companies is not None:
+		filters.append(["company", "in", list(companies) or [""]])
+	return frappe.get_all(
 		"Card Monthly Card",
-		filters=[["supplier", "=", supplier], ["docstatus", "=", 1], ["ownership", "!=", "ملك"]],
-		fields=[
-			"equipment",
-			"total_working_hours",
-			"amount",
-			"total_additions",
-			"total_deductions",
-			"year",
-			"month",
-		],
+		filters=filters,
+		fields=["company", "equipment", "total_working_hours", money + " as money", "year", "month"],
 		limit_page_length=0,
 	)
-	eqs = set()
-	hours = 0.0
-	net = 0.0
-	periods = []
-	for c in cards:
-		eqs.add(c.equipment)
-		hours = hours + flt(c.total_working_hours)
-		net = net + flt(c.amount) + flt(c.total_additions) - flt(c.total_deductions)
-		periods.append(str(c.year) + "-" + str(c.month).zfill(2))
-	periods = sorted(periods)
 
-	if frappe.db.exists("Card Equipment Supplier", supplier):
-		rec = frappe.get_doc("Card Equipment Supplier", supplier)
-	else:
-		rec = frappe.new_doc("Card Equipment Supplier")
-		rec.supplier = supplier
-	rec.equipment_count = len(eqs)
-	rec.card_count = len(cards)
-	rec.total_hours = flt(hours, 2)
-	rec.total_net = flt(net, 2)
-	rec.first_month = periods[0] if periods else None
-	rec.last_month = periods[-1] if periods else None
-	rec.last_refreshed = frappe.utils.now_datetime()
+
+def _figures_by_company(cards):
+	by = {}
+	for c in cards:
+		f = by.setdefault(c.company, {"eq": set(), "cards": 0, "hours": 0.0, "money": 0.0, "periods": []})
+		f["eq"].add(c.equipment)
+		f["cards"] = f["cards"] + 1
+		f["hours"] = f["hours"] + flt(c.total_working_hours)
+		f["money"] = f["money"] + flt(c.money)
+		f["periods"].append(str(c.year) + "-" + str(c.month).zfill(2))
+	result = []
+	for company in sorted(by):
+		f = by[company]
+		periods = sorted(f["periods"])
+		result.append(
+			{
+				"company": company,
+				"equipment_count": len(f["eq"]),
+				"card_count": f["cards"],
+				"total_hours": flt(f["hours"], 2),
+				"total": flt(f["money"], 2),
+				"first_month": periods[0] if periods else None,
+				"last_month": periods[-1] if periods else None,
+			}
+		)
+	return result
+
+
+@frappe.whitelist()
+def party_figures(party_type: str, party: str):
+	"""Per-company figures of one registry party (supplier net / customer
+	accrued = customer net), for the companies the caller may see only."""
+	assert_report_role()
+	registry = {"Supplier": "Card Equipment Supplier", "Customer": "Card Equipment Customer"}.get(party_type)
+	if not registry:
+		frappe.throw(_("Party type must be Supplier or Customer."))
+	if not frappe.db.exists(registry, party) or not frappe.has_permission(registry, "read", party):
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	return _figures_by_company(_party_cards(party_type, party, permitted_companies()))
+
+
+def _sync_registry_row(registry, field, party):
+	"""Make sure ``party`` has its registry row, named after the party (a row a
+	pre-hook rename left misnamed is realigned), with no stored aggregates."""
+	row = registry_row(registry, field, party)
+	if row and row != party:
+		# a row left misnamed by an old rename: realign it to the party's name
+		rename_doc(registry, row, party, force=True, ignore_permissions=True, show_alert=False)
+		row = party
+	rec = frappe.get_doc(registry, row) if row else frappe.new_doc(registry)
+	if rec.is_new():
+		rec.set(field, party)
+	for fieldname in (*REGISTRY_AGGREGATES, *REGISTRY_MONEY.values()):
+		if rec.meta.has_field(fieldname):
+			rec.set(fieldname, None)
 	if rec.is_new():
 		rec.insert(ignore_permissions=True)
 	else:
 		rec.save(ignore_permissions=True)
-	return {"supplier": supplier, "cards": len(cards), "net": flt(net, 2)}
+	return rec.name
+
+
+def recompute_supplier(supplier):
+	"""Keep the supplier's registry row (Card Equipment Supplier) in sync. Shared
+	by the refresh API and the Card Monthly Card events; no figures are stored
+	(see REGISTRY_AGGREGATES)."""
+	_sync_registry_row("Card Equipment Supplier", "supplier", supplier)
+	return {"supplier": supplier}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -90,73 +155,39 @@ def refresh_supplier(supplier: str | None = None):
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
 def card_suppliers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
-	"""Link-filter query for the supplier reports: list every Supplier that has
-	at least one Card Monthly Card (any period, drafts + submitted; cancelled
-	excluded). This makes the "supplier" filter findable by name regardless of
-	the selected month/year — a supplier that last worked years ago still shows."""
+	"""Link-filter query for the supplier reports: rows of the CARD supplier
+	registry (Card Equipment Supplier, named by the supplier) with at least one
+	Card Monthly Card in a company the user may see (drafts + submitted;
+	cancelled excluded). The filter links to the registry — readable by every
+	report role — because Frappe validates report Link filter values against the
+	user's own permissions, and operational roles cannot read Supplier."""
+	assert_report_role()
+	companies = query_companies(filters)
+	if not companies:
+		return []
 	like = "%" + (txt or "") + "%"
 	return frappe.db.sql(
 		"""
-		select s.name, s.supplier_name
-		from `tabSupplier` s
+		select r.name, r.supplier_name
+		from `tabCard Equipment Supplier` r
 		where exists (
 			select 1 from `tabCard Monthly Card` c
-			where c.supplier = s.name and c.docstatus < 2
+			where c.supplier = r.name and c.docstatus < 2 and c.company in %(companies)s
 		)
-		and (s.name like %(txt)s or s.supplier_name like %(txt)s)
-		order by s.name
+		and (r.name like %(txt)s or r.supplier_name like %(txt)s)
+		order by r.name
 		limit %(start)s, %(page_len)s
 		""",
-		{"txt": like, "start": start, "page_len": page_len},
+		{"txt": like, "start": start, "page_len": page_len, "companies": companies},
 	)
 
 
 def recompute_customer(customer):
-	"""Recompute one customer's registry record from ALL its submitted
-	customer-billing cards (rented-out + sub-rental). Operational counters and
-	the card-accrued total only — balances are never stored in CARD; they live
-	in the official AR (Sales Invoice / Payment Entry / GL Entry).
-	Writes only to "Card Equipment Customer"."""
-	from card.constants import CUSTOMER_BILLING_DIRECTIONS
-
-	cards = frappe.get_all(
-		"Card Monthly Card",
-		filters=[
-			["customer", "=", customer],
-			["docstatus", "=", 1],
-			["card_direction", "in", list(CUSTOMER_BILLING_DIRECTIONS)],
-		],
-		fields=["equipment", "total_working_hours", "customer_amount", "year", "month"],
-		limit_page_length=0,
-	)
-	eqs = set()
-	hours = 0.0
-	accrued = 0.0
-	periods = []
-	for c in cards:
-		eqs.add(c.equipment)
-		hours = hours + flt(c.total_working_hours)
-		accrued = accrued + flt(c.customer_amount)
-		periods.append(str(c.year) + "-" + str(c.month).zfill(2))
-	periods = sorted(periods)
-
-	if frappe.db.exists("Card Equipment Customer", customer):
-		rec = frappe.get_doc("Card Equipment Customer", customer)
-	else:
-		rec = frappe.new_doc("Card Equipment Customer")
-		rec.customer = customer
-	rec.equipment_count = len(eqs)
-	rec.card_count = len(cards)
-	rec.total_hours = flt(hours, 2)
-	rec.total_accrued = flt(accrued, 2)
-	rec.first_month = periods[0] if periods else None
-	rec.last_month = periods[-1] if periods else None
-	rec.last_refreshed = frappe.utils.now_datetime()
-	if rec.is_new():
-		rec.insert(ignore_permissions=True)
-	else:
-		rec.save(ignore_permissions=True)
-	return {"customer": customer, "cards": len(cards), "accrued": flt(accrued, 2)}
+	"""Keep the customer's registry row (Card Equipment Customer) in sync; no
+	figures are stored. Balances live in the official AR (Sales Invoice /
+	Payment Entry / GL Entry)."""
+	_sync_registry_row("Card Equipment Customer", "customer", customer)
+	return {"customer": customer}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -195,24 +226,80 @@ def refresh_customer(customer: str | None = None):
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
 def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
-	"""Link-filter query for the customer reports: list every Customer that has
-	at least one Card Monthly Card (any period, drafts + submitted; cancelled
-	excluded) — the owner's "customers with at least one card" rule."""
+	"""Link-filter query for the customer reports: rows of the CARD customer
+	registry (Card Equipment Customer, named by the customer) with at least one
+	Card Monthly Card in a company the user may see — the owner's "customers
+	with at least one card" rule. Links to the registry for the same reason as
+	card_suppliers_query."""
+	assert_report_role()
+	companies = query_companies(filters)
+	if not companies:
+		return []
 	like = "%" + (txt or "") + "%"
 	return frappe.db.sql(
 		"""
-		select s.name, s.customer_name
-		from `tabCustomer` s
+		select r.name, r.customer_name
+		from `tabCard Equipment Customer` r
 		where exists (
 			select 1 from `tabCard Monthly Card` c
-			where c.customer = s.name and c.docstatus < 2
+			where c.customer = r.name and c.docstatus < 2 and c.company in %(companies)s
 		)
-		and (s.name like %(txt)s or s.customer_name like %(txt)s)
-		order by s.name
+		and (r.name like %(txt)s or r.customer_name like %(txt)s)
+		order by r.name
 		limit %(start)s, %(page_len)s
 		""",
-		{"txt": like, "start": start, "page_len": page_len},
+		{"txt": like, "start": start, "page_len": page_len, "companies": companies},
 	)
+
+
+@frappe.whitelist()
+def card_project_options(txt: str | None = None, company: str | None = None):
+	"""Options for the reports' Project filter (an Autocomplete, not a Link:
+	Frappe validates report Link filter values against the user's own
+	permissions, and operational roles cannot read Project). Projects of the
+	companies the user may see; the reports scope their rows by company too."""
+	assert_report_role()
+	companies = query_companies({"company": company} if company else {})
+	if not companies:
+		return []
+	like = "%" + (txt or "") + "%"
+	rows = frappe.db.sql(
+		"""
+		select p.name, p.project_name
+		from `tabProject` p
+		where p.company in %(companies)s
+		and (p.name like %(txt)s or p.project_name like %(txt)s)
+		order by p.name
+		limit 50
+		""",
+		{"txt": like, "companies": companies},
+		as_dict=True,
+	)
+	return [
+		{"value": r.name, "label": f"{r.name}: {r.project_name}" if r.project_name else r.name} for r in rows
+	]
+
+
+@frappe.whitelist()
+def report_defaults():
+	"""Report filter defaults for any report role (Card Settings itself is not
+	readable by Card User)."""
+	assert_report_role()
+	return {
+		"default_statement_type": setting("default_statement_type"),
+		"include_draft_in_reports": setting("include_draft_in_reports"),
+	}
+
+
+@frappe.whitelist()
+def card_company_options(txt: str | None = None):
+	"""Options for the reports' Company filter: the companies the user may see.
+	An Autocomplete rather than a Link — Frappe checks Link filter values for
+	read before select and posts a permission message for every operational
+	user; each report validates the company server-side (resolve_company)."""
+	assert_report_role()
+	needle = (txt or "").lower()
+	return [c for c in permitted_companies() if needle in c.lower()][:50]
 
 
 @frappe.whitelist(methods=["POST"])
@@ -247,10 +334,16 @@ def available_assets_query(
 	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict
 ):
 	"""Link-filter query for Card Equipment.الأصل_في_erpnext: submitted Assets of the
-	given company that are not Scrapped/Sold and not already linked to a Card Equipment."""
-	filters = filters or {}
-	if isinstance(filters, str):
-		filters = frappe.parse_json(filters)
+	given company that are not Scrapped/Sold and not already linked to a Card Equipment.
+	Only for users who may create or edit Card Equipment, and only within the
+	companies they may see for it."""
+	# role permissions only: a shared Card Equipment must not open the Asset list
+	perms = frappe.permissions.get_role_permissions(frappe.get_meta("Card Equipment"))
+	if frappe.session.user != "Administrator" and not (perms.get("create") or perms.get("write")):
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	companies = query_companies(filters, "Card Equipment")
+	if not companies:
+		return []
 	like = "%" + (txt or "") + "%"
 	return frappe.db.sql(
 		"""
@@ -258,7 +351,7 @@ def available_assets_query(
 		from `tabAsset` a
 		where a.docstatus = 1
 		and a.status not in ('Scrapped', 'Sold')
-		and (%(company)s = '' or a.company = %(company)s)
+		and a.company in %(companies)s
 		and not exists (
 			select 1 from `tabCard Equipment` e
 			where e.`الأصل_في_erpnext` = a.name
@@ -268,7 +361,7 @@ def available_assets_query(
 		limit %(start)s, %(page_len)s
 		""",
 		{
-			"company": filters.get("company") or "",
+			"companies": companies,
 			"txt": like,
 			"start": frappe.utils.cint(start),
 			"page_len": frappe.utils.cint(page_len),
