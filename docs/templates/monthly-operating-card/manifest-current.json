@@ -1,0 +1,14 @@
+{
+  "revision": "D0.6 (relocated public template, 2026-10-18)",
+  "note": "Checksums of the files in this folder as distributed (LF line endings, neutral placeholder identity). The delivered-revision checksums are in manifest.json and describe the archive branch (PR #64, commit caae620).",
+  "files_sha256": {
+    "Cairo-OFL.txt": "ce39edb04b690f144cd40dc59a1be26dcb089e539c8118289d1081cde4449d6f",
+    "README.md": "557f8387c9ae9cde44acd7115eb3cc3851585dfb8391ec8d3af9e4a1f92c5367",
+    "card.css": "50d4dfb263633cb8272a3f51923fe4617f340303beb08d7bce29697058f1211d",
+    "field-mapping.csv": "0d9fd76cd1634d6d3ac1ca0398caf4a7cf779e9098f4c6eebb05aeefef1e800d",
+    "manifest.json": "ac4d4182f2af408f213cfc955440ccd64dda8c459c2c7a5b31e638f4a37bdb89",
+    "monthly-card.html": "143722e388f8555ab9481fd5c6ca6ca466af30d09990ec92b29b3efbcc593afd",
+    "verification-evidence.json": "da663739c8503f43baec243c7ec5caa02bd6624b81302d3c8b4af10f99ab00c3",
+    "verification-report.md": "4774e0ca019e1b130bd5dba87c18675b758da22f8efa75e4aaeacb968fc6fe77"
+  }
+}
