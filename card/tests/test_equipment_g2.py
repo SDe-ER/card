@@ -527,9 +527,14 @@ class TestG2ComponentRows(_G2Base):
 		self.assertEqual(
 			frappe.db.get_value("Card Equipment Component", self._row(unit, a.name), "role"), "Prime mover"
 		)
-		# the same change through the unit saves — and lands in the unit's Version history
+		# the same change through the unit saves — and lands in the unit's Version
+		# history (the test runner sets ignore_version by default: frappe v16
+		# document._save, `ignore_version = frappe.in_test if ignore_version is
+		# None ...` — so versioning is asked for explicitly here)
 		self._login(["Card Manager"])
-		self.assertTrue(self._via_rest(unit.name, {"components": [{"component": free.name}]}))
+		doc = frappe.get_doc("Card Equipment", unit.name)
+		doc.set("components", [{"component": free.name}])
+		doc.save(ignore_version=False)
 		frappe.set_user("Administrator")
 		self.assertEqual(self._stored(unit), [free.name])
 		version = frappe.get_all(
