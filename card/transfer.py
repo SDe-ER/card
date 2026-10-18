@@ -45,24 +45,40 @@ def _has_any_assignment(equipment):
 	return bool(frappe.db.exists("Card Equipment Assignment", {"equipment": equipment}))
 
 
-def covering_assignment(equipment, first_day, last_day):
-	"""Latest assignment whose period overlaps [first_day, last_day] (F.7: the
-	card's project follows it; retro months keep their historical project).
-	None when nothing overlaps — the card's project is then free entry."""
-	best = None
-	for a in frappe.get_all(
-		"Card Equipment Assignment",
-		filters={"equipment": equipment},
-		fields=["name", "project", "from_date", "to_date"],
-	):
-		if not a.from_date:
-			continue
-		f = getdate(a.from_date)
-		t = getdate(a.to_date) if a.to_date else None
-		if f <= getdate(last_day) and (t is None or t >= getdate(first_day)):
-			if best is None or f > getdate(best.from_date):
-				best = a
-	return best
+def month_assignments(equipment, first_day, last_day):
+	"""Assignments of `equipment` overlapping [first_day, last_day], oldest first.
+	A unit with no assignment of its own uses its components' (v3.0.0)."""
+
+	def overlapping(name):
+		rows = []
+		for a in frappe.get_all(
+			"Card Equipment Assignment",
+			filters={"equipment": name},
+			fields=["name", "project", "from_date", "to_date"],
+		):
+			if not a.from_date:
+				continue
+			f = getdate(a.from_date)
+			t = getdate(a.to_date) if a.to_date else None
+			if f <= getdate(last_day) and (t is None or t >= getdate(first_day)):
+				rows.append(a)
+		return rows
+
+	rows = overlapping(equipment)
+	if not rows and frappe.db.get_value("Card Equipment", equipment, "is_unit"):
+		for c in _component_rows(equipment):
+			rows.extend(overlapping(c.component))
+	return sorted(rows, key=lambda a: getdate(a.from_date))
+
+
+def assignment_projects(equipment, first_day, last_day):
+	"""Projects the equipment was on during the period (v3.0.0: the card's project
+	comes only from these), in the order it reached them."""
+	projects = []
+	for a in month_assignments(equipment, first_day, last_day):
+		if a.project not in projects:
+			projects.append(a.project)
+	return projects
 
 
 def _assigned_on(equipment, project, day):

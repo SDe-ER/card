@@ -1695,3 +1695,18 @@ msgstr ""
 
 msgid "Equipment {0} is already on project {1}."
 msgstr ""
+
+msgid "No transport"
+msgstr ""
+
+msgid "Equipment {0} has no approved transport to a project in {1}/{2}. Record an Equipment Transport first."
+msgstr ""
+
+msgid "In {0}/{1} equipment {2} was on {3}, not on project {4}."
+msgstr ""
+
+msgid "In {0}/{1} equipment {2} moved between {3}. Choose the project: one card per project."
+msgstr ""
+
+msgid "Operator provided by"
+msgstr ""

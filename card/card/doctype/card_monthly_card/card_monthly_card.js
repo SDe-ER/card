@@ -31,10 +31,20 @@ function card_fill_days(frm) {
 	frm.set_value("to_date", `${y}-${card_pad(m)}-${card_pad(last)}`);
 
 	frm.clear_table("days");
+	// only the days the equipment was on the card's project (from card_lock_project);
+	// no approved transport that month: no day rows at all
+	const eligible = frm._card_days || null;
+	if (eligible && !eligible.size) {
+		frm.refresh_field("days");
+		card_calc(frm);
+		return;
+	}
 	for (let d = 1; d <= last; d++) {
+		const date = `${y}-${card_pad(m)}-${card_pad(d)}`;
+		if (eligible && !eligible.has(date)) continue;
 		const dt = new Date(y, m - 1, d);
 		const row = frm.add_child("days");
-		row.operation_date = `${y}-${card_pad(m)}-${card_pad(d)}`;
+		row.operation_date = date;
 		row.day_name = CARD_DAYS[dt.getDay()];
 		row.day_status = "عمل";
 		row.working_hours = 0;
@@ -136,27 +146,44 @@ function card_load_hourly(frm) {
 
 // F.7: the card's project follows the assignment covering the card's month
 // (client mirror of the server rule — display convenience; the server enforces).
+// v3.0.0 (Owner 2026-10-19): the project comes from the approved transports of the
+// month. One project: filled in and locked. Moved during the month: only those projects
+// can be picked (one card each). The eligible days are kept for building the day rows.
 function card_lock_project(frm) {
-	if (frm.doc.docstatus !== 0 || !frm.doc.equipment) return;
+	if (frm.doc.docstatus !== 0 || !frm.doc.equipment) return Promise.resolve();
 	const m = parseInt(frm.doc.month);
 	const y = parseInt(frm.doc.year);
-	if (!m || !y || y < 2000) return;
-	const first = `${y}-${card_pad(m)}-01`;
-	const last = `${y}-${card_pad(m)}-${card_pad(new Date(y, m, 0).getDate())}`;
-	frappe.db
-		.get_list("Card Equipment Assignment", {
-			filters: { equipment: frm.doc.equipment, from_date: ["<=", last] },
-			fields: ["project", "from_date", "to_date"],
-			limit: 0,
+	if (!m || !y || y < 2000) return Promise.resolve();
+	return frappe
+		.call({
+			method: "card.card.doctype.card_monthly_card.card_monthly_card.get_card_context",
+			type: "GET",
+			args: {
+				equipment: frm.doc.equipment,
+				month: frm.doc.month,
+				year: frm.doc.year,
+				project: frm.doc.project || null,
+			},
 		})
-		.then((rows) => {
-			let best = null;
-			(rows || []).forEach((a) => {
-				if (a.to_date && a.to_date < first) return;
-				if (!best || a.from_date > best.from_date) best = a;
-			});
-			frm.set_df_property("project", "read_only", best ? 1 : 0);
-			if (best && frm.doc.project !== best.project) frm.set_value("project", best.project);
+		.then((r) => {
+			const ctx = (r && r.message) || {};
+			const projects = ctx.projects || [];
+			frm._card_days = new Set(ctx.days || []);
+			frm.set_query("project", () => ({ filters: { name: ["in", projects] } }));
+			frm.set_df_property("project", "read_only", projects.length <= 1 ? 1 : 0);
+			if (projects.length === 1 && frm.doc.project !== projects[0]) {
+				return frm.set_value("project", projects[0]);
+			}
+			if (!projects.length) {
+				frappe.msgprint({
+					title: __("No transport"),
+					indicator: "orange",
+					message: __(
+						"Equipment {0} has no approved transport to a project in {1}/{2}. Record an Equipment Transport first.",
+						[frm.doc.equipment, frm.doc.month, frm.doc.year],
+					),
+				});
+			}
 		});
 }
 
@@ -207,6 +234,7 @@ function card_check_duplicate(frm) {
 				month: frm.doc.month,
 				year: frm.doc.year,
 				shift: frm.doc.shift,
+				project: frm.doc.project,
 				docstatus: ["!=", 2],
 				name: ["!=", frm.doc.name],
 			},
@@ -355,15 +383,22 @@ frappe.ui.form.on("Card Monthly Card", {
 	},
 	equipment(frm) {
 		card_load_hourly(frm);
-		card_lock_project(frm);
+		card_lock_project(frm).then(() => card_build(frm));
 	},
 	month(frm) {
-		card_build(frm);
-		card_lock_project(frm);
+		card_lock_project(frm).then(() => card_build(frm));
 	},
 	year(frm) {
-		card_build(frm);
-		card_lock_project(frm);
+		card_lock_project(frm).then(() => card_build(frm));
+	},
+	project(frm) {
+		// moved during the month: the chosen project decides the eligible days
+		if (frm.doc.docstatus !== 0 || !frm.doc.project) return;
+		card_lock_project(frm).then(() => {
+			const rows = frm.doc.days || [];
+			const has_hours = rows.some((r) => flt(r.working_hours));
+			if (!has_hours) card_fill_days(frm);
+		});
 	},
 	rate: card_calc,
 	rate_type: card_calc,

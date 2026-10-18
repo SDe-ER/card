@@ -161,9 +161,11 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		self._assign(eq.name, proj_a, 1)
 		self._transport(eq.name, proj_b, 10)
 
-		# the card month overlaps both assignments; the LATEST (B) wins and the
-		# user's project choice is overwritten by the covering-assignment rule
-		card = self._card(eq.name, proj_a, [11, 12])
+		# v3.0.0: the month overlaps both assignments, so the card is per project; days
+		# after the move cannot go on A's card
+		with self.assertRaises(frappe.ValidationError):
+			self._card(eq.name, proj_a, [11, 12]).insert(ignore_permissions=True)
+		card = self._card(eq.name, proj_b, [11, 12])
 		card.insert(ignore_permissions=True)
 		self.assertEqual(card.project, proj_b)
 		# days before the equipment arrived on B are rejected
@@ -230,11 +232,13 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		eq = self._equipment(current_project=proj_a)
 		self._assign(eq.name, proj_a, 1)  # open on A, never assigned to B
 
-		# F.7: the user's B is overwritten by the covering assignment's project (A),
+		# v3.0.0: a project the equipment was not on is refused (also through the API),
 		# so one piece can never carry a card on a project it is not assigned to.
-		card = self._card(eq.name, proj_b, [5, 6])
+		with self.assertRaises(frappe.ValidationError):
+			self._card(eq.name, proj_b, [5, 6]).insert(ignore_permissions=True)
+		card = self._card(eq.name, None, [5, 6])
 		card.insert(ignore_permissions=True)
-		self.assertEqual(card.project, proj_a)
+		self.assertEqual(card.project, proj_a)  # filled in from the assignment
 
 	# ---- 9. unit component takes no card ----
 	def test_unit_component_takes_no_card(self):

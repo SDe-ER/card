@@ -2355,3 +2355,19 @@ msgstr "مشروع مسجل على ERPNext. في الرجوع للمورد، ب�
 
 msgid "Equipment {0} is already on project {1}."
 msgstr "المعدة {0} موجودة بالفعل على المشروع {1}."
+
+# v3.0.0: monthly card follows the approved transports
+msgid "No transport"
+msgstr "مفيش نقل"
+
+msgid "Equipment {0} has no approved transport to a project in {1}/{2}. Record an Equipment Transport first."
+msgstr "المعدة {0} ملهاش نقل معتمد لمشروع في {1}/{2}. سجّل نقل المعدة الأول."
+
+msgid "In {0}/{1} equipment {2} was on {3}, not on project {4}."
+msgstr "في {0}/{1} المعدة {2} كانت على {3}، مش على المشروع {4}."
+
+msgid "In {0}/{1} equipment {2} moved between {3}. Choose the project: one card per project."
+msgstr "في {0}/{1} المعدة {2} اتنقلت بين {3}. اختار المشروع: كارت لكل مشروع."
+
+msgid "Operator provided by"
+msgstr "المشغّل على"

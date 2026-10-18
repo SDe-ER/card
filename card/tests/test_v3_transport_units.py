@@ -338,3 +338,76 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 		settings.save(ignore_permissions=True)
 		t = paid_move()
 		self.assertEqual((t.cost_center, t.project), (cc, None))
+
+	# ---- monthly card follows the approved transports (Owner 2026-10-19) ----
+	def _strict(self):
+		frappe.flags.card_require_assignment = True
+		self.addCleanup(setattr, frappe.flags, "card_require_assignment", False)
+
+	def test_card_needs_a_transport(self):
+		self._strict()
+		eq = self._equipment().name
+		with self.assertRaises(frappe.ValidationError):
+			self._card(eq, None, [5]).insert(ignore_permissions=True)
+
+	def test_open_assignment_gives_every_month_and_both_shifts(self):
+		self._strict()
+		p = self._project("Y")
+		eq = self._equipment().name
+		self._assign(eq, p, 1)  # stays on the project: an open assignment
+		day = self._card(eq, None, [5])
+		day.insert(ignore_permissions=True)
+		night = self._card(eq, None, [5])
+		night.shift = "ليلي"
+		night.insert(ignore_permissions=True)
+		self.assertEqual((day.project, night.project), (p, p))
+
+	def test_moved_during_the_month_one_card_per_project(self):
+		from card.card.doctype.card_monthly_card.card_monthly_card import get_card_context
+
+		self._strict()
+		pa, pb = self._project("A"), self._project("B")
+		eq = self._equipment().name
+		self._assign(eq, pa, 1, 15)
+		self._assign(eq, pb, 16)
+		with self.assertRaises(frappe.ValidationError):
+			self._card(eq, None, [5]).insert(ignore_permissions=True)  # which project?
+		first = self._card(eq, pa, [5])
+		first.insert(ignore_permissions=True)
+		second = self._card(eq, pb, [20])  # same month and shift, other project
+		second.insert(ignore_permissions=True)
+		ctx = get_card_context(eq, self.month_str, self.year_str, pb)
+		self.assertEqual((ctx["projects"], ctx["days"][0]), ([pa, pb], self._d(16)))
+
+	# ---- operators: company workers are Employees (Owner 2026-10-19) ----
+	def _employee(self):
+		if not frappe.db.exists("Gender", "Male"):
+			frappe.get_doc({"doctype": "Gender", "gender": "Male"}).insert(ignore_permissions=True)
+		emp = frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"first_name": "V3 Operator " + self.token,
+				"gender": "Male",
+				"date_of_birth": "1990-01-01",
+				"date_of_joining": "2020-01-01",
+				"company": self.company,
+				"status": "Active",
+			}
+		).insert(ignore_permissions=True)
+		return emp
+
+	def test_owned_and_company_operated_take_an_employee(self):
+		self._strict()
+		emp = self._employee()
+		p = self._project("OP")
+		owned = self._equipment().name  # ملك
+		managed = self._equipment().name
+		# a rented machine run by our workers ("المدارة"): set directly, as the equipment form does
+		frappe.db.set_value("Card Equipment", managed, "operator_on", "الشركة")
+		for eq in (owned, managed):
+			self._assign(eq, p, 1)
+			card = self._card(eq, None, [5])
+			card.operator = emp.name
+			card.operator_name = "typed by hand"
+			card.insert(ignore_permissions=True)
+			self.assertEqual((card.operator, card.operator_name), (emp.name, emp.employee_name))

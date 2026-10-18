@@ -53,6 +53,14 @@ check the frappe version of a site before upgrading it.
   Settings; a return to the supplier stays on the project it leaves. **Transport cost borne by**: Company (billed by the transport supplier, as
   before), Equipment Supplier (no cost, no invoice) or Customer (recorded for follow-up, not invoiced
   yet). Only Company-borne moves reach the supplier posting and the transport/operating cost reports.
+- **Monthly card follows the approved transports.** Pick the equipment, month and year; the project
+  is the one the equipment's approved transports put it on that month (Card Equipment Assignment),
+  filled in and locked. A machine that stays on a project keeps an open assignment, so it gets a card
+  every month and per shift (day and night). Moved during the month: one card per project (same shift
+  allowed once per project), and only that project's days are offered. No transport covering the
+  month: the card is refused with the reason. A project outside the assignments is refused, also
+  through the API. Company operators are picked from Employee; a rented machine's operator is typed.
+  The card's rate is unchanged (dated rate agreements are planned for a later release).
 - **Dated unit components.** A unit is still one equipment on its monthly card (billing unchanged).
   Each component now has From/To dates, and the unit form offers **Replace component** and **Move to
   another unit**. Both are refused inside an approved card period, and a piece must be on the unit's
