@@ -18,6 +18,8 @@
   "transport_method",
   "amount",
   "cost_center",
+  "section_break_items",
+  "items",
   "section_break_links",
   "created_assignment",
   "previous_assignment",
@@ -64,11 +66,13 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "The equipment or unit being moved (optional).",
+   "description": "First equipment of the trip, kept for links and older documents. Set from the equipment table.",
    "fieldname": "equipment",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Equipment",
-   "options": "Card Equipment"
+   "options": "Card Equipment",
+   "read_only": 1
   },
   {
    "fieldname": "from_location",
@@ -81,7 +85,7 @@
    "label": "To"
   },
   {
-   "description": "Single amount for the move (reflects the distance).",
+   "description": "Total cost of the trip (reflects the distance); split over the equipment below.",
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -93,6 +97,17 @@
    "fieldtype": "Link",
    "label": "Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_break_items",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "The equipment or units moved in this trip (optional). The transport cost is split equally; a share can be edited as long as the shares add up to the transport cost.",
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Equipment",
+   "options": "Equipment Transport Item"
   },
   {
    "fieldname": "section_break_links",
@@ -156,7 +171,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-16 19:00:00.000000",
+ "modified": "2026-10-18 23:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport",

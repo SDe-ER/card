@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 23:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "card_equipment",
+  "equipment_name",
+  "amount",
+  "manual_share",
+  "previous_assignment",
+  "created_assignment"
+ ],
+ "fields": [
+  {
+   "fieldname": "card_equipment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "card_equipment.equipment_name",
+   "fieldname": "equipment_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Equipment name",
+   "read_only": 1
+  },
+  {
+   "description": "Share of the transport cost. Left empty, the cost is split equally.",
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cost share"
+  },
+  {
+   "default": "0",
+   "description": "Set when the share was typed by hand; such a share is kept when the cost is re-split.",
+   "fieldname": "manual_share",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Manual share"
+  },
+  {
+   "fieldname": "previous_assignment",
+   "fieldtype": "Link",
+   "label": "Previous assignment",
+   "no_copy": 1,
+   "options": "Card Equipment Assignment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_assignment",
+   "fieldtype": "Link",
+   "label": "Created assignment",
+   "no_copy": 1,
+   "options": "Card Equipment Assignment",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-18 23:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Equipment Transport Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

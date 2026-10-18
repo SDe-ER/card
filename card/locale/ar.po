@@ -827,8 +827,8 @@ msgstr "تحذير تخطي الدوام"
 #. Description of the 'Amount' (Currency) field in DocType 'Equipment
 #. Transport'
 #: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Single amount for the move (reflects the distance)."
-msgstr ""
+msgid "Total cost of the trip (reflects the distance); split over the equipment below."
+msgstr "إجمالي تكلفة الرحلة (حسب المسافة)، وبتتوزع على المعدات اللي تحت."
 
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:20
 msgid "Statement"
@@ -2167,3 +2167,76 @@ msgstr "التقارير"
 
 msgid "Card Setup"
 msgstr "الإعدادات"
+
+# v3.0.0: multi-equipment transport + dated unit components
+msgid "Equipment Transport Item"
+msgstr "معدة رحلة النقل"
+
+msgid "Cost share"
+msgstr "حصة التكلفة"
+
+msgid "Share of the transport cost. Left empty, the cost is split equally."
+msgstr "حصة المعدة من تكلفة النقل. لو سبتها فاضية، التكلفة بتتقسم بالتساوي."
+
+msgid "The equipment or units moved in this trip (optional). The transport cost is split equally; a share can be edited as long as the shares add up to the transport cost."
+msgstr "المعدات أو الوحدات المنقولة في الرحلة دي (اختياري). تكلفة النقل بتتقسم بالتساوي، وتقدر تعدل أي حصة بشرط إن مجموع الحصص يساوي تكلفة النقل."
+
+msgid "Equipment {0} is listed twice in this transport."
+msgstr "المعدة {0} مكررة في رحلة النقل دي."
+
+msgid "The equipment cost shares add up to {0}, but the transport cost is {1}."
+msgstr "مجموع حصص المعدات {0}، لكن تكلفة النقل {1}."
+
+msgid "A cost share cannot be negative ({0})."
+msgstr "حصة التكلفة مينفعش تكون بالسالب ({0})."
+
+msgid "Cannot cancel: a later transfer exists for equipment {0}. Cancel it first."
+msgstr "مينفعش الإلغاء: فيه نقل أحدث للمعدة {0}. ألغيه الأول."
+
+msgid "Cannot cancel: operation days are recorded for equipment {0} on project {1} after the transfer date."
+msgstr "مينفعش الإلغاء: فيه أيام تشغيل متسجلة للمعدة {0} على المشروع {1} بعد تاريخ النقل."
+
+msgid "Change reason"
+msgstr "سبب التغيير"
+
+msgid "First day in the unit. Empty: since the unit was formed."
+msgstr "أول يوم في الوحدة. لو فاضي: من وقت تكوين الوحدة."
+
+msgid "Last day in the unit. Empty: still in the unit."
+msgstr "آخر يوم في الوحدة. لو فاضي: لسه في الوحدة."
+
+msgid "Component {0}: the To date is before the From date."
+msgstr "المكوّن {0}: تاريخ «إلى» قبل تاريخ «من»."
+
+msgid "Replace component"
+msgstr "استبدال مكوّن"
+
+msgid "Move to another unit"
+msgstr "نقل لوحدة تانية"
+
+msgid "New component"
+msgstr "المكوّن الجديد"
+
+msgid "Choose another unit."
+msgstr "اختار وحدة تانية."
+
+msgid "{0} is not a unit."
+msgstr "{0} مش وحدة."
+
+msgid "{0} is not currently a component of {1}."
+msgstr "{0} مش مكوّن حالي في {1}."
+
+msgid "The change date must be after {0}."
+msgstr "تاريخ التغيير لازم يكون بعد {0}."
+
+msgid "Approved card {0} covers {1} or later; a unit change cannot apply to an approved period."
+msgstr "الكارت المعتمد {0} بيغطي {1} أو بعده، ومينفعش تغيير الوحدة يطبق على فترة معتمدة."
+
+msgid "{0} is not on project {1} on {2}. Move it there with an Equipment Transport first."
+msgstr "{0} مش موجودة على المشروع {1} يوم {2}. انقلها هناك بمستند نقل معدات الأول."
+
+msgid "First equipment of the trip, kept for links and older documents. Set from the equipment table."
+msgstr "أول معدة في الرحلة، محفوظة عشان الروابط والمستندات القديمة. بتتحدد من جدول المعدات."
+
+msgid "You are not permitted to change the components of {0}."
+msgstr "مش مسموح لك تغيّر مكونات {0}."

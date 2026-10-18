@@ -22,6 +22,37 @@ All notable changes to the Card app are documented here. Format based on
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 
+## [3.0.0] — unreleased
+
+Major release: a unified navigation (CARD launcher) and the first data-flow changes of the
+"CARD Unified UX" design. Built and verified on **frappe 16.51.1**, which has `Dock` and
+app-shipped `Sidebar` documents. The oldest frappe version with both has not been determined, so
+check the frappe version of a site before upgrading it.
+
+### Added
+- **CARD launcher.** The app ships a `Dock` with nine entries — Dashboard, Equipment, Movement &
+  Transport, Operating Units, Operation Cards, Expenses, Suppliers & Customers, Reports, Settings —
+  each opening its own sidebar of existing documents and reports. The Dashboard sidebar is reduced to
+  the home page, monthly cards and transports.
+- **One transport, several machines.** An Equipment Transport lists the equipment it moves in an
+  equipment table. The trip cost is split equally across the equipment; any share can be edited, and
+  the shares must add up to the trip cost. Submitting moves every listed machine to the project, and
+  cancelling reverses each one. The monthly supplier posting carries one transport line per machine, so
+  each machine gets its own share on the equipment dimension (the total is unchanged).
+- **Dated unit components.** A unit is still one equipment on its monthly card (billing unchanged).
+  Each component now has From/To dates, and the unit form offers **Replace component** and **Move to
+  another unit**. Both are refused inside an approved card period, and a piece must be on the unit's
+  project. Card-day checks count a component only between its dates. Changing components needs
+  write access to them (Card Manager); Card User does not get the actions.
+- **Expenses sidebar** links the standard documents that carry equipment costs (Purchase Invoice,
+  Asset Repair) next to diesel and transport. No CARD expense document is introduced.
+
+### Changed
+- The Equipment Transport header `equipment` is now derived from the first row of the equipment table
+  and hidden; a patch gives every existing transport its single row (amount, assignments) unchanged.
+  Each machine's Connections tab lists every trip it was on, and the transport print lists every
+  machine with its share.
+
 ## [1.2.2] — 2026-10-17
 
 Patch release on top of 1.2.1: company isolation of the registries and the posting endpoints,

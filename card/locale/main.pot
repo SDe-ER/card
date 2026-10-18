@@ -1056,7 +1056,7 @@ msgstr ""
 #. Description of the 'Amount' (Currency) field in DocType 'Equipment
 #. Transport'
 #: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Single amount for the move (reflects the distance)."
+msgid "Total cost of the trip (reflects the distance); split over the equipment below."
 msgstr ""
 
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:20
@@ -1511,4 +1511,76 @@ msgstr ""
 
 #: card/dock/card/card.json
 msgid "Card Setup"
+msgstr ""
+
+msgid "Equipment Transport Item"
+msgstr ""
+
+msgid "Cost share"
+msgstr ""
+
+msgid "Share of the transport cost. Left empty, the cost is split equally."
+msgstr ""
+
+msgid "The equipment or units moved in this trip (optional). The transport cost is split equally; a share can be edited as long as the shares add up to the transport cost."
+msgstr ""
+
+msgid "Equipment {0} is listed twice in this transport."
+msgstr ""
+
+msgid "The equipment cost shares add up to {0}, but the transport cost is {1}."
+msgstr ""
+
+msgid "A cost share cannot be negative ({0})."
+msgstr ""
+
+msgid "Cannot cancel: a later transfer exists for equipment {0}. Cancel it first."
+msgstr ""
+
+msgid "Cannot cancel: operation days are recorded for equipment {0} on project {1} after the transfer date."
+msgstr ""
+
+msgid "Change reason"
+msgstr ""
+
+msgid "First day in the unit. Empty: since the unit was formed."
+msgstr ""
+
+msgid "Last day in the unit. Empty: still in the unit."
+msgstr ""
+
+msgid "Component {0}: the To date is before the From date."
+msgstr ""
+
+msgid "Replace component"
+msgstr ""
+
+msgid "Move to another unit"
+msgstr ""
+
+msgid "New component"
+msgstr ""
+
+msgid "Choose another unit."
+msgstr ""
+
+msgid "{0} is not a unit."
+msgstr ""
+
+msgid "{0} is not currently a component of {1}."
+msgstr ""
+
+msgid "The change date must be after {0}."
+msgstr ""
+
+msgid "Approved card {0} covers {1} or later; a unit change cannot apply to an approved period."
+msgstr ""
+
+msgid "{0} is not on project {1} on {2}. Move it there with an Equipment Transport first."
+msgstr ""
+
+msgid "First equipment of the trip, kept for links and older documents. Set from the equipment table."
+msgstr ""
+
+msgid "You are not permitted to change the components of {0}."
 msgstr ""

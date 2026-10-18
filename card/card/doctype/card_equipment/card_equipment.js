@@ -213,6 +213,75 @@ function card_add_create_from_asset(frm) {
 	});
 }
 
+// v3.0.0: dated changes of a unit's pieces. The unit stays one equipment on its card;
+// the server keeps the history and refuses changes inside an approved period.
+function card_add_unit_actions(frm) {
+	// components are permission level 1: only roles writing that level may change them
+	if (frm.is_new() || !frm.doc.is_unit || !frm.perm[1] || !frm.perm[1].write) return;
+	const current = (frm.doc.components || []).filter((r) => !r.to_date).map((r) => r.component);
+	if (!current.length) return;
+	const common = [
+		{
+			fieldname: "component",
+			fieldtype: "Select",
+			label: __("Component"),
+			options: current,
+			reqd: 1,
+		},
+		{ fieldname: "date", fieldtype: "Date", label: __("From"), default: "Today", reqd: 1 },
+		{ fieldname: "reason", fieldtype: "Data", label: __("Change reason") },
+	];
+	const run = (method, title, extra) =>
+		frappe.prompt(
+			[...common.slice(0, 1), ...extra, ...common.slice(1)],
+			(values) =>
+				frappe
+					.call({ method, args: { unit: frm.doc.name, ...values }, freeze: true })
+					.then(() => frm.reload_doc()),
+			title,
+			__("Save"),
+		);
+	const unit_filter = { is_unit: 1, company: frm.doc.company, name: ["!=", frm.doc.name] };
+	frm.add_custom_button(
+		__("Replace component"),
+		() =>
+			run(
+				"card.card.doctype.card_equipment.card_equipment.replace_component",
+				__("Replace component"),
+				[
+					{
+						fieldname: "new_component",
+						fieldtype: "Link",
+						label: __("New component"),
+						options: "Card Equipment",
+						reqd: 1,
+						get_query: () => ({ filters: { is_unit: 0, company: frm.doc.company } }),
+					},
+				],
+			),
+		__("Unit"),
+	);
+	frm.add_custom_button(
+		__("Move to another unit"),
+		() =>
+			run(
+				"card.card.doctype.card_equipment.card_equipment.move_component",
+				__("Move to another unit"),
+				[
+					{
+						fieldname: "target_unit",
+						fieldtype: "Link",
+						label: __("Unit"),
+						options: "Card Equipment",
+						reqd: 1,
+						get_query: () => ({ filters: unit_filter }),
+					},
+				],
+			),
+		__("Unit"),
+	);
+}
+
 frappe.ui.form.on("Card Equipment", {
 	setup(frm) {
 		card_patch_heatmap(frm);
@@ -221,6 +290,7 @@ frappe.ui.form.on("Card Equipment", {
 	refresh(frm) {
 		card_patch_heatmap(frm);
 		card_add_create_from_asset(frm);
+		card_add_unit_actions(frm);
 		card_render_shift_heatmaps(frm);
 		card_render_equipment_links(frm);
 	},

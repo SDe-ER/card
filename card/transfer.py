@@ -222,12 +222,24 @@ def sync_equipment_locations_daily():
 		)
 
 
-def _components(unit):
+def _component_rows(unit):
 	return [
-		c.component
-		for c in frappe.get_all("Card Equipment Component", filters={"parent": unit}, fields=["component"])
+		c
+		for c in frappe.get_all(
+			"Card Equipment Component",
+			filters={"parent": unit, "parenttype": "Card Equipment"},
+			fields=["component", "from_date", "to_date"],
+		)
 		if c.component
 	]
+
+
+def _in_unit_on(row, day):
+	"""v3.0.0: a component counts for a unit only between its From and To dates
+	(either empty = open), so a replaced or moved piece stops being checked."""
+	return (not row.from_date or getdate(row.from_date) <= day) and (
+		not row.to_date or getdate(row.to_date) >= day
+	)
 
 
 def _periods_text(equipment, project):
@@ -249,10 +261,18 @@ def _periods_text(equipment, project):
 
 
 # ---------- transfer (Equipment Transport on_submit / on_cancel) ----------
+# v3.0.0: a transport moves every equipment in its `items` table; each row keeps its
+# own previous/created assignment so cancel undoes exactly what submit did.
 def apply_transfer(txn):
-	equipment = txn.equipment
-	if not equipment or not txn.project or not txn.date:
+	if not txn.project or not txn.date:
 		return
+	for row in txn.get("items") or []:
+		if row.card_equipment:
+			_apply_row_transfer(txn, row)
+
+
+def _apply_row_transfer(txn, row):
+	equipment = row.card_equipment
 	tdate = getdate(txn.date)
 	prev = _open_assignment(equipment)
 	if prev and prev.project == txn.project:
@@ -267,7 +287,7 @@ def apply_transfer(txn):
 			closing = frappe.get_doc("Card Equipment Assignment", prev.name)
 			closing.to_date = tdate
 			closing.save(ignore_permissions=True, ignore_version=False)
-			txn.db_set("previous_assignment", prev.name, update_modified=False)
+			_set_link(txn, row, "previous_assignment", prev.name)
 			new_from = add_days(tdate, 1)
 		else:
 			new_from = tdate
@@ -277,54 +297,81 @@ def apply_transfer(txn):
 		na.from_date = new_from
 		na.equipment_name = frappe.db.get_value("Card Equipment", equipment, "equipment_name")
 		na.insert(ignore_permissions=True)
-		txn.db_set("created_assignment", na.name, update_modified=False)
+		_set_link(txn, row, "created_assignment", na.name)
 	finally:
 		frappe.flags.card_defer_location_sync = deferred
 	sync_equipment_location(equipment, source="transfer")
+
+
+def _set_link(txn, row, fieldname, value):
+	row.db_set(fieldname, value, update_modified=False)
+	# the header mirrors the first row, like `equipment` (older readers and links)
+	if row.idx == 1:
+		txn.db_set(fieldname, value, update_modified=False)
 
 
 def check_cancel_allowed(txn):
 	"""Guards, run in before_cancel (before docstatus flips) so a block leaves
 	the document submitted."""
-	equipment = txn.equipment
-	if not equipment or not txn.date:
+	if not txn.date:
 		return
 	tdate = getdate(txn.date)
-	# (a) no later transfer for this piece
-	if frappe.get_all(
-		"Equipment Transport",
-		filters={"equipment": equipment, "docstatus": 1, "date": [">", str(tdate)], "name": ["!=", txn.name]},
-		limit=1,
-	):
-		frappe.throw(_("Cannot cancel: a later transfer exists for this equipment. Cancel it first."))
-	# (b) no card day recorded on the new project after the transfer
-	if _card_day_after(equipment, txn.project, tdate):
-		frappe.throw(
-			_("Cannot cancel: operation days are recorded on project {0} after the transfer date.").format(
-				txn.project
+	for row in txn.get("items") or []:
+		equipment = row.card_equipment
+		if not equipment:
+			continue
+		# (a) no later transfer for this piece
+		if _later_transfer(equipment, tdate, txn.name):
+			frappe.throw(
+				_("Cannot cancel: a later transfer exists for equipment {0}. Cancel it first.").format(
+					equipment
+				)
 			)
+		# (b) no card day recorded on the new project after the transfer
+		if _card_day_after(equipment, txn.project, tdate):
+			frappe.throw(
+				_(
+					"Cannot cancel: operation days are recorded for equipment {0} on project {1} after the transfer date."
+				).format(equipment, txn.project)
+			)
+
+
+def _later_transfer(equipment, tdate, exclude):
+	return bool(
+		frappe.db.sql(
+			"""select 1 from `tabEquipment Transport Item` i
+			join `tabEquipment Transport` t on t.name = i.parent and i.parenttype = 'Equipment Transport'
+			where i.card_equipment=%s and t.docstatus=1 and t.date > %s and t.name != %s limit 1""",
+			(equipment, str(tdate), exclude),
 		)
+	)
 
 
 def reverse_transfer(txn):
 	"""Undo the transfer, run in on_cancel (guards already passed)."""
-	equipment = txn.equipment
-	if not equipment or not txn.date:
+	if not txn.date:
 		return
-	deferred = frappe.flags.get("card_defer_location_sync")
-	frappe.flags.card_defer_location_sync = True
-	try:
-		if txn.created_assignment and frappe.db.exists("Card Equipment Assignment", txn.created_assignment):
-			frappe.delete_doc(
-				"Card Equipment Assignment", txn.created_assignment, force=1, ignore_permissions=True
-			)
-		if txn.previous_assignment and frappe.db.exists("Card Equipment Assignment", txn.previous_assignment):
-			reopened = frappe.get_doc("Card Equipment Assignment", txn.previous_assignment)
-			reopened.to_date = None
-			reopened.save(ignore_permissions=True, ignore_version=False)
-	finally:
-		frappe.flags.card_defer_location_sync = deferred
-	sync_equipment_location(equipment, source="transfer")
+	for row in txn.get("items") or []:
+		if not row.card_equipment:
+			continue
+		deferred = frappe.flags.get("card_defer_location_sync")
+		frappe.flags.card_defer_location_sync = True
+		try:
+			if row.created_assignment and frappe.db.exists(
+				"Card Equipment Assignment", row.created_assignment
+			):
+				frappe.delete_doc(
+					"Card Equipment Assignment", row.created_assignment, force=1, ignore_permissions=True
+				)
+			if row.previous_assignment and frappe.db.exists(
+				"Card Equipment Assignment", row.previous_assignment
+			):
+				reopened = frappe.get_doc("Card Equipment Assignment", row.previous_assignment)
+				reopened.to_date = None
+				reopened.save(ignore_permissions=True, ignore_version=False)
+		finally:
+			frappe.flags.card_defer_location_sync = deferred
+		sync_equipment_location(row.card_equipment, source="transfer")
 
 
 def _card_day_after(equipment, project, tdate):
@@ -349,22 +396,26 @@ def validate_card_days(card):
 	if not equipment or not project:
 		return
 	is_unit = frappe.db.get_value("Card Equipment", equipment, "is_unit")
+	component_rows = []
 	if is_unit:
 		# components are checked as before: all of them once any has history.
 		# #56: the unit's own assignments are checked too — components without
 		# history no longer switch the whole check off.
-		components = _components(equipment)
-		members = components if any(_has_any_assignment(m) for m in components) else []
-		if _has_any_assignment(equipment):
-			members = [equipment, *members]
+		rows = _component_rows(equipment)
+		if any(_has_any_assignment(r.component) for r in rows):
+			component_rows = rows
+		unit_checked = _has_any_assignment(equipment)
 	else:
-		members = [equipment] if _has_any_assignment(equipment) else []
-	if not members:
+		unit_checked = _has_any_assignment(equipment)
+	if not unit_checked and not component_rows:
 		return
 	for d in card.days:
 		if not d.operation_date or flt(d.working_hours) <= 0:
 			continue
 		day = getdate(d.operation_date)
+		members = [r.component for r in component_rows if _in_unit_on(r, day)]
+		if unit_checked:
+			members = [equipment, *members]
 		missing = [m for m in members if not _assigned_on(m, project, day)]
 		if not missing:
 			continue

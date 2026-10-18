@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder.functions import Sum, UnixTimestamp
-from frappe.utils import flt
+from frappe.utils import add_days, flt, getdate
 
 from card.constants import (
 	CUSTOMER_BILLING_DIRECTIONS,
@@ -43,6 +43,7 @@ COMPANY_BOUND_REFERENCES = (
 	("Card Equipment Assignment", "equipment"),
 	("Project Diesel Fill", "card_equipment"),
 	("Equipment Transport", "equipment"),
+	("Equipment Transport Item", "card_equipment"),
 	("Card Equipment Component", "component"),
 )
 
@@ -198,12 +199,12 @@ class CardEquipment(Document):
 	def validate_components(self):
 		"""#56: a unit's components decide which assignments its card days are
 		checked against (card.transfer.validate_card_days)."""
-		components = [row.component for row in self.get("components") or []]
+		rows = self.get("components") or []
 		before = self.get_doc_before_save()
 		if before and not self.has_value_changed("is_unit") and not self._company_changed():
-			if [row.component for row in before.get("components") or []] == components:
+			if _component_keys(before.get("components") or []) == _component_keys(rows):
 				return
-		check_unit_components(self.name, self.company, self.is_unit, components)
+		check_unit_components(self.name, self.company, self.is_unit, rows)
 
 	def apply_new_record_defaults(self):
 		# Card Settings pre-fill for NEW equipment only; a provided value is never overridden.
@@ -227,12 +228,23 @@ class CardEquipment(Document):
 				self.customer_rate_type = basis
 
 
-def check_unit_components(unit, company, is_unit, components):
+def _component_keys(rows):
+	return [(r.get("component"), str(r.get("from_date") or ""), str(r.get("to_date") or "")) for r in rows]
+
+
+def check_unit_components(unit, company, is_unit, rows):
 	"""#56: the component rules of a unit, shared by the unit's save
 	(CardEquipment.validate_components) and a component row saved on its own
-	(CardEquipmentComponent.validate)."""
-	if components and not is_unit:
+	(CardEquipmentComponent.validate).
+
+	v3.0.0: a row with a `to_date` is history (the piece left the unit), so only rows
+	still in the unit count for "listed twice" and "already belongs to another unit"."""
+	if rows and not is_unit:
 		frappe.throw(_("Only a unit can list components."))
+	for row in rows:
+		if row.get("from_date") and row.get("to_date") and getdate(row.to_date) < getdate(row.from_date):
+			frappe.throw(_("Component {0}: the To date is before the From date.").format(row.component))
+	components = [row.component for row in rows if not row.get("to_date")]
 	if is_unit and unit:
 		parent = frappe.db.get_value(
 			"Card Equipment Component", {"parenttype": "Card Equipment", "component": unit}, "parent"
@@ -265,7 +277,12 @@ def check_unit_components(unit, company, is_unit, components):
 			)
 		other = frappe.db.get_value(
 			"Card Equipment Component",
-			{"parenttype": "Card Equipment", "component": component, "parent": ["!=", unit or ""]},
+			{
+				"parenttype": "Card Equipment",
+				"component": component,
+				"parent": ["!=", unit or ""],
+				"to_date": ["is", "not set"],
+			},
 			"parent",
 		)
 		if other:
@@ -328,6 +345,107 @@ def get_shift_heatmap(name: str):
 	for timestamp, shift, hours in rows:
 		(night_map if shift == "ليلي" else day_map)[int(timestamp)] = flt(hours)
 	return {"day": day_map, "night": night_map, "has_night": bool(night_map)}
+
+
+# ---------- v3.0.0: unit component changes (replace / move between units) ----------
+# Owner decision 2026-10-18: a unit stays ONE equipment on its monthly card (billing
+# unchanged); these actions only keep the dated history of the pieces inside it.
+
+
+@frappe.whitelist(methods=["POST"])
+def replace_component(unit: str, component: str, new_component: str, date: str, reason: str | None = None):
+	"""From `date`, `new_component` takes the place of `component` in `unit`."""
+	doc = frappe.get_doc("Card Equipment", unit)
+	_check_components_write(doc)
+	frappe.get_doc("Card Equipment", new_component).check_permission("read")
+	day = getdate(date)
+	row = _close_component(doc, component, day, reason)
+	_check_component_on_project(doc, new_component, day)
+	doc.append(
+		"components",
+		{"component": new_component, "role": row.role, "from_date": day, "change_reason": reason},
+	)
+	doc.save()
+	return doc.name
+
+
+@frappe.whitelist(methods=["POST"])
+def move_component(unit: str, component: str, target_unit: str, date: str, reason: str | None = None):
+	"""From `date`, `component` leaves `unit` and works in `target_unit` (same project)."""
+	if unit == target_unit:
+		frappe.throw(_("Choose another unit."))
+	source = frappe.get_doc("Card Equipment", unit)
+	_check_components_write(source)
+	target = frappe.get_doc("Card Equipment", target_unit)
+	_check_components_write(target)
+	if not target.is_unit:
+		frappe.throw(_("{0} is not a unit.").format(target_unit))
+	day = getdate(date)
+	row = _close_component(source, component, day, reason)
+	_check_no_approved_card_from(target, day)
+	_check_component_on_project(target, component, day)
+	# close first: the target's "already belongs to another unit" check reads the DB
+	source.save()
+	target.append(
+		"components", {"component": component, "role": row.role, "from_date": day, "change_reason": reason}
+	)
+	target.save()
+	return target.name
+
+
+def _check_components_write(unit_doc):
+	"""`components` is permission level 1 (Card Manager writes, Card User reads): a level-0
+	write is not enough, and frappe would silently drop the change on save."""
+	unit_doc.check_permission("write")
+	if not unit_doc.has_permlevel_access_to("components", permission_type="write"):
+		frappe.throw(
+			_("You are not permitted to change the components of {0}.").format(unit_doc.name),
+			frappe.PermissionError,
+		)
+
+
+def _close_component(unit_doc, component, day, reason):
+	if not unit_doc.is_unit:
+		frappe.throw(_("{0} is not a unit.").format(unit_doc.name))
+	row = next((r for r in unit_doc.components if r.component == component and not r.to_date), None)
+	if not row:
+		frappe.throw(_("{0} is not currently a component of {1}.").format(component, unit_doc.name))
+	if row.from_date and day <= getdate(row.from_date):
+		frappe.throw(_("The change date must be after {0}.").format(row.from_date))
+	_check_no_approved_card_from(unit_doc, day)
+	row.to_date = add_days(day, -1)
+	row.change_reason = reason
+	return row
+
+
+def _check_no_approved_card_from(unit_doc, day):
+	"""A change never rewrites an approved period: no submitted card of the unit may
+	end on or after the change date."""
+	card = frappe.db.get_value(
+		"Card Monthly Card",
+		{"equipment": unit_doc.name, "docstatus": 1, "to_date": [">=", day]},
+		"name",
+	)
+	if card:
+		frappe.throw(
+			_(
+				"Approved card {0} covers {1} or later; a unit change cannot apply to an approved period."
+			).format(card, day)
+		)
+
+
+def _check_component_on_project(unit_doc, component, day):
+	"""A piece works in a unit only while it is on the unit's project (moved there by an
+	Equipment Transport). Equipment with no assignment history stays unconstrained."""
+	from card.transfer import _assigned_on, _has_any_assignment
+
+	project = unit_doc.current_project
+	if project and _has_any_assignment(component) and not _assigned_on(component, project, day):
+		frappe.throw(
+			_("{0} is not on project {1} on {2}. Move it there with an Equipment Transport first.").format(
+				component, project, day
+			)
+		)
 
 
 def _differs(old, new):

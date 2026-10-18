@@ -10,8 +10,11 @@ def get_data():
 		"heatmap_message": _("Daily operating hours from the monthly operation cards"),
 		"fieldname": "equipment",
 		# Project Diesel Fill links to Card Equipment via "card_equipment" (default is "equipment").
+		# v3.0.0: a transport lists its machines in a child table (card_equipment), so every
+		# machine of a multi-machine trip finds it, not only the first one
 		"non_standard_fieldnames": {
 			"Project Diesel Fill": "card_equipment",
+			"Equipment Transport": "card_equipment",
 		},
 		"transactions": [
 			{
