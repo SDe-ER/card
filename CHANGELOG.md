@@ -15,6 +15,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Template library
+- Add a document-design library under `docs/templates/` and archive the monthly equipment
+  operating card D0.6 (Arabic/English, landscape front, portrait reverse, 31 days, overtime,
+  signatures and totals) with editable HTML/CSS sources, field mapping, font license and
+  validation evidence. Proprietary SDCE assets (logo, branded PDF and previews) are not
+  distributed; the sources reference a `company-logo.png` placeholder. Documents the required
+  home for future printable designs — design assets never ship inside the installable `card/`
+  package. No runtime Print Format, schema or deployment change.
+
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
   deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;

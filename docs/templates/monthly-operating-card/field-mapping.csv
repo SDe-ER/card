@@ -1,0 +1,18 @@
+﻿Paper field,CARD target,Status / rule
+Equipment / ID,Card Monthly Card.equipment,Required existing equipment ID
+Month / Year,Card Monthly Card.month / year,Required
+Project / Site,Card Monthly Card.project / site_location,Office resolves project ID
+Operator,Card Monthly Card.operator_name,Text
+Shift,Card Monthly Card.shift,Day = نهاري; Night = ليلي
+Owner name,Card Monthly Card.supplier; Card Equipment.supplier,Partial: supplier/lessor reference only; for owned equipment office verifies owner/company. No universal owner_name field.
+CARD No.,Card Monthly Card.name,"Framework ID, entered by office after save"
+Supervisor name / signatures,,Paper-only; no dedicated fields or electronic approval
+Day + Month + Year,Card Monthly Card Day.operation_date,Cross out invalid calendar days
+Operating hours + Overtime hours,Card Monthly Card Day.working_hours,Derived sum of two mutually exclusive actual-hour quantities. No overtime field or premium rate is implied. Never add overtime twice.
+Daily note,Card Monthly Card Day.notes / idle_reason,Office reviews cause and selects day_status; zero alone does not determine status
+Transfer date / from project / to project,,"Paper-only event evidence. Equipment Transport.date/project and assignment records exist, but no direct from_project/to_project pair in the audited transport schema. Do not auto-create or submit transport."
+Maintenance date / parts used / notes,,Paper-only; no daily maintenance/parts child table in audited CARD source
+
+Total operating hours,Paper subtotal,Sum of regular hours only
+Total overtime hours,Paper subtotal,Sum of overtime hours only
+Total hours,Card Monthly Card.total_working_hours,Regular subtotal plus overtime subtotal; calculated electronically after validation

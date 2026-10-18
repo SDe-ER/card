@@ -48,3 +48,18 @@ pre-commit run --all-files
 ## Reporting bugs and requesting features
 
 Use the issue templates. For **security vulnerabilities**, do not open a public issue — email **info@sdce.sa** (see [SECURITY.md](SECURITY.md)).
+
+## Document design library
+
+All newly created or revised printable designs belong under `docs/templates/`:
+operation cards, invoices, receipts, account statements, diesel reports and other forms.
+Follow the rules in [docs/templates/README.md](docs/templates/README.md) before adding a design.
+Commit editable sources, required assets' notices, previews where distributable, and validation
+notes together. Design assets never live inside the installable `card/` Python package without a
+confirmed runtime need. Company-specific branding explicitly supplied for a template stays
+separated from the public, distributable files; do not hardcode it into shared application
+behavior. Blank branded forms may be archived with the owner's explicit permission; real
+transactions, personal data and financial records remain prohibited.
+
+Archiving a design is not a deployment or installation of an ERPNext Print Format. Existing
+runtime templates and fixtures remain at their canonical application paths.
