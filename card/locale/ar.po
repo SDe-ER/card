@@ -2637,8 +2637,6 @@ msgstr "في العهدة"
 msgid "Returnable tool"
 msgstr "أداة قابلة للإرجاع"
 
-msgid "Tool custody {0}"
-msgstr "عهدة أدوات {0}"
 
 msgid "Cancel Stock Entry {0} first."
 msgstr "ألغِ قيد المخزون {0} أولًا."

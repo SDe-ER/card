@@ -1973,8 +1973,6 @@ msgstr ""
 msgid "Returnable tool"
 msgstr ""
 
-msgid "Tool custody {0}"
-msgstr ""
 
 msgid "Cancel Stock Entry {0} first."
 msgstr ""

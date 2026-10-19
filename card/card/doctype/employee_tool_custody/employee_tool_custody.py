@@ -18,6 +18,7 @@ OUT_MOVES = ("Return", "Transfer", "Loss", "Damage")
 class EmployeeToolCustody(Document):
 	def validate(self):
 		self.company = frappe.db.get_value("Employee", self.employee, "company")
+		self.stock_entry = None  # only on_submit links the entry it creates
 		if flt(self.qty) <= 0:
 			frappe.throw(_("The quantity must be more than zero."))
 		if frappe.db.get_value("Item", self.item_code, "is_fixed_asset"):
@@ -72,7 +73,7 @@ class EmployeeToolCustody(Document):
 		if self.project:
 			entry.project = self.project
 		entry.append("items", row)
-		entry.remark = _("Tool custody {0}").format(self.name)
+		entry.remarks = self._marker()
 		# a draft for the stock team to submit; the custody register is the movement itself
 		entry.insert(ignore_permissions=True)
 		self.db_set("stock_entry", entry.name)
@@ -89,5 +90,19 @@ class EmployeeToolCustody(Document):
 		entry = self.stock_entry
 		# unlink first, or the link check refuses to delete the draft this movement made
 		self.db_set("stock_entry", None)
-		if entry and frappe.db.get_value("Stock Entry", entry, "docstatus") == 0:
+		if entry and self._made_here(entry):
 			frappe.delete_doc("Stock Entry", entry, ignore_permissions=True)
+
+	def _made_here(self, entry):
+		"""Only the draft this movement created is removed (same company, its own remark)."""
+		values = frappe.db.get_value("Stock Entry", entry, ["docstatus", "company", "remarks"], as_dict=True)
+		return bool(
+			values
+			and values.docstatus == 0
+			and values.company == self.company
+			and (values.remarks or "") == self._marker()
+		)
+
+	def _marker(self):
+		# fixed text (not translated) so a cancel in another language still recognises it
+		return f"CARD tool custody {self.name}"

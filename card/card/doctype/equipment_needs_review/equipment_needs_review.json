@@ -64,7 +64,6 @@
    "options": "Pending\nApproved",
    "default": "Pending",
    "read_only": 1,
-   "allow_on_submit": 1,
    "in_list_view": 1,
    "no_copy": 1
   },
@@ -74,7 +73,6 @@
    "label": "Approved by",
    "options": "User",
    "read_only": 1,
-   "allow_on_submit": 1,
    "no_copy": 1
   },
   {
@@ -82,7 +80,6 @@
    "fieldtype": "Datetime",
    "label": "Approved on",
    "read_only": 1,
-   "allow_on_submit": 1,
    "no_copy": 1
   },
   {
@@ -113,7 +110,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-19 16:00:00.000000",
+ "modified": "2026-10-19 17:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Needs Review",

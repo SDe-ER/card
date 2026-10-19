@@ -385,6 +385,30 @@ class TestV4Materials(IntegrationTestCase):
 		hand.cancel()
 		self.assertFalse(frappe.db.exists("Stock Entry", entry))
 
+	def test_approval_fields_cannot_be_set_by_hand(self):
+		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
+		review = self._review()
+		review.submit()
+		review.approval_status = "Approved"
+		with self.assertRaises(frappe.ValidationError):
+			review.save()  # update after submit refuses it
+
+	def test_cancel_deletes_only_its_own_stock_entry(self):
+		other = frappe.get_doc(
+			{
+				"doctype": "Stock Entry",
+				"stock_entry_type": "Material Receipt",
+				"purpose": "Material Receipt",
+				"company": self.company,
+				"items": [{"item_code": self.tool, "qty": 1, "t_warehouse": self.store, "basic_rate": 10}],
+			}
+		).insert(ignore_permissions=True)
+		hand = self._custody("Handover", warehouse=self.store)
+		frappe.db.set_value("Employee Tool Custody", hand.name, "stock_entry", other.name)
+		hand.reload()
+		hand.cancel()
+		self.assertTrue(frappe.db.exists("Stock Entry", other.name))
+
 	# ---------- operator page ----------
 	def test_operator_page_context(self):
 		frappe.set_user(self.op_user)

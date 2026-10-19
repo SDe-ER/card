@@ -14,6 +14,10 @@ class EquipmentNeedsReview(Document):
 		self.company = frappe.db.get_value("Project", self.project, "company")
 		before = None if self.is_new() else self.get_doc_before_save()
 		self.supervisor = before.supervisor if before and before.supervisor else frappe.session.user
+		# only approve_review writes the approval (directly, after submit)
+		self.approval_status, self.approved_by, self.approved_on = "Pending", None, None
+		for row in self.items:
+			row.material_request = None
 		seen = set()
 		for row in self.items:
 			self._check_line(row, seen)
@@ -63,7 +67,7 @@ class EquipmentNeedsReview(Document):
 		self._set_requests("In review")
 
 	def before_cancel(self):
-		if self.approval_status == "Approved":
+		if self.approval_status == "Approved" or any(row.material_request for row in self.items):
 			frappe.throw(
 				_("An approved review cannot be cancelled; its Material Requests are already created.")
 			)
