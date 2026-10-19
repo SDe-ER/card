@@ -22,7 +22,15 @@ from card.constants import (
 )
 from card.notifications import notify
 from card.settings import setting
-from card.transfer import assignment_projects, month_assignments, validate_card_days
+from card.transfer import (
+	_assigned_on,
+	_component_rows,
+	_has_any_assignment,
+	_in_unit_on,
+	assignment_projects,
+	month_assignments,
+	validate_card_days,
+)
 
 
 @frappe.whitelist(methods=["GET"])
@@ -49,6 +57,20 @@ def get_card_context(equipment: str, month: str, year: str, project: str | None 
 		while start <= end:
 			days.add(str(start))
 			start = add_days(start, 1)
+	if days and frappe.db.get_value("Card Equipment", equipment, "is_unit"):
+		# same rule as validate_card_days: a unit day needs every piece in the unit that
+		# day on the project, once any piece has assignment history
+		pieces = _component_rows(equipment)
+		if any(_has_any_assignment(r.component) for r in pieces):
+			days = {
+				d
+				for d in days
+				if all(
+					_assigned_on(r.component, project, getdate(d))
+					for r in pieces
+					if _in_unit_on(r, getdate(d))
+				)
+			}
 	return {"projects": projects, "project": project, "days": sorted(days)}
 
 

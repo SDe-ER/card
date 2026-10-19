@@ -379,6 +379,18 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 		ctx = get_card_context(eq, self.month_str, self.year_str, pb)
 		self.assertEqual((ctx["projects"], ctx["days"][0]), ([pa, pb], self._d(16)))
 
+	def test_unit_context_days_need_every_piece(self):
+		# review 2026-10-19: the form offers only the days the card validation accepts
+		from card.card.doctype.card_monthly_card.card_monthly_card import get_card_context
+
+		p = self._project("U")
+		a, b = self._equipment().name, self._equipment().name
+		self._assign(a, p, 1)
+		self._assign(b, p, 15)
+		unit = self._unit(p, a, b)
+		days = get_card_context(unit.name, self.month_str, self.year_str, p)["days"]
+		self.assertEqual(days[0], self._d(15))
+
 	# ---- operators: company workers are Employees (Owner 2026-10-19) ----
 	def _employee(self):
 		if not frappe.db.exists("Gender", "Male"):

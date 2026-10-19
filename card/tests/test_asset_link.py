@@ -140,11 +140,11 @@ class TestAssetLink(IntegrationTestCase):
 		self.assertFalse([f.fieldname for f in meta.fields if f.description])
 
 	def test_only_company_fills_when_single(self):
-		with patch("frappe.get_list", return_value=["A"]):
+		with patch("card.company.frappe.get_list", return_value=["A"]):
 			self.assertEqual(get_only_company(), "A")
-		with patch("frappe.get_list", return_value=["A", "B"]):
+		with patch("card.company.frappe.get_list", return_value=["A", "B"]):
 			self.assertIsNone(get_only_company())
-		with patch("frappe.get_list", return_value=[]):
+		with patch("card.company.frappe.get_list", return_value=[]):
 			self.assertIsNone(get_only_company())
 
 	def test_asset_owns_equipment_details(self):

@@ -308,10 +308,9 @@ def get_only_company():
 	"""The company a new CARD form takes when the user may see exactly one; else None.
 	frappe already fills the user's default company; this covers a site with one
 	company and no default. The field stays editable."""
-	if not frappe.has_permission("Company", "read"):
-		return None
-	companies = frappe.get_list("Company", pluck="name", limit=2)
-	return companies[0] if len(companies) == 1 else None
+	from card.company import only_visible_company
+
+	return only_visible_company()
 
 
 # Equipment field <- ERPNext Asset field. An owned (or managed) machine is already

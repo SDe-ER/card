@@ -217,7 +217,9 @@ function card_apply_ownership_defaults(frm) {
 	if (!frm.doc.ownership) return;
 	const owned = frm.doc.ownership === "ملك";
 	// same rule as card.constants.allowed_directions
-	const allowed = owned ? ["مؤجَّرة لعميل", "تشغيل داخلي"] : ["مستأجَرة من مورد", "إيجار من الباطن"];
+	const allowed = owned
+		? ["مؤجَّرة لعميل", "تشغيل داخلي"]
+		: ["مستأجَرة من مورد", "إيجار من الباطن"];
 	if (!allowed.includes(frm.doc.rental_direction)) {
 		frm.set_value("rental_direction", owned ? "تشغيل داخلي" : "مستأجَرة من مورد");
 	}
@@ -287,7 +289,12 @@ function card_fill_from_asset(frm) {
 }
 
 // Documents matter on every machine: say which ones expired or expire within 30 days.
-const CARD_DOCUMENT_EXPIRY = ["registration_expiry", "inspection_expiry", "insurance_expiry", "tuv_expiry"];
+const CARD_DOCUMENT_EXPIRY = [
+	"registration_expiry",
+	"inspection_expiry",
+	"insurance_expiry",
+	"tuv_expiry",
+];
 
 function card_show_document_alerts(frm) {
 	if (frm.is_new()) return;
@@ -304,7 +311,10 @@ function card_show_document_alerts(frm) {
 	});
 	if (expired.length || soon.length) frm._card_doc_alert = true;
 	if (expired.length) {
-		frm.dashboard.set_headline_alert(__("Expired documents: {0}", [expired.join("، ")]), "red");
+		frm.dashboard.set_headline_alert(
+			__("Expired documents: {0}", [expired.join("، ")]),
+			"red",
+		);
 	} else if (soon.length) {
 		frm.dashboard.set_headline_alert(
 			__("Documents expiring within 30 days: {0}", [soon.join("، ")]),
