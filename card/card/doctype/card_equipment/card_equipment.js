@@ -238,10 +238,17 @@ function card_apply_ownership_defaults(frm) {
 	}
 }
 
+const CARD_ASSET_OWNED_FIELDS = [
+	"equipment_name",
+	"brand",
+	"equipment_type",
+	"equipment_type_from_asset",
+];
+
 const CARD_ASSET_NEW_FIELDS = [
+	...CARD_ASSET_OWNED_FIELDS,
 	"company",
 	"ownership",
-	"equipment_name",
 	"الأصل_في_erpnext",
 	"operator_on",
 	"الوقود_على",
@@ -253,11 +260,14 @@ const CARD_ASSET_NEW_FIELDS = [
 	"insurance_expiry",
 ];
 
-// The machine is already an ERPNext Asset: take what the Asset knows (name, image,
-// cost center, custodian as operator, insurance) and keep anything already typed.
+// The machine is already an ERPNext Asset: its name, brand and type come from the Asset
+// (read-only); image, cost center, custodian as operator and insurance fill empty fields.
 function card_fill_from_asset(frm) {
 	const asset = frm.doc["الأصل_في_erpnext"];
-	if (!asset) return;
+	if (!asset) {
+		if (frm.doc.equipment_type_from_asset) frm.set_value("equipment_type_from_asset", 0);
+		return;
+	}
 	frappe
 		.call({
 			method: "card.api.get_asset_prefill",
@@ -268,7 +278,10 @@ function card_fill_from_asset(frm) {
 			const d = (r && r.message) || {};
 			Object.keys(d).forEach((field) => {
 				if (field === "operator" && frm.doc.ownership !== "ملك") return;
-				if (!frm.doc[field]) frm.set_value(field, d[field]);
+				// the Asset owns these (read-only here); the rest only fills empty fields
+				if (CARD_ASSET_OWNED_FIELDS.includes(field) || !frm.doc[field]) {
+					frm.set_value(field, d[field]);
+				}
 			});
 		});
 }

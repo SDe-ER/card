@@ -2378,3 +2378,12 @@ msgstr "وثائق منتهية: {0}"
 
 msgid "Documents expiring within 30 days: {0}"
 msgstr "وثائق هتنتهي خلال 30 يوم: {0}"
+
+msgid "Asset category"
+msgstr "فئة الأصل"
+
+msgid "Type from asset"
+msgstr "النوع من الأصل"
+
+msgid "Asset category {0} is already used by equipment type {1}."
+msgstr "فئة الأصل {0} مربوطة بالفعل بنوع المعدة {1}."

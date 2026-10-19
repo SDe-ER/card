@@ -66,6 +66,11 @@ check the frappe version of a site before upgrading it.
   insurance details, keeping anything already typed. Owned equipment defaults to company operator
   and fuel. The Documents tab comes second and the form warns about documents that expired or
   expire within 30 days.
+- **The Asset owns the equipment details.** With an Asset linked, the equipment name, brand
+  (from the Asset item) and type (from the new *Asset category* on the equipment type, one
+  category per type) come from the Asset and are read-only; brand, model, year, chassis and plate
+  are hidden when empty. The values are re-applied on every save. A one-time patch
+  (`sync_equipment_from_asset`) aligns equipment linked before this release.
 - **Company filled automatically** on new equipment, transport and diesel forms when the user can
   see only one company; the field stays visible and editable.
 - **Dated unit components.** A unit is still one equipment on its monthly card (billing unchanged).

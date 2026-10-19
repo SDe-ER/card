@@ -48,6 +48,21 @@ COMPANY_BOUND_REFERENCES = (
 )
 
 
+def asset_equipment_values(asset):
+	"""Details the linked ERPNext Asset holds for its equipment: the name, the Asset
+	item's brand and the equipment type mapped to the Asset category. No permission
+	check: callers check the Asset first."""
+	values = frappe.db.get_value("Asset", asset, ["asset_name", "asset_category", "item_code"], as_dict=True)
+	if not values:
+		return {}
+	return {
+		"equipment_name": values.asset_name or asset,
+		"brand": values.item_code and frappe.db.get_value("Item", values.item_code, "brand"),
+		"equipment_type": values.asset_category
+		and frappe.db.get_value("Card Equipment Type", {"asset_category": values.asset_category}, "name"),
+	}
+
+
 class CardEquipment(Document):
 	def on_update(self):
 		# O3: the linked Asset carries the equipment as its accounting dimension,
@@ -55,6 +70,7 @@ class CardEquipment(Document):
 		sync_asset_dimension(self)
 
 	def validate(self):
+		self.sync_asset_details()
 		self.apply_new_record_defaults()
 		self.validate_rental_direction()
 		self.validate_commercial_change_reason()
@@ -81,6 +97,16 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = flt(rate / month_hours, 2)
 		else:
 			self.approved_hourly_rate = 0
+
+	def sync_asset_details(self):
+		"""Owner 2026-10-19: an equipment linked to an Asset takes its details from it
+		(read-only on the form; enforced here for REST and imports too)."""
+		asset = self.get(ASSET_LINK_FIELD)
+		values = asset_equipment_values(asset) if asset else {}
+		self.equipment_type_from_asset = 1 if values.get("equipment_type") else 0
+		for fieldname, value in values.items():
+			if value:
+				self.set(fieldname, value)
 
 	def validate_commercial_change_reason(self):
 		"""A change to a commercial term of an existing equipment needs a NEW

@@ -146,3 +146,48 @@ class TestAssetLink(IntegrationTestCase):
 			self.assertIsNone(get_only_company())
 		with patch("frappe.get_list", return_value=[]):
 			self.assertIsNone(get_only_company())
+
+	def test_asset_owns_equipment_details(self):
+		# Owner 2026-10-19: picking the Asset fills the details; the type follows its category
+		asset = self._make_asset()
+		category = frappe.db.get_value("Asset", asset, "asset_category")
+		# the site may already map this category; the test owns the mapping (rolled back)
+		for other in frappe.get_all("Card Equipment Type", {"asset_category": category}, pluck="name"):
+			frappe.db.set_value("Card Equipment Type", other, "asset_category", None)
+		frappe.db.set_value("Card Equipment Type", self._m["etype"], "asset_category", category)
+		other_type = frappe.db.get_value("Card Equipment Type", {"name": ["!=", self._m["etype"]]}, "name")
+		eq = self._make_equipment(
+			equipment_name="TYPED",
+			equipment_type=other_type or self._m["etype"],
+			**{"الأصل_في_erpnext": asset},
+		)
+		self.assertEqual(eq.equipment_name, frappe.db.get_value("Asset", asset, "asset_name"))
+		self.assertEqual(eq.equipment_type, self._m["etype"])
+		self.assertEqual(eq.equipment_type_from_asset, 1)
+		self.assertEqual(get_asset_prefill(asset)["equipment_type"], self._m["etype"])
+
+		dup = frappe.get_doc("Card Equipment Type", other_type) if other_type else None
+		if dup:
+			dup.asset_category = category
+			with self.assertRaises(frappe.ValidationError):
+				dup.save(ignore_permissions=True)
+
+	def test_details_read_only_when_linked(self):
+		meta = frappe.get_meta("Card Equipment")
+		for fieldname in ("equipment_name", "brand", "model", "manufacture_year", "serial_no", "plate_no"):
+			self.assertIn("الأصل_في_erpnext", meta.get_field(fieldname).read_only_depends_on or "", fieldname)
+		self.assertEqual(
+			meta.get_field("equipment_type").read_only_depends_on, "eval:doc.equipment_type_from_asset"
+		)
+
+	def test_sync_patch_updates_linked_equipment(self):
+		from card.patches.v3_0_0 import sync_equipment_from_asset
+
+		asset = self._make_asset()
+		eq = self._make_equipment(**{"الأصل_في_erpnext": asset})
+		frappe.db.set_value("Card Equipment", eq.name, "equipment_name", "OLD NAME")
+		sync_equipment_from_asset.execute()
+		asset_name = frappe.db.get_value("Asset", asset, "asset_name")
+		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "equipment_name"), asset_name)
+		sync_equipment_from_asset.execute()  # idempotent
+		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "equipment_name"), asset_name)

@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.rename_doc import rename_doc
 from frappe.utils import cint, flt
 
+from card.card.doctype.card_equipment.card_equipment import asset_equipment_values
 from card.party_registry import registry_row
 from card.report_access import assert_report_role, permitted_companies, query_companies
 from card.settings import setting
@@ -317,7 +318,6 @@ def get_only_company():
 # registered as an Asset, so its form takes these instead of retyping them.
 ASSET_PREFILL = {
 	"company": "company",
-	"equipment_name": "asset_name",
 	"image": "image",
 	"cost_center": "cost_center",
 	"operator": "custodian",
@@ -332,13 +332,13 @@ def _asset_prefill(asset):
 	if not frappe.db.exists("Asset", asset):
 		frappe.throw(_("Asset {0} does not exist").format(asset))
 	frappe.has_permission("Asset", "read", asset, throw=True)
-	values = frappe.db.get_value(
-		"Asset", asset, ["name", "docstatus", *ASSET_PREFILL.values()], as_dict=True
-	)
+	values = frappe.db.get_value("Asset", asset, ["name", "docstatus", *ASSET_PREFILL.values()], as_dict=True)
 	if values.docstatus != 1:
 		frappe.throw(_("Asset {0} must be submitted").format(asset))
 	prefill = {field: values.get(source) for field, source in ASSET_PREFILL.items() if values.get(source)}
-	prefill.setdefault("equipment_name", values.name)
+	details = asset_equipment_values(asset)
+	prefill.update({field: value for field, value in details.items() if value})
+	prefill["equipment_type_from_asset"] = 1 if details.get("equipment_type") else 0
 	return prefill
 
 

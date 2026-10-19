@@ -1717,3 +1717,12 @@ msgstr ""
 
 msgid "Documents expiring within 30 days: {0}"
 msgstr ""
+
+msgid "Asset category"
+msgstr ""
+
+msgid "Type from asset"
+msgstr ""
+
+msgid "Asset category {0} is already used by equipment type {1}."
+msgstr ""

@@ -24,6 +24,7 @@
   "equipment_category",
   "equipment_name",
   "equipment_type",
+  "equipment_type_from_asset",
   "image",
   "status",
   "is_unit",
@@ -143,27 +144,37 @@
   {
    "fieldname": "brand",
    "fieldtype": "Data",
-   "label": "Brand"
+   "label": "Brand",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.brand"
   },
   {
    "fieldname": "model",
    "fieldtype": "Data",
-   "label": "Model"
+   "label": "Model",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.model"
   },
   {
    "fieldname": "manufacture_year",
    "fieldtype": "Int",
-   "label": "Manufacture year"
+   "label": "Manufacture year",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.manufacture_year"
   },
   {
    "fieldname": "serial_no",
    "fieldtype": "Data",
-   "label": "Chassis number"
+   "label": "Chassis number",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.serial_no"
   },
   {
    "fieldname": "plate_no",
    "fieldtype": "Data",
-   "label": "Plate number"
+   "label": "Plate number",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.plate_no"
   },
   {
    "fieldname": "column_break_hadg",
@@ -182,7 +193,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Equipment name",
-   "reqd": 1
+   "reqd": 1,
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]"
   },
   {
    "fieldname": "equipment_type",
@@ -190,7 +202,8 @@
    "in_list_view": 1,
    "label": "Equipment type",
    "options": "Card Equipment Type",
-   "reqd": 1
+   "reqd": 1,
+   "read_only_depends_on": "eval:doc.equipment_type_from_asset"
   },
   {
    "fieldname": "image",
@@ -718,6 +731,14 @@
   {
    "fieldname": "customer_section_col",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "equipment_type_from_asset",
+   "fieldtype": "Check",
+   "label": "Type from asset",
+   "hidden": 1,
+   "read_only": 1,
+   "default": "0"
   }
  ],
  "grid_page_length": 50,
@@ -735,7 +756,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-10-19 11:00:00.000000",
+ "modified": "2026-10-19 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",
