@@ -2771,3 +2771,23 @@ msgstr "حذف"
 msgctxt "Card Mobile"
 msgid "User"
 msgstr "المستخدم"
+
+msgctxt "Card Mobile"
+msgid "Equipment"
+msgstr "المعدات"
+
+msgctxt "Card Mobile"
+msgid "Notes"
+msgstr "ملاحظات"
+
+msgctxt "Card Mobile"
+msgid "Line {0} needs an item and a quantity."
+msgstr "السطر {0} يحتاج إلى صنف وكمية."
+
+msgctxt "Card Mobile"
+msgid "The server could not be reached. Check the connection and try again."
+msgstr "تعذّر الوصول إلى الخادم. تحقّق من الاتصال وحاول مرة أخرى."
+
+msgctxt "Card Mobile"
+msgid "Try again"
+msgstr "حاول مرة أخرى"

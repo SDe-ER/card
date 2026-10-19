@@ -102,7 +102,8 @@ in [docs/releases](docs/releases/VERSION-HISTORY.md).
 ## CARD Mobile
 
 > [!IMPORTANT]
-> **Coming in v4.1.0, not yet released.** Nothing in this section is part of v4.0.0.
+> **Coming in v4.1.0, not yet released.** Nothing in this section is part of v4.0.0. v4.1.0 is the
+> foundation of CARD Mobile (operator requests); the full phone app for CARD is planned from v4.2.0.
 
 CARD Mobile is a Progressive Web App (PWA) served by CARD itself at `/cdms`, built the same way as the
 Frappe HR mobile app:
@@ -117,9 +118,10 @@ Frappe HR mobile app:
 | Screen | For | Status |
 |---|---|---|
 | Sign in, Home, New request, My requests, Profile | Operators | Built, in v4.1.0 |
-| Requests review, request on behalf, tool custody | Supervisors | Planned |
-| Approvals | Managers | Planned |
-| My tools in custody | Operators | Planned |
+| Daily operating hours (enter, review, approve) | Operators, supervisors, managers | Planned |
+| Equipment, projects, transport, cards, diesel | By role | Planned |
+| Materials review and approval, tools and custody | Supervisors, managers, operators | Planned |
+| Suppliers, costs, reports, notifications | By role | Planned |
 
 > [!NOTE]
 > iPhone (Safari → *Add to Home Screen*) and Android (*Install app*) installation has **not yet been

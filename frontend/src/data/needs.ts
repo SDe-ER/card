@@ -61,6 +61,16 @@ export function newLine(): DraftLine {
   }
 }
 
+// A line the operator left untouched is skipped; a started line needs an item (picked or
+// described) and a quantity, so nothing he typed is dropped without telling him.
+export function incompleteLines(lines: DraftLine[]): number[] {
+  return lines.flatMap((l, i) => {
+    const named = !!(l.item_code || l.description.trim())
+    const started = named || !!l.reason.trim()
+    return started && !(named && Number(l.qty) > 0) ? [i + 1] : []
+  })
+}
+
 // A line is sent when it names an item (picked or described) and has a quantity.
 export function sendableLines(lines: DraftLine[]) {
   return lines

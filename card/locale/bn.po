@@ -93,12 +93,6 @@ msgstr "অ্যাপটি ইনস্টল করুন"
 msgid "On iPhone, tap Share, then Add to Home Screen."
 msgstr "iPhone-এ Share চাপুন, তারপর Add to Home Screen।"
 
-msgid "Equipment"
-msgstr "যন্ত্র"
-
-msgid "Notes"
-msgstr "নোট"
-
 msgid "Equipment Needs Review"
 msgstr "যন্ত্রের প্রয়োজন পর্যালোচনা"
 
@@ -169,3 +163,23 @@ msgstr "মুছুন"
 msgctxt "Card Mobile"
 msgid "User"
 msgstr "ব্যবহারকারী"
+
+msgctxt "Card Mobile"
+msgid "Equipment"
+msgstr "যন্ত্র"
+
+msgctxt "Card Mobile"
+msgid "Notes"
+msgstr "নোট"
+
+msgctxt "Card Mobile"
+msgid "Line {0} needs an item and a quantity."
+msgstr "লাইন {0}-এ একটি আইটেম ও পরিমাণ দরকার।"
+
+msgctxt "Card Mobile"
+msgid "The server could not be reached. Check the connection and try again."
+msgstr "সার্ভারে পৌঁছানো যায়নি। সংযোগ দেখে আবার চেষ্টা করুন।"
+
+msgctxt "Card Mobile"
+msgid "Try again"
+msgstr "আবার চেষ্টা করুন"

@@ -10,7 +10,9 @@ const ctx = ref<SessionContext | null>(null)
 const portal = ref<PortalContext | null>(null)
 const error = ref('')
 
-getSessionContext().then((c) => (ctx.value = c))
+getSessionContext()
+  .then((c) => (ctx.value = c))
+  .catch(() => null) // the router already sent a failed lookup to the retry screen
 getPortal(true)
   .then((p) => (portal.value = p))
   .catch((e: Error) => (error.value = e.message))
@@ -44,7 +46,9 @@ const reviewer = computed(() => ctx.value?.roles.some((r) => r !== 'Card Operato
       />
 
       <section class="space-y-2">
-        <h2 class="text-sm font-medium text-ink-gray-5">{{ __('Equipment') }}</h2>
+        <h2 class="text-sm font-medium text-ink-gray-5">
+          {{ __('Equipment', [], 'Card Mobile') }}
+        </h2>
         <p v-if="!portal.machines.length" class="rounded-lg bg-surface-gray-1 p-4 text-ink-gray-6">
           {{ __('No equipment is assigned to you this month.') }}
         </p>

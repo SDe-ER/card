@@ -4,7 +4,14 @@ import { useRouter } from 'vue-router'
 import { Button, ErrorMessage, FormControl, LoadingIndicator, TabButtons } from 'frappe-ui'
 import TopBar from '../components/TopBar.vue'
 import ItemPicker from '../components/ItemPicker.vue'
-import { getPortal, newLine, sendableLines, submitNeeds, type PortalContext } from '../data/needs'
+import {
+  getPortal,
+  incompleteLines,
+  newLine,
+  sendableLines,
+  submitNeeds,
+  type PortalContext,
+} from '../data/needs'
 import { __ } from '../i18n'
 
 const router = useRouter()
@@ -15,10 +22,12 @@ const notes = ref('')
 const error = ref('')
 const sending = ref(false)
 
-getPortal().then((p) => {
-  portal.value = p
-  if (p.machines.length === 1) equipment.value = p.machines[0].name
-})
+getPortal()
+  .then((p) => {
+    portal.value = p
+    if (p.machines.length === 1) equipment.value = p.machines[0].name
+  })
+  .catch((e: Error) => (error.value = e.message))
 
 const machineOptions = computed(() =>
   (portal.value?.machines ?? []).map((m) => ({
@@ -33,6 +42,15 @@ const kinds = [
 
 async function send() {
   error.value = ''
+  const incomplete = incompleteLines(lines.value)
+  if (incomplete.length) {
+    error.value = __(
+      'Line {0} needs an item and a quantity.',
+      [incomplete.join(', ')],
+      'Card Mobile',
+    )
+    return
+  }
   if (!sendableLines(lines.value).length) {
     error.value = __('Add at least one line with a quantity.')
     return
@@ -54,7 +72,8 @@ async function send() {
 
 <template>
   <TopBar :title="__('New request')" back />
-  <LoadingIndicator v-if="!portal" class="mx-auto mt-8 size-6" />
+  <LoadingIndicator v-if="!portal && !error" class="mx-auto mt-8 size-6" />
+  <ErrorMessage v-if="!portal" class="m-4" :message="error" />
   <p
     v-else-if="!portal.machines.length"
     class="m-4 rounded-lg bg-surface-gray-1 p-4 text-ink-gray-6"
@@ -66,9 +85,9 @@ async function send() {
       v-model="equipment"
       type="select"
       size="lg"
-      :label="__('Equipment')"
+      :label="__('Equipment', [], 'Card Mobile')"
       :options="machineOptions"
-      :placeholder="__('Equipment')"
+      :placeholder="__('Equipment', [], 'Card Mobile')"
       required
     />
 
@@ -116,7 +135,12 @@ async function send() {
       @click="lines.push(newLine())"
     />
 
-    <FormControl v-model="notes" type="textarea" :label="__('Notes')" :rows="2" />
+    <FormControl
+      v-model="notes"
+      type="textarea"
+      :label="__('Notes', [], 'Card Mobile')"
+      :rows="2"
+    />
 
     <ErrorMessage :message="error" />
     <Button

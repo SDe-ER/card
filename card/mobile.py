@@ -32,7 +32,8 @@ def has_app_permission(require_employee=True):
 	return bool(active_employee()) if require_employee else True
 
 
-# Reading any of these is working in CARD Desk; an operator reads none of them.
+# Reading any of these is working in CARD Desk; an operator reads none of them. Employee Tool
+# Custody keeps stock users (custody, materials reports) on the Card app and its dock.
 DESK_DOCTYPES = (
 	"Card Equipment",
 	"Card Monthly Card",
@@ -41,6 +42,7 @@ DESK_DOCTYPES = (
 	"Equipment Transport",
 	"Project Diesel Fill",
 	"Equipment Needs Review",
+	"Employee Tool Custody",
 )
 
 

@@ -1,5 +1,6 @@
 // Calls to Frappe whitelisted methods. GET for reads (CARD read endpoints accept GET only),
 // POST with the session's CSRF token for writes.
+import { sessionUser } from './cookie'
 
 export class ApiError extends Error {
   status: number
@@ -26,9 +27,27 @@ export function serverMessage(body: Record<string, unknown> | null): string {
   }
 }
 
-async function handle<T>(res: Response): Promise<T> {
+// A session that ended while the app was open: Frappe answers 401/403 and resets the `user_id`
+// cookie, so the user goes back to sign-in. A stale CSRF token needs a fresh page load. The sign-in
+// call itself answers 401 for a wrong password, which stays an error on the form.
+export function sessionAction(
+  method: string,
+  status: number,
+  excType: unknown,
+  signedIn: boolean,
+): 'login' | 'reload' | null {
+  if (method === 'login') return null
+  if (excType === 'CSRFTokenError') return 'reload'
+  if ((status === 401 || status === 403) && !signedIn) return 'login'
+  return null
+}
+
+async function handle<T>(method: string, res: Response): Promise<T> {
   const body = (await res.json().catch(() => null)) as Record<string, unknown> | null
   if (!res.ok) {
+    const action = sessionAction(method, res.status, body?.exc_type, !!sessionUser())
+    if (action === 'login') window.location.replace('/cdms/login')
+    if (action === 'reload') window.location.reload()
     // e.g. a failed login answers {message: "Invalid login credentials"} without _server_messages
     const message = serverMessage(body) || (typeof body?.message === 'string' ? body.message : '')
     throw new ApiError(message || `HTTP ${res.status}`, res.status)
@@ -41,7 +60,7 @@ export async function get<T>(method: string, params: Record<string, string> = {}
   const res = await fetch(`/api/method/${method}${query ? `?${query}` : ''}`, {
     headers: { Accept: 'application/json' },
   })
-  return handle<T>(res)
+  return handle<T>(method, res)
 }
 
 export async function post<T>(method: string, params: Record<string, unknown> = {}): Promise<T> {
@@ -54,5 +73,5 @@ export async function post<T>(method: string, params: Record<string, unknown> = 
     },
     body: JSON.stringify(params),
   })
-  return handle<T>(res)
+  return handle<T>(method, res)
 }

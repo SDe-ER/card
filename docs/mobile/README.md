@@ -4,8 +4,10 @@ CARD Mobile is the phone interface of CARD, served by the CARD app at `/cdms`. I
 Web App (PWA) built the same way as the Frappe HR mobile app (`/hrms`). CARD Desk stays the full
 management system; CARD Mobile covers the few actions people need on site.
 
-> **Status:** in development for v4.1.0. Not released. Installation on real iPhone and Android
-> devices has not been tested yet (see [Device checklist](#device-checklist)).
+> **Status:** v4.1.0 is the **foundation** of CARD Mobile (sign-in, PWA, languages, operator
+> requests); in development, not released. The full phone app for CARD is planned from v4.2.0
+> (see [Roadmap](#roadmap)). Installation on real iPhone and Android devices has not been tested
+> yet (see [Device checklist](#device-checklist)).
 
 ## How it fits into CARD
 
@@ -32,8 +34,11 @@ Frappe HR registers its service worker at `/assets/hrms/frontend/sw.js`, so the 
   Card Manager or System Manager). The app's screens also need an **Active Employee** linked to
   the user (`Employee.user_id`); otherwise the user sees a "not set up" screen.
 - Every call is checked again on the server by the CARD endpoint it reaches.
-- Apps screen: *Card* (Desk) is shown to users who can read Card Equipment and is hidden from
-  Website Users; *Card Mobile* is shown to users who may open `/cdms`.
+- Apps screen: *Card* (Desk) is shown to users who can read any CARD Desk document (Card
+  Equipment, Card Monthly Card, the supplier and customer registries, Equipment Transport, Project
+  Diesel Fill, Equipment Needs Review, Employee Tool Custody) and is hidden from Website Users;
+  *Card Mobile* is shown to users who may open `/cdms`. After signing in, Frappe shows its apps
+  screen (`/apps`); an operator sees Card Mobile there, not Card Desk.
 
 ## Screens
 
@@ -47,6 +52,21 @@ Frappe HR registers its service worker at `/assets/hrms/frontend/sw.js`, so the 
 | Supervisor review, request on behalf, custody | – | ✓ | Planned (needs CARD G2) |
 | Manager approvals | – | ✓ | Planned |
 | My tools in custody | ✓ | – | Planned (needs CARD G3) |
+
+## Roadmap
+
+Planned, not implemented. Each step is its own release; device support is stated only after tests
+on real phones.
+
+| Version | Scope |
+|---|---|
+| 4.1.0 | Foundation: sign-in, PWA, five languages, operator requests (this page) |
+| 4.2.0 | Mobile platform: navigation by role from real permissions, shared lists and forms, notifications |
+| 4.3.0 | Daily operating hours: operator entry, supervisor review, manager approval with separation of duties |
+| 4.4.0 | Equipment, projects, assignment and transport |
+| 4.5.0 | Monthly cards and diesel |
+| 4.6.0 | Materials review and approval, tools and custody |
+| 4.7.0 | Suppliers, costs and reports |
 
 ## Layout rules
 

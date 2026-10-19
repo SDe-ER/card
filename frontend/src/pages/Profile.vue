@@ -6,7 +6,9 @@ import InstallHint from '../components/InstallHint.vue'
 import { getSessionContext, logout, type SessionContext } from '../data/session'
 
 const ctx = ref<SessionContext | null>(null)
-getSessionContext().then((c) => (ctx.value = c))
+getSessionContext()
+  .then((c) => (ctx.value = c))
+  .catch(() => null) // the router already sent a failed lookup to the retry screen
 </script>
 
 <template>

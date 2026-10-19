@@ -118,6 +118,9 @@ class TestCardMobile(IntegrationTestCase):
 		self.assertFalse(self._as(op, mobile.has_desk_app_permission))
 		manager = self._user("mgr", ["Card Manager"])
 		self.assertTrue(self._as(manager, mobile.has_desk_app_permission))
+		# custody users work in CARD Desk through Employee Tool Custody only
+		stock = self._user("stock", ["Stock Manager"])
+		self.assertTrue(self._as(stock, mobile.has_desk_app_permission))
 
 	def test_apps_screen_entries_and_routes(self):
 		entries = frappe.get_hooks("add_to_apps_screen", app_name="card")

@@ -93,12 +93,6 @@ msgstr "ایپ انسٹال کریں"
 msgid "On iPhone, tap Share, then Add to Home Screen."
 msgstr "iPhone پر Share دبائیں، پھر Add to Home Screen۔"
 
-msgid "Equipment"
-msgstr "آلہ"
-
-msgid "Notes"
-msgstr "نوٹس"
-
 msgid "Equipment Needs Review"
 msgstr "آلات کی ضروریات کا جائزہ"
 
@@ -169,3 +163,23 @@ msgstr "ہٹائیں"
 msgctxt "Card Mobile"
 msgid "User"
 msgstr "صارف"
+
+msgctxt "Card Mobile"
+msgid "Equipment"
+msgstr "آلہ"
+
+msgctxt "Card Mobile"
+msgid "Notes"
+msgstr "نوٹس"
+
+msgctxt "Card Mobile"
+msgid "Line {0} needs an item and a quantity."
+msgstr "سطر {0} میں آئٹم اور مقدار درکار ہے۔"
+
+msgctxt "Card Mobile"
+msgid "The server could not be reached. Check the connection and try again."
+msgstr "سرور تک رسائی نہیں ہو سکی۔ کنکشن چیک کریں اور دوبارہ کوشش کریں۔"
+
+msgctxt "Card Mobile"
+msgid "Try again"
+msgstr "دوبارہ کوشش کریں"

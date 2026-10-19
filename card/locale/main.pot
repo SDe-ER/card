@@ -2130,3 +2130,28 @@ msgstr ""
 msgctxt "Card Mobile"
 msgid "User"
 msgstr ""
+
+#: frontend/src/pages/Home.vue frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Equipment"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Notes"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Line {0} needs an item and a quantity."
+msgstr ""
+
+#: frontend/src/pages/NoAccess.vue
+msgctxt "Card Mobile"
+msgid "The server could not be reached. Check the connection and try again."
+msgstr ""
+
+#: frontend/src/pages/NoAccess.vue
+msgctxt "Card Mobile"
+msgid "Try again"
+msgstr ""

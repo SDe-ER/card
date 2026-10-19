@@ -20,7 +20,13 @@ export const router = createRouter({
 router.beforeEach(async (to) => {
   if (!sessionUser()) return to.name === 'Login' ? true : { name: 'Login' }
   if (to.name === 'NoAccess') return true
-  const ctx = await getSessionContext()
+  let ctx
+  try {
+    ctx = await getSessionContext()
+  } catch {
+    // no answer from the server (offline, server error): say so and offer a retry
+    return { name: 'NoAccess', query: { offline: '1' } }
+  }
   // an expired session: Frappe answers as Guest and resets the user_id cookie
   if (!ctx && !sessionUser()) return { name: 'Login' }
   if (!ctx || !ctx.employee) return { name: 'NoAccess' }
