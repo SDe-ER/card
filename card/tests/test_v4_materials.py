@@ -265,6 +265,44 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertTrue(frappe.has_permission("Card Equipment", "read", self.eq, user=supervisor))
 		self.assertFalse(frappe.has_permission("Card Equipment", "write", self.eq, user=supervisor))
 
+	def test_reports_follow_the_supervisors_project_permission(self):
+		from card.card.report.equipment_needs_summary import equipment_needs_summary as summary
+		from card.card.report.repeat_equipment_requests import repeat_equipment_requests as repeat
+
+		other = frappe.get_doc(
+			{"doctype": "Project", "project_name": f"V4 other {self.token}", "company": self.company}
+		).insert(ignore_permissions=True)
+		other_user, other_operator = self._operator("op2")
+		other_eq = self._equipment(other_operator)
+		frappe.db.set_value(
+			"Card Equipment Assignment", {"equipment": other_eq}, "project", other.name, update_modified=False
+		)
+		for user, eq in ((self.op_user, self.eq), (other_user, other_eq)):
+			frappe.set_user(user)
+			for _i in range(2):  # the second one is a repeat
+				materials.submit_needs(eq, json.dumps([{"kind": "Part", "item_code": self.filter, "qty": 1}]))
+			frappe.set_user("Administrator")
+		for project in (self.project, other.name):
+			review = frappe.get_doc({"doctype": "Equipment Needs Review", "project": project}).insert()
+			materials.pull_requests(review.name)
+			frappe.get_doc("Equipment Needs Review", review.name).submit()
+
+		supervisor = self._user("sup4", ["Card Supervisor"])
+		frappe.get_doc(
+			{"doctype": "User Permission", "user": supervisor, "allow": "Project", "for_value": self.project}
+		).insert(ignore_permissions=True)
+		frappe.set_user(supervisor)
+		try:
+			repeats = repeat.execute({})[1]
+			lines = summary.execute({})[1]
+		finally:
+			frappe.set_user("Administrator")
+		self.assertTrue(repeats)
+		self.assertEqual({r["equipment"] for r in repeats}, {self.eq})
+		shares = " ".join(str(r.get("equipment")) for r in lines)
+		self.assertIn(self.eq, shares)
+		self.assertNotIn(other_eq, shares)
+
 	def test_free_text_line_must_be_matched_before_approval(self):
 		self._ask([{"kind": "Part", "description": "odd seal", "qty": 1}])
 		review = self._review()

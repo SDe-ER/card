@@ -40,7 +40,8 @@ def execute(filters=None):
 		conditions["project"] = filters.project
 	if filters.get("approval_status"):
 		conditions["approval_status"] = filters.approval_status
-	reviews = frappe.get_all("Equipment Needs Review", filters=conditions, pluck="name")
+	# get_list: the user's own record rules apply (e.g. a supervisor limited to his projects)
+	reviews = frappe.get_list("Equipment Needs Review", filters=conditions, pluck="name", limit_page_length=0)
 	if not reviews:
 		return get_columns(), []
 	lines = frappe.get_all(

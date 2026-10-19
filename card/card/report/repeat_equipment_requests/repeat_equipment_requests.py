@@ -38,22 +38,24 @@ def execute(filters=None):
 	companies = permitted_companies("Equipment Needs Request")
 	if not companies:
 		return get_columns(), []
-	params = {"companies": tuple(companies)}
-	extra = ""
+	conditions = {"docstatus": 1, "company": ["in", companies]}
 	if filters.get("project"):
-		extra += " and r.project = %(project)s"
-		params["project"] = filters.project
+		conditions["project"] = filters.project
 	if filters.get("equipment"):
-		extra += " and r.equipment = %(equipment)s"
-		params["equipment"] = filters.equipment
+		conditions["equipment"] = filters.equipment
+	# get_list: the user's own record rules apply (e.g. a supervisor limited to his projects)
+	requests = frappe.get_list(
+		"Equipment Needs Request", filters=conditions, pluck="name", limit_page_length=0
+	)
+	if not requests:
+		return get_columns(), []
 	data = frappe.db.sql(
 		"""select r.name as request, r.request_date, r.equipment, r.operator_name, i.item_code, i.qty,
 			i.last_requested_on
 		from `tabEquipment Needs Request Item` i join `tabEquipment Needs Request` r on r.name = i.parent
-		where r.docstatus = 1 and i.repeat_flag = 1 and r.company in %(companies)s"""
-		+ extra
-		+ " order by r.request_date desc",
-		params,
+		where i.repeat_flag = 1 and r.name in %(requests)s
+		order by r.request_date desc""",
+		{"requests": tuple(requests)},
 		as_dict=True,
 	)
 	return get_columns(), data
