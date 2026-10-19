@@ -1,0 +1,76 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version: CARD VERSION\n"
+"Report-Msgid-Bugs-To: info@sdce.sa\n"
+"POT-Creation-Date: 2026-10-19 15:00+0000\n"
+"PO-Revision-Date: 2026-10-19 15:00+0000\n"
+"Language: bn\n"
+"Language-Team: bn <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "My equipment needs"
+msgstr "আমার যন্ত্রের প্রয়োজন"
+
+msgid "My recent requests"
+msgstr "আমার সাম্প্রতিক অনুরোধ"
+
+msgid "Add a line"
+msgstr "লাইন যোগ করুন"
+
+msgid "Send to supervisor"
+msgstr "সুপারভাইজারকে পাঠান"
+
+msgid "Part or consumable"
+msgstr "যন্ত্রাংশ বা ব্যবহার্য"
+
+msgid "Search an item or describe it"
+msgstr "পণ্য খুঁজুন বা বর্ণনা লিখুন"
+
+msgid "Add at least one line with a quantity."
+msgstr "অন্তত একটি লাইনে পরিমাণ দিন।"
+
+msgid "Your request was sent to the supervisor."
+msgstr "আপনার অনুরোধ সুপারভাইজারের কাছে পাঠানো হয়েছে।"
+
+msgid "Your account is not set up to ask for equipment needs. Ask your supervisor."
+msgstr "আপনার অ্যাকাউন্ট যন্ত্রের প্রয়োজন চাওয়ার জন্য প্রস্তুত নয়। সুপারভাইজারকে জিজ্ঞাসা করুন।"
+
+msgid "No equipment is assigned to you this month."
+msgstr "এই মাসে আপনার নামে কোনো যন্ত্র নেই।"
+
+msgid "In review"
+msgstr "পর্যালোচনায়"
+
+msgid "You can only ask for the equipment you operate."
+msgstr "আপনি শুধু নিজের চালানো যন্ত্রের জন্য চাইতে পারেন।"
+
+msgid "Your account is not linked to an employee."
+msgstr "আপনার অ্যাকাউন্ট কোনো কর্মীর সাথে যুক্ত নয়।"
+
+msgid "{0} is not the operator of equipment {1}."
+msgstr "{0} যন্ত্র {1}-এর চালক নন।"
+
+msgid "Equipment {0} is not on a project; record its transport first."
+msgstr "যন্ত্র {0} কোনো প্রকল্পে নেই; আগে এর পরিবহন নথিভুক্ত করুন।"
+
+msgid "Row {0}: choose an item or describe it."
+msgstr "লাইন {0}: পণ্য বেছে নিন বা বর্ণনা লিখুন।"
+
+msgid "Row {0}: the quantity must be more than zero."
+msgstr "লাইন {0}: পরিমাণ শূন্যের বেশি হতে হবে।"
+
+msgid "Add at least one item."
+msgstr "অন্তত একটি পণ্য যোগ করুন।"
+
+msgid "Part"
+msgstr "যন্ত্রাংশ"
+
+msgid "Equipment needs"
+msgstr "যন্ত্রের প্রয়োজন"
+
+msgid "Tool"
+msgstr "সরঞ্জাম"

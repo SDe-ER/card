@@ -1726,3 +1726,297 @@ msgstr ""
 
 msgid "Asset category {0} is already used by equipment type {1}."
 msgstr ""
+
+msgid "My equipment needs"
+msgstr ""
+
+msgid "My recent requests"
+msgstr ""
+
+msgid "Add a line"
+msgstr ""
+
+msgid "Send to supervisor"
+msgstr ""
+
+msgid "Part or consumable"
+msgstr ""
+
+msgid "Search an item or describe it"
+msgstr ""
+
+msgid "Add at least one line with a quantity."
+msgstr ""
+
+msgid "Your request was sent to the supervisor."
+msgstr ""
+
+msgid "Your account is not set up to ask for equipment needs. Ask your supervisor."
+msgstr ""
+
+msgid "No equipment is assigned to you this month."
+msgstr ""
+
+msgid "In review"
+msgstr ""
+
+msgid "You can only ask for the equipment you operate."
+msgstr ""
+
+msgid "Your account is not linked to an employee."
+msgstr ""
+
+msgid "{0} is not the operator of equipment {1}."
+msgstr ""
+
+msgid "Equipment {0} is not on a project; record its transport first."
+msgstr ""
+
+msgid "Row {0}: choose an item or describe it."
+msgstr ""
+
+msgid "Row {0}: the quantity must be more than zero."
+msgstr ""
+
+msgid "Add at least one item."
+msgstr ""
+
+msgid "Part"
+msgstr ""
+
+msgid "Equipment needs"
+msgstr ""
+
+msgid "Card Materials"
+msgstr ""
+
+msgid "Materials"
+msgstr ""
+
+msgid "Equipment Needs Request"
+msgstr ""
+
+msgid "Equipment Needs Request Item"
+msgstr ""
+
+msgid "Equipment Needs Review"
+msgstr ""
+
+msgid "Equipment Needs Review Item"
+msgstr ""
+
+msgid "Employee Tool Custody"
+msgstr ""
+
+msgid "Equipment Needs Summary"
+msgstr ""
+
+msgid "Equipment Consumption"
+msgstr ""
+
+msgid "Worker Custody"
+msgstr ""
+
+msgid "Repeat Equipment Requests"
+msgstr ""
+
+msgid "Kind"
+msgstr ""
+
+msgid "Needs"
+msgstr ""
+
+msgid "Lines"
+msgstr ""
+
+msgid "Request"
+msgstr ""
+
+msgid "Request row"
+msgstr ""
+
+msgid "Review status"
+msgstr ""
+
+msgid "Entered by"
+msgstr ""
+
+msgid "Entered on behalf"
+msgstr ""
+
+msgid "Asked recently"
+msgstr ""
+
+msgid "Last asked on"
+msgstr ""
+
+msgid "Found on site"
+msgstr ""
+
+msgid "Not inspected"
+msgstr ""
+
+msgid "Inspected"
+msgstr ""
+
+msgid "Inspected by"
+msgstr ""
+
+msgid "Inspected on"
+msgstr ""
+
+msgid "Inspection note"
+msgstr ""
+
+msgid "From store"
+msgstr ""
+
+msgid "Buy for project"
+msgstr ""
+
+msgid "Supervisor"
+msgstr ""
+
+msgid "Approved by"
+msgstr ""
+
+msgid "Approved on"
+msgstr ""
+
+msgid "Get requests"
+msgstr ""
+
+msgid "Create the Material Requests for the approved lines?"
+msgstr ""
+
+msgid "Only a draft review can take requests."
+msgstr ""
+
+msgid "Only Card Manager may approve equipment needs."
+msgstr ""
+
+msgid "Submit the review before approving it."
+msgstr ""
+
+msgid "This review is already approved."
+msgstr ""
+
+msgid "Match these lines to an Item before approval: {0}"
+msgstr ""
+
+msgid "Set the tool custody store in Card Settings (Materials) before approving tools."
+msgstr ""
+
+msgid "Set the tool custody store in Card Settings (Materials)."
+msgstr ""
+
+msgid "Choose the warehouse for {0}."
+msgstr ""
+
+msgid "An approved review cannot be cancelled; its Material Requests are already created."
+msgstr ""
+
+msgid "This request is in a supervisor review; cancel the review first."
+msgstr ""
+
+msgid "Row {0}: quantities cannot be negative."
+msgstr ""
+
+msgid "Row {0}: the request is not a submitted request of this project."
+msgstr ""
+
+msgid "Row {0}: this request line is already in another review."
+msgstr ""
+
+msgid "Row {0}: this request line is listed twice."
+msgstr ""
+
+msgid "Equipment and quantities"
+msgstr ""
+
+msgid "Main store"
+msgstr ""
+
+msgid "Tool custody store"
+msgstr ""
+
+msgid "Flag a repeated request within (days)"
+msgstr ""
+
+msgid "Handover"
+msgstr ""
+
+msgid "Loss"
+msgstr ""
+
+msgid "Damage"
+msgstr ""
+
+msgid "To employee"
+msgstr ""
+
+msgid "Tool name"
+msgstr ""
+
+msgid "Serial number"
+msgstr ""
+
+msgid "Store"
+msgstr ""
+
+msgid "Needs review"
+msgstr ""
+
+msgid "Held"
+msgstr ""
+
+msgid "Returnable tool"
+msgstr ""
+
+msgid "Tool custody {0}"
+msgstr ""
+
+msgid "Cancel Stock Entry {0} first."
+msgstr ""
+
+msgid "Choose another employee to receive the tool."
+msgstr ""
+
+msgid "Later movements already use these tools; cancel them first."
+msgstr ""
+
+msgid "The quantity must be more than zero."
+msgstr ""
+
+msgid "{0} holds {1} of {2}; {3} cannot leave his custody."
+msgstr ""
+
+msgid "{0} is a fixed asset: record its custodian on the Asset (Asset Movement)."
+msgstr ""
+
+msgid "The Card Equipment accounting dimension is not set up on this site."
+msgstr ""
+
+msgid "Tool"
+msgstr ""
+
+msgid "Management approval"
+msgstr ""
+
+msgid "Needed item"
+msgstr ""
+
+msgid "Requested qty"
+msgstr ""
+
+msgid "Approved qty"
+msgstr ""
+
+msgid "Supply route"
+msgstr ""
+
+msgid "Site inspection"
+msgstr ""
+
+msgid "Row {0}: add lines with Get requests only."
+msgstr ""

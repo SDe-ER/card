@@ -1,0 +1,93 @@
+{
+ "actions": [],
+ "creation": "2026-10-19 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "kind",
+  "item_code",
+  "description",
+  "qty",
+  "uom",
+  "reason",
+  "repeat_flag",
+  "last_requested_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "kind",
+   "fieldtype": "Select",
+   "label": "Kind",
+   "options": "Part\nTool",
+   "default": "Part",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "Needed item",
+   "options": "Item",
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "label": "Quantity",
+   "reqd": 1,
+   "non_negative": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "UOM",
+   "fetch_from": "item_code.stock_uom",
+   "fetch_if_empty": 1
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Data",
+   "label": "Reason",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "repeat_flag",
+   "fieldtype": "Check",
+   "label": "Asked recently",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "last_requested_on",
+   "fieldtype": "Date",
+   "label": "Last asked on",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-19 16:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Equipment Needs Request Item",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1,
+ "permissions": []
+}

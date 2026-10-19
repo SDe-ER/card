@@ -41,6 +41,12 @@
   "transport_price_editor_role",
   "project_transport_prices",
   "location_cost_centers",
+  "materials_tab",
+  "materials_section",
+  "default_store_warehouse",
+  "tool_custody_warehouse",
+  "materials_col",
+  "repeat_request_days",
   "period_lock_tab",
   "period_lock_section",
   "period_lock_date",
@@ -351,12 +357,45 @@
    "label": "Cost center per workshop / storage place",
    "options": "Card Location Cost Center",
    "permlevel": 2
+  },
+  {
+   "fieldname": "materials_tab",
+   "fieldtype": "Tab Break",
+   "label": "Materials"
+  },
+  {
+   "fieldname": "materials_section",
+   "fieldtype": "Section Break",
+   "label": "Equipment needs"
+  },
+  {
+   "fieldname": "default_store_warehouse",
+   "fieldtype": "Link",
+   "label": "Main store",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "tool_custody_warehouse",
+   "fieldtype": "Link",
+   "label": "Tool custody store",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "materials_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "repeat_request_days",
+   "fieldtype": "Int",
+   "label": "Flag a repeated request within (days)",
+   "default": "30",
+   "non_negative": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-19 04:00:00.000000",
+ "modified": "2026-10-19 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

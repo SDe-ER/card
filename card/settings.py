@@ -37,6 +37,10 @@ _DEFAULTS = {
 	"transport_price_editor_role": "Card Manager",
 	# #56: the daily location sync is off until the owner enables it
 	"sync_equipment_location_daily": 0,
+	# v4.0.0: equipment materials
+	"default_store_warehouse": "",
+	"tool_custody_warehouse": "",
+	"repeat_request_days": 30,
 }
 
 

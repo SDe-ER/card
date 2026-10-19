@@ -1,0 +1,165 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<style>
+	.card-needs { max-width: 640px; margin: 0 auto; padding: 0 16px 32px; }
+	.card-needs h1 { font-size: 1.4rem; margin: 16px 0; }
+	.card-needs .box { border: 1px solid var(--border-color, #e2e6e9); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+	.card-needs label { display: block; font-weight: 600; margin: 8px 0 4px; }
+	.card-needs select, .card-needs input, .card-needs textarea { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #cfd6db; border-radius: 8px; box-sizing: border-box; }
+	.card-needs .line { display: grid; grid-template-columns: 1fr 90px; gap: 8px; border-top: 1px dashed #d8dee2; padding-top: 10px; margin-top: 10px; }
+	.card-needs .line .wide { grid-column: 1 / -1; }
+	.card-needs button { padding: 12px 16px; font-size: 1rem; border-radius: 8px; border: 1px solid #1f876c; background: #fff; color: #1f876c; }
+	.card-needs button.primary { background: #1f876c; color: #fff; width: 100%; margin-top: 12px; }
+	.card-needs .status { font-size: .85rem; padding: 2px 8px; border-radius: 10px; background: #eef2f4; }
+	.card-needs .muted { color: #6b7780; font-size: .9rem; }
+	.card-needs .msg { padding: 10px; border-radius: 8px; margin: 8px 0; display: none; }
+</style>
+
+<div class="card-needs" id="card-needs" data-labels="{{ labels_json | e }}">
+	<h1>{{ _("My equipment needs") }}</h1>
+
+	{% if not data.allowed %}
+	<div class="box">{{ _("Your account is not set up to ask for equipment needs. Ask your supervisor.") }}</div>
+	{% elif not data.machines %}
+	<div class="box">{{ _("No equipment is assigned to you this month.") }}</div>
+	{% else %}
+	<form class="box" id="needs-form" autocomplete="off">
+		<label for="equipment">{{ _("Equipment") }}</label>
+		<select id="equipment" required>
+			{% for m in data.machines %}
+			<option value="{{ m.name | e }}">{{ (m.equipment_name or m.name) | e }}{% if m.project %} — {{ m.project | e }}{% endif %}</option>
+			{% endfor %}
+		</select>
+
+		<div id="lines"></div>
+		<button type="button" id="add-line">+ {{ _("Add a line") }}</button>
+
+		<label for="notes">{{ _("Notes") }}</label>
+		<textarea id="notes" rows="2"></textarea>
+
+		<div class="msg" id="msg"></div>
+		<button type="submit" class="primary" id="send">{{ _("Send to supervisor") }}</button>
+		<datalist id="items-list"></datalist>
+	</form>
+	{% endif %}
+
+	{% if data.requests %}
+	<h1>{{ _("My recent requests") }}</h1>
+	{% for r in data.requests %}
+	<div class="box">
+		<div><strong>{{ r.name | e }}</strong> — {{ r.equipment_name | e }} <span class="status">{{ _(r.review_status) | e }}</span></div>
+		<div class="muted">{{ frappe.format_date(r.request_date) }}</div>
+		<ul>
+			{% for i in r["items"] %}
+			<li>{{ (i.item_code or i.description) | e }} × {{ "%g" | format(i.qty) }}{% if i.kind == "Tool" %} ({{ _("Tool") }}){% endif %}</li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% endfor %}
+	{% endif %}
+</div>
+
+<script>
+(function () {
+	const root = document.getElementById("card-needs");
+	const form = document.getElementById("needs-form");
+	if (!form) return;
+	const L = JSON.parse(root.dataset.labels);
+	const lines = document.getElementById("lines");
+	const list = document.getElementById("items-list");
+	const msg = document.getElementById("msg");
+	const known = {};
+
+	function show(text, ok) {
+		msg.textContent = text;
+		msg.style.display = "block";
+		msg.style.background = ok ? "#e6f4ef" : "#fdecea";
+	}
+
+	function el(tag, attrs) {
+		const node = document.createElement(tag);
+		Object.entries(attrs || {}).forEach(([k, v]) => node.setAttribute(k, v));
+		return node;
+	}
+
+	function addLine() {
+		const line = el("div", { class: "line" });
+		const kind = el("select", { class: "wide" });
+		[["Part", L.part], ["Tool", L.tool]].forEach(([value, text]) => {
+			const o = el("option", { value: value });
+			o.textContent = text;
+			kind.appendChild(o);
+		});
+		const item = el("input", { list: "items-list", placeholder: L.item_placeholder });
+		const qty = el("input", { type: "number", min: "0", step: "any", inputmode: "decimal", placeholder: L.qty });
+		const reason = el("input", { class: "wide", placeholder: L.reason });
+		const remove = el("button", { type: "button", class: "wide" });
+		remove.textContent = L.remove;
+		remove.onclick = () => line.remove();
+		item.addEventListener("input", () => search(item.value));
+		line.append(kind, item, qty, reason, remove);
+		line._fields = { kind, item, qty, reason };
+		lines.appendChild(line);
+	}
+
+	let timer = null;
+	function search(txt) {
+		clearTimeout(timer);
+		timer = setTimeout(() => {
+			frappe.call({ method: "card.materials.search_items", args: { txt: txt }, type: "GET" }).then((r) => {
+				list.innerHTML = "";
+				(r.message || []).forEach((it) => {
+					const label = it.item_name + " (" + it.item_code + ")";
+					known[label] = it.item_code;
+					const o = el("option", { value: label });
+					list.appendChild(o);
+				});
+			});
+		}, 250);
+	}
+
+	document.getElementById("add-line").onclick = addLine;
+	addLine();
+
+	form.addEventListener("submit", (e) => {
+		e.preventDefault();
+		const items = [];
+		lines.querySelectorAll(".line").forEach((line) => {
+			const f = line._fields;
+			const text = f.item.value.trim();
+			const qty = parseFloat(f.qty.value);
+			if (!text || !(qty > 0)) return;
+			items.push({
+				kind: f.kind.value,
+				item_code: known[text] || null,
+				description: known[text] ? "" : text,
+				qty: qty,
+				reason: f.reason.value.trim(),
+			});
+		});
+		if (!items.length) {
+			show(L.no_lines, false);
+			return;
+		}
+		document.getElementById("send").disabled = true;
+		frappe
+			.call({
+				method: "card.materials.submit_needs",
+				args: {
+					equipment: document.getElementById("equipment").value,
+					items: JSON.stringify(items),
+					notes: document.getElementById("notes").value,
+				},
+			})
+			.then(() => {
+				show(L.sent, true);
+				setTimeout(() => window.location.reload(), 1200);
+			})
+			.always(() => {
+				document.getElementById("send").disabled = false;
+			});
+	});
+})();
+</script>
+{% endblock %}

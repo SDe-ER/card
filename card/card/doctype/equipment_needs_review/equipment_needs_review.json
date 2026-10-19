@@ -1,0 +1,181 @@
+{
+ "actions": [],
+ "creation": "2026-10-19 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "project",
+  "from_date",
+  "to_date",
+  "column_break_main",
+  "supervisor",
+  "approval_status",
+  "approved_by",
+  "approved_on",
+  "items_section",
+  "items",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "hidden": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From date"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To date"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supervisor",
+   "fieldtype": "Link",
+   "label": "Supervisor",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "label": "Management approval",
+   "options": "Pending\nApproved",
+   "default": "Pending",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "in_list_view": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved by",
+   "options": "User",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Approved on",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "Lines"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Equipment Needs Review Item"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Equipment Needs Review",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-19 16:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Equipment Needs Review",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "ENV-.#####",
+ "naming_rule": "Expression (old style)",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "permissions": [
+  {
+   "role": "System Manager",
+   "permlevel": 0,
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Card Manager",
+   "permlevel": 0,
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Card Supervisor",
+   "permlevel": 0,
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Card User",
+   "permlevel": 0,
+   "read": 1,
+   "print": 1,
+   "report": 1
+  }
+ ]
+}
