@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "card",
+  "description": "CARD build scripts: `bench build` runs `build` (CARD Mobile in frontend/), as Frappe HR does",
+  "scripts": {
+    "postinstall": "cd frontend && yarn install --frozen-lockfile",
+    "dev": "cd frontend && yarn dev",
+    "build": "cd frontend && yarn build"
+  }
+}

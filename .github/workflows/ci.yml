@@ -70,3 +70,39 @@ jobs:
         if: failure()
         working-directory: /home/runner/frappe-bench
         run: cat sites/test_site/logs/*.log 2>/dev/null || true
+
+  mobile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    name: CARD Mobile (type check, unit tests, build)
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Clone
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Install
+        run: yarn install --frozen-lockfile
+
+      - name: Type check
+        run: yarn type-check
+
+      - name: Unit tests
+        run: yarn test
+
+      - name: Build
+        run: yarn build
+
+      - name: Check the build output
+        working-directory: .
+        run: |
+          test -f card/public/frontend/sw.js
+          test -f card/public/frontend/manifest.webmanifest
+          test -f card/www/cdms.html
+          grep -q '"scope":"/cdms/"' card/public/frontend/manifest.webmanifest

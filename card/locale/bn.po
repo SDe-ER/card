@@ -74,3 +74,112 @@ msgstr "যন্ত্রের প্রয়োজন"
 
 msgid "Tool"
 msgstr "সরঞ্জাম"
+
+msgid "Card Mobile"
+msgstr "Card মোবাইল"
+
+msgid "New request"
+msgstr "নতুন অনুরোধ"
+
+msgid "My requests"
+msgstr "আমার অনুরোধ"
+
+msgid "No requests yet."
+msgstr "এখনও কোনো অনুরোধ নেই।"
+
+msgid "Install the app"
+msgstr "অ্যাপটি ইনস্টল করুন"
+
+msgid "On iPhone, tap Share, then Add to Home Screen."
+msgstr "iPhone-এ Share চাপুন, তারপর Add to Home Screen।"
+
+msgid "Equipment Needs Review"
+msgstr "যন্ত্রের প্রয়োজন পর্যালোচনা"
+
+msgctxt "Card Mobile"
+msgid "Approved"
+msgstr "অনুমোদিত"
+
+msgctxt "Card Mobile"
+msgid "Back"
+msgstr "পেছনে"
+
+msgctxt "Card Mobile"
+msgid "Company"
+msgstr "কোম্পানি"
+
+msgctxt "Card Mobile"
+msgid "Email"
+msgstr "ইমেইল"
+
+msgctxt "Card Mobile"
+msgid "Employee"
+msgstr "কর্মী"
+
+msgctxt "Card Mobile"
+msgid "Home"
+msgstr "হোম"
+
+msgctxt "Card Mobile"
+msgid "Login"
+msgstr "লগইন"
+
+msgctxt "Card Mobile"
+msgid "Logout"
+msgstr "লগআউট"
+
+msgctxt "Card Mobile"
+msgid "Page Not Found"
+msgstr "পৃষ্ঠা পাওয়া যায়নি"
+
+msgctxt "Card Mobile"
+msgid "Password"
+msgstr "পাসওয়ার্ড"
+
+msgctxt "Card Mobile"
+msgid "Pending"
+msgstr "অপেক্ষমাণ"
+
+msgctxt "Card Mobile"
+msgid "Profile"
+msgstr "প্রোফাইল"
+
+msgctxt "Card Mobile"
+msgid "Quantity"
+msgstr "পরিমাণ"
+
+msgctxt "Card Mobile"
+msgid "Reason"
+msgstr "কারণ"
+
+msgctxt "Card Mobile"
+msgid "Rejected"
+msgstr "প্রত্যাখ্যাত"
+
+msgctxt "Card Mobile"
+msgid "Remove"
+msgstr "মুছুন"
+
+msgctxt "Card Mobile"
+msgid "User"
+msgstr "ব্যবহারকারী"
+
+msgctxt "Card Mobile"
+msgid "Equipment"
+msgstr "যন্ত্র"
+
+msgctxt "Card Mobile"
+msgid "Notes"
+msgstr "নোট"
+
+msgctxt "Card Mobile"
+msgid "Line {0} needs an item and a quantity."
+msgstr "লাইন {0}-এ একটি আইটেম ও পরিমাণ দরকার।"
+
+msgctxt "Card Mobile"
+msgid "The server could not be reached. Check the connection and try again."
+msgstr "সার্ভারে পৌঁছানো যায়নি। সংযোগ দেখে আবার চেষ্টা করুন।"
+
+msgctxt "Card Mobile"
+msgid "Try again"
+msgstr "আবার চেষ্টা করুন"

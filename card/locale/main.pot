@@ -2021,3 +2021,137 @@ msgstr ""
 
 msgid "Row {0}: add lines with Get requests only."
 msgstr ""
+
+#: card/hooks.py
+msgid "Card Mobile"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgid "New request"
+msgstr ""
+
+#: frontend/src/pages/Requests.vue
+msgid "My requests"
+msgstr ""
+
+#: frontend/src/pages/Requests.vue
+msgid "No requests yet."
+msgstr ""
+
+#: frontend/src/components/InstallHint.vue
+msgid "Install the app"
+msgstr ""
+
+#: frontend/src/components/InstallHint.vue
+msgid "On iPhone, tap Share, then Add to Home Screen."
+msgstr ""
+
+#: frontend/src/components/StatusBadge.vue
+msgctxt "Card Mobile"
+msgid "Approved"
+msgstr ""
+
+#: frontend/src/components/TopBar.vue
+msgctxt "Card Mobile"
+msgid "Back"
+msgstr ""
+
+#: frontend/src/pages/Profile.vue
+msgctxt "Card Mobile"
+msgid "Company"
+msgstr ""
+
+#: frontend/src/pages/Login.vue
+msgctxt "Card Mobile"
+msgid "Email"
+msgstr ""
+
+#: frontend/src/pages/Profile.vue
+msgctxt "Card Mobile"
+msgid "Employee"
+msgstr ""
+
+#: frontend/src/components/BottomNav.vue
+msgctxt "Card Mobile"
+msgid "Home"
+msgstr ""
+
+#: frontend/src/pages/Login.vue
+msgctxt "Card Mobile"
+msgid "Login"
+msgstr ""
+
+#: frontend/src/pages/Profile.vue
+msgctxt "Card Mobile"
+msgid "Logout"
+msgstr ""
+
+#: frontend/src/pages/NotFound.vue
+msgctxt "Card Mobile"
+msgid "Page Not Found"
+msgstr ""
+
+#: frontend/src/pages/Login.vue
+msgctxt "Card Mobile"
+msgid "Password"
+msgstr ""
+
+#: frontend/src/components/StatusBadge.vue
+msgctxt "Card Mobile"
+msgid "Pending"
+msgstr ""
+
+#: frontend/src/pages/Profile.vue
+msgctxt "Card Mobile"
+msgid "Profile"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Quantity"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Reason"
+msgstr ""
+
+#: frontend/src/components/StatusBadge.vue
+msgctxt "Card Mobile"
+msgid "Rejected"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Remove"
+msgstr ""
+
+#: frontend/src/pages/Profile.vue
+msgctxt "Card Mobile"
+msgid "User"
+msgstr ""
+
+#: frontend/src/pages/Home.vue frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Equipment"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Notes"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgctxt "Card Mobile"
+msgid "Line {0} needs an item and a quantity."
+msgstr ""
+
+#: frontend/src/pages/NoAccess.vue
+msgctxt "Card Mobile"
+msgid "The server could not be reached. Check the connection and try again."
+msgstr ""
+
+#: frontend/src/pages/NoAccess.vue
+msgctxt "Card Mobile"
+msgid "Try again"
+msgstr ""

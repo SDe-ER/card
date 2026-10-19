@@ -1,0 +1,5 @@
+# CARD Mobile follows the frappe-ui / Frappe HR frontend style (2 spaces), unlike the Desk code.
+[*.{vue,ts,js,css,html,json}]
+indent_style = space
+indent_size = 2
+max_line_length = 99

@@ -42,7 +42,10 @@ class TestCardLocaleCardStringsOnly(IntegrationTestCase):
 		if not os.path.exists(path):
 			return entries
 		text = open(path, encoding="utf-8").read()
-		pattern = re.compile(r'(?s)msgid\s+((?:"(?:[^"\\]|\\.)*"\s*)+?)msgstr\s+((?:"(?:[^"\\]|\\.)*"\s*)+)')
+		pattern = re.compile(
+			r'(?s)(?:msgctxt\s+((?:"(?:[^"\\]|\\.)*"\s*)+?))?'
+			r'msgid\s+((?:"(?:[^"\\]|\\.)*"\s*)+?)msgstr\s+((?:"(?:[^"\\]|\\.)*"\s*)+)'
+		)
 
 		def joinstr(s):
 			parts = re.findall(r'"((?:[^"\\]|\\.)*)"', s)
@@ -50,9 +53,13 @@ class TestCardLocaleCardStringsOnly(IntegrationTestCase):
 			return raw.replace("\\n", "\n").replace('\\"', '"').replace("\\\\", "\\")
 
 		for m in pattern.finditer(text):
-			k = joinstr(m.group(1))
+			k = joinstr(m.group(2))
 			if k:
-				entries[k] = joinstr(m.group(2))
+				# Frappe keys a translation with context as "msgid:context" (frappe.gettext), so a
+				# context entry never overrides the plain msgid of another app
+				if m.group(1):
+					k = f"{k}:{joinstr(m.group(1))}"
+				entries[k] = joinstr(m.group(3))
 		return entries
 
 	def _allowlist(self):
