@@ -107,6 +107,21 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 			self.assertFalse(frappe.db.get_value("Card Equipment Assignment", old.name, "to_date"))
 			self.assertEqual(frappe.db.get_value("Card Equipment", eq, "current_project"), pa)
 
+	def test_forged_assignment_link_is_dropped_on_submit(self):
+		# security review 2026-10-19: links sent with the submit itself are cleared
+		pa, pb = self._project("A"), self._project("B")
+		victim = self._equipment(current_project=pa).name
+		victim_assignment = self._assign(victim, pa, 1)
+		eq = self._equipment().name
+		t = self._trip(pb, 10, [eq])
+		t.items[0].previous_assignment = victim_assignment.name
+		t.submit()
+		t.reload()
+		self.assertNotEqual(t.items[0].previous_assignment, victim_assignment.name)
+		t.cancel()
+		self.assertTrue(frappe.db.exists("Card Equipment Assignment", victim_assignment.name))
+		self.assertFalse(frappe.db.get_value("Card Equipment Assignment", victim_assignment.name, "to_date"))
+
 	# ---- dated unit components ----
 	def _unit(self, project, *components):
 		return self._equipment(

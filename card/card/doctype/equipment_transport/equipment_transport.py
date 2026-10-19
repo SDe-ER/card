@@ -140,9 +140,11 @@ class EquipmentTransport(Document):
 		"""v3.0.0: the equipment table is the source; the header `equipment` mirrors its
 		first row for links and older readers. A caller that still sets only the header
 		(older API/tests) gets it moved into the table."""
-		if self.docstatus == 0:
-			# only submit writes these (card.transfer); a draft must not carry links typed
-			# through the API, or a later cancel would delete/reopen someone else's assignment
+		before = None if self.is_new() else self.get_doc_before_save()
+		if not before or before.docstatus == 0:
+			# only on_submit writes these (card.transfer). A draft, and the submit itself
+			# (validate runs with docstatus 1 and the client's values), must not carry links
+			# typed through the API, or a later cancel would delete/reopen another assignment
 			self.previous_assignment = self.created_assignment = None
 			for row in self.items:
 				row.previous_assignment = row.created_assignment = None

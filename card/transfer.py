@@ -417,21 +417,22 @@ def reverse_transfer(txn):
 		deferred = frappe.flags.get("card_defer_location_sync")
 		frappe.flags.card_defer_location_sync = True
 		try:
-			if row.created_assignment and frappe.db.exists(
-				"Card Equipment Assignment", row.created_assignment
-			):
+			# only assignments of this row's equipment (defence against a forged link)
+			if row.created_assignment and _assignment_of(row.created_assignment, row.card_equipment):
 				frappe.delete_doc(
 					"Card Equipment Assignment", row.created_assignment, force=1, ignore_permissions=True
 				)
-			if row.previous_assignment and frappe.db.exists(
-				"Card Equipment Assignment", row.previous_assignment
-			):
+			if row.previous_assignment and _assignment_of(row.previous_assignment, row.card_equipment):
 				reopened = frappe.get_doc("Card Equipment Assignment", row.previous_assignment)
 				reopened.to_date = None
 				reopened.save(ignore_permissions=True, ignore_version=False)
 		finally:
 			frappe.flags.card_defer_location_sync = deferred
 		sync_equipment_location(row.card_equipment, source="transfer")
+
+
+def _assignment_of(assignment, equipment):
+	return frappe.db.get_value("Card Equipment Assignment", assignment, "equipment") == equipment
 
 
 def _card_day_after(equipment, project, tdate):
