@@ -420,8 +420,9 @@ class TestG2Components(_G2Base):
 
 class TestG2ComponentRows(_G2Base):
 	"""A component row saved on its own (PUT /api/resource/Card Equipment
-	Component/<row>, frappe.client.save) follows the unit's rules: the unit's
-	re-save that update_doc does next sees no change in its rows."""
+	Component/<row>, frappe.client.save): a component change is refused outright
+	(#59 — the unit's re-save that update_doc does next would leave no Version
+	entry); a standalone row insert still follows the unit's rules (#56)."""
 
 	def _unit(self, components):
 		return self._owned(is_unit=1, components=[{"component": c} for c in components])
@@ -512,17 +513,38 @@ class TestG2ComponentRows(_G2Base):
 			frappe.db.get_value("Card Equipment Component", self._row(unit, a.name), "role"), "Prime mover"
 		)
 
-	def test_card_manager_valid_row_edits_still_save(self):
+	def test_card_manager_role_edit_saves_but_component_change_needs_the_unit(self):
+		"""#59: a role-only row edit still saves; a component change through the raw
+		row endpoint is refused even when the new value would pass the unit rules,
+		because only the unit's own save is serialized and versioned."""
 		a, free = self._owned(), self._owned()
 		unit = self._unit([a.name])
 		self._login(["Card Manager"])
 		self.assertTrue(self._put_row(self._row(unit, a.name), {"role": "Prime mover"}))
-		self.assertTrue(self._put_row(self._row(unit, a.name), {"component": free.name}))
+		self.assertFalse(self._put_row(self._row(unit, a.name), {"component": free.name}))
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(unit), [a.name])
+		self.assertEqual(
+			frappe.db.get_value("Card Equipment Component", self._row(unit, a.name), "role"), "Prime mover"
+		)
+		# the same change through the unit saves — and lands in the unit's Version
+		# history (the test runner sets ignore_version by default: frappe v16
+		# document._save, `ignore_version = frappe.in_test if ignore_version is
+		# None ...` — so versioning is asked for explicitly here)
+		self._login(["Card Manager"])
+		doc = frappe.get_doc("Card Equipment", unit.name)
+		doc.set("components", [{"component": free.name}])
+		doc.save(ignore_version=False)
 		frappe.set_user("Administrator")
 		self.assertEqual(self._stored(unit), [free.name])
-		self.assertEqual(
-			frappe.db.get_value("Card Equipment Component", self._row(unit, free.name), "role"), "Prime mover"
+		version = frappe.get_all(
+			"Version",
+			filters={"ref_doctype": "Card Equipment", "docname": unit.name},
+			order_by="creation desc",
+			limit=1,
+			pluck="data",
 		)
+		self.assertTrue(version and free.name in version[0], "unit Version must record the component change")
 
 	def test_card_user_cannot_put_a_row_valid_or_not(self):
 		a, free = self._owned(), self._owned()

@@ -15,6 +15,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Fixed
+- **Unit component integrity on concurrent and direct-row writes** (#59): changing a
+  component through the raw child-row endpoint (`PUT /api/resource/Card Equipment
+  Component/<row>`, `frappe.client.save`) is refused with a pointer to edit the unit itself,
+  whose save is serialized and recorded in its Version history (direct row updates left no
+  Version entry); validation now takes locking reads (`for_update`) on the component's
+  equipment row and on the membership rows, so two saves claiming the same component run one
+  after the other against committed data (a crossed lock order can abort one save, never
+  admit both). Role-only row edits still save. No schema or data change.
+
 ### Template library
 - Add a document-design library under `docs/templates/` and archive the monthly equipment
   operating card D0.6 (Arabic/English, landscape front, portrait reverse, 31 days, overtime,
