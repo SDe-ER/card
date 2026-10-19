@@ -7,7 +7,33 @@ All notable changes to the Card app are documented here. Format based on
 > **Published ≠ deployed.** A version listed here is a published GitHub release. Which version
 > runs on a given site is a deployment fact, verified on that site — never inferred from this file.
 
+Per-version documentation (complete feature inventory, comparison matrix, upgrade guidance):
+[docs/releases/](docs/releases/VERSION-HISTORY.md) —
+[Version History](docs/releases/VERSION-HISTORY.md) ·
+[Version Comparison](docs/releases/VERSION-COMPARISON.md) ·
+[Which Version Should I Use?](docs/releases/WHICH-VERSION.md)
+
 ## [Unreleased]
+
+### Fixed
+- **Unit component integrity on concurrent and direct-row writes** (#59): changing a
+  component through the raw child-row endpoint (`PUT /api/resource/Card Equipment
+  Component/<row>`, `frappe.client.save`) is refused with a pointer to edit the unit itself,
+  whose save is serialized and recorded in its Version history (direct row updates left no
+  Version entry); validation now takes locking reads (`for_update`) on the component's
+  equipment row and on the membership rows, so two saves claiming the same component run one
+  after the other against committed data (a crossed lock order can abort one save, never
+  admit both). Role-only row edits still save. No schema or data change.
+
+### Template library
+- Add a document-design library under `docs/templates/` and archive the monthly equipment
+  operating card D0.6 (Arabic/English, landscape front, portrait reverse, 31 days, overtime,
+  signatures and totals) with editable HTML/CSS sources, field mapping, font license and
+  validation evidence. Proprietary SDCE assets (logo, branded PDF and previews) are not
+  distributed, and the public template ships with a neutral placeholder identity
+  (`company-logo.png`, «اسم المؤسسة / COMPANY NAME», `FORM-CODE`). Documents the required
+  home for future printable designs — design assets never ship inside the installable `card/`
+  package. No runtime Print Format, schema or deployment change.
 
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the

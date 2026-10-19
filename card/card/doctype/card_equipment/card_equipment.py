@@ -272,8 +272,13 @@ def check_unit_components(unit, company, is_unit, rows):
 			frappe.throw(_("Component {0}: the To date is before the From date.").format(row.component))
 	components = [row.component for row in rows if not row.get("to_date")]
 	if is_unit and unit:
+		# for_update (#59): a locking read returns the latest committed membership,
+		# not the transaction's snapshot (MariaDB default REPEATABLE READ).
 		parent = frappe.db.get_value(
-			"Card Equipment Component", {"parenttype": "Card Equipment", "component": unit}, "parent"
+			"Card Equipment Component",
+			{"parenttype": "Card Equipment", "component": unit},
+			"parent",
+			for_update=True,
 		)
 		if parent:
 			frappe.throw(
@@ -290,7 +295,16 @@ def check_unit_components(unit, company, is_unit, rows):
 		if component in seen:
 			frappe.throw(_("Component {0} is listed twice.").format(component))
 		seen.add(component)
-		info = frappe.db.get_value("Card Equipment", component, ["company", "is_unit"], as_dict=True)
+		# for_update (#59): two transactions claiming the same component both lock
+		# its equipment row here, so the second waits until the first commits. The
+		# membership read below is a locking read too — a plain read would still see
+		# the transaction's pre-lock snapshot under MariaDB's default REPEATABLE
+		# READ and miss the freshly committed row. Rows are read in idx order; a
+		# crossed lock order between two multi-component units can deadlock, which
+		# the database resolves by aborting one of the saves.
+		info = frappe.db.get_value(
+			"Card Equipment", component, ["company", "is_unit"], as_dict=True, for_update=True
+		)
 		if not info:
 			continue  # frappe's link validation reports the missing equipment
 		if info.is_unit:
@@ -310,6 +324,7 @@ def check_unit_components(unit, company, is_unit, rows):
 				"to_date": ["is", "not set"],
 			},
 			"parent",
+			for_update=True,
 		)
 		if other:
 			frappe.throw(_("Component {0} already belongs to unit {1}.").format(component, other))

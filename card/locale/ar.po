@@ -2110,6 +2110,9 @@ msgstr "المكون {0} تابع بالفعل للوحدة {1}."
 msgid "A component row cannot be moved to another unit."
 msgstr "لا يمكن نقل صف مكون إلى وحدة أخرى."
 
+msgid "To change the component, edit unit {0} itself; a direct row update is not allowed."
+msgstr "لتغيير المكون، عدّل الوحدة {0} نفسها؛ التعديل المباشر على الصف غير مسموح."
+
 msgid "Location sync after an assignment change: project {0} → {1}; assignment date {2} → {3}"
 msgstr "مزامنة الموقع بعد تغيير تعيين: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
 

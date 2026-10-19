@@ -1,0 +1,16 @@
+{
+  "revision": "D0.6",
+  "files_sha256": {
+    "back-preview.png": "548ed6995a70c9c2358199d643ab5db23e7a6ecf9390834c103ee882dd6dfdcc",
+    "Cairo-OFL.txt": "ce39edb04b690f144cd40dc59a1be26dcb089e539c8118289d1081cde4449d6f",
+    "card.css": "6adc356086fbe067748e50ad37d671ad62078f10cbc3673f87f7f457c3c393a9",
+    "field-mapping.csv": "56a4bf7ccf4ead1b6f8271a466e81c4cafdbdd64084912c578a1db04f8c1d28a",
+    "front-preview.png": "3af3149895bf1e55d1b25ad301b2cea56433e2bca9b226f1c8ca215a8819dc99",
+    "monthly-card.html": "3208c3cfd58849629dbda19a936a58f6eb34629e7a793a1f11eeb3353d651c34",
+    "monthly-card.pdf": "f441646f80df088deb1f50af976dc5e864fcac14a3740f8dc22eddf7f1b41bd0",
+    "README.md": "d147fa90ca7c92ab764f5beb359af5c91810053a7d387825eb1fece117e2e0a7",
+    "shams-dubai-logo.png": "e7abb133f4004b4fa0b7b4a1bca9847b36b28a4fbd023cd30e3eef79cb6570ee",
+    "verification-evidence.json": "0666c7a1521d37e5789b06e406cd2c31d24c6ef3e8369a50c570e9b5f0e88d13",
+    "verification-report.md": "af2e998a1e194865cfa09e0b9c4443376c3e9358876a868cfd31d9ede533a741"
+  }
+}
