@@ -45,16 +45,40 @@ function card_price_context(frm) {
 					),
 					"red",
 				);
-				if (!frm.doc.price_exception && !frm.is_new()) {
+				// changing a saved draft's price is an exception-role decision with a reason (Owner 2026-10-20)
+				if (!frm.doc.price_exception && !frm.is_new() && ctx.can_except) {
 					frm.add_custom_button(__("Use company price"), () =>
-						frappe
-							.call({
-								method: `${CARD_FILL}.use_company_price`,
-								args: { name: frm.doc.name },
-							})
-							.then(() => frm.reload_doc()),
+						frappe.prompt(
+							{
+								fieldname: "reason",
+								fieldtype: "Small Text",
+								label: __("Reason"),
+								reqd: 1,
+							},
+							(values) =>
+								frappe
+									.call({
+										method: `${CARD_FILL}.use_company_price`,
+										args: { name: frm.doc.name, reason: values.reason },
+									})
+									.then(() => frm.reload_doc()),
+							__("Use company price"),
+						),
 					);
 				}
+			} else if (
+				!frm.is_new() &&
+				frm.doc.price_source === "Company Price" &&
+				flt(frm.doc.unit_price) !== flt(ctx.price)
+			) {
+				// a saved draft keeps its price; a later company price change is only shown
+				frm.set_intro(
+					__("This draft keeps its price {0}; the current company price is {1}.", [
+						format_currency(frm.doc.unit_price),
+						format_currency(ctx.price),
+					]),
+					"orange",
+				);
 			}
 		});
 }

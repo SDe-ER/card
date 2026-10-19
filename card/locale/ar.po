@@ -2834,8 +2834,17 @@ msgstr "هذه التعبئة عليها استثناء سعر؛ لا يغيّر
 msgid "The diesel price of this fill needs a decision before submit: use the company price, or ask {0} to approve an exception."
 msgstr "سعر الديزل في هذه التعبئة يحتاج قرارًا قبل الاعتماد: استخدم سعر الشركة، أو اطلب من {0} اعتماد استثناء."
 
-msgid "Diesel price updated from {0} to {1} (company price)."
-msgstr "تم تحديث سعر الديزل من {0} إلى {1} (سعر الشركة)."
+msgid "This draft keeps its price {0}; the current company price is {1}."
+msgstr "تحتفظ هذه المسودة بسعرها {0}؛ وسعر الشركة الحالي {1}."
+
+msgid "Only users with role {0} may change the price of a saved diesel fill."
+msgstr "تغيير سعر تعبئة ديزل محفوظة مسموح فقط لأصحاب الدور {0}."
+
+msgid "A reason is required to change the price of a saved diesel fill."
+msgstr "يجب كتابة سبب لتغيير سعر تعبئة ديزل محفوظة."
+
+msgid "Diesel price changed from {0} to the company price {1}. Reason: {2}"
+msgstr "تم تغيير سعر الديزل من {0} إلى سعر الشركة {1}. السبب: {2}"
 
 msgid "The diesel price cannot be negative."
 msgstr "سعر الديزل لا يمكن أن يكون سالبًا."

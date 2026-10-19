@@ -79,20 +79,45 @@ def get_diesel_price_context(company: str | None = None):
 
 
 @frappe.whitelist(methods=["POST"])
-def use_company_price(name: str):
-	"""Explicit choice on a draft marked Needs Review: replace its price with the company price."""
+def use_company_price(name: str, reason: str | None = None):
+	"""Explicit choice on a draft without an exception (the form offers it on Needs Review drafts):
+	replace its price with the current company price.
+	Owner 2026-10-20: changing a saved draft's price needs the exception role, a reason and an audit."""
 	doc = frappe.get_doc("Project Diesel Fill", name)
 	doc.check_permission("write")
 	if doc.docstatus != 0:
 		frappe.throw(_("Only a draft diesel fill can change its price."))
+	if not can_except_price():
+		frappe.throw(
+			_("Only users with role {0} may change the price of a saved diesel fill.").format(
+				setting("diesel_price_exception_role")
+			),
+			frappe.PermissionError,
+		)
 	if cint(doc.price_exception):
 		frappe.throw(
 			_("This fill has a price exception; only {0} can change it.").format(
 				setting("diesel_price_exception_role")
 			)
 		)
+	if not (reason or "").strip():
+		frappe.throw(_("A reason is required to change the price of a saved diesel fill."))
+	old_price = flt(doc.unit_price)
 	doc.flags.use_company_price = True
 	doc.save()
+	doc.add_comment(
+		"Info",
+		_("Diesel price changed from {0} to the company price {1}. Reason: {2}").format(
+			old_price, flt(doc.unit_price), reason.strip()
+		),
+	)
+	frappe.logger("card.diesel_price_exception").warning(
+		json.dumps(
+			{"user": frappe.session.user, "fill": doc.name, "from": old_price, "to": flt(doc.unit_price)},
+			ensure_ascii=False,
+			default=str,
+		)
+	)
 	return {"unit_price": doc.unit_price, "price_source": doc.price_source}
 
 
@@ -150,15 +175,25 @@ class ProjectDieselFill(Document):
 			return
 		if price != flt(before.unit_price, precision):
 			self._refuse_typed_price(company_price)
-		if before.price_source == COMPANY_PRICE and company_price > 0:
+		if before.price_source == COMPANY_PRICE:
+			# Owner 2026-10-20: a saved draft keeps the price it was created with; a later company price
+			# change only warns (new fills take the new price)
+			if self.company != before.company:
+				if price != company_price:
+					self._needs_review(company_price)  # its price belonged to the old company
+				else:
+					self.price_source = COMPANY_PRICE
+				return
+			self.price_source = COMPANY_PRICE
+			self.company_price = before.company_price
 			if price != company_price:
 				frappe.msgprint(
-					_("Diesel price updated from {0} to {1} (company price).").format(price, company_price),
+					_("This draft keeps its price {0}; the current company price is {1}.").format(
+						price, company_price
+					),
 					indicator="orange",
 					alert=True,
 				)
-			self.unit_price = company_price
-			self.price_source = COMPANY_PRICE
 			return
 		# a draft saved before the price lock, or still waiting for a decision: never repriced silently
 		if price > 0 and price == company_price:

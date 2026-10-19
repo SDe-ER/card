@@ -2,7 +2,8 @@
 # For license information, please see LICENSE
 """FR-002 diesel price lock (Owner 2026-10-19, Q1–Q4): the company price from Card Settings,
 exceptions only for the Settings role with a reason, zero price refused unless a role is named,
-old drafts never repriced silently, submitted fills never touched."""
+old drafts never repriced silently, submitted fills never touched. Owner 2026-10-20: a saved draft
+keeps its price when the company price changes; changing it needs the exception role and a reason."""
 
 import frappe
 from frappe.client import insert as rest_insert
@@ -285,15 +286,65 @@ class TestDieselPriceLock(IntegrationTestCase):
 		self.assertEqual(flt(frappe.db.get_value("Project Diesel Fill", f.name, "unit_price")), 2)
 		self.assertEqual(flt(frappe.db.get_value("Project Diesel Fill", f.name, "amount")), 200)
 
-	def test_company_price_draft_follows_price_with_message(self):
+	# Owner 2026-10-20: a saved draft is never repriced when the company price changes.
+
+	def test_company_price_draft_keeps_its_price_with_a_warning(self):
 		f = self._new()
 		set_diesel_price(self.company, 3)
 		f.reload()
 		frappe.clear_messages()
 		f.save()
-		self.assertEqual(flt(f.unit_price), 3)
+		self.assertEqual((flt(f.unit_price), f.price_source, flt(f.company_price)), (2, "Company Price", 2))
 		messages = [str(m.get("message") if isinstance(m, dict) else m) for m in frappe.get_message_log()]
 		self.assertTrue(any("3" in m for m in messages), messages)
+
+	def test_non_financial_edits_keep_the_draft_price(self):
+		f = self._as(self.card_user, self._new)
+		set_diesel_price(self.company, 3)
+		f = frappe.get_doc("Project Diesel Fill", f.name)
+		f.update({"litres": 150, "remarks": "edited " + self.token})
+		self._as(self.card_user, f.save)
+		f.reload()
+		self.assertEqual((flt(f.unit_price), flt(f.amount), f.price_source), (2, 300, "Company Price"))
+		f.submit()  # the draft is final at the price it was created with
+		self.assertEqual(flt(frappe.db.get_value("Project Diesel Fill", f.name, "unit_price")), 2)
+
+	def test_new_price_applies_to_new_fills_only(self):
+		old = self._new()
+		set_diesel_price(self.company, 3)
+		new = self._as(self.card_user, self._new)
+		self.assertEqual(flt(new.unit_price), 3)
+		self.assertEqual(flt(frappe.db.get_value("Project Diesel Fill", old.name, "unit_price")), 2)
+
+	def test_card_user_cannot_reprice_a_draft_even_via_rest(self):
+		f = self._as(self.card_user, self._new)
+		set_diesel_price(self.company, 3)
+		for change in ({"unit_price": 3}, {"price_source": "Exception", "company_price": 9}):
+			doc = frappe.get_doc("Project Diesel Fill", f.name).as_dict()
+			doc.update(change)
+			try:
+				self._as(self.card_user, rest_save, doc)
+			except frappe.ValidationError:
+				pass
+			row = frappe.db.get_value(
+				"Project Diesel Fill", f.name, ["unit_price", "price_source", "company_price"], as_dict=True
+			)
+			self.assertEqual(
+				(flt(row.unit_price), row.price_source, flt(row.company_price)), (2, "Company Price", 2)
+			)
+
+	def test_moving_a_draft_to_another_company_needs_a_decision(self):
+		comp = frappe.new_doc("Company")
+		comp.company_name = "TEST-DPL-CMOVE-" + self.token
+		comp.abbr = "DC" + self.token[:3]
+		comp.default_currency = "SAR"
+		comp.country = "Saudi Arabia"
+		other = comp.insert(ignore_permissions=True).name
+		set_diesel_price(other, 5)
+		f = frappe.get_doc("Project Diesel Fill", self._new().name)
+		f.company = other
+		f.save()
+		self.assertEqual((flt(f.unit_price), f.price_source), (2, "Needs Review"))
 
 	def test_old_draft_keeps_its_price_and_needs_a_decision(self):
 		f = self._legacy_draft(2.1)
@@ -308,9 +359,28 @@ class TestDieselPriceLock(IntegrationTestCase):
 		f.unit_price = 2  # a Card User cannot just type the company price either
 		with self.assertRaises(frappe.ValidationError):
 			self._as(self.card_user, f.save)
-		self._as(self.card_user, use_company_price, f.name)  # explicit choice
+		with self.assertRaises(frappe.PermissionError):  # an explicit price change is not a Card User's
+			self._as(self.card_user, use_company_price, f.name, "typo")
+		with self.assertRaises(frappe.ValidationError):  # the exception role must give a reason
+			self._as(self.accountant, use_company_price, f.name, " ")
+		self._as(self.accountant, use_company_price, f.name, "price agreed with the supplier")
 		f.reload()
 		self.assertEqual((flt(f.unit_price), f.price_source), (2, "Company Price"))
+		comments = frappe.get_all(
+			"Comment",
+			filters={
+				"reference_doctype": "Project Diesel Fill",
+				"reference_name": f.name,
+				"comment_type": "Info",
+			},
+			fields=["owner", "content"],
+		)
+		self.assertTrue(
+			any(
+				c.owner == self.accountant and "price agreed with the supplier" in c.content for c in comments
+			),
+			comments,
+		)
 		f.submit()
 		self.assertEqual(f.docstatus, 1)
 
@@ -333,8 +403,10 @@ class TestDieselPriceLock(IntegrationTestCase):
 			self._as(self.accounts_only, use_company_price, f.name)
 		f.update({"price_exception": 1, "exception_reason": "agreed"})
 		self._as(self.accountant, f.save)
-		with self.assertRaises(frappe.ValidationError):
-			self._as(self.card_user, use_company_price, f.name)
+		with self.assertRaises(frappe.PermissionError):
+			self._as(self.card_user, use_company_price, f.name, "reason")
+		with self.assertRaises(frappe.ValidationError):  # an exception is changed on the form, not here
+			self._as(self.accountant, use_company_price, f.name, "reason")
 
 	def test_amended_copy_keeps_original_price_until_decided(self):
 		f = self._new()
