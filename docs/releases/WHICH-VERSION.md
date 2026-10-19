@@ -7,7 +7,7 @@ need; every claim below is backed by the per-version pages (evidence links there
 
 | Your situation | Use | Why |
 |---|---|---|
-| Site on v3.0.0 that wants operators to request machine parts/tools and management to approve them into ERPNext Material Requests (once v4.0.0 is tagged) | **v4.0.0** | Equipment needs, supervisor review, approval into draft Material Requests, tool custody; everything from v3.0.0. Needs companion ERPNext roles for approvers/supervisors |
+| Site on v3.0.0 that wants operators to request machine parts/tools and management to approve them into ERPNext Material Requests | **v4.0.0** | Equipment needs, supervisor review, approval into draft Material Requests, tool custody; everything from v3.0.0. Needs companion ERPNext roles for approvers/supervisors |
 | New install on frappe **16.51+**, equipment moves recorded as transports | **v3.0.0** | Launcher, transport-driven cards, Asset-linked equipment; everything from v1.2.2 |
 | New install, Frappe/ERPNext **v16.5x**, transports not recorded | **v1.2.2** | v3.0.0 refuses a monthly card without an approved transport for the month |
 | **Multi-company** site (any) | **v1.2.2 or v3.0.0** | v1.2.0/v1.2.1 registries expose party-wide totals across companies (#23, fixed in v1.2.2) |
