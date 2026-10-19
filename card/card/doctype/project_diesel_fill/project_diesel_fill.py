@@ -10,6 +10,25 @@ from card.company import single_company, validate_equipment_company
 from card.settings import setting
 
 
+def can_change_diesel_supplier():
+	"""The F.1 rules of ProjectDieselFill._enforce_diesel_supplier, for the form: no Settings
+	supplier → free; ثابت → nobody; متغير → Administrator or the editor role."""
+	if not setting("diesel_supplier"):
+		return True
+	if (setting("diesel_supplier_policy") or "متغير") == "ثابت":
+		return False
+	role = setting("diesel_supplier_editor_role") or "Card Manager"
+	return frappe.session.user == "Administrator" or role in frappe.get_roles()
+
+
+@frappe.whitelist(methods=["GET"])
+def get_supplier_editable():
+	"""Whether the fill form lets the current user change the diesel supplier (read only).
+	Fill users cannot read Card Settings, so only this yes/no leaves the server."""
+	frappe.has_permission("Project Diesel Fill", "read", throw=True)
+	return can_change_diesel_supplier()
+
+
 class ProjectDieselFill(Document):
 	def validate(self):
 		if not self.company:

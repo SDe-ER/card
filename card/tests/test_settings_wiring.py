@@ -474,6 +474,51 @@ class TestDieselSupplierPolicy(IntegrationTestCase):
 		f.reload()
 		self.assertEqual(f.supplier, self.other_supplier)
 
+	# ---------- the fill form (Card User cannot read Card Settings) ----------
+
+	def _editable_as(self, *roles):
+		from card.card.doctype.project_diesel_fill.project_diesel_fill import get_supplier_editable
+
+		user = _role_user(*roles)
+		try:
+			frappe.set_user(user)
+			return get_supplier_editable()
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_form_answers_card_user_without_settings_access(self):
+		# the v11-dev PermissionError: a Card User opening a draft fill
+		self.assertFalse(frappe.has_permission("Card Settings", "read", user=_role_user("Card User")))
+		self.assertIs(self._editable_as("Card User"), False)
+
+	def test_form_allows_the_editor_role(self):
+		_set("diesel_supplier_editor_role", "Card Manager")
+		self.assertIs(self._editable_as("Card User", "Card Manager"), True)
+		self.assertIs(self._editable_as("Card User"), False)
+
+	def test_form_locks_everyone_under_fixed_policy(self):
+		_set("diesel_supplier_policy", "ثابت")
+		self.assertIs(self._editable_as("Card User", "Card Manager"), False)
+
+	def test_form_free_without_settings_supplier(self):
+		_set("diesel_supplier", "")
+		self.assertIs(self._editable_as("Card User"), True)
+
+	def test_form_refuses_user_without_fill_access(self):
+		with self.assertRaises(frappe.PermissionError):
+			self._editable_as("Website Manager")
+
+	def test_card_settings_stay_closed_to_card_user(self):
+		from frappe.client import get_single_value
+
+		user = _role_user("Card User")
+		try:
+			frappe.set_user(user)
+			with self.assertRaises(frappe.PermissionError):
+				get_single_value("Card Settings", "diesel_supplier_editor_role")
+		finally:
+			frappe.set_user("Administrator")
+
 
 class TestTransportPricePolicy(IntegrationTestCase):
 	"""F.1: the per-project transport price table defaults the amount; overriding

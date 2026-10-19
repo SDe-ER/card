@@ -3,6 +3,7 @@
 // F.1/F.3: company auto-fills from the user's default; the diesel supplier is
 // read-only under the Fixed policy, and under Variable for users without the
 // permitted role (the server enforces both — this only mirrors it in the form).
+// Fill users cannot read Card Settings: the server answers yes/no for the supplier.
 frappe.ui.form.on("Project Diesel Fill", {
 	onload(frm) {
 		if (frm.is_new() && !frm.doc.company) {
@@ -17,20 +18,11 @@ frappe.ui.form.on("Project Diesel Fill", {
 	},
 	refresh(frm) {
 		if (frm.doc.docstatus !== 0) return;
-		frappe.db.get_single_value("Card Settings", "diesel_supplier_policy").then((policy) => {
-			if (policy === "ثابت") {
-				frm.set_df_property("supplier", "read_only", 1);
-				return;
-			}
-			frappe.db
-				.get_single_value("Card Settings", "diesel_supplier_editor_role")
-				.then((role) => {
-					const allowed =
-						!role ||
-						frappe.session.user === "Administrator" ||
-						frappe.user_roles.includes(role);
-					frm.set_df_property("supplier", "read_only", allowed ? 0 : 1);
-				});
-		});
+		frappe
+			.call({
+				method: "card.card.doctype.project_diesel_fill.project_diesel_fill.get_supplier_editable",
+				type: "GET",
+			})
+			.then((r) => frm.set_df_property("supplier", "read_only", r && r.message ? 0 : 1));
 	},
 });
