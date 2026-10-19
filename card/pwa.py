@@ -27,7 +27,8 @@ class ServiceWorkerRenderer(BaseRenderer):
 		return self.path == ENDPOINT and os.path.isfile(self.file_path())
 
 	def render(self):
-		with open(self.file_path(), "rb") as f:
+		# a fixed file inside the app; no request input reaches the path
+		with open(self.file_path(), "rb") as f:  # nosemgrep
 			response = Response(f.read(), mimetype="application/javascript")
 		# the browser re-checks the worker on every load, so a new build is picked up
 		response.headers["Cache-Control"] = "no-cache"

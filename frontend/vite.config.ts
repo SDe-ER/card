@@ -8,7 +8,15 @@ import { VitePWA } from 'vite-plugin-pwa'
 // proxies the bench in development and builds into card/public/frontend and card/www/cdms.html.
 export default defineConfig({
   plugins: [
-    frappeui({ frontendRoute: '/cdms' }),
+    frappeui({
+      frontendRoute: '/cdms',
+      // explicit, so the build also works outside a bench (CI)
+      buildConfig: {
+        outDir: '../card/public/frontend',
+        indexHtmlPath: '../card/www/cdms.html',
+        baseUrl: '/assets/card/frontend/',
+      },
+    }),
     vue(),
     // injectManifest with public/sw.js; main.ts registers it at /cdms/sw.js (card/pwa.py).
     VitePWA({

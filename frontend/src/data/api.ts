@@ -13,8 +13,14 @@ export class ApiError extends Error {
 export function serverMessage(body: Record<string, unknown> | null): string {
   try {
     const list = JSON.parse(String(body?._server_messages ?? '[]')) as string[]
-    const text = list.map((m) => JSON.parse(m).message as string).join('\n')
-    return text.replace(/<[^>]*>/g, '')
+    let text = list.map((m) => JSON.parse(m).message as string).join('\n')
+    // shown as plain text (Vue escapes it); drop Frappe's markup, repeated until nothing is left
+    let previous
+    do {
+      previous = text
+      text = text.replace(/<[^>]*>/g, '')
+    } while (text !== previous)
+    return text
   } catch {
     return ''
   }
