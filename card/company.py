@@ -19,6 +19,15 @@ def single_company():
 	return frappe.db.get_value("Company", {}, "name", order_by="creation asc")
 
 
+def only_visible_company():
+	"""The company a new CARD form fills in when the user may list exactly one; else
+	None. Unlike single_company it never picks one of several: the field stays editable."""
+	if not frappe.has_permission("Company", "read"):
+		return None
+	companies = frappe.get_list("Company", pluck="name", limit=2)
+	return companies[0] if len(companies) == 1 else None
+
+
 def validate_equipment_company(doc, equipment_fieldname="equipment"):
 	"""The document's company must match its equipment's company."""
 	equipment = doc.get(equipment_fieldname)

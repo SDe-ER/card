@@ -1056,7 +1056,7 @@ msgstr ""
 #. Description of the 'Amount' (Currency) field in DocType 'Equipment
 #. Transport'
 #: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Single amount for the move (reflects the distance)."
+msgid "Total cost of the trip (reflects the distance); split over the equipment below."
 msgstr ""
 
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:20
@@ -1476,3 +1476,253 @@ msgstr ""
 msgid "نهاري"
 msgstr ""
 
+
+#: card/dock/card/card.json
+msgid "Card Dashboard"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Fleet"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Movement"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Operating Units"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Operation Cards"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Expenses"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Parties"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Reports"
+msgstr ""
+
+#: card/dock/card/card.json
+msgid "Card Setup"
+msgstr ""
+
+msgid "Equipment Transport Item"
+msgstr ""
+
+msgid "Cost share"
+msgstr ""
+
+msgid "Share of the transport cost. Left empty, the cost is split equally."
+msgstr ""
+
+msgid "The equipment or units moved in this trip (optional). The transport cost is split equally; a share can be edited as long as the shares add up to the transport cost."
+msgstr ""
+
+msgid "Equipment {0} is listed twice in this transport."
+msgstr ""
+
+msgid "The equipment cost shares add up to {0}, but the transport cost is {1}."
+msgstr ""
+
+msgid "A cost share cannot be negative ({0})."
+msgstr ""
+
+msgid "Cannot cancel: a later transfer exists for equipment {0}. Cancel it first."
+msgstr ""
+
+msgid "Cannot cancel: operation days are recorded for equipment {0} on project {1} after the transfer date."
+msgstr ""
+
+msgid "Change reason"
+msgstr ""
+
+msgid "First day in the unit. Empty: since the unit was formed."
+msgstr ""
+
+msgid "Last day in the unit. Empty: still in the unit."
+msgstr ""
+
+msgid "Component {0}: the To date is before the From date."
+msgstr ""
+
+msgid "Replace component"
+msgstr ""
+
+msgid "Move to another unit"
+msgstr ""
+
+msgid "New component"
+msgstr ""
+
+msgid "Choose another unit."
+msgstr ""
+
+msgid "{0} is not a unit."
+msgstr ""
+
+msgid "{0} is not currently a component of {1}."
+msgstr ""
+
+msgid "The change date must be after {0}."
+msgstr ""
+
+msgid "Approved card {0} covers {1} or later; a unit change cannot apply to an approved period."
+msgstr ""
+
+msgid "{0} is not on project {1} on {2}. Move it there with an Equipment Transport first."
+msgstr ""
+
+msgid "First equipment of the trip, kept for links and older documents. Set from the equipment table."
+msgstr ""
+
+msgid "You are not permitted to change the components of {0}."
+msgstr ""
+
+msgid "Equipment ownership"
+msgstr ""
+
+msgid "Filters the equipment list below; not stored on the equipment."
+msgstr ""
+
+msgid "Equipment supplier"
+msgstr ""
+
+msgid "Shows only this supplier's equipment, including equipment registered long ago."
+msgstr ""
+
+msgid "Transport cost borne by"
+msgstr ""
+
+msgid "Equipment Supplier"
+msgstr ""
+
+msgid "Company: billed by the transport supplier. Equipment Supplier: no cost for us. Customer: recorded for follow-up, not invoiced yet."
+msgstr ""
+
+msgid "From project"
+msgstr ""
+
+msgid "First entry"
+msgstr ""
+
+msgid "Destination"
+msgstr ""
+
+msgid "Where the equipment goes. Workshop and Storage end its project assignment; Supplier returns rented equipment."
+msgstr ""
+
+msgid "Destination place"
+msgstr ""
+
+msgid "Workshop"
+msgstr ""
+
+msgid "Storage"
+msgstr ""
+
+msgid "Current place"
+msgstr ""
+
+msgid "Read from the last approved move. Unknown: no opening place recorded yet."
+msgstr ""
+
+msgid "From place"
+msgstr ""
+
+msgid "To workshop"
+msgstr ""
+
+msgid "To storage"
+msgstr ""
+
+msgid "Return to supplier"
+msgstr ""
+
+msgid "Equipment {0} is already there."
+msgstr ""
+
+msgid "Equipment {0} is owned; only rented equipment returns to a supplier."
+msgstr ""
+
+msgid "These machines come from different projects ({0}); record one transport per project."
+msgstr ""
+
+msgid "Card Location Cost Center"
+msgstr ""
+
+msgid "Place"
+msgstr ""
+
+msgid "A workshop or storage place used as a transport destination."
+msgstr ""
+
+msgid "Cost center per workshop / storage place"
+msgstr ""
+
+msgid "A move to a workshop or storage place is charged to that place's cost center (Owner 2026-10-19)."
+msgstr ""
+
+msgid "Set from where the equipment goes: the destination project's cost center, or the workshop/storage place's cost center in Card Settings. A return to the supplier stays on the project left."
+msgstr ""
+
+msgid "Set the cost center of {0} for company {1} in Card Settings (Transport) before charging a move there."
+msgstr ""
+
+msgid "Where the equipment is now, read from its last approved move. Never typed."
+msgstr ""
+
+msgid "To project"
+msgstr ""
+
+msgid "To place"
+msgstr ""
+
+msgid "From (old text)"
+msgstr ""
+
+msgid "To (old text)"
+msgstr ""
+
+msgid "A project registered in ERPNext. For a return to the supplier, it is filled from the project the equipment leaves."
+msgstr ""
+
+msgid "Equipment {0} is already on project {1}."
+msgstr ""
+
+msgid "No transport"
+msgstr ""
+
+msgid "Equipment {0} has no approved transport to a project in {1}/{2}. Record an Equipment Transport first."
+msgstr ""
+
+msgid "In {0}/{1} equipment {2} was on {3}, not on project {4}."
+msgstr ""
+
+msgid "In {0}/{1} equipment {2} moved between {3}. Choose the project: one card per project."
+msgstr ""
+
+msgid "Operator provided by"
+msgstr ""
+
+
+msgid "Expired documents: {0}"
+msgstr ""
+
+msgid "Documents expiring within 30 days: {0}"
+msgstr ""
+
+msgid "Asset category"
+msgstr ""
+
+msgid "Type from asset"
+msgstr ""
+
+msgid "Asset category {0} is already used by equipment type {1}."
+msgstr ""

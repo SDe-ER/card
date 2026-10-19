@@ -827,8 +827,8 @@ msgstr "تحذير تخطي الدوام"
 #. Description of the 'Amount' (Currency) field in DocType 'Equipment
 #. Transport'
 #: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Single amount for the move (reflects the distance)."
-msgstr ""
+msgid "Total cost of the trip (reflects the distance); split over the equipment below."
+msgstr "إجمالي تكلفة الرحلة (حسب المسافة)، وبتتوزع على المعدات اللي تحت."
 
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.js:20
 msgid "Statement"
@@ -2142,3 +2142,251 @@ msgstr "المزامنة اليومية لموقع المعدات في CARD"
 
 msgid "The location of these equipment could not be synced: {0}"
 msgstr "تعذّرت مزامنة موقع هذه المعدات: {0}"
+
+# v3.0.0 launcher: Dock rows / Sidebar shells (card/dock, card/card/sidebar)
+msgid "Card Dashboard"
+msgstr "لوحة القيادة"
+
+msgid "Card Fleet"
+msgstr "المعدات"
+
+msgid "Card Movement"
+msgstr "الحركة والنقل"
+
+msgid "Card Operating Units"
+msgstr "الوحدات التشغيلية"
+
+msgid "Card Operation Cards"
+msgstr "كروت التشغيل"
+
+msgid "Card Expenses"
+msgstr "المصروفات"
+
+msgid "Card Parties"
+msgstr "الموردون والعملاء"
+
+msgid "Card Reports"
+msgstr "التقارير"
+
+msgid "Card Setup"
+msgstr "الإعدادات"
+
+# v3.0.0: multi-equipment transport + dated unit components
+msgid "Equipment Transport Item"
+msgstr "معدة رحلة النقل"
+
+msgid "Cost share"
+msgstr "حصة التكلفة"
+
+msgid "Share of the transport cost. Left empty, the cost is split equally."
+msgstr "حصة المعدة من تكلفة النقل. لو سبتها فاضية، التكلفة بتتقسم بالتساوي."
+
+msgid "The equipment or units moved in this trip (optional). The transport cost is split equally; a share can be edited as long as the shares add up to the transport cost."
+msgstr "المعدات أو الوحدات المنقولة في الرحلة دي (اختياري). تكلفة النقل بتتقسم بالتساوي، وتقدر تعدل أي حصة بشرط إن مجموع الحصص يساوي تكلفة النقل."
+
+msgid "Equipment {0} is listed twice in this transport."
+msgstr "المعدة {0} مكررة في رحلة النقل دي."
+
+msgid "The equipment cost shares add up to {0}, but the transport cost is {1}."
+msgstr "مجموع حصص المعدات {0}، لكن تكلفة النقل {1}."
+
+msgid "A cost share cannot be negative ({0})."
+msgstr "حصة التكلفة مينفعش تكون بالسالب ({0})."
+
+msgid "Cannot cancel: a later transfer exists for equipment {0}. Cancel it first."
+msgstr "مينفعش الإلغاء: فيه نقل أحدث للمعدة {0}. ألغيه الأول."
+
+msgid "Cannot cancel: operation days are recorded for equipment {0} on project {1} after the transfer date."
+msgstr "مينفعش الإلغاء: فيه أيام تشغيل متسجلة للمعدة {0} على المشروع {1} بعد تاريخ النقل."
+
+msgid "Change reason"
+msgstr "سبب التغيير"
+
+msgid "First day in the unit. Empty: since the unit was formed."
+msgstr "أول يوم في الوحدة. لو فاضي: من وقت تكوين الوحدة."
+
+msgid "Last day in the unit. Empty: still in the unit."
+msgstr "آخر يوم في الوحدة. لو فاضي: لسه في الوحدة."
+
+msgid "Component {0}: the To date is before the From date."
+msgstr "المكوّن {0}: تاريخ «إلى» قبل تاريخ «من»."
+
+msgid "Replace component"
+msgstr "استبدال مكوّن"
+
+msgid "Move to another unit"
+msgstr "نقل لوحدة تانية"
+
+msgid "New component"
+msgstr "المكوّن الجديد"
+
+msgid "Choose another unit."
+msgstr "اختار وحدة تانية."
+
+msgid "{0} is not a unit."
+msgstr "{0} مش وحدة."
+
+msgid "{0} is not currently a component of {1}."
+msgstr "{0} مش مكوّن حالي في {1}."
+
+msgid "The change date must be after {0}."
+msgstr "تاريخ التغيير لازم يكون بعد {0}."
+
+msgid "Approved card {0} covers {1} or later; a unit change cannot apply to an approved period."
+msgstr "الكارت المعتمد {0} بيغطي {1} أو بعده، ومينفعش تغيير الوحدة يطبق على فترة معتمدة."
+
+msgid "{0} is not on project {1} on {2}. Move it there with an Equipment Transport first."
+msgstr "{0} مش موجودة على المشروع {1} يوم {2}. انقلها هناك بمستند نقل معدات الأول."
+
+msgid "First equipment of the trip, kept for links and older documents. Set from the equipment table."
+msgstr "أول معدة في الرحلة، محفوظة عشان الروابط والمستندات القديمة. بتتحدد من جدول المعدات."
+
+msgid "You are not permitted to change the components of {0}."
+msgstr "مش مسموح لك تغيّر مكونات {0}."
+
+# v3.0.0: simplified transport (ownership, supplier, exit, cost bearer)
+msgid "Equipment ownership"
+msgstr "ملكية المعدة"
+
+msgid "Filters the equipment list below; not stored on the equipment."
+msgstr "بيفلتر قايمة المعدات اللي تحت، ومش بيتسجل على المعدة."
+
+msgid "Equipment supplier"
+msgstr "مورد المعدة"
+
+msgid "Shows only this supplier's equipment, including equipment registered long ago."
+msgstr "بيعرض معدات المورد ده بس، حتى المعدات المسجلة من زمان."
+
+msgid "Transport cost borne by"
+msgstr "تكلفة النقل على"
+
+msgid "Equipment Supplier"
+msgstr "مورد المعدة"
+
+msgid "Company: billed by the transport supplier. Equipment Supplier: no cost for us. Customer: recorded for follow-up, not invoiced yet."
+msgstr "المؤسسة: مورد النقل بيفوترها لنا. مورد المعدة: مفيش تكلفة علينا. العميل: بتتسجل للمتابعة ومن غير فاتورة دلوقتي."
+
+msgid "From project"
+msgstr "من مشروع"
+
+msgid "First entry"
+msgstr "أول دخول"
+
+# v3.0.0: transport destinations (project, workshop, storage, supplier)
+msgid "Destination"
+msgstr "الوجهة"
+
+msgid "Where the equipment goes. Workshop and Storage end its project assignment; Supplier returns rented equipment."
+msgstr "المعدة رايحة فين. الورشة والمستودع بينهوا تخصيصها على المشروع، والمورد يعني رجوع معدة إيجار لصاحبها."
+
+msgid "Destination place"
+msgstr "مكان الوجهة"
+
+msgid "Workshop"
+msgstr "ورشة صيانة"
+
+msgid "Storage"
+msgstr "مستودع"
+
+msgid "Current place"
+msgstr "مكانها الحالي"
+
+msgid "Read from the last approved move. Unknown: no opening place recorded yet."
+msgstr "بيتجاب من آخر حركة معتمدة. «غير معروف» يعني لسه متسجلش لها مكان افتتاحي."
+
+msgid "From place"
+msgstr "من مكان"
+
+msgid "To workshop"
+msgstr "للورشة"
+
+msgid "To storage"
+msgstr "للمستودع"
+
+msgid "Return to supplier"
+msgstr "رجوع للمورد"
+
+msgid "Equipment {0} is already there."
+msgstr "المعدة {0} موجودة هناك بالفعل."
+
+msgid "Equipment {0} is owned; only rented equipment returns to a supplier."
+msgstr "المعدة {0} ملك، والرجوع للمورد للمعدات الإيجار بس."
+
+msgid "These machines come from different projects ({0}); record one transport per project."
+msgstr "المعدات دي جاية من مشاريع مختلفة ({0})، سجّل نقل لكل مشروع لوحده."
+
+# v3.0.0: transport cost follows the destination
+msgid "Card Location Cost Center"
+msgstr "مركز تكلفة المكان"
+
+msgid "Place"
+msgstr "المكان"
+
+msgid "A workshop or storage place used as a transport destination."
+msgstr "ورشة أو مستودع بيتنقل لهم المعدات."
+
+msgid "Cost center per workshop / storage place"
+msgstr "مركز التكلفة لكل ورشة / مستودع"
+
+msgid "A move to a workshop or storage place is charged to that place's cost center (Owner 2026-10-19)."
+msgstr "نقل المعدة لورشة أو مستودع بيتحمل على مركز تكلفة المكان ده."
+
+msgid "Set from where the equipment goes: the destination project's cost center, or the workshop/storage place's cost center in Card Settings. A return to the supplier stays on the project left."
+msgstr "بيتحدد من المكان اللي المعدة رايحة له: مركز تكلفة المشروع الجديد، أو مركز تكلفة الورشة/المستودع من إعدادات CARD. الرجوع للمورد بيفضل على المشروع اللي خرجت منه."
+
+msgid "Set the cost center of {0} for company {1} in Card Settings (Transport) before charging a move there."
+msgstr "حدد مركز تكلفة {0} للشركة {1} في إعدادات CARD (النقل) قبل ما تحمّل نقل عليه."
+
+# v3.0.0: From is automatic, To is an ERPNext project or place
+msgid "Where the equipment is now, read from its last approved move. Never typed."
+msgstr "مكان المعدة الحالي، من آخر حركة معتمدة. مبيتكتبش بالإيد."
+
+msgid "To project"
+msgstr "إلى مشروع"
+
+msgid "To place"
+msgstr "إلى مكان"
+
+msgid "From (old text)"
+msgstr "من (نص قديم)"
+
+msgid "To (old text)"
+msgstr "إلى (نص قديم)"
+
+msgid "A project registered in ERPNext. For a return to the supplier, it is filled from the project the equipment leaves."
+msgstr "مشروع مسجل على ERPNext. في الرجوع للمورد، بيتملى من المشروع اللي المعدة خرجت منه."
+
+msgid "Equipment {0} is already on project {1}."
+msgstr "المعدة {0} موجودة بالفعل على المشروع {1}."
+
+# v3.0.0: monthly card follows the approved transports
+msgid "No transport"
+msgstr "مفيش نقل"
+
+msgid "Equipment {0} has no approved transport to a project in {1}/{2}. Record an Equipment Transport first."
+msgstr "المعدة {0} ملهاش نقل معتمد لمشروع في {1}/{2}. سجّل نقل المعدة الأول."
+
+msgid "In {0}/{1} equipment {2} was on {3}, not on project {4}."
+msgstr "في {0}/{1} المعدة {2} كانت على {3}، مش على المشروع {4}."
+
+msgid "In {0}/{1} equipment {2} moved between {3}. Choose the project: one card per project."
+msgstr "في {0}/{1} المعدة {2} اتنقلت بين {3}. اختار المشروع: كارت لكل مشروع."
+
+msgid "Operator provided by"
+msgstr "المشغّل على"
+
+
+msgid "Expired documents: {0}"
+msgstr "وثائق منتهية: {0}"
+
+msgid "Documents expiring within 30 days: {0}"
+msgstr "وثائق هتنتهي خلال 30 يوم: {0}"
+
+msgid "Asset category"
+msgstr "فئة الأصل"
+
+msgid "Type from asset"
+msgstr "النوع من الأصل"
+
+msgid "Asset category {0} is already used by equipment type {1}."
+msgstr "فئة الأصل {0} مربوطة بالفعل بنوع المعدة {1}."

@@ -740,7 +740,10 @@ class TestG2Location(_G2Base):
 	def test_defer_flag_is_restored_after_an_error(self):
 		eq = self._owned()
 		frappe.flags.card_defer_location_sync = None
-		tr = frappe._dict(equipment=eq.name, project="TEST-G2-NO-SUCH-PROJECT", date=self._days_from(-1))
+		# v3.0.0: a transport moves the rows of its equipment table
+		row = frappe._dict(card_equipment=eq.name, idx=1)
+		row.db_set = lambda *a, **k: None
+		tr = frappe._dict(project="TEST-G2-NO-SUCH-PROJECT", date=self._days_from(-1), items=[row])
 		tr.db_set = lambda *a, **k: None
 		with self.assertRaises(Exception):
 			transfer.apply_transfer(tr)

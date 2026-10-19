@@ -13,6 +13,7 @@
   "company",
   "ownership",
   "rental_direction",
+  "الأصل_في_erpnext",
   "commercial_change_reason",
   "brand",
   "model",
@@ -23,12 +24,29 @@
   "equipment_category",
   "equipment_name",
   "equipment_type",
+  "equipment_type_from_asset",
   "image",
   "status",
   "is_unit",
   "is_unit_component",
   "unit_section",
   "components",
+  "documents_tab",
+  "documents_section",
+  "registration_no",
+  "registration_expiry",
+  "registration_file",
+  "inspection_expiry",
+  "inspection_file",
+  "column_break_qqic",
+  "insurance_company",
+  "insurance_policy_no",
+  "insurance_expiry",
+  "insurance_file",
+  "column_break_rgdb",
+  "tuv_no",
+  "tuv_expiry",
+  "tuv_file",
   "operation_tab",
   "assignment_section",
   "current_project",
@@ -62,7 +80,6 @@
   "customer_rate_type",
   "customer_rate",
   "owned_section",
-  "الأصل_في_erpnext",
   "asset_item",
   "asset_location",
   "asset_cost_center",
@@ -84,22 +101,6 @@
   "column_break_bitf",
   "service_interval_liters",
   "last_service_meter",
-  "documents_tab",
-  "documents_section",
-  "registration_no",
-  "registration_expiry",
-  "registration_file",
-  "inspection_expiry",
-  "inspection_file",
-  "column_break_qqic",
-  "insurance_company",
-  "insurance_policy_no",
-  "insurance_expiry",
-  "insurance_file",
-  "column_break_rgdb",
-  "tuv_no",
-  "tuv_expiry",
-  "tuv_file",
   "exit_tab",
   "exit_section",
   "exit_date",
@@ -143,27 +144,37 @@
   {
    "fieldname": "brand",
    "fieldtype": "Data",
-   "label": "Brand"
+   "label": "Brand",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.brand"
   },
   {
    "fieldname": "model",
    "fieldtype": "Data",
-   "label": "Model"
+   "label": "Model",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.model"
   },
   {
    "fieldname": "manufacture_year",
    "fieldtype": "Int",
-   "label": "Manufacture year"
+   "label": "Manufacture year",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.manufacture_year"
   },
   {
    "fieldname": "serial_no",
    "fieldtype": "Data",
-   "label": "Chassis number"
+   "label": "Chassis number",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.serial_no"
   },
   {
    "fieldname": "plate_no",
    "fieldtype": "Data",
-   "label": "Plate number"
+   "label": "Plate number",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.plate_no"
   },
   {
    "fieldname": "column_break_hadg",
@@ -182,7 +193,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Equipment name",
-   "reqd": 1
+   "reqd": 1,
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]"
   },
   {
    "fieldname": "equipment_type",
@@ -190,7 +202,8 @@
    "in_list_view": 1,
    "label": "Equipment type",
    "options": "Card Equipment Type",
-   "reqd": 1
+   "reqd": 1,
+   "read_only_depends_on": "eval:doc.equipment_type_from_asset"
   },
   {
    "fieldname": "image",
@@ -400,7 +413,8 @@
    "fieldtype": "Link",
    "label": "Asset in ERPNext",
    "options": "Asset",
-   "permlevel": 1
+   "permlevel": 1,
+   "depends_on": "eval:['ملك','طرف ثالث'].includes(doc.ownership)"
   },
   {
    "fetch_from": "الأصل_في_erpnext.item_code",
@@ -646,7 +660,6 @@
   },
   {
    "default": "0",
-   "description": "A physical piece that belongs to an operating unit; it gets no monthly operation card (the unit does).",
    "fieldname": "is_unit_component",
    "fieldtype": "Check",
    "label": "Unit component (no monthly card)",
@@ -688,7 +701,6 @@
   },
   {
    "depends_on": "eval:!doc.__islocal",
-   "description": "Required when a commercial term (rate, rate type, daily hours, direction, parties, contract, fuel) changes; kept in the document history.",
    "fieldname": "commercial_change_reason",
    "fieldtype": "Small Text",
    "label": "Reason for commercial change",
@@ -719,6 +731,14 @@
   {
    "fieldname": "customer_section_col",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "equipment_type_from_asset",
+   "fieldtype": "Check",
+   "label": "Type from asset",
+   "hidden": 1,
+   "read_only": 1,
+   "default": "0"
   }
  ],
  "grid_page_length": 50,
@@ -736,7 +756,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-10-17 12:00:00.000000",
+ "modified": "2026-10-19 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

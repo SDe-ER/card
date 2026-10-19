@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "creation": "2026-10-18 23:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "card_equipment",
+  "equipment_name",
+  "movement",
+  "from_type",
+  "from_project",
+  "from_location",
+  "amount",
+  "manual_share",
+  "previous_assignment",
+  "created_assignment"
+ ],
+ "fields": [
+  {
+   "fieldname": "card_equipment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "card_equipment.equipment_name",
+   "fieldname": "equipment_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Equipment name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cost share"
+  },
+  {
+   "default": "0",
+   "fieldname": "manual_share",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Manual share"
+  },
+  {
+   "fieldname": "previous_assignment",
+   "fieldtype": "Link",
+   "label": "Previous assignment",
+   "no_copy": 1,
+   "options": "Card Equipment Assignment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_assignment",
+   "fieldtype": "Link",
+   "label": "Created assignment",
+   "no_copy": 1,
+   "options": "Card Equipment Assignment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "movement",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Movement",
+   "no_copy": 1,
+   "options": "\nFirst entry\nTransfer\nTo workshop\nTo storage\nReturn to supplier",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.from_type == \"Project\"",
+   "fieldname": "from_project",
+   "fieldtype": "Link",
+   "label": "From project",
+   "no_copy": 1,
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "from_type",
+   "fieldtype": "Select",
+   "label": "Current place",
+   "no_copy": 1,
+   "options": "\nProject\nWorkshop\nStorage\nSupplier",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:[\"Workshop\", \"Storage\"].includes(doc.from_type)",
+   "fieldname": "from_location",
+   "fieldtype": "Link",
+   "label": "From place",
+   "no_copy": 1,
+   "options": "Location",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-19 04:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Equipment Transport Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

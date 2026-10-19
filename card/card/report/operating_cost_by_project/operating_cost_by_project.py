@@ -23,6 +23,9 @@ def get_columns():
 def get_project_totals(doctype, filters):
 	"""Return {project: sum of amount} for SUBMITTED docs of `doctype` matching the report filters."""
 	doc_filters = [["docstatus", "=", 1]]
+	if doctype == "Equipment Transport":
+		# v3.0.0: only moves the company pays are its operating cost (Owner 2026-10-19)
+		doc_filters.append(["cost_borne_by", "in", ["Company", "", None]])
 	if filters.get("company"):
 		doc_filters.append(["company", "=", filters.get("company")])
 	if filters.get("from_date"):

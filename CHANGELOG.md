@@ -15,26 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Fixed
-- **Unit component integrity on concurrent and direct-row writes** (#59): changing a
-  component through the raw child-row endpoint (`PUT /api/resource/Card Equipment
-  Component/<row>`, `frappe.client.save`) is refused with a pointer to edit the unit itself,
-  whose save is serialized and recorded in its Version history (direct row updates left no
-  Version entry); validation now takes locking reads (`for_update`) on the component's
-  equipment row and on the membership rows, so two saves claiming the same component run one
-  after the other against committed data (a crossed lock order can abort one save, never
-  admit both). Role-only row edits still save. No schema or data change.
-
-### Template library
-- Add a document-design library under `docs/templates/` and archive the monthly equipment
-  operating card D0.6 (Arabic/English, landscape front, portrait reverse, 31 days, overtime,
-  signatures and totals) with editable HTML/CSS sources, field mapping, font license and
-  validation evidence. Proprietary SDCE assets (logo, branded PDF and previews) are not
-  distributed, and the public template ships with a neutral placeholder identity
-  (`company-logo.png`, «اسم المؤسسة / COMPANY NAME», `FORM-CODE`). Documents the required
-  home for future printable designs — design assets never ship inside the installable `card/`
-  package. No runtime Print Format, schema or deployment change.
-
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
   deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;
@@ -47,6 +27,138 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (e.g. 88 h at rate 600 / 10 h‑day → 5,280). Add an option for **full‑day** billing
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
+- **Equipment materials consumption (next, after v3.0.0).** Oil, grease, filters and spare parts are
+  bought and stocked in ERPNext and issued to a machine with a standard Stock Entry (Material Issue)
+  carrying the project and the Card Equipment dimension; CARD adds a simple issue screen and a
+  consumption report. Not shipped.
+- **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
+
+## [3.0.0] — 2026-10-19
+
+Major release: a unified navigation (CARD launcher) and the first data-flow changes of the
+"CARD Unified UX" design — transports drive where a machine is, the monthly card follows the
+approved transports, and an owned machine takes its details from its ERPNext Asset. Built and
+verified on **frappe 16.51.1 / ERPNext 16.50.0 / HRMS 16.51.0**, which have `Dock` and app-shipped
+`Sidebar` documents. The oldest frappe version with both has not been determined (**Unknown**), so
+check the frappe version of a site before upgrading it. The version number jumps from 1.2.2 to
+3.0.0 by owner decision; no 2.x release exists.
+
+### Added
+- **CARD launcher.** The app ships a `Dock` with nine entries — Dashboard, Equipment, Movement &
+  Transport, Operating Units, Operation Cards, Expenses, Suppliers & Customers, Reports, Settings —
+  each opening its own sidebar of existing documents and reports. The Dashboard sidebar is reduced to
+  the home page, monthly cards and transports.
+- **One transport, several machines.** An Equipment Transport lists the equipment it moves in an
+  equipment table. The trip cost is split equally across the equipment; any share can be edited, and
+  the shares must add up to the trip cost. Submitting moves every listed machine to the project, and
+  cancelling reverses each one. The monthly supplier posting carries one transport line per machine, so
+  each machine gets its own share on the equipment dimension (the total is unchanged).
+- **Simplified transport entry.** Pick the equipment ownership and supplier to narrow the equipment
+  list (all of the supplier's machines, however old), then the **destination**: a project, a
+  workshop, storage (an ERPNext `Location`) or back to the supplier (rented equipment only). Each
+  machine's current place ("From") is read from its open assignment or its last approved move,
+  filled in as soon as the machine is picked; a machine never assigned to a project starts from
+  storage (its first move). A move to where the machine already is (same project or same place) is
+  refused. Moving to a workshop, storage or the supplier ends the project assignment on the
+  transport date: no new card days after it, earlier cards stay. From and To are never typed: From
+  is the machine's current place, To is an ERPNext project or a registered place (the old free-text
+  From/To are kept hidden for older documents). The cost is always charged to where the equipment
+  goes: the destination project's cost center, or the workshop/storage place's cost center set per
+  company in Card Settings; a return to the supplier stays on the project it leaves. **Transport
+  cost borne by**: Company (billed by the transport supplier, as before), Equipment Supplier (no
+  cost, no invoice) or Customer (recorded for follow-up, not invoiced yet). Only Company-borne moves
+  reach the supplier posting and the transport/operating cost reports.
+- **Monthly card follows the approved transports.** Pick the equipment, month and year; the project
+  is the one the equipment's approved transports put it on that month (Card Equipment Assignment),
+  filled in and locked. A machine that stays on a project keeps an open assignment, so it gets a card
+  every month and per shift (day and night). Moved during the month: one card per project (same shift
+  allowed once per project), and only that project's days are offered. No transport covering the
+  month: the card is refused with the reason. A project outside the assignments is refused, also
+  through the API. Company operators are picked from Employee; a rented machine's operator is typed.
+  The card's rate is unchanged (dated rate agreements are planned for a later release).
+- **Equipment from its ERPNext Asset.** The Asset field sits next to ownership (owned and
+  managed equipment); picking it fills the name, image, cost center, custodian as operator and the
+  insurance details, keeping anything already typed. Owned equipment defaults to company operator
+  and fuel. The Documents tab comes second and the form warns about documents that expired or
+  expire within 30 days.
+- **The Asset owns the equipment details.** With an Asset linked, the equipment name, brand
+  (from the Asset item) and type (from the new *Asset category* on the equipment type, one
+  category per type) come from the Asset and are read-only; brand, model, year, chassis and plate
+  are hidden when empty. The values are re-applied on every save. A one-time patch
+  (`sync_equipment_from_asset`) aligns equipment linked before this release.
+- **Company filled automatically** on new equipment, transport and diesel forms when the user can
+  see only one company; the field stays visible and editable.
+- **Dated unit components.** A unit is still one equipment on its monthly card (billing unchanged).
+  Each component now has From/To dates, and the unit form offers **Replace component** and **Move to
+  another unit**. Both are refused inside an approved card period, and a piece must be on the unit's
+  project. Card-day checks count a component only between its dates. Changing components needs
+  write access to them (Card Manager); Card User does not get the actions.
+- **Expenses sidebar** links the standard documents that carry equipment costs (Purchase Invoice,
+  Asset Repair) next to diesel and transport. No CARD expense document is introduced.
+
+### Changed
+- The Equipment Transport header `equipment` is now derived from the first row of the equipment table
+  and hidden; a patch gives every existing transport its single row (amount, assignments) unchanged.
+  Each machine's Connections tab lists every trip it was on, and the transport print lists every
+  machine with its share.
+
+### Fixed
+- **Unit component integrity on concurrent and direct-row writes** (#59): changing a
+  component through the raw child-row endpoint (`PUT /api/resource/Card Equipment
+  Component/<row>`, `frappe.client.save`) is refused with a pointer to edit the unit itself,
+  whose save is serialized and recorded in its Version history (direct row updates left no
+  Version entry); validation now takes locking reads (`for_update`) on the component's
+  equipment row and on the membership rows, so two saves claiming the same component run one
+  after the other against committed data (a crossed lock order can abort one save, never
+  admit both). Role-only row edits still save. No schema or data change.
+
+### Security
+- An Equipment Transport now drops assignment links sent with its submit (they were cleared only
+  for drafts); cancelling a transport only deletes or reopens assignments of its own machines. Found
+  by the release security review in unreleased v3 code; no published version is affected.
+
+### Template library
+- Add a document-design library under `docs/templates/` and archive the monthly equipment
+  operating card D0.6 (Arabic/English, landscape front, portrait reverse, 31 days, overtime,
+  signatures and totals) with editable HTML/CSS sources, field mapping, font license and
+  validation evidence. Proprietary SDCE assets (logo, branded PDF and previews) are not
+  distributed, and the public template ships with a neutral placeholder identity
+  (`company-logo.png`, «اسم المؤسسة / COMPANY NAME», `FORM-CODE`). Documents the required
+  home for future printable designs — design assets never ship inside the installable `card/`
+  package. No runtime Print Format, schema or deployment change.
+
+### Breaking changes
+- **A monthly card needs an approved transport.** The card's project comes only from the
+  equipment's assignments in that month. Equipment with no assignment covering the month cannot
+  save a card (new or re-saved draft) until an Equipment Transport records its move. Sites whose
+  equipment never used transports/assignments must record them before the first v3 month closes.
+- A card's project outside the equipment's assignments is refused, also through the API.
+- With an ERPNext Asset linked, the equipment name, brand and (when mapped) type follow the Asset on
+  every save and are read-only.
+- A transport to the project the machine is already on is refused; From/To are no longer typed.
+
+### Migration
+- `bench migrate` runs two new post-model-sync patches, once each, idempotent:
+  - `v3_0_0.backfill_transport_items` — gives every existing transport its single equipment row
+    (amount and assignment links unchanged). Writes no GL entry, invoice or card amount.
+  - `v3_0_0.sync_equipment_from_asset` — sets the name, brand and mapped type of every equipment
+    linked to an Asset from that Asset (direct writes; documents that copied the old name keep it).
+- New DocTypes: `Equipment Transport Item` (child), `Card Location Cost Center` (child of Card
+  Settings). New fields on Equipment Transport, Card Monthly Card, Card Equipment Component and Card
+  Equipment Type (`asset_category`). Nothing is deleted.
+- After upgrading: set the workshop/storage cost centers in Card Settings, map Asset categories to
+  equipment types, and make sure every working machine has an approved transport for the month.
+- Rollback: no down-migrations; restore the pre-upgrade backup.
+
+### Known limitations
+- Requires the frappe Dock/Sidebar navigation: verified on 16.51.1 only; earlier 16.5x minors are
+  **Unknown**; pre-16.50 sites stay on v1.0.1.
+- ERPNext's Asset has no model, year, chassis or plate fields: on equipment linked to an Asset these
+  are hidden unless already stored.
+- Customer-borne transport is recorded for follow-up only, not invoiced.
+- Dock entry tooltips stay in English (frappe core).
+- Older CARD forms outside transport and equipment still show some field help texts.
+- Published ≠ deployed: this version is not deployed to any production site.
 
 ## [1.2.2] — 2026-10-17
 

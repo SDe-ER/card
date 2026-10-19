@@ -29,3 +29,31 @@ msgstr "Settings"
 
 msgid "Card Equipment Customer"
 msgstr "Equipment Customer"
+
+# v3.0.0 launcher: Dock rows / Sidebar shells (card/dock, card/card/sidebar)
+msgid "Card Dashboard"
+msgstr "Dashboard"
+
+msgid "Card Fleet"
+msgstr "Equipment"
+
+msgid "Card Movement"
+msgstr "Movement & Transport"
+
+msgid "Card Operating Units"
+msgstr "Operating Units"
+
+msgid "Card Operation Cards"
+msgstr "Operation Cards"
+
+msgid "Card Expenses"
+msgstr "Expenses"
+
+msgid "Card Parties"
+msgstr "Suppliers & Customers"
+
+msgid "Card Reports"
+msgstr "Reports"
+
+msgid "Card Setup"
+msgstr "Settings"

@@ -25,7 +25,8 @@ def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	filters.company = resolve_company(filters, "Equipment Transport")
 
-	transport_filters = [["docstatus", "=", 1]]
+	# v3.0.0: only moves the company pays are its transport cost (Owner 2026-10-19)
+	transport_filters = [["docstatus", "=", 1], ["cost_borne_by", "in", ["Company", "", None]]]
 	if filters.get("company"):
 		transport_filters.append(["company", "=", filters.get("company")])
 	if filters.get("from_date"):

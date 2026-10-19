@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, flt, get_last_day, getdate, nowdate
+from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
 
 from card.api import recompute_customer, recompute_supplier
 
@@ -22,7 +22,56 @@ from card.constants import (
 )
 from card.notifications import notify
 from card.settings import setting
-from card.transfer import covering_assignment, validate_card_days
+from card.transfer import (
+	_assigned_on,
+	_component_rows,
+	_has_any_assignment,
+	_in_unit_on,
+	assignment_projects,
+	month_assignments,
+	validate_card_days,
+)
+
+
+@frappe.whitelist(methods=["GET"])
+def get_card_context(equipment: str, month: str, year: str, project: str | None = None):
+	"""v3.0.0: what the card form fills in by itself once equipment, month and year are
+	picked — the projects the approved transports put the equipment on that month, and
+	the days it was on the chosen (or only) project. Read-only."""
+	frappe.get_doc("Card Equipment", equipment).check_permission("read")
+	first_day = getdate("%s-%s-01" % (cint(year), str(month).zfill(2)))
+	last_day = get_last_day(first_day)
+	rows = month_assignments(equipment, first_day, last_day)
+	projects = []
+	for a in rows:
+		if a.project not in projects:
+			projects.append(a.project)
+	if not project and len(projects) == 1:
+		project = projects[0]
+	days = set()
+	for a in rows:
+		if a.project != project:
+			continue
+		start = max(getdate(a.from_date), first_day)
+		end = min(getdate(a.to_date), last_day) if a.to_date else last_day
+		while start <= end:
+			days.add(str(start))
+			start = add_days(start, 1)
+	if days and frappe.db.get_value("Card Equipment", equipment, "is_unit"):
+		# same rule as validate_card_days: a unit day needs every piece in the unit that
+		# day on the project, once any piece has assignment history
+		pieces = _component_rows(equipment)
+		if any(_has_any_assignment(r.component) for r in pieces):
+			days = {
+				d
+				for d in days
+				if all(
+					_assigned_on(r.component, project, getdate(d))
+					for r in pieces
+					if _in_unit_on(r, getdate(d))
+				)
+			}
+	return {"projects": projects, "project": project, "days": sorted(days)}
 
 
 class CardMonthlyCard(Document):
@@ -35,6 +84,9 @@ class CardMonthlyCard(Document):
 
 		if not self.shift:
 			self.shift = setting("default_shift")
+		# v3.0.0: a company operator is an Employee; the card keeps the name it prints
+		if self.get("operator"):
+			self.operator_name = frappe.db.get_value("Employee", self.operator, "employee_name")
 
 		eq = frappe.db.get_value(
 			"Card Equipment",
@@ -95,11 +147,8 @@ class CardMonthlyCard(Document):
 			self.customer_rate_type = None
 			self.customer_rate = 0
 
-		# ---- F.7: the project follows the assignment covering the card's month
-		# (retro months keep their historical project); free entry when none covers it
-		covering = covering_assignment(self.equipment, first_day, last_day)
-		if covering:
-			self.project = covering.project
+		# ---- v3.0.0 (Owner 2026-10-19): the project comes from the approved transports ----
+		self._resolve_project(first_day, last_day)
 
 		# customer mismatch is a review flag, never a block (owner F.7.3)
 		if self.project and self.customer:
@@ -257,7 +306,9 @@ class CardMonthlyCard(Document):
 			else 0
 		)
 
-		# ---- duplicate card: same equipment + month + year + shift ----
+		# ---- duplicate card: same equipment + month + year + shift + project ----
+		# (v3.0.0: a machine moved during the month has one card per project; the
+		# assignment periods keep their days apart)
 		dup = frappe.get_all(
 			"Card Monthly Card",
 			filters={
@@ -265,6 +316,7 @@ class CardMonthlyCard(Document):
 				"month": self.month,
 				"year": self.year,
 				"shift": self.shift,
+				"project": self.project,
 				"docstatus": ["!=", 2],
 				"name": ["!=", self.name],
 			},
@@ -326,6 +378,38 @@ class CardMonthlyCard(Document):
 						title=_("Review rental period"),
 						indicator="orange",
 					)
+
+	def _resolve_project(self, first_day, last_day):
+		"""The user picks the equipment, month and shift; the project is the one the
+		equipment's approved transports put it on that month (Card Equipment Assignment).
+		One project: set. Several (moved during the month): one card per project, and a
+		project outside them is refused even through the API. None: the card is refused
+		until an Equipment Transport records the move. A machine that stays a year on a
+		project keeps an open assignment, so every month (day and night shift) has its card."""
+		projects = assignment_projects(self.equipment, first_day, last_day)
+		if not projects:
+			if frappe.flags.in_test and not frappe.flags.card_require_assignment:
+				return  # older suites build cards without transports; v3 tests turn this on
+			frappe.throw(
+				_(
+					"Equipment {0} has no approved transport to a project in {1}/{2}. Record an Equipment Transport first."
+				).format(self.equipment, self.month, self.year),
+				title=_("No transport"),
+			)
+		if self.project and self.project not in projects:
+			frappe.throw(
+				_("In {0}/{1} equipment {2} was on {3}, not on project {4}.").format(
+					self.month, self.year, self.equipment, ", ".join(projects), self.project
+				)
+			)
+		if not self.project:
+			if len(projects) > 1:
+				frappe.throw(
+					_(
+						"In {0}/{1} equipment {2} moved between {3}. Choose the project: one card per project."
+					).format(self.month, self.year, self.equipment, ", ".join(projects))
+				)
+			self.project = projects[0]
 
 	def _hourly_for(self, basis, rate, equipment_daily_hours, required):
 		"""Hourly rate for a F.5 basis, shared by both sides: بالساعة = rate;

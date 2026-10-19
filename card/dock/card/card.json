@@ -1,0 +1,87 @@
+{
+ "app": "card",
+ "creation": "2026-10-18 12:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Dock",
+ "idx": 0,
+ "items": [
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "house",
+   "link_to": "Card",
+   "link_type": "Sidebar",
+   "title": "Card Dashboard"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "truck",
+   "link_to": "Card Fleet",
+   "link_type": "Sidebar",
+   "title": "Card Fleet"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "map-pin",
+   "link_to": "Card Movement",
+   "link_type": "Sidebar",
+   "title": "Card Movement"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "boxes",
+   "link_to": "Card Operating Units",
+   "link_type": "Sidebar",
+   "title": "Card Operating Units"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "clipboard-list",
+   "link_to": "Card Operation Cards",
+   "link_type": "Sidebar",
+   "title": "Card Operation Cards"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "wallet",
+   "link_to": "Card Expenses",
+   "link_type": "Sidebar",
+   "title": "Card Expenses"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "users",
+   "link_to": "Card Parties",
+   "link_type": "Sidebar",
+   "title": "Card Parties"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "file",
+   "link_to": "Card Reports",
+   "link_type": "Sidebar",
+   "title": "Card Reports"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "settings",
+   "link_to": "Card Setup",
+   "link_type": "Sidebar",
+   "title": "Card Setup"
+  }
+ ],
+ "modified": "2026-10-18 12:00:00.000000",
+ "modified_by": "Administrator",
+ "name": "card",
+ "owner": "Administrator",
+ "standard": 1,
+ "user": ""
+}

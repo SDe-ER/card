@@ -163,19 +163,42 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"transport_supplier": party,
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
+			# only a move the company pays is billed by the transport supplier (Owner 2026-10-19)
+			"cost_borne_by": ["in", ["Company", "", None]],
 		},
 		fields=[
 			"name",
 			"project",
-			"equipment",
 			"amount",
 			"date",
 			"from_location",
 			"to_location",
+			"source_project",
+			"source_location",
+			"destination_type",
+			"destination_location",
 			"cost_center",
 		],
 	)
 	return cards, fills, transports
+
+
+def _transport_shares(transports):
+	"""{transport: [(equipment, amount)]}, read in one query; a transport that moved no
+	equipment gets [(None, amount)]."""
+	shares = {t.name: [] for t in transports}
+	if shares:
+		for r in frappe.get_all(
+			"Equipment Transport Item",
+			filters={"parent": ["in", list(shares)], "parenttype": "Equipment Transport"},
+			fields=["parent", "card_equipment", "amount"],
+			order_by="parent asc, idx asc",
+		):
+			shares[r.parent].append((r.card_equipment, flt(r.amount, 2)))
+	for t in transports:
+		if not shares[t.name]:
+			shares[t.name] = [(None, flt(t.amount, 2))]
+	return shares
 
 
 def _customer_cards(company, party, month, year):
@@ -366,21 +389,32 @@ def build_monthly_posting(company, party_type, party, month, year):
 					}
 				)
 			sources["Project Diesel Fill"].append((fill.name, flt(fill.amount, 2)))
+		transport_shares = _transport_shares(transports)
 		for t in transports:
-			lines.append(
-				{
-					"item_code": row.transport_item,
-					"rate": flt(t.amount, 2),
-					"account": row.transport_expense_account,
-					"project": t.project,
-					"cost_center": _source_cost_center("Equipment Transport", t, company),
-					"card_equipment": t.equipment or None,
-					"taxable": 1,
-					"description": _("Equipment transport {0}: {1} → {2}").format(
-						t.name, t.from_location or "", t.to_location or ""
-					),
-				}
+			cost_center = _source_cost_center("Equipment Transport", t, company)
+			description = _("Equipment transport {0}: {1} → {2}").format(
+				t.name,
+				t.source_project or t.source_location or t.from_location or "",
+				(t.project if (t.destination_type or "Project") == "Project" else t.destination_location)
+				or t.to_location
+				or "",
 			)
+			# v3.0.0: one line per equipment share (the shares add up to the trip cost,
+			# enforced on save), so each machine carries its own transport cost; a
+			# transport with no equipment stays one project-level line
+			for equipment, amount in transport_shares[t.name]:
+				lines.append(
+					{
+						"item_code": row.transport_item,
+						"rate": amount,
+						"account": row.transport_expense_account,
+						"project": t.project,
+						"cost_center": cost_center,
+						"card_equipment": equipment,
+						"taxable": 1,
+						"description": description,
+					}
+				)
 			sources["Equipment Transport"].append((t.name, flt(t.amount, 2)))
 	else:
 		customer_cards = _exclude_held(

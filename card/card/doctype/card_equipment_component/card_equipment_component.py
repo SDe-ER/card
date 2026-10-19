@@ -19,7 +19,7 @@ class CardEquipmentComponent(Document):
 		before = self.get_doc_before_save()
 		if before and any(before.get(f) != self.get(f) for f in ("parent", "parenttype", "parentfield")):
 			frappe.throw(_("A component row cannot be moved to another unit."))
-		if before and before.component == self.component:
+		if before and all(before.get(f) == self.get(f) for f in ("component", "from_date", "to_date")):
 			return  # e.g. only the role changed: like the unit's save, a legacy row is not blocked
 		if before and self.parenttype == "Card Equipment":
 			# #59: a direct row update of the component is refused. The unit's own
@@ -42,10 +42,11 @@ class CardEquipmentComponent(Document):
 		rows = frappe.get_all(
 			"Card Equipment Component",
 			filters={"parenttype": "Card Equipment", "parent": self.parent},
-			fields=["name", "component"],
+			fields=["name", "component", "from_date", "to_date"],
 			order_by="idx",
 		)
-		components = [self.component if row.name == self.name else row.component for row in rows]
+		mine = frappe._dict(component=self.component, from_date=self.from_date, to_date=self.to_date)
+		components = [mine if row.name == self.name else row for row in rows]
 		if self.name not in {row.name for row in rows}:
-			components.append(self.component)
+			components.append(mine)
 		check_unit_components(self.parent, unit.company, unit.is_unit, components)

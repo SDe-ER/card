@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.rename_doc import rename_doc
 from frappe.utils import cint, flt
 
+from card.card.doctype.card_equipment.card_equipment import asset_equipment_values
 from card.party_registry import registry_row
 from card.report_access import assert_report_role, permitted_companies, query_companies
 from card.settings import setting
@@ -302,6 +303,51 @@ def card_company_options(txt: str | None = None):
 	return [c for c in permitted_companies() if needle in c.lower()][:50]
 
 
+@frappe.whitelist(methods=["GET"])
+def get_only_company():
+	"""The company a new CARD form takes when the user may see exactly one; else None.
+	frappe already fills the user's default company; this covers a site with one
+	company and no default. The field stays editable."""
+	from card.company import only_visible_company
+
+	return only_visible_company()
+
+
+# Equipment field <- ERPNext Asset field. An owned (or managed) machine is already
+# registered as an Asset, so its form takes these instead of retyping them.
+ASSET_PREFILL = {
+	"company": "company",
+	"image": "image",
+	"cost_center": "cost_center",
+	"operator": "custodian",
+	"insurance_company": "insurer",
+	"insurance_policy_no": "policy_number",
+	"insurance_expiry": "insurance_end_date",
+}
+
+
+def _asset_prefill(asset):
+	"""Equipment values taken from a submitted Asset the user may read."""
+	if not frappe.db.exists("Asset", asset):
+		frappe.throw(_("Asset {0} does not exist").format(asset))
+	frappe.has_permission("Asset", "read", asset, throw=True)
+	values = frappe.db.get_value("Asset", asset, ["name", "docstatus", *ASSET_PREFILL.values()], as_dict=True)
+	if values.docstatus != 1:
+		frappe.throw(_("Asset {0} must be submitted").format(asset))
+	prefill = {field: values.get(source) for field, source in ASSET_PREFILL.items() if values.get(source)}
+	details = asset_equipment_values(asset)
+	prefill.update({field: value for field, value in details.items() if value})
+	prefill["equipment_type_from_asset"] = 1 if details.get("equipment_type") else 0
+	return prefill
+
+
+@frappe.whitelist(methods=["GET"])
+def get_asset_prefill(asset: str):
+	"""Values the equipment form fills from the chosen Asset (read only)."""
+	frappe.has_permission("Card Equipment", "read", throw=True)
+	return _asset_prefill(asset)
+
+
 @frappe.whitelist(methods=["POST"])
 def create_equipment_from_asset(asset: str):
 	"""Return a NEW, UNSAVED Card Equipment prefilled from a submitted ERPNext Asset.
@@ -309,22 +355,17 @@ def create_equipment_from_asset(asset: str):
 	Nothing is inserted: the client opens the prefilled form and the user completes the
 	remaining mandatory fields (e.g. daily hours, equipment type) before saving."""
 	frappe.has_permission("Card Equipment", "create", throw=True)
-	frappe.has_permission("Asset", "read", asset, throw=True)
-
-	values = frappe.db.get_value("Asset", asset, ["name", "asset_name", "company", "docstatus"], as_dict=True)
-	if not values:
-		frappe.throw(_("Asset {0} does not exist").format(asset))
-	if values.docstatus != 1:
-		frappe.throw(_("Asset {0} must be submitted").format(asset))
+	prefill = _asset_prefill(asset)
 	linked = frappe.db.get_value("Card Equipment", {"الأصل_في_erpnext": asset}, "name")
 	if linked:
 		frappe.throw(_("Asset {0} is already linked to equipment {1}").format(asset, linked))
 
 	doc = frappe.new_doc("Card Equipment")
-	doc.company = values.company
+	doc.update(prefill)
 	doc.ownership = "ملك"
-	doc.equipment_name = values.asset_name or values.name
-	doc.set("الأصل_في_erpnext", values.name)
+	doc.operator_on = "الشركة"
+	doc.set("الوقود_على", "الشركة")
+	doc.set("الأصل_في_erpnext", asset)
 	return doc.as_dict()
 
 
