@@ -1,0 +1,194 @@
+{
+ "actions": [],
+ "creation": "2026-10-19 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "request",
+  "request_item",
+  "equipment",
+  "operator",
+  "kind",
+  "item_code",
+  "description",
+  "uom",
+  "requested_qty",
+  "found_qty",
+  "approved_qty",
+  "column_break_line",
+  "inspection",
+  "inspection_note",
+  "inspected_by",
+  "inspected_on",
+  "route",
+  "warehouse",
+  "stock_qty",
+  "repeat_flag",
+  "material_request"
+ ],
+ "fields": [
+  {
+   "fieldname": "request",
+   "fieldtype": "Link",
+   "label": "Request",
+   "options": "Equipment Needs Request",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "request_item",
+   "fieldtype": "Data",
+   "label": "Request row",
+   "hidden": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "operator",
+   "fieldtype": "Link",
+   "label": "Operator",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "kind",
+   "fieldtype": "Select",
+   "label": "Kind",
+   "options": "Part\nTool",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "Needed item",
+   "options": "Item",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description",
+   "read_only": 1
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "UOM",
+   "fetch_from": "item_code.stock_uom",
+   "fetch_if_empty": 1
+  },
+  {
+   "fieldname": "requested_qty",
+   "fieldtype": "Float",
+   "label": "Requested qty",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "found_qty",
+   "fieldtype": "Float",
+   "label": "Found on site",
+   "non_negative": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "approved_qty",
+   "fieldtype": "Float",
+   "label": "Approved qty",
+   "non_negative": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "column_break_line",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "inspection",
+   "fieldtype": "Select",
+   "label": "Site inspection",
+   "options": "Not inspected\nInspected",
+   "default": "Not inspected",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "inspection_note",
+   "fieldtype": "Data",
+   "label": "Inspection note"
+  },
+  {
+   "fieldname": "inspected_by",
+   "fieldtype": "Link",
+   "label": "Inspected by",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "inspected_on",
+   "fieldtype": "Date",
+   "label": "Inspected on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Select",
+   "label": "Supply route",
+   "options": "From store\nBuy for project",
+   "default": "From store",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "stock_qty",
+   "fieldtype": "Float",
+   "label": "In stock",
+   "read_only": 1
+  },
+  {
+   "fieldname": "repeat_flag",
+   "fieldtype": "Check",
+   "label": "Asked recently",
+   "read_only": 1
+  },
+  {
+   "fieldname": "material_request",
+   "fieldtype": "Link",
+   "label": "Material Request",
+   "options": "Material Request",
+   "read_only": 1,
+   "no_copy": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-19 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Equipment Needs Review Item",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1,
+ "permissions": []
+}

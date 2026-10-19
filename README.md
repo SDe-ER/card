@@ -9,7 +9,7 @@
 إدارة المعدات وكروت التشغيل الشهرية
 
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
-![Release](https://img.shields.io/badge/release-v3.0.0-1F876C)
+![Release](https://img.shields.io/badge/release-v4.0.0-1F876C)
 ![Frappe](https://img.shields.io/badge/frappe-v16-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -163,7 +163,7 @@ Add CARD to your `apps.json` and build a custom image:
 ```bash
 docker build \
   --build-arg APPS_JSON_BASE64=$(base64 -w 0 apps.json) \
-  --tag your-registry/erp:card-v3.0.0 \
+  --tag your-registry/erp:card-v4.0.0 \
   --file images/custom/Containerfile .
 ```
 
@@ -207,6 +207,7 @@ upgrade guidance — lives in **[docs/releases/](docs/releases/VERSION-HISTORY.m
 
 | Version | Date | Highlights |
 |---|---|---|
+| **[v4.0.0](docs/releases/v4.0.0.md)** | _not yet tagged_ | Equipment materials: operators ask for their machine's parts, consumables and tools on a phone page; the site supervisor reviews and consolidates; management approval creates draft ERPNext Material Requests with project, cost center and the equipment dimension; returnable tools tracked as employee custody in one store; four reports. Requires v3.0.0. |
 | **[v3.0.0](docs/releases/v3.0.0.md)** | 2026-10-19 | CARD launcher (Dock with nine sidebars); one transport moves several machines to a project, workshop, storage or back to the supplier, reads where each machine is and charges the destination's cost center; the monthly card takes its project from the approved transports (no transport, no card); owned and managed equipment take their details from the ERPNext Asset; dated unit components; company filled automatically. Needs frappe 16.51+. |
 | **[v1.2.2](docs/releases/v1.2.2.md)** | 2026-10-18 | Company isolation: registries show per-company figures and list only permitted parties, posting endpoints refuse other companies; equipment commercial terms and control fields protected (Card Manager writes, change reason + history); GL Posting Log made a permanent audit record; reconciliation split into three figures (invoiced through Card / not invoiced / outside Card); diesel estimates labelled; amend-chain and name-reuse fixes. |
 | **[v1.2.1](docs/releases/v1.2.1.md)** | 2026-10-16 | Operational roles run filtered reports without ERPNext grants; monthly-card print shows each billed side's gross, adjustments and net before VAT (customer card net 6,000 instead of 0); diesel/transport money labels and Arabic amount in words; supplier and customer totals keep each side's adjustments. Multi-company registry isolation (#23) still open. |

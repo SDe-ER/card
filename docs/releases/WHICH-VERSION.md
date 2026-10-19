@@ -7,6 +7,7 @@ need; every claim below is backed by the per-version pages (evidence links there
 
 | Your situation | Use | Why |
 |---|---|---|
+| Site on v3.0.0 that wants operators to request machine parts/tools and management to approve them into ERPNext Material Requests (once v4.0.0 is tagged) | **v4.0.0** | Equipment needs, supervisor review, approval into draft Material Requests, tool custody; everything from v3.0.0. Needs companion ERPNext roles for approvers/supervisors |
 | New install on frappe **16.51+**, equipment moves recorded as transports | **v3.0.0** | Launcher, transport-driven cards, Asset-linked equipment; everything from v1.2.2 |
 | New install, Frappe/ERPNext **v16.5x**, transports not recorded | **v1.2.2** | v3.0.0 refuses a monthly card without an approved transport for the month |
 | **Multi-company** site (any) | **v1.2.2 or v3.0.0** | v1.2.0/v1.2.1 registries expose party-wide totals across companies (#23, fixed in v1.2.2) |
@@ -24,6 +25,9 @@ need; every claim below is backed by the per-version pages (evidence links there
 
 ## Upgrade path
 
+- `v3.0.0 → v4.0.0`: one `v4_0_0` patch (roles) runs once, idempotently; then set the stores in Card
+  Settings → Materials, create the Card Equipment dimension if missing, and give the roles
+  ([v4.0.0.md → Installation & Upgrade](v4.0.0.md#12-installation--upgrade--partially-verified)).
 - `v1.2.2 → v3.0.0`: two `v3_0_0` patches run once, idempotently; before the first v3 month, record
   a transport for every working machine and map Asset categories to equipment types
   ([v3.0.0.md → Installation & Upgrade](v3.0.0.md#12-installation--upgrade--partially-verified)).

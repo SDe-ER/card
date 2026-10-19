@@ -17,6 +17,7 @@ EXPECTED_DOCK_TITLES = [
 	"Card Operating Units",
 	"Card Operation Cards",
 	"Card Expenses",
+	"Card Materials",  # v4.0.0
 	"Card Parties",
 	"Card Reports",
 	"Card Setup",
@@ -47,7 +48,7 @@ class TestCardLauncher(IntegrationTestCase):
 	def test_shell_items_point_to_existing_targets(self):
 		sidebar_dir = os.path.join(frappe.get_app_path("card"), "card", "sidebar")
 		shells = sorted(os.listdir(sidebar_dir))
-		self.assertEqual(len(shells), 8)
+		self.assertEqual(len(shells), 9)
 		for slug in shells:
 			doc = _load("card", "sidebar", slug, f"{slug}.json")
 			self.assertEqual((doc["module"], doc["app"], doc["standard"]), ("Card", "card", 1))

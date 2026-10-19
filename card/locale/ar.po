@@ -2390,3 +2390,298 @@ msgstr "النوع من الأصل"
 
 msgid "Asset category {0} is already used by equipment type {1}."
 msgstr "فئة الأصل {0} مربوطة بالفعل بنوع المعدة {1}."
+
+msgid "My equipment needs"
+msgstr "احتياجات معداتي"
+
+msgid "My recent requests"
+msgstr "طلباتي الأخيرة"
+
+msgid "Add a line"
+msgstr "إضافة سطر"
+
+msgid "Send to supervisor"
+msgstr "إرسال للمشرف"
+
+msgid "Part or consumable"
+msgstr "قطعة غيار أو مستهلك"
+
+msgid "Search an item or describe it"
+msgstr "ابحث عن صنف أو اكتب وصفه"
+
+msgid "Add at least one line with a quantity."
+msgstr "أضف سطرًا واحدًا على الأقل بكمية."
+
+msgid "Your request was sent to the supervisor."
+msgstr "تم إرسال طلبك للمشرف."
+
+msgid "Your account is not set up to ask for equipment needs. Ask your supervisor."
+msgstr "حسابك غير مهيأ لطلب احتياجات المعدات. راجع المشرف."
+
+msgid "No equipment is assigned to you this month."
+msgstr "لا توجد معدة مسجلة عليك هذا الشهر."
+
+msgid "In review"
+msgstr "قيد المراجعة"
+
+msgid "You can only ask for the equipment you operate."
+msgstr "يمكنك الطلب فقط للمعدات التي تشغلها."
+
+msgid "Your account is not linked to an employee."
+msgstr "حسابك غير مربوط بموظف."
+
+msgid "{0} is not the operator of equipment {1}."
+msgstr "{0} ليس مشغل المعدة {1}."
+
+msgid "Equipment {0} is not on a project; record its transport first."
+msgstr "المعدة {0} ليست على مشروع؛ سجّل نقلها أولًا."
+
+msgid "Row {0}: choose an item or describe it."
+msgstr "سطر {0}: اختر صنفًا أو اكتب وصفه."
+
+msgid "Row {0}: the quantity must be more than zero."
+msgstr "سطر {0}: الكمية لازم تكون أكبر من صفر."
+
+msgid "Add at least one item."
+msgstr "أضف صنفًا واحدًا على الأقل."
+
+msgid "Part"
+msgstr "قطعة غيار"
+
+msgid "Equipment needs"
+msgstr "احتياجات المعدات"
+
+msgid "Card Materials"
+msgstr "المواد والمشتريات"
+
+msgid "Materials"
+msgstr "المواد"
+
+msgid "Equipment Needs Request"
+msgstr "طلب احتياجات معدة"
+
+msgid "Equipment Needs Request Item"
+msgstr "بند طلب احتياجات معدة"
+
+msgid "Equipment Needs Review"
+msgstr "مراجعة احتياجات المعدات"
+
+msgid "Equipment Needs Review Item"
+msgstr "بند مراجعة احتياجات المعدات"
+
+msgid "Employee Tool Custody"
+msgstr "عهدة أدوات الموظف"
+
+msgid "Equipment Needs Summary"
+msgstr "القائمة المجمعة لاحتياجات المعدات"
+
+msgid "Equipment Consumption"
+msgstr "استهلاك المعدات"
+
+msgid "Worker Custody"
+msgstr "عهد العمال"
+
+msgid "Repeat Equipment Requests"
+msgstr "الطلبات المتكررة للمعدات"
+
+msgid "Kind"
+msgstr "النوع"
+
+msgid "Needs"
+msgstr "الاحتياجات"
+
+msgid "Lines"
+msgstr "البنود"
+
+msgid "Request"
+msgstr "الطلب"
+
+msgid "Request row"
+msgstr "سطر الطلب"
+
+msgid "Review status"
+msgstr "حالة المراجعة"
+
+msgid "Entered by"
+msgstr "أدخله"
+
+msgid "Entered on behalf"
+msgstr "مُدخل نيابة عن المشغل"
+
+msgid "Asked recently"
+msgstr "مطلوب مؤخرًا"
+
+msgid "Last asked on"
+msgstr "آخر طلب في"
+
+msgid "Found on site"
+msgstr "الموجود بالموقع"
+
+msgid "Not inspected"
+msgstr "لم تتم المعاينة"
+
+msgid "Inspected"
+msgstr "تمت المعاينة"
+
+msgid "Inspected by"
+msgstr "عاينه"
+
+msgid "Inspected on"
+msgstr "تاريخ المعاينة"
+
+msgid "Inspection note"
+msgstr "ملاحظة المعاينة"
+
+msgid "From store"
+msgstr "من المخزن"
+
+msgid "Buy for project"
+msgstr "شراء للمشروع"
+
+msgid "Supervisor"
+msgstr "المشرف"
+
+msgid "Approved by"
+msgstr "اعتمده"
+
+msgid "Approved on"
+msgstr "تاريخ الاعتماد"
+
+msgid "Get requests"
+msgstr "جلب الطلبات"
+
+msgid "Create the Material Requests for the approved lines?"
+msgstr "إنشاء طلبات المواد للبنود المعتمدة؟"
+
+msgid "Only a draft review can take requests."
+msgstr "المراجعة في حالة المسودة فقط تستقبل الطلبات."
+
+msgid "Only Card Manager may approve equipment needs."
+msgstr "اعتماد احتياجات المعدات لمدير Card فقط."
+
+msgid "You also need permission to create Material Requests in ERPNext (for example Stock User)."
+msgstr "تحتاج أيضًا إلى صلاحية إنشاء طلبات المواد في ERPNext (مثل Stock User)."
+
+msgid "Submit the review before approving it."
+msgstr "اعتمد إرسال المراجعة قبل الموافقة عليها."
+
+msgid "This review is already approved."
+msgstr "المراجعة دي معتمدة بالفعل."
+
+msgid "Match these lines to an Item before approval: {0}"
+msgstr "اربط البنود دي بصنف قبل الاعتماد: {0}"
+
+msgid "Set the tool custody store in Card Settings (Materials) before approving tools."
+msgstr "حدد مخزن عهدة الأدوات في إعدادات Card (المواد) قبل اعتماد الأدوات."
+
+msgid "Set the tool custody store in Card Settings (Materials)."
+msgstr "حدد مخزن عهدة الأدوات في إعدادات Card (المواد)."
+
+msgid "Choose the warehouse for {0}."
+msgstr "اختر المخزن للصنف {0}."
+
+msgid "An approved review cannot be cancelled; its Material Requests are already created."
+msgstr "لا يمكن إلغاء مراجعة معتمدة؛ طلبات المواد الخاصة بها اتعملت بالفعل."
+
+msgid "This request is in a supervisor review; cancel the review first."
+msgstr "الطلب داخل مراجعة المشرف؛ ألغِ المراجعة أولًا."
+
+msgid "Row {0}: quantities cannot be negative."
+msgstr "سطر {0}: الكميات لا يمكن أن تكون سالبة."
+
+msgid "Row {0}: the request is not a submitted request of this project."
+msgstr "سطر {0}: الطلب ليس طلبًا مرسلًا لهذا المشروع."
+
+msgid "Row {0}: this request line is already in another review."
+msgstr "سطر {0}: سطر الطلب موجود بالفعل في مراجعة أخرى."
+
+msgid "Row {0}: this request line is listed twice."
+msgstr "سطر {0}: سطر الطلب مكرر."
+
+msgid "Equipment and quantities"
+msgstr "المعدات والكميات"
+
+msgid "Main store"
+msgstr "المخزن الرئيسي"
+
+msgid "Tool custody store"
+msgstr "مخزن عهدة الأدوات"
+
+msgid "Flag a repeated request within (days)"
+msgstr "تنبيه للطلب المتكرر خلال (يوم)"
+
+msgid "Handover"
+msgstr "تسليم"
+
+msgid "Loss"
+msgstr "فقد"
+
+msgid "Damage"
+msgstr "تلف"
+
+msgid "To employee"
+msgstr "إلى الموظف"
+
+msgid "Tool name"
+msgstr "اسم الأداة"
+
+msgid "Serial number"
+msgstr "الرقم التسلسلي"
+
+msgid "Store"
+msgstr "المخزن"
+
+msgid "Needs review"
+msgstr "تحتاج مراجعة"
+
+msgid "Held"
+msgstr "في العهدة"
+
+msgid "Returnable tool"
+msgstr "أداة قابلة للإرجاع"
+
+
+msgid "Cancel Stock Entry {0} first."
+msgstr "ألغِ قيد المخزون {0} أولًا."
+
+msgid "Choose another employee to receive the tool."
+msgstr "اختر موظفًا آخر يستلم الأداة."
+
+msgid "Later movements already use these tools; cancel them first."
+msgstr "حركات لاحقة تستخدم الأدوات دي؛ ألغها أولًا."
+
+msgid "The quantity must be more than zero."
+msgstr "الكمية لازم تكون أكبر من صفر."
+
+msgid "{0} holds {1} of {2}; {3} cannot leave his custody."
+msgstr "{0} في عهدته {1} من {2}؛ لا يمكن خروج {3} من عهدته."
+
+msgid "{0} is a fixed asset: record its custodian on the Asset (Asset Movement)."
+msgstr "{0} أصل ثابت: سجّل المسؤول عنه على الأصل (حركة الأصل)."
+
+msgid "The Card Equipment accounting dimension is not set up on this site."
+msgstr "بُعد المعدة المحاسبي غير مُعد على هذا الموقع."
+
+msgid "Tool"
+msgstr "أداة"
+
+msgid "Management approval"
+msgstr "اعتماد الإدارة"
+
+msgid "Needed item"
+msgstr "الصنف المطلوب"
+
+msgid "Requested qty"
+msgstr "الكمية المطلوبة"
+
+msgid "Approved qty"
+msgstr "الكمية المعتمدة"
+
+msgid "Supply route"
+msgstr "طريقة التوفير"
+
+msgid "Site inspection"
+msgstr "معاينة الموقع"
+
+msgid "Row {0}: add lines with Get requests only."
+msgstr "سطر {0}: أضف البنود عن طريق «جلب الطلبات» فقط."

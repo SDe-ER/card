@@ -27,11 +27,75 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (e.g. 88 h at rate 600 / 10 h‑day → 5,280). Add an option for **full‑day** billing
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
-- **Equipment materials consumption (next, after v3.0.0).** Oil, grease, filters and spare parts are
-  bought and stocked in ERPNext and issued to a machine with a standard Stock Entry (Material Issue)
-  carrying the project and the Card Equipment dimension; CARD adds a simple issue screen and a
-  consumption report. Not shipped.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
+
+## [4.0.0] — 2026-10-19
+
+Equipment materials (Owner plan `2026-10-19_card-equipment-materials-phase1-plan.md`): the operator
+named on a machine asks for its needs, the supervisor reviews and consolidates them, management
+approves, and the approved lines become standard ERPNext Material Requests. Requires v3.0.0.
+
+### Added
+- **Operator page `/equipment-needs`** (mobile-friendly, the user's own Frappe account, no Desk needed):
+  the operator picks one of his machines (named on the equipment or on its monthly card this month)
+  and asks for parts/consumables or tools with quantity and reason; he sees his recent requests and
+  their status. Server-rendered and translated by Frappe (English source; Arabic, Bengali, Hindi,
+  Urdu). New role **Card Operator** — operators see only their own requests; the page sends the
+  session's CSRF token with every request.
+- **Equipment Needs Request**: one request per machine; project from the machine's approved
+  transport; the operator, the person who entered it and "on behalf" are kept; an item asked again
+  for the same machine within the Settings window (default 30 days) is flagged for review only.
+- **Equipment Needs Review** (new role **Card Supervisor**): pulls the project's submitted requests;
+  keeps the requested quantity unchanged and records the quantity found on site, the approved
+  quantity, the site inspection (or "not inspected"), the supply route (from store / buy for the
+  project) and the warehouse; stock on hand shown per line.
+- **Management approval** (Card Manager): creates draft ERPNext Material Requests — Purchase (buy
+  for the project), Material Issue (from store) or Material Transfer to the tool custody store
+  (tools) — each row with item, project, cost center and the Card Equipment dimension (parts).
+  ERPNext's own "Make Stock Entry" keeps the equipment and project, so the cost reaches the machine
+  only when stock is issued to it. CARD writes no GL entry.
+- **Employee Tool Custody**: handover, return, transfer between workers, loss and damage of
+  returnable tools, with one shared custody store (no warehouse per worker); handover/return create
+  a draft Material Transfer, loss/damage a draft Material Issue and a review flag — never a salary
+  deduction or HR violation. Fixed-asset tools stay on the ERPNext Asset (custodian / Asset Movement).
+- **Reports**: Equipment Needs Summary (the consolidated list for management, with each machine's
+  share), Equipment Consumption (issues + non-stock purchase lines, each counted once), Worker
+  Custody (returnable tools + assets with a custodian), Repeat Equipment Requests.
+- **Launcher**: a "Card Materials" entry with its sidebar; Card Settings gets a Materials tab (main
+  store, tool custody store, repeat window).
+
+### Security
+- Operators reach only their own machines and requests (record rules on Desk, REST and the page);
+  supervisors limited by a project User Permission see only those projects, in documents and in
+  the Equipment Needs Summary / Repeat Equipment Requests reports.
+- The operator page gives the session its CSRF token, so every request it sends is CSRF-checked.
+- Approval creates the Material Requests with the approver's own ERPNext rights (no permission
+  bypass); approval fields and requested quantities cannot be written by hand or through REST;
+  a second approval is refused under a row lock, so Material Requests are never duplicated.
+- A custody cancel removes only the draft Stock Entry that movement created.
+
+### Migration
+- Patch `v4_0_0.ensure_materials_roles` creates Card Supervisor and Card Operator and sets Card
+  Operator to no Desk access once. New DocTypes only; nothing existing is changed or deleted.
+- Before use on a site: link worker Users to their Employee records, give operators the Card
+  Operator role, set the two stores in Card Settings → Materials, and make sure the Card Equipment
+  accounting dimension exists (without it the requests work but rows carry no equipment).
+- CARD roles add to ERPNext's own permissions; they do not replace them. Approvers (Card Manager) also
+  need the right to create Material Requests (for example Stock User or Purchase User): the requests
+  are made with the approver's own ERPNext rights. Supervisors working in Desk need read access to
+  projects, warehouses and employees (for example Projects User + Stock User). Card Supervisor gets
+  read-only access to Card Equipment; limit it per company with standard User Permissions.
+- An operator linked to an Employee also gets ERPNext's standard Employee role, which opens Desk; the
+  operator still sees only his own requests and no equipment, stock or custody records.
+
+### Known limitations
+- Material Requests and Stock Entries are created as drafts; the buying/stock team submits them.
+- The Equipment Consumption report needs `report` access on Card Equipment, which Card Supervisor
+  does not have: supervisors get "not permitted" there (management, Card User and stock roles run it).
+- Custody movements create their draft Stock Entry for the stock team without the creator's own
+  stock rights (drafts only; submitting needs the stock role).
+- The DAWM worker spare-parts flow is not used for equipment needs (Owner decision) and is not
+  changed by CARD.
 
 ## [3.0.0] — 2026-10-19
 

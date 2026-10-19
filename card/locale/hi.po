@@ -1,0 +1,76 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version: CARD VERSION\n"
+"Report-Msgid-Bugs-To: info@sdce.sa\n"
+"POT-Creation-Date: 2026-10-19 15:00+0000\n"
+"PO-Revision-Date: 2026-10-19 15:00+0000\n"
+"Language: hi\n"
+"Language-Team: hi <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "My equipment needs"
+msgstr "मेरे उपकरण की ज़रूरतें"
+
+msgid "My recent requests"
+msgstr "मेरे हाल के अनुरोध"
+
+msgid "Add a line"
+msgstr "पंक्ति जोड़ें"
+
+msgid "Send to supervisor"
+msgstr "पर्यवेक्षक को भेजें"
+
+msgid "Part or consumable"
+msgstr "पुर्ज़ा या उपभोग्य"
+
+msgid "Search an item or describe it"
+msgstr "आइटम खोजें या उसका विवरण लिखें"
+
+msgid "Add at least one line with a quantity."
+msgstr "कम से कम एक पंक्ति में मात्रा डालें।"
+
+msgid "Your request was sent to the supervisor."
+msgstr "आपका अनुरोध पर्यवेक्षक को भेज दिया गया है।"
+
+msgid "Your account is not set up to ask for equipment needs. Ask your supervisor."
+msgstr "आपका खाता उपकरण की ज़रूरतें माँगने के लिए तैयार नहीं है। अपने पर्यवेक्षक से पूछें।"
+
+msgid "No equipment is assigned to you this month."
+msgstr "इस महीने आपके नाम कोई उपकरण नहीं है।"
+
+msgid "In review"
+msgstr "समीक्षा में"
+
+msgid "You can only ask for the equipment you operate."
+msgstr "आप केवल अपने चलाए जाने वाले उपकरण के लिए माँग सकते हैं।"
+
+msgid "Your account is not linked to an employee."
+msgstr "आपका खाता किसी कर्मचारी से जुड़ा नहीं है।"
+
+msgid "{0} is not the operator of equipment {1}."
+msgstr "{0} उपकरण {1} का ऑपरेटर नहीं है।"
+
+msgid "Equipment {0} is not on a project; record its transport first."
+msgstr "उपकरण {0} किसी परियोजना पर नहीं है; पहले उसका परिवहन दर्ज करें।"
+
+msgid "Row {0}: choose an item or describe it."
+msgstr "पंक्ति {0}: आइटम चुनें या उसका विवरण लिखें।"
+
+msgid "Row {0}: the quantity must be more than zero."
+msgstr "पंक्ति {0}: मात्रा शून्य से अधिक होनी चाहिए।"
+
+msgid "Add at least one item."
+msgstr "कम से कम एक आइटम जोड़ें।"
+
+msgid "Part"
+msgstr "पुर्ज़ा"
+
+msgid "Equipment needs"
+msgstr "उपकरण की ज़रूरतें"
+
+msgid "Tool"
+msgstr "औज़ार"

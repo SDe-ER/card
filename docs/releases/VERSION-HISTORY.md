@@ -12,6 +12,7 @@ Authoritative index of every **published** CARD release. Source of truth: git ta
 
 | Version | Date (tag/release) | Type | One-line summary | Full page |
 |---|---|---|---|---|
+| **v4.0.0** | _not yet tagged_ | Major release | Equipment materials: operator page for machine needs, supervisor review, management approval into draft ERPNext Material Requests with project, cost center and equipment dimension, employee tool custody, 4 reports | [v4.0.0.md](v4.0.0.md) |
 | **v3.0.0** | 2026-10-19 | Major release | CARD launcher (Dock + 9 sidebars), multi-machine transport with destinations and destination cost center, monthly card follows approved transports, equipment details from the ERPNext Asset, dated unit components | [v3.0.0.md](v3.0.0.md) |
 | **v1.2.2** | 2026-10-18 | Security/integrity patch | Company isolation (registries + posting endpoints), protected equipment fields, permanent GL Posting Log, reconciliation in three figures | [v1.2.2.md](v1.2.2.md) |
 | **v1.2.1** | 2026-10-16 | Patch | Filtered reports for operational roles, correct money on prints, sided supplier/customer totals | [v1.2.1.md](v1.2.1.md) |

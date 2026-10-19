@@ -56,6 +56,14 @@
   {
    "added": 0,
    "hidden": 0,
+   "icon": "package",
+   "link_to": "Card Materials",
+   "link_type": "Sidebar",
+   "title": "Card Materials"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
    "icon": "users",
    "link_to": "Card Parties",
    "link_type": "Sidebar",
@@ -78,7 +86,7 @@
    "title": "Card Setup"
   }
  ],
- "modified": "2026-10-18 12:00:00.000000",
+ "modified": "2026-10-19 15:00:00.000000",
  "modified_by": "Administrator",
  "name": "card",
  "owner": "Administrator",
