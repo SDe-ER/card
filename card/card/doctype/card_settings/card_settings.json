@@ -37,6 +37,8 @@
   "diesel_supplier",
   "diesel_col",
   "diesel_supplier_editor_role",
+  "diesel_price_exception_role",
+  "diesel_zero_price_role",
   "transport_section",
   "transport_price_editor_role",
   "project_transport_prices",
@@ -319,6 +321,21 @@
    "permlevel": 2
   },
   {
+   "default": "Accounts Manager",
+   "fieldname": "diesel_price_exception_role",
+   "fieldtype": "Link",
+   "label": "Diesel price exception role",
+   "options": "Role",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "diesel_zero_price_role",
+   "fieldtype": "Link",
+   "label": "Diesel zero price role",
+   "options": "Role",
+   "permlevel": 2
+  },
+  {
    "fieldname": "transport_section",
    "fieldtype": "Section Break",
    "label": "Transport prices"
@@ -395,7 +412,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-19 15:00:00.000000",
+ "modified": "2026-10-20 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

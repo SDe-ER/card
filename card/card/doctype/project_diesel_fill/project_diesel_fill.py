@@ -1,10 +1,12 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
 
+import json
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import cint, flt, now_datetime
 
 from card.company import single_company, validate_equipment_company
 from card.settings import setting
@@ -29,24 +31,233 @@ def get_supplier_editable():
 	return can_change_diesel_supplier()
 
 
+# FR-002 (Owner 2026-10-19): the price per litre comes from the company's row in Card Settings.
+COMPANY_PRICE = "Company Price"
+EXCEPTION = "Exception"
+NEEDS_REVIEW = "Needs Review"
+
+
+def diesel_price(company):
+	"""The diesel price per litre of `company` from Card Settings, or 0."""
+	if not company:
+		return 0
+	from card.accounting_settings import get_company_settings
+
+	row = get_company_settings(company, throw=False)
+	return flt(row.get("diesel_unit_price")) if row else 0
+
+
+def _holds(fieldname):
+	"""The session user holds the role named in Card Settings `fieldname`; an empty role = nobody."""
+	role = setting(fieldname)
+	return bool(role) and role in frappe.get_roles()
+
+
+def can_except_price():
+	return _holds("diesel_price_exception_role")
+
+
+def can_zero_price():
+	return _holds("diesel_zero_price_role")
+
+
+@frappe.whitelist(methods=["GET"])
+def get_diesel_price_context(company: str | None = None):
+	"""What the fill form needs before saving (read only): the company price and whether the
+	current user may grant a price exception. Fill users cannot read Card Settings."""
+	from card.report_access import permitted_companies
+
+	frappe.has_permission("Project Diesel Fill", "read", throw=True)
+	if not company or company not in permitted_companies("Project Diesel Fill"):
+		return {"price": 0, "can_except": False, "can_zero": False, "exception_role": None}
+	return {
+		"price": diesel_price(company),
+		"can_except": can_except_price(),
+		"can_zero": can_zero_price(),
+		"exception_role": setting("diesel_price_exception_role"),
+	}
+
+
+@frappe.whitelist(methods=["POST"])
+def use_company_price(name: str):
+	"""Explicit choice on a draft marked Needs Review: replace its price with the company price."""
+	doc = frappe.get_doc("Project Diesel Fill", name)
+	doc.check_permission("write")
+	if doc.docstatus != 0:
+		frappe.throw(_("Only a draft diesel fill can change its price."))
+	if cint(doc.price_exception):
+		frappe.throw(
+			_("This fill has a price exception; only {0} can change it.").format(
+				setting("diesel_price_exception_role")
+			)
+		)
+	doc.flags.use_company_price = True
+	doc.save()
+	return {"unit_price": doc.unit_price, "price_source": doc.price_source}
+
+
 class ProjectDieselFill(Document):
 	def validate(self):
 		if not self.company:
 			self.company = single_company()  # F.8: default to THE company
 		validate_equipment_company(self, "card_equipment")  # F.8 consistency
 		self._enforce_diesel_supplier()
-		# Default the unit price from Card Company Settings only when left blank;
-		# an explicitly entered price is kept. Independent of enable_accounting.
-		if not self.unit_price and self.company:
-			from card.accounting_settings import get_company_settings
-
-			row = get_company_settings(self.company, throw=False)
-			price = row.get("diesel_unit_price") if row else None
-			if price:
-				self.unit_price = price
+		self._apply_price()
 		# Amount is litres x unit price; the accounting posting (Purchase Invoice on
 		# the project) is added in a later stage, gated by owner approval.
 		self.amount = flt(flt(self.litres) * flt(self.unit_price), 2)
+
+	def before_submit(self):
+		if self.price_source == NEEDS_REVIEW:
+			frappe.throw(
+				_(
+					"The diesel price of this fill needs a decision before submit: use the company price, or ask {0} to approve an exception."
+				).format(setting("diesel_price_exception_role"))
+			)
+
+	def _apply_price(self):
+		"""FR-002 price lock (Owner Q1–Q4). Submitted and cancelled fills never reach validate."""
+		before = None if self.is_new() else self.get_doc_before_save()
+		precision = self.precision("unit_price") or 2
+		company_price = flt(diesel_price(self.company), precision)
+		price = flt(self.unit_price, precision)
+		self.company_price = company_price
+		if before is None and self.amended_from and cint(self.price_exception):
+			self._drop_copied_exception()
+
+		if self._exception_changed(before):
+			self._check_exception(price)
+		elif cint(self.price_exception):
+			# unchanged exception (e.g. litres edited by a Card User): keep its price, stamps and
+			# the company price it replaced (the audited original value)
+			self.exception_by, self.exception_on = before.exception_by, before.exception_on
+			self.company_price = before.company_price
+		if cint(self.price_exception):
+			self.price_source = EXCEPTION
+			return
+		self.exception_reason = self.exception_by = self.exception_on = None
+
+		if self.flags.use_company_price or (before is not None and cint(before.price_exception)):
+			self._take_company_price(company_price)
+			return
+		if before is None:
+			if self.amended_from and price != company_price:
+				self._needs_review(company_price)  # an amended copy keeps the original price
+				return
+			if price and price != company_price:
+				self._refuse_typed_price(company_price)
+			self._take_company_price(company_price)
+			return
+		if price != flt(before.unit_price, precision):
+			self._refuse_typed_price(company_price)
+		if before.price_source == COMPANY_PRICE and company_price > 0:
+			if price != company_price:
+				frappe.msgprint(
+					_("Diesel price updated from {0} to {1} (company price).").format(price, company_price),
+					indicator="orange",
+					alert=True,
+				)
+			self.unit_price = company_price
+			self.price_source = COMPANY_PRICE
+			return
+		# a draft saved before the price lock, or still waiting for a decision: never repriced silently
+		if price > 0 and price == company_price:
+			self.price_source = COMPANY_PRICE
+		else:
+			self._needs_review(company_price)
+
+	def _drop_copied_exception(self):
+		"""Amend copies every field, the exception included: an exception approved on the cancelled
+		fill is not an approval of its amendment, so the copy goes to Needs Review instead."""
+		original = frappe.db.get_value(
+			"Project Diesel Fill", self.amended_from, ["price_exception", "exception_reason"], as_dict=True
+		)
+		if (
+			original
+			and cint(original.price_exception)
+			and (original.exception_reason or "").strip() == (self.exception_reason or "").strip()
+		):
+			self.price_exception = 0
+
+	def _exception_changed(self, before):
+		if before is None:
+			return bool(cint(self.price_exception))
+		precision = self.precision("unit_price") or 2
+		return bool(
+			cint(self.price_exception) != cint(before.price_exception)
+			or (self.exception_reason or "").strip() != (before.exception_reason or "").strip()
+			or (
+				cint(self.price_exception)
+				and (
+					flt(self.unit_price, precision) != flt(before.unit_price, precision)
+					or self.company != before.company  # an approved price belongs to its company
+				)
+			)
+		)
+
+	def _check_exception(self, price):
+		"""A price exception is set, changed or removed: role, price and reason are checked here."""
+		if not cint(self.price_exception):
+			if not can_except_price():
+				self._refuse_exception_change()
+			return
+		if price < 0:
+			frappe.throw(_("The diesel price cannot be negative."))
+		if price == 0 and not can_zero_price():
+			frappe.throw(_("A zero diesel price is not allowed."), frappe.PermissionError)
+		if price > 0 and not can_except_price():
+			self._refuse_exception_change()
+		if not (self.exception_reason or "").strip():
+			frappe.throw(_("A reason is required for a diesel price exception."))
+		self.exception_by = frappe.session.user
+		self.exception_on = now_datetime()
+		frappe.logger("card.diesel_price_exception").warning(
+			json.dumps(
+				{
+					"user": frappe.session.user,
+					"fill": self.name,
+					"company": self.company,
+					"company_price": self.company_price,
+					"price": price,
+				},
+				ensure_ascii=False,
+				default=str,
+			)
+		)
+
+	def _refuse_exception_change(self):
+		frappe.throw(
+			_("Only users with role {0} may set or change a diesel price exception.").format(
+				setting("diesel_price_exception_role")
+			),
+			frappe.PermissionError,
+		)
+
+	def _refuse_typed_price(self, company_price):
+		frappe.throw(
+			_(
+				"The diesel price comes from the company price in Card Settings ({0}); use a price exception to change it."
+			).format(company_price)
+		)
+
+	def _take_company_price(self, company_price):
+		if company_price <= 0:
+			frappe.throw(
+				_(
+					"No approved diesel price for company {0}. Accounts must set it in Card Settings, company settings."
+				).format(self.company)
+			)
+		self.unit_price = company_price
+		self.price_source = COMPANY_PRICE
+
+	def _needs_review(self, company_price):
+		self.price_source = NEEDS_REVIEW
+		frappe.msgprint(
+			_(
+				"This draft has price {0}; the company price is {1}. Use the company price, or ask {2} to approve an exception."
+			).format(flt(self.unit_price), company_price, setting("diesel_price_exception_role")),
+			indicator="orange",
+		)
 
 	def _enforce_diesel_supplier(self):
 		"""F.1 diesel supplier policy. Fixed: the Settings supplier is forced and

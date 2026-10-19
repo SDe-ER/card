@@ -2791,3 +2791,69 @@ msgstr "تعذّر الوصول إلى الخادم. تحقّق من الاتص�
 msgctxt "Card Mobile"
 msgid "Try again"
 msgstr "حاول مرة أخرى"
+
+msgid "Price source"
+msgstr "مصدر السعر"
+
+msgid "Company price"
+msgstr "سعر الشركة"
+
+msgid "Company Price"
+msgstr "سعر الشركة"
+
+msgid "Needs Review"
+msgstr "يحتاج مراجعة"
+
+msgid "Price exception"
+msgstr "استثناء السعر"
+
+msgid "Exception reason"
+msgstr "سبب الاستثناء"
+
+msgid "Exception by"
+msgstr "الاستثناء بواسطة"
+
+msgid "Exception on"
+msgstr "تاريخ الاستثناء"
+
+msgid "Diesel price exception role"
+msgstr "دور استثناء سعر الديزل"
+
+msgid "Diesel zero price role"
+msgstr "دور السعر الصفري للديزل"
+
+msgid "Use company price"
+msgstr "استخدم سعر الشركة"
+
+msgid "Only a draft diesel fill can change its price."
+msgstr "لا يمكن تغيير السعر إلا في مسودة تعبئة الديزل."
+
+msgid "This fill has a price exception; only {0} can change it."
+msgstr "هذه التعبئة عليها استثناء سعر؛ لا يغيّره إلا {0}."
+
+msgid "The diesel price of this fill needs a decision before submit: use the company price, or ask {0} to approve an exception."
+msgstr "سعر الديزل في هذه التعبئة يحتاج قرارًا قبل الاعتماد: استخدم سعر الشركة، أو اطلب من {0} اعتماد استثناء."
+
+msgid "Diesel price updated from {0} to {1} (company price)."
+msgstr "تم تحديث سعر الديزل من {0} إلى {1} (سعر الشركة)."
+
+msgid "The diesel price cannot be negative."
+msgstr "سعر الديزل لا يمكن أن يكون سالبًا."
+
+msgid "A zero diesel price is not allowed."
+msgstr "لا يُسمح بسعر ديزل صفري."
+
+msgid "A reason is required for a diesel price exception."
+msgstr "سبب استثناء سعر الديزل إلزامي."
+
+msgid "Only users with role {0} may set or change a diesel price exception."
+msgstr "لا يضع أو يغيّر استثناء سعر الديزل إلا من لديه الدور {0}."
+
+msgid "The diesel price comes from the company price in Card Settings ({0}); use a price exception to change it."
+msgstr "سعر الديزل يؤخذ من سعر الشركة في الإعدادات ({0})؛ لتغييره استخدم استثناء السعر."
+
+msgid "No approved diesel price for company {0}. Accounts must set it in Card Settings, company settings."
+msgstr "لا يوجد سعر ديزل معتمد للشركة {0}. يجب أن تحدده الحسابات في الإعدادات، إعدادات الشركة."
+
+msgid "This draft has price {0}; the company price is {1}. Use the company price, or ask {2} to approve an exception."
+msgstr "سعر هذه المسودة {0}؛ وسعر الشركة {1}. استخدم سعر الشركة، أو اطلب من {2} اعتماد استثناء."

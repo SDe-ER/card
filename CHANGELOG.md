@@ -29,6 +29,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   translation context "Card Mobile", so they never override Frappe or ERPNext translations.
   Real iPhone and Android installation is **not yet tested**.
 - GET `card.mobile.get_session_context` (the signed-in user's CARD Mobile context; reads only).
+- **Diesel price lock per company (FR-002)**: a Project Diesel Fill takes its price per litre from the
+  company's row in Card Settings and users cannot type another one. No new fill is saved without an approved
+  price. A price exception needs the role in Card Settings `diesel_price_exception_role` (default Accounts
+  Manager) plus write rights on the fill, and a mandatory reason; the fill keeps the company price it replaced,
+  who approved it and when (also in the Version log). A zero price needs `diesel_zero_price_role` (empty by
+  default = nobody). Submitted and cancelled fills are never repriced; drafts saved before this change keep
+  their price and, when it differs from the company price, show it and wait for an explicit choice ("Use
+  company price" or an exception) before submit. No data patch: existing rows are unchanged.
 
 ### Changed
 - **Apps screen (G4):** the Card entry is hidden from Website Users and from users who can read

@@ -12,6 +12,7 @@ from frappe.utils import flt
 
 from card.constants import DIR_RENTED_OUT
 from card.settings import setting
+from card.tests.diesel_price import set_diesel_price, use_fill_price
 from card.tests.test_controllers import _days, _ensure_masters
 
 FUEL_FIELD = "الوقود_على"
@@ -418,7 +419,7 @@ class TestDieselSupplierPolicy(IntegrationTestCase):
 		f.unit_price = 2
 		if supplier:
 			f.supplier = supplier
-		f.insert(ignore_permissions=True)
+		use_fill_price(f).insert(ignore_permissions=True)
 		f.reload()
 		return f
 
@@ -832,6 +833,7 @@ class TestSingleCompanyDefaults(IntegrationTestCase):
 		f.supplier = self.supplier
 		f.litres = 10
 		f.unit_price = 2
+		set_diesel_price(single_company(), 2)
 		f.insert(ignore_permissions=True)  # company left blank on purpose
 		self.assertTrue(f.company)
 		self.assertEqual(f.company, single_company())

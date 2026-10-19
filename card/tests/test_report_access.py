@@ -16,6 +16,7 @@ from card import api
 from card.constants import DIR_RENTED_OUT, OWNED
 from card.diesel import allocate_project_diesel, project_operating_hours
 from card.report_access import can_view_ledger, permitted_companies, readable_links
+from card.tests.diesel_price import use_fill_price
 from card.tests.test_controllers import _days, _ensure_masters, _registry_figures
 from card.tests.test_customer_reports import _leaf
 
@@ -270,7 +271,7 @@ class TestReportAccess(IntegrationTestCase):
 		fill.company = company or self.company
 		fill.litres = litres
 		fill.unit_price = unit_price
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		return fill
 
