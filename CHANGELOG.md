@@ -15,6 +15,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **CARD Mobile at `/cdms`** (planned for v4.1.0): a phone-only Progressive Web App served by CARD
+  itself, built like the Frappe HR mobile app (Vue 3, TypeScript, frappe-ui in `frontend/`, built by
+  `bench build` into `card/public/frontend` and `card/www/cdms.html`). In-app sign-in with the
+  user's ERPNext account (Frappe session and CSRF); the user needs a CARD portal role and an
+  Active Employee. Operator screens: Home (machines, open requests), New request, My requests,
+  Profile; they call the existing operator endpoints (`get_portal_context`, `search_items`,
+  `submit_needs`) and add no business logic. On a computer the same phone UI shows in a centered
+  480 px column. Installable: web app manifest with maskable icons, Apple touch icon and iOS meta,
+  safe areas; the service worker is served at `/cdms/sw.js` (scope `/cdms/`, `page_renderer`
+  hook). Arabic and Urdu right-to-left; English, Bengali and Hindi. Generic words carry the
+  translation context "Card Mobile", so they never override Frappe or ERPNext translations.
+  Real iPhone and Android installation is **not yet tested**.
+- GET `card.mobile.get_session_context` (the signed-in user's CARD Mobile context; reads only).
+
+### Changed
+- **Apps screen (G4):** the Card entry is hidden from Website Users and from users who cannot
+  read Card Equipment (such as operators), as Frappe HR does; a second entry, *Card Mobile*, opens
+  `/cdms` for users with a CARD portal role and an Active Employee. An operator who signs in at
+  `/login` therefore lands on `/cdms` instead of a Desk page he cannot open.
+- **Operator item search (G1):** `search_items` lists only enabled stock or purchase items (no
+  templates), 20 at most, with code, name and unit only — the documented exception to the
+  operator's lack of Item read permission.
+
 ### Planned
 - **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
   deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;

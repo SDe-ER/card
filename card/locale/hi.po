@@ -74,3 +74,98 @@ msgstr "उपकरण की ज़रूरतें"
 
 msgid "Tool"
 msgstr "औज़ार"
+
+msgid "Card Mobile"
+msgstr "Card मोबाइल"
+
+msgid "New request"
+msgstr "नया अनुरोध"
+
+msgid "My requests"
+msgstr "मेरे अनुरोध"
+
+msgid "No requests yet."
+msgstr "अभी कोई अनुरोध नहीं है।"
+
+msgid "Install the app"
+msgstr "ऐप इंस्टॉल करें"
+
+msgid "On iPhone, tap Share, then Add to Home Screen."
+msgstr "iPhone पर Share दबाएँ, फिर Add to Home Screen।"
+
+msgid "Equipment"
+msgstr "उपकरण"
+
+msgid "Notes"
+msgstr "टिप्पणियाँ"
+
+msgid "Equipment Needs Review"
+msgstr "उपकरण आवश्यकता समीक्षा"
+
+msgctxt "Card Mobile"
+msgid "Approved"
+msgstr "स्वीकृत"
+
+msgctxt "Card Mobile"
+msgid "Back"
+msgstr "वापस"
+
+msgctxt "Card Mobile"
+msgid "Company"
+msgstr "कंपनी"
+
+msgctxt "Card Mobile"
+msgid "Email"
+msgstr "ईमेल"
+
+msgctxt "Card Mobile"
+msgid "Employee"
+msgstr "कर्मचारी"
+
+msgctxt "Card Mobile"
+msgid "Home"
+msgstr "होम"
+
+msgctxt "Card Mobile"
+msgid "Login"
+msgstr "लॉग इन"
+
+msgctxt "Card Mobile"
+msgid "Logout"
+msgstr "लॉग आउट"
+
+msgctxt "Card Mobile"
+msgid "Page Not Found"
+msgstr "पृष्ठ नहीं मिला"
+
+msgctxt "Card Mobile"
+msgid "Password"
+msgstr "पासवर्ड"
+
+msgctxt "Card Mobile"
+msgid "Pending"
+msgstr "लंबित"
+
+msgctxt "Card Mobile"
+msgid "Profile"
+msgstr "प्रोफ़ाइल"
+
+msgctxt "Card Mobile"
+msgid "Quantity"
+msgstr "मात्रा"
+
+msgctxt "Card Mobile"
+msgid "Reason"
+msgstr "कारण"
+
+msgctxt "Card Mobile"
+msgid "Rejected"
+msgstr "अस्वीकृत"
+
+msgctxt "Card Mobile"
+msgid "Remove"
+msgstr "हटाएँ"
+
+msgctxt "Card Mobile"
+msgid "User"
+msgstr "उपयोगकर्ता"

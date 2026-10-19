@@ -8,6 +8,9 @@ build/
 
 # Node / build artefacts
 node_modules/
+# CARD Mobile build output (bench build creates these from frontend/, as Frappe HR)
+card/public/frontend/
+card/www/cdms.html
 
 # Local scratch / parity harnesses (never shipped)
 local/

@@ -2685,3 +2685,89 @@ msgstr "معاينة الموقع"
 
 msgid "Row {0}: add lines with Get requests only."
 msgstr "سطر {0}: أضف البنود عن طريق «جلب الطلبات» فقط."
+
+msgid "Card Mobile"
+msgstr "Card للجوال"
+
+msgid "New request"
+msgstr "طلب جديد"
+
+msgid "My requests"
+msgstr "طلباتي"
+
+msgid "No requests yet."
+msgstr "لا توجد طلبات بعد."
+
+msgid "Install the app"
+msgstr "ثبّت التطبيق"
+
+msgid "On iPhone, tap Share, then Add to Home Screen."
+msgstr "على iPhone: اضغط «مشاركة» ثم «إضافة إلى الشاشة الرئيسية»."
+
+msgctxt "Card Mobile"
+msgid "Approved"
+msgstr "معتمد"
+
+msgctxt "Card Mobile"
+msgid "Back"
+msgstr "رجوع"
+
+msgctxt "Card Mobile"
+msgid "Company"
+msgstr "الشركة"
+
+msgctxt "Card Mobile"
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgctxt "Card Mobile"
+msgid "Employee"
+msgstr "الموظف"
+
+msgctxt "Card Mobile"
+msgid "Home"
+msgstr "الرئيسية"
+
+msgctxt "Card Mobile"
+msgid "Login"
+msgstr "تسجيل الدخول"
+
+msgctxt "Card Mobile"
+msgid "Logout"
+msgstr "تسجيل الخروج"
+
+msgctxt "Card Mobile"
+msgid "Page Not Found"
+msgstr "الصفحة غير موجودة"
+
+msgctxt "Card Mobile"
+msgid "Password"
+msgstr "كلمة المرور"
+
+msgctxt "Card Mobile"
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+msgctxt "Card Mobile"
+msgid "Profile"
+msgstr "حسابي"
+
+msgctxt "Card Mobile"
+msgid "Quantity"
+msgstr "الكمية"
+
+msgctxt "Card Mobile"
+msgid "Reason"
+msgstr "السبب"
+
+msgctxt "Card Mobile"
+msgid "Rejected"
+msgstr "مرفوض"
+
+msgctxt "Card Mobile"
+msgid "Remove"
+msgstr "حذف"
+
+msgctxt "Card Mobile"
+msgid "User"
+msgstr "المستخدم"

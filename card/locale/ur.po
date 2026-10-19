@@ -74,3 +74,98 @@ msgstr "آلات کی ضروریات"
 
 msgid "Tool"
 msgstr "اوزار"
+
+msgid "Card Mobile"
+msgstr "Card موبائل"
+
+msgid "New request"
+msgstr "نئی درخواست"
+
+msgid "My requests"
+msgstr "میری درخواستیں"
+
+msgid "No requests yet."
+msgstr "ابھی کوئی درخواست نہیں۔"
+
+msgid "Install the app"
+msgstr "ایپ انسٹال کریں"
+
+msgid "On iPhone, tap Share, then Add to Home Screen."
+msgstr "iPhone پر Share دبائیں، پھر Add to Home Screen۔"
+
+msgid "Equipment"
+msgstr "آلہ"
+
+msgid "Notes"
+msgstr "نوٹس"
+
+msgid "Equipment Needs Review"
+msgstr "آلات کی ضروریات کا جائزہ"
+
+msgctxt "Card Mobile"
+msgid "Approved"
+msgstr "منظور شدہ"
+
+msgctxt "Card Mobile"
+msgid "Back"
+msgstr "واپس"
+
+msgctxt "Card Mobile"
+msgid "Company"
+msgstr "کمپنی"
+
+msgctxt "Card Mobile"
+msgid "Email"
+msgstr "ای میل"
+
+msgctxt "Card Mobile"
+msgid "Employee"
+msgstr "ملازم"
+
+msgctxt "Card Mobile"
+msgid "Home"
+msgstr "ہوم"
+
+msgctxt "Card Mobile"
+msgid "Login"
+msgstr "لاگ ان"
+
+msgctxt "Card Mobile"
+msgid "Logout"
+msgstr "لاگ آؤٹ"
+
+msgctxt "Card Mobile"
+msgid "Page Not Found"
+msgstr "صفحہ نہیں ملا"
+
+msgctxt "Card Mobile"
+msgid "Password"
+msgstr "پاس ورڈ"
+
+msgctxt "Card Mobile"
+msgid "Pending"
+msgstr "زیر التوا"
+
+msgctxt "Card Mobile"
+msgid "Profile"
+msgstr "پروفائل"
+
+msgctxt "Card Mobile"
+msgid "Quantity"
+msgstr "مقدار"
+
+msgctxt "Card Mobile"
+msgid "Reason"
+msgstr "وجہ"
+
+msgctxt "Card Mobile"
+msgid "Rejected"
+msgstr "مسترد"
+
+msgctxt "Card Mobile"
+msgid "Remove"
+msgstr "ہٹائیں"
+
+msgctxt "Card Mobile"
+msgid "User"
+msgstr "صارف"
