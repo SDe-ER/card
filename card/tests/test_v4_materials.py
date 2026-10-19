@@ -30,6 +30,12 @@ class TestV4Materials(IntegrationTestCase):
 		if len(leaves) < 2:
 			self.skipTest("the test company needs two warehouses")
 		self.store, self.custody = leaves[0], leaves[1]
+		# the ERPNext setup wizard makes these on a real site; a clean CI test site has none
+		for purpose in ("Material Receipt", "Material Transfer", "Material Issue"):
+			if not frappe.db.exists("Stock Entry Type", purpose):
+				frappe.get_doc({"doctype": "Stock Entry Type", "name": purpose, "purpose": purpose}).insert(
+					ignore_permissions=True
+				)
 		frappe.db.set_single_value("Card Settings", "default_store_warehouse", self.store)
 		frappe.db.set_single_value("Card Settings", "tool_custody_warehouse", self.custody)
 		frappe.db.set_single_value("Card Settings", "repeat_request_days", 30)
