@@ -2559,6 +2559,9 @@ msgstr "المراجعة في حالة المسودة فقط تستقبل الط
 msgid "Only Card Manager may approve equipment needs."
 msgstr "اعتماد احتياجات المعدات لمدير Card فقط."
 
+msgid "You also need permission to create Material Requests in ERPNext (for example Stock User)."
+msgstr "تحتاج أيضًا إلى صلاحية إنشاء طلبات المواد في ERPNext (مثل Stock User)."
+
 msgid "Submit the review before approving it."
 msgstr "اعتمد إرسال المراجعة قبل الموافقة عليها."
 

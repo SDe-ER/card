@@ -1895,6 +1895,9 @@ msgstr ""
 msgid "Only Card Manager may approve equipment needs."
 msgstr ""
 
+msgid "You also need permission to create Material Requests in ERPNext (for example Stock User)."
+msgstr ""
+
 msgid "Submit the review before approving it."
 msgstr ""
 

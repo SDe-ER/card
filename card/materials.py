@@ -234,6 +234,12 @@ def approve_review(review: str):
 	The Material Requests stay drafts for the buying/stock team to submit."""
 	if not has_any_role(APPROVER_ROLES):
 		frappe.throw(_("Only Card Manager may approve equipment needs."), frappe.PermissionError)
+	# the Material Requests are made with the approver's own ERPNext rights
+	if not frappe.has_permission("Material Request", "create"):
+		frappe.throw(
+			_("You also need permission to create Material Requests in ERPNext (for example Stock User)."),
+			frappe.PermissionError,
+		)
 	doc = frappe.get_doc("Equipment Needs Review", review)
 	doc.check_permission("read")
 	# one approval at a time: the row lock makes a second click wait, then see "already approved"
@@ -287,8 +293,7 @@ def approve_review(review: str):
 			if has_dimension and line.kind == "Part":
 				row[DIMENSION_FIELD] = line.equipment
 			mr.append("items", row)
-		# independent check above: approver role + submitted review; drafts only
-		mr.insert(ignore_permissions=True)
+		mr.insert()  # a draft for the buying/stock team
 		for line in group:
 			line.db_set("material_request", mr.name, update_modified=False)
 		created.append(mr.name)

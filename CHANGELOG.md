@@ -44,7 +44,8 @@ approves, and the approved lines become standard ERPNext Material Requests. Requ
   the operator picks one of his machines (named on the equipment or on its monthly card this month)
   and asks for parts/consumables or tools with quantity and reason; he sees his recent requests and
   their status. Server-rendered and translated by Frappe (English source; Arabic, Bengali, Hindi,
-  Urdu). New role **Card Operator** (no Desk access) — operators see only their own requests.
+  Urdu). New role **Card Operator** — operators see only their own requests; the page sends the
+  session's CSRF token with every request.
 - **Equipment Needs Request**: one request per machine; project from the machine's approved
   transport; the operator, the person who entered it and "on behalf" are kept; an item asked again
   for the same machine within the Settings window (default 30 days) is flagged for review only.
@@ -73,6 +74,13 @@ approves, and the approved lines become standard ERPNext Material Requests. Requ
 - Before use on a site: link worker Users to their Employee records, give operators the Card
   Operator role, set the two stores in Card Settings → Materials, and make sure the Card Equipment
   accounting dimension exists (without it the requests work but rows carry no equipment).
+- CARD roles add to ERPNext's own permissions; they do not replace them. Approvers (Card Manager) also
+  need the right to create Material Requests (for example Stock User or Purchase User): the requests
+  are made with the approver's own ERPNext rights. Supervisors working in Desk need read access to
+  projects, warehouses and employees (for example Projects User + Stock User). Card Supervisor gets
+  read-only access to Card Equipment; limit it per company with standard User Permissions.
+- An operator linked to an Employee also gets ERPNext's standard Employee role, which opens Desk; the
+  operator still sees only his own requests and no equipment, stock or custody records.
 
 ### Known limitations
 - Material Requests and Stock Entries are created as drafts; the buying/stock team submits them.

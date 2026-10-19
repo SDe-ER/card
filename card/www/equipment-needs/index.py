@@ -5,6 +5,7 @@ with his own Frappe account (no Desk). Server-rendered and translated by Frappe.
 
 import frappe
 from frappe import _
+from frappe.sessions import get_csrf_token
 
 from card.materials import portal_context
 
@@ -15,6 +16,8 @@ def get_context(context):
 	if frappe.session.user == "Guest":
 		frappe.local.flags.redirect_location = "/login?redirect-to=/equipment-needs"
 		raise frappe.Redirect
+	# an operator never opens Desk, so give his session the token its POSTs are checked against
+	get_csrf_token()
 	context.no_cache = 1
 	context.show_sidebar = False
 	context.title = _("My equipment needs")

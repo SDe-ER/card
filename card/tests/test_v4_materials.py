@@ -237,6 +237,34 @@ class TestV4Materials(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			frappe.get_doc("Equipment Needs Review", review.name).cancel()
 
+	def test_card_manager_approves_with_his_own_erpnext_rights(self):
+		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
+		review = self._review()
+		review.submit()
+		manager = self._user("mgr", ["Card Manager"])
+		before = frappe.db.count("Material Request")
+		frappe.set_user(manager)
+		with self.assertRaises(frappe.PermissionError):
+			materials.approve_review(review.name)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count("Material Request"), before)
+		self.assertNotEqual(
+			frappe.db.get_value("Equipment Needs Review", review.name, "approval_status"), "Approved"
+		)
+
+		frappe.get_doc("User", manager).add_roles("Stock User")
+		frappe.set_user(manager)
+		try:
+			(name,) = materials.approve_review(review.name)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("Material Request", name, ["owner", "docstatus"]), (manager, 0))
+
+	def test_supervisor_reads_equipment_without_editing_it(self):
+		supervisor = self._user("sup3", ["Card Supervisor"])
+		self.assertTrue(frappe.has_permission("Card Equipment", "read", self.eq, user=supervisor))
+		self.assertFalse(frappe.has_permission("Card Equipment", "write", self.eq, user=supervisor))
+
 	def test_free_text_line_must_be_matched_before_approval(self):
 		self._ask([{"kind": "Part", "description": "odd seal", "qty": 1}])
 		review = self._review()
@@ -417,6 +445,18 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertTrue(ctx["allowed"])
 		self.assertEqual([m["name"] for m in ctx["machines"]], [self.eq])
 		self.assertEqual(ctx["machines"][0]["project"], self.project)
+
+	def test_operator_page_gives_the_session_a_csrf_token(self):
+		import importlib
+
+		page = importlib.import_module("card.www.equipment-needs.index")
+		frappe.set_user(self.op_user)
+		try:
+			frappe.local.session.data.csrf_token = None
+			page.get_context(frappe._dict())
+			self.assertTrue(frappe.local.session.data.csrf_token)
+		finally:
+			frappe.set_user("Administrator")
 
 	def test_page_endpoints_refuse_users_without_a_card_role(self):
 		outsider = self._user("out", [])

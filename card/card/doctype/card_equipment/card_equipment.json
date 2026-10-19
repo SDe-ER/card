@@ -804,6 +804,10 @@
    "role": "Accounts Manager"
   },
   {
+   "read": 1,
+   "role": "Card Supervisor"
+  },
+  {
    "permlevel": 1,
    "read": 1,
    "role": "System Manager",
