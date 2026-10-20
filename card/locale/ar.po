@@ -2909,3 +2909,12 @@ msgstr "تعديل السعر"
 
 msgid "Save or discard your other changes in Card Settings first."
 msgstr "احفظ أو تراجع عن تعديلاتك الأخرى في الإعدادات أولًا."
+
+msgid "Project {0} does not belong to company {1}."
+msgstr "المشروع {0} لا يتبع الشركة {1}."
+
+msgid "Cost center {0} must be an enabled, non-group cost center of company {1}."
+msgstr "مركز التكلفة {0} يجب أن يكون مركز تكلفة مفعّلاً وغير تجميعي تابعاً للشركة {1}."
+
+msgid "Supplier {0} is disabled."
+msgstr "المورد {0} معطّل."

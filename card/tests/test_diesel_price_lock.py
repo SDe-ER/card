@@ -74,6 +74,13 @@ class TestDieselPriceLock(IntegrationTestCase):
 	def _new(self, **extra):
 		return frappe.get_doc(self._data(**extra)).insert()
 
+	def _other_project(self, company):
+		"""A fill moved to another company takes a project of that company (P0 company check)."""
+		p = frappe.new_doc("Project")
+		p.project_name = "TEST-DPL-PRJ-" + frappe.generate_hash(length=8)
+		p.company = company
+		return p.insert(ignore_permissions=True).name
+
 	def _as(self, user, fn, *args, **kwargs):
 		frappe.set_user(user)
 		try:
@@ -404,7 +411,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		other = comp.insert(ignore_permissions=True).name
 		set_diesel_price(other, 5)
 		f = frappe.get_doc("Project Diesel Fill", self._new().name)
-		f.company = other
+		f.update({"company": other, "project": self._other_project(other)})
 		f.save()
 		self.assertEqual((flt(f.unit_price), f.price_source), (2, "Needs Review"))
 
@@ -545,7 +552,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		f.update({"price_exception": 1, "unit_price": 2.4, "exception_reason": "invoice"})
 		self._as(self.accountant, f.save)
 		f = frappe.get_doc("Project Diesel Fill", f.name)
-		f.company = other
+		f.update({"company": other, "project": self._other_project(other)})
 		with self.assertRaises(frappe.PermissionError):
 			self._as(self.card_user, f.save)
 

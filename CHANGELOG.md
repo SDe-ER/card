@@ -62,6 +62,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   templates), 20 at most, with code, name and unit only — the documented exception to the
   operator's lack of Item read permission.
 
+### Fixed
+- **Diesel fill for Card User (P0):** a user with only the Card User role could not finish a Project Diesel Fill
+  in the Desk. The Project, Cost Center and Supplier lists failed with "Insufficient Permission" (the role has no
+  permission on those ERPNext masters), and the mandatory Supplier stayed empty and hidden when the user may not
+  change it. The form now searches through `fill_link_query` (GET): only users who may create or edit a fill; the
+  fill's company, which the user must be allowed to see; enabled leaf cost centers; the user's User Permissions;
+  the Settings supplier only for users who may not change it; names and titles only. The form fills in the Settings
+  supplier. The save refuses a project or cost center of another company, a group or disabled cost center, and a
+  newly chosen disabled supplier, also through REST. No DocPerm, role or User Permission was changed.
+
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
