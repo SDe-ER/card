@@ -249,6 +249,41 @@ class TestAssignmentCompanyIsolation(IntegrationTestCase):
 		values = reportview_get()["values"]
 		self.assertEqual({row[0] for row in values}, {self.asg_a})
 
+	def test_rename_follows_the_same_rule(self):
+		from frappe.client import rename_doc
+
+		self._as(["Card Manager"], restrict=self.company)
+		self.assertTrue(self._refused(rename_doc, DOCTYPE, self.asg_b, "TEST-ASGISO-RB-" + self.token))
+		renamed = rename_doc(DOCTYPE, self.asg_a, "TEST-ASGISO-RA-" + self.token)  # positive control
+		frappe.set_user("Administrator")
+		self.assertTrue(frappe.db.exists(DOCTYPE, renamed))
+		self.assertTrue(frappe.db.exists(DOCTYPE, self.asg_b))
+
+	def test_list_count_counts_only_own_company(self):
+		from frappe.desk.reportview import get_count
+
+		self._as(["Card Manager"], restrict=self.company)
+		frappe.local.form_dict = frappe._dict(
+			doctype=DOCTYPE, filters=[[DOCTYPE, "name", "in", [self.asg_a, self.asg_b]]]
+		)
+		self.assertEqual(get_count(), 1)
+
+	def test_connection_counts_need_the_parent_record(self):
+		# Frappe counts linked rows without permission checks (desk.notifications.get_doc_count),
+		# but only after a READ check on the parent (equipment / project), which is company-scoped
+		from frappe.desk.notifications import get_open_count
+
+		def assignment_count(doctype, name):
+			found = get_open_count(doctype, name, [DOCTYPE])["count"]["external_links_found"]
+			return [d["count"] for d in found if d["doctype"] == DOCTYPE]
+
+		self._as(["Card Manager"], restrict=self.company)
+		self.assertEqual(assignment_count("Card Equipment", self.eq_a), [1])  # positive control
+		self.assertTrue(self._refused(get_open_count, "Card Equipment", self.eq_b, [DOCTYPE]))
+		self._as(["Projects User"], restrict=self.company)
+		self.assertEqual(assignment_count("Project", self.proj_a), [1])
+		self.assertTrue(self._refused(get_open_count, "Project", self.proj_b, [DOCTYPE]))
+
 	def test_card_user_still_cannot_write_own_company_rows(self):
 		# no role is widened: Card User keeps read-only access to assignments
 		self._as(["Card User"], restrict=self.company)
