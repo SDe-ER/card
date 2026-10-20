@@ -37,8 +37,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default = nobody). Submitted and cancelled fills are never repriced, and a saved draft keeps its price when
   the company price changes (it only shows the current price); a new company price applies to new fills only.
   Drafts saved before this change keep their price and, when it differs from the company price, wait for an
-  explicit choice before submit. Changing a saved draft's price ("Use company price" or an exception) needs
-  the exception role and a written reason, and is recorded. No data patch: existing rows are unchanged.
+  explicit choice before submit. Every change of a saved draft's price (setting or changing an exception,
+  "Remove price exception", "Use company price") needs the exception role and a written reason; the server
+  records the old and new price, the user, the time and the reason (comment, Version and log). A plain save or
+  a REST call cannot end an exception. No data patch: existing rows are unchanged.
 
 ### Changed
 - **Apps screen (G4):** the Card entry is hidden from Website Users and from users who can read

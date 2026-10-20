@@ -2843,8 +2843,20 @@ msgstr "تغيير سعر تعبئة ديزل محفوظة مسموح فقط ل�
 msgid "A reason is required to change the price of a saved diesel fill."
 msgstr "يجب كتابة سبب لتغيير سعر تعبئة ديزل محفوظة."
 
-msgid "Diesel price changed from {0} to the company price {1}. Reason: {2}"
-msgstr "تم تغيير سعر الديزل من {0} إلى سعر الشركة {1}. السبب: {2}"
+msgid "Diesel price changed from {0} to {1}. Reason: {2}"
+msgstr "تم تغيير سعر الديزل من {0} إلى {1}. السبب: {2}"
+
+msgid "This fill has no price exception."
+msgstr "هذه التعبئة ليس لها استثناء سعر."
+
+msgid "To end a price exception, use «Remove price exception» and give a reason."
+msgstr "لإلغاء استثناء السعر استخدم «إلغاء استثناء السعر» واكتب السبب."
+
+msgid "Write the reason for the new diesel price."
+msgstr "اكتب سبب سعر الديزل الجديد."
+
+msgid "Remove price exception"
+msgstr "إلغاء استثناء السعر"
 
 msgid "The diesel price cannot be negative."
 msgstr "سعر الديزل لا يمكن أن يكون سالبًا."

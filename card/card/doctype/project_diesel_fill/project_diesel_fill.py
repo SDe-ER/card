@@ -102,22 +102,35 @@ def use_company_price(name: str, reason: str | None = None):
 		)
 	if not (reason or "").strip():
 		frappe.throw(_("A reason is required to change the price of a saved diesel fill."))
-	old_price = flt(doc.unit_price)
 	doc.flags.use_company_price = True
+	doc.flags.price_change_reason = reason.strip()
 	doc.save()
-	doc.add_comment(
-		"Info",
-		_("Diesel price changed from {0} to the company price {1}. Reason: {2}").format(
-			old_price, flt(doc.unit_price), reason.strip()
-		),
-	)
-	frappe.logger("card.diesel_price_exception").warning(
-		json.dumps(
-			{"user": frappe.session.user, "fill": doc.name, "from": old_price, "to": flt(doc.unit_price)},
-			ensure_ascii=False,
-			default=str,
+	return {"unit_price": doc.unit_price, "price_source": doc.price_source}
+
+
+@frappe.whitelist(methods=["POST"])
+def remove_price_exception(name: str, reason: str | None = None):
+	"""End the price exception of a saved draft: it returns to the current company price.
+	Owner 2026-10-20: needs the exception role and a written reason; audited like every price change."""
+	doc = frappe.get_doc("Project Diesel Fill", name)
+	doc.check_permission("write")
+	if doc.docstatus != 0:
+		frappe.throw(_("Only a draft diesel fill can change its price."))
+	if not cint(doc.price_exception):
+		frappe.throw(_("This fill has no price exception."))
+	if not can_except_price():
+		frappe.throw(
+			_("Only users with role {0} may change the price of a saved diesel fill.").format(
+				setting("diesel_price_exception_role")
+			),
+			frappe.PermissionError,
 		)
-	)
+	if not (reason or "").strip():
+		frappe.throw(_("A reason is required to change the price of a saved diesel fill."))
+	doc.price_exception = 0
+	doc.flags.remove_price_exception = True
+	doc.flags.price_change_reason = reason.strip()
+	doc.save()
 	return {"unit_price": doc.unit_price, "price_source": doc.price_source}
 
 
@@ -131,6 +144,26 @@ class ProjectDieselFill(Document):
 		# Amount is litres x unit price; the accounting posting (Purchase Invoice on
 		# the project) is added in a later stage, gated by owner approval.
 		self.amount = flt(flt(self.litres) * flt(self.unit_price), 2)
+
+	def on_update(self):
+		audit = self.flags.pop("card_price_audit", None)
+		if not audit:
+			return
+		# server-side audit of a saved draft's price change (Owner 2026-10-20); the Version row keeps
+		# the field values, this comment keeps the reason with them
+		self.add_comment(
+			"Info",
+			_("Diesel price changed from {0} to {1}. Reason: {2}").format(
+				audit["from"], audit["to"], audit["reason"]
+			),
+		)
+		frappe.logger("card.diesel_price_change").warning(
+			json.dumps(
+				{"user": frappe.session.user, "fill": self.name, "on": str(now_datetime()), **audit},
+				ensure_ascii=False,
+				default=str,
+			)
+		)
 
 	def before_submit(self):
 		if self.price_source == NEEDS_REVIEW:
@@ -151,7 +184,7 @@ class ProjectDieselFill(Document):
 			self._drop_copied_exception()
 
 		if self._exception_changed(before):
-			self._check_exception(price)
+			self._check_exception(price, before)
 		elif cint(self.price_exception):
 			# unchanged exception (e.g. litres edited by a Card User): keep its price, stamps and
 			# the company price it replaced (the audited original value)
@@ -159,11 +192,16 @@ class ProjectDieselFill(Document):
 			self.company_price = before.company_price
 		if cint(self.price_exception):
 			self.price_source = EXCEPTION
+			self._note_price_change(before, self.exception_reason)
 			return
 		self.exception_reason = self.exception_by = self.exception_on = None
 
-		if self.flags.use_company_price or (before is not None and cint(before.price_exception)):
+		if before is not None and cint(before.price_exception) and not self.flags.remove_price_exception:
+			# a plain save (form or REST) cannot end an exception: it changes the price, so it needs a reason
+			frappe.throw(_("To end a price exception, use «Remove price exception» and give a reason."))
+		if self.flags.use_company_price or self.flags.remove_price_exception:
 			self._take_company_price(company_price)
+			self._note_price_change(before, self.flags.price_change_reason)
 			return
 		if before is None:
 			if self.amended_from and price != company_price:
@@ -230,7 +268,7 @@ class ProjectDieselFill(Document):
 			)
 		)
 
-	def _check_exception(self, price):
+	def _check_exception(self, price, before=None):
 		"""A price exception is set, changed or removed: role, price and reason are checked here."""
 		if not cint(self.price_exception):
 			if not can_except_price():
@@ -244,6 +282,15 @@ class ProjectDieselFill(Document):
 			self._refuse_exception_change()
 		if not (self.exception_reason or "").strip():
 			frappe.throw(_("A reason is required for a diesel price exception."))
+		precision = self.precision("unit_price") or 2
+		if (
+			before is not None
+			and cint(before.price_exception)
+			and price != flt(before.unit_price, precision)
+			and (self.exception_reason or "").strip() == (before.exception_reason or "").strip()
+		):
+			# a new price on an existing exception needs its own reason
+			frappe.throw(_("Write the reason for the new diesel price."))
 		self.exception_by = frappe.session.user
 		self.exception_on = now_datetime()
 		frappe.logger("card.diesel_price_exception").warning(
@@ -259,6 +306,17 @@ class ProjectDieselFill(Document):
 				default=str,
 			)
 		)
+
+	def _note_price_change(self, before, reason):
+		"""Queue the audit of a saved draft's price change for on_update (new fills are not audited
+		here: they take the company price, or an exception stamped with its own reason)."""
+		if before is None:
+			return
+		precision = self.precision("unit_price") or 2
+		old, new = flt(before.unit_price, precision), flt(self.unit_price, precision)
+		if old == new and cint(before.price_exception) == cint(self.price_exception):
+			return
+		self.flags.card_price_audit = {"from": old, "to": new, "reason": (reason or "").strip()}
 
 	def _refuse_exception_change(self):
 		frappe.throw(

@@ -13,6 +13,7 @@ from frappe.utils import flt
 
 from card.card.doctype.project_diesel_fill.project_diesel_fill import (
 	get_diesel_price_context,
+	remove_price_exception,
 	use_company_price,
 )
 from card.tests.diesel_price import set_diesel_price
@@ -219,18 +220,79 @@ class TestDieselPriceLock(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(self.card_user, f.save)
 
-	def test_removing_exception_returns_to_company_price(self):
-		f = self._new()
-		f.reload()
+	def _audit(self, name):
+		return frappe.get_all(
+			"Comment",
+			filters={
+				"reference_doctype": "Project Diesel Fill",
+				"reference_name": name,
+				"comment_type": "Info",
+			},
+			fields=["owner", "content", "creation"],
+			order_by="creation",
+		)
+
+	def _exception_fill(self):
+		f = frappe.get_doc("Project Diesel Fill", self._new().name)
 		f.update({"price_exception": 1, "unit_price": 2.4, "exception_reason": "invoice"})
 		self._as(self.accountant, f.save)
+		return frappe.get_doc("Project Diesel Fill", f.name)
+
+	def test_removing_exception_needs_the_role_and_a_reason(self):
+		f = self._exception_fill()
+		set_diesel_price(self.company, 3)
+		f.price_exception = 0  # a plain save, even by the exception role, cannot end it
+		with self.assertRaises(frappe.ValidationError):
+			self._as(self.accountant, f.save)
+		doc = frappe.get_doc("Project Diesel Fill", f.name).as_dict()
+		doc.update({"price_exception": 0, "exception_reason": ""})
+		with self.assertRaises(frappe.ValidationError):  # nor through REST
+			self._as(self.accountant, rest_save, doc)
+		with self.assertRaises(frappe.PermissionError):
+			self._as(self.card_user, remove_price_exception, f.name, "no longer valid")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(self.accountant, remove_price_exception, f.name, "  ")
+		row = frappe.db.get_value(
+			"Project Diesel Fill", f.name, ["unit_price", "price_exception"], as_dict=True
+		)
+		self.assertEqual((flt(row.unit_price), row.price_exception), (2.4, 1))
+		self._as(self.accountant, remove_price_exception, f.name, "supplier invoice corrected")
 		f.reload()
-		f.price_exception = 0
-		self._as(self.accountant, f.save)
-		f.reload()
-		self.assertEqual(f.price_source, "Company Price")
-		self.assertEqual(flt(f.unit_price), 2)
+		self.assertEqual((flt(f.unit_price), f.price_source, f.price_exception), (3, "Company Price", 0))
 		self.assertFalse(f.exception_by or f.exception_reason)
+		last = self._audit(f.name)[-1]
+		self.assertEqual(last.owner, self.accountant)
+		for part in ("2.4", "3.0", "supplier invoice corrected"):
+			self.assertIn(part, last.content)
+
+	def test_new_exception_price_needs_its_own_reason(self):
+		f = self._exception_fill()
+		f.unit_price = 2.5  # same reason as before
+		with self.assertRaises(frappe.ValidationError):
+			self._as(self.accountant, f.save)
+		f = frappe.get_doc("Project Diesel Fill", f.name)
+		f.update({"unit_price": 2.5, "exception_reason": "second invoice"})
+		self._as(self.accountant, f.save)
+		last = self._audit(f.name)[-1]
+		self.assertEqual(last.owner, self.accountant)
+		for part in ("2.4", "2.5", "second invoice"):
+			self.assertIn(part, last.content)
+
+	def test_exception_on_a_saved_draft_is_audited(self):
+		f = self._exception_fill()
+		last = self._audit(f.name)[-1]
+		self.assertEqual(last.owner, self.accountant)
+		for part in ("2.0", "2.4", "invoice"):
+			self.assertIn(part, last.content)
+		self.assertEqual((f.exception_by, flt(f.company_price)), (self.accountant, 2))
+		self.assertTrue(f.exception_on)
+
+	def test_plain_edits_write_no_price_audit(self):
+		f = self._exception_fill()
+		count = len(self._audit(f.name))
+		f.litres = 50
+		self._as(self.card_user, f.save)
+		self.assertEqual(len(self._audit(f.name)), count)
 
 	def test_exception_role_is_configurable(self):
 		_set("diesel_price_exception_role", "Card Manager")
@@ -454,6 +516,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 			frappe.allowed_http_methods_for_whitelisted_func[m.get_diesel_price_context], ["GET"]
 		)
 		self.assertEqual(frappe.allowed_http_methods_for_whitelisted_func[m.use_company_price], ["POST"])
+		self.assertEqual(frappe.allowed_http_methods_for_whitelisted_func[m.remove_price_exception], ["POST"])
 
 	def test_amended_zero_price_copy_is_not_repriced_silently(self):
 		zero_user = _role_user("Card User", "Accounts Manager", "Purchase Manager")

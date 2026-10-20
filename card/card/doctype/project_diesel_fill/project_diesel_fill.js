@@ -20,8 +20,34 @@ function card_price_context(frm) {
 			const ctx = (r && r.message) || {};
 			frm._card_price = ctx;
 			const allowed = ctx.can_except || ctx.can_zero;
-			frm.set_df_property("price_exception", "read_only", allowed ? 0 : 1);
+			// a saved exception ends only through the button below, with a reason (Owner 2026-10-20)
+			const saved_exception = !frm.is_new() && frm.doc.price_exception;
+			frm.set_df_property(
+				"price_exception",
+				"read_only",
+				allowed && !saved_exception ? 0 : 1,
+			);
 			frm.set_df_property("exception_reason", "read_only", allowed ? 0 : 1);
+			if (saved_exception && ctx.can_except) {
+				frm.add_custom_button(__("Remove price exception"), () =>
+					frappe.prompt(
+						{
+							fieldname: "reason",
+							fieldtype: "Small Text",
+							label: __("Reason"),
+							reqd: 1,
+						},
+						(values) =>
+							frappe
+								.call({
+									method: `${CARD_FILL}.remove_price_exception`,
+									args: { name: frm.doc.name, reason: values.reason },
+								})
+								.then(() => frm.reload_doc()),
+						__("Remove price exception"),
+					),
+				);
+			}
 			card_price_lock(frm);
 			// an amended copy keeps its price until someone decides (the server marks it Needs Review)
 			if (frm.is_new() && !frm.doc.price_exception && !frm.doc.amended_from) {
