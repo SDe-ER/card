@@ -32,16 +32,16 @@
   "default_statement_type",
   "include_draft_in_reports",
   "diesel_transport_tab",
+  "diesel_price_html",
   "diesel_section",
   "diesel_supplier_policy",
-  "diesel_supplier",
   "diesel_col",
-  "diesel_supplier_editor_role",
-  "diesel_price_exception_role",
-  "diesel_zero_price_role",
+  "diesel_supplier",
+  "transport_tab",
   "transport_section",
-  "transport_price_editor_role",
   "project_transport_prices",
+  "warehouse_cost_center_tab",
+  "location_cost_center_section",
   "location_cost_centers",
   "materials_tab",
   "materials_section",
@@ -57,7 +57,14 @@
   "notifications_section",
   "notify_on_card_submit",
   "notify_on_posting",
-  "notify_on_period_lock_override"
+  "notify_on_period_lock_override",
+  "advanced_permissions_tab",
+  "advanced_permissions_section",
+  "diesel_supplier_editor_role",
+  "diesel_price_exception_role",
+  "diesel_zero_price_role",
+  "advanced_permissions_col",
+  "transport_price_editor_role"
  ],
  "fields": [
   {
@@ -284,7 +291,12 @@
   {
    "fieldname": "diesel_transport_tab",
    "fieldtype": "Tab Break",
-   "label": "Diesel & Transport"
+   "label": "Diesel Settings"
+  },
+  {
+   "fieldname": "diesel_price_html",
+   "fieldtype": "HTML",
+   "label": "Diesel price per litre"
   },
   {
    "fieldname": "diesel_section",
@@ -293,7 +305,6 @@
   },
   {
    "default": "متغير",
-   "description": "Fixed: the supplier below is forced on every fill and nobody can change it. Variable: it is the default; only the permitted role may change it.",
    "fieldname": "diesel_supplier_policy",
    "fieldtype": "Select",
    "label": "Diesel supplier policy",
@@ -336,6 +347,11 @@
    "permlevel": 2
   },
   {
+   "fieldname": "transport_tab",
+   "fieldtype": "Tab Break",
+   "label": "Transport Settings"
+  },
+  {
    "fieldname": "transport_section",
    "fieldtype": "Section Break",
    "label": "Transport prices"
@@ -354,6 +370,15 @@
    "label": "Transport price per project",
    "options": "Card Project Transport Price",
    "permlevel": 2
+  },
+  {
+   "fieldname": "warehouse_cost_center_tab",
+   "fieldtype": "Tab Break",
+   "label": "Warehouse & Cost Centers"
+  },
+  {
+   "fieldname": "location_cost_center_section",
+   "fieldtype": "Section Break"
   },
   {
    "collapsible": 1,
@@ -407,12 +432,25 @@
    "label": "Flag a repeated request within (days)",
    "default": "30",
    "non_negative": 1
+  },
+  {
+   "fieldname": "advanced_permissions_tab",
+   "fieldtype": "Tab Break",
+   "label": "Advanced Permissions"
+  },
+  {
+   "fieldname": "advanced_permissions_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "advanced_permissions_col",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-20 10:00:00.000000",
+ "modified": "2026-10-20 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

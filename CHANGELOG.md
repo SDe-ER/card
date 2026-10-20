@@ -43,6 +43,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   a REST call cannot end an exception. No data patch: existing rows are unchanged.
 
 ### Changed
+- **Card Settings layout (simplified):** the diesel price per litre shows on top of "Diesel Settings" as one
+  clear value with a "Change price" button for users who may edit it (the value is still
+  `Card Company Settings.diesel_unit_price`; a company picker appears only when the user has several
+  companies; users who cannot read the price do not see the box). The main diesel section keeps only the
+  supplier policy and the supplier. Transport prices per project move to "Transport Settings", cost centers
+  per workshop to "Warehouse & Cost Centers", and the four role fields to "Advanced Permissions", shown only
+  to users who may change them. No field, permission, validation or stored value changed; two field help
+  texts were removed.
 - **Apps screen (G4):** the Card entry is hidden from Website Users and from users who can read
   none of the CARD Desk documents (Card Equipment, Card Monthly Card, the supplier and customer
   registries, Equipment Transport, Project Diesel Fill, Equipment Needs Review, Employee Tool
