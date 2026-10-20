@@ -60,7 +60,7 @@ fix the other document in its own change.
   2. CHANGELOG and Feature Registry in agreement;
   3. green CI, tests and security review on the tagged commit;
   4. migration, schema and fixture changes documented (what `migrate` writes and does not write);
-  5. a comparison with the previous stable version (RELEASE-POLICY.md checklist);
+  5. a comparison with the previous release (RELEASE-POLICY.md checklist);
   6. a rollback statement (section 5).
 - A pull request or a commit is not a release. A release is not a Production deployment. Each deployment is
   recorded per environment in [DEPLOYMENTS.md](../releases/DEPLOYMENTS.md) with its evidence.
@@ -69,8 +69,10 @@ fix the other document in its own change.
 
 Before any deployment, write down:
 
-1. the last stable version and its tag and commit;
-2. what currently runs on Production (from DEPLOYMENTS.md, re-verified on the site);
+1. the rollback target: the Last Known Good Release, or, while none is established, the Last Verified Production
+   Deployment, with its tag and commit (terms defined in DEPLOYMENTS.md; never assume a release was deployed);
+2. what currently runs on Production (from DEPLOYMENTS.md, re-verified on the site, since that file records the last
+   evidence, not a live check);
 3. every change between the two (CHANGELOG sections and merged pull requests);
 4. the rollback steps.
 
