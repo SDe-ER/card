@@ -77,7 +77,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   search, single reads and saves (`has_permission` + `permission_query_conditions`); a saved row can
   neither be changed by another company's user nor moved between companies. Unrestricted users,
   System Manager and Administrator are unchanged; transports still open and close assignments; no
-  role gains a permission.
+  role gains a permission. (#85, merge `735d126`; FR-070. Target: next release. Rollback: revert the merge;
+  no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real
