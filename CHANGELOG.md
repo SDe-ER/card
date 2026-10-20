@@ -122,6 +122,25 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   read, create, save, submit and cancel. Users without a Company User Permission (System Manager included)
   and Administrator are unchanged; no role gains a permission; no schema or data change. (#90,
   merge `9aa9184`; FR-071. Target: next release. Rollback: revert the merge; no schema or data change.)
+- **Equipment transport rows are written through the transport only.** `POST`, `PUT` and `DELETE`
+  `/api/resource/Equipment Transport Item` and `frappe.client.save` of a row saved one row alone (also
+  when sent with docstatus 2, which Frappe treats as a cancel without any validation): Frappe
+  checked only the transport's permission and skipped the transport's checks (company, movement,
+  duplicates, cost shares, assignment links). A user limited to company A could so add a row with a
+  company-B machine and its assignment to a submitted company-A transport, and cancelling the transport
+  then deleted or reopened company B's assignment. A row written alone (insert, save, update after
+  submit, delete) is now refused; the transport's own save, submit, cancel and delete and the REST calls
+  that go through the transport (`frappe.client.insert`, `set_value`, `delete` of a row) are unchanged.
+  Cancel now undoes only the assignments the transport itself wrote: of the row's machine, of the
+  transport's company, on its project and date, and claimed by no other submitted transport. When a row
+  links an assignment that was changed after the transport or never written by it, the cancel is refused
+  with a message (the transport stays submitted), so a move is never half undone; an assignment deleted
+  since has nothing to undo and is passed over. A cancel request that changes the transport's details or
+  rows (a save with docstatus 2 stores what the request sent) is refused; the transport is cancelled as
+  approved. No change to transport cost, cost bearer, split, price, cost center or
+  postings; no role gains a permission; no schema or data change. (Branch
+  `test/transport-item-standalone-rows`, not pushed; FR-073. Target: next release. Rollback: revert the
+  commit; no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real

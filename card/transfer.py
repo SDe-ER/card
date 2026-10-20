@@ -394,6 +394,21 @@ def check_cancel_allowed(txn):
 					"Cannot cancel: operation days are recorded for equipment {0} on project {1} after the transfer date."
 				).format(equipment, txn.project)
 			)
+		# (c) the row's assignment links are the ones this transport wrote on submit; one
+		# that is missing has nothing to undo, one changed or forged since is never touched,
+		# so a cancel never undoes only half a move
+		for fieldname in ("created_assignment", "previous_assignment"):
+			assignment = row.get(fieldname)
+			if (
+				assignment
+				and frappe.db.exists("Card Equipment Assignment", assignment)
+				and not _written_by(txn, row, fieldname)
+			):
+				frappe.throw(
+					_(
+						"Cannot cancel: assignment {0} of equipment {1} was not written by this transport or was changed after it."
+					).format(assignment, equipment)
+				)
 
 
 def _later_transfer(equipment, tdate, exclude):
@@ -417,12 +432,12 @@ def reverse_transfer(txn):
 		deferred = frappe.flags.get("card_defer_location_sync")
 		frappe.flags.card_defer_location_sync = True
 		try:
-			# only assignments of this row's equipment (defence against a forged link)
-			if row.created_assignment and _assignment_of(row.created_assignment, row.card_equipment):
+			# only assignments this transport wrote on submit (checked again in before_cancel)
+			if row.created_assignment and _written_by(txn, row, "created_assignment"):
 				frappe.delete_doc(
 					"Card Equipment Assignment", row.created_assignment, force=1, ignore_permissions=True
 				)
-			if row.previous_assignment and _assignment_of(row.previous_assignment, row.card_equipment):
+			if row.previous_assignment and _written_by(txn, row, "previous_assignment"):
 				reopened = frappe.get_doc("Card Equipment Assignment", row.previous_assignment)
 				reopened.to_date = None
 				reopened.save(ignore_permissions=True, ignore_version=False)
@@ -431,8 +446,43 @@ def reverse_transfer(txn):
 		sync_equipment_location(row.card_equipment, source="transfer")
 
 
-def _assignment_of(assignment, equipment):
-	return frappe.db.get_value("Card Equipment Assignment", assignment, "equipment") == equipment
+def _written_by(txn, row, fieldname):
+	"""True only for an assignment `apply_transfer` wrote for this row: of the row's
+	equipment, a machine of the transport's company, claimed by no other submitted
+	transport, and created on the transport's project from the transport date or the day
+	after (created_assignment) or closed on the transport date (previous_assignment).
+	A forged or legacy link is left as it is."""
+	assignment = row.get(fieldname)
+	a = frappe.db.get_value(
+		"Card Equipment Assignment",
+		assignment,
+		["equipment", "project", "from_date", "to_date"],
+		as_dict=True,
+	)
+	if not a or a.equipment != row.card_equipment:
+		return False
+	if frappe.db.get_value("Card Equipment", a.equipment, "company") != txn.company:
+		return False
+	tdate = getdate(txn.date)
+	if fieldname == "created_assignment":
+		if a.project != txn.project or getdate(a.from_date) not in (tdate, getdate(add_days(tdate, 1))):
+			return False
+	elif not a.to_date or getdate(a.to_date) != tdate:
+		return False
+	item = frappe.qb.DocType("Equipment Transport Item")
+	transport = frappe.qb.DocType("Equipment Transport")
+	claimed = (
+		frappe.qb.from_(item)
+		.join(transport)
+		.on((transport.name == item.parent) & (item.parenttype == "Equipment Transport"))
+		.select(item.name)
+		.where(item[fieldname] == assignment)
+		.where(transport.docstatus == 1)
+		.where(transport.name != txn.name)
+		.limit(1)
+		.run()
+	)
+	return not claimed
 
 
 def _card_day_after(equipment, project, tdate):

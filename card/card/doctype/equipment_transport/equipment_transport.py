@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import cstr, flt, getdate
 
 from card.company import single_company, validate_equipment_company
 from card.settings import setting
@@ -248,7 +248,43 @@ class EquipmentTransport(Document):
 
 	def before_cancel(self):
 		# Guards run before docstatus flips, so a block keeps the doc submitted.
+		self._refuse_changes_on_cancel()
 		check_cancel_allowed(self)
+
+	def _refuse_changes_on_cancel(self):
+		"""A cancel runs no validate and stores the values the request sent (frappe
+		Document._save, action "cancel"), so a cancel sent as a save with docstatus 2 could
+		rewrite the machines and assignment links that reverse_transfer undoes. Only the
+		transport as approved is cancelled."""
+		if _cancel_key(self) != _cancel_key(self.get_latest()):
+			frappe.throw(
+				_(
+					"Transport {0} is cancelled as approved; its details cannot be changed when cancelling."
+				).format(self.name)
+			)
 
 	def on_cancel(self):
 		reverse_transfer(self)
+
+
+def _cancel_key(doc):
+	"""What a cancel reads (card.transfer) and keeps on the cancelled transport, in one
+	comparable form (a request sends dates and numbers as text)."""
+	return (
+		cstr(doc.company),
+		cstr(getdate(doc.date)) if doc.date else "",
+		cstr(doc.project),
+		cstr(doc.destination_type),
+		cstr(doc.destination_location),
+		flt(doc.amount, 2),
+		[
+			(
+				cstr(row.name),
+				cstr(row.card_equipment),
+				cstr(row.created_assignment),
+				cstr(row.previous_assignment),
+				flt(row.amount, 2),
+			)
+			for row in doc.get("items") or []
+		],
+	)

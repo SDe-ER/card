@@ -2107,6 +2107,9 @@ msgstr "لا يمكن نقل صف مكون إلى وحدة أخرى."
 msgid "To change the component, edit unit {0} itself; a direct row update is not allowed."
 msgstr "لتغيير المكون، عدّل الوحدة {0} نفسها؛ التعديل المباشر على الصف غير مسموح."
 
+msgid "To change the equipment, edit transport {0} itself; a direct row write is not allowed."
+msgstr "لتغيير المعدات، عدّل نقل المعدات {0} نفسه؛ الكتابة المباشرة على الصف غير مسموحة."
+
 msgid "Location sync after an assignment change: project {0} → {1}; assignment date {2} → {3}"
 msgstr "مزامنة الموقع بعد تغيير تعيين: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
 
@@ -2192,6 +2195,12 @@ msgstr "مينفعش الإلغاء: فيه نقل أحدث للمعدة {0}. أ
 
 msgid "Cannot cancel: operation days are recorded for equipment {0} on project {1} after the transfer date."
 msgstr "مينفعش الإلغاء: فيه أيام تشغيل متسجلة للمعدة {0} على المشروع {1} بعد تاريخ النقل."
+
+msgid "Cannot cancel: assignment {0} of equipment {1} was not written by this transport or was changed after it."
+msgstr "لا يمكن الإلغاء: تعيين {0} للمعدة {1} لم يُنشئه نقل المعدات هذا أو تم تغييره بعده."
+
+msgid "Transport {0} is cancelled as approved; its details cannot be changed when cancelling."
+msgstr "يُلغى نقل المعدات {0} كما اعتُمد؛ لا يمكن تغيير بياناته عند الإلغاء."
 
 msgid "Change reason"
 msgstr "سبب التغيير"
