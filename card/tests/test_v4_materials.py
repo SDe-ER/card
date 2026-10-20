@@ -4,6 +4,7 @@
 standard ERPNext Material Requests, tool custody, reports and the operator page."""
 
 import json
+from unittest.mock import patch
 
 import frappe
 from frappe.tests import IntegrationTestCase
@@ -62,7 +63,9 @@ class TestV4Materials(IntegrationTestCase):
 		).insert(ignore_permissions=True)
 		return email
 
-	def _operator(self, prefix):
+	def _operator(self, prefix, user_permission=True):
+		"""user_permission=False skips the Employee/Company User Permissions that ERPNext adds
+		for an Employee with a user_id (Employee.create_user_permission, default 1)."""
 		user = self._user(prefix, ["Card Operator"])
 		if not frappe.db.exists("Gender", "Male"):
 			frappe.get_doc({"doctype": "Gender", "gender": "Male"}).insert(ignore_permissions=True)
@@ -76,6 +79,7 @@ class TestV4Materials(IntegrationTestCase):
 				"company": self.company,
 				"status": "Active",
 				"user_id": user,
+				"create_user_permission": int(user_permission),
 			}
 		).insert(ignore_permissions=True)
 		return user, emp.name
@@ -153,18 +157,44 @@ class TestV4Materials(IntegrationTestCase):
 			}
 		)
 
+	def _employee_user_permission(self, user):
+		return frappe.db.exists("User Permission", {"user": user, "allow": "Employee"})
+
 	def test_operator_who_can_also_read_cards_still_cannot_ask_in_another_operators_name(self):
-		# Card User lifts the operator-only record rule, so the requester check itself must refuse
+		# Card User lifts the operator-only record rule. Without the Employee User Permission,
+		# the requester check itself must refuse.
 		_other_user, other_operator = self._operator("named")
+		other_eq = self._equipment(other_operator)
+		requester, own_operator = self._operator("named-req", user_permission=False)
+		own_eq = self._equipment(own_operator)
+		frappe.get_doc("User", requester).add_roles("Card User")
+		frappe.clear_cache(user=requester)
+		self.assertFalse(self._employee_user_permission(requester), "premise: no Employee User Permission")
+		frappe.set_user(requester)
+		try:
+			own = self._request_doc(own_eq, own_operator).insert()  # positive control
+			self.assertEqual((own.operator, own.on_behalf), (own_operator, 0))
+			with self.assertRaisesRegex(frappe.PermissionError, "only ask for the equipment you operate"):
+				self._request_doc(other_eq, other_operator).insert()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count("Equipment Needs Request", {"equipment": other_eq}), 0)
+
+	def test_operator_with_the_standard_employee_user_permission_cannot_name_another_operator(self):
+		# The default Employee setup adds an Employee User Permission. It refuses first, also for a Card User.
+		_other_user, other_operator = self._operator("named-up")
 		other_eq = self._equipment(other_operator)
 		frappe.get_doc("User", self.op_user).add_roles("Card User")
 		frappe.clear_cache(user=self.op_user)
+		self.assertTrue(self._employee_user_permission(self.op_user), "premise: Employee User Permission")
 		frappe.set_user(self.op_user)
 		try:
-			own = self._request_doc(self.eq, self.operator).insert()  # positive control
-			self.assertEqual((own.operator, own.on_behalf), (self.operator, 0))
-			with self.assertRaisesRegex(frappe.PermissionError, "only ask for the equipment you operate"):
-				self._request_doc(other_eq, other_operator).insert()
+			self._request_doc(self.eq, self.operator).insert()  # positive control
+			controller = "card.card.doctype.equipment_needs_request.equipment_needs_request"
+			with patch(f"{controller}.check_requester", wraps=materials.check_requester) as requester_check:
+				with self.assertRaises(frappe.PermissionError):
+					self._request_doc(other_eq, other_operator).insert()
+			requester_check.assert_not_called()  # the User Permission refused before validate
 		finally:
 			frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.count("Equipment Needs Request", {"equipment": other_eq}), 0)

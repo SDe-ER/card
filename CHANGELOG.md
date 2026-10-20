@@ -60,7 +60,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   control. The Asset tests build their own fixtures, so they run in CI instead of skipping. `card/install.py`:
   `before_install` / `after_install` are excluded from coverage (`# pragma: no cover`) because they run at
   `install-app`, before coverage measurement starts. No behaviour, permission, accounting, data or API change.
-  Rollback: revert the merge.
+  (#96) Rollback: revert the merge.
 
 ### Changed
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
