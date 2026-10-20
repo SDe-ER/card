@@ -55,7 +55,14 @@ def _user_permitted(doctype):
 
 @frappe.whitelist(methods=["GET"])
 @frappe.validate_and_sanitize_search_inputs
-def fill_link_query(doctype, txt, searchfield, start, page_len, filters=None):
+def fill_link_query(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: str | dict | None = None,
+):
 	"""Link search of the diesel fill form for Project, Cost Center and Supplier (read only).
 
 	Only for users who may create or edit a fill. Project and Cost Center come from the form's company,
