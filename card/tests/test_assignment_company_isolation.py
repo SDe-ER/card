@@ -321,3 +321,85 @@ class TestAssignmentCompanyIsolation(IntegrationTestCase):
 		t.submit()
 		created = frappe.get_list(DOCTYPE, filters={"equipment": eq}, fields=["project", "from_date"])
 		self.assertEqual([(r.project, str(r.from_date)) for r in created], [(proj_t, self._d(3))])
+
+	# ---------- H3: endpoints check the record, not only the doctype ----------
+
+	def test_equipment_location_is_refused_for_other_company_equipment(self):
+		from card.card.doctype.equipment_transport.equipment_transport import get_equipment_location
+
+		self._as(["Card Manager"], restrict=self.company)
+		here = get_equipment_location(self.eq_a)  # positive control
+		self.assertEqual((here.type, here.project), ("Project", self.proj_a))
+		with self.assertRaises(frappe.PermissionError):
+			get_equipment_location(self.eq_b)
+		self._as([])  # no role at all
+		with self.assertRaises(frappe.PermissionError):
+			get_equipment_location(self.eq_a)
+
+	def test_shift_heatmap_is_refused_for_other_company_equipment(self):
+		from card.card.doctype.card_equipment.card_equipment import get_shift_heatmap
+
+		self._as(["Card Manager"], restrict=self.company)
+		self.assertEqual(get_shift_heatmap(self.eq_a), {"day": {}, "night": {}, "has_night": False})
+		with self.assertRaises(frappe.PermissionError):
+			get_shift_heatmap(self.eq_b)
+
+	# ---------- H4: deny paths of the assignment hooks ----------
+
+	def _permit(self, email, company, applicable_for):
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": email,
+				"allow": "Company",
+				"for_value": company,
+				"apply_to_all_doctypes": 0,
+				"applicable_for": applicable_for,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=email)
+
+	def test_user_with_no_permitted_company_matches_no_assignment(self):
+		"""Companies are intersected over assignments and equipment: company A for one and
+		company B for the other leaves none, and the condition must then match nothing."""
+		from card.card.doctype.card_equipment_assignment.card_equipment_assignment import (
+			assignment_query_conditions,
+			has_assignment_permission,
+		)
+
+		email = self._user(["Card Manager"], restrict=self.company, applicable_for=DOCTYPE)
+		self._permit(email, self.other, "Card Equipment")
+		self.assertEqual(assignment_query_conditions(email), "1=0")
+		frappe.set_user(email)
+		self.assertEqual(self._visible(), set())
+		self.assertFalse(has_assignment_permission(frappe.get_doc(DOCTYPE, self.asg_a), "read", email))
+		self.assertFalse(frappe.has_permission(DOCTYPE, "read", self.asg_a))
+		# positive controls: a user of company A gets a real condition naming only A, an
+		# unrestricted user and the Administrator get none
+		frappe.set_user("Administrator")
+		condition = assignment_query_conditions(self._user(["Card Manager"], restrict=self.company))
+		self.assertIn(frappe.db.escape(self.company), condition)
+		self.assertNotIn(frappe.db.escape(self.other), condition)
+		self.assertEqual(assignment_query_conditions(self._user(["Card Manager"])), "")
+		self.assertEqual(assignment_query_conditions("Administrator"), "")
+
+	def test_assignment_without_equipment_passes_the_hook_but_cannot_be_saved(self):
+		from card.card.doctype.card_equipment_assignment.card_equipment_assignment import (
+			has_assignment_permission,
+		)
+
+		email = self._user(["Card Manager"], restrict=self.company)
+		doc = frappe.new_doc(DOCTYPE)
+		doc.project = self.proj_a
+		doc.from_date = self._d(2)
+		# nothing chosen yet: the hook has nothing to object to; the mandatory field stops the save
+		self.assertTrue(has_assignment_permission(doc, "create", email))
+		frappe.set_user(email)
+		with self.assertRaises(frappe.MandatoryError):
+			doc.insert()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count(DOCTYPE, {"project": self.proj_a}), 1)  # only the fixture row
+		# contrast: equipment of another company is denied as soon as it is chosen
+		foreign = frappe.new_doc(DOCTYPE)
+		foreign.equipment = self.eq_b
+		self.assertFalse(has_assignment_permission(foreign, "create", email))

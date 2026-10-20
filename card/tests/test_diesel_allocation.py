@@ -62,6 +62,45 @@ class TestDieselAllocation(IntegrationTestCase):
 			pass
 
 	# ---- helpers ----
+	def _other_company(self):
+		name = "TEST-DSL-CO-" + self.token
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": name,
+				"abbr": "D" + self.token[:6].upper(),
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
+		)
+		co.name = name
+		co.db_insert()
+		return name
+
+	def _user(self, roles, restrict=None):
+		email = f"test-dsl-{frappe.generate_hash(length=6)}@example.com"
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": email,
+				"first_name": "Diesel",
+				"send_welcome_email": 0,
+				"roles": [{"role": r} for r in roles],
+			}
+		).insert(ignore_permissions=True)
+		if restrict:
+			frappe.get_doc(
+				{
+					"doctype": "User Permission",
+					"user": email,
+					"allow": "Company",
+					"for_value": restrict,
+					"apply_to_all_doctypes": 1,
+				}
+			).insert(ignore_permissions=True)
+		frappe.clear_cache(user=email)
+		return email
+
 	def _day(self, day, hours):
 		return {
 			"operation_date": f"{self.year_str}-{self.month_str}-{day:02d}",
@@ -172,6 +211,55 @@ class TestDieselAllocation(IntegrationTestCase):
 		c = self._make_card(eq, [self._day(2, 10)])
 		self._make_fill(litres=10, unit_price=2, card_equipment=eq.name)
 		self.assertTrue(get_card_diesel(c.name)["company_bears"])
+
+	def test_card_diesel_is_zero_when_the_card_has_no_project(self):
+		eq = self._make_equipment("EQ1", fuel_on="الشركة")
+		c = self._make_card(eq, [self._day(2, 10)])
+		self._make_fill(litres=100, unit_price=2, card_equipment=eq.name)
+		self.assertAlmostEqual(get_card_diesel(c.name)["amount"], 200.0)  # premise: diesel is allocated
+		frappe.db.set_value("Card Monthly Card", c.name, "project", None)
+		self.assertEqual(
+			get_card_diesel(c.name),
+			{
+				"litres": 0.0,
+				"amount": 0.0,
+				"litres_recorded": 0.0,
+				"litres_estimated": 0.0,
+				"amount_recorded": 0.0,
+				"amount_estimated": 0.0,
+				"company_bears": False,
+			},
+		)
+
+	def test_card_diesel_needs_read_permission_on_the_card(self):
+		eq = self._make_equipment("EQ1")
+		c = self._make_card(eq, [self._day(2, 10)])
+		self._make_fill(litres=100, unit_price=2, card_equipment=eq.name)  # amount 200
+		no_role = self._user([])
+		try:
+			frappe.set_user(no_role)
+			with self.assertRaises(frappe.PermissionError):
+				get_card_diesel(c.name)
+			# positive control: a user holding a Card Monthly Card read grant gets the data
+			frappe.set_user(self._user(["Card User"]))
+			self.assertAlmostEqual(get_card_diesel(c.name)["amount"], 200.0)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_card_diesel_refuses_a_card_of_another_company(self):
+		eq = self._make_equipment("EQ1")
+		mine = self._make_card(eq, [self._day(2, 10)])
+		self._make_fill(litres=100, unit_price=2, card_equipment=eq.name)  # amount 200
+		theirs = self._make_card(self._make_equipment("EQ2"), [self._day(2, 10)])
+		other = self._other_company()
+		frappe.db.set_value("Card Monthly Card", theirs.name, "company", other)
+		try:
+			frappe.set_user(self._user(["Card User"], restrict=self.company))
+			self.assertAlmostEqual(get_card_diesel(mine.name)["amount"], 200.0)  # positive control
+			with self.assertRaises(frappe.PermissionError):
+				get_card_diesel(theirs.name)
+		finally:
+			frappe.set_user("Administrator")
 
 	def test_unallocated_fill_surfaces_and_total_matches(self):
 		# project-tank fill in a project/month with NO submitted card hours

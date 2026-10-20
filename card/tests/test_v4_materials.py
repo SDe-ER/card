@@ -143,6 +143,59 @@ class TestV4Materials(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}], equipment=other_eq)
 
+	def _request_doc(self, equipment, operator):
+		return frappe.get_doc(
+			{
+				"doctype": "Equipment Needs Request",
+				"equipment": equipment,
+				"operator": operator,
+				"items": [{"kind": "Part", "item_code": self.filter, "qty": 1}],
+			}
+		)
+
+	def test_operator_who_can_also_read_cards_still_cannot_ask_in_another_operators_name(self):
+		# Card User lifts the operator-only record rule, so the requester check itself must refuse
+		_other_user, other_operator = self._operator("named")
+		other_eq = self._equipment(other_operator)
+		frappe.get_doc("User", self.op_user).add_roles("Card User")
+		frappe.clear_cache(user=self.op_user)
+		frappe.set_user(self.op_user)
+		try:
+			own = self._request_doc(self.eq, self.operator).insert()  # positive control
+			self.assertEqual((own.operator, own.on_behalf), (self.operator, 0))
+			with self.assertRaisesRegex(frappe.PermissionError, "only ask for the equipment you operate"):
+				self._request_doc(other_eq, other_operator).insert()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count("Equipment Needs Request", {"equipment": other_eq}), 0)
+
+	def test_operator_only_user_naming_another_operator_is_refused_by_the_record_rule(self):
+		# An operator-only account is stopped by the has_permission hook (needs_request_permission)
+		# before check_requester runs; the requester check itself is covered by the Card User test above.
+		_other_user, other_operator = self._operator("swap")
+		frappe.set_user(self.op_user)
+		try:
+			self.assertTrue(materials.needs_request_permission(self._request_doc(self.eq, self.operator)))
+			doc = self._request_doc(self.eq, other_operator)
+			self.assertFalse(materials.needs_request_permission(doc))
+			with self.assertRaises(frappe.PermissionError):
+				doc.insert()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count("Equipment Needs Request", {"equipment": self.eq}), 0)
+
+	def test_operator_account_without_an_employee_cannot_submit_needs(self):
+		stray = self._user("stray", ["Card Operator"])
+		rows = json.dumps([{"kind": "Part", "item_code": self.filter, "qty": 1}])
+		frappe.set_user(stray)
+		try:
+			with self.assertRaisesRegex(frappe.PermissionError, "not linked to an employee"):
+				materials.submit_needs(self.eq, rows)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count("Equipment Needs Request", {"equipment": self.eq}), 0)
+		self.assertTrue(self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}]))  # linked operator
+
 	def test_supervisor_enters_on_behalf_and_both_names_are_kept(self):
 		supervisor = self._user("sup", ["Card Supervisor"])
 		frappe.set_user(supervisor)
@@ -501,6 +554,19 @@ class TestV4Materials(IntegrationTestCase):
 			self.assertTrue(frappe.local.session.data.csrf_token)
 		finally:
 			frappe.set_user("Administrator")
+
+	def test_operator_page_sends_a_guest_to_login(self):
+		import importlib
+
+		page = importlib.import_module("card.www.equipment-needs.index")
+		frappe.set_user("Guest")
+		try:
+			with self.assertRaises(frappe.Redirect):
+				page.get_context(frappe._dict())
+			self.assertEqual(frappe.local.flags.redirect_location, "/login?redirect-to=/equipment-needs")
+		finally:
+			frappe.set_user("Administrator")
+			frappe.local.flags.redirect_location = None
 
 	def test_page_endpoints_refuse_users_without_a_card_role(self):
 		outsider = self._user("out", [])

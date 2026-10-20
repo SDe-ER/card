@@ -163,6 +163,28 @@ class TestDieselFillLinks(IntegrationTestCase):
 		).insert(ignore_permissions=True)
 		self.assertEqual(self._names(self.card_user, "Project", self.company), {second})
 
+	def _permit_supplier(self, user, supplier):
+		frappe.get_doc(
+			{"doctype": "User Permission", "user": user, "allow": "Supplier", "for_value": supplier}
+		).insert(ignore_permissions=True)
+
+	def test_supplier_user_permission_limits_the_forced_settings_supplier(self):
+		default = self._supplier()
+		_set("diesel_supplier", default)
+		# a Supplier User Permission that leaves out the Settings supplier leaves nothing to pick
+		self._permit_supplier(self.card_user, self.supplier)
+		self.assertEqual(self._names(self.card_user, "Supplier"), set())
+		# one that includes it keeps exactly that supplier
+		self._permit_supplier(self.card_user, default)
+		self.assertEqual(self._names(self.card_user, "Supplier"), {default})
+
+	def test_supplier_user_permission_limits_the_list_of_a_supplier_editor(self):
+		editor = _role_user("Card User", "Card Manager")
+		_set("diesel_supplier", self._supplier())
+		self.assertGreater(len(self._names(editor, "Supplier")), 1)
+		self._permit_supplier(editor, self.supplier)
+		self.assertEqual(self._names(editor, "Supplier"), {self.supplier})
+
 	def test_search_text_filters_by_title(self):
 		title = frappe.db.get_value("Project", self.project, "project_name")
 		self.assertEqual(self._names(self.card_user, "Project", self.company, txt=title), {self.project})

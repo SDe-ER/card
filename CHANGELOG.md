@@ -52,6 +52,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   release badges, so readers see the Python test coverage of `main` (CARD Mobile `frontend/` is not measured). The
   repository is public, so the badge URL has no token.
   No app code, permission, accounting, data or API change. (#94) Rollback: revert the merge.
+- **Security tests for the coverage program, Batch 1a (tests only):** new and stronger tests for the Asset link
+  endpoints (`get_asset_prefill`, `create_equipment_from_asset`, `available_assets_query`) and the equipment Asset
+  link, `get_shift_heatmap`, `get_equipment_location`, `refresh_supplier` / `refresh_customer`, `party_figures`,
+  `get_card_diesel`, the company scoping of assignments, registries, party and diesel-fill link queries, the monthly
+  card company guard, the operator request rules and the operator page guest redirect. Each deny has a permitted
+  control. The Asset tests build their own fixtures, so they run in CI instead of skipping. `card/install.py`:
+  `before_install` / `after_install` are excluded from coverage (`# pragma: no cover`) because they run at
+  `install-app`, before coverage measurement starts. No behaviour, permission, accounting, data or API change.
+  Rollback: revert the merge.
 
 ### Changed
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or

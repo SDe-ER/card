@@ -2,17 +2,22 @@
 # For license information, please see LICENSE
 """O2a tests: owned Card Equipment <-> official ERPNext Asset link.
 
-Creating a real Asset needs a fixed-asset Item + Asset Category + Location; when the
-test site cannot provide them the Asset-dependent tests skip with a clear reason
-instead of failing."""
+The tests build their own fixed-asset master data (accounts, Asset Category, fixed-asset
+Item, Location) and their own Assets, so they run on a clean site. All of it is rolled
+back with the test transaction."""
 
-import unittest
+import re
 from unittest.mock import patch
 
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from card.api import create_equipment_from_asset, get_asset_prefill, get_only_company
+from card.api import (
+	available_assets_query,
+	create_equipment_from_asset,
+	get_asset_prefill,
+	get_only_company,
+)
 from card.tests.test_controllers import _ensure_masters
 
 ASSET_FIELDS = {
@@ -21,6 +26,11 @@ ASSET_FIELDS = {
 	"asset_cost_center": "cost_center",
 	"asset_purchase_value": "net_purchase_amount",
 }
+LINK = "الأصل_في_erpnext"
+ASSET_CATEGORY = "TEST-FA-CATEGORY"
+ASSET_ITEM = "TEST-FA-ITEM"
+ASSET_LOCATION = "TEST-FA-LOCATION"
+STATUS_OF = {0: "Draft", 1: "Submitted", 2: "Cancelled"}
 
 
 class TestAssetLink(IntegrationTestCase):
@@ -29,35 +39,149 @@ class TestAssetLink(IntegrationTestCase):
 		super().setUpClass()
 		cls._m = _ensure_masters()
 
-	def _make_asset(self):
-		"""Minimal Asset, marked submitted directly (rolled back with the test transaction)."""
+	def tearDown(self):
+		frappe.set_user("Administrator")
 		try:
-			item = frappe.db.get_value("Item", {"is_fixed_asset": 1, "disabled": 0}, "name")
-			category = frappe.db.get_value("Asset Category", {}, "name")
-			location = frappe.db.get_value("Location", {}, "name")
-			if not (item and category and location):
-				self.skipTest("Site has no fixed-asset Item / Asset Category / Location to build an Asset")
-			asset = frappe.get_doc(
+			frappe.db.rollback()
+		except Exception:
+			pass
+
+	# ---------- fixtures (Administrator, rolled back) ----------
+
+	def _fixed_asset_account(self, company, account_type, root_type):
+		"""The company's leaf account of this type (the standard chart has them), else one
+		created under the matching root."""
+		name = frappe.db.get_value(
+			"Account", {"company": company, "account_type": account_type, "is_group": 0}, "name"
+		)
+		if name:
+			return name
+		parent = frappe.db.get_value(
+			"Account",
+			{"company": company, "is_group": 1, "root_type": root_type, "parent_account": ["is", "not set"]},
+			"name",
+		)
+		return (
+			frappe.get_doc(
 				{
-					"doctype": "Asset",
-					"asset_name": "TEST-ASSET-" + frappe.generate_hash(length=8),
-					"item_code": item,
-					"asset_category": category,
-					"location": location,
-					"company": self._m["company"],
-					"is_existing_asset": 1,
-					"gross_purchase_amount": 1000,
-					"net_purchase_amount": 1000,  # v16 mandatory; gross kept for older schemas
-					"purchase_date": frappe.utils.today(),
-					"available_for_use_date": frappe.utils.today(),
+					"doctype": "Account",
+					"account_name": "TEST-FA " + account_type,
+					"company": company,
+					"parent_account": parent,
+					"account_type": account_type,
+					"is_group": 0,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+
+	def _asset_masters(self):
+		"""Asset Category (with the company's accounts), fixed-asset Item and Location."""
+		company = self._m["company"]
+		if not frappe.db.exists("Asset Category", ASSET_CATEGORY):
+			frappe.get_doc(
+				{
+					"doctype": "Asset Category",
+					"asset_category_name": ASSET_CATEGORY,
+					"accounts": [
+						{
+							"company_name": company,
+							"fixed_asset_account": self._fixed_asset_account(company, "Fixed Asset", "Asset"),
+							"accumulated_depreciation_account": self._fixed_asset_account(
+								company, "Accumulated Depreciation", "Asset"
+							),
+							"depreciation_expense_account": self._fixed_asset_account(
+								company, "Depreciation", "Expense"
+							),
+						}
+					],
 				}
 			).insert(ignore_permissions=True)
-		except Exception as e:
-			if isinstance(e, unittest.SkipTest):
-				raise
-			self.skipTest("Cannot create an Asset in this test environment: %s" % e)
-		frappe.db.set_value("Asset", asset.name, "docstatus", 1)
+		if not frappe.db.exists("Item", ASSET_ITEM):
+			frappe.get_doc(
+				{
+					"doctype": "Item",
+					"item_code": ASSET_ITEM,
+					"item_name": ASSET_ITEM,
+					"item_group": "All Item Groups",
+					"stock_uom": "Nos",
+					"is_stock_item": 0,
+					"is_fixed_asset": 1,
+					"asset_category": ASSET_CATEGORY,
+				}
+			).insert(ignore_permissions=True)
+		if not frappe.db.exists("Location", ASSET_LOCATION):
+			frappe.get_doc({"doctype": "Location", "location_name": ASSET_LOCATION}).insert(
+				ignore_permissions=True
+			)
+
+	def _make_asset(self, docstatus=1):
+		"""A minimal Asset of the test company. docstatus is set directly: 1 = submitted
+		(no depreciation, GL or movement is wanted), 0 = draft, 2 = cancelled."""
+		self._asset_masters()
+		company = self._m["company"]
+		asset = frappe.get_doc(
+			{
+				"doctype": "Asset",
+				"asset_name": "TEST-ASSET-" + frappe.generate_hash(length=8),
+				"item_code": ASSET_ITEM,
+				"asset_category": ASSET_CATEGORY,
+				"location": ASSET_LOCATION,
+				"company": company,
+				"cost_center": frappe.get_cached_value("Company", company, "cost_center")
+				or frappe.db.get_value("Cost Center", {"company": company, "is_group": 0}, "name"),
+				"asset_type": "Existing Asset",
+				"net_purchase_amount": 1000,
+				"purchase_date": frappe.utils.today(),
+				"available_for_use_date": frappe.utils.today(),
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.set_value("Asset", asset.name, {"docstatus": docstatus, "status": STATUS_OF[docstatus]})
 		return asset.name
+
+	def _other_company(self):
+		token = frappe.generate_hash(length=8)
+		name = "TEST-ASSETLINK-CO-" + token
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": name,
+				"abbr": "L" + token[:6].upper(),
+				"default_currency": frappe.db.get_value("Company", self._m["company"], "default_currency"),
+				"country": frappe.db.get_value("Company", self._m["company"], "country"),
+			}
+		)
+		co.name = name
+		co.db_insert()
+		return name
+
+	def _user(self, roles, restrict=None):
+		email = f"assetlink-{frappe.generate_hash(length=6)}@example.com"
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": email,
+				"first_name": "Asset Link",
+				"send_welcome_email": 0,
+				"roles": [{"role": r} for r in roles],
+			}
+		).insert(ignore_permissions=True)
+		if restrict:
+			frappe.get_doc(
+				{
+					"doctype": "User Permission",
+					"user": email,
+					"allow": "Company",
+					"for_value": restrict,
+					"apply_to_all_doctypes": 1,
+				}
+			).insert(ignore_permissions=True)
+		frappe.clear_cache(user=email)
+		return email
+
+	def _as(self, roles, **kw):
+		frappe.set_user(self._user(roles, **kw))
 
 	def _make_equipment(self, **kw):
 		d = frappe.new_doc("Card Equipment")
@@ -73,9 +197,16 @@ class TestAssetLink(IntegrationTestCase):
 
 	def test_one_equipment_per_asset(self):
 		asset = self._make_asset()
-		self._make_equipment(**{"الأصل_في_erpnext": asset})
-		with self.assertRaises(frappe.ValidationError):
+		first = self._make_equipment(**{"الأصل_في_erpnext": asset})
+		with self.assertRaisesRegex(
+			frappe.ValidationError, "already linked to equipment " + re.escape(first.name)
+		):
 			self._make_equipment(**{"الأصل_في_erpnext": asset})
+		self.assertEqual(frappe.db.count("Card Equipment", {LINK: asset}), 1)
+		first.reload()
+		first.plate_no = "TST-1"
+		first.save(ignore_permissions=True)  # the equipment that owns the link can still be saved
+		self.assertEqual(first.get(LINK), asset)
 
 	def test_create_equipment_from_asset(self):
 		asset = self._make_asset()
@@ -87,9 +218,12 @@ class TestAssetLink(IntegrationTestCase):
 		self.assertFalse(frappe.db.exists("Card Equipment", {"الأصل_في_erpnext": asset}))
 
 		# Once linked, the same asset cannot be offered again.
-		self._make_equipment(**{"الأصل_في_erpnext": asset})
-		with self.assertRaises(frappe.ValidationError):
+		eq = self._make_equipment(**{"الأصل_في_erpnext": asset})
+		with self.assertRaisesRegex(
+			frappe.ValidationError, "already linked to equipment " + re.escape(eq.name)
+		):
 			create_equipment_from_asset(asset)
+		self.assertEqual(frappe.db.count("Card Equipment", {LINK: asset}), 1)
 
 	def test_asset_fetch_fields_present(self):
 		meta = frappe.get_meta("Card Equipment")
@@ -191,3 +325,147 @@ class TestAssetLink(IntegrationTestCase):
 		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "equipment_name"), asset_name)
 		sync_equipment_from_asset.execute()  # idempotent
 		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "equipment_name"), asset_name)
+
+	# ---------- H1: the Asset endpoints refuse what the user may not read, create or see ----------
+
+	def test_asset_endpoints_need_asset_read_permission(self):
+		asset = self._make_asset()
+		self._as(["Card Manager"])  # may create Card Equipment, holds no Asset grant
+		self.assertFalse(frappe.has_permission("Asset", "read", asset), "premise: no Asset read")
+		with self.assertRaises(frappe.PermissionError):
+			get_asset_prefill(asset)
+		with self.assertRaises(frappe.PermissionError):
+			create_equipment_from_asset(asset)
+		# the same calls pass once the user may read Assets
+		self._as(["Card Manager", "Accounts User"])
+		self.assertEqual(get_asset_prefill(asset)["company"], self._m["company"])
+		self.assertEqual(create_equipment_from_asset(asset).get(LINK), asset)
+
+	def test_prefill_needs_equipment_read_and_create_needs_equipment_create(self):
+		asset = self._make_asset()
+		self._as(["Accounts User"])  # reads Assets, no Card Equipment grant
+		with self.assertRaises(frappe.PermissionError):
+			get_asset_prefill(asset)
+		self._as(["Card User", "Accounts User"])  # reads Card Equipment, cannot create it
+		self.assertEqual(get_asset_prefill(asset)["company"], self._m["company"])
+		with self.assertRaises(frappe.PermissionError):
+			create_equipment_from_asset(asset)
+
+	def test_asset_must_exist_and_be_submitted(self):
+		missing = "TEST-NO-ASSET-" + frappe.generate_hash(length=8)
+		for call in (get_asset_prefill, create_equipment_from_asset):
+			with self.subTest(call=call.__name__, case="missing"):
+				with self.assertRaisesRegex(frappe.ValidationError, "does not exist"):
+					call(missing)
+		for docstatus in (0, 2):
+			asset = self._make_asset(docstatus=docstatus)
+			for call in (get_asset_prefill, create_equipment_from_asset):
+				with self.subTest(call=call.__name__, docstatus=docstatus):
+					with self.assertRaisesRegex(frappe.ValidationError, "must be submitted"):
+						call(asset)
+
+	def test_restricted_user_cannot_reach_an_asset_of_another_company(self):
+		other = self._other_company()
+		mine, theirs = self._make_asset(), self._make_asset()
+		frappe.db.set_value("Asset", theirs, "company", other)
+		self._as(["Card Manager", "Accounts User"], restrict=self._m["company"])
+		self.assertEqual(get_asset_prefill(mine)["company"], self._m["company"])  # positive control
+		with self.assertRaises(frappe.PermissionError):
+			get_asset_prefill(theirs)
+		with self.assertRaises(frappe.PermissionError):
+			create_equipment_from_asset(theirs)
+		with self.assertRaises(frappe.PermissionError):
+			self._make_equipment(**{LINK: theirs})
+
+	def test_available_assets_query_offers_only_free_submitted_assets_of_the_users_company(self):
+		other = self._other_company()
+		free, linked, draft, cancelled, scrapped, foreign = (
+			self._make_asset(),
+			self._make_asset(),
+			self._make_asset(docstatus=0),
+			self._make_asset(docstatus=2),
+			self._make_asset(),
+			self._make_asset(),
+		)
+		self._make_equipment(**{LINK: linked})
+		frappe.db.set_value("Asset", scrapped, "status", "Scrapped")
+		frappe.db.set_value("Asset", foreign, "company", other)
+		everything = (free, linked, draft, cancelled, scrapped, foreign)
+
+		def offered(filters=None):
+			return {
+				r[0] for r in available_assets_query("Asset", "TEST-ASSET-", "name", 0, 500, filters or {})
+			}
+
+		# Card Manager creates equipment; Accounts User gives the Asset read the rows need
+		self._as(["Card Manager", "Accounts User"], restrict=self._m["company"])
+		names = offered()
+		self.assertIn(free, names)
+		for excluded in (linked, draft, cancelled, scrapped, foreign):
+			self.assertNotIn(excluded, names, excluded)
+		# a company the user may not see lists nothing, however the filter is sent
+		self.assertEqual(available_assets_query("Asset", "", "name", 0, 500, {"company": other}), [])
+		self.assertEqual(available_assets_query("Asset", "", "name", 0, 500, '{"company": "%s"}' % other), [])
+		self.assertIn(free, offered({"company": self._m["company"]}))
+
+		# an unrestricted manager also sees the other company's free asset
+		self._as(["Card Manager", "Accounts User"])
+		self.assertEqual({foreign, free} & offered(), {foreign, free})
+		self.assertFalse(set(everything[1:5]) & offered())
+
+	def test_available_assets_query_is_for_users_who_may_create_or_edit_equipment(self):
+		free = self._make_asset()
+		self._as(["Accounts Manager"])  # reads Card Equipment only
+		with self.assertRaises(frappe.PermissionError):
+			available_assets_query("Asset", "TEST-ASSET-", "name", 0, 500, {})
+		self._as(["Card Manager", "Accounts User"])
+		rows = available_assets_query("Asset", "TEST-ASSET-", "name", 0, 500, {})
+		self.assertIn(free, {r[0] for r in rows})
+
+	# ---------- H2: linking an Asset on save ----------
+
+	def test_equipment_refuses_an_asset_of_another_company(self):
+		asset = self._make_asset()
+		self._make_equipment(**{LINK: asset})  # positive control: same company links
+		foreign = self._make_asset()
+		frappe.db.set_value("Asset", foreign, "company", self._other_company())
+		with self.assertRaisesRegex(frappe.ValidationError, "belongs to company"):
+			self._make_equipment(**{LINK: foreign})
+		self.assertFalse(frappe.db.exists("Card Equipment", {LINK: foreign}))
+
+	def test_equipment_refuses_a_cancelled_asset_but_keeps_a_link_made_before(self):
+		asset = self._make_asset()
+		eq = self._make_equipment(**{LINK: asset})
+		cancelled = self._make_asset(docstatus=2)
+		with self.assertRaisesRegex(frappe.ValidationError, "cancelled"):
+			self._make_equipment(**{LINK: cancelled})
+		# the check runs when the link changes, so a later cancel never blocks an unrelated save
+		frappe.db.set_value("Asset", asset, {"docstatus": 2, "status": "Cancelled"})
+		eq.reload()
+		eq.plate_no = "TST-2"
+		eq.save(ignore_permissions=True)
+		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "plate_no"), "TST-2")
+		# ... but pointing the equipment at a cancelled asset is refused
+		eq.reload()
+		eq.set(LINK, cancelled)
+		with self.assertRaisesRegex(frappe.ValidationError, "cancelled"):
+			eq.save(ignore_permissions=True)
+
+	def test_equipment_link_needs_asset_read_permission(self):
+		asset = self._make_asset()
+		self._as(["Card Manager"])
+		self.assertFalse(frappe.has_permission("Asset", "read", asset), "premise: no Asset read")
+		with self.assertRaisesRegex(frappe.PermissionError, "not permitted to read Asset"):
+			self._make_equipment(**{LINK: asset})
+		self.assertFalse(frappe.db.exists("Card Equipment", {LINK: asset}))
+		self._as(["Card Manager", "Accounts User"])
+		self.assertEqual(self._make_equipment(**{LINK: asset}).get(LINK), asset)
+
+	def test_missing_asset_gives_no_details_and_cannot_be_linked(self):
+		from card.card.doctype.card_equipment.card_equipment import asset_equipment_values
+
+		missing = "TEST-NO-ASSET-" + frappe.generate_hash(length=8)
+		self.assertEqual(asset_equipment_values(missing), {})
+		with self.assertRaises(frappe.LinkValidationError):
+			self._make_equipment(**{LINK: missing})
+		self.assertFalse(frappe.db.exists("Card Equipment", {LINK: missing}))

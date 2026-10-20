@@ -193,3 +193,78 @@ class TestEquipmentHeatmap(IntegrationTestCase):
 		for k, v in result.items():
 			self.assertIsInstance(k, int)
 			self.assertIsInstance(v, float)
+
+	# ---------- get_shift_heatmap: day / night split (H3) ----------
+
+	def _get_shift_heatmap(self, name: str):
+		mod = importlib.import_module("card.card.doctype.card_equipment.card_equipment")
+		return mod.get_shift_heatmap(name)
+
+	def _user(self, roles):
+		email = f"test-shiftheat-{frappe.generate_hash(length=6)}@example.com"
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": email,
+				"first_name": "Shift Heat",
+				"send_welcome_email": 0,
+				"roles": [{"role": r} for r in roles],
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=email)
+		return email
+
+	def test_shift_heatmap_splits_day_and_night_hours_per_date(self):
+		eq = self._make_equipment()
+		date2 = _mid_date_str(self.month_str, self.year_str, day=16)
+		day_rows = [
+			{"operation_date": self.mid_date, "day_status": "عمل", "working_hours": 8.0},
+			{"operation_date": date2, "day_status": "عمل", "working_hours": 6.0},
+		]
+		night_rows = [{"operation_date": self.mid_date, "day_status": "عمل", "working_hours": 5.0}]
+		self._make_card(eq, hours_list=[], shift="نهاري", submit=True, days_override=day_rows)
+		self._make_card(eq, hours_list=[], shift="ليلي", submit=True, days_override=night_rows)
+		result = self._get_shift_heatmap(eq.name)
+		key1, key2 = _midnight_unix(self.mid_date), _midnight_unix(date2)
+		self.assertEqual(result["day"], {key1: 8.0, key2: 6.0})
+		self.assertEqual(result["night"], {key1: 5.0})
+		self.assertIs(result["has_night"], True)
+
+	def test_shift_heatmap_day_only_equipment_has_no_night(self):
+		eq = self._make_equipment()
+		rows = [{"operation_date": self.mid_date, "day_status": "عمل", "working_hours": 7.0}]
+		self._make_card(eq, hours_list=[], submit=True, days_override=rows)
+		result = self._get_shift_heatmap(eq.name)
+		self.assertEqual(result["day"], {_midnight_unix(self.mid_date): 7.0})
+		self.assertEqual(result["night"], {})
+		self.assertIs(result["has_night"], False)
+
+	def test_shift_heatmap_counts_only_submitted_cards_with_hours(self):
+		eq = self._make_equipment()
+		stop_date = _mid_date_str(self.month_str, self.year_str, day=17)
+		worked = [
+			{"operation_date": self.mid_date, "day_status": "عمل", "working_hours": 4.0},
+			{"operation_date": stop_date, "day_status": "توقف من العميل", "working_hours": 0.0},
+		]
+		self._make_card(eq, hours_list=[], shift="نهاري", submit=True, days_override=worked)
+		# a draft night card adds nothing
+		draft_rows = [{"operation_date": self.mid_date, "day_status": "عمل", "working_hours": 9.0}]
+		self._make_card(eq, hours_list=[], shift="ليلي", submit=False, days_override=draft_rows)
+		result = self._get_shift_heatmap(eq.name)
+		self.assertEqual(result["day"], {_midnight_unix(self.mid_date): 4.0})
+		self.assertEqual(result["night"], {})
+		self.assertIs(result["has_night"], False)
+
+	def test_shift_heatmap_is_refused_without_read_permission(self):
+		eq = self._make_equipment()
+		rows = [{"operation_date": self.mid_date, "day_status": "عمل", "working_hours": 8.0}]
+		self._make_card(eq, hours_list=[], submit=True, days_override=rows)
+		try:
+			frappe.set_user(self._user([]))
+			with self.assertRaises(frappe.PermissionError):
+				self._get_shift_heatmap(eq.name)
+			# a Card Manager may read both the equipment and its cards
+			frappe.set_user(self._user(["Card Manager"]))
+			self.assertEqual(self._get_shift_heatmap(eq.name)["day"], {_midnight_unix(self.mid_date): 8.0})
+		finally:
+			frappe.set_user("Administrator")
