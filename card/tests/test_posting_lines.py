@@ -8,6 +8,7 @@ import frappe
 from frappe.utils import flt
 
 from card.gl.posting import build_monthly_posting
+from card.tests.diesel_price import use_fill_price
 from card.tests.test_s3_posting import _PostingBase
 
 
@@ -36,7 +37,7 @@ class TestPostingLines(_PostingBase):
 				**kw,
 			}
 		)
-		f.insert(ignore_permissions=True)
+		use_fill_price(f).insert(ignore_permissions=True)
 		f.submit()
 		return f
 
@@ -118,7 +119,7 @@ class TestLikeForLikeReconciliation(_PostingBase):
 				"unit_price": 20,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
@@ -349,7 +350,7 @@ class TestSourceCostCenterGuard(_PostingBase):
 				"unit_price": 2,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		frappe.db.set_value("Project Diesel Fill", fill.name, "cost_center", group, update_modified=False)
 		with self.assertRaisesRegex(frappe.ValidationError, "cost center"):
@@ -370,7 +371,7 @@ class TestSourceCostCenterGuard(_PostingBase):
 				"unit_price": 2,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)

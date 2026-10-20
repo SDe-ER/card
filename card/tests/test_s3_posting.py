@@ -9,6 +9,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
 from card.gl.posting import build_monthly_posting
+from card.tests.diesel_price import use_fill_price
 from card.tests.test_customer import _CustomerCardsBase
 
 
@@ -265,7 +266,7 @@ class TestAggregationAndDiesel(_PostingBase):
 				"unit_price": 2,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		pi = frappe.get_doc("Purchase Invoice", pi_name)
@@ -298,7 +299,7 @@ class TestAggregationAndDiesel(_PostingBase):
 					**kw,
 				}
 			)
-			f.insert(ignore_permissions=True)
+			use_fill_price(f).insert(ignore_permissions=True)
 			f.submit()
 			return f
 
@@ -328,7 +329,7 @@ class TestAggregationAndDiesel(_PostingBase):
 				"unit_price": 2,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 10, 2026)
@@ -354,7 +355,7 @@ class TestAggregationAndDiesel(_PostingBase):
 				"unit_price": 2,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
@@ -403,7 +404,7 @@ class TestAggregationAndDiesel(_PostingBase):
 				"unit_price": 1,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
@@ -429,7 +430,7 @@ class TestAggregationAndDiesel(_PostingBase):
 				"unit_price": 1.0,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		pi = frappe.get_doc("Purchase Invoice", pi_name)
@@ -1004,7 +1005,7 @@ class TestG0LifecycleDebt(_PostingBase):
 				"unit_price": 2,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
@@ -1248,7 +1249,7 @@ class TestLateSources(_PostingBase):
 				"unit_price": 2,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		fill.submit()
 		draft = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		try:
