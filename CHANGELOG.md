@@ -48,6 +48,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   statuses informational only. It also keeps `tests/`, `test_*.py` and `patches/` out of the report (Frappe already
   omits some of these paths). No app code, permission, accounting, data or API change. (#93) Rollback: revert the
   merge.
+- **Codecov coverage badge (documentation only):** `README.md` shows the Codecov coverage badge next to the CI and
+  release badges, so readers see the Python test coverage of `main` (CARD Mobile `frontend/` is not measured). The
+  repository is public, so the badge URL has no token.
+  No app code, permission, accounting, data or API change. (#94) Rollback: revert the merge.
 
 ### Changed
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or

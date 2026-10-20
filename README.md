@@ -10,6 +10,7 @@
 
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/SDe-ER/card)](https://github.com/SDe-ER/card/releases/latest)
+[![codecov](https://codecov.io/gh/SDe-ER/card/graph/badge.svg)](https://codecov.io/gh/SDe-ER/card)
 
 </div>
 
