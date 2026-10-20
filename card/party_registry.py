@@ -79,14 +79,14 @@ def registry_row(registry, field, party):
 	return frappe.db.get_value(registry, {field: party})
 
 
-def _restricted_companies(user):
-	"""The companies ``user`` is limited to for monthly cards, or None when the
-	user is not restricted (sees every company) — then no extra condition."""
+def _restricted_companies(user, *doctypes):
+	"""The companies ``user`` is limited to for ``doctypes`` (default: monthly cards),
+	or None when the user is not restricted (sees every company) — then no extra condition."""
 	from card.report_access import permitted_companies
 
 	if user == "Administrator":
 		return None
-	allowed = permitted_companies(user=user)
+	allowed = permitted_companies(*doctypes, user=user)
 	if set(allowed) >= set(frappe.get_all("Company", pluck="name")):
 		return None
 	return allowed
