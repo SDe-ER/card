@@ -1214,9 +1214,6 @@ msgstr ""
 msgid "نهاري"
 msgstr ""
 
-msgid "Diesel & Transport"
-msgstr "الديزل والنقل"
-
 msgid "Suppliers"
 msgstr "الموردين"
 
@@ -1590,9 +1587,6 @@ msgstr "مورد الديزل"
 
 msgid "Diesel supplier policy"
 msgstr "سياسة مورد الديزل"
-
-msgid "Fixed: the supplier below is forced on every fill and nobody can change it. Variable: it is the default; only the permitted role may change it."
-msgstr "ثابت: المورد أدناه يُفرض على كل تعبئة ولا يمكن لأحد تغييره. متغير: هو الافتراضي؛ وتغييره متاح للدور المصرّح له فقط."
 
 msgid "Diesel supplier editor role"
 msgstr "دور تعديل مورد الديزل"
@@ -2878,3 +2872,40 @@ msgstr "لا يوجد سعر ديزل معتمد للشركة {0}. يجب أن �
 
 msgid "This draft has price {0}; the company price is {1}. Use the company price, or ask {2} to approve an exception."
 msgstr "سعر هذه المسودة {0}؛ وسعر الشركة {1}. استخدم سعر الشركة، أو اطلب من {2} اعتماد استثناء."
+
+msgid "Diesel Settings"
+msgstr "إعدادات الديزل"
+
+msgid "Transport Settings"
+msgstr "إعدادات النقل"
+
+msgid "Warehouse & Cost Centers"
+msgstr "المخازن ومراكز التكلفة"
+
+msgid "Advanced Permissions"
+msgstr "صلاحيات متقدمة"
+
+msgid "Diesel price per litre"
+msgstr "سعر لتر الديزل"
+
+msgid "Diesel price per litre ({0})"
+msgstr "سعر لتر الديزل ({0})"
+
+msgctxt "Card currency"
+msgid "SAR"
+msgstr "ريال سعودي"
+
+msgid "Not set"
+msgstr "غير محدد"
+
+msgid "Add the company in the Accounting tab first."
+msgstr "أضف الشركة أولًا في تبويب المحاسبة."
+
+msgid "The diesel price must be greater than zero."
+msgstr "يجب أن يكون سعر الديزل أكبر من صفر."
+
+msgid "Change price"
+msgstr "تعديل السعر"
+
+msgid "Save or discard your other changes in Card Settings first."
+msgstr "احفظ أو تراجع عن تعديلاتك الأخرى في الإعدادات أولًا."
