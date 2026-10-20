@@ -551,3 +551,36 @@ class CardMonthlyCard(Document):
 					title=_("Supplier record"),
 					indicator="orange",
 				)
+
+
+# P0 company isolation D2 (Owner 2026-10-20): Frappe checks create/write permission on
+# the values the client sends (frappe/model/document.py: insert, _save) and only then
+# fetches `company` from the equipment, so an empty company passed the Company User
+# Permission. The card's company is its equipment's company.
+
+
+def has_card_permission(doc, ptype=None, user=None, debug=False):
+	"""Document-level check for every path (read, create, REST/Desk save, set_value,
+	submit, cancel): the company sent, the company stored for a saved card AND the
+	company of a new or changed equipment must all be permitted, so a card can be
+	neither created in, moved to, nor taken over from another company. Scope = the
+	Company User Permissions that apply to cards, as the card list uses. A saved card's
+	unchanged equipment is not re-read, so a read costs one query.
+	A controller can only deny (Frappe 16 treats a falsy return as a denial)."""
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(user or frappe.session.user, "Card Monthly Card")
+	if companies is None:
+		return True
+	owners = {doc.get("company")}
+	stored = None
+	if not doc.is_new():
+		stored = frappe.db.get_value(doc.doctype, doc.name, ["company", "equipment"], as_dict=True)
+		if stored:
+			owners.add(stored.company)
+	equipment = doc.get("equipment")
+	if equipment and (not stored or equipment != stored.equipment):
+		owners.add(frappe.db.get_value("Card Equipment", equipment, "company"))
+	owners.discard(None)
+	owners.discard("")
+	return all(company in companies for company in owners)
