@@ -101,3 +101,47 @@ class CardEquipmentAssignment(Document):
 					self.equipment, c.project, c.from_date, c.to_date or _("(open)")
 				)
 			)
+
+
+# P0 company isolation (Owner 2026-10-20): an assignment has no Company field, so a
+# Company User Permission never reaches it. Its company is its equipment's company.
+
+
+def _restricted_companies(user):
+	"""None when ``user`` sees every company; else the companies allowed for BOTH
+	assignments and equipment, so an assignment never shows equipment the user cannot open."""
+	from card.party_registry import _restricted_companies as restricted
+
+	return restricted(user, "Card Equipment Assignment", "Card Equipment")
+
+
+def assignment_query_conditions(user=None):
+	companies = _restricted_companies(user or frappe.session.user)
+	if companies is None:
+		return ""
+	if not companies:
+		return "1=0"
+	values = ", ".join(frappe.db.escape(c) for c in companies)
+	return (
+		"`tabCard Equipment Assignment`.`equipment` in"
+		f" (select e.`name` from `tabCard Equipment` e where e.`company` in ({values}))"
+	)
+
+
+def has_assignment_permission(doc, ptype=None, user=None, debug=False):
+	"""Document-level twin of the query conditions, for every path (read, REST save,
+	create): the equipment the request sends AND, for a saved row, the equipment it
+	has in the database must both belong to a permitted company, so a row of another
+	company can neither be read, changed, nor moved into the user's company. A
+	controller can only deny (Frappe 16 treats a falsy return as a denial)."""
+	companies = _restricted_companies(user or frappe.session.user)
+	if companies is None:
+		return True
+	equipment = {doc.get("equipment")}
+	if not doc.is_new():
+		equipment.add(frappe.db.get_value(doc.doctype, doc.name, "equipment"))
+	equipment.discard(None)
+	if not equipment:
+		return True  # nothing chosen yet; the mandatory field stops the save
+	owners = frappe.get_all("Card Equipment", filters={"name": ["in", list(equipment)]}, pluck="company")
+	return all(company in companies for company in owners)
