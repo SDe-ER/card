@@ -108,8 +108,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   A `has_permission` hook now denies any card whose sent company or new equipment, or whose saved company,
   belongs to a company the user may not see (the Company User Permissions that apply to cards); it covers
   read, create, save, submit and cancel. Users without a Company User Permission (System Manager included)
-  and Administrator are unchanged; no role gains a permission; no schema or data change. (FR-071.
-  Target: next release. Rollback: revert the commit; no schema or data change.)
+  and Administrator are unchanged; no role gains a permission; no schema or data change. (#90,
+  merge `9aa9184`; FR-071. Target: next release. Rollback: revert the merge; no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real
