@@ -43,6 +43,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   a REST call cannot end an exception. No data patch: existing rows are unchanged.
 
 ### Changed
+- **Change, versioning and rollback policy (documentation only; target: next release):** new binding
+  [Change, Versioning & Safe Rollback Policy](docs/governance/CHANGE-VERSIONING-ROLLBACK-POLICY.md) (commits,
+  CHANGELOG and Feature Registry duties, SemVer and release requirements, safe rollback, task closing, approval
+  ladder), a public [deployment record](docs/releases/DEPLOYMENTS.md) (versions only), and `AGENTS.md` /
+  `CLAUDE.md` at the repository root so agents find the rules. Pointers added to RELEASE-POLICY.md,
+  FEATURE-REGISTRY.md and CONTRIBUTING.md. No code, data, permission, accounting or API change; no past tag or
+  release changed. Rollback: revert the commit (documents only, nothing to restore).
 - **Card Settings layout (simplified):** the diesel price per litre shows on top of "Diesel Settings" as one
   clear value with a "Change price" button for users who may edit it (the value is still
   `Card Company Settings.diesel_unit_price`; a company picker appears only when the user has several
@@ -71,6 +78,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the Settings supplier only for users who may not change it; names and titles only. The form fills in the Settings
   supplier. The save refuses a project or cost center of another company, a group or disabled cost center, and a
   newly chosen disabled supplier, also through REST. No DocPerm, role or User Permission was changed.
+
+### Security
+- **Equipment assignments follow the user's company.** A Card Equipment Assignment has no Company field,
+  so a Company User Permission never reached it: a user limited to one company could list, open and
+  search the assignments of another company, and a Card Manager limited to one company could create and
+  change them through the API. An assignment now belongs to its equipment's company for lists, link
+  search, single reads and saves (`has_permission` + `permission_query_conditions`); a saved row can
+  neither be changed by another company's user nor moved between companies. Unrestricted users,
+  System Manager and Administrator are unchanged; transports still open and close assignments; no
+  role gains a permission. (#85, merge `735d126`; FR-070. Target: next release. Rollback: revert the merge;
+  no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real

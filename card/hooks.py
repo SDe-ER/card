@@ -138,12 +138,15 @@ permission_query_conditions = {
 	"Card Equipment Customer": "card.party_registry.customer_query_conditions",
 	# v4.0.0: an operator sees only his own equipment needs
 	"Equipment Needs Request": "card.materials.needs_request_query",
+	# P0 2026-10-20: an assignment belongs to its equipment's company
+	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.assignment_query_conditions",
 }
 
 has_permission = {
 	"Card Equipment Supplier": "card.party_registry.has_registry_permission",
 	"Card Equipment Customer": "card.party_registry.has_registry_permission",
 	"Equipment Needs Request": "card.materials.needs_request_permission",
+	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.has_assignment_permission",
 }
 
 # Document Events

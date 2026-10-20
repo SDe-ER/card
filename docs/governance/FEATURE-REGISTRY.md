@@ -18,6 +18,9 @@ open. It exists so that no working feature is lost silently during a rebuild or 
   Evidence column names the file or test. Planned work stays **Planned**.
 - **Visual checks are separate.** A passing unit test is not a browser or device check; record those separately.
 - Rows are added gradually, area by area, each one checked against the code at the time it is added.
+- These rules are part of the
+  [Change, Versioning & Safe Rollback Policy](CHANGE-VERSIONING-ROLLBACK-POLICY.md): a merge is not a release, and
+  a release is not a deployment ([DEPLOYMENTS.md](../releases/DEPLOYMENTS.md)).
 
 ## Status values
 
@@ -105,11 +108,13 @@ Checked against `main` @ `31fe7ce` (2026-10-20); FR-002 and FR-003 re-checked at
 | FR-067 | Maintenance warnings by hours (250 h / 300 h per type) | Backend | Planned | Same as FR-060 | Uses FR-021 fields |
 | FR-068 | "Card Supplier Statement" document (supplier + month + project, two signatures) | Desk | Removed | Approved in the 2026-10-13 design, never built; replaced by the supplier statement report (FR-039) and monthly posting (FR-004) | — |
 | FR-069 | Simplified Card Settings layout: diesel price per litre shown on top of Diesel Settings as one value from `Card Company Settings.diesel_unit_price` (company picker only with several companies; "Change price" for permlevel-1 writers, saved on its own; hidden for users who cannot read the price); main diesel section = supplier policy + supplier; Transport Settings, Warehouse & Cost Centers and Advanced Permissions tabs (the last only for permlevel-2 writers); field help removed from the price and the supplier policy | Desk | Implemented | PR #81 merged 2026-10-20, merge commit `c17958e` (head `bab7234`); CI on `main` @ `c17958e`: CI (530 tests OK, 20 skipped) + CodeQL pass, 0 open alerts; `card_settings.json`, new `card_settings.js`, `card_company_settings.json`, `ar.po`; `card/tests/test_settings_layout.py` (5: fields, types, permlevels and defaults kept; DocPerms unchanged; tabs; single price source); v11-dev 2026-10-20: migrate ×3, settings data hashes unchanged, full suite 530 (3 known dev-data failures), browser checks as Accounts Manager, Card Manager, Administrator | Not released or deployed. Card Manager has no permlevel-1 read, so it does not see the price (no permission changed). 8 other Card Settings fields still carry help text (Owner decision). Behaviour not reproduced: one extra price save (2.00 → 1.79) during a mis-sequenced browser test, audited in Version; two later runs saved exactly once |
+| FR-070 | Card Equipment Assignment company isolation: an assignment belongs to its equipment's company for lists, report view, link search, list counts, single reads, saves, `set_value` and rename; a saved row cannot be changed by another company's user or moved between companies; scope = Company User Permissions that apply to assignments and to equipment; unrestricted users, System Manager and Administrator unchanged | Backend | Implemented | PR #85 merged 2026-10-20, merge commit `735d126` (head `9051d64`); PR checks 8/8 pass (CARD unit tests, CARD Mobile, CodeQL python/javascript, Pre-commit, Semgrep, PR title); CI on `main` @ `735d126`: CI (549 tests OK, 20 skipped), CARD Mobile pass (re-run after a yarn registry 502 on the first attempt), CodeQL python + javascript pass. Defect D1 proven on `main` @ `66cedea` (`QA-Evidence\2026-10-20-card-p0-tests\REPORT.md`: list, read, search, create and change of another company's assignment). Fix (`card/hooks.py` `permission_query_conditions` + `has_permission`; `card_equipment_assignment.py`; `party_registry.py`); `card/tests/test_assignment_company_isolation.py` (19: on `main` 12 fail, with the fix 19 pass); v11-dev full suite 566 tests, only the 3 known dev-data failures; evidence `QA-Evidence\2026-10-20-card-asgiso\` | Not released or deployed. Connection counts on the Card Equipment and Project forms are counted by Frappe without permission checks, but only after a read check on that equipment or project, so they show only that record's own assignments. The same company check for Card Monthly Card and Equipment Transport saves (D2, D3) and the concurrent-overlap lock (D4) are separate tasks |
 
 ## Change log of this file
 
 | Date | Change |
 |---|---|
+| 2026-10-20 | FR-070 added (Card Equipment Assignment company isolation, P0 defect D1; fix branch, pull request not opened yet). No row deleted |
 | 2026-10-19 | Registry created with FR-001 and FR-002 |
 | 2026-10-19 | FR-001 merged (PR #77); rules for stable IDs and no deletion; FR-003 to FR-012 added from the 2026-10-19 feature audit, each checked against `main` @ `dc57259` |
 | 2026-10-20 | PR #81 merged (`c17958e`): FR-069 → Implemented; FR-013 tabs re-checked against `main` |
@@ -118,3 +123,5 @@ Checked against `main` @ `31fe7ce` (2026-10-20); FR-002 and FR-003 re-checked at
 | 2026-10-20 | FR-002: removing a price exception needs the exception role and a written reason; every saved-draft price change is audited on the server (PR #79 `a1efa57`). FR-001: Card User Cost Center permission gap on v11-dev recorded for investigation |
 | 2026-10-20 | Owner final decision: saved diesel drafts are never repriced automatically; explicit price change needs the exception role, a reason and an audit (FR-002, local fix `eb5e250` on PR #79's branch) |
 | 2026-10-20 | PR #78 merged (`31fe7ce`). FR-002 → In review (PR #79). FR-001 test wording and browser note; FR-003, FR-004, FR-005, FR-012 evidence extended. FR-013 to FR-068 added from the 2026-10-19 gap audit, each re-checked against `main` @ `31fe7ce`. No row deleted |
+| 2026-10-20 | Rules: link to the Change, Versioning & Safe Rollback Policy and the deployment record. No row changed |
+| 2026-10-20 | PR #85 merged (`735d126`): FR-070 → Implemented (assignment company isolation). No row deleted |
