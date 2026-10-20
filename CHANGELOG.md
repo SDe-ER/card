@@ -41,6 +41,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   "Remove price exception", "Use company price") needs the exception role and a written reason; the server
   records the old and new price, the user, the time and the reason (comment, Version and log). A plain save or
   a REST call cannot end an exception. No data patch: existing rows are unchanged.
+- **Codecov coverage upload (CI only):** CI already measured coverage but nobody could see it. The "CARD unit
+  tests" job now uploads the report that `run-tests --coverage` writes (`sites/coverage.xml`) to Codecov with
+  `codecov/codecov-action@v5` and the `CODECOV_TOKEN` repository secret, so each pull request shows its coverage.
+  A failed upload does not fail the job (`fail_ci_if_error: false`). The new `codecov.yml` makes the Codecov
+  statuses informational only. It also keeps `tests/`, `test_*.py` and `patches/` out of the report (Frappe already
+  omits some of these paths). No app code, permission, accounting, data or API change. (#93) Rollback: revert the
+  merge.
 
 ### Changed
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
