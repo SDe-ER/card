@@ -43,6 +43,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   a REST call cannot end an exception. No data patch: existing rows are unchanged.
 
 ### Changed
+- **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
+  review task, an agent loads the official Frappe skills that fit the task with its Skill tool (`frappe-ui` for CARD
+  Mobile), records them under `SKILLS_LOADED` in its report, and stops with `SKILL NOT FOUND` when a required skill
+  is missing. Reason: agents that start inside the repository did not see this rule. No code, data, permission,
+  accounting or API change. Rollback: revert the commit (documents only, nothing to restore).
 - **CARD Mobile Home: the equipment list uses the frappe-ui `List` family** (`frontend/src/pages/Home.vue`;
   `List`, `ListRows`, `ListRow`, `ListCell` from `frappe-ui/list`, frappe-ui 1.0.2 as before). Reason: first step of
   the incremental adoption of official frappe-ui components in CARD Mobile. Same data in each row (equipment name or
