@@ -126,7 +126,30 @@ function card_preview_amount(frm) {
 	if (flt(frm.doc.amount) !== amount) frm.set_value("amount", amount);
 }
 
+function card_default_supplier(frm) {
+	frappe
+		.call({
+			method: `${CARD_FILL}.fill_link_query`,
+			type: "GET",
+			args: { doctype: "Supplier", txt: "", searchfield: "name", start: 0, page_len: 1 },
+		})
+		.then((r) => {
+			const rows = (r && r.message) || [];
+			if (rows.length && !frm.doc.supplier) frm.set_value("supplier", rows[0][0]);
+		});
+}
+
 frappe.ui.form.on("Project Diesel Fill", {
+	setup(frm) {
+		// P0 (Owner 2026-10-20): fill users cannot search these ERPNext masters directly; the server
+		// query lists only what the user may pick for the form's company (and checks it again on save)
+		for (const fieldname of ["project", "cost_center", "supplier"]) {
+			frm.set_query(fieldname, () => ({
+				query: `${CARD_FILL}.fill_link_query`,
+				filters: { company: frm.doc.company || "" },
+			}));
+		}
+	},
 	onload(frm) {
 		if (frm.is_new() && !frm.doc.company) {
 			frm.set_value("company", frappe.defaults.get_user_default("Company"));
@@ -145,7 +168,13 @@ frappe.ui.form.on("Project Diesel Fill", {
 				method: `${CARD_FILL}.get_supplier_editable`,
 				type: "GET",
 			})
-			.then((r) => frm.set_df_property("supplier", "read_only", r && r.message ? 0 : 1));
+			.then((r) => {
+				const editable = r && r.message;
+				frm.set_df_property("supplier", "read_only", editable ? 0 : 1);
+				// P0: a user who may not change the supplier cannot pick it either; the form takes the
+				// Settings supplier (the only one the query returns to that user)
+				if (!editable && frm.is_new() && !frm.doc.supplier) card_default_supplier(frm);
+			});
 		card_price_context(frm);
 	},
 	company(frm) {

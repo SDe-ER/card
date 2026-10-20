@@ -31,6 +31,86 @@ def get_supplier_editable():
 	return can_change_diesel_supplier()
 
 
+# P0 (Owner 2026-10-20): fill users hold no select on Project / Cost Center / Supplier, so the Desk's
+# standard link search refuses them. The fill form searches through fill_link_query instead; the
+# master DocPerms stay unchanged. Per doctype: the title field and the fixed filters.
+FILL_LINKS = {
+	"Project": ("project_name", {}),
+	"Cost Center": ("cost_center_name", {"is_group": 0, "disabled": 0}),
+	"Supplier": ("supplier_name", {"disabled": 0}),
+}
+
+
+def _user_permitted(doctype):
+	"""Names of `doctype` the session user's User Permissions allow on a diesel fill, or None (no limit)
+	— the same entries Frappe applies to the fill's link fields when it saves."""
+	entries = frappe.permissions.get_user_permissions(frappe.session.user).get(doctype) or []
+	allowed = {
+		e.get("doc")
+		for e in entries
+		if not e.get("applicable_for") or e.get("applicable_for") == "Project Diesel Fill"
+	}
+	return allowed or None
+
+
+@frappe.whitelist(methods=["GET"])
+@frappe.validate_and_sanitize_search_inputs
+def fill_link_query(
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: str | dict | None = None,
+):
+	"""Link search of the diesel fill form for Project, Cost Center and Supplier (read only).
+
+	Only for users who may create or edit a fill. Project and Cost Center come from the form's company,
+	which must be one the user may see; a user who may not change the diesel supplier gets the Settings
+	supplier only. Every user gets names and titles only, under the same rules as the save."""
+	from card.report_access import permitted_companies
+
+	if doctype not in FILL_LINKS:
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	if not (
+		frappe.has_permission("Project Diesel Fill", "create")
+		or frappe.has_permission("Project Diesel Fill", "write")
+	):
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	title, fixed = FILL_LINKS[doctype]
+	conditions = dict(fixed)
+	if doctype == "Supplier":
+		if not can_change_diesel_supplier():
+			conditions["name"] = setting("diesel_supplier")
+	else:
+		filters = frappe.parse_json(filters) if filters else {}
+		company = filters.get("company") if isinstance(filters, dict) else None
+		if not company or company not in permitted_companies("Project Diesel Fill"):
+			return []
+		conditions["company"] = company
+	# one rule for every user, the same the save applies: authorised above, filtered by company and
+	# the user's User Permissions for a diesel fill, and limited to name + title. The read itself does
+	# not need the master permission (fill users have none, and some roles hold select only).
+	allowed = _user_permitted(doctype)
+	if allowed is not None:
+		if "name" in conditions:
+			allowed &= {conditions["name"]}
+		if not allowed:
+			return []
+		conditions["name"] = ["in", sorted(allowed)]
+	like = f"%{txt or ''}%"
+	return frappe.get_all(
+		doctype,
+		filters=conditions,
+		or_filters={"name": ["like", like], title: ["like", like]},
+		fields=["name", title],
+		order_by="name",
+		limit_start=start,
+		limit=page_len,
+		as_list=True,
+	)
+
+
 # FR-002 (Owner 2026-10-19): the price per litre comes from the company's row in Card Settings.
 COMPANY_PRICE = "Company Price"
 EXCEPTION = "Exception"
@@ -139,6 +219,7 @@ class ProjectDieselFill(Document):
 		if not self.company:
 			self.company = single_company()  # F.8: default to THE company
 		validate_equipment_company(self, "card_equipment")  # F.8 consistency
+		self._check_link_values()
 		self._enforce_diesel_supplier()
 		self._apply_price()
 		# Amount is litres x unit price; the accounting posting (Purchase Invoice on
@@ -351,6 +432,31 @@ class ProjectDieselFill(Document):
 			).format(flt(self.unit_price), company_price, setting("diesel_price_exception_role")),
 			indicator="orange",
 		)
+
+	def _check_link_values(self):
+		"""P0 (Owner 2026-10-20): the project and the cost center belong to the fill's company, the cost
+		center can carry a posting line and a newly chosen supplier is enabled. Frappe's save only checks
+		that a linked record exists, so this also stops other companies' values sent through the API."""
+		if (
+			self.supplier
+			and self.has_value_changed("supplier")
+			and frappe.db.get_value("Supplier", self.supplier, "disabled")
+		):
+			frappe.throw(_("Supplier {0} is disabled.").format(self.supplier))
+		if not self.company:
+			return  # the mandatory check reports the missing company
+		if self.project and frappe.db.get_value("Project", self.project, "company") != self.company:
+			frappe.throw(_("Project {0} does not belong to company {1}.").format(self.project, self.company))
+		if self.cost_center:
+			row = frappe.db.get_value(
+				"Cost Center", self.cost_center, ["company", "is_group", "disabled"], as_dict=True
+			)
+			if not row or row.company != self.company or row.is_group or row.disabled:
+				frappe.throw(
+					_("Cost center {0} must be an enabled, non-group cost center of company {1}.").format(
+						self.cost_center, self.company
+					)
+				)
 
 	def _enforce_diesel_supplier(self):
 		"""F.1 diesel supplier policy. Fixed: the Settings supplier is forced and
