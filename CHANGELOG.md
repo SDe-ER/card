@@ -41,8 +41,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   "Remove price exception", "Use company price") needs the exception role and a written reason; the server
   records the old and new price, the user, the time and the reason (comment, Version and log). A plain save or
   a REST call cannot end an exception. No data patch: existing rows are unchanged.
+- **Codecov coverage upload (CI only):** CI already measured coverage but nobody could see it. The "CARD unit
+  tests" job now uploads the report that `run-tests --coverage` writes (`sites/coverage.xml`) to Codecov with
+  `codecov/codecov-action@v5` and the `CODECOV_TOKEN` repository secret, so each pull request shows its coverage.
+  A failed upload does not fail the job (`fail_ci_if_error: false`). The new `codecov.yml` makes the Codecov
+  statuses informational only. It also keeps `tests/`, `test_*.py` and `patches/` out of the report (Frappe already
+  omits some of these paths). No app code, permission, accounting, data or API change. (#93) Rollback: revert the
+  merge.
 
 ### Changed
+- **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
+  review task, an agent loads the official Frappe skills that fit the task with its Skill tool (`frappe-ui` for CARD
+  Mobile), records them under `SKILLS_LOADED` in its report, and stops with `SKILL NOT FOUND` when a required skill
+  is missing. Reason: agents that start inside the repository did not see this rule. No code, data, permission,
+  accounting or API change. Rollback: revert the commit (documents only, nothing to restore).
 - **CARD Mobile Home: the equipment list uses the frappe-ui `List` family** (`frontend/src/pages/Home.vue`;
   `List`, `ListRows`, `ListRow`, `ListCell` from `frappe-ui/list`, frappe-ui 1.0.2 as before). Reason: first step of
   the incremental adoption of official frappe-ui components in CARD Mobile. Same data in each row (equipment name or
