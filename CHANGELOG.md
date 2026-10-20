@@ -43,6 +43,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   a REST call cannot end an exception. No data patch: existing rows are unchanged.
 
 ### Changed
+- **CARD Mobile Home: the equipment list uses the frappe-ui `List` family** (`frontend/src/pages/Home.vue`;
+  `List`, `ListRows`, `ListRow`, `ListCell` from `frappe-ui/list`, frappe-ui 1.0.2 as before). Reason: first step of
+  the incremental adoption of official frappe-ui components in CARD Mobile. Same data in each row (equipment name or
+  code, project), not clickable as before. Look: rows are at least 68 px and grow with large fonts; the dividers start
+  at the text, not at the icon. No change to
+  permissions, accounting, data, prices, the API or the server. Rollback: revert the commit (frontend only; a new
+  `bench build` is needed on a site that ran it).
 - **Change, versioning and rollback policy (documentation only; target: next release):** new binding
   [Change, Versioning & Safe Rollback Policy](docs/governance/CHANGE-VERSIONING-ROLLBACK-POLICY.md) (commits,
   CHANGELOG and Feature Registry duties, SemVer and release requirements, safe rollback, task closing, approval
