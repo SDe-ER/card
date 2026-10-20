@@ -78,8 +78,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the Settings supplier only for users who may not change it; names and titles only. The form fills in the Settings
   supplier. The save refuses a project or cost center of another company, a group or disabled cost center, and a
   newly chosen disabled supplier, also through REST. No DocPerm, role or User Permission was changed. Impact:
-  permissions none (the new GET method checks fill rights and company itself); API: one new GET method,
-  `fill_link_query`; accounting none; data none. (#84; FR-001, FR-038. Target: next release. Rollback: revert the
+  permissions — a fill user now sees the names and titles of the projects, leaf cost centers and suppliers the
+  query allows, through the fill form only (the method checks fill rights and company itself); API: one new GET
+  method, `fill_link_query`; accounting none; data none. (#84; FR-001, FR-038. Target: next release. Rollback: revert the
   merge; no schema, migration or data change. A code revert does not remove or change diesel fills already saved.)
 
 ### Security
