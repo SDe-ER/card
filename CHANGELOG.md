@@ -101,6 +101,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   System Manager and Administrator are unchanged; transports still open and close assignments; no
   role gains a permission. (#85, merge `735d126`; FR-070. Target: next release. Rollback: revert the merge;
   no schema or data change.)
+- **Monthly cards follow the user's company (D2).** Frappe checks the create and write permission on the
+  values the client sends and only then fills a card's company from its equipment, so a user limited to
+  company A who left the company empty could create a Card Monthly Card for company-B equipment, move an
+  own draft card to company-B equipment, or take over a company-B draft card (Desk, REST, `set_value`).
+  A `has_permission` hook now denies any card whose sent company or new equipment, or whose saved company,
+  belongs to a company the user may not see (the Company User Permissions that apply to cards); it covers
+  read, create, save, submit and cancel. Users without a Company User Permission (System Manager included)
+  and Administrator are unchanged; no role gains a permission; no schema or data change. (FR-071.
+  Target: next release. Rollback: revert the commit; no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real
