@@ -69,6 +69,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   templates), 20 at most, with code, name and unit only — the documented exception to the
   operator's lack of Item read permission.
 
+### Security
+- **Equipment assignments follow the user's company.** A Card Equipment Assignment has no Company field,
+  so a Company User Permission never reached it: a user limited to one company could list, open and
+  search the assignments of another company, and a Card Manager limited to one company could create and
+  change them through the API. An assignment now belongs to its equipment's company for lists, link
+  search, single reads and saves (`has_permission` + `permission_query_conditions`); a saved row can
+  neither be changed by another company's user nor moved between companies. Unrestricted users,
+  System Manager and Administrator are unchanged; transports still open and close assignments; no
+  role gains a permission.
+
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
