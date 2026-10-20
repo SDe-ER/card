@@ -110,6 +110,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   read, create, save, submit and cancel. Users without a Company User Permission (System Manager included)
   and Administrator are unchanged; no role gains a permission; no schema or data change. (#90,
   merge `9aa9184`; FR-071. Target: next release. Rollback: revert the merge; no schema or data change.)
+- **Equipment transports follow the user's company (D3).** A transport checked that each machine belongs
+  to its company, but not the project it goes to: a company-A transport could name a company-B project
+  and take that project's cost center (submit was already refused by the assignment company check), and a
+  user limited to company A could take over a company-B draft transport by sending company A (REST save,
+  `set_value`). The transport's project (destination, or the project left on a return to the supplier)
+  must now belong to the transport's company, for every user. A `has_permission` hook denies a transport
+  whose sent or saved company (or, with no company sent, whose machines or project) belongs to a company
+  the user may not see (the Company User Permissions that apply to transports); it covers read, create,
+  save, submit and cancel. Transport costs, splits, prices, postings and transfers are unchanged; users
+  without a Company User Permission and Administrator are unchanged; no role gains a permission; no schema
+  or data change. (FR-072. Target: next release. Rollback: revert the commit; no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real

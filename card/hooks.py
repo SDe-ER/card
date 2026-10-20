@@ -148,6 +148,7 @@ has_permission = {
 	"Equipment Needs Request": "card.materials.needs_request_permission",
 	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.has_assignment_permission",
 	"Card Monthly Card": "card.card.doctype.card_monthly_card.card_monthly_card.has_card_permission",
+	"Equipment Transport": "card.card.doctype.equipment_transport.equipment_transport.has_transport_permission",
 }
 
 # Document Events

@@ -2041,6 +2041,9 @@ msgstr "تاريخ نهاية التعيين قبل تاريخ بدايته."
 msgid "Equipment {0} belongs to company {1}; project {2} belongs to {3}."
 msgstr "المعدة {0} تابعة للشركة {1}، والمشروع {2} تابع للشركة {3}."
 
+msgid "Project {0} belongs to company {1}; this transport belongs to company {2}."
+msgstr "المشروع {0} تابع للشركة {1}، وهذا النقل تابع للشركة {2}."
+
 msgid "Equipment {0} is already assigned to project {1} from {2} to {3}."
 msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} من {2} إلى {3}."
 
