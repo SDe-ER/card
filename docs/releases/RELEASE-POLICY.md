@@ -6,6 +6,10 @@ A tag `vX.Y.Z` may only be pushed when every item below is updated in the same r
 GitHub Release body is generated automatically from the CHANGELOG section by
 `.github/workflows/release.yml`, so the CHANGELOG section must be release-ready text.
 
+This checklist is part of the
+[Change, Versioning & Safe Rollback Policy](../governance/CHANGE-VERSIONING-ROLLBACK-POLICY.md), which also covers
+every change between releases, deployments and rollback.
+
 ## Checklist for every release PR
 
 1. **CHANGELOG.md** — a `[X.Y.Z] — YYYY-MM-DD` section following Keep a Changelog
@@ -21,7 +25,9 @@ GitHub Release body is generated automatically from the CHANGELOG section by
 5. **`docs/releases/WHICH-VERSION.md`** — recommendations re-checked (the newest version is not
    automatically recommended for every situation).
 6. **README.md** — Release History table row, release badge, and any version-named examples.
-7. **Upgrade notes** — patch list, what migrate writes and does not write, rollback statement.
+7. **Upgrade notes** — patch list, what migrate writes and does not write, rollback statement (last stable
+   version, whether the previous version can run on the migrated data, and the restore or forward-fix plan; see
+   the policy's "Safe rollback" section).
 8. **Version bump** — `card/__init__.py` `__version__` (single source; pyproject is dynamic).
 
 ## Truthfulness rules

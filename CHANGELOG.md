@@ -43,6 +43,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   a REST call cannot end an exception. No data patch: existing rows are unchanged.
 
 ### Changed
+- **Change, versioning and rollback policy (documentation only; target: next release):** new binding
+  [Change, Versioning & Safe Rollback Policy](docs/governance/CHANGE-VERSIONING-ROLLBACK-POLICY.md) (commits,
+  CHANGELOG and Feature Registry duties, SemVer and release requirements, safe rollback, task closing, approval
+  ladder), a public [deployment record](docs/releases/DEPLOYMENTS.md) (versions only), and `AGENTS.md` /
+  `CLAUDE.md` at the repository root so agents find the rules. Pointers added to RELEASE-POLICY.md,
+  FEATURE-REGISTRY.md and CONTRIBUTING.md. No code, data, permission, accounting or API change; no past tag or
+  release changed. Rollback: revert the commit (documents only, nothing to restore).
 - **Card Settings layout (simplified):** the diesel price per litre shows on top of "Diesel Settings" as one
   clear value with a "Change price" button for users who may edit it (the value is still
   `Card Company Settings.diesel_unit_price`; a company picker appears only when the user has several

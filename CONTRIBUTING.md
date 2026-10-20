@@ -41,7 +41,10 @@ pre-commit run --all-files
 1. Branch off `main` (or the target branch) with a descriptive name.
 2. Keep each PR focused; every changed line should trace to the stated task.
 3. **PR titles follow [Conventional Commits](https://www.conventionalcommits.org/)** — e.g. `fix(install): …`, `feat(reports): …`, `docs: …`. CI enforces this.
-4. Update `CHANGELOG.md` for user-facing changes.
+4. Update `CHANGELOG.md` for every change that affects behaviour, data, permissions, accounting or an API (not only
+   user-facing ones), and `docs/governance/FEATURE-REGISTRY.md` when a feature changes. The rules are in the
+   [Change, Versioning & Safe Rollback Policy](docs/governance/CHANGE-VERSIONING-ROLLBACK-POLICY.md); AI agents
+   also follow [AGENTS.md](AGENTS.md).
 5. Ensure CI is green (tests on Frappe version-16, linters, PR-title check).
 6. A maintainer review is required (see `.github/CODEOWNERS`).
 

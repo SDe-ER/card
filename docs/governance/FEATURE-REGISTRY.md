@@ -18,6 +18,9 @@ open. It exists so that no working feature is lost silently during a rebuild or 
   Evidence column names the file or test. Planned work stays **Planned**.
 - **Visual checks are separate.** A passing unit test is not a browser or device check; record those separately.
 - Rows are added gradually, area by area, each one checked against the code at the time it is added.
+- These rules are part of the
+  [Change, Versioning & Safe Rollback Policy](CHANGE-VERSIONING-ROLLBACK-POLICY.md): a merge is not a release, and
+  a release is not a deployment ([DEPLOYMENTS.md](../releases/DEPLOYMENTS.md)).
 
 ## Status values
 
@@ -120,3 +123,4 @@ Checked against `main` @ `31fe7ce` (2026-10-20); FR-002 and FR-003 re-checked at
 | 2026-10-20 | FR-002: removing a price exception needs the exception role and a written reason; every saved-draft price change is audited on the server (PR #79 `a1efa57`). FR-001: Card User Cost Center permission gap on v11-dev recorded for investigation |
 | 2026-10-20 | Owner final decision: saved diesel drafts are never repriced automatically; explicit price change needs the exception role, a reason and an audit (FR-002, local fix `eb5e250` on PR #79's branch) |
 | 2026-10-20 | PR #78 merged (`31fe7ce`). FR-002 → In review (PR #79). FR-001 test wording and browser note; FR-003, FR-004, FR-005, FR-012 evidence extended. FR-013 to FR-068 added from the 2026-10-19 gap audit, each re-checked against `main` @ `31fe7ce`. No row deleted |
+| 2026-10-20 | Rules: link to the Change, Versioning & Safe Rollback Policy and the deployment record. No row changed |
