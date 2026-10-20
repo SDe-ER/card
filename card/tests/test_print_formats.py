@@ -13,6 +13,7 @@ from frappe.utils import fmt_money
 
 from card.constants import OWNED
 from card.print_utils import card_amount_in_words
+from card.tests.diesel_price import use_fill_price
 from card.tests.test_controllers import _days
 from card.tests.test_customer import RENTED, _CustomerCardsBase
 
@@ -173,7 +174,7 @@ class TestDieselTransportPrints(_CustomerCardsBase):
 				"unit_price": 2,
 			}
 		)
-		fill.insert(ignore_permissions=True)
+		use_fill_price(fill).insert(ignore_permissions=True)
 		transport = frappe.new_doc("Equipment Transport")
 		transport.update(
 			{

@@ -7,6 +7,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt, get_last_day, getdate, nowdate
 
 from card.notifications import notify
+from card.tests.diesel_price import use_fill_price
 from card.tests.test_controllers import _ensure_masters
 
 
@@ -116,7 +117,7 @@ class TestPeriodLockAndSnapshot(IntegrationTestCase):
 		fill.litres = 100
 		fill.unit_price = 2
 		with self.assertRaises(frappe.ValidationError):
-			fill.insert(ignore_permissions=True)
+			use_fill_price(fill).insert(ignore_permissions=True)
 
 	def test_lock_blocks_cancel(self):
 		# submit before the lock, then lock and try to cancel

@@ -14,6 +14,7 @@ from frappe.utils import flt, getdate, nowdate
 
 from card.card.report.equipment_diesel_consumption.equipment_diesel_consumption import execute
 from card.diesel import UNALLOCATED, allocate_project_diesel, get_card_diesel
+from card.tests.diesel_price import set_diesel_price, use_fill_price
 from card.tests.test_controllers import _ensure_masters
 
 
@@ -109,7 +110,7 @@ class TestDieselAllocation(IntegrationTestCase):
 		f.unit_price = unit_price
 		if card_equipment:
 			f.card_equipment = card_equipment
-		f.insert(ignore_permissions=True)
+		use_fill_price(f).insert(ignore_permissions=True)
 		if submit:
 			f.submit()
 		f.reload()
@@ -285,33 +286,38 @@ class TestDieselAllocation(IntegrationTestCase):
 		f = self._make_fill(litres=500, unit_price=2.5, submit=False)
 		self.assertAlmostEqual(flt(f.amount), 1250.0)
 
-	def test_diesel_unit_price_defaults_from_settings(self):
-		settings = frappe.get_single("Card Settings")
-		row = next((r for r in settings.get("company_settings") or [] if r.company == self.company), None)
-		if row:
-			row.diesel_unit_price = 1.75
-		else:
-			settings.append("company_settings", {"company": self.company, "diesel_unit_price": 1.75})
-		settings.save(ignore_permissions=True)
-
-		# blank price -> defaulted from settings, amount follows
-		f = self._make_fill(litres=100, unit_price=0, submit=False)
+	def test_diesel_price_comes_only_from_settings(self):
+		# Owner 2026-10-19: Card Settings is the only source of the price per litre
+		set_diesel_price(self.company, 1.75)
+		f = frappe.new_doc("Project Diesel Fill")
+		f.update(
+			{
+				"date": f"{self.year_str}-{self.month_str}-15",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 100,
+				"unit_price": 9.99,  # typed: refused (FR-002)
+			}
+		)
+		with self.assertRaises(frappe.ValidationError):
+			f.insert(ignore_permissions=True)
+		f.unit_price = None
+		f.insert(ignore_permissions=True)
 		self.assertAlmostEqual(flt(f.unit_price), 1.75)
 		self.assertAlmostEqual(flt(f.amount), 175.0)
 
-		# explicit price is kept (editable per fill)
-		f2 = self._make_fill(litres=100, unit_price=2.0, submit=False)
-		self.assertAlmostEqual(flt(f2.unit_price), 2.0)
-		self.assertAlmostEqual(flt(f2.amount), 200.0)
+		# a submitted fill keeps the price it was approved with
+		f.submit()
+		set_diesel_price(self.company, 2.5)
+		self.assertAlmostEqual(flt(frappe.db.get_value("Project Diesel Fill", f.name, "unit_price")), 1.75)
 
-		# company with no settings row -> price stays as entered, no throw
-		f3 = frappe.new_doc("Project Diesel Fill")
-		f3.company = "NO-SETTINGS-CO-" + self.token
-		f3.litres = 10
-		f3.unit_price = 0
-		f3.validate()
-		self.assertAlmostEqual(flt(f3.unit_price), 0.0)
-		self.assertAlmostEqual(flt(f3.amount), 0.0)
+		# no price in Settings -> the fill is refused
+		set_diesel_price(self.company, 0)
+		g = frappe.copy_doc(f)
+		g.docstatus = 0
+		with self.assertRaises(frappe.ValidationError):
+			g.insert(ignore_permissions=True)
 
 	def test_transport_amount_stored(self):
 		t = frappe.new_doc("Equipment Transport")
