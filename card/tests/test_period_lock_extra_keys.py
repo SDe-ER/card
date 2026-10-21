@@ -269,6 +269,16 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 			self._submit_request(t, date=str(self._today()))
 		self.assertEqual(frappe.db.get_value(t.doctype, t.name, "docstatus"), 0)
 
+	def test_card_submit_moved_out_refused(self):
+		card = self._draft(self._new_card(self._equip()))
+		today = getdate(nowdate())
+		with self._refused():
+			self._submit_request(
+				card, month="%02d" % today.month, year=today.year, days=self._month_days(today)
+			)
+		self.assertEqual(frappe.db.get_value(card.doctype, card.name, "docstatus"), 0)
+		self.assertEqual(self._stored(card, "to_date"), getdate(self.lock_date))
+
 	# cancel of a locked document with a changed date (fail before the fix)
 	def test_card_savedocs_cancel_with_changed_to_date_refused(self):
 		card = self._submitted(self._new_card(self._equip()))
