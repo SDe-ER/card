@@ -133,8 +133,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   submit or cancel a fill or transport dated inside the locked period. A date key is now read only when it is a
   field of the DocType. This closes only the bypass through keys that are not real date fields; a cancel
   request that changes a real date field is a separate fix. Card Monthly Card (its `to_date` is computed from
-  the month), the override role and the lock date are unchanged; no role gains a permission. (Branch
-  `fix/period-lock-todate`, not pushed; FR-050. Target: next release after v4.0.0. Rollback: code only, revert
+  the month), the override role and the lock date are unchanged; no role gains a permission. (#97, commit
+  `bec863a`; not merged, released or deployed; FR-050. Target: next release after v4.0.0. Rollback: code only, revert
   the commit; no schema, data, fixture or migration change.)
 - **Period lock: changing a document's date cannot get round the lock.** A save or submit was judged by
   the new date only, so a draft dated inside the locked period could be moved to an open date (or submitted
@@ -148,7 +148,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   submitting, moving and cancelling inside the locked period; normal work in open periods, delete and
   update after submit are unchanged (Frappe already refuses date changes after submit); no role gains a
   permission. Functions: `card/period_lock.py` `enforce`, `on_validate`, `on_cancel`; 1 new Arabic message.
-  (Branch `fix/period-lock-stored-date`, on top of `fix/period-lock-todate`, not pushed; FR-050. Target: next
+  (#97, commits `3fbed47` and `c3d143a`; not merged, released or deployed; FR-050. Target: next
   release after v4.0.0. Rollback: code only, revert the commit; no schema, data, fixture or migration change.)
 
 ### Planned
