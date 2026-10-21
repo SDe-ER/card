@@ -182,11 +182,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   transport's company, on its project and date, and claimed by no other submitted transport. When a row
   links an assignment that was changed after the transport or never written by it, the cancel is refused
   with a message (the transport stays submitted), so a move is never half undone; an assignment deleted
-  since has nothing to undo and is passed over. A cancel request that changes the transport's details or
-  rows (a save with docstatus 2 stores what the request sent) is refused; the transport is cancelled as
-  approved. No change to transport cost, cost bearer, split, price, cost center or
+  since has nothing to undo and is passed over. A cancel is also refused while a later move of the same
+  machine relies on it, including a second move on the same date (it closed the assignment this transport
+  opened, or opened its own); cancel the later move first. An assignment the transport opened and someone
+  closed since counts as changed. The cancel reads the machine's transport rows and the assignments with
+  a row lock, so it sees a move of the same machine submitted meanwhile (`card/transfer.py` `_depends_on`,
+  `_written_by`). A cancel request that
+  changes the transport's details or rows (a save with docstatus 2 stores what the request sent) is
+  refused; the transport is cancelled as approved. No change to transport cost, cost bearer, split, price, cost center or
   postings; no role gains a permission; no schema or data change. (Branch
-  `fix/transport-item-standalone-rows`, commit `771aa63`; not pushed, merged, released or deployed;
+  `fix/transport-item-standalone-rows`, commits `771aa63` and the same-date cancel fix; not pushed, merged, released or deployed;
   FR-073. Target: next release. Rollback: revert the commit; no schema or data change.)
 
 ### Planned

@@ -443,3 +443,97 @@ class TestTransportItemRows(IntegrationTestCase):
 		amended.reload()
 		self.assertTrue(amended.items[0].created_assignment)
 		self.assertTrue(frappe.db.exists(ASSIGNMENT, amended.items[0].created_assignment))
+
+	# ---------- two moves of one machine on the same date (review of FR-073) ----------
+	# _later_transfer sees only later dates and the claim check only the same link field,
+	# so on main a cancel of the first move undid an assignment the second move relies on.
+
+	def _links(self, transport):
+		row = frappe.get_doc(DOCTYPE, transport).items[0]
+		return row.created_assignment, row.previous_assignment
+
+	def _to_workshop(self, equipment, day=3):
+		loc = frappe.new_doc("Location")
+		loc.location_name = "TEST-TRITEM-SHOP-" + self.token
+		loc.insert(ignore_permissions=True)
+		trn = frappe.get_doc(
+			{
+				"doctype": DOCTYPE,
+				"date": self._d(day),
+				"company": self.company,
+				"destination_type": "Workshop",
+				"destination_location": loc.name,
+				"cost_borne_by": "Equipment Supplier",
+				"items": [{"card_equipment": equipment}],
+			}
+		).insert(ignore_permissions=True)
+		trn.submit()
+		return trn.name
+
+	def _same_day_chain(self):
+		# a machine on no project: T1 opens X on A from day 3; T2 on day 3 closes X and
+		# opens Y on A2 from day 4
+		eq = self._equipment("SD", self.company)
+		t1 = self._transport(self.proj_a, eq)
+		t2 = self._transport(self.proj_a2, eq)
+		x, _none = self._links(t1)
+		y, closed = self._links(t2)
+		self.assertEqual(closed, x)
+		return eq, t1, t2, x, y
+
+	def test_same_day_first_move_cancel_refused(self):
+		_eq, t1, _t2, x, _y = self._same_day_chain()
+		self.assertFalse(self._cancel(t1))
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t1, "docstatus"), 1)
+		self.assertTrue(
+			frappe.db.exists(ASSIGNMENT, x), "cancel deleted the assignment the later move closed"
+		)
+		self.assertEqual(getdate(self._assignment(x).to_date), getdate(self._d(3)))
+
+	def test_same_day_moves_cancel_in_order(self):
+		eq, t1, t2, x, y = self._same_day_chain()
+		self.assertTrue(self._cancel(t2))
+		self.assertFalse(frappe.db.exists(ASSIGNMENT, y))
+		self.assertFalse(self._assignment(x).to_date)
+		self.assertTrue(self._cancel(t1))
+		self.assertFalse(frappe.db.exists(ASSIGNMENT, {"equipment": eq}))
+
+	def test_same_day_workshop_then_project_refused_at_submit(self):
+		# the second case of the review cannot happen: back from the workshop to a project
+		# on the same date would open an assignment on the day the project one was closed,
+		# which the assignment overlap check refuses; the first move still cancels
+		prev = self._assign(self.eq_a, self.proj_a, 1)
+		t1 = self._to_workshop(self.eq_a)
+		self.assertEqual(self._links(t1), (None, prev))
+		frappe.db.savepoint("tritem_same_day_submit")
+		self.assertTrue(self._refused(self._transport, self.proj_a2, self.eq_a))
+		frappe.db.rollback(save_point="tritem_same_day_submit")
+		self.assertTrue(self._cancel(t1))
+		self.assertFalse(self._assignment(prev).to_date)
+
+	def test_same_day_chain_restricted_user_cannot_cancel_first_move(self):
+		_eq, t1, _t2, x, _y = self._same_day_chain()
+		self._as_company_a()
+		self.assertFalse(self._cancel(t1))
+		frappe.set_user("Administrator")
+		self.assertTrue(frappe.db.exists(ASSIGNMENT, x))
+
+	def test_cancel_after_created_assignment_closed_by_hand_refused(self):
+		prev = self._assign(self.eq_a, self.proj_a, 1)
+		trn = self._transport(self.proj_a2, self.eq_a)
+		created, _closed = self._links(trn)
+		frappe.db.set_value(ASSIGNMENT, created, "to_date", self._d(9))
+		self.assertFalse(self._cancel(trn))
+		self.assertEqual(getdate(self._assignment(created).to_date), getdate(self._d(9)))
+		self.assertEqual(getdate(self._assignment(prev).to_date), getdate(self._d(3)))
+
+	def test_old_transport_without_links_cancels_and_touches_nothing(self):
+		# a transport from before the row links (or a machine already on the project) has
+		# nothing to undo; a same-day move of the machine does not block its cancel
+		_eq, t1, _t2, x, y = self._same_day_chain()
+		row = frappe.get_doc(DOCTYPE, t1).items[0]
+		frappe.db.set_value(ITEM, row.name, {"created_assignment": None, "previous_assignment": None})
+		frappe.db.set_value(DOCTYPE, t1, {"created_assignment": None, "previous_assignment": None})
+		self.assertTrue(self._cancel(t1))
+		self.assertTrue(frappe.db.exists(ASSIGNMENT, x))
+		self.assertTrue(frappe.db.exists(ASSIGNMENT, y))

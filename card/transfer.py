@@ -380,8 +380,9 @@ def check_cancel_allowed(txn):
 		equipment = row.card_equipment
 		if not equipment:
 			continue
-		# (a) no later transfer for this piece
-		if _later_transfer(equipment, tdate, txn.name):
+		# (a) no later transfer for this piece; (d) nor one on the same date that came
+		# after this one (the date alone cannot order two moves of one day)
+		if _later_transfer(equipment, tdate, txn.name) or _depends_on(txn, row):
 			frappe.throw(
 				_("Cannot cancel: a later transfer exists for equipment {0}. Cancel it first.").format(
 					equipment
@@ -409,6 +410,50 @@ def check_cancel_allowed(txn):
 						"Cannot cancel: assignment {0} of equipment {1} was not written by this transport or was changed after it."
 					).format(assignment, equipment)
 				)
+
+
+def _depends_on(txn, row):
+	"""True when another submitted transport moved this row's machine after this one: on a
+	later date, or on the same date after closing the assignment this row opened or opening
+	one of its own. The machine's transport rows are read with a lock (index on
+	card_equipment), which returns the latest committed rows (MariaDB REPEATABLE READ) and
+	makes a cancel wait for a submit of the same machine in flight; the lock order (rows,
+	then assignments) is the one submit uses. A row without links (an old transport, or a
+	machine already on the project) has nothing to undo."""
+	ours = {row.created_assignment, row.previous_assignment} - {None, ""}
+	if not ours:
+		return False
+	others = frappe.db.sql(
+		"""select parent, docstatus, created_assignment, previous_assignment
+		from `tabEquipment Transport Item`
+		where card_equipment=%s and parenttype='Equipment Transport' and parent != %s
+		for update""",
+		(row.card_equipment, txn.name),
+		as_dict=True,
+	)
+	others = [other for other in others if other.docstatus == 1]
+	if not others:
+		return False
+	dates = dict(
+		frappe.get_all(
+			"Equipment Transport",
+			filters={"name": ["in", list({other.parent for other in others})]},
+			fields=["name", "date"],
+			as_list=True,
+		)
+	)
+	tdate = getdate(txn.date)
+	for other in others:
+		other_date = getdate(dates.get(other.parent)) if dates.get(other.parent) else None
+		if not other_date or other_date < tdate:
+			continue
+		if other_date > tdate:
+			return True
+		if row.created_assignment and other.previous_assignment == row.created_assignment:
+			return True
+		if other.created_assignment and other.created_assignment not in ours:
+			return True
+	return False
 
 
 def _later_transfer(equipment, tdate, exclude):
@@ -450,14 +495,16 @@ def _written_by(txn, row, fieldname):
 	"""True only for an assignment `apply_transfer` wrote for this row: of the row's
 	equipment, a machine of the transport's company, claimed by no other submitted
 	transport, and created on the transport's project from the transport date or the day
-	after (created_assignment) or closed on the transport date (previous_assignment).
-	A forged or legacy link is left as it is."""
+	after and still open (created_assignment) or closed on the transport date
+	(previous_assignment). A forged or legacy link, or one changed since, is left as it is.
+	Read with a lock: the latest committed assignment, kept until the cancel ends."""
 	assignment = row.get(fieldname)
 	a = frappe.db.get_value(
 		"Card Equipment Assignment",
 		assignment,
 		["equipment", "project", "from_date", "to_date"],
 		as_dict=True,
+		for_update=True,
 	)
 	if not a or a.equipment != row.card_equipment:
 		return False
@@ -466,6 +513,8 @@ def _written_by(txn, row, fieldname):
 	tdate = getdate(txn.date)
 	if fieldname == "created_assignment":
 		if a.project != txn.project or getdate(a.from_date) not in (tdate, getdate(add_days(tdate, 1))):
+			return False
+		if a.to_date:
 			return False
 	elif not a.to_date or getdate(a.to_date) != tdate:
 		return False
