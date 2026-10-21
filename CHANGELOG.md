@@ -169,6 +169,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   permission. Functions: `card/period_lock.py` `enforce`, `on_validate`, `on_cancel`; 1 new Arabic message.
   (#97, commits `3fbed47` and `c3d143a`, merge `2b7debf`; not released or deployed; FR-050. Target: next
   release after v4.0.0. Rollback: code only, revert the merge commit; no schema, data, fixture or migration change.)
+- **Equipment transport rows are written through the transport only.** `POST`, `PUT` and `DELETE`
+  `/api/resource/Equipment Transport Item` and `frappe.client.save` of a row saved one row alone (also
+  when sent with docstatus 2, which Frappe treats as a cancel without any validation): Frappe
+  checked only the transport's permission and skipped the transport's checks (company, movement,
+  duplicates, cost shares, assignment links). A user limited to company A could so add a row with a
+  company-B machine and its assignment to a submitted company-A transport, and cancelling the transport
+  then deleted or reopened company B's assignment. A row written alone (insert, save, update after
+  submit, delete) is now refused; the transport's own save, submit, cancel and delete and the REST calls
+  that go through the transport (`frappe.client.insert`, `set_value`, `delete` of a row) are unchanged.
+  Cancel now undoes only the assignments the transport itself wrote: of the row's machine, of the
+  transport's company, on its project and date, and claimed by no other submitted transport. When a row
+  links an assignment that was changed after the transport or never written by it, the cancel is refused
+  with a message (the transport stays submitted), so a move is never half undone; an assignment deleted
+  since has nothing to undo and is passed over. A cancel is also refused while a later move of the same
+  machine relies on it, including a second move on the same date (it closed the assignment this transport
+  opened, or opened its own); cancel the later move first. An assignment the transport opened and someone
+  closed since counts as changed. The cancel reads the machine's transport rows and the assignments with
+  a row lock, so it sees a move of the same machine submitted meanwhile (`card/transfer.py` `_depends_on`,
+  `_written_by`). A cancel request that
+  changes the transport's details or rows (a save with docstatus 2 stores what the request sent) is
+  refused; the transport is cancelled as approved. No change to transport cost, cost bearer, split, price, cost center or
+  postings; no role gains a permission; no schema or data change. (Branch
+  `fix/transport-item-standalone-rows`, commits `771aa63` and the same-date cancel fix; not pushed, merged, released or deployed;
+  FR-073. Target: next release. Rollback: revert the commit; no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real
