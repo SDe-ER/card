@@ -1403,6 +1403,9 @@ msgstr "تم اعتماد الكارت {0} للمعدة {1}."
 msgid "Period is locked up to {0}; {1} of a {2} dated on or before that date is not allowed."
 msgstr "الفترة مقفولة حتى {0}؛ غير مسموح بـ{1} لـ{2} بتاريخ في ذلك اليوم أو قبله."
 
+msgid "{0} of a {1} cannot be changed when it is cancelled."
+msgstr "لا يمكن تغيير {0} في {1} عند إلغائه."
+
 msgid "CARD period lock override"
 msgstr "تجاوز قفل الفترة في كارت"
 
@@ -1726,14 +1729,8 @@ msgstr "سير ذاتي"
 msgid "Ownership"
 msgstr "الملكية"
 
-msgid "Model"
-msgstr "الموديل"
-
 msgid "Components"
 msgstr "المكوّنات"
-
-msgid "Unallocated"
-msgstr "غير مخصّص"
 
 msgid "Unit component (no monthly card)"
 msgstr "مكوّن وحدة (بدون كارت شهري)"
@@ -2040,6 +2037,9 @@ msgstr "تاريخ نهاية التعيين قبل تاريخ بدايته."
 
 msgid "Equipment {0} belongs to company {1}; project {2} belongs to {3}."
 msgstr "المعدة {0} تابعة للشركة {1}، والمشروع {2} تابع للشركة {3}."
+
+msgid "Project {0} belongs to company {1}; this transport belongs to company {2}."
+msgstr "المشروع {0} تابع للشركة {1}، وهذا النقل تابع للشركة {2}."
 
 msgid "Equipment {0} is already assigned to project {1} from {2} to {3}."
 msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} من {2} إلى {3}."

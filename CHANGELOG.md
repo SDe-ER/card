@@ -48,6 +48,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   statuses informational only. It also keeps `tests/`, `test_*.py` and `patches/` out of the report (Frappe already
   omits some of these paths). No app code, permission, accounting, data or API change. (#93) Rollback: revert the
   merge.
+- **Codecov coverage badge (documentation only):** `README.md` shows the Codecov coverage badge next to the CI and
+  release badges, so readers see the Python test coverage of `main` (CARD Mobile `frontend/` is not measured). The
+  repository is public, so the badge URL has no token.
+  No app code, permission, accounting, data or API change. (#94) Rollback: revert the merge.
 
 ### Changed
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
@@ -102,6 +106,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   method, `fill_link_query`; accounting none; data none. (#84, merge `85ad66d`; FR-001, FR-038 (diesel fills
   only). Target: next release. Rollback: revert the merge; no schema, migration or data change. A code revert does
   not remove or change diesel fills already saved.)
+- **Arabic: CARD no longer overrides the ERPNext translations of "Model" and "Unallocated".** CARD loads
+  last, so a generic word in `card/locale/ar.po` replaces the Frappe/ERPNext translation on the whole site, against
+  the rule that the CARD locale carries CARD strings only. ERPNext `version-16` now translates both words
+  («الطراز», «غير مخصص»), and the guard `test_no_generic_msgid_overrides` failed in CI. The two CARD entries are
+  removed; the test is unchanged. Visible change in Arabic: the Card Equipment field "Model" shows
+  «الطراز» (was «الموديل») and the diesel consumption report row without equipment shows «غير مخصص» (was «غير مخصّص»).
+  Impact: permissions, accounting, data and API none. SemVer impact: PATCH. (Target: next release. Rollback: revert;
+  locale only, no schema, data or migration change.)
 
 ### Security
 - **Equipment assignments follow the user's company.** A Card Equipment Assignment has no Company field,
@@ -122,6 +134,41 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   read, create, save, submit and cancel. Users without a Company User Permission (System Manager included)
   and Administrator are unchanged; no role gains a permission; no schema or data change. (#90,
   merge `9aa9184`; FR-071. Target: next release. Rollback: revert the merge; no schema or data change.)
+- **Equipment transports follow the user's company (D3).** A transport checked that each machine belongs
+  to its company, but not the project it goes to: a company-A transport could name a company-B project
+  and take that project's cost center (submit was already refused by the assignment company check), and a
+  user limited to company A could take over a company-B draft transport by sending company A (REST save,
+  `set_value`). The transport's project (destination, or the project left on a return to the supplier)
+  must now belong to the transport's company, for every user. A `has_permission` hook denies a transport
+  whose sent or saved company (or, with no company sent, whose machines or project) belongs to a company
+  the user may not see (the Company User Permissions that apply to transports); it covers read, create,
+  save, submit and cancel. Transport costs, splits, prices, postings and transfers are unchanged; users
+  without a Company User Permission and Administrator are unchanged; no role gains a permission; no schema
+  or data change. (FR-072. Target: next release. Rollback: revert the commit; no schema or data change.)
+- **Period lock: request keys that are not date fields are ignored (partial fix).** The lock looked for
+  `to_date`, then `date`, then `posting_date` on the document as sent. Project Diesel Fill and Equipment
+  Transport have no `to_date` field, but Frappe keeps any extra key of a request (`frappe.client.save` and
+  `submit`, REST `PUT`, Desk save, submit and cancel), so a request with `"to_date": "2999-01-01"` could save,
+  submit or cancel a fill or transport dated inside the locked period. A date key is now read only when it is a
+  field of the DocType. This closes only the bypass through keys that are not real date fields; a cancel
+  request that changes a real date field is a separate fix. Card Monthly Card (its `to_date` is computed from
+  the month), the override role and the lock date are unchanged; no role gains a permission. (#97, commit
+  `bec863a`, merge `2b7debf`; not released or deployed; FR-050. Target: next release after v4.0.0. Rollback: code only, revert
+  the merge commit; no schema, data, fixture or migration change.)
+- **Period lock: changing a document's date cannot get round the lock.** A save or submit was judged by
+  the new date only, so a draft dated inside the locked period could be moved to an open date (or submitted
+  with one) in the same request. On cancel Frappe skips `validate` and stores the values the request sent
+  before `on_cancel` runs, so a Desk cancel request (`savedocs`, action Cancel) that changed a real date field
+  (`to_date` of a Card Monthly Card, `date` of a Project Diesel Fill or Equipment Transport) could cancel a
+  document of a locked period and leave the sent date on it. Now: a save or submit is refused when the date
+  stored before the request or the new date is in the locked period; a cancel is judged by the stored date,
+  and a cancel request that changes a period-lock date field is refused in every period (also for the
+  override role), so a cancelled document keeps its original date. The override role still allows saving,
+  submitting, moving and cancelling inside the locked period; normal work in open periods, delete and
+  update after submit are unchanged (Frappe already refuses date changes after submit); no role gains a
+  permission. Functions: `card/period_lock.py` `enforce`, `on_validate`, `on_cancel`; 1 new Arabic message.
+  (#97, commits `3fbed47` and `c3d143a`, merge `2b7debf`; not released or deployed; FR-050. Target: next
+  release after v4.0.0. Rollback: code only, revert the merge commit; no schema, data, fixture or migration change.)
 - **Equipment transport rows are written through the transport only.** `POST`, `PUT` and `DELETE`
   `/api/resource/Equipment Transport Item` and `frappe.client.save` of a row saved one row alone (also
   when sent with docstatus 2, which Frappe treats as a cancel without any validation): Frappe
@@ -139,8 +186,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   rows (a save with docstatus 2 stores what the request sent) is refused; the transport is cancelled as
   approved. No change to transport cost, cost bearer, split, price, cost center or
   postings; no role gains a permission; no schema or data change. (Branch
-  `test/transport-item-standalone-rows`, not pushed; FR-073. Target: next release. Rollback: revert the
-  commit; no schema or data change.)
+  `fix/transport-item-standalone-rows`, commit `771aa63`; not pushed, merged, released or deployed;
+  FR-073. Target: next release. Rollback: revert the commit; no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real
