@@ -126,6 +126,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   read, create, save, submit and cancel. Users without a Company User Permission (System Manager included)
   and Administrator are unchanged; no role gains a permission; no schema or data change. (#90,
   merge `9aa9184`; FR-071. Target: next release. Rollback: revert the merge; no schema or data change.)
+- **Period lock: request keys that are not date fields are ignored (partial fix).** The lock looked for
+  `to_date`, then `date`, then `posting_date` on the document as sent. Project Diesel Fill and Equipment
+  Transport have no `to_date` field, but Frappe keeps any extra key of a request (`frappe.client.save` and
+  `submit`, REST `PUT`, Desk save, submit and cancel), so a request with `"to_date": "2999-01-01"` could save,
+  submit or cancel a fill or transport dated inside the locked period. A date key is now read only when it is a
+  field of the DocType. This closes only the bypass through keys that are not real date fields; a cancel
+  request that changes a real date field is a separate fix. Card Monthly Card (its `to_date` is computed from
+  the month), the override role and the lock date are unchanged; no role gains a permission. (Branch
+  `fix/period-lock-todate`, not pushed; FR-050. Target: next release after v4.0.0. Rollback: code only, revert
+  the commit; no schema, data, fixture or migration change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real

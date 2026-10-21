@@ -19,7 +19,10 @@ _DATE_FIELDS = ("to_date", "date", "posting_date")
 
 
 def _doc_date(doc):
+	# a request can carry keys that are not fields (Frappe keeps them as attributes); read real fields only
 	for f in _DATE_FIELDS:
+		if not doc.meta.has_field(f):
+			continue
 		v = doc.get(f)
 		if v:
 			return getdate(v)
