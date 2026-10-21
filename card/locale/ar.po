@@ -1729,14 +1729,8 @@ msgstr "سير ذاتي"
 msgid "Ownership"
 msgstr "الملكية"
 
-msgid "Model"
-msgstr "الموديل"
-
 msgid "Components"
 msgstr "المكوّنات"
-
-msgid "Unallocated"
-msgstr "غير مخصّص"
 
 msgid "Unit component (no monthly card)"
 msgstr "مكوّن وحدة (بدون كارت شهري)"

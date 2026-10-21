@@ -106,6 +106,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   method, `fill_link_query`; accounting none; data none. (#84, merge `85ad66d`; FR-001, FR-038 (diesel fills
   only). Target: next release. Rollback: revert the merge; no schema, migration or data change. A code revert does
   not remove or change diesel fills already saved.)
+- **Arabic: CARD no longer overrides the ERPNext translations of "Model" and "Unallocated".** CARD loads
+  last, so a generic word in `card/locale/ar.po` replaces the Frappe/ERPNext translation on the whole site, against
+  the rule that the CARD locale carries CARD strings only. ERPNext `version-16` now translates both words
+  («الطراز», «غير مخصص»), and the guard `test_no_generic_msgid_overrides` failed in CI. The two CARD entries are
+  removed; the test is unchanged. Visible change in Arabic: the Card Equipment field "Model" shows
+  «الطراز» (was «الموديل») and the diesel consumption report row without equipment shows «غير مخصص» (was «غير مخصّص»).
+  Impact: permissions, accounting, data and API none. SemVer impact: PATCH. (Target: next release. Rollback: revert;
+  locale only, no schema, data or migration change.)
 
 ### Security
 - **Equipment assignments follow the user's company.** A Card Equipment Assignment has no Company field,
