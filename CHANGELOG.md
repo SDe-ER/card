@@ -136,6 +136,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the month), the override role and the lock date are unchanged; no role gains a permission. (Branch
   `fix/period-lock-todate`, not pushed; FR-050. Target: next release after v4.0.0. Rollback: code only, revert
   the commit; no schema, data, fixture or migration change.)
+- **Period lock: changing a document's date cannot get round the lock.** A save or submit was judged by
+  the new date only, so a draft dated inside the locked period could be moved to an open date (or submitted
+  with one) in the same request. On cancel Frappe skips `validate` and stores the values the request sent
+  before `on_cancel` runs, so a Desk cancel request (`savedocs`, action Cancel) that changed a real date field
+  (`to_date` of a Card Monthly Card, `date` of a Project Diesel Fill or Equipment Transport) could cancel a
+  document of a locked period and leave the sent date on it. Now: a save or submit is refused when the date
+  stored before the request or the new date is in the locked period; a cancel is judged by the stored date,
+  and a cancel request that changes a period-lock date field is refused in every period (also for the
+  override role), so a cancelled document keeps its original date. The override role still allows saving,
+  submitting, moving and cancelling inside the locked period; normal work in open periods, delete and
+  update after submit are unchanged (Frappe already refuses date changes after submit); no role gains a
+  permission. Functions: `card/period_lock.py` `enforce`, `on_validate`, `on_cancel`; 1 new Arabic message.
+  (Branch `fix/period-lock-stored-date`, on top of `fix/period-lock-todate`, not pushed; FR-050. Target: next
+  release after v4.0.0. Rollback: code only, revert the commit; no schema, data, fixture or migration change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real

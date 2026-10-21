@@ -1403,6 +1403,9 @@ msgstr "تم اعتماد الكارت {0} للمعدة {1}."
 msgid "Period is locked up to {0}; {1} of a {2} dated on or before that date is not allowed."
 msgstr "الفترة مقفولة حتى {0}؛ غير مسموح بـ{1} لـ{2} بتاريخ في ذلك اليوم أو قبله."
 
+msgid "{0} of a {1} cannot be changed when it is cancelled."
+msgstr "لا يمكن تغيير {0} في {1} عند إلغائه."
+
 msgid "CARD period lock override"
 msgstr "تجاوز قفل الفترة في كارت"
 
