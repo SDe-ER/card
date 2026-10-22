@@ -5,8 +5,8 @@ import frappe
 from frappe import _
 from frappe.utils import flt
 
-from card.materials import stock_qty
-from card.report_access import permitted_companies
+from card.materials import stock_by_item
+from card.report_access import permitted_companies, strip_ledger
 
 
 def get_columns():
@@ -77,6 +77,8 @@ def execute(filters=None):
 		entry["approved_qty"] += flt(line.approved_qty)
 		entry["shares"][line.equipment] = entry["shares"].get(line.equipment, 0) + flt(line.approved_qty)
 		entry["reviews"].add(line.parent)
+	# stock only for a user who may read it, in the warehouses of the report's companies (F2)
+	stock = stock_by_item({e["item_code"] for e in grouped.values() if e["item_code"]}, companies=companies)
 	data = []
 	for key in sorted(grouped):
 		entry = grouped[key]
@@ -87,9 +89,12 @@ def execute(filters=None):
 				"requested_qty": entry["requested_qty"],
 				"found_qty": entry["found_qty"],
 				"approved_qty": entry["approved_qty"],
-				"stock_qty": stock_qty(entry["item_code"]) if entry["item_code"] else 0,
+				"stock_qty": stock[entry["item_code"]] if stock is not None and entry["item_code"] else None,
 				"equipment": ", ".join(f"{eq}: {flt(qty):g}" for eq, qty in sorted(entry["shares"].items())),
 				"reviews": ", ".join(sorted(entry["reviews"])),
 			}
 		)
-	return get_columns(), data
+	columns = get_columns()
+	if stock is None:
+		columns, _summary = strip_ledger(columns, data, [], ("stock_qty",), ())
+	return columns, data

@@ -26,3 +26,4 @@ card.patches.v1_2_2.purge_registry_versions
 card.patches.v3_0_0.backfill_transport_items
 card.patches.v3_0_0.sync_equipment_from_asset
 card.patches.v4_0_0.ensure_materials_roles
+card.patches.v4_0_0.clear_review_stock_qty

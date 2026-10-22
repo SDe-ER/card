@@ -162,6 +162,7 @@
    "fieldname": "stock_qty",
    "fieldtype": "Float",
    "label": "In stock",
+   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -180,7 +181,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-19 17:00:00.000000",
+ "modified": "2026-10-22 09:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Needs Review Item",

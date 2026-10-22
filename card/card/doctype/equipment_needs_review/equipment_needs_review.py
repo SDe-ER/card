@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, nowdate
 
-from card.materials import active_review_rows, stock_qty
+from card.materials import active_review_rows
 
 
 class EquipmentNeedsReview(Document):
@@ -61,7 +61,8 @@ class EquipmentNeedsReview(Document):
 			row.inspected_on = row.inspected_on or nowdate()
 		else:
 			row.inspected_by = row.inspected_on = None
-		row.stock_qty = stock_qty(row.item_code, row.warehouse) if row.item_code else 0
+		# never stored (F2): the form shows it live with the reader's rights (card.materials.review_stock)
+		row.stock_qty = 0
 
 	def on_submit(self):
 		self._set_requests("In review")

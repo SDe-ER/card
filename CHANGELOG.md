@@ -116,6 +116,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   locale only, no schema, data or migration change.)
 
 ### Security
+- **The equipment needs stock hint follows the user's stock rights (F2).** The supervisor's review stored
+  the stock on hand on every line, read without any permission check, so every reader of the review
+  (Card User included) saw stock quantities in the form, REST, report view, export and print, and the
+  Equipment Needs Summary report showed them to every report role, summed over every company's
+  warehouses. Stock is now read with the user's own ERPNext rights and shown only to a user whose roles
+  read Bin and Warehouse (a shared Bin or an if_owner read does not count): only the warehouses he may
+  read (Company and Warehouse User Permissions apply), limited to the review's company on the form and to
+  the report's companies in the report. A warehouse he may not read gives no figure, never a false 0. The
+  form shows the figure live (`card.materials.review_stock`, GET, needs read on the review); the report
+  removes the column for a user without stock rights. The review line no longer stores it (`stock_qty`
+  stays as an empty, print-hidden column); patch `v4_0_0.clear_review_stock_qty` clears the stored
+  figures. Affected: `card/materials.py`, Equipment Needs Review (controller, form script), Equipment
+  Needs Review Item (`print_hide`), Equipment Needs Summary. Permissions: none widened; a supervisor or manager without an
+  ERPNext stock role no longer sees the hint. Accounting: none. Data: derived hint figures cleared; quantities,
+  requests and Material Requests untouched; old review Versions keep the figures they recorded (kept as audit
+  history, counted by the patch). API: new GET `card.materials.review_stock`. Rollback: revert the commit;
+  the cleared hints are not restored (the next review save would store them again on the old code). FR-074.
 - **Equipment assignments follow the user's company.** A Card Equipment Assignment has no Company field,
   so a Company User Permission never reached it: a user limited to one company could list, open and
   search the assignments of another company, and a Card Manager limited to one company could create and
