@@ -344,7 +344,7 @@ class TestAssignmentOverlapConcurrency(IntegrationTestCase):
 
 	# ---- R2: two new assignments of one machine ----
 	def test_r2_two_new_assignments_of_one_machine(self):
-		one, two = self._race(
+		_one, two = self._race(
 			lambda: self._insert(self.e1, self.p1, 1), lambda: self._insert(self.e1, self.p2, 1)
 		)
 		self._assert_refused(two, self.e1)
@@ -353,7 +353,7 @@ class TestAssignmentOverlapConcurrency(IntegrationTestCase):
 	def test_r2_with_the_server_snapshot_setting(self):
 		# MariaDB 11.8 default (snapshot isolation ON) may refuse with error 1020 instead of
 		# the validation message; either way nothing overlaps and the refused request wrote nothing
-		one, two = self._race(
+		_one, two = self._race(
 			lambda: self._insert(self.e1, self.p1, 1),
 			lambda: self._insert(self.e1, self.p2, 1),
 			snapshot_isolation=None,
@@ -365,13 +365,13 @@ class TestAssignmentOverlapConcurrency(IntegrationTestCase):
 	# ---- R4: reopen (what a transport cancel does) against a new assignment ----
 	def test_r4_reopen_then_new_assignment(self):
 		closed = self._committed(lambda: self._insert(self.e1, self.p1, 1, 10).name)
-		one, two = self._race(lambda: self._reopen(closed), lambda: self._insert(self.e1, self.p2, 11))
+		_one, two = self._race(lambda: self._reopen(closed), lambda: self._insert(self.e1, self.p2, 11))
 		self._assert_refused(two, self.e1)
 		self.assertEqual(self._periods(self.e1), [(self.p1, self._d(1), None)])
 
 	def test_r4_new_assignment_then_reopen(self):
 		closed = self._committed(lambda: self._insert(self.e1, self.p1, 1, 10).name)
-		one, two = self._race(lambda: self._insert(self.e1, self.p2, 11), lambda: self._reopen(closed))
+		_one, two = self._race(lambda: self._insert(self.e1, self.p2, 11), lambda: self._reopen(closed))
 		self._assert_refused(two, self.e1)
 		self.assertEqual(
 			self._periods(self.e1), [(self.p1, self._d(1), self._d(10)), (self.p2, self._d(11), None)]
@@ -425,7 +425,7 @@ class TestAssignmentOverlapConcurrency(IntegrationTestCase):
 
 	# ---- two machines at the same time: both are written ----
 	def test_two_machines_are_both_assigned(self):
-		one, two = self._race(
+		_one, two = self._race(
 			lambda: self._insert(self.e1, self.p1, 1), lambda: self._insert(self.e2, self.p2, 1)
 		)
 		self.assertTrue(two.committed, repr(two.error))
