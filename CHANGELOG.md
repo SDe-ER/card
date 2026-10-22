@@ -114,6 +114,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   «الطراز» (was «الموديل») and the diesel consumption report row without equipment shows «غير مخصص» (was «غير مخصّص»).
   Impact: permissions, accounting, data and API none. SemVer impact: PATCH. (Target: next release. Rollback: revert;
   locale only, no schema, data or migration change.)
+- **Arabic: CARD no longer overrides the Frappe translation of "Owner".** Frappe `version-16` now translates
+  "Owner" as «مالك» (crowdin sync, merged 2026-10-22), and the CARD entry «المالك» replaced it on the whole site, so
+  `test_no_generic_msgid_overrides` failed in CI. The CARD entry in `card/locale/ar.po` is removed; the test is
+  unchanged. Visible change in Arabic: the Card Monthly Card field "Owner" (the supplier link) shows «مالك» (was
+  «المالك»). Feature Registry not changed: no registry row covers the translation layer (same as the "Model" entry).
+  Impact: permissions, accounting, data and API none. SemVer impact: PATCH. (Branch `fix/i18n-owner-msgid`. Target:
+  next release. Rollback: revert; locale only, no schema, data or migration change.)
 
 ### Security
 - **Equipment assignments follow the user's company.** A Card Equipment Assignment has no Company field,
