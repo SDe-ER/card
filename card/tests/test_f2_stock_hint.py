@@ -70,13 +70,26 @@ class TestF2StockHint(IntegrationTestCase):
 		self.assertIsNone(self._as(stock_user, materials.stock_qty, self.filter, self.custody))
 
 	def test_stock_hint_stays_in_the_users_companies(self):
-		other = frappe.db.get_value(
-			"Warehouse", {"company": ["!=", self.company], "is_group": 0}, ["name", "company"], as_dict=True
+		# own second company + warehouse (a clean CI site has none); rolled back in tearDown
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": "TEST-F2-CO-" + self.token,
+				"abbr": "F2" + self.token[:6].upper(),
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
 		)
-		if not other:
-			self.skipTest("the test site needs a warehouse of a second company")
+		co.name = co.company_name
+		co.db_insert()
+		other = frappe.new_doc("Warehouse")
+		other.update({"warehouse_name": "TEST-F2-WH-" + self.token, "company": co.name, "is_group": 0})
+		other.name = f"{other.warehouse_name} - {co.abbr}"
+		other.db_insert()
+		self.assertEqual(frappe.db.get_value("Warehouse", other.name, "company"), co.name)
 		self._bin(self.filter, self.store, 5)
 		self._bin(self.filter, other.name, 7)
+		self.assertEqual(materials.stock_qty(self.filter, companies=[co.name]), 7)
 		self.assertEqual(materials.stock_qty(self.filter), 12)
 		self.assertEqual(materials.stock_qty(self.filter, companies=[self.company]), 5)
 		stock_user = self._user("sc", ["Card User", "Stock User"])
