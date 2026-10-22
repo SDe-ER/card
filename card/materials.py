@@ -16,6 +16,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, cint, flt, getdate, now_datetime, nowdate
 
+from card.report_access import _role_reads
 from card.settings import setting
 from card.transfer import current_location
 
@@ -146,11 +147,61 @@ def last_asked_on(equipment, item_code, exclude_request=None):
 	return max(dates) if dates else None
 
 
-def stock_qty(item_code, warehouse=None):
-	filters = {"item_code": item_code}
+def can_read_stock():
+	"""Stock is shown only to a user whose roles read Bin and Warehouse (F2): not through a shared
+	Bin or an if_owner read, as for the ledger figures in the reports."""
+	return _role_reads("Bin") and _role_reads("Warehouse")
+
+
+def stock_by_item(item_codes, warehouse=None, companies=None):
+	"""Stock on hand per item, read with the user's own ERPNext rights (F2): only the warehouses
+	he may read (Company and Warehouse User Permissions apply; Bin has no company of its own),
+	limited to ``companies`` when given. None when he may not read stock or ``warehouse``."""
+	if not can_read_stock():
+		return None
+	filters = {"company": ["in", list(companies)]} if companies else {}
+	warehouses = set(frappe.get_list("Warehouse", filters=filters, pluck="name", limit_page_length=0))
 	if warehouse:
-		filters["warehouse"] = warehouse
-	return flt(sum(flt(q) for q in frappe.get_all("Bin", filters=filters, pluck="actual_qty")))
+		if warehouse not in warehouses:
+			return None
+		warehouses = {warehouse}
+	totals = dict.fromkeys(item_codes, 0.0)
+	if not totals or not warehouses:
+		return totals
+	for row in frappe.get_list(
+		"Bin",
+		filters={"item_code": ["in", list(totals)], "warehouse": ["in", list(warehouses)]},
+		fields=["item_code", "actual_qty"],
+		limit_page_length=0,
+	):
+		totals[row.item_code] += flt(row.actual_qty)
+	return totals
+
+
+def stock_qty(item_code, warehouse=None, companies=None):
+	stock = stock_by_item([item_code], warehouse, companies)
+	return None if stock is None else stock[item_code]
+
+
+@frappe.whitelist(methods=["GET"])
+def review_stock(review: str):
+	"""Stock hint per review line, read live with the reader's rights. The hint is never stored on
+	the review (F2): a stored figure would show stock to every reader of the review. A line
+	without an item, or in a warehouse the reader may not see, has no hint."""
+	doc = frappe.get_doc("Equipment Needs Review", review)
+	doc.check_permission("read")
+	if not can_read_stock():
+		return {}
+	by_warehouse = {}
+	for row in doc.items:
+		if row.item_code:
+			by_warehouse.setdefault(row.warehouse or None, []).append(row)
+	hints = {}
+	for warehouse, rows in by_warehouse.items():
+		stock = stock_by_item({row.item_code for row in rows}, warehouse, [doc.company])
+		for row in rows:
+			hints[row.name] = None if stock is None else stock[row.item_code]
+	return hints
 
 
 def active_review_rows(request_item, exclude_review=None):
