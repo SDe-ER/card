@@ -16,6 +16,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Catalog search (FR-076, phase 1 of the catalog; Owner 2026-10-22)**: CARD Mobile's item picker gets a
+  "Browse catalog" dialog over the standard ERPNext catalogue (Item, Item Group, Brand, Item Barcode, Item
+  Manufacturer, Item Alternative); CARD adds no item master and no DocType. Search by item name, item code, barcode
+  or OEM part number; filter by item group (with its sub-groups) and brand; item image, OEM numbers and the
+  standard alternatives (one-way, or both ways when `two_way` is set; pick an alternative directly); server paging
+  with "Load more" (no total count). New GET endpoints `card.catalog.search` and `card.catalog.filter_options`
+  (reads only). Permissions on the server: a user whose roles read Item gets `frappe.get_list` (his roles, User
+  Permissions and rules apply); a Card portal role without Item read (Card Operator, the G1 exception of
+  `search_items`, widened by Owner decision D-1 to OEM numbers and alternatives) gets the same item rules with his
+  User Permissions on Item, Item Group and Brand applied by CARD. OEM and barcode matches, alternatives and paging
+  only use items the user may list. No stock, price, supplier or account is returned (the stock hint stays F2-only);
+  private image files keep their own access (a placeholder shows when the image cannot load). English UI strings
+  with ar, bn, hi and ur translations under the context "Card Mobile"; Item Group names are translated by Frappe,
+  item names and brands show as entered. Desk is unchanged (standard Item list, image view and Item link search).
+  `card.materials.search_items` (the inline suggestions of `/cdms` and `/equipment-needs`) now uses the same rules
+  and rights (it also matches barcodes and OEM numbers, hides ended items and keeps `%`/`_` literal).
+  Data, schema and accounting: no change. Branch `feat/catalog-search` (local commit, no pull request yet).
+  Rollback: revert the commit; nothing to migrate or clean up.
 - **CARD Mobile at `/cdms` — foundation** (planned for v4.1.0): a phone-only Progressive Web App served by CARD
   itself, built like the Frappe HR mobile app (Vue 3, TypeScript, frappe-ui in `frontend/`, built by
   `bench build` into `card/public/frontend` and `card/www/cdms.html`). In-app sign-in with the

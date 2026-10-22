@@ -183,3 +183,42 @@ msgstr "सर्वर तक नहीं पहुँच सके। कन�
 msgctxt "Card Mobile"
 msgid "Try again"
 msgstr "फिर से कोशिश करें"
+
+msgctxt "Card Mobile"
+msgid "Browse catalog"
+msgstr "कैटलॉग देखें"
+
+msgctxt "Card Mobile"
+msgid "Catalog"
+msgstr "कैटलॉग"
+
+msgctxt "Card Mobile"
+msgid "Search by name, code, barcode or OEM number"
+msgstr "नाम, कोड, बारकोड या OEM नंबर से खोजें"
+
+msgctxt "Card Mobile"
+msgid "Item group"
+msgstr "आइटम समूह"
+
+msgctxt "Card Mobile"
+msgid "Brand"
+msgstr "ब्रांड"
+
+msgctxt "Card Mobile"
+msgid "OEM"
+msgstr "OEM नंबर"
+
+msgctxt "Card Mobile"
+msgid "Alternatives"
+msgstr "विकल्प"
+
+msgctxt "Card Mobile"
+msgid "No items found."
+msgstr "कोई आइटम नहीं मिला।"
+
+msgctxt "Card Mobile"
+msgid "Load more"
+msgstr "और देखें"
+
+msgid "Unknown catalog filter"
+msgstr "अज्ञात कैटलॉग फ़िल्टर"

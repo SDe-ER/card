@@ -2155,3 +2155,52 @@ msgstr ""
 msgctxt "Card Mobile"
 msgid "Try again"
 msgstr ""
+
+#: frontend/src/components/ItemPicker.vue
+msgctxt "Card Mobile"
+msgid "Browse catalog"
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgctxt "Card Mobile"
+msgid "Catalog"
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgctxt "Card Mobile"
+msgid "Search by name, code, barcode or OEM number"
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgctxt "Card Mobile"
+msgid "Item group"
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgctxt "Card Mobile"
+msgid "Brand"
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgctxt "Card Mobile"
+msgid "OEM"
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgctxt "Card Mobile"
+msgid "Alternatives"
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgctxt "Card Mobile"
+msgid "No items found."
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgctxt "Card Mobile"
+msgid "Load more"
+msgstr ""
+
+#: card/catalog.py
+msgid "Unknown catalog filter"
+msgstr ""

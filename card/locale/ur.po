@@ -183,3 +183,42 @@ msgstr "سرور تک رسائی نہیں ہو سکی۔ کنکشن چیک کری
 msgctxt "Card Mobile"
 msgid "Try again"
 msgstr "دوبارہ کوشش کریں"
+
+msgctxt "Card Mobile"
+msgid "Browse catalog"
+msgstr "کیٹلاگ دیکھیں"
+
+msgctxt "Card Mobile"
+msgid "Catalog"
+msgstr "کیٹلاگ"
+
+msgctxt "Card Mobile"
+msgid "Search by name, code, barcode or OEM number"
+msgstr "نام، کوڈ، بارکوڈ یا OEM نمبر سے تلاش کریں"
+
+msgctxt "Card Mobile"
+msgid "Item group"
+msgstr "آئٹم گروپ"
+
+msgctxt "Card Mobile"
+msgid "Brand"
+msgstr "برانڈ"
+
+msgctxt "Card Mobile"
+msgid "OEM"
+msgstr "OEM نمبر"
+
+msgctxt "Card Mobile"
+msgid "Alternatives"
+msgstr "متبادل"
+
+msgctxt "Card Mobile"
+msgid "No items found."
+msgstr "کوئی آئٹم نہیں ملا۔"
+
+msgctxt "Card Mobile"
+msgid "Load more"
+msgstr "مزید دیکھیں"
+
+msgid "Unknown catalog filter"
+msgstr "نامعلوم کیٹلاگ فلٹر"
