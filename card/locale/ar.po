@@ -2964,3 +2964,343 @@ msgstr "فلتر كتالوج غير معروف"
 
 msgid "Catalog"
 msgstr "الكتالوج"
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.json
+msgid "Card Equipment Make"
+msgstr "ماركة المعدة"
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.json
+msgid "Card Equipment Model"
+msgstr "موديل المعدة"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Card Equipment Part"
+msgstr "توافق قطع الغيار"
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.py
+msgid "Equipment Make Model Values"
+msgstr "قيم الماركة والموديل النصية"
+
+#: card/card/sidebar/card_materials/card_materials.json
+msgid "Equipment Makes"
+msgstr "ماركات المعدات"
+
+#: card/card/sidebar/card_materials/card_materials.json
+msgid "Equipment Models"
+msgstr "موديلات المعدات"
+
+#: card/card/sidebar/card_materials/card_materials.json
+msgid "Parts Fitment"
+msgstr "توافق قطع الغيار"
+
+#: card/card/doctype/card_equipment/card_equipment_dashboard.py
+msgid "Parts fitment"
+msgstr "توافق قطع الغيار"
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.json
+msgid "Make name"
+msgstr "اسم الماركة"
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.json
+msgid "Model name"
+msgstr "اسم الموديل"
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.json
+msgid "Make key"
+msgstr "مفتاح الماركة"
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.json
+msgid "Model key"
+msgstr "مفتاح الموديل"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Compatibility key"
+msgstr "مفتاح التوافق"
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.json
+msgid "Equipment make"
+msgstr "ماركة المعدة"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Equipment model"
+msgstr "موديل المعدة"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Equipment Model"
+msgstr "موديل معدة"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Applies to"
+msgstr "ينطبق على"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Compatibility status"
+msgstr "حالة التوافق"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Pending Technical Review"
+msgstr "قيد المراجعة الفنية"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Not Compatible"
+msgstr "غير متوافق"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Review stage"
+msgstr "مرحلة المراجعة"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Pending Second Review"
+msgstr "بانتظار المراجعة الثانية"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Decision reason"
+msgstr "سبب القرار"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Evidence source"
+msgstr "مصدر الإثبات"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Evidence reference"
+msgstr "مرجع الإثبات"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Evidence file"
+msgstr "ملف الإثبات"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Maker parts book"
+msgstr "كتالوج قطع الصانع"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Maker or dealer catalogue"
+msgstr "كتالوج الصانع أو الوكيل"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Supplier or dealer confirmation"
+msgstr "تأكيد المورد أو الوكيل"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Physical check on the machine"
+msgstr "فحص فعلي على المعدة"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Installation record"
+msgstr "سجل تركيب"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Quantity per use"
+msgstr "الكمية لكل استخدام"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Technical notes"
+msgstr "ملاحظات فنية"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Proposed by"
+msgstr "اقترحه"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Proposed on"
+msgstr "تاريخ الاقتراح"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "First review by"
+msgstr "المراجعة الأولى بواسطة"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "First review on"
+msgstr "تاريخ المراجعة الأولى"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "First review decision"
+msgstr "قرار المراجعة الأولى"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "First review reason"
+msgstr "سبب المراجعة الأولى"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Decided by"
+msgstr "قرره"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Decided on"
+msgstr "تاريخ القرار"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Retired by"
+msgstr "أوقفه"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Retired on"
+msgstr "تاريخ الإيقاف"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Retire reason"
+msgstr "سبب الإيقاف"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Supervisor proposal"
+msgstr "اقتراح المشرف"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Approved request"
+msgstr "طلب معتمد"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Source request"
+msgstr "الطلب المصدر"
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.py
+msgid "Brand (text)"
+msgstr "الماركة (نص)"
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.py
+msgid "Model (text)"
+msgstr "الموديل (نص)"
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.py
+msgid "Equipment count"
+msgstr "عدد المعدات"
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.js
+msgid "Without equipment model only"
+msgstr "المعدات بدون موديل فقط"
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.py
+msgid "Enter the make name."
+msgstr "أدخل اسم الماركة."
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.py
+msgid "Enter the model name."
+msgstr "أدخل اسم الموديل."
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.py
+msgid "Equipment make {0} already exists."
+msgstr "ماركة المعدة {0} موجودة بالفعل."
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.py
+msgid "Equipment make {0} is disabled."
+msgstr "ماركة المعدة {0} معطلة."
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.py
+msgid "Equipment model {0} already exists."
+msgstr "موديل المعدة {0} موجود بالفعل."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment model {0} is disabled."
+msgstr "موديل المعدة {0} معطل."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment model {0} does not exist."
+msgstr "موديل المعدة {0} غير موجود."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment model {0} does not belong to this make and equipment type."
+msgstr "موديل المعدة {0} لا يتبع هذه الماركة ونوع المعدة."
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.py
+msgid "The make and type of a model in use cannot change."
+msgstr "لا يمكن تغيير ماركة ونوع موديل مستخدم."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Equipment {0} does not exist."
+msgstr "المعدة {0} غير موجودة."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Select the equipment."
+msgstr "اختر المعدة."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Select the equipment model."
+msgstr "اختر موديل المعدة."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Select what the row applies to."
+msgstr "اختر ما ينطبق عليه السطر."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Item, scope, model and equipment of a fitment row cannot change."
+msgstr "لا يمكن تغيير الصنف أو النطاق أو الموديل أو المعدة في سطر التوافق."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Fitment row {0} already exists for this item."
+msgstr "سطر التوافق {0} موجود بالفعل لهذا الصنف."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "It is retired: make it active again instead."
+msgstr "السطر موقوف: أعد تفعيله بدلًا من ذلك."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Item {0} is disabled."
+msgstr "الصنف {0} معطل."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Item {0} has reached its end of life."
+msgstr "الصنف {0} انتهى عمره."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Item {0} is a template; select one of its variants."
+msgstr "الصنف {0} قالب؛ اختر أحد أصنافه الفرعية."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "The evidence file must be a private file uploaded to this row."
+msgstr "يجب أن يكون ملف الإثبات ملفًا خاصًا مرفوعًا على هذا السطر."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Only a Card Manager decides the compatibility status."
+msgstr "مدير Card فقط يقرر حالة التوافق."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "You can change only your own pending fitment rows."
+msgstr "يمكنك تعديل أسطر التوافق التي اقترحتها وما زالت قيد المراجعة فقط."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Select a valid compatibility status."
+msgstr "اختر حالة توافق صحيحة."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Enter the reason for your decision on your own proposal."
+msgstr "أدخل سبب قرارك على اقتراحك."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Attach the evidence file for a decision on your own proposal."
+msgstr "أرفق ملف الإثبات لقرارك على اقتراحك."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Enter the evidence source and reference before a decision."
+msgstr "أدخل مصدر الإثبات ومرجعه قبل القرار."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "The model row says Not Compatible: enter technical notes for this exception."
+msgstr "سطر الموديل يقول غير متوافق: أدخل ملاحظات فنية لهذا الاستثناء."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Fitment rows are retired, never deleted."
+msgstr "أسطر التوافق توقف ولا تحذف."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Only a Card Manager retires or restores a fitment row."
+msgstr "مدير Card فقط يوقف سطر التوافق أو يعيد تفعيله."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Enter the reason for retiring the row."
+msgstr "أدخل سبب إيقاف السطر."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment model {0} was cleared: it does not belong to the new equipment type."
+msgstr "تم مسح موديل المعدة {0}: لا يتبع نوع المعدة الجديد."
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Part item"
+msgstr "صنف القطعة"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Fitment evidence"
+msgstr "إثبات التوافق"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Review record"
+msgstr "سجل المراجعة"

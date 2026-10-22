@@ -16,6 +16,29 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Parts fitment, catalog phase 2a (FR-077; Owner decisions Q1–Q11, 2026-10-23)**: which ERPNext Item fits which
+  machine. New masters `Card Equipment Make` (CMK-) and `Card Equipment Model` (CEM-, one make and one equipment
+  type); a normalised unique key refuses the same make or model written twice ("PC200-8" = "pc 200 8"), also when
+  two users save at the same moment. ERPNext Manufacturer (the part maker of Item Manufacturer) is not used for
+  machines. Card Equipment gets `equipment_make` and `equipment_model` (permlevel 1: Card Manager writes); the model
+  must belong to the machine's make and equipment type; the free-text Brand / Model fields stay as they are and
+  nothing is copied. New `Card Equipment Part` (CFP-): a fitment row on an equipment model or on one machine, with
+  the DESIGN v4.1 states Pending Technical Review / Confirmed / Not Compatible, evidence source and reference, a
+  private evidence file, quantity per use and technical notes. Every new row starts pending; status and audit fields
+  are written by the server only (form, REST, `frappe.client`, import). Card Supervisor proposes and documents own
+  pending rows; Card Manager or System Manager decides with evidence. **No final self-approval**: a decision by the
+  row's proposer (Administrator included) is stored as a first review with reason and evidence file and the row stays
+  pending (Pending Second Review) until another Card Manager or System Manager decides. A machine row Confirmed
+  against its model's Not Compatible row needs technical notes. Rows are retired with a reason, never deleted; a
+  restored row is reviewed again; history in the Version log. Machine rows follow the machine's company (permission
+  query and document check); model rows are technical data without a company. Card User and Card Operator get no
+  access to fitment rows or evidence files (the search view comes in phase 2b). Read-only Script Report
+  "Equipment Make Model Values" (Card Manager, System Manager) lists the free-text brand / model values for manual
+  set-up. Card Materials sidebar: Equipment Makes, Equipment Models, Parts Fitment. Connections on Card Equipment,
+  make and model. Arabic translations for the new CARD strings; generic words keep the Frappe / ERPNext
+  translation. Impact: three new DocTypes and two new columns on Card Equipment, created by the DocType sync; no
+  data patch; no ERPNext DocType, role or permission change; no accounting or API change (no new whitelisted
+  method). Rollback: revert the merge; the new tables and columns stay (empty or kept); no data is deleted.
 - **Catalog search (FR-076, phase 1 of the catalog; Owner 2026-10-22)**: CARD Mobile's item picker gets a
   "Browse catalog" dialog over the standard ERPNext catalogue (Item, Item Group, Brand, Item Barcode, Item
   Manufacturer, Item Alternative); CARD adds no item master and no DocType. Search by item name, item code, barcode

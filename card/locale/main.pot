@@ -2208,3 +2208,343 @@ msgstr ""
 #: card/card/sidebar/card_materials/card_materials.json
 msgid "Catalog"
 msgstr ""
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.json
+msgid "Card Equipment Make"
+msgstr ""
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.json
+msgid "Card Equipment Model"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Card Equipment Part"
+msgstr ""
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.py
+msgid "Equipment Make Model Values"
+msgstr ""
+
+#: card/card/sidebar/card_materials/card_materials.json
+msgid "Equipment Makes"
+msgstr ""
+
+#: card/card/sidebar/card_materials/card_materials.json
+msgid "Equipment Models"
+msgstr ""
+
+#: card/card/sidebar/card_materials/card_materials.json
+msgid "Parts Fitment"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment_dashboard.py
+msgid "Parts fitment"
+msgstr ""
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.json
+msgid "Make name"
+msgstr ""
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.json
+msgid "Model name"
+msgstr ""
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.json
+msgid "Make key"
+msgstr ""
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.json
+msgid "Model key"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Compatibility key"
+msgstr ""
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.json
+msgid "Equipment make"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Equipment model"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Equipment Model"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Applies to"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Compatibility status"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Pending Technical Review"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Not Compatible"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Review stage"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Pending Second Review"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Decision reason"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Evidence source"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Evidence reference"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Evidence file"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Maker parts book"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Maker or dealer catalogue"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Supplier or dealer confirmation"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Physical check on the machine"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Installation record"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Quantity per use"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Technical notes"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Proposed by"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Proposed on"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "First review by"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "First review on"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "First review decision"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "First review reason"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Decided by"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Decided on"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Retired by"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Retired on"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Retire reason"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Supervisor proposal"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Approved request"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Source request"
+msgstr ""
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.py
+msgid "Brand (text)"
+msgstr ""
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.py
+msgid "Model (text)"
+msgstr ""
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.py
+msgid "Equipment count"
+msgstr ""
+
+#: card/card/report/equipment_make_model_values/equipment_make_model_values.js
+msgid "Without equipment model only"
+msgstr ""
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.py
+msgid "Enter the make name."
+msgstr ""
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.py
+msgid "Enter the model name."
+msgstr ""
+
+#: card/card/doctype/card_equipment_make/card_equipment_make.py
+msgid "Equipment make {0} already exists."
+msgstr ""
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.py
+msgid "Equipment make {0} is disabled."
+msgstr ""
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.py
+msgid "Equipment model {0} already exists."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment model {0} is disabled."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment model {0} does not exist."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment model {0} does not belong to this make and equipment type."
+msgstr ""
+
+#: card/card/doctype/card_equipment_model/card_equipment_model.py
+msgid "The make and type of a model in use cannot change."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Equipment {0} does not exist."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Select the equipment."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Select the equipment model."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Select what the row applies to."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Item, scope, model and equipment of a fitment row cannot change."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Fitment row {0} already exists for this item."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "It is retired: make it active again instead."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Item {0} is disabled."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Item {0} has reached its end of life."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Item {0} is a template; select one of its variants."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "The evidence file must be a private file uploaded to this row."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Only a Card Manager decides the compatibility status."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "You can change only your own pending fitment rows."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Select a valid compatibility status."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Enter the reason for your decision on your own proposal."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Attach the evidence file for a decision on your own proposal."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Enter the evidence source and reference before a decision."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "The model row says Not Compatible: enter technical notes for this exception."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Fitment rows are retired, never deleted."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Only a Card Manager retires or restores a fitment row."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.py
+msgid "Enter the reason for retiring the row."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment model {0} was cleared: it does not belong to the new equipment type."
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Part item"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Fitment evidence"
+msgstr ""
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Review record"
+msgstr ""
