@@ -93,6 +93,26 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
+- **Two assignments of one machine at the same time no longer overlap (D4, FR-075).** The overlap check of a
+  Card Equipment Assignment was a plain read. Under MariaDB REPEATABLE READ (Production: MariaDB 10.6) two
+  requests for the same machine that ran at the same time both saw "no overlap" and both saved: two new
+  assignments, or a new assignment while a transport cancel reopened the previous one. The check now locks the
+  machine's Card Equipment row first, so a second writer of that machine waits, and then reads the machine's
+  assignments with a locking read, which returns the latest committed rows. The second request is refused with
+  the normal overlap message. On a MariaDB server with `innodb_snapshot_isolation` ON (the 11.8 default) the
+  refused request can end with a "record has changed" deadlock error instead; nothing of it is written. The
+  `equipment` field of Card Equipment Assignment gets a database index (`search_index`), so the locking read
+  locks that machine's rows and the index gap next to them, not the whole table; `bench migrate` adds it
+  (`ADD INDEX equipment_index`), no patch. Run the migrate before the new code serves requests: without the
+  index the locking read locks every assignment row. Affected: `CardEquipmentAssignment.validate_no_overlap`
+  (manual saves, Equipment Transport submit and cancel). Not changed: what counts as an overlap, transfer dates,
+  permissions, company rules, cards, billing and accounting. Residual (no overlap, nothing written): a save of an
+  existing assignment locks that row before the machine row (Frappe `check_if_latest`), and a new assignment
+  locks the machine row first, so the two at the same moment, or two transports of several machines in
+  opposite order, can deadlock; the database rolls one back (HTTP 508, "try again"). Branch
+  `fix/assignment-overlap-lock`, pull request not opened yet. Impact: permissions none, accounting none, data
+  none (existing rows unchanged), API none, schema one index. SemVer impact: PATCH. (Target: next release.
+  Rollback: revert; the index is harmless if kept, and a later release without `search_index` drops it.)
 - **Diesel fill for Card User (P0):** a user with only the Card User role could not finish a Project Diesel Fill
   in the Desk. The Project, Cost Center and Supplier lists failed with "Insufficient Permission" (the role has no
   permission on those ERPNext masters), and the mandatory Supplier stayed empty and hidden when the user may not
@@ -114,6 +134,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   «الطراز» (was «الموديل») and the diesel consumption report row without equipment shows «غير مخصص» (was «غير مخصّص»).
   Impact: permissions, accounting, data and API none. SemVer impact: PATCH. (Target: next release. Rollback: revert;
   locale only, no schema, data or migration change.)
+- **Arabic: CARD no longer overrides the Frappe translation of "Owner".** Frappe `version-16` now translates
+  "Owner" as «مالك» (crowdin sync, merged 2026-10-22), and the CARD entry «المالك» replaced it on the whole site, so
+  `test_no_generic_msgid_overrides` failed in CI. The CARD entry in `card/locale/ar.po` is removed; the test is
+  unchanged. Visible change in Arabic: the Card Monthly Card field "Owner" (the supplier link) shows «مالك» (was
+  «المالك»). Feature Registry not changed: no registry row covers the translation layer (same as the "Model" entry).
+  Impact: permissions, accounting, data and API none. SemVer impact: PATCH. (Branch `fix/i18n-owner-msgid`. Target:
+  next release. Rollback: revert; locale only, no schema, data or migration change.)
 
 ### Security
 - **The equipment needs stock hint follows the user's stock rights (F2).** The supervisor's review stored

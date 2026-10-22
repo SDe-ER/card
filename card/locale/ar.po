@@ -679,11 +679,6 @@ msgstr "اسم المشغّل"
 msgid "Optional: charge the whole fill to this equipment. Leave empty to split across the project's equipment by operating hours."
 msgstr ""
 
-#. Label of the supplier (Link) field in DocType 'Card Monthly Card'
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "Owner"
-msgstr "المالك"
-
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:358
 msgid "Paid (Debit)"
 msgstr "المدفوع (مدين)"

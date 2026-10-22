@@ -78,12 +78,16 @@ class CardEquipmentAssignment(Document):
 			return
 		start = str(getdate(self.from_date))
 		end = str(getdate(self.to_date)) if self.to_date else OPEN_END
+		# D4: one writer per machine at a time. The equipment row lock queues a concurrent
+		# writer; the locking read then returns the latest committed rows, which a
+		# REPEATABLE READ snapshot read would miss.
+		frappe.db.get_value("Card Equipment", self.equipment, "name", for_update=True)
 		clash = frappe.db.sql(
 			"""
 			select name, project, from_date, to_date from `tabCard Equipment Assignment`
 			where equipment = %(equipment)s and name != %(name)s and from_date is not null
 				and from_date <= %(end)s and ifnull(to_date, %(open_end)s) >= %(start)s
-			limit 1
+			limit 1 for update
 			""",
 			{
 				"equipment": self.equipment,
