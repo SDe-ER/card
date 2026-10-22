@@ -438,25 +438,14 @@ def get_portal_context():
 
 @frappe.whitelist(methods=["GET"])
 def search_items(txt: str | None = None):
-	"""Items an operator may pick, by code or name: enabled stock or purchase items (no templates),
-	20 at most, code, name and unit only. Operators have no Item read permission; this is the one
-	deliberate exception, so they can name what their machine needs (G1)."""
+	"""Items an operator may pick, by code, name, barcode or OEM number: 20 at most, code, name and
+	unit only. Operators have no Item read permission; this is the one deliberate exception, so they
+	can name what their machine needs (G1). The rules and User Permissions are those of the catalog
+	search (``card.catalog``), so the inline list never shows an item the catalog hides."""
 	_check_portal_user()
-	item = frappe.qb.DocType("Item")
-	like = "%{}%".format(txt or "")
-	return (
-		frappe.qb.from_(item)
-		.select(item.item_code, item.item_name, item.stock_uom)
-		.where(
-			(item.disabled == 0)
-			& (item.has_variants == 0)
-			& ((item.is_stock_item == 1) | (item.is_purchase_item == 1))
-			& (item.item_code.like(like) | item.item_name.like(like))
-		)
-		.orderby(item.item_name)
-		.limit(20)
-		.run(as_dict=True)
-	)
+	from card.catalog import quick_search
+
+	return quick_search(txt, limit=20)
 
 
 @frappe.whitelist(methods=["POST"])

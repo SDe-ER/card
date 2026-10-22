@@ -183,3 +183,42 @@ msgstr "সার্ভারে পৌঁছানো যায়নি। স
 msgctxt "Card Mobile"
 msgid "Try again"
 msgstr "আবার চেষ্টা করুন"
+
+msgctxt "Card Mobile"
+msgid "Browse catalog"
+msgstr "ক্যাটালগ দেখুন"
+
+msgctxt "Card Mobile"
+msgid "Catalog"
+msgstr "ক্যাটালগ"
+
+msgctxt "Card Mobile"
+msgid "Search by name, code, barcode or OEM number"
+msgstr "নাম, কোড, বারকোড বা OEM নম্বর দিয়ে খুঁজুন"
+
+msgctxt "Card Mobile"
+msgid "Item group"
+msgstr "পণ্যের গ্রুপ"
+
+msgctxt "Card Mobile"
+msgid "Brand"
+msgstr "ব্র্যান্ড"
+
+msgctxt "Card Mobile"
+msgid "OEM"
+msgstr "OEM নম্বর"
+
+msgctxt "Card Mobile"
+msgid "Alternatives"
+msgstr "বিকল্প"
+
+msgctxt "Card Mobile"
+msgid "No items found."
+msgstr "কোনো পণ্য পাওয়া যায়নি।"
+
+msgctxt "Card Mobile"
+msgid "Load more"
+msgstr "আরও দেখুন"
+
+msgid "Unknown catalog filter"
+msgstr "অজানা ক্যাটালগ ফিল্টার"

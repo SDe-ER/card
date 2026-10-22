@@ -2922,3 +2922,45 @@ msgstr "مركز التكلفة {0} يجب أن يكون مركز تكلفة م�
 
 msgid "Supplier {0} is disabled."
 msgstr "المورد {0} معطّل."
+
+msgctxt "Card Mobile"
+msgid "Browse catalog"
+msgstr "تصفح الكتالوج"
+
+msgctxt "Card Mobile"
+msgid "Catalog"
+msgstr "الكتالوج"
+
+msgctxt "Card Mobile"
+msgid "Search by name, code, barcode or OEM number"
+msgstr "ابحث بالاسم أو الكود أو الباركود أو رقم OEM"
+
+msgctxt "Card Mobile"
+msgid "Item group"
+msgstr "مجموعة الصنف"
+
+msgctxt "Card Mobile"
+msgid "Brand"
+msgstr "الماركة"
+
+msgctxt "Card Mobile"
+msgid "OEM"
+msgstr "رقم OEM"
+
+msgctxt "Card Mobile"
+msgid "Alternatives"
+msgstr "البدائل"
+
+msgctxt "Card Mobile"
+msgid "No items found."
+msgstr "لا توجد أصناف."
+
+msgctxt "Card Mobile"
+msgid "Load more"
+msgstr "عرض المزيد"
+
+msgid "Unknown catalog filter"
+msgstr "فلتر كتالوج غير معروف"
+
+msgid "Catalog"
+msgstr "الكتالوج"
