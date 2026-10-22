@@ -25,15 +25,22 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (reads only). Permissions on the server: a user whose roles read Item gets `frappe.get_list` (his roles, User
   Permissions and rules apply); a Card portal role without Item read (Card Operator, the G1 exception of
   `search_items`, widened by Owner decision D-1 to OEM numbers and alternatives) gets the same item rules with his
-  User Permissions on Item, Item Group and Brand applied by CARD. OEM and barcode matches, alternatives and paging
-  only use items the user may list. No stock, price, supplier or account is returned (the stock hint stays F2-only);
+  User Permissions (on the record and on every Link field, as `frappe.get_list` applies them) and shares; a test
+  compares this read with `frappe.get_list` for the same User Permissions. The restricted read is only for Card
+  portal roles: any other user without read on Brand, Item Group, Item Manufacturer or Item Alternative gets none of
+  them, and the restricted read returns nothing where Frappe would add permission query rules CARD cannot apply.
+  Barcode matches run inside the item query and OEM matches through the same permission path as the OEM numbers
+  shown, without a cap, so a hidden item is never found or counted and a visible one is never crowded out. No
+  stock, price, supplier or account is returned (the stock hint stays F2-only);
   private image files keep their own access (a placeholder shows when the image cannot load). English UI strings
   with ar, bn, hi and ur translations under the context "Card Mobile"; Item Group names are translated by Frappe,
-  item names and brands show as entered. Desk is unchanged (standard Item list, image view and Item link search).
+  item names and brands show as entered. Desk: a "Catalog" row in the Card Materials sidebar opens the standard
+  Item list (image view and filters are standard); no Workspace, fixture, role or permission change; its label is
+  translated in ar only, like the other Desk labels of CARD.
   `card.materials.search_items` (the inline suggestions of `/cdms` and `/equipment-needs`) now uses the same rules
   and rights (it also matches barcodes and OEM numbers, hides ended items and keeps `%`/`_` literal).
-  Data, schema and accounting: no change. Branch `feat/catalog-search` (local commit, no pull request yet).
-  Rollback: revert the commit; nothing to migrate or clean up.
+  Data, schema and accounting: no change. Branch `feat/catalog-search` (local commits, no pull request yet).
+  Rollback: revert the commits; the next `migrate` removes the sidebar row; nothing else to clean up.
 - **CARD Mobile at `/cdms` — foundation** (planned for v4.1.0): a phone-only Progressive Web App served by CARD
   itself, built like the Frappe HR mobile app (Vue 3, TypeScript, frappe-ui in `frontend/`, built by
   `bench build` into `card/public/frontend` and `card/www/cdms.html`). In-app sign-in with the

@@ -2204,3 +2204,7 @@ msgstr ""
 #: card/catalog.py
 msgid "Unknown catalog filter"
 msgstr ""
+
+#: card/card/sidebar/card_materials/card_materials.json
+msgid "Catalog"
+msgstr ""

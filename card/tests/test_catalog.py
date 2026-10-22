@@ -400,3 +400,161 @@ class TestCatalog(IntegrationTestCase):
 	def test_barcode_and_oem_need_three_characters(self):
 		code = self._item("SHORT", barcode="Z9")
 		self.assertNotIn(code, self._codes(catalog.search("Z9")))
+
+	# ---------- second review (R1, R2, R3, R7) ----------
+	def test_filter_options_refuse_names_to_readers_without_rights_or_card_role(self):
+		# R1: Maintenance User reads Item, not Brand or Item Group, and has no Card role
+		reader = self._user("mu", ["Maintenance User"])
+		self.assertEqual(self._as(reader, catalog.filter_options, "brand", self.token), [])
+		self.assertEqual(self._as(reader, catalog.filter_options, "item_group", self.token), [])
+
+	def test_hidden_oem_row_neither_matches_nor_shows(self):
+		# R2: an Item User Permission that applies to Item Manufacturer hides the OEM row of item B
+		# OEM numbers that are not part of the item codes or names, so only the OEM path can match
+		visible = self._item("OEMA")
+		other = self._item("OEMB")
+		self._oem(visible, f"PNA{self.token}X")
+		self._oem(other, f"PNB{self.token}X")
+		operator = self._user("op8", ["Card Operator"])
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": operator,
+				"allow": "Item",
+				"for_value": visible,
+				"applicable_for": "Item Manufacturer",
+			}
+		).insert(ignore_permissions=True)
+		self.assertEqual(self._as(operator, catalog.search, f"PNB{self.token}X")["items"], [])
+		row = self._as(operator, catalog.search, other)["items"][0]
+		self.assertEqual(row["oem"], [])
+		self.assertEqual(self._codes(self._as(operator, catalog.search, f"PNA{self.token}X")), [visible])
+
+	def test_barcode_matches_are_not_lost_to_hidden_items(self):
+		# R3: matches are found inside the permission query, so hidden matches cannot crowd out the
+		# visible one; one row per item even with two matching barcodes
+		for i in range(3):
+			self._item(f"BCHID{i}", item_group=self.other_group, barcode=f"SHARED{self.token}{i}")
+		seen = self._item("BCSEEN", barcode=f"SHARED{self.token}9")
+		doc = frappe.get_doc("Item", seen)
+		doc.append("barcodes", {"barcode": f"SHARED{self.token}8"})
+		doc.save(ignore_permissions=True)
+		operator = self._user("op9", ["Card Operator"])
+		self._restrict(operator, "Item Group", self.parts)
+		result = self._as(operator, catalog.search, f"SHARED{self.token}", page_length=1)
+		self.assertEqual(self._codes(result), [seen])
+		self.assertFalse(result["has_more"])
+
+	def _both_paths(self, restrict):
+		"""R7: the same User Permissions (and shares) give the same items through the restricted read
+		(Card Operator, no Item read) and through Frappe's own frappe.get_list (Stock User)."""
+		operator = self._user(f"cop{frappe.generate_hash(length=4)}", ["Card Operator"])
+		reader = self._user(f"crd{frappe.generate_hash(length=4)}", ["Stock User"])
+		for user in (operator, reader):
+			restrict(user)
+		frappe.clear_cache()
+		conditions = [["item_code", "like", f"%{self.token}%"]]
+
+		def items():
+			return {row.item_code for row in catalog._list_items(conditions)}
+
+		frappe.set_user(reader)
+		self.assertTrue(catalog._role_reads("Item"))
+		frappe.set_user(operator)
+		self.assertFalse(catalog._role_reads("Item"))
+		frappe.set_user("Administrator")
+		return self._as(operator, items), self._as(reader, items)
+
+	def test_filter_options_with_a_user_permission_and_a_shared_brand(self):
+		# the restriction is then the only filter: one nested group (Frappe's single grouped form)
+		other = self._brand("BR3")
+		hidden = self._brand("BR4")
+		operator = self._user("op10", ["Card Operator"])
+		self._restrict(operator, "Brand", self.brand)
+		frappe.share.add("Brand", other, operator, read=1, notify=0)
+		frappe.set_user(operator)
+		try:
+			if catalog._role_reads("Brand"):
+				self.skipTest("Card Operator reads Brand on this site; the restricted read is not used")
+			names = {o["value"] for o in catalog.filter_options("brand")}
+		finally:
+			frappe.set_user("Administrator")
+		self.assertIn(self.brand, names)
+		self.assertIn(other, names)
+		self.assertNotIn(hidden, names)
+
+	@staticmethod
+	def _forget_system_settings():
+		# frappe.get_system_settings keeps the document in the client cache and on frappe.local
+		from frappe.core.doctype.system_settings.system_settings import clear_system_settings_cache
+
+		clear_system_settings_cache()
+		if hasattr(frappe.local, "system_settings"):
+			del frappe.local.system_settings
+
+	def _contract_items(self):
+		mf2 = self._manufacturer("MF7")
+		brand2 = self._brand("BR7")
+		return {
+			"a": self._item("CA", brand=self.brand, default_item_manufacturer=self.manufacturer),
+			"b": self._item("CB", brand=brand2, default_item_manufacturer=mf2),
+			"c": self._item("CC", item_group=self.other_group),
+			"d": self._item("CD"),
+			"brand2": brand2,
+			"mf2": mf2,
+		}
+
+	def test_contract_user_permissions_match_frappe_get_list(self):
+		items = self._contract_items()
+		cases = {
+			"item group": lambda u: self._restrict(u, "Item Group", self.parts),
+			"brand": lambda u: self._restrict(u, "Brand", self.brand),
+			"manufacturer": lambda u: self._restrict(u, "Manufacturer", self.manufacturer),
+			"item": lambda u: self._restrict(u, "Item", items["a"]),
+			"applicable for item": lambda u: frappe.get_doc(
+				{
+					"doctype": "User Permission",
+					"user": u,
+					"allow": "Item Group",
+					"for_value": self.parts,
+					"applicable_for": "Item",
+				}
+			).insert(ignore_permissions=True),
+			"applicable for another doctype": lambda u: frappe.get_doc(
+				{
+					"doctype": "User Permission",
+					"user": u,
+					"allow": "Item Group",
+					"for_value": self.parts,
+					"applicable_for": "Item Price",
+				}
+			).insert(ignore_permissions=True),
+			"none": lambda u: None,
+		}
+		for label, restrict in cases.items():
+			with self.subTest(label):
+				restricted, standard = self._both_paths(restrict)
+				self.assertEqual(restricted, standard, label)
+
+	def test_contract_strict_user_permissions_match_frappe_get_list(self):
+		self._contract_items()
+		frappe.db.set_single_value("System Settings", "apply_strict_user_permissions", 1)
+		self._forget_system_settings()
+		try:
+			restricted, standard = self._both_paths(lambda u: self._restrict(u, "Brand", self.brand))
+		finally:
+			frappe.db.set_single_value("System Settings", "apply_strict_user_permissions", 0)
+			self._forget_system_settings()
+		self.assertEqual(restricted, standard)
+		self.assertTrue(restricted)
+
+	def test_contract_shared_item_matches_frappe_get_list(self):
+		items = self._contract_items()
+
+		def restrict(user):
+			self._restrict(user, "Item", items["a"])
+			frappe.share.add("Item", items["c"], user, read=1, notify=0)
+
+		restricted, standard = self._both_paths(restrict)
+		self.assertEqual(restricted, standard)
+		self.assertEqual(restricted, {items["a"], items["c"]})

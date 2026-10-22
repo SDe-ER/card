@@ -5,13 +5,18 @@
 One paged read over the standard ERPNext catalogue: Item, Item Group, Brand, Item Barcode,
 Item Manufacturer (OEM part numbers) and Item Alternative. CARD keeps no item master of its own.
 
-Who sees what is decided on the server:
-- a user whose roles read a DocType gets ``frappe.get_list`` on it: his roles, User Permissions
-  and permission rules apply;
+Who sees what is decided on the server (``_read``):
+- a user whose roles read a DocType gets ``frappe.get_list`` on it: his roles, User Permissions,
+  shares and permission rules apply;
 - a Card portal role without that read (the Card Operator; Owner G1 exception, widened by D-1 to
-  OEM numbers and alternatives) gets the same catalogue rules on fixed safe fields, and CARD
-  applies his User Permissions the way ``frappe.get_list`` does (``_user_permission_filters``).
-OEM and barcode matches, alternatives and ``has_more`` only ever come from items the user may
+  OEM numbers and alternatives) gets the same catalogue rules on fixed safe fields, with his User
+  Permissions and shares applied the way ``frappe.get_list`` applies them. Frappe has no public
+  call that applies User Permissions without the role check, so ``_user_permission_filters``
+  follows frappe v16 ``database/query.py``; ``test_catalog`` compares both paths (R7). Where
+  Frappe would add permission query rules (hooks or a Permission Query server script) that CARD
+  cannot apply, the restricted read returns nothing;
+- anyone else gets nothing.
+Barcode and OEM matches, alternatives and ``has_more`` only ever come from items the user may
 list. No stock, price, supplier or account is returned (stock stays with the F2 hint)."""
 
 import frappe
@@ -26,8 +31,6 @@ MAX_PAGE_LENGTH = 50
 MAX_TEXT = 140
 # barcode and OEM numbers are matched from this length (as ERPNext's item search index)
 MIN_CODE_TEXT = 3
-# cap on active items found through a barcode or an OEM number before the permission query
-MAX_CODE_MATCHES = 500
 FIELDS = ["item_code", "item_name", "stock_uom", "image", "item_group", "brand", "allow_alternative_item"]
 FILTER_KINDS = {"item_group": "Item Group", "brand": "Brand"}
 
@@ -62,8 +65,7 @@ def _strict():
 def _user_permission_filters(doctype):
 	"""The User Permission conditions ``frappe.get_list`` adds for ``doctype`` (frappe v16
 	``database/query.py`` ``get_user_permission_conditions``): on the record itself and on every
-	Link field; an empty link passes unless strict user permissions are on. For the read without
-	the DocType's own rights."""
+	Link field; an empty link passes unless strict user permissions are on."""
 	filters = []
 	fields = [frappe._dict(fieldname="name", options=doctype), *frappe.get_meta(doctype).get_link_fields()]
 	for df in fields:
@@ -80,12 +82,40 @@ def _user_permission_filters(doctype):
 	return filters
 
 
+def _restriction(doctype):
+	"""User Permissions, or a document shared with the user (shares trump them, as in Frappe's
+	``get_permission_conditions``)."""
+	conditions = _user_permission_filters(doctype)
+	if not conditions:
+		return []
+	shared = frappe.share.get_shared(doctype, frappe.session.user)
+	if shared:
+		# Frappe's nested filters take one condition as itself, not as a one-item group
+		restricted = conditions[0] if len(conditions) == 1 else _and(conditions)
+		return [[restricted, "or", ["name", "in", shared]]]
+	return conditions
+
+
+def _has_query_rules(doctype):
+	"""Permission query rules Frappe would add for ``doctype`` (hooks or a server script)."""
+	from frappe.core.doctype.server_script.server_script_utils import get_server_script_map
+
+	hooks = frappe.get_hooks("permission_query_conditions", {})
+	return bool(
+		hooks.get(doctype)
+		or hooks.get("*")
+		or get_server_script_map().get("permission_query", {}).get(doctype)
+	)
+
+
 def _read(doctype, filters, **kwargs):
-	"""``frappe.get_list`` for a reader of ``doctype``; otherwise the same read with his User
-	Permissions applied by CARD (callers decide who may get the second one)."""
+	"""``frappe.get_list`` for a reader of ``doctype``; the restricted read only for Card portal
+	roles (R1); nothing for anyone else or where Frappe would add rules CARD cannot apply."""
 	if _role_reads(doctype):
 		return frappe.get_list(doctype, filters=_and(filters), **kwargs)
-	return frappe.get_all(doctype, filters=_and(filters + _user_permission_filters(doctype)), **kwargs)
+	if not has_any_role(PORTAL_ROLES) or _has_query_rules(doctype):
+		return []
+	return frappe.get_all(doctype, filters=_and(filters + _restriction(doctype)), **kwargs)
 
 
 def _and(conditions):
@@ -114,90 +144,36 @@ def _base_filters():
 	]
 
 
-def _active_item_codes(table, field, pattern, extra=None):
-	"""Active catalogue items (same base rules) whose ``table.field`` matches; the user's own
-	rights are applied afterwards by the item query."""
-	item = frappe.qb.DocType("Item")
-	row = frappe.qb.DocType(table)
-	link = row.parent if table == "Item Barcode" else row.item_code
-	condition = (
-		(row[field].like(pattern))
-		& (item.disabled == 0)
-		& (item.has_variants == 0)
-		& (item.end_of_life.isnull() | (item.end_of_life > nowdate()))
-		& ((item.is_stock_item == 1) | (item.is_purchase_item == 1))
-	)
-	if extra is not None:
-		condition &= extra(row)
-	return (
-		frappe.qb.from_(row)
-		.join(item)
-		.on(item.name == link)
-		.select(item.name)
-		.distinct()
-		.where(condition)
-		.orderby(item.name)
-		.limit(MAX_CODE_MATCHES)
-		.run(pluck=True)
-	)
-
-
-def _manufacturer_condition():
-	"""For the OEM lookup without Item Manufacturer rights: his Manufacturer User Permissions."""
-	docs = _permitted_docs("Manufacturer", "Item Manufacturer")
-	if docs is None:
-		return None
-	if _strict():
-		return lambda row: row.manufacturer.isin(docs)
-	return lambda row: row.manufacturer.isin(docs) | row.manufacturer.isnull() | (row.manufacturer == "")
-
-
-def _codes_matching(txt):
-	"""Item codes whose barcode, or (when the user may see them) OEM number, matches the text."""
-	if len(txt) < MIN_CODE_TEXT:
-		return []
-	pattern = _like(txt)
-	codes = set(_active_item_codes("Item Barcode", "barcode", pattern, lambda row: row.parenttype == "Item"))
-	if _sees("Item Manufacturer"):
-		if _role_reads("Item Manufacturer"):
-			allowed = set(
-				frappe.get_list(
-					"Item Manufacturer",
-					filters={"manufacturer_part_no": ["like", pattern]},
-					pluck="item_code",
-					limit_page_length=0,
-				)
-			)
-			codes.update(
-				c
-				for c in _active_item_codes("Item Manufacturer", "manufacturer_part_no", pattern)
-				if c in allowed
-			)
-		else:
-			codes.update(
-				_active_item_codes(
-					"Item Manufacturer", "manufacturer_part_no", pattern, _manufacturer_condition()
-				)
-			)
-	return sorted(codes)
-
-
 def _match_conditions(txt):
+	"""Code or name; from three characters also a barcode (child table, inside the item query) or an
+	OEM number the user may see (read through the same path as the OEM numbers shown, R2). No cap:
+	nothing the user may list is dropped before his own rights apply (R3)."""
 	pattern = _like(txt)
 	match = [["item_code", "like", pattern], "or", ["item_name", "like", pattern]]
-	codes = _codes_matching(txt)
-	if codes:
-		match += ["or", ["name", "in", codes]]
+	if len(txt) >= MIN_CODE_TEXT:
+		match += ["or", ["barcodes.barcode", "like", pattern]]
+		if _sees("Item Manufacturer"):
+			codes = _read(
+				"Item Manufacturer",
+				[["manufacturer_part_no", "like", pattern]],
+				pluck="item_code",
+				distinct=True,
+				limit_page_length=0,
+			)
+			if codes:
+				match += ["or", ["name", "in", sorted(set(codes))]]
 	return [match]
 
 
 def _list_items(conditions, start=0, page_length=None, fields=None):
-	"""Items the user may list, with the CARD catalogue rules, through his own rights."""
+	"""Items the user may list, with the CARD catalogue rules, through his own rights (one row per
+	item, also when several barcodes match)."""
 	return _read(
 		"Item",
 		_base_filters() + conditions,
 		fields=fields or FIELDS,
-		order_by="item_name asc, name asc",
+		order_by="item_name asc, item_code asc",
+		distinct=True,
 		limit_start=start,
 		limit_page_length=page_length or 0,
 	)

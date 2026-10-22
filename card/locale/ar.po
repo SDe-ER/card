@@ -2961,3 +2961,6 @@ msgstr "عرض المزيد"
 
 msgid "Unknown catalog filter"
 msgstr "فلتر كتالوج غير معروف"
+
+msgid "Catalog"
+msgstr "الكتالوج"
