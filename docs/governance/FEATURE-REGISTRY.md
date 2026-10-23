@@ -148,3 +148,4 @@ Checked against `main` @ `31fe7ce` (2026-10-20); FR-002 and FR-003 re-checked at
 | 2026-10-22 | FR-075 added (concurrent overlapping Card Equipment Assignments, P0 defect D4; fix branch, not pushed). No row deleted |
 | 2026-10-22 | FR-076 added (catalog search, phase 1; feature branch, not pushed). No row deleted |
 | 2026-10-23 | FR-077 added (parts fitment, catalog phase 2a; feature branch, not pushed). No row deleted |
+| 2026-10-23 | FR-077: sidebar file `modified` time bumped so upgraded sites get the report row (fix branch, not pushed). Status unchanged. No row deleted |
