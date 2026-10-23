@@ -16,11 +16,12 @@ from card.card.doctype.employee_tool_custody.employee_tool_custody import confir
 from card.materials import (
 	CUSTODY_DOCTYPE,
 	HANDOVER_MANAGER_ROLE,
+	_sum_custody,
 	can_confirm_custody,
 	equipment_project,
 	has_any_role,
 	operator_equipment,
-	stock_qty,
+	stock_by_item,
 )
 from card.settings import setting
 
@@ -106,23 +107,41 @@ def _awaiting(filters, start):
 		limit_page_length=PAGE_LENGTH + 1,
 	)
 	can_submit = bool(frappe.has_permission(CUSTODY_DOCTYPE, "submit"))
+	# U-4: the store's stock, read with the user's own rights (nothing when he may not read it), one
+	# read per store for the page; the confirmation checks it again in ERPNext under the transaction
+	stock = {}
+	for warehouse in {r.warehouse for r in rows if r.movement == "Handover" and r.warehouse}:
+		items = {r.item_code for r in rows if r.movement == "Handover" and r.warehouse == warehouse}
+		stock[warehouse] = stock_by_item(items, warehouse)
+	workers = dict(
+		frappe.get_all(
+			"Employee",
+			filters={"name": ["in", list({r.employee for r in rows})]},
+			fields=["name", "user_id"],
+			as_list=True,
+		)
+	)
 	for row in rows:
 		awaiting = row.movement != "Handover" or row.handover_status == "Awaiting handover"
-		# U-4: the store's stock, read with the user's own rights (nothing when he may not read it);
-		# the confirmation checks it again in ERPNext under the transaction
-		row.stock = (
-			stock_qty(row.item_code, row.warehouse) if row.movement == "Handover" and row.warehouse else None
-		)
+		in_store = stock.get(row.warehouse) if row.movement == "Handover" else None
+		row.stock = None if in_store is None else in_store.get(row.item_code)
 		row.waiting_for_stock = row.stock is not None and flt(row.stock) < flt(row.qty)
 		own = user in confirmer_excluded(row)
-		worker = frappe.db.get_value("Employee", row.employee, "user_id") == user
+		worker = workers.get(row.employee) == user
 		# a Handover or Return moves stock (store side); a Transfer needs custody submit only
 		may_confirm = store_side if row.movement in ("Handover", "Return") else can_submit
+		may_close = (
+			awaiting
+			and row.review_item
+			and (store_side or manager)
+			and not worker
+			and frappe.has_permission(CUSTODY_DOCTYPE, "write", doc=row.name)
+		)
 		row.actions = [
 			action
 			for action, allowed in (
 				("confirm", awaiting and may_confirm and not own and not row.waiting_for_stock),
-				("not_handed", awaiting and row.review_item and (store_side or manager) and not worker),
+				("not_handed", may_close),
 				("replace", not awaiting and row.review_item and manager and _rest_open(row.review_item)),
 			)
 			if allowed
@@ -147,12 +166,14 @@ def _rest_open(review_item):
 
 
 def _held(filters, start):
-	"""Who holds what, from the movements the user may read."""
-	totals, names, companies = {}, {}, {}
+	"""Who holds what, from the movements the user may read (a user who may read only some
+	movements sees totals of those; Return and Transfer are checked again on the full balance)."""
+	names, companies = {}, {}
 	employee = filters.pop("employee", None)
-	for r in frappe.get_list(
+	movements = frappe.get_list(
 		CUSTODY_DOCTYPE,
 		filters=dict(filters, docstatus=1),
+		or_filters={"employee": employee, "to_employee": employee} if employee else None,
 		fields=[
 			"employee",
 			"employee_name",
@@ -164,23 +185,23 @@ def _held(filters, start):
 			"company",
 		],
 		limit_page_length=0,
-	):
+	)
+	for r in movements:
 		names[r.item_code] = r.item_name
 		companies[r.employee] = companies[r.to_employee or r.employee] = r.company
-		key = (r.employee, r.item_code)
-		totals[key] = totals.get(key, 0.0) + (flt(r.qty) if r.movement == "Handover" else -flt(r.qty))
-		if r.movement == "Transfer" and r.to_employee:
-			key = (r.to_employee, r.item_code)
-			totals[key] = totals.get(key, 0.0) + flt(r.qty)
+	totals = _sum_custody(movements)
+	held = [
+		(emp, item, qty)
+		for (emp, item), qty in sorted(totals.items())
+		if flt(qty) > 0 and not (employee and emp != employee)
+	][start : start + PAGE_LENGTH + 1]
 	user = frappe.session.user
 	store_side = can_confirm_custody()
 	can_transfer = bool(
 		frappe.has_permission(CUSTODY_DOCTYPE, "create") and frappe.has_permission(CUSTODY_DOCTYPE, "submit")
 	)
 	rows = []
-	for (emp, item), qty in sorted(totals.items()):
-		if flt(qty) <= 0 or (employee and emp != employee):
-			continue
+	for emp, item, qty in held:
 		emp_name, emp_user = frappe.db.get_value("Employee", emp, ["employee_name", "user_id"]) or ("", None)
 		own = emp_user == user
 		rows.append(
@@ -201,7 +222,7 @@ def _held(filters, start):
 				],
 			)
 		)
-	return rows[start : start + PAGE_LENGTH + 1]
+	return rows
 
 
 def _history(filters, start):
@@ -246,7 +267,9 @@ def confirm(custody: str, receipt: str | None = None, qty: float | None = None, 
 	values = {}
 	if receipt:
 		values["handover_receipt"] = receipt
-	if qty is not None and flt(qty) > 0:
+	if qty is not None:
+		if flt(qty) <= 0:
+			frappe.throw(_("The quantity must be more than zero."))
 		values["qty"] = flt(qty)
 	if serial_no:
 		values["serial_no"] = serial_no
@@ -292,4 +315,13 @@ def move(
 		doc.card_equipment = machines[0]
 		doc.project = equipment_project(machines[0])
 	doc.insert()
-	return {"name": doc.name}
+	# the screen offers the confirmation at once only to a user the server lets confirm it
+	may_confirm = (
+		can_confirm_custody()
+		if movement in ("Handover", "Return")
+		else bool(frappe.has_permission(CUSTODY_DOCTYPE, "submit"))
+	)
+	return {
+		"name": doc.name,
+		"may_confirm": may_confirm and frappe.session.user not in confirmer_excluded(doc),
+	}

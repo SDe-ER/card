@@ -48,14 +48,14 @@ class ToolCustodyScreen {
 			label: __("Employee"),
 			fieldtype: "Link",
 			options: "Employee",
-			change: () => this.load(),
+			change: () => this.ctx && this.load(),
 		});
 		this.item = page.add_field({
 			fieldname: "item_code",
 			label: __("Tool"),
 			fieldtype: "Link",
 			options: "Item",
-			change: () => this.load(),
+			change: () => this.ctx && this.load(),
 		});
 		tc_get("card.tool_custody.context").then((ctx) => {
 			this.ctx = ctx;
@@ -87,28 +87,32 @@ class ToolCustodyScreen {
 	}
 
 	load(more = false) {
-		this.start = more ? this.start + 25 : 0;
+		// only the latest request draws; rows are drawn for the tab they were read for
+		const request = (this.request = (this.request || 0) + 1);
+		const start = more ? this.start + 25 : 0;
 		return tc_get("card.tool_custody.view", {
 			tab: this.tab,
 			employee: this.employee.get_value() || null,
 			item_code: this.item.get_value() || null,
-			start: this.start,
+			start,
 		}).then((r) => {
+			if (request !== this.request) return;
+			this.start = start;
 			const $rows = this.$body.find(".tc-rows");
 			if (!more) $rows.empty();
 			if (!r.rows.length && !more) {
 				$rows.append(`<div class="tc-empty text-muted">${__("Nothing here.")}</div>`);
 			}
-			for (const row of r.rows) $rows.append(this.render_row(row));
+			for (const row of r.rows) $rows.append(this.render_row(row, r.tab));
 			this.$body.find(".tc-more").toggle(r.more);
 		});
 	}
 
-	render_row(row) {
+	render_row(row, tab) {
 		const e = frappe.utils.escape_html;
 		const $row = $(`<div class="tc-row"></div>`);
 		let pill, who, what, where, when;
-		if (this.tab === "awaiting") {
+		if (tab === "awaiting") {
 			const closed =
 				row.movement === "Handover" && row.handover_status === "Not handed over";
 			pill = closed
@@ -121,7 +125,7 @@ class ToolCustodyScreen {
 			where = [row.card_equipment, row.project].filter(Boolean).map(e).join(" · ");
 			when = frappe.datetime.comment_when(row.creation);
 			if (closed && row.not_handed_reason) where = `${where} — ${e(row.not_handed_reason)}`;
-		} else if (this.tab === "held") {
+		} else if (tab === "held") {
 			pill = ["green", __("Held")];
 			who = e(row.employee_name || row.employee);
 			what = e(row.item_name || row.item_code);
@@ -367,9 +371,9 @@ class ToolCustodyScreen {
 						this.tab = "awaiting";
 						this.render_tabs();
 						this.load().then(() => {
-							// the store side confirms at once (print, sign, attach); others leave it waiting
-							const may_confirm = movement === "Transfer" || this.ctx.can_confirm;
-							if (may_confirm) {
+							// a user the server lets confirm does it at once (print, sign, attach);
+							// others leave it waiting
+							if (r.may_confirm) {
 								this.do_confirm({
 									name: r.name,
 									movement,

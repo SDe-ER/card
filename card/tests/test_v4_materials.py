@@ -1648,6 +1648,8 @@ class TestV4Materials(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):  # a handover needs the signed receipt
 			self._screen(keeper, "confirm", custody=draft.name)
 		receipt = self._receipt(keeper)
+		with self.assertRaises(frappe.ValidationError):  # a zero quantity is refused, not ignored
+			self._screen(keeper, "confirm", custody=draft.name, receipt=receipt, qty=0)
 		out = self._screen(keeper, "confirm", custody=draft.name, receipt=receipt)
 		self.assertEqual(frappe.db.get_value("Stock Entry", out["stock_entry"], "docstatus"), 1)
 		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
@@ -1659,6 +1661,7 @@ class TestV4Materials(IntegrationTestCase):
 		made = self._screen(
 			supervisor, "move", movement="Handover", employee=self.operator, item_code=self.tool, qty=1
 		)
+		self.assertFalse(made["may_confirm"])  # a supervisor prepares, the store confirms
 		draft = frappe.get_doc("Employee Tool Custody", made["name"])
 		self.assertEqual(
 			(draft.docstatus, draft.warehouse, draft.card_equipment, draft.handover_status),
@@ -1670,6 +1673,7 @@ class TestV4Materials(IntegrationTestCase):
 		ret = self._screen(
 			keeper, "move", movement="Return", employee=self.operator, item_code=self.tool, qty=1
 		)
+		self.assertTrue(ret["may_confirm"])
 		self._screen(keeper, "confirm", custody=ret["name"])  # a return needs no receipt
 		self.assertEqual(materials.custody_balance(self.operator, self.tool), 0)
 		with self.assertRaises(frappe.ValidationError):
