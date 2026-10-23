@@ -151,7 +151,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
   Tests: `test_v4_materials` (approval drafts, store-side confirmation with a submitted entry, supervisor without
   stock rights, separation of duties, partial, store without stock rolled back, bought tool, closed and replaced
-  handover, server-only fields, cancel, return and transfer with evidence, receipt file rules, other-company user)
+  handover, server-only fields, cancel, return and transfer with evidence, receipt file rules, other-company user;
+  a cancel refused while later transfers or returns use the tools, or while the tools are no longer in the custody
+  store (ERPNext refuses the reverse move, everything rolls back); cancel of a partial handover; who can open the
+  signed receipt)
   and `test_tool_handover_concurrency` (two database connections: one replacement draft, one transfer).
 
   Rollback: reverting the code leaves the new columns empty and harmless. Custody records confirmed with this version

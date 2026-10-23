@@ -1130,6 +1130,132 @@ class TestV4Materials(IntegrationTestCase):
 			self._confirm(draft, outsider)
 		self.assertEqual(frappe.db.get_value("Employee Tool Custody", draft.name, "docstatus"), 0)
 
+	def _cancel(self, name, user):
+		"""Cancel as `user`; on any error the work is rolled back as a web request would."""
+		frappe.db.savepoint("card_cancel")
+		frappe.set_user(user)
+		try:
+			frappe.get_doc("Employee Tool Custody", name).cancel()
+		except Exception:
+			frappe.db.rollback(save_point="card_cancel")
+			raise
+		finally:
+			frappe.set_user("Administrator")
+
+	def _state(self, *names):
+		return [
+			(
+				frappe.db.get_value("Employee Tool Custody", n, "docstatus"),
+				frappe.db.get_value(
+					"Stock Entry", frappe.db.get_value("Employee Tool Custody", n, "stock_entry"), "docstatus"
+				),
+			)
+			for n in names
+		]
+
+	def test_a_handover_that_later_movements_use_cannot_be_cancelled(self):
+		# custody history stays consistent: a transfer or a return that used the tools blocks the cancel
+		hand = self._custody("Handover", qty=2, warehouse=self.store)
+		_u, colleague = self._operator("mate")
+		self._custody("Transfer", to_employee=colleague)
+		keeper = self._store_keeper()
+		with self.assertRaises(frappe.ValidationError):
+			self._cancel(hand.name, keeper)
+		ret = self._custody("Return", warehouse=self.store)
+		with self.assertRaises(frappe.ValidationError):
+			self._cancel(hand.name, keeper)
+		self.assertEqual(self._state(hand.name, ret.name), [(1, 1), (1, 1)])
+		self.assertEqual(
+			(
+				materials.custody_balance(self.operator, self.tool),
+				materials.custody_balance(colleague, self.tool),
+			),
+			(0, 1),
+		)
+		# undoing the latest movement first is allowed and keeps stock and custody together
+		self._cancel(ret.name, keeper)
+		self.assertEqual(self._state(ret.name), [(2, 2)])
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
+
+	def test_a_cancel_needs_the_tools_still_in_the_custody_store(self):
+		# stock taken out of the custody store outside CARD: ERPNext refuses the reverse move and the
+		# whole cancel rolls back (custody record and its Stock Entry stay submitted)
+		frappe.db.set_single_value("Stock Settings", "allow_negative_stock", 0)
+		hand = self._custody("Handover", warehouse=self.store)
+		issue = frappe.get_doc(
+			{
+				"doctype": "Stock Entry",
+				"stock_entry_type": "Material Issue",
+				"purpose": "Material Issue",
+				"company": self.company,
+				"items": [{"item_code": self.tool, "qty": 1, "s_warehouse": self.custody}],
+			}
+		)
+		issue.insert(ignore_permissions=True)
+		issue.submit()
+		with self.assertRaises(frappe.ValidationError):
+			self._cancel(hand.name, self._store_keeper())
+		self.assertEqual(self._state(hand.name), [(1, 1)])
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
+
+	def test_cancelling_a_partial_handover_keeps_the_waiting_rest(self):
+		_review, line, draft = self._approved_tool(qty=3)
+		self._stock_in(1)
+		keeper = self._store_keeper()
+		first = self._confirm(draft, keeper, qty=1)
+		rest = frappe.db.get_value("Equipment Needs Review Item", line.name, "tool_custody")
+		self._cancel(first.name, self._store_keeper("undo"))
+		self.assertEqual(frappe.db.get_value("Equipment Needs Review Item", line.name, "handed_qty"), 0)
+		self.assertEqual(
+			frappe.db.get_value("Employee Tool Custody", rest, ["docstatus", "qty", "handover_status"]),
+			(0, 2, "Awaiting handover"),
+		)
+		manager = self._user("mgr", ["Card Manager"])
+		frappe.set_user(manager)
+		try:
+			with self.assertRaises(frappe.ValidationError):  # the rest is still waiting: no second draft
+				materials.make_tool_handover(line.name)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_the_receipt_follows_the_custody_record_permissions(self):
+		# the receipt is a private file attached to the custody record: readers of the record (same
+		# company) and its uploader can open it; another company's user and Guest cannot
+		from frappe.core.doctype.file.utils import find_file_by_url
+
+		_review, _line, draft = self._approved_tool()
+		self._stock_in(1)
+		keeper = self._store_keeper()
+		url = self._confirm(draft, keeper).handover_receipt
+		self.assertEqual(
+			frappe.db.get_value(
+				"File", {"file_url": url}, ["attached_to_doctype", "attached_to_name", "is_private"]
+			),
+			("Employee Tool Custody", draft.name, 1),
+		)
+		reader = self._user("cu", ["Card User"])
+		outsider = self._user("far", ["Card User"])
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": outsider,
+				"allow": "Company",
+				"for_value": self._other_company(),
+			}
+		).insert(ignore_permissions=True)
+
+		def can(user):
+			frappe.set_user(user)
+			try:
+				return bool(find_file_by_url(url))
+			finally:
+				frappe.set_user("Administrator")
+
+		self.assertEqual(
+			{user: can(user) for user in (reader, keeper, outsider, "Guest")},
+			{reader: True, keeper: True, outsider: False, "Guest": False},
+		)
+
 	# ---------- operator page ----------
 	def test_operator_page_context(self):
 		frappe.set_user(self.op_user)
