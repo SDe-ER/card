@@ -245,6 +245,19 @@ class TestToolHandoverConcurrency(IntegrationTestCase):
 		).insert(ignore_permissions=True)
 		self.created.append((CUSTODY, transfer.name))
 		self.transfer = transfer.name
+		# a second movement out of the same custody (the worker holds only one tool)
+		receipt_two = self._new(
+			{
+				"doctype": "File",
+				"file_name": f"thc-receipt2-{self.token}.png",
+				"is_private": 1,
+				"content": RECEIPT_PNG + frappe.generate_hash(length=12).encode(),
+			}
+		)
+		other = frappe.get_doc(dict(transfer.as_dict(), name=None, handover_receipt=receipt_two.file_url))
+		other.insert(ignore_permissions=True)
+		self.created.append((CUSTODY, other.name))
+		self.transfer_two = other.name
 
 	def _remove_records(self):
 		for name in frappe.get_all(CUSTODY, filters={"item_code": self.item}, pluck="name"):
@@ -267,6 +280,20 @@ class TestToolHandoverConcurrency(IntegrationTestCase):
 	def test_two_requests_make_the_same_replacement_handover(self):
 		self._race(lambda: materials.make_tool_handover(self.line))
 		self.assertEqual(self._count({"review_item": self.line, "docstatus": 0}), 1)
+
+	def test_two_requests_take_the_same_tool_out_of_custody(self):
+		# two different movements, one tool: the worker's row lock lets only one leave custody
+		names = iter((self.transfer, self.transfer_two))
+		lock = threading.Lock()
+
+		def confirm():
+			with lock:
+				name = next(names)
+			frappe.get_doc(CUSTODY, name).submit()
+
+		self._race(confirm)
+		self.assertEqual(self._count({"name": ["in", [self.transfer, self.transfer_two]], "docstatus": 1}), 1)
+		self.assertEqual(self._committed(lambda: materials.custody_balance(self.worker, self.item)), 0)
 
 	def test_two_requests_confirm_the_same_transfer(self):
 		def confirm():

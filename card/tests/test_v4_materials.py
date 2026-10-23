@@ -1033,11 +1033,16 @@ class TestV4Materials(IntegrationTestCase):
 		draft.reload()
 		draft.qty = 0.5  # lowering the quantity is allowed
 		draft.save()
-		for field, value in (("employee", self._operator("other")[1]), ("warehouse", self.custody)):
-			doc = frappe.get_doc("Employee Tool Custody", draft.name)
-			doc.set(field, value)
-			with self.subTest(field=field), self.assertRaises(frappe.ValidationError):
-				doc.save()
+		doc = frappe.get_doc("Employee Tool Custody", draft.name)
+		doc.employee = self._operator("other")[1]
+		with self.assertRaises(frappe.ValidationError):  # the approved worker stays
+			doc.save()
+		doc = frappe.get_doc("Employee Tool Custody", draft.name)
+		doc.warehouse = self.custody  # the store side may hand out from another store of the company
+		doc.save()
+		doc.qty = 5
+		with self.assertRaises(frappe.ValidationError):  # never more than approved, also in a draft
+			doc.save()
 		with self.assertRaises(frappe.ValidationError):
 			frappe.delete_doc("Employee Tool Custody", draft.name)
 
@@ -1441,6 +1446,80 @@ class TestV4Materials(IntegrationTestCase):
 		frappe.db.set_value("File", {"file_url": old}, "creation", add_days(nowdate(), -10))
 		with self.assertRaises(frappe.ValidationError):
 			self._confirm(draft, keeper, handover_receipt=old)
+
+	def test_a_signed_receipt_cannot_be_detached_from_its_record(self):
+		# its owner can edit the File's attached_to fields; the custody record still names it
+		keeper, _doc, receipt = self._confirmed_receipt()
+
+		def detach(public=False):
+			f = frappe.get_doc("File", receipt.name)
+			f.update({"attached_to_doctype": None, "attached_to_name": None, "attached_to_field": None})
+			if public:
+				f.is_private = 0
+			f.save()
+
+		for public in (False, True):
+			with self.subTest(public=public), self.assertRaises(frappe.ValidationError):
+				self._as(keeper, lambda: detach(public))
+		self._stays_private(receipt)
+		self.assertEqual(frappe.db.get_value("File", receipt.name, "attached_to_field"), "handover_receipt")
+
+	def test_one_signed_scan_serves_several_handovers_of_its_uploader(self):
+		# one paper signed for two tools: the store keeper attaches the same scan to both drafts
+		_review, _line, first = self._approved_tool()
+		_review2, _line2, second = self._approved_tool()
+		self._stock_in(2)
+		keeper = self._store_keeper()
+		scan = self._receipt(keeper)
+		self._confirm(first, keeper, handover_receipt=scan)
+		frappe.set_user(keeper)
+		try:
+			with open(
+				frappe.get_doc("File", {"file_url": scan, "attached_to_name": first.name}).get_full_path(),
+				"rb",
+			) as f:
+				again = frappe.get_doc(
+					{"doctype": "File", "file_name": "scan-again.png", "is_private": 1, "content": f.read()}
+				).insert()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(again.file_url, scan)
+		self._confirm(second, keeper, handover_receipt=scan)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 2)
+
+	def test_only_a_cancelled_movement_of_the_same_company_is_amended(self):
+		_u, colleague = self._operator("mate")
+		self._custody("Handover", warehouse=self.store)
+		transfer = self._custody("Transfer", to_employee=colleague)
+		frappe.get_doc("Employee Tool Custody", transfer.name).cancel()
+		other = self._other_company()
+		far = frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"first_name": f"far {self.token}",
+				"gender": "Male",
+				"date_of_birth": "1990-01-01",
+				"date_of_joining": "2020-01-01",
+				"company": other,
+				"status": "Active",
+			}
+		).insert(ignore_permissions=True)
+		forged = frappe.new_doc("Employee Tool Custody")  # new, as in insert()
+		forged.update(
+			{
+				"employee": far.name,
+				"company": other,
+				"movement": "Loss",
+				"item_code": self.tool,
+				"qty": 1,
+				"date": nowdate(),
+				"amended_from": transfer.name,
+			}
+		)
+		with self.assertRaises(frappe.ValidationError):  # another company: its attachments stay there
+			forged._check_amended_from()
+		forged.company = self.company
+		forged._check_amended_from()  # same company, cancelled, Administrator may amend: allowed
 
 	def test_other_files_keep_frappes_behaviour(self):
 		# the guard acts on custody receipts only

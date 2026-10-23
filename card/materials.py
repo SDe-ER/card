@@ -504,14 +504,9 @@ def tool_item_error(item_code, need_stock=True):
 	return None
 
 
-def custody_balances(filters=None):
-	"""{(employee, item_code): qty held} from submitted custody movements, in one query."""
+def _sum_custody(rows):
 	totals = {}
-	for r in frappe.get_all(
-		"Employee Tool Custody",
-		filters=dict(filters or {}, docstatus=1),
-		fields=["employee", "to_employee", "movement", "item_code", "qty"],
-	):
+	for r in rows:
 		key = (r.employee, r.item_code)
 		totals[key] = totals.get(key, 0.0) + (flt(r.qty) if r.movement == "Handover" else -flt(r.qty))
 		if r.movement == "Transfer" and r.to_employee:
@@ -520,8 +515,29 @@ def custody_balances(filters=None):
 	return totals
 
 
-def custody_balance(employee, item_code, exclude=None):
-	"""Tools of `item_code` the employee holds, from submitted custody movements."""
+def custody_balances(filters=None):
+	"""{(employee, item_code): qty held} from submitted custody movements, in one query."""
+	return _sum_custody(
+		frappe.get_all(
+			"Employee Tool Custody",
+			filters=dict(filters or {}, docstatus=1),
+			fields=["employee", "to_employee", "movement", "item_code", "qty"],
+		)
+	)
+
+
+def custody_balance(employee, item_code, exclude=None, for_update=False):
+	"""Tools of `item_code` the employee holds, from submitted custody movements (`for_update`: a
+	locking read, so a request that waited on a lock sees the rows committed meanwhile)."""
+	if for_update:
+		rows = frappe.db.sql(
+			"""select employee, to_employee, movement, item_code, qty from `tabEmployee Tool Custody`
+			where docstatus = 1 and item_code = %s and name != %s and (employee = %s or to_employee = %s)
+			for update""",
+			(item_code, exclude or "", employee, employee),
+			as_dict=True,
+		)
+		return flt(_sum_custody(rows).get((employee, item_code), 0))
 	balances = custody_balances({"item_code": item_code, "name": ["!=", exclude or ""]})
 	return flt(balances.get((employee, item_code), 0))
 

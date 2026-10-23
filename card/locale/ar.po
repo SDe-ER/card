@@ -2756,6 +2756,12 @@ msgstr "أُغلق هذا التسليم كـ«لم يتم التسليم»؛ ل
 msgid "This movement is already confirmed."
 msgstr "هذه الحركة مؤكدة بالفعل."
 
+msgid "Only a cancelled movement of the same company that you may amend can be amended."
+msgstr "يمكن تعديل (Amend) حركة ملغاة فقط، من نفس الشركة، ولديك صلاحية تعديلها."
+
+msgid "This file is a signed tool-custody receipt of a confirmed movement; it is kept."
+msgstr "هذا الملف إيصال عهدة أدوات موقّع لحركة مؤكدة؛ يُحتفظ به."
+
 msgid "This file is a signed tool-custody receipt; it stays private."
 msgstr "هذا الملف إيصال عهدة أدوات موقّع؛ يبقى خاصًا."
 

@@ -124,13 +124,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     make it public or delete it. Found by a probe on an isolated copy: the uploader could publish the receipt to
     Guest or delete it, and a reader could re-upload the downloaded bytes onto the receipt's file. Now the
     receipt, and any file that shares its content or URL, cannot become public; no second File row may carry its
-    content or URL outside its custody record (an Amend keeps it on the amending record), and no public copy at all;
-    and a confirmed record's attachments cannot be deleted. Only the `handover_receipt` field counts; other
-    attachments keep Frappe's behaviour. An unattached file counts as the receipt only when the user uploaded it
+    content or URL outside a custody record that names it (an Amend, or the uploader reusing one signed scan for
+    several of his drafts), and no public copy at all; a receipt cannot be detached from its record (its owner can
+    edit the File's attached_to fields); and a receipt of a confirmed or cancelled record cannot be deleted. A file
+    is a receipt when a custody record names its URL in `handover_receipt` (the record decides, not the File row);
+    other attachments keep Frappe's behaviour. An unattached file counts as the receipt only when the user uploaded it
     after the record was made (not an old scan). Other files
     keep Frappe's behaviour. No Frappe setting or core change. Limit: a user who may read the receipt can still
     save it and share it outside CARD; a copy that Frappe rebuilds from decoded text is a separate file.
   - **Date:** a confirmed Handover or Return is dated the day it is confirmed, the day its Stock Entry posts.
+  - **Amend** only a cancelled movement of the same company that the user may amend (an amendment copies the
+    attachments of the record it amends).
+  - **One tool leaves custody once:** a Return, Transfer, Loss or Damage takes a row lock on the worker and reads
+    the balance again with a locking read, so two movements at the same moment cannot take the same tool twice.
+  - **Reviewed drafts:** the store side may choose another store of the company and lower the quantity; the
+    quantity is checked against the approved rest also when a draft is saved.
   - **Separation of duties** (server): the worker(s), the requester, the user who entered the request for the
     worker and the approver of the review cannot confirm. Administrator is not exempt (H-6).
   - **No double handover:** the custody row and the review line are locked during the confirmation. The quantity

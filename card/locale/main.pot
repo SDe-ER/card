@@ -2094,6 +2094,12 @@ msgstr ""
 msgid "This movement is already confirmed."
 msgstr ""
 
+msgid "Only a cancelled movement of the same company that you may amend can be amended."
+msgstr ""
+
+msgid "This file is a signed tool-custody receipt of a confirmed movement; it is kept."
+msgstr ""
+
 msgid "This file is a signed tool-custody receipt; it stays private."
 msgstr ""
 

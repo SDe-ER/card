@@ -25,7 +25,8 @@ CONFIRMED_MOVES = ("Handover", "Return")
 RECEIPT_MOVES = ("Handover", "Transfer")
 # written by the server only (approval, confirmation, close); a client value is ignored
 SERVER_FIELDS = ("review", "review_item", "handover_status", "not_handed_reason", "handed_by", "handed_on")
-FIXED_ON_REVIEW = ("employee", "movement", "item_code", "warehouse", "project", "card_equipment")
+# the store side may choose the store it hands out from (same company) and lower the quantity
+FIXED_ON_REVIEW = ("employee", "movement", "item_code", "project", "card_equipment")
 REVIEW_LINE = "Equipment Needs Review Item"
 
 
@@ -57,14 +58,45 @@ class EmployeeToolCustody(Document):
 			frappe.throw(_("Set the tool custody store in Card Settings (Materials)."))
 		if self.movement not in ("Handover", "Return"):
 			self.warehouse = None
+		self._check_amended_from()
 		self._check_company()
 		self._check_receipt_file()
+		if self.review_item and self.docstatus == 0:
+			self._check_remaining()  # again under the line lock at confirmation
 		# a loss or damage is reviewed by people; nothing is deducted automatically
 		self.review_required = 1 if self.movement in ("Loss", "Damage") else 0
 		if self.movement != "Handover":
 			self.handover_status = None
 		elif self.docstatus == 0 and self.handover_status != "Not handed over":
 			self.handover_status = "Awaiting handover"
+
+	def _check_amended_from(self):
+		"""An amendment copies the attachments (and the receipt) of the record it amends: only a
+		cancelled movement of the same company that the user may amend (Frappe checks the status)."""
+		if not (self.is_new() and self.amended_from):
+			return
+		source = frappe.db.get_value(self.doctype, self.amended_from, ["docstatus", "company"], as_dict=True)
+		if (
+			not source
+			or source.docstatus != 2
+			or source.company != self.company
+			or not frappe.has_permission(self.doctype, "amend", doc=self.amended_from)
+		):
+			frappe.throw(
+				_("Only a cancelled movement of the same company that you may amend can be amended.")
+			)
+
+	def _check_remaining(self):
+		line = frappe.db.get_value(
+			REVIEW_LINE, self.review_item, ["approved_qty", "handed_qty"], as_dict=True
+		)
+		remaining = flt(line.approved_qty) - flt(line.handed_qty) if line else 0
+		if flt(self.qty) > remaining:
+			frappe.throw(
+				_("Only {0} of {1} are still to be handed over on this line.").format(
+					remaining, self.item_code
+				)
+			)
 
 	def _keep_server_fields(self, before):
 		if before and before.handover_status == "Not handed over":
@@ -76,7 +108,7 @@ class EmployeeToolCustody(Document):
 		for fieldname in SERVER_FIELDS:
 			self.set(fieldname, before.get(fieldname) if before else None)
 		if before and before.review_item:
-			# what the approval decided stays; the store side may lower the quantity only
+			# what the approval decided stays
 			for fieldname in FIXED_ON_REVIEW:
 				if self.get(fieldname) != before.get(fieldname):
 					frappe.throw(
@@ -131,6 +163,20 @@ class EmployeeToolCustody(Document):
 			self._check_confirmer()  # Loss / Damage keep today's rules (Owner H-4)
 		if self.review_item:
 			self._check_review_line()
+		if self.movement in OUT_MOVES:
+			self._check_held_under_lock()
+
+	def _check_held_under_lock(self):
+		"""Two movements out of one worker's custody at the same moment: the worker's row lock
+		makes the second wait; the balance is then read again with a locking read."""
+		frappe.db.get_value("Employee", self.employee, "name", for_update=True)
+		held = custody_balance(self.employee, self.item_code, exclude=self.name, for_update=True)
+		if flt(self.qty) > held:
+			frappe.throw(
+				_("{0} holds {1} of {2}; {3} cannot leave his custody.").format(
+					self.employee_name or self.employee, held, self.item_code, flt(self.qty)
+				)
+			)
 
 	def _check_confirmer(self):
 		"""Separation of duties: the worker(s), the requester, who entered the request for the

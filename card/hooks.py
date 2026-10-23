@@ -208,6 +208,7 @@ doc_events = {
 	"File": {
 		"before_validate": "card.custody_receipt.keep_private",
 		"before_insert": "card.custody_receipt.keep_on_its_record",
+		"on_trash": "card.custody_receipt.keep_while_recorded",
 	},
 }
 
