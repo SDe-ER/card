@@ -764,10 +764,11 @@ class TestV4Materials(IntegrationTestCase):
 	def _confirm(self, draft, user, **values):
 		"""Confirm as `user`; on any error the work is rolled back as a web request would."""
 		frappe.db.savepoint("card_confirm")
+		receipt = self._receipt(user)  # uploaded by the confirmer
 		frappe.set_user(user)
 		try:
 			doc = frappe.get_doc("Employee Tool Custody", draft.name)
-			doc.update({"handover_receipt": self._receipt(user), **values})
+			doc.update({"handover_receipt": receipt, **values})
 			doc.submit()
 			return doc
 		except Exception:
@@ -814,9 +815,9 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertTrue(doc.handed_on)
 		self.assertEqual(materials.custody_balance(self.operator, self.tool), 2)
 		self.assertEqual(frappe.db.get_value("Equipment Needs Review Item", line.name, "handed_qty"), 2)
+		stale.handover_receipt = self._receipt(keeper)
 		frappe.set_user(keeper)
 		try:
-			stale.handover_receipt = self._receipt(keeper)
 			with self.assertRaises(frappe.ValidationError):  # a second confirmation of the same record
 				stale.submit()
 		finally:
