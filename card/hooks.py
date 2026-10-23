@@ -140,6 +140,8 @@ permission_query_conditions = {
 	"Equipment Needs Request": "card.materials.needs_request_query",
 	# P0 2026-10-20: an assignment belongs to its equipment's company
 	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.assignment_query_conditions",
+	# FR-077: a machine fitment row belongs to its equipment's company
+	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.fitment_query_conditions",
 }
 
 has_permission = {
@@ -149,6 +151,7 @@ has_permission = {
 	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.has_assignment_permission",
 	"Card Monthly Card": "card.card.doctype.card_monthly_card.card_monthly_card.has_card_permission",
 	"Equipment Transport": "card.card.doctype.equipment_transport.equipment_transport.has_transport_permission",
+	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.has_fitment_permission",
 }
 
 # Document Events
