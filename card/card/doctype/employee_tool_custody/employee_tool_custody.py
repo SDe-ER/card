@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
-from card.materials import DIMENSION_FIELD, custody_balance
+from card.materials import DIMENSION_FIELD, custody_balance, tool_item_error
 from card.settings import setting
 
 # Owner 2026-10-19 (hybrid custody): returnable tools stay on the books in ONE shared
@@ -21,12 +21,9 @@ class EmployeeToolCustody(Document):
 		self.stock_entry = None  # only on_submit links the entry it creates
 		if flt(self.qty) <= 0:
 			frappe.throw(_("The quantity must be more than zero."))
-		if frappe.db.get_value("Item", self.item_code, "is_fixed_asset"):
-			frappe.throw(
-				_("{0} is a fixed asset: record its custodian on the Asset (Asset Movement).").format(
-					self.item_code
-				)
-			)
+		# a tool already held can still leave custody if its Item changed later
+		if error := tool_item_error(self.item_code, need_stock=self.movement == "Handover"):
+			frappe.throw(error)
 		if self.movement == "Transfer":
 			if not self.to_employee or self.to_employee == self.employee:
 				frappe.throw(_("Choose another employee to receive the tool."))
@@ -44,8 +41,26 @@ class EmployeeToolCustody(Document):
 			frappe.throw(_("Set the tool custody store in Card Settings (Materials)."))
 		if self.movement not in ("Handover", "Return"):
 			self.warehouse = None
+		self._check_company()
 		# a loss or damage is reviewed by people; nothing is deducted automatically
 		self.review_required = 1 if self.movement in ("Loss", "Damage") else 0
+
+	def _check_company(self):
+		"""Every linked record belongs to the employee's company (a Transfer cannot cross companies)."""
+		custody = setting("tool_custody_warehouse") if self.movement in STOCK_MOVES else None
+		for doctype, name in (
+			("Employee", self.to_employee),
+			("Warehouse", self.warehouse),
+			("Warehouse", custody),
+			("Project", self.project),
+			("Card Equipment", self.card_equipment),
+		):
+			if name and frappe.db.get_value(doctype, name, "company") != self.company:
+				frappe.throw(
+					_("Tool custody: {0} {1} is not in the employee's company ({2}).").format(
+						_(doctype), name, self.company
+					)
+				)
 
 	def on_submit(self):
 		if self.movement not in STOCK_MOVES:

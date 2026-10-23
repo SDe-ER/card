@@ -2657,6 +2657,12 @@ msgstr "{0} في عهدته {1} من {2}؛ لا يمكن خروج {3} من عه�
 msgid "{0} is a fixed asset: record its custodian on the Asset (Asset Movement)."
 msgstr "{0} أصل ثابت: سجّل المسؤول عنه على الأصل (حركة الأصل)."
 
+msgid "{0} is not a stock item; a tool must be a stock item."
+msgstr "{0} ليس صنفًا مخزنيًا؛ يجب أن تكون الأداة صنفًا مخزنيًا."
+
+msgid "Tool custody: {0} {1} is not in the employee's company ({2})."
+msgstr "عهدة الأدوات: {0} {1} ليس ضمن شركة الموظف ({2})."
+
 msgid "The Card Equipment accounting dimension is not set up on this site."
 msgstr "بُعد المعدة المحاسبي غير مُعد على هذا الموقع."
 

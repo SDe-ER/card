@@ -311,6 +311,9 @@ def approve_review(review: str):
 	for line in lines:
 		if not line.warehouse:
 			frappe.throw(_("Choose the warehouse for {0}.").format(line.item_code))
+		# checked again here: the Item may have changed since the review was saved
+		if line.kind == "Tool" and (error := tool_item_error(line.item_code)):
+			frappe.throw(error)
 
 	cost_center = _cost_center(doc.project, doc.company)
 	has_dimension = frappe.get_meta("Material Request Item").has_field(DIMENSION_FIELD)
@@ -365,6 +368,21 @@ def approve_review(review: str):
 
 
 # ---------- tool custody ----------
+def tool_item_error(item_code, need_stock=True):
+	"""Why `item_code` cannot be a returnable tool, or None: a tool is never a fixed asset and, when it comes
+	into custody (`need_stock`), a stock item."""
+	item = frappe.db.get_value("Item", item_code, ["is_stock_item", "is_fixed_asset"], as_dict=True)
+	if not item:
+		return None  # the Link check reports an Item that does not exist
+	if item.is_fixed_asset:
+		return _("{0} is a fixed asset: record its custodian on the Asset (Asset Movement).").format(
+			item_code
+		)
+	if need_stock and not item.is_stock_item:
+		return _("{0} is not a stock item; a tool must be a stock item.").format(item_code)
+	return None
+
+
 def custody_balances(filters=None):
 	"""{(employee, item_code): qty held} from submitted custody movements, in one query."""
 	totals = {}

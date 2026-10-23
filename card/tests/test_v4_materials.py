@@ -449,7 +449,7 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertEqual((doc.entered_by, doc.on_behalf, doc.review_status), (self.op_user, 0, "Pending"))
 
 	# ---------- tool custody ----------
-	def _custody(self, movement, qty=1, employee=None, **kw):
+	def _custody(self, movement, qty=1, employee=None, submit=True, **kw):
 		doc = frappe.get_doc(
 			{
 				"doctype": "Employee Tool Custody",
@@ -461,7 +461,8 @@ class TestV4Materials(IntegrationTestCase):
 				**kw,
 			}
 		).insert()
-		doc.submit()
+		if submit:
+			doc.submit()
 		return doc
 
 	def test_custody_hand_over_return_transfer_and_loss(self):
@@ -499,6 +500,147 @@ class TestV4Materials(IntegrationTestCase):
 					"warehouse": self.store,
 				}
 			).insert()
+
+	def test_a_tool_line_must_be_a_stock_item(self):
+		# #113 G4: a tool goes into custody, so the review refuses a non-stock item for it
+		rag = self._item("RAG", stock=0)
+		request = self._ask(
+			[{"kind": "Tool", "item_code": self.tool, "qty": 1}, {"kind": "Part", "item_code": rag, "qty": 1}]
+		)
+		review = self._review()
+		tool_line = next(row for row in review.items if row.request == request and row.kind == "Tool")
+		tool_line.item_code, tool_line.approved_qty = rag, 1
+		with self.assertRaises(frappe.ValidationError) as refused:
+			review.save()
+		self.assertIn(rag, str(refused.exception))  # the item message, not another error
+		review = frappe.get_doc("Equipment Needs Review", review.name)
+		tool_line = next(row for row in review.items if row.request == request and row.kind == "Tool")
+		tool_line.item_code, tool_line.approved_qty = rag, 0  # refusing the line stays possible
+		review.save()  # and a non-stock Part line is not affected
+		self.assertEqual(
+			{(row.kind, row.item_code) for row in review.items if row.request == request},
+			{("Tool", rag), ("Part", rag)},
+		)
+
+	def test_a_tool_line_cannot_be_a_fixed_asset(self):
+		drill = self._item("DRILL", fixed_asset=1)
+		request = self._ask([{"kind": "Tool", "item_code": self.tool, "qty": 1}])
+		review = self._review()
+		(line,) = [row for row in review.items if row.request == request]
+		line.item_code, line.approved_qty = drill, 1
+		with self.assertRaises(frappe.ValidationError) as refused:
+			review.save()
+		self.assertIn(drill, str(refused.exception))
+
+	def test_approval_checks_the_tool_item_again(self):
+		# the Item can change after the review is submitted; approval makes nothing then
+		request = self._ask([{"kind": "Tool", "item_code": self.tool, "qty": 1}])
+		review = self._review()
+		self.assertEqual([row.kind for row in review.items if row.request == request], ["Tool"])
+		review.submit()
+		frappe.db.set_value("Item", self.tool, "is_stock_item", 0)
+		before = frappe.db.count("Material Request")
+		with self.assertRaises(frappe.ValidationError) as refused:
+			materials.approve_review(review.name)
+		self.assertIn(self.tool, str(refused.exception))
+		self.assertEqual(frappe.db.count("Material Request"), before)
+		self.assertEqual(
+			frappe.db.get_value("Equipment Needs Review", review.name, "approval_status"), "Pending"
+		)
+
+	def test_custody_refuses_a_non_stock_item(self):
+		rag = self._item("RAG", stock=0)
+		with self.assertRaises(frappe.ValidationError) as refused:
+			# refused when saved, not only later by the Stock Entry
+			self._custody("Handover", warehouse=self.store, item_code=rag, submit=False)
+		self.assertIn(rag, str(refused.exception))
+
+	def _other_company(self):
+		name = f"V4-OTHER-CO-{self.token}"
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": name,
+				"abbr": "O" + self.token[:5].upper(),
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
+		)
+		co.name = name
+		co.db_insert()
+		return name
+
+	def _other_warehouse(self, company):
+		# made directly: the new company has no inventory account for a Warehouse insert
+		warehouse = frappe.new_doc("Warehouse")
+		warehouse.update({"warehouse_name": f"V4 far {self.token}", "company": company})
+		warehouse.name = f"V4 far {self.token} - {frappe.db.get_value('Company', company, 'abbr')}"
+		warehouse.db_insert()
+		return warehouse.name
+
+	def test_custody_stays_in_the_employees_company(self):
+		# #113 G6: no custody movement links a record of another company
+		other = self._other_company()
+		foreign = {
+			"to_employee": frappe.get_doc(
+				{
+					"doctype": "Employee",
+					"first_name": f"V4 far {self.token}",
+					"gender": "Male",
+					"date_of_birth": "1990-01-01",
+					"date_of_joining": "2020-01-01",
+					"company": other,
+					"status": "Active",
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name,
+			"warehouse": self._other_warehouse(other),
+			"project": frappe.get_doc(
+				{"doctype": "Project", "project_name": f"V4 far {self.token}", "company": other}
+			)
+			.insert(ignore_permissions=True)
+			.name,
+			"card_equipment": frappe.get_doc(
+				{
+					"doctype": "Card Equipment",
+					"company": other,
+					"equipment_name": f"V4-FAR-{self.token}",
+					"equipment_type": self._m["etype"],
+					"ownership": "ملك",
+					"daily_hours": 10,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name,
+		}
+		self._custody("Handover", qty=2, warehouse=self.store)
+		cases = {
+			"to_employee": ("Transfer", {}),
+			"warehouse": ("Handover", {}),
+			"project": ("Loss", {}),
+			"card_equipment": ("Handover", {"warehouse": self.store}),
+		}
+		for field, (movement, extra) in cases.items():
+			with self.subTest(field=field):
+				with self.assertRaises(frappe.ValidationError) as refused:
+					self._custody(movement, submit=False, **extra, **{field: foreign[field]})
+				self.assertIn(foreign[field], str(refused.exception))
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 2)
+		# the shared custody store too, for every movement that moves stock
+		frappe.db.set_single_value("Card Settings", "tool_custody_warehouse", foreign["warehouse"])
+		with self.assertRaises(frappe.ValidationError) as refused:
+			self._custody("Return", warehouse=self.store, submit=False)
+		self.assertIn(foreign["warehouse"], str(refused.exception))
+		_u, colleague = self._operator("mate")
+		self._custody("Transfer", to_employee=colleague)  # no stock move: the store does not matter
+
+	def test_a_held_tool_can_still_be_transferred_after_its_item_changed(self):
+		self._custody("Handover", warehouse=self.store)
+		frappe.db.set_value("Item", self.tool, "is_stock_item", 0)
+		_u, colleague = self._operator("mate")
+		self._custody("Transfer", to_employee=colleague)
+		self.assertEqual(materials.custody_balance(colleague, self.tool), 1)
 
 	def test_cancelling_a_handover_removes_its_draft_stock_entry(self):
 		hand = self._custody("Handover", warehouse=self.store)
