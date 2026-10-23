@@ -2094,6 +2094,66 @@ msgstr ""
 msgid "This movement is already confirmed."
 msgstr ""
 
+msgid "Tool Custody"
+msgstr ""
+
+msgid "Awaiting"
+msgstr ""
+
+msgid "Held tools"
+msgstr ""
+
+msgid "History"
+msgstr ""
+
+msgid "Nothing here."
+msgstr ""
+
+msgid "Waiting for stock"
+msgstr ""
+
+msgid "New handover for the rest"
+msgstr ""
+
+msgid "Print receipt"
+msgstr ""
+
+msgid "Attaching the file does not verify the signature."
+msgstr ""
+
+msgid "Confirmed. Stock moved: {0}"
+msgstr ""
+
+msgid "Confirmed."
+msgstr ""
+
+msgid "Make a new handover for the tools of this line that are not handed over?"
+msgstr ""
+
+msgid "New handover"
+msgstr ""
+
+msgid "Unknown tab."
+msgstr ""
+
+msgid "Unknown movement."
+msgstr ""
+
+msgid "Tool Handover Receipt"
+msgstr ""
+
+msgid "The receiver confirms receiving the tool above in good condition and is responsible for it until it is returned or handed over."
+msgstr ""
+
+msgid "Handed over by"
+msgstr ""
+
+msgid "Received by"
+msgstr ""
+
+msgid "Approve the lines? Tools wait for the store to hand them over."
+msgstr ""
+
 msgid "Only a cancelled movement of the same company that you may amend can be amended."
 msgstr ""
 

@@ -16,6 +16,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Tool Custody screen (issue #113, PR-T3; Owner decisions U-1 to U-5, 2026-10-23).** A new Desk page
+  `tool-custody` ("Tool Custody", Card Materials sidebar, before Employee Tool Custody) puts awaiting handovers,
+  held tools and history in one responsive screen (desktop, tablet and phone; Arabic right-to-left), with employee
+  and tool filters and server paging (25 rows).
+  - **Who:** Card Supervisor, Card Manager, Stock Manager and System Manager with custody read (U-3). Card User and
+    Card Operator do not see the page or its sidebar row. Default tab by role (U-5): the store side and Card Manager
+    start on Awaiting, a supervisor on Held tools; every permitted user can switch tabs.
+  - **Actions:** each row shows only the actions the server allows for this user (confirm, not handed over, new
+    handover for the rest, return, transfer); the worker gets no action on own custody, and the approver or
+    requester of a line cannot confirm it (same rule as the controller, now one function `confirmer_excluded`).
+    Confirm is one dialog: quantity, Serial No when the item needs it, Print receipt, signed receipt attachment
+    (Handover / Transfer), then the standard Submit with all controller rules. New Handover / Return / Transfer
+    drafts fill their defaults (Card Settings store; for a Handover the worker's machine and its project).
+  - **Stock (U-4):** the Awaiting tab shows the store quantity read with the user's own ERPNext rights (no figure
+    without stock read); confirmation checks the stock again in ERPNext.
+  - **Receipt (U-2):** standard print format "Tool Handover Receipt" for Employee Tool Custody: employee, item,
+    quantity, equipment / project, issuer, receiver, date and two signature lines; right-to-left in Arabic.
+  - Endpoints `card.tool_custody.context` and `view` (GET, read only) and `confirm` and `move` (POST); reads go
+    through `frappe.get_list` (DocPerms and Company User Permissions), writes through Employee Tool Custody with the
+    user's own rights. No role, permission, DocType or accounting change; no data patch. The review approve message
+    now says that tools wait for the store. Arabic translations for the new CARD strings.
+  - Known limits: the Employee fields of New handover and Transfer need Employee read through the user's roles (no
+    permission was added); worker digital acknowledgment (T11) is a later phase. Rollback: revert the merge (the page,
+    print format and sidebar row stay on a migrated site until removed by hand).
 - **Parts fitment, catalog phase 2a (FR-077; Owner decisions Q1–Q11, 2026-10-23)**: which ERPNext Item fits which
   machine. New masters `Card Equipment Make` (CMK-) and `Card Equipment Model` (CEM-, one make and one equipment
   type); a normalised unique key refuses the same make or model written twice ("PC200-8" = "pc 200 8"), also when
