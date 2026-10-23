@@ -274,17 +274,20 @@ def _cost_center(project, company):
 
 
 def _mr_type(line):
+	"""The Material Request type of an approved line; None for a tool from the store, which
+	goes to the worker through a custody handover (#113), not through a Material Request."""
 	if line.route == "Buy for project":
 		return "Purchase"
-	return "Material Transfer" if line.kind == "Tool" else "Material Issue"
+	return None if line.kind == "Tool" else "Material Issue"
 
 
 @frappe.whitelist(methods=["POST"])
 def approve_review(review: str):
 	"""Management approval: every approved line goes into a draft ERPNext Material
-	Request (Purchase, Material Issue, or Material Transfer to the custody store for
-	tools), with item, project, cost center and the equipment dimension on each row.
-	The Material Requests stay drafts for the buying/stock team to submit."""
+	Request (Purchase, or Material Issue for parts from the store), with item, project, cost
+	center and the equipment dimension on each row. Every approved tool line also gets a
+	draft custody Handover for its worker (#113): approval moves no stock and gives nobody a
+	tool; the store side confirms the physical handover later. All stay drafts."""
 	if not has_any_role(APPROVER_ROLES):
 		frappe.throw(_("Only Card Manager may approve equipment needs."), frappe.PermissionError)
 	# the Material Requests are made with the approver's own ERPNext rights
@@ -307,19 +310,29 @@ def approve_review(review: str):
 	missing = [line.description or line.request for line in lines if not line.item_code]
 	if missing:
 		frappe.throw(_("Match these lines to an Item before approval: {0}").format(", ".join(missing)))
-	custody = setting("tool_custody_warehouse") or None
-	if any(_mr_type(line) == "Material Transfer" for line in lines) and not custody:
+	tools = [line for line in lines if line.kind == "Tool"]
+	if tools and not setting("tool_custody_warehouse"):
 		frappe.throw(_("Set the tool custody store in Card Settings (Materials) before approving tools."))
+	if tools and not frappe.has_permission(CUSTODY_DOCTYPE, "create"):
+		frappe.throw(
+			_("You also need permission to create Employee Tool Custody records."), frappe.PermissionError
+		)
 	for line in lines:
 		if not line.warehouse:
 			frappe.throw(_("Choose the warehouse for {0}.").format(line.item_code))
+		# checked again here: the Item may have changed since the review was saved
+		if line.kind == "Tool" and (error := tool_item_error(line.item_code)):
+			frappe.throw(error)
+		if line.kind == "Tool" and not line.operator:
+			frappe.throw(_("The request of {0} names no worker to receive the tool.").format(line.item_code))
 
 	cost_center = _cost_center(doc.project, doc.company)
 	has_dimension = frappe.get_meta("Material Request Item").has_field(DIMENSION_FIELD)
 	today = nowdate()
 	groups = {}
 	for line in lines:
-		groups.setdefault(_mr_type(line), []).append(line)
+		if mr_type := _mr_type(line):
+			groups.setdefault(mr_type, []).append(line)
 	created = []
 	for mr_type, group in groups.items():
 		mr = frappe.new_doc("Material Request")
@@ -339,10 +352,7 @@ def approve_review(review: str):
 				"project": doc.project,
 				"cost_center": cost_center,
 			}
-			if mr_type == "Material Transfer":
-				row.update({"from_warehouse": line.warehouse, "warehouse": custody})
-			else:
-				row["warehouse"] = line.warehouse
+			row["warehouse"] = line.warehouse
 			if has_dimension and line.kind == "Part":
 				row[DIMENSION_FIELD] = line.equipment
 			mr.append("items", row)
@@ -350,6 +360,8 @@ def approve_review(review: str):
 		for line in group:
 			line.db_set("material_request", mr.name, update_modified=False)
 		created.append(mr.name)
+	for line in tools:
+		make_handover_draft(doc, line, flt(line.approved_qty))
 
 	doc.db_set(
 		{"approval_status": "Approved", "approved_by": frappe.session.user, "approved_on": now_datetime()}
@@ -367,14 +379,136 @@ def approve_review(review: str):
 
 
 # ---------- tool custody ----------
-def custody_balances(filters=None):
-	"""{(employee, item_code): qty held} from submitted custody movements, in one query."""
-	totals = {}
-	for r in frappe.get_all(
-		"Employee Tool Custody",
-		filters=dict(filters or {}, docstatus=1),
-		fields=["employee", "to_employee", "movement", "item_code", "qty"],
+CUSTODY_DOCTYPE = "Employee Tool Custody"
+HANDOVER_MANAGER_ROLE = "Card Manager"  # Owner H-2: only he makes a replacement draft
+
+
+def make_handover_draft(review, line, qty):
+	"""A draft custody Handover of an approved tool line (approval or replacement). It moves no
+	stock and counts for nobody until the store side confirms it (custody submit)."""
+	draft = frappe.get_doc(
+		{
+			"doctype": CUSTODY_DOCTYPE,
+			"employee": line.operator,
+			"movement": "Handover",
+			"date": nowdate(),
+			"item_code": line.item_code,
+			"qty": qty,
+			"warehouse": line.warehouse,
+			"project": review.project,
+			"card_equipment": line.equipment,
+			"review": review.name,
+			"review_item": line.name,
+		}
+	)
+	draft.flags.card_server = True  # the review links are written by the server only
+	draft.insert()  # with the user's own rights
+	frappe.db.set_value(
+		"Equipment Needs Review Item", line.name, "tool_custody", draft.name, update_modified=False
+	)
+	return draft
+
+
+def can_confirm_custody():
+	"""The store side: may submit custody records and Stock Entries (Owner T2 / H-5)."""
+	return frappe.has_permission(CUSTODY_DOCTYPE, "submit") and frappe.has_permission("Stock Entry", "submit")
+
+
+@frappe.whitelist(methods=["POST"])
+def close_tool_handover(custody: str, reason: str):
+	"""The worker did not take the tool: the draft is closed with a reason, never submitted;
+	nothing is counted or moved. A replacement draft is made only by a Card Manager."""
+	doc = frappe.get_doc(CUSTODY_DOCTYPE, custody)
+	doc.check_permission("write")
+	if not (has_any_role((HANDOVER_MANAGER_ROLE,)) or can_confirm_custody()):
+		frappe.throw(_("Only the store side or a Card Manager may close a handover."), frappe.PermissionError)
+	if frappe.db.get_value("Employee", doc.employee, "user_id") == frappe.session.user:
+		frappe.throw(_("You cannot close a handover to yourself."), frappe.PermissionError)
+	reason = (reason or "").strip()
+	if not reason:
+		frappe.throw(_("Give the reason why the tool was not handed over."))
+	status = frappe.db.get_value(CUSTODY_DOCTYPE, custody, ["docstatus", "handover_status"], for_update=True)
+	if not doc.review_item or tuple(status) != (0, "Awaiting handover"):
+		frappe.throw(_("Only a handover that is still awaiting can be closed."))
+	doc.flags.card_server = True
+	doc.handover_status, doc.not_handed_reason = "Not handed over", reason
+	doc.save()
+	return doc.name
+
+
+@frappe.whitelist(methods=["POST"])
+def make_tool_handover(review_item: str):
+	"""Card Manager only (Owner H-2): a replacement draft for the tools of an approved line that
+	are not handed over yet, after a documented failed handover (closed or cancelled)."""
+	if not has_any_role((HANDOVER_MANAGER_ROLE,)):
+		frappe.throw(_("Only a Card Manager may make a new handover."), frappe.PermissionError)
+	parent = frappe.db.get_value("Equipment Needs Review Item", review_item, "parent")
+	if not parent:
+		frappe.throw(_("This review line does not exist."), frappe.DoesNotExistError)
+	review = frappe.get_doc("Equipment Needs Review", parent)
+	review.check_permission("read")
+	# lock order as a confirmation (custody row, then line): two requests never deadlock
+	last_name = frappe.db.get_value("Equipment Needs Review Item", review_item, "tool_custody")
+	last = last_name and frappe.db.get_value(
+		CUSTODY_DOCTYPE, last_name, ["docstatus", "handover_status"], for_update=True
+	)
+	# one replacement at a time: the line row lock makes a second call wait, then see the draft
+	line = frappe.db.get_value(
+		"Equipment Needs Review Item",
+		review_item,
+		[
+			"name",
+			"kind",
+			"operator",
+			"item_code",
+			"warehouse",
+			"equipment",
+			"approved_qty",
+			"handed_qty",
+			"tool_custody",
+			"material_request",
+		],
+		as_dict=True,
+		for_update=True,
+	)
+	if review.approval_status != "Approved" or line.kind != "Tool":
+		frappe.throw(_("Only a tool line of an approved review can be handed over."))
+	# a line approved before #113 went to the custody store through a Material Transfer MR
+	if line.material_request and (
+		frappe.db.get_value("Material Request", line.material_request, "material_request_type")
+		== "Material Transfer"
 	):
+		frappe.throw(_("This line is handled by its Material Request {0}.").format(line.material_request))
+	# locking reads: a plain read would use this request's older snapshot and miss a draft
+	# that another request committed while this one waited for the line lock
+	if line.tool_custody != last_name:
+		frappe.throw(_("This line changed while you worked on it; try again."))
+	if last and tuple(last) == (0, "Awaiting handover"):
+		frappe.throw(_("A handover of this line is already awaiting confirmation."))
+	remaining = flt(line.approved_qty) - flt(line.handed_qty)
+	if remaining <= 0:
+		frappe.throw(_("All the approved tools of this line are handed over."))
+	return make_handover_draft(review, line, remaining).name
+
+
+def tool_item_error(item_code, need_stock=True):
+	"""Why `item_code` cannot be a returnable tool, or None: a tool is never a fixed asset and, when it comes
+	into custody (`need_stock`), a stock item."""
+	item = frappe.db.get_value("Item", item_code, ["is_stock_item", "is_fixed_asset"], as_dict=True)
+	if not item:
+		return None  # the Link check reports an Item that does not exist
+	if item.is_fixed_asset:
+		return _("{0} is a fixed asset: record its custodian on the Asset (Asset Movement).").format(
+			item_code
+		)
+	if need_stock and not item.is_stock_item:
+		return _("{0} is not a stock item; a tool must be a stock item.").format(item_code)
+	return None
+
+
+def _sum_custody(rows):
+	totals = {}
+	for r in rows:
 		key = (r.employee, r.item_code)
 		totals[key] = totals.get(key, 0.0) + (flt(r.qty) if r.movement == "Handover" else -flt(r.qty))
 		if r.movement == "Transfer" and r.to_employee:
@@ -383,8 +517,29 @@ def custody_balances(filters=None):
 	return totals
 
 
-def custody_balance(employee, item_code, exclude=None):
-	"""Tools of `item_code` the employee holds, from submitted custody movements."""
+def custody_balances(filters=None):
+	"""{(employee, item_code): qty held} from submitted custody movements, in one query."""
+	return _sum_custody(
+		frappe.get_all(
+			"Employee Tool Custody",
+			filters=dict(filters or {}, docstatus=1),
+			fields=["employee", "to_employee", "movement", "item_code", "qty"],
+		)
+	)
+
+
+def custody_balance(employee, item_code, exclude=None, for_update=False):
+	"""Tools of `item_code` the employee holds, from submitted custody movements (`for_update`: a
+	locking read, so a request that waited on a lock sees the rows committed meanwhile)."""
+	if for_update:
+		rows = frappe.db.sql(
+			"""select employee, to_employee, movement, item_code, qty from `tabEmployee Tool Custody`
+			where docstatus = 1 and item_code = %s and name != %s and (employee = %s or to_employee = %s)
+			for update""",
+			(item_code, exclude or "", employee, employee),
+			as_dict=True,
+		)
+		return flt(_sum_custody(rows).get((employee, item_code), 0))
 	balances = custody_balances({"item_code": item_code, "name": ["!=", exclude or ""]})
 	return flt(balances.get((employee, item_code), 0))
 

@@ -106,7 +106,7 @@ async function send() {
       data-testid="line"
     >
       <div class="flex items-center justify-between gap-2">
-        <TabButtons v-model="line.kind" :buttons="kinds" />
+        <TabButtons v-model="line.kind" :options="kinds" />
         <Button
           v-if="lines.length > 1"
           variant="ghost"

@@ -1,5 +1,15 @@
-import { describe, expect, it } from 'vitest'
-import { incompleteLines, linesWithoutFitReason, newLine, sendableLines } from './needs'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('./api', () => ({ get: vi.fn(), post: vi.fn().mockResolvedValue('ENR-0001') }))
+
+import { post } from './api'
+import {
+  incompleteLines,
+  linesWithoutFitReason,
+  newLine,
+  sendableLines,
+  submitNeeds,
+} from './needs'
 
 describe('sendableLines', () => {
   it('drops empty lines and lines without a quantity', () => {
@@ -86,5 +96,25 @@ describe('linesWithoutFitReason', () => {
       { ...newLine(), description: 'Hose', qty: 1, fit_reason: 'ignored' },
     ]
     expect(sendableLines(lines).map((l) => l.fit_reason)).toEqual(['old model part', ''])
+  })
+})
+
+// CARD Mobile offered no kind at all before (TabButtons got `buttons`, frappe-ui 1.0.2 reads
+// `options`), so every line went out as a part and an operator could not ask for a tool.
+describe('line kind', () => {
+  it('sends the chosen kind of every line to the server', async () => {
+    const tool = {
+      ...newLine(),
+      kind: 'Tool' as const,
+      item_code: 'WRENCH',
+      item_name: 'Torque wrench',
+      qty: 1,
+    }
+    const part = { ...newLine(), description: 'Hydraulic hose', qty: 2 }
+    vi.mocked(post).mockClear()
+    await submitNeeds('CEQ-0001', [tool, part], '')
+    const [method, args] = vi.mocked(post).mock.lastCall as [string, Record<string, string>]
+    expect(method).toBe('card.materials.submit_needs')
+    expect(JSON.parse(args.items).map((l: { kind: string }) => l.kind)).toEqual(['Tool', 'Part'])
   })
 })

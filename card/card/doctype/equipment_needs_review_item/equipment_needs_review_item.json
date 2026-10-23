@@ -26,7 +26,9 @@
   "repeat_flag",
   "fit_status",
   "fit_reason",
-  "material_request"
+  "material_request",
+  "tool_custody",
+  "handed_qty"
  ],
  "fields": [
   {
@@ -193,10 +195,25 @@
    "options": "Material Request",
    "read_only": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "tool_custody",
+   "fieldtype": "Link",
+   "label": "Tool custody",
+   "options": "Employee Tool Custody",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "handed_qty",
+   "fieldtype": "Float",
+   "label": "Handed over qty",
+   "read_only": 1,
+   "no_copy": 1
   }
  ],
  "links": [],
- "modified": "2026-10-23 14:00:00.000000",
+ "modified": "2026-10-23 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Needs Review Item",
