@@ -1256,6 +1256,135 @@ class TestV4Materials(IntegrationTestCase):
 			{reader: True, keeper: True, outsider: False, "Guest": False},
 		)
 
+	def _confirmed_receipt(self):
+		_review, _line, draft = self._approved_tool()
+		self._stock_in(1)
+		keeper = self._store_keeper()
+		doc = self._confirm(draft, keeper)
+		receipt = frappe.get_doc(
+			"File", {"file_url": doc.handover_receipt, "attached_to_doctype": "Employee Tool Custody"}
+		)
+		return keeper, doc, receipt
+
+	def _as(self, user, fn):
+		frappe.db.savepoint("card_receipt")
+		frappe.set_user(user)
+		try:
+			return fn()
+		except Exception:
+			frappe.db.rollback(save_point="card_receipt")
+			raise
+		finally:
+			frappe.set_user("Administrator")
+
+	def _stays_private(self, receipt):
+		from frappe.core.doctype.file.file import has_permission as file_permission
+
+		row = frappe.get_doc("File", receipt.name)
+		self.assertEqual((row.is_private, row.file_url), (1, receipt.file_url))
+		self.assertFalse(file_permission(row, "read", user="Guest"))
+
+	def test_the_uploader_cannot_make_a_signed_receipt_public_or_delete_it(self):
+		# Frappe lets a file's owner make it public or delete it; a signed receipt is evidence
+		keeper, _doc, receipt = self._confirmed_receipt()
+
+		def make_public():
+			f = frappe.get_doc("File", receipt.name)
+			f.is_private = 0
+			f.save()
+
+		with self.assertRaises(frappe.ValidationError):
+			self._as(keeper, make_public)
+		with self.assertRaises(frappe.ValidationError):  # protect_attached_files on the submitted record
+			self._as(keeper, lambda: frappe.delete_doc("File", receipt.name))
+		self._stays_private(receipt)
+
+	def test_a_signed_receipt_shares_its_file_with_nobody(self):
+		# Frappe re-uses the disk file and URL for the same bytes, and making ANY of those File rows
+		# public makes all of them public (update_existing_file_docs)
+		_keeper, _doc, receipt = self._confirmed_receipt()
+		reader = self._user("reader", ["Card User"])
+		with open(receipt.get_full_path(), "rb") as f:
+			raw = f.read()  # what a browser download gives the reader
+
+		def upload_the_same_bytes():
+			frappe.get_doc(
+				{"doctype": "File", "file_name": "copy.png", "is_private": 1, "content": raw}
+			).insert()
+
+		with self.assertRaises(frappe.ValidationError):  # would share the receipt's URL
+			self._as(reader, upload_the_same_bytes)
+
+		def attach_elsewhere():
+			from frappe.utils.file_manager import add_attachments
+
+			todo = frappe.get_doc({"doctype": "ToDo", "description": "mine"}).insert()
+			for copy in add_attachments("ToDo", todo.name, [receipt.name]):
+				copy.reload()
+				copy.is_private = 0  # the reader publishes his copy
+				copy.save()
+
+		try:
+			self._as(reader, attach_elsewhere)
+		except frappe.ValidationError:
+			pass  # refused when the copy would share the receipt's file
+		# Frappe rebuilds such a copy from decoded content: it is another file, never the receipt's
+		self.assertEqual(frappe.db.count("File", {"file_url": receipt.file_url}), 1)
+		self.assertEqual(frappe.db.count("File", {"content_hash": receipt.content_hash}), 1)
+		self._stays_private(receipt)
+
+	def test_an_older_file_with_the_receipts_bytes_cannot_go_public(self):
+		# the receipt re-used an older upload's disk file: that file now stays private too
+		_review, _line, draft = self._approved_tool()
+		self._stock_in(1)
+		keeper = self._store_keeper()
+		scan = RECEIPT_PNG + frappe.generate_hash(length=12).encode()
+		owner = self._user("first", ["Card Supervisor"])
+		frappe.set_user(owner)
+		try:
+			older = frappe.get_doc(
+				{"doctype": "File", "file_name": "scan.png", "is_private": 1, "content": scan}
+			).insert()
+		finally:
+			frappe.set_user("Administrator")
+		frappe.set_user(keeper)
+		try:
+			url = (
+				frappe.get_doc(
+					{"doctype": "File", "file_name": "receipt.png", "is_private": 1, "content": scan}
+				)
+				.insert()
+				.file_url
+			)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(url, older.file_url)  # Frappe shares the file
+		doc = self._confirm(draft, keeper, handover_receipt=url)
+
+		def make_public():
+			f = frappe.get_doc("File", older.name)
+			f.is_private = 0
+			f.save()
+
+		with self.assertRaises(frappe.ValidationError):
+			self._as(owner, make_public)
+		self._stays_private(frappe.get_doc("File", {"file_url": url, "attached_to_name": doc.name}))
+
+	def test_other_files_keep_frappes_behaviour(self):
+		# the guard acts on custody receipts only
+		self._confirmed_receipt()
+		own = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": f"note-{self.token}.png",
+				"is_private": 1,
+				"content": RECEIPT_PNG + frappe.generate_hash(length=12).encode(),
+			}
+		).insert()
+		own.is_private = 0
+		own.save()
+		self.assertEqual(frappe.db.get_value("File", own.name, "is_private"), 0)
+
 	# ---------- operator page ----------
 	def test_operator_page_context(self):
 		frappe.set_user(self.op_user)

@@ -118,6 +118,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Evidence:** a Handover and a Transfer need a signed receipt (`handover_receipt`): a private file uploaded to the
     record, signed by the receiving employee and the issuer (H-1, H-3). CARD records that the file was attached; it
     does not verify signatures. `handed_by` / `handed_on` record who confirmed and when.
+  - **The signed receipt stays private and on its record** (`card.custody_receipt`, File hooks `before_validate` and
+    `before_insert`; Employee Tool Custody `protect_attached_files`). Frappe shares one disk file and URL between
+    File rows with the same bytes, and making any of them public makes all of them public. A file's owner can also
+    make it public or delete it. Found by a probe on an isolated copy: the uploader could publish the receipt to
+    Guest or delete it, and a reader could re-upload the downloaded bytes onto the receipt's file. Now the
+    receipt, and any file that shares its content or URL, cannot become public; no second File row may carry its
+    content or URL outside its custody record; and a confirmed record's attachments cannot be deleted. Other files
+    keep Frappe's behaviour. No Frappe setting or core change. Limit: a user who may read the receipt can still
+    save it and share it outside CARD; a copy that Frappe rebuilds from decoded text is a separate file.
   - **Separation of duties** (server): the worker(s), the requester, the user who entered the request for the
     worker and the approver of the review cannot confirm. Administrator is not exempt (H-6).
   - **No double handover:** the custody row and the review line are locked during the confirmation. The quantity

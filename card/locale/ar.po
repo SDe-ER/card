@@ -2756,6 +2756,12 @@ msgstr "أُغلق هذا التسليم كـ«لم يتم التسليم»؛ ل
 msgid "This movement is already confirmed."
 msgstr "هذه الحركة مؤكدة بالفعل."
 
+msgid "This file is a signed tool-custody receipt; it stays private."
+msgstr "هذا الملف إيصال عهدة أدوات موقّع؛ يبقى خاصًا."
+
+msgid "This file is a signed tool-custody receipt; it stays on its custody record only."
+msgstr "هذا الملف إيصال عهدة أدوات موقّع؛ يبقى على سجل العهدة الخاص به فقط."
+
 msgid "This line is handled by its Material Request {0}."
 msgstr "هذا السطر يُعالَج من خلال طلب المواد {0}."
 

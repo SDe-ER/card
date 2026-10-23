@@ -204,6 +204,11 @@ doc_events = {
 	},
 	# the registries' change history stays hidden from their form (#23)
 	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
+	# #113: a signed tool-custody receipt stays a private file of its own custody record
+	"File": {
+		"before_validate": "card.custody_receipt.keep_private",
+		"before_insert": "card.custody_receipt.keep_on_its_record",
+	},
 }
 
 # Scheduled Tasks
