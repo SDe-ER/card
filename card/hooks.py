@@ -152,6 +152,8 @@ has_permission = {
 	"Card Monthly Card": "card.card.doctype.card_monthly_card.card_monthly_card.has_card_permission",
 	"Equipment Transport": "card.card.doctype.equipment_transport.equipment_transport.has_transport_permission",
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.has_fitment_permission",
+	# #113: a cancelled movement with a signed receipt (and so its receipt) is never deleted
+	"Employee Tool Custody": "card.card.doctype.employee_tool_custody.employee_tool_custody.has_custody_permission",
 }
 
 # Document Events
@@ -204,6 +206,12 @@ doc_events = {
 	},
 	# the registries' change history stays hidden from their form (#23)
 	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
+	# #113: a signed tool-custody receipt stays a private file of its own custody record
+	"File": {
+		"before_validate": "card.custody_receipt.keep_private",
+		"before_insert": "card.custody_receipt.keep_on_its_record",
+		"on_trash": "card.custody_receipt.keep_while_recorded",
+	},
 }
 
 # Scheduled Tasks

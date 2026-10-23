@@ -23,6 +23,15 @@
   "stock_entry",
   "review_required",
   "notes",
+  "handover_section",
+  "handover_status",
+  "handover_receipt",
+  "not_handed_reason",
+  "column_break_handover",
+  "handed_by",
+  "handed_on",
+  "review",
+  "review_item",
   "amended_from"
  ],
  "fields": [
@@ -158,6 +167,71 @@
    "label": "Notes"
   },
   {
+   "fieldname": "handover_section",
+   "fieldtype": "Section Break",
+   "label": "Handover confirmation"
+  },
+  {
+   "fieldname": "handover_status",
+   "fieldtype": "Select",
+   "label": "Handover status",
+   "options": "\nAwaiting handover\nHanded over\nNot handed over",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "handover_receipt",
+   "fieldtype": "Attach",
+   "label": "Signed receipt",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "not_handed_reason",
+   "fieldtype": "Small Text",
+   "label": "Reason not handed over",
+   "read_only": 1,
+   "no_copy": 1,
+   "depends_on": "eval:doc.handover_status=='Not handed over'"
+  },
+  {
+   "fieldname": "column_break_handover",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "handed_by",
+   "fieldtype": "Link",
+   "label": "Confirmed by",
+   "options": "User",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "handed_on",
+   "fieldtype": "Datetime",
+   "label": "Confirmed on",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "review",
+   "fieldtype": "Link",
+   "label": "Equipment Needs Review",
+   "options": "Equipment Needs Review",
+   "read_only": 1,
+   "no_copy": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "review_item",
+   "fieldtype": "Data",
+   "label": "Review line",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1,
+   "search_index": 1
+  },
+  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -169,7 +243,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-19 17:00:00.000000",
+ "modified": "2026-10-23 19:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Employee Tool Custody",
@@ -245,5 +319,6 @@
    "print": 1,
    "report": 1
   }
- ]
+ ],
+ "protect_attached_files": 1
 }

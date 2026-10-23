@@ -2663,6 +2663,132 @@ msgstr "{0} ليس صنفًا مخزنيًا؛ يجب أن تكون الأداة
 msgid "Tool custody: {0} {1} is not in the employee's company ({2})."
 msgstr "عهدة الأدوات: {0} {1} ليس ضمن شركة الموظف ({2})."
 
+msgid "Handover confirmation"
+msgstr "تأكيد التسليم"
+
+msgid "Handover status"
+msgstr "حالة التسليم"
+
+msgid "Awaiting handover"
+msgstr "بانتظار التسليم"
+
+msgid "Handed over"
+msgstr "تم التسليم"
+
+msgid "Not handed over"
+msgstr "لم يتم التسليم"
+
+msgid "Signed receipt"
+msgstr "إيصال موقّع"
+
+msgid "Reason not handed over"
+msgstr "سبب عدم التسليم"
+
+msgid "Confirmed by"
+msgstr "أكّده"
+
+msgid "Confirmed on"
+msgstr "تاريخ التأكيد"
+
+msgid "Review line"
+msgstr "سطر المراجعة"
+
+msgid "Tool custody"
+msgstr "عهدة الأداة"
+
+msgid "Handed over qty"
+msgstr "الكمية المسلّمة"
+
+msgid "A handover of a reviewed line is kept; close it as not handed over instead."
+msgstr "تسليم سطر تمت مراجعته لا يُحذف؛ أغلقه كـ«لم يتم التسليم» بدلًا من ذلك."
+
+msgid "A handover of a reviewed line is replaced by a Card Manager, not amended."
+msgstr "تسليم سطر تمت مراجعته يستبدله مدير Card، ولا يُعدَّل."
+
+msgid "A handover of this line is already awaiting confirmation."
+msgstr "يوجد تسليم لهذا السطر بانتظار التأكيد بالفعل."
+
+msgid "All the approved tools of this line are handed over."
+msgstr "تم تسليم كل الأدوات المعتمدة في هذا السطر."
+
+msgid "Attach the receipt signed by the receiving employee and the issuer."
+msgstr "أرفق الإيصال موقّعًا من الموظف المستلم ومن المسلِّم."
+
+msgid "Cancelling moves stock back: you also need permission to cancel Stock Entries."
+msgstr "الإلغاء يُرجع المخزون: تحتاج أيضًا صلاحية إلغاء قيود المخزون."
+
+msgid "Confirming moves stock: you also need permission to submit Stock Entries in ERPNext."
+msgstr "التأكيد يحرّك المخزون: تحتاج أيضًا صلاحية اعتماد قيود المخزون في ERPNext."
+
+msgid "Give the reason why the tool was not handed over."
+msgstr "اكتب سبب عدم تسليم الأداة."
+
+msgid "Only {0} of {1} are still to be handed over on this line."
+msgstr "المتبقي للتسليم في هذا السطر {0} فقط من {1}."
+
+msgid "Only a Card Manager may make a new handover."
+msgstr "مدير Card فقط يمكنه إنشاء تسليم جديد."
+
+msgid "Only a handover that is still awaiting can be closed."
+msgstr "يمكن إغلاق التسليم الذي ما زال بانتظار التسليم فقط."
+
+msgid "Only a tool line of an approved review can be handed over."
+msgstr "يمكن تسليم سطر أداة في مراجعة معتمدة فقط."
+
+msgid "Only the store side or a Card Manager may close a handover."
+msgstr "المخزن أو مدير Card فقط يمكنه إغلاق التسليم."
+
+msgid "The approved handover cannot change its {0}."
+msgstr "لا يمكن تغيير {0} في التسليم المعتمد."
+
+msgid "The request of {0} names no worker to receive the tool."
+msgstr "طلب {0} لا يحدد عاملًا يستلم الأداة."
+
+msgid "The signed receipt must be a private file uploaded to this record."
+msgstr "الإيصال الموقّع يجب أن يكون ملفًا خاصًا مرفوعًا على هذا السجل."
+
+msgid "This handover no longer matches its approved review line."
+msgstr "هذا التسليم لم يعد مطابقًا لسطر المراجعة المعتمد."
+
+msgid "This handover was closed as not handed over; it cannot change."
+msgstr "أُغلق هذا التسليم كـ«لم يتم التسليم»؛ لا يمكن تغييره."
+
+msgid "This movement is already confirmed."
+msgstr "هذه الحركة مؤكدة بالفعل."
+
+msgid "Only a cancelled movement of the same company that you may amend can be amended."
+msgstr "يمكن تعديل (Amend) حركة ملغاة فقط، من نفس الشركة، ولديك صلاحية تعديلها."
+
+msgid "This file is a signed tool-custody receipt of a confirmed movement; it is kept."
+msgstr "هذا الملف إيصال عهدة أدوات موقّع لحركة مؤكدة؛ يُحتفظ به."
+
+msgid "This file is a signed tool-custody receipt; it stays private."
+msgstr "هذا الملف إيصال عهدة أدوات موقّع؛ يبقى خاصًا."
+
+msgid "This file is a signed tool-custody receipt; it stays on its custody record only."
+msgstr "هذا الملف إيصال عهدة أدوات موقّع؛ يبقى على سجل العهدة الخاص به فقط."
+
+msgid "This line is handled by its Material Request {0}."
+msgstr "هذا السطر يُعالَج من خلال طلب المواد {0}."
+
+msgid "You cannot close a handover to yourself."
+msgstr "لا يمكنك إغلاق تسليم موجّه إليك."
+
+msgid "A partial handover leaves a new draft: you also need permission to create custody records."
+msgstr "التسليم الجزئي يترك مسودة جديدة: تحتاج أيضًا صلاحية إنشاء سجلات العهدة."
+
+msgid "This line changed while you worked on it; try again."
+msgstr "تغيّر هذا السطر أثناء عملك عليه؛ حاول مرة أخرى."
+
+msgid "This review line does not exist."
+msgstr "سطر المراجعة هذا غير موجود."
+
+msgid "You also need permission to create Employee Tool Custody records."
+msgstr "تحتاج أيضًا صلاحية إنشاء سجلات عهدة أدوات الموظف."
+
+msgid "You cannot confirm this movement: you are its worker, its requester or its approver."
+msgstr "لا يمكنك تأكيد هذه الحركة: أنت العامل أو مقدّم الطلب أو المعتمِد."
+
 msgid "The Card Equipment accounting dimension is not set up on this site."
 msgstr "بُعد المعدة المحاسبي غير مُعد على هذا الموقع."
 

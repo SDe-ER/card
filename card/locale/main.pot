@@ -2001,6 +2001,132 @@ msgstr ""
 msgid "Tool custody: {0} {1} is not in the employee's company ({2})."
 msgstr ""
 
+msgid "Handover confirmation"
+msgstr ""
+
+msgid "Handover status"
+msgstr ""
+
+msgid "Awaiting handover"
+msgstr ""
+
+msgid "Handed over"
+msgstr ""
+
+msgid "Not handed over"
+msgstr ""
+
+msgid "Signed receipt"
+msgstr ""
+
+msgid "Reason not handed over"
+msgstr ""
+
+msgid "Confirmed by"
+msgstr ""
+
+msgid "Confirmed on"
+msgstr ""
+
+msgid "Review line"
+msgstr ""
+
+msgid "Tool custody"
+msgstr ""
+
+msgid "Handed over qty"
+msgstr ""
+
+msgid "A handover of a reviewed line is kept; close it as not handed over instead."
+msgstr ""
+
+msgid "A handover of a reviewed line is replaced by a Card Manager, not amended."
+msgstr ""
+
+msgid "A handover of this line is already awaiting confirmation."
+msgstr ""
+
+msgid "All the approved tools of this line are handed over."
+msgstr ""
+
+msgid "Attach the receipt signed by the receiving employee and the issuer."
+msgstr ""
+
+msgid "Cancelling moves stock back: you also need permission to cancel Stock Entries."
+msgstr ""
+
+msgid "Confirming moves stock: you also need permission to submit Stock Entries in ERPNext."
+msgstr ""
+
+msgid "Give the reason why the tool was not handed over."
+msgstr ""
+
+msgid "Only {0} of {1} are still to be handed over on this line."
+msgstr ""
+
+msgid "Only a Card Manager may make a new handover."
+msgstr ""
+
+msgid "Only a handover that is still awaiting can be closed."
+msgstr ""
+
+msgid "Only a tool line of an approved review can be handed over."
+msgstr ""
+
+msgid "Only the store side or a Card Manager may close a handover."
+msgstr ""
+
+msgid "The approved handover cannot change its {0}."
+msgstr ""
+
+msgid "The request of {0} names no worker to receive the tool."
+msgstr ""
+
+msgid "The signed receipt must be a private file uploaded to this record."
+msgstr ""
+
+msgid "This handover no longer matches its approved review line."
+msgstr ""
+
+msgid "This handover was closed as not handed over; it cannot change."
+msgstr ""
+
+msgid "This movement is already confirmed."
+msgstr ""
+
+msgid "Only a cancelled movement of the same company that you may amend can be amended."
+msgstr ""
+
+msgid "This file is a signed tool-custody receipt of a confirmed movement; it is kept."
+msgstr ""
+
+msgid "This file is a signed tool-custody receipt; it stays private."
+msgstr ""
+
+msgid "This file is a signed tool-custody receipt; it stays on its custody record only."
+msgstr ""
+
+msgid "This line is handled by its Material Request {0}."
+msgstr ""
+
+msgid "You cannot close a handover to yourself."
+msgstr ""
+
+msgid "A partial handover leaves a new draft: you also need permission to create custody records."
+msgstr ""
+
+msgid "This line changed while you worked on it; try again."
+msgstr ""
+
+msgid "This review line does not exist."
+msgstr ""
+
+msgid "You also need permission to create Employee Tool Custody records."
+msgstr ""
+
+msgid "You cannot confirm this movement: you are its worker, its requester or its approver."
+msgstr ""
+
 msgid "The Card Equipment accounting dimension is not set up on this site."
 msgstr ""
 

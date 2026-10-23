@@ -17,7 +17,8 @@ class EquipmentNeedsReview(Document):
 		# only approve_review writes the approval (directly, after submit)
 		self.approval_status, self.approved_by, self.approved_on = "Pending", None, None
 		for row in self.items:
-			row.material_request = None
+			# written only after approval, by the server (Material Request, tool handover #113)
+			row.material_request, row.tool_custody, row.handed_qty = None, None, 0
 		seen = set()
 		for row in self.items:
 			self._check_line(row, seen)
