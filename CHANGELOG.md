@@ -134,7 +134,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     save it and share it outside CARD; a copy that Frappe rebuilds from decoded text is a separate file.
   - **Date:** a confirmed Handover or Return is dated the day it is confirmed, the day its Stock Entry posts.
   - **Amend** only a cancelled movement of the same company that the user may amend (an amendment copies the
-    attachments of the record it amends).
+    attachments of the record it amends); `amended_from` never changes on an existing record. A receipt's File
+    row keeps its URL, and no file sharing a receipt's content changes its public / private state (Frappe would
+    change it, and the URL, on every row with that content).
   - **One tool leaves custody once:** a Return, Transfer, Loss or Damage takes a row lock on the worker and reads
     the balance again with a locking read, so two movements at the same moment cannot take the same tool twice.
   - **Reviewed drafts:** the store side may choose another store of the company and lower the quantity; the

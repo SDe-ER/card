@@ -1461,6 +1461,14 @@ class TestV4Materials(IntegrationTestCase):
 		for public in (False, True):
 			with self.subTest(public=public), self.assertRaises(frappe.ValidationError):
 				self._as(keeper, lambda: detach(public))
+
+		def repoint():
+			f = frappe.get_doc("File", receipt.name)
+			f.file_url = "/private/files/elsewhere.png"
+			f.save()
+
+		with self.assertRaises(frappe.ValidationError):  # the record's URL keeps its File row
+			self._as(keeper, repoint)
 		self._stays_private(receipt)
 		self.assertEqual(frappe.db.get_value("File", receipt.name, "attached_to_field"), "handover_receipt")
 
@@ -1520,6 +1528,11 @@ class TestV4Materials(IntegrationTestCase):
 			forged._check_amended_from()
 		forged.company = self.company
 		forged._check_amended_from()  # same company, cancelled, Administrator may amend: allowed
+		# an existing draft cannot point amended_from at another record later (and so borrow its receipt)
+		draft = self._custody("Handover", warehouse=self.store, submit=False)
+		draft.update({"amended_from": transfer.name, "handover_receipt": transfer.handover_receipt})
+		with self.assertRaises(frappe.ValidationError):
+			draft.save()
 
 	def test_other_files_keep_frappes_behaviour(self):
 		# the guard acts on custody receipts only

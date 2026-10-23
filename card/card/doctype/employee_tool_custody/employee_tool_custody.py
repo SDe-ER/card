@@ -73,6 +73,11 @@ class EmployeeToolCustody(Document):
 	def _check_amended_from(self):
 		"""An amendment copies the attachments (and the receipt) of the record it amends: only a
 		cancelled movement of the same company that the user may amend (Frappe checks the status)."""
+		before = None if self.is_new() else self.get_doc_before_save()
+		if before and (before.amended_from or None) != (self.amended_from or None):
+			frappe.throw(
+				_("Only a cancelled movement of the same company that you may amend can be amended.")
+			)
 		if not (self.is_new() and self.amended_from):
 			return
 		source = frappe.db.get_value(self.doctype, self.amended_from, ["docstatus", "company"], as_dict=True)

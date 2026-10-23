@@ -49,19 +49,24 @@ def _uploaded_by_user(url):
 
 def keep_private(doc, method=None):
 	"""File.before_validate, before Frappe moves the disk file: a receipt, or a file sharing its
-	content, never becomes public, and a receipt is never detached from its custody record."""
+	content, never changes its public / private state (Frappe would change it, and the URL, on every
+	row with that content), a receipt keeps its URL, and it is never detached from its record."""
 	if doc.is_folder or doc.is_new():
 		return
 	moved = any(
 		doc.has_value_changed(f) for f in ("attached_to_doctype", "attached_to_name", "attached_to_field")
 	)
-	if not (moved or (doc.has_value_changed("is_private") and not doc.is_private)):
-		return  # nothing that could expose or detach a receipt
+	flipped = doc.has_value_changed("is_private")
+	renamed = doc.has_value_changed("file_url")
+	if not (moved or flipped or renamed):
+		return  # nothing that could expose, unlink or detach a receipt
 	receipts = _shared_receipts(doc)
 	if not receipts:
 		return
-	if not doc.is_private:
+	if flipped or not doc.is_private:
 		frappe.throw(_("This file is a signed tool-custody receipt; it stays private."))
+	if renamed:
+		frappe.throw(_("This file is a signed tool-custody receipt; it stays on its custody record only."))
 	if (
 		moved
 		and doc.file_url in receipts
