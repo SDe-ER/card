@@ -142,6 +142,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
+- **The report row of the Card Materials sidebar now reaches upgraded sites (FR-077).** PR #108 added the
+  "Equipment Make Model Values" row but kept the file's `modified` time. Frappe imports a standard Sidebar on
+  `migrate` only when the file is newer than the stored document, so a site that already had the three FR-077 rows
+  kept them and never got the fourth (found on the dev site after the merge; a fresh install was not affected).
+  The file's `modified` time is now later. Impact: the next `migrate` replaces the Card Materials sidebar with the
+  shipped file (14 rows); no permission, data, accounting or API change. Rollback: revert the commit; the row stays
+  until the sidebar file is imported again.
 - **Two assignments of one machine at the same time no longer overlap (D4, FR-075).** The overlap check of a
   Card Equipment Assignment was a plain read. Under MariaDB REPEATABLE READ (Production: MariaDB 10.6) two
   requests for the same machine that ran at the same time both saw "no overlap" and both saved: two new
