@@ -137,6 +137,18 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertEqual((doc.entered_by, doc.on_behalf), (self.op_user, 0))
 		self.assertEqual(doc.review_status, "Pending")
 
+	def test_operator_asks_for_a_tool(self):
+		# CARD Mobile sends the kind the operator chose on each line; the server keeps it
+		name = self._ask(
+			[
+				{"kind": "Tool", "item_code": self.tool, "qty": 1},
+				{"kind": "Part", "item_code": self.filter, "qty": 2},
+				{"kind": "anything else", "description": "lamp", "qty": 1},
+			]
+		)
+		kinds = [row.kind for row in frappe.get_doc("Equipment Needs Request", name).items]
+		self.assertEqual(kinds, ["Tool", "Part", "Part"])
+
 	def test_operator_cannot_ask_for_another_machine(self):
 		_other_user, other_operator = self._operator("other")
 		other_eq = self._equipment(other_operator)
