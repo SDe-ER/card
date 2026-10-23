@@ -45,6 +45,7 @@ COMPANY_BOUND_REFERENCES = (
 	("Equipment Transport", "equipment"),
 	("Equipment Transport Item", "card_equipment"),
 	("Card Equipment Component", "component"),
+	("Card Equipment Part", "card_equipment"),  # FR-077: fitment rows keep their company
 )
 
 
@@ -68,6 +69,15 @@ class CardEquipment(Document):
 		# O3: the linked Asset carries the equipment as its accounting dimension,
 		# so depreciation entries land on the equipment in GL. No-op without the dimension.
 		sync_asset_dimension(self)
+		if self.has_value_changed("equipment_model"):
+			# FR-077: a machine's fitment rows carry its model (filters, conflict check)
+			frappe.db.set_value(
+				"Card Equipment Part",
+				{"card_equipment": self.name},
+				"equipment_model",
+				self.equipment_model,
+				update_modified=False,
+			)
 
 	def validate(self):
 		self.sync_asset_details()
@@ -75,6 +85,7 @@ class CardEquipment(Document):
 		self.validate_rental_direction()
 		self.validate_commercial_change_reason()
 		self.validate_unique_asset()
+		self.validate_equipment_model()
 		if not (frappe.flags.in_patch or frappe.flags.in_install or frappe.flags.in_migrate):
 			self.keep_derived_location()
 			# #56: checked only when the value changes, so a legacy row is never
@@ -127,6 +138,52 @@ class CardEquipment(Document):
 				_("Enter the reason for changing the commercial terms: {0}").format(labels),
 				title=_("Reason required"),
 			)
+
+	def validate_equipment_model(self):
+		"""FR-077: the model belongs to the machine's make and equipment type; an empty
+		make is taken from the model. A disabled make or model is refused only when set."""
+		if self.has_value_changed("equipment_make") and self.equipment_make:
+			if frappe.db.get_value("Card Equipment Make", self.equipment_make, "disabled"):
+				frappe.throw(_("Equipment make {0} is disabled.").format(self.equipment_make))
+		if not self.equipment_model:
+			return
+		model = frappe.db.get_value(
+			"Card Equipment Model",
+			self.equipment_model,
+			["equipment_make", "equipment_type", "disabled"],
+			as_dict=True,
+		)
+		if not model:
+			frappe.throw(_("Equipment model {0} does not exist.").format(self.equipment_model))
+		if self.has_value_changed("equipment_model") and model.disabled:
+			frappe.throw(_("Equipment model {0} is disabled.").format(self.equipment_model))
+		if not self.equipment_make:
+			self.equipment_make = model.equipment_make
+			if frappe.db.get_value("Card Equipment Make", self.equipment_make, "disabled"):
+				frappe.throw(_("Equipment make {0} is disabled.").format(self.equipment_make))
+		if model.equipment_make == self.equipment_make and model.equipment_type == self.equipment_type:
+			return
+		if (
+			self.is_new()
+			or self.has_value_changed("equipment_model")
+			or self.has_value_changed("equipment_make")
+		):
+			frappe.throw(
+				_("Equipment model {0} does not belong to this make and equipment type.").format(
+					self.equipment_model
+				)
+			)
+		# only the type changed (it follows the linked Asset's category on every save): the
+		# model no longer applies. It is cleared instead of blocking every later save, but
+		# only by a user who may write it (permlevel 1); for anyone else it stays as stored
+		if not self.has_permlevel_access_to("equipment_model", permission_type="write"):
+			return
+		frappe.msgprint(
+			_("Equipment model {0} was cleared: it does not belong to the new equipment type.").format(
+				self.equipment_model
+			)
+		)
+		self.equipment_model = None
 
 	def validate_rental_direction(self):
 		"""F.7: rental_direction is the single source of truth. A blank one is
