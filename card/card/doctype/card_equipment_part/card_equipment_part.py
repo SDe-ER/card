@@ -96,6 +96,8 @@ class CardEquipmentPart(Document):
 		elif self.applies_to == APPLIES_TO_MODEL:
 			if not self.equipment_model:
 				frappe.throw(_("Select the equipment model."))
+			if not before and frappe.db.get_value("Card Equipment Model", self.equipment_model, "disabled"):
+				frappe.throw(_("Equipment model {0} is disabled.").format(self.equipment_model))
 			self.card_equipment = None
 			self.company = None
 			self.compat_key = f"M|{self.equipment_model}|{self.item_code}"
@@ -128,8 +130,18 @@ class CardEquipmentPart(Document):
 			frappe.throw(_("Item {0} is a template; select one of its variants.").format(self.item_code))
 
 	def _validate_evidence_file(self):
-		if self.evidence_file and not frappe.db.exists(
-			"File", {"file_url": self.evidence_file, "is_private": 1}
+		# checked when it is set, so a file removed later never blocks the row; a file
+		# that belongs to another document is not evidence for this one
+		if not self.evidence_file or not (self.is_new() or self.has_value_changed("evidence_file")):
+			return
+		files = frappe.get_all(
+			"File",
+			filters={"file_url": self.evidence_file, "is_private": 1},
+			fields=["attached_to_doctype", "attached_to_name"],
+		)
+		if not any(
+			(f.attached_to_doctype, f.attached_to_name) in ((None, None), (self.doctype, self.name))
+			for f in files
 		):
 			frappe.throw(_("The evidence file must be a private file uploaded to this row."))
 
@@ -138,7 +150,9 @@ class CardEquipmentPart(Document):
 	def _apply_review(self, before, requested):
 		user = frappe.session.user
 		current = self.compatibility_status
-		changed_evidence = before and any(before.get(f) != self.get(f) for f in EVIDENCE_FIELDS)
+		changed_evidence = before and any(
+			(before.get(f) or None) != (self.get(f) or None) for f in EVIDENCE_FIELDS
+		)
 
 		if not is_approver(user):
 			# Card Supervisor: proposes and documents own rows while they are pending
@@ -149,7 +163,13 @@ class CardEquipmentPart(Document):
 			return
 
 		if requested == current:
-			if (
+			if changed_evidence and (current in DECISIONS or self.review_stage == SECOND_REVIEW):
+				# a decision or a first review stands only on the evidence it was made on:
+				# new evidence, by anyone, needs a new review
+				self.compatibility_status = PENDING
+				self.review_stage = None
+				self._record_decision(None)
+			elif (
 				before
 				and self.review_stage == SECOND_REVIEW
 				and user != self.proposed_by
@@ -158,12 +178,6 @@ class CardEquipmentPart(Document):
 				# the second reviewer sends a first review back without a decision (the
 				# Version log keeps who did it)
 				self.review_stage = None
-			elif changed_evidence and current in DECISIONS:
-				# a decision stands only on the evidence it was made on: new evidence, by
-				# anyone, needs a new review
-				self.compatibility_status = PENDING
-				self.review_stage = None
-				self._record_decision(None)
 			return
 
 		if requested not in (PENDING, *DECISIONS):
@@ -243,6 +257,7 @@ class CardEquipmentPart(Document):
 		self._record_decision(None)
 		self.retired_by = None
 		self.retired_on = None
+		self.retire_reason = None
 
 
 # Company isolation (FR-070 pattern): a machine row belongs to its machine's company.

@@ -34,7 +34,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   query and document check); model rows are technical data without a company. Card User and Card Operator get no
   access to fitment rows or evidence files (the search view comes in phase 2b). Read-only Script Report
   "Equipment Make Model Values" (Card Manager, System Manager) lists the free-text brand / model values for manual
-  set-up. Card Materials sidebar: Equipment Makes, Equipment Models, Parts Fitment. Connections on Card Equipment,
+  set-up. Card Materials sidebar: Equipment Makes, Equipment Models, Parts Fitment and the report (shown only to
+  users whose role may open it). Connections on Card Equipment,
   make and model. Arabic translations for the new CARD strings; generic words keep the Frappe / ERPNext
   translation. Impact: three new DocTypes and two new columns on Card Equipment, created by the DocType sync; no
   data patch; no ERPNext DocType, role or permission change; no accounting or API change (no new whitelisted

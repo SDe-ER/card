@@ -69,6 +69,15 @@ class CardEquipment(Document):
 		# O3: the linked Asset carries the equipment as its accounting dimension,
 		# so depreciation entries land on the equipment in GL. No-op without the dimension.
 		sync_asset_dimension(self)
+		if self.has_value_changed("equipment_model"):
+			# FR-077: a machine's fitment rows carry its model (filters, conflict check)
+			frappe.db.set_value(
+				"Card Equipment Part",
+				{"card_equipment": self.name},
+				"equipment_model",
+				self.equipment_model,
+				update_modified=False,
+			)
 
 	def validate(self):
 		self.sync_asset_details()
@@ -150,6 +159,8 @@ class CardEquipment(Document):
 			frappe.throw(_("Equipment model {0} is disabled.").format(self.equipment_model))
 		if not self.equipment_make:
 			self.equipment_make = model.equipment_make
+			if frappe.db.get_value("Card Equipment Make", self.equipment_make, "disabled"):
+				frappe.throw(_("Equipment make {0} is disabled.").format(self.equipment_make))
 		if model.equipment_make == self.equipment_make and model.equipment_type == self.equipment_type:
 			return
 		if (
@@ -163,7 +174,10 @@ class CardEquipment(Document):
 				)
 			)
 		# only the type changed (it follows the linked Asset's category on every save): the
-		# model no longer applies, so it is cleared instead of blocking every later save
+		# model no longer applies. It is cleared instead of blocking every later save, but
+		# only by a user who may write it (permlevel 1); for anyone else it stays as stored
+		if not self.has_permlevel_access_to("equipment_model", permission_type="write"):
+			return
 		frappe.msgprint(
 			_("Equipment model {0} was cleared: it does not belong to the new equipment type.").format(
 				self.equipment_model

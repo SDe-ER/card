@@ -303,6 +303,28 @@ class TestEquipmentLinks(FitmentTestCase):
 		self.assertIsNone(eq.equipment_model)
 		self.assertEqual(eq.equipment_make, self.make)
 
+	def test_type_change_by_a_user_without_model_rights_keeps_the_model(self):
+		other_type = frappe.get_doc(
+			{
+				"doctype": "Card Equipment Type",
+				"equipment_type_name": f"FIT-TYPE3-{self.token}",
+				"equipment_category": frappe.db.get_value(
+					"Card Equipment Type", self.etype, "equipment_category"
+				),
+			}
+		).insert(ignore_permissions=True)
+		frappe.set_user(self.card_user)
+		eq = frappe.get_doc("Card Equipment", self.machine)
+		eq.equipment_type = other_type.name
+		eq.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("Card Equipment", self.machine, "equipment_model"), self.model)
+
+	def test_make_taken_from_the_model_must_be_enabled(self):
+		frappe.db.set_value("Card Equipment Make", self.make, "disabled", 1)
+		with self.assertRaises(frappe.ValidationError):
+			self._machine(equipment_model=self.model)
+
 	def test_existing_equipment_without_model_saves_unchanged(self):
 		machine = self._machine()
 		doc = frappe.get_doc("Card Equipment", machine)
@@ -544,6 +566,10 @@ class TestFitmentRows(FitmentTestCase):
 		doc.save()
 		frappe.set_user("Administrator")
 		self.assertEqual(doc.compatibility_status, PENDING)  # restored rows are reviewed again
+		self.assertIsNone(doc.retire_reason)
+		# a second retirement needs its own reason
+		with self.assertRaises(frappe.ValidationError):
+			self._retire(row.name, reason="")
 
 	def test_history_is_kept(self):
 		row = self._row(self.supervisor)
@@ -569,6 +595,70 @@ class TestFitmentRows(FitmentTestCase):
 			self._decide(self.manager, row.name, CONFIRMED, evidence_file=self._evidence_file(private=0))
 		with self.assertRaises(frappe.ValidationError):
 			self._decide(self.manager, row.name, CONFIRMED, evidence_file="/private/files/not-uploaded.pdf")
+
+	def test_evidence_file_of_another_document_is_refused(self):
+		row = self._row(self.supervisor)
+		other = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": f"other-{frappe.generate_hash(length=6)}.txt",
+				"content": b"not fitment evidence",
+				"is_private": 1,
+				"attached_to_doctype": "Card Equipment",
+				"attached_to_name": self.machine,
+			}
+		).insert(ignore_permissions=True)
+		with self.assertRaises(frappe.ValidationError):
+			self._decide(self.manager, row.name, CONFIRMED, evidence_file=other.file_url)
+
+	def test_removed_evidence_file_does_not_block_the_row(self):
+		row = self._row(self.supervisor)
+		url = self._evidence_file()
+		self._decide(self.manager, row.name, CONFIRMED, evidence_file=url)
+		frappe.db.delete("File", {"file_url": url})
+		doc = self._retire(row.name)
+		self.assertEqual(doc.is_active, 0)
+
+	def test_unchanged_empty_evidence_keeps_the_decision(self):
+		row = self._row(self.supervisor)
+		self._decide(self.manager, row.name, CONFIRMED)
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc(PART, row.name)
+		self.assertIsNone(doc.evidence_file)
+		doc.evidence_file = ""
+		doc.technical_notes = "fits with the long bolt"
+		doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual((doc.compatibility_status, doc.confirmed_by), (CONFIRMED, self.manager))
+
+	def test_new_evidence_during_second_review_resets_the_first_review(self):
+		row = self._row(self.manager)
+		self._decide(
+			self.manager,
+			row.name,
+			CONFIRMED,
+			decision_reason="seen on site",
+			evidence_file=self._evidence_file(),
+		)
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc(PART, row.name)
+		doc.evidence_reference = "Another book p.40"
+		doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual((doc.compatibility_status, doc.review_stage), (PENDING, None))
+
+	def test_no_new_rows_on_a_disabled_model(self):
+		frappe.db.set_value("Card Equipment Model", self.model, "disabled", 1)
+		with self.assertRaises(frappe.ValidationError):
+			self._row(self.supervisor)
+
+	def test_machine_model_change_updates_its_fitment_rows(self):
+		row = self._row(self.supervisor, applies_to="Equipment", card_equipment=self.machine)
+		other = self._model("PC210")
+		eq = frappe.get_doc("Card Equipment", self.machine)
+		eq.equipment_model = other
+		eq.save(ignore_permissions=True)
+		self.assertEqual(frappe.db.get_value(PART, row.name, "equipment_model"), other)
 
 	def test_new_evidence_on_a_decided_row_needs_a_new_review(self):
 		row = self._row(self.supervisor)
@@ -693,3 +783,19 @@ class TestFitmentAccess(FitmentTestCase):
 		)
 		for doctype in ("Card Equipment Make", "Card Equipment Model", PART):
 			self.assertEqual(items.count(doctype), 1, doctype)
+
+	def test_report_row_only_for_the_report_roles(self):
+		# the shipped row, checked with the same filter the desk boot applies to every row
+		from frappe.desk.desk_views import DeskViews
+		from frappe.desk.utils import is_item_allowed
+
+		path = frappe.get_app_path("card", "card", "sidebar", "card_materials", "card_materials.json")
+		rows = [r for r in frappe.get_file_json(path)["items"] if r.get("link_type") == "Report"]
+		row = next(r for r in rows if r["link_to"] == "Equipment Make Model Values")
+		self.assertTrue(frappe.db.exists("Report", row["link_to"]))
+		operator = self._user("opr", ["Card Operator"])
+		expected = {self.manager: True, self.supervisor: False, self.card_user: False, operator: False}
+		for user, allowed in expected.items():
+			frappe.set_user(user)
+			self.assertEqual(is_item_allowed(row["link_to"], "Report", DeskViews()), allowed, user)
+		frappe.set_user("Administrator")
