@@ -103,6 +103,88 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   No app code, permission, accounting, data or API change. (#94) Rollback: revert the merge.
 
 ### Changed
+- **Tool handover confirmation (issue #113, PR-T2; Owner decisions T1, T2, T2b, T5–T9, H-1–H-3, H-5–H-7,
+  2026-10-23).** Management approval and the physical handover are now separate steps:
+  - **Approval** (`card.materials.approve_review`) of a Tool line makes a draft Employee Tool Custody Handover for the
+    request's worker, with the item, approved qty, line warehouse, project and equipment, linked to the review line.
+    It is "Awaiting handover": it moves no stock and counts for nobody. A tool from the store gets no Material
+    Request any more (before: a draft Material Transfer MR, and a second move by the custody record). A bought tool
+    keeps its Purchase MR and gets the same draft. The approver also needs create permission on custody records.
+  - **Confirmation** is the standard Submit of the custody record, by the store side. For a Handover or a Return
+    the Stock Entry store ↔ custody store is inserted **and submitted** in the same transaction, with the
+    confirmer's own ERPNext rights. ERPNext refuses a store without stock and the whole confirmation rolls back.
+    So the confirmer needs custody submit **and** Stock Entry submit permission (Stock Manager, or a Card Supervisor
+    / Card Manager who also has Stock User). No role or permission was added (T2b, H-5).
+  - **Evidence:** a Handover and a Transfer need a signed receipt (`handover_receipt`): a private file uploaded to the
+    record, signed by the receiving employee and the issuer (H-1, H-3). CARD records that the file was attached; it
+    does not verify signatures. `handed_by` / `handed_on` record who confirmed and when.
+  - **The signed receipt stays private and on its record** (`card.custody_receipt`, File hooks `before_validate` and
+    `before_insert`; Employee Tool Custody `protect_attached_files`). Frappe shares one disk file and URL between
+    File rows with the same bytes, and making any of them public makes all of them public. A file's owner can also
+    make it public or delete it. Found by a probe on an isolated copy: the uploader could publish the receipt to
+    Guest or delete it, and a reader could re-upload the downloaded bytes onto the receipt's file. Now the
+    receipt, and any file that shares its content or URL, cannot become public; no second File row may carry its
+    content or URL outside a custody record that names it (an Amend, or the uploader reusing one signed scan for
+    several of his drafts), and no public copy at all; a receipt cannot be detached from its record (its owner can
+    edit the File's attached_to fields); and a receipt of a confirmed or cancelled record cannot be deleted (a
+    cancelled movement with a receipt is not deletable either: Frappe removes the disk file inside File.on_trash,
+    so only its earlier permission check can keep it; Administrator, whom Frappe does not check, is the exception). A file
+    is a receipt when a custody record names its URL in `handover_receipt` (the record decides, not the File row);
+    other attachments keep Frappe's behaviour. An unattached file counts as the receipt only when the user uploaded it
+    after the record was made (not an old scan). Other files
+    keep Frappe's behaviour. No Frappe setting or core change. Limit: a user who may read the receipt can still
+    save it and share it outside CARD; a copy that Frappe rebuilds from decoded text is a separate file.
+  - **Date:** a confirmed Handover or Return is dated the day it is confirmed, the day its Stock Entry posts.
+  - **Amend** only a cancelled movement of the same company that the user may amend (an amendment copies the
+    attachments of the record it amends); `amended_from` never changes on an existing record. A receipt's File
+    row keeps its URL, and no file sharing a receipt's content changes its public / private state (Frappe would
+    change it, and the URL, on every row with that content).
+  - **One tool leaves custody once:** a Return, Transfer, Loss or Damage takes a row lock on the worker and reads
+    the balance again with a locking read, so two movements at the same moment cannot take the same tool twice.
+  - **Reviewed drafts:** the store side may choose another store of the company and lower the quantity; the
+    quantity is checked against the approved rest also when a draft is saved.
+  - **Separation of duties** (server): the worker(s), the requester, the user who entered the request for the
+    worker and the approver of the review cannot confirm. Administrator is not exempt (H-6).
+  - **No double handover:** the custody row and the review line are locked during the confirmation. The quantity
+    is checked against approved minus handed. A partial confirmation leaves a new draft for the rest (T6). The
+    review links, the status and the confirmation fields are written by the server only.
+  - **Failed handover:** `card.materials.close_tool_handover` (POST; store side or Card Manager) closes a waiting
+    draft as "Not handed over" with a mandatory reason. The draft is then read only and never submitted.
+    `card.materials.make_tool_handover` (POST; Card Manager only, H-2) makes a replacement draft for the rest of the
+    line. It refuses a line approved before this change, because that line's Material Transfer MR already moved the
+    tools. The worker cannot close their own handover. A reviewed handover cannot be deleted or amended. Desk buttons
+    for these two actions come with PR-T3.
+  - **Cancel:** cancelling a Handover or Return confirmed this way cancels its own submitted Stock Entry in the same
+    transaction (ERPNext refuses to cancel an entry while a submitted custody record links it) and gives the qty back
+    to the review line. The user needs Stock Entry cancel permission. An older record keeps "cancel the Stock Entry
+    first". Known limit, unchanged by this PR: when the stock team has submitted that older entry, neither can be
+    cancelled from the app.
+  - **Unchanged:** Loss and Damage (draft Material Issue for the stock team; their approval comes in a separate PR,
+    H-4), custody reports and Part lines.
+
+  Effect on supervisors today: a Card Supervisor can still create and edit custody drafts of every movement. Without
+  Stock User they can no longer submit a Handover or a Return themselves (the store side confirms). A Handover or
+  Transfer also needs the signed receipt, and nobody confirms a movement of their own custody.
+
+  Existing data (H-7): no patch and no data change. Open tool Material Transfer MRs stay for the stock team to close.
+  On the dev site there are no custody records and no such MRs. Production was not inspected (needs a separate
+  read-only approval).
+
+  New fields: Employee Tool Custody `handover_status`, `handover_receipt`, `not_handed_reason`, `handed_by`,
+  `handed_on`, `review`, `review_item`; Equipment Needs Review Item `tool_custody`, `handed_qty` (the DocType sync adds
+  them). Arabic translations for the new CARD strings.
+
+  Tests: `test_v4_materials` (approval drafts, store-side confirmation with a submitted entry, supervisor without
+  stock rights, separation of duties, partial, store without stock rolled back, bought tool, closed and replaced
+  handover, server-only fields, cancel, return and transfer with evidence, receipt file rules, other-company user;
+  a cancel refused while later transfers or returns use the tools, or while the tools are no longer in the custody
+  store (ERPNext refuses the reverse move, everything rolls back); cancel of a partial handover; who can open the
+  signed receipt)
+  and `test_tool_handover_concurrency` (two database connections: one replacement draft, one transfer).
+
+  Rollback: reverting the code leaves the new columns empty and harmless. Custody records confirmed with this version
+  keep their submitted Stock Entries; drafts made by approvals stay drafts (close or delete them by hand after a
+  revert).
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
   review task, an agent loads the official Frappe skills that fit the task with its Skill tool (`frappe-ui` for CARD
   Mobile), records them under `SKILLS_LOADED` in its report, and stops with `SKILL NOT FOUND` when a required skill
@@ -149,6 +231,35 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   step, into a temporary folder and reads it from there; no `.mo` file of the bench is written. It still clears and
   refills the site's translation cache while it runs (also before this change), and clears it again at the end,
   also on error. Test-only change: no product, permission, data or API impact. Rollback: revert the commit.
+- **Tool lines and tool custody: item type and company checks (issue #113, PR-T1; Owner decisions T3, T4,
+  2026-10-23).** A tool goes into employee custody, so a Tool line of an Equipment Needs Review with an approved
+  quantity must be a stock item and not a fixed asset; the review refuses it on save and `card.materials.approve_review`
+  checks it again before it makes any Material Request (the Item can change after the review). Before, a non-stock
+  Tool line reached a Material Request that ERPNext could never fulfil, and a fixed asset was refused only later by
+  the custody record. Setting the approved quantity to 0 still refuses the line; Part lines are not changed. Employee
+  Tool Custody now refuses a non-stock item on a Handover when it is saved (before, it failed only when its Stock
+  Entry was made); other movements keep only the fixed-asset check, so a tool already held can still leave custody.
+  Every linked record must belong to the employee's company: the receiving employee of a Transfer (before, a tool
+  could be transferred to an employee of another company), the warehouse, the project, the equipment and, for
+  movements that move stock, the custody store of Card Settings. Shared check `card.materials.tool_item_error`. Two
+  new CARD strings with Arabic translations. Tests (`test_v4_materials`): `test_a_tool_line_must_be_a_stock_item`,
+  `test_a_tool_line_cannot_be_a_fixed_asset`, `test_approval_checks_the_tool_item_again`,
+  `test_custody_refuses_a_non_stock_item`, `test_custody_stays_in_the_employees_company` (they fail on main and pass
+  with the change) and `test_a_held_tool_can_still_be_transferred_after_its_item_changed`. Impact: validation only;
+  no permission, workflow, schema, accounting or API change; existing submitted records are not checked again (only
+  a new save, an amend or a new movement). Rollback: revert the commit; no data to restore.
+- **CARD Mobile: the Part / Tool choice of a request line is shown (PR #112).** `NewRequest.vue` passed the two
+  kinds to frappe-ui `TabButtons` as `buttons`; frappe-ui 1.0.2 reads `options`, so the choice rendered empty and
+  every line was sent as "Part" — an operator could not ask for a tool from CARD Mobile (since the first CARD Mobile
+  commit, 683bfc4). The prop is now `options`. Tests: vitest (the page gives the kinds Part / Tool to `TabButtons` as
+  `options`; the request sent to `card.materials.submit_needs` carries the chosen kind); `test_v4_materials`:
+  `test_operator_asks_for_a_tool` (the server stores Tool / Part), `test_a_tool_stays_a_tool_through_review_and_approval`
+  (the review keeps the kind; approval makes a Material Transfer to the tool custody store) and
+  `test_a_tool_needs_the_custody_store_before_approval`. Browser check on a local build with test data (no ERPNext) at
+  8 widths from 320 to 1440 px, English and Arabic. No server, permission, data or API change; tool lines from CARD
+  Mobile now reach review, so approving them needs the tool custody store in Card Settings (Materials), as for tool
+  lines from Desk or the older worker page. Lines sent from CARD Mobile before this fix stay "Part"; the fix does not
+  change them. Rollback: revert the PR #112 commits; tool lines and draft Material Requests made after the fix stay.
 - **The report row of the Card Materials sidebar now reaches upgraded sites (FR-077).** PR #108 added the
   "Equipment Make Model Values" row but kept the file's `modified` time. Frappe imports a standard Sidebar on
   `migrate` only when the file is newer than the stored document, so a site that already had the three FR-077 rows
