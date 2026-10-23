@@ -103,6 +103,56 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   No app code, permission, accounting, data or API change. (#94) Rollback: revert the merge.
 
 ### Changed
+- **Tool handover confirmation (issue #113, PR-T2; Owner decisions T1, T2, T2b, T5–T9, H-1–H-3, H-5–H-7,
+  2026-10-23).** Management approval and the physical handover are now separate steps:
+  - **Approval** (`card.materials.approve_review`) of a Tool line makes a draft Employee Tool Custody Handover for the
+    request's worker, with the item, approved qty, line warehouse, project and equipment, linked to the review line.
+    It is "Awaiting handover": it moves no stock and counts for nobody. A tool from the store gets no Material
+    Request any more (before: a draft Material Transfer MR, and a second move by the custody record). A bought tool
+    keeps its Purchase MR and gets the same draft. The approver also needs create permission on custody records.
+  - **Confirmation** is the standard Submit of the custody record, by the store side. For a Handover or a Return
+    the Stock Entry store ↔ custody store is inserted **and submitted** in the same transaction, with the
+    confirmer's own ERPNext rights. ERPNext refuses a store without stock and the whole confirmation rolls back.
+    So the confirmer needs custody submit **and** Stock Entry submit permission (Stock Manager, or a Card Supervisor
+    / Card Manager who also has Stock User). No role or permission was added (T2b, H-5).
+  - **Evidence:** a Handover and a Transfer need a signed receipt (`handover_receipt`): a private file uploaded to the
+    record, signed by the receiving employee and the issuer (H-1, H-3). CARD records that the file was attached; it
+    does not verify signatures. `handed_by` / `handed_on` record who confirmed and when.
+  - **Separation of duties** (server): the worker(s), the requester, the user who entered the request for the
+    worker and the approver of the review cannot confirm. Administrator is not exempt (H-6).
+  - **No double handover:** the custody row and the review line are locked during the confirmation. The quantity
+    is checked against approved minus handed. A partial confirmation leaves a new draft for the rest (T6). The
+    review links, the status and the confirmation fields are written by the server only.
+  - **Failed handover:** `card.materials.close_tool_handover` (POST; store side or Card Manager) closes a waiting
+    draft as "Not handed over" with a mandatory reason. The draft is then read only and never submitted.
+    `card.materials.make_tool_handover` (POST; Card Manager only, H-2) makes a replacement draft for the rest of the
+    line. A reviewed handover cannot be deleted or amended.
+  - **Cancel:** cancelling a confirmed Handover or Return cancels its own submitted Stock Entry in the same
+    transaction (ERPNext refuses to cancel an entry while a submitted custody record links it) and gives the qty back
+    to the review line. The user needs Stock Entry cancel permission.
+  - **Unchanged:** Loss and Damage (draft Material Issue for the stock team; their approval comes in a separate PR,
+    H-4), custody reports and Part lines.
+
+  Effect on supervisors today: a Card Supervisor can still create and edit custody drafts of every movement. Without
+  Stock User they can no longer submit a Handover or a Return themselves (the store side confirms). A Handover or
+  Transfer also needs the signed receipt, and nobody confirms a movement of their own custody.
+
+  Existing data (H-7): no patch and no data change. Open tool Material Transfer MRs stay for the stock team to close.
+  On the dev site there are no custody records and no such MRs. Production was not inspected (needs a separate
+  read-only approval).
+
+  New fields: Employee Tool Custody `handover_status`, `handover_receipt`, `not_handed_reason`, `handed_by`,
+  `handed_on`, `review`, `review_item`; Equipment Needs Review Item `tool_custody`, `handed_qty` (the DocType sync adds
+  them). Arabic translations for the new CARD strings.
+
+  Tests: `test_v4_materials` (approval drafts, store-side confirmation with a submitted entry, supervisor without
+  stock rights, separation of duties, partial, store without stock rolled back, bought tool, closed and replaced
+  handover, server-only fields, cancel, return and transfer with evidence, receipt file rules, other-company user)
+  and `test_tool_handover_concurrency` (two database connections: one replacement draft, one transfer).
+
+  Rollback: reverting the code leaves the new columns empty and harmless. Custody records confirmed with this version
+  keep their submitted Stock Entries; drafts made by approvals stay drafts (close or delete them by hand after a
+  revert).
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
   review task, an agent loads the official Frappe skills that fit the task with its Skill tool (`frappe-ui` for CARD
   Mobile), records them under `SKILLS_LOADED` in its report, and stops with `SKILL NOT FOUND` when a required skill

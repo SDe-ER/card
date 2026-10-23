@@ -239,24 +239,24 @@ class TestV4Materials(IntegrationTestCase):
 
 		created = materials.approve_review(review.name)
 		mrs = {frappe.db.get_value("Material Request", n, "material_request_type"): n for n in created}
-		self.assertEqual(set(mrs), {"Purchase", "Material Transfer"})
+		self.assertEqual(set(mrs), {"Purchase"})  # the tool goes through a custody handover (#113)
 		purchase = frappe.get_doc("Material Request", mrs["Purchase"])
 		row = purchase.items[0]
 		self.assertEqual((row.item_code, flt(row.qty), row.project), (self.filter, 3, self.project))
 		self.assertTrue(row.cost_center)
 		if frappe.get_meta("Material Request Item").has_field("card_equipment"):
 			self.assertEqual(row.card_equipment, self.eq)
-		transfer = frappe.get_doc("Material Request", mrs["Material Transfer"])
-		self.assertEqual(
-			(transfer.items[0].warehouse, transfer.items[0].from_warehouse), (self.custody, self.store)
+		(draft,) = frappe.get_all(
+			"Employee Tool Custody", filters={"review": review.name}, fields=["docstatus", "warehouse"]
 		)
+		self.assertEqual((draft.docstatus, draft.warehouse), (0, self.store))
 		self.assertEqual(purchase.docstatus, 0)  # drafts for the buying team
 		self.assertEqual(frappe.db.get_value("Equipment Needs Request", request, "review_status"), "Approved")
 		with self.assertRaises(frappe.ValidationError):
 			frappe.get_doc("Equipment Needs Review", review.name).cancel()
 
 	def test_a_tool_stays_a_tool_through_review_and_approval(self):
-		# the review copies the kind from the request; approval sends a tool to the custody store
+		# the review copies the kind from the request; approval makes a handover draft for the tool
 		request = self._ask([{"kind": "Tool", "item_code": self.tool, "qty": 1}])
 		review = self._review()
 		(line,) = [row for row in review.items if row.request == request]
@@ -267,15 +267,19 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertEqual([row.kind for row in review.items if row.request == request], ["Tool"])
 		review.submit()
 		created = materials.approve_review(review.name)
-		(row,) = frappe.get_all(
-			"Material Request Item",
-			filters={"parent": ["in", created], "item_code": self.tool},
-			fields=["parent", "from_warehouse", "warehouse"],
+		self.assertFalse(
+			frappe.get_all("Material Request Item", filters={"parent": ["in", created or [""]]}),
+			"a tool from the store needs no Material Request",
+		)
+		(draft,) = frappe.get_all(
+			"Employee Tool Custody",
+			filters={"review": review.name},
+			fields=["movement", "item_code", "employee", "docstatus", "handover_status"],
 		)
 		self.assertEqual(
-			frappe.db.get_value("Material Request", row.parent, "material_request_type"), "Material Transfer"
+			(draft.movement, draft.item_code, draft.employee, draft.docstatus, draft.handover_status),
+			("Handover", self.tool, self.operator, 0, "Awaiting handover"),
 		)
-		self.assertEqual((row.from_warehouse, row.warehouse), (self.store, self.custody))
 		self.assertEqual(
 			frappe.db.get_value("Equipment Needs Request Item", {"parent": request}, "kind"), "Tool"
 		)
@@ -287,10 +291,12 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertEqual({(row.kind, bool(row.item_code)) for row in review.items}, {("Tool", True)})
 		review.submit()
 		frappe.db.set_single_value("Card Settings", "tool_custody_warehouse", None)
-		before = frappe.db.count("Material Request")
+		before = frappe.db.count("Material Request"), frappe.db.count("Employee Tool Custody")
 		with self.assertRaises(frappe.ValidationError):
 			materials.approve_review(review.name)
-		self.assertEqual(frappe.db.count("Material Request"), before)
+		self.assertEqual(
+			(frappe.db.count("Material Request"), frappe.db.count("Employee Tool Custody")), before
+		)
 
 	def test_card_manager_approves_with_his_own_erpnext_rights(self):
 		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
@@ -449,7 +455,54 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertEqual((doc.entered_by, doc.on_behalf, doc.review_status), (self.op_user, 0, "Pending"))
 
 	# ---------- tool custody ----------
+	def _stock_in(self, qty, item_code=None, warehouse=None):
+		entry = frappe.get_doc(
+			{
+				"doctype": "Stock Entry",
+				"stock_entry_type": "Material Receipt",
+				"purpose": "Material Receipt",
+				"company": self.company,
+				"items": [
+					{
+						"item_code": item_code or self.tool,
+						"qty": qty,
+						"t_warehouse": warehouse or self.store,
+						"basic_rate": 10,
+					}
+				],
+			}
+		)
+		try:
+			entry.insert(ignore_permissions=True)
+			entry.submit()
+		except frappe.ValidationError as e:
+			self.skipTest(f"stock entries cannot be posted on this site: {e}")
+		return entry
+
+	def _receipt(self, user="Administrator"):
+		"""A private file nobody attached yet: the scanned receipt signed by worker and issuer."""
+		frappe.set_user(user)
+		try:
+			return (
+				frappe.get_doc(
+					{
+						"doctype": "File",
+						"file_name": f"receipt-{frappe.generate_hash(length=8)}.pdf",
+						"is_private": 1,
+						"content": b"%PDF-1.4 signed receipt " + self.token.encode(),
+					}
+				)
+				.insert()
+				.file_url
+			)
+		finally:
+			frappe.set_user("Administrator")
+
 	def _custody(self, movement, qty=1, employee=None, submit=True, **kw):
+		if submit and movement in ("Handover", "Transfer"):
+			kw.setdefault("handover_receipt", self._receipt())
+		if submit and movement == "Handover" and kw.get("item_code", self.tool) == self.tool:
+			self._stock_in(qty, warehouse=kw.get("warehouse"))
 		doc = frappe.get_doc(
 			{
 				"doctype": "Employee Tool Custody",
@@ -468,7 +521,8 @@ class TestV4Materials(IntegrationTestCase):
 	def test_custody_hand_over_return_transfer_and_loss(self):
 		hand = self._custody("Handover", qty=2, warehouse=self.store)
 		entry = frappe.get_doc("Stock Entry", hand.stock_entry)
-		self.assertEqual((entry.docstatus, entry.purpose), (0, "Material Transfer"))
+		# confirmed: the transfer is submitted together with the custody record (#113 T7)
+		self.assertEqual((entry.docstatus, entry.purpose), (1, "Material Transfer"))
 		self.assertEqual((entry.items[0].s_warehouse, entry.items[0].t_warehouse), (self.store, self.custody))
 		self.assertEqual(materials.custody_balance(self.operator, self.tool), 2)
 		with self.assertRaises(frappe.ValidationError):
@@ -642,10 +696,18 @@ class TestV4Materials(IntegrationTestCase):
 		self._custody("Transfer", to_employee=colleague)
 		self.assertEqual(materials.custody_balance(colleague, self.tool), 1)
 
-	def test_cancelling_a_handover_removes_its_draft_stock_entry(self):
+	def test_cancelling_a_handover_cancels_its_stock_entry(self):
 		hand = self._custody("Handover", warehouse=self.store)
-		entry = hand.stock_entry
 		hand.cancel()
+		# ERPNext refuses to cancel an entry a submitted custody record links: the record does it
+		self.assertEqual(frappe.db.get_value("Stock Entry", hand.stock_entry, "docstatus"), 2)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 0)
+
+	def test_cancelling_a_loss_removes_its_draft_stock_entry(self):
+		self._custody("Handover", warehouse=self.store)
+		loss = self._custody("Loss", project=self.project)
+		entry = loss.stock_entry
+		loss.cancel()
 		self.assertFalse(frappe.db.exists("Stock Entry", entry))
 
 	def test_approval_fields_cannot_be_set_by_hand(self):
@@ -666,11 +728,344 @@ class TestV4Materials(IntegrationTestCase):
 				"items": [{"item_code": self.tool, "qty": 1, "t_warehouse": self.store, "basic_rate": 10}],
 			}
 		).insert(ignore_permissions=True)
-		hand = self._custody("Handover", warehouse=self.store)
-		frappe.db.set_value("Employee Tool Custody", hand.name, "stock_entry", other.name)
-		hand.reload()
-		hand.cancel()
+		self._custody("Handover", warehouse=self.store)
+		loss = self._custody("Loss", project=self.project)
+		frappe.db.set_value("Employee Tool Custody", loss.name, "stock_entry", other.name)
+		loss.reload()
+		loss.cancel()
 		self.assertTrue(frappe.db.exists("Stock Entry", other.name))
+
+	# ---------- handover confirmation (#113 PR-T2) ----------
+	def _approved_tool(self, qty=1, route="From store"):
+		"""An approved review with one tool line; returns (review, line, draft)."""
+		request = self._ask([{"kind": "Tool", "item_code": self.tool, "qty": qty}])
+		review = self._review()
+		for row in review.items:
+			if row.request == request:
+				row.route, row.approved_qty = route, qty
+			else:
+				row.approved_qty = 0
+		review.save()
+		review.submit()
+		materials.approve_review(review.name)
+		line = next(
+			row
+			for row in frappe.get_doc("Equipment Needs Review", review.name).items
+			if row.request == request
+		)
+		return review, line, frappe.get_doc("Employee Tool Custody", line.tool_custody)
+
+	def _confirm(self, draft, user, **values):
+		"""Confirm as `user`; on any error the work is rolled back as a web request would."""
+		frappe.db.savepoint("card_confirm")
+		frappe.set_user(user)
+		try:
+			doc = frappe.get_doc("Employee Tool Custody", draft.name)
+			doc.update({"handover_receipt": self._receipt(user), **values})
+			doc.submit()
+			return doc
+		except Exception:
+			frappe.db.rollback(save_point="card_confirm")
+			raise
+		finally:
+			frappe.set_user("Administrator")
+
+	def _store_keeper(self, prefix="store", roles=("Stock Manager",)):
+		return self._user(prefix, list(roles))
+
+	def _entries(self, custody):
+		return frappe.get_all(
+			"Stock Entry", filters={"remarks": f"CARD tool custody {custody}"}, pluck="docstatus"
+		)
+
+	def test_approval_makes_a_handover_draft_and_moves_nothing(self):
+		review, line, draft = self._approved_tool()
+		self.assertEqual(
+			(draft.docstatus, draft.handover_status, draft.employee, draft.qty, draft.warehouse),
+			(0, "Awaiting handover", self.operator, 1, self.store),
+		)
+		self.assertEqual(
+			(draft.review, draft.review_item, draft.project, draft.card_equipment),
+			(review.name, line.name, self.project, self.eq),
+		)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 0)
+		self.assertEqual(self._entries(draft.name), [])
+		self.assertEqual(
+			frappe.db.get_value("Equipment Needs Review", review.name, "approval_status"), "Approved"
+		)
+
+	def test_the_store_side_confirms_with_one_submitted_stock_entry(self):
+		_review, line, draft = self._approved_tool(qty=2)
+		self._stock_in(2)
+		keeper = self._store_keeper()
+		stale = frappe.get_doc("Employee Tool Custody", draft.name)  # a second form still open
+		doc = self._confirm(draft, keeper)
+		entry = frappe.get_doc("Stock Entry", doc.stock_entry)
+		self.assertEqual((entry.docstatus, entry.purpose), (1, "Material Transfer"))
+		self.assertEqual((entry.items[0].s_warehouse, entry.items[0].t_warehouse), (self.store, self.custody))
+		doc.reload()
+		self.assertEqual((doc.handover_status, doc.handed_by), ("Handed over", keeper))
+		self.assertTrue(doc.handed_on)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 2)
+		self.assertEqual(frappe.db.get_value("Equipment Needs Review Item", line.name, "handed_qty"), 2)
+		frappe.set_user(keeper)
+		try:
+			stale.handover_receipt = self._receipt(keeper)
+			with self.assertRaises(frappe.ValidationError):  # a second confirmation of the same record
+				stale.submit()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(self._entries(draft.name), [1])
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 2)
+
+	def test_a_supervisor_prepares_but_cannot_confirm_without_stock_rights(self):
+		# Owner H-5: drafts as today; the final confirmation needs custody and Stock Entry rights
+		supervisor = self._user("sup", ["Card Supervisor"])
+		self._stock_in(1)
+		frappe.set_user(supervisor)
+		draft = frappe.get_doc(
+			{
+				"doctype": "Employee Tool Custody",
+				"employee": self.operator,
+				"movement": "Handover",
+				"item_code": self.tool,
+				"qty": 1,
+				"date": nowdate(),
+				"warehouse": self.store,
+			}
+		).insert()
+		draft.notes = "prepared by the supervisor"
+		draft.save()
+		frappe.set_user("Administrator")
+		with self.assertRaises(frappe.PermissionError):
+			self._confirm(draft, supervisor)
+		self.assertEqual(
+			(
+				frappe.db.get_value("Employee Tool Custody", draft.name, "docstatus"),
+				self._entries(draft.name),
+			),
+			(0, []),
+		)
+		with_stock = self._user("supstock", ["Card Supervisor", "Stock User"])
+		self._confirm(draft, with_stock)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
+
+	def test_separation_of_duties_on_confirmation(self):
+		# Owner H-6: the worker, the requester, who entered it for the worker and the approver never confirm
+		supervisor = self._user("onbehalf", ["Card Supervisor", "Stock Manager"])
+		_review, line, draft = self._approved_tool()  # approved by Administrator
+		request = frappe.get_doc("Equipment Needs Request", line.request)
+		frappe.db.set_value("Equipment Needs Request", request.name, "entered_by", supervisor)
+		self._stock_in(1)
+		frappe.get_doc("User", self.op_user).add_roles("Stock Manager")  # the worker, with stock rights
+		for user in (self.op_user, supervisor, "Administrator"):
+			with self.subTest(user=user), self.assertRaises(frappe.PermissionError):
+				self._confirm(draft, user)
+		card_user = self._user("cu", ["Card User"])
+		with self.assertRaises(frappe.PermissionError):
+			self._confirm(draft, card_user)
+		self.assertEqual(
+			(
+				frappe.db.get_value("Employee Tool Custody", draft.name, "docstatus"),
+				self._entries(draft.name),
+			),
+			(0, []),
+		)
+		self._confirm(draft, self._store_keeper())
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
+
+	def test_a_partial_handover_keeps_the_rest_waiting(self):
+		_review, line, draft = self._approved_tool(qty=3)
+		self._stock_in(1)
+		keeper = self._store_keeper()
+		with self.assertRaises(frappe.ValidationError):  # more than approved
+			self._confirm(draft, keeper, qty=4)
+		self._confirm(draft, keeper, qty=1)
+		row = frappe.db.get_value(
+			"Equipment Needs Review Item", line.name, ["handed_qty", "tool_custody"], as_dict=True
+		)
+		self.assertEqual(row.handed_qty, 1)
+		rest = frappe.get_doc("Employee Tool Custody", row.tool_custody)
+		self.assertEqual((rest.docstatus, rest.qty, rest.handover_status), (0, 2, "Awaiting handover"))
+		self._stock_in(2)
+		with self.assertRaises(frappe.ValidationError):  # the remaining balance, not the approved qty
+			self._confirm(rest, keeper, qty=3)
+		self._confirm(rest, keeper)
+		self.assertEqual(frappe.db.get_value("Equipment Needs Review Item", line.name, "handed_qty"), 3)
+		self.assertEqual(
+			frappe.db.count("Employee Tool Custody", {"review_item": line.name, "docstatus": 0}), 0
+		)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 3)
+
+	def test_a_store_without_stock_rolls_the_confirmation_back(self):
+		frappe.db.set_single_value("Stock Settings", "allow_negative_stock", 0)
+		_review, line, draft = self._approved_tool()
+		with self.assertRaises(frappe.ValidationError):
+			self._confirm(draft, self._store_keeper())
+		self.assertEqual(frappe.db.get_value("Employee Tool Custody", draft.name, "docstatus"), 0)
+		self.assertEqual(self._entries(draft.name), [])
+		self.assertEqual(frappe.db.get_value("Equipment Needs Review Item", line.name, "handed_qty"), 0)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 0)
+
+	def test_a_bought_tool_waits_for_its_purchase_receipt(self):
+		frappe.db.set_single_value("Stock Settings", "allow_negative_stock", 0)
+		_review, _line, draft = self._approved_tool(route="Buy for project")
+		mr = frappe.db.get_value("Equipment Needs Review Item", _line.name, "material_request")
+		self.assertEqual(frappe.db.get_value("Material Request", mr, "material_request_type"), "Purchase")
+		keeper = self._store_keeper()
+		with self.assertRaises(frappe.ValidationError):
+			self._confirm(draft, keeper)
+		self._stock_in(1)  # stands for the Purchase Receipt into the store
+		self._confirm(draft, keeper)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
+
+	def test_a_failed_handover_is_closed_and_replaced_by_a_card_manager(self):
+		_review, line, draft = self._approved_tool()
+		keeper = self._store_keeper()
+		frappe.set_user(keeper)
+		try:
+			with self.assertRaises(frappe.ValidationError):
+				materials.close_tool_handover(draft.name, " ")
+			materials.close_tool_handover(draft.name, "the worker refused a damaged tool")
+			with self.assertRaises(frappe.PermissionError):  # Owner H-2
+				materials.make_tool_handover(line.name)
+		finally:
+			frappe.set_user("Administrator")
+		closed = frappe.get_doc("Employee Tool Custody", draft.name)
+		self.assertEqual((closed.docstatus, closed.handover_status), (0, "Not handed over"))
+		self.assertEqual(closed.not_handed_reason, "the worker refused a damaged tool")
+		closed.notes = "changed"
+		with self.assertRaises(frappe.ValidationError):
+			closed.save()
+		self._stock_in(1)
+		with self.assertRaises(frappe.ValidationError):
+			self._confirm(draft, keeper)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 0)
+		manager = self._user("mgr", ["Card Manager"])
+		frappe.set_user(manager)
+		try:
+			new = materials.make_tool_handover(line.name)
+			with self.assertRaises(frappe.ValidationError):  # one waiting draft at a time
+				materials.make_tool_handover(line.name)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(
+			frappe.db.get_value("Employee Tool Custody", new, ["qty", "handover_status"]),
+			(1, "Awaiting handover"),
+		)
+		self._confirm(frappe.get_doc("Employee Tool Custody", new), keeper)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
+
+	def test_handover_server_fields_cannot_be_set_by_hand(self):
+		_review, line, draft = self._approved_tool()
+		forged = frappe.get_doc(
+			{
+				"doctype": "Employee Tool Custody",
+				"employee": self.operator,
+				"movement": "Handover",
+				"item_code": self.tool,
+				"qty": 1,
+				"date": nowdate(),
+				"warehouse": self.store,
+				"review": draft.review,
+				"review_item": line.name,
+				"handover_status": "Handed over",
+				"handed_by": "Administrator",
+			}
+		).insert()
+		self.assertEqual(
+			(forged.review, forged.review_item, forged.handed_by, forged.handover_status),
+			(None, None, None, "Awaiting handover"),
+		)
+		draft.reload()
+		draft.qty = 0.5  # lowering the quantity is allowed
+		draft.save()
+		for field, value in (("employee", self._operator("other")[1]), ("warehouse", self.custody)):
+			doc = frappe.get_doc("Employee Tool Custody", draft.name)
+			doc.set(field, value)
+			with self.subTest(field=field), self.assertRaises(frappe.ValidationError):
+				doc.save()
+		with self.assertRaises(frappe.ValidationError):
+			frappe.delete_doc("Employee Tool Custody", draft.name)
+
+	def test_a_cancelled_handover_goes_back_on_its_line(self):
+		_review, line, draft = self._approved_tool()
+		self._stock_in(1)
+		doc = self._confirm(draft, self._store_keeper())
+		frappe.set_user(self._store_keeper("undo"))
+		try:
+			frappe.get_doc("Employee Tool Custody", doc.name).cancel()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("Stock Entry", doc.stock_entry, "docstatus"), 2)
+		self.assertEqual(frappe.db.get_value("Equipment Needs Review Item", line.name, "handed_qty"), 0)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 0)
+		amended = frappe.copy_doc(frappe.get_doc("Employee Tool Custody", doc.name))
+		amended.amended_from = doc.name
+		with self.assertRaises(frappe.ValidationError):  # replaced by a Card Manager, never amended
+			amended.insert()
+
+	def test_return_and_transfer_are_confirmed_with_evidence(self):
+		self._custody("Handover", qty=3, warehouse=self.store)
+		keeper = self._store_keeper()
+
+		def give_back(user):
+			frappe.set_user(user)
+			try:
+				doc = frappe.get_doc(
+					{
+						"doctype": "Employee Tool Custody",
+						"employee": self.operator,
+						"movement": "Return",
+						"item_code": self.tool,
+						"qty": 1,
+						"date": nowdate(),
+						"warehouse": self.store,
+					}
+				).insert()
+				doc.submit()
+				return doc
+			finally:
+				frappe.set_user("Administrator")
+
+		ret = give_back(keeper)
+		self.assertEqual(frappe.db.get_value("Stock Entry", ret.stock_entry, "docstatus"), 1)
+		self.assertEqual(frappe.db.get_value("Employee Tool Custody", ret.name, "handed_by"), keeper)
+		_u, colleague = self._operator("mate")
+		with self.assertRaises(frappe.ValidationError):  # Owner H-3: no silent transfer
+			self._custody("Transfer", to_employee=colleague, handover_receipt=None)
+		self._custody("Transfer", to_employee=colleague)
+		self.assertEqual(materials.custody_balance(colleague, self.tool), 1)
+		frappe.get_doc("User", self.op_user).add_roles("Stock Manager")
+		with self.assertRaises(frappe.PermissionError):  # the worker never confirms his own return
+			give_back(self.op_user)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
+
+	def test_the_receipt_is_a_private_file_of_this_record(self):
+		public = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": f"public-{self.token}.pdf",
+				"is_private": 0,
+				"content": b"%PDF public",
+			}
+		).insert()
+		other = self._custody("Handover", warehouse=self.store)
+		for url in (public.file_url, other.handover_receipt):
+			with self.subTest(url=url), self.assertRaises(frappe.ValidationError):
+				self._custody("Handover", warehouse=self.store, handover_receipt=url, submit=False)
+
+	def test_a_user_of_another_company_cannot_confirm(self):
+		_review, _line, draft = self._approved_tool()
+		self._stock_in(1)
+		outsider = self._store_keeper("far")
+		other = self._other_company()
+		frappe.get_doc(
+			{"doctype": "User Permission", "user": outsider, "allow": "Company", "for_value": other}
+		).insert(ignore_permissions=True)
+		with self.assertRaises(frappe.PermissionError):
+			self._confirm(draft, outsider)
+		self.assertEqual(frappe.db.get_value("Employee Tool Custody", draft.name, "docstatus"), 0)
 
 	# ---------- operator page ----------
 	def test_operator_page_context(self):
