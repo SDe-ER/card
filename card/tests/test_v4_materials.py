@@ -137,6 +137,18 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertEqual((doc.entered_by, doc.on_behalf), (self.op_user, 0))
 		self.assertEqual(doc.review_status, "Pending")
 
+	def test_operator_asks_for_a_tool(self):
+		# CARD Mobile sends the kind the operator chose on each line; the server keeps it
+		name = self._ask(
+			[
+				{"kind": "Tool", "item_code": self.tool, "qty": 1},
+				{"kind": "Part", "item_code": self.filter, "qty": 2},
+				{"kind": "anything else", "description": "lamp", "qty": 1},
+			]
+		)
+		kinds = [row.kind for row in frappe.get_doc("Equipment Needs Request", name).items]
+		self.assertEqual(kinds, ["Tool", "Part", "Part"])
+
 	def test_operator_cannot_ask_for_another_machine(self):
 		_other_user, other_operator = self._operator("other")
 		other_eq = self._equipment(other_operator)
@@ -242,6 +254,43 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertEqual(frappe.db.get_value("Equipment Needs Request", request, "review_status"), "Approved")
 		with self.assertRaises(frappe.ValidationError):
 			frappe.get_doc("Equipment Needs Review", review.name).cancel()
+
+	def test_a_tool_stays_a_tool_through_review_and_approval(self):
+		# the review copies the kind from the request; approval sends a tool to the custody store
+		request = self._ask([{"kind": "Tool", "item_code": self.tool, "qty": 1}])
+		review = self._review()
+		(line,) = [row for row in review.items if row.request == request]
+		self.assertEqual(line.kind, "Tool")
+		line.kind = "Part"  # read only on the form; the server takes the request's kind again
+		review.save()
+		review.reload()
+		self.assertEqual([row.kind for row in review.items if row.request == request], ["Tool"])
+		review.submit()
+		created = materials.approve_review(review.name)
+		(row,) = frappe.get_all(
+			"Material Request Item",
+			filters={"parent": ["in", created], "item_code": self.tool},
+			fields=["parent", "from_warehouse", "warehouse"],
+		)
+		self.assertEqual(
+			frappe.db.get_value("Material Request", row.parent, "material_request_type"), "Material Transfer"
+		)
+		self.assertEqual((row.from_warehouse, row.warehouse), (self.store, self.custody))
+		self.assertEqual(
+			frappe.db.get_value("Equipment Needs Request Item", {"parent": request}, "kind"), "Tool"
+		)
+
+	def test_a_tool_needs_the_custody_store_before_approval(self):
+		self._ask([{"kind": "Tool", "item_code": self.tool, "qty": 1}])
+		review = self._review()
+		# only matched tool lines: the custody store is the one thing approval can miss
+		self.assertEqual({(row.kind, bool(row.item_code)) for row in review.items}, {("Tool", True)})
+		review.submit()
+		frappe.db.set_single_value("Card Settings", "tool_custody_warehouse", None)
+		before = frappe.db.count("Material Request")
+		with self.assertRaises(frappe.ValidationError):
+			materials.approve_review(review.name)
+		self.assertEqual(frappe.db.count("Material Request"), before)
 
 	def test_card_manager_approves_with_his_own_erpnext_rights(self):
 		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
