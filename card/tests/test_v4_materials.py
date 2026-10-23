@@ -4,6 +4,7 @@
 standard ERPNext Material Requests, tool custody, reports and the operator page."""
 
 import json
+import os
 
 import frappe
 from frappe.tests import IntegrationTestCase
@@ -1533,6 +1534,26 @@ class TestV4Materials(IntegrationTestCase):
 		draft.update({"amended_from": transfer.name, "handover_receipt": transfer.handover_receipt})
 		with self.assertRaises(frappe.ValidationError):
 			draft.save()
+
+	def test_the_receipt_of_a_cancelled_movement_stays_on_disk(self):
+		# Frappe removes the disk file inside File.on_trash; only its earlier permission check can stop it
+		_u, colleague = self._operator("mate")
+		self._custody("Handover", warehouse=self.store)
+		transfer = self._custody("Transfer", to_employee=colleague)
+		frappe.get_doc("Employee Tool Custody", transfer.name).cancel()
+		receipt = frappe.get_doc(
+			"File", {"file_url": transfer.handover_receipt, "attached_to_name": transfer.name}
+		)
+		path = receipt.get_full_path()
+		manager = self._user("mgr", ["Card Manager"])  # may delete custody records
+		for label, attempt in (
+			("the receipt file", lambda: frappe.delete_doc("File", receipt.name)),
+			("the cancelled record", lambda: frappe.delete_doc("Employee Tool Custody", transfer.name)),
+		):
+			with self.subTest(label), self.assertRaises((frappe.ValidationError, frappe.PermissionError)):
+				self._as(manager, attempt)
+		self.assertTrue(os.path.exists(path))
+		self.assertTrue(frappe.db.exists("File", receipt.name))
 
 	def test_other_files_keep_frappes_behaviour(self):
 		# the guard acts on custody receipts only

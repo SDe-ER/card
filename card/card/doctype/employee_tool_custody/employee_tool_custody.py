@@ -384,3 +384,10 @@ class EmployeeToolCustody(Document):
 	def _marker(self):
 		# fixed text (not translated) so a cancel in another language still recognises it
 		return f"CARD tool custody {self.name}"
+
+
+def has_custody_permission(doc, ptype=None, user=None, debug=False):
+	"""A cancelled movement with a signed receipt is evidence: nobody deletes it, and so nobody deletes
+	its receipt either (Frappe's File.validate_protected_file asks this before it removes the disk file,
+	which a later refusal could not bring back). Administrator is not checked by Frappe here."""
+	return not (ptype == "delete" and doc.docstatus == 2 and doc.handover_receipt)

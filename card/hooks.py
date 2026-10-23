@@ -152,6 +152,8 @@ has_permission = {
 	"Card Monthly Card": "card.card.doctype.card_monthly_card.card_monthly_card.has_card_permission",
 	"Equipment Transport": "card.card.doctype.equipment_transport.equipment_transport.has_transport_permission",
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.has_fitment_permission",
+	# #113: a cancelled movement with a signed receipt (and so its receipt) is never deleted
+	"Employee Tool Custody": "card.card.doctype.employee_tool_custody.employee_tool_custody.has_custody_permission",
 }
 
 # Document Events

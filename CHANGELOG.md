@@ -126,7 +126,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     receipt, and any file that shares its content or URL, cannot become public; no second File row may carry its
     content or URL outside a custody record that names it (an Amend, or the uploader reusing one signed scan for
     several of his drafts), and no public copy at all; a receipt cannot be detached from its record (its owner can
-    edit the File's attached_to fields); and a receipt of a confirmed or cancelled record cannot be deleted. A file
+    edit the File's attached_to fields); and a receipt of a confirmed or cancelled record cannot be deleted (a
+    cancelled movement with a receipt is not deletable either: Frappe removes the disk file inside File.on_trash,
+    so only its earlier permission check can keep it; Administrator, whom Frappe does not check, is the exception). A file
     is a receipt when a custody record names its URL in `handover_receipt` (the record decides, not the File row);
     other attachments keep Frappe's behaviour. An unattached file counts as the receipt only when the user uploaded it
     after the record was made (not an old scan). Other files
