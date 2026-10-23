@@ -9,6 +9,7 @@ import os
 
 import frappe
 from frappe.tests import IntegrationTestCase
+from frappe.utils import get_datetime
 
 EXPECTED_DOCK_TITLES = [
 	"Card Dashboard",
@@ -67,8 +68,13 @@ class TestCardLauncher(IntegrationTestCase):
 		sidebar_dir = os.path.join(frappe.get_app_path("card"), "card", "sidebar")
 		for slug in os.listdir(sidebar_dir):
 			doc = _load("card", "sidebar", slug, f"{slug}.json")
+			message = f"{slug}: stored rows differ from the shipped file"
+			stored = frappe.db.get_value("Sidebar", doc["name"], "modified")
+			if stored and get_datetime(doc["modified"]) <= get_datetime(stored):
+				# migrate imports a standard sidebar only when the file is newer (FR-077 follow-up)
+				message += "; the file's 'modified' is not newer than the stored sidebar: bump it"
 			self.assertEqual(
 				frappe.db.count("Sidebar Item", {"parent": doc["name"], "parenttype": "Sidebar"}),
 				len(doc["items"]),
-				f"{slug}: stored rows differ from the shipped file",
+				message,
 			)

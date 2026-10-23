@@ -146,9 +146,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   "Equipment Make Model Values" row but kept the file's `modified` time. Frappe imports a standard Sidebar on
   `migrate` only when the file is newer than the stored document, so a site that already had the three FR-077 rows
   kept them and never got the fourth (found on the dev site after the merge; a fresh install was not affected).
-  The file's `modified` time is now later. Impact: the next `migrate` replaces the Card Materials sidebar with the
-  shipped file (14 rows); no permission, data, accounting or API change. Rollback: revert the commit; the row stays
-  until the sidebar file is imported again.
+  The file's `modified` time is now later, and `test_v3_navigation` now says "bump it" when stored rows differ from
+  a file that is not newer than the stored sidebar. Impact: the next `migrate` replaces the shipped Card Materials
+  sidebar (14 rows); site and user customizations are kept (they are stored in `Custom Sidebar`); no permission,
+  data, accounting or API change. Rollback: reverting the commit does not remove the row from migrated sites (the
+  older file time is never imported again); a later sidebar change must set `modified` after 2026-10-23 13:00.
 - **Two assignments of one machine at the same time no longer overlap (D4, FR-075).** The overlap check of a
   Card Equipment Assignment was a plain read. Under MariaDB REPEATABLE READ (Production: MariaDB 10.6) two
   requests for the same machine that ran at the same time both saw "no overlap" and both saved: two new
