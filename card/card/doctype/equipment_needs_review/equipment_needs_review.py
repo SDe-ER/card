@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, nowdate
 
-from card.materials import active_review_rows
+from card.materials import active_review_rows, tool_item_error
 
 
 class EquipmentNeedsReview(Document):
@@ -56,6 +56,9 @@ class EquipmentNeedsReview(Document):
 			row.operator = request.operator
 		if flt(row.found_qty) < 0 or flt(row.approved_qty) < 0:
 			frappe.throw(_("Row {0}: quantities cannot be negative.").format(row.idx))
+		# a tool goes into custody: refuse a non-stock item or a fixed asset (approved qty 0 refuses the line)
+		if row.kind == "Tool" and flt(row.approved_qty) > 0 and (error := tool_item_error(row.item_code)):
+			frappe.throw(error)
 		if row.inspection == "Inspected":
 			row.inspected_by = row.inspected_by or frappe.session.user
 			row.inspected_on = row.inspected_on or nowdate()

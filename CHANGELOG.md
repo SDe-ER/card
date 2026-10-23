@@ -142,6 +142,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
+- **Tool lines and tool custody: item type and company checks (issue #113, PR-T1; Owner decisions T3, T4,
+  2026-10-23).** A tool goes into employee custody, so a Tool line of an Equipment Needs Review with an approved
+  quantity must be a stock item and not a fixed asset; the review refuses it on save and `card.materials.approve_review`
+  checks it again before it makes any Material Request (the Item can change after the review). Before, a non-stock
+  Tool line reached a Material Request that ERPNext could never fulfil, and a fixed asset was refused only later by
+  the custody record. Setting the approved quantity to 0 still refuses the line; Part lines are not changed. Employee
+  Tool Custody now refuses a non-stock item on a Handover when it is saved (before, it failed only when its Stock
+  Entry was made); other movements keep only the fixed-asset check, so a tool already held can still leave custody.
+  Every linked record must belong to the employee's company: the receiving employee of a Transfer (before, a tool
+  could be transferred to an employee of another company), the warehouse, the project, the equipment and, for
+  movements that move stock, the custody store of Card Settings. Shared check `card.materials.tool_item_error`. Two
+  new CARD strings with Arabic translations. Tests (`test_v4_materials`): `test_a_tool_line_must_be_a_stock_item`,
+  `test_a_tool_line_cannot_be_a_fixed_asset`, `test_approval_checks_the_tool_item_again`,
+  `test_custody_refuses_a_non_stock_item`, `test_custody_stays_in_the_employees_company` (they fail on main and pass
+  with the change) and `test_a_held_tool_can_still_be_transferred_after_its_item_changed`. Impact: validation only;
+  no permission, workflow, schema, accounting or API change; existing submitted records are not checked again (only
+  a new save, an amend or a new movement). Rollback: revert the commit; no data to restore.
 - **CARD Mobile: the Part / Tool choice of a request line is shown (PR #112).** `NewRequest.vue` passed the two
   kinds to frappe-ui `TabButtons` as `buttons`; frappe-ui 1.0.2 reads `options`, so the choice rendered empty and
   every line was sent as "Part" — an operator could not ask for a tool from CARD Mobile (since the first CARD Mobile

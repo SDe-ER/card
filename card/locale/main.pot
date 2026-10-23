@@ -1995,6 +1995,12 @@ msgstr ""
 msgid "{0} is a fixed asset: record its custodian on the Asset (Asset Movement)."
 msgstr ""
 
+msgid "{0} is not a stock item; a tool must be a stock item."
+msgstr ""
+
+msgid "Tool custody: {0} {1} is not in the employee's company ({2})."
+msgstr ""
+
 msgid "The Card Equipment accounting dimension is not set up on this site."
 msgstr ""
 
