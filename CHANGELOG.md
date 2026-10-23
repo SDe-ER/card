@@ -16,6 +16,55 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Parts fitment, catalog phase 2a (FR-077; Owner decisions Q1–Q11, 2026-10-23)**: which ERPNext Item fits which
+  machine. New masters `Card Equipment Make` (CMK-) and `Card Equipment Model` (CEM-, one make and one equipment
+  type); a normalised unique key refuses the same make or model written twice ("PC200-8" = "pc 200 8"), also when
+  two users save at the same moment. ERPNext Manufacturer (the part maker of Item Manufacturer) is not used for
+  machines. Card Equipment gets `equipment_make` and `equipment_model` (permlevel 1: Card Manager writes); the model
+  must belong to the machine's make and equipment type; the free-text Brand / Model fields stay as they are and
+  nothing is copied. New `Card Equipment Part` (CFP-): a fitment row on an equipment model or on one machine, with
+  the DESIGN v4.1 states Pending Technical Review / Confirmed / Not Compatible, evidence source and reference, a
+  private evidence file, quantity per use and technical notes. Every new row starts pending; status and audit fields
+  are written by the server only (form, REST, `frappe.client`, import). Card Supervisor proposes and documents own
+  pending rows; Card Manager or System Manager decides with evidence. **No final self-approval**: a decision by the
+  row's proposer (Administrator included) is stored as a first review with reason and evidence file and the row stays
+  pending (Pending Second Review) until another Card Manager or System Manager decides. A machine row Confirmed
+  against its model's Not Compatible row needs technical notes. Rows are retired with a reason, never deleted; a
+  restored row is reviewed again; history in the Version log. Machine rows follow the machine's company (permission
+  query and document check); model rows are technical data without a company. Card User and Card Operator get no
+  access to fitment rows or evidence files (the search view comes in phase 2b). Read-only Script Report
+  "Equipment Make Model Values" (Card Manager, System Manager) lists the free-text brand / model values for manual
+  set-up. Card Materials sidebar: Equipment Makes, Equipment Models, Parts Fitment and the report (shown only to
+  users whose role may open it). Connections on Card Equipment,
+  make and model. Arabic translations for the new CARD strings; generic words keep the Frappe / ERPNext
+  translation. Impact: three new DocTypes and two new columns on Card Equipment, created by the DocType sync; no
+  data patch; no ERPNext DocType, role or permission change; no accounting or API change (no new whitelisted
+  method). Rollback: revert the merge; the new tables and columns stay (empty or kept); no data is deleted.
+- **Catalog search (FR-076, phase 1 of the catalog; Owner 2026-10-22)**: CARD Mobile's item picker gets a
+  "Browse catalog" dialog over the standard ERPNext catalogue (Item, Item Group, Brand, Item Barcode, Item
+  Manufacturer, Item Alternative); CARD adds no item master and no DocType. Search by item name, item code, barcode
+  or OEM part number; filter by item group (with its sub-groups) and brand; item image, OEM numbers and the
+  standard alternatives (one-way, or both ways when `two_way` is set; pick an alternative directly); server paging
+  with "Load more" (no total count). New GET endpoints `card.catalog.search` and `card.catalog.filter_options`
+  (reads only). Permissions on the server: a user whose roles read Item gets `frappe.get_list` (his roles, User
+  Permissions and rules apply); a Card portal role without Item read (Card Operator, the G1 exception of
+  `search_items`, widened by Owner decision D-1 to OEM numbers and alternatives) gets the same item rules with his
+  User Permissions (on the record and on every Link field, as `frappe.get_list` applies them) and shares; a test
+  compares this read with `frappe.get_list` for the same User Permissions. The restricted read is only for Card
+  portal roles: any other user without read on Brand, Item Group, Item Manufacturer or Item Alternative gets none of
+  them, and the restricted read returns nothing where Frappe would add permission query rules CARD cannot apply.
+  Barcode matches run inside the item query and OEM matches through the same permission path as the OEM numbers
+  shown, without a cap, so a hidden item is never found or counted and a visible one is never crowded out. No
+  stock, price, supplier or account is returned (the stock hint stays F2-only);
+  private image files keep their own access (a placeholder shows when the image cannot load). English UI strings
+  with ar, bn, hi and ur translations under the context "Card Mobile"; Item Group names are translated by Frappe,
+  item names and brands show as entered. Desk: a "Catalog" row in the Card Materials sidebar opens the standard
+  Item list (image view and filters are standard); no Workspace, fixture, role or permission change; its label is
+  translated in ar only, like the other Desk labels of CARD.
+  `card.materials.search_items` (the inline suggestions of `/cdms` and `/equipment-needs`) now uses the same rules
+  and rights (it also matches barcodes and OEM numbers, hides ended items and keeps `%`/`_` literal).
+  Data, schema and accounting: no change. Branch `feat/catalog-search` (local commits, no pull request yet).
+  Rollback: revert the commits; the next `migrate` removes the sidebar row; nothing else to clean up.
 - **CARD Mobile at `/cdms` — foundation** (planned for v4.1.0): a phone-only Progressive Web App served by CARD
   itself, built like the Frappe HR mobile app (Vue 3, TypeScript, frappe-ui in `frontend/`, built by
   `bench build` into `card/public/frontend` and `card/www/cdms.html`). In-app sign-in with the
@@ -63,6 +112,88 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (#96) Rollback: revert the merge.
 
 ### Changed
+- **Tool handover confirmation (issue #113, PR-T2; Owner decisions T1, T2, T2b, T5–T9, H-1–H-3, H-5–H-7,
+  2026-10-23).** Management approval and the physical handover are now separate steps:
+  - **Approval** (`card.materials.approve_review`) of a Tool line makes a draft Employee Tool Custody Handover for the
+    request's worker, with the item, approved qty, line warehouse, project and equipment, linked to the review line.
+    It is "Awaiting handover": it moves no stock and counts for nobody. A tool from the store gets no Material
+    Request any more (before: a draft Material Transfer MR, and a second move by the custody record). A bought tool
+    keeps its Purchase MR and gets the same draft. The approver also needs create permission on custody records.
+  - **Confirmation** is the standard Submit of the custody record, by the store side. For a Handover or a Return
+    the Stock Entry store ↔ custody store is inserted **and submitted** in the same transaction, with the
+    confirmer's own ERPNext rights. ERPNext refuses a store without stock and the whole confirmation rolls back.
+    So the confirmer needs custody submit **and** Stock Entry submit permission (Stock Manager, or a Card Supervisor
+    / Card Manager who also has Stock User). No role or permission was added (T2b, H-5).
+  - **Evidence:** a Handover and a Transfer need a signed receipt (`handover_receipt`): a private file uploaded to the
+    record, signed by the receiving employee and the issuer (H-1, H-3). CARD records that the file was attached; it
+    does not verify signatures. `handed_by` / `handed_on` record who confirmed and when.
+  - **The signed receipt stays private and on its record** (`card.custody_receipt`, File hooks `before_validate` and
+    `before_insert`; Employee Tool Custody `protect_attached_files`). Frappe shares one disk file and URL between
+    File rows with the same bytes, and making any of them public makes all of them public. A file's owner can also
+    make it public or delete it. Found by a probe on an isolated copy: the uploader could publish the receipt to
+    Guest or delete it, and a reader could re-upload the downloaded bytes onto the receipt's file. Now the
+    receipt, and any file that shares its content or URL, cannot become public; no second File row may carry its
+    content or URL outside a custody record that names it (an Amend, or the uploader reusing one signed scan for
+    several of his drafts), and no public copy at all; a receipt cannot be detached from its record (its owner can
+    edit the File's attached_to fields); and a receipt of a confirmed or cancelled record cannot be deleted (a
+    cancelled movement with a receipt is not deletable either: Frappe removes the disk file inside File.on_trash,
+    so only its earlier permission check can keep it; Administrator, whom Frappe does not check, is the exception). A file
+    is a receipt when a custody record names its URL in `handover_receipt` (the record decides, not the File row);
+    other attachments keep Frappe's behaviour. An unattached file counts as the receipt only when the user uploaded it
+    after the record was made (not an old scan). Other files
+    keep Frappe's behaviour. No Frappe setting or core change. Limit: a user who may read the receipt can still
+    save it and share it outside CARD; a copy that Frappe rebuilds from decoded text is a separate file.
+  - **Date:** a confirmed Handover or Return is dated the day it is confirmed, the day its Stock Entry posts.
+  - **Amend** only a cancelled movement of the same company that the user may amend (an amendment copies the
+    attachments of the record it amends); `amended_from` never changes on an existing record. A receipt's File
+    row keeps its URL, and no file sharing a receipt's content changes its public / private state (Frappe would
+    change it, and the URL, on every row with that content).
+  - **One tool leaves custody once:** a Return, Transfer, Loss or Damage takes a row lock on the worker and reads
+    the balance again with a locking read, so two movements at the same moment cannot take the same tool twice.
+  - **Reviewed drafts:** the store side may choose another store of the company and lower the quantity; the
+    quantity is checked against the approved rest also when a draft is saved.
+  - **Separation of duties** (server): the worker(s), the requester, the user who entered the request for the
+    worker and the approver of the review cannot confirm. Administrator is not exempt (H-6).
+  - **No double handover:** the custody row and the review line are locked during the confirmation. The quantity
+    is checked against approved minus handed. A partial confirmation leaves a new draft for the rest (T6). The
+    review links, the status and the confirmation fields are written by the server only.
+  - **Failed handover:** `card.materials.close_tool_handover` (POST; store side or Card Manager) closes a waiting
+    draft as "Not handed over" with a mandatory reason. The draft is then read only and never submitted.
+    `card.materials.make_tool_handover` (POST; Card Manager only, H-2) makes a replacement draft for the rest of the
+    line. It refuses a line approved before this change, because that line's Material Transfer MR already moved the
+    tools. The worker cannot close their own handover. A reviewed handover cannot be deleted or amended. Desk buttons
+    for these two actions come with PR-T3.
+  - **Cancel:** cancelling a Handover or Return confirmed this way cancels its own submitted Stock Entry in the same
+    transaction (ERPNext refuses to cancel an entry while a submitted custody record links it) and gives the qty back
+    to the review line. The user needs Stock Entry cancel permission. An older record keeps "cancel the Stock Entry
+    first". Known limit, unchanged by this PR: when the stock team has submitted that older entry, neither can be
+    cancelled from the app.
+  - **Unchanged:** Loss and Damage (draft Material Issue for the stock team; their approval comes in a separate PR,
+    H-4), custody reports and Part lines.
+
+  Effect on supervisors today: a Card Supervisor can still create and edit custody drafts of every movement. Without
+  Stock User they can no longer submit a Handover or a Return themselves (the store side confirms). A Handover or
+  Transfer also needs the signed receipt, and nobody confirms a movement of their own custody.
+
+  Existing data (H-7): no patch and no data change. Open tool Material Transfer MRs stay for the stock team to close.
+  On the dev site there are no custody records and no such MRs. Production was not inspected (needs a separate
+  read-only approval).
+
+  New fields: Employee Tool Custody `handover_status`, `handover_receipt`, `not_handed_reason`, `handed_by`,
+  `handed_on`, `review`, `review_item`; Equipment Needs Review Item `tool_custody`, `handed_qty` (the DocType sync adds
+  them). Arabic translations for the new CARD strings.
+
+  Tests: `test_v4_materials` (approval drafts, store-side confirmation with a submitted entry, supervisor without
+  stock rights, separation of duties, partial, store without stock rolled back, bought tool, closed and replaced
+  handover, server-only fields, cancel, return and transfer with evidence, receipt file rules, other-company user;
+  a cancel refused while later transfers or returns use the tools, or while the tools are no longer in the custody
+  store (ERPNext refuses the reverse move, everything rolls back); cancel of a partial handover; who can open the
+  signed receipt)
+  and `test_tool_handover_concurrency` (two database connections: one replacement draft, one transfer).
+
+  Rollback: reverting the code leaves the new columns empty and harmless. Custody records confirmed with this version
+  keep their submitted Stock Entries; drafts made by approvals stay drafts (close or delete them by hand after a
+  revert).
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
   review task, an agent loads the official Frappe skills that fit the task with its Skill tool (`frappe-ui` for CARD
   Mobile), records them under `SKILLS_LOADED` in its report, and stops with `SKILL NOT FOUND` when a required skill
@@ -102,6 +233,64 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
+- **Tool lines and tool custody: item type and company checks (issue #113, PR-T1; Owner decisions T3, T4,
+  2026-10-23).** A tool goes into employee custody, so a Tool line of an Equipment Needs Review with an approved
+  quantity must be a stock item and not a fixed asset; the review refuses it on save and `card.materials.approve_review`
+  checks it again before it makes any Material Request (the Item can change after the review). Before, a non-stock
+  Tool line reached a Material Request that ERPNext could never fulfil, and a fixed asset was refused only later by
+  the custody record. Setting the approved quantity to 0 still refuses the line; Part lines are not changed. Employee
+  Tool Custody now refuses a non-stock item on a Handover when it is saved (before, it failed only when its Stock
+  Entry was made); other movements keep only the fixed-asset check, so a tool already held can still leave custody.
+  Every linked record must belong to the employee's company: the receiving employee of a Transfer (before, a tool
+  could be transferred to an employee of another company), the warehouse, the project, the equipment and, for
+  movements that move stock, the custody store of Card Settings. Shared check `card.materials.tool_item_error`. Two
+  new CARD strings with Arabic translations. Tests (`test_v4_materials`): `test_a_tool_line_must_be_a_stock_item`,
+  `test_a_tool_line_cannot_be_a_fixed_asset`, `test_approval_checks_the_tool_item_again`,
+  `test_custody_refuses_a_non_stock_item`, `test_custody_stays_in_the_employees_company` (they fail on main and pass
+  with the change) and `test_a_held_tool_can_still_be_transferred_after_its_item_changed`. Impact: validation only;
+  no permission, workflow, schema, accounting or API change; existing submitted records are not checked again (only
+  a new save, an amend or a new movement). Rollback: revert the commit; no data to restore.
+- **CARD Mobile: the Part / Tool choice of a request line is shown (PR #112).** `NewRequest.vue` passed the two
+  kinds to frappe-ui `TabButtons` as `buttons`; frappe-ui 1.0.2 reads `options`, so the choice rendered empty and
+  every line was sent as "Part" — an operator could not ask for a tool from CARD Mobile (since the first CARD Mobile
+  commit, 683bfc4). The prop is now `options`. Tests: vitest (the page gives the kinds Part / Tool to `TabButtons` as
+  `options`; the request sent to `card.materials.submit_needs` carries the chosen kind); `test_v4_materials`:
+  `test_operator_asks_for_a_tool` (the server stores Tool / Part), `test_a_tool_stays_a_tool_through_review_and_approval`
+  (the review keeps the kind; approval makes a Material Transfer to the tool custody store) and
+  `test_a_tool_needs_the_custody_store_before_approval`. Browser check on a local build with test data (no ERPNext) at
+  8 widths from 320 to 1440 px, English and Arabic. No server, permission, data or API change; tool lines from CARD
+  Mobile now reach review, so approving them needs the tool custody store in Card Settings (Materials), as for tool
+  lines from Desk or the older worker page. Lines sent from CARD Mobile before this fix stay "Part"; the fix does not
+  change them. Rollback: revert the PR #112 commits; tool lines and draft Material Requests made after the fix stay.
+- **The report row of the Card Materials sidebar now reaches upgraded sites (FR-077).** PR #108 added the
+  "Equipment Make Model Values" row but kept the file's `modified` time. Frappe imports a standard Sidebar on
+  `migrate` only when the file is newer than the stored document, so a site that already had the three FR-077 rows
+  kept them and never got the fourth (found on the dev site after the merge; a fresh install was not affected).
+  The file's `modified` time is now later, and `test_v3_navigation` now says "bump it" when stored rows differ from
+  a file that is not newer than the stored sidebar. Impact: the next `migrate` replaces the shipped Card Materials
+  sidebar (14 rows); site and user customizations are kept (they are stored in `Custom Sidebar`); no permission,
+  data, accounting or API change. Rollback: reverting the commit does not remove the row from migrated sites (the
+  older file time is never imported again); a later sidebar change must set `modified` after 2026-10-23 13:00.
+- **Two assignments of one machine at the same time no longer overlap (D4, FR-075).** The overlap check of a
+  Card Equipment Assignment was a plain read. Under MariaDB REPEATABLE READ (Production: MariaDB 10.6) two
+  requests for the same machine that ran at the same time both saw "no overlap" and both saved: two new
+  assignments, or a new assignment while a transport cancel reopened the previous one. The check now locks the
+  machine's Card Equipment row first, so a second writer of that machine waits, and then reads the machine's
+  assignments with a locking read, which returns the latest committed rows. The second request is refused with
+  the normal overlap message. On a MariaDB server with `innodb_snapshot_isolation` ON (the 11.8 default) the
+  refused request can end with a "record has changed" deadlock error instead; nothing of it is written. The
+  `equipment` field of Card Equipment Assignment gets a database index (`search_index`), so the locking read
+  locks that machine's rows and the index gap next to them, not the whole table; `bench migrate` adds it
+  (`ADD INDEX equipment_index`), no patch. Run the migrate before the new code serves requests: without the
+  index the locking read locks every assignment row. Affected: `CardEquipmentAssignment.validate_no_overlap`
+  (manual saves, Equipment Transport submit and cancel). Not changed: what counts as an overlap, transfer dates,
+  permissions, company rules, cards, billing and accounting. Residual (no overlap, nothing written): a save of an
+  existing assignment locks that row before the machine row (Frappe `check_if_latest`), and a new assignment
+  locks the machine row first, so the two at the same moment, or two transports of several machines in
+  opposite order, can deadlock; the database rolls one back (HTTP 508, "try again"). Branch
+  `fix/assignment-overlap-lock`, pull request not opened yet. Impact: permissions none, accounting none, data
+  none (existing rows unchanged), API none, schema one index. SemVer impact: PATCH. (Target: next release.
+  Rollback: revert; the index is harmless if kept, and a later release without `search_index` drops it.)
 - **Diesel fill for Card User (P0):** a user with only the Card User role could not finish a Project Diesel Fill
   in the Desk. The Project, Cost Center and Supplier lists failed with "Insufficient Permission" (the role has no
   permission on those ERPNext masters), and the mandatory Supplier stayed empty and hidden when the user may not
@@ -115,8 +304,40 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   method, `fill_link_query`; accounting none; data none. (#84, merge `85ad66d`; FR-001, FR-038 (diesel fills
   only). Target: next release. Rollback: revert the merge; no schema, migration or data change. A code revert does
   not remove or change diesel fills already saved.)
+- **Arabic: CARD no longer overrides the ERPNext translations of "Model" and "Unallocated".** CARD loads
+  last, so a generic word in `card/locale/ar.po` replaces the Frappe/ERPNext translation on the whole site, against
+  the rule that the CARD locale carries CARD strings only. ERPNext `version-16` now translates both words
+  («الطراز», «غير مخصص»), and the guard `test_no_generic_msgid_overrides` failed in CI. The two CARD entries are
+  removed; the test is unchanged. Visible change in Arabic: the Card Equipment field "Model" shows
+  «الطراز» (was «الموديل») and the diesel consumption report row without equipment shows «غير مخصص» (was «غير مخصّص»).
+  Impact: permissions, accounting, data and API none. SemVer impact: PATCH. (Target: next release. Rollback: revert;
+  locale only, no schema, data or migration change.)
+- **Arabic: CARD no longer overrides the Frappe translation of "Owner".** Frappe `version-16` now translates
+  "Owner" as «مالك» (crowdin sync, merged 2026-10-22), and the CARD entry «المالك» replaced it on the whole site, so
+  `test_no_generic_msgid_overrides` failed in CI. The CARD entry in `card/locale/ar.po` is removed; the test is
+  unchanged. Visible change in Arabic: the Card Monthly Card field "Owner" (the supplier link) shows «مالك» (was
+  «المالك»). Feature Registry not changed: no registry row covers the translation layer (same as the "Model" entry).
+  Impact: permissions, accounting, data and API none. SemVer impact: PATCH. (Branch `fix/i18n-owner-msgid`. Target:
+  next release. Rollback: revert; locale only, no schema, data or migration change.)
 
 ### Security
+- **The equipment needs stock hint follows the user's stock rights (F2).** The supervisor's review stored
+  the stock on hand on every line, read without any permission check, so every reader of the review
+  (Card User included) saw stock quantities in the form, REST, report view, export and print, and the
+  Equipment Needs Summary report showed them to every report role, summed over every company's
+  warehouses. Stock is now read with the user's own ERPNext rights and shown only to a user whose roles
+  read Bin and Warehouse (a shared Bin or an if_owner read does not count): only the warehouses he may
+  read (Company and Warehouse User Permissions apply), limited to the review's company on the form and to
+  the report's companies in the report. A warehouse he may not read gives no figure, never a false 0. The
+  form shows the figure live (`card.materials.review_stock`, GET, needs read on the review); the report
+  removes the column for a user without stock rights. The review line no longer stores it (`stock_qty`
+  stays as an empty, print-hidden column); patch `v4_0_0.clear_review_stock_qty` clears the stored
+  figures. Affected: `card/materials.py`, Equipment Needs Review (controller, form script), Equipment
+  Needs Review Item (`print_hide`), Equipment Needs Summary. Permissions: none widened; a supervisor or manager without an
+  ERPNext stock role no longer sees the hint. Accounting: none. Data: derived hint figures cleared; quantities,
+  requests and Material Requests untouched; old review Versions keep the figures they recorded (kept as audit
+  history, counted by the patch). API: new GET `card.materials.review_stock`. Rollback: revert the commit;
+  the cleared hints are not restored (the next review save would store them again on the old code). FR-074.
 - **Equipment assignments follow the user's company.** A Card Equipment Assignment has no Company field,
   so a Company User Permission never reached it: a user limited to one company could list, open and
   search the assignments of another company, and a Card Manager limited to one company could create and
@@ -135,6 +356,65 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   read, create, save, submit and cancel. Users without a Company User Permission (System Manager included)
   and Administrator are unchanged; no role gains a permission; no schema or data change. (#90,
   merge `9aa9184`; FR-071. Target: next release. Rollback: revert the merge; no schema or data change.)
+- **Equipment transports follow the user's company (D3).** A transport checked that each machine belongs
+  to its company, but not the project it goes to: a company-A transport could name a company-B project
+  and take that project's cost center (submit was already refused by the assignment company check), and a
+  user limited to company A could take over a company-B draft transport by sending company A (REST save,
+  `set_value`). The transport's project (destination, or the project left on a return to the supplier)
+  must now belong to the transport's company, for every user. A `has_permission` hook denies a transport
+  whose sent or saved company (or, with no company sent, whose machines or project) belongs to a company
+  the user may not see (the Company User Permissions that apply to transports); it covers read, create,
+  save, submit and cancel. Transport costs, splits, prices, postings and transfers are unchanged; users
+  without a Company User Permission and Administrator are unchanged; no role gains a permission; no schema
+  or data change. (FR-072. Target: next release. Rollback: revert the commit; no schema or data change.)
+- **Period lock: request keys that are not date fields are ignored (partial fix).** The lock looked for
+  `to_date`, then `date`, then `posting_date` on the document as sent. Project Diesel Fill and Equipment
+  Transport have no `to_date` field, but Frappe keeps any extra key of a request (`frappe.client.save` and
+  `submit`, REST `PUT`, Desk save, submit and cancel), so a request with `"to_date": "2999-01-01"` could save,
+  submit or cancel a fill or transport dated inside the locked period. A date key is now read only when it is a
+  field of the DocType. This closes only the bypass through keys that are not real date fields; a cancel
+  request that changes a real date field is a separate fix. Card Monthly Card (its `to_date` is computed from
+  the month), the override role and the lock date are unchanged; no role gains a permission. (#97, commit
+  `bec863a`, merge `2b7debf`; not released or deployed; FR-050. Target: next release after v4.0.0. Rollback: code only, revert
+  the merge commit; no schema, data, fixture or migration change.)
+- **Period lock: changing a document's date cannot get round the lock.** A save or submit was judged by
+  the new date only, so a draft dated inside the locked period could be moved to an open date (or submitted
+  with one) in the same request. On cancel Frappe skips `validate` and stores the values the request sent
+  before `on_cancel` runs, so a Desk cancel request (`savedocs`, action Cancel) that changed a real date field
+  (`to_date` of a Card Monthly Card, `date` of a Project Diesel Fill or Equipment Transport) could cancel a
+  document of a locked period and leave the sent date on it. Now: a save or submit is refused when the date
+  stored before the request or the new date is in the locked period; a cancel is judged by the stored date,
+  and a cancel request that changes a period-lock date field is refused in every period (also for the
+  override role), so a cancelled document keeps its original date. The override role still allows saving,
+  submitting, moving and cancelling inside the locked period; normal work in open periods, delete and
+  update after submit are unchanged (Frappe already refuses date changes after submit); no role gains a
+  permission. Functions: `card/period_lock.py` `enforce`, `on_validate`, `on_cancel`; 1 new Arabic message.
+  (#97, commits `3fbed47` and `c3d143a`, merge `2b7debf`; not released or deployed; FR-050. Target: next
+  release after v4.0.0. Rollback: code only, revert the merge commit; no schema, data, fixture or migration change.)
+- **Equipment transport rows are written through the transport only.** `POST`, `PUT` and `DELETE`
+  `/api/resource/Equipment Transport Item` and `frappe.client.save` of a row saved one row alone (also
+  when sent with docstatus 2, which Frappe treats as a cancel without any validation): Frappe
+  checked only the transport's permission and skipped the transport's checks (company, movement,
+  duplicates, cost shares, assignment links). A user limited to company A could so add a row with a
+  company-B machine and its assignment to a submitted company-A transport, and cancelling the transport
+  then deleted or reopened company B's assignment. A row written alone (insert, save, update after
+  submit, delete) is now refused; the transport's own save, submit, cancel and delete and the REST calls
+  that go through the transport (`frappe.client.insert`, `set_value`, `delete` of a row) are unchanged.
+  Cancel now undoes only the assignments the transport itself wrote: of the row's machine, of the
+  transport's company, on its project and date, and claimed by no other submitted transport. When a row
+  links an assignment that was changed after the transport or never written by it, the cancel is refused
+  with a message (the transport stays submitted), so a move is never half undone; an assignment deleted
+  since has nothing to undo and is passed over. A cancel is also refused while a later move of the same
+  machine relies on it, including a second move on the same date (it closed the assignment this transport
+  opened, or opened its own); cancel the later move first. An assignment the transport opened and someone
+  closed since counts as changed. The cancel reads the machine's transport rows and the assignments with
+  a row lock, so it sees a move of the same machine submitted meanwhile (`card/transfer.py` `_depends_on`,
+  `_written_by`). A cancel request that
+  changes the transport's details or rows (a save with docstatus 2 stores what the request sent) is
+  refused; the transport is cancelled as approved. No change to transport cost, cost bearer, split, price, cost center or
+  postings; no role gains a permission; no schema or data change. (Branch
+  `fix/transport-item-standalone-rows`, commits `771aa63` and the same-date cancel fix; not pushed, merged, released or deployed;
+  FR-073. Target: next release. Rollback: revert the commit; no schema or data change.)
 
 ### Planned
 - **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real

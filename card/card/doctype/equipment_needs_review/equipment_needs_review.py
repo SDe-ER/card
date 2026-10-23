@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, nowdate
 
-from card.materials import active_review_rows, stock_qty
+from card.materials import active_review_rows, tool_item_error
 
 
 class EquipmentNeedsReview(Document):
@@ -17,7 +17,8 @@ class EquipmentNeedsReview(Document):
 		# only approve_review writes the approval (directly, after submit)
 		self.approval_status, self.approved_by, self.approved_on = "Pending", None, None
 		for row in self.items:
-			row.material_request = None
+			# written only after approval, by the server (Material Request, tool handover #113)
+			row.material_request, row.tool_custody, row.handed_qty = None, None, 0
 		seen = set()
 		for row in self.items:
 			self._check_line(row, seen)
@@ -56,12 +57,16 @@ class EquipmentNeedsReview(Document):
 			row.operator = request.operator
 		if flt(row.found_qty) < 0 or flt(row.approved_qty) < 0:
 			frappe.throw(_("Row {0}: quantities cannot be negative.").format(row.idx))
+		# a tool goes into custody: refuse a non-stock item or a fixed asset (approved qty 0 refuses the line)
+		if row.kind == "Tool" and flt(row.approved_qty) > 0 and (error := tool_item_error(row.item_code)):
+			frappe.throw(error)
 		if row.inspection == "Inspected":
 			row.inspected_by = row.inspected_by or frappe.session.user
 			row.inspected_on = row.inspected_on or nowdate()
 		else:
 			row.inspected_by = row.inspected_on = None
-		row.stock_qty = stock_qty(row.item_code, row.warehouse) if row.item_code else 0
+		# never stored (F2): the form shows it live with the reader's rights (card.materials.review_stock)
+		row.stock_qty = 0
 
 	def on_submit(self):
 		self._set_requests("In review")

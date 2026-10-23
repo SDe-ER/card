@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { FormControl } from 'frappe-ui'
+import { Button, FormControl } from 'frappe-ui'
+import CatalogDialog from './CatalogDialog.vue'
 import { searchItems, type DraftLine, type Item } from '../data/needs'
 import { __ } from '../i18n'
 
@@ -8,6 +9,7 @@ import { __ } from '../i18n'
 const line = defineModel<DraftLine>({ required: true })
 const text = ref(line.value.item_name || line.value.description)
 const results = ref<Item[]>([])
+const browsing = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
 
 watch(text, (value) => {
@@ -43,9 +45,17 @@ function pick(item: Item) {
       :placeholder="__('Search an item or describe it')"
       autocomplete="off"
     />
-    <span v-if="line.item_code" class="mt-1 block text-xs text-ink-gray-5">{{
-      line.item_code
-    }}</span>
+    <div class="mt-1 flex items-center justify-between gap-2">
+      <span class="text-xs text-ink-gray-5">{{ line.item_code }}</span>
+      <Button
+        variant="ghost"
+        size="sm"
+        icon-left="lucide-book-open"
+        :label="__('Browse catalog', [], 'Card Mobile')"
+        @click="browsing = true"
+      />
+    </div>
+    <CatalogDialog v-model:open="browsing" @pick="pick" />
     <ul
       v-if="results.length"
       class="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-outline-gray-2 bg-surface-base shadow-lg"

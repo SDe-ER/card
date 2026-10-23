@@ -1,0 +1,329 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "format:CFP-{#####}",
+ "creation": "2026-10-23 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "applies_to",
+  "equipment_model",
+  "card_equipment",
+  "column_break_cfp1",
+  "compatibility_status",
+  "review_stage",
+  "decision_reason",
+  "is_active",
+  "evidence_section",
+  "evidence_source",
+  "evidence_reference",
+  "column_break_cfp2",
+  "evidence_file",
+  "qty_per_use",
+  "technical_notes",
+  "review_section",
+  "proposed_by",
+  "proposed_on",
+  "first_review_by",
+  "first_review_on",
+  "first_review_decision",
+  "first_review_reason",
+  "column_break_cfp3",
+  "confirmed_by",
+  "confirmed_on",
+  "retired_by",
+  "retired_on",
+  "retire_reason",
+  "source",
+  "source_request",
+  "company",
+  "compat_key"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Part item",
+   "options": "Item",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "applies_to",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Applies to",
+   "options": "Equipment Model\nEquipment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "equipment_model",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Equipment model",
+   "mandatory_depends_on": "eval:doc.applies_to==\"Equipment Model\"",
+   "options": "Card Equipment Model",
+   "read_only_depends_on": "eval:doc.applies_to==\"Equipment\"",
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval:doc.applies_to==\"Equipment\"",
+   "fieldname": "card_equipment",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Equipment",
+   "mandatory_depends_on": "eval:doc.applies_to==\"Equipment\"",
+   "options": "Card Equipment",
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_cfp1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Pending Technical Review",
+   "depends_on": "eval:!doc.__islocal",
+   "fieldname": "compatibility_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Compatibility status",
+   "options": "Pending Technical Review\nConfirmed\nNot Compatible",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.review_stage",
+   "fieldname": "review_stage",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Review stage",
+   "no_copy": 1,
+   "options": "\nPending Second Review",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:!doc.__islocal",
+   "fieldname": "decision_reason",
+   "fieldtype": "Small Text",
+   "label": "Decision reason",
+   "no_copy": 1
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:!doc.__islocal",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "evidence_section",
+   "fieldtype": "Section Break",
+   "label": "Fitment evidence"
+  },
+  {
+   "fieldname": "evidence_source",
+   "fieldtype": "Select",
+   "label": "Evidence source",
+   "options": "\nMaker parts book\nMaker or dealer catalogue\nSupplier or dealer confirmation\nPhysical check on the machine\nInstallation record\nOther"
+  },
+  {
+   "fieldname": "evidence_reference",
+   "fieldtype": "Data",
+   "label": "Evidence reference"
+  },
+  {
+   "fieldname": "column_break_cfp2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "evidence_file",
+   "fieldtype": "Attach",
+   "label": "Evidence file"
+  },
+  {
+   "fieldname": "qty_per_use",
+   "fieldtype": "Float",
+   "label": "Quantity per use"
+  },
+  {
+   "fieldname": "technical_notes",
+   "fieldtype": "Small Text",
+   "label": "Technical notes"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "review_section",
+   "fieldtype": "Section Break",
+   "label": "Review record"
+  },
+  {
+   "fieldname": "proposed_by",
+   "fieldtype": "Link",
+   "label": "Proposed by",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "proposed_on",
+   "fieldtype": "Datetime",
+   "label": "Proposed on",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "first_review_by",
+   "fieldtype": "Link",
+   "label": "First review by",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "first_review_on",
+   "fieldtype": "Datetime",
+   "label": "First review on",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "first_review_decision",
+   "fieldtype": "Select",
+   "label": "First review decision",
+   "no_copy": 1,
+   "options": "\nConfirmed\nNot Compatible",
+   "read_only": 1
+  },
+  {
+   "fieldname": "first_review_reason",
+   "fieldtype": "Small Text",
+   "label": "First review reason",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cfp3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "confirmed_by",
+   "fieldtype": "Link",
+   "label": "Decided by",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmed_on",
+   "fieldtype": "Datetime",
+   "label": "Decided on",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "retired_by",
+   "fieldtype": "Link",
+   "label": "Retired by",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "retired_on",
+   "fieldtype": "Datetime",
+   "label": "Retired on",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "retire_reason",
+   "fieldtype": "Small Text",
+   "label": "Retire reason",
+   "mandatory_depends_on": "eval:!doc.is_active"
+  },
+  {
+   "default": "Manual",
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Source",
+   "no_copy": 1,
+   "options": "Manual\nSupervisor proposal\nApproved request\nInstallation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_request",
+   "fieldtype": "Link",
+   "label": "Source request",
+   "no_copy": 1,
+   "options": "Equipment Needs Request",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "no_copy": 1,
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "compat_key",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Compatibility key",
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-23 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Equipment Part",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Supervisor",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "item_code,equipment_model,card_equipment",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

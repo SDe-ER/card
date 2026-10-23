@@ -15,6 +15,7 @@ def get_data():
 		"non_standard_fieldnames": {
 			"Project Diesel Fill": "card_equipment",
 			"Equipment Transport": "card_equipment",
+			"Card Equipment Part": "card_equipment",
 		},
 		"transactions": [
 			{
@@ -24,6 +25,11 @@ def get_data():
 			{
 				"label": _("Fuel & Transport"),
 				"items": ["Project Diesel Fill", "Equipment Transport"],
+			},
+			# FR-077: parts that fit this machine (shown only to roles that read fitment rows)
+			{
+				"label": _("Parts fitment"),
+				"items": ["Card Equipment Part"],
 			},
 			# Linked records this equipment points OUT to (resolved via internal_links).
 			{

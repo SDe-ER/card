@@ -172,6 +172,17 @@ function card_set_asset_query(frm) {
 	}));
 }
 
+// FR-077: offer only active models of the chosen make and equipment type.
+function card_set_model_query(frm) {
+	frm.set_query("equipment_make", () => ({ filters: { disabled: 0 } }));
+	frm.set_query("equipment_model", () => {
+		const filters = { disabled: 0 };
+		if (frm.doc.equipment_make) filters.equipment_make = frm.doc.equipment_make;
+		if (frm.doc.equipment_type) filters.equipment_type = frm.doc.equipment_type;
+		return { filters };
+	});
+}
+
 // New-form shortcut: pick an Asset, get a prefilled (unsaved) equipment form.
 function card_add_create_from_asset(frm) {
 	if (!frm.is_new() || frm.doc["الأصل_في_erpnext"]) return;
@@ -399,6 +410,7 @@ frappe.ui.form.on("Card Equipment", {
 	setup(frm) {
 		card_patch_heatmap(frm);
 		card_set_asset_query(frm);
+		card_set_model_query(frm);
 	},
 	refresh(frm) {
 		card_patch_heatmap(frm);

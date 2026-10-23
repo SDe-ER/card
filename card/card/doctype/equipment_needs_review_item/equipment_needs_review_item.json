@@ -24,7 +24,9 @@
   "warehouse",
   "stock_qty",
   "repeat_flag",
-  "material_request"
+  "material_request",
+  "tool_custody",
+  "handed_qty"
  ],
  "fields": [
   {
@@ -162,6 +164,7 @@
    "fieldname": "stock_qty",
    "fieldtype": "Float",
    "label": "In stock",
+   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -177,10 +180,25 @@
    "options": "Material Request",
    "read_only": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "tool_custody",
+   "fieldtype": "Link",
+   "label": "Tool custody",
+   "options": "Employee Tool Custody",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "handed_qty",
+   "fieldtype": "Float",
+   "label": "Handed over qty",
+   "read_only": 1,
+   "no_copy": 1
   }
  ],
  "links": [],
- "modified": "2026-10-19 17:00:00.000000",
+ "modified": "2026-10-23 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Needs Review Item",

@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import cstr, flt, getdate
 
 from card.company import single_company, validate_equipment_company
 from card.settings import setting
@@ -28,6 +28,7 @@ class EquipmentTransport(Document):
 		for row in self.items:
 			validate_equipment_company(frappe._dict(company=self.company, equipment=row.card_equipment))
 		self._detect_movements()
+		self._validate_project_company()
 		self._apply_cost_bearer()
 		self._apply_destination_cost_center()
 		self._apply_transport_price()
@@ -98,6 +99,20 @@ class EquipmentTransport(Document):
 					).format(", ".join(sorted(sources)))
 				)
 			self.project = sources.pop() if sources else None
+
+	def _validate_project_company(self):
+		"""P0 D3 (Owner 2026-10-20): the project a transport goes to (or, for a return to
+		the supplier, the project it leaves) belongs to the transport's company, as every
+		machine in it does; otherwise the move would take another company's cost center."""
+		if not self.project:
+			return
+		project_company = frappe.db.get_value("Project", self.project, "company")
+		if project_company and project_company != self.company:
+			frappe.throw(
+				_("Project {0} belongs to company {1}; this transport belongs to company {2}.").format(
+					self.project, project_company, self.company
+				)
+			)
 
 	def _apply_destination_cost_center(self):
 		"""Owner 2026-10-19: a move is always charged to where the equipment goes — the
@@ -248,7 +263,80 @@ class EquipmentTransport(Document):
 
 	def before_cancel(self):
 		# Guards run before docstatus flips, so a block keeps the doc submitted.
+		self._refuse_changes_on_cancel()
 		check_cancel_allowed(self)
+
+	def _refuse_changes_on_cancel(self):
+		"""A cancel runs no validate and stores the values the request sent (frappe
+		Document._save, action "cancel"), so a cancel sent as a save with docstatus 2 could
+		rewrite the machines and assignment links that reverse_transfer undoes. Only the
+		transport as approved is cancelled."""
+		if _cancel_key(self) != _cancel_key(self.get_latest()):
+			frappe.throw(
+				_(
+					"Transport {0} is cancelled as approved; its details cannot be changed when cancelling."
+				).format(self.name)
+			)
 
 	def on_cancel(self):
 		reverse_transfer(self)
+
+
+def _cancel_key(doc):
+	"""What a cancel reads (card.transfer) and keeps on the cancelled transport, in one
+	comparable form (a request sends dates and numbers as text)."""
+	return (
+		cstr(doc.company),
+		cstr(getdate(doc.date)) if doc.date else "",
+		cstr(doc.project),
+		cstr(doc.destination_type),
+		cstr(doc.destination_location),
+		flt(doc.amount, 2),
+		[
+			(
+				cstr(row.name),
+				cstr(row.card_equipment),
+				cstr(row.created_assignment),
+				cstr(row.previous_assignment),
+				flt(row.amount, 2),
+			)
+			for row in doc.get("items") or []
+		],
+	)
+
+
+# P0 company isolation D3 (Owner 2026-10-20): Frappe checks create/write permission on
+# the values the client sends (frappe/model/document.py: insert, _save), so a user of
+# company A could send company A for a company-B draft transport, or leave the company
+# empty and let validate default it. The transport's company is checked here.
+
+
+def has_transport_permission(doc, ptype=None, user=None, debug=False):
+	"""Document-level check for every path (read, create, REST/Desk save, set_value,
+	submit, cancel): the company sent and, for a saved transport, the company stored in
+	the database must be permitted; with no company sent, the companies of the machines,
+	of the project and the default company validate would fill in decide. Scope = the
+	Company User Permissions that apply to transports, as the transport list uses.
+	A read costs one query.
+	A controller can only deny (Frappe 16 treats a falsy return as a denial)."""
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(user or frappe.session.user, "Equipment Transport")
+	if companies is None:
+		return True
+	owners = {doc.get("company")}
+	if not doc.is_new():
+		owners.add(frappe.db.get_value(doc.doctype, doc.name, "company"))
+	if not doc.get("company"):
+		owners.add(single_company())  # what validate fills in
+		equipment = {row.get("card_equipment") for row in doc.get("items") or []} | {doc.get("equipment")}
+		equipment.discard(None)
+		if equipment:
+			owners.update(
+				frappe.get_all("Card Equipment", filters={"name": ["in", list(equipment)]}, pluck="company")
+			)
+		if doc.get("project"):
+			owners.add(frappe.db.get_value("Project", doc.project, "company"))
+	owners.discard(None)
+	owners.discard("")
+	return all(company in companies for company in owners)

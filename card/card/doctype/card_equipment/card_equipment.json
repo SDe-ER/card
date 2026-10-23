@@ -17,6 +17,8 @@
   "commercial_change_reason",
   "brand",
   "model",
+  "equipment_make",
+  "equipment_model",
   "manufacture_year",
   "serial_no",
   "plate_no",
@@ -154,6 +156,22 @@
    "label": "Model",
    "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
    "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.model"
+  },
+  {
+   "fieldname": "equipment_make",
+   "fieldtype": "Link",
+   "label": "Equipment make",
+   "options": "Card Equipment Make",
+   "permlevel": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "equipment_model",
+   "fieldtype": "Link",
+   "label": "Equipment model",
+   "options": "Card Equipment Model",
+   "permlevel": 1,
+   "search_index": 1
   },
   {
    "fieldname": "manufacture_year",
@@ -756,7 +774,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-10-19 12:00:00.000000",
+ "modified": "2026-10-23 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",
