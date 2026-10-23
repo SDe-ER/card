@@ -2094,6 +2094,12 @@ msgstr ""
 msgid "This movement is already confirmed."
 msgstr ""
 
+msgid "This line is handled by its Material Request {0}."
+msgstr ""
+
+msgid "You cannot close a handover to yourself."
+msgstr ""
+
 msgid "A partial handover leaves a new draft: you also need permission to create custody records."
 msgstr ""
 

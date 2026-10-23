@@ -126,10 +126,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Failed handover:** `card.materials.close_tool_handover` (POST; store side or Card Manager) closes a waiting
     draft as "Not handed over" with a mandatory reason. The draft is then read only and never submitted.
     `card.materials.make_tool_handover` (POST; Card Manager only, H-2) makes a replacement draft for the rest of the
-    line. A reviewed handover cannot be deleted or amended.
-  - **Cancel:** cancelling a confirmed Handover or Return cancels its own submitted Stock Entry in the same
+    line. It refuses a line approved before this change, because that line's Material Transfer MR already moved the
+    tools. The worker cannot close their own handover. A reviewed handover cannot be deleted or amended. Desk buttons
+    for these two actions come with PR-T3.
+  - **Cancel:** cancelling a Handover or Return confirmed this way cancels its own submitted Stock Entry in the same
     transaction (ERPNext refuses to cancel an entry while a submitted custody record links it) and gives the qty back
-    to the review line. The user needs Stock Entry cancel permission.
+    to the review line. The user needs Stock Entry cancel permission. An older record keeps "cancel the Stock Entry
+    first". Known limit, unchanged by this PR: when the stock team has submitted that older entry, neither can be
+    cancelled from the app.
   - **Unchanged:** Loss and Damage (draft Material Issue for the stock team; their approval comes in a separate PR,
     H-4), custody reports and Part lines.
 

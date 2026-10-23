@@ -2756,6 +2756,12 @@ msgstr "أُغلق هذا التسليم كـ«لم يتم التسليم»؛ ل
 msgid "This movement is already confirmed."
 msgstr "هذه الحركة مؤكدة بالفعل."
 
+msgid "This line is handled by its Material Request {0}."
+msgstr "هذا السطر يُعالَج من خلال طلب المواد {0}."
+
+msgid "You cannot close a handover to yourself."
+msgstr "لا يمكنك إغلاق تسليم موجّه إليك."
+
 msgid "A partial handover leaves a new draft: you also need permission to create custody records."
 msgstr "التسليم الجزئي يترك مسودة جديدة: تحتاج أيضًا صلاحية إنشاء سجلات العهدة."
 

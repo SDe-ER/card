@@ -420,6 +420,8 @@ def close_tool_handover(custody: str, reason: str):
 	doc.check_permission("write")
 	if not (has_any_role((HANDOVER_MANAGER_ROLE,)) or can_confirm_custody()):
 		frappe.throw(_("Only the store side or a Card Manager may close a handover."), frappe.PermissionError)
+	if frappe.db.get_value("Employee", doc.employee, "user_id") == frappe.session.user:
+		frappe.throw(_("You cannot close a handover to yourself."), frappe.PermissionError)
 	reason = (reason or "").strip()
 	if not reason:
 		frappe.throw(_("Give the reason why the tool was not handed over."))
@@ -462,12 +464,19 @@ def make_tool_handover(review_item: str):
 			"approved_qty",
 			"handed_qty",
 			"tool_custody",
+			"material_request",
 		],
 		as_dict=True,
 		for_update=True,
 	)
 	if review.approval_status != "Approved" or line.kind != "Tool":
 		frappe.throw(_("Only a tool line of an approved review can be handed over."))
+	# a line approved before #113 went to the custody store through a Material Transfer MR
+	if line.material_request and (
+		frappe.db.get_value("Material Request", line.material_request, "material_request_type")
+		== "Material Transfer"
+	):
+		frappe.throw(_("This line is handled by its Material Request {0}.").format(line.material_request))
 	# locking reads: a plain read would use this request's older snapshot and miss a draft
 	# that another request committed while this one waited for the line lock
 	if line.tool_custody != last_name:

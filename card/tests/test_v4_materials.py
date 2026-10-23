@@ -963,6 +963,52 @@ class TestV4Materials(IntegrationTestCase):
 		self._confirm(frappe.get_doc("Employee Tool Custody", new), keeper)
 		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
 
+	def test_a_line_approved_before_the_handover_flow_gets_no_new_handover(self):
+		# a tool line of an older approval was moved by its Material Transfer MR: never issued twice
+		_review, line, _draft = self._approved_tool()
+		mr = frappe.get_doc(
+			{
+				"doctype": "Material Request",
+				"material_request_type": "Material Transfer",
+				"company": self.company,
+				"transaction_date": nowdate(),
+				"schedule_date": nowdate(),
+				"items": [
+					{
+						"item_code": self.tool,
+						"qty": 1,
+						"schedule_date": nowdate(),
+						"from_warehouse": self.store,
+						"warehouse": self.custody,
+					}
+				],
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.set_value(
+			"Equipment Needs Review Item", line.name, {"material_request": mr.name, "tool_custody": None}
+		)
+		manager = self._user("mgr", ["Card Manager"])
+		frappe.set_user(manager)
+		try:
+			with self.assertRaises(frappe.ValidationError) as refused:
+				materials.make_tool_handover(line.name)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertIn(mr.name, str(refused.exception))
+
+	def test_the_worker_cannot_close_his_own_handover(self):
+		_review, _line, draft = self._approved_tool()
+		frappe.get_doc("User", self.op_user).add_roles("Stock Manager")
+		frappe.set_user(self.op_user)
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				materials.close_tool_handover(draft.name, "not collected")
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(
+			frappe.db.get_value("Employee Tool Custody", draft.name, "handover_status"), "Awaiting handover"
+		)
+
 	def test_handover_server_fields_cannot_be_set_by_hand(self):
 		_review, line, draft = self._approved_tool()
 		forged = frappe.get_doc(
