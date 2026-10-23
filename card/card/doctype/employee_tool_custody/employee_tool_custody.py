@@ -92,10 +92,11 @@ class EmployeeToolCustody(Document):
 		files = frappe.get_all(
 			"File",
 			filters={"file_url": self.handover_receipt, "is_private": 1},
-			fields=["attached_to_doctype", "attached_to_name"],
+			fields=["attached_to_doctype", "attached_to_name", "owner"],
 		)
 		if not any(
-			(f.attached_to_doctype, f.attached_to_name) in ((None, None), (self.doctype, self.name))
+			(f.attached_to_doctype, f.attached_to_name) == (self.doctype, self.name)
+			or (not f.attached_to_doctype and f.owner == frappe.session.user)
 			for f in files
 		):
 			frappe.throw(_("The signed receipt must be a private file uploaded to this record."))
@@ -131,6 +132,8 @@ class EmployeeToolCustody(Document):
 		if self.review_item:
 			excluded.add(frappe.db.get_value("Equipment Needs Review", self.review, "approved_by"))
 			request = frappe.db.get_value(REVIEW_LINE, self.review_item, "request")
+			if not request:
+				frappe.throw(_("This handover no longer matches its approved review line."))
 			excluded.update(
 				frappe.db.get_value("Equipment Needs Request", request, ["owner", "entered_by"]) or ()
 			)
@@ -163,6 +166,14 @@ class EmployeeToolCustody(Document):
 		):
 			frappe.throw(_("This handover no longer matches its approved review line."))
 		remaining = flt(line.approved_qty) - flt(line.handed_qty)
+		self._locked_line = line  # read under the lock; reused in on_submit (no older snapshot)
+		if flt(self.qty) < remaining and not frappe.has_permission(self.doctype, "create"):
+			frappe.throw(
+				_(
+					"A partial handover leaves a new draft: you also need permission to create custody records."
+				),
+				frappe.PermissionError,
+			)
 		if flt(self.qty) > remaining:
 			frappe.throw(
 				_("Only {0} of {1} are still to be handed over on this line.").format(
@@ -188,21 +199,21 @@ class EmployeeToolCustody(Document):
 				)
 
 	def on_submit(self):
+		values = {}
 		if self.movement in STOCK_MOVES:
-			self._make_stock_entry()
+			values["stock_entry"] = self._make_stock_entry()
 		if self.movement in RECEIPT_MOVES + CONFIRMED_MOVES:
-			values = {"handed_by": frappe.session.user, "handed_on": now_datetime()}
+			values.update({"handed_by": frappe.session.user, "handed_on": now_datetime()})
 			if self.movement == "Handover":
 				values["handover_status"] = "Handed over"
+		if values:
 			self.db_set(values)
 		if self.review_item:
 			self._hand_over_on_line()
 
 	def _hand_over_on_line(self):
-		# the line row is locked since before_submit
-		line = frappe.db.get_value(
-			REVIEW_LINE, self.review_item, ["approved_qty", "handed_qty"], as_dict=True
-		)
+		# the line row is locked since before_submit; its values were read there
+		line = self._locked_line
 		handed = flt(line.handed_qty) + flt(self.qty)
 		frappe.db.set_value(REVIEW_LINE, self.review_item, "handed_qty", handed, update_modified=False)
 		remaining = flt(line.approved_qty) - handed
@@ -244,7 +255,7 @@ class EmployeeToolCustody(Document):
 		else:
 			# a loss or damage: a draft for the stock team to submit (unchanged, Owner H-4)
 			entry.insert(ignore_permissions=True)
-		self.db_set("stock_entry", entry.name)
+		return entry.name
 
 	def before_cancel(self):
 		submitted = (
@@ -252,7 +263,7 @@ class EmployeeToolCustody(Document):
 		)
 		# a confirmed Handover / Return cancels its own submitted entry (on_cancel): ERPNext
 		# refuses to cancel an entry while a submitted custody record links it
-		if submitted and not (self.movement in CONFIRMED_MOVES and self._made_here(self.stock_entry, 1)):
+		if submitted and not self._cancels_own_entry():
 			frappe.throw(_("Cancel Stock Entry {0} first.").format(self.stock_entry))
 		if submitted and not frappe.has_permission("Stock Entry", "cancel"):
 			frappe.throw(
@@ -265,8 +276,11 @@ class EmployeeToolCustody(Document):
 				frappe.throw(_("Later movements already use these tools; cancel them first."))
 
 	def on_cancel(self):
+		# the approved review line links its handover; the cancel gives the qty back to it
+		# (Frappe checks back links after on_cancel and reads this from the instance)
+		self.ignore_linked_doctypes = (REVIEW_LINE,)
 		entry = self.stock_entry
-		if entry and self._made_here(entry, 1):
+		if entry and self._cancels_own_entry():
 			# the confirmed move goes back in the same transaction, with the user's own rights
 			frappe.get_doc("Stock Entry", entry).cancel()
 		elif entry:
@@ -283,6 +297,13 @@ class EmployeeToolCustody(Document):
 				max(flt(handed) - flt(self.qty), 0),
 				update_modified=False,
 			)
+
+	def _cancels_own_entry(self):
+		"""Only a Handover / Return confirmed by the store side (#113, handed_by set) submitted
+		its entry together with the record; an older record keeps "cancel the entry first"."""
+		return bool(
+			self.movement in CONFIRMED_MOVES and self.handed_by and self._made_here(self.stock_entry, 1)
+		)
 
 	def on_trash(self):
 		if self.review_item:

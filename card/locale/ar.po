@@ -2756,6 +2756,12 @@ msgstr "أُغلق هذا التسليم كـ«لم يتم التسليم»؛ ل
 msgid "This movement is already confirmed."
 msgstr "هذه الحركة مؤكدة بالفعل."
 
+msgid "A partial handover leaves a new draft: you also need permission to create custody records."
+msgstr "التسليم الجزئي يترك مسودة جديدة: تحتاج أيضًا صلاحية إنشاء سجلات العهدة."
+
+msgid "This line changed while you worked on it; try again."
+msgstr "تغيّر هذا السطر أثناء عملك عليه؛ حاول مرة أخرى."
+
 msgid "This review line does not exist."
 msgstr "سطر المراجعة هذا غير موجود."
 

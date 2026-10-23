@@ -17,6 +17,12 @@ from frappe.utils import nowdate
 
 from card import materials
 
+# a valid 1x1 PNG: the scanned receipt in tests (random bytes keep every file unique)
+RECEIPT_PNG = bytes.fromhex(
+	"89504e470d0a1a0a0000000d4948445200000001000000010806000000"
+	"1f15c4890000000d49444154789c6300010000000500010d0a2db40000000049454e44ae426082"
+)
+
 WAIT = 30  # seconds; a stuck step fails the test instead of hanging the run
 LOCK_WAIT = 10  # innodb_lock_wait_timeout of the two requests (session only)
 SAFE_ERRORS = (
@@ -220,9 +226,9 @@ class TestToolHandoverConcurrency(IntegrationTestCase):
 		receipt = self._new(
 			{
 				"doctype": "File",
-				"file_name": f"thc-receipt-{self.token}.pdf",
+				"file_name": f"thc-receipt-{self.token}.png",
 				"is_private": 1,
-				"content": b"%PDF-1.4 signed " + self.token.encode(),
+				"content": RECEIPT_PNG + frappe.generate_hash(length=12).encode(),
 			}
 		)
 		transfer = frappe.get_doc(

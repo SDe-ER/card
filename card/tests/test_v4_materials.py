@@ -10,6 +10,12 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt, nowdate
 
 from card import materials
+
+# a valid 1x1 PNG: the scanned receipt in tests (random bytes keep every file unique)
+RECEIPT_PNG = bytes.fromhex(
+	"89504e470d0a1a0a0000000d4948445200000001000000010806000000"
+	"1f15c4890000000d49444154789c6300010000000500010d0a2db40000000049454e44ae426082"
+)
 from card.tests.test_controllers import _ensure_masters
 
 
@@ -487,9 +493,9 @@ class TestV4Materials(IntegrationTestCase):
 				frappe.get_doc(
 					{
 						"doctype": "File",
-						"file_name": f"receipt-{frappe.generate_hash(length=8)}.pdf",
+						"file_name": f"receipt-{frappe.generate_hash(length=8)}.png",
 						"is_private": 1,
-						"content": b"%PDF-1.4 signed receipt " + self.token.encode(),
+						"content": RECEIPT_PNG + frappe.generate_hash(length=12).encode(),
 					}
 				)
 				.insert()
@@ -1005,6 +1011,15 @@ class TestV4Materials(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):  # replaced by a Card Manager, never amended
 			amended.insert()
 
+	def test_an_older_confirmed_handover_keeps_cancel_the_entry_first(self):
+		# H-7: a record not confirmed through this flow (no handed_by) keeps today's rule
+		hand = self._custody("Handover", warehouse=self.store)
+		frappe.db.set_value("Employee Tool Custody", hand.name, "handed_by", None)
+		hand.reload()
+		with self.assertRaises(frappe.ValidationError):
+			hand.cancel()
+		self.assertEqual(frappe.db.get_value("Stock Entry", hand.stock_entry, "docstatus"), 1)
+
 	def test_return_and_transfer_are_confirmed_with_evidence(self):
 		self._custody("Handover", qty=3, warehouse=self.store)
 		keeper = self._store_keeper()
@@ -1045,13 +1060,14 @@ class TestV4Materials(IntegrationTestCase):
 		public = frappe.get_doc(
 			{
 				"doctype": "File",
-				"file_name": f"public-{self.token}.pdf",
+				"file_name": f"public-{self.token}.png",
 				"is_private": 0,
-				"content": b"%PDF public",
+				"content": RECEIPT_PNG + frappe.generate_hash(length=12).encode(),
 			}
 		).insert()
 		other = self._custody("Handover", warehouse=self.store)
-		for url in (public.file_url, other.handover_receipt):
+		someone_elses = self._receipt(self._user("upl", ["Card Supervisor"]))  # not yet attached
+		for url in (public.file_url, other.handover_receipt, someone_elses):
 			with self.subTest(url=url), self.assertRaises(frappe.ValidationError):
 				self._custody("Handover", warehouse=self.store, handover_receipt=url, submit=False)
 

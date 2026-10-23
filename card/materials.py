@@ -443,6 +443,11 @@ def make_tool_handover(review_item: str):
 		frappe.throw(_("This review line does not exist."), frappe.DoesNotExistError)
 	review = frappe.get_doc("Equipment Needs Review", parent)
 	review.check_permission("read")
+	# lock order as a confirmation (custody row, then line): two requests never deadlock
+	last_name = frappe.db.get_value("Equipment Needs Review Item", review_item, "tool_custody")
+	last = last_name and frappe.db.get_value(
+		CUSTODY_DOCTYPE, last_name, ["docstatus", "handover_status"], for_update=True
+	)
 	# one replacement at a time: the line row lock makes a second call wait, then see the draft
 	line = frappe.db.get_value(
 		"Equipment Needs Review Item",
@@ -465,9 +470,8 @@ def make_tool_handover(review_item: str):
 		frappe.throw(_("Only a tool line of an approved review can be handed over."))
 	# locking reads: a plain read would use this request's older snapshot and miss a draft
 	# that another request committed while this one waited for the line lock
-	last = line.tool_custody and frappe.db.get_value(
-		CUSTODY_DOCTYPE, line.tool_custody, ["docstatus", "handover_status"], for_update=True
-	)
+	if line.tool_custody != last_name:
+		frappe.throw(_("This line changed while you worked on it; try again."))
 	if last and tuple(last) == (0, "Awaiting handover"):
 		frappe.throw(_("A handover of this line is already awaiting confirmation."))
 	remaining = flt(line.approved_qty) - flt(line.handed_qty)
