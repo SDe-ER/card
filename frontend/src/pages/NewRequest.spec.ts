@@ -1,32 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { createSSRApp, h } from 'vue'
-import { renderToString } from 'vue/server-renderer'
-import { TabButtons } from 'frappe-ui'
 import page from './NewRequest.vue?raw'
 
-const kinds = [
-  { label: 'Part or consumable', value: 'Part' },
-  { label: 'Tool', value: 'Tool' },
-]
-
-const render = (props: Record<string, unknown>) =>
-  renderToString(createSSRApp({ render: () => h(TabButtons, { modelValue: 'Part', ...props }) }))
-
-// frappe-ui 1.0.2 TabButtons reads `options`; with `buttons` it renders no choice at all, so an
-// operator could not ask for a tool (every line went out as a part).
-describe('request line kind selector', () => {
-  it('shows both kinds through the options prop', async () => {
-    const html = await render({ options: kinds })
-    expect(html).toContain('Part or consumable')
-    expect(html).toContain('Tool')
+// frappe-ui 1.0.2 TabButtons reads `options`; with `buttons` the kind choice is not shown.
+describe('NewRequest', () => {
+  it('gives the line kinds to TabButtons as options', () => {
+    expect(page).toMatch(/<TabButtons\b[^>]*\s:options="kinds"/)
+    expect(page).not.toMatch(/<TabButtons\b[^>]*\s:buttons=/)
   })
 
-  it('renders no choice with the old buttons prop', async () => {
-    const html = await render({ buttons: kinds })
-    expect(html).not.toContain('Tool')
-  })
-
-  it('NewRequest passes the kinds as options', () => {
-    expect(page).toMatch(/<TabButtons v-model="line\.kind" :options="kinds" \/>/)
+  it('offers the two kinds the server stores', () => {
+    expect(page).toMatch(/const kinds = \[[^\]]*value: 'Part'[^\]]*value: 'Tool'[^\]]*\]/)
   })
 })

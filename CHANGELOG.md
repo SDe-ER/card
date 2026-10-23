@@ -142,13 +142,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
-- **CARD Mobile: the Part / Tool choice of a request line is shown again.** `NewRequest.vue` passed the two kinds to
-  frappe-ui `TabButtons` as `buttons`; frappe-ui 1.0.2 reads `options`, so the choice rendered empty and every line
-  was sent as "Part" — an operator could not ask for a tool from CARD Mobile (since the first CARD Mobile commit,
-  683bfc4). The prop is now `options`. Tests: vitest (the selector renders both kinds; the page uses `options`; the
-  request sent to `card.materials.submit_needs` carries the chosen kind), `test_v4_materials.test_operator_asks_for_a_tool`
-  (the server stores Tool / Part). Checked in a browser at 320–1440 px in English and Arabic. No server, permission,
-  data or API change. Rollback: revert the commit.
+- **CARD Mobile: the Part / Tool choice of a request line is shown (PR #112).** `NewRequest.vue` passed the two
+  kinds to frappe-ui `TabButtons` as `buttons`; frappe-ui 1.0.2 reads `options`, so the choice rendered empty and
+  every line was sent as "Part" — an operator could not ask for a tool from CARD Mobile (since the first CARD Mobile
+  commit, 683bfc4). The prop is now `options`. Tests: vitest (the page gives the kinds Part / Tool to `TabButtons` as
+  `options`; the request sent to `card.materials.submit_needs` carries the chosen kind); `test_v4_materials`:
+  `test_operator_asks_for_a_tool` (the server stores Tool / Part), `test_a_tool_stays_a_tool_through_review_and_approval`
+  (the review keeps the kind; approval makes a Material Transfer to the tool custody store) and
+  `test_a_tool_needs_the_custody_store_before_approval`. Browser check on a local build with test data (no ERPNext) at
+  8 widths from 320 to 1440 px, English and Arabic. No server, permission, data or API change; tool lines from CARD
+  Mobile now reach review, so approving them needs the tool custody store in Card Settings (Materials), as for tool
+  lines from Desk or the older worker page. Lines sent from CARD Mobile before this fix stay "Part"; the fix does not
+  change them. Rollback: revert the PR #112 commits; tool lines and draft Material Requests made after the fix stay.
 - **The report row of the Card Materials sidebar now reaches upgraded sites (FR-077).** PR #108 added the
   "Equipment Make Model Values" row but kept the file's `modified` time. Frappe imports a standard Sidebar on
   `migrate` only when the file is newer than the stored document, so a site that already had the three FR-077 rows
