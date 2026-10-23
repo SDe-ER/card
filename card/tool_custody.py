@@ -38,6 +38,12 @@ def _check_screen():
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 
+def _may(ptype, doc=None):
+	"""Whether the user has `ptype` on custody records (or on `doc`): used to show actions only;
+	the action itself checks the permission again."""
+	return frappe.has_permission(CUSTODY_DOCTYPE, ptype, doc=doc)
+
+
 def _filters(employee=None, item_code=None):
 	out = {}
 	if employee:
@@ -58,7 +64,7 @@ def context():
 		# the store side and managers work the queue; a supervisor mostly looks at who holds what
 		"default_tab": "awaiting" if (store_side or manager) else "held",
 		"can_confirm": store_side,
-		"can_prepare": bool(frappe.has_permission(CUSTODY_DOCTYPE, "create")),
+		"can_prepare": bool(_may("create")),
 		"default_store": setting("default_store_warehouse"),
 	}
 
@@ -106,7 +112,7 @@ def _awaiting(filters, start):
 		limit_start=start,
 		limit_page_length=PAGE_LENGTH + 1,
 	)
-	can_submit = bool(frappe.has_permission(CUSTODY_DOCTYPE, "submit"))
+	can_submit = bool(_may("submit"))
 	# U-4: the store's stock, read with the user's own rights (nothing when he may not read it), one
 	# read per store for the page; the confirmation checks it again in ERPNext under the transaction
 	stock = {}
@@ -135,7 +141,7 @@ def _awaiting(filters, start):
 			and row.review_item
 			and (store_side or manager)
 			and not worker
-			and frappe.has_permission(CUSTODY_DOCTYPE, "write", doc=row.name)
+			and _may("write", row.name)
 		)
 		row.actions = [
 			action
@@ -197,9 +203,7 @@ def _held(filters, start):
 	][start : start + PAGE_LENGTH + 1]
 	user = frappe.session.user
 	store_side = can_confirm_custody()
-	can_transfer = bool(
-		frappe.has_permission(CUSTODY_DOCTYPE, "create") and frappe.has_permission(CUSTODY_DOCTYPE, "submit")
-	)
+	can_transfer = bool(_may("create") and _may("submit"))
 	rows = []
 	for emp, item, qty in held:
 		emp_name, emp_user = frappe.db.get_value("Employee", emp, ["employee_name", "user_id"]) or ("", None)
@@ -316,11 +320,7 @@ def move(
 		doc.project = equipment_project(machines[0])
 	doc.insert()
 	# the screen offers the confirmation at once only to a user the server lets confirm it
-	may_confirm = (
-		can_confirm_custody()
-		if movement in ("Handover", "Return")
-		else bool(frappe.has_permission(CUSTODY_DOCTYPE, "submit"))
-	)
+	may_confirm = can_confirm_custody() if movement in ("Handover", "Return") else bool(_may("submit"))
 	return {
 		"name": doc.name,
 		"may_confirm": may_confirm and frappe.session.user not in confirmer_excluded(doc),
