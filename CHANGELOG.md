@@ -16,6 +16,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Parts fitment in the catalog search, catalog phase 2b (FR-078; Owner decisions A–D, 2026-10-23)**: the catalog
+  shows each Item's fit for a chosen machine, in four separate states: Confirmed (for this machine, or for its
+  model), Not compatible (warning), Pending technical review, and No fitment record. The machine's decided row wins
+  over its model's; a pending row is never a fit (O6). "Fits this machine" lists only confirmed fits, filtered and
+  paged on the server; Not compatible items stay in the normal search with a warning. New GET endpoints
+  `card.fitment.fit_for` (up to 50 Items) and `card.fitment.machines` (machines the caller may use);
+  `card.catalog.search` takes `equipment` and `fits` (unchanged answer without them). A machine is used only by a
+  user who may read it (DocPerms, User Permissions, company isolation) or by its own operator. Results carry the fit
+  and the model name only, never evidence, reasons, reviewers or notes (Q8). **Card User** opens CARD Mobile as a
+  read-only catalog viewer (decision A): the new Catalog page and his profile only, no Employee needed; request
+  endpoints still refuse him, and he still has no access to fitment rows. Request lines (Q10, decisions C and D):
+  `Equipment Needs Request Item` gets `fit_status` (read only) and `fit_reason`; at submit every picked Item without
+  a confirmed fit needs the reason (CARD Mobile, the older `/equipment-needs` page and Desk); the review line shows
+  both. Proposals stay in Desk (decision B). Nothing in search, requests or reviews changes a fitment row (Q6).
+  Translations: ar for all new strings, bn / hi / ur for the operator strings. Impact: two new columns on each of
+  `Equipment Needs Request Item` and `Equipment Needs Review Item` (DocType sync); Card User gets CARD Mobile catalog
+  access (Owner decision A); no ERPNext DocType, role or permission change; no data patch; no accounting change.
+  Rollback: revert the merge; the new columns stay (empty or kept); Card User loses the catalog page.
 - **Parts fitment, catalog phase 2a (FR-077; Owner decisions Q1–Q11, 2026-10-23)**: which ERPNext Item fits which
   machine. New masters `Card Equipment Make` (CMK-) and `Card Equipment Model` (CEM-, one make and one equipment
   type); a normalised unique key refuses the same make or model written twice ("PC200-8" = "pc 200 8"), also when

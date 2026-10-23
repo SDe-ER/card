@@ -222,3 +222,36 @@ msgstr "مزید دیکھیں"
 
 msgid "Unknown catalog filter"
 msgstr "نامعلوم کیٹلاگ فلٹر"
+
+msgid "Confirmed for this machine"
+msgstr "اس مشین کے لیے تصدیق شدہ"
+
+msgid "Confirmed for model {0}"
+msgstr "ماڈل {0} کے لیے تصدیق شدہ"
+
+msgid "Not compatible with this machine"
+msgstr "اس مشین کے لیے موزوں نہیں"
+
+msgid "Fit pending technical review"
+msgstr "موزونیت تکنیکی جائزے میں ہے"
+
+msgid "No fitment record"
+msgstr "موزونیت کا کوئی ریکارڈ نہیں"
+
+msgid "Fits this machine"
+msgstr "اس مشین میں لگتا ہے"
+
+msgid "Why this item without a confirmed fit?"
+msgstr "تصدیق کے بغیر یہ چیز کیوں؟"
+
+msgid "Line {0}: enter why you need an item without a confirmed fit."
+msgstr "سطر {0}: لکھیں کہ تصدیق کے بغیر یہ چیز کیوں چاہیے۔"
+
+msgid "Row {0}: {1} has no confirmed fit for this machine ({2}); enter the reason."
+msgstr "سطر {0}: {1} کی اس مشین کے لیے تصدیق نہیں ({2})؛ وجہ لکھیں۔"
+
+msgid "Not compatible"
+msgstr "موزوں نہیں"
+
+msgid "Pending review"
+msgstr "جائزہ باقی"

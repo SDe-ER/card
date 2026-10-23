@@ -24,10 +24,22 @@ def active_employee(user=None):
 	)
 
 
+def catalog_only(user=None):
+	"""A read-only catalog viewer of CARD Mobile (phase 2b, Owner decision A): a Card User
+	without a portal role. He opens only the catalog; request endpoints still refuse him."""
+	from card.catalog import CATALOG_VIEW_ROLES
+
+	return has_any_role(CATALOG_VIEW_ROLES, user) and not has_any_role(PORTAL_ROLES, user)
+
+
 def has_app_permission(require_employee=True):
 	"""Apps screen entry and page gate for CARD Mobile: a CARD portal role and, unless told
-	otherwise, an Active Employee."""
-	if frappe.session.user == "Guest" or not has_any_role(PORTAL_ROLES):
+	otherwise, an Active Employee; or a catalog viewer (no Employee needed)."""
+	if frappe.session.user == "Guest":
+		return False
+	if catalog_only():
+		return True
+	if not has_any_role(PORTAL_ROLES):
 		return False
 	return bool(active_employee()) if require_employee else True
 
@@ -67,5 +79,6 @@ def get_session_context():
 		"full_name": frappe.utils.get_fullname(user),
 		"roles": sorted(set(frappe.get_roles(user)) & set(PORTAL_ROLES)),
 		"employee": active_employee(user),
+		"catalog_only": catalog_only(user),
 		"card_version": card.__version__,
 	}

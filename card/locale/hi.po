@@ -222,3 +222,36 @@ msgstr "और देखें"
 
 msgid "Unknown catalog filter"
 msgstr "अज्ञात कैटलॉग फ़िल्टर"
+
+msgid "Confirmed for this machine"
+msgstr "इस मशीन के लिए पुष्टि"
+
+msgid "Confirmed for model {0}"
+msgstr "मॉडल {0} के लिए पुष्टि"
+
+msgid "Not compatible with this machine"
+msgstr "इस मशीन के लिए उपयुक्त नहीं"
+
+msgid "Fit pending technical review"
+msgstr "उपयुक्तता तकनीकी समीक्षा में है"
+
+msgid "No fitment record"
+msgstr "उपयुक्तता का कोई रिकॉर्ड नहीं"
+
+msgid "Fits this machine"
+msgstr "इस मशीन में लगता है"
+
+msgid "Why this item without a confirmed fit?"
+msgstr "पुष्टि के बिना यह सामान क्यों?"
+
+msgid "Line {0}: enter why you need an item without a confirmed fit."
+msgstr "पंक्ति {0}: लिखें कि पुष्टि के बिना यह सामान क्यों चाहिए।"
+
+msgid "Row {0}: {1} has no confirmed fit for this machine ({2}); enter the reason."
+msgstr "पंक्ति {0}: {1} की इस मशीन के लिए पुष्टि नहीं है ({2}); कारण लिखें।"
+
+msgid "Not compatible"
+msgstr "उपयुक्त नहीं"
+
+msgid "Pending review"
+msgstr "समीक्षा बाकी"

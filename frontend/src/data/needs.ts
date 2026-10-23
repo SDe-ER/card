@@ -1,4 +1,5 @@
 import { get, post } from './api'
+import { needsFitReason, type Fit } from './catalog'
 
 // CARD's operator endpoints (card/materials.py); the server checks every call.
 
@@ -45,6 +46,9 @@ export interface DraftLine {
   description: string
   qty: number | null
   reason: string
+  // the picked Item's fit for the machine, and the reason Q10 asks for when it is not confirmed
+  fit: Fit | null
+  fit_reason: string
 }
 
 let lastKey = 0
@@ -58,6 +62,8 @@ export function newLine(): DraftLine {
     description: '',
     qty: 1,
     reason: '',
+    fit: null,
+    fit_reason: '',
   }
 }
 
@@ -71,6 +77,13 @@ export function incompleteLines(lines: DraftLine[]): number[] {
   })
 }
 
+// Picked items without a confirmed fit need the reason before sending (the server checks too).
+export function linesWithoutFitReason(lines: DraftLine[]): number[] {
+  return lines.flatMap((l, i) =>
+    l.item_code && needsFitReason(l.fit) && !l.fit_reason.trim() ? [i + 1] : [],
+  )
+}
+
 // A line is sent when it names an item (picked or described) and has a quantity.
 export function sendableLines(lines: DraftLine[]) {
   return lines
@@ -81,6 +94,7 @@ export function sendableLines(lines: DraftLine[]) {
       description: l.item_code ? l.item_name : l.description.trim(),
       qty: Number(l.qty),
       reason: l.reason.trim(),
+      fit_reason: l.item_code ? l.fit_reason.trim() : '',
     }))
 }
 
