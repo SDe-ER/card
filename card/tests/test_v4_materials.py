@@ -1662,6 +1662,7 @@ class TestV4Materials(IntegrationTestCase):
 			supervisor, "move", movement="Handover", employee=self.operator, item_code=self.tool, qty=1
 		)
 		self.assertFalse(made["may_confirm"])  # a supervisor prepares, the store confirms
+		self.assertFalse(made["has_serial_no"])  # the confirm dialog needs no Item read
 		draft = frappe.get_doc("Employee Tool Custody", made["name"])
 		self.assertEqual(
 			(draft.docstatus, draft.warehouse, draft.card_equipment, draft.handover_status),
@@ -1704,6 +1705,68 @@ class TestV4Materials(IntegrationTestCase):
 		html = frappe.get_print("Employee Tool Custody", transfer.name, print_format="Tool Handover Receipt")
 		for text in (transfer.name, transfer.employee, colleague, self.tool):
 			self.assertIn(text, html)
+		# the screen names the receiver too, for users who may not read Employee
+		history = self._screen(self._store_keeper(), "view", tab="history")["rows"]
+		row = next(r for r in history if r.name == transfer.name)
+		self.assertEqual(row.to_employee_name, frappe.db.get_value("Employee", colleague, "employee_name"))
+
+	def test_the_screen_finds_employees_and_stores_without_reading_them(self):
+		from frappe.desk.search import search_link
+
+		_u, colleague = self._operator("mate")
+		supervisor = self._user("sup", ["Card Supervisor"])
+		self.assertFalse(frappe.has_permission("Employee", "read", user=supervisor))
+		self.assertFalse(frappe.has_permission("Warehouse", "read", user=supervisor))
+
+		def found(user, doctype="Employee", query="employee_query", **filters):
+			frappe.set_user(user)
+			try:
+				rows = search_link(doctype, "", query=f"card.tool_custody.{query}", filters=filters)
+				return {r["value"] for r in rows}
+			finally:
+				frappe.set_user("Administrator")
+
+		self.assertTrue({self.operator, colleague} <= found(supervisor))
+		self.assertIn(self.store, found(supervisor, "Warehouse", "store_query"))
+		self.assertNotIn(self.operator, found(supervisor, exclude=self.operator))  # transfer target
+		other = self._other_company()
+		far = frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"first_name": f"V4 far {self.token}",
+				"gender": "Male",
+				"date_of_birth": "1990-01-01",
+				"date_of_joining": "2020-01-01",
+				"company": other,
+				"status": "Active",
+			}
+		).insert(ignore_permissions=True)
+		self.assertEqual(found(supervisor, company=other) & {far.name, self.operator}, {far.name})
+		self.assertNotIn(far.name, found(supervisor, company=self.company))
+		# a worker who left drops out of new movements but the page filter still finds him
+		frappe.db.set_value("Employee", colleague, "status", "Left")
+		self.assertNotIn(colleague, found(supervisor))
+		self.assertIn(colleague, found(supervisor, any_status=1))
+		frappe.db.set_value("Employee", colleague, "status", "Active")
+		outsider = self._user("far", ["Card Supervisor"])
+		frappe.get_doc(
+			{"doctype": "User Permission", "user": outsider, "allow": "Company", "for_value": other}
+		).insert(ignore_permissions=True)
+		self.assertEqual(found(outsider) & {self.operator, colleague}, set())
+		self.assertNotIn(self.store, found(outsider, "Warehouse", "store_query"))
+		one = self._user("one", ["Card Supervisor"])
+		frappe.get_doc(
+			{"doctype": "User Permission", "user": one, "allow": "Employee", "for_value": colleague}
+		).insert(ignore_permissions=True)
+		self.assertEqual(found(one) & {self.operator, colleague}, {colleague})
+		frappe.set_user(self._user("cu", ["Card User"]))
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				from card.tool_custody import employee_query
+
+				employee_query("Employee", "", "name", 0, 20, {})
+		finally:
+			frappe.set_user("Administrator")
 
 	# ---------- operator page ----------
 	def test_operator_page_context(self):

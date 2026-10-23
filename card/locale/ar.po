@@ -2816,6 +2816,10 @@ msgstr "استلمها"
 msgid "Approve the lines? Tools wait for the store to hand them over."
 msgstr "اعتماد السطور؟ الأدوات تنتظر تسليمها من المخزن."
 
+msgctxt "Tool Custody"
+msgid "Confirm {0}"
+msgstr "تأكيد {0}"
+
 msgid "Only a cancelled movement of the same company that you may amend can be amended."
 msgstr "يمكن تعديل (Amend) حركة ملغاة فقط، من نفس الشركة، ولديك صلاحية تعديلها."
 

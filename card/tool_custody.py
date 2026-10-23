@@ -23,6 +23,7 @@ from card.materials import (
 	operator_equipment,
 	stock_by_item,
 )
+from card.report_access import query_companies
 from card.settings import setting
 
 # Owner U-3: not every CARD user sees custody history; the page is for the store side and the
@@ -83,6 +84,82 @@ def view(tab: str = "awaiting", employee: str | None = None, item_code: str | No
 	return {"tab": tab, "rows": rows[:PAGE_LENGTH], "more": more, "start": start}
 
 
+def _scoped_names(doctype, filters, conditions, txt, title, start, page_len):
+	"""Names and titles of `doctype` for a screen Link field: only in the companies the user may see
+	for custody, and only the records a User Permission on `doctype` allows. The screen roles need
+	no read on `doctype` for it (the store side and the supervisors read only what they work with)."""
+	companies = query_companies(filters, CUSTODY_DOCTYPE)
+	if not companies:
+		return []
+	conditions = [*conditions, ["company", "in", companies]]
+	allowed = [
+		entry.get("doc")
+		for entry in frappe.permissions.get_user_permissions(frappe.session.user).get(doctype) or []
+		if not entry.get("applicable_for") or entry.get("applicable_for") == CUSTODY_DOCTYPE
+	]
+	if allowed:
+		conditions.append(["name", "in", allowed])
+	like = f"%{txt or ''}%"
+	return frappe.get_all(
+		doctype,
+		filters=conditions,
+		or_filters={"name": ["like", like], title: ["like", like]},
+		fields=["name", title],
+		order_by=f"{title} asc",
+		limit_start=cint(start),
+		limit_page_length=cint(page_len),
+		as_list=True,
+	)
+
+
+@frappe.whitelist(methods=["GET"])
+@frappe.validate_and_sanitize_search_inputs
+def employee_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
+	"""Link query for the screen's employee fields: active employees, name and full name only.
+	Filters: `company` (a transfer stays in the worker's company), `exclude` (the worker himself),
+	`any_status` (the page filter)."""
+	_check_screen()
+	filters = frappe.parse_json(filters) if isinstance(filters, str) else (filters or {})
+	# the page filter finds any employee (one who left may still hold tools); a new movement
+	# goes to an active one
+	conditions = [] if filters.get("any_status") else [["status", "=", "Active"]]
+	if filters.get("exclude"):
+		conditions.append(["name", "!=", filters["exclude"]])
+	return _scoped_names("Employee", filters, conditions, txt, "employee_name", start, page_len)
+
+
+@frappe.whitelist(methods=["GET"])
+@frappe.validate_and_sanitize_search_inputs
+def store_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
+	"""Link query for the screen's store field: enabled stores (not groups) the tools move from."""
+	_check_screen()
+	filters = frappe.parse_json(filters) if isinstance(filters, str) else (filters or {})
+	conditions = [["is_group", "=", 0], ["disabled", "=", 0]]
+	return _scoped_names("Warehouse", filters, conditions, txt, "warehouse_name", start, page_len)
+
+
+def _people(rows):
+	"""One Employee read for the page: a Transfer names its receiver on the screen (the user may
+	not read Employee). Returns the workers' and receivers' user accounts by employee."""
+	people = {
+		e.name: e
+		for e in frappe.get_all(
+			"Employee",
+			filters={
+				"name": [
+					"in",
+					list({r.employee for r in rows} | {r.to_employee for r in rows if r.to_employee}),
+				]
+			},
+			fields=["name", "user_id", "employee_name"],
+		)
+	}
+	for row in rows:
+		receiver = people.get(row.to_employee) if row.to_employee else None
+		row.to_employee_name = receiver.employee_name if receiver else None
+	return people
+
+
 def _awaiting(filters, start):
 	user = frappe.session.user
 	store_side = can_confirm_custody()
@@ -119,21 +196,23 @@ def _awaiting(filters, start):
 	for warehouse in {r.warehouse for r in rows if r.movement == "Handover" and r.warehouse}:
 		items = {r.item_code for r in rows if r.movement == "Handover" and r.warehouse == warehouse}
 		stock[warehouse] = stock_by_item(items, warehouse)
-	workers = dict(
+	people = _people(rows)
+	# the confirm dialog asks for a Serial No when the tool needs one (the user may not read Item)
+	serials = set(
 		frappe.get_all(
-			"Employee",
-			filters={"name": ["in", list({r.employee for r in rows})]},
-			fields=["name", "user_id"],
-			as_list=True,
+			"Item",
+			filters={"name": ["in", list({r.item_code for r in rows})], "has_serial_no": 1},
+			pluck="name",
 		)
 	)
 	for row in rows:
+		row.has_serial_no = row.item_code in serials
 		awaiting = row.movement != "Handover" or row.handover_status == "Awaiting handover"
 		in_store = stock.get(row.warehouse) if row.movement == "Handover" else None
 		row.stock = None if in_store is None else in_store.get(row.item_code)
 		row.waiting_for_stock = row.stock is not None and flt(row.stock) < flt(row.qty)
 		own = user in confirmer_excluded(row)
-		worker = workers.get(row.employee) == user
+		worker = (people.get(row.employee) or {}).get("user_id") == user
 		# a Handover or Return moves stock (store side); a Transfer needs custody submit only
 		may_confirm = store_side if row.movement in ("Handover", "Return") else can_submit
 		may_close = (
@@ -232,7 +311,7 @@ def _held(filters, start):
 def _history(filters, start):
 	employee = filters.pop("employee", None)
 	or_filters = {"employee": employee, "to_employee": employee} if employee else None
-	return frappe.get_list(
+	rows = frappe.get_list(
 		CUSTODY_DOCTYPE,
 		filters=dict(filters, docstatus=["in", [1, 2]]),
 		or_filters=or_filters,
@@ -257,6 +336,8 @@ def _history(filters, start):
 		limit_start=start,
 		limit_page_length=PAGE_LENGTH + 1,
 	)
+	_people(rows)
+	return rows
 
 
 @frappe.whitelist(methods=["POST"])
@@ -324,4 +405,8 @@ def move(
 	return {
 		"name": doc.name,
 		"may_confirm": may_confirm and frappe.session.user not in confirmer_excluded(doc),
+		"has_serial_no": bool(frappe.db.get_value("Item", doc.item_code, "has_serial_no")),
+		"employee_name": doc.employee_name,
+		"to_employee_name": doc.to_employee
+		and frappe.db.get_value("Employee", doc.to_employee, "employee_name"),
 	}

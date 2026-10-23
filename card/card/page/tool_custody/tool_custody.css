@@ -44,6 +44,13 @@
 	padding: var(--padding-md, 15px);
 	text-align: center;
 }
+@media (min-width: 576px) and (max-width: 991px) {
+	/* tablet: the two filters share the width (the standard col-md-2 leaves them too narrow) */
+	.page-container[data-page-route="tool-custody"] .page-form .frappe-control {
+		flex: 0 0 50%;
+		max-width: 50%;
+	}
+}
 @media (max-width: 991px) {
 	/* tablet: machine, time and actions go under the row */
 	.tc-row {

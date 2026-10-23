@@ -2154,6 +2154,10 @@ msgstr ""
 msgid "Approve the lines? Tools wait for the store to hand them over."
 msgstr ""
 
+msgctxt "Tool Custody"
+msgid "Confirm {0}"
+msgstr ""
+
 msgid "Only a cancelled movement of the same company that you may amend can be amended."
 msgstr ""
 

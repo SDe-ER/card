@@ -27,6 +27,10 @@ const TC_MOVES = {
 	Damage: __("Damage"),
 };
 const TC_RECEIPT_FORMAT = "Tool Handover Receipt";
+// employees and stores come from the screen's own searches (company and User Permission scoped):
+// the screen roles need no Employee or Warehouse read
+const TC_EMPLOYEE_QUERY = "card.tool_custody.employee_query";
+const TC_STORE_QUERY = "card.tool_custody.store_query";
 
 // the screen's reads are GET methods on the server (no side effects); frappe.xcall sends POST
 function tc_get(method, args = {}) {
@@ -48,6 +52,8 @@ class ToolCustodyScreen {
 			label: __("Employee"),
 			fieldtype: "Link",
 			options: "Employee",
+			// the filter also finds a worker who left and still holds tools
+			get_query: () => ({ query: TC_EMPLOYEE_QUERY, filters: { any_status: 1 } }),
 			change: () => this.ctx && this.load(),
 		});
 		this.item = page.add_field({
@@ -120,7 +126,7 @@ class ToolCustodyScreen {
 				: row.waiting_for_stock
 				  ? ["orange", __("Waiting for stock")]
 				  : ["blue", TC_MOVES[row.movement]];
-			who = e(row.employee_name || row.employee);
+			who = this.who(row);
 			what = `${e(row.item_name || row.item_code)}`;
 			where = [row.card_equipment, row.project].filter(Boolean).map(e).join(" · ");
 			when = frappe.datetime.comment_when(row.creation);
@@ -134,7 +140,7 @@ class ToolCustodyScreen {
 		} else {
 			pill =
 				row.docstatus === 2 ? ["red", __("Cancelled")] : ["green", TC_MOVES[row.movement]];
-			who = e(row.employee_name || "");
+			who = this.who(row);
 			what = e(row.item_name || row.item_code);
 			const links = [row.stock_entry, row.review].filter(Boolean).map(e).join(" · ");
 			where = [row.card_equipment, row.project].filter(Boolean).map(e).join(" · ");
@@ -162,6 +168,13 @@ class ToolCustodyScreen {
 		return $row;
 	}
 
+	who(row) {
+		// a transfer shows who gives the tool and who receives it
+		const e = frappe.utils.escape_html;
+		const to = row.to_employee ? ` → ${e(row.to_employee_name || row.to_employee)}` : "";
+		return e(row.employee_name || row.employee || "") + to;
+	}
+
 	action_button(action, row) {
 		const labels = {
 			confirm: __("Confirm"),
@@ -180,23 +193,22 @@ class ToolCustodyScreen {
 
 	// ---- actions (each one server call; the server checks everything again) ----
 	do_confirm(row) {
-		frappe.db
-			.get_value("Item", row.item_code, "has_serial_no")
-			.then((r) => this.confirm_dialog(row, !!(r.message && r.message.has_serial_no)));
+		// the server says whether the tool needs a Serial No (the user may not read Item)
+		this.confirm_dialog(row, !!row.has_serial_no);
 	}
 
 	confirm_dialog(row, serial) {
 		const needs_receipt = ["Handover", "Transfer"].includes(row.movement);
 		const e = frappe.utils.escape_html;
 		const d = new frappe.ui.Dialog({
-			title: __("Confirm {0}", [TC_MOVES[row.movement]]),
+			title: __("Confirm {0}", [TC_MOVES[row.movement]], "Tool Custody"),
 			fields: [
 				{
 					fieldtype: "HTML",
 					fieldname: "summary",
-					options: `<p><b>${e(row.employee_name || row.employee)}</b>${
-						row.to_employee ? " → " + e(row.to_employee) : ""
-					} · ${e(row.item_name || row.item_code)}</p>`,
+					options: `<p><b>${this.who(row)}</b> · ${e(
+						row.item_name || row.item_code,
+					)}</p>`,
 				},
 				{
 					fieldtype: "Float",
@@ -292,19 +304,35 @@ class ToolCustodyScreen {
 	}
 
 	new_movement(movement, row = {}) {
-		// a transfer stays in the worker's company: offer only its employees (the server checks it)
+		// a return or transfer stays in the worker's company: offer only its stores and employees
+		// (the server checks it)
 		this.movement_dialog(movement, row, row.company);
 	}
 
 	movement_dialog(movement, row, company) {
+		const e = frappe.utils.escape_html;
 		const fields = [];
-		if (!row.employee) {
+		if (row.employee) {
+			// a return or transfer starts from a held tool: say whose and which
+			fields.push({
+				fieldtype: "HTML",
+				fieldname: "summary",
+				options: `<p><b>${e(row.employee_name || row.employee)}</b> · ${e(
+					row.item_name || row.item_code,
+				)} · ${__("Held")}: ${frappe.format(
+					row.qty,
+					{ fieldtype: "Float" },
+					{ inline: true },
+				)}</p>`,
+			});
+		} else {
 			fields.push({
 				fieldtype: "Link",
 				fieldname: "employee",
 				label: __("Employee"),
 				options: "Employee",
 				reqd: 1,
+				get_query: () => ({ query: TC_EMPLOYEE_QUERY }),
 			});
 		}
 		if (!row.item_code) {
@@ -327,11 +355,8 @@ class ToolCustodyScreen {
 				options: "Employee",
 				reqd: 1,
 				get_query: () => ({
-					filters: {
-						status: "Active",
-						name: ["!=", row.employee],
-						...(company ? { company } : {}),
-					},
+					query: TC_EMPLOYEE_QUERY,
+					filters: { exclude: row.employee, ...(company ? { company } : {}) },
 				}),
 			});
 		} else {
@@ -342,7 +367,7 @@ class ToolCustodyScreen {
 				options: "Warehouse",
 				default: this.ctx.default_store,
 				reqd: 1,
-				get_query: () => ({ filters: { is_group: 0 } }),
+				get_query: () => ({ query: TC_STORE_QUERY, filters: company ? { company } : {} }),
 			});
 		}
 		fields.push({
@@ -378,11 +403,13 @@ class ToolCustodyScreen {
 									name: r.name,
 									movement,
 									employee: row.employee || v.employee,
-									employee_name: row.employee_name,
+									employee_name: r.employee_name,
 									to_employee: v.to_employee,
+									to_employee_name: r.to_employee_name,
 									item_code: row.item_code || v.item_code,
 									item_name: row.item_name,
 									qty: v.qty,
+									has_serial_no: r.has_serial_no,
 								});
 							}
 						});
