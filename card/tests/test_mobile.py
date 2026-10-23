@@ -159,13 +159,29 @@ class TestCardMobile(IntegrationTestCase):
 	def test_page_boot_carries_card_mobile_context_translations(self):
 		# generic words are translated under the context "Card Mobile" only (frappe keys them
 		# "msgid:context"), so the plain Frappe translation of "Home" stays untouched
-		from frappe.gettext.translate import compile_translations
+		# Card's .mo is built from this checkout's ar.po into a temporary folder: Frappe's own
+		# compile writes the bench-wide sites/assets/locale that every site of the bench reads.
+		from pathlib import Path
+
+		from babel.messages.mofile import write_mo
+		from babel.messages.pofile import read_po
+		from frappe.gettext import translate
 		from frappe.translate import clear_cache
 
-		compile_translations("card", locale="ar", force=True)
-		clear_cache()
-		frappe.local.lang = "ar"
-		messages = cdms_page.get_context(frappe._dict()).boot["__messages"]
+		real_mo_path = translate.get_mo_path
+		with tempfile.TemporaryDirectory() as tmp:
+			card_mo = Path(tmp, "card.mo")
+			with open(frappe.get_app_path("card", "locale", "ar.po"), "rb") as po, open(card_mo, "wb") as mo:
+				write_mo(mo, read_po(po, locale="ar"))
+
+			def mo_path(app, locale=None):
+				return card_mo if app == "card" and locale == "ar" else real_mo_path(app, locale)
+
+			with patch.object(translate, "get_mo_path", side_effect=mo_path):
+				clear_cache()
+				frappe.local.lang = "ar"
+				messages = cdms_page.get_context(frappe._dict()).boot["__messages"]
+			clear_cache()
 		self.assertEqual(messages.get("Home:Card Mobile"), "الرئيسية")
 		self.assertEqual(messages.get("My requests"), "طلباتي")
 		self.assertNotEqual(messages.get("Home"), "الرئيسية")

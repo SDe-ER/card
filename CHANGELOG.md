@@ -142,6 +142,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
+- **CARD tests no longer rewrite the bench-wide translation files.** `test_mobile`'s Card Mobile translation test
+  called Frappe's `compile_translations`, which writes `sites/assets/locale/ar/LC_MESSAGES/card.mo` for the whole
+  bench, so a test run from any branch changed the Arabic translations every site of that bench shows (found on the
+  QA bench on 2026-10-23). The test now builds Card's `.mo` from this checkout's `ar.po` in a temporary folder and
+  points only Card's Arabic catalogue at it while it reads the page boot. Test-only change: no product, permission,
+  data or API impact. Rollback: revert the commit.
 - **The report row of the Card Materials sidebar now reaches upgraded sites (FR-077).** PR #108 added the
   "Equipment Make Model Values" row but kept the file's `modified` time. Frappe imports a standard Sidebar on
   `migrate` only when the file is newer than the stored document, so a site that already had the three FR-077 rows
