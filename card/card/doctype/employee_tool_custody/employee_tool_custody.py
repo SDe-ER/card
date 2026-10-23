@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, now_datetime
+from frappe.utils import add_days, flt, get_datetime, now_datetime, nowdate
 
 from card.materials import (
 	DIMENSION_FIELD,
@@ -92,11 +92,20 @@ class EmployeeToolCustody(Document):
 		files = frappe.get_all(
 			"File",
 			filters={"file_url": self.handover_receipt, "is_private": 1},
-			fields=["attached_to_doctype", "attached_to_name", "owner"],
+			fields=["attached_to_doctype", "attached_to_name", "owner", "creation"],
 		)
+		# an unattached file counts only when the user uploaded it for this record: after the record
+		# was made (a new record: within the last day), not an old scan of something else
+		since = get_datetime(add_days(self.creation or now_datetime(), -1 if self.is_new() else 0))
+		# its own receipt, or the receipt of the record it amends (Amend copies the field)
+		own = {(self.doctype, self.name), (self.doctype, self.amended_from)}
 		if not any(
-			(f.attached_to_doctype, f.attached_to_name) == (self.doctype, self.name)
-			or (not f.attached_to_doctype and f.owner == frappe.session.user)
+			(f.attached_to_doctype, f.attached_to_name) in own
+			or (
+				not f.attached_to_doctype
+				and f.owner == frappe.session.user
+				and get_datetime(f.creation) >= since
+			)
 			for f in files
 		):
 			frappe.throw(_("The signed receipt must be a private file uploaded to this record."))
@@ -114,6 +123,8 @@ class EmployeeToolCustody(Document):
 				_("Confirming moves stock: you also need permission to submit Stock Entries in ERPNext."),
 				frappe.PermissionError,
 			)
+		if self.movement in CONFIRMED_MOVES:
+			self.date = nowdate()  # the day the stock moves (the Stock Entry posts today)
 		if self.movement in RECEIPT_MOVES and not self.handover_receipt:
 			frappe.throw(_("Attach the receipt signed by the receiving employee and the issuer."))
 		if self.movement in RECEIPT_MOVES + CONFIRMED_MOVES:

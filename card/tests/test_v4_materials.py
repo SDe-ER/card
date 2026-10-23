@@ -7,7 +7,7 @@ import json
 
 import frappe
 from frappe.tests import IntegrationTestCase
-from frappe.utils import flt, nowdate
+from frappe.utils import add_days, flt, nowdate
 
 from card import materials
 
@@ -1369,6 +1369,78 @@ class TestV4Materials(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._as(owner, make_public)
 		self._stays_private(frappe.get_doc("File", {"file_url": url, "attached_to_name": doc.name}))
+
+	def test_a_public_copy_of_a_receipt_is_refused_even_on_its_own_record(self):
+		_keeper, doc, receipt = self._confirmed_receipt()
+		with open(receipt.get_full_path(), "rb") as f:
+			raw = f.read()
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": "again.png",
+					"is_private": 0,
+					"content": raw,
+					"attached_to_doctype": "Employee Tool Custody",
+					"attached_to_name": doc.name,
+				}
+			).insert()
+		self._stays_private(receipt)
+
+	def test_an_amended_movement_keeps_its_receipt(self):
+		# Frappe copies the attachments on amend; the copy stays on the amending record
+		_u, colleague = self._operator("mate")
+		self._custody("Handover", warehouse=self.store)
+		transfer = self._custody("Transfer", to_employee=colleague)
+		self.assertEqual(frappe.db.get_value("Employee Tool Custody", transfer.name, "docstatus"), 1)
+		transfer = frappe.get_doc("Employee Tool Custody", transfer.name)
+		transfer.cancel()
+		amended = frappe.copy_doc(transfer)
+		# as the Amend button does: a draft that also copies the receipt field
+		amended.update({"amended_from": transfer.name, "docstatus": 0})
+		self.assertEqual(amended.handover_receipt, transfer.handover_receipt)
+		amended.insert()
+		self.assertTrue(
+			frappe.db.exists(
+				"File", {"attached_to_doctype": "Employee Tool Custody", "attached_to_name": amended.name}
+			)
+		)
+
+	def test_an_ordinary_attachment_of_a_custody_record_is_not_locked(self):
+		_keeper, doc, _receipt = self._confirmed_receipt()
+		note = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": f"note-{self.token}.png",
+				"is_private": 1,
+				"content": RECEIPT_PNG + frappe.generate_hash(length=12).encode(),
+				"attached_to_doctype": "Employee Tool Custody",
+				"attached_to_name": doc.name,
+			}
+		).insert()
+		note.is_private = 0
+		note.save()
+		self.assertEqual(frappe.db.get_value("File", note.name, "is_private"), 0)
+
+	def test_a_confirmation_moves_on_its_own_day(self):
+		# the custody date is the day the stock moves, not the approval day of the draft
+		_review, _line, draft = self._approved_tool()
+		frappe.db.set_value("Employee Tool Custody", draft.name, "date", add_days(nowdate(), -5))
+		self._stock_in(1)
+		doc = self._confirm(draft, self._store_keeper())
+		self.assertEqual(
+			(str(doc.date), str(frappe.db.get_value("Stock Entry", doc.stock_entry, "posting_date"))),
+			(nowdate(), nowdate()),
+		)
+
+	def test_an_old_file_is_not_a_signed_receipt(self):
+		_review, _line, draft = self._approved_tool()
+		self._stock_in(1)
+		keeper = self._store_keeper()
+		old = self._receipt(keeper)
+		frappe.db.set_value("File", {"file_url": old}, "creation", add_days(nowdate(), -10))
+		with self.assertRaises(frappe.ValidationError):
+			self._confirm(draft, keeper, handover_receipt=old)
 
 	def test_other_files_keep_frappes_behaviour(self):
 		# the guard acts on custody receipts only

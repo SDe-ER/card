@@ -12,6 +12,7 @@ import frappe
 from frappe import _
 
 CUSTODY = "Employee Tool Custody"
+RECEIPT_FIELD = "handover_receipt"
 
 
 def _receipts(doc):
@@ -21,11 +22,15 @@ def _receipts(doc):
 		return set()
 	rows = frappe.get_all(
 		"File",
-		filters={"attached_to_doctype": CUSTODY, "name": ["!=", doc.name or ""]},
+		filters={
+			"attached_to_doctype": CUSTODY,
+			"attached_to_field": RECEIPT_FIELD,
+			"name": ["!=", doc.name or ""],
+		},
 		or_filters={"content_hash": doc.content_hash or "-", "file_url": doc.file_url or "-"},
 		pluck="attached_to_name",
 	)
-	if doc.attached_to_doctype == CUSTODY and not doc.is_new():
+	if doc.attached_to_doctype == CUSTODY and doc.attached_to_field == RECEIPT_FIELD and not doc.is_new():
 		rows.append(doc.attached_to_name)  # the receipt itself
 	return set(rows)
 
@@ -40,9 +45,16 @@ def keep_private(doc, method=None):
 
 
 def keep_on_its_record(doc, method=None):
-	"""File.before_insert: the receipt's content is not attached to any other record."""
+	"""File.before_insert: a copy of the receipt's content stays private and on its own custody
+	record (or the record that amends it: Frappe copies attachments on amend)."""
 	if doc.is_folder:
 		return
 	receipts = _receipts(doc)
-	if receipts and not (doc.attached_to_doctype == CUSTODY and doc.attached_to_name in receipts):
-		frappe.throw(_("This file is a signed tool-custody receipt; it stays on its custody record only."))
+	if not receipts:
+		return
+	if not doc.is_private:
+		frappe.throw(_("This file is a signed tool-custody receipt; it stays private."))
+	target = doc.attached_to_name if doc.attached_to_doctype == CUSTODY else None
+	if target and (target in receipts or frappe.db.get_value(CUSTODY, target, "amended_from") in receipts):
+		return
+	frappe.throw(_("This file is a signed tool-custody receipt; it stays on its custody record only."))
