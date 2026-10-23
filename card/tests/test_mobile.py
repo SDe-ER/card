@@ -159,29 +159,34 @@ class TestCardMobile(IntegrationTestCase):
 	def test_page_boot_carries_card_mobile_context_translations(self):
 		# generic words are translated under the context "Card Mobile" only (frappe keys them
 		# "msgid:context"), so the plain Frappe translation of "Home" stays untouched
-		# Card's .mo is built from this checkout's ar.po into a temporary folder: Frappe's own
-		# compile writes the bench-wide sites/assets/locale that every site of the bench reads.
+		# Frappe's compile_translations writes the bench-wide sites/assets/locale (read by every
+		# site of the bench) from worker processes. Here Card's ar catalogue is compiled in this
+		# process, by Frappe's own step, into a temporary folder that only this test reads.
 		from pathlib import Path
 
-		from babel.messages.mofile import write_mo
-		from babel.messages.pofile import read_po
 		from frappe.gettext import translate
 		from frappe.translate import clear_cache
 
 		real_mo_path = translate.get_mo_path
+		lang = frappe.local.lang
 		with tempfile.TemporaryDirectory() as tmp:
 			card_mo = Path(tmp, "card.mo")
-			with open(frappe.get_app_path("card", "locale", "ar.po"), "rb") as po, open(card_mo, "wb") as mo:
-				write_mo(mo, read_po(po, locale="ar"))
 
 			def mo_path(app, locale=None):
-				return card_mo if app == "card" and locale == "ar" else real_mo_path(app, locale)
+				return card_mo if (app, locale) == ("card", "ar") else real_mo_path(app, locale)
 
-			with patch.object(translate, "get_mo_path", side_effect=mo_path):
+			try:
+				with patch.object(translate, "get_mo_path", side_effect=mo_path) as patched:
+					translate._compile_translation("card", "ar", force=True)
+					clear_cache()
+					frappe.local.lang = "ar"
+					messages = cdms_page.get_context(frappe._dict()).boot["__messages"]
+				self.assertTrue(card_mo.exists())
+				patched.assert_any_call("card", "ar")
+			finally:
+				# the site's translation cache was filled from the temporary catalogue
+				frappe.local.lang = lang
 				clear_cache()
-				frappe.local.lang = "ar"
-				messages = cdms_page.get_context(frappe._dict()).boot["__messages"]
-			clear_cache()
 		self.assertEqual(messages.get("Home:Card Mobile"), "الرئيسية")
 		self.assertEqual(messages.get("My requests"), "طلباتي")
 		self.assertNotEqual(messages.get("Home"), "الرئيسية")
