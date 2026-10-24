@@ -186,20 +186,9 @@ class EmployeeToolCustody(Document):
 	def _check_confirmer(self):
 		"""Separation of duties: the worker(s), the requester, who entered the request for the
 		worker and the approver never confirm. Administrator is not exempt."""
-		excluded = {
-			frappe.db.get_value("Employee", employee, "user_id")
-			for employee in (self.employee, self.to_employee)
-			if employee
-		}
-		if self.review_item:
-			excluded.add(frappe.db.get_value("Equipment Needs Review", self.review, "approved_by"))
-			request = frappe.db.get_value(REVIEW_LINE, self.review_item, "request")
-			if not request:
-				frappe.throw(_("This handover no longer matches its approved review line."))
-			excluded.update(
-				frappe.db.get_value("Equipment Needs Request", request, ["owner", "entered_by"]) or ()
-			)
-		if frappe.session.user in excluded - {None, ""}:
+		if self.review_item and not frappe.db.get_value(REVIEW_LINE, self.review_item, "request"):
+			frappe.throw(_("This handover no longer matches its approved review line."))
+		if frappe.session.user in confirmer_excluded(self):
 			frappe.throw(
 				_("You cannot confirm this movement: you are its worker, its requester or its approver."),
 				frappe.PermissionError,
@@ -391,3 +380,22 @@ def has_custody_permission(doc, ptype=None, user=None, debug=False):
 	its receipt either (Frappe's File.validate_protected_file asks this before it removes the disk file,
 	which a later refusal could not bring back). Administrator is not checked by Frappe here."""
 	return not (ptype == "delete" and doc.docstatus == 2 and doc.handover_receipt)
+
+
+def confirmer_excluded(doc):
+	"""Users who may not confirm this movement (separation of duties): the worker(s) and, for an
+	approved review line, its requester, who entered the request for the worker and the approver.
+	The Tool Custody screen uses the same set to hide a Confirm the server would refuse."""
+	excluded = {
+		frappe.db.get_value("Employee", employee, "user_id")
+		for employee in (doc.get("employee"), doc.get("to_employee"))
+		if employee
+	}
+	if doc.get("review_item"):
+		excluded.add(frappe.db.get_value("Equipment Needs Review", doc.get("review"), "approved_by"))
+		request = frappe.db.get_value(REVIEW_LINE, doc.get("review_item"), "request")
+		if request:
+			excluded.update(
+				frappe.db.get_value("Equipment Needs Request", request, ["owner", "entered_by"]) or ()
+			)
+	return excluded - {None, ""}

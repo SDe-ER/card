@@ -93,7 +93,8 @@ def ensure_card_roles():
 			).insert(ignore_permissions=True)
 
 
-def before_install():
+# Install hooks run at `bench install-app`, before `run-tests --coverage` starts measuring.
+def before_install():  # pragma: no cover
 	"""Run before the app's DocTypes/entities are synced by install-app.
 
 	Adopts any pre-existing legacy CARD config so the standard app files
@@ -112,7 +113,7 @@ def before_install():
 	frappe.db.commit()  # nosemgrep
 
 
-def after_install():
+def after_install():  # pragma: no cover (runs before coverage measurement starts, see above)
 	"""Run after the app's entities are synced. Reconciles the remaining
 	post-sync invariants (print default, disabled legacy scripts, single
 	Desk launcher)."""

@@ -8,6 +8,8 @@ point is that none is needed. A real second Company row is inserted raw (no
 chart of accounts needed) so every refusal has a positive control; everything
 is rolled back."""
 
+from unittest.mock import patch
+
 import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
@@ -15,7 +17,7 @@ from frappe.utils import flt
 from card import api
 from card.constants import DIR_RENTED_OUT, OWNED
 from card.diesel import allocate_project_diesel, project_operating_hours
-from card.report_access import can_view_ledger, permitted_companies, readable_links
+from card.report_access import can_view_ledger, permitted_companies, readable_links, resolve_company
 from card.tests.diesel_price import use_fill_price
 from card.tests.test_controllers import _days, _ensure_masters, _registry_figures
 from card.tests.test_customer_reports import _leaf
@@ -788,3 +790,120 @@ class TestReportAccess(IntegrationTestCase):
 		frappe.set_user(self._user(["Card User"]))
 		for doctype in ("GL Entry", "Project", "Supplier", "Customer"):
 			self.assertFalse(frappe.has_permission(doctype, "read"), doctype)
+
+	# ---------- H3: registry refresh endpoints and party figures ----------
+
+	def test_refresh_endpoints_are_for_system_managers_only(self):
+		supplier, customer = self._supplier("RF0"), self._customer("RF0")
+		frappe.set_user(self._user(["Card Manager"]))
+		for call, party in ((api.refresh_supplier, supplier), (api.refresh_customer, customer)):
+			for args in ((party,), ()):
+				# the endpoints currently raise ValidationError (frappe.throw); the contract is the denial
+				with self.assertRaisesRegex(
+					(frappe.PermissionError, frappe.ValidationError), "System Managers only"
+				):
+					call(*args)
+		frappe.set_user("Administrator")
+		self.assertFalse(frappe.db.exists("Card Equipment Supplier", supplier))
+		self.assertFalse(frappe.db.exists("Card Equipment Customer", customer))
+
+	def test_refresh_supplier_single_party_and_all_parties(self):
+		counted, draft_only, lone = self._supplier("RF1"), self._supplier("RF2"), self._supplier("RF3")
+		self._card(self._equipment("RF1", supplier=counted), [10])
+		self._card(self._equipment("RF2", supplier=draft_only), [10], submit=False)
+		frappe.set_user(self._user(["System Manager"]))
+		self.assertEqual(api.refresh_supplier(lone), [{"supplier": lone}])
+		self.assertTrue(frappe.db.exists("Card Equipment Supplier", lone))
+		done = api.refresh_supplier()
+		parties = [row["supplier"] for row in done]
+		self.assertEqual(done, [{"supplier": party} for party in parties])
+		self.assertEqual(parties, sorted(parties))
+		self.assertIn(counted, parties)  # a submitted non-owned card
+		self.assertNotIn(draft_only, parties)  # a draft card does not count
+		self.assertNotIn(lone, parties)  # no card at all
+
+	def test_refresh_customer_single_party_and_all_parties(self):
+		billed, draft_only, lone = self._customer("RF1"), self._customer("RF2"), self._customer("RF3")
+		self._card(self._equipment("RC1", customer=billed), [10])
+		self._card(self._equipment("RC2", customer=draft_only), [10], submit=False)
+		frappe.set_user(self._user(["System Manager"]))
+		self.assertEqual(api.refresh_customer(lone), [{"customer": lone}])
+		self.assertTrue(frappe.db.exists("Card Equipment Customer", lone))
+		done = api.refresh_customer()
+		parties = [row["customer"] for row in done]
+		self.assertEqual(done, [{"customer": party} for party in parties])
+		self.assertEqual(parties, sorted(parties))
+		self.assertIn(billed, parties)
+		self.assertNotIn(draft_only, parties)
+		self.assertNotIn(lone, parties)
+
+	def test_party_figures_validates_the_party_type_and_the_party(self):
+		party = self._supplier("PF")
+		api.recompute_supplier(party)
+		frappe.set_user(self._user(["Card User"]))
+		with self.assertRaisesRegex(frappe.ValidationError, "Party type must be Supplier or Customer"):
+			api.party_figures("Employee", party)
+		with self.assertRaises(frappe.PermissionError):
+			api.party_figures("Supplier", "TEST-RACC-NO-SUCH-PARTY-" + self.token)
+		# a registered party without cards has no figures
+		self.assertEqual(api.party_figures("Supplier", party), [])
+
+	# ---------- H4: link queries and registry conditions for a company the user may not see ----------
+
+	def test_party_link_queries_return_nothing_for_a_company_the_user_may_not_see(self):
+		customer = self._customer("QN")
+		self._card(self._equipment("QN1"), [10])
+		self._card(self._equipment("QN2", customer=customer), [10])
+		frappe.set_user(self._user(["Card User"], restrict_to=self.company))
+		for query, doctype, party in (
+			(api.card_suppliers_query, "Supplier", self.supplier),
+			(api.card_customers_query, "Customer", customer),
+		):
+			for filters in ({"company": self.other}, '{"company": "%s"}' % self.other):
+				self.assertEqual(query(doctype, "", "name", 0, 500, filters), [], (doctype, filters))
+			own = [row[0] for row in query(doctype, "", "name", 0, 500, {"company": self.company})]
+			self.assertIn(party, own, doctype)
+
+	def test_registry_conditions_name_only_the_permitted_company(self):
+		from card.party_registry import customer_query_conditions, supplier_query_conditions
+
+		unrestricted = self._user(["Card User"])
+		restricted = self._user(["Card User"], restrict_to=self.company)
+		# a user of one company gets a condition naming only that company,
+		# an unrestricted user and the Administrator get none
+		for condition in (supplier_query_conditions(restricted), customer_query_conditions(restricted)):
+			self.assertIn(frappe.db.escape(self.company), condition)
+			self.assertNotIn(frappe.db.escape(self.other), condition)
+		for user in (unrestricted, "Administrator"):
+			self.assertEqual(supplier_query_conditions(user), "")
+			self.assertEqual(customer_query_conditions(user), "")
+
+	# ---------- H5: which company a report runs for ----------
+
+	def test_resolve_company_asks_for_a_company_when_several_are_visible(self):
+		self.assertIn(self.other, permitted_companies())  # premise: more than one company
+		with (
+			patch("frappe.defaults.get_user_default", return_value=None),
+			patch("frappe.defaults.get_global_default", return_value=None),
+		):
+			for filters in ({}, None, {"company": ""}):
+				with self.assertRaisesRegex(frappe.ValidationError, "Select a company"):
+					resolve_company(filters)
+			self.assertEqual(resolve_company({"company": self.other}), self.other)
+
+	def test_resolve_company_takes_a_default_only_when_permitted(self):
+		restricted = self._user(["Card User"], restrict_to=self.company)
+		with (
+			patch("frappe.defaults.get_user_default", return_value=self.other),
+			patch("frappe.defaults.get_global_default", return_value=None),
+		):
+			self.assertEqual(resolve_company({}), self.other)  # the user default is visible
+			frappe.set_user(restricted)
+			# the default is another company's: the only visible company is used instead
+			self.assertEqual(resolve_company({}), self.company)
+			frappe.set_user("Administrator")
+		with (
+			patch("frappe.defaults.get_user_default", return_value=None),
+			patch("frappe.defaults.get_global_default", return_value=self.other),
+		):
+			self.assertEqual(resolve_company({}), self.other)  # then the global default

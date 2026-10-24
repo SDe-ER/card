@@ -67,7 +67,7 @@ jobs:
         run: bench --site test_site run-tests --app card --coverage
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: /home/runner/frappe-bench/sites/coverage.xml  # bench runs frappe commands from sites/
