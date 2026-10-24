@@ -7,6 +7,7 @@ import ItemPicker from '../components/ItemPicker.vue'
 import {
   getPortal,
   incompleteLines,
+  linesWithoutFitReason,
   newLine,
   sendableLines,
   submitNeeds,
@@ -49,6 +50,13 @@ async function send() {
       [incomplete.join(', ')],
       'Card Mobile',
     )
+    return
+  }
+  const unexplained = linesWithoutFitReason(lines.value)
+  if (unexplained.length) {
+    error.value = __('Line {0}: enter why you need an item without a confirmed fit.', [
+      unexplained.join(', '),
+    ])
     return
   }
   if (!sendableLines(lines.value).length) {
@@ -107,7 +115,7 @@ async function send() {
           @click="lines.splice(i, 1)"
         />
       </div>
-      <ItemPicker v-model="lines[i]" />
+      <ItemPicker v-model="lines[i]" :equipment="equipment" />
       <div class="grid grid-cols-[7rem_1fr] gap-3">
         <FormControl
           v-model="line.qty"

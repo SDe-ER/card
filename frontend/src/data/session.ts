@@ -7,6 +7,8 @@ export interface SessionContext {
   full_name: string
   roles: string[]
   employee: { name: string; employee_name: string; company: string } | null
+  // a Card User without a portal role: the read-only catalog only (phase 2b, decision A)
+  catalog_only: boolean
   card_version: string
 }
 

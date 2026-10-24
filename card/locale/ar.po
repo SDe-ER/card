@@ -3500,3 +3500,69 @@ msgstr "إثبات التوافق"
 #: card/card/doctype/card_equipment_part/card_equipment_part.json
 msgid "Review record"
 msgstr "سجل المراجعة"
+
+#: frontend/src/components/FitBadge.vue
+msgid "Confirmed for this machine"
+msgstr "مؤكد لهذه المعدة"
+
+#: frontend/src/components/FitBadge.vue
+msgid "Confirmed for model {0}"
+msgstr "مؤكد للموديل {0}"
+
+#: frontend/src/components/FitBadge.vue
+msgid "Not compatible with this machine"
+msgstr "غير متوافق مع هذه المعدة"
+
+#: frontend/src/components/FitBadge.vue
+msgid "Fit pending technical review"
+msgstr "التوافق قيد المراجعة الفنية"
+
+#: frontend/src/components/FitBadge.vue
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "No fitment record"
+msgstr "لا يوجد سجل توافق"
+
+#: frontend/src/components/CatalogDialog.vue
+msgid "Fits this machine"
+msgstr "يركب على هذه المعدة"
+
+#: frontend/src/components/ItemPicker.vue
+#: card/www/equipment-needs/index.py
+msgid "Why this item without a confirmed fit?"
+msgstr "لماذا هذا الصنف بدون توافق مؤكد؟"
+
+#: frontend/src/pages/NewRequest.vue
+msgid "Line {0}: enter why you need an item without a confirmed fit."
+msgstr "السطر {0}: اكتب لماذا تحتاج صنفًا بدون توافق مؤكد."
+
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.py
+msgid "Row {0}: {1} has no confirmed fit for this machine ({2}); enter the reason."
+msgstr "السطر {0}: الصنف {1} ليس له توافق مؤكد مع هذه المعدة ({2})؛ اكتب السبب."
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Not compatible"
+msgstr "غير متوافق"
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Pending review"
+msgstr "قيد المراجعة"
+
+#: card/fitment.py
+msgid "Send a list of at most {0} items."
+msgstr "أرسل قائمة من {0} صنفًا كحد أقصى."
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Fit for machine"
+msgstr "التوافق مع المعدة"
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Reason for an item without a confirmed fit"
+msgstr "سبب صنف بدون توافق مؤكد"
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Confirmed for machine"
+msgstr "مؤكد للمعدة"
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Confirmed for model"
+msgstr "مؤكد للموديل"

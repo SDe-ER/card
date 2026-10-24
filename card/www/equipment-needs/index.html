@@ -94,12 +94,14 @@
 		const item = el("input", { list: "items-list", placeholder: L.item_placeholder });
 		const qty = el("input", { type: "number", min: "0", step: "any", inputmode: "decimal", placeholder: L.qty });
 		const reason = el("input", { class: "wide", placeholder: L.reason });
+		// Q10: asked by the server when the item has no confirmed fit for the machine
+		const fitReason = el("input", { class: "wide", placeholder: L.fit_reason });
 		const remove = el("button", { type: "button", class: "wide" });
 		remove.textContent = L.remove;
 		remove.onclick = () => line.remove();
 		item.addEventListener("input", () => search(item.value));
-		line.append(kind, item, qty, reason, remove);
-		line._fields = { kind, item, qty, reason };
+		line.append(kind, item, qty, reason, fitReason, remove);
+		line._fields = { kind, item, qty, reason, fitReason };
 		lines.appendChild(line);
 	}
 
@@ -136,6 +138,7 @@
 				description: known[text] ? "" : text,
 				qty: qty,
 				reason: f.reason.value.trim(),
+				fit_reason: known[text] ? f.fitReason.value.trim() : "",
 			});
 		});
 		if (!items.length) {

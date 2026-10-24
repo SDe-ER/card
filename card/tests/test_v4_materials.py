@@ -134,6 +134,8 @@ class TestV4Materials(IntegrationTestCase):
 		return code
 
 	def _ask(self, items, equipment=None):
+		# these machines have no fitment rows: every picked item needs the Q10 reason (FR-078)
+		items = [{"fit_reason": "no fitment data yet", **item} for item in items]
 		frappe.set_user(self.op_user)
 		try:
 			return materials.submit_needs(equipment or self.eq, json.dumps(items))
@@ -431,7 +433,19 @@ class TestV4Materials(IntegrationTestCase):
 		for user, eq in ((self.op_user, self.eq), (other_user, other_eq)):
 			frappe.set_user(user)
 			for _i in range(2):  # the second one is a repeat
-				materials.submit_needs(eq, json.dumps([{"kind": "Part", "item_code": self.filter, "qty": 1}]))
+				materials.submit_needs(
+					eq,
+					json.dumps(
+						[
+							{
+								"kind": "Part",
+								"item_code": self.filter,
+								"qty": 1,
+								"fit_reason": "no fitment data",
+							}
+						]
+					),
+				)
 			frappe.set_user("Administrator")
 		for project in (self.project, other.name):
 			review = frappe.get_doc({"doctype": "Equipment Needs Review", "project": project}).insert()

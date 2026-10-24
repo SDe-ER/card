@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { mergePage, PAGE_LENGTH, searchParams, type CatalogItem } from './catalog'
+import {
+  isCompatible,
+  mergePage,
+  needsFitReason,
+  PAGE_LENGTH,
+  searchParams,
+  type CatalogItem,
+} from './catalog'
 
 function item(code: string): CatalogItem {
   return {
@@ -31,6 +38,32 @@ describe('searchParams', () => {
       page_length: String(PAGE_LENGTH),
       item_group: 'Parts',
     })
+  })
+})
+
+describe('searchParams with a machine', () => {
+  it('sends the machine, and fits only with a machine', () => {
+    const query = { txt: '', item_group: null, brand: null }
+    expect(searchParams({ ...query, equipment: 'CEQ-0001', fits: true }, 0)).toMatchObject({
+      equipment: 'CEQ-0001',
+      fits: '1',
+    })
+    expect(searchParams({ ...query, equipment: 'CEQ-0001', fits: false }, 0)).not.toHaveProperty(
+      'fits',
+    )
+    expect(searchParams({ ...query, equipment: null, fits: true }, 0)).not.toHaveProperty('fits')
+  })
+})
+
+describe('fit states', () => {
+  it('keeps the four answers apart: only a confirmed fit needs no reason', () => {
+    expect(isCompatible('confirmed_machine')).toBe(true)
+    expect(isCompatible('confirmed_model')).toBe(true)
+    for (const fit of ['not_compatible', 'pending', 'unknown'] as const) {
+      expect(isCompatible(fit)).toBe(false)
+      expect(needsFitReason(fit)).toBe(true)
+    }
+    expect(needsFitReason(null)).toBe(true) // not known yet: ask, the server decides
   })
 })
 
