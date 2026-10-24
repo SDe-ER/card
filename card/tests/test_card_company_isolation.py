@@ -262,3 +262,31 @@ class TestCardCompanyIsolation(IntegrationTestCase):
 		frappe.set_user("Administrator")
 		name = rest_insert(self._card_doc(self.eq_b, self.proj_b, "ليلي"))["name"]
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "company"), self.other)
+
+	# ---------- the card's company is its equipment's company (H5) ----------
+
+	def test_controller_refuses_a_card_company_that_differs_from_its_equipment(self):
+		"""Frappe's fetch_from replaces `company` while links are validated; when that step is
+		skipped (flags.ignore_links) the controller itself must refuse a different company."""
+		for equipment, project, wrong in (
+			(self.eq_a, self.proj_a, self.other),
+			(self.eq_b, self.proj_b, self.company),
+		):
+			with self.subTest(equipment=equipment, company=wrong):
+				doc = frappe.get_doc(self._card_doc(equipment, project, "ليلي", company=wrong))
+				doc.flags.ignore_links = True
+				with self.assertRaisesRegex(frappe.ValidationError, "company does not match the equipment"):
+					doc.insert(ignore_permissions=True)
+		self.assertEqual(
+			frappe.db.count(DOCTYPE, {"shift": "ليلي", "equipment": ["in", [self.eq_a, self.eq_b]]}), 0
+		)
+
+	def test_a_typed_company_never_overrides_the_equipments_company(self):
+		frappe.set_user("Administrator")
+		wrong = frappe.get_doc(self._card_doc(self.eq_a, self.proj_a, "ليلي", company=self.other))
+		wrong.insert(ignore_permissions=True)
+		self.assertEqual(wrong.company, self.company)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, wrong.name, "company"), self.company)
+		right = frappe.get_doc(self._card_doc(self.eq_b, self.proj_b, "ليلي", company=self.other))
+		right.insert(ignore_permissions=True)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, right.name, "company"), self.other)
