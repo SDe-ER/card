@@ -369,42 +369,44 @@ def create_equipment_from_asset(asset: str):
 	return doc.as_dict()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 @frappe.validate_and_sanitize_search_inputs
 def available_assets_query(
 	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict
 ):
 	"""Link-filter query for Card Equipment.الأصل_في_erpnext: submitted Assets of the
 	given company that are not Scrapped/Sold and not already linked to a Card Equipment.
-	Only for users who may create or edit Card Equipment, and only within the
-	companies they may see for it."""
+	Only for users who may create or edit Card Equipment and may read Assets (linking
+	needs Asset read, see CardEquipment.validate_asset_link), within the companies they
+	may see for Card Equipment. frappe.get_list applies the Asset permissions and User
+	Permissions."""
 	# role permissions only: a shared Card Equipment must not open the Asset list
 	perms = frappe.permissions.get_role_permissions(frappe.get_meta("Card Equipment"))
 	if frappe.session.user != "Administrator" and not (perms.get("create") or perms.get("write")):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	if not frappe.has_permission("Asset", "read"):
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	companies = query_companies(filters, "Card Equipment")
 	if not companies:
 		return []
+	linked = frappe.get_all(
+		"Card Equipment", filters={"الأصل_في_erpnext": ["is", "set"]}, pluck="الأصل_في_erpnext"
+	)
+	asset_filters = [
+		["docstatus", "=", 1],
+		["status", "not in", ["Scrapped", "Sold"]],
+		["company", "in", companies],
+	]
+	if linked:
+		asset_filters.append(["name", "not in", linked])
 	like = "%" + (txt or "") + "%"
-	return frappe.db.sql(
-		"""
-		select a.name, a.asset_name
-		from `tabAsset` a
-		where a.docstatus = 1
-		and a.status not in ('Scrapped', 'Sold')
-		and a.company in %(companies)s
-		and not exists (
-			select 1 from `tabCard Equipment` e
-			where e.`الأصل_في_erpnext` = a.name
-		)
-		and (a.name like %(txt)s or a.asset_name like %(txt)s)
-		order by a.name
-		limit %(start)s, %(page_len)s
-		""",
-		{
-			"companies": companies,
-			"txt": like,
-			"start": frappe.utils.cint(start),
-			"page_len": frappe.utils.cint(page_len),
-		},
+	return frappe.get_list(
+		"Asset",
+		fields=["name", "asset_name"],
+		filters=asset_filters,
+		or_filters=[["name", "like", like], ["asset_name", "like", like]],
+		order_by="name asc",
+		limit_start=cint(start),
+		limit_page_length=cint(page_len),
+		as_list=True,
 	)

@@ -365,6 +365,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   next release. Rollback: revert; locale only, no schema, data or migration change.)
 
 ### Security
+- **The equipment Asset picker follows the ERPNext Asset permissions (FR-079).** The Asset field of Card Equipment
+  (and "Create from Asset") now lists Assets through `frappe.get_list`: only for a user who may create or edit
+  equipment and read Assets, with the Asset User Permissions and the Asset company scope applied, as the save of
+  the link already required. When an Asset is already linked, the other equipment is named only to a user who may
+  read that Asset. `card.api.available_assets_query` declares `methods=["GET"]`. No role, DocPerm or setting
+  change: a user without Asset read sees no Asset list (such a user could not save a link before either).
+  Accounting, data and the API shape are unchanged. Rollback: revert the merge.
 - **The equipment needs stock hint follows the user's stock rights (F2).** The supervisor's review stored
   the stock on hand on every line, read without any permission check, so every reader of the review
   (Card User included) saw stock quantities in the form, REST, report view, export and print, and the
