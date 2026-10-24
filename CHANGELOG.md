@@ -16,6 +16,42 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Tool Custody screen (issue #113, PR-T3; Owner decisions U-1 to U-5, 2026-10-23).** A new Desk page
+  `tool-custody` ("Tool Custody", Card Materials sidebar, before Employee Tool Custody) puts awaiting handovers,
+  held tools and history in one responsive screen (desktop, tablet and phone; Arabic right-to-left), with employee
+  and tool filters and server paging (25 rows).
+  - **Who:** Card Supervisor, Card Manager, Stock Manager and System Manager with custody read (U-3). Card User and
+    Card Operator do not see the page or its sidebar row. Default tab by role (U-5): the store side and Card Manager
+    start on Awaiting, a supervisor on Held tools; every permitted user can switch tabs.
+  - **Actions:** each row shows only the actions the server allows for this user (confirm, not handed over, new
+    handover for the rest, return, transfer); the worker gets no action on own custody, and the approver or
+    requester of a line cannot confirm it (same rule as the controller, now one function `confirmer_excluded`).
+    Confirm is one dialog: quantity, Serial No when the item needs it, Print receipt, signed receipt attachment
+    (Handover / Transfer), then the standard Submit with all controller rules. New Handover / Return / Transfer
+    drafts fill their defaults (Card Settings store; for a Handover the worker's machine and its project).
+  - **Stock (U-4):** the Awaiting tab shows the store quantity read with the user's own ERPNext rights (no figure
+    without stock read); confirmation checks the stock again in ERPNext.
+  - **Receipt (U-2):** standard print format "Tool Handover Receipt" for Employee Tool Custody: employee, item,
+    quantity, equipment / project, issuer, receiver, date and two signature lines; right-to-left in Arabic.
+  - **Searches without extra permissions (Owner, 2026-10-24):** the Employee and Store fields of the screen use its
+    own Link searches `card.tool_custody.employee_query` and `store_query` (GET): active employees (the page filter
+    also finds those who left) and enabled, non-group stores of the companies the user may see for custody, limited
+    further by User Permissions on Employee or Warehouse; name and title only, for the screen roles only. The screen
+    roles need no Employee or Warehouse read, and none was granted. The rows carry what the dialogs need (Serial No
+    flag, receiver name), so the dialogs read no Item or Employee either. Return and Transfer dialogs say whose tool
+    it is, which tool and how many are held; a Transfer shows "giver → receiver" in Awaiting, History and the confirm
+    dialog.
+  - Endpoints `card.tool_custody.context`, `view`, `employee_query` and `store_query` (GET, read only) and `confirm`
+    and `move` (POST); custody reads go through `frappe.get_list` (DocPerms and Company User Permissions), writes
+    through Employee Tool Custody with the user's own rights. No role, permission, DocType or accounting change; no
+    data patch. The review approve message now says that tools wait for the store. Arabic translations for the new
+    CARD strings.
+  - Known limits: worker digital acknowledgment (T11) is a later phase; a receipt printed before confirmation names
+    the person who printed it as issuer; Held totals count only the movements the user may read (the server checks the
+    full balance on Return and Transfer); the Held tab reads all submitted movements before paging; the employee and
+    store searches apply User Permissions on Company, Employee and Warehouse only (saving still checks the custody
+    permissions); the open-record arrow of the Employee and Store fields needs read on those records. Rollback: revert
+    the merge (the page, print format and sidebar row stay on a migrated site until removed by hand).
 - **Parts fitment, catalog phase 2a (FR-077; Owner decisions Q1–Q11, 2026-10-23)**: which ERPNext Item fits which
   machine. New masters `Card Equipment Make` (CMK-) and `Card Equipment Model` (CEM-, one make and one equipment
   type); a normalised unique key refuses the same make or model written twice ("PC200-8" = "pc 200 8"), also when
@@ -225,6 +261,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
+- **CARD tests no longer rewrite the bench-wide translation files.** `test_mobile`'s Card Mobile translation test
+  called Frappe's `compile_translations`, which writes `sites/assets/locale/ar/LC_MESSAGES/card.mo` for the whole
+  bench, so a test run from any branch changed the Arabic translations every site of that bench shows (found on the
+  QA bench on 2026-10-23). The test now compiles Card's Arabic catalogue in its own process, with Frappe's compile
+  step, into a temporary folder and reads it from there; no `.mo` file of the bench is written. It still clears and
+  refills the site's translation cache while it runs (also before this change), and clears it again at the end,
+  also on error. Test-only change: no product, permission, data or API impact. Rollback: revert the commit.
 - **Tool lines and tool custody: item type and company checks (issue #113, PR-T1; Owner decisions T3, T4,
   2026-10-23).** A tool goes into employee custody, so a Tool line of an Equipment Needs Review with an approved
   quantity must be a stock item and not a fixed asset; the review refuses it on save and `card.materials.approve_review`
