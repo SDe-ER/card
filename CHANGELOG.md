@@ -231,6 +231,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Rollback: reverting the code leaves the new columns empty and harmless. Custody records confirmed with this version
   keep their submitted Stock Entries; drafts made by approvals stay drafts (close or delete them by hand after a
   revert).
+- **Go-live priority rule (documentation only):** `AGENTS.md` has a new "Go-live priority" section. Issue #118 sets
+  the order of release work (P0 to P8); work stays on the current phase, optional improvements go to the backlog,
+  and a phase closes only after real use is accepted (CI, merge or QA is not LIVE). The existing approval ladder,
+  backup and rollback rules are unchanged. No code, data, permission, accounting or API change. Rollback: revert
+  the commit (documents only, nothing to restore).
 - **Agent skills rule (documentation only):** `AGENTS.md` has a new "Skills" section. Before each development or
   review task, an agent loads the official Frappe skills that fit the task with its Skill tool (`frappe-ui` for CARD
   Mobile), records them under `SKILLS_LOADED` in its report, and stops with `SKILL NOT FOUND` when a required skill
