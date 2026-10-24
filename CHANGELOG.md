@@ -99,8 +99,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   translated in ar only, like the other Desk labels of CARD.
   `card.materials.search_items` (the inline suggestions of `/cdms` and `/equipment-needs`) now uses the same rules
   and rights (it also matches barcodes and OEM numbers, hides ended items and keeps `%`/`_` literal).
-  Data, schema and accounting: no change. Branch `feat/catalog-search` (local commits, no pull request yet).
-  Rollback: revert the commits; the next `migrate` removes the sidebar row; nothing else to clean up.
+  Data, schema and accounting: no change. (#106, merge `c0ee350`; FR-076 phase 1 only. Not released or deployed;
+  target: next release. Real ERPNext integration in a browser not verified.)
+  Rollback: revert the merge; the next `migrate` removes the sidebar row; nothing else to clean up.
 - **CARD Mobile at `/cdms` — foundation** (planned for v4.1.0): a phone-only Progressive Web App served by CARD
   itself, built like the Frappe HR mobile app (Vue 3, TypeScript, frappe-ui in `frontend/`, built by
   `bench build` into `card/public/frontend` and `card/www/cdms.html`). In-app sign-in with the
