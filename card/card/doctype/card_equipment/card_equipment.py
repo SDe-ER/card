@@ -224,8 +224,10 @@ class CardEquipment(Document):
 			"name",
 		)
 		if other:
-			# name the other equipment only to a user who may read the Asset
-			if not frappe.has_permission("Asset", "read", asset):
+			# name the other equipment only to a user who may read the Asset; an unchanged
+			# legacy link is never blocked by an unrelated save
+			changed = self.is_new() or self.has_value_changed("الأصل_في_erpnext")
+			if changed and not frappe.has_permission("Asset", "read", asset):
 				self._refuse_unreadable_asset(asset)
 			frappe.throw(_("Asset {0} is already linked to equipment {1}").format(asset, other))
 

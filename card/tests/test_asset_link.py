@@ -489,7 +489,7 @@ class TestAssetLink(IntegrationTestCase):
 			filters={"company": self._m["company"]},
 			page_length=500,
 			reference_doctype="Card Equipment",
-			ignore_user_permissions=1,  # the link field does not ignore User Permissions
+			ignore_user_permissions=1,  # asked by the client; refused: the Asset link field keeps User Permissions
 		)
 		names = {r["value"] for r in rows}
 		self.assertIn(allowed, names)
@@ -505,6 +505,35 @@ class TestAssetLink(IntegrationTestCase):
 		self._as(["Card Manager", "Accounts User"])  # positive control: an Asset reader sees which one
 		with self.assertRaisesRegex(frappe.ValidationError, re.escape(first.name)):
 			self._make_equipment(**{LINK: asset})
+
+	def test_available_assets_query_offers_an_asset_shared_with_the_user(self):
+		shared, other = self._make_asset(), self._make_asset()
+		user = self._user(["Card Manager"])  # no Asset role
+		frappe.share.add_docshare("Asset", shared, user, read=1, flags={"ignore_share_permission": True})
+		frappe.set_user(user)
+		offered = self._offered()
+		self.assertIn(shared, offered)  # the save would accept it too
+		self.assertNotIn(other, offered)
+
+	def test_available_assets_query_keeps_a_page_limit(self):
+		self._make_asset()
+		self._make_asset()
+		self._as(["Card Manager", "Accounts User"])
+		self.assertEqual(len(available_assets_query("Asset", "TEST-ASSET-", "name", 0, 1, {})), 1)
+		rows = available_assets_query("Asset", "TEST-ASSET-", "name", 0, 0, {})  # 0 is not "no limit"
+		self.assertLessEqual(len(rows), 20)
+
+	def test_unrelated_save_of_an_unchanged_duplicate_link_is_not_refused_for_asset_read(self):
+		asset = self._make_asset()
+		first = self._make_equipment(**{LINK: asset})
+		second = self._make_equipment()
+		frappe.db.set_value("Card Equipment", second.name, LINK, asset)  # legacy duplicate
+		self._as(["Card Manager"])
+		doc = frappe.get_doc("Card Equipment", second.name)
+		doc.plate_no = "TST-2"
+		with self.assertRaisesRegex(frappe.ValidationError, re.escape(first.name)) as raised:
+			doc.save()  # unchanged link: the existing duplicate guard, not an Asset read refusal
+		self.assertNotIsInstance(raised.exception, frappe.PermissionError)
 
 	# ---------- H2: linking an Asset on save ----------
 

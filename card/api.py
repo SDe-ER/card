@@ -384,7 +384,9 @@ def available_assets_query(
 	perms = frappe.permissions.get_role_permissions(frappe.get_meta("Card Equipment"))
 	if frappe.session.user != "Administrator" and not (perms.get("create") or perms.get("write")):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
-	if not frappe.has_permission("Asset", "read"):
+	# select alone would list every Asset; read (role, User Permission or share) is
+	# checked per record by get_list, as on save
+	if frappe.only_has_select_perm("Asset"):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	companies = query_companies(filters, "Card Equipment")
 	if not companies:
@@ -407,6 +409,6 @@ def available_assets_query(
 		or_filters=[["name", "like", like], ["asset_name", "like", like]],
 		order_by="name asc",
 		limit_start=cint(start),
-		limit_page_length=cint(page_len),
+		limit_page_length=cint(page_len) or 20,  # 0 would mean no limit
 		as_list=True,
 	)
