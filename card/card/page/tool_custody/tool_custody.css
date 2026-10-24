@@ -1,0 +1,120 @@
+/* Tool Custody: one list with fixed lanes on wide screens, stacked cards on phones. */
+.tc {
+	padding: var(--padding-md, 15px) 0;
+}
+.tc-tabs {
+	padding: 0 var(--padding-md, 15px);
+	display: flex;
+	gap: var(--margin-sm, 8px);
+	flex-wrap: wrap;
+	margin-bottom: var(--margin-md, 15px);
+}
+.tc-row {
+	/* fixed lanes so every row lines up: status | worker | tool | qty | machine · project | when | actions */
+	display: grid;
+	grid-template-columns: 150px minmax(0, 1.1fr) minmax(0, 1.2fr) 56px minmax(0, 1.6fr) 110px 290px;
+	align-items: center;
+	column-gap: var(--margin-md, 15px);
+	padding: var(--padding-sm, 10px) var(--padding-md, 15px);
+	border-bottom: 1px solid var(--border-color);
+}
+.tc-row > span {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.tc-who {
+	font-weight: 600;
+}
+.tc-qty {
+	text-align: end;
+	font-variant-numeric: tabular-nums;
+}
+.tc-actions {
+	display: flex;
+	gap: 6px;
+	justify-content: flex-end;
+}
+.tc-empty {
+	padding: var(--padding-lg, 20px) var(--padding-md, 15px);
+}
+.tc-more {
+	display: none;
+	padding: var(--padding-md, 15px);
+	text-align: center;
+}
+@media (min-width: 576px) and (max-width: 991px) {
+	/* tablet: the two filters share the width (the standard col-md-2 leaves them too narrow) */
+	.page-container[data-page-route="tool-custody"] .page-form .frappe-control {
+		flex: 0 0 50%;
+		max-width: 50%;
+	}
+}
+@media (max-width: 991px) {
+	/* tablet: machine, time and actions go under the row */
+	.tc-row {
+		grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1fr) 56px;
+		row-gap: 4px;
+	}
+	.tc-where {
+		grid-column: 2 / span 3;
+		grid-row: 2;
+	}
+	.tc-when {
+		grid-column: 1;
+		grid-row: 2;
+	}
+	.tc-where,
+	.tc-when {
+		white-space: normal;
+	}
+	.tc-actions {
+		grid-column: 1 / -1;
+		justify-content: flex-start;
+		flex-wrap: wrap;
+	}
+}
+@media (max-width: 575px) {
+	/* phone: one card per row, every lane on its own line (overrides the tablet rows) */
+	.tc-row {
+		grid-template-columns: minmax(0, 1fr) auto;
+		row-gap: 4px;
+		align-items: start;
+	}
+	.tc-row > span {
+		white-space: normal;
+	}
+	.tc-pill {
+		grid-column: 1 / -1;
+		grid-row: 1;
+	}
+	.tc-who {
+		grid-column: 1;
+		grid-row: 2;
+	}
+	.tc-qty {
+		grid-column: 2;
+		grid-row: 2;
+	}
+	.tc-what {
+		grid-column: 1 / -1;
+		grid-row: 3;
+	}
+	.tc-where {
+		grid-column: 1 / -1;
+		grid-row: 4;
+	}
+	.tc-when {
+		grid-column: 1 / -1;
+		grid-row: 5;
+	}
+	.tc-actions {
+		grid-column: 1 / -1;
+		grid-row: 6;
+	}
+	.tc-actions .btn {
+		padding: 6px 12px;
+		font-size: var(--text-sm, 13px);
+	}
+}

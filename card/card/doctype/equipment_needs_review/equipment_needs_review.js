@@ -20,14 +20,16 @@ frappe.ui.form.on("Equipment Needs Review", {
 		const approver = frappe.user.has_role(["Card Manager", "System Manager"]);
 		if (frm.doc.docstatus === 1 && frm.doc.approval_status === "Pending" && approver) {
 			frm.add_custom_button(__("Approve"), () =>
-				frappe.confirm(__("Create the Material Requests for the approved lines?"), () =>
-					frappe
-						.call({
-							method: "card.materials.approve_review",
-							args: { review: frm.doc.name },
-							freeze: true,
-						})
-						.then(() => frm.reload_doc()),
+				frappe.confirm(
+					__("Approve the lines? Tools wait for the store to hand them over."),
+					() =>
+						frappe
+							.call({
+								method: "card.materials.approve_review",
+								args: { review: frm.doc.name },
+								freeze: true,
+							})
+							.then(() => frm.reload_doc()),
 				),
 			).addClass("btn-primary");
 		}
