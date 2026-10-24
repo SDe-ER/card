@@ -260,6 +260,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
+- **CARD tests no longer rewrite the bench-wide translation files.** `test_mobile`'s Card Mobile translation test
+  called Frappe's `compile_translations`, which writes `sites/assets/locale/ar/LC_MESSAGES/card.mo` for the whole
+  bench, so a test run from any branch changed the Arabic translations every site of that bench shows (found on the
+  QA bench on 2026-10-23). The test now compiles Card's Arabic catalogue in its own process, with Frappe's compile
+  step, into a temporary folder and reads it from there; no `.mo` file of the bench is written. It still clears and
+  refills the site's translation cache while it runs (also before this change), and clears it again at the end,
+  also on error. Test-only change: no product, permission, data or API impact. Rollback: revert the commit.
 - **Tool lines and tool custody: item type and company checks (issue #113, PR-T1; Owner decisions T3, T4,
   2026-10-23).** A tool goes into employee custody, so a Tool line of an Equipment Needs Review with an approved
   quantity must be a stock item and not a fixed asset; the review refuses it on save and `card.materials.approve_review`
