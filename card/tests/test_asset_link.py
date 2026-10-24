@@ -422,6 +422,119 @@ class TestAssetLink(IntegrationTestCase):
 		rows = available_assets_query("Asset", "TEST-ASSET-", "name", 0, 500, {})
 		self.assertIn(free, {r[0] for r in rows})
 
+	# ---------- the Asset picker follows the Asset permissions ----------
+
+	def _offered(self, filters=None):
+		rows = available_assets_query("Asset", "TEST-ASSET-", "name", 0, 500, filters or {})
+		return {r[0] for r in rows}
+
+	def _user_permission(self, user, allow, value, applicable_for=None):
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": user,
+				"allow": allow,
+				"for_value": value,
+				"apply_to_all_doctypes": 0 if applicable_for else 1,
+				"applicable_for": applicable_for,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=user)
+
+	def test_available_assets_query_needs_asset_read(self):
+		free = self._make_asset()
+		for roles in (
+			["Card Manager"],
+			["Card User"],
+			["Card Manager", "Stock User"],
+		):  # Stock User: select only
+			self._as(roles)
+			with self.assertRaises(frappe.PermissionError, msg=roles):
+				available_assets_query("Asset", "", "name", 0, 500, {})
+		self._as(["Card Manager", "Accounts User"])  # positive control
+		self.assertIn(free, self._offered())
+
+	def test_available_assets_query_applies_asset_user_permissions(self):
+		allowed, restricted = self._make_asset(), self._make_asset()
+		user = self._user(["Card Manager", "Accounts User"])
+		self._user_permission(user, "Asset", allowed, applicable_for="Asset")
+		frappe.set_user(user)
+		offered = self._offered()
+		self.assertIn(allowed, offered)
+		self.assertNotIn(restricted, offered)
+
+	def test_available_assets_query_applies_the_asset_company_scope(self):
+		# a Company User Permission that applies only to Asset still limits the picker
+		other = self._other_company()
+		mine, foreign = self._make_asset(), self._make_asset()
+		frappe.db.set_value("Asset", foreign, "company", other)
+		user = self._user(["Card Manager", "Accounts User"])
+		self._user_permission(user, "Company", self._m["company"], applicable_for="Asset")
+		frappe.set_user(user)
+		self.assertIn(mine, self._offered())
+		self.assertNotIn(foreign, self._offered())
+		self.assertNotIn(foreign, self._offered({"company": other}))
+
+	def test_link_search_route_keeps_the_asset_permissions(self):
+		from frappe.desk.search import search_link
+
+		allowed, restricted = self._make_asset(), self._make_asset()
+		user = self._user(["Card Manager", "Accounts User"])
+		self._user_permission(user, "Asset", allowed, applicable_for="Asset")
+		frappe.set_user(user)
+		rows = search_link(
+			"Asset",
+			"TEST-ASSET-",
+			query="card.api.available_assets_query",
+			filters={"company": self._m["company"]},
+			page_length=500,
+			reference_doctype="Card Equipment",
+			ignore_user_permissions=1,  # asked by the client; refused: the Asset link field keeps User Permissions
+		)
+		names = {r["value"] for r in rows}
+		self.assertIn(allowed, names)
+		self.assertNotIn(restricted, names)
+
+	def test_linked_asset_check_names_the_equipment_only_to_asset_readers(self):
+		asset = self._make_asset()
+		first = self._make_equipment(**{LINK: asset})
+		self._as(["Card Manager"])
+		with self.assertRaises(frappe.PermissionError) as refused:
+			self._make_equipment(**{LINK: asset})
+		self.assertNotIn(first.name, str(refused.exception))
+		self._as(["Card Manager", "Accounts User"])  # positive control: an Asset reader sees which one
+		with self.assertRaisesRegex(frappe.ValidationError, re.escape(first.name)):
+			self._make_equipment(**{LINK: asset})
+
+	def test_available_assets_query_offers_an_asset_shared_with_the_user(self):
+		shared, other = self._make_asset(), self._make_asset()
+		user = self._user(["Card Manager"])  # no Asset role
+		frappe.share.add_docshare("Asset", shared, user, read=1, flags={"ignore_share_permission": True})
+		frappe.set_user(user)
+		offered = self._offered()
+		self.assertIn(shared, offered)  # the save would accept it too
+		self.assertNotIn(other, offered)
+
+	def test_available_assets_query_keeps_a_page_limit(self):
+		self._make_asset()
+		self._make_asset()
+		self._as(["Card Manager", "Accounts User"])
+		self.assertEqual(len(available_assets_query("Asset", "TEST-ASSET-", "name", 0, 1, {})), 1)
+		rows = available_assets_query("Asset", "TEST-ASSET-", "name", 0, 0, {})  # 0 is not "no limit"
+		self.assertLessEqual(len(rows), 20)
+
+	def test_unrelated_save_of_an_unchanged_duplicate_link_is_not_refused_for_asset_read(self):
+		asset = self._make_asset()
+		first = self._make_equipment(**{LINK: asset})
+		second = self._make_equipment()
+		frappe.db.set_value("Card Equipment", second.name, LINK, asset)  # legacy duplicate
+		self._as(["Card Manager"])
+		doc = frappe.get_doc("Card Equipment", second.name)
+		doc.plate_no = "TST-2"
+		with self.assertRaisesRegex(frappe.ValidationError, re.escape(first.name)) as raised:
+			doc.save()  # unchanged link: the existing duplicate guard, not an Asset read refusal
+		self.assertNotIsInstance(raised.exception, frappe.PermissionError)
+
 	# ---------- H2: linking an Asset on save ----------
 
 	def test_equipment_refuses_an_asset_of_another_company(self):

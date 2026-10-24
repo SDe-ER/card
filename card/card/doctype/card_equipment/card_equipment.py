@@ -224,7 +224,18 @@ class CardEquipment(Document):
 			"name",
 		)
 		if other:
+			# name the other equipment only to a user who may read the Asset; an unchanged
+			# legacy link is never blocked by an unrelated save
+			changed = self.is_new() or self.has_value_changed("الأصل_في_erpnext")
+			if changed and not frappe.has_permission("Asset", "read", asset):
+				self._refuse_unreadable_asset(asset)
 			frappe.throw(_("Asset {0} is already linked to equipment {1}").format(asset, other))
+
+	def _refuse_unreadable_asset(self, asset):
+		frappe.throw(
+			_("You are not permitted to read Asset {0}, so you cannot link it.").format(asset),
+			frappe.PermissionError,
+		)
 
 	def keep_derived_location(self):
 		"""#56: current_project / assignment_date are written only by
@@ -266,10 +277,7 @@ class CardEquipment(Document):
 		if not values:
 			return  # frappe's link validation reports the missing Asset
 		if not frappe.has_permission("Asset", "read", asset):
-			frappe.throw(
-				_("You are not permitted to read Asset {0}, so you cannot link it.").format(asset),
-				frappe.PermissionError,
-			)
+			self._refuse_unreadable_asset(asset)
 		if values.docstatus == 2:
 			frappe.throw(_("Asset {0} is cancelled and cannot be linked.").format(asset))
 		if values.company != self.company:
