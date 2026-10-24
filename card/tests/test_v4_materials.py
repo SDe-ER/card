@@ -1653,6 +1653,204 @@ class TestV4Materials(IntegrationTestCase):
 		own.save()
 		self.assertEqual(frappe.db.get_value("File", own.name, "is_private"), 0)
 
+	# ---------- Tool Custody screen (#113 PR-T3) ----------
+	def _screen(self, user, method, **kw):
+		from card import tool_custody
+
+		frappe.set_user(user)
+		try:
+			return getattr(tool_custody, method)(**kw)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_the_screen_is_for_the_custody_roles_only(self):
+		# Owner U-3: not every CARD user sees custody history
+		for user in (self._user("cu", ["Card User"]), self.op_user):
+			with self.subTest(user=user), self.assertRaises(frappe.PermissionError):
+				self._screen(user, "view", tab="history")
+		supervisor = self._user("sup", ["Card Supervisor"])
+		keeper = self._store_keeper()
+		# Owner U-5: the store works the queue, a supervisor starts on who holds what
+		self.assertEqual(self._screen(keeper, "context")["default_tab"], "awaiting")
+		self.assertEqual(self._screen(supervisor, "context")["default_tab"], "held")
+		self.assertTrue(self._screen(keeper, "context")["can_confirm"])
+		self.assertFalse(self._screen(supervisor, "context")["can_confirm"])
+
+	def test_the_awaiting_tab_shows_only_the_actions_the_server_allows(self):
+		_review, _line, draft = self._approved_tool()  # approved by Administrator
+		# a store keeper who may read stock (F2: Bin and Warehouse read through his roles)
+		keeper = self._store_keeper(roles=("Stock Manager", "Stock User"))
+		supervisor = self._user("sup", ["Card Supervisor"])
+
+		def row(user):
+			rows = self._screen(user, "view", tab="awaiting")["rows"]
+			return next(r for r in rows if r.name == draft.name)
+
+		waiting = row(keeper)  # nothing in the store yet (U-4)
+		self.assertTrue(waiting.waiting_for_stock)
+		self.assertNotIn("confirm", waiting.actions)
+		self._stock_in(1)
+		self.assertIn("confirm", row(keeper).actions)
+		self.assertEqual(row(keeper).stock, 1)
+		self.assertNotIn("confirm", row(supervisor).actions)  # no Stock Entry rights
+		self.assertIsNone(row(supervisor).stock)  # may not read stock: no figure at all
+		self.assertNotIn("confirm", row("Administrator").actions)  # the approver (H-6)
+
+	def test_reading_the_screen_writes_nothing(self):
+		_review, _line, _draft = self._approved_tool()
+		self._custody("Handover", warehouse=self.store)
+		keeper = self._store_keeper()
+		counts = {d: frappe.db.count(d) for d in ("Employee Tool Custody", "Stock Entry", "Version", "File")}
+		for tab in ("awaiting", "held", "history"):
+			self._screen(keeper, "view", tab=tab)
+		self._screen(keeper, "context")
+		self.assertEqual({d: frappe.db.count(d) for d in counts}, counts)
+
+	def test_the_screen_shows_no_other_company(self):
+		self._custody("Handover", warehouse=self.store)
+		outsider = self._store_keeper("far")
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": outsider,
+				"allow": "Company",
+				"for_value": self._other_company(),
+			}
+		).insert(ignore_permissions=True)
+		for tab in ("awaiting", "held", "history"):
+			with self.subTest(tab=tab):
+				self.assertEqual(self._screen(outsider, "view", tab=tab)["rows"], [])
+		keeper = self._store_keeper()
+		held = self._screen(keeper, "view", tab="held")["rows"]
+		self.assertIn((self.operator, self.tool, 1), {(r.employee, r.item_code, r.qty) for r in held})
+
+	def test_confirming_from_the_screen(self):
+		_review, _line, draft = self._approved_tool()
+		self._stock_in(1)
+		keeper = self._store_keeper()
+		with self.assertRaises(frappe.ValidationError):  # a handover needs the signed receipt
+			self._screen(keeper, "confirm", custody=draft.name)
+		receipt = self._receipt(keeper)
+		with self.assertRaises(frappe.ValidationError):  # a zero quantity is refused, not ignored
+			self._screen(keeper, "confirm", custody=draft.name, receipt=receipt, qty=0)
+		out = self._screen(keeper, "confirm", custody=draft.name, receipt=receipt)
+		self.assertEqual(frappe.db.get_value("Stock Entry", out["stock_entry"], "docstatus"), 1)
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 1)
+		history = self._screen(keeper, "view", tab="history")["rows"]
+		self.assertIn(draft.name, {r.name for r in history})
+
+	def test_new_movements_from_the_screen_fill_their_defaults(self):
+		supervisor = self._user("sup", ["Card Supervisor"])
+		made = self._screen(
+			supervisor, "move", movement="Handover", employee=self.operator, item_code=self.tool, qty=1
+		)
+		self.assertFalse(made["may_confirm"])  # a supervisor prepares, the store confirms
+		self.assertFalse(made["has_serial_no"])  # the confirm dialog needs no Item read
+		draft = frappe.get_doc("Employee Tool Custody", made["name"])
+		self.assertEqual(
+			(draft.docstatus, draft.warehouse, draft.card_equipment, draft.handover_status),
+			(0, self.store, self.eq, "Awaiting handover"),  # the store and the worker's machine
+		)
+		self._stock_in(1)
+		keeper = self._store_keeper()
+		self._screen(keeper, "confirm", custody=draft.name, receipt=self._receipt(keeper))
+		ret = self._screen(
+			keeper, "move", movement="Return", employee=self.operator, item_code=self.tool, qty=1
+		)
+		self.assertTrue(ret["may_confirm"])
+		self._screen(keeper, "confirm", custody=ret["name"])  # a return needs no receipt
+		self.assertEqual(materials.custody_balance(self.operator, self.tool), 0)
+		with self.assertRaises(frappe.ValidationError):
+			self._screen(keeper, "move", movement="Loss", employee=self.operator, item_code=self.tool, qty=1)
+
+	def test_the_sidebar_row_shows_to_the_screen_roles_only(self):
+		from frappe.desk.desk_views import DeskViews
+		from frappe.desk.utils import is_item_allowed
+
+		self.assertTrue(frappe.db.exists("Page", "tool-custody"))
+		expected = {
+			self._store_keeper(): True,
+			self._user("sup", ["Card Supervisor"]): True,
+			self._user("cu", ["Card User"]): False,
+			self.op_user: False,
+		}
+		for user, allowed in expected.items():
+			frappe.set_user(user)
+			try:
+				self.assertEqual(is_item_allowed("tool-custody", "Page", DeskViews()), allowed, user)
+			finally:
+				frappe.set_user("Administrator")
+
+	def test_the_receipt_print_names_both_sides(self):
+		_u, colleague = self._operator("mate")
+		self._custody("Handover", warehouse=self.store)
+		transfer = self._custody("Transfer", to_employee=colleague)
+		html = frappe.get_print("Employee Tool Custody", transfer.name, print_format="Tool Handover Receipt")
+		for text in (transfer.name, transfer.employee, colleague, self.tool):
+			self.assertIn(text, html)
+		# the screen names the receiver too, for users who may not read Employee
+		history = self._screen(self._store_keeper(), "view", tab="history")["rows"]
+		row = next(r for r in history if r.name == transfer.name)
+		self.assertEqual(row.to_employee_name, frappe.db.get_value("Employee", colleague, "employee_name"))
+
+	def test_the_screen_finds_employees_and_stores_without_reading_them(self):
+		from frappe.desk.search import search_link
+
+		_u, colleague = self._operator("mate")
+		supervisor = self._user("sup", ["Card Supervisor"])
+		self.assertFalse(frappe.has_permission("Employee", "read", user=supervisor))
+		self.assertFalse(frappe.has_permission("Warehouse", "read", user=supervisor))
+
+		def found(user, doctype="Employee", query="employee_query", **filters):
+			frappe.set_user(user)
+			try:
+				rows = search_link(doctype, "", query=f"card.tool_custody.{query}", filters=filters)
+				return {r["value"] for r in rows}
+			finally:
+				frappe.set_user("Administrator")
+
+		self.assertTrue({self.operator, colleague} <= found(supervisor))
+		self.assertIn(self.store, found(supervisor, "Warehouse", "store_query"))
+		self.assertNotIn(self.operator, found(supervisor, exclude=self.operator))  # transfer target
+		other = self._other_company()
+		far = frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"first_name": f"V4 far {self.token}",
+				"gender": "Male",
+				"date_of_birth": "1990-01-01",
+				"date_of_joining": "2020-01-01",
+				"company": other,
+				"status": "Active",
+			}
+		).insert(ignore_permissions=True)
+		self.assertEqual(found(supervisor, company=other) & {far.name, self.operator}, {far.name})
+		self.assertNotIn(far.name, found(supervisor, company=self.company))
+		# a worker who left drops out of new movements but the page filter still finds him
+		frappe.db.set_value("Employee", colleague, "status", "Left")
+		self.assertNotIn(colleague, found(supervisor))
+		self.assertIn(colleague, found(supervisor, any_status=1))
+		frappe.db.set_value("Employee", colleague, "status", "Active")
+		outsider = self._user("far", ["Card Supervisor"])
+		frappe.get_doc(
+			{"doctype": "User Permission", "user": outsider, "allow": "Company", "for_value": other}
+		).insert(ignore_permissions=True)
+		self.assertEqual(found(outsider) & {self.operator, colleague}, set())
+		self.assertNotIn(self.store, found(outsider, "Warehouse", "store_query"))
+		one = self._user("one", ["Card Supervisor"])
+		frappe.get_doc(
+			{"doctype": "User Permission", "user": one, "allow": "Employee", "for_value": colleague}
+		).insert(ignore_permissions=True)
+		self.assertEqual(found(one) & {self.operator, colleague}, {colleague})
+		frappe.set_user(self._user("cu", ["Card User"]))
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				from card.tool_custody import employee_query
+
+				employee_query("Employee", "", "name", 0, 20, {})
+		finally:
+			frappe.set_user("Administrator")
+
 	# ---------- operator page ----------
 	def test_operator_page_context(self):
 		frappe.set_user(self.op_user)

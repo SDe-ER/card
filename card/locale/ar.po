@@ -2756,6 +2756,70 @@ msgstr "أُغلق هذا التسليم كـ«لم يتم التسليم»؛ ل
 msgid "This movement is already confirmed."
 msgstr "هذه الحركة مؤكدة بالفعل."
 
+msgid "Tool Custody"
+msgstr "عهدة الأدوات"
+
+msgid "Awaiting"
+msgstr "بانتظار التأكيد"
+
+msgid "Held tools"
+msgstr "الأدوات في العهدة"
+
+msgid "History"
+msgstr "السجل"
+
+msgid "Nothing here."
+msgstr "لا يوجد شيء هنا."
+
+msgid "Waiting for stock"
+msgstr "بانتظار المخزون"
+
+msgid "New handover for the rest"
+msgstr "تسليم جديد للباقي"
+
+msgid "Print receipt"
+msgstr "طباعة الإيصال"
+
+msgid "Attaching the file does not verify the signature."
+msgstr "إرفاق الملف لا يتحقق من التوقيع."
+
+msgid "Confirmed. Stock moved: {0}"
+msgstr "تم التأكيد. حركة المخزون: {0}"
+
+msgid "Confirmed."
+msgstr "تم التأكيد."
+
+msgid "Make a new handover for the tools of this line that are not handed over?"
+msgstr "إنشاء تسليم جديد لأدوات هذا السطر التي لم تُسلَّم؟"
+
+msgid "New handover"
+msgstr "تسليم جديد"
+
+msgid "Unknown tab."
+msgstr "تبويب غير معروف."
+
+msgid "Unknown movement."
+msgstr "حركة غير معروفة."
+
+msgid "Tool Handover Receipt"
+msgstr "إيصال تسليم أدوات"
+
+msgid "The receiver confirms receiving the tool above in good condition and is responsible for it until it is returned or handed over."
+msgstr "يقر المستلم باستلام الأداة المذكورة أعلاه بحالة جيدة، ويكون مسؤولًا عنها حتى إرجاعها أو تسليمها."
+
+msgid "Handed over by"
+msgstr "سلّمها"
+
+msgid "Received by"
+msgstr "استلمها"
+
+msgid "Approve the lines? Tools wait for the store to hand them over."
+msgstr "اعتماد السطور؟ الأدوات تنتظر تسليمها من المخزن."
+
+msgctxt "Tool Custody"
+msgid "Confirm {0}"
+msgstr "تأكيد {0}"
+
 msgid "Only a cancelled movement of the same company that you may amend can be amended."
 msgstr "يمكن تعديل (Amend) حركة ملغاة فقط، من نفس الشركة، ولديك صلاحية تعديلها."
 
