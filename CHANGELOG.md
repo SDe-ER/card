@@ -16,6 +16,42 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Tool Custody screen (issue #113, PR-T3; Owner decisions U-1 to U-5, 2026-10-23).** A new Desk page
+  `tool-custody` ("Tool Custody", Card Materials sidebar, before Employee Tool Custody) puts awaiting handovers,
+  held tools and history in one responsive screen (desktop, tablet and phone; Arabic right-to-left), with employee
+  and tool filters and server paging (25 rows).
+  - **Who:** Card Supervisor, Card Manager, Stock Manager and System Manager with custody read (U-3). Card User and
+    Card Operator do not see the page or its sidebar row. Default tab by role (U-5): the store side and Card Manager
+    start on Awaiting, a supervisor on Held tools; every permitted user can switch tabs.
+  - **Actions:** each row shows only the actions the server allows for this user (confirm, not handed over, new
+    handover for the rest, return, transfer); the worker gets no action on own custody, and the approver or
+    requester of a line cannot confirm it (same rule as the controller, now one function `confirmer_excluded`).
+    Confirm is one dialog: quantity, Serial No when the item needs it, Print receipt, signed receipt attachment
+    (Handover / Transfer), then the standard Submit with all controller rules. New Handover / Return / Transfer
+    drafts fill their defaults (Card Settings store; for a Handover the worker's machine and its project).
+  - **Stock (U-4):** the Awaiting tab shows the store quantity read with the user's own ERPNext rights (no figure
+    without stock read); confirmation checks the stock again in ERPNext.
+  - **Receipt (U-2):** standard print format "Tool Handover Receipt" for Employee Tool Custody: employee, item,
+    quantity, equipment / project, issuer, receiver, date and two signature lines; right-to-left in Arabic.
+  - **Searches without extra permissions (Owner, 2026-10-24):** the Employee and Store fields of the screen use its
+    own Link searches `card.tool_custody.employee_query` and `store_query` (GET): active employees (the page filter
+    also finds those who left) and enabled, non-group stores of the companies the user may see for custody, limited
+    further by User Permissions on Employee or Warehouse; name and title only, for the screen roles only. The screen
+    roles need no Employee or Warehouse read, and none was granted. The rows carry what the dialogs need (Serial No
+    flag, receiver name), so the dialogs read no Item or Employee either. Return and Transfer dialogs say whose tool
+    it is, which tool and how many are held; a Transfer shows "giver → receiver" in Awaiting, History and the confirm
+    dialog.
+  - Endpoints `card.tool_custody.context`, `view`, `employee_query` and `store_query` (GET, read only) and `confirm`
+    and `move` (POST); custody reads go through `frappe.get_list` (DocPerms and Company User Permissions), writes
+    through Employee Tool Custody with the user's own rights. No role, permission, DocType or accounting change; no
+    data patch. The review approve message now says that tools wait for the store. Arabic translations for the new
+    CARD strings.
+  - Known limits: worker digital acknowledgment (T11) is a later phase; a receipt printed before confirmation names
+    the person who printed it as issuer; Held totals count only the movements the user may read (the server checks the
+    full balance on Return and Transfer); the Held tab reads all submitted movements before paging; the employee and
+    store searches apply User Permissions on Company, Employee and Warehouse only (saving still checks the custody
+    permissions); the open-record arrow of the Employee and Store fields needs read on those records. Rollback: revert
+    the merge (the page, print format and sidebar row stay on a migrated site until removed by hand).
 - **Parts fitment, catalog phase 2a (FR-077; Owner decisions Q1–Q11, 2026-10-23)**: which ERPNext Item fits which
   machine. New masters `Card Equipment Make` (CMK-) and `Card Equipment Model` (CEM-, one make and one equipment
   type); a normalised unique key refuses the same make or model written twice ("PC200-8" = "pc 200 8"), also when
@@ -63,8 +99,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   translated in ar only, like the other Desk labels of CARD.
   `card.materials.search_items` (the inline suggestions of `/cdms` and `/equipment-needs`) now uses the same rules
   and rights (it also matches barcodes and OEM numbers, hides ended items and keeps `%`/`_` literal).
-  Data, schema and accounting: no change. Branch `feat/catalog-search` (local commits, no pull request yet).
-  Rollback: revert the commits; the next `migrate` removes the sidebar row; nothing else to clean up.
+  Data, schema and accounting: no change. (#106, merge `c0ee350`; FR-076 phase 1 only. Not released or deployed;
+  target: next release. Real ERPNext integration in a browser not verified.)
+  Rollback: revert the merge; the next `migrate` removes the sidebar row; nothing else to clean up.
 - **CARD Mobile at `/cdms` — foundation** (planned for v4.1.0): a phone-only Progressive Web App served by CARD
   itself, built like the Frappe HR mobile app (Vue 3, TypeScript, frappe-ui in `frontend/`, built by
   `bench build` into `card/public/frontend` and `card/www/cdms.html`). In-app sign-in with the
@@ -101,6 +138,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   release badges, so readers see the Python test coverage of `main` (CARD Mobile `frontend/` is not measured). The
   repository is public, so the badge URL has no token.
   No app code, permission, accounting, data or API change. (#94) Rollback: revert the merge.
+- **Security tests for the coverage program, Batch 1a (tests only):** new and stronger tests for the Asset link
+  endpoints (`get_asset_prefill`, `create_equipment_from_asset`, `available_assets_query`) and the equipment Asset
+  link, `get_shift_heatmap`, `get_equipment_location`, `refresh_supplier` / `refresh_customer`, `party_figures`,
+  `get_card_diesel`, the company scoping of assignments, registries, party and diesel-fill link queries, the monthly
+  card company guard, the operator request rules and the operator page guest redirect. Each deny has a permitted
+  control. The Asset tests build their own fixtures, so they run in CI instead of skipping. `card/install.py`:
+  `before_install` / `after_install` are excluded from coverage (`# pragma: no cover`) because they run at
+  `install-app`, before coverage measurement starts. No behaviour, permission, accounting, data or API change.
+  (#96) Rollback: revert the merge.
 
 ### Changed
 - **Tool handover confirmation (issue #113, PR-T2; Owner decisions T1, T2, T2b, T5–T9, H-1–H-3, H-5–H-7,
@@ -224,6 +270,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   operator's lack of Item read permission.
 
 ### Fixed
+- **CARD tests no longer rewrite the bench-wide translation files.** `test_mobile`'s Card Mobile translation test
+  called Frappe's `compile_translations`, which writes `sites/assets/locale/ar/LC_MESSAGES/card.mo` for the whole
+  bench, so a test run from any branch changed the Arabic translations every site of that bench shows (found on the
+  QA bench on 2026-10-23). The test now compiles Card's Arabic catalogue in its own process, with Frappe's compile
+  step, into a temporary folder and reads it from there; no `.mo` file of the bench is written. It still clears and
+  refills the site's translation cache while it runs (also before this change), and clears it again at the end,
+  also on error. Test-only change: no product, permission, data or API impact. Rollback: revert the commit.
 - **Tool lines and tool custody: item type and company checks (issue #113, PR-T1; Owner decisions T3, T4,
   2026-10-23).** A tool goes into employee custody, so a Tool line of an Equipment Needs Review with an approved
   quantity must be a stock item and not a fixed asset; the review refuses it on save and `card.materials.approve_review`
