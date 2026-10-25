@@ -1,0 +1,79 @@
+name: Upgrade rehearsal
+
+# Go-live P0 (#119): upgrade a synthetic CARD v1.0.1 site on the production frappe/erpnext
+# versions to the code under test, migrate twice and compare the data. Synthetic data only.
+on:
+  pull_request:
+    paths:
+      - "card/patches.txt"
+      - "card/patches/**"
+      - "card/**/doctype/**/*.json"
+      - "card/fixtures/**"
+      - "card/install.py"
+      - "card/hooks.py"
+      - ".github/helper/upgrade_rehearsal.*"
+      - ".github/workflows/upgrade-rehearsal.yml"
+  workflow_dispatch:
+    inputs:
+      from_ref:
+        description: "CARD tag to upgrade from"
+        default: "v1.0.1"
+
+concurrency:
+  group: upgrade-rehearsal-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  rehearsal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    name: Upgrade rehearsal (CARD v1.0.1 -> this code, frappe 16.51.1 / erpnext 16.50.0)
+
+    services:
+      mariadb:
+        image: mariadb:10.6
+        env:
+          MARIADB_ROOT_PASSWORD: "root"
+        ports:
+          - 3306:3306
+        options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=2s --health-retries=5
+
+    steps:
+      - name: Clone (with tags)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Add test site to hosts
+        run: echo "127.0.0.1 test_site" | sudo tee -a /etc/hosts
+
+      - name: Rehearse the upgrade
+        env:
+          FROM_REF: ${{ github.event.inputs.from_ref || 'v1.0.1' }}
+        run: bash ${GITHUB_WORKSPACE}/.github/helper/upgrade_rehearsal.sh
+
+      - name: Keep the evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upgrade-rehearsal
+          path: ~/rehearsal/
+          if-no-files-found: warn
