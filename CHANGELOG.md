@@ -34,6 +34,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+## [4.1.1] — 2026-10-25
+
+### Fixed
+
+- **Tool Custody screen: item search works without an ERPNext Item read permission (this PR).**
+  Card Manager and other Tool Custody screen roles could not search for items in the New Handover
+  dialog or the page filter because those Link fields used the standard Frappe link search, which
+  requires `select: 1` on the `Item` DocType. Added a scoped `item_query` endpoint
+  (`card.tool_custody.item_query`, GET) that returns stock items (non-fixed-asset, enabled) using
+  `ignore_permissions=True` after `_check_screen()` confirms the caller holds a screen role and can
+  read Employee Tool Custody. The JS link fields now use this endpoint instead of plain filters.
+  The Stock Manager confirmation boundary (Stock Entry submit) and all other screen permissions are
+  unchanged. No DocPerm change; no data change.
+
+### Migration
+
+No migration required. No new patches.
+
+### Known limitations
+
+Same as v4.1.0.
+
+---
+
 ## [4.1.0] — 2026-10-25
 
 > First production go-live release candidate (issue #118, phases P1–P3: equipment registration, transport,

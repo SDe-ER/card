@@ -31,6 +31,7 @@ const TC_RECEIPT_FORMAT = "Tool Handover Receipt";
 // the screen roles need no Employee or Warehouse read
 const TC_EMPLOYEE_QUERY = "card.tool_custody.employee_query";
 const TC_STORE_QUERY = "card.tool_custody.store_query";
+const TC_ITEM_QUERY = "card.tool_custody.item_query";
 
 // the screen's reads are GET methods on the server (no side effects); frappe.xcall sends POST
 function tc_get(method, args = {}) {
@@ -61,6 +62,7 @@ class ToolCustodyScreen {
 			label: __("Tool"),
 			fieldtype: "Link",
 			options: "Item",
+			get_query: () => ({ query: TC_ITEM_QUERY }),
 			change: () => this.ctx && this.load(),
 		});
 		tc_get("card.tool_custody.context").then((ctx) => {
@@ -342,9 +344,7 @@ class ToolCustodyScreen {
 				label: __("Tool"),
 				options: "Item",
 				reqd: 1,
-				get_query: () => ({
-					filters: { is_stock_item: 1, is_fixed_asset: 0, disabled: 0 },
-				}),
+				get_query: () => ({ query: TC_ITEM_QUERY }),
 			});
 		}
 		if (movement === "Transfer") {

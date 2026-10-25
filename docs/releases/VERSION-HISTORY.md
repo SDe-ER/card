@@ -12,6 +12,7 @@ Authoritative index of every **published** CARD release. Source of truth: git ta
 
 | Version | Date (tag/release) | Type | One-line summary | Full page |
 |---|---|---|---|---|
+| **v4.1.1** | 2026-10-25 | Patch | Tool Custody item search works without an ERPNext Item permission (scoped `item_query` endpoint) | [v4.1.1.md](v4.1.1.md) |
 | **v4.1.0** | 2026-10-25 (tag after the release PR merge) | Minor release | First production go-live candidate (P1–P3): unique chassis/plate numbers per company, upgrade rehearsal from v1.0.1, company-isolation and concurrency fixes; also CARD Mobile foundation (not device-tested), catalog search, fitment 2a, tool handover, diesel price lock | [v4.1.0.md](v4.1.0.md) |
 | **v4.0.0** | 2026-10-19 | Major release | Equipment materials: operator page for machine needs, supervisor review, management approval into draft ERPNext Material Requests with project, cost center and equipment dimension, employee tool custody, 4 reports | [v4.0.0.md](v4.0.0.md) |
 | **v3.0.0** | 2026-10-19 | Major release | CARD launcher (Dock + 9 sidebars), multi-machine transport with destinations and destination cost center, monthly card follows approved transports, equipment details from the ERPNext Asset, dated unit components | [v3.0.0.md](v3.0.0.md) |

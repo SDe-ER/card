@@ -138,6 +138,29 @@ def store_query(doctype: str, txt: str, searchfield: str, start: int, page_len: 
 	return _scoped_names("Warehouse", filters, conditions, txt, "warehouse_name", start, page_len)
 
 
+@frappe.whitelist(methods=["GET"])
+@frappe.validate_and_sanitize_search_inputs
+def item_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
+	"""Link query for the screen's item field: stock tools only.
+
+	_check_screen() is the authorization gate (SCREEN_ROLES + ETC read). ignore_permissions is
+	explicit and justified: Items are global in ERPNext and the screen roles have no Item DocPerm.
+	Filters are enforced server-side so the client cannot request non-stock or disabled items."""
+	_check_screen()
+	like = f"%{txt or ''}%"
+	return frappe.get_all(
+		"Item",
+		filters=[["is_stock_item", "=", 1], ["is_fixed_asset", "=", 0], ["disabled", "=", 0]],
+		or_filters={"item_code": ["like", like], "item_name": ["like", like]},
+		fields=["item_code", "item_name"],
+		order_by="item_name asc",
+		limit_start=cint(start),
+		limit_page_length=cint(page_len) or 20,
+		as_list=True,
+		ignore_permissions=True,
+	)
+
+
 def _people(rows):
 	"""One Employee read for the page: a Transfer names its receiver on the screen (the user may
 	not read Employee). Returns the workers' and receivers' user accounts by employee."""
