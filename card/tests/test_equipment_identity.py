@@ -331,6 +331,8 @@ class TestEquipmentIdentityConcurrency(IntegrationTestCase):
 		t2.join(WAIT)
 		self.assertIsInstance(state["two"].get("error"), frappe.ValidationError, state["two"])
 		saved = self._committed(
-			lambda: frappe.get_all("Card Equipment", filters={"serial_no_key": self.number}, pluck="name")
+			lambda: frappe.get_all(
+				"Card Equipment", filters={"serial_no_key": identity_key(self.number)}, pluck="name"
+			)
 		)
 		self.assertEqual(saved, [state["one"]["name"]])
