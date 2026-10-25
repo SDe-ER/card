@@ -17,10 +17,10 @@ frappe.ui.form.on("Equipment Transport", {
 	onload(frm) {
 		// v4.1.2: one company only: fill it and keep it out of the way (the server still
 		// validates it); with several companies the user picks one as before
-		frappe.call({ method: "card.api.get_only_company", type: "GET" }).then((r) => {
+		frappe.call({ method: "card.api.get_only_company", type: "GET" }).then(async (r) => {
 			const only = r && r.message;
 			if (!only) return;
-			if (frm.is_new() && !frm.doc.company) frm.set_value("company", only);
+			if (frm.is_new() && !frm.doc.company) await frm.set_value("company", only);
 			if (frm.doc.company === only) frm.toggle_display("company", false);
 		});
 	},

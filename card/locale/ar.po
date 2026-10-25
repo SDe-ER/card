@@ -3694,3 +3694,11 @@ msgstr "غير موزع"
 msgctxt "Card"
 msgid "Approve"
 msgstr "اعتماد"
+
+msgctxt "Card"
+msgid ", "
+msgstr "، "
+
+msgctxt "Card"
+msgid "; "
+msgstr "؛ "

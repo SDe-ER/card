@@ -43,8 +43,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`frappe/desk/doctype/dock/dock.py`, `resolve_app_dock`, `keep_unnamed=False`). A site layer saved
   before v3.0.0 (on production: 2026-10-13, one entry) hid nine of the ten launcher entries, so
   `/desk/card` showed only the dashboard sidebar (Card, Card Monthly Card, Equipment Transport).
-  The new patch `v4_1_2.restore_launcher_entries` appends the missing entries, in the shipped order,
-  to every non-standard CARD `Dock` layer last saved before the shipped dock. Existing rows, their
+  `card.navigation.restore_launcher_entries` (run after every migrate) appends the missing entries,
+  in the shipped order, to every non-standard CARD `Dock` layer last saved before the shipped dock
+  file, so entries added by later releases also reach such layers. Existing rows, their
   order and hidden flags are kept; nothing is deleted; a layer saved later is not touched. Reach is
   unchanged: frappe still hides an entry the user may not open. No permission change.
 - **Equipment Transport form is simpler.** Order: ownership → equipment supplier → equipment table →
@@ -56,6 +57,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   stays visible and required with several. Ownership and, for rented equipment, the equipment
   supplier are taken from the first machine when left empty; values the user picked are kept.
   Controller, transfer and accounting logic unchanged.
+- **English error messages no longer contain Arabic.** List separators are translatable
+  (`, ` / `; `, Arabic `، ` / `؛ `) and the shift value in the shift-limit message is translated.
 - **English users no longer see Arabic stored values.** Stored Select values (ownership, rate type,
   shift, day status, statuses, directions, adjustment kind, diesel policy) and the Arabic-named
   workspace number cards and charts get English translations in `en.po`; `bn.po`, `hi.po` and `ur.po`
@@ -68,15 +71,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ### Added
 
-- Tests: `test_launcher_restore` (old layer restored in order, rows and hidden flags kept, newer
-  layer untouched, idempotent), `test_transport_ownership_default`, and the i18n guard
+- Tests: `test_launcher_restore` (the production layer shape, old layer restored in order, rows and
+  hidden flags kept, newer layer untouched, idempotent), `test_transport_ownership_default`, and the i18n guard
   `TestNoArabicFallback` (every Arabic value shown on screen has a non-Arabic translation in
   en/bn/hi/ur).
 
 ### Migration
 
-One patch: `card.patches.v4_1_2.restore_launcher_entries` (post model sync). It writes only
-non-standard `Dock` layers of the app `card` older than the shipped dock. Rollback: the previous
+No new patch. A new `after_migrate` hook, `card.navigation.restore_launcher_entries`, writes only
+non-standard `Dock` layers of the app `card` older than the shipped dock file; once saved, a layer
+is newer than the file, so later migrates write nothing until a newer dock file ships. Rollback: the previous
 version runs on the migrated data; to undo the navigation change, remove the appended rows from the
 site's dock layer (Manage Dock) or restore the pre-upgrade backup.
 
