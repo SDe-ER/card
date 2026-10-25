@@ -7,6 +7,7 @@ from frappe.model.document import Document
 from frappe.utils import cstr, flt, getdate
 
 from card.company import single_company, validate_equipment_company
+from card.constants import OWNED
 from card.settings import setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
@@ -25,6 +26,7 @@ class EquipmentTransport(Document):
 		if not self.company:
 			self.company = single_company()  # F.8: default to THE company
 		self._sync_items()
+		self._default_ownership()
 		for row in self.items:
 			validate_equipment_company(frappe._dict(company=self.company, equipment=row.card_equipment))
 		self._detect_movements()
@@ -171,6 +173,18 @@ class EquipmentTransport(Document):
 				frappe.throw(_("Equipment {0} is listed twice in this transport.").format(row.card_equipment))
 			seen.add(row.card_equipment)
 		self.equipment = self.items[0].card_equipment if self.items else None
+
+	def _default_ownership(self):
+		"""v4.1.2: ownership and the equipment supplier are read from the first machine when
+		the user (or an older API caller) left them empty; a value typed in is kept."""
+		if not self.items or (self.ownership and (self.ownership == OWNED or self.equipment_supplier)):
+			return
+		ownership, supplier = frappe.db.get_value(
+			"Card Equipment", self.items[0].card_equipment, ["ownership", "supplier"]
+		) or (None, None)
+		self.ownership = self.ownership or ownership
+		if self.ownership and self.ownership != OWNED and not self.equipment_supplier:
+			self.equipment_supplier = supplier
 
 	def _split_amount(self):
 		"""Owner decision 2026-10-18: the trip cost is split equally over the equipment;

@@ -3526,3 +3526,10 @@ msgstr "معدة مكررة"
 #: card/card/doctype/card_equipment/card_equipment.py
 msgid "Another equipment of company {0} is being saved. Try again."
 msgstr "معدة أخرى في الشركة {0} يتم حفظها الآن. حاول مرة أخرى."
+
+# v4.1.2 Equipment Transport form sections
+msgid "Cost and date"
+msgstr "التكلفة والتاريخ"
+
+msgid "Linked Records"
+msgstr "السجلات المرتبطة"

@@ -222,3 +222,159 @@ msgstr "और देखें"
 
 msgid "Unknown catalog filter"
 msgstr "अज्ञात कैटलॉग फ़िल्टर"
+
+# v4.1.2: stored Arabic Select values and Arabic-named workspace widgets, shown in English.
+# The stored values do not change (display translation only); languages without their own
+# translation fall back to English here, never to Arabic.
+msgid "ملك"
+msgstr "Owned"
+
+msgid "إيجار"
+msgstr "Rented"
+
+msgid "طرف ثالث"
+msgstr "Third Party"
+
+msgid "معدات ملك"
+msgstr "Owned Equipment"
+
+msgid "مورد"
+msgstr "Supplier"
+
+msgid "إيجار من الباطن"
+msgstr "Sub-rental"
+
+msgid "تشغيل داخلي"
+msgstr "Internal Operation"
+
+msgid "مستأجَرة من مورد"
+msgstr "Rented from Supplier"
+
+msgid "مؤجَّرة لعميل"
+msgstr "Rented to Customer"
+
+msgid "الشركة"
+msgstr "Company"
+
+msgid "المؤجر"
+msgstr "Lessor"
+
+msgid "باليوم"
+msgstr "Per Day"
+
+msgid "بالشهر"
+msgstr "Per Month"
+
+msgid "بالساعة"
+msgstr "Per Hour"
+
+msgid "ساعات"
+msgstr "Hours"
+
+msgid "كيلومترات"
+msgstr "Kilometres"
+
+msgid "بدون عداد"
+msgstr "No Meter"
+
+msgid "نشطة"
+msgstr "Active"
+
+msgid "متوقفة"
+msgstr "Stopped"
+
+msgid "في الصيانة"
+msgstr "Under Maintenance"
+
+msgid "منتهية"
+msgstr "Ended"
+
+msgid "نشط"
+msgstr "Active"
+
+msgid "منتهي"
+msgstr "Ended"
+
+msgid "إرجاع للمؤجر"
+msgstr "Returned to Lessor"
+
+msgid "انتهاء الإيجار"
+msgstr "Rental Ended"
+
+msgid "بيع"
+msgstr "Sold"
+
+msgid "تكهين"
+msgstr "Scrapped"
+
+msgid "نقل لفرع آخر"
+msgstr "Transferred to Another Branch"
+
+msgid "تمت"
+msgstr "Settled"
+
+msgid "لم تتم"
+msgstr "Not Settled"
+
+msgid "نهاري"
+msgstr "Day"
+
+msgid "ليلي"
+msgstr "Night"
+
+msgid "عمل"
+msgstr "Working"
+
+msgid "إجازة"
+msgstr "Day Off"
+
+msgid "عطل"
+msgstr "Breakdown"
+
+msgid "توقف من العميل"
+msgstr "Stopped by Customer"
+
+msgid "إضافة"
+msgstr "Addition"
+
+msgid "خصم"
+msgstr "Deduction"
+
+msgid "ثابت"
+msgstr "Fixed"
+
+msgid "متغير"
+msgstr "Variable"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Total Diesel Cost"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Total Transport Cost"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Total Diesel Litres"
+
+msgid "المعدات المؤجرة"
+msgstr "Rented Equipment"
+
+msgid "كروت الشهر الماضي"
+msgstr "Last Month's Cards"
+
+msgid "كروت مسودة"
+msgstr "Draft Cards"
+
+msgid "مبالغ الشهر الماضي"
+msgstr "Last Month's Amounts"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Monthly Diesel Cost"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Monthly Card Amounts"
+
+msgid "كارت تشغيل شهري"
+msgstr "Monthly Operation Card"
+
+msgid "Hours a monthly (بالشهر) rate is spread over. Default 260 = 26 days x 10 hours."
+msgstr "Hours a monthly (Per Month) rate is spread over. Default 260 = 26 days x 10 hours."
