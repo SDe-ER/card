@@ -16,6 +16,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Upgrade rehearsal in CI (go-live P0 #119, Owner decision D2; tooling only).** New workflow
+  `upgrade-rehearsal.yml` (pull requests that touch patches, DocType JSON, fixtures, install or hooks, and manual
+  runs): a site on the production frappe 16.51.1 / erpnext 16.50.0 gets CARD v1.0.1 and synthetic data shaped like a
+  site in use (3 rented machines, 3 assignments, 5 monthly cards incl. cancelled and amended ones), is upgraded to
+  the code under test, migrated twice and compared: every kept record and amount unchanged, no ledger, invoice,
+  stock or Material Request document created, no transport invented, no Card role given, every patch ran once, the
+  second migrate changes nothing; then legacy machines save, submitted cards load and a first transport submits
+  (rolled back). Evidence is the run's `upgrade-rehearsal` artifact. No app code, data or permission change.
 - **Equipment chassis and plate numbers are unique per company (FR-080, go-live P1 #120, Owner decision D1).** A
   Card Equipment refuses a chassis number (`serial_no`) or plate number (`plate_no`) that another equipment of the
   same company already uses. Numbers are compared without case, spaces or `- _ / .`, with Arabic-Indic digits read as
