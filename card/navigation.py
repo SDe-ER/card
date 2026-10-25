@@ -10,7 +10,7 @@ entries (Equipment, Movement & Transport, ..., Settings) never appeared: the doc
 entry ("Card (Custom)") and /desk/card only the dashboard sidebar's three items. The same would happen
 again with every entry a later release adds.
 
-A layer last saved before the shipped dock file (its `modified`) cannot have left out on purpose
+A layer last saved before the shipped dock (its `modified`, which is the file's) cannot have left out on purpose
 an entry that did not exist yet, so the missing shipped entries are appended to it as references
 (inheriting icon and title), in the shipped order. Rows already in the layer, their order and
 their hidden flags are kept; nothing is deleted; a layer saved later is not touched. Reach stays
@@ -18,28 +18,27 @@ with frappe: an entry the user may not open is still filtered out when the dock 
 a layer is saved it is newer than the file, so later migrates do nothing until a release ships
 a newer dock file."""
 
-import json
-import os
-
 import frappe
-from frappe.utils import get_datetime
 
 DESTINATION_FIELDS = ("link_type", "link_to", "url")
 
 
 def restore_launcher_entries():
-	if not frappe.db.exists("DocType", "Dock"):
+	# the app's own dock, as migrate imported it from card/dock/card/card.json (its `modified`
+	# is the file's)
+	if not frappe.db.exists("DocType", "Dock") or not frappe.db.exists(
+		"Dock", {"app": "card", "standard": 1}
+	):
 		return
-	with open(os.path.join(frappe.get_app_path("card"), "dock", "card", "card.json"), encoding="utf-8") as f:
-		shipped = json.load(f)
-	shipped_at = get_datetime(shipped["modified"])
+	shipped = frappe.get_doc("Dock", {"app": "card", "standard": 1})
+	shipped_at = shipped.modified
 	layers = frappe.get_all(
 		"Dock", filters={"app": "card", "standard": 0, "modified": ["<", shipped_at]}, pluck="name"
 	)
 	for name in layers:
 		layer = frappe.get_doc("Dock", name)
 		named = {_key(row) for row in layer.items}
-		missing = [row for row in shipped["items"] if _key(row) not in named]
+		missing = [row for row in shipped.items if _key(row) not in named]
 		if not missing:
 			continue
 		for row in missing:
