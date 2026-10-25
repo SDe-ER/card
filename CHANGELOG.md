@@ -16,6 +16,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Equipment chassis and plate numbers are unique per company (FR-080, go-live P1 #120, Owner decision D1).** A
+  Card Equipment refuses a chassis number (`serial_no`) or plate number (`plate_no`) that another equipment of the
+  same company already uses. Numbers are compared without case, spaces or `- _ / .`, with Arabic-Indic digits read as
+  ASCII (new hidden fields `serial_no_key`, `plate_no_key`); empty numbers are never compared; another company may use
+  the same number. The check runs on the server (Desk, REST, imports) when the number is set or changed or the
+  company changes, under a company row lock and a locking read, so two saves at once keep one equipment. The message
+  names the other equipment only to a user who may read it.
+  - **Migration:** patch `card.patches.v4_1_0.backfill_equipment_identity_keys` fills the two keys of existing
+    equipment (no `modified` change, no Version) and prints numbers that existing equipment already share; those
+    records are kept unchanged, an unrelated save of them is allowed, and their number can be corrected.
+  - No role, DocPerm, setting, accounting or API change. Rollback: revert; the two key columns stay unused.
 - **Tool Custody screen (issue #113, PR-T3; Owner decisions U-1 to U-5, 2026-10-23).** A new Desk page
   `tool-custody` ("Tool Custody", Card Materials sidebar, before Employee Tool Custody) puts awaiting handovers,
   held tools and history in one responsive screen (desktop, tablet and phone; Arabic right-to-left), with employee

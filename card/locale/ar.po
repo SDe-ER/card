@@ -3500,3 +3500,25 @@ msgstr "إثبات التوافق"
 #: card/card/doctype/card_equipment_part/card_equipment_part.json
 msgid "Review record"
 msgstr "سجل المراجعة"
+
+#. Label of the serial_no_key (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Chassis number key"
+msgstr "مفتاح رقم الشاسيه"
+
+#. Label of the plate_no_key (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Plate number key"
+msgstr "مفتاح رقم اللوحة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "{0} {1} is already used by equipment {2} in company {3}."
+msgstr "{0} {1} مستخدم بالفعل للمعدة {2} في الشركة {3}."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "{0} {1} is already used by another equipment in company {2}."
+msgstr "{0} {1} مستخدم بالفعل لمعدة أخرى في الشركة {2}."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Duplicate equipment"
+msgstr "معدة مكررة"
