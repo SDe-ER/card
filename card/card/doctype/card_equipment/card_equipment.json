@@ -22,6 +22,8 @@
   "manufacture_year",
   "serial_no",
   "plate_no",
+  "serial_no_key",
+  "plate_no_key",
   "column_break_hadg",
   "equipment_category",
   "equipment_name",
@@ -185,14 +187,36 @@
    "fieldtype": "Data",
    "label": "Chassis number",
    "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.serial_no"
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.serial_no",
+   "no_copy": 1
   },
   {
    "fieldname": "plate_no",
    "fieldtype": "Data",
    "label": "Plate number",
    "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.plate_no"
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.plate_no",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "serial_no_key",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Chassis number key",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
+  },
+  {
+   "fieldname": "plate_no_key",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Plate number key",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   },
   {
    "fieldname": "column_break_hadg",
@@ -774,7 +798,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-10-23 10:00:00.000000",
+ "modified": "2026-10-25 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",
