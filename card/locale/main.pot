@@ -2766,3 +2766,7 @@ msgstr ""
 #: card/card/doctype/card_equipment/card_equipment.py
 msgid "Duplicate equipment"
 msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Another equipment of company {0} is being saved. Try again."
+msgstr ""

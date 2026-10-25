@@ -80,6 +80,9 @@ class TestEquipmentIdentity(IntegrationTestCase):
 		self.assertEqual(identity_key("۴۵۶"), "456")
 		self.assertIsNone(identity_key(None))
 		self.assertIsNone(identity_key(" - / "))
+		# invisible marks pasted with Arabic text and full-width digits compare equal
+		self.assertEqual(identity_key("١٢٣\u200f أبج"), identity_key("123 أبج"))
+		self.assertEqual(identity_key("\u200dAB\u200c-\uff11\uff12"), "AB12")
 
 	def test_keys_are_stored_on_save(self):
 		eq = self._make(serial_no=" kmt-001 ", plate_no="١٢٣ أبج")
@@ -119,17 +122,37 @@ class TestEquipmentIdentity(IntegrationTestCase):
 	def test_message_names_the_other_equipment_only_to_a_reader(self):
 		token = self._token()
 		first = self._make(serial_no="MSG" + token)
-		frappe.set_user(self._user(["Card Manager"]))
+		reader = self._user(["Card Manager"])
+		frappe.set_user(reader)
 		try:
 			with self.assertRaises(frappe.ValidationError) as refused:
 				self._equipment(serial_no="MSG" + token).insert()
 			self.assertIn(first.name, str(refused.exception))  # Card Manager reads equipment
 		finally:
 			frappe.set_user("Administrator")
+		# a user who may read only another machine is told the number is taken, not where
+		visible = self._make()
+		restricted = self._user(["Card Manager"])
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": restricted,
+				"allow": "Card Equipment",
+				"for_value": visible.name,
+				"apply_to_all_doctypes": 0,
+				"applicable_for": "Card Equipment",
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=restricted)
 		eq = self._equipment(serial_no="MSG" + token)
-		with patch_read(False):
+		eq.set_identity_keys()
+		frappe.set_user(restricted)
+		try:
+			self.assertFalse(frappe.has_permission("Card Equipment", "read", first.name))
 			with self.assertRaises(frappe.ValidationError) as hidden:
-				eq.insert(ignore_permissions=True)
+				eq.validate_unique_identity()
+		finally:
+			frappe.set_user("Administrator")
 		self.assertNotIn(first.name, str(hidden.exception))
 
 	# ---------- allowed ----------
@@ -169,7 +192,11 @@ class TestEquipmentIdentity(IntegrationTestCase):
 			{"serial_no": "OLD" + token, "serial_no_key": None},
 			update_modified=False,
 		)
+		logs = frappe.db.count("Error Log", {"method": "CARD equipment numbers shared before D1"})
 		backfill_equipment_identity_keys.execute()
+		self.assertGreater(
+			frappe.db.count("Error Log", {"method": "CARD equipment numbers shared before D1"}), logs
+		)  # the shared number is listed for the office
 		self.assertEqual(frappe.db.get_value("Card Equipment", legacy.name, "serial_no_key"), "OLD" + token)
 		self.assertEqual(frappe.db.get_value("Card Equipment", legacy.name, "serial_no"), "OLD" + token)
 		doc = frappe.get_doc("Card Equipment", legacy.name)
@@ -195,32 +222,9 @@ class TestEquipmentIdentity(IntegrationTestCase):
 		)
 
 
-class patch_read:
-	"""Card Equipment read permission answered as `allowed` for other records."""
-
-	def __init__(self, allowed):
-		self.allowed = allowed
-
-	def __enter__(self):
-		from unittest.mock import patch
-
-		real = frappe.has_permission
-
-		def fake(doctype=None, ptype="read", doc=None, *args, **kwargs):
-			if doctype == "Card Equipment" and ptype == "read" and doc:
-				return self.allowed
-			return real(doctype, ptype, doc, *args, **kwargs)
-
-		self._patch = patch("frappe.has_permission", side_effect=fake)
-		self._patch.start()
-
-	def __exit__(self, *exc):
-		self._patch.stop()
-
-
 class TestEquipmentIdentityConcurrency(IntegrationTestCase):
 	"""Two requests save equipment with the same chassis number at the same time: the second
-	waits for the first one's company lock, then its locking read sees the first's row."""
+	waits for the first one's company identity lock, then its locking read sees the first's row."""
 
 	@classmethod
 	def setUpClass(cls):
@@ -319,16 +323,18 @@ class TestEquipmentIdentityConcurrency(IntegrationTestCase):
 
 		t1 = threading.Thread(target=one, daemon=True, context=contextvars.Context())
 		t2 = threading.Thread(target=two, daemon=True, context=contextvars.Context())
-		t1.start()
-		self.assertTrue(one_written.wait(WAIT))
-		self.assertNotIn("error", state["one"], state["one"].get("error"))
-		t2.start()
-		self.assertTrue(two_started.wait(WAIT))
-		t2.join(1)  # the second request waits for the first one's locks
-		self.assertTrue(t2.is_alive(), "the second save did not wait for the first")
-		release_one.set()
-		t1.join(WAIT)
-		t2.join(WAIT)
+		try:
+			t1.start()
+			self.assertTrue(one_written.wait(WAIT))
+			self.assertNotIn("error", state["one"], state["one"].get("error"))
+			t2.start()
+			self.assertTrue(two_started.wait(WAIT))
+			t2.join(1)  # the second request waits for the first one's lock
+			self.assertTrue(t2.is_alive(), "the second save did not wait for the first")
+		finally:
+			release_one.set()  # never leave the first request holding its locks
+			t1.join(WAIT)
+			t2.join(WAIT)
 		self.assertIsInstance(state["two"].get("error"), frappe.ValidationError, state["two"])
 		saved = self._committed(
 			lambda: frappe.get_all(

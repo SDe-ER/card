@@ -23,6 +23,11 @@ def execute():
 				seen.setdefault((row.company, field, key), []).append(row.name)
 		if values:
 			frappe.db.set_value("Card Equipment", row.name, values, update_modified=False)
-	for (company, field, key), names in seen.items():
-		if len(names) > 1:
-			print(f"Card Equipment sharing {field} {key} in {company}: {', '.join(names)}")
+	shared = [
+		f"{company}: {field} {key} -> {', '.join(names)}"
+		for (company, field, key), names in seen.items()
+		if len(names) > 1
+	]
+	if shared:
+		# kept as they are; the list stays in the Error Log for the office to correct
+		frappe.log_error(title="CARD equipment numbers shared before D1", message="\n".join(shared))
