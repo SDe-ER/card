@@ -25,7 +25,13 @@ def get_columns():
 			"width": 130,
 		},
 		{"fieldname": "operator_name", "label": _("Operator name"), "fieldtype": "Data", "width": 150},
-		{"fieldname": "item_code", "label": _("Item"), "fieldtype": "Link", "options": "Item", "width": 150},
+		{
+			"fieldname": "item_code",
+			"label": _("Item", context="Card"),
+			"fieldtype": "Link",
+			"options": "Item",
+			"width": 150,
+		},
 		{"fieldname": "qty", "label": _("Quantity"), "fieldtype": "Float", "width": 90},
 		{"fieldname": "last_requested_on", "label": _("Last asked on"), "fieldtype": "Date", "width": 110},
 	]

@@ -98,3 +98,60 @@ class TestCardSettingsDisplayName(IntegrationTestCase):
 			text = open(os.path.join(locale_dir, po), encoding="utf-8").read()
 			block = re.findall(r'^msgid "Card Settings"\nmsgstr "(.*)"', text, re.M)
 			self.assertEqual(block, [value], f"{po}: 'Card Settings' must map to {value!r} exactly once")
+
+
+class TestNoArabicFallback(IntegrationTestCase):
+	"""v4.1.2 (Owner): an English user sees no Arabic. Stored Select values and the names of
+	the workspace widgets are Arabic and stay so (data), so each one shown on screen needs an
+	English translation in en.po; the other non-Arabic CARD locales carry one too, so they fall
+	back to English, never to Arabic."""
+
+	ARABIC = re.compile(r"[؀-ۿ]")
+	FALLBACK_LOCALES = ("en.po", "bn.po", "hi.po", "ur.po")
+
+	def _shown_arabic(self):
+		import glob
+		import json
+
+		shown = set()
+		root = frappe.get_app_path("card")
+		for path in glob.glob(os.path.join(root, "**", "*.json"), recursive=True):
+			if os.sep + "tests" + os.sep in path:
+				continue
+			with open(path, encoding="utf-8") as f:
+				data = json.load(f)
+			for doc in data if isinstance(data, list) else [data]:
+				if not isinstance(doc, dict):
+					continue
+				for field in doc.get("fields") or []:
+					if field.get("fieldtype") == "Select":
+						shown.update(
+							o for o in (field.get("options") or "").split("\n") if self.ARABIC.search(o)
+						)
+					if self.ARABIC.search(field.get("description") or ""):
+						shown.add(field["description"])
+				if doc.get("doctype") == "Workspace":
+					# shortcut names and header blocks are drawn through __() by the workspace widgets
+					shown.update(
+						s["label"] for s in doc.get("shortcuts") or [] if self.ARABIC.search(s["label"])
+					)
+					for block in json.loads(doc.get("content") or "[]"):
+						text = (block.get("data") or {}).get("text") or ""
+						if block.get("type") == "header" and self.ARABIC.search(text):
+							shown.add(text)
+				if doc.get("doctype") in ("Number Card", "Dashboard Chart"):
+					shown.update(
+						v for v in (doc.get("label"), doc.get("chart_name")) if v and self.ARABIC.search(v)
+					)
+		return shown
+
+	def test_arabic_display_values_have_english(self):
+		shown = self._shown_arabic()
+		self.assertTrue(shown)
+		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
+		for po in self.FALLBACK_LOCALES:
+			entries = TestCardLocaleCardStringsOnly._parse_po(None, os.path.join(locale_dir, po))
+			missing = sorted(v for v in shown if not entries.get(v) or self.ARABIC.search(entries[v]))
+			self.assertFalse(
+				missing, f"{po}: Arabic values shown without a non-Arabic translation: {missing}"
+			)

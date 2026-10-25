@@ -273,7 +273,7 @@ def _periods_text(equipment, project):
 			continue
 		end = getdate(r.to_date) if r.to_date else _("(open)")
 		parts.append("%s → %s" % (getdate(r.from_date), end))
-	return "، ".join(parts) if parts else _("no assignment on this project")
+	return _(", ", context="Card").join(parts) if parts else _("no assignment on this project")
 
 
 def current_location(equipment, exclude=None):
@@ -588,7 +588,7 @@ def validate_card_days(card):
 				_(
 					"Unit card for project {0}: on {1} these components are not assigned to this project: {2}. "
 					"Move every component to the project before recording this day."
-				).format(project, day, "؛ ".join(details))
+				).format(project, day, _("; ", context="Card").join(details))
 			)
 		frappe.throw(
 			_("Operation day {0} is outside the equipment's assignment period for project {1}.").format(

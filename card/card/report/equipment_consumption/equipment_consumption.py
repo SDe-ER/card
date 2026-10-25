@@ -25,9 +25,15 @@ def get_columns():
 			"options": "Project",
 			"width": 140,
 		},
-		{"fieldname": "item_code", "label": _("Item"), "fieldtype": "Link", "options": "Item", "width": 160},
+		{
+			"fieldname": "item_code",
+			"label": _("Item", context="Card"),
+			"fieldtype": "Link",
+			"options": "Item",
+			"width": 160,
+		},
 		{"fieldname": "qty", "label": _("Quantity"), "fieldtype": "Float", "width": 100},
-		{"fieldname": "amount", "label": _("Cost"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "amount", "label": _("Cost", context="Card"), "fieldtype": "Currency", "width": 120},
 		{"fieldname": "source", "label": _("Source"), "fieldtype": "Data", "width": 150},
 		{"fieldname": "posting_date", "label": _("Date"), "fieldtype": "Date", "width": 100},
 	]

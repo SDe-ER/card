@@ -40,7 +40,7 @@ def execute(filters=None):
 		{"fieldname": "voucher_type", "label": _("Voucher type"), "fieldtype": "Data", "width": 130},
 		{
 			"fieldname": "voucher_no",
-			"label": _("Voucher"),
+			"label": _("Voucher", context="Card"),
 			"fieldtype": "Dynamic Link",
 			"options": "voucher_type",
 			"width": 160,
