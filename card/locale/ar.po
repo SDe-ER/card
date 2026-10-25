@@ -677,7 +677,7 @@ msgstr "اسم المشغّل"
 #. 'Project Diesel Fill'
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Optional: charge the whole fill to this equipment. Leave empty to split across the project's equipment by operating hours."
-msgstr ""
+msgstr "اختياري: تحميل التعبئة كلها على هذه المعدة. اتركه فارغًا لتوزيعها على معدات المشروع حسب ساعات التشغيل."
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:358
 msgid "Paid (Debit)"
@@ -786,7 +786,7 @@ msgstr "حدد شهر وسنة البداية"
 #. Diesel Fill'
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Set automatically when the fill is posted to accounting (added later)."
-msgstr ""
+msgstr "يُملأ تلقائيًا عند ترحيل التعبئة للحسابات (يُضاف لاحقًا)."
 
 #. Description of the 'Purchase Invoice' (Link) field in DocType 'Equipment
 #. Transport'
@@ -3533,3 +3533,164 @@ msgstr "التكلفة والتاريخ"
 
 msgid "Linked Records"
 msgstr "السجلات المرتبطة"
+
+# v4.1.2: CARD strings that had no Arabic translation in card, frappe or erpnext
+msgid "1 = the month's primary posting; 2+ = supplementary postings for late source documents after the primary was submitted."
+msgstr "1 = الترحيل الأساسي للشهر؛ 2 فأكثر = ترحيلات إضافية لمستندات مصدر متأخرة بعد اعتماد الترحيل الأساسي."
+
+msgid "Deterministic uniqueness guard: company|party_type|party|month|year|posting_type for active (Draft/Submitted) rows; cleared (NULL) when Cancelled/Failed so a corrected posting can be re-created."
+msgstr "قيد منع التكرار: الشركة|نوع الطرف|الطرف|الشهر|السنة|نوع الترحيل للسجلات النشطة (مسودة/معتمد)؛ يُفرَّغ عند الإلغاء أو الفشل حتى يمكن إنشاء ترحيل مصحح."
+
+msgid "Driven exclusively by the posting lifecycle (card.gl.events); hand-editing the status would detach the reservation from accounting reality."
+msgstr "تتحكم فيها دورة الترحيل فقط (card.gl.events)؛ تعديل الحالة يدويًا يفصل الحجز عن الواقع المحاسبي."
+
+msgid "Failure reason"
+msgstr "سبب الفشل"
+
+msgid "Posting document"
+msgstr "مستند الترحيل"
+
+msgctxt "GL Posting Log"
+msgid "Sequence"
+msgstr "التسلسل"
+
+msgctxt "GL Posting Log"
+msgid "Sources"
+msgstr "المصادر"
+
+msgid "The exact source documents this posting includes — the authoritative reservation list (the sources' gl_posting link is display-only)."
+msgstr "مستندات المصدر التي يشملها هذا الترحيل بالضبط — قائمة الحجز المعتمدة (رابط gl_posting في المصادر للعرض فقط)."
+
+msgid "Customer side: customer amount + customer-side additions − customer-side deductions."
+msgstr "جانب العميل: مبلغ العميل + إضافات جانب العميل − خصومات جانب العميل."
+
+msgid "Daily hours (used)"
+msgstr "الساعات اليومية (المستخدمة)"
+
+msgid "Fuel charged to (used)"
+msgstr "الوقود على (المستخدم)"
+
+msgid "GL posting"
+msgstr "الترحيل المحاسبي"
+
+msgid "Hourly rate (used)"
+msgstr "سعر الساعة (المستخدم)"
+
+msgctxt "Card Monthly Card"
+msgid "Owner"
+msgstr "المالك"
+
+msgctxt "Card Monthly Card"
+msgid "Posted"
+msgstr "مُرحَّل"
+
+msgctxt "Equipment Transport"
+msgid "Posted"
+msgstr "مُرحَّل"
+
+msgctxt "Project Diesel Fill"
+msgid "Posted"
+msgstr "مُرحَّل"
+
+msgid "Auto-provisioned non-stock service item used for this type's invoice lines."
+msgstr "صنف خدمة غير مخزني يُنشأ تلقائيًا لبنود الفواتير من هذا النوع."
+
+msgid "Disabled types are hidden from new card rows; existing rows stay valid."
+msgstr "الأنواع المعطلة لا تظهر في صفوف الكروت الجديدة؛ والصفوف الموجودة تبقى صحيحة."
+
+msgid "Expense (purchase side) / income (sales side) account for this adjustment's invoice lines. Must be a leaf account of the row's company."
+msgstr "حساب المصروف (جانب المشتريات) / الإيراد (جانب المبيعات) لبنود فواتير هذا التعديل. يجب أن يكون حسابًا فرعيًا لشركة الصف."
+
+msgctxt "Card Adjustment Type"
+msgid "Item"
+msgstr "الصنف"
+
+msgctxt "Card"
+msgid "Item"
+msgstr "الصنف"
+
+msgctxt "Card Adjustment Type"
+msgid "Taxable"
+msgstr "خاضع للضريبة"
+
+msgid "Taxable lines carry the 15% VAT item tax template; non-taxable lines carry the 0% template."
+msgstr "البنود الخاضعة للضريبة تحمل قالب ضريبة القيمة المضافة 15%؛ والبنود غير الخاضعة تحمل قالب 0%."
+
+msgid "Created assignment"
+msgstr "التعيين المُنشأ"
+
+msgid "Previous assignment"
+msgstr "التعيين السابق"
+
+msgid "Expense lines on the CARD expense accounts with no Card Equipment dimension."
+msgstr "بنود مصروفات على حسابات مصروفات CARD بدون بُعد المعدة."
+
+msgid "Posting date"
+msgstr "تاريخ الترحيل"
+
+msgctxt "Card"
+msgid "Voucher"
+msgstr "المستند"
+
+msgid "Voucher type"
+msgstr "نوع المستند"
+
+msgid "Diesel unit price (per litre)"
+msgstr "سعر لتر الديزل"
+
+msgid "Per-line 0% VAT override template for non-taxable adjustment lines (auto-provisioned: CARD VAT 0% - <abbr>)."
+msgstr "قالب ضريبة 0% لكل بند لبنود التعديل غير الخاضعة للضريبة (يُنشأ تلقائيًا: CARD VAT 0% - <abbr>)."
+
+msgid "Per-line 15% VAT override template (auto-provisioned: CARD VAT 15% - <abbr>)."
+msgstr "قالب ضريبة 15% لكل بند (يُنشأ تلقائيًا: CARD VAT 15% - <abbr>)."
+
+msgctxt "Card"
+msgid "Cost"
+msgstr "التكلفة"
+
+msgctxt "Card Equipment"
+msgid "Model"
+msgstr "الموديل"
+
+msgid "TUV number"
+msgstr "رقم TUV"
+
+msgctxt "Card Equipment Part"
+msgid "Installation"
+msgstr "التركيب"
+
+msgctxt "Card Equipment Part"
+msgid "Manual"
+msgstr "يدوي"
+
+msgid "Configured type from Card Settings (Addition/Deduction Types) for the card's company. Legacy rows may leave it empty."
+msgstr "النوع المعرّف في إعدادات CARD (أنواع الإضافات والخصومات) لشركة الكارت. الصفوف القديمة قد تتركه فارغًا."
+
+msgid "Which party's monthly invoice this row belongs to. Defaults to the card's billed side; sub-rental cards need an explicit choice."
+msgstr "فاتورة أي طرف الشهرية يتبعها هذا الصف. الافتراضي هو الجانب المفوتر في الكارت؛ وكروت الإيجار من الباطن تحتاج اختيارًا صريحًا."
+
+msgid "Operation day {0} is outside the equipment's assignment period for project {1}."
+msgstr "يوم التشغيل {0} خارج فترة تعيين المعدة على المشروع {1}."
+
+msgid "Unit card for project {0}: on {1} these components are not assigned to this project: {2}."
+msgstr "كارت الوحدة للمشروع {0}: في {1} هذه المكونات غير معينة على هذا المشروع: {2}."
+
+msgid "Configured addition/deduction types per company. Each type posts to its own account as an invoice line; taxable types carry 15% VAT, non-taxable 0%."
+msgstr "أنواع الإضافات والخصومات المعرّفة لكل شركة. كل نوع يُرحَّل على حسابه كبند فاتورة؛ الأنواع الخاضعة للضريبة عليها 15% والباقي 0%."
+
+msgid "Employee name"
+msgstr "اسم الموظف"
+
+msgid "Source doctype"
+msgstr "نوع مستند المصدر"
+
+msgid "Expected = operating hours x (daily diesel consumption / daily standard hours)."
+msgstr "المتوقع = ساعات التشغيل × (استهلاك الديزل اليومي / الساعات القياسية اليومية)."
+
+msgctxt "Card"
+msgid "Unallocated"
+msgstr "غير موزع"
+
+msgctxt "Card"
+msgid "Approve"
+msgstr "اعتماد"

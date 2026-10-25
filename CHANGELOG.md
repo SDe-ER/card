@@ -34,6 +34,63 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+## [4.1.2] — 2026-10-25
+
+### Fixed
+
+- **CARD launcher shows all its sections again.** frappe 16 lays a site's `Dock` layer over the
+  app's dock, and a saved layer is the whole rail: entries an app ships later are not added to it
+  (`frappe/desk/doctype/dock/dock.py`, `resolve_app_dock`, `keep_unnamed=False`). A site layer saved
+  before v3.0.0 (on production: 2026-10-13, one entry) hid nine of the ten launcher entries, so
+  `/desk/card` showed only the dashboard sidebar (Card, Card Monthly Card, Equipment Transport).
+  The new patch `v4_1_2.restore_launcher_entries` appends the missing entries, in the shipped order,
+  to every non-standard CARD `Dock` layer last saved before the shipped dock. Existing rows, their
+  order and hidden flags are kept; nothing is deleted; a layer saved later is not touched. Reach is
+  unchanged: frappe still hides an entry the user may not open. No permission change.
+- **Equipment Transport form is simpler.** Order: ownership → equipment supplier → equipment table →
+  Route (current place, read-only, shown once known; destination) → Cost and date (transport cost,
+  cost borne by, transport supplier, cost center shown once set, date, method, company, remarks).
+  The system links (created/previous assignment, Purchase Invoice, GL posting, posted, amended from)
+  move to a collapsible **Linked Records** section that appears only once one of them is set or the
+  transport is submitted. The company is filled and hidden when the user has only one company; it
+  stays visible and required with several. Ownership and, for rented equipment, the equipment
+  supplier are taken from the first machine when left empty; values the user picked are kept.
+  Controller, transfer and accounting logic unchanged.
+- **English users no longer see Arabic stored values.** Stored Select values (ownership, rate type,
+  shift, day status, statuses, directions, adjustment kind, diesel policy) and the Arabic-named
+  workspace number cards and charts get English translations in `en.po`; `bn.po`, `hi.po` and `ur.po`
+  carry the same English text, so these languages fall back to English, never to Arabic. Stored data
+  is unchanged (display translation only).
+- **Arabic users: 47 CARD strings that had no Arabic translation now have one** (descriptions,
+  GL Posting Log fields, linked-record labels, report columns). Generic words (Item, Owner, Posted,
+  Cost, ...) are scoped with `msgctxt` to the CARD DocType or the `Card` context so they never
+  change ERPNext screens; the report columns and one button pass `context="Card"`.
+
+### Added
+
+- Tests: `test_launcher_restore` (old layer restored in order, rows and hidden flags kept, newer
+  layer untouched, idempotent), `test_transport_ownership_default`, and the i18n guard
+  `TestNoArabicFallback` (every Arabic value shown on screen has a non-Arabic translation in
+  en/bn/hi/ur).
+
+### Migration
+
+One patch: `card.patches.v4_1_2.restore_launcher_entries` (post model sync). It writes only
+non-standard `Dock` layers of the app `card` older than the shipped dock. Rollback: the previous
+version runs on the migrated data; to undo the navigation change, remove the appended rows from the
+site's dock layer (Manage Dock) or restore the pre-upgrade backup.
+
+### Known limitations
+
+- Stored Arabic values show in Arabic for languages that CARD ships no locale for (any language
+  other than ar, en, bn, hi, ur) and wherever frappe shows a raw value without translating it (for
+  example a Data field, list filters typed by hand, exports). Print formats are Arabic by design.
+- The monthly card's day names (`day_name`) are stored Arabic text in a Data field and are not
+  translated.
+- Otherwise the same as v4.1.1.
+
+---
+
 ## [4.1.1] — 2026-10-25
 
 ### Fixed

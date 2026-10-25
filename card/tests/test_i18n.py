@@ -125,11 +125,15 @@ class TestNoArabicFallback(IntegrationTestCase):
 					continue
 				for field in doc.get("fields") or []:
 					if field.get("fieldtype") == "Select":
-						shown.update(o for o in (field.get("options") or "").split("\n") if self.ARABIC.search(o))
+						shown.update(
+							o for o in (field.get("options") or "").split("\n") if self.ARABIC.search(o)
+						)
 					if self.ARABIC.search(field.get("description") or ""):
 						shown.add(field["description"])
 				if doc.get("doctype") in ("Number Card", "Dashboard Chart"):
-					shown.update(v for v in (doc.get("label"), doc.get("chart_name")) if v and self.ARABIC.search(v))
+					shown.update(
+						v for v in (doc.get("label"), doc.get("chart_name")) if v and self.ARABIC.search(v)
+					)
 		return shown
 
 	def test_arabic_display_values_have_english(self):
@@ -139,4 +143,6 @@ class TestNoArabicFallback(IntegrationTestCase):
 		for po in self.FALLBACK_LOCALES:
 			entries = TestCardLocaleCardStringsOnly._parse_po(None, os.path.join(locale_dir, po))
 			missing = sorted(v for v in shown if not entries.get(v) or self.ARABIC.search(entries[v]))
-			self.assertFalse(missing, f"{po}: Arabic values shown without a non-Arabic translation: {missing}")
+			self.assertFalse(
+				missing, f"{po}: Arabic values shown without a non-Arabic translation: {missing}"
+			)
