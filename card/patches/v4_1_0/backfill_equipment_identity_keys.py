@@ -13,7 +13,7 @@ from card.card.doctype.card_equipment.card_equipment import IDENTITY_FIELDS, ide
 def execute():
 	fields = ["name", "company"] + [field for pair in IDENTITY_FIELDS for field in pair]
 	seen = {}
-	for row in frappe.get_all("Card Equipment", fields=fields, order_by="creation asc"):
+	for row in frappe.get_all("Card Equipment", fields=fields, order_by="creation asc", page_length=0):
 		values = {}
 		for field, key_field in IDENTITY_FIELDS:
 			key = identity_key(row.get(field))
