@@ -55,14 +55,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   The system links (created/previous assignment, Purchase Invoice, GL posting, posted, amended from)
   move to a collapsible **Linked Records** section that appears only once one of them is set or the
   transport is submitted. The company is filled and hidden when the user has only one company; it
-  stays visible and required with several. Ownership and, for rented equipment, the equipment
+  stays visible and required with several. `card.company.only_visible_company` now also accepts the
+  `select` permission on Company (what a link field needs), so a Card Manager without Company read
+  gets the company filled too; it lists only the companies frappe already lets the user pick. Ownership and, for rented equipment, the equipment
   supplier are taken from the first machine when left empty; values the user picked are kept.
   Controller, transfer and accounting logic unchanged.
 - **English error messages no longer contain Arabic.** List separators are translatable
   (`, ` / `; `, Arabic `، ` / `؛ `) and the shift value in the shift-limit message is translated.
 - **English users no longer see Arabic stored values.** Stored Select values (ownership, rate type,
   shift, day status, statuses, directions, adjustment kind, diesel policy) and the Arabic-named
-  workspace number cards and charts get English translations in `en.po`; `bn.po`, `hi.po` and `ur.po`
+  workspace number cards, charts, shortcuts and section headers get English translations in `en.po`; `bn.po`, `hi.po` and `ur.po`
   carry the same English text, so these languages fall back to English, never to Arabic. Stored data
   is unchanged (display translation only).
 - **Arabic users: 47 CARD strings that had no Arabic translation now have one** (descriptions,
@@ -92,6 +94,10 @@ site's dock layer (Manage Dock) or restore the pre-upgrade backup.
   example a Data field, list filters typed by hand, exports). Print formats are Arabic by design.
 - The monthly card's day names (`day_name`) are stored Arabic text in a Data field and are not
   translated.
+- The launcher (dock) tooltips show each entry's stored title untranslated in every language
+  ("Card Fleet", and on production the site's own "Card (Custom)"): frappe 16.51.1 draws
+  `row.title` without `__()` (`frappe/public/js/frappe/ui/sidebar/sidebar.js`, line 984). Not
+  changeable from the app without editing core.
 - Otherwise the same as v4.1.1.
 
 ---

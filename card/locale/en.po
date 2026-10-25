@@ -213,3 +213,46 @@ msgstr "Monthly Operation Card"
 
 msgid "Hours a monthly (بالشهر) rate is spread over. Default 260 = 26 days x 10 hours."
 msgstr "Hours a monthly (Per Month) rate is spread over. Default 260 = 26 days x 10 hours."
+
+# v4.1.2: Card workspace shortcuts and section headers (stored Arabic names)
+msgid "الكروت الشهرية"
+msgstr "Monthly Cards"
+
+msgid "التعيينات"
+msgstr "Assignments"
+
+msgid "المعدات"
+msgstr "Equipment"
+
+msgid "كارت جديد"
+msgstr "New Card"
+
+msgid "ملخص الموردين"
+msgstr "Suppliers Summary"
+
+msgid "كشف حساب مورد"
+msgstr "Supplier Statement"
+
+msgid "عملاء المعدات"
+msgstr "Equipment Customers"
+
+msgid "ملخص العملاء"
+msgstr "Customers Summary"
+
+msgid "كشف حساب عميل"
+msgstr "Customer Statement"
+
+msgid "استهلاك ديزل المعدات"
+msgstr "Equipment Diesel Consumption"
+
+msgid "تكلفة النقل بالمشروع"
+msgstr "Transport Cost by Project"
+
+msgid "تكلفة التشغيل بالمشروع"
+msgstr "Operating Cost by Project"
+
+msgid "الديزل والتشغيل"
+msgstr "Diesel and Operations"
+
+msgid "المحاسبة"
+msgstr "Accounting"

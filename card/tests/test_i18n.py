@@ -130,6 +130,15 @@ class TestNoArabicFallback(IntegrationTestCase):
 						)
 					if self.ARABIC.search(field.get("description") or ""):
 						shown.add(field["description"])
+				if doc.get("doctype") == "Workspace":
+					# shortcut names and header blocks are drawn through __() by the workspace widgets
+					shown.update(
+						s["label"] for s in doc.get("shortcuts") or [] if self.ARABIC.search(s["label"])
+					)
+					for block in json.loads(doc.get("content") or "[]"):
+						text = (block.get("data") or {}).get("text") or ""
+						if block.get("type") == "header" and self.ARABIC.search(text):
+							shown.add(text)
 				if doc.get("doctype") in ("Number Card", "Dashboard Chart"):
 					shown.update(
 						v for v in (doc.get("label"), doc.get("chart_name")) if v and self.ARABIC.search(v)
