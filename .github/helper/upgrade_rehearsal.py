@@ -137,6 +137,8 @@ def seed():
 	project = _insert(
 		{"doctype": "Project", "project_name": "Rehearsal Road Project", "company": COMPANY}
 	).name
+	if not frappe.db.exists("Supplier Group", "All Supplier Groups"):  # no setup wizard on this site
+		_insert({"doctype": "Supplier Group", "supplier_group_name": "All Supplier Groups", "is_group": 1})
 	group = frappe.db.get_value("Supplier Group", {"is_group": 0}, "name") or (
 		_insert(
 			{
@@ -222,7 +224,8 @@ def seed():
 		amended.insert(ignore_permissions=True)
 		amended.submit()
 	card(machines[2]).submit()
-	frappe.db.commit()  # nosemgrep: rehearsal site, synthetic data
+	# the seeded rehearsal site must keep its synthetic data for the upgrade that follows
+	frappe.db.commit()  # nosemgrep
 	print(json.dumps(_summary(), indent=1, default=str))
 
 
@@ -266,15 +269,16 @@ def snapshot(path):
 		if frappe.get_meta("Card Equipment").has_field("serial_no_key")
 		else None
 	)
-	with open(path, "w") as f:
+	# paths come from the rehearsal script itself, never from a request
+	with open(path, "w") as f:  # nosemgrep
 		json.dump(data, f, indent=1, default=str, ensure_ascii=False, sort_keys=True)
 	print(f"snapshot {path}: {data['counts']}")
 
 
 def compare(before_path, after_path, mode):
-	with open(before_path) as f:
+	with open(before_path) as f:  # nosemgrep
 		before = json.load(f)
-	with open(after_path) as f:
+	with open(after_path) as f:  # nosemgrep
 		after = json.load(f)
 	failures = []
 
