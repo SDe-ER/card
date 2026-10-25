@@ -42,7 +42,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   app's dock, and a saved layer is the whole rail: entries an app ships later are not added to it
   (`frappe/desk/doctype/dock/dock.py`, `resolve_app_dock`, `keep_unnamed=False`). A site layer saved
   before v3.0.0 (on production: 2026-10-13, one entry) hid nine of the ten launcher entries, so
-  `/desk/card` showed only the dashboard sidebar (Card, Card Monthly Card, Equipment Transport).
+  the dock rail showed one entry ("Card (Custom)") and `/desk/card` only the dashboard sidebar (Card,
+  Card Monthly Card, Equipment Transport).
   `card.navigation.restore_launcher_entries` (run after every migrate) appends the missing entries,
   in the shipped order, to every non-standard CARD `Dock` layer last saved before the shipped dock
   file, so entries added by later releases also reach such layers. Existing rows, their

@@ -71,6 +71,42 @@ class TestLauncherRestore(IntegrationTestCase):
 		navigation.restore_launcher_entries()
 		self.assertEqual(self._keys(name), before)
 
+	def _production_row_layer(self):
+		return self._layer(
+			[
+				{
+					"link_type": "Sidebar",
+					"link_to": "Card",
+					"title": "Card (Custom)",
+					"icon": "clipboard",
+					"added": 1,
+					"hidden": 0,
+				}
+			]
+		)
+
+	def test_card_manager_sees_the_ten_entries(self):
+		# reach-gated, as the boot builds it: a real CARD role, no extra grant
+		frappe.get_doc("User", self.user).add_roles("Card Manager")
+		self._production_row_layer()
+		navigation.restore_launcher_entries()
+		frappe.set_user(self.user)
+		rail = frappe.get_attr("frappe.desk.doctype.dock.dock.resolve_app_dock")("card")
+		self.assertEqual([navigation._key(entry) for entry in rail], _shipped_keys())
+		self.assertEqual(rail[0]["title"], "Card (Custom)")
+
+	def test_restore_grants_no_reach(self):
+		# a user for whom the Card module is blocked still sees no CARD entry
+		user = frappe.get_doc("User", self.user)
+		user.add_roles("Card Manager")
+		user.append("block_modules", {"module": "Card"})
+		user.save(ignore_permissions=True)
+		self._production_row_layer()
+		navigation.restore_launcher_entries()
+		frappe.clear_cache(user=self.user)
+		frappe.set_user(self.user)
+		self.assertEqual(frappe.get_attr("frappe.desk.doctype.dock.dock.resolve_app_dock")("card"), [])
+
 	def test_existing_rows_and_hidden_flags_are_kept(self):
 		name = self._layer(
 			[

@@ -6,8 +6,9 @@ frappe 16 lays a site's (and each user's) `Dock` layer over the app's own dock, 
 layer is the whole rail: an entry the app ships later is not added to it
 (frappe/desk/doctype/dock/dock.py, resolve_app_dock, keep_unnamed=False). On production a site
 layer saved before v3.0.0 shipped the launcher named only the Card dashboard, so the other nine
-entries (Equipment, Movement & Transport, ..., Settings) never appeared and /desk/card showed
-three items. The same would happen again with every entry a later release adds.
+entries (Equipment, Movement & Transport, ..., Settings) never appeared: the dock rail showed one
+entry ("Card (Custom)") and /desk/card only the dashboard sidebar's three items. The same would happen
+again with every entry a later release adds.
 
 A layer last saved before the shipped dock file (its `modified`) cannot have left out on purpose
 an entry that did not exist yet, so the missing shipped entries are appended to it as references
