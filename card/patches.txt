@@ -28,3 +28,4 @@ card.patches.v3_0_0.sync_equipment_from_asset
 card.patches.v4_0_0.ensure_materials_roles
 card.patches.v4_0_0.clear_review_stock_qty
 card.patches.v4_1_0.backfill_equipment_identity_keys
+card.patches.v4_1_3.remove_app_name_translations

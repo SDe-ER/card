@@ -1,8 +1,9 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
-"""RULE 0 invariant: the module/app name "Card" is never translated. An empty
-msgstr is insufficient (frappe/erpnext may translate "Card"), so every card
-locale that lists msgid "Card" must map it to exactly "Card"."""
+"""WS-013 (Owner, 2026-10-26): the application name is CARD in every language. The record
+names stay "Card" (frappe names the Workspace, Workspace Sidebar and Desktop Icon after
+their label), so msgid "Card" maps to exactly "CARD" in every card locale, and card ships
+a locale for every language frappe translates "Card" into (fr "Carte", fa "کارت", ...)."""
 
 import os
 import re
@@ -12,21 +13,31 @@ from frappe.tests import IntegrationTestCase
 
 
 class TestCardNameNotTranslated(IntegrationTestCase):
+	def _locale_dir(self, app):
+		return os.path.join(frappe.get_app_path(app), "locale")
+
+	def _app_name_msgstr(self, path):
+		text = open(path, encoding="utf-8").read()
+		return re.findall(r'^msgid "Card"\nmsgstr "(.*)"', text, re.M)
+
 	def test_card_msgid_maps_to_card_in_all_locales(self):
-		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
-		po_files = [f for f in os.listdir(locale_dir) if f.endswith(".po")]
+		po_files = [f for f in os.listdir(self._locale_dir("card")) if f.endswith(".po")]
 		self.assertTrue(po_files, "no .po locale files found")
-		checked = 0
 		for po in po_files:
-			text = open(os.path.join(locale_dir, po), encoding="utf-8").read()
-			block = re.search(r'^msgid "Card"\n(msgstr "(?P<v>.*)")', text, re.M)
-			if not block:
-				continue
-			checked += 1
 			self.assertEqual(
-				block.group("v"), "Card", f"{po}: 'Card' must not be translated (got {block.group('v')!r})"
+				self._app_name_msgstr(os.path.join(self._locale_dir("card"), po)),
+				["CARD"],
+				f"{po}: msgid 'Card' must map to 'CARD' exactly once",
 			)
-		self.assertGreater(checked, 0, 'no locale listed msgid "Card" to check')
+
+	def test_every_frappe_language_has_a_card_locale(self):
+		card_po = set(os.listdir(self._locale_dir("card")))
+		frappe_po = {f for f in os.listdir(self._locale_dir("frappe")) if f.endswith(".po")}
+		self.assertFalse(sorted(frappe_po - card_po), "languages that would show frappe's own word for Card")
+
+	def test_apps_screen_titles(self):
+		entries = frappe.get_hooks("add_to_apps_screen", app_name="card")
+		self.assertEqual([e["title"] for e in entries], ["CARD", "CARD Mobile"])
 
 
 class TestCardLocaleCardStringsOnly(IntegrationTestCase):
