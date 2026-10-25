@@ -145,9 +145,10 @@ def item_query(doctype: str, txt: str, searchfield: str, start: int, page_len: i
 
 	_check_screen() is the authorization gate (SCREEN_ROLES + ETC read). ignore_permissions is
 	explicit and justified: Items are global in ERPNext and the screen roles have no Item DocPerm.
-	Filters are enforced server-side so the client cannot request non-stock or disabled items."""
+	Filters are enforced server-side; the client-provided filters param is intentionally ignored."""
 	_check_screen()
-	like = f"%{txt or ''}%"
+	# filters param ignored: is_stock_item/is_fixed_asset/disabled are hardcoded below
+	like = f"%{txt}%"
 	return frappe.get_all(
 		"Item",
 		filters=[["is_stock_item", "=", 1], ["is_fixed_asset", "=", 0], ["disabled", "=", 0]],
