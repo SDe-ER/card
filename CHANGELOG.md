@@ -61,6 +61,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     Error Log; those records are kept unchanged, an unrelated save of them is allowed, and their number can be
     corrected.
   - No role, DocPerm, setting, accounting or API change. Rollback: revert; the two key columns stay unused.
+  - **Fix:** backfill patch passes `page_length=0` so all equipment records are processed, not only the first 20
+    (Frappe v16 default page length).
 - **Tool Custody screen (issue #113, PR-T3; Owner decisions U-1 to U-5, 2026-10-23).** A new Desk page
   `tool-custody` ("Tool Custody", Card Materials sidebar, before Employee Tool Custody) puts awaiting handovers,
   held tools and history in one responsive screen (desktop, tablet and phone; Arabic right-to-left), with employee
