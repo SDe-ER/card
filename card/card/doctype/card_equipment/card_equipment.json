@@ -187,14 +187,16 @@
    "fieldtype": "Data",
    "label": "Chassis number",
    "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.serial_no"
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.serial_no",
+   "no_copy": 1
   },
   {
    "fieldname": "plate_no",
    "fieldtype": "Data",
    "label": "Plate number",
    "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.plate_no"
+   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.plate_no",
+   "no_copy": 1
   },
   {
    "fieldname": "serial_no_key",
@@ -204,8 +206,7 @@
    "no_copy": 1,
    "print_hide": 1,
    "read_only": 1,
-   "report_hide": 1,
-   "search_index": 1
+   "report_hide": 1
   },
   {
    "fieldname": "plate_no_key",
@@ -215,8 +216,7 @@
    "no_copy": 1,
    "print_hide": 1,
    "read_only": 1,
-   "report_hide": 1,
-   "search_index": 1
+   "report_hide": 1
   },
   {
    "fieldname": "column_break_hadg",

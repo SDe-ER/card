@@ -1,7 +1,9 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
 
+import hashlib
 import re
+import unicodedata
 
 import frappe
 from frappe import _
@@ -58,10 +60,35 @@ _SEPARATORS = re.compile(r"[\s\-_/.]+")
 
 
 def identity_key(value):
-	"""Comparable form of a chassis or plate number: Arabic-Indic digits as ASCII,
-	no spaces or separators (- _ / .), upper case. None for an empty value."""
-	key = _SEPARATORS.sub("", cstr(value).translate(_DIGITS)).upper()
+	"""Comparable form of a chassis or plate number: Unicode NFKC without invisible
+	format marks (RLM, ZWJ, ...), Arabic-Indic digits as ASCII, no spaces or
+	separators (- _ / .), upper case. None for an empty value."""
+	text = unicodedata.normalize("NFKC", cstr(value))
+	text = "".join(ch for ch in text if unicodedata.category(ch) != "Cf")
+	key = _SEPARATORS.sub("", text.translate(_DIGITS)).upper()
 	return key or None
+
+
+def on_doctype_update():
+	# D1: the duplicate check reads (company, key); a composite index keeps its locking
+	# read inside one company's range
+	for _field, key_field in IDENTITY_FIELDS:
+		frappe.db.add_index("Card Equipment", ["company", key_field])
+
+
+def _lock_company_identities(company):
+	"""Saves that set a number of the same company run one after the other: a MariaDB
+	named lock per company, owned by CARD (no ERPNext row is locked), released when
+	the transaction ends."""
+	name = "card-equipment-identity-" + hashlib.sha1(cstr(company).encode()).hexdigest()[:32]
+	if not frappe.db.sql("select get_lock(%s, 10)", (name,))[0][0]:
+		frappe.throw(_("Another equipment of company {0} is being saved. Try again.").format(company))
+
+	def release():
+		frappe.db.sql("select release_lock(%s)", (name,))
+
+	frappe.db.after_commit.add(release)
+	frappe.db.after_rollback.add(release)
 
 
 def asset_equipment_values(asset):
@@ -264,9 +291,9 @@ class CardEquipment(Document):
 		]
 		if not changed:
 			return
-		# two saves of the same company run one after the other: the second waits here
-		# until the first commits, then its locking read below sees the first's row
-		frappe.db.get_value("Company", self.company, "name", for_update=True)
+		# the second of two saves at once waits here until the first commits; then its
+		# locking read below sees the first's row
+		_lock_company_identities(self.company)
 		equipment = frappe.qb.DocType("Card Equipment")
 		for field, key_field in changed:
 			rows = (
