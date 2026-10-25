@@ -25,8 +25,8 @@ export default defineConfig({
       injectRegister: null,
       injectManifest: { globPatterns: ['**/*.{js,css,woff2,png}'] },
       manifest: {
-        name: 'Card Mobile',
-        short_name: 'Card',
+        name: 'CARD Mobile',
+        short_name: 'CARD',
         id: '/cdms/',
         start_url: '/cdms/',
         scope: '/cdms/',

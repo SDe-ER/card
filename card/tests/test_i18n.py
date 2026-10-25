@@ -17,8 +17,13 @@ class TestCardNameNotTranslated(IntegrationTestCase):
 		return os.path.join(frappe.get_app_path(app), "locale")
 
 	def _app_name_msgstr(self, path):
-		text = open(path, encoding="utf-8").read()
-		return re.findall(r'^msgid "Card"\nmsgstr "(.*)"', text, re.M)
+		# the plain msgid only: an entry under a msgctxt is another string
+		lines = open(path, encoding="utf-8").read().split("\n")
+		return [
+			re.fullmatch(r'msgstr "(.*)"', lines[i + 1]).group(1)
+			for i, line in enumerate(lines)
+			if line == 'msgid "Card"' and not (i and lines[i - 1].startswith("msgctxt"))
+		]
 
 	def test_card_msgid_maps_to_card_in_all_locales(self):
 		po_files = [f for f in os.listdir(self._locale_dir("card")) if f.endswith(".po")]
@@ -30,10 +35,17 @@ class TestCardNameNotTranslated(IntegrationTestCase):
 				f"{po}: msgid 'Card' must map to 'CARD' exactly once",
 			)
 
-	def test_every_frappe_language_has_a_card_locale(self):
+	def test_every_installed_language_has_a_card_locale(self):
 		card_po = set(os.listdir(self._locale_dir("card")))
-		frappe_po = {f for f in os.listdir(self._locale_dir("frappe")) if f.endswith(".po")}
-		self.assertFalse(sorted(frappe_po - card_po), "languages that would show frappe's own word for Card")
+		missing = set()
+		for app in frappe.get_installed_apps():
+			if app != "card" and os.path.isdir(self._locale_dir(app)):
+				missing.update(f for f in os.listdir(self._locale_dir(app)) if f.endswith(".po"))
+		self.assertFalse(
+			sorted(missing - card_po),
+			'add card/locale/<lang>.po with msgid "Card" -> msgstr "CARD" for these languages '
+			"(an installed app ships them, so they would show its own word for Card)",
+		)
 
 	def test_apps_screen_titles(self):
 		entries = frappe.get_hooks("add_to_apps_screen", app_name="card")
@@ -74,7 +86,7 @@ class TestCardLocaleCardStringsOnly(IntegrationTestCase):
 		return entries
 
 	def _allowlist(self):
-		allow = {"Card"}  # app name, never translated (RULE 0)
+		allow = {"Card"}  # the application name, CARD in every language (WS-013)
 		# CARD-owned display names (e.g. "Card Settings" -> "Settings") are ours to translate
 		allow.update(frappe.get_all("DocType", filters={"module": "Card"}, pluck="name"))
 		allow.update(frappe.get_all("Report", filters={"module": "Card"}, pluck="name"))
