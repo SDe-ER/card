@@ -46,7 +46,7 @@ the tag (`git show <tag>:<path>`).
 | Upgrade rehearsal from v1.0.1 in CI | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | Synthetic data on frappe 16.51.1 / ERPNext 16.50.0 | PR #130 |
 | CARD Mobile `/cdms` (operator requests) | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ⚠️ not tested on real phones | Full phone app planned from v4.2.0 | PR #76, #89, #112 |
 | Catalog search (phase 1) + parts fitment (phase 2a) | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | Fitment 2b (#110) not included | PR #106, #108, #109 |
-| Tool handover confirmation + Tool Custody screen | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | — | PR #114, #115, #116 |
+| Tool handover confirmation + Tool Custody screen | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | v4.1.1: item search in the New Handover dialog and the page filter no longer requires an ERPNext Item permission (scoped `item_query` endpoint) | PR #114, #115, #116; v4.1.1 fix |
 | Diesel price lock per company | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | Typed prices on new fills refused; exception role with reason | PR #79 |
 
 ## Reading the matrix

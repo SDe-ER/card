@@ -60,7 +60,7 @@ Asset.
 
 ## Features
 
-Everything below is available in the latest release, **v4.1.0**. The complete inventory of each version is
+Everything below is available in the latest release, **v4.1.1**. The complete inventory of each version is
 in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 ### Equipment
@@ -204,6 +204,7 @@ request with CI and review; every release has a full documentation page.
 
 | Version | Date | Highlights |
 |---|---|---|
+| [v4.1.1](docs/releases/v4.1.1.md) | 2026-10-25 | Tool Custody item search fix: Card Manager no longer needs an ERPNext Item permission for New Handover |
 | [v4.1.0](docs/releases/v4.1.0.md) | 2026-10-25 | First production go-live candidate: unique chassis/plate numbers, upgrade from v1.0.1 rehearsed, isolation and concurrency fixes |
 | [v4.0.0](docs/releases/v4.0.0.md) | 2026-10-19 | Equipment materials: operator requests, supervisor review, approval into draft Material Requests, tool custody |
 | [v3.0.0](docs/releases/v3.0.0.md) | 2026-10-19 | CARD launcher, multi-machine transport, cards follow transports, equipment from ERPNext Asset |
