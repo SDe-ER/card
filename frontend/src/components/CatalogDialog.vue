@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Avatar, Button, Combobox, Dialog, ErrorMessage, LoadingIndicator, TextInput } from 'frappe-ui'
+import {
+  Avatar,
+  Button,
+  Combobox,
+  Dialog,
+  ErrorMessage,
+  LoadingIndicator,
+  Switch,
+  TextInput,
+} from 'frappe-ui'
+import FitBadge from './FitBadge.vue'
 import {
   filterOptions,
   mergePage,
@@ -12,8 +22,12 @@ import type { Item } from '../data/needs'
 import { __ } from '../i18n'
 
 // Browse the ERPNext catalogue: the server searches, filters and pages; this only shows the rows.
+// With a machine every row shows its fit, and "Fits this machine" lists only confirmed fits.
+// Read only: rows cannot be picked (the catalog viewer of a Card User).
 const open = defineModel<boolean>('open', { required: true })
+const props = defineProps<{ equipment?: string | null; readonly?: boolean }>()
 const emit = defineEmits<{ pick: [item: Item] }>()
+const fits = ref(false)
 
 const txt = ref('')
 const itemGroup = ref<string | null>(null)
@@ -34,7 +48,13 @@ async function load(more = false) {
   error.value = ''
   try {
     const page = await searchCatalog(
-      { txt: txt.value, item_group: itemGroup.value, brand: brand.value },
+      {
+        txt: txt.value,
+        item_group: itemGroup.value,
+        brand: brand.value,
+        equipment: props.equipment,
+        fits: fits.value,
+      },
       more ? items.value.length : 0,
     )
     if (current !== request) return
@@ -78,11 +98,12 @@ watch(open, (value) => {
   loadGroups()
   loadBrands()
 })
-watch([txt, itemGroup, brand], () => open.value && load())
+watch([txt, itemGroup, brand, fits, () => props.equipment], () => open.value && load())
 watch(groupQuery, () => open.value && loadGroups())
 watch(brandQuery, () => open.value && loadBrands())
 
 function pick(item: { item_code: string; item_name: string }, uom = '') {
+  if (props.readonly) return
   emit('pick', { item_code: item.item_code, item_name: item.item_name, stock_uom: uom })
   open.value = false
 }
@@ -115,11 +136,18 @@ function pick(item: { item_code: string; item_name: string }, uom = '') {
           :placeholder="__('Brand', [], 'Card Mobile')"
         />
       </div>
+      <Switch
+        v-if="equipment"
+        v-model="fits"
+        :label="__('Fits this machine')"
+        data-testid="fits-switch"
+      />
       <ErrorMessage :message="error" />
       <ul class="divide-y divide-outline-gray-1">
         <li v-for="item in items" :key="item.item_code" class="py-2">
-          <button
-            type="button"
+          <component
+            :is="readonly ? 'div' : 'button'"
+            :type="readonly ? undefined : 'button'"
             class="flex min-h-[3.5rem] w-full items-center gap-3 text-start"
             @click="pick(item, item.stock_uom)"
           >
@@ -138,8 +166,9 @@ function pick(item: { item_code: string; item_name: string }, uom = '') {
                 >{{ __('OEM', [], 'Card Mobile') }}:
                 {{ item.oem.map((o) => `${o.part_no} (${o.manufacturer})`).join(', ') }}</span
               >
+              <FitBadge v-if="item.fit" class="mt-1" :fit="item.fit" :model="item.fit_model" />
             </div>
-          </button>
+          </component>
           <div v-if="item.alternatives.length" class="mt-1 flex flex-wrap items-center gap-1 ps-14">
             <span class="text-xs text-ink-gray-5">{{ __('Alternatives', [], 'Card Mobile') }}:</span>
             <Button
@@ -148,6 +177,7 @@ function pick(item: { item_code: string; item_name: string }, uom = '') {
               size="sm"
               variant="subtle"
               :label="alt.item_name"
+              :disabled="readonly"
               @click="pick(alt)"
             />
           </div>

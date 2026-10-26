@@ -223,6 +223,39 @@ msgstr "আরও দেখুন"
 msgid "Unknown catalog filter"
 msgstr "অজানা ক্যাটালগ ফিল্টার"
 
+msgid "Confirmed for this machine"
+msgstr "এই যন্ত্রের জন্য নিশ্চিত"
+
+msgid "Confirmed for model {0}"
+msgstr "মডেল {0}-এর জন্য নিশ্চিত"
+
+msgid "Not compatible with this machine"
+msgstr "এই যন্ত্রের সাথে মেলে না"
+
+msgid "Fit pending technical review"
+msgstr "মিল এখনও কারিগরি পর্যালোচনায়"
+
+msgid "No fitment record"
+msgstr "মিলের কোনো রেকর্ড নেই"
+
+msgid "Fits this machine"
+msgstr "এই যন্ত্রে লাগে"
+
+msgid "Why this item without a confirmed fit?"
+msgstr "নিশ্চিত মিল ছাড়া এই জিনিস কেন?"
+
+msgid "Line {0}: enter why you need an item without a confirmed fit."
+msgstr "লাইন {0}: নিশ্চিত মিল ছাড়া জিনিসটি কেন দরকার লিখুন।"
+
+msgid "Row {0}: {1} has no confirmed fit for this machine ({2}); enter the reason."
+msgstr "লাইন {0}: {1}-এর এই যন্ত্রের সাথে নিশ্চিত মিল নেই ({2}); কারণ লিখুন।"
+
+msgid "Not compatible"
+msgstr "মেলে না"
+
+msgid "Pending review"
+msgstr "পর্যালোচনার অপেক্ষায়"
+
 # v4.1.2: stored Arabic Select values and Arabic-named workspace widgets, shown in English.
 # The stored values do not change (display translation only); languages without their own
 # translation fall back to English here, never to Arabic.

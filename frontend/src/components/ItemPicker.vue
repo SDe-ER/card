@@ -2,11 +2,15 @@
 import { ref, watch } from 'vue'
 import { Button, FormControl } from 'frappe-ui'
 import CatalogDialog from './CatalogDialog.vue'
+import FitBadge from './FitBadge.vue'
+import { fitFor, needsFitReason } from '../data/catalog'
 import { searchItems, type DraftLine, type Item } from '../data/needs'
 import { __ } from '../i18n'
 
-// Pick an ERPNext Item, or keep the typed text as the description when nothing fits.
+// Pick an ERPNext Item, or keep the typed text as the description when nothing fits. A picked
+// Item shows its fit for the machine; without a confirmed fit the line needs a reason (Q10).
 const line = defineModel<DraftLine>({ required: true })
+const props = defineProps<{ equipment?: string | null }>()
 const text = ref(line.value.item_name || line.value.description)
 const results = ref<Item[]>([])
 const browsing = ref(false)
@@ -34,6 +38,21 @@ function pick(item: Item) {
   text.value = line.value.item_name
   results.value = []
 }
+
+// the fit is asked again whenever the item or the machine changes; only the latest answer counts
+let fitRequest = 0
+watch(
+  () => [line.value.item_code, props.equipment] as const,
+  async ([code, equipment]) => {
+    const current = ++fitRequest
+    line.value.fit = null
+    if (!code || !equipment) return
+    const fits = await fitFor(equipment, [code]).catch(() => null)
+    // no answer counts as no fitment record: the reason is asked, never skipped
+    if (current === fitRequest) line.value.fit = fits?.[code]?.fit ?? 'unknown'
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -55,7 +74,19 @@ function pick(item: Item) {
         @click="browsing = true"
       />
     </div>
-    <CatalogDialog v-model:open="browsing" @pick="pick" />
+    <div v-if="line.item_code && equipment" class="mt-2 space-y-2">
+      <FitBadge v-if="line.fit" :fit="line.fit" />
+      <FormControl
+        v-if="needsFitReason(line.fit)"
+        v-model="line.fit_reason"
+        type="textarea"
+        :rows="2"
+        :label="__('Why this item without a confirmed fit?')"
+        maxlength="500"
+        required
+      />
+    </div>
+    <CatalogDialog v-model:open="browsing" :equipment="equipment" @pick="pick" />
     <ul
       v-if="results.length"
       class="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-outline-gray-2 bg-surface-base shadow-lg"
