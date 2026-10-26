@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import getdate
+from frappe.utils import add_days, getdate
 
 from card.transfer import sync_equipment_location
 
@@ -25,6 +25,8 @@ class CardEquipmentAssignment(Document):
 			self.validate_company()
 		if self._period_grew():
 			self.validate_no_overlap()
+		for dropped in self._dropped_periods():
+			_refuse_dropped_card_days(*dropped)
 
 	def on_update(self):
 		# #56: the equipment's current project / assignment date follow the
@@ -36,6 +38,8 @@ class CardEquipmentAssignment(Document):
 				sync_equipment_location(before.equipment)
 
 	def on_trash(self):
+		if self.from_date:
+			_refuse_dropped_card_days(self.equipment, self.project, self.from_date, self.to_date)
 		if not frappe.flags.get("card_defer_location_sync"):
 			sync_equipment_location(self.equipment, exclude=self.name)
 
@@ -56,6 +60,22 @@ class CardEquipmentAssignment(Document):
 		if self.to_date and before.to_date and getdate(self.to_date) > getdate(before.to_date):
 			return True
 		return bool(self.from_date and not before.from_date)
+
+	def _dropped_periods(self):
+		"""(equipment, project, from, to) periods the saved row covered and no longer covers:
+		a later start, an earlier or new end (what a transport does when it closes the row),
+		or another equipment or project. A to of None is open-ended."""
+		before = None if self.is_new() else self.get_doc_before_save()
+		if not before or not before.from_date:
+			return []
+		if before.equipment != self.equipment or before.project != self.project:
+			return [(before.equipment, before.project, before.from_date, before.to_date)]
+		dropped = []
+		if self.from_date and getdate(self.from_date) > getdate(before.from_date):
+			dropped.append((self.equipment, self.project, before.from_date, add_days(self.from_date, -1)))
+		if self.to_date and (not before.to_date or getdate(self.to_date) < getdate(before.to_date)):
+			dropped.append((self.equipment, self.project, add_days(self.to_date, 1), before.to_date))
+		return dropped
 
 	def validate_dates(self):
 		if self.from_date and self.to_date and getdate(self.to_date) < getdate(self.from_date):
@@ -105,6 +125,44 @@ class CardEquipmentAssignment(Document):
 					self.equipment, c.project, c.from_date, c.to_date or _("(open)")
 				)
 			)
+
+
+def _refuse_dropped_card_days(equipment, project, start, end):
+	"""A submitted card day must stay inside an assignment of its project (validate_card_days
+	checked it at submit), for the machine itself and for each component of a unit card. The
+	equipment row lock queues writers of this machine (D4) and the locking read returns the
+	latest committed cards."""
+	if not (equipment and project and start):
+		return
+	frappe.db.get_value("Card Equipment", equipment, "name", for_update=True)
+	day = frappe.db.sql(
+		"""
+		select c.name, d.operation_date from `tabCard Monthly Card Day` d
+		join `tabCard Monthly Card` c on c.name = d.parent and d.parenttype = 'Card Monthly Card'
+		where c.docstatus = 1 and c.project = %(project)s and d.working_hours > 0
+			and d.operation_date between %(start)s and %(end)s
+			and (c.equipment = %(equipment)s or exists (
+				select 1 from `tabCard Equipment Component` u
+				where u.parent = c.equipment and u.parenttype = 'Card Equipment'
+					and u.component = %(equipment)s
+					and (u.from_date is null or u.from_date <= d.operation_date)
+					and (u.to_date is null or u.to_date >= d.operation_date)))
+		order by d.operation_date limit 1 for update
+		""",
+		{
+			"equipment": equipment,
+			"project": project,
+			"start": str(getdate(start)),
+			"end": str(getdate(end)) if end else OPEN_END,
+		},
+		as_dict=True,
+	)
+	if day:
+		frappe.throw(
+			_(
+				"Submitted card {0} has an operation day of equipment {1} on project {2} on {3}, outside the assignment after this change. Keep the day in the assignment (for a transport, use a later date)."
+			).format(day[0].name, equipment, project, frappe.format(day[0].operation_date, "Date"))
+		)
 
 
 # P0 company isolation (Owner 2026-10-20): an assignment has no Company field, so a

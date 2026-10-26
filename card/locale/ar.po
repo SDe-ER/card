@@ -3768,3 +3768,7 @@ msgstr "، "
 msgctxt "Card"
 msgid "; "
 msgstr "؛ "
+
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.py
+msgid "Submitted card {0} has an operation day of equipment {1} on project {2} on {3}, outside the assignment after this change. Keep the day in the assignment (for a transport, use a later date)."
+msgstr "الكارت المعتمد {0} فيه يوم تشغيل للمعدة {1} على المشروع {2} بتاريخ {3} يقع خارج فترة التخصيص بعد هذا التعديل. أبقِ اليوم داخل التخصيص (وفي النقل استخدم تاريخًا أحدث)."

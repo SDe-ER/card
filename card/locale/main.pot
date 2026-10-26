@@ -2836,3 +2836,7 @@ msgstr ""
 #: card/card/doctype/card_equipment/card_equipment.py
 msgid "Another equipment of company {0} is being saved. Try again."
 msgstr ""
+
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.py
+msgid "Submitted card {0} has an operation day of equipment {1} on project {2} on {3}, outside the assignment after this change. Keep the day in the assignment (for a transport, use a later date)."
+msgstr ""
