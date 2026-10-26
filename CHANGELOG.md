@@ -21,7 +21,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   label, so a rename would break `/app/card`); the display name comes from translations instead:
   msgid `Card` maps to `CARD` in every CARD locale, and CARD now ships a locale with that one entry
   for each of the other 38 languages frappe translates (before, for example, fr showed "Carte" and
-  fa "کارت"). The apps screen titles are `CARD` and `CARD Mobile`.
+  fa "کارت"). The apps screen titles are `CARD` and `CARD Mobile`, and the
+  CARD group in the Supplier, Customer, Asset and Project connections shows `CARD`.
   Patch `v4_1_3.remove_app_name_translations` removes the site `Translation` rows whose source text
   is exactly `Card` with no context (for example ar `Card` -> `كارت`), which override the app's
   locale files; every other Translation stays, and frappe keeps each removed row as a Deleted
