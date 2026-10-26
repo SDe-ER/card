@@ -3948,3 +3948,51 @@ msgstr "موافقة التشغيل تحتاج صورة العداد عند ال
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "This meter photo is already used by another diesel fill."
 msgstr "صورة العداد هذه مستخدمة بالفعل في تعبئة ديزل أخرى."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Source key"
+msgstr "مفتاح المصدر"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Source messages"
+msgstr "رسائل المصدر"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Source caption"
+msgstr "تعليق المصدر"
+
+#: card/diesel_import.py
+msgid "Only a Card Manager or System Manager can import diesel sessions."
+msgstr "استيراد جلسات الديزل مسموح فقط لمدير CARD أو مدير النظام."
+
+#: card/diesel_import.py
+msgid "The session has no source key."
+msgstr "الجلسة ليس لها مفتاح مصدر."
+
+#: card/diesel_import.py
+msgid "The session has no closing meter photo."
+msgstr "الجلسة ليس لها صورة عداد عند النهاية."
+
+#: card/diesel_import.py
+msgid "Invalid photo name {0}."
+msgstr "اسم الصورة {0} غير صالح."
+
+#: card/diesel_import.py
+msgid "Photo {0} does not match its SHA-256 in the manifest."
+msgstr "الصورة {0} لا تطابق بصمة SHA-256 المسجلة لها في ملف الاستيراد."
+
+#: card/diesel_import.py
+msgid "The session price {0} is not the company price {1}; import it at the company price only."
+msgstr "سعر الجلسة {0} ليس سعر الشركة {1}؛ الاستيراد مسموح بسعر الشركة فقط."
+
+#: card/diesel_import.py
+msgid "The session has no unit price."
+msgstr "الجلسة ليس لها سعر للتر."
+
+#: card/diesel_import.py
+msgid "A meter photo of this session is already used by another diesel fill."
+msgstr "إحدى صور العداد في هذه الجلسة مستخدمة بالفعل في تعبئة ديزل أخرى."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The source of a diesel fill is set by the WhatsApp import only."
+msgstr "مصدر تعبئة الديزل يتسجل من استيراد WhatsApp فقط."

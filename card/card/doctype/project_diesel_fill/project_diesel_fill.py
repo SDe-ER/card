@@ -146,6 +146,8 @@ INCONSISTENT = "Inconsistent"
 TOTALIZER_READ_TOLERANCE = 1
 # Frappe names an unsaved form "new-<doctype scrubbed with dashes>-<hash>"
 NEW_FORM_PREFIX = "new-project-diesel-fill-"
+# FR-086: set by card.diesel_import only, so the source of an imported fill cannot be forged
+SOURCE_FIELDS = ("source_key", "source_messages", "source_caption")
 
 
 def _equipment_rows(doc):
@@ -266,6 +268,7 @@ class ProjectDieselFill(Document):
 		if not self.company:
 			self.company = single_company()  # F.8: default to THE company
 		validate_equipment_company(self, "card_equipment")  # F.8 consistency
+		self._guard_source()
 		self._check_link_values()
 		self._enforce_diesel_supplier()
 		self._apply_price()
@@ -309,6 +312,16 @@ class ProjectDieselFill(Document):
 		# Owner 2026-10-26 (Phase 1): the operations review is separate from the accounting submit
 		if self.review_status != OPERATIONS_APPROVED:
 			frappe.throw(_("The diesel fill needs operations approval before submit."))
+
+	def _guard_source(self):
+		"""The source fields (read only on the form) come from the WhatsApp import only, never from a
+		form or REST save, so a fill cannot claim a source key or source photos it was not imported from."""
+		if self.flags.diesel_import:
+			return
+		before = None if self.is_new() else self.get_doc_before_save()
+		for fieldname in SOURCE_FIELDS:
+			if (self.get(fieldname) or None) != ((before.get(fieldname) if before else None) or None):
+				frappe.throw(_("The source of a diesel fill is set by the WhatsApp import only."))
 
 	def _apply_readings(self):
 		"""Meter readings, when given, are the source of the litres (the session counter is reset to
