@@ -2219,7 +2219,7 @@ msgid "Row {0}: add lines with Get requests only."
 msgstr ""
 
 #: card/hooks.py
-msgid "Card Mobile"
+msgid "CARD Mobile"
 msgstr ""
 
 #: frontend/src/pages/NewRequest.vue

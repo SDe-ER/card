@@ -374,14 +374,14 @@ add_to_apps_screen = [
 	{
 		"name": "card",
 		"logo": "/assets/card/images/card-logo.svg",
-		"title": "Card",
+		"title": "CARD",
 		"route": "/app/card",
 		"has_permission": "card.mobile.has_desk_app_permission",
 	},
 	{
 		"name": "card",
 		"logo": "/assets/card/frontend/icons/icon-192.png",
-		"title": "Card Mobile",
+		"title": "CARD Mobile",
 		"route": "/cdms",
 		"has_permission": "card.mobile.has_app_permission",
 	},

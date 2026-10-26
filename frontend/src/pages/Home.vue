@@ -28,7 +28,7 @@ const reviewer = computed(() => ctx.value?.roles.some((r) => r !== 'Card Operato
 </script>
 
 <template>
-  <TopBar title="Card" />
+  <TopBar title="CARD" />
   <div class="space-y-5 p-4">
     <p class="text-lg font-medium" data-testid="employee">{{ ctx?.employee?.employee_name }}</p>
 

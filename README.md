@@ -324,7 +324,7 @@ Report vulnerabilities privately to **<info@sdce.sa>**. Do not open public issue
 ## Languages
 
 Arabic and Urdu (right to left), English, Bengali and Hindi. Arabic covers the whole app. Bengali, Hindi
-and Urdu cover the operator screens. The name "Card" is never translated.
+and Urdu cover the operator screens. The application name shows as "CARD" in every language.
 
 ## Versions and releases
 

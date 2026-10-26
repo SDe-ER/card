@@ -15,6 +15,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Fixed
+- **The application name is CARD in every language** (WS-013, Owner decision 2026-10-26). The record
+  names stay `Card` (frappe names the Workspace, Workspace Sidebar and Desktop Icon after their
+  label, so a rename would break `/app/card`); the display name comes from translations instead:
+  msgid `Card` maps to `CARD` in every CARD locale, and CARD now ships a locale with that one entry
+  for each of the other 38 languages frappe translates (before, for example, fr showed "Carte" and
+  fa "کارت"). The apps screen titles are `CARD` and `CARD Mobile`, and the
+  CARD group in the Supplier, Customer, Asset and Project connections shows `CARD`.
+  Patch `v4_1_3.remove_app_name_translations` removes the site `Translation` rows whose source text
+  is exactly `Card` with no context (for example ar `Card` -> `كارت`), which override the app's
+  locale files; every other Translation stays, and frappe keeps each removed row as a Deleted
+  Document. Idempotent. Tests: `test_i18n.py::TestCardNameNotTranslated`,
+  `test_app_name_translation_patch.py`.
+  Impact: no permission, accounting, API or schema change. The frappe field label "Card" (Number
+  Card Link) uses the same msgid and also shows `CARD`. Rollback: the previous release restores the
+  old locale files; a removed Translation can be restored from its Deleted Document.
+
 ### Documentation
 - **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
   (equipment, transport, project assignment, monthly card, daily hours), in English with an Arabic summary.

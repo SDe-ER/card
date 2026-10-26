@@ -77,7 +77,8 @@ local commit  ≠  push  ≠  merge  ≠  tag / release  ≠  deploy  ≠  rollb
 - Every `@frappe.whitelist` declares `methods=`: `["GET"]` only for reads without side effects, `["POST"]` for
   anything that writes.
 - Do not widen roles or permissions, and do not use `ignore_permissions` to make something work.
-- The app name is "Card" in every language; `card/locale/*.po` holds CARD strings only.
+- The application name shows as "CARD" in every language (WS-013); record names stay `Card` and are never
+  renamed. `card/locale/*.po` holds CARD strings only.
 
 ## CI commands (mirror `.github/workflows/`)
 
