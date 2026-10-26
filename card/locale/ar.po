@@ -78,7 +78,7 @@ msgstr "لا يمكن تسجيل ساعات تشغيل ليوم لم يأت بع
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "Card"
+msgstr "CARD"
 
 #. Name of a DocType
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -2880,8 +2880,8 @@ msgstr "معاينة الموقع"
 msgid "Row {0}: add lines with Get requests only."
 msgstr "سطر {0}: أضف البنود عن طريق «جلب الطلبات» فقط."
 
-msgid "Card Mobile"
-msgstr "Card للجوال"
+msgid "CARD Mobile"
+msgstr "CARD للجوال"
 
 msgid "New request"
 msgstr "طلب جديد"
