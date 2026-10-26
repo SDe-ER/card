@@ -9,7 +9,7 @@ from frappe.utils import cstr, flt, getdate
 from card.company import single_company, validate_equipment_company
 from card.constants import OWNED
 from card.settings import setting
-from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
+from card.transfer import apply_transfer, check_cancel_allowed, check_submit_allowed, reverse_transfer
 
 
 @frappe.whitelist(methods=["GET"])
@@ -271,6 +271,9 @@ class EquipmentTransport(Document):
 
 	# The accounting posting (Purchase Invoice to the transport supplier, cost on the
 	# project) is added in a later stage, gated by owner approval.
+	def before_submit(self):
+		check_submit_allowed(self)
+
 	def on_submit(self):
 		# Transport = a location transfer: move the equipment to the new project.
 		apply_transfer(self)

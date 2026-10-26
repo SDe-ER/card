@@ -211,6 +211,40 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		t.reload()
 		self.assertEqual(t.docstatus, 1)
 
+	# ---- 6b. a backdated transport never cuts an assignment under submitted card days ----
+	def test_backdated_transport_refused_under_submitted_card_days(self):
+		proj_a, proj_b = self._project("A"), self._project("B")
+		eq = self._equipment(current_project=proj_a)
+		a_old = self._assign(eq.name, proj_a, 1)
+		card = self._card(eq.name, proj_a, [12, 15])
+		card.insert(ignore_permissions=True)
+		card.submit()
+		shop = frappe.new_doc("Location")
+		shop.location_name = "TEST-TR-SHOP-" + self.token
+		shop.insert(ignore_permissions=True)
+
+		for destination in ("Project", "Workshop"):
+			t = frappe.new_doc("Equipment Transport")
+			t.equipment = eq.name
+			t.destination_type = destination
+			t.project = proj_b if destination == "Project" else None
+			t.destination_location = shop.name if destination == "Workshop" else None
+			if destination == "Workshop":
+				t.cost_borne_by = "Equipment Supplier"  # no charge, so no cost center needed
+			t.date = self._d(10)
+			t.transport_supplier = self.supplier
+			t.company = self.company
+			t.amount = 100
+			t.insert(ignore_permissions=True)
+			with self.assertRaises(frappe.ValidationError):
+				t.submit()
+			self.assertFalse(frappe.db.get_value("Card Equipment Assignment", a_old.name, "to_date"))
+			self.assertFalse(self._assignments(eq.name, proj_b))
+
+		# a transport after the last card day still moves the machine
+		self._transport(eq.name, proj_b, 15)
+		self.assertEqual(len(self._assignments(eq.name, proj_b)), 1)
+
 	# ---- 7. clean cancel reverses the transfer ----
 	def test_cancel_reverses(self):
 		proj_a, proj_b = self._project("A"), self._project("B")

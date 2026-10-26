@@ -2770,3 +2770,7 @@ msgstr ""
 #: card/card/doctype/card_equipment/card_equipment.py
 msgid "Another equipment of company {0} is being saved. Try again."
 msgstr ""
+
+#: card/transfer.py
+msgid "Equipment {0} has operation days on project {1} after {2} in a submitted card. Use a later date for the transport."
+msgstr ""
