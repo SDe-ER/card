@@ -17,7 +17,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
 from card.tests import test_period_lock
-from card.tests.diesel_price import use_fill_price
+from card.tests.diesel_price import approve_fill, use_fill_price
 
 FAR_DATE = "2999-01-01"
 
@@ -323,7 +323,7 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 		for doc in (fill, t):
 			self._save_request(doc, date=self._today(-1))
 			self.assertEqual(self._stored(doc), self._today(-1))
-		frappe.get_doc(fill.doctype, fill.name).submit()
+		approve_fill(frappe.get_doc(fill.doctype, fill.name)).submit()
 		self.assertEqual(frappe.db.get_value(fill.doctype, fill.name, "docstatus"), 1)
 
 	def test_guard_override_role_moves_locked_draft(self):

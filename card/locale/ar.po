@@ -3772,3 +3772,183 @@ msgstr "؛ "
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.py
 msgid "Submitted card {0} has an operation day of equipment {1} on project {2} on {3}, outside the assignment after this change. Keep the day in the assignment (for a transport, use a later date)."
 msgstr "الكارت المعتمد {0} فيه يوم تشغيل للمعدة {1} على المشروع {2} بتاريخ {3} يقع خارج فترة التخصيص بعد هذا التعديل. أبقِ اليوم داخل التخصيص (وفي النقل استخدم تاريخًا أحدث)."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Session evidence"
+msgstr "أدلة جلسة التعبئة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Opening meter photo"
+msgstr "صورة العداد عند البداية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Opening reading"
+msgstr "قراءة البداية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Opening totalizer"
+msgstr "العداد التراكمي عند البداية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Opening photo time"
+msgstr "وقت صورة البداية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Closing meter photo"
+msgstr "صورة العداد عند النهاية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Closing reading"
+msgstr "قراءة النهاية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Closing totalizer"
+msgstr "العداد التراكمي عند النهاية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Closing photo time"
+msgstr "وقت صورة النهاية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Photo location"
+msgstr "موقع التصوير"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Evidence check"
+msgstr "فحص الأدلة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Totalizer check"
+msgstr "فحص العداد التراكمي"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Evidence warnings"
+msgstr "تنبيهات الأدلة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Equipment filled"
+msgstr "المعدات التي تمت تعبئتها"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Operations review"
+msgstr "مراجعة التشغيل"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Review notes"
+msgstr "ملاحظات المراجعة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Reviewed by"
+msgstr "راجعه"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Reviewed on"
+msgstr "تاريخ المراجعة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Not Checkable"
+msgstr "غير قابل للفحص"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Consistent"
+msgstr "متطابق"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Inconsistent"
+msgstr "غير متطابق"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Operations Approved"
+msgstr "موافقة التشغيل"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Diesel Fill Equipment"
+msgstr "معدات تعبئة الديزل"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Name as reported"
+msgstr "الاسم كما ورد"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Match status"
+msgstr "حالة المطابقة"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Unmatched"
+msgstr "غير مطابق"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Matched"
+msgstr "مطابق"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Third Party"
+msgstr "طرف ثالث"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The diesel fill needs operations approval before submit."
+msgstr "تعبئة الديزل تحتاج موافقة التشغيل قبل الاعتماد."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The closing reading cannot be lower than the opening reading."
+msgstr "قراءة النهاية لا يمكن أن تكون أقل من قراءة البداية."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Litres set to {0} from the meter readings."
+msgstr "تم ضبط اللترات على {0} من قراءات العداد."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Choose either one equipment for the whole fill or the list of filled equipment, not both."
+msgstr "اختر إما معدة واحدة للتعبئة كلها أو قائمة المعدات التي تمت تعبئتها، وليس الاثنين."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Row {0}: a matched row needs its equipment."
+msgstr "السطر {0}: السطر المطابق يحتاج تحديد المعدة."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Row {0}: company {1} does not match the equipment's company {2}."
+msgstr "السطر {0}: الشركة {1} لا تطابق شركة المعدة {2}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Meter photos must be private files uploaded to this diesel fill."
+msgstr "صور العداد يجب أن تكون ملفات خاصة مرفوعة على تعبئة الديزل هذه."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The opening and closing meter photos are the same file."
+msgstr "صورة البداية وصورة النهاية هما نفس الملف."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "This meter photo is already used by diesel fill {0}."
+msgstr "صورة العداد هذه مستخدمة بالفعل في تعبئة الديزل {0}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Totalizer moved {0} to {1} litres, the session shows {2}."
+msgstr "العداد التراكمي تحرك من {0} إلى {1} لتر، بينما الجلسة تُظهر {2}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Another diesel fill exists for this project on this date: {0}."
+msgstr "توجد تعبئة ديزل أخرى لهذا المشروع في نفس التاريخ: {0}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The closing photo time is before the opening photo time."
+msgstr "وقت صورة النهاية قبل وقت صورة البداية."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The closing photo date differs from the fill date."
+msgstr "تاريخ صورة النهاية مختلف عن تاريخ التعبئة."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The fill changed after operations approval and needs review again."
+msgstr "تم تعديل التعبئة بعد موافقة التشغيل وتحتاج مراجعة من جديد."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Only {0} may approve or reject the operations review."
+msgstr "فقط {0} يمكنه الموافقة على مراجعة التشغيل أو رفضها."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Operations approval needs the closing meter photo and reading."
+msgstr "موافقة التشغيل تحتاج صورة العداد عند النهاية وقراءة النهاية."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "This meter photo is already used by another diesel fill."
+msgstr "صورة العداد هذه مستخدمة بالفعل في تعبئة ديزل أخرى."

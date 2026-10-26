@@ -15,6 +15,37 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **Diesel fill as a metered session with evidence and an operations review** (FR-085, Owner Phase 1
+  approval 2026-10-26). `Project Diesel Fill` gets opening/closing meter photos, readings,
+  totalizer readings and photo times; when a closing reading is given, the litres are
+  `closing − opening`. A totalizer check (Not Checkable / Consistent / Inconsistent) compares the
+  session with the meter's cumulative counter: exact readings may differ by 1 litre (measured on
+  real photos), and an unreadable last drum widens the range by its own 0–9 digit only. It is
+  advisory and never approves a fill. Meter photos must be private files uploaded to the fill
+  itself (on an unsaved form: the uploader's own file under the form's temporary name; a
+  client-sent temporary name of another record is ignored). The same photo (same file or same
+  bytes) cannot prove two live fills; a rejected fill releases its photo, and a fill of another
+  company is never named. A second fill on the same project and day is
+  allowed with a warning. New child table `Diesel Fill Equipment` lists the filled equipment
+  (equipment, name as reported, match status, notes) **without litres**; it is exclusive with
+  the single `card_equipment`, and the diesel allocation and posting ignore it. Allocation stays
+  recorded (one equipment) or estimated (hours split). New operations review: `review_status`
+  (Draft / Needs Review / Operations Approved / Rejected, permlevel 1). Only Card Manager or
+  System Manager approve or reject it; approval needs the closing photo and reading; the reviewer
+  and time are set on the server; a material edit after approval (litres, readings, photos,
+  totalizers, company, project, date, supplier, equipment, cost center or the equipment list)
+  returns the fill to Needs Review.
+  **Behaviour change:** submit now needs Operations Approved (before: any valid fill could be
+  submitted by Card Manager). Impact: new permlevel-1 DocPerm rows on `Project Diesel Fill`
+  (Card Manager and System Manager write; Card User and Accounts Manager read); no change to the
+  price lock, allocation, posting, accounting or API; schema: 15 new columns + 1 child table, no
+  patch. Existing fills keep their data, and submitted fills are never re-validated. Rollback:
+  revert the merge commit. The new columns stay in the database until removed by hand. Tests:
+  `test_diesel_session_evidence.py` (new), `test_diesel_allocation.py`
+  (`test_listed_equipment_never_counts_as_recorded`), and the existing fill tests approve before
+  submit (`card/tests/diesel_price.py::approve_fill`).
+
 ### Fixed
 - **An equipment assignment can no longer stop covering a submitted card day** (found in the
   2026-10-26 backlog triage, #43). Submitting an Equipment Transport ends the machine's open
