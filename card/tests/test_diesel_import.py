@@ -99,7 +99,7 @@ class TestDieselImport(IntegrationTestCase):
 		path = os.path.join(self.dir, f"manifest-{frappe.generate_hash(length=6)}.json")
 		with open(path, "w", encoding="utf-8") as f:
 			json.dump(sessions, f)
-		return import_sessions(path, self.dir, dry_run=dry_run, commit=0)
+		return import_sessions(path, self.dir, dry_run=dry_run)
 
 	def _fills(self):
 		return frappe.get_all(DOCTYPE, filters={"project": self.project}, pluck="name")
@@ -145,6 +145,15 @@ class TestDieselImport(IntegrationTestCase):
 		self.assertEqual(again["result"], "Existing")
 		self.assertEqual(again["name"], first["name"])
 		self.assertEqual(len(self._fills()), 1)
+
+	def test_resume_after_a_partial_run(self):
+		# a stopped run keeps nothing; the next run of the full manifest makes only what is missing
+		a, b, c = self._session("A"), self._session("B"), self._session("C")
+		first = self._run([a])["results"][0]
+		out = self._run([a, b, c])
+		self.assertEqual([r["result"] for r in out["results"]], ["Existing", "Created", "Created"])
+		self.assertEqual(out["results"][0]["name"], first["name"])
+		self.assertEqual(len(self._fills()), 3)
 
 	def test_dry_run_keeps_nothing(self):
 		out = self._run([self._session()], dry_run=1)

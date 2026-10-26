@@ -31,22 +31,22 @@ SAVEPOINT = "card_diesel_import"
 FIELDS = ("company", "project", "supplier", "date", "cost_center", "photo_location", "remarks")
 
 
-def import_sessions(manifest, photos_dir, dry_run=1, commit=1):
+def import_sessions(manifest, photos_dir, dry_run=1):
 	"""Create draft fills from `manifest` (a JSON list of sessions). Returns one result per session.
-	With dry_run (the default) nothing is kept and no file is written. With commit, each created
-	session is committed on its own, so a stopped run keeps what it made and a re-run skips it."""
+	With dry_run (the default) nothing is kept and no file is written. bench execute commits once at the
+	end of the run; a run that stops keeps nothing, and a re-run of the same manifest is safe (existing
+	keys are skipped), so runs go in small batches."""
 	if not set(REVIEW_ROLES) & set(frappe.get_roles()):
 		frappe.throw(
 			_("Only a Card Manager or System Manager can import diesel sessions."), frappe.PermissionError
 		)
 	frappe.has_permission(DOCTYPE, "create", throw=True)
-	with open(manifest, encoding="utf-8") as f:  # nosemgrep: path given by the bench operator
+	# audited (FR-086 security review): the manifest path is given by the bench operator, not a web user
+	with open(manifest, encoding="utf-8") as f:  # nosemgrep
 		sessions = json.load(f)
 	results, seen = [], set()  # seen: stored photo hashes of this run's dry-run sessions
 	for session in sessions:
 		results.append(_import_one(session, photos_dir, int(dry_run), seen))
-		if int(commit) and results[-1]["result"] == CREATED:
-			frappe.db.commit()  # nosemgrep: each session stands alone, so a stopped run keeps what it made
 	summary = {}
 	for row in results:
 		summary[row["result"]] = summary.get(row["result"], 0) + 1
@@ -104,7 +104,8 @@ def _read_photo(side, photos_dir):
 	name = side["photo"]
 	if os.path.basename(name) != name or name in (".", ".."):
 		frappe.throw(_("Invalid photo name {0}.").format(name))
-	with open(os.path.join(photos_dir, name), "rb") as f:  # nosemgrep: name checked to be a bare file name
+	# audited (FR-086 security review): photos_dir comes from the bench operator; name is a bare file name
+	with open(os.path.join(photos_dir, name), "rb") as f:  # nosemgrep
 		content = f.read()
 	if hashlib.sha256(content).hexdigest() != side.get("sha256"):
 		frappe.throw(_("Photo {0} does not match its SHA-256 in the manifest.").format(name))
