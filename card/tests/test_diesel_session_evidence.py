@@ -283,6 +283,26 @@ class TestDieselSessionEvidence(IntegrationTestCase):
 		f.reload()
 		self.assertEqual(f.review_status, "Needs Review")
 
+	def test_amendment_keeps_the_cancelled_fills_photo(self):
+		f = self._new(**self._evidence())
+		f.review_status = "Operations Approved"
+		self._as(self.manager, f.save)
+		f.reload()
+		f.submit()
+		f.cancel()
+		a = frappe.copy_doc(f)  # the server copy keeps the photo fields
+		a.update({"amended_from": f.name, "docstatus": 0})
+		a.insert()
+		self.assertEqual(a.closing_photo, f.closing_photo)
+		self.assertEqual(a.review_status, "Draft")  # the approval does not carry over
+
+	def test_live_fill_photo_cannot_be_taken_by_an_amendment_claim(self):
+		live = self._new(**self._evidence())
+		a = frappe.copy_doc(live)
+		a.update({"amended_from": live.name, "docstatus": 0, "date": "2026-08-24"})
+		with self.assertRaises(frappe.ValidationError):
+			a.insert()  # the original is not cancelled: its photo is not this fill's evidence
+
 	def test_photo_uploaded_on_the_new_form_is_relinked(self):
 		f = self._new(**self._evidence())
 		self.assertEqual(

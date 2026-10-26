@@ -80,6 +80,8 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 	def _submitted(self, doc):
 		self._unlock()
 		doc.insert(ignore_permissions=True)
+		if doc.doctype == "Project Diesel Fill":
+			approve_fill(doc)
 		doc.submit()
 		self._lock()
 		return doc

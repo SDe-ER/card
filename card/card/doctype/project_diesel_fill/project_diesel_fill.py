@@ -390,6 +390,11 @@ class ProjectDieselFill(Document):
 			else:
 				filters["attached_to_name"] = self.name
 			row = frappe.db.get_value("File", filters, ["name", "content_hash"], as_dict=True)
+			if not row and self._amends_own_cancelled_fill():
+				# an amendment keeps the cancelled original's evidence; Frappe copies its attachments after insert
+				filters.pop("owner", None)
+				filters["attached_to_name"] = self.amended_from
+				row = frappe.db.get_value("File", filters, ["name", "content_hash"], as_dict=True)
 			if not url.startswith("/private/files/") or not row:
 				# Frappe shares one URL and one public state between files with the same bytes
 				frappe.throw(_("Meter photos must be private files uploaded to this diesel fill."))
@@ -419,6 +424,20 @@ class ProjectDieselFill(Document):
 		if other:
 			# never name a record of another company
 			frappe.throw(_("This meter photo is already used by another diesel fill."))
+
+	def _amends_own_cancelled_fill(self):
+		"""A new amendment of a cancelled fill of the same company that the user may read."""
+		if not (self.is_new() and self.amended_from):
+			return False
+		original = frappe.db.get_value(
+			self.doctype, self.amended_from, ["docstatus", "company"], as_dict=True
+		)
+		return bool(
+			original
+			and original.docstatus == 2
+			and original.company == self.company
+			and frappe.has_permission(self.doctype, "read", doc=self.amended_from)
+		)
 
 	def _check_totalizer(self):
 		"""Advisory check of the session against the meter's cumulative totalizer (TOTAL drums)."""
@@ -475,6 +494,9 @@ class ProjectDieselFill(Document):
 		before = None if self.is_new() else self.get_doc_before_save()
 		old = (before.review_status if before else None) or DRAFT
 		self.review_status = self.review_status or DRAFT
+		if before is None and self.amended_from:
+			# like a price exception, the cancelled fill's review is not a review of its amendment
+			self.review_status = DRAFT
 		reset = (
 			before is not None
 			and old == OPERATIONS_APPROVED
