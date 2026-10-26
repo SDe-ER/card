@@ -40,13 +40,13 @@ def import_sessions(manifest, photos_dir, dry_run=1, commit=1):
 			_("Only a Card Manager or System Manager can import diesel sessions."), frappe.PermissionError
 		)
 	frappe.has_permission(DOCTYPE, "create", throw=True)
-	with open(manifest, encoding="utf-8") as f:
+	with open(manifest, encoding="utf-8") as f:  # nosemgrep: path given by the bench operator
 		sessions = json.load(f)
 	results, seen = [], set()  # seen: stored photo hashes of this run's dry-run sessions
 	for session in sessions:
 		results.append(_import_one(session, photos_dir, int(dry_run), seen))
 		if int(commit) and results[-1]["result"] == CREATED:
-			frappe.db.commit()
+			frappe.db.commit()  # nosemgrep: each session stands alone, so a stopped run keeps what it made
 	summary = {}
 	for row in results:
 		summary[row["result"]] = summary.get(row["result"], 0) + 1
@@ -104,7 +104,7 @@ def _read_photo(side, photos_dir):
 	name = side["photo"]
 	if os.path.basename(name) != name or name in (".", ".."):
 		frappe.throw(_("Invalid photo name {0}.").format(name))
-	with open(os.path.join(photos_dir, name), "rb") as f:
+	with open(os.path.join(photos_dir, name), "rb") as f:  # nosemgrep: name checked to be a bare file name
 		content = f.read()
 	if hashlib.sha256(content).hexdigest() != side.get("sha256"):
 		frappe.throw(_("Photo {0} does not match its SHA-256 in the manifest.").format(name))
@@ -172,7 +172,7 @@ def _stored_hash(photo):
 def _check_unused(photos, seen):
 	"""Dry run: the duplicate-photo rule of the fill (live fills only; a rejected or cancelled fill
 	does not hold its photo), also across the sessions of this run, without writing a file."""
-	hashes = [_stored_hash(photo) for photo in filter(None, photos.values())]
+	hashes = [_stored_hash(photo) for photo in photos.values() if photo]
 	if len(hashes) != len(set(hashes)):
 		frappe.throw(_("The opening and closing meter photos are the same file."))
 	for photo_hash in hashes:
