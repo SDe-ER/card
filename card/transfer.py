@@ -370,25 +370,6 @@ def _set_link(txn, row, fieldname, value):
 		txn.db_set(fieldname, value, update_modified=False)
 
 
-def check_submit_allowed(txn):
-	"""A transport ends the machine's project assignment on its date, so a backdated one would
-	leave submitted card days of that project outside the assignment. Run in before_submit."""
-	if not txn.date:
-		return
-	tdate = getdate(txn.date)
-	to_project = txn.project if (txn.get("destination_type") or "Project") == "Project" else None
-	for row in txn.get("items") or []:
-		prev = row.card_equipment and _open_assignment(row.card_equipment)
-		if not prev or not prev.project or prev.project == to_project:
-			continue
-		if _card_day_after(row.card_equipment, prev.project, tdate):
-			frappe.throw(
-				_(
-					"Equipment {0} has operation days on project {1} after {2} in a submitted card. Use a later date for the transport."
-				).format(row.card_equipment, prev.project, frappe.format(tdate, "Date"))
-			)
-
-
 def check_cancel_allowed(txn):
 	"""Guards, run in before_cancel (before docstatus flips) so a block leaves
 	the document submitted."""

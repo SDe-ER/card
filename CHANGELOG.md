@@ -16,6 +16,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Fixed
+- **An equipment assignment can no longer stop covering a submitted card day** (found in the
+  2026-10-26 backlog triage, #43). Submitting an Equipment Transport ends the machine's open
+  project assignment on the transport date; a backdated transport, or a manual edit of the
+  assignment (later start, earlier end, other project or equipment, delete), left the submitted
+  card days of that project outside every assignment, for the machine and for a unit card that
+  lists it as a component (only the transport cancel path checked card days). The save is now
+  refused and names the card and the day (`CardEquipmentAssignment.validate` / `on_trash`,
+  `_refuse_dropped_card_days`; the machine row lock of D4 and a locking read). A transport on or
+  after the last submitted card day is unchanged. No data, permission, accounting or API change;
+  existing assignments are not rechecked. Known limit: a card submitted at the same moment as the
+  transport is not locked against it (card validation reads assignments without a lock).
+  Rollback: revert the merge commit. Tests: `test_transfer.py` (3 new).
 - **The application name is CARD in every language** (WS-013, Owner decision 2026-10-26). The record
   names stay `Card` (frappe names the Workspace, Workspace Sidebar and Desktop Icon after their
   label, so a rename would break `/app/card`); the display name comes from translations instead:
