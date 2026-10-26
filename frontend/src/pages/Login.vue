@@ -27,7 +27,7 @@ const CARD_LOGO = '/assets/card/images/card-logo.svg'
   <div class="flex min-h-dvh flex-col justify-center gap-8 p-6">
     <div class="flex flex-col items-center gap-3">
       <img :src="CARD_LOGO" alt="" class="size-16" />
-      <h1 class="text-2xl font-semibold" data-testid="title">Card</h1>
+      <h1 class="text-2xl font-semibold" data-testid="title">CARD</h1>
     </div>
     <form class="space-y-4" @submit.prevent="submit">
       <FormControl

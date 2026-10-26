@@ -1,8 +1,9 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
-"""RULE 0 invariant: the module/app name "Card" is never translated. An empty
-msgstr is insufficient (frappe/erpnext may translate "Card"), so every card
-locale that lists msgid "Card" must map it to exactly "Card"."""
+"""WS-013 (Owner, 2026-10-26): the application name is CARD in every language. The record
+names stay "Card" (frappe names the Workspace, Workspace Sidebar and Desktop Icon after
+their label), so msgid "Card" maps to exactly "CARD" in every card locale, and card ships
+a locale for every language frappe translates "Card" into (fr "Carte", fa "کارت", ...)."""
 
 import os
 import re
@@ -12,21 +13,43 @@ from frappe.tests import IntegrationTestCase
 
 
 class TestCardNameNotTranslated(IntegrationTestCase):
+	def _locale_dir(self, app):
+		return os.path.join(frappe.get_app_path(app), "locale")
+
+	def _app_name_msgstr(self, path):
+		# the plain msgid only: an entry under a msgctxt is another string
+		lines = open(path, encoding="utf-8").read().split("\n")
+		return [
+			re.fullmatch(r'msgstr "(.*)"', lines[i + 1]).group(1)
+			for i, line in enumerate(lines)
+			if line == 'msgid "Card"' and not (i and lines[i - 1].startswith("msgctxt"))
+		]
+
 	def test_card_msgid_maps_to_card_in_all_locales(self):
-		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
-		po_files = [f for f in os.listdir(locale_dir) if f.endswith(".po")]
+		po_files = [f for f in os.listdir(self._locale_dir("card")) if f.endswith(".po")]
 		self.assertTrue(po_files, "no .po locale files found")
-		checked = 0
 		for po in po_files:
-			text = open(os.path.join(locale_dir, po), encoding="utf-8").read()
-			block = re.search(r'^msgid "Card"\n(msgstr "(?P<v>.*)")', text, re.M)
-			if not block:
-				continue
-			checked += 1
 			self.assertEqual(
-				block.group("v"), "Card", f"{po}: 'Card' must not be translated (got {block.group('v')!r})"
+				self._app_name_msgstr(os.path.join(self._locale_dir("card"), po)),
+				["CARD"],
+				f"{po}: msgid 'Card' must map to 'CARD' exactly once",
 			)
-		self.assertGreater(checked, 0, 'no locale listed msgid "Card" to check')
+
+	def test_every_installed_language_has_a_card_locale(self):
+		card_po = set(os.listdir(self._locale_dir("card")))
+		missing = set()
+		for app in frappe.get_installed_apps():
+			if app != "card" and os.path.isdir(self._locale_dir(app)):
+				missing.update(f for f in os.listdir(self._locale_dir(app)) if f.endswith(".po"))
+		self.assertFalse(
+			sorted(missing - card_po),
+			'add card/locale/<lang>.po with msgid "Card" -> msgstr "CARD" for these languages '
+			"(an installed app ships them, so they would show its own word for Card)",
+		)
+
+	def test_apps_screen_titles(self):
+		entries = frappe.get_hooks("add_to_apps_screen", app_name="card")
+		self.assertEqual([e["title"] for e in entries], ["CARD", "CARD Mobile"])
 
 
 class TestCardLocaleCardStringsOnly(IntegrationTestCase):
@@ -63,7 +86,7 @@ class TestCardLocaleCardStringsOnly(IntegrationTestCase):
 		return entries
 
 	def _allowlist(self):
-		allow = {"Card"}  # app name, never translated (RULE 0)
+		allow = {"Card"}  # the application name, CARD in every language (WS-013)
 		# CARD-owned display names (e.g. "Card Settings" -> "Settings") are ours to translate
 		allow.update(frappe.get_all("DocType", filters={"module": "Card"}, pluck="name"))
 		allow.update(frappe.get_all("Report", filters={"module": "Card"}, pluck="name"))

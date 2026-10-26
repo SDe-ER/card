@@ -75,8 +75,8 @@ msgstr "उपकरण की ज़रूरतें"
 msgid "Tool"
 msgstr "औज़ार"
 
-msgid "Card Mobile"
-msgstr "Card मोबाइल"
+msgid "CARD Mobile"
+msgstr "CARD मोबाइल"
 
 msgid "New request"
 msgstr "नया अनुरोध"
@@ -454,3 +454,8 @@ msgstr "Diesel and Operations"
 
 msgid "المحاسبة"
 msgstr "Accounting"
+
+#. Label of a Desktop Icon
+#: card/desktop_icon/card.json
+msgid "Card"
+msgstr "CARD"
