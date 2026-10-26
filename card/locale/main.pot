@@ -2745,6 +2745,72 @@ msgstr ""
 msgid "Review record"
 msgstr ""
 
+#: frontend/src/components/FitBadge.vue
+msgid "Confirmed for this machine"
+msgstr ""
+
+#: frontend/src/components/FitBadge.vue
+msgid "Confirmed for model {0}"
+msgstr ""
+
+#: frontend/src/components/FitBadge.vue
+msgid "Not compatible with this machine"
+msgstr ""
+
+#: frontend/src/components/FitBadge.vue
+msgid "Fit pending technical review"
+msgstr ""
+
+#: frontend/src/components/FitBadge.vue
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "No fitment record"
+msgstr ""
+
+#: frontend/src/components/CatalogDialog.vue
+msgid "Fits this machine"
+msgstr ""
+
+#: frontend/src/components/ItemPicker.vue
+#: card/www/equipment-needs/index.py
+msgid "Why this item without a confirmed fit?"
+msgstr ""
+
+#: frontend/src/pages/NewRequest.vue
+msgid "Line {0}: enter why you need an item without a confirmed fit."
+msgstr ""
+
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.py
+msgid "Row {0}: {1} has no confirmed fit for this machine ({2}); enter the reason."
+msgstr ""
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Not compatible"
+msgstr ""
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Pending review"
+msgstr ""
+
+#: card/fitment.py
+msgid "Send a list of at most {0} items."
+msgstr ""
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Fit for machine"
+msgstr ""
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Reason for an item without a confirmed fit"
+msgstr ""
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Confirmed for machine"
+msgstr ""
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Confirmed for model"
+msgstr ""
+
 #. Label of the serial_no_key (Data) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Chassis number key"

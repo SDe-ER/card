@@ -10,6 +10,8 @@
   "qty",
   "uom",
   "reason",
+  "fit_status",
+  "fit_reason",
   "repeat_flag",
   "last_requested_on"
  ],
@@ -37,7 +39,7 @@
    "fieldtype": "Data",
    "label": "Description",
    "in_list_view": 1,
-   "columns": 2
+   "columns": 1
   },
   {
    "fieldname": "qty",
@@ -64,6 +66,20 @@
    "columns": 2
   },
   {
+   "fieldname": "fit_status",
+   "fieldtype": "Select",
+   "label": "Fit for machine",
+   "options": "Confirmed for machine\nConfirmed for model\nNot compatible\nPending review\nNo fitment record",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "fit_reason",
+   "fieldtype": "Small Text",
+   "label": "Reason for an item without a confirmed fit"
+  },
+  {
    "fieldname": "repeat_flag",
    "fieldtype": "Check",
    "label": "Asked recently",
@@ -79,7 +95,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-19 16:00:00.000000",
+ "modified": "2026-10-23 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Needs Request Item",

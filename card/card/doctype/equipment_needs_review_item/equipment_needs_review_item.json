@@ -24,6 +24,8 @@
   "warehouse",
   "stock_qty",
   "repeat_flag",
+  "fit_status",
+  "fit_reason",
   "material_request",
   "tool_custody",
   "handed_qty"
@@ -174,6 +176,19 @@
    "read_only": 1
   },
   {
+   "fieldname": "fit_status",
+   "fieldtype": "Select",
+   "label": "Fit for machine",
+   "options": "Confirmed for machine\nConfirmed for model\nNot compatible\nPending review\nNo fitment record",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fit_reason",
+   "fieldtype": "Small Text",
+   "label": "Reason for an item without a confirmed fit",
+   "read_only": 1
+  },
+  {
    "fieldname": "material_request",
    "fieldtype": "Link",
    "label": "Material Request",
@@ -198,7 +213,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-23 18:00:00.000000",
+ "modified": "2026-10-23 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Needs Review Item",
