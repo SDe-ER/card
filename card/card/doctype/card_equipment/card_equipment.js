@@ -151,7 +151,9 @@ function card_render_equipment_links(frm) {
 					'<div class="mb-2"><span class="text-muted">' +
 						__("Projects worked on") +
 						":</span> " +
-						projects.map((p) => card_doc_link("Project", p)).join("، ") +
+						projects
+							.map((p) => card_doc_link("Project", p))
+							.join(__(", ", null, "Card")) +
 						"</div>",
 				);
 			}
@@ -323,12 +325,12 @@ function card_show_document_alerts(frm) {
 	if (expired.length || soon.length) frm._card_doc_alert = true;
 	if (expired.length) {
 		frm.dashboard.set_headline_alert(
-			__("Expired documents: {0}", [expired.join("، ")]),
+			__("Expired documents: {0}", [expired.join(__(", ", null, "Card"))]),
 			"red",
 		);
 	} else if (soon.length) {
 		frm.dashboard.set_headline_alert(
-			__("Documents expiring within 30 days: {0}", [soon.join("، ")]),
+			__("Documents expiring within 30 days: {0}", [soon.join(__(", ", null, "Card"))]),
 			"orange",
 		);
 	} else if (frm._card_doc_alert) {

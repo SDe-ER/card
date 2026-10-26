@@ -85,7 +85,8 @@ jinja = {"methods": ["card.print_utils.card_amount_in_words"]}
 before_install = "card.install.before_install"
 after_install = "card.install.after_install"
 # F.8: the bundled print fonts install themselves on every migrate (user fontconfig)
-after_migrate = ["card.fonts.ensure_fonts"]
+# v4.1.2: launcher entries shipped after a site or user saved its own dock layer reach that layer
+after_migrate = ["card.fonts.ensure_fonts", "card.navigation.restore_launcher_entries"]
 
 # Uninstallation
 # ------------

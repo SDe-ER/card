@@ -281,6 +281,19 @@ class TestAssetLink(IntegrationTestCase):
 		with patch("card.company.frappe.get_list", return_value=[]):
 			self.assertIsNone(get_only_company())
 
+	def test_only_company_with_select_permission(self):
+		# v4.1.2: a role that may only pick the company in a link (select, no read) gets it too
+		def can(doctype, ptype="read", *args, **kwargs):
+			return ptype == "select"
+
+		with (
+			patch("card.company.frappe.has_permission", side_effect=can),
+			patch("card.company.frappe.get_list", return_value=["A"]),
+		):
+			self.assertEqual(get_only_company(), "A")
+		with patch("card.company.frappe.has_permission", return_value=False):
+			self.assertIsNone(get_only_company())
+
 	def test_asset_owns_equipment_details(self):
 		# Owner 2026-10-19: picking the Asset fills the details; the type follows its category
 		asset = self._make_asset()

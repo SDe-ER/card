@@ -205,7 +205,7 @@ class CardMonthlyCard(Document):
 			frappe.msgprint(
 				_(
 					"Days over the {0}-hour shift limit for shift {1} (recorded and billed — review): {2}"
-				).format(max_hours, self.shift, "، ".join(over_shift_limit)),
+				).format(max_hours, _(self.shift), _(", ", context="Card").join(over_shift_limit)),
 				title=_("Shift hours exceeded warning"),
 				indicator="orange",
 			)
@@ -341,7 +341,9 @@ class CardMonthlyCard(Document):
 				]
 				if over:
 					frappe.msgprint(
-						_("Days exceeding shift hours ({0} hours): {1}").format(shift_hours, "، ".join(over)),
+						_("Days exceeding shift hours ({0} hours): {1}").format(
+							shift_hours, _(", ", context="Card").join(over)
+						),
 						title=_("Shift hours exceeded warning"),
 						indicator="orange",
 					)
@@ -374,7 +376,7 @@ class CardMonthlyCard(Document):
 					frappe.msgprint(
 						_(
 							"Days with operation outside the rental period (calculated, needs review): {0}"
-						).format("، ".join(outside)),
+						).format(_(", ", context="Card").join(outside)),
 						title=_("Review rental period"),
 						indicator="orange",
 					)

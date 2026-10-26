@@ -94,7 +94,7 @@ def execute(filters=None):
 			unallocated = equipment == UNALLOCATED
 			data.append(
 				{
-					"equipment": _("Unallocated") if unallocated else equipment,
+					"equipment": _("Unallocated", context="Card") if unallocated else equipment,
 					"project": project,
 					"month": year + "-" + month,
 					"litres": flt(share.get("litres"), 3),

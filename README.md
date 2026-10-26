@@ -49,7 +49,7 @@ CARD has two interfaces on the same app and the same data:
 | Interface | For | Status |
 |---|---|---|
 | **CARD Desk** | Managers, supervisors, accounts and stores, working in the ERPNext Desk | Available |
-| **CARD Mobile** (`/cdms`) | Operators, supervisors and managers on site, on their phones | Coming in v4.1.0 (see [CARD Mobile](#card-mobile)) |
+| **CARD Mobile** (`/cdms`) | Operators, supervisors and managers on site, on their phones | In v4.1.0, not yet tested on real phones (see [CARD Mobile](#card-mobile)) |
 
 CARD Desk is the full management system. CARD Mobile is a phone front end for the few actions people need
 on site; it does not duplicate the Desk.
@@ -60,7 +60,7 @@ Asset.
 
 ## Features
 
-Everything below is available in the latest release, **v4.0.0**. The complete inventory of each version is
+Everything below is available in the latest release, **v4.1.2**. The complete inventory of each version is
 in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 ### Equipment
@@ -103,8 +103,8 @@ in [docs/releases](docs/releases/VERSION-HISTORY.md).
 ## CARD Mobile
 
 > [!IMPORTANT]
-> **Coming in v4.1.0, not yet released.** Nothing in this section is part of v4.0.0. v4.1.0 is the
-> foundation of CARD Mobile (operator requests); the full phone app for CARD is planned from v4.2.0.
+> **In v4.1.0, not yet tested on real phones.** v4.1.0 is the foundation of CARD Mobile (operator
+> requests); the full phone app for CARD is planned from v4.2.0.
 
 CARD Mobile is a Progressive Web App (PWA) served by CARD itself at `/cdms`, built the same way as the
 Frappe HR mobile app:
@@ -118,7 +118,7 @@ Frappe HR mobile app:
 
 | Screen | For | Status |
 |---|---|---|
-| Sign in, Home, New request, My requests, Profile | Operators | Built, in v4.1.0 |
+| Sign in, Home, New request, My requests, Profile | Operators | In v4.1.0 (not device-tested) |
 | Daily operating hours (enter, review, approve) | Operators, supervisors, managers | Planned |
 | Equipment, projects, transport, cards, diesel | By role | Planned |
 | Materials review and approval, tools and custody | Supervisors, managers, operators | Planned |
@@ -204,6 +204,9 @@ request with CI and review; every release has a full documentation page.
 
 | Version | Date | Highlights |
 |---|---|---|
+| [v4.1.2](docs/releases/v4.1.2.md) | 2026-10-25 | Full launcher navigation on upgraded sites; simpler Equipment Transport form; English for stored Arabic values |
+| [v4.1.1](docs/releases/v4.1.1.md) | 2026-10-25 | Tool Custody item search fix: Card Manager no longer needs an ERPNext Item permission for New Handover |
+| [v4.1.0](docs/releases/v4.1.0.md) | 2026-10-25 | First production go-live candidate: unique chassis/plate numbers, upgrade from v1.0.1 rehearsed, isolation and concurrency fixes |
 | [v4.0.0](docs/releases/v4.0.0.md) | 2026-10-19 | Equipment materials: operator requests, supervisor review, approval into draft Material Requests, tool custody |
 | [v3.0.0](docs/releases/v3.0.0.md) | 2026-10-19 | CARD launcher, multi-machine transport, cards follow transports, equipment from ERPNext Asset |
 | [v1.2.2](docs/releases/v1.2.2.md) | 2026-10-18 | Company isolation, protected equipment fields, permanent posting log |

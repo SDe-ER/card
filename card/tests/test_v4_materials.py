@@ -1865,6 +1865,31 @@ class TestV4Materials(IntegrationTestCase):
 		finally:
 			frappe.set_user("Administrator")
 
+	def test_item_query_works_without_item_read_permission(self):
+		from card.tool_custody import item_query
+
+		manager = self._user("mgr_iq", ["Card Manager"])
+		self.assertFalse(frappe.has_permission("Item", "read", user=manager))
+		non_stock = self._item("NS-IQ", stock=0)
+
+		frappe.set_user(manager)
+		try:
+			rows = item_query("Item", self.token, "item_code", 0, 20, {})
+			codes = {r[0] for r in rows}
+			self.assertIn(self.tool, codes)
+			self.assertNotIn(non_stock, codes)
+		finally:
+			frappe.set_user("Administrator")
+
+		# Card User (not in SCREEN_ROLES) must be refused
+		cu = self._user("cu_iq", ["Card User"])
+		frappe.set_user(cu)
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				item_query("Item", "", "item_code", 0, 20, {})
+		finally:
+			frappe.set_user("Administrator")
+
 	# ---------- operator page ----------
 	def test_operator_page_context(self):
 		frappe.set_user(self.op_user)

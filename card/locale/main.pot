@@ -2810,3 +2810,29 @@ msgstr ""
 #: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
 msgid "Confirmed for model"
 msgstr ""
+
+#. Label of the serial_no_key (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Chassis number key"
+msgstr ""
+
+#. Label of the plate_no_key (Data) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Plate number key"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "{0} {1} is already used by equipment {2} in company {3}."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "{0} {1} is already used by another equipment in company {2}."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Duplicate equipment"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Another equipment of company {0} is being saved. Try again."
+msgstr ""

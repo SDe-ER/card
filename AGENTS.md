@@ -12,6 +12,20 @@ differ, the stricter one applies.
 - [docs/governance/FEATURE-REGISTRY.md](docs/governance/FEATURE-REGISTRY.md) — what exists and how it is proven.
 - [docs/releases/RELEASE-POLICY.md](docs/releases/RELEASE-POLICY.md) — release checklist.
 
+## Go-live priority (issue #118)
+
+Issue #118 is the owner's go-live plan and sets the order of release work: #119 (P0 readiness) → #120 (P1 equipment)
+→ #121 (P2 transport) → #122 (P3 project assignment) → #123 … #127. It adds to the rules in this file and the policy
+above; it removes none of them.
+
+- Work on the current phase only. Earlier requirements stay recorded, but an optional improvement never blocks a
+  release: record it in the backlog, link it to the phase, and continue.
+- Each phase: check what exists → list the production blockers only → fix them → test → ask for the production
+  approval → deploy → check the real use. Do not rebuild what already works or repeat a check that passed on the
+  same code and environment without a stated reason.
+- CI, a merge or a QA pass is not LIVE. Close a phase only after its acceptance criteria pass in real use, with
+  evidence and the owner's approval.
+
 ## Skills (before every task)
 
 Agents that have a Skill tool follow these rules for every development or review task:

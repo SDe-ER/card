@@ -22,7 +22,9 @@ def single_company():
 def only_visible_company():
 	"""The company a new CARD form fills in when the user may list exactly one; else
 	None. Unlike single_company it never picks one of several: the field stays editable."""
-	if not frappe.has_permission("Company", "read"):
+	# select is enough: it is what lets the user pick the company in the link field, and
+	# frappe.get_list lists with it when the user has no read (v4.1.2: Card Manager)
+	if not (frappe.has_permission("Company", "read") or frappe.has_permission("Company", "select")):
 		return None
 	companies = frappe.get_list("Company", pluck="name", limit=2)
 	return companies[0] if len(companies) == 1 else None

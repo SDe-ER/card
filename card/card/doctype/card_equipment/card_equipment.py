@@ -1,11 +1,15 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
 
+import hashlib
+import re
+import unicodedata
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder.functions import Sum, UnixTimestamp
-from frappe.utils import add_days, flt, getdate
+from frappe.utils import add_days, cstr, flt, getdate
 
 from card.constants import (
 	CUSTOMER_BILLING_DIRECTIONS,
@@ -48,6 +52,44 @@ COMPANY_BOUND_REFERENCES = (
 	("Card Equipment Part", "card_equipment"),  # FR-077: fitment rows keep their company
 )
 
+# D1: a chassis or plate number belongs to one equipment per company; the key
+# field holds the comparable form of the number
+IDENTITY_FIELDS = (("serial_no", "serial_no_key"), ("plate_no", "plate_no_key"))
+_DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789")
+_SEPARATORS = re.compile(r"[\s\-_/.]+")
+
+
+def identity_key(value):
+	"""Comparable form of a chassis or plate number: Unicode NFKC without invisible
+	format marks (RLM, ZWJ, ...), Arabic-Indic digits as ASCII, no spaces or
+	separators (- _ / .), upper case. None for an empty value."""
+	text = unicodedata.normalize("NFKC", cstr(value))
+	text = "".join(ch for ch in text if unicodedata.category(ch) != "Cf")
+	key = _SEPARATORS.sub("", text.translate(_DIGITS)).upper()
+	return key or None
+
+
+def on_doctype_update():
+	# D1: the duplicate check reads (company, key); a composite index keeps its locking
+	# read inside one company's range
+	for _field, key_field in IDENTITY_FIELDS:
+		frappe.db.add_index("Card Equipment", ["company", key_field])
+
+
+def _lock_company_identities(company):
+	"""Saves that set a number of the same company run one after the other: a MariaDB
+	named lock per company, owned by CARD (no ERPNext row is locked), released when
+	the transaction ends."""
+	name = "card-equipment-identity-" + hashlib.sha1(cstr(company).encode()).hexdigest()[:32]
+	if not frappe.db.sql("select get_lock(%s, 10)", (name,))[0][0]:
+		frappe.throw(_("Another equipment of company {0} is being saved. Try again.").format(company))
+
+	def release():
+		frappe.db.sql("select release_lock(%s)", (name,))
+
+	frappe.db.after_commit.add(release)
+	frappe.db.after_rollback.add(release)
+
 
 def asset_equipment_values(asset):
 	"""Details the linked ERPNext Asset holds for its equipment: the name, the Asset
@@ -86,7 +128,9 @@ class CardEquipment(Document):
 		self.validate_commercial_change_reason()
 		self.validate_unique_asset()
 		self.validate_equipment_model()
+		self.set_identity_keys()
 		if not (frappe.flags.in_patch or frappe.flags.in_install or frappe.flags.in_migrate):
+			self.validate_unique_identity()
 			self.keep_derived_location()
 			# #56: checked only when the value changes, so a legacy row is never
 			# blocked by an unrelated save
@@ -230,6 +274,55 @@ class CardEquipment(Document):
 			if changed and not frappe.has_permission("Asset", "read", asset):
 				self._refuse_unreadable_asset(asset)
 			frappe.throw(_("Asset {0} is already linked to equipment {1}").format(asset, other))
+
+	def set_identity_keys(self):
+		for field, key_field in IDENTITY_FIELDS:
+			self.set(key_field, identity_key(self.get(field)))
+
+	def validate_unique_identity(self):
+		"""D1: a chassis or plate number is used by one equipment per company. Checked
+		when the number is set or changed, or the company changes, so an unrelated save
+		of a legacy duplicate is never blocked."""
+		changed = [
+			(field, key_field)
+			for field, key_field in IDENTITY_FIELDS
+			if self.get(key_field)
+			and (self.is_new() or self.has_value_changed(key_field) or self._company_changed())
+		]
+		if not changed:
+			return
+		# the second of two saves at once waits here until the first commits; then its
+		# locking read below sees the first's row
+		_lock_company_identities(self.company)
+		equipment = frappe.qb.DocType("Card Equipment")
+		for field, key_field in changed:
+			rows = (
+				frappe.qb.from_(equipment)
+				.select(equipment.name)
+				.where(equipment.company == self.company)
+				.where(getattr(equipment, key_field) == self.get(key_field))
+				.where(equipment.name != (self.name or ""))
+				.limit(1)
+				.for_update()
+				.run()
+			)
+			if not rows:
+				continue
+			label = _(self.meta.get_label(field))
+			other = rows[0][0]
+			if frappe.has_permission("Card Equipment", "read", other):
+				frappe.throw(
+					_("{0} {1} is already used by equipment {2} in company {3}.").format(
+						label, self.get(field), other, self.company
+					),
+					title=_("Duplicate equipment"),
+				)
+			frappe.throw(
+				_("{0} {1} is already used by another equipment in company {2}.").format(
+					label, self.get(field), self.company
+				),
+				title=_("Duplicate equipment"),
+			)
 
 	def _refuse_unreadable_asset(self, asset):
 		frappe.throw(
