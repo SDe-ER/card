@@ -3874,10 +3874,6 @@ msgid "Match status"
 msgstr "حالة المطابقة"
 
 #: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
-msgid "Unmatched"
-msgstr "غير مطابق"
-
-#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
 msgid "Matched"
 msgstr "مطابق"
 
