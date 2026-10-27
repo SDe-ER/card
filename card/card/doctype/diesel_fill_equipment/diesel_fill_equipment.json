@@ -1,0 +1,53 @@
+{
+ "actions": [],
+ "creation": "2026-10-26 18:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "card_equipment",
+  "reported_name",
+  "match_status",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "card_equipment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Equipment",
+   "options": "Card Equipment"
+  },
+  {
+   "fieldname": "reported_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name as reported"
+  },
+  {
+   "default": "Unmatched",
+   "fieldname": "match_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Match status",
+   "options": "Unmatched\nMatched\nThird Party"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Notes"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-26 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Diesel Fill Equipment",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -30,6 +30,28 @@
   "gl_posting",
   "posted",
   "remarks",
+  "section_break_evidence",
+  "opening_photo",
+  "opening_reading",
+  "opening_totalizer",
+  "opening_photo_time",
+  "column_break_evidence",
+  "closing_photo",
+  "closing_reading",
+  "closing_totalizer",
+  "closing_photo_time",
+  "photo_location",
+  "section_break_check",
+  "totalizer_check",
+  "evidence_warnings",
+  "section_break_equipment",
+  "equipment_filled",
+  "section_break_review",
+  "review_status",
+  "review_notes",
+  "column_break_review",
+  "ops_reviewed_by",
+  "ops_reviewed_on",
   "amended_from"
  ],
  "fields": [
@@ -198,11 +220,154 @@
    "fieldtype": "Check",
    "label": "Posted",
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.opening_photo || doc.closing_photo",
+   "fieldname": "section_break_evidence",
+   "fieldtype": "Section Break",
+   "label": "Session evidence"
+  },
+  {
+   "fieldname": "opening_photo",
+   "fieldtype": "Attach Image",
+   "label": "Opening meter photo",
+   "no_copy": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "opening_reading",
+   "fieldtype": "Float",
+   "label": "Opening reading",
+   "no_copy": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "opening_totalizer",
+   "fieldtype": "Data",
+   "label": "Opening totalizer",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "opening_photo_time",
+   "fieldtype": "Datetime",
+   "label": "Opening photo time",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_evidence",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "closing_photo",
+   "fieldtype": "Attach Image",
+   "label": "Closing meter photo",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "closing_reading",
+   "fieldtype": "Float",
+   "label": "Closing reading",
+   "no_copy": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "closing_totalizer",
+   "fieldtype": "Data",
+   "label": "Closing totalizer",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "closing_photo_time",
+   "fieldtype": "Datetime",
+   "label": "Closing photo time",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "photo_location",
+   "fieldtype": "Data",
+   "label": "Photo location",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "section_break_check",
+   "fieldtype": "Section Break",
+   "label": "Evidence check"
+  },
+  {
+   "fieldname": "totalizer_check",
+   "fieldtype": "Select",
+   "label": "Totalizer check",
+   "no_copy": 1,
+   "options": "\nNot Checkable\nConsistent\nInconsistent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "evidence_warnings",
+   "fieldtype": "Small Text",
+   "label": "Evidence warnings",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_equipment",
+   "fieldtype": "Section Break",
+   "label": "Equipment filled"
+  },
+  {
+   "fieldname": "equipment_filled",
+   "fieldtype": "Table",
+   "label": "Equipment filled",
+   "options": "Diesel Fill Equipment"
+  },
+  {
+   "fieldname": "section_break_review",
+   "fieldtype": "Section Break",
+   "label": "Operations review"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "review_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Review status",
+   "no_copy": 1,
+   "options": "Draft\nNeeds Review\nOperations Approved\nRejected",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "review_notes",
+   "fieldtype": "Small Text",
+   "label": "Review notes",
+   "no_copy": 1,
+   "permlevel": 1
+  },
+  {
+   "fieldname": "column_break_review",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ops_reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed by",
+   "no_copy": 1,
+   "options": "User",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "ops_reviewed_on",
+   "fieldtype": "Datetime",
+   "label": "Reviewed on",
+   "no_copy": 1,
+   "permlevel": 1,
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-20 10:00:00.000000",
+ "modified": "2026-10-26 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Project Diesel Fill",
@@ -252,6 +417,28 @@
    "print": 1,
    "read": 1,
    "report": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Card Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Card User"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
    "role": "Accounts Manager"
   }
  ],

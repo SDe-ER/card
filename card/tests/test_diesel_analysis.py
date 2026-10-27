@@ -13,7 +13,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
 from card.card.report.equipment_diesel_analysis.equipment_diesel_analysis import execute
-from card.tests.diesel_price import use_fill_price
+from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.test_controllers import _days, _ensure_masters
 
 
@@ -101,6 +101,7 @@ class TestEquipmentDieselAnalysis(IntegrationTestCase):
 		f.litres = litres
 		f.unit_price = unit_price
 		use_fill_price(f).insert(ignore_permissions=True)
+		approve_fill(f)
 		f.submit()
 		return f
 

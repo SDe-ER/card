@@ -8,7 +8,7 @@ import frappe
 from frappe.utils import flt
 
 from card.gl.posting import build_monthly_posting
-from card.tests.diesel_price import use_fill_price
+from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.test_s3_posting import _PostingBase
 
 
@@ -38,6 +38,7 @@ class TestPostingLines(_PostingBase):
 			}
 		)
 		use_fill_price(f).insert(ignore_permissions=True)
+		approve_fill(f)
 		f.submit()
 		return f
 
@@ -97,6 +98,28 @@ class TestPostingLines(_PostingBase):
 		self.assertNotIn("estimated", direct_line.description)
 		self.assertEqual(flt(sum(flt(i.rate) for i in pi.items if tank.name in i.description), 2), 1000.0)
 
+	def test_listed_equipment_posts_as_an_hours_split_estimate(self):
+		# Phase 1 (Owner 2026-10-26): the "equipment filled" list has no litres and never makes the
+		# posting look measured; a third listed equipment without hours gets no line
+		eq_a = self._equipment()
+		eq_b = self._equipment()
+		eq_c = self._equipment()
+		self._card(eq_a, [6], submit=True)  # 6h
+		self._card(eq_b, [2], submit=True)  # 2h -> 75% / 25%
+		tank = self._fill(
+			litres=1000,
+			unit_price=1.0,
+			equipment_filled=[
+				{"card_equipment": eq.name, "match_status": "Matched"} for eq in (eq_a, eq_b, eq_c)
+			],
+		)
+		pi = self._pi()
+		lines = {i.card_equipment: i for i in pi.items if tank.name in i.description}
+		self.assertEqual(set(lines), {eq_a.name, eq_b.name})
+		for line in lines.values():
+			self.assertIn("estimated", line.description)
+		self.assertEqual((flt(lines[eq_a.name].rate), flt(lines[eq_b.name].rate)), (750.0, 250.0))
+
 
 class TestLikeForLikeReconciliation(_PostingBase):
 	def test_difference_closes_against_the_invoiced_net_not_the_vat_inclusive_gl(self):
@@ -120,6 +143,7 @@ class TestLikeForLikeReconciliation(_PostingBase):
 			}
 		)
 		use_fill_price(fill).insert(ignore_permissions=True)
+		approve_fill(fill)
 		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
@@ -351,6 +375,7 @@ class TestSourceCostCenterGuard(_PostingBase):
 			}
 		)
 		use_fill_price(fill).insert(ignore_permissions=True)
+		approve_fill(fill)
 		fill.submit()
 		frappe.db.set_value("Project Diesel Fill", fill.name, "cost_center", group, update_modified=False)
 		with self.assertRaisesRegex(frappe.ValidationError, "cost center"):
@@ -372,6 +397,7 @@ class TestSourceCostCenterGuard(_PostingBase):
 			}
 		)
 		use_fill_price(fill).insert(ignore_permissions=True)
+		approve_fill(fill)
 		fill.submit()
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
