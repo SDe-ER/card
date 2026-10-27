@@ -7,51 +7,49 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "company",
   "date",
   "project",
-  "supplier",
-  "card_equipment",
   "column_break_main",
-  "litres",
-  "unit_price",
-  "amount",
-  "price_source",
-  "company_price",
-  "cost_center",
-  "price_section",
-  "price_exception",
-  "exception_reason",
-  "column_break_exception",
-  "exception_by",
-  "exception_on",
-  "section_break_links",
-  "purchase_invoice",
-  "gl_posting",
-  "posted",
-  "remarks",
+  "supplier",
+  "company",
   "section_break_evidence",
   "opening_photo",
   "opening_reading",
-  "opening_totalizer",
-  "opening_photo_time",
   "column_break_evidence",
   "closing_photo",
   "closing_reading",
-  "closing_totalizer",
-  "closing_photo_time",
-  "photo_location",
+  "litres",
+  "section_break_equipment",
+  "equipment_filled",
+  "card_equipment",
+  "section_break_price",
+  "unit_price",
+  "amount",
+  "column_break_price",
+  "price_source",
+  "company_price",
   "section_break_check",
   "totalizer_check",
   "evidence_warnings",
-  "section_break_equipment",
-  "equipment_filled",
   "section_break_review",
   "review_status",
   "review_notes",
   "column_break_review",
   "ops_reviewed_by",
   "ops_reviewed_on",
+  "section_break_meter_details",
+  "opening_totalizer",
+  "opening_photo_time",
+  "column_break_meter_details",
+  "closing_totalizer",
+  "closing_photo_time",
+  "photo_location",
+  "price_section",
+  "price_exception",
+  "exception_reason",
+  "column_break_exception",
+  "exception_by",
+  "exception_on",
   "section_break_source",
   "source_key",
   "source_messages",
@@ -61,7 +59,14 @@
   "invoice_unit_price",
   "delivery_charge_litres",
   "invoice_evidence",
-  "amended_from"
+  "section_break_links",
+  "cost_center",
+  "purchase_invoice",
+  "gl_posting",
+  "posted",
+  "amended_from",
+  "section_break_remarks",
+  "remarks"
  ],
  "fields": [
   {
@@ -81,19 +86,16 @@
    "reqd": 1
   },
   {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "supplier",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Supplier",
    "options": "Supplier",
    "reqd": 1
-  },
-  {
-   "description": "Optional: charge the whole fill to this equipment. Leave empty to split across the project's equipment by operating hours.",
-   "fieldname": "card_equipment",
-   "fieldtype": "Link",
-   "label": "Equipment (direct charge)",
-   "options": "Card Equipment"
   },
   {
    "fieldname": "company",
@@ -103,139 +105,9 @@
    "reqd": 1
   },
   {
-   "fieldname": "column_break_main",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "litres",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Litres",
-   "reqd": 1
-  },
-  {
-   "fieldname": "unit_price",
-   "fieldtype": "Currency",
-   "label": "Unit price",
-   "read_only": 1
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Fill amount",
-   "read_only": 1
-  },
-  {
-   "fieldname": "price_source",
-   "fieldtype": "Select",
-   "label": "Price source",
-   "options": "\nCompany Price\nException\nNeeds Review",
-   "read_only": 1,
-   "no_copy": 1,
-   "in_list_view": 1,
-   "in_standard_filter": 1
-  },
-  {
-   "fieldname": "company_price",
-   "fieldtype": "Currency",
-   "label": "Company price",
-   "read_only": 1,
-   "no_copy": 1
-  },
-  {
-   "fieldname": "cost_center",
-   "fieldtype": "Link",
-   "label": "Cost Center",
-   "options": "Cost Center"
-  },
-  {
-   "collapsible": 1,
-   "collapsible_depends_on": "eval:doc.price_exception || doc.price_source=='Needs Review'",
-   "fieldname": "price_section",
-   "fieldtype": "Section Break",
-   "label": "Price exception"
-  },
-  {
-   "fieldname": "price_exception",
-   "fieldtype": "Check",
-   "label": "Price exception",
-   "no_copy": 1
-  },
-  {
-   "depends_on": "eval:doc.price_exception",
-   "mandatory_depends_on": "eval:doc.price_exception",
-   "fieldname": "exception_reason",
-   "fieldtype": "Small Text",
-   "label": "Exception reason",
-   "no_copy": 1
-  },
-  {
-   "fieldname": "column_break_exception",
-   "fieldtype": "Column Break"
-  },
-  {
-   "depends_on": "eval:doc.price_exception",
-   "fieldname": "exception_by",
-   "fieldtype": "Link",
-   "label": "Exception by",
-   "options": "User",
-   "read_only": 1,
-   "no_copy": 1
-  },
-  {
-   "depends_on": "eval:doc.price_exception",
-   "fieldname": "exception_on",
-   "fieldtype": "Datetime",
-   "label": "Exception on",
-   "read_only": 1,
-   "no_copy": 1
-  },
-  {
-   "fieldname": "section_break_links",
-   "fieldtype": "Section Break"
-  },
-  {
-   "description": "Set automatically when the fill is posted to accounting (added later).",
-   "fieldname": "purchase_invoice",
-   "fieldtype": "Link",
-   "label": "Purchase Invoice",
-   "options": "Purchase Invoice",
-   "read_only": 1
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Project Diesel Fill",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "gl_posting",
-   "fieldtype": "Link",
-   "label": "GL posting",
-   "options": "GL Posting Log",
-   "read_only": 1
-  },
-  {
-   "fieldname": "posted",
-   "fieldtype": "Check",
-   "label": "Posted",
-   "read_only": 1
-  },
-  {
-   "collapsible": 1,
-   "collapsible_depends_on": "eval:doc.opening_photo || doc.closing_photo",
    "fieldname": "section_break_evidence",
    "fieldtype": "Section Break",
-   "label": "Session evidence"
+   "label": "Meter readings"
   },
   {
    "fieldname": "opening_photo",
@@ -250,18 +122,6 @@
    "label": "Opening reading",
    "no_copy": 1,
    "non_negative": 1
-  },
-  {
-   "fieldname": "opening_totalizer",
-   "fieldtype": "Data",
-   "label": "Opening totalizer",
-   "no_copy": 1
-  },
-  {
-   "fieldname": "opening_photo_time",
-   "fieldtype": "Datetime",
-   "label": "Opening photo time",
-   "no_copy": 1
   },
   {
    "fieldname": "column_break_evidence",
@@ -281,24 +141,71 @@
    "non_negative": 1
   },
   {
-   "fieldname": "closing_totalizer",
-   "fieldtype": "Data",
-   "label": "Closing totalizer",
-   "no_copy": 1
+   "fieldname": "litres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Litres",
+   "reqd": 1
   },
   {
-   "fieldname": "closing_photo_time",
-   "fieldtype": "Datetime",
-   "label": "Closing photo time",
-   "no_copy": 1
+   "fieldname": "section_break_equipment",
+   "fieldtype": "Section Break",
+   "label": "Equipment filled"
   },
   {
-   "fieldname": "photo_location",
-   "fieldtype": "Data",
-   "label": "Photo location",
-   "no_copy": 1
+   "fieldname": "equipment_filled",
+   "fieldtype": "Table",
+   "label": "Equipment filled",
+   "options": "Diesel Fill Equipment"
   },
   {
+   "fieldname": "card_equipment",
+   "fieldtype": "Link",
+   "label": "Equipment (direct charge)",
+   "options": "Card Equipment"
+  },
+  {
+   "fieldname": "section_break_price",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "unit_price",
+   "fieldtype": "Currency",
+   "label": "Unit price",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Fill amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_price",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.price_source && doc.price_source!='Company Price'",
+   "fieldname": "price_source",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Price source",
+   "no_copy": 1,
+   "options": "\nCompany Price\nException\nNeeds Review",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company_price",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Company price",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.evidence_warnings || doc.totalizer_check=='Inconsistent'",
    "fieldname": "section_break_check",
    "fieldtype": "Section Break",
    "label": "Evidence check"
@@ -319,17 +226,7 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_equipment",
-   "fieldtype": "Section Break",
-   "label": "Equipment filled"
-  },
-  {
-   "fieldname": "equipment_filled",
-   "fieldtype": "Table",
-   "label": "Equipment filled",
-   "options": "Diesel Fill Equipment"
-  },
-  {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "section_break_review",
    "fieldtype": "Section Break",
    "label": "Operations review"
@@ -375,10 +272,92 @@
   },
   {
    "collapsible": 1,
+   "fieldname": "section_break_meter_details",
+   "fieldtype": "Section Break",
+   "label": "Meter details"
+  },
+  {
+   "fieldname": "opening_totalizer",
+   "fieldtype": "Data",
+   "label": "Opening totalizer",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "opening_photo_time",
+   "fieldtype": "Datetime",
+   "label": "Opening photo time",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_meter_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "closing_totalizer",
+   "fieldtype": "Data",
+   "label": "Closing totalizer",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "closing_photo_time",
+   "fieldtype": "Datetime",
+   "label": "Closing photo time",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "photo_location",
+   "fieldtype": "Data",
+   "label": "Photo location",
+   "no_copy": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.price_exception || doc.price_source=='Needs Review'",
+   "fieldname": "price_section",
+   "fieldtype": "Section Break",
+   "label": "Price exception"
+  },
+  {
+   "fieldname": "price_exception",
+   "fieldtype": "Check",
+   "label": "Price exception",
+   "no_copy": 1
+  },
+  {
+   "depends_on": "eval:doc.price_exception",
+   "fieldname": "exception_reason",
+   "fieldtype": "Small Text",
+   "label": "Exception reason",
+   "mandatory_depends_on": "eval:doc.price_exception",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_exception",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.price_exception",
+   "fieldname": "exception_by",
+   "fieldtype": "Link",
+   "label": "Exception by",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.price_exception",
+   "fieldname": "exception_on",
+   "fieldtype": "Datetime",
+   "label": "Exception on",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
    "depends_on": "source_key",
    "fieldname": "section_break_source",
    "fieldtype": "Section Break",
-   "label": "Source"
+   "label": "Supplier invoice and source"
   },
   {
    "fieldname": "source_key",
@@ -436,6 +415,56 @@
    "label": "Invoice evidence",
    "no_copy": 1,
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_links",
+   "fieldtype": "Section Break",
+   "label": "Cost Center and posting"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice",
+   "options": "Purchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gl_posting",
+   "fieldtype": "Link",
+   "label": "GL posting",
+   "options": "GL Posting Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted",
+   "fieldtype": "Check",
+   "label": "Posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Project Diesel Fill",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_remarks",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
   }
  ],
  "is_submittable": 1,
