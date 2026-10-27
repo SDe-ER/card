@@ -324,7 +324,7 @@ class ProjectDieselFill(Document):
 			frappe.throw(_("The diesel fill needs operations approval before submit."))
 
 	def _guard_source(self):
-		"""The source fields (read only on the form) come from the WhatsApp import only, never from a
+		"""The source fields (read only on the form) come from the session import only, never from a
 		form or REST save, so a fill cannot claim a source key or source photos it was not imported from."""
 		if self.flags.diesel_import:
 			return
@@ -339,7 +339,7 @@ class ProjectDieselFill(Document):
 				before.source_key = None
 		for fieldname in SOURCE_FIELDS:
 			if (self.get(fieldname) or None) != ((before.get(fieldname) if before else None) or None):
-				frappe.throw(_("The source of a diesel fill is set by the WhatsApp import only."))
+				frappe.throw(_("The source of a diesel fill is set by the session import only."))
 
 	def _apply_readings(self):
 		"""Meter readings, when given, are the source of the litres (the session counter is reset to
@@ -790,7 +790,7 @@ class ProjectDieselFill(Document):
 		invoice, never the current company price. It waits as Needs Review until the price exception
 		role approves it (no automatic price approval)."""
 		if not self.flags.diesel_import:
-			frappe.throw(_("A historical diesel price is set by the WhatsApp import only."))
+			frappe.throw(_("A historical diesel price is set by the session import only."))
 		if not (self.supplier_invoice_no or "").strip():
 			frappe.throw(_("A historical diesel price needs its supplier invoice number."))
 		if price <= 0 or price != self._invoice_price():

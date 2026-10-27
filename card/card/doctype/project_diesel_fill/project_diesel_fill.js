@@ -20,6 +20,8 @@ function card_price_context(frm) {
 			const ctx = (r && r.message) || {};
 			frm._card_price = ctx;
 			const allowed = ctx.can_except || ctx.can_zero;
+			// the price exception section is for the exception roles, or a fill that already has one
+			frm.toggle_display("price_section", !!(allowed || frm.doc.price_exception));
 			// a saved exception ends only through the button below, with a reason (Owner 2026-10-20)
 			const saved_exception = !frm.is_new() && frm.doc.price_exception;
 			frm.set_df_property(
@@ -161,12 +163,14 @@ frappe.ui.form.on("Project Diesel Fill", {
 		if (frm.is_new() && !frm.doc.company) {
 			frm.set_value("company", frappe.defaults.get_user_default("Company"));
 		}
-		// one company only: fill it, the field stays editable
-		if (frm.is_new() && !frm.doc.company) {
-			frappe.call({ method: "card.api.get_only_company", type: "GET" }).then((r) => {
-				if (r && r.message && !frm.doc.company) frm.set_value("company", r.message);
-			});
-		}
+		// one company only: fill it and keep it out of the way, as on Equipment Transport (the
+		// server still validates it); with several companies the user picks one
+		frappe.call({ method: "card.api.get_only_company", type: "GET" }).then(async (r) => {
+			const only = r && r.message;
+			if (!only) return;
+			if (frm.is_new() && !frm.doc.company) await frm.set_value("company", only);
+			if (frm.doc.company === only) frm.toggle_display("company", false);
+		});
 	},
 	refresh(frm) {
 		if (frm.doc.docstatus !== 0) return;
