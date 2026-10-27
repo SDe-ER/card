@@ -15,20 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-- **Simpler diesel fill form** (FR-087, Owner approval 2026-10-27). The `Project Diesel Fill` form opens with three
-  sections: the fill (date, project, supplier; the company is filled and hidden for a user with one company, as on
-  Equipment Transport), **Meter readings** (opening and closing photo and reading, then the litres; open, was the
-  collapsed "Session evidence") and **Equipment filled** (the list and the direct-charge equipment). The price shows
-  as one line (price per litre and amount); the company price is hidden (same value) and the price source shows
-  only when it is not the company price. The evidence check shows only with a warning or an inconsistent
-  totalizer; the operations review shows after the first save; the totalizers, photo times and place move to a
-  collapsed **Meter details**; the price exception section shows only to the exception roles or on a fill that has
-  one; the import fields show only on an imported fill (**Supplier invoice and source**); cost center and posting
-  links move to a collapsed **Cost Center and posting**; remarks come last. Field help texts removed. Messages say
-  "session import" instead of "WhatsApp import". Layout only: no field, column, permission, validation, price or
-  posting change. Rollback: revert the commit. Translations: ar for the 4 new section labels.
-
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -47,6 +33,29 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
+
+## [4.2.1] — 2026-10-27
+
+### Changed
+- **Simpler diesel fill form** (FR-087, Owner approval 2026-10-27). The `Project Diesel Fill` form opens with three
+  sections: the fill (date, project, supplier; the company is filled and hidden for a user with one company, as on
+  Equipment Transport), **Meter readings** (opening and closing photo and reading, then the litres; open, was the
+  collapsed "Session evidence") and **Equipment filled** (the list and the direct-charge equipment). The price shows
+  as one line (price per litre and amount); the company price is hidden (same value) and the price source shows
+  only when it is not the company price. The evidence check shows only with a warning or an inconsistent
+  totalizer; the operations review shows after the first save; the totalizers, photo times and place move to a
+  collapsed **Meter details**; the price exception section shows only to the exception roles or on a fill that has
+  one; the import fields show only on an imported fill (**Supplier invoice and source**); cost center and posting
+  links move to a collapsed **Cost Center and posting**; remarks come last. Field help texts removed. Messages say
+  "session import" instead of "WhatsApp import". Layout only: no field, column, permission, validation, price or
+  posting change. Rollback: revert the commit. Translations: ar for the 4 new section labels.
+
+### Migration
+
+No new patch and no new column. `bench migrate` syncs the `Project Diesel Fill` DocType layout (field order,
+sections, visibility). Rollback: v4.2.0 code runs on the same database; nothing to undo in data.
+
+---
 
 ## [4.2.0] — 2026-10-27
 
