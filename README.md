@@ -178,7 +178,7 @@ All screenshots show CARD v4.1.2 in the ERPNext Desk with fictional test data.
 
 ## Features
 
-Everything below is available in the latest release, **v4.2.0**. The complete inventory of each version is
+Everything below is available in the latest release, **v4.2.2**. The complete inventory of each version is
 in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 ### Equipment
@@ -333,6 +333,8 @@ request with CI and review. Every release has a full documentation page.
 
 | Version | Date | Highlights |
 |---|---|---|
+| [v4.2.2](docs/releases/v4.2.2.md) | 2026-10-27 | Diesel meter photos shown large on the fill form; clearer reading labels |
+| [v4.2.1](docs/releases/v4.2.1.md) | 2026-10-27 | Simpler diesel fill form |
 | [v4.2.0](docs/releases/v4.2.0.md) | 2026-10-27 | Diesel fill as a metered session with meter photos and an operations review; WhatsApp diesel session import; parts fitment in the catalog; app name CARD |
 | [v4.1.2](docs/releases/v4.1.2.md) | 2026-10-25 | Full launcher navigation on upgraded sites; simpler Equipment Transport form; English for stored Arabic values |
 | [v4.1.1](docs/releases/v4.1.1.md) | 2026-10-25 | Tool Custody item search fix: Card Manager no longer needs an ERPNext Item permission for New Handover |

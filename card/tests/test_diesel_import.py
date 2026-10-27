@@ -27,7 +27,7 @@ from card.tests.test_settings_wiring import _role_user, _set
 
 DOCTYPE = "Project Diesel Fill"
 # the message of ProjectDieselFill._guard_source (not the historical price message)
-SOURCE_REFUSED = "The source of a diesel fill is set by the WhatsApp import only"
+SOURCE_REFUSED = "The source of a diesel fill is set by the session import only"
 
 
 class TestDieselImport(IntegrationTestCase):

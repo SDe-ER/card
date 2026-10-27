@@ -42,6 +42,52 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+## [4.2.2] — 2026-10-27
+
+### Changed
+- **Diesel fill: meter photos shown large in place of the file link, clearer reading labels** (FR-088,
+  Owner 2026-10-27). The opening and closing meter photos now show as a card in place of the file
+  link, full width up to 480 px high, so the meter can be read without opening the file; a click
+  opens the photo in a new tab. On an editable fill the card has the control's own change (image
+  uploader) and remove (with its confirmation) buttons. Only a file of the site (`/files/...` or
+  `/private/files/...`) is shown this way, and a private photo still needs read permission on the
+  fill; any other value keeps the standard link. The standard Attach Image control shows only the
+  file name, with a 150 px preview on hover. Arabic labels: "قراءة عداد التعبئة عند البداية" /
+  "... عند النهاية" (the session meter that is reset at each fill, not the totalizer), and the two
+  messages that name them. Functions: `project_diesel_fill.js` (`card_photo_previews`),
+  `card/locale/ar.po`. Impact: display only; no schema, permission, accounting, data or API change.
+  Rollback: revert the commit.
+
+### Migration
+
+No patch, no new column and no DocType change. Form script and Arabic translations only. Rollback: v4.2.1 code runs
+on the same database; nothing to undo in data.
+
+---
+
+## [4.2.1] — 2026-10-27
+
+### Changed
+- **Simpler diesel fill form** (FR-087, Owner approval 2026-10-27). The `Project Diesel Fill` form opens with three
+  sections: the fill (date, project, supplier; the company is filled and hidden for a user with one company, as on
+  Equipment Transport), **Meter readings** (opening and closing photo and reading, then the litres; open, was the
+  collapsed "Session evidence") and **Equipment filled** (the list and the direct-charge equipment). The price shows
+  as one line (price per litre and amount); the company price is hidden (same value) and the price source shows
+  only when it is not the company price. The evidence check shows only with a warning or an inconsistent
+  totalizer; the operations review shows after the first save; the totalizers, photo times and place move to a
+  collapsed **Meter details**; the price exception section shows only to the exception roles or on a fill that has
+  one; the import fields show only on an imported fill (**Supplier invoice and source**); cost center and posting
+  links move to a collapsed **Cost Center and posting**; remarks come last. Field help texts removed. Messages say
+  "session import" instead of "WhatsApp import". Layout only: no field, column, permission, validation, price or
+  posting change. Rollback: revert the commit. Translations: ar for the 4 new section labels.
+
+### Migration
+
+No new patch and no new column. `bench migrate` syncs the `Project Diesel Fill` DocType layout (field order,
+sections, visibility). Rollback: v4.2.0 code runs on the same database; nothing to undo in data.
+
+---
+
 ## [4.2.0] — 2026-10-27
 
 ### Added

@@ -3774,8 +3774,20 @@ msgid "Submitted card {0} has an operation day of equipment {1} on project {2} o
 msgstr "الكارت المعتمد {0} فيه يوم تشغيل للمعدة {1} على المشروع {2} بتاريخ {3} يقع خارج فترة التخصيص بعد هذا التعديل. أبقِ اليوم داخل التخصيص (وفي النقل استخدم تاريخًا أحدث)."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
-msgid "Session evidence"
-msgstr "أدلة جلسة التعبئة"
+msgid "Meter readings"
+msgstr "قراءات العداد"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Meter details"
+msgstr "تفاصيل العداد"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Supplier invoice and source"
+msgstr "فاتورة المورد والمصدر"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Cost Center and posting"
+msgstr "مركز التكلفة والترحيل"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Opening meter photo"
@@ -3783,7 +3795,7 @@ msgstr "صورة العداد عند البداية"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Opening reading"
-msgstr "قراءة البداية"
+msgstr "قراءة عداد التعبئة عند البداية"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Opening totalizer"
@@ -3799,7 +3811,7 @@ msgstr "صورة العداد عند النهاية"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Closing reading"
-msgstr "قراءة النهاية"
+msgstr "قراءة عداد التعبئة عند النهاية"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Closing totalizer"
@@ -3887,7 +3899,7 @@ msgstr "تعبئة الديزل تحتاج موافقة التشغيل قبل ا
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "The closing reading cannot be lower than the opening reading."
-msgstr "قراءة النهاية لا يمكن أن تكون أقل من قراءة البداية."
+msgstr "قراءة عداد التعبئة عند النهاية لا يمكن أن تكون أقل من قراءتها عند البداية."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "Litres set to {0} from the meter readings."
@@ -3943,7 +3955,7 @@ msgstr "فقط {0} يمكنه الموافقة على مراجعة التشغي�
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "Operations approval needs the closing meter photo and reading."
-msgstr "موافقة التشغيل تحتاج صورة العداد عند النهاية وقراءة النهاية."
+msgstr "موافقة التشغيل تحتاج صورة العداد عند النهاية وقراءة عداد التعبئة عند النهاية."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "This meter photo is already used by another diesel fill."
@@ -3994,8 +4006,8 @@ msgid "A meter photo of this session is already used by another diesel fill."
 msgstr "إحدى صور العداد في هذه الجلسة مستخدمة بالفعل في تعبئة ديزل أخرى."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
-msgid "The source of a diesel fill is set by the WhatsApp import only."
-msgstr "مصدر تعبئة الديزل يتسجل من استيراد WhatsApp فقط."
+msgid "The source of a diesel fill is set by the session import only."
+msgstr "مصدر تعبئة الديزل يتسجل من استيراد الجلسات فقط."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Supplier invoice no."
@@ -4018,8 +4030,8 @@ msgid "Invoice evidence"
 msgstr "دليل الفاتورة"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
-msgid "A historical diesel price is set by the WhatsApp import only."
-msgstr "يُحدَّد السعر التاريخي للديزل من استيراد WhatsApp فقط."
+msgid "A historical diesel price is set by the session import only."
+msgstr "يُحدَّد السعر التاريخي للديزل من استيراد الجلسات فقط."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "A historical diesel price must be the price of its supplier invoice."
