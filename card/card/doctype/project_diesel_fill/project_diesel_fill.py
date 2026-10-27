@@ -147,7 +147,17 @@ TOTALIZER_READ_TOLERANCE = 1
 # Frappe names an unsaved form "new-<doctype scrubbed with dashes>-<hash>"
 NEW_FORM_PREFIX = "new-project-diesel-fill-"
 # FR-086: set by card.diesel_import only, so the source of an imported fill cannot be forged
-SOURCE_FIELDS = ("source_key", "source_messages", "source_caption")
+# (FR-086b: with the supplier invoice that proves a historical price)
+SOURCE_FIELDS = (
+	"source_key",
+	"source_messages",
+	"source_caption",
+	"supplier_invoice_no",
+	"invoiced_litres",
+	"invoice_unit_price",
+	"delivery_charge_litres",
+	"invoice_evidence",
+)
 
 
 def _equipment_rows(doc):
@@ -319,6 +329,14 @@ class ProjectDieselFill(Document):
 		if self.flags.diesel_import:
 			return
 		before = None if self.is_new() else self.get_doc_before_save()
+		if self.is_new() and self.amended_from:
+			# an amendment keeps its original's source (Desk copies it on amend; FR-086b): the imported
+			# session stays out of the posting and keeps its invoice price. The unique source key stays
+			# with the original, so a re-import still finds the session.
+			self.source_key = None
+			if self._inherits_source():
+				before = frappe.db.get_value(self.doctype, self.amended_from, SOURCE_FIELDS, as_dict=True)
+				before.source_key = None
 		for fieldname in SOURCE_FIELDS:
 			if (self.get(fieldname) or None) != ((before.get(fieldname) if before else None) or None):
 				frappe.throw(_("The source of a diesel fill is set by the WhatsApp import only."))
@@ -437,6 +455,20 @@ class ProjectDieselFill(Document):
 		if other:
 			# never name a record of another company
 			frappe.throw(_("This meter photo is already used by another diesel fill."))
+
+	def _inherits_source(self):
+		"""SR-1 (security review 2026-10-27): a new fill takes the source of its amended_from only as a
+		real amendment: a cancelled fill of the same company the user may read and amend, and the only
+		live amendment of it. Frappe checks only that amended_from is cancelled, so a REST insert could
+		otherwise copy an imported fill's source to any number of new fills and keep them out of the
+		posting."""
+		return bool(
+			self._amends_own_cancelled_fill()
+			and frappe.has_permission(self.doctype, "amend", doc=self.amended_from)
+			# called for a new fill only, so every row found is another amendment (Frappe gives a second
+			# amendment of the same fill the same name, so the name cannot tell them apart)
+			and not frappe.db.exists(self.doctype, {"amended_from": self.amended_from, "docstatus": ["<", 2]})
+		)
 
 	def _amends_own_cancelled_fill(self):
 		"""A new amendment of a cancelled fill of the same company that the user may read."""
@@ -579,12 +611,28 @@ class ProjectDieselFill(Document):
 			# a plain save (form or REST) cannot end an exception: it changes the price, so it needs a reason
 			frappe.throw(_("To end a price exception, use «Remove price exception» and give a reason."))
 		if self.flags.use_company_price or self.flags.remove_price_exception:
+			invoice_price = self._invoice_price()
+			if invoice_price and self.flags.use_company_price:
+				frappe.throw(
+					_("This fill keeps the price of its supplier invoice {0}.").format(
+						self.supplier_invoice_no
+					)
+				)
+			if invoice_price:
+				# FR-086b: an imported historical session returns to its invoice price, waiting again
+				self.unit_price = invoice_price
+				self.price_source = NEEDS_REVIEW
+				self._note_price_change(before, self.flags.price_change_reason)
+				return
 			self._take_company_price(company_price)
 			self._note_price_change(before, self.flags.price_change_reason)
 			return
 		if before is None:
 			if self.amended_from and price != company_price:
 				self._needs_review(company_price)  # an amended copy keeps the original price
+				return
+			if self.flags.historical_price:
+				self._keep_invoice_price(price)
 				return
 			if price and price != company_price:
 				self._refuse_typed_price(company_price)
@@ -613,6 +661,15 @@ class ProjectDieselFill(Document):
 				)
 			return
 		# a draft saved before the price lock, or still waiting for a decision: never repriced silently
+		if price > 0 and price == self._invoice_price():
+			self.price_source = NEEDS_REVIEW
+			frappe.msgprint(
+				_("This draft keeps the price {0} of supplier invoice {1}; {2} approves it.").format(
+					price, self.supplier_invoice_no, setting("diesel_price_exception_role")
+				),
+				indicator="orange",
+			)
+			return
 		if price > 0 and price == company_price:
 			self.price_source = COMPANY_PRICE
 		else:
@@ -721,6 +778,24 @@ class ProjectDieselFill(Document):
 			)
 		self.unit_price = company_price
 		self.price_source = COMPANY_PRICE
+
+	def _invoice_price(self):
+		"""The price per litre of the imported session's supplier invoice (FR-086b), or 0."""
+		if not (self.supplier_invoice_no or "").strip():
+			return 0
+		return flt(self.invoice_unit_price, self.precision("unit_price") or 2)
+
+	def _keep_invoice_price(self, price):
+		"""FR-086b (Owner 2026-10-27): an imported historical session keeps the price of its supplier
+		invoice, never the current company price. It waits as Needs Review until the price exception
+		role approves it (no automatic price approval)."""
+		if not self.flags.diesel_import:
+			frappe.throw(_("A historical diesel price is set by the WhatsApp import only."))
+		if not (self.supplier_invoice_no or "").strip():
+			frappe.throw(_("A historical diesel price needs its supplier invoice number."))
+		if price <= 0 or price != self._invoice_price():
+			frappe.throw(_("A historical diesel price must be the price of its supplier invoice."))
+		self.price_source = NEEDS_REVIEW
 
 	def _needs_review(self, company_price):
 		self.price_source = NEEDS_REVIEW

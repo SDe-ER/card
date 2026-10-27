@@ -3996,3 +3996,43 @@ msgstr "إحدى صور العداد في هذه الجلسة مستخدمة ب�
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "The source of a diesel fill is set by the WhatsApp import only."
 msgstr "مصدر تعبئة الديزل يتسجل من استيراد WhatsApp فقط."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Supplier invoice no."
+msgstr "رقم فاتورة المورد"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Invoiced litres"
+msgstr "اللترات في الفاتورة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Invoice price per litre"
+msgstr "سعر اللتر في الفاتورة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Delivery charge billed as litres"
+msgstr "أجرة النقل المفوترة كلترات"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Invoice evidence"
+msgstr "دليل الفاتورة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A historical diesel price is set by the WhatsApp import only."
+msgstr "يُحدَّد السعر التاريخي للديزل من استيراد WhatsApp فقط."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A historical diesel price must be the price of its supplier invoice."
+msgstr "يجب أن يكون السعر التاريخي للديزل هو سعر فاتورة المورد الخاصة به."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A historical diesel price needs its supplier invoice number."
+msgstr "السعر التاريخي للديزل يحتاج إلى رقم فاتورة المورد."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "This fill keeps the price of its supplier invoice {0}."
+msgstr "تحتفظ هذه التعبئة بسعر فاتورة المورد {0}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "This draft keeps the price {0} of supplier invoice {1}; {2} approves it."
+msgstr "تحتفظ هذه المسودة بالسعر {0} من فاتورة المورد {1}؛ ويعتمده {2}."

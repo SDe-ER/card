@@ -152,6 +152,12 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"supplier": party,
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
+			# FR-086b (Owner 2026-10-27): an imported WhatsApp session is never posted here. Its
+			# supplier's own invoice is the Purchase Invoice (entered in Desk, or already there),
+			# and its price includes VAT. source_messages: always set by the import, and kept by
+			# an amendment (the unique source_key stays with the original).
+			"source_key": ["in", ["", None]],
+			"source_messages": ["in", ["", None]],
 		},
 		fields=["name", "project", "card_equipment", "litres", "amount", "date", "cost_center"],
 	)

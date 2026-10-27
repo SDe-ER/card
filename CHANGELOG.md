@@ -33,6 +33,25 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   permission, endpoint or accounting effect; schema: 3 new columns on `Project Diesel Fill`, no
   patch. Rollback: revert the commit; imported drafts stay until deleted by a manager. Tests:
   `card/tests/test_diesel_import.py`.
+- **Historical price of imported diesel sessions** (FR-086b, Owner design approval 2026-10-27,
+  option A). A session in the import manifest may carry its own supplier invoice (`invoice`: number,
+  quantity, price per litre, delivery charge litres, file and SHA-256). The fill then keeps the
+  invoice price instead of the current company price and waits as `Needs Review`. Only the price
+  exception role (Card Settings) approves it with the existing price exception and a reason; there
+  is no automatic price approval, and a Card Manager cannot change the price. The exception role
+  cannot move it to the company price either; removing its exception returns it to the invoice
+  price as Needs Review. An amendment keeps the source and invoice evidence of its original (the
+  unique `source_key` stays with the original) and stays out of the posting; only a real amendment
+  inherits it (cancelled original of the same company, amend permission, the only live amendment;
+  security review SR-1). New read-only
+  evidence fields on `Project Diesel Fill`: `supplier_invoice_no`, `invoiced_litres`,
+  `invoice_unit_price`, `delivery_charge_litres`, `invoice_evidence`; only the import sets them. The
+  litres and the amount stay the meter's: the delivery charge billed as litres is evidence only.
+  The monthly posting (`card/gl/posting.py`) now leaves out every imported fill and its amendments (`source_key` or `source_messages` set):
+  its supplier's own invoice is the Purchase Invoice, and its price includes VAT. Impact: no new
+  permission or endpoint; accounting: imported fills are never posted by CARD; schema: 5 new
+  columns, no patch. Rollback: revert the commit. Tests: `card/tests/test_diesel_import.py`,
+  `card/tests/test_s3_posting.py`.
 - **Diesel fill as a metered session with evidence and an operations review** (FR-085, Owner Phase 1
   approval 2026-10-26). `Project Diesel Fill` gets opening/closing meter photos, readings,
   totalizer readings and photo times; when a closing reading is given, the litres are

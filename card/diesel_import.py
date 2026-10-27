@@ -8,9 +8,10 @@ Run by a manager on the server, e.g.
 		--kwargs "{'manifest': '/path/sessions.json', 'photos_dir': '/path/photos', 'dry_run': 1}"
 
 Rules: one fill per source key (a re-run skips what exists, in any state); photos must match the
-SHA-256 in the manifest; the price is always the company price (a session at another price is
-refused); the import never approves, submits or posts. The fill's own validation (readings,
-photos, duplicate photos, totalizer, review) applies to every row."""
+SHA-256 in the manifest; the price is the company price, or (FR-086b) the price of the session's own
+supplier invoice given under "invoice" — then the fill waits as Needs Review for the price exception
+role; the import never approves, submits or posts. The fill's own validation (readings, photos,
+duplicate photos, totalizer, review) applies to every row."""
 
 import hashlib
 import json
@@ -116,6 +117,13 @@ def _check_price(session):
 	if not session.get("unit_price"):
 		frappe.throw(_("The session has no unit price."))
 	price = flt(session.get("unit_price"))
+	invoice = session.get("invoice")
+	if invoice:
+		# a historical price is proven by one supplier invoice; the fill compares the two prices
+		# (ProjectDieselFill._keep_invoice_price, at the field precision)
+		if not invoice.get("invoice_no"):
+			frappe.throw(_("A historical diesel price needs its supplier invoice number."))
+		return
 	company_price = flt(diesel_price(session.get("company")))
 	if price != company_price:
 		frappe.throw(
@@ -136,6 +144,17 @@ def _new_fill(session):
 		doc.set(f"{side}_photo_time", data.get("time"))
 	doc.litres = flt(doc.closing_reading) - flt(doc.opening_reading)
 	doc.source_key = session["source_key"]
+	invoice = session.get("invoice")
+	if invoice:
+		doc.flags.historical_price = True  # ProjectDieselFill._keep_invoice_price
+		doc.unit_price = flt(session["unit_price"])
+		doc.supplier_invoice_no = invoice["invoice_no"]
+		doc.invoiced_litres = flt(invoice.get("qty")) or None
+		doc.invoice_unit_price = flt(invoice["unit_price"])
+		# evidence only: the litres stay the meter reading (Owner D6, 2026-10-27)
+		doc.delivery_charge_litres = flt(invoice.get("delivery_charge_litres")) or None
+		if invoice.get("file"):
+			doc.invoice_evidence = f"{invoice['file']} SHA-256 {invoice.get('sha256') or '-'}"
 	# the original WhatsApp photo hashes: Frappe may strip EXIF on upload, so the stored file can differ
 	photos = [
 		f"{side} photo {data['photo']} SHA-256 {data['sha256']}"
