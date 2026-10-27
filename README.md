@@ -60,7 +60,7 @@ Asset.
 
 ## Features
 
-Everything below is available in the latest release, **v4.2.1**. The complete inventory of each version is
+Everything below is available in the latest release, **v4.2.2**. The complete inventory of each version is
 in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 ### Equipment
@@ -204,6 +204,7 @@ request with CI and review; every release has a full documentation page.
 
 | Version | Date | Highlights |
 |---|---|---|
+| [v4.2.2](docs/releases/v4.2.2.md) | 2026-10-27 | Diesel meter photos shown large on the fill form; clearer reading labels |
 | [v4.2.1](docs/releases/v4.2.1.md) | 2026-10-27 | Simpler diesel fill form |
 | [v4.2.0](docs/releases/v4.2.0.md) | 2026-10-27 | Diesel fill as a metered session with meter photos and an operations review; WhatsApp diesel session import; parts fitment in the catalog; app name CARD |
 | [v4.1.2](docs/releases/v4.1.2.md) | 2026-10-25 | Full launcher navigation on upgraded sites; simpler Equipment Transport form; English for stored Arabic values |
