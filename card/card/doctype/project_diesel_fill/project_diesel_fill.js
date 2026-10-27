@@ -135,6 +135,34 @@ function card_preview_readings(frm) {
 	if (litres >= 0 && flt(frm.doc.litres) !== litres) frm.set_value("litres", litres);
 }
 
+// the meter photos are shown under their fields, large enough to read the meter (Owner 2026-10-27);
+// the standard Attach Image control only shows a small preview on hover
+function card_photo_previews(frm) {
+	for (const fieldname of ["opening_photo", "closing_photo"]) {
+		const field = frm.get_field(fieldname);
+		if (!field || !field.$wrapper) continue;
+		let $preview = field.$wrapper.find(".card-meter-photo");
+		if (!$preview.length) {
+			$preview = $('<div class="card-meter-photo"></div>').appendTo(field.$wrapper);
+		}
+		const url = frm.doc[fieldname] || "";
+		// only a file of this site (/files or /private/files)
+		if (!/^\/(private\/)?files\//.test(url)) {
+			$preview.empty();
+			continue;
+		}
+		const src = frappe.utils.escape_html(url);
+		$preview.html(
+			`<a href="${src}" target="_blank" rel="noopener noreferrer">
+				<img src="${src}" alt="${frappe.utils.escape_html(__(field.df.label))}"
+					style="display: block; width: 100%; max-height: 420px; object-fit: contain;
+						margin-top: var(--margin-sm); border: 1px solid var(--border-color);
+						border-radius: var(--border-radius-md); background: var(--subtle-fg);">
+			</a>`,
+		);
+	}
+}
+
 function card_default_supplier(frm) {
 	frappe
 		.call({
@@ -173,6 +201,7 @@ frappe.ui.form.on("Project Diesel Fill", {
 		});
 	},
 	refresh(frm) {
+		card_photo_previews(frm);
 		if (frm.doc.docstatus !== 0) return;
 		frappe
 			.call({
@@ -193,6 +222,12 @@ frappe.ui.form.on("Project Diesel Fill", {
 	},
 	litres(frm) {
 		card_preview_amount(frm);
+	},
+	opening_photo(frm) {
+		card_photo_previews(frm);
+	},
+	closing_photo(frm) {
+		card_photo_previews(frm);
 	},
 	opening_reading(frm) {
 		card_preview_readings(frm);

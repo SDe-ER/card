@@ -3795,7 +3795,7 @@ msgstr "صورة العداد عند البداية"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Opening reading"
-msgstr "قراءة البداية"
+msgstr "قراءة عداد التعبئة عند البداية"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Opening totalizer"
@@ -3811,7 +3811,7 @@ msgstr "صورة العداد عند النهاية"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Closing reading"
-msgstr "قراءة النهاية"
+msgstr "قراءة عداد التعبئة عند النهاية"
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Closing totalizer"
@@ -3899,7 +3899,7 @@ msgstr "تعبئة الديزل تحتاج موافقة التشغيل قبل ا
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "The closing reading cannot be lower than the opening reading."
-msgstr "قراءة النهاية لا يمكن أن تكون أقل من قراءة البداية."
+msgstr "قراءة عداد التعبئة عند النهاية لا يمكن أن تكون أقل من قراءتها عند البداية."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "Litres set to {0} from the meter readings."
@@ -3955,7 +3955,7 @@ msgstr "فقط {0} يمكنه الموافقة على مراجعة التشغي�
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "Operations approval needs the closing meter photo and reading."
-msgstr "موافقة التشغيل تحتاج صورة العداد عند النهاية وقراءة النهاية."
+msgstr "موافقة التشغيل تحتاج صورة العداد عند النهاية وقراءة عداد التعبئة عند النهاية."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "This meter photo is already used by another diesel fill."
