@@ -282,6 +282,53 @@ class TestAggregationAndDiesel(_PostingBase):
 		self.assertEqual(fill_line.expense_account, self.exp_diesel)
 		self.assertEqual(fill_line.card_equipment, eq.name)
 
+	def test_imported_fill_is_never_posted(self):
+		"""FR-086b (Owner 2026-10-27): an imported WhatsApp session is accounted by its supplier's own
+		Purchase Invoice in Desk (its price includes VAT), so the monthly posting leaves it out."""
+		fills = []
+		for imported in (False, True):
+			fill = frappe.get_doc(
+				{
+					"doctype": "Project Diesel Fill",
+					"date": "2026-09-10",
+					"project": self.project,
+					"supplier": self.supplier,
+					"company": self.company,
+					"litres": 100,
+					"unit_price": 2,
+				}
+			)
+			if imported:
+				fill.flags.diesel_import = True
+				fill.source_key = "WA-TEST-POSTING-" + frappe.generate_hash(length=8)
+				fill.source_messages = "WA-TEST-1"  # the import always sets it (message ids, photo hashes)
+			use_fill_price(fill).insert(ignore_permissions=True)
+			approve_fill(fill)
+			fill.submit()
+			fills.append(fill)
+		# an amendment of the imported fill keeps its source (not its unique key) and stays out too
+		fills[1].cancel()
+		amended = frappe.copy_doc(fills[1])
+		amended.amended_from = fills[1].name
+		amended.docstatus = 0
+		amended.insert(ignore_permissions=True)
+		self.assertFalse(amended.source_key)
+		approve_fill(amended)
+		amended.submit()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		descriptions = " | ".join(i.description for i in pi.items)
+		self.assertIn(fills[0].name, descriptions)
+		self.assertNotIn(fills[1].name, descriptions)
+		self.assertNotIn(amended.name, descriptions)
+		# only the normal fill is on the invoice, in full: 100 L x 2 = 200, nothing counted twice
+		self.assertEqual(
+			sum(flt(i.rate, 2) for i in pi.items if fills[0].name in (i.description or "")), 200.0
+		)
+		for name in (fills[1].name, amended.name):
+			self.assertFalse(frappe.db.get_value("Project Diesel Fill", name, "purchase_invoice"))
+
 	def test_mixed_direct_and_tank_fill_split_by_hours_only(self):
 		"""Checkpoint C: direct fills must never influence tank-fill weights."""
 		eq_a = self._equipment()

@@ -52,6 +52,15 @@
   "column_break_review",
   "ops_reviewed_by",
   "ops_reviewed_on",
+  "section_break_source",
+  "source_key",
+  "source_messages",
+  "source_caption",
+  "supplier_invoice_no",
+  "invoiced_litres",
+  "invoice_unit_price",
+  "delivery_charge_litres",
+  "invoice_evidence",
   "amended_from"
  ],
  "fields": [
@@ -363,11 +372,75 @@
    "no_copy": 1,
    "permlevel": 1,
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "source_key",
+   "fieldname": "section_break_source",
+   "fieldtype": "Section Break",
+   "label": "Source"
+  },
+  {
+   "fieldname": "source_key",
+   "fieldtype": "Data",
+   "label": "Source key",
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "source_messages",
+   "fieldtype": "Small Text",
+   "label": "Source messages",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_caption",
+   "fieldtype": "Small Text",
+   "label": "Source caption",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier_invoice_no",
+   "fieldtype": "Data",
+   "label": "Supplier invoice no.",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoiced_litres",
+   "fieldtype": "Float",
+   "label": "Invoiced litres",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_unit_price",
+   "fieldtype": "Currency",
+   "label": "Invoice price per litre",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "delivery_charge_litres",
+   "fieldtype": "Float",
+   "label": "Delivery charge billed as litres",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_evidence",
+   "fieldtype": "Small Text",
+   "label": "Invoice evidence",
+   "no_copy": 1,
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-26 18:00:00.000000",
+ "modified": "2026-10-27 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Project Diesel Fill",
