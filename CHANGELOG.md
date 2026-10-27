@@ -37,15 +37,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [4.2.1] — 2026-10-27
 
 ### Changed
-- **Diesel fill: meter photos shown large under their fields, clearer reading labels** (FR-088, Owner
-  2026-10-27). The opening and closing meter photos now show under their fields, full width up to
-  420 px high, so the meter can be read without opening the file; a click opens the photo in a new
-  tab. Only a file of the site (`/files/...` or `/private/files/...`) is shown, and a private photo
-  still needs read permission on the fill. The standard Attach Image control shows only a 150 px
-  preview on hover. Arabic labels: "قراءة عداد التعبئة عند البداية" / "... عند النهاية" (the session
-  meter that is reset at each fill, not the totalizer), and the two messages that name them.
-  Functions: `project_diesel_fill.js` (`card_photo_previews`), `card/locale/ar.po`. Impact: display
-  only; no schema, permission, accounting, data or API change. Rollback: revert the commit.
+- **Diesel fill: meter photos shown large in place of the file link, clearer reading labels** (FR-088,
+  Owner 2026-10-27). The opening and closing meter photos now show as a card in place of the file
+  link, full width up to 480 px high, so the meter can be read without opening the file; a click
+  opens the photo in a new tab. On an editable fill the card has the control's own change (image
+  uploader) and remove (with its confirmation) buttons. Only a file of the site (`/files/...` or
+  `/private/files/...`) is shown this way, and a private photo still needs read permission on the
+  fill; any other value keeps the standard link. The standard Attach Image control shows only the
+  file name, with a 150 px preview on hover. Arabic labels: "قراءة عداد التعبئة عند البداية" /
+  "... عند النهاية" (the session meter that is reset at each fill, not the totalizer), and the two
+  messages that name them. Functions: `project_diesel_fill.js` (`card_photo_previews`),
+  `card/locale/ar.po`. Impact: display only; no schema, permission, accounting, data or API change.
+  Rollback: revert the commit.
 - **Simpler diesel fill form** (FR-087, Owner approval 2026-10-27). The `Project Diesel Fill` form opens with three
   sections: the fill (date, project, supplier; the company is filled and hidden for a user with one company, as on
   Equipment Transport), **Meter readings** (opening and closing photo and reading, then the litres; open, was the

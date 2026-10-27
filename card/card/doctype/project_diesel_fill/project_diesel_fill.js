@@ -135,8 +135,9 @@ function card_preview_readings(frm) {
 	if (litres >= 0 && flt(frm.doc.litres) !== litres) frm.set_value("litres", litres);
 }
 
-// the meter photos are shown under their fields, large enough to read the meter (Owner 2026-10-27);
-// the standard Attach Image control only shows a small preview on hover
+// the meter photos are shown as a large card in place of the file link, so the meter can be read on
+// the form (Owner 2026-10-27); the card keeps the control's own remove and change actions. The
+// standard Attach Image control only shows the file name, with a small preview on hover
 function card_photo_previews(frm) {
 	for (const fieldname of ["opening_photo", "closing_photo"]) {
 		const field = frm.get_field(fieldname);
@@ -146,20 +147,42 @@ function card_photo_previews(frm) {
 			$preview = $('<div class="card-meter-photo"></div>').appendTo(field.$wrapper);
 		}
 		const url = frm.doc[fieldname] || "";
-		// only a file of this site (/files or /private/files)
-		if (!/^\/(private\/)?files\//.test(url)) {
+		// only a file of this site (/files or /private/files); anything else keeps the standard link
+		const shown = /^\/(private\/)?files\//.test(url);
+		// the link of an editable field, and the text of a read-only one
+		field.$wrapper.find(".attached-file, .control-value").toggleClass("d-none", shown);
+		if (!shown) {
 			$preview.empty();
 			continue;
 		}
 		const src = frappe.utils.escape_html(url);
+		const label = frappe.utils.escape_html(__(field.df.label));
+		const editable = field.disp_status === "Write";
+		const button = (action, icon, title) =>
+			`<button type="button" class="btn btn-default btn-sm" data-action="${action}"
+				title="${title}" aria-label="${title}">${frappe.utils.icon(icon, "sm")}</button>`;
 		$preview.html(
-			`<a href="${src}" target="_blank" rel="noopener noreferrer">
-				<img src="${src}" alt="${frappe.utils.escape_html(__(field.df.label))}"
-					style="display: block; width: 100%; max-height: 420px; object-fit: contain;
-						margin-top: var(--margin-sm); border: 1px solid var(--border-color);
-						border-radius: var(--border-radius-md); background: var(--subtle-fg);">
-			</a>`,
+			`<div style="position: relative; margin-top: var(--margin-sm);">
+				<a href="${src}" target="_blank" rel="noopener noreferrer">
+					<img src="${src}" alt="${label}"
+						style="display: block; width: 100%; max-height: 480px; object-fit: contain;
+							border: 1px solid var(--border-color); border-radius: var(--border-radius-lg);
+							background: var(--subtle-fg);">
+				</a>
+				${
+					editable
+						? `<div class="flex" style="position: absolute; top: var(--padding-sm);
+								inset-inline-end: var(--padding-sm); gap: var(--margin-xs);">
+								${button("change", "es-line-camera", __("Change"))}
+								${button("remove", "es-line-close", __("Remove"))}
+							</div>`
+						: ""
+				}
+			</div>`,
 		);
+		// the control's own actions: the uploader for images, and remove with its confirmation
+		$preview.find("[data-action=change]").on("click", () => field.on_attach_doc_image());
+		$preview.find("[data-action=remove]").on("click", () => field.clear_attachment());
 	}
 }
 
