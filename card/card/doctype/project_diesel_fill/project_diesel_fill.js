@@ -126,6 +126,13 @@ function card_preview_amount(frm) {
 	if (flt(frm.doc.amount) !== amount) frm.set_value("amount", amount);
 }
 
+// Phase 1: the meter readings give the litres (the server sets them again on save)
+function card_preview_readings(frm) {
+	if (!(flt(frm.doc.closing_reading) > 0)) return; // an empty Float is stored as 0
+	const litres = flt(frm.doc.closing_reading) - flt(frm.doc.opening_reading);
+	if (litres >= 0 && flt(frm.doc.litres) !== litres) frm.set_value("litres", litres);
+}
+
 function card_default_supplier(frm) {
 	frappe
 		.call({
@@ -182,6 +189,12 @@ frappe.ui.form.on("Project Diesel Fill", {
 	},
 	litres(frm) {
 		card_preview_amount(frm);
+	},
+	opening_reading(frm) {
+		card_preview_readings(frm);
+	},
+	closing_reading(frm) {
+		card_preview_readings(frm);
 	},
 	unit_price(frm) {
 		card_preview_amount(frm);

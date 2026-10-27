@@ -257,6 +257,8 @@ def pull_requests(review: str):
 					"route": "From store",
 					"warehouse": store,
 					"repeat_flag": line.repeat_flag,
+					"fit_status": line.fit_status,
+					"fit_reason": line.fit_reason,
 				},
 			)
 			added += 1
@@ -622,6 +624,7 @@ def submit_needs(equipment: str, items: str | list, notes: str | None = None):
 				"description": (row.get("description") or "")[:140],
 				"qty": flt(row.get("qty")),
 				"reason": (row.get("reason") or "")[:140],
+				"fit_reason": (row.get("fit_reason") or "")[:500],
 			},
 		)
 	doc.insert()

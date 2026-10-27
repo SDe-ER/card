@@ -1,19 +1,35 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+import { getSessionContext } from '../data/session'
 import { __ } from '../i18n'
 
-const items = [
+const profile = { to: { name: 'Profile' }, icon: 'lucide-circle-user', label: __('Profile', [], 'Card Mobile') }
+const operatorItems = [
   { to: { name: 'Home' }, icon: 'lucide-house', label: __('Home', [], 'Card Mobile') },
   { to: { name: 'NewRequest' }, icon: 'lucide-circle-plus', label: __('New request') },
   { to: { name: 'Requests' }, icon: 'lucide-list-checks', label: __('My requests') },
-  { to: { name: 'Profile' }, icon: 'lucide-circle-user', label: __('Profile', [], 'Card Mobile') },
+  profile,
 ]
+// a catalog viewer (Card User) has no requests
+const viewerItems = [
+  { to: { name: 'Catalog' }, icon: 'lucide-book-open', label: __('Catalog', [], 'Card Mobile') },
+  profile,
+]
+// shown once the session is known, so a catalog viewer never sees the operator tabs
+const catalogOnly = ref<boolean | null>(null)
+getSessionContext()
+  .then((ctx) => (catalogOnly.value = !!ctx?.catalog_only))
+  .catch(() => (catalogOnly.value = false))
+const items = computed(() =>
+  catalogOnly.value === null ? [] : catalogOnly.value ? viewerItems : operatorItems,
+)
 </script>
 
 <template>
   <nav
     class="bottom-nav fixed bottom-0 left-1/2 z-10 w-full max-w-[480px] -translate-x-1/2 border-t border-outline-gray-1 bg-surface-base"
   >
-    <ul class="grid grid-cols-4">
+    <ul class="grid" :class="items.length === 4 ? 'grid-cols-4' : 'grid-cols-2'">
       <li v-for="item in items" :key="item.icon">
         <RouterLink
           :to="item.to"

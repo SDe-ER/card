@@ -14,7 +14,7 @@ from frappe.utils import flt, getdate, nowdate
 
 from card.card.report.equipment_diesel_consumption.equipment_diesel_consumption import execute
 from card.diesel import UNALLOCATED, allocate_project_diesel, get_card_diesel
-from card.tests.diesel_price import set_diesel_price, use_fill_price
+from card.tests.diesel_price import approve_fill, set_diesel_price, use_fill_price
 from card.tests.test_controllers import _ensure_masters
 
 
@@ -151,6 +151,7 @@ class TestDieselAllocation(IntegrationTestCase):
 			f.card_equipment = card_equipment
 		use_fill_price(f).insert(ignore_permissions=True)
 		if submit:
+			approve_fill(f)
 			f.submit()
 		f.reload()
 		return f
@@ -324,6 +325,26 @@ class TestDieselAllocation(IntegrationTestCase):
 		self.assertAlmostEqual(d1["litres_estimated"], 100.0)
 		self.assertAlmostEqual(d1["litres_recorded"], 0.0)
 
+	def test_listed_equipment_never_counts_as_recorded(self):
+		# Phase 1 (Owner 2026-10-26): the "equipment filled" list carries no litres; a session fill that
+		# lists equipment is still a project-tank fill split by hours (estimated), never a measurement
+		eq1 = self._make_equipment("EQ1")
+		eq2 = self._make_equipment("EQ2")
+		eq3 = self._make_equipment("EQ3")  # listed as filled, but no card hours in the month
+		self._make_card(eq1, [self._day(2, 10)])  # 10 h
+		self._make_card(eq2, [self._day(2, 10), self._day(3, 10), self._day(4, 10)])  # 30 h
+		f = self._make_fill(litres=400, unit_price=1, submit=False)
+		for eq in (eq1, eq2, eq3):
+			f.append("equipment_filled", {"card_equipment": eq.name, "match_status": "Matched"})
+		f.save(ignore_permissions=True)
+		approve_fill(f)
+		f.submit()
+		alloc = self._alloc()
+		self.assertNotIn(eq3.name, alloc)
+		for eq, litres in ((eq1, 100.0), (eq2, 300.0)):
+			self.assertEqual(flt(alloc[eq.name]["litres_estimated"]), litres)
+			self.assertEqual(flt(alloc[eq.name]["litres_recorded"]), 0.0)
+
 	def test_mixed_month_recorded_plus_estimated_equals_allocated(self):
 		eq1 = self._make_equipment("EQ1")
 		eq2 = self._make_equipment("EQ2")
@@ -396,6 +417,7 @@ class TestDieselAllocation(IntegrationTestCase):
 		self.assertAlmostEqual(flt(f.amount), 175.0)
 
 		# a submitted fill keeps the price it was approved with
+		approve_fill(f)
 		f.submit()
 		set_diesel_price(self.company, 2.5)
 		self.assertAlmostEqual(flt(frappe.db.get_value("Project Diesel Fill", f.name, "unit_price")), 1.75)

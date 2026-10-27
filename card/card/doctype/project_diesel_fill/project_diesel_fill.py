@@ -6,7 +6,7 @@ import json
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, flt, now_datetime
+from frappe.utils import cint, cstr, flt, get_datetime, getdate, now_datetime
 
 from card.company import single_company, validate_equipment_company
 from card.settings import setting
@@ -117,6 +117,65 @@ EXCEPTION = "Exception"
 NEEDS_REVIEW = "Needs Review"
 
 
+# Phase 1 (Owner 2026-10-26): session evidence and the operations review
+# (the review status reuses NEEDS_REVIEW, the same "Needs Review" value as the price source)
+DRAFT = "Draft"
+OPERATIONS_APPROVED = "Operations Approved"
+REJECTED = "Rejected"
+REVIEW_ROLES = ("Card Manager", "System Manager")
+REVIEWED_FIELDS = (
+	"litres",
+	"company",
+	"project",
+	"date",
+	"supplier",
+	"card_equipment",
+	"cost_center",
+	"opening_reading",
+	"closing_reading",
+	"opening_photo",
+	"closing_photo",
+	"opening_totalizer",
+	"closing_totalizer",
+)
+NOT_CHECKABLE = "Not Checkable"
+CONSISTENT = "Consistent"
+INCONSISTENT = "Inconsistent"
+# Measured on PIUSI K700M photos: with all totalizer drums readable, closing - reset differs from the
+# session counter by 0 or 1 litre (QA-Evidence whatsapp-diesel-analysis TOLERANCE-EVIDENCE, 26 pairs)
+TOTALIZER_READ_TOLERANCE = 1
+# Frappe names an unsaved form "new-<doctype scrubbed with dashes>-<hash>"
+NEW_FORM_PREFIX = "new-project-diesel-fill-"
+# FR-086: set by card.diesel_import only, so the source of an imported fill cannot be forged
+# (FR-086b: with the supplier invoice that proves a historical price)
+SOURCE_FIELDS = (
+	"source_key",
+	"source_messages",
+	"source_caption",
+	"supplier_invoice_no",
+	"invoiced_litres",
+	"invoice_unit_price",
+	"delivery_charge_litres",
+	"invoice_evidence",
+)
+
+
+def _equipment_rows(doc):
+	return [(row.card_equipment, row.reported_name, row.match_status) for row in doc.get("equipment_filled")]
+
+
+def totalizer_bounds(value):
+	"""(low, high) litres a totalizer reading can stand for, or None. Unreadable last drums are written
+	as "?" (e.g. "055793?"): each one widens the range by its 0-9 digit, nothing else is assumed."""
+	text = (value or "").strip()
+	known = text.rstrip("?")
+	unknown = len(text) - len(known)
+	if not known.isdigit():
+		return None
+	scale = 10**unknown
+	return int(known) * scale, int(known) * scale + scale - 1
+
+
 def diesel_price(company):
 	"""The diesel price per litre of `company` from Card Settings, or 0."""
 	if not company:
@@ -219,12 +278,19 @@ class ProjectDieselFill(Document):
 		if not self.company:
 			self.company = single_company()  # F.8: default to THE company
 		validate_equipment_company(self, "card_equipment")  # F.8 consistency
+		self._guard_source()
 		self._check_link_values()
 		self._enforce_diesel_supplier()
 		self._apply_price()
+		self._apply_readings()
 		# Amount is litres x unit price; the accounting posting (Purchase Invoice on
 		# the project) is added in a later stage, gated by owner approval.
 		self.amount = flt(flt(self.litres) * flt(self.unit_price), 2)
+		self._check_equipment_mode()
+		self._check_photos()
+		warnings = self._check_totalizer() + self._check_overlaps()
+		self.evidence_warnings = "\n".join(warnings) or None
+		self._guard_review(warnings)
 
 	def on_update(self):
 		audit = self.flags.pop("card_price_audit", None)
@@ -253,6 +319,270 @@ class ProjectDieselFill(Document):
 					"The diesel price of this fill needs a decision before submit: use the company price, or ask {0} to approve an exception."
 				).format(setting("diesel_price_exception_role"))
 			)
+		# Owner 2026-10-26 (Phase 1): the operations review is separate from the accounting submit
+		if self.review_status != OPERATIONS_APPROVED:
+			frappe.throw(_("The diesel fill needs operations approval before submit."))
+
+	def _guard_source(self):
+		"""The source fields (read only on the form) come from the WhatsApp import only, never from a
+		form or REST save, so a fill cannot claim a source key or source photos it was not imported from."""
+		if self.flags.diesel_import:
+			return
+		before = None if self.is_new() else self.get_doc_before_save()
+		if self.is_new() and self.amended_from:
+			# an amendment keeps its original's source (Desk copies it on amend; FR-086b): the imported
+			# session stays out of the posting and keeps its invoice price. The unique source key stays
+			# with the original, so a re-import still finds the session.
+			self.source_key = None
+			if self._inherits_source():
+				before = frappe.db.get_value(self.doctype, self.amended_from, SOURCE_FIELDS, as_dict=True)
+				before.source_key = None
+		for fieldname in SOURCE_FIELDS:
+			if (self.get(fieldname) or None) != ((before.get(fieldname) if before else None) or None):
+				frappe.throw(_("The source of a diesel fill is set by the WhatsApp import only."))
+
+	def _apply_readings(self):
+		"""Meter readings, when given, are the source of the litres (the session counter is reset to
+		zero at the start, so litres = closing - opening). Frappe stores an empty Float as 0, so a
+		closing reading counts only when it is above zero."""
+		if not self._has_closing_reading():
+			return
+		opening = flt(self.opening_reading)
+		closing = flt(self.closing_reading)
+		if closing < opening:
+			frappe.throw(_("The closing reading cannot be lower than the opening reading."))
+		litres = flt(closing - opening, self.precision("litres"))
+		if self.litres and flt(self.litres, self.precision("litres")) != litres:
+			frappe.msgprint(
+				_("Litres set to {0} from the meter readings.").format(litres), indicator="orange", alert=True
+			)
+		self.litres = litres
+
+	def _has_closing_reading(self):
+		return flt(self.closing_reading) > 0
+
+	def _check_equipment_mode(self):
+		"""One measured equipment (card_equipment) or a list of filled equipment, never both: the list
+		carries no litres, so the allocation stays recorded (one equipment) or estimated (hours split)."""
+		if self.card_equipment and self.equipment_filled:
+			frappe.throw(
+				_("Choose either one equipment for the whole fill or the list of filled equipment, not both.")
+			)
+		listed = [row.card_equipment for row in self.equipment_filled if row.card_equipment]
+		companies = (
+			dict(
+				frappe.get_all(
+					"Card Equipment",
+					filters={"name": ["in", listed]},
+					fields=["name", "company"],
+					as_list=True,
+				)
+			)
+			if listed
+			else {}
+		)
+		for row in self.equipment_filled:
+			if row.match_status == "Matched" and not row.card_equipment:
+				frappe.throw(_("Row {0}: a matched row needs its equipment.").format(row.idx))
+			if row.card_equipment:
+				company = companies.get(row.card_equipment)
+				if company and self.company and company != self.company:
+					frappe.throw(
+						_("Row {0}: company {1} does not match the equipment's company {2}.").format(
+							row.idx, self.company, company
+						)
+					)
+
+	def _check_photos(self):
+		"""Meter photos are private files uploaded to this fill, and the same photo (same file or same
+		bytes) never proves two live fills. Checked when a photo or the company changes."""
+		if not (
+			self.is_new()
+			or self.has_value_changed("opening_photo")
+			or self.has_value_changed("closing_photo")
+			or self.has_value_changed("company")
+		):
+			return
+		urls = [u for u in (self.opening_photo, self.closing_photo) if u]
+		if not urls:
+			return
+		temporary = self.get("__temporary_name") if self.is_new() else None
+		if temporary and not cstr(temporary).startswith(NEW_FORM_PREFIX):
+			# not an unsaved-form name (e.g. another fill's name): never let Frappe relink files from it
+			self.__dict__.pop("__temporary_name", None)
+			temporary = None
+		hashes = {}
+		for url in urls:
+			filters = {"file_url": url, "is_private": 1, "attached_to_doctype": self.doctype}
+			if temporary:
+				# uploaded on the unsaved form: attached to its temporary name until insert, and only the
+				# uploader's own file (the temporary name comes from the client)
+				filters.update({"attached_to_name": temporary, "owner": frappe.session.user})
+			else:
+				filters["attached_to_name"] = self.name
+			row = frappe.db.get_value("File", filters, ["name", "content_hash"], as_dict=True)
+			if not row and self._amends_own_cancelled_fill():
+				# an amendment keeps the cancelled original's evidence; Frappe copies its attachments after insert
+				filters.pop("owner", None)
+				filters["attached_to_name"] = self.amended_from
+				row = frappe.db.get_value("File", filters, ["name", "content_hash"], as_dict=True)
+			if not url.startswith("/private/files/") or not row:
+				# Frappe shares one URL and one public state between files with the same bytes
+				frappe.throw(_("Meter photos must be private files uploaded to this diesel fill."))
+			hashes[url] = row.content_hash
+		if len(urls) == 2 and (
+			urls[0] == urls[1] or (hashes[urls[0]] and hashes[urls[0]] == hashes[urls[1]])
+		):
+			frappe.throw(_("The opening and closing meter photos are the same file."))
+		same = set(urls)
+		known = [h for h in hashes.values() if h]
+		if known:
+			same.update(frappe.get_all("File", filters={"content_hash": ["in", known]}, pluck="file_url"))
+		fill = frappe.qb.DocType("Project Diesel Fill")
+		other = (
+			frappe.qb.from_(fill)
+			.select(fill.name, fill.company)
+			.where(fill.docstatus < 2)
+			.where(fill.name != (self.name or ""))
+			# a rejected entry does not hold its photo: the corrected fill may use it
+			.where(fill.review_status.isnull() | (fill.review_status != REJECTED))
+			.where(fill.opening_photo.isin(list(same)) | fill.closing_photo.isin(list(same)))
+			.limit(1)
+			.run(as_dict=True)
+		)
+		if other and other[0].company == self.company:
+			frappe.throw(_("This meter photo is already used by diesel fill {0}.").format(other[0].name))
+		if other:
+			# never name a record of another company
+			frappe.throw(_("This meter photo is already used by another diesel fill."))
+
+	def _inherits_source(self):
+		"""SR-1 (security review 2026-10-27): a new fill takes the source of its amended_from only as a
+		real amendment: a cancelled fill of the same company the user may read and amend, and the only
+		live amendment of it. Frappe checks only that amended_from is cancelled, so a REST insert could
+		otherwise copy an imported fill's source to any number of new fills and keep them out of the
+		posting."""
+		return bool(
+			self._amends_own_cancelled_fill()
+			and frappe.has_permission(self.doctype, "amend", doc=self.amended_from)
+			# called for a new fill only, so every row found is another amendment (Frappe gives a second
+			# amendment of the same fill the same name, so the name cannot tell them apart)
+			and not frappe.db.exists(self.doctype, {"amended_from": self.amended_from, "docstatus": ["<", 2]})
+		)
+
+	def _amends_own_cancelled_fill(self):
+		"""A new amendment of a cancelled fill of the same company that the user may read."""
+		if not (self.is_new() and self.amended_from):
+			return False
+		original = frappe.db.get_value(
+			self.doctype, self.amended_from, ["docstatus", "company"], as_dict=True
+		)
+		return bool(
+			original
+			and original.docstatus == 2
+			and original.company == self.company
+			and frappe.has_permission(self.doctype, "read", doc=self.amended_from)
+		)
+
+	def _check_totalizer(self):
+		"""Advisory check of the session against the meter's cumulative totalizer (TOTAL drums)."""
+		self.totalizer_check = NOT_CHECKABLE
+		if not self._has_closing_reading():
+			return []
+		opening = totalizer_bounds(self.opening_totalizer)
+		closing = totalizer_bounds(self.closing_totalizer)
+		if not (opening and closing):
+			return []
+		session = flt(self.closing_reading) - flt(self.opening_reading)
+		low, high = closing[0] - opening[1], closing[1] - opening[0]
+		if low - TOTALIZER_READ_TOLERANCE <= session <= high + TOTALIZER_READ_TOLERANCE:
+			self.totalizer_check = CONSISTENT
+			return []
+		self.totalizer_check = INCONSISTENT
+		return [
+			_("Totalizer moved {0} to {1} litres, the session shows {2}.").format(
+				max(low, 0), max(high, 0), flt(session)
+			)
+		]
+
+	def _check_overlaps(self):
+		"""Warnings only: a second session on the same project and day is allowed (never a duplicate by
+		itself), and photo times out of order or on another day need a look."""
+		warnings = []
+		if self.project and self.date:
+			other = frappe.get_all(
+				"Project Diesel Fill",
+				filters={
+					"project": self.project,
+					"date": self.date,
+					"docstatus": ["<", 2],
+					"name": ["!=", self.name or ""],
+				},
+				pluck="name",
+				limit=1,
+			)
+			if other:
+				warnings.append(
+					_("Another diesel fill exists for this project on this date: {0}.").format(other[0])
+				)
+		if self.opening_photo_time and self.closing_photo_time:
+			if get_datetime(self.closing_photo_time) < get_datetime(self.opening_photo_time):
+				warnings.append(_("The closing photo time is before the opening photo time."))
+		if self.closing_photo_time and self.date and getdate(self.closing_photo_time) != getdate(self.date):
+			warnings.append(_("The closing photo date differs from the fill date."))
+		return warnings
+
+	def _guard_review(self, warnings):
+		"""The operations review is decided on the server: only the review roles approve or reject, an
+		approval needs the closing photo and reading, the reviewer is the session user, and a material
+		change after approval sends the fill back to review."""
+		before = None if self.is_new() else self.get_doc_before_save()
+		old = (before.review_status if before else None) or DRAFT
+		self.review_status = self.review_status or DRAFT
+		if before is None and self.amended_from:
+			# like a price exception, the cancelled fill's review is not a review of its amendment
+			self.review_status = DRAFT
+		reset = (
+			before is not None
+			and old == OPERATIONS_APPROVED
+			and self.review_status == OPERATIONS_APPROVED
+			and (
+				any(self.has_value_changed(f) for f in REVIEWED_FIELDS)
+				or _equipment_rows(before) != _equipment_rows(self)
+			)
+		)
+		if reset:
+			# any user's material edit voids the approval; that needs no review role
+			self.review_status = NEEDS_REVIEW
+			frappe.msgprint(
+				_("The fill changed after operations approval and needs review again."), indicator="orange"
+			)
+		if self.review_status != old or (before is None and self.review_status != DRAFT):
+			if (
+				not reset
+				and {self.review_status, old} & {OPERATIONS_APPROVED, REJECTED}
+				and not (set(REVIEW_ROLES) & set(frappe.get_roles()))
+			):
+				frappe.throw(
+					_("Only {0} may approve or reject the operations review.").format(
+						", ".join(REVIEW_ROLES)
+					),
+					frappe.PermissionError,
+				)
+			if self.review_status == OPERATIONS_APPROVED and not (
+				self.closing_photo and self._has_closing_reading()
+			):
+				frappe.throw(_("Operations approval needs the closing meter photo and reading."))
+			if self.review_status in (OPERATIONS_APPROVED, REJECTED):
+				self.ops_reviewed_by, self.ops_reviewed_on = frappe.session.user, now_datetime()
+			else:
+				self.ops_reviewed_by = self.ops_reviewed_on = None
+		else:
+			# never taken from the client
+			self.ops_reviewed_by = before.ops_reviewed_by if before else None
+			self.ops_reviewed_on = before.ops_reviewed_on if before else None
+		if self.review_status == DRAFT and (warnings or self.totalizer_check == INCONSISTENT):
+			self.review_status = NEEDS_REVIEW
 
 	def _apply_price(self):
 		"""FR-002 price lock (Owner Q1–Q4). Submitted and cancelled fills never reach validate."""
@@ -281,12 +611,28 @@ class ProjectDieselFill(Document):
 			# a plain save (form or REST) cannot end an exception: it changes the price, so it needs a reason
 			frappe.throw(_("To end a price exception, use «Remove price exception» and give a reason."))
 		if self.flags.use_company_price or self.flags.remove_price_exception:
+			invoice_price = self._invoice_price()
+			if invoice_price and self.flags.use_company_price:
+				frappe.throw(
+					_("This fill keeps the price of its supplier invoice {0}.").format(
+						self.supplier_invoice_no
+					)
+				)
+			if invoice_price:
+				# FR-086b: an imported historical session returns to its invoice price, waiting again
+				self.unit_price = invoice_price
+				self.price_source = NEEDS_REVIEW
+				self._note_price_change(before, self.flags.price_change_reason)
+				return
 			self._take_company_price(company_price)
 			self._note_price_change(before, self.flags.price_change_reason)
 			return
 		if before is None:
 			if self.amended_from and price != company_price:
 				self._needs_review(company_price)  # an amended copy keeps the original price
+				return
+			if self.flags.historical_price:
+				self._keep_invoice_price(price)
 				return
 			if price and price != company_price:
 				self._refuse_typed_price(company_price)
@@ -315,6 +661,15 @@ class ProjectDieselFill(Document):
 				)
 			return
 		# a draft saved before the price lock, or still waiting for a decision: never repriced silently
+		if price > 0 and price == self._invoice_price():
+			self.price_source = NEEDS_REVIEW
+			frappe.msgprint(
+				_("This draft keeps the price {0} of supplier invoice {1}; {2} approves it.").format(
+					price, self.supplier_invoice_no, setting("diesel_price_exception_role")
+				),
+				indicator="orange",
+			)
+			return
 		if price > 0 and price == company_price:
 			self.price_source = COMPANY_PRICE
 		else:
@@ -423,6 +778,24 @@ class ProjectDieselFill(Document):
 			)
 		self.unit_price = company_price
 		self.price_source = COMPANY_PRICE
+
+	def _invoice_price(self):
+		"""The price per litre of the imported session's supplier invoice (FR-086b), or 0."""
+		if not (self.supplier_invoice_no or "").strip():
+			return 0
+		return flt(self.invoice_unit_price, self.precision("unit_price") or 2)
+
+	def _keep_invoice_price(self, price):
+		"""FR-086b (Owner 2026-10-27): an imported historical session keeps the price of its supplier
+		invoice, never the current company price. It waits as Needs Review until the price exception
+		role approves it (no automatic price approval)."""
+		if not self.flags.diesel_import:
+			frappe.throw(_("A historical diesel price is set by the WhatsApp import only."))
+		if not (self.supplier_invoice_no or "").strip():
+			frappe.throw(_("A historical diesel price needs its supplier invoice number."))
+		if price <= 0 or price != self._invoice_price():
+			frappe.throw(_("A historical diesel price must be the price of its supplier invoice."))
+		self.price_source = NEEDS_REVIEW
 
 	def _needs_review(self, company_price):
 		self.price_source = NEEDS_REVIEW

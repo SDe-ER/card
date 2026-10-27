@@ -15,23 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Fixed
-- **The application name is CARD in every language** (WS-013, Owner decision 2026-10-26). The record
-  names stay `Card` (frappe names the Workspace, Workspace Sidebar and Desktop Icon after their
-  label, so a rename would break `/app/card`); the display name comes from translations instead:
-  msgid `Card` maps to `CARD` in every CARD locale, and CARD now ships a locale with that one entry
-  for each of the other 38 languages frappe translates (before, for example, fr showed "Carte" and
-  fa "کارت"). The apps screen titles are `CARD` and `CARD Mobile`, and the
-  CARD group in the Supplier, Customer, Asset and Project connections shows `CARD`.
-  Patch `v4_1_3.remove_app_name_translations` removes the site `Translation` rows whose source text
-  is exactly `Card` with no context (for example ar `Card` -> `كارت`), which override the app's
-  locale files; every other Translation stays, and frappe keeps each removed row as a Deleted
-  Document. Idempotent. Tests: `test_i18n.py::TestCardNameNotTranslated`,
-  `test_app_name_translation_patch.py`.
-  Impact: no permission, accounting, API or schema change. The frappe field label "Card" (Number
-  Card Link) uses the same msgid and also shows `CARD`. Rollback: the previous release restores the
-  old locale files; a removed Translation can be restored from its Deleted Document.
-
 ### Documentation
 - **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
   (equipment, transport, project assignment, monthly card, daily hours), in English with an Arabic summary.
@@ -41,7 +24,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   code, permissions, accounting, data or the API. Rollback: revert the commit.
 
 ### Planned
-- **Full CARD Mobile** (from v4.2.0, design approved 2026-10-19): role-based navigation on real
+- **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
   a different manager (separation of duties enforced on the server); equipment, projects,
   assignment, transport, monthly cards, diesel, materials, tools and custody, suppliers, costs and
@@ -58,6 +41,137 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
+
+## [4.2.0] — 2026-10-27
+
+### Added
+- **Import of reviewed WhatsApp diesel sessions as draft fills** (FR-086, Owner 2026-10-26; builds on
+  FR-085). New server function `card.diesel_import.import_sessions(manifest, photos_dir, dry_run=1)`,
+  run by a Card Manager or System Manager with `bench execute` (not a web endpoint). Each session in
+  the JSON manifest becomes a draft `Project Diesel Fill` with its opening/closing meter photos as
+  private files attached to the fill; the photos must match the SHA-256 in the manifest and the
+  photo names cannot leave the given folder. One fill per source key: new read-only fields
+  `source_key` (unique), `source_messages` (message ids and the original photo SHA-256, since the
+  site may strip EXIF on upload) and `source_caption` keep the source; only the import may set
+  them (a form or REST save that sets or changes them is refused), and a re-run skips every key
+  that exists in any state. The fill's own validation applies (readings give the litres,
+  duplicate photos are refused, totalizer check, review status). The price is always the company
+  price: a session without a price or with another price is refused. Reported equipment is kept as names only
+  (match status Unmatched, no litres). The import never approves, submits or posts, and a failed
+  session leaves no fill and no file. Dry run is the default and keeps nothing. Impact: no new
+  permission, endpoint or accounting effect; schema: 3 new columns on `Project Diesel Fill`, no
+  patch. Rollback: revert the commit; imported drafts stay until deleted by a manager. Tests:
+  `card/tests/test_diesel_import.py`.
+- **Historical price of imported diesel sessions** (FR-086b, Owner design approval 2026-10-27,
+  option A). A session in the import manifest may carry its own supplier invoice (`invoice`: number,
+  quantity, price per litre, delivery charge litres, file and SHA-256). The fill then keeps the
+  invoice price instead of the current company price and waits as `Needs Review`. Only the price
+  exception role (Card Settings) approves it with the existing price exception and a reason; there
+  is no automatic price approval, and a Card Manager cannot change the price. The exception role
+  cannot move it to the company price either; removing its exception returns it to the invoice
+  price as Needs Review. An amendment keeps the source and invoice evidence of its original (the
+  unique `source_key` stays with the original) and stays out of the posting; only a real amendment
+  inherits it (cancelled original of the same company, amend permission, the only live amendment;
+  security review SR-1). New read-only
+  evidence fields on `Project Diesel Fill`: `supplier_invoice_no`, `invoiced_litres`,
+  `invoice_unit_price`, `delivery_charge_litres`, `invoice_evidence`; only the import sets them. The
+  litres and the amount stay the meter's: the delivery charge billed as litres is evidence only.
+  The monthly posting (`card/gl/posting.py`) now leaves out every imported fill and its amendments (`source_key` or `source_messages` set):
+  its supplier's own invoice is the Purchase Invoice, and its price includes VAT. Impact: no new
+  permission or endpoint; accounting: imported fills are never posted by CARD; schema: 5 new
+  columns, no patch. Rollback: revert the commit. Tests: `card/tests/test_diesel_import.py`,
+  `card/tests/test_s3_posting.py`.
+- **Diesel fill as a metered session with evidence and an operations review** (FR-085, Owner Phase 1
+  approval 2026-10-26). `Project Diesel Fill` gets opening/closing meter photos, readings,
+  totalizer readings and photo times; when a closing reading is given, the litres are
+  `closing − opening`. A totalizer check (Not Checkable / Consistent / Inconsistent) compares the
+  session with the meter's cumulative counter: exact readings may differ by 1 litre (measured on
+  real photos), and an unreadable last drum widens the range by its own 0–9 digit only. It is
+  advisory and never approves a fill. Meter photos must be private files uploaded to the fill
+  itself (on an unsaved form: the uploader's own file under the form's temporary name; a
+  client-sent temporary name of another record is ignored). The same photo (same file or same
+  bytes) cannot prove two live fills; a rejected fill releases its photo, and a fill of another
+  company is never named. A second fill on the same project and day is
+  allowed with a warning. New child table `Diesel Fill Equipment` lists the filled equipment
+  (equipment, name as reported, match status, notes) **without litres**; it is exclusive with
+  the single `card_equipment`, and the diesel allocation and posting ignore it. Allocation stays
+  recorded (one equipment) or estimated (hours split). New operations review: `review_status`
+  (Draft / Needs Review / Operations Approved / Rejected, permlevel 1). Only Card Manager or
+  System Manager approve or reject it; approval needs the closing photo and reading; the reviewer
+  and time are set on the server; a material edit after approval (litres, readings, photos,
+  totalizers, company, project, date, supplier, equipment, cost center or the equipment list)
+  returns the fill to Needs Review.
+  **Behaviour change:** submit now needs Operations Approved (before: any valid fill could be
+  submitted by Card Manager). Impact: new permlevel-1 DocPerm rows on `Project Diesel Fill`
+  (Card Manager and System Manager write; Card User and Accounts Manager read); no change to the
+  price lock, allocation, posting, accounting or API; schema: 15 new columns + 1 child table, no
+  patch. Existing fills keep their data, and submitted fills are never re-validated. Rollback:
+  revert the merge commit. The new columns stay in the database until removed by hand. Tests:
+  `test_diesel_session_evidence.py` (new), `test_diesel_allocation.py`
+  (`test_listed_equipment_never_counts_as_recorded`), and the existing fill tests approve before
+  submit (`card/tests/diesel_price.py::approve_fill`).
+- **Parts fitment in the catalog search, catalog phase 2b (FR-078; Owner decisions A–D, 2026-10-23; PR #110)**: the catalog
+  shows each Item's fit for a chosen machine, in four separate states: Confirmed (for this machine, or for its
+  model), Not compatible (warning), Pending technical review, and No fitment record. The machine's decided row wins
+  over its model's; a pending row is never a fit (O6). "Fits this machine" lists only confirmed fits, filtered and
+  paged on the server; Not compatible items stay in the normal search with a warning. New GET endpoints
+  `card.fitment.fit_for` (up to 50 Items) and `card.fitment.machines` (machines the caller may use);
+  `card.catalog.search` takes `equipment` and `fits` (unchanged answer without them). A machine is used only by a
+  user who may read it (DocPerms, User Permissions, company isolation) or by its own operator. Results carry the fit
+  and the model name only, never evidence, reasons, reviewers or notes (Q8). **Card User** opens CARD Mobile as a
+  read-only catalog viewer (decision A): the new Catalog page and his profile only, no Employee needed; request
+  endpoints still refuse him, and he still has no access to fitment rows. Request lines (Q10, decisions C and D):
+  `Equipment Needs Request Item` gets `fit_status` (read only) and `fit_reason`; at submit every picked Item without
+  a confirmed fit needs the reason (CARD Mobile, the older `/equipment-needs` page and Desk); the review line shows
+  both. Proposals stay in Desk (decision B). Nothing in search, requests or reviews changes a fitment row (Q6).
+  Translations: ar for all new strings, bn / hi / ur for the operator strings. Impact: two new columns on each of
+  `Equipment Needs Request Item` and `Equipment Needs Review Item` (DocType sync); Card User gets CARD Mobile catalog
+  access (Owner decision A); no ERPNext DocType, role or permission change; no data patch; no accounting change.
+  Rollback: revert the merge; the new columns stay (empty or kept); Card User loses the catalog page.
+
+### Fixed
+- **An equipment assignment can no longer stop covering a submitted card day** (found in the
+  2026-10-26 backlog triage, #43). Submitting an Equipment Transport ends the machine's open
+  project assignment on the transport date; a backdated transport, or a manual edit of the
+  assignment (later start, earlier end, other project or equipment, delete), left the submitted
+  card days of that project outside every assignment, for the machine and for a unit card that
+  lists it as a component (only the transport cancel path checked card days). The save is now
+  refused and names the card and the day (`CardEquipmentAssignment.validate` / `on_trash`,
+  `_refuse_dropped_card_days`; the machine row lock of D4 and a locking read). A transport on or
+  after the last submitted card day is unchanged. No data, permission, accounting or API change;
+  existing assignments are not rechecked. Known limit: a card submitted at the same moment as the
+  transport is not locked against it (card validation reads assignments without a lock).
+  Rollback: revert the merge commit. Tests: `test_transfer.py` (3 new).
+- **The application name is CARD in every language** (WS-013, Owner decision 2026-10-26). The record
+  names stay `Card` (frappe names the Workspace, Workspace Sidebar and Desktop Icon after their
+  label, so a rename would break `/app/card`); the display name comes from translations instead:
+  msgid `Card` maps to `CARD` in every CARD locale, and CARD now ships a locale with that one entry
+  for each of the other 38 languages frappe translates (before, for example, fr showed "Carte" and
+  fa "کارت"). The apps screen titles are `CARD` and `CARD Mobile`, and the
+  CARD group in the Supplier, Customer, Asset and Project connections shows `CARD`.
+  Patch `v4_1_3.remove_app_name_translations` removes the site `Translation` rows whose source text
+  is exactly `Card` with no context (for example ar `Card` -> `كارت`), which override the app's
+  locale files; every other Translation stays, and frappe keeps each removed row as a Deleted
+  Document. Idempotent. Tests: `test_i18n.py::TestCardNameNotTranslated`,
+  `test_app_name_translation_patch.py`.
+  Impact: no permission, accounting, API or schema change. The frappe field label "Card" (Number
+  Card Link) uses the same msgid and also shows `CARD`. Rollback: the previous release restores the
+  old locale files; a removed Translation can be restored from its Deleted Document.
+
+### Migration
+
+One new patch, `card.patches.v4_1_3.remove_app_name_translations` (removes only the site `Translation`
+rows whose source text is exactly `Card` with no context; frappe keeps each as a Deleted Document;
+idempotent). DocType sync adds: 23 columns on `Project Diesel Fill` (session evidence, operations
+review, import source with a unique `source_key`, supplier invoice fields), the new child table
+`Diesel Fill Equipment`, and `fit_status` / `fit_reason` on `Equipment Needs Request Item` and
+`Equipment Needs Review Item`. No data is rewritten: existing diesel fills keep their values and get
+review status Draft by the column default. Behaviour change: a diesel fill now needs Operations
+Approved (Card Manager or System Manager) before submit. Rollback: v4.1.2 code runs on the migrated
+database (the new columns and the child table are ignored by it); a removed Translation can be
+restored from its Deleted Document, or restore the pre-upgrade backup.
+
+---
 
 ## [4.1.2] — 2026-10-25
 

@@ -178,7 +178,7 @@ All screenshots show CARD v4.1.2 in the ERPNext Desk with fictional test data.
 
 ## Features
 
-Everything below is available in the latest release, **v4.1.2**. The complete inventory of each version is
+Everything below is available in the latest release, **v4.2.0**. The complete inventory of each version is
 in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 ### Equipment
@@ -222,7 +222,7 @@ in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 > [!IMPORTANT]
 > **In v4.1.0, not yet tested on real phones.** v4.1.0 is the foundation of CARD Mobile (operator
-> requests). The full phone app for CARD is planned from v4.2.0.
+> requests). The full phone app for CARD is planned for a later release.
 
 CARD Mobile is a Progressive Web App (PWA) served by CARD itself at `/cdms`. It is built the same way as the
 Frappe HR mobile app:
@@ -333,6 +333,7 @@ request with CI and review. Every release has a full documentation page.
 
 | Version | Date | Highlights |
 |---|---|---|
+| [v4.2.0](docs/releases/v4.2.0.md) | 2026-10-27 | Diesel fill as a metered session with meter photos and an operations review; WhatsApp diesel session import; parts fitment in the catalog; app name CARD |
 | [v4.1.2](docs/releases/v4.1.2.md) | 2026-10-25 | Full launcher navigation on upgraded sites; simpler Equipment Transport form; English for stored Arabic values |
 | [v4.1.1](docs/releases/v4.1.1.md) | 2026-10-25 | Tool Custody item search fix: Card Manager no longer needs an ERPNext Item permission for New Handover |
 | [v4.1.0](docs/releases/v4.1.0.md) | 2026-10-25 | First production go-live candidate: unique chassis/plate numbers, upgrade from v1.0.1 rehearsed, isolation and concurrency fixes |

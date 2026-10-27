@@ -16,7 +16,7 @@ from card.card.doctype.project_diesel_fill.project_diesel_fill import (
 	remove_price_exception,
 	use_company_price,
 )
-from card.tests.diesel_price import set_diesel_price
+from card.tests.diesel_price import approve_fill, set_diesel_price
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_settings_wiring import _role_user, _set
 
@@ -350,6 +350,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 
 	def test_company_price_change_never_touches_submitted_fills(self):
 		f = self._new()
+		approve_fill(f)
 		f.submit()
 		set_diesel_price(self.company, 3)
 		self.assertEqual(flt(frappe.db.get_value("Project Diesel Fill", f.name, "unit_price")), 2)
@@ -375,6 +376,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		self._as(self.card_user, f.save)
 		f.reload()
 		self.assertEqual((flt(f.unit_price), flt(f.amount), f.price_source), (2, 300, "Company Price"))
+		approve_fill(f)
 		f.submit()  # the draft is final at the price it was created with
 		self.assertEqual(flt(frappe.db.get_value("Project Diesel Fill", f.name, "unit_price")), 2)
 
@@ -422,6 +424,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		f.reload()
 		self.assertEqual(flt(f.unit_price), 2.1)  # never repriced silently
 		self.assertEqual(f.price_source, "Needs Review")
+		approve_fill(f)
 		with self.assertRaises(frappe.ValidationError):
 			f.submit()
 		f.reload()
@@ -450,6 +453,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 			),
 			comments,
 		)
+		approve_fill(f)
 		f.submit()
 		self.assertEqual(f.docstatus, 1)
 
@@ -459,6 +463,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		self._as(self.accountant, f.save)
 		f.reload()
 		self.assertEqual((flt(f.unit_price), f.price_source), (2.1, "Exception"))
+		approve_fill(f)
 		f.submit()
 
 	def test_old_draft_matching_company_price_passes(self):
@@ -479,6 +484,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 
 	def test_amended_copy_keeps_original_price_until_decided(self):
 		f = self._new()
+		approve_fill(f)
 		f.submit()
 		set_diesel_price(self.company, 3)
 		f.cancel()
@@ -532,6 +538,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		f.update({"price_exception": 1, "unit_price": 0, "exception_reason": "free delivery"})
 		self._as(zero_user, f.save)
 		f.reload()
+		approve_fill(f)
 		f.submit()
 		f.cancel()
 		a = frappe.copy_doc(f)
@@ -561,6 +568,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		f.update({"price_exception": 1, "unit_price": 2.4, "exception_reason": "invoice"})
 		self._as(self.accountant, f.save)
 		f.reload()
+		approve_fill(f)
 		f.submit()
 		f.cancel()
 		copied = frappe.copy_doc(f)

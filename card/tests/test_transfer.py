@@ -211,6 +211,97 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		t.reload()
 		self.assertEqual(t.docstatus, 1)
 
+	# ---- 6b. an assignment never stops covering a submitted card day ----
+	def _refused(self, action):
+		# a refused write leaves its rows in the test transaction (a request rolls back)
+		frappe.db.savepoint("card_refused")
+		with self.assertRaises(frappe.ValidationError):
+			action()
+		frappe.db.rollback(save_point="card_refused")
+
+	def _submitted_card(self, equipment, project, work_days):
+		card = self._card(equipment, project, work_days)
+		card.insert(ignore_permissions=True)
+		card.submit()
+		return card
+
+	def _move(self, equipment, day, destination="Project", project=None):
+		t = frappe.new_doc("Equipment Transport")
+		t.equipment = equipment
+		t.destination_type = destination
+		t.project = project
+		t.date = self._d(day)
+		t.company = self.company
+		if destination == "Workshop":
+			shop = frappe.new_doc("Location")
+			shop.location_name = "TEST-TR-SHOP-" + frappe.generate_hash(length=8)
+			shop.insert(ignore_permissions=True)
+			t.destination_location = shop.name
+			t.cost_borne_by = "Equipment Supplier"  # no charge, so no cost center needed
+		else:
+			t.transport_supplier = self.supplier
+			t.amount = 100
+		t.insert(ignore_permissions=True)
+		t.submit()
+		return t
+
+	def test_backdated_transport_refused_under_submitted_card_days(self):
+		proj_a, proj_b = self._project("A"), self._project("B")
+		eq = self._equipment(current_project=proj_a)
+		a_old = self._assign(eq.name, proj_a, 1)
+		self._submitted_card(eq.name, proj_a, [12, 15])
+
+		self._refused(lambda: self._move(eq.name, 10, project=proj_b))
+		self._refused(lambda: self._move(eq.name, 10, destination="Workshop"))
+		self.assertFalse(frappe.db.get_value("Card Equipment Assignment", a_old.name, "to_date"))
+		self.assertFalse(self._assignments(eq.name, proj_b))
+
+		# the last card day is the move day: the old assignment still covers it
+		self._move(eq.name, 15, project=proj_b)
+		self.assertEqual(
+			getdate(frappe.db.get_value("Card Equipment Assignment", a_old.name, "to_date")),
+			getdate(self._d(15)),
+		)
+
+	def test_assignment_edit_cannot_drop_submitted_card_days(self):
+		proj_a, proj_b = self._project("A"), self._project("B")
+		eq = self._equipment(current_project=proj_a)
+		a = self._assign(eq.name, proj_a, 5)
+		self._submitted_card(eq.name, proj_a, [12])
+
+		def edit(**values):
+			doc = frappe.get_doc("Card Equipment Assignment", a.name)
+			doc.update(values)
+			doc.save(ignore_permissions=True)
+
+		self._refused(lambda: edit(to_date=self._d(11)))
+		self._refused(lambda: edit(from_date=self._d(13)))
+		self._refused(lambda: edit(project=proj_b))
+		self._refused(lambda: frappe.delete_doc("Card Equipment Assignment", a.name, ignore_permissions=True))
+		edit(to_date=self._d(12))  # still covers the card day
+		self.assertEqual(
+			getdate(frappe.db.get_value("Card Equipment Assignment", a.name, "to_date")), getdate(self._d(12))
+		)
+
+	def test_component_assignment_keeps_its_unit_card_days(self):
+		proj_a = self._project("A")
+		comp = self._equipment(name_prefix="TEST-TR-COMP", is_unit_component=1)
+		unit = self._equipment(
+			name_prefix="TEST-TR-UNIT", is_unit=1, components=[{"component": comp.name, "role": "R"}]
+		)
+		comp_a = self._assign(comp.name, proj_a, 1)
+		self._assign(unit.name, proj_a, 1)
+		self._submitted_card(unit.name, proj_a, [12])
+
+		def end_on(day):
+			doc = frappe.get_doc("Card Equipment Assignment", comp_a.name)
+			doc.to_date = self._d(day)
+			doc.save(ignore_permissions=True)
+
+		# the unit card's day 12 needs the component on the project too
+		self._refused(lambda: end_on(10))
+		end_on(12)
+
 	# ---- 7. clean cancel reverses the transfer ----
 	def test_cancel_reverses(self):
 		proj_a, proj_b = self._project("A"), self._project("B")

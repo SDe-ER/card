@@ -3501,6 +3501,72 @@ msgstr "إثبات التوافق"
 msgid "Review record"
 msgstr "سجل المراجعة"
 
+#: frontend/src/components/FitBadge.vue
+msgid "Confirmed for this machine"
+msgstr "مؤكد لهذه المعدة"
+
+#: frontend/src/components/FitBadge.vue
+msgid "Confirmed for model {0}"
+msgstr "مؤكد للموديل {0}"
+
+#: frontend/src/components/FitBadge.vue
+msgid "Not compatible with this machine"
+msgstr "غير متوافق مع هذه المعدة"
+
+#: frontend/src/components/FitBadge.vue
+msgid "Fit pending technical review"
+msgstr "التوافق قيد المراجعة الفنية"
+
+#: frontend/src/components/FitBadge.vue
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "No fitment record"
+msgstr "لا يوجد سجل توافق"
+
+#: frontend/src/components/CatalogDialog.vue
+msgid "Fits this machine"
+msgstr "يركب على هذه المعدة"
+
+#: frontend/src/components/ItemPicker.vue
+#: card/www/equipment-needs/index.py
+msgid "Why this item without a confirmed fit?"
+msgstr "لماذا هذا الصنف بدون توافق مؤكد؟"
+
+#: frontend/src/pages/NewRequest.vue
+msgid "Line {0}: enter why you need an item without a confirmed fit."
+msgstr "السطر {0}: اكتب لماذا تحتاج صنفًا بدون توافق مؤكد."
+
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.py
+msgid "Row {0}: {1} has no confirmed fit for this machine ({2}); enter the reason."
+msgstr "السطر {0}: الصنف {1} ليس له توافق مؤكد مع هذه المعدة ({2})؛ اكتب السبب."
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Not compatible"
+msgstr "غير متوافق"
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Pending review"
+msgstr "قيد المراجعة"
+
+#: card/fitment.py
+msgid "Send a list of at most {0} items."
+msgstr "أرسل قائمة من {0} صنفًا كحد أقصى."
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Fit for machine"
+msgstr "التوافق مع المعدة"
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Reason for an item without a confirmed fit"
+msgstr "سبب صنف بدون توافق مؤكد"
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Confirmed for machine"
+msgstr "مؤكد للمعدة"
+
+#: card/card/doctype/equipment_needs_request_item/equipment_needs_request_item.json
+msgid "Confirmed for model"
+msgstr "مؤكد للموديل"
+
 #. Label of the serial_no_key (Data) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Chassis number key"
@@ -3702,3 +3768,271 @@ msgstr "، "
 msgctxt "Card"
 msgid "; "
 msgstr "؛ "
+
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.py
+msgid "Submitted card {0} has an operation day of equipment {1} on project {2} on {3}, outside the assignment after this change. Keep the day in the assignment (for a transport, use a later date)."
+msgstr "الكارت المعتمد {0} فيه يوم تشغيل للمعدة {1} على المشروع {2} بتاريخ {3} يقع خارج فترة التخصيص بعد هذا التعديل. أبقِ اليوم داخل التخصيص (وفي النقل استخدم تاريخًا أحدث)."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Session evidence"
+msgstr "أدلة جلسة التعبئة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Opening meter photo"
+msgstr "صورة العداد عند البداية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Opening reading"
+msgstr "قراءة البداية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Opening totalizer"
+msgstr "العداد التراكمي عند البداية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Opening photo time"
+msgstr "وقت صورة البداية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Closing meter photo"
+msgstr "صورة العداد عند النهاية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Closing reading"
+msgstr "قراءة النهاية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Closing totalizer"
+msgstr "العداد التراكمي عند النهاية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Closing photo time"
+msgstr "وقت صورة النهاية"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Photo location"
+msgstr "موقع التصوير"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Evidence check"
+msgstr "فحص الأدلة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Totalizer check"
+msgstr "فحص العداد التراكمي"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Evidence warnings"
+msgstr "تنبيهات الأدلة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Equipment filled"
+msgstr "المعدات التي تمت تعبئتها"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Operations review"
+msgstr "مراجعة التشغيل"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Review notes"
+msgstr "ملاحظات المراجعة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Reviewed by"
+msgstr "راجعه"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Reviewed on"
+msgstr "تاريخ المراجعة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Not Checkable"
+msgstr "غير قابل للفحص"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Consistent"
+msgstr "متطابق"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Inconsistent"
+msgstr "غير متطابق"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Operations Approved"
+msgstr "موافقة التشغيل"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Diesel Fill Equipment"
+msgstr "معدات تعبئة الديزل"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Name as reported"
+msgstr "الاسم كما ورد"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Match status"
+msgstr "حالة المطابقة"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Matched"
+msgstr "مطابق"
+
+#: card/card/doctype/diesel_fill_equipment/diesel_fill_equipment.json
+msgid "Third Party"
+msgstr "طرف ثالث"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The diesel fill needs operations approval before submit."
+msgstr "تعبئة الديزل تحتاج موافقة التشغيل قبل الاعتماد."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The closing reading cannot be lower than the opening reading."
+msgstr "قراءة النهاية لا يمكن أن تكون أقل من قراءة البداية."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Litres set to {0} from the meter readings."
+msgstr "تم ضبط اللترات على {0} من قراءات العداد."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Choose either one equipment for the whole fill or the list of filled equipment, not both."
+msgstr "اختر إما معدة واحدة للتعبئة كلها أو قائمة المعدات التي تمت تعبئتها، وليس الاثنين."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Row {0}: a matched row needs its equipment."
+msgstr "السطر {0}: السطر المطابق يحتاج تحديد المعدة."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Row {0}: company {1} does not match the equipment's company {2}."
+msgstr "السطر {0}: الشركة {1} لا تطابق شركة المعدة {2}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Meter photos must be private files uploaded to this diesel fill."
+msgstr "صور العداد يجب أن تكون ملفات خاصة مرفوعة على تعبئة الديزل هذه."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The opening and closing meter photos are the same file."
+msgstr "صورة البداية وصورة النهاية هما نفس الملف."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "This meter photo is already used by diesel fill {0}."
+msgstr "صورة العداد هذه مستخدمة بالفعل في تعبئة الديزل {0}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Totalizer moved {0} to {1} litres, the session shows {2}."
+msgstr "العداد التراكمي تحرك من {0} إلى {1} لتر، بينما الجلسة تُظهر {2}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Another diesel fill exists for this project on this date: {0}."
+msgstr "توجد تعبئة ديزل أخرى لهذا المشروع في نفس التاريخ: {0}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The closing photo time is before the opening photo time."
+msgstr "وقت صورة النهاية قبل وقت صورة البداية."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The closing photo date differs from the fill date."
+msgstr "تاريخ صورة النهاية مختلف عن تاريخ التعبئة."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The fill changed after operations approval and needs review again."
+msgstr "تم تعديل التعبئة بعد موافقة التشغيل وتحتاج مراجعة من جديد."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Only {0} may approve or reject the operations review."
+msgstr "فقط {0} يمكنه الموافقة على مراجعة التشغيل أو رفضها."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Operations approval needs the closing meter photo and reading."
+msgstr "موافقة التشغيل تحتاج صورة العداد عند النهاية وقراءة النهاية."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "This meter photo is already used by another diesel fill."
+msgstr "صورة العداد هذه مستخدمة بالفعل في تعبئة ديزل أخرى."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Source key"
+msgstr "مفتاح المصدر"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Source messages"
+msgstr "رسائل المصدر"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Source caption"
+msgstr "تعليق المصدر"
+
+#: card/diesel_import.py
+msgid "Only a Card Manager or System Manager can import diesel sessions."
+msgstr "استيراد جلسات الديزل مسموح فقط لمدير CARD أو مدير النظام."
+
+#: card/diesel_import.py
+msgid "The session has no source key."
+msgstr "الجلسة ليس لها مفتاح مصدر."
+
+#: card/diesel_import.py
+msgid "The session has no closing meter photo."
+msgstr "الجلسة ليس لها صورة عداد عند النهاية."
+
+#: card/diesel_import.py
+msgid "Invalid photo name {0}."
+msgstr "اسم الصورة {0} غير صالح."
+
+#: card/diesel_import.py
+msgid "Photo {0} does not match its SHA-256 in the manifest."
+msgstr "الصورة {0} لا تطابق بصمة SHA-256 المسجلة لها في ملف الاستيراد."
+
+#: card/diesel_import.py
+msgid "The session price {0} is not the company price {1}; import it at the company price only."
+msgstr "سعر الجلسة {0} ليس سعر الشركة {1}؛ الاستيراد مسموح بسعر الشركة فقط."
+
+#: card/diesel_import.py
+msgid "The session has no unit price."
+msgstr "الجلسة ليس لها سعر للتر."
+
+#: card/diesel_import.py
+msgid "A meter photo of this session is already used by another diesel fill."
+msgstr "إحدى صور العداد في هذه الجلسة مستخدمة بالفعل في تعبئة ديزل أخرى."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "The source of a diesel fill is set by the WhatsApp import only."
+msgstr "مصدر تعبئة الديزل يتسجل من استيراد WhatsApp فقط."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Supplier invoice no."
+msgstr "رقم فاتورة المورد"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Invoiced litres"
+msgstr "اللترات في الفاتورة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Invoice price per litre"
+msgstr "سعر اللتر في الفاتورة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Delivery charge billed as litres"
+msgstr "أجرة النقل المفوترة كلترات"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Invoice evidence"
+msgstr "دليل الفاتورة"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A historical diesel price is set by the WhatsApp import only."
+msgstr "يُحدَّد السعر التاريخي للديزل من استيراد WhatsApp فقط."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A historical diesel price must be the price of its supplier invoice."
+msgstr "يجب أن يكون السعر التاريخي للديزل هو سعر فاتورة المورد الخاصة به."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A historical diesel price needs its supplier invoice number."
+msgstr "السعر التاريخي للديزل يحتاج إلى رقم فاتورة المورد."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "This fill keeps the price of its supplier invoice {0}."
+msgstr "تحتفظ هذه التعبئة بسعر فاتورة المورد {0}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "This draft keeps the price {0} of supplier invoice {1}; {2} approves it."
+msgstr "تحتفظ هذه المسودة بالسعر {0} من فاتورة المورد {1}؛ ويعتمده {2}."

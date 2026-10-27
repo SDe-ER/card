@@ -29,6 +29,7 @@ def get_context(context):
 			"item_placeholder": _("Search an item or describe it"),
 			"qty": _("Quantity"),
 			"reason": _("Reason"),
+			"fit_reason": _("Why this item without a confirmed fit?"),
 			"remove": _("Remove"),
 			"no_lines": _("Add at least one line with a quantity."),
 			"sent": _("Your request was sent to the supervisor."),

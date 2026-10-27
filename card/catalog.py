@@ -16,6 +16,8 @@ Who sees what is decided on the server (``_read``):
   Frappe would add permission query rules (hooks or a Permission Query server script) that CARD
   cannot apply, the restricted read returns nothing;
 - anyone else gets nothing.
+Card User reads the catalogue like a portal role (phase 2b, Owner decision A, 2026-10-23: the
+read-only catalog view of CARD Mobile); he still has no access to requests.
 Barcode and OEM matches, alternatives and ``has_more`` only ever come from items the user may
 list. No stock, price, supplier or account is returned (stock stays with the F2 hint)."""
 
@@ -33,6 +35,9 @@ MAX_TEXT = 140
 MIN_CODE_TEXT = 3
 FIELDS = ["item_code", "item_name", "stock_uom", "image", "item_group", "brand", "allow_alternative_item"]
 FILTER_KINDS = {"item_group": "Item Group", "brand": "Brand"}
+# read-only catalog viewers of CARD Mobile (phase 2b, decision A): not a portal role
+CATALOG_VIEW_ROLES = ("Card User",)
+CATALOG_ROLES = (*PORTAL_ROLES, *CATALOG_VIEW_ROLES)
 
 
 # ---------- who is asking ----------
@@ -40,14 +45,14 @@ def _reads_items():
 	return _role_reads("Item")
 
 
-def _check_user():
-	if frappe.session.user == "Guest" or not (_reads_items() or has_any_role(PORTAL_ROLES)):
+def check_catalog_user():
+	if frappe.session.user == "Guest" or not (_reads_items() or has_any_role(CATALOG_ROLES)):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 
 def _sees(doctype):
 	"""OEM numbers and alternatives: for readers of the ERPNext DocType and for Card roles (D-1)."""
-	return _role_reads(doctype) or has_any_role(PORTAL_ROLES)
+	return _role_reads(doctype) or has_any_role(CATALOG_ROLES)
 
 
 def _permitted_docs(link_doctype, doctype):
@@ -113,7 +118,7 @@ def _read(doctype, filters, **kwargs):
 	roles (R1); nothing for anyone else or where Frappe would add rules CARD cannot apply."""
 	if _role_reads(doctype):
 		return frappe.get_list(doctype, filters=_and(filters), **kwargs)
-	if not has_any_role(PORTAL_ROLES) or _has_query_rules(doctype):
+	if not has_any_role(CATALOG_ROLES) or _has_query_rules(doctype):
 		return []
 	return frappe.get_all(doctype, filters=_and(filters + _restriction(doctype)), **kwargs)
 
@@ -245,11 +250,18 @@ def search(
 	brand: str | None = None,
 	start: int = 0,
 	page_length: int = PAGE_LENGTH,
+	equipment: str | None = None,
+	fits: int = 0,
 ):
 	"""One page of the catalogue for the search text (item code, item name, barcode, OEM number)
 	and the filters (item group with its sub-groups, brand). ``has_more`` says whether another page
-	exists; no total count is given."""
-	_check_user()
+	exists; no total count is given. With ``equipment`` (phase 2b) every item carries its ``fit``
+	for that machine; ``fits`` lists only the items Confirmed for it (machine or model)."""
+	from card import fitment
+
+	check_catalog_user()
+	if equipment:
+		fitment.check_equipment_access(equipment)
 	txt = (txt or "").strip()[:MAX_TEXT]
 	start, page_length = _page_window(start, page_length)
 
@@ -263,6 +275,11 @@ def search(
 		conditions.append(["item_group", "in", groups])
 	if brand:
 		conditions.append(["brand", "=", brand])
+	if equipment and cint(fits):
+		compatible = fitment.compatible_items(equipment)
+		if not compatible:
+			return {"items": [], "has_more": False}
+		conditions.append(["name", "in", compatible])
 
 	rows = _list_items(conditions, start, page_length + 1)
 	has_more = len(rows) > page_length
@@ -284,6 +301,10 @@ def search(
 		}
 		for row in rows
 	]
+	if equipment:
+		fits_of = fitment.effective_fit(equipment, codes)
+		for item in items:
+			item.update(fits_of[item["item_code"]])
 	return {"items": items, "has_more": has_more}
 
 
@@ -301,7 +322,7 @@ def filter_options(kind: str, txt: str | None = None, start: int = 0, page_lengt
 	"""Values for the Item Group or Brand filter, searched and paged on the server, read with the
 	user's rights (the restricted read for Card portal roles). Item Group names are translated by
 	Frappe, so they are matched by name or by their translation."""
-	_check_user()
+	check_catalog_user()
 	doctype = FILTER_KINDS.get(kind)
 	if not doctype:
 		frappe.throw(_("Unknown catalog filter"))
