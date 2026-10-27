@@ -34,7 +34,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
-## [4.2.1] — 2026-10-27
+## [4.2.2] — 2026-10-27
 
 ### Changed
 - **Diesel fill: meter photos shown large in place of the file link, clearer reading labels** (FR-088,
@@ -49,6 +49,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   messages that name them. Functions: `project_diesel_fill.js` (`card_photo_previews`),
   `card/locale/ar.po`. Impact: display only; no schema, permission, accounting, data or API change.
   Rollback: revert the commit.
+
+### Migration
+
+No patch, no new column and no DocType change. Form script and Arabic translations only. Rollback: v4.2.1 code runs
+on the same database; nothing to undo in data.
+
+---
+
+## [4.2.1] — 2026-10-27
+
+### Changed
 - **Simpler diesel fill form** (FR-087, Owner approval 2026-10-27). The `Project Diesel Fill` form opens with three
   sections: the fill (date, project, supplier; the company is filled and hidden for a user with one company, as on
   Equipment Transport), **Meter readings** (opening and closing photo and reading, then the litres; open, was the

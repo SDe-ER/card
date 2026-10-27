@@ -12,7 +12,8 @@ Authoritative index of every **published** CARD release. Source of truth: git ta
 
 | Version | Date (tag/release) | Type | One-line summary | Full page |
 |---|---|---|---|---|
-| **v4.2.1** | 2026-10-27 | Patch | Simpler diesel fill form: fill, meter readings and equipment first; details, exception, import and posting sections collapsed or shown only when relevant | [v4.2.1.md](v4.2.1.md) |
+| **v4.2.2** | 2026-10-27 | Patch | Diesel meter photos shown as a large card in place of the file link (change and remove on an editable fill); Arabic reading labels name the fill meter | [v4.2.2.md](v4.2.2.md) |
+| v4.2.1 | 2026-10-27 | Patch | Simpler diesel fill form: fill, meter readings and equipment first; details, exception, import and posting sections collapsed or shown only when relevant | [v4.2.1.md](v4.2.1.md) |
 | v4.2.0 | 2026-10-27 | Minor release | Diesel fill as a metered session with meter photos and an operations review; import of reviewed WhatsApp diesel sessions as drafts with the supplier invoice price; parts fitment in the catalog; app name CARD in every language; backdated transports cannot drop submitted card days | [v4.2.0.md](v4.2.0.md) |
 | v4.1.2 | 2026-10-25 | Patch | Launcher shows all ten sections on sites with an old dock layer; simpler Equipment Transport form; English for stored Arabic values; missing Arabic strings | [v4.1.2.md](v4.1.2.md) |
 | v4.1.1 | 2026-10-25 | Patch | Tool Custody item search works without an ERPNext Item permission (scoped `item_query` endpoint) | [v4.1.1.md](v4.1.1.md) |
