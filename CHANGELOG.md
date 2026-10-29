@@ -15,6 +15,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **A4 print of the Equipment Supplier Statement** (FR-089, Owner request 2026-10-29): a standard Report
+  Print Format `Equipment Supplier Statement A4` (JS, Arabic RTL, A4 landscape) and the same layout as the
+  report's own print template. It prints the company, supplier, statement type and period, the report's
+  summary figures at the top, the project and equipment rows with the grand total, and three signature lines
+  (accountant, reviewer, supplier — the supplier line only on supplier statements), the report's notice line, and
+  an "includes draft cards" note when drafts are included. Landscape is set in the page CSS; choose Landscape in
+  the PDF dialog (the PDF engine follows the dialog). The report pre-selects the format in the PDF dialog; the Print dialog with
+  an empty format uses the same template. Text is escaped. Display only: no permission, accounting, data or
+  API change (`get_print_format_data` keeps the report's own permission checks). Rollback: remove the two
+  print files and disable the Print Format record. New strings in `ar.po`.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by

@@ -2840,3 +2840,23 @@ msgstr ""
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.py
 msgid "Submitted card {0} has an operation day of equipment {1} on project {2} on {3}, outside the assignment after this change. Keep the day in the assignment (for a transport, use a later date)."
 msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Issue date"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Accountant signature"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Reviewer signature"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Supplier signature"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Includes draft cards"
+msgstr ""
