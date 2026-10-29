@@ -1,0 +1,115 @@
+{%
+	var esc = frappe.utils.escape_html;
+	var num = function (v) { return v === undefined || v === null || v === "" ? "" : format_number(v, null, 2); };
+	var day = function (d) { return d ? frappe.datetime.str_to_user(d) : ""; };
+	var raw = (report && report.raw_data) || {};
+	var summary = raw.report_summary || [];
+	/* column labels come from the report itself, already in the user's language */
+	var label_of = {};
+	var server_columns = raw.columns || [];
+	for (var c = 0; c < server_columns.length; c++) {
+		if (server_columns[c] && server_columns[c].fieldname) label_of[server_columns[c].fieldname] = server_columns[c].label;
+	}
+	var money = !!label_of.net;
+	var statement_type = filters.statement_type || (money ? "مورد" : "معدات ملك");
+	var fields = money
+		? [["label", 17, "text"], ["equipment", 9, "text"], ["first_date", 7, "date"], ["last_date", 7, "date"],
+			["working_days", 4, "int"], ["hours", 6, "num"], ["rate_type", 6, "text"], ["rate", 6, "num"],
+			["hourly_rate", 6, "num"], ["amount", 8, "num"], ["additions", 7, "num"], ["deductions", 7, "num"], ["net", 7, "num"]]
+		: [["label", 36], ["equipment", 14, "text"], ["first_date", 12, "date"], ["last_date", 12, "date"],
+			["working_days", 10, "int"], ["hours", 12, "num"]];
+	/* the print shows what the screen opens with: project and equipment rows, then the grand total */
+	var rows = [];
+	for (var i = 0; i < original_data.length; i++) {
+		if (original_data[i] && (original_data[i].indent || 0) < 2) rows.push(original_data[i]);
+	}
+	var month_of = function (m, y) { return m && y ? m + "/" + y : ""; };
+	var cell = function (row, f) {
+		var v = row[f[0]];
+		if (f[2] === "date") return day(v);
+		if (f[2] === "num") return num(v);
+		if (f[2] === "int") return v === undefined || v === null ? "" : esc(String(v));
+		return esc(v === undefined || v === null ? "" : String(v));
+	};
+%}
+<style>
+	@page { size: A4 landscape; margin: 10mm; }
+	.ess { font-size: 11px; color: #000; }
+	.ess h2 { margin: 0 0 6px; font-size: 16px; text-align: center; }
+	.ess table { width: 100%; border-collapse: collapse; }
+	.ess .ess-meta td { border: none; padding: 1px 6px; font-size: 11px; }
+	.ess .ess-summary { margin: 6px 0 8px; table-layout: fixed; }
+	.ess .ess-summary td { border: 1px solid #999; padding: 3px 5px; vertical-align: top; }
+	.ess .ess-summary .ess-k { display: block; font-size: 9px; color: #444; }
+	.ess .ess-summary .ess-v { display: block; font-weight: bold; font-size: 11px; direction: ltr; text-align: right; }
+	.ess .ess-rows { table-layout: fixed; }
+	.ess .ess-rows th, .ess .ess-rows td { border: 1px solid #999; padding: 2px 3px; overflow-wrap: anywhere; word-break: break-word; }
+	.ess .ess-rows th { background: #e9ecef; font-weight: bold; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+	.ess .ess-rows thead { display: table-header-group; }
+	.ess .ess-rows tr { page-break-inside: avoid; break-inside: avoid; }
+	.ess .ess-rows td.ess-num { text-align: right; direction: ltr; }
+	.ess .ess-note { font-size: 9px; color: #333; margin: 0 0 6px; }
+	.ess .ess-rows tr.ess-group td { background: #f4f5f6; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+	.ess .ess-rows tr.ess-total td { font-weight: bold; border-top: 2px solid #000; }
+	.ess .ess-signs { margin-top: 28px; table-layout: fixed; }
+	.ess .ess-signs td { border: none; text-align: center; padding: 0 12px; font-weight: bold; }
+	.ess .ess-signs .ess-line { display: block; border-top: 1px solid #000; margin: 30px 10% 4px; }
+</style>
+<div class="ess">
+<h2>{%= __("Equipment Supplier Statement") %}</h2>
+<table class="ess-meta">
+	<tr>
+		<td>{%= __("Company") %}: <b>{%= esc(filters.company || "") %}</b></td>
+		<td>{%= __("Statement type") %}: <b>{%= esc(statement_type) %}</b></td>
+	</tr>
+	<tr>
+		<td>{% if (filters.supplier) { %}{%= __("Supplier") %}: <b>{%= esc(filters.supplier) %}</b>{% } %}</td>
+		<td>{%= __("From") %} <b>{%= esc(month_of(filters.from_month, filters.from_year)) %}</b>
+			{%= __("To") %} <b>{%= esc(month_of(filters.to_month, filters.to_year)) %}</b>
+			&nbsp; {%= __("Issue date") %}: <b>{%= frappe.datetime.str_to_user(frappe.datetime.get_today()) %}</b></td>
+	</tr>
+</table>
+{% if (summary.length) { %}
+<table class="ess-summary">
+	{% for (var s = 0; s < summary.length; s += 5) { %}
+	<tr>
+		{% for (var k = s; k < s + 5; k++) { var item = summary[k]; %}
+		{% if (item) { %}
+		<td><span class="ess-k">{%= esc(item.label || "") %}</span>
+			<span class="ess-v">{%= item.datatype === "Int" ? esc(String(item.value === undefined || item.value === null ? "" : item.value)) : num(item.value) %}</span></td>
+		{% } else { %}<td style="border: none"></td>{% } %}
+		{% } %}
+	</tr>
+	{% } %}
+</table>
+{% } %}
+{% if (filters.include_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards") %}</b></p>{% } %}
+{% if (raw.message) { %}<p class="ess-note">{%= esc(String(raw.message)) %}</p>{% } %}
+<table class="ess-rows">
+	<thead>
+		<tr>
+			<th style="width: 3%">#</th>
+			{% for (var f = 0; f < fields.length; f++) { %}
+			<th style="width: {%= fields[f][1] %}%">{%= esc(label_of[fields[f][0]] || "") %}</th>
+			{% } %}
+		</tr>
+	</thead>
+	<tbody>
+		{% var n = 0; for (var r = 0; r < rows.length; r++) { var row = rows[r]; var is_total = row.row_id === "TOTAL"; var is_group = !is_total && !row.indent; if (!is_total && !is_group) { n++; } %}
+		<tr class="{%= is_total ? "ess-total" : (is_group ? "ess-group" : "") %}">
+			<td style="text-align: center">{%= is_total || is_group ? "" : n %}</td>
+			{% for (var f = 0; f < fields.length; f++) { %}
+			<td class="{%= fields[f][2] === "num" || fields[f][2] === "int" ? "ess-num" : "" %}">{%= cell(row, fields[f]) %}</td>
+			{% } %}
+		</tr>
+		{% } %}
+	</tbody>
+</table>
+<table class="ess-signs">
+	<tr>
+		<td><span class="ess-line"></span>{%= __("Accountant signature") %}</td>
+		<td><span class="ess-line"></span>{%= __("Reviewer signature") %}</td>
+		{% if (money) { %}<td><span class="ess-line"></span>{%= __("Supplier signature") %}</td>{% } %}
+	</tr>
+</table>
+</div>

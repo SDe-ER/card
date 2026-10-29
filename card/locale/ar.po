@@ -4048,3 +4048,23 @@ msgstr "تحتفظ هذه التعبئة بسعر فاتورة المورد {0}.
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "This draft keeps the price {0} of supplier invoice {1}; {2} approves it."
 msgstr "تحتفظ هذه المسودة بالسعر {0} من فاتورة المورد {1}؛ ويعتمده {2}."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Issue date"
+msgstr "تاريخ الإصدار"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Accountant signature"
+msgstr "توقيع المحاسب"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Reviewer signature"
+msgstr "توقيع المراجع"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Supplier signature"
+msgstr "توقيع المورد"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Includes draft cards"
+msgstr "تشمل كروتاً مسودة (غير معتمدة)"
