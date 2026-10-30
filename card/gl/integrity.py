@@ -395,7 +395,9 @@ def require_reviewed(candidates, reviewed):
 		)
 		hidden = len(pending) - len(readable)
 		if hidden:
-			listed = ", ".join(filter(None, [listed, _("{0} invoice(s) you cannot open").format(hidden)]))
+			parts = [listed] if listed else []
+			parts.append(_("{0} invoice(s) you cannot open").format(hidden))
+			listed = ", ".join(parts)
 		frappe.throw(
 			_(
 				"Supplier invoices booked around this month may cover the same operations: {0}. Link each one to the CARD sources it pays for (Link supplier invoice), or have an accountant confirm it is unrelated, then build again."
