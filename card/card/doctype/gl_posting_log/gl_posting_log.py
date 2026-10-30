@@ -1,6 +1,8 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
 
+import hashlib
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -53,7 +55,9 @@ class GLPostingLog(Document):
 			# sources it pays for is its own unit (one link per invoice); the
 			# sources' membership is what keeps them from being built again
 			if self.origin == "Linked":
-				self.posting_key = "{0}|L|{1}".format(self.posting_key, self.posting_doc)
+				# a short digest of the invoice name keeps long party names inside the key's length
+				digest = hashlib.sha1((self.posting_doc or "").encode()).hexdigest()[:12]
+				self.posting_key = "{0}|L|{1}".format(self.posting_key, digest)
 		else:
 			self.posting_key = None
 

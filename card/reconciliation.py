@@ -63,6 +63,8 @@ def cards_invoiced(party_type, parties, company, start, end, cards=None):
 		return {}
 	first = getdate(start).year * 100 + getdate(start).month
 	last = getdate(end).year * 100 + getdate(end).month
+	# a built posting carries its cards' month; a linked supplier invoice (P0) may cover
+	# cards of other months, so each card counts in ITS own month
 	logs = frappe.get_all(
 		"GL Posting Log",
 		filters={
@@ -71,19 +73,16 @@ def cards_invoiced(party_type, parties, company, start, end, cards=None):
 			"party": ["in", parties],
 			"posting_type": POSTING_TYPE[party_type],
 			"status": "Submitted",
-			"year": ["between", [getdate(start).year, getdate(end).year]],
+			"year": ["between", [getdate(start).year - 1, getdate(end).year + 1]],
 		},
 		fields=["name", "party", "month", "year"],
 		limit_page_length=0,
 	)
-	party_of = {
-		log.name: log.party for log in logs if first <= cint(log.year) * 100 + cint(log.month) <= last
-	}
+	party_of = {log.name: log.party for log in logs}
 	if not party_of:
 		return {}
 	shown = None if cards is None else set(cards)
-	result = {}
-	for row in frappe.get_all(
+	rows = frappe.get_all(
 		"GL Posting Source",
 		filters={
 			"parent": ["in", list(party_of)],
@@ -92,8 +91,21 @@ def cards_invoiced(party_type, parties, company, start, end, cards=None):
 		},
 		fields=["parent", "source_name", "amount"],
 		limit_page_length=0,
-	):
+	)
+	card_month = {
+		c.name: cint(c.year) * 100 + cint(c.month)
+		for c in frappe.get_all(
+			"Card Monthly Card",
+			filters={"name": ["in", list({r.source_name for r in rows}) or [""]]},
+			fields=["name", "month", "year"],
+			limit_page_length=0,
+		)
+	}
+	result = {}
+	for row in rows:
 		if shown is not None and row.source_name not in shown:
+			continue
+		if not first <= card_month.get(row.source_name, 0) <= last:
 			continue
 		party = party_of[row.parent]
 		result[party] = flt(result.get(party, 0) + flt(row.amount), 2)
@@ -125,22 +137,41 @@ def invoices_outside_card(party_type, parties, company, start, end):
 	)
 	if not invoices:
 		return {}
-	card_made = set(
-		frappe.get_all(
-			"GL Posting Log",
-			filters={
-				"posting_doctype": doctype,
-				"posting_doc": ["in", [i.name for i in invoices]],
-				"status": "Submitted",
-			},
-			pluck="posting_doc",
-			limit_page_length=0,
-		)
+	logs = frappe.get_all(
+		"GL Posting Log",
+		filters={
+			"posting_doctype": doctype,
+			"posting_doc": ["in", [i.name for i in invoices]],
+			"status": "Submitted",
+		},
+		fields=["name", "posting_doc", "origin"],
+		limit_page_length=0,
 	)
+	card_made = {log.posting_doc for log in logs if (log.origin or "Built") == "Built"}
+	# P0: a hand-booked invoice linked to CARD sources stays an invoice outside Card for
+	# everything that is not a card it bills (diesel, transport, an accepted open difference)
+	linked_cards = {}
+	linked = {log.name: log.posting_doc for log in logs if log.origin == "Linked"}
+	if linked:
+		for row in frappe.get_all(
+			"GL Posting Source",
+			filters={
+				"parent": ["in", list(linked)],
+				"parenttype": "GL Posting Log",
+				"source_doctype": "Card Monthly Card",
+			},
+			fields=["parent", "amount"],
+			limit_page_length=0,
+		):
+			invoice = linked[row.parent]
+			linked_cards[invoice] = flt(linked_cards.get(invoice, 0) + flt(row.amount), 2)
 	result = {}
 	for inv in invoices:
 		if inv.name in card_made:
 			continue
 		party = inv.get(party_field)
-		result[party] = flt(result.get(party, 0) + flt(inv.base_net_total), 2)
+		outside = flt(flt(inv.base_net_total) - linked_cards.get(inv.name, 0), 2)
+		if inv.name in linked_cards and not outside:
+			continue
+		result[party] = flt(result.get(party, 0) + outside, 2)
 	return result

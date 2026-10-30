@@ -41,7 +41,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     span several months. Linking needs an accountant role, the company in the caller's CARD and accounting
     scope, read on the supplier and the sources, and submit right on the invoice. An imported diesel session
     that carries a supplier invoice no. can be linked only to the invoice with that bill no. A hand-booked
-    invoice submitted for a supplier that CARD posted for a nearby month shows those postings as a warning. A linked source cannot be cancelled while the
+    invoice submitted for a supplier that CARD posted for a nearby month shows those postings as a warning.
+    A linked draft is re-checked at submit (same company and supplier, not a return, net equal to the linked
+    sources plus the accepted difference); a source cannot be listed twice in one link; a hand-booked invoice
+    cannot reuse the supplier bill no. of a CARD posting. The reconciliation counts a linked card in its own
+    month and keeps the rest of a linked invoice (diesel, transport, difference) among the invoices outside Card. A linked source cannot be cancelled while the
     invoice stands; credit and debit notes against linked or CARD invoices stay allowed.
   - *Diesel VAT basis*: new Card Company Settings field `diesel_price_vat_basis` (Exclusive / Inclusive /
     empty). For a VAT-registered supplier, empty refuses the build for review; Inclusive books the net

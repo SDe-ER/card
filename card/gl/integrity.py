@@ -190,7 +190,7 @@ def check_built_signature(doc, log):
 	diffs = describe_differences(built, current)
 	hint = (
 		_(
-			"An Accounts Manager can accept this cost center/account correction from the invoice (Accept CARD correction)."
+			"An Accounts Manager can accept this cost center/account correction from the invoice (card.gl.integrity.accept_correction)."
 		)
 		if correctable_only(built, current)
 		else _("Rebuild the posting from CARD (fix the source documents first).")
@@ -400,7 +400,7 @@ def require_reviewed(candidates, reviewed):
 			listed = ", ".join(parts)
 		frappe.throw(
 			_(
-				"Supplier invoices booked around this month may cover the same operations: {0}. Link each one to the CARD sources it pays for (Link supplier invoice), or have an accountant confirm it is unrelated, then build again."
+				"Supplier invoices booked around this month may cover the same operations: {0}. Link each one to the CARD sources it pays for (card.gl.integrity.link_supplier_invoice), or have an accountant confirm it is unrelated, then build again."
 			).format(listed),
 			title=_("Possible duplicate expense"),
 		)
@@ -506,6 +506,8 @@ def link_supplier_invoice(
 		doctype, name = src.get("doctype"), src.get("name")
 		if doctype not in rows:
 			frappe.throw(_("{0} is not a CARD source type.").format(doctype))
+		if any(n == name for n, _a in rows[doctype]):
+			frappe.throw(_("{0} {1} is listed twice.").format(_(doctype), name))
 		rows[doctype].append((name, 0))
 	lock_sources(rows)
 	settings_row = next(
@@ -622,6 +624,32 @@ def link_supplier_invoice(
 	if inv.docstatus == 1:
 		link_sources_on_submit(inv, log)
 	return log.name
+
+
+def check_linked_invoice(doc, log):
+	"""Submit gate for a linked hand-booked invoice that was linked as a draft: it must
+	still be the invoice of the link — same company and supplier, not a return, and its
+	net total equal to the linked sources plus the accepted open difference."""
+	from card.settings import setting
+
+	if doc.company != log.company or doc.get("supplier") != log.party or doc.get("is_return"):
+		frappe.throw(
+			_(
+				"{0} changed company or supplier after it was linked to CARD sources; delete the link by deleting or cancelling the invoice and link again."
+			).format(doc.name),
+			title=_("Linked invoice changed"),
+		)
+	sources = log.get("sources") or []
+	expected = flt(sum(flt(r.amount) for r in sources) + flt(log.get("link_difference")), 2)
+	fills = sum(1 for r in sources if r.source_doctype == "Project Diesel Fill")
+	tolerance = (flt(setting("reconciliation_tolerance")) or 0.01) + 0.01 * fills
+	if abs(flt(doc.net_total, 2) - expected) > tolerance:
+		frappe.throw(
+			_(
+				"{0} is net {1}, but it was linked to CARD sources for net {2}; delete or cancel it and link again."
+			).format(doc.name, flt(doc.net_total, 2), expected),
+			title=_("Linked invoice changed"),
+		)
 
 
 def warn_card_postings_nearby(doc):

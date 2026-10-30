@@ -116,7 +116,7 @@ class TestDraftIntegrity(_P0Base):
 		pi = self._build()
 		pi.items[0].expense_account = self.exp_transport
 		pi.save()
-		with self.assertRaisesRegex(frappe.ValidationError, "Accept CARD correction"):
+		with self.assertRaisesRegex(frappe.ValidationError, "accept_correction"):
 			pi.submit()
 		accept_correction("Purchase Invoice", pi.name, "wrong expense head on the card type")
 		pi.reload()
@@ -744,3 +744,90 @@ class TestEvidenceCoverage(_P0Base):
 		inv = self._manual_pi(600, posting_date="2026-10-05", submit=False)
 		inv.submit()
 		self.assertTrue(any("CARD already booked" in str(m) for m in frappe.local.message_log))
+
+
+class TestFinalReviewFixes(_P0Base):
+	"""Independent review of the full PR: linked drafts re-checked at submit, duplicate sources,
+	bill no. of a CARD posting, reconciliation of linked invoices."""
+
+	def test_linked_draft_changed_supplier_is_refused(self):
+		card = self._rental_card()
+		manual = self._manual_pi(600, submit=False)
+		link_supplier_invoice(manual.name, [{"doctype": "Card Monthly Card", "name": card.name}])
+		other = frappe.get_doc(
+			{"doctype": "Supplier", "supplier_name": "TEST-P0-OTHER3-" + self.token}
+		).insert(ignore_permissions=True)
+		manual.reload()
+		manual.supplier = other.name
+		manual.save()
+		with self.assertRaisesRegex(frappe.ValidationError, "changed company or supplier"):
+			manual.submit()
+
+	def test_linked_draft_changed_amount_is_refused(self):
+		card = self._rental_card()
+		manual = self._manual_pi(600, submit=False)
+		link_supplier_invoice(manual.name, [{"doctype": "Card Monthly Card", "name": card.name}])
+		manual.reload()
+		manual.items[0].rate = 1600
+		manual.save()
+		with self.assertRaisesRegex(frappe.ValidationError, "was linked to CARD sources for net"):
+			manual.submit()
+
+	def test_linked_draft_with_an_accepted_difference_submits(self):
+		card = self._rental_card()
+		manual = self._manual_pi(650, submit=False)
+		link_supplier_invoice(
+			manual.name,
+			[{"doctype": "Card Monthly Card", "name": card.name}],
+			"mobilization on the invoice",
+			1,
+		)
+		manual.reload()
+		manual.submit()
+		self.assertEqual(manual.docstatus, 1)
+
+	def test_a_source_listed_twice_is_refused(self):
+		card = self._rental_card()
+		manual = self._manual_pi(1200)
+		with self.assertRaisesRegex(frappe.ValidationError, "listed twice"):
+			link_supplier_invoice(
+				manual.name,
+				[
+					{"doctype": "Card Monthly Card", "name": card.name},
+					{"doctype": "Card Monthly Card", "name": card.name},
+				],
+			)
+
+	def test_hand_booked_invoice_cannot_reuse_the_bill_no_of_a_card_posting(self):
+		self._vat_supplier()
+		self._rental_card()
+		pi = self._build()
+		pi.bill_no = "P0-BILL-" + self.token
+		pi.bill_date = pi.posting_date
+		pi.save()
+		pi.submit()
+		manual = self._manual_pi(100, posting_date="2026-12-20", submit=False)
+		manual.bill_no = pi.bill_no
+		manual.save()
+		with self.assertRaisesRegex(frappe.ValidationError, "already booked by CARD posting"):
+			manual.submit()
+
+	def test_reconciliation_counts_a_linked_card_in_its_own_month_and_the_rest_outside(self):
+		from card.reconciliation import cards_invoiced, invoices_outside_card
+
+		card = self._rental_card()  # September, 600 net
+		fill = self._fill(day="2026-10-02")  # 200
+		manual = self._manual_pi(800, posting_date="2026-10-06")
+		link_supplier_invoice(
+			manual.name,
+			[
+				{"doctype": "Card Monthly Card", "name": card.name},
+				{"doctype": "Project Diesel Fill", "name": fill.name},
+			],
+		)
+		sep = cards_invoiced("Supplier", [self.supplier], self.company, "2026-09-01", "2026-09-30")
+		self.assertEqual(flt(sep.get(self.supplier), 2), 600.0)
+		octo = cards_invoiced("Supplier", [self.supplier], self.company, "2026-10-01", "2026-10-31")
+		self.assertFalse(octo.get(self.supplier))
+		outside = invoices_outside_card("Supplier", [self.supplier], self.company, "2026-10-01", "2026-10-31")
+		self.assertEqual(flt(outside.get(self.supplier), 2), 200.0)  # the diesel part, not a card

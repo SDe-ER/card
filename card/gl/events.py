@@ -184,6 +184,8 @@ def before_submit(doc, method=None):
 		from card.gl.integrity import check_not_a_copy, warn_card_postings_nearby
 
 		check_not_a_copy(doc, "Supplier" if doc.doctype == "Purchase Invoice" else "Customer")
+		if doc.doctype == "Purchase Invoice":
+			_check_bill_no_not_on_a_card_posting(doc)
 		warn_card_postings_nearby(doc)
 		return
 	# KSA VAT input: the supplier's own invoice number/date must be on the PI.
@@ -202,8 +204,11 @@ def before_submit(doc, method=None):
 	from card.settings import setting
 
 	if not _is_built(log):
-		# a linked supplier invoice keeps its own lines and amounts; only the
-		# reservation of the CARD sources is re-verified
+		# a linked supplier invoice keeps its own lines; it must still be the invoice that was
+		# linked (company, supplier, amount), and the reservation of its sources is re-verified
+		from card.gl.integrity import check_linked_invoice
+
+		check_linked_invoice(doc, log)
 		_verify_sources(doc, log)
 		return
 	from card.gl.integrity import check_built_signature
@@ -253,6 +258,37 @@ def _check_bill_no_unique(doc):
 			).format(doc.bill_no, other),
 			title=_("Possible duplicate expense"),
 		)
+
+
+def _check_bill_no_not_on_a_card_posting(doc):
+	"""A hand-booked invoice may not book the supplier invoice no. a CARD posting already booked."""
+	if not doc.get("bill_no"):
+		return
+	for name in frappe.get_all(
+		"Purchase Invoice",
+		filters={
+			"supplier": doc.supplier,
+			"bill_no": doc.bill_no,
+			"docstatus": ["<", 2],
+			"name": ["!=", doc.name],
+		},
+		pluck="name",
+	):
+		if frappe.db.exists(
+			"GL Posting Log",
+			{
+				"posting_doctype": "Purchase Invoice",
+				"posting_doc": name,
+				"status": ["in", list(ACTIVE_STATES)],
+				"origin": ["in", ["Built", "", None]],
+			},
+		):
+			frappe.throw(
+				_(
+					"Supplier invoice no. {0} is already booked by CARD posting {1}; correct or cancel that posting instead of booking it again."
+				).format(doc.bill_no, name),
+				title=_("Possible duplicate expense"),
+			)
 
 
 def _verify_sources(doc, log):
