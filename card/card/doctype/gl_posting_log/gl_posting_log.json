@@ -13,6 +13,7 @@
   "posting_type",
   "sequence",
   "status",
+  "origin",
   "posting_section",
   "posting_doctype",
   "posting_doc",
@@ -21,7 +22,16 @@
   "posting_key",
   "failure_reason",
   "remarks",
-  "sources"
+  "sources",
+  "integrity_section",
+  "built_signature",
+  "lines_signature",
+  "built_snapshot",
+  "column_break_integrity",
+  "accepted_signature",
+  "accepted_by",
+  "correction_reason",
+  "reviewed_invoices"
  ],
  "fields": [
   {
@@ -152,11 +162,76 @@
    "label": "Sources",
    "options": "GL Posting Source",
    "read_only": 1
+  },
+  {
+   "default": "Built",
+   "fieldname": "origin",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Origin",
+   "options": "Built\nLinked",
+   "read_only": 1
+  },
+  {
+   "fieldname": "integrity_section",
+   "fieldtype": "Section Break",
+   "label": "Integrity",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "built_signature",
+   "fieldtype": "Data",
+   "label": "Built signature",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lines_signature",
+   "fieldtype": "Data",
+   "label": "Lines signature",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "built_snapshot",
+   "fieldtype": "Long Text",
+   "label": "Built snapshot",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "column_break_integrity",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "accepted_signature",
+   "fieldtype": "Data",
+   "label": "Accepted correction signature",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accepted_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Correction accepted by",
+   "read_only": 1
+  },
+  {
+   "fieldname": "correction_reason",
+   "fieldtype": "Small Text",
+   "label": "Correction reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reviewed_invoices",
+   "fieldtype": "Small Text",
+   "label": "Supplier invoices reviewed as unrelated",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-17 18:00:00.000000",
+ "modified": "2026-10-30 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "GL Posting Log",

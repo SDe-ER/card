@@ -98,6 +98,8 @@ class _PostingBase(_CustomerCardsBase):
 		row.sales_tax_template = st
 		row.vat_item_tax_template = ""
 		row.vat_zero_item_tax_template = ""
+		# P0: the fixture's diesel prices are VAT-exclusive (the VAT-inclusive path is tested in test_p0_posting_integrity)
+		row.diesel_price_vat_basis = "Exclusive"
 		settings.set("adjustment_types", [])
 		for name, kind, account, taxable in (
 			("Mobilization", "إضافة", self.acc_mob, 1),
@@ -130,6 +132,26 @@ class _PostingBase(_CustomerCardsBase):
 		frappe.db.set_single_value("Accounts Settings", "add_taxes_from_item_tax_template", 0)
 		frappe.db.set_single_value("Accounts Settings", "add_taxes_from_taxes_and_charges_template", 0)
 		frappe.clear_cache(doctype="Card Settings")
+
+	def _unrelated_manual_invoices(self):
+		"""P0 (FR-090): the supplier's hand-booked invoices of 09/2026 that CARD did not build, as an
+		accountant who reviewed them as separate charges would list them for the build."""
+		return [
+			name
+			for name in frappe.get_all(
+				"Purchase Invoice",
+				filters={
+					"supplier": self.supplier,
+					"docstatus": ["<", 2],
+					"is_return": 0,
+					"posting_date": ["between", ["2026-09-01", "2026-09-30"]],
+				},
+				pluck="name",
+			)
+			if not frappe.db.exists(
+				"GL Posting Log", {"posting_doc": name, "status": ["in", ["Draft", "Submitted"]]}
+			)
+		]
 
 	def _vat_supplier(self):
 		sup = frappe.get_doc("Supplier", self.supplier)

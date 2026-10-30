@@ -415,7 +415,15 @@ class TestReconciliationEdgeCases(_ReconciliationBase):
 
 	def _card_pi(self):
 		pi = frappe.get_doc(
-			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+			"Purchase Invoice",
+			build_monthly_posting(
+				self.company,
+				"Supplier",
+				self.supplier,
+				9,
+				2026,
+				reviewed_invoices=self._unrelated_manual_invoices(),
+			),
 		)
 		pi.bill_no = "TEST-BILL-EDGE-" + frappe.generate_hash(length=6)
 		pi.bill_date = pi.posting_date
