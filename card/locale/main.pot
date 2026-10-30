@@ -3212,3 +3212,7 @@ msgstr ""
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
 msgid "{0} (draft session, not yet approved)"
 msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session"
+msgstr ""

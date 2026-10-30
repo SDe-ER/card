@@ -270,14 +270,21 @@ def _stream_rows(filters, stream, window, max_delivery, submitted_only):
 				"session_state": _session_state([s]),
 				"session_litres": flt(s.litres, 3),
 				"session_projects": s.project,
-				"note": _("Draft session ({0})").format(_(s.review_status or "Draft"))
-				if not s.docstatus
-				else "",
+				"note": _draft_note(s),
 				"exception": 0 if late else 1,
 				"submitted_litres": flt(s.litres, 3) if s.docstatus == 1 else 0,
 			}
 		)
 	return rows
+
+
+def _draft_note(session):
+	"""A draft session's review state; a plain "Draft" state needs no repetition."""
+	if session.docstatus:
+		return ""
+	if session.review_status in (None, "", "Draft"):
+		return _("Draft session")
+	return _("Draft session ({0})").format(_(session.review_status))
 
 
 def _sessions_label(sessions):
