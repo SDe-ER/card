@@ -87,12 +87,12 @@ class TestCostAllocation(_PostingBase):
 		self._card(eq, [8], submit=True)
 		self.assertEqual(self._pi().items[0].cost_center, project_cc)
 
-	def test_equipment_cost_center_when_project_has_none(self):
-		eq_cc = self._cc("EQ")
-		eq = self._equipment(cost_center=eq_cc)
+	def test_equipment_cost_center_without_a_project_cost_center_is_an_exception(self):
+		eq = self._equipment(cost_center=self._cc("EQ"))
 		self._set_project_cc(None)
 		self._card(eq, [8], submit=True)
-		self.assertEqual(self._pi().items[0].cost_center, eq_cc)
+		with self.assertRaisesRegex(frappe.ValidationError, "has no cost center"):
+			self._pi()
 
 	def test_company_default_when_nothing_is_set(self):
 		eq = self._equipment()
@@ -105,8 +105,8 @@ class TestCostAllocation(_PostingBase):
 		self._set_project_cc(self._cc("PROJ"))
 		self._assign(eq, self._cc("A1"), "2026-09-01", "2026-09-10")
 		self._assign(eq, self._cc("A2"), "2026-09-11")
-		self._card(eq, [8], submit=True)
-		with self.assertRaisesRegex(frappe.ValidationError, "carry different cost centers"):
+		self._card(eq, [8] * 12, submit=True)  # worked days 1-12 cover both assignments
+		with self.assertRaisesRegex(frappe.ValidationError, "resolve to different cost centers"):
 			self._pi()
 		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
 
@@ -133,14 +133,89 @@ class TestCostAllocation(_PostingBase):
 		with self.assertRaisesRegex(frappe.ValidationError, "cannot carry a posting"):
 			self._pi()
 
-	def test_a_disabled_equipment_cost_center_is_an_exception(self):
-		cc = self._cc("EQOFF")
-		eq = self._equipment(cost_center=cc)
+	def test_a_disabled_assignment_cost_center_is_an_exception(self):
+		eq = self._equipment()
+		cc = self._cc("OFF")
+		self._assign(eq, cc)
 		frappe.db.set_value("Cost Center", cc, "disabled", 1)
-		self._set_project_cc(None)
 		self._card(eq, [8], submit=True)
 		with self.assertRaisesRegex(frappe.ValidationError, "cannot carry a posting"):
 			self._pi()
+
+	def test_assignment_with_and_without_cost_center_in_one_card_is_an_exception(self):
+		eq = self._equipment()
+		self._set_project_cc(self._cc("PROJ"))
+		self._assign(eq, self._cc("X"), "2026-09-01", "2026-09-05")
+		self._assign(eq, None, "2026-09-06")
+		self._card(eq, [8, 8, 8, 8, 8, 8, 8], submit=True)  # days 1-7 cover both assignments
+		with self.assertRaisesRegex(frappe.ValidationError, "resolve to different cost centers"):
+			self._pi()
+
+	def test_assignment_without_cost_center_agreeing_with_the_project_is_one_allocation(self):
+		eq = self._equipment()
+		project_cc = self._cc("PROJ")
+		self._set_project_cc(project_cc)
+		self._assign(eq, project_cc, "2026-09-01", "2026-09-05")
+		self._assign(eq, None, "2026-09-06")
+		self._card(eq, [8, 8, 8, 8, 8, 8, 8], submit=True)
+		self.assertEqual(self._pi().items[0].cost_center, project_cc)
+
+	def test_an_assignment_on_non_working_days_only_is_not_a_conflict(self):
+		eq = self._equipment()
+		cc = self._cc("WORK")
+		self._assign(eq, cc, "2026-09-01", "2026-09-05")
+		self._assign(eq, self._cc("IDLE"), "2026-09-20")
+		self._card(eq, [8, 8], submit=True)  # worked on the 1st and 2nd only
+		self.assertEqual(self._pi().items[0].cost_center, cc)
+
+	def _unit(self, *components):
+		unit = frappe.new_doc("Card Equipment")
+		unit.update(
+			{
+				"company": self.company,
+				"equipment_type": self._m["etype"],
+				"ownership": "إيجار",
+				"equipment_name": "TEST-P1-UNIT-" + frappe.generate_hash(length=6),
+				"rate_type": "باليوم",
+				"rate": 750,
+				"daily_hours": 10,
+				"supplier": self.supplier,
+				"is_unit": 1,
+			}
+		)
+		for c in components:
+			unit.append("components", {"component": c.name, "role": "R"})
+		unit.insert(ignore_permissions=True)
+		return unit
+
+	def test_unit_without_its_own_assignment_uses_its_components(self):
+		c1, c2 = self._equipment(), self._equipment()
+		cc = self._cc("UNIT")
+		self._assign(c1, cc)
+		self._assign(c2, cc)
+		unit = self._unit(c1, c2)
+		self._card(unit, [8], submit=True)
+		self.assertEqual(self._pi().items[0].cost_center, cc)
+
+	def test_unit_components_on_different_cost_centers_are_an_exception(self):
+		c1, c2 = self._equipment(), self._equipment()
+		self._assign(c1, self._cc("U1"))
+		self._assign(c2, self._cc("U2"))
+		unit = self._unit(c1, c2)
+		self._card(unit, [8], submit=True)
+		with self.assertRaisesRegex(frappe.ValidationError, "resolve to different cost centers"):
+			self._pi()
+
+	def test_diesel_of_an_equipment_follows_its_assignment_cost_center(self):
+		eq = self._equipment()
+		assigned = self._cc("ASSIGN")
+		self._set_project_cc(self._cc("PROJ"))
+		self._assign(eq, assigned)
+		self._card(eq, [8], submit=True)
+		fill = self._fill(card_equipment=eq.name)
+		pi = self._pi()
+		self.assertEqual({i.cost_center for i in pi.items}, {assigned})
+		self.assertTrue(any(fill.name in i.description for i in pi.items))
 
 	def test_equipment_on_two_projects_in_one_month_splits_by_project(self):
 		eq = self._equipment()

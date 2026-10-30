@@ -16,18 +16,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Changed
-- **Project/equipment cost allocation on CARD postings** (FR-091, integration plan P1-0, 2026-10-30). A monthly
-  card's invoice lines (rental and its additions/deductions) now carry the cost center of the most specific
-  allocation that is set and valid for the company: the equipment's assignment to the card's project during the
-  card's period (when exactly one cost center applies), then the project's cost center, then the equipment's own;
-  the Card Company Settings cost center stays the last fallback. A diesel fill without its own cost center takes
-  its project's (the equipment stays on the line). An allocation that cannot be determined reliably refuses
-  the build for review instead of falling back: assignments with different cost centers inside one card's
-  period, or a cost center that is set but unusable (group, disabled, other company). An equipment that
-  worked on two projects in a month has one card per project, so each project carries its own share.
-  Transports keep their destination cost center. Impact: GL cost center of new CARD postings
-  (project costing), no permission, data or API change; the P0 signature covers the new values. Rollback: revert
-  the commit; postings already submitted keep their cost centers.
+- **Project/equipment cost allocation on CARD postings** (FR-091, integration plan P1-0, 2026-10-30). Card, diesel
+  and transport lines of CARD postings carry the project/equipment allocation instead of the company default. One
+  rule (`resolve_cost_center`) applies to every line: the assignments of the line's equipment to its project that
+  cover the line's days (a card's worked days, a fill's or transport's date; for a unit without its own
+  assignment, its components' assignments) each give their cost center or, when empty, the project's; one result is
+  used, different results refuse the build for review. Without an assignment the project's cost center applies.
+  A cost center that is set but unusable (group, disabled, other company) refuses the build. The equipment's own
+  (asset) cost center is never used for project work: a project without a cost center whose equipment has one is
+  refused for review. The Card Company Settings cost center applies only when nothing is allocated anywhere. A
+  fill's or transport's own cost center still wins; the equipment stays on every line. An equipment that worked on
+  two projects in a month has one card per project. Impact: GL cost centers of new CARD postings (project
+  costing); builds can now be refused where Projects/assignments carry unusable cost centers — check the data
+  before release. No permission or API change; the P0 signature covers the new values. Rollback: revert the
+  commits; submitted postings keep their cost centers.
 
 ### Fixed
 - **Monthly posting integrity, P0** (FR-090, integration audit 2026-10-30; QA failures T3b, T3c, T9h2, T9h3, T9i).
