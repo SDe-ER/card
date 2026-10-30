@@ -2920,3 +2920,175 @@ msgstr ""
 #: card/gl/posting.py
 msgid "{0}: who pays this move is not recorded; review it, then cancel and amend the transport with its payer (Transport cost borne by)."
 msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Aggregated invoice: sessions after {0} up to the bill date"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "Amount only: gross / session price = {0} L"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Delivery charge litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Delivery charge up to (litres)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Diesel sessions"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel suppliers (one delivery stream)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session ({0})"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Evidence"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Exceptions"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Invoice date window (days)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice gross"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "Invoice litres = session + {0} L delivery charge inside the diesel line"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice net"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice projects"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice states no litres: estimated as gross / session price {0} (unverified)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice without session"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced diesel litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Litre difference"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Litres equal"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Matched: {0}"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Not invoiced yet"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Other lines (not diesel) {0}"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: invoiced more than sessions"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: litres agree"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: sessions more than invoiced"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Physical diesel = session litres; the difference is a delivery charge booked as diesel"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Price VAT basis"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Select the period"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Separate delivery charge line {0}"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session projects"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session without invoice"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "Unverified (no litres on the invoice)"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "Unverified (price per litre {0} gross, {1} net)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT %"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "VAT-exclusive price"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "VAT-inclusive price"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "You need read access to {0} to run this report"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "the start of the period"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} invoice line(s) without project"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} sessions ({1} .. {2})"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel Invoice Reconciliation"
+msgstr ""
