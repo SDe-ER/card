@@ -452,6 +452,9 @@ class TestAggregationAndDiesel(_PostingBase):
 				"project_name": "TEST-S3-ISO-" + self.token,
 				"status": "Open",
 				"company": self.company,
+				"cost_center": frappe.db.get_value(
+					"Cost Center", {"company": self.company, "is_group": 0}, "name"
+				),
 			}
 		).insert(ignore_permissions=True)
 		self._card(eq_b, [8], submit=True, project=proj2.name)  # other project, same month

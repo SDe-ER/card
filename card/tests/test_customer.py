@@ -53,6 +53,10 @@ class _CustomerCardsBase(IntegrationTestCase):
 		proj = frappe.new_doc("Project")
 		proj.project_name = "TEST-CUST-PRJ-" + self.token
 		proj.company = self.company
+		# P1-0 (Owner decision 2026-10-30): CARD postings need the project's cost center
+		proj.cost_center = frappe.db.get_value(
+			"Cost Center", {"company": self.company, "is_group": 0}, "name"
+		)
 		proj.insert(ignore_permissions=True)
 		self.project = proj.name
 		sup = frappe.new_doc("Supplier")

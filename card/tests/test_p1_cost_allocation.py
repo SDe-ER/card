@@ -1,11 +1,12 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
-"""P1-0 (integration plan 2026-10-30): CARD posting lines carry the project/equipment cost
-allocation — the equipment's assignment to the card's project, then the project's cost
-center, then the equipment's own — instead of the company default; diesel fills without
-their own cost center take their project's. An allocation that cannot be determined reliably
-(different assignment cost centers in one card's period, or a set but unusable cost center)
-refuses the build for review."""
+"""P1-0 (integration plan 2026-10-30; Owner decision 2026-10-30): CARD posting lines carry the
+project/equipment cost allocation — the equipment's assignment to the line's project, then the
+project's cost center; never the company default or the equipment's own (asset) cost center for
+project work. A transport follows its verified cost bearer, not the destination project by
+default. An allocation that cannot be determined reliably (no project cost center, different
+cost centers in one period, a set but unusable cost center, a move between two projects, or no
+recorded payer) refuses the build for review."""
 
 import frappe
 from frappe.utils import flt
@@ -16,14 +17,6 @@ from card.tests.test_s3_posting import _PostingBase
 
 
 class TestCostAllocation(_PostingBase):
-	def setUp(self):
-		super().setUp()
-		self.default_cc = next(
-			r.cost_center
-			for r in frappe.get_doc("Card Settings").company_settings
-			if r.company == self.company
-		)
-
 	def _cc(self, suffix, is_group=0):
 		parent = frappe.db.get_value("Cost Center", {"company": self.company, "is_group": 1}, "name")
 		doc = frappe.get_doc(
@@ -94,11 +87,13 @@ class TestCostAllocation(_PostingBase):
 		with self.assertRaisesRegex(frappe.ValidationError, "has no cost center"):
 			self._pi()
 
-	def test_company_default_when_nothing_is_set(self):
+	def test_project_without_any_cost_center_is_an_exception(self):
+		# Owner decision 2026-10-30: the company default is never used for project work
 		eq = self._equipment()
 		self._set_project_cc(None)
 		self._card(eq, [8], submit=True)
-		self.assertEqual(self._pi().items[0].cost_center, self.default_cc)
+		with self.assertRaisesRegex(frappe.ValidationError, "has no cost center"):
+			self._pi()
 
 	def test_two_assignment_cost_centers_in_the_period_are_an_exception(self):
 		eq = self._equipment()
@@ -361,3 +356,145 @@ class TestCostAllocation(_PostingBase):
 		share = [i for i in pi.items if fill.name in i.description]
 		self.assertTrue(share)
 		self.assertEqual({(i.cost_center, i.card_equipment) for i in share}, {(assigned, eq.name)})
+
+	# ---- transport follows its explicitly verified cost bearer (Owner decisions 2026-10-30) ----
+	def _transport(self, eq, destination="Project", project=None, place=None, bearer="Company"):
+		t = frappe.new_doc("Equipment Transport")
+		t.update(
+			{
+				"date": "2026-09-10",
+				"company": self.company,
+				"transport_supplier": self.supplier,
+				"destination_type": destination,
+				"destination_location": place,
+				"project": project if destination == "Project" else None,
+				"cost_borne_by": bearer,
+				"amount": 400,
+			}
+		)
+		t.append("items", {"card_equipment": eq.name})
+		t.insert(ignore_permissions=True)
+		t.submit()
+		return t
+
+	def _shop(self, cost_center):
+		loc = frappe.new_doc("Location")
+		loc.location_name = "TEST-P1-SHOP-" + self.token
+		loc.insert(ignore_permissions=True)
+		settings = frappe.get_single("Card Settings")
+		settings.append(
+			"location_cost_centers",
+			{"company": self.company, "location": loc.name, "cost_center": cost_center},
+		)
+		settings.save(ignore_permissions=True)
+		return loc.name
+
+	def _assert_refused(self, t, pattern):
+		with self.assertRaisesRegex(frappe.ValidationError, pattern):
+			self._pi()
+		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
+		# the transport record is kept as it is: still submitted, not linked to any invoice
+		kept = frappe.db.get_value(
+			"Equipment Transport", t.name, ["docstatus", "purchase_invoice"], as_dict=True
+		)
+		self.assertEqual(kept.docstatus, 1)
+		self.assertFalse(kept.purchase_invoice)
+
+	def _other_project(self):
+		other = frappe.get_doc(
+			{"doctype": "Project", "project_name": "TEST-P1-PRJ-SRC-" + self.token, "company": self.company}
+		).insert(ignore_permissions=True)
+		frappe.db.set_value("Project", other.name, "cost_center", self._cc("SRC"))
+		return other.name
+
+	# positive
+	def test_workshop_move_paid_by_the_company_takes_the_configured_place_cost_center(self):
+		eq = self._equipment(cost_center=self._cc("ASSET"))
+		shop_cc = self._cc("SHOP")
+		place = self._shop(shop_cc)
+		self._assign(eq, self._cc("ASSIGN"), "2026-09-01")
+		t = self._transport(eq, destination="Workshop", place=place)
+		line = next(i for i in self._pi().items if t.name in i.description)
+		self.assertEqual((line.cost_center, line.card_equipment), (shop_cc, eq.name))
+
+	def test_move_paid_by_the_equipment_supplier_is_not_billed(self):
+		eq = self._equipment()
+		self._set_project_cc(self._cc("PROJ"))
+		self._card(eq, [8], submit=True)
+		t = self._transport(eq, project=self.project, bearer="Equipment Supplier")
+		pi = self._pi()
+		self.assertFalse([i for i in pi.items if t.name in i.description])
+		self.assertFalse(frappe.db.get_value("Equipment Transport", t.name, "purchase_invoice"))
+
+	def test_move_paid_by_the_customer_is_not_billed_to_the_company(self):
+		eq = self._equipment()
+		self._set_project_cc(self._cc("PROJ"))
+		self._card(eq, [8], submit=True)
+		t = self._transport(eq, project=self.project, bearer="Customer")
+		pi = self._pi()
+		self.assertFalse([i for i in pi.items if t.name in i.description])
+		self.assertFalse(frappe.db.get_value("Equipment Transport", t.name, "purchase_invoice"))
+
+	# negative
+	def test_company_paid_move_is_not_charged_to_the_destination_project(self):
+		eq = self._equipment(cost_center=self._cc("ASSET"))
+		self._set_project_cc(self._cc("DST"))
+		t = self._transport(eq, project=self.project)
+		self._assert_refused(t, "which project bears this move is not recorded")
+
+	def test_return_to_the_supplier_is_not_charged_to_the_source_project(self):
+		eq = self._equipment()
+		self._assign(eq, self._cc("LEFT"), "2026-09-01")
+		t = self._transport(eq, destination="Supplier")
+		self.assertEqual(t.project, self.project)  # the project it leaves, kept for the record only
+		self._assert_refused(t, "which project bears this move is not recorded")
+
+	def test_move_between_two_projects_is_charged_to_neither(self):
+		eq = self._equipment()
+		self._set_project_cc(self._cc("DST"))
+		self._assign(eq, None, "2026-09-01", project=self._other_project())
+		t = self._transport(eq, project=self.project)
+		self.assertTrue(t.items[0].from_project)
+		self._assert_refused(t, "which project bears this move is not recorded")
+
+	def test_move_with_no_recorded_payer_is_an_exception(self):
+		eq = self._equipment()
+		self._set_project_cc(self._cc("PROJ"))
+		t = self._transport(eq, project=self.project)
+		frappe.db.set_value("Equipment Transport", t.name, "cost_borne_by", "")
+		self._assert_refused(t, "who pays this move is not recorded")
+
+	def test_historical_move_without_origin_is_reported_and_kept(self):
+		eq = self._equipment()
+		self._set_project_cc(self._cc("PROJ"))
+		t = self._transport(eq, project=self.project)
+		frappe.db.set_value(
+			"Equipment Transport Item", t.items[0].name, {"from_type": "", "from_project": None}
+		)
+		frappe.db.set_value("Equipment Transport", t.name, {"source_type": "", "source_project": None})
+		self._assert_refused(t, "origin not recorded")
+		self.assertEqual(frappe.db.get_value("Equipment Transport Item", t.items[0].name, "from_type"), "")
+
+	def test_workshop_move_without_a_place_cost_center_is_an_exception(self):
+		eq = self._equipment(cost_center=self._cc("ASSET"))
+		place = self._shop(self._cc("SHOP"))
+		t = self._transport(eq, destination="Workshop", place=place)
+		frappe.db.set_value("Equipment Transport", t.name, "cost_center", None)
+		self._assert_refused(t, "has no cost center for its place")
+
+	def test_workshop_move_whose_place_cost_center_changed_is_an_exception(self):
+		eq = self._equipment()
+		place = self._shop(self._cc("SHOP"))
+		t = self._transport(eq, destination="Workshop", place=place)
+		settings = frappe.get_single("Card Settings")
+		next(r for r in settings.location_cost_centers if r.location == place).cost_center = self._cc("NEW")
+		settings.save(ignore_permissions=True)
+		self._assert_refused(t, "not the one now configured")
+
+	def test_workshop_move_with_a_disabled_place_cost_center_is_an_exception(self):
+		eq = self._equipment()
+		shop_cc = self._cc("SHOP")
+		place = self._shop(shop_cc)
+		t = self._transport(eq, destination="Workshop", place=place)
+		frappe.db.set_value("Cost Center", shop_cc, "disabled", 1)
+		self._assert_refused(t, "cannot be used for company")

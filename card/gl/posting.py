@@ -188,11 +188,9 @@ def resolve_cost_center(equipment, project, days, company, label):
 	Each covering assignment gives its own cost center, or the project's when it has none;
 	a single result is used, several are an exception (one card/line cannot be split
 	reliably). With no assignment the project's cost center applies. A cost center that
-	is set but unusable is an exception. None = nothing is allocated anywhere: the
-	company default of Card Company Settings applies. The equipment's own (asset) cost
-	center is never used for project work: it may belong to another project or to the
-	asset's home, so a project without a cost center but an equipment with one is an
-	exception to review."""
+	is set but unusable is an exception, and so is a project line with no cost center at
+	all (Owner decision 2026-10-30): neither the company default nor the equipment's own
+	(asset) cost center is used for project work. None only for a line with no project."""
 	project_cc = project and frappe.db.get_value("Project", project, "cost_center")
 	assignments = _overlapping_assignments(equipment, project, days) if equipment and project else []
 	if assignments:
@@ -226,14 +224,20 @@ def resolve_cost_center(equipment, project, days, company, label):
 
 
 def _no_project_allocation(equipment, project, label):
+	if not project:
+		return None
 	equipment_cc = equipment and frappe.db.get_value("Card Equipment", equipment, "cost_center")
-	if equipment_cc and project:
+	if equipment_cc:
 		_allocation_exception(
 			_(
 				"{0}: project {1} has no cost center, and the cost center of equipment {2} ({3}) may belong to another project or to the asset; set the project's (or the assignment's) cost center, then build again."
 			).format(label, project, equipment, equipment_cc)
 		)
-	return None
+	_allocation_exception(
+		_(
+			"{0}: project {1} has no cost center; set the project's (or the assignment's) cost center, then build again."
+		).format(label, project)
+	)
 
 
 def card_cost_center(card, company):
@@ -294,27 +298,58 @@ def fill_line_cost_center(fill, equipment, company, month=None, year=None):
 	return resolve_cost_center(equipment, fill.project, days, company, _("Diesel fill {0}").format(fill.name))
 
 
-def transport_line_cost_center(transport, equipment, company):
-	"""P1-0: the cost center of one transport line: the transport's own (its destination's,
-	set on save) when set; else the allocation of the equipment on the destination
-	project that day, or the project's."""
-	own = _source_cost_center("Equipment Transport", transport, company)
-	if own:
-		return own
-	if not transport.project:
-		# a workshop/storage move takes its place's cost center on save (required when the
-		# company pays); an older one saved without it is not charged to the company default
+def transport_line_cost_center(transport, company):
+	"""P1-0 (Owner decisions 2026-10-30): a transport line follows its explicitly verified
+	cost bearer. Only a move the company pays reaches here (the build filters on
+	cost_borne_by; a move without the company recorded as payer is an exception). A move
+	to a workshop or storage takes the cost center configured for that place in Card
+	Settings, when the one copied on save is valid and is still the configured one. This
+	blocking of project moves is a temporary safety control until P1-2 records an explicit
+	cost-bearing project on the transport. CARD records
+	no cost-bearing project for a move to or from a project, and neither the project it
+	leaves nor the project it goes to (nor the equipment's or the company default cost
+	center) is assumed, so such a move is an exception to review: the accountant enters
+	the supplier's invoice and links it."""
+	label = _("Transport {0}").format(transport.name)
+	if transport.get("cost_borne_by") != "Company":
 		_allocation_exception(
 			_(
-				"Transport {0} has no cost center and no project; set the place's cost center in Card Settings (Transport) and save the transport again."
-			).format(transport.name)
+				"{0}: who pays this move is not recorded; review it, then cancel and amend the transport with its payer (Transport cost borne by)."
+			).format(label)
 		)
-	return resolve_cost_center(
-		equipment,
-		transport.project,
-		[getdate(transport.date)],
-		company,
-		_("Transport {0}").format(transport.name),
+	if transport.get("destination_type") in ("Workshop", "Storage"):
+		own = _source_cost_center("Equipment Transport", transport, company)
+		configured = frappe.db.get_value(
+			"Card Location Cost Center",
+			{
+				"parent": "Card Settings",
+				"parenttype": "Card Settings",
+				"company": company,
+				"location": transport.get("destination_location"),
+			},
+			"cost_center",
+		)
+		if not own or not configured:
+			_allocation_exception(
+				_(
+					"{0} has no cost center for its place; set the place's cost center in Card Settings (Transport), then cancel and amend the transport."
+				).format(label)
+			)
+		if own != configured:
+			_allocation_exception(
+				_(
+					"{0}: its cost center {1} is not the one now configured for {2} in Card Settings ({3}); review it, then cancel and amend the transport."
+				).format(label, own, transport.get("destination_location"), configured)
+			)
+		return own
+	_allocation_exception(
+		_(
+			"{0} ({1} → {2}): which project bears this move is not recorded, and neither the project it leaves nor the project it goes to is assumed; review it and enter the supplier invoice manually."
+		).format(
+			label,
+			transport.get("source_project") or transport.get("source_type") or _("origin not recorded"),
+			transport.get("project") or transport.get("destination_type") or "",
+		)
 	)
 
 
@@ -362,11 +397,13 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 		},
 		fields=[
 			"name",
+			"cost_borne_by",
 			"project",
 			"amount",
 			"date",
 			"from_location",
 			"to_location",
+			"source_type",
 			"source_project",
 			"source_location",
 			"destination_type",
@@ -605,7 +642,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			# enforced on save), so each machine carries its own transport cost; a
 			# transport with no equipment stays one project-level line
 			for equipment, amount in transport_shares[t.name]:
-				cost_center = transport_line_cost_center(t, equipment, company)
+				cost_center = transport_line_cost_center(t, company)
 				lines.append(
 					{
 						"item_code": row.transport_item,
