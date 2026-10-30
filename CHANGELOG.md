@@ -27,16 +27,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     it repeats the lines of a CARD posting (Desk "Duplicate") or names a CARD source that an active posting
     holds. A CARD posting may not reuse the supplier bill no. of another live invoice of the supplier.
   - *Hand-booked supplier invoices*: before building a supplier month, CARD lists the supplier's draft or
-    submitted Purchase Invoices of that month (posting or bill date) that it did not build and that book
-    to the CARD accounts or items. The build is refused until each one is linked to the CARD sources it
+    submitted Purchase Invoices (not returns) that it did not build, dated (posting or bill date) from one
+    month before to two months after the CARD month, with a line on any Expense account, a CARD account or
+    a CARD item (lines without an item count by their account). The build is refused until each one is linked to the CARD sources it
     pays for (`card.gl.integrity.link_supplier_invoice`, POST, accountant roles: a Linked GL Posting Log
     reserves the sources; nothing is reposted and the invoice is not changed) or declared unrelated by an
     accountant (`reviewed_invoices` on `post_month` / `rebuild_month`, recorded on the log). Several
     legitimate invoices per supplier and month stay possible. Rebuild never deletes a linked invoice.
-    A link never shows unmatched amounts as matched: when the sources' total equals neither the invoice's
-    net nor its grand total, the link needs an accountant's explicit acceptance with a reason and the gap is
-    stored on the log (`link_difference`); an imported diesel session that carries a supplier invoice no.
-    can be linked only to the invoice with that bill no. A linked source cannot be cancelled while the
+    A link never shows unmatched amounts as matched: the sources are compared with the invoice's net total
+    on one VAT-exclusive basis (cards and transports net; diesel fills by the Diesel price VAT basis, net of
+    VAT when it is Inclusive and the invoice carries VAT). A gap, or a basis that is not verified, needs an
+    accountant's explicit acceptance with a reason and is stored on the log (`link_difference`). Sources may
+    span several months. Linking needs an accountant role, the company in the caller's CARD and accounting
+    scope, read on the supplier and the sources, and submit right on the invoice. An imported diesel session
+    that carries a supplier invoice no. can be linked only to the invoice with that bill no. A hand-booked
+    invoice submitted for a supplier that CARD posted for a nearby month shows those postings as a warning. A linked source cannot be cancelled while the
     invoice stands; credit and debit notes against linked or CARD invoices stay allowed.
   - *Diesel VAT basis*: new Card Company Settings field `diesel_price_vat_basis` (Exclusive / Inclusive /
     empty). For a VAT-registered supplier, empty refuses the build for review; Inclusive books the net

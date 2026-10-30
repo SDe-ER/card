@@ -181,9 +181,10 @@ def before_submit(doc, method=None):
 		# A return / credit note or a debit note against an invoice corrects it; it never books the source twice.
 		if doc.get("is_return") or doc.get("is_debit_note"):
 			return
-		from card.gl.integrity import check_not_a_copy
+		from card.gl.integrity import check_not_a_copy, warn_card_postings_nearby
 
 		check_not_a_copy(doc, "Supplier" if doc.doctype == "Purchase Invoice" else "Customer")
+		warn_card_postings_nearby(doc)
 		return
 	# KSA VAT input: the supplier's own invoice number/date must be on the PI.
 	if doc.doctype == "Purchase Invoice" and frappe.db.get_value("Supplier", doc.supplier, "tax_id"):

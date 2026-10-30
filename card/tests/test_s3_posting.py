@@ -134,7 +134,7 @@ class _PostingBase(_CustomerCardsBase):
 		frappe.clear_cache(doctype="Card Settings")
 
 	def _unrelated_manual_invoices(self):
-		"""P0 (FR-090): the supplier's hand-booked invoices of 09/2026 that CARD did not build, as an
+		"""P0 (FR-090): the supplier's hand-booked invoices around 09/2026 (the evidence window) that CARD did not build, as an
 		accountant who reviewed them as separate charges would list them for the build."""
 		return [
 			name
@@ -144,7 +144,7 @@ class _PostingBase(_CustomerCardsBase):
 					"supplier": self.supplier,
 					"docstatus": ["<", 2],
 					"is_return": 0,
-					"posting_date": ["between", ["2026-09-01", "2026-09-30"]],
+					"posting_date": ["between", ["2026-08-01", "2026-12-01"]],
 				},
 				pluck="name",
 			)

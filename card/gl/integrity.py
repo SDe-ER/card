@@ -216,6 +216,14 @@ def accept_correction(invoice_doctype: str, invoice: str, reason: str):
 		frappe.throw(_("Give the reason for the correction."))
 	doc = frappe.get_doc(invoice_doctype, invoice)
 	doc.check_permission("write")
+	from card.gl.posting import POSTING_SOURCE_DOCTYPES
+	from card.report_access import permitted_companies
+
+	if doc.company not in permitted_companies(*POSTING_SOURCE_DOCTYPES, invoice_doctype, "GL Posting Log"):
+		frappe.throw(
+			_("You are not permitted to correct CARD postings of company {0}.").format(doc.company),
+			frappe.PermissionError,
+		)
 	if doc.docstatus != 0:
 		frappe.throw(_("Only a draft can be corrected."))
 	from card.gl.events import _log_for
@@ -294,17 +302,33 @@ def check_not_a_copy(doc, side):
 
 # ---------- manual-invoice evidence ----------
 
+# A supplier invoice can cover operations of the month while it is dated before or after it (a fuel invoice
+# covering 24/09–06/10 dated 06/10; a rental invoice for May–June dated 05/07). The evidence window around a
+# CARD month therefore reaches back one month and forward two.
+EVIDENCE_DAYS_BEFORE = 31
+EVIDENCE_DAYS_AFTER = 62
+
+
+def evidence_window(first_day, last_day):
+	from frappe.utils import add_days
+
+	return add_days(first_day, -EVIDENCE_DAYS_BEFORE), add_days(last_day, EVIDENCE_DAYS_AFTER)
+
 
 def manual_invoice_candidates(company, supplier, first_day, last_day, accounts, items):
-	"""Purchase Invoices (draft or submitted) of the supplier dated in the month
-	(posting or bill date) that CARD did not build and that book to a CARD
-	account or item — possible evidence that the operations are already booked."""
+	"""Purchase Invoices (draft or submitted, not returns) of the supplier that CARD
+	did not build, dated (posting or bill date) in the evidence window of the month,
+	with at least one line on an Expense account, a CARD account or a CARD item —
+	possible evidence that the operations are already booked. Lines without an
+	item code count by their account. Returns, stock and asset purchases are not
+	evidence; an invoice already linked to CARD sources is reported as handled."""
+	start, end = evidence_window(first_day, last_day)
 	invoices = frappe.get_all(
 		"Purchase Invoice",
 		filters={"company": company, "supplier": supplier, "docstatus": ["<", 2], "is_return": 0},
 		or_filters={
-			"posting_date": ["between", [first_day, last_day]],
-			"bill_date": ["between", [first_day, last_day]],
+			"posting_date": ["between", [start, end]],
+			"bill_date": ["between", [start, end]],
 		},
 		fields=["name", "docstatus", "bill_no", "bill_date", "posting_date", "net_total", "grand_total"],
 	)
@@ -323,14 +347,28 @@ def manual_invoice_candidates(company, supplier, first_day, last_day, accounts, 
 			fields=["name", "origin", "posting_doc"],
 		)
 	}
-	hits = set(
+	lines = frappe.get_all(
+		"Purchase Invoice Item",
+		filters={"parent": ["in", names], "parenttype": "Purchase Invoice"},
+		fields=["parent", "expense_account", "item_code"],
+	)
+	expense_accounts = set(
 		frappe.get_all(
-			"Purchase Invoice Item",
-			filters={"parent": ["in", names], "parenttype": "Purchase Invoice"},
-			or_filters={"expense_account": ["in", list(accounts)], "item_code": ["in", list(items)]},
-			pluck="parent",
+			"Account",
+			filters={
+				"name": ["in", list({ln.expense_account for ln in lines if ln.expense_account})],
+				"root_type": "Expense",
+			},
+			pluck="name",
 		)
 	)
+	hits = {
+		ln.parent
+		for ln in lines
+		if ln.expense_account in accounts
+		or ln.expense_account in expense_accounts
+		or (ln.item_code and ln.item_code in items)
+	}
 	out = []
 	for inv in invoices:
 		log = logs.get(inv.name)
@@ -344,29 +382,40 @@ def manual_invoice_candidates(company, supplier, first_day, last_day, accounts, 
 
 def require_reviewed(candidates, reviewed):
 	"""Refuse to build while a candidate manual invoice is neither linked to CARD
-	sources nor declared unrelated by an accountant for this build."""
+	sources nor declared unrelated by an accountant for this build. Invoice names
+	are shown only to a user who may read them."""
 	pending = [c for c in candidates if not c.linked_log and c.name not in reviewed]
 	if pending:
+		readable = [c for c in pending if frappe.has_permission("Purchase Invoice", "read", c.name)]
+		listed = ", ".join(
+			"{0} ({1}{2})".format(
+				c.name, c.bill_no or _("no bill no."), _(", draft") if c.docstatus == 0 else ""
+			)
+			for c in readable
+		)
+		hidden = len(pending) - len(readable)
+		if hidden:
+			listed = ", ".join(filter(None, [listed, _("{0} invoice(s) you cannot open").format(hidden)]))
 		frappe.throw(
 			_(
-				"Supplier invoices already booked for this month may cover the same operations: {0}. Link each one to the CARD sources it pays for (Link supplier invoice), or have an accountant confirm it is unrelated, then build again."
-			).format(
-				", ".join(
-					"{0} ({1}{2})".format(
-						c.name, c.bill_no or _("no bill no."), _(", draft") if c.docstatus == 0 else ""
-					)
-					for c in pending
-				)
-			),
+				"Supplier invoices booked around this month may cover the same operations: {0}. Link each one to the CARD sources it pays for (Link supplier invoice), or have an accountant confirm it is unrelated, then build again."
+			).format(listed),
 			title=_("Possible duplicate expense"),
 		)
-	if reviewed and not REVIEW_ROLES & set(frappe.get_roles()):
-		frappe.throw(_("Only an accountant may declare supplier invoices unrelated."), frappe.PermissionError)
-	unknown = set(reviewed) - {c.name for c in candidates}
-	if unknown:
-		frappe.throw(
-			_("Not a candidate invoice for this supplier and month: {0}").format(", ".join(sorted(unknown)))
-		)
+	if reviewed:
+		if not REVIEW_ROLES & set(frappe.get_roles()):
+			frappe.throw(
+				_("Only an accountant may declare supplier invoices unrelated."), frappe.PermissionError
+			)
+		unknown = set(reviewed) - {c.name for c in candidates}
+		if unknown:
+			frappe.throw(
+				_("Not a candidate invoice for this supplier and month: {0}").format(
+					", ".join(sorted(unknown))
+				)
+			)
+		for name in reviewed:
+			frappe.has_permission("Purchase Invoice", "read", name, throw=True)
 
 
 def lock_sources(sources):
@@ -374,6 +423,24 @@ def lock_sources(sources):
 	the same documents waits and then sees the first one's reservation."""
 	for doctype, name in sorted((dt, n) for dt, rows in sources.items() for n, _amount in rows):
 		frappe.db.get_value(doctype, name, "name", for_update=True)
+
+
+def _source_net_amount(doctype, src, row, vat_rate, invoice_has_vat):
+	"""The amount of one CARD source on the VAT-exclusive basis of the supplier invoice
+	it is linked to, or None when that basis cannot be verified. Cards and transports
+	carry net amounts; a diesel fill carries litres × price, whose VAT basis is the
+	company's Diesel price VAT basis. Without VAT on the invoice every amount is its own total."""
+	if doctype == "Card Monthly Card":
+		return flt(src.net_amount, 2)
+	amount = flt(src.amount, 2)
+	if doctype == "Equipment Transport" or not invoice_has_vat:
+		return amount
+	basis = row.get("diesel_price_vat_basis") if row else None
+	if basis == "Exclusive":
+		return amount
+	if basis == "Inclusive" and vat_rate:
+		return flt(amount * 100 / (100 + vat_rate), 2)
+	return None
 
 
 @frappe.whitelist(methods=["POST"])
@@ -385,11 +452,21 @@ def link_supplier_invoice(
 	changed: a Linked GL Posting Log reserves the sources so CARD never builds them
 	again, and the sources show the invoice once it is submitted.
 
-	Evidence: an imported diesel session that carries its supplier invoice no. must
-	name this invoice; when the sources' total matches neither the invoice's net nor
-	its grand total, the link is refused unless an accountant accepts the difference
-	with a reason — it is then stored on the log as an open difference, never shown as matched."""
+	Authorization: an accountant role, the company within the caller's CARD and
+	accounting scope, read on the supplier and every source, and submit right on
+	the invoice (the right to make it a ledger document).
+
+	Evidence: the sources are compared with the invoice's net total on one basis
+	(cards and transports net; fills by the Diesel price VAT basis); a gap, or a
+	basis that cannot be verified, is refused unless an accountant accepts it with a
+	reason, and it is then stored on the log as an open difference, never shown as
+	matched. An imported diesel session that carries its supplier invoice no. links
+	only to the invoice with that bill no. Sources may span several months (an
+	invoice covering 24/09–06/10)."""
 	from card.gl.events import active_log_holding, link_sources_on_submit
+	from card.gl.posting import POSTING_SOURCE_DOCTYPES
+	from card.report_access import permitted_companies
+	from card.settings import setting
 
 	if not REVIEW_ROLES & set(frappe.get_roles()):
 		frappe.throw(
@@ -399,6 +476,13 @@ def link_supplier_invoice(
 		sources = json.loads(sources)
 	inv = frappe.get_doc("Purchase Invoice", invoice)
 	inv.check_permission("read")
+	if inv.company not in permitted_companies(*POSTING_SOURCE_DOCTYPES, "Purchase Invoice", "GL Posting Log"):
+		frappe.throw(
+			_("You are not permitted to link invoices for company {0}.").format(inv.company),
+			frappe.PermissionError,
+		)
+	frappe.has_permission("Purchase Invoice", "submit", inv, throw=True)
+	frappe.has_permission("Supplier", "read", inv.supplier, throw=True)
 	if inv.docstatus == 2 or inv.is_return:
 		frappe.throw(_("{0} is cancelled or a return; link the valid supplier invoice.").format(invoice))
 	built = frappe.db.get_value(
@@ -422,7 +506,21 @@ def link_supplier_invoice(
 			frappe.throw(_("{0} is not a CARD source type.").format(doctype))
 		rows[doctype].append((name, 0))
 	lock_sources(rows)
-	months = set()
+	settings_row = next(
+		(
+			r
+			for r in frappe.get_cached_doc("Card Settings").get("company_settings") or []
+			if r.company == inv.company
+		),
+		None,
+	)
+	invoice_has_vat = flt(inv.total_taxes_and_charges, 2) != 0
+	vat_rate = 0
+	if invoice_has_vat and settings_row and settings_row.get("purchase_tax_template"):
+		from card.gl.posting import _vat_rate
+
+		vat_rate = _vat_rate(settings_row.purchase_tax_template)
+	unverified = []
 	for doctype, items in rows.items():
 		for i, (name, _amount) in enumerate(items):
 			src = frappe.get_doc(doctype, name)
@@ -444,8 +542,6 @@ def link_supplier_invoice(
 				frappe.throw(
 					_("{0} {1} is already held by {2}.").format(_(doctype), name, holder.posting_doc)
 				)
-			amount = flt(src.get("net_amount") if doctype == "Card Monthly Card" else src.get("amount"), 2)
-			items[i] = (name, amount)
 			invoice_no = src.get("supplier_invoice_no") if doctype == "Project Diesel Fill" else None
 			if invoice_no and (invoice_no or "").strip() != (inv.bill_no or "").strip():
 				frappe.throw(
@@ -453,25 +549,33 @@ def link_supplier_invoice(
 						_(doctype), name, invoice_no, invoice, inv.bill_no or "-"
 					)
 				)
-			if doctype == "Card Monthly Card":
-				months.add((int(src.month), int(src.year)))
-			else:
-				day = getdate(src.date)
-				months.add((day.month, day.year))
-	if len(months) != 1:
-		frappe.throw(_("Link the sources of one month at a time."))
-	month, year = months.pop()
-	sources_total = flt(sum(a for items in rows.values() for _n, a in items), 2)
-	from card.settings import setting
-
-	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
-	gaps = [flt(flt(inv.net_total, 2) - sources_total, 2), flt(flt(inv.grand_total, 2) - sources_total, 2)]
-	difference = 0 if any(abs(g) <= tolerance for g in gaps) else gaps[0]
-	if difference and not (frappe.utils.cint(accept_difference) and (reason or "").strip()):
+			net = _source_net_amount(doctype, src, settings_row, vat_rate, invoice_has_vat)
+			if net is None:
+				unverified.append(name)
+				net = flt(src.amount, 2)
+			items[i] = (name, net)
+	posting_day = getdate(inv.bill_date or inv.posting_date)
+	sources_net = flt(sum(a for items in rows.values() for _n, a in items), 2)
+	# per-line rounding of VAT-inclusive fills: up to one halala per fill
+	tolerance = (flt(setting("reconciliation_tolerance")) or 0.01) + 0.01 * len(rows["Project Diesel Fill"])
+	difference = flt(flt(inv.net_total, 2) - sources_net, 2)
+	if abs(difference) <= tolerance and not unverified:
+		difference = 0
+	accepted = frappe.utils.cint(accept_difference) and (reason or "").strip()
+	if (difference or unverified) and not accepted:
+		problem = (
+			_("the VAT basis of fills {0} is not verified (Card Settings: Diesel price VAT basis)").format(
+				", ".join(unverified)
+			)
+			if unverified
+			else _("the CARD sources total {0} net, {1} is net {2}").format(
+				sources_net, invoice, flt(inv.net_total, 2)
+			)
+		)
 		frappe.throw(
 			_(
-				"The CARD sources total {0}; {1} is net {2} / total {3}. Link only the sources this invoice pays for, or accept the difference {4} with a reason."
-			).format(sources_total, invoice, flt(inv.net_total, 2), flt(inv.grand_total, 2), difference),
+				"Cannot confirm the link: {0}. Link only the sources this invoice pays for, or accept the difference {1} with a reason."
+			).format(problem, difference),
 			title=_("Linked amounts differ"),
 		)
 	log = frappe.get_doc(
@@ -481,25 +585,29 @@ def link_supplier_invoice(
 			"company": inv.company,
 			"party_type": "Supplier",
 			"party": inv.supplier,
-			"month": "%02d" % month,
-			"year": year,
+			"month": "%02d" % posting_day.month,
+			"year": posting_day.year,
 			"posting_type": "Purchase Invoice",
 			"sequence": 1,
 			"status": "Submitted" if inv.docstatus == 1 else "Draft",
 			"posting_doctype": "Purchase Invoice",
 			"posting_doc": inv.name,
 			"amount": flt(inv.grand_total, 2),
-			"link_difference": difference,
+			"link_difference": flt(flt(inv.net_total, 2) - sources_net, 2)
+			if (difference or unverified)
+			else 0,
 			"remarks": _(
-				"Linked by {0}: supplier invoice {1} (bill no. {2}) net {3} / total {4}, CARD sources {5}, {6}. {7}"
+				"Linked by {0}: supplier invoice {1} (bill no. {2}) net {3} / total {4}, CARD sources net {5}, {6}. {7}"
 			).format(
 				frappe.session.user,
 				inv.name,
 				inv.bill_no or "-",
 				flt(inv.net_total, 2),
 				flt(inv.grand_total, 2),
-				sources_total,
-				_("open difference {0} accepted").format(difference) if difference else _("matched"),
+				sources_net,
+				_("open difference {0} accepted").format(flt(flt(inv.net_total, 2) - sources_net, 2))
+				if (difference or unverified)
+				else _("matched"),
 				reason or "",
 			),
 		}
@@ -512,3 +620,45 @@ def link_supplier_invoice(
 	if inv.docstatus == 1:
 		link_sources_on_submit(inv, log)
 	return log.name
+
+
+def warn_card_postings_nearby(doc):
+	"""R1 operational control: a hand-booked supplier invoice of a supplier that CARD
+	already posted for a nearby month is shown the CARD postings, so the accountant
+	checks it is not the same operation before it reaches the ledger (not blocking:
+	the supplier may send several legitimate invoices)."""
+	if doc.doctype != "Purchase Invoice" or not doc.get("supplier"):
+		return
+	from frappe.utils import add_days
+
+	day = getdate(doc.get("bill_date") or doc.posting_date)
+	start, end = add_days(day, -EVIDENCE_DAYS_AFTER), add_days(day, EVIDENCE_DAYS_BEFORE)
+	nearby = [
+		log
+		for log in frappe.get_all(
+			"GL Posting Log",
+			filters={
+				"company": doc.company,
+				"party_type": "Supplier",
+				"party": doc.supplier,
+				"status": ["in", list(ACTIVE_STATES)],
+				"origin": ["in", ["Built", "", None]],
+				"posting_doc": ["!=", doc.name],
+			},
+			fields=["posting_doc", "month", "year", "amount"],
+		)
+		if start <= getdate("{0}-{1}-01".format(log.year, log.month)) <= end
+	]
+	if nearby:
+		frappe.msgprint(
+			_(
+				"CARD already booked postings for this supplier: {0}. Check that this invoice is not for the same operations."
+			).format(
+				", ".join(
+					"{0} ({1}/{2}, {3})".format(n.posting_doc, n.month, n.year, flt(n.amount, 2))
+					for n in nearby
+				),
+			),
+			title=_("Check for a duplicate expense"),
+			indicator="orange",
+		)
