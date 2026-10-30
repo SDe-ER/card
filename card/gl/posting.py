@@ -138,44 +138,79 @@ def _valid_cost_center(cc, company):
 	return cc if row and row.company == company and not row.is_group and not row.disabled else None
 
 
+def _allocation_exception(message):
+	frappe.throw(message, title=_("Cost allocation needs review"))
+
+
+def _checked_allocation(cc, company, what):
+	"""A configured allocation must be usable as it is: an invalid one is an exception for
+	review, never silently replaced by a less specific cost center."""
+	if _valid_cost_center(cc, company):
+		return cc
+	_allocation_exception(
+		_(
+			"{0} has cost center {1}, which cannot carry a posting of company {2} (it must be an enabled, non-group cost center of that company). Correct it and build again."
+		).format(what, cc, company)
+	)
+
+
 def card_cost_center(card, company):
-	"""P1-0: the cost center a monthly card's lines carry, from the most specific allocation
-	that is set and valid for the company — the equipment's assignment to the card's project
-	in force during the card's period (one cost center only), then the project's cost center,
-	then the equipment's own. None = the company default of Card Company Settings."""
+	"""P1-0: the cost center of a monthly card's lines, from the most specific allocation
+	that is set: the equipment's assignment(s) to the card's project overlapping the card's
+	period, then the project's cost center, then the equipment's own; None = no allocation
+	is set anywhere, so the Card Company Settings default applies.
+	A card covers one project; an equipment that worked on two projects in a month has one
+	card per project (card days must fall inside that project's assignment). Assignments
+	with different cost centers inside one card's period, or a set but unusable cost center,
+	cannot be allocated reliably: the build is refused with an exception for review."""
 	start, end = getdate(card.from_date), getdate(card.to_date or card.from_date)
-	centers = {
-		a.cost_center
+	assignments = [
+		a
 		for a in frappe.get_all(
 			"Card Equipment Assignment",
 			filters={"equipment": card.equipment, "project": card.project},
-			fields=["from_date", "to_date", "cost_center"],
+			fields=["name", "from_date", "to_date", "cost_center"],
 		)
-		if a.cost_center
-		and a.from_date
-		and getdate(a.from_date) <= end
-		and (not a.to_date or getdate(a.to_date) >= start)
-	}
-	candidates = []
-	if len(centers) == 1:
-		candidates.append(centers.pop())
-	if card.project:
-		candidates.append(frappe.db.get_value("Project", card.project, "cost_center"))
-	if card.equipment:
-		candidates.append(frappe.db.get_value("Card Equipment", card.equipment, "cost_center"))
-	for cc in candidates:
-		if _valid_cost_center(cc, company):
-			return cc
+		if a.from_date and getdate(a.from_date) <= end and (not a.to_date or getdate(a.to_date) >= start)
+	]
+	centers = {a.cost_center for a in assignments if a.cost_center}
+	if len(centers) > 1:
+		_allocation_exception(
+			_(
+				"Card {0}: the assignments of {1} to project {2} in its period carry different cost centers ({3}: {4}); split the card by assignment or align the assignments, then build again."
+			).format(
+				card.name,
+				card.equipment,
+				card.project,
+				", ".join(sorted(a.name for a in assignments if a.cost_center)),
+				", ".join(sorted(centers)),
+			)
+		)
+	if centers:
+		return _checked_allocation(
+			centers.pop(),
+			company,
+			_("The assignment of {0} to project {1}").format(card.equipment, card.project),
+		)
+	project_cc = card.project and frappe.db.get_value("Project", card.project, "cost_center")
+	if project_cc:
+		return _checked_allocation(project_cc, company, _("Project {0}").format(card.project))
+	equipment_cc = card.equipment and frappe.db.get_value("Card Equipment", card.equipment, "cost_center")
+	if equipment_cc:
+		return _checked_allocation(equipment_cc, company, _("Equipment {0}").format(card.equipment))
 	return None
 
 
 def fill_cost_center(fill, company):
-	"""P1-0: a diesel fill's own cost center (validated, #34), else its project's."""
+	"""P1-0: a diesel fill's own cost center (validated, #34), else its project's (checked the
+	same way: a set but unusable project cost center is an exception). The equipment stays on
+	the line (direct fill, or the split by operating hours), so equipment traceability is kept."""
 	own = _source_cost_center("Project Diesel Fill", fill, company)
 	if own:
 		return own
-	if fill.project:
-		return _valid_cost_center(frappe.db.get_value("Project", fill.project, "cost_center"), company)
+	project_cc = fill.project and frappe.db.get_value("Project", fill.project, "cost_center")
+	if project_cc:
+		return _checked_allocation(project_cc, company, _("Project {0}").format(fill.project))
 	return None
 
 

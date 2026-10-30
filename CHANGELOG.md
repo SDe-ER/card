@@ -21,7 +21,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   allocation that is set and valid for the company: the equipment's assignment to the card's project during the
   card's period (when exactly one cost center applies), then the project's cost center, then the equipment's own;
   the Card Company Settings cost center stays the last fallback. A diesel fill without its own cost center takes
-  its project's. Transports keep their destination cost center. Impact: GL cost center of new CARD postings
+  its project's (the equipment stays on the line). An allocation that cannot be determined reliably refuses
+  the build for review instead of falling back: assignments with different cost centers inside one card's
+  period, or a cost center that is set but unusable (group, disabled, other company). An equipment that
+  worked on two projects in a month has one card per project, so each project carries its own share.
+  Transports keep their destination cost center. Impact: GL cost center of new CARD postings
   (project costing), no permission, data or API change; the P0 signature covers the new values. Rollback: revert
   the commit; postings already submitted keep their cost centers.
 
