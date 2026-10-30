@@ -31,7 +31,8 @@
   "accepted_signature",
   "accepted_by",
   "correction_reason",
-  "reviewed_invoices"
+  "reviewed_invoices",
+  "link_difference"
  ],
  "fields": [
   {
@@ -227,11 +228,17 @@
    "fieldtype": "Small Text",
    "label": "Supplier invoices reviewed as unrelated",
    "read_only": 1
+  },
+  {
+   "fieldname": "link_difference",
+   "fieldtype": "Currency",
+   "label": "Open difference (linked invoice)",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-30 18:00:00.000000",
+ "modified": "2026-10-30 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "GL Posting Log",

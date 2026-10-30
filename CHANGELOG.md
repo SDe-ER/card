@@ -33,6 +33,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     reserves the sources; nothing is reposted and the invoice is not changed) or declared unrelated by an
     accountant (`reviewed_invoices` on `post_month` / `rebuild_month`, recorded on the log). Several
     legitimate invoices per supplier and month stay possible. Rebuild never deletes a linked invoice.
+    A link never shows unmatched amounts as matched: when the sources' total equals neither the invoice's
+    net nor its grand total, the link needs an accountant's explicit acceptance with a reason and the gap is
+    stored on the log (`link_difference`); an imported diesel session that carries a supplier invoice no.
+    can be linked only to the invoice with that bill no. A linked source cannot be cancelled while the
+    invoice stands; credit and debit notes against linked or CARD invoices stay allowed.
   - *Diesel VAT basis*: new Card Company Settings field `diesel_price_vat_basis` (Exclusive / Inclusive /
     empty). For a VAT-registered supplier, empty refuses the build for review; Inclusive books the net
     part (fill amount × 100 / (100 + VAT rate)) so the invoice total stays the fill amount; Exclusive keeps

@@ -377,11 +377,18 @@ def lock_sources(sources):
 
 
 @frappe.whitelist(methods=["POST"])
-def link_supplier_invoice(invoice: str, sources: str | list, reason: str | None = None):
+def link_supplier_invoice(
+	invoice: str, sources: str | list, reason: str | None = None, accept_difference: int | str = 0
+):
 	"""Record that an existing supplier Purchase Invoice (booked by hand) already
 	pays for these CARD sources. Nothing is reposted and the invoice is not
 	changed: a Linked GL Posting Log reserves the sources so CARD never builds them
-	again, and the sources show the invoice once it is submitted."""
+	again, and the sources show the invoice once it is submitted.
+
+	Evidence: an imported diesel session that carries its supplier invoice no. must
+	name this invoice; when the sources' total matches neither the invoice's net nor
+	its grand total, the link is refused unless an accountant accepts the difference
+	with a reason — it is then stored on the log as an open difference, never shown as matched."""
 	from card.gl.events import active_log_holding, link_sources_on_submit
 
 	if not REVIEW_ROLES & set(frappe.get_roles()):
@@ -439,6 +446,13 @@ def link_supplier_invoice(invoice: str, sources: str | list, reason: str | None 
 				)
 			amount = flt(src.get("net_amount") if doctype == "Card Monthly Card" else src.get("amount"), 2)
 			items[i] = (name, amount)
+			invoice_no = src.get("supplier_invoice_no") if doctype == "Project Diesel Fill" else None
+			if invoice_no and (invoice_no or "").strip() != (inv.bill_no or "").strip():
+				frappe.throw(
+					_("{0} {1} was recorded on supplier invoice no. {2}, not on {3} (bill no. {4}).").format(
+						_(doctype), name, invoice_no, invoice, inv.bill_no or "-"
+					)
+				)
 			if doctype == "Card Monthly Card":
 				months.add((int(src.month), int(src.year)))
 			else:
@@ -448,6 +462,18 @@ def link_supplier_invoice(invoice: str, sources: str | list, reason: str | None 
 		frappe.throw(_("Link the sources of one month at a time."))
 	month, year = months.pop()
 	sources_total = flt(sum(a for items in rows.values() for _n, a in items), 2)
+	from card.settings import setting
+
+	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
+	gaps = [flt(flt(inv.net_total, 2) - sources_total, 2), flt(flt(inv.grand_total, 2) - sources_total, 2)]
+	difference = 0 if any(abs(g) <= tolerance for g in gaps) else gaps[0]
+	if difference and not (frappe.utils.cint(accept_difference) and (reason or "").strip()):
+		frappe.throw(
+			_(
+				"The CARD sources total {0}; {1} is net {2} / total {3}. Link only the sources this invoice pays for, or accept the difference {4} with a reason."
+			).format(sources_total, invoice, flt(inv.net_total, 2), flt(inv.grand_total, 2), difference),
+			title=_("Linked amounts differ"),
+		)
 	log = frappe.get_doc(
 		{
 			"doctype": "GL Posting Log",
@@ -463,15 +489,17 @@ def link_supplier_invoice(invoice: str, sources: str | list, reason: str | None 
 			"posting_doctype": "Purchase Invoice",
 			"posting_doc": inv.name,
 			"amount": flt(inv.grand_total, 2),
+			"link_difference": difference,
 			"remarks": _(
-				"Linked by {0}: supplier invoice {1} (bill no. {2}) net {3}, CARD sources {4}, difference {5}. {6}"
+				"Linked by {0}: supplier invoice {1} (bill no. {2}) net {3} / total {4}, CARD sources {5}, {6}. {7}"
 			).format(
 				frappe.session.user,
 				inv.name,
 				inv.bill_no or "-",
 				flt(inv.net_total, 2),
+				flt(inv.grand_total, 2),
 				sources_total,
-				flt(flt(inv.net_total, 2) - sources_total, 2),
+				_("open difference {0} accepted").format(difference) if difference else _("matched"),
 				reason or "",
 			),
 		}

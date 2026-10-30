@@ -293,7 +293,7 @@ class TestManualInvoiceEvidence(_P0Base):
 
 	def test_link_to_a_draft_invoice_then_submit(self):
 		card = self._rental_card()
-		manual = self._manual_pi(800, submit=False)
+		manual = self._manual_pi(600, submit=False)
 		link_supplier_invoice(manual.name, [{"doctype": "Card Monthly Card", "name": card.name}])
 		self.assertEqual(self._log(manual.name).status, "Draft")
 		manual.reload()
@@ -320,7 +320,7 @@ class TestManualInvoiceEvidence(_P0Base):
 
 	def test_rebuild_never_deletes_a_linked_draft_invoice(self):
 		card = self._rental_card()
-		manual = self._manual_pi(800, submit=False)
+		manual = self._manual_pi(600, submit=False)
 		link_supplier_invoice(manual.name, [{"doctype": "Card Monthly Card", "name": card.name}])
 		self._rental_card(hours=(4,))
 		pi = frappe.get_doc(
@@ -409,3 +409,99 @@ class TestSalesInvoiceSignature(_P0Base):
 		si.save()
 		with self.assertRaisesRegex(frappe.ValidationError, "differs from what CARD built"):
 			si.submit()
+
+
+class TestLinkEvidence(_P0Base):
+	"""A link never shows unmatched amounts as matched, and imported sessions keep their invoice identity."""
+
+	def test_amount_difference_needs_an_accepted_reason(self):
+		card = self._rental_card()  # 600
+		manual = self._manual_pi(650)
+		with self.assertRaisesRegex(frappe.ValidationError, "accept the difference"):
+			link_supplier_invoice(manual.name, [{"doctype": "Card Monthly Card", "name": card.name}])
+		with self.assertRaisesRegex(frappe.ValidationError, "accept the difference"):
+			link_supplier_invoice(manual.name, [{"doctype": "Card Monthly Card", "name": card.name}], "", 1)
+		log = frappe.get_doc(
+			"GL Posting Log",
+			link_supplier_invoice(
+				manual.name,
+				[{"doctype": "Card Monthly Card", "name": card.name}],
+				"mobilization on the invoice",
+				1,
+			),
+		)
+		self.assertEqual(flt(log.link_difference, 2), 50.0)
+		self.assertIn("open difference", log.remarks)
+
+	def test_matched_against_the_vat_inclusive_total(self):
+		self._vat_supplier()
+		fill = self._fill(litres=300, price=2.3)  # 690.00 incl. VAT
+		manual = self._manual_pi(600, item=None, account=self.exp_diesel, submit=False)
+		manual.taxes_and_charges = frappe.db.get_value(
+			"Purchase Taxes and Charges Template",
+			{"title": "Test CARD Purchase VAT", "company": self.company},
+			"name",
+		)
+		manual.set("taxes", [])
+		from erpnext.controllers.accounts_controller import get_taxes_and_charges
+
+		for row in get_taxes_and_charges("Purchase Taxes and Charges Template", manual.taxes_and_charges):
+			manual.append("taxes", row)
+		manual.save()
+		self.assertEqual(flt(manual.grand_total, 2), 690.0)
+		log = frappe.get_doc(
+			"GL Posting Log",
+			link_supplier_invoice(manual.name, [{"doctype": "Project Diesel Fill", "name": fill.name}]),
+		)
+		self.assertEqual(flt(log.link_difference, 2), 0.0)
+		self.assertIn("matched", log.remarks)
+
+	def test_imported_session_must_name_this_invoice_and_stays_held(self):
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-10",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 100,
+				"unit_price": 2,
+			}
+		)
+		fill.flags.diesel_import = True
+		fill.source_key = "WA-TEST-P0-" + frappe.generate_hash(length=8)
+		fill.source_messages = "WA-TEST-P0"
+		fill.supplier_invoice_no = "INV-777"
+		use_fill_price(fill).insert(ignore_permissions=True)
+		approve_fill(fill)
+		fill.submit()
+		wrong = self._manual_pi(200)
+		with self.assertRaisesRegex(frappe.ValidationError, "INV-777"):
+			link_supplier_invoice(wrong.name, [{"doctype": "Project Diesel Fill", "name": fill.name}])
+		right = self._manual_pi(200, submit=False)
+		right.bill_no = "INV-777"
+		right.save()
+		right.submit()
+		link_supplier_invoice(right.name, [{"doctype": "Project Diesel Fill", "name": fill.name}])
+		self.assertEqual(
+			frappe.db.get_value("Project Diesel Fill", fill.name, "purchase_invoice"), right.name
+		)
+		# a linked session cannot be cancelled (so not amended or re-imported into a second expense)
+		fill.reload()
+		with self.assertRaisesRegex(frappe.ValidationError, "cancel that invoice first"):
+			fill.cancel()
+		# and CARD posting never takes it
+		with self.assertRaisesRegex(frappe.ValidationError, "Nothing to post"):
+			self._build()
+
+	def test_credit_note_against_a_linked_invoice_is_allowed(self):
+		card = self._rental_card()
+		manual = self._manual_pi(600)
+		link_supplier_invoice(manual.name, [{"doctype": "Card Monthly Card", "name": card.name}])
+		from erpnext.controllers.sales_and_purchase_return import make_return_doc
+
+		ret = make_return_doc("Purchase Invoice", manual.name)
+		ret.bill_no = "P0-RET-" + self.token
+		ret.insert(ignore_permissions=True)
+		ret.submit()
+		self.assertEqual(ret.docstatus, 1)
