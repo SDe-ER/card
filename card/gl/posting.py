@@ -250,16 +250,48 @@ def card_cost_center(card, company):
 	return resolve_cost_center(card.equipment, card.project, days, company, _("Card {0}").format(card.name))
 
 
-def fill_line_cost_center(fill, equipment, company):
+def worked_days(equipment, project, month, year, company):
+	"""The days `equipment` worked on `project` in the month, from its submitted cards."""
+	cards = frappe.get_all(
+		"Card Monthly Card",
+		filters={
+			"docstatus": 1,
+			"company": company,
+			"equipment": equipment,
+			"project": project,
+			"month": "%02d" % int(month),
+			"year": int(year),
+		},
+		pluck="name",
+	)
+	if not cards:
+		return []
+	return sorted(
+		{
+			getdate(d.operation_date)
+			for d in frappe.get_all(
+				"Card Monthly Card Day",
+				filters={"parent": ["in", cards], "parenttype": "Card Monthly Card"},
+				fields=["operation_date", "working_hours"],
+			)
+			if d.operation_date and flt(d.working_hours)
+		}
+	)
+
+
+def fill_line_cost_center(fill, equipment, company, month=None, year=None):
 	"""P1-0: the cost center of one diesel fill line: the fill's own cost center (validated,
-	#34) when set; else the same allocation as the equipment's card for the fill's day
-	(direct fill or its share of a split); else, for an unallocated line, the project's."""
+	#34) when set; else the allocation of the line's equipment — for a direct fill on the
+	fill's day, for an equipment's share of a project-tank fill (split by the month's
+	operating hours) on the days that equipment worked on the project, as its card; else,
+	for an unallocated line, the project's."""
 	own = _source_cost_center("Project Diesel Fill", fill, company)
 	if own:
 		return own
-	return resolve_cost_center(
-		equipment, fill.project, [getdate(fill.date)], company, _("Diesel fill {0}").format(fill.name)
-	)
+	days = [getdate(fill.date)]
+	if equipment and not fill.card_equipment and month and year:
+		days = worked_days(equipment, fill.project, month, year, company) or days
+	return resolve_cost_center(equipment, fill.project, days, company, _("Diesel fill {0}").format(fill.name))
 
 
 def transport_line_cost_center(transport, equipment, company):
@@ -267,8 +299,16 @@ def transport_line_cost_center(transport, equipment, company):
 	set on save) when set; else the allocation of the equipment on the destination
 	project that day, or the project's."""
 	own = _source_cost_center("Equipment Transport", transport, company)
-	if own or not transport.project:
+	if own:
 		return own
+	if not transport.project:
+		# a workshop/storage move takes its place's cost center on save (required when the
+		# company pays); an older one saved without it is not charged to the company default
+		_allocation_exception(
+			_(
+				"Transport {0} has no cost center and no project; set the place's cost center in Card Settings (Transport) and save the transport again."
+			).format(transport.name)
+		)
 	return resolve_cost_center(
 		equipment,
 		transport.project,
@@ -528,7 +568,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
 			for equipment, amount, share in _split_fill_by_allocation(fill, int(month), int(year), company):
-				cost_center = fill_line_cost_center(fill, equipment, company)
+				cost_center = fill_line_cost_center(fill, equipment, company, month, year)
 				if fill.card_equipment or not equipment:
 					# a direct fill (recorded) or a project-level line (unallocated)
 					description = _("Diesel fill {0} — {1} L").format(fill.name, share)

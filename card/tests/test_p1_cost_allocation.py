@@ -349,3 +349,15 @@ class TestCostAllocation(_PostingBase):
 		self.assertEqual(
 			[(r.cost_center, r.project, r.card_equipment) for r in rows], [(assigned, self.project, eq.name)]
 		)
+
+	def test_tank_fill_share_follows_the_assignment_of_the_days_worked(self):
+		eq = self._equipment()
+		assigned = self._cc("ASSIGN")
+		self._set_project_cc(self._cc("PROJ"))
+		self._assign(eq, assigned, "2026-09-01", "2026-09-10")
+		self._card(eq, [8, 8], submit=True)  # worked 1-2 Sep on the project
+		fill = self._fill(date="2026-09-20")  # tank fill, no equipment, after the assignment ended
+		pi = self._pi()
+		share = [i for i in pi.items if fill.name in i.description]
+		self.assertTrue(share)
+		self.assertEqual({(i.cost_center, i.card_equipment) for i in share}, {(assigned, eq.name)})
