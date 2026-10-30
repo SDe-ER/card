@@ -4094,10 +4094,6 @@ msgid "Transport {0}"
 msgstr "النقل {0}"
 
 #: card/gl/posting.py
-msgid "none"
-msgstr "لا يوجد"
-
-#: card/gl/posting.py
 msgid "origin not recorded"
 msgstr "المصدر غير مسجّل"
 

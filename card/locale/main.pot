@@ -2886,10 +2886,6 @@ msgid "Transport {0}"
 msgstr ""
 
 #: card/gl/posting.py
-msgid "none"
-msgstr ""
-
-#: card/gl/posting.py
 msgid "origin not recorded"
 msgstr ""
 
