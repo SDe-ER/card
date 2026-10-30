@@ -464,6 +464,15 @@ class TestCostAllocation(_PostingBase):
 		frappe.db.set_value("Equipment Transport", t.name, "cost_borne_by", "")
 		self._assert_refused(t, "who pays this move is not recorded")
 
+	def test_move_with_a_null_payer_is_an_exception_not_skipped(self):
+		# a historical row may hold NULL, not "": it must be refused, never left out silently
+		eq = self._equipment()
+		self._set_project_cc(self._cc("PROJ"))
+		t = self._transport(eq, project=self.project)
+		frappe.db.sql("update `tabEquipment Transport` set cost_borne_by = NULL where name = %s", t.name)
+		self.assertIsNone(frappe.db.get_value("Equipment Transport", t.name, "cost_borne_by"))
+		self._assert_refused(t, "who pays this move is not recorded")
+
 	def test_historical_move_without_origin_is_reported_and_kept(self):
 		eq = self._equipment()
 		self._set_project_cc(self._cc("PROJ"))
