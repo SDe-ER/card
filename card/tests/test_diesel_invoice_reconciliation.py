@@ -84,7 +84,7 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		return [(litres_text, net, self.project if project == "self" else project)]
 
 	def _run(self, **filters):
-		cols, rows, _m, _c, summary = execute(
+		_cols, rows, _m, _c, summary = execute(
 			{
 				"company": self.company,
 				"suppliers": [self.supplier],
@@ -123,6 +123,10 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		self.assertEqual(row["litre_difference"], 0)
 		self.assertEqual(row["vat_pct"], 15)
 		self.assertEqual(row["vat_basis"], "VAT-inclusive price")
+		self.assertEqual(row["confidence"], "Confirmed: stated litres equal the session")
+		self.assertEqual(row["session_state"], "Submitted 1, draft 0")
+		self.assertEqual(row["allocation"], "Consistent")
+		self.assertIn("VAT as booked", row["note"])
 		self.assertFalse(row["exception"])
 
 	def test_delivery_charge_inside_the_diesel_line_is_separated(self):
@@ -132,6 +136,9 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		self.assertEqual(row["sessions"], fill.name)
 		self.assertIn("delivery charge", row["status"])
 		self.assertEqual(row["litre_difference"], 60)
+		# physical diesel and the delivery-fee equivalent are reported apart
+		self.assertEqual((row["physical_litres"], row["delivery_litres"]), (1000, 60))
+		self.assertEqual(row["confidence"], "Confirmed: stated litres = session + delivery charge")
 		self.assertIn("Physical diesel = session litres", row["note"])
 		self.assertFalse(row["exception"])
 
@@ -159,7 +166,10 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 			self._fill(day, litres)
 		inv = self._invoice(5, self._gross_lines("ديزل - فاتورة مجمعة", 5000))
 		row = self._row(self._run()[0], invoice=inv.name)
-		self.assertEqual(row["status"], "Period: invoiced more than sessions")
+		# an unexplained difference is a point to review, never confirmed over-billing
+		self.assertEqual(row["status"], "Period: difference to review (invoice above sessions)")
+		self.assertIn("not a confirmed over-billing", row["note"])
+		self.assertEqual(row["confidence"], "Estimated: period match, litres estimated from the amount")
 		self.assertEqual(row["session_litres"], 3000)
 		self.assertAlmostEqual(row["invoice_litres"], 5000, delta=1)
 		self.assertTrue(row["vat_basis"].startswith("Unverified"))
@@ -275,3 +285,33 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 			self._run()
 		with self.assertRaises(frappe.PermissionError):
 			diesel_supplier_options(txt="", company=self.company)
+
+	def test_submitted_and_draft_sessions_are_separated(self):
+		self._fill(10, 1000)
+		draft = self._fill(12, 400, submit=False)
+		self._invoice(28, self._gross_lines("ديزل 1000 لتر", 1000))
+		rows, summary = self._run()
+		tiles = {t["label"]: t["value"] for t in summary}
+		self.assertEqual((tiles["Submitted session litres"], tiles["Draft session litres"]), (1000, 400))
+		self.assertEqual(self._row(rows, session=draft.name)["session_state"], "Submitted 0, draft 1")
+		rows, summary = self._run(session_status="Submitted only")
+		self.assertFalse([r for r in rows if r.get("sessions") == draft.name])
+		self.assertEqual({t["label"]: t["value"] for t in summary}["Draft session litres"], 0)
+
+	def test_amount_only_match_is_estimated(self):
+		self._fill(16, 1000)
+		inv = self._invoice(16, self._gross_lines("ديزل - فاتورة", 1000))
+		row = self._row(self._run()[0], invoice=inv.name)
+		self.assertEqual(row["confidence"], "Estimated: amount only, the invoice states no litres")
+
+	def test_project_conflict_is_reported_not_changed(self):
+		other = frappe.get_doc(
+			{"doctype": "Project", "project_name": "TEST-P11-OTHER-" + self.token, "company": self.company}
+		).insert(ignore_permissions=True)
+		self._fill(17, 1000)
+		inv = self._invoice(17, self._gross_lines("ديزل 1000 لتر", 1000, project=other.name))
+		row = self._row(self._run()[0], invoice=inv.name)
+		self.assertEqual(row["allocation"], "Project conflict")
+		self.assertEqual(
+			frappe.db.get_value("Purchase Invoice Item", {"parent": inv.name}, "project"), other.name
+		)

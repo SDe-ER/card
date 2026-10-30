@@ -61,6 +61,7 @@ def invoice_figures(inv, lines, taxes):
 	diesel_litres = delivery_litres = 0.0
 	litres_stated = True
 	projects = set()
+	equipment = set()
 	unallocated = 0
 	for line in lines:
 		text = line.item_name or line.description or ""
@@ -77,6 +78,8 @@ def invoice_figures(inv, lines, taxes):
 			delivery_litres += litres or 0
 		else:
 			other_amount += flt(line.amount)
+		if line.get("card_equipment"):
+			equipment.add(line.card_equipment)
 		if line.project:
 			projects.add(line.project)
 		else:
@@ -93,6 +96,8 @@ def invoice_figures(inv, lines, taxes):
 		vat_pct=flt(100 * vat / net, 2) if net else 0,
 		vat_included=any(t.included_in_print_rate for t in taxes),
 		projects=sorted(projects),
+		# None when the Card Equipment dimension is not on Purchase Invoice Item (nothing to compare)
+		equipment=sorted(equipment) if lines and "card_equipment" in lines[0] else None,
 		lines_without_project=unallocated,
 	)
 
@@ -189,8 +194,9 @@ def reconcile(sessions, invoices, figures, window=3, max_delivery=60):
 	return session_match, invoice_sessions, periods
 
 
-def load(company, suppliers, from_date, to_date, window):
-	"""Sessions and invoices of `suppliers` in `company` for the period (invoices up to `window` days later)."""
+def load(company, suppliers, from_date, to_date, window, submitted_only=False):
+	"""Sessions and invoices of `suppliers` in `company` for the period (invoices up to `window` days later).
+	Draft sessions are included unless `submitted_only`; each row keeps its docstatus."""
 	from frappe.utils import add_days
 
 	sessions = frappe.get_all(
@@ -198,7 +204,7 @@ def load(company, suppliers, from_date, to_date, window):
 		filters={
 			"company": company,
 			"supplier": ["in", suppliers],
-			"docstatus": ["<", 2],
+			"docstatus": 1 if submitted_only else ["<", 2],
 			"date": ["between", [from_date, to_date]],
 		},
 		fields=[
@@ -206,6 +212,7 @@ def load(company, suppliers, from_date, to_date, window):
 			"date",
 			"supplier",
 			"project",
+			"card_equipment",
 			"litres",
 			"unit_price",
 			"amount",
@@ -258,6 +265,11 @@ def load(company, suppliers, from_date, to_date, window):
 				"project",
 				"cost_center",
 				"expense_account",
+				*(
+					["card_equipment"]
+					if frappe.get_meta("Purchase Invoice Item").has_field("card_equipment")
+					else []
+				),
 			],
 			order_by="parent asc, idx asc",
 			limit_page_length=0,

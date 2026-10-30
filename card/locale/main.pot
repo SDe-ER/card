@@ -3010,15 +3010,7 @@ msgid "Other lines (not diesel) {0}"
 msgstr ""
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
-msgid "Period: invoiced more than sessions"
-msgstr ""
-
-#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
 msgid "Period: litres agree"
-msgstr ""
-
-#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
-msgid "Period: sessions more than invoiced"
 msgstr ""
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
@@ -3091,4 +3083,100 @@ msgstr ""
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
 msgid "Diesel Invoice Reconciliation"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Allocation check"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Confirmed: stated litres = session + delivery charge"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Confirmed: stated litres equal the session"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel sessions to include"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Equipment conflict"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: amount only, the invoice states no litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: period match on stated litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: period match, litres estimated from the amount"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice has no project"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Match confidence"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "No match"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: difference to review (invoice above sessions)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: difference to review (sessions above invoice)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Physical diesel litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Project conflict"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session state"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Submitted and draft"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Submitted only"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Submitted session litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Submitted {0}, draft {1}"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Unexplained difference: not a confirmed over-billing, missing invoice or missing payment"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT as booked on the invoice"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Consistent"
 msgstr ""

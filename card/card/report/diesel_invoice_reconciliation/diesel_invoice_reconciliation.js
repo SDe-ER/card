@@ -35,6 +35,16 @@ frappe.query_reports["Diesel Invoice Reconciliation"] = {
 			default: frappe.datetime.get_today(),
 		},
 		{
+			fieldname: "session_status",
+			label: __("Diesel sessions to include"),
+			fieldtype: "Select",
+			options: [
+				{ value: "All", label: __("Submitted and draft") },
+				{ value: "Submitted only", label: __("Submitted only") },
+			],
+			default: "All",
+		},
+		{
 			fieldname: "date_window_days",
 			label: __("Invoice date window (days)"),
 			fieldtype: "Int",

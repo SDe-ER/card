@@ -26,6 +26,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   or, for aggregated invoices, a period (sessions after the previous invoice up to the bill date); several suppliers
   can be reconciled as one delivery stream. Rows show the status, litres, gross, net, VAT, VAT %, projects and the
   evidence; exceptions: session without invoice, invoice without session, period litre gaps, lines without project.
+  Each row states its match confidence (confirmed on stated litres, confirmed with a delivery charge, estimated by
+  amount or by period), the submitted/draft split of its sessions (and a "submitted only" filter), the physical
+  diesel litres apart from the delivery-fee equivalent, the VAT as booked, and a project/equipment allocation check
+  (reported, never changed). A period difference is a point to review, never a confirmed over-billing or missing
+  payment.
   Impact: no write of any kind (no posting, link, save or submit), no schema change, no new role or permission (the
   user's roles must read Project Diesel Fill and Purchase Invoice; one permitted company); a new GET options method
   `card.diesel_reconciliation.diesel_supplier_options`; a sidebar link under Card Reports; Arabic strings. Rollback:

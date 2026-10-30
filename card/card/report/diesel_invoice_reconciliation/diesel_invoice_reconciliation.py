@@ -11,9 +11,11 @@ DOCTYPES = ("Project Diesel Fill", "Purchase Invoice")
 def get_columns():
 	return [
 		{"fieldname": "status", "label": _("Status"), "fieldtype": "Data", "width": 230},
+		{"fieldname": "confidence", "label": _("Match confidence"), "fieldtype": "Data", "width": 230},
 		{"fieldname": "date", "label": _("Date"), "fieldtype": "Date", "width": 100},
 		{"fieldname": "supplier", "label": _("Supplier"), "fieldtype": "Data", "width": 180},
 		{"fieldname": "sessions", "label": _("Diesel sessions"), "fieldtype": "Data", "width": 170},
+		{"fieldname": "session_state", "label": _("Session state"), "fieldtype": "Data", "width": 150},
 		{"fieldname": "session_litres", "label": _("Session litres"), "fieldtype": "Float", "width": 110},
 		{
 			"fieldname": "invoice",
@@ -26,6 +28,12 @@ def get_columns():
 		{
 			"fieldname": "invoice_litres",
 			"label": _("Invoiced diesel litres"),
+			"fieldtype": "Float",
+			"width": 120,
+		},
+		{
+			"fieldname": "physical_litres",
+			"label": _("Physical diesel litres"),
 			"fieldtype": "Float",
 			"width": 120,
 		},
@@ -43,13 +51,15 @@ def get_columns():
 		{"fieldname": "vat_basis", "label": _("Price VAT basis"), "fieldtype": "Data", "width": 200},
 		{"fieldname": "session_projects", "label": _("Session projects"), "fieldtype": "Data", "width": 160},
 		{"fieldname": "invoice_projects", "label": _("Invoice projects"), "fieldtype": "Data", "width": 160},
+		{"fieldname": "allocation", "label": _("Allocation check"), "fieldtype": "Data", "width": 200},
 		{"fieldname": "note", "label": _("Evidence"), "fieldtype": "Data", "width": 360},
 	]
 
 
 def execute(filters=None):
 	# Report: "Diesel Invoice Reconciliation" (P1-1). Read-only: compares CARD diesel sessions with the
-	# suppliers' own Purchase Invoices; it creates, changes or links nothing.
+	# suppliers' own Purchase Invoices; it creates, changes or links nothing. A difference it shows is a
+	# point to review, never a confirmed over-billing, missing invoice or missing payment.
 	filters = frappe._dict(filters or {})
 	for doctype in DOCTYPES:
 		if not _role_reads(doctype):
@@ -65,6 +75,7 @@ def execute(filters=None):
 	max_delivery = (
 		flt(filters.get("max_delivery_litres")) if filters.get("max_delivery_litres") is not None else 60
 	)
+	submitted_only = filters.get("session_status") == "Submitted only"
 	suppliers = (
 		frappe.parse_json(filters.get("suppliers"))
 		if isinstance(filters.get("suppliers"), str)
@@ -72,9 +83,8 @@ def execute(filters=None):
 	)
 	suppliers = [s for s in (suppliers or []) if s]
 	if suppliers:
-		streams = [
-			suppliers
-		]  # the selected suppliers are one delivery stream (one delegate, combined invoices)
+		# the selected suppliers are one delivery stream (one delegate, combined invoices)
+		streams = [suppliers]
 	else:
 		found = frappe.get_all(
 			"Project Diesel Fill",
@@ -90,15 +100,15 @@ def execute(filters=None):
 
 	rows = []
 	for stream in streams:
-		rows.extend(_stream_rows(filters, stream, window, max_delivery))
+		rows.extend(_stream_rows(filters, stream, window, max_delivery, submitted_only))
 	columns = get_columns()
 	columns = readable_links(columns, rows)
 	return columns, rows, None, None, _summary(rows)
 
 
-def _stream_rows(filters, stream, window, max_delivery):
+def _stream_rows(filters, stream, window, max_delivery, submitted_only):
 	sessions, invoices, lines, taxes = load(
-		filters.company, stream, filters.from_date, filters.to_date, window
+		filters.company, stream, filters.from_date, filters.to_date, window, submitted_only
 	)
 	by_name = {s.name: s for s in sessions}
 	figures = {i.name: invoice_figures(i, lines[i.name], taxes[i.name]) for i in invoices}
@@ -116,6 +126,8 @@ def _stream_rows(filters, stream, window, max_delivery):
 		estimate = inv_litres is None and inv_price
 		if estimate:
 			inv_litres = flt(flt(inv.grand_total) / inv_price - fig.delivery_litres, 1)
+		delivery = fig.delivery_litres  # a separate delivery-charge line, in litre-equivalent
+		physical = inv_litres
 		notes = []
 		if inv.name in period_of:
 			start = period_of[inv.name][1]
@@ -126,10 +138,15 @@ def _stream_rows(filters, stream, window, max_delivery):
 				_("Period: litres agree")
 				if agree
 				else (
-					_("Period: invoiced more than sessions")
+					_("Period: difference to review (invoice above sessions)")
 					if diff > 0
-					else _("Period: sessions more than invoiced")
+					else _("Period: difference to review (sessions above invoice)")
 				)
+			)
+			confidence = (
+				_("Estimated: period match, litres estimated from the amount")
+				if estimate
+				else _("Estimated: period match on stated litres")
 			)
 			exception = not agree
 			notes.append(
@@ -137,19 +154,35 @@ def _stream_rows(filters, stream, window, max_delivery):
 					start or _("the start of the period")
 				)
 			)
+			if not agree:
+				notes.append(
+					_(
+						"Unexplained difference: not a confirmed over-billing, missing invoice or missing payment"
+					)
+				)
 		elif taken:
 			rule = session_match[taken[0].name][1]
 			diff = flt((inv_litres or 0) - s_litres, 1)
-			status = _("Matched") if rule == _("Litres equal") else _("Matched: {0}").format(rule)
 			exception = False
-			if fig.diesel_litres and fig.diesel_litres > s_litres and not fig.delivery_amount:
+			if rule == _("Litres equal"):
+				status, confidence = _("Matched"), _("Confirmed: stated litres equal the session")
+			elif fig.diesel_litres is not None:
+				# the delivery charge is folded into the diesel line: physical diesel = the session
+				status = _("Matched: {0}").format(rule)
+				confidence = _("Confirmed: stated litres = session + delivery charge")
+				delivery = flt(delivery + diff, 1)
+				physical = s_litres
 				notes.append(
 					_(
 						"Physical diesel = session litres; the difference is a delivery charge booked as diesel"
 					)
 				)
+			else:
+				status = _("Matched: {0}").format(rule)
+				confidence = _("Estimated: amount only, the invoice states no litres")
 		else:
 			status, diff, exception = _("Invoice without session"), None, True
+			confidence = _("No match")
 		if estimate:
 			notes.append(
 				_("Invoice states no litres: estimated as gross / session price {0} (unverified)").format(
@@ -162,17 +195,21 @@ def _stream_rows(filters, stream, window, max_delivery):
 			notes.append(_("Other lines (not diesel) {0}").format(fig.other_amount))
 		if fig.lines_without_project:
 			notes.append(_("{0} invoice line(s) without project").format(fig.lines_without_project))
+		notes.append(_("VAT as booked on the invoice"))
 		rows.append(
 			{
 				"status": status,
+				"confidence": confidence,
 				"date": inv.bill_date or inv.posting_date,
 				"supplier": inv.supplier,
 				"sessions": _sessions_label(taken),
+				"session_state": _session_state(taken),
 				"session_litres": s_litres,
 				"invoice": inv.name,
 				"bill_no": (inv.bill_no or "").strip(),
 				"invoice_litres": inv_litres,
-				"delivery_litres": fig.delivery_litres,
+				"physical_litres": physical,
+				"delivery_litres": delivery,
 				"litre_difference": diff,
 				"grand_total": flt(inv.grand_total, 2),
 				"net_total": flt(inv.net_total, 2),
@@ -181,8 +218,10 @@ def _stream_rows(filters, stream, window, max_delivery):
 				"vat_basis": vat_basis(inv, fig, inv_price),
 				"session_projects": _projects(taken),
 				"invoice_projects": ", ".join(fig.projects) or _("none"),
+				"allocation": _allocation(taken, fig),
 				"note": "; ".join(notes),
 				"exception": int(exception),
+				"submitted_litres": flt(sum(flt(s.litres) for s in taken if s.docstatus == 1), 3),
 			}
 		)
 	last = max((getdate(i.bill_date or i.posting_date) for i in invoices), default=None)
@@ -193,13 +232,16 @@ def _stream_rows(filters, stream, window, max_delivery):
 		rows.append(
 			{
 				"status": _("Not invoiced yet") if late else _("Session without invoice"),
+				"confidence": _("No match"),
 				"date": s.date,
 				"supplier": s.supplier,
 				"sessions": s.name,
+				"session_state": _session_state([s]),
 				"session_litres": flt(s.litres, 3),
 				"session_projects": s.project,
 				"note": _("Draft session ({0})").format(_(s.review_status)) if not s.docstatus else "",
 				"exception": 0 if late else 1,
+				"submitted_litres": flt(s.litres, 3) if s.docstatus == 1 else 0,
 			}
 		)
 	return rows
@@ -209,6 +251,14 @@ def _sessions_label(sessions):
 	if len(sessions) <= 3:
 		return ", ".join(s.name for s in sessions)
 	return _("{0} sessions ({1} .. {2})").format(len(sessions), sessions[0].name, sessions[-1].name)
+
+
+def _session_state(sessions):
+	submitted = sum(1 for s in sessions if s.docstatus == 1)
+	drafts = len(sessions) - submitted
+	if not sessions:
+		return ""
+	return _("Submitted {0}, draft {1}").format(submitted, drafts)
 
 
 def _projects(sessions):
@@ -221,16 +271,32 @@ def _projects(sessions):
 	)
 
 
+def _allocation(sessions, fig):
+	"""Project/equipment allocation of the invoice lines against the matched sessions. Reported only:
+	nothing is reallocated."""
+	if not sessions:
+		return ""
+	found = []
+	s_projects = {s.project for s in sessions if s.project}
+	if fig.lines_without_project and not fig.projects:
+		found.append(_("Invoice has no project"))
+	elif fig.projects and s_projects and set(fig.projects) != s_projects:
+		found.append(_("Project conflict"))
+	s_equipment = {s.card_equipment for s in sessions if s.get("card_equipment")}
+	if fig.equipment is not None and s_equipment and fig.equipment and set(fig.equipment) != s_equipment:
+		found.append(_("Equipment conflict"))
+	return ", ".join(found) or _("Consistent")
+
+
 def _summary(rows):
 	session_rows = [r for r in rows if r.get("sessions")]
 	invoices = [r for r in rows if r.get("invoice")]
 	exceptions = [r for r in rows if r.get("exception")]
+	all_litres = flt(sum(flt(r.get("session_litres")) for r in session_rows), 1)
+	submitted = flt(sum(flt(r.get("submitted_litres")) for r in session_rows), 1)
 	return [
-		{
-			"label": _("Session litres"),
-			"value": flt(sum(flt(r.get("session_litres")) for r in session_rows), 1),
-			"datatype": "Float",
-		},
+		{"label": _("Submitted session litres"), "value": submitted, "datatype": "Float"},
+		{"label": _("Draft session litres"), "value": flt(all_litres - submitted, 1), "datatype": "Float"},
 		{
 			"label": _("Invoiced diesel litres"),
 			"value": flt(sum(flt(r.get("invoice_litres")) for r in invoices), 1),
