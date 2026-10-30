@@ -249,6 +249,7 @@ class TestManualInvoiceEvidence(_P0Base):
 				"doctype": "Item",
 				"item_code": "P0-OTHER-" + self.token,
 				"item_group": "All Item Groups",
+				"stock_uom": "Nos",
 				"is_stock_item": 0,
 			}
 		).insert(ignore_permissions=True)
