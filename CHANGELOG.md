@@ -15,6 +15,34 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **Project/equipment cost allocation on CARD postings** (FR-091, integration plan P1-0, 2026-10-30). Card, diesel
+  and transport lines of CARD postings carry the project/equipment allocation instead of the company default. One
+  rule (`resolve_cost_center`) applies to every line: the assignments of the line's equipment to its project that
+  cover the line's days (a card's worked days, a direct fill's or transport's date, a tank-fill share's worked days; for a unit without its own
+  assignment, its components' assignments) each give their cost center or, when empty, the project's; one result is
+  used, different results refuse the build for review. Without an assignment the project's cost center applies.
+  A cost center that is set but unusable (group, disabled, other company) refuses the build. The equipment's own
+  (asset) cost center is never used for project work: a project without a cost center whose equipment has one is
+  refused for review. A project line with no cost center at all is refused too: the Card Company Settings cost
+  center is never used for project work (Owner decision 2026-10-30). A fill's own cost center still wins; the
+  equipment (Card Equipment dimension) stays on every line. An equipment that worked on two projects in a month
+  has one card per project.
+  Transport (Owner decisions 2026-10-30) follows its explicitly verified cost bearer: only a move the company
+  pays is billed (`cost_borne_by`; a move without the company recorded as payer is refused; moves paid by the
+  equipment supplier or the customer are not on the transport supplier's invoice); a move to a workshop or storage
+  takes the cost center configured for that place in Card Settings, only when the cost center copied on save is
+  valid and is still the configured one. CARD records no cost-bearing project, and neither the project a move
+  leaves nor the project it goes to (nor the equipment's or the company default cost center) is assumed, so every
+  company-paid move to or from a project — first entry, transfer, return to the supplier, or a historical move
+  without its origin — refuses the build for review; the transport record is kept unchanged and the accountant
+  enters the supplier's invoice. This blocking is a temporary financial safety control, not the final design: P1-2
+  adds explicit cost-bearing fields to the transport. Exception messages point to cancel and amend for submitted
+  transports; the new messages have Arabic translations (`ar.po`, `main.pot`). Impact: GL cost centers of new CARD postings (project
+  costing); builds are refused where Projects/assignments have missing or unusable cost centers and for every
+  company-paid move to or from a project — check the data before release. No permission or API change; the P0 signature covers the new values. Rollback: revert the
+  commits; submitted postings keep their cost centers.
+
 ### Fixed
 - **Monthly posting integrity, P0** (FR-090, integration audit 2026-10-30; QA failures T3b, T3c, T9h2, T9h3, T9i).
   - *Edited drafts*: the builder stores a signature of every financially significant field of the draft

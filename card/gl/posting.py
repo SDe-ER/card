@@ -130,6 +130,229 @@ def _source_cost_center(doctype, source, company):
 	return cc
 
 
+def _valid_cost_center(cc, company):
+	"""A cost center that can carry a posting line of the company: enabled leaf of that company."""
+	if not cc:
+		return None
+	row = frappe.db.get_value("Cost Center", cc, ["company", "is_group", "disabled"], as_dict=True)
+	return cc if row and row.company == company and not row.is_group and not row.disabled else None
+
+
+def _allocation_exception(message):
+	frappe.throw(message, title=_("Cost allocation needs review"))
+
+
+def _checked_allocation(cc, company, what):
+	"""A configured allocation must be usable as it is: an invalid one is an exception for
+	review, never silently replaced by a less specific cost center."""
+	if _valid_cost_center(cc, company):
+		return cc
+	_allocation_exception(
+		_(
+			"{0} has cost center {1}, which cannot carry a posting of company {2} (it must be an enabled, non-group cost center of that company). Correct it and build again."
+		).format(what, cc, company)
+	)
+
+
+def _overlapping_assignments(equipment, project, days):
+	"""The assignments of `equipment` to `project` that cover at least one of `days`.
+	A unit without an assignment of its own uses those of its components that are in
+	the unit on those days (v3.0.0, as card.transfer does)."""
+	from card.transfer import _component_rows, _in_unit_on
+
+	def covering(name, day_filter=None):
+		rows = []
+		for a in frappe.get_all(
+			"Card Equipment Assignment",
+			filters={"equipment": name, "project": project},
+			fields=["name", "from_date", "to_date", "cost_center"],
+		):
+			if not a.from_date:
+				continue
+			start, stop = getdate(a.from_date), getdate(a.to_date) if a.to_date else None
+			if any(
+				start <= d and (stop is None or stop >= d) and (not day_filter or day_filter(d)) for d in days
+			):
+				rows.append(a)
+		return rows
+
+	rows = covering(equipment)
+	if not rows and frappe.db.get_value("Card Equipment", equipment, "is_unit"):
+		for c in _component_rows(equipment):
+			rows.extend(covering(c.component, lambda d, c=c: _in_unit_on(c, d)))
+	return rows
+
+
+def resolve_cost_center(equipment, project, days, company, label):
+	"""P1-0: the one cost center the lines of `equipment` on `project` for `days` must carry.
+	Each covering assignment gives its own cost center, or the project's when it has none;
+	a single result is used, several are an exception (one card/line cannot be split
+	reliably). With no assignment the project's cost center applies. A cost center that
+	is set but unusable is an exception, and so is a project line with no cost center at
+	all (Owner decision 2026-10-30): neither the company default nor the equipment's own
+	(asset) cost center is used for project work. None only for a line with no project."""
+	project_cc = project and frappe.db.get_value("Project", project, "cost_center")
+	assignments = _overlapping_assignments(equipment, project, days) if equipment and project else []
+	if assignments:
+		resolved = {}
+		for a in assignments:
+			cc = a.cost_center or project_cc
+			resolved.setdefault(cc or "", []).append(a.name)
+		if len(resolved) > 1:
+			_allocation_exception(
+				_(
+					"{0}: the assignments of {1} to project {2} on these days resolve to different cost centers ({3}); give the assignments one cost center, then build again."
+				).format(
+					label,
+					equipment,
+					project,
+					"; ".join(
+						"{0}: {1}".format(cc or _("none"), ", ".join(sorted(names)))
+						for cc, names in sorted(resolved.items())
+					),
+				)
+			)
+		cc = next(iter(resolved))
+		if cc:
+			return _checked_allocation(
+				cc, company, _("The assignment of {0} to project {1}").format(equipment, project)
+			)
+		return _no_project_allocation(equipment, project, label)
+	if project_cc:
+		return _checked_allocation(project_cc, company, _("Project {0}").format(project))
+	return _no_project_allocation(equipment, project, label)
+
+
+def _no_project_allocation(equipment, project, label):
+	if not project:
+		return None
+	equipment_cc = equipment and frappe.db.get_value("Card Equipment", equipment, "cost_center")
+	if equipment_cc:
+		_allocation_exception(
+			_(
+				"{0}: project {1} has no cost center, and the cost center of equipment {2} ({3}) may belong to another project or to the asset; set the project's (or the assignment's) cost center, then build again."
+			).format(label, project, equipment, equipment_cc)
+		)
+	_allocation_exception(
+		_(
+			"{0}: project {1} has no cost center; set the project's (or the assignment's) cost center, then build again."
+		).format(label, project)
+	)
+
+
+def card_cost_center(card, company):
+	"""P1-0: the cost center of a monthly card's lines. A card covers one project; an
+	equipment that worked on two projects in a month has one card per project. The
+	assignments counted are those covering the card's working days (all its days when
+	none was worked)."""
+	worked = [
+		getdate(d.operation_date) for d in card.get("days") or [] if d.operation_date and flt(d.working_hours)
+	]
+	days = worked or [getdate(d.operation_date) for d in card.get("days") or [] if d.operation_date]
+	if not days:
+		days = [getdate(card.from_date), getdate(card.to_date or card.from_date)]
+	return resolve_cost_center(card.equipment, card.project, days, company, _("Card {0}").format(card.name))
+
+
+def worked_days(equipment, project, month, year, company):
+	"""The days `equipment` worked on `project` in the month, from its submitted cards."""
+	cards = frappe.get_all(
+		"Card Monthly Card",
+		filters={
+			"docstatus": 1,
+			"company": company,
+			"equipment": equipment,
+			"project": project,
+			"month": "%02d" % int(month),
+			"year": int(year),
+		},
+		pluck="name",
+	)
+	if not cards:
+		return []
+	return sorted(
+		{
+			getdate(d.operation_date)
+			for d in frappe.get_all(
+				"Card Monthly Card Day",
+				filters={"parent": ["in", cards], "parenttype": "Card Monthly Card"},
+				fields=["operation_date", "working_hours"],
+			)
+			if d.operation_date and flt(d.working_hours)
+		}
+	)
+
+
+def fill_line_cost_center(fill, equipment, company, month=None, year=None):
+	"""P1-0: the cost center of one diesel fill line: the fill's own cost center (validated,
+	#34) when set; else the allocation of the line's equipment — for a direct fill on the
+	fill's day, for an equipment's share of a project-tank fill (split by the month's
+	operating hours) on the days that equipment worked on the project, as its card; else,
+	for an unallocated line, the project's."""
+	own = _source_cost_center("Project Diesel Fill", fill, company)
+	if own:
+		return own
+	days = [getdate(fill.date)]
+	if equipment and not fill.card_equipment and month and year:
+		days = worked_days(equipment, fill.project, month, year, company) or days
+	return resolve_cost_center(equipment, fill.project, days, company, _("Diesel fill {0}").format(fill.name))
+
+
+def transport_line_cost_center(transport, company):
+	"""P1-0 (Owner decisions 2026-10-30): a transport line follows its explicitly verified
+	cost bearer. Only a move the company pays reaches here (the build filters on
+	cost_borne_by; a move without the company recorded as payer is an exception). A move
+	to a workshop or storage takes the cost center configured for that place in Card
+	Settings, when the one copied on save is valid and is still the configured one. This
+	blocking of project moves is a temporary safety control until P1-2 records an explicit
+	cost-bearing project on the transport. CARD records
+	no cost-bearing project for a move to or from a project, and neither the project it
+	leaves nor the project it goes to (nor the equipment's or the company default cost
+	center) is assumed, so such a move is an exception to review: the accountant enters
+	the supplier's invoice and links it."""
+	label = _("Transport {0}").format(transport.name)
+	if transport.get("cost_borne_by") != "Company":
+		_allocation_exception(
+			_(
+				"{0}: who pays this move is not recorded; review it, then cancel and amend the transport with its payer (Transport cost borne by)."
+			).format(label)
+		)
+	if transport.get("destination_type") in ("Workshop", "Storage"):
+		own = _source_cost_center("Equipment Transport", transport, company)
+		configured = frappe.db.get_value(
+			"Card Location Cost Center",
+			{
+				"parent": "Card Settings",
+				"parenttype": "Card Settings",
+				"company": company,
+				"location": transport.get("destination_location"),
+			},
+			"cost_center",
+		)
+		if not own or not configured:
+			_allocation_exception(
+				_(
+					"{0} has no cost center for its place; set the place's cost center in Card Settings (Transport), then cancel and amend the transport."
+				).format(label)
+			)
+		if own != configured:
+			_allocation_exception(
+				_(
+					"{0}: its cost center {1} is not the one now configured for {2} in Card Settings ({3}); review it, then cancel and amend the transport."
+				).format(label, own, transport.get("destination_location"), configured)
+			)
+		return own
+	_allocation_exception(
+		_(
+			"{0} ({1} → {2}): which project bears this move is not recorded, and neither the project it leaves nor the project it goes to is assumed; review it and enter the supplier invoice manually."
+		).format(
+			label,
+			transport.get("source_project") or transport.get("source_type") or _("origin not recorded"),
+			transport.get("project") or transport.get("destination_type") or "",
+		)
+	)
+
+
 def _supplier_sources(company, party, first_day, last_day, month, year):
 	cards = frappe.get_all(
 		"Card Monthly Card",
@@ -174,11 +397,13 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 		},
 		fields=[
 			"name",
+			"cost_borne_by",
 			"project",
 			"amount",
 			"date",
 			"from_location",
 			"to_location",
+			"source_type",
 			"source_project",
 			"source_location",
 			"destination_type",
@@ -226,6 +451,7 @@ def _customer_cards(company, party, month, year):
 def _card_lines(card_name, side, row, types):
 	"""The invoice lines one card contributes on one side."""
 	card = frappe.get_doc("Card Monthly Card", card_name)
+	cost_center = card_cost_center(card, card.company)
 	lines = []
 	if side == "Supplier":
 		base_rate, base_item, base_account = (
@@ -247,6 +473,7 @@ def _card_lines(card_name, side, row, types):
 			"rate": base_rate,
 			"account": base_account,
 			"project": card.project,
+			"cost_center": cost_center,
 			"card_equipment": card.equipment,
 			"taxable": 1,
 			"description": _("Monthly operation card {0} — {1}").format(
@@ -288,6 +515,7 @@ def _card_lines(card_name, side, row, types):
 				"rate": signed,
 				"account": typ.account if typ else base_account,
 				"project": card.project,
+				"cost_center": cost_center,
 				"card_equipment": card.equipment,
 				"taxable": 1 if (typ is None or typ.taxable) else 0,
 				"description": "{0} — {1} — {2}".format(
@@ -376,8 +604,8 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
-			cost_center = _source_cost_center("Project Diesel Fill", fill, company)
 			for equipment, amount, share in _split_fill_by_allocation(fill, int(month), int(year), company):
+				cost_center = fill_line_cost_center(fill, equipment, company, month, year)
 				if fill.card_equipment or not equipment:
 					# a direct fill (recorded) or a project-level line (unallocated)
 					description = _("Diesel fill {0} — {1} L").format(fill.name, share)
@@ -403,7 +631,6 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			sources["Project Diesel Fill"].append((fill.name, flt(fill.amount, 2)))
 		transport_shares = _transport_shares(transports)
 		for t in transports:
-			cost_center = _source_cost_center("Equipment Transport", t, company)
 			description = _("Equipment transport {0}: {1} → {2}").format(
 				t.name,
 				t.source_project or t.source_location or t.from_location or "",
@@ -415,6 +642,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			# enforced on save), so each machine carries its own transport cost; a
 			# transport with no equipment stays one project-level line
 			for equipment, amount in transport_shares[t.name]:
+				cost_center = transport_line_cost_center(t, company)
 				lines.append(
 					{
 						"item_code": row.transport_item,

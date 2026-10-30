@@ -2860,3 +2860,63 @@ msgstr ""
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Includes draft cards"
 msgstr ""
+
+#: card/gl/posting.py
+msgid "Card {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Cost allocation needs review"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Diesel fill {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Project {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "The assignment of {0} to project {1}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "origin not recorded"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0} ({1} → {2}): which project bears this move is not recorded, and neither the project it leaves nor the project it goes to is assumed; review it and enter the supplier invoice manually."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0} has cost center {1}, which cannot carry a posting of company {2} (it must be an enabled, non-group cost center of that company). Correct it and build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0} has no cost center for its place; set the place's cost center in Card Settings (Transport), then cancel and amend the transport."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: its cost center {1} is not the one now configured for {2} in Card Settings ({3}); review it, then cancel and amend the transport."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: project {1} has no cost center, and the cost center of equipment {2} ({3}) may belong to another project or to the asset; set the project's (or the assignment's) cost center, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: project {1} has no cost center; set the project's (or the assignment's) cost center, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: the assignments of {1} to project {2} on these days resolve to different cost centers ({3}); give the assignments one cost center, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: who pays this move is not recorded; review it, then cancel and amend the transport with its payer (Transport cost borne by)."
+msgstr ""
