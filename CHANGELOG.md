@@ -19,13 +19,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Project/equipment cost allocation on CARD postings** (FR-091, integration plan P1-0, 2026-10-30). Card, diesel
   and transport lines of CARD postings carry the project/equipment allocation instead of the company default. One
   rule (`resolve_cost_center`) applies to every line: the assignments of the line's equipment to its project that
-  cover the line's days (a card's worked days, a fill's or transport's date; for a unit without its own
+  cover the line's days (a card's worked days, a direct fill's or transport's date, a tank-fill share's worked days; for a unit without its own
   assignment, its components' assignments) each give their cost center or, when empty, the project's; one result is
   used, different results refuse the build for review. Without an assignment the project's cost center applies.
   A cost center that is set but unusable (group, disabled, other company) refuses the build. The equipment's own
   (asset) cost center is never used for project work: a project without a cost center whose equipment has one is
   refused for review. The Card Company Settings cost center applies only when nothing is allocated anywhere. A
-  fill's or transport's own cost center still wins; the equipment stays on every line. An equipment that worked on
+  fill's or transport's own cost center still wins (a transport with neither is refused); the equipment stays on every line. An equipment that worked on
   two projects in a month has one card per project. Impact: GL cost centers of new CARD postings (project
   costing); builds can now be refused where Projects/assignments carry unusable cost centers — check the data
   before release. No permission or API change; the P0 signature covers the new values. Rollback: revert the
