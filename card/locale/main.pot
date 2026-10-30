@@ -3180,3 +3180,35 @@ msgstr ""
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
 msgid "Consistent"
 msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "After the period end: to review with the next period"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Amount only: net / session price = {0} L"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Confirmed: linked in CARD"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced litres estimated from amounts"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced physical diesel litres (stated)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Linked: the session names this invoice"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "The first invoice of the period may include deliveries before the period"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} (draft session, not yet approved)"
+msgstr ""

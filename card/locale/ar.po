@@ -4384,3 +4384,35 @@ msgstr "فرق غير مفسر: ليس تأكيدًا لزيادة في الفو
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
 msgid "VAT as booked on the invoice"
 msgstr "الضريبة كما سُجلت في الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "After the period end: to review with the next period"
+msgstr "بعد نهاية الفترة: للمراجعة مع الفترة التالية"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Amount only: net / session price = {0} L"
+msgstr "بالمبلغ فقط: الصافي ÷ سعر الجلسة = {0} لتر"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Confirmed: linked in CARD"
+msgstr "مؤكدة: مربوطة في CARD"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced litres estimated from amounts"
+msgstr "لترات مفوترة مقدرة من المبالغ"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced physical diesel litres (stated)"
+msgstr "لترات الديزل الفعلية المفوترة (المذكورة)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Linked: the session names this invoice"
+msgstr "مربوطة: الجلسة تذكر هذه الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "The first invoice of the period may include deliveries before the period"
+msgstr "أول فاتورة في الفترة قد تشمل توريدات قبل الفترة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} (draft session, not yet approved)"
+msgstr "{0} (جلسة مسودة، لم تُعتمد بعد)"

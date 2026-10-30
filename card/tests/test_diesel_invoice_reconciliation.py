@@ -35,7 +35,7 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 			fill.submit()
 		return fill
 
-	def _invoice(self, day, lines, vat=None, gross=None):
+	def _invoice(self, day, lines, vat=None, gross=None, month=9, item_name=None):
 		"""A supplier's own invoice as entered in Desk: free-text lines (litres in the text), VAT as one
 		Actual row. `lines` = [(text, amount, project)]; vat = 15 % of net unless given."""
 		row = ensure_posting_masters(self.company)
@@ -46,15 +46,15 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 				"company": self.company,
 				"supplier": self.supplier,
 				"set_posting_time": 1,
-				"posting_date": f"2026-09-{day:02d}",
-				"due_date": f"2026-09-{day:02d}",
+				"posting_date": f"2026-{month:02d}-{day:02d}",
+				"due_date": f"2026-{month:02d}-{day:02d}",
 				"bill_no": f"P11-{self.token}-{frappe.generate_hash(length=6)}",
-				"bill_date": f"2026-09-{day:02d}",
+				"bill_date": f"2026-{month:02d}-{day:02d}",
 				"currency": frappe.db.get_value("Company", self.company, "default_currency"),
 				"items": [
 					{
 						"item_code": row.diesel_item,
-						"item_name": text,
+						"item_name": item_name or text,
 						"description": text,
 						"qty": 1,
 						"rate": amount,
@@ -108,6 +108,9 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		self.assertEqual(line_litres("ديزل 2380 لتر - 0006-753"), 2380)
 		self.assertEqual(line_litres("ديزل ٣٢٧٦ لتر"), 3276)
 		self.assertEqual(line_litres("Diesel 1,500.5 L"), 1500.5)
+		self.assertEqual(line_litres("ديزل ١٬٠٠٠ لتر"), 1000)
+		self.assertEqual(line_litres("ديزل ٢٥٫٥ لتر"), 25.5)
+		self.assertEqual(line_kind("ديزل 1000 لتر شامل التوصيل"), "diesel")
 		self.assertIsNone(line_litres("ديزل - فاتورة 1322 - PROJ-0010"))
 		self.assertEqual(line_kind("أجرة نقل 60 لتر - 0006-511"), "delivery")
 		self.assertEqual(line_kind("بنزين 91 - 43.58 لتر"), "other fuel")
@@ -315,3 +318,64 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		self.assertEqual(
 			frappe.db.get_value("Purchase Invoice Item", {"parent": inv.name}, "project"), other.name
 		)
+
+	# ---- independent review findings (PR #153)
+	def test_litres_in_the_description_of_an_item_line(self):
+		self._fill(18, 1000)
+		inv = self._invoice(18, self._gross_lines("ديزل 1000 لتر - 0006-1", 1000), item_name="Diesel")
+		row = self._row(self._run()[0], invoice=inv.name)
+		self.assertEqual(row["status"], "Matched")
+		self.assertEqual(row["invoice_litres"], 1000)
+
+	def test_line_naming_diesel_and_delivery_is_diesel(self):
+		self._fill(19, 1000)
+		inv = self._invoice(19, self._gross_lines("ديزل 1000 لتر شامل التوصيل", 1000))
+		self.assertEqual(self._row(self._run()[0], invoice=inv.name)["status"], "Matched")
+
+	def test_the_same_day_invoice_wins_over_the_day_before(self):
+		fill = self._fill(10, 1000)
+		before = self._invoice(9, self._gross_lines("ديزل 1000 لتر", 1000))
+		same = self._invoice(10, self._gross_lines("ديزل 1000 لتر", 1000))
+		rows = self._run()[0]
+		self.assertEqual(self._row(rows, invoice=same.name)["sessions"], fill.name)
+		self.assertEqual(self._row(rows, invoice=before.name)["status"], "Invoice without session")
+
+	def test_amount_only_match_on_a_vat_exclusive_price(self):
+		self._fill(21, 1000)
+		inv = self._invoice(21, [("ديزل - فاتورة", 1790, self.project)])  # net = litres x price
+		row = self._row(self._run()[0], invoice=inv.name)
+		self.assertIn("net / session price", row["status"])
+		self.assertEqual(row["confidence"], "Estimated: amount only, the invoice states no litres")
+
+	def test_session_linked_to_its_invoice_is_confirmed_by_the_link(self):
+		fill = self._fill(22, 1000)
+		inv = self._invoice(22, self._gross_lines("ديزل 999 لتر", 999))
+		frappe.db.set_value("Project Diesel Fill", fill.name, "purchase_invoice", inv.name)
+		row = self._row(self._run()[0], invoice=inv.name)
+		self.assertEqual((row["sessions"], row["confidence"]), (fill.name, "Confirmed: linked in CARD"))
+
+	def test_invoice_after_the_period_end_is_not_an_exception(self):
+		self._fill(29, 1000)
+		self._invoice(29, self._gross_lines("ديزل 1000 لتر", 1000))
+		late = self._invoice(2, self._gross_lines("ديزل 700 لتر", 700), month=10)
+		row = self._row(self._run()[0], invoice=late.name)
+		self.assertEqual(row["status"], "After the period end: to review with the next period")
+		self.assertFalse(row["exception"])
+
+	def test_user_permission_on_supplier_hides_other_suppliers(self):
+		self._fill(23, 1000)
+		self._invoice(23, self._gross_lines("ديزل 1000 لتر", 1000))
+		user = self._user(["Accounts Manager"])
+		other = frappe.get_doc(
+			{
+				"doctype": "Supplier",
+				"supplier_name": "TEST-P11-OTHER-" + self.token,
+				"supplier_group": self._m["supplier_group"],
+			}
+		).insert(ignore_permissions=True)
+		frappe.get_doc(
+			{"doctype": "User Permission", "user": user, "allow": "Supplier", "for_value": other.name}
+		).insert(ignore_permissions=True)
+		frappe.set_user(user)
+		rows = self._run()[0]
+		self.assertFalse(rows)
