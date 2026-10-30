@@ -1,6 +1,8 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
 
+import hashlib
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -49,6 +51,13 @@ class GLPostingLog(Document):
 			# submitted) stay unique per sequence
 			if (self.sequence or 1) > 1:
 				self.posting_key = "{0}|{1}".format(self.posting_key, self.sequence)
+			# P0 2026-10-30: a supplier invoice booked by hand and linked to the CARD
+			# sources it pays for is its own unit (one link per invoice); the
+			# sources' membership is what keeps them from being built again
+			if self.origin == "Linked":
+				# a short digest of the invoice name keeps long party names inside the key's length
+				digest = hashlib.sha1((self.posting_doc or "").encode()).hexdigest()[:12]
+				self.posting_key = "{0}|L|{1}".format(self.posting_key, digest)
 		else:
 			self.posting_key = None
 
@@ -72,7 +81,9 @@ class GLPostingLog(Document):
 			not doc
 			or not doc.creation
 			or doc.company != self.company
-			or (party_field and (doc.docstatus != 0 or self.party_type != party_type))
+			or (party_field and self.party_type != party_type)
+			# a built posting is always a fresh draft; a linked supplier invoice may already be submitted
+			or (party_field and doc.docstatus != 0 and not (self.origin == "Linked" and doc.docstatus == 1))
 			or (party_field and doc.get(party_field) != self.party)
 			or frappe.db.exists(
 				"GL Posting Log",

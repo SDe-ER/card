@@ -15,6 +15,49 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Fixed
+- **Monthly posting integrity, P0** (FR-090, integration audit 2026-10-30; QA failures T3b, T3c, T9h2, T9h3, T9i).
+  - *Edited drafts*: the builder stores a signature of every financially significant field of the draft
+    (party, company, accounts, items, quantities, rates, projects, cost centers, Card Equipment, tax
+    template and rows, discounts, descriptions). Submit refuses any difference. An Accounts Manager may
+    accept a corrected cost center or expense/income account (same company, enabled leaf, same root type)
+    with a reason (`card.gl.integrity.accept_correction`, POST); the acceptance is tied to that exact
+    content. Drafts built before this change must be rebuilt before submit.
+  - *Copies*: a Purchase/Sales Invoice that is not itself an active CARD posting cannot be submitted when
+    it repeats the lines of a CARD posting (Desk "Duplicate") or names a CARD source that an active posting
+    holds. A CARD posting may not reuse the supplier bill no. of another live invoice of the supplier.
+  - *Hand-booked supplier invoices*: before building a supplier month, CARD lists the supplier's draft or
+    submitted Purchase Invoices (not returns) that it did not build, dated (posting or bill date) from one
+    month before to two months after the CARD month, with a line on any Expense account, a CARD account or
+    a CARD item (lines without an item count by their account). The build is refused until each one is linked to the CARD sources it
+    pays for (`card.gl.integrity.link_supplier_invoice`, POST, accountant roles: a Linked GL Posting Log
+    reserves the sources; nothing is reposted and the invoice is not changed) or declared unrelated by an
+    accountant (`reviewed_invoices` on `post_month` / `rebuild_month`, recorded on the log). Several
+    legitimate invoices per supplier and month stay possible. Rebuild never deletes a linked invoice.
+    A link never shows unmatched amounts as matched: the sources are compared with the invoice's net total
+    on one VAT-exclusive basis (cards and transports net; diesel fills by the Diesel price VAT basis, net of
+    VAT when it is Inclusive and the invoice carries VAT). A gap, or a basis that is not verified, needs an
+    accountant's explicit acceptance with a reason and is stored on the log (`link_difference`). Sources may
+    span several months. Linking needs an accountant role, the company in the caller's CARD and accounting
+    scope, read on the supplier and the sources, and submit right on the invoice. An imported diesel session
+    that carries a supplier invoice no. can be linked only to the invoice with that bill no. A hand-booked
+    invoice submitted for a supplier that CARD posted for a nearby month shows those postings as a warning.
+    A linked draft is re-checked at submit (same company and supplier, not a return, net equal to the linked
+    sources plus the accepted difference); a source cannot be listed twice in one link; a hand-booked invoice
+    cannot reuse the supplier bill no. of a CARD posting. The reconciliation counts a linked card in its own
+    month and keeps the rest of a linked invoice (diesel, transport, difference) among the invoices outside Card. A linked source cannot be cancelled while the
+    invoice stands; credit and debit notes against linked or CARD invoices stay allowed.
+  - *Diesel VAT basis*: new Card Company Settings field `diesel_price_vat_basis` (Exclusive / Inclusive /
+    empty). For a VAT-registered supplier, empty refuses the build for review; Inclusive books the net
+    part (fill amount × 100 / (100 + VAT rate)) so the invoice total stays the fill amount; Exclusive keeps
+    the earlier behaviour. Imported diesel sessions stay outside CARD posting (FR-086b).
+  - *Concurrency*: sources are row-locked in a stable order and their reservation re-checked before the
+    draft is written.
+  - Impact: accounting controls only; no GL written by CARD; new fields on GL Posting Log and Card Company
+    Settings (migrate). Permissions: two new POST endpoints with role checks (Accounts Manager for
+    corrections; Accounts Manager / Accounts User for links and reviews). Rollback: revert the commit;
+    the new columns stay unused.
+
 ### Added
 - **A4 print of the Equipment Supplier Statement** (FR-089, Owner request 2026-10-29): a standard Report
   Print Format `Equipment Supplier Statement A4` (JS, Arabic RTL, A4 landscape) and the same layout as the
