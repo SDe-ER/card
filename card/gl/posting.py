@@ -130,6 +130,55 @@ def _source_cost_center(doctype, source, company):
 	return cc
 
 
+def _valid_cost_center(cc, company):
+	"""A cost center that can carry a posting line of the company: enabled leaf of that company."""
+	if not cc:
+		return None
+	row = frappe.db.get_value("Cost Center", cc, ["company", "is_group", "disabled"], as_dict=True)
+	return cc if row and row.company == company and not row.is_group and not row.disabled else None
+
+
+def card_cost_center(card, company):
+	"""P1-0: the cost center a monthly card's lines carry, from the most specific allocation
+	that is set and valid for the company — the equipment's assignment to the card's project
+	in force during the card's period (one cost center only), then the project's cost center,
+	then the equipment's own. None = the company default of Card Company Settings."""
+	start, end = getdate(card.from_date), getdate(card.to_date or card.from_date)
+	centers = {
+		a.cost_center
+		for a in frappe.get_all(
+			"Card Equipment Assignment",
+			filters={"equipment": card.equipment, "project": card.project},
+			fields=["from_date", "to_date", "cost_center"],
+		)
+		if a.cost_center
+		and a.from_date
+		and getdate(a.from_date) <= end
+		and (not a.to_date or getdate(a.to_date) >= start)
+	}
+	candidates = []
+	if len(centers) == 1:
+		candidates.append(centers.pop())
+	if card.project:
+		candidates.append(frappe.db.get_value("Project", card.project, "cost_center"))
+	if card.equipment:
+		candidates.append(frappe.db.get_value("Card Equipment", card.equipment, "cost_center"))
+	for cc in candidates:
+		if _valid_cost_center(cc, company):
+			return cc
+	return None
+
+
+def fill_cost_center(fill, company):
+	"""P1-0: a diesel fill's own cost center (validated, #34), else its project's."""
+	own = _source_cost_center("Project Diesel Fill", fill, company)
+	if own:
+		return own
+	if fill.project:
+		return _valid_cost_center(frappe.db.get_value("Project", fill.project, "cost_center"), company)
+	return None
+
+
 def _supplier_sources(company, party, first_day, last_day, month, year):
 	cards = frappe.get_all(
 		"Card Monthly Card",
@@ -226,6 +275,7 @@ def _customer_cards(company, party, month, year):
 def _card_lines(card_name, side, row, types):
 	"""The invoice lines one card contributes on one side."""
 	card = frappe.get_doc("Card Monthly Card", card_name)
+	cost_center = card_cost_center(card, card.company)
 	lines = []
 	if side == "Supplier":
 		base_rate, base_item, base_account = (
@@ -247,6 +297,7 @@ def _card_lines(card_name, side, row, types):
 			"rate": base_rate,
 			"account": base_account,
 			"project": card.project,
+			"cost_center": cost_center,
 			"card_equipment": card.equipment,
 			"taxable": 1,
 			"description": _("Monthly operation card {0} — {1}").format(
@@ -288,6 +339,7 @@ def _card_lines(card_name, side, row, types):
 				"rate": signed,
 				"account": typ.account if typ else base_account,
 				"project": card.project,
+				"cost_center": cost_center,
 				"card_equipment": card.equipment,
 				"taxable": 1 if (typ is None or typ.taxable) else 0,
 				"description": "{0} — {1} — {2}".format(
@@ -376,7 +428,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
-			cost_center = _source_cost_center("Project Diesel Fill", fill, company)
+			cost_center = fill_cost_center(fill, company)
 			for equipment, amount, share in _split_fill_by_allocation(fill, int(month), int(year), company):
 				if fill.card_equipment or not equipment:
 					# a direct fill (recorded) or a project-level line (unallocated)

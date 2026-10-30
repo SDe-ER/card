@@ -78,7 +78,9 @@ class TestPostingLines(_PostingBase):
 					by_source[name] = item.cost_center
 		self.assertEqual(by_source[with_cc.name], own)
 		self.assertEqual(by_source[transport.name], own)
-		self.assertEqual(by_source[without_cc.name], default)
+		# P1-0 (FR-091): a fill without its own cost center takes its project's (set above)
+		self.assertEqual(by_source[without_cc.name], own)
+		self.assertNotEqual(own, default)
 
 	def test_split_lines_state_their_own_estimated_litres(self):
 		eq_a = self._equipment()

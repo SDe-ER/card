@@ -15,6 +15,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **Project/equipment cost allocation on CARD postings** (FR-091, integration plan P1-0, 2026-10-30). A monthly
+  card's invoice lines (rental and its additions/deductions) now carry the cost center of the most specific
+  allocation that is set and valid for the company: the equipment's assignment to the card's project during the
+  card's period (when exactly one cost center applies), then the project's cost center, then the equipment's own;
+  the Card Company Settings cost center stays the last fallback. A diesel fill without its own cost center takes
+  its project's. Transports keep their destination cost center. Impact: GL cost center of new CARD postings
+  (project costing), no permission, data or API change; the P0 signature covers the new values. Rollback: revert
+  the commit; postings already submitted keep their cost centers.
+
 ### Fixed
 - **Monthly posting integrity, P0** (FR-090, integration audit 2026-10-30; QA failures T3b, T3c, T9h2, T9h3, T9i).
   - *Edited drafts*: the builder stores a signature of every financially significant field of the draft
