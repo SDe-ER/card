@@ -261,12 +261,15 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		frappe.get_doc(
 			{"doctype": "User Permission", "user": user, "allow": "Company", "for_value": self.company}
 		).insert(ignore_permissions=True)
-		other = frappe.db.get_value("Company", {"name": ["!=", self.company]}, "name")
-		if not other:
-			self.skipTest("the site has one company only")
+		# any company outside the user's permitted set is refused (another real one where the site has it)
+		other = (
+			frappe.db.get_value("Company", {"name": ["!=", self.company]}, "name") or "TEST-P11-NOT-PERMITTED"
+		)
 		frappe.set_user(user)
 		with self.assertRaises(frappe.PermissionError):
 			execute({"company": other, "from_date": "2026-09-01", "to_date": "2026-09-30"})
+		with self.assertRaises(frappe.PermissionError):
+			execute({"company": "TEST-P11-NOT-PERMITTED", "from_date": "2026-09-01", "to_date": "2026-09-30"})
 
 	def test_supplier_options_list_diesel_suppliers_of_the_company(self):
 		self._fill(10, 100, submit=False)
