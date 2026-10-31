@@ -21,6 +21,12 @@ from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.transport_parties import company_paid
 
 FAR_DATE = "2999-01-01"
+# Fixed site-time "today" for every test: a real today on the 1st of a month made day 2 of the open month a
+# future day (main CI on 2026-10-31, when the test site's date was already 2026-11-01). MONTH_START keeps that
+# boundary covered. Non-zero microseconds: a frozen time on a whole second makes str(modified) drop ".000000",
+# and the Cancel request's timestamp check then fails.
+MID_MONTH = "2026-10-15 10:00:00.123456"
+MONTH_START = "2026-11-01 00:30:00.123456"
 
 
 class TestPeriodLockExtraKeys(IntegrationTestCase):
@@ -31,12 +37,15 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 
 	# same fixtures as test_period_lock (borrowed, not inherited, so its tests are not run twice)
 	_base = test_period_lock.TestPeriodLockAndSnapshot
-	setUp = _base.setUp
 	tearDown = _base.tearDown
 	_set = _base._set
 	_make_equipment = _base._make_equipment
 	_new_card = _base._new_card
 	_equip = _base._equip
+
+	def setUp(self):
+		self.enterContext(self.freeze_time(MID_MONTH))
+		self._base.setUp(self)
 
 	def _lock(self):
 		self._set("period_lock_date", self.lock_date)
@@ -189,6 +198,7 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 		return add_days(getdate(nowdate()), days)
 
 	def _month_days(self, day):
+		# worked days up to `day` only: a card may not record hours on a future day
 		return [
 			{
 				"operation_date": "%s-%02d-%02d" % (day.year, day.month, i),
@@ -196,6 +206,7 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 				"working_hours": 10,
 			}
 			for i in (1, 2)
+			if i <= day.day
 		]
 
 	def _current_card(self):
@@ -353,6 +364,25 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 			savedocs(json.dumps(d, default=str), "Cancel")  # unchanged Desk cancel request
 			self.assertEqual(frappe.db.get_value(doc.doctype, doc.name, "docstatus"), 2)
 			self.assertEqual(self._stored(doc, field), before)
+
+	# ---- the 1st of a month: the open period starts, day 2 is still in the future ----
+	def test_month_start_open_card_keeps_the_lock_rules(self):
+		with self.freeze_time(MONTH_START):
+			self.assertEqual(len(self._month_days(self._today())), 1)
+			card = self._submitted(self._current_card())
+			self._refused_cancel(card, "to_date", to_date=FAR_DATE)
+			d = frappe.get_doc(card.doctype, card.name).as_dict()
+			savedocs(json.dumps(d, default=str), "Cancel")  # unchanged Desk cancel request
+			self.assertEqual(frappe.db.get_value(card.doctype, card.name, "docstatus"), 2)
+
+	def test_month_start_future_day_hours_refused(self):
+		with self.freeze_time(MONTH_START):
+			card = self._current_card()
+			card.append("days", {"operation_date": self._today(1), "day_status": "عمل", "working_hours": 10})
+			self._unlock()
+			# the future-day message carries the day in every language
+			with self.assertRaisesRegex(frappe.ValidationError, str(self._today(1))):
+				card.insert(ignore_permissions=True)
 
 	def test_guard_locked_plain_cancel_refused(self):
 		fill = self._submitted(self._fill())
