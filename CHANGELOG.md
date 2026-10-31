@@ -15,6 +15,22 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Security
+- **Card Equipment financial privacy** (FR-096, Owner decision 2026-10-31). The Asset purchase value (a read-only
+  copy of the Asset's `net_purchase_amount`), the internal hourly rate, the Asset cost center and the equipment's own
+  cost center (filled from the Asset) were readable by every reader of the equipment, including Card User and Card
+  Supervisor, who have no Asset read; the supplier's hourly rate (`approved_hourly_rate`) was readable by Card
+  Supervisor. These four fields move to permlevel 2, read by System Manager, Card Manager and Accounts Manager (System
+  Manager and Card Manager keep editing them); `approved_hourly_rate` moves to permlevel 1 with the supplier rate it is
+  computed from. Frappe applies these levels to the form, the REST API, list and report queries and their exports.
+  The change history (Version) reaches every reader of a document at any level, so new Versions of Card Equipment
+  keep who changed a field above level 0 and when, but not its values (`card.field_privacy`, a Version
+  `before_insert` hook). Existing history holds none of the financial values on Production (checked). Nothing is
+  deleted: the fields, their values and the columns stay; the server-side code that reads them is unchanged.
+  Impact: permissions narrowed (no role gains access; Card User can no longer read or set the equipment cost center),
+  no schema or data change, no accounting change. Rollback: revert the commit and migrate; the fields return to their
+  former levels.
+
 ### Added
 - **Equipment Meter Reconciliation report** (FR-094, maintenance plan R1, 2026-10-31). A read-only Script Report
   (Card Manager, Accounts Manager, System Manager; the user's roles must also read Card Equipment, Card Monthly Card

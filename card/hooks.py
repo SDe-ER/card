@@ -207,6 +207,8 @@ doc_events = {
 	},
 	# the registries' change history stays hidden from their form (#23)
 	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
+	# Card Equipment financial privacy: the change history never carries restricted values (2026-10-31)
+	"Version": {"before_insert": "card.field_privacy.mask_restricted_version"},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record
 	"File": {
 		"before_validate": "card.custody_receipt.keep_private",
