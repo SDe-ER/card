@@ -42,8 +42,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   When nothing else is needed (owned, the Asset category maps to an equipment type, a default daily-hours setting)
   the equipment is created at once with the user's own permissions and full validation; otherwise the prefilled
   form opens with the missing fields. One Asset still links to one equipment only; no Asset is ever created.
-  Impact: `card.api.create_equipment_from_asset` takes optional `ownership` and `save` (POST, unchanged default
-  behaviour without them), no schema change, no new role or permission, a sidebar link, Arabic strings.
+  Impact: `card.api.create_equipment_from_asset` (POST) takes optional `ownership` and `save`; without them it
+  still inserts nothing and returns the prefilled owned equipment, which now also carries the default daily hours
+  and a `missing` list of the fields left to complete; no schema change, no new role or permission, a sidebar link, Arabic strings.
   Rollback: revert the commit.
 - **Diesel Invoice Reconciliation report** (FR-092, integration plan P1-1, 2026-10-31). A read-only Script Report
   (Accounts Manager, System Manager — the roles that read both diesel sessions and Purchase Invoices) that compares CARD diesel sessions (Project Diesel Fill) with the
