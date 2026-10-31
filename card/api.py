@@ -3,6 +3,7 @@
 
 import frappe
 from frappe import _
+from frappe.model import get_permitted_fields
 from frappe.model.rename_doc import rename_doc
 from frappe.utils import cint, flt
 
@@ -342,11 +343,19 @@ def _asset_prefill(asset):
 	return prefill
 
 
+def _readable_equipment_values(values):
+	"""Only the Card Equipment fields the user may read: the Asset's values reach the user under the
+	equipment's field levels (FR-096), so a user without level 2 never receives the cost center.
+	What is saved is not filtered here; Frappe applies the write levels on insert."""
+	permitted = set(get_permitted_fields("Card Equipment", permission_type="read"))
+	return {field: value for field, value in values.items() if field in permitted}
+
+
 @frappe.whitelist(methods=["GET"])
 def get_asset_prefill(asset: str):
 	"""Values the equipment form fills from the chosen Asset (read only)."""
 	frappe.has_permission("Card Equipment", "read", throw=True)
-	return _asset_prefill(asset)
+	return _readable_equipment_values(_asset_prefill(asset))
 
 
 @frappe.whitelist(methods=["POST"])
@@ -387,7 +396,7 @@ def create_equipment_from_asset(asset: str, ownership: str = "ملك", save: int
 	if cint(save) and not missing:
 		doc.insert()  # the user's own permissions and the equipment's full validation
 		return {"name": doc.name}
-	values = doc.as_dict()
+	values = _readable_equipment_values(doc.as_dict())
 	values["missing"] = missing
 	return values
 
