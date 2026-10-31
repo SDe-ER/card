@@ -30,6 +30,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Impact: permissions narrowed (no role gains access; Card User can no longer read or set the equipment cost center),
   no schema or data change, no accounting change. Rollback: revert the commit and migrate; the fields return to their
   former levels.
+- **Asset prefill follows the equipment's field levels** (FR-097, Owner decision 2026-10-31, after FR-096). The
+  values CARD sends to the equipment form from a chosen Asset (`card.api.get_asset_prefill`, and the prefilled form
+  that `card.api.create_equipment_from_asset` returns when something is still missing) included the Asset's cost
+  center for any user who may read the Asset, also when the user may not read the equipment's cost center
+  (permlevel 2). Both responses now hold only the Card Equipment fields the user may read (Frappe's permitted fields
+  for the user). Authorized users (System Manager, Card Manager, Accounts Manager) still receive the cost center; what
+  is saved is unchanged (the Asset cost center and purchase value are still copied onto the record on save). Impact:
+  API responses narrowed, no permission, schema, data or accounting change. Rollback: revert the commit.
 
 ### Added
 - **Equipment Meter Reconciliation report** (FR-094, maintenance plan R1, 2026-10-31). A read-only Script Report
