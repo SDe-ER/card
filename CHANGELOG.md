@@ -31,9 +31,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   invoice needs the authorization document), absorb (reason), recover from the equipment supplier (amount;
   deduction from monthly dues by default) or return for correction — recorded by an Accounts Manager of the
   transport's company who did not create, edit or submit it, nor the transport it amends
-  (`record_financial_decision`, POST, row lock; permlevel-1 fields with the approver and time; a comment with the
-  decision label and a Version with the status change only, so no amount reaches readers without permlevel-1
-  access). Cancel and amend start a new decision. A read-only **Transport Accounting Review** report (Accounts
+  (`record_financial_decision`, POST, row lock; permlevel-1 fields with the approver and time; a generic comment
+  ("Financial decision recorded.") and a Version with the status change only, so neither the decision nor an
+  amount reaches readers without permlevel-1 access). Cancel and amend start a new decision. A read-only **Transport Accounting Review** report (Accounts
   Manager, System Manager) lists transports recorded before this change (readable as recorded, nothing filled in),
   responsibilities that need review and open or recorded decisions. Cost reports use the cost project for new
   transports.
@@ -43,7 +43,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the P1-0 rules.
   Impact: schema (new Equipment Transport fields; `cost_borne_by` kept read-only for old records), a new POST
   method, a new report and sidebar link, Arabic strings; no new role; no GL. Rollback: revert the commit; the new
-  columns stay in the database with their values and can be dropped only by a separate approved task.
+  columns stay in the database with their values and can be dropped only by a separate approved task. After a
+  revert, transports recorded with a responsibility have an empty `cost_borne_by`, so the old monthly supplier
+  build treats them as company-paid and refuses that supplier's month ("who pays this move is not recorded")
+  until each such transport is cancelled and amended, or its old field is restored by a separate approved data
+  task. This fails closed: nothing is posted wrongly. The Transport Accounting Review report record also stays in
+  the database and must be removed by that task.
 - **Diesel Invoice Reconciliation report** (FR-092, integration plan P1-1, 2026-10-31). A read-only Script Report
   (Accounts Manager, System Manager — the roles that read both diesel sessions and Purchase Invoices) that compares CARD diesel sessions (Project Diesel Fill) with the
   suppliers' own submitted Purchase Invoices for one company and a period. The litres are read from the invoice line
