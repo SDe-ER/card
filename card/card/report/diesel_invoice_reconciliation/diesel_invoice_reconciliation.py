@@ -190,12 +190,12 @@ def _stream_rows(filters, stream, window, max_delivery, submitted_only):
 			exception = False
 			status = _("Matched") if rule == EQUAL else _("Matched: {0}").format(_rule_label(rule, detail))
 			if rule == LINKED:
-				confidence = _("Confirmed: linked in CARD")
+				confidence = _("Confirmed: document link (the session names this invoice)")
 			elif rule == EQUAL:
-				confidence = _("Confirmed: stated litres equal the session")
+				confidence = _("Inferred: invoice text litres equal the session")
 			elif rule == FOLDED:
 				# the delivery charge is folded into the diesel line: physical diesel = the session
-				confidence = _("Confirmed: stated litres = session + delivery charge")
+				confidence = _("Inferred: invoice text litres = session + delivery charge")
 				delivery = flt(delivery + detail, 1)
 				physical = s_litres
 				notes.append(

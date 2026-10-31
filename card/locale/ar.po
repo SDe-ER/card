@@ -4298,12 +4298,12 @@ msgid "Allocation check"
 msgstr "فحص التخصيص"
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
-msgid "Confirmed: stated litres = session + delivery charge"
-msgstr "مؤكدة: اللترات المذكورة = الجلسة + أجرة التوصيل"
+msgid "Inferred: invoice text litres = session + delivery charge"
+msgstr "مستنتجة: لترات نص الفاتورة = الجلسة + أجرة التوصيل"
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
-msgid "Confirmed: stated litres equal the session"
-msgstr "مؤكدة: اللترات المذكورة تساوي الجلسة"
+msgid "Inferred: invoice text litres equal the session"
+msgstr "مستنتجة: لترات نص الفاتورة تساوي الجلسة"
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
 msgid "Diesel sessions to include"
@@ -4394,8 +4394,8 @@ msgid "Amount only: net / session price = {0} L"
 msgstr "بالمبلغ فقط: الصافي ÷ سعر الجلسة = {0} لتر"
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
-msgid "Confirmed: linked in CARD"
-msgstr "مؤكدة: مربوطة في CARD"
+msgid "Confirmed: document link (the session names this invoice)"
+msgstr "مؤكدة: ربط مستندي (الجلسة تذكر هذه الفاتورة)"
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
 msgid "Invoiced litres estimated from amounts"

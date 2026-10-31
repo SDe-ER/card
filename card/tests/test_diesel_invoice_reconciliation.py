@@ -126,7 +126,7 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		self.assertEqual(row["litre_difference"], 0)
 		self.assertEqual(row["vat_pct"], 15)
 		self.assertEqual(row["vat_basis"], "VAT-inclusive price")
-		self.assertEqual(row["confidence"], "Confirmed: stated litres equal the session")
+		self.assertEqual(row["confidence"], "Inferred: invoice text litres equal the session")
 		self.assertEqual(row["session_state"], "Submitted 1, draft 0")
 		self.assertEqual(row["allocation"], "Consistent")
 		self.assertIn("VAT as booked", row["note"])
@@ -141,7 +141,7 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		self.assertEqual(row["litre_difference"], 60)
 		# physical diesel and the delivery-fee equivalent are reported apart
 		self.assertEqual((row["physical_litres"], row["delivery_litres"]), (1000, 60))
-		self.assertEqual(row["confidence"], "Confirmed: stated litres = session + delivery charge")
+		self.assertEqual(row["confidence"], "Inferred: invoice text litres = session + delivery charge")
 		self.assertIn("Physical diesel = session litres", row["note"])
 		self.assertFalse(row["exception"])
 
@@ -355,7 +355,10 @@ class TestDieselInvoiceReconciliation(_PostingBase):
 		inv = self._invoice(22, self._gross_lines("ديزل 999 لتر", 999))
 		frappe.db.set_value("Project Diesel Fill", fill.name, "purchase_invoice", inv.name)
 		row = self._row(self._run()[0], invoice=inv.name)
-		self.assertEqual((row["sessions"], row["confidence"]), (fill.name, "Confirmed: linked in CARD"))
+		self.assertEqual(
+			(row["sessions"], row["confidence"]),
+			(fill.name, "Confirmed: document link (the session names this invoice)"),
+		)
 
 	def test_invoice_after_the_period_end_is_not_an_exception(self):
 		self._fill(29, 1000)

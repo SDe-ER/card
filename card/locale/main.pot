@@ -3090,11 +3090,11 @@ msgid "Allocation check"
 msgstr ""
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
-msgid "Confirmed: stated litres = session + delivery charge"
+msgid "Inferred: invoice text litres = session + delivery charge"
 msgstr ""
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
-msgid "Confirmed: stated litres equal the session"
+msgid "Inferred: invoice text litres equal the session"
 msgstr ""
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
@@ -3190,7 +3190,7 @@ msgid "Amount only: net / session price = {0} L"
 msgstr ""
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
-msgid "Confirmed: linked in CARD"
+msgid "Confirmed: document link (the session names this invoice)"
 msgstr ""
 
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
