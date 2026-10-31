@@ -4128,3 +4128,295 @@ msgstr "{0}: تعيينات {1} على المشروع {2} في هذه الأيا
 #: card/gl/posting.py
 msgid "{0}: who pays this move is not recorded; review it, then cancel and amend the transport with its payer (Transport cost borne by)."
 msgstr "{0}: من يدفع تكلفة هذا النقل غير مسجّل؛ راجعه، ثم ألغِ النقل وعدّله (Amend) مع تحديد من يتحمّل التكلفة (تكلفة النقل على)."
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Aggregated invoice: sessions after {0} up to the bill date"
+msgstr "فاتورة مجمعة: الجلسات بعد {0} حتى تاريخ الفاتورة"
+
+#: card/diesel_reconciliation.py
+msgid "Amount only: gross / session price = {0} L"
+msgstr "بالمبلغ فقط: الإجمالي ÷ سعر الجلسة = {0} لتر"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Delivery charge litres"
+msgstr "لترات أجرة التوصيل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Delivery charge up to (litres)"
+msgstr "أجرة التوصيل حتى (لتر)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Diesel sessions"
+msgstr "جلسات الديزل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel suppliers (one delivery stream)"
+msgstr "موردو الديزل (مسار توريد واحد)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session ({0})"
+msgstr "جلسة مسودة ({0})"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Evidence"
+msgstr "الدليل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Exceptions"
+msgstr "الاستثناءات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Invoice date window (days)"
+msgstr "مدى تاريخ الفاتورة (أيام)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice gross"
+msgstr "إجمالي الفاتورة"
+
+#: card/diesel_reconciliation.py
+msgid "Invoice litres = session + {0} L delivery charge inside the diesel line"
+msgstr "لترات الفاتورة = الجلسة + {0} لتر أجرة توصيل داخل بند الديزل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice net"
+msgstr "صافي الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice projects"
+msgstr "مشاريع الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice states no litres: estimated as gross / session price {0} (unverified)"
+msgstr "الفاتورة لا تذكر اللترات: تقدير بالإجمالي ÷ سعر الجلسة {0} (غير متحقق)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice without session"
+msgstr "فاتورة بدون جلسة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced diesel litres"
+msgstr "لترات الديزل في الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Litre difference"
+msgstr "فرق اللترات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Litres equal"
+msgstr "اللترات متساوية"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Matched: {0}"
+msgstr "مطابقة: {0}"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Not invoiced yet"
+msgstr "لم تُفوتر بعد"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Other lines (not diesel) {0}"
+msgstr "بنود أخرى (ليست ديزل) {0}"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: litres agree"
+msgstr "الفترة: اللترات متطابقة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Physical diesel = session litres; the difference is a delivery charge booked as diesel"
+msgstr "الديزل الفعلي = لترات الجلسة؛ الفرق أجرة توصيل مسجلة كديزل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Price VAT basis"
+msgstr "أساس الضريبة في السعر"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Select the period"
+msgstr "اختر الفترة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Separate delivery charge line {0}"
+msgstr "بند أجرة توصيل منفصل {0}"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session litres"
+msgstr "لترات الجلسات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session projects"
+msgstr "مشاريع الجلسات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session without invoice"
+msgstr "جلسة بدون فاتورة"
+
+#: card/diesel_reconciliation.py
+msgid "Unverified (no litres on the invoice)"
+msgstr "غير متحقق (لا توجد لترات في الفاتورة)"
+
+#: card/diesel_reconciliation.py
+msgid "Unverified (price per litre {0} gross, {1} net)"
+msgstr "غير متحقق (سعر اللتر {0} إجمالي، {1} صافي)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT"
+msgstr "الضريبة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT %"
+msgstr "نسبة الضريبة %"
+
+#: card/diesel_reconciliation.py
+msgid "VAT-exclusive price"
+msgstr "السعر غير شامل الضريبة"
+
+#: card/diesel_reconciliation.py
+msgid "VAT-inclusive price"
+msgstr "السعر شامل الضريبة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "You need read access to {0} to run this report"
+msgstr "تحتاج صلاحية قراءة {0} لتشغيل هذا التقرير"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "the start of the period"
+msgstr "بداية الفترة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} invoice line(s) without project"
+msgstr "{0} بند فاتورة بدون مشروع"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} sessions ({1} .. {2})"
+msgstr "{0} جلسة ({1} .. {2})"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel Invoice Reconciliation"
+msgstr "مطابقة فواتير الديزل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Allocation check"
+msgstr "فحص التخصيص"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Inferred: invoice text litres = session + delivery charge"
+msgstr "مستنتجة: لترات نص الفاتورة = الجلسة + أجرة التوصيل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Inferred: invoice text litres equal the session"
+msgstr "مستنتجة: لترات نص الفاتورة تساوي الجلسة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel sessions to include"
+msgstr "جلسات الديزل المشمولة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session litres"
+msgstr "لترات الجلسات المسودة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Equipment conflict"
+msgstr "تعارض في المعدة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: amount only, the invoice states no litres"
+msgstr "تقديرية: بالمبلغ فقط، الفاتورة لا تذكر اللترات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: period match on stated litres"
+msgstr "تقديرية: مطابقة بالفترة على اللترات المذكورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: period match, litres estimated from the amount"
+msgstr "تقديرية: مطابقة بالفترة، اللترات مقدرة من المبلغ"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice has no project"
+msgstr "الفاتورة بدون مشروع"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Match confidence"
+msgstr "درجة الثقة في المطابقة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "No match"
+msgstr "لا توجد مطابقة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: difference to review (invoice above sessions)"
+msgstr "الفترة: فرق للمراجعة (الفاتورة أعلى من الجلسات)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: difference to review (sessions above invoice)"
+msgstr "الفترة: فرق للمراجعة (الجلسات أعلى من الفاتورة)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Physical diesel litres"
+msgstr "لترات الديزل الفعلية"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Project conflict"
+msgstr "تعارض في المشروع"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session state"
+msgstr "حالة الجلسات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Submitted and draft"
+msgstr "المعتمدة والمسودة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Submitted only"
+msgstr "المعتمدة فقط"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Submitted session litres"
+msgstr "لترات الجلسات المعتمدة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Submitted {0}, draft {1}"
+msgstr "معتمدة {0}، مسودة {1}"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Unexplained difference: not a confirmed over-billing, missing invoice or missing payment"
+msgstr "فرق غير مفسر: ليس تأكيدًا لزيادة في الفوترة أو فاتورة ناقصة أو سداد ناقص"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT as booked on the invoice"
+msgstr "الضريبة كما سُجلت في الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "After the period end: to review with the next period"
+msgstr "بعد نهاية الفترة: للمراجعة مع الفترة التالية"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Amount only: net / session price = {0} L"
+msgstr "بالمبلغ فقط: الصافي ÷ سعر الجلسة = {0} لتر"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Confirmed: document link (the session names this invoice)"
+msgstr "مؤكدة: ربط مستندي (الجلسة تذكر هذه الفاتورة)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced litres estimated from amounts"
+msgstr "لترات مفوترة مقدرة من المبالغ"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced physical diesel litres (stated)"
+msgstr "لترات الديزل الفعلية المفوترة (المذكورة)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Linked: the session names this invoice"
+msgstr "مربوطة: الجلسة تذكر هذه الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "The first invoice of the period may include deliveries before the period"
+msgstr "أول فاتورة في الفترة قد تشمل توريدات قبل الفترة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} (draft session, not yet approved)"
+msgstr "{0} (جلسة مسودة، لم تُعتمد بعد)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session"
+msgstr "جلسة مسودة"

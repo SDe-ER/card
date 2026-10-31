@@ -15,6 +15,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **Diesel Invoice Reconciliation report** (FR-092, integration plan P1-1, 2026-10-31). A read-only Script Report
+  (Accounts Manager, System Manager — the roles that read both diesel sessions and Purchase Invoices) that compares CARD diesel sessions (Project Diesel Fill) with the
+  suppliers' own submitted Purchase Invoices for one company and a period. The litres are read from the invoice line
+  text (the suppliers' invoices carry them only there); delivery charges, as a separate line or folded into the
+  diesel line, are kept apart from physical diesel; the VAT basis of each invoice (VAT-inclusive, VAT-exclusive or
+  unverified) comes from its own figures against the session price — never a company-wide assumption. Sessions
+  match one delivery invoice (same supplier, date window, equal litres or litres + delivery charge, or amount only)
+  or, for aggregated invoices, a period (sessions after the previous invoice up to the bill date); several suppliers
+  can be reconciled as one delivery stream. Rows show the status, litres, gross, net, VAT, VAT %, projects and the
+  evidence; exceptions: session without invoice, invoice without session, period litre gaps, lines without project.
+  Each row states its match confidence: confirmed only by a document link (the session names the invoice);
+  inferred from the invoice text (equal litres, or litres plus a delivery charge); estimated by amount or by period; the submitted/draft split of its sessions (and a "submitted only" filter), the physical
+  diesel litres apart from the delivery-fee equivalent, the VAT as booked, and a project/equipment allocation check
+  (reported, never changed). A period difference is a point to review, never a confirmed over-billing or missing
+  payment.
+  Impact: no write of any kind (no posting, link, save or submit), no schema change, no new role or permission (the
+  user's roles must read Project Diesel Fill and Purchase Invoice; one permitted company); a new GET options method
+  `card.diesel_reconciliation.diesel_supplier_options`; a sidebar link under Card Reports; Arabic strings. Rollback:
+  revert the commit (nothing to undo in data).
+
 ### Changed
 - **Project/equipment cost allocation on CARD postings** (FR-091, integration plan P1-0, 2026-10-30). Card, diesel
   and transport lines of CARD postings carry the project/equipment allocation instead of the company default. One
