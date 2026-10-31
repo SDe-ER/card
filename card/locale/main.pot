@@ -3216,3 +3216,211 @@ msgstr ""
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
 msgid "Draft session"
 msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "All Assets"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "All equipment"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Allowed difference %"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Asset meter fields"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Asset meter fields differ from the last plausible reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Asset name"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Asset status"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Assets and equipment reviewed"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "CARD hours (submitted cards, same period)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "CARD hours differ from the meter hours by more than {0}%"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Difference %"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Every reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "First plausible reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "First reading date"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Hours since previous plausible reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Last plausible reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Last reading date"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Linked Asset is not a submitted Asset of this company you may read"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Linked to equipment that is not owned: review (rented equipment has no Asset)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Linked; equipment type differs from the type of this Asset category"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Maintenance baseline"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Maintenance policy kept: alert at {0} operating hours, oil change due at {1}."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Meter hours (differences only)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Meter reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Meter readings are cumulative: only differences between consecutive plausible readings count as hours."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Needs a decision"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Needs a decision only"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Needs review only"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "No legacy fuelling log readings are available on this site (or you may not read them)."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "No meter readings"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Not in CARD: decide whether it is operated equipment (type available)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Not in CARD: no equipment type for this Asset category yet"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Not set: needs a verified meter reading and the completed maintenance of {0} confirmed"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Not set: no verified maintenance history"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "One row per equipment"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Only owned or third-party equipment is linked to an Asset; rented equipment has no Asset."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Owned equipment without an Asset link: confirm its Asset or ownership"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Possible identity conflict between the Asset ID and its name or item: {0}"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Reading check"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Reading issues"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Reading time"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Sold or scrapped: no CARD equipment needed"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Source record"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "This report sets no maintenance baseline and changes nothing."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Type for this category"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Plausible"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Invalid reading (zero, negative or empty)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Duplicate reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Backward reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Meter reset (reading restarts near zero)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Impossible jump (more hours than elapsed time)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Recorded hours equal the whole meter (cumulative): ignored"
+msgstr ""

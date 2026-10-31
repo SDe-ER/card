@@ -7,6 +7,7 @@ from frappe.model.rename_doc import rename_doc
 from frappe.utils import cint, flt
 
 from card.card.doctype.card_equipment.card_equipment import asset_equipment_values
+from card.constants import OWNED, THIRD_PARTY
 from card.party_registry import registry_row
 from card.report_access import assert_report_role, permitted_companies, query_companies
 from card.settings import setting
@@ -349,24 +350,46 @@ def get_asset_prefill(asset: str):
 
 
 @frappe.whitelist(methods=["POST"])
-def create_equipment_from_asset(asset: str):
-	"""Return a NEW, UNSAVED Card Equipment prefilled from a submitted ERPNext Asset.
+def create_equipment_from_asset(asset: str, ownership: str = "ملك", save: int | str = 0):
+	"""A Card Equipment prefilled from a submitted ERPNext Asset (maintenance plan M1: minimum input).
 
-	Nothing is inserted: the client opens the prefilled form and the user completes the
-	remaining mandatory fields (e.g. daily hours, equipment type) before saving."""
+	With ``save`` and nothing left to ask (an owned machine whose Asset category maps to an equipment
+	type, and a default daily-hours setting), the equipment is created with the user's own permissions and
+	the full validation (one Asset, one equipment) and ``{"name": ...}`` is returned. Otherwise nothing is
+	inserted: the prefilled form is returned with the fields still ``missing`` for the user to complete.
+	Only owned or third-party machines are linked to an Asset; rented equipment never gets one."""
 	frappe.has_permission("Card Equipment", "create", throw=True)
+	if ownership not in (OWNED, THIRD_PARTY):
+		frappe.throw(
+			_("Only owned or third-party equipment is linked to an Asset; rented equipment has no Asset.")
+		)
 	prefill = _asset_prefill(asset)
+	if cint(save):
+		# row lock on the Asset: two one-step creates of the same Asset run one after the other, so the
+		# second sees the first link
+		frappe.db.get_value("Asset", asset, "name", for_update=True)
 	linked = frappe.db.get_value("Card Equipment", {"الأصل_في_erpnext": asset}, "name")
 	if linked:
 		frappe.throw(_("Asset {0} is already linked to equipment {1}").format(asset, linked))
 
 	doc = frappe.new_doc("Card Equipment")
 	doc.update(prefill)
-	doc.ownership = "ملك"
-	doc.operator_on = "الشركة"
-	doc.set("الوقود_على", "الشركة")
+	doc.ownership = ownership
+	if ownership == OWNED:
+		doc.operator_on = "الشركة"
+		doc.set("الوقود_على", "الشركة")
 	doc.set("الأصل_في_erpnext", asset)
-	return doc.as_dict()
+	if not flt(doc.daily_hours) and flt(setting("default_daily_hours")) > 0:
+		doc.daily_hours = flt(setting("default_daily_hours"))
+	missing = [field for field in ("equipment_type", "daily_hours") if not doc.get(field)]
+	if ownership != OWNED:
+		missing.append("rental_direction")  # a third-party machine needs its commercial terms
+	if cint(save) and not missing:
+		doc.insert()  # the user's own permissions and the equipment's full validation
+		return {"name": doc.name}
+	values = doc.as_dict()
+	values["missing"] = missing
+	return values
 
 
 @frappe.whitelist(methods=["GET"])

@@ -4420,3 +4420,211 @@ msgstr "{0} (جلسة مسودة، لم تُعتمد بعد)"
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
 msgid "Draft session"
 msgstr "جلسة مسودة"
+
+#: card/meter_reconciliation.py
+msgid "All Assets"
+msgstr "كل الأصول"
+
+#: card/meter_reconciliation.py
+msgid "All equipment"
+msgstr "كل المعدات"
+
+#: card/meter_reconciliation.py
+msgid "Allowed difference %"
+msgstr "نسبة الفرق المسموح بها %"
+
+#: card/meter_reconciliation.py
+msgid "Asset meter fields"
+msgstr "حقول عداد الأصل"
+
+#: card/meter_reconciliation.py
+msgid "Asset meter fields differ from the last plausible reading"
+msgstr "حقول عداد الأصل تختلف عن آخر قراءة مقبولة"
+
+#: card/meter_reconciliation.py
+msgid "Asset name"
+msgstr "اسم الأصل"
+
+#: card/meter_reconciliation.py
+msgid "Asset status"
+msgstr "حالة الأصل"
+
+#: card/meter_reconciliation.py
+msgid "Assets and equipment reviewed"
+msgstr "الأصول والمعدات المراجَعة"
+
+#: card/meter_reconciliation.py
+msgid "CARD hours (submitted cards, same period)"
+msgstr "ساعات CARD (كروت معتمدة، نفس الفترة)"
+
+#: card/meter_reconciliation.py
+msgid "CARD hours differ from the meter hours by more than {0}%"
+msgstr "ساعات CARD تختلف عن ساعات العداد بأكثر من {0}%"
+
+#: card/meter_reconciliation.py
+msgid "Difference %"
+msgstr "نسبة الفرق %"
+
+#: card/meter_reconciliation.py
+msgid "Every reading"
+msgstr "كل قراءة"
+
+#: card/meter_reconciliation.py
+msgid "First plausible reading"
+msgstr "أول قراءة مقبولة"
+
+#: card/meter_reconciliation.py
+msgid "First reading date"
+msgstr "تاريخ أول قراءة"
+
+#: card/meter_reconciliation.py
+msgid "Hours since previous plausible reading"
+msgstr "الساعات منذ القراءة المقبولة السابقة"
+
+#: card/meter_reconciliation.py
+msgid "Last plausible reading"
+msgstr "آخر قراءة مقبولة"
+
+#: card/meter_reconciliation.py
+msgid "Last reading date"
+msgstr "تاريخ آخر قراءة"
+
+#: card/meter_reconciliation.py
+msgid "Linked Asset is not a submitted Asset of this company you may read"
+msgstr "الأصل المربوط ليس أصلًا معتمدًا لهذه الشركة يمكنك قراءته"
+
+#: card/meter_reconciliation.py
+msgid "Linked to equipment that is not owned: review (rented equipment has no Asset)"
+msgstr "مربوط بمعدة غير مملوكة: للمراجعة (المعدة المستأجرة ليس لها أصل)"
+
+#: card/meter_reconciliation.py
+msgid "Linked; equipment type differs from the type of this Asset category"
+msgstr "مربوط؛ نوع المعدة يختلف عن نوع فئة هذا الأصل"
+
+#: card/meter_reconciliation.py
+msgid "Maintenance baseline"
+msgstr "نقطة بداية الصيانة"
+
+#: card/meter_reconciliation.py
+msgid "Maintenance policy kept: alert at {0} operating hours, oil change due at {1}."
+msgstr "سياسة الصيانة كما هي: تنبيه عند {0} ساعة تشغيل، وتغيير الزيت مستحق عند {1}."
+
+#: card/meter_reconciliation.py
+msgid "Meter hours (differences only)"
+msgstr "ساعات العداد (الفروق فقط)"
+
+#: card/meter_reconciliation.py
+msgid "Meter reading"
+msgstr "قراءة العداد"
+
+#: card/meter_reconciliation.py
+msgid "Meter readings are cumulative: only differences between consecutive plausible readings count as hours."
+msgstr "قراءات العداد تراكمية: تُحسب الساعات من الفرق بين القراءات المقبولة المتتالية فقط."
+
+#: card/meter_reconciliation.py
+msgid "Needs a decision"
+msgstr "تحتاج قرارًا"
+
+#: card/meter_reconciliation.py
+msgid "Needs a decision only"
+msgstr "اللي تحتاج قرارًا فقط"
+
+#: card/meter_reconciliation.py
+msgid "Needs review only"
+msgstr "اللي تحتاج مراجعة فقط"
+
+#: card/meter_reconciliation.py
+msgid "No legacy fuelling log readings are available on this site (or you may not read them)."
+msgstr "لا توجد قراءات من سجل التموين القديم على هذا الموقع (أو ليس لديك صلاحية قراءتها)."
+
+#: card/meter_reconciliation.py
+msgid "No meter readings"
+msgstr "لا توجد قراءات عداد"
+
+#: card/meter_reconciliation.py
+msgid "Not in CARD: decide whether it is operated equipment (type available)"
+msgstr "غير موجود في CARD: قرر هل هو معدة تشغيل (النوع متاح)"
+
+#: card/meter_reconciliation.py
+msgid "Not in CARD: no equipment type for this Asset category yet"
+msgstr "غير موجود في CARD: لا يوجد نوع معدة لفئة هذا الأصل بعد"
+
+#: card/meter_reconciliation.py
+msgid "Not set: needs a verified meter reading and the completed maintenance of {0} confirmed"
+msgstr "غير محددة: تحتاج قراءة عداد مؤكدة وتأكيد الصيانة المكتملة بتاريخ {0}"
+
+#: card/meter_reconciliation.py
+msgid "Not set: no verified maintenance history"
+msgstr "غير محددة: لا يوجد سجل صيانة مؤكد"
+
+#: card/meter_reconciliation.py
+msgid "One row per equipment"
+msgstr "صف لكل معدة"
+
+#: card/meter_reconciliation.py
+msgid "Only owned or third-party equipment is linked to an Asset; rented equipment has no Asset."
+msgstr "تُربط بالأصل المعدات المملوكة أو التابعة لطرف ثالث فقط؛ المعدة المستأجرة ليس لها أصل."
+
+#: card/meter_reconciliation.py
+msgid "Owned equipment without an Asset link: confirm its Asset or ownership"
+msgstr "معدة مملوكة بدون ربط بأصل: أكّد أصلها أو ملكيتها"
+
+#: card/meter_reconciliation.py
+msgid "Possible identity conflict between the Asset ID and its name or item: {0}"
+msgstr "احتمال تعارض في هوية الأصل بين رقمه واسمه أو صنفه: {0}"
+
+#: card/meter_reconciliation.py
+msgid "Reading check"
+msgstr "فحص القراءة"
+
+#: card/meter_reconciliation.py
+msgid "Reading issues"
+msgstr "مشاكل القراءات"
+
+#: card/meter_reconciliation.py
+msgid "Reading time"
+msgstr "وقت القراءة"
+
+#: card/meter_reconciliation.py
+msgid "Sold or scrapped: no CARD equipment needed"
+msgstr "مباع أو مُكهّن: لا يحتاج معدة في CARD"
+
+#: card/meter_reconciliation.py
+msgid "Source record"
+msgstr "السجل المصدر"
+
+#: card/meter_reconciliation.py
+msgid "This report sets no maintenance baseline and changes nothing."
+msgstr "هذا التقرير لا يحدد نقطة بداية للصيانة ولا يغيّر أي شيء."
+
+#: card/meter_reconciliation.py
+msgid "Type for this category"
+msgstr "النوع لهذه الفئة"
+
+#: card/meter_reconciliation.py
+msgid "Plausible"
+msgstr "قراءة مقبولة"
+
+#: card/meter_reconciliation.py
+msgid "Invalid reading (zero, negative or empty)"
+msgstr "قراءة غير صالحة (صفر أو سالبة أو فارغة)"
+
+#: card/meter_reconciliation.py
+msgid "Duplicate reading"
+msgstr "قراءة مكررة"
+
+#: card/meter_reconciliation.py
+msgid "Backward reading"
+msgstr "قراءة راجعة للخلف"
+
+#: card/meter_reconciliation.py
+msgid "Meter reset (reading restarts near zero)"
+msgstr "تصفير العداد (القراءة بدأت من قرب الصفر)"
+
+#: card/meter_reconciliation.py
+msgid "Impossible jump (more hours than elapsed time)"
+msgstr "قفزة غير ممكنة (ساعات أكثر من الوقت المنقضي)"
+
+#: card/meter_reconciliation.py
+msgid "Recorded hours equal the whole meter (cumulative): ignored"
+msgstr "الساعات المسجلة تساوي العداد كله (تراكمية): تم تجاهلها"
