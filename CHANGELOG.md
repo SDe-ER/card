@@ -44,7 +44,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   form opens with the missing fields. One Asset still links to one equipment only; no Asset is ever created.
   Impact: `card.api.create_equipment_from_asset` (POST) takes optional `ownership` and `save`; without them it
   still inserts nothing and returns the prefilled owned equipment, which now also carries the default daily hours
-  and a `missing` list of the fields left to complete; no schema change, no new role or permission, a sidebar link, Arabic strings.
+  and a `missing` list of the fields left to complete (for a third-party machine always including its
+  commercial terms, `rental_direction`); no schema change, no new role or permission, a sidebar link, Arabic strings.
   Rollback: revert the commit.
 - **Transport cost responsibility** (FR-093, integration plan P1-2, operational part, 2026-10-31). Equipment
   Transport asks one question, "Transport responsibility", with seven plain choices: the company bears the cost;
