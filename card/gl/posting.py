@@ -394,6 +394,11 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"purchase_invoice": ["in", ["", None]],
 			# only a move the company pays is billed by the transport supplier (Owner 2026-10-19)
 			"cost_borne_by": ["in", ["Company", "", None]],
+			# P1-2 (Owner 2026-10-31): a transport recorded with a responsibility scenario is not
+			# posted yet — its Purchase Invoice, customer billing and supplier recovery wait for the
+			# accountant's and the tax adviser's decisions (Transport Accounting Review lists it)
+			"responsibility": ["in", ["", None]],
+			"payer": ["in", ["", None]],
 		},
 		fields=[
 			"name",

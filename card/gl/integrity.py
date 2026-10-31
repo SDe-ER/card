@@ -541,6 +541,14 @@ def link_supplier_invoice(
 				frappe.throw(
 					_("{0} {1} is already invoiced by {2}.").format(_(doctype), name, src.purchase_invoice)
 				)
+			if doctype == "Equipment Transport" and (src.get("responsibility") or src.get("payer")):
+				# P1-2: the supplier invoicing of transports with a recorded payer waits for the
+				# accountant's and tax adviser's decisions (built and linked by neither path yet)
+				frappe.throw(
+					_(
+						"Transport {0} records who pays and who bears its cost; linking it to a supplier invoice is not enabled yet."
+					).format(name)
+				)
 			holder = active_log_holding(doctype, name, "Supplier")
 			if holder:
 				frappe.throw(
