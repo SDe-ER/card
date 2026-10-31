@@ -205,7 +205,8 @@ function card_financial_decision(frm) {
 				label: __("Authorization document"),
 				fieldtype: "Attach",
 				depends_on: when("Bill customer"),
-				mandatory_depends_on: 'eval:doc.decision=="Bill customer" && doc.billing_mode=="Separate invoice"',
+				mandatory_depends_on:
+					'eval:doc.decision=="Bill customer" && doc.billing_mode=="Separate invoice"',
 			},
 			{
 				fieldname: "recovery_mode",

@@ -79,7 +79,13 @@ class TestTransportCostBearing(_P0Base):
 			t.responsibility = scenario
 			t.insert(ignore_permissions=True)
 			self.assertEqual(
-				(t.payer, t.cost_bearer or None, t.customer_billable, t.supplier_recoverable, t.financial_status),
+				(
+					t.payer,
+					t.cost_bearer or None,
+					t.customer_billable,
+					t.supplier_recoverable,
+					t.financial_status,
+				),
 				(*RESPONSIBILITIES[scenario], billable, recoverable, status),
 				scenario,
 			)
@@ -89,7 +95,14 @@ class TestTransportCostBearing(_P0Base):
 		t.responsibility = "Responsibility needs review"
 		self._submitted(t)
 		self.assertEqual(
-			(t.payer, t.cost_bearer, t.cost_project, t.cost_center, t.financial_status or None, flt(t.amount)),
+			(
+				t.payer,
+				t.cost_bearer,
+				t.cost_project,
+				t.cost_center,
+				t.financial_status or None,
+				flt(t.amount),
+			),
 			(None, None, None, None, None, 0),
 		)
 		_c, _f, transports = _supplier_sources(
@@ -532,7 +545,7 @@ class TestTransportCostBearing(_P0Base):
 		as_recorded_before_p12(legacy.name)
 		record_only = self._submitted(paid_by(self._new(), "Customer", "Customer"))
 		before = frappe.db.get_value("Equipment Transport", pending.name, "modified")
-		_c, rows, _m, _ch, summary = review(
+		_c, rows, _m, _ch, _summary = review(
 			{"company": self.company, "from_date": "2026-09-01", "to_date": "2026-09-30"}
 		)
 		by = {r["transport"]: r for r in rows}
