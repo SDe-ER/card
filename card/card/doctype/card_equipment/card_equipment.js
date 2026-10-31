@@ -185,7 +185,8 @@ function card_set_model_query(frm) {
 	});
 }
 
-// New-form shortcut: pick an Asset, get a prefilled (unsaved) equipment form.
+// New-form shortcut (maintenance plan M1, minimum input): pick an Asset (and the ownership, owned by
+// default); the server creates the equipment when nothing else is needed, else opens the prefilled form.
 function card_add_create_from_asset(frm) {
 	if (!frm.is_new() || frm.doc["الأصل_في_erpnext"]) return;
 	frm.add_custom_button(__("Create from Asset"), () => {
@@ -202,16 +203,29 @@ function card_add_create_from_asset(frm) {
 						filters: { company: frm.doc.company || "" },
 					}),
 				},
+				{
+					// rented machines are not Assets: only owned or third-party here
+					fieldname: "ownership",
+					fieldtype: "Select",
+					label: __("Ownership"),
+					options: ["ملك", "طرف ثالث"],
+					default: "ملك",
+					reqd: 1,
+				},
 			],
 			(values) => {
 				frappe
 					.call({
 						method: "card.api.create_equipment_from_asset",
-						args: { asset: values.asset },
+						args: { asset: values.asset, ownership: values.ownership, save: 1 },
 					})
 					.then((r) => {
 						if (!r || !r.message) return;
 						const d = r.message;
+						if (d.name && !d.missing) {
+							frappe.set_route("Form", "Card Equipment", d.name);
+							return;
+						}
 						const values = {};
 						CARD_ASSET_NEW_FIELDS.forEach((f) => d[f] && (values[f] = d[f]));
 						frappe.new_doc("Card Equipment", values);
@@ -273,6 +287,7 @@ const CARD_ASSET_NEW_FIELDS = [
 	"insurance_company",
 	"insurance_policy_no",
 	"insurance_expiry",
+	"daily_hours",
 ];
 
 // The machine is already an ERPNext Asset: its name, brand and type come from the Asset
