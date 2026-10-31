@@ -153,6 +153,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   commits; submitted postings keep their cost centers.
 
 ### Fixed
+- **Period-lock tests no longer depend on the calendar** (test-only, Owner approval 2026-10-31). On main CI of
+  `ef4f412` the test site's date was already the 1st of a month. `card/tests/test_period_lock_extra_keys.py`
+  recorded hours on day 2 of the open month, and the card's future-day rule refused that day, so 4 tests failed
+  (2 failures, 2 errors).
+  - The tests now run on a fixed site date (Frappe `freeze_time`, mid-month).
+  - Worked days are written only up to the frozen today.
+  - Two new tests cover the 1st of a month: an open card keeps the cancel rules, and hours on day 2 are refused
+    as a future day.
+  - No application code, validation, period-lock rule, permission, data, accounting or API change. Rollback:
+    revert the commit.
 - **Monthly posting integrity, P0** (FR-090, integration audit 2026-10-30; QA failures T3b, T3c, T9h2, T9h3, T9i).
   - *Edited drafts*: the builder stores a signature of every financially significant field of the draft
     (party, company, accounts, items, quantities, rates, projects, cost centers, Card Equipment, tax
