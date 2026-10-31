@@ -32,6 +32,37 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   former levels.
 
 ### Added
+- **Equipment Meter Reconciliation report** (FR-094, maintenance plan R1, 2026-10-31). A read-only Script Report
+  (Card Manager, Accounts Manager, System Manager; the user's roles must also read Card Equipment, Card Monthly Card
+  and Asset — on a standard site Asset is read by Accounts User, so a user needs both) that
+  compares, per machine, the hour-meter readings recorded elsewhere on the site — the legacy fuelling log of another
+  app when that DocType exists and the user may read it, and the hour-meter fields an Asset may carry — with the
+  operating hours of CARD's submitted monthly cards over the same period. Meter readings are cumulative: only the
+  differences between consecutive plausible readings count as hours. Each reading is checked: invalid, duplicate,
+  backward, meter reset, impossible jump, and a "hours run" equal to the whole meter (ignored). It also flags a
+  possible identity conflict between an Asset ID and its own name or item, Asset meter fields that disagree with the
+  last plausible reading, and CARD hours that differ from the meter hours beyond a tolerance. It shows the kept
+  maintenance policy (alert at 250 hours, oil change at 300) and sets no maintenance baseline: a baseline needs a
+  verified reading and verified maintenance history.
+  Impact: read-only (no write, link, post or change of any kind, also not to the other app's data), no schema
+  change, no new role or permission, no dependency on another app (its DocType is looked up at run time), a sidebar
+  link under Card Reports, Arabic strings. Rollback: revert the commit.
+- **Asset Mapping Review report and minimum-input Create from Asset** (FR-095, maintenance plan M1, 2026-10-31).
+  A read-only Script Report (Card Manager, Accounts Manager, System Manager; roles must also read Asset and Card
+  Equipment) classifies every
+  submitted Asset of a company for an Owner decision: linked; linked to equipment that is not owned; linked with a
+  type that differs from its category's type; not in CARD with an equipment type available; not in CARD without a
+  type for its category; sold or scrapped. It also lists owned equipment without an Asset link and flags a
+  possible Asset identity conflict. It creates nothing. "Create from Asset" on a new equipment form now asks for the
+  Asset and its ownership (owned by default, or third party; a rented machine is refused — it never gets an Asset).
+  When nothing else is needed (owned, the Asset category maps to an equipment type, a default daily-hours setting)
+  the equipment is created at once with the user's own permissions and full validation; otherwise the prefilled
+  form opens with the missing fields. One Asset still links to one equipment only; no Asset is ever created.
+  Impact: `card.api.create_equipment_from_asset` (POST) takes optional `ownership` and `save`; without them it
+  still inserts nothing and returns the prefilled owned equipment, which now also carries the default daily hours
+  and a `missing` list of the fields left to complete (for a third-party machine always including its
+  commercial terms, `rental_direction`); no schema change, no new role or permission, a sidebar link, Arabic strings.
+  Rollback: revert the commit.
 - **Transport cost responsibility** (FR-093, integration plan P1-2, operational part, 2026-10-31). Equipment
   Transport asks one question, "Transport responsibility", with seven plain choices: the company bears the cost;
   the company pays and bills the customer; the company pays and recovers from the equipment supplier; the
