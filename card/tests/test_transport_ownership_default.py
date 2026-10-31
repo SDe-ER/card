@@ -53,7 +53,8 @@ class TestTransportOwnershipDefault(IntegrationTestCase):
 				"doctype": "Equipment Transport",
 				"company": self.company,
 				"destination_type": "Workshop",
-				"cost_borne_by": "Equipment Supplier",
+				"payer": "Equipment Supplier",
+				"cost_bearer": "Equipment Supplier",
 				"items": [{"card_equipment": equipment}],
 				**values,
 			}

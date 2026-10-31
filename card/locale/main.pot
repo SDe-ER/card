@@ -3216,3 +3216,379 @@ msgstr ""
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
 msgid "Draft session"
 msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "A move paid by {0} with the cost borne by {1} is not supported. When the equipment supplier transports the machine and charges the company, record the company as payer and the equipment supplier as the transporter."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Absorbed by the company — approved exception"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Absorption reason"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Adjustment document"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Agreed billing amount (before VAT)"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "All transports"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Already on Purchase Invoice {0}"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Authorization document"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Authorization reference"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Bill customer"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Billing project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company absorbs"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company cost recorded — Purchase Invoice posting waits for the accountant"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company overhead"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost borne by"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost center {0} cannot carry a cost of company {1} (it must be an enabled, non-group cost center of that company)."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost charged to"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost decision"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project {0} does not belong to company {1}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project {0} has no cost center; set the project's cost center first."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost responsibility"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer billing recorded — invoicing waits for the accountant and the tax adviser"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Decision note"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Decision {0} does not fit a transport whose cost is borne by {1}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Deduct from monthly dues"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Destination project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the agreed billing amount."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the amount recovered from the equipment supplier."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the authorization reference (contract, order or approval)."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the transporter cost of a move the company pays."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision pending (Accounts Manager)"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision rejected — cancel and amend the transport"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial status"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Monthly invoice"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Needs attention"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No charge"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No decision needed"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Old field: cost borne by {0}"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Only an Accounts Manager records the financial decision of a transport."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Overhead cost center"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Place {0}"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Project {0} belongs to customer {1}, not {2}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record decision"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record financial decision"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record only (no company cost)"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recorded before P1-2 — review"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recorded before P1-2: payer, cost bearer and cost project not recorded"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recover from equipment supplier"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery amount"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery method"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery recorded — not posted until the accountant decides"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Return for correction"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select an active customer to bill."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select how the cost is recovered from the equipment supplier."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the billing project of company {0}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the cost project. It is never taken from where the machine comes from or goes to; choose it explicitly."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the transporter of a move the company pays."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Separate invoice"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Source project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The authorization document was not found."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The financial decision of a transport is recorded by an Accounts Manager only."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The financial decision of transport {0} is recorded by another person than its creator or submitter."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport submitted by"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport {0} has no pending financial decision."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transporter cost"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transporter paid by"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Use as cost project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Workshop or storage"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Write why the company absorbs the customer's transport cost."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Write why the transport is rejected."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Transport {0} records who pays and who bears its cost; linking it to a supplier invoice is not enabled yet."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select whether the customer is billed on the monthly invoice or separately."
+msgstr ""
+
+#: card/card/report/transport_accounting_review/transport_accounting_review.js
+msgid "Transport Accounting Review"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport responsibility"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company bears the cost"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company pays, bills the customer"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company pays, recovers from equipment supplier"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Equipment supplier bears the cost"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer pays the transporter directly"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No transport charge"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Responsibility needs review"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer billing eligible"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Supplier recovery eligible"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport edited by"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the transport responsibility."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Confirm the customer and the billing project."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Attach the authorization document of a separate invoice."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "I confirmed the customer and the billing project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "More decision details"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer invoicing method"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Responsibility needs review — cancel and amend with the verified responsibility"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision recorded."
+msgstr ""

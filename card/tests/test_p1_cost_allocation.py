@@ -14,6 +14,7 @@ from frappe.utils import flt
 from card.gl.posting import build_monthly_posting
 from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.test_s3_posting import _PostingBase
+from card.tests.transport_parties import as_recorded_before_p12, company_paid, paid_by
 
 
 class TestCostAllocation(_PostingBase):
@@ -368,13 +369,20 @@ class TestCostAllocation(_PostingBase):
 				"destination_type": destination,
 				"destination_location": place,
 				"project": project if destination == "Project" else None,
-				"cost_borne_by": bearer,
 				"amount": 400,
 			}
 		)
 		t.append("items", {"card_equipment": eq.name})
+		if bearer != "Company":
+			paid_by(t, bearer, bearer)
+		elif destination in ("Workshop", "Storage"):
+			company_paid(t, basis="Workshop or storage")
+		else:
+			company_paid(t)
 		t.insert(ignore_permissions=True)
 		t.submit()
+		# these tests cover the P1-0 rules of transports recorded before P1-2 (P1-2 ones are not posted yet)
+		as_recorded_before_p12(t.name, bearer)
 		return t
 
 	def _shop(self, cost_center):

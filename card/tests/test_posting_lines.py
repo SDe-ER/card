@@ -10,6 +10,7 @@ from frappe.utils import flt
 from card.gl.posting import build_monthly_posting
 from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.test_s3_posting import _PostingBase
+from card.tests.transport_parties import as_recorded_before_p12, company_paid
 
 
 class TestPostingLines(_PostingBase):
@@ -77,8 +78,9 @@ class TestPostingLines(_PostingBase):
 				"items": [{"card_equipment": eq.name}],
 			}
 		)
-		transport.insert(ignore_permissions=True)
+		company_paid(transport, basis="Workshop or storage").insert(ignore_permissions=True)
 		transport.submit()
+		as_recorded_before_p12(transport.name)  # P1-0 rule of a transport recorded before P1-2
 		pi = self._pi()
 		default = frappe.db.get_value(
 			"Card Company Settings", {"parent": "Card Settings", "company": self.company}, "cost_center"

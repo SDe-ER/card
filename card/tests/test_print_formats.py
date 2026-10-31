@@ -16,6 +16,7 @@ from card.print_utils import card_amount_in_words
 from card.tests.diesel_price import use_fill_price
 from card.tests.test_controllers import _days
 from card.tests.test_customer import RENTED, _CustomerCardsBase
+from card.tests.transport_parties import company_paid
 
 MONTHLY = "Card Monthly Card Print"
 LEGACY_MONTHLY = "كارت تشغيل شهري"
@@ -155,7 +156,7 @@ class TestDieselTransportPrints(_CustomerCardsBase):
 		# core translates "Amount" as a quantity (كمية) in Arabic
 		for doctype, label in (
 			("Project Diesel Fill", "Fill amount"),
-			("Equipment Transport", "Transport cost"),
+			("Equipment Transport", "Transporter cost"),
 		):
 			self.assertEqual(frappe.get_meta(doctype).get_label("amount"), label)
 
@@ -185,7 +186,7 @@ class TestDieselTransportPrints(_CustomerCardsBase):
 				"amount": 3500,
 			}
 		)
-		transport.insert(ignore_permissions=True)
+		company_paid(transport).insert(ignore_permissions=True)
 		currency = frappe.get_cached_value("Company", self.company, "default_currency")
 		symbol = frappe.get_cached_value("Currency", currency, "symbol")
 		lang = frappe.local.lang

@@ -16,6 +16,7 @@ from card.card.report.equipment_diesel_consumption.equipment_diesel_consumption 
 from card.diesel import UNALLOCATED, allocate_project_diesel, get_card_diesel
 from card.tests.diesel_price import approve_fill, set_diesel_price, use_fill_price
 from card.tests.test_controllers import _ensure_masters
+from card.tests.transport_parties import company_paid
 
 
 def _past_month_year():
@@ -436,5 +437,5 @@ class TestDieselAllocation(IntegrationTestCase):
 		t.transport_supplier = self.supplier
 		t.company = self.company
 		t.amount = 3500
-		t.insert(ignore_permissions=True)
+		company_paid(t).insert(ignore_permissions=True)
 		self.assertAlmostEqual(flt(t.amount), 3500.0)
