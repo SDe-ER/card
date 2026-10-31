@@ -18,6 +18,7 @@ from frappe.tests import IntegrationTestCase
 
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_transfer import _past_month_year
+from card.tests.transport_parties import company_paid_values
 
 DOCTYPE = "Card Equipment Assignment"
 REFUSED = (frappe.PermissionError, frappe.ValidationError)
@@ -316,6 +317,7 @@ class TestAssignmentCompanyIsolation(IntegrationTestCase):
 				"transport_supplier": sup.name,
 				"amount": 100,
 				"items": [{"card_equipment": eq}],
+				**company_paid_values(self.company),
 			}
 		).insert()
 		t.submit()

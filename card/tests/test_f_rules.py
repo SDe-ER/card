@@ -14,6 +14,7 @@ from frappe.tests import IntegrationTestCase
 
 from card.constants import DIR_INTERNAL, DIR_RENTED_IN, DIR_RENTED_OUT, DIR_SUBRENTAL
 from card.tests.test_controllers import _days, _ensure_masters
+from card.tests.transport_parties import company_paid
 
 DIRECTION_OPTIONS = "\n" + "\n".join([DIR_RENTED_IN, DIR_RENTED_OUT, DIR_SUBRENTAL, DIR_INTERNAL])
 
@@ -137,7 +138,7 @@ class TestCompanyConsistency(IntegrationTestCase):
 		t.company = self.other_company
 		t.amount = 100
 		with self.assertRaises(frappe.ValidationError):
-			t.insert(ignore_permissions=True)
+			company_paid(t).insert(ignore_permissions=True)
 
 	def test_diesel_fill_company_must_match_equipment(self):
 		eq = self._equipment()

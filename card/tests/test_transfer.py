@@ -9,6 +9,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
 from card.tests.test_controllers import _ensure_masters
+from card.tests.transport_parties import company_paid, paid_by
 
 
 def _past_month_year():
@@ -92,7 +93,7 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		t.amount = 100
 		if method:
 			t.transport_method = method
-		t.insert(ignore_permissions=True)
+		company_paid(t).insert(ignore_permissions=True)
 		if submit:
 			t.submit()
 			t.reload()
@@ -237,10 +238,11 @@ class TestEquipmentTransfer(IntegrationTestCase):
 			shop.location_name = "TEST-TR-SHOP-" + frappe.generate_hash(length=8)
 			shop.insert(ignore_permissions=True)
 			t.destination_location = shop.name
-			t.cost_borne_by = "Equipment Supplier"  # no charge, so no cost center needed
+			paid_by(t, "Equipment Supplier", "Equipment Supplier")  # no charge, so no cost center needed
 		else:
 			t.transport_supplier = self.supplier
 			t.amount = 100
+			company_paid(t)
 		t.insert(ignore_permissions=True)
 		t.submit()
 		return t

@@ -16,6 +16,39 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Transport cost responsibility** (FR-093, integration plan P1-2, operational part, 2026-10-31). Equipment
+  Transport asks one question, "Transport responsibility", with seven plain choices: the company bears the cost;
+  the company pays and bills the customer; the company pays and recovers from the equipment supplier; the
+  equipment supplier bears the cost; the customer pays the transporter directly; no transport charge; or
+  "responsibility needs review" (unknown or unsupported — recorded, never costed or posted). From that choice the
+  server stores the actual payer, the party that finally bears the cost, and the customer-billing and
+  supplier-recovery eligibility apart. Only a move whose cost the company bears asks for a cost project — chosen
+  explicitly, never taken from where the machine comes from or goes to (the form offers the source or destination
+  project as a button only); a move to a workshop or storage takes the place's configured cost center, which must
+  be a valid cost center of the company. A recharged move (customer or equipment supplier) carries no cost
+  project. It waits for a financial decision — bill the customer (billing project, customer from that project,
+  agreed amount, authorization reference, the accountant's confirmation; monthly invoice by default, a separate
+  invoice needs the authorization document), absorb (reason), recover from the equipment supplier (amount;
+  deduction from monthly dues by default) or return for correction — recorded by an Accounts Manager of the
+  transport's company who did not create, edit or submit it, nor the transport it amends
+  (`record_financial_decision`, POST, row lock; permlevel-1 fields with the approver and time; a generic comment
+  ("Financial decision recorded.") and a Version with the status change only, so neither the decision nor an
+  amount reaches readers without permlevel-1 access). Cancel and amend start a new decision. A read-only **Transport Accounting Review** report (Accounts
+  Manager, System Manager) lists transports recorded before this change (readable as recorded, nothing filled in),
+  responsibilities that need review and open or recorded decisions. Cost reports use the cost project for new
+  transports.
+  Disabled on purpose: customer transport invoicing, supplier recovery documents, Purchase Invoice posting of
+  P1-2 transports (excluded from the monthly build and refused by "link supplier invoice"), any tax treatment,
+  account mapping (5125/4160 not used) and any historical adjustment. Transports recorded before this change keep
+  the P1-0 rules.
+  Impact: schema (new Equipment Transport fields; `cost_borne_by` kept read-only for old records), a new POST
+  method, a new report and sidebar link, Arabic strings; no new role; no GL. Rollback: revert the commit; the new
+  columns stay in the database with their values and can be dropped only by a separate approved task. After a
+  revert, transports recorded with a responsibility have an empty `cost_borne_by`, so the old monthly supplier
+  build treats them as company-paid and refuses that supplier's month ("who pays this move is not recorded")
+  until each such transport is cancelled and amended, or its old field is restored by a separate approved data
+  task. This fails closed: nothing is posted wrongly. The Transport Accounting Review report record also stays in
+  the database and must be removed by that task.
 - **Diesel Invoice Reconciliation report** (FR-092, integration plan P1-1, 2026-10-31). A read-only Script Report
   (Accounts Manager, System Manager — the roles that read both diesel sessions and Purchase Invoices) that compares CARD diesel sessions (Project Diesel Fill) with the
   suppliers' own submitted Purchase Invoices for one company and a period. The litres are read from the invoice line

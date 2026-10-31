@@ -357,6 +357,9 @@ def smoke():
 					"date": "2026-10-01",
 					"transport_supplier": supplier,
 					"amount": 500,
+					# P1-2: every new transport states its responsibility; a recharged move needs no cost
+					# project (the rehearsal projects have no cost center)
+					"responsibility": "Company pays, bills the customer",
 				}
 			).insert(ignore_permissions=True)
 			transport.submit()

@@ -18,6 +18,7 @@ from frappe.utils import add_days, getdate, nowdate
 
 from card.tests import test_period_lock
 from card.tests.diesel_price import approve_fill, use_fill_price
+from card.tests.transport_parties import company_paid
 
 FAR_DATE = "2999-01-01"
 
@@ -75,7 +76,7 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 		t.transport_supplier = self.supplier
 		t.company = self.company
 		t.amount = 100
-		return t
+		return company_paid(t)
 
 	def _submitted(self, doc):
 		self._unlock()

@@ -3,6 +3,7 @@ from frappe import _
 from frappe.utils import flt
 
 from card.report_access import readable_links, resolve_company
+from card.transport_costs import transport_cost_by_project
 
 
 def get_columns():
@@ -25,31 +26,10 @@ def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	filters.company = resolve_company(filters, "Equipment Transport")
 
-	# v3.0.0: only moves the company pays are its transport cost (Owner 2026-10-19)
-	transport_filters = [["docstatus", "=", 1], ["cost_borne_by", "in", ["Company", "", None]]]
-	if filters.get("company"):
-		transport_filters.append(["company", "=", filters.get("company")])
-	if filters.get("from_date"):
-		transport_filters.append(["date", ">=", filters.get("from_date")])
-	if filters.get("to_date"):
-		transport_filters.append(["date", "<=", filters.get("to_date")])
-	if filters.get("project"):
-		transport_filters.append(["project", "=", filters.get("project")])
-
-	transports = frappe.get_all(
-		"Equipment Transport",
-		filters=transport_filters,
-		fields=["project", "amount"],
-		limit_page_length=0,
+	# only the company's transport cost, per project (card.transport_costs: P1-2 cost project rule)
+	totals = transport_cost_by_project(
+		filters.get("company"), filters.get("from_date"), filters.get("to_date"), filters.get("project")
 	)
-
-	totals = {}
-	for row in transports:
-		if not row.project:
-			continue
-		entry = totals.setdefault(row.project, {"transports": 0, "amount": 0.0})
-		entry["transports"] = entry["transports"] + 1
-		entry["amount"] = entry["amount"] + flt(row.amount)
 
 	data = []
 	for project in sorted(totals):
