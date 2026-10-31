@@ -14,7 +14,6 @@ import json
 import frappe
 from frappe.utils import cint
 
-RESTRICTED_LEVEL = 2  # financial fields: managers and accountants only
 HISTORY_LEVEL = 1  # Versions reach level-0 readers: every field above level 0 is masked there
 MASKED = "•••"
 PRIVATE_DOCTYPES = ("Card Equipment",)
