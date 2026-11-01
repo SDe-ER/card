@@ -225,6 +225,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   API change (`get_print_format_data` keeps the report's own permission checks). Rollback: remove the two
   print files and disable the Print Format record. New strings in `ar.po`.
 
+### Documentation
+- **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
+  (equipment, transport, project assignment, monthly card, daily hours), in English with an Arabic summary.
+  Grouped badges (CI, Linters, CodeQL, Codecov, release, license, platform), a screenshots gallery of the
+  main pages (CARD v4.1.2, fictional test data, new files in `.github/images/`), a table of the CI
+  workflows, and the report count corrected to 14. Requested by the owner. Documentation only: no change to
+  code, permissions, accounting, data or the API. Rollback: revert the commit.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
