@@ -213,7 +213,7 @@ class TestIntegrationV1(IntegrationTestCase):
 		self.assertEqual(compute_status(eq.name)[0], NO_RECORD)
 		self._order(eq.name, 1000, service_date=add_days(today(), -30))  # both services
 		self._order(
-			eq.name, 1240, service_date=add_days(today(), -12), services_done=[{"service_name": "Oil"}]
+			eq.name, 1240, service_date=add_days(today(), -14), services_done=[{"service_name": "Oil"}]
 		)
 		src = self._source()
 		with _hooks():

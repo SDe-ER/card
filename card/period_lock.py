@@ -35,9 +35,51 @@ def _doc_date(doc):
 	return None
 
 
+def _company_of(doc):
+	if doc.get("company"):
+		return doc.company
+	for field in ("equipment", "card_equipment"):
+		if doc.meta.has_field(field) and doc.get(field):
+			return frappe.db.get_value("Card Equipment", doc.get(field), "company")
+	return None
+
+
+def lock_date(company=None):
+	"""Effective lock date: the later of the global Card Settings lock and the company's own
+	lock (Card Company Settings row), or None."""
+	dates = [setting("period_lock_date")]
+	if company:
+		dates.append(
+			frappe.db.get_value(
+				"Card Company Settings",
+				{"parent": "Card Settings", "parenttype": "Card Settings", "company": company},
+				"period_lock_date",
+			)
+		)
+	dates = [getdate(d) for d in dates if d]
+	return max(dates) if dates else None
+
+
+def enforce_from(doc, action, first_day):
+	"""Refuse when a change reaches a day on or before the effective lock (for documents
+	that cover a period, such as assignments: ``first_day`` is the first day that changes)."""
+	lock = lock_date(_company_of(doc))
+	if not lock or not first_day or getdate(first_day) > lock:
+		return
+	override_role = setting("period_lock_override_role")
+	if override_role and override_role in frappe.get_roles():
+		_log_override(doc, action, lock, override_role, getdate(first_day))
+		return
+	frappe.throw(
+		_("Period is locked up to {0}; this {1} changes {2} days on or before that date.").format(
+			lock, _(action), _(doc.doctype)
+		)
+	)
+
+
 def enforce(doc, action, stored=None):
 	"""Refuse when the document's date, or the date stored before this request, is in the locked period."""
-	lock = setting("period_lock_date")
+	lock = lock_date(_company_of(doc) or (_company_of(stored) if stored else None))
 	if not lock:
 		return
 	dates = [d for d in (_doc_date(doc), _doc_date(stored) if stored else None) if d]

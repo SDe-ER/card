@@ -5728,3 +5728,179 @@ msgstr "بند الصيانة {0}: التنبيه يجب أن يأتي قبل ف
 #: card/integration_v1.py
 msgid "This reading was replaced by {0}; it stays Rejected."
 msgstr "استُبدلت هذه القراءة بالقراءة {0}؛ تبقى مرفوضة."
+
+#: card/personnel.py
+msgid "Assigned days"
+msgstr "الأيام المسندة"
+
+#: card/personnel.py
+msgid "Assignment type"
+msgstr "نوع التعيين"
+
+#: card/personnel.py
+msgid "CARD transactions and assignments of this company dated on or before this day cannot change. The global lock in Card Settings applies too; the later date wins."
+msgstr "لا يمكن تغيير معاملات وتعيينات CARD لهذه الشركة المؤرخة في هذا اليوم أو قبله. يُطبق القفل العام في إعدادات CARD أيضًا، ويسري التاريخ الأحدث."
+
+#: card/personnel.py
+msgid "Card Personnel Assignment"
+msgstr "تعيين موظف"
+
+#: card/personnel.py
+msgid "Choose a period of at most {0} days."
+msgstr "اختر فترة لا تتجاوز {0} يومًا."
+
+#: card/personnel.py
+msgid "Choose the employee."
+msgstr "اختر الموظف."
+
+#: card/personnel.py
+msgid "Choose the period."
+msgstr "اختر الفترة."
+
+#: card/personnel.py
+msgid "Choose the project."
+msgstr "اختر المشروع."
+
+#: card/personnel.py
+msgid "Cost center (override)"
+msgstr "مركز التكلفة (بديل)"
+
+#: card/personnel.py
+msgid "Cost center {0} is not an active ledger cost center of {1}."
+msgstr "مركز التكلفة {0} ليس مركز تكلفة فرعيًا نشطًا للشركة {1}."
+
+#: card/personnel.py
+msgid "Driver"
+msgstr "سائق"
+
+#: card/personnel.py
+msgid "Employee {0} would be assigned {1} % on a day of this period; at most 100 % is allowed."
+msgstr "سيُسند الموظف {0} بنسبة {1}% في يوم من هذه الفترة؛ الحد الأقصى 100%."
+
+#: card/personnel.py
+msgid "Equipment {0} belongs to company {1}; the employee belongs to {2}."
+msgstr "المعدة {0} تتبع الشركة {1}؛ والموظف يتبع {2}."
+
+#: card/personnel.py
+msgid "Equipment: the project of each day follows the equipment's project assignment on that day. Project: work on a project without equipment."
+msgstr "معدة: مشروع كل يوم يتبع تعيين المعدة على المشروع في ذلك اليوم. مشروع: عمل على مشروع بدون معدة."
+
+#: card/personnel.py
+msgid "For one person working on several machines or projects in the same period; the shares of one day may not exceed 100 %."
+msgstr "لشخص يعمل على عدة معدات أو مشاريع في نفس الفترة؛ لا تتجاوز نسب اليوم الواحد 100%."
+
+#: card/personnel.py
+msgid "Helper"
+msgstr "مساعد"
+
+#: card/personnel.py
+msgid "Leave empty to use the project's cost center."
+msgstr "اتركه فارغًا لاستخدام مركز تكلفة المشروع."
+
+#: card/personnel.py
+msgid "Leave empty while the assignment is open. After submit only the end date may be set or changed."
+msgstr "اتركه فارغًا طالما التعيين مفتوح. بعد الاعتماد يمكن فقط تحديد تاريخ النهاية أو تغييره."
+
+#: card/personnel.py
+msgid "Night"
+msgstr "ليلي"
+
+#: card/personnel.py
+msgid "No assignment on this day."
+msgstr "لا يوجد تعيين في هذا اليوم."
+
+#: card/personnel.py
+msgid "No cost center for project {0}."
+msgstr "لا يوجد مركز تكلفة للمشروع {0}."
+
+#: card/personnel.py
+msgid "Only a Card Manager can submit a personnel assignment."
+msgstr "مدير CARD فقط يمكنه اعتماد تعيين الموظف."
+
+#: card/personnel.py
+msgid "Only a System Manager can seed personnel assignments."
+msgstr "مدير النظام فقط يمكنه إنشاء تعيينات الموظفين المبدئية."
+
+#: card/personnel.py
+msgid "Period is locked up to {0}; this {1} changes {2} days on or before that date."
+msgstr "الفترة مقفلة حتى {0}؛ هذا الإجراء ({1}) يغيّر أيامًا في {2} في هذا التاريخ أو قبله."
+
+#: card/personnel.py
+msgid "Period locked up to (this company)"
+msgstr "الفترة مقفلة حتى (لهذه الشركة)"
+
+#: card/personnel.py
+msgid "Personnel Project Days"
+msgstr "أيام الموظفين على المشاريع"
+
+#: card/personnel.py
+msgid "Project {0} belongs to company {1}; the employee belongs to {2}."
+msgstr "المشروع {0} يتبع الشركة {1}؛ والموظف يتبع {2}."
+
+#: card/personnel.py
+msgid "Review reason"
+msgstr "سبب المراجعة"
+
+#: card/personnel.py
+msgid "Seeded from the legacy Employee project field; confirm the dates before submit."
+msgstr "أُنشئ من حقل مشروع الموظف القديم؛ أكد التواريخ قبل الاعتماد."
+
+#: card/personnel.py
+msgid "Set the start date of the assignment."
+msgstr "حدد تاريخ بداية التعيين."
+
+#: card/personnel.py
+msgid "Share of the working time (%)"
+msgstr "نسبة وقت العمل (%)"
+
+#: card/personnel.py
+msgid "Site Staff"
+msgstr "موظف موقع"
+
+#: card/personnel.py
+msgid "Technician"
+msgstr "فني"
+
+#: card/personnel.py
+msgid "The assignment must end by the employee's relieving date {0}."
+msgstr "يجب أن ينتهي التعيين بحلول تاريخ ترك الموظف للعمل {0}."
+
+#: card/personnel.py
+msgid "The assignment starts before the employee's joining date {0}."
+msgstr "يبدأ التعيين قبل تاريخ التحاق الموظف {0}."
+
+#: card/personnel.py
+msgid "The creator of an assignment may not submit it."
+msgstr "منشئ التعيين لا يمكنه اعتماده."
+
+#: card/personnel.py
+msgid "The equipment has no project assignment on this day."
+msgstr "المعدة ليس لها تعيين على مشروع في هذا اليوم."
+
+#: card/personnel.py
+msgid "The equipment's company."
+msgstr "شركة المعدة."
+
+#: card/personnel.py
+msgid "The share must be above 0 and at most 100 %."
+msgstr "النسبة يجب أن تكون أكبر من 0 وحتى 100%."
+
+#: card/personnel.py
+msgid "You may not read this employee's assignments."
+msgstr "لا يمكنك قراءة تعيينات هذا الموظف."
+
+#: card/personnel.py
+msgid "Only a Card Manager can change a submitted personnel assignment."
+msgstr "مدير CARD فقط يمكنه تغيير تعيين موظف معتمد."
+
+#: card/personnel.py
+msgid "Operator set from the personnel assignments: {0}"
+msgstr "تم تحديد المشغل من تعيينات الموظفين: {0}"
+
+#: card/personnel.py
+msgid "CARD operator sync of {0} failed"
+msgstr "CARD: تعذّرت مزامنة مشغل المعدة {0}"
+
+#: card/personnel.py
+msgid "The project belongs to another company."
+msgstr "المشروع يتبع شركة أخرى."

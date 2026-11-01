@@ -119,8 +119,10 @@ def check_period_open(company, posting_date, doctype):
 				).format(frozen_till, company, posting_date)
 			)
 
-	# 4) Card Settings period lock
-	lock = setting("period_lock_date")
+	# 4) Card Settings period lock (the later of the global and the company's own lock, FR-106)
+	from card.period_lock import lock_date
+
+	lock = lock_date(company)
 	if lock and posting_date <= getdate(lock):
 		override_role = setting("period_lock_override_role")
 		if not override_role or override_role not in frappe.get_roles():

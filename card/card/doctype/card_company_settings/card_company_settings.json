@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "company",
+  "period_lock_date",
   "accounts_section",
   "equipment_rental_expense_account",
   "diesel_expense_account",
@@ -44,6 +45,12 @@
    "options": "Company",
    "permlevel": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "period_lock_date",
+   "fieldtype": "Date",
+   "label": "Period locked up to (this company)",
+   "description": "CARD transactions and assignments of this company dated on or before this day cannot change. The global lock in Card Settings applies too; the later date wins."
   },
   {
    "fieldname": "accounts_section",

@@ -115,3 +115,35 @@ def has_plan_permission(doc, ptype=None, user=None, debug=False):
 		return False
 	owners = _equipment_companies(doc, "card_equipment")
 	return True if owners is None else all(c in companies for c in owners)
+
+
+# ---------- R1: Card Personnel Assignment ----------
+PERSONNEL = "Card Personnel Assignment"
+
+
+def personnel_query_conditions(user=None):
+	"""By the company stored on the assignment (the employee's company when it was made), so
+	an employee who later changes company does not move his history to the new company."""
+	companies = _restricted(user, PERSONNEL)
+	if companies is None:
+		return ""
+	if not companies:
+		return "1=0"
+	return f"`tab{PERSONNEL}`.`company` in ({_in(companies)})"
+
+
+def has_personnel_permission(doc, ptype=None, user=None, debug=False):
+	"""The stored company of a saved row AND the company of the employee sent (the company
+	field is filled only in validate, after Frappe's create check) must be permitted."""
+	companies = _restricted(user, PERSONNEL)
+	if companies is None:
+		return True
+	owners = set()
+	if not doc.is_new():
+		owners.add(frappe.db.get_value(PERSONNEL, doc.name, "company"))
+	if doc.get("employee") and (doc.is_new() or not doc.get("company")):
+		owners.add(frappe.db.get_value("Employee", doc.get("employee"), "company"))
+	elif doc.get("company"):
+		owners.add(doc.get("company"))
+	owners.discard(None)
+	return all(c in companies for c in owners)

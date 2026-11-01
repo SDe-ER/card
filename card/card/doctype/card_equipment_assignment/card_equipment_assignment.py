@@ -18,7 +18,13 @@ class CardEquipmentAssignment(Document):
 	Manager (and Equipment Transport), never by Card User, and validated here."""
 
 	def validate(self):
+		if (self.is_new() or self.has_value_changed("from_date")) and not self.from_date:
+			# R1: an undated row would escape the overlap check and every resolution
+			frappe.throw(_("Set the start date of the assignment."))
 		self.validate_dates()
+		self.company = frappe.db.get_value("Card Equipment", self.equipment, "company")
+		self._default_cost_center()
+		self._check_period_lock()
 		# only what changed is re-validated, so a legacy row is not blocked by an
 		# unrelated save (security review LOW-2)
 		if self.is_new() or self.has_value_changed("equipment") or self.has_value_changed("project"):
@@ -37,7 +43,49 @@ class CardEquipmentAssignment(Document):
 			if before and before.equipment and before.equipment != self.equipment:
 				sync_equipment_location(before.equipment)
 
+	def _default_cost_center(self):
+		"""R1: a new assignment (or one moved to another project) names its cost center, the
+		project's unless chosen; an existing row keeps what it has (a transport closing it must
+		not fail on a project setting that changed since)."""
+		if self.cost_center and (self.is_new() or self.has_value_changed("cost_center")):
+			if not _valid_cost_center(self.cost_center, self.company):
+				frappe.throw(
+					_("Cost center {0} is not an active ledger cost center of {1}.").format(
+						self.cost_center, self.company
+					)
+				)
+		if not self.cost_center and self.project and (self.is_new() or self.has_value_changed("project")):
+			project_cc = frappe.db.get_value("Project", self.project, "cost_center")
+			if project_cc and _valid_cost_center(project_cc, self.company):
+				self.cost_center = project_cc
+
+	def _check_period_lock(self):
+		"""R1: no change may reach a day in the locked period of the equipment's company."""
+		from card.period_lock import enforce_from
+
+		before = None if self.is_new() else self.get_doc_before_save()
+		if not before:
+			enforce_from(self, "save", self.from_date)
+			return
+		changed = [d[2] for d in self._dropped_periods()]
+		if (
+			before.project != self.project
+			or before.equipment != self.equipment
+			or _effective_cc(before) != _effective_cc(self)
+		):
+			changed.append(min(getdate(x) for x in (before.from_date, self.from_date) if x))
+		if self.from_date and before.from_date and getdate(self.from_date) < getdate(before.from_date):
+			changed.append(self.from_date)
+		if before.to_date and (not self.to_date or getdate(self.to_date) > getdate(before.to_date)):
+			changed.append(add_days(before.to_date, 1))
+		if changed:
+			enforce_from(self, "save", min(getdate(d) for d in changed))
+
 	def on_trash(self):
+		if self.from_date:
+			from card.period_lock import enforce_from
+
+			enforce_from(self, "delete", self.from_date)
 		if self.from_date:
 			_refuse_dropped_card_days(self.equipment, self.project, self.from_date, self.to_date)
 		if not frappe.flags.get("card_defer_location_sync"):
@@ -125,6 +173,18 @@ class CardEquipmentAssignment(Document):
 					self.equipment, c.project, c.from_date, c.to_date or _("(open)")
 				)
 			)
+
+
+def _valid_cost_center(cost_center, company):
+	cc = frappe.db.get_value("Cost Center", cost_center, ["company", "is_group", "disabled"], as_dict=True)
+	return bool(cc and not cc.is_group and not cc.disabled and (not company or cc.company == company))
+
+
+def _effective_cc(doc):
+	"""The cost center the row stands for (its own, else its project's)."""
+	return doc.cost_center or (
+		frappe.db.get_value("Project", doc.project, "cost_center") if doc.project else None
+	)
 
 
 def _refuse_dropped_card_days(equipment, project, start, end):

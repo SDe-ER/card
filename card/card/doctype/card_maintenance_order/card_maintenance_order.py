@@ -123,7 +123,8 @@ class CardMaintenanceOrder(Document):
 		reading = add_reading(
 			self.equipment,
 			self.meter_reading,
-			get_datetime(self.service_date).replace(hour=12),
+			# noon of the service day, never later than now (a service done this morning)
+			min(get_datetime(self.service_date).replace(hour=12), frappe.utils.now_datetime()),
 			"Maintenance Order",
 			self.doctype,
 			self.name,

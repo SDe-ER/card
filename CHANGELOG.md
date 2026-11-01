@@ -16,6 +16,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Personnel assignments and per-company period lock** (FR-105, FR-106; R1 of the Owner architecture decision
+  2026-11-01: CARD owns where people work, HRMS owns attendance and pay, ERPNext owns the books). Reason: payroll
+  cost must later be allocated to the projects where each employee worked; CARD had only an undated operator per
+  machine. New submittable **Card Personnel Assignment** (employee → equipment or project, role, shift label, share,
+  from/to; ≤ 100 % per day; end date only after submit; creator ≠ approver) and `card.personnel` (`resolve_day`,
+  `employee_days` GET, `seed_from_employee_project` dry run, System Manager), report **Personnel Project Days**.
+  Card Equipment Assignment: start date required, `company` stored (patch `v4_5_0.fill_assignment_company`),
+  cost center always set (project's by default, also on transport). Period lock: `period_lock_date` per company in
+  Card Company Settings (later of global and company), now also on equipment and personnel assignments.
+  Permissions: company-scoped hooks for the new DocType; Card Manager submits; Card Supervisor drafts; Card User,
+  Accounts Manager, HR Manager read. Accounting: none (no amounts in R1). Data: new table and fields; existing
+  assignments keep their values (all production rows already have a start date and cost center). API: GET
+  `employee_days`, POST `seed_from_employee_project`. Rollback: revert the branch; the company column stays harmless.
+  Also: per-company lock applies to CARD posting preflight; a maintenance order's meter reading is taken at noon of
+  the service day but never later than now (a service submitted early in the day was refused as a future reading).
+
+### Added
 - **CARD integration API v1 for field apps; maintenance work orders, service lines and part warranty** (FR-102,
   FR-103, FR-104; Owner request 2026-11-01, DAWM dependency removal plan C1–C7). Reason: DAWM's equipment screens
   depend on equipment_manager; CARD becomes the one equipment application they call. New `card.integration_v1`

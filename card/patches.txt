@@ -30,3 +30,4 @@ card.patches.v4_0_0.clear_review_stock_qty
 card.patches.v4_1_0.backfill_equipment_identity_keys
 card.patches.v4_1_3.remove_app_name_translations
 card.patches.v4_3_0.backfill_asset_master_fields
+card.patches.v4_5_0.fill_assignment_company

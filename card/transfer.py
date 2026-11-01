@@ -355,6 +355,15 @@ def _apply_row_transfer(txn, row):
 		na.equipment = equipment
 		na.project = txn.project
 		na.from_date = new_from
+		# R1: the new row names its cost center (the project's), like a hand-made assignment
+		from card.card.doctype.card_equipment_assignment.card_equipment_assignment import (
+			_valid_cost_center,
+		)
+
+		project_cc = frappe.db.get_value("Project", txn.project, "cost_center")
+		company = frappe.db.get_value("Card Equipment", equipment, "company")
+		if project_cc and _valid_cost_center(project_cc, company):
+			na.cost_center = project_cc  # else empty: the posting resolver refuses it for review
 		na.equipment_name = frappe.db.get_value("Card Equipment", equipment, "equipment_name")
 		na.insert(ignore_permissions=True)
 		_set_link(txn, row, "created_assignment", na.name)

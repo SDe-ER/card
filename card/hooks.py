@@ -147,6 +147,8 @@ permission_query_conditions = {
 	"Card Meter Reading": "card.equipment_scope.reading_query_conditions",
 	"Card Maintenance Order": "card.equipment_scope.order_query_conditions",
 	"Card Maintenance Plan": "card.equipment_scope.plan_query_conditions",
+	# R1: a personnel assignment belongs to its employee's company
+	"Card Personnel Assignment": "card.equipment_scope.personnel_query_conditions",
 }
 
 has_permission = {
@@ -162,6 +164,7 @@ has_permission = {
 	"Card Meter Reading": "card.equipment_scope.has_reading_permission",
 	"Card Maintenance Order": "card.equipment_scope.has_order_permission",
 	"Card Maintenance Plan": "card.equipment_scope.has_plan_permission",
+	"Card Personnel Assignment": "card.equipment_scope.has_personnel_permission",
 }
 
 # Document Events
@@ -240,6 +243,8 @@ scheduler_events = {
 		# FR-100: maintenance status and service-due alerts
 		"card.maintenance.daily_maintenance_scan",
 		"card.maintenance.daily_warranty_scan",
+		# R1: the equipment operator follows the personnel assignments that start or end
+		"card.personnel.daily_operator_sync",
 	],
 }
 
