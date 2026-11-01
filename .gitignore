@@ -33,3 +33,6 @@ local/
 card_prod_export.txt
 *prod_export*
 *prod-export*
+
+# Redis snapshot written by a local bench
+dump.rdb

@@ -21,6 +21,11 @@
   "column_break_cfp2",
   "evidence_file",
   "qty_per_use",
+  "part_number",
+  "part_category",
+  "source_warehouse",
+  "warranty_until",
+  "warranty_alerted_on",
   "technical_notes",
   "review_section",
   "proposed_by",
@@ -150,6 +155,36 @@
    "fieldname": "qty_per_use",
    "fieldtype": "Float",
    "label": "Quantity per use"
+  },
+  {
+   "fieldname": "part_number",
+   "fieldtype": "Data",
+   "label": "Part number"
+  },
+  {
+   "fieldname": "part_category",
+   "fieldtype": "Data",
+   "label": "Part category"
+  },
+  {
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "label": "Usual warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "warranty_until",
+   "fieldtype": "Date",
+   "label": "Warranty until",
+   "depends_on": "eval:doc.applies_to=='Equipment'",
+   "description": "For a part fitted to one machine."
+  },
+  {
+   "fieldname": "warranty_alerted_on",
+   "fieldtype": "Date",
+   "label": "Warranty alert sent on",
+   "read_only": 1,
+   "no_copy": 1
   },
   {
    "fieldname": "technical_notes",

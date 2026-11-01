@@ -239,6 +239,7 @@ scheduler_events = {
 		"card.transfer.sync_equipment_locations_daily",
 		# FR-100: maintenance status and service-due alerts
 		"card.maintenance.daily_maintenance_scan",
+		"card.maintenance.daily_warranty_scan",
 	],
 }
 

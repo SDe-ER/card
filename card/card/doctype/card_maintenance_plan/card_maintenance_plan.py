@@ -18,8 +18,21 @@ class CardMaintenancePlan(Document):
 			self.card_equipment = None
 			if not self.equipment_model:
 				frappe.throw(_("Choose the equipment model of this plan."))
-		if flt(self.interval_hours) <= 0 and flt(self.interval_litres) <= 0:
+		if flt(self.interval_hours) <= 0 and flt(self.interval_litres) <= 0 and not self.service_lines:
 			frappe.throw(_("Set the service interval in hours or in litres."))
+		seen = set()
+		for line in self.service_lines:
+			name = (line.service_name or "").strip()
+			if name in seen:
+				frappe.throw(_("Service line {0}: {1} is listed twice.").format(line.idx, name))
+			seen.add(name)
+			line.service_name = name
+			if flt(line.interval_hours) <= 0 or flt(line.warn_before_hours) < 0:
+				frappe.throw(_("Service line {0}: set an interval above zero.").format(line.idx))
+			if flt(line.warn_before_hours) >= flt(line.interval_hours):
+				frappe.throw(
+					_("Service line {0}: the warning must come before the service interval.").format(line.idx)
+				)
 		if flt(self.interval_hours) < 0 or flt(self.interval_litres) < 0 or flt(self.warn_before_hours) < 0:
 			frappe.throw(_("Intervals cannot be negative."))
 		if flt(self.interval_hours) and flt(self.warn_before_hours) >= flt(self.interval_hours):

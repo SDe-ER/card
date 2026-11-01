@@ -23,6 +23,18 @@ frappe.ui.form.on("Card Maintenance Order", {
 			});
 	},
 	refresh(frm) {
+		if (frm.doc.docstatus === 0 && !frm.is_new()) {
+			const step = (method, label) =>
+				frm.add_custom_button(label, () =>
+					frappe
+						.call({ method, args: { order: frm.doc.name } })
+						.then(() => frm.reload_doc()),
+				);
+			if (frm.doc.work_status === "Due")
+				step("card.maintenance.approve_order", __("Approve"));
+			if (frm.doc.work_status === "Approved")
+				step("card.maintenance.start_order", __("Start work"));
+		}
 		if (frm.doc.docstatus !== 1) return;
 		const make = (method, label) =>
 			frm.add_custom_button(
@@ -38,6 +50,9 @@ frappe.ui.form.on("Card Maintenance Order", {
 		}
 		if (!frm.doc.purchase_invoice && (frm.doc.items || []).length) {
 			make("card.maintenance.make_purchase_invoice", __("Purchase Invoice"));
+		}
+		if (!frm.doc.stock_entry && frm.doc.source_warehouse && (frm.doc.items || []).length) {
+			make("card.maintenance.make_stock_entry", __("Stock Entry (parts issue)"));
 		}
 	},
 });

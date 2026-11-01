@@ -11,11 +11,19 @@ from card.meter import REJECTED, VALID, assess, refresh_current_meter
 # what may change on a saved reading: its status and the reason, nothing else
 STATUS_FIELDS = {"status", "status_reason"}
 STATUS_ROLES = {"System Manager", "Card Manager"}
-SYSTEM_SOURCES = {"Diesel Fill", "Maintenance Order", "Legacy Fueling Log"}
+SYSTEM_SOURCES = {
+	"Diesel Fill",
+	"Maintenance Order",
+	"Legacy Fueling Log",
+	# 4.4.0: field apps (DAWM) through card.integration_v1
+	"Field Operation",
+	"Field Fuelling",
+}
 # filled by CARD only; a Manual reading sent with them through REST gets them cleared
 SYSTEM_FIELDS = (
 	"source_doctype",
 	"source_name",
+	"source_key",
 	"litres",
 	"legacy_record",
 	"legacy_created",
@@ -146,6 +154,19 @@ class CardMeterReading(Document):
 				)
 		if self.source_type == "Legacy Fueling Log" and frappe.utils.cint(self.legacy_docstatus) == 2:
 			frappe.throw(_("The legacy Fueling Log was cancelled; its reading stays Rejected."))
+		if self.source_doctype and self.source_name:
+			newer = frappe.db.exists(
+				"Card Meter Reading",
+				{
+					"source_doctype": self.source_doctype,
+					"source_name": self.source_name,
+					"source_key": self.source_key or ["is", "not set"],
+					"status": ["!=", "Rejected"],
+					"name": ["!=", self.name],
+				},
+			)
+			if newer:
+				frappe.throw(_("This reading was replaced by {0}; it stays Rejected.").format(newer))
 		probe = frappe._dict(
 			name=self.name,
 			equipment=self.equipment,

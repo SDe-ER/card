@@ -10,6 +10,12 @@
   "company",
   "service_date",
   "service_type",
+  "work_status",
+  "assigned_to_employee",
+  "source_warehouse",
+  "approved_by",
+  "approved_on",
+  "auto_created",
   "column_break_main",
   "meter_reading",
   "maintenance_plan",
@@ -23,10 +29,12 @@
   "downtime_hours",
   "items_section",
   "items",
+  "services_done",
   "notes",
   "links_section",
   "material_request",
   "purchase_invoice",
+  "stock_entry",
   "meter_reading_record",
   "previous_service_meter",
   "previous_service_date",
@@ -75,6 +83,51 @@
    "in_list_view": 1
   },
   {
+   "fieldname": "work_status",
+   "fieldtype": "Select",
+   "label": "Work status",
+   "options": "Due\nApproved\nIn Progress\nCompleted\nCancelled",
+   "default": "Approved",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "assigned_to_employee",
+   "fieldtype": "Link",
+   "label": "Assigned to (employee)",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "label": "Parts from warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved by",
+   "options": "User",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Approved on",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "auto_created",
+   "fieldtype": "Check",
+   "label": "Created by the due scan",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
    "fieldname": "column_break_main",
    "fieldtype": "Column Break",
    "label": ""
@@ -121,6 +174,13 @@
    "options": "Card Maintenance Order Item"
   },
   {
+   "fieldname": "services_done",
+   "fieldtype": "Table",
+   "label": "Plan services done",
+   "options": "Card Maintenance Order Service",
+   "description": "Leave empty to count the order for every service line of the plan."
+  },
+  {
    "fieldname": "notes",
    "fieldtype": "Text Editor",
    "label": "Work done / notes"
@@ -147,6 +207,15 @@
    "read_only": 1,
    "allow_on_submit": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "label": "Stock Entry (parts issue)",
+   "options": "Stock Entry",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
   },
   {
    "fieldname": "meter_reading_record",

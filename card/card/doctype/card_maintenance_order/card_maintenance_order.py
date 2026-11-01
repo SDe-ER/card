@@ -37,14 +37,50 @@ class CardMaintenanceOrder(Document):
 			if flt(row.qty) <= 0:
 				frappe.throw(_("Row {0}: the quantity must be above zero.").format(row.idx))
 		self._set_downtime()
-		if self.maintenance_plan:
-			from card.maintenance import plan_for
+		self._check_work_status()
+		from card.maintenance import plan_for, plan_lines
 
-			plan = plan_for(self.equipment)
-			if not plan or plan.name != self.maintenance_plan:
-				frappe.throw(
-					_("Plan {0} is not the active plan of this equipment.").format(self.maintenance_plan)
-				)
+		plan = plan_for(self.equipment)
+		if self.maintenance_plan and (not plan or plan.name != self.maintenance_plan):
+			frappe.throw(
+				_("Plan {0} is not the active plan of this equipment.").format(self.maintenance_plan)
+			)
+		if self.services_done:
+			names = {line.service_name for line in plan_lines(plan)}
+			for row in self.services_done:
+				if row.service_name not in names:
+					frappe.throw(
+						_("Row {0}: {1} is not a service line of the equipment's plan.").format(
+							row.idx, row.service_name
+						)
+					)
+
+	def _check_work_status(self):
+		"""The work status moves only through approve / start / submit / cancel (never by
+		editing the field); a new order is Approved unless the due scan created it."""
+		before = self.get_doc_before_save()
+		if self.flags.get("card_status_change"):
+			return
+		if self.is_new() or not before:
+			from card.settings import setting
+
+			# with the due workflow on, every scheduled service needs a Card Manager's approval
+			due_flow = frappe.utils.cint(setting("auto_create_due_orders"))
+			self.work_status = "Due" if due_flow and self.service_type == "Scheduled Service" else "Approved"
+			self.auto_created = 0
+			self.approved_by = self.approved_on = None
+			return
+		for field in ("work_status", "approved_by", "approved_on", "auto_created"):
+			if (before.get(field) or None) != (self.get(field) or None):
+				self.set(field, before.get(field))
+
+	def before_submit(self):
+		if self.work_status == "Due":
+			frappe.throw(_("Approve the maintenance order first."))
+		self.work_status = "Completed"
+
+	def before_cancel(self):
+		self.work_status = "Cancelled"
 
 	def _set_downtime(self):
 		if self.service_type not in ("Repair", "Breakdown"):
@@ -80,8 +116,10 @@ class CardMaintenanceOrder(Document):
 
 	def on_submit(self):
 		from card.maintenance import refresh_status
-		from card.meter import add_reading
+		from card.meter import add_reading, refresh_current_meter
 
+		# the status is refreshed once below, after the last service has moved (a refresh in
+		# between would see the new meter with the old baseline and raise a false "due")
 		reading = add_reading(
 			self.equipment,
 			self.meter_reading,
@@ -89,6 +127,7 @@ class CardMaintenanceOrder(Document):
 			"Maintenance Order",
 			self.doctype,
 			self.name,
+			refresh=False,
 		)
 		before = frappe.db.get_value(
 			"Card Equipment", self.equipment, ["last_service_meter", "last_service_date"], as_dict=True
@@ -102,6 +141,7 @@ class CardMaintenanceOrder(Document):
 		)
 		if self.service_type == "Scheduled Service":
 			_recompute_last_service(self.equipment)
+		refresh_current_meter(self.equipment)
 		refresh_status(self.equipment)
 		self._sync_availability()
 

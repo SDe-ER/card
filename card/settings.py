@@ -49,6 +49,8 @@ _DEFAULTS = {
 	"maintenance_warn_before_hours": 50.0,
 	"max_meter_hours_per_day": 24.0,
 	"notify_maintenance_due": 1,
+	"auto_create_due_orders": 0,
+	"warranty_alert_days": 30,
 }
 
 

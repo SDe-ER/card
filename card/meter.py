@@ -132,6 +132,8 @@ def add_reading(
 	source_name=None,
 	litres=0,
 	asset=None,
+	source_key=None,
+	refresh=True,
 ):
 	"""Insert a reading from a system source (diesel fill, maintenance order). The
 	source document's own permission check has passed; the reading is its history."""
@@ -146,11 +148,22 @@ def add_reading(
 			"source_doctype": source_doctype,
 			"source_name": source_name,
 			"litres": flt(litres),
+			"source_key": source_key,
 		}
 	)
 	doc.flags.card_system_source = True
+	doc.flags.card_skip_refresh = not refresh  # the caller refreshes the equipment itself
 	doc.insert(ignore_permissions=True)  # written for the source document the user just submitted
 	return doc
+
+
+def reject_reading(name, reason):
+	"""Mark one reading Rejected by CARD (its source replaced or withdrew it)."""
+	doc = frappe.get_doc(DOCTYPE, name)
+	doc.status = REJECTED
+	doc.status_reason = reason
+	doc.flags.card_system_source = True
+	doc.save(ignore_permissions=True)  # the caller checked the right on the source document
 
 
 def reject_for_source(source_doctype, source_name, reason):

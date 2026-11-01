@@ -16,6 +16,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **CARD integration API v1 for field apps; maintenance work orders, service lines and part warranty** (FR-102,
+  FR-103, FR-104; Owner request 2026-11-01, DAWM dependency removal plan C1–C7). Reason: DAWM's equipment screens
+  depend on equipment_manager; CARD becomes the one equipment application they call. New `card.integration_v1`
+  (lookups GET; `record_meter_reading`, `record_machine_fuelling`, `reject_source_readings` POST) with a registration
+  hook (`card_field_meter_sources`: source DocType → mandatory authorizer, fail closed) for the calling app; meter sources Field Operation / Field Fuelling and `source_key` on Card Meter Reading;
+  maintenance order work status, assignee, parts warehouse, `approve_order`, `start_order`, `make_stock_entry`;
+  optional draft Due order from the due scan (`auto_create_due_orders`, off); plan service lines (Card Maintenance
+  Plan Line) with per-line baselines (Card Maintenance Order Service); Card Equipment Part part number, category,
+  warehouse, warranty end and a daily warranty alert (`warranty_alert_days`). Permissions: field readings need write
+  on the source document, a permitted company and a registered source; approval needs Card Manager; ERPNext
+  documents are drafts created with the user's own rights. Accounting: no GL, no cost from field fuelling (FR-033
+  unchanged). Data: new fields and child tables only. API: new whitelisted methods with `methods=`; documented in
+  `docs/integration/CARD-INTEGRATION-API-V1.md`. Rollback: revert the branch; new columns stay harmless.
+
+### Added
 - **equipment_manager consolidated into CARD** (FR-099, FR-100, FR-101; Owner request 2026-11-01).
   Reason: the separate equipment_manager app tracked diesel and maintenance per fill with site scripts (a broken 300 h
   rule, a client-side Purchase Invoice with a fixed account) beside CARD's own diesel fills. New: append-only

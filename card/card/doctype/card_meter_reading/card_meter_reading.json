@@ -15,6 +15,7 @@
   "source_type",
   "source_doctype",
   "source_name",
+  "source_key",
   "litres",
   "status",
   "status_reason",
@@ -87,7 +88,7 @@
    "fieldname": "source_type",
    "fieldtype": "Select",
    "label": "Source",
-   "options": "Diesel Fill\nMaintenance Order\nManual\nLegacy Fueling Log",
+   "options": "Diesel Fill\nMaintenance Order\nManual\nLegacy Fueling Log\nField Operation\nField Fuelling",
    "reqd": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -107,6 +108,13 @@
    "options": "source_doctype",
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "source_key",
+   "fieldtype": "Data",
+   "label": "Source key",
+   "read_only": 1,
+   "description": "Which reading of the source document (for example start or end of a shift)."
   },
   {
    "fieldname": "litres",

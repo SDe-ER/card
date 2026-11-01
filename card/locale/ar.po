@@ -5528,3 +5528,203 @@ msgstr "سجل التعبئة القديم ملغي؛ تبقى قراءته مر
 #: card/meter.py
 msgid "The reading is still implausible: {0}"
 msgstr "القراءة ما زالت غير معقولة: {0}"
+
+#: card/integration_v1.py
+msgid "Approve the maintenance order first."
+msgstr "اعتمد أمر الصيانة أولًا."
+
+#: card/integration_v1.py
+msgid "Assigned to (employee)"
+msgstr "مسند إلى (موظف)"
+
+#: card/integration_v1.py
+msgid "CARD warranty alert of {0} failed"
+msgstr "CARD: تعذّر تنبيه الضمان للقطعة {0}"
+
+#: card/integration_v1.py
+msgid "Create a Stock Entry Type with the purpose Material Issue first."
+msgstr "أنشئ نوع قيد مخزني بغرض صرف مواد أولًا."
+
+#: card/integration_v1.py
+msgid "Create a draft maintenance order when service is due"
+msgstr "إنشاء مسودة أمر صيانة عند استحقاق الصيانة"
+
+#: card/integration_v1.py
+msgid "Created by the due scan"
+msgstr "أنشأه فحص الاستحقاق"
+
+#: card/integration_v1.py
+msgid "Draft Stock Entry {0} created."
+msgstr "تم إنشاء مسودة القيد المخزني {0}."
+
+#: card/integration_v1.py
+msgid "Every (hours)"
+msgstr "كل (ساعة)"
+
+#: card/integration_v1.py
+msgid "Field Fuelling"
+msgstr "تعبئة ميدانية"
+
+#: card/integration_v1.py
+msgid "Field Operation"
+msgstr "تشغيل ميداني"
+
+#: card/integration_v1.py
+msgid "For a part fitted to one machine."
+msgstr "لقطعة مركبة على معدة واحدة."
+
+#: card/integration_v1.py
+msgid "Fuel quantity must be greater than zero."
+msgstr "كمية الوقود يجب أن تكون أكبر من صفر."
+
+#: card/integration_v1.py
+msgid "Leave empty to count the order for every service line of the plan."
+msgstr "اتركه فارغًا ليُحتسب الأمر لكل بنود الخطة."
+
+#: card/integration_v1.py
+msgid "Only a Card Manager can approve a maintenance order."
+msgstr "مدير CARD فقط يمكنه اعتماد أمر الصيانة."
+
+#: card/integration_v1.py
+msgid "Only a due order can be approved."
+msgstr "لا يُعتمد إلا أمر مستحق."
+
+#: card/integration_v1.py
+msgid "Optional: several services with their own interval (for example oil 250 h, filters 500 h). Without lines the plan interval above applies."
+msgstr "اختياري: عدة صيانات لكل منها فترة (مثلًا الزيت 250 ساعة والفلاتر 500 ساعة). بدون بنود تُطبق فترة الخطة أعلاه."
+
+#: card/integration_v1.py
+msgid "Part category"
+msgstr "فئة القطعة"
+
+#: card/integration_v1.py
+msgid "Part number"
+msgstr "رقم القطعة"
+
+#: card/integration_v1.py
+msgid "Part warranty ends on {0}: {1} on {2}"
+msgstr "ينتهي ضمان القطعة في {0}: {1} على {2}"
+
+#: card/integration_v1.py
+msgid "Parts from warehouse"
+msgstr "القطع من مستودع"
+
+#: card/integration_v1.py
+msgid "Plan services done"
+msgstr "صيانات الخطة المنفذة"
+
+#: card/integration_v1.py
+msgid "Replaced by a new value from {0} {1}."
+msgstr "استُبدلت بقيمة جديدة من {0} {1}."
+
+#: card/integration_v1.py
+msgid "Row {0}: {1} is not a service line of the equipment's plan."
+msgstr "الصف {0}: {1} ليس من بنود خطة صيانة المعدة."
+
+#: card/integration_v1.py
+msgid "Service line {0}: set an interval above zero."
+msgstr "بند الصيانة {0}: حدد فترة أكبر من صفر."
+
+#: card/integration_v1.py
+msgid "Service line {0}: {1} is listed twice."
+msgstr "بند الصيانة {0}: {1} مكرر."
+
+#: card/integration_v1.py
+msgid "Service lines"
+msgstr "بنود الصيانة"
+
+#: card/integration_v1.py
+msgid "Set the warehouse of the parts on the order first."
+msgstr "حدد مستودع القطع في الأمر أولًا."
+
+#: card/integration_v1.py
+msgid "Start work"
+msgstr "بدء العمل"
+
+#: card/integration_v1.py
+msgid "Stock Entry (parts issue)"
+msgstr "قيد مخزني (صرف قطع)"
+
+#: card/integration_v1.py
+msgid "Stock Entry {0} already exists for this order."
+msgstr "القيد المخزني {0} موجود بالفعل لهذا الأمر."
+
+#: card/integration_v1.py
+msgid "The maintenance order {0} is already submitted or cancelled."
+msgstr "أمر الصيانة {0} معتمد أو ملغي بالفعل."
+
+#: card/integration_v1.py
+msgid "The reading {0} is lower than the last reading {1} of this equipment."
+msgstr "القراءة {0} أقل من آخر قراءة {1} لهذه المعدة."
+
+#: card/integration_v1.py
+msgid "Usual warehouse"
+msgstr "المستودع المعتاد"
+
+#: card/integration_v1.py
+msgid "Warn this many days before a part warranty ends"
+msgstr "التنبيه قبل انتهاء ضمان القطعة بعدد الأيام"
+
+#: card/integration_v1.py
+msgid "Warranty alert sent on"
+msgstr "أُرسل تنبيه الضمان في"
+
+#: card/integration_v1.py
+msgid "Warranty until"
+msgstr "الضمان حتى"
+
+#: card/integration_v1.py
+msgid "Which reading of the source document (for example start or end of a shift)."
+msgstr "أي قراءة من المستند المصدر (مثلًا بداية الوردية أو نهايتها)."
+
+#: card/integration_v1.py
+msgid "Work status"
+msgstr "حالة العمل"
+
+#: card/integration_v1.py
+msgid "You may not record readings for this equipment."
+msgstr "لا يمكنك تسجيل قراءات لهذه المعدة."
+
+#: card/integration_v1.py
+msgid "{0} is not a registered source of CARD meter readings."
+msgstr "{0} ليس مصدرًا مسجلًا لقراءات عدادات CARD."
+
+#: card/integration_v1.py
+msgid "{0} {1} does not concern this equipment."
+msgstr "{0} {1} لا يخص هذه المعدة."
+
+#: card/integration_v1.py
+msgid "{0} {1} was cancelled."
+msgstr "تم إلغاء {0} {1}."
+
+#: card/integration_v1.py
+msgid "{0} {1} was not found."
+msgstr "لم يتم العثور على {0} {1}."
+
+#: card/integration_v1.py
+msgid "Service name"
+msgstr "اسم الصيانة"
+
+#: card/integration_v1.py
+msgid "CARD due order of {0} failed"
+msgstr "CARD: تعذّر إنشاء أمر الصيانة المستحق للمعدة {0}"
+
+#: card/integration_v1.py
+msgid "Send a list of at most {0} Assets."
+msgstr "أرسل قائمة لا تتجاوز {0} أصلًا."
+
+#: card/integration_v1.py
+msgid "The parts of this order are already issued by Stock Entry {0}."
+msgstr "قطع هذا الأمر مصروفة بالفعل بالقيد المخزني {0}."
+
+#: card/integration_v1.py
+msgid "The parts of this order are already requested by Material Request {0}."
+msgstr "قطع هذا الأمر مطلوبة بالفعل بطلب المواد {0}."
+
+#: card/integration_v1.py
+msgid "Service line {0}: the warning must come before the service interval."
+msgstr "بند الصيانة {0}: التنبيه يجب أن يأتي قبل فترة الصيانة."
+
+#: card/integration_v1.py
+msgid "This reading was replaced by {0}; it stays Rejected."
+msgstr "استُبدلت هذه القراءة بالقراءة {0}؛ تبقى مرفوضة."

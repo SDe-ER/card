@@ -50,6 +50,14 @@ class CardEquipmentPart(Document):
 	waits for a second, independent reviewer (Q5). Administrator is not exempt."""
 
 	def validate(self):
+		if self.applies_to != "Equipment":
+			self.warranty_until = None  # a warranty belongs to a part fitted to one machine
+		# the alert date is CARD's: reset when the warranty changes, never set by a user
+		before = self.get_doc_before_save()
+		if self.is_new() or self.has_value_changed("warranty_until"):
+			self.warranty_alerted_on = None
+		elif before:
+			self.warranty_alerted_on = before.warranty_alerted_on
 		before = None if self.is_new() else self.get_doc_before_save()
 		requested = self.compatibility_status
 		self._keep_server_fields(before)

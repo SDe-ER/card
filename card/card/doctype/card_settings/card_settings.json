@@ -55,6 +55,8 @@
   "column_break_maint",
   "max_meter_hours_per_day",
   "notify_maintenance_due",
+  "auto_create_due_orders",
+  "warranty_alert_days",
   "period_lock_tab",
   "period_lock_section",
   "period_lock_date",
@@ -487,6 +489,20 @@
    "fieldtype": "Check",
    "label": "Notify Card Managers when service is due",
    "default": "1",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "auto_create_due_orders",
+   "fieldtype": "Check",
+   "label": "Create a draft maintenance order when service is due",
+   "default": "0",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "warranty_alert_days",
+   "fieldtype": "Int",
+   "label": "Warn this many days before a part warranty ends",
+   "default": "30",
    "permlevel": 2
   }
  ],
