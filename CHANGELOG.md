@@ -125,6 +125,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   revert the commit (nothing to undo in data).
 
 ### Changed
+- **Agent skills rule** (owner decision 2026-11-02, documentation only). AGENTS.md "Skills": an official Frappe
+  skill is installed only under a license that permits it and its content is never copied into the repository;
+  the nonexistent `frappe-ui` skill is replaced by the official frappe-ui documentation and source; when an official
+  skill is not available the agent records `SKILL NOT FOUND` and continues only with an owner-approved substitute
+  listed in the new [docs/governance/SKILL-SUBSTITUTES.md](docs/governance/SKILL-SUBSTITUTES.md), else it stops;
+  without `frappe-code-review` an independent review with the register's checklist is mandatory. No test, CI step,
+  security scan, approval step or Production safeguard is removed. Impact: none on code, permissions, accounting,
+  data or API. Commit: branch `docs/agents-skills-substitutes` (local, not pushed). Rollback: revert the commit.
 - **Project/equipment cost allocation on CARD postings** (FR-091, integration plan P1-0, 2026-10-30). Card, diesel
   and transport lines of CARD postings carry the project/equipment allocation instead of the company default. One
   rule (`resolve_cost_center`) applies to every line: the assignments of the line's equipment to its project that

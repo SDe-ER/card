@@ -11,6 +11,8 @@ differ, the stricter one applies.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — branches, tests, linting, pull requests.
 - [docs/governance/FEATURE-REGISTRY.md](docs/governance/FEATURE-REGISTRY.md) — what exists and how it is proven.
 - [docs/releases/RELEASE-POLICY.md](docs/releases/RELEASE-POLICY.md) — release checklist.
+- [docs/governance/SKILL-SUBSTITUTES.md](docs/governance/SKILL-SUBSTITUTES.md) — approved skill substitutes and the
+  review procedure used when an official Frappe skill is not available.
 
 ## Go-live priority (issue #118)
 
@@ -32,13 +34,26 @@ Agents that have a Skill tool follow these rules for every development or review
 
 1. Choose the official Frappe skills that fit the task (from https://github.com/frappe/skills), for example
    `frappe-app-dev` for app code or `frappe-code-review` for a review.
-2. Load each one with the Skill tool. Reading a `SKILL.md` file does not load the skill.
-3. For CARD Mobile (`frontend/`), also load the official `frappe-ui` skill.
-4. Also load the maintainer's local SDCE skills (`sdce-*`) that apply to the task.
-5. If a required skill is not available, record `SKILL NOT FOUND: <name>` and stop.
-6. List each loaded skill under `SKILLS_LOADED` in the task report and checkpoint: name, official or local, how it
+2. Load each one with the Skill tool. Reading a `SKILL.md` file does not load the skill. Install an official skill
+   only under a license that permits it. Never copy, vendor or redistribute official skill content into this
+   repository.
+3. For CARD Mobile (`frontend/`): https://github.com/frappe/skills has no `frappe-ui` skill. Use the official
+   frappe-ui documentation and source (https://github.com/frappe/frappe-ui) as the reference, together with the
+   skills of step 1 or their approved substitutes (step 5).
+4. Also load the maintainer's local SDCE skills that apply to the task as extra guidance (for example
+   `frappe-bench-ops` or `erpnext-hrms-functional`; see
+   [docs/governance/SKILL-SUBSTITUTES.md](docs/governance/SKILL-SUBSTITUTES.md) section 2).
+5. If a required official skill is not available, record `SKILL NOT FOUND: <name>`. Continue only when
+   [SKILL-SUBSTITUTES.md](docs/governance/SKILL-SUBSTITUTES.md) lists an owner-approved substitute for that skill and
+   for the scope of the task. Load a skill substitute with the Skill tool, or run a procedure substitute completely,
+   as that file says, and record `SKILL SUBSTITUTE: <official> -> <substitute>`. Without an approved substitute for
+   that scope, stop.
+6. A substitute replaces guidance only. It never removes a gate: when `frappe-code-review` is not available, the
+   review procedure in [SKILL-SUBSTITUTES.md](docs/governance/SKILL-SUBSTITUTES.md) section 3 is mandatory. Tests, CI,
+   security scans, the approval ladder and every Production safeguard of this file and of the policy stay in force.
+7. List each loaded skill under `SKILLS_LOADED` in the task report and checkpoint: name, official or local, how it
    was loaded, purpose and result. Write `SKILLS_LOADED=none` when no skill was loaded. Never list a skill that was
-   not loaded.
+   not loaded. List each `SKILL NOT FOUND` and each `SKILL SUBSTITUTE` line there too.
 
 The maintainer's private rules (`../../AGENTS.md` from the repository root, section 8) give the details. This
 section applies also when that file is not loaded.
