@@ -22,7 +22,7 @@ from card.asset_master import (
 	get_asset_master_view,
 	on_asset_change,
 )
-from card.tests.test_asset_link import TestAssetLink
+from card.tests import test_asset_link as _link
 from card.tests.test_controllers import _ensure_masters
 
 LINK = "الأصل_في_erpnext"
@@ -67,12 +67,12 @@ def _ensure_site_asset_fields():
 
 class TestAssetMaster(IntegrationTestCase):
 	# the Asset fixtures of the Asset link tests (accounts, category, item, location, users)
-	_fixed_asset_account = TestAssetLink._fixed_asset_account
-	_asset_masters = TestAssetLink._asset_masters
-	_make_asset = TestAssetLink._make_asset
-	_user = TestAssetLink._user
-	_as = TestAssetLink._as
-	_make_equipment = TestAssetLink._make_equipment
+	_fixed_asset_account = _link.TestAssetLink._fixed_asset_account
+	_asset_masters = _link.TestAssetLink._asset_masters
+	_make_asset = _link.TestAssetLink._make_asset
+	_user = _link.TestAssetLink._user
+	_as = _link.TestAssetLink._as
+	_make_equipment = _link.TestAssetLink._make_equipment
 
 	@classmethod
 	def setUpClass(cls):
@@ -93,11 +93,15 @@ class TestAssetMaster(IntegrationTestCase):
 			frappe.db.set_value("Asset", asset, values)
 		return asset
 
-	def _map_category(self, asset):
-		category = frappe.db.get_value("Asset", asset, "asset_category")
-		for other in frappe.get_all("Card Equipment Type", {"asset_category": category}, pluck="name"):
-			frappe.db.set_value("Card Equipment Type", other, "asset_category", None)
-		frappe.db.set_value("Card Equipment Type", self._m["etype"], "asset_category", category)
+	def _rented(self, **kw):
+		"""A rented equipment (no Asset): rented directions need a supplier and a rate."""
+		supplier = frappe.new_doc("Supplier")
+		supplier.supplier_name = "TEST-AM-SUP-" + frappe.generate_hash(length=8)
+		supplier.supplier_group = self._m["supplier_group"]
+		supplier.insert(ignore_permissions=True)
+		return self._make_equipment(
+			ownership="إيجار", supplier=supplier.name, rate_type="باليوم", rate=500, **kw
+		)
 
 	# ---------- mapping ----------
 
@@ -173,7 +177,7 @@ class TestAssetMaster(IntegrationTestCase):
 		self.assertTrue(meta.get_field(OWNED_LIST_FIELD).hidden)
 
 	def test_rented_equipment_is_untouched(self):
-		eq = self._make_equipment(ownership="إيجار", serial_no="RENT-1", manufacture_year=1999)
+		eq = self._rented(serial_no="RENT-1", manufacture_year=1999)
 		self.assertEqual(eq.serial_no, "RENT-1")
 		self.assertEqual(eq.manufacture_year, 1999)
 		self.assertFalse(eq.get(OWNED_LIST_FIELD))
@@ -191,7 +195,7 @@ class TestAssetMaster(IntegrationTestCase):
 			"insurance_policy_no": "POL-CARD",
 			"site_location": "SITE-A",
 		}
-		frappe.db.set_value("Card Equipment", eq.name, operational)
+		frappe.db.set_value("Card Equipment", eq.name, dict(operational))
 		frappe.db.set_value("Asset", asset, {"asset_name": "RENAMED ASSET", "custom_chassis_no": "NEW-CH"})
 		on_asset_change(frappe.get_doc("Asset", asset))
 		eq.reload()
@@ -229,7 +233,7 @@ class TestAssetMaster(IntegrationTestCase):
 	def test_asset_change_does_not_copy_a_chassis_used_by_another_equipment(self):
 		asset = self._asset(custom_chassis_no="")
 		eq = self._make_equipment(serial_no="MINE-1", **{LINK: asset})
-		other = self._make_equipment(ownership="إيجار", serial_no="TAKEN-1")
+		other = self._rented(serial_no="TAKEN-1")
 		frappe.db.set_value("Asset", asset, "custom_chassis_no", "TAKEN-1")
 		on_asset_change(frappe.get_doc("Asset", asset))
 		eq.reload()
@@ -288,7 +292,7 @@ class TestAssetMaster(IntegrationTestCase):
 		frappe.db.set_value("Asset", asset, {"docstatus": 2, "status": "Cancelled"})
 		with self.assertRaises(frappe.ValidationError):
 			assert_asset_in_service(eq.name, [add_days(today(), -400)])
-		rented = self._make_equipment(ownership="إيجار")
+		rented = self._rented()
 		assert_asset_in_service(rented.name, [today()])  # no Asset: nothing to check
 
 	def test_monthly_card_submit_runs_the_disposal_gate(self):
@@ -315,19 +319,24 @@ class TestAssetMaster(IntegrationTestCase):
 		self.assertEqual(admin["custom_engine_no"], "ENG-55")
 		self.assertEqual(admin["custom_customs_fees_sar"], 1500)
 
-		self._as(["Card User", "Accounts User"])
-		if frappe.has_permission("Asset", "read", asset):
-			view = {f["fieldname"]: f["value"] for f in get_asset_master_view(eq.name)["fields"]}
-			self.assertEqual(view["custom_engine_no"], "ENG-55")
-			self.assertNotIn("custom_customs_fees_sar", view)
+		self._as(["Card User", "Accounts User"])  # Asset read, no level 2 on the equipment
+		self.assertTrue(frappe.has_permission("Asset", "read", asset))
+		view = {f["fieldname"]: f["value"] for f in get_asset_master_view(eq.name)["fields"]}
+		self.assertEqual(view["custom_engine_no"], "ENG-55")
+		self.assertNotIn("custom_customs_fees_sar", view)
+
+		frappe.set_user("Administrator")
+		self._as(["Card Manager", "Accounts User"])  # level 2 reader
+		view = {f["fieldname"]: f["value"] for f in get_asset_master_view(eq.name)["fields"]}
+		self.assertEqual(view["custom_customs_fees_sar"], 1500)
 
 	def test_view_needs_asset_read(self):
 		asset = self._asset()
 		eq = self._make_equipment(**{LINK: asset})
-		self._as(["Card User"])
-		if not frappe.has_permission("Asset", "read", asset):
-			with self.assertRaises(frappe.PermissionError):
-				get_asset_master_view(eq.name)
+		self._as(["Card User"])  # equipment read, no Asset read
+		self.assertFalse(frappe.has_permission("Asset", "read", asset))
+		with self.assertRaises(frappe.PermissionError):
+			get_asset_master_view(eq.name)
 
 	def test_view_writes_nothing_and_skips_fields_the_site_lacks(self):
 		asset = self._asset()
