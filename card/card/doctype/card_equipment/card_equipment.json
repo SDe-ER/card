@@ -29,12 +29,15 @@
   "equipment_name",
   "equipment_type",
   "equipment_type_from_asset",
+  "asset_owned_fields",
   "image",
   "status",
   "is_unit",
   "is_unit_component",
   "unit_section",
   "components",
+  "asset_master_section",
+  "asset_master_html",
   "documents_tab",
   "documents_section",
   "registration_no",
@@ -134,7 +137,8 @@
    "label": "Company",
    "options": "Company",
    "permlevel": 1,
-   "reqd": 1
+   "reqd": 1,
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]"
   },
   {
    "fieldname": "ownership",
@@ -149,15 +153,13 @@
    "fieldname": "brand",
    "fieldtype": "Data",
    "label": "Brand",
-   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.brand"
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"] && (doc.asset_owned_fields || \"\").split(\",\").includes(\"brand\")"
   },
   {
    "fieldname": "model",
    "fieldtype": "Data",
    "label": "Model",
-   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.model"
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"] && (doc.asset_owned_fields || \"\").split(\",\").includes(\"model\")"
   },
   {
    "fieldname": "equipment_make",
@@ -179,23 +181,20 @@
    "fieldname": "manufacture_year",
    "fieldtype": "Int",
    "label": "Manufacture year",
-   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.manufacture_year"
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"] && (doc.asset_owned_fields || \"\").split(\",\").includes(\"manufacture_year\")"
   },
   {
    "fieldname": "serial_no",
    "fieldtype": "Data",
    "label": "Chassis number",
-   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.serial_no",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"] && (doc.asset_owned_fields || \"\").split(\",\").includes(\"serial_no\")",
    "no_copy": 1
   },
   {
    "fieldname": "plate_no",
    "fieldtype": "Data",
    "label": "Plate number",
-   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"]",
-   "depends_on": "eval:!doc[\"الأصل_في_erpnext\"] || doc.plate_no",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"] && (doc.asset_owned_fields || \"\").split(\",\").includes(\"plate_no\")",
    "no_copy": 1
   },
   {
@@ -251,7 +250,8 @@
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "hidden": 1,
-   "label": "Image"
+   "label": "Image",
+   "read_only_depends_on": "eval:doc[\"الأصل_في_erpnext\"] && (doc.asset_owned_fields || \"\").split(\",\").includes(\"image\")"
   },
   {
    "default": "نشطة",
@@ -576,6 +576,18 @@
    "label": "Meter reading at last maintenance"
   },
   {
+   "fieldname": "asset_master_section",
+   "fieldtype": "Section Break",
+   "label": "From ERPNext Asset",
+   "depends_on": "eval:doc[\"الأصل_في_erpnext\"] && !doc.__islocal",
+   "collapsible": 0
+  },
+  {
+   "fieldname": "asset_master_html",
+   "fieldtype": "HTML",
+   "label": "Asset information"
+  },
+  {
    "fieldname": "documents_tab",
    "fieldtype": "Tab Break",
    "label": "Documents"
@@ -785,6 +797,14 @@
    "hidden": 1,
    "read_only": 1,
    "default": "0"
+  },
+  {
+   "fieldname": "asset_owned_fields",
+   "fieldtype": "Data",
+   "label": "Fields from the Asset",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
   }
  ],
  "grid_page_length": 50,
@@ -802,7 +822,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-10-31 22:30:00.000000",
+ "modified": "2026-11-01 18:30:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

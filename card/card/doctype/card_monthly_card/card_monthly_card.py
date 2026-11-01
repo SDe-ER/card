@@ -452,6 +452,12 @@ class CardMonthlyCard(Document):
 			)
 
 	def before_submit(self):
+		# FR-098: no operating hours on or after the disposal of the equipment's ERPNext Asset
+		from card.asset_master import assert_asset_in_service
+
+		assert_asset_in_service(
+			self.equipment, [row.operation_date for row in self.days if flt(row.working_hours) > 0]
+		)
 		# A card that bills a customer is final only when its EQUIPMENT carries the customer.
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS and not self.customer:
 			frappe.throw(

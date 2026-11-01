@@ -267,11 +267,17 @@ function card_apply_ownership_defaults(frm) {
 	}
 }
 
+// FR-098: the Asset owns these on a linked equipment (card.asset_master.MASTER_FIELDS);
+// a field the Asset has no value for is left as entered in CARD.
 const CARD_ASSET_OWNED_FIELDS = [
 	"equipment_name",
+	"serial_no",
+	"manufacture_year",
+	"image",
 	"brand",
 	"equipment_type",
 	"equipment_type_from_asset",
+	"asset_owned_fields",
 ];
 
 const CARD_ASSET_NEW_FIELDS = [
@@ -290,12 +296,13 @@ const CARD_ASSET_NEW_FIELDS = [
 	"daily_hours",
 ];
 
-// The machine is already an ERPNext Asset: its name, brand and type come from the Asset
-// (read-only); image, cost center, custodian as operator and insurance fill empty fields.
+// The machine is already an ERPNext Asset: its master data come from the Asset
+// (read-only); cost center, custodian as operator and insurance fill empty fields.
 function card_fill_from_asset(frm) {
 	const asset = frm.doc["الأصل_في_erpnext"];
 	if (!asset) {
 		if (frm.doc.equipment_type_from_asset) frm.set_value("equipment_type_from_asset", 0);
+		if (frm.doc.asset_owned_fields) frm.set_value("asset_owned_fields", "");
 		return;
 	}
 	frappe
@@ -306,6 +313,7 @@ function card_fill_from_asset(frm) {
 		})
 		.then((r) => {
 			const d = (r && r.message) || {};
+			if (!("asset_owned_fields" in d)) d.asset_owned_fields = "";
 			Object.keys(d).forEach((field) => {
 				if (field === "operator" && frm.doc.ownership !== "ملك") return;
 				// the Asset owns these (read-only here); the rest only fills empty fields
@@ -423,6 +431,65 @@ function card_add_unit_actions(frm) {
 	);
 }
 
+// FR-098 / D5: Asset information shown read-only (never stored in CARD); a sold,
+// scrapped or cancelled Asset is announced on the form.
+function card_asset_value(f) {
+	// numbers and dates through the standard formatter; text always escaped
+	if (["Date", "Datetime", "Currency", "Float", "Int"].includes(f.fieldtype)) {
+		return frappe.format(f.value, { fieldtype: f.fieldtype });
+	}
+	return frappe.utils.escape_html(String(f.value));
+}
+
+function card_render_asset_master(frm) {
+	const wrapper =
+		frm.fields_dict.asset_master_html && frm.fields_dict.asset_master_html.$wrapper;
+	if (!wrapper) return;
+	wrapper.empty();
+	if (frm.is_new() || !frm.doc["الأصل_في_erpnext"]) return;
+	frappe
+		.call({
+			method: "card.asset_master.get_asset_master_view",
+			args: { equipment: frm.doc.name },
+			type: "GET",
+		})
+		.then((r) => {
+			const d = (r && r.message) || {};
+			if (!d.asset) return;
+			if (d.out_of_service) {
+				frm.dashboard.set_headline_alert(
+					__(
+						"ERPNext Asset {0} is {1} (disposal date {2}): hours cannot be recorded from that date.",
+						[
+							frappe.utils.escape_html(d.asset),
+							__(d.status),
+							d.disposal_date ? frappe.datetime.str_to_user(d.disposal_date) : "-",
+						],
+					),
+					"red",
+				);
+			}
+			const rows = (d.fields || [])
+				.map(
+					(f) =>
+						`<tr><td class="text-muted" style="width:40%">${frappe.utils.escape_html(
+							f.label,
+						)}</td>` + `<td>${card_asset_value(f)}</td></tr>`,
+				)
+				.join("");
+			wrapper.html(
+				`<div class="small text-muted mb-2">${__(
+					"Read-only. Change these values on the ERPNext Asset.",
+				)}</div>` +
+					(rows
+						? `<table class="table table-bordered table-sm">${rows}</table>`
+						: `<div class="text-muted">${__(
+								"The Asset has no further information.",
+						  )}</div>`),
+			);
+		});
+}
+
 frappe.ui.form.on("Card Equipment", {
 	setup(frm) {
 		card_patch_heatmap(frm);
@@ -436,6 +503,7 @@ frappe.ui.form.on("Card Equipment", {
 		card_render_shift_heatmaps(frm);
 		card_render_equipment_links(frm);
 		card_show_document_alerts(frm);
+		card_render_asset_master(frm);
 	},
 	الأصل_في_erpnext(frm) {
 		card_fill_from_asset(frm);

@@ -7,7 +7,7 @@ from frappe.model import get_permitted_fields
 from frappe.model.rename_doc import rename_doc
 from frappe.utils import cint, flt
 
-from card.card.doctype.card_equipment.card_equipment import asset_equipment_values
+from card.asset_master import OWNED_LIST_FIELD, asset_master_values, owned_list
 from card.constants import OWNED, THIRD_PARTY
 from card.party_registry import registry_row
 from card.report_access import assert_report_role, permitted_companies, query_companies
@@ -315,11 +315,11 @@ def get_only_company():
 	return only_visible_company()
 
 
-# Equipment field <- ERPNext Asset field. An owned (or managed) machine is already
-# registered as an Asset, so its form takes these instead of retyping them.
+# Equipment field <- ERPNext Asset field, filled only where the equipment has no value
+# yet (CARD keeps them afterwards). The Asset-owned master fields (name, chassis, year,
+# image, brand, type) come from card.asset_master (FR-098).
 ASSET_PREFILL = {
 	"company": "company",
-	"image": "image",
 	"cost_center": "cost_center",
 	"operator": "custodian",
 	"insurance_company": "insurer",
@@ -337,8 +337,9 @@ def _asset_prefill(asset):
 	if values.docstatus != 1:
 		frappe.throw(_("Asset {0} must be submitted").format(asset))
 	prefill = {field: values.get(source) for field, source in ASSET_PREFILL.items() if values.get(source)}
-	details = asset_equipment_values(asset)
-	prefill.update({field: value for field, value in details.items() if value})
+	details = asset_master_values(asset)
+	prefill.update(details)
+	prefill[OWNED_LIST_FIELD] = owned_list(details)
 	prefill["equipment_type_from_asset"] = 1 if details.get("equipment_type") else 0
 	return prefill
 

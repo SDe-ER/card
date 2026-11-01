@@ -92,18 +92,12 @@ def _lock_company_identities(company):
 
 
 def asset_equipment_values(asset):
-	"""Details the linked ERPNext Asset holds for its equipment: the name, the Asset
-	item's brand and the equipment type mapped to the Asset category. No permission
-	check: callers check the Asset first."""
-	values = frappe.db.get_value("Asset", asset, ["asset_name", "asset_category", "item_code"], as_dict=True)
-	if not values:
-		return {}
-	return {
-		"equipment_name": values.asset_name or asset,
-		"brand": values.item_code and frappe.db.get_value("Item", values.item_code, "brand"),
-		"equipment_type": values.asset_category
-		and frappe.db.get_value("Card Equipment Type", {"asset_category": values.asset_category}, "name"),
-	}
+	"""v3.0.0 subset of the Asset master values (name, brand, type), kept for the
+	v3.0.0 patch. FR-098: card.asset_master.asset_master_values holds the full map."""
+	from card.asset_master import asset_master_values
+
+	values = asset_master_values(asset)
+	return {f: values.get(f) for f in ("equipment_name", "brand", "equipment_type")} if values else {}
 
 
 class CardEquipment(Document):
@@ -111,6 +105,13 @@ class CardEquipment(Document):
 		# O3: the linked Asset carries the equipment as its accounting dimension,
 		# so depreciation entries land on the equipment in GL. No-op without the dimension.
 		sync_asset_dimension(self)
+		if self.flags.get("card_asset_replaced"):
+			from card.asset_master import comment_replaced
+
+			comment_replaced(
+				self.doctype, self.name, self.get(ASSET_LINK_FIELD), self.flags.card_asset_replaced
+			)
+			self.flags.card_asset_replaced = []
 		if self.has_value_changed("equipment_model"):
 			# FR-077: a machine's fitment rows carry its model (filters, conflict check)
 			frappe.db.set_value(
@@ -154,14 +155,14 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = 0
 
 	def sync_asset_details(self):
-		"""Owner 2026-10-19: an equipment linked to an Asset takes its details from it
-		(read-only on the form; enforced here for REST and imports too)."""
-		asset = self.get(ASSET_LINK_FIELD)
-		values = asset_equipment_values(asset) if asset else {}
-		self.equipment_type_from_asset = 1 if values.get("equipment_type") else 0
-		for fieldname, value in values.items():
-			if value:
-				self.set(fieldname, value)
+		"""FR-098 (Owner D1 2026-11-01): a linked equipment takes its master data from the
+		ERPNext Asset (card.asset_master): exact values, read-only on the form, enforced
+		here for REST and imports too. Asset values that are empty keep the CARD value;
+		a CARD value replaced by the Asset is noted on the equipment after the save."""
+		from card.asset_master import apply_asset_master, replaced_values
+
+		changes = apply_asset_master(self)
+		self.flags.card_asset_replaced = replaced_values(changes) if not self.is_new() else []
 
 	def validate_commercial_change_reason(self):
 		"""A change to a commercial term of an existing equipment needs a NEW

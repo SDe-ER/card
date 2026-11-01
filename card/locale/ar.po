@@ -5004,3 +5004,47 @@ msgstr "المسؤولية تحتاج مراجعة — ألغِ النقل وع�
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "Financial decision recorded."
 msgstr "تم تسجيل القرار المالي."
+
+#: card/asset_master.py
+msgid "Updated from ERPNext Asset {0}:"
+msgstr "تم التحديث من أصل ERPNext رقم {0}:"
+
+#: card/asset_master.py
+msgid "CARD: Asset {0} sync to equipment {1} failed"
+msgstr "CARD: تعذّرت مزامنة الأصل {0} مع المعدة {1}"
+
+#: card/asset_master.py
+msgid "Chassis number {0} from ERPNext Asset {1} was not copied: equipment {2} already uses it."
+msgstr "رقم الشاسيه {0} من أصل ERPNext {1} لم يُنسخ: المعدة {2} تستخدمه بالفعل."
+
+#: card/asset_master.py
+msgid "ERPNext Asset {0} of equipment {1} is {2} (disposal date {3}); hours cannot be recorded on {4}."
+msgstr "أصل ERPNext {0} للمعدة {1} حالته {2} (تاريخ الاستبعاد {3})؛ لا يمكن تسجيل ساعات في {4}."
+
+#: card/asset_master.py
+msgid "Asset out of service"
+msgstr "الأصل خارج الخدمة"
+
+#: card/asset_master.py
+msgid "ERPNext Asset {0} is {1} (disposal date {2}): hours cannot be recorded from that date."
+msgstr "أصل ERPNext {0} حالته {1} (تاريخ الاستبعاد {2}): لا يمكن تسجيل ساعات من هذا التاريخ."
+
+#: card/asset_master.py
+msgid "Read-only. Change these values on the ERPNext Asset."
+msgstr "للعرض فقط. عدّل هذه القيم من أصل ERPNext."
+
+#: card/asset_master.py
+msgid "The Asset has no further information."
+msgstr "لا توجد بيانات إضافية على الأصل."
+
+#: card/asset_master.py
+msgid "From ERPNext Asset"
+msgstr "من أصل ERPNext"
+
+#: card/asset_master.py
+msgid "Asset information"
+msgstr "بيانات الأصل"
+
+#: card/asset_master.py
+msgid "Fields from the Asset"
+msgstr "الحقول المأخوذة من الأصل"

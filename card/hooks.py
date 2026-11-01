@@ -209,6 +209,12 @@ doc_events = {
 	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
 	# Card Equipment financial privacy: the change history never carries restricted values (2026-10-31)
 	"Version": {"before_insert": "card.field_privacy.mask_restricted_version"},
+	# FR-098: the ERPNext Asset owns the master data of its linked Card Equipment
+	"Asset": {
+		"on_update": "card.asset_master.on_asset_change",
+		"on_update_after_submit": "card.asset_master.on_asset_change",
+		"on_cancel": "card.asset_master.on_asset_change",
+	},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record
 	"File": {
 		"before_validate": "card.custody_receipt.keep_private",

@@ -15,6 +15,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **ERPNext Asset owns the master data of a linked Card Equipment** (FR-098, Owner decisions D1/D3/D5 2026-11-01).
+  Reason: linked equipment showed an empty chassis number and manufacture year while the Asset held them, and those
+  fields were locked, so they could not be entered either. New `card.asset_master` holds the one field map used by the
+  form prefill, the save-time sync (`CardEquipment.sync_asset_details`), the Asset hook and the patch: `equipment_name`
+  ← `asset_name`, `serial_no` ← `custom_chassis_no`, `manufacture_year` ← `custom_manufacture_year`, `image` ← `image`,
+  `brand` ← Item brand, `equipment_type` ← mapped Asset Category. Values are copied exactly; an empty Asset value
+  (0 for the year) keeps the CARD value, and a field is read-only only where the Asset fills it (`asset_owned_fields`,
+  hidden); `model` and `plate_no` become editable again on linked equipment (the Asset has no such fields). Optional
+  site fields are read only when the Asset has them. The company is read-only once linked (it already had to match).
+  A replaced CARD value is noted in a Comment and the Version. Asset `on_update`, `on_update_after_submit` and
+  `on_cancel` update the one linked equipment directly (system sync of read-only mirrors, with Version and Comment);
+  a chassis already used by another equipment is not copied; a failure is logged and never blocks the Asset save.
+  CARD still never writes the Asset. Monthly card submit refuses hours on or after the Asset's disposal date when the
+  Asset is Sold or Scrapped, and any hours when it is cancelled. The equipment form shows the Asset's customs, vehicle
+  and engine data read-only (`get_asset_master_view`, GET; equipment and Asset read required; customs fees only for
+  level-2 readers), never stored in CARD. Patch `v4_3_0.backfill_asset_master_fields` fills only empty values of
+  linked equipment and lists differing values in an Error Log report ("CARD asset master backfill") for the owner.
+  Insurance and documents stay CARD fields (D3). Impact: permissions unchanged (no role gains access); no accounting
+  change; data — empty master fields of linked equipment filled by the patch, no value overwritten unattended; API —
+  new GET `card.asset_master.get_asset_master_view`, `get_asset_prefill` also returns `asset_owned_fields`. Rollback:
+  revert the commit; the patch's fills stay (they are the Asset's values) and are listed in its Error Log report.
+  Branch `feat/asset-master-ownership`, not merged.
+
 ### Security
 - **Card Equipment financial privacy** (FR-096, Owner decision 2026-10-31). The Asset purchase value (a read-only
   copy of the Asset's `net_purchase_amount`), the internal hourly rate, the Asset cost center and the equipment's own
