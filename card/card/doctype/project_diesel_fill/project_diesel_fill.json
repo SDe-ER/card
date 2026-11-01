@@ -22,6 +22,7 @@
   "section_break_equipment",
   "equipment_filled",
   "card_equipment",
+  "equipment_meter_reading",
   "section_break_price",
   "unit_price",
   "amount",
@@ -465,11 +466,17 @@
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
+  },
+  {
+   "fieldname": "equipment_meter_reading",
+   "fieldtype": "Float",
+   "label": "Equipment meter reading",
+   "depends_on": "eval:doc.card_equipment"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-27 12:00:00.000000",
+ "modified": "2026-11-01 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Project Diesel Fill",

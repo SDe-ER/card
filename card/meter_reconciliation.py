@@ -139,8 +139,43 @@ def identity_conflict(asset_id, *other_names):
 
 
 def legacy_readings(assets):
-	"""Hour-meter readings of the legacy fuelling log for these Assets: {asset: [reading dicts]} — empty when
-	the DocType or its fields are missing, or the user may not read it (frappe.get_list applies permissions)."""
+	"""Hour-meter readings for these Assets: {asset: [reading dicts]}, from the legacy fuelling log while
+	that app is installed, plus CARD's own meter history (FR-099; its imported legacy copies are skipped
+	while the original log is still there, so nothing is counted twice). Returns (readings, available)."""
+	found, available = _fueling_log_readings(assets)
+	card = _card_meter_readings(assets, skip_legacy=available)
+	for asset, rows in card.items():
+		found.setdefault(asset, []).extend(rows)
+	return found, available or bool(card)
+
+
+def _card_meter_readings(assets, skip_legacy):
+	if not assets or not frappe.has_permission("Card Meter Reading", "read"):
+		return {}
+	filters = [["status", "!=", "Rejected"], ["asset", "in", list(assets)]]
+	if skip_legacy:
+		filters.append(["source_type", "!=", "Legacy Fueling Log"])
+	found = {}
+	for row in frappe.get_list(
+		"Card Meter Reading",
+		filters=filters,
+		fields=["name", "asset", "reading_time", "reading", "hours_since_previous"],
+		order_by="reading_time asc",
+		limit_page_length=0,
+	):
+		found.setdefault(row.asset, []).append(
+			{
+				"source": "Card Meter Reading",
+				"ref": row.name,
+				"at": row.reading_time,
+				"reading": row.reading,
+				"hours_run": row.hours_since_previous,
+			}
+		)
+	return found
+
+
+def _fueling_log_readings(assets):
 	if not assets or not frappe.db.exists("DocType", LEGACY_LOG):
 		return {}, False
 	meta = frappe.get_meta(LEGACY_LOG)

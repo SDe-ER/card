@@ -12,6 +12,7 @@ COMPANY_TABLES = ("company_settings", "adjustment_types")
 class CardSettings(Document):
 	def validate(self):
 		self._validate_company_scope()
+		self._validate_maintenance()
 		seen = set()
 		account_fields = [
 			f.fieldname
@@ -121,6 +122,16 @@ class CardSettings(Document):
 						row.account, row.type_name
 					)
 				)
+
+	def _validate_maintenance(self):
+		from frappe.utils import flt
+
+		interval = flt(self.get("default_service_interval_hours"))
+		warn = flt(self.get("maintenance_warn_before_hours"))
+		if interval < 0 or warn < 0 or flt(self.get("max_meter_hours_per_day")) < 0:
+			frappe.throw(_("Intervals cannot be negative."))
+		if interval and warn >= interval:
+			frappe.throw(_("The warning must come before the service interval."))
 
 
 def _row_values(row):

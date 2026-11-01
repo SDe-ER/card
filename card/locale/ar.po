@@ -5052,3 +5052,479 @@ msgstr "الحقول المأخوذة من الأصل"
 #: card/patches/v4_3_0/backfill_asset_master_fields.py
 msgid "ERPNext Asset {0} holds {1} for {2}; CARD keeps {3} until this equipment is next saved, when the Asset value replaces it."
 msgstr "أصل ERPNext {0} فيه {1} لحقل {2}؛ CARD يحتفظ بالقيمة {3} لحد أول حفظ للمعدة، وساعتها قيمة الأصل تحل محلها."
+
+#: card/meter.py
+msgid "A meter reading cannot be changed; record a new reading and mark this one Rejected."
+msgstr "لا يمكن تعديل قراءة العداد؛ سجّل قراءة جديدة وعلّم هذه القراءة مرفوضة."
+
+#: card/meter.py
+msgid "A meter reading cannot be negative."
+msgstr "قراءة العداد لا يمكن أن تكون سالبة."
+
+#: card/meter.py
+msgid "A rejected reading needs a reason."
+msgstr "القراءة المرفوضة تحتاج سببًا."
+
+#: card/meter.py
+msgid "Back in service cannot be before out of service."
+msgstr "العودة للخدمة لا يمكن أن تكون قبل الخروج من الخدمة."
+
+#: card/meter.py
+msgid "Back in service on"
+msgstr "عادت للخدمة في"
+
+#: card/meter.py
+msgid "Breakdown and downtime"
+msgstr "الأعطال ومدة التوقف"
+
+#: card/meter.py
+msgid "CARD maintenance status of {0} failed"
+msgstr "CARD: تعذّر تحديث حالة صيانة {0}"
+
+#: card/meter.py
+msgid "Cancelled in the legacy Fueling Log."
+msgstr "ملغي في سجل التعبئة القديم."
+
+#: card/meter.py
+msgid "Card Maintenance Kit Item"
+msgstr "صنف طقم الصيانة"
+
+#: card/meter.py
+msgid "Card Maintenance Order"
+msgstr "أمر صيانة"
+
+#: card/meter.py
+msgid "Card Maintenance Order Item"
+msgstr "صنف أمر الصيانة"
+
+#: card/meter.py
+msgid "Card Maintenance Plan"
+msgstr "خطة صيانة"
+
+#: card/meter.py
+msgid "Card Meter Reading"
+msgstr "قراءة عداد"
+
+#: card/meter.py
+msgid "Choose the equipment model of this plan."
+msgstr "اختر موديل المعدة لهذه الخطة."
+
+#: card/meter.py
+msgid "Choose the equipment of this plan."
+msgstr "اختر المعدة لهذه الخطة."
+
+#: card/meter.py
+msgid "Choose the equipment."
+msgstr "اختر المعدة."
+
+#: card/meter.py
+msgid "Consumption (litres per hour)"
+msgstr "الاستهلاك (لتر/ساعة)"
+
+#: card/meter.py
+msgid "Current meter"
+msgstr "العداد الحالي"
+
+#: card/meter.py
+msgid "Default service interval (hours)"
+msgstr "فترة الصيانة الافتراضية (ساعة)"
+
+#: card/meter.py
+msgid "Diesel Fill"
+msgstr "تعبئة ديزل"
+
+#: card/meter.py
+msgid "Downtime (hours)"
+msgstr "مدة التوقف (ساعة)"
+
+#: card/meter.py
+msgid "Draft Purchase Invoice {0} created."
+msgstr "تم إنشاء مسودة فاتورة الشراء {0}."
+
+#: card/meter.py
+msgid "Draft in the legacy Fueling Log (never submitted)."
+msgstr "مسودة في سجل التعبئة القديم (لم تُعتمد)."
+
+#: card/meter.py
+msgid "Due Soon"
+msgstr "قريبًا صيانة"
+
+#: card/meter.py
+msgid "Equipment Fuel Consumption"
+msgstr "استهلاك وقود المعدات"
+
+#: card/meter.py
+msgid "Equipment Maintenance Status"
+msgstr "حالة صيانة المعدات"
+
+#: card/meter.py
+msgid "Equipment meter reading"
+msgstr "قراءة عداد المعدة"
+
+#: card/meter.py
+msgid "First reading"
+msgstr "أول قراءة"
+
+#: card/meter.py
+msgid "From the plan kit"
+msgstr "من طقم الخطة"
+
+#: card/meter.py
+msgid "Give the reason for the status {0}."
+msgstr "اذكر سبب الحالة {0}."
+
+#: card/meter.py
+msgid "Highest plausible meter hours per day"
+msgstr "أقصى ساعات عداد معقولة في اليوم"
+
+#: card/meter.py
+msgid "Hours remaining"
+msgstr "الساعات المتبقية"
+
+#: card/meter.py
+msgid "Hours since previous"
+msgstr "الساعات منذ القراءة السابقة"
+
+#: card/meter.py
+msgid "Inspection"
+msgstr "فحص"
+
+#: card/meter.py
+msgid "Intervals cannot be negative."
+msgstr "الفترات لا يمكن أن تكون سالبة."
+
+#: card/meter.py
+msgid "Kilometres"
+msgstr "كيلومترات"
+
+#: card/meter.py
+msgid "Kit items"
+msgstr "أصناف الطقم"
+
+#: card/meter.py
+msgid "Kit row {0}: the quantity must be above zero."
+msgstr "صف الطقم {0}: الكمية يجب أن تكون أكبر من صفر."
+
+#: card/meter.py
+msgid "Last service date"
+msgstr "تاريخ آخر صيانة"
+
+#: card/meter.py
+msgid "Last service meter"
+msgstr "عداد آخر صيانة"
+
+#: card/meter.py
+msgid "Legacy Fueling Log"
+msgstr "سجل التعبئة القديم"
+
+#: card/meter.py
+msgid "Legacy created by"
+msgstr "أنشأه في النظام القديم"
+
+#: card/meter.py
+msgid "Legacy created on"
+msgstr "تاريخ الإنشاء في النظام القديم"
+
+#: card/meter.py
+msgid "Legacy document status"
+msgstr "حالة المستند في النظام القديم"
+
+#: card/meter.py
+msgid "Legacy record"
+msgstr "السجل القديم"
+
+#: card/meter.py
+msgid "Legacy values (JSON)"
+msgstr "القيم الأصلية (JSON)"
+
+#: card/meter.py
+msgid "Litres filled"
+msgstr "اللترات المعبأة"
+
+#: card/meter.py
+msgid "Litres over those hours"
+msgstr "اللترات خلال هذه الساعات"
+
+#: card/meter.py
+msgid "Lower than the previous valid reading {0} ({1})."
+msgstr "أقل من آخر قراءة سليمة {0} ({1})."
+
+#: card/meter.py
+msgid "Maintenance Order"
+msgstr "أمر صيانة"
+
+#: card/meter.py
+msgid "Maintenance order {0} for {1}"
+msgstr "أمر الصيانة {0} للمعدة {1}"
+
+#: card/meter.py
+msgid "Maintenance plan"
+msgstr "خطة الصيانة"
+
+#: card/meter.py
+msgid "Maintenance status"
+msgstr "حالة الصيانة"
+
+#: card/meter.py
+msgid "Material Request {0} already exists for this order."
+msgstr "طلب المواد {0} موجود بالفعل لهذا الأمر."
+
+#: card/meter.py
+msgid "Material Request {0} created."
+msgstr "تم إنشاء طلب المواد {0}."
+
+#: card/meter.py
+msgid "Meter reading at service"
+msgstr "قراءة العداد عند الصيانة"
+
+#: card/meter.py
+msgid "Meter reading record"
+msgstr "سجل قراءة العداد"
+
+#: card/meter.py
+msgid "Meter readings are never deleted; mark the reading Rejected with a reason."
+msgstr "قراءات العداد لا تُحذف أبدًا؛ علّم القراءة مرفوضة مع ذكر السبب."
+
+#: card/meter.py
+msgid "Metered hours"
+msgstr "الساعات المقاسة بالعداد"
+
+#: card/meter.py
+msgid "Meters and maintenance"
+msgstr "العدادات والصيانة"
+
+#: card/meter.py
+msgid "Next service at (meter)"
+msgstr "الصيانة القادمة عند (عداد)"
+
+#: card/meter.py
+msgid "No Service Record"
+msgstr "لا يوجد سجل صيانة سابق"
+
+#: card/meter.py
+msgid "No meter reading in the legacy Fueling Log."
+msgstr "لا توجد قراءة عداد في سجل التعبئة القديم."
+
+#: card/meter.py
+msgid "Notify Card Managers when service is due"
+msgstr "تنبيه مديري CARD عند استحقاق الصيانة"
+
+#: card/meter.py
+msgid "Only a Card Manager can change the status of a meter reading."
+msgstr "مدير CARD فقط يمكنه تغيير حالة قراءة العداد."
+
+#: card/meter.py
+msgid "Only a System Manager can run the equipment_manager retirement."
+msgstr "مدير النظام فقط يمكنه تنفيذ إيقاف equipment_manager."
+
+#: card/meter.py
+msgid "Only due and due soon"
+msgstr "المستحقة والقريبة فقط"
+
+#: card/meter.py
+msgid "Out of service from"
+msgstr "خارج الخدمة من"
+
+#: card/meter.py
+msgid "Parts and materials"
+msgstr "قطع الغيار والمواد"
+
+#: card/meter.py
+msgid "Plan key"
+msgstr "مفتاح الخطة"
+
+#: card/meter.py
+msgid "Plan name"
+msgstr "اسم الخطة"
+
+#: card/meter.py
+msgid "Plan {0} is not the active plan of this equipment."
+msgstr "الخطة {0} ليست الخطة الفعالة لهذه المعدة."
+
+#: card/meter.py
+msgid "Previous last service date"
+msgstr "تاريخ آخر صيانة السابق"
+
+#: card/meter.py
+msgid "Previous last service meter"
+msgstr "عداد آخر صيانة السابق"
+
+#: card/meter.py
+msgid "Previous reading"
+msgstr "القراءة السابقة"
+
+#: card/meter.py
+msgid "Purchase Invoice {0} already exists for this order."
+msgstr "فاتورة الشراء {0} موجودة بالفعل لهذا الأمر."
+
+#: card/meter.py
+msgid "Reading"
+msgstr "القراءة"
+
+#: card/meter.py
+msgid "Reading type"
+msgstr "نوع القراءة"
+
+#: card/meter.py
+msgid "Readings from {0} are recorded by CARD from their document."
+msgstr "قراءات {0} يسجلها CARD من مستندها."
+
+#: card/meter.py
+msgid "Row {0}: litres and meter reading cannot be negative."
+msgstr "الصف {0}: اللترات وقراءة العداد لا يمكن أن تكون سالبة."
+
+#: card/meter.py
+msgid "Row {0}: litres or a meter reading need the equipment."
+msgstr "الصف {0}: اللترات أو قراءة العداد تحتاج المعدة."
+
+#: card/meter.py
+msgid "Row {0}: the quantity must be above zero."
+msgstr "الصف {0}: الكمية يجب أن تكون أكبر من صفر."
+
+#: card/meter.py
+msgid "Scheduled Service"
+msgstr "صيانة دورية"
+
+#: card/meter.py
+msgid "Service Due"
+msgstr "صيانة مطلوبة"
+
+#: card/meter.py
+msgid "Service date"
+msgstr "تاريخ الصيانة"
+
+#: card/meter.py
+msgid "Service due: {0} (next service at {1})"
+msgstr "صيانة مطلوبة: {0} (الصيانة القادمة عند {1})"
+
+#: card/meter.py
+msgid "Service every (hours)"
+msgstr "الصيانة كل (ساعة)"
+
+#: card/meter.py
+msgid "Service every (litres of diesel)"
+msgstr "الصيانة كل (لتر ديزل)"
+
+#: card/meter.py
+msgid "Service kit"
+msgstr "طقم الصيانة"
+
+#: card/meter.py
+msgid "Service type"
+msgstr "نوع الصيانة"
+
+#: card/meter.py
+msgid "Set the service interval in hours or in litres."
+msgstr "حدد فترة الصيانة بالساعات أو باللترات."
+
+#: card/meter.py
+msgid "Set the supplier on the order first."
+msgstr "حدد المورد في الأمر أولًا."
+
+#: card/meter.py
+msgid "Since the previous valid reading"
+msgstr "منذ آخر قراءة سليمة"
+
+#: card/meter.py
+msgid "Source document"
+msgstr "المستند المصدر"
+
+#: card/meter.py
+msgid "Source document type"
+msgstr "نوع المستند المصدر"
+
+#: card/meter.py
+msgid "Status reason"
+msgstr "سبب الحالة"
+
+#: card/meter.py
+msgid "Submit the maintenance order first."
+msgstr "اعتمد أمر الصيانة أولًا."
+
+#: card/meter.py
+msgid "Supplier (workshop / parts)"
+msgstr "المورد (ورشة / قطع غيار)"
+
+#: card/meter.py
+msgid "Suspect"
+msgstr "مشكوك فيها"
+
+#: card/meter.py
+msgid "The diesel fill {0} was cancelled."
+msgstr "تم إلغاء تعبئة الديزل {0}."
+
+#: card/meter.py
+msgid "The equipment meter reading cannot be negative."
+msgstr "قراءة عداد المعدة لا يمكن أن تكون سالبة."
+
+#: card/meter.py
+msgid "The litres of the machines ({0}) are more than the litres of the fill ({1})."
+msgstr "لترات المعدات ({0}) أكثر من لترات التعبئة ({1})."
+
+#: card/meter.py
+msgid "The maintenance order {0} was cancelled."
+msgstr "تم إلغاء أمر الصيانة {0}."
+
+#: card/meter.py
+msgid "The meter reading cannot be negative."
+msgstr "قراءة العداد لا يمكن أن تكون سالبة."
+
+#: card/meter.py
+msgid "The order has no parts."
+msgstr "الأمر ليس فيه قطع غيار."
+
+#: card/meter.py
+msgid "The service date cannot be in the future."
+msgstr "تاريخ الصيانة لا يمكن أن يكون في المستقبل."
+
+#: card/meter.py
+msgid "The warning must come before the service interval."
+msgstr "التنبيه يجب أن يأتي قبل فترة الصيانة."
+
+#: card/meter.py
+msgid "Warn before (hours)"
+msgstr "التنبيه قبل (ساعة)"
+
+#: card/meter.py
+msgid "Warn before service (hours)"
+msgstr "التنبيه قبل الصيانة (ساعة)"
+
+#: card/meter.py
+msgid "Within Limit"
+msgstr "ضمن الحد"
+
+#: card/meter.py
+msgid "Work done / notes"
+msgstr "الأعمال المنفذة / ملاحظات"
+
+#: card/meter.py
+msgid "equipment_manager archive {0}: SHA-256 {1}; records {2}"
+msgstr "أرشيف equipment_manager {0}: SHA-256 {1}؛ السجلات {2}"
+
+#: card/meter.py
+msgid "equipment_manager is not installed on this site."
+msgstr "equipment_manager غير مثبت على هذا الموقع."
+
+#: card/meter.py
+msgid "{0} hours since the previous reading {1} in {2} days is more than {3} hours a day."
+msgstr "{0} ساعة منذ القراءة السابقة {1} خلال {2} يوم أكثر من {3} ساعة في اليوم."
+
+#: card/meter.py
+msgid "A meter reading cannot be in the future."
+msgstr "قراءة العداد لا يمكن أن تكون في المستقبل."
+
+#: card/meter.py
+msgid "Higher than the later valid reading {0} ({1})."
+msgstr "أعلى من القراءة السليمة اللاحقة {0} ({1})."
+
+#: card/meter.py
+msgid "The source document {0} is cancelled; its reading stays Rejected."
+msgstr "المستند المصدر {0} ملغي؛ تبقى قراءته مرفوضة."
+
+#: card/meter.py
+msgid "The legacy Fueling Log was cancelled; its reading stays Rejected."
+msgstr "سجل التعبئة القديم ملغي؛ تبقى قراءته مرفوضة."
+
+#: card/meter.py
+msgid "The reading is still implausible: {0}"
+msgstr "القراءة ما زالت غير معقولة: {0}"

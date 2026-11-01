@@ -1,0 +1,158 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-01 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "plan_name",
+  "applies_to",
+  "equipment_model",
+  "card_equipment",
+  "column_break_int",
+  "interval_hours",
+  "interval_litres",
+  "warn_before_hours",
+  "is_active",
+  "kit_section",
+  "kit",
+  "plan_key"
+ ],
+ "fields": [
+  {
+   "fieldname": "plan_name",
+   "fieldtype": "Data",
+   "label": "Plan name",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "applies_to",
+   "fieldtype": "Select",
+   "label": "Applies to",
+   "options": "Equipment Model\nEquipment",
+   "reqd": 1,
+   "default": "Equipment Model",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "equipment_model",
+   "fieldtype": "Link",
+   "label": "Equipment model",
+   "options": "Card Equipment Model",
+   "depends_on": "eval:doc.applies_to==\"Equipment Model\"",
+   "mandatory_depends_on": "eval:doc.applies_to==\"Equipment Model\""
+  },
+  {
+   "fieldname": "card_equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "depends_on": "eval:doc.applies_to==\"Equipment\"",
+   "mandatory_depends_on": "eval:doc.applies_to==\"Equipment\""
+  },
+  {
+   "fieldname": "column_break_int",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "interval_hours",
+   "fieldtype": "Float",
+   "label": "Service every (hours)",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "interval_litres",
+   "fieldtype": "Float",
+   "label": "Service every (litres of diesel)"
+  },
+  {
+   "fieldname": "warn_before_hours",
+   "fieldtype": "Float",
+   "label": "Warn before (hours)"
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active",
+   "default": "1"
+  },
+  {
+   "fieldname": "kit_section",
+   "fieldtype": "Section Break",
+   "label": "Service kit"
+  },
+  {
+   "fieldname": "kit",
+   "fieldtype": "Table",
+   "label": "Kit items",
+   "options": "Card Maintenance Kit Item"
+  },
+  {
+   "fieldname": "plan_key",
+   "fieldtype": "Data",
+   "label": "Plan key",
+   "hidden": 1,
+   "read_only": 1,
+   "unique": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Maintenance Plan",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "format:CMP-{####}",
+ "naming_rule": "Expression",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  }
+ ],
+ "title_field": "plan_name",
+ "show_title_field_in_link": 0
+}

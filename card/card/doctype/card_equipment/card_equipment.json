@@ -108,6 +108,8 @@
   "column_break_bitf",
   "service_interval_liters",
   "last_service_meter",
+  "maintenance_status",
+  "next_service_meter",
   "exit_tab",
   "exit_section",
   "exit_date",
@@ -804,6 +806,22 @@
    "hidden": 1,
    "read_only": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "maintenance_status",
+   "fieldtype": "Select",
+   "label": "Maintenance status",
+   "options": "\nNo Service Record\nWithin Limit\nDue Soon\nService Due",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "next_service_meter",
+   "fieldtype": "Float",
+   "label": "Next service at (meter)",
+   "read_only": 1,
+   "no_copy": 1
   }
  ],
  "grid_page_length": 50,
@@ -821,7 +839,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-11-01 19:30:00.000000",
+ "modified": "2026-11-01 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

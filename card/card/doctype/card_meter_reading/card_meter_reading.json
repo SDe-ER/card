@@ -1,0 +1,260 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-11-01 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "equipment",
+  "asset",
+  "company",
+  "reading_time",
+  "reading",
+  "reading_type",
+  "column_break_src",
+  "source_type",
+  "source_doctype",
+  "source_name",
+  "litres",
+  "status",
+  "status_reason",
+  "computed_section",
+  "previous_reading",
+  "hours_since_previous",
+  "column_break_calc",
+  "consumption_rate",
+  "legacy_section",
+  "legacy_record",
+  "legacy_created",
+  "legacy_owner",
+  "column_break_leg",
+  "legacy_docstatus",
+  "legacy_values"
+ ],
+ "fields": [
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "label": "Asset",
+   "options": "Asset",
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "reading_time",
+   "fieldtype": "Datetime",
+   "label": "Reading time",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "reading",
+   "fieldtype": "Float",
+   "label": "Reading",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "reading_type",
+   "fieldtype": "Select",
+   "label": "Reading type",
+   "options": "Hours\nKilometres",
+   "default": "Hours"
+  },
+  {
+   "fieldname": "column_break_src",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "source_type",
+   "fieldtype": "Select",
+   "label": "Source",
+   "options": "Diesel Fill\nMaintenance Order\nManual\nLegacy Fueling Log",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "default": "Manual"
+  },
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Link",
+   "label": "Source document type",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Source document",
+   "options": "source_doctype",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "litres",
+   "fieldtype": "Float",
+   "label": "Litres filled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Valid\nSuspect\nRejected",
+   "default": "Valid",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status_reason",
+   "fieldtype": "Small Text",
+   "label": "Status reason"
+  },
+  {
+   "fieldname": "computed_section",
+   "fieldtype": "Section Break",
+   "label": "Since the previous valid reading",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "previous_reading",
+   "fieldtype": "Float",
+   "label": "Previous reading",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hours_since_previous",
+   "fieldtype": "Float",
+   "label": "Hours since previous",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_calc",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "consumption_rate",
+   "fieldtype": "Float",
+   "label": "Consumption (litres per hour)",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "legacy_section",
+   "fieldtype": "Section Break",
+   "label": "Legacy record",
+   "collapsible": 1,
+   "depends_on": "eval:doc.source_type==\"Legacy Fueling Log\""
+  },
+  {
+   "fieldname": "legacy_record",
+   "fieldtype": "Data",
+   "label": "Legacy record",
+   "read_only": 1,
+   "unique": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "legacy_created",
+   "fieldtype": "Datetime",
+   "label": "Legacy created on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "legacy_owner",
+   "fieldtype": "Data",
+   "label": "Legacy created by",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_leg",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "legacy_docstatus",
+   "fieldtype": "Int",
+   "label": "Legacy document status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "legacy_values",
+   "fieldtype": "Code",
+   "label": "Legacy values (JSON)",
+   "options": "JSON",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Meter Reading",
+ "owner": "Administrator",
+ "row_format": "Dynamic",
+ "sort_field": "reading_time",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "CMR-.YYYY.-.#####",
+ "naming_rule": "Expression (old style)",
+ "permissions": [
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  }
+ ]
+}

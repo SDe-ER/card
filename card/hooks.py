@@ -143,6 +143,10 @@ permission_query_conditions = {
 	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.assignment_query_conditions",
 	# FR-077: a machine fitment row belongs to its equipment's company
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.fitment_query_conditions",
+	# FR-099/FR-100: meter readings, maintenance orders and machine plans belong to the equipment's company
+	"Card Meter Reading": "card.equipment_scope.reading_query_conditions",
+	"Card Maintenance Order": "card.equipment_scope.order_query_conditions",
+	"Card Maintenance Plan": "card.equipment_scope.plan_query_conditions",
 }
 
 has_permission = {
@@ -155,6 +159,9 @@ has_permission = {
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.has_fitment_permission",
 	# #113: a cancelled movement with a signed receipt (and so its receipt) is never deleted
 	"Employee Tool Custody": "card.card.doctype.employee_tool_custody.employee_tool_custody.has_custody_permission",
+	"Card Meter Reading": "card.equipment_scope.has_reading_permission",
+	"Card Maintenance Order": "card.equipment_scope.has_order_permission",
+	"Card Maintenance Plan": "card.equipment_scope.has_plan_permission",
 }
 
 # Document Events
@@ -228,7 +235,11 @@ doc_events = {
 
 scheduler_events = {
 	# #56: no-op unless Card Settings enables the daily location sync
-	"daily": ["card.transfer.sync_equipment_locations_daily"],
+	"daily": [
+		"card.transfer.sync_equipment_locations_daily",
+		# FR-100: maintenance status and service-due alerts
+		"card.maintenance.daily_maintenance_scan",
+	],
 }
 
 # scheduler_events = {

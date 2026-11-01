@@ -44,6 +44,11 @@ _DEFAULTS = {
 	"default_store_warehouse": "",
 	"tool_custody_warehouse": "",
 	"repeat_request_days": 30,
+	# FR-099/FR-100: meters and maintenance (replace equipment_manager)
+	"default_service_interval_hours": 300.0,
+	"maintenance_warn_before_hours": 50.0,
+	"max_meter_hours_per_day": 24.0,
+	"notify_maintenance_due": 1,
 }
 
 

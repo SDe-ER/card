@@ -49,6 +49,12 @@
   "tool_custody_warehouse",
   "materials_col",
   "repeat_request_days",
+  "maintenance_settings_section",
+  "default_service_interval_hours",
+  "maintenance_warn_before_hours",
+  "column_break_maint",
+  "max_meter_hours_per_day",
+  "notify_maintenance_due",
   "period_lock_tab",
   "period_lock_section",
   "period_lock_date",
@@ -445,12 +451,49 @@
   {
    "fieldname": "advanced_permissions_col",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maintenance_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Meters and maintenance"
+  },
+  {
+   "fieldname": "default_service_interval_hours",
+   "fieldtype": "Float",
+   "label": "Default service interval (hours)",
+   "default": "300",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "maintenance_warn_before_hours",
+   "fieldtype": "Float",
+   "label": "Warn before service (hours)",
+   "default": "50",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "column_break_maint",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "max_meter_hours_per_day",
+   "fieldtype": "Float",
+   "label": "Highest plausible meter hours per day",
+   "default": "24",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "notify_maintenance_due",
+   "fieldtype": "Check",
+   "label": "Notify Card Managers when service is due",
+   "default": "1",
+   "permlevel": 2
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-20 12:00:00.000000",
+ "modified": "2026-11-01 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

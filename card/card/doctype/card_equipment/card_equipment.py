@@ -105,6 +105,10 @@ class CardEquipment(Document):
 		# O3: the linked Asset carries the equipment as its accounting dimension,
 		# so depreciation entries land on the equipment in GL. No-op without the dimension.
 		sync_asset_dimension(self)
+		if self.get(ASSET_LINK_FIELD) and self.has_value_changed(ASSET_LINK_FIELD):
+			from card.meter import attach_asset_readings
+
+			attach_asset_readings(self.name, self.get(ASSET_LINK_FIELD))
 		if self.flags.get("card_asset_replaced"):
 			from card.asset_master import comment_replaced
 

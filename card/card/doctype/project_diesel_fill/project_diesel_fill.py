@@ -287,6 +287,7 @@ class ProjectDieselFill(Document):
 		# the project) is added in a later stage, gated by owner approval.
 		self.amount = flt(flt(self.litres) * flt(self.unit_price), 2)
 		self._check_equipment_mode()
+		self._check_machine_rows()
 		self._check_photos()
 		warnings = self._check_totalizer() + self._check_overlaps()
 		self.evidence_warnings = "\n".join(warnings) or None
@@ -322,6 +323,58 @@ class ProjectDieselFill(Document):
 		# Owner 2026-10-26 (Phase 1): the operations review is separate from the accounting submit
 		if self.review_status != OPERATIONS_APPROVED:
 			frappe.throw(_("The diesel fill needs operations approval before submit."))
+
+	def on_submit(self):
+		# FR-099: a fill that records machine meters writes their meter history
+		from card.meter import add_reading
+
+		when = self.closing_photo_time or self.date
+		if self.card_equipment and flt(self.equipment_meter_reading) > 0:
+			add_reading(
+				self.card_equipment,
+				self.equipment_meter_reading,
+				when,
+				"Diesel Fill",
+				self.doctype,
+				self.name,
+				litres=self.litres,
+			)
+		for row in self.equipment_filled:
+			if row.card_equipment and flt(row.hour_meter_reading) > 0:
+				add_reading(
+					row.card_equipment,
+					row.hour_meter_reading,
+					when,
+					"Diesel Fill",
+					self.doctype,
+					self.name,
+					litres=row.litres,
+				)
+
+	def on_cancel(self):
+		from card.meter import reject_for_source
+
+		reject_for_source(self.doctype, self.name, _("The diesel fill {0} was cancelled.").format(self.name))
+
+	def _check_machine_rows(self):
+		"""FR-099 per-machine fuelling: the litres given per machine never exceed the fill's
+		litres, and a meter reading or litres needs its machine. The diesel cost allocation is
+		unchanged (FR-033); the per-machine litres feed consumption and maintenance."""
+		total = 0.0
+		for row in self.equipment_filled:
+			if flt(row.litres) < 0 or flt(row.hour_meter_reading) < 0:
+				frappe.throw(_("Row {0}: litres and meter reading cannot be negative.").format(row.idx))
+			if (flt(row.litres) or flt(row.hour_meter_reading)) and not row.card_equipment:
+				frappe.throw(_("Row {0}: litres or a meter reading need the equipment.").format(row.idx))
+			total += flt(row.litres)
+		if total and flt(total, 3) > flt(self.litres, 3):
+			frappe.throw(
+				_("The litres of the machines ({0}) are more than the litres of the fill ({1}).").format(
+					flt(total, 3), flt(self.litres, 3)
+				)
+			)
+		if flt(self.equipment_meter_reading) < 0:
+			frappe.throw(_("The equipment meter reading cannot be negative."))
 
 	def _guard_source(self):
 		"""The source fields (read only on the form) come from the session import only, never from a
@@ -363,7 +416,7 @@ class ProjectDieselFill(Document):
 
 	def _check_equipment_mode(self):
 		"""One measured equipment (card_equipment) or a list of filled equipment, never both: the list
-		carries no litres, so the allocation stays recorded (one equipment) or estimated (hours split)."""
+		carries no cost split of its own (its machine litres are for meters and consumption only), so the allocation stays recorded (one equipment) or estimated (hours split)."""
 		if self.card_equipment and self.equipment_filled:
 			frappe.throw(
 				_("Choose either one equipment for the whole fill or the list of filled equipment, not both.")

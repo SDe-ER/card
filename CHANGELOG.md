@@ -15,6 +15,26 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **equipment_manager consolidated into CARD** (FR-099, FR-100, FR-101; Owner request 2026-11-01).
+  Reason: the separate equipment_manager app tracked diesel and maintenance per fill with site scripts (a broken 300 h
+  rule, a client-side Purchase Invoice with a fixed account) beside CARD's own diesel fills. New: append-only
+  **Card Meter Reading** history (`card.meter`) written by diesel fills (new per-machine `litres` and
+  `hour_meter_reading` in the fill's equipment rows, `equipment_meter_reading` on the fill), maintenance orders and
+  manual entries; Suspect / Rejected instead of edits or deletes; **Card Maintenance Plan**, **Card Maintenance Order**
+  (submittable) and their child tables (`card.maintenance`); maintenance status and next service meter on Card
+  Equipment, a daily scan (`scheduler_events.daily`) and a Card Manager alert; Card Settings maintenance section
+  (level 2: default interval 300 h, warning 50 h, highest plausible 24 h/day, alerts on); reports Equipment
+  Maintenance Status and Equipment Fuel Consumption; System Manager tools `card.legacy_equipment_manager.archive`,
+  `import_fueling_logs` (dry run by default, idempotent) and `verify`; the meter reconciliation report reads the
+  imported copies. Permissions: new DocTypes for System Manager / Card Manager (write), Card User (create readings
+  and orders), Card Supervisor and Accounts Manager (read); no delete right on readings; readings, orders and machine plans belong to the equipment's company (`card.equipment_scope`: `has_permission` + `permission_query_conditions`, as for assignments), a company-restricted user cannot write model plans, and due alerts reach only the Card Managers of that company. A manual reading cannot carry litres, legacy fields or another Asset, cannot be dated in the future, and a reading above a later one is Suspect; a status change back to Valid is checked again and refused for a cancelled source. Accounting: CARD still posts
+  nothing for meters or maintenance; the order creates only draft ERPNext Material Request / Purchase Invoice with the
+  user's own rights; diesel cost allocation (FR-033) unchanged, legacy litres never become cost. Data: new tables and
+  fields only; nothing in equipment_manager is changed or deleted. API: new whitelisted methods listed above
+  (`methods=` declared). Rollback: revert the branch; the new tables keep their rows until dropped by the owner; the
+  legacy app stays installed until a separate Owner GO.
+
 ### Changed
 - **ERPNext Asset owns the master data of a linked Card Equipment** (FR-098, Owner decisions D1/D3/D5 2026-11-01).
   Reason: linked equipment showed an empty chassis number and manufacture year while the Asset held them, and those
