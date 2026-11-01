@@ -23,18 +23,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   ← `asset_name`, `serial_no` ← `custom_chassis_no`, `manufacture_year` ← `custom_manufacture_year`, `image` ← `image`,
   `brand` ← Item brand, `equipment_type` ← mapped Asset Category. Values are copied exactly; an empty Asset value
   (0 for the year) keeps the CARD value, and a field is read-only only where the Asset fills it (`asset_owned_fields`,
-  hidden); `model` and `plate_no` become editable again on linked equipment (the Asset has no such fields). Optional
+  hidden); `model` and `plate_no` become editable again on linked equipment (the Asset has no such fields). The link
+  field gets a database index (the Asset hook looks equipment up by it). Optional
   site fields are read only when the Asset has them. The company is read-only once linked (it already had to match).
   A replaced CARD value is noted in a Comment and the Version. Asset `on_update`, `on_update_after_submit` and
-  `on_cancel` update the one linked equipment directly (system sync of read-only mirrors, with Version and Comment);
-  a chassis already used by another equipment is not copied; a failure is logged and never blocks the Asset save.
+  `on_cancel` re-save every linked equipment with its full validation as a system sync (the Asset editor needs no
+  Card Equipment write right: only the read-only mirrors change), each in its own savepoint; a chassis already used
+  by another equipment is not copied (on save and on sync, so the equipment stays savable); a failure is rolled back
+  to the savepoint and logged and never blocks the Asset save (deadlocks and lock timeouts are raised).
   CARD still never writes the Asset. Monthly card submit refuses hours on or after the Asset's disposal date when the
   Asset is Sold or Scrapped, and any hours when it is cancelled. The equipment form shows the Asset's customs, vehicle
   and engine data read-only (`get_asset_master_view`, GET; equipment and Asset read required; customs fees only for
   level-2 readers), never stored in CARD. Patch `v4_3_0.backfill_asset_master_fields` fills only empty values of
-  linked equipment and lists differing values in an Error Log report ("CARD asset master backfill") for the owner.
+  linked equipment; a differing CARD value is kept by the patch, noted in a Comment on the equipment and in an
+  Error Log report ("CARD asset master backfill"), and replaced by the Asset value (with history) at the next save
+  of that equipment.
   Insurance and documents stay CARD fields (D3). Impact: permissions unchanged (no role gains access); no accounting
-  change; data — empty master fields of linked equipment filled by the patch, no value overwritten unattended; API —
+  change; data — empty master fields of linked equipment filled by the patch; differing values are replaced only at
+  the next save of the equipment, with a Comment and Version; private Asset images are not copied; API —
   new GET `card.asset_master.get_asset_master_view`, `get_asset_prefill` also returns `asset_owned_fields`. Rollback:
   revert the commit; the patch's fills stay (they are the Asset's values) and are listed in its Error Log report.
   Branch `feat/asset-master-ownership`, not merged.

@@ -320,9 +320,13 @@ class TestAssetLink(IntegrationTestCase):
 				dup.save(ignore_permissions=True)
 
 	def test_details_read_only_when_linked(self):
+		# FR-098: read-only where the Asset fills the field; model and plate number have no
+		# Asset source and stay editable
 		meta = frappe.get_meta("Card Equipment")
-		for fieldname in ("equipment_name", "brand", "model", "manufacture_year", "serial_no", "plate_no"):
+		for fieldname in ("equipment_name", "brand", "manufacture_year", "serial_no"):
 			self.assertIn("الأصل_في_erpnext", meta.get_field(fieldname).read_only_depends_on or "", fieldname)
+		for fieldname in ("model", "plate_no"):
+			self.assertFalse(meta.get_field(fieldname).read_only_depends_on, fieldname)
 		self.assertEqual(
 			meta.get_field("equipment_type").read_only_depends_on, "eval:doc.equipment_type_from_asset"
 		)

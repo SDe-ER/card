@@ -22,6 +22,7 @@ when the Asset DocType has them, so a site without them keeps working.
 
 import frappe
 from frappe import _
+from frappe.model import get_permitted_fields
 from frappe.utils import cint, cstr
 
 from card.dimension import ASSET_LINK_FIELD
@@ -66,6 +67,16 @@ FINANCIAL_PERMLEVEL = 2
 OUT_OF_SERVICE_STATUSES = frozenset({"Sold", "Scrapped"})
 
 
+def _coerce(fieldname, value):
+	"""The Asset value in the Card Equipment field's own type, so an Int site field held
+	as text ("2015") compares equal to the stored 2015. Text stays exactly as stored."""
+	if value is None:
+		return None
+	if fieldname == "manufacture_year":
+		return cint(value)
+	return value
+
+
 def _known(fieldname, value):
 	"""False for a value that means "not recorded" on the Asset."""
 	if value is None:
@@ -95,8 +106,13 @@ def asset_master_values(asset):
 		return {}
 	values = {}
 	for card_field, source in direct.items():
-		if _known(card_field, row.get(source)):
-			values[card_field] = row.get(source)
+		value = _coerce(card_field, row.get(source))
+		if card_field == "image" and cstr(value).startswith("/private/"):
+			# a private Asset file would become readable to every equipment reader
+			# (Frappe attaches the URL to the equipment); only public images are taken
+			continue
+		if _known(card_field, value):
+			values[card_field] = value
 	if not values.get("equipment_name"):
 		values["equipment_name"] = asset  # the Asset name when it has no asset_name (v3.0.0 rule)
 	brand = row.item_code and frappe.db.get_value("Item", row.item_code, "brand")
@@ -115,14 +131,34 @@ def owned_list(values):
 	return ",".join(field for field in MASTER_FIELDS if field in values)
 
 
+def duplicate_chassis_owner(doc, chassis):
+	"""Another equipment of the same company that already uses this chassis (CARD D1
+	rule), or None."""
+	from card.card.doctype.card_equipment.card_equipment import identity_key
+
+	key = identity_key(chassis)
+	if not key or not doc.get("company"):
+		return None
+	return frappe.db.get_value(
+		"Card Equipment",
+		{"company": doc.company, "serial_no_key": key, "name": ["!=", doc.name or ""]},
+		"name",
+	)
+
+
 def apply_asset_master(doc):
 	"""Set the Asset-owned fields of a Card Equipment from its linked Asset.
 
 	Returns [(fieldname, old, new)] for every value that changed. Fields the Asset has
-	no value for keep the CARD value. Without a link nothing is overwritten and the
-	owned list is cleared (the values entered so far stay)."""
+	no value for keep the CARD value. A chassis another equipment of the company already
+	uses is not copied (the equipment stays savable) and the field stays CARD's.
+	Without a link nothing is overwritten and the owned list is cleared (the values
+	entered so far stay)."""
 	asset = doc.get(ASSET_LINK_FIELD)
 	values = asset_master_values(asset) if asset else {}
+	if "serial_no" in values and duplicate_chassis_owner(doc, values["serial_no"]):
+		values.pop("serial_no")
+		doc.flags.card_duplicate_chassis = True
 	changes = []
 	for fieldname, value in values.items():
 		old = doc.get(fieldname)
@@ -163,83 +199,71 @@ def comment_replaced(doctype, name, asset, changes):
 
 
 def on_asset_change(doc, method=None):
-	"""Asset doc_events (on_update, on_update_after_submit, on_cancel): bring the one
-	linked Card Equipment's Asset-owned fields in line.
+	"""Asset doc_events (on_update, on_update_after_submit, on_cancel): bring every
+	Card Equipment linked to this Asset in line.
 
-	The Asset save is the authorized change; the equipment fields it updates are
-	read-only mirrors in CARD, so they are written directly (db.set_value) with an
-	explicit Version and Comment for the history, and with CARD's chassis uniqueness
-	rule still applied. CARD never blocks an ERPNext Asset save: any failure is logged."""
+	The Asset save is the authorized change. Each equipment is saved with its full
+	validation (chassis uniqueness and its lock, type/model, history), as a system
+	sync: the Asset editor needs no Card Equipment write right because only the
+	read-only Asset-owned fields change. Each equipment runs in its own savepoint, so a
+	failure leaves nothing half-written; it is logged and never blocks the Asset save,
+	except database deadlocks and lock timeouts, which are raised so the whole
+	transaction is retried rather than silently cut short."""
 	if frappe.flags.in_install or frappe.flags.in_migrate:
 		return
-	equipment = frappe.db.get_value("Card Equipment", {ASSET_LINK_FIELD: doc.name}, "name")
-	if not equipment:
-		return
-	try:
-		sync_equipment_from_asset(equipment)
-	except Exception:
-		frappe.log_error(title=_("CARD: Asset {0} sync to equipment {1} failed").format(doc.name, equipment))
+	for equipment in frappe.get_all("Card Equipment", {ASSET_LINK_FIELD: doc.name}, pluck="name"):
+		save_point = "card_asset_sync_" + frappe.generate_hash(length=8)
+		frappe.db.savepoint(save_point)
+		try:
+			sync_equipment_from_asset(equipment)
+		except (frappe.QueryDeadlockError, frappe.QueryTimeoutError):
+			raise
+		except Exception:
+			frappe.db.rollback(save_point=save_point)
+			frappe.log_error(
+				title=_("CARD: Asset {0} sync to equipment {1} failed").format(doc.name, equipment)
+			)
 
 
 def sync_equipment_from_asset(equipment):
-	"""Update one Card Equipment from its Asset (system sync). Returns the changes made."""
+	"""Re-save one Card Equipment so it takes its Asset's master values (system sync).
+	Returns the changes made; nothing is saved when nothing changes."""
 	eq = frappe.get_doc("Card Equipment", equipment)
-	asset = eq.get(ASSET_LINK_FIELD)
-	before = {f: eq.get(f) for f in (*MASTER_FIELDS, OWNED_LIST_FIELD, "equipment_type_from_asset")}
-	changes = apply_asset_master(eq)
-	changes = _keep_unique_identity(eq, changes)
-	updates = {f: eq.get(f) for f in before if eq.get(f) != before[f]}
-	if not updates:
+	probe = frappe.get_doc(eq.as_dict())
+	changes = apply_asset_master(probe)
+	unchanged = all(eq.get(f) == probe.get(f) for f in (OWNED_LIST_FIELD, "equipment_type_from_asset"))
+	if probe.flags.get("card_duplicate_chassis"):
+		_note_duplicate_chassis(eq, probe)
+	if not changes and unchanged:
 		return []
-	if "serial_no" in updates:
-		from card.card.doctype.card_equipment.card_equipment import identity_key
-
-		updates["serial_no_key"] = identity_key(updates["serial_no"])
-	frappe.db.set_value("Card Equipment", equipment, updates)
-	if changes:
-		frappe.get_doc(
-			{
-				"doctype": "Version",
-				"ref_doctype": "Card Equipment",
-				"docname": equipment,
-				"data": frappe.as_json({"changed": [[f, old, new] for f, old, new in changes]}),
-			}
-		).insert(ignore_permissions=True)  # history row of a system sync
-		comment_replaced("Card Equipment", equipment, asset, changes)
+	eq.flags.card_asset_sync = True
+	# system sync of read-only mirrors: the Asset editor's right is the authority
+	eq.save(ignore_permissions=True, ignore_version=False)  # the history is the audit trail: always kept
 	return changes
 
 
-def _keep_unique_identity(eq, changes):
-	"""A chassis number from the Asset that another equipment of the company already uses
-	is not copied (CARD's D1 rule); the equipment keeps its value and a Comment says why."""
-	from card.card.doctype.card_equipment.card_equipment import identity_key
-
-	for fieldname, old, new in list(changes):
-		if fieldname != "serial_no":
-			continue
-		key = identity_key(new)
-		other = key and frappe.db.get_value(
-			"Card Equipment",
-			{"company": eq.company, "serial_no_key": key, "name": ["!=", eq.name]},
-			"name",
-		)
-		if other:
-			eq.set("serial_no", old)
-			owned = [f for f in cstr(eq.get(OWNED_LIST_FIELD)).split(",") if f and f != "serial_no"]
-			eq.set(OWNED_LIST_FIELD, ",".join(owned))
-			changes.remove((fieldname, old, new))
-			frappe.get_doc(
-				{
-					"doctype": "Comment",
-					"comment_type": "Info",
-					"reference_doctype": "Card Equipment",
-					"reference_name": eq.name,
-					"content": _(
-						"Chassis number {0} from ERPNext Asset {1} was not copied: equipment {2} already uses it."
-					).format(new, eq.get(ASSET_LINK_FIELD), other),
-				}
-			).insert(ignore_permissions=True)  # audit note of a system sync
-	return changes
+def _note_duplicate_chassis(eq, probe):
+	"""One audit note when an Asset chassis cannot be copied because another equipment
+	uses it; not repeated while the situation stays the same. The other equipment is not
+	named (its reader rights are not checked here)."""
+	chassis = frappe.db.get_value("Asset", eq.get(ASSET_LINK_FIELD), DIRECT_FIELDS["serial_no"])
+	content = _(
+		"Chassis number {0} from ERPNext Asset {1} was not copied: another equipment of the company already uses it."
+	).format(chassis, eq.get(ASSET_LINK_FIELD))
+	if frappe.db.exists(
+		"Comment",
+		{"reference_doctype": "Card Equipment", "reference_name": eq.name, "content": content},
+	):
+		return
+	frappe.get_doc(
+		{
+			"doctype": "Comment",
+			"comment_type": "Info",
+			"reference_doctype": "Card Equipment",
+			"reference_name": eq.name,
+			"content": content,
+		}
+	).insert(ignore_permissions=True)  # audit note of a system sync
 
 
 # ---------- disposal / sale ----------
@@ -294,12 +318,14 @@ def get_asset_master_view(equipment: str):
 		return {"asset": None, "fields": []}
 	frappe.has_permission("Asset", "read", asset, throw=True)
 	meta = frappe.get_meta("Asset")
-	fields = [f for f in VIEW_FIELDS if meta.has_field(f)]
+	permitted = set(get_permitted_fields("Asset", permission_type="read"))
+	fields = [f for f in VIEW_FIELDS if meta.has_field(f) and f in permitted]
 	if FINANCIAL_PERMLEVEL not in eq.get_permlevel_access("read"):
 		fields = [f for f in fields if f not in FINANCIAL_VIEW_FIELDS]
 	row = frappe.db.get_value("Asset", asset, fields, as_dict=True) or {}
 	out_of_service, status, disposal_date = asset_service_state(asset)
 	return {
+		"equipment": eq.name,
 		"asset": asset,
 		"out_of_service": out_of_service,
 		"status": status,

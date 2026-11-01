@@ -93,6 +93,17 @@ class TestAssetMaster(IntegrationTestCase):
 			frappe.db.set_value("Asset", asset, values)
 		return asset
 
+	def _comments(self, equipment, text):
+		return frappe.get_all(
+			"Comment",
+			{
+				"reference_doctype": "Card Equipment",
+				"reference_name": equipment,
+				"content": ["like", f"%{text}%"],
+			},
+			pluck="name",
+		)
+
 	def _rented(self, **kw):
 		"""A rented equipment (no Asset): rented directions need a supplier and a rate."""
 		supplier = frappe.new_doc("Supplier")
@@ -148,16 +159,68 @@ class TestAssetMaster(IntegrationTestCase):
 		eq.serial_no = "TYPED-OVER"
 		eq.save(ignore_permissions=True)
 		self.assertEqual(eq.serial_no, "ASSET-CH-7")
-		self.assertTrue(
-			frappe.db.exists(
-				"Comment",
-				{
-					"reference_doctype": "Card Equipment",
-					"reference_name": eq.name,
-					"content": ["like", "%TYPED-OVER%"],
-				},
-			)
+		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "serial_no"), "ASSET-CH-7")
+		# the typed value was never stored: nothing to note
+		self.assertFalse(self._comments(eq.name, "TYPED-OVER"))
+
+	def test_a_stored_card_value_replaced_by_the_asset_is_noted(self):
+		asset = self._asset(custom_chassis_no="ASSET-CH-8")
+		eq = self._make_equipment(**{LINK: asset})
+		frappe.db.set_value(
+			"Card Equipment", eq.name, {"serial_no": "STORED-OLD", "serial_no_key": "STOREDOLD"}
 		)
+		eq.reload()
+		eq.save(ignore_permissions=True)
+		self.assertEqual(eq.serial_no, "ASSET-CH-8")
+		self.assertTrue(self._comments(eq.name, "STORED-OLD"))
+
+	def test_save_does_not_copy_a_chassis_another_equipment_uses(self):
+		self._rented(serial_no="DUP-SAVE-1")
+		asset = self._asset(custom_chassis_no="DUP-SAVE-1")
+		eq = self._make_equipment(serial_no="OWN-1", **{LINK: asset})  # saves: no duplicate error
+		self.assertEqual(eq.serial_no, "OWN-1")
+		self.assertNotIn("serial_no", eq.get(OWNED_LIST_FIELD).split(","))
+		eq.site_location = "SITE-B"
+		eq.save(ignore_permissions=True)  # still savable
+		self.assertEqual(eq.serial_no, "OWN-1")
+
+	def test_year_held_as_text_compares_as_a_number(self):
+		from card.asset_master import _coerce
+
+		self.assertEqual(_coerce("manufacture_year", "2015"), 2015)
+		self.assertEqual(_coerce("manufacture_year", 2015), 2015)
+		self.assertEqual(_coerce("serial_no", " x "), " x ")  # text untouched
+		with patch("card.asset_master.frappe.db.get_value", wraps=frappe.db.get_value):
+			asset = self._asset(custom_manufacture_year=2015)
+			eq = self._make_equipment(**{LINK: asset})
+			versions = frappe.db.count("Version", {"ref_doctype": "Card Equipment", "docname": eq.name})
+			on_asset_change(frappe.get_doc("Asset", asset))
+			self.assertEqual(
+				frappe.db.count("Version", {"ref_doctype": "Card Equipment", "docname": eq.name}), versions
+			)
+
+	def test_private_asset_image_is_not_copied(self):
+		asset = self._asset(image="/private/files/secret.png")
+		eq = self._make_equipment(**{LINK: asset})
+		self.assertNotEqual(eq.image, "/private/files/secret.png")
+		self.assertNotIn("image", eq.get(OWNED_LIST_FIELD).split(","))
+
+	def test_switching_the_link_takes_the_new_assets_values(self):
+		first = self._asset(custom_chassis_no="SW-A")
+		second = self._asset(custom_chassis_no="SW-B")
+		eq = self._make_equipment(**{LINK: first})
+		eq.set(LINK, second)
+		eq.save(ignore_permissions=True)
+		self.assertEqual(eq.serial_no, "SW-B")
+		self.assertEqual(eq.equipment_name, frappe.db.get_value("Asset", second, "asset_name"))
+
+	def test_prefill_returns_the_owned_list(self):
+		from card.api import get_asset_prefill
+
+		asset = self._asset(custom_chassis_no="PF-1")
+		values = get_asset_prefill(asset)
+		self.assertEqual(values["serial_no"], "PF-1")
+		self.assertIn("serial_no", values[OWNED_LIST_FIELD].split(","))
 
 	def test_unlinking_keeps_the_values_and_unlocks_them(self):
 		asset = self._asset(custom_chassis_no="KEEP-ME")
@@ -169,11 +232,14 @@ class TestAssetMaster(IntegrationTestCase):
 
 	def test_owned_fields_are_read_only_only_when_the_asset_fills_them(self):
 		meta = frappe.get_meta("Card Equipment")
-		for field in ("brand", "model", "manufacture_year", "serial_no", "plate_no", "image"):
+		for field in ("brand", "manufacture_year", "serial_no", "image"):
 			rule = meta.get_field(field).read_only_depends_on or ""
 			self.assertIn(LINK, rule, field)
 			self.assertIn(f'includes("{field}")', rule, field)
 		self.assertIn(LINK, meta.get_field("company").read_only_depends_on or "")
+		for field in ("model", "plate_no"):  # no Asset source: always CARD's
+			self.assertFalse(meta.get_field(field).read_only_depends_on, field)
+		self.assertTrue(meta.get_field(LINK).search_index)
 		self.assertTrue(meta.get_field(OWNED_LIST_FIELD).hidden)
 
 	def test_rented_equipment_is_untouched(self):
@@ -226,9 +292,10 @@ class TestAssetMaster(IntegrationTestCase):
 	def test_asset_change_never_breaks_the_asset_save(self):
 		asset = self._asset()
 		self._make_equipment(**{LINK: asset})
+		logs = frappe.db.count("Error Log")
 		with patch("card.asset_master.sync_equipment_from_asset", side_effect=RuntimeError("boom")):
 			on_asset_change(frappe.get_doc("Asset", asset))  # must not raise
-		self.assertTrue(frappe.db.exists("Error Log", {"method": ["like", f"%{asset}%"]}))
+		self.assertEqual(frappe.db.count("Error Log") - logs, 1)
 
 	def test_asset_change_does_not_copy_a_chassis_used_by_another_equipment(self):
 		asset = self._asset(custom_chassis_no="")
@@ -236,19 +303,79 @@ class TestAssetMaster(IntegrationTestCase):
 		other = self._rented(serial_no="TAKEN-1")
 		frappe.db.set_value("Asset", asset, "custom_chassis_no", "TAKEN-1")
 		on_asset_change(frappe.get_doc("Asset", asset))
+		on_asset_change(frappe.get_doc("Asset", asset))  # same situation again: one note only
 		eq.reload()
 		self.assertEqual(eq.serial_no, "MINE-1")
 		self.assertNotIn("serial_no", (eq.get(OWNED_LIST_FIELD) or "").split(","))
-		self.assertTrue(
-			frappe.db.exists(
-				"Comment",
-				{
-					"reference_doctype": "Card Equipment",
-					"reference_name": eq.name,
-					"content": ["like", f"%{other.name}%"],
-				},
-			)
+		notes = self._comments(eq.name, "TAKEN-1")
+		self.assertEqual(len(notes), 1)
+		self.assertFalse(self._comments(eq.name, other.name))  # the other equipment is not named
+
+	def test_hook_twice_changes_nothing_the_second_time(self):
+		asset = self._asset(custom_chassis_no="TWICE-1")
+		eq = self._make_equipment(**{LINK: asset})
+		frappe.db.set_value("Asset", asset, "custom_chassis_no", "TWICE-2")
+		on_asset_change(frappe.get_doc("Asset", asset))
+		count = frappe.db.count("Version", {"ref_doctype": "Card Equipment", "docname": eq.name})
+		comments = frappe.db.count(
+			"Comment", {"reference_doctype": "Card Equipment", "reference_name": eq.name}
 		)
+		on_asset_change(frappe.get_doc("Asset", asset))
+		self.assertEqual(
+			frappe.db.count("Version", {"ref_doctype": "Card Equipment", "docname": eq.name}), count
+		)
+		self.assertEqual(
+			frappe.db.count("Comment", {"reference_doctype": "Card Equipment", "reference_name": eq.name}),
+			comments,
+		)
+
+	def test_failed_sync_leaves_nothing_half_written(self):
+		asset = self._asset(custom_chassis_no="ATOM-OLD")
+		eq = self._make_equipment(**{LINK: asset})
+		frappe.db.set_value("Asset", asset, "custom_chassis_no", "ATOM-NEW")
+		logs = frappe.db.count("Error Log")
+		with patch("card.asset_master.comment_replaced", side_effect=RuntimeError("audit failed")):
+			on_asset_change(frappe.get_doc("Asset", asset))  # must not raise
+		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "serial_no"), "ATOM-OLD")
+		self.assertEqual(frappe.db.count("Error Log") - logs, 1)
+
+	def test_deadlocks_are_raised_not_swallowed(self):
+		asset = self._asset()
+		self._make_equipment(**{LINK: asset})
+		with patch("card.asset_master.sync_equipment_from_asset", side_effect=frappe.QueryDeadlockError("x")):
+			with self.assertRaises(frappe.QueryDeadlockError):
+				on_asset_change(frappe.get_doc("Asset", asset))
+
+	def test_legacy_duplicate_links_are_reported_not_half_synced(self):
+		# CARD refuses to save two equipment on one Asset (one Asset, one equipment); legacy rows
+		# that share an Asset are left unchanged, the failure is logged and the Asset save goes on
+		asset = self._asset(custom_chassis_no="")
+		first = self._make_equipment(**{LINK: asset})
+		second = self._make_equipment()
+		frappe.db.set_value("Card Equipment", second.name, LINK, asset)  # legacy duplicate link
+		names = {
+			n: frappe.db.get_value("Card Equipment", n, "equipment_name") for n in (first.name, second.name)
+		}
+		frappe.db.set_value("Asset", asset, "asset_name", "SHARED NAME")
+		logs = frappe.db.count("Error Log")
+		on_asset_change(frappe.get_doc("Asset", asset))  # must not raise
+		for name, before in names.items():
+			self.assertEqual(frappe.db.get_value("Card Equipment", name, "equipment_name"), before)
+		self.assertEqual(frappe.db.count("Error Log") - logs, 2)
+
+	def test_asset_events_are_wired(self):
+		events = frappe.get_hooks("doc_events").get("Asset", {})
+		for event in ("on_update", "on_update_after_submit", "on_cancel"):
+			self.assertIn("card.asset_master.on_asset_change", events.get(event, []), event)
+
+	def test_a_real_asset_update_after_submit_reaches_the_equipment(self):
+		asset = self._asset(custom_chassis_no="REAL-1")
+		eq = self._make_equipment(**{LINK: asset})
+		doc = frappe.get_doc("Asset", asset)
+		doc.custom_chassis_no = "REAL-2"  # allow on submit (site field)
+		doc.flags.ignore_validate = True  # the fixture Asset has no depreciation set-up
+		doc.save(ignore_permissions=True)
+		self.assertEqual(frappe.db.get_value("Card Equipment", eq.name, "serial_no"), "REAL-2")
 
 	def test_asset_change_without_a_linked_equipment_does_nothing(self):
 		asset = self._asset()
@@ -334,6 +461,7 @@ class TestAssetMaster(IntegrationTestCase):
 		asset = self._asset()
 		eq = self._make_equipment(**{LINK: asset})
 		self._as(["Card User"])  # equipment read, no Asset read
+		self.assertTrue(frappe.has_permission("Card Equipment", "read", eq.name))
 		self.assertFalse(frappe.has_permission("Asset", "read", asset))
 		with self.assertRaises(frappe.PermissionError):
 			get_asset_master_view(eq.name)
@@ -365,7 +493,22 @@ class TestAssetMaster(IntegrationTestCase):
 			"Card Equipment", conflict_eq.name, {"serial_no": "BF-CARD", "serial_no_key": "BFCARD"}
 		)
 
-		report = patch_module.execute()
+		self._rented(serial_no="BF-DUP")
+		dup_asset = self._asset(custom_chassis_no="BF-DUP")
+		dup_eq = self._make_equipment(**{LINK: dup_asset})
+		frappe.db.set_value("Card Equipment", dup_eq.name, {"serial_no": None, "serial_no_key": None})
+
+		with patch("card.patches.v4_3_0.backfill_asset_master_fields.frappe.reload_doc"):  # no DDL commit
+			report = patch_module.execute()
+		self.assertIn(dup_eq.name, [r["equipment"] for r in report["skipped_duplicate_chassis"]])
+		self.assertFalse(frappe.db.get_value("Card Equipment", dup_eq.name, "serial_no"))
+		self.assertTrue(self._comments(conflict_eq.name, "BF-ASSET"))
+		self.assertTrue(
+			frappe.db.exists(
+				"Version",
+				{"ref_doctype": "Card Equipment", "docname": empty_eq.name, "data": ["like", "%BF-1%"]},
+			)
+		)
 		self.assertEqual(frappe.db.get_value("Card Equipment", empty_eq.name, "serial_no"), "BF-1")
 		self.assertEqual(frappe.db.get_value("Card Equipment", empty_eq.name, "manufacture_year"), 2020)
 		self.assertEqual(frappe.db.get_value("Card Equipment", conflict_eq.name, "serial_no"), "BF-CARD")

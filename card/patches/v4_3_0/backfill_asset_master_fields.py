@@ -4,9 +4,10 @@
 equipment linked before this release.
 
 Only EMPTY CARD values are filled; a non-empty CARD value that differs from the Asset is
-NOT overwritten here (an unattended migrate must not replace data) — it is listed in the
-"CARD asset master backfill" Error Log report for the owner, and the next save of that
-equipment applies the Asset value with its history. Chassis numbers another equipment of
+NOT overwritten here (an unattended migrate must not replace data): a Comment on that
+equipment records both values (durable), the "CARD asset master backfill" Error Log
+report lists them for the owner, and the next save of that equipment applies the Asset
+value with its history (FR-098: the Asset is authoritative). Chassis numbers another equipment of
 the company already uses are not copied. Written directly (no save) like v3.0.0, with a
 Version row per changed equipment. Idempotent: a second run changes nothing.
 """
@@ -50,6 +51,7 @@ def execute():
 				report["conflicts"].append(
 					{"equipment": eq.name, "field": field, "card": current, "asset": value}
 				)
+				_note_conflict(eq, field, current, value)
 				continue
 			if field == "serial_no":
 				key = identity_key(value)
@@ -71,8 +73,12 @@ def execute():
 		owned = owned_list({f: v for f, v in values.items() if final.get(f) == v})
 		if (eq.get(OWNED_LIST_FIELD) or "") != owned:
 			updates[OWNED_LIST_FIELD] = owned
-		if "equipment_type" in values and final.get("equipment_type") == values["equipment_type"]:
-			updates["equipment_type_from_asset"] = 1
+		from_asset = (
+			1
+			if final.get("equipment_type") == values.get("equipment_type") and values.get("equipment_type")
+			else 0
+		)
+		updates["equipment_type_from_asset"] = from_asset
 		updates = {f: v for f, v in updates.items() if eq.get(f) != v}
 		if not updates:
 			continue
@@ -90,3 +96,30 @@ def execute():
 	if report["updated"] or report["conflicts"] or report["skipped_duplicate_chassis"]:
 		frappe.log_error(message=frappe.as_json(report), title=REPORT_TITLE)
 	return report
+
+
+def _note_conflict(eq, field, card_value, asset_value):
+	"""Durable note of a differing value on the equipment; written once per value pair."""
+	from frappe import _
+
+	content = _(
+		"ERPNext Asset {0} holds {1} for {2}; CARD keeps {3} until this equipment is next saved, when the Asset value replaces it."
+	).format(
+		eq.get(ASSET_LINK_FIELD),
+		asset_value,
+		_(frappe.get_meta("Card Equipment").get_label(field)),
+		card_value,
+	)
+	if frappe.db.exists(
+		"Comment", {"reference_doctype": "Card Equipment", "reference_name": eq.name, "content": content}
+	):
+		return
+	frappe.get_doc(
+		{
+			"doctype": "Comment",
+			"comment_type": "Info",
+			"reference_doctype": "Card Equipment",
+			"reference_name": eq.name,
+			"content": content,
+		}
+	).insert(ignore_permissions=True)  # audit note of a patch

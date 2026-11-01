@@ -162,7 +162,13 @@ class CardEquipment(Document):
 		from card.asset_master import apply_asset_master, replaced_values
 
 		changes = apply_asset_master(self)
-		self.flags.card_asset_replaced = replaced_values(changes) if not self.is_new() else []
+		before = None if self.is_new() else self.get_doc_before_save()
+		# note only stored values the Asset replaced; a rejected input (REST, import) that
+		# never reached the database is not a replacement
+		stored = (
+			[(f, before.get(f), new) for f, _typed, new in changes if before.get(f) != new] if before else []
+		)
+		self.flags.card_asset_replaced = replaced_values(stored)
 
 	def validate_commercial_change_reason(self):
 		"""A change to a commercial term of an existing equipment needs a NEW

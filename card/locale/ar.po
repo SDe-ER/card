@@ -5014,8 +5014,8 @@ msgid "CARD: Asset {0} sync to equipment {1} failed"
 msgstr "CARD: تعذّرت مزامنة الأصل {0} مع المعدة {1}"
 
 #: card/asset_master.py
-msgid "Chassis number {0} from ERPNext Asset {1} was not copied: equipment {2} already uses it."
-msgstr "رقم الشاسيه {0} من أصل ERPNext {1} لم يُنسخ: المعدة {2} تستخدمه بالفعل."
+msgid "Chassis number {0} from ERPNext Asset {1} was not copied: another equipment of the company already uses it."
+msgstr "رقم الشاسيه {0} من أصل ERPNext {1} لم يُنسخ: معدة أخرى في الشركة تستخدمه بالفعل."
 
 #: card/asset_master.py
 msgid "ERPNext Asset {0} of equipment {1} is {2} (disposal date {3}); hours cannot be recorded on {4}."
@@ -5025,26 +5025,30 @@ msgstr "أصل ERPNext {0} للمعدة {1} حالته {2} (تاريخ الاس�
 msgid "Asset out of service"
 msgstr "الأصل خارج الخدمة"
 
-#: card/asset_master.py
+#: card/card/doctype/card_equipment/card_equipment.js
 msgid "ERPNext Asset {0} is {1} (disposal date {2}): hours cannot be recorded from that date."
 msgstr "أصل ERPNext {0} حالته {1} (تاريخ الاستبعاد {2}): لا يمكن تسجيل ساعات من هذا التاريخ."
 
-#: card/asset_master.py
+#: card/card/doctype/card_equipment/card_equipment.js
 msgid "Read-only. Change these values on the ERPNext Asset."
 msgstr "للعرض فقط. عدّل هذه القيم من أصل ERPNext."
 
-#: card/asset_master.py
+#: card/card/doctype/card_equipment/card_equipment.js
 msgid "The Asset has no further information."
 msgstr "لا توجد بيانات إضافية على الأصل."
 
-#: card/asset_master.py
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "From ERPNext Asset"
 msgstr "من أصل ERPNext"
 
-#: card/asset_master.py
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Asset information"
 msgstr "بيانات الأصل"
 
-#: card/asset_master.py
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Fields from the Asset"
 msgstr "الحقول المأخوذة من الأصل"
+
+#: card/patches/v4_3_0/backfill_asset_master_fields.py
+msgid "ERPNext Asset {0} holds {1} for {2}; CARD keeps {3} until this equipment is next saved, when the Asset value replaces it."
+msgstr "أصل ERPNext {0} فيه {1} لحقل {2}؛ CARD يحتفظ بالقيمة {3} لحد أول حفظ للمعدة، وساعتها قيمة الأصل تحل محلها."

@@ -278,6 +278,8 @@ const CARD_ASSET_OWNED_FIELDS = [
 	"equipment_type",
 	"equipment_type_from_asset",
 	"asset_owned_fields",
+	// read-only once linked: the equipment must belong to its Asset's company
+	"company",
 ];
 
 const CARD_ASSET_NEW_FIELDS = [
@@ -455,7 +457,8 @@ function card_render_asset_master(frm) {
 		})
 		.then((r) => {
 			const d = (r && r.message) || {};
-			if (!d.asset) return;
+			// the user may have moved to another record meanwhile
+			if (!d.asset || frm.doc.name !== d.equipment) return;
 			if (d.out_of_service) {
 				frm.dashboard.set_headline_alert(
 					__(
