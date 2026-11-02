@@ -16,6 +16,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Security
+- **Attachment validation and privacy** (H-CARD-1, H-CARD-2). Meter photos, the custody receipt, fitment evidence, the
+  transport authorization document and the Card Equipment registration / inspection / insurance / TUV files accepted
+  any bytes under any name. A new shared validator (`card/attachment_validator.py`) now accepts only JPEG, PNG, WebP
+  or PDF (by content, and the file name must agree), up to 10 MB, and an image must decode; meter photos accept
+  images only. It runs only when a file is set or changed, so evidence saved earlier stays valid. The transport
+  authorization document and the four equipment document files must be private files of their own record (the
+  user's own unattached upload is claimed by the record); the old "any readable File with this URL" check is gone.
+  No data is changed or deleted and there is no patch: files already stored as public stay public until the Owner
+  decides their migration. Impact: permissions (stricter), API (a save with a non-image / public document file is
+  refused); rollback: revert the commit, no data to undo. Security-review follow-up: an image is refused above 50
+  megapixels before it is decoded (a 140 KB PNG can describe 144 Mpx) and Pillow's bomb warning is an error; the
+  File row that passed the "this record" check is the row whose content is validated; re-deciding a transport
+  whose authorization document is already on it does not validate its content again (it must still be a private file
+  attached to that transport). Code-review follow-up: phone JPEGs that Pillow reports as MPO are accepted; a PDF end
+  marker may sit within the last 64 KB after trailing padding; photos are content-checked only when new or changed
+  (not on a company change, not when an amendment keeps the original's photo or receipt); fitment evidence must be the
+  session user's own upload; the four Card Equipment document fields are `no_copy` (Duplicate) and the user's own
+  upload is claimed by the record on save. Known limit: HEIC photos are not supported (Pillow has no decoder): save
+  them as JPEG first. Convention for new code: an Attach / Attach Image field
+  that holds evidence or a document is validated in its controller with `card.attachment_validator`, when the value
+  is new or changed.
 - **Card Equipment financial privacy** (FR-096, Owner decision 2026-10-31). The Asset purchase value (a read-only
   copy of the Asset's `net_purchase_amount`), the internal hourly rate, the Asset cost center and the equipment's own
   cost center (filled from the Asset) were readable by every reader of the equipment, including Card User and Card
@@ -40,6 +61,29 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   API responses narrowed, no permission, schema, data or accounting change. Rollback: revert the commit.
 
 ### Added
+- **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
+  An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
+  opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself
+  (private File + one Comment per pass) and decides inside the fill's own validation: when both photos are clear (every drum read,
+  opening zero, closing above opening, the entered litres equal the reading) the closing reading is written and the fill stays a Draft
+  (never submitted, never posted); any `?` / half-rolled / unreadable drum or defect writes NO reading and records the disputed reading
+  (`Meter reading (closing): 0004? ...`) in `evidence_warnings`; only a material discrepancy (litres or invoice outside the reading's
+  interval by more than the existing 1 L tolerance, reset not zero, closing not above opening, a contradiction of an entered reading)
+  sets Needs Review. Owner rule 2026-11-03: only a clear, validated reading stays a Draft; every other processed outcome (an unreadable
+  or ambiguous side, no meter, a conflict, a clear reading that was not written) routes the fill to Needs Review with a visible line. A machine-written closing keeps an informational
+  line in `evidence_warnings` (`written by meter extraction; check against the photo`) so it is not mistaken for a typed number; it never routes. A person's reading or litres is never overwritten, approved/rejected/submitted fills are never touched, the same
+  photo bytes are processed once, and the job runs as the user who saved the photo. Expect most real photos to need a person until the
+  engine is validated on verified labels. Invoice litres, litres quoted in the source messages and the totalizer can only ESCALATE a
+  clear reading (it is then not written and the fill goes to Needs Review); they never verify one. A person-entered opening reading
+  that disagrees with the photo blocks the write, so the entered litres never change. Audit markers are signed with the site secret
+  and a user-typed Comment is ignored; the worker's engine name/version must match a strict character set, its interval is
+  recomputed from the drums, requests ignore proxy environment variables, jobs for one fill run one at a time, and busy or
+  unreachable answers are retried later instead of counting toward the three-attempt cap. A drum-count difference between the two
+  photos is recorded but is not by itself a reason for Needs Review. The crop is refused only for a box over 60% of the image area or
+  height (a close-up meter is a wide box and is cropped), and the Desk shows the disputed reading as an isolated left-to-right text, so
+  its brackets and `?` keep their order inside an Arabic sentence (QA 2026-11-02, browser and E2E). A full background queue or an
+  unreachable Redis never fails the save: the extraction is skipped for that save, an Error Log row is written and the photo stays
+  manual (no retry).
 - **Equipment Meter Reconciliation report** (FR-094, maintenance plan R1, 2026-10-31). A read-only Script Report
   (Card Manager, Accounts Manager, System Manager; the user's roles must also read Card Equipment, Card Monthly Card
   and Asset — on a standard site Asset is read by Accounts User, so a user needs both) that

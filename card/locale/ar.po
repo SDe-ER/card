@@ -5004,3 +5004,15 @@ msgstr "المسؤولية تحتاج مراجعة — ألغِ النقل وع�
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "Financial decision recorded."
 msgstr "تم تسجيل القرار المالي."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.js
+msgid "Disputed by meter extraction: {0}"
+msgstr "قراءة موضع خلاف حسب استخراج العداد: {0}"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.js
+msgid "Meter extraction crop"
+msgstr "مقطع العداد المستخرج"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.js
+msgid "Open the full photo"
+msgstr "افتح الصورة كاملة"

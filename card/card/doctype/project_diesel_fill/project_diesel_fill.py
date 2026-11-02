@@ -8,6 +8,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, cstr, flt, get_datetime, getdate, now_datetime
 
+from card.attachment_validator import IMAGE_KINDS, check_attachment_content
 from card.company import single_company, validate_equipment_company
 from card.settings import setting
 
@@ -282,6 +283,7 @@ class ProjectDieselFill(Document):
 		self._check_link_values()
 		self._enforce_diesel_supplier()
 		self._apply_price()
+		meter_block = self._apply_meter_extraction()
 		self._apply_readings()
 		# Amount is litres x unit price; the accounting posting (Purchase Invoice on
 		# the project) is added in a later stage, gated by owner approval.
@@ -289,7 +291,8 @@ class ProjectDieselFill(Document):
 		self._check_equipment_mode()
 		self._check_photos()
 		warnings = self._check_totalizer() + self._check_overlaps()
-		self.evidence_warnings = "\n".join(warnings) or None
+		# the extraction block is information: it is kept apart from `warnings`, which turn a Draft into Needs Review
+		self.evidence_warnings = "\n".join(warnings + meter_block) or None
 		self._guard_review(warnings)
 
 	def on_update(self):
@@ -340,6 +343,70 @@ class ProjectDieselFill(Document):
 		for fieldname in SOURCE_FIELDS:
 			if (self.get(fieldname) or None) != ((before.get(fieldname) if before else None) or None):
 				frappe.throw(_("The source of a diesel fill is set by the session import only."))
+
+	def _apply_meter_extraction(self):
+		"""Meter extraction (Owner 2026-11-02): the lines of an earlier pass are kept across saves, a side's line is dropped when
+		a person changes that side's reading or photo, and a validated worker result (doc.flags.meter_extraction, set by the
+		background job) is turned into writes by the decision table. Runs as the saving user's own save: no privileged write.
+		Returns the extraction lines for evidence_warnings."""
+		from card.diesel_meter_extraction import PHOTO_FIELD, SIDES, decide, split_block
+
+		before = None if self.is_new() else self.get_doc_before_save()
+		kept = split_block(before.evidence_warnings) if before else {}
+		by_job = bool(self.flags.get("in_meter_extraction"))
+		for side in SIDES:
+			reading_field = f"{side}_reading"
+			if not by_job and (
+				self.has_value_changed(PHOTO_FIELD[side]) or self.has_value_changed(reading_field)
+			):
+				kept.pop(side, None)  # resolved by a person, or a new photo: the old dispute is over
+		readings = self.flags.get("meter_extraction")
+		if readings and not self.is_new():
+			result = decide(
+				readings,
+				{
+					"docstatus": self.docstatus,
+					"review_status": self.review_status,
+					"litres": self.litres,
+					"opening_reading": self.opening_reading,
+					"closing_reading": self.closing_reading,
+					"invoiced_litres": self.invoiced_litres,
+					"messages": f"{self.source_messages or ''}\n{self.source_caption or ''}",
+					"totalizer_window": self._totalizer_window(),
+				},
+			)
+			for fieldname, value in result["write"].items():
+				if flt(value, self.precision(fieldname)) != flt(value):  # never round silently
+					result["lines"]["closing"] = (
+						f"Meter reading (closing): {value} has more decimals than the field keeps; not written"
+					)
+					result["outcome"]["closing"] = "clear_not_written"
+					result["needs_review"] = True  # Owner rule: a reading that is not written goes to review
+					continue
+				# belt and braces (B-1): _apply_readings recomputes litres from the ACTUAL opening reading; a write that
+				# would change the litres a person entered is refused and escalated
+				litres_after = flt(value - flt(self.opening_reading), self.precision("litres"))
+				if litres_after != flt(self.litres, self.precision("litres")):
+					result["lines"]["closing"] = (
+						f"Meter reading (closing): {value} would change the entered litres; not written"
+					)
+					result["outcome"]["closing"] = "clear_not_written"
+					result["needs_review"] = True
+					continue
+				self.set(fieldname, value)
+			for side in SIDES:
+				if side in result["lines"]:
+					kept[side] = result["lines"][side]
+				elif side in result["outcome"]:
+					kept.pop(side, None)
+			if result["needs_review"] and (self.review_status or DRAFT) == DRAFT:
+				self.review_status = NEEDS_REVIEW
+			self.flags.meter_extraction_outcome = {
+				"outcome": result["outcome"],
+				"lines": result["lines"],
+				"readings": readings,
+			}
+		return [kept[side] for side in SIDES if side in kept]
 
 	def _apply_readings(self):
 		"""Meter readings, when given, are the source of the litres (the session counter is reset to
@@ -393,6 +460,13 @@ class ProjectDieselFill(Document):
 						)
 					)
 
+	def _photo_needs_content_check(self, field, url):
+		"""H-CARD-1 content check only for a photo that is new or changed (not for a company change or an
+		unchanged legacy photo), and not for an amendment's photo that is the amended fill's own."""
+		if not (self.is_new() or self.has_value_changed(field)):
+			return False
+		return not (self.amended_from and url == frappe.db.get_value(self.doctype, self.amended_from, field))
+
 	def _check_photos(self):
 		"""Meter photos are private files uploaded to this fill, and the same photo (same file or same
 		bytes) never proves two live fills. Checked when a photo or the company changes."""
@@ -403,7 +477,8 @@ class ProjectDieselFill(Document):
 			or self.has_value_changed("company")
 		):
 			return
-		urls = [u for u in (self.opening_photo, self.closing_photo) if u]
+		photos = [(f, self.get(f)) for f in ("opening_photo", "closing_photo") if self.get(f)]
+		urls = [url for _field, url in photos]
 		if not urls:
 			return
 		temporary = self.get("__temporary_name") if self.is_new() else None
@@ -412,7 +487,7 @@ class ProjectDieselFill(Document):
 			self.__dict__.pop("__temporary_name", None)
 			temporary = None
 		hashes = {}
-		for url in urls:
+		for field, url in photos:
 			filters = {"file_url": url, "is_private": 1, "attached_to_doctype": self.doctype}
 			if temporary:
 				# uploaded on the unsaved form: attached to its temporary name until insert, and only the
@@ -429,6 +504,8 @@ class ProjectDieselFill(Document):
 			if not url.startswith("/private/files/") or not row:
 				# Frappe shares one URL and one public state between files with the same bytes
 				frappe.throw(_("Meter photos must be private files uploaded to this diesel fill."))
+			if self._photo_needs_content_check(field, url):
+				check_attachment_content(url, IMAGE_KINDS, row.name)
 			hashes[url] = row.content_hash
 		if len(urls) == 2 and (
 			urls[0] == urls[1] or (hashes[urls[0]] and hashes[urls[0]] == hashes[urls[1]])
@@ -484,17 +561,24 @@ class ProjectDieselFill(Document):
 			and frappe.has_permission(self.doctype, "read", doc=self.amended_from)
 		)
 
+	def _totalizer_window(self):
+		"""(low, high) litres the totalizer drums allow for the session, or None when either side is unreadable."""
+		opening = totalizer_bounds(self.opening_totalizer)
+		closing = totalizer_bounds(self.closing_totalizer)
+		if not (opening and closing):
+			return None
+		return closing[0] - opening[1], closing[1] - opening[0]
+
 	def _check_totalizer(self):
 		"""Advisory check of the session against the meter's cumulative totalizer (TOTAL drums)."""
 		self.totalizer_check = NOT_CHECKABLE
 		if not self._has_closing_reading():
 			return []
-		opening = totalizer_bounds(self.opening_totalizer)
-		closing = totalizer_bounds(self.closing_totalizer)
-		if not (opening and closing):
+		window = self._totalizer_window()
+		if not window:
 			return []
 		session = flt(self.closing_reading) - flt(self.opening_reading)
-		low, high = closing[0] - opening[1], closing[1] - opening[0]
+		low, high = window
 		if low - TOTALIZER_READ_TOLERANCE <= session <= high + TOTALIZER_READ_TOLERANCE:
 			self.totalizer_check = CONSISTENT
 			return []
