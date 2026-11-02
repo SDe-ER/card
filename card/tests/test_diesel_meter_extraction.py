@@ -516,7 +516,7 @@ class TestFillIntegration(IntegrationTestCase):
 			.file_url
 		)
 
-	def _fill(self, litres=42, with_enqueue=False, **extra):
+	def _fill(self, litres=42, with_enqueue=False, enqueue_error=None, **extra):
 		temp = "new-project-diesel-fill-" + frappe.generate_hash(length=8)
 		doc = frappe.get_doc(
 			{
@@ -534,7 +534,7 @@ class TestFillIntegration(IntegrationTestCase):
 		setattr(doc, "__temporary_name", temp)
 		if {"source_messages", "invoiced_litres"} & set(extra):
 			doc.flags.diesel_import = True  # these fields are set by the session import only
-		with mock.patch("frappe.enqueue") as enq:
+		with mock.patch("frappe.enqueue", side_effect=enqueue_error) as enq:
 			doc.insert()
 		self.enqueued = enq
 		return doc
@@ -715,6 +715,39 @@ class TestFillIntegration(IntegrationTestCase):
 		with mock.patch.object(dme, "worker_config", return_value=None):
 			self._fill()
 			self.enqueued.assert_not_called()
+
+	def test_h1_a_failing_enqueue_never_fails_the_save(self):
+		from redis.exceptions import ConnectionError as RedisConnectionError
+
+		for error in (
+			frappe.QueueOverloaded("full"),
+			RedisConnectionError("redis down"),
+			ConnectionError("down"),
+			RuntimeError("odd"),
+		):
+			with self.subTest(error=type(error).__name__):
+				logs = frappe.db.count("Error Log", {"method": "CARD meter extraction: enqueue skipped"})
+				fill = self._fill(litres=42, enqueue_error=error)  # the save (insert) must succeed
+				self.assertTrue(frappe.db.exists("Project Diesel Fill", fill.name))
+				self.enqueued.assert_called_once()
+				self.assertEqual(self._markers(fill), [])  # no marker, nothing written, nothing retried
+				self.assertEqual(self._crops(fill), [])
+				self.assertEqual(
+					flt(frappe.db.get_value("Project Diesel Fill", fill.name, "closing_reading")), 0
+				)
+				self.assertEqual(
+					frappe.db.count("Error Log", {"method": "CARD meter extraction: enqueue skipped"}),
+					logs + 1,
+				)
+				row = frappe.get_all(
+					"Error Log",
+					filters={"method": "CARD meter extraction: enqueue skipped", "reference_name": fill.name},
+					fields=["error"],
+					limit=1,
+				)
+				self.assertTrue(
+					row and type(error).__name__ in row[0].error
+				)  # the exception type only: no image data
 
 	def test_a_saved_fill_without_photo_changes_does_not_enqueue(self):
 		fill = self._fill()

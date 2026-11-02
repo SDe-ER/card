@@ -626,13 +626,24 @@ def after_fill_saved(doc, method=None):
 	if not worker_config() or doc.docstatus != 0 or doc.flags.get("in_meter_extraction"):
 		return
 	if any(doc.get(f) and doc.has_value_changed(f) for f in PHOTO_FIELD.values()):
-		frappe.enqueue(
-			"card.diesel_meter_extraction.run_extraction",
-			queue="long",
-			timeout=120,
-			enqueue_after_commit=True,
-			fill=doc.name,
-		)
+		# H1: the extraction is optional, so a full queue (QueueOverloaded), Redis down (ConnectionError) or any other failure of the
+		# enqueue call itself must never fail the user's save: it is logged (name and exception type only, no image data) and the
+		# photo simply stays manual. Only this call is guarded; nothing is retried and no marker is written.
+		try:
+			frappe.enqueue(
+				"card.diesel_meter_extraction.run_extraction",
+				queue="long",
+				timeout=120,
+				enqueue_after_commit=True,
+				fill=doc.name,
+			)
+		except Exception as exc:
+			frappe.log_error(
+				title="CARD meter extraction: enqueue skipped",
+				message=f"{doc.name}: {type(exc).__name__}",
+				reference_doctype=doc.doctype,
+				reference_name=doc.name,
+			)
 
 
 def _photo_bytes(doc, field):

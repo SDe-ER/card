@@ -79,7 +79,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   unreachable answers are retried later instead of counting toward the three-attempt cap. A drum-count difference between the two
   photos is recorded but is not by itself a reason for Needs Review. The crop is refused only for a box over 60% of the image area or
   height (a close-up meter is a wide box and is cropped), and the Desk shows the disputed reading as an isolated left-to-right text, so
-  its brackets and `?` keep their order inside an Arabic sentence (QA 2026-11-02, browser and E2E).
+  its brackets and `?` keep their order inside an Arabic sentence (QA 2026-11-02, browser and E2E). A full background queue or an
+  unreachable Redis never fails the save: the extraction is skipped for that save, an Error Log row is written and the photo stays
+  manual (no retry).
 - **Equipment Meter Reconciliation report** (FR-094, maintenance plan R1, 2026-10-31). A read-only Script Report
   (Card Manager, Accounts Manager, System Manager; the user's roles must also read Card Equipment, Card Monthly Card
   and Asset — on a standard site Asset is read by Accounts User, so a user needs both) that
