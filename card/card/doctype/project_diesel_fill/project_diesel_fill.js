@@ -212,7 +212,8 @@ function card_meter_crops(attachments) {
 	for (const row of attachments || []) {
 		const match = CARD_METER_CROP.exec(row.file_name || "");
 		const url = row.file_url || "";
-		if (!match || crops[match[1]] || !/^\/private\/files\/[A-Za-z0-9._-]+$/.test(url)) continue;
+		if (!match || crops[match[1]] || !/^\/private\/files\/[A-Za-z0-9._-]+$/.test(url))
+			continue;
 		crops[match[1]] = { url, name: row.file_name };
 	}
 	return crops;
