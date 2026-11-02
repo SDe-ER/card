@@ -14,6 +14,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
 
 from card.fitment import CONFIRMED, NOT_COMPATIBLE, PENDING, SECOND_REVIEW, normalise
+from card.tests.sample_files import pdf
 from card.tests.test_controllers import _ensure_masters
 
 PART = "Card Equipment Part"
@@ -127,15 +128,22 @@ class FitmentTestCase(IntegrationTestCase):
 		).insert(ignore_permissions=True)
 		return email
 
-	def _evidence_file(self, private=1):
-		doc = frappe.get_doc(
-			{
-				"doctype": "File",
-				"file_name": f"evidence-{frappe.generate_hash(length=6)}.txt",
-				"content": b"parts book page 12",
-				"is_private": private,
-			}
-		).insert(ignore_permissions=True)
+	def _evidence_file(self, private=1, user=None):
+		"""An unattached evidence upload owned by `user` (default: the reviewing manager: the row only
+		accepts the session user's own unattached files)."""
+		previous = frappe.session.user
+		frappe.set_user(user or self.manager)
+		try:
+			doc = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"evidence-{frappe.generate_hash(length=6)}.pdf",
+					"content": pdf("parts book page 12"),
+					"is_private": private,
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user(previous)
 		return doc.file_url
 
 	def _row(self, user, **values):
@@ -392,7 +400,8 @@ class TestFitmentRows(FitmentTestCase):
 			row.name,
 			NOT_COMPATIBLE,
 			decision_reason="parts book",
-			evidence_file=self._evidence_file(),
+			# the file is the acting user's own upload
+			evidence_file=self._evidence_file(user="Administrator"),
 		)
 		self.assertEqual(doc.compatibility_status, PENDING)
 		self.assertEqual(doc.review_stage, SECOND_REVIEW)
@@ -596,13 +605,21 @@ class TestFitmentRows(FitmentTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._decide(self.manager, row.name, CONFIRMED, evidence_file="/private/files/not-uploaded.pdf")
 
+	def test_evidence_file_unattached_of_another_user_is_refused(self):
+		"""T0029 (6): a loose private file counts only when the session user uploaded it."""
+		row = self._row(self.supervisor)
+		someone_elses = self._evidence_file(user=self.supervisor)
+		with self.assertRaises(frappe.ValidationError):
+			self._decide(self.manager, row.name, CONFIRMED, evidence_file=someone_elses)
+		self._decide(self.manager, row.name, CONFIRMED, evidence_file=self._evidence_file())
+
 	def test_evidence_file_of_another_document_is_refused(self):
 		row = self._row(self.supervisor)
 		other = frappe.get_doc(
 			{
 				"doctype": "File",
-				"file_name": f"other-{frappe.generate_hash(length=6)}.txt",
-				"content": b"not fitment evidence",
+				"file_name": f"other-{frappe.generate_hash(length=6)}.pdf",
+				"content": pdf("not fitment evidence"),
 				"is_private": 1,
 				"attached_to_doctype": "Card Equipment",
 				"attached_to_name": self.machine,
