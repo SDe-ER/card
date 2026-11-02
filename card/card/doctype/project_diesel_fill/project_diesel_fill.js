@@ -218,6 +218,13 @@ function card_meter_crops(attachments) {
 	return crops;
 }
 
+// The server-built line is English/numeric text ("1501.? (between 1501 and 1501.9 L); flags: glare"). Inside an Arabic (RTL)
+// sentence the bidi algorithm would move its brackets, punctuation and the "?" around; an LTR isolate keeps the line exactly
+// as written. The worker text is still escaped, so nothing in it can become markup.
+function card_ltr_isolate(text) {
+	return `<bdi dir="ltr" style="unicode-bidi: isolate;">${frappe.utils.escape_html(text)}</bdi>`;
+}
+
 function card_meter_extraction(frm) {
 	if (frm.is_new()) return;
 	const lines = card_meter_lines(frm.doc.evidence_warnings);
@@ -228,7 +235,7 @@ function card_meter_extraction(frm) {
 			`${side}_reading`,
 			"description",
 			lines[side]
-				? __("Disputed by meter extraction: {0}", [frappe.utils.escape_html(lines[side])])
+				? __("Disputed by meter extraction: {0}", [card_ltr_isolate(lines[side])])
 				: "",
 		);
 		const field = frm.get_field(`${side}_photo`);

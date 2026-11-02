@@ -555,11 +555,13 @@ def note_failure(fill, side, sha):
 
 
 def make_crop(image, box, size):
-	"""JPEG bytes of the counter box (+4%), clamped; None for a box too large to be a counter (>60% x 40%)."""
+	"""JPEG bytes of the counter box (+4%), clamped to the image. None only for an invalid box (no size, or nothing left after
+	clamping), a box whose area is over 60% of the image area, or one taller than 60% of the image (contract v1.5 sec 5.4: that is
+	not a counter crop). The width alone never refuses: a close-up meter is a wide box."""
 	from PIL import Image
 
 	x, y, w, h = box
-	if w > 0.6 * size[0] or h > 0.4 * size[1]:
+	if w <= 0 or h <= 0 or w * h > 0.6 * size[0] * size[1] or h > 0.6 * size[1]:
 		return None
 	mx, my = w * CROP_MARGIN, h * CROP_MARGIN
 	area = (
@@ -568,6 +570,8 @@ def make_crop(image, box, size):
 		min(size[0], int(x + w + mx)),
 		min(size[1], int(y + h + my)),
 	)
+	if area[2] <= area[0] or area[3] <= area[1]:
+		return None
 	with Image.open(io.BytesIO(image)) as im:
 		out = io.BytesIO()
 		im.convert("RGB").crop(area).save(out, "JPEG", quality=92)

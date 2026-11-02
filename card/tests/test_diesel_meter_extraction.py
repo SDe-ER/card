@@ -371,8 +371,68 @@ class TestDecide(IntegrationTestCase):
 	def test_split_block_and_crop_limits(self):
 		text = "Hello\nMeter reading (closing): 0004? (between 40 and 41 L)\nMeter reading (opening): 00000"
 		self.assertEqual(sorted(dme.split_block(text)), ["closing", "opening"])
-		self.assertIsNone(dme.make_crop(png("x"), [0, 0, 700, 10], [800, 600]))  # wider than 60%
-		self.assertIsNone(dme.make_crop(png("x"), [0, 0, 100, 300], [800, 600]))  # taller than 40%
+
+	@staticmethod
+	def _jpeg(width, height):
+		import io
+
+		from PIL import Image
+
+		out = io.BytesIO()
+		Image.new("RGB", (width, height), (40, 90, 140)).save(out, "JPEG")
+		return out.getvalue()
+
+	@staticmethod
+	def _size(data):
+		import io
+
+		from PIL import Image
+
+		with Image.open(io.BytesIO(data)) as im:
+			return im.size
+
+	def test_a_close_up_meter_box_still_gets_a_crop(self):
+		# T0050: a 1033 px wide box in a 1600 px photo (65% of the width) used to be refused silently; width alone never refuses
+		image = self._jpeg(1600, 1200)
+		data = dme.make_crop(image, [280, 300, 1033, 300], [1600, 1200])
+		self.assertIsNotNone(data)
+		mx, my = (
+			1033 * dme.CROP_MARGIN,
+			300 * dme.CROP_MARGIN,
+		)  # the box plus the fixed margin, truncated like the code does
+		self.assertEqual(
+			self._size(data), (int(280 + 1033 + mx) - int(280 - mx), int(300 + 300 + my) - int(300 - my))
+		)
+		self.assertIsNotNone(
+			dme.make_crop(image, [100, 100, 879, 250], [1600, 1200])
+		)  # an 879 px wide closing box
+		self.assertIsNotNone(
+			dme.make_crop(image, [0, 0, 1600, 300], [1600, 1200])
+		)  # as wide as the frame but short: a counter row
+
+	def test_a_full_frame_a_tall_or_an_invalid_box_gives_no_crop(self):
+		image = self._jpeg(1600, 1200)
+		for box in (
+			[0, 0, 1600, 1200],  # the whole frame
+			[10, 10, 1560, 1170],  # essentially the whole frame
+			[100, 100, 500, 840],  # 70% of the height
+			[100, 100, 0, 50],  # no width
+			[100, 100, 50, -5],  # negative height
+		):
+			with self.subTest(box=box):
+				self.assertIsNone(dme.make_crop(image, box, [1600, 1200]))
+
+	def test_a_box_partly_outside_the_image_is_clamped(self):
+		data = dme.make_crop(self._jpeg(800, 600), [700, 500, 300, 200], [800, 600])
+		self.assertIsNotNone(data)
+		width, height = self._size(data)
+		self.assertTrue(0 < width <= 800 and 0 < height <= 600)
+		self.assertEqual(
+			(width, height), (800 - int(700 - 300 * dme.CROP_MARGIN), 600 - int(500 - 200 * dme.CROP_MARGIN))
+		)
+		self.assertIsNone(
+			dme.make_crop(self._jpeg(800, 600), [900, 700, 50, 50], [800, 600])
+		)  # nothing left after clamping
 
 
 class TestFillIntegration(IntegrationTestCase):
@@ -465,7 +525,9 @@ class TestFillIntegration(IntegrationTestCase):
 				text,
 				between=between,
 				size=tuple(size),
-				box=(1, 1, max(2, size[0] // 3), max(2, size[1] // 6)),
+				box=(0, 0, size[0], size[1])
+				if kw.get("full_frame")
+				else (1, 1, max(2, size[0] // 3), max(2, size[1] // 6)),
 			)
 			return 200, "application/json", json.dumps(body).encode()
 
@@ -521,6 +583,15 @@ class TestFillIntegration(IntegrationTestCase):
 			self.assertEqual(len(self._markers(fill)), 2)
 			self.assertEqual(frappe.db.count("Version", {"docname": fill.name}), versions)
 			self.assertEqual(flt(again.closing_reading), 42)
+
+	def test_a_refused_crop_writes_no_file_but_the_marker_is_still_written(self):
+		fill = self._fill(litres=42)
+		with self._worker(full_frame=True):  # the worker boxes the whole frame: not a counter crop
+			after = self._run(fill)
+		self.assertEqual(self.status, "applied")
+		self.assertEqual(flt(after.closing_reading), 42)  # the reading itself is unaffected
+		self.assertEqual(self._crops(fill), [])
+		self.assertEqual(len(self._markers(fill)), 2)
 
 	def test_nothing_is_submitted_or_posted(self):
 		fill = self._fill(litres=42)
