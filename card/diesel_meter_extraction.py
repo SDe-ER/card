@@ -478,9 +478,12 @@ def decide(sides, fill):
 		if o and o.get("drum_count") not in (None, c["drum_count"])
 		else []
 	)
-	material = bool(litres) and not (lo - TOLERANCE <= litres <= hi + TOLERANCE)
-	material = material or bool(cross_checks(lo, hi, False))
-	res["lines"]["closing"] = _line("closing", c, "; ".join(bits) or None)
+	why = cross_checks(lo, hi, False)
+	if litres and not (lo - TOLERANCE <= litres <= hi + TOLERANCE):
+		why.insert(0, f"entered litres {_fmt(litres)} outside the interval")
+	material = bool(why)
+	# the line names what escalates it (F-2), next to the informational drum-count note
+	res["lines"]["closing"] = _line("closing", c, "; ".join(bits + why) or None)
 	# M1 (lead ruling): a drum-count difference is recorded and blocks the write, but is not material by itself
 	res["needs_review"] = res["needs_review"] or material
 	return res

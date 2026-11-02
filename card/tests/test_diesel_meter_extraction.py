@@ -362,6 +362,28 @@ class TestDecide(IntegrationTestCase):
 					out["write"], {"closing_reading": 42.0}
 				)  # agreement does not verify, it only does not escalate
 
+	def test_f2_the_ambiguous_line_names_what_escalates_it(self):
+		# opening 6 drums vs closing 5: the drum-count note stays informational; the invoice is what escalates
+		pair = self.sides(reading("000000", side="opening"), reading("0004?", between=(4,)))
+		out = decide(pair, dict(FILL, litres=42, invoiced_litres=400))
+		self.assertTrue(out["needs_review"])
+		self.assertIn("drum counts differ", out["lines"]["closing"])
+		self.assertIn("invoiced litres 400 differ", out["lines"]["closing"])
+		# entered litres outside the interval, a quoted quantity, and nothing escalating at all
+		far = decide(self.sides(None, reading("0004?", between=(4,))), dict(FILL, litres=300))
+		self.assertTrue(far["needs_review"])
+		self.assertIn("entered litres 300 outside the interval", far["lines"]["closing"])
+		quoted = decide(
+			self.sides(None, reading("0004?", between=(4,))), dict(FILL, messages="delivered 400 L")
+		)
+		self.assertTrue(quoted["needs_review"])
+		self.assertIn("source messages", quoted["lines"]["closing"])
+		calm = decide(pair, dict(FILL, litres=42))
+		self.assertFalse(calm["needs_review"])  # M1: the drum-count difference alone does not escalate
+		self.assertIn("drum counts differ", calm["lines"]["closing"])
+		self.assertNotIn("outside the interval", calm["lines"]["closing"])
+		self.assertNotIn("invoiced", calm["lines"]["closing"])
+
 	def test_quoted_litres_parsing(self):
 		self.assertEqual(
 			dme.quoted_litres("got 400 L and 12.5 liters, ٣٠ لتر, price 5 SAR"), [400.0, 12.5, 30.0]
