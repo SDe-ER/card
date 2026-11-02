@@ -61,6 +61,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   API responses narrowed, no permission, schema, data or accounting change. Rollback: revert the commit.
 
 ### Added
+- **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
+  An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
+  opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself
+  (private File + one Comment per pass) and decides inside the fill's own validation: when both photos are clear (every drum read,
+  opening zero, closing above opening, the entered litres equal the reading) the closing reading is written and the fill stays a Draft
+  (never submitted, never posted); any `?` / half-rolled / unreadable drum or defect writes NO reading and records the disputed reading
+  (`Meter reading (closing): 0004? ...`) in `evidence_warnings`; only a material discrepancy (litres or invoice outside the reading's
+  interval by more than the existing 1 L tolerance, reset not zero, closing not above opening, a contradiction of an entered reading)
+  sets Needs Review. A person's reading or litres is never overwritten, approved/rejected/submitted fills are never touched, the same
+  photo bytes are processed once, and the job runs as the user who saved the photo. Expect most real photos to need a person until the
+  engine is validated on verified labels. Invoice litres, litres quoted in the source messages and the totalizer can only ESCALATE a
+  clear reading (it is then not written and the fill goes to Needs Review); they never verify one. A person-entered opening reading
+  that disagrees with the photo blocks the write, so the entered litres never change. Audit markers are signed with the site secret
+  and a user-typed Comment is ignored; the worker's engine name/version must match a strict character set, its interval is
+  recomputed from the drums, requests ignore proxy environment variables, jobs for one fill run one at a time, and busy or
+  unreachable answers are retried later instead of counting toward the three-attempt cap. A drum-count difference between the two
+  photos is recorded but is not by itself a reason for Needs Review.
 - **Equipment Meter Reconciliation report** (FR-094, maintenance plan R1, 2026-10-31). A read-only Script Report
   (Card Manager, Accounts Manager, System Manager; the user's roles must also read Card Equipment, Card Monthly Card
   and Asset — on a standard site Asset is read by Accounts User, so a user needs both) that
