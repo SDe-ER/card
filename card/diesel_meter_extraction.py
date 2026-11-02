@@ -19,7 +19,7 @@ import hmac
 import io
 import ipaddress
 import json
-import os
+import math
 import re
 import socket
 import uuid
@@ -70,7 +70,6 @@ READING_RE = re.compile(r"^[0-9?]{1,9}(\.[0-9?])?$")
 SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$")  # no leading dot, no ".." (checked below), no "/"
 VERSION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,23}$")
-MAX_PHOTO_BYTES = 10 * 1024 * 1024  # the same cap as the attachment validator
 _CTRL = re.compile(r"[\x00-\x1f\x7f]")
 
 
@@ -172,7 +171,7 @@ def call_worker(config, side, sha, image, content_type):
 
 # ------------------------------------------------------------------ validation of the worker's answer (fail closed)
 def _num(v, lo=None):
-	if isinstance(v, bool) or not isinstance(v, int | float) or v != v or v in (float("inf"), float("-inf")):
+	if isinstance(v, bool) or not isinstance(v, int | float) or not math.isfinite(v):
 		raise WorkerError("bad_number")
 	if lo is not None and v < lo:
 		raise WorkerError("number_range")
@@ -659,14 +658,11 @@ def _photo_bytes(doc, field):
 	)
 	if not rows or not url.startswith("/private/files/"):
 		raise WorkerError("no_file")
-	# the RAW bytes from disk: File.get_content() may return a decoded str, which corrupts a photo (same rule as
-	# attachment_validator); the path comes from a url matched to a private File row and stays inside private/files
-	base = os.path.realpath(frappe.get_site_path("private", "files"))
-	path = os.path.realpath(frappe.get_site_path(*url.lstrip("/").split("/")))
-	if os.path.commonpath([base, path]) != base:
-		raise WorkerError("outside_private_files")
-	with open(path, "rb") as handle:
-		content = handle.read(MAX_PHOTO_BYTES + 1)
+	# the RAW bytes through the official File API (same rule as attachment_validator): get_content(encodings=()) skips the
+	# text-decoding loop, so a photo is never returned as a decoded str, and the path is resolved with is_safe_path
+	content = frappe.get_doc("File", rows[0].name).get_content(encodings=())
+	if not isinstance(content, bytes):
+		raise WorkerError("not_bytes")
 	return content, "image/" + check_content(content, rows[0].file_name, IMAGE_KINDS)
 
 
