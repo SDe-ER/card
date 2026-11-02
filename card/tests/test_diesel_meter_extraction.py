@@ -171,6 +171,14 @@ class TestValidateResponse(IntegrationTestCase):
 		r = validate_response({**answer(m, status="no_meter")}, m, [800, 600])
 		self.assertEqual((r["status"], r["clear"], r["value"]), ("no_meter", False, None))
 
+	def test_num_accepts_only_finite_numbers(self):
+		for bad in (float("nan"), float("inf"), float("-inf"), True, False, None, "1", [1]):
+			with self.subTest(value=repr(bad)), self.assertRaises(WorkerError):
+				dme._num(bad)
+		self.assertEqual((dme._num(5), dme._num(2.5), dme._num(0)), (5, 2.5, 0))
+		with self.assertRaises(WorkerError):
+			dme._num(-1, 0)  # below the minimum
+
 	def test_call_worker_rejects_bad_http(self):
 		cfg = ("http://127.0.0.1:9", "t")
 
@@ -621,6 +629,17 @@ class TestFillIntegration(IntegrationTestCase):
 		self.assertEqual(flt(after.closing_reading), 42)  # the reading itself is unaffected
 		self.assertEqual(self._crops(fill), [])
 		self.assertEqual(len(self._markers(fill)), 2)
+
+	def test_photo_bytes_come_raw_from_the_file_api_and_a_decoded_str_is_refused(self):
+		fill = self._fill(litres=42)
+		get_content = "frappe.core.doctype.file.file.File.get_content"
+		data, content_type = dme._photo_bytes(fill, "opening_photo")  # the real read: raw bytes
+		self.assertTrue(isinstance(data, bytes) and content_type == "image/png")
+		with mock.patch(get_content, return_value="decoded text") as read:
+			with self.assertRaises(WorkerError) as refused:
+				dme._photo_bytes(fill, "opening_photo")
+		self.assertEqual(str(refused.exception), "not_bytes")
+		self.assertEqual(read.call_args.kwargs, {"encodings": ()})
 
 	def test_nothing_is_submitted_or_posted(self):
 		fill = self._fill(litres=42)
