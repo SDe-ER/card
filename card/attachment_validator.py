@@ -15,7 +15,6 @@ fitment evidence, transport authorization documents, equipment documents) is pho
 Pillow is used for the decode check (a Frappe dependency; Frappe itself opens images on upload)."""
 
 import io
-import os
 
 import frappe
 from frappe import _
@@ -127,14 +126,11 @@ def check_attachment_content(file_url: str, kinds=tuple(KINDS), file_row: str | 
 	if cint(row.file_size) > MAX_BYTES:
 		frappe.throw(_("The attached file is larger than {0} MB.").format(MAX_BYTES // (1024 * 1024)))
 	try:
-		# the raw bytes from disk (File.get_content() may return a decoded str, which would corrupt them);
-		# the path comes from the url already matched to a private File row, kept inside private/files
-		base = os.path.realpath(frappe.get_site_path("private", "files"))
-		path = os.path.realpath(frappe.get_site_path(*cstr(file_url).lstrip("/").split("/")))
-		if os.path.commonpath([base, path]) != base:
-			raise ValueError("outside private files")
-		with open(path, "rb") as handle:
-			content = handle.read(MAX_BYTES + 1)
+		# the RAW bytes through the official File API: get_content(encodings=()) skips the text-decoding loop (a photo must not
+		# come back as a decoded str, which would corrupt it) and resolves the path with get_full_path + is_safe_path
+		content = frappe.get_doc("File", row.name).get_content(encodings=())
+		if not isinstance(content, bytes):
+			raise ValueError("not bytes")
 	except Exception:
 		frappe.throw(_("The attached file could not be read."))
 	check_content(content, row.file_name or file_url, kinds)
