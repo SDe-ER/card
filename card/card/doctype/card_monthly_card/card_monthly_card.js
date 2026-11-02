@@ -326,7 +326,7 @@ function card_render_card_links(frm) {
 function card_render_diesel(frm) {
 	if (frm.is_new() || !frm.doc.equipment || !frm.doc.project || !frm.dashboard) return;
 	frappe
-		.call({ method: "card.diesel.get_card_diesel", args: { card: frm.doc.name } })
+		.call({ method: "card.diesel.get_card_diesel", args: { card: frm.doc.name }, type: "GET" })
 		.then((r) => {
 			const d = (r && r.message) || {};
 			if (!frm.dashboard) return;

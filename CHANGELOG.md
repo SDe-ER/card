@@ -16,6 +16,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Security
+- **Read endpoints GET-only and diesel fill company permission** (H-CARD-3, H-CARD-4). `party_figures`,
+  `card_suppliers_query`, `card_customers_query`, `card_project_options`, `report_defaults`, `card_company_options`,
+  `get_card_diesel` and `get_shift_heatmap` are read-only and now declare `methods=["GET"]` (the two Autocomplete
+  sources `card_company_options` and `card_project_options` also allow POST, which the Autocomplete control uses);
+  their direct Desk callers pass `type: "GET"`. Project Diesel Fill gets a record-level `has_permission` hook (company sent and stored
+  company must be permitted), the same pattern as Card Monthly Card and Equipment Transport. Frappe 16 consults a
+  DocShare after a controller denial, so sharing a diesel fill with a user outside its company, or with everyone, is refused.
 - **Card Equipment financial privacy** (FR-096, Owner decision 2026-10-31). The Asset purchase value (a read-only
   copy of the Asset's `net_purchase_amount`), the internal hourly rate, the Asset cost center and the equipment's own
   cost center (filled from the Asset) were readable by every reader of the equipment, including Card User and Card
