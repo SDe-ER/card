@@ -26,7 +26,6 @@ from frappe.utils import flt, getdate
 
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
-from card.diesel import project_operating_hours, split_by_weights
 from card.gl import integrity, preflight
 from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
@@ -91,26 +90,6 @@ def _assert_identity(card, lines_total, expected, side_label):
 				"Reconciliation mismatch on card {0} ({1} side): invoice lines total {2} but the card stores {3}."
 			).format(card.name, _(side_label), flt(lines_total, 2), flt(expected, 2))
 		)
-
-
-def _split_fill_by_allocation(fill, month, year, company):
-	"""[(card_equipment or None, amount)] for one diesel fill. A fill bound to
-	an equipment is one line; a project-tank fill is split per equipment
-	pro-rata by the project+month OPERATING HOURS (owner checkpoint C: direct
-	fills must never influence tank weights; largest-remainder rounding keeps
-	the sum halala-exact); a period with no eligible hours stays one
-	unallocated line at project level."""
-	amount = flt(fill.amount, 2)
-	if fill.card_equipment:
-		return [(fill.card_equipment, amount, flt(fill.litres, 3))]
-	hours = project_operating_hours(fill.project, month, year, company)
-	# M6: ONE shared split rule for posting and display (card.diesel.split_by_weights);
-	# the litres shares use the same rule as the diesel reports (sum exactly)
-	shares = split_by_weights(amount, hours, 2)
-	if not shares:
-		return [(None, amount, flt(fill.litres, 3))]
-	litres = split_by_weights(fill.litres, hours, 3)
-	return [(eq, amt, flt(litres.get(eq), 3)) for eq, amt in sorted(shares.items()) if amt]
 
 
 def _source_cost_center(doctype, source, company):
@@ -254,47 +233,14 @@ def card_cost_center(card, company):
 	return resolve_cost_center(card.equipment, card.project, days, company, _("Card {0}").format(card.name))
 
 
-def worked_days(equipment, project, month, year, company):
-	"""The days `equipment` worked on `project` in the month, from its submitted cards."""
-	cards = frappe.get_all(
-		"Card Monthly Card",
-		filters={
-			"docstatus": 1,
-			"company": company,
-			"equipment": equipment,
-			"project": project,
-			"month": "%02d" % int(month),
-			"year": int(year),
-		},
-		pluck="name",
-	)
-	if not cards:
-		return []
-	return sorted(
-		{
-			getdate(d.operation_date)
-			for d in frappe.get_all(
-				"Card Monthly Card Day",
-				filters={"parent": ["in", cards], "parenttype": "Card Monthly Card"},
-				fields=["operation_date", "working_hours"],
-			)
-			if d.operation_date and flt(d.working_hours)
-		}
-	)
-
-
-def fill_line_cost_center(fill, equipment, company, month=None, year=None):
+def fill_line_cost_center(fill, equipment, company):
 	"""P1-0: the cost center of one diesel fill line: the fill's own cost center (validated,
-	#34) when set; else the allocation of the line's equipment — for a direct fill on the
-	fill's day, for an equipment's share of a project-tank fill (split by the month's
-	operating hours) on the days that equipment worked on the project, as its card; else,
-	for an unallocated line, the project's."""
+	#34) when set; else, for a direct fill, the allocation of its equipment on the fill's day;
+	else, for a project-tank fill (D1: one project-level line, equipment None), the project's."""
 	own = _source_cost_center("Project Diesel Fill", fill, company)
 	if own:
 		return own
 	days = [getdate(fill.date)]
-	if equipment and not fill.card_equipment and month and year:
-		days = worked_days(equipment, fill.project, month, year, company) or days
 	return resolve_cost_center(equipment, fill.project, days, company, _("Diesel fill {0}").format(fill.name))
 
 
@@ -609,30 +555,28 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
-			for equipment, amount, share in _split_fill_by_allocation(fill, int(month), int(year), company):
-				cost_center = fill_line_cost_center(fill, equipment, company, month, year)
-				if fill.card_equipment or not equipment:
-					# a direct fill (recorded) or a project-level line (unallocated)
-					description = _("Diesel fill {0} — {1} L").format(fill.name, share)
-				else:
-					# a project-tank fill split by operating hours: each line states ITS
-					# share of the litres, marked as an estimate (not measured) — #34
-					description = _(
-						"Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
-					).format(fill.name, share, flt(fill.litres, 3))
-				lines.append(
-					{
-						"item_code": row.diesel_item,
-						"rate": amount,
-						"account": row.diesel_expense_account,
-						"project": fill.project,
-						"cost_center": cost_center,
-						"card_equipment": equipment,
-						"taxable": 1,
-						"description": description,
-						"fill": fill.name,
-					}
+			# D1: one line per fill. A direct fill is that equipment's; a project-tank fill stays
+			# at project level (no hours-based per-equipment split: an estimate is not a posting basis)
+			equipment = fill.card_equipment or None
+			if equipment:
+				description = _("Diesel fill {0} — {1} L").format(fill.name, flt(fill.litres, 3))
+			else:
+				description = _("Diesel fill {0} — {1} L (project tank, not allocated to equipment)").format(
+					fill.name, flt(fill.litres, 3)
 				)
+			lines.append(
+				{
+					"item_code": row.diesel_item,
+					"rate": flt(fill.amount, 2),
+					"account": row.diesel_expense_account,
+					"project": fill.project,
+					"cost_center": fill_line_cost_center(fill, equipment, company),
+					"card_equipment": equipment,
+					"taxable": 1,
+					"description": description,
+					"fill": fill.name,
+				}
+			)
 			sources["Project Diesel Fill"].append((fill.name, flt(fill.amount, 2)))
 		transport_shares = _transport_shares(transports)
 		for t in transports:

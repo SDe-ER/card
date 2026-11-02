@@ -13,6 +13,25 @@ EXPENSE_ACCOUNT_FIELDS = (
 )
 
 
+def _tank_fill_keys(company, invoices):
+	"""{(purchase invoice, project)} of the company's submitted project-tank diesel fills
+	(no equipment) booked on those invoices."""
+	if not invoices:
+		return set()
+	fills = frappe.get_all(
+		"Project Diesel Fill",
+		filters={
+			"company": company,
+			"docstatus": 1,
+			"purchase_invoice": ["in", list(invoices)],
+			"card_equipment": ["is", "not set"],
+		},
+		fields=["purchase_invoice", "project"],
+		limit_page_length=0,
+	)
+	return {(f.purchase_invoice, f.project) for f in fills}
+
+
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	# Report: "Equipment Expenses Without Equipment" (O3 guard report). Read-only.
@@ -122,6 +141,22 @@ def execute(filters=None):
 		limit_page_length=0,
 	)
 
+	# D1: a project-tank diesel fill is posted as ONE project-level line (no equipment, by
+	# design). Those lines are intended, not gaps: identify them by the fill that points to
+	# the invoice (never by the line description), and count them apart.
+	tank_keys = _tank_fill_keys(company, {r.voucher_no for r in rows if r.voucher_type == "Purchase Invoice"})
+	diesel_account = row.get("diesel_expense_account")
+	tank_rows = [
+		r
+		for r in rows
+		if r.account == diesel_account
+		and r.voucher_type == "Purchase Invoice"
+		and (r.voucher_no, r.project) in tank_keys
+	]
+	if tank_rows:
+		excluded = {id(r) for r in tank_rows}
+		rows = [r for r in rows if id(r) not in excluded]
+
 	total = 0.0
 	for r in rows:
 		total = total + flt(r.debit) - flt(r.credit)
@@ -133,6 +168,12 @@ def execute(filters=None):
 			"value": flt(total, 2),
 			"datatype": "Currency",
 			"indicator": "Green" if not rows else "Red",
+		},
+		{
+			"label": _("Project tank diesel lines (intended, not listed)"),
+			"value": len(tank_rows),
+			"datatype": "Int",
+			"indicator": "Blue",
 		},
 	]
 	message = _(
