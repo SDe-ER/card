@@ -422,6 +422,13 @@ class TestDecide(IntegrationTestCase):
 			with self.subTest(box=box):
 				self.assertIsNone(dme.make_crop(image, box, [1600, 1200]))
 
+	def test_the_60_percent_limits_are_exact(self):
+		image = self._jpeg(1600, 1200)
+		self.assertIsNotNone(
+			dme.make_crop(image, [0, 0, 1600, 720], [1600, 1200])
+		)  # area and height exactly 60%
+		self.assertIsNone(dme.make_crop(image, [0, 0, 1600, 721], [1600, 1200]))  # height just over 60%
+
 	def test_a_box_partly_outside_the_image_is_clamped(self):
 		data = dme.make_crop(self._jpeg(800, 600), [700, 500, 300, 200], [800, 600])
 		self.assertIsNotNone(data)

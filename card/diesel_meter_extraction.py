@@ -556,8 +556,9 @@ def note_failure(fill, side, sha):
 
 def make_crop(image, box, size):
 	"""JPEG bytes of the counter box (+4%), clamped to the image. None only for an invalid box (no size, or nothing left after
-	clamping), a box whose area is over 60% of the image area, or one taller than 60% of the image (contract v1.5 sec 5.4: that is
-	not a counter crop). The width alone never refuses: a close-up meter is a wide box."""
+	clamping), a box whose area is over 60% of the image area, or one taller than 60% of the image: that is not a counter crop.
+	The width alone never refuses: a close-up meter is a wide box. A box up to these limits is accepted as is; the crop comes from
+	the same private photo of the same fill, so it shows nothing the photo does not."""
 	from PIL import Image
 
 	x, y, w, h = box
