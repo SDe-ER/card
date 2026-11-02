@@ -15,6 +15,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Fixed
+- **Diesel fill: a rejected fill returned to review re-checks its meter photos** (FR-085). A rejected fill does not
+  hold its photo, so a corrected fill may reuse it. Moving the rejected fill back to Draft or Needs Review did not check
+  the photos again (the check ran only when a photo or the company changed), so two live fills could prove one photo
+  and count the same litres twice. `ProjectDieselFill._check_photos` now also runs when the stored review status was
+  Rejected and the new one is not; the save is refused while another live fill uses the photo. Tests:
+  `card/tests/test_diesel_session_evidence.py` (2 new). Impact: no permission, schema, data or API change; no
+  accounting effect (fills post only after approval). Rollback: revert the commit.
+
 ### Security
 - **Card Equipment financial privacy** (FR-096, Owner decision 2026-10-31). The Asset purchase value (a read-only
   copy of the Asset's `net_purchase_amount`), the internal hourly rate, the Asset cost center and the equipment's own

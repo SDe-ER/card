@@ -395,9 +395,13 @@ class ProjectDieselFill(Document):
 
 	def _check_photos(self):
 		"""Meter photos are private files uploaded to this fill, and the same photo (same file or same
-		bytes) never proves two live fills. Checked when a photo or the company changes."""
+		bytes) never proves two live fills. Checked when a photo or the company changes, and when a
+		rejected fill becomes live again (its photo may now prove another fill)."""
+		before = None if self.is_new() else self.get_doc_before_save()
+		revived = bool(before and before.review_status == REJECTED and self.review_status != REJECTED)
 		if not (
 			self.is_new()
+			or revived
 			or self.has_value_changed("opening_photo")
 			or self.has_value_changed("closing_photo")
 			or self.has_value_changed("company")
