@@ -351,8 +351,8 @@ class TestAggregationAndDiesel(_PostingBase):
 		for name in (fills[1].name, amended.name):
 			self.assertFalse(frappe.db.get_value("Project Diesel Fill", name, "purchase_invoice"))
 
-	def test_mixed_direct_and_tank_fill_split_by_hours_only(self):
-		"""Checkpoint C: direct fills must never influence tank-fill weights."""
+	def test_mixed_direct_and_tank_fill_tank_stays_project_level(self):
+		"""D1: a direct fill stays on its equipment; the tank fill is one project-level line."""
 		eq_a = self._equipment()
 		eq_b = self._equipment()
 		self._card(eq_a, [5], submit=True)  # 5h
@@ -375,7 +375,7 @@ class TestAggregationAndDiesel(_PostingBase):
 			return f
 
 		direct = _fill(card_equipment=eq_a.name, litres=1000, unit_price=2)  # 2,000 all to A
-		tank = _fill(litres=100, unit_price=1)  # 100 -> 50/50 by hours, NOT by litres
+		tank = _fill(litres=100, unit_price=1)  # hours say 50/50; D1: still one project-level line
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		)
@@ -383,8 +383,14 @@ class TestAggregationAndDiesel(_PostingBase):
 		self.assertEqual(len(direct_lines), 1)
 		self.assertEqual(flt(direct_lines[0].rate, 2), 2000.0)
 		self.assertEqual(direct_lines[0].card_equipment, eq_a.name)
-		tank_by_eq = {i.card_equipment: flt(i.rate, 2) for i in pi.items if tank.name in i.description}
-		self.assertEqual(tank_by_eq, {eq_a.name: 50.0, eq_b.name: 50.0})
+		# D1: the tank fill is ONE project-level line, whatever the hours say
+		tank_lines = [i for i in pi.items if tank.name in i.description]
+		self.assertEqual(len(tank_lines), 1)
+		self.assertEqual(flt(tank_lines[0].rate, 2), 100.0)
+		self.assertFalse(tank_lines[0].card_equipment)
+		self.assertEqual(tank_lines[0].project, self.project)
+		self.assertNotIn("estimated share", tank_lines[0].description)
+		self.assertIn("project tank", tank_lines[0].description)
 
 	def test_tank_fill_without_hours_stays_unallocated(self):
 		"""Checkpoint C: no eligible operating hours -> the whole cost is kept
@@ -411,9 +417,8 @@ class TestAggregationAndDiesel(_PostingBase):
 		self.assertEqual(pi.items[0].project, self.project)
 		self.assertFalse(pi.items[0].card_equipment)
 
-	def test_tank_fill_rounding_preserves_total_to_the_halala(self):
-		"""Checkpoint C: equal thirds cannot split 100.00 evenly — the
-		largest-remainder line absorbs the halala and the sum stays exact."""
+	def test_tank_fill_total_is_exact_with_three_equipment_on_the_project(self):
+		"""D1: equal-hours thirds no longer split the fill — one line carries 100.00 exactly."""
 		for _ in range(3):
 			self._card(self._equipment(), [1], submit=True)  # 1h each
 		fill = frappe.get_doc(
@@ -434,12 +439,10 @@ class TestAggregationAndDiesel(_PostingBase):
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		)
 		tank_lines = sorted(flt(i.rate, 2) for i in pi.items if fill.name in i.description)
-		self.assertEqual(tank_lines, [33.33, 33.33, 33.34])
-		self.assertEqual(flt(sum(tank_lines), 2), 100.0)
+		self.assertEqual(tank_lines, [100.0])  # the invoice also holds the cards' lines
 
-	def test_tank_allocation_isolated_by_project_and_month(self):
-		"""Checkpoint C: only the fill's own project + month hours weigh the
-		split — other projects and other months contribute nothing."""
+	def test_tank_fill_ignores_hours_of_other_projects_and_months(self):
+		"""D1: other projects' and months' hours change nothing — one project-level line."""
 		from card.tests.test_controllers import _days
 
 		eq_a = self._equipment()
@@ -487,11 +490,46 @@ class TestAggregationAndDiesel(_PostingBase):
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		)
 		tank_lines = [i for i in pi.items if fill.name in i.description]
-		self.assertEqual(len(tank_lines), 1)  # ONLY eq_a operated on this project in 09
-		self.assertEqual(tank_lines[0].card_equipment, eq_a.name)
+		self.assertEqual(len(tank_lines), 1)
+		self.assertFalse(tank_lines[0].card_equipment)  # not even eq_a, the only one with hours
 		self.assertEqual(flt(tank_lines[0].rate, 2), 100.0)
 
-	def test_tank_fill_splits_per_equipment_by_hours(self):
+	def test_guard_report_does_not_flag_the_project_tank_line(self):
+		"""D1: a submitted tank-fill line has no equipment by design; the O3 guard report counts
+		it apart (found through the fill that points to the invoice) and does not list it."""
+		from card.card.report.equipment_expenses_without_equipment.equipment_expenses_without_equipment import (
+			execute,
+		)
+
+		fill = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": "2026-09-12",
+				"project": self.project,
+				"supplier": self.supplier,
+				"company": self.company,
+				"litres": 100,
+				"unit_price": 1.0,
+			}
+		)
+		use_fill_price(fill).insert(ignore_permissions=True)
+		approve_fill(fill)
+		fill.submit()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		pi.bill_no = "D1-GUARD-" + self.token
+		pi.bill_date = pi.posting_date
+		pi.save()
+		pi.submit()
+		_cols, rows, _msg, _chart, summary, _flag = execute({"company": self.company})
+		self.assertNotIn(pi.name, {r.voucher_no for r in rows})
+		tile = next(
+			s for s in summary if s["label"] == frappe._("Project tank diesel lines (intended, not listed)")
+		)
+		self.assertGreaterEqual(tile["value"], 1)
+
+	def test_tank_fill_is_not_split_per_equipment_by_hours(self):
 		eq_a = self._equipment()
 		eq_b = self._equipment()
 		self._card(eq_a, [6], submit=True)  # 6h
@@ -513,11 +551,9 @@ class TestAggregationAndDiesel(_PostingBase):
 		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		pi = frappe.get_doc("Purchase Invoice", pi_name)
 		fill_lines = [i for i in pi.items if fill.name in i.description]
-		self.assertEqual(len(fill_lines), 2)
-		self.assertEqual(flt(sum(i.rate for i in fill_lines), 2), 100.0)
-		by_eq = {i.card_equipment: flt(i.rate, 2) for i in fill_lines}
-		self.assertEqual(by_eq[eq_a.name], 75.0)
-		self.assertEqual(by_eq[eq_b.name], 25.0)
+		self.assertEqual(len(fill_lines), 1)  # 6h / 2h would have been 75 / 25
+		self.assertEqual(flt(fill_lines[0].rate, 2), 100.0)
+		self.assertFalse(fill_lines[0].card_equipment)
 
 
 class TestLifecycleGuards(_PostingBase):
@@ -1065,8 +1101,8 @@ class TestG0LifecycleDebt(_PostingBase):
 		with self.assertRaises(frappe.ValidationError):
 			vat_account_heads(row)
 
-	# ---- M6: posting and display put the rounding halala on the SAME equipment ----
-	def test_posting_and_display_remainder_agree(self):
+	# ---- D1: posting is project-level; the display keeps its labelled estimated split ----
+	def test_posting_is_project_level_and_display_stays_a_labelled_estimate(self):
 		from card.diesel import allocate_project_diesel
 
 		eqs = [self._equipment() for _ in range(3)]
@@ -1089,12 +1125,12 @@ class TestG0LifecycleDebt(_PostingBase):
 		pi = frappe.get_doc(
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		)
-		posted = {i.card_equipment: flt(i.rate, 2) for i in pi.items if fill.name in i.description}
-		display = {
-			eq: flt(v["amount"], 2)
-			for eq, v in allocate_project_diesel(self.project, 9, 2026, self.company).items()
-		}
-		self.assertEqual(posted, display)
+		posted = {(i.card_equipment or None): flt(i.rate, 2) for i in pi.items if fill.name in i.description}
+		self.assertEqual(posted, {None: 100.0})
+		display = allocate_project_diesel(self.project, 9, 2026, self.company)
+		self.assertEqual(set(display), {eq.name for eq in eqs})
+		self.assertEqual(flt(sum(v["amount"] for v in display.values()), 2), 100.0)
+		self.assertTrue(all(flt(v["amount_estimated"], 2) == flt(v["amount"], 2) for v in display.values()))
 
 	# ---- §5a: reservation is type-free (one active unit per party-month-side) ----
 	def test_draft_unit_of_another_type_blocks_build(self):

@@ -2039,8 +2039,8 @@ msgstr "المشروع {0} تابع للشركة {1}، وهذا النقل تا�
 msgid "Equipment {0} is already assigned to project {1} from {2} to {3}."
 msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} من {2} إلى {3}."
 
-msgid "Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
-msgstr "تعبئة ديزل {0} — {1} لتر حصة تقديرية من {2} لتر (توزيع بالساعات)"
+msgid "Diesel fill {0} — {1} L (project tank, not allocated to equipment)"
+msgstr "تعبئة ديزل {0} — {1} لتر (خزان المشروع، غير موزّعة على المعدات)"
 
 msgid "Invoiced through Card (net before VAT)"
 msgstr "مفوتر عبر Card (الصافي قبل الضريبة)"

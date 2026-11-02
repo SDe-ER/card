@@ -15,6 +15,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill
+  without equipment is now ONE Purchase Invoice line (its full amount, the project, no equipment) instead of one
+  line per equipment split by operating hours; an hours-based split is an estimate, not a posting basis. Its cost
+  center is the fill's own, else the project's (no assignment of any equipment; "Cost allocation needs review" when
+  neither is usable). Direct fills (with equipment) are unchanged. The line description no longer says "estimated
+  share". The GL equipment dimension therefore no longer includes tank diesel. Diesel reports and
+  `get_card_diesel` keep their labelled estimates and are unchanged; the PI-item-based Equipment Consumption no
+  longer includes tank diesel per equipment, while the Estimated reports still show the labelled estimate. The
+  "Equipment Expenses Without Equipment" guard report no longer lists project-tank diesel lines (identified through
+  the fill that points to the invoice) and counts them in a separate tile. Submitted invoices and posting logs are not
+  touched. Tank diesel's cost center moves from the equipment assignment's to the fill's own or the project's, so
+  cost-center and equipment-dimension reports around the release are not month-to-month comparable.
+  **Rebuild open draft postings built before this release before submitting them.**
+
 ### Security
 - **Card Equipment financial privacy** (FR-096, Owner decision 2026-10-31). The Asset purchase value (a read-only
   copy of the Asset's `net_purchase_amount`), the internal hourly rate, the Asset cost center and the equipment's own
