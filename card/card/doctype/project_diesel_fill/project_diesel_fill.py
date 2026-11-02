@@ -381,6 +381,7 @@ class ProjectDieselFill(Document):
 						f"Meter reading (closing): {value} has more decimals than the field keeps; not written"
 					)
 					result["outcome"]["closing"] = "clear_not_written"
+					result["needs_review"] = True  # Owner rule: a reading that is not written goes to review
 					continue
 				# belt and braces (B-1): _apply_readings recomputes litres from the ACTUAL opening reading; a write that
 				# would change the litres a person entered is refused and escalated

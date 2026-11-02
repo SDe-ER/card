@@ -69,7 +69,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (never submitted, never posted); any `?` / half-rolled / unreadable drum or defect writes NO reading and records the disputed reading
   (`Meter reading (closing): 0004? ...`) in `evidence_warnings`; only a material discrepancy (litres or invoice outside the reading's
   interval by more than the existing 1 L tolerance, reset not zero, closing not above opening, a contradiction of an entered reading)
-  sets Needs Review. A person's reading or litres is never overwritten, approved/rejected/submitted fills are never touched, the same
+  sets Needs Review. Owner rule 2026-11-03: only a clear, validated reading stays a Draft; every other processed outcome (an unreadable
+  or ambiguous side, no meter, a conflict, a clear reading that was not written) routes the fill to Needs Review with a visible line. A machine-written closing keeps an informational
+  line in `evidence_warnings` (`written by meter extraction; check against the photo`) so it is not mistaken for a typed number; it never routes. A person's reading or litres is never overwritten, approved/rejected/submitted fills are never touched, the same
   photo bytes are processed once, and the job runs as the user who saved the photo. Expect most real photos to need a person until the
   engine is validated on verified labels. Invoice litres, litres quoted in the source messages and the totalizer can only ESCALATE a
   clear reading (it is then not written and the fill goes to Needs Review); they never verify one. A person-entered opening reading

@@ -236,7 +236,12 @@ class TestDecide(IntegrationTestCase):
 	def test_r3_clear_pair_writes_only_the_closing_reading(self):
 		out = decide(self.sides(reading("00000", side="opening"), reading("00042")), FILL)
 		self.assertEqual(out["write"], {"closing_reading": 42.0})
-		self.assertEqual((out["lines"], out["needs_review"]), ({}, False))
+		self.assertEqual(out["needs_review"], False)  # the audit line below is informational: it never routes
+		self.assertEqual(list(out["lines"]), ["closing"])
+		self.assertIn(
+			"Meter reading (closing): 00042; written by meter extraction; check against the photo",
+			out["lines"]["closing"],
+		)
 
 	def test_ac3_ambiguity_never_writes_a_float(self):
 		out = decide(
@@ -248,7 +253,9 @@ class TestDecide(IntegrationTestCase):
 		self.assertEqual(out["write"], {})
 		self.assertIn("0004?", out["lines"]["closing"])
 		self.assertIn("between 42 and 43 L", out["lines"]["closing"])
-		self.assertFalse(out["needs_review"])  # litres 42 inside [39, 42]: not material (OQ-A)
+		self.assertTrue(
+			out["needs_review"]
+		)  # Owner rule 2026-11-03: any ambiguous closing goes to review (was OQ-A: not material)
 
 	def test_r5_material_when_litres_are_outside_the_interval(self):
 		out = decide(
@@ -284,7 +291,9 @@ class TestDecide(IntegrationTestCase):
 			self.sides(reading("00000", side="opening"), reading("00401")), dict(FILL, litres=400.5)
 		)
 		self.assertEqual(near["write"], {})  # 0.5 L apart: not equal to the third decimal, so no write
-		self.assertFalse(near["needs_review"])  # but inside the 1 L tolerance: information only
+		self.assertTrue(
+			near["needs_review"]
+		)  # Owner rule 2026-11-03: a clear reading that was not written goes to review
 
 	def test_ac9_an_entered_reading_is_never_overwritten(self):
 		out = decide(
@@ -304,8 +313,10 @@ class TestDecide(IntegrationTestCase):
 		unread = validate_response(answer(m, status="unreadable"), m, [800, 600])
 		out = decide(self.sides(None, unread), FILL)
 		self.assertEqual(
-			(out["lines"], out["needs_review"], out["outcome"]), ({}, False, {"closing": "unreadable"})
+			(out["needs_review"], out["outcome"]),
+			(True, {"closing": "unreadable"}),  # Owner rule 2026-11-03
 		)
+		self.assertIn("not readable", out["lines"]["closing"])
 		m = meta()
 		nometer = validate_response(answer(m, status="no_meter"), m, [800, 600])
 		out = decide(self.sides(None, nometer), FILL)
@@ -316,9 +327,64 @@ class TestDecide(IntegrationTestCase):
 		out = decide(self.sides(reading("000000", side="opening"), reading("00042")), FILL)
 		self.assertEqual(out["write"], {})
 		self.assertIn("drum counts differ", out["lines"]["closing"])
-		self.assertFalse(
+		self.assertTrue(
 			out["needs_review"]
-		)  # M1 (lead): informational unless litres/totalizer/invoice conflict
+		)  # Owner rule 2026-11-03 supersedes M1: the note stays informational but it now routes to review
+
+	def test_owner_rule_path_1_unreadable_side_routes_with_a_visible_line(self):
+		m = meta()
+		for side in ("opening", "closing"):
+			unread = validate_response(answer(m, status="unreadable"), m, [800, 600])
+			out = decide({"opening": None, "closing": None, side: unread}, FILL)
+			self.assertEqual(
+				(out["needs_review"], out["outcome"], out["write"]), (True, {side: "unreadable"}, {})
+			)
+			self.assertIn(f"Meter reading ({side}): not readable", out["lines"][side])
+
+	def test_owner_rule_path_2_ambiguous_closing_without_a_material_reason_routes(self):
+		out = decide(self.sides(None, reading("0004?", between=(4,))), dict(FILL, litres=42))
+		self.assertEqual(
+			(out["needs_review"], out["write"], out["outcome"]), (True, {}, {"closing": "ambiguous"})
+		)
+		self.assertIn("0004?", out["lines"]["closing"])
+		drums = decide(
+			self.sides(reading("000000", side="opening"), reading("00042")), FILL
+		)  # drum-count difference only (M1)
+		self.assertEqual((drums["needs_review"], drums["write"]), (True, {}))
+		self.assertIn("drum counts differ", drums["lines"]["closing"])
+
+	def test_owner_rule_path_3_clear_but_not_written_within_tolerance_routes(self):
+		out = decide(self.sides(reading("00000", side="opening"), reading("00401")), dict(FILL, litres=400.5))
+		self.assertEqual(
+			(out["needs_review"], out["write"], out["outcome"]["closing"]), (True, {}, "clear_not_written")
+		)
+		self.assertIn("entered litres 400.5", out["lines"]["closing"])
+
+	def test_owner_rule_path_4_entered_closing_ambiguous_inside_the_interval_routes(self):
+		out = decide(self.sides(None, reading("0004?", between=(4,))), dict(FILL, closing_reading=42))
+		self.assertEqual(
+			(out["needs_review"], out["write"], out["outcome"]["closing"]), (True, {}, "ambiguous")
+		)
+		self.assertIn("entered closing reading 42", out["lines"]["closing"])
+
+	def test_owner_rule_path_5_ambiguous_opening_routes_with_a_line(self):
+		out = decide(self.sides(reading("0000?", side="opening", between=(4,)), None), FILL)
+		self.assertEqual(
+			(out["needs_review"], out["write"], out["outcome"]), (True, {}, {"opening": "ambiguous"})
+		)
+		self.assertIn("0000?", out["lines"]["opening"])
+
+	def test_owner_rule_clear_written_and_confirmed_stay_draft(self):
+		written = decide(self.sides(reading("00000", side="opening"), reading("00042")), FILL)
+		self.assertEqual((written["needs_review"], written["outcome"]["closing"]), (False, "clear_written"))
+		confirmed = decide(
+			self.sides(reading("00000", side="opening"), reading("00042")), dict(FILL, closing_reading=42)
+		)
+		self.assertEqual((confirmed["needs_review"], confirmed["outcome"]["closing"]), (False, "confirmed"))
+		opening_only = decide(self.sides(reading("00000", side="opening"), None), FILL)
+		self.assertEqual(
+			(opening_only["needs_review"], opening_only["outcome"]), (False, {"opening": "clear_zero"})
+		)
 
 	def test_ac13_never_touches_approved_rejected_or_submitted(self):
 		for change in (
@@ -387,7 +453,7 @@ class TestDecide(IntegrationTestCase):
 		self.assertTrue(quoted["needs_review"])
 		self.assertIn("source messages", quoted["lines"]["closing"])
 		calm = decide(pair, dict(FILL, litres=42))
-		self.assertFalse(calm["needs_review"])  # M1: the drum-count difference alone does not escalate
+		self.assertTrue(calm["needs_review"])  # Owner rule 2026-11-03: the drum-count note alone now routes
 		self.assertIn("drum counts differ", calm["lines"]["closing"])
 		self.assertNotIn("outside the interval", calm["lines"]["closing"])
 		self.assertNotIn("invoiced", calm["lines"]["closing"])
@@ -610,7 +676,14 @@ class TestFillIntegration(IntegrationTestCase):
 			self.assertEqual(self.status, "applied")
 			self.assertEqual((flt(after.closing_reading), flt(after.litres)), (42, 42))
 			self.assertEqual((after.review_status, after.docstatus), ("Draft", 0))
-			self.assertFalse(after.evidence_warnings)
+			# audit trail: the machine-written number keeps an informational line and the fill stays a Draft
+			self.assertIn("written by meter extraction; check against the photo", after.evidence_warnings)
+			self.assertNotIn("Needs Review", after.review_status)
+			after.remarks = "edited by a person"
+			after.save()  # an unrelated save keeps the line
+			self.assertIn(
+				"Meter reading (closing)", frappe.get_doc(fill.doctype, fill.name).evidence_warnings
+			)
 			self.assertEqual(len(self._markers(fill)), 2)
 			self.assertTrue(self._crops(fill) and all(c.is_private for c in self._crops(fill)))
 			self.assertEqual((after.opening_photo, after.closing_photo), originals)
@@ -656,7 +729,9 @@ class TestFillIntegration(IntegrationTestCase):
 		self.assertEqual(self.status, "applied")
 		self.assertEqual(flt(after.closing_reading), 0)
 		self.assertIn("Meter reading (closing): 0004?", after.evidence_warnings)
-		self.assertEqual(after.review_status, "Draft")  # not material: stays Draft, not a completed draft
+		self.assertEqual(
+			after.review_status, "Needs Review"
+		)  # Owner rule 2026-11-03: ambiguous always goes to review
 		after.remarks = "edited by a person"
 		after.save()
 		self.assertIn(

@@ -367,7 +367,24 @@ def quoted_litres(text):
 def decide(sides, fill):
 	"""sides: {"opening": reading|None, "closing": reading|None} (None = not processed now).
 	fill: dict(docstatus, review_status, litres, opening_reading, closing_reading, invoiced_litres).
-	-> {"write": {field: value}, "lines": {side: text}, "needs_review": bool, "outcome": {side: token}}."""
+	-> {"write": {field: value}, "lines": {side: text}, "needs_review": bool, "outcome": {side: token}}.
+	Owner rule (2026-11-03): only a clear, validated reading stays a Draft; every other processed outcome (unreadable,
+	ambiguous, no meter, conflict, a clear reading that was not written) routes the fill to Needs Review. Nothing else changes:
+	an uncertain digit is never written, and a fill that is not an editable Draft is never touched (its outcome stays empty)."""
+	res = _decide(sides, fill)
+	outcome = res["outcome"]
+	if outcome.get("closing") not in (None, *CLEAN_CLOSING) or outcome.get("opening") not in (
+		None,
+		"clear_zero",
+	):
+		res["needs_review"] = True
+	return res
+
+
+CLEAN_CLOSING = ("clear_written", "confirmed")
+
+
+def _decide(sides, fill):
 	res = {"write": {}, "lines": {}, "needs_review": False, "outcome": {}}
 	if fill.get("docstatus") != 0 or fill.get("review_status") not in EDITABLE:
 		return res  # Operations Approved / Rejected / submitted / cancelled: never touched
@@ -379,7 +396,10 @@ def decide(sides, fill):
 		if r is None:
 			continue
 		if r["status"] == "unreadable":
-			res["outcome"][side] = "unreadable"  # R1: manual flow, marker only
+			res["outcome"][side] = (
+				"unreadable"  # R1: manual flow; routed to review with a visible line (Owner rule)
+			)
+			res["lines"][side] = f"{LINE_PREFIX.format(side)} not readable in the photo"
 		elif r["status"] == "no_meter" or {"multiple_meters", "not_a_meter"} & set(r["flags"]):
 			res["outcome"][side] = "no_meter"  # R2: the evidence itself is invalid
 			res["lines"][side] = f"{LINE_PREFIX.format(side)} no single meter found in the photo"
@@ -456,6 +476,11 @@ def decide(sides, fill):
 		if abs(litres - session) <= EXACT and not why:
 			res["write"] = {"closing_reading": c["value"]}  # R3: a completed draft (no warning, no submit)
 			res["outcome"]["closing"] = "clear_written"
+			# audit trail (Owner 2026-11-03): informational only, it never routes; the Version row names the saving user,
+			# so this line (and the signed marker) is what shows the number was machine-written
+			res["lines"]["closing"] = _line(
+				"closing", c, "written by meter extraction; check against the photo"
+			)
 			return res
 		res["outcome"]["closing"] = "clear_not_written"
 		if (
