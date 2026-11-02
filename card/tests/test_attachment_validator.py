@@ -3,6 +3,7 @@
 """H-CARD-1 / H-CARD-2: the shared attachment validator and its use on Card Equipment and Equipment Transport."""
 
 import json
+from unittest import mock
 
 import frappe
 from frappe.tests import IntegrationTestCase
@@ -117,6 +118,19 @@ class TestAttachmentFiles(IntegrationTestCase):
 		check_attachment_content(good.file_url, file_row=good.name)
 		with self.assertRaises(frappe.ValidationError):
 			check_attachment_content(good.file_url, file_row=bad.name)  # a row that is not this url's
+
+	def test_the_official_file_api_is_read_for_raw_bytes_and_a_str_or_a_failure_is_refused(self):
+		"""T0059 C1: File.get_content(encodings=()) returns raw bytes; a decoded str or a failing read never passes."""
+		good = self._file(png("raw"), "raw.png")
+		get_content = "frappe.core.doctype.file.file.File.get_content"
+		with mock.patch(get_content, return_value=png("raw")) as read:
+			check_attachment_content(good.file_url)
+		self.assertEqual(read.call_args.kwargs, {"encodings": ()})  # empty encodings = no text-decoding loop
+		with mock.patch(get_content, return_value="decoded text"), self.assertRaises(frappe.ValidationError):
+			check_attachment_content(good.file_url)
+		with mock.patch(get_content, side_effect=OSError("gone")), self.assertRaises(frappe.ValidationError):
+			check_attachment_content(good.file_url)
+		check_attachment_content(good.file_url)  # the unmocked read still works
 
 	def test_attached_only_refuses_loose_and_public_files(self):
 		"""T0029 (4): a re-decision keeps the stored document only if it is a private file of THIS record."""
