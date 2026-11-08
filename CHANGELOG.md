@@ -166,13 +166,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Customer, Supplier and `*` (Company Restriction). The restricted catalog read of the Card portal roles (Card
   Operator and the CARD Mobile catalog view) refused to read whenever any such hook existed, so after that ERPNext
   release their catalog, OEM numbers, alternatives, filters and the mobile item search would be empty (18 tests on
-  CI). `card.catalog._read` now applies the hooks the way `frappe.get_list` does (`_query_rule_criteria`: a string
+  CI). `card.catalog._read` now applies the hooks the way the latest frappe v16 `frappe.get_list` does (`_query_rule_criteria`: a string
   condition is wrapped as raw SQL, a pypika term is used as it is; `_get_all_with_rules` builds the same query with
   the query builder and adds them). A Permission Query server script still closes the restricted read. Readers of
   the DocType keep `frappe.get_list`. Frappe v16 from November 2026 also reloads the stored document on a Desk
-  Cancel, so a changed date in the request is dropped instead of refused; the five open-period cancel tests in
-  `test_period_lock_extra_keys` now check that the stored date never changes under either behaviour. Tests:
-  `card/tests/test_catalog_query_rules.py` (6). Impact: the restricted read gains the same row rules as
+  Cancel, so a changed date in the request is dropped instead of refused; the five Desk cancel-request tests in
+  `test_period_lock_extra_keys` now check that the stored date never changes under either behaviour, and two
+  new tests keep CARD's own refusal covered for a Python/API cancel that changes the date. Tests:
+  `card/tests/test_catalog_query_rules.py` (7). Impact: the restricted read gains the same row rules as
   `frappe.get_list` (it can only narrow what it returns); no new role, permission, schema, accounting or API change.
   Production today has no Company Restriction (checked read-only 2026-11-09), so nothing changes there until
   ERPNext is updated. Rollback: revert the commit (the portal catalog is empty again on ERPNext v16.54.0 or later).

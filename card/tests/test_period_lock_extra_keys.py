@@ -16,6 +16,7 @@ from frappe.desk.form.save import savedocs
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
+from card.period_lock import PeriodLockDateChangeError
 from card.tests import test_period_lock
 from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.transport_parties import company_paid
@@ -108,6 +109,13 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 			frappe.db.rollback(save_point="period_lock_cancel")
 			raise
 
+	def _assert_date_change_refusal(self, error):
+		"""Refused because the cancel changes the document: the period lock's own error, or the
+		transport's earlier "details cannot be changed when cancelling" guard."""
+		if isinstance(error, PeriodLockDateChangeError):
+			return
+		self.assertRegex(str(error), "cannot be changed when cancelling")
+
 	def _cancel_keeps_the_date(self, doc, field, **changes):
 		"""A Desk Cancel request carrying a changed date never stores that date. Older frappe v16
 		stored the request's values before on_cancel, so CARD refuses the cancel; frappe v16 from
@@ -117,7 +125,8 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 		before = self._stored(doc, field)
 		try:
 			self._cancel_request(doc, **changes)
-		except frappe.ValidationError:
+		except frappe.ValidationError as e:
+			self._assert_date_change_refusal(e)
 			self.assertEqual(frappe.db.get_value(doc.doctype, doc.name, "docstatus"), 1)
 			self.assertEqual(self._stored(doc, field), before)
 			return False
@@ -324,19 +333,44 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 		self._refused_cancel(t, "date", date=FAR_DATE)
 
 	# cancel in an open period may not leave a changed date (fail before the fix)
-	def test_card_open_cancel_with_changed_to_date_refused(self):
+	def _refused_direct_cancel(self, doc, field, value):
+		"""A Python/API cancel saves every field of the loaded document, so CARD itself must refuse
+		a changed date (frappe's Desk reload does not cover this path)."""
+		before = self._stored(doc, field)
+		d = frappe.get_doc(doc.doctype, doc.name)
+		d.set(field, value)
+		frappe.db.savepoint("period_lock_direct_cancel")
+		with self.assertRaises(frappe.ValidationError) as refused:
+			try:
+				d.cancel()
+			except Exception:
+				frappe.db.rollback(save_point="period_lock_direct_cancel")
+				raise
+		self._assert_date_change_refusal(refused.exception)
+		self.assertEqual(frappe.db.get_value(doc.doctype, doc.name, "docstatus"), 1)
+		self.assertEqual(self._stored(doc, field), before)
+
+	def test_fill_open_direct_cancel_with_changed_date_refused(self):
+		fill = self._submitted(self._fill(self._today()))
+		self._refused_direct_cancel(fill, "date", self._today(1))
+
+	def test_transport_open_direct_cancel_with_changed_date_refused(self):
+		t = self._submitted(self._transport(self._today()))
+		self._refused_direct_cancel(t, "date", self._today(1))
+
+	def test_card_open_cancel_request_keeps_to_date(self):
 		card = self._submitted(self._current_card())
 		self._cancel_keeps_the_date(card, "to_date", to_date=FAR_DATE)
 
-	def test_fill_open_cancel_with_changed_date_refused(self):
+	def test_fill_open_cancel_request_keeps_date(self):
 		fill = self._submitted(self._fill(self._today()))
 		self._cancel_keeps_the_date(fill, "date", date=str(self._today(1)))
 
-	def test_transport_open_cancel_with_changed_date_refused(self):
+	def test_transport_open_cancel_request_keeps_date(self):
 		t = self._submitted(self._transport(self._today()))
 		self._cancel_keeps_the_date(t, "date", date=str(self._today(1)))
 
-	def test_override_role_cancel_with_changed_date_refused(self):
+	def test_override_role_cancel_request_keeps_date(self):
 		fill = self._submitted(self._fill())
 		self._set("period_lock_override_role", "System Manager")  # Administrator holds it
 		self._cancel_keeps_the_date(fill, "date", date=FAR_DATE)

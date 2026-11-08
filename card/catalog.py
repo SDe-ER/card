@@ -126,17 +126,25 @@ def _query_rule_criteria(doctype):
 	return criteria
 
 
+# the frappe.get_all arguments the catalog reads use; anything else would be dropped silently
+_GET_ALL_KEYS = frozenset({"fields", "pluck", "order_by", "distinct", "limit_start", "limit_page_length"})
+
+
 def _get_all_with_rules(doctype, filters, rules, **kwargs):
 	"""``frappe.get_all`` plus permission query rules: Frappe's nested filters take no raw
 	condition, so the same query is built with the query builder and the rules are added to it."""
+	from frappe.database.utils import DefaultOrderBy
 	from frappe.query_builder import Criterion
 
+	unknown = set(kwargs) - _GET_ALL_KEYS
+	if unknown:
+		frappe.throw(f"Unsupported catalog read arguments: {sorted(unknown)}")
 	pluck = kwargs.get("pluck")
 	query = frappe.qb.get_query(
 		doctype,
 		fields=[pluck] if pluck else kwargs.get("fields") or ["name"],
 		filters=filters,
-		order_by=kwargs.get("order_by"),
+		order_by=kwargs.get("order_by", DefaultOrderBy),
 		limit=cint(kwargs.get("limit_page_length")) or None,
 		offset=cint(kwargs.get("limit_start")) or None,
 		distinct=bool(kwargs.get("distinct")),

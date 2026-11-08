@@ -33,6 +33,25 @@ def drop_marked_oem(user, doctype=None):
 	return fn.Substring(table.manufacturer_part_no, 1, 4) != "DROP"
 
 
+RULE_GROUP = None
+RULE_BARCODE = None
+
+
+def group_or_barcode_term(user, doctype=None):
+	"""Test rule on Item as a pypika term (ERPNext Company Restriction shape): items of RULE_GROUP or
+	items with the RULE_BARCODE barcode (correlated EXISTS on the child table)."""
+	from pypika.terms import Bracket, ExistsCriterion
+
+	item = frappe.qb.DocType("Item")
+	barcode = frappe.qb.DocType("Item Barcode")
+	has_barcode = (
+		frappe.qb.from_(barcode)
+		.select(barcode.name)
+		.where((barcode.parent == item.name) & (barcode.barcode == RULE_BARCODE))
+	)
+	return Bracket((item.item_group == RULE_GROUP) | ExistsCriterion(has_barcode))
+
+
 def _with_rules(rules):
 	real = frappe.get_hooks
 
@@ -129,3 +148,19 @@ class TestCatalogQueryRules(IntegrationTestCase):
 				o["value"] for o in self._as(operator, catalog.filter_options, "item_group", self.token)
 			]
 			self.assertIn(self.parts, groups)
+
+	def test_item_term_rule_with_a_barcode_search(self):
+		"""A pypika term on Item shaped like ERPNext's Company Restriction (a bracket with a correlated
+		EXISTS), together with the barcode join a 3+ character search adds."""
+		global RULE_GROUP, RULE_BARCODE
+		other = self._group("RULEGRP", parent="All Item Groups")
+		RULE_GROUP, RULE_BARCODE = other, f"RB{self.token}1"
+		by_group = self._item("G", item_group=other, item_name=f"Rule G {self.token}")
+		by_barcode = self._item("H", item_name=f"Rule H {self.token}", barcode=RULE_BARCODE)
+		self._item("I", item_name=f"Rule I {self.token}", barcode=f"RB{self.token}2")
+		operator = self._user("qr8", ["Card Operator"])
+		with _with_rules({"Item": [f"{__name__}.group_or_barcode_term"]}):
+			found = self._codes(self._as(operator, catalog.search, f"RB{self.token}", page_length=50))
+			self.assertEqual(found, [by_barcode])
+			found = self._codes(self._as(operator, catalog.search, "Rule", page_length=50))
+			self.assertEqual(sorted(c for c in found if self.token in c), sorted([by_group, by_barcode]))
