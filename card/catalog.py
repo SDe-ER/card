@@ -117,10 +117,12 @@ def _query_rule_criteria(doctype):
 		return None
 	hooks = frappe.get_hooks("permission_query_conditions", {})
 	criteria = []
+	user = frappe.session.user
 	for method in hooks.get(doctype, []) + hooks.get("*", []):
 		# Audited (Semgrep frappe-codeinjection-eval): ``method`` is a dotted path from an installed
 		# app's hooks.py (frappe.get_hooks), never request data; the same call frappe.get_list makes.
-		condition = frappe.call(frappe.get_attr(method), frappe.session.user, doctype=doctype)  # nosemgrep
+		hook = frappe.get_attr(method)  # nosemgrep: frappe-codeinjection-eval
+		condition = frappe.call(hook, user, doctype=doctype)  # nosemgrep: frappe-codeinjection-eval
 		if condition:
 			criteria.append(RawCriterion(f"({condition})") if isinstance(condition, str) else condition)
 	return criteria
