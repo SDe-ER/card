@@ -181,3 +181,4 @@ Checked against `main` @ `31fe7ce` (2026-10-20); FR-002 and FR-003 re-checked at
 | 2026-10-26 | FR-084 added (WS-013: application name CARD in every language; fix PR). No row deleted |
 | 2026-10-26 | FR-042: assignment change that drops submitted card days refused (fix PR). No row deleted |
 | 2026-10-26 | FR-078, FR-084: Implemented (PRs #110, #135 merged, unreleased); FR-079: Implemented (v4.1.0). CHANGELOG: phase 2b entry moved from [4.1.0] to [Unreleased] (it is not in that release). No row deleted |
+| 2026-11-09 | FR-076: the restricted catalog read applies permission query hooks like `frappe.get_list` (ERPNext v16.54.0 Company Restriction); fix branch `fix/erpnext-company-restriction`, not merged. No row deleted |
