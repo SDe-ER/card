@@ -40,6 +40,19 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   API responses narrowed, no permission, schema, data or accounting change. Rollback: revert the commit.
 
 ### Added
+- **Night-shift customer rate on Card Equipment** (FR-109, Owner decision 2026-11-08). A machine rented to a customer
+  can carry a different price per shift (for example a crusher rented at one monthly price for the day shift and a
+  lower one for the night shift, both on 26 days x 10 hours). Card Equipment gets an optional field
+  `customer_rate_night` (Currency, non-negative, permlevel 1 like `customer_rate`, shown only for the customer-billing
+  directions, tracked as a commercial field). A night-shift Card Monthly Card (`shift = ليلي`) of a customer-billing
+  equipment mirrors this rate into its `customer_rate` (same basis `customer_rate_type`); a day-shift card, and a
+  night card of an equipment without a night rate (empty or zero), keep the customer rate exactly as before.
+  Submitted cards keep their stored values. Affected: `card_equipment.json/.py`, `card_monthly_card.py`
+  (`before_validate` mirror), `card_monthly_card.js` (the form shows the night rate before save, display only), `card/constants.py` (`SHIFT_DAY`, `SHIFT_NIGHT`), `card/locale/ar.po`;
+  tests `card/tests/test_shift_customer_rate.py` (8). Impact: one new nullable column; no permission widening; no
+  accounting change (CARD writes no GL entries; the customer amount feeds the existing Sales Invoice flow); no API
+  change. Rollback: revert the commit and migrate; the column stays in the database unused (Frappe does not drop
+  columns), and draft night cards re-mirror the customer rate on their next save.
 - **Equipment Meter Reconciliation report** (FR-094, maintenance plan R1, 2026-10-31). A read-only Script Report
   (Card Manager, Accounts Manager, System Manager; the user's roles must also read Card Equipment, Card Monthly Card
   and Asset — on a standard site Asset is read by Accounts User, so a user needs both) that
