@@ -161,6 +161,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   commits; submitted postings keep their cost centers.
 
 ### Fixed
+- **Test setup: standard Party Types on a clean test site** (CI, 2026-11-09). ERPNext `version-16` (commit
+  `495380b`, 2026-11-06) now refuses a GL row whose party type has no Party Type record ("Supplier is not a valid
+  Party Type"). The setup wizard creates these records on a real site, but the CI test site skips the wizard, so 118
+  posting, reconciliation, catalog and period-lock tests failed on `main` and on every PR. The shared test masters
+  (`_ensure_masters`, run committed by `card.install.before_tests`) now create the four standard Party Types
+  (Customer, Supplier, Employee, Shareholder) when they are missing. Affected: `card/tests/test_controllers.py` only.
+  Impact: tests only; no application code, schema, permission, accounting or API change; Production is not affected
+  (its Party Types exist). Rollback: revert the commit.
 - **Period-lock tests no longer depend on the calendar** (test-only, Owner approval 2026-10-31). On main CI of
   `ef4f412` the test site's date was already the 1st of a month. `card/tests/test_period_lock_extra_keys.py`
   recorded hours on day 2 of the open month, and the card's future-day rule refused that day, so 4 tests failed
