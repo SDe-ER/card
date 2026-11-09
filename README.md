@@ -187,12 +187,15 @@ in [docs/releases](docs/releases/VERSION-HISTORY.md).
   and documents with expiry warnings.
 - Owned and managed equipment take their name, brand, type and details from the linked ERPNext **Asset**.
 - Units made of several machines, with dated components.
+- Financial fields (Asset purchase value, internal hourly rate, cost centers) only for managers and accounts.
 
 ### Movement and transport
 
 - **Equipment Transport** moves one or more machines to a project, workshop, storage or back to the
   supplier. CARD reads where each machine is and charges the destination's cost center.
 - Approved transports open and close the project assignments.
+- A cost responsibility on each transport (who pays and who bears the cost). A recharged move waits for a
+  financial decision by an Accounts Manager.
 
 ### Monthly operation cards
 
@@ -214,8 +217,13 @@ in [docs/releases](docs/releases/VERSION-HISTORY.md).
   Stock Entry). CARD never writes General Ledger entries directly.
 - A **Card Equipment** accounting dimension for per-machine ledgers and financial statements.
 - Period lock, company isolation and a permanent posting log.
-- 14 reports, including supplier and customer statements, operating and transport cost by project, diesel,
-  materials and custody.
+- Posting integrity checks, and the project cost center on every card, diesel and transport line.
+- **Settlement:** link a submitted supplier accrual Journal Entry to the monthly cards it recognised, so CARD
+  never invoices them again. The **Card Settlement Status** report shows paid and remaining per card from the
+  Payment Ledger.
+- 19 reports, including supplier and customer statements, operating and transport cost by project, diesel,
+  materials and custody, settlement status, and read-only reviews of diesel invoices, transport accounting,
+  hour meters and Asset mapping.
 - Print formats for the monthly card, diesel fill, transport, tool handover and the A4 supplier statement, in the
   standard print style and the print language (right to left for Arabic).
 

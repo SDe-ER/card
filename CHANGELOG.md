@@ -20,7 +20,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (equipment, transport, project assignment, monthly card, daily hours), in English with an Arabic summary.
   Grouped badges (CI, Linters, CodeQL, Codecov, release, license, platform), a screenshots gallery of the
   main pages (CARD v4.1.2, fictional test data, new files in `.github/images/`), a table of the CI
-  workflows, and the report count corrected to 14. Requested by the owner. Documentation only: no change to
+  workflows, the report count corrected to 19, and the Features section brought up to v4.5.0 (settlement,
+  posting integrity, transport cost responsibility, equipment financial privacy). Requested by the owner. Documentation only: no change to
   code, permissions, accounting, data or the API. Rollback: revert the commit.
 
 ### Planned
