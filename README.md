@@ -60,7 +60,7 @@ Asset.
 
 ## Features
 
-Everything below is available in the latest release, **v4.3.0**. The complete inventory of each version is
+Everything below is available in the latest release, **v4.4.0**. The complete inventory of each version is
 in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 ### Equipment
@@ -98,7 +98,8 @@ in [docs/releases](docs/releases/VERSION-HISTORY.md).
 - Period lock, company isolation and a permanent posting log.
 - 13 reports, including supplier and customer statements, operating and transport cost by project, diesel,
   materials and custody.
-- RTL Arabic print formats for the monthly card, diesel fill and transport.
+- Print formats for the monthly card, diesel fill, transport, tool handover and the A4 supplier statement, in the
+  standard print style and the print language (right to left for Arabic).
 
 ## CARD Mobile
 
@@ -204,6 +205,7 @@ request with CI and review; every release has a full documentation page.
 
 | Version | Date | Highlights |
 |---|---|---|
+| [v4.4.0](docs/releases/v4.4.0.md) | 2026-11-09 | Standard print style for every CARD print; prints in the print language and direction; cleaner A4 supplier statement |
 | [v4.3.0](docs/releases/v4.3.0.md) | 2026-11-09 | Posting integrity and project cost centers; transport cost responsibility; review reports; equipment financial privacy; night-shift customer rate; works with ERPNext v16.54.0+ |
 | [v4.2.2](docs/releases/v4.2.2.md) | 2026-10-27 | Diesel meter photos shown large on the fill form; clearer reading labels |
 | [v4.2.1](docs/releases/v4.2.1.md) | 2026-10-27 | Simpler diesel fill form |
