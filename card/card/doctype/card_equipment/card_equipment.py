@@ -114,12 +114,14 @@ class CardEquipment(Document):
 		# so depreciation entries land on the equipment in GL. No-op without the dimension.
 		sync_asset_dimension(self)
 		# WP-05: the pieces that joined or left this unit get their derived component flag
-		before = self.get_doc_before_save()
-		pieces = {r.component for r in self.get("components") or [] if r.component}
-		pieces.update(
-			r.component for r in (before.get("components") if before else None) or [] if r.component
-		)
-		sync_unit_component_flags(pieces)
+		# (move_component syncs once itself, after both units are saved)
+		if not frappe.flags.get("card_defer_unit_flag_sync"):
+			before = self.get_doc_before_save()
+			pieces = {r.component for r in self.get("components") or [] if r.component}
+			pieces.update(
+				r.component for r in (before.get("components") if before else None) or [] if r.component
+			)
+			sync_unit_component_flags(pieces)
 		if self.has_value_changed("equipment_model"):
 			# FR-077: a machine's fitment rows carry its model (filters, conflict check)
 			frappe.db.set_value(
@@ -789,12 +791,23 @@ def move_component(unit: str, component: str, target_unit: str, date: str, reaso
 	row = _close_component(source, component, day, reason)
 	_check_no_approved_card_from(target, day)
 	_check_component_on_project(target, component, day)
-	# close first: the target's "already belongs to another unit" check reads the DB
-	source.save()
-	target.append(
-		"components", {"component": component, "role": row.role, "from_date": day, "change_reason": reason}
+	# close first: the target's "already belongs to another unit" check reads the DB.
+	# The piece stays a component throughout: its flag is synced once, after both saves
+	# (no cleared-then-set pair of comments)
+	deferred = frappe.flags.get("card_defer_unit_flag_sync")
+	frappe.flags.card_defer_unit_flag_sync = True
+	try:
+		source.save()
+		target.append(
+			"components",
+			{"component": component, "role": row.role, "from_date": day, "change_reason": reason},
+		)
+		target.save()
+	finally:
+		frappe.flags.card_defer_unit_flag_sync = deferred
+	sync_unit_component_flags(
+		{r.component for doc in (source, target) for r in doc.components if r.component}
 	)
-	target.save()
 	return target.name
 
 

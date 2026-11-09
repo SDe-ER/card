@@ -9,10 +9,12 @@ from frappe.tests import IntegrationTestCase
 
 from card.card.doctype.card_equipment.card_equipment import (
 	get_unit_integrity_issues,
+	move_component,
 	replace_component,
 	resync_unit_component_flag,
 	unit_integrity_issues,
 )
+from card.card.doctype.card_monthly_card.card_monthly_card import get_card_context
 from card.patches.v4_6_0 import derive_unit_component_flag
 from card.tests import test_transfer as _transfer
 from card.tests.test_controllers import _ensure_masters
@@ -43,6 +45,7 @@ class TestUnitOwnership(IntegrationTestCase):
 	_project = _transfer.TestEquipmentTransfer._project
 	_equipment = _transfer.TestEquipmentTransfer._equipment
 	_card = _transfer.TestEquipmentTransfer._card
+	_assign = _transfer.TestEquipmentTransfer._assign
 	_refused = _transfer.TestEquipmentTransfer._refused
 
 	def _refused_with(self, action, pattern):
@@ -259,3 +262,84 @@ class TestUnitOwnership(IntegrationTestCase):
 				resync_unit_component_flag(piece)
 		finally:
 			frappe.set_user("Administrator")
+
+	def _mixed_card(self, equipment, project, hours_by_day):
+		d = frappe.new_doc("Card Monthly Card")
+		d.update(
+			{
+				"equipment": equipment,
+				"project": project,
+				"shift": "نهاري",
+				"month": self.month_str,
+				"year": int(self.year_str),
+			}
+		)
+		for day, hours in sorted(hours_by_day.items()):
+			d.append("days", {"operation_date": self._d(day), "day_status": "عمل", "working_hours": hours})
+		return d
+
+	def test_mid_month_join_and_leave_save_with_zero_hour_rows(self):
+		# review MEDIUM-1: the form adds a 0-hour row for every day on the project
+		p = self._project("U")
+		a, b = self._equipment().name, self._equipment().name
+		self._assign(a, p, 1)
+		self._assign(b, p, 1)
+		unit = self._unit(a)
+		replace_component(unit.name, a, b, self._d(15), "test")  # a leaves after day 14, b joins on 15
+		all_days = {day: 0 for day in range(1, 29)}
+		# working hours inside the unit period stay refused
+		self._refused_with(
+			lambda: self._mixed_card(a, p, {**all_days, 10: 8}).insert(ignore_permissions=True),
+			"is a component of unit",
+		)
+		self._refused_with(
+			lambda: self._mixed_card(b, p, {**all_days, 20: 8}).insert(ignore_permissions=True),
+			"is a component of unit",
+		)
+		# 0-hour rows inside the unit period pass; the hours are outside it
+		self._mixed_card(a, p, {**all_days, 20: 8}).insert(ignore_permissions=True)
+		self._mixed_card(b, p, {**all_days, 5: 8}).insert(ignore_permissions=True)
+		# the form is not offered the unit days
+		days_a = get_card_context(a, self.month_str, self.year_str, p)["days"]
+		days_b = get_card_context(b, self.month_str, self.year_str, p)["days"]
+		self.assertNotIn(self._d(10), days_a)
+		self.assertIn(self._d(20), days_a)
+		self.assertIn(self._d(5), days_b)
+		self.assertNotIn(self._d(20), days_b)
+
+	def test_component_row_inserted_on_its_own_sets_the_flag(self):
+		# review LOW-1: a row saved without its unit re-derives the piece's flag
+		piece = self._equipment().name
+		unit = self._unit()
+		frappe.get_doc(
+			{
+				"doctype": "Card Equipment Component",
+				"parenttype": "Card Equipment",
+				"parentfield": "components",
+				"parent": unit.name,
+				"component": piece,
+				"role": "R",
+			}
+		).insert(ignore_permissions=True)
+		self.assertEqual(self._flag(piece), 1)
+
+	def test_move_between_units_keeps_the_flag_with_one_sync(self):
+		# review LOW-3: the piece stays a component; no cleared-then-set pair of comments
+		piece = self._equipment().name
+		source, target = self._unit(piece), self._unit()
+
+		def comments():
+			return frappe.get_all(
+				"Comment",
+				filters={
+					"reference_doctype": "Card Equipment",
+					"reference_name": piece,
+					"comment_type": "Info",
+				},
+				pluck="content",
+			)
+
+		before = len(comments())
+		move_component(source.name, piece, target.name, self._d(15), "test")
+		self.assertEqual(self._flag(piece), 1)
+		self.assertEqual(len(comments()), before)

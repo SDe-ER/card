@@ -5,10 +5,16 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from card.card.doctype.card_equipment.card_equipment import check_unit_components
+from card.card.doctype.card_equipment.card_equipment import check_unit_components, sync_unit_component_flags
 
 
 class CardEquipmentComponent(Document):
+	def on_update(self):
+		"""WP-05: a row inserted or saved on its own (not through its unit) re-derives its
+		piece's unit-component flag; the unit's own save does this in its on_update."""
+		if self.parenttype == "Card Equipment" and self.component:
+			sync_unit_component_flags([self.component])
+
 	def validate(self):
 		"""#56: runs only when the row itself is saved (REST PUT on the row,
 		frappe.client.save); the unit's own save checks its rows in

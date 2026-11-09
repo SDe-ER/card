@@ -72,6 +72,14 @@ def get_card_context(equipment: str, month: str, year: str, project: str | None 
 					if _in_unit_on(r, getdate(d))
 				)
 			}
+	if days:
+		# WP-05: a piece's days inside a unit period belong on the unit's card
+		# (CardMonthlyCard._refuse_unit_component_days), so the form does not offer them
+		from card.card.doctype.card_equipment.card_equipment import component_periods
+
+		periods = component_periods(equipment)
+		if periods:
+			days = {d for d in days if not any(_in_unit_on(p, getdate(d)) for p in periods)}
 	return {"projects": projects, "project": project, "days": sorted(days)}
 
 
@@ -384,7 +392,7 @@ class CardMonthlyCard(Document):
 
 	def _refuse_unit_component_days(self, eq):
 		"""WP-05 (#42): a piece is billed on its unit's card while it is in the unit, so its
-		own card may not record a day inside a component period of any unit (the dated
+		own card may not record working hours on a day inside a component period of any unit (the dated
 		rows of the units' component tables). A flag ticked before the flag was derived,
 		on equipment no unit lists, still refuses the whole card: nothing says when the
 		piece was in a unit (get_unit_integrity_issues lists those)."""
@@ -400,7 +408,9 @@ class CardMonthlyCard(Document):
 				)
 			return
 		for d in self.days:
-			if not d.operation_date:
+			# like validate_card_days: only a day with hours is billed; the form adds a 0-hour
+			# row for every day of the month the machine was on the project
+			if not d.operation_date or flt(d.working_hours) <= 0:
 				continue
 			day = getdate(d.operation_date)
 			unit = next((p.unit for p in periods if _in_unit_on(p, day)), None)

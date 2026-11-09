@@ -30,8 +30,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Impact:** permissions — none widened. Accounting — none. Data — none written. API — one new GET method.
   - **Rollback:** code only; nothing to undo in data.
 - **Initial place of new equipment per company** (#42, WP-06; FR-116; PR #187). New field `initial_location` (Location) in
-  Card Settings > Company settings. `card.transfer.current_location` returns it as the storage place of an equipment
-  that has no assignment and no approved transport, so the first transport shows it as From (row `from_location`,
+  Card Settings > Company settings. `card.transfer.current_location` returns it as the storage place of any equipment
+  with no movement history (no assignment and no approved transport; this includes an existing equipment never moved,
+  not only a new one), so the first transport shows it as From (row `from_location`,
   header `source_location`) and a move to that same place is refused as "already there". No place is hardcoded; empty
   (the default) keeps "storage without a place", as before.
   - **Impact:** permissions — the field is permission level 1 of Card Settings (Accounts Manager, System Manager
@@ -62,11 +63,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Reason:** the flag was a manual tick, so a piece could carry its own monthly card while its unit's card billed
     the same days (FR-057 open point).
   - **Change:** the field is read-only and maintained by the server: ticked while a unit's component row lists the
-    equipment with no To date (`sync_unit_component_flags`, on the unit's save, delete and a component row save; a
-    comment records each change). A save never writes it. The monthly card refuses a day of a piece that falls inside
-    a component period of any unit (`CardMonthlyCard._refuse_unit_component_days`); a piece no unit lists but whose
-    flag was ticked before still takes no card at all. `resync_unit_component_flag` (`methods=["POST"]`, Card Manager
-    level: the flag's permission level 1) sets one equipment to its derived value.
+    equipment with no To date (`sync_unit_component_flags`, on the unit's save and delete and on a component row
+    inserted or saved on its own; a comment records each change; `move_component` syncs once after both units are
+    saved). A save never writes it. The monthly card refuses working hours of a piece on a day inside a component
+    period of any unit (`CardMonthlyCard._refuse_unit_component_days`; 0-hour rows pass, as in
+    `validate_card_days`), and `get_card_context` no longer offers those days to the form. A piece no unit lists but
+    whose flag was ticked before still takes no card at all. `resync_unit_component_flag` (`methods=["POST"]`, Card
+    Manager level: the flag's permission level 1) sets one equipment to its derived value.
   - **Patch `card.patches.v4_6_0.derive_unit_component_flag`:** writes the flag only where it is unambiguous (the
     equipment is listed in a unit's component table: ticked when a row is open, cleared when every row is closed);
     keeps a ticked flag on equipment no unit lists (ambiguous: the unit's table may never have been filled in); lists

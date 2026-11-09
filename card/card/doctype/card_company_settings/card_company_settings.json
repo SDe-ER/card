@@ -240,7 +240,7 @@
    "permlevel": 1
   },
   {
-   "description": "Where a new equipment of this company is recorded before its first transport (shown as From on that transport). Empty: storage without a place.",
+   "description": "Where an equipment of this company with no movement history (no assignment and no approved transport) is recorded, shown as From on its first transport. Empty: storage without a place.",
    "fieldname": "initial_location",
    "fieldtype": "Link",
    "label": "Initial place of new equipment",

@@ -5404,8 +5404,8 @@ msgid "Initial place of new equipment"
 msgstr "المكان الابتدائي للمعدة الجديدة"
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "Where a new equipment of this company is recorded before its first transport (shown as From on that transport). Empty: storage without a place."
-msgstr "المكان الذي تُسجّل فيه المعدة الجديدة لهذه الشركة قبل أول نقل لها (يظهر في «من» بذلك النقل). فارغ: تخزين بدون مكان محدد."
+msgid "Where an equipment of this company with no movement history (no assignment and no approved transport) is recorded, shown as From on its first transport. Empty: storage without a place."
+msgstr "المكان الذي تُسجّل فيه معدة هذه الشركة التي ليس لها سجل حركة (بدون تخصيص وبدون نقل معتمد)، ويظهر في «من» بأول نقل لها. فارغ: تخزين بدون مكان محدد."
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Move-day rule"
