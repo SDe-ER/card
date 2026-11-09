@@ -13,17 +13,17 @@ from card.card_value import chart_data
 # so one user's totals would be served to users of other companies.
 @frappe.whitelist(methods=["POST"])
 def get(
-	chart_name=None,
-	chart=None,
-	no_cache=None,
-	filters=None,
-	from_date=None,
-	to_date=None,
-	timespan=None,
-	time_interval=None,
-	heatmap_year=None,
-	refresh=None,
-):
+	chart_name: str | None = None,
+	chart: str | dict | None = None,
+	no_cache: bool | int | str | None = None,
+	filters: str | dict | list | None = None,
+	from_date: str | None = None,
+	to_date: str | None = None,
+	timespan: str | None = None,
+	time_interval: str | None = None,
+	heatmap_year: str | int | None = None,
+	refresh: bool | int | str | None = None,
+) -> dict:
 	if chart_name:
 		chart = frappe.get_doc("Dashboard Chart", chart_name)
 		chart.check_permission("read")

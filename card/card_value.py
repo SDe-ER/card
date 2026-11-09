@@ -206,19 +206,19 @@ def _route(start, end, **route_options):
 
 
 @frappe.whitelist(methods=["POST"])
-def supplier_cost_last_month(filters=None):
+def supplier_cost_last_month(filters: str | dict | list | None = None) -> dict:
 	result, _w, start, end = _last_month_totals(filters)
 	return {"value": result["supplier"], "fieldtype": "Currency", **_route(start, end)}
 
 
 @frappe.whitelist(methods=["POST"])
-def customer_value_last_month(filters=None):
+def customer_value_last_month(filters: str | dict | list | None = None) -> dict:
 	result, _w, start, end = _last_month_totals(filters)
 	return {"value": result["customer"], "fieldtype": "Currency", **_route(start, end)}
 
 
 @frappe.whitelist(methods=["POST"])
-def internal_value_last_month(filters=None):
+def internal_value_last_month(filters: str | dict | list | None = None) -> dict:
 	result, with_internal, start, end = _last_month_totals(filters)
 	return {
 		"value": result["internal"] if with_internal else None,
@@ -228,7 +228,7 @@ def internal_value_last_month(filters=None):
 
 
 @frappe.whitelist(methods=["POST"])
-def cards_without_internal_rate_last_month(filters=None):
+def cards_without_internal_rate_last_month(filters: str | dict | list | None = None) -> dict:
 	result, with_internal, start, end = _last_month_totals(filters)
 	return {
 		"value": result["missing_rate_cards"] if with_internal else None,
@@ -238,7 +238,7 @@ def cards_without_internal_rate_last_month(filters=None):
 
 
 @frappe.whitelist(methods=["POST"])
-def hours_without_internal_rate_last_month(filters=None):
+def hours_without_internal_rate_last_month(filters: str | dict | list | None = None) -> dict:
 	result, with_internal, start, end = _last_month_totals(filters)
 	return {
 		"value": result["missing_rate_hours"] if with_internal else None,
