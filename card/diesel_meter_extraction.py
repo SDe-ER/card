@@ -3,8 +3,8 @@
 """Meter-reading extraction inside the existing Project Diesel Fill (Owner decision 2026-11-02).
 
 An OPTIONAL local worker reads the meter photos. CARD treats everything the worker returns as untrusted data: it
-validates it (`validate_response`), decides what it may do (`decide`, a pure function: the decision table of
-docs/card/ocr-real/METER_WORKER_CONTRACT.md section 5) and hands the validated result to the fill's own `validate()`
+validates it (`validate_response`: this module is the reference for worker contract version `CONTRACT_VERSION`),
+decides what it may do (`decide`, a pure function holding the decision table) and hands the validated result to the fill's own `validate()`
 (`ProjectDieselFill._apply_meter_extraction`) through `doc.flags.meter_extraction`. No new field, DocType or Python
 dependency; no `ignore_permissions`; no submit, no GL. The worker is configured only in site_config
 (`card_meter_worker_url`, `card_meter_worker_token`); absent = today's manual flow, unchanged.
@@ -221,7 +221,7 @@ def _str(v, limit):
 
 
 def validate_response(data, meta, image_size):
-	"""Section 4 of the contract. Returns a normalised reading built only from validated values."""
+	"""The worker answer of contract version 1.0. Returns a normalised reading built only from validated values."""
 	if not isinstance(data, dict) or data.get("contract_version") != CONTRACT_VERSION:
 		raise WorkerError("contract")
 	if data.get("request_id") != meta["request_id"] or data.get("photo_sha256") != meta["photo_sha256"]:

@@ -15,29 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Security
-- **Attachment validation and privacy** (H-CARD-1, H-CARD-2). Meter photos, the custody receipt, fitment evidence, the
-  transport authorization document and the Card Equipment registration / inspection / insurance / TUV files accepted
-  any bytes under any name. A new shared validator (`card/attachment_validator.py`) now accepts only JPEG, PNG, WebP
-  or PDF (by content, and the file name must agree), up to 10 MB, and an image must decode; meter photos accept
-  images only. It runs only when a file is set or changed, so evidence saved earlier stays valid. The transport
-  authorization document and the four equipment document files must be private files of their own record (the
-  user's own unattached upload is claimed by the record); the old "any readable File with this URL" check is gone.
-  No data is changed or deleted and there is no patch: files already stored as public stay public until the Owner
-  decides their migration. Impact: permissions (stricter), API (a save with a non-image / public document file is
-  refused); rollback: revert the commit, no data to undo. Security-review follow-up: an image is refused above 50
-  megapixels before it is decoded (a 140 KB PNG can describe 144 Mpx) and Pillow's bomb warning is an error; the
-  File row that passed the "this record" check is the row whose content is validated; re-deciding a transport
-  whose authorization document is already on it does not validate its content again (it must still be a private file
-  attached to that transport). Code-review follow-up: phone JPEGs that Pillow reports as MPO are accepted; a PDF end
-  marker may sit within the last 64 KB after trailing padding; photos are content-checked only when new or changed
-  (not on a company change, not when an amendment keeps the original's photo or receipt); fitment evidence must be the
-  session user's own upload; the four Card Equipment document fields are `no_copy` (Duplicate) and the user's own
-  upload is claimed by the record on save. Known limit: HEIC photos are not supported (Pillow has no decoder): save
-  them as JPEG first. Convention for new code: an Attach / Attach Image field
-  that holds evidence or a document is validated in its controller with `card.attachment_validator`, when the value
-  is new or changed.
-
 ### Added
 - **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
   An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
@@ -57,9 +34,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   unreachable answers are retried later instead of counting toward the three-attempt cap. A drum-count difference between the two
   photos is recorded but is not by itself a reason for Needs Review. The crop is refused only for a box over 60% of the image area or
   height (a close-up meter is a wide box and is cropped), and the Desk shows the disputed reading as an isolated left-to-right text, so
-  its brackets and `?` keep their order inside an Arabic sentence (QA 2026-11-02, browser and E2E). A full background queue or an
+  its brackets and `?` keep their order inside an Arabic sentence. A full background queue or an
   unreachable Redis never fails the save: the extraction is skipped for that save, an Error Log row is written and the photo stays
-  manual (no retry). PR #164. Affected: `card/diesel_meter_extraction.py` (new), `ProjectDieselFill.validate`
+  manual (no retry). PR #164; needs PR #162 (attachment validation, FR-099) merged first. Affected: `card/diesel_meter_extraction.py` (new), `ProjectDieselFill.validate`
   (`_apply_meter_extraction`, `_totalizer_window`), `project_diesel_fill.js`, `hooks.py` (`on_update` of Project Diesel
   Fill), `card/locale/ar.po`. Impact: permissions none (the job runs as the saving user, no `ignore_permissions`); accounting
   none (nothing submitted or posted); data: with the worker configured, a Draft's `closing_reading`, `review_status` and
