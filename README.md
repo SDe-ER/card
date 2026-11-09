@@ -60,7 +60,7 @@ Asset.
 
 ## Features
 
-Everything below is available in the latest release, **v4.4.3**. The complete inventory of each version is
+Everything below is available in the latest release, **v4.5.0**. The complete inventory of each version is
 in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 ### Equipment
@@ -205,6 +205,7 @@ request with CI and review; every release has a full documentation page.
 
 | Version | Date | Highlights |
 |---|---|---|
+| [v4.5.0](docs/releases/v4.5.0.md) | 2026-11-09 | Settlement phase 1: link a supplier accrual journal entry to its cards (never invoiced again); Card Settlement Status report (paid and remaining per card from the ledger) |
 | [v4.4.3](docs/releases/v4.4.3.md) | 2026-11-09 | The supplier statement PDF button renders with the Chrome PDF generator (Arabic letters join) on one A4 portrait page; the statement keeps its Noto Sans Arabic font under a site print style |
 | [v4.4.2](docs/releases/v4.4.2.md) | 2026-11-09 | The A4 supplier statement prints every card of the period and totals from the cards only; issued-by footer, full period dates, Noto Sans Arabic |
 | [v4.4.1](docs/releases/v4.4.1.md) | 2026-11-09 | Arabic letters join correctly in the PDF of the CARD document prints (Chrome PDF generator); short totals on the A4 supplier statement |

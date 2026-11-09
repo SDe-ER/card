@@ -34,6 +34,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+## [4.5.0] — 2026-11-09
+
+Minor release on top of v4.4.3 (PR #182): settlement phase 1. An accountant links an existing supplier accrual
+Journal Entry to the monthly cards it recognised, so CARD never invoices them again, and the new read-only Card
+Settlement Status report shows paid and remaining per card from the ledger. No patch, no schema change, no GL write;
+one new POST API method and one new report. Accounting stays disabled unless the site enables it.
+
 ### Added
 - **Settlement phase 1: link a supplier accrual Journal Entry to its cards; Card Settlement Status report** (owner
   decisions 2026-11-09, Q2/Q3/Q8).
