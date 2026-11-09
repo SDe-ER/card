@@ -8,7 +8,7 @@ the tag (`git show <tag>:<path>`).
 
 | Feature | First in | v1.0.0 | v1.0.1 | v1.2.0 | v1.2.1 | v1.2.2 | v3.0.0 | v4.0.0 | v4.1.0 | Behaviour changes / notes | Evidence |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Equipment master (type, category, ownership, supplier, company) | v1.0.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ Asset-linked equipment: name/brand/type from the Asset (read-only) | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | v1.2.2: commercial terms + control fields write-protected (Card Manager), change reason required | CHANGELOG 1.0.0 / 1.2.2 Security; `card/card/doctype/card_equipment` |
+| Equipment master (type, category, ownership, supplier, company) | v1.0.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ Asset-linked equipment: name/brand/type from the Asset (read-only) | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | v1.2.2: commercial terms + control fields write-protected (Card Manager), change reason required; v4.3.0: financial fields at levels 1/2, night-shift customer rate | CHANGELOG 1.0.0 / 1.2.2 Security; `card/card/doctype/card_equipment` |
 | Project assignments + overlap prevention | v1.0.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ written by transports; required for monthly cards | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | v1.2.2: Card Manager-only writes, validated dates/company; unit days checked against unit's own assignments | CHANGELOG 1.2.2 |
 | Monthly operation card (day grid, totals, net) | v1.0.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ project from approved transports; refused without one | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | v1.2.0: hours-only entry, direction-aware; rates snapshot | CHANGELOG 1.0.0 / 1.2.0 |
 | Supplier registry + 2 supplier reports (GL reconciliation) | v1.0.0 | ✅ | ✅ | ✅ | ⚠️ sided totals fixed | ⚠️ stored totals **Removed** → per-company figures; reconciliation in 3 figures | ✅ | ✅ | ✅ | — | #24/PR #27; #23; CHANGELOG 1.2.2 Fixed |
@@ -22,9 +22,9 @@ the tag (`git show <tag>:<path>`).
 | Card Settings + Card Company Settings; Card Manager/Card User roles | v1.2.0 | ❌ | ❌ | ✅ | ✅ | ⚠️ Accounts Manager can save accounting fields; policy fields → level 2 | ⚠️ + workshop/storage cost centers per company | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | — | CHANGELOG 1.2.2 Security |
 | Three rate bases (hourly/daily/monthly, hours-billed) | v1.2.0 | ❌ (hourly logic only) | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Full-day billing for the daily basis: **Planned**, not shipped | README Billing rule; CHANGELOG Unreleased |
 | Diesel management (Project Diesel Fill, policy, 2 diesel reports) | v1.2.0 | ❌ | ❌ | ✅ | ✅ | ⚠️ estimated vs recorded litres labelled; cost totals still mixed (#33) | ✅ | ✅ | ✅ | v4.2.0: metered session (meter photos, readings, totalizer check), operations approval before submit, WhatsApp session import as drafts | CHANGELOG 1.2.2 Fixed/Known limitations |
-| Transport management (Equipment Transport, per-project prices, report) | v1.2.0 | ❌ | ❌ | ✅ | ✅ | ✅ change history added | ⚠️ multi-machine, destinations, cost bearer, destination cost center | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | —; v4.1.2: simpler form (route, cost, collapsible Linked Records) | CHANGELOG 1.2.0 / 1.2.2 |
+| Transport management (Equipment Transport, per-project prices, report) | v1.2.0 | ❌ | ❌ | ✅ | ✅ | ✅ change history added | ⚠️ multi-machine, destinations, cost bearer, destination cost center | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | —; v4.1.2: simpler form (route, cost, collapsible Linked Records); v4.3.0: responsibility replaces the editable cost bearer | CHANGELOG 1.2.0 / 1.2.2 |
 | Card Equipment accounting dimension + guard report + period lock | v1.2.0 | ❌ | ❌ | ✅ (manual setup) | ✅ | ✅ | ✅ | ✅ | ✅ | Dimension creation stays a manual step | CHANGELOG 1.2.0 / 1.2.2 Migration |
-| Monthly draft supplier/customer postings (opt-in) + GL Posting Log | v1.2.0 | ❌ | ❌ | ✅ | ✅ | ⚠️ endpoints company-scoped (#36); log permanent/immutable (#57); amend-chain + name-reuse fixes | ⚠️ one transport line per machine share | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | — | CHANGELOG 1.2.2 |
+| Monthly draft supplier/customer postings (opt-in) + GL Posting Log | v1.2.0 | ❌ | ❌ | ✅ | ✅ | ⚠️ endpoints company-scoped (#36); log permanent/immutable (#57); amend-chain + name-reuse fixes | ⚠️ one transport line per machine share | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | —; v4.3.0: integrity guards and project cost centers | CHANGELOG 1.2.2 |
 | Report suite (9 reports) company-scoped, GL figures gated by GL-read roles | v1.2.0 | ❌ (2 reports, ungated) | ❌ | ✅ | ✅ | ✅ project titles for operational roles (#29) | ⚠️ transport/operating cost count Company-borne moves only | ⚠️ as v3.0.0 | ⚠️ as v4.0.0 | — | PR #14; PR #30 |
 | Report filters usable by operational roles (no ERPNext grants) | v1.2.1 | ❌ | ❌ | ❌ (#21) | ✅ | ✅ | ✅ | ✅ | ✅ | Supplier/customer filters link to CARD registries; Autocomplete company/project | PR #22 |
 | RTL print formats (monthly card, diesel, transport) | v1.2.0 | ❌ | ❌ | ✅ | ✅ money-side and label fixes | ✅ | ✅ | ✅ | ✅ | PR #26 | CHANGELOG 1.2.1 |
@@ -48,6 +48,15 @@ the tag (`git show <tag>:<path>`).
 | Catalog search (phase 1) + parts fitment (phase 2a) | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | Fitment 2b (#110) not included | PR #106, #108, #109 |
 | Tool handover confirmation + Tool Custody screen | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | v4.1.1: item search in the New Handover dialog and the page filter no longer requires an ERPNext Item permission (scoped `item_query` endpoint) | PR #114, #115, #116; v4.1.1 fix |
 | Diesel price lock per company | v4.1.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | Typed prices on new fills refused; exception role with reason | PR #79 |
+| Posting integrity: signed drafts, copy guard, hand-booked invoice link/review, diesel VAT basis (FR-090) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **Breaking**: drafts built before 4.3.0 must be rebuilt; empty VAT basis refuses the build for a VAT-registered supplier | PR #151; CHANGELOG 4.3.0 Fixed |
+| Project/assignment cost center on every CARD posting line (FR-091) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **Breaking**: missing, unusable or conflicting cost center, and company-paid moves to or from a project, refuse the build | PR #152; CHANGELOG 4.3.0 Improved |
+| Transport cost responsibility + financial decision + Transport Accounting Review (FR-093) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **Breaking**: `responsibility` required, `cost_borne_by` no default; customer invoicing, supplier recovery and posting of these transports disabled | PR #154; CHANGELOG 4.3.0 Added/Migration |
+| Diesel Invoice Reconciliation report, read-only (FR-092) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Accounts Manager / System Manager | PR #153 |
+| Equipment Meter Reconciliation and Asset Mapping Review reports, read-only; Create from Asset with ownership (FR-094, FR-095) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | No baseline set; nothing created by the review | PR #155 |
+| Card Equipment financial privacy, Asset prefill by field level (FR-096, FR-097) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **Breaking** for readers: four fields at level 2, supplier hourly rate at level 1; new Versions masked | PR #156, #157; CHANGELOG 4.3.0 Security |
+| Night-shift customer rate (FR-109) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Night-shift cards of customer-billing equipment mirror it; day cards unchanged | PR #167 |
+| A4 print of the Equipment Supplier Statement (FR-089) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Choose Landscape in the PDF dialog | PR #150 |
+| Portal catalog under ERPNext v16.54.0+ Company Restriction (FR-076 fix) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Earlier versions: empty catalog for Card portal roles on ERPNext ≥ 16.54.0; Partially Verified (CI only) | PR #169 |
 
 ## Reading the matrix
 
@@ -59,4 +68,4 @@ the tag (`git show <tag>:<path>`).
   version — do not assume a capability from an issue or a plan.
 
 Per-version detail: [v1.0.0](v1.0.0.md) · [v1.0.1](v1.0.1.md) · [v1.2.0](v1.2.0.md) ·
-[v1.2.1](v1.2.1.md) · [v1.2.2](v1.2.2.md) · [v3.0.0](v3.0.0.md) · Guidance: [Which version should I use?](WHICH-VERSION.md)
+[v1.2.1](v1.2.1.md) · [v1.2.2](v1.2.2.md) · [v3.0.0](v3.0.0.md) · [v4.3.0](v4.3.0.md) · Guidance: [Which version should I use?](WHICH-VERSION.md)
