@@ -180,6 +180,20 @@ class TestPrintFormats(_CustomerCardsBase):
 		self._print(card, LEGACY_MONTHLY)
 		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, fields, as_dict=True), before)
 
+	def test_every_card_print_template_compiles(self):
+		# a Jinja syntax error only shows when the format is saved or printed: compile them all
+		jenv = frappe.get_jenv()
+		formats = frappe.get_all(
+			"Print Format",
+			filters={"module": "Card", "print_format_type": "Jinja", "custom_format": 1},
+			pluck="name",
+		)
+		self.assertIn(MONTHLY, formats)
+		self.assertIn(LEGACY_MONTHLY, formats)
+		for name in formats:
+			with self.subTest(print_format=name):
+				jenv.parse(frappe.db.get_value("Print Format", name, "html") or "")
+
 	def test_print_follows_the_print_language(self):
 		card = self._card_with(self._equipment(RENTED), [(DED, 600, "Supplier", "TEST-PRINT-LANG")])
 		html = self._print(card)
