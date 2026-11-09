@@ -40,6 +40,11 @@ Patch release on top of v4.4.2 (PR #180): the PDF button of the Equipment Suppli
 Frappe Chrome PDF generator on one A4 portrait page, and the statement font is no longer replaced by a site print
 style. No patch, no DocType or schema change, no change to permissions or accounting; one new POST API method.
 
+### Changed
+- **CI: the PR title check runs on `pull_request`** (owner, 2026-11-09). GitHub blocks `pull_request_target` in public
+  repositories by default (enforced from 2026-12-02; a brownout on 2026-11-09 stopped the check). The check only reads
+  the title, so the read-only `pull_request` token is enough. No change to the app, permissions or data.
+
 ### Fixed
 - **Arabic messages of the statement PDF**: the three new messages of `statement_pdf.py` are translated (commit
   `5c63b8d`).
