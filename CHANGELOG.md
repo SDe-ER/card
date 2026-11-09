@@ -15,6 +15,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **Governance inventories (documentation only; refs #40, #50, #52, #54).**
+  `docs/governance/SETTINGS-AND-CONSTANTS.md` lists every Card Settings and Card Company Settings field with its
+  readers (file:line), the code defaults and inline fallbacks, the precedence document → Card Company Settings →
+  Card Settings → code default, the four dead settings of FR-015 and the hardcoded values that affect behaviour
+  (WP-18). `docs/governance/INTAKE-PROVENANCE-DESIGN.md` is a design, not implemented, for source keys, evidence
+  hashes, idempotency, review and permissions of movement and operation intake (WP-21).
+  `docs/governance/HRMS-PARITY.md` compares the CARD equipment model with the Frappe HR employee model (official
+  HRMS `version-16` source and docs.frappe.io/hr only) and records the upgrade-rehearsal CI evidence. Impact on
+  permissions, accounting, data and the API: none. Rollback: revert the commit.
+
 ### Changed
 - **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill
   without equipment is now ONE Purchase Invoice line (its full amount, the project, no equipment) instead of one
@@ -40,6 +51,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   write by CARD); data: no patch, no schema change, existing logs and submitted invoices untouched; API none.
   Rollback: revert the commits; drafts built by the new builder keep one project-level tank line and the old code
   submits them as they are (rebuild them to get the old split).
+- **Feature registry corrected (documentation only).** FR-073, FR-074, FR-075 (v4.1.0), FR-085, FR-086, FR-086b
+  (v4.2.0), FR-087 (v4.2.1) and FR-088 (v4.2.2) were still *In review* / *In development* although merged and
+  released; they are now Implemented with their pull requests, merge commits and releases. FR-038 names the
+  transport cost-center checks of FR-091 and FR-093. Rows released in v4.3.0 to v4.4.3 no longer say "not
+  deployed" (deployed 2026-11-09 per `DEPLOYMENTS.md`); v4.5.0 is released, not deployed.
+  No row deleted. Impact: none. Rollback: revert the commit.
 
 ### Documentation
 - **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
