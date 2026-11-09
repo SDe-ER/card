@@ -15,6 +15,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **Equipment Supplier Statement A4: every card, card totals and full period dates** (Owner requests
+  2026-11-09, after the v4.4.1 check showed a supplier with un-invoiced cards printing all-zero ledger totals).
+  The print lists every row of the period: project, equipment (sub-heading) and every card with its shift,
+  numbered, whatever their count. The totals come from the cards only: cards net for the period and, when
+  positive, the work done not yet invoiced through CARD (before VAT; no VAT is computed); the ledger lines
+  (opening, invoices, payments, closing) and the footnotes are no longer printed. A last line reads "Issued by
+  the electronic system of <company>" (the company comes from the filter; nothing hard-coded). The period prints
+  as full dates (first day of the start month to the last day of the end month), as the report computes it.
+  Font: Noto Sans Arabic (owner 2026-11-09) — the installed font first (server PDF), the app's bundled copy
+  (`/assets/card/fonts`) as a fallback for browsers without it; the CARD document prints already use it.
+  Template and Print Format only (`modified` bumped); new CARD msgids. No change to permissions, accounting, data
+  or the API. Rollback: forced re-import of the previous print format file.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by

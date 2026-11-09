@@ -3926,3 +3926,18 @@ msgstr ""
 #: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
 msgid "Amount summary"
 msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Cards net for the period"
+msgstr ""
+
+
+
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Work done not yet invoiced (before VAT)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Issued by the electronic system of {0}"
+msgstr ""
