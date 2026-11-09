@@ -5274,9 +5274,6 @@ msgstr "المسدد على الكارت"
 msgid "Remaining on the card"
 msgstr "المتبقي على الكارت"
 
-#: card/card/report/card_settlement_status/card_settlement_status.py
-msgid "Payments not allocated to a document"
-msgstr "دفعات غير مخصصة لمستند"
 
 #: card/card/report/card_settlement_status/card_settlement_status.py
 msgid "Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
@@ -5301,3 +5298,23 @@ msgstr "حصة الكارت من المستند"
 #: card/card/report/card_settlement_status/card_settlement_status.js
 msgid "Card Settlement Status"
 msgstr "حالة تسوية الكروت"
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not an ordinary accrual entry."
+msgstr "القيد {0} ليس قيد استحقاق عادياً."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is booked against {1} {2}; it is not an accrual of its own."
+msgstr "القيد {0} مسجّل مقابل {1} {2}؛ ليس قيد استحقاق مستقلاً."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Ledger entry of the document not found"
+msgstr "لم يُعثر على قيد المستند في دفتر المدفوعات"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Credit notes and adjustments"
+msgstr "إشعارات دائنة وتسويات"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Payments not allocated to a document up to the end date"
+msgstr "دفعات غير مخصصة لمستند حتى تاريخ النهاية"

@@ -4066,9 +4066,6 @@ msgstr ""
 msgid "Remaining on the card"
 msgstr ""
 
-#: card/card/report/card_settlement_status/card_settlement_status.py
-msgid "Payments not allocated to a document"
-msgstr ""
 
 #: card/card/report/card_settlement_status/card_settlement_status.py
 msgid "Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
@@ -4092,4 +4089,24 @@ msgstr ""
 
 #: card/card/report/card_settlement_status/card_settlement_status.js
 msgid "Card Settlement Status"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not an ordinary accrual entry."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is booked against {1} {2}; it is not an accrual of its own."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Ledger entry of the document not found"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Credit notes and adjustments"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Payments not allocated to a document up to the end date"
 msgstr ""

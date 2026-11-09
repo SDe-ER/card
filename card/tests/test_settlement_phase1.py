@@ -32,7 +32,7 @@ class TestAccrualJournalLink(_P0Base):
 
 	# ---------- fixtures ----------
 
-	def _accrual(self, amount, submit=True, party=None, debit_party=False):
+	def _accrual(self, amount, submit=True, party=None, debit_party=False, vat=0, reference=None):
 		"""Expense debit / supplier credit (debit_party: the reverse, a payment-like entry)."""
 		party_row = {
 			"account": self.payable,
@@ -42,19 +42,26 @@ class TestAccrualJournalLink(_P0Base):
 			"debit_in_account_currency": amount if debit_party else 0,
 			"credit_in_account_currency": 0 if debit_party else amount,
 		}
+		if reference:
+			party_row.update({"reference_type": reference.doctype, "reference_name": reference.name})
 		other = {
 			"account": self.bank if debit_party else self.exp_rental,
 			"cost_center": self.cost_center,
-			"debit_in_account_currency": 0 if debit_party else amount,
+			"debit_in_account_currency": 0 if debit_party else amount - vat,
 			"credit_in_account_currency": amount if debit_party else 0,
 		}
+		rows = [other, party_row]
+		if vat:
+			rows.insert(
+				1, {"account": self.vat_in, "cost_center": self.cost_center, "debit_in_account_currency": vat}
+			)
 		je = frappe.get_doc(
 			{
 				"doctype": "Journal Entry",
 				"company": self.company,
 				"posting_date": "2026-09-30",
 				"voucher_type": "Journal Entry",
-				"accounts": [other, party_row],
+				"accounts": rows,
 			}
 		).insert(ignore_permissions=True)
 		if submit:
@@ -100,7 +107,7 @@ class TestAccrualJournalLink(_P0Base):
 				"party_type": "Supplier",
 				"party": self.supplier,
 				"from_date": "2026-09-01",
-				"to_date": "2026-09-30",
+				"to_date": "2026-12-31",
 			}
 		)
 		return {r["card"]: r for r in data}, {s["label"]: s["value"] for s in summary}
@@ -159,6 +166,21 @@ class TestAccrualJournalLink(_P0Base):
 		with self.assertRaises(frappe.ValidationError):  # card listed twice
 			link_accrual_journal(self._accrual(net).name, [card.name, card.name])
 		self.assertEqual(self._recognised(card.name), {})
+
+	def test_vat_on_the_accrual_is_not_a_difference(self):
+		card = self._rental_card()
+		net = flt(card.net_amount, 2)
+		je = self._accrual(flt(net * 1.15, 2), vat=flt(net * 0.15, 2))
+		log = frappe.get_doc("GL Posting Log", link_accrual_journal(je.name, [card.name]))
+		self.assertEqual(flt(log.link_difference, 2), 0)
+		self.assertEqual(flt(log.amount, 2), flt(net * 1.15, 2))
+
+	def test_entry_against_another_document_is_refused(self):
+		card = self._rental_card()
+		net = flt(card.net_amount, 2)
+		pi = self._manual_pi(net)
+		with self.assertRaisesRegex(frappe.ValidationError, "booked against"):
+			link_accrual_journal(self._accrual(net, debit_party=True, reference=pi).name, [card.name])
 
 	def test_accepted_difference_is_stored_with_the_reason(self):
 		card = self._rental_card()
@@ -222,7 +244,7 @@ class TestAccrualJournalLink(_P0Base):
 		self._payment(100)
 		rows, summary = self._status()
 		self.assertEqual(rows[card.name]["remaining"], net)
-		self.assertEqual(summary["Payments not allocated to a document"], 100)
+		self.assertEqual(summary["Payments not allocated to a document up to the end date"], 100)
 		# a payment against the accrual: partly, then fully settled
 		self._payment(flt(net / 2, 2), against=je.name)
 		rows, _s = self._status()

@@ -41,13 +41,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     invoiced through CARD", and the monthly posting would have invoiced them a second time.
   - **Change:** `card.gl.journal_link.link_accrual_journal` (`methods=["POST"]`, accountant roles, read and submit right
     on the Journal Entry) records a Linked GL Posting Log of type Journal Entry for submitted supplier cards of the
-    same company and supplier, when the entry credits exactly that supplier and its credit equals the cards' net
+    same company and supplier, when the entry is an ordinary journal entry (no opening entry, no row against
+    another document) that credits exactly that supplier, and its credit less its tax rows equals the cards' net
     (a difference only with an accepted reason). The cards are reserved: the monthly posting and every other link skip
     them, and the statements count them as recognised (`card.reconciliation.cards_invoiced`). Cancelling the Journal
     Entry frees them (`Journal Entry` `before_cancel`). New read-only report **Card Settlement Status** (System Manager,
-    Accounts Manager; ledger access required): per card the recognising document, the card's share, paid and remaining
-    from the Payment Ledger Entry, payments allocated oldest first, and the party's payments not allocated to a
-    document.
+    Accounts Manager; ledger access required): per card the recognising document, the card's share, paid, credit notes and
+    remaining from the Payment Ledger Entry (the user's card permissions apply), allocated oldest first, a
+    "ledger entry not found" status instead of a settled one, and the party's payments not allocated to a document
+    up to the end date.
   - **Impact:** permissions — none widened (new report for accounting roles only). Accounting — nothing is posted,
     created or changed in ERPNext; no GL write. Data — a GL Posting Log row per link; the card's `posted` and
     `gl_posting` fields. Schema — none (the Journal Entry option already existed). API — one new POST method.

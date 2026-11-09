@@ -33,9 +33,6 @@ from frappe import _
 from frappe.utils import cint, flt, getdate
 
 POSTING_TYPE = {"Supplier": "Purchase Invoice", "Customer": "Sales Invoice"}
-# the documents that recognise a party's cards: its invoice, and for suppliers also an
-# accrual Journal Entry linked by an accountant (settlement phase 1, card.gl.journal_link)
-RECOGNISED_BY = {"Supplier": ["Purchase Invoice", "Journal Entry"], "Customer": ["Sales Invoice"]}
 PARTY_FIELD = {"Supplier": "supplier", "Customer": "customer"}
 
 
@@ -68,19 +65,26 @@ def cards_invoiced(party_type, parties, company, start, end, cards=None):
 	last = getdate(end).year * 100 + getdate(end).month
 	# a built posting carries its cards' month; a linked supplier invoice (P0) may cover
 	# cards of other months, so each card counts in ITS own month
+	base = {"company": company, "party_type": party_type, "party": ["in", parties], "status": "Submitted"}
 	logs = frappe.get_all(
 		"GL Posting Log",
-		filters={
-			"company": company,
-			"party_type": party_type,
-			"party": ["in", parties],
-			"posting_type": ["in", RECOGNISED_BY[party_type]],
-			"status": "Submitted",
-			"year": ["between", [getdate(start).year - 1, getdate(end).year + 1]],
-		},
+		filters=dict(
+			base,
+			posting_type=POSTING_TYPE[party_type],
+			year=["between", [getdate(start).year - 1, getdate(end).year + 1]],
+		),
 		fields=["name", "party", "month", "year"],
 		limit_page_length=0,
 	)
+	if party_type == "Supplier":
+		# a linked accrual journal entry may be booked long after its cards (historical
+		# cards): no year window on the log, each card still counts in its own month
+		logs += frappe.get_all(
+			"GL Posting Log",
+			filters=dict(base, posting_type="Journal Entry"),
+			fields=["name", "party", "month", "year"],
+			limit_page_length=0,
+		)
 	party_of = {log.name: log.party for log in logs}
 	if not party_of:
 		return {}

@@ -42,7 +42,7 @@ def link_accrual_journal(
 	and that credit equals the cards' net within the reconciliation tolerance; a gap
 	is refused unless an accountant accepts it with a reason, and is then stored on
 	the log as an open difference."""
-	from card.gl.events import active_log_holding
+	from card.gl.events import _point_display, active_log_holding
 	from card.gl.posting import POSTING_SOURCE_DOCTYPES
 	from card.report_access import permitted_companies
 	from card.settings import setting
@@ -68,7 +68,7 @@ def link_accrual_journal(
 	frappe.has_permission("Journal Entry", "submit", je, throw=True)
 	if je.docstatus != 1:
 		frappe.throw(_("Journal entry {0} is not submitted.").format(je.name))
-	supplier, accrued = accrual_of(je)
+	supplier, accrued, accrued_net = accrual_of(je)
 	frappe.has_permission("Supplier", "read", supplier, throw=True)
 	held = frappe.db.get_value(
 		"GL Posting Log",
@@ -101,7 +101,8 @@ def link_accrual_journal(
 		amounts.append((name, flt(card.net_amount, 2)))
 
 	cards_net = flt(sum(a for _n, a in amounts), 2)
-	difference = flt(accrued - cards_net, 2)
+	# the cards are net of VAT: compare them with the supplier credit less the entry's tax rows
+	difference = flt(accrued_net - cards_net, 2)
 	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
 	if abs(difference) <= tolerance:
 		difference = 0
@@ -110,7 +111,7 @@ def link_accrual_journal(
 		frappe.throw(
 			_(
 				"Cannot confirm the link: the cards total {0} net, the journal entry credits the supplier {1}. Link only the cards it recognised, or accept the difference {2} with a reason."
-			).format(cards_net, accrued, difference),
+			).format(cards_net, accrued_net, difference),
 			title=_("Linked amounts differ"),
 		)
 
@@ -148,15 +149,30 @@ def link_accrual_journal(
 	log.flags.card_gl_build = True
 	log.insert(ignore_permissions=True)  # the audit record; the gate above is the authorization
 	for name, _amount in amounts:
-		frappe.db.set_value(CARD, name, {"posted": 1, "gl_posting": log.name}, update_modified=False)
+		frappe.db.set_value(CARD, name, "posted", 1, update_modified=False)
+		# never take the display pointer from the customer side's active posting (sub-rental)
+		_point_display(CARD, name, log.name)
 	return log.name
 
 
 def accrual_of(je):
-	"""(supplier, credit) of an accrual Journal Entry: exactly one supplier on its
-	party rows, credited on balance (credit minus debit, company currency)."""
+	"""(supplier, credit, credit less tax rows) of an accrual Journal Entry: an ordinary
+	journal entry (not an opening, debit or credit note), exactly one supplier on its
+	party rows, credited on balance (credit minus debit, company currency), with no
+	party row against another document (that entry settles the other document)."""
+	if je.voucher_type != "Journal Entry" or je.get("is_opening") == "Yes":
+		frappe.throw(_("Journal entry {0} is not an ordinary accrual entry.").format(je.name))
 	totals = {}
+	tax = 0.0
 	for row in je.get("accounts") or []:
+		if row.party and row.get("reference_type"):
+			frappe.throw(
+				_("Journal entry {0} is booked against {1} {2}; it is not an accrual of its own.").format(
+					je.name, _(row.reference_type), row.reference_name
+				)
+			)
+		if not row.party and frappe.get_cached_value("Account", row.account, "account_type") == "Tax":
+			tax = flt(tax + flt(row.debit) - flt(row.credit), 2)
 		if row.party_type == "Supplier" and row.party:
 			totals[row.party] = flt(totals.get(row.party, 0) + flt(row.credit) - flt(row.debit), 2)
 		elif row.party_type and row.party:
@@ -170,7 +186,7 @@ def accrual_of(je):
 				je.name, supplier
 			)
 		)
-	return supplier, credit
+	return supplier, credit, flt(credit - tax, 2)
 
 
 def before_cancel(doc, method=None):
@@ -183,14 +199,16 @@ def before_cancel(doc, method=None):
 	)
 	if not name:
 		return
+	from card.gl.events import _other_side_still_posted, _repoint_freed_sources
+
 	log = frappe.get_doc("GL Posting Log", name)
 	for row in log.get("sources") or []:
-		values = {
-			"posted": 1 if frappe.db.get_value(row.source_doctype, row.source_name, "sales_invoice") else 0
-		}
+		posted = 1 if _other_side_still_posted(row.source_doctype, row.source_name, "purchase_invoice") else 0
+		frappe.db.set_value(row.source_doctype, row.source_name, "posted", posted, update_modified=False)
 		if frappe.db.get_value(row.source_doctype, row.source_name, "gl_posting") == log.name:
-			values["gl_posting"] = ""
-		frappe.db.set_value(row.source_doctype, row.source_name, values, update_modified=False)
+			frappe.db.set_value(row.source_doctype, row.source_name, "gl_posting", "", update_modified=False)
 	log.db_set("status", "Cancelled")
 	log.db_set("posting_key", None)
 	log.db_set("remarks", (log.remarks or "") + " " + _("Journal entry cancelled; cards freed."))
+	# sub-rental: point a freed card back at the customer side's active posting
+	_repoint_freed_sources(log)

@@ -2,20 +2,22 @@
 # For license information, please see LICENSE
 """Card Settlement Status (settlement phase 1, owner decisions 2026-11-09).
 
-Read-only. For every submitted monthly card of one party in the period: the
-document that recognised it (CARD invoice, linked hand-booked invoice or linked
-accrual journal entry), the card's share of that document, what is paid and what
+Read-only. For every submitted monthly card of one party in the period that the
+user may read: the document that recognised it (CARD invoice, linked hand-booked
+invoice or linked accrual journal entry), the card's share of that document, what
+is paid, what other documents settled (credit notes, adjustments) and what
 remains. Nothing is stored in CARD: every amount comes from ERPNext's Payment
 Ledger Entry of the recognising document, so a cancelled or reconciled payment
 shows at once.
 
 - A document's original amount is its own ledger row (invoice: grand total, VAT
   included; accrual journal entry: the supplier credit); what remains is the sum
-  of the ledger rows against it.
+  of the ledger rows against it. Payments are the rows of Payment Entries and other
+  Journal Entries; every other row (a return or credit note) is shown apart.
 - A document that recognised several sources is shared by their amounts, and its
-  payments are allocated FIFO (oldest source first) — the owner's default (Q3).
-- Payments of the party that are not allocated to any document are shown apart:
-  they are settled in ERPNext with Payment Reconciliation, never here.
+  settlement is allocated FIFO (oldest source first) — the owner's default (Q3).
+- Payments of the party not allocated to any document up to the end date are shown
+  apart: they are settled in ERPNext with Payment Reconciliation, never here.
 """
 
 import frappe
@@ -38,6 +40,7 @@ SIDE = {
 }
 SOURCE_DATE = {CARD: "from_date", "Project Diesel Fill": "date", "Equipment Transport": "date"}
 PAYMENT_VOUCHERS = ("Payment Entry", "Journal Entry")
+TOLERANCE = 0.01
 
 
 def execute(filters=None):
@@ -67,7 +70,8 @@ def execute(filters=None):
 	]
 	if party:
 		card_filters.append([side["field"], "=", party])
-	cards = frappe.get_all(
+	# get_list: the user's own permissions on the cards (User Permissions on project, equipment...)
+	cards = frappe.get_list(
 		CARD,
 		filters=card_filters,
 		fields=[
@@ -87,14 +91,15 @@ def execute(filters=None):
 	if not cards:
 		return columns, [], None, None, []
 
+	parties = list({c.party for c in cards})
 	holder = _active_logs(party_type, [c.name for c in cards])
-	vouchers = {
-		(log.posting_doctype, log.posting_doc) for log in holder.values() if log.status == "Submitted"
-	}
-	ledger = _ledger(company, party_type, {c.party for c in cards}, vouchers)
-	shares = _fifo_shares({log.name: log for log in holder.values()}, ledger)
+	submitted = {log.name: log for log in holder.values() if log.status == "Submitted"}
+	vouchers = {(log.posting_doctype, log.posting_doc) for log in submitted.values()}
+	ledger = _ledger(company, party_type, parties, vouchers)
+	shares = _fifo_shares(submitted, ledger)
 
-	data, totals = [], {"net": 0.0, "share": 0.0, "paid": 0.0, "remaining": 0.0}
+	data = []
+	totals = {"net": 0.0, "share": 0.0, "paid": 0.0, "other": 0.0, "remaining": 0.0}
 	for card in cards:
 		log = holder.get(card.name)
 		row = {
@@ -111,22 +116,25 @@ def execute(filters=None):
 			row["status"] = _("Not recognised yet")
 		elif log.status != "Submitted":
 			row["status"] = _("Recognising document is a draft")
+		elif not ledger.get((log.posting_doctype, log.posting_doc), (0, 0, 0))[0]:
+			# never "settled" by default: no ledger row means the document must be checked
+			row["status"] = _("Ledger entry of the document not found")
 		else:
-			share, paid = shares.get((log.name, card.name), (0.0, 0.0))
-			remaining = flt(share - paid, 2)
-			row.update({"share": share, "paid": paid, "remaining": remaining})
-			if remaining <= 0.01:
+			share, paid, other = shares.get((log.name, card.name), (0.0, 0.0, 0.0))
+			remaining = flt(share - paid - other, 2)
+			row.update({"share": share, "paid": paid, "other": other, "remaining": remaining})
+			if remaining <= TOLERANCE:
 				row["status"] = _("Fully settled")
-			elif paid > 0:
+			elif paid > 0 or other > 0:
 				row["status"] = _("Partly settled")
 			else:
 				row["status"] = _("Recognised, not settled")
-			for key in ("share", "paid", "remaining"):
+			for key in ("share", "paid", "other", "remaining"):
 				totals[key] = flt(totals[key] + row[key], 2)
 		totals["net"] = flt(totals["net"] + row["net"], 2)
 		data.append(row)
 
-	unallocated = _unallocated_payments(company, party_type, {c.party for c in cards})
+	unallocated = _unallocated_payments(company, party_type, parties, end)
 	summary = [
 		{"label": _("Cards net"), "value": totals["net"], "datatype": "Currency", "indicator": "Blue"},
 		{
@@ -142,13 +150,19 @@ def execute(filters=None):
 			"indicator": "Green",
 		},
 		{
+			"label": _("Credit notes and adjustments"),
+			"value": totals["other"],
+			"datatype": "Currency",
+			"indicator": "Grey",
+		},
+		{
 			"label": _("Remaining on the card"),
 			"value": totals["remaining"],
 			"datatype": "Currency",
 			"indicator": "Red",
 		},
 		{
-			"label": _("Payments not allocated to a document"),
+			"label": _("Payments not allocated to a document up to the end date"),
 			"value": unallocated,
 			"datatype": "Currency",
 			"indicator": "Orange" if unallocated else "Grey",
@@ -208,53 +222,67 @@ def _columns(party_type):
 		},
 		{"fieldname": "paid", "label": _("Paid on the card"), "fieldtype": "Currency", "width": 110},
 		{
+			"fieldname": "other",
+			"label": _("Credit notes and adjustments"),
+			"fieldtype": "Currency",
+			"width": 120,
+		},
+		{
 			"fieldname": "remaining",
 			"label": _("Remaining on the card"),
 			"fieldtype": "Currency",
 			"width": 110,
 		},
-		{"fieldname": "status", "label": _("Settlement status"), "fieldtype": "Data", "width": 150},
+		{"fieldname": "status", "label": _("Settlement status"), "fieldtype": "Data", "width": 160},
 	]
 
 
 def _active_logs(party_type, card_names):
-	"""{card: its active GL Posting Log of this side (with the log's sources)}."""
-	parents = frappe.get_all(
+	"""{card: its active GL Posting Log of this side, with the log's sources} — the
+	same membership rule as card.gl.events.active_log_holding, in three queries."""
+	members = frappe.get_all(
 		"GL Posting Source",
-		filters={"parenttype": "GL Posting Log", "source_doctype": CARD, "source_name": ["in", card_names]},
+		filters={
+			"parenttype": "GL Posting Log",
+			"source_doctype": CARD,
+			"source_name": ["in", card_names],
+		},
 		fields=["parent", "source_name"],
 		limit_page_length=0,
 	)
-	logs = {}
-	result = {}
-	for row in parents:
-		if row.parent not in logs:
-			log = frappe.db.get_value(
-				"GL Posting Log",
-				row.parent,
-				["name", "status", "party_type", "party", "posting_doctype", "posting_doc"],
-				as_dict=True,
-			)
-			if log:
-				log.sources = frappe.get_all(
-					"GL Posting Source",
-					filters={"parent": log.name, "parenttype": "GL Posting Log"},
-					fields=["source_doctype", "source_name", "amount"],
-					limit_page_length=0,
-				)
-			logs[row.parent] = log
-		log = logs[row.parent]
-		if log and log.status in ACTIVE_STATES and log.party_type == party_type:
-			result[row.source_name] = log
-	return result
+	logs = {
+		log.name: log
+		for log in frappe.get_all(
+			"GL Posting Log",
+			filters={
+				"name": ["in", list({m.parent for m in members}) or [""]],
+				"status": ["in", list(ACTIVE_STATES)],
+				"party_type": party_type,
+			},
+			fields=["name", "status", "party", "posting_doctype", "posting_doc"],
+			limit_page_length=0,
+		)
+	}
+	for log in logs.values():
+		log.sources = []
+	for source in frappe.get_all(
+		"GL Posting Source",
+		filters={"parenttype": "GL Posting Log", "parent": ["in", list(logs) or [""]]},
+		fields=["parent", "source_doctype", "source_name", "amount"],
+		limit_page_length=0,
+	):
+		logs[source.parent].sources.append(source)
+	return {m.source_name: logs[m.parent] for m in members if m.parent in logs}
 
 
 def _ledger(company, party_type, parties, vouchers):
-	"""{(doctype, name): (original, outstanding)} from the Payment Ledger Entry."""
+	"""{(doctype, name): (original, outstanding, paid)} from the Payment Ledger Entry.
+	original = the document's own row; outstanding = every row against it; paid = the
+	rows of payments (Payment Entry, another Journal Entry) against it, as a positive
+	figure."""
 	if not vouchers:
 		return {}
 	ple = frappe.qb.DocType("Payment Ledger Entry")
-	names = [name for _dt, name in vouchers]
 	rows = (
 		frappe.qb.from_(ple)
 		.select(
@@ -267,42 +295,65 @@ def _ledger(company, party_type, parties, vouchers):
 		.where(
 			(ple.company == company)
 			& (ple.party_type == party_type)
-			& (ple.party.isin(list(parties)))
-			& (ple.against_voucher_no.isin(names))
+			& (ple.party.isin(parties))
+			& (ple.against_voucher_no.isin([name for _dt, name in vouchers]))
 			& (ple.delinked == 0)
 		)
 		.groupby(ple.voucher_type, ple.voucher_no, ple.against_voucher_type, ple.against_voucher_no)
 	).run(as_dict=True)
 	result = {}
 	for doctype, name in vouchers:
-		own = [r for r in rows if r.against_voucher_type == doctype and r.against_voucher_no == name]
-		original = flt(
-			sum(flt(r.amount) for r in own if r.voucher_type == doctype and r.voucher_no == name), 2
-		)
-		outstanding = flt(sum(flt(r.amount) for r in own), 2)
-		result[(doctype, name)] = (original, outstanding)
+		original = outstanding = paid = 0.0
+		for r in rows:
+			if r.against_voucher_type != doctype or r.against_voucher_no != name:
+				continue
+			amount = flt(r.amount)
+			outstanding += amount
+			if r.voucher_type == doctype and r.voucher_no == name:
+				original += amount
+			elif r.voucher_type in PAYMENT_VOUCHERS:
+				paid -= amount
+		result[(doctype, name)] = (flt(original, 2), flt(outstanding, 2), flt(paid, 2))
 	return result
 
 
-def _fifo_shares(logs, ledger):
-	"""{(log, card): (share, paid)}: the document's original amount shared by its
-	sources' amounts; what is paid (original − outstanding) allocated oldest first."""
-	result = {}
+def _source_dates(logs):
+	"""{(doctype, name): date} of every source of the logs, one query per source type."""
+	by_doctype = {}
 	for log in logs.values():
-		if log.status != "Submitted":
-			continue
-		original, outstanding = ledger.get((log.posting_doctype, log.posting_doc), (0.0, 0.0))
-		sources = list(log.sources or [])
+		for s in log.sources:
+			by_doctype.setdefault(s.source_doctype, set()).add(s.source_name)
+	dates = {}
+	for doctype, names in by_doctype.items():
+		field = SOURCE_DATE.get(doctype, "creation")
+		for r in frappe.get_all(
+			doctype,
+			filters={"name": ["in", list(names)]},
+			fields=["name", field + " as day"],
+			limit_page_length=0,
+		):
+			dates[(doctype, r.name)] = r.day
+	return dates
+
+
+def _fifo_shares(logs, ledger):
+	"""{(log, card): (share, paid, other)}: the document's original amount shared by
+	its sources' amounts; payments allocated oldest first, then the other settlements
+	(credit notes, adjustments) on what is still open."""
+	result = {}
+	dates = _source_dates(logs)
+	for log in logs.values():
+		original, outstanding, paid_total = ledger.get(
+			(log.posting_doctype, log.posting_doc), (0.0, 0.0, 0.0)
+		)
+		sources = list(log.sources)
 		base = sum(flt(s.amount) for s in sources)
-		if not sources or not base:
+		if not sources or not base or not original:
 			continue
-		dates = {}
-		for s in sources:
-			dates[(s.source_doctype, s.source_name)] = frappe.db.get_value(
-				s.source_doctype, s.source_name, SOURCE_DATE.get(s.source_doctype, "creation")
-			)
 		sources.sort(key=lambda s: (str(dates.get((s.source_doctype, s.source_name)) or ""), s.source_name))
-		left = max(0.0, flt(original - outstanding, 2))
+		settled = max(0.0, flt(original - outstanding, 2))
+		paid_left = min(max(0.0, paid_total), settled)
+		other_left = flt(settled - paid_left, 2)
 		allocated = 0.0
 		for i, s in enumerate(sources):
 			# the last source takes the rounding rest, so the shares add up to the document
@@ -312,16 +363,18 @@ def _fifo_shares(logs, ledger):
 				else flt(original * flt(s.amount) / base, 2)
 			)
 			allocated = flt(allocated + share, 2)
-			paid = min(share, left) if share > 0 else 0.0
-			left = flt(left - paid, 2)
+			paid = min(max(share, 0.0), paid_left)
+			paid_left = flt(paid_left - paid, 2)
+			other = min(max(flt(share - paid, 2), 0.0), other_left)
+			other_left = flt(other_left - other, 2)
 			if s.source_doctype == CARD:
-				result[(log.name, s.source_name)] = (share, flt(paid, 2))
+				result[(log.name, s.source_name)] = (share, flt(paid, 2), flt(other, 2))
 	return result
 
 
-def _unallocated_payments(company, party_type, parties):
-	"""Σ of the party's payments (Payment Entry / Journal Entry) still standing
-	against themselves — paid, but not allocated to any document."""
+def _unallocated_payments(company, party_type, parties, end):
+	"""Σ of the party's payments (Payment Entry / Journal Entry) up to ``end`` still
+	standing against themselves — paid, but not allocated to any document."""
 	ple = frappe.qb.DocType("Payment Ledger Entry")
 	rows = (
 		frappe.qb.from_(ple)
@@ -329,9 +382,10 @@ def _unallocated_payments(company, party_type, parties):
 		.where(
 			(ple.company == company)
 			& (ple.party_type == party_type)
-			& (ple.party.isin(list(parties)))
+			& (ple.party.isin(parties))
 			& (ple.voucher_type.isin(list(PAYMENT_VOUCHERS)))
 			& (ple.against_voucher_no == ple.voucher_no)
+			& (ple.posting_date <= end)
 			& (ple.delinked == 0)
 		)
 		.groupby(ple.voucher_no)
