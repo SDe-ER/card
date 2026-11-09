@@ -36,7 +36,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   height (a close-up meter is a wide box and is cropped), and the Desk shows the disputed reading as an isolated left-to-right text, so
   its brackets and `?` keep their order inside an Arabic sentence. A full background queue or an
   unreachable Redis never fails the save: the extraction is skipped for that save, an Error Log row is written and the photo stays
-  manual (no retry). PR #164; needs PR #162 (attachment validation, FR-099) merged first. Affected: `card/diesel_meter_extraction.py` (new), `ProjectDieselFill.validate`
+  manual (no retry). PR #164; uses the attachment validator of PR #162 (FR-099, merged). Affected: `card/diesel_meter_extraction.py` (new), `ProjectDieselFill.validate`
   (`_apply_meter_extraction`, `_totalizer_window`), `project_diesel_fill.js`, `hooks.py` (`on_update` of Project Diesel
   Fill), `card/locale/ar.po`. Impact: permissions none (the job runs as the saving user, no `ignore_permissions`); accounting
   none (nothing submitted or posted); data: with the worker configured, a Draft's `closing_reading`, `review_status` and
@@ -82,6 +82,36 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Security
+- **Attachment validation and privacy** (H-CARD-1, H-CARD-2; FR-099; PR #162).
+  - **Reason:** meter photos, the custody receipt, fitment evidence, the transport authorization document and the Card
+    Equipment registration / inspection / insurance / TUV files accepted any bytes under any name, and the transport
+    document and the equipment files could be a public file or a file of another record.
+  - **Change:** a shared validator (`card/attachment_validator.py`: `check_attachment_content`, `require_record_file`,
+    `claim_file`) accepts only JPEG, PNG, WebP or PDF, detected by content (the file name must agree), up to 10 MB;
+    an image must decode and stay at or below 50 megapixels (checked from the header before decoding; Pillow's
+    decompression-bomb warning is an error); meter photos accept images only. Bytes are read through the File API
+    (`File.get_content(encodings=())`). Used by `ProjectDieselFill._check_photos`, `EmployeeToolCustody` (signed
+    receipt), `CardEquipmentPart` (fitment evidence), `equipment_transport._billing_values` (authorization document)
+    and `CardEquipment.validate_document_files`. It runs only when a file is new or changed (not on a company change,
+    not when an amendment keeps the amended record's photo or receipt), so evidence saved earlier stays valid. The
+    transport document and the four equipment document files must be private files of their own record; the user's
+    own unattached upload is claimed by the record on save. The old "any readable File with this URL" check is
+    removed. The four equipment document fields are `no_copy` (Duplicate no longer copies them).
+  - **Impact:** permissions and API: stricter; a save with a non-allowed, oversize, undecodable, public or another
+    record's file is refused. Data: no patch, nothing changed or deleted; files already stored as public stay public
+    until a separate owner decision; unchanged legacy values are not re-checked. Schema: `no_copy` on four Card
+    Equipment fields (DocType JSON, applied by `bench migrate`). Accounting: none.
+  - **Known limits** (accepted by the owner, review of PR #162): HEIC photos are refused (Pillow has no decoder);
+    save them as JPEG first. A financial re-decision that keeps a transport's existing authorization document is
+    refused when that document is an older unattached upload: the accountant uploads it again. When the same user
+    saves two records at the same time with one unattached upload, only the first record claims the file; the
+    second keeps a link to a file attached to the first.
+  - **Translations:** the eleven new messages of `card/attachment_validator.py` are translated in
+    `card/locale/ar.po` (and listed in `main.pot`).
+  - **Convention:** an Attach / Attach Image field that holds evidence or a document is validated in its controller
+    with `card.attachment_validator` when the value is new or changed.
+  - **Rollback:** revert the merge of PR #162 and migrate (the `no_copy` flags return); nothing to undo in data. File
+    rows claimed by a record stay attached to it (they are that record's own files).
 - **Read endpoints GET-only and diesel fill company permission** (H-CARD-3, H-CARD-4; FR-098; PR #161).
   - **Reason:** a whitelisted function without `methods=` answers GET, POST, PUT and DELETE, and Frappe checks CSRF
     for the last three only; read handlers should answer GET. Project Diesel Fill had no record-level company check.
