@@ -16,6 +16,39 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Changed
+- **CARD print formats: standard print style and the print language** (Owner request 2026-11-09; branch
+  `feat/card-prints-standard-style`). The five CARD document print formats, `Card Monthly Card Print`, the
+  fixture `كارت تشغيل شهري` (name unchanged), `Equipment Transport Print`, `Project Diesel Fill Print` and
+  `Tool Handover Receipt`, now use the owner-approved SDCE print design of the Equipment Supplier Statement:
+  the standard Frappe print look with the Frappe v16 print greys as literal colours (text #171717, labels
+  #7c7c7c, table header #f3f3f3, borders #d1d8dd, heading underline #aaa; no navy band, coloured boxes,
+  CSS variables or remote fonts, so the wkhtmltopdf PDF keeps them). Company name above the title, document
+  details as label/value lines, row tables with a grey header and centred cells (text follows the page
+  direction, numbers read left to right and are right-aligned, dates and counts centred), the totals as
+  label/value lines at the end side of the page with the net or grand figure last and bold, signature lines
+  at the bottom. The monthly card shows its additions/deductions, card totals and the settlement of each
+  billed side in three columns so a sub-rental card with adjustments still fits one A4 page; the transport
+  print lists its equipment with their cost shares; the tool receipt lists the tool, quantity and serial
+  number. The page direction follows the print language, read at render time by the new Jinja method
+  `card.print_utils.card_print_is_rtl` (frappe `is_rtl()` plus Urdu, as CARD Mobile does; `hooks.py` jinja), and every fixed text is translated
+  (25 new CARD msgids in `ar.po` / `main.pot`, CARD-specific where frappe or erpnext translate the generic
+  word differently, e.g. "Card totals", "Amount summary"); stored Arabic option values (shift, ownership,
+  direction, rate type, day status, adjustment type) print through the existing `en.po` entries, the weekday
+  from the date in the print language. Business logic unchanged: which blocks and sides print, the
+  supplier/customer sums and the nets are the same; every data value stays escaped (the fixture now escapes
+  its values too). Wkhtmltopdf geometry fixes are kept (`.print-format` override, `text-rendering: auto`, no
+  rowspan, one font weight per cell). The status of a cancelled transport or diesel fill prints as
+  "(Cancelled)" / "(ملغي)" and a draft as "(مسودة)" (core translated "Draft" as a project). Tests:
+  `test_print_formats.py` renders under Arabic (labels unchanged) with the new totals markup, plus one test
+  for the English print (`dir="ltr"`, English labels, the same amounts) and Urdu (`rtl`); the class
+  compiles Card's ar catalogue into a temporary folder so the Arabic assertions do not depend on a stale
+  bench catalogue. The fixture's `default_print_language` (was `en`) is cleared so it prints in the user's
+  language like the other formats; the Friday row is now taken from the date. Files: the four print format JSON
+  files (`modified` bumped so `bench migrate` re-syncs them), `card/fixtures/print_format.json`,
+  `card/locale/ar.po`, `card/locale/main.pot`, `card/tests/test_print_formats.py`, `card/print_utils.py`,
+  `card/hooks.py`. Impact: display only; no
+  change to permissions, accounting, data or the API. Rollback: revert the commit and run `bench migrate`;
+  no data to restore.
 - **Equipment Supplier Statement A4: new print style** (Owner request 2026-11-09). Looks like a
   standard Frappe print: colours and borders follow Frappe v16 `templates/styles/standard.css` and
   the espresso gray scale (text #171717, labels #7c7c7c, table header #f3f3f3, borders #d1d8dd,
