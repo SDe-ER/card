@@ -7,7 +7,9 @@ need; every claim below is backed by the per-version pages (evidence links there
 
 | Your situation | Use | Why |
 |---|---|---|
-| Site that records project diesel fills with meter photos and an operations review | **v4.2.2** | The large meter photos and clearer reading labels on top of v4.2.1 (simpler diesel fill form) and v4.2.0, which has all of v4.1.2 plus the diesel session evidence (opening/closing meter photos, readings, totalizer check, operations approval before submit), the WhatsApp session import as drafts, parts fitment in the catalog and the app name CARD in every language. Needs a migrate (new columns and one child table) |
+| Site on ERPNext **v16.54.0 or later** (Company Restriction), or about to update ERPNext to it | **v4.3.0** | The first CARD version compatible with the ERPNext v16.54.0+ portal catalog / Company Restriction: on earlier CARD versions the Card portal roles (Card Operator, CARD Mobile catalog) get an empty catalog. Sites updating ERPNext to ≥ 16.54.0 need 4.3.0. Shown by CI only (Partially Verified). Read the breaking changes first |
+| Site that posts CARD months to ERPNext and needs posting integrity, project cost centers and transport cost responsibility | **v4.3.0** | Everything in v4.2.2 plus signed posting drafts, hand-booked invoice review, the diesel VAT basis, project/assignment cost centers, transport responsibility with a financial decision, four read-only review reports, Card Equipment financial privacy and the night-shift customer rate. Needs a migrate (new columns, no patch) and data checks before the first build: diesel VAT basis per company, project and assignment cost centers, rebuilt drafts, a responsibility on every draft transport. External clients that write Equipment Transport must send `responsibility` ([v4.3.0.md → Breaking Changes](v4.3.0.md#9-breaking-changes--verified)) |
+| Site that records project diesel fills with meter photos and an operations review, and cannot yet do the v4.3.0 data checks | **v4.2.2** | The large meter photos and clearer reading labels on top of v4.2.1 (simpler diesel fill form) and v4.2.0, which has all of v4.1.2 plus the diesel session evidence (opening/closing meter photos, readings, totalizer check, operations approval before submit), the WhatsApp session import as drafts, parts fitment in the catalog and the app name CARD in every language. Needs a migrate (new columns and one child table) |
 | Site on v1.0.1 – v4.0.0 going live with equipment registration, transport and project assignment | **v4.1.2** or **v4.2.0** | All of v4.1.1 plus the full launcher navigation on upgraded sites, the simpler transport form and English for stored Arabic values; v4.1.1 added the Tool Custody item-search fix (Card Manager no longer needs an ERPNext Item permission to use the New Handover dialog). Upgrade from v1.0.1 rehearsed; unique chassis/plate numbers; isolation and concurrency fixes |
 | Site on v3.0.0 that wants operators to request machine parts/tools and management to approve them into ERPNext Material Requests | **v4.0.0** | Equipment needs, supervisor review, approval into draft Material Requests, tool custody; everything from v3.0.0. Needs companion ERPNext roles for approvers/supervisors |
 | New install on frappe **16.51+**, equipment moves recorded as transports | **v3.0.0** | Launcher, transport-driven cards, Asset-linked equipment; everything from v1.2.2 |
@@ -38,6 +40,10 @@ need; every claim below is backed by the per-version pages (evidence links there
   idempotently ([v1.2.2.md → Installation & Upgrade](v1.2.2.md#12-installation--upgrade--verified)).
 - Always rehearse `bench migrate` on a restored copy of production first; a migrate that fails on
   the copy must never be run on production (README → Upgrading).
+- `v4.2.2 → v4.3.0`: no patch; migrate syncs new columns and field levels. Do the checks in
+  [v4.3.0.md → Installation & Upgrade](v4.3.0.md#12-installation--upgrade--partially-verified) before the first
+  build. v4.2.2 code is not proven safe on data created under 4.3.0; rollback = restore the pre-upgrade backup or
+  fix forward.
 - Downgrades are not supported by patches; rollback = restore the pre-upgrade backup.
 
 ## Things the latest version still does not do (so you don't choose it for the wrong reason)
@@ -49,3 +55,5 @@ need; every claim below is backed by the per-version pages (evidence links there
   per-day basis bills hours-prorated.
 - Broader accounting phases (activation workflow, tax classes, claims, allocation shares) are an
   approved design, not shipped.
+- Transport customer invoicing, supplier recovery documents and Purchase Invoice posting of transports recorded
+  with a responsibility are disabled in v4.3.0: the accountant enters the transporter's invoice.
