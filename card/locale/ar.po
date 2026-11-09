@@ -5427,10 +5427,4 @@ msgstr "التخصيص الجديد يبدأ في يوم النقل"
 msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
 msgstr "تؤخذ من إعدادات الشركة في CARD عند حفظ النقل وتبقى كما اعتُمدت."
 
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Only owned equipment can be a unit, and its components must be owned too."
-msgstr "الوحدة لا تكون إلا معدة مملوكة، ومكوّناتها يجب أن تكون مملوكة أيضًا."
 
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Set by CARD from the units' component tables: ticked while the equipment is a current component of a unit."
-msgstr "يضبطها CARD من جداول مكوّنات الوحدات: تكون مفعّلة طالما المعدة مكوّن حالي في وحدة."

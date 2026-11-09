@@ -102,7 +102,7 @@ class TestUnitOwnership(IntegrationTestCase):
 	def test_unit_cannot_change_to_rented(self):
 		unit = self._unit(self._equipment().name)
 		doc = frappe.get_doc("Card Equipment", unit.name)
-		doc.update(ownership=RENTED, rental_direction=RENTED_IN, supplier=self.supplier)
+		doc.update({"ownership": RENTED, "rental_direction": RENTED_IN, "supplier": self.supplier})
 		doc.commercial_change_reason = "test"
 		self._refused_with(doc.save, "Only owned equipment can be a unit")
 		self.assertEqual(frappe.db.get_value("Card Equipment", unit.name, "ownership"), OWNED)
@@ -111,7 +111,7 @@ class TestUnitOwnership(IntegrationTestCase):
 		piece = self._equipment().name
 		self._unit(piece)
 		doc = frappe.get_doc("Card Equipment", piece)
-		doc.update(ownership=RENTED, rental_direction=RENTED_IN, supplier=self.supplier)
+		doc.update({"ownership": RENTED, "rental_direction": RENTED_IN, "supplier": self.supplier})
 		doc.commercial_change_reason = "test"
 		self._refused_with(doc.save, "a unit component must be owned")
 		self.assertEqual(frappe.db.get_value("Card Equipment", piece, "ownership"), OWNED)

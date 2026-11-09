@@ -4219,10 +4219,4 @@ msgstr ""
 msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
 msgstr ""
 
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Only owned equipment can be a unit, and its components must be owned too."
-msgstr ""
 
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Set by CARD from the units' component tables: ticked while the equipment is a current component of a unit."
-msgstr ""

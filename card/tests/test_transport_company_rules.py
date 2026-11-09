@@ -215,10 +215,10 @@ class TestTransportCompanyRules(IntegrationTestCase):
 		frappe.db.rollback(save_point="card_refused")
 
 	def test_first_entry_starts_on_the_move_day_under_both_rules(self):
-		for rule in (MOVE_DAY_NEXT, MOVE_DAY_SAME):
+		for label, rule in (("F1", MOVE_DAY_NEXT), ("F2", MOVE_DAY_SAME)):
 			self._company_row(move_day_rule=rule)
 			eq = self._equipment().name
-			t = self._transport(eq, self._project("F"), 10)
+			t = self._transport(eq, self._project(label), 10)
 			self.assertEqual(self._from(t.created_assignment), getdate(self._d(10)))
 
 	def test_rule_is_per_company(self):
