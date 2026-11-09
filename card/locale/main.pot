@@ -4109,6 +4109,7 @@ msgstr ""
 
 #: card/card/report/card_settlement_status/card_settlement_status.py
 msgid "Payments not allocated to a document up to the end date"
+msgstr ""
 
 #: card/card/report/equipment_supplier_statement/statement_pdf.py
 msgid "Invalid filters"
