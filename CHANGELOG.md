@@ -34,6 +34,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+### Changed
+- **CI: the PR title check runs on `pull_request`** (owner, 2026-11-09). GitHub blocks `pull_request_target` in public
+  repositories by default (enforced from 2026-12-02; a brownout on 2026-11-09 stopped the check). The check only reads
+  the title, so the read-only `pull_request` token is enough. No change to the app, permissions or data.
+
 ### Fixed
 - **Equipment Supplier Statement PDF and print** (owner, 2026-11-09).
   - **Reason:** the report PDF button used the standard wkhtmltopdf path, which misshapes the Arabic alef after a
