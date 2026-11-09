@@ -65,6 +65,7 @@ function card_render_shift_heatmaps(frm) {
 		.call({
 			method: "card.card.doctype.card_equipment.card_equipment.get_shift_heatmap",
 			args: { name: frm.doc.name },
+			type: "GET",
 		})
 		.then((r) => {
 			const d = (r && r.message) || {};

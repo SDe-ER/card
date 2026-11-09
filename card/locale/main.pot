@@ -4220,3 +4220,10 @@ msgid "Taken from the company's Card Settings when the transport is saved and ke
 msgstr ""
 
 
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill cannot be shared with everyone."
+msgstr ""
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
+msgstr ""

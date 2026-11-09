@@ -111,7 +111,7 @@
 		onload(report) {
 			// Seed the UI default from Card Settings (server also falls back to the
 			// same setting for API callers). The user can still override.
-			frappe.call("card.api.report_defaults").then((r) => {
+			frappe.call({ method: "card.api.report_defaults", type: "GET" }).then((r) => {
 				const v = (r && r.message) || {};
 				const idf = report.get_filter("include_draft");
 				if (idf) idf.set_value(v.include_draft_in_reports ? 1 : 0);

@@ -724,7 +724,7 @@ def get_timeline_data(doctype: str, name: str) -> dict:
 	return {int(timestamp): flt(hours) for timestamp, hours in rows}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 def get_shift_heatmap(name: str):
 	"""Per-shift daily operating hours, so two-shift equipment can show the day
 	(نهاري) and night (ليلي) activity as two separate heatmaps with distinct
