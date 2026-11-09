@@ -104,7 +104,7 @@
 <style>
 	/* colours follow the standard Frappe print style: gray-900 #171717, gray-700 #525252, gray-600 #7c7c7c,
 	   gray-100 #f3f3f3, table border #d1d8dd, print-heading border #aaa */
-	@page { size: A4 landscape; margin: 10mm; }
+	@page { size: A4 portrait; margin: 10mm; }
 	/* font: Noto Sans Arabic (owner 2026-11-09). The installed font (fontconfig, card/fonts.py) comes first, so the
 	   server PDF shapes Arabic; the bundled copies under /assets/card/fonts load in a browser that lacks it. */
 	@font-face { font-family: "Card Noto Arabic"; src: url("/assets/card/fonts/NotoSansArabic-Regular.ttf"); font-weight: normal; }
@@ -112,9 +112,13 @@
 	@font-face { font-family: "Card Noto Sans"; src: url("/assets/card/fonts/NotoSans-Regular.ttf"); font-weight: normal; }
 	@font-face { font-family: "Card Noto Sans"; src: url("/assets/card/fonts/NotoSans-Bold.ttf"); font-weight: bold; }
 	.ess {
-		font-family: "Noto Sans Arabic", "Card Noto Arabic", "Noto Sans", "Card Noto Sans", Tahoma, sans-serif;
 		font-size: 9pt; line-height: 1.45; color: #171717;
 		-webkit-print-color-adjust: exact; print-color-adjust: exact;
+	}
+	/* a site print style may set the font of every print element with !important; the statement keeps its own font:
+	   the ".print-format" selectors are more specific than ".print-format *" */
+	.ess, .ess *, .print-format .ess, .print-format .ess * {
+		font-family: "Noto Sans Arabic", "Card Noto Arabic", "Noto Sans", "Card Noto Sans", Tahoma, sans-serif !important;
 	}
 	.ess table { width: 100%; border-collapse: collapse; }
 	.ess[dir="rtl"] { direction: rtl; text-align: right; }
@@ -162,7 +166,9 @@
 	.ess .ess-totals td.ess-v { direction: ltr; unicode-bidi: embed; font-weight: 700; font-variant-numeric: tabular-nums; }
 	.ess .ess-totals tr:last-child td { font-size: 9.5pt; font-weight: 700; color: #171717; border-top: 1px solid #aaa; border-bottom: none; }
 	.ess .ess-signs { margin-top: 14px; table-layout: fixed; page-break-inside: avoid; break-inside: avoid; }
-	.ess .ess-signs td { border: none; text-align: center; padding: 0 12px; font-weight: 700; color: #525252; }
+	.ess .ess-signs td { border: none; text-align: center; vertical-align: top; padding: 0 12px; font-weight: 700; color: #525252; }
+	/* the signatures and the issued-by line stay together, on the page of the totals */
+	.ess .ess-end { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; }
 	.ess .ess-signs .ess-line { display: block; border-top: 1px solid #999; margin: 22px 15% 4px; }
 </style>
 <div class="ess" dir="{%= frappe.utils.is_rtl() ? "rtl" : "ltr" %}">
@@ -217,6 +223,7 @@
 	</tbody>
 </table>
 {% } %}
+<div class="ess-end">
 <table class="ess-signs">
 	<tr>
 		<td><span class="ess-line"></span>{%= __("Accountant signature") %}</td>
@@ -225,4 +232,5 @@
 	</tr>
 </table>
 <p class="ess-issued">{%= esc(__("Issued by the electronic system of {0}", [filters.company || ""])) %}</p>
+</div>
 </div>

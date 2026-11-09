@@ -58,7 +58,28 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 			"String(raw.message)",
 		):
 			self.assertIn(f"esc({field}", template)
-		self.assertIn("size: A4 landscape", template)
+		self.assertIn("size: A4 portrait", template)
+
+	def test_font_wins_over_site_print_style_and_pdf_shapes_arabic(self):
+		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
+		# a site print style may set ".print-format *" font-family with !important: the statement's own rule must be
+		# !important and more specific, so the browser print keeps Noto Sans Arabic
+		rule = re.search(r"([^{}]+)\{\s*font-family:\s*([^;}]+);\s*\}", template.split("<style>")[1])
+		self.assertIsNotNone(rule)
+		selectors = [s.strip() for s in rule.group(1).strip().splitlines()[-1].split(",")]
+		self.assertIn(".print-format .ess *", selectors)
+		self.assertIn(".ess *", selectors)
+		self.assertTrue(rule.group(2).startswith('"Noto Sans Arabic", "Card Noto Arabic"'))
+		self.assertTrue(rule.group(2).rstrip().endswith("!important"))
+
+	def test_one_portrait_page_with_level_signatures(self):
+		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
+		self.assertIn("@page { size: A4 portrait; margin: 10mm; }", template)
+		# the signatures and the issued-by line stay together, after the totals, on one level
+		self.assertLess(template.index('<div class="ess-end">'), template.index('class="ess-signs"'))
+		self.assertLess(template.index('class="ess-issued"'), template.rindex("</div>\n</div>"))
+		self.assertRegex(template, r"\.ess \.ess-end \{[^}]*break-inside: avoid;")
+		self.assertRegex(template, r"\.ess \.ess-signs td \{[^}]*vertical-align: top;")
 
 	def test_totals_table_follows_the_rows_and_no_css_variables(self):
 		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")

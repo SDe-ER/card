@@ -34,6 +34,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+### Fixed
+- **Equipment Supplier Statement PDF and print** (owner, 2026-11-09).
+  - **Reason:** the report PDF button used the standard wkhtmltopdf path, which misshapes the Arabic alef after a
+    joining letter ("حساب", "الصافي"). A site print style can set every print font with `!important`, so the browser
+    print showed another font. In landscape, the signatures moved to a second page.
+  - **Change:** the PDF action of this report only posts the filters to the new
+    `card.card.report.equipment_supplier_statement.statement_pdf.download_pdf` (`methods=["POST"]`). The server runs
+    the report with the user's permissions (report access, print permission on Card Monthly Card, company check),
+    builds the page itself with the CSS of the print template, and renders it with the Frappe Chrome PDF generator
+    (`frappe.utils.pdf.get_chrome_pdf`). The endpoint never accepts HTML from the browser. Other reports keep the
+    standard PDF. The template font rule is `!important` and more specific than `.print-format *`; the site print
+    style is not changed. The page is A4 portrait; the signatures and the issued-by line stay together on one level.
+  - **Impact:** permissions — none widened (same rights as running and printing the report). Accounting, data, schema
+    — none. API — one new POST method. An Access Log row is written for each PDF, as for the standard report PDF.
+  - **Rollback:** a v4.4.2 image restores the wkhtmltopdf PDF; the A4 print format needs the forced re-import of the
+    v4.4.2 file (`import_file_by_path` with `force`).
+
 ## [4.4.2] — 2026-11-09
 
 Patch release on top of v4.4.1 (PR #178): the A4 supplier statement prints every card of the period and totals

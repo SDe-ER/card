@@ -118,6 +118,22 @@
 		onload(report) {
 			// the PDF dialog opens with the A4 statement selected; the Print dialog uses the same layout
 			report.report_doc.default_print_format = "Equipment Supplier Statement A4";
+			// the PDF action prints this statement with the Chrome PDF generator (Arabic shaping): the server
+			// runs the report and builds the page from the filters only. Other reports keep the standard PDF.
+			if (!report.card_statement_pdf) {
+				const standard_pdf = report.pdf_report;
+				report.pdf_report = function (print_settings) {
+					if (this.report_name !== "Equipment Supplier Statement") {
+						return standard_pdf.call(this, print_settings);
+					}
+					open_url_post(
+						"/api/method/card.card.report.equipment_supplier_statement.statement_pdf.download_pdf",
+						{ filters: this.get_filter_values() },
+						true,
+					);
+				};
+				report.card_statement_pdf = true;
+			}
 			// Seed the UI defaults from Card Settings (server also falls back to the
 			// same settings for API callers). The user can still override.
 			frappe.call("card.api.report_defaults").then((r) => {
