@@ -85,6 +85,12 @@ class GLPostingLog(Document):
 			# a built posting is always a fresh draft; a linked supplier invoice may already be submitted
 			or (party_field and doc.docstatus != 0 and not (self.origin == "Linked" and doc.docstatus == 1))
 			or (party_field and doc.get(party_field) != self.party)
+			# settlement phase 1: a Journal Entry is only ever a LINKED, submitted supplier accrual
+			# (card.gl.journal_link checks its party rows); CARD never builds one
+			or (
+				self.posting_doctype == "Journal Entry"
+				and (self.origin != "Linked" or self.party_type != "Supplier" or doc.docstatus != 1)
+			)
 			or frappe.db.exists(
 				"GL Posting Log",
 				{

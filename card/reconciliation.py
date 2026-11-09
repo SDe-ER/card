@@ -33,6 +33,9 @@ from frappe import _
 from frappe.utils import cint, flt, getdate
 
 POSTING_TYPE = {"Supplier": "Purchase Invoice", "Customer": "Sales Invoice"}
+# the documents that recognise a party's cards: its invoice, and for suppliers also an
+# accrual Journal Entry linked by an accountant (settlement phase 1, card.gl.journal_link)
+RECOGNISED_BY = {"Supplier": ["Purchase Invoice", "Journal Entry"], "Customer": ["Sales Invoice"]}
 PARTY_FIELD = {"Supplier": "supplier", "Customer": "customer"}
 
 
@@ -71,7 +74,7 @@ def cards_invoiced(party_type, parties, company, start, end, cards=None):
 			"company": company,
 			"party_type": party_type,
 			"party": ["in", parties],
-			"posting_type": POSTING_TYPE[party_type],
+			"posting_type": ["in", RECOGNISED_BY[party_type]],
 			"status": "Submitted",
 			"year": ["between", [getdate(start).year - 1, getdate(end).year + 1]],
 		},
