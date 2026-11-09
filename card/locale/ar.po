@@ -1546,6 +1546,9 @@ msgstr "اضبط حسابات مصروفات الكارت في الإعدادا�
 msgid "Lines without equipment"
 msgstr "سطور بدون معدة"
 
+msgid "Project tank diesel lines (intended, not listed)"
+msgstr "سطور ديزل خزان المشروع (مقصودة، غير مدرجة)"
+
 msgid "Net amount without equipment"
 msgstr "صافي المبالغ بدون معدة"
 
@@ -4054,6 +4057,18 @@ msgid "Issue date"
 msgstr "تاريخ الإصدار"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Statement totals"
+msgstr "الإجماليات"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Period charges (incl. VAT)"
+msgstr "مستحقات الفترة (شاملة الضريبة)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Owned equipment"
+msgstr "معدات ملك"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Accountant signature"
 msgstr "توقيع المحاسب"
 
@@ -5004,3 +5019,317 @@ msgstr "المسؤولية تحتاج مراجعة — ألغِ النقل وع�
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "Financial decision recorded."
 msgstr "تم تسجيل القرار المالي."
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Customer rate (night shift)"
+msgstr "سعر العميل (الوردية الليلية)"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Equipment Monthly Operation Card"
+msgstr "كارت تشغيل معدة شهري"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "(Cancelled)"
+msgstr "(ملغي)"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card no."
+msgstr "رقم الكارت"
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "Document no."
+msgstr "رقم المستند"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Adjustment amount"
+msgstr "المبلغ"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Rate ({0})"
+msgstr "السعر ({0})"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Customer rate ({0})"
+msgstr "سعر العميل ({0})"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer side amount"
+msgstr "قيمة جانب العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Internal operation"
+msgstr "تشغيل داخلي"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Not billed"
+msgstr "بدون فوترة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier settlement"
+msgstr "تسوية المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier gross"
+msgstr "إجمالي المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier additions"
+msgstr "إضافات المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier deductions"
+msgstr "خصومات المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier net before VAT"
+msgstr "صافي المورد قبل الضريبة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer settlement"
+msgstr "تسوية العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer gross"
+msgstr "إجمالي العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer additions"
+msgstr "إضافات العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer deductions"
+msgstr "خصومات العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer net before VAT"
+msgstr "صافي العميل قبل الضريبة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Driver / operator signature"
+msgstr "توقيع السائق / المشغّل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Site supervisor approval"
+msgstr "اعتماد المشرف الميداني"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Project manager approval"
+msgstr "اعتماد مدير المشروع"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card totals"
+msgstr "الإجماليات"
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+msgid "Amount summary"
+msgstr "الإجماليات"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Cards net for the period"
+msgstr "صافي الكروت عن الفترة"
+
+
+
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Work done not yet invoiced (before VAT)"
+msgstr "أعمال منفذة لم تُفوتر بعد (قبل الضريبة)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Issued by the electronic system of {0}"
+msgstr "تم الإصدار من نظام {0} الإلكتروني"
+
+#: card/gl/journal_link.py
+msgid "Only an accountant may link accrual journal entries to CARD cards."
+msgstr "لا يربط قيود الاستحقاق بكروت CARD إلا محاسب."
+
+#: card/gl/journal_link.py
+msgid "Choose the CARD monthly cards this journal entry recognised."
+msgstr "اختر كروت CARD الشهرية التي أثبت هذا القيد استحقاقها."
+
+#: card/gl/journal_link.py
+msgid "A card is listed twice."
+msgstr "كارت مكرر في القائمة."
+
+#: card/gl/journal_link.py
+msgid "You are not permitted to link journal entries for company {0}."
+msgstr "غير مسموح لك بربط قيود يومية للشركة {0}."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not submitted."
+msgstr "القيد {0} غير معتمد."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is already linked to CARD cards ({1})."
+msgstr "القيد {0} مربوط بالفعل بكروت CARD ({1})."
+
+#: card/gl/journal_link.py
+msgid "Card {0} is not submitted."
+msgstr "الكارت {0} غير معتمد."
+
+#: card/gl/journal_link.py
+msgid "Card {0} belongs to another company or supplier than journal entry {1}."
+msgstr "الكارت {0} تابع لشركة أو مورد غير القيد {1}."
+
+#: card/gl/journal_link.py
+msgid "Card {0} is not billed by a supplier."
+msgstr "الكارت {0} لا يُفوتر من مورد."
+
+#: card/gl/journal_link.py
+msgid "Card {0} is already invoiced by {1}."
+msgstr "الكارت {0} مفوتر بالفعل في {1}."
+
+#: card/gl/journal_link.py
+msgid "Card {0} is already held by {1}."
+msgstr "الكارت {0} محجوز بالفعل في {1}."
+
+#: card/gl/journal_link.py
+msgid "Cannot confirm the link: the cards total {0} net, the journal entry credits the supplier {1}. Link only the cards it recognised, or accept the difference {2} with a reason."
+msgstr "تعذّر تأكيد الربط: صافي الكروت {0}، والقيد يُقيّد للمورد دائناً {1}. اربط الكروت التي أثبت القيد استحقاقها فقط، أو اقبل الفرق {2} مع ذكر السبب."
+
+#: card/gl/journal_link.py
+msgid "Linked amounts differ"
+msgstr "المبالغ المربوطة غير متطابقة"
+
+#: card/gl/journal_link.py
+msgid "Linked by {0}: accrual journal entry {1} credits the supplier {2}, CARD cards net {3}, {4}. {5}"
+msgstr "ربطه {0}: قيد الاستحقاق {1} يُقيّد للمورد دائناً {2}، وصافي كروت CARD {3}، {4}. {5}"
+
+#: card/gl/journal_link.py
+msgid "open difference {0} accepted"
+msgstr "تم قبول فرق مفتوح {0}"
+
+#: card/gl/journal_link.py
+msgid "matched"
+msgstr "مطابق"
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} has a party other than a supplier."
+msgstr "القيد {0} فيه طرف غير المورد."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} must recognise exactly one supplier."
+msgstr "يجب أن يُثبت القيد {0} استحقاق مورد واحد فقط."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} does not credit supplier {1}; it is not an accrual."
+msgstr "القيد {0} لا يُقيّد المورد {1} دائناً؛ ليس قيد استحقاق."
+
+#: card/gl/journal_link.py
+msgid "Journal entry cancelled; cards freed."
+msgstr "أُلغي القيد وأُعيدت الكروت غير مستحقة."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Choose a supplier or a customer."
+msgstr "اختر مورداً أو عميلاً."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "This report shows ledger balances; it needs General Ledger access."
+msgstr "هذا التقرير يعرض أرصدة الحسابات ويحتاج صلاحية دفتر الأستاذ العام."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Not recognised yet"
+msgstr "غير مستحق بعد"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognising document is a draft"
+msgstr "مستند الاستحقاق مسودة"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Fully settled"
+msgstr "مسدد بالكامل"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Partly settled"
+msgstr "مسدد جزئياً"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised, not settled"
+msgstr "مستحق – غير مسدد"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Cards net"
+msgstr "صافي الكروت"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised share"
+msgstr "الحصة المستحقة"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Paid on the card"
+msgstr "المسدد على الكارت"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Remaining on the card"
+msgstr "المتبقي على الكارت"
+
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
+msgstr "المبالغ من دفتر مستند الاستحقاق (شاملة الضريبة في الفواتير). المستند الذي أثبت أكثر من مصدر يُوزَّع على مبالغها، وتُخصَّص دفعاته للأقدم أولاً. الدفعات غير المخصصة لمستند تُسوّى في الحسابات بأداة تسوية المدفوعات (Payment Reconciliation)."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Card net"
+msgstr "صافي الكارت"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised by"
+msgstr "نوع مستند الاستحقاق"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognising document"
+msgstr "مستند الاستحقاق"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Card share of the document"
+msgstr "حصة الكارت من المستند"
+
+#: card/card/report/card_settlement_status/card_settlement_status.js
+msgid "Card Settlement Status"
+msgstr "حالة تسوية الكروت"
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not an ordinary accrual entry."
+msgstr "القيد {0} ليس قيد استحقاق عادياً."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is booked against {1} {2}; it is not an accrual of its own."
+msgstr "القيد {0} مسجّل مقابل {1} {2}؛ ليس قيد استحقاق مستقلاً."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Ledger entry of the document not found"
+msgstr "لم يُعثر على قيد المستند في دفتر المدفوعات"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Credit notes and adjustments"
+msgstr "إشعارات دائنة وتسويات"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Payments not allocated to a document up to the end date"
+msgstr "دفعات غير مخصصة لمستند حتى تاريخ النهاية"
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Invalid filters"
+msgstr "فلاتر غير صالحة"
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The PDF could not be created. Check the Chrome PDF generator."
+msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح Chrome."
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The statement print template has no style block."
+msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."

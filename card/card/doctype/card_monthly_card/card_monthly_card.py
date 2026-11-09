@@ -16,6 +16,7 @@ from card.constants import (
 	DIR_RENTED_OUT,
 	DIR_SUBRENTAL,
 	OWNED,
+	SHIFT_NIGHT,
 	SUPPLIER_BILLING_DIRECTIONS,
 	allowed_directions,
 	derive_direction,
@@ -104,6 +105,7 @@ class CardMonthlyCard(Document):
 				"default_customer",
 				"customer_rate_type",
 				"customer_rate",
+				"customer_rate_night",
 			],
 			as_dict=True,
 		)
@@ -142,6 +144,10 @@ class CardMonthlyCard(Document):
 			self.customer = eq.default_customer
 			self.customer_rate_type = eq.customer_rate_type
 			self.customer_rate = flt(eq.customer_rate)
+			# FR-109 (Owner 2026-11-08): a night-shift card uses the equipment's
+			# night-shift rate (same basis) when one is set; otherwise the customer rate
+			if self.shift == SHIFT_NIGHT and flt(eq.customer_rate_night) > 0:
+				self.customer_rate = flt(eq.customer_rate_night)
 		else:
 			self.customer = None
 			self.customer_rate_type = None
