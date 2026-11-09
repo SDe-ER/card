@@ -58,6 +58,13 @@ def _labels(summary):
 	return {item["label"] for item in summary or []}
 
 
+def _key(summary, key):
+	for item in summary or []:
+		if item.get("key") == key:
+			return item["value"]
+	return None
+
+
 def _value(summary, label):
 	for item in summary or []:
 		if item["label"] == frappe._(label):
@@ -298,6 +305,14 @@ class TestReportAccess(IntegrationTestCase):
 		frappe.set_user(self._user(["Card User", "Accounts Manager"]))
 		_cols, _rows, _msg, summary = self._statement()
 		self.assertEqual(flt(_value(summary, "Accrual entries (Credit)")), 400.0)
+		# the A4 print picks its short statement by these stable keys (labels are translated)
+		keys = {item.get("key") for item in summary}
+		self.assertTrue({"opening", "accrued", "paid", "closing", "net_cards", "hours"} <= keys)
+		self.assertAlmostEqual(
+			flt(_key(summary, "opening")) + flt(_key(summary, "accrued")) - flt(_key(summary, "paid")),
+			flt(_key(summary, "closing")),
+			places=6,
+		)
 
 	def test_shared_gl_entry_does_not_unlock_the_ledger(self):
 		self._card(self._equipment("L3"), [10])

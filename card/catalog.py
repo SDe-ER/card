@@ -12,9 +12,11 @@ Who sees what is decided on the server (``_read``):
   OEM numbers and alternatives) gets the same catalogue rules on fixed safe fields, with his User
   Permissions and shares applied the way ``frappe.get_list`` applies them. Frappe has no public
   call that applies User Permissions without the role check, so ``_user_permission_filters``
-  follows frappe v16 ``database/query.py``; ``test_catalog`` compares both paths (R7). Where
-  Frappe would add permission query rules (hooks or a Permission Query server script) that CARD
-  cannot apply, the restricted read returns nothing;
+  follows frappe v16 ``database/query.py``; ``test_catalog`` compares both paths (R7). Permission
+  query rules from hooks (for example ERPNext's Company Restriction on Item, Customer, Supplier and
+  ``*``) are applied the way ``frappe.get_list`` applies them; where a Permission Query server
+  script exists, which CARD cannot run for a user without read, the restricted read returns
+  nothing;
 - anyone else gets nothing.
 Card User reads the catalogue like a portal role (phase 2b, Owner decision A, 2026-10-23: the
 read-only catalog view of CARD Mobile); he still has no access to requests.
@@ -101,26 +103,75 @@ def _restriction(doctype):
 	return conditions
 
 
-def _has_query_rules(doctype):
-	"""Permission query rules Frappe would add for ``doctype`` (hooks or a server script)."""
+def _query_rule_criteria(doctype):
+	"""Permission query rules Frappe adds for ``doctype`` in ``frappe.get_list``, built the same way
+	(frappe v16 ``database/query.py`` ``get_permission_query_conditions``: every
+	``permission_query_conditions`` hook of the doctype and of ``*``; a raw SQL string is wrapped
+	as one raw condition, a pypika term such as ERPNext's Company Restriction is used as it is).
+	None when a Permission Query server script exists: CARD cannot run it for a user without read,
+	so the restricted read fails closed."""
 	from frappe.core.doctype.server_script.server_script_utils import get_server_script_map
+	from frappe.database.query import RawCriterion
 
+	if get_server_script_map().get("permission_query", {}).get(doctype):
+		return None
 	hooks = frappe.get_hooks("permission_query_conditions", {})
-	return bool(
-		hooks.get(doctype)
-		or hooks.get("*")
-		or get_server_script_map().get("permission_query", {}).get(doctype)
-	)
+	criteria = []
+	user = frappe.session.user
+	for method in hooks.get(doctype, []) + hooks.get("*", []):
+		# Audited (Semgrep frappe-codeinjection-eval): ``method`` is a dotted path from an installed
+		# app's hooks.py (frappe.get_hooks), never request data; the same call frappe.get_list makes.
+		hook = frappe.get_attr(method)  # nosemgrep: frappe-codeinjection-eval
+		condition = frappe.call(hook, user, doctype=doctype)  # nosemgrep: frappe-codeinjection-eval
+		if condition:
+			criteria.append(RawCriterion(f"({condition})") if isinstance(condition, str) else condition)
+	return criteria
+
+
+# the frappe.get_all arguments the catalog reads use; anything else would be dropped silently
+_GET_ALL_KEYS = frozenset({"fields", "pluck", "order_by", "distinct", "limit_start", "limit_page_length"})
+
+
+def _get_all_with_rules(doctype, filters, rules, **kwargs):
+	"""``frappe.get_all`` plus permission query rules: Frappe's nested filters take no raw
+	condition, so the same query is built with the query builder and the rules are added to it."""
+	from frappe.database.utils import DefaultOrderBy
+	from frappe.query_builder import Criterion
+
+	unknown = set(kwargs) - _GET_ALL_KEYS
+	if unknown:
+		frappe.throw(f"Unsupported catalog read arguments: {sorted(unknown)}")
+	pluck = kwargs.get("pluck")
+	query = frappe.qb.get_query(
+		doctype,
+		fields=[pluck] if pluck else kwargs.get("fields") or ["name"],
+		filters=filters,
+		order_by=kwargs.get("order_by", DefaultOrderBy),
+		limit=cint(kwargs.get("limit_page_length")) or None,
+		offset=cint(kwargs.get("limit_start")) or None,
+		distinct=bool(kwargs.get("distinct")),
+		db_query_compat=True,
+	).where(Criterion.all(rules))
+	if pluck:
+		return query.run(pluck=True)
+	return query.run(as_dict=True)
 
 
 def _read(doctype, filters, **kwargs):
 	"""``frappe.get_list`` for a reader of ``doctype``; the restricted read only for Card portal
-	roles (R1); nothing for anyone else or where Frappe would add rules CARD cannot apply."""
+	roles (R1), with the same permission query rules; nothing for anyone else or where a Permission
+	Query server script would apply."""
 	if _role_reads(doctype):
 		return frappe.get_list(doctype, filters=_and(filters), **kwargs)
-	if not has_any_role(CATALOG_ROLES) or _has_query_rules(doctype):
+	if not has_any_role(CATALOG_ROLES):
 		return []
-	return frappe.get_all(doctype, filters=_and(filters + _restriction(doctype)), **kwargs)
+	rules = _query_rule_criteria(doctype)
+	if rules is None:
+		return []
+	restricted = _and(filters + _restriction(doctype))
+	if not rules:
+		return frappe.get_all(doctype, filters=restricted, **kwargs)
+	return _get_all_with_rules(doctype, restricted, rules, **kwargs)
 
 
 def _and(conditions):
