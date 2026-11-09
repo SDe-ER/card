@@ -12,17 +12,48 @@
 	}
 	var money = !!label_of.net;
 	var statement_type = filters.statement_type || (money ? "مورد" : "معدات ملك");
+	/* the filter stores the Arabic option value; the print shows it in the user's language */
+	statement_type = statement_type === "مورد" ? __("Supplier") : (statement_type === "معدات ملك" ? __("Owned equipment") : statement_type);
 	var fields = money
-		? [["label", 17, "text"], ["equipment", 9, "text"], ["first_date", 7, "date"], ["last_date", 7, "date"],
-			["working_days", 4, "int"], ["hours", 6, "num"], ["rate_type", 6, "text"], ["rate", 6, "num"],
-			["hourly_rate", 6, "num"], ["amount", 8, "num"], ["additions", 7, "num"], ["deductions", 7, "num"], ["net", 7, "num"]]
-		: [["label", 36], ["equipment", 14, "text"], ["first_date", 12, "date"], ["last_date", 12, "date"],
-			["working_days", 10, "int"], ["hours", 12, "num"]];
+		? [["label", 25, "text"], ["first_date", 9, "date"], ["last_date", 9, "date"], ["working_days", 6, "int"],
+			["hours", 8, "num"], ["hourly_rate", 8, "num"], ["amount", 9, "num"], ["additions", 7.5, "num"],
+			["deductions", 7.5, "num"], ["net", 8, "num"]]
+		: [["label", 46, "text"], ["first_date", 13, "date"], ["last_date", 13, "date"],
+			["working_days", 11, "int"], ["hours", 14, "num"]];
 	/* the print shows what the screen opens with: project and equipment rows, then the grand total */
 	var rows = [];
 	for (var i = 0; i < original_data.length; i++) {
 		if (original_data[i] && (original_data[i].indent || 0) < 2) rows.push(original_data[i]);
 	}
+	/* additions and deductions print only when some row has a value; the other columns share the freed width */
+	var optional = { additions: 1, deductions: 1 };
+	var has_value = function (fieldname) {
+		for (var r = 0; r < rows.length; r++) {
+			if (parseFloat(rows[r][fieldname]) || 0) return true;
+		}
+		return false;
+	};
+	var shown = [];
+	var shown_width = 0;
+	for (var f = 0; f < fields.length; f++) {
+		if (!optional[fields[f][0]] || has_value(fields[f][0])) {
+			shown.push(fields[f]);
+			shown_width += fields[f][1];
+		}
+	}
+	fields = [];
+	for (var f = 0; f < shown.length; f++) {
+		fields.push([shown[f][0], Math.round((shown[f][1] * 9700) / shown_width) / 100, shown[f][2]]);
+	}
+	/* the totals table spans the amount columns at the end of the rows table */
+	var totals_from = money ? "hourly_rate" : "last_date";
+	var totals_width = 0;
+	var in_totals = false;
+	for (var f = 0; f < fields.length; f++) {
+		if (fields[f][0] === totals_from) in_totals = true;
+		if (in_totals) totals_width += fields[f][1];
+	}
+	totals_width = Math.max(35, Math.min(60, Math.round(totals_width)));
 	var month_of = function (m, y) { return m && y ? m + "/" + y : ""; };
 	var cell = function (row, f) {
 		var v = row[f[0]];
@@ -33,56 +64,76 @@
 	};
 %}
 <style>
+	/* colours follow the standard Frappe print style: gray-900 #171717, gray-700 #525252, gray-600 #7c7c7c,
+	   gray-100 #f3f3f3, table border #d1d8dd, print-heading border #aaa */
 	@page { size: A4 landscape; margin: 10mm; }
-	.ess { font-size: 11px; color: #000; }
-	.ess h2 { margin: 0 0 6px; font-size: 16px; text-align: center; }
+	.ess {
+		font-family: "Cairo", "Noto Sans Arabic", "Noto Sans", Tahoma, sans-serif;
+		font-size: 9pt; line-height: 1.45; color: #171717;
+		-webkit-print-color-adjust: exact; print-color-adjust: exact;
+	}
 	.ess table { width: 100%; border-collapse: collapse; }
-	.ess .ess-meta td { border: none; padding: 1px 6px; font-size: 11px; }
-	.ess .ess-summary { margin: 6px 0 8px; table-layout: fixed; }
-	.ess .ess-summary td { border: 1px solid #999; padding: 3px 5px; vertical-align: top; }
-	.ess .ess-summary .ess-k { display: block; font-size: 9px; color: #444; }
-	.ess .ess-summary .ess-v { display: block; font-weight: bold; font-size: 11px; direction: ltr; text-align: right; }
-	.ess .ess-rows { table-layout: fixed; }
-	.ess .ess-rows th, .ess .ess-rows td { border: 1px solid #999; padding: 2px 3px; overflow-wrap: anywhere; word-break: break-word; }
-	.ess .ess-rows th { background: #e9ecef; font-weight: bold; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+	.ess[dir="rtl"] { direction: rtl; text-align: right; }
+	.ess[dir="ltr"] { direction: ltr; text-align: left; }
+	.ess[dir="rtl"] .ess-totals td.ess-v { text-align: left; }
+	.ess[dir="ltr"] .ess-totals td.ess-v { text-align: right; }
+	.ess[dir="rtl"] .ess-totals th { text-align: right; }
+	.ess[dir="ltr"] .ess-totals th { text-align: left; }
+	.ess .ess-co { font-size: 10pt; font-weight: 700; color: #525252; margin: 0 0 2px; }
+	.ess .ess-title { border-bottom: 1px solid #aaa; margin: 0 0 10px; padding-bottom: 4px; }
+	.ess .ess-title h2 { margin: 0; font-size: 16pt; font-weight: 700; color: #171717; }
+	.ess .ess-meta { width: 70%; margin: 0 0 10px; table-layout: fixed; }
+	.ess .ess-meta td { border: none; padding: 2px 0; color: #171717; vertical-align: top; }
+	.ess .ess-meta td.ess-ml { width: 14%; font-weight: 700; color: #7c7c7c; }
+	.ess .ess-rows { table-layout: fixed; border: 1px solid #d1d8dd; }
+	.ess .ess-rows th, .ess .ess-rows td {
+		padding: 4px 6px; border: 1px solid #d1d8dd; overflow-wrap: anywhere; word-break: break-word; vertical-align: middle;
+	}
+	.ess .ess-rows th { background: #f3f3f3; color: #525252; font-weight: 700; text-align: center; vertical-align: middle; }
 	.ess .ess-rows thead { display: table-header-group; }
 	.ess .ess-rows tr { page-break-inside: avoid; break-inside: avoid; }
-	.ess .ess-rows td.ess-num { text-align: right; direction: ltr; }
-	.ess .ess-note { font-size: 9px; color: #333; margin: 0 0 6px; }
-	.ess .ess-rows tr.ess-group td { background: #f4f5f6; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-	.ess .ess-rows tr.ess-total td { font-weight: bold; border-top: 2px solid #000; }
-	.ess .ess-signs { margin-top: 28px; table-layout: fixed; }
-	.ess .ess-signs td { border: none; text-align: center; padding: 0 12px; font-weight: bold; }
-	.ess .ess-signs .ess-line { display: block; border-top: 1px solid #000; margin: 30px 10% 4px; }
+	/* text follows the page direction; numbers read left to right, right-aligned so the decimals line up;
+	   dates, counts and the row number are centred */
+	.ess[dir="rtl"] .ess-rows td.ess-t, .ess[dir="rtl"] .ess-meta td, .ess[dir="rtl"] .ess-totals td.ess-k { text-align: right; }
+	.ess[dir="ltr"] .ess-rows td.ess-t, .ess[dir="ltr"] .ess-meta td, .ess[dir="ltr"] .ess-totals td.ess-k { text-align: left; }
+	.ess .ess-rows td.ess-num { text-align: right; direction: ltr; unicode-bidi: embed; white-space: nowrap; font-variant-numeric: tabular-nums; }
+	.ess .ess-rows td.ess-c { text-align: center; direction: ltr; unicode-bidi: embed; white-space: nowrap; }
+	.ess .ess-note { font-size: 8pt; color: #7c7c7c; margin: 0 0 6px; }
+	.ess .ess-rows tr.ess-group td { background: #fafafa; font-weight: 700; }
+	.ess .ess-rows tr.ess-total td { background: #f3f3f3; font-weight: 700; border-top: 2px solid #999; }
+	/* the totals sit right under the last (amount) columns of the rows table, at the end side of the page,
+	   as in a standard invoice; 40% = the width of the hourly rate .. net columns */
+	.ess .ess-totals { width: 40%; margin-top: 6px; page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; }
+	.ess[dir="rtl"] .ess-totals { margin-left: 0; margin-right: auto; }
+	.ess[dir="ltr"] .ess-totals { margin-left: auto; margin-right: 0; }
+	.ess .ess-totals th {
+		color: #525252; font-weight: 700; padding: 4px 6px; border-bottom: 1px solid #aaa;
+	}
+	.ess .ess-totals td { padding: 3px 6px; border-bottom: 1px solid #ededed; }
+	.ess .ess-totals td.ess-k { width: 60%; color: #525252; }
+	.ess .ess-totals td.ess-v { direction: ltr; unicode-bidi: embed; font-weight: 700; font-variant-numeric: tabular-nums; }
+	.ess .ess-totals tr:last-child td { font-size: 10pt; font-weight: 700; color: #171717; border-top: 1px solid #aaa; border-bottom: none; }
+	.ess .ess-signs { margin-top: 18px; table-layout: fixed; }
+	.ess .ess-signs td { border: none; text-align: center; padding: 0 12px; font-weight: 700; color: #525252; }
+	.ess .ess-signs .ess-line { display: block; border-top: 1px solid #999; margin: 28px 15% 5px; }
 </style>
-<div class="ess">
-<h2>{%= __("Equipment Supplier Statement") %}</h2>
+<div class="ess" dir="{%= frappe.utils.is_rtl() ? "rtl" : "ltr" %}">
+<div class="ess-co">{%= esc(filters.company || "") %}</div>
+<div class="ess-title"><h2>{%= __("Equipment Supplier Statement") %}</h2></div>
 <table class="ess-meta">
 	<tr>
-		<td>{%= __("Company") %}: <b>{%= esc(filters.company || "") %}</b></td>
-		<td>{%= __("Statement type") %}: <b>{%= esc(statement_type) %}</b></td>
+		<td class="ess-ml">{%= __("Company") %}</td><td>{%= esc(filters.company || "") %}</td>
+		<td class="ess-ml">{%= __("Statement type") %}</td><td>{%= esc(statement_type) %}</td>
 	</tr>
 	<tr>
-		<td>{% if (filters.supplier) { %}{%= __("Supplier") %}: <b>{%= esc(filters.supplier) %}</b>{% } %}</td>
-		<td>{%= __("From") %} <b>{%= esc(month_of(filters.from_month, filters.from_year)) %}</b>
-			{%= __("To") %} <b>{%= esc(month_of(filters.to_month, filters.to_year)) %}</b>
-			&nbsp; {%= __("Issue date") %}: <b>{%= frappe.datetime.str_to_user(frappe.datetime.get_today()) %}</b></td>
+		<td class="ess-ml">{%= __("Supplier") %}</td><td>{%= esc(filters.supplier || "") %}</td>
+		<td class="ess-ml">{%= __("Issue date") %}</td><td>{%= frappe.datetime.str_to_user(frappe.datetime.get_today()) %}</td>
 	</tr>
-</table>
-{% if (summary.length) { %}
-<table class="ess-summary">
-	{% for (var s = 0; s < summary.length; s += 5) { %}
 	<tr>
-		{% for (var k = s; k < s + 5; k++) { var item = summary[k]; %}
-		{% if (item) { %}
-		<td><span class="ess-k">{%= esc(item.label || "") %}</span>
-			<span class="ess-v">{%= item.datatype === "Int" ? esc(String(item.value === undefined || item.value === null ? "" : item.value)) : num(item.value) %}</span></td>
-		{% } else { %}<td style="border: none"></td>{% } %}
-		{% } %}
+		<td class="ess-ml">{%= __("From") %}</td><td>{%= esc(month_of(filters.from_month, filters.from_year)) %}</td>
+		<td class="ess-ml">{%= __("To") %}</td><td>{%= esc(month_of(filters.to_month, filters.to_year)) %}</td>
 	</tr>
-	{% } %}
 </table>
-{% } %}
 {% if (filters.include_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards") %}</b></p>{% } %}
 {% if (raw.message) { %}<p class="ess-note">{%= esc(String(raw.message)) %}</p>{% } %}
 <table class="ess-rows">
@@ -97,14 +148,27 @@
 	<tbody>
 		{% var n = 0; for (var r = 0; r < rows.length; r++) { var row = rows[r]; var is_total = row.row_id === "TOTAL"; var is_group = !is_total && !row.indent; if (!is_total && !is_group) { n++; } %}
 		<tr class="{%= is_total ? "ess-total" : (is_group ? "ess-group" : "") %}">
-			<td style="text-align: center">{%= is_total || is_group ? "" : n %}</td>
+			<td class="ess-c">{%= is_total || is_group ? "" : n %}</td>
 			{% for (var f = 0; f < fields.length; f++) { %}
-			<td class="{%= fields[f][2] === "num" || fields[f][2] === "int" ? "ess-num" : "" %}">{%= cell(row, fields[f]) %}</td>
+			<td class="{%= fields[f][2] === "num" ? "ess-num" : (fields[f][2] === "int" || fields[f][2] === "date" ? "ess-c" : "ess-t") %}">{%= cell(row, fields[f]) %}</td>
 			{% } %}
 		</tr>
 		{% } %}
 	</tbody>
 </table>
+{% if (summary.length) { %}
+<table class="ess-totals" style="width: {%= totals_width %}%">
+	<thead><tr><th colspan="2">{%= __("Statement totals") %}</th></tr></thead>
+	<tbody>
+		{% for (var s = 0; s < summary.length; s++) { var item = summary[s]; %}
+		<tr>
+			<td class="ess-k">{%= esc(item.label || "") %}</td>
+			<td class="ess-v">{%= item.datatype === "Int" ? esc(String(item.value === undefined || item.value === null ? "" : item.value)) : num(item.value) %}</td>
+		</tr>
+		{% } %}
+	</tbody>
+</table>
+{% } %}
 <table class="ess-signs">
 	<tr>
 		<td><span class="ess-line"></span>{%= __("Accountant signature") %}</td>
