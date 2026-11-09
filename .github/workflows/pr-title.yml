@@ -1,7 +1,9 @@
 name: PR Title
 
+# pull_request (not pull_request_target): the check only reads the title, so the read-only token of a
+# pull_request run is enough; GitHub blocks pull_request_target in public repositories by default.
 on:
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - edited
