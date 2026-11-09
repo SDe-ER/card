@@ -200,6 +200,52 @@ def can_zero_price():
 	return _holds("diesel_zero_price_role")
 
 
+def has_diesel_fill_permission(doc, ptype=None, user=None, debug=False):
+	"""Document-level check for every path (read, create, REST/Desk save, set_value,
+	submit, cancel): the company sent and, for a saved fill, the company stored in the
+	database must both be permitted, so a fill can be neither read, changed, nor taken
+	over from another company, nor created in one. With no company sent, the company
+	validate would fill in decides. Scope = the Company User Permissions that apply to
+	fills, as the list uses. A controller can only deny (Frappe 16 treats a falsy
+	return as a denial)."""
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(user or frappe.session.user, "Project Diesel Fill")
+	if companies is None:
+		return True
+	owners = {doc.get("company")}
+	if not doc.is_new():
+		owners.add(frappe.db.get_value(doc.doctype, doc.name, "company"))
+	if not doc.get("company"):
+		owners.add(single_company())  # what validate fills in
+	owners.discard(None)
+	owners.discard("")
+	return all(company in companies for company in owners)
+
+
+def deny_cross_company_share(doc, method=None):
+	"""DocShare validate: Frappe 16 `has_permission` falls back to a DocShare AFTER the
+	controller hook denied (frappe/permissions.py, version-16), so a share would reopen a
+	fill of another company. Refuse such a share: the receiving user must be permitted
+	for the fill's stored company."""
+	if doc.share_doctype != "Project Diesel Fill":
+		return
+	if doc.get("everyone") or not doc.user:
+		# an everyone-share reaches users of every company: never allowed for a fill
+		frappe.throw(_("A diesel fill cannot be shared with everyone."), frappe.PermissionError)
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(doc.user, "Project Diesel Fill")
+	company = frappe.db.get_value("Project Diesel Fill", doc.share_name, "company")
+	if companies is not None and company and company not in companies:
+		frappe.throw(
+			_("A diesel fill of company {0} cannot be shared with a user outside that company.").format(
+				company
+			),
+			frappe.PermissionError,
+		)
+
+
 @frappe.whitelist(methods=["GET"])
 def get_diesel_price_context(company: str | None = None):
 	"""What the fill form needs before saving (read only): the company price and whether the
