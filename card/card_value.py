@@ -21,7 +21,7 @@ a level-2 field of Card Equipment: a user who cannot read it gets no internal se
 import frappe
 from frappe import _
 from frappe.model import get_permitted_fields
-from frappe.utils import add_months, flt, get_first_day, get_last_day, getdate, nowdate
+from frappe.utils import add_months, cint, flt, get_first_day, get_last_day, getdate, nowdate
 from frappe.utils.dateutils import (
 	get_dates_from_timegrain,
 	get_from_date_from_timespan,
@@ -188,7 +188,7 @@ def _last_month_totals(filters):
 	filters = _filters(filters)
 	start, end = _last_month()
 	cards, with_internal = get_card_values(
-		start, end, company=filters.get("company"), include_drafts=bool(filters.get("include_drafts"))
+		start, end, company=filters.get("company"), include_drafts=cint(filters.get("include_drafts"))
 	)
 	return totals(cards), with_internal, start, end
 
@@ -261,7 +261,7 @@ def chart_data(chart, filters=None, from_date=None, to_date=None, timespan=None,
 	from_date = get_period_beginning(getdate(from_date), timegrain)
 
 	cards, with_internal = get_card_values(
-		from_date, to_date, company=filters.get("company"), include_drafts=bool(filters.get("include_drafts"))
+		from_date, to_date, company=filters.get("company"), include_drafts=cint(filters.get("include_drafts"))
 	)
 	labels, values = bucket_by_period(cards, from_date, to_date, timegrain)
 	names = series_labels()

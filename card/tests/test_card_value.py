@@ -175,6 +175,11 @@ class TestCardValueDashboard(_CustomerCardsBase):
 		self.assertNotIn(draft.name, rows, "submitted cards only by default")
 		rows, _w = self._values({draft.name}, include_drafts=True)
 		self.assertEqual(rows[draft.name].internal, 30.0)
+		# the chart filter arrives as JSON; a "0" string must not switch drafts on
+		with patch.object(cv, "_last_month", return_value=SEPT):
+			off = cv.internal_value_last_month('{"include_drafts": "0", "company": "%s"}' % self.company)
+			on = cv.internal_value_last_month('{"include_drafts": 1, "company": "%s"}' % self.company)
+		self.assertEqual(round(on["value"] - off["value"], 2), 30.0)
 
 	def test_number_cards_for_last_month(self):
 		internal = self._card(self._internal(internal_rate=50), [4], submit=True)
