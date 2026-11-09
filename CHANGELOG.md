@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
-- **A combined unit is owned equipment only** (#42, WP-04; FR-112; PR #187).
+- **A combined unit is owned equipment only** (#42, WP-04; FR-115; PR #187).
   - **Reason:** owner requirement in #42: the "two machines together" option is available only for owned equipment,
     in the UI and the backend, including ownership changes and existing records.
   - **Change:** `card_equipment.py` `validate_owned_unit` and `check_unit_components` refuse a rented (or third-party)
@@ -29,7 +29,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     company; the unit tick is read-only on equipment that is not owned.
   - **Impact:** permissions — none widened. Accounting — none. Data — none written. API — one new GET method.
   - **Rollback:** code only; nothing to undo in data.
-- **Initial place of new equipment per company** (#42, WP-06; FR-113; PR #187). New field `initial_location` (Location) in
+- **Initial place of new equipment per company** (#42, WP-06; FR-116; PR #187). New field `initial_location` (Location) in
   Card Settings > Company settings. `card.transfer.current_location` returns it as the storage place of an equipment
   that has no assignment and no approved transport, so the first transport shows it as From (row `from_location`,
   header `source_location`) and a move to that same place is refused as "already there". No place is hardcoded; empty
@@ -39,7 +39,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
-- **Move-day rule of a project → project transport, per company** (#43, #121, #122; WP-15; FR-114; PR #187). Owner wording in
+- **Move-day rule of a project → project transport, per company** (#43, #121, #122; WP-15; FR-117; PR #187). Owner wording in
   #43: "one effective date equal to arrival date" and "approval makes destination effective on arrival/effective
   date"; the open decision on #121/#122/#43: "on a project → project move, which project gets the move day?".
   - **Change:** new field `move_day_rule` in Card Settings > Company settings: "New assignment starts the day after the
@@ -58,7 +58,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema. A transport submitted under the move-day rule keeps assignments that end the day
     before the move; an older version cancels it only if the old assignment ends on the move date, so cancel such
     transports before a rollback or fix forward.
-- **`is_unit_component` is derived from the units' component tables** (#42, WP-05; FR-057, FR-112; PR #187).
+- **`is_unit_component` is derived from the units' component tables** (#42, WP-05; FR-057, FR-115; PR #187).
   - **Reason:** the flag was a manual tick, so a piece could carry its own monthly card while its unit's card billed
     the same days (FR-057 open point).
   - **Change:** the field is read-only and maintained by the server: ticked while a unit's component row lists the
