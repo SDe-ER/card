@@ -174,6 +174,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   commits; submitted postings keep their cost centers.
 
 ### Fixed
+- **Catalog for Card portal roles under ERPNext Company Restriction; period-lock tests on the new Desk cancel**
+  (FR-076, CI, 2026-11-09). ERPNext `version-16` v16.54.0 registers `permission_query_conditions` hooks for Item,
+  Customer, Supplier and `*` (Company Restriction). The restricted catalog read of the Card portal roles (Card
+  Operator and the CARD Mobile catalog view) refused to read whenever any such hook existed, so after that ERPNext
+  release their catalog, OEM numbers, alternatives, filters and the mobile item search would be empty (18 tests on
+  CI). `card.catalog._read` now applies the hooks the way the latest frappe v16 `frappe.get_list` does (`_query_rule_criteria`: a string
+  condition is wrapped as raw SQL, a pypika term is used as it is; `_get_all_with_rules` builds the same query with
+  the query builder and adds them). A Permission Query server script still closes the restricted read. Readers of
+  the DocType keep `frappe.get_list`. Frappe v16 from November 2026 also reloads the stored document on a Desk
+  Cancel, so a changed date in the request is dropped instead of refused; the five Desk cancel-request tests in
+  `test_period_lock_extra_keys` now check that the stored date never changes under either behaviour, and two
+  new tests keep CARD's own refusal covered for a Python/API cancel that changes the date. Tests:
+  `card/tests/test_catalog_query_rules.py` (7). Impact: the restricted read gains the same row rules as
+  `frappe.get_list` (it can only narrow what it returns); no new role, permission, schema, accounting or API change.
+  Production today has no Company Restriction (checked read-only 2026-11-09), so nothing changes there until
+  ERPNext is updated. Rollback: revert the commit (the portal catalog is empty again on ERPNext v16.54.0 or later).
+- **Test setup: standard Party Types on a clean test site** (CI, 2026-11-09). ERPNext `version-16` (v16.54.0,
+  `495380b`, 2026-11-06) now refuses a GL row whose party type has no Party Type record ("Supplier is not a valid
+  Party Type"). The setup wizard creates these records on a real site, but the CI test site skips the wizard, so 118
+  posting, reconciliation, catalog and period-lock tests failed on `main` and on every PR. The shared test masters
+  (`_ensure_masters`, run committed by `card.install.before_tests`) now create the four standard Party Types
+  (Customer, Supplier, Employee, Shareholder) when they are missing. Affected: `card/tests/test_controllers.py` only.
+  Impact: tests only; no application code, schema, permission, accounting or API change; Production is not affected
+  (its four Party Types exist, checked read-only 2026-11-09). Rollback: revert the commit.
 - **Period-lock tests no longer depend on the calendar** (test-only, Owner approval 2026-10-31). On main CI of
   `ef4f412` the test site's date was already the 1st of a month. `card/tests/test_period_lock_extra_keys.py`
   recorded hours on day 2 of the open month, and the card's future-day rule refused that day, so 4 tests failed
