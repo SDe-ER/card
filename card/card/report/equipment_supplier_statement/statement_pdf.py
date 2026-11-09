@@ -13,17 +13,19 @@ page's JavaScript and lets requests to other hosts through, so client HTML could
 make the server fetch internal addresses."""
 
 import calendar
+import functools
 import math
 import re
 
 import frappe
 from frappe import _
 from frappe.core.doctype.access_log.access_log import make_access_log
-from frappe.desk.query_report import get_report_doc
+from frappe.desk.query_report import get_report_doc, run
 from frappe.utils import cint, flt, fmt_money, formatdate, getdate, today
 from frappe.utils.jinja_globals import is_rtl
 
 from card.report_access import resolve_company
+from card.settings import setting
 
 REPORT = "Equipment Supplier Statement"
 TEMPLATE = ("card", "card", "report", "equipment_supplier_statement", "equipment_supplier_statement.html")
@@ -64,6 +66,12 @@ KEY_ORDER = {
 	),
 	4: ("equipment", "days", "hours", "net_cards"),
 }
+# the report's Link filters (script report filters live in its JS): frappe checks the user may read each value
+LINK_FILTERS = [
+	{"fieldname": "supplier", "fieldtype": "Link", "options": "Card Equipment Supplier"},
+	{"fieldname": "equipment", "fieldtype": "Link", "options": "Card Equipment"},
+	{"fieldname": "equipment_type", "fieldtype": "Link", "options": "Card Equipment Type"},
+]
 PAGE_MARGINS = {"margin-top": "10mm", "margin-bottom": "10mm", "margin-left": "10mm", "margin-right": "10mm"}
 
 
@@ -77,25 +85,40 @@ def download_pdf(filters: str | dict | None = None):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	filters.company = resolve_company(filters)
 
-	from card.card.report.equipment_supplier_statement.equipment_supplier_statement import execute
-
-	columns, data, message, _chart, summary, _tree = execute(filters)
-	html = build_html(filters, columns, data, message, summary)
+	# the standard report run: report and filter-value permissions, rows filtered by the user's permissions
+	result = run(
+		REPORT, filters=frappe.as_json(filters), ignore_prepared_report=True, js_filters=LINK_FILTERS
+	)
+	if filters.get("include_draft") is None:
+		# the same fallback as the report, so the print says when draft cards are included
+		filters.include_draft = setting("include_draft_in_reports")
+	html = build_html(
+		filters,
+		result.get("columns"),
+		result.get("result"),
+		result.get("message"),
+		result.get("report_summary"),
+	)
 	make_access_log(report_name=REPORT, file_type="PDF", method="PDF", filters=frappe.as_json(filters))
 
 	from frappe.utils.pdf import get_chrome_pdf
 
+	pdf = get_chrome_pdf(None, html, dict(PAGE_MARGINS), None, pdf_generator="chrome")
+	if not pdf:
+		frappe.throw(_("The PDF could not be created. Check the Chrome PDF generator."))
 	frappe.local.response.filename = _(REPORT) + ".pdf"
-	frappe.local.response.filecontent = get_chrome_pdf(
-		None, html, dict(PAGE_MARGINS), None, pdf_generator="chrome"
-	)
+	frappe.local.response.filecontent = pdf
 	frappe.local.response.type = "pdf"
 
 
+@functools.cache
 def template_style():
 	"""The <style> block of the browser print template (one source for both paths)."""
-	template = frappe.read_file(frappe.get_app_path(*TEMPLATE))
-	return re.search(r"<style>.*?</style>", template, flags=re.S).group(0)
+	template = frappe.read_file(frappe.get_app_path(*TEMPLATE)) or ""
+	match = re.search(r"<style>.*?</style>", template, flags=re.S)
+	if not match:
+		frappe.throw(_("The statement print template has no style block."))
+	return match.group(0)
 
 
 def build_html(filters, columns, data, message, summary):

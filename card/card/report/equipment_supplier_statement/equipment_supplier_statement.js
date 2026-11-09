@@ -126,9 +126,12 @@
 					if (this.report_name !== "Equipment Supplier Statement") {
 						return standard_pdf.call(this, print_settings);
 					}
+					// required filters are checked here, like the report run; the page is a fixed A4 statement
+					const filters = this.get_filter_values(true);
+					if (!filters) return;
 					open_url_post(
 						"/api/method/card.card.report.equipment_supplier_statement.statement_pdf.download_pdf",
-						{ filters: this.get_filter_values() },
+						{ filters },
 						true,
 					);
 				};

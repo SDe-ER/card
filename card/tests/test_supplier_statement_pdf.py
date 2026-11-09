@@ -54,7 +54,7 @@ class TestSupplierStatementPdf(IntegrationTestCase):
 		frappe.local.response = self.response
 		frappe.db.rollback()
 
-	def _card(self, suffix, hours, shift):
+	def _card(self, suffix, hours, shift, submit=True):
 		eq = frappe.new_doc("Card Equipment")
 		eq.company = self.company
 		eq.equipment_type = self._m["etype"]
@@ -74,7 +74,8 @@ class TestSupplierStatementPdf(IntegrationTestCase):
 		for row in _days(hours):
 			card.append("days", row)
 		card.insert(ignore_permissions=True)
-		card.submit()
+		if submit:
+			card.submit()
 		return card
 
 	def _filters(self, **kw):
@@ -165,6 +166,35 @@ class TestSupplierStatementPdf(IntegrationTestCase):
 		with patch(CHROME) as chrome, self.assertRaises(frappe.PermissionError):
 			statement_pdf.download_pdf(self._filters())
 		chrome.assert_not_called()
+
+	def test_link_filter_values_are_checked_like_the_report_run(self):
+		self._card("A", [8], "نهاري")
+		with (
+			patch(
+				"frappe.desk.query_report.validate_filters_permissions", side_effect=frappe.PermissionError
+			) as check,
+			patch(CHROME) as chrome,
+			self.assertRaises(frappe.PermissionError),
+		):
+			statement_pdf.download_pdf(self._filters())
+		chrome.assert_not_called()
+		js_filters = check.call_args.args[3]
+		self.assertIn(
+			{"fieldname": "supplier", "fieldtype": "Link", "options": "Card Equipment Supplier"}, js_filters
+		)
+
+	def test_drafts_included_by_setting_are_announced(self):
+		self._card("A", [8], "نهاري", submit=False)
+		frappe.db.set_single_value("Card Settings", "include_draft_in_reports", 1)
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+		with patch(CHROME, return_value=b"%PDF-1.4 test") as chrome:
+			statement_pdf.download_pdf(self._filters())
+		self.assertIn("ess-note", chrome.call_args.args[1])
+
+	def test_empty_pdf_is_an_error(self):
+		self._card("A", [8], "نهاري")
+		with patch(CHROME, return_value=None), self.assertRaises(frappe.ValidationError):
+			statement_pdf.download_pdf(self._filters())
 
 	def test_build_html_escapes_text_and_hides_empty_columns(self):
 		columns = [
