@@ -15,6 +15,49 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **Analytics reports: Equipment Partial Margin, Unbilled Card Work, Equipment Maintenance Cost** (#53, #127 P8;
+  audit work packages WP-16 and WP-17; FR-112, FR-113, FR-114). Target version: next release.
+  - **Reason:** #53 and the go-live phase P8 (#127) ask for equipment profitability, unbilled work and a maintenance
+    report; none existed.
+  - **Change:** three read-only Script Reports in the CARD Reports sidebar, all for one company (mandatory filter,
+    validated with `card.report_access.resolve_company`) and one period; shared reading helpers in the new module
+    `card.analytics`.
+    - **Equipment Partial Margin** (System Manager, Accounts Manager; General Ledger access required,
+      `can_view_ledger`): per equipment and project, revenue from submitted Sales Invoice lines carrying the Card
+      Equipment accounting dimension (net of VAT, company currency, credit notes included); the customer net of
+      submitted cards no submitted document recognised yet, in a separate "not invoiced yet" column that is never
+      added to revenue or the margin; supplier rental as recognised by submitted documents (CARD purchase invoices,
+      linked invoices, accrual journal entries linked with `card.gl.journal_link`), with the supplier net not yet
+      recognised shown apart and not added to costs; diesel of direct fills at the posting's valuation (the net booked
+      on a submitted CARD posting, otherwise the fill amount); project-tank fills are not split by equipment and stay
+      on a project-level line "unallocated tank diesel" (#118 rule 7); company-borne transport by its recorded
+      equipment shares (same rule as `card.transport_costs`); maintenance and other costs tagged with the dimension.
+      Labelled "partial margin: excludes depreciation, labour, insurance and overhead".
+    - **Unbilled Card Work** (System Manager, Accounts Manager, Card Manager; the user's roles must read the GL Posting
+      Log): submitted cards, supplier side and customer side apart, that no active GL Posting Log and no invoice link
+      of that side holds; optionally the cards held by a draft posting.
+    - **Equipment Maintenance Cost** (System Manager, Accounts Manager; General Ledger access required): submitted
+      Purchase Invoice lines and Material Issue Stock Entry lines tagged with the Card Equipment dimension. Invoices
+      that recognise CARD cards, diesel fills or transports (and their returns), fixed-asset lines and stock lines of an
+      invoice that updates stock are left out.
+    - Without the Card Equipment dimension (FR-031) the margin shows a clear message and leaves revenue and maintenance
+      out; the maintenance report shows the message and no rows. Nothing fails.
+  - **Changed (no behaviour change):** `card.transport_costs` exposes its company-cost rule as
+    `company_cost_project(row)` and `TRANSPORT_COST_FIELDS`; `transport_cost_by_project` uses them.
+    `card.report_access.role_reads(doctype)` is a public name for the existing role-read check.
+  - **Affected:** new `card/analytics.py`; new reports `equipment_partial_margin`, `unbilled_card_work`,
+    `equipment_maintenance_cost`; `card/transport_costs.py`; `card/report_access.py`; Sidebar "Card Reports"
+    (three links; file `modified` bumped so migrate imports it); `card/locale/ar.po`, `card/locale/main.pot`;
+    tests `test_analytics_reports.py` (13), `test_report_access.py` (filter check covers the new reports).
+  - **Impact:** permissions — none widened: the reports read business documents with `frappe.get_list` (the user's
+    permissions and User Permissions apply), child rows only of the parents returned, and the GL Posting Log only
+    after the server-side role gate. Accounting — none: nothing is posted, created or changed; no GL write. Data —
+    none written. Schema — none (three Report records and the sidebar rows are created by migrate). API — no new
+    whitelisted method.
+  - **Rollback:** code-only. Reverting removes the reports from the code; migrate does not delete the three Report
+    records it created (delete them by hand if wanted). No data to restore.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by

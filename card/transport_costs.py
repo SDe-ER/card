@@ -10,6 +10,27 @@ center has no project. A transport recorded before P1-2 keeps its old rule (head
 import frappe
 from frappe.utils import flt
 
+TRANSPORT_COST_FIELDS = (
+	"project",
+	"cost_project",
+	"cost_basis",
+	"responsibility",
+	"payer",
+	"cost_bearer",
+	"cost_borne_by",
+	"amount",
+)
+
+
+def company_cost_project(row):
+	"""The project a submitted transport is company cost of, or None when the company does not
+	bear it (or bears it on a workshop, storage or overhead cost center)."""
+	if row.responsibility:
+		# only a move whose cost the company finally bears, on its chosen cost project
+		company_cost = (row.payer, row.cost_bearer) == ("Company", "Company")
+		return row.cost_project if company_cost and row.cost_basis == "Project" else None
+	return row.project if row.cost_borne_by in ("Company", "", None) else None
+
 
 def transport_cost_by_project(company=None, from_date=None, to_date=None, project=None):
 	"""{project: {"transports": n, "amount": total}} of submitted transports."""
@@ -23,26 +44,12 @@ def transport_cost_by_project(company=None, from_date=None, to_date=None, projec
 	rows = frappe.get_all(
 		"Equipment Transport",
 		filters=filters,
-		fields=[
-			"project",
-			"cost_project",
-			"cost_basis",
-			"responsibility",
-			"payer",
-			"cost_bearer",
-			"cost_borne_by",
-			"amount",
-		],
+		fields=list(TRANSPORT_COST_FIELDS),
 		limit_page_length=0,
 	)
 	totals = {}
 	for row in rows:
-		if row.responsibility:
-			# only a move whose cost the company finally bears, on its chosen cost project
-			company_cost = (row.payer, row.cost_bearer) == ("Company", "Company")
-			key = row.cost_project if company_cost and row.cost_basis == "Project" else None
-		else:
-			key = row.project if row.cost_borne_by in ("Company", "", None) else None
+		key = company_cost_project(row)
 		if not key or (project and key != project):
 			continue
 		entry = totals.setdefault(key, {"transports": 0, "amount": 0.0})
