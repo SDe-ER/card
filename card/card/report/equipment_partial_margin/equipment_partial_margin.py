@@ -80,8 +80,10 @@ def execute(filters=None):
 		notes.append(_("Monthly cards are not shown: you cannot read Card Monthly Card."))
 
 	if analytics.can_read(analytics.FILL):
-		for eq, proj, amount in analytics.diesel_costs(company, start, end, project, equipment):
+		diesel, diesel_notes = analytics.diesel_costs(company, start, end, project, equipment)
+		for eq, proj, amount in diesel:
 			add(eq, proj, "diesel" if eq else "tank_diesel", amount)
+		notes.extend(diesel_notes)
 	else:
 		notes.append(_("Diesel is not shown: you cannot read Project Diesel Fill."))
 
@@ -130,6 +132,11 @@ def execute(filters=None):
 	notes.append(
 		_(
 			"Not invoiced yet is the card net that no submitted invoice or journal entry recognised; it is never added to revenue, costs or the margin. Project-tank diesel is never split by equipment."
+		)
+	)
+	notes.append(
+		_(
+			"Timing: revenue and maintenance follow the posting date of their documents; supplier rental and the not-invoiced columns follow the start date of the card; diesel and transport follow their own date. A card invoiced in a later period shows its revenue in that period."
 		)
 	)
 	summary = [

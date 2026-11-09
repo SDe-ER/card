@@ -17,7 +17,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ### Added
 - **Analytics reports: Equipment Partial Margin, Unbilled Card Work, Equipment Maintenance Cost** (#53, #127 P8;
-  audit work packages WP-16 and WP-17; FR-112, FR-113, FR-114). Target version: next release.
+  audit work packages WP-16 and WP-17; FR-112, FR-113, FR-114; PR #188). Target version: next release.
   - **Reason:** #53 and the go-live phase P8 (#127) ask for equipment profitability, unbilled work and a maintenance
     report; none existed.
   - **Change:** three read-only Script Reports in the CARD Reports sidebar, all for one company (mandatory filter,
@@ -30,17 +30,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
       added to revenue or the margin; supplier rental as recognised by submitted documents (CARD purchase invoices,
       linked invoices, accrual journal entries linked with `card.gl.journal_link`), with the supplier net not yet
       recognised shown apart and not added to costs; diesel of direct fills at the posting's valuation (the net booked
-      on a submitted CARD posting, otherwise the fill amount); project-tank fills are not split by equipment and stay
+      on a submitted CARD posting; a fill not posted yet is converted to net by the posting's own rule,
+      `card.gl.posting._apply_diesel_vat_basis`, and kept at its amount with a message where the diesel VAT basis is
+      not verified); project-tank fills are not split by equipment and stay
       on a project-level line "unallocated tank diesel" (#118 rule 7); company-borne transport by its recorded
       equipment shares (same rule as `card.transport_costs`); maintenance and other costs tagged with the dimension.
-      Labelled "partial margin: excludes depreciation, labour, insurance and overhead".
+      Labelled "partial margin: excludes depreciation, labour, insurance and overhead". The message states the timing:
+      revenue and maintenance by document posting date, rental and the not-invoiced columns by the card's start date.
     - **Unbilled Card Work** (System Manager, Accounts Manager, Card Manager; the user's roles must read the GL Posting
       Log): submitted cards, supplier side and customer side apart, that no active GL Posting Log and no invoice link
       of that side holds; optionally the cards held by a draft posting.
     - **Equipment Maintenance Cost** (System Manager, Accounts Manager; General Ledger access required): submitted
       Purchase Invoice lines and Material Issue Stock Entry lines tagged with the Card Equipment dimension. Invoices
-      that recognise CARD cards, diesel fills or transports (and their returns), fixed-asset lines and stock lines of an
-      invoice that updates stock are left out.
+      that recognise CARD cards, diesel fills or transports (and their returns), fixed-asset lines and lines of stock
+      items are left out (a stock item reaches the equipment through its material issue; counting the purchase too
+      would count it twice).
     - Without the Card Equipment dimension (FR-031) the margin shows a clear message and leaves revenue and maintenance
       out; the maintenance report shows the message and no rows. Nothing fails.
   - **Changed (no behaviour change):** `card.transport_costs` exposes its company-cost rule as
@@ -49,7 +53,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Affected:** new `card/analytics.py`; new reports `equipment_partial_margin`, `unbilled_card_work`,
     `equipment_maintenance_cost`; `card/transport_costs.py`; `card/report_access.py`; Sidebar "Card Reports"
     (three links; file `modified` bumped so migrate imports it); `card/locale/ar.po`, `card/locale/main.pot`;
-    tests `test_analytics_reports.py` (13), `test_report_access.py` (filter check covers the new reports).
+    tests `test_analytics_reports.py` (18), `test_report_access.py` (filter check covers the new reports).
   - **Impact:** permissions — none widened: the reports read business documents with `frappe.get_list` (the user's
     permissions and User Permissions apply), child rows only of the parents returned, and the GL Posting Log only
     after the server-side role gate. Accounting — none: nothing is posted, created or changed; no GL write. Data —

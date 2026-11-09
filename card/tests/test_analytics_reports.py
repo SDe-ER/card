@@ -356,3 +356,64 @@ class TestEquipmentMaintenanceCost(_AnalyticsBase):
 		with patch.object(analytics, "can_read", side_effect=lambda dt: dt != "Stock Entry" and real(dt)):
 			_cols, _data, message, _c, _s = maintenance_cost(self._period())
 		self.assertIn("you cannot read them: Stock Entry", message)
+
+	def test_stock_item_purchase_is_not_counted_twice(self):
+		eq = self._rental_card().equipment
+		service = self._maintenance_pi(eq, 40)
+		item = frappe.get_doc(
+			{
+				"doctype": "Item",
+				"item_code": "TEST-ANLY-SPARE-" + self.token,
+				"item_name": "Spare part",
+				"item_group": frappe.db.get_value("Item", service.items[0].item_code, "item_group"),
+				"stock_uom": frappe.db.get_value("Item", service.items[0].item_code, "stock_uom"),
+				"is_stock_item": 1,
+			}
+		).insert(ignore_permissions=True)
+		inv = self._manual_pi(90, posting_date="2026-10-07", item=item.name, submit=False)
+		inv.items[0].card_equipment = eq
+		inv.save()
+		inv.submit()
+		_cols, data, _m, _c, _s = maintenance_cost(self._period(equipment=eq))
+		vouchers = {r["voucher_no"] for r in data}
+		self.assertIn(service.name, vouchers)
+		self.assertNotIn(inv.name, vouchers)
+
+
+class TestDieselValuation(_AnalyticsBase):
+	def _direct_diesel(self):
+		eq = self._rental_card().equipment
+		fill = self._direct_fill(eq, litres=50, price=2.3)  # 115.00 as recorded
+		rows, message, _s, _c = self._margin(equipment=eq)
+		return fill, rows[(eq, self.project)]["diesel"], message
+
+	def test_unposted_fill_is_net_under_an_inclusive_basis(self):
+		self._vat_supplier()
+		self._set_basis("Inclusive")
+		fill, diesel, _message = self._direct_diesel()
+		self.assertEqual(flt(fill.amount, 2), 115.0)
+		self.assertEqual(diesel, 100.0)  # 115 incl. 15% VAT, by the posting's own rule
+
+	def test_exclusive_basis_keeps_the_fill_amount(self):
+		self._vat_supplier()
+		self._set_basis("Exclusive")
+		fill, diesel, _message = self._direct_diesel()
+		self.assertEqual(diesel, flt(fill.amount, 2))
+
+	def test_unregistered_supplier_keeps_the_fill_amount_under_an_inclusive_basis(self):
+		self._set_basis("Inclusive")
+		fill, diesel, _message = self._direct_diesel()
+		self.assertEqual(diesel, flt(fill.amount, 2))
+
+	def test_unverified_basis_is_reported_not_guessed(self):
+		self._vat_supplier()
+		self._set_basis("")
+		frappe.local.message_log = []
+		fill, diesel, message = self._direct_diesel()
+		self.assertEqual(diesel, flt(fill.amount, 2))
+		self.assertIn("VAT basis is not verified", message)
+		self.assertIn(self.supplier, message)
+		self.assertFalse(
+			[m for m in frappe.local.message_log if "VAT basis" in str(m)],
+			"the posting's refusal must not reach the user as a pop-up",
+		)

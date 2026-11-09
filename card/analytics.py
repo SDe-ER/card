@@ -188,6 +188,8 @@ def card_recognition(cards, side):
 			state=log.status, doctype=log.posting_doctype, doc=log.posting_doc, amount=amount
 		)
 	linked = {c.invoice for c in cards if c.invoice and c.name not in result}
+	# Only the docstatus of the invoices these readable cards already link to is read (no amounts):
+	# it tells a draft from a submitted or cancelled invoice. The card itself was permission-checked.
 	docstatus = {}
 	for chunk in _chunks(linked):
 		docstatus.update(
@@ -212,34 +214,97 @@ def card_recognition(cards, side):
 
 
 def diesel_costs(company, start, end, project=None, equipment=None):
-	"""[(equipment or None, project, amount)] of submitted diesel fills dated in [start, end].
-	A direct fill is the equipment's; a project-tank fill (no equipment) stays on its project
-	with equipment None — never split here. The amount is the posting's valuation (the net
-	booked on a submitted CARD posting) or, while the fill is not posted, the fill amount."""
+	"""([(equipment or None, project, net amount)], notes) of submitted diesel fills dated in
+	[start, end]. A direct fill is the equipment's; a project-tank fill (no equipment) stays on
+	its project with equipment None — never split here.
+
+	The amount is the posting's valuation: the net booked on a submitted CARD posting, or, for a
+	fill not posted yet, the fill amount converted to net by the posting's own rule
+	(card.gl.posting._apply_diesel_vat_basis, the configured diesel price VAT basis for a
+	VAT-registered supplier). No VAT is inferred beyond that basis; where the basis is not
+	verified the fill amount is kept and ``notes`` says so."""
 	filters = [["company", "=", company], ["docstatus", "=", 1], ["date", "between", [start, end]]]
 	if project:
 		filters.append(["project", "=", project])
 	fills = frappe.get_list(
 		FILL,
 		filters=filters,
-		fields=["name", "project", "card_equipment", "amount"],
+		fields=["name", "project", "card_equipment", "supplier", "amount"],
 		order_by="date asc, name asc",
 		limit_page_length=0,
 	)
+	if equipment:
+		fills = [f for f in fills if f.card_equipment == equipment]
 	members = _sources(FILL, [f.name for f in fills])
 	posted = _logs([parent for rows in members.values() for parent, _a in rows], "Supplier")
-	result = []
+	valued, pending = {}, []
 	for fill in fills:
-		if equipment and fill.card_equipment != equipment:
-			continue
 		valuations = [
 			a
 			for parent, a in members.get(fill.name, [])
 			if posted.get(parent, {}).get("status") == "Submitted"
 		]
-		amount = valuations[0] if valuations else flt(fill.amount, 2)
-		result.append((fill.card_equipment or None, fill.project, amount))
-	return result
+		if valuations:
+			valued[fill.name] = valuations[0]
+		else:
+			pending.append(fill)
+	net, notes = _unposted_fill_net(company, pending)
+	valued.update(net)
+	result = [(f.card_equipment or None, f.project, valued[f.name]) for f in fills]
+	return result, notes
+
+
+def _unposted_fill_net(company, fills):
+	"""({fill: net amount}, notes) for fills not posted yet, through the posting's VAT basis rule,
+	one supplier at a time. A refusal of that rule (basis not verified, no single VAT rate, no
+	Card Settings row) keeps the fill amounts and is reported instead of raised."""
+	from card.gl.posting import _apply_diesel_vat_basis
+	from card.gl.preflight import company_settings_row
+
+	result = {f.name: flt(f.amount, 2) for f in fills}
+	if not fills:
+		return result, []
+	by_supplier = {}
+	for fill in fills:
+		by_supplier.setdefault(fill.supplier or "", []).append(fill)
+	unverified = []
+	log = frappe.local.message_log
+	kept = len(log)
+	try:
+		row = company_settings_row(company)
+	except frappe.ValidationError:
+		del log[kept:]
+		return result, [
+			_("Diesel not posted yet is shown at the fill amount: Card Settings has no row for this company.")
+		]
+	tax_ids = dict(
+		frappe.get_all(
+			"Supplier",
+			filters={"name": ["in", [s for s in by_supplier if s]] or [""]},
+			fields=["name", "tax_id"],
+			as_list=True,
+		)
+	)
+	for supplier, group in by_supplier.items():
+		# the posting adds VAT only for a VAT-registered supplier (card.gl.posting: tax_id set)
+		template = row.purchase_tax_template if tax_ids.get(supplier) else None
+		lines = [{"fill": f.name, "rate": flt(f.amount, 2), "description": ""} for f in group]
+		sources = {FILL: [(f.name, flt(f.amount, 2)) for f in group]}
+		try:
+			_apply_diesel_vat_basis(row, lines, sources, template, supplier)
+		except frappe.ValidationError:
+			del log[kept:]
+			unverified.append(supplier)
+			continue
+		result.update(dict(sources[FILL]))
+	notes = []
+	if unverified:
+		notes.append(
+			_(
+				"The diesel price VAT basis is not verified for these suppliers, so their fills not posted yet are shown at the fill amount: {0}."
+			).format(", ".join(sorted(unverified)))
+		)
+	return result, notes
 
 
 def transport_costs(company, start, end, project=None, equipment=None):
@@ -304,32 +369,46 @@ def revenue_lines(company, start, end, project=None, equipment=None):
 	return result
 
 
-def _card_recognised_invoices(company):
-	"""Purchase invoices that recognise CARD sources (rental cards, diesel fills, transports):
-	the documents of active GL Posting Logs and the sources' own invoice links. Their lines are
-	rental, diesel or transport cost, never maintenance."""
-	names = set(
-		frappe.get_all(
-			"GL Posting Log",
-			filters={
-				"company": company,
-				"posting_doctype": "Purchase Invoice",
-				"status": ["in", list(ACTIVE_STATES)],
-			},
-			pluck="posting_doc",
-		)
-	)
-	for doctype in (CARD, FILL, TRANSPORT):
+def _card_recognised_invoices(company, invoices):
+	"""The purchase invoices among ``invoices`` that recognise CARD sources (rental cards,
+	diesel fills, transports): documents of active GL Posting Logs and the sources' own invoice
+	links. Their lines are rental, diesel or transport cost, never maintenance. Reads only the
+	given invoices (the report period's invoices and the invoices they return)."""
+	names = set()
+	for chunk in _chunks(invoices):
 		names.update(
 			frappe.get_all(
-				doctype,
-				filters={"company": company, "purchase_invoice": ["is", "set"]},
-				pluck="purchase_invoice",
+				"GL Posting Log",
+				filters={
+					"company": company,
+					"posting_doctype": "Purchase Invoice",
+					"posting_doc": ["in", chunk],
+					"status": ["in", list(ACTIVE_STATES)],
+				},
+				pluck="posting_doc",
 			)
 		)
+		for doctype in (CARD, FILL, TRANSPORT):
+			names.update(
+				frappe.get_all(
+					doctype,
+					filters={"company": company, "purchase_invoice": ["in", chunk]},
+					pluck="purchase_invoice",
+				)
+			)
 	names.discard(None)
 	names.discard("")
 	return names
+
+
+def _stock_items(item_codes):
+	"""The stock items among ``item_codes`` (one batched read per chunk)."""
+	result = set()
+	for chunk in _chunks({code for code in item_codes if code}):
+		result.update(
+			frappe.get_all("Item", filters={"name": ["in", chunk], "is_stock_item": 1}, pluck="name")
+		)
+	return result
 
 
 def maintenance_lines(company, start, end, project=None, equipment=None):
@@ -337,8 +416,9 @@ def maintenance_lines(company, start, end, project=None, equipment=None):
 	dimension, dated in [start, end], company currency, net of VAT:
 
 	- submitted Purchase Invoice lines (debit notes included), except invoices that recognise
-	  CARD sources (and their returns), fixed-asset lines, and stock lines of an invoice that
-	  updates stock (that stock is counted when it is issued);
+	  CARD sources (and their returns), fixed-asset lines, and lines of stock items whether or
+	  not the invoice updates stock (a stock item reaches the equipment when it is issued, so
+	  counting the purchase as well would count it twice);
 	- submitted Material Issue Stock Entry lines, at their valuation.
 
 	Depreciation, labour and insurance are not read. Needs ``dimension_ready()``. Returns a
@@ -348,22 +428,21 @@ def maintenance_lines(company, start, end, project=None, equipment=None):
 		extra = [[DIMENSION_FIELD, "=", equipment]]
 	result = []
 	if can_read("Purchase Invoice"):
-		excluded = _card_recognised_invoices(company)
-		invoices = {
-			r.name: r
-			for r in frappe.get_list(
-				"Purchase Invoice",
-				filters=[
-					["company", "=", company],
-					["docstatus", "=", 1],
-					["posting_date", "between", [start, end]],
-				],
-				fields=["name", "posting_date", "project", "update_stock", "return_against"],
-				limit_page_length=0,
-			)
-			if r.name not in excluded and r.return_against not in excluded
-		}
-		for row in _children(
+		period = frappe.get_list(
+			"Purchase Invoice",
+			filters=[
+				["company", "=", company],
+				["docstatus", "=", 1],
+				["posting_date", "between", [start, end]],
+			],
+			fields=["name", "posting_date", "project", "return_against"],
+			limit_page_length=0,
+		)
+		excluded = _card_recognised_invoices(
+			company, {r.name for r in period} | {r.return_against for r in period if r.return_against}
+		)
+		invoices = {r.name: r for r in period if r.name not in excluded and r.return_against not in excluded}
+		lines = _children(
 			"Purchase Invoice Item",
 			"Purchase Invoice",
 			invoices,
@@ -374,12 +453,13 @@ def maintenance_lines(company, start, end, project=None, equipment=None):
 				"expense_account",
 				"base_net_amount",
 				"is_fixed_asset",
-				"warehouse",
 			],
 			extra,
-		):
+		)
+		stock_items = _stock_items(row.item_code for row in lines)
+		for row in lines:
 			head = invoices[row.parent]
-			if row.is_fixed_asset or (head.update_stock and row.warehouse):
+			if row.is_fixed_asset or row.item_code in stock_items:
 				continue
 			result.append(
 				{

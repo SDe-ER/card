@@ -5,7 +5,8 @@
 One row per document line of one company and period tagged to an equipment through the
 Card Equipment accounting dimension: submitted Purchase Invoice lines (not the invoices
 that recognise CARD cards, diesel fills or transports) and submitted Material Issue Stock
-Entry lines at their valuation. The same lines feed the "maintenance and other tagged
+Entry lines at their valuation; purchase lines of stock items are left out because those
+items reach the equipment through the material issue. The same lines feed the "maintenance and other tagged
 costs" of the Equipment Partial Margin (card.analytics.maintenance_lines). Without the
 dimension the report explains it and lists nothing. Ledger readers only."""
 
@@ -56,7 +57,7 @@ def execute(filters=None):
 		{"label": _("Equipment with tagged costs"), "value": len(equipment), "datatype": "Int"},
 	]
 	message = _(
-		"Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock bought into a warehouse are not counted here; depreciation, labour and insurance are not included."
+		"Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock items (counted when they are issued) are not counted here; depreciation, labour and insurance are not included."
 	)
 	unread = analytics.unread_maintenance_note()
 	if unread:

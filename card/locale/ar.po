@@ -5519,8 +5519,8 @@ msgid "Equipment with tagged costs"
 msgstr "معدات عليها تكاليف منسوبة"
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
-msgid "Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock bought into a warehouse are not counted here; depreciation, labour and insurance are not included."
-msgstr "سطور فواتير الشراء وصرف المواد المنسوبة إلى بُعد «معدة CARD»، صافية من ضريبة القيمة المضافة وبعملة الشركة. لا تُحتسب هنا الفواتير التي تثبت كروت CARD أو تعبئات الديزل أو النقل، ولا سطور الأصول الثابتة، ولا المخزون المشترى إلى مستودع؛ ولا تشمل الإهلاك والعمالة والتأمين."
+msgid "Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock items (counted when they are issued) are not counted here; depreciation, labour and insurance are not included."
+msgstr "سطور فواتير الشراء وصرف المواد المنسوبة إلى بُعد «معدة CARD»، صافية من ضريبة القيمة المضافة وبعملة الشركة. لا تُحتسب هنا الفواتير التي تثبت كروت CARD أو تعبئات الديزل أو النقل، ولا سطور الأصول الثابتة، ولا أصناف المخزون (تُحتسب عند صرفها)؛ ولا تشمل الإهلاك والعمالة والتأمين."
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
 msgid "Cost document"
@@ -5541,3 +5541,15 @@ msgstr "الصيانة من هذه المستندات غير معروضة، لأ
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
 msgid "Cost item"
 msgstr "صنف التكلفة"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Timing: revenue and maintenance follow the posting date of their documents; supplier rental and the not-invoiced columns follow the start date of the card; diesel and transport follow their own date. A card invoiced in a later period shows its revenue in that period."
+msgstr "التوقيت: الإيرادات والصيانة تتبع تاريخ ترحيل مستنداتها؛ وإيجار الموردين وأعمدة «غير المفوتر» تتبع تاريخ بداية الكارت؛ والديزل والنقل يتبعان تاريخهما. الكارت الذي يُفوتر في فترة لاحقة تظهر إيراداته في تلك الفترة."
+
+#: card/analytics.py
+msgid "Diesel not posted yet is shown at the fill amount: Card Settings has no row for this company."
+msgstr "الديزل غير المرحّل بعد معروض بمبلغ التعبئة: لا يوجد صف لهذه الشركة في إعدادات CARD."
+
+#: card/analytics.py
+msgid "The diesel price VAT basis is not verified for these suppliers, so their fills not posted yet are shown at the fill amount: {0}."
+msgstr "أساس ضريبة القيمة المضافة لسعر الديزل غير مُتحقق منه لهؤلاء الموردين، لذلك تُعرض تعبئاتهم غير المرحّلة بعد بمبلغ التعبئة: {0}."

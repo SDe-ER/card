@@ -4311,7 +4311,7 @@ msgid "Equipment with tagged costs"
 msgstr ""
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
-msgid "Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock bought into a warehouse are not counted here; depreciation, labour and insurance are not included."
+msgid "Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock items (counted when they are issued) are not counted here; depreciation, labour and insurance are not included."
 msgstr ""
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
@@ -4332,4 +4332,16 @@ msgstr ""
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
 msgid "Cost item"
+msgstr ""
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Timing: revenue and maintenance follow the posting date of their documents; supplier rental and the not-invoiced columns follow the start date of the card; diesel and transport follow their own date. A card invoiced in a later period shows its revenue in that period."
+msgstr ""
+
+#: card/analytics.py
+msgid "Diesel not posted yet is shown at the fill amount: Card Settings has no row for this company."
+msgstr ""
+
+#: card/analytics.py
+msgid "The diesel price VAT basis is not verified for these suppliers, so their fills not posted yet are shown at the fill amount: {0}."
 msgstr ""
