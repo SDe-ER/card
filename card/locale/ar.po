@@ -5553,3 +5553,11 @@ msgstr "الديزل غير المرحّل بعد معروض بمبلغ التع
 #: card/analytics.py
 msgid "The diesel price VAT basis is not verified for these suppliers, so their fills not posted yet are shown at the fill amount: {0}."
 msgstr "أساس ضريبة القيمة المضافة لسعر الديزل غير مُتحقق منه لهؤلاء الموردين، لذلك تُعرض تعبئاتهم غير المرحّلة بعد بمبلغ التعبئة: {0}."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill cannot be shared with everyone."
+msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
+msgstr "لا يمكن مشاركة تعبئة ديزل تابعة للشركة {0} مع مستخدم من خارج هذه الشركة."
