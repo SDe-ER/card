@@ -4109,4 +4109,15 @@ msgstr ""
 
 #: card/card/report/card_settlement_status/card_settlement_status.py
 msgid "Payments not allocated to a document up to the end date"
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Invalid filters"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The PDF could not be created. Check the Chrome PDF generator."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The statement print template has no style block."
 msgstr ""
