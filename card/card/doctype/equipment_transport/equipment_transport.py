@@ -7,8 +7,8 @@ from frappe.model.document import Document
 from frappe.utils import cint, cstr, flt, getdate
 
 from card.company import single_company, validate_equipment_company
-from card.constants import OWNED
-from card.settings import setting
+from card.constants import MOVE_DAY_NEXT, OWNED
+from card.settings import company_setting, setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
 # P1-2 (Owner decisions 2026-10-31): the user picks one responsibility scenario; the actual payer and the
@@ -67,6 +67,7 @@ class EquipmentTransport(Document):
 		for row in self.items:
 			validate_equipment_company(frappe._dict(company=self.company, equipment=row.card_equipment))
 		self._detect_movements()
+		self._set_move_day_rule()
 		self._validate_project_company()
 		self._resolve_responsibility()
 		if self.responsibility:
@@ -179,6 +180,15 @@ class EquipmentTransport(Document):
 					).format(", ".join(sorted(sources)))
 				)
 			self.project = sources.pop() if sources else None
+
+	def _set_move_day_rule(self):
+		"""WP-15 (#43/#121/#122): a move to a project records the move-day rule of the company's
+		Card Settings as it is on save and on submit; the submitted transport keeps it, so a
+		later change of the setting never changes how this move is applied or cancelled."""
+		if self.destination_type != "Project":
+			self.move_day_rule = None
+			return
+		self.move_day_rule = company_setting(self.company, "move_day_rule") or MOVE_DAY_NEXT
 
 	def _validate_project_company(self):
 		"""P0 D3 (Owner 2026-10-20): the project a transport goes to (or, for a return to
@@ -470,6 +480,7 @@ def _cancel_key(doc):
 		cstr(doc.project),
 		cstr(doc.destination_type),
 		cstr(doc.destination_location),
+		cstr(doc.move_day_rule),
 		flt(doc.amount, 2),
 		[
 			(
