@@ -5336,22 +5336,10 @@ msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."
 msgid "Internal operating rate basis"
 msgstr "أساس السعر الداخلي للتشغيل"
 
-#. Description of the 'Internal operating rate basis' (Select) field in DocType
-#. 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Basis of the internal operating rate: per operating hour or per working day of the card"
-msgstr "أساس السعر الداخلي: لكل ساعة تشغيل أو لكل يوم عمل في الكارت"
-
 #. Label of the internal_rate (Currency) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Internal operating rate"
 msgstr "السعر الداخلي للتشغيل"
-
-#. Description of the 'Internal operating rate' (Currency) field in DocType
-#. 'Card Equipment'
-#: card/card/doctype/card_equipment/card_equipment.json
-msgid "Value of one hour or one day of internal operation, for the CARD dashboard only (no accounting entry)"
-msgstr "قيمة ساعة أو يوم تشغيل داخلي، للوحة CARD فقط (بدون أي قيد محاسبي)"
 
 #: card/card_value.py
 msgid "Rental cost from suppliers"

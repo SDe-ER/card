@@ -506,7 +506,6 @@
   },
   {
    "default": "بالساعة",
-   "description": "Basis of the internal operating rate: per operating hour or per working day of the card",
    "fieldname": "internal_rate_basis",
    "fieldtype": "Select",
    "label": "Internal operating rate basis",
@@ -514,7 +513,6 @@
    "permlevel": 2
   },
   {
-   "description": "Value of one hour or one day of internal operation, for the CARD dashboard only (no accounting entry)",
    "fieldname": "internal_rate",
    "fieldtype": "Currency",
    "label": "Internal operating rate",
