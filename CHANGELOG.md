@@ -15,6 +15,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Documentation
+- **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
+  (equipment, transport, project assignment, monthly card, daily hours), in English with an Arabic summary.
+  Grouped badges (CI, Linters, CodeQL, Codecov, release, license, platform), a screenshots gallery of the
+  main pages (CARD v4.1.2, fictional test data, new files in `.github/images/`), a table of the CI
+  workflows, the report count corrected to 19, and the Features section brought up to v4.5.0 (settlement,
+  posting integrity, transport cost responsibility, equipment financial privacy). Requested by the owner. Documentation only: no change to
+  code, permissions, accounting, data or the API. Rollback: revert the commit.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -65,6 +74,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     with `card.attachment_validator` when the value is new or changed.
   - **Rollback:** revert the merge of PR #162 and migrate (the `no_copy` flags return); nothing to undo in data. File
     rows claimed by a record stay attached to it (they are that record's own files).
+- **Read endpoints GET-only and diesel fill company permission** (H-CARD-3, H-CARD-4; FR-098; PR #161).
+  - **Reason:** a whitelisted function without `methods=` answers GET, POST, PUT and DELETE, and Frappe checks CSRF
+    for the last three only; read handlers should answer GET. Project Diesel Fill had no record-level company check.
+  - **Change:** `card.api.party_figures`, `card_suppliers_query`, `card_customers_query`, `report_defaults`,
+    `card.diesel.get_card_diesel` and `card_equipment.get_shift_heatmap` declare `methods=["GET"]`;
+    `card_project_options` and `card_company_options` declare `methods=["GET", "POST"]` (read-only; the Autocomplete
+    control posts). Their direct Desk callers pass `type: "GET"`. Project Diesel Fill gets a `has_permission` hook
+    (`project_diesel_fill.has_diesel_fill_permission`): the company sent and the stored company must both be in the
+    user's permitted companies, the same pattern as Card Monthly Card and Equipment Transport. Frappe 16 consults a
+    DocShare after a controller denial, so a DocShare `validate` hook (`deny_cross_company_share`) refuses sharing a
+    fill with a user outside its company, or with everyone. Every `@frappe.whitelist` in CARD now declares `methods=`
+    (re-checked after the merge of v4.5.0, including `statement_pdf.download_pdf` and
+    `journal_link.link_accrual_journal`, both POST). The two new share refusal messages are translated in
+    `card/locale/ar.po` (and listed in `main.pot`).
+  - **Impact:** permissions — narrowed only (cross-company read, write and share of a fill refused; unrestricted users,
+    System Manager and Administrator unchanged). API — the six GET-only functions refuse POST, PUT and DELETE; CARD
+    Mobile calls none of them. Accounting, data, schema — none. No patch.
+  - **Rollback:** revert the merge of PR #161; nothing to undo in data. Shares refused while it ran were never created.
 
 ## [4.5.0] — 2026-11-09
 

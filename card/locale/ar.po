@@ -5374,3 +5374,11 @@ msgstr "الملف المرفق غير موجود."
 #: card/attachment_validator.py
 msgid "The attached file could not be read."
 msgstr "تعذّرت قراءة الملف المرفق."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill cannot be shared with everyone."
+msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
+msgstr "لا يمكن مشاركة تعبئة ديزل تابعة للشركة {0} مع مستخدم من خارج هذه الشركة."

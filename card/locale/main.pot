@@ -4166,3 +4166,11 @@ msgstr ""
 #: card/attachment_validator.py
 msgid "The attached file could not be read."
 msgstr ""
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill cannot be shared with everyone."
+msgstr ""
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
+msgstr ""
