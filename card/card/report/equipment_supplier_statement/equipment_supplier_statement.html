@@ -54,6 +54,35 @@
 		if (in_totals) totals_width += fields[f][1];
 	}
 	totals_width = Math.max(35, Math.min(60, Math.round(totals_width)));
+	/* the printed totals are a short statement: opening balance + period charges - payments = closing balance
+	   (the reconciliation figures stay on the screen report); without ledger access only the card net;
+	   owned equipment: equipment, days, hours. Items are picked by their stable "key" (server labels are
+	   translated); a summary without keys prints as it is. */
+	var summary_of = {};
+	for (var s = 0; s < summary.length; s++) {
+		if (summary[s] && summary[s].key) summary_of[summary[s].key] = summary[s];
+	}
+	/* a server without the keys (CARD 4.4.0) sends the same items in a fixed order */
+	var key_order = summary.length === 11
+		? ["equipment", "days", "hours", "net_cards", "accrued", "invoiced", "not_invoiced", "outside", "opening", "paid", "closing"]
+		: (summary.length === 4 ? ["equipment", "days", "hours", "net_cards"] : ["equipment", "days", "hours"]);
+	for (var s = 0; s < summary.length && s < key_order.length; s++) {
+		if (summary[s] && !summary[s].key && !summary_of[key_order[s]]) summary_of[key_order[s]] = summary[s];
+	}
+	var print_keys = !money ? ["equipment", "days", "hours"]
+		: (summary_of.closing ? ["opening", "accrued", "paid", "closing"] : ["net_cards"]);
+	var print_labels = {
+		opening: __("Opening balance"),
+		accrued: __("Period charges (incl. VAT)"),
+		paid: __("Payments"),
+		closing: __("Closing balance")
+	};
+	var totals = [];
+	for (var k = 0; k < print_keys.length; k++) {
+		var it = summary_of[print_keys[k]];
+		if (it) totals.push({ label: print_labels[print_keys[k]] || it.label, value: it.value, datatype: it.datatype });
+	}
+	if (!totals.length) totals = summary;
 	var month_of = function (m, y) { return m && y ? m + "/" + y : ""; };
 	var cell = function (row, f) {
 		var v = row[f[0]];
@@ -135,7 +164,7 @@
 	</tr>
 </table>
 {% if (filters.include_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards") %}</b></p>{% } %}
-{% if (raw.message) { %}<p class="ess-note">{%= esc(String(raw.message)) %}</p>{% } %}
+{% if (raw.message && rows.length < 2) { %}<p class="ess-note">{%= esc(String(raw.message)) %}</p>{% } %}
 <table class="ess-rows">
 	<thead>
 		<tr>
@@ -156,11 +185,11 @@
 		{% } %}
 	</tbody>
 </table>
-{% if (summary.length) { %}
+{% if (totals.length) { %}
 <table class="ess-totals" style="width: {%= totals_width %}%">
 	<thead><tr><th colspan="2">{%= __("Statement totals") %}</th></tr></thead>
 	<tbody>
-		{% for (var s = 0; s < summary.length; s++) { var item = summary[s]; %}
+		{% for (var s = 0; s < totals.length; s++) { var item = totals[s]; %}
 		<tr>
 			<td class="ess-k">{%= esc(item.label || "") %}</td>
 			<td class="ess-v">{%= item.datatype === "Int" ? esc(String(item.value === undefined || item.value === null ? "" : item.value)) : num(item.value) %}</td>

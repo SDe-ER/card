@@ -180,6 +180,18 @@ class TestPrintFormats(_CustomerCardsBase):
 		self._print(card, LEGACY_MONTHLY)
 		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, fields, as_dict=True), before)
 
+	def test_card_document_prints_use_the_chrome_pdf_generator(self):
+		# wkhtmltopdf (old Qt) breaks Arabic letter joining; frappe's Chrome generator shapes it like the browser
+		formats = frappe.get_all(
+			"Print Format",
+			filters={"module": "Card", "print_format_type": "Jinja", "custom_format": 1},
+			fields=["name", "pdf_generator"],
+		)
+		self.assertTrue(formats)
+		for pf in formats:
+			with self.subTest(print_format=pf.name):
+				self.assertEqual(pf.pdf_generator, "chrome")
+
 	def test_every_card_print_template_compiles(self):
 		# a Jinja syntax error only shows when the format is saved or printed: compile them all
 		jenv = frappe.get_jenv()
