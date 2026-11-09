@@ -65,7 +65,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   none (nothing submitted or posted); data: with the worker configured, a Draft's `closing_reading`, `review_status` and
   `evidence_warnings` may change, and private crop Files and Info Comments are added; API none (no whitelisted method);
   no schema change, no patch, no new Python dependency (`requests` and Pillow come with Frappe). With the worker off
-  (the default) no photo bytes leave the site. Rollback: remove the two site_config keys (feature off at once) or
+  (the default) no photo bytes leave the site. Worker address (Owner decision 2026-11-10, review finding: a host name
+  was resolved for the check and again by the request, so a changed DNS answer could send the photo elsewhere):
+  `card_meter_worker_url` must use an IP literal host, `http` only to a loopback address (`127.0.0.1`, `[::1]`),
+  `https` only to a loopback or private address (an IPv4-mapped IPv6 address is judged as IPv4); nothing is resolved.
+  A host name (including `localhost`), a public, link-local or unspecified address is refused: the job stops before any
+  photo is read (no attempt is counted) and one translated Error Log per reason and day says why, without the URL. A
+  site that set a host name must change it to the IP address (for `https`, the worker's certificate must then name that
+  IP). Rollback: remove the two site_config keys (feature off at once) or
   revert the commits; crops and markers already written stay as ordinary attachments and comments.
 
 ### Planned

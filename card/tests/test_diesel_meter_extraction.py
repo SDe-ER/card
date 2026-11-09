@@ -202,21 +202,67 @@ class TestValidateResponse(IntegrationTestCase):
 
 
 class TestWorkerUrl(IntegrationTestCase):
-	def _resolve(self, ip):
-		return mock.patch.object(socket, "getaddrinfo", return_value=[(2, 1, 6, "", (ip, 80))])
+	"""Owner decision 2026-11-10: the worker host is an IP literal; nothing is resolved."""
 
-	def test_loopback_http_and_private_https_pass_everything_else_fails(self):
-		with self._resolve("127.0.0.1"):
-			dme.check_worker_url("http://127.0.0.1:8099")
-		with self._resolve("10.1.2.3"):
-			dme.check_worker_url("https://worker.internal")
-			with self.assertRaises(WorkerError):
-				dme.check_worker_url("http://worker.internal")  # plain http only to loopback
-		with self._resolve("8.8.8.8"), self.assertRaises(WorkerError):
-			dme.check_worker_url("https://worker.example")
-		for bad in ("ftp://127.0.0.1", "http://user:pw@127.0.0.1", "http:///x"):
-			with self.subTest(url=bad), self.assertRaises(WorkerError):
-				dme.check_worker_url(bad)
+	def _refused(self, url):
+		with self.assertRaises(WorkerError) as ctx:
+			dme.check_worker_url(url)
+		return str(ctx.exception)
+
+	def test_ip_literals_pass_without_any_name_resolution(self):
+		with mock.patch.object(socket, "getaddrinfo", side_effect=AssertionError("resolved")):
+			for url in (
+				"http://127.0.0.1:8099",
+				"http://[::1]:8099",
+				"https://127.0.0.1",
+				"https://[::1]",
+				"https://10.1.2.3:8443",
+				"https://192.168.0.5",
+				"https://[fd00::5]:8443",
+			):
+				with self.subTest(url=url):
+					dme.check_worker_url(url)
+
+	def test_a_host_name_is_refused_even_when_it_would_resolve_locally(self):
+		with mock.patch.object(socket, "getaddrinfo", side_effect=AssertionError("resolved")):
+			for url in ("http://localhost:8099", "https://worker.internal", "https://worker.example"):
+				with self.subTest(url=url):
+					self.assertEqual(self._refused(url), "host_not_ip")
+
+	def test_public_ip_and_wrong_ranges_are_refused(self):
+		cases = {
+			"https://8.8.8.8": "public_address",
+			"https://[2001:4860:4860::8888]": "public_address",
+			"https://[::ffff:8.8.8.8]": "public_address",  # IPv4-mapped IPv6 judged as IPv4
+			"http://10.1.2.3": "http_not_loopback",  # plain http only to loopback
+			"http://[fd00::5]": "http_not_loopback",
+			"https://169.254.169.254": "bad_address",
+			"https://0.0.0.0": "bad_address",
+			"https://[fe80::1]": "bad_address",
+		}
+		for url, reason in cases.items():
+			with self.subTest(url=url):
+				self.assertEqual(self._refused(url), reason)
+		for bad in ("ftp://127.0.0.1", "http://user:pw@127.0.0.1", "http:///x", "http://127.0.0.1:99999"):
+			with self.subTest(url=bad):
+				self.assertEqual(self._refused(bad), "bad_url")
+
+	def test_a_refused_address_stops_the_job_before_any_photo_and_is_logged_once(self):
+		dme._cache().delete_value("card_meter_worker_url_refused:host_not_ip")
+		title = frappe._("CARD meter extraction: worker address refused")
+		frappe.db.delete("Error Log", {"method": title})
+		with (
+			mock.patch.object(dme, "worker_config", return_value=("http://localhost:8099", "secret-token")),
+			mock.patch.object(dme, "call_worker", side_effect=AssertionError("called")),
+			mock.patch.object(dme, "note_failure", side_effect=AssertionError("counted")),
+		):
+			self.assertEqual(dme.run_extraction("any-fill"), "bad_config")
+			self.assertEqual(dme.run_extraction("any-fill"), "bad_config")
+		logs = frappe.get_all("Error Log", filters={"method": title}, fields=["error"], limit_page_length=0)
+		self.assertEqual(len(logs), 1)  # once per reason and day
+		self.assertIn("host_not_ip", logs[0].error)
+		self.assertNotIn("localhost", logs[0].error)  # the URL is never logged
+		self.assertNotIn("secret-token", logs[0].error)
 
 	def test_worker_off_without_config(self):
 		with mock.patch.object(frappe, "conf", frappe._dict()):

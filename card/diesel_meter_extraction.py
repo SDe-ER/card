@@ -21,11 +21,11 @@ import ipaddress
 import json
 import math
 import re
-import socket
 import uuid
 from urllib.parse import urlparse
 
 import frappe
+from frappe import _
 from frappe.utils import cstr, flt, get_datetime
 
 CONTRACT_VERSION = "1.0"
@@ -77,7 +77,7 @@ class WorkerError(Exception):
 	"""Anything wrong with the worker or its answer: handled as 'worker unavailable for this photo' (R0).
 	`transient` errors (busy, unavailable, connection) are retry-later and do not count toward the attempt cap."""
 
-	TRANSIENT = frozenset(("transport", "unresolved", "http_429", "http_503"))
+	TRANSIENT = frozenset(("transport", "http_429", "http_503"))
 
 	@property
 	def transient(self):
@@ -92,22 +92,58 @@ def worker_config():
 
 
 def check_worker_url(url):
-	"""SSRF guard: http only to a loopback address, https only to loopback or private ranges."""
-	parts = urlparse(url)
+	"""SSRF guard (Owner decision 2026-11-10): the host must be an IP literal, so nothing is resolved and a DNS answer
+	can never change between this check and the request. http only to a loopback address, https only to a loopback or
+	private address. A host name is refused (`host_not_ip`)."""
+	parts = urlparse(cstr(url))
+	try:
+		parts.port
+	except ValueError:
+		raise WorkerError("bad_url")
 	if parts.scheme not in ("http", "https") or not parts.hostname or parts.username or parts.password:
 		raise WorkerError("bad_url")
 	try:
-		infos = socket.getaddrinfo(parts.hostname, parts.port or (443 if parts.scheme == "https" else 80))
-	except OSError:
-		raise WorkerError("unresolved")
-	for info in infos:
-		ip = ipaddress.ip_address(info[4][0])
-		if ip.is_link_local or ip.is_unspecified or ip.is_multicast or ip.is_reserved:
-			raise WorkerError("bad_address")
-		if parts.scheme == "http" and not ip.is_loopback:
-			raise WorkerError("http_not_loopback")
-		if not (ip.is_loopback or ip.is_private):
-			raise WorkerError("public_address")
+		ip = ipaddress.ip_address(parts.hostname)
+	except ValueError:
+		raise WorkerError("host_not_ip")
+	if ip.version == 6 and ip.ipv4_mapped:
+		ip = ip.ipv4_mapped  # ::ffff:a.b.c.d is judged as a.b.c.d
+	if ip.is_loopback:
+		return  # 127.0.0.0/8 or ::1 (Python also reports ::1 as reserved)
+	if ip.is_link_local or ip.is_unspecified or ip.is_multicast or ip.is_reserved:
+		raise WorkerError("bad_address")
+	if parts.scheme == "http" and not ip.is_loopback:
+		raise WorkerError("http_not_loopback")
+	if not (ip.is_loopback or ip.is_private):
+		raise WorkerError("public_address")
+
+
+def worker_url_refused(url):
+	"""None when the configured worker URL passes check_worker_url; else logs ONE translated Error Log per reason and
+	day (never the URL itself, which could hold credentials) and returns the reason. Called before any photo is read,
+	so a bad setting never counts toward a photo's attempt cap."""
+	try:
+		check_worker_url(url)
+		return None
+	except WorkerError as exc:
+		reason = str(exc)
+	key = f"card_meter_worker_url_refused:{reason}"
+	try:
+		logged = _cache().get_value(key)
+	except Exception:
+		logged = None
+	if not logged:
+		frappe.log_error(
+			title=_("CARD meter extraction: worker address refused"),
+			message=_(
+				"card_meter_worker_url is refused ({0}). Use an IP address, not a host name: http only to a loopback address (127.0.0.1 or [::1]), https only to a loopback or private address. Meter extraction stays off until it is corrected."
+			).format(reason),
+		)
+		try:
+			_cache().set_value(key, 1, expires_in_sec=24 * 3600)
+		except Exception:
+			pass
+	return reason
 
 
 def _post(url, token, meta, image, content_type):
@@ -719,6 +755,8 @@ def run_extraction(fill):
 	config = worker_config()
 	if not config:
 		return "worker_off"
+	if worker_url_refused(config[0]):
+		return "bad_config"
 	if not frappe.db.exists("Project Diesel Fill", fill):
 		return "missing"
 	from frappe.utils.synchronization import LockTimeoutError, filelock
