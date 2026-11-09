@@ -6,6 +6,8 @@ test that wants a fill at a given price puts that price in Settings first."""
 import frappe
 from frappe.utils import flt
 
+from card.tests.sample_files import png
+
 
 def approve_fill(fill):
 	"""Owner 2026-10-26 (Phase 1): a fill is submitted only after the operations review, which needs a
@@ -18,9 +20,9 @@ def approve_fill(fill):
 			photo = frappe.get_doc(
 				{
 					"doctype": "File",
-					"file_name": f"meter-{frappe.generate_hash(length=10)}.txt",
+					"file_name": f"meter-{frappe.generate_hash(length=10)}.png",
 					"is_private": 1,
-					"content": frappe.generate_hash(length=32),
+					"content": png(frappe.generate_hash(length=32)),
 					"attached_to_doctype": fill.doctype,
 					"attached_to_name": fill.name,
 					"attached_to_field": "closing_photo",
