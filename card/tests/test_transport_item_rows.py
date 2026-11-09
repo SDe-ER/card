@@ -23,6 +23,7 @@ from frappe.utils import add_days, getdate
 
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_transfer import _past_month_year
+from card.tests.transport_parties import company_paid_values
 
 DOCTYPE = "Equipment Transport"
 ITEM = "Equipment Transport Item"
@@ -125,6 +126,7 @@ class TestTransportItemRows(IntegrationTestCase):
 				"transport_supplier": self.sup,
 				"amount": 100,
 				"items": [{"card_equipment": eq} for eq in equipment],
+				**company_paid_values(self.company),
 			}
 		).insert(ignore_permissions=True)
 		if submit:
@@ -335,6 +337,7 @@ class TestTransportItemRows(IntegrationTestCase):
 				"transport_supplier": self.sup,
 				"amount": 100,
 				"items": [{"card_equipment": self.eq_a}],
+				**company_paid_values(self.company),
 			}
 		).insert()
 		trn.append("items", {"card_equipment": self._as_admin(self._equipment, "A3", self.company)})
@@ -463,7 +466,8 @@ class TestTransportItemRows(IntegrationTestCase):
 				"company": self.company,
 				"destination_type": "Workshop",
 				"destination_location": loc.name,
-				"cost_borne_by": "Equipment Supplier",
+				"payer": "Equipment Supplier",
+				"cost_bearer": "Equipment Supplier",
 				"items": [{"card_equipment": equipment}],
 			}
 		).insert(ignore_permissions=True)

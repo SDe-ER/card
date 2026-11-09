@@ -19,6 +19,16 @@
   "destination_type",
   "project",
   "destination_location",
+  "section_break_responsibility",
+  "responsibility",
+  "payer",
+  "cost_bearer",
+  "column_break_responsibility",
+  "cost_project",
+  "cost_basis",
+  "customer_billable",
+  "supplier_recoverable",
+  "overhead_cost_center",
   "section_break_cost",
   "amount",
   "cost_borne_by",
@@ -29,6 +39,24 @@
   "transport_method",
   "company",
   "remarks",
+  "section_break_financial",
+  "financial_status",
+  "financial_decision",
+  "customer",
+  "billing_project",
+  "billing_amount",
+  "billing_mode",
+  "billing_reference",
+  "billing_document",
+  "column_break_financial",
+  "absorption_reason",
+  "recovery_mode",
+  "recovery_amount",
+  "decision_note",
+  "financial_approver",
+  "financial_decided_on",
+  "submitted_by",
+  "edited_by",
   "section_break_links",
   "created_assignment",
   "previous_assignment",
@@ -60,12 +88,12 @@
    "options": "Project"
   },
   {
-   "depends_on": "eval:doc.cost_borne_by != \"Equipment Supplier\"",
+   "depends_on": "eval:[\"Company bears the cost\",\"Company pays, bills the customer\",\"Company pays, recovers from equipment supplier\"].includes(doc.responsibility) || (!doc.responsibility && !doc.__islocal && doc.cost_borne_by!=\"Equipment Supplier\")",
    "fieldname": "transport_supplier",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Transport supplier",
-   "mandatory_depends_on": "eval:doc.cost_borne_by == \"Company\"",
+   "mandatory_depends_on": "eval:[\"Company bears the cost\",\"Company pays, bills the customer\",\"Company pays, recovers from equipment supplier\"].includes(doc.responsibility)",
    "options": "Supplier"
   },
   {
@@ -102,12 +130,12 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.cost_borne_by != \"Equipment Supplier\"",
+   "depends_on": "eval:[\"Company bears the cost\",\"Company pays, bills the customer\",\"Company pays, recovers from equipment supplier\"].includes(doc.responsibility) || (!doc.responsibility && !doc.__islocal && doc.cost_borne_by!=\"Equipment Supplier\")",
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Transport cost",
-   "mandatory_depends_on": "eval:doc.cost_borne_by == \"Company\""
+   "label": "Transporter cost",
+   "mandatory_depends_on": "eval:[\"Company bears the cost\",\"Company pays, bills the customer\",\"Company pays, recovers from equipment supplier\"].includes(doc.responsibility)"
   },
   {
    "depends_on": "eval:doc.cost_center",
@@ -202,11 +230,12 @@
    "options": "Supplier"
   },
   {
-   "default": "Company",
    "fieldname": "cost_borne_by",
    "fieldtype": "Select",
    "label": "Transport cost borne by",
-   "options": "Company\nEquipment Supplier\nCustomer"
+   "options": "\nCompany\nEquipment Supplier\nCustomer",
+   "read_only": 1,
+   "depends_on": "eval:!doc.responsibility && doc.cost_borne_by"
   },
   {
    "default": "Project",
@@ -268,11 +297,251 @@
   {
    "fieldname": "column_break_links",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_responsibility",
+   "fieldtype": "Section Break",
+   "label": "Cost responsibility"
+  },
+  {
+   "fieldname": "responsibility",
+   "fieldtype": "Select",
+   "label": "Transport responsibility",
+   "options": "\nCompany bears the cost\nCompany pays, bills the customer\nCompany pays, recovers from equipment supplier\nEquipment supplier bears the cost\nCustomer pays the transporter directly\nNo transport charge\nResponsibility needs review",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "payer",
+   "fieldtype": "Select",
+   "label": "Transporter paid by",
+   "options": "\nCompany\nEquipment Supplier\nCustomer\nNo charge",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "cost_bearer",
+   "fieldtype": "Select",
+   "label": "Cost borne by",
+   "options": "\nCompany\nEquipment Supplier\nCustomer",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "column_break_responsibility",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_basis",
+   "fieldtype": "Select",
+   "label": "Cost charged to",
+   "options": "\nProject\nWorkshop or storage\nCompany overhead",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "customer_billable",
+   "fieldtype": "Check",
+   "label": "Customer billing eligible",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "supplier_recoverable",
+   "fieldtype": "Check",
+   "label": "Supplier recovery eligible",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "cost_project",
+   "fieldtype": "Link",
+   "label": "Cost project",
+   "options": "Project",
+   "depends_on": "eval:doc.responsibility==\"Company bears the cost\" && ![\"Workshop\",\"Storage\"].includes(doc.destination_type)",
+   "mandatory_depends_on": "eval:doc.responsibility==\"Company bears the cost\" && ![\"Workshop\",\"Storage\"].includes(doc.destination_type)"
+  },
+  {
+   "fieldname": "overhead_cost_center",
+   "fieldtype": "Link",
+   "label": "Overhead cost center",
+   "options": "Cost Center",
+   "hidden": 1
+  },
+  {
+   "fieldname": "section_break_financial",
+   "fieldtype": "Section Break",
+   "label": "Financial decision",
+   "collapsible": 1,
+   "depends_on": "eval:doc.financial_status && doc.financial_status!=\"No decision needed\""
+  },
+  {
+   "fieldname": "financial_status",
+   "fieldtype": "Select",
+   "label": "Financial status",
+   "options": "\nNo decision needed\nPending\nApproved\nRejected",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "financial_decision",
+   "fieldtype": "Select",
+   "label": "Cost decision",
+   "options": "\nBill customer\nCompany absorbs\nRecover from equipment supplier\nReturn for correction",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Bill customer\""
+  },
+  {
+   "fieldname": "billing_project",
+   "fieldtype": "Link",
+   "label": "Billing project",
+   "options": "Project",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Bill customer\""
+  },
+  {
+   "fieldname": "billing_amount",
+   "fieldtype": "Currency",
+   "label": "Agreed billing amount (before VAT)",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Bill customer\""
+  },
+  {
+   "fieldname": "billing_mode",
+   "fieldtype": "Select",
+   "label": "Billing",
+   "options": "\nMonthly invoice\nSeparate invoice",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Bill customer\""
+  },
+  {
+   "fieldname": "billing_reference",
+   "fieldtype": "Data",
+   "label": "Authorization reference",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Bill customer\""
+  },
+  {
+   "fieldname": "billing_document",
+   "fieldtype": "Attach",
+   "label": "Authorization document",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Bill customer\""
+  },
+  {
+   "fieldname": "column_break_financial",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "absorption_reason",
+   "fieldtype": "Small Text",
+   "label": "Absorption reason",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Company absorbs\""
+  },
+  {
+   "fieldname": "recovery_mode",
+   "fieldtype": "Select",
+   "label": "Recovery method",
+   "options": "\nDeduct from monthly dues\nAdjustment document",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Recover from equipment supplier\""
+  },
+  {
+   "fieldname": "recovery_amount",
+   "fieldtype": "Currency",
+   "label": "Recovery amount",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "depends_on": "eval:doc.financial_decision==\"Recover from equipment supplier\""
+  },
+  {
+   "fieldname": "decision_note",
+   "fieldtype": "Small Text",
+   "label": "Decision note",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1
+  },
+  {
+   "fieldname": "financial_approver",
+   "fieldtype": "Link",
+   "label": "Decided by",
+   "options": "User",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1
+  },
+  {
+   "fieldname": "financial_decided_on",
+   "fieldtype": "Datetime",
+   "label": "Decided on",
+   "read_only": 1,
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "permlevel": 1
+  },
+  {
+   "fieldname": "submitted_by",
+   "fieldtype": "Link",
+   "label": "Transport submitted by",
+   "options": "User",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "edited_by",
+   "fieldtype": "Small Text",
+   "label": "Transport edited by",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-25 22:00:00.000000",
+ "modified": "2026-10-31 15:45:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport",
@@ -323,6 +592,21 @@
    "read": 1,
    "report": 1,
    "role": "Accounts Manager"
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Card Manager",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "permlevel": 1,
+   "read": 1
   }
  ],
  "sort_field": "creation",

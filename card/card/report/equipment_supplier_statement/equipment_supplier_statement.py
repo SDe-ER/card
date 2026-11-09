@@ -303,13 +303,21 @@ def execute(filters=None):
 
 	summary = [
 		{
+			"key": "equipment",
 			"label": _("Number of equipment"),
 			"value": len(grand["eq"]),
 			"datatype": "Int",
 			"indicator": "Blue",
 		},
-		{"label": _("Operating days"), "value": grand["days"], "datatype": "Int", "indicator": "Blue"},
 		{
+			"key": "days",
+			"label": _("Operating days"),
+			"value": grand["days"],
+			"datatype": "Int",
+			"indicator": "Blue",
+		},
+		{
+			"key": "hours",
 			"label": _("Operating hours"),
 			"value": flt(grand["hours"], 2),
 			"datatype": "Float",
@@ -324,6 +332,7 @@ def execute(filters=None):
 		summary = [
 			*summary,
 			{
+				"key": "net_cards",
 				"label": _("Net cards"),
 				"value": flt(grand["net"], 2),
 				"datatype": "Currency",
@@ -373,7 +382,8 @@ def execute(filters=None):
 		for g in gl_period:
 			accrued = accrued + flt(g.credit)
 			paid = paid + flt(g.debit)
-		closing = opening + accrued - paid
+		# rounded from the rounded parts so the printed opening + charges - payments = closing to the cent
+		closing = flt(opening, 2) + flt(accrued, 2) - flt(paid, 2)
 		# like-for-like: card nets are before VAT; the accrual credits include it
 		inv = flt(
 			cards_invoiced("Supplier", [supplier], _company, start, end, cards=[c.name for c in cards]).get(
@@ -386,48 +396,56 @@ def execute(filters=None):
 		summary = [
 			*summary,
 			{
+				"key": "net_cards",
 				"label": _("Net cards"),
 				"value": flt(grand["net"], 2),
 				"datatype": "Currency",
 				"indicator": "Green",
 			},
 			{
+				"key": "accrued",
 				"label": _("Accrual entries (Credit)"),
 				"value": flt(accrued, 2),
 				"datatype": "Currency",
 				"indicator": "Blue",
 			},
 			{
+				"key": "invoiced",
 				"label": _("Invoiced through Card (net before VAT)"),
 				"value": inv,
 				"datatype": "Currency",
 				"indicator": "Blue",
 			},
 			{
+				"key": "not_invoiced",
 				"label": _("Not invoiced through Card"),
 				"value": diff,
 				"datatype": "Currency",
 				"indicator": "Green" if abs(diff) < flt(setting("reconciliation_tolerance")) else "Red",
 			},
 			{
+				"key": "outside",
 				"label": _("ERPNext invoices outside Card — to reconcile (net before VAT)"),
 				"value": outside,
 				"datatype": "Currency",
 				"indicator": "Orange" if outside else "Green",
 			},
 			{
+				"key": "opening",
 				"label": _("Opening balance"),
 				"value": flt(opening, 2),
 				"datatype": "Currency",
 				"indicator": "Grey",
 			},
 			{
+				"key": "paid",
 				"label": _("Paid (Debit)"),
 				"value": flt(paid, 2),
 				"datatype": "Currency",
 				"indicator": "Orange",
 			},
 			{
+				"key": "closing",
 				"label": _("Supplier closing balance"),
 				"value": flt(closing, 2),
 				"datatype": "Currency",

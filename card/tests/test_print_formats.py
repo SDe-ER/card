@@ -7,6 +7,9 @@ of each billed side with additions/deductions. All data is per-test and
 rolled back."""
 
 import re
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
 
 import frappe
 from frappe.utils import fmt_money
@@ -16,6 +19,7 @@ from card.print_utils import card_amount_in_words
 from card.tests.diesel_price import use_fill_price
 from card.tests.test_controllers import _days
 from card.tests.test_customer import RENTED, _CustomerCardsBase
+from card.tests.transport_parties import company_paid
 
 MONTHLY = "Card Monthly Card Print"
 LEGACY_MONTHLY = "كارت تشغيل شهري"
@@ -24,12 +28,38 @@ HOURS = [10, 10, 10, 10, 8]  # 48 h
 
 
 def _cell(html, label):
-	"""The value printed under a totals-cell label (None when the cell is absent)."""
-	m = re.search(re.escape(label) + r'</span><span class="val">([^<]*)</span>', html)
+	"""The value printed next to a totals label (None when the line is absent)."""
+	m = re.search(re.escape(label) + r'</td><td class="v">([^<]*)</td>', html)
 	return m.group(1).strip() if m else None
 
 
 class TestPrintFormats(_CustomerCardsBase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		# the print labels go through _(): compile Card's ar catalogue in this process (Frappe's
+		# own step) into a folder only this class reads, so the Arabic assertions never depend on
+		# a stale bench-wide sites/assets/locale catalogue (same approach as test_mobile)
+		from frappe.gettext import translate
+		from frappe.translate import clear_cache
+
+		cls._mo_dir = tempfile.TemporaryDirectory()
+		cls.addClassCleanup(cls._mo_dir.cleanup)
+		card_mo = Path(cls._mo_dir.name, "card.mo")
+		real_mo_path = translate.get_mo_path
+
+		def mo_path(app, locale=None):
+			return card_mo if (app, locale) == ("card", "ar") else real_mo_path(app, locale)
+
+		mo_patch = patch.object(translate, "get_mo_path", side_effect=mo_path)
+		mo_patch.start()
+		# class cleanups run even when setUpClass fails after this point; clear_cache runs after
+		# the patch stops (cleanups run last-in first-out)
+		cls.addClassCleanup(clear_cache)
+		cls.addClassCleanup(mo_patch.stop)
+		translate._compile_translation("card", "ar", force=True)
+		clear_cache()
+
 	def _card_with(self, eq, adjustments):
 		c = frappe.new_doc("Card Monthly Card")
 		c.equipment = eq.name
@@ -48,8 +78,14 @@ class TestPrintFormats(_CustomerCardsBase):
 		c.reload()
 		return c
 
-	def _print(self, card, fmt=MONTHLY):
-		return frappe.get_print("Card Monthly Card", card.name, print_format=fmt)
+	def _print(self, card, fmt=MONTHLY, lang="ar"):
+		# the print follows the print language: the labels asserted here are the Arabic ones
+		previous = frappe.local.lang
+		try:
+			frappe.local.lang = lang
+			return frappe.get_print("Card Monthly Card", card.name, print_format=fmt)
+		finally:
+			frappe.local.lang = previous
 
 	def test_customer_card_prints_the_customer_net(self):
 		# 1500/day over 10 h = 150/h x 48 h = 7,200; customer deduction 1,200 -> 6,000
@@ -144,6 +180,53 @@ class TestPrintFormats(_CustomerCardsBase):
 		self._print(card, LEGACY_MONTHLY)
 		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, fields, as_dict=True), before)
 
+	def test_card_document_prints_use_the_chrome_pdf_generator(self):
+		# wkhtmltopdf (old Qt) breaks Arabic letter joining; frappe's Chrome generator shapes it like the browser
+		formats = frappe.get_all(
+			"Print Format",
+			filters={"module": "Card", "print_format_type": "Jinja", "custom_format": 1},
+			fields=["name", "pdf_generator"],
+		)
+		self.assertTrue(formats)
+		for pf in formats:
+			with self.subTest(print_format=pf.name):
+				self.assertEqual(pf.pdf_generator, "chrome")
+
+	def test_every_card_print_template_compiles(self):
+		# a Jinja syntax error only shows when the format is saved or printed: compile them all
+		jenv = frappe.get_jenv()
+		formats = frappe.get_all(
+			"Print Format",
+			filters={"module": "Card", "print_format_type": "Jinja", "custom_format": 1},
+			pluck="name",
+		)
+		self.assertIn(MONTHLY, formats)
+		self.assertIn(LEGACY_MONTHLY, formats)
+		for name in formats:
+			with self.subTest(print_format=name):
+				jenv.parse(frappe.db.get_value("Print Format", name, "html") or "")
+
+	def test_print_follows_the_print_language(self):
+		card = self._card_with(self._equipment(RENTED), [(DED, 600, "Supplier", "TEST-PRINT-LANG")])
+		html = self._print(card)
+		self.assertIn('class="emc rtl" dir="rtl"', html)
+		self.assertIn("كارت تشغيل معدة شهري", html)
+		html = self._print(card, lang="en")
+		self.assertIn('class="emc ltr" dir="ltr"', html)
+		self.assertIn("Equipment Monthly Operation Card", html)
+		self.assertNotIn("كارت تشغيل معدة شهري", html)
+		# Urdu is right-to-left in CARD, although frappe is_rtl() lists only ar/he/fa/ps
+		self.assertIn('class="emc rtl" dir="rtl"', self._print(card, lang="ur"))
+		self.assertEqual(_cell(html, "Total amount"), fmt_money(3600))
+		self.assertEqual(_cell(html, "Supplier deductions"), fmt_money(600))
+		self.assertEqual(_cell(html, "Supplier net before VAT"), fmt_money(3000))
+		self.assertIsNone(_cell(html, "Customer net before VAT"))
+		# stored Arabic option values print in the print language (card/locale/en.po)
+		self.assertIn("Deduction", html)
+		legacy = self._print(card, LEGACY_MONTHLY, lang="en")
+		self.assertIn('dir="ltr"', legacy)
+		self.assertEqual(_cell(legacy, "Total amount"), fmt_money(3600))
+
 	def test_legacy_format_prints_the_customer_amount_on_customer_cards(self):
 		card = self._card_with(self._rented_out(customer_rate=1500), [])
 		html = self._print(card, LEGACY_MONTHLY)
@@ -155,7 +238,7 @@ class TestDieselTransportPrints(_CustomerCardsBase):
 		# core translates "Amount" as a quantity (كمية) in Arabic
 		for doctype, label in (
 			("Project Diesel Fill", "Fill amount"),
-			("Equipment Transport", "Transport cost"),
+			("Equipment Transport", "Transporter cost"),
 		):
 			self.assertEqual(frappe.get_meta(doctype).get_label("amount"), label)
 
@@ -185,7 +268,7 @@ class TestDieselTransportPrints(_CustomerCardsBase):
 				"amount": 3500,
 			}
 		)
-		transport.insert(ignore_permissions=True)
+		company_paid(transport).insert(ignore_permissions=True)
 		currency = frappe.get_cached_value("Company", self.company, "default_currency")
 		symbol = frappe.get_cached_value("Currency", currency, "symbol")
 		lang = frappe.local.lang

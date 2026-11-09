@@ -18,6 +18,7 @@ from frappe.tests import IntegrationTestCase
 
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_transfer import _past_month_year
+from card.tests.transport_parties import company_paid_values
 
 DOCTYPE = "Equipment Transport"
 REFUSED = (frappe.PermissionError, frappe.ValidationError)
@@ -107,6 +108,8 @@ class TestTransportCompanyIsolation(IntegrationTestCase):
 			"transport_supplier": self.sup,
 			"amount": 100,
 			"items": [{"card_equipment": eq} for eq in equipment],
+			# the other test company has no cost center: its moves are recorded as not charged
+			**(company_paid_values(company) if company == self.company else {"payer": "No charge"}),
 		}
 
 	def _transport(self, company, project, *equipment):

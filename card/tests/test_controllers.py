@@ -16,6 +16,20 @@ def _ensure_masters():
 	if not frappe.db.exists("Warehouse Type", "Transit"):
 		frappe.get_doc({"doctype": "Warehouse Type", "name": "Transit"}).insert(ignore_permissions=True)
 
+	# ERPNext version-16 (Nov 2026) refuses GL rows whose party type has no Party
+	# Type record ("Supplier is not a valid Party Type"). The setup wizard creates
+	# these on a real site (install_fixtures); a clean test_site skips the wizard.
+	for party_type, account_type in (
+		("Customer", "Receivable"),
+		("Supplier", "Payable"),
+		("Employee", "Payable"),
+		("Shareholder", "Payable"),
+	):
+		if not frappe.db.exists("Party Type", party_type):
+			frappe.get_doc(
+				{"doctype": "Party Type", "party_type": party_type, "account_type": account_type}
+			).insert(ignore_permissions=True)
+
 	# the S3 posting items/lines use the ERPNext default UOM, also absent there
 	if not frappe.db.exists("UOM", "Nos"):
 		frappe.get_doc({"doctype": "UOM", "uom_name": "Nos"}).insert(ignore_permissions=True)

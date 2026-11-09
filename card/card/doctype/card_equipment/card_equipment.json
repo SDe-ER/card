@@ -83,6 +83,7 @@
   "customer_section_col",
   "customer_rate_type",
   "customer_rate",
+  "customer_rate_night",
   "owned_section",
   "asset_item",
   "asset_location",
@@ -325,7 +326,8 @@
    "fieldname": "cost_center",
    "fieldtype": "Link",
    "label": "Cost center",
-   "options": "Cost Center"
+   "options": "Cost Center",
+   "permlevel": 2
   },
   {
    "depends_on": "eval:doc.ownership!='ملك' && doc.operator_on!='الشركة'",
@@ -442,7 +444,8 @@
    "fieldname": "approved_hourly_rate",
    "fieldtype": "Currency",
    "label": "Hourly rate",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "depends_on": "eval:doc.ownership=='ملك'",
@@ -478,14 +481,16 @@
    "fieldtype": "Link",
    "label": "Asset cost center",
    "options": "Cost Center",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 2
   },
   {
    "fetch_from": "الأصل_في_erpnext.net_purchase_amount",
    "fieldname": "asset_purchase_value",
    "fieldtype": "Currency",
    "label": "Asset purchase value",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 2
   },
   {
    "fieldname": "column_break_bjjv",
@@ -495,7 +500,7 @@
    "fieldname": "internal_hourly_rate",
    "fieldtype": "Currency",
    "label": "Internal hourly rate",
-   "permlevel": 1
+   "permlevel": 2
   },
   {
    "fieldname": "meter_tab",
@@ -726,6 +731,14 @@
   },
   {
    "depends_on": "eval:[\"مؤجَّرة لعميل\",\"إيجار من الباطن\"].includes(doc.rental_direction)",
+   "fieldname": "customer_rate_night",
+   "fieldtype": "Currency",
+   "label": "Customer rate (night shift)",
+   "non_negative": 1,
+   "permlevel": 1
+  },
+  {
+   "depends_on": "eval:[\"مؤجَّرة لعميل\",\"إيجار من الباطن\"].includes(doc.rental_direction)",
    "fieldname": "default_customer",
    "fieldtype": "Link",
    "label": "Customer",
@@ -798,7 +811,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-10-25 10:00:00.000000",
+ "modified": "2026-11-08 23:30:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",
@@ -869,6 +882,23 @@
   },
   {
    "permlevel": 1,
+   "read": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "write": 1,
+   "role": "System Manager"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "write": 1,
+   "role": "Card Manager"
+  },
+  {
+   "permlevel": 2,
    "read": 1,
    "role": "Accounts Manager"
   }

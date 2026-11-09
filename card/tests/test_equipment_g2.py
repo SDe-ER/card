@@ -20,6 +20,7 @@ from frappe.utils import add_days, getdate, nowdate
 from card import transfer
 from card.dimension import ASSET_LINK_FIELD
 from card.tests.test_customer import _CustomerCardsBase
+from card.tests.transport_parties import company_paid
 
 OWNED = "ملك"
 # permlevel-1 scalar fields and a value Card User might try to write
@@ -714,7 +715,7 @@ class TestG2Location(_G2Base):
 				"amount": 100,
 			}
 		)
-		tr.insert(ignore_permissions=True)
+		company_paid(tr).insert(ignore_permissions=True)
 		tr.submit()
 		return tr
 

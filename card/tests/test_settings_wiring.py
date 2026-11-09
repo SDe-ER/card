@@ -14,6 +14,7 @@ from card.constants import DIR_RENTED_OUT
 from card.settings import setting
 from card.tests.diesel_price import set_diesel_price, use_fill_price
 from card.tests.test_controllers import _days, _ensure_masters
+from card.tests.transport_parties import company_paid
 
 FUEL_FIELD = "الوقود_على"
 LESSOR = "المؤجر"
@@ -588,7 +589,7 @@ class TestTransportPricePolicy(IntegrationTestCase):
 		t.company = self.company
 		if amount is not None:
 			t.amount = amount
-		t.insert(ignore_permissions=True)  # draft only: no transfer side effects
+		company_paid(t).insert(ignore_permissions=True)  # draft only: no transfer side effects
 		t.reload()
 		return t
 
