@@ -92,9 +92,7 @@ class TestTransportCompanyRules(IntegrationTestCase):
 	def test_settings_have_the_company_fields(self):
 		meta = frappe.get_meta("Card Company Settings")
 		self.assertEqual(meta.get_field("initial_location").options, "Location")
-		self.assertEqual(
-			meta.get_field("move_day_rule").options.split("\n"), [MOVE_DAY_NEXT, MOVE_DAY_SAME]
-		)
+		self.assertEqual(meta.get_field("move_day_rule").options.split("\n"), [MOVE_DAY_NEXT, MOVE_DAY_SAME])
 
 	def test_new_equipment_starts_at_the_company_initial_place(self):
 		place = self._place("YARD")
@@ -210,7 +208,9 @@ class TestTransportCompanyRules(IntegrationTestCase):
 		eq = self._equipment().name
 		self._transport(eq, proj_a, 10)  # first entry: on A from day 10
 		frappe.db.savepoint("card_refused")
-		with self.assertRaisesRegex(frappe.ValidationError, "cannot leave for another project on the same day"):
+		with self.assertRaisesRegex(
+			frappe.ValidationError, "cannot leave for another project on the same day"
+		):
 			self._transport(eq, proj_b, 10)
 		frappe.db.rollback(save_point="card_refused")
 

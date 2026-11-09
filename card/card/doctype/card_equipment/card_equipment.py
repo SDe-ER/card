@@ -423,7 +423,9 @@ class CardEquipment(Document):
 				title=_("Unit needs owned equipment"),
 			)
 		if not self.is_new() and self.has_value_changed("ownership"):
-			unit = unit_of_component(self.name)
+			# locking read: a unit saved at the same moment that adds this piece is seen
+			# (its save locks this equipment row and re-reads the ownership the same way)
+			unit = unit_of_component(self.name, for_update=True)
 			if unit:
 				frappe.throw(
 					_(
@@ -567,14 +569,17 @@ def check_unit_components(unit, company, is_unit, rows, ownership=None, joining=
 _COMPONENT_ROWS = {"parenttype": "Card Equipment", "parentfield": "components"}
 
 
-def unit_of_component(equipment):
-	"""The unit `equipment` is a current component of (a row with no To date), else None."""
+def unit_of_component(equipment, for_update=False):
+	"""The unit `equipment` is a current component of (a row with no To date), else None.
+	for_update: a locking read, which returns the latest committed rows (MariaDB REPEATABLE
+	READ), as check_unit_components does when a piece joins a unit."""
 	if not equipment:
 		return None
 	return frappe.db.get_value(
 		"Card Equipment Component",
 		{**_COMPONENT_ROWS, "component": equipment, "to_date": ["is", "not set"]},
 		"parent",
+		for_update=for_update,
 	)
 
 

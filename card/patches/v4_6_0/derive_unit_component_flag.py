@@ -35,7 +35,9 @@ def execute():
 	stale = [
 		row.name
 		for row in frappe.get_all(
-			"Card Equipment", filters={"name": ["in", list(listed) or [""]]}, fields=["name", "is_unit_component"]
+			"Card Equipment",
+			filters={"name": ["in", list(listed) or [""]]},
+			fields=["name", "is_unit_component"],
 		)
 		if cint(row.is_unit_component) != derived_unit_component(row.name)
 	]
