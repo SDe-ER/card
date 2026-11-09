@@ -78,6 +78,16 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 		for widths in re.findall(r"\? (\[\[.*?\]\])\n\t\t: (\[\[.*?\]\]);", template, flags=re.S)[0]:
 			self.assertAlmostEqual(sum(float(w) for w in re.findall(r"\[\"\w+\", ([\d.]+)", widths)) + 3, 100)
 
+	def test_printed_totals_are_a_short_statement(self):
+		# owner 2026-11-09: the printed totals keep only opening + period charges - payments = closing;
+		# the reconciliation figures stay on the screen report. Picked by stable summary keys.
+		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
+		self.assertIn('["opening", "accrued", "paid", "closing"]', template)
+		self.assertIn('["equipment", "days", "hours"]', template)
+		source = _read(*REPORT_DIR, "equipment_supplier_statement.py")
+		for key in ("equipment", "days", "hours", "net_cards", "accrued", "opening", "paid", "closing"):
+			self.assertIn(f'"key": "{key}"', source)
+
 	def test_new_strings_are_translated(self):
 		po = _read("locale", "ar.po")
 		for msgid in (
@@ -87,6 +97,7 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 			"Supplier signature",
 			"Includes draft cards",
 			"Statement totals",
+			"Period charges (incl. VAT)",
 			"Owned equipment",
 		):
 			self.assertRegex(po, rf'msgid "{msgid}"\nmsgstr "[^"]+"')

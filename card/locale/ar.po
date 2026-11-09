@@ -4058,6 +4058,10 @@ msgid "Statement totals"
 msgstr "الإجماليات"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Period charges (incl. VAT)"
+msgstr "مستحقات الفترة (شاملة الضريبة)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Owned equipment"
 msgstr "معدات ملك"
 

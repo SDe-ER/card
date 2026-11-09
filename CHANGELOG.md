@@ -15,6 +15,25 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **Equipment Supplier Statement A4: short totals** (Owner request 2026-11-09). The printed totals keep only
+  opening balance + period charges (incl. VAT) − payments = closing balance (with ledger access), the card net
+  (without), or equipment / days / hours (owned equipment). The reconciliation figures (accrual vs. invoiced
+  through Card, invoices outside Card) and the reconciliation notes stay on the screen report and are no longer
+  printed (the server note prints only when there are no rows). The report summary items carry a stable `key`
+  so the print picks them whatever the language. New CARD msgid "Period charges (incl. VAT)"; "Payments" uses
+  the existing erpnext translation.
+- **CARD document prints use the Chrome PDF generator** (Owner request 2026-11-09). `pdf_generator` of
+  `Card Monthly Card Print`, `Equipment Transport Print`, `Project Diesel Fill Print`, `Tool Handover Receipt`
+  and the fixture `كارت تشغيل شهري` changes from `wkhtmltopdf` to `chrome`: the v4.4.0 deployment check found
+  wkhtmltopdf breaking Arabic letter joining (alef after a joining letter), while the Chrome generator printed
+  Arabic correctly on the same site. Report prints (the A4 supplier statement PDF button) still go through
+  frappe's `report_to_pdf`, which always uses wkhtmltopdf; their browser Print is unaffected.
+  Files: the report `.py`/`.html`, the five print format JSON files and the fixture (`modified` bumped); the closing balance is now rounded from the rounded opening, charges and payments so the printed lines add up to the cent, `ar.po`, `main.pot`,
+  tests. Impact: display only; no permission, accounting, data or API change (the summary `key` is an added
+  field). Rollback: as for v4.4.0, a forced re-import of the previous print format files (migrate alone does
+  not restore older files).
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by

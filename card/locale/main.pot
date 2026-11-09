@@ -2854,6 +2854,10 @@ msgid "Statement totals"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Period charges (incl. VAT)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Accountant signature"
 msgstr ""
 
