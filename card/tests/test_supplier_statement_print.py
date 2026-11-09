@@ -80,10 +80,12 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 			self.assertAlmostEqual(sum(float(w) for w in re.findall(r"\[\"\w+\", ([\d.]+)", widths)) + 3, 100)
 
 	def test_printed_totals_are_a_short_statement(self):
-		# owner 2026-11-09: the printed totals keep only opening + period charges - payments = closing;
+		# owner 2026-11-09: the printed totals come from the cards of the period;
 		# the reconciliation figures stay on the screen report. Picked by stable summary keys.
 		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
-		self.assertIn('["opening", "accrued", "paid", "closing"]', template)
+		# owner 2026-11-09: the printed totals come from the cards only (no ledger block); every card prints
+		self.assertIn('var print_keys = money ? ["net_cards", "not_invoiced"]', template)
+		self.assertIn("if (original_data[i]) rows.push(original_data[i]);", template)
 		self.assertIn('["equipment", "days", "hours"]', template)
 		source = _read(*REPORT_DIR, "equipment_supplier_statement.py")
 		for key in ("equipment", "days", "hours", "net_cards", "accrued", "opening", "paid", "closing"):
@@ -99,6 +101,9 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 			"Includes draft cards",
 			"Statement totals",
 			"Period charges (incl. VAT)",
+			"Cards net for the period",
+			"Issued by the electronic system of {0}",
+			"Work done not yet invoiced (before VAT)",
 			"Owned equipment",
 		):
 			self.assertRegex(po, rf'msgid "{re.escape(msgid)}"\nmsgstr "[^"]+"')

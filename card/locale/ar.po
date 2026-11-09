@@ -5134,3 +5134,18 @@ msgstr "الإجماليات"
 #: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
 msgid "Amount summary"
 msgstr "الإجماليات"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Cards net for the period"
+msgstr "صافي الكروت عن الفترة"
+
+
+
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Work done not yet invoiced (before VAT)"
+msgstr "أعمال منفذة لم تُفوتر بعد (قبل الضريبة)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Issued by the electronic system of {0}"
+msgstr "تم الإصدار من نظام {0} الإلكتروني"
