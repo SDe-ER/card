@@ -34,7 +34,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+## [4.4.3] — 2026-11-09
+
+Patch release on top of v4.4.2 (PR #180): the PDF button of the Equipment Supplier Statement renders with the
+Frappe Chrome PDF generator on one A4 portrait page, and the statement font is no longer replaced by a site print
+style. No patch, no DocType or schema change, no change to permissions or accounting; one new POST API method.
+
 ### Fixed
+- **Arabic messages of the statement PDF**: the three new messages of `statement_pdf.py` are translated (commit
+  `5c63b8d`).
 - **Equipment Supplier Statement PDF and print** (owner, 2026-11-09).
   - **Reason:** the report PDF button used the standard wkhtmltopdf path, which misshapes the Arabic alef after a
     joining letter ("حساب", "الصافي"). A site print style can set every print font with `!important`, so the browser
