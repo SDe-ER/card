@@ -5008,3 +5008,117 @@ msgstr "تم تسجيل القرار المالي."
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Customer rate (night shift)"
 msgstr "سعر العميل (الوردية الليلية)"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Equipment Monthly Operation Card"
+msgstr "كارت تشغيل معدة شهري"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "(Cancelled)"
+msgstr "(ملغي)"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card no."
+msgstr "رقم الكارت"
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "Document no."
+msgstr "رقم المستند"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Adjustment amount"
+msgstr "المبلغ"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Rate ({0})"
+msgstr "السعر ({0})"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Customer rate ({0})"
+msgstr "سعر العميل ({0})"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer side amount"
+msgstr "قيمة جانب العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Internal operation"
+msgstr "تشغيل داخلي"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Not billed"
+msgstr "بدون فوترة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier settlement"
+msgstr "تسوية المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier gross"
+msgstr "إجمالي المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier additions"
+msgstr "إضافات المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier deductions"
+msgstr "خصومات المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier net before VAT"
+msgstr "صافي المورد قبل الضريبة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer settlement"
+msgstr "تسوية العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer gross"
+msgstr "إجمالي العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer additions"
+msgstr "إضافات العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer deductions"
+msgstr "خصومات العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer net before VAT"
+msgstr "صافي العميل قبل الضريبة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Driver / operator signature"
+msgstr "توقيع السائق / المشغّل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Site supervisor approval"
+msgstr "اعتماد المشرف الميداني"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Project manager approval"
+msgstr "اعتماد مدير المشروع"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card totals"
+msgstr "الإجماليات"
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+msgid "Amount summary"
+msgstr "الإجماليات"
