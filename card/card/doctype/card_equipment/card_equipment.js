@@ -382,7 +382,12 @@ function card_add_unit_actions(frm) {
 			title,
 			__("Save"),
 		);
-	const unit_filter = { is_unit: 1, company: frm.doc.company, name: ["!=", frm.doc.name] };
+	const unit_filter = {
+		is_unit: 1,
+		ownership: "ملك",
+		company: frm.doc.company,
+		name: ["!=", frm.doc.name],
+	};
 	frm.add_custom_button(
 		__("Replace component"),
 		() =>
@@ -396,7 +401,9 @@ function card_add_unit_actions(frm) {
 						label: __("New component"),
 						options: "Card Equipment",
 						reqd: 1,
-						get_query: () => ({ filters: { is_unit: 0, company: frm.doc.company } }),
+						get_query: () => ({
+							filters: { is_unit: 0, ownership: "ملك", company: frm.doc.company },
+						}),
 					},
 				],
 			),
@@ -423,11 +430,25 @@ function card_add_unit_actions(frm) {
 	);
 }
 
+// #42 (WP-04): a unit's pieces are owned equipment of the same company that are not units
+// themselves; the server enforces the same rule for every path.
+function card_set_component_query(frm) {
+	frm.set_query("component", "components", () => ({
+		filters: {
+			ownership: "ملك",
+			is_unit: 0,
+			company: frm.doc.company || "",
+			name: ["!=", frm.doc.name || ""],
+		},
+	}));
+}
+
 frappe.ui.form.on("Card Equipment", {
 	setup(frm) {
 		card_patch_heatmap(frm);
 		card_set_asset_query(frm);
 		card_set_model_query(frm);
+		card_set_component_query(frm);
 	},
 	refresh(frm) {
 		card_patch_heatmap(frm);

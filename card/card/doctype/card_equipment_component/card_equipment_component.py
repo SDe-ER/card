@@ -35,7 +35,7 @@ class CardEquipmentComponent(Document):
 			return
 		# for_update: serialize a standalone row insert with the unit's own save (#59)
 		unit = frappe.db.get_value(
-			"Card Equipment", self.parent, ["company", "is_unit"], as_dict=True, for_update=True
+			"Card Equipment", self.parent, ["company", "is_unit", "ownership"], as_dict=True, for_update=True
 		)
 		if not unit:
 			return
@@ -49,4 +49,7 @@ class CardEquipmentComponent(Document):
 		components = [mine if row.name == self.name else row for row in rows]
 		if self.name not in {row.name for row in rows}:
 			components.append(mine)
-		check_unit_components(self.parent, unit.company, unit.is_unit, components)
+		# WP-04: a row inserted on its own is a piece joining the unit (an existing row is
+		# refused above), so its ownership and the unit's are checked
+		joining = {self.component} if self.component and not self.to_date else set()
+		check_unit_components(self.parent, unit.company, unit.is_unit, components, unit.ownership, joining)

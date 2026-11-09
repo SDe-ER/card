@@ -266,7 +266,9 @@
    "fieldname": "is_unit",
    "fieldtype": "Check",
    "label": "Unit (two machines bundled)",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only_depends_on": "eval:doc.ownership !== \"ملك\" && !doc.is_unit",
+   "description": "Only owned equipment can be a unit, and its components must be owned too."
   },
   {
    "depends_on": "eval:doc.is_unit",
@@ -710,7 +712,10 @@
    "fieldname": "is_unit_component",
    "fieldtype": "Check",
    "label": "Unit component (no monthly card)",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "Set by CARD from the units' component tables: ticked while the equipment is a current component of a unit."
   },
   {
    "depends_on": "eval:[\"مؤجَّرة لعميل\",\"إيجار من الباطن\"].includes(doc.rental_direction)",
@@ -811,7 +816,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-11-08 23:30:00.000000",
+ "modified": "2026-11-10 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

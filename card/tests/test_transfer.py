@@ -287,7 +287,7 @@ class TestEquipmentTransfer(IntegrationTestCase):
 
 	def test_component_assignment_keeps_its_unit_card_days(self):
 		proj_a = self._project("A")
-		comp = self._equipment(name_prefix="TEST-TR-COMP", is_unit_component=1)
+		comp = self._equipment(name_prefix="TEST-TR-COMP")
 		unit = self._equipment(
 			name_prefix="TEST-TR-UNIT", is_unit=1, components=[{"component": comp.name, "role": "R"}]
 		)
@@ -336,15 +336,18 @@ class TestEquipmentTransfer(IntegrationTestCase):
 	# ---- 9. unit component takes no card ----
 	def test_unit_component_takes_no_card(self):
 		proj_a = self._project("A")
-		comp = self._equipment(name_prefix="TEST-TR-COMP", is_unit_component=1)
+		comp = self._equipment(name_prefix="TEST-TR-COMP")
+		# WP-05: the flag follows the unit's component table, not a tick on the piece
+		self._equipment(name_prefix="TEST-TR-UNIT", is_unit=1, components=[{"component": comp.name}])
+		self.assertEqual(frappe.db.get_value("Card Equipment", comp.name, "is_unit_component"), 1)
 		with self.assertRaises(frappe.ValidationError):
 			self._card(comp.name, proj_a, [5]).insert(ignore_permissions=True)
 
 	# ---- 10. unit split: every component must be on the project that day ----
 	def test_unit_split_rejects_in_between_days(self):
 		p1, p2 = self._project("P1"), self._project("P2")
-		crusher = self._equipment(name_prefix="TEST-TR-CRUSHER", is_unit_component=1)
-		generator = self._equipment(name_prefix="TEST-TR-GEN", is_unit_component=1)
+		crusher = self._equipment(name_prefix="TEST-TR-CRUSHER")
+		generator = self._equipment(name_prefix="TEST-TR-GEN")
 		unit = self._equipment(
 			name_prefix="TEST-TR-UNIT",
 			is_unit=1,
