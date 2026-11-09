@@ -53,7 +53,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Affected:** new `card/analytics.py`; new reports `equipment_partial_margin`, `unbilled_card_work`,
     `equipment_maintenance_cost`; `card/transport_costs.py`; `card/report_access.py`; Sidebar "Card Reports"
     (three links; file `modified` bumped so migrate imports it); `card/locale/ar.po`, `card/locale/main.pot`;
-    tests `test_analytics_reports.py` (18), `test_report_access.py` (filter check covers the new reports).
+    tests `test_analytics_reports.py` (20), `test_report_access.py` (filter check covers the new reports).
   - **Impact:** permissions — none widened: the reports read business documents with `frappe.get_list` (the user's
     permissions and User Permissions apply), child rows only of the parents returned, and the GL Posting Log only
     after the server-side role gate. Accounting — none: nothing is posted, created or changed; no GL write. Data —

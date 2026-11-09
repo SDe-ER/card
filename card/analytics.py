@@ -286,8 +286,14 @@ def _unposted_fill_net(company, fills):
 		)
 	)
 	for supplier, group in by_supplier.items():
-		# the posting adds VAT only for a VAT-registered supplier (card.gl.posting: tax_id set)
-		template = row.purchase_tax_template if tax_ids.get(supplier) else None
+		# the posting adds VAT only for a VAT-registered supplier (card.gl.posting: tax_id set);
+		# the tax_id is read as a yes/no only, as the posting does
+		vat_registered = bool(tax_ids.get(supplier))
+		template = row.purchase_tax_template if vat_registered else None
+		if vat_registered and not template:
+			# the posting refuses this case (no Purchase tax template): the basis cannot be applied
+			unverified.append(supplier)
+			continue
 		lines = [{"fill": f.name, "rate": flt(f.amount, 2), "description": ""} for f in group]
 		sources = {FILL: [(f.name, flt(f.amount, 2)) for f in group]}
 		try:

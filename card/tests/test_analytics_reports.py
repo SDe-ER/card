@@ -405,6 +405,41 @@ class TestDieselValuation(_AnalyticsBase):
 		fill, diesel, _message = self._direct_diesel()
 		self.assertEqual(diesel, flt(fill.amount, 2))
 
+	def test_vat_supplier_without_purchase_tax_template_is_reported(self):
+		self._vat_supplier()
+		self._set_basis("Inclusive")
+		settings, row = self._row()
+		row.purchase_tax_template = ""
+		settings.save(ignore_permissions=True)
+		frappe.clear_cache(doctype="Card Settings")
+		fill, diesel, message = self._direct_diesel()
+		self.assertEqual(diesel, flt(fill.amount, 2))  # the posting refuses this case: never guessed
+		self.assertIn("VAT basis is not verified", message)
+		self.assertIn(self.supplier, message)
+
+	def test_posted_fill_uses_the_net_stored_in_the_posting(self):
+		self._vat_supplier()
+		self._set_basis("Inclusive")
+		eq = self._rental_card().equipment
+		fill = self._direct_fill(eq, litres=50, price=2.3)  # 115.00 incl. VAT
+		pi = self._build()
+		pi.bill_no = "TEST-ANLY-VAT-" + self.token
+		pi.bill_date = pi.posting_date
+		pi.save()
+		pi.submit()
+		stored = frappe.get_all(
+			"GL Posting Source",
+			filters={
+				"parenttype": "GL Posting Log",
+				"source_doctype": "Project Diesel Fill",
+				"source_name": fill.name,
+			},
+			pluck="amount",
+		)
+		self.assertEqual([flt(a, 2) for a in stored], [100.0])
+		rows, _message, _s, _c = self._margin(equipment=eq)
+		self.assertEqual(rows[(eq, self.project)]["diesel"], 100.0)
+
 	def test_unverified_basis_is_reported_not_guessed(self):
 		self._vat_supplier()
 		self._set_basis("")
