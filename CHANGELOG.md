@@ -42,7 +42,7 @@ A4 supplier statement prints a short statement of totals. No patch, no DocType o
 permissions, accounting, data or the API (the report summary items gain an added `key` field).
 
 ### Fixed
-- **CARD document prints: Arabic letter joining in the PDF** (FR-055, FR-045; PR #175, commit `e3913d9`; Owner
+- **CARD document prints: Arabic letter joining in the PDF** (FR-055, FR-045; PR #175, merge `beca0df`; Owner
   request 2026-11-09; branch `feat/supplier-statement-simple-totals`). `pdf_generator` of
   `Card Monthly Card Print`, `Equipment Transport Print`, `Project Diesel Fill Print`, `Tool Handover Receipt`
   and the fixture `كارت تشغيل شهري` changes from `wkhtmltopdf` to `chrome`: the v4.4.0 deployment check found
@@ -54,7 +54,7 @@ permissions, accounting, data or the API (the report summary items gain an added
   Impact: display only; no permission, accounting, data or API change.
 
 ### Changed
-- **Equipment Supplier Statement A4: short totals** (FR-089; PR #175, commit `e3913d9`; Owner request
+- **Equipment Supplier Statement A4: short totals** (FR-089; PR #175, merge `beca0df`; Owner request
   2026-11-09). The printed totals keep only opening balance + period charges (incl. VAT) − payments = closing
   balance (with ledger access), the card net (without), or equipment / days / hours (owned equipment). The
   reconciliation figures (accrual vs. invoiced through Card, invoices outside Card) and the reconciliation notes
