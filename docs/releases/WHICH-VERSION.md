@@ -7,7 +7,8 @@ need; every claim below is backed by the per-version pages (evidence links there
 
 | Your situation | Use | Why |
 |---|---|---|
-| Site on v4.3.0 that prints CARD documents or the supplier statement | **v4.4.0** | Everything in v4.3.0 plus the standard print style for all CARD prints, prints in the user's language and direction, and the cleaner A4 supplier statement. No patch, no schema change; migrate re-syncs the print formats; restart the workers. A code-only rollback needs a forced re-import of the old formats ([v4.4.0.md → Installation & Upgrade](v4.4.0.md#12-installation--upgrade--partially-verified)) |
+| Site on v4.4.0, or on v4.3.0, that prints CARD documents to PDF in Arabic or prints the supplier statement | **v4.4.1** | Everything in v4.4.0 plus the Chrome PDF generator for the CARD document prints (wkhtmltopdf broke Arabic letter joining) and the short totals on the A4 supplier statement. No patch, no schema change; migrate re-syncs the print formats; the site's Chrome PDF generator must work (print each CARD format once after the deploy). The supplier statement PDF button still uses wkhtmltopdf; use browser Print ([v4.4.1.md → Installation & Upgrade](v4.4.1.md#12-installation--upgrade--partially-verified)) |
+| Site on v4.3.0 that prints CARD documents or the supplier statement and cannot use the Chrome PDF generator | **v4.4.0** | Everything in v4.3.0 plus the standard print style for all CARD prints, prints in the user's language and direction, and the cleaner A4 supplier statement. No patch, no schema change; migrate re-syncs the print formats; restart the workers. A code-only rollback needs a forced re-import of the old formats ([v4.4.0.md → Installation & Upgrade](v4.4.0.md#12-installation--upgrade--partially-verified)) |
 | Site on ERPNext **v16.54.0 or later** (Company Restriction), or about to update ERPNext to it | **v4.3.0** or later | The first CARD version compatible with the ERPNext v16.54.0+ portal catalog / Company Restriction: on earlier CARD versions the Card portal roles (Card Operator, CARD Mobile catalog) get an empty catalog. Sites updating ERPNext to ≥ 16.54.0 need 4.3.0. Shown by CI only (Partially Verified). Read the breaking changes first |
 | Site that posts CARD months to ERPNext and needs posting integrity, project cost centers and transport cost responsibility | **v4.3.0** or later | Everything in v4.2.2 plus signed posting drafts, hand-booked invoice review, the diesel VAT basis, project/assignment cost centers, transport responsibility with a financial decision, four read-only review reports, Card Equipment financial privacy and the night-shift customer rate. Needs a migrate (new columns, no patch) and data checks before the first build: diesel VAT basis per company, project and assignment cost centers, rebuilt drafts, a responsibility on every draft transport. External clients that write Equipment Transport must send `responsibility` ([v4.3.0.md → Breaking Changes](v4.3.0.md#9-breaking-changes--verified)) |
 | Site that records project diesel fills with meter photos and an operations review, and cannot yet do the v4.3.0 data checks | **v4.2.2** | The large meter photos and clearer reading labels on top of v4.2.1 (simpler diesel fill form) and v4.2.0, which has all of v4.1.2 plus the diesel session evidence (opening/closing meter photos, readings, totalizer check, operations approval before submit), the WhatsApp session import as drafts, parts fitment in the catalog and the app name CARD in every language. Needs a migrate (new columns and one child table) |
@@ -49,6 +50,11 @@ need; every claim below is backed by the per-version pages (evidence links there
   print format fixture; restart the workers. Rollback to v4.3.0: the old code runs on the data, but the old
   print formats must be re-imported with `force` (a plain migrate keeps the newer rows)
   ([v4.4.0.md → Installation & Upgrade](v4.4.0.md#12-installation--upgrade--partially-verified)).
+- `v4.4.0 → v4.4.1`: no patch, no schema change; migrate re-imports the five standard print formats and the
+  print format fixture; restart the workers; print each CARD document format once (Chrome PDF generator).
+  Rollback to v4.4.0: the old code runs on the data (the extra summary `key` is unused), but the v4.4.0 print
+  formats must be re-imported with `force`
+  ([v4.4.1.md → Installation & Upgrade](v4.4.1.md#12-installation--upgrade--partially-verified)).
 - Downgrades are not supported by patches; rollback = restore the pre-upgrade backup.
 
 ## Things the latest version still does not do (so you don't choose it for the wrong reason)
@@ -61,4 +67,4 @@ need; every claim below is backed by the per-version pages (evidence links there
 - Broader accounting phases (activation workflow, tax classes, claims, allocation shares) are an
   approved design, not shipped.
 - Transport customer invoicing, supplier recovery documents and Purchase Invoice posting of transports recorded
-  with a responsibility are disabled in v4.3.0 and v4.4.0: the accountant enters the transporter's invoice.
+  with a responsibility are disabled in v4.3.0, v4.4.0 and v4.4.1: the accountant enters the transporter's invoice.
