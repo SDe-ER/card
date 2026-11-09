@@ -31,7 +31,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (v4.2.0), FR-087 (v4.2.1) and FR-088 (v4.2.2) were still *In review* / *In development* although merged and
   released; they are now Implemented with their pull requests, merge commits and releases. FR-038 names the
   transport cost-center checks of FR-091 and FR-093. Rows released in v4.3.0 to v4.4.3 no longer say "not
-  deployed" (deployed 2026-11-09; v4.4.2 and v4.4.3 per the record in PR #148); v4.5.0 is released, not deployed.
+  deployed" (deployed 2026-11-09 per `DEPLOYMENTS.md`); v4.5.0 is released, not deployed.
   No row deleted. Impact: none. Rollback: revert the commit.
 
 ### Planned

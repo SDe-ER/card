@@ -100,7 +100,7 @@ not, and the CARD domain needs it) · **N/A** (no equipment meaning).
 | Workflow | `.github/workflows/upgrade-rehearsal.yml` (PR #130): installs CARD `v1.0.1` (input `from_ref`) on frappe `v16.51.1` / erpnext `v16.50.0` with MariaDB 10.6, seeds synthetic data, upgrades to the code under test, runs `migrate` twice and compares (`.github/helper/upgrade_rehearsal.sh:62-69`, `upgrade_rehearsal.py` `seed`, `snapshot`, `compare`) |
 | When it runs | On pull requests that touch `card/patches*`, DocType JSON, `card/fixtures/**`, `card/install.py`, `card/hooks.py` or the rehearsal files; also on manual dispatch. It does not run on a documentation-only pull request |
 | Recent runs (GitHub Actions) | 42696233347 on `857fd48` (PR #182, v4.5.0 content): success · 42625079640 on `a53a1a0` (PR #175): success · 42610231268 on `de3643d` (PR #172): success, after 42609616038 on `35439b4` failed and was fixed in the same pull request · 42706530545 on `ff2b919` (PR #161, open): success |
-| Gap | The pinned versions (frappe 16.51.1, erpnext 16.50.0) are older than the platform update recorded for 2026-11-10 in PR #148 (frappe 16.55.2, ERPNext 16.54.0). Raise the pins in a separate CI change after that record is merged and re-verified |
+| Gap | The pinned versions (frappe 16.51.1, erpnext 16.50.0) are older than the Production platform update of 2026-11-10 recorded in `docs/releases/DEPLOYMENTS.md` (frappe 16.55.2, ERPNext 16.54.0). Raise the pins in a separate CI change after re-verifying the site versions |
 | HRMS on the rehearsal site | Not installed, which matches the dependency rule |
 
 ## 9. Summary of gaps
@@ -115,7 +115,7 @@ not, and the CARD domain needs it) · **N/A** (no equipment meaning).
 | Exit document and end-of-rental settlement | #42, #49 | — |
 | Profitability and shift-level reports | #53 | WP-16 |
 | Card amounts privacy | FR-007 | Design |
-| Rehearsal pins older than Production platform | #54 | PR #148 |
+| Rehearsal pins older than Production platform | #54 | — |
 
 Not covered by this review: the international test matrix (several currencies and locales) and the risk register
 of #54, and the owner sign-off on the domain model. They remain open.
