@@ -15,20 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-- **Equipment Supplier Statement A4: every card, card totals and full period dates** (Owner requests
-  2026-11-09, after the v4.4.1 check showed a supplier with un-invoiced cards printing all-zero ledger totals).
-  The print lists every row of the period: project, equipment (sub-heading) and every card with its shift,
-  numbered, whatever their count. The totals come from the cards only: cards net for the period and, when
-  positive, the work done not yet invoiced through CARD (before VAT; no VAT is computed); the ledger lines
-  (opening, invoices, payments, closing) and the footnotes are no longer printed. A last line reads "Issued by
-  the electronic system of <company>" (the company comes from the filter; nothing hard-coded). The period prints
-  as full dates (first day of the start month to the last day of the end month), as the report computes it.
-  Font: Noto Sans Arabic (owner 2026-11-09) — the installed font first (server PDF), the app's bundled copy
-  (`/assets/card/fonts`) as a fallback for browsers without it; the CARD document prints already use it.
-  Template and Print Format only (`modified` bumped); new CARD msgids. No change to permissions, accounting, data
-  or the API. Rollback: forced re-import of the previous print format file.
-
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -47,6 +33,54 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
+
+## [4.4.2] — 2026-11-09
+
+Patch release on top of v4.4.1 (PR #178): the A4 supplier statement prints every card of the period and totals
+from the cards only. No patch, no DocType or schema change, no change to permissions, accounting, data or the API.
+
+### Changed
+- **Equipment Supplier Statement A4: every card, card totals and full period dates** (FR-089; PR #178, commit
+  `6a16f52`; Owner requests 2026-11-09, after the v4.4.1 check showed a supplier with un-invoiced cards printing
+  all-zero ledger totals; branch `fix/statement-totals-card-net`). The print lists every row of the period:
+  project, equipment (sub-heading) and every card with its shift, numbered, whatever their count. The totals come
+  from the cards only: cards net for the period and, when positive, the work done not yet invoiced through CARD
+  (before VAT; no VAT is computed). The ledger lines (opening, invoices, payments, closing) are no longer printed
+  and no footnote is printed (the server note still prints only when the period has no rows). A last line reads
+  "Issued by the electronic system of <company>" (the company comes from the filter; nothing hard-coded). The
+  period prints as full dates (first day of the start month to the last day of the end month), as the report
+  computes it. Font: Noto Sans Arabic (owner 2026-11-09) — the installed font first (server PDF), the app's
+  bundled copy (`/assets/card/fonts`) as a fallback for browsers without it; the CARD document prints already use
+  it. Files: `equipment_supplier_statement.html`, `equipment_supplier_statement_a4.json` (`modified` bumped),
+  `card/locale/ar.po`, `card/locale/main.pot` (new CARD msgids "Cards net for the period", "Work done not yet
+  invoiced (before VAT)", "Issued by the electronic system of {0}"), `card/tests/test_supplier_statement_print.py`.
+  The report code (`equipment_supplier_statement.py`, which already sends the `net_cards` and `not_invoiced`
+  summary keys) is unchanged. Impact: display only; no change to permissions, accounting, data or the API.
+
+### Migration
+
+- **Patches:** none. `card/patches.txt` is unchanged; `bench migrate` runs no CARD data patch.
+- **DocType / schema:** no change. No new column, field level, role or DocPerm.
+- **Records synced by `bench migrate`:** only the standard Print Format `Equipment Supplier Statement A4` (file
+  `modified` 2026-11-09 23:00, newer than the v4.4.1 row). The other print formats and the fixture are unchanged.
+- **What migrate does not write:** no card, transport, fill, receipt, posting, GL Posting Log or settings value;
+  no GL entry; no role or permission change.
+- **Code:** restart the web and background workers after the update (normal for an image deploy); compile the
+  CARD translations (`ar`) into the image as before, or the new labels print in English.
+- **Rollback:** last stable version v4.4.1 (runs on Production since 2026-11-09). v4.4.1 code runs on the v4.4.2
+  database (no schema change). A plain migrate does **not** restore the v4.4.1 A4 format (its file is older than
+  the row): re-import it from the v4.4.1 file with `force` (steps on the v4.4.2 release page).
+
+### Known limitations
+
+- Published ≠ deployed: deployment of 4.4.2 to any site is a separate, site-verified fact.
+- The PDF button of the A4 supplier statement (a Script Report print) still uses frappe `report_to_pdf`, which
+  always renders with wkhtmltopdf, so its PDF can still break Arabic letter joining; use the browser Print of
+  the report, which uses the installed or bundled Noto Sans Arabic.
+- The printed totals no longer show the supplier's ledger balance (opening, invoices, payments, closing); the
+  screen report and the ERPNext ledger keep it. "Work done not yet invoiced" is before VAT; no VAT is computed.
+- A period with many cards prints on several A4 pages; a print of a real long period is not part of the release
+  evidence.
 
 ## [4.4.1] — 2026-11-09
 
