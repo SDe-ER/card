@@ -406,6 +406,21 @@ msgstr "Monthly Diesel Cost"
 msgid "مبالغ الكروت الشهرية"
 msgstr "Monthly Card Amounts"
 
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Supplier Rental Cost - Last Month"
+
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Customer Operating Value - Last Month"
+
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Internal Operating Value - Last Month"
+
+msgid "كروت بدون سعر داخلي"
+msgstr "Cards Without Internal Rate"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
+msgstr "Hours Without Internal Rate - Last Month"
+
 msgid "كارت تشغيل شهري"
 msgstr "Monthly Operation Card"
 

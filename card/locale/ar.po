@@ -5330,3 +5330,41 @@ msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح C
 #: card/card/report/equipment_supplier_statement/statement_pdf.py
 msgid "The statement print template has no style block."
 msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."
+
+#. Label of the internal_rate_basis (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate basis"
+msgstr "أساس السعر الداخلي للتشغيل"
+
+#. Description of the 'Internal operating rate basis' (Select) field in DocType
+#. 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Basis of the internal operating rate: per operating hour or per working day of the card"
+msgstr "أساس السعر الداخلي: لكل ساعة تشغيل أو لكل يوم عمل في الكارت"
+
+#. Label of the internal_rate (Currency) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate"
+msgstr "السعر الداخلي للتشغيل"
+
+#. Description of the 'Internal operating rate' (Currency) field in DocType
+#. 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Value of one hour or one day of internal operation, for the CARD dashboard only (no accounting entry)"
+msgstr "قيمة ساعة أو يوم تشغيل داخلي، للوحة CARD فقط (بدون أي قيد محاسبي)"
+
+#: card/card_value.py
+msgid "Rental cost from suppliers"
+msgstr "تكلفة إيجار من موردين"
+
+#: card/card_value.py
+msgid "Operating value for customers"
+msgstr "قيمة تشغيل لعملاء"
+
+#: card/card_value.py
+msgid "Internal operating value (owned or managed equipment)"
+msgstr "قيمة تشغيل داخلي (معدات ملك أو مُدارة)"
+
+#: card/card/dashboard_chart_source/card_monthly_values/card_monthly_values.js
+msgid "Include draft cards"
+msgstr "تضمين الكروت المسودة"
