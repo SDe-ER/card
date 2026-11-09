@@ -4053,6 +4053,15 @@ msgstr "تحتفظ هذه المسودة بالسعر {0} من فاتورة ال
 msgid "Issue date"
 msgstr "تاريخ الإصدار"
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Totals"
+msgstr "الإجماليات"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Owned equipment"
+msgstr "معدات ملك"
+
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Accountant signature"
 msgstr "توقيع المحاسب"

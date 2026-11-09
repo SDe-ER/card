@@ -1232,6 +1232,7 @@ msgstr ""
 #. Label of the totals_section (Section Break) field in DocType 'Card Monthly
 #. Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Totals"
 msgstr ""
 
@@ -2843,6 +2844,10 @@ msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Issue date"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Owned equipment"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
