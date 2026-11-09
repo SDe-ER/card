@@ -15,6 +15,32 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **Equipment Supplier Statement A4: new print style** (Owner request 2026-11-09). Looks like a
+  standard Frappe print: colours and borders follow Frappe v16 `templates/styles/standard.css` and
+  the espresso gray scale (text #171717, labels #7c7c7c, table header #f3f3f3, borders #d1d8dd,
+  heading underline #aaa). Company name above the title, the statement details (company, type,
+  supplier, from, to, issue date) as label/value lines, project rows and the grand total in bold.
+  The print sets its own text direction from the user's language (`frappe.utils.is_rtl()`, as the
+  report print page does): text cells follow it, numbers read left to right and are right-aligned
+  so the decimals line up, dates, counts and the row number are centred, cells are vertically
+  centred.
+  The summary figures moved below the rows as a "Totals" table (الإجماليات; CARD-only msgid
+  "Statement totals", so the generic frappe "Totals" translation is not overridden), placed right under the last (amount) columns, at the end side
+  of the page as in a standard invoice. The print no longer shows the equipment number, rate type or rate
+  columns (the screen report keeps them); the remaining widths fill the A4 landscape width.
+  The Additions and Deductions columns print only when some row has a value; the other columns
+  share the freed width and the Totals table follows the width of the amount columns. Everything
+  the template writes is translated into the user's language, including the statement type (the
+  filter stores the Arabic option value; it now prints as "Supplier" / new msgid "Owned
+  equipment"). Names in the data (company, supplier, project, equipment, card) print as stored.
+  Files: `equipment_supplier_statement.html` and the `Equipment Supplier Statement A4` Print Format
+  (`modified` bumped so `bench migrate` re-syncs it). Same data, filters and escaping; literal
+  colours (no CSS variables, no remote font) so the wkhtmltopdf PDF keeps them; font Cairo when
+  installed, else the bundled Noto Sans Arabic. The logo comes from the Letter Head chosen in the
+  print dialog (nothing company-specific is hard-coded). Impact: none on permissions, accounting,
+  data or the API. Rollback: revert the commit and run `bench migrate`; no data to restore.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by

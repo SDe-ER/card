@@ -2846,6 +2846,14 @@ msgid "Issue date"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Owned equipment"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Statement totals"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Accountant signature"
 msgstr ""
 
