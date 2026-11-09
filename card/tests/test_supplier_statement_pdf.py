@@ -191,6 +191,11 @@ class TestSupplierStatementPdf(IntegrationTestCase):
 			statement_pdf.download_pdf(self._filters())
 		self.assertIn("ess-note", chrome.call_args.args[1])
 
+	def test_non_scalar_filter_values_are_refused(self):
+		with patch(CHROME) as chrome, self.assertRaises(frappe.ValidationError):
+			statement_pdf.download_pdf(self._filters(supplier={"name": "<img src=x>"}))
+		chrome.assert_not_called()
+
 	def test_empty_pdf_is_an_error(self):
 		self._card("A", [8], "نهاري")
 		with patch(CHROME, return_value=None), self.assertRaises(frappe.ValidationError):

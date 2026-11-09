@@ -80,6 +80,9 @@ def download_pdf(filters: str | dict | None = None):
 	"""Send the statement as a PDF file (Chrome generator). Same permissions as
 	running and printing the report; the company is checked by the report."""
 	filters = frappe._dict(frappe.parse_json(filters) if isinstance(filters, str) else (filters or {}))
+	# filter values are plain values only: a list or object never reaches the page given to Chrome
+	if any(isinstance(value, list | dict) for value in filters.values()):
+		frappe.throw(_("Invalid filters"))
 	report = get_report_doc(REPORT)
 	if not frappe.has_permission(report.ref_doctype, "print"):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
@@ -276,7 +279,7 @@ def _cell(row, field):
 	fieldname, _width, kind = field
 	value = row.get(fieldname)
 	if kind == "date":
-		return formatdate(value) if value else ""
+		return frappe.utils.escape_html(formatdate(value)) if value else ""
 	if kind == "num":
 		return _num(value)
 	if kind == "int":
