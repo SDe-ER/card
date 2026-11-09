@@ -8,6 +8,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, cstr, flt, get_datetime, getdate, now_datetime
 
+from card.attachment_validator import IMAGE_KINDS, check_attachment_content
 from card.company import single_company, validate_equipment_company
 from card.settings import setting
 
@@ -439,6 +440,13 @@ class ProjectDieselFill(Document):
 						)
 					)
 
+	def _photo_needs_content_check(self, field, url):
+		"""H-CARD-1 content check only for a photo that is new or changed (not for a company change or an
+		unchanged legacy photo), and not for an amendment's photo that is the amended fill's own."""
+		if not (self.is_new() or self.has_value_changed(field)):
+			return False
+		return not (self.amended_from and url == frappe.db.get_value(self.doctype, self.amended_from, field))
+
 	def _check_photos(self):
 		"""Meter photos are private files uploaded to this fill, and the same photo (same file or same
 		bytes) never proves two live fills. Checked when a photo or the company changes."""
@@ -449,7 +457,8 @@ class ProjectDieselFill(Document):
 			or self.has_value_changed("company")
 		):
 			return
-		urls = [u for u in (self.opening_photo, self.closing_photo) if u]
+		photos = [(f, self.get(f)) for f in ("opening_photo", "closing_photo") if self.get(f)]
+		urls = [url for _field, url in photos]
 		if not urls:
 			return
 		temporary = self.get("__temporary_name") if self.is_new() else None
@@ -458,7 +467,7 @@ class ProjectDieselFill(Document):
 			self.__dict__.pop("__temporary_name", None)
 			temporary = None
 		hashes = {}
-		for url in urls:
+		for field, url in photos:
 			filters = {"file_url": url, "is_private": 1, "attached_to_doctype": self.doctype}
 			if temporary:
 				# uploaded on the unsaved form: attached to its temporary name until insert, and only the
@@ -475,6 +484,8 @@ class ProjectDieselFill(Document):
 			if not url.startswith("/private/files/") or not row:
 				# Frappe shares one URL and one public state between files with the same bytes
 				frappe.throw(_("Meter photos must be private files uploaded to this diesel fill."))
+			if self._photo_needs_content_check(field, url):
+				check_attachment_content(url, IMAGE_KINDS, row.name)
 			hashes[url] = row.content_hash
 		if len(urls) == 2 and (
 			urls[0] == urls[1] or (hashes[urls[0]] and hashes[urls[0]] == hashes[urls[1]])

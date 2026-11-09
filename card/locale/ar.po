@@ -5331,6 +5331,50 @@ msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح C
 msgid "The statement print template has no style block."
 msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."
 
+#: card/attachment_validator.py
+msgid "The attached file is empty."
+msgstr "الملف المرفق فارغ."
+
+#: card/attachment_validator.py
+msgid "The attached file is larger than {0} MB."
+msgstr "حجم الملف المرفق أكبر من {0} ميجابايت."
+
+#: card/attachment_validator.py
+msgid "Attach a JPEG, PNG, WebP or PDF file."
+msgstr "أرفق ملفًا بصيغة JPEG أو PNG أو WebP أو PDF."
+
+#: card/attachment_validator.py
+msgid "Attach a JPEG, PNG or WebP image."
+msgstr "أرفق صورة بصيغة JPEG أو PNG أو WebP."
+
+#: card/attachment_validator.py
+msgid "The file name does not match its content. Attach a JPEG, PNG, WebP or PDF file."
+msgstr "اسم الملف لا يطابق محتواه. أرفق ملفًا بصيغة JPEG أو PNG أو WebP أو PDF."
+
+#: card/attachment_validator.py
+msgid "The PDF file is incomplete or damaged."
+msgstr "ملف PDF غير مكتمل أو تالف."
+
+#: card/attachment_validator.py
+msgid "The image file is damaged or cannot be read."
+msgstr "ملف الصورة تالف أو لا يمكن قراءته."
+
+#: card/attachment_validator.py
+msgid "The image has too many pixels (more than {0} megapixels)."
+msgstr "دقة الصورة أكبر من المسموح (أكثر من {0} ميجابكسل)."
+
+#: card/attachment_validator.py
+msgid "Attach a private file uploaded to this record."
+msgstr "أرفق ملفًا خاصًا مرفوعًا على هذا السجل."
+
+#: card/attachment_validator.py
+msgid "The attached file was not found."
+msgstr "الملف المرفق غير موجود."
+
+#: card/attachment_validator.py
+msgid "The attached file could not be read."
+msgstr "تعذّرت قراءة الملف المرفق."
+
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "A diesel fill cannot be shared with everyone."
 msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."

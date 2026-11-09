@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import getdate, now_datetime, today
 
+from card.attachment_validator import check_attachment_content, require_record_file
 from card.fitment import (
 	APPLIES_TO_MACHINE,
 	APPLIES_TO_MODEL,
@@ -134,16 +135,9 @@ class CardEquipmentPart(Document):
 		# that belongs to another document is not evidence for this one
 		if not self.evidence_file or not (self.is_new() or self.has_value_changed("evidence_file")):
 			return
-		files = frappe.get_all(
-			"File",
-			filters={"file_url": self.evidence_file, "is_private": 1},
-			fields=["attached_to_doctype", "attached_to_name"],
-		)
-		if not any(
-			(f.attached_to_doctype, f.attached_to_name) in ((None, None), (self.doctype, self.name))
-			for f in files
-		):
-			frappe.throw(_("The evidence file must be a private file uploaded to this row."))
+		# private, and attached to this row or the session user's own unattached upload (not anyone's)
+		row = require_record_file(self.evidence_file, self.doctype, self.name)
+		check_attachment_content(self.evidence_file, file_row=row)
 
 	# ---------- review (Q5) ----------
 
