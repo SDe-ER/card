@@ -3942,6 +3942,175 @@ msgstr ""
 msgid "Issued by the electronic system of {0}"
 msgstr ""
 
+#: card/gl/journal_link.py
+msgid "Only an accountant may link accrual journal entries to CARD cards."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Choose the CARD monthly cards this journal entry recognised."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "A card is listed twice."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "You are not permitted to link journal entries for company {0}."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not submitted."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is already linked to CARD cards ({1})."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} is not submitted."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} belongs to another company or supplier than journal entry {1}."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} is not billed by a supplier."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} is already invoiced by {1}."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} is already held by {1}."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Cannot confirm the link: the cards total {0} net, the journal entry credits the supplier {1}. Link only the cards it recognised, or accept the difference {2} with a reason."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Linked amounts differ"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Linked by {0}: accrual journal entry {1} credits the supplier {2}, CARD cards net {3}, {4}. {5}"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "open difference {0} accepted"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "matched"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} has a party other than a supplier."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} must recognise exactly one supplier."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} does not credit supplier {1}; it is not an accrual."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry cancelled; cards freed."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Choose a supplier or a customer."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "This report shows ledger balances; it needs General Ledger access."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Not recognised yet"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognising document is a draft"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Fully settled"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Partly settled"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised, not settled"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Cards net"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised share"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Paid on the card"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Remaining on the card"
+msgstr ""
+
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Card net"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised by"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognising document"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Card share of the document"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.js
+msgid "Card Settlement Status"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not an ordinary accrual entry."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is booked against {1} {2}; it is not an accrual of its own."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Ledger entry of the document not found"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Credit notes and adjustments"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Payments not allocated to a document up to the end date"
+msgstr ""
+
 #: card/card/report/equipment_supplier_statement/statement_pdf.py
 msgid "Invalid filters"
 msgstr ""
