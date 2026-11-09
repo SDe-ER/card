@@ -13,6 +13,10 @@ DIR_INTERNAL = "تشغيل داخلي"  # owned, used internally, no billing
 CUSTOMER_BILLING_DIRECTIONS = (DIR_RENTED_OUT, DIR_SUBRENTAL)
 SUPPLIER_BILLING_DIRECTIONS = (DIR_RENTED_IN, DIR_SUBRENTAL)
 
+# card shifts (stored Select values of Card Monthly Card.shift)
+SHIFT_DAY = "نهاري"
+SHIFT_NIGHT = "ليلي"
+
 
 def allowed_directions(ownership):
 	"""Directions an equipment's ownership permits. ملك runs internally or is

@@ -5004,3 +5004,7 @@ msgstr "المسؤولية تحتاج مراجعة — ألغِ النقل وع�
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "Financial decision recorded."
 msgstr "تم تسجيل القرار المالي."
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Customer rate (night shift)"
+msgstr "سعر العميل (الوردية الليلية)"
