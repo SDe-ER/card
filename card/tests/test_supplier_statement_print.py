@@ -73,8 +73,9 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 		self.assertIn("var optional = { additions: 1, deductions: 1 };", template)
 		# the Arabic filter value is printed in the user's language
 		self.assertIn('__("Owned equipment")', template)
-		for field in ('["equipment"', '["rate_type"', '["rate",'):
-			self.assertNotIn(field, template)
+		for field in ("equipment", "rate_type", "rate"):
+			# a column entry is ["<fieldname>", <width>, ...]; the totals key lists are plain names
+			self.assertNotRegex(template, r'\["' + field + r'", \d')
 		for widths in re.findall(r"\? (\[\[.*?\]\])\n\t\t: (\[\[.*?\]\]);", template, flags=re.S)[0]:
 			self.assertAlmostEqual(sum(float(w) for w in re.findall(r"\[\"\w+\", ([\d.]+)", widths)) + 3, 100)
 
@@ -100,4 +101,4 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 			"Period charges (incl. VAT)",
 			"Owned equipment",
 		):
-			self.assertRegex(po, rf'msgid "{msgid}"\nmsgstr "[^"]+"')
+			self.assertRegex(po, rf'msgid "{re.escape(msgid)}"\nmsgstr "[^"]+"')
