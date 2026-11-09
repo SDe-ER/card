@@ -128,7 +128,7 @@ def allocate_project_diesel(project, month, year, company, include_unallocated=F
 	return result
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 def get_card_diesel(card: str):
 	"""Diesel allocated to one Card Monthly Card's equipment for its project +
 	month, with its recorded (direct fill) and estimated (hours split) parts.
