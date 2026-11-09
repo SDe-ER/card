@@ -80,7 +80,7 @@ def _figures_by_company(cards):
 	return result
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 def party_figures(party_type: str, party: str):
 	"""Per-company figures of one registry party (supplier net / customer
 	accrued = customer net), for the companies the caller may see only."""
@@ -155,7 +155,7 @@ def refresh_supplier(supplier: str | None = None):
 	return done
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 @frappe.validate_and_sanitize_search_inputs
 def card_suppliers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
 	"""Link-filter query for the supplier reports: rows of the CARD supplier
@@ -226,7 +226,7 @@ def refresh_customer(customer: str | None = None):
 	return done
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 @frappe.validate_and_sanitize_search_inputs
 def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
 	"""Link-filter query for the customer reports: rows of the CARD customer
@@ -255,7 +255,7 @@ def card_customers_query(doctype: str, txt: str, searchfield: str, start: int, p
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])  # read-only; the Autocomplete control posts
 def card_project_options(txt: str | None = None, company: str | None = None):
 	"""Options for the reports' Project filter (an Autocomplete, not a Link:
 	Frappe validates report Link filter values against the user's own
@@ -283,7 +283,7 @@ def card_project_options(txt: str | None = None, company: str | None = None):
 	]
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 def report_defaults():
 	"""Report filter defaults for any report role (Card Settings itself is not
 	readable by Card User)."""
@@ -294,7 +294,7 @@ def report_defaults():
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])  # read-only; the Autocomplete control posts
 def card_company_options(txt: str | None = None):
 	"""Options for the reports' Company filter: the companies the user may see.
 	An Autocomplete rather than a Link — Frappe checks Link filter values for

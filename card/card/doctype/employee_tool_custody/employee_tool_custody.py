@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, flt, get_datetime, now_datetime, nowdate
 
+from card.attachment_validator import check_attachment_content
 from card.materials import (
 	DIMENSION_FIELD,
 	custody_balance,
@@ -126,26 +127,38 @@ class EmployeeToolCustody(Document):
 		# a file of another document is not this movement's receipt (as FR-077 evidence files)
 		if not self.handover_receipt or not (self.is_new() or self.has_value_changed("handover_receipt")):
 			return
+		if self.amended_from and self.handover_receipt == frappe.db.get_value(
+			self.doctype, self.amended_from, "handover_receipt"
+		):
+			# an amendment keeping the amended record's receipt (Amend copies the field): its record rule and
+			# content were checked when the receipt was first set, and it stays attached to the amended record
+			return
 		files = frappe.get_all(
 			"File",
 			filters={"file_url": self.handover_receipt, "is_private": 1},
-			fields=["attached_to_doctype", "attached_to_name", "owner", "creation"],
+			fields=["name", "attached_to_doctype", "attached_to_name", "owner", "creation"],
 		)
 		# an unattached file counts only when the user uploaded it for this record: after the record
 		# was made (a new record: within the last day), not an old scan of something else
 		since = get_datetime(add_days(self.creation or now_datetime(), -1 if self.is_new() else 0))
 		# its own receipt, or the receipt of the record it amends (Amend copies the field)
 		own = {(self.doctype, self.name), (self.doctype, self.amended_from)}
-		if not any(
-			(f.attached_to_doctype, f.attached_to_name) in own
-			or (
-				not f.attached_to_doctype
-				and f.owner == frappe.session.user
-				and get_datetime(f.creation) >= since
-			)
-			for f in files
-		):
+		matched = next(
+			(
+				f
+				for f in files
+				if (f.attached_to_doctype, f.attached_to_name) in own
+				or (
+					not f.attached_to_doctype
+					and f.owner == frappe.session.user
+					and get_datetime(f.creation) >= since
+				)
+			),
+			None,
+		)
+		if not matched:
 			frappe.throw(_("The signed receipt must be a private file uploaded to this record."))
+		check_attachment_content(self.handover_receipt, file_row=matched.name)
 
 	def before_submit(self):
 		"""The confirmation (Owner T2, H-1, H-3, H-5, H-6), checked again under row locks: a

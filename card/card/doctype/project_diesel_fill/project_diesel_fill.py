@@ -8,6 +8,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, cstr, flt, get_datetime, getdate, now_datetime
 
+from card.attachment_validator import IMAGE_KINDS, check_attachment_content
 from card.company import single_company, validate_equipment_company
 from card.settings import setting
 
@@ -198,6 +199,52 @@ def can_except_price():
 
 def can_zero_price():
 	return _holds("diesel_zero_price_role")
+
+
+def has_diesel_fill_permission(doc, ptype=None, user=None, debug=False):
+	"""Document-level check for every path (read, create, REST/Desk save, set_value,
+	submit, cancel): the company sent and, for a saved fill, the company stored in the
+	database must both be permitted, so a fill can be neither read, changed, nor taken
+	over from another company, nor created in one. With no company sent, the company
+	validate would fill in decides. Scope = the Company User Permissions that apply to
+	fills, as the list uses. A controller can only deny (Frappe 16 treats a falsy
+	return as a denial)."""
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(user or frappe.session.user, "Project Diesel Fill")
+	if companies is None:
+		return True
+	owners = {doc.get("company")}
+	if not doc.is_new():
+		owners.add(frappe.db.get_value(doc.doctype, doc.name, "company"))
+	if not doc.get("company"):
+		owners.add(single_company())  # what validate fills in
+	owners.discard(None)
+	owners.discard("")
+	return all(company in companies for company in owners)
+
+
+def deny_cross_company_share(doc, method=None):
+	"""DocShare validate: Frappe 16 `has_permission` falls back to a DocShare AFTER the
+	controller hook denied (frappe/permissions.py, version-16), so a share would reopen a
+	fill of another company. Refuse such a share: the receiving user must be permitted
+	for the fill's stored company."""
+	if doc.share_doctype != "Project Diesel Fill":
+		return
+	if doc.get("everyone") or not doc.user:
+		# an everyone-share reaches users of every company: never allowed for a fill
+		frappe.throw(_("A diesel fill cannot be shared with everyone."), frappe.PermissionError)
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(doc.user, "Project Diesel Fill")
+	company = frappe.db.get_value("Project Diesel Fill", doc.share_name, "company")
+	if companies is not None and company and company not in companies:
+		frappe.throw(
+			_("A diesel fill of company {0} cannot be shared with a user outside that company.").format(
+				company
+			),
+			frappe.PermissionError,
+		)
 
 
 @frappe.whitelist(methods=["GET"])
@@ -393,6 +440,13 @@ class ProjectDieselFill(Document):
 						)
 					)
 
+	def _photo_needs_content_check(self, field, url):
+		"""H-CARD-1 content check only for a photo that is new or changed (not for a company change or an
+		unchanged legacy photo), and not for an amendment's photo that is the amended fill's own."""
+		if not (self.is_new() or self.has_value_changed(field)):
+			return False
+		return not (self.amended_from and url == frappe.db.get_value(self.doctype, self.amended_from, field))
+
 	def _check_photos(self):
 		"""Meter photos are private files uploaded to this fill, and the same photo (same file or same
 		bytes) never proves two live fills. Checked when a photo or the company changes."""
@@ -403,7 +457,8 @@ class ProjectDieselFill(Document):
 			or self.has_value_changed("company")
 		):
 			return
-		urls = [u for u in (self.opening_photo, self.closing_photo) if u]
+		photos = [(f, self.get(f)) for f in ("opening_photo", "closing_photo") if self.get(f)]
+		urls = [url for _field, url in photos]
 		if not urls:
 			return
 		temporary = self.get("__temporary_name") if self.is_new() else None
@@ -412,7 +467,7 @@ class ProjectDieselFill(Document):
 			self.__dict__.pop("__temporary_name", None)
 			temporary = None
 		hashes = {}
-		for url in urls:
+		for field, url in photos:
 			filters = {"file_url": url, "is_private": 1, "attached_to_doctype": self.doctype}
 			if temporary:
 				# uploaded on the unsaved form: attached to its temporary name until insert, and only the
@@ -429,6 +484,8 @@ class ProjectDieselFill(Document):
 			if not url.startswith("/private/files/") or not row:
 				# Frappe shares one URL and one public state between files with the same bytes
 				frappe.throw(_("Meter photos must be private files uploaded to this diesel fill."))
+			if self._photo_needs_content_check(field, url):
+				check_attachment_content(url, IMAGE_KINDS, row.name)
 			hashes[url] = row.content_hash
 		if len(urls) == 2 and (
 			urls[0] == urls[1] or (hashes[urls[0]] and hashes[urls[0]] == hashes[urls[1]])

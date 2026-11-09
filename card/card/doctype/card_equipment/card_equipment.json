@@ -599,7 +599,8 @@
   {
    "fieldname": "registration_file",
    "fieldtype": "Attach",
-   "label": "Registration image"
+   "label": "Registration image",
+   "no_copy": 1
   },
   {
    "fieldname": "inspection_expiry",
@@ -609,7 +610,8 @@
   {
    "fieldname": "inspection_file",
    "fieldtype": "Attach",
-   "label": "Inspection certificate"
+   "label": "Inspection certificate",
+   "no_copy": 1
   },
   {
    "fieldname": "column_break_qqic",
@@ -633,7 +635,8 @@
   {
    "fieldname": "insurance_file",
    "fieldtype": "Attach",
-   "label": "Insurance file"
+   "label": "Insurance file",
+   "no_copy": 1
   },
   {
    "fieldname": "column_break_rgdb",
@@ -652,7 +655,8 @@
   {
    "fieldname": "tuv_file",
    "fieldtype": "Attach",
-   "label": "TUV image"
+   "label": "TUV image",
+   "no_copy": 1
   },
   {
    "fieldname": "exit_tab",

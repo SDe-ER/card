@@ -139,7 +139,7 @@
 			}
 			// Seed the UI defaults from Card Settings (server also falls back to the
 			// same settings for API callers). The user can still override.
-			frappe.call("card.api.report_defaults").then((r) => {
+			frappe.call({ method: "card.api.report_defaults", type: "GET" }).then((r) => {
 				const v = (r && r.message) || {};
 				const st = report.get_filter("statement_type");
 				if (st && v.default_statement_type && !st.get_value())

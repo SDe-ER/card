@@ -371,6 +371,20 @@ class TestDieselVatBasis(_P0Base):
 		pi.submit()
 		self.assertEqual(frappe.db.get_value("Project Diesel Fill", fill.name, "purchase_invoice"), pi.name)
 
+	def test_inclusive_tank_fill_with_hours_on_the_project_nets_once(self):
+		"""D1 AC-6: equipment with hours on the project no longer split the tank fill, so the
+		Inclusive netting is done on ONE line (no per-share rounding)."""
+		self._vat_supplier()
+		self._set_basis("Inclusive")
+		self._rental_card((6,))
+		self._rental_card((2,))  # hours would have split the fill 75 / 25
+		fill = self._fill(litres=1300, price=1.79)  # 2,327.00 incl. VAT
+		pi = self._build()
+		lines = [i for i in pi.items if fill.name in i.description]
+		self.assertEqual(len(lines), 1)
+		self.assertFalse(lines[0].card_equipment)
+		self.assertEqual(flt(lines[0].rate, 2), 2023.48)  # 2,327.00 / 1.15, rounded once
+
 	def test_non_vat_supplier_books_the_full_amount_either_way(self):
 		self._set_basis("Inclusive")
 		self._fill()

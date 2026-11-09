@@ -11,6 +11,12 @@ from frappe.model.document import Document
 from frappe.query_builder.functions import Sum, UnixTimestamp
 from frappe.utils import add_days, cstr, flt, getdate
 
+from card.attachment_validator import (
+	check_attachment_content,
+	claim_file,
+	new_form_prefix,
+	require_record_file,
+)
 from card.constants import (
 	CUSTOMER_BILLING_DIRECTIONS,
 	SUPPLIER_BILLING_DIRECTIONS,
@@ -40,6 +46,9 @@ COMMERCIAL_FIELDS = (
 	"rental_direction",
 	"operator_on",
 )
+
+# H-CARD-1/2: the equipment's document files (private, validated when set or changed)
+DOCUMENT_FILE_FIELDS = ("registration_file", "inspection_file", "insurance_file", "tuv_file")
 
 # #56: documents whose company follows the equipment's; once one exists the
 # equipment's company is fixed (cards, postings and reports keep their company)
@@ -112,6 +121,7 @@ class CardEquipment(Document):
 		# O3: the linked Asset carries the equipment as its accounting dimension,
 		# so depreciation entries land on the equipment in GL. No-op without the dimension.
 		sync_asset_dimension(self)
+		self.claim_document_files()
 		if self.has_value_changed("equipment_model"):
 			# FR-077: a machine's fitment rows carry its model (filters, conflict check)
 			frappe.db.set_value(
@@ -138,6 +148,7 @@ class CardEquipment(Document):
 			self.validate_company_change()
 			self.validate_asset_link()
 			self.validate_components()
+			self.validate_document_files()
 		# Ported from Server Script "Card Equipment - Hourly Rate" (Before Validate).
 		# Computes the read-only approved_hourly_rate shown on the equipment.
 		rate = flt(self.rate)
@@ -153,6 +164,30 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = flt(rate / month_hours, 2)
 		else:
 			self.approved_hourly_rate = 0
+
+	def validate_document_files(self):
+		"""H-CARD-1/2: the registration, inspection, insurance and TUV documents are private JPEG, PNG,
+		WebP or PDF files of this equipment. Checked only when a file is set or changed, so a document
+		saved earlier never blocks an unrelated save."""
+		temporary = self.get("__temporary_name") if self.is_new() else None
+		if temporary and not cstr(temporary).startswith(new_form_prefix(self.doctype)):
+			# not an unsaved-form name (e.g. another record's name): never let Frappe relink files from it
+			self.__dict__.pop("__temporary_name", None)
+			temporary = None
+		self.flags.document_file_rows = {}
+		for fieldname in DOCUMENT_FILE_FIELDS:
+			url = self.get(fieldname)
+			if not url or not (self.is_new() or self.has_value_changed(fieldname)):
+				continue
+			row = require_record_file(url, self.doctype, self.name, temporary)
+			check_attachment_content(url, file_row=row)
+			self.flags.document_file_rows[fieldname] = row
+
+	def claim_document_files(self):
+		"""After the save: the user's own unattached upload becomes this record's file, so the same loose
+		file cannot back another record (rows already attached are left as they are)."""
+		for fieldname, row in (self.flags.get("document_file_rows") or {}).items():
+			claim_file(row, self.doctype, self.name, fieldname)
 
 	def sync_asset_details(self):
 		"""Owner 2026-10-19: an equipment linked to an Asset takes its details from it
@@ -517,7 +552,7 @@ def get_timeline_data(doctype: str, name: str) -> dict:
 	return {int(timestamp): flt(hours) for timestamp, hours in rows}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 def get_shift_heatmap(name: str):
 	"""Per-shift daily operating hours, so two-shift equipment can show the day
 	(نهاري) and night (ليلي) activity as two separate heatmaps with distinct

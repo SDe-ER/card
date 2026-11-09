@@ -7,9 +7,10 @@ A Project Diesel Fill is either charged in full to one equipment (its
 `card_equipment` is set) or, for a project-tank fill (`card_equipment` empty),
 split across the equipment that operated in the same project + month, pro-rata
 by their total operating hours (all shifts) from submitted Card Monthly Cards.
-Splitting uses the ONE shared largest-remainder rule (split_by_weights), so the
-GL posting and every display put the rounding difference on the SAME equipment
-and the shares sum to the fill amount/litres exactly.
+Splitting uses the ONE shared largest-remainder rule (split_by_weights), so every
+display puts the rounding difference on the SAME equipment and the shares sum to
+the fill amount/litres exactly. The GL posting does NOT use this split (D1): a
+tank fill posts as one project-level line.
 
 Basis (#33): a direct fill's litres are RECORDED for that equipment; a tank
 fill's per-equipment share is an ESTIMATE (hours split, nothing is measured).
@@ -31,7 +32,7 @@ def _month_year(date_value):
 
 
 def split_by_weights(amount, weights, precision=2):
-	"""M6 — THE one largest-remainder split used by posting AND display:
+	"""M6 — THE one largest-remainder split used by every display (not by posting, D1):
 	{key: share} summing EXACTLY to amount; the largest share absorbs the
 	rounding drift (ties broken by sorted key order, deterministically).
 	Empty/zero weights -> {} (callers keep the amount unallocated)."""
@@ -127,7 +128,7 @@ def allocate_project_diesel(project, month, year, company, include_unallocated=F
 	return result
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 def get_card_diesel(card: str):
 	"""Diesel allocated to one Card Monthly Card's equipment for its project +
 	month, with its recorded (direct fill) and estimated (hours split) parts.

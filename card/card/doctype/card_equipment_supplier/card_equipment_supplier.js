@@ -9,6 +9,7 @@ frappe.ui.form.on("Card Equipment Supplier", {
 			.call({
 				method: "card.api.party_figures",
 				args: { party_type: "Supplier", party: frm.doc.name },
+				type: "GET",
 			})
 			.then((r) => {
 				const rows = r.message || [];

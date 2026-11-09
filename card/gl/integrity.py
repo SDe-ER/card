@@ -44,6 +44,10 @@ SUPPLIER_FIELD = {
 CORRECTABLE_LINE_FIELDS = ("cost_center", "account")
 ACCEPT_ROLES = {"Accounts Manager", "System Manager"}
 REVIEW_ROLES = {"Accounts Manager", "Accounts User", "System Manager"}
+# The posting builder's version, stored as "builder" in the log's built_snapshot JSON (never in the signature hash).
+# 1 (absent) = before D1: a project-tank diesel fill was split per equipment by operating hours.
+# 2 = D1 (PR #163): a project-tank diesel fill posts as ONE project-level line.
+BUILDER_VERSION = 2
 
 
 def _hash(payload):
@@ -107,6 +111,50 @@ def lines_signature(snap):
 
 def full_signature(snap):
 	return _hash(snap)
+
+
+def stored_snapshot(snap):
+	"""The JSON kept in the log's built_snapshot: the snapshot plus the builder version. The version stays out of
+	the signature, so a draft is compared on its content only."""
+	return frappe.as_json({**snap, "builder": BUILDER_VERSION})
+
+
+def builder_version(built):
+	"""The builder version of a stored snapshot; 1 for a snapshot written before versions were recorded."""
+	try:
+		return int((built or {}).get("builder") or 1)
+	except (AttributeError, TypeError, ValueError):
+		return 1
+
+
+def check_builder_version(doc, log, built):
+	"""D1 (Owner decision 2026-11-10, enforce): a draft built before D1 split each project-tank diesel fill per
+	equipment by operating hours, an estimate that must not reach the ledger. Such a draft is refused on submit;
+	a draft of an old builder without a project-tank fill is unaffected by D1 and passes."""
+	if builder_version(built) >= BUILDER_VERSION:
+		return
+	fills = frappe.get_all(
+		"GL Posting Source",
+		filters={"parent": log.name, "parenttype": "GL Posting Log", "source_doctype": "Project Diesel Fill"},
+		pluck="source_name",
+	)
+	tank = (
+		frappe.get_all(
+			"Project Diesel Fill",
+			filters={"name": ["in", fills], "card_equipment": ["is", "not set"]},
+			pluck="name",
+			order_by="name asc",
+		)
+		if fills
+		else []
+	)
+	if tank:
+		frappe.throw(
+			_(
+				"{0} was built before project-tank diesel fills post as one project-level line: it splits {1} per equipment by operating hours, an estimate. Rebuild the posting from CARD before submitting it."
+			).format(doc.name, ", ".join(tank)),
+			title=_("CARD posting must be rebuilt"),
+		)
 
 
 def describe_differences(built, current):
@@ -182,11 +230,13 @@ def check_built_signature(doc, log):
 				"{0} was built before CARD recorded invoice signatures; rebuild the posting from CARD before submitting it."
 			).format(doc.name)
 		)
+	built = json.loads(log.built_snapshot)
+	# before the signature match: an accepted correction of an old draft does not bypass it
+	check_builder_version(doc, log, built)
 	current = snapshot(doc)
 	signature = full_signature(current)
 	if signature in (log.built_signature, log.get("accepted_signature")):
 		return
-	built = json.loads(log.built_snapshot)
 	diffs = describe_differences(built, current)
 	hint = (
 		_(
