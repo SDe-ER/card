@@ -26,3 +26,14 @@ def card_amount_in_words(amount, company=None):
 	if symbol:
 		words = words.replace(currency + " ", symbol + " ", 1)
 	return words
+
+
+def card_print_is_rtl():
+	"""Right-to-left page for the current print language, read live at render time.
+
+	frappe's ``is_rtl()`` lists ar/he/fa/ps; CARD treats Urdu as right-to-left too (as CARD
+	Mobile does). ``frappe.lang`` inside a template is captured when the Jinja environment is
+	built and cached, so the print formats call this instead of comparing it."""
+	from frappe.utils.jinja_globals import is_rtl
+
+	return bool(is_rtl() or (getattr(frappe.local, "lang", None) or "") == "ur")

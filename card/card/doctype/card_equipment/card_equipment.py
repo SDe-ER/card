@@ -35,6 +35,7 @@ COMMERCIAL_FIELDS = (
 	"internal_hourly_rate",
 	"customer_rate_type",
 	"customer_rate",
+	"customer_rate_night",
 	"default_customer",
 	"rental_direction",
 	"operator_on",
