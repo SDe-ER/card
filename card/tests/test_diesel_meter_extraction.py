@@ -239,10 +239,19 @@ class TestWorkerUrl(IntegrationTestCase):
 			"https://169.254.169.254": "bad_address",
 			"https://0.0.0.0": "bad_address",
 			"https://[fe80::1]": "bad_address",
+			"https://[2002:0a01:0203::1]": "bad_address",  # 6to4 of 10.1.2.3: still refused
+			"https://[2002:c0a8:0001::1]": "bad_address",  # 6to4 of 192.168.0.1
+			"http://[2002:7f00:0001::1]": "bad_address",  # 6to4 of 127.0.0.1 is not loopback
+			"https://[2001:0:4136:e378:8000:63bf:3fff:fdd2]": "bad_address",  # Teredo (2001::/32)
 		}
 		for url, reason in cases.items():
 			with self.subTest(url=url):
 				self.assertEqual(self._refused(url), reason)
+		# IPv6 that Python calls private but is not fc00::/7 (documentation, local-use NAT64): refused, whichever
+		# range check catches it first in the running Python version
+		for url in ("https://[2001:db8::1]", "https://[64:ff9b:1::1]"):
+			with self.subTest(url=url):
+				self.assertIn(self._refused(url), ("public_address", "bad_address"))
 		for bad in ("ftp://127.0.0.1", "http://user:pw@127.0.0.1", "http:///x", "http://127.0.0.1:99999"):
 			with self.subTest(url=bad):
 				self.assertEqual(self._refused(bad), "bad_url")

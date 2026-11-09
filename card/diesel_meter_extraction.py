@@ -91,10 +91,13 @@ def worker_config():
 	return (cstr(url).rstrip("/"), cstr(token)) if url and token else None
 
 
+UNIQUE_LOCAL_V6 = ipaddress.ip_network("fc00::/7")
+
+
 def check_worker_url(url):
 	"""SSRF guard (Owner decision 2026-11-10): the host must be an IP literal, so nothing is resolved and a DNS answer
 	can never change between this check and the request. http only to a loopback address, https only to a loopback or
-	private address. A host name is refused (`host_not_ip`)."""
+	private address (IPv6: only ::1 and fc00::/7; 6to4 and Teredo refused). A host name is refused (`host_not_ip`)."""
 	parts = urlparse(cstr(url))
 	try:
 		parts.port
@@ -110,11 +113,16 @@ def check_worker_url(url):
 		ip = ip.ipv4_mapped  # ::ffff:a.b.c.d is judged as a.b.c.d
 	if ip.is_loopback:
 		return  # 127.0.0.0/8 or ::1 (Python also reports ::1 as reserved)
+	if ip.version == 6 and (ip.sixtofour or ip.teredo):
+		raise WorkerError("bad_address")  # 2002::/16 and 2001::/32 tunnel to an IPv4 address elsewhere
 	if ip.is_link_local or ip.is_unspecified or ip.is_multicast or ip.is_reserved:
 		raise WorkerError("bad_address")
-	if parts.scheme == "http" and not ip.is_loopback:
+	if parts.scheme == "http":
 		raise WorkerError("http_not_loopback")
-	if not (ip.is_loopback or ip.is_private):
+	# IPv6: only unique local fc00::/7 counts as private (Python's is_private also covers documentation and other
+	# special ranges); IPv4: Python's private ranges
+	private = ip in UNIQUE_LOCAL_V6 if ip.version == 6 else ip.is_private
+	if not private:
 		raise WorkerError("public_address")
 
 

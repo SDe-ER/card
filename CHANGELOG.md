@@ -45,7 +45,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (the default) no photo bytes leave the site. Worker address (Owner decision 2026-11-10, review finding: a host name
   was resolved for the check and again by the request, so a changed DNS answer could send the photo elsewhere):
   `card_meter_worker_url` must use an IP literal host, `http` only to a loopback address (`127.0.0.1`, `[::1]`),
-  `https` only to a loopback or private address (an IPv4-mapped IPv6 address is judged as IPv4); nothing is resolved.
+  `https` only to a loopback or private address (IPv6: only `::1` and unique local `fc00::/7`; 6to4 `2002::/16` and
+  Teredo `2001::/32` refused; an IPv4-mapped IPv6 address is judged as IPv4); nothing is resolved.
   A host name (including `localhost`), a public, link-local or unspecified address is refused: the job stops before any
   photo is read (no attempt is counted) and one translated Error Log per reason and day says why, without the URL. A
   site that set a host name must change it to the IP address (for `https`, the worker's certificate must then name that
