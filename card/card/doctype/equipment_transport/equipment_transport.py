@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, cstr, flt, getdate
 
+from card.attachment_validator import check_attachment_content, claim_file, require_record_file
 from card.company import single_company, validate_equipment_company
 from card.constants import MOVE_DAY_NEXT, OWNED
 from card.settings import company_setting, setting
@@ -725,12 +726,21 @@ def _billing_values(
 	billing_mode = billing_mode or "Monthly invoice"
 	if billing_mode not in ("Monthly invoice", "Separate invoice"):
 		frappe.throw(_("Select whether the customer is billed on the monthly invoice or separately."))
-	if billing_document and not any(
-		frappe.has_permission("File", "read", name)
-		for name in frappe.get_all("File", filters={"file_url": billing_document}, pluck="name")
-	):
-		# several File rows can share one URL (same content); one the user may read is enough
-		frappe.throw(_("The authorization document was not found."))
+	if billing_document and billing_document == doc.billing_document:
+		# re-decision with the document already on the transport: only the content check is skipped (it was
+		# done when the document was set); it must still be a private file attached to THIS transport and
+		# readable, so a public or another record's file never passes
+		file_row = require_record_file(billing_document, doc.doctype, doc.name, attached_only=True)
+		if not frappe.has_permission("File", "read", file_row):
+			frappe.throw(_("The authorization document was not found."))
+	elif billing_document:
+		# H-CARD-2: a private file of this transport (or the accountant's own upload, which the transport
+		# then claims), a JPEG, PNG, WebP or PDF; a public file or another record's file is refused
+		file_row = require_record_file(billing_document, doc.doctype, doc.name)
+		if not frappe.has_permission("File", "read", file_row):
+			frappe.throw(_("The authorization document was not found."))
+		check_attachment_content(billing_document, file_row=file_row)
+		claim_file(file_row, doc.doctype, doc.name, "billing_document")
 	if billing_mode == "Separate invoice" and not billing_document:
 		frappe.throw(_("Attach the authorization document of a separate invoice."))
 	return {
