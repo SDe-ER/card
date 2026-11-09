@@ -5350,3 +5350,11 @@ msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح C
 #: card/card/report/equipment_supplier_statement/statement_pdf.py
 msgid "The statement print template has no style block."
 msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill cannot be shared with everyone."
+msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
+msgstr "لا يمكن مشاركة تعبئة ديزل تابعة للشركة {0} مع مستخدم من خارج هذه الشركة."

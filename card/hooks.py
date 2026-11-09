@@ -153,6 +153,8 @@ has_permission = {
 	"Card Monthly Card": "card.card.doctype.card_monthly_card.card_monthly_card.has_card_permission",
 	"Equipment Transport": "card.card.doctype.equipment_transport.equipment_transport.has_transport_permission",
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.has_fitment_permission",
+	# H-CARD-4: a diesel fill belongs to its company
+	"Project Diesel Fill": "card.card.doctype.project_diesel_fill.project_diesel_fill.has_diesel_fill_permission",
 	# #113: a cancelled movement with a signed receipt (and so its receipt) is never deleted
 	"Employee Tool Custody": "card.card.doctype.employee_tool_custody.employee_tool_custody.has_custody_permission",
 }
@@ -212,6 +214,10 @@ doc_events = {
 	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
 	# Card Equipment financial privacy: the change history never carries restricted values (2026-10-31)
 	"Version": {"before_insert": "card.field_privacy.mask_restricted_version"},
+	# H-CARD-4: a DocShare would bypass the fill's company hook (frappe 16 checks shares after it)
+	"DocShare": {
+		"validate": "card.card.doctype.project_diesel_fill.project_diesel_fill.deny_cross_company_share"
+	},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record
 	"File": {
 		"before_validate": "card.custody_receipt.keep_private",
