@@ -28,7 +28,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the fill that points to the invoice) and counts them in a separate tile. Submitted invoices and posting logs are not
   touched. Tank diesel's cost center moves from the equipment assignment's to the fill's own or the project's, so
   cost-center and equipment-dimension reports around the release are not month-to-month comparable.
-  **Rebuild open draft postings built before this release before submitting them.**
+  **Rebuild open draft postings built before this release before submitting them.** Enforced (Owner decision
+  2026-11-10): the builder now records its version (`"builder": 2`) in the GL Posting Log's `built_snapshot` JSON
+  (not in the signature hash, so other drafts still match); `card.gl.integrity.check_built_signature` refuses the
+  submit of a draft built by an earlier builder when it holds a project-tank fill ("Rebuild the posting from CARD
+  before submitting it", Arabic translation in `ar.po`), also when an Accounts Manager accepted a correction on it.
+  A pre-change draft without a project-tank fill submits as before. PR #163. Affected: `card/gl/posting.py`
+  (`build_monthly_posting`, diesel loop, `fill_line_cost_center`), `card/gl/integrity.py` (`BUILDER_VERSION`,
+  `stored_snapshot`, `check_builder_version`), guard report `equipment_expenses_without_equipment.py`. Impact:
+  permissions none; accounting: the distribution of tank diesel moves to the project line (totals unchanged; no GL
+  write by CARD); data: no patch, no schema change, existing logs and submitted invoices untouched; API none.
+  Rollback: revert the commits; drafts built by the new builder keep one project-level tank line and the old code
+  submits them as they are (rebuild them to get the old split).
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

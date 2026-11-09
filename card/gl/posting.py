@@ -781,7 +781,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			"origin": "Built",
 			"built_signature": integrity.full_signature(built),
 			"lines_signature": integrity.lines_signature(built),
-			"built_snapshot": frappe.as_json(built),
+			"built_snapshot": integrity.stored_snapshot(built),
 			"reviewed_invoices": ", ".join(sorted(reviewed_invoices)) or None,
 			"remarks": _build_remarks(diesel_note, reviewed_invoices),
 		}

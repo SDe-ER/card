@@ -2045,6 +2045,14 @@ msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} م�
 msgid "Diesel fill {0} — {1} L (project tank, not allocated to equipment)"
 msgstr "تعبئة ديزل {0} — {1} لتر (خزان المشروع، غير موزّعة على المعدات)"
 
+#: card/gl/integrity.py
+msgid "{0} was built before project-tank diesel fills post as one project-level line: it splits {1} per equipment by operating hours, an estimate. Rebuild the posting from CARD before submitting it."
+msgstr "تم إنشاء {0} قبل أن تُرحَّل تعبئات ديزل خزان المشروع كسطر واحد على مستوى المشروع: فهو يوزّع {1} على المعدات حسب ساعات التشغيل، وهذا تقدير. أعد بناء القيد من CARD قبل اعتماده."
+
+#: card/gl/integrity.py
+msgid "CARD posting must be rebuilt"
+msgstr "يجب إعادة بناء قيد CARD"
+
 msgid "Invoiced through Card (net before VAT)"
 msgstr "مفوتر عبر Card (الصافي قبل الضريبة)"
 

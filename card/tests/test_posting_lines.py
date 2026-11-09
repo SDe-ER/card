@@ -173,6 +173,72 @@ class TestPostingLines(_PostingBase):
 		self.assertEqual(integrity.full_signature(integrity.snapshot(pi)), log.built_signature)
 		self.assertEqual(len([i for i in pi.items if fill.name in i.description]), 1)
 
+	# ---- D1 builder version (Owner decision 2026-11-10: enforce a rebuild of pre-D1 drafts) ----
+	def _as_pre_d1_build(self, pi):
+		"""The log of `pi` as a pre-D1 builder wrote it: a snapshot without the builder version."""
+		import json
+
+		log = frappe.get_doc("GL Posting Log", {"posting_doc": pi.name})
+		built = json.loads(log.built_snapshot)
+		built.pop("builder", None)
+		log.db_set("built_snapshot", frappe.as_json(built), update_modified=False)
+		return log
+
+	def _submit(self, pi):
+		pi.reload()
+		pi.bill_no = "D1-VER-" + frappe.generate_hash(length=8)
+		pi.bill_date = pi.posting_date
+		pi.save()
+		pi.submit()
+
+	def test_a_new_build_records_the_builder_version(self):
+		import json
+
+		from card.gl import integrity
+
+		self._fill(litres=10, unit_price=2.0)
+		pi = self._pi()
+		log = frappe.get_doc("GL Posting Log", {"posting_doc": pi.name})
+		self.assertEqual(json.loads(log.built_snapshot)["builder"], integrity.BUILDER_VERSION)
+		# the version stays out of the signature: the draft still matches what was built
+		self.assertEqual(integrity.full_signature(integrity.snapshot(pi)), log.built_signature)
+
+	def test_a_pre_d1_draft_with_a_tank_fill_is_refused_on_submit(self):
+		fill = self._fill(litres=10, unit_price=2.0)  # project tank, no equipment
+		pi = self._pi()
+		self._as_pre_d1_build(pi)
+		with self.assertRaisesRegex(frappe.ValidationError, "Rebuild the posting") as ctx:
+			self._submit(pi)
+		self.assertIn(fill.name, str(ctx.exception))
+		self.assertEqual(frappe.db.get_value("Purchase Invoice", pi.name, "docstatus"), 0)
+
+	def test_an_accepted_correction_does_not_bypass_the_builder_version(self):
+		self._fill(litres=10, unit_price=2.0)
+		pi = self._pi()
+		log = self._as_pre_d1_build(pi)
+		from card.gl import integrity
+
+		log.db_set("accepted_signature", integrity.full_signature(integrity.snapshot(pi)))
+		with self.assertRaisesRegex(frappe.ValidationError, "Rebuild the posting"):
+			self._submit(pi)
+
+	def test_a_pre_d1_draft_without_a_tank_fill_still_submits(self):
+		eq = self._equipment()
+		self._fill(card_equipment=eq.name, litres=10, unit_price=2.0)  # direct fill: unchanged by D1
+		pi = self._pi()
+		self._as_pre_d1_build(pi)
+		self._submit(pi)
+		self.assertEqual(frappe.db.get_value("Purchase Invoice", pi.name, "docstatus"), 1)
+
+	def test_a_rebuilt_pre_d1_draft_submits(self):
+		self._fill(litres=10, unit_price=2.0)
+		pi = self._pi()
+		self._as_pre_d1_build(pi)
+		name = rebuild_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi = frappe.get_doc("Purchase Invoice", name)
+		self._submit(pi)
+		self.assertEqual(frappe.db.get_value("Purchase Invoice", name, "docstatus"), 1)
+
 
 class TestLikeForLikeReconciliation(_PostingBase):
 	def test_difference_closes_against_the_invoiced_net_not_the_vat_inclusive_gl(self):
