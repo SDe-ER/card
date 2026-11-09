@@ -86,7 +86,7 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 			"Reviewer signature",
 			"Supplier signature",
 			"Includes draft cards",
-			"Totals",
+			"Statement totals",
 			"Owned equipment",
 		):
 			self.assertRegex(po, rf'msgid "{msgid}"\nmsgstr "[^"]+"')

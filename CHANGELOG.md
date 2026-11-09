@@ -25,8 +25,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   report print page does): text cells follow it, numbers read left to right and are right-aligned
   so the decimals line up, dates, counts and the row number are centred, cells are vertically
   centred.
-  The summary figures moved below the rows as a "Totals" table (الإجماليات; new ar.po entry for
-  the existing msgid "Totals"), placed right under the last (amount) columns, at the end side
+  The summary figures moved below the rows as a "Totals" table (الإجماليات; CARD-only msgid
+  "Statement totals", so the generic frappe "Totals" translation is not overridden), placed right under the last (amount) columns, at the end side
   of the page as in a standard invoice. The print no longer shows the equipment number, rate type or rate
   columns (the screen report keeps them); the remaining widths fill the A4 landscape width.
   The Additions and Deductions columns print only when some row has a value; the other columns
