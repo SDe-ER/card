@@ -7,6 +7,7 @@ need; every claim below is backed by the per-version pages (evidence links there
 
 | Your situation | Use | Why |
 |---|---|---|
+| Site on v4.4.3 (or earlier, see below) whose supplier cards were recognised by hand with accrual journal entries, or that needs paid/remaining per card | **v4.5.0** | Everything in v4.4.3 plus the accrual journal link (accountant-only, POST) and the read-only Card Settlement Status report. No patch, no schema change; migrate adds the report and its sidebar link; restart the workers ([v4.5.0.md → Installation & Upgrade](v4.5.0.md#12-installation--upgrade--partially-verified)) |
 | Site on v4.4.2 (or earlier, see below) that downloads the supplier statement as PDF in Arabic, or whose site print style sets every print font | **v4.4.3** | Everything in v4.4.2 plus the statement PDF rendered with the Chrome PDF generator (Arabic letters join) on one A4 portrait page, and the statement font kept under a site print style. No patch, no schema change; migrate re-imports only the A4 print format; restart the workers; the site's Chrome PDF generator must work ([v4.4.3.md → Installation & Upgrade](v4.4.3.md#12-installation--upgrade--partially-verified)) |
 | Site on v4.4.1 (or earlier, see below) that prints the A4 supplier statement for suppliers, including suppliers with cards not yet invoiced | **v4.4.2** | Everything in v4.4.1 plus the statement print listing every card of the period and totals from the cards only (cards net; work done not yet invoiced through CARD, before VAT, when positive), the issued-by footer and full From/To dates. No patch, no schema change; migrate re-imports only the A4 print format; restart the workers. The print no longer shows the ledger balance (use the screen report or the ERPNext ledger). The PDF button still uses wkhtmltopdf; use browser Print ([v4.4.2.md → Installation & Upgrade](v4.4.2.md#12-installation--upgrade--partially-verified)) |
 | Site on v4.4.0, or on v4.3.0, that prints CARD documents to PDF in Arabic, or that needs the printed ledger balance (opening + period charges − payments = closing) on the supplier statement | **v4.4.1** | Everything in v4.4.0 plus the Chrome PDF generator for the CARD document prints (wkhtmltopdf broke Arabic letter joining) and the short totals on the A4 supplier statement. No patch, no schema change; migrate re-syncs the print formats; the site's Chrome PDF generator must work (print each CARD format once after the deploy). The supplier statement PDF button still uses wkhtmltopdf; use browser Print ([v4.4.1.md → Installation & Upgrade](v4.4.1.md#12-installation--upgrade--partially-verified)) |
@@ -65,6 +66,10 @@ need; every claim below is backed by the per-version pages (evidence links there
   print format; restart the workers. Rollback to v4.4.2: the old code runs on the data, but the v4.4.2 A4 format
   must be re-imported with `force`
   ([v4.4.3.md → Installation & Upgrade](v4.4.3.md#12-installation--upgrade--partially-verified)).
+- `v4.4.3 → v4.5.0`: no patch, no schema change; migrate adds the Card Settlement Status report and its sidebar link;
+  restart the workers. Rollback to v4.4.3: the old code ignores Journal Entry links, so linked cards count as not
+  invoiced again; keep accounting disabled or cancel the links first
+  ([v4.5.0.md → Installation & Upgrade](v4.5.0.md#12-installation--upgrade--partially-verified)).
 - Downgrades are not supported by patches; rollback = restore the pre-upgrade backup.
 
 ## Things the latest version still does not do (so you don't choose it for the wrong reason)
