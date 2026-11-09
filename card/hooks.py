@@ -77,7 +77,7 @@ required_apps = ["erpnext"]
 # ----------
 
 # add methods and filters to jinja environment
-jinja = {"methods": ["card.print_utils.card_amount_in_words"]}
+jinja = {"methods": ["card.print_utils.card_amount_in_words", "card.print_utils.card_print_is_rtl"]}
 
 # Installation
 # ------------
@@ -196,6 +196,8 @@ doc_events = {
 	"Equipment Transport": dict(_SOURCE_EVENTS),
 	"Purchase Invoice": dict(_POSTING_EVENTS),
 	"Sales Invoice": dict(_POSTING_EVENTS),
+	# settlement phase 1: cancelling a linked supplier accrual journal frees its cards
+	"Journal Entry": {"before_cancel": "card.gl.journal_link.before_cancel"},
 	# the CARD party registries follow ERPNext renames and merges
 	"Supplier": {
 		"before_rename": "card.party_registry.before_rename",

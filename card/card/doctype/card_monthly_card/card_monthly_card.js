@@ -132,6 +132,8 @@ function card_load_hourly(frm) {
 			"approved_hourly_rate",
 			"rental_direction",
 			"ownership",
+			"customer_rate",
+			"customer_rate_night",
 		])
 		.then((r) => {
 			const v = (r && r.message) || {};
@@ -140,8 +142,23 @@ function card_load_hourly(frm) {
 			const dir =
 				v.rental_direction || (v.ownership === "ملك" ? "تشغيل داخلي" : "مستأجَرة من مورد");
 			frm._card_supplier_side = ["مستأجَرة من مورد", "إيجار من الباطن"].includes(dir);
+			card_show_shift_customer_rate(frm, dir, v);
 			card_calc(frm);
 		});
+}
+
+// FR-109: a night-shift card of a customer-billing equipment shows the equipment's
+// night-shift rate when one is set (the form's fetch shows the day rate). Display
+// only: the server mirrors the same rule on save, and the customer amount on the
+// form updates on save. The request already needs level-1 read on Card Equipment,
+// which every Card Monthly Card role has. Read-only users are not touched, so their
+// form is never marked unsaved.
+function card_show_shift_customer_rate(frm, dir, v) {
+	if (frm.doc.docstatus !== 0 || !frm.perm[0] || !frm.perm[0].write) return;
+	if (!["مؤجَّرة لعميل", "إيجار من الباطن"].includes(dir)) return;
+	const night = flt(v.customer_rate_night);
+	const rate = frm.doc.shift === "ليلي" && night > 0 ? night : flt(v.customer_rate);
+	if (flt(frm.doc.customer_rate) !== rate) frm.set_value("customer_rate", rate);
 }
 
 // F.7: the card's project follows the assignment covering the card's month
@@ -387,6 +404,9 @@ frappe.ui.form.on("Card Monthly Card", {
 	},
 	month(frm) {
 		card_lock_project(frm).then(() => card_build(frm));
+	},
+	shift(frm) {
+		card_load_hourly(frm);
 	},
 	year(frm) {
 		card_lock_project(frm).then(() => card_build(frm));
