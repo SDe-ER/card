@@ -4122,3 +4122,47 @@ msgstr ""
 #: card/card/report/equipment_supplier_statement/statement_pdf.py
 msgid "The statement print template has no style block."
 msgstr ""
+
+#: card/attachment_validator.py
+msgid "The attached file is empty."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "The attached file is larger than {0} MB."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "Attach a JPEG, PNG, WebP or PDF file."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "Attach a JPEG, PNG or WebP image."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "The file name does not match its content. Attach a JPEG, PNG, WebP or PDF file."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "The PDF file is incomplete or damaged."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "The image file is damaged or cannot be read."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "The image has too many pixels (more than {0} megapixels)."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "Attach a private file uploaded to this record."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "The attached file was not found."
+msgstr ""
+
+#: card/attachment_validator.py
+msgid "The attached file could not be read."
+msgstr ""

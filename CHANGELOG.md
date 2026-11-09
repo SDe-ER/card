@@ -54,7 +54,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     record's file is refused. Data: no patch, nothing changed or deleted; files already stored as public stay public
     until a separate owner decision; unchanged legacy values are not re-checked. Schema: `no_copy` on four Card
     Equipment fields (DocType JSON, applied by `bench migrate`). Accounting: none.
-  - **Known limit:** HEIC photos are refused (Pillow has no decoder); save them as JPEG first.
+  - **Known limits** (accepted by the owner, review of PR #162): HEIC photos are refused (Pillow has no decoder);
+    save them as JPEG first. A financial re-decision that keeps a transport's existing authorization document is
+    refused when that document is an older unattached upload: the accountant uploads it again. When the same user
+    saves two records at the same time with one unattached upload, only the first record claims the file; the
+    second keeps a link to a file attached to the first.
+  - **Translations:** the eleven new messages of `card/attachment_validator.py` are translated in
+    `card/locale/ar.po` (and listed in `main.pot`).
   - **Convention:** an Attach / Attach Image field that holds evidence or a document is validated in its controller
     with `card.attachment_validator` when the value is new or changed.
   - **Rollback:** revert the merge of PR #162 and migrate (the `no_copy` flags return); nothing to undo in data. File
