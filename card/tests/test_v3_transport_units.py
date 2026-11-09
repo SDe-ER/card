@@ -11,6 +11,7 @@ from card.card.doctype.card_equipment.card_equipment import move_component, repl
 from card.gl.posting import _transport_shares
 from card.tests import test_transfer as _transfer
 from card.tests.test_controllers import _ensure_masters
+from card.tests.transport_parties import as_recorded_before_p12, company_paid, paid_by
 
 
 class TestV3TransportAndUnits(IntegrationTestCase):
@@ -28,7 +29,7 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 	_assign = _transfer.TestEquipmentTransfer._assign
 	_card = _transfer.TestEquipmentTransfer._card
 
-	def _trip(self, project, day, rows, amount=1000, submit=False):
+	def _trip(self, project, day, rows, amount=1000, submit=False, cost=None):
 		t = frappe.new_doc("Equipment Transport")
 		t.project = project
 		t.date = self._d(day)
@@ -37,7 +38,7 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 		t.amount = amount
 		for row in rows:
 			t.append("items", row if isinstance(row, dict) else {"card_equipment": row})
-		t.insert(ignore_permissions=True)
+		company_paid(t, **(cost or {})).insert(ignore_permissions=True)
 		if submit:
 			t.submit()
 			t.reload()
@@ -227,7 +228,8 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 				"destination_type": destination,
 				"destination_location": place,
 				"project": project,
-				"cost_borne_by": "Equipment Supplier",
+				"payer": "Equipment Supplier",
+				"cost_bearer": "Equipment Supplier",
 			}
 		)
 		t.append("items", {"card_equipment": equipment})
@@ -288,10 +290,12 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 			self._move(10, eq, "Supplier", submit=False)
 
 	def test_only_company_borne_moves_are_billed(self):
+		# transports recorded before P1-2 keep the old rule (P1-2 transports are not posted yet)
 		from card.gl.posting import _supplier_sources
 
 		p = self._project("S")
 		paid = self._trip(p, 5, [self._equipment().name], amount=400, submit=True)
+		as_recorded_before_p12(paid.name, "Company")
 		theirs = frappe.new_doc("Equipment Transport")
 		theirs.update(
 			{
@@ -299,12 +303,12 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 				"company": self.company,
 				"project": p,
 				"transport_supplier": self.supplier,
-				"cost_borne_by": "Customer",
 				"amount": 300,
 			}
 		)
-		theirs.insert(ignore_permissions=True)
+		paid_by(theirs, "Customer", "Customer").insert(ignore_permissions=True)
 		theirs.submit()
+		as_recorded_before_p12(theirs.name, "Customer")
 		_cards, _fills, transports = _supplier_sources(
 			self.company, self.supplier, self._d(1), self._d(28), int(self.month_str), int(self.year_str)
 		)
@@ -316,11 +320,12 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 			"Cost Center", {"company": self.company, "is_group": 0, "disabled": 0}, "name"
 		)
 
-	def test_cost_center_follows_the_destination(self):
+	def test_cost_center_follows_the_chosen_cost_project(self):
+		# P1-2: the cost project is chosen explicitly (here the destination, chosen by the user)
 		cc = self._leaf_cost_center()
 		p = self._project("CC")
 		frappe.db.set_value("Project", p, "cost_center", cc)
-		t = self._trip(p, 5, [self._equipment().name])
+		t = self._trip(p, 5, [self._equipment().name], cost={"basis": "Project", "cost_project": p})
 		self.assertEqual(t.cost_center, cc)
 
 	def test_workshop_cost_center_comes_from_settings(self):
@@ -342,7 +347,7 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 				}
 			)
 			t.append("items", {"card_equipment": eq})
-			return t.insert(ignore_permissions=True)
+			return company_paid(t, basis="Workshop or storage").insert(ignore_permissions=True)
 
 		with self.assertRaises(frappe.ValidationError):
 			paid_move()  # no cost center for the place yet

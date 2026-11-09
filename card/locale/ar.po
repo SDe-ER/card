@@ -4054,6 +4054,18 @@ msgid "Issue date"
 msgstr "تاريخ الإصدار"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Statement totals"
+msgstr "الإجماليات"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Period charges (incl. VAT)"
+msgstr "مستحقات الفترة (شاملة الضريبة)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Owned equipment"
+msgstr "معدات ملك"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Accountant signature"
 msgstr "توقيع المحاسب"
 
@@ -4068,3 +4080,1253 @@ msgstr "توقيع المورد"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Includes draft cards"
 msgstr "تشمل كروتاً مسودة (غير معتمدة)"
+
+#: card/gl/posting.py
+msgid "Card {0}"
+msgstr "الكارت {0}"
+
+#: card/gl/posting.py
+msgid "Cost allocation needs review"
+msgstr "توزيع التكلفة يحتاج إلى مراجعة"
+
+#: card/gl/posting.py
+msgid "Diesel fill {0}"
+msgstr "تعبئة الديزل {0}"
+
+#: card/gl/posting.py
+msgid "Project {0}"
+msgstr "المشروع {0}"
+
+#: card/gl/posting.py
+msgid "The assignment of {0} to project {1}"
+msgstr "تعيين {0} على المشروع {1}"
+
+#: card/gl/posting.py
+msgid "Transport {0}"
+msgstr "النقل {0}"
+
+#: card/gl/posting.py
+msgid "origin not recorded"
+msgstr "المصدر غير مسجّل"
+
+#: card/gl/posting.py
+msgid "{0} ({1} → {2}): which project bears this move is not recorded, and neither the project it leaves nor the project it goes to is assumed; review it and enter the supplier invoice manually."
+msgstr "{0} ({1} → {2}): المشروع الذي يتحمّل تكلفة هذا النقل غير مسجّل، ولا يُفترض أنه المشروع الذي خرجت منه المعدة ولا المشروع الذي ذهبت إليه؛ راجعه وأدخل فاتورة المورد يدويًا."
+
+#: card/gl/posting.py
+msgid "{0} has cost center {1}, which cannot carry a posting of company {2} (it must be an enabled, non-group cost center of that company). Correct it and build again."
+msgstr "{0} عليه مركز التكلفة {1}، ولا يمكن الترحيل عليه لشركة {2} (يجب أن يكون مركز تكلفة مفعّلًا وغير تجميعي في تلك الشركة). صحّحه ثم أعد إنشاء الفاتورة."
+
+#: card/gl/posting.py
+msgid "{0} has no cost center for its place; set the place's cost center in Card Settings (Transport), then cancel and amend the transport."
+msgstr "{0} ليس له مركز تكلفة لمكانه؛ حدّد مركز تكلفة المكان في الإعدادات (النقل)، ثم ألغِ النقل وعدّله (Amend)."
+
+#: card/gl/posting.py
+msgid "{0}: its cost center {1} is not the one now configured for {2} in Card Settings ({3}); review it, then cancel and amend the transport."
+msgstr "{0}: مركز التكلفة {1} المسجّل عليه ليس المركز المحدد حاليًا لـ {2} في الإعدادات ({3})؛ راجعه، ثم ألغِ النقل وعدّله (Amend)."
+
+#: card/gl/posting.py
+msgid "{0}: project {1} has no cost center, and the cost center of equipment {2} ({3}) may belong to another project or to the asset; set the project's (or the assignment's) cost center, then build again."
+msgstr "{0}: المشروع {1} ليس له مركز تكلفة، ومركز تكلفة المعدة {2} ({3}) قد يخص مشروعًا آخر أو الأصل نفسه؛ حدّد مركز تكلفة المشروع (أو التعيين)، ثم أعد إنشاء الفاتورة."
+
+#: card/gl/posting.py
+msgid "{0}: project {1} has no cost center; set the project's (or the assignment's) cost center, then build again."
+msgstr "{0}: المشروع {1} ليس له مركز تكلفة؛ حدّد مركز تكلفة المشروع (أو التعيين)، ثم أعد إنشاء الفاتورة."
+
+#: card/gl/posting.py
+msgid "{0}: the assignments of {1} to project {2} on these days resolve to different cost centers ({3}); give the assignments one cost center, then build again."
+msgstr "{0}: تعيينات {1} على المشروع {2} في هذه الأيام تؤدي إلى مراكز تكلفة مختلفة ({3})؛ اجعل للتعيينات مركز تكلفة واحدًا، ثم أعد إنشاء الفاتورة."
+
+#: card/gl/posting.py
+msgid "{0}: who pays this move is not recorded; review it, then cancel and amend the transport with its payer (Transport cost borne by)."
+msgstr "{0}: من يدفع تكلفة هذا النقل غير مسجّل؛ راجعه، ثم ألغِ النقل وعدّله (Amend) مع تحديد من يتحمّل التكلفة (تكلفة النقل على)."
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Aggregated invoice: sessions after {0} up to the bill date"
+msgstr "فاتورة مجمعة: الجلسات بعد {0} حتى تاريخ الفاتورة"
+
+#: card/diesel_reconciliation.py
+msgid "Amount only: gross / session price = {0} L"
+msgstr "بالمبلغ فقط: الإجمالي ÷ سعر الجلسة = {0} لتر"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Delivery charge litres"
+msgstr "لترات أجرة التوصيل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Delivery charge up to (litres)"
+msgstr "أجرة التوصيل حتى (لتر)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Diesel sessions"
+msgstr "جلسات الديزل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel suppliers (one delivery stream)"
+msgstr "موردو الديزل (مسار توريد واحد)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session ({0})"
+msgstr "جلسة مسودة ({0})"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Evidence"
+msgstr "الدليل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Exceptions"
+msgstr "الاستثناءات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Invoice date window (days)"
+msgstr "مدى تاريخ الفاتورة (أيام)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice gross"
+msgstr "إجمالي الفاتورة"
+
+#: card/diesel_reconciliation.py
+msgid "Invoice litres = session + {0} L delivery charge inside the diesel line"
+msgstr "لترات الفاتورة = الجلسة + {0} لتر أجرة توصيل داخل بند الديزل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice net"
+msgstr "صافي الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice projects"
+msgstr "مشاريع الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice states no litres: estimated as gross / session price {0} (unverified)"
+msgstr "الفاتورة لا تذكر اللترات: تقدير بالإجمالي ÷ سعر الجلسة {0} (غير متحقق)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice without session"
+msgstr "فاتورة بدون جلسة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced diesel litres"
+msgstr "لترات الديزل في الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Litre difference"
+msgstr "فرق اللترات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Litres equal"
+msgstr "اللترات متساوية"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Matched: {0}"
+msgstr "مطابقة: {0}"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Not invoiced yet"
+msgstr "لم تُفوتر بعد"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Other lines (not diesel) {0}"
+msgstr "بنود أخرى (ليست ديزل) {0}"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: litres agree"
+msgstr "الفترة: اللترات متطابقة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Physical diesel = session litres; the difference is a delivery charge booked as diesel"
+msgstr "الديزل الفعلي = لترات الجلسة؛ الفرق أجرة توصيل مسجلة كديزل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Price VAT basis"
+msgstr "أساس الضريبة في السعر"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Select the period"
+msgstr "اختر الفترة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Separate delivery charge line {0}"
+msgstr "بند أجرة توصيل منفصل {0}"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session litres"
+msgstr "لترات الجلسات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session projects"
+msgstr "مشاريع الجلسات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session without invoice"
+msgstr "جلسة بدون فاتورة"
+
+#: card/diesel_reconciliation.py
+msgid "Unverified (no litres on the invoice)"
+msgstr "غير متحقق (لا توجد لترات في الفاتورة)"
+
+#: card/diesel_reconciliation.py
+msgid "Unverified (price per litre {0} gross, {1} net)"
+msgstr "غير متحقق (سعر اللتر {0} إجمالي، {1} صافي)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT"
+msgstr "الضريبة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT %"
+msgstr "نسبة الضريبة %"
+
+#: card/diesel_reconciliation.py
+msgid "VAT-exclusive price"
+msgstr "السعر غير شامل الضريبة"
+
+#: card/diesel_reconciliation.py
+msgid "VAT-inclusive price"
+msgstr "السعر شامل الضريبة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "You need read access to {0} to run this report"
+msgstr "تحتاج صلاحية قراءة {0} لتشغيل هذا التقرير"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "the start of the period"
+msgstr "بداية الفترة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} invoice line(s) without project"
+msgstr "{0} بند فاتورة بدون مشروع"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} sessions ({1} .. {2})"
+msgstr "{0} جلسة ({1} .. {2})"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel Invoice Reconciliation"
+msgstr "مطابقة فواتير الديزل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Allocation check"
+msgstr "فحص التخصيص"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Inferred: invoice text litres = session + delivery charge"
+msgstr "مستنتجة: لترات نص الفاتورة = الجلسة + أجرة التوصيل"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Inferred: invoice text litres equal the session"
+msgstr "مستنتجة: لترات نص الفاتورة تساوي الجلسة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel sessions to include"
+msgstr "جلسات الديزل المشمولة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session litres"
+msgstr "لترات الجلسات المسودة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Equipment conflict"
+msgstr "تعارض في المعدة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: amount only, the invoice states no litres"
+msgstr "تقديرية: بالمبلغ فقط، الفاتورة لا تذكر اللترات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: period match on stated litres"
+msgstr "تقديرية: مطابقة بالفترة على اللترات المذكورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: period match, litres estimated from the amount"
+msgstr "تقديرية: مطابقة بالفترة، اللترات مقدرة من المبلغ"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice has no project"
+msgstr "الفاتورة بدون مشروع"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Match confidence"
+msgstr "درجة الثقة في المطابقة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "No match"
+msgstr "لا توجد مطابقة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: difference to review (invoice above sessions)"
+msgstr "الفترة: فرق للمراجعة (الفاتورة أعلى من الجلسات)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: difference to review (sessions above invoice)"
+msgstr "الفترة: فرق للمراجعة (الجلسات أعلى من الفاتورة)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Physical diesel litres"
+msgstr "لترات الديزل الفعلية"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Project conflict"
+msgstr "تعارض في المشروع"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session state"
+msgstr "حالة الجلسات"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Submitted and draft"
+msgstr "المعتمدة والمسودة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Submitted only"
+msgstr "المعتمدة فقط"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Submitted session litres"
+msgstr "لترات الجلسات المعتمدة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Submitted {0}, draft {1}"
+msgstr "معتمدة {0}، مسودة {1}"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Unexplained difference: not a confirmed over-billing, missing invoice or missing payment"
+msgstr "فرق غير مفسر: ليس تأكيدًا لزيادة في الفوترة أو فاتورة ناقصة أو سداد ناقص"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT as booked on the invoice"
+msgstr "الضريبة كما سُجلت في الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "After the period end: to review with the next period"
+msgstr "بعد نهاية الفترة: للمراجعة مع الفترة التالية"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Amount only: net / session price = {0} L"
+msgstr "بالمبلغ فقط: الصافي ÷ سعر الجلسة = {0} لتر"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Confirmed: document link (the session names this invoice)"
+msgstr "مؤكدة: ربط مستندي (الجلسة تذكر هذه الفاتورة)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced litres estimated from amounts"
+msgstr "لترات مفوترة مقدرة من المبالغ"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced physical diesel litres (stated)"
+msgstr "لترات الديزل الفعلية المفوترة (المذكورة)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Linked: the session names this invoice"
+msgstr "مربوطة: الجلسة تذكر هذه الفاتورة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "The first invoice of the period may include deliveries before the period"
+msgstr "أول فاتورة في الفترة قد تشمل توريدات قبل الفترة"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} (draft session, not yet approved)"
+msgstr "{0} (جلسة مسودة، لم تُعتمد بعد)"
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session"
+msgstr "جلسة مسودة"
+
+#: card/meter_reconciliation.py
+msgid "All Assets"
+msgstr "كل الأصول"
+
+#: card/meter_reconciliation.py
+msgid "All equipment"
+msgstr "كل المعدات"
+
+#: card/meter_reconciliation.py
+msgid "Allowed difference %"
+msgstr "نسبة الفرق المسموح بها %"
+
+#: card/meter_reconciliation.py
+msgid "Asset meter fields"
+msgstr "حقول عداد الأصل"
+
+#: card/meter_reconciliation.py
+msgid "Asset meter fields differ from the last plausible reading"
+msgstr "حقول عداد الأصل تختلف عن آخر قراءة مقبولة"
+
+#: card/meter_reconciliation.py
+msgid "Asset name"
+msgstr "اسم الأصل"
+
+#: card/meter_reconciliation.py
+msgid "Asset status"
+msgstr "حالة الأصل"
+
+#: card/meter_reconciliation.py
+msgid "Assets and equipment reviewed"
+msgstr "الأصول والمعدات المراجَعة"
+
+#: card/meter_reconciliation.py
+msgid "CARD hours (submitted cards, same period)"
+msgstr "ساعات CARD (كروت معتمدة، نفس الفترة)"
+
+#: card/meter_reconciliation.py
+msgid "CARD hours differ from the meter hours by more than {0}%"
+msgstr "ساعات CARD تختلف عن ساعات العداد بأكثر من {0}%"
+
+#: card/meter_reconciliation.py
+msgid "Difference %"
+msgstr "نسبة الفرق %"
+
+#: card/meter_reconciliation.py
+msgid "Every reading"
+msgstr "كل قراءة"
+
+#: card/meter_reconciliation.py
+msgid "First plausible reading"
+msgstr "أول قراءة مقبولة"
+
+#: card/meter_reconciliation.py
+msgid "First reading date"
+msgstr "تاريخ أول قراءة"
+
+#: card/meter_reconciliation.py
+msgid "Hours since previous plausible reading"
+msgstr "الساعات منذ القراءة المقبولة السابقة"
+
+#: card/meter_reconciliation.py
+msgid "Last plausible reading"
+msgstr "آخر قراءة مقبولة"
+
+#: card/meter_reconciliation.py
+msgid "Last reading date"
+msgstr "تاريخ آخر قراءة"
+
+#: card/meter_reconciliation.py
+msgid "Linked Asset is not a submitted Asset of this company you may read"
+msgstr "الأصل المربوط ليس أصلًا معتمدًا لهذه الشركة يمكنك قراءته"
+
+#: card/meter_reconciliation.py
+msgid "Linked to equipment that is not owned: review (rented equipment has no Asset)"
+msgstr "مربوط بمعدة غير مملوكة: للمراجعة (المعدة المستأجرة ليس لها أصل)"
+
+#: card/meter_reconciliation.py
+msgid "Linked; equipment type differs from the type of this Asset category"
+msgstr "مربوط؛ نوع المعدة يختلف عن نوع فئة هذا الأصل"
+
+#: card/meter_reconciliation.py
+msgid "Maintenance baseline"
+msgstr "نقطة بداية الصيانة"
+
+#: card/meter_reconciliation.py
+msgid "Maintenance policy kept: alert at {0} operating hours, oil change due at {1}."
+msgstr "سياسة الصيانة كما هي: تنبيه عند {0} ساعة تشغيل، وتغيير الزيت مستحق عند {1}."
+
+#: card/meter_reconciliation.py
+msgid "Meter hours (differences only)"
+msgstr "ساعات العداد (الفروق فقط)"
+
+#: card/meter_reconciliation.py
+msgid "Meter reading"
+msgstr "قراءة العداد"
+
+#: card/meter_reconciliation.py
+msgid "Meter readings are cumulative: only differences between consecutive plausible readings count as hours."
+msgstr "قراءات العداد تراكمية: تُحسب الساعات من الفرق بين القراءات المقبولة المتتالية فقط."
+
+#: card/meter_reconciliation.py
+msgid "Needs a decision"
+msgstr "تحتاج قرارًا"
+
+#: card/meter_reconciliation.py
+msgid "Needs a decision only"
+msgstr "اللي تحتاج قرارًا فقط"
+
+#: card/meter_reconciliation.py
+msgid "Needs review only"
+msgstr "اللي تحتاج مراجعة فقط"
+
+#: card/meter_reconciliation.py
+msgid "No legacy fuelling log readings are available on this site (or you may not read them)."
+msgstr "لا توجد قراءات من سجل التموين القديم على هذا الموقع (أو ليس لديك صلاحية قراءتها)."
+
+#: card/meter_reconciliation.py
+msgid "No meter readings"
+msgstr "لا توجد قراءات عداد"
+
+#: card/meter_reconciliation.py
+msgid "Not in CARD: decide whether it is operated equipment (type available)"
+msgstr "غير موجود في CARD: قرر هل هو معدة تشغيل (النوع متاح)"
+
+#: card/meter_reconciliation.py
+msgid "Not in CARD: no equipment type for this Asset category yet"
+msgstr "غير موجود في CARD: لا يوجد نوع معدة لفئة هذا الأصل بعد"
+
+#: card/meter_reconciliation.py
+msgid "Not set: needs a verified meter reading and the completed maintenance of {0} confirmed"
+msgstr "غير محددة: تحتاج قراءة عداد مؤكدة وتأكيد الصيانة المكتملة بتاريخ {0}"
+
+#: card/meter_reconciliation.py
+msgid "Not set: no verified maintenance history"
+msgstr "غير محددة: لا يوجد سجل صيانة مؤكد"
+
+#: card/meter_reconciliation.py
+msgid "One row per equipment"
+msgstr "صف لكل معدة"
+
+#: card/meter_reconciliation.py
+msgid "Only owned or third-party equipment is linked to an Asset; rented equipment has no Asset."
+msgstr "تُربط بالأصل المعدات المملوكة أو التابعة لطرف ثالث فقط؛ المعدة المستأجرة ليس لها أصل."
+
+#: card/meter_reconciliation.py
+msgid "Owned equipment without an Asset link: confirm its Asset or ownership"
+msgstr "معدة مملوكة بدون ربط بأصل: أكّد أصلها أو ملكيتها"
+
+#: card/meter_reconciliation.py
+msgid "Possible identity conflict between the Asset ID and its name or item: {0}"
+msgstr "احتمال تعارض في هوية الأصل بين رقمه واسمه أو صنفه: {0}"
+
+#: card/meter_reconciliation.py
+msgid "Reading check"
+msgstr "فحص القراءة"
+
+#: card/meter_reconciliation.py
+msgid "Reading issues"
+msgstr "مشاكل القراءات"
+
+#: card/meter_reconciliation.py
+msgid "Reading time"
+msgstr "وقت القراءة"
+
+#: card/meter_reconciliation.py
+msgid "Sold or scrapped: no CARD equipment needed"
+msgstr "مباع أو مُكهّن: لا يحتاج معدة في CARD"
+
+#: card/meter_reconciliation.py
+msgid "Source record"
+msgstr "السجل المصدر"
+
+#: card/meter_reconciliation.py
+msgid "This report sets no maintenance baseline and changes nothing."
+msgstr "هذا التقرير لا يحدد نقطة بداية للصيانة ولا يغيّر أي شيء."
+
+#: card/meter_reconciliation.py
+msgid "Type for this category"
+msgstr "النوع لهذه الفئة"
+
+#: card/meter_reconciliation.py
+msgid "Plausible"
+msgstr "قراءة مقبولة"
+
+#: card/meter_reconciliation.py
+msgid "Invalid reading (zero, negative or empty)"
+msgstr "قراءة غير صالحة (صفر أو سالبة أو فارغة)"
+
+#: card/meter_reconciliation.py
+msgid "Duplicate reading"
+msgstr "قراءة مكررة"
+
+#: card/meter_reconciliation.py
+msgid "Backward reading"
+msgstr "قراءة راجعة للخلف"
+
+#: card/meter_reconciliation.py
+msgid "Meter reset (reading restarts near zero)"
+msgstr "تصفير العداد (القراءة بدأت من قرب الصفر)"
+
+#: card/meter_reconciliation.py
+msgid "Impossible jump (more hours than elapsed time)"
+msgstr "قفزة غير ممكنة (ساعات أكثر من الوقت المنقضي)"
+
+#: card/meter_reconciliation.py
+msgid "Recorded hours equal the whole meter (cumulative): ignored"
+msgstr "الساعات المسجلة تساوي العداد كله (تراكمية): تم تجاهلها"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "A move paid by {0} with the cost borne by {1} is not supported. When the equipment supplier transports the machine and charges the company, record the company as payer and the equipment supplier as the transporter."
+msgstr "نقل يدفعه {0} وتتحمل تكلفته {1} غير مدعوم. لو مورد المعدة نقلها وحاسب الشركة، سجّل الشركة كدافع ومورد المعدة كناقل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Absorbed by the company — approved exception"
+msgstr "تحملتها الشركة — استثناء معتمد"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Absorption reason"
+msgstr "سبب التحمل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Adjustment document"
+msgstr "مستند تسوية"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Agreed billing amount (before VAT)"
+msgstr "مبلغ الفوترة المتفق عليه (قبل الضريبة)"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "All transports"
+msgstr "كل عمليات النقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Already on Purchase Invoice {0}"
+msgstr "مسجلة بالفعل في فاتورة الشراء {0}"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Authorization document"
+msgstr "مستند التفويض"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Authorization reference"
+msgstr "مرجع التفويض"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Bill customer"
+msgstr "فوترة العميل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Billing project"
+msgstr "مشروع الفوترة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company absorbs"
+msgstr "الشركة تتحمل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company cost recorded — Purchase Invoice posting waits for the accountant"
+msgstr "تكلفة الشركة مسجلة — ترحيل فاتورة الشراء في انتظار المحاسب"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company overhead"
+msgstr "مصروف عام للشركة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost borne by"
+msgstr "مين يتحمل التكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost center {0} cannot carry a cost of company {1} (it must be an enabled, non-group cost center of that company)."
+msgstr "مركز التكلفة {0} لا يمكن تحميل تكلفة شركة {1} عليه (يجب أن يكون مركز تكلفة مفعّلًا وغير تجميعي في تلك الشركة)."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost charged to"
+msgstr "تُحمّل على"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost decision"
+msgstr "القرار المالي للتكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project"
+msgstr "مشروع التكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project {0} does not belong to company {1}."
+msgstr "مشروع التكلفة {0} لا يتبع الشركة {1}."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project {0} has no cost center; set the project's cost center first."
+msgstr "مشروع التكلفة {0} ليس له مركز تكلفة؛ حدّد مركز تكلفة المشروع أولًا."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost responsibility"
+msgstr "مسؤولية التكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer billing recorded — invoicing waits for the accountant and the tax adviser"
+msgstr "فوترة العميل مسجلة — إصدار الفاتورة في انتظار المحاسب والمستشار الضريبي"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Decision note"
+msgstr "ملاحظة القرار"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Decision {0} does not fit a transport whose cost is borne by {1}."
+msgstr "القرار {0} لا يناسب نقلًا يتحمل تكلفته {1}."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Deduct from monthly dues"
+msgstr "خصم من المستحقات الشهرية"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Destination project"
+msgstr "مشروع الوجهة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the agreed billing amount."
+msgstr "أدخل مبلغ الفوترة المتفق عليه."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the amount recovered from the equipment supplier."
+msgstr "أدخل المبلغ المسترد من مورد المعدة."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the authorization reference (contract, order or approval)."
+msgstr "أدخل مرجع التفويض (عقد أو أمر أو موافقة)."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the transporter cost of a move the company pays."
+msgstr "أدخل تكلفة الناقل لنقل تدفعه الشركة."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision"
+msgstr "القرار المالي"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision pending (Accounts Manager)"
+msgstr "القرار المالي معلّق (مدير الحسابات)"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision rejected — cancel and amend the transport"
+msgstr "القرار المالي أعاد النقل للتصحيح — ألغِ النقل وعدّله"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial status"
+msgstr "الحالة المالية"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Monthly invoice"
+msgstr "الفاتورة الشهرية"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Needs attention"
+msgstr "تحتاج متابعة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No charge"
+msgstr "بدون تكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No decision needed"
+msgstr "لا يحتاج قرارًا"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Old field: cost borne by {0}"
+msgstr "الحقل القديم: التكلفة على {0}"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Only an Accounts Manager records the financial decision of a transport."
+msgstr "مدير الحسابات فقط يسجل القرار المالي للنقل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Overhead cost center"
+msgstr "مركز تكلفة عام"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Place {0}"
+msgstr "المكان {0}"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Project {0} belongs to customer {1}, not {2}."
+msgstr "المشروع {0} تابع للعميل {1} وليس {2}."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record decision"
+msgstr "سجّل القرار"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record financial decision"
+msgstr "سجّل القرار المالي"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record only (no company cost)"
+msgstr "للتسجيل فقط (لا تكلفة على الشركة)"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recorded before P1-2 — review"
+msgstr "مسجل قبل P1-2 — للمراجعة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recorded before P1-2: payer, cost bearer and cost project not recorded"
+msgstr "مسجل قبل P1-2: الدافع ومتحمل التكلفة ومشروع التكلفة غير مسجلين"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recover from equipment supplier"
+msgstr "الاسترداد من مورد المعدة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery amount"
+msgstr "مبلغ الاسترداد"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery method"
+msgstr "طريقة الاسترداد"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery recorded — not posted until the accountant decides"
+msgstr "الاسترداد مسجل — لا يُرحّل حتى يقرر المحاسب"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Return for correction"
+msgstr "إعادة للتصحيح"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select an active customer to bill."
+msgstr "اختر عميلًا نشطًا للفوترة."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select how the cost is recovered from the equipment supplier."
+msgstr "اختر طريقة استرداد التكلفة من مورد المعدة."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the billing project of company {0}."
+msgstr "اختر مشروع الفوترة التابع للشركة {0}."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the cost project. It is never taken from where the machine comes from or goes to; choose it explicitly."
+msgstr "اختر مشروع التكلفة. لا يُؤخذ أبدًا من مكان خروج المعدة أو وصولها؛ اختره صراحةً."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the transporter of a move the company pays."
+msgstr "اختر الناقل لنقل تدفعه الشركة."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Separate invoice"
+msgstr "فاتورة منفصلة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Source project"
+msgstr "مشروع المصدر"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The authorization document was not found."
+msgstr "مستند التفويض غير موجود."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The financial decision of a transport is recorded by an Accounts Manager only."
+msgstr "القرار المالي للنقل يسجله مدير الحسابات فقط."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The financial decision of transport {0} is recorded by another person than its creator or submitter."
+msgstr "القرار المالي للنقل {0} يسجله شخص غير من أنشأه أو اعتمده."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport submitted by"
+msgstr "اعتمد النقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport {0} has no pending financial decision."
+msgstr "النقل {0} ليس له قرار مالي معلّق."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transporter cost"
+msgstr "تكلفة الناقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transporter paid by"
+msgstr "مين بيدفع للناقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Use as cost project"
+msgstr "استخدم كمشروع تكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Workshop or storage"
+msgstr "ورشة أو مخزن"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Write why the company absorbs the customer's transport cost."
+msgstr "اكتب سبب تحمل الشركة لتكلفة نقل العميل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Write why the transport is rejected."
+msgstr "اكتب سبب إعادة النقل للتصحيح."
+
+#: card/gl/integrity.py
+msgid "Transport {0} records who pays and who bears its cost; linking it to a supplier invoice is not enabled yet."
+msgstr "النقل {0} مسجل عليه مين يدفع ومين يتحمل تكلفته؛ ربطه بفاتورة مورد غير مفعّل حاليًا."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select whether the customer is billed on the monthly invoice or separately."
+msgstr "اختر هل يُفوتر العميل في الفاتورة الشهرية أم بفاتورة منفصلة."
+
+#: card/card/report/transport_accounting_review/transport_accounting_review.js
+msgid "Transport Accounting Review"
+msgstr "مراجعة محاسبة النقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport responsibility"
+msgstr "مسؤولية النقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company bears the cost"
+msgstr "الشركة تتحمل التكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company pays, bills the customer"
+msgstr "الشركة تدفع وتفوتر العميل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company pays, recovers from equipment supplier"
+msgstr "الشركة تدفع وتسترد من مورد المعدة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Equipment supplier bears the cost"
+msgstr "مورد المعدة يتحمل التكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer pays the transporter directly"
+msgstr "العميل يدفع للناقل مباشرة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No transport charge"
+msgstr "بدون تكلفة نقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Responsibility needs review"
+msgstr "المسؤولية تحتاج مراجعة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer billing eligible"
+msgstr "قابل للفوترة على العميل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Supplier recovery eligible"
+msgstr "قابل للاسترداد من المورد"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport edited by"
+msgstr "عدّل النقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the transport responsibility."
+msgstr "اختر مسؤولية النقل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Confirm the customer and the billing project."
+msgstr "أكّد العميل ومشروع الفوترة."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Attach the authorization document of a separate invoice."
+msgstr "أرفق مستند التفويض للفاتورة المنفصلة."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "I confirmed the customer and the billing project"
+msgstr "أكدت العميل ومشروع الفوترة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "More decision details"
+msgstr "تفاصيل إضافية للقرار"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer invoicing method"
+msgstr "طريقة فوترة العميل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Responsibility needs review — cancel and amend with the verified responsibility"
+msgstr "المسؤولية تحتاج مراجعة — ألغِ النقل وعدّله بالمسؤولية المؤكدة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision recorded."
+msgstr "تم تسجيل القرار المالي."
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Customer rate (night shift)"
+msgstr "سعر العميل (الوردية الليلية)"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Equipment Monthly Operation Card"
+msgstr "كارت تشغيل معدة شهري"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "(Cancelled)"
+msgstr "(ملغي)"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card no."
+msgstr "رقم الكارت"
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "Document no."
+msgstr "رقم المستند"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Adjustment amount"
+msgstr "المبلغ"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Rate ({0})"
+msgstr "السعر ({0})"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Customer rate ({0})"
+msgstr "سعر العميل ({0})"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer side amount"
+msgstr "قيمة جانب العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Internal operation"
+msgstr "تشغيل داخلي"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Not billed"
+msgstr "بدون فوترة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier settlement"
+msgstr "تسوية المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier gross"
+msgstr "إجمالي المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier additions"
+msgstr "إضافات المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier deductions"
+msgstr "خصومات المورد"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier net before VAT"
+msgstr "صافي المورد قبل الضريبة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer settlement"
+msgstr "تسوية العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer gross"
+msgstr "إجمالي العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer additions"
+msgstr "إضافات العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer deductions"
+msgstr "خصومات العميل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer net before VAT"
+msgstr "صافي العميل قبل الضريبة"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Driver / operator signature"
+msgstr "توقيع السائق / المشغّل"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Site supervisor approval"
+msgstr "اعتماد المشرف الميداني"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Project manager approval"
+msgstr "اعتماد مدير المشروع"
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card totals"
+msgstr "الإجماليات"
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+msgid "Amount summary"
+msgstr "الإجماليات"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Cards net for the period"
+msgstr "صافي الكروت عن الفترة"
+
+
+
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Work done not yet invoiced (before VAT)"
+msgstr "أعمال منفذة لم تُفوتر بعد (قبل الضريبة)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Issued by the electronic system of {0}"
+msgstr "تم الإصدار من نظام {0} الإلكتروني"
+
+#: card/gl/journal_link.py
+msgid "Only an accountant may link accrual journal entries to CARD cards."
+msgstr "لا يربط قيود الاستحقاق بكروت CARD إلا محاسب."
+
+#: card/gl/journal_link.py
+msgid "Choose the CARD monthly cards this journal entry recognised."
+msgstr "اختر كروت CARD الشهرية التي أثبت هذا القيد استحقاقها."
+
+#: card/gl/journal_link.py
+msgid "A card is listed twice."
+msgstr "كارت مكرر في القائمة."
+
+#: card/gl/journal_link.py
+msgid "You are not permitted to link journal entries for company {0}."
+msgstr "غير مسموح لك بربط قيود يومية للشركة {0}."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not submitted."
+msgstr "القيد {0} غير معتمد."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is already linked to CARD cards ({1})."
+msgstr "القيد {0} مربوط بالفعل بكروت CARD ({1})."
+
+#: card/gl/journal_link.py
+msgid "Card {0} is not submitted."
+msgstr "الكارت {0} غير معتمد."
+
+#: card/gl/journal_link.py
+msgid "Card {0} belongs to another company or supplier than journal entry {1}."
+msgstr "الكارت {0} تابع لشركة أو مورد غير القيد {1}."
+
+#: card/gl/journal_link.py
+msgid "Card {0} is not billed by a supplier."
+msgstr "الكارت {0} لا يُفوتر من مورد."
+
+#: card/gl/journal_link.py
+msgid "Card {0} is already invoiced by {1}."
+msgstr "الكارت {0} مفوتر بالفعل في {1}."
+
+#: card/gl/journal_link.py
+msgid "Card {0} is already held by {1}."
+msgstr "الكارت {0} محجوز بالفعل في {1}."
+
+#: card/gl/journal_link.py
+msgid "Cannot confirm the link: the cards total {0} net, the journal entry credits the supplier {1}. Link only the cards it recognised, or accept the difference {2} with a reason."
+msgstr "تعذّر تأكيد الربط: صافي الكروت {0}، والقيد يُقيّد للمورد دائناً {1}. اربط الكروت التي أثبت القيد استحقاقها فقط، أو اقبل الفرق {2} مع ذكر السبب."
+
+#: card/gl/journal_link.py
+msgid "Linked amounts differ"
+msgstr "المبالغ المربوطة غير متطابقة"
+
+#: card/gl/journal_link.py
+msgid "Linked by {0}: accrual journal entry {1} credits the supplier {2}, CARD cards net {3}, {4}. {5}"
+msgstr "ربطه {0}: قيد الاستحقاق {1} يُقيّد للمورد دائناً {2}، وصافي كروت CARD {3}، {4}. {5}"
+
+#: card/gl/journal_link.py
+msgid "open difference {0} accepted"
+msgstr "تم قبول فرق مفتوح {0}"
+
+#: card/gl/journal_link.py
+msgid "matched"
+msgstr "مطابق"
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} has a party other than a supplier."
+msgstr "القيد {0} فيه طرف غير المورد."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} must recognise exactly one supplier."
+msgstr "يجب أن يُثبت القيد {0} استحقاق مورد واحد فقط."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} does not credit supplier {1}; it is not an accrual."
+msgstr "القيد {0} لا يُقيّد المورد {1} دائناً؛ ليس قيد استحقاق."
+
+#: card/gl/journal_link.py
+msgid "Journal entry cancelled; cards freed."
+msgstr "أُلغي القيد وأُعيدت الكروت غير مستحقة."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Choose a supplier or a customer."
+msgstr "اختر مورداً أو عميلاً."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "This report shows ledger balances; it needs General Ledger access."
+msgstr "هذا التقرير يعرض أرصدة الحسابات ويحتاج صلاحية دفتر الأستاذ العام."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Not recognised yet"
+msgstr "غير مستحق بعد"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognising document is a draft"
+msgstr "مستند الاستحقاق مسودة"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Fully settled"
+msgstr "مسدد بالكامل"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Partly settled"
+msgstr "مسدد جزئياً"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised, not settled"
+msgstr "مستحق – غير مسدد"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Cards net"
+msgstr "صافي الكروت"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised share"
+msgstr "الحصة المستحقة"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Paid on the card"
+msgstr "المسدد على الكارت"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Remaining on the card"
+msgstr "المتبقي على الكارت"
+
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
+msgstr "المبالغ من دفتر مستند الاستحقاق (شاملة الضريبة في الفواتير). المستند الذي أثبت أكثر من مصدر يُوزَّع على مبالغها، وتُخصَّص دفعاته للأقدم أولاً. الدفعات غير المخصصة لمستند تُسوّى في الحسابات بأداة تسوية المدفوعات (Payment Reconciliation)."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Card net"
+msgstr "صافي الكارت"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised by"
+msgstr "نوع مستند الاستحقاق"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognising document"
+msgstr "مستند الاستحقاق"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Card share of the document"
+msgstr "حصة الكارت من المستند"
+
+#: card/card/report/card_settlement_status/card_settlement_status.js
+msgid "Card Settlement Status"
+msgstr "حالة تسوية الكروت"
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not an ordinary accrual entry."
+msgstr "القيد {0} ليس قيد استحقاق عادياً."
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is booked against {1} {2}; it is not an accrual of its own."
+msgstr "القيد {0} مسجّل مقابل {1} {2}؛ ليس قيد استحقاق مستقلاً."
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Ledger entry of the document not found"
+msgstr "لم يُعثر على قيد المستند في دفتر المدفوعات"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Credit notes and adjustments"
+msgstr "إشعارات دائنة وتسويات"
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Payments not allocated to a document up to the end date"
+msgstr "دفعات غير مخصصة لمستند حتى تاريخ النهاية"
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Invalid filters"
+msgstr "فلاتر غير صالحة"
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The PDF could not be created. Check the Chrome PDF generator."
+msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح Chrome."
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The statement print template has no style block."
+msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."

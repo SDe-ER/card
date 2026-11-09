@@ -2846,6 +2846,18 @@ msgid "Issue date"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Owned equipment"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Statement totals"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Period charges (incl. VAT)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Accountant signature"
 msgstr ""
 
@@ -2859,4 +2871,1254 @@ msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Includes draft cards"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Card {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Cost allocation needs review"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Diesel fill {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Project {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "The assignment of {0} to project {1}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "origin not recorded"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0} ({1} → {2}): which project bears this move is not recorded, and neither the project it leaves nor the project it goes to is assumed; review it and enter the supplier invoice manually."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0} has cost center {1}, which cannot carry a posting of company {2} (it must be an enabled, non-group cost center of that company). Correct it and build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0} has no cost center for its place; set the place's cost center in Card Settings (Transport), then cancel and amend the transport."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: its cost center {1} is not the one now configured for {2} in Card Settings ({3}); review it, then cancel and amend the transport."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: project {1} has no cost center, and the cost center of equipment {2} ({3}) may belong to another project or to the asset; set the project's (or the assignment's) cost center, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: project {1} has no cost center; set the project's (or the assignment's) cost center, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: the assignments of {1} to project {2} on these days resolve to different cost centers ({3}); give the assignments one cost center, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: who pays this move is not recorded; review it, then cancel and amend the transport with its payer (Transport cost borne by)."
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Aggregated invoice: sessions after {0} up to the bill date"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "Amount only: gross / session price = {0} L"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Delivery charge litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Delivery charge up to (litres)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Diesel sessions"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel suppliers (one delivery stream)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session ({0})"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Evidence"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Exceptions"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Invoice date window (days)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice gross"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "Invoice litres = session + {0} L delivery charge inside the diesel line"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice net"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice projects"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice states no litres: estimated as gross / session price {0} (unverified)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice without session"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced diesel litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Litre difference"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Litres equal"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Matched: {0}"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Not invoiced yet"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Other lines (not diesel) {0}"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: litres agree"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Physical diesel = session litres; the difference is a delivery charge booked as diesel"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Price VAT basis"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Select the period"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Separate delivery charge line {0}"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session projects"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session without invoice"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "Unverified (no litres on the invoice)"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "Unverified (price per litre {0} gross, {1} net)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT %"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "VAT-exclusive price"
+msgstr ""
+
+#: card/diesel_reconciliation.py
+msgid "VAT-inclusive price"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "You need read access to {0} to run this report"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "the start of the period"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} invoice line(s) without project"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} sessions ({1} .. {2})"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel Invoice Reconciliation"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Allocation check"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Inferred: invoice text litres = session + delivery charge"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Inferred: invoice text litres equal the session"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Diesel sessions to include"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Equipment conflict"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: amount only, the invoice states no litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: period match on stated litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Estimated: period match, litres estimated from the amount"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoice has no project"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Match confidence"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "No match"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: difference to review (invoice above sessions)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Period: difference to review (sessions above invoice)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Physical diesel litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Project conflict"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Session state"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Submitted and draft"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.js
+msgid "Submitted only"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Submitted session litres"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Submitted {0}, draft {1}"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Unexplained difference: not a confirmed over-billing, missing invoice or missing payment"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "VAT as booked on the invoice"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Consistent"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "After the period end: to review with the next period"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Amount only: net / session price = {0} L"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Confirmed: document link (the session names this invoice)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced litres estimated from amounts"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Invoiced physical diesel litres (stated)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Linked: the session names this invoice"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "The first invoice of the period may include deliveries before the period"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "{0} (draft session, not yet approved)"
+msgstr ""
+
+#: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py
+msgid "Draft session"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "All Assets"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "All equipment"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Allowed difference %"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Asset meter fields"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Asset meter fields differ from the last plausible reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Asset name"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Asset status"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Assets and equipment reviewed"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "CARD hours (submitted cards, same period)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "CARD hours differ from the meter hours by more than {0}%"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Difference %"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Every reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "First plausible reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "First reading date"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Hours since previous plausible reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Last plausible reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Last reading date"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Linked Asset is not a submitted Asset of this company you may read"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Linked to equipment that is not owned: review (rented equipment has no Asset)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Linked; equipment type differs from the type of this Asset category"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Maintenance baseline"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Maintenance policy kept: alert at {0} operating hours, oil change due at {1}."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Meter hours (differences only)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Meter reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Meter readings are cumulative: only differences between consecutive plausible readings count as hours."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Needs a decision"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Needs a decision only"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Needs review only"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "No legacy fuelling log readings are available on this site (or you may not read them)."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "No meter readings"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Not in CARD: decide whether it is operated equipment (type available)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Not in CARD: no equipment type for this Asset category yet"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Not set: needs a verified meter reading and the completed maintenance of {0} confirmed"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Not set: no verified maintenance history"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "One row per equipment"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Only owned or third-party equipment is linked to an Asset; rented equipment has no Asset."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Owned equipment without an Asset link: confirm its Asset or ownership"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Possible identity conflict between the Asset ID and its name or item: {0}"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Reading check"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Reading issues"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Reading time"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Sold or scrapped: no CARD equipment needed"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Source record"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "This report sets no maintenance baseline and changes nothing."
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Type for this category"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Plausible"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Invalid reading (zero, negative or empty)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Duplicate reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Backward reading"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Meter reset (reading restarts near zero)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Impossible jump (more hours than elapsed time)"
+msgstr ""
+
+#: card/meter_reconciliation.py
+msgid "Recorded hours equal the whole meter (cumulative): ignored"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "A move paid by {0} with the cost borne by {1} is not supported. When the equipment supplier transports the machine and charges the company, record the company as payer and the equipment supplier as the transporter."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Absorbed by the company — approved exception"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Absorption reason"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Adjustment document"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Agreed billing amount (before VAT)"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "All transports"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Already on Purchase Invoice {0}"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Authorization document"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Authorization reference"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Bill customer"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Billing project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company absorbs"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company cost recorded — Purchase Invoice posting waits for the accountant"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company overhead"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost borne by"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost center {0} cannot carry a cost of company {1} (it must be an enabled, non-group cost center of that company)."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost charged to"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost decision"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project {0} does not belong to company {1}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost project {0} has no cost center; set the project's cost center first."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Cost responsibility"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer billing recorded — invoicing waits for the accountant and the tax adviser"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Decision note"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Decision {0} does not fit a transport whose cost is borne by {1}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Deduct from monthly dues"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Destination project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the agreed billing amount."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the amount recovered from the equipment supplier."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the authorization reference (contract, order or approval)."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Enter the transporter cost of a move the company pays."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision pending (Accounts Manager)"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision rejected — cancel and amend the transport"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial status"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Monthly invoice"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Needs attention"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No charge"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No decision needed"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Old field: cost borne by {0}"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Only an Accounts Manager records the financial decision of a transport."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Overhead cost center"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Place {0}"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Project {0} belongs to customer {1}, not {2}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record decision"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record financial decision"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Record only (no company cost)"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recorded before P1-2 — review"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recorded before P1-2: payer, cost bearer and cost project not recorded"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recover from equipment supplier"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery amount"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery method"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Recovery recorded — not posted until the accountant decides"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Return for correction"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select an active customer to bill."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select how the cost is recovered from the equipment supplier."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the billing project of company {0}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the cost project. It is never taken from where the machine comes from or goes to; choose it explicitly."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the transporter of a move the company pays."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Separate invoice"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Source project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The authorization document was not found."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The financial decision of a transport is recorded by an Accounts Manager only."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The financial decision of transport {0} is recorded by another person than its creator or submitter."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport submitted by"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport {0} has no pending financial decision."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transporter cost"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transporter paid by"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Use as cost project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Workshop or storage"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Write why the company absorbs the customer's transport cost."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Write why the transport is rejected."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Transport {0} records who pays and who bears its cost; linking it to a supplier invoice is not enabled yet."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select whether the customer is billed on the monthly invoice or separately."
+msgstr ""
+
+#: card/card/report/transport_accounting_review/transport_accounting_review.js
+msgid "Transport Accounting Review"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport responsibility"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company bears the cost"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company pays, bills the customer"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Company pays, recovers from equipment supplier"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Equipment supplier bears the cost"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer pays the transporter directly"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "No transport charge"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Responsibility needs review"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer billing eligible"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Supplier recovery eligible"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Transport edited by"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the transport responsibility."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Confirm the customer and the billing project."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Attach the authorization document of a separate invoice."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "I confirmed the customer and the billing project"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "More decision details"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Customer invoicing method"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Responsibility needs review — cancel and amend with the verified responsibility"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Financial decision recorded."
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Equipment Monthly Operation Card"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "(Cancelled)"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card no."
+msgstr ""
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "Document no."
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Adjustment amount"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Rate ({0})"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Customer rate ({0})"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer side amount"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Internal operation"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Not billed"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier settlement"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier gross"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier additions"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier deductions"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier net before VAT"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer settlement"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer gross"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer additions"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer deductions"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer net before VAT"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Driver / operator signature"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Site supervisor approval"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Project manager approval"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card totals"
+msgstr ""
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+msgid "Amount summary"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Cards net for the period"
+msgstr ""
+
+
+
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Work done not yet invoiced (before VAT)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Issued by the electronic system of {0}"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Only an accountant may link accrual journal entries to CARD cards."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Choose the CARD monthly cards this journal entry recognised."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "A card is listed twice."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "You are not permitted to link journal entries for company {0}."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not submitted."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is already linked to CARD cards ({1})."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} is not submitted."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} belongs to another company or supplier than journal entry {1}."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} is not billed by a supplier."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} is already invoiced by {1}."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Card {0} is already held by {1}."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Cannot confirm the link: the cards total {0} net, the journal entry credits the supplier {1}. Link only the cards it recognised, or accept the difference {2} with a reason."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Linked amounts differ"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Linked by {0}: accrual journal entry {1} credits the supplier {2}, CARD cards net {3}, {4}. {5}"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "open difference {0} accepted"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "matched"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} has a party other than a supplier."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} must recognise exactly one supplier."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} does not credit supplier {1}; it is not an accrual."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry cancelled; cards freed."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Choose a supplier or a customer."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "This report shows ledger balances; it needs General Ledger access."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Not recognised yet"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognising document is a draft"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Fully settled"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Partly settled"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised, not settled"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Cards net"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised share"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Paid on the card"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Remaining on the card"
+msgstr ""
+
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Card net"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognised by"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Recognising document"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Card share of the document"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.js
+msgid "Card Settlement Status"
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is not an ordinary accrual entry."
+msgstr ""
+
+#: card/gl/journal_link.py
+msgid "Journal entry {0} is booked against {1} {2}; it is not an accrual of its own."
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Ledger entry of the document not found"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Credit notes and adjustments"
+msgstr ""
+
+#: card/card/report/card_settlement_status/card_settlement_status.py
+msgid "Payments not allocated to a document up to the end date"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Invalid filters"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The PDF could not be created. Check the Chrome PDF generator."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The statement print template has no style block."
 msgstr ""

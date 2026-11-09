@@ -117,7 +117,15 @@ class TestGLPostingLogIntegrity(_ReconciliationBase):
 		self._vat_supplier()
 		self._example_card()
 		pi = frappe.get_doc(
-			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+			"Purchase Invoice",
+			build_monthly_posting(
+				self.company,
+				"Supplier",
+				self.supplier,
+				9,
+				2026,
+				reviewed_invoices=self._unrelated_manual_invoices(),
+			),
 		)
 		pi.bill_no = "TEST-GL57-" + frappe.generate_hash(length=6)
 		pi.bill_date = pi.posting_date

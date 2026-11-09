@@ -1,7 +1,7 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
 """#34: monthly PI lines use the source document's own cost center (fill /
-transport) when it has one, else the company default; a tank fill split by
+transport) when it has one (P1-0: else the project/assignment allocation); a tank fill split by
 hours states each line's own litres share, marked as an estimate."""
 
 import frappe
@@ -10,6 +10,7 @@ from frappe.utils import flt
 from card.gl.posting import build_monthly_posting
 from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.test_s3_posting import _PostingBase
+from card.tests.transport_parties import as_recorded_before_p12, company_paid
 
 
 class TestPostingLines(_PostingBase):
@@ -53,20 +54,33 @@ class TestPostingLines(_PostingBase):
 		own = self._cost_center("FILL")
 		with_cc = self._fill(card_equipment=eq.name, litres=10, unit_price=2, cost_center=own)
 		without_cc = self._fill(card_equipment=eq.name, litres=5, unit_price=2)
-		# v3.0.0 (Owner 2026-10-19): a transport is charged to its destination's cost center
 		frappe.db.set_value("Project", self.project, "cost_center", own)
+		# P1-0 (Owner decisions 2026-10-30): a company-paid move to a project has no recorded
+		# bearer project and is refused (test_p1_cost_allocation); a move to a workshop takes
+		# the cost center configured for the place
+		place = frappe.new_doc("Location")
+		place.location_name = "TEST-PL-SHOP-" + self.token
+		place.insert(ignore_permissions=True)
+		settings = frappe.get_single("Card Settings")
+		settings.append(
+			"location_cost_centers", {"company": self.company, "location": place.name, "cost_center": own}
+		)
+		settings.save(ignore_permissions=True)
 		transport = frappe.get_doc(
 			{
 				"doctype": "Equipment Transport",
 				"date": "2026-09-14",
-				"project": self.project,
+				"destination_type": "Workshop",
+				"destination_location": place.name,
 				"transport_supplier": self.supplier,
 				"company": self.company,
 				"amount": 300,
+				"items": [{"card_equipment": eq.name}],
 			}
 		)
-		transport.insert(ignore_permissions=True)
+		company_paid(transport, basis="Workshop or storage").insert(ignore_permissions=True)
 		transport.submit()
+		as_recorded_before_p12(transport.name)  # P1-0 rule of a transport recorded before P1-2
 		pi = self._pi()
 		default = frappe.db.get_value(
 			"Card Company Settings", {"parent": "Card Settings", "company": self.company}, "cost_center"
@@ -78,7 +92,9 @@ class TestPostingLines(_PostingBase):
 					by_source[name] = item.cost_center
 		self.assertEqual(by_source[with_cc.name], own)
 		self.assertEqual(by_source[transport.name], own)
-		self.assertEqual(by_source[without_cc.name], default)
+		# P1-0 (FR-091): a fill without its own cost center takes its project's (set above)
+		self.assertEqual(by_source[without_cc.name], own)
+		self.assertNotEqual(own, default)
 
 	def test_split_lines_state_their_own_estimated_litres(self):
 		eq_a = self._equipment()
@@ -415,7 +431,15 @@ class TestReconciliationEdgeCases(_ReconciliationBase):
 
 	def _card_pi(self):
 		pi = frappe.get_doc(
-			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+			"Purchase Invoice",
+			build_monthly_posting(
+				self.company,
+				"Supplier",
+				self.supplier,
+				9,
+				2026,
+				reviewed_invoices=self._unrelated_manual_invoices(),
+			),
 		)
 		pi.bill_no = "TEST-BILL-EDGE-" + frappe.generate_hash(length=6)
 		pi.bill_date = pi.posting_date
@@ -558,6 +582,9 @@ class TestReconciliationEdgeCases(_ReconciliationBase):
 		second = frappe.new_doc("Project")
 		second.project_name = "TEST-REC-PRJ-B-" + self.token
 		second.company = self.company
+		second.cost_center = frappe.db.get_value(
+			"Cost Center", {"company": self.company, "is_group": 0}, "name"
+		)
 		second.insert(ignore_permissions=True)
 		return second.name
 

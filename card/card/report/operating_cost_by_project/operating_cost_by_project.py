@@ -3,6 +3,7 @@ from frappe import _
 from frappe.utils import flt
 
 from card.report_access import readable_links, resolve_company
+from card.transport_costs import transport_cost_by_project
 
 
 def get_columns():
@@ -23,9 +24,6 @@ def get_columns():
 def get_project_totals(doctype, filters):
 	"""Return {project: sum of amount} for SUBMITTED docs of `doctype` matching the report filters."""
 	doc_filters = [["docstatus", "=", 1]]
-	if doctype == "Equipment Transport":
-		# v3.0.0: only moves the company pays are its operating cost (Owner 2026-10-19)
-		doc_filters.append(["cost_borne_by", "in", ["Company", "", None]])
 	if filters.get("company"):
 		doc_filters.append(["company", "=", filters.get("company")])
 	if filters.get("from_date"):
@@ -57,7 +55,12 @@ def execute(filters=None):
 	filters.company = resolve_company(filters, "Project Diesel Fill", "Equipment Transport")
 
 	diesel = get_project_totals("Project Diesel Fill", filters)
-	transport = get_project_totals("Equipment Transport", filters)
+	transport = {
+		project: entry["amount"]
+		for project, entry in transport_cost_by_project(
+			filters.get("company"), filters.get("from_date"), filters.get("to_date"), filters.get("project")
+		).items()
+	}
 
 	data = []
 	for project in sorted(set(diesel) | set(transport)):

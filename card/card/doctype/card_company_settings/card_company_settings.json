@@ -29,6 +29,7 @@
   "rental_out_item",
   "pricing_section",
   "diesel_unit_price",
+  "diesel_price_vat_basis",
   "settlement_section",
   "bank_cash_account",
   "column_break_settlement",
@@ -220,13 +221,20 @@
    "label": "VAT 0% item tax template",
    "options": "Item Tax Template",
    "permlevel": 1
+  },
+  {
+   "fieldname": "diesel_price_vat_basis",
+   "fieldtype": "Select",
+   "label": "Diesel price VAT basis",
+   "options": "\nExclusive\nInclusive",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-10-20 12:00:00.000000",
+ "modified": "2026-10-30 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",

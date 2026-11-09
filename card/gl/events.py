@@ -53,18 +53,22 @@ def _log_sources(log):
 	return [(row.source_doctype, row.source_name) for row in log.get("sources") or []]
 
 
-def active_log_holding(doctype, name):
+def active_log_holding(doctype, name, party_type=None):
 	"""The active (Draft/Submitted) GL Posting Log that includes this source,
-	if any — exact membership through the GL Posting Source child rows."""
+	if any — exact membership through the GL Posting Source child rows; with
+	party_type, only a log of that side counts."""
 	for parent in frappe.get_all(
 		"GL Posting Source",
 		filters={"parenttype": "GL Posting Log", "source_doctype": doctype, "source_name": name},
 		pluck="parent",
 	):
 		log = frappe.db.get_value(
-			"GL Posting Log", parent, ["name", "status", "posting_doc", "posting_doctype"], as_dict=True
+			"GL Posting Log",
+			parent,
+			["name", "status", "posting_doc", "posting_doctype", "party_type"],
+			as_dict=True,
 		)
-		if log and log.status in ACTIVE_STATES:
+		if log and log.status in ACTIVE_STATES and (not party_type or log.party_type == party_type):
 			return log
 	return None
 
@@ -103,13 +107,18 @@ def _other_side_still_posted(doctype, name, cleared_field):
 	return bool(frappe.db.get_value(doctype, name, other))
 
 
+def _is_built(log):
+	return (log.get("origin") or "Built") == "Built"
+
+
 def validate(doc, method=None):
 	"""Reject amendments of CARD postings and user edits that would skew the
 	generated draft's arithmetic."""
 	_block_amended_copy(doc)
 	if doc.flags.get("card_gl_build"):
 		return
-	if not _log_for(doc):
+	log = _log_for(doc)
+	if not log or not _is_built(log):
 		return
 	stored = (
 		frappe.db.get_value(
@@ -143,9 +152,15 @@ def _block_amended_copy(doc):
 	name, seen = doc.get("amended_from"), set()
 	while name and name not in seen:
 		seen.add(name)
+		# only CARD-built postings: a hand-booked supplier invoice that was linked keeps
+		# the normal ERPNext cancel-and-amend correction (its link is freed on cancel)
 		logged = frappe.get_all(
 			"GL Posting Log",
-			filters={"posting_doc": name, "posting_doctype": doc.doctype},
+			filters={
+				"posting_doc": name,
+				"posting_doctype": doc.doctype,
+				"origin": ["in", ["Built", "", None]],
+			},
 			pluck="creation",
 		)
 		if logged:
@@ -162,6 +177,16 @@ def _block_amended_copy(doc):
 def before_submit(doc, method=None):
 	log = _log_for(doc)
 	if not log:
+		# P0: an invoice CARD did not build may not repeat a CARD posting or a held source.
+		# A return / credit note or a debit note against an invoice corrects it; it never books the source twice.
+		if doc.get("is_return") or doc.get("is_debit_note"):
+			return
+		from card.gl.integrity import check_not_a_copy, warn_card_postings_nearby
+
+		check_not_a_copy(doc, "Supplier" if doc.doctype == "Purchase Invoice" else "Customer")
+		if doc.doctype == "Purchase Invoice":
+			_check_bill_no_not_on_a_card_posting(doc)
+		warn_card_postings_nearby(doc)
 		return
 	# KSA VAT input: the supplier's own invoice number/date must be on the PI.
 	if doc.doctype == "Purchase Invoice" and frappe.db.get_value("Supplier", doc.supplier, "tax_id"):
@@ -178,6 +203,18 @@ def before_submit(doc, method=None):
 	from card.gl import preflight
 	from card.settings import setting
 
+	if not _is_built(log):
+		# a linked supplier invoice keeps its own lines; it must still be the invoice that was
+		# linked (company, supplier, amount), and the reservation of its sources is re-verified
+		from card.gl.integrity import check_linked_invoice
+
+		check_linked_invoice(doc, log)
+		_verify_sources(doc, log)
+		return
+	from card.gl.integrity import check_built_signature
+
+	check_built_signature(doc, log)
+	_check_bill_no_unique(doc)
 	if doc.company != log.company:
 		frappe.throw(
 			_("{0} was retargeted to another company; rebuild the posting instead of editing it.").format(
@@ -201,7 +238,61 @@ def before_submit(doc, method=None):
 				"{0} no longer matches its source documents (lines total {1}, sources total {2}); rebuild the posting instead of editing it."
 			).format(doc.name, actual, expected)
 		)
-	# Re-verify the reservation at submit time (guards the build->submit gap).
+	_verify_sources(doc, log)
+
+
+def _check_bill_no_unique(doc):
+	"""One supplier invoice number is booked once: a CARD posting may not reuse the
+	bill no. of another live invoice of the same supplier."""
+	if doc.doctype != "Purchase Invoice" or not doc.get("bill_no"):
+		return
+	other = frappe.db.get_value(
+		"Purchase Invoice",
+		{"supplier": doc.supplier, "bill_no": doc.bill_no, "docstatus": ["<", 2], "name": ["!=", doc.name]},
+		"name",
+	)
+	if other:
+		frappe.throw(
+			_(
+				"Supplier invoice no. {0} is already booked on {1}; link that invoice instead of booking it again."
+			).format(doc.bill_no, other),
+			title=_("Possible duplicate expense"),
+		)
+
+
+def _check_bill_no_not_on_a_card_posting(doc):
+	"""A hand-booked invoice may not book the supplier invoice no. a CARD posting already booked."""
+	if not doc.get("bill_no"):
+		return
+	for name in frappe.get_all(
+		"Purchase Invoice",
+		filters={
+			"supplier": doc.supplier,
+			"bill_no": doc.bill_no,
+			"docstatus": ["<", 2],
+			"name": ["!=", doc.name],
+		},
+		pluck="name",
+	):
+		if frappe.db.exists(
+			"GL Posting Log",
+			{
+				"posting_doctype": "Purchase Invoice",
+				"posting_doc": name,
+				"status": ["in", list(ACTIVE_STATES)],
+				"origin": ["in", ["Built", "", None]],
+			},
+		):
+			frappe.throw(
+				_(
+					"Supplier invoice no. {0} is already booked by CARD posting {1}; correct or cancel that posting instead of booking it again."
+				).format(doc.bill_no, name),
+				title=_("Possible duplicate expense"),
+			)
+
+
+def _verify_sources(doc, log):
+	"""Re-verify the reservation at submit time (guards the build->submit gap)."""
 	field = _side_field(doc.doctype)
 	for doctype, name in _log_sources(log):
 		if frappe.db.get_value(doctype, name, "docstatus") != 1:
@@ -231,6 +322,11 @@ def on_submit(doc, method=None):
 	log = _log_for(doc)
 	if not log:
 		return
+	link_sources_on_submit(doc, log)
+
+
+def link_sources_on_submit(doc, log):
+	"""Write the invoice link and `posted` on every source of the log."""
 	field = _side_field(doc.doctype)
 	for doctype, name in _log_sources(log):
 		if frappe.get_meta(doctype).has_field(field):

@@ -77,7 +77,7 @@ required_apps = ["erpnext"]
 # ----------
 
 # add methods and filters to jinja environment
-jinja = {"methods": ["card.print_utils.card_amount_in_words"]}
+jinja = {"methods": ["card.print_utils.card_amount_in_words", "card.print_utils.card_print_is_rtl"]}
 
 # Installation
 # ------------
@@ -196,6 +196,8 @@ doc_events = {
 	"Equipment Transport": dict(_SOURCE_EVENTS),
 	"Purchase Invoice": dict(_POSTING_EVENTS),
 	"Sales Invoice": dict(_POSTING_EVENTS),
+	# settlement phase 1: cancelling a linked supplier accrual journal frees its cards
+	"Journal Entry": {"before_cancel": "card.gl.journal_link.before_cancel"},
 	# the CARD party registries follow ERPNext renames and merges
 	"Supplier": {
 		"before_rename": "card.party_registry.before_rename",
@@ -207,6 +209,8 @@ doc_events = {
 	},
 	# the registries' change history stays hidden from their form (#23)
 	"Property Setter": {"before_validate": "card.party_registry.guard_registry_track_changes"},
+	# Card Equipment financial privacy: the change history never carries restricted values (2026-10-31)
+	"Version": {"before_insert": "card.field_privacy.mask_restricted_version"},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record
 	"File": {
 		"before_validate": "card.custody_receipt.keep_private",

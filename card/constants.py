@@ -3,6 +3,7 @@
 """Shared CARD constants (import-free so any module can use them)."""
 
 OWNED = "ملك"
+THIRD_PARTY = "طرف ثالث"  # managed for another owner; may link an Asset, never a rented machine
 
 # rental direction (phase F.7: lives on Card Equipment, mirrored read-only on cards)
 DIR_RENTED_IN = "مستأجَرة من مورد"  # we rent it from a supplier (supplier PI side)
@@ -11,6 +12,10 @@ DIR_SUBRENTAL = "إيجار من الباطن"  # rented from a supplier AND ren
 DIR_INTERNAL = "تشغيل داخلي"  # owned, used internally, no billing
 CUSTOMER_BILLING_DIRECTIONS = (DIR_RENTED_OUT, DIR_SUBRENTAL)
 SUPPLIER_BILLING_DIRECTIONS = (DIR_RENTED_IN, DIR_SUBRENTAL)
+
+# card shifts (stored Select values of Card Monthly Card.shift)
+SHIFT_DAY = "نهاري"
+SHIFT_NIGHT = "ليلي"
 
 
 def allowed_directions(ownership):

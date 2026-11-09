@@ -26,6 +26,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
 from card.card.doctype.card_equipment_assignment.card_equipment_assignment import OPEN_END
+from card.tests.transport_parties import company_paid_values
 
 WAIT = 30  # seconds; a stuck step fails the test instead of hanging the run
 GRACE = 1  # seconds the second request gets to reach the first one's lock before it commits
@@ -241,6 +242,7 @@ class TestAssignmentOverlapConcurrency(IntegrationTestCase):
 			"transport_supplier": self.created["Supplier"][0],
 			"company": self.company,
 			"amount": 100,
+			**company_paid_values(self.company),
 		}
 		name = self._new("Equipment Transport", values)
 		if submit:
