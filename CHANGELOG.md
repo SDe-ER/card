@@ -15,25 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-- **Equipment Supplier Statement A4: short totals** (Owner request 2026-11-09). The printed totals keep only
-  opening balance + period charges (incl. VAT) − payments = closing balance (with ledger access), the card net
-  (without), or equipment / days / hours (owned equipment). The reconciliation figures (accrual vs. invoiced
-  through Card, invoices outside Card) and the reconciliation notes stay on the screen report and are no longer
-  printed (the server note prints only when there are no rows). The report summary items carry a stable `key`
-  so the print picks them whatever the language. New CARD msgid "Period charges (incl. VAT)"; "Payments" uses
-  the existing erpnext translation.
-- **CARD document prints use the Chrome PDF generator** (Owner request 2026-11-09). `pdf_generator` of
-  `Card Monthly Card Print`, `Equipment Transport Print`, `Project Diesel Fill Print`, `Tool Handover Receipt`
-  and the fixture `كارت تشغيل شهري` changes from `wkhtmltopdf` to `chrome`: the v4.4.0 deployment check found
-  wkhtmltopdf breaking Arabic letter joining (alef after a joining letter), while the Chrome generator printed
-  Arabic correctly on the same site. Report prints (the A4 supplier statement PDF button) still go through
-  frappe's `report_to_pdf`, which always uses wkhtmltopdf; their browser Print is unaffected.
-  Files: the report `.py`/`.html`, the five print format JSON files and the fixture (`modified` bumped); the closing balance is now rounded from the rounded opening, charges and payments so the printed lines add up to the cent, `ar.po`, `main.pot`,
-  tests. Impact: display only; no permission, accounting, data or API change (the summary `key` is an added
-  field). Rollback: as for v4.4.0, a forced re-import of the previous print format files (migrate alone does
-  not restore older files).
-
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -52,6 +33,68 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
+
+## [4.4.1] — 2026-11-09
+
+Patch release on top of v4.4.0 (PR #175): display fixes found in the v4.4.0 production check. The CARD document
+prints use frappe's Chrome PDF generator, because wkhtmltopdf broke Arabic letter joining in their PDF, and the
+A4 supplier statement prints a short statement of totals. No patch, no DocType or schema change, no change to
+permissions, accounting, data or the API (the report summary items gain an added `key` field).
+
+### Fixed
+- **CARD document prints: Arabic letter joining in the PDF** (FR-055, FR-045; PR #175, merge `beca0df`; Owner
+  request 2026-11-09; branch `feat/supplier-statement-simple-totals`). `pdf_generator` of
+  `Card Monthly Card Print`, `Equipment Transport Print`, `Project Diesel Fill Print`, `Tool Handover Receipt`
+  and the fixture `كارت تشغيل شهري` changes from `wkhtmltopdf` to `chrome`: the v4.4.0 deployment check found
+  wkhtmltopdf breaking Arabic letter joining (alef after a joining letter), while the Chrome generator printed
+  Arabic correctly on the same site. Report prints (the PDF button of the A4 supplier statement) still go
+  through frappe's `report_to_pdf`, which always uses wkhtmltopdf (see **Known limitations**); their browser
+  Print is unaffected. Files: the four print format JSON files and `card/fixtures/print_format.json`
+  (`modified` bumped), `card/tests/test_print_formats.py` (every CARD Jinja document print uses `chrome`).
+  Impact: display only; no permission, accounting, data or API change.
+
+### Changed
+- **Equipment Supplier Statement A4: short totals** (FR-089; PR #175, merge `beca0df`; Owner request
+  2026-11-09). The printed totals keep only opening balance + period charges (incl. VAT) − payments = closing
+  balance (with ledger access), the card net (without), or equipment / days / hours (owned equipment). The
+  reconciliation figures (accrual vs. invoiced through Card, invoices outside Card) and the reconciliation notes
+  stay on the screen report and are no longer printed (the server note prints only when there are no rows). The
+  report summary items carry a stable `key` so the print picks them whatever the language. The closing balance
+  is now rounded from the rounded opening, charges and payments so the printed lines add up to the cent. New
+  CARD msgid "Period charges (incl. VAT)"; "Payments" uses the existing erpnext translation. Files:
+  `equipment_supplier_statement.py` / `.html`, `equipment_supplier_statement_a4.json` (`modified` bumped),
+  `card/locale/ar.po`, `card/locale/main.pot`, `card/tests/test_report_access.py`,
+  `card/tests/test_supplier_statement_print.py`. Impact: display only; no permission, accounting, data or API
+  change (the summary `key` is an added field; no stored data).
+
+### Migration
+
+- **Patches:** none. `card/patches.txt` is unchanged; `bench migrate` runs no CARD data patch.
+- **DocType / schema:** no change. No new column, field level, role or DocPerm.
+- **Records synced by `bench migrate`:** the five standard Print Formats `Card Monthly Card Print`,
+  `Equipment Transport Print`, `Project Diesel Fill Print`, `Tool Handover Receipt` and
+  `Equipment Supplier Statement A4` (file `modified` 2026-11-09 16:10, newer than the v4.4.0 rows), and the
+  Print Format fixture `كارت تشغيل شهري` (fixtures are re-imported with `force` on every migrate).
+- **What migrate does not write:** no card, transport, fill, receipt, posting, GL Posting Log or settings value;
+  no GL entry; no role or permission change.
+- **Chrome PDF generator:** the four document formats and the fixture need frappe's Chrome PDF generator to work
+  on the site. On Production a standard Sales Invoice printed correctly with the Chrome generator during the
+  v4.4.0 check (2026-11-09) (Partially Verified); print each CARD document format once after the deploy.
+- **Code:** restart the web and background workers after the update (normal for an image deploy); compile the
+  CARD translations (`ar`) into the image as before, or the new label prints in English.
+- **Rollback:** last stable version v4.4.0. v4.4.0 code runs on the v4.4.1 database (no schema change; the extra
+  summary `key` is unused). A plain migrate does **not** restore the v4.4.0 standard print formats (their files
+  are older than the rows): re-import the five from the v4.4.0 files with `force` (steps on the v4.4.1 release
+  page). The fixture returns to its v4.4.0 content on that migrate.
+
+### Known limitations
+
+- Published ≠ deployed: deployment of 4.4.1 to any site is a separate, site-verified fact.
+- The PDF button of the A4 supplier statement (a Script Report print) still uses frappe `report_to_pdf`, which
+  always renders with wkhtmltopdf, so its PDF can still break Arabic letter joining; use the browser Print of
+  the report instead.
+- The Chrome generator on CARD prints of a real site is checked only through a standard Sales Invoice; a printed
+  PDF of each CARD format after the deploy is not part of the release evidence.
 
 ## [4.4.0] — 2026-11-09
 
