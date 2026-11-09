@@ -47,7 +47,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     DocShare after a controller denial, so a DocShare `validate` hook (`deny_cross_company_share`) refuses sharing a
     fill with a user outside its company, or with everyone. Every `@frappe.whitelist` in CARD now declares `methods=`
     (re-checked after the merge of v4.5.0, including `statement_pdf.download_pdf` and
-    `journal_link.link_accrual_journal`, both POST).
+    `journal_link.link_accrual_journal`, both POST). The two new share refusal messages are translated in
+    `card/locale/ar.po` (and listed in `main.pot`).
   - **Impact:** permissions — narrowed only (cross-company read, write and share of a fill refused; unrestricted users,
     System Manager and Administrator unchanged). API — the six GET-only functions refuse POST, PUT and DELETE; CARD
     Mobile calls none of them. Accounting, data, schema — none. No patch.
