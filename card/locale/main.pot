@@ -2846,6 +2846,18 @@ msgid "Issue date"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Owned equipment"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Statement totals"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
+msgid "Period charges (incl. VAT)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Accountant signature"
 msgstr ""
 
@@ -3799,4 +3811,118 @@ msgstr ""
 
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "Financial decision recorded."
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Equipment Monthly Operation Card"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "(Cancelled)"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card no."
+msgstr ""
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+#: card/card/print_format/tool_handover_receipt/tool_handover_receipt.json
+msgid "Document no."
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Adjustment amount"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Rate ({0})"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Customer rate ({0})"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer side amount"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Internal operation"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Not billed"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier settlement"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier gross"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier additions"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier deductions"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Supplier net before VAT"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer settlement"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer gross"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer additions"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer deductions"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+msgid "Customer net before VAT"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Driver / operator signature"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Site supervisor approval"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Project manager approval"
+msgstr ""
+
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
+#: card/fixtures/print_format.json
+msgid "Card totals"
+msgstr ""
+
+#: card/card/print_format/equipment_transport_print/equipment_transport_print.json
+#: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
+msgid "Amount summary"
 msgstr ""

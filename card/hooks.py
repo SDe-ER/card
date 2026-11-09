@@ -77,7 +77,7 @@ required_apps = ["erpnext"]
 # ----------
 
 # add methods and filters to jinja environment
-jinja = {"methods": ["card.print_utils.card_amount_in_words"]}
+jinja = {"methods": ["card.print_utils.card_amount_in_words", "card.print_utils.card_print_is_rtl"]}
 
 # Installation
 # ------------
