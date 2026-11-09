@@ -58,7 +58,59 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 			"String(raw.message)",
 		):
 			self.assertIn(f"esc({field}", template)
-		self.assertIn("size: A4 landscape", template)
+		self.assertIn("size: A4 portrait", template)
+
+	def test_font_wins_over_site_print_style_and_pdf_shapes_arabic(self):
+		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
+		# a site print style may set ".print-format *" font-family with !important: the statement's own rule must be
+		# !important and more specific, so the browser print keeps Noto Sans Arabic
+		rule = re.search(r"([^{}]+)\{\s*font-family:\s*([^;}]+);\s*\}", template.split("<style>")[1])
+		self.assertIsNotNone(rule)
+		selectors = [s.strip() for s in rule.group(1).strip().splitlines()[-1].split(",")]
+		self.assertIn(".print-format .ess *", selectors)
+		self.assertIn(".ess *", selectors)
+		self.assertTrue(rule.group(2).startswith('"Noto Sans Arabic", "Card Noto Arabic"'))
+		self.assertTrue(rule.group(2).rstrip().endswith("!important"))
+
+	def test_one_portrait_page_with_level_signatures(self):
+		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
+		self.assertIn("@page { size: A4 portrait; margin: 10mm; }", template)
+		# the signatures and the issued-by line stay together, after the totals, on one level
+		self.assertLess(template.index('<div class="ess-end">'), template.index('class="ess-signs"'))
+		self.assertLess(template.index('class="ess-issued"'), template.rindex("</div>\n</div>"))
+		self.assertRegex(template, r"\.ess \.ess-end \{[^}]*break-inside: avoid;")
+		self.assertRegex(template, r"\.ess \.ess-signs td \{[^}]*vertical-align: top;")
+
+	def test_totals_table_follows_the_rows_and_no_css_variables(self):
+		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
+		# the summary figures print as a "Totals" table after the rows, before the signatures
+		self.assertLess(template.index('class="ess-rows"'), template.index('class="ess-totals"'))
+		self.assertLess(template.index('class="ess-totals"'), template.index('class="ess-signs"'))
+		# wkhtmltopdf (old QtWebKit) drops CSS custom properties and cannot shape Arabic from webfonts
+		self.assertNotIn("var(--", template)
+		self.assertNotIn("@import", template)
+		# owner 2026-11-09: no equipment number, rate type or rate column in the print; widths fill the A4 width
+		# additions and deductions are optional columns (hidden when no row has a value)
+		self.assertIn("var optional = { additions: 1, deductions: 1 };", template)
+		# the Arabic filter value is printed in the user's language
+		self.assertIn('__("Owned equipment")', template)
+		for field in ("equipment", "rate_type", "rate"):
+			# a column entry is ["<fieldname>", <width>, ...]; the totals key lists are plain names
+			self.assertNotRegex(template, r'\["' + field + r'", \d')
+		for widths in re.findall(r"\? (\[\[.*?\]\])\n\t\t: (\[\[.*?\]\]);", template, flags=re.S)[0]:
+			self.assertAlmostEqual(sum(float(w) for w in re.findall(r"\[\"\w+\", ([\d.]+)", widths)) + 3, 100)
+
+	def test_printed_totals_are_a_short_statement(self):
+		# owner 2026-11-09: the printed totals come from the cards of the period;
+		# the reconciliation figures stay on the screen report. Picked by stable summary keys.
+		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
+		# owner 2026-11-09: the printed totals come from the cards only (no ledger block); every card prints
+		self.assertIn('var print_keys = money ? ["net_cards", "not_invoiced"]', template)
+		self.assertIn("if (original_data[i]) rows.push(original_data[i]);", template)
+		self.assertIn('["equipment", "days", "hours"]', template)
+		source = _read(*REPORT_DIR, "equipment_supplier_statement.py")
+		for key in ("equipment", "days", "hours", "net_cards", "accrued", "opening", "paid", "closing"):
+			self.assertIn(f'"key": "{key}"', source)
 
 	def test_new_strings_are_translated(self):
 		po = _read("locale", "ar.po")
@@ -68,5 +120,11 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 			"Reviewer signature",
 			"Supplier signature",
 			"Includes draft cards",
+			"Statement totals",
+			"Period charges (incl. VAT)",
+			"Cards net for the period",
+			"Issued by the electronic system of {0}",
+			"Work done not yet invoiced (before VAT)",
+			"Owned equipment",
 		):
-			self.assertRegex(po, rf'msgid "{msgid}"\nmsgstr "[^"]+"')
+			self.assertRegex(po, rf'msgid "{re.escape(msgid)}"\nmsgstr "[^"]+"')
