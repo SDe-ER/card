@@ -5149,3 +5149,15 @@ msgstr "أعمال منفذة لم تُفوتر بعد (قبل الضريبة)"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Issued by the electronic system of {0}"
 msgstr "تم الإصدار من نظام {0} الإلكتروني"
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Invalid filters"
+msgstr "فلاتر غير صالحة"
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The PDF could not be created. Check the Chrome PDF generator."
+msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح Chrome."
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The statement print template has no style block."
+msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."

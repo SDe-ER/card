@@ -3941,3 +3941,15 @@ msgstr ""
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Issued by the electronic system of {0}"
 msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Invalid filters"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The PDF could not be created. Check the Chrome PDF generator."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "The statement print template has no style block."
+msgstr ""
