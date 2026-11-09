@@ -1,13 +1,13 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
 """#34: monthly PI lines use the source document's own cost center (fill /
-transport) when it has one (P1-0: else the project/assignment allocation); a tank fill split by
-hours states each line's own litres share, marked as an estimate."""
+transport) when it has one (P1-0: else the project/assignment allocation); a project-tank fill
+is one project-level line with no equipment and no estimate (D1)."""
 
 import frappe
 from frappe.utils import flt
 
-from card.gl.posting import build_monthly_posting
+from card.gl.posting import build_monthly_posting, rebuild_monthly_posting
 from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.test_s3_posting import _PostingBase
 from card.tests.transport_parties import as_recorded_before_p12, company_paid
@@ -96,27 +96,28 @@ class TestPostingLines(_PostingBase):
 		self.assertEqual(by_source[without_cc.name], own)
 		self.assertNotEqual(own, default)
 
-	def test_split_lines_state_their_own_estimated_litres(self):
+	def test_tank_line_states_the_whole_fill_and_no_estimate(self):
 		eq_a = self._equipment()
 		eq_b = self._equipment()
 		self._card(eq_a, [6], submit=True)  # 6h
-		self._card(eq_b, [2], submit=True)  # 2h -> 75% / 25%
+		self._card(eq_b, [2], submit=True)  # 2h: would have been 75% / 25%
 		tank = self._fill(litres=1000, unit_price=1.0)
 		direct = self._fill(card_equipment=eq_a.name, litres=40, unit_price=1.0)
 		pi = self._pi()
-		split = {i.card_equipment: i.description for i in pi.items if tank.name in i.description}
-		self.assertIn("750", split[eq_a.name])
-		self.assertIn("250", split[eq_b.name])
-		for text in split.values():
-			self.assertIn("1000", text)  # the whole fill is named once, as the reference
-		self.assertNotIn("1000 L", split[eq_a.name].split("—")[1].split("estimated")[0])
+		tank_lines = [i for i in pi.items if tank.name in i.description]
+		self.assertEqual(len(tank_lines), 1)
+		self.assertIn("1000", tank_lines[0].description)
+		self.assertIn("project tank", tank_lines[0].description)
+		self.assertNotIn("estimated", tank_lines[0].description)
+		self.assertFalse(tank_lines[0].card_equipment)
 		direct_line = next(i for i in pi.items if direct.name in i.description)
 		self.assertNotIn("estimated", direct_line.description)
-		self.assertEqual(flt(sum(flt(i.rate) for i in pi.items if tank.name in i.description), 2), 1000.0)
+		self.assertEqual(direct_line.card_equipment, eq_a.name)
+		self.assertEqual(flt(tank_lines[0].rate, 2), 1000.0)
 
-	def test_listed_equipment_posts_as_an_hours_split_estimate(self):
-		# Phase 1 (Owner 2026-10-26): the "equipment filled" list has no litres and never makes the
-		# posting look measured; a third listed equipment without hours gets no line
+	def test_listed_equipment_does_not_split_the_posting(self):
+		# D1 (Owner 2026-11-02): the "equipment filled" list never allocates the posting;
+		# the tank fill stays one project-level line
 		eq_a = self._equipment()
 		eq_b = self._equipment()
 		eq_c = self._equipment()
@@ -130,11 +131,113 @@ class TestPostingLines(_PostingBase):
 			],
 		)
 		pi = self._pi()
-		lines = {i.card_equipment: i for i in pi.items if tank.name in i.description}
-		self.assertEqual(set(lines), {eq_a.name, eq_b.name})
-		for line in lines.values():
-			self.assertIn("estimated", line.description)
-		self.assertEqual((flt(lines[eq_a.name].rate), flt(lines[eq_b.name].rate)), (750.0, 250.0))
+		lines = [i for i in pi.items if tank.name in i.description]
+		self.assertEqual(len(lines), 1)
+		self.assertFalse(lines[0].card_equipment)
+		self.assertEqual(flt(lines[0].rate, 2), 1000.0)
+
+	def test_tank_fill_invalid_own_cost_center_is_refused(self):
+		# D1 AC-5: a tank fill takes its own cost center (validated), else the project's
+		group = frappe.db.get_value("Cost Center", {"company": self.company, "is_group": 1}, "name")
+		fill = self._fill(litres=10, unit_price=2)
+		frappe.db.set_value("Project Diesel Fill", fill.name, "cost_center", group, update_modified=False)
+		with self.assertRaisesRegex(frappe.ValidationError, "cost center"):
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
+
+	def test_tank_posting_is_identical_with_and_without_hours_on_the_project(self):
+		# D1 AC-7: hours never change the posting
+		fill = self._fill(litres=100, unit_price=3.0)
+		first = self._pi()
+		shape = lambda pi: [  # noqa: E731
+			(i.card_equipment or None, flt(i.rate, 2), i.cost_center)
+			for i in pi.items
+			if fill.name in i.description
+		]
+		without_hours = shape(first)
+		frappe.delete_doc("Purchase Invoice", first.name, ignore_permissions=True)
+		self._card(self._equipment(), [6], submit=True)
+		self.assertEqual(shape(self._pi()), without_hours)
+		self.assertEqual(without_hours[0][:2], (None, 300.0))
+
+	def test_rebuilt_draft_matches_its_own_built_signature(self):
+		# D1 AC-10: a rebuild takes a fresh snapshot of the new (project-level) lines
+		from card.gl import integrity
+
+		self._card(self._equipment(), [6], submit=True)
+		fill = self._fill(litres=50, unit_price=2.0)
+		build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		name = rebuild_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi = frappe.get_doc("Purchase Invoice", name)
+		log = frappe.get_doc("GL Posting Log", {"posting_doc": name})
+		self.assertEqual(integrity.full_signature(integrity.snapshot(pi)), log.built_signature)
+		self.assertEqual(len([i for i in pi.items if fill.name in i.description]), 1)
+
+	# ---- D1 builder version (Owner decision 2026-11-10: enforce a rebuild of pre-D1 drafts) ----
+	def _as_pre_d1_build(self, pi):
+		"""The log of `pi` as a pre-D1 builder wrote it: a snapshot without the builder version."""
+		import json
+
+		log = frappe.get_doc("GL Posting Log", {"posting_doc": pi.name})
+		built = json.loads(log.built_snapshot)
+		built.pop("builder", None)
+		log.db_set("built_snapshot", frappe.as_json(built), update_modified=False)
+		return log
+
+	def _submit(self, pi):
+		pi.reload()
+		pi.bill_no = "D1-VER-" + frappe.generate_hash(length=8)
+		pi.bill_date = pi.posting_date
+		pi.save()
+		pi.submit()
+
+	def test_a_new_build_records_the_builder_version(self):
+		import json
+
+		from card.gl import integrity
+
+		self._fill(litres=10, unit_price=2.0)
+		pi = self._pi()
+		log = frappe.get_doc("GL Posting Log", {"posting_doc": pi.name})
+		self.assertEqual(json.loads(log.built_snapshot)["builder"], integrity.BUILDER_VERSION)
+		# the version stays out of the signature: the draft still matches what was built
+		self.assertEqual(integrity.full_signature(integrity.snapshot(pi)), log.built_signature)
+
+	def test_a_pre_d1_draft_with_a_tank_fill_is_refused_on_submit(self):
+		fill = self._fill(litres=10, unit_price=2.0)  # project tank, no equipment
+		pi = self._pi()
+		self._as_pre_d1_build(pi)
+		with self.assertRaisesRegex(frappe.ValidationError, "Rebuild the posting") as ctx:
+			self._submit(pi)
+		self.assertIn(fill.name, str(ctx.exception))
+		self.assertEqual(frappe.db.get_value("Purchase Invoice", pi.name, "docstatus"), 0)
+
+	def test_an_accepted_correction_does_not_bypass_the_builder_version(self):
+		self._fill(litres=10, unit_price=2.0)
+		pi = self._pi()
+		log = self._as_pre_d1_build(pi)
+		from card.gl import integrity
+
+		log.db_set("accepted_signature", integrity.full_signature(integrity.snapshot(pi)))
+		with self.assertRaisesRegex(frappe.ValidationError, "Rebuild the posting"):
+			self._submit(pi)
+
+	def test_a_pre_d1_draft_without_a_tank_fill_still_submits(self):
+		eq = self._equipment()
+		self._fill(card_equipment=eq.name, litres=10, unit_price=2.0)  # direct fill: unchanged by D1
+		pi = self._pi()
+		self._as_pre_d1_build(pi)
+		self._submit(pi)
+		self.assertEqual(frappe.db.get_value("Purchase Invoice", pi.name, "docstatus"), 1)
+
+	def test_a_rebuilt_pre_d1_draft_submits(self):
+		self._fill(litres=10, unit_price=2.0)
+		pi = self._pi()
+		self._as_pre_d1_build(pi)
+		name = rebuild_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		pi = frappe.get_doc("Purchase Invoice", name)
+		self._submit(pi)
+		self.assertEqual(frappe.db.get_value("Purchase Invoice", name, "docstatus"), 1)
 
 
 class TestLikeForLikeReconciliation(_PostingBase):
@@ -398,7 +501,7 @@ class TestSourceCostCenterGuard(_PostingBase):
 			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
 
-	def test_a_single_share_tank_fill_is_still_marked_estimated(self):
+	def test_a_tank_fill_with_one_equipment_on_the_project_is_not_attributed_to_it(self):
 		eq = self._equipment()
 		self._card(eq, [5], submit=True)  # the only equipment with hours
 		fill = frappe.get_doc(
@@ -419,7 +522,8 @@ class TestSourceCostCenterGuard(_PostingBase):
 			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		)
 		line = next(i for i in pi.items if fill.name in i.description)
-		self.assertIn("estimated", line.description)
+		self.assertNotIn("estimated", line.description)
+		self.assertFalse(line.card_equipment)
 
 
 class TestReconciliationEdgeCases(_ReconciliationBase):
