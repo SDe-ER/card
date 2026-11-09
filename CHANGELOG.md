@@ -35,8 +35,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Added
-- **Every monthly card shows its value on the CARD workspace** (FR-111, owner requirement 2026-11-10; target: next
-  release).
+- **Every monthly card shows its value on the CARD workspace** (FR-111, PR #185, owner requirement
+  2026-11-10; target: next release).
   - **Reason:** the chart "مبالغ الكروت الشهرية" and the number card "مبالغ الشهر الماضي" summed only the supplier
     `amount`, which is 0 for owned and managed equipment; a month with only owned cards (for example an owned crusher
     rented to a customer) looked empty.

@@ -1,6 +1,6 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
-"""Value of a monthly card for the CARD dashboard (FR-122, Owner 2026-11-10).
+"""Value of a monthly card for the CARD dashboard (FR-111, Owner 2026-11-10).
 
 Every card shows its value, whatever the equipment's ownership:
 
@@ -145,6 +145,9 @@ def get_card_values(from_date, to_date, company=None, include_drafts=False):
 		}
 	for card in cards:
 		card.update(card_value(card, equipment.get(card.equipment), with_internal))
+		if card.missing_rate and card.equipment and card.equipment not in equipment:
+			# the user cannot read this equipment (User Permissions): its rate is unknown, not missing
+			card.missing_rate = False
 	return cards, with_internal
 
 
@@ -187,17 +190,22 @@ def _last_month():
 def _last_month_totals(filters):
 	filters = _filters(filters)
 	start, end = _last_month()
+	include_drafts = cint(filters.get("include_drafts"))
 	cards, with_internal = get_card_values(
-		start, end, company=filters.get("company"), include_drafts=cint(filters.get("include_drafts"))
+		start, end, company=filters.get("company"), include_drafts=include_drafts
 	)
-	return totals(cards), with_internal, start, end
+	return totals(cards), with_internal, _route(start, end, include_drafts, filters.get("company"))
 
 
-def _route(start, end, **route_options):
-	return {
-		"route": ["List", CARD],
-		"route_options": {"docstatus": 1, "from_date": ["between", [str(start), str(end)]], **route_options},
+def _route(start, end, include_drafts=False, company=None):
+	"""The card list behind a number card: the same month, docstatus and company as its total."""
+	options = {
+		"docstatus": ["in", [0, 1]] if include_drafts else 1,
+		"from_date": ["between", [str(start), str(end)]],
 	}
+	if company:
+		options["company"] = company
+	return {"route": ["List", CARD], "route_options": options}
 
 
 # Number Cards (type Custom). Frappe's number card widget calls its method with frappe.xcall, which always
@@ -207,43 +215,43 @@ def _route(start, end, **route_options):
 
 @frappe.whitelist(methods=["POST"])
 def supplier_cost_last_month(filters: str | dict | list | None = None) -> dict:
-	result, _w, start, end = _last_month_totals(filters)
-	return {"value": result["supplier"], "fieldtype": "Currency", **_route(start, end)}
+	result, _w, route = _last_month_totals(filters)
+	return {"value": result["supplier"], "fieldtype": "Currency", **route}
 
 
 @frappe.whitelist(methods=["POST"])
 def customer_value_last_month(filters: str | dict | list | None = None) -> dict:
-	result, _w, start, end = _last_month_totals(filters)
-	return {"value": result["customer"], "fieldtype": "Currency", **_route(start, end)}
+	result, _w, route = _last_month_totals(filters)
+	return {"value": result["customer"], "fieldtype": "Currency", **route}
 
 
 @frappe.whitelist(methods=["POST"])
 def internal_value_last_month(filters: str | dict | list | None = None) -> dict:
-	result, with_internal, start, end = _last_month_totals(filters)
+	result, with_internal, route = _last_month_totals(filters)
 	return {
 		"value": result["internal"] if with_internal else None,
 		"fieldtype": "Currency",
-		**_route(start, end),
+		**route,
 	}
 
 
 @frappe.whitelist(methods=["POST"])
 def cards_without_internal_rate_last_month(filters: str | dict | list | None = None) -> dict:
-	result, with_internal, start, end = _last_month_totals(filters)
+	result, with_internal, route = _last_month_totals(filters)
 	return {
 		"value": result["missing_rate_cards"] if with_internal else None,
 		"fieldtype": "Int",
-		**_route(start, end),
+		**route,
 	}
 
 
 @frappe.whitelist(methods=["POST"])
 def hours_without_internal_rate_last_month(filters: str | dict | list | None = None) -> dict:
-	result, with_internal, start, end = _last_month_totals(filters)
+	result, with_internal, route = _last_month_totals(filters)
 	return {
 		"value": result["missing_rate_hours"] if with_internal else None,
 		"fieldtype": "Float",
-		**_route(start, end),
+		**route,
 	}
 
 

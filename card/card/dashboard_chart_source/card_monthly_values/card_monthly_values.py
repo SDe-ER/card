@@ -1,6 +1,6 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
-"""Dashboard Chart Source "Card Monthly Values" (FR-122): the value of every monthly card per month, in three
+"""Dashboard Chart Source "Card Monthly Values" (FR-111): the value of every monthly card per month, in three
 series (supplier rental cost, customer operating value, internal operating value). See card.card_value."""
 
 import frappe

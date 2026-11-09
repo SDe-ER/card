@@ -1,6 +1,6 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
-"""FR-122 (Owner 2026-11-10): every monthly card shows its value on the CARD dashboard, whether the equipment
+"""FR-111 (Owner 2026-11-10): every monthly card shows its value on the CARD dashboard, whether the equipment
 is owned, rented or managed. Supplier cost, customer value and internal value are separate series; an internal
 card without a rate still counts (missing-rate card and hours); company User Permissions and the level-2
 internal rate are respected; drafts are left out unless the chart's filter asks for them."""
@@ -180,6 +180,26 @@ class TestCardValueDashboard(_CustomerCardsBase):
 			off = cv.internal_value_last_month('{"include_drafts": "0", "company": "%s"}' % self.company)
 			on = cv.internal_value_last_month('{"include_drafts": 1, "company": "%s"}' % self.company)
 		self.assertEqual(round(on["value"] - off["value"], 2), 30.0)
+		# the list behind a number card shows the cards its total used
+		self.assertEqual(off["route_options"]["docstatus"], 1)
+		self.assertEqual(on["route_options"]["docstatus"], ["in", [0, 1]])
+		self.assertEqual(on["route_options"]["company"], self.company)
+
+	def test_unreadable_equipment_is_not_counted_as_missing_rate(self):
+		card = self._card(self._internal(), [5], submit=True)
+		rows, _w = self._values({card.name})
+		self.assertTrue(rows[card.name].missing_rate)
+		real_get_list = frappe.get_list
+
+		def without_equipment(doctype, *args, **kwargs):
+			return [] if doctype == cv.EQUIPMENT else real_get_list(doctype, *args, **kwargs)
+
+		with patch.object(cv.frappe, "get_list", side_effect=without_equipment):
+			rows, _w = self._values({card.name})
+		self.assertFalse(
+			rows[card.name].missing_rate, "an equipment the user cannot read has an unknown rate"
+		)
+		self.assertEqual(rows[card.name].internal, 0.0)
 
 	def test_number_cards_for_last_month(self):
 		internal = self._card(self._internal(internal_rate=50), [4], submit=True)
