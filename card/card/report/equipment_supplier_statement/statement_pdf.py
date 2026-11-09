@@ -14,7 +14,6 @@ make the server fetch internal addresses."""
 
 import calendar
 import math
-import os
 import re
 
 import frappe
@@ -27,7 +26,7 @@ from frappe.utils.jinja_globals import is_rtl
 from card.report_access import resolve_company
 
 REPORT = "Equipment Supplier Statement"
-TEMPLATE = os.path.join(os.path.dirname(__file__), "equipment_supplier_statement.html")
+TEMPLATE = ("card", "card", "report", "equipment_supplier_statement", "equipment_supplier_statement.html")
 
 MONEY_FIELDS = (
 	("label", 25, "text"),
@@ -69,7 +68,7 @@ PAGE_MARGINS = {"margin-top": "10mm", "margin-bottom": "10mm", "margin-left": "1
 
 
 @frappe.whitelist(methods=["POST"])
-def download_pdf(filters=None):
+def download_pdf(filters: str | dict | None = None):
 	"""Send the statement as a PDF file (Chrome generator). Same permissions as
 	running and printing the report; the company is checked by the report."""
 	filters = frappe._dict(frappe.parse_json(filters) if isinstance(filters, str) else (filters or {}))
@@ -95,8 +94,8 @@ def download_pdf(filters=None):
 
 def template_style():
 	"""The <style> block of the browser print template (one source for both paths)."""
-	with open(TEMPLATE, encoding="utf-8") as f:
-		return re.search(r"<style>.*?</style>", f.read(), flags=re.S).group(0)
+	template = frappe.read_file(frappe.get_app_path(*TEMPLATE))
+	return re.search(r"<style>.*?</style>", template, flags=re.S).group(0)
 
 
 def build_html(filters, columns, data, message, summary):
