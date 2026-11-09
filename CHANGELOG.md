@@ -34,6 +34,171 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+## [4.4.1] — 2026-11-09
+
+Patch release on top of v4.4.0 (PR #175): display fixes found in the v4.4.0 production check. The CARD document
+prints use frappe's Chrome PDF generator, because wkhtmltopdf broke Arabic letter joining in their PDF, and the
+A4 supplier statement prints a short statement of totals. No patch, no DocType or schema change, no change to
+permissions, accounting, data or the API (the report summary items gain an added `key` field).
+
+### Fixed
+- **CARD document prints: Arabic letter joining in the PDF** (FR-055, FR-045; PR #175, merge `beca0df`; Owner
+  request 2026-11-09; branch `feat/supplier-statement-simple-totals`). `pdf_generator` of
+  `Card Monthly Card Print`, `Equipment Transport Print`, `Project Diesel Fill Print`, `Tool Handover Receipt`
+  and the fixture `كارت تشغيل شهري` changes from `wkhtmltopdf` to `chrome`: the v4.4.0 deployment check found
+  wkhtmltopdf breaking Arabic letter joining (alef after a joining letter), while the Chrome generator printed
+  Arabic correctly on the same site. Report prints (the PDF button of the A4 supplier statement) still go
+  through frappe's `report_to_pdf`, which always uses wkhtmltopdf (see **Known limitations**); their browser
+  Print is unaffected. Files: the four print format JSON files and `card/fixtures/print_format.json`
+  (`modified` bumped), `card/tests/test_print_formats.py` (every CARD Jinja document print uses `chrome`).
+  Impact: display only; no permission, accounting, data or API change.
+
+### Changed
+- **Equipment Supplier Statement A4: short totals** (FR-089; PR #175, merge `beca0df`; Owner request
+  2026-11-09). The printed totals keep only opening balance + period charges (incl. VAT) − payments = closing
+  balance (with ledger access), the card net (without), or equipment / days / hours (owned equipment). The
+  reconciliation figures (accrual vs. invoiced through Card, invoices outside Card) and the reconciliation notes
+  stay on the screen report and are no longer printed (the server note prints only when there are no rows). The
+  report summary items carry a stable `key` so the print picks them whatever the language. The closing balance
+  is now rounded from the rounded opening, charges and payments so the printed lines add up to the cent. New
+  CARD msgid "Period charges (incl. VAT)"; "Payments" uses the existing erpnext translation. Files:
+  `equipment_supplier_statement.py` / `.html`, `equipment_supplier_statement_a4.json` (`modified` bumped),
+  `card/locale/ar.po`, `card/locale/main.pot`, `card/tests/test_report_access.py`,
+  `card/tests/test_supplier_statement_print.py`. Impact: display only; no permission, accounting, data or API
+  change (the summary `key` is an added field; no stored data).
+
+### Migration
+
+- **Patches:** none. `card/patches.txt` is unchanged; `bench migrate` runs no CARD data patch.
+- **DocType / schema:** no change. No new column, field level, role or DocPerm.
+- **Records synced by `bench migrate`:** the five standard Print Formats `Card Monthly Card Print`,
+  `Equipment Transport Print`, `Project Diesel Fill Print`, `Tool Handover Receipt` and
+  `Equipment Supplier Statement A4` (file `modified` 2026-11-09 16:10, newer than the v4.4.0 rows), and the
+  Print Format fixture `كارت تشغيل شهري` (fixtures are re-imported with `force` on every migrate).
+- **What migrate does not write:** no card, transport, fill, receipt, posting, GL Posting Log or settings value;
+  no GL entry; no role or permission change.
+- **Chrome PDF generator:** the four document formats and the fixture need frappe's Chrome PDF generator to work
+  on the site. On Production a standard Sales Invoice printed correctly with the Chrome generator during the
+  v4.4.0 check (2026-11-09) (Partially Verified); print each CARD document format once after the deploy.
+- **Code:** restart the web and background workers after the update (normal for an image deploy); compile the
+  CARD translations (`ar`) into the image as before, or the new label prints in English.
+- **Rollback:** last stable version v4.4.0. v4.4.0 code runs on the v4.4.1 database (no schema change; the extra
+  summary `key` is unused). A plain migrate does **not** restore the v4.4.0 standard print formats (their files
+  are older than the rows): re-import the five from the v4.4.0 files with `force` (steps on the v4.4.1 release
+  page). The fixture returns to its v4.4.0 content on that migrate.
+
+### Known limitations
+
+- Published ≠ deployed: deployment of 4.4.1 to any site is a separate, site-verified fact.
+- The PDF button of the A4 supplier statement (a Script Report print) still uses frappe `report_to_pdf`, which
+  always renders with wkhtmltopdf, so its PDF can still break Arabic letter joining; use the browser Print of
+  the report instead.
+- The Chrome generator on CARD prints of a real site is checked only through a standard Sales Invoice; a printed
+  PDF of each CARD format after the deploy is not part of the release evidence.
+
+## [4.4.0] — 2026-11-09
+
+Minor release on top of v4.3.0: the six CARD print formats (the five document prints and the A4 supplier
+statement) take the owner-approved standard Frappe print style, print in the print language with its page
+direction, and the supplier statement hides empty Additions/Deductions columns. New Jinja method
+`card.print_utils.card_print_is_rtl`. Backward compatible; no patch, no DocType or schema change, no change to
+permissions, accounting, data or the API.
+
+### Improved
+- **CARD print formats: standard print style and the print language** (FR-055, FR-045, FR-083; PR #172, merge
+  `e1cc2c4`, with fix `de3643d`; Owner request 2026-11-09; branch `feat/card-prints-standard-style`). The five CARD document print formats, `Card Monthly Card Print`, the
+  fixture `كارت تشغيل شهري` (name unchanged), `Equipment Transport Print`, `Project Diesel Fill Print` and
+  `Tool Handover Receipt`, now use the owner-approved SDCE print design of the Equipment Supplier Statement:
+  the standard Frappe print look with the Frappe v16 print greys as literal colours (text #171717, labels
+  #7c7c7c, table header #f3f3f3, borders #d1d8dd, heading underline #aaa; no navy band, coloured boxes,
+  CSS variables or remote fonts, so the wkhtmltopdf PDF keeps them). Company name above the title, document
+  details as label/value lines, row tables with a grey header and centred cells (text follows the page
+  direction, numbers read left to right and are right-aligned, dates and counts centred), the totals as
+  label/value lines at the end side of the page with the net or grand figure last and bold, signature lines
+  at the bottom. The monthly card shows its additions/deductions, card totals and the settlement of each
+  billed side in three columns so a sub-rental card with adjustments still fits one A4 page; the transport
+  print lists its equipment with their cost shares; the tool receipt lists the tool, quantity and serial
+  number. The page direction follows the print language, read at render time by the new Jinja method
+  `card.print_utils.card_print_is_rtl` (frappe `is_rtl()` plus Urdu, as CARD Mobile does; `hooks.py` jinja), and every fixed text is translated
+  (25 new CARD msgids in `ar.po` / `main.pot`, CARD-specific where frappe or erpnext translate the generic
+  word differently, e.g. "Card totals", "Amount summary"); stored Arabic option values (shift, ownership,
+  direction, rate type, day status, adjustment type) print through the existing `en.po` entries, the weekday
+  from the date in the print language. Business logic unchanged: which blocks and sides print, the
+  supplier/customer sums and the nets are the same; every data value stays escaped (the fixture now escapes
+  its values too). Wkhtmltopdf geometry fixes are kept (`.print-format` override, `text-rendering: auto`, no
+  rowspan, one font weight per cell). The status of a cancelled transport or diesel fill prints as
+  "(Cancelled)" / "(ملغي)" and a draft as "(مسودة)" (core translated "Draft" as a project). Tests:
+  `test_print_formats.py` renders under Arabic (labels unchanged) with the new totals markup, plus one test
+  for the English print (`dir="ltr"`, English labels, the same amounts) and Urdu (`rtl`); the class
+  compiles Card's ar catalogue into a temporary folder so the Arabic assertions do not depend on a stale
+  bench catalogue. The fixture's `default_print_language` (was `en`) is cleared so it prints in the user's
+  language like the other formats; the Friday row is now taken from the date. Files: the four print format JSON
+  files (`modified` bumped so `bench migrate` re-syncs them), `card/fixtures/print_format.json`,
+  `card/locale/ar.po`, `card/locale/main.pot`, `card/tests/test_print_formats.py`, `card/print_utils.py`,
+  `card/hooks.py`. Impact: display only; no
+  change to permissions, accounting, data or the API. Rollback: not by `bench migrate` alone (the older format files
+  are not re-imported); see **Migration → Rollback**. No data to restore. Fix `de3643d`: the Friday row condition
+  is parenthesised (Jinja refused a bare conditional expression in an `{% if %}` test; seen in the upgrade
+  rehearsal) and a new test compiles every CARD Jinja print format.
+- **Equipment Supplier Statement A4: new print style** (FR-089; PR #171, merge `22ae3e6`, with fix `e52d43f`;
+  Owner request 2026-11-09). Looks like a
+  standard Frappe print: colours and borders follow Frappe v16 `templates/styles/standard.css` and
+  the espresso gray scale (text #171717, labels #7c7c7c, table header #f3f3f3, borders #d1d8dd,
+  heading underline #aaa). Company name above the title, the statement details (company, type,
+  supplier, from, to, issue date) as label/value lines, project rows and the grand total in bold.
+  The print sets its own text direction from the user's language (`frappe.utils.is_rtl()`, as the
+  report print page does): text cells follow it, numbers read left to right and are right-aligned
+  so the decimals line up, dates, counts and the row number are centred, cells are vertically
+  centred.
+  The summary figures moved below the rows as a "Totals" table (الإجماليات; CARD-only msgid
+  "Statement totals", so the generic frappe "Totals" translation is not overridden), placed right under the last (amount) columns, at the end side
+  of the page as in a standard invoice. The print no longer shows the equipment number, rate type or rate
+  columns (the screen report keeps them); the remaining widths fill the A4 landscape width.
+  The Additions and Deductions columns print only when some row has a value; the other columns
+  share the freed width and the Totals table follows the width of the amount columns. Everything
+  the template writes is translated into the user's language, including the statement type (the
+  filter stores the Arabic option value; it now prints as "Supplier" / new msgid "Owned
+  equipment"). Names in the data (company, supplier, project, equipment, card) print as stored.
+  Files: `equipment_supplier_statement.html` and the `Equipment Supplier Statement A4` Print Format
+  (`modified` bumped so `bench migrate` re-syncs it). Same data, filters and escaping; literal
+  colours (no CSS variables, no remote font) so the wkhtmltopdf PDF keeps them; font Cairo when
+  installed, else the bundled Noto Sans Arabic. The logo comes from the Letter Head chosen in the
+  print dialog (nothing company-specific is hard-coded). Impact: none on permissions, accounting,
+  data or the API. Rollback: not by `bench migrate` alone (the
+  older format file is not re-imported); see **Migration → Rollback**. No data to restore.
+
+### Migration
+
+- **Patches:** none. `card/patches.txt` is unchanged since v4.2.2; `bench migrate` runs no CARD data patch.
+- **DocType / schema:** no change. No new column, field level, role or DocPerm.
+- **Records synced by `bench migrate`:** the five standard Print Formats `Card Monthly Card Print`,
+  `Equipment Transport Print`, `Project Diesel Fill Print`, `Tool Handover Receipt` (file `modified`
+  2026-11-09 14:00) and `Equipment Supplier Statement A4` (2026-11-09 13:30), re-imported because their file is
+  newer than the database row; the Print Format fixture `كارت تشغيل شهري` (html/css replaced,
+  `default_print_language` cleared from `en`; fixtures are re-imported on every migrate).
+- **What migrate does not write:** no card, transport, fill, receipt, posting, GL Posting Log or settings value;
+  no GL entry; no role or permission change.
+- **Code:** `hooks.py` adds the Jinja method `card.print_utils.card_print_is_rtl`; restart the web and background
+  workers after the update (normal for an image deploy). Compile the CARD translations (`ar`) into the image as in
+  previous deployments, or the Arabic print shows the English labels.
+- **Rollback:** see the v4.4.0 release page. Last stable version: v4.3.0. v4.3.0 code runs on the v4.4.0
+  database (no schema or data change). Checking out v4.3.0 and running `bench migrate` does **not** restore the
+  v4.3.0 standard print formats: frappe re-imports a standard document only when its file `modified` is newer
+  than the database row, and the v4.3.0 files are older. The four restyled DocType formats call
+  `card_print_is_rtl()`, which v4.3.0 does not register, so they fail to render after a code-only rollback until
+  the v4.3.0 formats are re-imported with `force` (steps on the release page). The fixture returns to its v4.3.0
+  content on that migrate (fixtures are imported with `force`).
+
+### Known limitations
+
+- Published ≠ deployed: deployment of 4.4.0 to any site is a separate, site-verified fact.
+- The print look was checked by template tests and a Jinja compile test in CI; a printed PDF from a real site
+  (wkhtmltopdf, A4 fit of a sub-rental card with adjustments) is not part of the release evidence.
+- Names stored in the data (company, supplier, project, equipment, card, Data fields) print as stored, so an
+  English print can still show Arabic names.
+- A4 supplier statement: Landscape must still be chosen in the PDF dialog.
+- In a language without a CARD catalogue the CARD-specific labels print in English.
+
 ## [4.3.0] — 2026-11-09
 
 Minor release on top of v4.2.2: posting integrity and project/equipment cost allocation for CARD postings,
