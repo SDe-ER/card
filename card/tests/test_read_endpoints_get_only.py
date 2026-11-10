@@ -15,6 +15,8 @@ READ_ONLY = (
 	"card.api.card_company_options",
 	"card.diesel.get_card_diesel",
 	"card.card.doctype.card_equipment.card_equipment.get_shift_heatmap",
+	"card.gl.posting.preview_month",
+	"card.gl.posting.posting_month_parties",
 )
 
 

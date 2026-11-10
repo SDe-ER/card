@@ -95,6 +95,33 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     then unused; a transport submitted with "Other party bears the cost" keeps that stored value, which an older
     version counts as a move the company does not pay in its reports but refuses on a new save (unknown
     responsibility); amend such transports before a rollback.
+- **CARD Monthly Posting page with a posting preview** (FR-119, refs #49 #126; PR #193, branch
+  `feat/posting-preview-49`).
+  - **Reason:** accountants built the month-end drafts blind: `post_month` / `rebuild_month` had no Desk screen and
+    no way to see the lines before a draft Purchase / Sales Invoice was created and its sources reserved.
+  - **Change:** new Desk page `card-monthly-posting` (roles Card Manager and System Manager, the roles the build
+    endpoints already require). Pick a company and a month; the page lists each supplier and customer with its status
+    (Not posted / Draft / Posted), the documents not yet in a posting and its CARD postings; **Preview lines** shows the
+    lines the next draft (or the rebuild of the current draft) would carry — item, account, amount, project, cost
+    center, equipment, taxable / zero-rated and item tax template per line, totals, discount, an estimated VAT, the
+    diesel VAT-basis note and the source documents — and the supplier invoices an accountant must review first
+    (tickable only by Accounts Manager / Accounts User / System Manager, as before). **Create draft posting** /
+    **Rebuild draft posting** call the existing `card.gl.posting.post_month` / `rebuild_month` unchanged.
+  - **Affected functions:** `card.gl.posting.build_monthly_posting` is split into `_plan_monthly_posting` (all gates and
+    lines; `dry_run=True` skips `ensure_posting_masters`, `integrity.lock_sources` and the reviewed-invoice refusal and
+    returns the candidates instead) and the unchanged insert/log/reserve part; the item row is built by the shared
+    `_invoice_item`; `rebuild_monthly_posting` reads its drafts through `_rebuildable_drafts`;
+    `_held_by_active_log` / `_exclude_held` take an optional `ignore_logs` (rebuild preview only);
+    `_supplier_sources` / `_customer_cards` accept `party=None` (party list);
+    `card.gl.preflight.check_template_mapping` takes `provisioned=True` (default unchanged; a preview before the
+    first post skips only the CARD item tax template rows, every other tax check still refuses). New:
+    `preview_monthly_posting`, `month_parties` (batched hold lookup `_unheld_batch`), whitelisted `preview_month` and `posting_month_parties` (both `methods=["GET"]`, side-effect
+    free, same role, company and party gates as `post_month`).
+  - **Impact:** permissions — none changed; GL Posting Log stays readable by System Manager, Accounts Manager and Card
+    Manager (Accounts User read is an open owner decision). Accounting — none: the real build runs the same steps in
+    the same order with the same amounts; the preview writes nothing (tests patch every write path). Data — none, no
+    schema change, no patch. API — two new GET methods.
+  - **Rollback:** revert the commit; nothing is stored by the page or the preview.
 - **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
   An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
   opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself

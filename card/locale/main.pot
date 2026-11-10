@@ -4665,6 +4665,150 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py
 msgid "The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "CARD Monthly Posting"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "No CARD posting yet"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Draft posting"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "No CARD documents or postings for this company and month."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Documents not yet in a posting"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "CARD postings"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "linked supplier invoice"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Preview lines"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Rebuild replaces draft {0}"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Posting date {0}"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "This posting cannot be built yet:"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "This posting cannot be built yet."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "VAT on the line"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "No VAT on this posting"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Zero-rated"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Total of the posting lines"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Discount on Net Total (customer deductions)"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Net total of the posting"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Taxable net"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Zero-rated net"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "VAT {0}% (estimate; ERPNext computes the invoice taxes)"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Tax template {0}"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "No VAT: the supplier has no tax ID."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "CARD source documents"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Supplier invoices to review"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "These supplier invoices around this month may cover the same operations. Link each one to the CARD documents it pays for, or tick it when an accountant confirms it is unrelated."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "no bill no."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "draft supplier invoice"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "{0} more supplier invoice(s) you cannot open must be reviewed by an accountant."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Only an accountant may declare supplier invoices unrelated."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Rebuild draft posting"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Create draft posting"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Delete draft {0} and build it again from the current CARD documents? The new draft may differ from this preview if documents changed since it was shown."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Create a draft {0} from the current CARD documents? It may differ from this preview if documents changed since it was shown."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Draft posting {0} created."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "CARD posting items or VAT item tax templates are not set up yet for company {0}; the first posting creates them, so some item columns of this preview are empty."
+msgstr ""
+
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Other party bears the cost"
 msgstr ""
