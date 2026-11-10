@@ -6553,3 +6553,7 @@ msgstr "النقل {0}: المبلغ المسترد من مورد المعدة (
 #: card/gl/preflight.py
 msgid "Configure Card Settings for company {0}: the transport recharge income account {1} must be an income account."
 msgstr "اضبط إعدادات CARD للشركة {0}: حساب إيراد إعادة تحميل النقل {1} يجب أن يكون حساب إيرادات."
+
+#: card/gl/posting.py
+msgid "{0}: the amount {1} cannot be split over its machines without a negative part."
+msgstr "{0}: لا يمكن توزيع المبلغ {1} على معداته دون جزء سالب."

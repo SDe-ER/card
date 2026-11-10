@@ -372,20 +372,27 @@ def responsibility_line_allocation(transport, company):
 	return None, None
 
 
-def _split_by_shares(amount, shares):
+def _split_by_shares(amount, shares, label):
 	"""[(equipment, part)] of `amount` in the proportions of the transport's equipment shares (the
-	transporter cost lines), rounded to the halala with the remainder on the last share, so the parts add
-	up to `amount` exactly. Zero parts are left out (one part is always kept)."""
+	transporter cost lines), rounded to the halala. Only machines with a positive share get a part (a
+	machine that carries no cost gets none); the rounding remainder goes to the largest share, so the
+	parts add up to `amount` exactly. A part below zero is refused (never a negative customer line)."""
 	amount = flt(amount, 2)
-	base = flt(sum(flt(share, 2) for _equipment, share in shares), 2)
-	if len(shares) < 2 or base <= 0:
-		return [(shares[0][0] if len(shares) == 1 else None, amount)]
-	parts, given = [], 0.0
-	for i, (equipment, share) in enumerate(shares):
-		part = flt(amount - given, 2) if i == len(shares) - 1 else flt(amount * flt(share, 2) / base, 2)
-		given = flt(given + part, 2)
-		parts.append((equipment, part))
-	return [p for p in parts if p[1]] or [parts[-1]]
+	positive = [(equipment, flt(share, 2)) for equipment, share in shares if flt(share, 2) > 0]
+	base = flt(sum(share for _equipment, share in positive), 2)
+	if len(positive) < 2 or base <= 0:
+		equipment = positive[0][0] if positive else (shares[0][0] if len(shares) == 1 else None)
+		return [(equipment, amount)]
+	parts = [[equipment, flt(amount * share / base, 2)] for equipment, share in positive]
+	largest = max(range(len(positive)), key=lambda i: positive[i][1])
+	parts[largest][1] = flt(parts[largest][1] + amount - flt(sum(p[1] for p in parts), 2), 2)
+	if any(p[1] < 0 for p in parts):
+		frappe.throw(
+			_("{0}: the amount {1} cannot be split over its machines without a negative part.").format(
+				label, amount
+			)
+		)
+	return [(equipment, part) for equipment, part in parts if part] or [tuple(parts[largest])]
 
 
 def _responsibility_transports(company, party, first_day, last_day, held=None):
@@ -457,7 +464,7 @@ def _responsibility_supplier_lines(transport, shares, row, company, description)
 		description = _("Transport {0}: recovery from equipment supplier {1}").format(
 			transport.name, transport.equipment_supplier
 		)
-		for equipment, part in _split_by_shares(recovery, shares):
+		for equipment, part in _split_by_shares(recovery, shares, _("Transport {0}").format(transport.name)):
 			lines.append(
 				{
 					"item_code": row.transport_item,
@@ -523,7 +530,7 @@ def _customer_transport_lines(transport, shares, row, company):
 			"taxable": 1,
 			"description": description,
 		}
-		for equipment, part in _split_by_shares(amount, shares)
+		for equipment, part in _split_by_shares(amount, shares, label)
 	]
 
 

@@ -5313,3 +5313,7 @@ msgstr ""
 #: card/gl/preflight.py
 msgid "Configure Card Settings for company {0}: the transport recharge income account {1} must be an income account."
 msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: the amount {1} cannot be split over its machines without a negative part."
+msgstr ""

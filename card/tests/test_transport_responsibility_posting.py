@@ -82,7 +82,7 @@ class TestTransportResponsibilityPosting(_P0Base):
 		settings.save(ignore_permissions=True)
 		frappe.clear_cache(doctype="Card Settings")
 
-	def _new(self, amount=400, supplier=None, machines=1):
+	def _new(self, amount=400, supplier=None, machines=1, shares=None):
 		t = frappe.new_doc("Equipment Transport")
 		t.update(
 			{
@@ -94,8 +94,11 @@ class TestTransportResponsibilityPosting(_P0Base):
 				"amount": amount,
 			}
 		)
-		for _i in range(machines):
-			t.append("items", {"card_equipment": self._equipment().name})
+		for i in range(len(shares) if shares else machines):
+			row = {"card_equipment": self._equipment().name}
+			if shares and shares[i]:
+				row["amount"] = shares[i]  # a typed share; an empty one takes what the others leave
+			t.append("items", row)
 		return t
 
 	def _submitted(self, t):
@@ -115,8 +118,9 @@ class TestTransportResponsibilityPosting(_P0Base):
 		user.insert(ignore_permissions=True)
 		frappe.set_user(email)
 
-	def _decided(self, bearer, decision, supplier=None, machines=1, **values):
-		t = company_paid(self._new(supplier=supplier, machines=machines))
+	def _decided(self, bearer, decision, supplier=None, machines=1, shares=None, **values):
+		amount = round(sum(v for v in shares if v), 2) if shares else 400
+		t = company_paid(self._new(amount=amount, supplier=supplier, machines=machines, shares=shares))
 		t.cost_bearer = bearer
 		self._submitted(t)
 		self._accountant()
@@ -127,11 +131,12 @@ class TestTransportResponsibilityPosting(_P0Base):
 		t.reload()
 		return t
 
-	def _billed(self, mode="Monthly invoice", amount=650, machines=1):
+	def _billed(self, mode="Monthly invoice", amount=650, machines=1, shares=None):
 		return self._decided(
 			"Customer",
 			"Bill customer",
 			machines=machines,
+			shares=shares,
 			customer=self.customer,
 			billing_project=self.project,
 			billing_amount=amount,
@@ -140,12 +145,13 @@ class TestTransportResponsibilityPosting(_P0Base):
 			confirmed=1,
 		)
 
-	def _recovered(self, mode="Deduct from monthly dues", supplier=None, amount=150, machines=1):
+	def _recovered(self, mode="Deduct from monthly dues", supplier=None, amount=150, machines=1, shares=None):
 		return self._decided(
 			"Equipment Supplier",
 			"Recover from equipment supplier",
 			supplier=supplier,
 			machines=machines,
+			shares=shares,
 			recovery_mode=mode,
 			recovery_amount=amount,
 		)
@@ -532,3 +538,29 @@ class TestTransportResponsibilityPosting(_P0Base):
 		frappe.db.set_value("Project", self.project, "status", "Cancelled")
 		with self.assertRaisesRegex(frappe.ValidationError, "is cancelled"):
 			self._si()
+
+	def _assert_split(self, parts, total, zero_machines):
+		self.assertTrue(all(v > 0 for v in parts.values()), parts)  # never a negative or empty line
+		self.assertEqual(round(sum(parts.values()), 2), total)
+		self.assertFalse(set(parts) & zero_machines)  # a machine with no cost gets no part
+
+	def test_a_zero_or_unequal_share_never_gives_a_negative_or_stray_part(self):
+		"""R-1: shares [100, 100, 100, 0] (the last one filled with 0) and unequal shares."""
+		self._mode(POST)
+		for shares in ([100, 100, 100, None], [250, 100, 50, None], [233.33, 33.34, 33.33]):
+			billed = self._billed(amount=650, shares=shares)
+			zero = {r.card_equipment for r in billed.items if not flt(r.amount)}
+			if shares[-1] is None:
+				self.assertEqual(len(zero), 1)  # the empty share was filled with 0
+			si = self._si()
+			self.assertTrue(all(flt(i.rate) >= 0 for i in si.items))  # ZATCA
+			parts = {i.card_equipment: flt(i.rate) for i in self._transport_lines(si, billed.name)}
+			self._assert_split(parts, 650, zero)
+			frappe.delete_doc("Sales Invoice", si.name, ignore_permissions=True)
+			recovered = self._recovered(amount=100, shares=shares)
+			zero = {r.card_equipment for r in recovered.items if not flt(r.amount)}
+			pi = self._pi()
+			lines = self._transport_lines(pi, recovered.name)
+			deductions = {i.card_equipment: -flt(i.rate) for i in lines if flt(i.rate) < 0}
+			self._assert_split(deductions, 100, zero)
+			frappe.delete_doc("Purchase Invoice", pi.name, ignore_permissions=True)
