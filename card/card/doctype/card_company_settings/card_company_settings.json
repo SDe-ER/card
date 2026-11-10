@@ -235,12 +235,12 @@
    "permlevel": 1
   },
   {
-   "default": "Warn",
-   "description": "A new diesel fill, or one whose equipment, project or date changed, needs each equipment assigned to the fill's project on the fill date. Warn: a message, the fill is saved. Enforce: the fill is refused. Off: no check. Empty: Warn. Submitted fills are never checked again.",
+   "default": "Warn only (diesel project check)",
+   "description": "A new diesel fill, or one whose company, equipment, project or date changed, needs each equipment assigned to the fill's project on the fill date. Warn only: a message, the fill is saved. Refuse: the fill is refused. Off: no check. Empty: Warn only. On the day of a project-to-project move the fill goes to the project the move-day rule gives that day: the old project when the new assignment starts the day after the move, the new project when it starts on the move day. Submitted fills are never checked again.",
    "fieldname": "diesel_fill_project_check",
    "fieldtype": "Select",
    "label": "Diesel fill project check",
-   "options": "Off\nWarn\nEnforce",
+   "options": "Off (diesel project check)\nWarn only (diesel project check)\nRefuse (diesel project check)",
    "permlevel": 1
   },
   {

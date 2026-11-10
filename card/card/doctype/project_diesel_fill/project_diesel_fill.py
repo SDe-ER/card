@@ -166,9 +166,10 @@ def _equipment_rows(doc):
 
 
 # FR-126 (#124 WP-11): is the equipment of a fill on the fill's project? Per company; Warn by default
-PROJECT_CHECK_OFF = "Off"
-PROJECT_CHECK_WARN = "Warn"
-PROJECT_CHECK_ENFORCE = "Enforce"
+# (CARD-specific values, so a generic "Off"/"Warn" msgid of Frappe is never overridden)
+PROJECT_CHECK_OFF = "Off (diesel project check)"
+PROJECT_CHECK_WARN = "Warn only (diesel project check)"
+PROJECT_CHECK_ENFORCE = "Refuse (diesel project check)"
 
 
 def _filled_equipment_of(doc):
@@ -180,20 +181,17 @@ def _filled_equipment_of(doc):
 
 
 def equipment_on_project(equipment, project, on_date):
-	"""A Card Equipment Assignment of `equipment` on `project` covers `on_date` (an empty from date
-	covers every day before its end; an empty to date is open-ended)."""
-	assignment = frappe.qb.DocType("Card Equipment Assignment")
-	day = getdate(on_date)
-	return bool(
-		frappe.qb.from_(assignment)
-		.select(assignment.name)
-		.where(assignment.equipment == equipment)
-		.where(assignment.project == project)
-		.where(assignment.from_date.isnull() | (assignment.from_date <= day))
-		.where(assignment.to_date.isnull() | (assignment.to_date >= day))
-		.limit(1)
-		.run()
+	"""A Card Equipment Assignment of `equipment` on `project` is in force on `on_date`, by the rule of
+	card.transfer._in_force (the one the equipment location and the transports use): a from date on or
+	before the day and an empty or later to date. An assignment without a from date covers no day."""
+	from card.transfer import _in_force
+
+	rows = frappe.get_all(
+		"Card Equipment Assignment",
+		filters={"equipment": equipment, "project": project},
+		fields=["name", "from_date", "to_date"],
 	)
+	return bool(_in_force(rows, getdate(on_date)))
 
 
 def totalizer_bounds(value):
@@ -541,16 +539,17 @@ class ProjectDieselFill(Document):
 	def _check_equipment_on_project(self):
 		"""FR-126 (#124 WP-11): the direct-charge equipment and every listed equipment need a Card Equipment
 		Assignment on the fill's project covering the fill date. Per company (Card Company Settings
-		`diesel_fill_project_check`): Off, Warn (the default, also when empty: a message, the fill is saved)
-		or Enforce (refused). Only a new fill, or one whose equipment, project or date changed, is checked;
-		submitted fills never reach validate."""
+		`diesel_fill_project_check`): Off, Warn only (the default, also when empty: a message, the fill is
+		saved) or Refuse. Only a new fill, or one whose company, equipment, project or date changed, is
+		checked; submitted fills never reach validate."""
 		mode = company_setting(self.company, "diesel_fill_project_check") or PROJECT_CHECK_WARN
 		if mode == PROJECT_CHECK_OFF or not (self.project and self.date):
 			return
 		before = None if self.is_new() else self.get_doc_before_save()
 		equipment = _filled_equipment_of(self)
 		if before is not None and not (
-			self.has_value_changed("project")
+			self.has_value_changed("company")
+			or self.has_value_changed("project")
 			or self.has_value_changed("date")
 			or equipment != _filled_equipment_of(before)
 		):
