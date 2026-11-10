@@ -409,8 +409,9 @@
   {
    "depends_on": "eval:doc.rate_type===\"باليوم\" || doc.customer_rate_type===\"باليوم\"",
    "fieldname": "day_billing_basis",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Day billing basis",
+   "options": "\nProrated by hours\nFull day",
    "read_only": 1
   },
   {
@@ -445,8 +446,9 @@
   },
   {
    "fieldname": "day_billing_basis_used",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Day billing basis used",
+   "options": "\nProrated by hours\nFull day",
    "no_copy": 1,
    "read_only": 1
   },
@@ -496,7 +498,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 20:00:00.000000",
+ "modified": "2026-11-10 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card",
