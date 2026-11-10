@@ -4,7 +4,8 @@
 Equipment Transport, Project Diesel Fill) is cancelled only with a reason, and a cancel changes
 nothing else on the document.
 
-- ``cancel_reason`` (Small Text, allow on submit, no copy, read only) is written only by the cancel
+- ``cancel_reason`` (Small Text, no copy, read only; not allow on submit, since a cancel stores it
+  without Frappe's update-after-submit check) is written only by the cancel
   itself: ``cancel_with_reason`` (the form's Cancel dialog) stores the reason and cancels in one
   request; a REST/API cancel that sends ``docstatus`` 2 may send ``cancel_reason`` with it. A save,
   submit or update after submit never sets it (a copied reason is dropped on save; an update after
@@ -20,7 +21,17 @@ import frappe
 from frappe import _
 from frappe.model import no_value_fields, table_fields
 from frappe.model.workflow import get_workflow_name
-from frappe.utils import cint, cstr, escape_html, flt, get_datetime, getdate, now_datetime, to_timedelta
+from frappe.utils import (
+	cint,
+	cstr,
+	escape_html,
+	flt,
+	get_datetime,
+	getdate,
+	now_datetime,
+	strip_html_tags,
+	to_timedelta,
+)
 
 FIELD = "cancel_reason"
 DOCTYPES = ("Card Monthly Card", "Equipment Transport", "Project Diesel Fill")
@@ -35,7 +46,10 @@ class CancelChangesDocumentError(frappe.ValidationError):
 
 
 def _reason(doc):
-	return cstr(doc.get(FIELD)).strip()
+	# Frappe skips _validate (and so _sanitize_content) on cancel, so the reason is cleaned here: it is
+	# plain text: every HTML tag is removed, then any "<" or ">" left (an unclosed tag) is dropped
+	# (Report View shows Small Text unescaped)
+	return strip_html_tags(cstr(doc.get(FIELD))).replace("<", "").replace(">", "").strip()
 
 
 @frappe.whitelist(methods=["POST"])
@@ -122,12 +136,9 @@ def _norm(df, v):
 
 
 def _differs(df, new, old):
-	n, o = _norm(df, new), _norm(df, old)
-	if n == o:
-		return False
-	# Frappe fills empty fields with their defaults before every save (Document._set_defaults),
-	# so a stored empty value that now holds the field's default is not a change of the request
-	return not (o in ("", 0) and df.default is not None and n == _norm(df, df.default))
+	# no default tolerance: Frappe fills defaults on a save only for a new document or a new child
+	# row (Document._set_defaults), and a cancel refuses new rows, so any other difference is the request's
+	return _norm(df, new) != _norm(df, old)
 
 
 def _changed_field(doc, stored, skip):

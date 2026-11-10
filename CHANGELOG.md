@@ -19,7 +19,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Mandatory cancel reason and a reviewable period-lock override** (FR-123, WP-07, #35, #51, governance G0). Reason: a
   cancelled card, fill or transport had no recorded reason, a cancel request could still change the stored card (FR-050
   open gap 1), and a period-lock override was only in the server log. Card Monthly Card, Equipment Transport and Project
-  Diesel Fill get `cancel_reason` (Small Text, allow on submit, no copy, read only). The form's Cancel asks for the reason
+  Diesel Fill get `cancel_reason` (Small Text, no copy, read only; not "allow on submit": a cancel stores it without
+  Frappe's update-after-submit check, so no update-after-submit path is opened). The form's Cancel asks for the reason
   and cancels through `card.cancel_reason.cancel_with_reason` (POST; one request, so a refused cancel keeps no reason).
   `before_cancel` refuses a cancel without a reason on every path (Desk, REST `docstatus` 2, Python/API) and refuses a
   cancel request that changes any other stored field or child row; `on_cancel` adds an Info Comment with the actor, the
@@ -33,6 +34,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   an empty reason; no patch). API: a cancel without `cancel_reason` is now refused for these three doctypes, including
   Frappe's "cancel all linked documents". Rollback limits: code revert only; the added columns stay (harmless) and the
   stored reasons and comments remain.
+  Review fixes (PR #197): the reason is stored as plain text (HTML tags and any left `<` `>` removed in
+  `before_cancel`, because Frappe skips `_validate`/`_sanitize_content` on cancel; a reason that is only markup is
+  refused); the change check has no default-value tolerance (Frappe fills defaults only for new documents and new
+  rows). Known limits: an active Workflow's cancel action (`apply_workflow` -> `doc.cancel`) cannot send a reason, so
+  it is refused (the Card Monthly Card workflow is inactive on Production today); the List view bulk cancel
+  (`submit_cancel_or_update_docs`, a background job above 20 records) is refused too: cancel each record from its
+  form with a reason.
 - **Transport costs the company does not pay, and an "other party" responsibility** (FR-120, refs #43, #48, #121;
   WP-14; PR #190).
   - **Reason:** when the equipment supplier, the customer or another party pays a move, the amount agreed with

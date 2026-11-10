@@ -62,6 +62,8 @@ if (!window.card_cancel_reason_registered) {
 			// refused on the server: frappe already shows the server's message
 		}
 		await frm.reload_doc();
+		// set again after the awaits: another handler or the reload may have reset it
+		frappe.validated = false;
 	};
 
 	for (const doctype of ["Card Monthly Card", "Equipment Transport", "Project Diesel Fill"]) {

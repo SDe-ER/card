@@ -89,7 +89,9 @@ class TestCancelReason(IntegrationTestCase):
 			self.assertIn("public/js/cancel_reason.js", doctype_js[doctype])
 			df = frappe.get_meta(doctype).get_field("cancel_reason")
 			self.assertEqual(
-				(df.fieldtype, df.allow_on_submit, df.no_copy, df.read_only), ("Small Text", 1, 1, 1)
+				# not allow on submit: the cancel stores it without that (test_reason_is_stored_and_commented)
+				(df.fieldtype, df.allow_on_submit, df.no_copy, df.read_only),
+				("Small Text", 0, 1, 1),
 			)
 
 	def test_empty_reason_refused_through_the_api(self):
@@ -123,6 +125,46 @@ class TestCancelReason(IntegrationTestCase):
 				self.assertIn("Administrator", comments[0].content)
 				self.assertIn(str(getdate(MID_MONTH)), comments[0].content)
 				self.assertEqual(comments[0].comment_email, "Administrator")
+
+	def test_html_in_the_reason_is_removed(self):
+		"""Frappe does not sanitize on cancel; the reason is stored as plain text on every path."""
+		payload = '<img src=x onerror="alert(1)">'
+		card, fill, t = self._open_docs()
+		# only markup: nothing is left, so the cancel is refused
+		self._refused(CancelReasonRequiredError, cancel_with_reason, fill.doctype, fill.name, payload)
+		d = frappe.get_doc(t.doctype, t.name)
+		d.update({"docstatus": 2, "cancel_reason": payload})
+		self._refused(CancelReasonRequiredError, d.save)
+		# text with markup and an unclosed tag: the text stays, the markup and the brackets go
+		cancel_with_reason(fill.doctype, fill.name, f"Wrong {payload} project <img src=x onerror=alert(2)")
+		d = frappe.get_doc(t.doctype, t.name)
+		d.update({"docstatus": 2, "cancel_reason": f"Duplicate {payload}move"})
+		d.save()
+		for doc in (fill, t):
+			stored = frappe.db.get_value(doc.doctype, doc.name, "cancel_reason")
+			self.assertEqual(self._docstatus(doc), 2)
+			self.assertNotIn("<", stored)
+			self.assertNotIn(">", stored)
+			self.assertNotIn("<", "".join(c.content for c in self._comments(doc, "Cancelled by")))
+		self.assertTrue(frappe.db.get_value(fill.doctype, fill.name, "cancel_reason").startswith("Wrong"))
+		self.assertEqual(frappe.db.get_value(t.doctype, t.name, "cancel_reason"), "Duplicate move")
+		self.assertEqual(self._docstatus(card), 1)
+
+	def test_cancel_cannot_fill_an_empty_field_with_its_default(self):
+		card = self._open_docs()[0]
+		frappe.db.set_value(card.doctype, card.name, "shift", "", update_modified=False)
+		d = frappe.get_doc(card.doctype, card.name)
+		d.shift = frappe.get_meta(card.doctype).get_field("shift").default
+		d.cancel_reason = REASON
+		self._refused(CancelChangesDocumentError, d.cancel)
+		self.assertEqual(self._docstatus(card), 1)
+		self.assertFalse(frappe.db.get_value(card.doctype, card.name, "shift"))
+		# a field defaulted to "Today" is compared as a date, not parsed from its default
+		fill = self._open_docs()[1]
+		d = frappe.get_doc(fill.doctype, fill.name)
+		d.date = self._today(-3)
+		d.cancel_reason = REASON
+		self._refused(CancelChangesDocumentError, d.cancel)
 
 	def test_rest_cancel_with_reason_in_the_request(self):
 		t = self._open_docs()[2]
