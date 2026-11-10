@@ -24,6 +24,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt, getdate
 
+from card import transport_costs as tc
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
 from card.gl import integrity, preflight
@@ -268,30 +269,7 @@ def transport_line_cost_center(transport, company):
 			).format(label)
 		)
 	if transport.get("destination_type") in ("Workshop", "Storage"):
-		own = _source_cost_center("Equipment Transport", transport, company)
-		configured = frappe.db.get_value(
-			"Card Location Cost Center",
-			{
-				"parent": "Card Settings",
-				"parenttype": "Card Settings",
-				"company": company,
-				"location": transport.get("destination_location"),
-			},
-			"cost_center",
-		)
-		if not own or not configured:
-			_allocation_exception(
-				_(
-					"{0} has no cost center for its place; set the place's cost center in Card Settings (Transport), then cancel and amend the transport."
-				).format(label)
-			)
-		if own != configured:
-			_allocation_exception(
-				_(
-					"{0}: its cost center {1} is not the one now configured for {2} in Card Settings ({3}); review it, then cancel and amend the transport."
-				).format(label, own, transport.get("destination_location"), configured)
-			)
-		return own
+		return _place_cost_center(transport, company, label)
 	_allocation_exception(
 		_(
 			"{0} ({1} → {2}): which project bears this move is not recorded, and neither the project it leaves nor the project it goes to is assumed; review it and enter the supplier invoice manually."
@@ -301,6 +279,237 @@ def transport_line_cost_center(transport, company):
 			transport.get("project") or transport.get("destination_type") or "",
 		)
 	)
+
+
+def _place_cost_center(transport, company, label):
+	"""The cost center of a move to a workshop or storage: the one copied on save, valid and still the
+	one configured for the place in Card Settings (per company)."""
+	own = _source_cost_center("Equipment Transport", transport, company)
+	configured = frappe.db.get_value(
+		"Card Location Cost Center",
+		{
+			"parent": "Card Settings",
+			"parenttype": "Card Settings",
+			"company": company,
+			"location": transport.get("destination_location"),
+		},
+		"cost_center",
+	)
+	if not own or not configured:
+		_allocation_exception(
+			_(
+				"{0} has no cost center for its place; set the place's cost center in Card Settings (Transport), then cancel and amend the transport."
+			).format(label)
+		)
+	if own != configured:
+		_allocation_exception(
+			_(
+				"{0}: its cost center {1} is not the one now configured for {2} in Card Settings ({3}); review it, then cancel and amend the transport."
+			).format(label, own, transport.get("destination_location"), configured)
+		)
+	return own
+
+
+# ---- FR-139 (#49, #126, #43; C-09, O-14): transports recorded with a responsibility, Post mode only ----
+
+
+def _required_allocation(cc, company, what, label):
+	"""A cost center that must be set and usable (enabled leaf of the company); else an exception."""
+	if not cc:
+		_allocation_exception(_("{0}: {1} has no cost center; set it, then build again.").format(label, what))
+	return _checked_allocation(cc, company, what)
+
+
+def _billing_project_cost_center(transport, company, label):
+	"""The approved billing project of a transport billed to the customer: a project of the posting's
+	company (cross-company refused) and its cost center."""
+	project = transport.billing_project
+	row = (
+		frappe.db.get_value("Project", project, ["company", "cost_center"], as_dict=True) if project else None
+	)
+	if not row or row.company != company:
+		_allocation_exception(
+			_(
+				"{0}: its billing project {1} does not belong to company {2}; return the decision for correction."
+			).format(label, project or _("none"), company)
+		)
+	return _required_allocation(row.cost_center, company, _("Project {0}").format(project), label)
+
+
+def responsibility_line_allocation(transport, company):
+	"""(project, cost_center) of the transporter's line of a transport recorded with a responsibility.
+	Company cost: its explicit choice (cost project, the place, or the overhead cost center), never the
+	origin or the destination. Billed to the customer: the approved billing project, so the cost and the
+	revenue meet on one project. Recovered from the equipment supplier: no project (the cost is passed
+	on) and no cost center of its own, so the line takes the company's CARD cost center (Card Company
+	Settings), as the deduction does."""
+	label = _("Transport {0}").format(transport.name)
+	kind = transport.posting_kind
+	if kind == tc.COMPANY_COST:
+		if transport.cost_basis == "Project":
+			return transport.cost_project, _required_allocation(
+				transport.cost_center, company, _("Cost project {0}").format(transport.cost_project), label
+			)
+		if transport.cost_basis == "Workshop or storage":
+			return None, _place_cost_center(transport, company, label)
+		if transport.cost_basis == "Company overhead":
+			return None, _required_allocation(
+				transport.overhead_cost_center, company, _("The overhead cost center"), label
+			)
+		_allocation_exception(
+			_("{0}: where the company's cost is charged is not recorded; review it.").format(label)
+		)
+	if kind == tc.BILLED_TO_CUSTOMER:
+		return transport.billing_project, _billing_project_cost_center(transport, company, label)
+	return None, None
+
+
+def _single_equipment(shares):
+	"""The equipment of a one-machine transport (its deduction or customer line carries it), else None."""
+	machines = {equipment for equipment, _amount in shares if equipment}
+	return machines.pop() if len(machines) == 1 else None
+
+
+def _responsibility_transports(company, party, first_day, last_day, held=None):
+	"""Post: the submitted transports with a responsibility that the transporter's monthly Purchase
+	Invoice carries (transport_costs.supplier_posting_kind). held: collects (transport, reason) of the
+	transports the company pays that stay out (the preview says why)."""
+	rows = frappe.get_all(
+		"Equipment Transport",
+		filters={
+			"docstatus": 1,
+			"company": company,
+			**_party_filter("transport_supplier", party),
+			"date": ["between", [first_day, last_day]],
+			"purchase_invoice": ["in", ["", None]],
+			"payer": "Company",
+			"responsibility": ["is", "set"],
+		},
+		fields=list(dict.fromkeys([*_TRANSPORT_SOURCE_FIELDS, *tc.RESPONSIBILITY_POSTING_FIELDS])),
+	)
+	out = []
+	for r in rows:
+		kind, reason = tc.supplier_posting_kind(r)
+		if kind:
+			r.posting_kind = kind
+			out.append(r)
+		elif held is not None:
+			held.append((r, reason))
+	return out
+
+
+def _responsibility_supplier_lines(transport, shares, row, company, description):
+	"""The transporter's lines of one transport with a responsibility, and the amount it reserves."""
+	project, cost_center = responsibility_line_allocation(transport, company)
+	if transport.posting_kind == tc.BILLED_TO_CUSTOMER:
+		description = "{0} ({1})".format(description, _("billed to the customer"))
+	elif transport.posting_kind in (tc.RECOVERED_BY_DEDUCTION, tc.RECOVERED_BY_ADJUSTMENT):
+		description = "{0} ({1})".format(description, _("recovered from the equipment supplier"))
+	lines = [
+		{
+			"item_code": row.transport_item,
+			"rate": amount,
+			"account": row.transport_expense_account,
+			"project": project,
+			"cost_center": cost_center,
+			"card_equipment": equipment,
+			"taxable": 1,
+			"description": description,
+		}
+		for equipment, amount in shares
+	]
+	total = flt(sum(flt(amount, 2) for _equipment, amount in shares), 2)
+	if transport.posting_kind == tc.RECOVERED_BY_DEDUCTION:
+		recovery = flt(transport.recovery_amount, 2)
+		if recovery <= 0:
+			frappe.throw(
+				_("Transport {0}: the amount recovered from the equipment supplier is not recorded.").format(
+					transport.name
+				)
+			)
+		# a deduction line on the supplier's own invoice (Purchase Invoices carry negative lines, as the
+		# card supplier-side deductions do), on the same account and cost center as the transport line
+		lines.append(
+			{
+				"item_code": row.transport_item,
+				"rate": -recovery,
+				"account": row.transport_expense_account,
+				"project": project,
+				"cost_center": cost_center,
+				"card_equipment": _single_equipment(shares),
+				"taxable": 1,
+				"description": _("Transport {0}: recovery from equipment supplier {1}").format(
+					transport.name, transport.equipment_supplier
+				),
+			}
+		)
+		total = flt(total - recovery, 2)
+	return lines, total
+
+
+def _customer_transports(company, party, first_day, last_day):
+	"""Post: the submitted transports whose approved decision bills the customer on the monthly Sales
+	Invoice (transport_costs.customer_billing_eligible). party=None: every customer."""
+	rows = frappe.get_all(
+		"Equipment Transport",
+		filters={
+			"docstatus": 1,
+			"company": company,
+			**_party_filter("customer", party),
+			"date": ["between", [first_day, last_day]],
+			"responsibility": ["is", "set"],
+			"financial_status": "Approved",
+			"financial_decision": "Bill customer",
+			"billing_mode": "Monthly invoice",
+		},
+		fields=list(
+			dict.fromkeys([*_TRANSPORT_SOURCE_FIELDS, *tc.RESPONSIBILITY_POSTING_FIELDS, "billing_reference"])
+		),
+	)
+	return [r for r in rows if tc.customer_billing_eligible(r)]
+
+
+def _customer_transport_line(transport, shares, row, company):
+	"""The Sales Invoice line of a transport billed to the customer: the approved billing amount (never the
+	transporter cost), on the billing project. ZATCA (owner 2026-10-15): never a negative line."""
+	amount = flt(transport.billing_amount, 2)
+	if amount <= 0:
+		frappe.throw(
+			_(
+				"Transport {0}: its billing amount must be positive (Sales Invoices carry no negative lines); return the decision for correction."
+			).format(transport.name)
+		)
+	label = _("Transport {0}").format(transport.name)
+	return {
+		"item_code": row.transport_item,
+		"rate": amount,
+		"account": row.transport_recharge_income_account,
+		"project": transport.billing_project,
+		"cost_center": _billing_project_cost_center(transport, company, label),
+		"card_equipment": _single_equipment(shares),
+		"taxable": 1,
+		"description": _("Equipment transport {0} billed to the customer (reference {1})").format(
+			transport.name, transport.billing_reference or ""
+		),
+	}
+
+
+def _held_transport_warnings(company, party, first_day, last_day):
+	"""Post: why the party's transports the company pays stay out of this build (preview warnings)."""
+	held = []
+	_responsibility_transports(company, party, first_day, last_day, held)
+	messages = {
+		tc.HELD_DECISION: _(
+			"Transport {0} is not included: its financial decision is pending or was returned for correction."
+		),
+		tc.HELD_OTHER_SUPPLIER: _(
+			"Transport {0} is not included: its cost is recovered by deduction from another supplier than the transporter; record the recovery as an adjustment document or enter the invoices manually."
+		),
+		tc.HELD_ABSORBED: _(
+			"Transport {0} is not included: the company absorbs it and no cost project is recorded; enter the supplier invoice manually."
+		),
+	}
+	return [messages[reason].format(t.name) for t, reason in held if reason in messages]
 
 
 def _party_filter(fieldname, party):
@@ -356,24 +565,31 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"responsibility": ["in", ["", None]],
 			"payer": ["in", ["", None]],
 		},
-		fields=[
-			"name",
-			"transport_supplier",
-			"cost_borne_by",
-			"project",
-			"amount",
-			"date",
-			"from_location",
-			"to_location",
-			"source_type",
-			"source_project",
-			"source_location",
-			"destination_type",
-			"destination_location",
-			"cost_center",
-		],
+		fields=list(_TRANSPORT_SOURCE_FIELDS),
 	)
+	if preflight.posts_transport_responsibility(company):
+		# FR-139 Post (per company, owner decision O-14): add the transports with a responsibility
+		# whose transporter invoice can be built; Hold (the default) keeps the filter above alone
+		transports = transports + _responsibility_transports(company, party, first_day, last_day)
 	return cards, fills, transports
+
+
+_TRANSPORT_SOURCE_FIELDS = (
+	"name",
+	"transport_supplier",
+	"cost_borne_by",
+	"project",
+	"amount",
+	"date",
+	"from_location",
+	"to_location",
+	"source_type",
+	"source_project",
+	"source_location",
+	"destination_type",
+	"destination_location",
+	"cost_center",
+)
 
 
 def _transport_shares(transports):
@@ -604,6 +820,8 @@ def _plan_monthly_posting(
 				}
 			)
 			sources["Project Diesel Fill"].append((fill.name, flt(fill.amount, 2)))
+		if preflight.posts_transport_responsibility(company):
+			warnings.extend(_held_transport_warnings(company, party, first_day, last_day))
 		transport_shares = _transport_shares(transports)
 		for t in transports:
 			description = _("Equipment transport {0}: {1} → {2}").format(
@@ -613,6 +831,14 @@ def _plan_monthly_posting(
 				or t.to_location
 				or "",
 			)
+			if t.get("responsibility"):
+				# FR-139 Post: only reached when the company's setting is Post
+				t_lines, t_amount = _responsibility_supplier_lines(
+					t, transport_shares[t.name], row, company, description
+				)
+				lines.extend(t_lines)
+				sources["Equipment Transport"].append((t.name, t_amount))
+				continue
 			# v3.0.0: one line per equipment share (the shares add up to the trip cost,
 			# enforced on save), so each machine carries its own transport cost; a
 			# transport with no equipment stays one project-level line
@@ -640,6 +866,21 @@ def _plan_monthly_posting(
 			lines.extend(card_lines)
 			total_discount = flt(total_discount + discount, 2)
 			sources["Card Monthly Card"].append((card.name, flt(card.customer_net_amount, 2)))
+		if preflight.posts_transport_responsibility(company):
+			# FR-139 Post: the transports billed to this customer on the monthly invoice
+			billed = _exclude_held(
+				_customer_transports(company, party, first_day, last_day),
+				"Equipment Transport",
+				party_type,
+				ignore_logs,
+			)
+			if billed:
+				preflight.require_transport_recharge_account(row)
+			billed_shares = _transport_shares(billed)
+			for t in billed:
+				line = _customer_transport_line(t, billed_shares[t.name], row, company)
+				lines.append(line)
+				sources["Equipment Transport"].append((t.name, flt(line["rate"], 2)))
 		if total_discount and any(not line["taxable"] for line in lines):
 			# A Net Total discount is apportioned across ALL lines, so a
 			# zero-rated line would absorb part of a fully-taxable deduction
@@ -1235,6 +1476,10 @@ def month_parties(company, month, year, sides=("Supplier", "Customer")):
 		else:
 			cards = _customer_cards(company, None, month, year)
 			groups = ((_unheld_batch(cards, "Card Monthly Card", party_type), "customer"),)
+			if preflight.posts_transport_responsibility(company):
+				# FR-139 Post: a customer billed only for a transport is listed too
+				billed = _customer_transports(company, None, first_day, last_day)
+				groups += ((_unheld_batch(billed, "Equipment Transport", party_type), "customer"),)
 		for rows, field in groups:
 			for r in rows:
 				if r.get(field):

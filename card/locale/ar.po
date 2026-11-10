@@ -6457,3 +6457,83 @@ msgstr "لتغيير الإضافات والخصومات عدّل الكرت ا�
 msgid "Diesel price fuel type"
 msgstr "نوع الوقود لسعر الديزل"
 
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport responsibility posting"
+msgstr "ترحيل نقل المعدات حسب المسؤولية"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A transport recorded with a responsibility scenario: Hold keeps it out of the monthly invoices (as before; the Transport Accounting Review lists it). Post adds it to the monthly draft invoices: the transporter's Purchase Invoice line, the customer's Sales Invoice line from the approved billing amount, and the equipment supplier's recovery as a deduction. Switch to Post only after the accountant and the tax adviser agree. Empty: Hold."
+msgstr "النقل المسجل بسيناريو مسؤولية: «تعليق» يبقيه خارج الفواتير الشهرية (كما هو الآن؛ ويظهر في تقرير مراجعة محاسبة النقل). «ترحيل» يضيفه إلى مسودات الفواتير الشهرية: سطر فاتورة شراء الناقل، وسطر فاتورة مبيعات العميل من مبلغ الفوترة المعتمد، واسترداد مورد المعدة كخصم. لا تحوّل إلى «ترحيل» إلا بعد موافقة المحاسب والمستشار الضريبي. فارغ: تعليق."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Hold (transport responsibility posting)"
+msgstr "تعليق (ترحيل النقل حسب المسؤولية)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Post (transport responsibility posting)"
+msgstr "ترحيل (ترحيل النقل حسب المسؤولية)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport recharge income account"
+msgstr "حساب إيراد إعادة تحميل النقل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Income account of the transport cost billed to a customer (Post only). Must be an enabled, non-group account of this company."
+msgstr "حساب إيراد تكلفة النقل المفوترة على العميل (في وضع الترحيل فقط). يجب أن يكون حسابًا مفعّلًا وغير تجميعي لهذه الشركة."
+
+#: card/gl/posting.py
+msgid "{0}: {1} has no cost center; set it, then build again."
+msgstr "{0}: {1} ليس له مركز تكلفة؛ حدده ثم أعد الإنشاء."
+
+#: card/gl/posting.py
+msgid "{0}: its billing project {1} does not belong to company {2}; return the decision for correction."
+msgstr "{0}: مشروع الفوترة {1} لا يتبع الشركة {2}؛ أعد القرار للتصحيح."
+
+#: card/gl/posting.py
+msgid "Cost project {0}"
+msgstr "مشروع التكلفة {0}"
+
+#: card/gl/posting.py
+msgid "The overhead cost center"
+msgstr "مركز تكلفة المصروفات العامة"
+
+#: card/gl/posting.py
+msgid "{0}: where the company's cost is charged is not recorded; review it."
+msgstr "{0}: لم يُسجَّل أين تُحمَّل تكلفة الشركة؛ راجعه."
+
+#: card/gl/posting.py
+msgid "billed to the customer"
+msgstr "مفوتر على العميل"
+
+#: card/gl/posting.py
+msgid "recovered from the equipment supplier"
+msgstr "مسترد من مورد المعدة"
+
+#: card/gl/posting.py
+msgid "Transport {0}: the amount recovered from the equipment supplier is not recorded."
+msgstr "النقل {0}: لم يُسجَّل المبلغ المسترد من مورد المعدة."
+
+#: card/gl/posting.py
+msgid "Transport {0}: recovery from equipment supplier {1}"
+msgstr "النقل {0}: استرداد من مورد المعدة {1}"
+
+#: card/gl/posting.py
+msgid "Transport {0}: its billing amount must be positive (Sales Invoices carry no negative lines); return the decision for correction."
+msgstr "النقل {0}: يجب أن يكون مبلغ الفوترة موجبًا (فواتير المبيعات لا تحمل أسطرًا سالبة)؛ أعد القرار للتصحيح."
+
+#: card/gl/posting.py
+msgid "Equipment transport {0} billed to the customer (reference {1})"
+msgstr "نقل المعدات {0} مفوتر على العميل (المرجع {1})"
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: its financial decision is pending or was returned for correction."
+msgstr "النقل {0} غير مشمول: قراره المالي معلّق أو أُعيد للتصحيح."
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: its cost is recovered by deduction from another supplier than the transporter; record the recovery as an adjustment document or enter the invoices manually."
+msgstr "النقل {0} غير مشمول: تكلفته تُسترد بالخصم من مورد غير الناقل؛ سجّل الاسترداد بمستند تسوية أو أدخل الفواتير يدويًا."
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: the company absorbs it and no cost project is recorded; enter the supplier invoice manually."
+msgstr "النقل {0} غير مشمول: الشركة تتحمله ولم يُسجَّل مشروع تكلفة؛ أدخل فاتورة المورد يدويًا."

@@ -11,12 +11,28 @@ from frappe import _
 from frappe.utils import flt, getdate
 
 from card.gl.masters import ADJUSTMENT_ITEM_GROUP, standard_vat_rate, vat_account_heads
-from card.settings import setting
+from card.settings import company_setting, setting
+
+# FR-139 (#49, #126, #43; C-09, O-14): Card Company Settings.transport_responsibility_posting. Hold is the
+# default and the meaning of an empty value: the P1-2 rule (Owner 2026-10-31) stays exactly as it is.
+TRANSPORT_POSTING_HOLD = "Hold (transport responsibility posting)"
+TRANSPORT_POSTING_POST = "Post (transport responsibility posting)"
 
 
 def require_enabled():
 	if not setting("enable_accounting"):
 		frappe.throw(_("Accounting posting is disabled; enable it in Card Settings first."))
+
+
+def posts_transport_responsibility(company):
+	"""True only when the company's row says Post; no row, an empty value or Hold keep the hold."""
+	return company_setting(company, "transport_responsibility_posting") == TRANSPORT_POSTING_POST
+
+
+def require_transport_recharge_account(row):
+	"""Post: a transport billed to the customer needs the company's own recharge income account
+	(an enabled leaf account of the company; never the rental income account, never assumed)."""
+	require_accounts(row, ["transport_recharge_income_account"])
 
 
 def require_item_read(posting_doctype):

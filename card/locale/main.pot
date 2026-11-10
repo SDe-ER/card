@@ -5217,3 +5217,83 @@ msgstr ""
 #: card/card/doctype/card_diesel_price/card_diesel_price.json
 msgid "Diesel price fuel type"
 msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport responsibility posting"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A transport recorded with a responsibility scenario: Hold keeps it out of the monthly invoices (as before; the Transport Accounting Review lists it). Post adds it to the monthly draft invoices: the transporter's Purchase Invoice line, the customer's Sales Invoice line from the approved billing amount, and the equipment supplier's recovery as a deduction. Switch to Post only after the accountant and the tax adviser agree. Empty: Hold."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Hold (transport responsibility posting)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Post (transport responsibility posting)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport recharge income account"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Income account of the transport cost billed to a customer (Post only). Must be an enabled, non-group account of this company."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: {1} has no cost center; set it, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: its billing project {1} does not belong to company {2}; return the decision for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Cost project {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "The overhead cost center"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: where the company's cost is charged is not recorded; review it."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "billed to the customer"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "recovered from the equipment supplier"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: the amount recovered from the equipment supplier is not recorded."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: recovery from equipment supplier {1}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: its billing amount must be positive (Sales Invoices carry no negative lines); return the decision for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Equipment transport {0} billed to the customer (reference {1})"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: its financial decision is pending or was returned for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: its cost is recovered by deduction from another supplier than the transporter; record the recovery as an adjustment document or enter the invoices manually."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: the company absorbs it and no cost project is recorded; enter the supplier invoice manually."
+msgstr ""
