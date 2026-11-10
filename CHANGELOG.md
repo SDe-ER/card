@@ -17,7 +17,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ### Added
 - **Transport costs the company does not pay, and an "other party" responsibility** (FR-120, refs #43, #48, #121;
-  WP-14; PR pending).
+  WP-14; PR #190).
   - **Reason:** when the equipment supplier, the customer or another party pays a move, the amount agreed with
     them was lost (the transporter cost is 0 for these moves), and a party other than the supplier or the customer
     could not be recorded.
