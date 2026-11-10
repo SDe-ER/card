@@ -435,7 +435,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Deploy preconditions: on Production `frappe.get_hooks("override_whitelisted_methods")` for both keys lists the
   DAWM entry, then the CARD entry; no Webhook, Notification or Server Script exists on Card Settings.
   Rollback: revert the commits; no data to restore.
-- **Child-table rows follow the level of their table (FR-148, SEC-1). PR to be linked.** Reason: Frappe 16 checks
+- **Child-table rows follow the level of their table (FR-148, SEC-1). PR #227.** Reason: Frappe 16 checks
   the fields of a child row against the child DocType's own `permlevel` on the child list routes
   (`frappe.client.get_list` / `frappe.client.get_value` with `parent=`, `frappe.desk.reportview` with a
   `` `tab<Child>`.`field` `` column or a child-field filter). It does not apply the level of the parent's Table field
