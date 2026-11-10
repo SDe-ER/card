@@ -19,6 +19,15 @@ frappe.ui.form.on("Equipment Transport", {
 		frm.set_query("overhead_cost_center", () => ({
 			filters: { company: frm.doc.company || undefined, is_group: 0, disabled: 0 },
 		}));
+		// WP-14: the other party is an active supplier or customer, or an employee of the company
+		frm.set_query("party", () =>
+			frm.doc.party_type === "Employee"
+				? { filters: { company: frm.doc.company || undefined } }
+				: { filters: { disabled: 0 } },
+		);
+	},
+	party_type(frm) {
+		frm.set_value("party", null);
 	},
 	refresh(frm) {
 		// P1-2: the cost project is chosen explicitly; the origin and destination are only offered

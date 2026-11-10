@@ -8,13 +8,14 @@ from frappe.utils import cint, cstr, flt, getdate
 
 from card.attachment_validator import check_attachment_content, claim_file, require_record_file
 from card.company import single_company, validate_equipment_company
-from card.constants import MOVE_DAY_NEXT, OWNED
+from card.constants import MOVE_DAY_NEXT, NON_COMPANY_PAYERS, OTHER_PARTY, OTHER_PARTY_TYPES, OWNED
 from card.settings import company_setting, setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
 # P1-2 (Owner decisions 2026-10-31): the user picks one responsibility scenario; the actual payer and the
 # party that finally bears the cost are stored apart from it (input simplification, Owner 2026-10-31)
 NEEDS_REVIEW = "Responsibility needs review"
+OTHER_PARTY_BEARS = "Other party bears the cost"
 RESPONSIBILITIES = {
 	# scenario -> (payer, cost bearer)
 	"Company bears the cost": ("Company", "Company"),
@@ -22,6 +23,8 @@ RESPONSIBILITIES = {
 	"Company pays, recovers from equipment supplier": ("Company", "Equipment Supplier"),
 	"Equipment supplier bears the cost": ("Equipment Supplier", "Equipment Supplier"),
 	"Customer pays the transporter directly": ("Customer", "Customer"),
+	# #43/#48/#121 (WP-14): a named party other than the company, the equipment supplier or the customer
+	OTHER_PARTY_BEARS: (OTHER_PARTY, OTHER_PARTY),
 	"No transport charge": ("No charge", None),
 	NEEDS_REVIEW: (None, None),  # unknown or unsupported: recorded, never costed or posted
 }
@@ -75,6 +78,8 @@ class EquipmentTransport(Document):
 			self._apply_cost_responsibility()
 		else:
 			self._apply_cost_bearer()  # a transport recorded before P1-2 keeps its old rule
+		self._apply_other_party()
+		self._apply_informational_amount()
 		self._apply_destination_cost_center()
 		self._apply_transport_price()
 		self._split_amount()
@@ -115,6 +120,45 @@ class EquipmentTransport(Document):
 		if self.responsibility not in RESPONSIBILITIES:
 			frappe.throw(_("Select the transport responsibility."))
 		self.payer, self.cost_bearer = RESPONSIBILITIES[self.responsibility]
+
+	def _apply_other_party(self):
+		"""#43/#48/#121 (WP-14): the party that bears a move of the "other party" scenario is named
+		(supplier, customer or employee of the transport's company); every other scenario clears it."""
+		if self.responsibility != OTHER_PARTY_BEARS:
+			self.party_type = self.party = None
+			return
+		if self.party_type not in OTHER_PARTY_TYPES:
+			frappe.throw(_("Select the type of the other party that bears the transport cost."))
+		if not self.party:
+			frappe.throw(_("Select the other party that bears the transport cost."))
+		if self.party_type == "Employee":
+			company = frappe.db.get_value("Employee", self.party, "company")
+			if not company:
+				frappe.throw(_("The other party {0} was not found.").format(self.party))
+			if company != self.company:
+				frappe.throw(
+					_("Employee {0} belongs to company {1}; this transport belongs to company {2}.").format(
+						self.party, company, self.company
+					)
+				)
+			return
+		disabled = frappe.db.get_value(self.party_type, self.party, "disabled")
+		if disabled is None:
+			frappe.throw(_("The other party {0} was not found.").format(self.party))
+		if cint(disabled):
+			frappe.throw(_("The other party {0} is disabled.").format(self.party))
+
+	def _apply_informational_amount(self):
+		"""#43/#48/#121 (WP-14): when the equipment supplier, the customer or another party pays a move,
+		the amount agreed with them may be kept for information. It is never the company's cost: the cost
+		reports, the partial margin and the posting read `amount`, which stays 0 for these moves. Any
+		other move (company pays, no charge, needs review, recorded before P1-2) keeps no such amount."""
+		if not self.responsibility or self.payer not in NON_COMPANY_PAYERS:
+			self.informational_amount = 0
+			return
+		if flt(self.informational_amount) < 0:
+			frappe.throw(_("The agreed amount (not company cost) cannot be negative."))
+		self.informational_amount = flt(self.informational_amount, 2)
 
 	def _detect_movements(self):
 		"""Owner 2026-10-19: the user picks the equipment and the destination (project,
@@ -483,6 +527,9 @@ def _cancel_key(doc):
 		cstr(doc.destination_location),
 		cstr(doc.move_day_rule),
 		flt(doc.amount, 2),
+		flt(doc.get("informational_amount"), 2),
+		cstr(doc.get("party_type")),
+		cstr(doc.get("party")),
 		[
 			(
 				cstr(row.name),

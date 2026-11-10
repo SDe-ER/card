@@ -4519,3 +4519,51 @@ msgstr ""
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other party bears the cost"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other Party"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other party type"
+msgstr ""
+
+#: card/card/report/transport_accounting_review/transport_accounting_review.py
+msgid "Other party"
+msgstr ""
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py
+msgid "Agreed amount (not company cost)"
+msgstr ""
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py
+msgid "Transports not paid by the company"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the type of the other party that bears the transport cost."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the other party that bears the transport cost."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} belongs to company {1}; this transport belongs to company {2}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The other party {0} was not found."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The other party {0} is disabled."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The agreed amount (not company cost) cannot be negative."
+msgstr ""
