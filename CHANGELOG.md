@@ -404,7 +404,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   change. No cancel reason is required on these DocTypes (unchanged). Affected functions: `card.daily_log.check_cancel`,
   `EquipmentMeterReading.before_cancel`. Tests: `test_daily_log.py` (REST PUT with rows, date, notes; savedocs with a
   row and the notes; bulk update with data; plain cancels still work), `test_meter_reading.py` (REST PUT, savedocs,
-  bulk; plain cancel). PR #TBD.
+  bulk; plain cancel). PR #226.
   Impact: permissions none; accounting none; data: a cancel request that also changes the document is refused
   (a plain cancel is unchanged); API: such a request now fails with `CancelChangesDocumentError`. Rollback limits:
   code only; nothing stored to undo.
