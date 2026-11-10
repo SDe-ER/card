@@ -21,7 +21,7 @@ from frappe.desk.form.save import savedocs
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate
 
-from card.tests.cancel_reason import TEST_REASON, with_reason
+from card.tests.cancel_reason import store_reason, with_reason
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_transfer import _past_month_year
 from card.tests.transport_parties import company_paid_values
@@ -406,9 +406,11 @@ class TestTransportItemRows(IntegrationTestCase):
 		prev = self._assign(self.eq_a, self.proj_a, 1)
 		trn = self._transport(self.proj_a2, self.eq_a)
 		self._as_company_a()
+		# FR-123: the reason is stored first (frappe v16 from November 2026 reloads the stored
+		# document for a Desk Cancel, so a reason sent in the request JSON would be dropped)
+		store_reason(DOCTYPE, trn)
 		doc = frappe.get_doc(DOCTYPE, trn).as_dict()
 		doc["docstatus"] = 2
-		doc["cancel_reason"] = TEST_REASON  # FR-123: the cancel request carries its reason
 		savedocs(json.dumps(doc, default=str), "Cancel")
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, trn, "docstatus"), 2)

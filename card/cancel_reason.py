@@ -104,13 +104,14 @@ def _skipped(doc):
 
 
 def _norm(df, v):
-	if v in (None, ""):
-		return ""
 	ft = df.fieldtype
+	# a number column stores an empty value as 0, so an unset number in memory is not a change
 	if ft in ("Int", "Check"):
 		return cint(v)
 	if ft in ("Float", "Currency", "Percent", "Rating"):
 		return flt(v, 6)
+	if v in (None, ""):
+		return ""
 	if ft == "Date":
 		return str(getdate(v))
 	if ft == "Datetime":
