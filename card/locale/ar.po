@@ -6164,3 +6164,7 @@ msgstr "الطرف الآخر {0} معطّل."
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "The agreed amount (not company cost) cannot be negative."
 msgstr "لا يمكن أن يكون المبلغ المتفق عليه (ليس تكلفة على الشركة) سالبًا."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Billable stopped days"
+msgstr "أيام التوقف المحتسبة إيجارًا"

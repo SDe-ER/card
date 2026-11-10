@@ -48,13 +48,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     choice of a CARD posting (`card.gl.posting.card_cost_center`) count a billable stopped day as a billed day;
     operating plus stopped hours over 24 on one day are refused (a day without stopped hours keeps the old rule);
     billable stopped hours count in the advisory shift-limit warning; a Supplier or Customer held responsible that
-    is not the card's own gets a review warning (never a block); the internal value of an owned card per hour
-    (`card.card_value`) counts billable stopped hours. The Equipment Supplier/Customer Statements and the two
+    is not the card's own gets a review warning (never a block); the internal value of an owned card
+    (`card.card_value`) counts billable stopped hours (per hour) and billable stopped days (per day). The Equipment Supplier/Customer Statements and the two
     summaries count a billable stopped day in the days (`card.transfer.billed_day_rows`) and show a "Billable
     stopped hours" column with its totals only when a row has a value (`with_stopped_hours_column`; the approved
     print adds the column the same way, `statement_pdf._with_stopped_hours`, so a statement without billable stops
-    prints exactly as before; the standard Print Format "Equipment Supplier Statement A4" ships the same template). Hourly rate: a submitted card shows the rate stored at submit (`hourly_rate_used`,
-    `customer_rate_used`), a draft its amount over operating plus billable stopped hours.
+    prints exactly as before; the standard Print Format "Equipment Supplier Statement A4" ships the same template). Hourly rate: the
+    supplier statement shows each card's amount over operating plus billable stopped hours (with no billable stop:
+    amount / operating hours, exactly as before); the customer statement keeps the submit-time rate
+    (`customer_rate_used`) for submitted cards and uses amount over operating plus billable stopped hours for
+    drafts. The internal value per day (`card.card_value`) also counts the days billed only by billable stopped
+    hours (new read-only card field `billable_stopped_days`).
   - **Defaults (no behaviour change):** a card without reasons bills exactly as before, every seeded and new reason
     is not billable, the four fixed day statuses and their effect (a non-working status zeroes the operating hours)
     are unchanged, and the patch writes no card or day row. `min_hours` is still not read (FR-020 stays an open owner
@@ -62,9 +66,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Impact:** permissions: one new master with the roles above, no role widened, no `ignore_permissions` in
     production code. Accounting: none by default; once a Card Manager ticks `billable` on a reason, the card amounts
     (and so the CARD postings built from them) include those stopped hours. Data: new table and new columns; the
-    patch inserts reasons only. API: no new whitelisted method. The supplier statement's card hourly rate now
-    comes from the submit-time snapshot for submitted cards (it was amount / operating hours; the two agree to the
-    halala for cards without billable stops, up to rounding of the stored amount).
+    patch inserts reasons only. API: no new whitelisted method. No statement, summary or dashboard figure
+    changes for cards without billable stops.
   - **Rollback:** revert the PR; the new columns and the Card Stop Reason table and rows stay in the database
     (harmless, unread). Cards saved with a billable reason keep their amounts until they are saved again (drafts) or
     amended (submitted).

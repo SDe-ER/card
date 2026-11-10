@@ -185,6 +185,7 @@ class CardMonthlyCard(Document):
 		hours_by_date = {}
 		total_hours = 0.0
 		billable_stopped = 0.0
+		billable_stop_days = 0
 		work_days = 0
 		limit_field = "max_day_shift_hours" if self.shift == "نهاري" else "max_night_shift_hours"
 		max_hours = flt(setting(limit_field)) or 12
@@ -229,6 +230,9 @@ class CardMonthlyCard(Document):
 				work_days = work_days + 1
 				hours_by_date[key] = h
 			billable_stopped = billable_stopped + day_stopped_billed
+			if day_stopped_billed > 0 and h <= 0:
+				# a day billed only by billable stopped hours (not already a working day)
+				billable_stop_days = billable_stop_days + 1
 
 		# ---- shift limit (advisory warning, never blocks; every recorded hour is billed) ----
 		if over_shift_limit:
@@ -248,6 +252,7 @@ class CardMonthlyCard(Document):
 		# FR-118: only stopped hours of an explicitly billable reason are billed; with no
 		# billable reason this is 0 and every amount is what it was before
 		self.billable_stopped_hours = flt(billable_stopped, 2)
+		self.billable_stopped_days = billable_stop_days
 		billed_hours = total_hours + flt(self.billable_stopped_hours)
 		if self.card_direction in SUPPLIER_BILLING_DIRECTIONS:
 			hourly_rate = self._hourly_for(eq.rate_type, flt(eq.rate), eq.daily_hours, required=True)

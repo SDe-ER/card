@@ -159,6 +159,7 @@ class TestBillableReason(_StopBase):
 		)
 		self.assertEqual(flt(card.total_working_hours), 14)  # operating hours only
 		self.assertEqual(flt(card.billable_stopped_hours), 6)
+		self.assertEqual(card.billable_stopped_days, 1)  # day 3 only; day 2 is a working day
 		self.assertEqual(card.working_days, 2)
 		self.assertEqual(flt(card.amount), 20 * 75.0)
 		self.assertEqual(flt(card.customer_amount), 20 * 120.0)
@@ -569,7 +570,7 @@ class TestReviewFixes(_StopBase):
 		self.assertEqual(row["hours"], 8)
 		self.assertEqual(row["stopped_hours"], 4)
 		self.assertEqual(row["working_days"], 2)  # the billable stopped day counts
-		self.assertEqual(row["hourly_rate"], 75.0)  # the submit-time snapshot
+		self.assertEqual(row["hourly_rate"], 75.0)  # 900 over 12 billed hours
 		self.assertEqual(row["amount"], 12 * 75.0)
 		total = next(r for r in rows if r.get("row_id") == "TOTAL")
 		self.assertEqual(total["stopped_hours"], 4)
@@ -646,5 +647,27 @@ class TestReviewFixes(_StopBase):
 		per_day = frappe._dict(internal_rate=100, internal_rate_basis="باليوم")
 		self.assertEqual(card_value(card, per_hour)["internal"], 120.0)
 		self.assertEqual(card_value(card, per_day)["internal"], 100.0)
+		# per day, a day billed only by a billable stop counts like a working day
+		card.billable_stopped_days = 1
+		self.assertEqual(card_value(card, per_day)["internal"], 200.0)
+		card.billable_stopped_days = 0
 		card.billable_stopped_hours = 0
 		self.assertEqual(card_value(card, per_hour)["internal"], 80.0)
+
+	def test_supplier_statement_hourly_rate_is_amount_over_hours_not_the_snapshot(self):
+		"""Re-review of PR #194: an older submit snapshot (v1.2 backfill) can differ from amount / hours; the
+		statement keeps showing amount / hours for a card without billable stops, as before."""
+		from card.card.report.equipment_supplier_statement.equipment_supplier_statement import (
+			execute as supplier_statement,
+		)
+
+		eq = self._equipment(rate_type="باليوم", rate=1000, daily_hours=9)  # 111.111.../h
+		card = self._stop_card(eq, [{"working_hours": 7}], submit=True)
+		self.assertEqual(flt(card.amount), 777.78)
+		frappe.db.set_value("Card Monthly Card", card.name, "hourly_rate_used", 120, update_modified=False)
+		_c, rows, *_ = supplier_statement(
+			{**STATEMENT, "company": self.company, "supplier": self.supplier, "project": self.project}
+		)
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(row["hourly_rate"], flt(777.78 / 7, 2))
+		self.assertNotEqual(row["hourly_rate"], 120)

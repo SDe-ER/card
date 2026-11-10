@@ -81,7 +81,6 @@ def execute(filters=None):
 				"working_days",
 				"total_working_hours",
 				"billable_stopped_hours",
-				"hourly_rate_used",
 				"amount",
 				"docstatus",
 				"from_date",
@@ -189,16 +188,12 @@ def execute(filters=None):
 				hours = hours + c_hours
 				stopped = stopped + c_stopped
 				amount = amount + c_amount
-				# FR-118: a submitted card shows the hourly rate stored at submit; a draft (or an older
-				# card without the snapshot) its amount over every billed hour
-				if owned:
+				# FR-118: the card's amount over every billed hour (operating + billable stopped); with no
+				# billable stop this is the earlier amount / operating hours, unchanged
+				if owned or not (c_hours + c_stopped):
 					c_hourly = None
-				elif c.docstatus == 1 and flt(c.hourly_rate_used):
-					c_hourly = flt(c.hourly_rate_used, 2)
-				elif c_hours + c_stopped:
-					c_hourly = flt(c_amount / (c_hours + c_stopped), 2)
 				else:
-					c_hourly = None
+					c_hourly = flt(c_amount / (c_hours + c_stopped), 2)
 				add = add + c_add
 				ded = ded + c_ded
 				rates.add(flt(c.rate))
