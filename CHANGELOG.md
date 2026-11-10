@@ -35,7 +35,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Added
-- **Main store, tool custody store and repeated-request window per company (FR-135, #50, #126, PR #TBD).** Reason:
+- **Main store, tool custody store and repeated-request window per company (FR-135, #50, #126, PR #211).** Reason:
   the materials warehouses and the repeat window were site-wide only (#50 "no hardcoded … per company"). Card
   Company Settings gets a Materials section with `store_warehouse`, `custody_warehouse` and `repeat_request_days`
   (all optional, empty by default). Readers (`card.settings.store_warehouse`, `custody_warehouse`,
