@@ -311,6 +311,14 @@ class ToolCustodyScreen {
 		this.movement_dialog(movement, row, row.company);
 	}
 
+	default_store(company) {
+		// FR-135: the company's main store, else the site's (the server fills it the same way)
+		const stores = this.ctx.default_stores || {};
+		const companies = Object.keys(stores);
+		const key = company || (companies.length === 1 ? companies[0] : null);
+		return (key && stores[key]) || this.ctx.default_store;
+	}
+
 	movement_dialog(movement, row, company) {
 		const e = frappe.utils.escape_html;
 		const fields = [];
@@ -335,6 +343,18 @@ class ToolCustodyScreen {
 				options: "Employee",
 				reqd: 1,
 				get_query: () => ({ query: TC_EMPLOYEE_QUERY }),
+				// FR-135: the worker's company decides the store offered and searched
+				onchange: () => {
+					const employee = d.get_value("employee");
+					if (!employee || employee === this.last_employee) return;
+					this.last_employee = employee;
+					tc_get("card.tool_custody.employee_company", { employee }).then((r) => {
+						company = (r && r.company) || null;
+						if (d.fields_dict.warehouse) {
+							d.set_value("warehouse", this.default_store(company) || "");
+						}
+					});
+				},
 			});
 		}
 		if (!row.item_code) {
@@ -365,7 +385,7 @@ class ToolCustodyScreen {
 				fieldname: "warehouse",
 				label: __("Store"),
 				options: "Warehouse",
-				default: this.ctx.default_store,
+				default: this.default_store(company),
 				reqd: 1,
 				get_query: () => ({ query: TC_STORE_QUERY, filters: company ? { company } : {} }),
 			});
@@ -377,6 +397,7 @@ class ToolCustodyScreen {
 			default: row.qty || 1,
 			reqd: 1,
 		});
+		this.last_employee = row.employee || null;
 		const d = new frappe.ui.Dialog({
 			title: TC_MOVES[movement],
 			fields,

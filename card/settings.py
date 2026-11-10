@@ -7,6 +7,8 @@ from an explicit 0/empty — frappe.db.get_single_value casts a missing numeric
 field to 0.0, which would mask the default."""
 
 import frappe
+from frappe import _
+from frappe.utils import flt
 
 # FR-124 (WP-08): the two deprecated Card Settings fields (docs/governance/SETTINGS-AND-CONSTANTS.md section 4)
 # are hidden, read only and never read, so they have no default here. Their columns and stored values stay.
@@ -82,3 +84,121 @@ def company_setting(company, fieldname):
 		fieldname,
 	)
 	return value or None
+
+
+# FR-135 (#50, #126): materials values per company. The company's row in Card Settings > Company
+# settings wins; when it is empty (no row, no warehouse, 0 days) the site-wide Card Settings value
+# applies, so an unconfigured company behaves exactly as before.
+_COMPANY_SITE_FALLBACK = {
+	"store_warehouse": "default_store_warehouse",
+	"custody_warehouse": "tool_custody_warehouse",
+	"repeat_request_days": "repeat_request_days",
+}
+COMPANY_WAREHOUSE_FIELDS = ("store_warehouse", "custody_warehouse")
+
+
+def company_or_site_setting(company, fieldname):
+	"""The company's value of `fieldname`, or the site-wide Card Settings value when the company
+	has none. No company: the site value."""
+	value = company_setting(company, fieldname)
+	if fieldname == "repeat_request_days":
+		try:
+			value = int(value or 0)
+		except (TypeError, ValueError):
+			value = 0
+		if value > 0:
+			return value
+		value = None
+	if value:
+		return value
+	return setting(_COMPANY_SITE_FALLBACK[fieldname])
+
+
+def _company_warehouse(company, fieldname, strict):
+	"""The company's warehouse in `fieldname`, checked again at read time: one that belongs to
+	another company (saved before the check, or the warehouse moved) is refused, or with
+	strict=False not offered. Empty: the site value, as before."""
+	value = company_setting(company, fieldname)
+	if not value:
+		return setting(_COMPANY_SITE_FALLBACK[fieldname]) or None
+	owner = frappe.db.get_value("Warehouse", value, "company")
+	if owner != company:
+		if not strict:
+			return None
+		# the reader may not see the other company: name neither it nor its warehouse
+		frappe.throw(
+			_("The store set for {0} in Card Settings is not in that company. Ask a CARD manager.").format(
+				company
+			)
+		)
+	return value
+
+
+def store_warehouse(company, strict=True):
+	"""The main store of `company` (FR-135), else the site's main store."""
+	return _company_warehouse(company, "store_warehouse", strict)
+
+
+def custody_warehouse(company, strict=True):
+	"""The tool custody store of `company` (FR-135), else the site's tool custody store."""
+	return _company_warehouse(company, "custody_warehouse", strict)
+
+
+def repeat_request_days(company):
+	"""The repeated-request window in days of `company` (FR-135), else the site value (30 by
+	default)."""
+	try:
+		days = int(float(company_or_site_setting(company, "repeat_request_days") or 0))
+	except (TypeError, ValueError):
+		days = 0
+	return days or 30
+
+
+def validate_company_warehouses(doc):
+	"""FR-135: a store or custody warehouse on a company row must be a stock (not group), enabled
+	warehouse of that row's company, and a company's custody store cannot change while any of its
+	tools is held in custody (a Return or Loss would read stock from the new store). Called from Card
+	Settings validation; empty values are allowed (the site value applies)."""
+	getter = getattr(doc, "get_doc_before_save", None)
+	before = getter() if callable(getter) else None
+	old_custody = {
+		r.company: r.get("custody_warehouse") or None
+		for r in ((before.get("company_settings") if before else None) or [])
+	}
+	for row in doc.get("company_settings") or []:
+		for fieldname in COMPANY_WAREHOUSE_FIELDS:
+			warehouse = row.get(fieldname)
+			if not warehouse:
+				continue
+			values = frappe.db.get_value(
+				"Warehouse", warehouse, ["company", "is_group", "disabled"], as_dict=True
+			)
+			owner = values.company if values else None
+			if owner != row.company:
+				frappe.throw(
+					_("Card Settings: warehouse {0} belongs to company {1}, not {2}.").format(
+						warehouse, owner or "-", row.company
+					)
+				)
+			if values.is_group:
+				frappe.throw(
+					_("Card Settings: warehouse {0} is a group; choose a stock warehouse.").format(warehouse)
+				)
+			if values.disabled:
+				frappe.throw(_("Card Settings: warehouse {0} is disabled.").format(warehouse))
+		if before is None:
+			continue
+		new_custody = row.get("custody_warehouse") or None
+		if new_custody == old_custody.get(row.company):
+			continue
+		site_custody = doc.get("tool_custody_warehouse") or None
+		if (new_custody or site_custody) == (old_custody.get(row.company) or site_custody):
+			continue  # the store in force does not change
+		from card.materials import custody_balances
+
+		if any(flt(qty, 6) > 0 for qty in custody_balances({"company": row.company}).values()):
+			frappe.throw(
+				_(
+					"Card Settings: tools of {0} are held in custody; return them before changing its tool custody store."
+				).format(row.company)
+			)

@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 
+from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
@@ -54,6 +55,8 @@ def execute(filters=None):
 			"equipment",
 			"total_working_hours",
 			"billable_stopped_hours",
+			"supplier_billable_stopped_hours",
+			"customer_billable_stopped_hours",
 			"customer_net_amount",
 		],
 		limit_page_length=0,
@@ -84,7 +87,7 @@ def execute(filters=None):
 		a["eq"].add(c.equipment)
 		a["cards"] = a["cards"] + 1
 		a["hours"] = a["hours"] + flt(c.total_working_hours)
-		a["stopped"] = a["stopped"] + flt(c.billable_stopped_hours)
+		a["stopped"] = a["stopped"] + side_stopped_hours(c, "Customer")
 		# customer net after customer-side additions/deductions = what the Sales Invoice bills
 		a["accrued"] = a["accrued"] + flt(c.customer_net_amount)
 

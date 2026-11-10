@@ -130,6 +130,7 @@ to company A is kept from company B's records through that endpoint.
 | `card.mobile.get_session_context` | GET | has_app_permission (portal role, or catalog-only Card User) | None: the session user's own context | None (read only) |
 | `card.tool_custody.confirm` | POST | screen role; submit on the custody record (controller rules on submit) | doc.check_permission(submit) (Company User Permission) | Submits the movement; Handover / Return create and submit a Stock Entry |
 | `card.tool_custody.context` | GET | Card Supervisor, Card Manager, Stock Manager or System Manager, and Employee Tool Custody read | None: flags about the session user | None (read only) |
+| `card.tool_custody.employee_company` | GET | screen role and Employee Tool Custody read; the employee is in the employee_query scope | query_companies(None, Employee Tool Custody); Employee User Permissions | None (read only) |
 | `card.tool_custody.employee_query` | GET | screen role and Employee Tool Custody read | query_companies(filters, Employee Tool Custody); Employee User Permissions | None (read only) |
 | `card.tool_custody.item_query` | GET | screen role and Employee Tool Custody read (then Item get_all with ignore_permissions) | None: Items are global masters | None (read only) |
 | `card.tool_custody.move` | POST | screen role; create on the new record (check_permission before any read for the worker); insert with the user's own permissions | has_custody_permission: the companies of the employee and the receiving employee (FR-129) | Inserts one draft Employee Tool Custody |

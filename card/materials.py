@@ -17,7 +17,7 @@ from frappe import _
 from frappe.utils import add_days, cint, flt, getdate, now_datetime, nowdate
 
 from card.report_access import _role_reads
-from card.settings import setting
+from card.settings import custody_warehouse, repeat_request_days, store_warehouse
 from card.transfer import current_location
 
 OPERATOR_ROLE = "Card Operator"
@@ -135,14 +135,16 @@ def needs_request_permission(doc, ptype=None, user=None, debug=False):
 
 
 # ---------- hints for the supervisor ----------
-def repeat_days():
-	return cint(setting("repeat_request_days")) or 30
+def repeat_days(company=None):
+	"""FR-135: the company's window, else the site value (30 by default)."""
+	return repeat_request_days(company)
 
 
 def last_asked_on(equipment, item_code, exclude_request=None):
 	"""Last date the same item was asked for (or issued to) the same machine within
 	the repeat window; None when it was not. A review hint only."""
-	since = add_days(nowdate(), -repeat_days())
+	company = frappe.db.get_value("Card Equipment", equipment, "company") if equipment else None
+	since = add_days(nowdate(), -repeat_days(company))
 	dates = []
 	asked = frappe.db.sql(
 		"""select max(r.request_date) from `tabEquipment Needs Request Item` i
@@ -250,7 +252,7 @@ def pull_requests(review: str):
 	elif doc.to_date:
 		filters["request_date"] = ["<=", doc.to_date]
 	held = {r.request_item for r in doc.items}
-	store = setting("default_store_warehouse") or None
+	store = store_warehouse(doc.company)
 	added = 0
 	for name in frappe.get_all(
 		"Equipment Needs Request", filters=filters, pluck="name", order_by="request_date"
@@ -347,7 +349,7 @@ def approve_review(review: str):
 	if missing:
 		frappe.throw(_("Match these lines to an Item before approval: {0}").format(", ".join(missing)))
 	tools = [line for line in lines if line.kind == "Tool"]
-	if tools and not setting("tool_custody_warehouse"):
+	if tools and not custody_warehouse(doc.company):
 		frappe.throw(_("Set the tool custody store in Card Settings (Materials) before approving tools."))
 	if tools and not frappe.has_permission(CUSTODY_DOCTYPE, "create"):
 		frappe.throw(

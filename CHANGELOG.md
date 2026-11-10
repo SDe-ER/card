@@ -62,6 +62,72 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the owner assigns it); accounting none; data one Role record; API none. Default behaviour unchanged.
   Tests: `card/tests/test_card_reviewer_role.py`. Rollback: reverting the code leaves the unused Role record; it can
   be disabled or deleted by hand while no user holds it.
+- **Main store, tool custody store and repeated-request window per company (FR-135, #50, #126, PR #211).** Reason:
+  the materials warehouses and the repeat window were site-wide only (#50 "no hardcoded … per company"). Card
+  Company Settings gets a Materials section with `store_warehouse`, `custody_warehouse` and `repeat_request_days`
+  (all optional, empty by default). Readers (`card.settings.store_warehouse`, `custody_warehouse`,
+  `repeat_request_days`) use the company value and fall back to the Card Settings value when it is empty (no row,
+  no warehouse, 0 days), so the default is unchanged. Affected functions: `card.materials.repeat_days`,
+  `last_asked_on` (company of the machine), `pull_requests`, `approve_review` (company of the review);
+  `EmployeeToolCustody.validate`, `_check_company`, `_make_stock_entry` (company of the employee);
+  `card.tool_custody.context` (new `default_stores` per permitted company; `default_store` unchanged), `move`
+  (the store of the worker's company, set after the create check) and the new read-only
+  `card.tool_custody.employee_company` (GET, screen role, employee in the `employee_query` scope): when the
+  Employee changes, the Tool Custody dialog sets that company's store and searches only its stores.
+  On Card Settings save (`validate_company_warehouses`, one call added in `CardSettings.validate`) a company
+  warehouse must be an enabled, non-group warehouse of its row's company, and a company's custody store in force
+  cannot change while any of its tools is held in custody. At read time a foreign-company warehouse is refused
+  with a message that names neither the other company nor its warehouse (the screen does not offer it). Labels:
+  "VAT 15% item tax template" → "VAT item tax template (company rate)"; its description, the Addition/Deduction
+  Types description and the Card Adjustment Type `taxable` description no longer name 15% (FR-127 backlog LOW-3;
+  the rate comes from the company's tax templates). Impact: permissions none (new child fields at permlevel 1 like the
+  rest of the row, no role or DocPerm change); accounting none (CARD writes no GL; Stock Entries use the chosen
+  warehouses); data: three new nullable columns, no patch, no existing value changed; API: `context` returns one
+  more key, one new GET endpoint (in the role and action matrix). Rollback limits: reverting the code ignores the columns (the site values apply again); change a
+  company's custody store only when no tool of that company is held in custody, or a Return/Loss reads stock from
+  the new store.
+- **Downtime governance** (FR-134, #45, PR #212, conflict C-07, owner decision O-03 default). Reason: #45 allows a downtime
+  charge only as an explicit, approved manual addition with reason, party, agreement reference and audit trail, but a
+  billable stop reason (FR-118) billed every stopped hour on both sides with no recorded approval.
+  - Card Stop Reason: `billable_side` (Both / Supplier / Customer, default Both) and `billable_approval_reason`
+    (required when billing is switched on or its side changes; switching an older billable reason off or editing it
+    needs none; `track_changes` stays on). `billable` stays off by default.
+  - Card Monthly Card (`before_validate`, `_resolve_stop_reasons`): a billable reason bills its stopped hours on its
+    side only; on a card that does not bill that side the day row's `reason_billable` is 0. New read-only
+    `supplier_billable_stopped_hours` and `customer_billable_stopped_hours` store the hours per side;
+    `billable_stopped_hours` is kept unchanged for compatibility. A sub-rental card with a one-sided reason gets a
+    review warning.
+  - Equipment Supplier Statement, Equipment Customer Statement, Equipment Suppliers Summary and Equipment Customers
+    Summary read the stopped hours of their own side (`card_stop_reason.side_stopped_hours`), also in the hourly
+    rate (amount over operating + stopped hours); a card saved before FR-134 falls back to `billable_stopped_hours`.
+  - Card Adjustment Type: flag `is_downtime_charge` (default off). Card Monthly Card Adjustment: `stop_reason`,
+    `responsible_party_type`, `responsible_party`, `responsible_party_name`, `agreement_reference`; a row of a
+    downtime-charge type must name an enabled stop reason of the card's company, the responsible party and the
+    agreement reference (`card.adjustments.validate_downtime_fields`). A stop reason of another company is refused on
+    any row. A downtime charge whose reason is also billed on the same side through the card's days is flagged for
+    review (not blocked).
+  - Card Monthly Card Adjustment (`validate`): a row saved or inserted on its own (REST PUT/POST on the row) may not
+    change the amount, type, side or a downtime field; the change must go through the card's save, so the card's
+    rules run and its Version history shows it (as #59 for unit components). A description-only edit still works.
+  - Patch `v4_8_0.stop_reason_billable_side`: sets Both on existing reasons without a side (idempotent).
+  - Patch `v4_8_0.backfill_side_stopped_hours`: on cards with billable stopped hours and no per-side figure, sets both
+    sides to `billable_stopped_hours` (every reason billed both sides before FR-134); amounts, day rows and the
+    modified time are unchanged, so no card is repriced (idempotent).
+  - `docs/governance/DOWNTIME-MINIMUM-GUARANTEE.md`: the minimum-guarantee assessment #45 asks for.
+  - PR #212.
+  - Impact: permissions none (no role or DocPerm changed); accounting none by default (no reason is billable, no type
+    is flagged; a downtime charge is an ordinary typed addition with the type's account and tax); data: new columns,
+    existing reasons get side Both, the per-side stopped hours of existing cards are filled from the total, no amount or
+    day row is written; API: new optional fields on the adjustment rows and two read-only card fields; a reason
+    switched to billable through the API without an approval reason is refused; a direct REST write of a guarded
+    adjustment-row field is refused.
+  - Rollback limits: the new columns stay after a code rollback; a one-sided reason bills both sides again after a
+    rollback; the statements then read `billable_stopped_hours` again.
+- **FR-020 `min_hours` retired** (FR-134, #45, PR #212). Reason: no code reads it and CARD implements no minimum guarantee
+  (O-03; see `DOWNTIME-MINIMUM-GUARANTEE.md`). Card Equipment `min_hours` is hidden, read only and labelled
+  "Deprecated – not used" (Arabic «مُهمَل – غير مستخدم» in `ar.po`; the same msgid of the FR-124 settings now reads
+  «مُهمَل» instead of «متوقف», which also means "stopped"); the column and stored values are kept. Impact: none on permissions,
+  accounting, data or the API. Rollback: restore the label.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

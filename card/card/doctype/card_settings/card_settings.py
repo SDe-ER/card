@@ -6,6 +6,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, formatdate, getdate
 
+from card.settings import validate_company_warehouses
+
 # per-company tables: a row steers that company's postings (FR-125: and its diesel prices)
 COMPANY_TABLES = ("company_settings", "adjustment_types", "diesel_price_schedule")
 
@@ -51,6 +53,7 @@ class CardSettings(Document):
 			projects.add(row.project)
 		self._validate_adjustment_types()
 		self._validate_diesel_price_schedule()
+		validate_company_warehouses(self)  # FR-135
 
 	def _validate_diesel_price_schedule(self):
 		"""FR-125: one price per company and date, above zero, in the company's currency (a fill
