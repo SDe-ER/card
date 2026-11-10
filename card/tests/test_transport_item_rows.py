@@ -21,6 +21,7 @@ from frappe.desk.form.save import savedocs
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate
 
+from card.tests.cancel_reason import store_reason, with_reason
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_transfer import _past_month_year
 from card.tests.transport_parties import company_paid_values
@@ -192,7 +193,7 @@ class TestTransportItemRows(IntegrationTestCase):
 		then see the database as the user would)."""
 		frappe.db.savepoint("tritem_cancel")
 		try:
-			frappe.get_doc(DOCTYPE, transport).cancel()
+			with_reason(frappe.get_doc(DOCTYPE, transport)).cancel()
 			return True
 		except REFUSED:
 			frappe.db.rollback(save_point="tritem_cancel")
@@ -348,7 +349,7 @@ class TestTransportItemRows(IntegrationTestCase):
 		self.assertTrue(all(created))
 		self.assertEqual(trn.items[0].previous_assignment, prev)
 		self.assertEqual(getdate(self._assignment(prev).to_date), getdate(self._d(3)))
-		trn.cancel()
+		with_reason(trn).cancel()
 		for name in created:
 			self.assertFalse(frappe.db.exists(ASSIGNMENT, name))
 		self.assertFalse(self._assignment(prev).to_date)
@@ -405,6 +406,9 @@ class TestTransportItemRows(IntegrationTestCase):
 		prev = self._assign(self.eq_a, self.proj_a, 1)
 		trn = self._transport(self.proj_a2, self.eq_a)
 		self._as_company_a()
+		# FR-123: the reason is stored first (frappe v16 from November 2026 reloads the stored
+		# document for a Desk Cancel, so a reason sent in the request JSON would be dropped)
+		store_reason(DOCTYPE, trn)
 		doc = frappe.get_doc(DOCTYPE, trn).as_dict()
 		doc["docstatus"] = 2
 		savedocs(json.dumps(doc, default=str), "Cancel")
@@ -433,7 +437,7 @@ class TestTransportItemRows(IntegrationTestCase):
 
 	def test_amend_after_cancel_moves_again(self):
 		trn = self._transport(self.proj_a, self.eq_a)
-		frappe.get_doc(DOCTYPE, trn).cancel()
+		with_reason(frappe.get_doc(DOCTYPE, trn)).cancel()
 		# like Desk's amend: no_copy fields (the rows' assignment links) are not copied
 		amended = frappe.copy_doc(frappe.get_doc(DOCTYPE, trn), ignore_no_copy=False)
 		amended.amended_from = trn

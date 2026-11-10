@@ -4567,6 +4567,42 @@ msgstr ""
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr ""
 
+#: card/cancel_reason.py
+msgid "{0} is not a CARD transaction."
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "The cancel reason is recorded only when the document is cancelled."
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "A cancel reason is required to cancel {0} {1}."
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "Cancelled by {0} on {1}. Reason: {2}"
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "{0} {1} is cancelled as approved; {2} cannot be changed when cancelling."
+msgstr ""
+
+#: card/period_lock.py
+msgid "Period lock overridden by {0} on {1}: {2} with lock date {3}."
+msgstr ""
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel Reason"
+msgstr ""
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel with this reason"
+msgstr ""
+
+#: card/public/js/cancel_reason.js
+msgid "Cancelled with the reason recorded."
+msgstr ""
+
 #: card/card/doctype/card_settings/card_settings.json
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Deprecated – not used"

@@ -9,6 +9,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
 from card.gl.posting import build_monthly_posting
+from card.tests.cancel_reason import with_reason
 from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.test_customer import _CustomerCardsBase
 
@@ -329,7 +330,7 @@ class TestAggregationAndDiesel(_PostingBase):
 			fill.submit()
 			fills.append(fill)
 		# an amendment of the imported fill keeps its source (not its unique key) and stays out too
-		fills[1].cancel()
+		with_reason(fills[1]).cancel()
 		amended = frappe.copy_doc(fills[1])
 		amended.amended_from = fills[1].name
 		amended.docstatus = 0
@@ -567,11 +568,11 @@ class TestLifecycleGuards(_PostingBase):
 		_eq, card = self._example_card()
 		pi_name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		with self.assertRaises(frappe.ValidationError):
-			card.cancel()
+			with_reason(card).cancel()
 		frappe.delete_doc("Purchase Invoice", pi_name, ignore_permissions=True)
 		self.assertFalse(frappe.db.get_value("Card Monthly Card", card.name, "gl_posting"))
 		card.reload()
-		card.cancel()  # now allowed
+		with_reason(card).cancel()  # now allowed
 		self.assertEqual(card.docstatus, 2)
 
 	def test_cancel_frees_sources_and_allows_repost(self):
@@ -815,20 +816,20 @@ class TestSubRentalDualSide(_PostingBase):
 		self.assertEqual(card.sales_invoice, si_name)
 		self.assertEqual(card.posted, 1)  # the customer side is still posted
 		with self.assertRaises(frappe.ValidationError):
-			card.cancel()  # still held by the submitted SI
+			with_reason(card).cancel()  # still held by the submitted SI
 		si.reload()
 		si.cancel()
 		card.reload()
 		self.assertFalse(card.sales_invoice)
 		self.assertEqual(card.posted, 0)
-		card.cancel()  # both sides freed -> allowed
+		with_reason(card).cancel()  # both sides freed -> allowed
 		self.assertEqual(card.docstatus, 2)
 
 	def test_draft_delete_one_side_keeps_other_side_hold_and_display(self):
 		card, pi_name, si_name = self._dual()
 		frappe.delete_doc("Purchase Invoice", pi_name, ignore_permissions=True)
 		with self.assertRaises(frappe.ValidationError):
-			card.cancel()  # the customer draft still holds the card
+			with_reason(card).cancel()  # the customer draft still holds the card
 		gl_link = frappe.db.get_value("Card Monthly Card", card.name, "gl_posting")
 		self.assertEqual(
 			frappe.db.get_value("GL Posting Log", gl_link, "posting_doc"), si_name
@@ -1370,7 +1371,7 @@ class TestLateSources(_PostingBase):
 		draft = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		try:
 			fill.reload()
-			fill.cancel()
+			with_reason(fill).cancel()
 			self.fail("fill cancel must be blocked while the draft posting holds it")
 		except frappe.ValidationError as e:
 			self.assertIn(draft, str(e))

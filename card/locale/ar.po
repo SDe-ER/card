@@ -5806,6 +5806,42 @@ msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr "لا يمكن مشاركة تعبئة ديزل تابعة للشركة {0} مع مستخدم من خارج هذه الشركة."
 
+#: card/cancel_reason.py
+msgid "{0} is not a CARD transaction."
+msgstr "{0} ليس من معاملات CARD."
+
+#: card/cancel_reason.py
+msgid "The cancel reason is recorded only when the document is cancelled."
+msgstr "يُسجَّل سبب الإلغاء عند إلغاء المستند فقط."
+
+#: card/cancel_reason.py
+msgid "A cancel reason is required to cancel {0} {1}."
+msgstr "سبب الإلغاء مطلوب لإلغاء {0} {1}."
+
+#: card/cancel_reason.py
+msgid "Cancelled by {0} on {1}. Reason: {2}"
+msgstr "ألغاه {0} بتاريخ {1}. السبب: {2}"
+
+#: card/cancel_reason.py
+msgid "{0} {1} is cancelled as approved; {2} cannot be changed when cancelling."
+msgstr "يُلغى {0} {1} كما اعتُمد؛ لا يمكن تغيير {2} عند الإلغاء."
+
+#: card/period_lock.py
+msgid "Period lock overridden by {0} on {1}: {2} with lock date {3}."
+msgstr "تجاوز {0} قفل الفترة بتاريخ {1}: {2} مع تاريخ القفل {3}."
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel Reason"
+msgstr "سبب الإلغاء"
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel with this reason"
+msgstr "إلغاء بهذا السبب"
+
+#: card/public/js/cancel_reason.js
+msgid "Cancelled with the reason recorded."
+msgstr "تم الإلغاء وتسجيل السبب."
+
 #: card/card/doctype/card_settings/card_settings.json
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Deprecated – not used"
