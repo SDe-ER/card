@@ -16,6 +16,62 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-139 — Transport responsibility posting, per company: Hold (default) or Post (#49, #126, #43; WP-T,
+  conflict C-09, owner decision O-14, PR #215).** Reason: #49 and #126 ask for customer transport charging and the
+  posting of transport responsibility scenarios, while the owner decision of 2026-10-31 (FR-093, P1-2) holds every
+  transport recorded with a responsibility out of the monthly build until the accountant and the tax adviser decide.
+  Both now hold: new per-company setting Card Company Settings `transport_responsibility_posting` ("Hold (transport
+  responsibility posting)", the default, also for an empty value and for every existing row; or "Post (transport
+  responsibility posting)") and `transport_recharge_income_account` (Link Account, used by Post only). **Hold keeps
+  the P1-2 filter of `card.gl.posting._supplier_sources` unchanged** (same query, same fields, same order — tested
+  against a copy of the v4.7.0 query). **Post** (DRAFT standard ERPNext invoices only, through the existing monthly
+  builder; no GL write, no auto-submit): on the transporter's monthly Purchase Invoice a submitted transport the
+  company pays is added when the company bears it (line on its explicit cost project, place cost center or overhead
+  cost center — never the origin or destination), or when its financial decision is approved: "Bill customer" (line
+  on the approved billing project's cost center), "Recover from equipment supplier" by adjustment document (line
+  only; the accountant issues the recovery document) or by deduction from monthly dues when the equipment supplier is
+  the transporter (the line plus a negative recovery line on the same Purchase Invoice, same account and the
+  company's CARD cost center; the transport reserves the net amount). On the customer's monthly Sales Invoice a
+  transport whose approved decision is "Bill customer" with "Monthly invoice" adds one positive line of its
+  `billing_amount` (never the transporter cost) on the billing project, with the recharge income account; a zero or
+  negative amount is refused (ZATCA rule of 2026-10-15: no negative Sales Invoice line). VAT is never inferred: every
+  line carries the company's CARD item tax template (FR-127 `standard_vat_rate`), as all CARD lines do. Still held in
+  Post (listed as preview warnings): a pending or returned decision, "Company absorbs" (no cost project is recorded
+  for the absorbed cost), a deduction from another supplier than the transporter (one transport is one supplier-side
+  source), a "Separate invoice" on the customer side (the transporter line still posts), "needs review" and every
+  move the company does not pay. A billing project of another company is refused. The duplicate guard is the FR-090
+  one per side (GL Posting Source membership, then the invoice link on submit); the built signature and snapshot
+  apply to the new lines. Transports recorded before P1-2 keep their P1-0 rule in both modes.
+  Review fixes (independent accounting review of PR #215): cancelling the Purchase Invoice of a transport whose
+  customer Sales Invoice is still submitted keeps it `posted` (Equipment Transport has no `sales_invoice` field, so
+  `card.gl.events._other_side_still_posted` now reads the other side from its submitted GL Posting Log; other
+  sources unchanged); a recovery above the transport cost is refused; the recovery deduction and the customer
+  lines are split per machine in the proportions of the transport's equipment shares — only over machines with
+  a positive share, the rounding remainder on the largest share, a negative part refused, so no negative Sales
+  Invoice line and no part for a machine without cost; the recharge income account must be an Income account; a cancelled billing project is refused.
+  Known limits (owner questions): transports held in Post ("Company absorbs", deduction from another supplier,
+  "Separate invoice") have no manual-link path yet — "link supplier invoice" still refuses every P1-2 transport, so
+  the accountant enters those invoices without a CARD link; the Transport Accounting Review report keeps its P1-2
+  wording under Post (its status texts still say that posting waits, e.g. "Company cost recorded — Purchase
+  Invoice posting waits for the accountant", "Customer billing recorded — invoicing waits for the accountant and the
+  tax adviser" and "Recovery recorded — not posted until the accountant decides"); a customer-side Net Total discount (taxable card
+  deductions) is apportioned by ERPNext over every line of the Sales Invoice, the transport recharge lines included
+  (same VAT base; the per-line split of the discount is ERPNext's).
+  Affected functions: `card.gl.posting._supplier_sources`, `_plan_monthly_posting`, `month_parties`,
+  `transport_line_cost_center` (its place check moved to `_place_cost_center`, same behaviour), new
+  `responsibility_line_allocation`, `_responsibility_transports`, `_customer_transports`,
+  `_customer_transport_lines`, `_split_by_shares`; `card.gl.events._other_side_still_posted`; `card.gl.preflight`
+  `posts_transport_responsibility`, `require_transport_recharge_account`; `card.transport_costs`
+  `supplier_posting_kind`, `customer_billing_eligible`.
+  Impact: permissions none (no role, DocPerm or `ignore_permissions` added; the new fields are permlevel 1 like the
+  rest of the company row); accounting none under Hold; under Post more draft invoice lines, posted only after an
+  accountant submits them; data: two new columns, empty on existing rows (= Hold), no patch; API: no new or changed
+  endpoint (`post_month`, `rebuild_month`, `preview_month`, `posting_month_parties` keep their signatures). Not
+  changed: the Transport Accounting Review report text and "link supplier invoice", which still refuses P1-2
+  transports. Rollback: revert the commit; the two columns stay in the database and can be dropped only by a
+  separate approved task. Drafts built under Post are ordinary CARD drafts and can be deleted (their sources are
+  freed); submitted ones are reversed by cancelling the invoice (Sales Invoice: a credit note when ZATCA applies).
+  After a revert, a transport already linked to a submitted Purchase Invoice stays linked.
 - **FR-140 — Equipment Meter Reading: engine-hour readings per equipment (#31 D6; closure plan WP-H2).** Reason:
   #31 separates engine hours (meter) from billable hours, and O-11 D6 sets weekly meter readings by the site
   supervisor; no record of meter readings existed. New submittable DocType **Equipment Meter Reading** (naming
