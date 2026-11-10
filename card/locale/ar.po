@@ -7741,3 +7741,55 @@ msgstr "لا يمكن تغيير مصدر إدخال نقل معتمد ({0})."
 #: card/intake.py
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr "النقل {0} له مستند مصدر وهو ملغى؛ يُحتفظ به مع مستنده ولا يمكن حذفه."
+
+#: card/governance_workflows.py
+msgid "Approved – before governance"
+msgstr "معتمد – قبل الحوكمة"
+
+#: card/governance_workflows.py
+msgid "Send for Review"
+msgstr "إرسال للمراجعة"
+
+#: card/governance_workflows.py
+msgid "Return for Correction"
+msgstr "إرجاع للتصحيح"
+
+#: card/governance_workflows.py
+msgid "{0} {1} is approved through its workflow action, not by a direct submit."
+msgstr "يُعتمد {0} {1} من إجراء سير العمل الخاص به، وليس بالاعتماد (Submit) المباشر."
+
+#: card/governance_workflows.py
+msgid "Company {0} requires the review: send {1} {2} for review before approving it."
+msgstr "الشركة {0} تشترط المراجعة: أرسل {1} {2} للمراجعة قبل اعتماده."
+
+#: card/governance_workflows.py
+msgid "{0} {1} is cancelled only with the Cancel button of its form, which asks for the reason."
+msgstr "لا يُلغى {0} {1} إلا بزر الإلغاء في نموذجه، والذي يطلب سبب الإلغاء."
+
+#: card/governance_workflows.py
+msgid "A reason is required to return {0} {1} for correction."
+msgstr "سبب الإرجاع مطلوب لإرجاع {0} {1} للتصحيح."
+
+#: card/governance_workflows.py
+msgid "Returned for correction by {0}. Reason: {1}"
+msgstr "أرجعه {0} للتصحيح. السبب: {1}"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Approval workflow"
+msgstr "سير عمل الاعتماد"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Return for correction reason"
+msgstr "سبب الإرجاع للتصحيح"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card_dashboard.py
+msgid "Postings and invoices"
+msgstr "الترحيلات والفواتير"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card_dashboard.py
+msgid "Amended copies"
+msgstr "النسخ المعدّلة"
+
+#: card/public/js/cancel_reason.js
+msgid "Return with this reason"
+msgstr "إرجاع بهذا السبب"

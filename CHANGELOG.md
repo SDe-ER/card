@@ -16,6 +16,60 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-152 — Native approval Workflows for the monthly card, transport and diesel fill, created INACTIVE (#35 G1,
+  #51, #123; closure plan WP-D2a, C-14, owner decision O-10).** Reason: #35 G1 asks for native Frappe Workflows
+  (Draft → Pending Review → Approved, Return for Correction with a reason, review skippable per company) without
+  changing today's submit flow; C-14 resolves it by shipping the Workflows inactive, so activating them is an owner
+  setup action (W-16) after P4 acceptance (O-10). New module `card/governance_workflows.py` (`ensure_workflows`,
+  `backfill_states`, `remove_duplicate_state_custom_fields`, `review_required`, `on_validate`,
+  `check_cancel_route`, `set_cancelled_state`, `return_for_correction` (`methods=["POST"]`),
+  `workflow_action_query_conditions`, `has_workflow_action_permission`). Standard records only: Workflow States
+  (Draft, Pending Review, Approved, "Approved – before governance", Cancelled), Workflow Action Masters (Send for
+  Review, Approve, Return for Correction) and three Workflows ("CARD Monthly Card Approval", "CARD Equipment
+  Transport Approval", "CARD Project Diesel Fill Approval"), each created **only when missing and with
+  `is_active` = 0** by `after_install` and by the new patch `card.patches.v4_8_0.native_workflows_inactive`; an
+  existing record (an owner's edit or activation included) is never changed. Docstatus mapping: Draft and Pending
+  Review = 0, Approved and "Approved – before governance" = 1, Cancelled = 2; no transition leads to the cancelled
+  or the "before governance" state. Per-state edit uses existing roles only (Draft: Card User, Card Manager,
+  System Manager; Pending Review: Card Manager, System Manager; submitted and cancelled states: Card Manager);
+  transitions: Send for Review (Card User, Card Manager), Approve (Card Manager; from Draft only while the company
+  does not require the review), Return for Correction (Card Manager). The monthly card's Approve leaves
+  self-approval to FR-143 (`allow_self_approval` = 1, the per-company Warn/Refuse rule decides); the transport and
+  the fill keep Frappe's native rule (the creator cannot approve). New fields on the three DocTypes (collapsible
+  section "Approval workflow"): `workflow_state` (Link Workflow State, hidden, read only, no copy, not allow on
+  submit) and `return_reason` (read only, no copy, server-written). Server guards, called from the FR-123 entry
+  points in `card/cancel_reason.py` (no new doc_events): **inactive** — behaviour unchanged; the server only keeps
+  `workflow_state` in line with the docstatus (a client value is never kept); **active** — a submit is accepted
+  only as a workflow transition the user holds from the stored state (form Submit, REST insert with docstatus 1,
+  REST PUT docstatus 1, `frappe.client.submit`, savedocs Submit and bulk submit are refused), an approval from
+  Draft is refused when the company requires the review, a return to Draft needs the reason of
+  `return_for_correction` (an Info Comment records actor and reason), and a cancel is accepted only from
+  `card.cancel_reason.cancel_with_reason`, so a Workflow cancel action (also one whose state `update_field` fills
+  `cancel_reason`), a REST cancel and `frappe.client.cancel` are refused. `card/cancel_reason.py` (additions only):
+  `cancel_with_reason` marks its own cancel; the cancel comparison skips a Workflow's state field only when it is
+  the dedicated `workflow_state` (a Workflow whose state field is a business field, for example a Card Daily Log
+  `approval_status`, can no longer change it by a cancel; FR-142 kept). Review toggle: per-company Card Company
+  Settings `card_review_required` (default 0), read with a safe default of 0 while the field does not exist; the
+  field itself is added after WP-S2 merges or by WP-D2b (Card Company Settings is WP-S2's file in this wave).
+  Approval queues: `card/hooks.py` adds a Workflow Action `permission_query_conditions` and `has_permission`, so a
+  Workflow Action of these DocTypes follows its document's company (Frappe's own rule is role-only). Connections:
+  new `card_monthly_card_dashboard.py`, `equipment_transport_dashboard.py`, `project_diesel_fill_dashboard.py` list
+  the GL Posting Log, Purchase/Sales Invoice, created Card Equipment Assignment and amended copies (read only,
+  Frappe's standard dashboard data). Form: the "Return for Correction" action asks for the reason
+  (`card/public/js/cancel_reason.js`). Patch: removes a Custom Field `workflow_state` an earlier Workflow created on
+  these DocTypes (column and values kept), then sets `workflow_state` of existing records from their docstatus with
+  a query (docstatus and `modified` unchanged): drafts → Draft, submitted → "Approved – before governance",
+  cancelled → Cancelled; a record already in a state of its Workflow with the same docstatus keeps it, so a second
+  migrate changes nothing. Impact: permissions — no role, DocPerm or user permission added or widened; the new
+  Workflow Action hooks only deny. Accounting — none (no GL; the posting flow reads submitted records as before).
+  Data — two new columns on each of the three tables, three Workflows, Workflow States and Action Masters; the
+  state column is filled for existing records. API — none while inactive; once the owner activates a Workflow, a
+  direct submit or a cancel outside the form's Cancel is refused for that DocType. Tests:
+  `card/tests/test_native_workflows.py`; `return_for_correction` added to `card/tests/test_bola_matrix.py` and to the
+  endpoint table of `docs/governance/ROLE-ACTION-MATRIX.md` (cross-company and role refusals). Rollback limits: a code rollback leaves the columns, their values and the
+  Workflow records (inactive, harmless); an activated Workflow must be deactivated by the owner before a rollback,
+  or Frappe keeps applying it without the CARD guards. PR: see the pull request of branch
+  `feat/native-workflows-inactive`.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a

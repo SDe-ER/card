@@ -121,6 +121,11 @@ def after_install():  # pragma: no cover (runs before coverage measurement start
 	post-sync invariants (print default, disabled legacy scripts, single
 	Desk launcher)."""
 	_reconcile()
+	# FR-152: the native approval Workflows, created inactive when missing (the v4.8.0 patch does the same on an
+	# upgraded site; fresh installs mark every patch as done)
+	from card.governance_workflows import ensure_workflows
+
+	ensure_workflows()
 	# Same install-hook context as before_install: persist the reconciliation.
 	frappe.db.commit()  # nosemgrep
 

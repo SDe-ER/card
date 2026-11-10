@@ -172,6 +172,8 @@ permission_query_conditions = {
 	**{doctype: "card.company_scope.company_query_conditions" for doctype in _COMPANY_SCOPED},
 	# FR-142: the daily log rules of a company, scoped like the company's daily logs
 	"Card Daily Log Settings": "card.daily_log.settings_query_conditions",
+	# FR-152: the approval queue (Workflow Action) of a CARD transaction follows its document's company
+	"Workflow Action": "card.governance_workflows.workflow_action_query_conditions",
 }
 
 has_permission = {
@@ -194,6 +196,8 @@ has_permission = {
 	**{doctype: "card.company_scope.has_company_permission" for doctype in _COMPANY_SCOPED},
 	# FR-142: the daily log rules of a company, scoped like the company's daily logs
 	"Card Daily Log Settings": "card.daily_log.settings_permission",
+	# FR-152: the approval queue (Workflow Action) of a CARD transaction follows its document's company
+	"Workflow Action": "card.governance_workflows.has_workflow_action_permission",
 }
 
 # Document Events
