@@ -679,6 +679,58 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (a plain cancel is unchanged), and a save no longer changes `amended_from`; API: such a cancel request now fails
   with `CancelChangesDocumentError`, and a sent `amended_from` on an update is ignored. Rollback limits:
   code only; nothing stored to undo.
+- **FR-146 follow-up — intake evidence of a submitted transport is kept (#52, #43; WP-N1 review of PR #220).**
+  Reason: the intake evidence of a submitted Equipment Transport (`intake_evidence`, `intake_evidence_hash` and the
+  attached File) could still be removed or replaced: a Card Manager could delete the File through
+  `frappe.client.delete("File", ...)`, a File update (re-attach, detach, public/private flip, URL change) moved or
+  rewrote it (Frappe's own private/public move writes the new URL into the transport with `db.set_value`), and
+  deleting a cancelled transport deleted its evidence File and the file on disk (Frappe deletes the row before its
+  attachments, so a File guard no longer finds the transport; review of PR #228). New in `card/intake.py`:
+  - `keep_evidence_of_deleted_transport`, called from the new `EquipmentTransport.on_trash` (before Frappe deletes
+    the row): a cancelled transport with intake evidence is never deleted (`frappe.delete_doc`,
+    `frappe.client.delete`, the List view delete); Frappe already refuses deleting a submitted transport; a draft or a
+    transport without evidence is deleted as before;
+  - `keep_transport_evidence` (File `on_trash`): a File whose URL is the evidence of a transport with docstatus != 0 is
+    never deleted, also after it was detached;
+  - `keep_transport_evidence_file` (File `before_validate`): such a File, or one sharing its content (Frappe moves
+    every row with the same content when one changes its private state), keeps its private state, URL, content hash,
+    file name and size, and stays attached to its transport; re-attaching it to a transport that names it as
+    evidence (the amendment of the cancelled transport) is allowed, and it stays protected there;
+  - `freeze_submitted_intake` (called from `EquipmentTransport.before_update_after_submit`): no intake field changes
+    after submit, also when a Property Setter marks one "allow on submit" (compared with `card.cancel_reason._differs`).
+  The File hooks are registered additively in `card/hooks.py` after the custody receipt guards. `set_value` and REST
+  PUT on a submitted transport stay refused by Frappe's update-after-submit check, and a cancel that changes any
+  stored field stays refused by FR-123 (`card.cancel_reason._refuse_changes`); both are covered by tests.
+  Default-safe, always on: the guards act only on the evidence of submitted or cancelled transports; a draft's
+  evidence can still be replaced or removed, and no transport released before FR-146 has evidence.
+  Tests (`test_transport_intake.py`): delete of a cancelled transport with evidence through `delete_doc`,
+  `frappe.client.delete` and the List view `delete_items` as Administrator and System Manager, and of a submitted
+  one (transport, File row and file on disk kept); File delete as Card Manager and Administrator, also after
+  detaching and after cancel, each with a check that the file is still on disk; File move, detach, make public and
+  rename for submitted and cancelled transports; a public copy with the same bytes made private; content hash, file
+  name and size through REST PUT; re-attaching to the amendment; allow-on-submit customisation; cancel by REST PUT and
+  by savedocs (outcome-based); forged hash through `frappe.client.set_value`, REST PUT and bulk update; intake fields
+  frozen after submit; two committed drafts given the same key concurrently; case-insensitive key match; a real
+  cancel freeing the key. The mutation check found every guard branch caught by a test except one judged not exploitable: dropping `before.content_hash` from the same-content lookup (only `doc.content_hash` left; M10).
+  Docs: `INTAKE-PROVENANCE-DESIGN.md` section 0 and the FR-146 row record how N1 differs from the design. PR #228.
+  Impact: permissions: no role or DocPerm added; a delete or change of such a File, and a delete of a cancelled
+  transport with evidence, are refused for every user, including System Manager and Administrator (known behaviour,
+  accepted by the coordinator 2026-11-10, the same as custody receipts); accounting none; data none (no patch); API:
+  `frappe.client.delete`/`set_value` of such a File and `frappe.client.delete` of such a transport raise a
+  ValidationError, an allow-on-submit change of an intake field raises `UpdateAfterSubmitError`.
+  Known limits: (1) **the delete protection of the evidence File requires Frappe 16.55.0 or later**: before 16.55.0
+  the core `File.on_trash` deletes the file on disk before CARD's hook refuses, so the File row survives a refused
+  delete but its bytes do not (16.55.0 defers the disk delete to the commit). The custody receipt guard
+  `card.custody_receipt.keep_while_recorded` has the same ordering and the same requirement (unchanged here).
+  Production and CI run 16.55.2. Release PR: state "Frappe 16.55.0 or later" for these protections in the
+  Compatibility and Known Limitations sections. (2) An upload with `attached_to_field` = `intake_evidence` to a
+  submitted transport adds a File row (clutter only; the transport's evidence and hash do not change). (3) The
+  `on_trash` lookup on `intake_evidence` uses no index (a prefix index may be added later if File deletes slow down). (4) Code that bypasses `on_trash` is not covered: `frappe.delete_doc(..., ignore_on_trash=True)`, and ERPNext's
+  company transaction deletion (Transaction Deletion Record, a System Manager tool), which deletes these transports
+  with raw deletes and leaves the evidence File detached, after which its uploader can delete it. (5) On a DRAFT,
+  `File.optimize_file` can rewrite the evidence bytes while `intake_evidence_hash` stays as computed, so submit
+  freezes a stale hash (backlog: recompute or verify the hash on submit).
+  Rollback: reverting removes the guards; no data to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
   User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with
