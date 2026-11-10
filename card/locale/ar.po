@@ -5028,6 +5028,26 @@ msgstr "المسؤولية تحتاج مراجعة — ألغِ النقل وع�
 msgid "Financial decision recorded."
 msgstr "تم تسجيل القرار المالي."
 
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.js
+msgid "Disputed by meter extraction: {0}"
+msgstr "قراءة موضع خلاف حسب استخراج العداد: {0}"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.js
+msgid "Meter extraction crop"
+msgstr "مقطع العداد المستخرج"
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.js
+msgid "Open the full photo"
+msgstr "افتح الصورة كاملة"
+
+#: card/diesel_meter_extraction.py
+msgid "CARD meter extraction: worker address refused"
+msgstr "استخراج قراءة العداد في CARD: عنوان الخدمة مرفوض"
+
+#: card/diesel_meter_extraction.py
+msgid "card_meter_worker_url is refused ({0}). Use an IP address, not a host name: http only to a loopback address (127.0.0.1 or [::1]), https only to a loopback or private address. Meter extraction stays off until it is corrected."
+msgstr "الإعداد card_meter_worker_url مرفوض ({0}). استخدم عنوان IP وليس اسم مضيف: http فقط إلى عنوان محلي (127.0.0.1 أو [::1])، و https فقط إلى عنوان محلي أو خاص. يبقى استخراج قراءة العداد متوقفًا حتى يُصحَّح الإعداد."
+
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Customer rate (night shift)"
 msgstr "سعر العميل (الوردية الليلية)"
