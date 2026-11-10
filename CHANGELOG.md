@@ -29,7 +29,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   informative only: the price lookup and the one-price-per-company-and-date rule are unchanged. Affected functions:
   `project_diesel_fill.py` new `diesel_price_details`, `_scheduled_price_row`, `ProjectDieselFill._set_price_snapshot`;
   `diesel_price` and `scheduled_diesel_price` now read through them (same values); `_apply_price`. Tests:
-  `card/tests/test_fill_price_snapshot.py`. PR: see the FR-132 registry row.
+  `card/tests/test_fill_price_snapshot.py`. PR #209.
   Impact: permissions none (fields follow the fill's DocPerms, permlevel 0, as `unit_price`); accounting none (the
   price, the amount and the posting are unchanged; CARD writes no GL); data: three new nullable columns on
   `tabProject Diesel Fill`, fills saved before this change keep an empty snapshot (no backfill); one new column on
