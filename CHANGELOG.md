@@ -641,7 +641,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   submit; legitimate flows; mutation-tested). Impact: permissions none (no role or DocPerm change); accounting none
   (no GL); data none (no patch, no stored value changes; only a save that carries another document's row is refused);
   API: such a request now fails with a validation error. Rollback: revert the commit;
-  nothing to undo on any site. PR: see FR-153 in the feature registry.
+  nothing to undo on any site. PR #238.
 - **FR-142 / FR-140 — a cancel can no longer rewrite a Card Daily Log or an Equipment Meter Reading.** Reason: Frappe
   skips `validate` and `validate_update_after_submit` on a cancel and stores the fields and child rows the request
   sends (`frappe/model/document.py`); reproduced on a sandbox site: a REST PUT `{"docstatus": 2, ...}`, a savedocs
