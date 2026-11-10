@@ -20,14 +20,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   that mirrors the approved "Equipment Supplier Statement A4" (FR-089). New standard Report Print Format
   `Equipment Customer Statement A4` (module Card, JS) with the same template as the report's new print template
   `equipment_customer_statement.html`; the report's PDF dialog pre-selects it. Same style, layout and rules as the
-  supplier A4 statement; differences: title, Customer in place of Supplier and Statement type, customer rate and amount
-  columns, Customer signature, totals picked by stable key only (no fallback to the raw summary), the server message is
+  supplier A4 statement; differences: title, Customer in place of Supplier and Statement type, the contract rate (customer
+  rate type and customer rate, Owner 2026-11-10; no hourly rate) and the customer amount, Customer signature, the
+  "Includes draft cards" note also when the rows hold draft cards (Card Settings default), totals picked by stable key only (no fallback to the raw summary), the server message is
   never printed. The report's `report_summary` items get stable keys (`equipment`, `days`, `hours`, `net_cards`,
-  `accrued`, `invoiced`, `not_invoiced`, `outside`, `opening`, `received`, `closing`); labels, values, order, filters,
-  columns and calculations are unchanged. New string "Customer signature" (ar). Permissions: none changed (the standard
+  `invoiced_entries`, `invoiced`, `not_invoiced`, `outside`, `opening`, `received`, `closing`); labels, values, order, filters,
+  columns and calculations are unchanged. New string "Customer signature" (ar); the rate-type value "متعدد" gets
+  "Multiple" in en/bn/hi/ur. Permissions: none changed (the standard
   report print permissions apply). Accounting: none (display only). Data: `bench migrate` imports one new Print Format
   record. API: the summary items carry a new `key` field. Rollback: deploy the previous image; the Print Format record
-  stays on the site and can be disabled. Commit `2778da3` (branch `feat/customer-statement-a4`, no PR yet). Not yet
+  stays on the site and can be disabled. Commits `2778da3`, `86b12e5` and the rate-type follow-up (branch `feat/customer-statement-a4`). Not yet
   tested on a site.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per

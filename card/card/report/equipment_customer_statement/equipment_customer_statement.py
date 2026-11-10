@@ -457,7 +457,7 @@ def execute(filters=None):
 				"indicator": "Green",
 			},
 			{
-				"key": "accrued",
+				"key": "invoiced_entries",
 				"label": _("Invoiced entries (Debit)"),
 				"value": flt(invoiced, 2),
 				"datatype": "Currency",

@@ -301,6 +301,9 @@ msgstr "Per Month"
 msgid "بالساعة"
 msgstr "Per Hour"
 
+msgid "متعدد"
+msgstr "Multiple"
+
 msgid "ساعات"
 msgstr "Hours"
 

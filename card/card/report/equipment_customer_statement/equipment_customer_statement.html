@@ -10,11 +10,12 @@
 	for (var c = 0; c < server_columns.length; c++) {
 		if (server_columns[c] && server_columns[c].fieldname) label_of[server_columns[c].fieldname] = server_columns[c].label;
 	}
-	/* the customer statement always has amounts; the same columns and widths as the supplier A4 statement, with the
-	   customer rate and amount in place of the hourly rate and amount */
-	var fields = [["label", 25, "text"], ["first_date", 9, "date"], ["last_date", 9, "date"], ["working_days", 6, "int"],
-		["hours", 8, "num"], ["customer_rate", 8, "num"], ["customer_amount", 9, "num"], ["additions", 7.5, "num"],
-		["deductions", 7.5, "num"], ["net", 8, "num"]];
+	/* the customer statement always has amounts; the columns of the supplier A4 statement, with the customer rate
+	   as in the contract (its rate type, then the rate) and the customer amount in place of the hourly rate and
+	   amount (owner 2026-11-10) */
+	var fields = [["label", 22, "text"], ["first_date", 8.5, "date"], ["last_date", 8.5, "date"], ["working_days", 5, "int"],
+		["hours", 7, "num"], ["customer_rate_type", 7, "type"], ["customer_rate", 8, "num"], ["customer_amount", 9, "num"],
+		["additions", 7, "num"], ["deductions", 7, "num"], ["net", 8, "num"]];
 	/* the print shows every row of the period: projects, equipment, every card, then the grand total */
 	var rows = [];
 	for (var i = 0; i < original_data.length; i++) {
@@ -86,6 +87,12 @@
 		var d = last ? new Date(y, m, 0).getDate() : 1;
 		return frappe.datetime.str_to_user(y + "-" + pad2(m) + "-" + pad2(d));
 	};
+	/* the server includes draft cards also when the filter is unset and Card Settings says so; a draft card row
+	   carries the translated "(Draft)" mark in its label */
+	var has_draft = !!filters.include_draft;
+	for (var r = 0; r < rows.length && !has_draft; r++) {
+		if (rows[r].card && String(rows[r].label || "").indexOf(__("(Draft)")) !== -1) has_draft = true;
+	}
 	var period_from = period_day(filters.from_month, filters.from_year, false);
 	var period_to = period_day(filters.to_month || filters.from_month, filters.to_year || filters.from_year, true);
 	var cell = function (row, f) {
@@ -93,6 +100,8 @@
 		if (f[2] === "date") return day(v);
 		if (f[2] === "num") return num(v);
 		if (f[2] === "int") return v === undefined || v === null ? "" : esc(String(v));
+		/* the rate type is stored as its Arabic option value; the print shows it in the user's language */
+		if (f[2] === "type") return v ? esc(__(String(v))) : "";
 		if (f[0] === "label" && row.card && row.shift) v = (v || "") + " \u2014 " + __(row.shift);
 		return esc(v === undefined || v === null ? "" : String(v));
 	};
@@ -184,7 +193,7 @@
 		<td class="ess-ml">{%= __("To") %}</td><td>{%= esc(period_to) %}</td>
 	</tr>
 </table>
-{% if (filters.include_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards") %}</b></p>{% } %}
+{% if (has_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards") %}</b></p>{% } %}
 {% if (!filters.customer) { %}<p class="ess-note"><b>{%= __("Select a customer to display the statement.") %}</b></p>{% } %}
 <table class="ess-rows">
 	<thead>
@@ -200,7 +209,7 @@
 		<tr class="{%= is_total ? "ess-total" : (is_group ? "ess-group" : (is_eq ? "ess-eq" : "ess-card")) %}">
 			<td class="ess-c">{%= numbered ? n : "" %}</td>
 			{% for (var f = 0; f < fields.length; f++) { %}
-			<td class="{%= fields[f][2] === "num" ? "ess-num" : (fields[f][2] === "int" || fields[f][2] === "date" ? "ess-c" : "ess-t") %}">{%= cell(row, fields[f]) %}</td>
+			<td class="{%= fields[f][2] === "num" ? "ess-num" : (fields[f][2] === "int" || fields[f][2] === "date" || fields[f][2] === "type" ? "ess-c" : "ess-t") %}">{%= cell(row, fields[f]) %}</td>
 			{% } %}
 		</tr>
 		{% } %}
