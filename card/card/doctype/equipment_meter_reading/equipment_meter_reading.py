@@ -8,9 +8,12 @@ Rules, enforced on the server for every entry point (Desk, REST, import):
 - the company is always the equipment's company (the form value is replaced, never trusted);
 - readings of one equipment rise with time: compared with the submitted readings just before and just after
   this one's date and time, a lower reading is refused unless it is marked as a meter reset with a reason, and a
-  backdated reading may not exceed the next submitted one (unless that one is a reset); two submitted readings of
-  the same equipment never share a date and time. The check runs on every save and again on submit under a lock on
-  the equipment row, so two parallel submits cannot both pass;
+  backdated reading may not exceed the next submitted one (and must stay above it when that one is a reset); two
+  submitted readings of the same equipment never share a date and time. The check runs on every save and again on
+  submit under a lock on the equipment row, so two parallel submits cannot both pass; a cancel is refused when it
+  would leave the next reading out of sequence (same lock);
+- ``previous_reading`` / ``previous_engine_hours`` are a snapshot taken at save/submit; consumers (WP-H1/H3) work
+  out the sequence from the submitted readings themselves, not from these fields;
 - an amendment amends a cancelled reading of the same company that the user may read;
 - the attachment is a private JPEG, PNG, WebP or PDF of this record (card.attachment_validator).
 
@@ -74,6 +77,31 @@ class EquipmentMeterReading(Document):
 		# serialise submits of the same equipment: a parallel submit waits here and then sees this reading
 		frappe.db.get_value("Card Equipment", self.equipment, "name", for_update=True)
 		self._check_sequence(for_update=True)
+
+	def before_cancel(self):
+		"""Cancelling a reading must not leave its neighbours out of sequence: the next submitted reading, compared
+		with the new previous one, must still pass the rules it was submitted under (not lower unless a reset; a
+		reset only on a lower reading). Same lock and locking reads as submit."""
+		frappe.db.get_value("Card Equipment", self.equipment, "name", for_update=True)
+		previous, _same_time, following = neighbour_readings(
+			self.equipment, self.reading_datetime, exclude=self.name, for_update=True
+		)
+		if not following:
+			return
+		later = flt(following.engine_hours)
+		if cint(following.is_meter_reset):
+			if not previous or later >= flt(previous.engine_hours):
+				frappe.throw(
+					_(
+						"Cancelling this reading would leave the meter reset {0} ({1}) without a higher previous reading. Cancel the later readings first."
+					).format(following.name, later)
+				)
+		elif previous and later < flt(previous.engine_hours):
+			frappe.throw(
+				_(
+					"Cancelling this reading would leave reading {0} ({1}) lower than reading {2} ({3}). Cancel the later readings first."
+				).format(following.name, later, previous.name, flt(previous.engine_hours))
+			)
 
 	def on_update(self):
 		if self.flags.get("attachment_row"):
@@ -149,6 +177,7 @@ class EquipmentMeterReading(Document):
 					self.equipment, same_time.name, self.reading_datetime
 				)
 			)
+		# a snapshot at save/submit: a later backdated or cancelled reading does not update it (see the field note)
 		self.previous_reading = previous.name if previous else None
 		self.previous_engine_hours = flt(previous.engine_hours) if previous else 0
 		hours = flt(self.engine_hours)
@@ -168,4 +197,11 @@ class EquipmentMeterReading(Document):
 				_("Engine hours {0} are higher than the later reading {1} ({2}).").format(
 					hours, following.name, flt(following.engine_hours)
 				)
+			)
+		if following and cint(following.is_meter_reset) and flt(following.engine_hours) >= hours:
+			# the later reset would no longer be lower than its previous reading
+			frappe.throw(
+				_(
+					"The later meter reset {0} ({1}) must stay lower than this reading; engine hours {2} are too low."
+				).format(following.name, flt(following.engine_hours), hours)
 			)

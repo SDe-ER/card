@@ -78,14 +78,16 @@
    "fieldtype": "Data",
    "label": "Previous reading",
    "read_only": 1,
-   "no_copy": 1
+   "no_copy": 1,
+   "description": "Snapshot when the reading was saved or submitted; not updated when an earlier reading is added or cancelled later."
   },
   {
    "fieldname": "previous_engine_hours",
    "fieldtype": "Float",
    "label": "Previous engine hours",
    "read_only": 1,
-   "no_copy": 1
+   "no_copy": 1,
+   "description": "Snapshot when the reading was saved or submitted; not updated when an earlier reading is added or cancelled later."
   },
   {
    "fieldname": "is_meter_reset",

@@ -5305,3 +5305,19 @@ msgstr ""
 #: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
 msgid "Engine hours {0} are higher than the later reading {1} ({2})."
 msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Snapshot when the reading was saved or submitted; not updated when an earlier reading is added or cancelled later."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Cancelling this reading would leave the meter reset {0} ({1}) without a higher previous reading. Cancel the later readings first."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Cancelling this reading would leave reading {0} ({1}) lower than reading {2} ({3}). Cancel the later readings first."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "The later meter reset {0} ({1}) must stay lower than this reading; engine hours {2} are too low."
+msgstr ""

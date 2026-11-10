@@ -220,6 +220,80 @@ class TestMeterReading(IntegrationTestCase):
 		locked = calls[calls.index(("lock", True)) + 1 :]
 		self.assertEqual(locked, [("values", True)] * 3)
 
+	# ---------- cancel keeps the sequence ----------
+	def test_cancel_of_a_reset_that_a_later_reading_needs_refused(self):
+		"""100, 10 (reset), 20: cancelling the reset would leave 100 -> 20 without a reset."""
+		self._reading(100, "2026-09-01 08:00:00")
+		reset = self._reading(10, "2026-09-08 08:00:00", is_meter_reset=1, reset_reason="Meter replaced")
+		self._reading(20, "2026-09-15 08:00:00")
+		with self.assertRaises(frappe.ValidationError):
+			reset.cancel()
+		self.assertEqual(frappe.db.get_value(DOCTYPE, reset.name, "docstatus"), 1)
+
+	def test_cancel_before_a_reset_that_needs_it_refused(self):
+		"""100, 10 (reset): cancelling the 100 would leave a reset without a higher previous reading."""
+		first = self._reading(100, "2026-09-01 08:00:00")
+		self._reading(10, "2026-09-08 08:00:00", is_meter_reset=1, reset_reason="Meter replaced")
+		with self.assertRaises(frappe.ValidationError):
+			first.cancel()
+		# with an earlier higher reading the reset still holds, so the cancel passes
+		self._reading(90, "2026-08-25 08:00:00")
+		first.reload()
+		first.cancel()
+		self.assertEqual(first.docstatus, 2)
+
+	def test_cancel_that_keeps_the_sequence_passes(self):
+		self._reading(100, "2026-09-01 08:00:00")
+		middle = self._reading(150, "2026-09-08 08:00:00")
+		last = self._reading(200, "2026-09-15 08:00:00")
+		middle.cancel()
+		self.assertEqual(middle.docstatus, 2)
+		last.cancel()  # nothing after it
+		self.assertEqual(last.docstatus, 2)
+
+	def test_cancel_takes_the_lock_and_locking_reads(self):
+		reading = self._reading(100, "2026-09-01 08:00:00")
+		real_values, real_value = frappe.db.get_values, frappe.db.get_value
+		calls = []
+
+		def get_values(doctype, *args, **kwargs):
+			if doctype == DOCTYPE and kwargs.get("for_update"):
+				calls.append("read")
+			return real_values(doctype, *args, **kwargs)
+
+		def get_value(doctype, *args, **kwargs):
+			if doctype == "Card Equipment" and kwargs.get("for_update"):
+				calls.append("lock")
+			return real_value(doctype, *args, **kwargs)
+
+		with (
+			patch.object(frappe.db, "get_values", side_effect=get_values),
+			patch.object(frappe.db, "get_value", side_effect=get_value),
+		):
+			reading.cancel()
+		self.assertEqual(calls, ["lock", "read", "read", "read"])
+
+	def test_backdated_reset_before_a_later_reset_refused(self):
+		"""100, 10 (reset): a backdated 5 (reset) between them would make the 10 reset no longer lower."""
+		self._reading(100, "2026-09-01 08:00:00")
+		self._reading(10, "2026-09-15 08:00:00", is_meter_reset=1, reset_reason="Meter replaced")
+		with self.assertRaises(frappe.ValidationError):
+			self._reading(5, "2026-09-08 08:00:00", is_meter_reset=1, reset_reason="x", submit=False)
+		with self.assertRaises(frappe.ValidationError):
+			self._reading(10, "2026-09-08 08:00:00", submit=False)  # equal is not lower either
+		self.assertEqual(self._reading(150, "2026-09-08 08:00:00").docstatus, 1)
+
+	def test_previous_fields_are_a_snapshot(self):
+		"""The previous-reading fields are not rewritten when an earlier reading is added later."""
+		self._reading(100, "2026-09-01 08:00:00")
+		later = self._reading(200, "2026-09-15 08:00:00")
+		self._reading(150, "2026-09-08 08:00:00")
+		later.reload()
+		self.assertEqual(later.previous_engine_hours, 100)
+		meta = frappe.get_meta(DOCTYPE)
+		for fieldname in ("previous_reading", "previous_engine_hours"):
+			self.assertIn("Snapshot", meta.get_field(fieldname).description or "")
+
 	def test_negative_hours_refused(self):
 		with self.assertRaises(frappe.ValidationError):
 			self._reading(-1, "2026-09-01 08:00:00", submit=False)
