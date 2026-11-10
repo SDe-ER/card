@@ -236,6 +236,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** an older version reads the flag as a manual tick again; the values the patch wrote stay and are
     correct for the component tables.
 
+### Fixed
+- **Diesel fill: a rejected fill returned to review re-checks its meter photos** (FR-085, PR #165). A rejected fill does not
+  hold its photo, so a corrected fill may reuse it. Moving the rejected fill back to Draft or Needs Review did not check
+  the photos again (the check ran only when a photo or the company changed), so two live fills could prove one photo
+  and count the same litres twice. `ProjectDieselFill._check_photos` now also runs when the stored review status was
+  Rejected and the new one is not; the save is refused while another live fill uses the photo. Tests:
+  `card/tests/test_diesel_session_evidence.py` (2 new). Impact: no permission, schema, data or API change; no
+  accounting effect (fills post only after approval). Rollback: revert the commit.
+
 ### Documentation
 - **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
   (equipment, transport, project assignment, monthly card, daily hours), in English with an Arabic summary.
