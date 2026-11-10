@@ -11,7 +11,14 @@
   "side",
   "adjustment_type",
   "description",
-  "amount"
+  "amount",
+  "downtime_section",
+  "stop_reason",
+  "agreement_reference",
+  "downtime_column",
+  "responsible_party_type",
+  "responsible_party",
+  "responsible_party_name"
  ],
  "fields": [
   {
@@ -51,13 +58,55 @@
    "in_list_view": 1,
    "label": "Side",
    "options": "\nSupplier\nCustomer"
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.stop_reason || doc.agreement_reference",
+   "description": "Required when the adjustment type is a downtime charge (Card Settings).",
+   "fieldname": "downtime_section",
+   "fieldtype": "Section Break",
+   "label": "Downtime charge"
+  },
+  {
+   "fieldname": "stop_reason",
+   "fieldtype": "Link",
+   "label": "Stop reason",
+   "options": "Card Stop Reason"
+  },
+  {
+   "fieldname": "agreement_reference",
+   "fieldtype": "Data",
+   "label": "Agreement reference"
+  },
+  {
+   "fieldname": "downtime_column",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "responsible_party_type",
+   "fieldtype": "Select",
+   "label": "Responsible party",
+   "options": "\nCompany\nSupplier\nCustomer\nOther"
+  },
+  {
+   "depends_on": "eval:[\"Company\",\"Supplier\",\"Customer\"].includes(doc.responsible_party_type)",
+   "fieldname": "responsible_party",
+   "fieldtype": "Dynamic Link",
+   "label": "Responsible party record",
+   "options": "responsible_party_type"
+  },
+  {
+   "depends_on": "eval:doc.responsible_party_type==\"Other\"",
+   "fieldname": "responsible_party_name",
+   "fieldtype": "Data",
+   "label": "Responsible party name"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-10-15 10:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card Adjustment",
