@@ -68,8 +68,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `card/tests/test_native_workflows.py`; `return_for_correction` added to `card/tests/test_bola_matrix.py` and to the
   endpoint table of `docs/governance/ROLE-ACTION-MATRIX.md` (cross-company and role refusals). Rollback limits: a code rollback leaves the columns, their values and the
   Workflow records (inactive, harmless); an activated Workflow must be deactivated by the owner before a rollback,
-  or Frappe keeps applying it without the CARD guards. PR: see the pull request of branch
-  `feat/native-workflows-inactive`.
+  or Frappe keeps applying it without the CARD guards. PR: #236.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
