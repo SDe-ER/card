@@ -519,6 +519,34 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (a plain cancel is unchanged), and a save no longer changes `amended_from`; API: such a cancel request now fails
   with `CancelChangesDocumentError`, and a sent `amended_from` on an update is ignored. Rollback limits:
   code only; nothing stored to undo.
+- **FR-146 follow-up — intake evidence of a submitted transport is kept (#52, #43; WP-N1 review of PR #220).**
+  Reason: the intake evidence of a submitted Equipment Transport (`intake_evidence`, `intake_evidence_hash` and the
+  attached File) could still be removed or replaced: a Card Manager could delete the File through
+  `frappe.client.delete("File", ...)`, and a File update (re-attach, detach, public/private flip, URL change) moved
+  or rewrote it (Frappe's own private/public move writes the new URL into the transport with `db.set_value`). New in
+  `card/intake.py`, registered additively in `card/hooks.py` next to the custody receipt guards:
+  `keep_transport_evidence` (File `on_trash`: a File whose URL is the evidence of a transport with docstatus != 0 is
+  never deleted, also after it was detached) and `keep_transport_evidence_file` (File `before_validate`: such a File,
+  or one sharing its content, keeps its private state and URL and stays attached to its transport);
+  `freeze_submitted_intake` (called from `EquipmentTransport.before_update_after_submit`: no intake field changes
+  after submit, also when a Property Setter marks one "allow on submit"; compared with `card.cancel_reason._differs`).
+  `set_value` and REST PUT on a submitted transport stay refused by Frappe's update-after-submit check, and a cancel
+  that changes any stored field stays refused by FR-123 (`card.cancel_reason._refuse_changes`, which compares every
+  field including the intake fields); both are now covered by tests. Default-safe, always on: the guards act only on
+  the evidence of submitted or cancelled transports; a draft's evidence can still be replaced or removed, and no
+  transport released before FR-146 has evidence. Tests added (`test_transport_intake.py`): File delete as Card
+  Manager and as Administrator, also after detaching and after cancel; File move, detach, make public and rename;
+  allow-on-submit customisation; cancel by REST PUT and by savedocs (outcome-based: the stored intake is unchanged);
+  forged hash through `frappe.client.set_value`, REST PUT and bulk update; intake fields frozen after submit; two
+  committed drafts given the same key concurrently; case-insensitive key match; a real cancel freeing the key. The
+  new guard tests fail with the guards disabled. Docs: `INTAKE-PROVENANCE-DESIGN.md` section 0 and the FR-146 row
+  record how N1 differs from the design. PR pending.
+  Impact: permissions: no role or DocPerm added; a delete or change of such a File is refused for every user,
+  including System Manager and Administrator (known behaviour, accepted by the coordinator 2026-11-10: deleting a
+  submitted or cancelled transport that has evidence is refused too, as its attachments are deleted with it, the
+  same as custody receipts); accounting none; data none (no patch); API: `frappe.client.delete`/`set_value` of such
+  a File now raise a ValidationError, an allow-on-submit change of an intake field raises `UpdateAfterSubmitError`.
+  Rollback: reverting removes the guards; no data to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
   User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with

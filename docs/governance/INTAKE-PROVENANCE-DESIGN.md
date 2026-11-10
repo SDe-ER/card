@@ -1,10 +1,29 @@
 # Intake provenance for movement and operation records — design
 
-**Status: design, not implemented.** Issue #52, work package WP-21. No code, DocType, permission or data change
+**Status: design; the Equipment Transport part is built as FR-146 (section 0).** Issue #52, work package WP-21. No code, DocType, permission or data change
 comes with this file. Building any part of it needs the owner's GO, its own branch, tests, CHANGELOG entry and
 FEATURE-REGISTRY row.
 
 Baseline: `main` @ `1b7c20d` (v4.5.0).
+
+## 0. As built for Equipment Transport (FR-146, WP-N1)
+
+WP-N1 implements the transport part without the `Card Intake` register of section 3. It differs from this design
+as follows; WP-N3 (`card.intake.propose`) and WP-N2 reuse these fields instead of adding new ones:
+
+| Design | N1 as built |
+|---|---|
+| `card_intake` link and fetched `intake_channel`, server-written only (section 3.3) | Fields on the transport itself: `intake_channel`, `intake_source_key`, `intake_received_on`, `intake_evidence`, `intake_evidence_hash`. All optional, empty by default, `no_copy`; editable by the user on a draft (there is no adapter yet), frozen after submit. Only `intake_evidence_hash` is server-written (SHA-256 of the private evidence file; a client value is never kept) |
+| Unique index on (`company`, `source_key`) (section 4) | No database unique index: one live (draft or submitted) transport per company and key, checked in `validate` under a lock on the Company row plus a locking read (`frappe.qb ... .for_update()`); a cancelled transport frees its key, so its amendment keeps it |
+| Canonical `source_key` = SHA-256 of channel + company + identity | The key is the external id as entered (stripped). Keys match case-insensitively (the column uses the database's case-insensitive collation: `WA-1` and `wa-1` are the same key) |
+| Reused evidence refused (section 4) | Reused evidence on another live transport of the same company only warns (owner rule 2026-11-10: new rules are warn-only or opt-in) |
+| `received_by` | The "operator" of #52 is the transport's `owner` plus `edited_by` (every user who saved the draft, kept by `_record_editor`) |
+
+The evidence file of a submitted or cancelled transport cannot be deleted (`card.intake.keep_transport_evidence`,
+File `on_trash`, also after it is detached), moved, detached, made public or renamed
+(`card.intake.keep_transport_evidence_file`, File `before_validate`), and no intake field of a submitted transport
+changes, also with an allow-on-submit customisation (`card.intake.freeze_submitted_intake`); a cancel that changes
+them is refused by FR-123 (`card.cancel_reason._refuse_changes`).
 
 ## 1. Problem
 

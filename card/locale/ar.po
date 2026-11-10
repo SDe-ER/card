@@ -7370,3 +7370,15 @@ msgstr "اعتماد الكارت الشهري من معدّه"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by its own preparer"
 msgstr "اعتمده معدّه"
+
+#: card/intake.py
+msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
+msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ ويُحتفظ به."
+
+#: card/intake.py
+msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
+msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ يبقى خاصًا ومرفقًا بنقله."
+
+#: card/intake.py
+msgid "The intake source of a submitted transport cannot be changed ({0})."
+msgstr "لا يمكن تغيير مصدر إدخال نقل معتمد ({0})."

@@ -33,6 +33,7 @@ from card.attachment_validator import (
 	new_form_prefix,
 	require_record_file,
 )
+from card.cancel_reason import _differs
 
 TRANSPORT = "Equipment Transport"
 DEFAULT_CHANNEL = "Manual"
@@ -72,6 +73,82 @@ def claim_transport_evidence(doc):
 	if row:
 		claim_file(row, doc.doctype, doc.name, EVIDENCE_FIELD)
 		doc.flags.intake_evidence_row = None
+
+
+def keep_transport_evidence(doc, method=None):
+	"""File.on_trash: the intake evidence of a submitted or cancelled transport is a record of where the
+	movement came from; it is never deleted (also not after it was detached from the transport)."""
+	if doc.is_folder or not doc.file_url:
+		return
+	if frappe.db.exists(TRANSPORT, {EVIDENCE_FIELD: doc.file_url, "docstatus": ["!=", 0]}):
+		frappe.throw(_("This file is the intake evidence of a submitted or cancelled transport; it is kept."))
+
+
+def keep_transport_evidence_file(doc, method=None):
+	"""File.before_validate, before Frappe moves the disk file: the intake evidence of a submitted or cancelled
+	transport (or a file sharing its content, whose public / private state Frappe changes with it) keeps its
+	private state and URL, and is never detached from or moved off its transport."""
+	if doc.is_folder or doc.is_new():
+		return
+	moved = any(
+		doc.has_value_changed(f) for f in ("attached_to_doctype", "attached_to_name", "attached_to_field")
+	)
+	flipped = doc.has_value_changed("is_private")
+	renamed = doc.has_value_changed("file_url")
+	if not (moved or flipped or renamed):
+		return
+	before = doc.get_doc_before_save()
+	urls = {cstr(before.file_url if before else doc.file_url)}
+	if flipped and doc.content_hash:
+		urls.update(frappe.get_all("File", filters={"content_hash": doc.content_hash}, pluck="file_url"))
+	kept = _kept_evidence(urls)
+	if not kept:
+		return
+	if (
+		flipped
+		or renamed
+		or not (
+			doc.attached_to_doctype == TRANSPORT
+			and doc.attached_to_field == EVIDENCE_FIELD
+			and frappe.db.get_value(TRANSPORT, doc.attached_to_name, EVIDENCE_FIELD) in kept
+		)
+	):
+		frappe.throw(
+			_(
+				"This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
+			)
+		)
+
+
+def _kept_evidence(urls):
+	"""The URLs among `urls` that are the intake evidence of a submitted or cancelled transport."""
+	urls = [url for url in urls if url]
+	if not urls:
+		return set()
+	return set(
+		frappe.get_all(
+			TRANSPORT,
+			filters={EVIDENCE_FIELD: ["in", urls], "docstatus": ["!=", 0]},
+			pluck=EVIDENCE_FIELD,
+		)
+	)
+
+
+def freeze_submitted_intake(doc):
+	"""`before_update_after_submit`: the intake fields of a submitted transport never change, also when a
+	site customisation (Property Setter) marks one of them "allow on submit"."""
+	before = doc.get_doc_before_save()
+	if not before:
+		return
+	for fieldname in (*INPUT_FIELDS, HASH_FIELD):
+		df = doc.meta.get_field(fieldname)
+		if df and _differs(df, doc.get(fieldname), before.get(fieldname)):
+			frappe.throw(
+				_("The intake source of a submitted transport cannot be changed ({0}).").format(
+					_(df.label or fieldname)
+				),
+				frappe.UpdateAfterSubmitError,
+			)
 
 
 def check_source_key(doc):

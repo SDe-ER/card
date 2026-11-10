@@ -10,7 +10,7 @@ from card.attachment_validator import check_attachment_content, claim_file, requ
 from card.company import single_company, validate_equipment_company
 from card.constants import MOVE_DAY_NEXT, NON_COMPANY_PAYERS, OTHER_PARTY, OTHER_PARTY_TYPES, OWNED
 from card.equipment_status import check_equipment_status
-from card.intake import apply_transport_intake, claim_transport_evidence
+from card.intake import apply_transport_intake, claim_transport_evidence, freeze_submitted_intake
 from card.settings import company_setting, setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
@@ -539,6 +539,8 @@ class EquipmentTransport(Document):
 		before = self.get_doc_before_save()
 		if before and any(cstr(self.get(f)) != cstr(before.get(f)) for f in FINANCIAL_FIELDS):
 			frappe.throw(_("The financial decision of a transport is recorded by an Accounts Manager only."))
+		# FR-146: the intake source and evidence of a submitted transport never change
+		freeze_submitted_intake(self)
 
 	def before_cancel(self):
 		# Guards run before docstatus flips, so a block keeps the doc submitted.

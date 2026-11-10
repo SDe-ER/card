@@ -6130,3 +6130,15 @@ msgstr ""
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by its own preparer"
 msgstr ""
+
+#: card/intake.py
+msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
+msgstr ""
+
+#: card/intake.py
+msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
+msgstr ""
+
+#: card/intake.py
+msgid "The intake source of a submitted transport cannot be changed ({0})."
+msgstr ""
