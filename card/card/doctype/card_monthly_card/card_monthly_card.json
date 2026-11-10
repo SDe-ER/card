@@ -38,6 +38,8 @@
   "totals_section",
   "working_days",
   "total_working_hours",
+  "billable_stopped_hours",
+  "billable_stopped_days",
   "column_break_eubn",
   "amount",
   "amended_from",
@@ -228,6 +230,20 @@
    "fieldname": "total_working_hours",
    "fieldtype": "Float",
    "label": "Total operating hours",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "billable_stopped_hours",
+   "fieldtype": "Float",
+   "label": "Billable stopped hours",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "billable_stopped_days",
+   "fieldtype": "Int",
+   "label": "Billable stopped days",
    "read_only": 1
   },
   {
@@ -444,7 +460,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 17:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card",

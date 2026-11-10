@@ -210,13 +210,17 @@ function card_calc(frm) {
 		return;
 	} // never touch submitted/cancelled cards
 	let hours = 0,
-		work_days = 0;
+		work_days = 0,
+		billable_stopped = 0;
 	(frm.doc.days || []).forEach((r) => {
 		if (r.day_status !== "عمل") r.working_hours = 0;
 		hours += flt(r.working_hours);
 		if (flt(r.working_hours) > 0) work_days++;
+		// FR-118: only an explicitly billable stop reason bills its stopped hours
+		if (r.stop_reason && cint(r.reason_billable)) billable_stopped += flt(r.stopped_hours);
 	});
-	const amount = frm._card_supplier_side ? flt(hours * flt(frm._card_hourly), 2) : 0;
+	const billed_hours = hours + billable_stopped;
+	const amount = frm._card_supplier_side ? flt(billed_hours * flt(frm._card_hourly), 2) : 0;
 
 	// v4: additions / deductions (display only; the server recalculates on save)
 	// net_amount is the supplier side only (a row without a side takes the
@@ -233,6 +237,7 @@ function card_calc(frm) {
 	});
 
 	frm.set_value("total_working_hours", hours);
+	frm.set_value("billable_stopped_hours", flt(billable_stopped, 2));
 	frm.set_value("working_days", work_days);
 	frm.set_value("amount", amount);
 	frm.set_value("total_additions", flt(additions, 2));
@@ -391,6 +396,12 @@ function card_render_diesel(frm) {
 }
 
 frappe.ui.form.on("Card Monthly Card", {
+	setup(frm) {
+		// FR-118: only the enabled stop reasons of the card's company
+		frm.set_query("stop_reason", "days", () => ({
+			filters: { company: frm.doc.company || "", enabled: 1 },
+		}));
+	},
 	refresh(frm) {
 		card_color_fridays(frm);
 		if (frm.doc.docstatus === 0) card_load_hourly(frm);
@@ -434,6 +445,38 @@ frappe.ui.form.on("Card Monthly Card", {
 frappe.ui.form.on("Card Monthly Card Day", {
 	working_hours: card_calc,
 	day_status: card_calc,
+	stopped_hours: card_calc,
+	stop_reason(frm, cdt, cdn) {
+		// display only: the server re-reads the reason (and its company) on save
+		const row = locals[cdt][cdn];
+		if (!row.stop_reason) {
+			frappe.model.set_value(cdt, cdn, "reason_billable", 0).then(() => card_calc(frm));
+			return;
+		}
+		frappe.db
+			.get_value("Card Stop Reason", row.stop_reason, [
+				"billable",
+				"default_responsible_party_type",
+			])
+			.then((r) => {
+				const v = (r && r.message) || {};
+				const updates = [
+					frappe.model.set_value(cdt, cdn, "reason_billable", cint(v.billable)),
+				];
+				if (!row.responsible_party_type && v.default_responsible_party_type) {
+					updates.push(
+						frappe.model.set_value(
+							cdt,
+							cdn,
+							"responsible_party_type",
+							v.default_responsible_party_type,
+						),
+					);
+				}
+				return Promise.all(updates);
+			})
+			.then(() => card_calc(frm));
+	},
 	days_add: card_color_fridays,
 	days_remove: card_calc,
 });
