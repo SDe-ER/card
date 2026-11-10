@@ -6,7 +6,7 @@
 // The server decides everything: the reads are GET methods with no side effects
 // (card.gl.posting.posting_month_parties / preview_month); the buttons call the existing
 // card.gl.posting.post_month / rebuild_month, which check role, company and party again.
-// FR-149: the period run box (card.gl.posting.posting_period_run, GET) shows the month's Card Period Run and,
+// FR-154: the period run box (card.gl.posting.posting_period_run, GET) shows the month's Card Period Run and,
 // when the company requires an approved run, why posting is refused; the server refuses on every route.
 
 frappe.pages["card-monthly-posting"].on_page_load = function (wrapper) {
@@ -107,7 +107,7 @@ class CardMonthlyPosting {
 	}
 
 	run_view(state) {
-		// FR-149: the month's period run; the refusal text is the server's own
+		// FR-154: the month's period run; the refusal text is the server's own
 		const e = frappe.utils.escape_html;
 		const $box = $(`<div class="cmp-run-box"></div>`);
 		if (state.run) {

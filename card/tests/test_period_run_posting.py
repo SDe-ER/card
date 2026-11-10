@@ -1,6 +1,6 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""FR-149 (#49, WP-S2): an approved, current Card Period Run before the monthly posting, opt-in per company.
+"""FR-154 (#49, WP-S2): an approved, current Card Period Run before the monthly posting, opt-in per company.
 
 Proven here: off by default and then the posting is unchanged (the same invoice with and without the gate; the run
 is never read); on, every route refuses without an approved, current run (whitelisted post_month and rebuild_month,

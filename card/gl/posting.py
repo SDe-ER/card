@@ -482,7 +482,7 @@ def _responsibility_supplier_lines(transport, shares, row, company, description)
 
 
 def _rows(doctype, filters, fields, for_update=False):
-	"""frappe.get_all, or with for_update a locking read of the same rows (FR-149): inside the posting
+	"""frappe.get_all, or with for_update a locking read of the same rows (FR-154): inside the posting
 	transaction a plain read returns the transaction's REPEATABLE READ snapshot, a locking read returns the
 	latest committed rows and holds them until the posting commits."""
 	if not for_update:
@@ -495,7 +495,7 @@ def _rows(doctype, filters, fields, for_update=False):
 def _customer_transports(company, party, first_day, last_day, for_update=False):
 	"""Post: the submitted transports whose approved decision bills the customer on the monthly Sales
 	Invoice (transport_costs.customer_billing_eligible). party=None: every customer. for_update: a locking
-	read (FR-149 re-check inside the posting transaction)."""
+	read (FR-154 re-check inside the posting transaction)."""
 	rows = _rows(
 		"Equipment Transport",
 		for_update=for_update,
@@ -986,7 +986,7 @@ def _plan_monthly_posting(
 			integrity.require_reviewed(candidates, reviewed_invoices)
 	else:
 		candidates = []
-	# FR-149 (#49, WP-S2): with the company's require_period_approval on, an approved, current period run that
+	# FR-154 (#49, WP-S2): with the company's require_period_approval on, an approved, current period run that
 	# holds every source of this posting as it is billed; in a real build re-checked with locking reads (the run
 	# rows and the month's sources), before the sources are locked and reserved. Off: returns at once.
 	from card.gl import period_gate
@@ -1215,7 +1215,7 @@ def rebuild_monthly_posting(company, party_type, party, month, year, reviewed_in
 	draft includes every unposted submitted document."""
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
 	preflight.require_item_read(posting_doctype)  # before deleting the old draft
-	# FR-149: refuse before the old draft is deleted (the build below runs the full period-run gate)
+	# FR-154: refuse before the old draft is deleted (the build below runs the full period-run gate)
 	from card.gl import period_gate
 
 	period_gate.require_run_state(company, month, year)
@@ -1624,7 +1624,7 @@ def preview_month(company: str, party_type: str, party: str, month: str, year: s
 
 @frappe.whitelist(methods=["GET"])
 def posting_period_run(company: str, month: str, year: str):
-	"""Posting screen (FR-149): whether the company requires an approved period run before posting, the state of
+	"""Posting screen (FR-154): whether the company requires an approved period run before posting, the state of
 	the month's run and why posting is refused. Read only (it rebuilds the run's live snapshot); no amounts. The
 	same role and company checks as the party list."""
 	from card.gl import period_gate

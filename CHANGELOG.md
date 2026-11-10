@@ -148,7 +148,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   live snapshot on every form refresh (backlog: cache or a lighter check if months grow large). Rollback limits:
   code rollback leaves the two tables and their rows (harmless, unused until WP-S2); delete the DocTypes to
   remove them.
-- **FR-149 — An approved, current period run before the monthly posting, opt-in per company (#49; closure plan
+- **FR-154 — An approved, current period run before the monthly posting, opt-in per company (#49; closure plan
   WP-S2).** Reason: #49 asks for "source records → approved period run → draft billing documents → accountant
   approval"; FR-147 built the run but nothing posted from it. New Card Company Settings fields (section "Period
   approval"): `require_period_approval` (Check, default 0) and `period_run_self_approval_rule` ("Warn only (period

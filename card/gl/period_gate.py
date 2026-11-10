@@ -1,6 +1,6 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""FR-149 (#49, closure plan WP-S2): the monthly posting requires an approved, current Card Period Run.
+"""FR-154 (#49, closure plan WP-S2): the monthly posting requires an approved, current Card Period Run.
 
 Opt-in per company: Card Company Settings ``require_period_approval`` (default 0). Off, nothing here runs beyond
 reading that flag, and the posting is exactly what it was before. On, every way the monthly posting is reached

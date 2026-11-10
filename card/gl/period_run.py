@@ -6,7 +6,7 @@ A period run holds a snapshot of every source document the monthly posting bills
 total per side and a version number. An accountant approves the run; the approval is tied to that exact version
 and snapshot.
 
-FR-149 (WP-S2, ``card.gl.period_gate``) uses the run: with the company's ``require_period_approval`` on, the monthly
+FR-154 (WP-S2, ``card.gl.period_gate``) uses the run: with the company's ``require_period_approval`` on, the monthly
 posting refuses a company-month without an approved, current run (off by default). The run writes no GL entry, no
 invoice and nothing on any source; it is a review record only.
 
@@ -72,7 +72,7 @@ source documents are not counted; open owner question). When a preparer approves
 ``self_approval_rule`` decides: "Warn only" (the default) approves with a message and marks the run
 ``self_approved``; "Refuse" refuses. The rule can be raised to Refuse at any time and never lowered, and an
 amendment keeps it; a saved run keeps its stored ``amended_from`` (Frappe checks it on insert only). No role
-is exempt. FR-149: the stricter of the run's rule and the company's ``period_run_self_approval_rule`` (Card
+is exempt. FR-154: the stricter of the run's rule and the company's ``period_run_self_approval_rule`` (Card
 Company Settings, empty = Warn only) applies: a run built while the company rule is Refuse takes Refuse, and an
 approval checks the company rule again (``effective_self_approval_rule``).
 
@@ -336,7 +336,7 @@ def _company_row_value(company: str, fieldname: str, for_update: bool = False) -
 
 def _selection(company: str, month: str, year: int, for_update: bool = False) -> dict:
 	"""{(doctype, name): {"Supplier": (party, amount), "Customer": (party, amount)}} of the company-month.
-	for_update (FR-149, the posting gate inside the posting transaction): every read is a locking read, so it
+	for_update (FR-154, the posting gate inside the posting transaction): every read is a locking read, so it
 	sees the latest committed documents (not the request's REPEATABLE READ snapshot) and holds them."""
 	first, last = _bounds(month, year)
 	out = {}
@@ -479,7 +479,7 @@ def build_snapshot(
 	for_update: bool = False,
 ) -> frappe._dict:
 	"""Every source document the monthly posting of ``company`` bills for ``month``/``year`` (the whole month), as a
-	period-run snapshot. Reads only; the caller checks the permissions. for_update (FR-149, inside the posting
+	period-run snapshot. Reads only; the caller checks the permissions. for_update (FR-154, inside the posting
 	transaction only): the selection, every source document with its rows, the company's settings row and the fill
 	suppliers are read with locking reads, so the snapshot is the latest committed state and stays so until the
 	transaction ends. The posted flags (information only) are plain reads."""
@@ -539,7 +539,7 @@ def check_current(run: Document, for_update: bool = False) -> frappe._dict:
 	version. Reads only. Returns ``current`` and the documents ``added`` (now selected, not in the run),
 	``removed`` (in the run, no longer selected) and ``changed`` (fingerprint, party or amount differs), by name;
 	``posted_since`` lists the sides posted since the run was built (information only). for_update: the live
-	snapshot is built with locking reads (``build_snapshot``; FR-149, inside the posting transaction only)."""
+	snapshot is built with locking reads (``build_snapshot``; FR-154, inside the posting transaction only)."""
 	live = build_snapshot(
 		run.company,
 		run.month,
@@ -683,7 +683,7 @@ def _chain_refuses(name: str | None) -> bool:
 
 
 def company_self_approval_rule(company: str) -> str:
-	"""FR-149: the company's own rule (Card Company Settings ``period_run_self_approval_rule``); empty or no row:
+	"""FR-154: the company's own rule (Card Company Settings ``period_run_self_approval_rule``); empty or no row:
 	Warn only (the FR-147 behaviour)."""
 	return (
 		RULE_REFUSE if company_setting(company, "period_run_self_approval_rule") == RULE_REFUSE else RULE_WARN
@@ -691,7 +691,7 @@ def company_self_approval_rule(company: str) -> str:
 
 
 def effective_self_approval_rule(doc: Document) -> str:
-	"""FR-149: the stricter of the run's own rule and the company's rule."""
+	"""FR-154: the stricter of the run's own rule and the company's rule."""
 	if doc.get("self_approval_rule") == RULE_REFUSE or company_self_approval_rule(doc.company) == RULE_REFUSE:
 		return RULE_REFUSE
 	return RULE_WARN
@@ -699,7 +699,7 @@ def effective_self_approval_rule(doc: Document) -> str:
 
 def _strictest_rule(doc: Document) -> str:
 	"""Refuse when the run sends it, stores it, any run of its amendment chain has it, or the company's rule
-	(FR-149) is Refuse; else Warn only."""
+	(FR-154) is Refuse; else Warn only."""
 	if doc.get("self_approval_rule") == RULE_REFUSE:
 		return RULE_REFUSE
 	if company_self_approval_rule(doc.company) == RULE_REFUSE:
@@ -879,7 +879,7 @@ def _approve(doc: Document) -> None:
 	user = frappe.session.user
 	self_approved = user in run_preparers(doc)
 	if self_approved:
-		# FR-149: the stricter of the run's rule and the company's rule (raised after the run was built)
+		# FR-154: the stricter of the run's rule and the company's rule (raised after the run was built)
 		if effective_self_approval_rule(doc) == RULE_REFUSE:
 			frappe.throw(
 				_(
