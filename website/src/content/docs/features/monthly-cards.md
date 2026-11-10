@@ -234,10 +234,19 @@ supplier and customer registries are refreshed, and with **Notify on card submit
 
 ### Review, approval and separation of duties
 
-A card has the standard states Draft → Submitted → Cancelled. CARD ships no approval workflow for monthly cards:
+A card has the standard states Draft → Submitted → Cancelled. A monthly card has no separate review step, so its
+**approval is its submit**:
 
 - whoever may submit a card (Card Manager, System Manager) submits it directly;
-- an enforced rule that the person who entered a card never approves it is **planned**;
+- **separation of duties** is checked on the server at submit: the card's creator and every user who saved its draft
+  (and the preparers of the cards it amends) are its *preparers*. The per-company setting **Monthly card approval
+  rule** in Card Company Settings decides what happens when a preparer submits:
+  - **Warn only (card approval)** (the default): the card is submitted with a warning and marked as approved by its
+    own preparer;
+  - **Refuse (card approval)**: the submit is refused. No role is exempt, System Manager included;
+- after submit, the collapsible section **Monthly card approval** shows **Monthly card submitted by**, **Monthly card
+  approved by**, **Monthly card approved on** and **Monthly card approved by its own preparer**. These fields are set by
+  the server only;
 - a review step with "return with reason" is **not available** on monthly cards today. Use the
   [daily log](/card/features/daily-logs/) approval, which does separate the preparer from the approver, to check the
   hours before they reach a card.

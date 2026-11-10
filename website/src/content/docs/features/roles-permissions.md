@@ -137,10 +137,9 @@ Implemented today:
   commented on the document.
 - **Period lock overrides** are logged and commented on the document.
 
-:::caution[Planned]
-On monthly cards, the rule "whoever created or entered a card never approves it" is planned. Today a card is
-submitted by Card Manager or System Manager without a creator check.
-:::
+- **Monthly card submit** — the card's creator and the users who saved its draft are its preparers. The per-company
+  **Monthly card approval rule** either warns and marks the card as approved by its own preparer (default) or refuses
+  the submit. See [Monthly cards](/card/features/monthly-cards/#review-approval-and-separation-of-duties).
 
 ### CARD Mobile access
 
