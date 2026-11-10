@@ -11,7 +11,7 @@ A document's companies are:
 
 - its ``company`` field (the value sent and, for a saved document, the value stored);
 - the company of each top-level Link field to a DocType in ``COMPANY_SOURCES`` (Card Equipment, Project, Card
-  Monthly Card, Warehouse): the link sent, for a new document or when it was changed; for a DocType without a
+  Monthly Card, Warehouse, Card Daily Log): the link sent, for a new document or when it was changed; for a DocType without a
   ``company`` field also the stored link of a saved document (it is what places the record in a company). With a
   ``company`` field an unchanged link is not re-read.
 
@@ -54,6 +54,9 @@ COMPANY_SOURCES = {
 	"Project": "company",
 	"Card Monthly Card": "company",
 	"Warehouse": "company",
+	# FR-142: a daily log's amended_from (Frappe copies the original's attachments into the amendment)
+	"Card Daily Log": "company",
+	"Card Period Run": "company",  # FR-147: a period run's amended_from
 }
 
 HAS_PERMISSION = "card.company_scope.has_company_permission"

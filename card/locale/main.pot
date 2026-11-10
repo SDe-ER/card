@@ -5319,6 +5319,314 @@ msgstr ""
 msgid "Diesel price fuel type"
 msgstr ""
 
+#: card/daily_log.py
+msgid "Project {0} belongs to company {1}; the daily log is for company {2}."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Add at least one equipment row to the daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Equipment {0} is listed twice in the daily log (row {1})."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0}: hours cannot be negative."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Cannot record hours for a future day: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): day, night and stopped hours together ({2}) exceed 24 hours."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Rows over the shift limit (day {0} h, night {1} h); the hours are recorded, review them: {2}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log can only amend a cancelled daily log of the same company."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log for this project and date already lists these equipment: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Invalid daily log approval status: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Only Card Manager may approve or return a daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "This daily log is already approved or returned; cancel and amend it to change it."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log; another approver must approve it (company rule: Refuse)."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log and approve it yourself; it is marked for review (company rule: Warn)."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Daily log self-approval"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Enter the reason for returning the daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log cannot go back to Pending; cancel and amend it instead."
+msgstr ""
+
+#: card/daily_log.py
+msgid "An approved daily log can only be cancelled by a Card Manager."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Approve daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Return daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log return reason"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log date"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Site supervisor"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approval"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log submitted by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log edited by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approved by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approved on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Approved by its own preparer"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log returned by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log returned on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Equipment hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log equipment rows"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Card Daily Log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Card Daily Log Row"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Card Daily Log Settings"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Daily log self-approval rule"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Company {0} does not use supervisor verification of daily logs."
+msgstr ""
+
+#: card/daily_log.py
+msgid "This daily log is already verified."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Only a Card Supervisor may verify a daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log; another supervisor must verify it."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A supervisor must verify this daily log before it is approved."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Verify daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log verified by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log verified on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Verified by supervisor"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Returned for correction"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Warn only (daily log)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Refuse (daily log)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Daily log supervisor verification required"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport responsibility posting"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A transport recorded with a responsibility scenario: Hold keeps it out of the monthly invoices (as before; the Transport Accounting Review lists it). Post adds it to the monthly draft invoices: the transporter's Purchase Invoice line, the customer's Sales Invoice line from the approved billing amount, and the equipment supplier's recovery as a deduction. Switch to Post only after the accountant and the tax adviser agree. Empty: Hold."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Hold (transport responsibility posting)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Post (transport responsibility posting)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport recharge income account"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Income account of the transport cost billed to a customer (Post only). Must be an enabled, non-group account of this company."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: {1} has no cost center; set it, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: its billing project {1} does not belong to company {2}; return the decision for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Cost project {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "The overhead cost center"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: where the company's cost is charged is not recorded; review it."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "billed to the customer"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "recovered from the equipment supplier"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: the amount recovered from the equipment supplier is not recorded."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: recovery from equipment supplier {1}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: its billing amount must be positive (Sales Invoices carry no negative lines); return the decision for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Equipment transport {0} billed to the customer (reference {1})"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: its financial decision is pending or was returned for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: its cost is recovered by deduction from another supplier than the transporter; record the recovery as an adjustment document or enter the invoices manually."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: the company absorbs it and no cost project is recorded; enter the supplier invoice manually."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "no billing project"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: its billing project {1} is cancelled; return the decision for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: the amount recovered from the equipment supplier ({1}) is more than the transport cost ({2}); return the decision for correction."
+msgstr ""
+
+#: card/gl/preflight.py
+msgid "Configure Card Settings for company {0}: the transport recharge income account {1} must be an income account."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: the amount {1} cannot be split over its machines without a negative part."
+msgstr ""
+
 #: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
 msgid "Equipment Meter Reading"
 msgstr ""
@@ -5621,4 +5929,559 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Day billing basis used"
+msgstr ""
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate valid from"
+msgstr ""
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate (litres per hour)"
+msgstr ""
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate reason"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Equipment consumption rates (litres per hour)"
+msgstr ""
+
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Default consumption rates"
+msgstr ""
+
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Type default consumption rates (litres per hour)"
+msgstr ""
+
+#: card/consumption.py
+msgid "Row {0}: enter the date the consumption rate is valid from."
+msgstr ""
+
+#: card/consumption.py
+msgid "Row {0}: the consumption rate cannot be negative."
+msgstr ""
+
+#: card/consumption.py
+msgid "Rows {0} and {1} both start a consumption rate on {2}. Keep one row per date."
+msgstr ""
+
+#: card/consumption.py
+msgid "Duplicate consumption rate"
+msgstr ""
+
+#: card/consumption.py
+msgid "This equipment has dated consumption rates. They decide the rate from their dates; the expected consumption (liter/hour) is used only before the first dated rate."
+msgstr ""
+
+#: card/card/doctype/card_type_consumption_rate/card_type_consumption_rate.json
+msgid "Consumption rate company"
+msgstr ""
+
+#: card/consumption.py
+msgid "The consumption rate valid from {0} is already in use and cannot be removed. Add a new row with a reason instead."
+msgstr ""
+
+#: card/consumption.py
+msgid "The consumption rate valid from {0} is already in use and cannot be changed. Add a new row with a reason instead."
+msgstr ""
+
+#: card/consumption.py
+msgid "Consumption rate in use"
+msgstr ""
+
+#: card/consumption.py
+msgid "Row {0}: a consumption rate dated before today needs a reason."
+msgstr ""
+
+#: card/consumption.py
+msgid "Only a Card Manager or System Manager can change the default consumption rates."
+msgstr ""
+
+#: card/consumption.py
+msgid "You cannot change the default consumption rates of company {0}."
+msgstr ""
+
+#: card/consumption.py
+msgid "A default consumption rate with no company applies to every company. Only a user who is not limited to some companies can change it."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Card Period Run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run month"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run year"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run version"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run self-approval rule"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Refuse: whoever prepared, edited or submitted the run (or an earlier version) cannot approve it. Once Refuse, the rule stays Refuse for this run and its later versions."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Warn only (period run)"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Refuse (period run)"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approval"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run submitted by"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run edited by"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved by"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved on"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved version"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Approved snapshot fingerprint"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Period run return reason"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run returned by"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run returned on"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run snapshot"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Snapshot built on"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Snapshot fingerprint"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run currency"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Period run month must be between 01 and 12."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Period run year is not valid: {0}"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "A period run can only amend a cancelled period run of the same company and month."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "The company and month of a saved period run cannot be changed; create a new run."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Company {0} already has an active period run for {1}/{2}: {3}. Cancel it and amend it for a new version."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "The self-approval rule of a period run can be raised to Refuse, never lowered."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "This period run is already approved or returned; its rule cannot change."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Invalid period run approval status: {0}"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "This period run is already approved or returned; cancel and amend it to change it."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Only Accounts Manager may approve or return a period run."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "A period run cannot go back to Pending; cancel and amend it instead."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "You prepared, edited or submitted this period run (or an earlier version); another accountant must approve it (rule: Refuse)."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "You prepared, edited or submitted this period run and approve it yourself; it is marked for review (rule: Warn)."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Period run self-approval"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Enter the reason for returning the period run."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "This period run is approved and still current; only Accounts Manager may cancel it."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "You are not permitted to use period runs of company {0}."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "You are not permitted to use period runs."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Only Card Manager may build a period run."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Period run {0} is already submitted. Cancel it and amend it to build a new version."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Approve period run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Return period run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run fingerprint version"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Source documents in the run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Supplier-side documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Customer-side documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run source documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Card Period Run Source"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run source type"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run source document"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Billed on the supplier side"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Billed on the customer side"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Supplier side already posted"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Customer side already posted"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Source document last modified"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Source document fingerprint"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Company {0} has no submitted source documents to bill for {1}/{2}."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "The source documents of this period run changed after it was built (added: {0}; removed: {1}; changed: {2}). Cancel and amend it to build a new version, then approve that version."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "The source documents of this period run are unchanged since it was built."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "The source documents of this period run changed after it was built; cancel and amend it to build a new version."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Give the month as YYYY-MM or as a date of that month."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Company or project not found."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to create monthly cards for company {0} and project {1}."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read daily logs."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read equipment {0}."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generate monthly cards"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Create or update the draft monthly cards of project {0} for the month of {1} from the approved daily logs? Submitted cards are not changed."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generating monthly cards"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "not on the project that day"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "component of a unit that day"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards created"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards updated"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards unchanged"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted cards not changed"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days left out"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards not saved"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Monthly cards from daily logs"
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Changed by another run; run the generation again."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days replaced from the approved log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day notes"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days cleared (their daily log is no longer approved)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted card days whose daily log is no longer approved (not changed)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Equipment changed by another run"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake channel"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source key"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Optional external id of the source (message id, sheet number). One live transport per company and key."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake received on"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence SHA-256"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Paper"
+msgstr ""
+
+#: card/intake.py
+msgid "Select a valid intake channel."
+msgstr ""
+
+#: card/intake.py
+msgid "The intake received time cannot be in the future."
+msgstr ""
+
+#: card/intake.py
+msgid "Intake source key {0} is already used by transport {1} of company {2}."
+msgstr ""
+
+#: card/intake.py
+msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run supplier gross source amount"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run customer gross source amount"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "The source documents' own amounts (a diesel fill at its gross fill amount). Not the invoice total: with a VAT-inclusive diesel price the invoice books the net part."
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Fill supplier VAT-registered"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Supplier-side gross source total"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Customer-side gross source total"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Diesel price VAT basis at build"
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "{0} {1} cannot be cancelled with changes: {2} differs from the stored record."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approval"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card submitted by"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved on"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card edited by"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Monthly card approval rule"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Warn only (card approval)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (card approval)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A monthly card submitted (approved) by a user who created or edited it, or any card it amends: Warn only submits with a message and marks the card; Refuse stops the submit. No role is exempt. Empty: Warn only."
+msgstr ""
+
+#: card/governance.py
+msgid "You created or edited this monthly card; another user must submit (approve) it (company rule: Refuse)."
+msgstr ""
+
+#: card/governance.py
+msgid "You created or edited this monthly card and submit (approve) it yourself; it is marked for review (company rule: Warn)."
+msgstr ""
+
+#: card/governance.py
+msgid "Monthly card self-approval"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by its own preparer"
 msgstr ""

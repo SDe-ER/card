@@ -31,6 +31,7 @@ from card.attachment_validator import (
 	new_form_prefix,
 	require_record_file,
 )
+from card.cancel_reason import _refuse_changes as refuse_cancel_changes
 
 DOCTYPE = "Equipment Meter Reading"
 
@@ -81,7 +82,12 @@ class EquipmentMeterReading(Document):
 	def before_cancel(self):
 		"""Cancelling a reading must not leave its neighbours out of sequence: the next submitted reading, compared
 		with the new previous one, must still pass the rules it was submitted under (not lower unless a reset; a
-		reset only on a lower reading). Same lock and locking reads as submit."""
+		reset only on a lower reading). Same lock and locking reads as submit. A cancel changes nothing else: Frappe
+		skips validate on a cancel and stores what the request sends, so a cancel that changes any stored field
+		(hours, date, equipment, evidence) is refused through the generic FR-123 guard."""
+		latest = self.get_latest()
+		if latest:
+			refuse_cancel_changes(self, latest, neutral=True)
 		frappe.db.get_value("Card Equipment", self.equipment, "name", for_update=True)
 		previous, _same_time, following = neighbour_readings(
 			self.equipment, self.reading_datetime, exclude=self.name, for_update=True
@@ -119,6 +125,9 @@ class EquipmentMeterReading(Document):
 		self.company = company
 
 	def _validate_amended_from(self):
+		if not self.is_new():
+			# Frappe checks amended_from on insert only: a save keeps the link the reading was created with
+			self.amended_from = frappe.db.get_value(DOCTYPE, self.name, "amended_from")
 		if not self.amended_from or not (self.is_new() or self.has_value_changed("amended_from")):
 			return
 		source = frappe.db.get_value(DOCTYPE, self.amended_from, ["company", "docstatus"], as_dict=True)

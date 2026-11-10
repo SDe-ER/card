@@ -170,6 +170,8 @@ permission_query_conditions = {
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.fitment_query_conditions",
 	# FR-131: generic company scope (list)
 	**{doctype: "card.company_scope.company_query_conditions" for doctype in _COMPANY_SCOPED},
+	# FR-142: the daily log rules of a company, scoped like the company's daily logs
+	"Card Daily Log Settings": "card.daily_log.settings_query_conditions",
 }
 
 has_permission = {
@@ -190,6 +192,8 @@ has_permission = {
 	"Employee Tool Custody": "card.card.doctype.employee_tool_custody.employee_tool_custody.has_custody_permission",
 	# FR-131: generic company scope (record)
 	**{doctype: "card.company_scope.has_company_permission" for doctype in _COMPANY_SCOPED},
+	# FR-142: the daily log rules of a company, scoped like the company's daily logs
+	"Card Daily Log Settings": "card.daily_log.settings_permission",
 }
 
 # Document Events
@@ -229,8 +233,18 @@ _POSTING_EVENTS = {
 	"before_cancel": "card.gl.events.before_cancel",
 	"on_trash": "card.gl.events.on_trash",
 }
+# FR-143 (FR-006, WP-D1): separation of duties on the monthly card (card.governance); added after the
+# source events, which keep their order
+_CARD_EVENTS = dict(_SOURCE_EVENTS)
+_CARD_EVENTS["validate"] = [*_SOURCE_EVENTS["validate"], "card.governance.on_validate"]
+_CARD_EVENTS["before_submit"] = "card.governance.before_submit"
+_CARD_EVENTS["before_update_after_submit"] = [
+	_SOURCE_EVENTS["before_update_after_submit"],
+	"card.governance.before_update_after_submit",
+]
+_CARD_EVENTS["before_cancel"] = [*_SOURCE_EVENTS["before_cancel"], "card.governance.before_cancel"]
 doc_events = {
-	"Card Monthly Card": dict(_SOURCE_EVENTS),
+	"Card Monthly Card": _CARD_EVENTS,
 	# meter extraction (optional local worker): marker/crop after an applied pass, enqueue on a new photo
 	"Project Diesel Fill": {**_SOURCE_EVENTS, "on_update": "card.diesel_meter_extraction.after_fill_saved"},
 	"Equipment Transport": dict(_SOURCE_EVENTS),
@@ -257,6 +271,8 @@ doc_events = {
 		"validate": [
 			"card.card.doctype.project_diesel_fill.project_diesel_fill.deny_cross_company_share",
 			"card.company_scope.deny_cross_company_share",
+			# FR-142: Card Daily Log Settings, scoped by the Card Daily Log company permissions
+			"card.daily_log.deny_cross_company_settings_share",
 		]
 	},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record

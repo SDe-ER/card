@@ -103,6 +103,7 @@
   "tank_capacity",
   "expected_consumption",
   "daily_diesel_consumption",
+  "consumption_rates",
   "maintenance_section",
   "service_interval_hours",
   "last_service_date",
@@ -572,7 +573,8 @@
    "fieldname": "expected_consumption",
    "fieldtype": "Float",
    "label": "Expected consumption (liter/hour)",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only_depends_on": "eval:(doc.consumption_rates || []).length > 0"
   },
   {
    "depends_on": "eval:doc.ownership=='ملك'",
@@ -800,6 +802,13 @@
    "fieldname": "daily_diesel_consumption",
    "fieldtype": "Float",
    "label": "Daily diesel consumption (litres per standard day)",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "consumption_rates",
+   "fieldtype": "Table",
+   "label": "Equipment consumption rates (litres per hour)",
+   "options": "Card Consumption Rate",
    "permlevel": 1
   },
   {
