@@ -14,6 +14,7 @@ from unittest.mock import patch
 import frappe
 from frappe.client import insert as rest_insert
 from frappe.client import set_value as rest_set_value
+from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
 from card import daily_log
@@ -40,7 +41,7 @@ class TestDailyLog(_CustomerCardsBase):
 		super().tearDown()
 
 	# ---------- builders ----------
-	def _user(self, prefix, roles, company=None):
+	def _user(self, prefix, roles, company=None, applicable_for=None):
 		email = f"dl-{prefix}-{frappe.generate_hash(length=6)}@example.com"
 		frappe.get_doc(
 			{
@@ -58,7 +59,8 @@ class TestDailyLog(_CustomerCardsBase):
 					"user": email,
 					"allow": "Company",
 					"for_value": company,
-					"apply_to_all_doctypes": 1,
+					"apply_to_all_doctypes": 0 if applicable_for else 1,
+					"applicable_for": applicable_for,
 				}
 			).insert(ignore_permissions=True)
 		frappe.clear_cache(user=email)
@@ -133,10 +135,15 @@ class TestDailyLog(_CustomerCardsBase):
 		co.db_insert()
 		return name
 
-	def _rule(self, rule):
-		frappe.get_doc({"doctype": SETTINGS, "company": self.company, "self_approval_rule": rule}).insert(
-			ignore_permissions=True
-		)
+	def _rule(self, rule=None, verification=0):
+		frappe.get_doc(
+			{
+				"doctype": SETTINGS,
+				"company": self.company,
+				"self_approval_rule": rule or daily_log.RULE_WARN,
+				"require_supervisor_verification": verification,
+			}
+		).insert(ignore_permissions=True)
 
 	# ---------- entry and submit ----------
 	def test_operator_enters_and_submits(self):
@@ -218,7 +225,7 @@ class TestDailyLog(_CustomerCardsBase):
 	def test_only_an_approver_approves_or_returns(self):
 		doc = self._log()
 		for user in (self.operator, self.supervisor):
-			for status, reason in (("Approved", None), ("Returned", "wrong hours")):
+			for status, reason in (("Approved", None), (daily_log.RETURNED, "wrong hours")):
 				with self.subTest(user=user, status=status), self.assertRaises(frappe.PermissionError):
 					self._set_status(doc, status, user, reason)
 		self.assertEqual(frappe.db.get_value(LOG, doc.name, "approval_status"), daily_log.PENDING)
@@ -253,8 +260,8 @@ class TestDailyLog(_CustomerCardsBase):
 	def test_return_needs_a_reason_and_is_final(self):
 		doc = self._log()
 		with self.assertRaises(frappe.ValidationError):
-			self._set_status(doc, "Returned", self.manager, "   ")
-		doc = self._set_status(doc, "Returned", self.manager, " hours do not match the paper sheet ")
+			self._set_status(doc, daily_log.RETURNED, self.manager, "   ")
+		doc = self._set_status(doc, daily_log.RETURNED, self.manager, " hours do not match the paper sheet ")
 		self.assertEqual(doc.approval_status, daily_log.RETURNED)
 		self.assertEqual(doc.return_reason, "hours do not match the paper sheet")
 		self.assertEqual(doc.returned_by, self.manager)
@@ -278,7 +285,7 @@ class TestDailyLog(_CustomerCardsBase):
 	def test_approved_log_is_final(self):
 		doc = self._set_status(self._log(), "Approved", self.manager)
 		with self.assertRaises(frappe.ValidationError):
-			self._set_status(doc, "Returned", self.manager, "late")
+			self._set_status(doc, daily_log.RETURNED, self.manager, "late")
 
 	# ---------- no self-approval (FR-121 style, per company) ----------
 	def test_self_approval_warns_by_default(self):
@@ -321,9 +328,9 @@ class TestDailyLog(_CustomerCardsBase):
 
 	def test_rule_of_another_company_does_not_apply(self):
 		other = self._company_b()
-		frappe.get_doc({"doctype": SETTINGS, "company": other, "self_approval_rule": "Refuse"}).insert(
-			ignore_permissions=True
-		)
+		frappe.get_doc(
+			{"doctype": SETTINGS, "company": other, "self_approval_rule": daily_log.RULE_REFUSE}
+		).insert(ignore_permissions=True)
 		self.assertEqual(daily_log.self_approval_rule(self.company), daily_log.RULE_WARN)
 		self.assertEqual(daily_log.self_approval_rule(other), daily_log.RULE_REFUSE)
 
@@ -433,13 +440,28 @@ class TestDailyLog(_CustomerCardsBase):
 		)
 
 	def test_saving_the_same_log_again_is_not_a_duplicate(self):
-		doc = self._log(submit=False)
+		doc = self._log(
+			[{"equipment": self.eq.name, "day_hours": 8}, {"equipment": self.eq2.name}], submit=False
+		)
 		frappe.set_user(self.operator)
-		doc = frappe.get_doc(LOG, doc.name)
-		doc.rows[0].day_hours = 5
-		doc.save()
+		for hours in (5, 6):
+			doc = frappe.get_doc(LOG, doc.name)
+			doc.rows[0].day_hours = hours
+			doc.save()  # the log's own rows are never a duplicate of themselves
+		doc.submit()
 		frappe.set_user("Administrator")
-		self.assertEqual(getdate(doc.log_date), getdate(self.day))
+		self.assertEqual(frappe.db.get_value(LOG, doc.name, "docstatus"), 1)
+		self.assertEqual(getdate(frappe.db.get_value(LOG, doc.name, "log_date")), getdate(self.day))
+		rows = frappe.get_all(
+			"Card Daily Log Row",
+			filters={"parent": doc.name},
+			fields=["equipment", "day_hours"],
+			order_by="idx",
+		)
+		self.assertEqual([(r.equipment, r.day_hours) for r in rows], [(self.eq.name, 6), (self.eq2.name, 0)])
+		self.assertEqual(
+			frappe.db.count(LOG, {"project": self.project, "log_date": self.day, "docstatus": ["<", 2]}), 1
+		)
 
 	# ---------- company isolation ----------
 	def test_row_equipment_of_another_company_is_refused(self):
@@ -506,3 +528,386 @@ class TestDailyLog(_CustomerCardsBase):
 		self.assertTrue(frappe.has_permission(SETTINGS, "read", mine.name, user=user))
 		self.assertFalse(frappe.has_permission(SETTINGS, "read", theirs.name, user=user))
 		self.assertFalse(frappe.has_permission(SETTINGS, "read", user="Guest"))
+		# Card Manager reads its company's rules but may not change them (System Manager does)
+		self.assertFalse(frappe.has_permission(SETTINGS, "write", mine.name, user=user))
+		self.assertFalse(frappe.has_permission(SETTINGS, "create", user=user))
+		self.assertFalse(frappe.has_permission(SETTINGS, "delete", mine.name, user=user))
+
+	def test_settings_isolated_by_applicable_for_user_permission(self):
+		"""A Company User Permission that applies to Card Daily Log only (not to every DocType) limits the rules
+		too: read, list, change (System Manager restricted the same way)."""
+		other = self._company_b()
+		mine = frappe.get_doc({"doctype": SETTINGS, "company": self.company}).insert(ignore_permissions=True)
+		theirs = frappe.get_doc(
+			{"doctype": SETTINGS, "company": other, "self_approval_rule": daily_log.RULE_REFUSE}
+		).insert(ignore_permissions=True)
+		manager = self._user("app-mgr", ("Card Manager",), company=self.company, applicable_for=LOG)
+		admin = self._user("app-sys", ("System Manager",), company=self.company, applicable_for=LOG)
+		for user in (manager, admin):
+			with self.subTest(user=user):
+				self.assertTrue(frappe.has_permission(SETTINGS, "read", mine.name, user=user))
+				self.assertFalse(frappe.has_permission(SETTINGS, "read", theirs.name, user=user))
+				frappe.set_user(user)
+				listed = frappe.get_list(SETTINGS, pluck="name")
+				frappe.set_user("Administrator")
+				self.assertIn(mine.name, listed)
+				self.assertNotIn(theirs.name, listed)
+		frappe.set_user(admin)
+		with self.assertRaises(frappe.PermissionError):
+			rest_set_value(SETTINGS, theirs.name, "self_approval_rule", daily_log.RULE_WARN)
+		with self.assertRaises(frappe.PermissionError):
+			frappe.get_doc({"doctype": SETTINGS, "company": other + "-X"}).insert()
+		rest_set_value(SETTINGS, mine.name, "require_supervisor_verification", 1)
+		frappe.set_user("Administrator")
+		self.assertEqual(
+			frappe.db.get_value(SETTINGS, theirs.name, "self_approval_rule"), daily_log.RULE_REFUSE
+		)
+		self.assertTrue(daily_log.requires_supervisor_verification(self.company))
+		# an unrestricted user is not affected
+		self.assertTrue(frappe.has_permission(SETTINGS, "read", theirs.name, user=self.manager))
+
+	# ---------- cancel on every route (review finding 1, 2) ----------
+	def _approved(self, offset=0):
+		eq = self._equipment()
+		doc = self._log([{"equipment": eq.name, "day_hours": 4}], log_date=add_days(self.day, -offset))
+		return self._set_status(doc, daily_log.APPROVED, self.manager)
+
+	def _stored(self, name):
+		return frappe.db.get_value(
+			LOG, name, ["docstatus", "approval_status", "approved_by", "self_approved"], as_dict=True
+		)
+
+	def test_cancel_by_rest_put_reads_the_stored_approval(self):
+		from frappe.api import v1
+
+		doc = self._approved()
+		for data in ({"docstatus": 2, "approval_status": "Pending"}, {"docstatus": 2}):
+			with self.subTest(data=data):
+				frappe.set_user(self.operator)
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json(data))
+				with self.assertRaises(frappe.PermissionError):
+					v1.update_doc(LOG, doc.name)
+				frappe.set_user("Administrator")
+				self.assertEqual(self._stored(doc.name).docstatus, 1)
+
+	def test_cancel_by_savedocs_with_a_forged_document(self):
+		from frappe.desk.form.save import savedocs
+
+		doc = self._approved()
+		frappe.set_user(self.supervisor)
+		forged = frappe.get_doc(LOG, doc.name).as_dict()
+		forged["approval_status"] = "Pending"
+		with self.assertRaises(frappe.PermissionError):
+			savedocs(frappe.as_json(forged), "Cancel")
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(doc.name).docstatus, 1)
+
+	def test_cancel_by_bulk_update(self):
+		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+
+		doc = self._approved()
+		frappe.set_user(self.supervisor)
+		# the bulk action commits after each document and rolls back a failure: kept inside the test transaction
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			for action, data in (
+				("update", {"docstatus": 2, "approval_status": "Pending"}),
+				("cancel", None),
+			):
+				with self.subTest(action=action):
+					self.assertEqual(submit_cancel_or_update_docs(LOG, [doc.name], action, data), [doc.name])
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(doc.name).docstatus, 1)
+		self.assertEqual(self._stored(doc.name).approval_status, daily_log.APPROVED)
+
+	def test_cancel_keeps_the_stored_approval_fields(self):
+		from frappe.api import v1
+
+		doc = self._approved()
+		frappe.set_user(self.manager)
+		frappe.local.form_dict = frappe._dict(
+			data=frappe.as_json(
+				{
+					"docstatus": 2,
+					"approved_by": self.operator,
+					"self_approved": 1,
+					"submitted_by": self.manager,
+				}
+			)
+		)
+		v1.update_doc(LOG, doc.name)
+		frappe.set_user("Administrator")
+		stored = frappe.db.get_value(
+			LOG, doc.name, ["docstatus", "approved_by", "self_approved", "submitted_by"], as_dict=True
+		)
+		self.assertEqual(
+			stored,
+			{"docstatus": 2, "approved_by": self.manager, "self_approved": 0, "submitted_by": self.operator},
+		)
+
+	def test_pending_log_cancelled_by_its_operator(self):
+		doc = self._log()
+		frappe.set_user(self.operator)
+		frappe.get_doc(LOG, doc.name).cancel()
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(doc.name).docstatus, 2)
+
+	# ---------- amendment chain (review finding 6) ----------
+	def test_amendment_keeps_the_earlier_preparers(self):
+		self._rule(daily_log.RULE_REFUSE)
+		first = self._log(submit=False)
+		frappe.set_user(self.manager)
+		edited = frappe.get_doc(LOG, first.name)
+		edited.rows[0].day_hours = 9
+		edited.save()
+		frappe.set_user(self.operator)
+		frappe.get_doc(LOG, first.name).submit()
+		frappe.get_doc(LOG, first.name).cancel()
+		second = frappe.copy_doc(frappe.get_doc(LOG, first.name))
+		second.docstatus = 0
+		second.amended_from = first.name
+		second.insert()
+		second.submit()
+		second.cancel()
+		third = frappe.copy_doc(frappe.get_doc(LOG, second.name))
+		third.docstatus = 0
+		third.amended_from = second.name
+		third.insert()
+		third.submit()
+		frappe.set_user("Administrator")
+		self.assertIn(self.manager, daily_log.log_preparers(frappe.get_doc(LOG, third.name)))
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(third, daily_log.APPROVED, self.manager)
+		other = self._user("mgr-chain", ("Card Manager",))
+		self.assertEqual(
+			self._set_status(third, daily_log.APPROVED, other).approval_status, daily_log.APPROVED
+		)
+
+	# ---------- supervisor step (opt-in, review finding 7) ----------
+	def test_supervisor_step_is_off_by_default(self):
+		self.assertFalse(daily_log.requires_supervisor_verification(self.company))
+		doc = self._log()
+		with self.assertRaises(frappe.ValidationError):
+			self._set_status(doc, daily_log.VERIFIED, self.supervisor)
+		self.assertEqual(
+			self._set_status(doc, daily_log.APPROVED, self.manager).approval_status, daily_log.APPROVED
+		)
+		self._rule()  # a settings record with the defaults: still two steps
+		doc = self._log(log_date=add_days(self.day, -1))
+		self.assertEqual(self._set_status(doc, daily_log.APPROVED, self.manager).verified_by, None)
+
+	def test_supervisor_step_when_the_company_asks_for_it(self):
+		self._rule(verification=1)
+		doc = self._log()
+		# a manager cannot skip the supervisor
+		with self.assertRaises(frappe.ValidationError):
+			self._set_status(doc, daily_log.APPROVED, self.manager)
+		# only a Card Supervisor verifies; a manager without the role does not
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(doc, daily_log.VERIFIED, self.manager)
+		doc = self._set_status(doc, daily_log.VERIFIED, self.supervisor)
+		self.assertEqual(doc.approval_status, daily_log.VERIFIED)
+		self.assertEqual(doc.verified_by, self.supervisor)
+		self.assertTrue(doc.verified_on)
+		# verifying again changes nothing: the first verifier stays
+		again = self._set_status(doc, daily_log.VERIFIED, self._user("sup2", ("Card Supervisor",)))
+		self.assertEqual(again.verified_by, self.supervisor)
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(doc, daily_log.APPROVED, self.supervisor)
+		doc = self._set_status(doc, daily_log.APPROVED, self.manager)
+		self.assertEqual(
+			(doc.approval_status, doc.approved_by, doc.self_approved), (daily_log.APPROVED, self.manager, 0)
+		)
+		self.assertEqual(doc.verified_by, self.supervisor)
+
+	def test_supervisor_who_prepared_the_log_cannot_verify_it(self):
+		self._rule(verification=1)
+		doc = self._log(user=self.supervisor)
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(doc, daily_log.VERIFIED, self.supervisor)
+		other = self._user("sup3", ("Card Supervisor",))
+		self.assertEqual(self._set_status(doc, daily_log.VERIFIED, other).verified_by, other)
+
+	def test_verifier_counts_as_a_preparer_for_the_approval(self):
+		self._rule(daily_log.RULE_REFUSE, verification=1)
+		both = self._user("sup-mgr", ("Card Supervisor", "Card Manager"))
+		doc = self._set_status(self._log(), daily_log.VERIFIED, both)
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(doc, daily_log.APPROVED, both)
+		self.assertEqual(self._set_status(doc, daily_log.APPROVED, self.manager).self_approved, 0)
+
+	def test_supervisor_may_return_a_pending_log_in_that_mode(self):
+		doc = self._log()
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(doc, daily_log.RETURNED, self.supervisor, "check")
+		self._rule(verification=1)
+		doc = self._set_status(doc, daily_log.RETURNED, self.supervisor, "wrong sheet")
+		self.assertEqual((doc.approval_status, doc.returned_by), (daily_log.RETURNED, self.supervisor))
+		# a verified log is returned by a manager only
+		doc = self._set_status(
+			self._log(log_date=add_days(self.day, -1)), daily_log.VERIFIED, self.supervisor
+		)
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(doc, daily_log.RETURNED, self.supervisor, "late")
+		self.assertEqual(
+			self._set_status(doc, daily_log.RETURNED, self.manager, "late").returned_by, self.manager
+		)
+
+	def test_client_cannot_write_verification_fields(self):
+		self._rule(verification=1)
+		doc = self._log()
+		frappe.set_user(self.manager)
+		rest_set_value(LOG, doc.name, "verified_by", self.supervisor)
+		frappe.set_user("Administrator")
+		self.assertIsNone(frappe.db.get_value(LOG, doc.name, "verified_by"))
+
+	# ---------- responsible party (FR-118 parity, no rule yet) ----------
+	def test_responsible_party_is_stored(self):
+		reason = self._reason()
+		doc = self._log(
+			[
+				{
+					"equipment": self.eq.name,
+					"stop_reason": reason.name,
+					"stopped_hours": 2,
+					"responsible_party_type": "Supplier",
+					"responsible_party": self.supplier,
+				}
+			]
+		)
+		row = frappe.db.get_value(
+			"Card Daily Log Row",
+			{"parent": doc.name},
+			["responsible_party_type", "responsible_party"],
+			as_dict=True,
+		)
+		self.assertEqual(row, {"responsible_party_type": "Supplier", "responsible_party": self.supplier})
+
+
+class TestDailyLogConcurrency(IntegrationTestCase):
+	"""Review finding 3: two requests that submit a log for the same equipment, project and date at the same time
+	never leave two live logs. Modelled on test_assignment_overlap_concurrency: each request has its own
+	connection and commits; both take their REPEATABLE READ snapshot before either writes. The records are
+	committed and removed in tearDown. MariaDB 11.8 with innodb_snapshot_isolation ON may refuse the locking read
+	with error 1020 (a deadlock error in Frappe); the strict case sets the variable OFF in its own sessions only."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.site, cls.sites_path = frappe.local.site, frappe.local.sites_path
+		cls.has_snapshot_isolation = bool(frappe.db.sql("show variables like 'innodb_snapshot_isolation'"))
+
+	def setUp(self):
+		from card.tests import test_assignment_overlap_concurrency as model
+
+		self.model = model
+		self.token = frappe.generate_hash(length=8)
+		self.created = {"Card Daily Log": [], "Card Equipment": [], "Project": []}
+		self.started = self._committed(frappe.utils.now)
+		self._committed(self._make_records)
+
+	def tearDown(self):
+		self._committed(self._remove_records)
+		self.assertEqual(self._committed(self._leftovers), 0, "synthetic records left behind")
+
+	def _connect(self):
+		frappe.init(self.site, sites_path=self.sites_path)
+		frappe.connect()
+		frappe.set_user("Administrator")
+		frappe.flags.in_test = True
+
+	def _make_records(self):
+		company = frappe.db.get_value("Company", {}, "name", order_by="creation asc")
+		etype = frappe.db.get_value("Card Equipment Type", {}, "name", order_by="creation asc")
+		if not (company and etype):
+			self.skipTest("test masters missing (card.install.before_tests)")
+		self.company = company
+		self.day = str(add_days(nowdate(), -2))
+		self.project = self._new("Project", {"project_name": "DL-RACE-" + self.token, "company": company})
+		self.equipment = self._new(
+			"Card Equipment",
+			{
+				"company": company,
+				"equipment_type": etype,
+				"equipment_name": "DL-RACE-EQ-" + self.token,
+				"ownership": "ملك",
+				"rate_type": "باليوم",
+				"rate": 750,
+				"daily_hours": 10,
+			},
+		)
+
+	def _new(self, doctype, values):
+		doc = frappe.get_doc({"doctype": doctype, **values}).insert(ignore_permissions=True)
+		self.created[doctype].append(doc.name)
+		return doc.name
+
+	def _submit_log(self):
+		doc = frappe.get_doc(
+			{
+				"doctype": LOG,
+				"company": self.company,
+				"project": self.project,
+				"log_date": self.day,
+				"rows": [{"equipment": self.equipment, "day_hours": 5}],
+			}
+		).insert(ignore_permissions=True)
+		doc.submit()
+
+	def _live_logs(self):
+		return self._committed(
+			lambda: frappe.get_all(
+				LOG,
+				filters={"project": self.project, "log_date": self.day, "docstatus": ["<", 2]},
+				pluck="name",
+			)
+		)
+
+	def _remove_records(self):
+		names = frappe.get_all(LOG, filters={"project": self.project}, fields=["name", "docstatus"])
+		self.created[LOG] = [n.name for n in names]
+		for name in names:
+			if name.docstatus == 1:
+				frappe.get_doc(LOG, name.name).cancel()
+			self.model._delete(LOG, name.name)
+		for doctype in ("Card Equipment", "Project"):
+			for name in self.created[doctype]:
+				self.model._delete(doctype, name)
+		mine = [n for names in self.created.values() for n in names] or [""]
+		since = {"creation": [">=", self.started]}
+		frappe.db.delete("Version", {"docname": ["in", mine], **since})
+		frappe.db.delete("Comment", {"reference_name": ["in", mine], **since})
+		frappe.db.delete("Deleted Document", {"deleted_name": ["in", mine], **since})
+		frappe.db.delete(
+			"Comment", {"comment_type": "Deleted", "subject": ["like", "%" + self.token + "%"], **since}
+		)
+
+	def _leftovers(self):
+		return frappe.db.count(LOG, {"project": self.project}) + sum(
+			frappe.db.count(doctype, {"name": ["in", self.created[doctype] or [""]]})
+			for doctype in ("Card Equipment", "Project")
+		)
+
+	def test_two_concurrent_submits_leave_one_live_log(self):
+		_one, two = self._race(self._submit_log, self._submit_log)
+		self.assertFalse(two.committed, "the second request was not refused")
+		self.assertIsInstance(two.error, frappe.DuplicateEntryError, repr(two.error))
+		self.assertEqual(len(self._live_logs()), 1)
+
+	def test_with_the_server_snapshot_setting(self):
+		_one, two = self._race(self._submit_log, self._submit_log, snapshot_isolation=None)
+		self.assertFalse(two.committed)
+		self.assertIsInstance(
+			two.error, (frappe.DuplicateEntryError, *self.model.SAFE_ERRORS), repr(two.error)
+		)
+		self.assertEqual(len(self._live_logs()), 1)
+
+
+def _bind_model_helpers():
+	from card.tests import test_assignment_overlap_concurrency as model
+
+	base = model.TestAssignmentOverlapConcurrency
+	TestDailyLogConcurrency._committed = base._committed
+	TestDailyLogConcurrency._race = base._race
+
+
+_bind_model_helpers()

@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-11-10 18:00:00.000000",
+ "modified": "2026-11-11 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Daily Log",
@@ -44,7 +44,6 @@
    "submit": 1,
    "cancel": 1,
    "amend": 1,
-   "delete": 1,
    "print": 1,
    "email": 1,
    "export": 1,
@@ -92,6 +91,8 @@
   "approval_status",
   "submitted_by",
   "edited_by",
+  "verified_by",
+  "verified_on",
   "approved_by",
   "approved_on",
   "self_approved",
@@ -149,7 +150,7 @@
    "fieldname": "approval_status",
    "fieldtype": "Select",
    "label": "Daily log approval",
-   "options": "Pending\nApproved\nReturned",
+   "options": "Pending\nVerified by supervisor\nApproved\nReturned for correction",
    "default": "Pending",
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -172,6 +173,25 @@
    "hidden": 1,
    "read_only": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "label": "Daily log verified by",
+   "options": "User",
+   "depends_on": "eval:doc.verified_by",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "verified_on",
+   "fieldtype": "Datetime",
+   "label": "Daily log verified on",
+   "depends_on": "eval:doc.verified_by",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
   },
   {
    "fieldname": "approved_by",
@@ -203,7 +223,7 @@
    "fieldname": "return_reason",
    "fieldtype": "Small Text",
    "label": "Daily log return reason",
-   "depends_on": "eval:doc.approval_status=='Returned'",
+   "depends_on": "eval:doc.approval_status=='Returned for correction'",
    "read_only": 1,
    "no_copy": 1,
    "allow_on_submit": 1
@@ -213,7 +233,7 @@
    "fieldtype": "Link",
    "label": "Daily log returned by",
    "options": "User",
-   "depends_on": "eval:doc.approval_status=='Returned'",
+   "depends_on": "eval:doc.approval_status=='Returned for correction'",
    "read_only": 1,
    "no_copy": 1,
    "allow_on_submit": 1
@@ -222,7 +242,7 @@
    "fieldname": "returned_on",
    "fieldtype": "Datetime",
    "label": "Daily log returned on",
-   "depends_on": "eval:doc.approval_status=='Returned'",
+   "depends_on": "eval:doc.approval_status=='Returned for correction'",
    "read_only": 1,
    "no_copy": 1,
    "allow_on_submit": 1

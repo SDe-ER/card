@@ -5374,6 +5374,54 @@ msgstr ""
 msgid "Daily log self-approval rule"
 msgstr ""
 
+#: card/daily_log.py
+msgid "Company {0} does not use supervisor verification of daily logs."
+msgstr ""
+
+#: card/daily_log.py
+msgid "This daily log is already verified."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Only a Card Supervisor may verify a daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log; another supervisor must verify it."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A supervisor must verify this daily log before it is approved."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Verify daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log verified by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log verified on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Verified by supervisor"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Returned for correction"
+msgstr ""
+
 #: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
-msgid "Refuse"
+msgid "Warn only (daily log)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Refuse (daily log)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Daily log supervisor verification required"
 msgstr ""

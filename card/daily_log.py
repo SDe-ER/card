@@ -15,12 +15,18 @@ The rows follow the rules of the monthly card day rows, through the same functio
 - every row's equipment belongs to the log's company (``card.company_scope.check_child_companies``).
 
 Approval (FR-121 style separation of duties): the approval fields are written by the server only. A change of
-``approval_status`` on a submitted log, through any route (form, REST, ``frappe.client.set_value``), is checked in
-``before_update_after_submit``: only Card Manager or System Manager approves or returns, only a Pending log, and
-a return needs a reason. A user who created, edited or submitted the log is its preparer; when a preparer
-approves, the company's ``self_approval_rule`` (Card Daily Log Settings) decides: "Warn" (the default, also with
-no settings record) approves with a warning and marks the log ``self_approved``; "Refuse" refuses. No role is
-exempt."""
+``approval_status`` on a submitted log, through any route (form, REST, ``frappe.client.set_value``, bulk update),
+is checked in ``before_update_after_submit``; a cancel, through any route, reads the stored approval in
+``before_cancel``. Only Card Manager or System Manager approves; a return needs a reason; an approved or returned
+log is final (cancel and amend). A user who created, edited or submitted the log, or any log it amends, is its
+preparer; when a preparer approves, the company's ``self_approval_rule`` (Card Daily Log Settings) decides:
+"Warn only" (the default, also with no settings record) approves with a warning and marks the log
+``self_approved``; "Refuse" refuses. No role is exempt.
+
+Supervisor step (opt-in per company, ``require_supervisor_verification``, default off = the two-step flow above):
+a submitted log is first "Verified by supervisor" by a Card Supervisor who is not its preparer, and only then
+approved by a manager; the verifier counts as a preparer for the approval. A Card Supervisor may also return a
+Pending log in that mode."""
 
 import frappe
 from frappe import _
@@ -37,14 +43,16 @@ ROW_DOCTYPE = "Card Daily Log Row"
 SETTINGS_DOCTYPE = "Card Daily Log Settings"
 
 PENDING = "Pending"
+VERIFIED = "Verified by supervisor"
 APPROVED = "Approved"
-RETURNED = "Returned"
-STATUSES = (PENDING, APPROVED, RETURNED)
+RETURNED = "Returned for correction"
+STATUSES = (PENDING, VERIFIED, APPROVED, RETURNED)
 
-RULE_WARN = "Warn"
-RULE_REFUSE = "Refuse"
+RULE_WARN = "Warn only (daily log)"
+RULE_REFUSE = "Refuse (daily log)"
 
 APPROVER_ROLES = ("Card Manager", "System Manager")
+SUPERVISOR_ROLE = "Card Supervisor"
 
 # written by the server only; a client value is never kept
 APPROVAL_FIELDS = (
@@ -54,24 +62,59 @@ APPROVAL_FIELDS = (
 	"return_reason",
 	"returned_by",
 	"returned_on",
+	"verified_by",
+	"verified_on",
 )
+# restored from the database on cancel as well (a cancel may carry a forged document)
+SERVER_FIELDS = ("approval_status", *APPROVAL_FIELDS, "submitted_by", "edited_by")
 
 
 def _has_any_role(roles, user=None):
 	return bool(set(roles) & set(frappe.get_roles(user or frappe.session.user)))
 
 
+def _company_rules(company):
+	row = company and frappe.db.get_value(
+		SETTINGS_DOCTYPE,
+		{"company": company},
+		["self_approval_rule", "require_supervisor_verification"],
+		as_dict=True,
+	)
+	return row or frappe._dict()
+
+
 def self_approval_rule(company):
-	"""The company's rule for an approval by the log's own preparer: "Refuse" or "Warn" (default)."""
-	rule = company and frappe.db.get_value(SETTINGS_DOCTYPE, {"company": company}, "self_approval_rule")
-	return RULE_REFUSE if rule == RULE_REFUSE else RULE_WARN
+	"""The company's rule for an approval by the log's own preparer: Refuse, or Warn only (default)."""
+	return RULE_REFUSE if _company_rules(company).get("self_approval_rule") == RULE_REFUSE else RULE_WARN
+
+
+def requires_supervisor_verification(company):
+	"""True when the company asks a supervisor to verify a log before a manager approves it (default off)."""
+	return bool(cint(_company_rules(company).get("require_supervisor_verification")))
+
+
+def _add_preparers(users, row):
+	users.update({row.get("owner"), row.get("submitted_by")})
+	users.update((row.get("edited_by") or "").split("\n"))
 
 
 def log_preparers(doc):
 	"""Users who prepared the log, all written by the server: its creator, its submitter and every user who saved
-	it as a draft."""
-	users = {doc.get("owner"), doc.get("submitted_by")}
-	users.update((doc.get("edited_by") or "").split("\n"))
+	it as a draft, for the log and every log of its amendment chain (an amendment never clears a preparer). A saved
+	log is read from the database."""
+	users = set()
+	_add_preparers(users, doc)
+	seen = set()
+	name = doc.name if not doc.is_new() else doc.get("amended_from")
+	while name and name not in seen:
+		seen.add(name)
+		row = frappe.db.get_value(
+			DOCTYPE, name, ["owner", "submitted_by", "edited_by", "amended_from"], as_dict=True
+		)
+		if not row:
+			break
+		_add_preparers(users, row)
+		name = row.amended_from
 	return {u for u in users if u}
 
 
@@ -195,32 +238,26 @@ def _check_assignment(doc, row, log_date):
 
 def _check_duplicates(doc):
 	"""One daily log per equipment, project and date (cancelled logs excepted). The equipment rows are locked
-	first, so two logs saved at the same time for the same equipment cannot both pass."""
+	first, then the other logs are read with a locking read (the latest committed rows, not the request's
+	REPEATABLE READ snapshot), so two logs saved at the same time for the same equipment cannot both pass."""
 	equipment = sorted({row.equipment for row in doc.rows})
 	for name in equipment:
 		frappe.db.get_value("Card Equipment", name, "name", for_update=True)
-	listed = frappe.get_all(
-		ROW_DOCTYPE,
-		filters={"parenttype": DOCTYPE, "equipment": ["in", equipment], "parent": ["!=", doc.name or ""]},
-		fields=["parent", "equipment"],
-		limit_page_length=0,
-	)
-	if not listed:
-		return
-	live = set(
-		frappe.get_all(
-			DOCTYPE,
-			filters={
-				"name": ["in", sorted({r.parent for r in listed})],
-				"project": doc.project,
-				"log_date": doc.log_date,
-				"docstatus": ["!=", 2],
-			},
-			pluck="name",
-			limit_page_length=0,
-		)
-	)
-	clashes = sorted({f"{r.equipment} ({r.parent})" for r in listed if r.parent in live})
+	row, log = frappe.qb.DocType(ROW_DOCTYPE), frappe.qb.DocType(DOCTYPE)
+	listed = (
+		frappe.qb.from_(row)
+		.join(log)
+		.on(log.name == row.parent)
+		.select(row.equipment, row.parent)
+		.where(row.parenttype == DOCTYPE)
+		.where(row.equipment.isin(equipment))
+		.where(log.name != (doc.name or ""))
+		.where(log.project == doc.project)
+		.where(log.log_date == doc.log_date)
+		.where(log.docstatus != 2)
+		.for_update()
+	).run(as_dict=True)
+	clashes = sorted({f"{r.equipment} ({r.parent})" for r in listed})
 	if clashes:
 		frappe.throw(
 			_("A daily log for this project and date already lists these equipment: {0}").format(
@@ -252,54 +289,125 @@ def check_transition(doc):
 		return
 	if new not in STATUSES:
 		frappe.throw(_("Invalid daily log approval status: {0}").format(new))
+	if old not in (PENDING, VERIFIED):
+		frappe.throw(_("This daily log is already approved or returned; cancel and amend it to change it."))
+	if new == PENDING:
+		frappe.throw(_("A daily log cannot go back to Pending; cancel and amend it instead."))
+	verification = requires_supervisor_verification(doc.company)
+	if new == VERIFIED:
+		_verify(doc, old, verification)
+	elif new == APPROVED:
+		_approve(doc, old, verification)
+	else:
+		_return(doc, old, verification, reason)
+
+
+def _verify(doc, old, verification):
+	if not verification:
+		frappe.throw(_("Company {0} does not use supervisor verification of daily logs.").format(doc.company))
+	if old != PENDING:
+		frappe.throw(_("This daily log is already verified."))
+	if not _has_any_role((SUPERVISOR_ROLE,)):
+		frappe.throw(_("Only a Card Supervisor may verify a daily log."), frappe.PermissionError)
+	if frappe.session.user in log_preparers(doc):
+		frappe.throw(
+			_("You created, edited or submitted this daily log; another supervisor must verify it."),
+			frappe.PermissionError,
+		)
+	doc.update(
+		{"approval_status": VERIFIED, "verified_by": frappe.session.user, "verified_on": now_datetime()}
+	)
+
+
+def _approve(doc, old, verification):
 	if not _has_any_role(APPROVER_ROLES):
 		frappe.throw(_("Only Card Manager may approve or return a daily log."), frappe.PermissionError)
-	if old != PENDING:
-		frappe.throw(_("This daily log is already approved or returned; cancel and amend it to change it."))
+	if verification and old != VERIFIED:
+		frappe.throw(_("A supervisor must verify this daily log before it is approved."))
 	user = frappe.session.user
-	if new == APPROVED:
-		self_approved = user in log_preparers(doc)
-		if self_approved:
-			if self_approval_rule(doc.company) == RULE_REFUSE:
-				frappe.throw(
-					_(
-						"You created, edited or submitted this daily log; another approver must approve it (company rule: Refuse)."
-					),
-					frappe.PermissionError,
-				)
-			frappe.msgprint(
+	self_approved = user in log_preparers(doc) or user == doc.get("verified_by")
+	if self_approved:
+		if self_approval_rule(doc.company) == RULE_REFUSE:
+			frappe.throw(
 				_(
-					"You created, edited or submitted this daily log and approve it yourself; it is marked for review (company rule: Warn)."
+					"You created, edited or submitted this daily log; another approver must approve it (company rule: Refuse)."
 				),
-				title=_("Daily log self-approval"),
-				indicator="orange",
+				frappe.PermissionError,
 			)
-		doc.update(
-			{
-				"approval_status": APPROVED,
-				"approved_by": user,
-				"approved_on": now_datetime(),
-				"self_approved": 1 if self_approved else 0,
-			}
+		frappe.msgprint(
+			_(
+				"You created, edited or submitted this daily log and approve it yourself; it is marked for review (company rule: Warn)."
+			),
+			title=_("Daily log self-approval"),
+			indicator="orange",
 		)
-	elif new == RETURNED:
-		if not reason:
-			frappe.throw(_("Enter the reason for returning the daily log."))
-		doc.update(
-			{
-				"approval_status": RETURNED,
-				"return_reason": reason,
-				"returned_by": user,
-				"returned_on": now_datetime(),
-			}
-		)
-	else:
-		frappe.throw(_("A daily log cannot go back to Pending; cancel and amend it instead."))
+	doc.update(
+		{
+			"approval_status": APPROVED,
+			"approved_by": user,
+			"approved_on": now_datetime(),
+			"self_approved": 1 if self_approved else 0,
+		}
+	)
+
+
+def _return(doc, old, verification, reason):
+	supervisor_return = verification and old == PENDING and _has_any_role((SUPERVISOR_ROLE,))
+	if not (_has_any_role(APPROVER_ROLES) or supervisor_return):
+		frappe.throw(_("Only Card Manager may approve or return a daily log."), frappe.PermissionError)
+	if not reason:
+		frappe.throw(_("Enter the reason for returning the daily log."))
+	doc.update(
+		{
+			"approval_status": RETURNED,
+			"return_reason": reason,
+			"returned_by": frappe.session.user,
+			"returned_on": now_datetime(),
+		}
+	)
 
 
 def check_cancel(doc):
-	"""before_cancel: an approved log is cancelled by an approver only (the monthly cards may come from it)."""
-	if doc.approval_status == APPROVED and not _has_any_role(APPROVER_ROLES):
+	"""before_cancel, on every route (form, REST PUT with docstatus 2, savedocs, bulk): the approval and the
+	preparers are read from the database (a cancel may carry a forged document) and kept; an approved log is
+	cancelled by an approver only (monthly cards may come from it)."""
+	stored = frappe.db.get_value(DOCTYPE, doc.name, list(SERVER_FIELDS), as_dict=True, for_update=True)
+	for field in SERVER_FIELDS:
+		doc.set(field, stored.get(field))
+	if stored.approval_status == APPROVED and not _has_any_role(APPROVER_ROLES):
 		frappe.throw(
 			_("An approved daily log can only be cancelled by a Card Manager."), frappe.PermissionError
 		)
+
+
+# ---------- Card Daily Log Settings: company scope ----------
+def settings_permission(doc, ptype=None, user=None, debug=False):
+	"""has_permission of Card Daily Log Settings: a user limited to some companies for Card Daily Log (Company User
+	Permissions that apply to Card Daily Log, applicable_for included) sees and changes only those companies'
+	records. A controller can only deny (Frappe 16), so "no objection" is True."""
+	from card.company_scope import _restricted
+
+	companies = _restricted(user, DOCTYPE)
+	if companies is None:
+		return True
+	owners = {doc.get("company")}
+	if not doc.is_new():
+		owners.add(frappe.db.get_value(SETTINGS_DOCTYPE, doc.name, "company"))
+	owners.discard(None)
+	owners.discard("")
+	if not owners:
+		return not doc.is_new()
+	return all(company in companies for company in owners)
+
+
+def settings_query_conditions(user=None, doctype=None):
+	"""List twin of ``settings_permission``."""
+	from card.company_scope import _restricted
+
+	companies = _restricted(user, DOCTYPE)
+	if companies is None:
+		return ""
+	if not companies:
+		return "1=0"
+	values = ", ".join(frappe.db.escape(company) for company in companies)
+	return f"`tab{SETTINGS_DOCTYPE}`.`company` in ({values})"

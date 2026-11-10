@@ -6613,6 +6613,54 @@ msgstr "إعدادات اليومية"
 msgid "Daily log self-approval rule"
 msgstr "قاعدة اعتماد اليومية من معدّها"
 
+#: card/daily_log.py
+msgid "Company {0} does not use supervisor verification of daily logs."
+msgstr "الشركة {0} لا تستخدم تحقق المشرف من اليوميات."
+
+#: card/daily_log.py
+msgid "This daily log is already verified."
+msgstr "هذه اليومية تم التحقق منها بالفعل."
+
+#: card/daily_log.py
+msgid "Only a Card Supervisor may verify a daily log."
+msgstr "التحقق من اليومية لمشرف Card فقط."
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log; another supervisor must verify it."
+msgstr "أنت من أنشأ هذه اليومية أو عدّلها أو قدّمها؛ يجب أن يتحقق منها مشرف آخر."
+
+#: card/daily_log.py
+msgid "A supervisor must verify this daily log before it is approved."
+msgstr "يجب أن يتحقق مشرف من هذه اليومية قبل اعتمادها."
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Verify daily log"
+msgstr "التحقق من اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log verified by"
+msgstr "تحقق من اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log verified on"
+msgstr "تاريخ التحقق من اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Verified by supervisor"
+msgstr "تم تحقق المشرف"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Returned for correction"
+msgstr "مرجعة للتصحيح"
+
 #: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
-msgid "Refuse"
-msgstr "رفض"
+msgid "Warn only (daily log)"
+msgstr "تحذير فقط (اليومية)"
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Refuse (daily log)"
+msgstr "رفض (اليومية)"
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Daily log supervisor verification required"
+msgstr "تحقق المشرف من اليومية مطلوب"

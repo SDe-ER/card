@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-11-10 18:00:00.000000",
+ "modified": "2026-11-11 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Daily Log Settings",
@@ -30,15 +30,13 @@
    "role": "Card Manager",
    "permlevel": 0,
    "read": 1,
-   "create": 1,
-   "write": 1,
-   "delete": 1,
    "report": 1
   }
  ],
  "field_order": [
   "company",
-  "self_approval_rule"
+  "self_approval_rule",
+  "require_supervisor_verification"
  ],
  "fields": [
   {
@@ -55,10 +53,16 @@
    "fieldname": "self_approval_rule",
    "fieldtype": "Select",
    "label": "Daily log self-approval rule",
-   "options": "Warn\nRefuse",
-   "default": "Warn",
+   "options": "Warn only (daily log)\nRefuse (daily log)",
+   "default": "Warn only (daily log)",
    "reqd": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "require_supervisor_verification",
+   "fieldtype": "Check",
+   "label": "Daily log supervisor verification required",
+   "default": "0"
   }
  ]
 }

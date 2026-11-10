@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-11-10 18:00:00.000000",
+ "modified": "2026-11-11 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Daily Log Row",
@@ -22,6 +22,8 @@
   "night_hours",
   "stop_reason",
   "stopped_hours",
+  "responsible_party_type",
+  "responsible_party",
   "notes"
  ],
  "fields": [
@@ -69,6 +71,19 @@
    "label": "Stopped hours",
    "in_list_view": 1,
    "non_negative": 1
+  },
+  {
+   "fieldname": "responsible_party_type",
+   "fieldtype": "Select",
+   "label": "Responsible party",
+   "options": "\nCompany\nSupplier\nCustomer\nOther"
+  },
+  {
+   "fieldname": "responsible_party",
+   "fieldtype": "Dynamic Link",
+   "label": "Responsible party record",
+   "options": "responsible_party_type",
+   "depends_on": "eval:doc.responsible_party_type && doc.responsible_party_type!='Other'"
   },
   {
    "fieldname": "notes",
