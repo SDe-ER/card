@@ -91,12 +91,11 @@ class TestSettingsPermlevel(IntegrationTestCase):
 		self.assertEqual(frappe.db.get_single_value("Card Settings", "reconciliation_tolerance"), tolerance)
 
 	def test_restricted_accounts_manager_cannot_touch_another_companys_row(self):
-		"""Refused — by Frappe's User Permission check on the child rows' Company
-		links (Frappe 16 checks them on the parent's write) and, as a second
-		layer, by CardSettings._validate_company_scope. Known limitation: while
-		rows of other companies exist, a company-restricted Accounts Manager
-		cannot save Card Settings at all; an unrestricted accountant maintains
-		them."""
+		"""A change is refused — by Frappe's User Permission check on the child
+		rows' Company links (Frappe 16 checks them on the parent's write) and,
+		as a second layer, by CardSettings._validate_company_scope. FR-133: a
+		removal never deletes the row: the stored rows of the companies the user
+		may not read are put back on save (test_settings_company_scope)."""
 		other = self._other_company()
 		self._ensure_row(self.company)
 		self._ensure_row(other)
@@ -111,9 +110,11 @@ class TestSettingsPermlevel(IntegrationTestCase):
 			settings.save()
 		settings = frappe.get_doc("Card Settings")
 		settings.company_settings = [r for r in settings.company_settings if r.company != other]
-		with self.assertRaises(frappe.PermissionError):
-			settings.save()
+		settings.save()
 		frappe.set_user("Administrator")
+		self.assertTrue(
+			frappe.db.exists("Card Company Settings", {"parent": "Card Settings", "company": other})
+		)
 		self.assertEqual(
 			frappe.db.get_value(
 				"Card Company Settings", {"parent": "Card Settings", "company": other}, "cost_center"

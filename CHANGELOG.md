@@ -34,6 +34,32 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+### Security
+- **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on).** Reason: the
+  per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
+  User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row;
+  with one limited to CARD documents he read every company's rows (accounts, items, diesel prices). Now, for a
+  user with a Company User Permission that applies to CARD (not Administrator, not System Manager), the
+  `company_settings` and `diesel_price_schedule` rows of other companies are removed on every read of the Single
+  (Desk form, REST v1/v2, `frappe.client.get`, the reply to a save) and put back unchanged on every save by him,
+  so they are never deleted; a changed copy of such a row is still refused by `_validate_company_scope`. The row
+  read on its own (`frappe.client.get`, `GET /api/resource/Card Company Settings/<name>`, same for
+  `Card Diesel Price`) is refused for another company's row. System Manager, Administrator, users without a Company
+  User Permission and server code (`frappe.get_doc`, `frappe.get_all`) read every row as before. The form shows a
+  note when rows are hidden. Affected functions: `CardSettings.has_permission`,
+  `apply_fieldlevel_read_permissions`, `before_validate` (`_reattach_hidden_company_rows`), `on_change`; new
+  `settings_company_scope`, `settings_row_readable`; `CardCompanySettings.has_permission`,
+  `CardDieselPrice.has_permission`; `card_settings.js` (note). Pull request: see FR-133 in the registry.
+  Impact: permissions — the Frappe User Permission check on the Single runs on the user's companies' rows only,
+  so a company-restricted Accounts Manager can open and save Card Settings for his companies (before: refused
+  while another company had a row); no role, DocPerm or permlevel changed. Accounting: none (no GL write, posting
+  reads unchanged). Data: none (no patch, no schema change; rows only re-attached, never rewritten). API: REST
+  readers with a Company restriction get fewer rows; other readers unchanged. Known limit: the child list
+  `GET /api/resource/Card Diesel Price?parent=Card Settings` for a user whose Company User Permission applies only
+  to other doctypes still lists every company's prices (Frappe 16 applies no list condition to a Single's child
+  table; fix needs `card_diesel_price.json` permlevel 1, owned by WP-X in this wave). Rollback: revert the commit;
+  no data to restore.
+
 ## [4.7.0] — 2026-11-10
 
 Minor release on top of v4.6.0: five pull requests (#199, #200, #201, #202, #203). Security first: company checks on

@@ -6303,3 +6303,7 @@ msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ ل�
 #: card/gl/integrity.py
 msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
 msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."
+
+#: card/card/doctype/card_settings/card_settings.js
+msgid "Card Settings rows of companies you are not permitted to see are hidden and stay unchanged when you save."
+msgstr "صفوف إعدادات CARD الخاصة بالشركات غير المسموح لك برؤيتها مخفية، وتبقى كما هي عند الحفظ."

@@ -5064,3 +5064,7 @@ msgstr ""
 #: card/card/report/equipment_location_history/equipment_location_history.py
 msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
 msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.js
+msgid "Card Settings rows of companies you are not permitted to see are hidden and stay unchanged when you save."
+msgstr ""

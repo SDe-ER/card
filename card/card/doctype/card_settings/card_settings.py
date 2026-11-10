@@ -4,13 +4,124 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, formatdate, getdate
+from frappe.utils import cint, flt, formatdate, getdate
 
 # per-company tables: a row steers that company's postings (FR-125: and its diesel prices)
 COMPANY_TABLES = ("company_settings", "adjustment_types", "diesel_price_schedule")
 
+# FR-133 (R-14, O-19): the per-company tables a company-restricted user reads only for the companies
+# he is permitted; the rows of other companies are hidden on every read and kept on every save
+SCOPED_TABLES = ("company_settings", "diesel_price_schedule")
+
+
+def settings_company_scope(user=None):
+	"""FR-133: the companies whose Card Settings rows ``user`` (default: the session user) may read,
+	or None when he may read every row: Administrator, System Manager, and a user without a User
+	Permission on Company that applies to CARD (the standard Frappe multi-company rule, the same set
+	the save check ``_validate_company_scope`` uses)."""
+	user = user or frappe.session.user
+	if user == "Administrator" or "System Manager" in frappe.get_roles(user):
+		return None
+	from card.report_access import CARD_DOCTYPE, permitted_companies
+
+	entries = frappe.permissions.get_user_permissions(user).get("Company") or []
+	if not any(not e.get("applicable_for") or e.get("applicable_for") == CARD_DOCTYPE for e in entries):
+		return None
+	return set(permitted_companies(user=user))
+
+
+def settings_row_readable(row, user=None):
+	"""FR-133: False when ``row`` is a Card Settings row of a company ``user`` may not read."""
+	if row.get("parenttype") != "Card Settings" or row.get("parentfield") not in SCOPED_TABLES:
+		return True
+	allowed = settings_company_scope(user)
+	return allowed is None or row.get("company") in allowed
+
 
 class CardSettings(Document):
+	def has_permission(self, permtype="read", *, debug=False, user=None) -> bool:
+		"""FR-133: for a company-restricted user, Frappe's User Permission check on the child rows'
+		Company links runs on his companies' rows only. Without this, any row of another company
+		refuses him the whole Single (Frappe 16 checks child links on read and write), and the
+		filter below could never apply. The other rows are never shown to him
+		(``apply_fieldlevel_read_permissions``) and never changed by him (``before_validate`` puts
+		them back, ``_validate_company_scope`` refuses a change); every other check is Frappe's."""
+		allowed = None if self.flags.ignore_permissions else settings_company_scope(user)
+		if allowed is None:
+			return super().has_permission(permtype, debug=debug, user=user)
+		stored = {table: self.get(table) for table in SCOPED_TABLES}
+		try:
+			for table, rows in stored.items():
+				self.__dict__[table] = [r for r in rows or [] if r.get("company") in allowed]
+			return super().has_permission(permtype, debug=debug, user=user)
+		finally:
+			for table, rows in stored.items():
+				self.__dict__[table] = rows
+
+	def apply_fieldlevel_read_permissions(self):
+		"""FR-133: every read path (Desk form, REST v1/v2, frappe.client.get and the reply to a
+		save) removes the rows of the companies the user may not read before the permlevel rules
+		run (they clear ``company`` for a user without level 1, so the filter comes first)."""
+		self._hide_other_company_rows()
+		super().apply_fieldlevel_read_permissions()
+		if self.flags.card_hidden_company_rows:
+			# the form shows a note (card_settings.js); set here, as the form save resets __onload
+			# after on_change
+			self.set_onload("card_hidden_company_rows", self.flags.card_hidden_company_rows)
+
+	def _hide_other_company_rows(self):
+		allowed = settings_company_scope()
+		if allowed is None:
+			return 0
+		hidden = 0
+		for table in SCOPED_TABLES:
+			rows = self.get(table) or []
+			kept = [r for r in rows if r.get("company") in allowed]
+			if len(kept) != len(rows):
+				hidden += len(rows) - len(kept)
+				self.set(table, [])
+				for idx, row in enumerate(kept, 1):
+					row.idx = idx
+					self.append(table, row)
+		self.flags.card_hidden_company_rows = (self.flags.card_hidden_company_rows or 0) + hidden
+		return hidden
+
+	def before_validate(self):
+		self._reattach_hidden_company_rows()
+
+	def _reattach_hidden_company_rows(self):
+		"""FR-133: a company-restricted user saves a form without the rows of other companies;
+		Frappe deletes every stored row missing from a save, so the stored rows of the companies he
+		may not read are put back unchanged, at their stored position. A row he sends under such a
+		row's name is not replaced here: ``_validate_company_scope`` refuses it when it differs."""
+		if frappe.flags.in_patch or frappe.flags.in_install:
+			return
+		allowed = settings_company_scope()
+		before = self.get_doc_before_save()
+		if allowed is None or not before:
+			return
+		for table in SCOPED_TABLES:
+			present = {r.name for r in self.get(table) or []}
+			hidden = [
+				r
+				for r in sorted(before.get(table) or [], key=lambda r: cint(r.idx))
+				if r.get("company") not in allowed and r.name not in present
+			]
+			if not hidden:
+				continue
+			rows = list(self.get(table) or [])
+			for row in hidden:
+				rows.insert(min(max(cint(row.idx) - 1, 0), len(rows)), row.as_dict())
+			self.set(table, [])
+			for idx, row in enumerate(rows, 1):
+				row = self.append(table, row)
+				row.idx = idx
+
+	def on_change(self):
+		# FR-133: frappe.client.save and the REST v1 PUT reply with this document; a restricted
+		# user gets his companies' rows only (the rows are already stored, nothing is written)
+		self._hide_other_company_rows()
+
 	def validate(self):
 		self._validate_company_scope()
 		seen = set()
