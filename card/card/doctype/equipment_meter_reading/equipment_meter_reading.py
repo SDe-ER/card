@@ -32,9 +32,11 @@ from card.attachment_validator import (
 DOCTYPE = "Equipment Meter Reading"
 
 
-def neighbour_readings(equipment, reading_datetime, exclude=None):
+def neighbour_readings(equipment, reading_datetime, exclude=None, for_update=False):
 	"""The submitted readings of ``equipment`` just before, at and just after ``reading_datetime``
-	(``exclude`` is left out), as (previous, same_time, next) rows or None."""
+	(``exclude`` is left out), as (previous, same_time, next) rows or None. ``for_update`` makes them locking
+	reads: under REPEATABLE READ a plain read after a lock wait still sees the transaction's old snapshot, a locking
+	read sees the latest committed rows."""
 	moment = get_datetime(reading_datetime)
 	base = {"equipment": equipment, "docstatus": 1}
 	if exclude:
@@ -42,12 +44,14 @@ def neighbour_readings(equipment, reading_datetime, exclude=None):
 	fields = ["name", "reading_datetime", "engine_hours", "is_meter_reset"]
 
 	def first(condition, order):
-		rows = frappe.get_all(
+		rows = frappe.db.get_values(
 			DOCTYPE,
-			filters={**base, "reading_datetime": condition},
-			fields=fields,
+			{**base, "reading_datetime": condition},
+			fields,
+			as_dict=True,
 			order_by=f"reading_datetime {order}, creation {order}",
 			limit=1,
+			for_update=for_update,
 		)
 		return rows[0] if rows else None
 
@@ -69,7 +73,7 @@ class EquipmentMeterReading(Document):
 	def before_submit(self):
 		# serialise submits of the same equipment: a parallel submit waits here and then sees this reading
 		frappe.db.get_value("Card Equipment", self.equipment, "name", for_update=True)
-		self._check_sequence()
+		self._check_sequence(for_update=True)
 
 	def on_update(self):
 		if self.flags.get("attachment_row"):
@@ -79,7 +83,11 @@ class EquipmentMeterReading(Document):
 	def _set_company(self):
 		company = frappe.db.get_value("Card Equipment", self.equipment, "company") if self.equipment else None
 		if self.equipment and not company:
-			frappe.throw(_("Equipment {0} has no company; set its company before recording a meter reading.").format(self.equipment))
+			frappe.throw(
+				_("Equipment {0} has no company; set its company before recording a meter reading.").format(
+					self.equipment
+				)
+			)
 		self.company = company
 
 	def _validate_amended_from(self):
@@ -126,11 +134,14 @@ class EquipmentMeterReading(Document):
 		check_attachment_content(url, file_row=row)
 		self.flags.attachment_row = row
 
-	def _check_sequence(self):
+	def _check_sequence(self, for_update=False):
 		if not self.equipment or not self.reading_datetime:
 			return
 		previous, same_time, following = neighbour_readings(
-			self.equipment, self.reading_datetime, exclude=None if self.is_new() else self.name
+			self.equipment,
+			self.reading_datetime,
+			exclude=None if self.is_new() else self.name,
+			for_update=for_update,
 		)
 		if same_time:
 			frappe.throw(

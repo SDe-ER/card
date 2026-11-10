@@ -7,6 +7,8 @@ cross-company refusal through Frappe's own entry points (generic company scope, 
 docstatus=1, cancel and amend, the private attachment rule and the role permissions. Company B and the equipment
 are inserted raw (only the stored company matters); no role is widened; everything is rolled back."""
 
+from unittest.mock import patch
+
 import frappe
 from frappe.client import insert as rest_insert
 from frappe.tests import IntegrationTestCase
@@ -192,6 +194,32 @@ class TestMeterReading(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._reading(100, "2026-09-01 08:00:00", submit=False)
 
+	def test_submit_rechecks_with_locking_reads(self):
+		"""Submit locks the equipment row and reads the neighbours with locking reads (latest committed rows, not
+		the transaction's REPEATABLE READ snapshot), so two parallel submits of one equipment cannot both pass."""
+		draft = self._reading(100, "2026-09-01 08:00:00", submit=False)
+		real_values, real_value = frappe.db.get_values, frappe.db.get_value
+		calls = []
+
+		def get_values(doctype, *args, **kwargs):
+			if doctype == DOCTYPE:
+				calls.append(("values", kwargs.get("for_update")))
+			return real_values(doctype, *args, **kwargs)
+
+		def get_value(doctype, *args, **kwargs):
+			if doctype == "Card Equipment" and kwargs.get("for_update"):
+				calls.append(("lock", True))
+			return real_value(doctype, *args, **kwargs)
+
+		with (
+			patch.object(frappe.db, "get_values", side_effect=get_values),
+			patch.object(frappe.db, "get_value", side_effect=get_value),
+		):
+			draft.submit()
+		self.assertIn(("lock", True), calls)
+		locked = calls[calls.index(("lock", True)) + 1 :]
+		self.assertEqual(locked, [("values", True)] * 3)
+
 	def test_negative_hours_refused(self):
 		with self.assertRaises(frappe.ValidationError):
 			self._reading(-1, "2026-09-01 08:00:00", submit=False)
@@ -265,7 +293,9 @@ class TestMeterReading(IntegrationTestCase):
 			}
 		)
 		frappe.set_user("Administrator")
-		row = frappe.db.get_value(DOCTYPE, saved["name"], ["docstatus", "company", "engine_hours"], as_dict=True)
+		row = frappe.db.get_value(
+			DOCTYPE, saved["name"], ["docstatus", "company", "engine_hours"], as_dict=True
+		)
 		self.assertEqual((row.docstatus, row.company, row.engine_hours), (1, self.A, 1234.5))
 		# a lower one through REST is refused, and nothing is stored
 		frappe.set_user(self.supervisor)

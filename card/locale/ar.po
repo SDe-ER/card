@@ -6457,3 +6457,91 @@ msgstr "لتغيير الإضافات والخصومات عدّل الكرت ا�
 msgid "Diesel price fuel type"
 msgstr "نوع الوقود لسعر الديزل"
 
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Equipment Meter Reading"
+msgstr "قراءة عداد المعدة"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Reading date and time"
+msgstr "تاريخ ووقت القراءة"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Engine hours"
+msgstr "ساعات تشغيل المحرك"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Reading source"
+msgstr "مصدر القراءة"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Weekly reading"
+msgstr "قراءة أسبوعية"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Handover reading"
+msgstr "قراءة عند التسليم"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Service reading"
+msgstr "قراءة عند الصيانة"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Other reading"
+msgstr "قراءة أخرى"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Previous reading"
+msgstr "القراءة السابقة"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Previous engine hours"
+msgstr "ساعات المحرك في القراءة السابقة"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Meter reset"
+msgstr "تصفير العداد"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Reset reason"
+msgstr "سبب التصفير"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Meter photo or document"
+msgstr "صورة العداد أو مستند"
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Equipment {0} has no company; set its company before recording a meter reading."
+msgstr "المعدة {0} بدون شركة؛ حدّد شركتها قبل تسجيل قراءة العداد."
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Only a cancelled meter reading can be amended."
+msgstr "لا يمكن تعديل قراءة عداد إلا بعد إلغائها."
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "An amendment of a meter reading stays in the company of the reading it amends."
+msgstr "تعديل قراءة العداد يبقى في شركة القراءة الأصلية."
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Enter the reason for the meter reset."
+msgstr "أدخل سبب تصفير العداد."
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Engine hours cannot be negative."
+msgstr "ساعات تشغيل المحرك لا يمكن أن تكون سالبة."
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Equipment {0} already has the submitted meter reading {1} at {2}."
+msgstr "للمعدة {0} قراءة عداد معتمدة {1} في {2} بالفعل."
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Mark a meter reset only when the reading is lower than the previous reading."
+msgstr "علّم تصفير العداد فقط عندما تكون القراءة أقل من القراءة السابقة."
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Engine hours {0} are lower than the previous reading {1} ({2}). Mark the reading as a meter reset and enter the reason, or correct it."
+msgstr "ساعات المحرك {0} أقل من القراءة السابقة {1} ({2}). علّم القراءة كتصفير للعداد وأدخل السبب، أو صحّحها."
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Engine hours {0} are higher than the later reading {1} ({2})."
+msgstr "ساعات المحرك {0} أعلى من القراءة اللاحقة {1} ({2})."

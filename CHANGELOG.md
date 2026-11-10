@@ -16,6 +16,34 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-140 — Equipment Meter Reading: engine-hour readings per equipment (#31 D6; closure plan WP-H2).** Reason:
+  #31 separates engine hours (meter) from billable hours, and O-11 D6 sets weekly meter readings by the site
+  supervisor; no record of meter readings existed. New submittable DocType **Equipment Meter Reading** (naming
+  `EMR-.#####`, track changes): `equipment` (Card Equipment), `company` (mandatory, read only, fetched from the
+  equipment and always replaced by the equipment's company on the server), `reading_datetime`, `engine_hours`,
+  `source` (Weekly reading, default / Handover reading / Service reading / Other reading), `is_meter_reset` with a
+  mandatory `reset_reason`, read-only `previous_reading` / `previous_engine_hours`, a private `attachment` and
+  `notes`. Rules (server, every entry point): engine hours are never negative; compared with the submitted readings
+  of the same equipment just before and just after its date and time, a lower reading is refused unless it is a
+  meter reset with a reason (a reset is accepted only for a lower reading), a backdated reading may not exceed the
+  next one unless that one is a reset, and two submitted readings never share a date and time; drafts and cancelled
+  readings do not count; the check runs again on submit under a row lock on the Card Equipment record, so two
+  parallel submits cannot both pass. An amendment must amend a cancelled reading of the same company that the user
+  may read (Frappe copies the attachments of `amended_from`). The attachment must be a private JPEG, PNG, WebP or PDF
+  of this record or the user's own upload, which the reading then claims (`card.attachment_validator`). Affected
+  functions: new `equipment_meter_reading.py` (`neighbour_readings`, `EquipmentMeterReading.validate`,
+  `before_submit`, `on_update`). Tests: `card/tests/test_meter_reading.py`; `card/tests/test_company_scope.py`: the
+  planned-DocType guard accepts Frappe's own `amended_from` self-link of a submittable DocType (any other self-link
+  is still refused). `docs/governance/ROLE-ACTION-MATRIX.md`: new DocType row. PR #PRNUM.
+  - Permissions: Card Manager (all), Card Supervisor (create, write, submit, cancel, amend), Card User (read, print,
+    report); no DocPerm for any other role (Administrator only, as for every DocType). Company isolation through the
+    generic company scope (FR-131, already registered for this DocType): a company-restricted user can neither read,
+    list, create, move nor amend a reading of another company.
+  - Accounting: none (no posting, no GL; CARD writes no GL). Data: one new table; nothing existing changes; the
+    reading feeds nothing yet (monthly card, billable hours, diesel figures unchanged; WP-H1/H3 will read it).
+  - API: the standard REST resource of the new DocType; no new whitelisted method.
+  - Rollback limits: code rollback leaves the `tabEquipment Meter Reading` table and its rows (harmless); readings
+    entered meanwhile stay in the database and become visible again on a later re-deploy.
 - **FR-132 — Fill price snapshot: currency, unit and valid-from on each diesel fill (#46, supports #124; WP-X,
   conflict C-18).** Reason: #46 asks for the applied price *and* its currency/unit snapshot on each fill; until now a
   fill stored only `unit_price`, `price_source` and `company_price`. New read-only, no-copy fields on Project Diesel
