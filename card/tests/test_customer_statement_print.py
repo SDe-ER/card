@@ -107,6 +107,11 @@ class TestCustomerStatementPrint(IntegrationTestCase):
 		self.assertNotIn("totals = summary", template)
 		self.assertNotIn('"outside"', template)
 		self.assertNotIn("raw.message", template)
+		# a print without a customer says why it is empty (a fixed string, never the server message)
+		self.assertIn(
+			'{% if (!filters.customer) { %}<p class="ess-note"><b>{%= __("Select a customer to display the statement.") %}',
+			template,
+		)
 		self.assertIn("if (original_data[i]) rows.push(original_data[i]);", template)
 
 	def test_no_system_name_on_the_statement(self):

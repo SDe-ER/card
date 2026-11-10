@@ -27,7 +27,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   columns and calculations are unchanged. New string "Customer signature" (ar). Permissions: none changed (the standard
   report print permissions apply). Accounting: none (display only). Data: `bench migrate` imports one new Print Format
   record. API: the summary items carry a new `key` field. Rollback: deploy the previous image; the Print Format record
-  stays on the site and can be disabled. Not yet tested on a site.
+  stays on the site and can be disabled. Commit `2778da3` (branch `feat/customer-statement-a4`, no PR yet). Not yet
+  tested on a site.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
