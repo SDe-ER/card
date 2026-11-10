@@ -138,6 +138,21 @@ after_migrate = ["card.fonts.ensure_fonts", "card.navigation.restore_launcher_en
 # -----------
 # Permissions evaluated in scripted ways
 
+# FR-131: the DocTypes the close-all plan adds take the generic company scope of card.company_scope
+# (the list is card.company_scope.SCOPED_DOCTYPES; test_company_scope keeps both in step). Frappe calls
+# these hooks only for an existing DocType, so the entry of a DocType not merged yet is inert.
+_COMPANY_SCOPED = (
+	"Equipment Meter Reading",
+	"Card Daily Log",
+	"Card Rate Agreement",
+	"Card Period Run",
+	"Card Approval Delegation",
+	"Diesel Dispense",
+	"Tank Dip Reading",
+	"Equipment Operating Group",
+	"Card Intake Record",
+)
+
 # The CARD party registries are per party across companies: a user restricted
 # to some companies sees only the parties that have cards there (#23).
 permission_query_conditions = {
@@ -153,6 +168,8 @@ permission_query_conditions = {
 	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.assignment_query_conditions",
 	# FR-077: a machine fitment row belongs to its equipment's company
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.fitment_query_conditions",
+	# FR-131: generic company scope (list)
+	**{doctype: "card.company_scope.company_query_conditions" for doctype in _COMPANY_SCOPED},
 }
 
 has_permission = {
@@ -171,6 +188,8 @@ has_permission = {
 	"Project Diesel Fill": "card.card.doctype.project_diesel_fill.project_diesel_fill.has_diesel_fill_permission",
 	# #113: a cancelled movement with a signed receipt (and so its receipt) is never deleted
 	"Employee Tool Custody": "card.card.doctype.employee_tool_custody.employee_tool_custody.has_custody_permission",
+	# FR-131: generic company scope (record)
+	**{doctype: "card.company_scope.has_company_permission" for doctype in _COMPANY_SCOPED},
 }
 
 # Document Events
@@ -233,8 +252,12 @@ doc_events = {
 	# Card Equipment financial privacy: the change history never carries restricted values (2026-10-31)
 	"Version": {"before_insert": "card.field_privacy.mask_restricted_version"},
 	# H-CARD-4: a DocShare would bypass the fill's company hook (frappe 16 checks shares after it)
+	# FR-131: the same for the DocTypes of the generic company scope (no-op for every other DocType)
 	"DocShare": {
-		"validate": "card.card.doctype.project_diesel_fill.project_diesel_fill.deny_cross_company_share"
+		"validate": [
+			"card.card.doctype.project_diesel_fill.project_diesel_fill.deny_cross_company_share",
+			"card.company_scope.deny_cross_company_share",
+		]
 	},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record
 	"File": {
