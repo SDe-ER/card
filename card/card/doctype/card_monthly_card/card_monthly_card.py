@@ -162,6 +162,7 @@ class CardMonthlyCard(Document):
 
 		# ---- v3.0.0 (Owner 2026-10-19): the project comes from the approved transports ----
 		self._resolve_project(first_day, last_day)
+		self._warn_foreign_responsible_party()
 
 		# customer mismatch is a review flag, never a block (owner F.7.3)
 		if self.project and self.customer:
@@ -205,19 +206,29 @@ class CardMonthlyCard(Document):
 				frappe.throw(_("Negative hours on day {0}").format(key))
 			if h > 0 and d > today:
 				frappe.throw(_("Cannot record operating hours for a future day: {0}").format(key))
-			if h > max_hours:
+			stopped = flt(row.stopped_hours)
+			if stopped > 0 and d > today:
+				frappe.throw(_("Cannot record stopped hours for a future day: {0}").format(key))
+			# FR-118: a day has 24 hours, operating and stopped together (a day without stopped
+			# hours keeps the old rule: the shift limit only warns)
+			if stopped > 0 and h + stopped > 24:
+				frappe.throw(
+					_("Day {0}: operating hours ({1}) and stopped hours ({2}) exceed 24 hours.").format(
+						key, h, stopped
+					)
+				)
+			day_stopped_billed = stopped if stopped > 0 and cint(row.reason_billable) else 0.0
+			billed_day = h + day_stopped_billed
+			if billed_day > max_hours:
 				# Shift limit is advisory only: every recorded hour is billed, so a day
 				# over the limit is flagged for review, never blocked (owner 2026-10-14).
-				over_shift_limit.append(key + " (" + str(h) + ")")
+				# FR-118: billable stopped hours count, as they are billed too.
+				over_shift_limit.append(key + " (" + str(billed_day) + ")")
 			if h > 0:
 				total_hours = total_hours + h
 				work_days = work_days + 1
 				hours_by_date[key] = h
-			stopped = flt(row.stopped_hours)
-			if stopped > 0 and d > today:
-				frappe.throw(_("Cannot record stopped hours for a future day: {0}").format(key))
-			if stopped > 0 and cint(row.reason_billable):
-				billable_stopped = billable_stopped + stopped
+			billable_stopped = billable_stopped + day_stopped_billed
 
 		# ---- shift limit (advisory warning, never blocks; every recorded hour is billed) ----
 		if over_shift_limit:
@@ -466,6 +477,26 @@ class CardMonthlyCard(Document):
 						row.operation_date, company
 					)
 				)
+
+	def _warn_foreign_responsible_party(self):
+		"""FR-118 (review L2): a supplier or customer held responsible for a stopped day that is
+		not the card's own supplier or customer is flagged for review, never blocked."""
+		own = {"Supplier": self.supplier, "Customer": self.customer}
+		foreign = []
+		for row in self.days or []:
+			party_type = row.responsible_party_type
+			if party_type in own and row.responsible_party and row.responsible_party != own[party_type]:
+				foreign.append(
+					"{0} ({1}: {2})".format(row.operation_date, _(party_type), row.responsible_party)
+				)
+		if foreign:
+			frappe.msgprint(
+				_(
+					"The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+				).format(_(", ", context="Card").join(foreign)),
+				title=_("Responsible party"),
+				indicator="orange",
+			)
 
 	def _refuse_unit_component_days(self, eq):
 		"""WP-05 (#42): a piece is billed on its unit's card while it is in the unit, so its

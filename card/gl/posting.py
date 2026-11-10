@@ -31,6 +31,7 @@ from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
 from card.report_access import permitted_companies
 from card.settings import setting
+from card.transfer import is_billed_day
 
 # documents the builder reads; a User Permission on Company scoped to any of
 # them limits what the caller may post
@@ -225,7 +226,7 @@ def card_cost_center(card, company):
 	assignments counted are those covering the card's working days (all its days when
 	none was worked)."""
 	worked = [
-		getdate(d.operation_date) for d in card.get("days") or [] if d.operation_date and flt(d.working_hours)
+		getdate(d.operation_date) for d in card.get("days") or [] if d.operation_date and is_billed_day(d)
 	]
 	days = worked or [getdate(d.operation_date) for d in card.get("days") or [] if d.operation_date]
 	if not days:

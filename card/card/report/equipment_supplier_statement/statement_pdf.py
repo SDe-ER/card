@@ -50,6 +50,7 @@ OWNED_FIELDS = (
 	("hours", 14, "num"),
 )
 OPTIONAL_FIELDS = ("additions", "deductions")
+STOPPED_HOURS_WIDTH = 7
 KEY_ORDER = {
 	11: (
 		"equipment",
@@ -206,9 +207,23 @@ def build_html(filters, columns, data, message, summary):
 	)
 
 
+def _with_stopped_hours(fields, rows):
+	"""FR-118: billable stopped hours print right after the hours, only when a row has them; the
+	approved column set and widths are unchanged otherwise (the widths are re-spread below)."""
+	if not any(flt(r.get("stopped_hours")) for r in rows):
+		return list(fields)
+	result = []
+	for field in fields:
+		result.append(field)
+		if field[0] == "hours":
+			result.append(("stopped_hours", STOPPED_HOURS_WIDTH, "num"))
+	return result
+
+
 def _shown_fields(fields, rows):
 	"""Additions and deductions print only when a row has a value; the other
 	columns share the freed width (97% of the table; '#' takes 3%)."""
+	fields = _with_stopped_hours(fields, rows)
 	shown = [f for f in fields if f[0] not in OPTIONAL_FIELDS or any(flt(r.get(f[0])) for r in rows)]
 	total = sum(f[1] for f in shown)
 	return [(f[0], math.floor(f[1] * 9700 / total + 0.5) / 100, f[2]) for f in shown]

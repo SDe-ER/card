@@ -4647,3 +4647,11 @@ msgstr ""
 #: card/card/report/equipment_downtime/equipment_downtime.py
 msgid "Stopped days are card days with a stop reason, stopped hours or a non-working status. Stopped hours earn rental only under a billable stop reason."
 msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Day {0}: operating hours ({1}) and stopped hours ({2}) exceed 24 hours."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+msgstr ""

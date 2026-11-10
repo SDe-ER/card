@@ -11,7 +11,7 @@ writes nothing. All data is per-test and rolled back."""
 from unittest.mock import patch
 
 import frappe
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 
 from card.card.report.equipment_downtime.equipment_downtime import execute as downtime
 from card.patches.v4_6_0 import seed_stop_reasons
@@ -428,3 +428,223 @@ class TestDowntimeReport(_StopBase):
 		for call in sql.call_args_list:
 			statement = str(call.args[0]).lstrip().lower() if call.args else ""
 			self.assertFalse(statement.startswith(("insert", "update", "delete")), statement)
+
+
+def _messages():
+	return " | ".join(str(m.get("message", "")) for m in frappe.get_message_log())
+
+
+STATEMENT = {"statement_type": "مورد", "from_month": 9, "from_year": 2026}
+
+
+class TestReviewFixes(_StopBase):
+	"""Review of PR #194 (M1, M2, M3, L1, L2, L3)."""
+
+	def _set(self, field, value):
+		frappe.db.set_single_value("Card Settings", field, value)
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+
+	def _billable_stop_card(self, eq, submit=True, include_hours=True):
+		reason = self._reason(billable=1)
+		rows = [{"working_hours": 8}] if include_hours else [{"day_status": LEAVE}]
+		rows.append({"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4})
+		return self._stop_card(eq, rows, submit=submit)
+
+	def _plain_stop_card(self, eq):
+		plain = self._reason(billable=0)
+		return self._stop_card(
+			eq,
+			[
+				{"day_status": LEAVE},
+				{"day_status": CLIENT_STOP, "stop_reason": plain.name, "stopped_hours": 4},
+			],
+			submit=True,
+		)
+
+	# ---- M1: a submitted billable stopped day keeps its assignment ----
+	def test_card_day_after_sees_billable_stopped_days(self):
+		from card.transfer import _card_day_after
+
+		eq = self._equipment()
+		self._billable_stop_card(eq, include_hours=False)  # day 2: billable stopped only
+		self.assertTrue(_card_day_after(eq.name, self.project, getdate("2026-09-01")))
+		other = self._equipment()
+		self._plain_stop_card(other)
+		self.assertFalse(_card_day_after(other.name, self.project, getdate("2026-09-01")))
+
+	def test_assignment_change_refuses_to_drop_a_billable_stopped_day(self):
+		from card.card.doctype.card_equipment_assignment.card_equipment_assignment import (
+			_refuse_dropped_card_days,
+		)
+
+		eq = self._equipment()
+		self._billable_stop_card(eq, include_hours=False)
+		with self.assertRaisesRegex(frappe.ValidationError, "outside the assignment"):
+			_refuse_dropped_card_days(eq.name, self.project, "2026-09-02", "2026-09-30")
+		other = self._equipment()
+		self._plain_stop_card(other)
+		_refuse_dropped_card_days(other.name, self.project, "2026-09-02", "2026-09-30")  # nothing billed
+
+	# ---- M2: 24-hour day and the shift warning ----
+	def test_operating_and_stopped_hours_over_24_are_refused(self):
+		reason = self._reason(billable=0)
+		with self.assertRaisesRegex(frappe.ValidationError, "exceed 24 hours"):
+			self._stop_card(
+				self._equipment(), [{"working_hours": 20, "stop_reason": reason.name, "stopped_hours": 5}]
+			)
+		card = self._stop_card(
+			self._equipment(), [{"working_hours": 20, "stop_reason": reason.name, "stopped_hours": 4}]
+		)
+		self.assertEqual(flt(card.total_working_hours), 20)  # exactly 24 is a full day
+
+	def test_billable_stopped_hours_count_in_the_shift_warning(self):
+		self._set("max_day_shift_hours", 12)
+		billable = self._reason(billable=1)
+		plain = self._reason(billable=0)
+		frappe.local.message_log = []
+		self._stop_card(
+			self._equipment(),
+			[
+				{"working_hours": 10, "stop_reason": billable.name, "stopped_hours": 4},
+				{"working_hours": 10, "stop_reason": plain.name, "stopped_hours": 4},
+			],
+		)
+		messages = _messages()
+		self.assertIn("2026-09-01 (14.0)", messages)
+		self.assertNotIn("2026-09-02", messages)
+
+	# ---- L1: the client cannot make a stop billable ----
+	def test_client_sent_billable_flag_is_ignored(self):
+		plain = self._reason(billable=0)
+		card = self._stop_card(
+			self._sub_rental(),
+			[
+				{"working_hours": 8},
+				{
+					"day_status": BREAKDOWN,
+					"stop_reason": plain.name,
+					"stopped_hours": 4,
+					"reason_billable": 1,
+				},
+				{"day_status": BREAKDOWN, "stopped_hours": 4, "reason_billable": 1},
+			],
+		)
+		self.assertEqual(flt(card.billable_stopped_hours), 0)
+		self.assertEqual([row.reason_billable for row in card.days], [0, 0, 0])
+		self.assertEqual(flt(card.amount), 8 * 75.0)
+		self.assertEqual(flt(card.customer_amount), 8 * 120.0)
+
+	# ---- L2: a foreign responsible party is flagged, never blocked ----
+	def test_foreign_responsible_party_warns(self):
+		other = self._customer("-B")
+		frappe.local.message_log = []
+		card = self._stop_card(
+			self._rented_out(),
+			[
+				{"day_status": CLIENT_STOP, "responsible_party_type": "Customer", "responsible_party": other},
+				{
+					"day_status": CLIENT_STOP,
+					"responsible_party_type": "Customer",
+					"responsible_party": self.customer,
+				},
+			],
+		)
+		self.assertTrue(card.name)
+		messages = _messages()
+		self.assertIn("not the card's own supplier or customer", messages)
+		self.assertIn(other, messages)
+		self.assertNotIn("2026-09-02", messages)
+
+	# ---- M3: statements and summaries ----
+	def test_supplier_statement_shows_billable_stopped_hours(self):
+		from card.card.report.equipment_supplier_statement.equipment_supplier_statement import (
+			execute as supplier_statement,
+		)
+
+		card = self._billable_stop_card(self._equipment())  # rented in: 75/h
+		filters = {**STATEMENT, "company": self.company, "supplier": self.supplier, "project": self.project}
+		columns, rows, *_ = supplier_statement(filters)
+		self.assertIn("stopped_hours", [c["fieldname"] for c in columns])
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(row["hours"], 8)
+		self.assertEqual(row["stopped_hours"], 4)
+		self.assertEqual(row["working_days"], 2)  # the billable stopped day counts
+		self.assertEqual(row["hourly_rate"], 75.0)  # the submit-time snapshot
+		self.assertEqual(row["amount"], 12 * 75.0)
+		total = next(r for r in rows if r.get("row_id") == "TOTAL")
+		self.assertEqual(total["stopped_hours"], 4)
+		# a draft: its amount over every billed hour
+		draft = self._billable_stop_card(self._equipment(), submit=False)
+		_c, rows, *_ = supplier_statement({**filters, "include_draft": 1})
+		self.assertEqual(next(r for r in rows if r.get("card") == draft.name)["hourly_rate"], 75.0)
+
+	def test_statement_column_is_hidden_without_billable_stops(self):
+		from card.card.report.equipment_supplier_statement.equipment_supplier_statement import (
+			execute as supplier_statement,
+		)
+		from card.card.report.equipment_supplier_statement.statement_pdf import MONEY_FIELDS, _shown_fields
+
+		card = self._stop_card(self._equipment(), [{"working_hours": 8}], submit=True)
+		columns, rows, *_ = supplier_statement(
+			{**STATEMENT, "company": self.company, "supplier": self.supplier, "project": self.project}
+		)
+		self.assertNotIn("stopped_hours", [c["fieldname"] for c in columns])
+		self.assertEqual(next(r for r in rows if r.get("card") == card.name)["hourly_rate"], 75.0)
+		# the print keeps the approved columns; the stopped hours column joins only when a row has a value
+		plain = _shown_fields(MONEY_FIELDS, [{"hours": 8}])
+		self.assertNotIn("stopped_hours", [f[0] for f in plain])
+		with_stops = _shown_fields(MONEY_FIELDS, [{"hours": 8, "stopped_hours": 4}])
+		names = [f[0] for f in with_stops]
+		self.assertEqual(names[names.index("hours") + 1], "stopped_hours")
+		self.assertAlmostEqual(sum(f[1] for f in with_stops), 97, places=0)
+
+	def test_customer_statement_and_summaries_show_billable_stopped_hours(self):
+		from card.card.report.equipment_customer_statement.equipment_customer_statement import (
+			execute as customer_statement,
+		)
+		from card.card.report.equipment_customers_summary.equipment_customers_summary import (
+			execute as customers_summary,
+		)
+		from card.card.report.equipment_suppliers_summary.equipment_suppliers_summary import (
+			execute as suppliers_summary,
+		)
+
+		card = self._billable_stop_card(self._sub_rental())  # supplier 75/h, customer 120/h
+		period = {"company": self.company, "from_month": 9, "from_year": 2026, "project": self.project}
+		columns, rows, *_ = customer_statement({**period, "customer": self.customer})
+		self.assertIn("stopped_hours", [c["fieldname"] for c in columns])
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(row["stopped_hours"], 4)
+		self.assertEqual(row["working_days"], 2)
+		self.assertEqual(flt(row["hourly_rate"]), 120.0)
+		self.assertEqual(row["customer_amount"], 12 * 120.0)
+		for report, key, party in (
+			(customers_summary, "customer", self.customer),
+			(suppliers_summary, "supplier", self.supplier),
+		):
+			columns, rows, *_ = report(period)
+			self.assertIn("stopped_hours", [c["fieldname"] for c in columns], key)
+			row = next(r for r in rows if r.get(key) == party)
+			self.assertEqual(row["stopped_hours"], 4, key)
+			self.assertEqual(row["working_days"], 2, key)
+			total = next(r for r in rows if r.get("is_total"))
+			self.assertGreaterEqual(total["stopped_hours"], 4, key)
+
+	# ---- L3: the internal value counts billable stopped hours per hour ----
+	def test_internal_value_counts_billable_stopped_hours(self):
+		from card.card_value import card_value
+		from card.constants import DIR_INTERNAL, OWNED
+
+		card = frappe._dict(
+			ownership=OWNED,
+			card_direction=DIR_INTERNAL,
+			total_working_hours=8,
+			billable_stopped_hours=4,
+			working_days=1,
+		)
+		per_hour = frappe._dict(internal_rate=10, internal_rate_basis="بالساعة")
+		per_day = frappe._dict(internal_rate=100, internal_rate_basis="باليوم")
+		self.assertEqual(card_value(card, per_hour)["internal"], 120.0)
+		self.assertEqual(card_value(card, per_day)["internal"], 100.0)
+		card.billable_stopped_hours = 0
+		self.assertEqual(card_value(card, per_hour)["internal"], 80.0)

@@ -5886,3 +5886,11 @@ msgstr "كرت مسودة"
 #: card/card/report/equipment_downtime/equipment_downtime.py
 msgid "Stopped days are card days with a stop reason, stopped hours or a non-working status. Stopped hours earn rental only under a billable stop reason."
 msgstr "أيام التوقف هي أيام الكرت التي لها سبب توقف أو ساعات توقف أو حالة غير «عمل». ساعات التوقف لا يُستحق عنها إيجار إلا مع سبب توقف يُحتسب إيجارًا."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Day {0}: operating hours ({1}) and stopped hours ({2}) exceed 24 hours."
+msgstr "اليوم {0}: ساعات التشغيل ({1}) وساعات التوقف ({2}) تتجاوز 24 ساعة."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+msgstr "الجهة المسؤولة عن أيام التوقف هذه ليست مورد الكرت أو عميله (للمراجعة): {0}"

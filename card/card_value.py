@@ -52,6 +52,7 @@ CARD_FIELDS = (
 	"net_amount",
 	"customer_net_amount",
 	"total_working_hours",
+	"billable_stopped_hours",
 	"working_days",
 )
 SERIES = ("supplier", "customer", "internal")
@@ -102,7 +103,10 @@ def card_value(card, equipment=None, with_internal=True):
 		internal_rate_of(equipment) if card.get("ownership") in INTERNAL_OWNERSHIPS else (0.0, False)
 	)
 	if rate > 0:
-		quantity = flt(card.get("working_days")) if per_day else hours
+		# FR-118: per hour, the stopped hours of a billable stop reason count like operating hours,
+		# as they do on the supplier and customer amounts; per day, only working days count
+		billed = hours + flt(card.get("billable_stopped_hours"))
+		quantity = flt(card.get("working_days")) if per_day else billed
 		value["internal"] = flt(quantity * rate, 2)
 	elif direction not in SUPPLIER_BILLING_DIRECTIONS and direction not in CUSTOMER_BILLING_DIRECTIONS:
 		# internal operation without a rate: no amount to show, but the card and its hours still count

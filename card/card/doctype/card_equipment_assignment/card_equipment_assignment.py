@@ -139,7 +139,8 @@ def _refuse_dropped_card_days(equipment, project, start, end):
 		"""
 		select c.name, d.operation_date from `tabCard Monthly Card Day` d
 		join `tabCard Monthly Card` c on c.name = d.parent and d.parenttype = 'Card Monthly Card'
-		where c.docstatus = 1 and c.project = %(project)s and d.working_hours > 0
+		where c.docstatus = 1 and c.project = %(project)s
+			and (d.working_hours > 0 or (d.reason_billable = 1 and d.stopped_hours > 0))
 			and d.operation_date between %(start)s and %(end)s
 			and (c.equipment = %(equipment)s or exists (
 				select 1 from `tabCard Equipment Component` u
