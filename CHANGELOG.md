@@ -36,7 +36,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [4.6.0] — 2026-11-10
 
-Minor release on top of v4.5.0: the wave-2 merge train (PRs #161 to #198, #204). Security: read endpoints GET-only,
+Minor release on top of v4.5.0: the wave-2 merge train (19 pull requests from #161 to #198; #136, #148, #149, #166
+and #204 without user impact). Security: read endpoints GET-only,
 diesel fill company isolation, attachment validation, reviewer is not the approver. Governance: mandatory cancel
 reason, reviewable period-lock override, dead settings retired. New: configurable stop reasons and the Equipment
 Downtime report, effective-dated diesel price schedule, per-company equipment status guard, diesel fill project
@@ -71,7 +72,7 @@ at project level. Three data patches; no GL write by CARD. Full page: [docs/rele
   (`submit_cancel_or_update_docs`, a background job above 20 records) is refused too: cancel each record from its
   form with a reason.
 - **Configurable stop reasons, the responsible party of a stopped day and the Equipment Downtime report** (FR-118,
-  WP-09, refs #45 #123, PR #194; target: next release).
+  WP-09, refs #45 #123, PR #194).
   - **Reason:** #45 (owner decision): record why, how long and because of whom equipment stood still, from a
     configurable per-company catalogue, with **no rental for stopped periods unless explicitly configured**; #123 asks
     for a downtime report.
@@ -280,7 +281,7 @@ at project level. Three data patches; no GL write by CARD. Full page: [docs/rele
   site that set a host name must change it to the IP address (for `https`, the worker's certificate must then name that
   IP). Rollback: remove the two site_config keys (feature off at once) or
   revert the commits; crops and markers already written stay as ordinary attachments and comments.
-- **Governance inventories (documentation only; refs #40, #50, #52, #54).**
+- **Governance inventories (documentation only; PR #186; refs #40, #50, #52, #54).**
   `docs/governance/SETTINGS-AND-CONSTANTS.md` lists every Card Settings and Card Company Settings field with its
   readers (file:line), the code defaults and inline fallbacks, the precedence document → Card Company Settings →
   Card Settings → code default, the four dead settings of FR-015 and the hardcoded values that affect behaviour
@@ -290,7 +291,7 @@ at project level. Three data patches; no GL write by CARD. Full page: [docs/rele
   HRMS `version-16` source and docs.frappe.io/hr only) and records the upgrade-rehearsal CI evidence. Impact on
   permissions, accounting, data and the API: none. Rollback: revert the commit.
 - **Every monthly card shows its value on the CARD workspace** (FR-111, PR #185, owner requirement
-  2026-11-10; target: next release).
+  2026-11-10).
   - **Reason:** the chart "مبالغ الكروت الشهرية" and the number card "مبالغ الشهر الماضي" summed only the supplier
     `amount`, which is 0 for owned and managed equipment; a month with only owned cards (for example an owned crusher
     rented to a customer) looked empty.
@@ -325,7 +326,7 @@ at project level. Three data patches; no GL write by CARD. Full page: [docs/rele
     Sum chart, number card and workspace on its next `migrate`; the four new number cards and the Dashboard Chart
     Source stay in the database, off the workspace, until removed by hand (their methods no longer exist there).
 - **Analytics reports: Equipment Partial Margin, Unbilled Card Work, Equipment Maintenance Cost** (#53, #127 P8;
-  audit work packages WP-16 and WP-17; FR-112, FR-113, FR-114; PR #188). Target version: next release.
+  audit work packages WP-16 and WP-17; FR-112, FR-113, FR-114; PR #188).
   - **Reason:** #53 and the go-live phase P8 (#127) ask for equipment profitability, unbilled work and a maintenance
     report; none existed.
   - **Change:** three read-only Script Reports in the CARD Reports sidebar, all for one company (mandatory filter,
@@ -494,14 +495,14 @@ at project level. Three data patches; no GL write by CARD. Full page: [docs/rele
   accounting effect (fills post only after approval). Rollback: revert the commit.
 
 ### Documentation
-- **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
+- **README rewritten** (PR #136). New "How CARD works" section with a flow diagram and five steps in order
   (equipment, transport, project assignment, monthly card, daily hours), in English with an Arabic summary.
   Grouped badges (CI, Linters, CodeQL, Codecov, release, license, platform), a screenshots gallery of the
   main pages (CARD v4.1.2, fictional test data, new files in `.github/images/`), a table of the CI
   workflows, the report count corrected to 19, and the Features section brought up to v4.5.0 (settlement,
   posting integrity, transport cost responsibility, equipment financial privacy). Requested by the owner. Documentation only: no change to
   code, permissions, accounting, data or the API. Rollback: revert the commit.
-- **No user impact (listed for completeness):** #148 records the v4.4.2, v4.4.3 and platform-update deployments in
+- **No user impact (listed for completeness):** #136 is the README rewrite above; #148 records the v4.4.2, v4.4.3 and platform-update deployments in
   `docs/releases/DEPLOYMENTS.md`; #149 bumps `actions/upload-artifact` from 4 to 7 in the upgrade rehearsal
   workflow; #166 raises the build requirement to `flit_core >=4.2.0,<5`; #204 syncs the feature registry with the
   merged pull requests. Impact on permissions, accounting, data and the API: none. Rollback: revert the commit.
@@ -586,7 +587,7 @@ at project level. Three data patches; no GL write by CARD. Full page: [docs/rele
 - Manual, not done by migrate (separate approval): the Card Equipment accounting dimension
   (`bench --site <site> execute card.dimension.ensure_card_equipment_dimension`), the per-company settings and the
   internal rates. Rebuild open CARD draft postings that hold a project-tank fill before submitting them.
-- Rollback: last version on Production is v4.4.3. Its code runs on the 4.6.0 database (it ignores the new columns and
+- Rollback: the last recorded version on Production is v4.4.3. Its code runs on the 4.6.0 database (it ignores the new columns and
   tables), but a code rollback does not remove the columns, the two tables and their seeded rows, the patch-written
   component flags or the cancel reasons and comments. Prepare it as described in
   [docs/releases/v4.6.0.md](docs/releases/v4.6.0.md#126-rollback-plan) (other-party transports, move-day transports,
