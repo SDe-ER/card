@@ -4531,6 +4531,11 @@ msgstr ""
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr ""
 
+#: card/card/doctype/card_settings/card_settings.json
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Deprecated – not used"
+msgstr ""
+
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Diesel fill project check"
 msgstr ""

@@ -5770,6 +5770,11 @@ msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr "لا يمكن مشاركة تعبئة ديزل تابعة للشركة {0} مع مستخدم من خارج هذه الشركة."
 
+#: card/card/doctype/card_settings/card_settings.json
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Deprecated – not used"
+msgstr "متوقف – غير مستخدم"
+
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Diesel fill project check"
 msgstr "فحص مشروع تعبئة الديزل"

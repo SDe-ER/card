@@ -260,6 +260,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
+- **Dead settings retired, not deleted** (FR-124, WP-08, FR-015, #50). Reason: four settings had no reader, so changing
+  them did nothing. `auto_submit` and `notify_on_posting` (Card Settings) and `bank_cash_account` and `mode_of_payment`
+  (Card Company Settings) are now hidden and read only with the description "Deprecated – not used" (Arabic in
+  `card/locale/ar.po`); the two Card Settings entries are removed from `settings.py` `_DEFAULTS`. No reader was found for
+  any of the four, so none was wired up. The account-company check of `CardSettings.validate` skips a retired (hidden,
+  read only) account field, so an old value of another company stored there cannot block saving Card Settings while
+  nobody can see the field to clear it. PR #198. Affected: `card_settings.json`, `card_company_settings.json`,
+  `card_settings.py` (`validate`),
+  `card/settings.py`, `docs/governance/SETTINGS-AND-CONSTANTS.md`; test `test_deprecated_settings.py` (fields hidden,
+  no reader in the app code). Permissions: none changed (same permlevels). Accounting: none. Data: columns and stored
+  values kept; no patch. API: the fields stay in the DocType and API reads; a write through the API is still stored but
+  has no effect, as before. Rollback limits: code revert only (the fields show again).
 - **CI: upgrade rehearsal on the current Production platform** (PR #192; refs #119, #120). The rehearsal now runs on
   frappe `v16.55.2` / erpnext `v16.54.0` (the Production platform of 2026-11-10; tags checked on GitHub) instead of
   16.51.1 / 16.50.0, and on every pull request: the path filter is removed because the job takes about 5 minutes

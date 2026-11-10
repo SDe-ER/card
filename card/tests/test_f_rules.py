@@ -163,6 +163,8 @@ class TestCompanyConsistency(IntegrationTestCase):
 		row = next((r for r in settings.company_settings if r.company == self._m["company"]), None)
 		if row is None:
 			row = settings.append("company_settings", {"company": self._m["company"]})
-		row.bank_cash_account = cash_other  # other company's account on TEC's row
+		# other company's account on TEC's row (FR-124: a live account field; the retired
+		# bank/cash field is no longer checked, see test_deprecated_settings)
+		row.diesel_expense_account = cash_other
 		with self.assertRaises(frappe.ValidationError):
 			settings.save(ignore_permissions=True)
