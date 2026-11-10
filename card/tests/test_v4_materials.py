@@ -535,13 +535,14 @@ class TestV4Materials(IntegrationTestCase):
 	def test_preparers_cannot_be_set_by_hand(self):
 		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
 		review = self._review()
-		review.edited_by, review.submitted_by = "someone@example.com", "someone@example.com"
+		someone = self._user("someone", ["Card User"])  # a real user: the Link must validate
+		review.edited_by, review.submitted_by = someone, someone
 		review.save()
 		stored = frappe.db.get_value(
 			"Equipment Needs Review", review.name, ["submitted_by", "edited_by"], as_dict=True
 		)
 		self.assertIsNone(stored.submitted_by)
-		self.assertNotIn("someone@example.com", stored.edited_by)
+		self.assertNotIn(someone, stored.edited_by)
 		review.reload()
 		review.submit()
 		self.assertEqual(
