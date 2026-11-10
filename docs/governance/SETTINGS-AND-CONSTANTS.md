@@ -76,8 +76,9 @@ is `settings.py` `_DEFAULTS`.
 | `tool_custody_warehouse` | Link Warehouse | — | "" | `employee_tool_custody.py:57,237,277`; `materials.py:314` | Used |
 | `repeat_request_days` | Int | 30 | 30 | `materials.py:120` (inline `or 30`) | Used |
 
-`default_store_warehouse`, `tool_custody_warehouse` and `repeat_request_days` are site-wide although warehouses
-belong to a company. On a site with several companies they should move to Card Company Settings (target: level 2).
+`default_store_warehouse`, `tool_custody_warehouse` and `repeat_request_days` are the site-wide fallback. FR-135 (in
+review) adds the per-company values on Card Company Settings (`store_warehouse`, `custody_warehouse`,
+`repeat_request_days`); an empty company value uses these.
 
 ## 3. Card Company Settings (one row per company)
 
@@ -97,6 +98,8 @@ is read by `gl/preflight.py:36-41` `company_settings_row` (posting) and `account
 | `diesel_unit_price` | Currency | `project_diesel_fill.py:177-186` `diesel_price`; `card_settings.js` | Used (FR-002). One value, no dates (FR-035 planned) |
 | `diesel_price_vat_basis` | Select (empty / Exclusive / Inclusive) | `gl/posting.py:925`; `gl/integrity.py:440` | Used (FR-090). Empty = posting refused for review |
 | `equipment_status_rule` | Select ("Warn only (equipment status)" / "Refuse (equipment status)"; empty = Warn only) | `card/equipment_status.py` `status_rule`, `check_equipment_status` (Card Equipment Assignment, Equipment Transport, Card Monthly Card) | Used (FR-122, In review). Default Warn only |
+| `store_warehouse`, `custody_warehouse` | Link Warehouse | `card/settings.py` `store_warehouse`, `custody_warehouse` (materials, Employee Tool Custody, Tool Custody screen) | Used (FR-135, In review). Empty = the Card Settings value; must belong to the row's company (save and read time) |
+| `repeat_request_days` | Int | `card/settings.py` `repeat_request_days` (`materials.repeat_days`) | Used (FR-135, In review). Empty or 0 = the Card Settings value (30 by default) |
 | `bank_cash_account` | Link Account | none (only the generic account-company check in `card_settings.py` `validate`, which covers every Account link of a row) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 | `mode_of_payment` | Link Mode of Payment | none | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 

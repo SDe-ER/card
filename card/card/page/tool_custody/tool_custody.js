@@ -311,6 +311,14 @@ class ToolCustodyScreen {
 		this.movement_dialog(movement, row, row.company);
 	}
 
+	default_store(company) {
+		// FR-135: the company's main store, else the site's (the server fills it the same way)
+		const stores = this.ctx.default_stores || {};
+		const companies = Object.keys(stores);
+		const key = company || (companies.length === 1 ? companies[0] : null);
+		return (key && stores[key]) || this.ctx.default_store;
+	}
+
 	movement_dialog(movement, row, company) {
 		const e = frappe.utils.escape_html;
 		const fields = [];
@@ -365,7 +373,7 @@ class ToolCustodyScreen {
 				fieldname: "warehouse",
 				label: __("Store"),
 				options: "Warehouse",
-				default: this.ctx.default_store,
+				default: this.default_store(company),
 				reqd: 1,
 				get_query: () => ({ query: TC_STORE_QUERY, filters: company ? { company } : {} }),
 			});

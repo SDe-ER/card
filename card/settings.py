@@ -7,6 +7,7 @@ from an explicit 0/empty — frappe.db.get_single_value casts a missing numeric
 field to 0.0, which would mask the default."""
 
 import frappe
+from frappe import _
 
 # FR-124 (WP-08): the two deprecated Card Settings fields (docs/governance/SETTINGS-AND-CONSTANTS.md section 4)
 # are hidden, read only and never read, so they have no default here. Their columns and stored values stay.
@@ -82,3 +83,87 @@ def company_setting(company, fieldname):
 		fieldname,
 	)
 	return value or None
+
+
+# FR-135 (#50, #126): materials values per company. The company's row in Card Settings > Company
+# settings wins; when it is empty (no row, no warehouse, 0 days) the site-wide Card Settings value
+# applies, so an unconfigured company behaves exactly as before.
+_COMPANY_SITE_FALLBACK = {
+	"store_warehouse": "default_store_warehouse",
+	"custody_warehouse": "tool_custody_warehouse",
+	"repeat_request_days": "repeat_request_days",
+}
+COMPANY_WAREHOUSE_FIELDS = ("store_warehouse", "custody_warehouse")
+
+
+def company_or_site_setting(company, fieldname):
+	"""The company's value of `fieldname`, or the site-wide Card Settings value when the company
+	has none. No company: the site value."""
+	value = company_setting(company, fieldname)
+	if fieldname == "repeat_request_days":
+		try:
+			value = int(value or 0)
+		except (TypeError, ValueError):
+			value = 0
+		if value > 0:
+			return value
+		value = None
+	if value:
+		return value
+	return setting(_COMPANY_SITE_FALLBACK[fieldname])
+
+
+def _company_warehouse(company, fieldname, strict):
+	"""The company's warehouse in `fieldname`, checked again at read time: one that belongs to
+	another company (saved before the check, or the warehouse moved) is refused, or with
+	strict=False not offered. Empty: the site value, as before."""
+	value = company_setting(company, fieldname)
+	if not value:
+		return setting(_COMPANY_SITE_FALLBACK[fieldname]) or None
+	owner = frappe.db.get_value("Warehouse", value, "company")
+	if owner != company:
+		if not strict:
+			return None
+		frappe.throw(
+			_("Card Settings: warehouse {0} belongs to company {1}, not {2}.").format(
+				value, owner or "-", company
+			)
+		)
+	return value
+
+
+def store_warehouse(company, strict=True):
+	"""The main store of `company` (FR-135), else the site's main store."""
+	return _company_warehouse(company, "store_warehouse", strict)
+
+
+def custody_warehouse(company, strict=True):
+	"""The tool custody store of `company` (FR-135), else the site's tool custody store."""
+	return _company_warehouse(company, "custody_warehouse", strict)
+
+
+def repeat_request_days(company):
+	"""The repeated-request window in days of `company` (FR-135), else the site value (30 by
+	default)."""
+	try:
+		days = int(float(company_or_site_setting(company, "repeat_request_days") or 0))
+	except (TypeError, ValueError):
+		days = 0
+	return days or 30
+
+
+def validate_company_warehouses(doc):
+	"""FR-135: a store or custody warehouse on a company row must belong to that row's company.
+	Called from Card Settings validation; empty values are allowed (the site value applies)."""
+	for row in doc.get("company_settings") or []:
+		for fieldname in COMPANY_WAREHOUSE_FIELDS:
+			warehouse = row.get(fieldname)
+			if not warehouse:
+				continue
+			owner = frappe.db.get_value("Warehouse", warehouse, "company")
+			if owner != row.company:
+				frappe.throw(
+					_("Card Settings: warehouse {0} belongs to company {1}, not {2}.").format(
+						warehouse, owner or "-", row.company
+					)
+				)

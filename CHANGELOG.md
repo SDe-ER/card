@@ -34,6 +34,28 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+### Added
+- **Main store, tool custody store and repeated-request window per company (FR-135, #50, #126, PR #TBD).** Reason:
+  the materials warehouses and the repeat window were site-wide only (#50 "no hardcoded … per company"). Card
+  Company Settings gets a Materials section with `store_warehouse`, `custody_warehouse` and `repeat_request_days`
+  (all optional, empty by default). Readers (`card.settings.store_warehouse`, `custody_warehouse`,
+  `repeat_request_days`) use the company value and fall back to the Card Settings value when it is empty (no row,
+  no warehouse, 0 days), so the default is unchanged. Affected functions: `card.materials.repeat_days`,
+  `last_asked_on` (company of the machine), `pull_requests`, `approve_review` (company of the review);
+  `EmployeeToolCustody.validate`, `_check_company`, `_make_stock_entry` (company of the employee);
+  `card.tool_custody.context` (new `default_stores` per permitted company; `default_store` unchanged) and `move`
+  (the store of the worker's company, set after the create check); the Tool Custody screen's store default.
+  A company warehouse must belong to its row's company: checked on Card Settings save
+  (`validate_company_warehouses`, one call added in `CardSettings.validate`) and again at read time (refused;
+  the screen does not offer it). Labels: "VAT 15% item tax template" → "VAT item tax template (company rate)", and
+  its description and the Addition/Deduction Types description no longer name 15% (FR-127 backlog LOW-3; the rate
+  comes from the company's tax templates). Impact: permissions none (new child fields at permlevel 1 like the
+  rest of the row, no role or DocPerm change); accounting none (CARD writes no GL; Stock Entries use the chosen
+  warehouses); data: three new nullable columns, no patch, no existing value changed; API: `context` returns one
+  more key. Rollback limits: reverting the code ignores the columns (the site values apply again); change a
+  company's custody store only when no tool of that company is held in custody, or a Return/Loss reads stock from
+  the new store.
+
 ## [4.7.0] — 2026-11-10
 
 Minor release on top of v4.6.0: five pull requests (#199, #200, #201, #202, #203). Security first: company checks on

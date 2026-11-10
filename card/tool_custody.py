@@ -24,7 +24,7 @@ from card.materials import (
 	stock_by_item,
 )
 from card.report_access import query_companies
-from card.settings import setting
+from card.settings import setting, store_warehouse
 
 # Owner U-3: not every CARD user sees custody history; the page is for the store side and the
 # people who prepare, confirm and manage handovers (Card User keeps only his DocType read)
@@ -67,6 +67,11 @@ def context():
 		"can_confirm": store_side,
 		"can_prepare": bool(_may("create")),
 		"default_store": setting("default_store_warehouse"),
+		# FR-135: each company's main store (its own, else the site's), for the companies the user sees
+		"default_stores": {
+			company: store_warehouse(company, strict=False)
+			for company in query_companies(None, CUSTODY_DOCTYPE)
+		},
 	}
 
 
@@ -416,12 +421,13 @@ def move(
 	)
 	if movement == "Transfer":
 		doc.to_employee = to_employee
-	else:
-		doc.warehouse = warehouse or setting("default_store_warehouse")
 	# FR-129 defence in depth, before anything is read for the worker: the record-level check (the custody
 	# company comes from the employees) refuses an employee of a company the user may not see. The screen
 	# roles hold no Employee read, so the custody record's own rule is checked, not Employee's.
 	doc.check_permission("create")
+	if movement != "Transfer":
+		# FR-135: the store of the worker's company, else the site's main store
+		doc.warehouse = warehouse or store_warehouse(frappe.db.get_value("Employee", employee, "company"))
 	machines = operator_equipment(employee)
 	if movement == "Handover" and machines:
 		# the worker's machine and its project, as for his requests
