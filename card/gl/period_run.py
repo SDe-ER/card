@@ -56,7 +56,7 @@ Build and versions:
 - A cancel changes nothing on the run: the server-written fields a cancel request sends (approval, preparers,
   rule) are corrected from the database, as in the FR-142 daily log; any other changed field or row is refused
   (``card.cancel_reason`` guard, ``CancelChangesDocumentError``). ``owner`` and ``creation`` are refused by that
-  guard once PR #226 is merged.
+  guard too (PR #226), with its neutral wording.
 - A new run always continues the month's amendment chain: the server links the highest-version cancelled run of
   the company-month, however the run is created (``build_run``, Desk New, REST insert), whatever the client sent;
   the self-approval rule is Refuse when any run of the company-month has it.
@@ -860,7 +860,7 @@ def check_cancel(doc: Document) -> None:
 	stored = frappe.db.get_value(DOCTYPE, doc.name, list(SERVER_FIELDS), as_dict=True, for_update=True)
 	for field in SERVER_FIELDS:
 		doc.set(field, stored.get(field))
-	_refuse_changes(doc, doc.get_latest())
+	_refuse_changes(doc, doc.get_latest(), neutral=True)
 	if stored.approval_status == APPROVED and not _has_any_role(APPROVER_ROLES):
 		run = frappe.get_doc(DOCTYPE, doc.name)
 		if _approval_valid(run):

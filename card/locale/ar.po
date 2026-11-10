@@ -7593,3 +7593,7 @@ msgstr "إجمالي المصادر الإجمالي لجانب العميل"
 #: card/card/doctype/card_period_run/card_period_run.json
 msgid "Diesel price VAT basis at build"
 msgstr "أساس ضريبة سعر الديزل وقت البناء"
+
+#: card/cancel_reason.py
+msgid "{0} {1} cannot be cancelled with changes: {2} differs from the stored record."
+msgstr "لا يمكن إلغاء {0} {1} مع تعديلات: {2} يختلف عن السجل المحفوظ."
