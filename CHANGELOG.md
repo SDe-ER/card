@@ -16,6 +16,36 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
+  plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
+  operating hour) per equipment or equipment type with a per-equipment override; #42 for a per-equipment hourly
+  consumption baseline; #47 for each machine's own L/h. Until now only the static Card Equipment
+  `expected_consumption` existed. New child DocType **Card Consumption Rate** (`valid_from` (required),
+  `litres_per_hour` (required, zero or more), `reason`), used as Card Equipment Type `default_consumption_rates`
+  (the type default; the type now tracks changes) and Card Equipment `consumption_rates` (the override; permlevel
+  1, the level of the static field, so the same roles read and write it: System Manager and Card Manager write,
+  Card User and Accounts Manager read, Card Supervisor (level 0) and Card Operator / CARD Mobile (no read on the
+  equipment) see no rate; O-20). A row is valid from its date until the next row of the same table (no end date);
+  two rows of one table on the same date are refused (`card.consumption.validate_consumption_rates`, called from
+  `CardEquipment.validate` and `CardEquipmentType.validate`). New read-only helper
+  `card.consumption.consumption_rate(equipment, on_date)` / `consumption_rate_details`: the equipment's row valid on
+  the date, else the type's, else the static `expected_consumption` (0 = not set), else None; not whitelisted, no
+  REST endpoint. The static field stays (read-only on the form once dated rows exist; a change after that only
+  shows a warning). The change history of Card Equipment masks the rate rows for level-0 readers
+  (`card.field_privacy`, rows of Card Consumption Rate only; other tables unchanged). Patch
+  `card.patches.v4_8_0.seed_consumption_rates`: each equipment with a static value above 0 and no rate row gets one
+  row with that value, valid from its creation date (inserted on its own: no save, no new modified time); idempotent
+  (an equipment with rows is skipped). Affected: new `card/consumption.py`, new
+  `card/card/doctype/card_consumption_rate/*`, `card_equipment.json/.py`, `card_equipment_type.json/.py`,
+  `card/field_privacy.py`, `card/patches.txt`, locale. Tests: `card/tests/test_consumption_rate.py`. PR:
+  feat/consumption-rate (number added on the PR). Impact: permissions none added (rows follow the parent's DocPerms
+  and Company User Permissions); accounting none (no GL, no posting reads the rate); data: one seeded row per
+  equipment with a static rate, consumption_rate() returns the same value as before on every date; API: none (no
+  new whitelisted method; child rows readable through `frappe.client.get` only with the parent's permission). No
+  existing caller is switched: Equipment Diesel Analysis keeps `daily_diesel_consumption / daily_hours`, then
+  `expected_consumption` (WP-H3 decides the basis). Rollback limits: a code rollback leaves the
+  `tabCard Consumption Rate` table and the seeded rows in the database (unused by the older code); the static
+  field is unchanged, so the older behaviour returns as it was.
 - **FR-142 — Card Daily Log: daily equipment hours with manager approval (#44, #123, FR-022; closure plan WP-K1).**
   Reason: #44 and #123 ask for daily entry from paper/WhatsApp and an operator/supervisor → manager approval with no
   self-approval; until now hours were entered only on the monthly card day rows. New submittable DocType **Card
