@@ -539,6 +539,77 @@ class TestConsumptionRate(IntegrationTestCase):
 		# (Frappe fills an empty company from the user's single permitted company: never another company)
 		self.assertLessEqual({r.company or None for r in t.default_consumption_rates}, {self.company, None})
 
+	def test_restricted_manager_cannot_touch_rows_for_every_company(self):
+		# a row with no company also sets company B's rate: a user limited to company A may not edit or delete it
+		future = add_days(getdate(), 10)
+		self._set_type_rates([(future, 20)])
+		other = self._other_company()
+		eq_b = self._equipment(company=other)
+		self.assertEqual(consumption_rate(eq_b.name, future), 20)
+		manager = self._user(["Card Manager"], restrict=self.company)
+
+		def edit(change):
+			frappe.set_user(manager)
+			try:
+				t = frappe.get_doc("Card Equipment Type", self.etype)
+				change(t)
+				return self._refused(t.save)
+			finally:
+				frappe.set_user("Administrator")
+
+		def set_rate(t):
+			t.default_consumption_rates[0].litres_per_hour = 0
+
+		def move_to_own_company(t):
+			t.default_consumption_rates[0].company = self.company
+
+		def delete(t):
+			t.set("default_consumption_rates", [])
+
+		self.assertTrue(edit(set_rate))
+		self.assertTrue(edit(move_to_own_company))
+		self.assertTrue(edit(delete))
+		self.assertEqual(consumption_rate(eq_b.name, future), 20)
+		# an unrestricted Card Manager may
+		frappe.set_user(self._user(["Card Manager"]))
+		t = frappe.get_doc("Card Equipment Type", self.etype)
+		t.set("default_consumption_rates", [])
+		t.save()
+		frappe.set_user("Administrator")
+		self.assertIsNone(consumption_rate(eq_b.name, future))
+
+	def test_known_limit_child_list_filter_reveals_rate(self):
+		"""KNOWN LIMIT (Frappe v16, tracked as FR-148): frappe/database/query.py checks no field permission on
+		filters and order_by of a child DocType without permissions of its own, so a level-0 reader of the
+		equipment can still infer a rate by filtering the child list. Field values stay closed. When FR-148 closes
+		the gap this test must change (the asserted inference no longer works)."""
+		eq = self._equipment(rates=[("2026-01-01", 37.25)])
+		frappe.set_user(self._user(["Card Supervisor"]))
+
+		def count(filters=None, order_by=None):
+			try:
+				rows = rest_get_list(
+					"Card Consumption Rate",
+					fields=["name"],
+					filters={"parent": eq.name, **(filters or {})},
+					parent="Card Equipment",
+					order_by=order_by,
+					limit_page_length=0,
+				)
+			except REFUSED:
+				return "refused"
+			finally:
+				frappe.clear_messages()
+			return rows
+
+		# the values themselves never come back
+		self.assertFalse(self._leaks(37.25, count))
+		# but a filter on the rate answers differently whether the guess is true or false
+		self.assertEqual(len(count({"litres_per_hour": [">", 37]})), 1)
+		self.assertEqual(len(count({"litres_per_hour": [">", 38]})), 0)
+		self.assertEqual(len(count({"litres_per_hour": 37.25})), 1)
+		self.assertNotEqual(count(order_by="litres_per_hour asc"), "refused")
+
 	def test_change_history_masks_rates(self):
 		eq = self._equipment()
 		version = frappe.get_doc(

@@ -7242,3 +7242,7 @@ msgstr "لا يغيّر معدلات الاستهلاك الافتراضية إ�
 #: card/consumption.py
 msgid "You cannot change the default consumption rates of company {0}."
 msgstr "لا يمكنك تغيير معدلات الاستهلاك الافتراضية للشركة {0}."
+
+#: card/consumption.py
+msgid "A default consumption rate with no company applies to every company. Only a user who is not limited to some companies can change it."
+msgstr "معدل الاستهلاك الافتراضي بدون شركة يسري على كل الشركات، ولا يغيّره إلا مستخدم غير مقيّد ببعض الشركات."

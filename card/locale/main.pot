@@ -6002,3 +6002,7 @@ msgstr ""
 #: card/consumption.py
 msgid "You cannot change the default consumption rates of company {0}."
 msgstr ""
+
+#: card/consumption.py
+msgid "A default consumption rate with no company applies to every company. Only a user who is not limited to some companies can change it."
+msgstr ""

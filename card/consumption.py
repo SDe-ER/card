@@ -201,11 +201,14 @@ def _type_rows(doc):
 def validate_type_rate_changes(doc):
 	"""Card Equipment Type validate: only Card Manager and System Manager add, change or remove default rate rows
 	(no DocPerm is added: Card User keeps writing the other type fields). A company-restricted user may only touch
-	rows of a permitted company or with no company. Unchanged rows are never checked."""
+	rows of a permitted company; a row with no company applies to every company, so only an unrestricted user adds,
+	changes or removes it. Unchanged rows are never checked."""
 	before = doc.get_doc_before_save() if not doc.is_new() else None
 	old = _type_rows(before) if before else {}
 	new = _type_rows(doc)
-	touched = [v for k, v in new.items() if old.get(k) != v] + [v for k, v in old.items() if k not in new]
+	# an edited row counts with its old and its new values (a row moved between companies touches both)
+	touched = [v for k, v in new.items() if old.get(k) != v]
+	touched += [v for k, v in old.items() if k not in new or new[k] != v]
 	if not touched:
 		return
 	user = frappe.session.user
@@ -220,7 +223,15 @@ def validate_type_rate_changes(doc):
 	if companies is None:
 		return
 	for company, _values in touched:
-		if company and company not in companies:
+		if not company:
+			frappe.throw(
+				_(
+					"A default consumption rate with no company applies to every company. Only a user who is"
+					" not limited to some companies can change it."
+				),
+				frappe.PermissionError,
+			)
+		if company not in companies:
 			frappe.throw(
 				_("You cannot change the default consumption rates of company {0}.").format(company),
 				frappe.PermissionError,
