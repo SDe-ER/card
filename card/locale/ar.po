@@ -7170,3 +7170,51 @@ msgstr "يوم كامل"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Day billing basis used"
 msgstr "أساس احتساب اليوم المستخدم"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approval"
+msgstr "اعتماد الكارت الشهري"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card submitted by"
+msgstr "اعتمد الكارت الشهري (Submit)"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by"
+msgstr "معتمد الكارت الشهري"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved on"
+msgstr "تاريخ اعتماد الكارت الشهري"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card edited by"
+msgstr "معدّلو الكارت الشهري"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Monthly card approval rule"
+msgstr "قاعدة اعتماد الكارت الشهري"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Warn only (card approval)"
+msgstr "تحذير فقط (اعتماد الكارت)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (card approval)"
+msgstr "رفض (اعتماد الكارت)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A monthly card submitted (approved) by a user who created or edited it, or any card it amends: Warn only submits with a message and marks the card; Refuse stops the submit. No role is exempt. Empty: Warn only."
+msgstr "كارت شهري يعتمده (Submit) مستخدم أنشأه أو عدّله، أو أنشأ أو عدّل أي كارت يعدّله: «تحذير فقط» يعتمده مع رسالة ويعلّم الكارت؛ «رفض» يوقف الاعتماد. لا يُستثنى أي دور. فارغ: تحذير فقط."
+
+#: card/governance.py
+msgid "You created or edited this monthly card; another user must submit (approve) it (company rule: Refuse)."
+msgstr "أنشأت هذا الكارت الشهري أو عدّلته؛ يجب أن يعتمده (Submit) مستخدم آخر (قاعدة الشركة: رفض)."
+
+#: card/governance.py
+msgid "You created or edited this monthly card and submit (approve) it yourself; it is marked for review (company rule: Warn)."
+msgstr "أنشأت هذا الكارت الشهري أو عدّلته وتعتمده (Submit) بنفسك؛ تم تعليمه للمراجعة (قاعدة الشركة: تحذير)."
+
+#: card/governance.py
+msgid "Monthly card self-approval"
+msgstr "اعتماد الكارت الشهري من معدّه"
