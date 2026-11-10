@@ -47,7 +47,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `validate_log`, `record_submitter`, `check_transition`, `check_cancel`, `self_approval_rule`, `log_preparers`),
   new controllers and `card_daily_log.js` (Approve / Return buttons); `card/company_scope.py` `COMPANY_SOURCES`.
   Tests: `card/tests/test_daily_log.py` (32). `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (three new
-  DocType rows). PR #TBD.
+  DocType rows). PR #218.
   Impact: permissions — new DocPerms on the new DocTypes only (Card Daily Log: System Manager and Card Manager full;
   Card Supervisor read/create/write/submit/cancel/amend; Card Operator the same on own logs (`if_owner`); Card User
   read. Card Daily Log Settings: System Manager and Card Manager); no existing role or DocPerm changed; no new
