@@ -63,6 +63,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `card/card/sidebar/card_reports/card_reports.json`. Impact: a new report for two existing roles; no DocPerm or role
   change; no accounting, data or API change. Rollback: revert the commit; the Report record stays on a migrated site until it is
   deleted by hand (it only reads).
+- **Card Reviewer role** (FR-137, #35 Q2, PR #207). Reason: the governance workflow (#35 G1) needs a reviewer
+  role separate from the approver. `card/install.py`: `CARD_REVIEWER_ROLE` added to `CARD_ROLES`, so
+  `ensure_card_roles()` (before_install and every roles patch) creates it with Desk access; new idempotent patch
+  `card.patches.v4_8_0.ensure_card_reviewer_role` (new package `card/patches/v4_8_0`) creates it on existing sites.
+  Impact: permissions none (no DocPerm names the role and no user is given it; later governance packages wire it and
+  the owner assigns it); accounting none; data one Role record; API none. Default behaviour unchanged.
+  Tests: `card/tests/test_card_reviewer_role.py`. Rollback: reverting the code leaves the unused Role record; it can
+  be disabled or deleted by hand while no user holds it.
 
 ### Changed
 - **Reports label money with the company currency** (FR-136, PR #210, #53, owner default O-17: company currency only,
