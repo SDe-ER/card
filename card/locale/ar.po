@@ -6543,8 +6543,8 @@ msgid "Other party"
 msgstr "طرف آخر"
 
 #: card/agreements.py
-msgid "CARD rate agreement: company, equipment and date are required to find an agreement."
-msgstr "اتفاقية الأسعار: الشركة والمعدة والتاريخ مطلوبة للبحث عن اتفاقية."
+msgid "CARD rate agreement: company, equipment, party and date are required to find an agreement."
+msgstr "اتفاقية الأسعار: الشركة والمعدة والطرف والتاريخ مطلوبة للبحث عن اتفاقية."
 
 #: card/agreements.py
 msgid "CARD rate agreement: the end date is before the start date."
@@ -6623,8 +6623,8 @@ msgid "CARD rate agreement: agreement {0} has the same equipment, parties, proje
 msgstr "اتفاقية الأسعار: الاتفاقية {0} لها نفس المعدة والأطراف والمشروع والمنطقة وسارية في هذه الفترة. تغيير السعر يكون باتفاقية جديدة من تاريخ لاحق: أنهِ أو ألغِ {0} أولًا."
 
 #: card/agreements.py
-msgid "CARD rate agreement: row {0}: the agreement is for equipment {1} only."
-msgstr "اتفاقية الأسعار: السطر {0}: الاتفاقية للمعدة {1} فقط."
+msgid "CARD rate agreement: row {0}: leave the equipment empty; the agreement is already for equipment {1} only."
+msgstr "اتفاقية الأسعار: السطر {0}: اترك المعدة فارغة؛ الاتفاقية أصلًا للمعدة {1} فقط."
 
 #: card/agreements.py
 msgid "CARD rate agreement: row {0}: equipment {1} is not of equipment type {2}."

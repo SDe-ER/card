@@ -5303,7 +5303,7 @@ msgid "Other party"
 msgstr ""
 
 #: card/agreements.py
-msgid "CARD rate agreement: company, equipment and date are required to find an agreement."
+msgid "CARD rate agreement: company, equipment, party and date are required to find an agreement."
 msgstr ""
 
 #: card/agreements.py
@@ -5383,7 +5383,7 @@ msgid "CARD rate agreement: agreement {0} has the same equipment, parties, proje
 msgstr ""
 
 #: card/agreements.py
-msgid "CARD rate agreement: row {0}: the agreement is for equipment {1} only."
+msgid "CARD rate agreement: row {0}: leave the equipment empty; the agreement is already for equipment {1} only."
 msgstr ""
 
 #: card/agreements.py

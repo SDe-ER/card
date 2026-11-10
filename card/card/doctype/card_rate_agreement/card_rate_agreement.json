@@ -49,13 +49,15 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Agreement valid from",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "valid_to",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Agreement valid to"
+   "label": "Agreement valid to",
+   "search_index": 1
   },
   {
    "fieldname": "column_break_main",

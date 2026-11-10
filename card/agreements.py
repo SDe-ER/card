@@ -14,9 +14,20 @@ matches: more than one active agreement is an error the user resolves (#41 "no a
 match").
 
 The agreement key (``agreement_key``) is company, equipment, equipment type, supplier, customer, project and work
-zone. Two submitted agreements with the same key and overlapping dates are refused. Agreements with different keys
-may overlap (for example one for an equipment type and one for a single equipment of that type); ``resolve()``
-then refuses the date on which both match, so the user ends one of them."""
+zone; an agreement for one equipment always carries that equipment's type, and the zone is compared stripped and
+case-folded. Two submitted agreements with the same key and overlapping dates are refused. Agreements with
+different keys may overlap (for example one for an equipment type and one for a single equipment of that type);
+there is no precedence between them: ``resolve()`` refuses the date on which both match, so the user ends one.
+
+Contract for the callers (WP-M2..M4):
+
+- the party is required: the card or posting passes the side it bills, ``("Supplier", name)`` or
+  ``("Customer", name)``; a plain name matches either side;
+- ``project`` and ``zone`` are passed as the card has them; ``None`` matches only agreements without a project
+  (zone); a value matches agreements for that value and agreements without one;
+- a rate of 0 (or empty) on the returned agreement means "no rate for that basis on this agreement", never a free
+  service: the caller refuses or falls back as its own opt-in rule says;
+- the work zone is free text (Data); WP-M5 must keep it a Data field compared the same way (``normalise_zone``)."""
 
 import frappe
 from frappe import _
@@ -42,9 +53,16 @@ def _value(value):
 	return (value or "").strip() if isinstance(value, str) else (value or "")
 
 
+def normalise_zone(zone):
+	"""A work zone as compared everywhere (resolve, overlap key): stripped and case-folded; empty = no zone."""
+	return _value(zone).casefold()
+
+
 def agreement_key(doc):
 	"""The tuple that two agreements must not share over overlapping dates (empty values compare equal)."""
-	return tuple(_value(doc.get(field)) for field in KEY_FIELDS)
+	return tuple(
+		normalise_zone(doc.get(field)) if field == "zone" else _value(doc.get(field)) for field in KEY_FIELDS
+	)
 
 
 def _overlaps(from_a, to_a, from_b, to_b):
@@ -55,15 +73,9 @@ def _overlaps(from_a, to_a, from_b, to_b):
 	return (to_b is None or from_a <= to_b) and (to_a is None or from_b <= to_a)
 
 
-def _in_force(row, date):
-	return getdate(row.valid_from) <= date and (not row.valid_to or getdate(row.valid_to) >= date)
-
-
 def _normalise_party(party):
-	"""(party_type, name) from a (type, name) pair, a {"party_type", "party"} dict or a plain name (None type:
-	matched against the supplier and the customer). None for no party filter."""
-	if not party:
-		return None
+	"""(party_type, name) from a (type, name) pair, a {"party_type", "party"} dict or a plain name (type None:
+	matched against the supplier and the customer). The party is required."""
 	if isinstance(party, dict):
 		party_type, name = party.get("party_type"), party.get("party")
 	elif isinstance(party, list | tuple):
@@ -74,18 +86,20 @@ def _normalise_party(party):
 		party_type, name = None, party
 	if party_type and party_type not in PARTY_TYPES:
 		frappe.throw(_("CARD rate agreement: party type {0} is not Supplier or Customer.").format(party_type))
-	return (party_type, name) if name else None
+	if not name:
+		frappe.throw(
+			_("CARD rate agreement: company, equipment, party and date are required to find an agreement.")
+		)
+	return party_type, name
 
 
-def _party_matches(row, party):
-	if party is None:
-		return True
-	party_type, name = party
-	if party_type == "Supplier":
-		return row.supplier == name
-	if party_type == "Customer":
-		return row.customer == name
-	return name in (row.supplier, row.customer)
+def _not_set(column):
+	return column.isnull() | (column == "")
+
+
+def _value_or_not_set(column, value):
+	"""The rows for ``value`` and the rows without one; only the rows without one when ``value`` is empty."""
+	return (_not_set(column) | (column == value)) if value else _not_set(column)
 
 
 def resolve(company, equipment, party, date, project=None, zone=None):
@@ -93,9 +107,9 @@ def resolve(company, equipment, party, date, project=None, zone=None):
 
 	An agreement matches when it is submitted, of ``company``, in force on ``date`` (``valid_from`` <= date <=
 	``valid_to``, empty end = open), for ``equipment`` itself or (no equipment on the agreement) for its equipment
-	type, for ``party`` (a Supplier/Customer pair matches that side, a plain name either side, None any party), for
-	``project`` or for no project (``project=None``: agreements without a project only) and, when ``zone`` is given,
-	for that zone or for no zone (``zone=None``: the zone is not considered).
+	type, for ``party`` (required: a Supplier/Customer pair matches that side, a plain name either side), for
+	``project`` or for no project, and for ``zone`` or for no zone (``project=None`` / ``zone=None``: agreements
+	without a project / zone only). Every filter runs in SQL.
 
 	Returns None when nothing matches, the agreement document when exactly one matches, and raises
 	``AmbiguousAgreementError`` naming every match when more than one does: the caller never picks one.
@@ -104,7 +118,10 @@ def resolve(company, equipment, party, date, project=None, zone=None):
 	A server-side helper, not a whitelisted method: it reads agreements without a permission check, so a caller
 	checks the permission of its own document (the card, the posting) before using the result."""
 	if not company or not equipment or not date:
-		frappe.throw(_("CARD rate agreement: company, equipment and date are required to find an agreement."))
+		frappe.throw(
+			_("CARD rate agreement: company, equipment, party and date are required to find an agreement.")
+		)
+	party_type, party_name = _normalise_party(party)
 	date = getdate(date)
 	equipment_row = frappe.db.get_value(
 		"Card Equipment", equipment, ["company", "equipment_type"], as_dict=True
@@ -115,30 +132,35 @@ def resolve(company, equipment, party, date, project=None, zone=None):
 		frappe.throw(
 			_("CARD rate agreement: equipment {0} does not belong to company {1}.").format(equipment, company)
 		)
-	party = _normalise_party(party)
-	zone = _value(zone)
-	rows = frappe.get_all(
-		DOCTYPE,
-		filters={"docstatus": 1, "company": company, "valid_from": ["<=", date]},
-		fields=["name", "valid_from", "valid_to", *KEY_FIELDS[1:]],
-		order_by="valid_from desc, name asc",
+	zone = normalise_zone(zone)
+	agreement = frappe.qb.DocType(DOCTYPE)
+	for_equipment = agreement.equipment == equipment
+	if equipment_row.equipment_type:
+		for_equipment = for_equipment | (
+			_not_set(agreement.equipment) & (agreement.equipment_type == equipment_row.equipment_type)
+		)
+	if party_type == "Supplier":
+		for_party = agreement.supplier == party_name
+	elif party_type == "Customer":
+		for_party = agreement.customer == party_name
+	else:
+		for_party = (agreement.supplier == party_name) | (agreement.customer == party_name)
+	query = (
+		frappe.qb.from_(agreement)
+		.select(agreement.name, agreement.zone)
+		.where(agreement.docstatus == 1)
+		.where(agreement.company == company)
+		.where(agreement.valid_from <= date)
+		.where(agreement.valid_to.isnull() | (agreement.valid_to >= date))
+		.where(for_equipment)
+		.where(for_party)
+		.where(_value_or_not_set(agreement.project, project))
+		.where(_value_or_not_set(agreement.zone, zone))
+		.orderby(agreement.valid_from, order=frappe.qb.desc)
+		.orderby(agreement.name)
 	)
-	matches = []
-	for row in rows:
-		if not _in_force(row, date):
-			continue
-		if row.equipment:
-			if row.equipment != equipment:
-				continue
-		elif not equipment_row.equipment_type or row.equipment_type != equipment_row.equipment_type:
-			continue
-		if row.project and row.project != project:
-			continue  # another project, or a project agreement while no project is given
-		if zone and _value(row.zone) not in ("", zone):
-			continue
-		if not _party_matches(row, party):
-			continue
-		matches.append(row.name)
+	# the SQL zone comparison follows the column collation; the exact rule is normalise_zone
+	matches = [row.name for row in query.run(as_dict=True) if normalise_zone(row.zone) in ("", zone)]
 	if not matches:
 		return None
 	if len(matches) > 1:
@@ -189,6 +211,7 @@ def _check_scope(doc):
 					doc.equipment, doc.equipment_type
 				)
 			)
+		doc.equipment_type = row.equipment_type  # one key for one equipment (overlap check)
 	if doc.project:
 		project_company = frappe.db.get_value("Project", doc.project, "company")
 		if project_company != doc.company:
@@ -247,11 +270,11 @@ def _check_responsibilities(doc):
 				)
 			)
 		if row.equipment:
-			if doc.equipment and row.equipment != doc.equipment:
+			if doc.equipment:
 				frappe.throw(
-					_("CARD rate agreement: row {0}: the agreement is for equipment {1} only.").format(
-						row.idx, doc.equipment
-					)
+					_(
+						"CARD rate agreement: row {0}: leave the equipment empty; the agreement is already for equipment {1} only."
+					).format(row.idx, doc.equipment)
 				)
 			if (
 				not doc.equipment
@@ -284,17 +307,32 @@ def _check_responsibilities(doc):
 
 
 def check_overlap(doc):
-	"""Refuse a draft or a submit whose key and dates overlap a submitted agreement. At submit the company row is
-	locked (SELECT ... FOR UPDATE, no write), so two agreements of one company are submitted one after the other
-	and cannot both pass this check."""
-	if doc.docstatus == 1:
+	"""Refuse a draft or a submit whose key and dates overlap a submitted agreement.
+
+	At submit the company row is locked (SELECT ... FOR UPDATE, no write), so the submits of one company are
+	queued, and the clashing agreements are read with a locking read, which returns the latest committed rows and
+	not the request's REPEATABLE READ snapshot: the second of two concurrent submits sees the first one."""
+	locking = doc.docstatus == 1
+	if locking:
 		frappe.db.get_value("Company", doc.company, "name", for_update=True)
 	key = agreement_key(doc)
-	filters = {"docstatus": 1, "company": doc.company, "name": ["!=", doc.name or ""]}
+	agreement = frappe.qb.DocType(DOCTYPE)
+	query = (
+		frappe.qb.from_(agreement)
+		.select(agreement.name, agreement.valid_from, agreement.valid_to, *(agreement[f] for f in KEY_FIELDS))
+		.where(agreement.docstatus == 1)
+		.where(agreement.company == doc.company)
+		.where(agreement.name != (doc.name or ""))
+		.where(agreement.valid_to.isnull() | (agreement.valid_to >= doc.valid_from))
+	)
+	if doc.valid_to:
+		query = query.where(agreement.valid_from <= doc.valid_to)
 	for field in ("equipment", "equipment_type", "supplier", "customer", "project"):
-		filters[field] = doc.get(field) or ["is", "not set"]
-	rows = frappe.get_all(DOCTYPE, filters=filters, fields=["name", "valid_from", "valid_to", *KEY_FIELDS])
-	for row in rows:
+		value = _value(doc.get(field))
+		query = query.where(agreement[field] == value if value else _not_set(agreement[field]))
+	if locking:
+		query = query.for_update()
+	for row in query.run(as_dict=True):
 		if agreement_key(row) != key:
 			continue  # the work zone differs
 		if _overlaps(doc.valid_from, doc.valid_to, row.valid_from, row.valid_to):
