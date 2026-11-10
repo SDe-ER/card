@@ -51,7 +51,7 @@ def _invoice_lines(doctype, name):
 
 def _preview_lines(preview):
 	return [
-		{k: (item.get(k) or None) if k != "rate" else item[k] for k in COMPARED} for item in preview.items
+		{k: (item.get(k) or None) if k != "rate" else item[k] for k in COMPARED} for item in preview.lines
 	]
 
 
@@ -188,7 +188,7 @@ class TestPreviewGates(_PreviewBase):
 		frappe.db.set_single_value("Card Settings", "enable_accounting", 0)
 		preview = self._preview_without_writes("Supplier", self.supplier)
 		self.assertIn("disabled", preview.blocked)
-		self.assertFalse(preview.items)
+		self.assertFalse(preview.lines)
 
 	def test_unreviewed_manual_invoice_is_listed_and_the_post_still_refuses(self):
 		self._rental_card()
@@ -298,7 +298,7 @@ class TestPreviewAccess(_PreviewBase):
 		)
 		preview = preview_month(self.company, "Supplier", self.supplier, "9", "2026")
 		self.assertFalse(preview.blocked, preview.blocked)
-		self.assertTrue(preview.items)
+		self.assertTrue(preview.lines)
 		self.assertTrue(preview.can_review)
 
 	def test_roles_that_cannot_post_are_refused(self):

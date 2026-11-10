@@ -1124,7 +1124,7 @@ def preview_monthly_posting(company, party_type, party, month, year):
 		mode="rebuild" if drafts else "post",
 		replaces=[d.posting_doc for d in drafts],
 		currency=frappe.get_cached_value("Company", company, "default_currency"),
-		items=[],
+		lines=[],
 		sources=[],
 		review_invoices=[],
 		hidden_review_invoices=0,
@@ -1158,7 +1158,7 @@ def preview_monthly_posting(company, party_type, party, month, year):
 	out.update(
 		posting_date=str(plan.last_day),
 		sequence=plan.sequence,
-		items=items,
+		lines=items,
 		discount=flt(plan.total_discount, 2),
 		net_total=flt(sum(i["rate"] for i in items) - plan.total_discount, 2),
 		taxable_net=taxable,

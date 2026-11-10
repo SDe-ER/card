@@ -205,7 +205,7 @@ class CardMonthlyPosting {
 				<th>${__("VAT on the line")}</th>
 				<th class="text-right">${__("Amount")}</th>
 			</tr></thead><tbody></tbody></table>`);
-		for (const item of p.items) {
+		for (const item of p.lines) {
 			const vat = !p.tax_template
 				? __("No VAT")
 				: item.taxable

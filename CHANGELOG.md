@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
-- **CARD Monthly Posting page with a posting preview** (FR-119, refs #49 #126; PR to follow on branch
+- **CARD Monthly Posting page with a posting preview** (FR-119, refs #49 #126; PR #193, branch
   `feat/posting-preview-49`).
   - **Reason:** accountants built the month-end drafts blind: `post_month` / `rebuild_month` had no Desk screen and
     no way to see the lines before a draft Purchase / Sales Invoice was created and its sources reserved.
