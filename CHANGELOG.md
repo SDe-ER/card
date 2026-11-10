@@ -67,6 +67,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   price as before); data: one schedule row per priced company after migrate, no fill changed; API: `get_diesel_price_context`
   accepts an optional `date` (GET, read only). Rollback limits: reverting the code leaves the `Card Diesel Price` table and the
   seeded rows in the database (unused); fills saved while the schedule was active keep the price they took.
+- **Diesel fill project check** (FR-126, #124 WP-11, #31). Reason: diesel charged to an equipment that is not on the fill's
+  project puts the cost on the wrong project. A fill's direct-charge equipment and every listed equipment need a Card Equipment
+  Assignment on the fill's project in force on the fill date, by the rule of `card.transfer._in_force` (a from date on or before
+  the day, an empty or later to date; an assignment without a from date covers no day; the status field is not read, as in
+  `_in_force`). On the day of a project-to-project move the fill goes to the project the company's move-day rule (FR-117) gives
+  that day: the old project under "the day after the move", the new project under "on the move day". New Card Company Settings
+  Select `diesel_fill_project_check` (level 1) with CARD-specific values: "Off (diesel project check)", "Warn only (diesel project
+  check)" (default; an empty value also means Warn only: a message and the fill is saved) or "Refuse (diesel project check)".
+  Only a new fill, or a fill whose company, equipment, project or date changed, is checked; submitted fills never reach validate
+  and an unchanged draft submits as before. PR #196. Affected: `project_diesel_fill.py` (`ProjectDieselFill._check_equipment_on_project`,
+  `equipment_on_project`, `_filled_equipment_of`), `card_company_settings.json`, locale. Impact: permissions none; accounting
+  none (no GL; nothing reposted); data none (no patch, no fill changed); API none. Default: Warn, so existing work only sees a
+  message. The equipment-status guard for diesel fills (TODO of PR #191) is not included because `card/equipment_status.py` is
+  not on main yet; it is a follow-up. Rollback limits: reverting removes the check; the stored setting value stays unused in the
+  database.
 - **Transport costs the company does not pay, and an "other party" responsibility** (FR-120, refs #43, #48, #121;
   WP-14; PR #190).
   - **Reason:** when the equipment supplier, the customer or another party pays a move, the amount agreed with
