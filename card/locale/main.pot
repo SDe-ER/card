@@ -5064,3 +5064,7 @@ msgstr ""
 #: card/card/report/equipment_location_history/equipment_location_history.py
 msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
 msgstr ""
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price fuel type"
+msgstr ""
