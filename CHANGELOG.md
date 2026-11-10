@@ -478,7 +478,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   level 0 with a child field below its level fails; same check on the installed meta; role probes for every CARD
   role and Accounts Manager on the three routes, the report-view filter and the form; component history masked);
   `card/tests/test_equipment_g2.py` (the #59 Version check now expects the masked component row). Impact on
-  permissions: level-0-only readers lose these rows on every route; readers of the table's level keep the form, the
+  permissions: level-0-only readers lose the plain field values on the routes listed under "Closed" below; readers
+  of the table's level keep the form, the
   print, report view (child columns and filters) and every server path (`frappe.get_all` / `frappe.db`, used by the
   posting, transport price, diesel price, component and location history code). Two Frappe 16 behaviours to know:
   (1) `frappe.client.get_list` / `get_value` on a child DocType return no field above level 0 to anyone, readers of
@@ -486,11 +487,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   no CARD Desk script, report, print or CARD Mobile screen reads these rows that way (Card Company Settings has
   behaved so since v1.2.2). (2) The change history of Card Equipment masks every field above level 0 for every
   reader (`card/field_privacy.py`, owner decision 2026-10-31): component row changes in new Versions keep who and
-  when, not the values. Residual, not closed by this change: a direct child query
-  (`frappe.client.get_list("<Child>", parent=..., filters={"<child field>": ...})`) still answers a guessed value
-  as a row count, because Frappe 16 checks no field level on a filter of the queried child DocType
-  (`frappe/database/query.py`, simple field filter with no `parent_doctype` for the permission check); closing it
-  needs a whitelisted-method override registered in `card/hooks.py` (follow-up). Accounting, data and API: no GL,
+  when, not the values. **Closed** for a level-0-only reader of the parent (sandbox probes, every fixed table):
+  plain child fields selected through `frappe.client.get_list` / `get_value` with `parent=`, report-view child
+  columns of a non-Single parent, report-view filters on child fields of the parent query (PermissionError), the
+  form, `frappe.client.get`, prints and the Card Equipment change history from now on. **Still open** (the same
+  readers, every fixed table, the level-2 tables included when a role reads Card Settings at level 0 only): queries
+  on the child DocType itself with `parent=<Parent>`, through `frappe.client.get_list` / `get_value`,
+  `frappe.desk.reportview.get` / `get_list` / `get_count` (doctype = the child, `parent_doctype` = the parent) and
+  REST v1 `/api/resource/<Child>?parent=<Parent>`: (a) a filter or `order_by` / `group_by` on a child field answers
+  a guessed value or the order of the hidden values (a row or none, a count); (b) an aggregate field
+  (`fields=[{"MAX": "<child field>"}]`) returns the hidden value itself. REST v2 `/api/v2/document/<Child>` is
+  refused. Cause, in Frappe 16 core: `frappe/database/query.py` skips the field-level check when the queried DocType
+  has no permissions of its own (every child DocType), and `frappe/permissions.py` `has_child_permission` checks the
+  table's level only for a given row; a `permission_query_conditions` hook on the child is not applied (the query
+  is permission-checked against the parent). Closing it in CARD alone is not possible: an
+  `override_whitelisted_methods` entry covers the `/api/method/...` routes only, because REST v1 `/api/resource`
+  calls `frappe.client.get_list` directly, and `before_request` hooks run before token authentication. The
+  trade-off is with the owner (an override of the method routes only, or an upstream Frappe fix). Accounting, data
+  and API: no GL,
   no data change, no new endpoint. Rollback limits: revert the commit and migrate; the levels return to 0. Versions
   written while the change was live keep the masked component values (nothing to restore; the rows themselves are
   unchanged). Versions written before it keep their raw values.
