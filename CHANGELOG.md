@@ -376,21 +376,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     correct for the component tables.
 
 ### Fixed
-- **VAT rate of the CARD item tax templates from company settings** (FR-127, #50, PR #199). Reason: `ensure_posting_masters`
-  created "CARD VAT 15% - <abbr>" with the rate 15 hardcoded, and the posting preview (`_masters_to_provision`) and the
-  preflight (`check_template_mapping`) also expected a hardcoded 15; CARD rules forbid a hardcoded VAT rate. Card Company
-  Settings gets the Percent field `vat_rate` ("CARD standard VAT rate (%)", level 1, default 15); Card Settings refuses a rate
-  that is not above 0 and below 100. New helper `card.gl.masters.standard_vat_rate(row)` returns it and stops on a missing or
-  out-of-range rate (no silent fallback). The standard template is created as "CARD VAT {rate}% - <abbr>" at the configured
-  rate; an existing linked template is never renamed, and the existing reconcile (`_reconcile_item_tax_template`, unchanged)
-  re-points its rows at the configured rate, as it already did for drifted heads. The 0% template stays 0. Tests:
-  `card/tests/test_vat_rate_setting.py`. Impact: default 15 keeps every existing template name, rate and posting unchanged
-  (the new column is added with DEFAULT 15, so existing rows read 15; no patch). Permissions: none changed (the field is
-  level 1 like the tax templates). Accounting: only when an owner changes `vat_rate`, the next posting master setup updates
-  the rows of the linked template (a master); submitted invoices keep their own tax rows; draft invoices built before the
-  change keep their item tax rates until rebuilt. No VAT is inferred for any party. API: none. Rollback: revert the commit;
-  the `vat_rate` column stays in the database until removed (harmless); a template whose rate was changed is not reset by
-  the revert — set the rate back to 15 and re-run the setup first.
+- **VAT rate of the CARD item tax templates from the company's tax templates** (FR-127, #50, PR #199). Reason:
+  `ensure_posting_masters` created "CARD VAT 15% - <abbr>" with the rate 15 hardcoded, and the posting preview
+  (`_masters_to_provision`) and the preflight (`check_template_mapping`) also expected a hardcoded 15; CARD rules forbid a
+  hardcoded VAT rate. One source of truth, no new field: `card.gl.masters.standard_vat_rate(row)` is the single positive
+  rate of the company's configured purchase and sales tax templates (Card Company Settings `purchase_tax_template` /
+  `sales_tax_template`); a purchase and a sales template with different rates are refused (masters setup, preflight,
+  preview block); no configured template gives no rate and no VAT lines, exactly as before; nothing is inferred. The
+  item tax template, the posting preview (`_template_vat_rate`), the diesel inclusive net-back and the reconciliation
+  (`_vat_rate`) all read this one rate. The rate rows of an existing linked item tax template are never changed
+  (ERPNext recalculates `item_tax_rate` from the template on every validate, so changing them would change the VAT of
+  old drafts at submit): at the same rate only its accounts are reconciled; at another rate a new "CARD VAT {rate}% -
+  <abbr>" template is created and linked in the company row, and the old template stays as it is (not renamed, rates
+  unchanged). The 0% template stays 0. The built posting log now also stores the built VAT (each line's
+  `item_tax_rate` and `total_taxes_and_charges`, `integrity.vat_snapshot`, outside the signature); the submit gate
+  (`check_built_vat`, before the signature match) refuses a draft whose VAT changed since the build; a log written before
+  this change has no VAT key and is compared exactly as before. Tests: `card/tests/test_vat_rate_setting.py`. Impact:
+  with the 15% templates in use, template names, rates and postings are unchanged. Permissions: none. Schema: none.
+  Accounting: a changed company tax template rate gives new drafts the new rate; old drafts keep theirs; a draft whose
+  VAT changed between build and submit is refused (rebuild). API: the posting log's `built_snapshot` JSON gains the key
+  `vat` for new builds. Rollback: revert the commits; a "CARD VAT {rate}%" template created meanwhile stays (a master,
+  harmless) and stays linked in the company row until the row is cleared.
 - **Diesel fill: a rejected fill returned to review re-checks its meter photos** (FR-085, PR #165). A rejected fill does not
   hold its photo, so a corrected fill may reuse it. Moving the rejected fill back to Draft or Needs Review did not check
   the photos again (the check ran only when a photo or the company changed), so two live fills could prove one photo

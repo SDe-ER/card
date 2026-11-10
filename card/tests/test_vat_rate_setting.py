@@ -1,37 +1,63 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
-"""FR-127 (#50): the standard rate of the CARD item tax template comes from the company's Card Company
-Settings row (`vat_rate`, default 15), not from a hardcoded 15. The 0% template stays 0. An existing
-linked template is never renamed; its rows are reconciled to the configured rate as before."""
+"""FR-127 (#50): ONE VAT source per company. The standard rate of the CARD item tax template is the single
+positive rate of the company's configured purchase/sales tax templates (no hardcoded 15, nothing inferred).
+The rate rows of an existing linked template are never changed: a new rate gets a new "CARD VAT {rate}% -
+<abbr>" template and the old one stays for the drafts that use it. A built draft whose VAT changed before
+submit is refused."""
 
 import frappe
 from frappe.utils import flt
 
+from card.gl import integrity
 from card.gl.masters import _abbr, ensure_posting_masters, standard_vat_rate, vat_account_heads
+from card.gl.posting import _template_vat_rate, _vat_rate, build_monthly_posting
 from card.gl.preflight import check_template_mapping
 from card.tests.test_s3_posting import _PostingBase
 
 
-class TestVatRateSetting(_PostingBase):
-	def setUp(self):
-		super().setUp()
-		self._set_rate(15)
+def _rated_template(doctype, company, title, account_head, rate):
+	existing = frappe.db.get_value(doctype, {"title": title, "company": company}, "name")
+	if existing:
+		return existing
+	row = {
+		"charge_type": "On Net Total",
+		"account_head": account_head,
+		"rate": rate,
+		"description": f"VAT {rate:g}%",
+	}
+	if doctype == "Purchase Taxes and Charges Template":
+		row.update({"category": "Total", "add_deduct_tax": "Add"})
+	doc = frappe.get_doc({"doctype": doctype, "title": title, "company": company, "taxes": [row]})
+	doc.insert(ignore_permissions=True)
+	return doc.name
 
-	def tearDown(self):
-		self._set_rate(15)
-		super().tearDown()
 
+class TestVatRateFromTaxTemplates(_PostingBase):
 	def _settings_row(self):
 		settings = frappe.get_doc("Card Settings")
 		return settings, next(r for r in settings.company_settings if r.company == self.company)
 
-	def _set_rate(self, rate, clear_templates=True):
+	def _use_templates(self, purchase_rate, sales_rate):
+		pt = _rated_template(
+			"Purchase Taxes and Charges Template",
+			self.company,
+			f"Test CARD Purchase VAT {purchase_rate:g}",
+			self.vat_in,
+			purchase_rate,
+		)
+		st = _rated_template(
+			"Sales Taxes and Charges Template",
+			self.company,
+			f"Test CARD Sales VAT {sales_rate:g}",
+			self.vat_out,
+			sales_rate,
+		)
 		settings, row = self._settings_row()
-		row.vat_rate = rate
-		if clear_templates:
-			row.vat_item_tax_template = ""
-			row.vat_zero_item_tax_template = ""
+		row.purchase_tax_template = pt
+		row.sales_tax_template = st
 		settings.save(ignore_permissions=True)
+		return self._settings_row()[1]
 
 	def _rates(self, template):
 		return {
@@ -41,18 +67,11 @@ class TestVatRateSetting(_PostingBase):
 			)
 		}
 
-	def test_field_default_is_15(self):
-		meta = frappe.get_meta("Card Company Settings")
-		df = meta.get_field("vat_rate")
-		self.assertEqual(df.fieldtype, "Percent")
-		self.assertEqual(flt(df.default), 15)
-		self.assertFalse(df.description)
-		self.assertEqual(flt(frappe.new_doc("Card Company Settings").vat_rate), 15)
-
-	def test_default_keeps_existing_names_and_rates(self):
+	def test_default_15_keeps_existing_names_and_rates(self):
 		row = ensure_posting_masters(self.company)
 		abbr = _abbr(self.company)
 		heads = vat_account_heads(row)
+		self.assertEqual(standard_vat_rate(row), 15)
 		self.assertEqual(
 			frappe.db.get_value("Item Tax Template", row.vat_item_tax_template, "title"),
 			f"CARD VAT 15% - {abbr}",
@@ -65,53 +84,107 @@ class TestVatRateSetting(_PostingBase):
 		self.assertEqual(self._rates(row.vat_zero_item_tax_template), {h: 0.0 for h in heads})
 		check_template_mapping(row)
 
-	def test_configured_rate_names_and_rates_the_new_template(self):
-		self._set_rate(5)
+	def test_rate_change_creates_a_new_template_and_leaves_the_old(self):
 		row = ensure_posting_masters(self.company)
-		abbr = _abbr(self.company)
+		old = row.vat_item_tax_template
+		old_title = frappe.db.get_value("Item Tax Template", old, "title")
+		old_rates = self._rates(old)
+		zero = row.vat_zero_item_tax_template
+
+		self._use_templates(5, 5)
+		row = ensure_posting_masters(self.company)
 		heads = vat_account_heads(row)
+		self.assertNotEqual(row.vat_item_tax_template, old)
 		self.assertEqual(
 			frappe.db.get_value("Item Tax Template", row.vat_item_tax_template, "title"),
-			f"CARD VAT 5% - {abbr}",
+			f"CARD VAT 5% - {_abbr(self.company)}",
 		)
 		self.assertEqual(self._rates(row.vat_item_tax_template), {h: 5.0 for h in heads})
-		# the zero-rated template is not a guessed VAT: it stays 0
-		self.assertEqual(self._rates(row.vat_zero_item_tax_template), {h: 0.0 for h in heads})
+		# the old template is not renamed and its rate rows are unchanged
+		self.assertEqual(frappe.db.get_value("Item Tax Template", old, "title"), old_title)
+		self.assertEqual(self._rates(old), old_rates)
+		# the zero-rated template is not a guessed VAT: it stays 0 and stays linked
+		self.assertEqual(row.vat_zero_item_tax_template, zero)
+		self.assertEqual(self._rates(zero), {h: 0.0 for h in heads})
 		check_template_mapping(row)
 
-	def test_existing_template_is_not_renamed(self):
-		row = ensure_posting_masters(self.company)
-		linked = row.vat_item_tax_template
-		title = frappe.db.get_value("Item Tax Template", linked, "title")
-		self._set_rate(5, clear_templates=False)
-		row = ensure_posting_masters(self.company)
-		self.assertEqual(row.vat_item_tax_template, linked)
-		self.assertEqual(frappe.db.get_value("Item Tax Template", linked, "title"), title)
-		self.assertTrue(frappe.db.exists("Item Tax Template", linked))
-		# the existing reconcile re-points the template rows at the configured rate
-		self.assertEqual(self._rates(linked), {h: 5.0 for h in vat_account_heads(row)})
-		check_template_mapping(row)
+	def test_old_draft_keeps_its_rate(self):
+		self._vat_supplier()
+		self._example_card()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		taxes_before = flt(pi.total_taxes_and_charges, 2)
+		line_rates_before = [i.item_tax_rate for i in pi.items]
 
-	def test_preflight_refuses_a_template_off_the_configured_rate(self):
-		row = ensure_posting_masters(self.company)
-		_settings, fresh = self._settings_row()
-		fresh.vat_rate = 5  # in memory only: the provisioned template still carries 15
-		self.assertRaisesRegex(frappe.ValidationError, "flat 5%", check_template_mapping, fresh)
-		check_template_mapping(row)
+		self._use_templates(5, 5)
+		ensure_posting_masters(self.company)
 
-	def test_validation(self):
-		for bad in (0, 100, 150, -1):
-			settings, row = self._settings_row()
-			row.vat_rate = bad
-			with self.assertRaises(frappe.ValidationError, msg=f"vat_rate {bad} accepted"):
-				settings.save(ignore_permissions=True)
-		self._set_rate(7.5)
+		pi.reload()
+		pi.bill_no = "FR127-" + frappe.generate_hash(length=8)
+		pi.bill_date = pi.posting_date
+		pi.save()
+		self.assertEqual([i.item_tax_rate for i in pi.items], line_rates_before)
+		self.assertEqual(flt(pi.total_taxes_and_charges, 2), taxes_before)
+
+	def test_snapshot_refuses_a_vat_change(self):
+		self._vat_supplier()
+		self._example_card()
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		log = frappe.get_doc("GL Posting Log", {"posting_doc": pi.name})
+		built = frappe.parse_json(log.built_snapshot)
+		self.assertIn("vat", built)
+		self.assertEqual(built["vat"], integrity.vat_snapshot(pi))
+		# the template's rate is edited outside CARD: ERPNext recalculates the draft's line VAT on save
+		template = frappe.get_doc("Item Tax Template", pi.items[0].item_tax_template)
+		original = [(t.tax_type, t.tax_rate) for t in template.taxes]
+		try:
+			for t in template.taxes:
+				t.tax_rate = 10
+			template.save(ignore_permissions=True)
+			pi.reload()
+			pi.bill_no = "FR127-" + frappe.generate_hash(length=8)
+			pi.bill_date = pi.posting_date
+			pi.save()
+			self.assertNotEqual(integrity.vat_snapshot(pi), built["vat"])
+			self.assertRaisesRegex(frappe.ValidationError, "VAT changed", pi.submit)
+			# a snapshot stored before FR-127 has no VAT key: it is compared exactly as before
+			integrity.check_built_vat(pi, {k: v for k, v in built.items() if k != "vat"})
+		finally:
+			template.reload()
+			template.set("taxes", [{"tax_type": a, "tax_rate": r} for a, r in original])
+			template.save(ignore_permissions=True)
+
+	def test_preview_and_diesel_use_the_same_rate(self):
+		row = self._use_templates(5, 5)
+		ensure_posting_masters(self.company)
+		row = self._settings_row()[1]
+		self.assertEqual(standard_vat_rate(row), 5)
+		self.assertEqual(_template_vat_rate(row.purchase_tax_template, row), 5)
+		self.assertEqual(_template_vat_rate(row.sales_tax_template, row), 5)
+		self.assertEqual(_vat_rate(row), 5)
+		self.assertEqual(set(self._rates(row.vat_item_tax_template).values()), {5.0})
+		self.assertEqual(_template_vat_rate(None, row), 0.0)
+
+	def test_purchase_and_sales_rates_differing_are_refused(self):
+		row = self._use_templates(5, 15)
+		self.assertRaisesRegex(frappe.ValidationError, "different VAT rates", standard_vat_rate, row)
+		self.assertRaisesRegex(
+			frappe.ValidationError, "different VAT rates", ensure_posting_masters, self.company
+		)
+		self.assertRaisesRegex(
+			frappe.ValidationError,
+			"different VAT rates",
+			check_template_mapping,
+			row,
+			provisioned=False,
+		)
+
+	def test_no_template_no_rate(self):
 		_settings, row = self._settings_row()
-		self.assertEqual(flt(row.vat_rate), 7.5)
-
-	def test_out_of_range_rate_stops_provisioning(self):
-		_settings, row = self._settings_row()
-		row.vat_rate = 0
-		self.assertRaises(frappe.ValidationError, standard_vat_rate, row)
-		row.vat_rate = 15
-		self.assertEqual(standard_vat_rate(row), 15)
+		row.purchase_tax_template = ""
+		row.sales_tax_template = ""
+		self.assertIsNone(standard_vat_rate(row))
+		self.assertEqual(_template_vat_rate(None, row), 0.0)

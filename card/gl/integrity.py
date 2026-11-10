@@ -113,10 +113,50 @@ def full_signature(snap):
 	return _hash(snap)
 
 
-def stored_snapshot(snap):
-	"""The JSON kept in the log's built_snapshot: the snapshot plus the builder version. The version stays out of
-	the signature, so a draft is compared on its content only."""
-	return frappe.as_json({**snap, "builder": BUILDER_VERSION})
+def _item_tax_rates(value):
+	"""A line's item_tax_rate (the JSON ERPNext recalculates from the item tax template on every validate)."""
+	try:
+		rates = frappe.parse_json(value) if value else {}
+	except Exception:
+		return {"invalid": str(value)}
+	if not isinstance(rates, dict):
+		return {"invalid": str(value)}
+	return {str(k): flt(v, 6) for k, v in sorted(rates.items())}
+
+
+def vat_snapshot(doc):
+	"""FR-127: the VAT CARD built — each line's tax rates and the invoice's total taxes. Kept beside the
+	snapshot (not in the signature), so drafts built before it are compared exactly as before."""
+	return {
+		"line_tax_rates": [_item_tax_rates(i.get("item_tax_rate")) for i in doc.get("items") or []],
+		"total_taxes_and_charges": flt(doc.get("total_taxes_and_charges"), 2),
+	}
+
+
+def stored_snapshot(snap, vat=None):
+	"""The JSON kept in the log's built_snapshot: the snapshot plus the builder version (and, FR-127, the built
+	VAT). They stay out of the signature, so a draft is compared on its content only."""
+	payload = {**snap, "builder": BUILDER_VERSION}
+	if vat is not None:
+		payload["vat"] = vat
+	return frappe.as_json(payload)
+
+
+def check_built_vat(doc, built):
+	"""FR-127: the VAT of a built draft must still be the VAT CARD built (ERPNext recalculates the line tax
+	rates from the item tax template on every save). Only a snapshot that recorded the VAT is compared."""
+	if "vat" not in (built or {}):
+		return
+	current = vat_snapshot(doc)
+	if current != built["vat"]:
+		frappe.throw(
+			_(
+				"{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
+			).format(
+				doc.name, built["vat"].get("total_taxes_and_charges"), current["total_taxes_and_charges"]
+			),
+			title=_("CARD posting changed"),
+		)
 
 
 def builder_version(built):
@@ -233,6 +273,8 @@ def check_built_signature(doc, log):
 	built = json.loads(log.built_snapshot)
 	# before the signature match: an accepted correction of an old draft does not bypass it
 	check_builder_version(doc, log, built)
+	# FR-127: before the signature match too: an accepted correction never covers a VAT change
+	check_built_vat(doc, built)
 	current = snapshot(doc)
 	signature = full_signature(current)
 	if signature in (log.built_signature, log.get("accepted_signature")):
@@ -573,7 +615,7 @@ def link_supplier_invoice(
 	if invoice_has_vat and settings_row and settings_row.get("purchase_tax_template"):
 		from card.gl.posting import _vat_rate
 
-		vat_rate = _vat_rate(settings_row.purchase_tax_template)
+		vat_rate = _vat_rate(settings_row)
 	unverified = []
 	for doctype, items in rows.items():
 		for i, (name, _amount) in enumerate(items):

@@ -258,8 +258,10 @@ def check_template_mapping(row, provisioned=True):
 				).format(_(accounts_meta.get_label(toggle)))
 			)
 	heads = vat_account_heads(row)
+	# FR-127: one standard rate per company; a purchase and a sales template with different rates stop here
+	standard_rate = flt(standard_vat_rate(row))
 	for fieldname, expected_rate in (
-		("vat_item_tax_template", standard_vat_rate(row)),
+		("vat_item_tax_template", standard_rate),
 		("vat_zero_item_tax_template", 0),
 	):
 		template = row.get(fieldname)

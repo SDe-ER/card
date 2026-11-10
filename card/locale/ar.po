@@ -6067,11 +6067,14 @@ msgstr "الطرف الآخر {0} معطّل."
 msgid "The agreed amount (not company cost) cannot be negative."
 msgstr "لا يمكن أن يكون المبلغ المتفق عليه (ليس تكلفة على الشركة) سالبًا."
 
-#: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "CARD standard VAT rate (%)"
-msgstr "نسبة ضريبة القيمة المضافة القياسية في CARD (%)"
-
-#: card/card/doctype/card_settings/card_settings.py
 #: card/gl/masters.py
-msgid "CARD standard VAT rate for company {0} must be greater than 0 and less than 100."
-msgstr "يجب أن تكون نسبة ضريبة القيمة المضافة القياسية في CARD للشركة {0} أكبر من 0 وأقل من 100."
+msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
+msgstr "قالبا ضريبة المشتريات والمبيعات للشركة {0} يحملان نسبتي ضريبة قيمة مضافة مختلفتين ({1})؛ يرحّل CARD نسبة ضريبة قياسية واحدة لكل شركة. وحّد القالبين قبل الترحيل."
+
+#: card/gl/masters.py
+msgid "Item tax template {0} does not carry the rate {1}%; CARD never changes the rate of an existing template."
+msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ لا يغيّر CARD نسبة قالب موجود أبدًا."
+
+#: card/gl/integrity.py
+msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
+msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."

@@ -4828,11 +4828,14 @@ msgstr ""
 msgid "The agreed amount (not company cost) cannot be negative."
 msgstr ""
 
-#: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "CARD standard VAT rate (%)"
+#: card/gl/masters.py
+msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
 msgstr ""
 
-#: card/card/doctype/card_settings/card_settings.py
 #: card/gl/masters.py
-msgid "CARD standard VAT rate for company {0} must be greater than 0 and less than 100."
+msgid "Item tax template {0} does not carry the rate {1}%; CARD never changes the rate of an existing template."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
 msgstr ""
