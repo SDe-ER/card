@@ -2,14 +2,16 @@
 # For license information, please see LICENSE
 """FR-147 (#49, WP-S1): the Card Period Run.
 
-Proven here: the build (cards of the company-month, totals per side, version, fingerprints; internal cards, other
-months and other companies left out), a new version on cancel and amend, an approval tied to the exact version and
-snapshot, stale detection (a changed, added or removed card; posting links excepted), the no-self-approval rule
-per run (Warn by default, Refuse when set, never lowered, kept by an amendment, every earlier preparer counts), the
+Proven here: the build (the billable cards of the company-month, totals per side, version, fingerprints; internal
+cards, other months and other companies left out), the mixed month (cards, diesel fills, FR-139 transports) whose
+totals per side equal what the posting would bill, a new version on cancel and amend backed by a unique index,
+an approval tied to the exact version and snapshot, stale detection (a changed, added or removed source; posting
+links and new empty fields excepted), a cancel that changes the run refused, the no-self-approval rule per run
+(Warn by default, Refuse when set, never lowered, kept by an amendment, every earlier preparer counts), the
 approval fields written by the server on every route (REST insert, ``frappe.client.set_value``, REST PUT,
 savedocs, bulk update, bulk cancel), the company isolation (record, list, endpoints, amendment), the money
 permlevel, the GET endpoint writing nothing, and the one-active-run guard under two concurrent requests. No GL,
-invoice or card is written by a run. All data is per-test and rolled back, except in the concurrency case."""
+invoice or source document is written by a run. All data is per-test and rolled back, except in the concurrency case."""
 
 from unittest.mock import patch
 
@@ -19,15 +21,21 @@ from frappe.client import set_value as rest_set_value
 from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
+from card.card.doctype.equipment_transport.equipment_transport import record_financial_decision
 from card.company_scope import company_query_conditions, has_company_permission
 from card.constants import DIR_RENTED_IN
-from card.gl import period_run
+from card.gl import period_run, preflight
+from card.gl.posting import build_monthly_posting, preview_monthly_posting
 from card.tests.cancel_reason import with_reason
 from card.tests.test_controllers import _days
 from card.tests.test_customer import _CustomerCardsBase
+from card.tests.test_posting_preview import _PreviewBase
+from card.tests.test_s3_posting import _leaf_under
+from card.tests.transport_parties import as_recorded_before_p12, company_paid
 
 RUN = "Card Period Run"
 CARD = "Card Monthly Card"
+TRANSPORT = "Equipment Transport"
 MONTH, YEAR = "09", 2026
 
 
@@ -165,13 +173,13 @@ class TestPeriodRun(_CustomerCardsBase):
 
 	def _change_card(self, name):
 		"""A change through the card's own allow-on-submit route is not needed: any stored change counts."""
-		frappe.db.set_value(CARD, name, "operator_name", "Changed " + self.token)
+		frappe.db.set_value(CARD, name, "total_working_hours", 99)
 
 	# ---------- build ----------
 	def test_build_snapshots_the_billable_cards_of_the_month(self):
 		other_month = self._card(self._equipment(), [5], month="04")
 		run = self._build()
-		cards = {r.card: r for r in run.cards}
+		cards = {r.source_name: r for r in run.sources}
 		self.assertIn(self.rented, cards)
 		self.assertIn(self.sub, cards)
 		self.assertNotIn(self.internal, cards)
@@ -184,13 +192,15 @@ class TestPeriodRun(_CustomerCardsBase):
 		self.assertEqual(flt(cards[self.sub].supplier_amount), 750.0)
 		self.assertEqual(flt(cards[self.sub].customer_amount), 1200.0)
 		self.assertEqual(cards[self.sub].customer, self.customer)
-		self.assertEqual(flt(run.supplier_total), flt(sum(flt(r.supplier_amount) for r in run.cards), 2))
-		self.assertEqual(flt(run.customer_total), flt(sum(flt(r.customer_amount) for r in run.cards), 2))
-		self.assertEqual(run.card_count, len(run.cards))
+		self.assertEqual(flt(run.supplier_total), flt(sum(flt(r.supplier_amount) for r in run.sources), 2))
+		self.assertEqual(flt(run.customer_total), flt(sum(flt(r.customer_amount) for r in run.sources), 2))
+		self.assertEqual(run.source_count, len(run.sources))
 		self.assertEqual(run.currency, frappe.db.get_value("Company", self.company, "default_currency"))
-		for row in run.cards:
+		for row in run.sources:
 			self.assertEqual(len(row.content_hash), 64)
-			self.assertEqual(row.card_modified, frappe.db.get_value(CARD, row.card, "modified"))
+			self.assertEqual(
+				row.source_modified, frappe.db.get_value(row.source_doctype, row.source_name, "modified")
+			)
 		self.assertTrue(period_run.check_current(run).current)
 
 	def test_client_rows_and_totals_are_never_kept(self):
@@ -206,12 +216,20 @@ class TestPeriodRun(_CustomerCardsBase):
 					"snapshot_hash": "forged",
 				}
 			)
-			doc.append("cards", {"card": self.internal, "supplier_amount": 5, "content_hash": "x"})
+			doc.append(
+				"sources",
+				{
+					"source_doctype": CARD,
+					"source_name": self.internal,
+					"supplier_amount": 5,
+					"content_hash": "x",
+				},
+			)
 			return doc.insert()
 
 		run = self._as(self.preparer, go)
 		self.assertEqual(run.version, 1)
-		self.assertNotIn(self.internal, [r.card for r in run.cards])
+		self.assertNotIn(self.internal, [r.source_name for r in run.sources])
 		self.assertNotEqual(run.snapshot_hash, "forged")
 		self.assertGreater(flt(run.supplier_total), 1)
 
@@ -222,7 +240,7 @@ class TestPeriodRun(_CustomerCardsBase):
 		again = self._build()  # build_run saves the active draft again
 		self.assertEqual(again.name, run.name)
 		self.assertEqual(again.version, 1)
-		self.assertIn(late, [r.card for r in again.cards])
+		self.assertIn(late, [r.source_name for r in again.sources])
 		self.assertTrue(period_run.check_current(again).current)
 
 	def test_a_month_without_billable_cards_is_refused(self):
@@ -362,12 +380,116 @@ class TestPeriodRun(_CustomerCardsBase):
 		self.assertEqual(self._stored(run.name).approval_status, period_run.PENDING)
 
 	def test_fingerprint_covers_the_rows(self):
-		before = period_run.card_fingerprint(frappe.get_doc(CARD, self.rented))
+		before = period_run.document_fingerprint(frappe.get_doc(CARD, self.rented))
 		row = frappe.get_all("Card Monthly Card Day", filters={"parent": self.rented}, pluck="name", limit=1)[
 			0
 		]
 		frappe.db.set_value("Card Monthly Card Day", row, "working_hours", 9)
-		self.assertNotEqual(period_run.card_fingerprint(frappe.get_doc(CARD, self.rented)), before)
+		self.assertNotEqual(period_run.document_fingerprint(frappe.get_doc(CARD, self.rented)), before)
+
+	def test_fingerprint_ignores_unlisted_and_new_empty_fields(self):
+		"""A field outside the versioned list (here the operator's name) does not count, and a field added to the
+		list (as a later DocType field would be) does not change a fingerprint while it is empty: a migration that
+		adds fields never makes an approved run stale."""
+		run = self._approved()
+		before = period_run.document_fingerprint(frappe.get_doc(CARD, self.rented))
+		frappe.db.set_value(CARD, self.rented, "operator_name", "Changed " + self.token)
+		doc = frappe.get_doc(CARD, self.rented)
+		self.assertEqual(period_run.document_fingerprint(doc), before)
+		fields, tables = period_run.FINGERPRINT_FIELDS[1][CARD]
+		extended = {
+			**period_run.FINGERPRINT_FIELDS[1],
+			CARD: (
+				(*fields, "new_empty_field"),
+				{**tables, "days": (*tables["days"], "new_empty_row_field")},
+			),
+		}
+		with patch.dict(period_run.FINGERPRINT_FIELDS, {1: extended}):
+			self.assertEqual(period_run.document_fingerprint(doc), before)
+			self.assertTrue(period_run.check_current(frappe.get_doc(RUN, run.name)).current)
+		self.assertEqual(period_run.approved_run(self.company, MONTH, YEAR), run.name)
+
+	def test_version_is_unique_per_company_and_month(self):
+		indexes = frappe.db.sql(
+			f"show index from `tab{RUN}` where Key_name = 'unique_company_month_version'", as_dict=True
+		)
+		self.assertEqual([i.Column_name for i in indexes], ["company", "month", "year", "version"])
+		self.assertTrue(all(not i.Non_unique for i in indexes))
+		run = self._build()
+		twin = frappe.copy_doc(run)
+		twin.name = "TEST-PR-TWIN-" + self.token
+		twin.version = run.version
+		with self.assertRaises((frappe.UniqueValidationError, frappe.DuplicateEntryError)):
+			twin.db_insert()
+
+	# ---------- a cancel changes nothing ----------
+	def test_cancel_that_changes_the_run_is_refused_on_every_route(self):
+		from frappe.api import v1
+		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+		from frappe.desk.form.save import savedocs
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		run = self._submitted()
+		stored = self._stored(run.name, "version", "snapshot_hash", "source_count", "supplier_total")
+		rows = frappe.get_all(
+			"Card Period Run Source",
+			filters={"parent": run.name},
+			fields=["name", "supplier_amount"],
+			order_by="idx",
+		)
+		frappe.set_user(self.preparer)
+		for data in (
+			{"docstatus": 2, "version": 9},
+			{"docstatus": 2, "snapshot_hash": "0" * 64},
+			{"docstatus": 2, "source_count": 1, "supplier_total": 1},
+		):
+			with self.subTest(route="PUT", data=data):
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json(data))
+				with self.assertRaises(CancelChangesDocumentError):
+					v1.update_doc(RUN, run.name)
+		forged = frappe.get_doc(RUN, run.name).as_dict()
+		forged["sources"][0]["content_hash"] = "0" * 64
+		with self.assertRaises(CancelChangesDocumentError):
+			savedocs(frappe.as_json(forged), "Cancel")
+		forged = frappe.get_doc(RUN, run.name).as_dict()
+		forged["sources"] = forged["sources"][1:]
+		with self.assertRaises(CancelChangesDocumentError):
+			savedocs(frappe.as_json(forged), "Cancel")
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			failed = submit_cancel_or_update_docs(RUN, [run.name], "update", {"docstatus": 2, "version": 9})
+		self.assertEqual(failed, [run.name])
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(run.name).docstatus, 1)
+		self.assertEqual(
+			self._stored(run.name, "version", "snapshot_hash", "source_count", "supplier_total"), stored
+		)
+		self.assertEqual(
+			frappe.get_all(
+				"Card Period Run Source",
+				filters={"parent": run.name},
+				fields=["name", "supplier_amount"],
+				order_by="idx",
+			),
+			rows,
+		)
+		# a level-1 amount sent with a cancel is reset by Frappe (the preparer cannot write level 1): the cancel
+		# itself goes through and the stored amount is kept
+		frappe.set_user(self.preparer)
+		forged = frappe.get_doc(RUN, run.name).as_dict()
+		forged["sources"][0]["supplier_amount"] = 1
+		savedocs(frappe.as_json(forged), "Cancel")
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(run.name).docstatus, 2)
+		self.assertEqual(
+			frappe.get_all(
+				"Card Period Run Source",
+				filters={"parent": run.name},
+				fields=["name", "supplier_amount"],
+				order_by="idx",
+			),
+			rows,
+		)
 
 	# ---------- self-approval ----------
 	def test_self_approval_warns_by_default(self):
@@ -709,7 +831,7 @@ class TestPeriodRun(_CustomerCardsBase):
 
 	def test_amounts_are_at_permlevel_1_for_card_amount_readers_only(self):
 		meta = frappe.get_meta(RUN)
-		row_meta = frappe.get_meta("Card Period Run Card")
+		row_meta = frappe.get_meta("Card Period Run Source")
 		for m, fields in (
 			(meta, ("supplier_total", "customer_total")),
 			(row_meta, ("supplier_amount", "customer_amount")),
@@ -721,6 +843,175 @@ class TestPeriodRun(_CustomerCardsBase):
 		card_readers = {p.role for p in frappe.get_meta(CARD).permissions if p.read}
 		self.assertTrue(level_1 <= card_readers)
 		self.assertNotIn("Card Operator", {p.role for p in meta.permissions})
+
+
+class TestPeriodRunMixedMonth(_PreviewBase):
+	"""Review finding 1: the run covers every source the monthly posting bills (cards, diesel fills, transports,
+	FR-139 Post lines), and its totals per side equal what the posting would bill for a mixed month."""
+
+	def setUp(self):
+		super().setUp()
+		self.inc_transport = _leaf_under(self.company, "Income", "Test Transport Recharge Income")
+		self._mode(preflight.TRANSPORT_POSTING_POST)
+		frappe.db.set_value("Project", self.project, "customer", self.customer)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def _mode(self, value):
+		settings = frappe.get_doc("Card Settings")
+		row = next(r for r in settings.company_settings if r.company == self.company)
+		row.transport_responsibility_posting = value
+		row.transport_recharge_income_account = self.inc_transport
+		settings.save(ignore_permissions=True)
+		frappe.clear_cache(doctype="Card Settings")
+
+	def _transport(self, amount=400):
+		t = frappe.new_doc("Equipment Transport")
+		t.update(
+			{
+				"date": "2026-09-10",
+				"company": self.company,
+				"transport_supplier": self.supplier,
+				"destination_type": "Project",
+				"project": self.project,
+				"amount": amount,
+			}
+		)
+		t.append("items", {"card_equipment": self._equipment().name})
+		return t
+
+	def _submitted(self, t):
+		t.insert(ignore_permissions=True)
+		t.submit()
+		return t
+
+	def _legacy_transport(self, amount=300):
+		t = self._submitted(company_paid(self._transport(amount)))
+		as_recorded_before_p12(t.name)
+		return t
+
+	def _decided(self, bearer, decision, **values):
+		t = company_paid(self._transport())
+		t.cost_bearer = bearer
+		self._submitted(t)
+		email = f"pr-fin-{frappe.generate_hash(length=8)}@example.com"
+		user = frappe.get_doc(
+			{"doctype": "User", "email": email, "first_name": "PR", "send_welcome_email": 0}
+		)
+		user.append("roles", {"role": "Accounts Manager"})
+		user.insert(ignore_permissions=True)
+		frappe.set_user(email)
+		try:
+			record_financial_decision(t.name, decision, **values)
+		finally:
+			frappe.set_user("Administrator")
+		return frappe.get_doc("Equipment Transport", t.name)
+
+	def _posting_sources(self):
+		out = {}
+		for party_type, party in (("Supplier", self.supplier), ("Customer", self.customer)):
+			preview = preview_monthly_posting(self.company, party_type, party, 9, 2026)
+			self.assertFalse(preview.blocked, preview.blocked)
+			out[party_type] = {(s["doctype"], s["name"]): flt(s["amount"], 2) for s in preview.sources}
+		return out
+
+	def _mixed_month(self):
+		rented = self._card(self._equipment(), [8], submit=True)
+		sub = self._card(self._sub_rental(), [10], submit=True)
+		fill = self._fill()
+		company_cost = self._submitted(
+			company_paid(self._transport(250), basis="Project", cost_project=self.project)
+		)
+		billed = self._decided(
+			"Customer",
+			"Bill customer",
+			customer=self.customer,
+			billing_project=self.project,
+			billing_amount=650,
+			billing_mode="Monthly invoice",
+			billing_reference="CONTRACT-PR",
+			confirmed=1,
+		)
+		recovered = self._decided(
+			"Equipment Supplier",
+			"Recover from equipment supplier",
+			recovery_mode="Deduct from monthly dues",
+			recovery_amount=150,
+		)
+		return frappe._dict(
+			rented=rented.name,
+			sub=sub.name,
+			fill=fill.name,
+			company_cost=company_cost.name,
+			billed=billed.name,
+			recovered=recovered.name,
+		)
+
+	def test_totals_equal_what_posting_would_bill(self):
+		docs = self._mixed_month()
+		snapshot = period_run.build_snapshot(self.company, "09", 2026)
+		posting = self._posting_sources()
+		rows = {(r["source_doctype"], r["source_name"]): r for r in snapshot.rows}
+		supplier = {k: flt(r["supplier_amount"], 2) for k, r in rows.items() if r["supplier_side"]}
+		customer = {k: flt(r["customer_amount"], 2) for k, r in rows.items() if r["customer_side"]}
+		self.assertEqual(supplier, posting["Supplier"])
+		self.assertEqual(customer, posting["Customer"])
+		self.assertEqual(snapshot.supplier_total, flt(sum(posting["Supplier"].values()), 2))
+		self.assertEqual(snapshot.customer_total, flt(sum(posting["Customer"].values()), 2))
+		names = {name for _doctype, name in rows}
+		self.assertTrue(set(docs.values()) <= names, set(docs.values()) - names)
+		self.assertEqual(
+			rows[(TRANSPORT, docs.recovered)]["supplier_amount"], 250.0
+		)  # 400 less 150 recovered
+		self.assertEqual(rows[(TRANSPORT, docs.billed)]["customer_amount"], 650.0)
+		self.assertTrue(rows[(TRANSPORT, docs.billed)]["supplier_side"])
+
+	def test_hold_leaves_the_responsibility_transports_out(self):
+		docs = self._mixed_month()
+		legacy = self._legacy_transport()
+		self._mode(preflight.TRANSPORT_POSTING_HOLD)
+		names = {r["source_name"] for r in period_run.build_snapshot(self.company, "09", 2026).rows}
+		self.assertIn(legacy.name, names)
+		self.assertFalse({docs.company_cost, docs.billed, docs.recovered} & names)
+
+	def _run(self):
+		run = frappe.new_doc(RUN)
+		run.update({"company": self.company, "month": "09", "year": 2026})
+		run.insert(ignore_permissions=True)
+		run.submit()
+		return frappe.get_doc(RUN, run.name)
+
+	def test_a_new_fill_or_transport_makes_the_run_stale(self):
+		self._mixed_month()
+		run = self._run()
+		self.assertTrue(period_run.check_current(run).current)
+		fill = self._fill(day="2026-09-12")
+		self.assertEqual(period_run.check_current(run).added, [fill.name])
+		frappe.db.set_value("Project Diesel Fill", fill.name, "docstatus", 2)
+		self.assertTrue(period_run.check_current(run).current)
+		transport = self._legacy_transport()
+		state = period_run.check_current(run)
+		self.assertEqual((state.current, state.added), (False, [transport.name]))
+
+	def test_a_changed_transport_decision_makes_the_run_stale(self):
+		docs = self._mixed_month()
+		run = self._run()
+		frappe.db.set_value("Equipment Transport", docs.billed, "billing_amount", 700)
+		self.assertEqual(period_run.check_current(run).changed, [docs.billed])
+
+	def test_posting_the_month_keeps_the_run_current(self):
+		docs = self._mixed_month()
+		run = self._run()
+		row = next(r for r in run.sources if r.source_name == docs.fill)
+		self.assertEqual(row.supplier_posted, 0)
+		build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		state = period_run.check_current(frappe.get_doc(RUN, run.name))
+		self.assertTrue(state.current)
+		self.assertIn(f"{docs.fill} (Supplier)", state.posted_since)
+		live = {r["source_name"]: r for r in period_run.build_snapshot(self.company, "09", 2026).rows}
+		self.assertEqual((live[docs.fill]["supplier_posted"], live[docs.billed]["customer_posted"]), (1, 0))
 
 
 class TestPeriodRunConcurrency(IntegrationTestCase):

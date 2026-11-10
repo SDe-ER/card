@@ -6017,16 +6017,8 @@ msgid "Snapshot fingerprint"
 msgstr ""
 
 #: card/card/doctype/card_period_run/card_period_run.json
-#: card/card/doctype/card_period_run_card/card_period_run_card.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
 msgid "Period run currency"
-msgstr ""
-
-#: card/card/doctype/card_period_run/card_period_run.json
-msgid "Cards in the run"
-msgstr ""
-
-#: card/card/doctype/card_period_run/card_period_run.json
-msgid "Supplier-side cards"
 msgstr ""
 
 #: card/card/doctype/card_period_run/card_period_run.json
@@ -6034,43 +6026,15 @@ msgid "Supplier-side total"
 msgstr ""
 
 #: card/card/doctype/card_period_run/card_period_run.json
-msgid "Customer-side cards"
-msgstr ""
-
-#: card/card/doctype/card_period_run/card_period_run.json
 msgid "Customer-side total"
 msgstr ""
 
-#: card/card/doctype/card_period_run/card_period_run.json
-msgid "Period run cards"
-msgstr ""
-
-#: card/card/doctype/card_period_run_card/card_period_run_card.json
-msgid "Card Period Run Card"
-msgstr ""
-
-#: card/card/doctype/card_period_run_card/card_period_run_card.json
-msgid "Period run monthly card"
-msgstr ""
-
-#: card/card/doctype/card_period_run_card/card_period_run_card.json
-msgid "Period run card direction"
-msgstr ""
-
-#: card/card/doctype/card_period_run_card/card_period_run_card.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
 msgid "Period run supplier amount"
 msgstr ""
 
-#: card/card/doctype/card_period_run_card/card_period_run_card.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
 msgid "Period run customer amount"
-msgstr ""
-
-#: card/card/doctype/card_period_run_card/card_period_run_card.json
-msgid "Card last modified"
-msgstr ""
-
-#: card/card/doctype/card_period_run_card/card_period_run_card.json
-msgid "Card content fingerprint"
 msgstr ""
 
 #: card/gl/period_run.py
@@ -6091,10 +6055,6 @@ msgstr ""
 
 #: card/gl/period_run.py
 msgid "Company {0} already has an active period run for {1}/{2}: {3}. Cancel it and amend it for a new version."
-msgstr ""
-
-#: card/gl/period_run.py
-msgid "Company {0} has no submitted billable monthly cards for {1}/{2}."
 msgstr ""
 
 #: card/gl/period_run.py
@@ -6119,10 +6079,6 @@ msgstr ""
 
 #: card/gl/period_run.py
 msgid "A period run cannot go back to Pending; cancel and amend it instead."
-msgstr ""
-
-#: card/gl/period_run.py
-msgid "The cards of this period run changed after it was built (added: {0}; removed: {1}; changed: {2}). Cancel and amend it to build a new version, then approve that version."
 msgstr ""
 
 #: card/gl/period_run.py
@@ -6162,17 +6118,81 @@ msgid "Period run {0} is already submitted. Cancel it and amend it to build a ne
 msgstr ""
 
 #: card/card/doctype/card_period_run/card_period_run.js
-msgid "The cards of this period run are unchanged since it was built."
-msgstr ""
-
-#: card/card/doctype/card_period_run/card_period_run.js
-msgid "The cards of this period run changed after it was built; cancel and amend it to build a new version."
-msgstr ""
-
-#: card/card/doctype/card_period_run/card_period_run.js
 msgid "Approve period run"
 msgstr ""
 
 #: card/card/doctype/card_period_run/card_period_run.js
 msgid "Return period run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run fingerprint version"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Source documents in the run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Supplier-side documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Customer-side documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run source documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Card Period Run Source"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run source type"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run source document"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Billed on the supplier side"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Billed on the customer side"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Supplier side already posted"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Customer side already posted"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Source document last modified"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Source document fingerprint"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Company {0} has no submitted source documents to bill for {1}/{2}."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "The source documents of this period run changed after it was built (added: {0}; removed: {1}; changed: {2}). Cancel and amend it to build a new version, then approve that version."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "The source documents of this period run are unchanged since it was built."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "The source documents of this period run changed after it was built; cancel and amend it to build a new version."
 msgstr ""

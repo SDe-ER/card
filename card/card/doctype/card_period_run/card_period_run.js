@@ -18,13 +18,15 @@ frappe.ui.form.on("Card Period Run", {
 				if (state.run !== frm.doc.name) return;
 				if (state.current) {
 					frm.dashboard.set_headline_alert(
-						__("The cards of this period run are unchanged since it was built."),
+						__(
+							"The source documents of this period run are unchanged since it was built.",
+						),
 						"green",
 					);
 				} else {
 					frm.dashboard.set_headline_alert(
 						__(
-							"The cards of this period run changed after it was built; cancel and amend it to build a new version.",
+							"The source documents of this period run changed after it was built; cancel and amend it to build a new version.",
 						),
 						"orange",
 					);

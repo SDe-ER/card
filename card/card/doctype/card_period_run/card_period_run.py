@@ -3,6 +3,7 @@
 """FR-147: Card Period Run controller. The rules live in card.gl.period_run; company isolation of the record is the
 generic FR-131 scope (card.company_scope, registered in hooks.py for this DocType)."""
 
+import frappe
 from frappe.model.document import Document
 
 from card.gl import period_run
@@ -20,3 +21,12 @@ class CardPeriodRun(Document):
 
 	def before_cancel(self):
 		period_run.check_cancel(self)
+
+
+def on_doctype_update():
+	"""One version number per company-month (backs the locked version count of card.gl.period_run)."""
+	frappe.db.add_unique(
+		"Card Period Run",
+		["company", "month", "year", "version"],
+		constraint_name="unique_company_month_version",
+	)

@@ -97,14 +97,15 @@
   "built_on",
   "snapshot_hash",
   "currency",
-  "card_count",
+  "fingerprint_version",
+  "source_count",
   "column_break_totals",
-  "supplier_card_count",
+  "supplier_source_count",
   "supplier_total",
-  "customer_card_count",
+  "customer_source_count",
   "customer_total",
-  "cards_section",
-  "cards",
+  "sources_section",
+  "sources",
   "amended_from"
  ],
  "fields": [
@@ -284,9 +285,17 @@
    "no_copy": 1
   },
   {
-   "fieldname": "card_count",
+   "fieldname": "fingerprint_version",
    "fieldtype": "Int",
-   "label": "Cards in the run",
+   "label": "Period run fingerprint version",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "source_count",
+   "fieldtype": "Int",
+   "label": "Source documents in the run",
    "read_only": 1,
    "no_copy": 1
   },
@@ -295,9 +304,9 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "supplier_card_count",
+   "fieldname": "supplier_source_count",
    "fieldtype": "Int",
-   "label": "Supplier-side cards",
+   "label": "Supplier-side documents",
    "read_only": 1,
    "no_copy": 1
   },
@@ -311,9 +320,9 @@
    "no_copy": 1
   },
   {
-   "fieldname": "customer_card_count",
+   "fieldname": "customer_source_count",
    "fieldtype": "Int",
-   "label": "Customer-side cards",
+   "label": "Customer-side documents",
    "read_only": 1,
    "no_copy": 1
   },
@@ -327,15 +336,15 @@
    "no_copy": 1
   },
   {
-   "fieldname": "cards_section",
+   "fieldname": "sources_section",
    "fieldtype": "Section Break",
-   "label": "Period run cards"
+   "label": "Period run source documents"
   },
   {
-   "fieldname": "cards",
+   "fieldname": "sources",
    "fieldtype": "Table",
-   "label": "Period run cards",
-   "options": "Card Period Run Card",
+   "label": "Period run source documents",
+   "options": "Card Period Run Source",
    "read_only": 1,
    "no_copy": 1
   },

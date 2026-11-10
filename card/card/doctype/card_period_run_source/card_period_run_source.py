@@ -4,5 +4,5 @@
 from frappe.model.document import Document
 
 
-class CardPeriodRunCard(Document):
+class CardPeriodRunSource(Document):
 	pass

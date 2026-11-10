@@ -7,7 +7,7 @@
  "modified": "2026-11-10 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
- "name": "Card Period Run Card",
+ "name": "Card Period Run Source",
  "owner": "Administrator",
  "sort_field": "creation",
  "sort_order": "DESC",
@@ -16,23 +16,35 @@
  "editable_grid": 0,
  "permissions": [],
  "field_order": [
-  "card",
+  "source_doctype",
+  "source_name",
   "equipment",
   "project",
-  "card_direction",
   "supplier",
   "customer",
+  "supplier_side",
+  "customer_side",
   "supplier_amount",
   "customer_amount",
+  "supplier_posted",
+  "customer_posted",
   "currency",
-  "card_modified",
+  "source_modified",
   "content_hash"
  ],
  "fields": [
   {
-   "fieldname": "card",
+   "fieldname": "source_doctype",
+   "fieldtype": "Select",
+   "label": "Period run source type",
+   "options": "Card Monthly Card\nProject Diesel Fill\nEquipment Transport",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source_name",
    "fieldtype": "Data",
-   "label": "Period run monthly card",
+   "label": "Period run source document",
    "read_only": 1,
    "in_list_view": 1,
    "search_index": 1
@@ -42,20 +54,13 @@
    "fieldtype": "Link",
    "label": "Equipment",
    "options": "Card Equipment",
-   "read_only": 1,
-   "in_list_view": 1
+   "read_only": 1
   },
   {
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
    "options": "Project",
-   "read_only": 1
-  },
-  {
-   "fieldname": "card_direction",
-   "fieldtype": "Data",
-   "label": "Period run card direction",
    "read_only": 1
   },
   {
@@ -73,6 +78,18 @@
    "options": "Customer",
    "read_only": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "supplier_side",
+   "fieldtype": "Check",
+   "label": "Billed on the supplier side",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_side",
+   "fieldtype": "Check",
+   "label": "Billed on the customer side",
+   "read_only": 1
   },
   {
    "fieldname": "supplier_amount",
@@ -93,6 +110,18 @@
    "in_list_view": 1
   },
   {
+   "fieldname": "supplier_posted",
+   "fieldtype": "Check",
+   "label": "Supplier side already posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_posted",
+   "fieldtype": "Check",
+   "label": "Customer side already posted",
+   "read_only": 1
+  },
+  {
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Period run currency",
@@ -101,15 +130,15 @@
    "hidden": 1
   },
   {
-   "fieldname": "card_modified",
+   "fieldname": "source_modified",
    "fieldtype": "Datetime",
-   "label": "Card last modified",
+   "label": "Source document last modified",
    "read_only": 1
   },
   {
    "fieldname": "content_hash",
    "fieldtype": "Data",
-   "label": "Card content fingerprint",
+   "label": "Source document fingerprint",
    "read_only": 1
   }
  ]
