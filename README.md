@@ -178,7 +178,7 @@ All screenshots show CARD v4.1.2 in the ERPNext Desk with fictional test data.
 
 ## Features
 
-Everything below is available in the latest release, **v4.5.0**. The complete inventory of each version is
+Everything below is available in the latest release, **v4.6.0**. The complete inventory of each version is
 in [docs/releases](docs/releases/VERSION-HISTORY.md).
 
 ### Equipment
@@ -342,6 +342,7 @@ request with CI and review. Every release has a full documentation page.
 
 | Version | Date | Highlights |
 |---|---|---|
+| [v4.6.0](docs/releases/v4.6.0.md) | 2026-11-10 | Wave-2: security fixes (GET-only reads, attachment validation, reviewer not approver), mandatory cancel reason, stop reasons and Equipment Downtime report, dated diesel prices, per-company equipment and diesel guards, posting preview page, three analytics reports |
 | [v4.5.0](docs/releases/v4.5.0.md) | 2026-11-09 | Settlement phase 1: link a supplier accrual journal entry to its cards (never invoiced again); Card Settlement Status report (paid and remaining per card from the ledger) |
 | [v4.4.3](docs/releases/v4.4.3.md) | 2026-11-09 | The supplier statement PDF button renders with the Chrome PDF generator (Arabic letters join) on one A4 portrait page; the statement keeps its Noto Sans Arabic font under a site print style |
 | [v4.4.2](docs/releases/v4.4.2.md) | 2026-11-09 | The A4 supplier statement prints every card of the period and totals from the cards only; issued-by footer, full period dates, Noto Sans Arabic |
