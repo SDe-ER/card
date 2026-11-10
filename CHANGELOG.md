@@ -16,6 +16,42 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
+  An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
+  opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself
+  (private File + one Comment per pass) and decides inside the fill's own validation: when both photos are clear (every drum read,
+  opening zero, closing above opening, the entered litres equal the reading) the closing reading is written and the fill stays a Draft
+  (never submitted, never posted); any `?` / half-rolled / unreadable drum or defect writes NO reading and records the disputed reading
+  (`Meter reading (closing): 0004? ...`) in `evidence_warnings`. Owner rule 2026-11-03: only a clear, validated reading stays a Draft; every other processed outcome (an unreadable
+  or ambiguous side, no meter, a conflict, a clear reading that was not written) routes the fill to Needs Review with a visible line. A machine-written closing keeps an informational
+  line in `evidence_warnings` (`written by meter extraction; check against the photo`) so it is not mistaken for a typed number; it never routes. A person's reading or litres is never overwritten, approved/rejected/submitted fills are never touched, the same
+  photo bytes are processed once, and the job runs as the user who saved the photo. Expect most real photos to need a person until the
+  engine is validated on verified labels. Invoice litres, litres quoted in the source messages and the totalizer can only ESCALATE a
+  clear reading (it is then not written and the fill goes to Needs Review); they never verify one. A person-entered opening reading
+  that disagrees with the photo blocks the write, so the entered litres never change. Audit markers are signed with the site secret
+  and a user-typed Comment is ignored; the worker's engine name/version must match a strict character set, its interval is
+  recomputed from the drums, requests ignore proxy environment variables, jobs for one fill run one at a time, and busy or
+  unreachable answers are retried later instead of counting toward the three-attempt cap. A drum-count difference between the two
+  photos is recorded but is not by itself a reason for Needs Review. The crop is refused only for a box over 60% of the image area or
+  height (a close-up meter is a wide box and is cropped), and the Desk shows the disputed reading as an isolated left-to-right text, so
+  its brackets and `?` keep their order inside an Arabic sentence. A full background queue or an
+  unreachable Redis never fails the save: the extraction is skipped for that save, an Error Log row is written and the photo stays
+  manual (no retry). PR #164; uses the attachment validator of PR #162 (FR-099, merged). Affected: `card/diesel_meter_extraction.py` (new), `ProjectDieselFill.validate`
+  (`_apply_meter_extraction`, `_totalizer_window`), `project_diesel_fill.js`, `hooks.py` (`on_update` of Project Diesel
+  Fill), `card/locale/ar.po`. Impact: permissions none (the job runs as the saving user, no `ignore_permissions`); accounting
+  none (nothing submitted or posted); data: with the worker configured, a Draft's `closing_reading`, `review_status` and
+  `evidence_warnings` may change, and private crop Files and Info Comments are added; API none (no whitelisted method);
+  no schema change, no patch, no new Python dependency (`requests` and Pillow come with Frappe). With the worker off
+  (the default) no photo bytes leave the site. Worker address (Owner decision 2026-11-10, review finding: a host name
+  was resolved for the check and again by the request, so a changed DNS answer could send the photo elsewhere):
+  `card_meter_worker_url` must use an IP literal host, `http` only to a loopback address (`127.0.0.1`, `[::1]`),
+  `https` only to a loopback or private address (IPv6: only `::1` and unique local `fc00::/7`; 6to4 `2002::/16` and
+  Teredo `2001::/32` refused; an IPv4-mapped IPv6 address is judged as IPv4); nothing is resolved.
+  A host name (including `localhost`), a public, link-local or unspecified address is refused: the job stops before any
+  photo is read (no attempt is counted) and one translated Error Log per reason and day says why, without the URL. A
+  site that set a host name must change it to the IP address (for `https`, the worker's certificate must then name that
+  IP). Rollback: remove the two site_config keys (feature off at once) or
+  revert the commits; crops and markers already written stay as ordinary attachments and comments.
 - **Governance inventories (documentation only; refs #40, #50, #52, #54).**
   `docs/governance/SETTINGS-AND-CONSTANTS.md` lists every Card Settings and Card Company Settings field with its
   readers (file:line), the code defaults and inline fallbacks, the precedence document → Card Company Settings →
@@ -207,6 +243,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     for its unit days. Data — the patch above. API — one new POST method.
   - **Rollback:** an older version reads the flag as a manual tick again; the values the patch wrote stay and are
     correct for the component tables.
+
+### Fixed
+- **Diesel fill: a rejected fill returned to review re-checks its meter photos** (FR-085, PR #165). A rejected fill does not
+  hold its photo, so a corrected fill may reuse it. Moving the rejected fill back to Draft or Needs Review did not check
+  the photos again (the check ran only when a photo or the company changed), so two live fills could prove one photo
+  and count the same litres twice. `ProjectDieselFill._check_photos` now also runs when the stored review status was
+  Rejected and the new one is not; the save is refused while another live fill uses the photo. Tests:
+  `card/tests/test_diesel_session_evidence.py` (2 new). Impact: no permission, schema, data or API change; no
+  accounting effect (fills post only after approval). Rollback: revert the commit.
 
 ### Documentation
 - **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
