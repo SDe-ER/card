@@ -57,6 +57,25 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   message. The equipment-status guard for diesel fills (TODO of PR #191) is not included because `card/equipment_status.py` is
   not on main yet; it is a follow-up. Rollback limits: reverting removes the check; the stored setting value stays unused in the
   database.
+- **Equipment status guard on project diesel fills** (FR-128; refs #124, #42). Reason: an ended equipment (status منتهية)
+  could still get a new Project Diesel Fill; PR #191 (FR-122) guarded assignments, transports and monthly cards and left
+  diesel fills as a TODO. Change: `ProjectDieselFill._check_equipment_status` calls the existing
+  `card.equipment_status.check_equipment_status` (new use "diesel fill", one new message
+  "Equipment {0} has status {1}; it should get no new diesel fill.") for the direct-charge equipment and every listed
+  equipment, with the fill's company and its date as the day. A new fill, or a draft whose company or date changed, checks
+  every equipment; otherwise only an equipment added to the draft is checked (compared with the stored fill, as the
+  transport does), so an unchanged saved draft is not checked again on save. `before_submit` checks every equipment again.
+  A fill dated on or before the equipment's exit date (else its rental end once passed; the FR-122 `_last_work_day`
+  rule) is its last work and is never stopped. Same per-company rule as FR-122: Card Company Settings
+  `equipment_status_rule` "Warn only (equipment status)" (the default, also for an empty value or a company without a
+  row: a message and the fill is saved) or "Refuse (equipment status)". Only status منتهية stops; Stopped and Under
+  Maintenance do not; a project-tank fill without equipment is not checked. Affected: `card/equipment_status.py`
+  (`_messages`, docstrings), `project_diesel_fill.py` (`validate`, `before_submit`, `_check_equipment_status`, `_day`),
+  locale (one Arabic string); tests `card/tests/test_diesel_fill_status_guard.py`. Impact: permissions none; accounting
+  none (no GL; submitted fills are never re-validated or changed); data none (no patch, no setting added, existing fills
+  unchanged); API: saving a new or changed fill, or submitting a draft, with an ended equipment shows a warning by
+  default, or raises a ValidationError when the company chose Refuse. Rollback limits: reverting the commit removes the
+  check; nothing is stored by it.
 - **Equipment status guard** (FR-122, PR #191; refs #42, #120).
   - **Reason:** the Card Equipment status was a plain field: an ended machine (status منتهية) could still get a new
     assignment, transport or monthly card.
