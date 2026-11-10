@@ -509,6 +509,18 @@ CASES = {
 		unscoped="Item Group / Brand options are global masters",
 		own=lambda c: {"kind": "brand"},
 	),
+	"card.daily_log_generation.generate_monthly_cards": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Monthly Card create on a probe card of the company and project (DocPerm, has_card_permission); Card Daily Log read",
+		isolation="probe card company (Company User Permission, has_card_permission); project and equipment of the company; frappe.get_list on Card Daily Log (FR-131); insert() / save() of each card with the user's permissions",
+		effects="Creates or updates draft Card Monthly Cards from Approved daily logs; never submits; submitted cards unchanged",
+		writes=True,
+		cross=lambda c: {"company": c.B, "project": c.proj_b, "month": f"{c.year}-{c.month}"},
+		own=lambda c: {"company": c.A, "project": c.proj_a, "month": f"{c.year}-{c.month}"},
+		denied=((), ("Card Operator",), ("Card Supervisor",)),
+		allowed=True,
+	),
 	"card.diesel.get_card_diesel": Case(
 		method=GET,
 		roles=("Card User",),
