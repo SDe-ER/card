@@ -423,73 +423,98 @@ class TestPeriodRun(_CustomerCardsBase):
 			twin.db_insert()
 
 	# ---------- a cancel changes nothing ----------
-	def test_cancel_that_changes_the_run_is_refused_on_every_route(self):
+	def _snapshot_of(self, name):
+		return (
+			self._stored(
+				name, "version", "snapshot_hash", "source_count", "supplier_total", "approval_status"
+			),
+			frappe.get_all(
+				"Card Period Run Source",
+				filters={"parent": name},
+				fields=["name", "source_name", "content_hash", "supplier_amount", "customer_amount"],
+				order_by="idx",
+			),
+		)
+
+	def _fresh_run(self):
+		"""A new submitted run of the month; the previous one (if any) is cancelled first."""
+		active = period_run.active_run(self.company, MONTH, YEAR)
+		if active:
+			self._cancel(frappe._dict(name=active))
+		return self._submitted()
+
+	def test_cancel_that_changes_the_run_is_refused_on_rest_put_and_bulk(self):
+		"""REST PUT and bulk update apply the client's values to the stored run, so the guard must refuse them."""
 		from frappe.api import v1
 		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		for data in (
+			{"docstatus": 2, "version": 9},
+			{"docstatus": 2, "snapshot_hash": "0" * 64},
+			{"docstatus": 2, "source_count": 1},
+		):
+			run = self._fresh_run()
+			before = self._snapshot_of(run.name)
+			with self.subTest(route="PUT", data=data):
+				frappe.set_user(self.preparer)
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json(data))
+				with self.assertRaises(CancelChangesDocumentError):
+					v1.update_doc(RUN, run.name)
+				frappe.set_user("Administrator")
+				self.assertEqual(self._stored(run.name).docstatus, 1)
+				self.assertEqual(self._snapshot_of(run.name), before)
+		run = self._fresh_run()
+		before = self._snapshot_of(run.name)
+		frappe.set_user(self.preparer)
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			failed = submit_cancel_or_update_docs(RUN, [run.name], "update", {"docstatus": 2, "version": 9})
+		frappe.set_user("Administrator")
+		self.assertEqual(failed, [run.name])
+		self.assertEqual(self._stored(run.name).docstatus, 1)
+		self.assertEqual(self._snapshot_of(run.name), before)
+		# an unchanged bulk cancel passes and keeps everything
+		frappe.set_user(self.preparer)
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			self.assertEqual(submit_cancel_or_update_docs(RUN, [run.name], "cancel"), [])
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(run.name).docstatus, 2)
+		self.assertEqual(self._snapshot_of(run.name)[1], before[1])
+
+	def test_cancel_by_savedocs_never_stores_a_changed_run(self):
+		"""savedocs "Cancel": depending on the Frappe version it either applies the client document (the guard
+		refuses it) or cancels the stored run and ignores the client's changes. Either way nothing the client
+		changed is stored."""
 		from frappe.desk.form.save import savedocs
 
 		from card.cancel_reason import CancelChangesDocumentError
 
-		run = self._submitted()
-		stored = self._stored(run.name, "version", "snapshot_hash", "source_count", "supplier_total")
-		rows = frappe.get_all(
-			"Card Period Run Source",
-			filters={"parent": run.name},
-			fields=["name", "supplier_amount"],
-			order_by="idx",
-		)
-		frappe.set_user(self.preparer)
-		for data in (
-			{"docstatus": 2, "version": 9},
-			{"docstatus": 2, "snapshot_hash": "0" * 64},
-			{"docstatus": 2, "source_count": 1, "supplier_total": 1},
+		def drop_a_row(forged):
+			forged["sources"] = forged["sources"][1:]
+
+		for label, change in (
+			("header", lambda f: f.update({"version": 9, "snapshot_hash": "0" * 64, "source_count": 1})),
+			("row", lambda f: f["sources"][0].update({"content_hash": "0" * 64})),
+			("row removed", drop_a_row),
+			("level-1 amount", lambda f: f["sources"][0].update({"supplier_amount": 1})),
 		):
-			with self.subTest(route="PUT", data=data):
-				frappe.local.form_dict = frappe._dict(data=frappe.as_json(data))
-				with self.assertRaises(CancelChangesDocumentError):
-					v1.update_doc(RUN, run.name)
-		forged = frappe.get_doc(RUN, run.name).as_dict()
-		forged["sources"][0]["content_hash"] = "0" * 64
-		with self.assertRaises(CancelChangesDocumentError):
-			savedocs(frappe.as_json(forged), "Cancel")
-		forged = frappe.get_doc(RUN, run.name).as_dict()
-		forged["sources"] = forged["sources"][1:]
-		with self.assertRaises(CancelChangesDocumentError):
-			savedocs(frappe.as_json(forged), "Cancel")
-		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
-			failed = submit_cancel_or_update_docs(RUN, [run.name], "update", {"docstatus": 2, "version": 9})
-		self.assertEqual(failed, [run.name])
-		frappe.set_user("Administrator")
-		self.assertEqual(self._stored(run.name).docstatus, 1)
-		self.assertEqual(
-			self._stored(run.name, "version", "snapshot_hash", "source_count", "supplier_total"), stored
-		)
-		self.assertEqual(
-			frappe.get_all(
-				"Card Period Run Source",
-				filters={"parent": run.name},
-				fields=["name", "supplier_amount"],
-				order_by="idx",
-			),
-			rows,
-		)
-		# a level-1 amount sent with a cancel is reset by Frappe (the preparer cannot write level 1): the cancel
-		# itself goes through and the stored amount is kept
-		frappe.set_user(self.preparer)
-		forged = frappe.get_doc(RUN, run.name).as_dict()
-		forged["sources"][0]["supplier_amount"] = 1
-		savedocs(frappe.as_json(forged), "Cancel")
-		frappe.set_user("Administrator")
-		self.assertEqual(self._stored(run.name).docstatus, 2)
-		self.assertEqual(
-			frappe.get_all(
-				"Card Period Run Source",
-				filters={"parent": run.name},
-				fields=["name", "supplier_amount"],
-				order_by="idx",
-			),
-			rows,
-		)
+			run = self._fresh_run()
+			before = self._snapshot_of(run.name)
+			with self.subTest(change=label):
+				frappe.set_user(self.preparer)
+				forged = frappe.get_doc(RUN, run.name).as_dict()
+				change(forged)
+				try:
+					savedocs(frappe.as_json(forged), "Cancel")
+					refused = False
+				except CancelChangesDocumentError:
+					refused = True
+				frappe.set_user("Administrator")
+				stored, rows = self._snapshot_of(run.name)
+				self.assertEqual(self._stored(run.name).docstatus, 1 if refused else 2)
+				self.assertEqual(stored, before[0])
+				self.assertEqual(rows, before[1])
 
 	# ---------- self-approval ----------
 	def test_self_approval_warns_by_default(self):

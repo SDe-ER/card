@@ -62,7 +62,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `card_period_run.js` (current/stale banner, Approve / Return buttons); `card/company_scope.py`
   `COMPANY_SOURCES` + "Card Period Run" (its `amended_from`). Reads, without changing, `card.gl.posting`
   (`_customer_transports`, `_unheld_batch`, `_TRANSPORT_SOURCE_FIELDS`), `card.gl.preflight` and
-  `card.transport_costs`. Tests: `card/tests/test_period_run.py` (42, including a mixed month whose totals per
+  `card.transport_costs`. Tests: `card/tests/test_period_run.py` (43, including a mixed month whose totals per
   side equal the posting preview's sources, and a two-connection concurrency test); two rows in
   `card/tests/test_bola_matrix.py`; `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (two DocType rows, two
   endpoint rows). PR #222.
