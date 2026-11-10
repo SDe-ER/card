@@ -1524,15 +1524,11 @@ msgstr "المحصّل (دائن)"
 msgid "Customer closing balance"
 msgstr "رصيد العميل آخر المدة"
 
-
-
 msgid "Number of customers"
 msgstr "عدد العملاء"
 
 msgid "Total customer balances"
 msgstr "إجمالي أرصدة العملاء"
-
-
 
 msgid "Equipment Expenses Without Equipment"
 msgstr "مصروفات معدات بدون معدة"
@@ -1554,7 +1550,6 @@ msgstr "صافي المبالغ بدون معدة"
 
 msgid "Expense lines on the CARD expense accounts with no Card Equipment dimension. Fix them at the source document so the per-equipment P&L stays complete."
 msgstr "سطور مصروفات على حسابات الكارت بدون بُعد «معدة الكارت». صحّحها من المستند الأصلي حتى تظل أرباح/خسائر كل معدة مكتملة."
-
 
 msgid "Rental direction"
 msgstr "اتجاه التأجير"
@@ -2384,7 +2379,6 @@ msgstr "في {0}/{1} المعدة {2} اتنقلت بين {3}. اختار الم
 msgid "Operator provided by"
 msgstr "المشغّل على"
 
-
 msgid "Expired documents: {0}"
 msgstr "وثائق منتهية: {0}"
 
@@ -2659,7 +2653,6 @@ msgstr "في العهدة"
 
 msgid "Returnable tool"
 msgstr "أداة قابلة للإرجاع"
-
 
 msgid "Cancel Stock Entry {0} first."
 msgstr "ألغِ قيد المخزون {0} أولًا."
@@ -5181,9 +5174,6 @@ msgstr "الإجماليات"
 msgid "Cards net for the period"
 msgstr "صافي الكروت عن الفترة"
 
-
-
-
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Work done not yet invoiced (before VAT)"
 msgstr "أعمال منفذة لم تُفوتر بعد (قبل الضريبة)"
@@ -5315,7 +5305,6 @@ msgstr "المسدد على الكارت"
 #: card/card/report/card_settlement_status/card_settlement_status.py
 msgid "Remaining on the card"
 msgstr "المتبقي على الكارت"
-
 
 #: card/card/report/card_settlement_status/card_settlement_status.py
 msgid "Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
@@ -7154,7 +7143,6 @@ msgstr "صفوف إعدادات CARD الخاصة بالشركات غير الم
 msgid "Your Card Settings access is limited to your companies' rows; you cannot change the site-wide fields: {0}."
 msgstr "صلاحيتك على إعدادات CARD تقتصر على صفوف شركاتك؛ لا يمكنك تعديل الحقول العامة للموقع: {0}."
 
-
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Day billing basis"
 msgstr "أساس احتساب اليوم"
@@ -7222,3 +7210,51 @@ msgstr "اعتماد الكارت الشهري من معدّه"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by its own preparer"
 msgstr "اعتمده معدّه"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source"
+msgstr "مصدر الإدخال"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake channel"
+msgstr "قناة الاستلام"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source key"
+msgstr "مفتاح المصدر"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Optional external id of the source (message id, sheet number). One live transport per company and key."
+msgstr "معرّف خارجي اختياري للمصدر (رقم الرسالة أو رقم الورقة). نقل واحد قائم لكل شركة ومفتاح."
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake received on"
+msgstr "تاريخ ووقت الاستلام"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence"
+msgstr "مستند المصدر"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence SHA-256"
+msgstr "بصمة مستند المصدر (SHA-256)"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Paper"
+msgstr "ورقي"
+
+#: card/intake.py
+msgid "Select a valid intake channel."
+msgstr "اختر قناة استلام صحيحة."
+
+#: card/intake.py
+msgid "The intake received time cannot be in the future."
+msgstr "وقت استلام المصدر لا يمكن أن يكون في المستقبل."
+
+#: card/intake.py
+msgid "Intake source key {0} is already used by transport {1} of company {2}."
+msgstr "مفتاح المصدر {0} مستخدم بالفعل في النقل {1} للشركة {2}."
+
+#: card/intake.py
+msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
+msgstr "نفس مستند المصدر مرفق بالفعل بالنقل {0}. تأكد أنه لم يُدخل مرتين."
