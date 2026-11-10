@@ -16,6 +16,68 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-140 — Equipment Meter Reading: engine-hour readings per equipment (#31 D6; closure plan WP-H2).** Reason:
+  #31 separates engine hours (meter) from billable hours, and O-11 D6 sets weekly meter readings by the site
+  supervisor; no record of meter readings existed. New submittable DocType **Equipment Meter Reading** (naming
+  `EMR-.#####`, track changes): `equipment` (Card Equipment), `company` (mandatory, read only, fetched from the
+  equipment and always replaced by the equipment's company on the server), `reading_datetime`, `engine_hours`,
+  `source` (Weekly reading, default / Handover reading / Service reading / Other reading), `is_meter_reset` with a
+  mandatory `reset_reason`, read-only `previous_reading` / `previous_engine_hours`, a private `attachment` and
+  `notes`. Rules (server, every entry point): engine hours are never negative; compared with the submitted readings
+  of the same equipment just before and just after its date and time, a lower reading is refused unless it is a
+  meter reset with a reason (a reset is accepted only for a lower reading), a backdated reading may not exceed the
+  next one unless that one is a reset (and must stay above a later reset, so that reset stays lower), and two
+  submitted readings never share a date and time; drafts and cancelled readings do not count; the check runs again
+  on submit under a row lock on the Card Equipment record, so two parallel submits cannot both pass. A cancel takes
+  the same lock and is refused when it would leave the next submitted reading out of sequence (lower than the new
+  previous reading without a reset, or a reset without a higher previous reading). An amendment must amend a cancelled reading of the same company that the user
+  may read (Frappe copies the attachments of `amended_from`). The attachment must be a private JPEG, PNG, WebP or PDF
+  of this record or the user's own upload, which the reading then claims (`card.attachment_validator`). Affected
+  functions: new `equipment_meter_reading.py` (`neighbour_readings`, `EquipmentMeterReading.validate`,
+  `before_submit`, `before_cancel`, `on_update`). Tests: `card/tests/test_meter_reading.py`; `card/tests/test_company_scope.py`: the
+  planned-DocType guard accepts Frappe's own `amended_from` self-link of a submittable DocType (any other self-link
+  is still refused). `docs/governance/ROLE-ACTION-MATRIX.md`: new DocType row. PR #217.
+  - Permissions: Card Manager (all), Card Supervisor (create, write, submit, cancel, amend), Card User (read, print,
+    report); no DocPerm for any other role (Administrator only, as for every DocType). Company isolation through the
+    generic company scope (FR-131, already registered for this DocType): a company-restricted user can neither read,
+    list, create, move nor amend a reading of another company.
+  - Accounting: none (no posting, no GL; CARD writes no GL). Data: one new table; nothing existing changes; the
+    reading feeds nothing yet (monthly card, billable hours, diesel figures unchanged; WP-H1/H3 will read it).
+  - API: the standard REST resource of the new DocType; no new whitelisted method.
+  - Rollback limits: code rollback leaves the `tabEquipment Meter Reading` table and its rows (harmless); readings
+    entered meanwhile stay in the database and become visible again on a later re-deploy.
+  - Known limits: `previous_reading` / `previous_engine_hours` are a snapshot taken at save/submit; a reading added
+    earlier or cancelled later does not update them. WP-H1/H3 must work out the sequence (and engine hours per
+    period) from the submitted readings themselves, never from these fields. Engine hours only (no km meters; backlog).
+    Parallel submits are proven by a lock and locking-read unit test and the reviewer's two-connection probe; a
+    two-connection race test in the suite is backlog.
+- **FR-141 — Dated rate agreements, built opt-in and not wired (#41; closure plan WP-M1, conflict C-16, owner
+  decision O-08 default).** Reason: #41 needs effective agreements per equipment, party and project, and "no automatic
+  billing when several agreements match"; FR-023 (dated agreements) was postponed by the owner on 2026-10-19, so the
+  model is added unused and changes nothing until the opt-in wiring (WP-M2..M4) is merged and enabled per company.
+  New submittable DocType Card Rate Agreement (company; an equipment or an equipment type; supplier and/or customer;
+  optional project and work zone; valid from / valid to, empty end = open-ended; rates per hour, day, month and
+  quantity unit in the company currency) and child table Card Agreement Responsibility (cost category Rental /
+  Diesel / Transport / Maintenance, paid by Company / Customer / Supplier / Other party, share %, optional single
+  equipment; shares total 100% per category). New `card/agreements.py`: `resolve(company, equipment, party, date,
+  project=None, zone=None)` returns None when nothing matches, the agreement when one does, and raises
+  `AmbiguousAgreementError` when several do (CARD never chooses); every filter runs in SQL (`valid_from` and
+  `valid_to` indexed); the party is required; `project=None` / `zone=None` match only agreements without a project /
+  zone; the zone is compared stripped and case-folded (`normalise_zone`); a zero rate means no rate for that basis.
+  `validate_agreement`, `check_overlap` (same key and overlapping dates refused; at submit the company row is locked
+  and the clashing agreements are read with a locking read, so the second of two concurrent submits sees the
+  first); an agreement for one equipment takes that equipment's type; company checks on equipment, project,
+  amendment and child rows (`card.company_scope.check_child_companies`); a responsibility row may name an equipment
+  only on a type-level agreement. A changed rate is a new agreement (no field is allow-on-submit). Nothing calls
+  `resolve()` yet. `test_company_scope` guard skips Frappe's own `amended_from` self-link; ROLE-ACTION-MATRIX DocType
+  table regenerated. Tests: `card/tests/test_agreements_resolve.py`, `card/tests/test_agreements_concurrency.py`
+  (two committed concurrent submits). PR #216.
+  Impact: permissions: new DocType only (System Manager full; Card Manager create, write, submit, cancel, amend;
+  Accounts Manager and Card User read; no existing role or DocPerm changed), records isolated by company through the
+  FR-131 hooks; accounting none (CARD writes no GL; posting does not read agreements); data: two new tables (indexes
+  on `valid_from`, `valid_to`), no patch,
+  existing records untouched; API: standard REST of the new DocType, no whitelisted method. Rollback limits: code
+  rollback leaves the two tables and any agreements entered (unused by older code, harmless).
 - **FR-138 — Day billing basis per equipment: "Prorated by hours" (default) or "Full day" (#123, #44; WP-AB,
   conflict C-05, owner decision O-06 default).** Reason: FR-024 left the per-day ("باليوم") method open between the
   current hours-prorated amount and full-day billing (see "Planned" below); O-06 keeps prorated as the default and
@@ -218,25 +280,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   symbol; server-side formatting (export, print) of Equipment Consumption formats every row with one currency; card
   and fill form fields are unchanged. Rollback: revert the commit.
 
-### Planned
-- **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
-  permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
-  a different manager (separation of duties enforced on the server); equipment, projects,
-  assignment, transport, monthly cards, diesel, materials, tools and custody, suppliers, costs and
-  reports on the phone; in-app notifications. Accounting documents stay in ERPNext Desk.
-- **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
-  deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;
-  fresh installs currently get frappe's computed fallback. When the app drops pre‑16.50 support, ship
-  the authoritative `Sidebar` file (generated by frappe's `mark_as_standard`, not hand‑encoded) under
-  `card/card/sidebar/card/` and remove the now‑inert `Workspace Sidebar` fixture. Kept backward‑safe
-  for now because a static `Sidebar` file breaks doc‑sync on pre‑16.50 frappe (doctype absent).
-- **Configurable billing basis for the "باليوم" (per‑day) method**, per equipment/contract: the
-  current behaviour is **hours‑prorated** — `amount = total_working_hours × (rate / daily_hours)`
-  (e.g. 88 h at rate 600 / 10 h‑day → 5,280). Add an option for **full‑day** billing
-  (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
-  default and the switch.
-- **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
-
 ### Security
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
@@ -281,6 +324,25 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Deploy preconditions: on Production `frappe.get_hooks("override_whitelisted_methods")` for both keys lists the
   DAWM entry, then the CARD entry; no Webhook, Notification or Server Script exists on Card Settings.
   Rollback: revert the commits; no data to restore.
+
+### Planned
+- **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
+  permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
+  a different manager (separation of duties enforced on the server); equipment, projects,
+  assignment, transport, monthly cards, diesel, materials, tools and custody, suppliers, costs and
+  reports on the phone; in-app notifications. Accounting documents stay in ERPNext Desk.
+- **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
+  deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;
+  fresh installs currently get frappe's computed fallback. When the app drops pre‑16.50 support, ship
+  the authoritative `Sidebar` file (generated by frappe's `mark_as_standard`, not hand‑encoded) under
+  `card/card/sidebar/card/` and remove the now‑inert `Workspace Sidebar` fixture. Kept backward‑safe
+  for now because a static `Sidebar` file breaks doc‑sync on pre‑16.50 frappe (doctype absent).
+- **Configurable billing basis for the "باليوم" (per‑day) method**, per equipment/contract: the
+  current behaviour is **hours‑prorated** — `amount = total_working_hours × (rate / daily_hours)`
+  (e.g. 88 h at rate 600 / 10 h‑day → 5,280). Add an option for **full‑day** billing
+  (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
+  default and the switch.
+- **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ## [4.7.0] — 2026-11-10
 
