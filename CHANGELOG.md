@@ -25,7 +25,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   cancel request that changes any other stored field or child row; `on_cancel` adds an Info Comment with the actor, the
   reason and the date. A save or submit drops a copied reason; an update after submit cannot set it. A period-lock override
   (`card.period_lock`) now also adds an Info Comment on the stored document (actor, action, date, lock date) next to the
-  existing log. PR #TBD. Affected: `card/cancel_reason.py` (new), `card/period_lock.py` (`_log_override`,
+  existing log. PR #197. Affected: `card/cancel_reason.py` (new), `card/period_lock.py` (`_log_override`,
   `_comment_override`), `card/hooks.py` (doc_events of the three doctypes, `doctype_js`), `card/public/js/cancel_reason.js`
   (new), the three DocType JSON files, `card/locale/ar.po`, `main.pot`. Permissions: none widened; the cancel uses Frappe's
   cancel permission and the doctypes' company has_permission hooks; Workflow and roles unchanged. Accounting: none (no GL
