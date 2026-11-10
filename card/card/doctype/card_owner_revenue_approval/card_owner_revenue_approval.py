@@ -13,6 +13,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
+from card.adjustments import ADDITION
 from card.attachment_validator import check_attachment_content, require_record_file
 from card.constants import THIRD_PARTY
 
@@ -21,7 +22,6 @@ APPROVED = "Approved"
 PARTIAL = "Partially approved"
 REJECTED = "Rejected"
 STATUSES = (PENDING, APPROVED, PARTIAL, REJECTED)
-ADDITION = "إضافة"
 
 
 class CardOwnerRevenueApproval(Document):
@@ -114,3 +114,12 @@ class CardOwnerRevenueApproval(Document):
 			return
 		row = require_record_file(self.evidence, self.doctype, self.name)
 		check_attachment_content(self.evidence, file_row=row)
+
+
+def on_doctype_update():
+	"""One approval per card row, also under concurrent saves (backs ``_validate_unique``)."""
+	frappe.db.add_unique(
+		"Card Owner Revenue Approval",
+		["monthly_card", "adjustment_row"],
+		constraint_name="unique_card_adjustment_row",
+	)

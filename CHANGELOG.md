@@ -36,10 +36,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     Ledger read; wages only with a bulk Salary Slip read (a role read without owner limit, no User Permission
     on Employee or Salary Slip, the company permitted for Salary Slip) — an Employee who reads only his own slip
     never sees them, and the dues are then shown as incomplete. Approval: Card Manager writes, Card User and Accounts Manager
-    read. Deduction: Accounts Manager creates and submits, Card Manager reads. No existing grant changed.
+    read. Deduction: Accounts Manager creates and submits; Card Manager has no access (review fix below). No
+    existing grant changed.
   - Accounting: none. Read-only and informational; nothing posts, `enable_accounting` unchanged. Data: no patch;
     the Production data steps are a separate approved migration. API: one new POST endpoint.
   - Rollback: revert the commit and migrate; the new DocTypes' rows are information only (no ledger effect).
+  - Review fixes (owner decisions 2026-11-10, third batch): a month's owner model is the snapshot on its submitted
+    cards (`month_owner_model`), never today's equipment setting; a Card Owner Deduction belongs to the owner of the
+    submitted card covering its posting date (`owner_supplier`), and the statement keys lines by that owner; a
+    deduction in a month with no card of its owner becomes its own row plus a warning (never dropped); a deduction
+    whose source is no longer submitted stops applying and is listed; wages are keyed by card and the cost-center
+    month is shared by card working days (`cost_center_share`), so two owners of one machine in a month are counted
+    once; a customer approval follows the card through cancel and amend (same row position, side, type and amount,
+    read-time, no write) and a unique index on (monthly card, adjustment row) backs the duplicate check; the
+    automatic-deduction refusal checks only the accounts the statement deducts; supplier registry figures leave out
+    rented-out third-party cards; one card query per employee for wages. Security: Card Manager loses its DocPerm on
+    Card Owner Deduction (wage lines and Salary Slip names are payroll data; the report keeps its wage gate), with
+    API, list-view and export tests.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a

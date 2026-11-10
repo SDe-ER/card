@@ -89,6 +89,8 @@ def execute(filters=None):
 	rows = build_rows(statement, family, show_ledger)
 	summary = build_summary(statement, family, show_ledger)
 	message = statement_message(company, start, end, family, show_ledger, show_wages)
+	if statement.warnings:
+		message = message + " " + " ".join(statement.warnings)
 	columns = readable_links(columns, rows)
 	return columns, rows, message, None, summary, True
 
@@ -190,6 +192,8 @@ def month_row(m, parent, indent, vat, show_ledger):
 	if not m.final:
 		label = label + " " + _("(Draft — not in the dues)")
 	notes = []
+	if m.get("no_card"):
+		notes.append(_("Deductions recorded in a month with no card of this owner on the machine."))
 	if m.approval_mismatch:
 		notes.append(_("A card row changed after its approval was recorded; the smaller amount is used."))
 	if m.check:

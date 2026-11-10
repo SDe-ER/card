@@ -36,14 +36,37 @@ class CardOwnerDeduction(Document):
 		)
 		if not equipment or equipment.ownership != THIRD_PARTY:
 			frappe.throw(_("Owner deductions are recorded only for third-party equipment."))
+		owner, model = self._owner_on_date(equipment)
 		# a self-operating owner bears only the documented amounts paid on its behalf (Owner 2026-11-10)
-		if self.deduction_type == "Shared expense" and equipment.owner_model != OWNER_MODEL_MANAGED:
+		if self.deduction_type == "Shared expense" and model != OWNER_MODEL_MANAGED:
 			frappe.throw(_("A shared expense is deducted only from a managed partner."))
 		self.company = equipment.company
-		self.owner_supplier = equipment.supplier
+		self.owner_supplier = owner
 		if flt(self.amount, 2) <= 0:
 			frappe.throw(_("The deduction amount must be more than zero."))
 		self._source()
+
+	def _owner_on_date(self, equipment):
+		"""The owner and owner model in force on the posting date: those of the machine's submitted
+		third-party card covering that date (the card is the history), else the machine's current ones."""
+		card = None
+		if self.posting_date:
+			card = frappe.db.get_value(
+				"Card Monthly Card",
+				{
+					"equipment": self.equipment,
+					"docstatus": 1,
+					"ownership": THIRD_PARTY,
+					"from_date": ["<=", self.posting_date],
+					"to_date": [">=", self.posting_date],
+				},
+				["supplier", "owner_model"],
+				as_dict=True,
+				order_by="from_date desc, name desc",
+			)
+		if card and card.supplier:
+			return card.supplier, card.owner_model or equipment.owner_model
+		return equipment.supplier, equipment.owner_model
 
 	def before_submit(self):
 		source = self._source()
@@ -75,19 +98,26 @@ class CardOwnerDeduction(Document):
 						"The wages of {0} are deducted from the cards automatically; they are not recorded again."
 					).format(slip.employee)
 				)
-		cost_center = frappe.db.get_value("Card Equipment", self.equipment, "cost_center")
-		if (
-			cost_center
-			and frappe.db.get_value("Card Equipment", self.equipment, "owner_model") == OWNER_MODEL_MANAGED
-			and frappe.db.exists(
-				"GL Entry",
-				{
-					"voucher_type": self.source_doctype,
-					"voucher_no": self.source_name,
-					"cost_center": cost_center,
-					"is_cancelled": 0,
-				},
-			)
+		equipment = frappe.db.get_value(
+			"Card Equipment", self.equipment, ["cost_center", "supplier", "owner_model"], as_dict=True
+		)
+		cost_center = equipment.cost_center
+		if not cost_center or self._owner_on_date(equipment)[1] != OWNER_MODEL_MANAGED:
+			return
+		# only the rows the statement deducts on its own: Expense accounts without diesel and payroll
+		# (a creditor or tax row that carries the header cost center is not a machine expense)
+		from card.owner_statement import deductible_expense_accounts
+
+		accounts = deductible_expense_accounts(self.company)
+		if accounts and frappe.db.exists(
+			"GL Entry",
+			{
+				"voucher_type": self.source_doctype,
+				"voucher_no": self.source_name,
+				"cost_center": cost_center,
+				"account": ["in", accounts],
+				"is_cancelled": 0,
+			},
 		):
 			frappe.throw(
 				_(

@@ -8016,3 +8016,12 @@ msgstr "اعتماد الكارت الشهري من معدّه"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by its own preparer"
 msgstr "اعتمده معدّه"
+
+msgid "{0}: deductions of {1} on {2} in {3} have no card that month; they are shown as their own row."
+msgstr "{0}: خصومات بقيمة {1} على {2} في {3} بدون كارت في ذلك الشهر؛ تظهر في سطر مستقل."
+
+msgid "Card Owner Deduction {0} no longer applies: its source {1} {2} is not submitted."
+msgstr "خصم المالك {0} لم يعد يُحتسب: مستنده المصدر {1} {2} غير معتمد."
+
+msgid "Deductions recorded in a month with no card of this owner on the machine."
+msgstr "خصومات مسجلة في شهر لا يوجد فيه كارت لهذا المالك على المعدة."

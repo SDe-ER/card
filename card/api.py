@@ -8,7 +8,7 @@ from frappe.model.rename_doc import rename_doc
 from frappe.utils import cint, flt
 
 from card.card.doctype.card_equipment.card_equipment import asset_equipment_values
-from card.constants import OWNED, THIRD_PARTY
+from card.constants import DIR_RENTED_OUT, OWNED, THIRD_PARTY
 from card.party_registry import registry_row
 from card.report_access import assert_report_role, permitted_companies, query_companies
 from card.settings import setting
@@ -34,7 +34,13 @@ def _party_cards(party_type, party, companies=None):
 	from card.constants import CUSTOMER_BILLING_DIRECTIONS
 
 	if party_type == "Supplier":
-		filters = [["supplier", "=", party], ["docstatus", "=", 1], ["ownership", "!=", "ملك"]]
+		# a third-party machine rented out to a customer bills no supplier (FR-150): not the owner's lessor card
+		filters = [
+			["supplier", "=", party],
+			["docstatus", "=", 1],
+			["ownership", "!=", "ملك"],
+			["card_direction", "!=", DIR_RENTED_OUT],
+		]
 		money = "net_amount"
 	else:
 		filters = [
@@ -140,6 +146,7 @@ def refresh_supplier(supplier: str | None = None):
 						filters=[
 							["docstatus", "=", 1],
 							["ownership", "!=", "ملك"],
+							["card_direction", "!=", DIR_RENTED_OUT],
 							["supplier", "is", "set"],
 						],
 						pluck="supplier",

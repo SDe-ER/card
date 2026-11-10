@@ -42,13 +42,14 @@ from frappe import _
 from frappe.utils import cint, flt, get_first_day, get_last_day, getdate
 
 from card.adjustments import ADDITION
+from card.card.doctype.card_owner_revenue_approval.card_owner_revenue_approval import (
+	APPROVED,
+	PARTIAL,
+	PENDING,
+	REJECTED,
+)
 from card.constants import DIR_RENTED_OUT, OWNER_MODEL_MANAGED, THIRD_PARTY
 from card.settings import company_setting
-
-APPROVED = "Approved"
-PARTIAL = "Partially approved"
-PENDING = "Pending"
-REJECTED = "Rejected"
 
 PAYMENT = "payment"
 RECHARGE = "recharge"
@@ -153,8 +154,10 @@ def equipment_cards(company, equipment_names, until):
 			"ownership",
 			"docstatus",
 			"from_date",
+			"to_date",
 			"working_days",
 			"operator",
+			"owner_model",
 			"customer_amount",
 			"customer_net_amount",
 			"sales_invoice",
@@ -231,7 +234,16 @@ def card_rows(card_names):
 	for row in frappe.get_all(
 		"Card Monthly Card Adjustment",
 		filters=[["parent", "in", list(card_names)], ["parenttype", "=", "Card Monthly Card"]],
-		fields=["name", "parent", "side", "adjustment_type", "amount", "adjustment_type_ref", "description"],
+		fields=[
+			"name",
+			"idx",
+			"parent",
+			"side",
+			"adjustment_type",
+			"amount",
+			"adjustment_type_ref",
+			"description",
+		],
 		order_by="idx asc",
 		limit_page_length=0,
 	):
@@ -239,27 +251,79 @@ def card_rows(card_names):
 	return rows
 
 
-def card_approvals(card_names):
-	"""{card: {adjustment row: approval}}."""
+APPROVAL_FIELDS = [
+	"name",
+	"monthly_card",
+	"adjustment_row",
+	"approval_status",
+	"approved_amount",
+	"gross_amount",
+	"evidence",
+]
+
+
+def card_approvals(card_names, rows_by_card=None):
+	"""{card: {adjustment row: approval}}.
+
+	A customer's approval survives a cancel and amend of the card: an approval recorded on an earlier
+	version of the card (``amended_from`` chain) applies to the same row of the amendment (same
+	position, side, type and amount). An approval recorded on the amendment itself wins."""
 	out = defaultdict(dict)
 	if not card_names:
 		return out
 	for approval in frappe.get_all(
 		"Card Owner Revenue Approval",
 		filters=[["monthly_card", "in", list(card_names)]],
-		fields=[
-			"name",
-			"monthly_card",
-			"adjustment_row",
-			"approval_status",
-			"approved_amount",
-			"gross_amount",
-			"evidence",
-		],
+		fields=APPROVAL_FIELDS,
 		limit_page_length=0,
 	):
 		out[approval.monthly_card][approval.adjustment_row] = approval
+	if rows_by_card is None:
+		return out
+	for card in card_names:
+		ancestors = amendment_ancestors(card)
+		if not ancestors:
+			continue
+		inherited = frappe.get_all(
+			"Card Owner Revenue Approval",
+			filters=[["monthly_card", "in", ancestors]],
+			fields=APPROVAL_FIELDS,
+			limit_page_length=0,
+		)
+		if not inherited:
+			continue
+		old_rows = {r.name: r for rows in card_rows(ancestors).values() for r in rows}
+		# nearest earlier version first
+		order = {name: i for i, name in enumerate(ancestors)}
+		inherited.sort(key=lambda a: order.get(a.monthly_card, len(order)))
+		for row in rows_by_card.get(card, []):
+			if row.name in out[card]:
+				continue
+			for approval in inherited:
+				old = old_rows.get(approval.adjustment_row)
+				if old and _same_row(old, row):
+					out[card][row.name] = approval
+					break
 	return out
+
+
+def amendment_ancestors(card):
+	"""Earlier versions of an amended card, nearest first."""
+	chain = []
+	current = frappe.db.get_value("Card Monthly Card", card, "amended_from")
+	while current and current not in chain and len(chain) < 50:
+		chain.append(current)
+		current = frappe.db.get_value("Card Monthly Card", current, "amended_from")
+	return chain
+
+
+def _same_row(old, new):
+	return (
+		old.idx == new.idx
+		and (old.side or "") == (new.side or "")
+		and old.adjustment_type == new.adjustment_type
+		and flt(old.amount, 2) == flt(new.amount, 2)
+	)
 
 
 # ---------------------------------------------------------------- deductions
@@ -350,12 +414,13 @@ def cost_center_expenses(company, cost_center, start, end, accounts, owners=()):
 
 
 def cost_center_days(company, cost_center, month):
-	"""{equipment: card working days} of every machine of the company on the cost center in the month
-	(any ownership): a cost center shared by several machines is split between them by working days."""
+	"""{card: working days} of every card of the company's machines on the cost center in the month
+	(any ownership): a cost center shared by several machines, or by two owners of one machine in the
+	same month, is split between the cards by working days, so each share is counted once."""
 	machines = frappe.get_all(
 		"Card Equipment", filters={"company": company, "cost_center": cost_center}, pluck="name"
 	)
-	days = defaultdict(int)
+	days = {}
 	if not machines:
 		return days
 	for card in frappe.get_all(
@@ -366,35 +431,58 @@ def cost_center_days(company, cost_center, month):
 			["docstatus", "in", [0, 1]],
 			["from_date", "=", month],
 		],
-		fields=["equipment", "working_days"],
+		fields=["name", "working_days"],
 		limit_page_length=0,
 	):
-		days[card.equipment] += cint(card.working_days)
+		days[card.name] = cint(card.working_days)
 	return days
 
 
-def wages_by_equipment_month(company, months_by_employee):
-	"""{(employee, equipment, month start): wage} for the employees who operated the owners'
-	machines. ``months_by_employee`` = {employee: set(month starts)}. Gross pay of each submitted
-	Salary Slip is shared over the employee's card working days in the slip period, every equipment
-	included; one machine only = the slip's full gross pay to it."""
+def cost_center_share(days, card_names):
+	"""Share of the cost-center month that belongs to ``card_names``: their working days over all
+	the cards' days; with no working days at all, by number of cards."""
+	if not days:
+		return 1.0
+	mine = [c for c in card_names if c in days]
+	total = sum(days.values())
+	if total:
+		return sum(days[c] for c in mine) / total
+	return len(mine) / len(days)
+
+
+def wages_by_card(company, months_by_employee):
+	"""{(employee, card): wage} for the employees who operated the owners' machines.
+	``months_by_employee`` = {employee: set(month starts)}. Gross pay of each submitted Salary Slip is
+	shared over the employee's card working days in the slip period, every equipment included; one
+	machine only = the slip's full gross pay to it. Keyed by card, so two owners of one machine in the
+	same month each get only their own cards' share."""
 	out = defaultdict(float)
 	for employee, months in (months_by_employee or {}).items():
 		first = min(months)
 		last = get_last_day(max(months))
-		for slip in salary_slips(company, employee, first, last):
-			cards = frappe.get_all(
-				"Card Monthly Card",
-				filters=[
-					["company", "=", company],
-					["operator", "=", employee],
-					["docstatus", "in", [0, 1]],
-					["from_date", "<=", slip.end_date],
-					["to_date", ">=", slip.start_date],
-				],
-				fields=["equipment", "from_date", "working_days"],
-				limit_page_length=0,
-			)
+		slips = salary_slips(company, employee, first, last)
+		if not slips:
+			continue
+		# one card query per employee over every slip period, matched to each slip below
+		all_cards = frappe.get_all(
+			"Card Monthly Card",
+			filters=[
+				["company", "=", company],
+				["operator", "=", employee],
+				["docstatus", "in", [0, 1]],
+				["from_date", "<=", max(getdate(s.end_date) for s in slips)],
+				["to_date", ">=", min(getdate(s.start_date) for s in slips)],
+			],
+			fields=["name", "equipment", "from_date", "to_date", "working_days"],
+			limit_page_length=0,
+		)
+		for slip in slips:
+			cards = [
+				c
+				for c in all_cards
+				if getdate(c.from_date) <= getdate(slip.end_date)
+				and getdate(c.to_date) >= getdate(slip.start_date)
+			]
 			if not cards:
 				continue
 			gross = flt(slip.gross_pay, 2)
@@ -406,7 +494,7 @@ def wages_by_equipment_month(company, months_by_employee):
 					share = gross * cint(c.working_days) / total_days
 				else:
 					share = gross / len(cards) if len(machines) == 1 else 0
-				out[(employee, c.equipment, getdate(get_first_day(c.from_date)))] += share
+				out[(employee, c.name)] += share
 	return out
 
 
@@ -429,11 +517,17 @@ def salary_slips(company, employee, first, last):
 
 
 def recorded_deductions(company, equipment_names, start, end):
-	"""{(equipment, month start): {bucket: amount}} of submitted Card Owner Deduction lines."""
+	"""Submitted Card Owner Deduction lines of the machines in [start, end].
+
+	Returns ({(owner, equipment, month start): {bucket: amount}}, [lines whose source is cancelled]).
+	A line belongs to the owner it names (``owner_supplier``, the owner on its posting date), not to
+	the machine's current owner. A line whose source document is no longer submitted stops applying
+	and is listed instead."""
 	out = defaultdict(lambda: defaultdict(float))
+	void = []
 	if not equipment_names:
-		return out
-	for line in frappe.get_all(
+		return out, void
+	lines = frappe.get_all(
 		"Card Owner Deduction",
 		filters=[
 			["company", "=", company],
@@ -442,12 +536,34 @@ def recorded_deductions(company, equipment_names, start, end):
 			["posting_date", ">=", start],
 			["posting_date", "<=", end],
 		],
-		fields=["equipment", "posting_date", "deduction_type", "amount"],
+		fields=[
+			"name",
+			"equipment",
+			"owner_supplier",
+			"posting_date",
+			"deduction_type",
+			"amount",
+			"source_doctype",
+			"source_name",
+		],
 		limit_page_length=0,
-	):
+	)
+	submitted = {}
+	for doctype in {line.source_doctype for line in lines if line.source_doctype}:
+		names = list({line.source_name for line in lines if line.source_doctype == doctype})
+		if not frappe.db.exists("DocType", doctype):
+			continue
+		submitted[doctype] = set(
+			frappe.get_all(doctype, filters={"name": ["in", names], "docstatus": 1}, pluck="name")
+		)
+	for line in lines:
+		if line.source_name not in submitted.get(line.source_doctype, set()):
+			void.append(line)
+			continue
 		bucket = DEDUCTION_TYPES.get(line.deduction_type, "other_deductions")
-		out[(line.equipment, getdate(get_first_day(line.posting_date)))][bucket] += flt(line.amount, 2)
-	return out
+		key = (line.owner_supplier, line.equipment, getdate(get_first_day(line.posting_date)))
+		out[key][bucket] += flt(line.amount, 2)
+	return out, void
 
 
 # ---------------------------------------------------------------- party ledger
@@ -573,7 +689,7 @@ def build_statement(
 	by_name = {m.name: m for m in machines}
 	cards = equipment_cards(company, list(by_name), end)
 	rows_by_card = card_rows([c.name for c in cards])
-	approvals = card_approvals([c.name for c in cards])
+	approvals = card_approvals([c.name for c in cards], rows_by_card)
 	owner_types = owner_revenue_types(company)
 
 	# the owner of each card: a submitted card keeps the owner it was submitted with (third-party
@@ -615,47 +731,36 @@ def build_statement(
 
 	first_month = min([k[2] for k in months] + [get_first_day(start)])
 	accounts = deductible_expense_accounts(company) if show_ledger else []
-	recorded = recorded_deductions(company, list(by_name), first_month, end)
+	recorded, void_deductions = recorded_deductions(company, list(by_name), first_month, end)
 	by_employee = defaultdict(set)
 	for (_owner, _eq, month), cs in months.items():
 		for c in cs:
 			if c.operator:
 				by_employee[c.operator].add(month)
-	wages = wages_by_equipment_month(company, by_employee) if show_wages else {}
+	wages = wages_by_card(company, by_employee) if show_wages else {}
 	cc_cache = {}
 
 	month_rows = []
 	for (owner, eq, month), cs in sorted(months.items(), key=lambda kv: kv[0]):
 		machine = by_name[eq]
-		managed = machine.owner_model == OWNER_MODEL_MANAGED
+		model = month_owner_model(cs, machine)
+		managed = model == OWNER_MODEL_MANAGED
 		row = frappe._dict(
 			owner=owner,
 			equipment=eq,
 			equipment_name=machine.equipment_name,
-			owner_model=machine.owner_model,
+			owner_model=model,
 			month=month,
 			cards=[c.name for c in cs],
 			final=all(c.docstatus == 1 for c in cs),
 			in_period=start <= month <= end,
-			shown=(not equipment or eq == equipment)
-			and (not owner_model or machine.owner_model == owner_model),
+			shown=(not equipment or eq == equipment) and (not owner_model or model == owner_model),
+			no_card=False,
 		)
 		revenue = [
 			card_revenue(c, rows_by_card.get(c.name, []), approvals.get(c.name, {}), owner_types) for c in cs
 		]
-		for key in (
-			"customer_net",
-			"customer_amount",
-			"owner_rows",
-			"conditional_gross",
-			"approved",
-			"pending",
-			"excluded",
-			"company_rows",
-			"unclassified",
-			"confirmed",
-			"check",
-		):
+		for key in REVENUE_KEYS:
 			row[key] = flt(sum(r[key] for r in revenue), 2)
 		row.approval_status = sorted({s for r in revenue for s in r.approval_status})
 		row.approval_records = [n for r in revenue for n in r.approval_records]
@@ -672,34 +777,65 @@ def build_statement(
 					cost_center_days(company, machine.cost_center, month),
 				)
 			total, days = cc_cache[key]
-			if len(days) > 1:
-				all_days = sum(days.values())
-				share = days.get(eq, 0) / all_days if all_days else 1 / len(days)
-				total = flt(total * share, 2)
+			share = cost_center_share(days, row.cards)
+			if share < 1:
+				total = flt(flt(total) * share, 2)
 				row.shared_cost_center = True
 			row.expenses = total
 		row.wages = (
-			flt(sum(v for (_emp, e, m), v in wages.items() if e == eq and m == month), 2)
-			if show_wages
-			else None
+			flt(sum(v for (_emp, card), v in wages.items() if card in row.cards), 2) if show_wages else None
 		)
-		lines = recorded.get((eq, month), {}) if owner == machine.supplier else {}
-		for bucket in DEDUCTION_TYPES.values():
-			row[bucket] = flt(lines.get(bucket), 2)
-		if not show_wages:
-			row.recorded_wages = 0.0  # wages stay hidden from a user who may not read Salary Slips
-		row.deductions = flt(
-			flt(row.expenses)
-			+ flt(row.wages)
-			+ row.shared_expenses
-			+ row.paid_on_behalf
-			+ row.recorded_wages
-			+ row.other_deductions,
-			2,
-		)
+		apply_recorded(row, recorded.pop((owner, eq, month), {}), show_wages)
 		row.entitlement = flt(row.confirmed - row.deductions, 2)
 		row.complete = bool(show_ledger and show_wages and not row.no_cost_center)
 		month_rows.append(row)
+
+	# a submitted deduction in a month with no card of its owner on that machine is never dropped:
+	# it becomes its own final month row (no revenue) and a warning
+	warnings = []
+	for (owner, eq, month), lines in sorted(
+		recorded.items(), key=lambda kv: (kv[0][0] or "", kv[0][1], kv[0][2])
+	):
+		if owner not in owners or eq not in by_name:
+			continue
+		machine = by_name[eq]
+		row = frappe._dict(
+			owner=owner,
+			equipment=eq,
+			equipment_name=machine.equipment_name,
+			owner_model=machine.owner_model,
+			month=month,
+			cards=[],
+			final=True,
+			in_period=start <= month <= end,
+			shown=(not equipment or eq == equipment)
+			and (not owner_model or machine.owner_model == owner_model),
+			no_card=True,
+			approval_status=[],
+			approval_records=[],
+			approval_mismatch=False,
+			no_cost_center=False,
+			expenses=0.0,
+			wages=0.0 if show_wages else None,
+		)
+		for key in REVENUE_KEYS:
+			row[key] = 0.0
+		apply_recorded(row, lines, show_wages)
+		row.entitlement = flt(-row.deductions, 2)
+		row.complete = bool(show_ledger and show_wages)
+		month_rows.append(row)
+		warnings.append(
+			_(
+				"{0}: deductions of {1} on {2} in {3} have no card that month; they are shown as their own row."
+			).format(owner, row.deductions, eq, month_label(month))
+		)
+	for line in void_deductions:
+		warnings.append(
+			_("Card Owner Deduction {0} no longer applies: its source {1} {2} is not submitted.").format(
+				line.name, line.source_doctype, line.source_name
+			)
+		)
+	month_rows.sort(key=lambda r: (r.owner or "", r.equipment, r.month))
 
 	owner_cutover = {}
 	for (owner, _eq), first in cutover.items():
@@ -812,7 +948,51 @@ def build_statement(
 		family_row.closing = flt(
 			sum(o.closing for o in owner_rows.values()) - payments_before - family_row.payments, 2
 		)
-	return frappe._dict(machines=machines, months=month_rows, owners=owner_rows, family=family_row)
+	return frappe._dict(
+		machines=machines, months=month_rows, owners=owner_rows, family=family_row, warnings=warnings
+	)
+
+
+REVENUE_KEYS = (
+	"customer_net",
+	"customer_amount",
+	"owner_rows",
+	"conditional_gross",
+	"approved",
+	"pending",
+	"excluded",
+	"company_rows",
+	"unclassified",
+	"confirmed",
+	"check",
+)
+
+
+def month_owner_model(cards, machine):
+	"""The owner model of a machine-month: the snapshot on its submitted cards (history is never
+	recomputed from today's equipment settings); a month with drafts only follows the equipment.
+	A submitted card saved before the snapshot existed (empty) falls back to the equipment."""
+	for card in cards:
+		if card.docstatus == 1 and card.get("owner_model"):
+			return card.owner_model
+	return machine.owner_model
+
+
+def apply_recorded(row, lines, show_wages):
+	"""Put the recorded deduction lines of a machine-month on ``row`` and total its deductions."""
+	for bucket in DEDUCTION_TYPES.values():
+		row[bucket] = flt((lines or {}).get(bucket), 2)
+	if not show_wages:
+		row.recorded_wages = 0.0  # wages stay hidden from a user who may not read Salary Slips
+	row.deductions = flt(
+		flt(row.expenses)
+		+ flt(row.wages)
+		+ row.shared_expenses
+		+ row.paid_on_behalf
+		+ row.recorded_wages
+		+ row.other_deductions,
+		2,
+	)
 
 
 def period(from_month, from_year, to_month=None, to_year=None):

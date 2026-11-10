@@ -863,3 +863,225 @@ class TestReportAndPrint(OwnerFixtures):
 
 		with self.assertRaisesRegex(frappe.ValidationError, "Invalid filters"):
 			owner_statement_pdf.download_pdf(json.dumps({"company": self.company, "owner": ["<x>"]}))
+
+
+class TestReviewRound2(OwnerFixtures):
+	"""Regressions for the second review of PR #225 (owner decisions 2026-11-10, third batch)."""
+
+	def _expense_je(self, cc, amount, date="2026-09-20"):
+		return self._je(
+			[
+				{"account": self._expense_account(), "debit_in_account_currency": amount, "cost_center": cc},
+				{"account": self._bank(), "credit_in_account_currency": amount},
+			],
+			date,
+		)
+
+	def _deduction(self, eq, source, amount, date="2026-09-20", kind="Paid on behalf"):
+		line = frappe.get_doc(
+			{
+				"doctype": "Card Owner Deduction",
+				"equipment": eq.name,
+				"posting_date": date,
+				"deduction_type": kind,
+				"amount": amount,
+				"source_doctype": "Journal Entry",
+				"source_name": source.name,
+			}
+		).insert(ignore_permissions=True)
+		line.submit()
+		return line
+
+	def _bank_source(self, amount, date="2026-09-20"):
+		# a source on no machine cost center (not deducted automatically)
+		other = self._cost_center("-X" + frappe.generate_hash(length=3))
+		return self._expense_je(other, amount, date)
+
+	def _change_owner(self, eq, owner=None, model=None):
+		eq.reload()
+		if owner:
+			eq.supplier = owner
+		if model:
+			eq.owner_model = model
+		eq.commercial_change_reason = "change " + self.token
+		eq.save(ignore_permissions=True)
+
+	def test_history_keeps_the_owner_model_of_the_card(self):
+		owner = self._supplier("-H")
+		cc = self._cost_center("-H")
+		eq = self._equipment(owner, cost_center=cc)
+		card = self._card(eq)
+		self.assertEqual(card.owner_model, OWNER_MODEL_MANAGED)
+		self._expense_je(cc, 4000)
+		self._change_owner(eq, model=OWNER_MODEL_SELF)
+		with patch.object(os_, "salary_slips", lambda *a: []):
+			s = self._statement([owner])
+		self.assertEqual(s.months[0].owner_model, OWNER_MODEL_MANAGED)
+		self.assertEqual(s.months[0].expenses, 4000)  # still a managed month
+
+	def test_a_deduction_follows_the_owner_on_its_date(self):
+		first, second = self._supplier("-D1"), self._supplier("-D2")
+		eq = self._equipment(first, model=OWNER_MODEL_SELF)
+		self._card(eq)
+		self._change_owner(eq, owner=second)
+		line = self._deduction(eq, self._bank_source(2000), 2000)
+		self.assertEqual(line.owner_supplier, first)  # the September card is the first owner's
+		s = self._statement([first], show_ledger=False, show_wages=False)
+		self.assertEqual(s.owners[first].entitlement, 22500 - 2000)
+		s = self._statement([second], show_ledger=False, show_wages=False)
+		self.assertEqual(s.owners[second].entitlement, 0)
+
+	def test_a_deduction_in_a_month_with_no_card_is_shown_not_dropped(self):
+		owner = self._supplier("-N")
+		eq = self._equipment(owner, model=OWNER_MODEL_SELF, since="2026-08-01")
+		self._card(eq)  # September only
+		self._deduction(eq, self._bank_source(1000, "2026-08-15"), 1000, date="2026-08-15")
+		s = os_.build_statement(
+			self.company, [owner], "2026-08-01", "2026-09-30", show_ledger=False, show_wages=False
+		)
+		lonely = [m for m in s.months if m.no_card]
+		self.assertEqual(len(lonely), 1)
+		self.assertEqual(lonely[0].paid_on_behalf, 1000)
+		self.assertEqual(s.owners[owner].entitlement, 22500 - 1000)
+		self.assertTrue(any(eq.name in w for w in s.warnings))
+
+	def test_a_deduction_whose_source_is_cancelled_stops_applying(self):
+		owner = self._supplier("-C")
+		eq = self._equipment(owner, model=OWNER_MODEL_SELF)
+		self._card(eq)
+		source = self._bank_source(1500)
+		line = self._deduction(eq, source, 1500)
+		source.reload()
+		source.flags.ignore_links = True  # a source cancelled around the link (for example "Cancel All")
+		source.cancel()
+		s = self._statement([owner], show_ledger=False, show_wages=False)
+		self.assertEqual(s.owners[owner].entitlement, 22500)
+		self.assertTrue(any(line.name in w for w in s.warnings))
+
+	def test_a_mid_month_owner_change_is_counted_once(self):
+		first, second = self._supplier("-M1"), self._supplier("-M2")
+		cc = self._cost_center("-M")
+		eq = self._equipment(first, cost_center=cc)
+		worker = self._employee("mid")
+		self._card(eq, days=6, operator=worker)
+		self._change_owner(eq, owner=second)
+		self.project = (
+			frappe.get_doc(
+				{
+					"doctype": "Project",
+					"project_name": "TEST-COS-PRJ2-" + self.token,
+					"status": "Open",
+					"company": self.company,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+		self._card(eq, days=3, operator=worker)
+		self._expense_je(cc, 9000)
+		slips = [frappe._dict(name="S", start_date="2026-09-01", end_date="2026-09-30", gross_pay=4500)]
+		with patch.object(os_, "salary_slips", lambda company, employee, first_, last: slips):
+			s = self._statement([first, second])
+		by_owner = {m.owner: m for m in s.months}
+		self.assertEqual(by_owner[first].expenses, 6000)
+		self.assertEqual(by_owner[second].expenses, 3000)
+		self.assertEqual(by_owner[first].wages, 3000)
+		self.assertEqual(by_owner[second].wages, 1500)
+		self.assertEqual(sum(m.expenses for m in s.months), 9000)  # never twice
+
+	def test_a_customer_approval_survives_cancel_and_amend(self):
+		from card.tests.cancel_reason import with_reason
+
+		owner = self._supplier("-A")
+		eq = self._equipment(owner)
+		card = self._card(eq, rows=[self._generator_row()])
+		self._approval(card, status="Approved")
+		with_reason(card)
+		card.cancel()
+		amended = frappe.copy_doc(card)
+		amended.amended_from = card.name
+		amended.docstatus = 0
+		amended.insert(ignore_permissions=True)
+		amended.submit()
+		with patch.object(os_, "salary_slips", lambda *a: []):
+			s = self._statement([owner], show_ledger=False)
+		month = s.months[0]
+		self.assertEqual(month.cards, [amended.name])
+		self.assertEqual(month.approved, 17000)
+		self.assertEqual(month.confirmed, 22500 + 17000)
+
+	def test_one_approval_per_card_row_in_the_database(self):
+		index = frappe.db.sql(
+			"show index from `tabCard Owner Revenue Approval` where Key_name = %s",
+			("unique_card_adjustment_row",),
+		)
+		self.assertTrue(index)
+
+
+class TestOwnerDeductionAccess(OwnerFixtures):
+	"""A Card Manager without Salary Slip read never reads owner deductions (wages are payroll data)."""
+
+	def setUp(self):
+		super().setUp()
+		owner = self._supplier("-R")
+		eq = self._equipment(owner, model=OWNER_MODEL_SELF)
+		self._card(eq)
+		other = self._cost_center("-R")
+		source = self._je(
+			[
+				{"account": self._expense_account(), "debit_in_account_currency": 800, "cost_center": other},
+				{"account": self._bank(), "credit_in_account_currency": 800},
+			]
+		)
+		self.line = frappe.get_doc(
+			{
+				"doctype": "Card Owner Deduction",
+				"equipment": eq.name,
+				"posting_date": "2026-09-20",
+				"deduction_type": "Paid on behalf",
+				"amount": 800,
+				"source_doctype": "Journal Entry",
+				"source_name": source.name,
+			}
+		).insert(ignore_permissions=True)
+		self.line.submit()
+		self.email = f"cos-cm-{self.token}@example.com"
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": self.email,
+				"first_name": "COS-CM",
+				"send_welcome_email": 0,
+				"roles": [{"role": "Card Manager"}],
+			}
+		).insert(ignore_permissions=True)
+
+	def test_card_manager_has_no_docperm(self):
+		roles = {p.role for p in frappe.get_meta("Card Owner Deduction").permissions}
+		self.assertNotIn("Card Manager", roles)
+		self.assertIn("Accounts Manager", roles)
+
+	def test_api_read_is_refused(self):
+		frappe.set_user(self.email)
+		self.assertFalse(frappe.has_permission("Card Owner Deduction", "read", self.line.name))
+		with self.assertRaises(frappe.PermissionError):
+			frappe.client.get("Card Owner Deduction", self.line.name)
+		with self.assertRaises(frappe.PermissionError):
+			frappe.get_list("Card Owner Deduction", fields=["name", "amount"])
+
+	def test_list_view_and_export_are_refused(self):
+		from frappe.desk import reportview
+
+		frappe.set_user(self.email)
+		frappe.local.form_dict = frappe._dict(
+			doctype="Card Owner Deduction", fields=json.dumps(["`tabCard Owner Deduction`.`amount`"])
+		)
+		with self.assertRaises(frappe.PermissionError):
+			reportview.get()
+		frappe.local.form_dict = frappe._dict(
+			doctype="Card Owner Deduction",
+			file_format_type="CSV",
+			fields=json.dumps(["`tabCard Owner Deduction`.`amount`"]),
+		)
+		with self.assertRaises(frappe.PermissionError):
+			reportview.export_query()
