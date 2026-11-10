@@ -74,5 +74,5 @@ These are places where two fields can disagree. They are listed in [06-risk-regi
 |---|---|
 | Card Equipment `status` and `exit_date` / `rental_end_date` | `status` is a free field; nothing derives it from the dates |
 | Card Equipment `internal_rate` and the older `internal_hourly_rate` | Both exist; `card_value.internal_rate_of` prefers the first |
-| Source `purchase_invoice` / `sales_invoice` and the log's membership | Kept in step by `gl/events.py` on submit, cancel and delete; a direct database edit would split them. At submit `gl/events.py` re-verifies the sources (`_verify_sources`) |
+| Source `purchase_invoice` / `sales_invoice` and the log's membership | Kept in step by `gl/events.py` on submit, cancel and delete; a direct database edit would split them. At submit `gl/events.py` re-verifies the sources (`_verify_sources`); the read-only report Posting Source Integrity lists any disagreement (FR-136, in review) |
 | Transport `to_location` / `from_location` (older) and `destination_*` / `source_*` | Both sets exist on the DocType; the posting query still selects the older fields |

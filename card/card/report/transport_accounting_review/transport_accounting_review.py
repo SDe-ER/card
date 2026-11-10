@@ -3,6 +3,7 @@ from frappe import _
 from frappe.utils import flt, getdate
 
 from card.report_access import _role_reads, readable_links, resolve_company
+from card.report_currency import company_currency_report
 
 
 def get_columns():
@@ -66,6 +67,7 @@ def get_columns():
 	]
 
 
+@company_currency_report("Equipment Transport")
 def execute(filters=None):
 	# Report: "Transport Accounting Review" (P1-2). Read-only: lists submitted transports whose accounting
 	# needs a person — recorded before P1-2 without payer/bearer/cost project, financial decisions pending or
