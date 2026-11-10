@@ -1,8 +1,8 @@
 # Copyright (c) 2026, SDCE and contributors
 # For license information, please see LICENSE
 """Equipment Diesel Analysis report (F.2). Expected litres = operating hours x
-(daily_diesel_consumption / daily standard hours); equipment without the daily
-figure falls back to the older per-hour expected_consumption; with neither the
+the per-hour expected_consumption when set (owner decision 2026-11-11), else x
+(daily_diesel_consumption / daily standard hours); with neither the
 expected side stays empty (row listed, never a crash). Allocated litres come
 from submitted Project Diesel Fills via the card.diesel allocation, split into
 recorded (direct fills) and estimated (tank fills split by hours, #33). Display
@@ -154,6 +154,15 @@ class TestEquipmentDieselAnalysis(IntegrationTestCase):
 		self.assertEqual(flt(row["variance"]), -80.0)
 		self.assertEqual(flt(row["variance_pct"]), -100.0)
 
+	def test_per_hour_wins_over_daily_when_both_set(self):
+		# owner decision 2026-11-11: the per-hour figure is the real rate when both exist
+		eq = self._equipment(daily_diesel=50, per_hour=4)  # daily basis would be 5 L/h
+		self._card(eq, [10, 10])
+		_cols, rows, _msg, _chart, _summary, _flag = self._run()
+		self.assertEqual(len(rows), 1)
+		self.assertEqual(flt(rows[0]["daily_consumption"]), 50.0)  # still shown
+		self.assertEqual(flt(rows[0]["expected_litres"]), 80.0)  # 20h x 4 L/h, not 20h x 5 L/h
+
 	def test_no_consumption_figures_row_still_listed(self):
 		eq = self._equipment()  # neither daily figure nor per-hour figure
 		self._card(eq, [10])
@@ -217,7 +226,8 @@ class TestEquipmentDieselAnalysis(IntegrationTestCase):
 		self.assertEqual(
 			message,
 			frappe._(
-				"Expected = operating hours x (daily diesel consumption / daily standard hours). "
+				"Expected = operating hours x the per-hour expected consumption when it is set, otherwise"
+				" operating hours x (daily diesel consumption / daily standard hours). "
 				"Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the "
 				"equipment) plus estimated (project-tank fills split by card hours, not measured). "
 				"The variance compares expected vs allocated, not measured consumption. "

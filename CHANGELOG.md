@@ -53,27 +53,44 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   company cannot change and it cannot be removed; a correction is a new row, and a new backdated row needs a reason
   (`validate_past_rows`; a new table, so no existing behaviour changes). New read-only helper
   `card.consumption.consumption_rate(equipment, on_date)` / `consumption_rate_details` (source and valid_from): the
-  equipment's row valid on the date → "Daily standard" `daily_diesel_consumption / daily_hours` when both are set (the
-  basis Equipment Diesel Analysis uses first, so the helper equals that report for every equipment) → the static
-  `expected_consumption` (0 = not set) → the type row for the equipment's company → the type row with no company →
-  None; not whitelisted, no REST endpoint. Known limit: the type step reads the equipment's current type, also for
+  equipment's row valid on the date → the static per-hour `expected_consumption` when set (0 = not set) → "Daily
+  standard" `daily_diesel_consumption / daily_hours` when both are set → the type row for the equipment's company →
+  the type row with no company → None (order changed by the follow-up below; Equipment Diesel Analysis uses the same
+  order, so the helper equals that report for every equipment with no dated row); not whitelisted, no REST endpoint. Known limit: the type step reads the equipment's current type, also for
   past dates. The static field stays (read-only on the form once dated rows exist; a change after that only shows a
   warning). The change history masks the equipment rate rows through the existing `card.field_privacy` rule (row
   fields above level 0), as for every other level-1 equipment value: Versions keep who and when, not the values;
   `card.field_privacy` is unchanged. Patch `card.patches.v4_8_0.seed_consumption_rates`: each equipment with a static
-  value above 0, no daily standard basis and no rate row gets one row with that value valid from 2000-01-01
+  value above 0 and no rate row (also one with daily figures, follow-up below) gets one row with that value valid from 2000-01-01
   (inserted on its own: no save, no new modified time); idempotent (an equipment with rows is skipped). Affected: new
   `card/consumption.py`, new `card/card/doctype/card_consumption_rate/*` and `card_type_consumption_rate/*`,
   `card_equipment.json/.py`, `card_equipment_type.json/.py`, `card/patches.txt`, locale,
   `docs/governance/ROLE-ACTION-MATRIX.md`. Tests: `card/tests/test_consumption_rate.py`. PR: #223. Impact:
   permissions none added (rows follow the parents' DocPerms and Company User Permissions; type rate writes narrowed
   to Card Manager / System Manager on a new table); accounting none (no GL, no posting reads the rate); data: one
-  seeded row per equipment with only a static rate, consumption_rate() returns the same value as before on every
+  seeded row per equipment with a static rate, consumption_rate() returns the same value as before on every
   date; API: none (no new whitelisted method). No existing caller is switched: Equipment Diesel Analysis is
   unchanged. Rollback limits: a code rollback leaves the two new tables and the seeded rows in the database (unused
   by the older code); the static fields are unchanged, so the older behaviour returns as it was. The
   `ignore_user_permissions` property lives in the DocType JSON and is removed with the code; with an older FR-144
   build a company-restricted user would again be locked out of a type that has rows of another company.
+  **Follow-up: per-hour rate takes precedence over the daily figure (PR #PRNUM).** Owner decision 2026-11-11:
+  per-hour is the real rate when both exist (equipment with both a static `expected_consumption` and
+  `daily_diesel_consumption` with `daily_hours`; 4 such equipment on Production). Affected functions:
+  `card.consumption.consumption_rate_details` / `consumption_rate` (static per-hour now before the daily standard;
+  the equipment dated row stays first), the seed patch `card.patches.v4_8_0.seed_consumption_rates` (edited in place:
+  v4.8.0 is not released and docs/releases/DEPLOYMENTS.md records no Production run; equipment with a per-hour value
+  is now seeded also when it has daily figures; equipment with only daily figures stays unseeded; still idempotent,
+  never overwrites or adds beside an existing dated row), and Equipment Diesel Analysis (`execute`: expected litres =
+  hours × per-hour when set, else hours × daily / daily_hours; message text updated, Arabic added). Report impact:
+  for equipment with both figures, Expected litres, Variance and Variance % change from the daily basis to the
+  per-hour basis; the Daily consumption column still shows the daily figure; equipment with only one figure is
+  unchanged. Impact: permissions none; accounting none (display only, no GL, no posting reads the rate); data: the
+  seed adds one more row for each both-figure equipment (its per-hour value from 2000-01-01); API none. Rollback
+  limits: a code rollback restores the daily-first order in the helper and the report, but the rows already seeded
+  for both-figure equipment stay and an older FR-144 build would then answer the per-hour value from them on every
+  date (delete those seeded rows, reason "Seeded from the static expected consumption (FR-144)", to return to the
+  daily basis). Tests: `card/tests/test_consumption_rate.py`, `card/tests/test_diesel_analysis.py`.
 - **FR-147 — Card Period Run: versioned monthly period run with accountant approval (#49; closure plan WP-S1).**
   Reason: #49 asks for "source records → approved period run → draft billing documents → accountant approval",
   with the approval tied to the run version so that a source edited after the approval needs a new run and a new

@@ -6501,3 +6501,7 @@ msgstr ""
 #: card/intake.py
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr ""
+
+#: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py
+msgid "Expected = operating hours x the per-hour expected consumption when it is set, otherwise operating hours x (daily diesel consumption / daily standard hours). Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) plus estimated (project-tank fills split by card hours, not measured). The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
+msgstr ""
