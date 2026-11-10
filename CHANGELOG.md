@@ -34,6 +34,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+### Added
+- **Card Reviewer role** (FR-137, #35 Q2, PR #207). Reason: the governance workflow (#35 G1) needs a reviewer
+  role separate from the approver. `card/install.py`: `CARD_REVIEWER_ROLE` added to `CARD_ROLES`, so
+  `ensure_card_roles()` (before_install and every roles patch) creates it with Desk access; new idempotent patch
+  `card.patches.v4_8_0.ensure_card_reviewer_role` (new package `card/patches/v4_8_0`) creates it on existing sites.
+  Impact: permissions none (no DocPerm names the role and no user is given it; later governance packages wire it and
+  the owner assigns it); accounting none; data one Role record; API none. Default behaviour unchanged.
+  Tests: `card/tests/test_card_reviewer_role.py`. Rollback: reverting the code leaves the unused Role record; it can
+  be disabled or deleted by hand while no user holds it.
+
 ## [4.7.0] — 2026-11-10
 
 Minor release on top of v4.6.0: five pull requests (#199, #200, #201, #202, #203). Security first: company checks on
