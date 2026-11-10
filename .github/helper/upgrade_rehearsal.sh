@@ -3,8 +3,9 @@
 # then the code under test, migrate twice, compare. Evidence in ~/rehearsal/.
 set -euo pipefail
 
-FRAPPE_REF=${FRAPPE_REF:-v16.51.1}
-ERPNEXT_REF=${ERPNEXT_REF:-v16.50.0}
+# Production platform 2026-11-10 (docs/releases/DEPLOYMENTS.md); tags checked on GitHub
+FRAPPE_REF=${FRAPPE_REF:-v16.55.2}
+ERPNEXT_REF=${ERPNEXT_REF:-v16.54.0}
 FROM_REF=${FROM_REF:-v1.0.1}
 OUT=~/rehearsal
 HELPER="${GITHUB_WORKSPACE}/.github/helper"
