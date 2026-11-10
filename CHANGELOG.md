@@ -35,6 +35,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Added
+- **Card Reviewer role** (FR-137, #35 Q2, PR #207). Reason: the governance workflow (#35 G1) needs a reviewer
+  role separate from the approver. `card/install.py`: `CARD_REVIEWER_ROLE` added to `CARD_ROLES`, so
+  `ensure_card_roles()` (before_install and every roles patch) creates it with Desk access; new idempotent patch
+  `card.patches.v4_8_0.ensure_card_reviewer_role` (new package `card/patches/v4_8_0`) creates it on existing sites.
+  Impact: permissions none (no DocPerm names the role and no user is given it; later governance packages wire it and
+  the owner assigns it); accounting none; data one Role record; API none. Default behaviour unchanged.
+  Tests: `card/tests/test_card_reviewer_role.py`. Rollback: reverting the code leaves the unused Role record; it can
+  be disabled or deleted by hand while no user holds it.
 - **Main store, tool custody store and repeated-request window per company (FR-135, #50, #126, PR #211).** Reason:
   the materials warehouses and the repeat window were site-wide only (#50 "no hardcoded … per company"). Card
   Company Settings gets a Materials section with `store_warehouse`, `custody_warehouse` and `repeat_request_days`
