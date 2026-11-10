@@ -390,7 +390,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   <abbr>" template is created and linked in the company row, and the old template stays as it is (not renamed, rates
   unchanged). The 0% template stays 0. The built posting log now also stores the built VAT (each line's
   `item_tax_rate` and `total_taxes_and_charges`, `integrity.vat_snapshot`, outside the signature); the submit gate
-  (`check_built_vat`, before the signature match) refuses a draft whose VAT changed since the build; a log written before
+  (`check_built_vat`, when the content otherwise matches the built or accepted signature) refuses a draft whose VAT changed since the build; a log written before
   this change has no VAT key and is compared exactly as before. Tests: `card/tests/test_vat_rate_setting.py`. Impact:
   with the 15% templates in use, template names, rates and postings are unchanged. Permissions: none. Schema: none.
   Accounting: a changed company tax template rate gives new drafts the new rate; old drafts keep theirs; a draft whose

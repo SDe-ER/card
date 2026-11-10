@@ -273,11 +273,12 @@ def check_built_signature(doc, log):
 	built = json.loads(log.built_snapshot)
 	# before the signature match: an accepted correction of an old draft does not bypass it
 	check_builder_version(doc, log, built)
-	# FR-127: before the signature match too: an accepted correction never covers a VAT change
-	check_built_vat(doc, built)
 	current = snapshot(doc)
 	signature = full_signature(current)
 	if signature in (log.built_signature, log.get("accepted_signature")):
+		# FR-127: the content matches, but ERPNext may have recalculated the line VAT from a changed item tax
+		# template; an accepted correction never covers a VAT change either
+		check_built_vat(doc, built)
 		return
 	diffs = describe_differences(built, current)
 	hint = (
