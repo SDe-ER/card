@@ -6179,6 +6179,7 @@ msgstr ""
 
 #: card/card/doctype/card_period_run/card_period_run.js
 msgid "The source documents of this period run changed after it was built; cancel and amend it to build a new version."
+msgstr ""
 
 #: card/daily_log_generation.py
 msgid "Give the month as YYYY-MM or as a date of that month."
@@ -6351,6 +6352,7 @@ msgstr ""
 
 #: card/card/doctype/card_period_run/card_period_run.json
 msgid "Diesel price VAT basis at build"
+msgstr ""
 
 #: card/cancel_reason.py
 msgid "{0} {1} cannot be cancelled with changes: {2} differs from the stored record."
