@@ -99,6 +99,19 @@ def vat_account_heads(row):
 	return heads
 
 
+def standard_vat_rate(row):
+	"""FR-127: the standard VAT rate of the company's CARD item tax template, from its Card Company
+	Settings row (`vat_rate`, default 15). Never guessed: a missing or out-of-range rate stops."""
+	rate = flt(row.get("vat_rate"))
+	if not 0 < rate < 100:
+		frappe.throw(
+			_("CARD standard VAT rate for company {0} must be greater than 0 and less than 100.").format(
+				row.company
+			)
+		)
+	return rate
+
+
 def _reconcile_item_tax_template(name, heads, rate):
 	"""A drifted template (the company's VAT account heads changed) is
 	re-pointed at the current heads instead of dead-ending every posting."""
@@ -180,8 +193,11 @@ def ensure_posting_masters(company):
 	heads = vat_account_heads(row)
 	abbr = _abbr(company)
 	if heads:
+		# FR-127: the standard rate comes from the company row; the title carries it only when the
+		# template is first created (an existing linked template is never renamed)
+		vat_rate = standard_vat_rate(row)
 		for fieldname, title, rate in (
-			("vat_item_tax_template", f"CARD VAT 15% - {abbr}", 15),
+			("vat_item_tax_template", f"CARD VAT {vat_rate:g}% - {abbr}", vat_rate),
 			("vat_zero_item_tax_template", f"CARD VAT 0% - {abbr}", 0),
 		):
 			if not row.get(fieldname):

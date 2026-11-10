@@ -10,7 +10,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt, getdate
 
-from card.gl.masters import ADJUSTMENT_ITEM_GROUP, vat_account_heads
+from card.gl.masters import ADJUSTMENT_ITEM_GROUP, standard_vat_rate, vat_account_heads
 from card.settings import setting
 
 
@@ -258,7 +258,10 @@ def check_template_mapping(row, provisioned=True):
 				).format(_(accounts_meta.get_label(toggle)))
 			)
 	heads = vat_account_heads(row)
-	for fieldname, expected_rate in (("vat_item_tax_template", 15), ("vat_zero_item_tax_template", 0)):
+	for fieldname, expected_rate in (
+		("vat_item_tax_template", standard_vat_rate(row)),
+		("vat_zero_item_tax_template", 0),
+	):
 		template = row.get(fieldname)
 		if not template or not provisioned:
 			continue
@@ -276,7 +279,9 @@ def check_template_mapping(row, provisioned=True):
 		for d in details:
 			if flt(d.tax_rate) != expected_rate:
 				frappe.throw(
-					_("Item tax template {0} must carry a flat {1}% rate.").format(template, expected_rate)
+					_("Item tax template {0} must carry a flat {1}% rate.").format(
+						template, f"{flt(expected_rate):g}"
+					)
 				)
 	configured = _configured_posting_items(row)
 	tainted = (

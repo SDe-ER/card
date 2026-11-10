@@ -4827,3 +4827,12 @@ msgstr ""
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "The agreed amount (not company cost) cannot be negative."
 msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "CARD standard VAT rate (%)"
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+#: card/gl/masters.py
+msgid "CARD standard VAT rate for company {0} must be greater than 0 and less than 100."
+msgstr ""

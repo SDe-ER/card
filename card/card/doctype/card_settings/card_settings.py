@@ -27,6 +27,13 @@ class CardSettings(Document):
 			if row.company in seen:
 				frappe.throw(_("Duplicate company in Card Company Settings: {0}").format(row.company))
 			seen.add(row.company)
+			# FR-127: the standard VAT rate of the CARD item tax template (default 15) is a real rate
+			if not 0 < flt(row.get("vat_rate")) < 100:
+				frappe.throw(
+					_(
+						"CARD standard VAT rate for company {0} must be greater than 0 and less than 100."
+					).format(row.company)
+				)
 			# F.8: every configured account must belong to its row's company
 			for fieldname in account_fields:
 				account = row.get(fieldname)

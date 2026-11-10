@@ -742,14 +742,17 @@ def _masters_to_provision(company, row):
 	"""Read-only: True when ensure_posting_masters would create or repair something
 	(a posting item, a VAT item tax template, an adjustment type's item) — the
 	preview does not provision, so it says so instead."""
-	from card.gl.masters import POSTING_ITEMS, vat_account_heads
+	from card.gl.masters import POSTING_ITEMS, standard_vat_rate, vat_account_heads
 
 	for fieldname, _code, _name in POSTING_ITEMS:
 		if not row.get(fieldname) or not frappe.db.exists("Item", row.get(fieldname)):
 			return True
 	heads = vat_account_heads(row)
 	if heads:
-		for fieldname, rate in (("vat_item_tax_template", 15), ("vat_zero_item_tax_template", 0)):
+		for fieldname, rate in (
+			("vat_item_tax_template", standard_vat_rate(row)),
+			("vat_zero_item_tax_template", 0),
+		):
 			if not row.get(fieldname):
 				return True
 			current = {
