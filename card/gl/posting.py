@@ -44,12 +44,13 @@ def _month_bounds(month, year):
 	return datetime.date(year, month, 1), datetime.date(year, month, last)
 
 
-def _held_by_active_log(doctype, names, party_type):
+def _held_by_active_log(doctype, names, party_type, ignore_logs=()):
 	"""Sources already included in ANY ACTIVE (Draft/Submitted) posting unit of
 	the same SIDE — G0 §5a: the discriminator is the log's party_type, never the
 	document type (a JE and a PI must not both recognize a source). The side's
 	invoice link appears only on submit, so GL Posting Source membership is the
-	check that also covers drafts."""
+	check that also covers drafts. ignore_logs: only the rebuild preview passes
+	the draft logs a rebuild would free first."""
 	if not names:
 		return set()
 	held = set()
@@ -62,14 +63,16 @@ def _held_by_active_log(doctype, names, party_type):
 		},
 		fields=["source_name", "parent"],
 	):
+		if row.parent in ignore_logs:
+			continue
 		log = frappe.db.get_value("GL Posting Log", row.parent, ["status", "party_type"], as_dict=True)
 		if log and log.status in ACTIVE_STATES and log.party_type == party_type:
 			held.add(row.source_name)
 	return held
 
 
-def _exclude_held(rows, doctype, party_type):
-	held = _held_by_active_log(doctype, [r.name for r in rows], party_type)
+def _exclude_held(rows, doctype, party_type, ignore_logs=()):
+	held = _held_by_active_log(doctype, [r.name for r in rows], party_type, ignore_logs)
 	return [r for r in rows if r.name not in held]
 
 
@@ -299,26 +302,32 @@ def transport_line_cost_center(transport, company):
 	)
 
 
+def _party_filter(fieldname, party):
+	return {} if party is None else {fieldname: party}
+
+
 def _supplier_sources(company, party, first_day, last_day, month, year):
+	"""party=None: the sources of every supplier (the posting screen's party list);
+	each row names its supplier. The builder always passes its party."""
 	cards = frappe.get_all(
 		"Card Monthly Card",
 		filters={
 			"docstatus": 1,
 			"company": company,
-			"supplier": party,
+			**_party_filter("supplier", party),
 			"month": "%02d" % int(month),
 			"year": int(year),
 			"purchase_invoice": ["in", ["", None]],
 			"card_direction": ["in", list(SUPPLIER_BILLING_DIRECTIONS)],
 		},
-		fields=["name"],
+		fields=["name", "supplier"],
 	)
 	fills = frappe.get_all(
 		"Project Diesel Fill",
 		filters={
 			"docstatus": 1,
 			"company": company,
-			"supplier": party,
+			**_party_filter("supplier", party),
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
 			# FR-086b (Owner 2026-10-27): an imported WhatsApp session is never posted here. Its
@@ -328,14 +337,14 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"source_key": ["in", ["", None]],
 			"source_messages": ["in", ["", None]],
 		},
-		fields=["name", "project", "card_equipment", "litres", "amount", "date", "cost_center"],
+		fields=["name", "supplier", "project", "card_equipment", "litres", "amount", "date", "cost_center"],
 	)
 	transports = frappe.get_all(
 		"Equipment Transport",
 		filters={
 			"docstatus": 1,
 			"company": company,
-			"transport_supplier": party,
+			**_party_filter("transport_supplier", party),
 			"date": ["between", [first_day, last_day]],
 			"purchase_invoice": ["in", ["", None]],
 			# only a move the company pays is billed by the transport supplier (Owner 2026-10-19)
@@ -348,6 +357,7 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 		},
 		fields=[
 			"name",
+			"transport_supplier",
 			"cost_borne_by",
 			"project",
 			"amount",
@@ -389,13 +399,13 @@ def _customer_cards(company, party, month, year):
 		filters={
 			"docstatus": 1,
 			"company": company,
-			"customer": party,
+			**_party_filter("customer", party),
 			"month": "%02d" % int(month),
 			"year": int(year),
 			"sales_invoice": ["in", ["", None]],
 			"card_direction": ["in", list(CUSTOMER_BILLING_DIRECTIONS)],
 		},
-		fields=["name"],
+		fields=["name", "customer"],
 	)
 
 
@@ -478,12 +488,15 @@ def _card_lines(card_name, side, row, types):
 	return card, lines, discount
 
 
-def build_monthly_posting(company, party_type, party, month, year, reviewed_invoices=None):
-	"""Create ONE draft posting (PI for a Supplier, SI for a Customer) for the
-	party's unposted submitted sources of that month. Returns the invoice name.
-	reviewed_invoices: supplier invoices of the month an accountant declared
-	unrelated to these sources (P0 manual-invoice evidence)."""
-	reviewed_invoices = list(reviewed_invoices or [])
+def _plan_monthly_posting(
+	company, party_type, party, month, year, reviewed_invoices, dry_run=False, ignore_logs=()
+):
+	"""Every gate and every line of ONE monthly posting, as build_monthly_posting creates
+	it, without creating it. dry_run (FR-119, the posting preview) writes nothing: it does
+	not provision the posting masters, lock the sources or refuse on unreviewed supplier
+	invoices (it returns them), and reports the setup the first post would provision.
+	ignore_logs: the draft logs a rebuild deletes before it builds (rebuild preview)."""
+	warnings = []
 	preflight.require_enabled()
 	row = preflight.company_settings_row(company)
 	first_day, last_day = _month_bounds(month, year)
@@ -493,8 +506,18 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 	preflight.check_invoice_settings(party_type)
 	# fail-closed: never build GL without the equipment dimension (checkpoint B)
 	preflight.require_equipment_dimension(posting_doctype)
-	ensure_posting_masters(company)
-	row = preflight.company_settings_row(company)  # re-read after provisioning
+	provision = False
+	if dry_run:
+		provision = _masters_to_provision(company, row)
+		if provision:
+			warnings.append(
+				_(
+					"CARD posting items or VAT item tax templates are not set up yet for company {0}; the first posting creates them, so some item columns of this preview are empty."
+				).format(company)
+			)
+	else:
+		ensure_posting_masters(company)
+		row = preflight.company_settings_row(company)  # re-read after provisioning
 
 	if party_type == "Supplier":
 		preflight.require_accounts(
@@ -531,6 +554,8 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 	)
 	sequence = 1
 	for active in actives:
+		if active.name in ignore_logs:
+			continue
 		if frappe.db.get_value(active.posting_doctype, active.posting_doc, "docstatus") == 0:
 			frappe.throw(
 				_(
@@ -547,9 +572,9 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 	sources = {"Card Monthly Card": [], "Project Diesel Fill": [], "Equipment Transport": []}
 	if party_type == "Supplier":
 		cards, fills, transports = _supplier_sources(company, party, first_day, last_day, month, year)
-		cards = _exclude_held(cards, "Card Monthly Card", party_type)
-		fills = _exclude_held(fills, "Project Diesel Fill", party_type)
-		transports = _exclude_held(transports, "Equipment Transport", party_type)
+		cards = _exclude_held(cards, "Card Monthly Card", party_type, ignore_logs)
+		fills = _exclude_held(fills, "Project Diesel Fill", party_type, ignore_logs)
+		transports = _exclude_held(transports, "Equipment Transport", party_type, ignore_logs)
 		for c in cards:
 			card, card_lines, _discount = _card_lines(c.name, "Supplier", row, types)
 			lines.extend(card_lines)
@@ -607,7 +632,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			sources["Equipment Transport"].append((t.name, flt(t.amount, 2)))
 	else:
 		customer_cards = _exclude_held(
-			_customer_cards(company, party, month, year), "Card Monthly Card", party_type
+			_customer_cards(company, party, month, year), "Card Monthly Card", party_type, ignore_logs
 		)
 		for c in customer_cards:
 			card, card_lines, discount = _card_lines(c.name, "Customer", row, types)
@@ -660,22 +685,28 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			{line["account"] for line in lines if line.get("account")},
 			{line["item_code"] for line in lines if line.get("item_code")},
 		)
-		integrity.require_reviewed(candidates, reviewed_invoices)
-	# P0: serialize concurrent builds/links of the same sources, then re-check membership
-	integrity.lock_sources(sources)
-	for doctype, rows in sources.items():
-		held = _held_by_active_log(doctype, [name for name, _amount in rows], party_type)
-		if held:
-			frappe.throw(
-				_("{0} {1} was just reserved by another posting; build again.").format(
-					_(doctype), ", ".join(sorted(held))
+		if not dry_run:
+			integrity.require_reviewed(candidates, reviewed_invoices)
+	else:
+		candidates = []
+	if not dry_run:
+		# P0: serialize concurrent builds/links of the same sources, then re-check membership
+		integrity.lock_sources(sources)
+		for doctype, rows in sources.items():
+			held = _held_by_active_log(doctype, [name for name, _amount in rows], party_type)
+			if held:
+				frappe.throw(
+					_("{0} {1} was just reserved by another posting; build again.").format(
+						_(doctype), ", ".join(sorted(held))
+					)
 				)
-			)
 
 	if tax_template:
-		preflight.check_template_mapping(row)
+		# a dry run that would provision first (warning above) skips only the checks of the
+		# CARD item tax templates, which the first post creates or repairs
+		preflight.check_template_mapping(row, provisioned=not provision)
 		for fieldname in ("vat_item_tax_template", "vat_zero_item_tax_template"):
-			if not row.get(fieldname):
+			if not row.get(fieldname) and not provision:
 				frappe.throw(
 					_("Configure Card Settings for company {0}: {1} is not set.").format(
 						company, _(frappe.get_meta("Card Company Settings").get_label(fieldname))
@@ -690,6 +721,94 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 				"The monthly total for {0} {1} is negative ({2}); deductions exceed the dues. Resolve the cards ({3}) or ask the owner how to carry the balance."
 			).format(_(party_type), party, total, offenders)
 		)
+
+	return frappe._dict(
+		row=row,
+		posting_doctype=posting_doctype,
+		last_day=last_day,
+		sequence=sequence,
+		lines=lines,
+		total_discount=total_discount,
+		sources=sources,
+		vat_registered=vat_registered,
+		tax_template=tax_template,
+		diesel_note=diesel_note,
+		candidates=candidates,
+		warnings=warnings,
+	)
+
+
+def _masters_to_provision(company, row):
+	"""Read-only: True when ensure_posting_masters would create or repair something
+	(a posting item, a VAT item tax template, an adjustment type's item) — the
+	preview does not provision, so it says so instead."""
+	from card.gl.masters import POSTING_ITEMS, vat_account_heads
+
+	for fieldname, _code, _name in POSTING_ITEMS:
+		if not row.get(fieldname) or not frappe.db.exists("Item", row.get(fieldname)):
+			return True
+	heads = vat_account_heads(row)
+	if heads:
+		for fieldname, rate in (("vat_item_tax_template", 15), ("vat_zero_item_tax_template", 0)):
+			if not row.get(fieldname):
+				return True
+			current = {
+				d.tax_type: flt(d.tax_rate)
+				for d in frappe.get_all(
+					"Item Tax Template Detail",
+					filters={"parent": row.get(fieldname)},
+					fields=["tax_type", "tax_rate"],
+				)
+			}
+			if current != {head: flt(rate) for head in heads}:
+				return True
+	return any(
+		t.company == company and not t.disabled and not t.item
+		for t in frappe.get_doc("Card Settings").get("adjustment_types") or []
+	)
+
+
+def _invoice_item(line, party_type, row, tax_template):
+	"""The invoice item row of one builder line — shared by the build and its preview."""
+	item = {
+		"item_code": line["item_code"],
+		"qty": 1,
+		"uom": "Nos",
+		"conversion_factor": 1,
+		"rate": line["rate"],
+		"description": line["description"],
+		"project": line["project"],
+		# the source document's own cost center when it has one, else the
+		# company default from Card Company Settings (#34)
+		"cost_center": line.get("cost_center") or row.cost_center,
+	}
+	if party_type == "Supplier":
+		item["expense_account"] = line["account"]
+	else:
+		item["income_account"] = line["account"]
+	if line.get("card_equipment"):
+		item["card_equipment"] = line["card_equipment"]
+	if tax_template:
+		item["item_tax_template"] = (
+			row.vat_item_tax_template if line["taxable"] else row.vat_zero_item_tax_template
+		)
+	return item
+
+
+def build_monthly_posting(company, party_type, party, month, year, reviewed_invoices=None):
+	"""Create ONE draft posting (PI for a Supplier, SI for a Customer) for the
+	party's unposted submitted sources of that month. Returns the invoice name.
+	reviewed_invoices: supplier invoices of the month an accountant declared
+	unrelated to these sources (P0 manual-invoice evidence)."""
+	reviewed_invoices = list(reviewed_invoices or [])
+	plan = _plan_monthly_posting(company, party_type, party, month, year, reviewed_invoices)
+	row = plan.row
+	posting_doctype = plan.posting_doctype
+	last_day = plan.last_day
+	lines = plan.lines
+	total_discount = plan.total_discount
+	tax_template = plan.tax_template
+	sources = plan.sources
 
 	# ---- build the invoice ----
 	inv = frappe.new_doc(posting_doctype)
@@ -722,29 +841,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 		inv.selling_price_list = ensure_selling_price_list(company)
 	inv.cost_center = row.cost_center
 	for line in lines:
-		item = {
-			"item_code": line["item_code"],
-			"qty": 1,
-			"uom": "Nos",
-			"conversion_factor": 1,
-			"rate": line["rate"],
-			"description": line["description"],
-			"project": line["project"],
-			# the source document's own cost center when it has one, else the
-			# company default from Card Company Settings (#34)
-			"cost_center": line.get("cost_center") or row.cost_center,
-		}
-		if party_type == "Supplier":
-			item["expense_account"] = line["account"]
-		else:
-			item["income_account"] = line["account"]
-		if line.get("card_equipment"):
-			item["card_equipment"] = line["card_equipment"]
-		if tax_template:
-			item["item_tax_template"] = (
-				row.vat_item_tax_template if line["taxable"] else row.vat_zero_item_tax_template
-			)
-		inv.append("items", item)
+		inv.append("items", _invoice_item(line, party_type, row, tax_template))
 	if tax_template:
 		inv.taxes_and_charges = tax_template
 		from erpnext.controllers.accounts_controller import get_taxes_and_charges
@@ -773,7 +870,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			"month": "%02d" % int(month),
 			"year": int(year),
 			"posting_type": posting_doctype,
-			"sequence": sequence,
+			"sequence": plan.sequence,
 			"status": "Draft",
 			"posting_doctype": posting_doctype,
 			"posting_doc": inv.name,
@@ -783,7 +880,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			"lines_signature": integrity.lines_signature(built),
 			"built_snapshot": integrity.stored_snapshot(built),
 			"reviewed_invoices": ", ".join(sorted(reviewed_invoices)) or None,
-			"remarks": _build_remarks(diesel_note, reviewed_invoices),
+			"remarks": _build_remarks(plan.diesel_note, reviewed_invoices),
 		}
 	)
 	# The sources child table is the AUTHORITATIVE reservation list; the
@@ -810,24 +907,33 @@ def rebuild_monthly_posting(company, party_type, party, month, year, reviewed_in
 	draft includes every unposted submitted document."""
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
 	preflight.require_item_read(posting_doctype)  # before deleting the old draft
-	for active in frappe.get_all(
-		"GL Posting Log",
-		filters={
-			"company": company,
-			"party_type": party_type,
-			"party": party,
-			"month": "%02d" % int(month),
-			"year": int(year),
-			"posting_type": posting_doctype,
-			"status": "Draft",
-			# never a linked hand-booked supplier invoice: only CARD's own drafts are rebuilt
-			"origin": ["in", ["Built", "", None]],
-		},
-		fields=["posting_doc"],
-	):
-		if frappe.db.get_value(posting_doctype, active.posting_doc, "docstatus") == 0:
-			frappe.delete_doc(posting_doctype, active.posting_doc, ignore_permissions=True)
+	for active in _rebuildable_drafts(company, party_type, party, month, year):
+		frappe.delete_doc(posting_doctype, active.posting_doc, ignore_permissions=True)
 	return build_monthly_posting(company, party_type, party, month, year, reviewed_invoices)
+
+
+def _rebuildable_drafts(company, party_type, party, month, year):
+	"""The draft logs a rebuild deletes (their invoice still a draft) before it builds again."""
+	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
+	return [
+		active
+		for active in frappe.get_all(
+			"GL Posting Log",
+			filters={
+				"company": company,
+				"party_type": party_type,
+				"party": party,
+				"month": "%02d" % int(month),
+				"year": int(year),
+				"posting_type": posting_doctype,
+				"status": "Draft",
+				# never a linked hand-booked supplier invoice: only CARD's own drafts are rebuilt
+				"origin": ["in", ["Built", "", None]],
+			},
+			fields=["name", "posting_doc"],
+		)
+		if frappe.db.get_value(posting_doctype, active.posting_doc, "docstatus") == 0
+	]
 
 
 def _build_remarks(diesel_note, reviewed_invoices):
@@ -970,3 +1076,247 @@ def _as_list(value):
 	if isinstance(value, str):
 		value = frappe.parse_json(value) if value.strip().startswith("[") else [value]
 	return [str(v) for v in value if v]
+
+
+# ---- FR-119 (#49, #126): the posting screen's reads — side-effect free ----
+
+
+def _template_vat_rate(tax_template, party_type):
+	"""The single positive VAT rate of the posting's tax template, for the preview's VAT
+	estimate (preflight refuses multi-rate templates for posting)."""
+	if not tax_template:
+		return 0.0
+	child_dt = "Purchase Taxes and Charges" if party_type == "Supplier" else "Sales Taxes and Charges"
+	rates = {
+		flt(r.rate)
+		for r in frappe.get_all(
+			child_dt,
+			filters={
+				"parent": tax_template,
+				"parenttype": child_dt.replace("Taxes and Charges", "Taxes and Charges Template"),
+			},
+			fields=["rate"],
+		)
+		if flt(r.rate) > 0
+	}
+	return rates.pop() if len(rates) == 1 else 0.0
+
+
+def _party_name(party_type, party):
+	field = "supplier_name" if party_type == "Supplier" else "customer_name"
+	return frappe.db.get_value(party_type, party, field) or party
+
+
+def preview_monthly_posting(company, party_type, party, month, year):
+	"""Dry run of the next build of the party-month: the invoice lines build_monthly_posting
+	(or rebuild_monthly_posting, when a CARD draft exists) would create, their sources, the
+	VAT basis and the supplier invoices an accountant must review first. Writes nothing. A
+	gate that refuses the build is returned as `blocked`, with the builder's own message."""
+	drafts = _rebuildable_drafts(company, party_type, party, month, year)
+	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
+	out = frappe._dict(
+		company=company,
+		party_type=party_type,
+		party=party,
+		party_name=_party_name(party_type, party),
+		month="%02d" % int(month),
+		year=int(year),
+		posting_doctype=posting_doctype,
+		mode="rebuild" if drafts else "post",
+		replaces=[d.posting_doc for d in drafts],
+		currency=frappe.get_cached_value("Company", company, "default_currency"),
+		lines=[],
+		sources=[],
+		review_invoices=[],
+		hidden_review_invoices=0,
+		can_review=bool(integrity.REVIEW_ROLES & set(frappe.get_roles())),
+		warnings=[],
+		blocked=None,
+	)
+	try:
+		plan = _plan_monthly_posting(
+			company,
+			party_type,
+			party,
+			month,
+			year,
+			[],
+			dry_run=True,
+			ignore_logs={d.name for d in drafts},
+		)
+	except frappe.ValidationError as exc:
+		# the builder's own refusal, shown on the screen instead of a message dialog
+		frappe.local.message_log = []
+		out.blocked = str(exc) or _("This posting cannot be built yet.")
+		return out
+	items = [_invoice_item(line, party_type, plan.row, plan.tax_template) for line in plan.lines]
+	for item, line in zip(items, plan.lines, strict=True):
+		item["account"] = item.pop("expense_account", None) or item.pop("income_account", None)
+		item["taxable"] = line["taxable"]
+		item["rate"] = flt(item["rate"], 2)
+	taxable = flt(sum(i["rate"] for i in items if i["taxable"]) - plan.total_discount, 2)
+	vat_rate = _template_vat_rate(plan.tax_template, party_type)
+	out.update(
+		posting_date=str(plan.last_day),
+		sequence=plan.sequence,
+		lines=items,
+		discount=flt(plan.total_discount, 2),
+		net_total=flt(sum(i["rate"] for i in items) - plan.total_discount, 2),
+		taxable_net=taxable,
+		zero_rated_net=flt(sum(i["rate"] for i in items if not i["taxable"]), 2),
+		vat_registered=plan.vat_registered,
+		tax_template=plan.tax_template,
+		vat_rate=vat_rate,
+		# an estimate: ERPNext computes the invoice taxes when the draft is built
+		vat_estimate=flt(taxable * vat_rate / 100, 2) if plan.tax_template else 0.0,
+		diesel_note=plan.diesel_note,
+		sources=[
+			{"doctype": doctype, "name": name, "amount": flt(amount, 2)}
+			for doctype, rows in plan.sources.items()
+			for name, amount in rows
+		],
+		warnings=plan.warnings,
+	)
+	# the same rule as integrity.require_reviewed: names only of invoices the caller may read
+	pending = [c for c in plan.candidates if not c.linked_log]
+	readable = [c for c in pending if frappe.has_permission("Purchase Invoice", "read", c.name)]
+	out.review_invoices = [
+		{
+			"name": c.name,
+			"bill_no": c.bill_no,
+			"bill_date": str(c.bill_date) if c.bill_date else None,
+			"posting_date": str(c.posting_date) if c.posting_date else None,
+			"docstatus": c.docstatus,
+			"grand_total": flt(c.grand_total, 2),
+		}
+		for c in readable
+	]
+	out.hidden_review_invoices = len(pending) - len(readable)
+	return out
+
+
+def _unheld_batch(rows, doctype, party_type):
+	"""_exclude_held for the party list, in two queries instead of one log read per source
+	row: the same rule (a source of an ACTIVE log of the same side is held)."""
+	names = [r.name for r in rows]
+	if not names:
+		return []
+	members = frappe.get_all(
+		"GL Posting Source",
+		filters={"parenttype": "GL Posting Log", "source_doctype": doctype, "source_name": ["in", names]},
+		fields=["source_name", "parent"],
+	)
+	active = set(
+		frappe.get_all(
+			"GL Posting Log",
+			filters={
+				"name": ["in", list({m.parent for m in members})],
+				"status": ["in", list(ACTIVE_STATES)],
+				"party_type": party_type,
+			},
+			pluck="name",
+		)
+		if members
+		else []
+	)
+	held = {m.source_name for m in members if m.parent in active}
+	return [r for r in rows if r.name not in held]
+
+
+def month_parties(company, month, year, sides=("Supplier", "Customer")):
+	"""The parties of a company-month on the given sides: every party with unposted
+	submitted sources or an active CARD posting log, with its status
+	(Not posted / Draft / Posted). Parties the caller cannot read are left out."""
+	first_day, last_day = _month_bounds(month, year)
+	parties = {}
+
+	def entry(party_type, party):
+		return parties.setdefault(
+			(party_type, party),
+			{"party_type": party_type, "party": party, "pending_sources": 0, "postings": []},
+		)
+
+	for party_type in sides:
+		if party_type == "Supplier":
+			cards, fills, transports = _supplier_sources(company, None, first_day, last_day, month, year)
+			groups = (
+				(_unheld_batch(cards, "Card Monthly Card", party_type), "supplier"),
+				(_unheld_batch(fills, "Project Diesel Fill", party_type), "supplier"),
+				(_unheld_batch(transports, "Equipment Transport", party_type), "transport_supplier"),
+			)
+		else:
+			cards = _customer_cards(company, None, month, year)
+			groups = ((_unheld_batch(cards, "Card Monthly Card", party_type), "customer"),)
+		for rows, field in groups:
+			for r in rows:
+				if r.get(field):
+					entry(party_type, r.get(field))["pending_sources"] += 1
+	for log in frappe.get_all(
+		"GL Posting Log",
+		filters={
+			"company": company,
+			"party_type": ["in", list(sides)],
+			"month": "%02d" % int(month),
+			"year": int(year),
+			"status": ["in", list(ACTIVE_STATES)],
+		},
+		fields=[
+			"name",
+			"party_type",
+			"party",
+			"status",
+			"origin",
+			"posting_doctype",
+			"posting_doc",
+			"amount",
+		],
+		order_by="sequence asc",
+	):
+		entry(log.party_type, log.party)["postings"].append(
+			{
+				"log": log.name,
+				"status": log.status,
+				"origin": log.origin or "Built",
+				"posting_doctype": log.posting_doctype,
+				"posting_doc": log.posting_doc,
+				"amount": flt(log.amount, 2),
+			}
+		)
+	out = []
+	for (party_type, party), e in sorted(parties.items()):
+		if not frappe.has_permission(party_type, "read", party):
+			continue
+		statuses = {p["status"] for p in e["postings"] if p["origin"] == "Built"}
+		e["status"] = (
+			"Draft" if "Draft" in statuses else ("Posted" if "Submitted" in statuses else "Not posted")
+		)
+		e["party_name"] = _party_name(party_type, party)
+		out.append(e)
+	return out
+
+
+@frappe.whitelist(methods=["GET"])
+def posting_month_parties(company: str, month: str, year: str):
+	"""Posting screen: the parties of the month with their posting status. Read only.
+	Each side is listed only when the caller may build that side's postings."""
+	sides = []
+	for party_type in ("Supplier", "Customer"):
+		try:
+			_checked_endpoint_args(company, party_type, month, year)
+		except frappe.PermissionError:
+			frappe.local.message_log = []
+			continue
+		sides.append(party_type)
+	if not sides:
+		_checked_endpoint_args(company, "Supplier", month, year)  # the build's own refusal
+	month, year = _checked_endpoint_args(company, sides[0], month, year)
+	return month_parties(company, month, year, tuple(sides))
+
+
+@frappe.whitelist(methods=["GET"])
+def preview_month(company: str, party_type: str, party: str, month: str, year: str):
+	"""Posting screen: the lines the next post (or rebuild) would create. Read only —
+	nothing is inserted, saved, reserved or logged; post_month / rebuild_month write."""
+	month, year = _checked_endpoint_args(company, party_type, month, year)
+	_check_party(party_type, party)
+	return preview_monthly_posting(company, party_type, party, month, year)

@@ -281,6 +281,14 @@ def _mr_type(line):
 	return None if line.kind == "Tool" else "Material Issue"
 
 
+def review_preparers(doc):
+	"""Users who prepared a review (FR-121), all written by the server: the reviewer (`supervisor`,
+	or the owner of a legacy review without one), the submitter and every user who saved the draft."""
+	users = {doc.supervisor or doc.owner, doc.get("submitted_by")}
+	users.update(e for e in (doc.get("edited_by") or "").split("\n"))
+	return {u for u in users if u}
+
+
 @frappe.whitelist(methods=["POST"])
 def approve_review(review: str):
 	"""Management approval: every approved line goes into a draft ERPNext Material
@@ -306,6 +314,15 @@ def approve_review(review: str):
 		frappe.throw(_("Submit the review before approving it."))
 	if doc.approval_status == "Approved":
 		frappe.throw(_("This review is already approved."))
+	# FR-121 (#125, #51): nobody who prepared the review approves it. No role (Administrator,
+	# System Manager) is exempt.
+	if frappe.session.user in review_preparers(doc):
+		frappe.throw(
+			_(
+				"You reviewed, edited or submitted this equipment needs review; another approver must approve it."
+			),
+			frappe.PermissionError,
+		)
 	lines = [line for line in doc.items if flt(line.approved_qty) > 0]
 	missing = [line.description or line.request for line in lines if not line.item_code]
 	if missing:
