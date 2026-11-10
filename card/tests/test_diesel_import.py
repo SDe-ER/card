@@ -21,6 +21,7 @@ from card.card.doctype.project_diesel_fill.project_diesel_fill import (
 	use_company_price,
 )
 from card.diesel_import import import_sessions
+from card.tests.cancel_reason import with_reason
 from card.tests.diesel_price import approve_fill, set_diesel_price
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_settings_wiring import _role_user, _set
@@ -309,7 +310,7 @@ class TestDieselImport(IntegrationTestCase):
 		name = self._run([self._historical()])["results"][0]["name"]
 		fill = approve_fill(self._approve_price(name))
 		fill.submit()
-		fill.cancel()
+		with_reason(fill).cancel()
 		# Desk copies no_copy fields on amend (frappe create_new.js copy_doc from_amend); so does copy_doc
 		amended = frappe.copy_doc(fill)
 		amended.amended_from = fill.name
@@ -334,7 +335,7 @@ class TestDieselImport(IntegrationTestCase):
 		name = self._run([self._historical()])["results"][0]["name"]
 		fill = approve_fill(self._approve_price(name))
 		fill.submit()
-		fill.cancel()
+		with_reason(fill).cancel()
 		return fill
 
 	def _amendment(self, fill, **values):

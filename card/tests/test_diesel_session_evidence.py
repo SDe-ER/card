@@ -10,6 +10,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
 
 from card.card.doctype.project_diesel_fill.project_diesel_fill import totalizer_bounds
+from card.tests.cancel_reason import with_reason
 from card.tests.diesel_price import set_diesel_price
 from card.tests.sample_files import png
 from card.tests.test_controllers import _ensure_masters
@@ -312,7 +313,7 @@ class TestDieselSessionEvidence(IntegrationTestCase):
 		self._as(self.manager, f.save)
 		f.reload()
 		f.submit()
-		f.cancel()
+		with_reason(f).cancel()
 		a = frappe.copy_doc(f)  # the server copy keeps the photo fields
 		a.update({"amended_from": f.name, "docstatus": 0})
 		a.insert()

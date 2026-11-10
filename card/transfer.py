@@ -373,6 +373,7 @@ def _apply_row_transfer(txn, row):
 		na.project = txn.project
 		na.from_date = new_from
 		na.equipment_name = frappe.db.get_value("Card Equipment", equipment, "equipment_name")
+		na.flags.card_from_transport = True  # FR-122: the transport checked the equipment status
 		na.insert(ignore_permissions=True)
 		_set_link(txn, row, "created_assignment", na.name)
 	finally:

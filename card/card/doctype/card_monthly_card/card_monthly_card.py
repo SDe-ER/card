@@ -21,6 +21,7 @@ from card.constants import (
 	allowed_directions,
 	derive_direction,
 )
+from card.equipment_status import check_equipment_status, equipment_is_new_on
 from card.notifications import notify
 from card.settings import setting
 from card.transfer import (
@@ -133,6 +134,10 @@ class CardMonthlyCard(Document):
 		self.from_date = first_day
 		self.to_date = last_day
 		today = getdate(nowdate())
+		# FR-122: an ended equipment gets no new card after its exit (checked after the company match,
+		# so another company's equipment status is never shown)
+		if equipment_is_new_on(self):
+			check_equipment_status(self.equipment, "monthly card", eq.company, period_start=first_day)
 
 		# retro entry window (owner 2026-10-14): past periods only within the CURRENT fiscal year
 		self._validate_fiscal_year_window(first_day, last_day, today)

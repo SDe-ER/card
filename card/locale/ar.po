@@ -5465,6 +5465,38 @@ msgstr "التخصيص الجديد يبدأ في اليوم التالي للن
 msgid "New assignment starts on the move day"
 msgstr "التخصيص الجديد يبدأ في يوم النقل"
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Equipment status rule"
+msgstr "قاعدة حالة المعدة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "An equipment with status Ended on a new assignment, transport or monthly card: Warn only shows a message and saves; Refuse stops it. Never stopped: a return to the supplier, an owned machine moved to storage or a workshop, a card of the month of its exit. Existing records are never changed. Empty: Warn only."
+msgstr "معدة حالتها منتهية في تخصيص أو نقل أو كرت شهري جديد: «تحذير فقط» يعرض رسالة ويحفظ، و«رفض» يمنع الحفظ. لا يُمنع أبدًا: إرجاعها للمورد، ونقل معدة مملوكة إلى التخزين أو الورشة، وكرت شهر خروجها. السجلات الموجودة لا تتغير أبدًا. فارغ: تحذير فقط."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Warn only (equipment status)"
+msgstr "تحذير فقط"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (equipment status)"
+msgstr "رفض"
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new assignment."
+msgstr "المعدة {0} حالتها {1}؛ لا ينبغي أن يُسجل لها تخصيص جديد."
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new transport."
+msgstr "المعدة {0} حالتها {1}؛ لا ينبغي أن يُسجل لها نقل جديد."
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new monthly card."
+msgstr "المعدة {0} حالتها {1}؛ لا ينبغي أن يُسجل لها كرت شهري جديد."
+
+#: card/equipment_status.py
+msgid "The equipment status rule of company {0} refuses it."
+msgstr "قاعدة حالة المعدة للشركة {0} ترفض ذلك."
+
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
 msgstr "تؤخذ من إعدادات الشركة في CARD عند حفظ النقل وتبقى كما اعتُمدت."
@@ -5905,6 +5937,43 @@ msgstr "اليوم {0}: ساعات التشغيل ({1}) وساعات التوق�
 #: card/card/doctype/card_monthly_card/card_monthly_card.py
 msgid "The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
 msgstr "الجهة المسؤولة عن أيام التوقف هذه ليست مورد الكرت أو عميله (للمراجعة): {0}"
+
+#: card/cancel_reason.py
+msgid "{0} is not a CARD transaction."
+msgstr "{0} ليس من معاملات CARD."
+
+#: card/cancel_reason.py
+msgid "The cancel reason is recorded only when the document is cancelled."
+msgstr "يُسجَّل سبب الإلغاء عند إلغاء المستند فقط."
+
+#: card/cancel_reason.py
+msgid "A cancel reason is required to cancel {0} {1}."
+msgstr "سبب الإلغاء مطلوب لإلغاء {0} {1}."
+
+#: card/cancel_reason.py
+msgid "Cancelled by {0} on {1}. Reason: {2}"
+msgstr "ألغاه {0} بتاريخ {1}. السبب: {2}"
+
+#: card/cancel_reason.py
+msgid "{0} {1} is cancelled as approved; {2} cannot be changed when cancelling."
+msgstr "يُلغى {0} {1} كما اعتُمد؛ لا يمكن تغيير {2} عند الإلغاء."
+
+#: card/period_lock.py
+msgid "Period lock overridden by {0} on {1}: {2} with lock date {3}."
+msgstr "تجاوز {0} قفل الفترة بتاريخ {1}: {2} مع تاريخ القفل {3}."
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel Reason"
+msgstr "سبب الإلغاء"
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel with this reason"
+msgstr "إلغاء بهذا السبب"
+
+#: card/public/js/cancel_reason.js
+msgid "Cancelled with the reason recorded."
+msgstr "تم الإلغاء وتسجيل السبب."
+
 #: card/card/doctype/card_settings/card_settings.json
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Deprecated – not used"

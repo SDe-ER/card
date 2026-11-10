@@ -9,6 +9,7 @@ from frappe.utils import cint, cstr, flt, getdate
 from card.attachment_validator import check_attachment_content, claim_file, require_record_file
 from card.company import single_company, validate_equipment_company
 from card.constants import MOVE_DAY_NEXT, NON_COMPANY_PAYERS, OTHER_PARTY, OTHER_PARTY_TYPES, OWNED
+from card.equipment_status import check_equipment_status
 from card.settings import company_setting, setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
@@ -71,6 +72,7 @@ class EquipmentTransport(Document):
 		for row in self.items:
 			validate_equipment_company(frappe._dict(company=self.company, equipment=row.card_equipment))
 		self._detect_movements()
+		self._check_equipment_status()  # after the destination is normalised (project cleared off a project)
 		self._set_move_day_rule()
 		self._validate_project_company()
 		self._resolve_responsibility()
@@ -94,6 +96,40 @@ class EquipmentTransport(Document):
 				"Pending" if self.customer_billable or self.supplier_recoverable else "No decision needed"
 			)
 		self._record_editor()
+
+	def _check_equipment_status(self, all_rows=False):
+		"""FR-122: an ended equipment gets no new transport. On save, a new transport, a changed
+		destination or project re-checks every machine, otherwise only a machine added to the draft;
+		on submit (`all_rows`) every machine is checked again. Never stopped: a return to the supplier
+		(the normal end of a rental) and a move of an owned machine to storage or a workshop (how an
+		owned machine is retired)."""
+		destination = self.destination_type or "Project"
+		if destination == "Supplier":
+			return
+		known = set()
+		if not all_rows and not self.is_new():
+			stored = frappe.db.get_value(
+				self.doctype, self.name, ["destination_type", "project"], as_dict=True
+			)
+			if stored and (stored.destination_type or "Project", stored.project) == (
+				destination,
+				self.project,
+			):
+				known = set(
+					frappe.get_all(
+						"Equipment Transport Item",
+						filters={"parent": self.name, "parenttype": self.doctype},
+						pluck="card_equipment",
+					)
+				)
+		for row in self.items:
+			if row.card_equipment in known:
+				continue
+			if destination in ("Workshop", "Storage") and (
+				frappe.db.get_value("Card Equipment", row.card_equipment, "ownership") == OWNED
+			):
+				continue
+			check_equipment_status(row.card_equipment, "transport", self.company)
 
 	def _record_editor(self):
 		"""Everyone who saves the draft is kept (from the stored value, never from the client): none of them
@@ -484,6 +520,8 @@ class EquipmentTransport(Document):
 	def before_submit(self):
 		# P1-2 separation of duties: whoever submits a transport never records its financial decision
 		self.submitted_by = frappe.session.user
+		# FR-122: every machine again, whatever changed since the draft was saved
+		self._check_equipment_status(all_rows=True)
 
 	def on_submit(self):
 		# Transport = a location transfer: move the equipment to the new project.

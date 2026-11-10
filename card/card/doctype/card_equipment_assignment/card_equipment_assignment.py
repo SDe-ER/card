@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, getdate
 
+from card.equipment_status import check_equipment_status, equipment_is_new_on
 from card.transfer import sync_equipment_location
 
 # far future for an open-ended (to_date empty) assignment
@@ -23,6 +24,9 @@ class CardEquipmentAssignment(Document):
 		# unrelated save (security review LOW-2)
 		if self.is_new() or self.has_value_changed("equipment") or self.has_value_changed("project"):
 			self.validate_company()
+		# FR-122: an ended equipment gets no new assignment; a transport checked it already
+		if equipment_is_new_on(self) and not self.flags.get("card_from_transport"):
+			check_equipment_status(self.equipment, "assignment")
 		if self._period_grew():
 			self.validate_no_overlap()
 		for dropped in self._dropped_periods():

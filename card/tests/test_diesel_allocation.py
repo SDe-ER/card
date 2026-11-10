@@ -14,6 +14,7 @@ from frappe.utils import flt, getdate, nowdate
 
 from card.card.report.equipment_diesel_consumption.equipment_diesel_consumption import execute
 from card.diesel import UNALLOCATED, allocate_project_diesel, get_card_diesel
+from card.tests.cancel_reason import with_reason
 from card.tests.diesel_price import approve_fill, set_diesel_price, use_fill_price
 from card.tests.test_controllers import _ensure_masters
 from card.tests.transport_parties import company_paid
@@ -196,7 +197,7 @@ class TestDieselAllocation(IntegrationTestCase):
 		c = self._make_card(eq, [self._day(2, 10)])
 		fill = self._make_fill(litres=100, unit_price=1, card_equipment=eq.name)
 		self.assertAlmostEqual(get_card_diesel(c.name)["amount"], 100.0)
-		fill.cancel()
+		with_reason(fill).cancel()
 		self.assertAlmostEqual(get_card_diesel(c.name)["amount"], 0.0)
 
 	def test_allocation_does_not_change_net_amount(self):

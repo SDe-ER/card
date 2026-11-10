@@ -23,6 +23,12 @@ SHIFT_NIGHT = "ليلي"
 MOVE_DAY_NEXT = "New assignment starts the day after the move"
 MOVE_DAY_SAME = "New assignment starts on the move day"
 
+# FR-122 (#42, #120): Card Equipment.status that stops new use, and the per-company rule
+# (Card Company Settings.equipment_status_rule). Empty = Warn, so nothing is refused on deploy.
+EQUIPMENT_STATUS_ENDED = "منتهية"
+STATUS_RULE_WARN = "Warn only (equipment status)"
+STATUS_RULE_ENFORCE = "Refuse (equipment status)"
+
 # #43/#48/#121 (WP-14): payers of a transport the company does not pay. Their agreed amount
 # (Equipment Transport.informational_amount) is information only: never company cost, never posted.
 OTHER_PARTY = "Other Party"

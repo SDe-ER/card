@@ -12,7 +12,7 @@ import json
 
 import frappe
 from frappe import _
-from frappe.utils import getdate
+from frappe.utils import cstr, escape_html, getdate, now_datetime
 
 from card.notifications import notify
 from card.settings import setting
@@ -65,6 +65,7 @@ def _log_override(doc, action, lock, override_role, doc_date):
 		"lock_date": str(getdate(lock)),
 	}
 	frappe.logger("card.period_lock_override").warning(json.dumps(payload, ensure_ascii=False))
+	_comment_override(doc, action, lock)
 	recipients = frappe.get_all(
 		"Has Role", filters={"role": "System Manager", "parenttype": "User"}, pluck="parent"
 	)
@@ -74,6 +75,23 @@ def _log_override(doc, action, lock, override_role, doc_date):
 		_("CARD period lock override"),
 		json.dumps(payload, ensure_ascii=False),
 		doc if doc.get("name") else None,
+	)
+
+
+def _comment_override(doc, action, lock):
+	"""FR-123 (WP-07): the override is also reviewable on the document itself. A new document
+	has no stored record to comment on yet, and a deleted document may take its comments with it;
+	the log above records every override."""
+	if not doc.get("name") or doc.is_new() or not frappe.db.exists(doc.doctype, doc.name):
+		return
+	doc.add_comment(
+		"Info",
+		_("Period lock overridden by {0} on {1}: {2} with lock date {3}.").format(
+			escape_html(frappe.session.user),
+			cstr(now_datetime().replace(microsecond=0)),
+			_(action),
+			getdate(lock),
+		),
 	)
 
 

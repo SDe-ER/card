@@ -9,6 +9,7 @@ from frappe.utils import flt
 
 from card.gl.integrity import accept_correction, link_supplier_invoice
 from card.gl.posting import build_monthly_posting, rebuild_monthly_posting
+from card.tests.cancel_reason import with_reason
 from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.test_s3_posting import _PostingBase
 
@@ -496,7 +497,7 @@ class TestLinkEvidence(_P0Base):
 		# a linked session cannot be cancelled (so not amended or re-imported into a second expense)
 		fill.reload()
 		with self.assertRaisesRegex(frappe.ValidationError, "cancel that invoice first"):
-			fill.cancel()
+			with_reason(fill).cancel()
 		# and CARD posting never takes it
 		with self.assertRaisesRegex(frappe.ValidationError, "Nothing to post"):
 			self._build()

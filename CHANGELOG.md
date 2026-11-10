@@ -16,6 +16,31 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Mandatory cancel reason and a reviewable period-lock override** (FR-123, WP-07, #35, #51, governance G0). Reason: a
+  cancelled card, fill or transport had no recorded reason, a cancel request could still change the stored card (FR-050
+  open gap 1), and a period-lock override was only in the server log. Card Monthly Card, Equipment Transport and Project
+  Diesel Fill get `cancel_reason` (Small Text, no copy, read only; not "allow on submit": a cancel stores it without
+  Frappe's update-after-submit check, so no update-after-submit path is opened). The form's Cancel asks for the reason
+  and cancels through `card.cancel_reason.cancel_with_reason` (POST; one request, so a refused cancel keeps no reason).
+  `before_cancel` refuses a cancel without a reason on every path (Desk, REST `docstatus` 2, Python/API) and refuses a
+  cancel request that changes any other stored field or child row; `on_cancel` adds an Info Comment with the actor, the
+  reason and the date. A save or submit drops a copied reason; an update after submit cannot set it. A period-lock override
+  (`card.period_lock`) now also adds an Info Comment on the stored document (actor, action, date, lock date) next to the
+  existing log. PR #197. Affected: `card/cancel_reason.py` (new), `card/period_lock.py` (`_log_override`,
+  `_comment_override`), `card/hooks.py` (doc_events of the three doctypes, `doctype_js`), `card/public/js/cancel_reason.js`
+  (new), the three DocType JSON files, `card/locale/ar.po`, `main.pot`. Permissions: none widened; the cancel uses Frappe's
+  cancel permission and the doctypes' company has_permission hooks; Workflow and roles unchanged. Accounting: none (no GL
+  entry, no posting change). Data: one new column per doctype; existing records untouched (records cancelled earlier keep
+  an empty reason; no patch). API: a cancel without `cancel_reason` is now refused for these three doctypes, including
+  Frappe's "cancel all linked documents". Rollback limits: code revert only; the added columns stay (harmless) and the
+  stored reasons and comments remain.
+  Review fixes (PR #197): the reason is stored as plain text (HTML tags and any left `<` `>` removed in
+  `before_cancel`, because Frappe skips `_validate`/`_sanitize_content` on cancel; a reason that is only markup is
+  refused); the change check has no default-value tolerance (Frappe fills defaults only for new documents and new
+  rows). Known limits: an active Workflow's cancel action (`apply_workflow` -> `doc.cancel`) cannot send a reason, so
+  it is refused (the Card Monthly Card workflow is inactive on Production today); the List view bulk cancel
+  (`submit_cancel_or_update_docs`, a background job above 20 records) is refused too: cancel each record from its
+  form with a reason.
 - **Configurable stop reasons, the responsible party of a stopped day and the Equipment Downtime report** (FR-118,
   WP-09, refs #45 #123, PR #194; target: next release).
   - **Reason:** #45 (owner decision): record why, how long and because of whom equipment stood still, from a
@@ -112,6 +137,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   message. The equipment-status guard for diesel fills (TODO of PR #191) is not included because `card/equipment_status.py` is
   not on main yet; it is a follow-up. Rollback limits: reverting removes the check; the stored setting value stays unused in the
   database.
+- **Equipment status guard** (FR-122, PR #191; refs #42, #120).
+  - **Reason:** the Card Equipment status was a plain field: an ended machine (status منتهية) could still get a new
+    assignment, transport or monthly card.
+  - **Change:** new `card/equipment_status.py` (`check_equipment_status`, `status_rule`) called from
+    `CardEquipmentAssignment.validate`, `EquipmentTransport._check_equipment_status` (on save and again in
+    `before_submit`) and `CardMonthlyCard.before_validate` (after the company match, so another company's status is
+    never shown). An assignment or card is checked when it is new or its equipment changes (compared with the stored
+    value). A transport is checked on save for a new transport, a changed destination or project (every machine) or
+    an added machine, and on submit for every machine, so a draft saved while the machine was active, or switched
+    from a supplier return to a project, is checked before it applies. New Card Company Settings field
+    `equipment_status_rule` (permission level 1) with the stored values "Warn only (equipment status)" (the default,
+    also for an empty value or a company without a row: message, then save) and "Refuse (equipment status)"
+    (refused). Only status منتهية (Ended) stops new use; متوقفة (Stopped) and في الصيانة (Under Maintenance) stay
+    allowed. Never stopped: a return to the supplier (end of a rental), a move of an owned machine to storage or a
+    workshop (how it is retired), and a monthly card whose period starts on or before the equipment's exit date
+    (else its rental end once it has passed; a contract end still ahead gives no allowance), so the final
+    partial month is carded; without such a date every new card is checked.
+    The assignment a transport creates is not checked again (`card_from_transport` flag in `card/transfer.py`).
+    Project Diesel Fill is not guarded in this change.
+  - **Impact:** permissions — none (the setting is level 1 like the other company fields). Accounting — none.
+    Data — none: existing records are never changed; nothing is refused until a company chooses Refuse. API —
+    saving a new assignment, transport or card, or submitting a transport, of an ended machine shows a warning, or
+    raises a ValidationError under Refuse. Eight new Arabic strings.
+  - **Rollback:** revert the commit; an older version ignores the new column.
 - **Transport costs the company does not pay, and an "other party" responsibility** (FR-120, refs #43, #48, #121;
   WP-14; PR #190).
   - **Reason:** when the equipment supplier, the customer or another party pays a move, the amount agreed with
