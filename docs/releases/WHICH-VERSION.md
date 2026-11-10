@@ -7,6 +7,7 @@ need; every claim below is backed by the per-version pages (evidence links there
 
 | Your situation | Use | Why |
 |---|---|---|
+| Site on v4.5.0 or v4.4.3 (or earlier, see below) that needs stop reasons, dated diesel prices, the per-company equipment and diesel guards, the posting preview, the analytics reports or the security fixes of the wave-2 train | **v4.6.0** | Everything in v4.5.0 plus the changes of [v4.6.0.md](v4.6.0.md). Three idempotent data patches, two new DocTypes and new columns; new rules are warn-only or off by default, but some changes apply by default (GET-only reads, stricter attachments, mandatory cancel reason, reviewer not approver, owned-only units, `diesel_unit_price` read-only once scheduled; see [section 9](v4.6.0.md#9-breaking-changes--verified)). Setup actions and rollback plan: [v4.6.0.md → Installation & Upgrade](v4.6.0.md#12-installation--upgrade--partially-verified) |
 | Site on v4.4.3 (or earlier, see below) whose supplier cards were recognised by hand with accrual journal entries, or that needs paid/remaining per card | **v4.5.0** | Everything in v4.4.3 plus the accrual journal link (accountant-only, POST) and the read-only Card Settlement Status report. No patch, no schema change; migrate adds the report and its sidebar link; restart the workers ([v4.5.0.md → Installation & Upgrade](v4.5.0.md#12-installation--upgrade--partially-verified)) |
 | Site on v4.4.2 (or earlier, see below) that downloads the supplier statement as PDF in Arabic, or whose site print style sets every print font | **v4.4.3** | Everything in v4.4.2 plus the statement PDF rendered with the Chrome PDF generator (Arabic letters join) on one A4 portrait page, and the statement font kept under a site print style. No patch, no schema change; migrate re-imports only the A4 print format; restart the workers; the site's Chrome PDF generator must work ([v4.4.3.md → Installation & Upgrade](v4.4.3.md#12-installation--upgrade--partially-verified)) |
 | Site on v4.4.1 (or earlier, see below) that prints the A4 supplier statement for suppliers, including suppliers with cards not yet invoiced | **v4.4.2** | Everything in v4.4.1 plus the statement print listing every card of the period and totals from the cards only (cards net; work done not yet invoiced through CARD, before VAT, when positive), the issued-by footer and full From/To dates. No patch, no schema change; migrate re-imports only the A4 print format; restart the workers. The print no longer shows the ledger balance (use the screen report or the ERPNext ledger). The PDF button still uses wkhtmltopdf; use browser Print ([v4.4.2.md → Installation & Upgrade](v4.4.2.md#12-installation--upgrade--partially-verified)) |
@@ -70,6 +71,11 @@ need; every claim below is backed by the per-version pages (evidence links there
   restart the workers. Rollback to v4.4.3: the old code ignores Journal Entry links, so linked cards count as not
   invoiced again; keep accounting disabled or cancel the links first
   ([v4.5.0.md → Installation & Upgrade](v4.5.0.md#12-installation--upgrade--partially-verified)).
+- `v4.5.0 → v4.6.0` (and `v4.4.3 → v4.6.0`): three idempotent patches (`v4_6_0.derive_unit_component_flag`,
+  `v4_6_0.seed_stop_reasons`, `v4_7_0.seed_diesel_price_schedule`), two new DocTypes and new columns; restart the
+  workers. Rollback to v4.4.3: the old code runs on the data but the columns, tables, seeded rows and derived flags
+  stay; amend other-party transports, handle move-day transports and set `diesel_unit_price` to the current price
+  first ([v4.6.0.md → Rollback plan](v4.6.0.md#126-rollback-plan)).
 - Downgrades are not supported by patches; rollback = restore the pre-upgrade backup.
 
 ## Things the latest version still does not do (so you don't choose it for the wrong reason)
