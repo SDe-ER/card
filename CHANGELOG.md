@@ -26,14 +26,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Diesel / Transport / Maintenance, paid by Company / Customer / Supplier / Other party, share %, optional single
   equipment; shares total 100% per category). New `card/agreements.py`: `resolve(company, equipment, party, date,
   project=None, zone=None)` returns None when nothing matches, the agreement when one does, and raises
-  `AmbiguousAgreementError` when several do (CARD never chooses); `validate_agreement`, `check_overlap` (same key and
-  overlapping dates refused, the company row locked at submit), company checks on equipment, project, amendment and
-  child rows (`card.company_scope.check_child_companies`). A changed rate is a new agreement (no field is
-  allow-on-submit). Nothing calls `resolve()` yet. `test_company_scope` guard skips Frappe's own `amended_from`
-  self-link; ROLE-ACTION-MATRIX DocType table regenerated. Tests: `card/tests/test_agreements_resolve.py`. PR #216.
+  `AmbiguousAgreementError` when several do (CARD never chooses); every filter runs in SQL (`valid_from` and
+  `valid_to` indexed); the party is required; `project=None` / `zone=None` match only agreements without a project /
+  zone; the zone is compared stripped and case-folded (`normalise_zone`); a zero rate means no rate for that basis.
+  `validate_agreement`, `check_overlap` (same key and overlapping dates refused; at submit the company row is locked
+  and the clashing agreements are read with a locking read, so the second of two concurrent submits sees the
+  first); an agreement for one equipment takes that equipment's type; company checks on equipment, project,
+  amendment and child rows (`card.company_scope.check_child_companies`); a responsibility row may name an equipment
+  only on a type-level agreement. A changed rate is a new agreement (no field is allow-on-submit). Nothing calls
+  `resolve()` yet. `test_company_scope` guard skips Frappe's own `amended_from` self-link; ROLE-ACTION-MATRIX DocType
+  table regenerated. Tests: `card/tests/test_agreements_resolve.py`, `card/tests/test_agreements_concurrency.py`
+  (two committed concurrent submits). PR #216.
   Impact: permissions: new DocType only (System Manager full; Card Manager create, write, submit, cancel, amend;
   Accounts Manager and Card User read; no existing role or DocPerm changed), records isolated by company through the
-  FR-131 hooks; accounting none (CARD writes no GL; posting does not read agreements); data: two new tables, no patch,
+  FR-131 hooks; accounting none (CARD writes no GL; posting does not read agreements); data: two new tables (indexes
+  on `valid_from`, `valid_to`), no patch,
   existing records untouched; API: standard REST of the new DocType, no whitelisted method. Rollback limits: code
   rollback leaves the two tables and any agreements entered (unused by older code, harmless).
 - **FR-132 — Fill price snapshot: currency, unit and valid-from on each diesel fill (#46, supports #124; WP-X,
