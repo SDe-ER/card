@@ -71,7 +71,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   row: a message and the fill is saved) or "Refuse (equipment status)". Only status منتهية stops; Stopped and Under
   Maintenance do not; a project-tank fill without equipment is not checked. Affected: `card/equipment_status.py`
   (`_messages`, docstrings), `project_diesel_fill.py` (`validate`, `before_submit`, `_check_equipment_status`, `_day`),
-  locale (one Arabic string); tests `card/tests/test_diesel_fill_status_guard.py`. Impact: permissions none; accounting
+  locale (one Arabic string); tests `card/tests/test_diesel_fill_status_guard.py`. PR #200. Impact: permissions none; accounting
   none (no GL; submitted fills are never re-validated or changed); data none (no patch, no setting added, existing fills
   unchanged); API: saving a new or changed fill, or submitting a draft, with an ended equipment shows a warning by
   default, or raises a ValidationError when the company chose Refuse. Rollback limits: reverting the commit removes the
