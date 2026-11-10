@@ -5931,6 +5931,256 @@ msgstr ""
 msgid "Day billing basis used"
 msgstr ""
 
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Card Period Run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run month"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run year"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run version"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run self-approval rule"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Refuse: whoever prepared, edited or submitted the run (or an earlier version) cannot approve it. Once Refuse, the rule stays Refuse for this run and its later versions."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Warn only (period run)"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Refuse (period run)"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approval"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run submitted by"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run edited by"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved by"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved on"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved version"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Approved snapshot fingerprint"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Period run return reason"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run returned by"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run returned on"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run snapshot"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Snapshot built on"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Snapshot fingerprint"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run currency"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Period run month must be between 01 and 12."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Period run year is not valid: {0}"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "A period run can only amend a cancelled period run of the same company and month."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "The company and month of a saved period run cannot be changed; create a new run."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Company {0} already has an active period run for {1}/{2}: {3}. Cancel it and amend it for a new version."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "The self-approval rule of a period run can be raised to Refuse, never lowered."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "This period run is already approved or returned; its rule cannot change."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Invalid period run approval status: {0}"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "This period run is already approved or returned; cancel and amend it to change it."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Only Accounts Manager may approve or return a period run."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "A period run cannot go back to Pending; cancel and amend it instead."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "You prepared, edited or submitted this period run (or an earlier version); another accountant must approve it (rule: Refuse)."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "You prepared, edited or submitted this period run and approve it yourself; it is marked for review (rule: Warn)."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Period run self-approval"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Enter the reason for returning the period run."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "This period run is approved and still current; only Accounts Manager may cancel it."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "You are not permitted to use period runs of company {0}."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "You are not permitted to use period runs."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Only Card Manager may build a period run."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Period run {0} is already submitted. Cancel it and amend it to build a new version."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Approve period run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Return period run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run fingerprint version"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Source documents in the run"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Supplier-side documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Customer-side documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run source documents"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Card Period Run Source"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run source type"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run source document"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Billed on the supplier side"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Billed on the customer side"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Supplier side already posted"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Customer side already posted"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Source document last modified"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Source document fingerprint"
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "Company {0} has no submitted source documents to bill for {1}/{2}."
+msgstr ""
+
+#: card/gl/period_run.py
+msgid "The source documents of this period run changed after it was built (added: {0}; removed: {1}; changed: {2}). Cancel and amend it to build a new version, then approve that version."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "The source documents of this period run are unchanged since it was built."
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "The source documents of this period run changed after it was built; cancel and amend it to build a new version."
+msgstr ""
+
 #: card/daily_log_generation.py
 msgid "Give the month as YYYY-MM or as a date of that month."
 msgstr ""
@@ -6073,6 +6323,35 @@ msgstr ""
 
 #: card/intake.py
 msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run supplier gross source amount"
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run customer gross source amount"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "The source documents' own amounts (a diesel fill at its gross fill amount). Not the invoice total: with a VAT-inclusive diesel price the invoice books the net part."
+msgstr ""
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Fill supplier VAT-registered"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Supplier-side gross source total"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Customer-side gross source total"
+msgstr ""
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Diesel price VAT basis at build"
 msgstr ""
 
 #: card/cancel_reason.py
