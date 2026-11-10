@@ -321,6 +321,34 @@ class TestCustomerReports(IntegrationTestCase):
 		self.assertEqual(flt(_value(summary, "Not invoiced through Card")), 2000.0)  # accrued - invoiced
 		self.assertIn(self.customer, msg)
 
+	def test_statement_summary_items_have_stable_keys(self):
+		# FR-149: the A4 print picks its totals by key (labels are translated); keys follow the supplier
+		# statement where the meaning is the same; labels, values and order are unchanged
+		self._card(self._rented_out("-K"), [10, 10], submit=True)
+		_cols, _rows, _msg, summary = _statement(self._filters(customer=self.customer))
+		expected = [
+			("equipment", "Number of equipment"),
+			("days", "Operating days"),
+			("hours", "Operating hours"),
+			("net_cards", "Total accrued (cards)"),
+			("accrued", "Invoiced entries (Debit)"),
+			("invoiced", "Invoiced through Card (net before VAT)"),
+			("not_invoiced", "Not invoiced through Card"),
+			("outside", "ERPNext invoices outside Card — to reconcile (net before VAT)"),
+			("opening", "Opening balance"),
+			("received", "Received (Credit)"),
+			("closing", "Customer closing balance"),
+		]
+		self.assertEqual(
+			[(item["key"], item["label"]) for item in summary], [(k, frappe._(lb)) for k, lb in expected]
+		)
+		by_key = {item["key"]: item["value"] for item in summary}
+		self.assertEqual(flt(by_key["net_cards"]), 2000.0)
+		self.assertEqual(flt(by_key["not_invoiced"]), 2000.0)
+		# without a customer: the three counts only, keyed
+		_cols, _rows, _msg, summary = _statement(self._filters())
+		self.assertEqual([item["key"] for item in summary], ["equipment", "days", "hours"])
+
 	def test_reconciliation_indicator_follows_tolerance_setting(self):
 		# A submitted billing card with NO customer GL entries: accrued > 0, invoiced = 0, so the
 		# reconciliation difference is large (2,000). Both reports expose the flag as the "indicator"

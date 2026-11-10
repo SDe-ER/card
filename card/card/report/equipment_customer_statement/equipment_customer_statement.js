@@ -109,6 +109,8 @@
 			{ fieldname: "include_draft", label: __("Include drafts"), fieldtype: "Check" },
 		],
 		onload(report) {
+			// the PDF dialog opens with the A4 statement selected; the Print dialog uses the same layout
+			report.report_doc.default_print_format = "Equipment Customer Statement A4";
 			// Seed the UI default from Card Settings (server also falls back to the
 			// same setting for API callers). The user can still override.
 			frappe.call({ method: "card.api.report_defaults", type: "GET" }).then((r) => {

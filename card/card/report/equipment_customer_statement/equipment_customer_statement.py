@@ -358,13 +358,21 @@ def execute(filters=None):
 
 	summary = [
 		{
+			"key": "equipment",
 			"label": _("Number of equipment"),
 			"value": len(grand["eq"]),
 			"datatype": "Int",
 			"indicator": "Blue",
 		},
-		{"label": _("Operating days"), "value": grand["days"], "datatype": "Int", "indicator": "Blue"},
 		{
+			"key": "days",
+			"label": _("Operating days"),
+			"value": grand["days"],
+			"datatype": "Int",
+			"indicator": "Blue",
+		},
+		{
+			"key": "hours",
 			"label": _("Operating hours"),
 			"value": flt(grand["hours"], 2),
 			"datatype": "Float",
@@ -379,6 +387,7 @@ def execute(filters=None):
 		summary = [
 			*summary,
 			{
+				"key": "net_cards",
 				"label": _("Total accrued (cards)"),
 				"value": flt(grand["net"], 2),
 				"datatype": "Currency",
@@ -441,48 +450,56 @@ def execute(filters=None):
 		summary = [
 			*summary,
 			{
+				"key": "net_cards",
 				"label": _("Total accrued (cards)"),
 				"value": flt(grand["net"], 2),
 				"datatype": "Currency",
 				"indicator": "Green",
 			},
 			{
+				"key": "accrued",
 				"label": _("Invoiced entries (Debit)"),
 				"value": flt(invoiced, 2),
 				"datatype": "Currency",
 				"indicator": "Blue",
 			},
 			{
+				"key": "invoiced",
 				"label": _("Invoiced through Card (net before VAT)"),
 				"value": inv,
 				"datatype": "Currency",
 				"indicator": "Blue",
 			},
 			{
+				"key": "not_invoiced",
 				"label": _("Not invoiced through Card"),
 				"value": diff,
 				"datatype": "Currency",
 				"indicator": "Green" if abs(diff) < flt(setting("reconciliation_tolerance")) else "Red",
 			},
 			{
+				"key": "outside",
 				"label": _("ERPNext invoices outside Card — to reconcile (net before VAT)"),
 				"value": outside,
 				"datatype": "Currency",
 				"indicator": "Orange" if outside else "Green",
 			},
 			{
+				"key": "opening",
 				"label": _("Opening balance"),
 				"value": flt(opening, 2),
 				"datatype": "Currency",
 				"indicator": "Grey",
 			},
 			{
+				"key": "received",
 				"label": _("Received (Credit)"),
 				"value": flt(received, 2),
 				"datatype": "Currency",
 				"indicator": "Orange",
 			},
 			{
+				"key": "closing",
 				"label": _("Customer closing balance"),
 				"value": flt(closing, 2),
 				"datatype": "Currency",

@@ -2880,6 +2880,10 @@ msgstr ""
 msgid "Supplier signature"
 msgstr ""
 
+#: card/card/report/equipment_customer_statement/equipment_customer_statement.html
+msgid "Customer signature"
+msgstr ""
+
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Includes draft cards"
 msgstr ""

@@ -359,6 +359,8 @@ class TestReportAccess(IntegrationTestCase):
 		)
 		self.assertIn(card.name, [r.get("card") for r in rows])
 		self.assertNotIn(frappe._("Invoiced entries (Debit)"), _labels(summary))
+		# FR-149: the A4 print finds the cards total by its key on this path too
+		self.assertEqual([item["key"] for item in summary], ["equipment", "days", "hours", "net_cards"])
 		self.assertIn(frappe._(NOTICE), message)
 
 	def test_expenses_without_equipment_is_ledger_only(self):

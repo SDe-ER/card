@@ -4099,6 +4099,10 @@ msgstr "توقيع المراجع"
 msgid "Supplier signature"
 msgstr "توقيع المورد"
 
+#: card/card/report/equipment_customer_statement/equipment_customer_statement.html
+msgid "Customer signature"
+msgstr "توقيع العميل"
+
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Includes draft cards"
 msgstr "تشمل كروتاً مسودة (غير معتمدة)"
