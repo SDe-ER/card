@@ -51,7 +51,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   "last month", month ends 28/29/30/31, posting dated the month end after local midnight, period lock by date),
   `test_writer_methods_post.py` (every `@frappe.whitelist` names `methods=`; every writer of the FR-129 matrix allows
   POST only and Frappe refuses its GET; every GET endpoint is read-only in the matrix and has no direct write call).
-  Impact: tests only; no change to permissions, accounting, data or the API. Rollback: revert the commit.
+  Known limit: the writer test sees only write calls made directly in an endpoint's body; a write reached through a
+  helper is caught only by the FR-129 run-time no-write test. Impact: tests only; no change to permissions,
+  accounting, data or the API. Rollback: revert the commit.
 - **Posting Source Integrity report** (FR-136, PR #210, risk R-25, #54). Reason: a source's invoice link and `posted` flag are
   written with `db.set_value` on invoice submit, so a direct database edit, an import or an older version can split a
   source from its GL Posting Log without a trace. New read-only Script Report (System Manager, Accounts Manager; on the
@@ -86,7 +88,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   currency; Equipment Consumption, which spans the permitted companies, adds each row's company and its currency.
   Values, column order and labels are unchanged; nothing is converted. Impact: display only for a one-currency site
   (the symbol is the same); no permission, accounting, data or API change; report rows carry one more key
-  (`currency`; Equipment Consumption also `company`). Rollback: revert the commit.
+  (`currency`; Equipment Consumption also `company`). Known limits: a report total row keeps the site default
+  symbol; server-side formatting (export, print) of Equipment Consumption formats every row with one currency; card
+  and fill form fields are unchanged. Rollback: revert the commit.
 
 ## [4.7.0] — 2026-11-10
 
