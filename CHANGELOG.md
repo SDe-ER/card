@@ -16,6 +16,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-146 — Equipment Transport intake provenance (#52, #43; closure plan WP-N1).** Reason: #52 asks that a
+  movement entered from paper, WhatsApp or email keeps its source, received time and original attachment, and that
+  the same source never creates two records. New optional Equipment Transport fields (section "Intake source",
+  collapsed, all `no_copy`, empty by default): `intake_channel` (Manual / Paper / WhatsApp / Email / Other; set to
+  Manual only when another intake field is given), `intake_source_key` (external id, indexed), `intake_received_on`
+  (Datetime, not in the future), `intake_evidence` (private Attach) and `intake_evidence_hash` (read only). New
+  module `card/intake.py`: `apply_transport_intake` (called at the end of `EquipmentTransport.validate`),
+  `check_source_key`, `warn_reused_evidence`, `claim_transport_evidence` (new `EquipmentTransport.on_update`),
+  `file_sha256`. Rules: one live (draft or submitted) transport per company and source key, refused with
+  `DuplicateIntakeError` after a lock on the company row and a locking read (`frappe.qb ... .for_update()`), so two
+  concurrent saves cannot both pass under REPEATABLE READ; a cancelled transport frees its key (the amendment keeps
+  it); two companies may share a key. The evidence must be a private JPEG/PNG/WebP/PDF of this transport (or the
+  user's own upload, then claimed), checked by `card.attachment_validator`; its SHA-256 is computed on the server from
+  the File bytes, and a hash sent by the client is never kept. The same evidence on another live transport of the
+  company only warns (owner rule 2026-11-10: new rules warn-only or opt-in). PR pending.
+  Impact: permissions none (no role, DocPerm or endpoint added; `card.intake.propose` is WP-N3); accounting none (no
+  posting reads these fields); data: six new nullable columns and one index on `tabEquipment Transport`, no patch,
+  existing transports keep empty values and are saved, submitted and cancelled exactly as before (no lock is taken
+  without a source key); API: the new fields are readable and writable on drafts like any transport field, the hash
+  is server-written. Rollback: reverting the code leaves the columns and their values in the database (unused);
+  evidence files stay attached to their transports.
 - **FR-142 — Card Daily Log: daily equipment hours with manager approval (#44, #123, FR-022; closure plan WP-K1).**
   Reason: #44 and #123 ask for daily entry from paper/WhatsApp and an operator/supervisor → manager approval with no
   self-approval; until now hours were entered only on the monthly card day rows. New submittable DocType **Card

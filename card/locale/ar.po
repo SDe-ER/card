@@ -7170,3 +7170,51 @@ msgstr "يوم كامل"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Day billing basis used"
 msgstr "أساس احتساب اليوم المستخدم"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source"
+msgstr "مصدر الإدخال"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake channel"
+msgstr "قناة الاستلام"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source key"
+msgstr "مفتاح المصدر"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Optional external id of the source (message id, sheet number). One live transport per company and key."
+msgstr "معرّف خارجي اختياري للمصدر (رقم الرسالة أو رقم الورقة). نقل واحد قائم لكل شركة ومفتاح."
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake received on"
+msgstr "تاريخ ووقت الاستلام"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence"
+msgstr "مستند المصدر"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence SHA-256"
+msgstr "بصمة مستند المصدر (SHA-256)"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Paper"
+msgstr "ورقي"
+
+#: card/intake.py
+msgid "Select a valid intake channel."
+msgstr "اختر قناة استلام صحيحة."
+
+#: card/intake.py
+msgid "The intake received time cannot be in the future."
+msgstr "وقت استلام المصدر لا يمكن أن يكون في المستقبل."
+
+#: card/intake.py
+msgid "Intake source key {0} is already used by transport {1} of company {2}."
+msgstr "مفتاح المصدر {0} مستخدم بالفعل في النقل {1} للشركة {2}."
+
+#: card/intake.py
+msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
+msgstr "نفس مستند المصدر مرفق بالفعل بالنقل {0}. تأكد أنه لم يُدخل مرتين."
