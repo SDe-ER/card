@@ -16,6 +16,45 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Configurable stop reasons, the responsible party of a stopped day and the Equipment Downtime report** (FR-118,
+  WP-09, refs #45 #123, PR #PRNUM; target: next release).
+  - **Reason:** #45 (owner decision): record why, how long and because of whom equipment stood still, from a
+    configurable per-company catalogue, with **no rental for stopped periods unless explicitly configured**; #123 asks
+    for a downtime report.
+  - **Change:** new master DocType **Card Stop Reason** (`company` mandatory, `reason_name`, `enabled`, `billable`
+    default off, optional `default_responsible_party_type`, `day_status` it matches, notes; named
+    "<reason> - <company abbr>", unique per company; `track_changes` on; written by System Manager and Card Manager,
+    read by Card User, Card Supervisor and Accounts Manager; Company User Permissions apply through its `company`
+    link). Card Monthly Card Day gets `stop_reason` (Link, the form offers only enabled reasons of the card's company),
+    `stopped_hours`, `reason_billable` (read-only snapshot of the reason's flag), `responsible_party_type`
+    (Company / Supplier / Customer / Other), `responsible_party` (Dynamic Link) and `responsible_party_name` (Other).
+    Card Monthly Card gets `billable_stopped_hours` (read-only). `CardMonthlyCard._resolve_stop_reasons` refuses a
+    reason of another company, a missing or a disabled reason, takes the reason's default responsible party, sets a
+    Company party to the card's company (another company is refused) and clears the fields that do not fit the type.
+    Only the stopped hours of a row whose reason is billable are added to the billed hours of both sides
+    (`amount`, `customer_amount`); `total_working_hours` and `working_days` stay operating figures. A billable
+    stopped day must fall inside the assignment period and outside a unit-component period like a working day
+    (`card.transfer.is_billed_day`, used by `validate_card_days` and `_refuse_unit_component_days`); stopped hours on a
+    future day are refused. New read-only Script Report **Equipment Downtime** (`card/card/report/equipment_downtime`):
+    stopped days, full stopped days, stopped hours and billable stopped hours by stop reason, responsible party,
+    equipment, project, month or each day; one company through `card.report_access.resolve_company`, the cards the
+    user may read through `frappe.get_list`, submitted cards (drafts on request); rows of older cards without a
+    reason are shown under their day status. Added to the Card Reports sidebar. Patch
+    `card.patches.v4_6_0.seed_stop_reasons` (post_model_sync) creates, for each company that has cards, one reason
+    per non-working day status (إجازة, عطل, توقف من العميل) with billable off.
+  - **Defaults (no behaviour change):** a card without reasons bills exactly as before, every seeded and new reason
+    is not billable, the four fixed day statuses and their effect (a non-working status zeroes the operating hours)
+    are unchanged, and the patch writes no card or day row. `min_hours` is still not read (FR-020 stays an open owner
+    decision).
+  - **Impact:** permissions: one new master with the roles above, no role widened, no `ignore_permissions` in
+    production code. Accounting: none by default; once a Card Manager ticks `billable` on a reason, the card amounts
+    (and so the CARD postings built from them) include those stopped hours. Data: new table and new columns; the
+    patch inserts reasons only. API: no new whitelisted method. Known limit: the supplier and customer statements
+    show operating hours, so on a card with billable stopped hours their hourly rate column reads amount / operating
+    hours.
+  - **Rollback:** revert the PR; the new columns and the Card Stop Reason table and rows stay in the database
+    (harmless, unread). Cards saved with a billable reason keep their amounts until they are saved again (drafts) or
+    amended (submitted).
 - **Governance inventories (documentation only; refs #40, #50, #52, #54).**
   `docs/governance/SETTINGS-AND-CONSTANTS.md` lists every Card Settings and Card Company Settings field with its
   readers (file:line), the code defaults and inline fallbacks, the precedence document → Card Company Settings →

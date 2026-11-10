@@ -4519,3 +4519,131 @@ msgstr ""
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Card Stop Reason"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Billable"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Default responsible party"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Matching day status"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Off (default): the stopped hours of this reason earn no rental. On: they are billed like operating hours on the card. Downtime is never billed automatically unless a Card Manager ticks this."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "The fixed card day status this reason was created from, if any."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Stop reason"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Stopped hours"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Billable stop"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party record"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party name"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Billable stopped hours"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Stop reason {0} already exists for company {1}."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Enter the stop reason."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Invalid responsible party type: {0}"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Cannot record stopped hours for a future day: {0}"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} does not exist."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} belongs to another company; choose a reason of company {1}."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} is disabled; choose an enabled reason (day {1})."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "The responsible company on day {0} must be the card's company {1}."
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.json
+msgid "Equipment Downtime"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.js
+msgid "Group downtime by"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.js
+msgid "Each day"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Equipment downtime needs read access to the monthly cards."
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Select the period of the equipment downtime."
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Invalid grouping: {0}"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Stopped days"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Full stopped days"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "No reason"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Draft card"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Stopped days are card days with a stop reason, stopped hours or a non-working status. Stopped hours earn rental only under a billable stop reason."
+msgstr ""

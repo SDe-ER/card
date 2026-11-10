@@ -590,6 +590,12 @@ def _card_day_after(equipment, project, tdate):
 
 
 # ---------- card-day validation (Card Monthly Card before_validate) ----------
+def is_billed_day(d):
+	"""A card day row that bills: operating hours, or (FR-118) stopped hours of an
+	explicitly billable stop reason. With no billable reason this is the old rule."""
+	return flt(d.working_hours) > 0 or (cint(d.get("reason_billable")) and flt(d.get("stopped_hours")) > 0)
+
+
 def validate_card_days(card):
 	"""Every working day must fall inside an assignment period for the card's
 	project. For a unit, every component must be assigned to the project that
@@ -613,7 +619,7 @@ def validate_card_days(card):
 	if not unit_checked and not component_rows:
 		return
 	for d in card.days:
-		if not d.operation_date or flt(d.working_hours) <= 0:
+		if not d.operation_date or not is_billed_day(d):
 			continue
 		day = getdate(d.operation_date)
 		members = [r.component for r in component_rows if _in_unit_on(r, day)]
