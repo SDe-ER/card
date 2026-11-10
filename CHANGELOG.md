@@ -617,7 +617,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `resolve_company` over Card Monthly Card, Project Diesel Fill and Equipment Meter Reading; rate and derived columns
   (rate, source, expected, variance, variance flag) removed for a user without level-1 read on Card Equipment,
   amount columns for a user without read on the fill amount's level. Fixed number of queries whatever the number of
-  rows (tested); a period is at most 366 days. Tests: `card/tests/test_diesel_variance.py` (20). Impact: a new report
+  rows (tested); a period is at most 366 days. Tests: `card/tests/test_diesel_variance.py` (20). PR #233. Impact: a new report
   and a new optional settings table; no DocPerm or role change; no accounting, posting or stored-data change; no
   whitelisted endpoint. Rollback: revert the commit; the Report and DocType records stay on a migrated site until
   deleted by hand, threshold rows stay in the database and are read by nothing.
