@@ -16,6 +16,33 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Transport costs the company does not pay, and an "other party" responsibility** (FR-120, refs #43, #48, #121;
+  WP-14; PR #190).
+  - **Reason:** when the equipment supplier, the customer or another party pays a move, the amount agreed with
+    them was lost (the transporter cost is 0 for these moves), and a party other than the supplier or the customer
+    could not be recorded.
+  - **Change:** Equipment Transport gets the responsibility **Other party bears the cost** (payer and cost bearer
+    `Other Party`) with the party named in `party_type` (Supplier, Customer or Employee) and `party` (Dynamic
+    Link, label "Other party bearing the transport cost"); an employee must be an active employee of the
+    transport's company (the message never names another company), a missing or disabled party is refused. New optional
+    Currency `informational_amount` ("Agreed amount (not company cost)") on moves the equipment supplier, the
+    customer or the other party pays; every other move keeps 0 and no party. Affected functions:
+    `EquipmentTransport._apply_other_party`, `_apply_informational_amount`, `_cancel_key` (a cancel cannot rewrite
+    the new fields); `card.transport_costs.not_company_cost_project` and `not_company_cost_by_project`; the reports
+    Transport Cost by Project (columns "Transports not paid by the company" and "Agreed amount (not company cost)"),
+    Operating Cost by Project (column "Agreed amount (not company cost)", not in the total) and Transport Accounting
+    Review (columns "Agreed amount (not company cost)" and "Other party bearing the transport cost"). New constants
+    in `card/constants.py`.
+  - **Impact:** permissions: none (no role, no permission change; the fields are level 0 like the transporter
+    cost). Picking an Employee party on the form needs Employee read permission (no role is widened for it); the
+    server-side company check is what enforces the scope. Accounting: none: the amount is never company cost, never in the partial margin and never posted (the
+    P1-2 posting exclusion of transports with a responsibility is kept). Data: three new nullable/zero columns on
+    Equipment Transport, new Select options; no patch, existing transports unchanged. API: the new fields are
+    accepted on save; a client that sends payer and bearer `Other Party` gets the new scenario.
+  - **Rollback:** revert the commit. The added columns stay in the database (Frappe does not drop them) and are
+    then unused; a transport submitted with "Other party bears the cost" keeps that stored value, which an older
+    version counts as a move the company does not pay in its reports but refuses on a new save (unknown
+    responsibility); amend such transports before a rollback.
 - **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
   An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
   opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself
