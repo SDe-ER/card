@@ -5002,6 +5002,7 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Billable stopped days"
+msgstr ""
 
 #. Name of a report
 #: card/card/report/equipment_location_history/equipment_location_history.json
