@@ -20,6 +20,8 @@ from card.gl.posting import (
 )
 from card.tests.test_p0_posting_integrity import _P0Base
 
+WRITE_VERBS = {"insert", "update", "delete", "replace", "truncate", "alter", "drop", "create"}
+
 COMPARED = (
 	"item_code",
 	"rate",
@@ -82,10 +84,24 @@ class _PreviewBase(_P0Base):
 		def refuse(*args, **kwargs):
 			raise AssertionError("the posting preview must not write")
 
+		from frappe.database.database import Database
+
+		real_sql = Database.sql
+
+		def read_only_sql(db, query, *args, **kwargs):
+			# any statement that writes is refused; reads (and locking reads) pass through
+			verb = str(query).lstrip(" \t\n(").split(None, 1)[0].lower() if str(query).strip() else ""
+			if verb in WRITE_VERBS:
+				raise AssertionError(f"the posting preview must not write: {query}")
+			return real_sql(db, query, *args, **kwargs)
+
 		return [
 			patch.object(Document, "insert", refuse),
 			patch.object(Document, "save", refuse),
 			patch.object(Document, "db_set", refuse),
+			patch.object(Document, "db_insert", refuse),
+			patch.object(Document, "db_update", refuse),
+			patch.object(Database, "sql", read_only_sql),
 			patch.object(Document, "delete", refuse, create=True),
 			patch("frappe.database.database.Database.set_value", refuse),
 			patch.object(frappe, "delete_doc", refuse),
@@ -172,14 +188,49 @@ class TestPreviewEqualsPosting(_PreviewBase):
 
 	def test_unprovisioned_masters_are_reported_not_created(self):
 		settings, row = self._row()
+		template = row.vat_item_tax_template
 		row.vat_item_tax_template = ""
 		settings.save(ignore_permissions=True)
+		# a site that never posted: the 15% CARD item tax template does not exist yet
+		# (test transaction only, rolled back in tearDown)
+		frappe.db.delete("Item Tax Template Detail", {"parent": template})
+		frappe.db.delete("Item Tax Template", {"name": template})
 		frappe.clear_cache(doctype="Card Settings")
 		self._vat_supplier()
 		self._rental_card()
 		preview = self._preview_without_writes("Supplier", self.supplier)
 		self.assertFalse(preview.blocked, preview.blocked)
 		self.assertTrue(preview.warnings)
+		self.assertFalse(frappe.db.exists("Item Tax Template", template))
+		self.assertFalse(self._row()[1].vat_item_tax_template)
+
+	def test_unprovisioned_preview_still_refuses_what_the_post_refuses(self):
+		settings, row = self._row()
+		row.vat_item_tax_template = ""
+		settings.save(ignore_permissions=True)
+		frappe.clear_cache(doctype="Card Settings")
+		self._vat_supplier()
+		self._rental_card()
+		frappe.db.set_single_value("Accounts Settings", "add_taxes_from_item_tax_template", 1)
+		preview = self._preview_without_writes("Supplier", self.supplier)
+		self.assertIn("must be off", preview.blocked or "")
+		with self.assertRaisesRegex(frappe.ValidationError, "must be off"):
+			build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+
+	def test_supplier_without_tax_id_has_no_vat(self):
+		self.assertFalse(frappe.db.get_value("Supplier", self.supplier, "tax_id"))
+		self._rental_card()
+		preview = self._preview_without_writes("Supplier", self.supplier)
+		self.assertFalse(preview.blocked, preview.blocked)
+		self.assertIsNone(preview.tax_template)
+		self.assertFalse(preview.vat_registered)
+		self.assertEqual((preview.vat_rate, preview.vat_estimate), (0.0, 0.0))
+		self.assertTrue(all("item_tax_template" not in line for line in preview.lines))
+		pi = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		doc = frappe.get_doc("Purchase Invoice", pi)
+		self.assertFalse(doc.taxes)
+		self.assertEqual(flt(doc.total_taxes_and_charges, 2), 0.0)
+		self.assertEqual(_preview_lines(preview), _invoice_lines("Purchase Invoice", pi))
 
 
 class TestPreviewGates(_PreviewBase):

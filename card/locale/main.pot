@@ -4525,7 +4525,7 @@ msgid "CARD Monthly Posting"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Not posted"
+msgid "No CARD posting yet"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
@@ -4573,7 +4573,7 @@ msgid "VAT on the line"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "No VAT"
+msgid "No VAT on this posting"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
@@ -4581,7 +4581,7 @@ msgid "Zero-rated"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Lines total"
+msgid "Total of the posting lines"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
@@ -4589,7 +4589,7 @@ msgid "Discount on Net Total (customer deductions)"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Net total"
+msgid "Net total of the posting"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
@@ -4613,7 +4613,7 @@ msgid "No VAT: the supplier has no tax ID."
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Source documents"
+msgid "CARD source documents"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
@@ -4629,7 +4629,7 @@ msgid "no bill no."
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "draft invoice"
+msgid "draft supplier invoice"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
@@ -4649,11 +4649,11 @@ msgid "Create draft posting"
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Delete draft {0} and build it again with the lines shown?"
+msgid "Delete draft {0} and build it again from the current CARD documents? The new draft may differ from this preview if documents changed since it was shown."
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Create a draft {0} with the lines shown?"
+msgid "Create a draft {0} from the current CARD documents? It may differ from this preview if documents changed since it was shown."
 msgstr ""
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js

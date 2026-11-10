@@ -5764,8 +5764,8 @@ msgid "CARD Monthly Posting"
 msgstr "الترحيل الشهري CARD"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Not posted"
-msgstr "غير مُرحَّل"
+msgid "No CARD posting yet"
+msgstr "لا يوجد ترحيل CARD بعد"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Draft posting"
@@ -5812,24 +5812,24 @@ msgid "VAT on the line"
 msgstr "ضريبة القيمة المضافة على البند"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "No VAT"
-msgstr "بدون ضريبة قيمة مضافة"
+msgid "No VAT on this posting"
+msgstr "لا ضريبة قيمة مضافة على هذا الترحيل"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Zero-rated"
 msgstr "خاضع لنسبة الصفر"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Lines total"
-msgstr "إجمالي البنود"
+msgid "Total of the posting lines"
+msgstr "إجمالي بنود الترحيل"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Discount on Net Total (customer deductions)"
 msgstr "خصم على صافي الإجمالي (خصومات العميل)"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Net total"
-msgstr "صافي الإجمالي"
+msgid "Net total of the posting"
+msgstr "صافي إجمالي الترحيل"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Taxable net"
@@ -5852,8 +5852,8 @@ msgid "No VAT: the supplier has no tax ID."
 msgstr "بدون ضريبة قيمة مضافة: لا يوجد رقم ضريبي للمورد."
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Source documents"
-msgstr "المستندات المصدر"
+msgid "CARD source documents"
+msgstr "مستندات CARD المصدر"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Supplier invoices to review"
@@ -5868,8 +5868,8 @@ msgid "no bill no."
 msgstr "بدون رقم فاتورة المورد"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "draft invoice"
-msgstr "فاتورة مسودة"
+msgid "draft supplier invoice"
+msgstr "فاتورة مورد مسودة"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "{0} more supplier invoice(s) you cannot open must be reviewed by an accountant."
@@ -5888,12 +5888,12 @@ msgid "Create draft posting"
 msgstr "إنشاء ترحيل مسودة"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Delete draft {0} and build it again with the lines shown?"
-msgstr "حذف المسودة {0} وبناؤها من جديد بالبنود المعروضة؟"
+msgid "Delete draft {0} and build it again from the current CARD documents? The new draft may differ from this preview if documents changed since it was shown."
+msgstr "حذف المسودة {0} وبناؤها من جديد من مستندات CARD الحالية؟ قد تختلف المسودة الجديدة عن هذه المعاينة إذا تغيّرت المستندات بعد عرضها."
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
-msgid "Create a draft {0} with the lines shown?"
-msgstr "إنشاء مسودة {0} بالبنود المعروضة؟"
+msgid "Create a draft {0} from the current CARD documents? It may differ from this preview if documents changed since it was shown."
+msgstr "إنشاء مسودة {0} من مستندات CARD الحالية؟ قد تختلف عن هذه المعاينة إذا تغيّرت المستندات بعد عرضها."
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Draft posting {0} created."

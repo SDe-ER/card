@@ -701,11 +701,12 @@ def _plan_monthly_posting(
 					)
 				)
 
-	if tax_template and not provision:
-		# a dry run that would provision first (warning above) checks the tax setup only on post
-		preflight.check_template_mapping(row)
+	if tax_template:
+		# a dry run that would provision first (warning above) skips only the checks of the
+		# CARD item tax templates, which the first post creates or repairs
+		preflight.check_template_mapping(row, provisioned=not provision)
 		for fieldname in ("vat_item_tax_template", "vat_zero_item_tax_template"):
-			if not row.get(fieldname):
+			if not row.get(fieldname) and not provision:
 				frappe.throw(
 					_("Configure Card Settings for company {0}: {1} is not set.").format(
 						company, _(frappe.get_meta("Card Company Settings").get_label(fieldname))
@@ -1194,6 +1195,34 @@ def preview_monthly_posting(company, party_type, party, month, year):
 	return out
 
 
+def _unheld_batch(rows, doctype, party_type):
+	"""_exclude_held for the party list, in two queries instead of one log read per source
+	row: the same rule (a source of an ACTIVE log of the same side is held)."""
+	names = [r.name for r in rows]
+	if not names:
+		return []
+	members = frappe.get_all(
+		"GL Posting Source",
+		filters={"parenttype": "GL Posting Log", "source_doctype": doctype, "source_name": ["in", names]},
+		fields=["source_name", "parent"],
+	)
+	active = set(
+		frappe.get_all(
+			"GL Posting Log",
+			filters={
+				"name": ["in", list({m.parent for m in members})],
+				"status": ["in", list(ACTIVE_STATES)],
+				"party_type": party_type,
+			},
+			pluck="name",
+		)
+		if members
+		else []
+	)
+	held = {m.source_name for m in members if m.parent in active}
+	return [r for r in rows if r.name not in held]
+
+
 def month_parties(company, month, year, sides=("Supplier", "Customer")):
 	"""The parties of a company-month on the given sides: every party with unposted
 	submitted sources or an active CARD posting log, with its status
@@ -1211,13 +1240,13 @@ def month_parties(company, month, year, sides=("Supplier", "Customer")):
 		if party_type == "Supplier":
 			cards, fills, transports = _supplier_sources(company, None, first_day, last_day, month, year)
 			groups = (
-				(_exclude_held(cards, "Card Monthly Card", party_type), "supplier"),
-				(_exclude_held(fills, "Project Diesel Fill", party_type), "supplier"),
-				(_exclude_held(transports, "Equipment Transport", party_type), "transport_supplier"),
+				(_unheld_batch(cards, "Card Monthly Card", party_type), "supplier"),
+				(_unheld_batch(fills, "Project Diesel Fill", party_type), "supplier"),
+				(_unheld_batch(transports, "Equipment Transport", party_type), "transport_supplier"),
 			)
 		else:
 			cards = _customer_cards(company, None, month, year)
-			groups = ((_exclude_held(cards, "Card Monthly Card", party_type), "customer"),)
+			groups = ((_unheld_batch(cards, "Card Monthly Card", party_type), "customer"),)
 		for rows, field in groups:
 			for r in rows:
 				if r.get(field):

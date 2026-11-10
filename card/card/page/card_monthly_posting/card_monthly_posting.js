@@ -17,7 +17,7 @@ frappe.pages["card-monthly-posting"].on_page_load = function (wrapper) {
 };
 
 const CMP_STATUS = {
-	"Not posted": ["orange", __("Not posted")],
+	"Not posted": ["orange", __("No CARD posting yet")],
 	Draft: ["blue", __("Draft posting")],
 	Posted: ["green", __("Posted")],
 };
@@ -175,7 +175,7 @@ class CardMonthlyPosting {
 		</div>`);
 		const meta = [__(p.posting_doctype)];
 		if (p.mode === "rebuild") {
-			meta.push(__("Rebuild replaces draft {0}", [p.replaces.map(e).join(", ")]));
+			meta.push(__("Rebuild replaces draft {0}", [p.replaces.join(", ")]));
 		}
 		if (p.posting_date)
 			meta.push(__("Posting date {0}", [frappe.datetime.str_to_user(p.posting_date)]));
@@ -207,7 +207,7 @@ class CardMonthlyPosting {
 			</tr></thead><tbody></tbody></table>`);
 		for (const item of p.lines) {
 			const vat = !p.tax_template
-				? __("No VAT")
+				? __("No VAT on this posting")
 				: item.taxable
 				  ? __("Taxable")
 				  : __("Zero-rated");
@@ -228,10 +228,10 @@ class CardMonthlyPosting {
 		}
 		$view.find(".cmp-lines").append($lines);
 
-		const totals = [[__("Lines total"), p.net_total + p.discount]];
+		const totals = [[__("Total of the posting lines"), p.net_total + p.discount]];
 		if (p.discount)
 			totals.push([__("Discount on Net Total (customer deductions)"), -p.discount]);
-		totals.push([__("Net total"), p.net_total]);
+		totals.push([__("Net total of the posting"), p.net_total]);
 		if (p.tax_template) {
 			totals.push([__("Taxable net"), p.taxable_net]);
 			if (p.zero_rated_net) totals.push([__("Zero-rated net"), p.zero_rated_net]);
@@ -277,7 +277,7 @@ class CardMonthlyPosting {
 			.join("<br>");
 		$view
 			.find(".cmp-sources")
-			.append(`<h5>${__("Source documents")}</h5><div>${sources}</div>`);
+			.append(`<h5>${__("CARD source documents")}</h5><div>${sources}</div>`);
 
 		const reviewed = this.review_section(p, $view.find(".cmp-review"));
 		this.action_button(p, args, reviewed).appendTo($view.find(".cmp-actions"));
@@ -299,7 +299,7 @@ class CardMonthlyPosting {
 				<input type="checkbox" ${p.can_review ? "" : "disabled"}>
 				<a href="/app/purchase-invoice/${encodeURIComponent(inv.name)}">${e(inv.name)}</a>
 				<span class="text-muted">${e(inv.bill_no || __("no bill no."))}${
-					inv.docstatus === 0 ? " · " + __("draft invoice") : ""
+					inv.docstatus === 0 ? " · " + __("draft supplier invoice") : ""
 				} · ${this.money(inv.grand_total, p.currency)}</span>
 			</label></div>`);
 			$row.find("input").on("change", (ev) => {
@@ -331,10 +331,14 @@ class CardMonthlyPosting {
 		const label = rebuild ? __("Rebuild draft posting") : __("Create draft posting");
 		return $(`<button class="btn btn-primary btn-sm">${label}</button>`).on("click", () => {
 			const message = rebuild
-				? __("Delete draft {0} and build it again with the lines shown?", [
-						p.replaces.join(", "),
-				  ])
-				: __("Create a draft {0} with the lines shown?", [__(p.posting_doctype)]);
+				? __(
+						"Delete draft {0} and build it again from the current CARD documents? The new draft may differ from this preview if documents changed since it was shown.",
+						[p.replaces.map(frappe.utils.escape_html).join(", ")],
+				  )
+				: __(
+						"Create a draft {0} from the current CARD documents? It may differ from this preview if documents changed since it was shown.",
+						[__(p.posting_doctype)],
+				  );
 			frappe.confirm(message, () => {
 				frappe
 					.call({

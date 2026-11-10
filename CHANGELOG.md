@@ -33,8 +33,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     returns the candidates instead) and the unchanged insert/log/reserve part; the item row is built by the shared
     `_invoice_item`; `rebuild_monthly_posting` reads its drafts through `_rebuildable_drafts`;
     `_held_by_active_log` / `_exclude_held` take an optional `ignore_logs` (rebuild preview only);
-    `_supplier_sources` / `_customer_cards` accept `party=None` (party list). New: `preview_monthly_posting`,
-    `month_parties`, whitelisted `preview_month` and `posting_month_parties` (both `methods=["GET"]`, side-effect
+    `_supplier_sources` / `_customer_cards` accept `party=None` (party list);
+    `card.gl.preflight.check_template_mapping` takes `provisioned=True` (default unchanged; a preview before the
+    first post skips only the CARD item tax template rows, every other tax check still refuses). New:
+    `preview_monthly_posting`, `month_parties` (batched hold lookup `_unheld_batch`), whitelisted `preview_month` and `posting_month_parties` (both `methods=["GET"]`, side-effect
     free, same role, company and party gates as `post_month`).
   - **Impact:** permissions — none changed; GL Posting Log stays readable by System Manager, Accounts Manager and Card
     Manager (Accounts User read is an open owner decision). Accounting — none: the real build runs the same steps in
