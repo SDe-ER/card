@@ -4533,7 +4533,7 @@ msgid "Other party type"
 msgstr ""
 
 #: card/card/report/transport_accounting_review/transport_accounting_review.py
-msgid "Other party"
+msgid "Other party bearing the transport cost"
 msgstr ""
 
 #: card/card/report/transport_cost_by_project/transport_cost_by_project.py
@@ -4553,7 +4553,11 @@ msgid "Select the other party that bears the transport cost."
 msgstr ""
 
 #: card/card/doctype/equipment_transport/equipment_transport.py
-msgid "Employee {0} belongs to company {1}; this transport belongs to company {2}."
+msgid "Employee {0} is not an employee of company {1}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} is not active."
 msgstr ""
 
 #: card/card/doctype/equipment_transport/equipment_transport.py

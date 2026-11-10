@@ -34,7 +34,12 @@ def get_columns():
 			"fieldtype": "Currency",
 			"width": 150,
 		},
-		{"fieldname": "other_party", "label": _("Other party"), "fieldtype": "Data", "width": 170},
+		{
+			"fieldname": "other_party",
+			"label": _("Other party bearing the transport cost"),
+			"fieldtype": "Data",
+			"width": 170,
+		},
 		{"fieldname": "financial_status", "label": _("Financial status"), "fieldtype": "Data", "width": 120},
 		{"fieldname": "financial_decision", "label": _("Cost decision"), "fieldtype": "Data", "width": 170},
 		{"fieldname": "customer", "label": _("Customer"), "fieldtype": "Data", "width": 170},

@@ -169,8 +169,19 @@ class TestTransportOtherParty(_P0Base):
 	def test_employee_of_another_company_is_refused(self):
 		other = self._other_company()
 		t = self._new(party_type="Employee", party=self._employee(company=other))
-		with self.assertRaisesRegex(frappe.ValidationError, "belongs to company"):
+		with self.assertRaisesRegex(
+			frappe.ValidationError, f"is not an employee of company {self.company}"
+		) as caught:
 			t.insert(ignore_permissions=True)
+		self.assertNotIn(other, str(caught.exception))  # the other company is never named
+
+	def test_employee_who_is_not_active_is_refused(self):
+		for status in ("Left", "Inactive"):
+			employee = self._employee()
+			frappe.db.set_value("Employee", employee, "status", status)
+			t = self._new(party_type="Employee", party=employee)
+			with self.assertRaisesRegex(frappe.ValidationError, "is not active", msg=status):
+				t.insert(ignore_permissions=True)
 
 	def test_informational_amounts_stay_in_their_company(self):
 		t = self._submitted(self._new())
@@ -252,6 +263,21 @@ class TestTransportOtherParty(_P0Base):
 		with self.assertRaisesRegex(frappe.ValidationError, "cancelled as approved"):
 			t.cancel()
 
+	def test_cancel_cannot_rewrite_the_other_party(self):
+		for change in ("party_type and party", "party only"):
+			t = self._submitted(self._new())
+			if change == "party_type and party":
+				t.party_type, t.party = "Customer", self.customer
+			else:
+				sup = frappe.new_doc("Supplier")
+				sup.supplier_name = "TEST-WP14-CANCEL-" + frappe.generate_hash(length=6)
+				sup.supplier_group = self._m["supplier_group"]
+				sup.insert(ignore_permissions=True)
+				t.party = sup.name
+			with self.assertRaisesRegex(frappe.ValidationError, "cancelled as approved", msg=change):
+				t.cancel()
+			self.assertEqual(frappe.db.get_value("Equipment Transport", t.name, "docstatus"), 1)
+
 	# ---- existing behaviour unchanged
 	def test_company_paid_moves_keep_no_agreed_amount_or_party(self):
 		for scenario in (
@@ -282,3 +308,27 @@ class TestTransportOtherParty(_P0Base):
 		as_recorded_before_p12(t.name)
 		self.assertEqual(flt(transport_cost_by_project(self.company, **PERIOD)[self.project]["amount"]), 400)
 		self.assertNotIn(self.project, not_company_cost_by_project(self.company, **PERIOD))
+
+	def test_agreed_amount_sent_on_a_company_paid_transport_is_cleared(self):
+		t = company_paid(
+			self._new("Company bears the cost", informational=750, amount=400),
+			basis="Project",
+			cost_project=self.project,
+		).insert(ignore_permissions=True)
+		self.assertEqual((flt(t.amount), flt(t.informational_amount)), (400, 0))
+		t.informational_amount = 750  # sent again on a later save
+		t.save(ignore_permissions=True)
+		self.assertEqual(flt(frappe.db.get_value("Equipment Transport", t.name, "informational_amount")), 0)
+
+	def test_agreed_amount_sent_on_a_transport_recorded_before_p12_is_cleared(self):
+		t = company_paid(
+			self._new("Company bears the cost", informational=0, amount=400),
+			basis="Project",
+			cost_project=self.project,
+		).insert(ignore_permissions=True)
+		as_recorded_before_p12(t.name)
+		t = frappe.get_doc("Equipment Transport", t.name)
+		self.assertFalse(t.responsibility)
+		t.informational_amount = 750
+		t.run_method("validate")  # the controller rule of a transport with no responsibility
+		self.assertEqual(flt(t.informational_amount), 0)

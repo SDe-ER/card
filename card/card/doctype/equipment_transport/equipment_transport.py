@@ -132,15 +132,16 @@ class EquipmentTransport(Document):
 		if not self.party:
 			frappe.throw(_("Select the other party that bears the transport cost."))
 		if self.party_type == "Employee":
-			company = frappe.db.get_value("Employee", self.party, "company")
-			if not company:
+			employee = frappe.db.get_value("Employee", self.party, ["company", "status"], as_dict=True)
+			if not employee:
 				frappe.throw(_("The other party {0} was not found.").format(self.party))
-			if company != self.company:
+			if employee.company != self.company:
+				# never name the other company (company isolation)
 				frappe.throw(
-					_("Employee {0} belongs to company {1}; this transport belongs to company {2}.").format(
-						self.party, company, self.company
-					)
+					_("Employee {0} is not an employee of company {1}.").format(self.party, self.company)
 				)
+			if employee.status != "Active":
+				frappe.throw(_("Employee {0} is not active.").format(self.party))
 			return
 		disabled = frappe.db.get_value(self.party_type, self.party, "disabled")
 		if disabled is None:

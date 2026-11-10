@@ -22,7 +22,7 @@ frappe.ui.form.on("Equipment Transport", {
 		// WP-14: the other party is an active supplier or customer, or an employee of the company
 		frm.set_query("party", () =>
 			frm.doc.party_type === "Employee"
-				? { filters: { company: frm.doc.company || undefined } }
+				? { filters: { company: frm.doc.company || undefined, status: "Active" } }
 				: { filters: { disabled: 0 } },
 		);
 	},

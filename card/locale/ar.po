@@ -5752,8 +5752,8 @@ msgid "Other party type"
 msgstr "نوع الطرف الآخر"
 
 #: card/card/report/transport_accounting_review/transport_accounting_review.py
-msgid "Other party"
-msgstr "الطرف الآخر"
+msgid "Other party bearing the transport cost"
+msgstr "الطرف الآخر الذي يتحمل تكلفة النقل"
 
 #: card/card/report/transport_cost_by_project/transport_cost_by_project.py
 msgid "Agreed amount (not company cost)"
@@ -5772,8 +5772,12 @@ msgid "Select the other party that bears the transport cost."
 msgstr "اختر الطرف الآخر الذي يتحمل تكلفة النقل."
 
 #: card/card/doctype/equipment_transport/equipment_transport.py
-msgid "Employee {0} belongs to company {1}; this transport belongs to company {2}."
-msgstr "الموظف {0} تابع للشركة {1}، وهذا النقل تابع للشركة {2}."
+msgid "Employee {0} is not an employee of company {1}."
+msgstr "الموظف {0} ليس موظفًا في الشركة {1}."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} is not active."
+msgstr "الموظف {0} غير نشط."
 
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "The other party {0} was not found."
