@@ -9,12 +9,28 @@ from frappe.utils import cint, flt, formatdate, getdate
 from card.settings import validate_company_warehouses
 
 # per-company tables: a row steers that company's postings (FR-125: and its diesel prices)
-COMPANY_TABLES = ("company_settings", "adjustment_types", "diesel_price_schedule")
+COMPANY_TABLES = (
+	"company_settings",
+	"adjustment_types",
+	"diesel_price_schedule",
+	"diesel_variance_thresholds",
+)
 
 # FR-133 (R-14, O-19): the per-company tables a company-restricted user reads only for the companies
 # he is permitted; the rows of other companies are hidden on every read and kept on every save
-SCOPED_TABLES = ("company_settings", "adjustment_types", "diesel_price_schedule")
-SCOPED_CHILD_DOCTYPES = ("Card Company Settings", "Card Adjustment Type", "Card Diesel Price")
+# (FR-151: and the diesel variance anomaly thresholds)
+SCOPED_TABLES = (
+	"company_settings",
+	"adjustment_types",
+	"diesel_price_schedule",
+	"diesel_variance_thresholds",
+)
+SCOPED_CHILD_DOCTYPES = (
+	"Card Company Settings",
+	"Card Adjustment Type",
+	"Card Diesel Price",
+	"Card Diesel Variance Threshold",
+)
 LAYOUT_FIELDTYPES = ("Section Break", "Column Break", "Tab Break", "HTML", "Button", "Heading", "Fold")
 
 
@@ -479,7 +495,22 @@ class CardSettings(Document):
 			projects.add(row.project)
 		self._validate_adjustment_types()
 		self._validate_diesel_price_schedule()
+		self._validate_diesel_variance_thresholds()
 		validate_company_warehouses(_ScopedRows(self))  # FR-135; FR-133: visible rows only
+
+	def _validate_diesel_variance_thresholds(self):
+		"""FR-151: one anomaly threshold row per company; a threshold is zero (off) or more."""
+		seen = set()
+		for row in self._rows("diesel_variance_thresholds"):
+			if row.company in seen:
+				frappe.throw(
+					_("Duplicate company in the diesel variance anomaly thresholds: {0}").format(row.company)
+				)
+			seen.add(row.company)
+			if flt(row.variance_pct_threshold) < 0 or flt(row.min_variance_litres) < 0:
+				frappe.throw(
+					_("Row {0}: a diesel variance anomaly threshold cannot be negative.").format(row.idx)
+				)
 
 	def _validate_diesel_price_schedule(self):
 		"""FR-125: one price per company and date, above zero, in the company's currency (a fill

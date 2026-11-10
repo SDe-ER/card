@@ -1,0 +1,36 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2026-11-10 23:17:41.000000",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letterhead": null,
+ "modified": "2026-11-10 23:17:41.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Diesel Variance Anomaly",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Project Diesel Fill",
+ "report_name": "Diesel Variance Anomaly",
+ "report_script": "",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Card Manager"
+  },
+  {
+   "role": "Card User"
+  },
+  {
+   "role": "Accounts Manager"
+  }
+ ]
+}

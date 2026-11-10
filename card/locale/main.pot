@@ -6485,3 +6485,203 @@ msgstr ""
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by its own preparer"
 msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Engine hours (meter readings)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Billable-hours proxy (card hours)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Recorded figure"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Estimated figure"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance = filled litres (direct fills recorded for the equipment) minus expected litres (hours x the consumption rate valid on each day). A variance is an analytical signal, not a fuel loss; this report makes no loss claim."
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Hours basis: engine hours from meter readings when they cover the whole month, otherwise the billable-hours proxy (card hours), an estimate."
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Project-tank fills are not split across equipment; their litres are shown once, as a project-level figure."
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "No consumption rate on some operating days: expected litres not computed"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Engine hours prorated by time between meter readings"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "The consumption rate changes between two meter readings: hours split by time"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Diesel fill without operating hours"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Operating hours without a diesel fill"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Projects of the fills and cards"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Billable hours (cards)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Hours basis"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Hours used for expected litres"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Hours nature"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Average consumption rate (litres/hour)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Consumption rate source"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Expected litres nature"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Filled litres (direct fills)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Filled litres nature"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Direct fills amount"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance litres (filled - expected, not a loss)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance cost at the average fill price (not a loss)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Anomaly flags"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Data notes"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Rows with anomaly flags"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Project-tank fill litres (not attributed to any equipment)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "No anomaly thresholds are set for this company in Card Settings: nothing is flagged."
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Consumption rates and the figures derived from them are hidden for your role."
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Dated rate of the equipment"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Daily diesel standard of the equipment"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Static expected consumption of the equipment"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Default rate of the equipment type"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Project filter: engine hours belong to the equipment, the billable-hours proxy is used"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance above the company threshold"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Select a period of at most {0} days for the diesel variance report."
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Meter readings do not cover the month: the billable-hours proxy is used"
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Duplicate company in the diesel variance anomaly thresholds: {0}"
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Row {0}: a diesel variance anomaly threshold cannot be negative."
+msgstr ""
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Diesel variance % threshold"
+msgstr ""
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Minimum diesel variance (litres)"
+msgstr ""
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Flag diesel fills without operating hours"
+msgstr ""
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Flag operating hours without diesel fills"
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "Diesel variance anomaly thresholds"
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "Optional, per company. A company without a row gets no anomaly flags. A variance is an analytical signal, not a fuel loss."
+msgstr ""
+
+#: card/card/sidebar/card_reports/card_reports.json
+msgid "Diesel Variance & Anomaly"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.json
+msgid "Diesel Variance Anomaly"
+msgstr ""
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Card Diesel Variance Threshold"
+msgstr ""
