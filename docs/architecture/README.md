@@ -26,6 +26,7 @@ host or tax number appears in this pack.
 | Risk register (#54 acceptance) | [06-risk-register.md](06-risk-register.md) | Migration, accounting, permission and data risks |
 | International test matrix (#54 requirements) | [07-international-test-matrix.md](07-international-test-matrix.md) | What exists, what is missing |
 | Phased roadmap (#40 delivery, #54 acceptance) | [08-roadmap.md](08-roadmap.md) | Maps open issues to the go-live phases of #118 |
+| Acceptance tests (#54: backdating, idempotency, corrections, permissions, GL neutrality, accounting integrity) | [07-international-test-matrix.md](07-international-test-matrix.md) rows 11 to 15 | Test files named per row; FR-136 (in review) adds GL neutrality, two currencies, month end and POST-only writers |
 
 ## Asked for, but not in this pack
 
