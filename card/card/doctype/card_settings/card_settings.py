@@ -81,7 +81,11 @@ def getdoc(doctype: str, name: str | int):
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def get_docinfo(doc=None, doctype: str | None = None, name: str | int | None = None):
+def get_docinfo(
+	doc: Document | dict | str | None = None,
+	doctype: str | None = None,
+	name: str | int | None = None,
+):
 	"""Override of ``frappe.desk.form.load.get_docinfo`` (wraps it): as ``getdoc``."""
 	from frappe.desk.form import load
 
