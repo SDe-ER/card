@@ -16,6 +16,11 @@ class EquipmentNeedsReview(Document):
 		self.supervisor = before.supervisor if before and before.supervisor else frappe.session.user
 		# only approve_review writes the approval (directly, after submit)
 		self.approval_status, self.approved_by, self.approved_on = "Pending", None, None
+		# FR-121: who submitted and who edited are written by the server only (never from the client)
+		self.submitted_by = (
+			None if self.is_new() else frappe.db.get_value(self.doctype, self.name, "submitted_by")
+		)
+		self._record_editor()
 		for row in self.items:
 			# written only after approval, by the server (Material Request, tool handover #113)
 			row.material_request, row.tool_custody, row.handed_qty = None, None, 0
@@ -67,6 +72,18 @@ class EquipmentNeedsReview(Document):
 			row.inspected_by = row.inspected_on = None
 		# never stored (F2): the form shows it live with the reader's rights (card.materials.review_stock)
 		row.stock_qty = 0
+
+	def _record_editor(self):
+		"""Everyone who saves the draft is kept (from the stored value, never from the client): none of
+		them approves the review (FR-121, separation of duties as in EquipmentTransport)."""
+		stored = "" if self.is_new() else frappe.db.get_value(self.doctype, self.name, "edited_by") or ""
+		editors = [e for e in stored.split("\n") if e]
+		if frappe.session.user not in editors:
+			editors.append(frappe.session.user)
+		self.edited_by = "\n".join(editors)
+
+	def before_submit(self):
+		self.submitted_by = frappe.session.user  # FR-121: the submitter never approves
 
 	def on_submit(self):
 		self._set_requests("In review")

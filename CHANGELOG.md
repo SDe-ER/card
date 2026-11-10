@@ -309,6 +309,22 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Security
+- **Reviewer is not the approver on equipment needs** (FR-121, PR #189; refs #125, #51; FR-005 open point).
+  - **Reason:** reviewer and approver of an Equipment Needs Review were separated by role only; one user holding
+    both roles could review, edit or submit a review and then approve it.
+  - **Change:** Equipment Needs Review records on the server who submitted it (`submitted_by`, new read-only field,
+    set in `before_submit`) and every user who saved the draft (`edited_by`, new hidden field, from the stored value
+    as in `EquipmentTransport._record_editor`); neither can be set by the client. `card.materials.approve_review`
+    (the only approve entry point) refuses with a PermissionError every preparer (`review_preparers`): the reviewer
+    (`supervisor`, or the owner of a legacy review without one), the submitter and every recorded editor. No role
+    is exempt: Administrator and System Manager are refused like anyone else. The form hides Approve from them.
+    Enforced by default (FR-005 already called for it).
+  - **Impact:** permissions — narrower: whoever prepared a review cannot approve it; another Card Manager (or
+    System Manager) approves it. Accounting none (approval still makes draft Material Requests only). Data — two
+    new columns, empty on existing reviews (a legacy pending review falls back to its supervisor or owner); no
+    record is changed, an already approved review stays approved. API — `approve_review` can now raise
+    PermissionError. Three new Arabic strings.
+  - **Rollback:** revert the commit; an older version ignores the two columns.
 - **Attachment validation and privacy** (H-CARD-1, H-CARD-2; FR-099; PR #162).
   - **Reason:** meter photos, the custody receipt, fitment evidence, the transport authorization document and the Card
     Equipment registration / inspection / insurance / TUV files accepted any bytes under any name, and the transport
