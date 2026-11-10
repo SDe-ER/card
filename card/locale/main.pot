@@ -4531,6 +4531,30 @@ msgstr ""
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr ""
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Diesel fill project check"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A new diesel fill, or one whose company, equipment, project or date changed, needs each equipment assigned to the fill's project on the fill date. Warn only: a message, the fill is saved. Refuse: the fill is refused. Off: no check. Empty: Warn only. On the day of a project-to-project move the fill goes to the project the move-day rule gives that day: the old project when the new assignment starts the day after the move, the new project when it starts on the move day. Submitted fills are never checked again."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Off (diesel project check)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Warn only (diesel project check)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (diesel project check)"
+msgstr ""
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Equipment {0} has no assignment on project {1} on {2}."
+msgstr ""
+
 #: card/card/doctype/card_diesel_price/card_diesel_price.json
 msgid "Diesel price valid from"
 msgstr ""
