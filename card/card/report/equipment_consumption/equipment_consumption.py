@@ -7,6 +7,7 @@ from frappe.utils import flt
 
 from card.materials import DIMENSION_FIELD
 from card.report_access import permitted_companies
+from card.report_currency import company_currency
 
 
 def get_columns():
@@ -33,7 +34,14 @@ def get_columns():
 			"width": 160,
 		},
 		{"fieldname": "qty", "label": _("Quantity"), "fieldtype": "Float", "width": 100},
-		{"fieldname": "amount", "label": _("Cost", context="Card"), "fieldtype": "Currency", "width": 120},
+		# FR-136 (O-17): each row is in its own company's currency (the report spans the permitted companies)
+		{
+			"fieldname": "amount",
+			"label": _("Cost", context="Card"),
+			"fieldtype": "Currency",
+			"options": "currency",
+			"width": 120,
+		},
 		{"fieldname": "source", "label": _("Source"), "fieldtype": "Data", "width": 150},
 		{"fieldname": "posting_date", "label": _("Date"), "fieldtype": "Date", "width": 100},
 	]
@@ -66,13 +74,13 @@ def execute(filters=None):
 	rows = frappe.db.sql(
 		"""select * from (
 			select d.card_equipment, coalesce(d.project, se.project) as project, d.item_code,
-				d.qty, d.amount, se.name as source, se.posting_date
+				d.qty, d.amount, se.name as source, se.posting_date, se.company
 			from `tabStock Entry Detail` d join `tabStock Entry` se on se.name = d.parent
 			where se.docstatus = 1 and se.purpose = 'Material Issue' and se.company in %(companies)s
 				and ifnull(d.card_equipment, '') != ''
 			union all
 			select i.card_equipment, i.project, i.item_code, i.stock_qty as qty, i.base_net_amount as amount,
-				pi.name as source, pi.posting_date
+				pi.name as source, pi.posting_date, pi.company
 			from `tabPurchase Invoice Item` i join `tabPurchase Invoice` pi on pi.name = i.parent
 			join `tabItem` it on it.name = i.item_code
 			where pi.docstatus = 1 and pi.company in %(companies)s and it.is_stock_item = 0
@@ -83,5 +91,7 @@ def execute(filters=None):
 		params,
 		as_dict=True,
 	)
-	data = [dict(r, qty=flt(r.qty), amount=flt(r.amount, 2)) for r in rows]
+	data = [
+		dict(r, qty=flt(r.qty), amount=flt(r.amount, 2), currency=company_currency(r.company)) for r in rows
+	]
 	return get_columns(), data

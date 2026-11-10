@@ -48,11 +48,11 @@ These are documentation and test tasks that need no behaviour change. Each is sm
 | Step | Work | Phase | Issue |
 |---|---|---|---|
 | 1 | Owner review of this pack and of the role matrix; record decisions in the issues | any | #40, #54 |
-| 2 | GL-neutrality test and `ignore_permissions` allow-list test | P7 | #54 |
-| 3 | Two-company, two-currency posting test | P7 | #54 |
-| 4 | Read-only integrity report for source and log disagreement | P7 | #54 |
-| 5 | Generated role-by-action tests from the role matrix | P0 | #54, #51 |
-| 6 | Time zone and month-end tests | P4 | #54 |
+| 2 | GL-neutrality test and `ignore_permissions` allow-list test — done: FR-136 `test_gl_neutrality.py` (in review), FR-129 allow-list | P7 | #54 |
+| 3 | Two-company, two-currency posting test — done: FR-136 `test_two_currency_posting.py` (in review) | P7 | #54 |
+| 4 | Read-only integrity report for source and log disagreement — done: FR-136 Posting Source Integrity (in review) | P7 | #54 |
+| 5 | Generated role-by-action tests from the role matrix — done: FR-129 `test_bola_matrix.py`; POST-only writers: FR-136 `test_writer_methods_post.py` (in review) | P0 | #54, #51 |
+| 6 | Time zone and month-end tests — done: FR-136 `test_month_end_timezone.py` (in review) | P4 | #54 |
 | 7 | Model decisions needed before any code: contracts (#41), tanks (#47), period approval (#49) | after P8 | #40 |
 
 Behaviour changes that follow from the owner's answers (separation of duties on cards, dated rates, fuel unit, country
@@ -62,5 +62,7 @@ a registry row, and none starts without the owner's GO.
 ## 4. What closes #40 and #54
 
 Both issues close when every item in them is done or the owner removes it from scope. This pack covers the written
-deliverables. It does not close them: the permission matrix is separate, the HRMS gap analysis is in `HRMS-PARITY.md`, and
-the acceptance suite and owner sign-off are still to do.
+deliverables. It does not close them: the permission matrix is separate (`ROLE-ACTION-MATRIX.md`, FR-129), the HRMS gap
+analysis is in `HRMS-PARITY.md`, and the acceptance suite of #54 (backdating, idempotency, corrections, permissions, GL
+neutrality, accounting integrity) is listed in [07-international-test-matrix.md](07-international-test-matrix.md); its
+last rows are FR-136 (in review). The owner's sign-off of this pack on #40 and #54 is still to do.

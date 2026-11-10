@@ -128,6 +128,54 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   "Deprecated – not used" (Arabic «مُهمَل – غير مستخدم» in `ar.po`; the same msgid of the FR-124 settings now reads
   «مُهمَل» instead of «متوقف», which also means "stopped"); the column and stored values are kept. Impact: none on permissions,
   accounting, data or the API. Rollback: restore the label.
+- **#54 acceptance suite: GL neutrality, two companies with two currencies, month end under a site time zone,
+  POST-only writers** (FR-136, #54, #53, #40; branch `feat/acceptance-suite`, PR #210).
+  Reason: the #54 acceptance tests and the test-matrix rows 1, 2, 4, 14 and 15 of
+  `docs/architecture/07-international-test-matrix.md` were missing (risks R-16, R-26). New tests only:
+  `card/tests/test_gl_neutrality.py` (static scan: no production module writes GL Entry, Payment Ledger Entry, Stock
+  Ledger Entry or Account Closing Balance rows by document, `frappe.db`, raw SQL or query builder, or calls an ERPNext
+  ledger writer; submit and cancel of monthly card, diesel fill and transport, and the draft monthly posting, add no
+  ledger row; the Purchase Invoice submit adds only its own balanced rows; a second active posting log of the same
+  party-month is refused by the unique `posting_key` in the database), `test_two_currency_posting.py` (a real second
+  company in another currency, one supplier for both: each posting takes only its company's sources, is in its
+  company currency at rate 1 against its own payable, expense accounts, cost centers and project, and posts ledger rows
+  of its company and currency only), `test_month_end_timezone.py` (one UTC instant that is already 1 October in UTC+3 and
+  UTC+14 and still 30 September in UTC-7 and UTC-10: site-local today, the future-day check of a card, the number cards'
+  "last month", month ends 28/29/30/31, posting dated the month end after local midnight, period lock by date),
+  `test_writer_methods_post.py` (every `@frappe.whitelist` names `methods=`; every writer of the FR-129 matrix allows
+  POST only and Frappe refuses its GET; every GET endpoint is read-only in the matrix and has no direct write call).
+  Known limit: the writer test sees only write calls made directly in an endpoint's body; a write reached through a
+  helper is caught only by the FR-129 run-time no-write test. Impact: tests only; no change to permissions,
+  accounting, data or the API. Rollback: revert the commit.
+- **Posting Source Integrity report** (FR-136, PR #210, risk R-25, #54). Reason: a source's invoice link and `posted` flag are
+  written with `db.set_value` on invoice submit, so a direct database edit, an import or an older version can split a
+  source from its GL Posting Log without a trace. New read-only Script Report (System Manager, Accounts Manager; on the
+  CARD Reports sidebar): for one company the user may see and a period, every monthly card, diesel fill and transport
+  that a posting touched, with the check result: invoice link without a submitted log, link to another invoice than the
+  log's, submitted log without the link, more than one submitted posting of a side, linked invoice missing or not
+  submitted, `posted` flag out of step, cancelled source still posted; and log rows whose source no longer exists. It
+  changes, links, posts and repairs nothing. Affected: new `card/card/report/posting_source_integrity/*`,
+  `card/card/sidebar/card_reports/card_reports.json`. Impact: a new report for two existing roles; no DocPerm or role
+  change; no accounting, data or API change. Rollback: revert the commit; the Report record stays on a migrated site until it is
+  deleted by hand (it only reads).
+
+### Changed
+- **Reports label money with the company currency** (FR-136, PR #210, #53, owner default O-17: company currency only,
+  labelled, no conversion). Reason: a Currency column without a currency shows the site's default symbol
+  (`frappe.meta.get_field_currency`), so a second company in another currency saw its amounts with the wrong symbol. New
+  `card/report_currency.py`: the decorator `company_currency_report` on the `execute` of the 15 single-company CARD
+  reports with money (Card Settlement Status, Diesel Invoice Reconciliation, Equipment Customer Statement, Equipment
+  Customers Summary, Equipment Diesel Consumption, Equipment Expenses Without Equipment, Equipment Maintenance Cost,
+  Equipment Partial Margin, Equipment Supplier Statement, Equipment Suppliers Summary, Operating Cost by Project,
+  Transport Accounting Review, Transport Cost by Project, Unbilled Card Work, Posting Source Integrity) resolves the
+  company the report ran for with the report's own doctypes and sets each Currency column without `options` to the row
+  field `currency`, each dict row's `currency` and each Currency summary tile's `currency` to that company's default
+  currency; Equipment Consumption, which spans the permitted companies, adds each row's company and its currency.
+  Values, column order and labels are unchanged; nothing is converted. Impact: display only for a one-currency site
+  (the symbol is the same); no permission, accounting, data or API change; report rows carry one more key
+  (`currency`; Equipment Consumption also `company`). Known limits: a report total row keeps the site default
+  symbol; server-side formatting (export, print) of Equipment Consumption formats every row with one currency; card
+  and fill form fields are unchanged. Rollback: revert the commit.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
