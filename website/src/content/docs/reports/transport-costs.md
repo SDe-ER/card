@@ -53,6 +53,8 @@ part of the total.
 links and posts nothing.
 
 <!-- screenshot: transport-accounting-review -->
+![Transport Accounting Review report](../../../assets/screenshots/en/transport-accounting-review.webp)
+*Transport Accounting Review report*
 
 **Filters**
 

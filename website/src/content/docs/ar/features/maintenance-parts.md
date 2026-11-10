@@ -17,6 +17,8 @@ sidebar:
   تكلفة صيانتها في الدفتر الرسمي.
 
 <!-- screenshot: maintenance-parts-catalog -->
+![موديلات المعدات](../../../../assets/screenshots/ar/maintenance-parts-catalog.webp)
+*موديلات المعدات*
 
 ## المفاهيم الأساسية
 
@@ -94,6 +96,8 @@ sidebar:
 - صفوف التوافق **تُوقف ولا تُحذف أبدًا**. ويحتاج الإيقاف إلى سبب، وإعادة التفعيل تعيد الصف إلى المراجعة.
 
 <!-- screenshot: maintenance-parts-fitment -->
+![سجلات توافق قطع الغيار](../../../../assets/screenshots/ar/maintenance-parts-fitment.webp)
+*سجلات توافق قطع الغيار*
 
 ### مراجعة التوافق
 

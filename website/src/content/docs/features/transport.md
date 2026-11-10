@@ -20,6 +20,8 @@ The user picks the machines and the destination; where each machine comes from i
 typed.
 
 <!-- screenshot: transport-form -->
+![An equipment transport](../../../assets/screenshots/en/transport-form.webp)
+*An equipment transport*
 
 ## Key concepts
 
@@ -206,6 +208,8 @@ summary and the amount in words, and three signature lines (Prepared By, Receive
 follows the print language. See [Print Formats](/card/features/print-formats/).
 
 <!-- screenshot: transport-print -->
+![Transport print format](../../../assets/screenshots/en/transport-print.webp)
+*Transport print format*
 
 ### Posting
 

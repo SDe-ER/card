@@ -20,6 +20,8 @@ sidebar:
 :::
 
 <!-- screenshot: meter-readings-form -->
+![قراءة عداد معدة](../../../../assets/screenshots/ar/meter-readings-form.webp)
+*قراءة عداد معدة*
 
 ## المفاهيم الأساسية
 
@@ -107,6 +109,8 @@ sidebar:
 ولا يضبط خط أساس للصيانة؛ إذ يحتاج خط الأساس إلى قراءة عداد متحقَّق منها وحدث صيانة متحقَّق منه.
 
 <!-- screenshot: meter-readings-reconciliation -->
+![تقرير مطابقة عدادات المعدات](../../../../assets/screenshots/ar/meter-readings-reconciliation.webp)
+*تقرير مطابقة عدادات المعدات*
 
 ### تنبيهات الصيانة بالساعات
 

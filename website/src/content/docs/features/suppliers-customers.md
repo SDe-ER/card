@@ -16,6 +16,8 @@ From these parties CARD produces **statements** (one party, one period) and **su
 and reconciles the card figures with what was actually invoiced through CARD and with the party's official ledger.
 
 <!-- screenshot: suppliers-customers-registry -->
+![The equipment supplier registry](../../../assets/screenshots/en/suppliers-customers-registry.webp)
+*The equipment supplier registry*
 
 ## Key concepts
 
@@ -61,6 +63,8 @@ The **Statement** button opens the party's statement for its last operating mont
 none is known), with the company pre-selected when the party works with one company only.
 
 <!-- screenshot: suppliers-customers-figures -->
+![Supplier figures](../../../assets/screenshots/en/suppliers-customers-figures.webp)
+*Supplier figures*
 
 ### Refresh numbers
 
@@ -133,6 +137,8 @@ The PDF is generated on the server from the report results with the user's own p
 the browser print, so Arabic text is shaped correctly.
 
 <!-- screenshot: suppliers-customers-a4 -->
+![Equipment Supplier Statement](../../../assets/screenshots/en/suppliers-customers-a4.webp)
+*Equipment Supplier Statement*
 
 ### Settlement status
 

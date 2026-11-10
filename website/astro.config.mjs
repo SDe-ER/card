@@ -25,6 +25,9 @@ export default defineConfig({
       ],
       customCss: ["./src/styles/custom.css"],
       lastUpdated: false,
+      editLink: {
+        baseUrl: "https://github.com/SDe-ER/card/edit/main/website/",
+      },
       sidebar: [
         {
           label: "Getting Started",
@@ -45,6 +48,23 @@ export default defineConfig({
           label: "API Reference",
           translations: { ar: "مرجع الـ API" },
           items: [{ autogenerate: { directory: "api-reference" } }],
+        },
+        {
+          // Generated from the code by scripts/generate_reference.py on every build.
+          label: "Reference",
+          translations: { ar: "المرجع" },
+          collapsed: true,
+          items: [
+            { slug: "reference" },
+            { slug: "reference/reports" },
+            { slug: "reference/api-endpoints" },
+            {
+              label: "DocTypes",
+              translations: { ar: "أنواع المستندات" },
+              collapsed: true,
+              items: [{ autogenerate: { directory: "reference/doctypes" } }],
+            },
+          ],
         },
       ],
     }),

@@ -16,6 +16,8 @@ Every print follows the **print language**: its fixed texts are translated, and 
 Arabic and other right-to-left languages, left to right otherwise.
 
 <!-- screenshot: print-formats-monthly-card -->
+![Monthly card print format](../../../assets/screenshots/en/print-formats-monthly-card.webp)
+*Monthly card print format*
 
 ## Key concepts
 

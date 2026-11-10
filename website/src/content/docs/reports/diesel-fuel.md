@@ -29,6 +29,8 @@ They are display-only: they never post to the ledger and never change a card's n
 submitted fills, with the variance. The variance compares expected and allocated litres, not measured consumption.
 
 <!-- screenshot: diesel-analysis -->
+![Equipment Diesel Analysis report](../../../assets/screenshots/en/diesel-analysis.webp)
+*Equipment Diesel Analysis report*
 
 **Filters**
 
@@ -75,6 +77,8 @@ of each invoice is derived from its own figures. A difference is a point to revi
 missing invoice or missing payment. Nothing is created, changed or linked.
 
 <!-- screenshot: diesel-invoice-reconciliation -->
+![Diesel Invoice Reconciliation report](../../../assets/screenshots/en/diesel-invoice-reconciliation.webp)
+*Diesel Invoice Reconciliation report*
 
 **Filters**
 

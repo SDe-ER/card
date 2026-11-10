@@ -30,6 +30,8 @@ a project assignment, the place an approved transport sent it to (workshop, stor
 initial place. A move to a workshop, storage or supplier on day T shows the project on T and the new place from T+1.
 
 <!-- screenshot: operations-location-history -->
+![Equipment Location History report](../../../assets/screenshots/en/operations-location-history.webp)
+*Equipment Location History report*
 
 **Filters**
 
@@ -56,6 +58,8 @@ stop reason, stopped hours, or a non-working day status; an older day without a 
 so earlier months are not lost.
 
 <!-- screenshot: operations-equipment-downtime -->
+![Equipment Downtime report](../../../assets/screenshots/en/operations-equipment-downtime.webp)
+*Equipment Downtime report*
 
 **Filters**
 

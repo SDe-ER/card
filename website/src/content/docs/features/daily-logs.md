@@ -24,6 +24,8 @@ planned.
 :::
 
 <!-- screenshot: daily-logs-form -->
+![A daily log with its rows](../../../assets/screenshots/en/daily-logs-form.webp)
+*A daily log with its rows*
 
 ## Key concepts
 
@@ -166,6 +168,8 @@ The result dialog lists cards created, updated, unchanged and submitted cards no
 cleared, stale days on submitted cards, conflicts, days left out and cards not saved.
 
 <!-- screenshot: daily-logs-generation-result -->
+![Daily log rows](../../../assets/screenshots/en/daily-logs-generation-result.webp)
+*Daily log rows*
 
 ## Workflow
 
