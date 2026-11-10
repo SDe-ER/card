@@ -44,6 +44,12 @@ required_apps = ["erpnext"]
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
+# FR-123: the form's Cancel asks for the cancel reason (card.cancel_reason)
+doctype_js = {
+	"Card Monthly Card": "public/js/cancel_reason.js",
+	"Equipment Transport": "public/js/cancel_reason.js",
+	"Project Diesel Fill": "public/js/cancel_reason.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -181,7 +187,11 @@ _PERIOD_LOCK_EVENTS = {
 # S3 (4a): a source held by a draft/submitted posting cannot be cancelled
 # (and therefore cannot be amended) until the posting is cancelled/deleted.
 _SOURCE_EVENTS = dict(_PERIOD_LOCK_EVENTS)
-_SOURCE_EVENTS["before_cancel"] = "card.gl.events.block_source_cancel"
+# FR-123 (WP-07, governance G0): a cancel needs a reason, changes no other field and is commented
+_SOURCE_EVENTS["validate"] = [_PERIOD_LOCK_EVENTS["validate"], "card.cancel_reason.on_validate"]
+_SOURCE_EVENTS["before_update_after_submit"] = "card.cancel_reason.before_update_after_submit"
+_SOURCE_EVENTS["before_cancel"] = ["card.cancel_reason.before_cancel", "card.gl.events.block_source_cancel"]
+_SOURCE_EVENTS["on_cancel"] = [_PERIOD_LOCK_EVENTS["on_cancel"], "card.cancel_reason.on_cancel"]
 
 # S3 (4b): CARD-created Purchase/Sales Invoices reserve/post/free their source
 # documents. The handlers no-op for every invoice without a GL Posting Log row.

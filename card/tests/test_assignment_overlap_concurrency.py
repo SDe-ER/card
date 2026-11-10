@@ -26,6 +26,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
 from card.card.doctype.card_equipment_assignment.card_equipment_assignment import OPEN_END
+from card.tests.cancel_reason import with_reason
 from card.tests.transport_parties import company_paid_values
 
 WAIT = 30  # seconds; a stuck step fails the test instead of hanging the run
@@ -279,7 +280,7 @@ class TestAssignmentOverlapConcurrency(IntegrationTestCase):
 		)
 		for transport in transports:
 			if transport.docstatus == 1:
-				frappe.get_doc("Equipment Transport", transport.name).cancel()
+				with_reason(frappe.get_doc("Equipment Transport", transport.name)).cancel()
 			_delete("Equipment Transport", transport.name)
 		self.created["Card Equipment Assignment"] = frappe.get_all(
 			"Card Equipment Assignment",
@@ -389,7 +390,7 @@ class TestAssignmentOverlapConcurrency(IntegrationTestCase):
 		moved, next_move = self._committed(setup)
 
 		def cancel():
-			frappe.get_doc("Equipment Transport", moved).cancel()
+			with_reason(frappe.get_doc("Equipment Transport", moved)).cancel()
 
 		def submit():
 			frappe.get_doc("Equipment Transport", next_move).submit()

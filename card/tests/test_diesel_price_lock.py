@@ -16,6 +16,7 @@ from card.card.doctype.project_diesel_fill.project_diesel_fill import (
 	remove_price_exception,
 	use_company_price,
 )
+from card.tests.cancel_reason import with_reason
 from card.tests.diesel_price import approve_fill, set_diesel_price
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_settings_wiring import _role_user, _set
@@ -487,7 +488,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		approve_fill(f)
 		f.submit()
 		set_diesel_price(self.company, 3)
-		f.cancel()
+		with_reason(f).cancel()
 		a = frappe.copy_doc(f)
 		a.amended_from = f.name
 		a.docstatus = 0
@@ -540,7 +541,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		f.reload()
 		approve_fill(f)
 		f.submit()
-		f.cancel()
+		with_reason(f).cancel()
 		a = frappe.copy_doc(f)
 		a.amended_from = f.name
 		a.docstatus = 0
@@ -570,7 +571,7 @@ class TestDieselPriceLock(IntegrationTestCase):
 		f.reload()
 		approve_fill(f)
 		f.submit()
-		f.cancel()
+		with_reason(f).cancel()
 		copied = frappe.copy_doc(f)
 		copied.update({"amended_from": f.name, "docstatus": 0})
 		copied.insert()  # the copied approval does not carry over
