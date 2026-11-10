@@ -32,6 +32,7 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 | DocType | Kind | Read | Write | Create | Submit | Cancel | Delete | Field levels | Company isolation |
 |---|---|---|---|---|---|---|---|---|---|
 | Card Adjustment Type | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
+| Card Agreement Responsibility | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Company Settings | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Diesel Price | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Equipment | Master | System Manager, Card Manager, Card User, Accounts Manager, Card Supervisor | System Manager, Card Manager, Card User | System Manager, Card Manager | - | - | System Manager | L1 read: System Manager, Card Manager, Card User, Accounts Manager; write: System Manager, Card Manager<br>L2 read: System Manager, Card Manager, Accounts Manager; write: System Manager, Card Manager | Company User Permission on `company` |
@@ -49,6 +50,7 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 | Card Monthly Card Adjustment | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Monthly Card Day | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Project Transport Price | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
+| Card Rate Agreement | Submittable | System Manager, Card Manager, Accounts Manager, Card User | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
 | Card Settings | Single | System Manager, Accounts Manager, Card Manager | System Manager, Accounts Manager | System Manager | - | - | - | L1 read: System Manager, Accounts Manager; write: System Manager, Accounts Manager<br>L2 read: System Manager, Accounts Manager, Card Manager; write: System Manager | Single: role permissions only |
 | Card Stop Reason | Master | System Manager, Card Manager, Card Supervisor, Card User, Accounts Manager | System Manager, Card Manager | System Manager, Card Manager | - | - | System Manager | - | Company User Permission on `company` |
 | Diesel Fill Equipment | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |

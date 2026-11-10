@@ -6558,6 +6558,183 @@ msgstr "لتغيير الإضافات والخصومات عدّل الكرت ا�
 msgid "Diesel price fuel type"
 msgstr "نوع الوقود لسعر الديزل"
 
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Card Rate Agreement"
+msgstr "اتفاقية أسعار المعدة"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Card Agreement Responsibility"
+msgstr "مسؤولية تكلفة في الاتفاقية"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Agreement valid from"
+msgstr "الاتفاقية سارية من"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Agreement valid to"
+msgstr "الاتفاقية سارية حتى"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Agreement applies to"
+msgstr "تنطبق الاتفاقية على"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Work zone"
+msgstr "منطقة العمل"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Agreement rates"
+msgstr "أسعار الاتفاقية"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Rate per hour"
+msgstr "السعر بالساعة"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Rate per day"
+msgstr "السعر باليوم"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Rate per month"
+msgstr "السعر بالشهر"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Rate per quantity unit"
+msgstr "السعر لكل وحدة كمية"
+
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json
+msgid "Quantity unit"
+msgstr "وحدة الكمية"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Cost category"
+msgstr "بند التكلفة"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Paid by"
+msgstr "يتحملها"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Paying customer"
+msgstr "العميل المتحمل"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Paying supplier"
+msgstr "المورد المتحمل"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Other paying party"
+msgstr "طرف آخر متحمل"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Share %"
+msgstr "النسبة %"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Only for equipment"
+msgstr "لهذه المعدة فقط"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Rental"
+msgstr "الإيجار"
+
+#: card/card/doctype/card_agreement_responsibility/card_agreement_responsibility.json
+msgid "Other party"
+msgstr "طرف آخر"
+
+#: card/agreements.py
+msgid "CARD rate agreement: company, equipment, party and date are required to find an agreement."
+msgstr "اتفاقية الأسعار: الشركة والمعدة والطرف والتاريخ مطلوبة للبحث عن اتفاقية."
+
+#: card/agreements.py
+msgid "CARD rate agreement: the end date is before the start date."
+msgstr "اتفاقية الأسعار: تاريخ النهاية قبل تاريخ البداية."
+
+#: card/agreements.py
+msgid "CARD rate agreement: choose an equipment or an equipment type."
+msgstr "اتفاقية الأسعار: اختر معدة أو نوع معدة."
+
+#: card/agreements.py
+msgid "CARD rate agreement: choose a supplier, a customer or both."
+msgstr "اتفاقية الأسعار: اختر موردًا أو عميلًا أو كليهما."
+
+#: card/agreements.py
+msgid "CARD rate agreement: a rate per quantity needs its unit."
+msgstr "اتفاقية الأسعار: سعر الكمية يحتاج إلى وحدته."
+
+#: card/agreements.py
+msgid "CARD rate agreement: enter at least one rate or one cost responsibility row."
+msgstr "اتفاقية الأسعار: أدخل سعرًا واحدًا على الأقل أو سطر مسؤولية تكلفة واحدًا."
+
+#: card/agreements.py
+msgid "CARD rate agreement: a rate cannot be negative."
+msgstr "اتفاقية الأسعار: لا يمكن أن يكون السعر سالبًا."
+
+#: card/agreements.py
+msgid "CARD rate agreement: a party is given as (party type, party)."
+msgstr "اتفاقية الأسعار: يُحدَّد الطرف بصيغة (نوع الطرف، الطرف)."
+
+#: card/agreements.py
+msgid "CARD rate agreement: party type {0} is not Supplier or Customer."
+msgstr "اتفاقية الأسعار: نوع الطرف {0} ليس موردًا ولا عميلًا."
+
+#: card/agreements.py
+msgid "CARD rate agreement: equipment {0} does not exist."
+msgstr "اتفاقية الأسعار: المعدة {0} غير موجودة."
+
+#: card/agreements.py
+msgid "CARD rate agreement: equipment {0} does not belong to company {1}."
+msgstr "اتفاقية الأسعار: المعدة {0} لا تتبع الشركة {1}."
+
+#: card/agreements.py
+msgid "CARD rate agreement: {0} active agreements match equipment {1} on {2}: {3}. End or cancel all but one; CARD does not choose between them."
+msgstr "اتفاقية الأسعار: {0} اتفاقيات سارية تنطبق على المعدة {1} بتاريخ {2}: {3}. أنهِ أو ألغِ كل الاتفاقيات ما عدا واحدة؛ النظام لا يختار بينها."
+
+#: card/agreements.py
+msgid "CARD rate agreement: equipment {0} belongs to another company."
+msgstr "اتفاقية الأسعار: المعدة {0} تتبع شركة أخرى."
+
+#: card/agreements.py
+msgid "CARD rate agreement: equipment {0} is not of equipment type {1}."
+msgstr "اتفاقية الأسعار: المعدة {0} ليست من نوع المعدة {1}."
+
+#: card/agreements.py
+msgid "CARD rate agreement: project {0} belongs to another company."
+msgstr "اتفاقية الأسعار: المشروع {0} يتبع شركة أخرى."
+
+#: card/agreements.py
+msgid "CARD rate agreement: row {0}: the share must be more than 0% and at most 100%."
+msgstr "اتفاقية الأسعار: السطر {0}: النسبة يجب أن تكون أكبر من 0% ولا تزيد على 100%."
+
+#: card/agreements.py
+msgid "CARD rate agreement: row {0}: name the paying party ({1})."
+msgstr "اتفاقية الأسعار: السطر {0}: حدّد الطرف المتحمل ({1})."
+
+#: card/agreements.py
+msgid "CARD rate agreement: row {0}: the same payer is entered twice for {1}."
+msgstr "اتفاقية الأسعار: السطر {0}: نفس الطرف المتحمل مُدخل مرتين لبند {1}."
+
+#: card/agreements.py
+msgid "CARD rate agreement: the shares for {0}{1} add up to {2}%, not 100%."
+msgstr "اتفاقية الأسعار: مجموع نسب {0}{1} يساوي {2}% وليس 100%."
+
+#: card/agreements.py
+msgid "CARD rate agreement: agreement {0} has the same equipment, parties, project and zone and is in force in this period. A changed rate is a new agreement from a later date: end or cancel {0} first."
+msgstr "اتفاقية الأسعار: الاتفاقية {0} لها نفس المعدة والأطراف والمشروع والمنطقة وسارية في هذه الفترة. تغيير السعر يكون باتفاقية جديدة من تاريخ لاحق: أنهِ أو ألغِ {0} أولًا."
+
+#: card/agreements.py
+msgid "CARD rate agreement: row {0}: leave the equipment empty; the agreement is already for equipment {1} only."
+msgstr "اتفاقية الأسعار: السطر {0}: اترك المعدة فارغة؛ الاتفاقية أصلًا للمعدة {1} فقط."
+
+#: card/agreements.py
+msgid "CARD rate agreement: row {0}: equipment {1} is not of equipment type {2}."
+msgstr "اتفاقية الأسعار: السطر {0}: المعدة {1} ليست من نوع المعدة {2}."
+
+#: card/agreements.py
+msgid "CARD rate agreement: an amendment keeps the company of agreement {0}."
+msgstr "اتفاقية الأسعار: التعديل يحتفظ بشركة الاتفاقية {0}."
+
 #: card/card/doctype/card_settings/card_settings.js
 msgid "Card Settings rows of companies you are not permitted to see are hidden and stay unchanged when you save."
 msgstr "صفوف إعدادات CARD الخاصة بالشركات غير المسموح لك برؤيتها مخفية، وتبقى كما هي عند الحفظ."

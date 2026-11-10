@@ -1,0 +1,260 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "CRA-.#####",
+ "creation": "2026-11-10 20:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "valid_from",
+  "valid_to",
+  "column_break_main",
+  "supplier",
+  "customer",
+  "section_break_scope",
+  "equipment",
+  "equipment_type",
+  "column_break_scope",
+  "project",
+  "zone",
+  "section_break_rates",
+  "currency",
+  "hourly_rate",
+  "daily_rate",
+  "column_break_rates",
+  "monthly_rate",
+  "quantity_rate",
+  "quantity_uom",
+  "section_break_responsibility",
+  "responsibilities",
+  "section_break_remarks",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "valid_from",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Agreement valid from",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "valid_to",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Agreement valid to",
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "search_index": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_scope",
+   "fieldtype": "Section Break",
+   "label": "Agreement applies to"
+  },
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "search_index": 1
+  },
+  {
+   "fieldname": "equipment_type",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Equipment type",
+   "options": "Card Equipment Type"
+  },
+  {
+   "fieldname": "column_break_scope",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Project",
+   "options": "Project",
+   "search_index": 1
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "label": "Work zone"
+  },
+  {
+   "fieldname": "section_break_rates",
+   "fieldtype": "Section Break",
+   "label": "Agreement rates"
+  },
+  {
+   "fetch_from": "company.default_currency",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "hourly_rate",
+   "fieldtype": "Currency",
+   "label": "Rate per hour",
+   "non_negative": 1,
+   "options": "currency"
+  },
+  {
+   "fieldname": "daily_rate",
+   "fieldtype": "Currency",
+   "label": "Rate per day",
+   "non_negative": 1,
+   "options": "currency"
+  },
+  {
+   "fieldname": "column_break_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monthly_rate",
+   "fieldtype": "Currency",
+   "label": "Rate per month",
+   "non_negative": 1,
+   "options": "currency"
+  },
+  {
+   "fieldname": "quantity_rate",
+   "fieldtype": "Currency",
+   "label": "Rate per quantity unit",
+   "non_negative": 1,
+   "options": "currency"
+  },
+  {
+   "fieldname": "quantity_uom",
+   "fieldtype": "Link",
+   "label": "Quantity unit",
+   "mandatory_depends_on": "eval:flt(doc.quantity_rate) > 0",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "section_break_responsibility",
+   "fieldtype": "Section Break",
+   "label": "Cost responsibility"
+  },
+  {
+   "fieldname": "responsibilities",
+   "fieldtype": "Table",
+   "label": "Cost responsibility",
+   "options": "Card Agreement Responsibility"
+  },
+  {
+   "fieldname": "section_break_remarks",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Card Rate Agreement",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-10 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Rate Agreement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card User"
+  }
+ ],
+ "search_fields": "equipment,equipment_type,supplier,customer,project",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
