@@ -11,7 +11,8 @@ nothing else on the document.
   submit or update after submit never sets it (a copied reason is dropped on save; an update after
   submit that changes it is refused).
 - ``before_cancel`` refuses a cancel without a reason and a cancel request that changes any other
-  stored field or row (Frappe skips validate on cancel and stores the values a request sends,
+  stored field or row (rows compared with their ``idx``; the standard ``owner`` and ``creation`` of the
+  document and of its rows too) (Frappe skips validate on cancel and stores the values a request sends,
   frappe/model/document.py ``_save``; FR-050 open gap "card cancel may rewrite fields").
 - ``on_cancel`` records a Comment with the actor, the reason and the date.
 
@@ -123,7 +124,8 @@ def _norm(df, v):
 	if ft in ("Int", "Check"):
 		return cint(v)
 	if ft in ("Float", "Currency", "Percent", "Rating"):
-		return flt(v, 6)
+		# the columns are decimal(21,9): compare at the stored precision, so a change below 1e-6 is a change
+		return flt(v, 9)
 	if v in (None, ""):
 		return ""
 	if ft == "Date":
@@ -141,7 +143,21 @@ def _differs(df, new, old):
 	return _norm(df, new) != _norm(df, old)
 
 
+# Frappe skips validate_constants on a cancel and db_update writes every column, so the standard columns a
+# request could send are compared too (modified / modified_by are the cancel's own)
+_PARENT_STANDARD = (("owner", "Data"), ("creation", "Datetime"))
+_CHILD_STANDARD = (("idx", "Int"), ("owner", "Data"), ("creation", "Datetime"))
+
+
+def _standard_df(fieldname, fieldtype):
+	return frappe._dict(fieldname=fieldname, fieldtype=fieldtype, label=fieldname)
+
+
 def _changed_field(doc, stored, skip):
+	for fieldname, fieldtype in _PARENT_STANDARD:
+		df = _standard_df(fieldname, fieldtype)
+		if _differs(df, doc.get(fieldname), stored.get(fieldname)):
+			return df
 	for df in doc.meta.fields:
 		if df.fieldname in skip:
 			continue
@@ -162,6 +178,9 @@ def _rows_changed(table_df, rows, stored_rows):
 		return True
 	child_meta = frappe.get_meta(table_df.options)
 	for row, old in zip(rows, stored_rows, strict=True):
+		for fieldname, fieldtype in _CHILD_STANDARD:
+			if _differs(_standard_df(fieldname, fieldtype), row.get(fieldname), old.get(fieldname)):
+				return True
 		for df in child_meta.fields:
 			if df.fieldtype in no_value_fields:
 				continue
@@ -170,12 +189,16 @@ def _rows_changed(table_df, rows, stored_rows):
 	return False
 
 
-def _refuse_changes(doc, stored):
+def _refuse_changes(doc, stored, neutral=False):
+	"""Refuse a cancel request that changes any stored field, row or standard column. ``neutral`` uses a wording
+	without "approved" (Card Daily Log, Equipment Meter Reading); the FR-123 doctypes keep their message."""
 	df = _changed_field(doc, stored, _skipped(doc))
 	if df:
+		if neutral:
+			text = _("{0} {1} cannot be cancelled with changes: {2} differs from the stored record.")
+		else:
+			text = _("{0} {1} is cancelled as approved; {2} cannot be changed when cancelling.")
 		frappe.throw(
-			_("{0} {1} is cancelled as approved; {2} cannot be changed when cancelling.").format(
-				_(doc.doctype), doc.name, _(df.label or df.fieldname)
-			),
+			text.format(_(doc.doctype), doc.name, _(df.label or df.fieldname)),
 			CancelChangesDocumentError,
 		)

@@ -25,6 +25,9 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
   `test_every_whitelisted_function_is_in_the_table`; the HTTP methods are checked against the decorators by
   `test_table_methods_match_the_decorators`.
 - "(own)" after a role means an `if_owner` right. A child table has no rights of its own: its parent's apply.
+- Card Monthly Card submit: the submit is the card's approval; the submitter must not be a preparer (its creator or
+  an editor of the card or of its amendment chain) under the company's `card_approval_rule` (FR-143: "Warn only"
+  by default, "Refuse" per company). No role is exempt.
 
 ## DocTypes
 
@@ -34,6 +37,7 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 | Card Adjustment Type | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Agreement Responsibility | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Company Settings | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
+| Card Consumption Rate | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Daily Log | Submittable | System Manager, Card Manager, Card Supervisor, Card Operator (own), Card User | System Manager, Card Manager, Card Supervisor, Card Operator (own) | System Manager, Card Manager, Card Supervisor, Card Operator (own) | System Manager, Card Manager, Card Supervisor, Card Operator (own) | System Manager, Card Manager, Card Supervisor, Card Operator (own) | System Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
 | Card Daily Log Row | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Daily Log Settings | Master | System Manager, Card Manager | System Manager | System Manager | - | - | System Manager | - | Company User Permission on `company`; has_permission `settings_permission`; permission_query_conditions `settings_query_conditions` |
@@ -54,10 +58,13 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 | Card Monthly Card Day | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Owner Deduction | Submittable | System Manager, Accounts Manager, Card Manager | System Manager, Accounts Manager | System Manager, Accounts Manager | System Manager, Accounts Manager | System Manager, Accounts Manager | System Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
 | Card Owner Revenue Approval | Master | System Manager, Card Manager, Card User, Accounts Manager | System Manager, Card Manager | System Manager, Card Manager | - | - | System Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
+| Card Period Run | Submittable | System Manager, Card Manager, Accounts Manager | System Manager, Card Manager, Accounts Manager | System Manager, Card Manager | System Manager, Card Manager, Accounts Manager | System Manager, Card Manager, Accounts Manager | System Manager | L1 read: System Manager, Card Manager, Accounts Manager; write: - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
+| Card Period Run Source | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Project Transport Price | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Rate Agreement | Submittable | System Manager, Card Manager, Accounts Manager, Card User | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
 | Card Settings | Single | System Manager, Accounts Manager, Card Manager | System Manager, Accounts Manager | System Manager | - | - | - | L1 read: System Manager, Accounts Manager; write: System Manager, Accounts Manager<br>L2 read: System Manager, Accounts Manager, Card Manager; write: System Manager | Single: role permissions only |
 | Card Stop Reason | Master | System Manager, Card Manager, Card Supervisor, Card User, Accounts Manager | System Manager, Card Manager | System Manager, Card Manager | - | - | System Manager | - | Company User Permission on `company` |
+| Card Type Consumption Rate | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Diesel Fill Equipment | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Employee Tool Custody | Submittable | System Manager, Card Manager, Stock Manager, Card Supervisor, Card User | System Manager, Card Manager, Stock Manager, Card Supervisor | System Manager, Card Manager, Stock Manager, Card Supervisor | System Manager, Card Manager, Stock Manager, Card Supervisor | System Manager, Card Manager, Stock Manager | System Manager, Card Manager | - | Company User Permission on `company`; has_permission `has_custody_permission` |
 | Equipment Meter Reading | Submittable | Card Manager, Card Supervisor, Card User | Card Manager, Card Supervisor | Card Manager, Card Supervisor | Card Manager, Card Supervisor | Card Manager, Card Supervisor | Card Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
@@ -127,6 +134,8 @@ to company A is kept from company B's records through that endpoint.
 | `card.gl.integrity.accept_correction` | POST | Accounts Manager or System Manager; write on the invoice; a reason | doc.check_permission(write) and permitted_companies(sources, invoice, GL Posting Log) | db_set of accepted_signature, accepted_by, correction_reason on the GL Posting Log |
 | `card.gl.integrity.link_supplier_invoice` | POST | Accounts Manager, Accounts User or System Manager; read and submit on the invoice; read on supplier and every source | permitted_companies(sources, Purchase Invoice, GL Posting Log); each source of the invoice's company | Inserts one Linked GL Posting Log |
 | `card.gl.journal_link.link_accrual_journal` | POST | Accounts Manager, Accounts User or System Manager; read and submit on the Journal Entry; read on supplier and every card | permitted_companies(sources, Journal Entry, GL Posting Log); each card of the entry's company | Inserts one Linked GL Posting Log (type Journal Entry) |
+| `card.gl.period_run.build_run` | POST | Card Manager or System Manager; Card Period Run create; the company permitted for Card Monthly Card and Card Period Run | permitted_companies(Card Monthly Card, Card Period Run); insert/save under the record's own permission and has_company_permission | Inserts or saves one draft Card Period Run (its snapshot); no GL, invoice or source-document write |
+| `card.gl.period_run.period_run_status` | GET | Card Period Run read; the company permitted for Card Monthly Card and Card Period Run; totals only with level-1 read | permitted_companies(Card Monthly Card, Card Period Run); run.check_permission(read) (has_company_permission) | None (read only) |
 | `card.gl.posting.post_month` | POST | Card Manager or System Manager; party read | _checked_endpoint_args: permitted_companies(sources, invoice, GL Posting Log) | Builds a draft Purchase / Sales Invoice and a GL Posting Log (builder inserts with ignore_permissions after the gate) |
 | `card.gl.posting.posting_month_parties` | GET | Card Manager or System Manager | _checked_endpoint_args per side; parties the caller cannot read are left out | None (read only) |
 | `card.gl.posting.preview_month` | GET | Card Manager or System Manager; party read | _checked_endpoint_args; review invoices listed only when readable | None (read only) |

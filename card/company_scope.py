@@ -59,6 +59,7 @@ COMPANY_SOURCES = {
 	"Warehouse": "company",
 	# FR-142: a daily log's amended_from (Frappe copies the original's attachments into the amendment)
 	"Card Daily Log": "company",
+	"Card Period Run": "company",  # FR-147: a period run's amended_from
 }
 
 HAS_PERMISSION = "card.company_scope.has_company_permission"

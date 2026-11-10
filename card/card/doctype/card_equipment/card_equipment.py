@@ -165,6 +165,7 @@ class CardEquipment(Document):
 		self.keep_derived_unit_component()
 		self.validate_rental_direction()
 		self.validate_commercial_change_reason()
+		self.validate_consumption_rates()
 		self.validate_unique_asset()
 		self.validate_equipment_model()
 		self.set_identity_keys()
@@ -193,6 +194,13 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = flt(rate / month_hours, 2)
 		else:
 			self.approved_hourly_rate = 0
+
+	def validate_consumption_rates(self):
+		# FR-144: dated litres-per-hour rates (one row per start date); the static field is the fallback
+		from card.consumption import EQUIPMENT_TABLE, validate_consumption_rates, warn_static_rate_shadowed
+
+		validate_consumption_rates(self, EQUIPMENT_TABLE)
+		warn_static_rate_shadowed(self)
 
 	def validate_document_files(self):
 		"""H-CARD-1/2: the registration, inspection, insurance and TUV documents are private JPEG, PNG,

@@ -231,6 +231,36 @@ class TestCancelReason(IntegrationTestCase):
 			self.assertEqual(self._docstatus(doc), 2)
 			self.assertEqual(frappe.db.get_value(doc.doctype, doc.name, fields), before)
 
+	def test_cancel_cannot_change_standard_columns(self):
+		"""The shared guard also compares the document's owner and creation and each row's idx, owner and
+		creation (Frappe skips validate_constants on a cancel and writes every column)."""
+		card, fill, t = self._open_docs()
+
+		def swap_idx(d):
+			d.days[0].idx, d.days[1].idx = d.days[1].idx, d.days[0].idx
+
+		changes = (
+			(card, lambda d: d.set("owner", "Administrator" if d.owner != "Administrator" else "Guest")),
+			(card, lambda d: d.set("creation", "2020-01-01 00:00:00")),
+			(card, lambda d: d.days[0].set("owner", "Guest")),
+			(card, lambda d: d.days[0].set("creation", "2020-01-01 00:00:00")),
+			(card, swap_idx),
+			(fill, lambda d: d.set("creation", "2020-01-01 00:00:00")),
+			(t, lambda d: d.set("owner", "Guest")),
+		)
+		for doc, change in changes:
+			with self.subTest(doctype=doc.doctype):
+				before = frappe.get_doc(doc.doctype, doc.name).as_dict()
+				d = frappe.get_doc(doc.doctype, doc.name)
+				if doc is card and len(d.days) < 2 and change is swap_idx:
+					continue
+				change(d)
+				d.cancel_reason = REASON
+				self._refused(CancelChangesDocumentError, d.cancel)
+				after = frappe.get_doc(doc.doctype, doc.name).as_dict()
+				self.assertEqual(self._docstatus(doc), 1)
+				self.assertEqual((after.owner, str(after.creation)), (before.owner, str(before.creation)))
+
 	# ---- period-lock override is commented on the document ----
 	def test_period_lock_override_adds_a_comment(self):
 		fill = self._submitted(self._fill())  # dated on the lock date; locked afterwards

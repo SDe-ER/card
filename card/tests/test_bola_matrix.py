@@ -646,6 +646,27 @@ CASES = {
 		own=lambda c: {"company": c.A, "month": c.month, "year": c.year},
 		denied=((), ("Card User",), ("Accounts Manager",)),
 	),
+	# ---------- period run (FR-147) ----------
+	"card.gl.period_run.build_run": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; Card Period Run create; the company permitted for Card Monthly Card and Card Period Run",
+		isolation="permitted_companies(Card Monthly Card, Card Period Run); insert/save under the record's own permission and has_company_permission",
+		effects="Inserts or saves one draft Card Period Run (its snapshot); no GL, invoice or source-document write",
+		writes=True,
+		cross=lambda c: {"company": c.B, "month": c.month, "year": c.year},
+		own=lambda c: {"company": c.A, "month": c.month, "year": c.year},
+		denied=((), ("Card User",), ("Card Operator",), ("Accounts Manager",)),
+	),
+	"card.gl.period_run.period_run_status": Case(
+		method=GET,
+		roles=("Accounts Manager",),
+		gate="Card Period Run read; the company permitted for Card Monthly Card and Card Period Run; totals only with level-1 read",
+		isolation="permitted_companies(Card Monthly Card, Card Period Run); run.check_permission(read) (has_company_permission)",
+		cross=lambda c: {"company": c.B, "month": c.month, "year": c.year},
+		own=lambda c: {"company": c.A, "month": c.month, "year": c.year},
+		denied=((), ("Card User",), ("Card Operator",)),
+	),
 	"card.gl.posting.preview_month": Case(
 		method=GET,
 		roles=("Card Manager", "Purchase User"),

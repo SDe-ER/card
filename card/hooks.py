@@ -236,8 +236,18 @@ _POSTING_EVENTS = {
 	"before_cancel": "card.gl.events.before_cancel",
 	"on_trash": "card.gl.events.on_trash",
 }
+# FR-143 (FR-006, WP-D1): separation of duties on the monthly card (card.governance); added after the
+# source events, which keep their order
+_CARD_EVENTS = dict(_SOURCE_EVENTS)
+_CARD_EVENTS["validate"] = [*_SOURCE_EVENTS["validate"], "card.governance.on_validate"]
+_CARD_EVENTS["before_submit"] = "card.governance.before_submit"
+_CARD_EVENTS["before_update_after_submit"] = [
+	_SOURCE_EVENTS["before_update_after_submit"],
+	"card.governance.before_update_after_submit",
+]
+_CARD_EVENTS["before_cancel"] = [*_SOURCE_EVENTS["before_cancel"], "card.governance.before_cancel"]
 doc_events = {
-	"Card Monthly Card": dict(_SOURCE_EVENTS),
+	"Card Monthly Card": _CARD_EVENTS,
 	# meter extraction (optional local worker): marker/crop after an applied pass, enqueue on a new photo
 	"Project Diesel Fill": {**_SOURCE_EVENTS, "on_update": "card.diesel_meter_extraction.after_fill_saved"},
 	"Equipment Transport": dict(_SOURCE_EVENTS),

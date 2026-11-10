@@ -7462,6 +7462,331 @@ msgstr "{0} {1} غير موجود."
 
 msgid "{0} {1}: the deductions ({2}) would be more than the document amount {3}."
 msgstr "{0} {1}: الخصومات ({2}) ستتجاوز مبلغ المستند {3}."
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate valid from"
+msgstr "معدل الاستهلاك ساري من"
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate (litres per hour)"
+msgstr "معدل الاستهلاك (لتر في الساعة)"
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate reason"
+msgstr "سبب معدل الاستهلاك"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Equipment consumption rates (litres per hour)"
+msgstr "معدلات استهلاك المعدة (لتر في الساعة)"
+
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Default consumption rates"
+msgstr "معدلات الاستهلاك الافتراضية"
+
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Type default consumption rates (litres per hour)"
+msgstr "معدلات الاستهلاك الافتراضية للنوع (لتر في الساعة)"
+
+#: card/consumption.py
+msgid "Row {0}: enter the date the consumption rate is valid from."
+msgstr "الصف {0}: أدخل التاريخ الذي يسري منه معدل الاستهلاك."
+
+#: card/consumption.py
+msgid "Row {0}: the consumption rate cannot be negative."
+msgstr "الصف {0}: معدل الاستهلاك لا يمكن أن يكون سالبًا."
+
+#: card/consumption.py
+msgid "Rows {0} and {1} both start a consumption rate on {2}. Keep one row per date."
+msgstr "الصفان {0} و{1} يبدأ كلاهما معدل استهلاك في {2}. اترك صفًا واحدًا لكل تاريخ."
+
+#: card/consumption.py
+msgid "Duplicate consumption rate"
+msgstr "معدل استهلاك مكرر"
+
+#: card/consumption.py
+msgid "This equipment has dated consumption rates. They decide the rate from their dates; the expected consumption (liter/hour) is used only before the first dated rate."
+msgstr "لهذه المعدة معدلات استهلاك مؤرخة، وهي التي تحدد المعدل حسب تواريخها؛ ولا يُستخدم الاستهلاك المتوقع (لتر/ساعة) إلا قبل أول معدل مؤرخ."
+
+#: card/card/doctype/card_type_consumption_rate/card_type_consumption_rate.json
+msgid "Consumption rate company"
+msgstr "شركة معدل الاستهلاك"
+
+#: card/consumption.py
+msgid "The consumption rate valid from {0} is already in use and cannot be removed. Add a new row with a reason instead."
+msgstr "معدل الاستهلاك الساري من {0} مستخدم بالفعل ولا يمكن حذفه. أضف صفًا جديدًا مع السبب بدلًا من ذلك."
+
+#: card/consumption.py
+msgid "The consumption rate valid from {0} is already in use and cannot be changed. Add a new row with a reason instead."
+msgstr "معدل الاستهلاك الساري من {0} مستخدم بالفعل ولا يمكن تعديله. أضف صفًا جديدًا مع السبب بدلًا من ذلك."
+
+#: card/consumption.py
+msgid "Consumption rate in use"
+msgstr "معدل الاستهلاك مستخدم"
+
+#: card/consumption.py
+msgid "Row {0}: a consumption rate dated before today needs a reason."
+msgstr "الصف {0}: معدل الاستهلاك المؤرخ قبل اليوم يحتاج إلى سبب."
+
+#: card/consumption.py
+msgid "Only a Card Manager or System Manager can change the default consumption rates."
+msgstr "لا يغيّر معدلات الاستهلاك الافتراضية إلا مدير كارت أو مدير النظام."
+
+#: card/consumption.py
+msgid "You cannot change the default consumption rates of company {0}."
+msgstr "لا يمكنك تغيير معدلات الاستهلاك الافتراضية للشركة {0}."
+
+#: card/consumption.py
+msgid "A default consumption rate with no company applies to every company. Only a user who is not limited to some companies can change it."
+msgstr "معدل الاستهلاك الافتراضي بدون شركة يسري على كل الشركات، ولا يغيّره إلا مستخدم غير مقيّد ببعض الشركات."
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Card Period Run"
+msgstr "دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run month"
+msgstr "شهر دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run year"
+msgstr "سنة دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run version"
+msgstr "إصدار دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run self-approval rule"
+msgstr "قاعدة الاعتماد الذاتي لدورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Refuse: whoever prepared, edited or submitted the run (or an earlier version) cannot approve it. Once Refuse, the rule stays Refuse for this run and its later versions."
+msgstr "رفض: من أعدّ الدورة أو عدّلها أو اعتمد إرسالها (أو إصدارًا سابقًا منها) لا يعتمدها. متى صارت القاعدة «رفض» تبقى «رفض» لهذه الدورة ولإصداراتها اللاحقة."
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Warn only (period run)"
+msgstr "تنبيه فقط (دورة الفترة)"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Refuse (period run)"
+msgstr "رفض (دورة الفترة)"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approval"
+msgstr "اعتماد دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run submitted by"
+msgstr "أرسل دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run edited by"
+msgstr "عدّل دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved by"
+msgstr "اعتمد دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved on"
+msgstr "تاريخ اعتماد دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run approved version"
+msgstr "الإصدار المعتمد لدورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Approved snapshot fingerprint"
+msgstr "بصمة اللقطة المعتمدة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Period run return reason"
+msgstr "سبب إرجاع دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run returned by"
+msgstr "أرجع دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run returned on"
+msgstr "تاريخ إرجاع دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run snapshot"
+msgstr "لقطة دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Snapshot built on"
+msgstr "تاريخ بناء اللقطة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Snapshot fingerprint"
+msgstr "بصمة اللقطة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run currency"
+msgstr "عملة دورة الفترة"
+
+#: card/gl/period_run.py
+msgid "Period run month must be between 01 and 12."
+msgstr "يجب أن يكون شهر دورة الفترة بين 01 و12."
+
+#: card/gl/period_run.py
+msgid "Period run year is not valid: {0}"
+msgstr "سنة دورة الفترة غير صحيحة: {0}"
+
+#: card/gl/period_run.py
+msgid "A period run can only amend a cancelled period run of the same company and month."
+msgstr "لا تعدّل دورة الفترة إلا دورة ملغاة للشركة والشهر نفسيهما."
+
+#: card/gl/period_run.py
+msgid "The company and month of a saved period run cannot be changed; create a new run."
+msgstr "لا يمكن تغيير شركة وشهر دورة فترة محفوظة؛ أنشئ دورة جديدة."
+
+#: card/gl/period_run.py
+msgid "Company {0} already has an active period run for {1}/{2}: {3}. Cancel it and amend it for a new version."
+msgstr "للشركة {0} دورة فترة قائمة لشهر {1}/{2}: {3}. ألغها ثم عدّلها لإصدار جديد."
+
+#: card/gl/period_run.py
+msgid "The self-approval rule of a period run can be raised to Refuse, never lowered."
+msgstr "يمكن رفع قاعدة الاعتماد الذاتي لدورة الفترة إلى «رفض» فقط، ولا يمكن خفضها."
+
+#: card/gl/period_run.py
+msgid "This period run is already approved or returned; its rule cannot change."
+msgstr "دورة الفترة هذه معتمدة أو مُرجعة بالفعل؛ لا يمكن تغيير قاعدتها."
+
+#: card/gl/period_run.py
+msgid "Invalid period run approval status: {0}"
+msgstr "حالة اعتماد دورة الفترة غير صحيحة: {0}"
+
+#: card/gl/period_run.py
+msgid "This period run is already approved or returned; cancel and amend it to change it."
+msgstr "دورة الفترة هذه معتمدة أو مُرجعة بالفعل؛ ألغها ثم عدّلها لتغييرها."
+
+#: card/gl/period_run.py
+msgid "Only Accounts Manager may approve or return a period run."
+msgstr "لا يعتمد دورة الفترة أو يرجعها إلا مدير الحسابات."
+
+#: card/gl/period_run.py
+msgid "A period run cannot go back to Pending; cancel and amend it instead."
+msgstr "لا تعود دورة الفترة إلى «قيد الانتظار»؛ ألغها ثم عدّلها بدلًا من ذلك."
+
+#: card/gl/period_run.py
+msgid "You prepared, edited or submitted this period run (or an earlier version); another accountant must approve it (rule: Refuse)."
+msgstr "أنت أعددت دورة الفترة هذه أو عدّلتها أو أرسلتها (أو إصدارًا سابقًا منها)؛ يجب أن يعتمدها محاسب آخر (القاعدة: رفض)."
+
+#: card/gl/period_run.py
+msgid "You prepared, edited or submitted this period run and approve it yourself; it is marked for review (rule: Warn)."
+msgstr "أنت أعددت دورة الفترة هذه أو عدّلتها أو أرسلتها وتعتمدها بنفسك؛ تم تعليمها للمراجعة (القاعدة: تنبيه)."
+
+#: card/gl/period_run.py
+msgid "Period run self-approval"
+msgstr "اعتماد ذاتي لدورة الفترة"
+
+#: card/gl/period_run.py
+msgid "Enter the reason for returning the period run."
+msgstr "أدخل سبب إرجاع دورة الفترة."
+
+#: card/gl/period_run.py
+msgid "This period run is approved and still current; only Accounts Manager may cancel it."
+msgstr "دورة الفترة هذه معتمدة وما زالت مطابقة؛ لا يلغيها إلا مدير الحسابات."
+
+#: card/gl/period_run.py
+msgid "You are not permitted to use period runs of company {0}."
+msgstr "غير مسموح لك باستخدام دورات الفترة للشركة {0}."
+
+#: card/gl/period_run.py
+msgid "You are not permitted to use period runs."
+msgstr "غير مسموح لك باستخدام دورات الفترة."
+
+#: card/gl/period_run.py
+msgid "Only Card Manager may build a period run."
+msgstr "لا يبني دورة الفترة إلا مدير CARD."
+
+#: card/gl/period_run.py
+msgid "Period run {0} is already submitted. Cancel it and amend it to build a new version."
+msgstr "دورة الفترة {0} مرسلة بالفعل. ألغها ثم عدّلها لبناء إصدار جديد."
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Approve period run"
+msgstr "اعتماد دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "Return period run"
+msgstr "إرجاع دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run fingerprint version"
+msgstr "إصدار البصمة لدورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Source documents in the run"
+msgstr "المستندات المصدرية في الدورة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Supplier-side documents"
+msgstr "مستندات جانب المورد"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Customer-side documents"
+msgstr "مستندات جانب العميل"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Period run source documents"
+msgstr "المستندات المصدرية لدورة الفترة"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Card Period Run Source"
+msgstr "مستند مصدري لدورة الفترة"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run source type"
+msgstr "نوع المستند المصدري لدورة الفترة"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run source document"
+msgstr "المستند المصدري لدورة الفترة"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Billed on the supplier side"
+msgstr "يُفوتر على جانب المورد"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Billed on the customer side"
+msgstr "يُفوتر على جانب العميل"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Supplier side already posted"
+msgstr "جانب المورد مُرحَّل بالفعل"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Customer side already posted"
+msgstr "جانب العميل مُرحَّل بالفعل"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Source document last modified"
+msgstr "آخر تعديل للمستند المصدري"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Source document fingerprint"
+msgstr "بصمة المستند المصدري"
+
+#: card/gl/period_run.py
+msgid "Company {0} has no submitted source documents to bill for {1}/{2}."
+msgstr "لا توجد للشركة {0} مستندات مصدرية مرسلة للفوترة لشهر {1}/{2}."
+
+#: card/gl/period_run.py
+msgid "The source documents of this period run changed after it was built (added: {0}; removed: {1}; changed: {2}). Cancel and amend it to build a new version, then approve that version."
+msgstr "تغيّرت المستندات المصدرية لدورة الفترة هذه بعد بنائها (أُضيفت: {0}؛ أُزيلت: {1}؛ تغيّرت: {2}). ألغها ثم عدّلها لبناء إصدار جديد، ثم اعتمد ذلك الإصدار."
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "The source documents of this period run are unchanged since it was built."
+msgstr "المستندات المصدرية لدورة الفترة هذه لم تتغير منذ بنائها."
+
+#: card/card/doctype/card_period_run/card_period_run.js
+msgid "The source documents of this period run changed after it was built; cancel and amend it to build a new version."
+msgstr "تغيّرت المستندات المصدرية لدورة الفترة هذه بعد بنائها؛ ألغها ثم عدّلها لبناء إصدار جديد."
 
 #: card/daily_log_generation.py
 msgid "Give the month as YYYY-MM or as a date of that month."
@@ -7606,3 +7931,88 @@ msgstr "مفتاح المصدر {0} مستخدم بالفعل في النقل {1
 #: card/intake.py
 msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
 msgstr "نفس مستند المصدر مرفق بالفعل بالنقل {0}. تأكد أنه لم يُدخل مرتين."
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run supplier gross source amount"
+msgstr "مبلغ المصدر الإجمالي لجانب المورد في دورة الفترة"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run customer gross source amount"
+msgstr "مبلغ المصدر الإجمالي لجانب العميل في دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "The source documents' own amounts (a diesel fill at its gross fill amount). Not the invoice total: with a VAT-inclusive diesel price the invoice books the net part."
+msgstr "مبالغ المستندات المصدرية نفسها (تعبئة الديزل بمبلغها الإجمالي). ليست إجمالي الفاتورة: مع سعر ديزل شامل الضريبة تسجّل الفاتورة الجزء الصافي."
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Fill supplier VAT-registered"
+msgstr "مورد التعبئة مسجّل في ضريبة القيمة المضافة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Supplier-side gross source total"
+msgstr "إجمالي المصادر الإجمالي لجانب المورد"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Customer-side gross source total"
+msgstr "إجمالي المصادر الإجمالي لجانب العميل"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Diesel price VAT basis at build"
+msgstr "أساس ضريبة سعر الديزل وقت البناء"
+
+#: card/cancel_reason.py
+msgid "{0} {1} cannot be cancelled with changes: {2} differs from the stored record."
+msgstr "لا يمكن إلغاء {0} {1} مع تعديلات: {2} يختلف عن السجل المحفوظ."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approval"
+msgstr "اعتماد الكارت الشهري"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card submitted by"
+msgstr "مقدِّم الكارت الشهري للاعتماد (Submit)"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by"
+msgstr "معتمد الكارت الشهري"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved on"
+msgstr "تاريخ اعتماد الكارت الشهري"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card edited by"
+msgstr "معدّلو الكارت الشهري"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Monthly card approval rule"
+msgstr "قاعدة اعتماد الكارت الشهري"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Warn only (card approval)"
+msgstr "تحذير فقط (اعتماد الكارت)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (card approval)"
+msgstr "رفض (اعتماد الكارت)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A monthly card submitted (approved) by a user who created or edited it, or any card it amends: Warn only submits with a message and marks the card; Refuse stops the submit. No role is exempt. Empty: Warn only."
+msgstr "كارت شهري يعتمده (Submit) مستخدم أنشأه أو عدّله، أو أنشأ أو عدّل أي كارت يعدّله: «تحذير فقط» يعتمده مع رسالة ويعلّم الكارت؛ «رفض» يوقف الاعتماد. لا يُستثنى أي دور. فارغ: تحذير فقط."
+
+#: card/governance.py
+msgid "You created or edited this monthly card; another user must submit (approve) it (company rule: Refuse)."
+msgstr "أنشأت هذا الكارت الشهري أو عدّلته؛ يجب أن يعتمده (Submit) مستخدم آخر (قاعدة الشركة: رفض)."
+
+#: card/governance.py
+msgid "You created or edited this monthly card and submit (approve) it yourself; it is marked for review (company rule: Warn)."
+msgstr "أنشأت هذا الكارت الشهري أو عدّلته وتعتمده (Submit) بنفسك؛ تم تعليمه للمراجعة (قاعدة الشركة: تحذير)."
+
+#: card/governance.py
+msgid "Monthly card self-approval"
+msgstr "اعتماد الكارت الشهري من معدّه"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by its own preparer"
+msgstr "اعتمده معدّه"

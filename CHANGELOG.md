@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
-- **FR-147 — Third-party equipment owners and the Crusher Owner Statement (Owner 2026-11-10).** Reason: crushers
+- **FR-150 — Third-party equipment owners and the Crusher Owner Statement (Owner 2026-11-10).** Reason: crushers
   owned by partners or by their own owners run under the company's name; the card is the only source of what each
   owner is due, and no CARD record said who owns the machine, how it is run, or what is due after deductions.
   - `card.constants.allowed_directions`: `طرف ثالث` also allows `مؤجَّرة لعميل` (the 2026-11-10 "direction not
@@ -40,6 +40,159 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Accounting: none. Read-only and informational; nothing posts, `enable_accounting` unchanged. Data: no patch;
     the Production data steps are a separate approved migration. API: one new POST endpoint.
   - Rollback: revert the commit and migrate; the new DocTypes' rows are information only (no ledger effect).
+- **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
+  plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
+  operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
+  per-equipment hourly consumption baseline; #47 for each machine's own L/h. Until now only the static Card Equipment
+  `expected_consumption` existed. Two new child DocTypes with `valid_from` (required), `litres_per_hour` (required,
+  zero or more) and `reason`: **Card Consumption Rate** = Card Equipment `consumption_rates` (the equipment's own
+  rates; the table and every row field at permlevel 1, the level of the static field, so Frappe applies the
+  equipment's level-1 rights to the field values on every path: form, `frappe.client.get` / `get_list` / `get_value`,
+  report view fields and filters, change history. Known limit (Frappe v16, tracked as FR-148): filters and
+  `order_by` on `litres_per_hour` in `frappe.client.get_list` / `get_value` of the child DocType itself
+  (`parent="Card Equipment"`) are not permission-checked by Frappe for a child DocType without its own permissions,
+  so a level-0 reader can still infer a rate by filtering, without reading it (documented by
+  `test_known_limit_child_list_filter_reveals_rate`); System Manager and Card Manager write, Card User and Accounts Manager read, Card
+  Supervisor (level 0) and Card Operator / CARD Mobile (no read on the equipment) see no rate, O-20); **Card Type
+  Consumption Rate** = Card Equipment Type `default_consumption_rates` (the type default; level-0 fields because the
+  type has no level-1 DocPerms; optional `company`: a row for one company or, empty, for every company; the type now
+  tracks changes). Who changes type rates: only Card Manager and System Manager (checked in
+  `CardEquipmentType.validate` through `card.consumption.validate_type_rate_changes`; Card User keeps writing the
+  other type fields; no DocPerm added); a company-restricted user only rows of a permitted company (a row with no
+  company applies to every company, so only an unrestricted user adds, changes or removes it). The row's `company`
+  Link has `ignore_user_permissions` = 1: without it, Frappe's User Permission check on child link values
+  (`Document.check_permission`) would lock a company-A user out of reading or saving the whole type as soon as it
+  has a company-B row; write access stays enforced by `validate_type_rate_changes`, and other companies' type rows
+  stay readable to type readers (rates, not amounts; known limit).
+  A row is valid from its date until the next row of the same table (and company) — no end date; two rows of one
+  table (and company) on the same date are refused. A row dated before today is final: its date, rate, reason and
+  company cannot change and it cannot be removed; a correction is a new row, and a new backdated row needs a reason
+  (`validate_past_rows`; a new table, so no existing behaviour changes). New read-only helper
+  `card.consumption.consumption_rate(equipment, on_date)` / `consumption_rate_details` (source and valid_from): the
+  equipment's row valid on the date → "Daily standard" `daily_diesel_consumption / daily_hours` when both are set (the
+  basis Equipment Diesel Analysis uses first, so the helper equals that report for every equipment) → the static
+  `expected_consumption` (0 = not set) → the type row for the equipment's company → the type row with no company →
+  None; not whitelisted, no REST endpoint. Known limit: the type step reads the equipment's current type, also for
+  past dates. The static field stays (read-only on the form once dated rows exist; a change after that only shows a
+  warning). The change history masks the equipment rate rows through the existing `card.field_privacy` rule (row
+  fields above level 0), as for every other level-1 equipment value: Versions keep who and when, not the values;
+  `card.field_privacy` is unchanged. Patch `card.patches.v4_8_0.seed_consumption_rates`: each equipment with a static
+  value above 0, no daily standard basis and no rate row gets one row with that value valid from 2000-01-01
+  (inserted on its own: no save, no new modified time); idempotent (an equipment with rows is skipped). Affected: new
+  `card/consumption.py`, new `card/card/doctype/card_consumption_rate/*` and `card_type_consumption_rate/*`,
+  `card_equipment.json/.py`, `card_equipment_type.json/.py`, `card/patches.txt`, locale,
+  `docs/governance/ROLE-ACTION-MATRIX.md`. Tests: `card/tests/test_consumption_rate.py`. PR: #223. Impact:
+  permissions none added (rows follow the parents' DocPerms and Company User Permissions; type rate writes narrowed
+  to Card Manager / System Manager on a new table); accounting none (no GL, no posting reads the rate); data: one
+  seeded row per equipment with only a static rate, consumption_rate() returns the same value as before on every
+  date; API: none (no new whitelisted method). No existing caller is switched: Equipment Diesel Analysis is
+  unchanged. Rollback limits: a code rollback leaves the two new tables and the seeded rows in the database (unused
+  by the older code); the static fields are unchanged, so the older behaviour returns as it was. The
+  `ignore_user_permissions` property lives in the DocType JSON and is removed with the code; with an older FR-144
+  build a company-restricted user would again be locked out of a type that has rows of another company.
+- **FR-147 — Card Period Run: versioned monthly period run with accountant approval (#49; closure plan WP-S1).**
+  Reason: #49 asks for "source records → approved period run → draft billing documents → accountant approval",
+  with the approval tied to the run version so that a source edited after the approval needs a new run and a new
+  approval. New submittable DocType **Card Period Run** (one active run per company and month; header: company,
+  month, year, version, `self_approval_rule`, approval fields, snapshot) with the child **Card Period Run Source**
+  (source type and name, equipment, project, supplier, customer, side flags, supplier and customer amount,
+  `supplier_posted` / `customer_posted`, last-modified time, fingerprint). The snapshot is built by the server on
+  every draft save and on submit and covers the WHOLE month (posted and unposted): every source the monthly
+  posting bills, selected with the filters of `card.gl.posting` without its "no invoice yet" filter — submitted
+  Card Monthly Cards billing a supplier (`net_amount`) and/or a customer (`customer_net_amount`); submitted
+  Project Diesel Fills of the month that are not imported WhatsApp sessions (supplier, the fill `amount`; with a
+  VAT-inclusive diesel price the invoice books its net part); submitted Equipment Transports recorded before P1-2
+  (supplier, `amount`) and, with the company's FR-139 setting Post, the transports with a responsibility that
+  the transporter invoice carries (supplier, `amount` less a recovery deducted on that invoice) and the approved
+  "Bill customer" monthly-invoice transports (customer, `billing_amount`). One row per document (both sides on one
+  row; a transport the posting preview refuses today, e.g. a pre-P1-2 move with no cost project, still counts:
+  the run total means "what the posting will bill once it can") with whether each side is already posted (an active CARD posting log holds it, or its invoice link is set;
+  information only, so posting never makes a run stale and WP-S2 can compare the run with the unposted
+  remainder); count and total per side; a snapshot fingerprint. The amounts and totals are GROSS source amounts (each
+  document's own amount; a diesel fill at its fill amount), not invoice totals: with a VAT-inclusive diesel price
+  and a VAT-registered supplier the posting books the net part. The run stores the company's configured
+  `diesel_price_vat_basis` and, per fill, whether its supplier has a tax ID (the posting's rule; VAT is never
+  inferred); both are in the snapshot fingerprint, so a change makes the run stale; WP-S2 must compare like with
+  like. The filters copied from `card.gl.posting` carry a comment naming their source (WP-S2 should expose shared
+  builders); a test proves the selection equals the posting's sources in Hold and in Post. Each document fingerprint is a SHA-256 of an
+  explicit, versioned list of billing fields of the document and its rows (`FINGERPRINT_FIELDS`, version 1;
+  amounts, quantities, parties, project, period, direction, posting eligibility), empty values left out, so a
+  field added to a DocType later never makes an approved run stale. Client rows, totals, fingerprints and version
+  are never kept. A new run takes the next version of its company-month (cancelled runs count), backed by a unique
+  index on (company, month, year, version); a new version is cancel and amend (`build_run` amends the latest
+  cancelled run). The version and the one-active-run guard lock the Company row and read the month's runs with a
+  locking read (`frappe.qb ... .for_update()`). `check_current` compares the run with the live sources (added,
+  removed, changed; posted since). Approval: an Accounts Manager (or System Manager) sets `approval_status` to
+  Approved, or "Returned for correction" with a reason, on the submitted run (form buttons); a stale run is
+  refused; the approval stores `approved_version` and `approved_hash`, and `approved_run()` returns the run only
+  while it is approved for its current version and snapshot and the sources are unchanged. The approval fields
+  are written by the server only on every route (REST insert with `docstatus` 1, `frappe.client.set_value`, REST
+  PUT, savedocs, bulk update, bulk cancel): drafts and submit reset them, `before_update_after_submit` re-reads
+  them under a lock, `before_cancel` restores the stored approval, preparers and rule under a lock, (corrected, not refused,
+  as in FR-142; `owner` and `creation` are refused by the guard since PR #226, neutral wording), then refuses a
+  cancel that changes any other field or row (the `card.cancel_reason` guard, `CancelChangesDocumentError`;
+  Frappe skips validate on a cancel); a run approved and still current is cancelled by an approver only (a stale
+  one by its preparers too). No self-approval (FR-142 pattern, reusing `card.daily_log._add_preparers` /
+  `_has_any_role`): creator, submitter and every editor of the run and of every run of its amendment chain are
+  preparers; the run's `self_approval_rule` "Warn only (period run)" (default: approve, message, `self_approved`)
+  / "Refuse (period run)" (refuse; no role exempt) can be raised to Refuse at any time, never lowered, and an
+  amendment keeps it; a new run, however it is created (build_run, Desk New, REST or frappe.client insert), is
+  linked by the server to the month's highest-version cancelled run whatever the client sent, and its rule is
+  Refuse when any run of the company-month has it; a saved run keeps its stored `amended_from` on every later save (Frappe checks it on insert
+  only), so a client cannot drop the chain's preparers, rule or version. Nothing calls the run from posting yet (WP-S2 adds the opt-in requirement before
+  `post_month`). Affected functions: new `card/gl/period_run.py` (`build_snapshot`, `document_fingerprint`,
+  `check_current`, `prepare_run`, `record_submitter`, `check_transition`, `check_cancel`, `run_preparers`,
+  `active_run`, `approved_run`, `run_state`; endpoints `build_run` (POST) and `period_run_status` (GET, read
+  only; totals only with level-1 read)); new controllers (`on_doctype_update` adds the unique index) and
+  `card_period_run.js` (current/stale banner, Approve / Return buttons); `card/company_scope.py`
+  `COMPANY_SOURCES` + "Card Period Run" (its `amended_from`). Reads, without changing, `card.gl.posting`
+  (`_customer_transports`, `_unheld_batch`, `_TRANSPORT_SOURCE_FIELDS`), `card.gl.preflight` and
+  `card.transport_costs`. Tests: `card/tests/test_period_run.py` (47, including a mixed month whose gross totals per
+  side equal the posting preview's sources (VAT-exclusive basis), and a two-connection concurrency test); two rows in
+  `card/tests/test_bola_matrix.py`; `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (two DocType rows, two
+  endpoint rows). PR #222.
+  Impact: permissions — new DocPerms on the new DocTypes only (Card Period Run: System Manager full; Card Manager
+  read/create/write/submit/cancel/amend/print/export/report; Accounts Manager read/write/submit/cancel/print/
+  export/report, needed by Frappe for the approval after submit; level 1 (the totals and row amounts) read by
+  System Manager, Card Manager and Accounts Manager, roles that already read card amounts; nothing for Card
+  Operator, Card User or CARD Mobile); no existing role or DocPerm changed; company isolation through the FR-131
+  hooks already registered. Accounting: none (no GL, invoice or source write; the run is a review record). Data:
+  two new tables and one unique index; nothing written to existing records; no patch. API: two new whitelisted
+  methods and the DocTypes' REST resources. Known limits: the self-approval rule is per run only — WP-S2 (which
+  owns Card Company Settings) must apply the stricter of a per-company rule and the run's rule; the preparers of
+  the source documents are not counted as run preparers (owner question); `period_run_status` rebuilds the full
+  live snapshot on every form refresh (backlog: cache or a lighter check if months grow large). Rollback limits:
+  code rollback leaves the two tables and their rows (harmless, unused until WP-S2); delete the DocTypes to
+  remove them.
+- **FR-143 — Separation of duties on the monthly card (FR-006; #35, #51, #123; closure plan WP-D1, owner decision
+  O-07).** Reason: owner 2026-10-19 "whoever created or entered a monthly card never approves it, enforced on the
+  server" (R-13: the creator could submit his own card). A monthly card has no review step or Workflow yet (WP-D2),
+  so its **approval is its submit**; D1 adds only the guard on that step. New module `card/governance.py`
+  (`on_validate`, `before_submit`, `before_update_after_submit`, `before_cancel`, `card_preparers`,
+  `approval_rule`), wired as additive `doc_events` of Card Monthly Card in `card/hooks.py` (after the existing
+  FR-123, period-lock and posting events, which keep their order). New read-only, no-copy fields on **Card Monthly
+  Card** (collapsible section "Monthly card approval", shown after submit): `submitted_by`, `approved_by`,
+  `approved_on`, `self_approved`, and the hidden `edited_by` (every user who saved the draft; a submit request that
+  also changes an editable field or row, and a REST insert with `docstatus` 1, records its user too; a plain submit
+  does not). All are written by the server only on every route (form save/submit, REST v1/v2 insert and PUT,
+  `frappe.client.insert/save/submit/set_value`, savedocs, bulk update/submit/cancel, Data Import): validate clears
+  the approval fields and reads the creator (`owner`) and the editors from the database with a locking read (a sent
+  `owner` or a changed `amended_from` is replaced by the stored one, as Frappe checks `amended_from` on insert only), an update after submit and a cancel restore the stored values. Preparers =
+  the creator and every editor of the card and of every card of its `amended_from` chain; the approver of an
+  earlier card of the chain is not a preparer of the correction; a draft saved before FR-143 counts its last saver
+  (`modified_by`) as its editor. New per-company **Card Company Settings `card_approval_rule`** (permlevel 1, like
+  the other company rules): "Warn only (card approval)" — the default, also with no company row or an empty value —
+  submits with a warning and marks the card `self_approved`; "Refuse (card approval)" refuses the submit. No role
+  is exempt (Administrator and System Manager included). The Card Daily Log keeps its own
+  `Card Daily Log Settings.self_approval_rule` (FR-142): the two rules are deliberately not merged in this
+  package (K1 backlog note; recorded in the registry). Impact: permissions — no role, DocPerm or permission hook
+  added or widened; the rule row follows the FR-133 company scope of Card Settings (a company-restricted user
+  changes only his companies' rule). Accounting — none (no GL, no posting change; amounts unchanged). Data — five
+  new columns on `tabCard Monthly Card` and one on `tabCard Company Settings`; existing cards are not changed (the
+  fields stay empty on cards submitted before FR-143; no patch). API — a submit by a preparer now returns a warning
+  message (default) or a PermissionError (Refuse). Default behaviour unchanged: every submit that worked before
+  still works. Tests: `card/tests/test_card_sod.py`. Rollback limits: a code rollback leaves the new columns and
+  their values in the database (Frappe does not drop columns); they are inert without the code. PR: #224.
 - **FR-145 — Draft monthly cards from approved daily logs (#44, #123, FR-022; closure plan WP-K2).** Reason: #44
   asks for automatic card generation from daily entry with no duplicate between the manual and the automatic route,
   and #123 for daily entry feeding the monthly cards; FR-142 records and approves the logs but generated nothing.
@@ -481,6 +634,39 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   and fill form fields are unchanged. Rollback: revert the commit.
 
 ### Security
+- **FR-142 / FR-140 — a cancel can no longer rewrite a Card Daily Log or an Equipment Meter Reading.** Reason: Frappe
+  skips `validate` and `validate_update_after_submit` on a cancel and stores the fields and child rows the request
+  sends (`frappe/model/document.py`); reproduced on a sandbox site: a REST PUT `{"docstatus": 2, ...}`, a savedocs
+  Cancel with a modified document and a bulk update with `docstatus` 2 and data each stored changed hours rows, log
+  date and notes on a cancelled daily log, and a REST PUT changed the engine hours, the reading time and the notes
+  of a cancelled meter reading. Fix: both cancels now run the generic FR-123 guard of `card/cancel_reason.py`
+  (`_refuse_changes`, `CancelChangesDocumentError`, already used by the monthly card): a cancel that changes any
+  stored field or row is refused and the document stays submitted. The daily log first restores its server-written
+  approval fields, preparers and editors from the database (FR-142 behaviour, unchanged) and then refuses any other
+  change. No cancel reason is required on these DocTypes (unchanged). Affected functions: `card.daily_log.check_cancel`,
+  `EquipmentMeterReading.before_cancel`. Tests: `test_daily_log.py` (REST PUT with rows, date, notes; savedocs with a
+  row and the notes; bulk update with data; plain cancels still work), `test_meter_reading.py` (REST PUT, savedocs,
+  bulk; plain cancel). PR #226.
+  Also: Frappe checks `amended_from` on insert only, so a save (`frappe.client.save`, `frappe.client.set_value`)
+  could clear or change it on a draft; reproduced on a Card Daily Log, where a cleared link dropped the earlier
+  versions' preparers and let a manager who edited an earlier version approve the amendment under Refuse. A save of
+  an existing Card Daily Log or Equipment Meter Reading now keeps the stored `amended_from`
+  (`card.daily_log.prepare`, `EquipmentMeterReading._validate_amended_from`); tests clear it by `client.save` and by
+  `set_value` and the approval stays refused, and set it on an existing record and it stays empty.
+  Review hardening of the shared guard (`card/cancel_reason.py` `_changed_field`, `_rows_changed`, `_norm`,
+  `_refuse_changes`): Frappe also skips `validate_constants` on a cancel and `db_update` writes every column, so a
+  cancel could still rewrite the document's `owner` / `creation` and each row's `idx` (row order), `owner` and
+  `creation`; reproduced on Equipment Meter Reading and Card Daily Log. These standard columns are now compared
+  too; float fields are compared at 9 decimals, the stored precision (a change of 0.0000001 was accepted). The
+  hardening also applies to the FR-123 doctypes (Card Monthly Card, Equipment Transport, Project Diesel Fill),
+  whose message is unchanged; Card Daily Log and Equipment Meter Reading use a new neutral message ("... cannot
+  be cancelled with changes: ... differs from the stored record.", Arabic added). Tests: owner and creation on the
+  log, the reading and the three FR-123 doctypes; added, removed, reordered, emptied rows, swapped `idx` and a forged
+  row owner or creation on the log; 100.0000001 engine hours on the reading.
+  Impact: permissions none; accounting none; data: a cancel request that also changes the document is refused
+  (a plain cancel is unchanged), and a save no longer changes `amended_from`; API: such a cancel request now fails
+  with `CancelChangesDocumentError`, and a sent `amended_from` on an update is ignored. Rollback limits:
+  code only; nothing stored to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
   User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with
