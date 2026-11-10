@@ -170,6 +170,8 @@ permission_query_conditions = {
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.fitment_query_conditions",
 	# FR-131: generic company scope (list)
 	**{doctype: "card.company_scope.company_query_conditions" for doctype in _COMPANY_SCOPED},
+	# FR-142: the daily log rules of a company, scoped like the company's daily logs
+	"Card Daily Log Settings": "card.daily_log.settings_query_conditions",
 }
 
 has_permission = {
@@ -190,6 +192,8 @@ has_permission = {
 	"Employee Tool Custody": "card.card.doctype.employee_tool_custody.employee_tool_custody.has_custody_permission",
 	# FR-131: generic company scope (record)
 	**{doctype: "card.company_scope.has_company_permission" for doctype in _COMPANY_SCOPED},
+	# FR-142: the daily log rules of a company, scoped like the company's daily logs
+	"Card Daily Log Settings": "card.daily_log.settings_permission",
 }
 
 # Document Events
@@ -257,6 +261,8 @@ doc_events = {
 		"validate": [
 			"card.card.doctype.project_diesel_fill.project_diesel_fill.deny_cross_company_share",
 			"card.company_scope.deny_cross_company_share",
+			# FR-142: Card Daily Log Settings, scoped by the Card Daily Log company permissions
+			"card.daily_log.deny_cross_company_settings_share",
 		]
 	},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record

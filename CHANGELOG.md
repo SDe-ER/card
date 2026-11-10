@@ -16,6 +16,61 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-142 — Card Daily Log: daily equipment hours with manager approval (#44, #123, FR-022; closure plan WP-K1).**
+  Reason: #44 and #123 ask for daily entry from paper/WhatsApp and an operator/supervisor → manager approval with no
+  self-approval; until now hours were entered only on the monthly card day rows. New submittable DocType **Card
+  Daily Log** (header: company (required), project (required), date, site supervisor; rows **Card Daily Log Row**:
+  equipment, day shift hours, night shift hours, stop reason, stopped hours, responsible party type, record and
+  name (optional, the FR-118 card day-row rule through `CardMonthlyCard._normalise_responsible_party`: an empty
+  type takes the stop reason's default, a Company party is the log's company and another company is refused,
+  Other keeps a free-text name only), notes) and the per-company master **Card Daily Log
+  Settings**: `self_approval_rule` "Warn only (daily log)" (default) / "Refuse (daily log)", and
+  `require_supervisor_verification` (Check, default 0). Flow: a Card Operator (own logs only), Card Supervisor or
+  Card Manager enters and submits; a Card Manager (or System Manager) then approves or returns it with a reason
+  ("Returned for correction") by saving `approval_status` on the submitted log; an approved or returned log is
+  final and is corrected by cancel and amend. Opt-in supervisor step: with `require_supervisor_verification` set, a
+  submitted log is first "Verified by supervisor" by a Card Supervisor who is not its preparer (`verified_by/on`),
+  and only then approved by a manager; the verifier counts as a preparer for the approval; a Card Supervisor may
+  also return a Pending log in that mode. Every approval field (`approval_status`, `verified_by/on`,
+  `approved_by/on`, `self_approved`, `return_reason`, `returned_by/on`, `submitted_by`, `edited_by`) is written by
+  the server only, on every route (form save, REST insert with `docstatus` 1, `frappe.client.set_value`, bulk
+  update): a draft and a submit always reset them to Pending, a change after submit is checked in
+  `before_update_after_submit`, and a cancel (form, REST PUT with `docstatus` 2, savedocs, bulk) reads the stored
+  approval with a row lock in `before_cancel` and keeps the stored approval fields. FR-121 style separation of
+  duties: the creator, the submitter and every editor of the log and of every log of its amendment chain are its
+  preparers, and so is every supervisor who verified one of them; when one of them approves, the company rule decides — "Warn only" (default, also for a company without
+  a settings record) approves with a warning and marks the log `self_approved`, "Refuse" refuses (no role exempt,
+  Administrator included). An approved log is cancelled only by an approver. Row rules, the same as the monthly
+  card day rows and through the same functions: shift limits only warn (owner 2026-10-14; Card Settings
+  `max_day_shift_hours` / `max_night_shift_hours`); a row with hours must be on an assignment of the equipment to
+  the project on the log date (`card.transfer.validate_card_days`; equipment without assignment history is not
+  checked, as on the card); the equipment status rule of the company (`check_equipment_status`, with the monthly
+  card message); a stop reason must be an enabled reason of the log's company (`validate_downtime_fields`); day +
+  night + stopped hours ≤ 24; no hours on a future date. One log per equipment, project and date (cancelled logs
+  excepted): the equipment rows are locked, then the other logs are read with one locking query (`FOR UPDATE`, the
+  latest committed rows), so two concurrent submits cannot both pass. Company isolation: the generic FR-131 hooks
+  (already registered for Card Daily Log); every row's equipment must belong to the log's company
+  (`check_child_companies`); the project's company must be the log's company; an amendment may only amend a
+  cancelled log of the same company that the user can read (Frappe copies the original's attachments), and
+  `card.company_scope.COMPANY_SOURCES` gains "Card Daily Log" so the `amended_from` link carries its company. Card
+  Daily Log Settings is scoped by the Company User Permissions that apply to Card Daily Log (`applicable_for`
+  included): `card.daily_log.settings_permission` / `settings_query_conditions`, and a DocShare of it with
+  everyone or with a user outside its company is refused (`deny_cross_company_settings_share`), all registered in
+  `card/hooks.py`. No
+  monthly card is generated from a log yet (WP-K2). Affected functions: new `card/daily_log.py` (`prepare`,
+  `validate_log`, `record_submitter`, `check_transition`, `check_cancel`, `self_approval_rule`,
+  `requires_supervisor_verification`, `log_preparers`, `settings_permission`, `settings_query_conditions`), new
+  controllers and `card_daily_log.js` (Verify / Approve / Return buttons); `card/company_scope.py`
+  `COMPANY_SOURCES`; `card/hooks.py` (two permission entries and one DocShare validate entry for Card Daily Log Settings). Tests: `card/tests/test_daily_log.py`
+  (53, including a two-connection concurrency test). `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (three new
+  DocType rows). PR #218.
+  Impact: permissions — new DocPerms on the new DocTypes only (Card Daily Log: System Manager full; Card Manager
+  full except delete; Card Supervisor read/create/write/submit/cancel/amend; Card Operator the same on own logs
+  (`if_owner`); Card User read. Card Daily Log Settings: System Manager read/create/write/delete; Card Manager read);
+  no existing role or DocPerm changed; no new whitelisted endpoint. Accounting none (CARD writes no GL; a log
+  creates no document). Data: three new tables, nothing written to existing records, no patch. API: the new
+  DocTypes' REST resources. Rollback limits: code rollback leaves the three tables and their rows (harmless,
+  unused); delete the DocTypes to remove them, after K2 only if no monthly card was generated from a log.
 - **FR-139 — Transport responsibility posting, per company: Hold (default) or Post (#49, #126, #43; WP-T,
   conflict C-09, owner decision O-14, PR #215).** Reason: #49 and #126 ask for customer transport charging and the
   posting of transport responsibility scenarios, while the owner decision of 2026-10-31 (FR-093, P1-2) holds every
