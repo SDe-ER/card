@@ -765,6 +765,16 @@ CASES = {
 		own=lambda c: _search("", {"company": c.A}, "Employee"),
 		denied=((), ("Card User",)),
 	),
+	"card.tool_custody.employee_company": Case(
+		method=GET,
+		roles=("Card Supervisor",),
+		gate="screen role and Employee Tool Custody read; the employee is in the employee_query scope",
+		isolation="query_companies(None, Employee Tool Custody); Employee User Permissions",
+		cross=lambda c: {"employee": c.emp_b},
+		own=lambda c: {"employee": c.emp_a},
+		allowed=True,
+		denied=((), ("Card User",)),
+	),
 	"card.tool_custody.store_query": Case(
 		method=GET,
 		roles=("Card Supervisor",),

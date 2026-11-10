@@ -37,7 +37,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   new fields appear in the fill's REST document; `get_diesel_price_context` unchanged. Rollback limits: code rollback
   leaves the extra columns and their values in the database (harmless; Frappe ignores columns not in the DocType);
   nothing else to undo.
-
 - **Card Reviewer role** (FR-137, #35 Q2, PR #207). Reason: the governance workflow (#35 G1) needs a reviewer
   role separate from the approver. `card/install.py`: `CARD_REVIEWER_ROLE` added to `CARD_ROLES`, so
   `ensure_card_roles()` (before_install and every roles patch) creates it with Desk access; new idempotent patch
@@ -46,7 +45,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the owner assigns it); accounting none; data one Role record; API none. Default behaviour unchanged.
   Tests: `card/tests/test_card_reviewer_role.py`. Rollback: reverting the code leaves the unused Role record; it can
   be disabled or deleted by hand while no user holds it.
-
+- **Main store, tool custody store and repeated-request window per company (FR-135, #50, #126, PR #211).** Reason:
+  the materials warehouses and the repeat window were site-wide only (#50 "no hardcoded … per company"). Card
+  Company Settings gets a Materials section with `store_warehouse`, `custody_warehouse` and `repeat_request_days`
+  (all optional, empty by default). Readers (`card.settings.store_warehouse`, `custody_warehouse`,
+  `repeat_request_days`) use the company value and fall back to the Card Settings value when it is empty (no row,
+  no warehouse, 0 days), so the default is unchanged. Affected functions: `card.materials.repeat_days`,
+  `last_asked_on` (company of the machine), `pull_requests`, `approve_review` (company of the review);
+  `EmployeeToolCustody.validate`, `_check_company`, `_make_stock_entry` (company of the employee);
+  `card.tool_custody.context` (new `default_stores` per permitted company; `default_store` unchanged), `move`
+  (the store of the worker's company, set after the create check) and the new read-only
+  `card.tool_custody.employee_company` (GET, screen role, employee in the `employee_query` scope): when the
+  Employee changes, the Tool Custody dialog sets that company's store and searches only its stores.
+  On Card Settings save (`validate_company_warehouses`, one call added in `CardSettings.validate`) a company
+  warehouse must be an enabled, non-group warehouse of its row's company, and a company's custody store in force
+  cannot change while any of its tools is held in custody. At read time a foreign-company warehouse is refused
+  with a message that names neither the other company nor its warehouse (the screen does not offer it). Labels:
+  "VAT 15% item tax template" → "VAT item tax template (company rate)"; its description, the Addition/Deduction
+  Types description and the Card Adjustment Type `taxable` description no longer name 15% (FR-127 backlog LOW-3;
+  the rate comes from the company's tax templates). Impact: permissions none (new child fields at permlevel 1 like the
+  rest of the row, no role or DocPerm change); accounting none (CARD writes no GL; Stock Entries use the chosen
+  warehouses); data: three new nullable columns, no patch, no existing value changed; API: `context` returns one
+  more key, one new GET endpoint (in the role and action matrix). Rollback limits: reverting the code ignores the columns (the site values apply again); change a
+  company's custody store only when no tool of that company is held in custody, or a Return/Loss reads stock from
+  the new store.
 - **Downtime governance** (FR-134, #45, PR #212, conflict C-07, owner decision O-03 default). Reason: #45 allows a downtime
   charge only as an explicit, approved manual addition with reason, party, agreement reference and audit trail, but a
   billable stop reason (FR-118) billed every stopped hour on both sides with no recorded approval.

@@ -39,7 +39,12 @@
   "initial_location",
   "column_break_equipment",
   "move_day_rule",
-  "equipment_status_rule"
+  "equipment_status_rule",
+  "materials_section",
+  "store_warehouse",
+  "custody_warehouse",
+  "column_break_materials",
+  "repeat_request_days"
  ],
  "fields": [
   {
@@ -219,10 +224,10 @@
    "read_only": 1
   },
   {
-   "description": "Per-line 15% VAT override template (auto-provisioned: CARD VAT 15% - <abbr>).",
+   "description": "Per-line VAT override template at the single rate of the company's purchase and sales tax templates (auto-provisioned: CARD VAT <rate>% - <abbr>).",
    "fieldname": "vat_item_tax_template",
    "fieldtype": "Link",
-   "label": "VAT 15% item tax template",
+   "label": "VAT item tax template (company rate)",
    "options": "Item Tax Template",
    "permlevel": 1
   },
@@ -286,13 +291,48 @@
    "label": "Equipment status rule",
    "options": "Warn only (equipment status)\nRefuse (equipment status)",
    "permlevel": 1
+  },
+  {
+   "fieldname": "materials_section",
+   "fieldtype": "Section Break",
+   "label": "Materials",
+   "permlevel": 1
+  },
+  {
+   "description": "Empty: the main store in Card Settings (Materials). Must belong to this company.",
+   "fieldname": "store_warehouse",
+   "fieldtype": "Link",
+   "label": "Main store",
+   "options": "Warehouse",
+   "permlevel": 1
+  },
+  {
+   "description": "Empty: the tool custody store in Card Settings (Materials). Must belong to this company. Change it only when no tool of this company is held in custody.",
+   "fieldname": "custody_warehouse",
+   "fieldtype": "Link",
+   "label": "Tool custody store",
+   "options": "Warehouse",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "column_break_materials",
+   "fieldtype": "Column Break",
+   "permlevel": 1
+  },
+  {
+   "description": "Empty or 0: the value in Card Settings (Materials).",
+   "fieldname": "repeat_request_days",
+   "fieldtype": "Int",
+   "label": "Flag a repeated request within (days)",
+   "non_negative": 1,
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 14:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",
