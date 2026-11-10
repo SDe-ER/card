@@ -134,6 +134,18 @@ def employee_query(doctype: str, txt: str, searchfield: str, start: int, page_le
 
 
 @frappe.whitelist(methods=["GET"])
+def employee_company(employee: str):
+	"""FR-135: the company of an employee the screen may offer (the same scope as `employee_query`), so
+	the movement dialog fills in that company's store and searches only its stores. Reads only."""
+	_check_screen()
+	if not employee or not _scoped_names(
+		"Employee", {}, [["name", "=", employee]], "", "employee_name", 0, 1
+	):
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	return {"company": frappe.db.get_value("Employee", employee, "company")}
+
+
+@frappe.whitelist(methods=["GET"])
 @frappe.validate_and_sanitize_search_inputs
 def store_query(doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict):
 	"""Link query for the screen's store field: enabled stores (not groups) the tools move from."""
