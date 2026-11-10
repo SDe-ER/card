@@ -1,0 +1,4 @@
+/* CARD docs — Arabic text uses Noto Sans Arabic, the font CARD prints use. */
+:root[dir="rtl"] {
+	--sl-font: "Noto Sans Arabic", "Noto Sans", Tahoma, sans-serif;
+}
