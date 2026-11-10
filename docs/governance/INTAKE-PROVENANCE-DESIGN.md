@@ -23,7 +23,10 @@ The evidence file of a submitted or cancelled transport cannot be deleted (`card
 File `on_trash`, also after it is detached), moved, detached, made public or renamed
 (`card.intake.keep_transport_evidence_file`, File `before_validate`), and no intake field of a submitted transport
 changes, also with an allow-on-submit customisation (`card.intake.freeze_submitted_intake`); a cancel that changes
-them is refused by FR-123 (`card.cancel_reason._refuse_changes`).
+them is refused by FR-123 (`card.cancel_reason._refuse_changes`). A cancelled transport with evidence is not
+deleted (`card.intake.keep_evidence_of_deleted_transport`, `on_trash`). Re-attaching the original's evidence File to
+its amendment is allowed (the amendment names the same file as evidence) and the file stays protected. The File delete
+protection needs Frappe 16.55.0 or later (earlier versions remove the bytes on disk before the hook refuses).
 
 ## 1. Problem
 

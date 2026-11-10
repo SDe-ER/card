@@ -84,29 +84,37 @@ def keep_transport_evidence(doc, method=None):
 		frappe.throw(_("This file is the intake evidence of a submitted or cancelled transport; it is kept."))
 
 
+# what identifies the evidence bytes of a File row; frozen on the evidence of a submitted or cancelled transport
+FROZEN_FILE_FIELDS = ("file_url", "content_hash", "file_name", "file_size")
+
+
 def keep_transport_evidence_file(doc, method=None):
 	"""File.before_validate, before Frappe moves the disk file: the intake evidence of a submitted or cancelled
 	transport (or a file sharing its content, whose public / private state Frappe changes with it) keeps its
-	private state and URL, and is never detached from or moved off its transport."""
+	private state, URL, content hash, name and size, and is never detached from or moved off its transport. It may
+	be attached again to a transport that names it as evidence (the amendment of a cancelled transport keeps the
+	file of the transport it amends, and the file stays protected)."""
 	if doc.is_folder or doc.is_new():
 		return
 	moved = any(
 		doc.has_value_changed(f) for f in ("attached_to_doctype", "attached_to_name", "attached_to_field")
 	)
 	flipped = doc.has_value_changed("is_private")
-	renamed = doc.has_value_changed("file_url")
-	if not (moved or flipped or renamed):
+	rewritten = any(doc.has_value_changed(f) for f in FROZEN_FILE_FIELDS)
+	if not (moved or flipped or rewritten):
 		return
-	before = doc.get_doc_before_save()
-	urls = {cstr(before.file_url if before else doc.file_url)}
-	if flipped and doc.content_hash:
-		urls.update(frappe.get_all("File", filters={"content_hash": doc.content_hash}, pluck="file_url"))
+	before = doc.get_doc_before_save() or doc
+	urls = {cstr(before.file_url)}
+	if flipped:
+		# Frappe moves every row with the same content when one row changes its private state
+		for content_hash in {before.content_hash, doc.content_hash} - {None, ""}:
+			urls.update(frappe.get_all("File", filters={"content_hash": content_hash}, pluck="file_url"))
 	kept = _kept_evidence(urls)
 	if not kept:
 		return
 	if (
 		flipped
-		or renamed
+		or rewritten
 		or not (
 			doc.attached_to_doctype == TRANSPORT
 			and doc.attached_to_field == EVIDENCE_FIELD
@@ -117,6 +125,18 @@ def keep_transport_evidence_file(doc, method=None):
 			_(
 				"This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
 			)
+		)
+
+
+def keep_evidence_of_deleted_transport(doc):
+	"""Equipment Transport `on_trash`, before Frappe deletes the row (and then its attachments): a cancelled
+	transport with intake evidence is never deleted, so its evidence File and the file on disk are kept. Frappe
+	itself refuses deleting a submitted transport; a draft may be deleted with its evidence."""
+	if doc.docstatus != 0 and doc.get(EVIDENCE_FIELD):
+		frappe.throw(
+			_(
+				"Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
+			).format(doc.name)
 		)
 
 

@@ -10,7 +10,12 @@ from card.attachment_validator import check_attachment_content, claim_file, requ
 from card.company import single_company, validate_equipment_company
 from card.constants import MOVE_DAY_NEXT, NON_COMPANY_PAYERS, OTHER_PARTY, OTHER_PARTY_TYPES, OWNED
 from card.equipment_status import check_equipment_status
-from card.intake import apply_transport_intake, claim_transport_evidence, freeze_submitted_intake
+from card.intake import (
+	apply_transport_intake,
+	claim_transport_evidence,
+	freeze_submitted_intake,
+	keep_evidence_of_deleted_transport,
+)
 from card.settings import company_setting, setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
@@ -102,6 +107,11 @@ class EquipmentTransport(Document):
 
 	def on_update(self):
 		claim_transport_evidence(self)
+
+	def on_trash(self):
+		# FR-146: a cancelled transport with intake evidence keeps its evidence (Frappe deletes the attachments
+		# after the row, so the File guard alone cannot see the transport any more)
+		keep_evidence_of_deleted_transport(self)
 
 	def _check_equipment_status(self, all_rows=False):
 		"""FR-122: an ended equipment gets no new transport. On save, a new transport, a changed
