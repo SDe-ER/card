@@ -23,14 +23,19 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `expected_consumption` existed. Two new child DocTypes with `valid_from` (required), `litres_per_hour` (required,
   zero or more) and `reason`: **Card Consumption Rate** = Card Equipment `consumption_rates` (the equipment's own
   rates; the table and every row field at permlevel 1, the level of the static field, so Frappe applies the
-  equipment's level-1 rights on every path: form, `frappe.client.get` / `get_list` / `get_value`, report view fields
-  and filters, change history; System Manager and Card Manager write, Card User and Accounts Manager read, Card
+  equipment's level-1 rights to the field values on every path: form, `frappe.client.get` / `get_list` / `get_value`,
+  report view fields and filters, change history. Known limit (Frappe v16, tracked as FR-148): filters and
+  `order_by` on `litres_per_hour` in `frappe.client.get_list` / `get_value` of the child DocType itself
+  (`parent="Card Equipment"`) are not permission-checked by Frappe for a child DocType without its own permissions,
+  so a level-0 reader can still infer a rate by filtering, without reading it (documented by
+  `test_known_limit_child_list_filter_reveals_rate`); System Manager and Card Manager write, Card User and Accounts Manager read, Card
   Supervisor (level 0) and Card Operator / CARD Mobile (no read on the equipment) see no rate, O-20); **Card Type
   Consumption Rate** = Card Equipment Type `default_consumption_rates` (the type default; level-0 fields because the
   type has no level-1 DocPerms; optional `company`: a row for one company or, empty, for every company; the type now
   tracks changes). Who changes type rates: only Card Manager and System Manager (checked in
   `CardEquipmentType.validate` through `card.consumption.validate_type_rate_changes`; Card User keeps writing the
-  other type fields; no DocPerm added); a company-restricted user only rows of a permitted company or with no company.
+  other type fields; no DocPerm added); a company-restricted user only rows of a permitted company (a row with no
+  company applies to every company, so only an unrestricted user adds, changes or removes it).
   A row is valid from its date until the next row of the same table (and company) — no end date; two rows of one
   table (and company) on the same date are refused. A row dated before today is final: its date, rate, reason and
   company cannot change and it cannot be removed; a correction is a new row, and a new backdated row needs a reason
