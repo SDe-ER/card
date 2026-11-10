@@ -44,8 +44,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   fields stay empty on cards submitted before FR-143; no patch). API — a submit by a preparer now returns a warning
   message (default) or a PermissionError (Refuse). Default behaviour unchanged: every submit that worked before
   still works. Tests: `card/tests/test_card_sod.py`. Rollback limits: a code rollback leaves the new columns and
-  their values in the database (Frappe does not drop columns); they are inert without the code. PR: (this pull
-  request).
+  their values in the database (Frappe does not drop columns); they are inert without the code. PR: #224.
 - **FR-142 — Card Daily Log: daily equipment hours with manager approval (#44, #123, FR-022; closure plan WP-K1).**
   Reason: #44 and #123 ask for daily entry from paper/WhatsApp and an operator/supervisor → manager approval with no
   self-approval; until now hours were entered only on the monthly card day rows. New submittable DocType **Card
