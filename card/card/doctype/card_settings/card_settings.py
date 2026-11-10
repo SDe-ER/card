@@ -152,45 +152,109 @@ def scope_docinfo_versions():
 	]
 
 
-def _scoped_version_data(data, allowed, companies):
+_SCALARS = (str, int, float, bool, type(None))
+
+
+def _version_changes(data):
+	"""FR-148: the Version ``data`` of Card Settings rebuilt in Frappe's own shape only (``Version.update_version_info``):
+	``changed`` [field, old, new], ``added`` / ``removed`` [table, row], ``row_changed`` [table, idx, row name,
+	[[field, old, new], ...]], and Frappe's own ``data_import``, ``updater_reference``, ``impersonated_by``,
+	``audit_user``, ``creation`` and ``created_by``. Every other key and every extra element is
+	dropped; an entry whose table, field or row name is not a string, whose row is not an object, or whose value is
+	not a plain value (text, number, check, empty) is dropped. Never raises; data that is not a JSON object gives
+	empty lists."""
 	import json
 
 	try:
-		changes = json.loads(data or "{}")
+		raw = json.loads(data or "{}")
 	except (TypeError, ValueError):
-		return "{}"
-	if not isinstance(changes, dict):
-		return "{}"
+		raw = {}
+	if not isinstance(raw, dict):
+		raw = {}
+
+	def items(key):
+		value = raw.get(key)
+		return value if isinstance(value, list) else []
+
+	def change(entry):
+		if isinstance(entry, list) and len(entry) >= 3 and isinstance(entry[0], str):
+			if isinstance(entry[1], _SCALARS) and isinstance(entry[2], _SCALARS):
+				return [entry[0], entry[1], entry[2]]
+		return None
+
+	def row(entry):
+		if (
+			isinstance(entry, list)
+			and len(entry) >= 2
+			and isinstance(entry[0], str)
+			and isinstance(entry[1], dict)
+		):
+			values = {k: v for k, v in entry[1].items() if isinstance(k, str) and isinstance(v, _SCALARS)}
+			return [entry[0], values]
+		return None
+
+	def row_change(entry):
+		if (
+			isinstance(entry, list)
+			and len(entry) >= 4
+			and isinstance(entry[0], str)
+			and isinstance(entry[1], int | type(None))
+			and not isinstance(entry[1], bool)
+			and isinstance(entry[2], str)
+			and isinstance(entry[3], list)
+		):
+			return [entry[0], entry[1], entry[2], [c for c in (change(x) for x in entry[3]) if c]]
+		return None
+
+	changes = {
+		"changed": [c for c in (change(e) for e in items("changed")) if c],
+		"added": [r for r in (row(e) for e in items("added")) if r],
+		"removed": [r for r in (row(e) for e in items("removed")) if r],
+		"row_changed": [r for r in (row_change(e) for e in items("row_changed")) if r],
+	}
+	# Frappe's own extra keys (frappe/core/doctype/version/version.py): plain text, or the updater reference
+	# {doctype, docname, label} of Auto Repeat / Assignment Rule
+	for key in ("data_import", "impersonated_by", "audit_user", "creation", "created_by"):
+		if key in raw and isinstance(raw[key], _SCALARS):
+			changes[key] = raw[key]
+	reference = raw.get("updater_reference")
+	if isinstance(reference, dict):
+		changes["updater_reference"] = {
+			k: reference[k] for k in ("doctype", "docname", "label") if isinstance(reference.get(k), str)
+		}
+	elif "updater_reference" in raw and isinstance(reference, str | type(None)):
+		changes["updater_reference"] = reference
+	return changes
+
+
+def _scoped_version_data(data, allowed, companies):
+	changes = _version_changes(data)
 
 	def visible_row(entry):
-		if not isinstance(entry, list) or not entry or not isinstance(entry[0], str):
-			return False
-		table, row = entry[0], entry[1] if len(entry) > 1 else None
-		return table not in SCOPED_TABLES or (isinstance(row, dict) and row.get("company") in allowed)
+		# [table, row]
+		table, row = entry
+		if table not in SCOPED_TABLES:
+			return True
+		company = row.get("company")
+		return isinstance(company, str) and company in allowed
 
 	def visible_change(entry):
 		# [table, idx, row name, [[field, old, new], ...]]
-		if not isinstance(entry, list) or not entry or not isinstance(entry[0], str):
-			return False
-		if entry[0] not in SCOPED_TABLES:
+		table, _idx, name, row_changes = entry
+		if table not in SCOPED_TABLES:
 			return True
-		if companies.get(entry[2] if len(entry) > 2 else None) not in allowed:
+		company = companies.get(name)
+		if not isinstance(company, str) or company not in allowed:
 			return False
-		row_changes = entry[3] if len(entry) > 3 and isinstance(entry[3], list) else []
 		return all(
-			isinstance(c, list)
-			and len(c) > 2
-			and (c[0] != "company" or (c[1] in allowed and c[2] in allowed))
+			c[0] != "company"
+			or (isinstance(c[1], str) and c[1] in allowed and isinstance(c[2], str) and c[2] in allowed)
 			for c in row_changes
 		)
 
 	for key in ("added", "removed"):
-		if changes.get(key):
-			entries = changes[key] if isinstance(changes[key], list) else []
-			changes[key] = [e for e in entries if visible_row(e)]
-	if changes.get("row_changed"):
-		entries = changes["row_changed"] if isinstance(changes["row_changed"], list) else []
-		changes["row_changed"] = [e for e in entries if visible_change(e)]
+		changes[key] = [e for e in changes[key] if visible_row(e)]
+	changes["row_changed"] = [e for e in changes["row_changed"] if visible_change(e)]
 	return frappe.as_json(changes, indent=None, separators=(",", ":"))
 
 
@@ -240,57 +304,23 @@ def mask_docinfo_versions_by_level():
 
 
 def _masked_version_data(data, fields, tables):
-	"""The Version ``data`` with the hidden values masked. Data that is not a JSON object becomes ``{}``;
-	a malformed entry (not a list, a field or table name that is not a string) is dropped, never shown."""
-	import json
-
+	"""The Version ``data`` in Frappe's shape (``_version_changes``) with the hidden values masked."""
 	from card.field_privacy import MASKED
 
-	try:
-		changes = json.loads(data or "{}")
-	except (TypeError, ValueError):
-		return "{}"
-	if not isinstance(changes, dict):
-		return "{}"
-
-	def named(entry):
-		return isinstance(entry, list) and entry and isinstance(entry[0], str)
-
-	def masked_changes(entries, hidden):
-		# [[field, old, new], ...]
-		kept = []
-		for change in entries if isinstance(entries, list) else []:
-			if not named(change):
-				continue
-			if change[0] in hidden:
-				change[1:] = [MASKED] * (len(change) - 1)
-			kept.append(change)
-		return kept
-
-	if "changed" in changes:
-		changes["changed"] = masked_changes(changes.get("changed"), fields)
+	changes = _version_changes(data)
+	for change in changes["changed"]:
+		if change[0] in fields:
+			change[1:] = [MASKED, MASKED]
 	for key in ("added", "removed"):
-		if key not in changes:
-			continue
-		kept = []
-		for entry in changes.get(key) if isinstance(changes.get(key), list) else []:
-			# [table, row]
-			if not named(entry) or len(entry) < 2 or not isinstance(entry[1], dict):
-				continue
-			for field in tables.get(entry[0], ()):
-				if field in entry[1]:
-					entry[1][field] = MASKED
-			kept.append(entry)
-		changes[key] = kept
-	if "row_changed" in changes:
-		kept = []
-		for entry in changes.get("row_changed") if isinstance(changes.get("row_changed"), list) else []:
-			# [table, idx, row name, [[field, old, new], ...]]
-			if not named(entry) or len(entry) < 4:
-				continue
-			entry[3] = masked_changes(entry[3], tables.get(entry[0], ()))
-			kept.append(entry)
-		changes["row_changed"] = kept
+		for table, row in changes[key]:
+			for field in tables.get(table, ()):
+				if field in row:
+					row[field] = MASKED
+	for table, _idx, _name, row_changes in changes["row_changed"]:
+		hidden = tables.get(table, ())
+		for change in row_changes:
+			if change[0] in hidden:
+				change[1:] = [MASKED, MASKED]
 	return frappe.as_json(changes, indent=None, separators=(",", ":"))
 
 

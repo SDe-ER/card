@@ -26,6 +26,7 @@ from card.tests.test_controllers import _ensure_masters
 TABLE_FIELDTYPES = ("Table", "Table MultiSelect")
 LAYOUT_FIELDTYPES = ("Section Break", "Column Break", "Tab Break", "HTML", "Button", "Heading", "Fold")
 PROBE_ROLES = (*CARD_ROLES, "Accounts Manager", "Accounts User")
+OTHER = "TEST-FR148-OTHER-COMPANY"  # a company name that appears only in crafted Version data
 # a test-only role (rolled back with each test) that reads or writes a parent at level 0 only, as a Custom DocPerm
 # could give on a site; no role of the code reads Card Settings at level 0 without level 2
 LEVEL_0_ROLE = "TEST FR148 Level 0"
@@ -559,6 +560,9 @@ class TestSettingsTimelineByLevel(ChildPermlevelFixtures):
 		self.assertTrue(
 			any(t == "diesel_price_schedule" and r.get("unit_price") == 2222.75 for t, r in removed)
 		)
+		for label, blob in self._timelines(self._user("Card Manager")).items():
+			with self.subTest(route=label):
+				self.assertNotIn("2222.75", blob)
 
 	def test_the_form_save_reply_is_masked(self):
 		"""The timeline returned by the form save (savedocs) is masked as well. Card Manager cannot save Card
@@ -604,6 +608,41 @@ class TestSettingsTimelineByLevel(ChildPermlevelFixtures):
 					"row_changed": [[["diesel_price_schedule"], 1, "x", [["unit_price", 7777.123, 1]]], [1]],
 				}
 			),
+			# crafted entries: a valid shape with extra elements, unknown keys, non-string names and values
+			json.dumps(
+				{
+					"added": [
+						[
+							"diesel_price_schedule",
+							{"company": self.company, "unit_price": 1.0},
+							{"company": OTHER, "unit_price": "SECRET-EXTRA-ROW"},
+						],
+						["adjustment_types", {"company": OTHER, "type_name": "SECRET-OTHER-COMPANY"}],
+						["adjustment_types", {"company": [self.company], "type_name": "SECRET-LIST-COMPANY"}],
+					],
+					"debug": {"note": "SECRET-UNKNOWN-KEY"},
+					"row_changed": [
+						[
+							"adjustment_types",
+							1,
+							"x",
+							[["type_name", "a", "b"]],
+							{"leak": "SECRET-ROW-CHANGED"},
+						],
+						["adjustment_types", 1, ["x"], [["type_name", "a", "SECRET-LIST-NAME"]]],
+						[
+							"adjustment_types",
+							1,
+							"x",
+							[
+								["company", [self.company], OTHER],
+								["type_name", {"x": "SECRET-DICT-VALUE"}, "b"],
+							],
+						],
+					],
+					"changed": [["reconciliation_tolerance", 1, 2, "SECRET-CHANGED-EXTRA"]],
+				}
+			),
 		):
 			frappe.get_doc(
 				{
@@ -634,11 +673,25 @@ class TestSettingsTimelineByLevel(ChildPermlevelFixtures):
 			}
 		).insert(ignore_permissions=True)
 		frappe.clear_cache(user=restricted)
+		# dropped for every reader: extra elements, unknown keys, non-string names, non-plain values
+		always = (
+			"SECRET-EXTRA-ROW",
+			"SECRET-UNKNOWN-KEY",
+			"SECRET-ROW-CHANGED",
+			"SECRET-LIST-NAME",
+			"SECRET-DICT-VALUE",
+			"SECRET-CHANGED-EXTRA",
+		)
+		# dropped for the company-restricted reader: another company's row, a company that is not a string
+		restricted_only = ("SECRET-OTHER-COMPANY", "SECRET-LIST-COMPANY", OTHER)
 		for user in (manager, restricted):
 			for label, blob in self._timelines(user).items():
 				with self.subTest(user=user, route=label):
-					for value in values["level 1"]:
+					for value in [*values["level 1"], *always]:
 						self.assertNotIn(value, blob)
+					if user == restricted:
+						for value in restricted_only:
+							self.assertNotIn(value, blob)
 
 
 class TestChildPermlevelPrintAndWrite(ChildPermlevelFixtures):
