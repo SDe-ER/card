@@ -243,6 +243,28 @@ class TestDieselSessionEvidence(IntegrationTestCase):
 		corrected = self._new(date="2026-08-24", **self._evidence(content=content))
 		self.assertTrue(corrected.name)
 
+	def test_rejected_fill_cannot_return_to_review_while_its_photo_proves_another_fill(self):
+		content = frappe.generate_hash(length=32)
+		wrong = self._new(**self._evidence(content=content))
+		wrong.review_status = "Rejected"
+		self._as(self.manager, wrong.save)
+		corrected = self._new(date="2026-08-24", **self._evidence(content=content))
+		wrong = frappe.get_doc(wrong.doctype, wrong.name)
+		wrong.review_status = "Needs Review"
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			self._as(self.manager, wrong.save)
+		self.assertIn(corrected.name, str(ctx.exception))
+		self.assertEqual(frappe.db.get_value(wrong.doctype, wrong.name, "review_status"), "Rejected")
+
+	def test_rejected_fill_may_return_to_review_when_its_photo_is_free(self):
+		wrong = self._new(**self._evidence())
+		wrong.review_status = "Rejected"
+		self._as(self.manager, wrong.save)
+		wrong = frappe.get_doc(wrong.doctype, wrong.name)
+		wrong.review_status = "Needs Review"
+		self._as(self.manager, wrong.save)
+		self.assertEqual(frappe.db.get_value(wrong.doctype, wrong.name, "review_status"), "Needs Review")
+
 	def test_opening_and_closing_cannot_be_the_same_photo(self):
 		content = frappe.generate_hash(length=32)
 		with self.assertRaises(frappe.ValidationError):
