@@ -51,16 +51,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   no warehouse, 0 days), so the default is unchanged. Affected functions: `card.materials.repeat_days`,
   `last_asked_on` (company of the machine), `pull_requests`, `approve_review` (company of the review);
   `EmployeeToolCustody.validate`, `_check_company`, `_make_stock_entry` (company of the employee);
-  `card.tool_custody.context` (new `default_stores` per permitted company; `default_store` unchanged) and `move`
-  (the store of the worker's company, set after the create check); the Tool Custody screen's store default.
-  A company warehouse must belong to its row's company: checked on Card Settings save
-  (`validate_company_warehouses`, one call added in `CardSettings.validate`) and again at read time (refused;
-  the screen does not offer it). Labels: "VAT 15% item tax template" → "VAT item tax template (company rate)", and
-  its description and the Addition/Deduction Types description no longer name 15% (FR-127 backlog LOW-3; the rate
-  comes from the company's tax templates). Impact: permissions none (new child fields at permlevel 1 like the
+  `card.tool_custody.context` (new `default_stores` per permitted company; `default_store` unchanged), `move`
+  (the store of the worker's company, set after the create check) and the new read-only
+  `card.tool_custody.employee_company` (GET, screen role, employee in the `employee_query` scope): when the
+  Employee changes, the Tool Custody dialog sets that company's store and searches only its stores.
+  On Card Settings save (`validate_company_warehouses`, one call added in `CardSettings.validate`) a company
+  warehouse must be an enabled, non-group warehouse of its row's company, and a company's custody store in force
+  cannot change while any of its tools is held in custody. At read time a foreign-company warehouse is refused
+  with a message that names neither the other company nor its warehouse (the screen does not offer it). Labels:
+  "VAT 15% item tax template" → "VAT item tax template (company rate)"; its description, the Addition/Deduction
+  Types description and the Card Adjustment Type `taxable` description no longer name 15% (FR-127 backlog LOW-3;
+  the rate comes from the company's tax templates). Impact: permissions none (new child fields at permlevel 1 like the
   rest of the row, no role or DocPerm change); accounting none (CARD writes no GL; Stock Entries use the chosen
   warehouses); data: three new nullable columns, no patch, no existing value changed; API: `context` returns one
-  more key. Rollback limits: reverting the code ignores the columns (the site values apply again); change a
+  more key, one new GET endpoint (in the role and action matrix). Rollback limits: reverting the code ignores the columns (the site values apply again); change a
   company's custody store only when no tool of that company is held in custody, or a Return/Loss reads stock from
   the new store.
 

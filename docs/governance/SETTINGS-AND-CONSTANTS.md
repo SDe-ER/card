@@ -155,8 +155,8 @@ business rule that should be a master.
 | 260 (hours) | `card_equipment.py:152`, `card_monthly_card.py:437` `or 260` | Standard month hours | Card Settings already; should be dated (#50) |
 | 0.01 | `gl/posting.py:87`, `gl/events.py:234`, `gl/journal_link.py:106`, `gl/integrity.py:572,653` | Reconciliation tolerance fallback; `integrity.py` adds 0.01 per diesel fill | Card Settings already |
 | 0.01 | `card_settlement_status.py:43` `TOLERANCE` | Settlement report tolerance, independent of the setting | Read `reconciliation_tolerance` |
-| 30 (days) | `materials.py:120` `or 30` | Repeat-request window | Card Settings already |
-| 15 / 0 (%) | `gl/masters.py:184-185` | Rates of the item tax templates CARD creates when the company row has none ("CARD VAT 15% - <abbr>", "CARD VAT 0% - <abbr>"); an existing template is reconciled to these rates (`_reconcile_item_tax_template`) | **Card Company Settings** (VAT rate per company); a company in another tax regime must not get 15 % |
+| 30 (days) | `settings.py` `repeat_request_days` `or 30` | Repeat-request window | Card Settings, and per company on Card Company Settings (FR-135) |
+| 0 (%) | `gl/masters.py` `ensure_posting_masters` | Rate of the "CARD VAT 0% - <abbr>" template for non-taxable lines. The standard rate is no longer fixed: it comes from the company's purchase and sales tax templates (`standard_vat_rate`, FR-127); a new rate gets a new "CARD VAT {rate}% - <abbr>" template | Done for the standard rate (FR-127); only 0% stays fixed |
 | 31 / 62 (days) | `gl/integrity.py:308-309` | Window for supplier invoices checked against a month | Card Settings (advanced) |
 | 0.002 per litre | `diesel_reconciliation.py:44` `PRICE_TOLERANCE` | Diesel price match tolerance | Card Settings (diesel) |
 | 1.5 | `diesel_reconciliation.py:45` `AGGREGATE_FACTOR` | An invoice above 1.5 × the largest session counts as aggregated | Card Settings (diesel) |
@@ -188,7 +188,7 @@ currency policy for reports (#53).
 |---|---|
 | Inventory of hardcoded constants | This file |
 | Card Settings and company rows | Done (FR-013, FR-014, FR-069) |
-| No hardcoded currency, accounts or hours | Accounts per company; hours are code defaults with inline fallbacks (section 5.2); VAT rates 15 / 0 hardcoded; day statuses fixed |
+| No hardcoded currency, accounts or hours | Accounts per company; hours are code defaults with inline fallbacks (section 5.2); standard VAT rate from the company tax templates (FR-127), only 0% fixed; materials warehouses per company (FR-135); day statuses fixed |
 | Effective dates and snapshots | Missing, except card snapshots and fill prices (section 1) |
 | Accounts and cost centers belong to the company | Done (FR-014 checks, FR-091) |
 
