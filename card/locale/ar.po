@@ -7910,9 +7910,6 @@ msgstr "تعليم ساعات التشغيل بدون تعبئات ديزل"
 msgid "Diesel variance anomaly thresholds"
 msgstr "حدود الحالات الشاذة لفروقات الديزل"
 
-#: card/card/doctype/card_settings/card_settings.json
-msgid "Optional, per company. A company without a row gets no anomaly flags. A variance is an analytical signal, not a fuel loss."
-msgstr "اختياري لكل شركة. الشركة التي ليس لها صف لا تظهر لها تنبيهات شاذة. الفرق مؤشر تحليلي وليس فقدًا للوقود."
 
 #: card/card/sidebar/card_reports/card_reports.json
 msgid "Diesel Variance & Anomaly"

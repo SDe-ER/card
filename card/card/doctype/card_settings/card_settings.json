@@ -35,12 +35,12 @@
   "diesel_price_html",
   "diesel_price_schedule_section",
   "diesel_price_schedule",
-  "diesel_variance_section",
-  "diesel_variance_thresholds",
   "diesel_section",
   "diesel_supplier_policy",
   "diesel_col",
   "diesel_supplier",
+  "diesel_variance_section",
+  "diesel_variance_thresholds",
   "transport_tab",
   "transport_section",
   "project_transport_prices",
@@ -322,20 +322,6 @@
    "permlevel": 1
   },
   {
-   "description": "Optional, per company. A company without a row gets no anomaly flags. A variance is an analytical signal, not a fuel loss.",
-   "fieldname": "diesel_variance_section",
-   "fieldtype": "Section Break",
-   "label": "Diesel variance anomaly thresholds",
-   "permlevel": 2
-  },
-  {
-   "fieldname": "diesel_variance_thresholds",
-   "fieldtype": "Table",
-   "label": "Diesel variance anomaly thresholds",
-   "options": "Card Diesel Variance Threshold",
-   "permlevel": 2
-  },
-  {
    "fieldname": "diesel_section",
    "fieldtype": "Section Break",
    "label": "Diesel supplier"
@@ -354,6 +340,19 @@
    "label": "Diesel supplier",
    "mandatory_depends_on": "eval:doc.diesel_supplier_policy=='ثابت'",
    "options": "Supplier",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "diesel_variance_section",
+   "fieldtype": "Section Break",
+   "label": "Diesel variance anomaly thresholds",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "diesel_variance_thresholds",
+   "fieldtype": "Table",
+   "label": "Diesel variance anomaly thresholds",
+   "options": "Card Diesel Variance Threshold",
    "permlevel": 2
   },
   {
@@ -487,7 +486,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-11-10 23:17:41.000000",
+ "modified": "2026-11-11 00:21:37.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

@@ -617,7 +617,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (variance above threshold, fill without hours, hours without fill) only from the company's row in the new Card
   Settings table `diesel_variance_thresholds` (child DocType **Card Diesel Variance Threshold**: company, variance %,
   minimum litres, two checks; every field at permlevel 2 like the table: System Manager writes, Accounts Manager and
-  Card Manager read); no row = no flags (default). The table is a FR-133 scoped table (`SCOPED_TABLES`,
+  Card Manager read; last on the Diesel Settings tab, no field help, `test_settings_layout` updated); no row = no flags
+  (default). The table is a FR-133 scoped table (`SCOPED_TABLES`,
   `COMPANY_TABLES`, `SCOPED_CHILD_DOCTYPES`, `permission_query_conditions` in `card/hooks.py`): a company-restricted
   user reads and changes his companies' rows only; one row per company, no negative threshold
   (`CardSettings._validate_diesel_variance_thresholds`). Access: the roles of Equipment Diesel Analysis (System

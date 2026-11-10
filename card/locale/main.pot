@@ -6670,9 +6670,6 @@ msgstr ""
 msgid "Diesel variance anomaly thresholds"
 msgstr ""
 
-#: card/card/doctype/card_settings/card_settings.json
-msgid "Optional, per company. A company without a row gets no anomaly flags. A variance is an analytical signal, not a fuel loss."
-msgstr ""
 
 #: card/card/sidebar/card_reports/card_reports.json
 msgid "Diesel Variance & Anomaly"

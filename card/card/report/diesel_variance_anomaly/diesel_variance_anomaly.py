@@ -38,6 +38,7 @@ from itertools import pairwise
 
 import frappe
 from frappe import _
+from frappe.query_builder.functions import Max, Min, Sum
 from frappe.utils import add_days, cint, date_diff, flt, get_first_day, get_last_day, getdate, nowdate
 
 from card.report_access import readable_links, resolve_company
@@ -204,76 +205,91 @@ def _direct_fills(filters, start, end):
 def _card_hours(filters, start, end):
 	"""{equipment: {date: {"hours", "projects"}}} from the day rows of SUBMITTED monthly cards of the company
 	(all shifts summed). One query."""
-	values = {"company": filters.company, "start": start, "end": end}
-	extra = ""
-	if filters.get("project"):
-		extra += " and c.project = %(project)s"
-		values["project"] = filters.project
-	if filters.get("equipment"):
-		extra += " and c.equipment = %(equipment)s"
-		values["equipment"] = filters.equipment
-	rows = frappe.db.sql(
-		f"""
-		select c.equipment, d.operation_date as day, c.project, sum(d.working_hours) as hours
-		from `tabCard Monthly Card Day` d
-		join `tabCard Monthly Card` c on c.name = d.parent
-		where d.parenttype = 'Card Monthly Card' and d.parentfield = 'days'
-			and c.company = %(company)s and c.docstatus = 1
-			and d.operation_date between %(start)s and %(end)s
-			and d.working_hours > 0 {extra}
-		group by c.equipment, d.operation_date, c.project
-		""",
-		values,
-		as_dict=True,
+	card = frappe.qb.DocType("Card Monthly Card")
+	day = frappe.qb.DocType("Card Monthly Card Day")
+	query = (
+		frappe.qb.from_(day)
+		.join(card)
+		.on(card.name == day.parent)
+		.select(
+			card.equipment, day.operation_date.as_("day"), card.project, Sum(day.working_hours).as_("hours")
+		)
+		.where(
+			(day.parenttype == "Card Monthly Card")
+			& (day.parentfield == "days")
+			& (card.company == filters.company)
+			& (card.docstatus == 1)
+			& day.operation_date.between(start, end)
+			& (day.working_hours > 0)
+		)
+		.groupby(card.equipment, day.operation_date, card.project)
 	)
+	if filters.get("project"):
+		query = query.where(card.project == filters.project)
+	if filters.get("equipment"):
+		query = query.where(card.equipment == filters.equipment)
 	out = defaultdict(dict)
-	for r in rows:
-		day = out[r.equipment].setdefault(getdate(r.day), {"hours": 0.0, "projects": set()})
-		day["hours"] += flt(r.hours)
+	for r in query.run(as_dict=True):
+		entry = out[r.equipment].setdefault(getdate(r.day), {"hours": 0.0, "projects": set()})
+		entry["hours"] += flt(r.hours)
 		if r.project:
-			day["projects"].add(r.project)
+			entry["projects"].add(r.project)
 	return out
 
 
 def _readings(filters, start, end):
 	"""{equipment: [reading rows sorted by time]}: the company's submitted readings inside the period plus, per
-	equipment, the last one before it and the first one after it. Three queries."""
+	equipment, the last one before it and the first one after it. Four queries."""
 	p_start = datetime.combine(start, time.min)
 	p_end = datetime.combine(add_days(end, 1), time.min)
-	base = "docstatus = 1 and company = %(company)s"
-	values = {"company": filters.company, "p_start": p_start, "p_end": p_end}
+	reading = frappe.qb.DocType(READING)
+	scope = (reading.docstatus == 1) & (reading.company == filters.company)
 	if filters.get("equipment"):
-		base += " and equipment = %(equipment)s"
-		values["equipment"] = filters.equipment
-	fields = "name, equipment, reading_datetime, engine_hours, is_meter_reset, creation"
-	inside = frappe.db.sql(
-		f"""select {fields} from `tabEquipment Meter Reading`
-		where {base} and reading_datetime >= %(p_start)s and reading_datetime <= %(p_end)s""",
-		values,
-		as_dict=True,
+		scope = scope & (reading.equipment == filters.equipment)
+	fields = (
+		reading.name,
+		reading.equipment,
+		reading.reading_datetime,
+		reading.engine_hours,
+		reading.is_meter_reset,
+		reading.creation,
 	)
-	before = frappe.db.sql(
-		f"""select r.name, r.equipment, r.reading_datetime, r.engine_hours, r.is_meter_reset, r.creation
-		from `tabEquipment Meter Reading` r
-		join (select equipment, max(reading_datetime) as at from `tabEquipment Meter Reading`
-			where {base} and reading_datetime < %(p_start)s group by equipment) b
-			on b.equipment = r.equipment and b.at = r.reading_datetime
-		where r.docstatus = 1 and r.company = %(company)s""",
-		values,
-		as_dict=True,
+	inside = (
+		frappe.qb.from_(reading)
+		.select(*fields)
+		.where(scope & (reading.reading_datetime >= p_start) & (reading.reading_datetime <= p_end))
+		.run(as_dict=True)
 	)
-	after = frappe.db.sql(
-		f"""select r.name, r.equipment, r.reading_datetime, r.engine_hours, r.is_meter_reset, r.creation
-		from `tabEquipment Meter Reading` r
-		join (select equipment, min(reading_datetime) as at from `tabEquipment Meter Reading`
-			where {base} and reading_datetime > %(p_end)s group by equipment) a
-			on a.equipment = r.equipment and a.at = r.reading_datetime
-		where r.docstatus = 1 and r.company = %(company)s""",
-		values,
-		as_dict=True,
-	)
+	# the nearest reading on each side of the period, per equipment
+	edges = set()
+	for condition, edge in (
+		(reading.reading_datetime < p_start, Max),
+		(reading.reading_datetime > p_end, Min),
+	):
+		for r in (
+			frappe.qb.from_(reading)
+			.select(reading.equipment, edge(reading.reading_datetime).as_("at"))
+			.where(scope & condition)
+			.groupby(reading.equipment)
+			.run(as_dict=True)
+		):
+			edges.add((r.equipment, r.at))
+	outside = []
+	if edges:
+		outside = [
+			r
+			for r in frappe.qb.from_(reading)
+			.select(*fields)
+			.where(
+				scope
+				& reading.equipment.isin(sorted({e for e, _at in edges}))
+				& reading.reading_datetime.isin(sorted({at for _e, at in edges}))
+			)
+			.run(as_dict=True)
+			if (r.equipment, r.reading_datetime) in edges
+		]
 	out = defaultdict(dict)
-	for r in inside + before + after:
+	for r in inside + outside:
 		out[r.equipment][r.name] = r
 	return {
 		eq: sorted(rows.values(), key=lambda r: (r.reading_datetime, r.creation)) for eq, rows in out.items()
@@ -679,16 +695,18 @@ def _summary(rows, tank):
 
 
 def _message(show_rates, threshold):
+	variance = _(
+		"Variance = filled litres (direct fills recorded for the equipment) minus expected litres (hours x the"
+		" consumption rate valid on each day). A variance is an analytical signal, not a fuel loss; this"
+		" report makes no loss claim."
+	)
+	basis = _(
+		"Hours basis: engine hours from meter readings when they cover the whole month, otherwise the"
+		" billable-hours proxy (card hours), an estimate."
+	)
 	parts = [
-		_(
-			"Variance = filled litres (direct fills recorded for the equipment) minus expected litres (hours x the"
-			" consumption rate valid on each day). A variance is an analytical signal, not a fuel loss; this"
-			" report makes no loss claim."
-		),
-		_(
-			"Hours basis: engine hours from meter readings when they cover the whole month, otherwise the"
-			" billable-hours proxy (card hours), an estimate."
-		),
+		variance,
+		basis,
 		_(
 			"Project-tank fills are not split across equipment; their litres are shown once, as a project-level figure."
 		),
