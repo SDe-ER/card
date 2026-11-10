@@ -24,7 +24,6 @@ Frappe inserts them. Rows removed or reordered on the document are not affected.
 The DocTypes come from CARD's own DocType JSON files (``card_doctypes``), so a new CARD DocType with a table is
 covered without a change here. No ERPNext or Frappe DocType is hooked."""
 
-import json
 import os
 
 import frappe
@@ -52,8 +51,8 @@ def card_doctypes(app_path=None):
 		filename = os.path.basename(dirpath) + ".json"
 		if filename not in filenames:
 			continue
-		with open(os.path.join(dirpath, filename), encoding="utf-8") as f:
-			meta = json.load(f)
+		# the path is built from os.walk under CARD's own package, never from a request
+		meta = frappe.get_file_json(os.path.join(dirpath, filename))
 		if meta.get("doctype") != "DocType" or meta.get("is_virtual"):
 			continue
 		if meta.get("istable"):
