@@ -552,19 +552,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   is shared by tables at different levels); no role, DocPerm, hook or data change.
   Fix 2 (Card Settings timeline): new `mask_docinfo_versions_by_level()` in
   `card/card/doctype/card_settings/card_settings.py`, run by the existing FR-133 overrides `getdoc` /
-  `get_docinfo` and by the form save (`apply_fieldlevel_read_permissions`), after the FR-133 company filter: per
+  `get_docinfo` and by the reply to a form save (`apply_fieldlevel_read_permissions`; only a role with write on
+  Card Settings saves it: Card Manager's DocPerms there are read-only, levels 0 and 2), after the FR-133 company
+  filter: per
   reader, the values of every Card Settings field and child row at a level he cannot read are replaced by the
   `card/field_privacy.py` mask in `changed`, `added`, `removed` and `row_changed`; who changed what and when stays.
+  Version data that is not a JSON object is shown as `{}`, and a malformed entry (a field or table name that is not
+  a string) is dropped, never shown; the FR-133 company filter (`_scoped_version_data`) is hardened the same way.
   The Versions are stored unmasked, so a reader of the level (Accounts Manager) sees the real values; Card Settings
   is not added to the write-time `PRIVATE_DOCTYPES` (the owner's 2026-10-31 rule is unchanged).
   Affected: the four child DocType JSONs; `card_settings.py` (`getdoc`, `get_docinfo`,
-  `apply_fieldlevel_read_permissions`, new `_hidden_settings_fields`, `mask_docinfo_versions_by_level`,
-  `_masked_version_data`); new `card/tests/test_child_permlevel_leak.py` (guard driven by an enumeration of every
+  `apply_fieldlevel_read_permissions`, `_scoped_version_data`, new `_hidden_settings_fields`,
+  `mask_docinfo_versions_by_level`, `_masked_version_data`); new `card/tests/test_child_permlevel_leak.py` (guard driven by an enumeration of every
   CARD DocType and by the installed meta; shared-child check; role probes for every CARD role, Accounts Manager,
   Accounts User and a test-only level-0 role on the three routes, the report-view filter and the form; report view
   for permitted readers; server reads; component history; Card Settings timeline masked for Card Manager and for a
-  level-0 reader, real values for Accounts Manager, stored Version unmasked; prints; a writer without the level
-  cannot overwrite or empty the rows through `savedocs` or `frappe.client.save`); `card/tests/test_equipment_g2.py`
+  level-0 reader, real values for Accounts Manager, stored Version unmasked, a removed row, the form-save reply,
+  malformed Versions; prints; a writer without the level (a test-only level-0 role) cannot overwrite or empty the
+  rows of Card Equipment or Card Settings through `savedocs` or `frappe.client.save`); `card/tests/test_equipment_g2.py`
   (the #59 Version check now expects the masked component row).
   Impact on permissions: level-0-only readers lose the plain field values on the routes listed under "Closed";
   readers of the table's level keep the form, the print, report view (child columns and filters) and every server
@@ -579,7 +584,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   fields selected through `frappe.client.get_list` / `get_value` with `parent=`; report-view child columns of a
   non-Single parent; report-view filters on child fields of the parent query (PermissionError); the form,
   `frappe.client.get` and prints; the Card Equipment change history from now on; the Card Settings change history
-  (masked per reader on `getdoc`, `get_docinfo` and the form save, old Versions included).
+  (masked per reader on `getdoc`, `get_docinfo` and the form-save reply, old Versions included).
   **Still open (Frappe 16 core).** Queries on the child DocType itself with `parent=<Parent>`, through
   `frappe.client.get_list` / `get_value`, `frappe.desk.reportview.get` / `get_list` / `get_count` (doctype = the
   child) and REST v1 `/api/resource/<Child>?parent=<Parent>`, still accept filters, `order_by` and `group_by` on
