@@ -660,8 +660,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   filter: per
   reader, the values of every Card Settings field and child row at a level he cannot read are replaced by the
   `card/field_privacy.py` mask in `changed`, `added`, `removed` and `row_changed`; who changed what and when stays.
-  Version data that is not a JSON object is shown as `{}`, and a malformed entry (a field or table name that is not
-  a string) is dropped, never shown; the FR-133 company filter (`_scoped_version_data`) is hardened the same way.
+  Both this mask and the FR-133 company filter (`_scoped_version_data`) read the Version data through
+  `_version_changes`, which rebuilds it in Frappe's own shape only (`changed` [field, old, new], `added` / `removed`
+  [table, row], `row_changed` [table, idx, row name, changes], and Frappe's `data_import`, `updater_reference`,
+  `impersonated_by`, `audit_user`, `creation`, `created_by`): extra elements and unknown keys are dropped, and so is
+  any entry whose table, field, company or row name is not a string or whose value is not a plain value; data that
+  is not a JSON object is shown empty; it never raises.
   The Versions are stored unmasked, so a reader of the level (Accounts Manager) sees the real values; Card Settings
   is not added to the write-time `PRIVATE_DOCTYPES` (the owner's 2026-10-31 rule is unchanged).
   Affected: the four child DocType JSONs; `card_settings.py` (`getdoc`, `get_docinfo`,
