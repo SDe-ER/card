@@ -5319,6 +5319,110 @@ msgstr ""
 msgid "Diesel price fuel type"
 msgstr ""
 
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Equipment Meter Reading"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Reading date and time"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Engine hours"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Reading source"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Weekly reading"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Handover reading"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Service reading"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Other reading"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Previous reading"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Previous engine hours"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Meter reset"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Reset reason"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Meter photo or document"
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Equipment {0} has no company; set its company before recording a meter reading."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Only a cancelled meter reading can be amended."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "An amendment of a meter reading stays in the company of the reading it amends."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Enter the reason for the meter reset."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Engine hours cannot be negative."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Equipment {0} already has the submitted meter reading {1} at {2}."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Mark a meter reset only when the reading is lower than the previous reading."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Engine hours {0} are lower than the previous reading {1} ({2}). Mark the reading as a meter reset and enter the reason, or correct it."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Engine hours {0} are higher than the later reading {1} ({2})."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
+msgid "Snapshot when the reading was saved or submitted; not updated when an earlier reading is added or cancelled later."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Cancelling this reading would leave the meter reset {0} ({1}) without a higher previous reading. Cancel the later readings first."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "Cancelling this reading would leave reading {0} ({1}) lower than reading {2} ({3}). Cancel the later readings first."
+msgstr ""
+
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.py
+msgid "The later meter reset {0} ({1}) must stay lower than this reading; engine hours {2} are too low."
+msgstr ""
+
 #: card/card/doctype/card_rate_agreement/card_rate_agreement.json
 msgid "Card Rate Agreement"
 msgstr ""
