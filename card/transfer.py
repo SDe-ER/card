@@ -584,13 +584,65 @@ def _card_day_after(equipment, project, tdate):
 			"""select 1 from `tabCard Monthly Card Day` d
 			join `tabCard Monthly Card` c on c.name = d.parent
 			where c.equipment=%s and c.project=%s and c.docstatus=1
-			and d.working_hours > 0 and d.operation_date > %s limit 1""",
+			and (d.working_hours > 0 or (d.reason_billable = 1 and d.stopped_hours > 0))
+			and d.operation_date > %s limit 1""",
 			(equipment, project, str(tdate)),
 		)
 	)
 
 
 # ---------- card-day validation (Card Monthly Card before_validate) ----------
+def is_billed_day(d):
+	"""A card day row that bills: operating hours, or (FR-118) stopped hours of an
+	explicitly billable stop reason. With no billable reason this is the old rule."""
+	return flt(d.working_hours) > 0 or (cint(d.get("reason_billable")) and flt(d.get("stopped_hours")) > 0)
+
+
+def billed_day_rows(card_names):
+	"""Day rows (parent, operation_date) of these monthly cards that bill (is_billed_day):
+	the days the statements and summaries count. Read-only."""
+	if not card_names:
+		return []
+	rows = frappe.get_all(
+		"Card Monthly Card Day",
+		filters=[
+			["parent", "in", list(card_names)],
+			["parenttype", "=", "Card Monthly Card"],
+		],
+		fields=["parent", "operation_date", "working_hours", "reason_billable", "stopped_hours"],
+		limit_page_length=0,
+		parent_doctype="Card Monthly Card",
+	)
+	return [r for r in rows if is_billed_day(r)]
+
+
+def stopped_hours_column(rows, width=110):
+	"""FR-118: the "Billable stopped hours" report column, or None when no row has a value
+	(the column then stays out of the report and its prints, as additions/deductions do)."""
+	if not any(flt(r.get("stopped_hours")) for r in rows):
+		return None
+	return {
+		"fieldname": "stopped_hours",
+		"label": _("Billable stopped hours"),
+		"fieldtype": "Float",
+		"precision": 2,
+		"width": width,
+	}
+
+
+def with_stopped_hours_column(columns, rows):
+	"""Insert the billable stopped hours column right after "hours" when a row has a value."""
+	column = stopped_hours_column(rows)
+	if not column:
+		return columns
+	result = []
+	for c in columns:
+		result.append(c)
+		if c.get("fieldname") == "hours":
+			result.append(column)
+	return result
+
+
 def validate_card_days(card):
 	"""Every working day must fall inside an assignment period for the card's
 	project. For a unit, every component must be assigned to the project that
@@ -614,7 +666,7 @@ def validate_card_days(card):
 	if not unit_checked and not component_rows:
 		return
 	for d in card.days:
-		if not d.operation_date or flt(d.working_hours) <= 0:
+		if not d.operation_date or not is_billed_day(d):
 			continue
 		day = getdate(d.operation_date)
 		members = [r.component for r in component_rows if _in_unit_on(r, day)]
