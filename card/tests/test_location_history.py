@@ -374,3 +374,62 @@ class TestEquipmentLocationHistory(IntegrationTestCase):
 			[(r["location_type"], r["location"], r["from_date"]) for r in rows],
 			[("Initial", None, self._day(1)), ("Supplier", self.supplier, self._day(5))],
 		)
+
+	# ---- a move before the range (reviewer's LOW note) ----
+	def _clipped(self, full, start, end):
+		result = []
+		for kind, place, first, last in full:
+			first, last = max(first, self._day(start)), min(last, self._day(end))
+			if first <= last:
+				result.append((kind, place, first, last))
+		return result
+
+	def test_workshop_move_before_the_range_shows_the_workshop(self):
+		proj = self._project("A")
+		eq = self._equipment(current_project=proj).name
+		self._assign(eq, proj, 1)
+		shop = self._move(eq, 5, destination="Workshop")
+		rows = self._run(eq, 10, 20)
+		self.assertEqual(
+			[(r["location_type"], r["location"], r["from_date"], r["to_date"]) for r in rows],
+			[("Workshop", shop.destination_location, self._day(10), self._day(20))],
+		)
+		self.assertEqual(
+			(rows[0]["source_doctype"], rows[0]["source_document"]), ("Equipment Transport", shop.name)
+		)
+
+	def test_windowed_run_equals_the_clipped_full_run_across_transports(self):
+		proj_a, proj_b = self._project("A"), self._project("B")
+		eq = self._equipment(current_project=proj_a).name
+		self._assign(eq, proj_a, 1)
+		self._move(eq, 5, destination="Workshop")
+		self._transport(eq, proj_b, 12)
+		self._move(eq, 22, destination="Workshop")
+		full = self._segments(eq)
+		self.assertEqual([kind for kind, *_rest in full], ["Project", "Workshop", "Project", "Workshop"])
+		for start, end in ((10, 20), (3, 8), (6, 14), (13, 25), (23, 28)):
+			self.assertEqual(self._segments(eq, start, end), self._clipped(full, start, end), (start, end))
+
+	def test_return_to_the_supplier_through_a_real_transport(self):
+		proj = self._project("A")
+		eq = self._equipment(ownership="إيجار", supplier=self.supplier, current_project=proj).name
+		self._assign(eq, proj, 1)
+		back = self._move(eq, 8, destination="Supplier")
+		self.assertEqual(back.equipment_supplier, self.supplier)
+		rows = self._run(eq, 1, 20)
+		self.assertEqual(
+			[
+				(r["location_type"], r.get("project") or r["location"], r["from_date"], r["to_date"])
+				for r in rows
+			],
+			[
+				("Project", proj, self._day(1), self._day(8)),
+				("Supplier", self.supplier, self._day(9), self._day(20)),
+			],
+		)
+		self.assertEqual(rows[1]["source_document"], back.name)
+		# a range that opens after the return still finds it (the last move before the range)
+		self.assertEqual(
+			[(r["location_type"], r["location"]) for r in self._run(eq, 12, 20)],
+			[("Supplier", self.supplier)],
+		)
