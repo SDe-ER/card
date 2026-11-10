@@ -307,7 +307,6 @@
    "permlevel": 1
   },
   {
-   "description": "A fill takes the price of its company's row with the latest date on or before the fill date. No row for the company: its diesel unit price in Company settings. Submitted fills keep their saved price.",
    "fieldname": "diesel_price_schedule",
    "fieldtype": "Table",
    "label": "Diesel price schedule",
