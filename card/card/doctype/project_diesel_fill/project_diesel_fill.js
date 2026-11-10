@@ -13,7 +13,8 @@ function card_price_context(frm) {
 	frappe
 		.call({
 			method: `${CARD_FILL}.get_diesel_price_context`,
-			args: { company: frm.doc.company || null },
+			// FR-125: the price on the fill date
+			args: { company: frm.doc.company || null, date: frm.doc.date || null },
 			type: "GET",
 		})
 		.then((r) => {
@@ -325,6 +326,9 @@ frappe.ui.form.on("Project Diesel Fill", {
 		card_price_context(frm);
 	},
 	company(frm) {
+		card_price_context(frm);
+	},
+	date(frm) {
 		card_price_context(frm);
 	},
 	litres(frm) {

@@ -41,6 +41,32 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   it is refused (the Card Monthly Card workflow is inactive on Production today); the List view bulk cancel
   (`submit_cancel_or_update_docs`, a background job above 20 records) is refused too: cancel each record from its
   form with a reason.
+- **Effective-dated diesel price schedule** (FR-125, #46, #124 WP-10). Reason: the diesel price changes over time and a fill
+  must take the price valid on its own date. Card Settings > Diesel Settings gets the table **Diesel price schedule** (new child
+  DocType `Card Diesel Price`: company, valid from, price per litre, currency defaulting to and limited to the company currency,
+  optional UOM; level 1 like `diesel_unit_price`). It lives on Card Settings with a company column because Card Company Settings is
+  itself a child table and Frappe has no nested child tables. A fill takes the price of its company's row with the latest valid
+  from on or before the fill date; with no such row (no schedule, or a date before the first row) it takes `diesel_unit_price`
+  exactly as before. Validation: one price per company and date, a required price above zero, company scope as for the other
+  company rows. **Behaviour change (review M1):** once a company has schedule rows (after the seed patch: every priced company),
+  its `diesel_unit_price` is read-only on the form and the server refuses a change; its price changes only by a new dated schedule
+  row. A saved Company Price draft whose date moves to a period with another price goes to Needs Review (like a company change);
+  it is never repriced silently. Known limit (review M3, the same gap main has for `company_settings`): Card Settings is a Single,
+  so a user who can read level 1 receives the schedule rows of every company; the form shows the price box only for permitted
+  companies and the server refuses changes to other companies' rows, but the rows are not stripped from the loaded document
+  (stripping them would delete them on the next save).
+  A new or changed row dated on or before submitted fills does not change them; the user is told how many submitted fills of the
+  company are on or after that date. The Diesel Settings price box shows today's price and, for a company with a schedule,
+  "Change price" adds a dated row. Patch `v4_7_0.seed_diesel_price_schedule` (post_model_sync, idempotent) gives each company with
+  `diesel_unit_price` > 0 and no schedule one row with that price, valid from its earliest fill date (today without fills);
+  `diesel_unit_price` is not changed. PR #195. Affected:
+  `project_diesel_fill.py` (`scheduled_diesel_price`, `diesel_price(company, on_date)`, `get_diesel_price_context` gains `date`,
+  `_apply_price`), `project_diesel_fill.js` (price on the fill date), `diesel_import.py` `_check_price` (session date),
+  `card_settings.py` (`_validate_diesel_price_schedule`, `COMPANY_TABLES`), `card_settings.js`, `card_settings.json`, locale.
+  Impact: permissions none (same level 1 as the price; no role widened); accounting none (no GL; the fill amount is litres x the
+  price as before); data: one schedule row per priced company after migrate, no fill changed; API: `get_diesel_price_context`
+  accepts an optional `date` (GET, read only). Rollback limits: reverting the code leaves the `Card Diesel Price` table and the
+  seeded rows in the database (unused); fills saved while the schedule was active keep the price they took.
 - **Transport costs the company does not pay, and an "other party" responsibility** (FR-120, refs #43, #48, #121;
   WP-14; PR #190).
   - **Reason:** when the equipment supplier, the customer or another party pays a move, the amount agreed with
