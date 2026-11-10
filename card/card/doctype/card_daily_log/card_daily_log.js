@@ -95,8 +95,41 @@ function show_generation_result(result) {
 		`<p><b>${__("Cards created")}:</b> ${links(result.created)}</p>`,
 		`<p><b>${__("Cards updated")}:</b> ${links(result.updated)}</p>`,
 		`<p><b>${__("Cards unchanged")}:</b> ${links(result.unchanged)}</p>`,
-		`<p><b>${__("Submitted cards not changed")}:</b> ${links(result.kept_submitted)}</p>`,
+		`<p><b>${__("Submitted cards not changed")}:</b> ${links(
+			(result.kept_submitted || []).map((k) => k.card),
+		)}</p>`,
 	];
+	const section = (rows, title, render) => {
+		if (!(rows || []).length) return;
+		const items = rows.map((d) => `<li>${render(d)}</li>`).join("");
+		lines.push(`<p><b>${title}:</b></p><ul>${items}</ul>`);
+	};
+	const notes = (value) => esc(value || "-");
+	section(
+		result.overwritten_days,
+		__("Days replaced from the approved log"),
+		(d) =>
+			`${esc(d.card)} ${esc(d.date)}: ${__("Card day hours")} ${d.old_hours} → ${
+				d.new_hours
+			}, ${__("Stopped hours")} ${d.old_stopped_hours} → ${d.new_stopped_hours}, ${__(
+				"Card day notes",
+			)} ${notes(d.old_notes)} → ${notes(d.new_notes)}`,
+	);
+	section(
+		result.cleared_days,
+		__("Days cleared (their daily log is no longer approved)"),
+		(d) => `${esc(d.card)} ${esc(d.date)}: ${esc(d.log)} (${d.hours} ${__("Card day hours")})`,
+	);
+	section(
+		(result.kept_submitted || []).flatMap((k) => k.stale_days || []),
+		__("Submitted card days whose daily log is no longer approved (not changed)"),
+		(d) => `${esc(d.card)} ${esc(d.date)}: ${esc(d.log)} (${d.hours} ${__("Card day hours")})`,
+	);
+	section(
+		result.conflicts,
+		__("Equipment changed by another run"),
+		(d) => `${esc(d.equipment)}: ${esc(d.message)}`,
+	);
 	if ((result.skipped_days || []).length) {
 		const items = result.skipped_days
 			.map(
@@ -117,6 +150,7 @@ function show_generation_result(result) {
 	frappe.msgprint({
 		title: __("Monthly cards from daily logs"),
 		message: lines.join(""),
-		indicator: (result.errors || []).length ? "orange" : "green",
+		indicator:
+			(result.errors || []).length || (result.conflicts || []).length ? "orange" : "green",
 	});
 }

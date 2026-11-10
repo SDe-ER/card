@@ -7238,3 +7238,31 @@ msgstr "كروت لم تُحفظ"
 #: card/card/doctype/card_daily_log/card_daily_log.js
 msgid "Monthly cards from daily logs"
 msgstr "الكروت الشهرية من اليوميات"
+
+#: card/daily_log_generation.py
+msgid "Changed by another run; run the generation again."
+msgstr "غيّرتها عملية إنشاء أخرى؛ أعد تشغيل الإنشاء."
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days replaced from the approved log"
+msgstr "أيام استُبدلت من اليومية المعتمدة"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day hours"
+msgstr "ساعات يوم الكارت"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day notes"
+msgstr "ملاحظات يوم الكارت"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days cleared (their daily log is no longer approved)"
+msgstr "أيام أُفرغت (يوميتها لم تعد معتمدة)"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted card days whose daily log is no longer approved (not changed)"
+msgstr "أيام في كروت معتمدة يوميتها لم تعد معتمدة (لم تتغير)"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Equipment changed by another run"
+msgstr "معدات غيّرتها عملية إنشاء أخرى"

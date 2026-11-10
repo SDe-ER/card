@@ -28,12 +28,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   shift hours and its stop data (stop reason, stopped hours, responsible party type, record and name) go to the day
   row of the day shift card, its night shift hours to the night shift card; a shift card is created only when a log
   row has hours for it; a draft card's day covered by an approved log is set from the log on every run (the day's
-  notes name the log), every other day row is kept. Each card is built and saved through the card's own `insert()` /
+  notes name the log, the day name is set as the form sets it), every other day row is kept. **The approved log
+  wins:** a draft day whose values differed from the log (a manual correction or an earlier log) is replaced and
+  listed in `overwritten_days` (card, date, old and new hours, stopped hours and notes; also shown in the dialog). A
+  day whose notes name a log that is no longer Approved (cancelled after generation) is cleared on a draft card
+  (hours, stop data and notes emptied; `cleared_days`) and only reported on a submitted card (`stale_days` of its
+  `kept_submitted` entry). Each card is built and saved through the card's own `insert()` /
   `save()` with the user's permissions, so the card's validation runs unchanged (duplicate guard, assignment days,
   unit-component days, stop reasons and billable snapshot, rates, fiscal-year window). A submitted card is never
   changed (reported) and no card is ever submitted. Repeat-safe: a second run changes nothing (no duplicate day or
   card); a log approved later fills its day; the equipment row is locked during its cards (the card's duplicate guard
-  reads without a lock). Left out and reported, never written: a day the equipment is not on the project (yard,
+  reads without a lock), then its cards of the month are read with a locking read (`FOR UPDATE`, the latest
+  committed rows) and compared with the request's snapshot: when another run changed them after this request
+  started, the equipment is skipped and listed in `conflicts` ("run again"), so two concurrent runs never create a
+  card twice. A missing project and another company's project get the same "not found" answer. Left out and reported, never written: a day the equipment is not on the project (yard,
   workshop, storage or another project; `card.transfer.validate_card_days`) and a day it is a component of a unit
   (`component_periods`; the day belongs on the unit's card, as `CardMonthlyCard._refuse_unit_component_days`
   requires). A machine moved during the month gets one card per project (each run names one project). A card that
@@ -43,7 +51,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `frappe.get_list`, FR-131 company scope); project and equipment must belong to the company. Affected functions:
   new `card/daily_log_generation.py`; `card_daily_log.js` (button); `card/tests/test_bola_matrix.py` (FR-129 row for
   the new endpoint) and `docs/governance/ROLE-ACTION-MATRIX.md` (endpoint table regenerated, one row). Tests:
-  `card/tests/test_daily_log_generation.py` (19). PR #221.
+  `card/tests/test_daily_log_generation.py` (28) and `card/tests/test_daily_log_generation_concurrency.py` (3, two
+  real connections; fails without the locking read). PR #221.
   Impact: permissions — none changed (no role, DocPerm or `ignore_permissions`); the action is limited to users who
   can already create monthly cards (Card Manager, Card User, System Manager). Accounting none (draft cards only; no
   GL, no invoice). Data: writes draft Card Monthly Cards only when a user runs the action; nothing runs by itself; no

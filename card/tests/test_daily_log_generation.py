@@ -13,11 +13,16 @@ import types
 
 import frappe
 from frappe.handler import is_valid_http_method
-from frappe.utils import add_days, add_months, get_first_day
+from frappe.utils import add_days, add_months, flt, get_first_day
 
 from card import daily_log
 from card.constants import SHIFT_DAY, SHIFT_NIGHT
-from card.daily_log_generation import SKIP_OFF_PROJECT, SKIP_UNIT_COMPONENT, generate_monthly_cards
+from card.daily_log_generation import (
+	SKIP_OFF_PROJECT,
+	SKIP_UNIT_COMPONENT,
+	day_name,
+	generate_monthly_cards,
+)
 from card.tests.test_customer import _CustomerCardsBase
 
 LOG = "Card Daily Log"
@@ -266,7 +271,7 @@ class TestDailyLogGeneration(_CustomerCardsBase):
 		modified = frappe.db.get_value(CARD, card, "modified")
 		self._log(2, [self._row(5)])
 		result = self._run()
-		self.assertEqual(result["kept_submitted"], [card])
+		self.assertEqual(result["kept_submitted"], [{"card": card, "stale_days": []}])
 		self.assertEqual(result["created"] + result["updated"], [])
 		self.assertEqual(self._cards(SHIFT_DAY), [card])
 		self.assertEqual(sorted(self._days(card)), [str(self._day(1))])
@@ -404,3 +409,276 @@ class TestDailyLogGeneration(_CustomerCardsBase):
 				generate_monthly_cards(company=self.company, project=self.project, month="not-a-month")
 		finally:
 			frappe.set_user("Administrator")
+
+	# ---------- review items (PR #221) ----------
+	def _cancel(self, log):
+		frappe.set_user(self.manager)
+		try:
+			frappe.get_doc(LOG, log.name).cancel()
+		finally:
+			frappe.set_user("Administrator")
+			frappe.clear_messages()
+
+	def _amend(self, log, day_hours):
+		frappe.set_user(self.operator)
+		try:
+			doc = frappe.copy_doc(frappe.get_doc(LOG, log.name))
+			doc.docstatus = 0
+			doc.amended_from = log.name
+			doc.rows[0].day_hours = day_hours
+			doc.insert()
+			doc.submit()
+		finally:
+			frappe.set_user("Administrator")
+		frappe.set_user(self.manager)
+		try:
+			doc = frappe.get_doc(LOG, doc.name)
+			doc.approval_status = daily_log.APPROVED
+			doc.save()
+		finally:
+			frappe.set_user("Administrator")
+			frappe.clear_messages()
+		return doc
+
+	def test_cancel_after_generation_clears_the_day(self):
+		self._log(1, [self._row(8)])
+		log2 = self._log(2, [self._row(5)])
+		(card,) = self._run()["created"]
+		self._cancel(log2)
+		result = self._run()
+		self.assertEqual(result["updated"], [card])
+		self.assertEqual(
+			[(d["date"], d["log"], d["hours"]) for d in result["cleared_days"]],
+			[(str(self._day(2)), log2.name, 5)],
+		)
+		day2 = self._days(card)[str(self._day(2))]
+		self.assertEqual((flt(day2.working_hours), day2.notes), (0, None))
+		self.assertEqual(frappe.db.get_value(CARD, card, "total_working_hours"), 8)
+		# a second run has nothing left to clear
+		self.assertEqual(self._run()["unchanged"], [card])
+		# the amended, approved log fills the day again
+		amended = self._amend(log2, 3)
+		self.assertEqual(self._run()["updated"], [card])
+		day2 = self._days(card)[str(self._day(2))]
+		self.assertEqual((day2.working_hours, day2.notes), (3, amended.name))
+
+	def test_cancel_after_generation_only_reported_on_a_submitted_card(self):
+		log = self._log(1, [self._row(8)])
+		(card,) = self._run()["created"]
+		frappe.get_doc(CARD, card).submit()
+		modified = frappe.db.get_value(CARD, card, "modified")
+		self._cancel(log)
+		result = self._run()
+		(kept,) = result["kept_submitted"]
+		self.assertEqual(kept["card"], card)
+		self.assertEqual([(d["date"], d["log"]) for d in kept["stale_days"]], [(str(self._day(1)), log.name)])
+		self.assertEqual(result["cleared_days"], [])
+		self.assertEqual(frappe.db.get_value(CARD, card, "modified"), modified)
+		self.assertEqual(self._days(card)[str(self._day(1))].working_hours, 8)
+
+	def test_a_manual_correction_is_replaced_and_reported(self):
+		log = self._log(1, [self._row(8)])
+		(card,) = self._run()["created"]
+		doc = frappe.get_doc(CARD, card)
+		doc.days[0].working_hours = 6
+		doc.days[0].notes = "corrected by hand"
+		doc.save()
+		result = self._run()
+		self.assertEqual(result["updated"], [card])
+		(day,) = result["overwritten_days"]
+		self.assertEqual(
+			(day["date"], day["old_hours"], day["new_hours"], day["old_notes"], day["new_notes"]),
+			(str(self._day(1)), 6, 8, "corrected by hand", log.name),
+		)
+		self.assertEqual(self._days(card)[str(self._day(1))].working_hours, 8)
+		# an unchanged card reports nothing
+		again = self._run()
+		self.assertEqual((again["unchanged"], again["overwritten_days"]), ([card], []))
+
+	def test_day_name_is_set_on_the_server(self):
+		self._log(1, [self._row(8)])
+		(card,) = self._run()["created"]
+		row = self._days(card)[str(self._day(1))]
+		self.assertEqual(row.day_name, day_name(self._day(1)))
+		self.assertIn(row.day_name, ("الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"))
+		self.assertEqual(day_name("2026-11-13"), "الجمعة")  # a Friday
+
+	def test_other_party_with_a_name(self):
+		reason = frappe.get_doc(
+			{
+				"doctype": "Card Stop Reason",
+				"company": self.company,
+				"reason_name": "TEST-K2-OTH-" + self.token,
+				"enabled": 1,
+			}
+		).insert(ignore_permissions=True)
+		self._log(
+			1,
+			[
+				self._row(
+					6,
+					stop_reason=reason.name,
+					stopped_hours=2,
+					responsible_party_type="Other",
+					responsible_party_name="Site driver",
+				)
+			],
+		)
+		(card,) = self._run()["created"]
+		row = self._days(card)[str(self._day(1))]
+		self.assertEqual(
+			(row.responsible_party_type, row.responsible_party, row.responsible_party_name),
+			("Other", None, "Site driver"),
+		)
+		self.assertEqual(self._run()["unchanged"], [card])
+
+	def test_billable_stop_reason_amounts_match_a_hand_entered_card(self):
+		reason = frappe.get_doc(
+			{
+				"doctype": "Card Stop Reason",
+				"company": self.company,
+				"reason_name": "TEST-K2-BILL-" + self.token,
+				"enabled": 1,
+				"billable": 1,
+				"billable_approval_reason": "test agreement",
+			}
+		).insert(ignore_permissions=True)
+		generated, hand = self._sub_rental(), self._sub_rental()
+		plan = [
+			(1, 8, 0, None, 0, None, None),
+			(2, 6, 3, reason.name, 2, "Other", "Site driver"),
+			(3, 0, 0, reason.name, 5, "Supplier", self.supplier),
+			(4, 0, 7, None, 0, None, None),
+		]
+
+		def party(kind, value):
+			if kind == "Other":
+				return {"responsible_party_type": kind, "responsible_party_name": value}
+			return {"responsible_party_type": kind, "responsible_party": value} if kind else {}
+
+		for n, day, night, stop, stopped, kind, value in plan:
+			self._log(
+				n,
+				[
+					{
+						"equipment": generated.name,
+						"day_hours": day,
+						"night_hours": night,
+						"stop_reason": stop,
+						"stopped_hours": stopped,
+						**party(kind, value),
+					}
+				],
+			)
+		result = self._run(equipment=generated.name)
+		self.assertEqual(len(result["created"]), 2, result)
+		fields = (
+			"amount",
+			"customer_amount",
+			"net_amount",
+			"customer_net_amount",
+			"total_working_hours",
+			"working_days",
+			"billable_stopped_hours",
+			"billable_stopped_days",
+			"supplier_billable_stopped_hours",
+			"customer_billable_stopped_hours",
+		)
+		for shift in (SHIFT_DAY, SHIFT_NIGHT):
+			card = frappe.new_doc(CARD)
+			card.update(
+				{
+					"company": self.company,
+					"project": self.project,
+					"equipment": hand.name,
+					"month": self.card_month,
+					"year": self.card_year,
+					"shift": shift,
+				}
+			)
+			for n, day, night, stop, stopped, kind, value in plan:
+				row = {"operation_date": self._day(n), "day_status": "عمل", "working_hours": night}
+				if shift == SHIFT_DAY:
+					row.update(
+						working_hours=day, stop_reason=stop, stopped_hours=stopped, **party(kind, value)
+					)
+				card.append("days", row)
+			frappe.set_user(self.runner)
+			card.insert()
+			frappe.set_user("Administrator")
+			name = frappe.db.get_value(CARD, {"equipment": generated.name, "shift": shift, "docstatus": 0})
+			made = frappe.get_doc(CARD, name)
+			with self.subTest(shift=shift):
+				self.assertEqual({f: flt(made.get(f)) for f in fields}, {f: flt(card.get(f)) for f in fields})
+		self.assertGreater(flt(frappe.db.get_value(CARD, name, "customer_amount")), 0)
+		day_card = frappe.db.get_value(CARD, {"equipment": generated.name, "shift": SHIFT_DAY})
+		self.assertEqual(flt(frappe.db.get_value(CARD, day_card, "billable_stopped_hours")), 7)
+
+	def test_unit_component_days_from_dated_periods(self):
+		for n in (1, 2, 3, 4):
+			self._log(n, [self._row(8)])
+		unit = self._equipment()
+		row = frappe.new_doc("Card Equipment Component")
+		row.update(
+			{
+				"parent": unit.name,
+				"parenttype": "Card Equipment",
+				"parentfield": "components",
+				"component": self.eq.name,
+				"from_date": self._day(2),
+				"to_date": self._day(3),
+				"idx": 1,
+			}
+		)
+		row.db_insert()
+		result = self._run()
+		(card,) = result["created"]
+		self.assertEqual(sorted(self._days(card)), [str(self._day(1)), str(self._day(4))])
+		self.assertEqual(
+			[(d["date"], d["reason"]) for d in result["skipped_days"]],
+			[(str(self._day(2)), SKIP_UNIT_COMPONENT), (str(self._day(3)), SKIP_UNIT_COMPONENT)],
+		)
+
+	def test_verified_then_approved_with_the_supervisor_step(self):
+		frappe.get_doc(
+			{
+				"doctype": "Card Daily Log Settings",
+				"company": self.company,
+				"require_supervisor_verification": 1,
+			}
+		).insert(ignore_permissions=True)
+		supervisor = self._user("sup", ("Card Supervisor",), company=self.company)
+		log = self._log(1, [self._row(8)], status=daily_log.PENDING)
+		frappe.set_user(supervisor)
+		doc = frappe.get_doc(LOG, log.name)
+		doc.approval_status = daily_log.VERIFIED
+		doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(self._run()["created"], [], "a verified log is not approved yet")
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc(LOG, log.name)
+		doc.approval_status = daily_log.APPROVED
+		doc.save()
+		frappe.set_user("Administrator")
+		frappe.clear_messages()
+		(card,) = self._run()["created"]
+		self.assertEqual(self._days(card)[str(self._day(1))].working_hours, 8)
+
+	def test_missing_and_foreign_projects_get_the_same_answer(self):
+		company_b = self._company_b()
+		foreign = frappe.new_doc("Project")
+		foreign.update({"project_name": "TEST-K2-FOREIGN-" + self.token, "company": company_b})
+		foreign.name = "TEST-K2-FOREIGN-" + self.token
+		foreign.db_insert()
+		messages = []
+		for project in (foreign.name, "TEST-K2-MISSING-" + self.token):
+			frappe.set_user(self.runner)
+			try:
+				with self.assertRaises(frappe.DoesNotExistError) as caught:
+					generate_monthly_cards(company=self.company, project=project, month=self.month)
+				messages.append(str(caught.exception).replace(project, "<p>"))
+			finally:
+				frappe.set_user("Administrator")
+				frappe.clear_messages()
+		self.assertEqual(messages[0], messages[1])
+		self.assertNotIn(company_b, messages[0])

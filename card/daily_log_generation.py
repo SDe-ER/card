@@ -9,12 +9,22 @@ one equipment it reads the Approved, submitted Card Daily Logs and creates or up
   and the stop data (stop reason, stopped hours, responsible party) of a log row go to the day shift card, the night
   shift hours to the night shift card. A shift card is created only when a log row has hours for it; a shift card
   that exists as a draft gets every log date of the month (a zero day included);
-- a day of a draft card covered by an approved log is set from the log on every run; every other day row of the card
-  is kept; the day's notes name the log;
-- a submitted card is never changed (it is reported); no card is ever submitted;
+- the approved log wins: a day of a draft card covered by an approved log is set from the log on every run (the
+  day's notes name the log); when the card's day held other values (a manual correction, or an earlier log) they are
+  replaced and every such day is listed in ``overwritten_days`` with its old and new hours and notes; every other day
+  row of the card is kept;
+- a day whose notes name a daily log that is no longer Approved (cancelled, for example) is cleared on a draft card
+  (hours, stop data and notes emptied; listed in ``cleared_days``); on a submitted card it is only reported
+  (``stale_days`` of its ``kept_submitted`` entry);
+- a submitted card is never changed; no card is ever submitted;
 - every card is built and saved through ``insert()`` / ``save()``, so the card's own validation runs (duplicate guard,
   assignment days, unit-component days, stop reasons, fiscal-year window, rates), with the user's permissions;
 - a second run changes nothing (no duplicate day or card); a log approved later fills its day on the next run.
+
+Concurrency: the equipment row is locked, then the equipment's cards of the month are read twice, from the
+request's REPEATABLE READ snapshot and with a locking read (the latest committed rows). When they differ another run
+changed them after this request started: the equipment is skipped and listed in ``conflicts`` (run again), so two
+concurrent runs never create the same card twice.
 
 Days left out (reported, never written): a day the equipment is not on the project (yard, workshop, storage or
 another project; the same check as the card, ``card.transfer.validate_card_days``), and a day the equipment is a
@@ -24,8 +34,9 @@ only that project's logs.
 
 Authorization: the user must be allowed to create a Card Monthly Card of the company and project (DocPerm, Company
 User Permissions, ``has_card_permission``) and to read the company's daily logs (FR-131 hooks through
-``frappe.get_list``); every card is then inserted or saved with the user's own permissions. A card that fails its
-validation is rolled back alone and reported; a permission error stops the whole run."""
+``frappe.get_list``); every card is then inserted or saved with the user's own permissions. A missing project and a
+project of another company get the same answer. A card that fails its validation is rolled back alone and reported;
+a permission error stops the whole run."""
 
 import frappe
 from frappe import _
@@ -38,7 +49,10 @@ from card.daily_log import ROW_DOCTYPE as LOG_ROW_DOCTYPE
 from card.transfer import _in_unit_on, validate_card_days
 
 CARD = "Card Monthly Card"
+CARD_DAY = "Card Monthly Card Day"
 WORK_STATUS = "عمل"  # the card day status that keeps the working hours (Card Monthly Card Day.day_status)
+# the card form's day names (card_monthly_card.js CARD_DAYS, Sunday first)
+DAY_NAMES = ("الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت")
 STOP_FIELDS = (
 	"stop_reason",
 	"stopped_hours",
@@ -46,7 +60,7 @@ STOP_FIELDS = (
 	"responsible_party",
 	"responsible_party_name",
 )
-DAY_FIELDS = ("day_status", "working_hours", *STOP_FIELDS, "notes")
+HOUR_FIELDS = ("working_hours", "stopped_hours")
 
 SKIP_OFF_PROJECT = "off_project"
 SKIP_UNIT_COMPONENT = "unit_component"
@@ -66,10 +80,14 @@ def _first_day(month):
 	return day.replace(day=1)
 
 
+def day_name(day):
+	"""The card form's day name of a date (card_monthly_card.js)."""
+	return DAY_NAMES[(getdate(day).weekday() + 1) % 7]
+
+
 def _authorize(company, project, equipment):
-	"""Refuse unless the user may create a monthly card of this company and project and read its daily logs."""
-	if not frappe.db.exists("Company", company) or not frappe.db.exists("Project", project):
-		frappe.throw(_("Company or project not found."), frappe.DoesNotExistError)
+	"""Refuse unless the user may create a monthly card of this company and project and read its daily logs. A
+	missing project and a project of another company get the same answer (no existence probe across companies)."""
 	probe = frappe.new_doc(CARD)
 	probe.update({"company": company, "project": project, "equipment": equipment})
 	if not frappe.has_permission(CARD, "create", doc=probe):
@@ -81,8 +99,8 @@ def _authorize(company, project, equipment):
 		)
 	if not frappe.has_permission(LOG_DOCTYPE, "read"):
 		frappe.throw(_("You are not allowed to read daily logs."), frappe.PermissionError)
-	if frappe.db.get_value("Project", project, "company") != company:
-		frappe.throw(_("Project {0} does not belong to company {1}.").format(project, company))
+	if not company or frappe.db.get_value("Project", project, "company") != company:
+		frappe.throw(_("Company or project not found."), frappe.DoesNotExistError)
 	if equipment:
 		if not frappe.has_permission("Card Equipment", "read", equipment):
 			frappe.throw(
@@ -122,6 +140,32 @@ def _approved_rows(company, project, first_day, last_day, equipment):
 		row.log_date = dates[row.parent]
 		out.setdefault(row.equipment, {})[row.log_date] = row
 	return out
+
+
+def _card_equipment(company, project, month, year, equipment):
+	"""Equipment with a card of the month the user can read (a card may hold days of a log no longer approved)."""
+	filters = {"company": company, "project": project, "month": month, "year": year, "docstatus": ["!=", 2]}
+	if equipment:
+		filters["equipment"] = equipment
+	return set(frappe.get_list(CARD, filters=filters, pluck="equipment", limit_page_length=0))
+
+
+def _month_cards(equipment, project, month, year, lock=False):
+	"""{name: (shift, docstatus, modified)} of the equipment's live cards of the month; ``lock`` reads the latest
+	committed rows with a locking read, otherwise the request's snapshot is read."""
+	card = frappe.qb.DocType(CARD)
+	query = (
+		frappe.qb.from_(card)
+		.select(card.name, card.shift, card.docstatus, card.modified)
+		.where(card.equipment == equipment)
+		.where(card.project == project)
+		.where(card.month == month)
+		.where(card.year == year)
+		.where(card.docstatus != 2)
+	)
+	if lock:
+		query = query.for_update()
+	return {r.name: (r.shift, r.docstatus, r.modified) for r in query.run(as_dict=True)}
 
 
 def _on_project(equipment, project, day):
@@ -189,7 +233,7 @@ def _shift_has_hours(rows, shift):
 def _same(current, values):
 	for field, value in values.items():
 		stored = current.get(field)
-		if field in ("working_hours", "stopped_hours"):
+		if field in HOUR_FIELDS:
 			if flt(stored) != flt(value):
 				return False
 		elif (stored or None) != (value or None):
@@ -197,18 +241,36 @@ def _same(current, values):
 	return True
 
 
-def _apply_days(card, rows, shift):
-	"""Set the card's day rows of the log dates; True when something changed."""
+def _change(card, shift, day, current, values):
+	return {
+		"card": card.name,
+		"equipment": card.equipment,
+		"shift": shift,
+		"date": str(day),
+		"old_hours": flt(current.get("working_hours")),
+		"new_hours": flt(values.get("working_hours")),
+		"old_stopped_hours": flt(current.get("stopped_hours")),
+		"new_stopped_hours": flt(values.get("stopped_hours")),
+		"old_notes": current.get("notes") or None,
+		"new_notes": values.get("notes") or None,
+	}
+
+
+def _apply_days(card, rows, shift, overwritten):
+	"""Set the card's day rows of the log dates (the approved log wins); a replaced day with other values is added
+	to ``overwritten``. True when something changed."""
 	by_date = {getdate(d.operation_date): d for d in card.get("days") or [] if d.operation_date}
 	changed = False
 	for day in sorted(rows):
 		values = _day_values(rows[day], shift)
 		current = by_date.get(day)
 		if current is None:
-			card.append("days", {"operation_date": day, **values})
+			card.append("days", {"operation_date": day, "day_name": day_name(day), **values})
 			changed = True
 		elif not _same(current, values):
-			current.update(values)
+			if not card.is_new():
+				overwritten.append(_change(card, shift, day, current, values))
+			current.update({**values, "day_name": day_name(day)})
 			changed = True
 	if changed:
 		card.days.sort(key=lambda d: getdate(d.operation_date))
@@ -217,36 +279,67 @@ def _apply_days(card, rows, shift):
 	return changed
 
 
-def _existing_card(equipment, project, month, year, shift):
-	return frappe.db.get_value(
-		CARD,
-		{
-			"equipment": equipment,
-			"project": project,
-			"month": month,
-			"year": year,
-			"shift": shift,
-			"docstatus": ["!=", 2],
-		},
-		["name", "docstatus"],
-		as_dict=True,
+def _stale_rows(days, covered):
+	"""Day rows (not in ``covered``) whose notes name a daily log that is no longer Approved and submitted."""
+	named = {d.notes: d for d in days if d.notes and getdate(d.operation_date) not in covered}
+	if not named:
+		return []
+	logs = frappe.get_all(
+		LOG_DOCTYPE,
+		filters={"name": ["in", list(named)]},
+		fields=["name", "docstatus", "approval_status"],
 	)
+	stale = {log.name for log in logs if not (log.docstatus == 1 and log.approval_status == APPROVED)}
+	return [d for d in days if d.notes in stale and getdate(d.operation_date) not in covered]
 
 
-def _build_card(company, project, equipment, month, year, shift, rows, result):
-	existing = _existing_card(equipment, project, month, year, shift)
-	if existing and existing.docstatus == 1:
-		result["kept_submitted"].append(existing.name)
+def _stale_entry(card, shift, row):
+	return {
+		"card": card,
+		"shift": shift,
+		"date": str(getdate(row.operation_date)),
+		"log": row.notes,
+		"hours": flt(row.working_hours),
+		"stopped_hours": flt(row.stopped_hours),
+	}
+
+
+def _clear_stale(card, rows, shift, cleared):
+	"""Empty the draft card's days that came from a log no longer approved; True when something changed."""
+	stale = _stale_rows(card.get("days") or [], set(rows))
+	for row in stale:
+		cleared.append(_stale_entry(card.name, shift, row))
+		row.update({"working_hours": 0, "notes": None, **dict.fromkeys(STOP_FIELDS)})
+		row.stopped_hours = 0
+	return bool(stale)
+
+
+def _kept_submitted(name, shift, rows):
+	days = frappe.get_all(
+		CARD_DAY,
+		filters={"parent": name, "parenttype": CARD},
+		fields=["operation_date", "working_hours", "stopped_hours", "notes"],
+	)
+	return {"card": name, "stale_days": [_stale_entry(name, shift, d) for d in _stale_rows(days, set(rows))]}
+
+
+def _build_card(company, project, equipment, month, year, shift, existing, rows, result):
+	"""Create or update one shift card. ``existing`` is (name, docstatus) from the locking read, or None."""
+	if existing and existing[1] == 1:
+		result["kept_submitted"].append(_kept_submitted(existing[0], shift, rows))
 		return
 	if not existing and not _shift_has_hours(rows, shift):
 		return
 	log_size = len(frappe.local.message_log or [])
 	savepoint = "card_k2_" + frappe.generate_hash(length=8)
 	frappe.db.savepoint(savepoint)
+	overwritten, cleared = [], []
 	try:
 		if existing:
-			card = frappe.get_doc(CARD, existing.name)
-			if not _apply_days(card, rows, shift):
+			card = frappe.get_doc(CARD, existing[0])
+			changed = _apply_days(card, rows, shift, overwritten)
+			changed = _clear_stale(card, rows, shift, cleared) or changed
+			if not changed:
 				result["unchanged"].append(card.name)
 				return
 			card.save()
@@ -263,9 +356,11 @@ def _build_card(company, project, equipment, month, year, shift, rows, result):
 					"shift": shift,
 				}
 			)
-			_apply_days(card, rows, shift)
+			_apply_days(card, rows, shift, overwritten)
 			card.insert()
 			result["created"].append(card.name)
+		result["overwritten_days"].extend(overwritten)
+		result["cleared_days"].extend(cleared)
 	except frappe.PermissionError:
 		raise
 	except frappe.ValidationError as exc:
@@ -275,7 +370,7 @@ def _build_card(company, project, equipment, month, year, shift, rows, result):
 			{
 				"equipment": equipment,
 				"shift": shift,
-				"card": existing.name if existing else None,
+				"card": existing[0] if existing else None,
 				"message": str(exc),
 			}
 		)
@@ -295,16 +390,31 @@ def generate_monthly_cards(company: str, project: str, month: str, equipment: st
 		"updated": [],
 		"unchanged": [],
 		"kept_submitted": [],
+		"overwritten_days": [],
+		"cleared_days": [],
 		"skipped_days": [],
+		"conflicts": [],
 		"errors": [],
 	}
 	by_equipment = _approved_rows(company, project, first_day, last_day, equipment)
-	for name in sorted(by_equipment):
-		# one run at a time per equipment: the card's duplicate guard reads without a lock
+	names = set(by_equipment) | _card_equipment(company, project, card_month, card_year, equipment)
+	for name in sorted(names):
+		# one run at a time per equipment, then the cards as committed by any other run (a locking read): the
+		# card's own duplicate guard reads the request's snapshot, which cannot see another run's new card
 		frappe.db.get_value("Card Equipment", name, "name", for_update=True)
-		rows = _kept_days(name, project, by_equipment[name], result["skipped_days"])
-		if not rows:
+		latest = _month_cards(name, project, card_month, card_year, lock=True)
+		if latest != _month_cards(name, project, card_month, card_year):
+			result["conflicts"].append(
+				{
+					"equipment": name,
+					"message": _("Changed by another run; run the generation again."),
+				}
+			)
 			continue
+		rows = _kept_days(name, project, by_equipment.get(name) or {}, result["skipped_days"])
+		by_shift = {shift: (card, docstatus) for card, (shift, docstatus, _m) in latest.items()}
 		for shift in (SHIFT_DAY, SHIFT_NIGHT):
-			_build_card(company, project, name, card_month, card_year, shift, rows, result)
+			_build_card(
+				company, project, name, card_month, card_year, shift, by_shift.get(shift), rows, result
+			)
 	return result

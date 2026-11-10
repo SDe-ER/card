@@ -5998,3 +5998,31 @@ msgstr ""
 #: card/card/doctype/card_daily_log/card_daily_log.js
 msgid "Monthly cards from daily logs"
 msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Changed by another run; run the generation again."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days replaced from the approved log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day notes"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days cleared (their daily log is no longer approved)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted card days whose daily log is no longer approved (not changed)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Equipment changed by another run"
+msgstr ""
