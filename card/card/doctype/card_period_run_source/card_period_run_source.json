@@ -26,6 +26,7 @@
   "customer_side",
   "supplier_amount",
   "customer_amount",
+  "supplier_vat_registered",
   "supplier_posted",
   "customer_posted",
   "currency",
@@ -94,7 +95,8 @@
   {
    "fieldname": "supplier_amount",
    "fieldtype": "Currency",
-   "label": "Period run supplier amount",
+   "label": "Period run supplier gross source amount",
+   "description": "The source documents' own amounts (a diesel fill at its gross fill amount). Not the invoice total: with a VAT-inclusive diesel price the invoice books the net part.",
    "options": "currency",
    "read_only": 1,
    "permlevel": 1,
@@ -103,11 +105,17 @@
   {
    "fieldname": "customer_amount",
    "fieldtype": "Currency",
-   "label": "Period run customer amount",
+   "label": "Period run customer gross source amount",
    "options": "currency",
    "read_only": 1,
    "permlevel": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "supplier_vat_registered",
+   "fieldtype": "Check",
+   "label": "Fill supplier VAT-registered",
+   "read_only": 1
   },
   {
    "fieldname": "supplier_posted",

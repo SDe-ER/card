@@ -31,9 +31,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (supplier, `amount`) and, with the company's FR-139 setting Post, the transports with a responsibility that
   the transporter invoice carries (supplier, `amount` less a recovery deducted on that invoice) and the approved
   "Bill customer" monthly-invoice transports (customer, `billing_amount`). One row per document (both sides on one
-  row) with whether each side is already posted (an active CARD posting log holds it, or its invoice link is set;
+  row; a transport the posting preview refuses today, e.g. a pre-P1-2 move with no cost project, still counts:
+  the run total means "what the posting will bill once it can") with whether each side is already posted (an active CARD posting log holds it, or its invoice link is set;
   information only, so posting never makes a run stale and WP-S2 can compare the run with the unposted
-  remainder); card count and total per side; a snapshot fingerprint. Each document fingerprint is a SHA-256 of an
+  remainder); count and total per side; a snapshot fingerprint. The amounts and totals are GROSS source amounts (each
+  document's own amount; a diesel fill at its fill amount), not invoice totals: with a VAT-inclusive diesel price
+  and a VAT-registered supplier the posting books the net part. The run stores the company's configured
+  `diesel_price_vat_basis` and, per fill, whether its supplier has a tax ID (the posting's rule; VAT is never
+  inferred); both are in the snapshot fingerprint, so a change makes the run stale; WP-S2 must compare like with
+  like. The filters copied from `card.gl.posting` carry a comment naming their source (WP-S2 should expose shared
+  builders); a test proves the selection equals the posting's sources in Hold and in Post. Each document fingerprint is a SHA-256 of an
   explicit, versioned list of billing fields of the document and its rows (`FINGERPRINT_FIELDS`, version 1;
   amounts, quantities, parties, project, period, direction, posting eligibility), empty values left out, so a
   field added to a DocType later never makes an approved run stale. Client rows, totals, fingerprints and version
@@ -47,14 +54,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   while it is approved for its current version and snapshot and the sources are unchanged. The approval fields
   are written by the server only on every route (REST insert with `docstatus` 1, `frappe.client.set_value`, REST
   PUT, savedocs, bulk update, bulk cancel): drafts and submit reset them, `before_update_after_submit` re-reads
-  them under a lock, `before_cancel` restores the stored approval, preparers and rule under a lock, then refuses a
+  them under a lock, `before_cancel` restores the stored approval, preparers and rule under a lock, (corrected, not refused,
+  as in FR-142; `owner` and `creation` are refused by the guard once PR #226 merges), then refuses a
   cancel that changes any other field or row (the `card.cancel_reason` guard, `CancelChangesDocumentError`;
   Frappe skips validate on a cancel); a run approved and still current is cancelled by an approver only (a stale
   one by its preparers too). No self-approval (FR-142 pattern, reusing `card.daily_log._add_preparers` /
   `_has_any_role`): creator, submitter and every editor of the run and of every run of its amendment chain are
   preparers; the run's `self_approval_rule` "Warn only (period run)" (default: approve, message, `self_approved`)
   / "Refuse (period run)" (refuse; no role exempt) can be raised to Refuse at any time, never lowered, and an
-  amendment keeps it; a saved run keeps its stored `amended_from` on every later save (Frappe checks it on insert
+  amendment keeps it; a new run, however it is created (build_run, Desk New, REST or frappe.client insert), is
+  linked by the server to the month's highest-version cancelled run whatever the client sent, and its rule is
+  Refuse when any run of the company-month has it; a saved run keeps its stored `amended_from` on every later save (Frappe checks it on insert
   only), so a client cannot drop the chain's preparers, rule or version. Nothing calls the run from posting yet (WP-S2 adds the opt-in requirement before
   `post_month`). Affected functions: new `card/gl/period_run.py` (`build_snapshot`, `document_fingerprint`,
   `check_current`, `prepare_run`, `record_submitter`, `check_transition`, `check_cancel`, `run_preparers`,
@@ -63,8 +73,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `card_period_run.js` (current/stale banner, Approve / Return buttons); `card/company_scope.py`
   `COMPANY_SOURCES` + "Card Period Run" (its `amended_from`). Reads, without changing, `card.gl.posting`
   (`_customer_transports`, `_unheld_batch`, `_TRANSPORT_SOURCE_FIELDS`), `card.gl.preflight` and
-  `card.transport_costs`. Tests: `card/tests/test_period_run.py` (44, including a mixed month whose totals per
-  side equal the posting preview's sources, and a two-connection concurrency test); two rows in
+  `card.transport_costs`. Tests: `card/tests/test_period_run.py` (47, including a mixed month whose gross totals per
+  side equal the posting preview's sources (VAT-exclusive basis), and a two-connection concurrency test); two rows in
   `card/tests/test_bola_matrix.py`; `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (two DocType rows, two
   endpoint rows). PR #222.
   Impact: permissions — new DocPerms on the new DocTypes only (Card Period Run: System Manager full; Card Manager

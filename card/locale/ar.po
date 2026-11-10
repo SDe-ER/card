@@ -7261,22 +7261,6 @@ msgstr "بصمة اللقطة"
 msgid "Period run currency"
 msgstr "عملة دورة الفترة"
 
-#: card/card/doctype/card_period_run/card_period_run.json
-msgid "Supplier-side total"
-msgstr "إجمالي جانب المورد"
-
-#: card/card/doctype/card_period_run/card_period_run.json
-msgid "Customer-side total"
-msgstr "إجمالي جانب العميل"
-
-#: card/card/doctype/card_period_run_source/card_period_run_source.json
-msgid "Period run supplier amount"
-msgstr "مبلغ المورد في دورة الفترة"
-
-#: card/card/doctype/card_period_run_source/card_period_run_source.json
-msgid "Period run customer amount"
-msgstr "مبلغ العميل في دورة الفترة"
-
 #: card/gl/period_run.py
 msgid "Period run month must be between 01 and 12."
 msgstr "يجب أن يكون شهر دورة الفترة بين 01 و12."
@@ -7580,3 +7564,32 @@ msgstr "مفتاح المصدر {0} مستخدم بالفعل في النقل {1
 #: card/intake.py
 msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
 msgstr "نفس مستند المصدر مرفق بالفعل بالنقل {0}. تأكد أنه لم يُدخل مرتين."
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run supplier gross source amount"
+msgstr "مبلغ المصدر الإجمالي لجانب المورد في دورة الفترة"
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Period run customer gross source amount"
+msgstr "مبلغ المصدر الإجمالي لجانب العميل في دورة الفترة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "The source documents' own amounts (a diesel fill at its gross fill amount). Not the invoice total: with a VAT-inclusive diesel price the invoice books the net part."
+msgstr "مبالغ المستندات المصدرية نفسها (تعبئة الديزل بمبلغها الإجمالي). ليست إجمالي الفاتورة: مع سعر ديزل شامل الضريبة تسجّل الفاتورة الجزء الصافي."
+
+#: card/card/doctype/card_period_run_source/card_period_run_source.json
+msgid "Fill supplier VAT-registered"
+msgstr "مورد التعبئة مسجّل في ضريبة القيمة المضافة"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Supplier-side gross source total"
+msgstr "إجمالي المصادر الإجمالي لجانب المورد"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Customer-side gross source total"
+msgstr "إجمالي المصادر الإجمالي لجانب العميل"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgid "Diesel price VAT basis at build"
+msgstr "أساس ضريبة سعر الديزل وقت البناء"

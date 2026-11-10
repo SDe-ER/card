@@ -23,6 +23,16 @@ What the snapshot covers: the WHOLE month, posted and unposted documents alike, 
 - Equipment Transport, customer side (FR-139 Post only): the approved "Bill customer" monthly-invoice transports
   (``billing_amount``).
 
+A transport the posting preview refuses today (for example a move recorded before P1-2 with no cost project) still
+counts in the run: the run total means "what the posting will bill once it can".
+
+The amounts are GROSS source amounts: each document's own amount (a diesel fill at its fill amount). They are not
+the invoice totals: with a VAT-inclusive diesel price (Card Company Settings ``diesel_price_vat_basis``) and a
+VAT-registered supplier (its own tax ID) the posting books the fill's net part. The run therefore stores the
+company's configured basis (``diesel_vat_basis``) and, per fill, whether its supplier is VAT-registered; both are in
+the snapshot fingerprint, so a change of either makes the run stale. VAT is never inferred. WP-S2 must compare like
+with like (gross source amounts with gross source amounts, or apply the same basis first).
+
 One row per document (both sides on one row), with its parties, the amount per side, whether each side is already
 posted (an active CARD posting log holds it, or its invoice link is set: ``supplier_posted`` / ``customer_posted``,
 so WP-S2 can compare the run with the unposted remainder), its last-modified time and a fingerprint. The posted
@@ -43,8 +53,13 @@ Build and versions:
   cancelled, amended, its decision changed) (``check_current``).
 - A stale run is never approved; an approved run that became stale is no longer an approval (``approved_run``
   returns nothing). A new version is a cancel and amend of the run.
-- A cancel changes nothing on the run: a cancel request that changes any other field or row is refused
-  (``card.cancel_reason`` guard, ``CancelChangesDocumentError``).
+- A cancel changes nothing on the run: the server-written fields a cancel request sends (approval, preparers,
+  rule) are corrected from the database, as in the FR-142 daily log; any other changed field or row is refused
+  (``card.cancel_reason`` guard, ``CancelChangesDocumentError``). ``owner`` and ``creation`` are refused by that
+  guard once PR #226 is merged.
+- A new run always continues the month's amendment chain: the server links the highest-version cancelled run of
+  the company-month, however the run is created (``build_run``, Desk New, REST insert), whatever the client sent;
+  the self-approval rule is Refuse when any run of the company-month has it.
 
 Approval (the FR-142 daily log pattern, ``card.daily_log``): the approval fields are written by the server only.
 On a submitted run a change of ``approval_status`` through any route (form, REST PUT, ``frappe.client.set_value``,
@@ -78,6 +93,7 @@ from card.daily_log import _add_preparers, _has_any_role
 from card.gl import preflight
 from card.gl.posting import _TRANSPORT_SOURCE_FIELDS, _customer_transports, _unheld_batch
 from card.report_access import permitted_companies
+from card.settings import company_setting
 
 DOCTYPE = "Card Period Run"
 ROW_DOCTYPE = "Card Period Run Source"
@@ -112,6 +128,7 @@ SNAPSHOT_FIELDS = (
 	"built_on",
 	"snapshot_hash",
 	"fingerprint_version",
+	"diesel_vat_basis",
 	"currency",
 	"source_count",
 	"supplier_source_count",
@@ -294,6 +311,8 @@ def _selection(company: str, month: str, year: int) -> dict:
 	def add(doctype, name, side, party, amount):
 		out.setdefault((doctype, name), {})[side] = (party, flt(amount, 2))
 
+	# copy of card.gl.posting._supplier_sources (cards) and _customer_cards, without the invoice-link filter;
+	# WP-S2 should expose shared builders so the run and the posting read one selection
 	for row in frappe.get_all(
 		CARD,
 		filters={
@@ -312,6 +331,7 @@ def _selection(company: str, month: str, year: int) -> dict:
 			add(CARD, row.name, "Supplier", row.supplier, row.net_amount)
 		if row.card_direction in CUSTOMER_BILLING_DIRECTIONS:
 			add(CARD, row.name, "Customer", row.customer, row.customer_net_amount)
+	# copy of card.gl.posting._supplier_sources (fills), without the purchase_invoice filter (WP-S2: shared builder)
 	for row in frappe.get_all(
 		FILL,
 		filters={
@@ -324,6 +344,8 @@ def _selection(company: str, month: str, year: int) -> dict:
 		fields=["name", "supplier", "amount"],
 	):
 		add(FILL, row.name, "Supplier", row.supplier, row.amount)
+	# copy of card.gl.posting._supplier_sources (P1-2 transports), without the purchase_invoice filter
+	# (WP-S2: shared builder)
 	for row in frappe.get_all(
 		TRANSPORT,
 		filters={
@@ -338,6 +360,8 @@ def _selection(company: str, month: str, year: int) -> dict:
 	):
 		add(TRANSPORT, row.name, "Supplier", row.transport_supplier, row.amount)
 	if preflight.posts_transport_responsibility(company):
+		# copy of card.gl.posting._responsibility_transports, without the purchase_invoice filter (WP-S2: shared
+		# builder)
 		for row in frappe.get_all(
 			TRANSPORT,
 			filters={
@@ -353,6 +377,7 @@ def _selection(company: str, month: str, year: int) -> dict:
 			if kind:
 				row.posting_kind = kind
 				add(TRANSPORT, row.name, "Supplier", row.transport_supplier, _supplier_transport_amount(row))
+		# card.gl.posting._customer_transports itself (it has no invoice-link filter)
 		for row in _customer_transports(company, None, first, last):
 			add(TRANSPORT, row.name, "Customer", row.customer, row.billing_amount)
 	return out
@@ -381,8 +406,19 @@ def _posted(selection: dict) -> set:
 	return posted
 
 
-def _snapshot_hash(company, month, year, version, rows) -> str:
-	content = [company, month, year, version] + [
+def diesel_vat_basis(company: str) -> str:
+	"""The company's configured diesel price VAT basis (Card Company Settings ``diesel_price_vat_basis``), as the
+	posting reads it; empty when not configured. Never inferred."""
+	return cstr(company_setting(company, "diesel_price_vat_basis"))
+
+
+def _vat_registered(supplier) -> int:
+	"""The posting's rule: a supplier with its own tax ID is VAT-registered. Never inferred otherwise."""
+	return 1 if supplier and frappe.db.get_value("Supplier", supplier, "tax_id") else 0
+
+
+def _snapshot_hash(company, month, year, version, rows, vat_basis="") -> str:
+	content = [company, month, year, version, cstr(vat_basis)] + [
 		[
 			r["source_doctype"],
 			r["source_name"],
@@ -391,6 +427,7 @@ def _snapshot_hash(company, month, year, version, rows) -> str:
 			flt(r["supplier_amount"], 2),
 			cstr(r["customer"]),
 			flt(r["customer_amount"], 2),
+			cint(r.get("supplier_vat_registered")),
 		]
 		for r in rows
 	]
@@ -425,6 +462,7 @@ def build_snapshot(
 				"customer_side": 1 if "Customer" in sides else 0,
 				"supplier_amount": supplier_amount,
 				"customer_amount": customer_amount,
+				"supplier_vat_registered": _vat_registered(supplier) if doctype == FILL else 0,
 				"supplier_posted": 1 if (doctype, name, "Supplier") in posted else 0,
 				"customer_posted": 1 if (doctype, name, "Customer") in posted else 0,
 				"currency": currency,
@@ -434,7 +472,9 @@ def build_snapshot(
 		)
 	supplier_rows = [r for r in rows if r["supplier_side"]]
 	customer_rows = [r for r in rows if r["customer_side"]]
+	vat_basis = diesel_vat_basis(company)
 	return frappe._dict(
+		diesel_vat_basis=vat_basis,
 		company=company,
 		month=month,
 		year=year,
@@ -446,7 +486,7 @@ def build_snapshot(
 		supplier_total=flt(sum(r["supplier_amount"] for r in supplier_rows), 2),
 		customer_source_count=len(customer_rows),
 		customer_total=flt(sum(r["customer_amount"] for r in customer_rows), 2),
-		snapshot_hash=_snapshot_hash(company, month, year, version, rows),
+		snapshot_hash=_snapshot_hash(company, month, year, version, rows, vat_basis),
 	)
 
 
@@ -469,6 +509,7 @@ def check_current(run: Document) -> frappe._dict:
 			flt(r["supplier_amount"], 2),
 			cstr(r["customer"]),
 			flt(r["customer_amount"], 2),
+			cint(r.get("supplier_vat_registered")),
 		)
 
 	stored = {key(r): r for r in (row.as_dict() for row in run.get("sources") or [])}
@@ -484,6 +525,7 @@ def check_current(run: Document) -> frappe._dict:
 	)
 	return frappe._dict(
 		current=live.snapshot_hash == run.snapshot_hash and not (added or removed or changed),
+		vat_basis_changed=cstr(live.diesel_vat_basis) != cstr(run.get("diesel_vat_basis")),
 		live_hash=live.snapshot_hash,
 		snapshot_hash=run.snapshot_hash,
 		added=added,
@@ -547,6 +589,7 @@ def run_state(run: Document, with_amounts: bool = False) -> frappe._dict:
 		removed=state.removed,
 		changed=state.changed,
 		posted_since=state.posted_since,
+		vat_basis_changed=state.vat_basis_changed,
 	)
 	if with_amounts:
 		out.update(
@@ -607,7 +650,7 @@ def _lock_and_list(doc: Document) -> list:
 	run = frappe.qb.DocType(DOCTYPE)
 	return (
 		frappe.qb.from_(run)
-		.select(run.name, run.version, run.docstatus)
+		.select(run.name, run.version, run.docstatus, run.self_approval_rule)
 		.where(run.company == doc.company)
 		.where(run.month == doc.month)
 		.where(run.year == doc.year)
@@ -660,7 +703,6 @@ def prepare_run(doc: Document) -> None:
 	for field in APPROVAL_FIELDS:
 		doc.set(field, None)
 	doc.self_approved = 0
-	doc.self_approval_rule = _strictest_rule(doc)
 	doc.submitted_by = stored.submitted_by if stored else None
 	editors = [e for e in ((stored.edited_by if stored else "") or "").split("\n") if e]
 	if frappe.session.user not in editors:
@@ -677,6 +719,16 @@ def prepare_run(doc: Document) -> None:
 			).format(doc.company, doc.month, doc.year, ", ".join(active)),
 			frappe.DuplicateEntryError,
 		)
+	if not stored:
+		# a new run always continues the month's chain, however it is created (build_run, Desk New, REST insert,
+		# frappe.client.insert): the server links the highest-version cancelled run, whatever the client sent, so
+		# the earlier versions' preparers and rule always apply
+		cancelled = sorted((r for r in others if cint(r.docstatus) == 2), key=lambda r: cint(r.version))
+		doc.amended_from = cancelled[-1].name if cancelled else None
+	# Refuse when the run, its chain or any run of the company-month has it (second layer)
+	doc.self_approval_rule = (
+		RULE_REFUSE if any(r.self_approval_rule == RULE_REFUSE for r in others) else _strictest_rule(doc)
+	)
 	doc.version = (
 		cint(stored.version)
 		if stored and cint(stored.version)

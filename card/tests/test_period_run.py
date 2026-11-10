@@ -658,6 +658,69 @@ class TestPeriodRun(_CustomerCardsBase):
 		with self.assertRaises(frappe.DuplicateEntryError):
 			self._build()
 
+	def test_a_fresh_insert_continues_the_chain_on_every_route(self):
+		"""Re-review finding 1: a new run created without amended_from (REST insert, Desk New through savedocs,
+		frappe.client.insert with a forged lower rule) is linked by the server to the month's latest cancelled run,
+		keeps Refuse, and the earlier versions' preparers still count."""
+		from frappe.api import v1
+		from frappe.desk.form.save import savedocs
+
+		admin = self._user("sys", ("System Manager",))
+		first = self._build(user=admin)
+		self._as(
+			admin,
+			lambda: (
+				frappe.get_doc(RUN, first.name)
+				.update({"self_approval_rule": period_run.RULE_REFUSE})
+				.submit()
+			),
+		)
+		self._cancel(first, user=self.preparer)
+		values = {
+			"doctype": RUN,
+			"company": self.company,
+			"month": MONTH,
+			"year": YEAR,
+			"amended_from": None,
+			"self_approval_rule": period_run.RULE_WARN,
+		}
+
+		def rest_v1():
+			# POST /api/resource/Card Period Run: the request body is the document
+			with patch.object(v1, "get_request_form_data", return_value=frappe._dict(values)):
+				return v1.create_doc(RUN).name
+
+		def desk_new():
+			savedocs(frappe.as_json({**values, "__islocal": 1, "name": "new-card-period-run-1"}), "Save")
+			return frappe.get_all(
+				RUN, filters={"company": self.company, "docstatus": 0}, pluck="name", limit=1
+			)[0]
+
+		def client_insert():
+			return rest_insert(frappe.as_json(values))["name"]
+
+		previous = first.name
+		for version, (route, create) in enumerate(
+			(("REST v1", rest_v1), ("Desk New", desk_new), ("frappe.client.insert", client_insert)), start=2
+		):
+			with self.subTest(route=route):
+				name = self._as(self.preparer2, create)
+				stored = self._stored(name, "amended_from", "self_approval_rule", "version")
+				self.assertEqual(
+					stored,
+					{
+						"amended_from": previous,
+						"self_approval_rule": period_run.RULE_REFUSE,
+						"version": version,
+					},
+				)
+				self.assertIn(admin, period_run.run_preparers(frappe.get_doc(RUN, name)))
+				self._as(self.preparer2, lambda n=name: frappe.get_doc(RUN, n).submit())
+				with self.assertRaises(frappe.PermissionError):
+					self._set_status(frappe._dict(name=name), period_run.APPROVED, admin)
+				self._cancel(frappe._dict(name=name), user=self.preparer2)
+				previous = name
+
 	# ---------- forged approval fields, every route ----------
 	def test_rest_insert_with_docstatus_1_stays_pending(self):
 		data = {
@@ -1024,6 +1087,8 @@ class TestPeriodRunMixedMonth(_PreviewBase):
 		)
 
 	def test_totals_equal_what_posting_would_bill(self):
+		"""With a VAT-exclusive diesel basis and a supplier without a tax ID, the gross source amounts are what the
+		posting books."""
 		docs = self._mixed_month()
 		snapshot = period_run.build_snapshot(self.company, "09", 2026)
 		posting = self._posting_sources()
@@ -1041,6 +1106,53 @@ class TestPeriodRunMixedMonth(_PreviewBase):
 		)  # 400 less 150 recovered
 		self.assertEqual(rows[(TRANSPORT, docs.billed)]["customer_amount"], 650.0)
 		self.assertTrue(rows[(TRANSPORT, docs.billed)]["supplier_side"])
+
+	def test_selection_matches_the_posting_sources_in_hold_and_post(self):
+		"""Re-review finding 4: the run's copied filters select exactly the posting's sources of an unposted month,
+		in Hold and in Post, on both sides."""
+		from card.gl.posting import _customer_cards, _supplier_sources
+
+		docs = self._mixed_month()
+		legacy = self._legacy_transport()
+		for mode in (preflight.TRANSPORT_POSTING_HOLD, preflight.TRANSPORT_POSTING_POST):
+			with self.subTest(mode=mode):
+				self._mode(mode)
+				selection = period_run._selection(self.company, "09", 2026)
+				cards, fills, transports = _supplier_sources(
+					self.company, None, "2026-09-01", "2026-09-30", 9, 2026
+				)
+				expected_supplier = (
+					{(CARD, r.name) for r in cards}
+					| {("Project Diesel Fill", r.name) for r in fills}
+					| {(TRANSPORT, r.name) for r in transports}
+				)
+				expected_customer = {(CARD, r.name) for r in _customer_cards(self.company, None, 9, 2026)}
+				if mode == preflight.TRANSPORT_POSTING_POST:
+					expected_customer |= {(TRANSPORT, docs.billed)}
+				self.assertEqual({k for k, v in selection.items() if "Supplier" in v}, expected_supplier)
+				self.assertEqual({k for k, v in selection.items() if "Customer" in v}, expected_customer)
+				self.assertIn((TRANSPORT, legacy.name), expected_supplier)
+
+	def test_vat_basis_and_supplier_tax_id_are_part_of_the_snapshot(self):
+		"""Re-review finding 2: the amounts are gross source amounts; the company's diesel VAT basis and the fill
+		supplier's VAT registration are stored and a change of either makes the run stale."""
+		docs = self._mixed_month()
+		run = self._run()
+		self.assertEqual(run.diesel_vat_basis, "Exclusive")
+		row = next(r for r in run.sources if r.source_name == docs.fill)
+		self.assertEqual(
+			(row.supplier_vat_registered, flt(row.supplier_amount)), (0, 200.0)
+		)  # gross fill amount
+		self._set_basis("Inclusive")
+		state = period_run.check_current(frappe.get_doc(RUN, run.name))
+		self.assertFalse(state.current)
+		self.assertTrue(state.vat_basis_changed)
+		self._set_basis("Exclusive")
+		self.assertTrue(period_run.check_current(frappe.get_doc(RUN, run.name)).current)
+		frappe.db.set_value("Supplier", self.supplier, "tax_id", "300000000000003")
+		state = period_run.check_current(frappe.get_doc(RUN, run.name))
+		self.assertFalse(state.current)
+		self.assertEqual(state.changed, [docs.fill])
 
 	def test_hold_leaves_the_responsibility_transports_out(self):
 		docs = self._mixed_month()

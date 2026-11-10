@@ -97,6 +97,7 @@
   "built_on",
   "snapshot_hash",
   "currency",
+  "diesel_vat_basis",
   "fingerprint_version",
   "source_count",
   "column_break_totals",
@@ -285,6 +286,13 @@
    "no_copy": 1
   },
   {
+   "fieldname": "diesel_vat_basis",
+   "fieldtype": "Data",
+   "label": "Diesel price VAT basis at build",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
    "fieldname": "fingerprint_version",
    "fieldtype": "Int",
    "label": "Period run fingerprint version",
@@ -313,7 +321,8 @@
   {
    "fieldname": "supplier_total",
    "fieldtype": "Currency",
-   "label": "Supplier-side total",
+   "label": "Supplier-side gross source total",
+   "description": "The source documents' own amounts (a diesel fill at its gross fill amount). Not the invoice total: with a VAT-inclusive diesel price the invoice books the net part.",
    "options": "currency",
    "permlevel": 1,
    "read_only": 1,
@@ -329,7 +338,7 @@
   {
    "fieldname": "customer_total",
    "fieldtype": "Currency",
-   "label": "Customer-side total",
+   "label": "Customer-side gross source total",
    "options": "currency",
    "permlevel": 1,
    "read_only": 1,
