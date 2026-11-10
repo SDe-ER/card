@@ -5,6 +5,7 @@ from card.constants import CUSTOMER_BILLING_DIRECTIONS
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
 from card.settings import setting
+from card.transfer import billed_day_rows, with_stopped_hours_column
 
 
 def execute(filters=None):
@@ -52,6 +53,7 @@ def execute(filters=None):
 			"customer",
 			"equipment",
 			"total_working_hours",
+			"billable_stopped_hours",
 			"customer_net_amount",
 		],
 		limit_page_length=0,
@@ -63,17 +65,8 @@ def execute(filters=None):
 		card_key[c.name] = c.customer + "|" + c.equipment
 	eq_dates = {}
 	if cards:
-		rows = frappe.get_all(
-			"Card Monthly Card Day",
-			filters=[
-				["parent", "in", [c.name for c in cards]],
-				["parenttype", "=", "Card Monthly Card"],
-				["working_hours", ">", 0],
-			],
-			fields=["parent", "operation_date"],
-			limit_page_length=0,
-			parent_doctype="Card Monthly Card",
-		)
+		# FR-118: a day bills with operating hours or billable stopped hours (is_billed_day)
+		rows = billed_day_rows([c.name for c in cards])
 		for r in rows:
 			k = card_key.get(r.parent)
 			if k not in eq_dates:
@@ -85,12 +78,13 @@ def execute(filters=None):
 	for c in cards:
 		s = c.customer
 		if s not in agg:
-			agg[s] = {"eq": set(), "cards": 0, "hours": 0.0, "accrued": 0.0}
+			agg[s] = {"eq": set(), "cards": 0, "hours": 0.0, "stopped": 0.0, "accrued": 0.0}
 			order.append(s)
 		a = agg[s]
 		a["eq"].add(c.equipment)
 		a["cards"] = a["cards"] + 1
 		a["hours"] = a["hours"] + flt(c.total_working_hours)
+		a["stopped"] = a["stopped"] + flt(c.billable_stopped_hours)
 		# customer net after customer-side additions/deductions = what the Sales Invoice bills
 		a["accrued"] = a["accrued"] + flt(c.customer_net_amount)
 
@@ -140,6 +134,7 @@ def execute(filters=None):
 		"cards": 0,
 		"days": 0,
 		"hours": 0.0,
+		"stopped": 0.0,
 		"accrued": 0.0,
 		"invoiced": 0.0,
 		"invoiced_net": 0.0,
@@ -170,6 +165,7 @@ def execute(filters=None):
 				"card_count": a["cards"],
 				"working_days": days,
 				"hours": flt(a["hours"], 2),
+				"stopped_hours": flt(a["stopped"], 2),
 				"accrued": accrued,
 				"invoiced": flt(x["invoiced"], 2),
 				"invoiced_net": inv,
@@ -184,6 +180,7 @@ def execute(filters=None):
 		tot["cards"] = tot["cards"] + a["cards"]
 		tot["days"] = tot["days"] + days
 		tot["hours"] = tot["hours"] + a["hours"]
+		tot["stopped"] = tot["stopped"] + a["stopped"]
 		tot["accrued"] = tot["accrued"] + accrued
 		tot["invoiced"] = tot["invoiced"] + x["invoiced"]
 		tot["invoiced_net"] = tot["invoiced_net"] + inv
@@ -203,6 +200,7 @@ def execute(filters=None):
 				"card_count": tot["cards"],
 				"working_days": tot["days"],
 				"hours": flt(tot["hours"], 2),
+				"stopped_hours": flt(tot["stopped"], 2),
 				"accrued": flt(tot["accrued"], 2),
 				"invoiced": flt(tot["invoiced"], 2),
 				"invoiced_net": flt(tot["invoiced_net"], 2),
@@ -298,6 +296,6 @@ def execute(filters=None):
 	else:
 		message = message + " " + reconciliation_notice()
 
-	columns = readable_links(columns, result)
+	columns = readable_links(with_stopped_hours_column(columns, result), result)
 	data = [columns, result, message, None, summary, True]
 	return data
