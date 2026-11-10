@@ -28,12 +28,16 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 import frappe
+from frappe.client import cancel as rest_cancel
 from frappe.client import insert as rest_insert
+from frappe.client import submit as rest_submit
+from frappe.model.rename_doc import rename_doc
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_months, get_first_day, get_last_day, nowdate
 
 from card.constants import DIR_SUBRENTAL
 from card.tests.test_controllers import _ensure_masters
+from card.tests.transport_parties import company_paid
 
 CARD = "Card Monthly Card"
 PERMISSION = (frappe.PermissionError,)
@@ -827,6 +831,122 @@ REST_CREATE_PROBES = {
 }
 
 
+# Every ignore_permissions=True (call keyword) and `.ignore_permissions = True` (flag) in production code
+# (card/, tests and patches excluded), per file and enclosing function: (count, why it is safe). A new site
+# fails test_ignore_permissions_sites_are_allowed until it is reviewed and listed here.
+IGNORE_PERMISSIONS_ALLOWED = {
+	("card/api.py", "_sync_registry_row"): (
+		3,
+		"party registry row (global, no figures); reached only from refresh_* (System Manager), a card "
+		"submit/cancel (card permission checked first) and a Supplier/Customer rename (see party_registry)",
+	),
+	("card/card/doctype/employee_tool_custody/employee_tool_custody.py", "_make_stock_entry"): (
+		1,
+		"Loss/Damage draft Material Issue made on submit, in the custody's company; the submit right on the "
+		"custody record (company User Permission) is checked first",
+	),
+	("card/card/doctype/employee_tool_custody/employee_tool_custody.py", "on_cancel"): (
+		1,
+		"deletes only the draft entry this movement made (same company, own marker); cancel right checked first",
+	),
+	("card/card/doctype/equipment_transport/equipment_transport.py", "_audit_status_change"): (
+		1,
+		"Version of an authorized financial decision (record_financial_decision gate), as Frappe does",
+	),
+	("card/dimension.py", "ensure_card_equipment_dimension"): (
+		1,
+		"install / before_tests bootstrap of the Accounting Dimension; no request path",
+	),
+	("card/gl/integrity.py", "link_supplier_invoice"): (1, "Linked GL Posting Log after the endpoint's gate"),
+	("card/gl/journal_link.py", "link_accrual_journal"): (
+		1,
+		"Linked GL Posting Log after the endpoint's gate",
+	),
+	("card/gl/masters.py", "_ensure_item_group"): (1, "posting master Item Group, after the posting gate"),
+	("card/gl/masters.py", "_ensure_item"): (1, "posting master Item, after the posting gate"),
+	("card/gl/masters.py", "_reconcile_item_tax_template"): (
+		1,
+		"posting Item Tax Template, after the posting gate",
+	),
+	("card/gl/masters.py", "_ensure_item_tax_template"): (
+		1,
+		"posting Item Tax Template, after the posting gate",
+	),
+	("card/gl/masters.py", "ensure_selling_price_list"): (1, "posting Price List, after the posting gate"),
+	("card/gl/posting.py", "build_monthly_posting"): (
+		2,
+		"draft invoice and its GL Posting Log after _checked_endpoint_args (role, company) and _check_party",
+	),
+	("card/gl/posting.py", "rebuild_monthly_posting"): (
+		1,
+		"deletes the CARD draft it replaces, after the same gate as build_monthly_posting",
+	),
+	("card/install.py", "ensure_card_roles"): (1, "install / migrate: CARD roles"),
+	("card/install.py", "_retire_legacy_custom_module"): (1, "install / migrate: legacy Module Def"),
+	("card/install.py", "_ensure_print_default_property_setter"): (1, "install / migrate: print default"),
+	("card/install.py", "_ensure_card_desk_icon"): (2, "install / migrate: CARD desk icon"),
+	("card/notifications.py", "notify"): (
+		1,
+		"Notification Log for the named recipients of an authorized action",
+	),
+	("card/party_registry.py", "before_rename"): (
+		1,
+		"Supplier/Customer merge hook: drops the merged party's registry row; Frappe's rename permission check "
+		"follows and its refusal rolls the request back (test_supplier_rename_without_write_is_refused)",
+	),
+	("card/party_registry.py", "after_rename"): (
+		2,
+		"Supplier/Customer rename hook: realigns the registry row, after Frappe's rename permission check",
+	),
+	("card/tool_custody.py", "item_query"): (
+		1,
+		"global Items after _check_screen (documented in the function)",
+	),
+	("card/transfer.py", "sync_equipment_location"): (1, "Info Comment on the equipment's location change"),
+	("card/transfer.py", "_record_overlap"): (1, "Info Comment recording an assignment overlap"),
+	("card/transfer.py", "_apply_row_transfer"): (
+		3,
+		"close/open assignments on transport submit; submit right and has_transport_permission checked first "
+		"(test_transport_cannot_move_other_company_equipment)",
+	),
+	("card/transfer.py", "reverse_transfer"): (
+		2,
+		"delete/reopen the assignments the transport wrote, on cancel; cancel right checked first",
+	),
+}
+
+
+def ignore_permission_sites():
+	"""{(file, enclosing function): count} of ignore_permissions=True / .ignore_permissions = True."""
+	out = {}
+	root = REPO / "card"
+
+	def truthy(node):
+		return isinstance(node, ast.Constant) and node.value in (True, 1)
+
+	def visit(node, func, rel):
+		if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+			func = node.name
+		hits = 0
+		if isinstance(node, ast.Call):
+			hits = sum(1 for k in node.keywords if k.arg == "ignore_permissions" and truthy(k.value))
+		elif isinstance(node, ast.Assign) and truthy(node.value):
+			hits = sum(
+				1 for t in node.targets if isinstance(t, ast.Attribute) and t.attr == "ignore_permissions"
+			)
+		if hits:
+			out[(rel, func)] = out.get((rel, func), 0) + hits
+		for child in ast.iter_child_nodes(node):
+			visit(child, func, rel)
+
+	for path in sorted(root.rglob("*.py")):
+		parts = path.relative_to(root).parts
+		if "tests" in parts or "patches" in parts:
+			continue
+		visit(ast.parse(path.read_text()), "<module>", str(path.relative_to(REPO)))
+	return out
+
+
 # ---------- matrix rendering (docs/governance/ROLE-ACTION-MATRIX.md is generated from these) ----------
 def card_doctypes():
 	"""Every DocType JSON of the app, sorted by name."""
@@ -1344,6 +1464,217 @@ class TestBolaMatrix(IntegrationTestCase):
 				self.assertTrue(case.denied, "no refused role set")
 				roles = {r for roles in case.denied for r in roles} | set(case.roles)
 				self.assertEqual(sorted(r for r in roles if not frappe.db.exists("Role", r)), [])
+
+	# ---------- ignore_permissions sites (allow-list and their gates) ----------
+	def test_ignore_permissions_sites_are_allowed(self):
+		found = ignore_permission_sites()
+		allowed = {key: count for key, (count, _why) in IGNORE_PERMISSIONS_ALLOWED.items()}
+		self.assertEqual(found, allowed, "review the new ignore_permissions site and list it with a reason")
+		for key, (_count, why) in IGNORE_PERMISSIONS_ALLOWED.items():
+			self.assertTrue(why.strip(), f"{key}: no justification")
+
+	def _assignments(self, equipment):
+		return frappe.get_all(
+			"Card Equipment Assignment",
+			filters={"equipment": equipment},
+			fields=["name", "project", "from_date", "to_date", "modified"],
+			order_by="name",
+		)
+
+	def _transport(self, equipment, project, day, submit):
+		t = frappe.new_doc("Equipment Transport")
+		t.update(
+			{
+				"equipment": equipment,
+				"project": project,
+				"date": day,
+				"transport_supplier": self.ctx.sup_a,
+				"company": self.ctx.A,
+				"amount": 100,
+			}
+		)
+		company_paid(t).insert(ignore_permissions=True)
+		if submit:
+			t.submit()
+		return t.name
+
+	def test_transport_cannot_move_other_company_equipment(self):
+		"""transfer.py _apply_row_transfer / reverse_transfer: a user of company B neither submits nor
+		cancels a company-A transport, nor moves company-A equipment with a transport of his own."""
+		c = self.ctx
+		eq = self._equipment(f"EQ-T-{c.token}", c.A)
+		proj_a2 = self._project(f"PRJ-A2-{c.token}", c.A)
+		day = get_first_day(add_months(nowdate(), -2))
+		submitted = self._transport(eq, c.proj_a, str(day), submit=True)
+		draft = self._transport(eq, proj_a2, str(add_months(day, 1)), submit=False)
+		before = self._assignments(eq)
+		self.assertEqual(len(before), 1, "fixture: the submitted transport opened one assignment")
+		frappe.set_user(self._user(("Card Manager", "Card User"), restrict=c.B))
+		own = {
+			"doctype": "Equipment Transport",
+			"equipment": eq,
+			"project": c.proj_b,
+			"date": nowdate(),
+			"transport_supplier": c.sup_b,
+			"amount": 1,
+			"payer": "No charge",
+		}
+		attempts = (
+			("submit", lambda: rest_submit(frappe.get_doc("Equipment Transport", draft).as_dict())),
+			("cancel", lambda: rest_cancel("Equipment Transport", submitted)),
+			("insert as company B", lambda: rest_insert({**own, "company": c.B})),
+			("insert without company", lambda: rest_insert(dict(own))),
+		)
+		for label, attempt in attempts:
+			with self.subTest(attempt=label):
+				with self.assertRaises(THROWN):
+					attempt()
+				frappe.clear_messages()
+		frappe.set_user("Administrator")
+		self.assertEqual(self._assignments(eq), before)
+		self.assertEqual(frappe.db.get_value("Equipment Transport", draft, "docstatus"), 0)
+		self.assertEqual(frappe.db.get_value("Equipment Transport", submitted, "docstatus"), 1)
+
+	def test_loss_entry_needs_the_custody_rights_of_its_company(self):
+		"""employee_tool_custody.py _make_stock_entry / on_cancel: a user of company A neither submits a
+		company-B Loss (draft Material Issue) nor cancels one (draft entry deletion); a role without submit
+		is refused on his own company's Loss."""
+		c = self.ctx
+		loss_b = self._raw(
+			"Employee Tool Custody",
+			f"CUS-LOSS-{c.marker}",
+			company=c.B,
+			employee=c.emp_b,
+			movement="Loss",
+			item_code=c.item,
+			qty=1,
+			date=nowdate(),
+			docstatus=0,
+		)
+		done_b = f"CUS-LOSS-DONE-{c.marker}"
+		entry_b = self._raw(
+			"Stock Entry",
+			f"STE-{c.marker}",
+			company=c.B,
+			purpose="Material Issue",
+			stock_entry_type="Material Issue",
+			remarks=f"CARD tool custody {done_b}",
+			docstatus=0,
+		)
+		self._raw(
+			"Employee Tool Custody",
+			done_b,
+			company=c.B,
+			employee=c.emp_b,
+			movement="Loss",
+			item_code=c.item,
+			qty=1,
+			date=nowdate(),
+			stock_entry=entry_b,
+			docstatus=1,
+		)
+		loss_a = self._raw(
+			"Employee Tool Custody",
+			f"CUS-LOSS-A-{c.token}",
+			company=c.A,
+			employee=c.emp_a,
+			movement="Loss",
+			item_code=c.item,
+			qty=1,
+			date=nowdate(),
+			docstatus=0,
+		)
+		entries = frappe.db.count("Stock Entry")
+		attempts = (
+			(
+				("Card Supervisor",),
+				c.A,
+				lambda: rest_submit(frappe.get_doc("Employee Tool Custody", loss_b).as_dict()),
+			),
+			(("Card Manager",), c.A, lambda: rest_cancel("Employee Tool Custody", done_b)),
+			(
+				("Card User",),
+				None,
+				lambda: rest_submit(frappe.get_doc("Employee Tool Custody", loss_a).as_dict()),
+			),
+		)
+		for roles, restrict, attempt in attempts:
+			with self.subTest(roles=roles):
+				frappe.set_user("Administrator")
+				frappe.set_user(self._user(roles, restrict=restrict))
+				with self.assertRaises(THROWN):
+					attempt()
+				frappe.clear_messages()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count("Stock Entry"), entries)
+		self.assertTrue(frappe.db.exists("Stock Entry", entry_b))
+		self.assertEqual(frappe.db.get_value("Employee Tool Custody", done_b, "stock_entry"), entry_b)
+		for name, docstatus in ((loss_b, 0), (done_b, 1), (loss_a, 0)):
+			self.assertEqual(frappe.db.get_value("Employee Tool Custody", name, "docstatus"), docstatus)
+
+	def test_registry_sync_needs_the_card_rights_of_its_company(self):
+		"""api.py _sync_registry_row via CardMonthlyCard._sync_supplier/_sync_customer (on submit/cancel):
+		a user of company A cannot submit or cancel a company-B card, so the registry rows stay as they are.
+		The other path, api.py refresh_supplier/refresh_customer (the recompute loop), is System Manager only:
+		test_role_refused__api_refresh_supplier / _customer."""
+		c = self.ctx
+		draft_b = self._raw(
+			CARD,
+			f"CARD-DRAFT-{c.marker}",
+			company=c.B,
+			equipment=c.eq_b,
+			project=c.proj_b,
+			supplier=c.sup_b,
+			customer=c.cust_b,
+			ownership="إيجار",
+			card_direction=DIR_SUBRENTAL,
+			month=c.month,
+			year=int(c.year),
+			shift="نهاري",
+			docstatus=0,
+		)
+		rows = {
+			reg: frappe.db.get_value(reg, party, "modified")
+			for reg, party in (("Card Equipment Supplier", c.sup_b), ("Card Equipment Customer", c.cust_b))
+		}
+		frappe.set_user(self._user(("Card Manager",), restrict=c.A))
+		for label, attempt in (
+			("submit", lambda: rest_submit(frappe.get_doc(CARD, draft_b).as_dict())),
+			("cancel", lambda: rest_cancel(CARD, c.card_b)),
+		):
+			with self.subTest(attempt=label):
+				with self.assertRaises(THROWN):
+					attempt()
+				frappe.clear_messages()
+		frappe.set_user("Administrator")
+		for reg, modified in rows.items():
+			party = c.sup_b if reg == "Card Equipment Supplier" else c.cust_b
+			self.assertEqual(frappe.db.get_value(reg, party, "modified"), modified)
+		self.assertEqual(frappe.db.get_value(CARD, draft_b, "docstatus"), 0)
+		self.assertEqual(frappe.db.get_value(CARD, c.card_b, "docstatus"), 1)
+
+	def test_supplier_rename_without_write_is_refused(self):
+		"""party_registry.py before_rename / after_rename: a CARD user without Supplier write cannot rename
+		or merge a supplier. Frappe runs before_rename (which drops the merged party's registry row) BEFORE
+		its own rename permission check (frappe/model/rename_doc.py rename_doc -> validate_rename); the
+		refusal rolls the request back, which the savepoint below stands for, and the row is back."""
+		c = self.ctx
+		modified = frappe.db.get_value("Card Equipment Supplier", c.sup_b, "modified")
+		for roles in (("Card Manager",), ("Card User",), ("Accounts User",)):
+			for merge in (False, True):
+				with self.subTest(roles=roles, merge=merge):
+					frappe.set_user("Administrator")
+					frappe.set_user(self._user(roles))
+					frappe.db.savepoint("bola_rename")
+					with self.assertRaises(THROWN):
+						rename_doc("Supplier", c.sup_b, c.sup_a if merge else c.sup_b + "-X", merge=merge)
+					frappe.db.rollback(save_point="bola_rename")  # what the failed request does
+					frappe.clear_messages()
+					frappe.set_user("Administrator")
+					self.assertTrue(frappe.db.exists("Supplier", c.sup_b))
+					self.assertEqual(
+						frappe.db.get_value("Card Equipment Supplier", c.sup_b, "modified"), modified
+					)
 
 	def test_matrix_document_matches_the_source(self):
 		text = MATRIX_DOC.read_text()

@@ -166,6 +166,26 @@ In all four, Frappe checks the create right on the values the client sends (comp
 controller fills the company afterwards, as found for Card Monthly Card (D2) and Equipment Transport (D3) before
 their `has_permission` hooks. The user cannot read the record afterwards.
 
+## `ignore_permissions` sites
+
+`IGNORE_PERMISSIONS_ALLOWED` in the test module lists every `ignore_permissions=True` and
+`.ignore_permissions = True` in production code (`card/`, tests and patches excluded) per file and function, with
+its count and a one-line reason; `test_ignore_permissions_sites_are_allowed` fails on any new or moved site. The
+sites without their own check in the same function are proven to sit behind Frappe's permission check:
+
+| Site | Reached from | Test |
+|---|---|---|
+| `card/transfer.py` `_apply_row_transfer`, `reverse_transfer` (assignment close / open / delete / reopen) | Equipment Transport submit / cancel | `test_transport_cannot_move_other_company_equipment`: a user of company B cannot submit or cancel a company-A transport, nor insert a transport (company B or empty) with company-A equipment; the equipment's assignments are unchanged |
+| `card/card/doctype/employee_tool_custody/employee_tool_custody.py` `_make_stock_entry` (Loss / Damage draft Material Issue), `on_cancel` (draft entry deletion) | Employee Tool Custody submit / cancel | `test_loss_entry_needs_the_custody_rights_of_its_company`: a user of company A cannot submit a company-B Loss or cancel one; a role without submit is refused on its own company's Loss; no Stock Entry added or deleted |
+| `card/api.py` `_sync_registry_row` | `CardMonthlyCard._sync_supplier` / `_sync_customer` (card submit / cancel); `card.api.refresh_supplier` / `refresh_customer` (the recompute loop; System Manager only); the rename hooks below | `test_registry_sync_needs_the_card_rights_of_its_company`; `test_role_refused__api_refresh_supplier` / `_customer` |
+| `card/party_registry.py` `before_rename`, `after_rename` | Supplier / Customer rename and merge | `test_supplier_rename_without_write_is_refused` |
+
+Note on `before_rename`: Frappe runs a DocType's `before_rename` hooks before its own rename permission check
+(`frappe/model/rename_doc.py` `rename_doc` calls `run_method("before_rename")`, then `validate_rename`). On a merge
+CARD's hook therefore deletes the merged party's registry row before a user without Supplier write is refused; the
+refusal rolls the request back and the row returns (the test models that rollback with a savepoint). Nothing
+persists, but the hook writes before the check.
+
 ## Other observations
 
 - `card.api.refresh_supplier` / `refresh_customer`: gated by the System Manager role only. The registries have no

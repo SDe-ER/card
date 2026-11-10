@@ -28,7 +28,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   guard tests require every whitelisted function in the table with its decorator's HTTP methods. Four cross-company create
   gaps are reported, not fixed, and kept as expected failures: `card.tool_custody.move` and `frappe.client.insert` on
   Employee Tool Custody, Equipment Needs Request and Equipment Needs Review (company set in `validate` after Frappe's create
-  check; no company `has_permission` hook). PR #203. Affected: tests and documentation only. Impact: no change to
+  check; no company `has_permission` hook). An allow-list guard requires every `ignore_permissions` site in production
+  code to be listed with a reason, and four tests prove that Frappe's company and DocType checks run before the sites
+  in `card/transfer.py`, `employee_tool_custody.py`, `card/api.py` `_sync_registry_row` and `card/party_registry.py`
+  (a merge rename's `before_rename` writes before Frappe's rename check; the refusal rolls it back). PR #203. Affected: tests and documentation only. Impact: no change to
   permissions, accounting, data or the API. Rollback: revert the commit (no data or schema involved).
 - **Mandatory cancel reason and a reviewable period-lock override** (FR-123, WP-07, #35, #51, governance G0). Reason: a
   cancelled card, fill or transport had no recorded reason, a cancel request could still change the stored card (FR-050
