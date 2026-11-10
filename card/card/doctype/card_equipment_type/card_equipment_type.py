@@ -8,6 +8,10 @@ from frappe.model.document import Document
 
 class CardEquipmentType(Document):
 	def validate(self):
+		# FR-144: the type's default dated consumption rates (one row per start date)
+		from card.consumption import TYPE_TABLE, validate_consumption_rates
+
+		validate_consumption_rates(self, TYPE_TABLE)
 		# an equipment linked to an Asset takes its type from the Asset's category,
 		# so one category points to one type
 		if not self.asset_category:

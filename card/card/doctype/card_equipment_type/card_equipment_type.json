@@ -12,7 +12,9 @@
   "column_break_pnao",
   "equipment_category",
   "meter_type",
-  "asset_category"
+  "asset_category",
+  "consumption_section",
+  "default_consumption_rates"
  ],
  "fields": [
   {
@@ -50,12 +52,23 @@
    "fieldtype": "Link",
    "label": "Asset category",
    "options": "Asset Category"
+  },
+  {
+   "fieldname": "consumption_section",
+   "fieldtype": "Section Break",
+   "label": "Default consumption rates"
+  },
+  {
+   "fieldname": "default_consumption_rates",
+   "fieldtype": "Table",
+   "label": "Type default consumption rates (litres per hour)",
+   "options": "Card Consumption Rate"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-19 12:00:00.000000",
+ "modified": "2026-11-10 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment Type",
@@ -107,5 +120,6 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }
