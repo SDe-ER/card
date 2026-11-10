@@ -5758,3 +5758,47 @@ msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr "لا يمكن مشاركة تعبئة ديزل تابعة للشركة {0} مع مستخدم من خارج هذه الشركة."
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price valid from"
+msgstr "سعر الديزل ساري من"
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price currency"
+msgstr "عملة سعر الديزل"
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price unit of measure"
+msgstr "وحدة قياس سعر الديزل"
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "Diesel price schedule"
+msgstr "جدول أسعار الديزل"
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "A fill takes the price of its company's row with the latest date on or before the fill date. No row for the company: its diesel unit price in Company settings. Submitted fills keep their saved price."
+msgstr "تأخذ التعبئة سعر صف شركتها ذي أحدث تاريخ في تاريخ التعبئة أو قبله. إذا لم يوجد صف للشركة: سعر لتر الديزل في إعدادات الشركة. تحتفظ التعبئات المعتمدة بسعرها المحفوظ."
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Diesel price schedule: company {0} has two prices valid from {1}."
+msgstr "جدول أسعار الديزل: للشركة {0} سعران ساريان من {1}."
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Diesel price schedule row {0}: the price cannot be negative."
+msgstr "جدول أسعار الديزل، الصف {0}: لا يمكن أن يكون السعر سالبًا."
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Diesel price schedule row {0}: the currency must be {1}, the currency of company {2}."
+msgstr "جدول أسعار الديزل، الصف {0}: يجب أن تكون العملة {1}، عملة الشركة {2}."
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "{0} submitted diesel fills of company {1} are dated on or after {2}. They keep their saved price; the new price applies to new fills only."
+msgstr "{0} من تعبئات الديزل المعتمدة للشركة {1} بتاريخ {2} أو بعده. تحتفظ بسعرها المحفوظ؛ ويُطبَّق السعر الجديد على التعبئات الجديدة فقط."
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Company {0} has a Diesel price schedule: new fills take its prices. The diesel unit price is used only for fills dated before its first row."
+msgstr "للشركة {0} جدول أسعار ديزل: تأخذ التعبئات الجديدة أسعاره. ولا يُستخدم سعر لتر الديزل إلا للتعبئات المؤرخة قبل أول صف فيه."
+
+#: card/card/doctype/card_settings/card_settings.js
+msgid "Valid from {0} (Diesel price schedule)"
+msgstr "ساري من {0} (جدول أسعار الديزل)"

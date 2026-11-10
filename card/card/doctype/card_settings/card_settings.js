@@ -26,6 +26,22 @@ function card_price_rows(frm) {
 	return allowed.length ? rows.filter((r) => allowed.includes(r.company)) : rows;
 }
 
+// FR-125: the company's Diesel price schedule rows, latest first
+function card_schedule_rows(frm, company) {
+	return (frm.doc.diesel_price_schedule || [])
+		.filter((r) => r.company === company && r.valid_from)
+		.sort((a, b) => (a.valid_from < b.valid_from ? 1 : -1));
+}
+
+// the price a fill dated today takes (the server rule of project_diesel_fill.diesel_price)
+function card_price_today(frm, row) {
+	const today = frappe.datetime.get_today();
+	const current = card_schedule_rows(frm, row.company).find((r) => r.valid_from <= today);
+	return current
+		? { price: flt(current.unit_price), valid_from: current.valid_from }
+		: { price: flt(row.diesel_unit_price), valid_from: null };
+}
+
 function card_render_diesel_price(frm) {
 	const field = frm.get_field("diesel_price_html");
 	if (!field) return;
@@ -45,7 +61,13 @@ function card_render_diesel_price(frm) {
 	frappe.db.get_value("Company", current.company, "default_currency").then((r) => {
 		if (render_id !== frm._card_price_render) return; // a newer render owns the box
 		const currency = (r && r.message && r.message.default_currency) || "";
-		const price = flt(current.diesel_unit_price);
+		const today = card_price_today(frm, current);
+		const price = today.price;
+		const since = today.valid_from
+			? `<span class="text-muted">${__("Valid from {0} (Diesel price schedule)", [
+					frappe.datetime.str_to_user(today.valid_from),
+			  ])}</span>`
+			: "";
 		const label = currency
 			? __("Diesel price per litre ({0})", [__(currency, null, "Card currency")])
 			: __("Diesel price per litre");
@@ -79,6 +101,7 @@ function card_render_diesel_price(frm) {
 				<div class="d-flex align-items-center" style="gap: var(--margin-md); margin-top: var(--margin-xs);">
 					${value} ${edit}
 				</div>
+				${since}
 			</div>`);
 		field.$wrapper.find(".card-price-company").on("change", (e) => {
 			frm._card_price_company = $(e.target).val();
@@ -94,6 +117,10 @@ function card_edit_diesel_price(frm, row) {
 	// the price is saved on its own: never together with other unsaved edits on this form
 	if (frm.is_dirty()) {
 		frappe.msgprint(__("Save or discard your other changes in Card Settings first."));
+		return;
+	}
+	if (card_schedule_rows(frm, row.company).length) {
+		card_add_schedule_price(frm, row);
 		return;
 	}
 	frappe.prompt(
@@ -115,6 +142,43 @@ function card_edit_diesel_price(frm, row) {
 	);
 }
 
+// FR-125: a company with a Diesel price schedule changes its price by a new dated row; the rows
+// before it, and every submitted fill, keep their price (the server checks the row on save)
+function card_add_schedule_price(frm, row) {
+	frappe.prompt(
+		[
+			{
+				fieldname: "valid_from",
+				fieldtype: "Date",
+				label: __("Diesel price valid from"),
+				default: frappe.datetime.get_today(),
+				reqd: 1,
+			},
+			{
+				fieldname: "price",
+				fieldtype: "Currency",
+				label: __("Diesel price per litre"),
+				default: card_price_today(frm, row).price || null,
+				reqd: 1,
+			},
+		],
+		(values) => {
+			if (flt(values.price) <= 0) {
+				frappe.throw(__("The diesel price must be greater than zero."));
+			}
+			frm.add_child("diesel_price_schedule", {
+				company: row.company,
+				valid_from: values.valid_from,
+				unit_price: flt(values.price),
+			});
+			frm.refresh_field("diesel_price_schedule");
+			// a refused row does not stay on the form
+			frm.save().catch(() => frm.reload_doc());
+		},
+		frappe.utils.escape_html(row.company),
+	);
+}
+
 frappe.ui.form.on("Card Settings", {
 	refresh(frm) {
 		// the permission roles are changed only by users who may write them (the server enforces it)
@@ -131,6 +195,18 @@ frappe.ui.form.on("Card Company Settings", {
 		card_render_diesel_price(frm);
 	},
 	company_settings_remove(frm) {
+		card_render_diesel_price(frm);
+	},
+});
+
+frappe.ui.form.on("Card Diesel Price", {
+	valid_from(frm) {
+		card_render_diesel_price(frm);
+	},
+	unit_price(frm) {
+		card_render_diesel_price(frm);
+	},
+	diesel_price_schedule_remove(frm) {
 		card_render_diesel_price(frm);
 	},
 });

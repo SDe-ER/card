@@ -4,9 +4,10 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import flt, formatdate, getdate
 
-# per-company tables: a row steers that company's postings
-COMPANY_TABLES = ("company_settings", "adjustment_types")
+# per-company tables: a row steers that company's postings (FR-125: and its diesel prices)
+COMPANY_TABLES = ("company_settings", "adjustment_types", "diesel_price_schedule")
 
 
 class CardSettings(Document):
@@ -45,6 +46,67 @@ class CardSettings(Document):
 				frappe.throw(_("Duplicate project in transport prices: {0}").format(row.project))
 			projects.add(row.project)
 		self._validate_adjustment_types()
+		self._validate_diesel_price_schedule()
+
+	def _validate_diesel_price_schedule(self):
+		"""FR-125: one price per company and date, never negative, in the company's currency (a fill
+		is priced in its company currency, so another currency is refused rather than converted).
+		A new or changed row dated on or before submitted fills never changes them: they keep their
+		saved price; the user is told how many there are."""
+		seen = set()
+		before = self.get_doc_before_save()
+		old = {r.name: _row_values(r) for r in (before.get("diesel_price_schedule") if before else []) or []}
+		scheduled = {r.company for r in self.get("diesel_price_schedule") or []}
+		old_prices = {
+			r.company: flt(r.diesel_unit_price)
+			for r in (before.get("company_settings") if before else []) or []
+		}
+		for row in self.get("company_settings") or []:
+			if (
+				row.company in scheduled
+				and before
+				and flt(row.diesel_unit_price) != old_prices.get(row.company, 0)
+			):
+				frappe.msgprint(
+					_(
+						"Company {0} has a Diesel price schedule: new fills take its prices. The diesel unit price is used only for fills dated before its first row."
+					).format(row.company),
+					indicator="orange",
+				)
+		for row in self.get("diesel_price_schedule") or []:
+			key = (row.company, str(getdate(row.valid_from)) if row.valid_from else None)
+			if key in seen:
+				frappe.throw(
+					_("Diesel price schedule: company {0} has two prices valid from {1}.").format(
+						row.company, formatdate(row.valid_from)
+					)
+				)
+			seen.add(key)
+			if flt(row.unit_price) < 0:
+				frappe.throw(
+					_("Diesel price schedule row {0}: the price cannot be negative.").format(row.idx)
+				)
+			company_currency = frappe.get_cached_value("Company", row.company, "default_currency")
+			if not row.currency:
+				row.currency = company_currency
+			elif company_currency and row.currency != company_currency:
+				frappe.throw(
+					_(
+						"Diesel price schedule row {0}: the currency must be {1}, the currency of company {2}."
+					).format(row.idx, company_currency, row.company)
+				)
+			if row.valid_from and old.get(row.name) != _row_values(row):
+				submitted = frappe.db.count(
+					"Project Diesel Fill",
+					{"company": row.company, "docstatus": 1, "date": [">=", row.valid_from]},
+				)
+				if submitted:
+					frappe.msgprint(
+						_(
+							"{0} submitted diesel fills of company {1} are dated on or after {2}. They keep their saved price; the new price applies to new fills only."
+						).format(submitted, row.company, formatdate(row.valid_from)),
+						indicator="orange",
+					)
 
 	def _validate_company_scope(self):
 		"""A user may add, change or remove the per-company rows (accounts, tax
