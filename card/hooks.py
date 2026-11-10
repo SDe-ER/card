@@ -194,7 +194,8 @@ _POSTING_EVENTS = {
 }
 doc_events = {
 	"Card Monthly Card": dict(_SOURCE_EVENTS),
-	"Project Diesel Fill": dict(_SOURCE_EVENTS),
+	# meter extraction (optional local worker): marker/crop after an applied pass, enqueue on a new photo
+	"Project Diesel Fill": {**_SOURCE_EVENTS, "on_update": "card.diesel_meter_extraction.after_fill_saved"},
 	"Equipment Transport": dict(_SOURCE_EVENTS),
 	"Purchase Invoice": dict(_POSTING_EVENTS),
 	"Sales Invoice": dict(_POSTING_EVENTS),
