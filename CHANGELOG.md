@@ -16,6 +16,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-149 — CARD documentation site (`website/`, Astro Starlight, English + Arabic).** Reason: the owner asked for a
+  full user and API documentation site in the style of the Whatomate docs. New static site under `website/`
+  (sections Getting Started, Features, Reports, API Reference; English at the root and Arabic RTL under `/ar/`),
+  written from the current code with fictitious example data only, and a GitHub Pages workflow
+  `.github/workflows/docs.yml` (builds on pull requests that touch `website/`; deploys from `main` only after
+  Pages is enabled in the repository settings). Affected functions: none; no Python, DocType, permission,
+  accounting, data or API change. Note: a GitHub Pages site is public even for a private repository. Rollback:
+  revert the commit and disable Pages; nothing on any site changes.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
@@ -643,6 +651,58 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (a plain cancel is unchanged), and a save no longer changes `amended_from`; API: such a cancel request now fails
   with `CancelChangesDocumentError`, and a sent `amended_from` on an update is ignored. Rollback limits:
   code only; nothing stored to undo.
+- **FR-146 follow-up — intake evidence of a submitted transport is kept (#52, #43; WP-N1 review of PR #220).**
+  Reason: the intake evidence of a submitted Equipment Transport (`intake_evidence`, `intake_evidence_hash` and the
+  attached File) could still be removed or replaced: a Card Manager could delete the File through
+  `frappe.client.delete("File", ...)`, a File update (re-attach, detach, public/private flip, URL change) moved or
+  rewrote it (Frappe's own private/public move writes the new URL into the transport with `db.set_value`), and
+  deleting a cancelled transport deleted its evidence File and the file on disk (Frappe deletes the row before its
+  attachments, so a File guard no longer finds the transport; review of PR #228). New in `card/intake.py`:
+  - `keep_evidence_of_deleted_transport`, called from the new `EquipmentTransport.on_trash` (before Frappe deletes
+    the row): a cancelled transport with intake evidence is never deleted (`frappe.delete_doc`,
+    `frappe.client.delete`, the List view delete); Frappe already refuses deleting a submitted transport; a draft or a
+    transport without evidence is deleted as before;
+  - `keep_transport_evidence` (File `on_trash`): a File whose URL is the evidence of a transport with docstatus != 0 is
+    never deleted, also after it was detached;
+  - `keep_transport_evidence_file` (File `before_validate`): such a File, or one sharing its content (Frappe moves
+    every row with the same content when one changes its private state), keeps its private state, URL, content hash,
+    file name and size, and stays attached to its transport; re-attaching it to a transport that names it as
+    evidence (the amendment of the cancelled transport) is allowed, and it stays protected there;
+  - `freeze_submitted_intake` (called from `EquipmentTransport.before_update_after_submit`): no intake field changes
+    after submit, also when a Property Setter marks one "allow on submit" (compared with `card.cancel_reason._differs`).
+  The File hooks are registered additively in `card/hooks.py` after the custody receipt guards. `set_value` and REST
+  PUT on a submitted transport stay refused by Frappe's update-after-submit check, and a cancel that changes any
+  stored field stays refused by FR-123 (`card.cancel_reason._refuse_changes`); both are covered by tests.
+  Default-safe, always on: the guards act only on the evidence of submitted or cancelled transports; a draft's
+  evidence can still be replaced or removed, and no transport released before FR-146 has evidence.
+  Tests (`test_transport_intake.py`): delete of a cancelled transport with evidence through `delete_doc`,
+  `frappe.client.delete` and the List view `delete_items` as Administrator and System Manager, and of a submitted
+  one (transport, File row and file on disk kept); File delete as Card Manager and Administrator, also after
+  detaching and after cancel, each with a check that the file is still on disk; File move, detach, make public and
+  rename for submitted and cancelled transports; a public copy with the same bytes made private; content hash, file
+  name and size through REST PUT; re-attaching to the amendment; allow-on-submit customisation; cancel by REST PUT and
+  by savedocs (outcome-based); forged hash through `frappe.client.set_value`, REST PUT and bulk update; intake fields
+  frozen after submit; two committed drafts given the same key concurrently; case-insensitive key match; a real
+  cancel freeing the key. The mutation check found every guard branch caught by a test except one judged not exploitable: dropping `before.content_hash` from the same-content lookup (only `doc.content_hash` left; M10).
+  Docs: `INTAKE-PROVENANCE-DESIGN.md` section 0 and the FR-146 row record how N1 differs from the design. PR #228.
+  Impact: permissions: no role or DocPerm added; a delete or change of such a File, and a delete of a cancelled
+  transport with evidence, are refused for every user, including System Manager and Administrator (known behaviour,
+  accepted by the coordinator 2026-11-10, the same as custody receipts); accounting none; data none (no patch); API:
+  `frappe.client.delete`/`set_value` of such a File and `frappe.client.delete` of such a transport raise a
+  ValidationError, an allow-on-submit change of an intake field raises `UpdateAfterSubmitError`.
+  Known limits: (1) **the delete protection of the evidence File requires Frappe 16.55.0 or later**: before 16.55.0
+  the core `File.on_trash` deletes the file on disk before CARD's hook refuses, so the File row survives a refused
+  delete but its bytes do not (16.55.0 defers the disk delete to the commit). The custody receipt guard
+  `card.custody_receipt.keep_while_recorded` has the same ordering and the same requirement (unchanged here).
+  Production and CI run 16.55.2. Release PR: state "Frappe 16.55.0 or later" for these protections in the
+  Compatibility and Known Limitations sections. (2) An upload with `attached_to_field` = `intake_evidence` to a
+  submitted transport adds a File row (clutter only; the transport's evidence and hash do not change). (3) The
+  `on_trash` lookup on `intake_evidence` uses no index (a prefix index may be added later if File deletes slow down). (4) Code that bypasses `on_trash` is not covered: `frappe.delete_doc(..., ignore_on_trash=True)`, and ERPNext's
+  company transaction deletion (Transaction Deletion Record, a System Manager tool), which deletes these transports
+  with raw deletes and leaves the evidence File detached, after which its uploader can delete it. (5) On a DRAFT,
+  `File.optimize_file` can rewrite the evidence bytes while `intake_evidence_hash` stays as computed, so submit
+  freezes a stale hash (backlog: recompute or verify the hash on submit).
+  Rollback: reverting removes the guards; no data to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
   User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with
@@ -686,6 +746,89 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Deploy preconditions: on Production `frappe.get_hooks("override_whitelisted_methods")` for both keys lists the
   DAWM entry, then the CARD entry; no Webhook, Notification or Server Script exists on Card Settings.
   Rollback: revert the commits; no data to restore.
+- **Child-table rows follow the level of their table; the Card Settings timeline follows the reader's level
+  (FR-148, SEC-1). PR #227.** Reason: Frappe 16 checks the fields of a child row against the child DocType's own
+  `permlevel` on the child list routes (`frappe.client.get_list` / `get_value` with `parent=`,
+  `frappe.desk.reportview` with a `` `tab<Child>`.`field` `` column or a child-field filter). It does not apply the
+  level of the parent's Table field there; the form and `frappe.client.get` do. Four CARD tables above level 0 had
+  child DocTypes whose fields were all at level 0. What leaked, with the DocPerms of the code:
+  **Card Equipment `components`** (level 1; Card Equipment Component: component, role, from/to date, change reason)
+  to **Card Supervisor** (level 0 only), through all three routes, the report-view filter and the form's change
+  history; **Card Settings `diesel_price_schedule`** (level 1; Card Diesel Price: company, fuel type, valid from,
+  unit price, currency, unit) to **Card Manager** (levels 0 and 2), through `get_list` / `get_value` and the Card
+  Settings change history (`getdoc` / `get_docinfo` returned the Version rows with the full diesel rows).
+  **Card Settings `project_transport_prices`** and **`location_cost_centers`** (level 2) had the same gap, but no
+  role of the code reads Card Settings at level 0 without level 2. Card Operator, Card User (Card Settings),
+  Card Reviewer and Accounts User have no read on these parents.
+  Fix 1 (schema): every field of Card Equipment Component and Card Diesel Price is at level 1, every field of Card
+  Project Transport Price and Card Location Cost Center at level 2, the level of their only table (no child DocType
+  is shared by tables at different levels); no role, DocPerm, hook or data change.
+  Fix 2 (Card Settings timeline): new `mask_docinfo_versions_by_level()` in
+  `card/card/doctype/card_settings/card_settings.py`, run by the existing FR-133 overrides `getdoc` /
+  `get_docinfo` and by the reply to a form save (`apply_fieldlevel_read_permissions`; only a role with write on
+  Card Settings saves it: Card Manager's DocPerms there are read-only, levels 0 and 2), after the FR-133 company
+  filter: per
+  reader, the values of every Card Settings field and child row at a level he cannot read are replaced by the
+  `card/field_privacy.py` mask in `changed`, `added`, `removed` and `row_changed`; who changed what and when stays.
+  Both this mask and the FR-133 company filter (`_scoped_version_data`) read the Version data through
+  `_version_changes`, which rebuilds it in Frappe's own shape only (`changed` [field, old, new], `added` / `removed`
+  [table, row], `row_changed` [table, idx, row name, changes], and Frappe's `data_import`, `updater_reference`,
+  `impersonated_by`, `audit_user`, `creation`, `created_by`): extra elements and unknown keys are dropped, and so is
+  any entry whose table, field, company or row name is not a string or whose value is not a plain value; data that
+  is not a JSON object is shown empty; it never raises.
+  The Versions are stored unmasked, so a reader of the level (Accounts Manager) sees the real values; Card Settings
+  is not added to the write-time `PRIVATE_DOCTYPES` (the owner's 2026-10-31 rule is unchanged).
+  Affected: the four child DocType JSONs; `card_settings.py` (`getdoc`, `get_docinfo`,
+  `apply_fieldlevel_read_permissions`, `_scoped_version_data`, new `_hidden_settings_fields`,
+  `mask_docinfo_versions_by_level`, `_masked_version_data`); new `card/tests/test_child_permlevel_leak.py` (guard driven by an enumeration of every
+  CARD DocType and by the installed meta; shared-child check; role probes for every CARD role, Accounts Manager,
+  Accounts User and a test-only level-0 role on the three routes, the report-view filter and the form; report view
+  for permitted readers; server reads; component history; Card Settings timeline masked for Card Manager and for a
+  level-0 reader, real values for Accounts Manager, stored Version unmasked, a removed row, the form-save reply,
+  malformed Versions; prints; a writer without the level (a test-only level-0 role) cannot overwrite or empty the
+  rows of Card Equipment or Card Settings through `savedocs` or `frappe.client.save`); `card/tests/test_equipment_g2.py`
+  (the #59 Version check now expects the masked component row).
+  Impact on permissions: level-0-only readers lose the plain field values on the routes listed under "Closed";
+  readers of the table's level keep the form, the print, report view (child columns and filters) and every server
+  path (`frappe.get_all` / `frappe.db`, used by the posting, transport price, diesel price, component and location
+  history code). Two Frappe 16 behaviours to know: (1) `frappe.client.get_list` / `get_value` on a child DocType
+  return no field above level 0 to anyone, readers of the level included (`frappe/desk/reportview.py`
+  `validate_fields`); no CARD Desk script, report, print or CARD Mobile screen reads these rows that way (Card
+  Company Settings has behaved so since v1.2.2). (2) The change history of Card Equipment masks every field above
+  level 0 for every reader (`card/field_privacy.py`, owner decision 2026-10-31): component row changes in new
+  Versions keep who and when, not the values.
+  **Closed** for a level-0-only reader of the parent (tests and sandbox probes, every fixed table): plain child
+  fields selected through `frappe.client.get_list` / `get_value` with `parent=`; report-view child columns of a
+  non-Single parent; report-view filters on child fields of the parent query (PermissionError); the form,
+  `frappe.client.get` and prints; the Card Equipment change history from now on; the Card Settings change history
+  (masked per reader on `getdoc`, `get_docinfo` and the form-save reply, old Versions included).
+  **Still open (Frappe 16 core).** Queries on the child DocType itself with `parent=<Parent>`, through
+  `frappe.client.get_list` / `get_value`, `frappe.desk.reportview.get` / `get_list` / `get_count` (doctype = the
+  child) and REST v1 `/api/resource/<Child>?parent=<Parent>`, still accept filters, `order_by` and `group_by` on
+  child fields and aggregate fields (`{"MIN"|"MAX": "<field>"}`). Until Frappe core is fixed, a determined level-0
+  reader can still read every hidden field of every child row, one call at a time: with a `name=<row>` filter and a
+  `{"MIN"|"MAX": field}` aggregate, or prefix by prefix with a LIKE filter on `frappe.desk.reportview.get`. REST v2
+  (`/api/v2/document/<Child>`) refuses both. Cause: `frappe/database/query.py` skips the field-level check when the
+  queried DocType has no permissions of its own, as every child DocType (`query.py:1031`; the filter and order-by
+  checks of `:1374` pass no parent; the permission query conditions of `:1706-1709` are those of the parent, so a
+  `permission_query_conditions` hook on the child is not applied), and `frappe/desk/reportview.py`
+  `validate_fields` skips aggregate (dict) fields (`reportview.py:153`) and checks the child's levels against the
+  child DocType itself (`:177`). Owner options: **Card Equipment** (not a Single): no clean CARD-only mitigation exists; an
+  `override_whitelisted_methods` entry would cover the `/api/method/...` routes only, because REST v1
+  `/api/resource` calls `frappe.client.get_list` directly, and `before_request` hooks run before token
+  authentication; an upstream Frappe fix is needed. **Card Settings** (a Single): every child-query route reaches
+  the CARD `has_permission` hook with a lazy Card Settings document for ptype select or read
+  (`frappe/permissions.py:120-129` → `:903-910` → `:135-136` → `:239`); refusing that lazy-document check to a
+  reader without a table's level would close the aggregate read and the filter oracle on Card Diesel Price (and on
+  the level-2 tables), at a cost: for Card Manager, `frappe.get_print("Card Settings")`,
+  `frappe.client.get_single_value` and a document-less `frappe.has_permission("Card Settings")` would be refused.
+  Not implemented: it needs the owner's decision. Production context (from the code at `e566174` and a read-only
+  check on 2026-11-10: no Custom DocPerm exists on Card Settings or Card Equipment): the level-2 tables are not
+  reachable there; the remaining exposure is Card Supervisor to the unit component rows and Card Manager to the
+  diesel price schedule. Accounting, data and API: no GL, no data change, no new endpoint. Rollback limits: revert
+  the commits and migrate; the levels return to 0 and the Card Settings timeline is no longer masked. Card Equipment
+  Versions written while the change was live keep the masked component values (nothing to restore; the rows
+  themselves are unchanged); Versions written before it keep their raw values.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
