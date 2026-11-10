@@ -129,7 +129,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
-- **CI: upgrade rehearsal on the current Production platform** (PR #TBD; refs #119, #120). The rehearsal now runs on
+- **CI: upgrade rehearsal on the current Production platform** (PR #192; refs #119, #120). The rehearsal now runs on
   frappe `v16.55.2` / erpnext `v16.54.0` (the Production platform of 2026-11-10; tags checked on GitHub) instead of
   16.51.1 / 16.50.0, and on every pull request: the path filter is removed because the job takes about 5 minutes
   and runs in parallel with the CARD unit tests (about 10-16 minutes), so no pull request waits longer, and Python
