@@ -38,6 +38,8 @@ COMMERCIAL_FIELDS = (
 	"rate_type",
 	"rate",
 	"daily_hours",
+	# FR-138: how a per-day rate is billed (prorated by hours / full day)
+	"day_billing_basis",
 	"الوقود_على",
 	"internal_hourly_rate",
 	"internal_rate_basis",

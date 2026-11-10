@@ -5326,3 +5326,19 @@ msgstr ""
 #: card/card/doctype/card_settings/card_settings.py
 msgid "Your Card Settings access is limited to your companies' rows; you cannot change the site-wide fields: {0}."
 msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Day billing basis"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Prorated by hours"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Full day"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Day billing basis used"
+msgstr ""

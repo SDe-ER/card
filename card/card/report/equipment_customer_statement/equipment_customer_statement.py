@@ -3,6 +3,7 @@ from frappe import _
 
 from card.adjustments import sided_adjustments
 from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
+from card.card_value import DAY_BASIS_FULL_DAY, PER_DAY, day_billing_basis
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
@@ -82,6 +83,8 @@ def execute(filters=None):
 				"customer_rate_type",
 				"customer_rate",
 				"customer_rate_used",
+				"day_billing_basis",
+				"day_billing_basis_used",
 				"customer_amount",
 				"total_working_hours",
 				"billable_stopped_hours",
@@ -178,6 +181,7 @@ def execute(filters=None):
 			ded = 0.0
 			rates = set()
 			rtypes = set()
+			bases = set()
 			card_rows = []
 			for c in be["cards"]:
 				cd = card_dates.get(c.name) or []
@@ -194,9 +198,22 @@ def execute(filters=None):
 				ded = ded + c_ded
 				rates.add(flt(c.customer_rate))
 				rtypes.add(c.customer_rate_type or "")
+				# FR-138: the day billing basis of a per-day customer rate: a submitted card shows the basis it
+				# was priced with, a draft the equipment's current one (a card saved before FR-138: prorated)
+				if c.customer_rate_type == PER_DAY:
+					c_basis = day_billing_basis(
+						c.day_billing_basis_used
+						if c.docstatus == 1 and c.day_billing_basis_used
+						else c.day_billing_basis
+					)
+				else:
+					c_basis = None
+				bases.add(c_basis)
 				# submitted cards carry the hourly-rate snapshot taken at submit; a draft has none yet,
-				# so its effective hourly rate is derived from the accrued amount (same value, any rate type)
-				if c.docstatus == 1 and flt(c.customer_rate_used):
+				# so its effective hourly rate is derived from the accrued amount (same value, any rate type).
+				# FR-138: a "Full day" card was not priced by an hourly rate, so (as on the supplier
+				# statement) its effective rate is its amount over every billed hour
+				if c.docstatus == 1 and flt(c.customer_rate_used) and c_basis != DAY_BASIS_FULL_DAY:
 					c_hourly = flt(c.customer_rate_used)
 				elif c_hours + c_stopped:
 					# FR-118: billable stopped hours are billed hours too
@@ -220,6 +237,7 @@ def execute(filters=None):
 						"hours": c_hours,
 						"stopped_hours": c_stopped,
 						"customer_rate_type": c.customer_rate_type,
+						"day_billing_basis": _(c_basis) if c_basis else None,
 						"customer_rate": flt(c.customer_rate),
 						"hourly_rate": c_hourly,
 						"customer_amount": c_amount,
@@ -243,6 +261,9 @@ def execute(filters=None):
 				"hours": flt(hours, 2),
 				"stopped_hours": flt(stopped, 2),
 				"customer_rate_type": next(iter(rtypes)) if len(rtypes) == 1 else "متعدد",
+				"day_billing_basis": None
+				if not any(bases)
+				else (_(next(iter(bases))) if len(bases) == 1 else "متعدد"),
 				"customer_rate": next(iter(rates)) if len(rates) == 1 else None,
 				"hourly_rate": None if not (hours + stopped) else flt(amount / (hours + stopped), 2),
 				"customer_amount": flt(amount, 2),
@@ -315,6 +336,12 @@ def execute(filters=None):
 			"label": _("Customer rate type"),
 			"fieldtype": "Data",
 			"width": 90,
+		},
+		{
+			"fieldname": "day_billing_basis",
+			"label": _("Day billing basis"),
+			"fieldtype": "Data",
+			"width": 110,
 		},
 		{"fieldname": "customer_rate", "label": _("Customer rate"), "fieldtype": "Currency", "width": 100},
 		{"fieldname": "hourly_rate", "label": _("Hourly rate"), "fieldtype": "Currency", "width": 100},
