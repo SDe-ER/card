@@ -38,7 +38,8 @@
   "equipment_section",
   "initial_location",
   "column_break_equipment",
-  "move_day_rule"
+  "move_day_rule",
+  "equipment_status_rule"
  ],
  "fields": [
   {
@@ -193,11 +194,14 @@
    "permlevel": 1
   },
   {
+   "description": "Deprecated – not used",
    "fieldname": "bank_cash_account",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Bank / cash account",
    "options": "Account",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only": 1
   },
   {
    "fieldname": "column_break_settlement",
@@ -205,11 +209,14 @@
    "permlevel": 1
   },
   {
+   "description": "Deprecated – not used",
    "fieldname": "mode_of_payment",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Mode of payment",
    "options": "Mode of Payment",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only": 1
   },
   {
    "description": "Per-line 15% VAT override template (auto-provisioned: CARD VAT 15% - <abbr>).",
@@ -270,13 +277,22 @@
    "label": "Move-day rule",
    "options": "New assignment starts the day after the move\nNew assignment starts on the move day",
    "permlevel": 1
+  },
+  {
+   "default": "Warn only (equipment status)",
+   "description": "An equipment with status Ended on a new assignment, transport or monthly card: Warn only shows a message and saves; Refuse stops it. Never stopped: a return to the supplier, an owned machine moved to storage or a workshop, a card of the month of its exit. Existing records are never changed. Empty: Warn only.",
+   "fieldname": "equipment_status_rule",
+   "fieldtype": "Select",
+   "label": "Equipment status rule",
+   "options": "Warn only (equipment status)\nRefuse (equipment status)",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 13:00:00.000000",
+ "modified": "2026-11-10 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",

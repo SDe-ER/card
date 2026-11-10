@@ -4226,6 +4226,38 @@ msgstr ""
 msgid "New assignment starts on the move day"
 msgstr ""
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Equipment status rule"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "An equipment with status Ended on a new assignment, transport or monthly card: Warn only shows a message and saves; Refuse stops it. Never stopped: a return to the supplier, an owned machine moved to storage or a workshop, a card of the month of its exit. Existing records are never changed. Empty: Warn only."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Warn only (equipment status)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (equipment status)"
+msgstr ""
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new assignment."
+msgstr ""
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new transport."
+msgstr ""
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new monthly card."
+msgstr ""
+
+#: card/equipment_status.py
+msgid "The equipment status rule of company {0} refuses it."
+msgstr ""
+
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
 msgstr ""
@@ -4565,6 +4597,11 @@ msgstr ""
 
 #: card/public/js/cancel_reason.js
 msgid "Cancelled with the reason recorded."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.json
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Deprecated – not used"
 msgstr ""
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
