@@ -40,7 +40,12 @@ def approve_fill(fill):
 
 def set_diesel_price(company, price):
 	"""Write only the company's price row (rolled back with the test), so unrelated Card
-	Settings rules on the site are not re-validated."""
+	Settings rules on the site are not re-validated. FR-125: the company's Diesel price schedule
+	rows are removed too, so the price set here is the one every fill takes."""
+	frappe.db.delete(
+		"Card Diesel Price",
+		{"parent": "Card Settings", "parentfield": "diesel_price_schedule", "company": company},
+	)
 	name = frappe.db.get_value(
 		"Card Company Settings",
 		{"parent": "Card Settings", "parenttype": "Card Settings", "company": company},

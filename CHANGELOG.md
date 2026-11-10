@@ -16,6 +16,47 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Effective-dated diesel price schedule** (FR-125, #46, #124 WP-10). Reason: the diesel price changes over time and a fill
+  must take the price valid on its own date. Card Settings > Diesel Settings gets the table **Diesel price schedule** (new child
+  DocType `Card Diesel Price`: company, valid from, price per litre, currency defaulting to and limited to the company currency,
+  optional UOM; level 1 like `diesel_unit_price`). It lives on Card Settings with a company column because Card Company Settings is
+  itself a child table and Frappe has no nested child tables. A fill takes the price of its company's row with the latest valid
+  from on or before the fill date; with no such row (no schedule, or a date before the first row) it takes `diesel_unit_price`
+  exactly as before. Validation: one price per company and date, a required price above zero, company scope as for the other
+  company rows. **Behaviour change (review M1):** once a company has schedule rows (after the seed patch: every priced company),
+  its `diesel_unit_price` is read-only on the form and the server refuses a change; its price changes only by a new dated schedule
+  row. A saved Company Price draft whose date moves to a period with another price goes to Needs Review (like a company change);
+  it is never repriced silently. Known limit (review M3, the same gap main has for `company_settings`): Card Settings is a Single,
+  so a user who can read level 1 receives the schedule rows of every company; the form shows the price box only for permitted
+  companies and the server refuses changes to other companies' rows, but the rows are not stripped from the loaded document
+  (stripping them would delete them on the next save).
+  A new or changed row dated on or before submitted fills does not change them; the user is told how many submitted fills of the
+  company are on or after that date. The Diesel Settings price box shows today's price and, for a company with a schedule,
+  "Change price" adds a dated row. Patch `v4_7_0.seed_diesel_price_schedule` (post_model_sync, idempotent) gives each company with
+  `diesel_unit_price` > 0 and no schedule one row with that price, valid from its earliest fill date (today without fills);
+  `diesel_unit_price` is not changed. PR #195. Affected:
+  `project_diesel_fill.py` (`scheduled_diesel_price`, `diesel_price(company, on_date)`, `get_diesel_price_context` gains `date`,
+  `_apply_price`), `project_diesel_fill.js` (price on the fill date), `diesel_import.py` `_check_price` (session date),
+  `card_settings.py` (`_validate_diesel_price_schedule`, `COMPANY_TABLES`), `card_settings.js`, `card_settings.json`, locale.
+  Impact: permissions none (same level 1 as the price; no role widened); accounting none (no GL; the fill amount is litres x the
+  price as before); data: one schedule row per priced company after migrate, no fill changed; API: `get_diesel_price_context`
+  accepts an optional `date` (GET, read only). Rollback limits: reverting the code leaves the `Card Diesel Price` table and the
+  seeded rows in the database (unused); fills saved while the schedule was active keep the price they took.
+- **Diesel fill project check** (FR-126, #124 WP-11, #31). Reason: diesel charged to an equipment that is not on the fill's
+  project puts the cost on the wrong project. A fill's direct-charge equipment and every listed equipment need a Card Equipment
+  Assignment on the fill's project in force on the fill date, by the rule of `card.transfer._in_force` (a from date on or before
+  the day, an empty or later to date; an assignment without a from date covers no day; the status field is not read, as in
+  `_in_force`). On the day of a project-to-project move the fill goes to the project the company's move-day rule (FR-117) gives
+  that day: the old project under "the day after the move", the new project under "on the move day". New Card Company Settings
+  Select `diesel_fill_project_check` (level 1) with CARD-specific values: "Off (diesel project check)", "Warn only (diesel project
+  check)" (default; an empty value also means Warn only: a message and the fill is saved) or "Refuse (diesel project check)".
+  Only a new fill, or a fill whose company, equipment, project or date changed, is checked; submitted fills never reach validate
+  and an unchanged draft submits as before. PR #196. Affected: `project_diesel_fill.py` (`ProjectDieselFill._check_equipment_on_project`,
+  `equipment_on_project`, `_filled_equipment_of`), `card_company_settings.json`, locale. Impact: permissions none; accounting
+  none (no GL; nothing reposted); data none (no patch, no fill changed); API none. Default: Warn, so existing work only sees a
+  message. The equipment-status guard for diesel fills (TODO of PR #191) is not included because `card/equipment_status.py` is
+  not on main yet; it is a follow-up. Rollback limits: reverting removes the check; the stored setting value stays unused in the
+  database.
 - **Equipment status guard** (FR-122, PR #191; refs #42, #120).
   - **Reason:** the Card Equipment status was a plain field: an ended machine (status منتهية) could still get a new
     assignment, transport or monthly card.
@@ -67,6 +108,33 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     then unused; a transport submitted with "Other party bears the cost" keeps that stored value, which an older
     version counts as a move the company does not pay in its reports but refuses on a new save (unknown
     responsibility); amend such transports before a rollback.
+- **CARD Monthly Posting page with a posting preview** (FR-119, refs #49 #126; PR #193, branch
+  `feat/posting-preview-49`).
+  - **Reason:** accountants built the month-end drafts blind: `post_month` / `rebuild_month` had no Desk screen and
+    no way to see the lines before a draft Purchase / Sales Invoice was created and its sources reserved.
+  - **Change:** new Desk page `card-monthly-posting` (roles Card Manager and System Manager, the roles the build
+    endpoints already require). Pick a company and a month; the page lists each supplier and customer with its status
+    (Not posted / Draft / Posted), the documents not yet in a posting and its CARD postings; **Preview lines** shows the
+    lines the next draft (or the rebuild of the current draft) would carry — item, account, amount, project, cost
+    center, equipment, taxable / zero-rated and item tax template per line, totals, discount, an estimated VAT, the
+    diesel VAT-basis note and the source documents — and the supplier invoices an accountant must review first
+    (tickable only by Accounts Manager / Accounts User / System Manager, as before). **Create draft posting** /
+    **Rebuild draft posting** call the existing `card.gl.posting.post_month` / `rebuild_month` unchanged.
+  - **Affected functions:** `card.gl.posting.build_monthly_posting` is split into `_plan_monthly_posting` (all gates and
+    lines; `dry_run=True` skips `ensure_posting_masters`, `integrity.lock_sources` and the reviewed-invoice refusal and
+    returns the candidates instead) and the unchanged insert/log/reserve part; the item row is built by the shared
+    `_invoice_item`; `rebuild_monthly_posting` reads its drafts through `_rebuildable_drafts`;
+    `_held_by_active_log` / `_exclude_held` take an optional `ignore_logs` (rebuild preview only);
+    `_supplier_sources` / `_customer_cards` accept `party=None` (party list);
+    `card.gl.preflight.check_template_mapping` takes `provisioned=True` (default unchanged; a preview before the
+    first post skips only the CARD item tax template rows, every other tax check still refuses). New:
+    `preview_monthly_posting`, `month_parties` (batched hold lookup `_unheld_batch`), whitelisted `preview_month` and `posting_month_parties` (both `methods=["GET"]`, side-effect
+    free, same role, company and party gates as `post_month`).
+  - **Impact:** permissions — none changed; GL Posting Log stays readable by System Manager, Accounts Manager and Card
+    Manager (Accounts User read is an open owner decision). Accounting — none: the real build runs the same steps in
+    the same order with the same amounts; the preview writes nothing (tests patch every write path). Data — none, no
+    schema change, no patch. API — two new GET methods.
+  - **Rollback:** revert the commit; nothing is stored by the page or the preview.
 - **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
   An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
   opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself
@@ -216,6 +284,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
+- **Dead settings retired, not deleted** (FR-124, WP-08, FR-015, #50). Reason: four settings had no reader, so changing
+  them did nothing. `auto_submit` and `notify_on_posting` (Card Settings) and `bank_cash_account` and `mode_of_payment`
+  (Card Company Settings) are now hidden and read only with the description "Deprecated – not used" (Arabic in
+  `card/locale/ar.po`); the two Card Settings entries are removed from `settings.py` `_DEFAULTS`. No reader was found for
+  any of the four, so none was wired up. The account-company check of `CardSettings.validate` skips a retired (hidden,
+  read only) account field, so an old value of another company stored there cannot block saving Card Settings while
+  nobody can see the field to clear it. PR #198. Affected: `card_settings.json`, `card_company_settings.json`,
+  `card_settings.py` (`validate`),
+  `card/settings.py`, `docs/governance/SETTINGS-AND-CONSTANTS.md`; test `test_deprecated_settings.py` (fields hidden,
+  no reader in the app code). Permissions: none changed (same permlevels). Accounting: none. Data: columns and stored
+  values kept; no patch. API: the fields stay in the DocType and API reads; a write through the API is still stored but
+  has no effect, as before. Rollback limits: code revert only (the fields show again).
 - **CI: upgrade rehearsal on the current Production platform** (PR #192; refs #119, #120). The rehearsal now runs on
   frappe `v16.55.2` / erpnext `v16.54.0` (the Production platform of 2026-11-10; tags checked on GitHub) instead of
   16.51.1 / 16.50.0, and on every pull request: the path filter is removed because the job takes about 5 minutes
