@@ -531,13 +531,14 @@ class TestConsumptionRate(IntegrationTestCase):
 			"default_consumption_rates", {"valid_from": future, "litres_per_hour": 5, "company": self.company}
 		)
 		t.save()
+		# a new row with no company would apply to every company: refused by the CARD guard
 		t = frappe.get_doc("Card Equipment Type", self.etype)
-		row = t.append("default_consumption_rates", {"valid_from": add_days(future, 1), "litres_per_hour": 6})
-		row.company = None
-		t.save()
-		self.assertEqual(len(t.default_consumption_rates), 2)
-		# (Frappe fills an empty company from the user's single permitted company: never another company)
-		self.assertLessEqual({r.company or None for r in t.default_consumption_rates}, {self.company, None})
+		t.append("default_consumption_rates", {"valid_from": add_days(future, 1), "litres_per_hour": 6})
+		frappe.db.savepoint("crate_attempt")
+		self.assertIn(self.NO_COMPANY_MSG, self._error(t.save) or "")
+		frappe.set_user("Administrator")
+		t = frappe.get_doc("Card Equipment Type", self.etype)
+		self.assertEqual([r.company for r in t.default_consumption_rates], [self.company])
 
 	def test_restricted_manager_cannot_touch_rows_for_every_company(self):
 		# a row with no company also sets company B's rate: a user limited to company A may not edit or delete it
@@ -577,6 +578,201 @@ class TestConsumptionRate(IntegrationTestCase):
 		t.save()
 		frappe.set_user("Administrator")
 		self.assertIsNone(consumption_rate(eq_b.name, future))
+
+	# ---------- type rows of several companies: CARD's guard decides, never Frappe's link lockout ----------
+
+	NO_COMPANY_MSG = "A default consumption rate with no company applies to every company"
+	OTHER_COMPANY_MSG = "You cannot change the default consumption rates of company"
+	ROLE_MSG = "Only a Card Manager or System Manager can change the default consumption rates"
+
+	def _mixed_type(self):
+		"""A type with future rows for company A, company B and no company (future: the past-row lock stays out)."""
+		other = self._other_company()
+		future = add_days(getdate(), 10)
+		etype = self._type(
+			rates=[
+				(future, 10, self.company),
+				(add_days(future, 1), 20, other),
+				(add_days(future, 2), 30),
+			]
+		)
+		t = frappe.get_doc("Card Equipment Type", etype)
+		rows = {(r.company or None): r.name for r in t.default_consumption_rates}
+		return etype, other, rows[self.company], rows[other], rows[None]
+
+	def _error(self, fn, *args, **kwargs):
+		"""The message of the refusal, or None when `fn` passed."""
+		try:
+			result = fn(*args, **kwargs)
+		except REFUSED as e:
+			frappe.db.rollback(save_point="crate_attempt")
+			return str(e) or "<empty>"
+		finally:
+			frappe.clear_messages()
+		if isinstance(result, dict) and result.get("failed_docs"):  # frappe.client.bulk_update
+			frappe.db.rollback(save_point="crate_attempt")
+			return result["failed_docs"][0]["exc"]
+		return None
+
+	def _row_dicts(self, etype):
+		t = rest_get("Card Equipment Type", etype)
+		keep = ("name", "company", "valid_from", "litres_per_hour", "reason", "idx")
+		return t, [{k: r.get(k) for k in keep} for r in t["default_consumption_rates"]]
+
+	def _paths(self, etype, mutate):
+		"""Run one change of the rows through doc.save, PUT on the parent and bulk update; return each error."""
+		from frappe.client import bulk_update as rest_bulk_update
+		from frappe.client import save as rest_save
+
+		def by_doc_save():
+			t = frappe.get_doc("Card Equipment Type", etype)
+			_, rows = self._row_dicts(etype)
+			t.set("default_consumption_rates", mutate(rows))
+			t.save()
+
+		def by_put():
+			doc, rows = self._row_dicts(etype)
+			doc["default_consumption_rates"] = mutate(rows)
+			rest_save(doc)
+
+		def by_bulk_update():
+			_, rows = self._row_dicts(etype)
+			return rest_bulk_update(
+				json.dumps(
+					[
+						{
+							"doctype": "Card Equipment Type",
+							"docname": etype,
+							"default_consumption_rates": mutate(rows),
+						}
+					],
+					default=str,
+				)
+			)
+
+		out = {}
+		for label, fn in (("doc.save", by_doc_save), ("PUT", by_put), ("bulk_update", by_bulk_update)):
+			frappe.db.savepoint("crate_attempt")
+			out[label] = self._error(fn)
+		return out
+
+	def test_restricted_users_keep_using_a_type_with_other_company_rows(self):
+		from frappe.client import bulk_update as rest_bulk_update
+		from frappe.client import save as rest_save
+		from frappe.client import set_value as rest_set_value
+
+		etype, other, row_a, row_b, row_none = self._mixed_type()
+		future = add_days(getdate(), 10)
+		manager = self._user(["Card Manager"], restrict=self.company)
+		card_user = self._user(["Card User"], restrict=self.company)
+
+		for user in (manager, card_user):
+			frappe.set_user(user)
+			# read the type, with every row (rates, not amounts: a documented known limit)
+			doc = rest_get("Card Equipment Type", etype)
+			self.assertEqual(len(doc["default_consumption_rates"]), 3)
+			# save the other fields on every path
+			t = frappe.get_doc("Card Equipment Type", etype)
+			t.description = "doc.save " + user
+			t.save()
+			frappe.db.savepoint("crate_attempt")
+			self.assertIsNone(
+				self._error(rest_set_value, "Card Equipment Type", etype, "description", "set " + user)
+			)
+			doc = rest_get("Card Equipment Type", etype)
+			doc["description"] = "PUT " + user
+			rest_save(doc)
+			result = rest_bulk_update(
+				json.dumps(
+					[{"doctype": "Card Equipment Type", "docname": etype, "description": "bulk " + user}]
+				)
+			)
+			self.assertEqual(result["failed_docs"], [])
+			frappe.set_user("Administrator")
+
+		def set_field(name, field, value):
+			def mutate(rows):
+				for r in rows:
+					if r["name"] == name:
+						r[field] = value
+				return rows
+
+			return mutate
+
+		def drop(name):
+			return lambda rows: [r for r in rows if r["name"] != name]
+
+		def add(company):
+			return lambda rows: [
+				*rows,
+				{
+					"valid_from": add_days(future, 20),
+					"litres_per_hour": 7,
+					"company": company,
+					"reason": "new",
+				},
+			]
+
+		refused_by_company = {
+			"edit B": set_field(row_b, "litres_per_hour", 99),
+			"delete B": drop(row_b),
+			"move B -> A": set_field(row_b, "company", self.company),
+			"add B": add(other),
+			"move A -> B": set_field(row_a, "company", other),
+		}
+		refused_no_company = {
+			"edit no company": set_field(row_none, "litres_per_hour", 99),
+			"delete no company": drop(row_none),
+			"move A -> no company": set_field(row_a, "company", None),
+			"move no company -> A": set_field(row_none, "company", self.company),
+		}
+		frappe.set_user(manager)
+		for case, mutate in refused_by_company.items():
+			for path, error in self._paths(etype, mutate).items():
+				self.assertIn(self.OTHER_COMPANY_MSG, error or "", f"{case} via {path}")
+		for case, mutate in refused_no_company.items():
+			for path, error in self._paths(etype, mutate).items():
+				self.assertIn(self.NO_COMPANY_MSG, error or "", f"{case} via {path}")
+		# set_value on the row itself (child path)
+		for row, field, value, message in (
+			(row_b, "litres_per_hour", 99, self.OTHER_COMPANY_MSG),
+			(row_b, "company", self.company, self.OTHER_COMPANY_MSG),
+			(row_a, "company", other, self.OTHER_COMPANY_MSG),
+			(row_none, "litres_per_hour", 99, self.NO_COMPANY_MSG),
+			(row_none, "company", self.company, self.NO_COMPANY_MSG),
+			(row_a, "company", None, self.NO_COMPANY_MSG),
+		):
+			frappe.db.savepoint("crate_attempt")
+			error = self._error(rest_set_value, "Card Type Consumption Rate", row, field, value)
+			self.assertIn(message, error or "", (row, field, value))
+		# the own company's row stays editable on every path
+		for path, error in self._paths(etype, set_field(row_a, "litres_per_hour", 11)).items():
+			self.assertIsNone(error, path)
+		frappe.db.savepoint("crate_attempt")
+		self.assertIsNone(
+			self._error(rest_set_value, "Card Type Consumption Rate", row_a, "litres_per_hour", 12)
+		)
+		frappe.set_user("Administrator")
+		rates = {
+			(r.company or None): r.litres_per_hour
+			for r in frappe.get_doc("Card Equipment Type", etype).default_consumption_rates
+		}
+		self.assertEqual(rates, {self.company: 12, other: 20, None: 30})
+
+		# a restricted Card User: refused by role, on every path, for its own company too
+		frappe.set_user(card_user)
+		for mutate in (
+			set_field(row_a, "litres_per_hour", 13),
+			set_field(row_b, "litres_per_hour", 13),
+			add(self.company),
+		):
+			for path, error in self._paths(etype, mutate).items():
+				self.assertIn(self.ROLE_MSG, error or "", path)
+		frappe.db.savepoint("crate_attempt")
+		self.assertIn(
+			self.ROLE_MSG,
+			self._error(rest_set_value, "Card Type Consumption Rate", row_a, "litres_per_hour", 13) or "",
+		)
 
 	def test_known_limit_child_list_filter_reveals_rate(self):
 		"""KNOWN LIMIT (Frappe v16, tracked as FR-148): frappe/database/query.py checks no field permission on
