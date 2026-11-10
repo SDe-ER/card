@@ -6319,3 +6319,8 @@ msgstr "فحص الشركة في CARD: الحقل {0} ليس رابطًا لسج
 #: card/company_scope.py
 msgid "CARD company check: rows {0} belong to a company other than {1}."
 msgstr "فحص الشركة في CARD: الصفوف {0} تتبع شركة غير {1}."
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price fuel type"
+msgstr "نوع الوقود لسعر الديزل"
+
