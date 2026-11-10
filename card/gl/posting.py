@@ -481,11 +481,24 @@ def _responsibility_supplier_lines(transport, shares, row, company, description)
 	return lines, total
 
 
-def _customer_transports(company, party, first_day, last_day):
+def _rows(doctype, filters, fields, for_update=False):
+	"""frappe.get_all, or with for_update a locking read of the same rows (FR-149): inside the posting
+	transaction a plain read returns the transaction's REPEATABLE READ snapshot, a locking read returns the
+	latest committed rows and holds them until the posting commits."""
+	if not for_update:
+		return frappe.get_all(doctype, filters=filters, fields=list(fields))
+	return frappe.db.get_values(
+		doctype, filters, list(fields), as_dict=True, for_update=True, order_by="name asc"
+	)
+
+
+def _customer_transports(company, party, first_day, last_day, for_update=False):
 	"""Post: the submitted transports whose approved decision bills the customer on the monthly Sales
-	Invoice (transport_costs.customer_billing_eligible). party=None: every customer."""
-	rows = frappe.get_all(
+	Invoice (transport_costs.customer_billing_eligible). party=None: every customer. for_update: a locking
+	read (FR-149 re-check inside the posting transaction)."""
+	rows = _rows(
 		"Equipment Transport",
+		for_update=for_update,
 		filters={
 			"docstatus": 1,
 			"company": company,
@@ -973,6 +986,14 @@ def _plan_monthly_posting(
 			integrity.require_reviewed(candidates, reviewed_invoices)
 	else:
 		candidates = []
+	# FR-149 (#49, WP-S2): with the company's require_period_approval on, an approved, current period run that
+	# holds every source of this posting as it is billed; in a real build re-checked with locking reads (the run
+	# rows and the month's sources), before the sources are locked and reserved. Off: returns at once.
+	from card.gl import period_gate
+
+	period_gate.check_posting(
+		company, party_type, party, month, year, sources, row, vat_registered, lock=not dry_run
+	)
 	if not dry_run:
 		# P0: serialize concurrent builds/links of the same sources, then re-check membership
 		integrity.lock_sources(sources)
@@ -1194,6 +1215,10 @@ def rebuild_monthly_posting(company, party_type, party, month, year, reviewed_in
 	draft includes every unposted submitted document."""
 	posting_doctype = "Purchase Invoice" if party_type == "Supplier" else "Sales Invoice"
 	preflight.require_item_read(posting_doctype)  # before deleting the old draft
+	# FR-149: refuse before the old draft is deleted (the build below runs the full period-run gate)
+	from card.gl import period_gate
+
+	period_gate.require_run_state(company, month, year)
 	for active in _rebuildable_drafts(company, party_type, party, month, year):
 		frappe.delete_doc(posting_doctype, active.posting_doc, ignore_permissions=True)
 	return build_monthly_posting(company, party_type, party, month, year, reviewed_invoices)
@@ -1595,3 +1620,23 @@ def preview_month(company: str, party_type: str, party: str, month: str, year: s
 	month, year = _checked_endpoint_args(company, party_type, month, year)
 	_check_party(party_type, party)
 	return preview_monthly_posting(company, party_type, party, month, year)
+
+
+@frappe.whitelist(methods=["GET"])
+def posting_period_run(company: str, month: str, year: str):
+	"""Posting screen (FR-149): whether the company requires an approved period run before posting, the state of
+	the month's run and why posting is refused. Read only (it rebuilds the run's live snapshot); no amounts. The
+	same role and company checks as the party list."""
+	from card.gl import period_gate
+
+	checked = None
+	for party_type in ("Supplier", "Customer"):
+		try:
+			checked = _checked_endpoint_args(company, party_type, month, year)
+			break
+		except frappe.PermissionError:
+			frappe.local.message_log = []
+	if checked is None:
+		_checked_endpoint_args(company, "Supplier", month, year)  # the build's own refusal
+	month, year = checked
+	return period_gate.run_state(company, month, year)

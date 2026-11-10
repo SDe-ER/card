@@ -6,6 +6,8 @@
 // The server decides everything: the reads are GET methods with no side effects
 // (card.gl.posting.posting_month_parties / preview_month); the buttons call the existing
 // card.gl.posting.post_month / rebuild_month, which check role, company and party again.
+// FR-149: the period run box (card.gl.posting.posting_period_run, GET) shows the month's Card Period Run and,
+// when the company requires an approved run, why posting is refused; the server refuses on every route.
 
 frappe.pages["card-monthly-posting"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
@@ -34,6 +36,7 @@ class CardMonthlyPosting {
 		this.page = page;
 		const today = frappe.datetime.str_to_obj(frappe.datetime.get_today());
 		this.$body = $(`<div class="cmp">
+			<div class="cmp-run"></div>
 			<div class="cmp-parties"></div>
 			<div class="cmp-preview"></div>
 		</div>`).appendTo(page.main);
@@ -81,9 +84,14 @@ class CardMonthlyPosting {
 	load() {
 		const args = this.args();
 		this.$body.find(".cmp-preview").empty();
+		const $run = this.$body.find(".cmp-run").empty();
 		const $parties = this.$body.find(".cmp-parties").empty();
 		if (!args.company || !args.month || !args.year) return;
 		const request = (this.request = (this.request || 0) + 1);
+		cmp_get("card.gl.posting.posting_period_run", args).then((state) => {
+			if (request !== this.request || !state) return;
+			$run.append(this.run_view(state));
+		});
 		return cmp_get("card.gl.posting.posting_month_parties", args).then((rows) => {
 			if (request !== this.request) return;
 			if (!rows || !rows.length) {
@@ -96,6 +104,52 @@ class CardMonthlyPosting {
 			}
 			$parties.append(this.parties_table(rows));
 		});
+	}
+
+	run_view(state) {
+		// FR-149: the month's period run; the refusal text is the server's own
+		const e = frappe.utils.escape_html;
+		const $box = $(`<div class="cmp-run-box"></div>`);
+		if (state.run) {
+			// approval_status is a Card Period Run Select value, translated with the DocType
+			const approval =
+				state.docstatus === 0 ? __("Draft period run") : __(state.approval_status || "");
+			const parts = [
+				__("Period run version {0}", [state.version]),
+				approval,
+				state.current
+					? __("Period run is current")
+					: __("Period run changed since it was built"),
+			];
+			if (state.self_approved) parts.push(__("Period run approved by its preparer"));
+			$box.append(
+				`<div class="cmp-run-line">${__(
+					"Period run",
+				)}: <a href="/app/card-period-run/${encodeURIComponent(state.run)}">${e(
+					state.run,
+				)}</a> <span class="text-muted">${parts.map(e).join(" · ")}</span></div>`,
+			);
+		}
+		if (!state.required) {
+			$box.append(
+				`<div class="text-muted">${__(
+					"This company does not require an approved period run before posting (Card Company Settings).",
+				)}</div>`,
+			);
+		} else if (state.refusal) {
+			$box.append(
+				`<div class="alert alert-danger">${__("Posting is refused for this month:")} ${e(
+					state.refusal,
+				)}</div>`,
+			);
+		} else {
+			$box.append(
+				`<div class="alert alert-success">${__(
+					"The approved period run is current; posting is allowed. Each posting is checked against it again.",
+				)}</div>`,
+			);
+		}
+		return $box;
 	}
 
 	parties_table(rows) {
