@@ -16,6 +16,26 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-141 — Dated rate agreements, built opt-in and not wired (#41; closure plan WP-M1, conflict C-16, owner
+  decision O-08 default).** Reason: #41 needs effective agreements per equipment, party and project, and "no automatic
+  billing when several agreements match"; FR-023 (dated agreements) was postponed by the owner on 2026-10-19, so the
+  model is added unused and changes nothing until the opt-in wiring (WP-M2..M4) is merged and enabled per company.
+  New submittable DocType Card Rate Agreement (company; an equipment or an equipment type; supplier and/or customer;
+  optional project and work zone; valid from / valid to, empty end = open-ended; rates per hour, day, month and
+  quantity unit in the company currency) and child table Card Agreement Responsibility (cost category Rental /
+  Diesel / Transport / Maintenance, paid by Company / Customer / Supplier / Other party, share %, optional single
+  equipment; shares total 100% per category). New `card/agreements.py`: `resolve(company, equipment, party, date,
+  project=None, zone=None)` returns None when nothing matches, the agreement when one does, and raises
+  `AmbiguousAgreementError` when several do (CARD never chooses); `validate_agreement`, `check_overlap` (same key and
+  overlapping dates refused, the company row locked at submit), company checks on equipment, project, amendment and
+  child rows (`card.company_scope.check_child_companies`). A changed rate is a new agreement (no field is
+  allow-on-submit). Nothing calls `resolve()` yet. `test_company_scope` guard skips Frappe's own `amended_from`
+  self-link; ROLE-ACTION-MATRIX DocType table regenerated. Tests: `card/tests/test_agreements_resolve.py`. PR #216.
+  Impact: permissions: new DocType only (System Manager full; Card Manager create, write, submit, cancel, amend;
+  Accounts Manager and Card User read; no existing role or DocPerm changed), records isolated by company through the
+  FR-131 hooks; accounting none (CARD writes no GL; posting does not read agreements); data: two new tables, no patch,
+  existing records untouched; API: standard REST of the new DocType, no whitelisted method. Rollback limits: code
+  rollback leaves the two tables and any agreements entered (unused by older code, harmless).
 - **FR-132 — Fill price snapshot: currency, unit and valid-from on each diesel fill (#46, supports #124; WP-X,
   conflict C-18).** Reason: #46 asks for the applied price *and* its currency/unit snapshot on each fill; until now a
   fill stored only `unit_price`, `price_source` and `company_price`. New read-only, no-copy fields on Project Diesel
