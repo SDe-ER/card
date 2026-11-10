@@ -151,6 +151,9 @@ _COMPANY_SCOPED = (
 	"Tank Dip Reading",
 	"Equipment Operating Group",
 	"Card Intake Record",
+	# Owner 2026-11-10: third-party equipment owners (Crusher Owner Statement)
+	"Card Owner Revenue Approval",
+	"Card Owner Deduction",
 )
 
 # The CARD party registries are per party across companies: a user restricted

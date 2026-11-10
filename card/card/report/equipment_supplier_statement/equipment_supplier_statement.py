@@ -58,6 +58,9 @@ def execute(filters=None):
 	if stype == "مورد":
 		cf.append(["supplier", "=", supplier])
 		cf.append(["ownership", "!=", "ملك"])
+		# a third-party machine rented out to a customer bills no supplier: its owner's dues are
+		# in the Crusher Owner Statement (Owner 2026-11-10)
+		cf.append(["card_direction", "!=", "مؤجَّرة لعميل"])
 	else:
 		cf.append(["ownership", "=", "ملك"])
 	if filters.get("project"):

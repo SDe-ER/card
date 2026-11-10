@@ -20,7 +20,9 @@ from card.attachment_validator import (
 from card.constants import (
 	CUSTOMER_BILLING_DIRECTIONS,
 	OWNED,
+	OWNER_MODELS,
 	SUPPLIER_BILLING_DIRECTIONS,
+	THIRD_PARTY,
 	allowed_directions,
 	derive_direction,
 )
@@ -32,6 +34,10 @@ from card.settings import setting
 COMMERCIAL_FIELDS = (
 	"ownership",
 	"supplier",
+	# third-party owner terms (Owner 2026-11-10): who owns the machine, how it is run, and the
+	# first card month the owner's entitlement comes from the cards
+	"owner_model",
+	"owner_entitlement_from",
 	"rental_start_date",
 	"rental_end_date",
 	"contract_no",
@@ -301,6 +307,7 @@ class CardEquipment(Document):
 					self.rental_direction, self.ownership
 				)
 			)
+		self.validate_third_party_owner()
 		if self.rental_direction in SUPPLIER_BILLING_DIRECTIONS:
 			if not self.supplier:
 				frappe.throw(_("Direction {0} requires a supplier.").format(self.rental_direction))
@@ -311,10 +318,33 @@ class CardEquipment(Document):
 		if self.rental_direction in CUSTOMER_BILLING_DIRECTIONS:
 			if not self.default_customer:
 				frappe.throw(_("Direction {0} requires a customer.").format(self.rental_direction))
-			if not self.customer_rate_type or not flt(self.customer_rate):
+			# a third-party machine may wait for its customer rate (Owner 2026-11-10); its card is
+			# not submitted without one (Card Monthly Card.before_submit)
+			if self.ownership != THIRD_PARTY and (not self.customer_rate_type or not flt(self.customer_rate)):
 				frappe.throw(
 					_("Direction {0} requires the customer rate and its basis.").format(self.rental_direction)
 				)
+
+	def validate_third_party_owner(self):
+		"""A third-party machine names its owner (a Supplier) and the owner model; the owner
+		terms are cleared for any other ownership, so they never describe a company machine."""
+		if self.ownership != THIRD_PARTY:
+			self.owner_model = None
+			self.owner_entitlement_from = None
+			return
+		# checked when the machine becomes third-party or its owner terms change, so an unrelated
+		# save (unit/component flows, a user without permlevel 1) is never blocked
+		if not (
+			self.is_new()
+			or self.has_value_changed("ownership")
+			or self.has_value_changed("supplier")
+			or self.has_value_changed("owner_model")
+		):
+			return
+		if not self.supplier:
+			frappe.throw(_("Third-party equipment requires its owner (supplier)."))
+		if self.owner_model not in OWNER_MODELS:
+			frappe.throw(_("Third-party equipment requires its owner model."))
 
 	def validate_unique_asset(self):
 		# One ERPNext Asset <-> at most one Card Equipment.

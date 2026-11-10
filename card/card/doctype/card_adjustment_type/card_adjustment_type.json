@@ -13,6 +13,7 @@
   "taxable",
   "item",
   "is_downtime_charge",
+  "owner_revenue",
   "disabled"
  ],
  "fields": [
@@ -73,6 +74,12 @@
   },
   {
    "default": "0",
+   "fieldname": "owner_revenue",
+   "fieldtype": "Check",
+   "label": "Crusher owner revenue"
+  },
+  {
+   "default": "0",
    "description": "Disabled types are hidden from new card rows; existing rows stay valid.",
    "fieldname": "disabled",
    "fieldtype": "Check",
@@ -83,7 +90,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 18:00:00.000000",
+ "modified": "2026-11-10 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Adjustment Type",

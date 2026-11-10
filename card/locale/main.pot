@@ -5622,3 +5622,295 @@ msgstr ""
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Day billing basis used"
 msgstr ""
+
+# Crusher owner statement (Owner 2026-11-10)
+msgid "(Draft — not in the dues)"
+msgstr ""
+
+msgid "A card row changed after its approval was recorded; the smaller amount is used."
+msgstr ""
+
+msgid "A partial approval is more than zero and less than the card amount {0}."
+msgstr ""
+
+msgid "A payment to any family member is a family payment."
+msgstr ""
+
+msgid "A shared expense is deducted only from a managed partner."
+msgstr ""
+
+msgid "Allocation basis"
+msgstr ""
+
+msgid "Amount (before VAT)"
+msgstr ""
+
+msgid "Amount on the card (before VAT)"
+msgstr ""
+
+msgid "Amounts before VAT; VAT is the company's. Draft months and pending or disputed amounts are not in the dues."
+msgstr ""
+
+msgid "Approval date"
+msgstr ""
+
+msgid "Approval evidence"
+msgstr ""
+
+msgid "Approval status"
+msgstr ""
+
+msgid "Approved amount"
+msgstr ""
+
+msgid "Approved amount (before VAT)"
+msgstr ""
+
+msgid "Attach the customer's approval as evidence."
+msgstr ""
+
+msgid "Balance before family payments"
+msgstr ""
+
+msgid "Card Owner Deduction"
+msgstr ""
+
+msgid "Card Owner Revenue Approval"
+msgstr ""
+
+msgid "Card addition row"
+msgstr ""
+
+msgid "Card row {0} already has approval record {1}."
+msgstr ""
+
+msgid "Closing balance due to the owner"
+msgstr ""
+
+msgid "Company rows"
+msgstr ""
+
+msgid "Conditional addition (generator)"
+msgstr ""
+
+msgid "Confirmed owner revenue"
+msgstr ""
+
+msgid "Cost-center expenses"
+msgstr ""
+
+msgid "Counterparty: {0}"
+msgstr ""
+
+msgid "Crusher Owner Statement"
+msgstr ""
+
+msgid "Crusher owner revenue"
+msgstr ""
+
+msgid "Crusher owner statement — Period from {0} to {1}."
+msgstr ""
+
+msgid "Customer approval"
+msgstr ""
+
+msgid "Customer net"
+msgstr ""
+
+msgid "Customer reference"
+msgstr ""
+
+msgid "Deduction type"
+msgstr ""
+
+msgid "Enter the date of the customer's approval."
+msgstr ""
+
+msgid "Family payment — not yet allocated: {0}"
+msgstr ""
+
+msgid "Family settlement group"
+msgstr ""
+
+msgid "Family: {0}"
+msgstr ""
+
+msgid "Incomplete: figures you may not see are missing."
+msgstr ""
+
+msgid "Inter-owner transfer"
+msgstr ""
+
+msgid "Inter-owner transfers"
+msgstr ""
+
+msgid "Invalid approval status {0}."
+msgstr ""
+
+msgid "Invalid owner model {0}."
+msgstr ""
+
+msgid "Invalid source type {0}."
+msgstr ""
+
+msgid "Ledger amount (+ due to owner)"
+msgstr ""
+
+msgid "Managed partner"
+msgstr ""
+
+msgid "Manual accrual"
+msgstr ""
+
+msgid "Manual accruals (before cut-over)"
+msgstr ""
+
+msgid "Monthly card"
+msgstr ""
+
+msgid "Monthly card {0} does not exist."
+msgstr ""
+
+msgid "Monthly card {0} is cancelled."
+msgstr ""
+
+msgid "Not approved"
+msgstr ""
+
+msgid "Only a card of third-party equipment has an owner revenue approval."
+msgstr ""
+
+msgid "Only a customer-side addition of the card needs the customer's approval."
+msgstr ""
+
+msgid "Other adjustment"
+msgstr ""
+
+msgid "Other adjustments"
+msgstr ""
+
+msgid "Other deductions"
+msgstr ""
+
+msgid "Owner deductions are recorded only for third-party equipment."
+msgstr ""
+
+msgid "Owner entitlement"
+msgstr ""
+
+msgid "Owner entitlement for the period"
+msgstr ""
+
+msgid "Owner entitlement from cards since"
+msgstr ""
+
+msgid "Owner model"
+msgstr ""
+
+msgid "Owner signature"
+msgstr ""
+
+msgid "Owner {0} is not a member of family {1}."
+msgstr ""
+
+msgid "Paid on behalf"
+msgstr ""
+
+msgid "Partially approved"
+msgstr ""
+
+msgid "Payments allocated"
+msgstr ""
+
+msgid "Payments unallocated"
+msgstr ""
+
+msgid "Pending approval (potential, not due)"
+msgstr ""
+
+msgid "Pending potential"
+msgstr ""
+
+msgid "Possible duplicate accrual"
+msgstr ""
+
+msgid "Possible duplicate accruals"
+msgstr ""
+
+msgid "Possible duplicate accruals (not counted)"
+msgstr ""
+
+msgid "Recharge / paid on behalf"
+msgstr ""
+
+msgid "Recharges / paid on behalf"
+msgstr ""
+
+msgid "Reclass"
+msgstr ""
+
+msgid "Reclasses"
+msgstr ""
+
+msgid "Row {0} is not an addition of card {1}."
+msgstr ""
+
+msgid "Select an owner or a family to display the statement."
+msgstr ""
+
+msgid "Self-operating owner"
+msgstr ""
+
+msgid "Shared expense"
+msgstr ""
+
+msgid "Shared expenses"
+msgstr ""
+
+msgid "The card has no customer-side addition."
+msgstr ""
+
+msgid "The customer net is not fully explained: {0}"
+msgstr ""
+
+msgid "The deduction amount must be more than zero."
+msgstr ""
+
+msgid "The equipment has no cost center: expenses not computed."
+msgstr ""
+
+msgid "The equipment has no customer rate; set it on the equipment before submitting a {0} card."
+msgstr ""
+
+msgid "The source document belongs to another company."
+msgstr ""
+
+msgid "The source document {0} must be submitted."
+msgstr ""
+
+msgid "Third-party equipment requires its owner (supplier)."
+msgstr ""
+
+msgid "Third-party equipment requires its owner model."
+msgstr ""
+
+msgid "Untyped customer rows kept as the company's: {0}"
+msgstr ""
+
+msgid "VAT (company's)"
+msgstr ""
+
+msgid "Wages are shown only to users who may read Salary Slips."
+msgstr ""
+
+msgid "{0} is not installed on this site."
+msgstr ""
+
+msgid "{0} {1} already charges the owner in the ledger; it is counted from there and is not deducted again."
+msgstr ""
+
+msgid "{0} {1} does not exist."
+msgstr ""
+
+msgid "{0} {1}: the deductions ({2}) would be more than the document amount {3}."
+msgstr ""

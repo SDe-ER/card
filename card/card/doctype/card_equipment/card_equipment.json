@@ -70,6 +70,8 @@
   "operator_on",
   "rental_section",
   "supplier",
+  "owner_model",
+  "owner_entitlement_from",
   "rental_start_date",
   "rate_type",
   "rate",
@@ -364,12 +366,31 @@
    "label": "Rental details"
   },
   {
-   "depends_on": "eval:[\"مستأجَرة من مورد\",\"إيجار من الباطن\"].includes(doc.rental_direction)",
+   "depends_on": "eval:[\"مستأجَرة من مورد\",\"إيجار من الباطن\"].includes(doc.rental_direction) || doc.ownership===\"طرف ثالث\"",
    "fieldname": "supplier",
    "fieldtype": "Link",
    "label": "Lessor / Owner",
-   "mandatory_depends_on": "eval:[\"مستأجَرة من مورد\",\"إيجار من الباطن\"].includes(doc.rental_direction)",
+   "mandatory_depends_on": "eval:[\"مستأجَرة من مورد\",\"إيجار من الباطن\"].includes(doc.rental_direction) || doc.ownership===\"طرف ثالث\"",
    "options": "Supplier",
+   "permlevel": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval:doc.ownership===\"طرف ثالث\"",
+   "fieldname": "owner_model",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Owner model",
+   "mandatory_depends_on": "eval:doc.ownership===\"طرف ثالث\"",
+   "options": "\nManaged partner\nSelf-operating owner",
+   "permlevel": 1
+  },
+  {
+   "depends_on": "eval:doc.ownership===\"طرف ثالث\"",
+   "fieldname": "owner_entitlement_from",
+   "fieldtype": "Date",
+   "label": "Owner entitlement from cards since",
    "permlevel": 1
   },
   {
@@ -845,7 +866,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-11-10 20:00:00.000000",
+ "modified": "2026-11-10 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

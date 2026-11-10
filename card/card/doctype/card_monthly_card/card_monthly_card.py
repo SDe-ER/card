@@ -711,6 +711,16 @@ class CardMonthlyCard(Document):
 					"The equipment has no customer; set the customer on the equipment before submitting a {0} card."
 				).format(self.card_direction)
 			)
+		# a third-party machine may be saved before its customer rate is agreed (Owner 2026-11-10);
+		# a card that bills a customer is never final without one
+		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS and (
+			not flt(self.customer_rate) or not self.customer_rate_type
+		):
+			frappe.throw(
+				_(
+					"The equipment has no customer rate; set it on the equipment before submitting a {0} card."
+				).format(self.card_direction)
+			)
 
 	def on_update(self):
 		# report filters link to the party registries; a party must be selectable

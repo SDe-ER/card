@@ -462,6 +462,19 @@ CASES = {
 		cross=lambda c: {"filters": {"company": c.B, "statement_type": "مورد", "supplier": c.sup_b}},
 		own=lambda c: {"filters": {"company": c.A, "statement_type": "مورد"}},
 	),
+	"card.card.report.crusher_owner_statement.owner_statement_pdf.download_pdf": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="print on the report's doctype (Card Monthly Card); the report's roles (Card Manager, Accounts Manager, System Manager); the standard report run",
+		isolation="resolve_company (Company User Permission); report rows by the user's permissions",
+		effects="One Access Log; the PDF in the response",
+		writes=True,
+		cross=lambda c: {
+			"filters": {"company": c.B, "owner": c.sup_b, "from_month": "09", "from_year": 2026}
+		},
+		own=lambda c: {"filters": {"company": c.A, "from_month": "09", "from_year": 2026}},
+		denied=((), ("Card User",)),
+	),
 	"card.card_value.supplier_cost_last_month": Case(**NUMBER_CARD, control=True),
 	"card.card_value.customer_value_last_month": Case(**NUMBER_CARD, control=True),
 	"card.card_value.internal_value_last_month": Case(**NUMBER_CARD),

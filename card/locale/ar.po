@@ -6863,3 +6863,295 @@ msgstr "يوم كامل"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Day billing basis used"
 msgstr "أساس احتساب اليوم المستخدم"
+
+# Crusher owner statement (Owner 2026-11-10)
+msgid "(Draft — not in the dues)"
+msgstr "(مسودة — خارج المستحقات)"
+
+msgid "A card row changed after its approval was recorded; the smaller amount is used."
+msgstr "تغيّر سطر الكارت بعد تسجيل اعتماده؛ تم استخدام المبلغ الأقل."
+
+msgid "A partial approval is more than zero and less than the card amount {0}."
+msgstr "الاعتماد الجزئي يكون أكبر من صفر وأقل من مبلغ الكارت {0}."
+
+msgid "A payment to any family member is a family payment."
+msgstr "أي دفعة لأي فرد من العائلة هي دفعة للعائلة."
+
+msgid "A shared expense is deducted only from a managed partner."
+msgstr "المصروف المشترك يُخصم من الشريك المُدار فقط."
+
+msgid "Allocation basis"
+msgstr "أساس التوزيع"
+
+msgid "Amount (before VAT)"
+msgstr "المبلغ (قبل الضريبة)"
+
+msgid "Amount on the card (before VAT)"
+msgstr "المبلغ في الكارت (قبل الضريبة)"
+
+msgid "Amounts before VAT; VAT is the company's. Draft months and pending or disputed amounts are not in the dues."
+msgstr "المبالغ قبل ضريبة القيمة المضافة؛ الضريبة للمؤسسة. الشهور المسودة والمبالغ المعلقة أو المتنازع عليها ليست ضمن المستحقات."
+
+msgid "Approval date"
+msgstr "تاريخ الاعتماد"
+
+msgid "Approval evidence"
+msgstr "مستند الاعتماد"
+
+msgid "Approval status"
+msgstr "حالة الاعتماد"
+
+msgid "Approved amount"
+msgstr "المبلغ المعتمد"
+
+msgid "Approved amount (before VAT)"
+msgstr "المبلغ المعتمد (قبل الضريبة)"
+
+msgid "Attach the customer's approval as evidence."
+msgstr "أرفق اعتماد العميل كمستند."
+
+msgid "Balance before family payments"
+msgstr "الرصيد قبل دفعات العائلة"
+
+msgid "Card Owner Deduction"
+msgstr "خصم على مالك المعدة"
+
+msgid "Card Owner Revenue Approval"
+msgstr "اعتماد إيراد مالك المعدة"
+
+msgid "Card addition row"
+msgstr "سطر الإضافة في الكارت"
+
+msgid "Card row {0} already has approval record {1}."
+msgstr "سطر الكارت {0} له سجل اعتماد بالفعل {1}."
+
+msgid "Closing balance due to the owner"
+msgstr "الرصيد المستحق للمالك"
+
+msgid "Company rows"
+msgstr "بنود المؤسسة"
+
+msgid "Conditional addition (generator)"
+msgstr "إضافة مشروطة (المولد)"
+
+msgid "Confirmed owner revenue"
+msgstr "إيراد المالك المؤكد"
+
+msgid "Cost-center expenses"
+msgstr "مصروفات مركز التكلفة"
+
+msgid "Counterparty: {0}"
+msgstr "الطرف المقابل: {0}"
+
+msgid "Crusher Owner Statement"
+msgstr "كشف حساب مالك الكسارة"
+
+msgid "Crusher owner revenue"
+msgstr "إيراد مالك الكسارة"
+
+msgid "Crusher owner statement — Period from {0} to {1}."
+msgstr "كشف حساب مالك الكسارة — الفترة من {0} إلى {1}."
+
+msgid "Customer approval"
+msgstr "اعتماد العميل"
+
+msgid "Customer net"
+msgstr "صافي العميل"
+
+msgid "Customer reference"
+msgstr "مرجع العميل"
+
+msgid "Deduction type"
+msgstr "نوع الخصم"
+
+msgid "Enter the date of the customer's approval."
+msgstr "أدخل تاريخ اعتماد العميل."
+
+msgid "Family payment — not yet allocated: {0}"
+msgstr "دفعة للعائلة — لم تُوزَّع بعد: {0}"
+
+msgid "Family settlement group"
+msgstr "مجموعة تسوية العائلة"
+
+msgid "Family: {0}"
+msgstr "العائلة: {0}"
+
+msgid "Incomplete: figures you may not see are missing."
+msgstr "غير مكتمل: أرقام لا تملك صلاحية رؤيتها غير ظاهرة."
+
+msgid "Inter-owner transfer"
+msgstr "تحويل بين الملاك"
+
+msgid "Inter-owner transfers"
+msgstr "تحويلات بين الملاك"
+
+msgid "Invalid approval status {0}."
+msgstr "حالة اعتماد غير صحيحة {0}."
+
+msgid "Invalid owner model {0}."
+msgstr "نموذج مالك غير صحيح {0}."
+
+msgid "Invalid source type {0}."
+msgstr "نوع مستند مصدر غير صحيح {0}."
+
+msgid "Ledger amount (+ due to owner)"
+msgstr "مبلغ القيد (+ مستحق للمالك)"
+
+msgid "Managed partner"
+msgstr "شريك مُدار"
+
+msgid "Manual accrual"
+msgstr "استحقاق يدوي"
+
+msgid "Manual accruals (before cut-over)"
+msgstr "استحقاقات يدوية (قبل تاريخ التحول)"
+
+msgid "Monthly card"
+msgstr "الكارت الشهري"
+
+msgid "Monthly card {0} does not exist."
+msgstr "الكارت الشهري {0} غير موجود."
+
+msgid "Monthly card {0} is cancelled."
+msgstr "الكارت الشهري {0} ملغي."
+
+msgid "Not approved"
+msgstr "غير معتمد"
+
+msgid "Only a card of third-party equipment has an owner revenue approval."
+msgstr "اعتماد إيراد المالك يكون لكارت معدة طرف ثالث فقط."
+
+msgid "Only a customer-side addition of the card needs the customer's approval."
+msgstr "اعتماد العميل مطلوب فقط لإضافة على جانب العميل في الكارت."
+
+msgid "Other adjustment"
+msgstr "تسوية أخرى"
+
+msgid "Other adjustments"
+msgstr "تسويات أخرى"
+
+msgid "Other deductions"
+msgstr "خصومات أخرى"
+
+msgid "Owner deductions are recorded only for third-party equipment."
+msgstr "خصومات المالك تُسجل لمعدات الطرف الثالث فقط."
+
+msgid "Owner entitlement"
+msgstr "مستحق المالك"
+
+msgid "Owner entitlement for the period"
+msgstr "مستحق المالك عن الفترة"
+
+msgid "Owner entitlement from cards since"
+msgstr "مستحق المالك من الكروت ابتداءً من"
+
+msgid "Owner model"
+msgstr "نموذج المالك"
+
+msgid "Owner signature"
+msgstr "توقيع المالك"
+
+msgid "Owner {0} is not a member of family {1}."
+msgstr "المالك {0} ليس من أفراد العائلة {1}."
+
+msgid "Paid on behalf"
+msgstr "مدفوع نيابة عنه"
+
+msgid "Partially approved"
+msgstr "معتمد جزئيًا"
+
+msgid "Payments allocated"
+msgstr "دفعات مخصصة"
+
+msgid "Payments unallocated"
+msgstr "دفعات غير مخصصة"
+
+msgid "Pending approval (potential, not due)"
+msgstr "بانتظار الاعتماد (محتمل، غير مستحق)"
+
+msgid "Pending potential"
+msgstr "محتمل معلق"
+
+msgid "Possible duplicate accrual"
+msgstr "استحقاق مكرر محتمل"
+
+msgid "Possible duplicate accruals"
+msgstr "استحقاقات مكررة محتملة"
+
+msgid "Possible duplicate accruals (not counted)"
+msgstr "استحقاقات مكررة محتملة (غير محسوبة)"
+
+msgid "Recharge / paid on behalf"
+msgstr "تحميل / مدفوع نيابة"
+
+msgid "Recharges / paid on behalf"
+msgstr "تحميلات / مدفوع نيابة"
+
+msgid "Reclass"
+msgstr "إعادة تبويب"
+
+msgid "Reclasses"
+msgstr "إعادات تبويب"
+
+msgid "Row {0} is not an addition of card {1}."
+msgstr "السطر {0} ليس إضافة في الكارت {1}."
+
+msgid "Select an owner or a family to display the statement."
+msgstr "اختر مالكًا أو عائلة لعرض الكشف."
+
+msgid "Self-operating owner"
+msgstr "مالك يدير بنفسه"
+
+msgid "Shared expense"
+msgstr "مصروف مشترك"
+
+msgid "Shared expenses"
+msgstr "مصروفات مشتركة"
+
+msgid "The card has no customer-side addition."
+msgstr "الكارت ليس به إضافة على جانب العميل."
+
+msgid "The customer net is not fully explained: {0}"
+msgstr "صافي العميل غير مفسَّر بالكامل: {0}"
+
+msgid "The deduction amount must be more than zero."
+msgstr "مبلغ الخصم يجب أن يكون أكبر من صفر."
+
+msgid "The equipment has no cost center: expenses not computed."
+msgstr "المعدة ليس لها مركز تكلفة: لم تُحتسب المصروفات."
+
+msgid "The equipment has no customer rate; set it on the equipment before submitting a {0} card."
+msgstr "المعدة ليس لها سعر للعميل؛ حدده في المعدة قبل اعتماد كارت {0}."
+
+msgid "The source document belongs to another company."
+msgstr "المستند المصدر يتبع شركة أخرى."
+
+msgid "The source document {0} must be submitted."
+msgstr "يجب أن يكون المستند المصدر {0} معتمدًا."
+
+msgid "Third-party equipment requires its owner (supplier)."
+msgstr "معدة الطرف الثالث تتطلب مالكها (المورد)."
+
+msgid "Third-party equipment requires its owner model."
+msgstr "معدة الطرف الثالث تتطلب نموذج المالك."
+
+msgid "Untyped customer rows kept as the company's: {0}"
+msgstr "بنود عميل بلا نوع بقيت للمؤسسة: {0}"
+
+msgid "VAT (company's)"
+msgstr "الضريبة (للمؤسسة)"
+
+msgid "Wages are shown only to users who may read Salary Slips."
+msgstr "الأجور تظهر فقط لمن لديه صلاحية قراءة قسائم الرواتب."
+
+msgid "{0} is not installed on this site."
+msgstr "{0} غير مثبت على هذا الموقع."
+
+msgid "{0} {1} already charges the owner in the ledger; it is counted from there and is not deducted again."
+msgstr "{0} {1} يحمّل المالك في القيود بالفعل؛ يُحسب من هناك ولا يُخصم مرة أخرى."
+
+msgid "{0} {1} does not exist."
+msgstr "{0} {1} غير موجود."
+
+msgid "{0} {1}: the deductions ({2}) would be more than the document amount {3}."
+msgstr "{0} {1}: الخصومات ({2}) ستتجاوز مبلغ المستند {3}."

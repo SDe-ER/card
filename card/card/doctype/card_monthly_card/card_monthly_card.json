@@ -26,6 +26,7 @@
   "site_location",
   "equipment_info_col",
   "supplier",
+  "owner_model",
   "customer",
   "rate_type",
   "rate",
@@ -175,6 +176,15 @@
    "fieldtype": "Link",
    "label": "Owner",
    "options": "Supplier",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "equipment.owner_model",
+   "fieldname": "owner_model",
+   "fieldtype": "Data",
+   "label": "Owner model",
    "read_only": 1
   },
   {
@@ -498,7 +508,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 21:00:00.000000",
+ "modified": "2026-11-10 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card",

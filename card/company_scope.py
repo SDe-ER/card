@@ -46,6 +46,9 @@ SCOPED_DOCTYPES = (
 	"Tank Dip Reading",
 	"Equipment Operating Group",
 	"Card Intake Record",
+	# Owner 2026-11-10: third-party equipment owners (Crusher Owner Statement)
+	"Card Owner Revenue Approval",
+	"Card Owner Deduction",
 )
 
 # Link target DocType -> its company field: a link to one of these carries that record's company.

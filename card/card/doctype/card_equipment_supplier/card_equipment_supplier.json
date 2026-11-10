@@ -10,6 +10,7 @@
  "field_order": [
   "supplier",
   "supplier_name",
+  "settlement_family",
   "col_main",
   "first_month",
   "last_month",
@@ -38,6 +39,13 @@
    "in_list_view": 1,
    "label": "Supplier name",
    "read_only": 1
+  },
+  {
+   "fieldname": "settlement_family",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Family settlement group",
+   "options": "Supplier Group"
   },
   {
    "fieldname": "col_main",
@@ -115,7 +123,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-16 21:00:00.000000",
+ "modified": "2026-11-10 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment Supplier",

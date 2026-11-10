@@ -40,6 +40,9 @@ def execute(filters=None):
 		["from_date", "<=", end],
 		["docstatus", "=", 1],
 		["ownership", "!=", "ملك"],
+		# a third-party machine rented out to a customer bills no supplier: its owner's dues are
+		# in the Crusher Owner Statement (Owner 2026-11-10)
+		["card_direction", "!=", "مؤجَّرة لعميل"],
 		["supplier", "is", "set"],
 	]
 	if filters.get("project"):

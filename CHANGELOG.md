@@ -16,6 +16,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-142 — Third-party equipment owners and the Crusher Owner Statement (Owner 2026-11-10).** Reason: crushers
+  owned by partners or by their own owners run under the company's name; the card is the only source of what each
+  owner is due, and no CARD record said who owns the machine, how it is run, or what is due after deductions.
+  - `card.constants.allowed_directions`: `طرف ثالث` also allows `مؤجَّرة لعميل` (the 2026-11-10 "direction not
+    valid for ownership" error). New `OWNER_MODELS` (Managed partner, Self-operating owner).
+  - Card Equipment: `supplier` (owner) required and shown for `طرف ثالث`, in the standard filter and indexed;
+    new `owner_model` and `owner_entitlement_from` (permlevel 1, commercial fields with a change reason), cleared
+    for any other ownership; a third-party machine may wait for its customer rate. Card Monthly Card: new
+    read-only `owner_model` (fetched), `supplier` in the standard filter and indexed; `before_submit` refuses a
+    customer-billing card without a customer rate.
+  - Equipment Supplier Statement and Equipment Suppliers Summary leave out rented-out cards (they bill no supplier).
+  - New DocTypes Card Owner Revenue Approval and Card Owner Deduction (generic company scope, FR-131); new fields
+    `Card Adjustment Type.owner_revenue`, `Card Equipment Supplier.settlement_family`.
+  - New Script Report Crusher Owner Statement (`card.owner_statement`) with an A4 PDF
+    (`card.card.report.crusher_owner_statement.owner_statement_pdf.download_pdf`, POST, report roles); sidebar
+    links in Card Parties and Card Reports.
+  - Permissions: report roles System Manager, Card Manager, Accounts Manager; ledger figures only with General
+    Ledger read; wages only with a bulk Salary Slip read (a role read without owner limit, no User Permission
+    on Employee or Salary Slip, the company permitted for Salary Slip) — an Employee who reads only his own slip
+    never sees them, and the dues are then shown as incomplete. Approval: Card Manager writes, Card User and Accounts Manager
+    read. Deduction: Accounts Manager creates and submits, Card Manager reads. No existing grant changed.
+  - Accounting: none. Read-only and informational; nothing posts, `enable_accounting` unchanged. Data: no patch;
+    the Production data steps are a separate approved migration. API: one new POST endpoint.
+  - Rollback: revert the commit and migrate; the new DocTypes' rows are information only (no ledger effect).
 - **FR-140 — Equipment Meter Reading: engine-hour readings per equipment (#31 D6; closure plan WP-H2).** Reason:
   #31 separates engine hours (meter) from billable hours, and O-11 D6 sets weekly meter readings by the site
   supervisor; no record of meter readings existed. New submittable DocType **Equipment Meter Reading** (naming
