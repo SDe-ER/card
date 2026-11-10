@@ -36,7 +36,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ### Added
 - **#54 acceptance suite: GL neutrality, two companies with two currencies, month end under a site time zone,
-  POST-only writers** (FR-136, #54, #53, #40; branch `feat/acceptance-suite`, PR pending number in the registry).
+  POST-only writers** (FR-136, #54, #53, #40; branch `feat/acceptance-suite`, PR #210).
   Reason: the #54 acceptance tests and the test-matrix rows 1, 2, 4, 14 and 15 of
   `docs/architecture/07-international-test-matrix.md` were missing (risks R-16, R-26). New tests only:
   `card/tests/test_gl_neutrality.py` (static scan: no production module writes GL Entry, Payment Ledger Entry, Stock
@@ -52,7 +52,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `test_writer_methods_post.py` (every `@frappe.whitelist` names `methods=`; every writer of the FR-129 matrix allows
   POST only and Frappe refuses its GET; every GET endpoint is read-only in the matrix and has no direct write call).
   Impact: tests only; no change to permissions, accounting, data or the API. Rollback: revert the commit.
-- **Posting Source Integrity report** (FR-136, risk R-25, #54). Reason: a source's invoice link and `posted` flag are
+- **Posting Source Integrity report** (FR-136, PR #210, risk R-25, #54). Reason: a source's invoice link and `posted` flag are
   written with `db.set_value` on invoice submit, so a direct database edit, an import or an older version can split a
   source from its GL Posting Log without a trace. New read-only Script Report (System Manager, Accounts Manager; on the
   CARD Reports sidebar): for one company the user may see and a period, every monthly card, diesel fill and transport
@@ -65,7 +65,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   deleted by hand (it only reads).
 
 ### Changed
-- **Reports label money with the company currency** (FR-136, #53, owner default O-17: company currency only,
+- **Reports label money with the company currency** (FR-136, PR #210, #53, owner default O-17: company currency only,
   labelled, no conversion). Reason: a Currency column without a currency shows the site's default symbol
   (`frappe.meta.get_field_currency`), so a second company in another currency saw its amounts with the wrong symbol. New
   `card/report_currency.py`: the decorator `company_currency_report` on the `execute` of the 15 single-company CARD
