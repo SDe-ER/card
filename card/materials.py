@@ -306,6 +306,13 @@ def approve_review(review: str):
 		frappe.throw(_("Submit the review before approving it."))
 	if doc.approval_status == "Approved":
 		frappe.throw(_("This review is already approved."))
+	# FR-121 (#125, #51): the reviewer never approves his own review. The reviewer is the
+	# server-written `supervisor` of the review; no role (Administrator, System Manager) is exempt.
+	if doc.supervisor and doc.supervisor == frappe.session.user:
+		frappe.throw(
+			_("You reviewed this equipment needs review; another approver must approve it."),
+			frappe.PermissionError,
+		)
 	lines = [line for line in doc.items if flt(line.approved_qty) > 0]
 	missing = [line.description or line.request for line in lines if not line.item_code]
 	if missing:

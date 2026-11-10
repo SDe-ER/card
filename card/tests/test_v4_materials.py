@@ -287,8 +287,15 @@ class TestV4Materials(IntegrationTestCase):
 		self.assertIn(second.name, [r.request for r in execute({"equipment": self.eq})[1]])
 
 	# ---------- supervisor + management ----------
-	def _review(self):
+	def _review(self, reviewer=None):
+		"""A draft review pulled by Administrator and recorded as reviewed by a separate supervisor,
+		so that Administrator may approve it (FR-121: the reviewer never approves his own review)."""
 		review = frappe.get_doc({"doctype": "Equipment Needs Review", "project": self.project}).insert()
+		if reviewer is None:
+			if not getattr(self, "_reviewer", None):
+				self._reviewer = self._user("rev", ["Card Supervisor"])
+			reviewer = self._reviewer
+		frappe.db.set_value("Equipment Needs Review", review.name, "supervisor", reviewer)
 		materials.pull_requests(review.name)
 		return frappe.get_doc("Equipment Needs Review", review.name)
 
@@ -412,6 +419,70 @@ class TestV4Materials(IntegrationTestCase):
 		finally:
 			frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value("Material Request", name, ["owner", "docstatus"]), (manager, 0))
+
+	# ---------- FR-121: the reviewer never approves (#125, #51) ----------
+	def _submitted_review(self, reviewer):
+		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
+		review = self._review(reviewer=reviewer)
+		review.submit()
+		return review
+
+	def _approver(self, prefix, roles=("Card Manager", "Stock User")):
+		return self._user(prefix, list(roles))
+
+	def _refused(self, review, user):
+		before = frappe.db.count("Material Request")
+		frappe.set_user(user)
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				materials.approve_review(review.name)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count("Material Request"), before)
+		self.assertEqual(
+			frappe.db.get_value("Equipment Needs Review", review.name, "approval_status"), "Pending"
+		)
+
+	def test_the_reviewer_cannot_approve_his_own_review(self):
+		manager = self._approver("selfrev")
+		review = self._submitted_review(manager)
+		self._refused(review, manager)
+
+	def test_another_user_approves_the_review(self):
+		reviewer = self._approver("rev1")
+		approver = self._approver("appr1")
+		review = self._submitted_review(reviewer)
+		frappe.set_user(approver)
+		try:
+			(name,) = materials.approve_review(review.name)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(
+			frappe.db.get_value("Equipment Needs Review", review.name, ["approval_status", "approved_by"]),
+			("Approved", approver),
+		)
+		self.assertEqual(frappe.db.get_value("Material Request", name, "owner"), approver)
+
+	def test_system_manager_is_not_exempt(self):
+		# no role is exempt: a System Manager who reviewed is refused like anyone else
+		sysman = self._approver("sysrev", ("System Manager", "Stock User"))
+		review = self._submitted_review(sysman)
+		self._refused(review, sysman)
+
+	def test_administrator_is_not_exempt(self):
+		review = self._submitted_review("Administrator")
+		self.assertEqual(review.supervisor, "Administrator")
+		with self.assertRaises(frappe.PermissionError):
+			materials.approve_review(review.name)
+
+	def test_the_reviewer_is_kept_when_another_user_saves(self):
+		# the reviewer is written by the server on the first save and kept on later saves
+		reviewer = self._approver("rev2")
+		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
+		review = self._review(reviewer=reviewer)
+		review.supervisor = "Administrator"
+		review.save()
+		self.assertEqual(frappe.db.get_value("Equipment Needs Review", review.name, "supervisor"), reviewer)
 
 	def test_supervisor_reads_equipment_without_editing_it(self):
 		supervisor = self._user("sup3", ["Card Supervisor"])

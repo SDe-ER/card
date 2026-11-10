@@ -18,7 +18,14 @@ frappe.ui.form.on("Equipment Needs Review", {
 			);
 		}
 		const approver = frappe.user.has_role(["Card Manager", "System Manager"]);
-		if (frm.doc.docstatus === 1 && frm.doc.approval_status === "Pending" && approver) {
+		// FR-121: the reviewer never approves his own review (the server refuses it too)
+		const reviewer = frm.doc.supervisor === frappe.session.user;
+		if (
+			frm.doc.docstatus === 1 &&
+			frm.doc.approval_status === "Pending" &&
+			approver &&
+			!reviewer
+		) {
 			frm.add_custom_button(__("Approve", null, "Card"), () =>
 				frappe.confirm(
 					__("Approve the lines? Tools wait for the store to hand them over."),

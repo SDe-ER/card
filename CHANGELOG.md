@@ -229,6 +229,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Security
+- **Reviewer is not the approver on equipment needs** (FR-121, PR #TBD; refs #125, #51; FR-005 open point).
+  - **Reason:** reviewer and approver of an Equipment Needs Review were separated by role only; one user holding
+    both roles could review and approve his own review.
+  - **Change:** `card.materials.approve_review` (the only approve entry point) refuses with a PermissionError when
+    the approving user is the review's `supervisor` (the reviewer, written by the server on the first save and kept
+    on later saves). No role is exempt: Administrator and System Manager are refused like any other reviewer. The
+    form hides the Approve button from the reviewer. Enforced by default (FR-005 already called for it).
+  - **Impact:** permissions — narrower: a reviewer can no longer approve his own review; another Card Manager (or
+    System Manager) approves it. Accounting none (approval still makes draft Material Requests only). Data — none;
+    existing reviews are not changed, an already approved review stays approved. API — `approve_review` can now
+    raise PermissionError for the reviewer. One new Arabic string.
+  - **Rollback:** revert the commit; no schema or data change.
 - **Attachment validation and privacy** (H-CARD-1, H-CARD-2; FR-099; PR #162).
   - **Reason:** meter photos, the custody receipt, fitment evidence, the transport authorization document and the Card
     Equipment registration / inspection / insurance / TUV files accepted any bytes under any name, and the transport
