@@ -460,6 +460,12 @@ class TestSettingsCompanyScope(IntegrationTestCase):
 		frappe.db.set_value(
 			"Card Diesel Price", self._row_name("Card Diesel Price", self.b), "currency", "TEST-SCS-CUR"
 		)
+		# a store of company A on company B's row (FR-135 would refuse it and name it)
+		store = frappe.db.get_value("Warehouse", {"company": self.a, "is_group": 0}, "name")
+		self.assertTrue(store)
+		frappe.db.set_value(
+			"Card Company Settings", self._row_name("Card Company Settings", self.b), "store_warehouse", store
+		)
 		frappe.set_user(self._user(self.a))
 		frappe.client.save(frappe.client.get("Card Settings"))
 		doc = frappe.client.get("Card Settings")

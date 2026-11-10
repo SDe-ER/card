@@ -299,7 +299,7 @@ class CardSettings(Document):
 			projects.add(row.project)
 		self._validate_adjustment_types()
 		self._validate_diesel_price_schedule()
-		validate_company_warehouses(self)  # FR-135
+		validate_company_warehouses(_ScopedRows(self))  # FR-135; FR-133: visible rows only
 
 	def _validate_diesel_price_schedule(self):
 		"""FR-125: one price per company and date, above zero, in the company's currency (a fill
@@ -449,6 +449,21 @@ class CardSettings(Document):
 						row.account, row.type_name
 					)
 				)
+
+
+class _ScopedRows:
+	"""FR-133: the Card Settings a restricted user's save validates: the scoped tables give only the
+	rows ``CardSettings._rows`` checks (unchanged rows of other companies are neither re-checked nor
+	named); every other value is the document's."""
+
+	def __init__(self, doc):
+		self._doc = doc
+
+	def get(self, key, default=None):
+		return self._doc._rows(key) if key in SCOPED_TABLES else self._doc.get(key, default)
+
+	def get_doc_before_save(self):
+		return self._doc.get_doc_before_save()
 
 
 def _row_values(row):
