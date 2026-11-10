@@ -49,7 +49,10 @@ CARD_DOCTYPES = (
 	"Card Monthly Card Day",
 )
 
-CARD_ROLES = ("Card Manager", "Card User", "Card Supervisor", "Card Operator")
+# FR-137 (#35 Q2): the reviewer of the approval workflow. Created on every site and granted to
+# nobody; no DocPerm names it yet (later governance packages wire it, the owner assigns users).
+CARD_REVIEWER_ROLE = "Card Reviewer"
+CARD_ROLES = ("Card Manager", "Card User", "Card Supervisor", "Card Operator", CARD_REVIEWER_ROLE)
 # v4.0.0: operators use the CARD worker page only, never the Desk (Owner 2026-10-19)
 NO_DESK_ROLES = ("Card Operator",)
 

@@ -28,6 +28,9 @@
   "column_break_price",
   "price_source",
   "company_price",
+  "price_currency",
+  "price_uom",
+  "price_valid_from",
   "section_break_check",
   "totalizer_check",
   "evidence_warnings",
@@ -202,6 +205,29 @@
    "fieldtype": "Currency",
    "hidden": 1,
    "label": "Company price",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "price_currency",
+   "fieldtype": "Link",
+   "label": "Diesel price currency",
+   "no_copy": 1,
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "price_uom",
+   "fieldtype": "Link",
+   "label": "Diesel price unit of measure",
+   "no_copy": 1,
+   "options": "UOM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "price_valid_from",
+   "fieldtype": "Date",
+   "label": "Diesel price valid from",
    "no_copy": 1,
    "read_only": 1
   },
@@ -479,7 +505,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 17:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Project Diesel Fill",
