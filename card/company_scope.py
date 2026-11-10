@@ -153,11 +153,10 @@ def company_query_conditions(user=None, doctype=None):
 	table = f"`tab{doctype}`"
 	if with_company:
 		return f"(ifnull({table}.`company`, '') = '' or {table}.`company` in ({values}))"
-	parts = [
-		f"(ifnull({table}.`{field}`, '') = '' or {table}.`{field}` in"
-		f" (select s.`name` from `tab{target}` s where s.`{COMPANY_SOURCES[target]}` in ({values})))"
-		for field, target in sources
-	]
+	parts = []
+	for field, target in sources:
+		subquery = f"select s.`name` from `tab{target}` s where s.`{COMPANY_SOURCES[target]}` in ({values})"
+		parts.append(f"(ifnull({table}.`{field}`, '') = '' or {table}.`{field}` in ({subquery}))")
 	return "(" + " and ".join(parts) + ")"
 
 
