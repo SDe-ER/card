@@ -1,0 +1,116 @@
+{
+ "actions": [],
+ "creation": "2026-11-10 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-11-10 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Period Run Card",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 0,
+ "permissions": [],
+ "field_order": [
+  "card",
+  "equipment",
+  "project",
+  "card_direction",
+  "supplier",
+  "customer",
+  "supplier_amount",
+  "customer_amount",
+  "currency",
+  "card_modified",
+  "content_hash"
+ ],
+ "fields": [
+  {
+   "fieldname": "card",
+   "fieldtype": "Data",
+   "label": "Period run monthly card",
+   "read_only": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "card_direction",
+   "fieldtype": "Data",
+   "label": "Period run card direction",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "supplier_amount",
+   "fieldtype": "Currency",
+   "label": "Period run supplier amount",
+   "options": "currency",
+   "read_only": 1,
+   "permlevel": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "customer_amount",
+   "fieldtype": "Currency",
+   "label": "Period run customer amount",
+   "options": "currency",
+   "read_only": 1,
+   "permlevel": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Period run currency",
+   "options": "Currency",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "card_modified",
+   "fieldtype": "Datetime",
+   "label": "Card last modified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "content_hash",
+   "fieldtype": "Data",
+   "label": "Card content fingerprint",
+   "read_only": 1
+  }
+ ]
+}

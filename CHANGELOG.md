@@ -16,6 +16,51 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-147 — Card Period Run: versioned monthly period run with accountant approval (#49; closure plan WP-S1).**
+  Reason: #49 asks for "source records → approved period run → draft billing documents → accountant approval",
+  with the approval tied to the run version so that a card edited after the approval needs a new run and a new
+  approval. New submittable DocType **Card Period Run** (one active run per company and month; header: company,
+  month, year, version, `self_approval_rule`, approval fields, snapshot) with the child **Card Period Run Card**
+  (card name, equipment, project, direction, supplier, customer, supplier and customer amount, card last-modified
+  time, content fingerprint). The snapshot is built by the server on every draft save and on submit from the
+  submitted Card Monthly Cards of the company-month whose direction bills a supplier or a customer (internal cards
+  left out): per side the card count and total (supplier: `net_amount`; customer: `customer_net_amount`; company
+  currency), a SHA-256 fingerprint per card (all card fields and rows except the posting links Purchase Invoice,
+  Sales Invoice, Journal Entry, GL Posting Log, `posted` and the cancel reason, so posting the month never makes a
+  run stale) and a snapshot fingerprint; client rows, totals, fingerprints and version are never kept. A new run
+  takes the next version of its company-month (cancelled runs count); a new version is cancel and amend
+  (`build_run` amends the latest cancelled run). Both the version and the one-active-run guard lock the Company row
+  and read the month's runs with a locking read (`frappe.qb ... .for_update()`). `check_current` compares the run
+  with the live cards (added, removed, changed). Approval: an Accounts Manager (or System Manager) sets
+  `approval_status` to Approved, or "Returned for correction" with a reason, on the submitted run (form buttons);
+  a stale run is refused; the approval stores `approved_version` and `approved_hash`, and `approved_run()` returns
+  the run only while it is approved for its current version and snapshot and the cards are unchanged. The
+  approval fields are written by the server only on every route (REST insert with `docstatus` 1,
+  `frappe.client.set_value`, REST PUT, savedocs, bulk update, bulk cancel): drafts and submit reset them,
+  `before_update_after_submit` re-reads them under a lock, `before_cancel` restores the stored approval, preparers
+  and rule under a lock; a run approved and still current is cancelled by an approver only (a stale one by its
+  preparers too). No self-approval (FR-142 pattern, reusing `card.daily_log._add_preparers` / `_has_any_role`):
+  creator, submitter and every editor of the run and of every run of its amendment chain are preparers; the run's
+  `self_approval_rule` "Warn only (period run)" (default: approve, message, `self_approved`) / "Refuse (period
+  run)" (refuse; no role exempt) can be raised to Refuse at any time, never lowered, and an amendment keeps it.
+  Nothing calls the run from posting yet (WP-S2 adds the opt-in requirement before `post_month`). Affected
+  functions: new `card/gl/period_run.py` (`build_snapshot`, `card_fingerprint`, `check_current`, `prepare_run`,
+  `record_submitter`, `check_transition`, `check_cancel`, `run_preparers`, `active_run`, `approved_run`,
+  `run_state`; endpoints `build_run` (POST) and `period_run_status` (GET, read only; totals only with level-1
+  read)); new controllers and `card_period_run.js` (current/stale banner, Approve / Return buttons);
+  `card/company_scope.py` `COMPANY_SOURCES` + "Card Period Run" (its `amended_from`). Tests:
+  `card/tests/test_period_run.py` (34, including a two-connection concurrency test); two rows in
+  `card/tests/test_bola_matrix.py`; `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (two DocType rows, two
+  endpoint rows). PR: see the FR-147 registry row.
+  Impact: permissions — new DocPerms on the new DocTypes only (Card Period Run: System Manager full; Card Manager
+  read/create/write/submit/cancel/amend/print/export/report; Accounts Manager read/write/submit/cancel/print/
+  export/report, needed by Frappe for the approval after submit; level 1 (the totals and row amounts) read by
+  System Manager, Card Manager and Accounts Manager, roles that already read card amounts; nothing for Card
+  Operator, Card User or CARD Mobile); no existing role or DocPerm changed; company isolation through the FR-131
+  hooks already registered. Accounting: none (no GL, invoice or card write; the run is a review record). Data: two
+  new tables; nothing written to existing records; no patch. API: two new whitelisted methods and the DocTypes'
+  REST resources. Rollback limits: code rollback leaves the two tables and their rows (harmless, unused until
+  WP-S2); delete the DocTypes to remove them.
 - **FR-142 — Card Daily Log: daily equipment hours with manager approval (#44, #123, FR-022; closure plan WP-K1).**
   Reason: #44 and #123 ask for daily entry from paper/WhatsApp and an operator/supervisor → manager approval with no
   self-approval; until now hours were entered only on the monthly card day rows. New submittable DocType **Card
