@@ -2,7 +2,13 @@
 import { computed } from 'vue'
 import { Button, ErrorMessage } from 'frappe-ui'
 import DailyLogBadge from './DailyLogBadge.vue'
-import { actionsFor, logState, type DailyLog } from '../data/dailyLog'
+import {
+  actionsFor,
+  logState,
+  needsCorrection,
+  stopReasonLabel,
+  type DailyLog,
+} from '../data/dailyLog'
 
 // FR-150: what CARD Mobile shows of one daily log: its state as the server stored it, its rows
 // (hours only: a daily log has no money field, O-20) and the actions offered for it (actionsFor).
@@ -12,12 +18,17 @@ const props = defineProps<{
   log: DailyLog
   roles: string[]
   error?: string
+  // a refused save over a newer version: offer to read the log again
+  stale?: boolean
   busy?: boolean
   saved?: boolean
+  // whether any log amends this one (a cancelled log); undefined while unknown
+  amended?: boolean
 }>()
-defineEmits<{ submit: []; correct: [] }>()
+defineEmits<{ submit: []; correct: []; recreate: []; reload: [] }>()
 
-const actions = computed(() => actionsFor(props.log, props.roles))
+const actions = computed(() => actionsFor(props.log, props.roles, props.amended))
+const correctionDue = computed(() => needsCorrection(props.log, props.amended))
 const state = computed(() => logState(props.log))
 const deskUrl = computed(() => `/app/card-daily-log/${encodeURIComponent(props.log.name)}`)
 
@@ -45,7 +56,7 @@ function hours(value: number | null | undefined) {
             <bdi class="whitespace-nowrap">{{ log.name }}</bdi>
           </p>
         </div>
-        <DailyLogBadge :log="log" />
+        <DailyLogBadge :log="log" :correction-due="correctionDue" />
       </div>
       <p v-if="state === 'Draft'" class="text-sm text-ink-gray-6" data-testid="state-help">
         {{ __('Not sent yet. You can still change it.') }}
@@ -66,6 +77,27 @@ function hours(value: number | null | undefined) {
         data-testid="state-help"
       >
         <p class="font-medium">{{ __('Returned for correction') }}</p>
+        <p
+          v-if="log.return_reason"
+          dir="auto"
+          class="whitespace-pre-line"
+          data-testid="return-reason"
+        >
+          {{ log.return_reason }}
+        </p>
+      </div>
+      <div
+        v-if="correctionDue"
+        class="space-y-1 rounded bg-surface-red-1 p-3 text-sm text-ink-red-4"
+        data-testid="correction-due"
+      >
+        <p>
+          {{
+            __(
+              'This returned daily log was cancelled, but its corrected draft was not created. Create it now.',
+            )
+          }}
+        </p>
         <p
           v-if="log.return_reason"
           dir="auto"
@@ -108,14 +140,28 @@ function hours(value: number | null | undefined) {
         </div>
       </dl>
       <p v-if="row.stop_reason" class="text-sm text-ink-gray-6">
-        {{ __('Stop reason') }}: {{ row.stop_reason }}
+        {{ __('Stop reason') }}: <span dir="auto">{{ stopReasonLabel(row.stop_reason) }}</span>
       </p>
       <p v-if="row.notes" dir="auto" class="whitespace-pre-line text-sm text-ink-gray-6">
         {{ row.notes }}
       </p>
     </section>
 
-    <ErrorMessage :message="error" data-testid="error" />
+    <div
+      v-if="stale"
+      class="space-y-2 rounded-lg bg-surface-amber-1 p-3 text-sm"
+      role="alert"
+      data-testid="stale"
+    >
+      <p>{{ __('This daily log was changed meanwhile. Reload it to see the latest version.') }}</p>
+      <Button
+        :label="__('Reload', [], 'Card Mobile')"
+        icon-left="lucide-refresh-cw"
+        data-action="reload"
+        @click="$emit('reload')"
+      />
+    </div>
+    <ErrorMessage v-else :message="error" data-testid="error" />
 
     <div class="space-y-3" data-testid="actions">
       <Button
@@ -147,6 +193,17 @@ function hours(value: number | null | undefined) {
         :label="__('Correct this daily log')"
         data-action="correct"
         @click="$emit('correct')"
+      />
+      <Button
+        v-if="actions.includes('recreate')"
+        class="h-12 w-full"
+        size="lg"
+        variant="solid"
+        icon-left="lucide-file-plus"
+        :loading="busy"
+        :label="__('Create corrected draft')"
+        data-action="recreate"
+        @click="$emit('recreate')"
       />
       <a
         v-if="actions.includes('desk')"

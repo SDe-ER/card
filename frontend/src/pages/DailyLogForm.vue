@@ -10,9 +10,11 @@ import {
   errorText,
   getLog,
   invalidRows,
+  isStale,
   machinesOn,
   newRow,
   projectOptions,
+  stopReasonLabel,
   stopReasons,
   today,
   updateLog,
@@ -40,6 +42,9 @@ const reasons = ref<StopReason[] | null>(null)
 const stored = ref<DailyLog | null>(null)
 const draft = ref<DraftLog>({ project: '', log_date: today(), notes: '', rows: [] })
 const adding = ref('')
+// a refused save over a newer version, and stop reasons that could not be read (not a refusal)
+const stale = ref(false)
+const reasonsFailed = ref(false)
 
 const locked = computed(() => !!stored.value && stored.value.docstatus !== 0)
 
@@ -57,7 +62,7 @@ async function load() {
       const projects = projectOptions(portal.machines)
       if (projects.length === 1) draft.value.project = projects[0].value
     }
-    reasons.value = company.value ? await stopReasons(company.value).catch(() => null) : null
+    await loadReasons()
   } catch (e) {
     error.value = errorText(e)
   } finally {
@@ -65,6 +70,32 @@ async function load() {
   }
 }
 load()
+
+// null when the server refuses them (an operator): no picker. Any other failure is said, and the
+// hours can still be saved (a stored reason is kept as it is).
+async function loadReasons() {
+  reasonsFailed.value = false
+  reasons.value = null
+  if (!company.value) return
+  try {
+    reasons.value = await stopReasons(company.value)
+  } catch {
+    reasonsFailed.value = true
+  }
+}
+
+// after a refused stale save: the latest stored log replaces the screen (unsaved changes are lost)
+async function reload() {
+  if (!stored.value) return
+  error.value = ''
+  try {
+    stored.value = await getLog(stored.value.name)
+    draft.value = draftFrom(stored.value)
+    stale.value = false
+  } catch (e) {
+    error.value = errorText(e)
+  }
+}
 
 // a new log lists every machine of the chosen project; the operator removes the ones that did not work
 watch(
@@ -96,6 +127,7 @@ function rowLabel(i: number) {
 
 async function save() {
   error.value = ''
+  stale.value = false
   if (!company.value) {
     error.value = __('Your account is not linked to an employee of a company.')
     return
@@ -122,7 +154,8 @@ async function save() {
       : await createLog(company.value, draft.value)
     router.replace({ name: 'DailyLogView', params: { name: saved.name }, query: { saved: '1' } })
   } catch (e) {
-    error.value = errorText(e)
+    stale.value = isStale(e)
+    error.value = stale.value ? '' : errorText(e)
   } finally {
     saving.value = false
   }
@@ -133,7 +166,11 @@ async function save() {
   <TopBar :title="editing ? __('Edit daily log') : __('New daily log')" back />
   <LoadingIndicator v-if="!loaded" class="mx-auto mt-8 size-6" />
   <template v-else>
-    <div v-if="locked" class="m-4 space-y-3 rounded-lg bg-surface-gray-1 p-4 text-ink-gray-6">
+    <div
+      v-if="locked"
+      data-testid="locked"
+      class="m-4 space-y-3 rounded-lg bg-surface-gray-1 p-4 text-ink-gray-6"
+    >
       <p>{{ __('This daily log was sent to the supervisor; it can no longer be edited.') }}</p>
       <Button
         :label="__('View daily log')"
@@ -185,6 +222,7 @@ async function save() {
         :index="i"
         :label="rowLabel(i)"
         :reasons="reasons"
+        :reason-label="stopReasonLabel(row.stop_reason, reasons)"
         :removable="draft.rows.length > 1"
         @remove="draft.rows.splice(i, 1)"
       />
@@ -217,6 +255,34 @@ async function save() {
         maxlength="1000"
       />
 
+      <p
+        v-if="reasonsFailed"
+        class="rounded-lg bg-surface-amber-1 p-3 text-sm"
+        role="status"
+        data-testid="reasons-failed"
+      >
+        {{ __('Stop reasons could not be loaded. You can still save the hours.') }}
+      </p>
+      <div
+        v-if="stale"
+        class="space-y-2 rounded-lg bg-surface-amber-1 p-3 text-sm"
+        role="alert"
+        data-testid="stale"
+      >
+        <p>
+          {{
+            __(
+              'This daily log was changed meanwhile. Reload it to see the latest version; your unsaved changes will be lost.',
+            )
+          }}
+        </p>
+        <Button
+          :label="__('Reload', [], 'Card Mobile')"
+          icon-left="lucide-refresh-cw"
+          data-action="reload"
+          @click="reload"
+        />
+      </div>
       <ErrorMessage :message="error" data-testid="error" />
       <Button
         class="h-12 w-full"

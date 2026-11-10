@@ -2,11 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from './api'
 import {
   actionsFor,
+  AmendmentExistsError,
   correctLog,
+  createCorrectedDraft,
   createLog,
   draftPayload,
   errorText,
   invalidRows,
+  isStale,
   LIST_FIELDS,
   listMyLogs,
   logState,
@@ -14,6 +17,7 @@ import {
   projectOptions,
   ROW_FIELDS,
   SERVER_FIELDS,
+  stopReasonLabel,
   stopReasons,
   submitLog,
   updateLog,
@@ -230,17 +234,54 @@ describe('REST calls', () => {
   })
   afterEach(() => vi.unstubAllGlobals())
 
-  it('lists only the user own, not cancelled logs, with the list fields', async () => {
-    fetchMock.mockImplementationOnce(() => reply(200, { data: [] }))
+  it('lists his live logs, and his cancelled logs only to find the uncorrected ones', async () => {
+    fetchMock.mockImplementation(() => reply(200, { data: [] }))
     await listMyLogs('op@example.com')
-    const { url, method } = call(0)
-    expect(method).toBe('GET')
-    expect(url).toContain('/api/resource/Card Daily Log?')
-    const query = new URLSearchParams(url.split('?')[1])
-    expect(JSON.parse(query.get('fields')!)).toEqual([...LIST_FIELDS])
-    expect(JSON.parse(query.get('filters')!)).toEqual([
-      ['owner', '=', 'op@example.com'],
-      ['docstatus', '<', 2],
+    const queries = [call(0), call(1)].map((c) => {
+      expect(c.method).toBe('GET')
+      expect(c.url).toContain('/api/resource/Card Daily Log?')
+      return new URLSearchParams(c.url.split('?')[1])
+    })
+    for (const q of queries) expect(JSON.parse(q.get('fields')!)).toEqual([...LIST_FIELDS])
+    expect(queries.map((q) => JSON.parse(q.get('filters')!))).toEqual([
+      [
+        ['owner', '=', 'op@example.com'],
+        ['docstatus', '<', 2],
+      ],
+      [
+        ['owner', '=', 'op@example.com'],
+        ['docstatus', '=', 2],
+      ],
+    ])
+  })
+
+  it('shows a cancelled returned log without a correction, never a corrected or other cancelled one', async () => {
+    const summary = (name: string, docstatus: number, status: string, amended_from?: string) => ({
+      name,
+      project: 'P',
+      log_date: '2026-11-0' + name.slice(-1),
+      approval_status: status,
+      docstatus,
+      amended_from: amended_from ?? null,
+    })
+    fetchMock
+      .mockImplementationOnce(() =>
+        reply(200, { data: [summary('L4', 0, 'Pending', 'L2'), summary('L5', 1, 'Pending')] }),
+      )
+      .mockImplementationOnce(() =>
+        reply(200, {
+          data: [
+            summary('L1', 2, 'Returned for correction'), // never corrected: shown
+            summary('L2', 2, 'Returned for correction'), // corrected by L4: hidden
+            summary('L3', 2, 'Pending'), // cancelled, not returned: hidden
+          ],
+        }),
+      )
+    const logs = await listMyLogs('op@example.com')
+    expect(logs.map((l) => [l.name, !!l.correction_due])).toEqual([
+      ['L5', false],
+      ['L4', false],
+      ['L1', true],
     ])
   })
 
@@ -267,19 +308,70 @@ describe('REST calls', () => {
     expect(call(0).body).toEqual({ docstatus: 1, modified: '2026-11-09 10:00:00.000000' })
   })
 
-  it('corrects a returned log: cancel with the docstatus only, then an amending draft', async () => {
+  it('corrects a returned log: cancel with the docstatus only, check, then an amending draft', async () => {
+    fetchMock
+      .mockImplementationOnce(() => reply(200, { data: storedLog({ docstatus: 2 }) }))
+      .mockImplementationOnce(() => reply(200, { data: [] }))
     const created = await correctLog(storedLog())
     expect(created.name).toBe('CDL-00001-1')
     const cancel = call(0)
     expect([cancel.method, cancel.url]).toEqual(['PUT', '/api/resource/Card Daily Log/CDL-00001'])
     expect(cancel.body).toEqual({ docstatus: 2, modified: '2026-11-09 10:00:00.000000' })
-    const insert = call(1)
+    // the server is asked whether the log was already corrected
+    const check = call(1)
+    expect(check.method).toBe('GET')
+    expect(JSON.parse(new URLSearchParams(check.url.split('?')[1]).get('filters')!)).toEqual([
+      ['amended_from', '=', 'CDL-00001'],
+    ])
+    const insert = call(2)
     expect(insert.method).toBe('POST')
     expect(insert.body).toMatchObject({ company: 'Test Company', amended_from: 'CDL-00001' })
     const rows = insert.body!.rows as Record<string, unknown>[]
     expect(rows[0]).not.toHaveProperty('name')
     expect(rows[0]).toMatchObject({ equipment: 'CEQ-0001', day_hours: 9, stopped_hours: 1 })
     for (const field of SERVER_FIELDS) expect(sentKeys(insert.body!)).not.toContain(field)
+  })
+
+  it('recovers when the second request fails: the log is listed and the draft created later', async () => {
+    vi.stubGlobal('document', { cookie: 'user_id=op%40example.com' })
+    // 1. cancel accepted, check finds nothing, the amending draft is refused (e.g. period lock)
+    fetchMock
+      .mockImplementationOnce(() => reply(200, { data: storedLog({ docstatus: 2 }) }))
+      .mockImplementationOnce(() => reply(200, { data: [] }))
+      .mockImplementationOnce(() =>
+        reply(417, {
+          exc_type: 'ValidationError',
+          _server_messages: JSON.stringify([JSON.stringify({ message: 'Period is locked' })]),
+        }),
+      )
+    await expect(correctLog(storedLog())).rejects.toThrow('Period is locked')
+    // 2. the cancelled returned log is listed as needing its corrected draft
+    const cancelled = { ...storedLog({ docstatus: 2 }), rows: undefined, amended_from: null }
+    fetchMock
+      .mockImplementationOnce(() => reply(200, { data: [] }))
+      .mockImplementationOnce(() => reply(200, { data: [cancelled] }))
+    const [listed] = await listMyLogs('op@example.com')
+    expect(listed).toMatchObject({ name: 'CDL-00001', correction_due: true })
+    expect(actionsFor(listed, ['Card Operator'], false)).toEqual(['recreate'])
+    // 3. "Create corrected draft": the amendment only, no second cancel
+    fetchMock.mockClear()
+    fetchMock
+      .mockImplementationOnce(() => reply(200, { data: [] }))
+      .mockImplementationOnce(() => reply(200, { data: storedLog({ name: 'CDL-00001-1' }) }))
+    const created = await createCorrectedDraft(storedLog({ docstatus: 2 }))
+    expect(created.name).toBe('CDL-00001-1')
+    expect(fetchMock.mock.calls.map((_, i) => call(i).method)).toEqual(['GET', 'POST'])
+    expect(call(1).body).toMatchObject({ amended_from: 'CDL-00001' })
+  })
+
+  it('never creates a second correction when one exists', async () => {
+    fetchMock.mockImplementationOnce(() =>
+      reply(200, { data: [{ name: 'CDL-00001-1', docstatus: 0, approval_status: 'Pending' }] }),
+    )
+    const error = await createCorrectedDraft(storedLog({ docstatus: 2 })).catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(AmendmentExistsError)
+    expect((error as AmendmentExistsError).amendment.name).toBe('CDL-00001-1')
+    expect(fetchMock).toHaveBeenCalledTimes(1) // no POST
   })
 
   it('does not create the amendment when the cancel is refused', async () => {
@@ -309,6 +401,58 @@ describe('REST calls', () => {
       ['company', '=', 'Test Company'],
       ['enabled', '=', 1],
     ])
+  })
+
+  it('does not hide any other stop reason failure as a refusal', async () => {
+    fetchMock.mockImplementationOnce(() => reply(500, { exc_type: 'Exception' }))
+    await expect(stopReasons('Test Company')).rejects.toBeInstanceOf(ApiError)
+    fetchMock.mockImplementationOnce(() => Promise.reject(new TypeError('Failed to fetch')))
+    await expect(stopReasons('Test Company')).rejects.toBeInstanceOf(TypeError)
+  })
+
+  it('recognises a refused stale save', async () => {
+    fetchMock.mockImplementationOnce(() =>
+      reply(417, {
+        exc_type: 'TimestampMismatchError',
+        _server_messages: JSON.stringify([
+          JSON.stringify({
+            message: 'Error: Document has been modified after you have opened it',
+          }),
+        ]),
+      }),
+    )
+    const error = await updateLog(storedLog({ docstatus: 0 }), forgedDraft()).catch((e) => e)
+    expect(isStale(error)).toBe(true)
+    expect(isStale(new ApiError('x', 417, 'ValidationError'))).toBe(false)
+    expect(isStale(new TypeError('Failed to fetch'))).toBe(false)
+  })
+})
+
+describe('recovery and labels', () => {
+  const cancelledReturned = { docstatus: 2, approval_status: 'Returned for correction' }
+  it('offers "Create corrected draft" only on a cancelled returned log that nothing amends', () => {
+    expect(actionsFor(cancelledReturned, ['Card Operator'], false)).toEqual(['recreate'])
+    // a log with an amendment, or when it is not known yet, offers nothing
+    expect(actionsFor(cancelledReturned, ['Card Operator'], true)).toEqual([])
+    expect(actionsFor(cancelledReturned, ['Card Operator'])).toEqual([])
+    expect(
+      actionsFor({ docstatus: 2, approval_status: 'Pending' }, ['Card Operator'], false),
+    ).toEqual([])
+    expect(
+      actionsFor({ docstatus: 2, approval_status: 'Approved' }, ['Card Manager'], false),
+    ).toEqual([])
+  })
+
+  it('shows the readable part of a stop reason name', () => {
+    expect(stopReasonLabel('Breakdown - TEC')).toBe('Breakdown')
+    expect(stopReasonLabel('Waiting - for parts - TEC')).toBe('Waiting - for parts')
+    expect(stopReasonLabel('LEGACY')).toBe('LEGACY')
+    expect(stopReasonLabel(null)).toBe('')
+    expect(
+      stopReasonLabel('Breakdown - TEC', [
+        { name: 'Breakdown - TEC', reason_name: 'Engine breakdown' },
+      ]),
+    ).toBe('Engine breakdown')
   })
 })
 

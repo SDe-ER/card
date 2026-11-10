@@ -69,7 +69,7 @@ load()
         </p>
       </div>
       <span class="flex shrink-0 items-center gap-2">
-        <DailyLogBadge :log="log" />
+        <DailyLogBadge :log="log" :correction-due="log.correction_due" />
         <span
           class="lucide-chevron-right size-4 text-ink-gray-5 rtl:rotate-180"
           aria-hidden="true"

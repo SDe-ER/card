@@ -11,6 +11,8 @@ const props = defineProps<{
   label: string
   index: number
   reasons: StopReason[] | null
+  // the stored reason's readable name, shown when the picker is not (an operator)
+  reasonLabel?: string
   removable: boolean
 }>()
 defineEmits<{ remove: [] }>()
@@ -84,6 +86,9 @@ const stopReason = computed({
       :label="__('Stop reason')"
       :options="reasonOptions"
     />
+    <p v-else-if="row.stop_reason" class="text-sm text-ink-gray-6" data-testid="stored-reason">
+      {{ __('Stop reason') }}: <span dir="auto">{{ reasonLabel || row.stop_reason }}</span>
+    </p>
     <FormControl
       v-model="row.notes"
       type="textarea"

@@ -4,9 +4,12 @@ import { sessionUser } from './cookie'
 
 export class ApiError extends Error {
   status: number
-  constructor(message: string, status: number) {
+  // Frappe's exception class name (e.g. TimestampMismatchError), when the server sent one
+  excType: string | null
+  constructor(message: string, status: number, excType: string | null = null) {
     super(message)
     this.status = status
+    this.excType = excType
   }
 }
 
@@ -50,7 +53,11 @@ async function handle<T>(method: string, res: Response): Promise<T> {
     if (action === 'reload') window.location.reload()
     // e.g. a failed login answers {message: "Invalid login credentials"} without _server_messages
     const message = serverMessage(body) || (typeof body?.message === 'string' ? body.message : '')
-    throw new ApiError(message || `HTTP ${res.status}`, res.status)
+    throw new ApiError(
+      message || `HTTP ${res.status}`,
+      res.status,
+      typeof body?.exc_type === 'string' ? body.exc_type : null,
+    )
   }
   return body?.message as T
 }

@@ -7838,3 +7838,31 @@ msgstr "حسابك غير مرتبط بموظف في شركة."
 
 msgid "Your daily log was sent to the supervisor."
 msgstr "تم إرسال يوميتك إلى المشرف."
+
+msgid "A new draft with the same hours opens for your correction."
+msgstr "تُفتح مسودة جديدة بنفس الساعات لتصحيحها."
+
+msgid "Corrected draft missing"
+msgstr "المسودة المصححة غير موجودة"
+
+msgid "Create corrected draft"
+msgstr "إنشاء المسودة المصححة"
+
+msgctxt "Card Mobile"
+msgid "Reload"
+msgstr "إعادة التحميل"
+
+msgid "Stop reasons could not be loaded. You can still save the hours."
+msgstr "تعذّر تحميل أسباب التوقف. ما زال بإمكانك حفظ الساعات."
+
+msgid "This daily log was already corrected: {0}"
+msgstr "تم تصحيح هذه اليومية بالفعل: {0}"
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version."
+msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحميلها لعرض أحدث نسخة."
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version; your unsaved changes will be lost."
+msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحميلها لعرض أحدث نسخة؛ ستُفقد تغييراتك غير المحفوظة."
+
+msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
+msgstr "أُلغيت هذه اليومية المرجعة، لكن لم تُنشأ مسودتها المصححة. أنشئها الآن."

@@ -49,7 +49,7 @@ export const SERVER_FIELDS = [
   'owner',
 ] as const
 
-// what the list asks for: no money, no preparer
+// what the list asks for: no money, no preparer (`amended_from` finds the logs already corrected)
 export const LIST_FIELDS = [
   'name',
   'project',
@@ -57,6 +57,7 @@ export const LIST_FIELDS = [
   'approval_status',
   'docstatus',
   'modified',
+  'amended_from',
 ] as const
 
 export interface DailyLogRow {
@@ -89,8 +90,11 @@ export interface DailyLog {
 
 export type DailyLogSummary = Pick<
   DailyLog,
-  'name' | 'project' | 'log_date' | 'approval_status' | 'docstatus' | 'modified'
->
+  'name' | 'project' | 'log_date' | 'approval_status' | 'docstatus' | 'modified' | 'amended_from'
+> & {
+  // a cancelled returned log whose corrected draft was never created (see needsCorrection)
+  correction_due?: boolean
+}
 
 export interface DraftLog {
   project: string
@@ -137,13 +141,24 @@ export function stateTheme(state: LogState): 'gray' | 'blue' | 'green' | 'amber'
 // The actions CARD Mobile offers. Approving, verifying and returning are not among them for any role:
 // supervisors and managers do that in CARD Desk, where the server checks the separation of duties.
 // The server still checks every action offered here.
-export type LogAction = 'edit' | 'submit' | 'correct' | 'desk'
+export type LogAction = 'edit' | 'submit' | 'correct' | 'recreate' | 'desk'
 
 export const REVIEW_ROLES = ['Card Supervisor', 'Card Manager', 'System Manager']
+
+// A correction is two requests (cancel, then the amending draft). When the second one failed, the log
+// is cancelled and still "Returned for correction" with no amendment: it needs its corrected draft.
+// `amended` is whether any log amends it (unknown = undefined: nothing is offered).
+export function needsCorrection(
+  log: Pick<DailyLog, 'docstatus' | 'approval_status'>,
+  amended: boolean | undefined,
+): boolean {
+  return log.docstatus === 2 && log.approval_status === RETURNED && amended === false
+}
 
 export function actionsFor(
   log: Pick<DailyLog, 'docstatus' | 'approval_status'>,
   roles: string[],
+  amended?: boolean,
 ): LogAction[] {
   const state = logState(log)
   const reviewer = roles.some((r) => REVIEW_ROLES.includes(r))
@@ -151,8 +166,26 @@ export function actionsFor(
   if (state === 'Draft') actions.push('edit', 'submit')
   // returned: cancel it and open a corrected draft (Frappe cancel and amend, checked by the server)
   if (state === 'Returned') actions.push('correct')
+  // the cancel went through but the corrected draft was not created: create it now
+  if (needsCorrection(log, amended)) actions.push('recreate')
   if (reviewer && state !== 'Draft' && state !== 'Cancelled') actions.push('desk')
   return actions
+}
+
+// Frappe refuses a save over a newer version of the log (the `modified` stamp sent with it)
+export function isStale(e: unknown): boolean {
+  return e instanceof ApiError && e.excType === 'TimestampMismatchError'
+}
+
+// The readable part of a stop reason's record name. CARD names a reason "<reason name> - <company
+// abbreviation>" (card_stop_reason.reason_docname); an operator may not read the reason itself, so
+// the label comes from the name he already has. A name of another shape is shown as it is.
+export function stopReasonLabel(name: string | null | undefined, reasons?: StopReason[] | null) {
+  if (!name) return ''
+  const known = reasons?.find((r) => r.name === name)
+  if (known?.reason_name) return known.reason_name
+  const cut = name.lastIndexOf(' - ')
+  return cut > 0 ? name.slice(0, cut) : name
 }
 
 // ---------- payloads ----------
@@ -251,16 +284,56 @@ export function errorText(e: unknown): string {
 }
 
 // ---------- calls (standard REST, the user's own permissions) ----------
-export function listMyLogs(user: string): Promise<DailyLogSummary[]> {
-  return listResource<DailyLogSummary>(DOCTYPE, {
-    fields: [...LIST_FIELDS],
-    filters: [
-      ['owner', '=', user],
-      ['docstatus', '<', 2],
-    ],
-    order_by: 'log_date desc, creation desc',
-    limit: 50,
+// The user's live logs, plus his cancelled returned logs that no log amends (a correction whose
+// second request failed), so he can still create the corrected draft. Cancelled logs that were
+// corrected stay hidden: their amendment is listed instead.
+export async function listMyLogs(user: string): Promise<DailyLogSummary[]> {
+  const [live, cancelled] = await Promise.all([
+    listResource<DailyLogSummary>(DOCTYPE, {
+      fields: [...LIST_FIELDS],
+      filters: [
+        ['owner', '=', user],
+        ['docstatus', '<', 2],
+      ],
+      order_by: 'log_date desc, creation desc',
+      limit: 50,
+    }),
+    listResource<DailyLogSummary>(DOCTYPE, {
+      fields: [...LIST_FIELDS],
+      filters: [
+        ['owner', '=', user],
+        ['docstatus', '=', 2],
+      ],
+      order_by: 'log_date desc, creation desc',
+      limit: 100,
+    }),
+  ])
+  const amended = new Set(
+    [...live, ...cancelled].map((l) => l.amended_from).filter((n): n is string => !!n),
+  )
+  const due = cancelled
+    .filter((l) => needsCorrection(l, amended.has(l.name)))
+    .map((l) => ({ ...l, correction_due: true }))
+  return [...due, ...live].sort((a, b) => (a.log_date < b.log_date ? 1 : -1))
+}
+
+// The log that amends this one, if the server lets the user see one (his own logs; any state). A
+// second amendment would also take the same name (Frappe names it <log>-1) and be refused.
+export async function amendmentOf(name: string): Promise<DailyLogSummary | null> {
+  const found = await listResource<DailyLogSummary>(DOCTYPE, {
+    fields: ['name', 'docstatus', 'approval_status'],
+    filters: [['amended_from', '=', name]],
+    limit: 1,
   })
+  return found[0] ?? null
+}
+
+export class AmendmentExistsError extends Error {
+  amendment: DailyLogSummary
+  constructor(amendment: DailyLogSummary) {
+    super(__('This daily log was already corrected: {0}', [amendment.name]))
+    this.amendment = amendment
+  }
 }
 
 export function getLog(name: string): Promise<DailyLog> {
@@ -320,11 +393,21 @@ export function draftFrom(log: DailyLog): DraftLog {
   }
 }
 
-// A returned log: cancel it (only the docstatus is sent; the server keeps every stored field) and
-// create a corrected draft that amends it, with the same header and rows (no row names).
-export async function correctLog(log: DailyLog): Promise<DailyLog> {
-  await updateResource<DailyLog>(DOCTYPE, log.name, { docstatus: 2, modified: log.modified })
+// The corrected draft of a cancelled returned log: a new log that amends it, with the same header
+// and rows (no row names). It is created only when no amendment exists (checked on the server
+// first); Frappe's name for a second amendment and the duplicate-entry guard refuse it anyway.
+export async function createCorrectedDraft(log: DailyLog): Promise<DailyLog> {
+  const existing = await amendmentOf(log.name)
+  if (existing) throw new AmendmentExistsError(existing)
   const draft = draftFrom(log)
   draft.rows = draft.rows.map(({ name: _name, ...row }) => row)
   return createLog(log.company, draft, log.name)
+}
+
+// A returned log, corrected in two requests: 1. cancel it (only the docstatus is sent; the server
+// keeps every stored field); 2. create the corrected draft. When step 2 fails, the log stays
+// cancelled and "My daily logs" offers "Create corrected draft" for it (createCorrectedDraft).
+export async function correctLog(log: DailyLog): Promise<DailyLog> {
+  await updateResource<DailyLog>(DOCTYPE, log.name, { docstatus: 2, modified: log.modified })
+  return createCorrectedDraft({ ...log, docstatus: 2 })
 }

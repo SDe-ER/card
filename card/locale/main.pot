@@ -6598,3 +6598,31 @@ msgstr ""
 
 msgid "Your daily log was sent to the supervisor."
 msgstr ""
+
+msgid "A new draft with the same hours opens for your correction."
+msgstr ""
+
+msgid "Corrected draft missing"
+msgstr ""
+
+msgid "Create corrected draft"
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Reload"
+msgstr ""
+
+msgid "Stop reasons could not be loaded. You can still save the hours."
+msgstr ""
+
+msgid "This daily log was already corrected: {0}"
+msgstr ""
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version."
+msgstr ""
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version; your unsaved changes will be lost."
+msgstr ""
+
+msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
+msgstr ""
