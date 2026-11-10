@@ -33,6 +33,15 @@
 		}
 		return false;
 	};
+	/* FR-118: billable stopped hours print right after the hours only when some row has them */
+	if (has_value("stopped_hours")) {
+		var with_stopped = [];
+		for (var f = 0; f < fields.length; f++) {
+			with_stopped.push(fields[f]);
+			if (fields[f][0] === "hours") with_stopped.push(["stopped_hours", 7, "num"]);
+		}
+		fields = with_stopped;
+	}
 	var shown = [];
 	var shown_width = 0;
 	for (var f = 0; f < fields.length; f++) {
