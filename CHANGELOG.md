@@ -35,7 +35,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   tracks changes). Who changes type rates: only Card Manager and System Manager (checked in
   `CardEquipmentType.validate` through `card.consumption.validate_type_rate_changes`; Card User keeps writing the
   other type fields; no DocPerm added); a company-restricted user only rows of a permitted company (a row with no
-  company applies to every company, so only an unrestricted user adds, changes or removes it).
+  company applies to every company, so only an unrestricted user adds, changes or removes it). The row's `company`
+  Link has `ignore_user_permissions` = 1: without it, Frappe's User Permission check on child link values
+  (`Document.check_permission`) would lock a company-A user out of reading or saving the whole type as soon as it
+  has a company-B row; write access stays enforced by `validate_type_rate_changes`, and other companies' type rows
+  stay readable to type readers (rates, not amounts; known limit).
   A row is valid from its date until the next row of the same table (and company) — no end date; two rows of one
   table (and company) on the same date are refused. A row dated before today is final: its date, rate, reason and
   company cannot change and it cannot be removed; a correction is a new row, and a new backdated row needs a reason
@@ -59,7 +63,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   seeded row per equipment with only a static rate, consumption_rate() returns the same value as before on every
   date; API: none (no new whitelisted method). No existing caller is switched: Equipment Diesel Analysis is
   unchanged. Rollback limits: a code rollback leaves the two new tables and the seeded rows in the database (unused
-  by the older code); the static fields are unchanged, so the older behaviour returns as it was.
+  by the older code); the static fields are unchanged, so the older behaviour returns as it was. The
+  `ignore_user_permissions` property lives in the DocType JSON and is removed with the code; with an older FR-144
+  build a company-restricted user would again be locked out of a type that has rows of another company.
 - **FR-145 — Draft monthly cards from approved daily logs (#44, #123, FR-022; closure plan WP-K2).** Reason: #44
   asks for automatic card generation from daily entry with no duplicate between the manual and the automatic route,
   and #123 for daily entry feeding the monthly cards; FR-142 records and approves the logs but generated nothing.
