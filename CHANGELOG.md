@@ -17,7 +17,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ### Added
 - **FR-139 — Transport responsibility posting, per company: Hold (default) or Post (#49, #126, #43; WP-T,
-  conflict C-09, owner decision O-14, PR #PRNUM).** Reason: #49 and #126 ask for customer transport charging and the
+  conflict C-09, owner decision O-14, PR #215).** Reason: #49 and #126 ask for customer transport charging and the
   posting of transport responsibility scenarios, while the owner decision of 2026-10-31 (FR-093, P1-2) holds every
   transport recorded with a responsibility out of the monthly build until the accountant and the tax adviser decide.
   Both now hold: new per-company setting Card Company Settings `transport_responsibility_posting` ("Hold (transport
