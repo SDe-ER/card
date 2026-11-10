@@ -38,7 +38,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (an equipment with rows is skipped). Affected: new `card/consumption.py`, new
   `card/card/doctype/card_consumption_rate/*`, `card_equipment.json/.py`, `card_equipment_type.json/.py`,
   `card/field_privacy.py`, `card/patches.txt`, locale. Tests: `card/tests/test_consumption_rate.py`. PR:
-  feat/consumption-rate (number added on the PR). Impact: permissions none added (rows follow the parent's DocPerms
+  #223. Impact: permissions none added (rows follow the parent's DocPerms
   and Company User Permissions); accounting none (no GL, no posting reads the rate); data: one seeded row per
   equipment with a static rate, consumption_rate() returns the same value as before on every date; API: none (no
   new whitelisted method; child rows readable through `frappe.client.get` only with the parent's permission). No
