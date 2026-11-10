@@ -1,0 +1,153 @@
+{
+ "actions": [],
+ "creation": "2026-11-10 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-11-10 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Period Run Source",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 0,
+ "permissions": [],
+ "field_order": [
+  "source_doctype",
+  "source_name",
+  "equipment",
+  "project",
+  "supplier",
+  "customer",
+  "supplier_side",
+  "customer_side",
+  "supplier_amount",
+  "customer_amount",
+  "supplier_vat_registered",
+  "supplier_posted",
+  "customer_posted",
+  "currency",
+  "source_modified",
+  "content_hash"
+ ],
+ "fields": [
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Select",
+   "label": "Period run source type",
+   "options": "Card Monthly Card\nProject Diesel Fill\nEquipment Transport",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source_name",
+   "fieldtype": "Data",
+   "label": "Period run source document",
+   "read_only": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "supplier_side",
+   "fieldtype": "Check",
+   "label": "Billed on the supplier side",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_side",
+   "fieldtype": "Check",
+   "label": "Billed on the customer side",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier_amount",
+   "fieldtype": "Currency",
+   "label": "Period run supplier gross source amount",
+   "description": "The source documents' own amounts (a diesel fill at its gross fill amount). Not the invoice total: with a VAT-inclusive diesel price the invoice books the net part.",
+   "options": "currency",
+   "read_only": 1,
+   "permlevel": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "customer_amount",
+   "fieldtype": "Currency",
+   "label": "Period run customer gross source amount",
+   "options": "currency",
+   "read_only": 1,
+   "permlevel": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "supplier_vat_registered",
+   "fieldtype": "Check",
+   "label": "Fill supplier VAT-registered",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier_posted",
+   "fieldtype": "Check",
+   "label": "Supplier side already posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_posted",
+   "fieldtype": "Check",
+   "label": "Customer side already posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Period run currency",
+   "options": "Currency",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "source_modified",
+   "fieldtype": "Datetime",
+   "label": "Source document last modified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "content_hash",
+   "fieldtype": "Data",
+   "label": "Source document fingerprint",
+   "read_only": 1
+  }
+ ]
+}
