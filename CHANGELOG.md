@@ -24,7 +24,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `company_query_conditions` (list twin) and `deny_cross_company_share` (DocShare validate). `card/hooks.py` registers
   them for Equipment Meter Reading, Card Daily Log, Card Rate Agreement, Card Period Run, Card Approval Delegation,
   Diesel Dispense, Tank Dip Reading, Equipment Operating Group and Card Intake Record; the DocShare validate hook
-  becomes a list (the diesel fill check is kept first). PR: see the FR-131 registry row (branch
+  becomes a list (the diesel fill check is kept first). PR #208 (branch
   `feat/company-scope-hooks`).
   - Permissions: deny-only; no role, DocPerm or User Permission change. Users without a company restriction and
     every existing DocType are not affected (their own hooks are unchanged). Hooks of DocTypes that do not exist yet
