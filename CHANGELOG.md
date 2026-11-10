@@ -24,6 +24,56 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Pages is enabled in the repository settings). Affected functions: none; no Python, DocType, permission,
   accounting, data or API change. Note: a GitHub Pages site is public even for a private repository. Rollback:
   revert the commit and disable Pages; nothing on any site changes.
+- **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
+  plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
+  operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
+  per-equipment hourly consumption baseline; #47 for each machine's own L/h. Until now only the static Card Equipment
+  `expected_consumption` existed. Two new child DocTypes with `valid_from` (required), `litres_per_hour` (required,
+  zero or more) and `reason`: **Card Consumption Rate** = Card Equipment `consumption_rates` (the equipment's own
+  rates; the table and every row field at permlevel 1, the level of the static field, so Frappe applies the
+  equipment's level-1 rights to the field values on every path: form, `frappe.client.get` / `get_list` / `get_value`,
+  report view fields and filters, change history. Known limit (Frappe v16, tracked as FR-148): filters and
+  `order_by` on `litres_per_hour` in `frappe.client.get_list` / `get_value` of the child DocType itself
+  (`parent="Card Equipment"`) are not permission-checked by Frappe for a child DocType without its own permissions,
+  so a level-0 reader can still infer a rate by filtering, without reading it (documented by
+  `test_known_limit_child_list_filter_reveals_rate`); System Manager and Card Manager write, Card User and Accounts Manager read, Card
+  Supervisor (level 0) and Card Operator / CARD Mobile (no read on the equipment) see no rate, O-20); **Card Type
+  Consumption Rate** = Card Equipment Type `default_consumption_rates` (the type default; level-0 fields because the
+  type has no level-1 DocPerms; optional `company`: a row for one company or, empty, for every company; the type now
+  tracks changes). Who changes type rates: only Card Manager and System Manager (checked in
+  `CardEquipmentType.validate` through `card.consumption.validate_type_rate_changes`; Card User keeps writing the
+  other type fields; no DocPerm added); a company-restricted user only rows of a permitted company (a row with no
+  company applies to every company, so only an unrestricted user adds, changes or removes it). The row's `company`
+  Link has `ignore_user_permissions` = 1: without it, Frappe's User Permission check on child link values
+  (`Document.check_permission`) would lock a company-A user out of reading or saving the whole type as soon as it
+  has a company-B row; write access stays enforced by `validate_type_rate_changes`, and other companies' type rows
+  stay readable to type readers (rates, not amounts; known limit).
+  A row is valid from its date until the next row of the same table (and company) — no end date; two rows of one
+  table (and company) on the same date are refused. A row dated before today is final: its date, rate, reason and
+  company cannot change and it cannot be removed; a correction is a new row, and a new backdated row needs a reason
+  (`validate_past_rows`; a new table, so no existing behaviour changes). New read-only helper
+  `card.consumption.consumption_rate(equipment, on_date)` / `consumption_rate_details` (source and valid_from): the
+  equipment's row valid on the date → "Daily standard" `daily_diesel_consumption / daily_hours` when both are set (the
+  basis Equipment Diesel Analysis uses first, so the helper equals that report for every equipment) → the static
+  `expected_consumption` (0 = not set) → the type row for the equipment's company → the type row with no company →
+  None; not whitelisted, no REST endpoint. Known limit: the type step reads the equipment's current type, also for
+  past dates. The static field stays (read-only on the form once dated rows exist; a change after that only shows a
+  warning). The change history masks the equipment rate rows through the existing `card.field_privacy` rule (row
+  fields above level 0), as for every other level-1 equipment value: Versions keep who and when, not the values;
+  `card.field_privacy` is unchanged. Patch `card.patches.v4_8_0.seed_consumption_rates`: each equipment with a static
+  value above 0, no daily standard basis and no rate row gets one row with that value valid from 2000-01-01
+  (inserted on its own: no save, no new modified time); idempotent (an equipment with rows is skipped). Affected: new
+  `card/consumption.py`, new `card/card/doctype/card_consumption_rate/*` and `card_type_consumption_rate/*`,
+  `card_equipment.json/.py`, `card_equipment_type.json/.py`, `card/patches.txt`, locale,
+  `docs/governance/ROLE-ACTION-MATRIX.md`. Tests: `card/tests/test_consumption_rate.py`. PR: #223. Impact:
+  permissions none added (rows follow the parents' DocPerms and Company User Permissions; type rate writes narrowed
+  to Card Manager / System Manager on a new table); accounting none (no GL, no posting reads the rate); data: one
+  seeded row per equipment with only a static rate, consumption_rate() returns the same value as before on every
+  date; API: none (no new whitelisted method). No existing caller is switched: Equipment Diesel Analysis is
+  unchanged. Rollback limits: a code rollback leaves the two new tables and the seeded rows in the database (unused
+  by the older code); the static fields are unchanged, so the older behaviour returns as it was. The
+  `ignore_user_permissions` property lives in the DocType JSON and is removed with the code; with an older FR-144
+  build a company-restricted user would again be locked out of a type that has rows of another company.
 - **FR-147 — Card Period Run: versioned monthly period run with accountant approval (#49; closure plan WP-S1).**
   Reason: #49 asks for "source records → approved period run → draft billing documents → accountant approval",
   with the approval tied to the run version so that a source edited after the approval needs a new run and a new
