@@ -408,7 +408,7 @@
    "label": "Addition/Deduction Types"
   },
   {
-   "description": "Configured addition/deduction types per company. Each type posts to its own account as an invoice line; taxable types carry 15% VAT, non-taxable 0%.",
+   "description": "Configured addition/deduction types per company. Each type posts to its own account as an invoice line; taxable types carry the VAT rate of the company's tax templates, non-taxable 0%.",
    "fieldname": "adjustment_types",
    "fieldtype": "Table",
    "label": "Addition/Deduction Types",

@@ -6305,6 +6305,54 @@ msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ ل�
 msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
 msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "VAT item tax template (company rate)"
+msgstr "قالب ضريبة الصنف (نسبة الشركة)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Per-line VAT override template at the single rate of the company's purchase and sales tax templates (auto-provisioned: CARD VAT <rate>% - <abbr>)."
+msgstr "قالب ضريبة لكل بند بالنسبة الواحدة لقالبي ضريبة المشتريات والمبيعات للشركة (يُنشأ تلقائيًا: CARD VAT <rate>% - <abbr>)."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Empty: the main store in Card Settings (Materials). Must belong to this company."
+msgstr "فارغ: المخزن الرئيسي في إعدادات CARD (المواد). يجب أن يتبع هذه الشركة."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Empty: the tool custody store in Card Settings (Materials). Must belong to this company. Change it only when no tool of this company is held in custody."
+msgstr "فارغ: مخزن عهدة الأدوات في إعدادات CARD (المواد). يجب أن يتبع هذه الشركة. لا تغيّره إلا إذا لم تكن أي أداة لهذه الشركة في العهدة."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Empty or 0: the value in Card Settings (Materials)."
+msgstr "فارغ أو 0: القيمة في إعدادات CARD (المواد)."
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "Configured addition/deduction types per company. Each type posts to its own account as an invoice line; taxable types carry the VAT rate of the company's tax templates, non-taxable 0%."
+msgstr "أنواع الإضافات والخصومات المعرّفة لكل شركة. كل نوع يُرحَّل على حسابه كبند فاتورة؛ الأنواع الخاضعة للضريبة عليها نسبة الضريبة في قوالب ضريبة الشركة والباقي 0%."
+
+#: card/settings.py
+msgid "Card Settings: warehouse {0} belongs to company {1}, not {2}."
+msgstr "إعدادات CARD: المخزن {0} يتبع الشركة {1} وليس {2}."
+
+#: card/card/doctype/card_adjustment_type/card_adjustment_type.json
+msgid "Taxable lines carry the VAT item tax template at the company rate (from its tax templates); non-taxable lines carry the 0% template."
+msgstr "البنود الخاضعة للضريبة تحمل قالب ضريبة الصنف بنسبة الشركة (من قوالب الضريبة الخاصة بها)؛ والبنود غير الخاضعة تحمل قالب 0%."
+
+#: card/settings.py
+msgid "The store set for {0} in Card Settings is not in that company. Ask a CARD manager."
+msgstr "المخزن المحدد للشركة {0} في إعدادات CARD لا يتبع هذه الشركة. راجع مدير CARD."
+
+#: card/settings.py
+msgid "Card Settings: warehouse {0} is a group; choose a stock warehouse."
+msgstr "إعدادات CARD: المخزن {0} مجموعة؛ اختر مخزنًا فعليًا."
+
+#: card/settings.py
+msgid "Card Settings: warehouse {0} is disabled."
+msgstr "إعدادات CARD: المخزن {0} معطّل."
+
+#: card/settings.py
+msgid "Card Settings: tools of {0} are held in custody; return them before changing its tool custody store."
+msgstr "إعدادات CARD: توجد أدوات للشركة {0} في العهدة؛ أرجعها قبل تغيير مخزن عهدة الأدوات الخاص بها."
+
 #: card/card/doctype/card_stop_reason/card_stop_reason.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.py
 msgid "Billable side"

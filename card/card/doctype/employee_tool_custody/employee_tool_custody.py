@@ -13,7 +13,7 @@ from card.materials import (
 	make_handover_draft,
 	tool_item_error,
 )
-from card.settings import setting
+from card.settings import custody_warehouse
 
 # Owner 2026-10-19 (hybrid custody): returnable tools stay on the books in ONE shared
 # custody store while a worker holds them; only a loss or damage is issued as cost.
@@ -55,7 +55,7 @@ class EmployeeToolCustody(Document):
 						self.employee_name or self.employee, held, self.item_code, flt(self.qty)
 					)
 				)
-		if self.movement in STOCK_MOVES and not setting("tool_custody_warehouse"):
+		if self.movement in STOCK_MOVES and not custody_warehouse(self.company):
 			frappe.throw(_("Set the tool custody store in Card Settings (Materials)."))
 		if self.movement not in ("Handover", "Return"):
 			self.warehouse = None
@@ -247,7 +247,7 @@ class EmployeeToolCustody(Document):
 
 	def _check_company(self):
 		"""Every linked record belongs to the employee's company (a Transfer cannot cross companies)."""
-		custody = setting("tool_custody_warehouse") if self.movement in STOCK_MOVES else None
+		custody = custody_warehouse(self.company) if self.movement in STOCK_MOVES else None
 		for doctype, name in (
 			("Employee", self.to_employee),
 			("Warehouse", self.warehouse),
@@ -287,7 +287,7 @@ class EmployeeToolCustody(Document):
 			make_handover_draft(review, review.getone("items", {"name": self.review_item}), remaining)
 
 	def _make_stock_entry(self):
-		custody = setting("tool_custody_warehouse")
+		custody = custody_warehouse(self.company)
 		entry = frappe.new_doc("Stock Entry")
 		row = {"item_code": self.item_code, "qty": flt(self.qty)}
 		if self.serial_no:
