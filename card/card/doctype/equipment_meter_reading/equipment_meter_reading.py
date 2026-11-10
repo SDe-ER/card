@@ -31,6 +31,7 @@ from card.attachment_validator import (
 	new_form_prefix,
 	require_record_file,
 )
+from card.cancel_reason import _refuse_changes as refuse_cancel_changes
 
 DOCTYPE = "Equipment Meter Reading"
 
@@ -81,7 +82,12 @@ class EquipmentMeterReading(Document):
 	def before_cancel(self):
 		"""Cancelling a reading must not leave its neighbours out of sequence: the next submitted reading, compared
 		with the new previous one, must still pass the rules it was submitted under (not lower unless a reset; a
-		reset only on a lower reading). Same lock and locking reads as submit."""
+		reset only on a lower reading). Same lock and locking reads as submit. A cancel changes nothing else: Frappe
+		skips validate on a cancel and stores what the request sends, so a cancel that changes any stored field
+		(hours, date, equipment, evidence) is refused through the generic FR-123 guard."""
+		latest = self.get_latest()
+		if latest:
+			refuse_cancel_changes(self, latest)
 		frappe.db.get_value("Card Equipment", self.equipment, "name", for_update=True)
 		previous, _same_time, following = neighbour_readings(
 			self.equipment, self.reading_datetime, exclude=self.name, for_update=True

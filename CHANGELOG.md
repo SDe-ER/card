@@ -392,6 +392,22 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   and fill form fields are unchanged. Rollback: revert the commit.
 
 ### Security
+- **FR-142 / FR-140 — a cancel can no longer rewrite a Card Daily Log or an Equipment Meter Reading.** Reason: Frappe
+  skips `validate` and `validate_update_after_submit` on a cancel and stores the fields and child rows the request
+  sends (`frappe/model/document.py`); reproduced on a sandbox site: a REST PUT `{"docstatus": 2, ...}`, a savedocs
+  Cancel with a modified document and a bulk update with `docstatus` 2 and data each stored changed hours rows, log
+  date and notes on a cancelled daily log, and a REST PUT changed the engine hours, the reading time and the notes
+  of a cancelled meter reading. Fix: both cancels now run the generic FR-123 guard of `card/cancel_reason.py`
+  (`_refuse_changes`, `CancelChangesDocumentError`, already used by the monthly card): a cancel that changes any
+  stored field or row is refused and the document stays submitted. The daily log first restores its server-written
+  approval fields, preparers and editors from the database (FR-142 behaviour, unchanged) and then refuses any other
+  change. No cancel reason is required on these DocTypes (unchanged). Affected functions: `card.daily_log.check_cancel`,
+  `EquipmentMeterReading.before_cancel`. Tests: `test_daily_log.py` (REST PUT with rows, date, notes; savedocs with a
+  row and the notes; bulk update with data; plain cancels still work), `test_meter_reading.py` (REST PUT, savedocs,
+  bulk; plain cancel). PR #TBD.
+  Impact: permissions none; accounting none; data: a cancel request that also changes the document is refused
+  (a plain cancel is unchanged); API: such a request now fails with `CancelChangesDocumentError`. Rollback limits:
+  code only; nothing stored to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
   User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with

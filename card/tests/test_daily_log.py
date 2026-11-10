@@ -651,6 +651,87 @@ class TestDailyLog(_CustomerCardsBase):
 		frappe.set_user("Administrator")
 		self.assertEqual(self._stored(doc.name).docstatus, 2)
 
+	# ---------- a cancel changes nothing else (FR-142 cancel integrity) ----------
+	def _snapshot(self, name):
+		doc = frappe.get_doc(LOG, name)
+		return (
+			doc.docstatus,
+			str(doc.log_date),
+			doc.project,
+			doc.notes,
+			[(r.equipment, r.day_hours, r.night_hours, r.stopped_hours, r.notes) for r in doc.rows],
+		)
+
+	def test_cancel_by_rest_put_cannot_change_the_log(self):
+		from frappe.api import v1
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		doc = self._log()
+		before = self._snapshot(doc.name)
+		rows = [dict(r, day_hours=11, night_hours=3) for r in frappe.get_doc(LOG, doc.name).as_dict()["rows"]]
+		for data in (
+			{"docstatus": 2, "rows": rows},
+			{"docstatus": 2, "log_date": str(add_days(self.day, -20))},
+			{"docstatus": 2, "notes": "rewritten at cancel"},
+		):
+			with self.subTest(data=list(data)):
+				frappe.set_user(self.operator)
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json(data))
+				with self.assertRaises(CancelChangesDocumentError):
+					v1.update_doc(LOG, doc.name)
+				frappe.set_user("Administrator")
+				self.assertEqual(self._snapshot(doc.name), before)
+		# a plain cancel still works
+		frappe.set_user(self.operator)
+		frappe.local.form_dict = frappe._dict(data=frappe.as_json({"docstatus": 2}))
+		v1.update_doc(LOG, doc.name)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._snapshot(doc.name), (2, *before[1:]))
+
+	def test_cancel_by_savedocs_cannot_change_the_log(self):
+		from frappe.desk.form.save import savedocs
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		doc = self._log()
+		before = self._snapshot(doc.name)
+		for change in ("row", "notes"):
+			with self.subTest(change=change):
+				frappe.set_user(self.operator)
+				sent = frappe.get_doc(LOG, doc.name).as_dict()
+				if change == "row":
+					sent["rows"][0]["day_hours"] = 12
+				else:
+					sent["notes"] = "rewritten at cancel"
+				with self.assertRaises(CancelChangesDocumentError):
+					savedocs(frappe.as_json(sent), "Cancel")
+				frappe.set_user("Administrator")
+				self.assertEqual(self._snapshot(doc.name), before)
+		frappe.set_user(self.operator)
+		savedocs(frappe.as_json(frappe.get_doc(LOG, doc.name).as_dict()), "Cancel")
+		frappe.set_user("Administrator")
+		self.assertEqual(self._snapshot(doc.name)[0], 2)
+
+	def test_bulk_cancel_with_data_cannot_change_the_log(self):
+		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+
+		doc = self._log()
+		before = self._snapshot(doc.name)
+		frappe.set_user(self.operator)
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			failed = submit_cancel_or_update_docs(
+				LOG,
+				[doc.name],
+				"update",
+				{"docstatus": 2, "notes": "x", "log_date": str(add_days(self.day, -30))},
+			)
+			self.assertEqual(failed, [doc.name])
+			self.assertEqual(self._snapshot(doc.name), before)
+			self.assertEqual(submit_cancel_or_update_docs(LOG, [doc.name], "cancel"), [])
+		frappe.set_user("Administrator")
+		self.assertEqual(self._snapshot(doc.name), (2, *before[1:]))
+
 	# ---------- amendment chain (review finding 6) ----------
 	def test_amendment_keeps_the_earlier_preparers(self):
 		self._rule(daily_log.RULE_REFUSE)

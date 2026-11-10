@@ -220,6 +220,46 @@ class TestMeterReading(IntegrationTestCase):
 		locked = calls[calls.index(("lock", True)) + 1 :]
 		self.assertEqual(locked, [("values", True)] * 3)
 
+	# ---------- a cancel changes nothing else (FR-140 cancel integrity) ----------
+	def _stored(self, name):
+		return frappe.db.get_value(
+			DOCTYPE, name, ["docstatus", "engine_hours", "reading_datetime", "notes", "source"], as_dict=True
+		)
+
+	def test_cancel_cannot_change_the_reading(self):
+		from frappe.api import v1
+		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+		from frappe.desk.form.save import savedocs
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		doc = self._reading(100, "2026-09-03 08:00:00")
+		before = self._stored(doc.name)
+		for data in (
+			{"docstatus": 2, "engine_hours": 999},
+			{"docstatus": 2, "reading_datetime": "2026-08-01 08:00:00"},
+			{"docstatus": 2, "notes": "rewritten at cancel"},
+		):
+			with self.subTest(route="rest", data=list(data)):
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json(data))
+				with self.assertRaises(CancelChangesDocumentError):
+					v1.update_doc(DOCTYPE, doc.name)
+				self.assertEqual(self._stored(doc.name), before)
+		sent = frappe.get_doc(DOCTYPE, doc.name).as_dict()
+		sent["engine_hours"] = 5
+		with self.assertRaises(CancelChangesDocumentError):
+			savedocs(frappe.as_json(sent), "Cancel")
+		self.assertEqual(self._stored(doc.name), before)
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			failed = submit_cancel_or_update_docs(
+				DOCTYPE, [doc.name], "update", {"docstatus": 2, "engine_hours": 1}
+			)
+		self.assertEqual(failed, [doc.name])
+		self.assertEqual(self._stored(doc.name), before)
+		# a plain cancel still works
+		frappe.get_doc(DOCTYPE, doc.name).cancel()
+		self.assertEqual(self._stored(doc.name), {**before, "docstatus": 2})
+
 	# ---------- cancel keeps the sequence ----------
 	def test_cancel_of_a_reset_that_a_later_reading_needs_refused(self):
 		"""100, 10 (reset), 20: cancelling the reset would leave 100 -> 20 without a reset."""
