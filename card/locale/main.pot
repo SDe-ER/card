@@ -5066,6 +5066,22 @@ msgstr ""
 msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
 msgstr ""
 
+#: card/company_scope.py
+msgid "A CARD record of type {0} cannot be shared with everyone."
+msgstr ""
+
+#: card/company_scope.py
+msgid "This CARD record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
+msgstr ""
+
+#: card/company_scope.py
+msgid "CARD company check: {0} is not a link to a company-owned record."
+msgstr ""
+
+#: card/company_scope.py
+msgid "CARD company check: rows {0} belong to a company other than {1}."
+msgstr ""
+
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "VAT item tax template (company rate)"
 msgstr ""

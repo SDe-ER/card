@@ -37,6 +37,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   new fields appear in the fill's REST document; `get_diesel_price_context` unchanged. Rollback limits: code rollback
   leaves the extra columns and their values in the database (harmless; Frappe ignores columns not in the DocType);
   nothing else to undo.
+- **FR-131: generic company scope for the planned CARD DocTypes** (closure plan WP-HK; enabler for #31, #35, #41,
+  #44, #49, #52). Reason: the close-all packages add nine DocTypes, and each needs the company isolation of the
+  existing CARD hooks; registering it once keeps later packages out of `card/hooks.py`. New `card/company_scope.py`:
+  `has_company_permission` (record check: the company sent and stored, plus the company of each new or changed
+  top-level Link to Card Equipment, Project, Card Monthly Card or Warehouse; for a DocType without a `company` field
+  also the stored link; a new record of a restricted user that has no company yet is refused; CARD-module DocTypes
+  only), `company_query_conditions` (list twin), `deny_cross_company_share` (DocShare validate) and the package
+  helper `check_child_companies` (companies on child-table rows are each package's own responsibility).
+  `card/hooks.py` registers them for Equipment Meter Reading, Card Daily Log, Card Rate Agreement, Card Period Run,
+  Card Approval Delegation, Diesel Dispense, Tank Dip Reading, Equipment Operating Group and Card Intake Record; the
+  DocShare validate hook becomes a list (the diesel fill check is kept first). PR #208 (branch `feat/company-scope-hooks`).
+  - Permissions: deny-only; no role, DocPerm or User Permission change. Users without a company restriction and
+    every existing DocType are not affected (their own hooks are unchanged). Hooks of DocTypes that do not exist yet
+    are inert.
+  - Accounting, data, API: none (no field, patch, endpoint or GL change).
+  - Rollback limits: none; reverting the commit removes the hooks. A planned DocType merged after this change loses
+    its company isolation if this change is reverted.
 - **Card Reviewer role** (FR-137, #35 Q2, PR #207). Reason: the governance workflow (#35 G1) needs a reviewer
   role separate from the approver. `card/install.py`: `CARD_REVIEWER_ROLE` added to `CARD_ROLES`, so
   `ensure_card_roles()` (before_install and every roles patch) creates it with Desk access; new idempotent patch

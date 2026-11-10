@@ -6305,6 +6305,22 @@ msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ ل�
 msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
 msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."
 
+#: card/company_scope.py
+msgid "A CARD record of type {0} cannot be shared with everyone."
+msgstr "لا يمكن مشاركة سجل CARD من نوع {0} مع الجميع."
+
+#: card/company_scope.py
+msgid "This CARD record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
+msgstr "سجل CARD هذا من نوع {0} يتبع الشركة {1} ولا يمكن مشاركته مع مستخدم من خارج هذه الشركة."
+
+#: card/company_scope.py
+msgid "CARD company check: {0} is not a link to a company-owned record."
+msgstr "فحص الشركة في CARD: الحقل {0} ليس رابطًا لسجل تابع لشركة."
+
+#: card/company_scope.py
+msgid "CARD company check: rows {0} belong to a company other than {1}."
+msgstr "فحص الشركة في CARD: الصفوف {0} تتبع شركة غير {1}."
+
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "VAT item tax template (company rate)"
 msgstr "قالب ضريبة الصنف (نسبة الشركة)"
@@ -6440,3 +6456,4 @@ msgstr "لتغيير الإضافات والخصومات عدّل الكرت ا�
 #: card/card/doctype/card_diesel_price/card_diesel_price.json
 msgid "Diesel price fuel type"
 msgstr "نوع الوقود لسعر الديزل"
+
