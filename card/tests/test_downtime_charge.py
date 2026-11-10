@@ -9,7 +9,10 @@ is an ordinary addition on its side; a charge whose reason is also billable on t
 flagged for review; Card Equipment ``min_hours`` stays in the schema but is hidden, read only
 and labelled as not used. All data is per-test and rolled back."""
 
+import json
+
 import frappe
+from frappe.api.v1 import create_doc, update_doc
 from frappe.utils import flt
 
 from card.constants import DIR_SUBRENTAL
@@ -222,6 +225,140 @@ class TestDowntimeChargeRules(_DowntimeBase):
 		co.name = name
 		co.db_insert()
 		return name
+
+
+class TestDowntimeChargeSides(_DowntimeBase):
+	def test_double_charge_warning_compares_sides(self):
+		eq = self._sub_rental()
+		reason = frappe.get_doc(
+			{
+				"doctype": "Card Stop Reason",
+				"company": self.company,
+				"reason_name": "TEST-DTC-C-" + self.token,
+				"billable": 1,
+				"billable_side": "Customer",
+				"billable_approval_reason": "TEST approval",
+			}
+		).insert(ignore_permissions=True)
+		days = [
+			{"working_hours": 8},
+			{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4},
+		]
+		frappe.clear_messages()
+		self._card(eq, [self._charge(reason.name, side="Supplier")], days=days)
+		self.assertNotIn("charged twice", " ".join(str(m) for m in frappe.message_log))
+		frappe.clear_messages()
+		self._card(self._sub_rental(), [self._charge(reason.name, side="Customer")], days=days)
+		self.assertIn("charged twice", " ".join(str(m) for m in frappe.message_log))
+
+
+class TestDowntimeChargeRest(_DowntimeBase):
+	"""The REST resource handlers (frappe.api.v1 create_doc / update_doc) behind POST and PUT
+	/api/resource: on the card they run the card's rules; on a row on its own, a change of the
+	amount, type, side or a downtime field is refused (the card's Version would not show it)."""
+
+	def tearDown(self):
+		frappe.local.form_dict = frappe._dict()
+		super().tearDown()
+
+	def _rest(self, fn, *args, values):
+		frappe.local.form_dict = frappe._dict(data=json.dumps(values))
+		try:
+			fn(*args)
+			return True
+		except (frappe.PermissionError, frappe.ValidationError):
+			return False
+		finally:
+			frappe.local.form_dict = frappe._dict()
+
+	def _card_values(self, eq, adjustments):
+		return {
+			"doctype": "Card Monthly Card",
+			"equipment": eq.name,
+			"project": self.project,
+			"shift": "نهاري",
+			"month": "09",
+			"year": 2026,
+			"days": [{"operation_date": "2026-09-01", "day_status": "عمل", "working_hours": 8}],
+			"adjustments": adjustments,
+		}
+
+	def test_create_doc_card_runs_the_downtime_rules(self):
+		eq = self._equipment()
+		reason = self._reason()
+		self.assertFalse(
+			self._rest(
+				create_doc,
+				"Card Monthly Card",
+				values=self._card_values(eq, [self._charge(reason.name, agreement_reference="")]),
+			)
+		)
+		self.assertTrue(
+			self._rest(
+				create_doc, "Card Monthly Card", values=self._card_values(eq, [self._charge(reason.name)])
+			)
+		)
+
+	def test_update_doc_card_runs_the_downtime_rules(self):
+		eq = self._equipment()
+		reason = self._reason()
+		card = self._card(eq, [self._charge(reason.name)])
+		row = json.loads(frappe.as_json(card.adjustments[0].as_dict()))
+		row["agreement_reference"] = ""
+		self.assertFalse(
+			self._rest(update_doc, "Card Monthly Card", card.name, values={"adjustments": [row]})
+		)
+		row["agreement_reference"] = "AGR-2-" + self.token
+		self.assertTrue(self._rest(update_doc, "Card Monthly Card", card.name, values={"adjustments": [row]}))
+		self.assertEqual(
+			frappe.db.get_value("Card Monthly Card Adjustment", row["name"], "agreement_reference"),
+			"AGR-2-" + self.token,
+		)
+
+	def test_direct_row_update_of_guarded_fields_is_refused(self):
+		eq = self._equipment()
+		reason = self._reason()
+		card = self._card(eq, [self._charge(reason.name)])
+		row = card.adjustments[0].name
+		for values in (
+			{"amount": 9999},
+			{"agreement_reference": "AGR-OTHER"},
+			{"stop_reason": None},
+			{"responsible_party_type": "Other", "responsible_party_name": "x"},
+			{"side": "Customer"},
+			{"adjustment_type_ref": self.plain_type},
+		):
+			self.assertFalse(
+				self._rest(update_doc, "Card Monthly Card Adjustment", row, values=values), values
+			)
+		stored = frappe.db.get_value(
+			"Card Monthly Card Adjustment",
+			row,
+			["amount", "agreement_reference", "stop_reason"],
+			as_dict=True,
+		)
+		self.assertEqual(flt(stored.amount), 500)
+		self.assertEqual(stored.agreement_reference, "AGR-" + self.token)
+		self.assertEqual(stored.stop_reason, reason.name)
+		# only the description: allowed, and the card is re-saved with its rules
+		self.assertTrue(
+			self._rest(
+				update_doc, "Card Monthly Card Adjustment", row, values={"description": "Standby (edited)"}
+			)
+		)
+
+	def test_direct_row_create_is_refused(self):
+		eq = self._equipment()
+		reason = self._reason()
+		card = self._card(eq, [])
+		values = {
+			**self._charge(reason.name),
+			"parent": card.name,
+			"parenttype": "Card Monthly Card",
+			"parentfield": "adjustments",
+		}
+		self.assertFalse(self._rest(create_doc, "Card Monthly Card Adjustment", values=values))
+		self.assertFalse(frappe.get_all("Card Monthly Card Adjustment", filters={"parent": card.name}))
 
 
 class TestMinHoursRetired(_DowntimeBase):

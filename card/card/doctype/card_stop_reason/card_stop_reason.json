@@ -68,11 +68,10 @@
   },
   {
    "depends_on": "eval:doc.billable",
-   "description": "Required when the reason is billable: who approved billing it and under which agreement.",
+   "description": "Required when billing is switched on or its side changes: who approved billing it and under which agreement.",
    "fieldname": "billable_approval_reason",
    "fieldtype": "Small Text",
-   "label": "Billable approval reason",
-   "mandatory_depends_on": "eval:doc.billable"
+   "label": "Billable approval reason"
   },
   {
    "fieldname": "default_responsible_party_type",

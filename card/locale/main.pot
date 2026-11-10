@@ -4741,6 +4741,7 @@ msgstr ""
 
 #: card/card/doctype/card_settings/card_settings.json
 #: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/doctype/card_equipment/card_equipment.json
 msgid "Deprecated – not used"
 msgstr ""
 
@@ -5079,7 +5080,7 @@ msgid "Which invoice bills the stopped hours of a billable reason. Both is the b
 msgstr ""
 
 #: card/card/doctype/card_stop_reason/card_stop_reason.json
-msgid "Required when the reason is billable: who approved billing it and under which agreement."
+msgid "Required when billing is switched on or its side changes: who approved billing it and under which agreement."
 msgstr ""
 
 #: card/card/doctype/card_stop_reason/card_stop_reason.py
@@ -5127,4 +5128,24 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py
 msgid "These billable stop reasons bill one side only; the other side's amount does not include their stopped hours (review): {0}"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Supplier billable stopped hours"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Customer billable stopped hours"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Both"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.py
+msgid "An addition/deduction row cannot be moved to another card."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.py
+msgid "To change additions and deductions, edit monthly card {0} itself; a direct row update is not allowed."
 msgstr ""

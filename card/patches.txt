@@ -34,3 +34,4 @@ card.patches.v4_6_0.seed_stop_reasons
 card.patches.v4_7_0.seed_diesel_price_schedule
 card.patches.v4_8_0.ensure_card_reviewer_role
 card.patches.v4_8_0.stop_reason_billable_side
+card.patches.v4_8_0.backfill_side_stopped_hours

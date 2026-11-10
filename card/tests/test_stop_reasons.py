@@ -15,7 +15,7 @@ from frappe.utils import flt, getdate
 
 from card.card.report.equipment_downtime.equipment_downtime import execute as downtime
 from card.patches.v4_6_0 import seed_stop_reasons
-from card.patches.v4_8_0 import stop_reason_billable_side
+from card.patches.v4_8_0 import backfill_side_stopped_hours, stop_reason_billable_side
 from card.tests.test_customer import _CustomerCardsBase
 
 WORK, LEAVE, BREAKDOWN, CLIENT_STOP = "عمل", "إجازة", "عطل", "توقف من العميل"
@@ -789,3 +789,113 @@ class TestBillableSide(_StopBase):
 
 	def test_stop_reason_is_audited(self):
 		self.assertEqual(frappe.get_meta("Card Stop Reason").track_changes, 1)
+
+	def test_approval_is_needed_only_when_billing_is_switched_on_or_its_side_changes(self):
+		# a reason made billable before FR-134 has no approval reason
+		legacy = self._reason()
+		frappe.db.set_value("Card Stop Reason", legacy.name, "billable", 1, update_modified=False)
+		legacy.reload()
+		legacy.description = "edited"
+		legacy.save(ignore_permissions=True)  # unrelated edit: no approval needed
+		legacy.reload()
+		legacy.billable_side = "Supplier"
+		with self.assertRaisesRegex(frappe.ValidationError, "billable approval reason"):
+			legacy.save(ignore_permissions=True)
+		legacy.reload()
+		legacy.billable = 0
+		legacy.save(ignore_permissions=True)  # switching it off never needs one
+		self.assertEqual(frappe.db.get_value("Card Stop Reason", legacy.name, "billable"), 0)
+
+	def test_sides_are_stored_per_card(self):
+		eq = self._sub_rental()
+		supplier_only = self._reason(billable=1, side="Supplier")
+		both = self._reason(billable=1, side="Both")
+		card = self._stop_card(
+			eq,
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": supplier_only.name, "stopped_hours": 4},
+				{"day_status": CLIENT_STOP, "stop_reason": both.name, "stopped_hours": 2},
+			],
+		)
+		self.assertEqual(flt(card.billable_stopped_hours), 6)  # kept for compatibility
+		self.assertEqual(flt(card.supplier_billable_stopped_hours), 6)
+		self.assertEqual(flt(card.customer_billable_stopped_hours), 2)
+		self.assertEqual(flt(card.amount), 14 * 75.0)
+		self.assertEqual(flt(card.customer_amount), 10 * 120.0)
+
+	def test_statements_and_summaries_use_their_side_on_a_sub_rental_card(self):
+		from card.card.report.equipment_customer_statement.equipment_customer_statement import (
+			execute as customer_statement,
+		)
+		from card.card.report.equipment_customers_summary.equipment_customers_summary import (
+			execute as customers_summary,
+		)
+		from card.card.report.equipment_supplier_statement.equipment_supplier_statement import (
+			execute as supplier_statement,
+		)
+		from card.card.report.equipment_suppliers_summary.equipment_suppliers_summary import (
+			execute as suppliers_summary,
+		)
+
+		reason = self._reason(billable=1, side="Supplier")
+		card = self._stop_card(
+			self._sub_rental(),
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4},
+			],
+			submit=True,
+		)
+		filters = {**STATEMENT, "company": self.company, "supplier": self.supplier, "project": self.project}
+		_c, rows, *_ = supplier_statement(filters)
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(row["stopped_hours"], 4)
+		self.assertEqual(row["hourly_rate"], 75.0)  # 12 x 75 over 12 billed hours
+		period = {"company": self.company, "from_month": 9, "from_year": 2026, "project": self.project}
+		_c, rows, *_ = customer_statement({**period, "customer": self.customer})
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(flt(row.get("stopped_hours")), 0)
+		self.assertEqual(row["customer_amount"], 8 * 120.0)
+		for report, key, party, expected in (
+			(suppliers_summary, "supplier", self.supplier, 4),
+			(customers_summary, "customer", self.customer, 0),
+		):
+			_c, rows, *_ = report(period)
+			row = next(r for r in rows if r.get(key) == party)
+			self.assertEqual(flt(row.get("stopped_hours")), expected, key)
+
+	def test_cards_from_before_fr134_fall_back_to_the_total_and_are_backfilled(self):
+		from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
+
+		reason = self._reason(billable=1)
+		card = self._stop_card(
+			self._sub_rental(),
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4},
+			],
+			submit=True,
+		)
+		amounts = (flt(card.amount), flt(card.customer_amount))
+		frappe.db.set_value(
+			"Card Monthly Card",
+			card.name,
+			{"supplier_billable_stopped_hours": 0, "customer_billable_stopped_hours": 0},
+			update_modified=False,
+		)
+		old = frappe.db.get_value(
+			"Card Monthly Card",
+			card.name,
+			["billable_stopped_hours", "supplier_billable_stopped_hours", "customer_billable_stopped_hours"],
+			as_dict=True,
+		)
+		self.assertEqual(side_stopped_hours(old, "Customer"), 4)  # read-time fallback
+		modified = frappe.db.get_value("Card Monthly Card", card.name, "modified")
+		backfill_side_stopped_hours.execute()
+		backfill_side_stopped_hours.execute()
+		card.reload()
+		self.assertEqual(flt(card.supplier_billable_stopped_hours), 4)
+		self.assertEqual(flt(card.customer_billable_stopped_hours), 4)
+		self.assertEqual((flt(card.amount), flt(card.customer_amount)), amounts)  # never repriced
+		self.assertEqual(card.modified, modified)

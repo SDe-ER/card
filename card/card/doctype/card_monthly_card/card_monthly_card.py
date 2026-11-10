@@ -269,6 +269,8 @@ class CardMonthlyCard(Document):
 		self.billable_stopped_hours = flt(billable_stopped, 2)
 		self.billable_stopped_days = billable_stop_days
 		# FR-134: each side bills its own billable stopped hours (Both reasons: the same as before)
+		self.supplier_billable_stopped_hours = flt(stopped_for["Supplier"], 2)
+		self.customer_billable_stopped_hours = flt(stopped_for["Customer"], 2)
 		supplier_billed_hours = total_hours + flt(stopped_for["Supplier"], 2)
 		customer_billed_hours = total_hours + flt(stopped_for["Customer"], 2)
 		if self.card_direction in SUPPLIER_BILLING_DIRECTIONS:
@@ -290,9 +292,14 @@ class CardMonthlyCard(Document):
 		total_additions = 0.0
 		total_deductions = 0.0
 		sided = {"Supplier": 0.0, "Customer": 0.0}
-		billable_day_reasons = {
-			row.stop_reason for row in self.days or [] if row.stop_reason and cint(row.reason_billable)
-		}
+		# FR-134: the sides each stop reason is billed on through the days (a Both reason: both)
+		billed_on = {}
+		for row in self.days or []:
+			if row.stop_reason and cint(row.reason_billable) and flt(row.stopped_hours) > 0:
+				side = reason_sides.get(row.stop_reason, SIDE_BOTH)
+				billed_on.setdefault(row.stop_reason, set()).update(
+					("Supplier", "Customer") if side == SIDE_BOTH else (side,)
+				)
 		double_charged = []
 		for adj in self.adjustments or []:
 			typ = None
@@ -315,8 +322,6 @@ class CardMonthlyCard(Document):
 			# FR-134 (#45, C-07): a downtime charge names its stop reason, party and agreement
 			is_downtime_charge = bool(typ and cint(typ.get("is_downtime_charge")))
 			validate_downtime_fields(adj, self.company or eq.company, is_downtime_charge)
-			if is_downtime_charge and adj.stop_reason in billable_day_reasons:
-				double_charged.append(adj.description or adj.adjustment_type_ref or "")
 			if not adj.side:
 				if self.card_direction == DIR_SUBRENTAL:
 					frappe.throw(
@@ -352,6 +357,9 @@ class CardMonthlyCard(Document):
 			else:
 				frappe.throw(_("Unknown type in additions and deductions: {0}").format(adj.adjustment_type))
 			sided[adj.side] = sided[adj.side] + signed
+			if is_downtime_charge and adj.side in billed_on.get(adj.stop_reason, ()):
+				# the same downtime billed on the same side by the reason and by this charge
+				double_charged.append(adj.description or adj.adjustment_type_ref or "")
 		if double_charged:
 			frappe.msgprint(
 				_(
