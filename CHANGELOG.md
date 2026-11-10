@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
-- **Equipment status guard** (FR-122, PR #TBD; refs #42, #120).
+- **Equipment status guard** (FR-122, PR #191; refs #42, #120).
   - **Reason:** the Card Equipment status was a plain field: an ended machine (status منتهية) could still get a new
     assignment, transport or monthly card.
   - **Change:** new `card/equipment_status.py` (`check_equipment_status`, `status_rule`) called from
