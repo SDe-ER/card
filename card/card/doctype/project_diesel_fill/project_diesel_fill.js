@@ -186,6 +186,89 @@ function card_photo_previews(frm) {
 	}
 }
 
+// Meter extraction (Owner 2026-11-02): the disputed reading and the crop of the counter, shown from what the fill already
+// holds: the `Meter reading (opening|closing): ...` lines the server writes into evidence_warnings, and the private crop
+// Files it attaches to the fill (listed by the form's own docinfo, so the fill's permissions apply). No field is added.
+// Everything is shown as text (never as HTML), and only /private/files/meter-crop-*.jpg of this site is displayed.
+const CARD_METER_SIDES = ["opening", "closing"];
+const CARD_METER_LINE = /^Meter reading \((opening|closing)\):\s*(.+)$/;
+const CARD_METER_CROP = /^meter-crop-(opening|closing)-([0-9a-f]{16})-v[A-Za-z0-9._-]{1,32}\.jpg$/;
+
+// {opening: "0042? (between 42 and 43 L); flags: ...", closing: ...}: the first line of each side, control characters removed
+function card_meter_lines(text) {
+	const lines = {};
+	for (const line of String(text || "").split("\n")) {
+		const match = CARD_METER_LINE.exec(line.trim());
+		if (match && !lines[match[1]]) {
+			lines[match[1]] = match[2].replace(/[\u0000-\u001f\u007f]/g, " ").slice(0, 300);
+		}
+	}
+	return lines;
+}
+
+// {opening: {url, name}, closing: {...}}: the first (newest) crop of each side among a fill's attachments
+function card_meter_crops(attachments) {
+	const crops = {};
+	for (const row of attachments || []) {
+		const match = CARD_METER_CROP.exec(row.file_name || "");
+		const url = row.file_url || "";
+		if (!match || crops[match[1]] || !/^\/private\/files\/[A-Za-z0-9._-]+$/.test(url))
+			continue;
+		crops[match[1]] = { url, name: row.file_name };
+	}
+	return crops;
+}
+
+// The server-built line is English/numeric text ("1501.? (between 1501 and 1501.9 L); flags: glare"). Inside an Arabic (RTL)
+// sentence the bidi algorithm would move its brackets, punctuation and the "?" around; an LTR isolate keeps the line exactly
+// as written. The worker text is still escaped, so nothing in it can become markup.
+function card_ltr_isolate(text) {
+	return `<bdi dir="ltr" style="unicode-bidi: isolate;">${frappe.utils.escape_html(text)}</bdi>`;
+}
+
+function card_meter_extraction(frm) {
+	if (frm.is_new()) return;
+	const lines = card_meter_lines(frm.doc.evidence_warnings);
+	const crops = card_meter_crops((frm.get_docinfo() || {}).attachments);
+	for (const side of CARD_METER_SIDES) {
+		// the disputed reading right under the reading it concerns (empty again once the server dropped the line)
+		frm.set_df_property(
+			`${side}_reading`,
+			"description",
+			lines[side]
+				? __("Disputed by meter extraction: {0}", [card_ltr_isolate(lines[side])])
+				: "",
+		);
+		const field = frm.get_field(`${side}_photo`);
+		if (!field || !field.$wrapper) continue;
+		let $box = field.$wrapper.find(".card-meter-extraction");
+		if (!$box.length) {
+			$box = $('<div class="card-meter-extraction"></div>').appendTo(field.$wrapper);
+		}
+		$box.empty();
+		if (!crops[side]) continue;
+		const photo = frm.doc[`${side}_photo`] || "";
+		const full = /^\/(private\/)?files\//.test(photo) ? photo : crops[side].url;
+		const $link = $('<a target="_blank" rel="noopener noreferrer"></a>')
+			.attr("href", full)
+			.attr("title", __("Open the full photo"));
+		$("<img>")
+			.attr({ src: crops[side].url, alt: __("Meter extraction crop") })
+			.css({
+				display: "block",
+				"max-width": "100%",
+				"max-height": "160px",
+				"object-fit": "contain",
+				"margin-top": "var(--margin-sm)",
+				border: "1px solid var(--border-color)",
+				"border-radius": "var(--border-radius-lg)",
+				background: "var(--subtle-fg)",
+			})
+			.appendTo($link);
+		$link.appendTo($box);
+	}
+}
+
 function card_default_supplier(frm) {
 	frappe
 		.call({
@@ -225,6 +308,7 @@ frappe.ui.form.on("Project Diesel Fill", {
 	},
 	refresh(frm) {
 		card_photo_previews(frm);
+		card_meter_extraction(frm);
 		if (frm.doc.docstatus !== 0) return;
 		frappe
 			.call({
