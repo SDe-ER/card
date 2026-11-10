@@ -68,10 +68,17 @@ Totals: DONE (residual) 3 (#42, #45, #46) · PARTIAL 13 · NOT STARTED 1 (#47) �
 ## 4. Owner decisions (2026-11-10)
 
 - #31 / #47: keep #118 rule 7. No hours × L/h allocation (not planned). Tank and bulk inventory with measured
-  readings only stays in scope.
+  readings only stays in scope (#231). **Under review (second batch):** the owner reported a conflict with an
+  earlier approval (2026-10-12, allocation by working hours). Proposed: allocation allowed but stored and shown as
+  estimated; measured fills take precedence and are never overwritten. #47 reopens for the allocation part only if
+  the owner confirms.
+- Move day (second batch, approved): on a project → project move the move day counts for the new project (#43,
+  #121, #122). FR-117 `move_day_rule` already supports it per company; setting it on Production waits for an
+  explicit "execute".
 - #41: not planned — postponed by the owner on 2026-10-19 (FR-023). The parts of #44 and #53 that depend on it are
   postponed with it.
-- #51: supplier and customer portals are not planned. The non-portal scope stays.
+- #51: full scope, including the supplier/customer portal, built but off by default (second batch; the first
+  instruction "portals not planned" was withdrawn because it reversed an earlier approval).
 - #42, #45, #46: verify the residuals, then close as done with evidence after the next release.
 - #40, #54: owner sign-off in writing.
 - #118–#127: each closes only after the owner confirms acceptance in writing.
