@@ -5068,3 +5068,7 @@ msgstr ""
 #: card/card/doctype/card_settings/card_settings.js
 msgid "Card Settings rows of companies you are not permitted to see are hidden and stay unchanged when you save."
 msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Your Card Settings access is limited to your companies' rows; you cannot change the site-wide fields: {0}."
+msgstr ""

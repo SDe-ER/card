@@ -35,30 +35,41 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Security
-- **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on).** Reason: the
-  per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
-  User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row;
-  with one limited to CARD documents he read every company's rows (accounts, items, diesel prices). Now, for a
-  user with a Company User Permission that applies to CARD (not Administrator, not System Manager), the
-  `company_settings` and `diesel_price_schedule` rows of other companies are removed on every read of the Single
-  (Desk form, REST v1/v2, `frappe.client.get`, the reply to a save) and put back unchanged on every save by him,
-  so they are never deleted; a changed copy of such a row is still refused by `_validate_company_scope`. The row
-  read on its own (`frappe.client.get`, `GET /api/resource/Card Company Settings/<name>`, same for
-  `Card Diesel Price`) is refused for another company's row. System Manager, Administrator, users without a Company
-  User Permission and server code (`frappe.get_doc`, `frappe.get_all`) read every row as before. The form shows a
-  note when rows are hidden. Affected functions: `CardSettings.has_permission`,
-  `apply_fieldlevel_read_permissions`, `before_validate` (`_reattach_hidden_company_rows`), `on_change`; new
-  `settings_company_scope`, `settings_row_readable`; `CardCompanySettings.has_permission`,
-  `CardDieselPrice.has_permission`; `card_settings.js` (note). Pull request: see FR-133 in the registry.
-  Impact: permissions — the Frappe User Permission check on the Single runs on the user's companies' rows only,
-  so a company-restricted Accounts Manager can open and save Card Settings for his companies (before: refused
-  while another company had a row); no role, DocPerm or permlevel changed. Accounting: none (no GL write, posting
-  reads unchanged). Data: none (no patch, no schema change; rows only re-attached, never rewritten). API: REST
-  readers with a Company restriction get fewer rows; other readers unchanged. Known limit: the child list
-  `GET /api/resource/Card Diesel Price?parent=Card Settings` for a user whose Company User Permission applies only
-  to other doctypes still lists every company's prices (Frappe 16 applies no list condition to a Single's child
-  table; fix needs `card_diesel_price.json` permlevel 1, owned by WP-X in this wave). Rollback: revert the commit;
-  no data to restore.
+- **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
+  the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
+  User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with
+  one limited to CARD documents he read every company's rows (accounts, items, adjustment types, diesel prices) and
+  their change history. Now, for a user with a Company User Permission that applies to CARD (not Administrator, not
+  System Manager):
+  - reads of the Single (Desk form, REST v1/v2, `frappe.client.get`, save replies of `savedocs`,
+    `frappe.client.save` / `set_value` / `insert` and REST v1 PUT) carry only his companies' `company_settings`,
+    `adjustment_types` and `diesel_price_schedule` rows; the form shows a note;
+  - the form timeline (Version rows, via overrides of `frappe.desk.form.load.getdoc` and `get_docinfo` that wrap
+    the Frappe methods, and the `savedocs` reply) carries no added, removed, changed or moved row of another company;
+  - a save by him puts the stored rows of the other companies back unchanged at their stored position (never
+    deleted); a changed copy, a new row or a row moved to another company is refused; he cannot change any
+    site-wide (non-table) field; unchanged hidden rows are not re-validated or named in a message (every rule is
+    per company, so his own rows, including the FR-125 one-price-per-date rule, are checked in full);
+  - a child row read on its own, and the child-table list, value and report-view reads (`frappe.client.get_list`,
+    `get_value`, `frappe.desk.reportview.get` with `parent="Card Settings"`), are refused while another company has a
+    row (`has_permission` hook on Card Settings; Frappe 16 applies no list condition to a child table of a Single,
+    so the `permission_query_conditions` added for the three child DocTypes are a second layer only).
+  System Manager, Administrator, users without a Company User Permission and server code (`frappe.get_doc`,
+  `frappe.get_all`, postings) read every row as before. Affected functions: `CardSettings.has_permission`,
+  `apply_fieldlevel_read_permissions`, `before_validate` (`_reattach_hidden_company_rows`), `on_change`,
+  `validate` (`_rows`), `_validate_company_scope`; new `settings_company_scope`, `settings_row_readable`,
+  `has_settings_permission`, `settings_row_query_conditions`, `getdoc`, `get_docinfo`, `scope_docinfo_versions`;
+  `has_permission` of Card Company Settings, Card Adjustment Type and Card Diesel Price; `card/hooks.py`
+  (`has_permission`, `permission_query_conditions`, `override_whitelisted_methods`); `card_settings.js` (note).
+  Impact: permissions — Frappe's User Permission check on the Single runs on the user's companies' rows only, so a
+  company-restricted Accounts Manager can open Card Settings and save his companies' rows (before: refused while
+  another company had a row); he can no longer change site-wide fields nor read child rows on their own; no role,
+  DocPerm or permlevel changed. Accounting: none (no GL write; posting reads unchanged). Data: none (no patch, no
+  schema change; rows only re-attached, never rewritten). API: readers with a Company restriction get fewer rows and
+  a filtered timeline; the two Desk load methods are overridden for every doctype but change only the Card Settings
+  response. Known limits: the reply object of a save is filtered in `on_change` (the document cache is already
+  cleared then); if another installed app also overrides `getdoc` or `get_docinfo`, only one override applies.
+  Rollback: revert the commits; no data to restore.
 
 ## [4.7.0] — 2026-11-10
 
