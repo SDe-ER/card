@@ -21,7 +21,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `docs/governance/ROLE-ACTION-MATRIX.md` lists every CARD DocType (level-0 read, write, create, submit, cancel, delete roles,
   field levels, company mechanism from the DocType JSON and the `has_permission` / `permission_query_conditions` hooks) and
   every `@frappe.whitelist` endpoint (HTTP method, server gate, company isolation, side effects); both tables are rendered from
-  `card/tests/test_bola_matrix.py` and a test fails when they drift. The new suite generates, per endpoint (62), a
+  `card/tests/test_bola_matrix.py` and a test fails when they drift. The new suite generates, per endpoint (63), a
   cross-company test (a user limited to company A with the endpoint's roles is refused on company B's records, or gets no
   company-B value; nothing is written), a role test (users without the role are refused; nothing is written) and, for read
   endpoints, a no-write test (transaction write counter, row counts and last `modified` of the watched tables unchanged);
@@ -30,6 +30,31 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Employee Tool Custody, Equipment Needs Request and Equipment Needs Review (company set in `validate` after Frappe's create
   check; no company `has_permission` hook). PR #203. Affected: tests and documentation only. Impact: no change to
   permissions, accounting, data or the API. Rollback: revert the commit (no data or schema involved).
+- **Mandatory cancel reason and a reviewable period-lock override** (FR-123, WP-07, #35, #51, governance G0). Reason: a
+  cancelled card, fill or transport had no recorded reason, a cancel request could still change the stored card (FR-050
+  open gap 1), and a period-lock override was only in the server log. Card Monthly Card, Equipment Transport and Project
+  Diesel Fill get `cancel_reason` (Small Text, no copy, read only; not "allow on submit": a cancel stores it without
+  Frappe's update-after-submit check, so no update-after-submit path is opened). The form's Cancel asks for the reason
+  and cancels through `card.cancel_reason.cancel_with_reason` (POST; one request, so a refused cancel keeps no reason).
+  `before_cancel` refuses a cancel without a reason on every path (Desk, REST `docstatus` 2, Python/API) and refuses a
+  cancel request that changes any other stored field or child row; `on_cancel` adds an Info Comment with the actor, the
+  reason and the date. A save or submit drops a copied reason; an update after submit cannot set it. A period-lock override
+  (`card.period_lock`) now also adds an Info Comment on the stored document (actor, action, date, lock date) next to the
+  existing log. PR #197. Affected: `card/cancel_reason.py` (new), `card/period_lock.py` (`_log_override`,
+  `_comment_override`), `card/hooks.py` (doc_events of the three doctypes, `doctype_js`), `card/public/js/cancel_reason.js`
+  (new), the three DocType JSON files, `card/locale/ar.po`, `main.pot`. Permissions: none widened; the cancel uses Frappe's
+  cancel permission and the doctypes' company has_permission hooks; Workflow and roles unchanged. Accounting: none (no GL
+  entry, no posting change). Data: one new column per doctype; existing records untouched (records cancelled earlier keep
+  an empty reason; no patch). API: a cancel without `cancel_reason` is now refused for these three doctypes, including
+  Frappe's "cancel all linked documents". Rollback limits: code revert only; the added columns stay (harmless) and the
+  stored reasons and comments remain.
+  Review fixes (PR #197): the reason is stored as plain text (HTML tags and any left `<` `>` removed in
+  `before_cancel`, because Frappe skips `_validate`/`_sanitize_content` on cancel; a reason that is only markup is
+  refused); the change check has no default-value tolerance (Frappe fills defaults only for new documents and new
+  rows). Known limits: an active Workflow's cancel action (`apply_workflow` -> `doc.cancel`) cannot send a reason, so
+  it is refused (the Card Monthly Card workflow is inactive on Production today); the List view bulk cancel
+  (`submit_cancel_or_update_docs`, a background job above 20 records) is refused too: cancel each record from its
+  form with a reason.
 - **Effective-dated diesel price schedule** (FR-125, #46, #124 WP-10). Reason: the diesel price changes over time and a fill
   must take the price valid on its own date. Card Settings > Diesel Settings gets the table **Diesel price schedule** (new child
   DocType `Card Diesel Price`: company, valid from, price per litre, currency defaulting to and limited to the company currency,

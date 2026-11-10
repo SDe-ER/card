@@ -8,6 +8,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
+from card.tests.cancel_reason import with_reason
 from card.tests.test_controllers import _ensure_masters
 from card.tests.transport_parties import company_paid, paid_by
 
@@ -193,7 +194,7 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		self._transport(eq.name, proj_c, 20)
 
 		with self.assertRaises(frappe.ValidationError):
-			t1.cancel()
+			with_reason(t1).cancel()
 		t1.reload()
 		self.assertEqual(t1.docstatus, 1)
 
@@ -208,7 +209,7 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		card.submit()
 
 		with self.assertRaises(frappe.ValidationError):
-			t.cancel()
+			with_reason(t).cancel()
 		t.reload()
 		self.assertEqual(t.docstatus, 1)
 
@@ -313,7 +314,7 @@ class TestEquipmentTransfer(IntegrationTestCase):
 		created = t.created_assignment
 		self.assertTrue(frappe.db.exists("Card Equipment Assignment", created))
 
-		t.cancel()
+		with_reason(t).cancel()
 
 		self.assertFalse(frappe.db.exists("Card Equipment Assignment", created))
 		self.assertFalse(frappe.db.get_value("Card Equipment Assignment", a_old.name, "to_date"))
