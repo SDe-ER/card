@@ -7,6 +7,7 @@ need; every claim below is backed by the per-version pages (evidence links there
 
 | Your situation | Use | Why |
 |---|---|---|
+| Site on v4.6.0, v4.5.0 or v4.4.3 (or earlier, see below), especially one with company-restricted CARD users | **v4.7.0** | Everything in v4.6.0 plus the company checks on tool custody, equipment needs requests and reviews (security), the VAT rate from the company's tax templates, the diesel-fill equipment status guard (Warn only) and the Equipment Location History report. No patch, no schema change; the read-only FR-127 tax template check must pass before the deploy ([v4.7.0.md → Installation & Upgrade](v4.7.0.md#12-installation--upgrade--partially-verified)) |
 | Site on v4.5.0 or v4.4.3 (or earlier, see below) that needs stop reasons, dated diesel prices, the per-company equipment and diesel guards, the posting preview, the analytics reports or the security fixes of the wave-2 train | **v4.6.0** | Everything in v4.5.0 plus the changes of [v4.6.0.md](v4.6.0.md). Three idempotent data patches, two new DocTypes and new columns; new rules are warn-only or off by default, but some changes apply by default (GET-only reads, stricter attachments, mandatory cancel reason, reviewer not approver, owned-only units, `diesel_unit_price` read-only once scheduled; see [section 9](v4.6.0.md#9-breaking-changes--verified)). Setup actions and rollback plan: [v4.6.0.md → Installation & Upgrade](v4.6.0.md#12-installation--upgrade--partially-verified) |
 | Site on v4.4.3 (or earlier, see below) whose supplier cards were recognised by hand with accrual journal entries, or that needs paid/remaining per card | **v4.5.0** | Everything in v4.4.3 plus the accrual journal link (accountant-only, POST) and the read-only Card Settlement Status report. No patch, no schema change; migrate adds the report and its sidebar link; restart the workers ([v4.5.0.md → Installation & Upgrade](v4.5.0.md#12-installation--upgrade--partially-verified)) |
 | Site on v4.4.2 (or earlier, see below) that downloads the supplier statement as PDF in Arabic, or whose site print style sets every print font | **v4.4.3** | Everything in v4.4.2 plus the statement PDF rendered with the Chrome PDF generator (Arabic letters join) on one A4 portrait page, and the statement font kept under a site print style. No patch, no schema change; migrate re-imports only the A4 print format; restart the workers; the site's Chrome PDF generator must work ([v4.4.3.md → Installation & Upgrade](v4.4.3.md#12-installation--upgrade--partially-verified)) |
@@ -76,6 +77,9 @@ need; every claim below is backed by the per-version pages (evidence links there
   workers. Rollback to v4.4.3: the old code runs on the data but the columns, tables, seeded rows and derived flags
   stay; amend other-party transports, handle move-day transports and set `diesel_unit_price` to the current price
   first ([v4.6.0.md → Rollback plan](v4.6.0.md#126-rollback-plan)).
+- `v4.6.0 → v4.7.0`: no patch, no schema change; restart the workers; run the read-only FR-127 tax template
+  check first. Rollback to v4.6.0 (`87c375d`) is code only but re-opens the cross-company gaps fixed by FR-129
+  ([v4.7.0.md → Rollback plan](v4.7.0.md#126-rollback-plan)).
 - Downgrades are not supported by patches; rollback = restore the pre-upgrade backup.
 
 ## Things the latest version still does not do (so you don't choose it for the wrong reason)
