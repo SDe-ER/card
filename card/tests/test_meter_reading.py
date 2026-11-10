@@ -220,6 +220,111 @@ class TestMeterReading(IntegrationTestCase):
 		locked = calls[calls.index(("lock", True)) + 1 :]
 		self.assertEqual(locked, [("values", True)] * 3)
 
+	# ---------- a cancel changes nothing else (FR-140 cancel integrity) ----------
+	def _stored(self, name):
+		return frappe.db.get_value(
+			DOCTYPE, name, ["docstatus", "engine_hours", "reading_datetime", "notes", "source"], as_dict=True
+		)
+
+	def _fresh_reading(self, label):
+		equipment = self._raw("Card Equipment", f"TEST-EMR-C{label}-" + self.token, company=self.A)
+		return self._reading(100, "2026-09-03 08:00:00", equipment=equipment)
+
+	def test_cancel_by_rest_put_or_bulk_cannot_change_the_reading(self):
+		"""REST PUT and bulk update apply the client's values to the document they cancel: the guard refuses."""
+		from frappe.api import v1
+		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		doc = self._fresh_reading("R")
+		before = self._stored(doc.name)
+		for data in (
+			{"docstatus": 2, "engine_hours": 999},
+			{"docstatus": 2, "reading_datetime": "2026-08-01 08:00:00"},
+			{"docstatus": 2, "notes": "rewritten at cancel"},
+		):
+			with self.subTest(route="rest", data=list(data)):
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json(data))
+				with self.assertRaises(CancelChangesDocumentError):
+					v1.update_doc(DOCTYPE, doc.name)
+				self.assertEqual(self._stored(doc.name), before)
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			failed = submit_cancel_or_update_docs(
+				DOCTYPE, [doc.name], "update", {"docstatus": 2, "engine_hours": 1}
+			)
+		self.assertEqual(failed, [doc.name])
+		self.assertEqual(self._stored(doc.name), before)
+		with self.assertRaises(CancelChangesDocumentError):
+			bulk = frappe.get_doc(DOCTYPE, doc.name)
+			bulk.update({"docstatus": 2, "engine_hours": 1})
+			bulk.save()  # what the bulk update does, without its commit and rollback
+		self.assertEqual(self._stored(doc.name), before)
+		# a plain cancel still works
+		frappe.get_doc(DOCTYPE, doc.name).cancel()
+		self.assertEqual(self._stored(doc.name), {**before, "docstatus": 2})
+
+	def test_cancel_cannot_change_owner_creation_or_a_tiny_amount(self):
+		from frappe.api import v1
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		supervisor = self._user(("Card Supervisor",))
+		for label, data in (
+			("owner and creation", {"owner": "Administrator", "creation": "2020-01-01 00:00:00"}),
+			("creation", {"creation": "2020-01-01 00:00:00"}),
+			("below 1e-6", {"engine_hours": 100.0000001}),
+		):
+			with self.subTest(change=label):
+				doc = self._fresh_reading(label[:2].upper())
+				before = frappe.db.get_value(
+					DOCTYPE, doc.name, ["docstatus", "owner", "creation", "engine_hours"], as_dict=True
+				)
+				frappe.set_user(supervisor)
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json({"docstatus": 2, **data}))
+				try:
+					with self.assertRaises(CancelChangesDocumentError):
+						v1.update_doc(DOCTYPE, doc.name)
+				finally:
+					frappe.set_user("Administrator")
+				self.assertEqual(
+					frappe.db.get_value(
+						DOCTYPE, doc.name, ["docstatus", "owner", "creation", "engine_hours"], as_dict=True
+					),
+					before,
+				)
+
+	def test_cancel_by_savedocs_cannot_change_the_reading(self):
+		"""savedocs Cancel either cancels the client's document (refused by the guard) or cancels the stored record
+		and ignores the client's values (Frappe 16.55): no stored field changes either way."""
+		from frappe.desk.form.save import savedocs
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		doc = self._fresh_reading("S")
+		before = self._stored(doc.name)
+		sent = frappe.get_doc(DOCTYPE, doc.name).as_dict()
+		sent["engine_hours"] = 5
+		try:
+			savedocs(frappe.as_json(sent), "Cancel")
+			refused = False
+		except CancelChangesDocumentError:
+			refused = True
+		self.assertEqual(self._stored(doc.name), {**before, "docstatus": 1 if refused else 2})
+
+	def test_amended_from_is_kept_on_a_save(self):
+		first = self._fresh_reading("A1")
+		first.cancel()
+		amended = frappe.copy_doc(frappe.get_doc(DOCTYPE, first.name))
+		amended.docstatus = 0
+		amended.amended_from = first.name
+		amended.insert()
+		frappe.client.set_value(DOCTYPE, amended.name, "amended_from", None)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, amended.name, "amended_from"), first.name)
+		plain = self._reading(120, "2026-09-05 08:00:00", submit=False)
+		frappe.client.set_value(DOCTYPE, plain.name, "amended_from", first.name)
+		self.assertFalse(frappe.db.get_value(DOCTYPE, plain.name, "amended_from"))
+
 	# ---------- cancel keeps the sequence ----------
 	def test_cancel_of_a_reset_that_a_later_reading_needs_refused(self):
 		"""100, 10 (reset), 20: cancelling the reset would leave 100 -> 20 without a reset."""
