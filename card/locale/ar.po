@@ -6303,3 +6303,11 @@ msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ ل�
 #: card/gl/integrity.py
 msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
 msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."
+
+#: card/company_scope.py
+msgid "A CARD record of type {0} cannot be shared with everyone."
+msgstr "لا يمكن مشاركة سجل CARD من نوع {0} مع الجميع."
+
+#: card/company_scope.py
+msgid "This CARD record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
+msgstr "سجل CARD هذا من نوع {0} يتبع الشركة {1} ولا يمكن مشاركته مع مستخدم من خارج هذه الشركة."

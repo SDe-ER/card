@@ -5064,3 +5064,11 @@ msgstr ""
 #: card/card/report/equipment_location_history/equipment_location_history.py
 msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
 msgstr ""
+
+#: card/company_scope.py
+msgid "A CARD record of type {0} cannot be shared with everyone."
+msgstr ""
+
+#: card/company_scope.py
+msgid "This CARD record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
+msgstr ""

@@ -15,6 +15,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **FR-131: generic company scope for the planned CARD DocTypes** (closure plan WP-HK; enabler for #31, #35, #41,
+  #44, #49, #52). Reason: the close-all packages add nine DocTypes, and each needs the company isolation of the
+  existing CARD hooks; registering it once keeps later packages out of `card/hooks.py`. New `card/company_scope.py`:
+  `has_company_permission` (record check: the company sent and stored, plus the company of each new or changed
+  top-level Link to Card Equipment or Project; for a DocType without a `company` field also the stored link),
+  `company_query_conditions` (list twin) and `deny_cross_company_share` (DocShare validate). `card/hooks.py` registers
+  them for Equipment Meter Reading, Card Daily Log, Card Rate Agreement, Card Period Run, Card Approval Delegation,
+  Diesel Dispense, Tank Dip Reading, Equipment Operating Group and Card Intake Record; the DocShare validate hook
+  becomes a list (the diesel fill check is kept first). PR: see the FR-131 registry row (branch
+  `feat/company-scope-hooks`).
+  - Permissions: deny-only; no role, DocPerm or User Permission change. Users without a company restriction and
+    every existing DocType are not affected (their own hooks are unchanged). Hooks of DocTypes that do not exist yet
+    are inert.
+  - Accounting, data, API: none (no field, patch, endpoint or GL change).
+  - Rollback limits: none; reverting the commit removes the hooks. A planned DocType merged after this change loses
+    its company isolation if this change is reverted.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
