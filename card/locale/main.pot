@@ -4541,7 +4541,7 @@ msgid "Diesel price schedule: company {0} has two prices valid from {1}."
 msgstr ""
 
 #: card/card/doctype/card_settings/card_settings.py
-msgid "Diesel price schedule row {0}: the price cannot be negative."
+msgid "Diesel price schedule row {0}: the price must be greater than zero."
 msgstr ""
 
 #: card/card/doctype/card_settings/card_settings.py
@@ -4553,7 +4553,7 @@ msgid "{0} submitted diesel fills of company {1} are dated on or after {2}. They
 msgstr ""
 
 #: card/card/doctype/card_settings/card_settings.py
-msgid "Company {0} has a Diesel price schedule: new fills take its prices. The diesel unit price is used only for fills dated before its first row."
+msgid "Company {0} has a Diesel price schedule: change its diesel price by adding a dated row to the schedule, not in the diesel unit price."
 msgstr ""
 
 #: card/card/doctype/card_settings/card_settings.js

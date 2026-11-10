@@ -32,7 +32,8 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Diesel unit price (per litre)",
-   "options": "currency"
+   "options": "currency",
+   "reqd": 1
   },
   {
    "fieldname": "currency",

@@ -73,8 +73,8 @@ class TestDieselPriceSchedule(IntegrationTestCase):
 		comp = frappe.new_doc("Company")
 		comp.company_name = "TEST-DPS-C-" + frappe.generate_hash(length=8)
 		comp.abbr = "DS" + frappe.generate_hash(length=4)
-		comp.default_currency = "SAR"
-		comp.country = "Saudi Arabia"
+		comp.default_currency = frappe.get_cached_value("Company", self.company, "default_currency")
+		comp.country = frappe.get_cached_value("Company", self.company, "country")
 		return comp.insert(ignore_permissions=True).name
 
 	def _new(self, date="2026-09-15", company=None, project=None, **extra):
@@ -176,6 +176,22 @@ class TestDieselPriceSchedule(IntegrationTestCase):
 		f.reload()
 		self.assertEqual((flt(f.unit_price), f.price_source), (2, "Company Price"))
 
+	def test_draft_moved_to_another_price_period_needs_review(self):
+		add_price(self.company, "2026-09-01", 3)
+		f = self._new(date="2026-08-20")  # before the first row: the diesel unit price 2
+		self.assertEqual((flt(f.unit_price), f.price_source), (2, "Company Price"))
+		f.date = "2026-08-25"  # same price on the new date
+		self._as(self.card_user, f.save)
+		f.reload()
+		self.assertEqual((flt(f.unit_price), f.price_source, flt(f.company_price)), (2, "Company Price", 2))
+		f.date = "2026-09-10"  # the schedule price 3 applies on the new date
+		self._as(self.card_user, f.save)
+		f.reload()
+		self.assertEqual((flt(f.unit_price), f.price_source, flt(f.company_price)), (2, "Needs Review", 3))
+		approve_fill(f)
+		with self.assertRaises(frappe.ValidationError):
+			f.submit()  # the mismatch is decided before submit
+
 	def test_backdated_row_lists_submitted_fills(self):
 		f = self._new(date="2026-09-15")
 		approve_fill(f)
@@ -196,10 +212,67 @@ class TestDieselPriceSchedule(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			settings._validate_diesel_price_schedule()
 
-	def test_negative_price_refused(self):
-		settings = self._settings_with((self.company, "2026-09-01", -1))
-		with self.assertRaises(frappe.ValidationError):
+	def test_zero_or_negative_price_refused(self):
+		for price in (-1, 0):
+			with self.subTest(price=price):
+				settings = self._settings_with((self.company, "2026-09-01", price))
+				with self.assertRaisesRegex(frappe.ValidationError, "greater than zero"):
+					settings._validate_diesel_price_schedule()
+		self.assertTrue(frappe.get_meta("Card Diesel Price").get_field("unit_price").reqd)
+
+	def test_unit_price_is_locked_while_a_schedule_exists(self):
+		add_price(self.company, "2026-09-01", 3)
+		settings = frappe.get_single("Card Settings")
+		settings._doc_before_save = frappe.get_single("Card Settings")
+		row = next(r for r in settings.company_settings if r.company == self.company)
+		row.diesel_unit_price = 2.5
+		with self.assertRaisesRegex(frappe.ValidationError, "adding a dated row"):
 			settings._validate_diesel_price_schedule()
+		row.diesel_unit_price = 2  # unchanged: allowed
+		settings._validate_diesel_price_schedule()
+		# without a schedule the price is edited as before
+		set_diesel_price(self.company, 2)
+		settings = frappe.get_single("Card Settings")
+		settings._doc_before_save = frappe.get_single("Card Settings")
+		next(r for r in settings.company_settings if r.company == self.company).diesel_unit_price = 2.5
+		settings._validate_diesel_price_schedule()
+
+	def test_restricted_accounts_manager_cannot_change_another_companys_rows(self):
+		other = self._company()
+		set_diesel_price(other, 5)
+		add_price(other, "2026-09-01", 6)
+		manager = _role_user("Accounts Manager")
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": manager,
+				"allow": "Company",
+				"for_value": self.company,
+				"apply_to_all_doctypes": 1,
+			}
+		).insert(ignore_permissions=True)
+		frappe.set_user(manager)
+		settings = frappe.get_doc("Card Settings")
+		next(r for r in settings.diesel_price_schedule if r.company == other).unit_price = 7
+		with self.assertRaisesRegex(frappe.PermissionError, "not permitted to change the Card settings"):
+			settings.save(ignore_permissions=True)  # the CARD scope check, without Frappe's link check
+		settings = frappe.get_doc("Card Settings")
+		settings.append(
+			"diesel_price_schedule", {"company": other, "valid_from": "2026-10-01", "unit_price": 8}
+		)
+		with self.assertRaisesRegex(frappe.PermissionError, "not permitted to change the Card settings"):
+			settings.save(ignore_permissions=True)
+		frappe.set_user("Administrator")
+		self.assertEqual([flt(r.unit_price) for r in self._schedule_rows(other)], [6])
+
+	def test_session_import_checks_the_session_date_price(self):
+		from card.diesel_import import _check_price
+
+		add_price(self.company, "2026-09-01", 3)
+		_check_price({"company": self.company, "date": "2026-09-10", "unit_price": 3})
+		with self.assertRaises(frappe.ValidationError):
+			_check_price({"company": self.company, "date": "2026-08-10", "unit_price": 3})
+		_check_price({"company": self.company, "date": "2026-08-10", "unit_price": 2})
 
 	def test_currency_defaults_to_company_currency(self):
 		settings = self._settings_with((self.company, "2026-09-01", 3))
@@ -275,7 +348,7 @@ class TestDieselPriceSchedule(IntegrationTestCase):
 		rows = self._schedule_rows(with_fills)
 		self.assertEqual(len(rows), 1)
 		self.assertEqual((getdate(rows[0].valid_from), flt(rows[0].unit_price)), (getdate("2026-08-03"), 1.8))
-		self.assertEqual(rows[0].currency, "SAR")
+		self.assertEqual(rows[0].currency, frappe.get_cached_value("Company", with_fills, "default_currency"))
 		rows = self._schedule_rows(without_fills)
 		self.assertEqual(
 			[(getdate(r.valid_from), flt(r.unit_price)) for r in rows], [(getdate(nowdate()), 1.9)]

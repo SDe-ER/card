@@ -805,9 +805,10 @@ class ProjectDieselFill(Document):
 		if before.price_source == COMPANY_PRICE:
 			# Owner 2026-10-20: a saved draft keeps the price it was created with; a later company price
 			# change only warns (new fills take the new price)
-			if self.company != before.company:
+			# FR-125: a new date may fall in another price period, so it is decided like a new company
+			if self.company != before.company or getdate(self.date) != getdate(before.date):
 				if price != company_price:
-					self._needs_review(company_price)  # its price belonged to the old company
+					self._needs_review(company_price)  # its price belonged to the old company or date
 				else:
 					self.price_source = COMPANY_PRICE
 				return

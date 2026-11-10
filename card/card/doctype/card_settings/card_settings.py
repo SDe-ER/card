@@ -49,7 +49,7 @@ class CardSettings(Document):
 		self._validate_diesel_price_schedule()
 
 	def _validate_diesel_price_schedule(self):
-		"""FR-125: one price per company and date, never negative, in the company's currency (a fill
+		"""FR-125: one price per company and date, above zero, in the company's currency (a fill
 		is priced in its company currency, so another currency is refused rather than converted).
 		A new or changed row dated on or before submitted fills never changes them: they keep their
 		saved price; the user is told how many there are."""
@@ -61,17 +61,13 @@ class CardSettings(Document):
 			r.company: flt(r.diesel_unit_price)
 			for r in (before.get("company_settings") if before else []) or []
 		}
-		for row in self.get("company_settings") or []:
-			if (
-				row.company in scheduled
-				and before
-				and flt(row.diesel_unit_price) != old_prices.get(row.company, 0)
-			):
-				frappe.msgprint(
+		for row in (self.get("company_settings") or []) if before else []:
+			# review M1: with a schedule the company's price changes only by a dated schedule row
+			if row.company in scheduled and flt(row.diesel_unit_price) != old_prices.get(row.company, 0):
+				frappe.throw(
 					_(
-						"Company {0} has a Diesel price schedule: new fills take its prices. The diesel unit price is used only for fills dated before its first row."
-					).format(row.company),
-					indicator="orange",
+						"Company {0} has a Diesel price schedule: change its diesel price by adding a dated row to the schedule, not in the diesel unit price."
+					).format(row.company)
 				)
 		for row in self.get("diesel_price_schedule") or []:
 			key = (row.company, str(getdate(row.valid_from)) if row.valid_from else None)
@@ -82,9 +78,9 @@ class CardSettings(Document):
 					)
 				)
 			seen.add(key)
-			if flt(row.unit_price) < 0:
+			if flt(row.unit_price) <= 0:
 				frappe.throw(
-					_("Diesel price schedule row {0}: the price cannot be negative.").format(row.idx)
+					_("Diesel price schedule row {0}: the price must be greater than zero.").format(row.idx)
 				)
 			company_currency = frappe.get_cached_value("Company", row.company, "default_currency")
 			if not row.currency:

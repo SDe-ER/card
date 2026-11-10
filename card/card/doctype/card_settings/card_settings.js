@@ -1,8 +1,10 @@
 // Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 // For license information, please see LICENSE
 // Owner 2026-10-20: the diesel price per litre shows on top of Diesel Settings as one clear value.
-// Its only source stays Card Company Settings.diesel_unit_price (one row per company); editing it
-// needs write on that field's permlevel, which the server enforces on save.
+// FR-125: it is the price of the company's Diesel price schedule row in force today, or, for a company
+// without a schedule, Card Company Settings.diesel_unit_price. With a schedule, diesel_unit_price is
+// read-only and a price change is a new dated row. Editing either needs write on permlevel 1; the
+// server enforces both on save.
 const CARD_ADVANCED_ROLES = [
 	"diesel_supplier_editor_role",
 	"diesel_price_exception_role",
@@ -42,7 +44,23 @@ function card_price_today(frm, row) {
 		: { price: flt(row.diesel_unit_price), valid_from: null };
 }
 
+// FR-125 (review M1): a company with schedule rows changes its price only by a schedule row
+function card_lock_unit_prices(frm) {
+	const grid = frm.get_field("company_settings") && frm.get_field("company_settings").grid;
+	if (!grid) return;
+	for (const row of frm.doc.company_settings || []) {
+		const grid_row = (grid.grid_rows_by_docname || {})[row.name];
+		if (grid_row) {
+			grid_row.toggle_editable(
+				"diesel_unit_price",
+				!card_schedule_rows(frm, row.company).length,
+			);
+		}
+	}
+}
+
 function card_render_diesel_price(frm) {
+	card_lock_unit_prices(frm);
 	const field = frm.get_field("diesel_price_html");
 	if (!field) return;
 	// the price is a permlevel-1 field: users who cannot read it do not get it from the server
@@ -197,9 +215,15 @@ frappe.ui.form.on("Card Company Settings", {
 	company_settings_remove(frm) {
 		card_render_diesel_price(frm);
 	},
+	form_render(frm) {
+		card_lock_unit_prices(frm);
+	},
 });
 
 frappe.ui.form.on("Card Diesel Price", {
+	company(frm) {
+		card_render_diesel_price(frm);
+	},
 	valid_from(frm) {
 		card_render_diesel_price(frm);
 	},
