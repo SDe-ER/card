@@ -177,8 +177,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   side/party/fingerprint per document, another month, company and run self-approval rules, the screen read and its
   permission, locking in the build and none in the preview; two connections: a source changed, a source added, a
   supplier registered, the VAT basis changed, a switch to FR-139 Post and a run cancelled while the gate runs);
-  `card/tests/test_bola_matrix.py` and `docs/governance/ROLE-ACTION-MATRIX.md` (one endpoint row). PR: see the
-  pull request of branch `feat/period-run-posting-gate`.
+  `card/tests/test_bola_matrix.py` and `docs/governance/ROLE-ACTION-MATRIX.md` (one endpoint row). PR #235.
   Impact: permissions — none (no role, DocPerm or permission change; the new fields sit at permlevel 1 like the
   rest of the company row). Accounting: with the setting off, none (the posting is unchanged); with it on, postings
   are refused until the run is approved and current; the invoices built are unchanged. Data: two new columns on
