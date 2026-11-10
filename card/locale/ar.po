@@ -6303,3 +6303,7 @@ msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ ل�
 #: card/gl/integrity.py
 msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
 msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price fuel type"
+msgstr "نوع الوقود لسعر الديزل"
