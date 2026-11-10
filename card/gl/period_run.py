@@ -55,7 +55,8 @@ created, edited or submitted the run or any run of its amendment chain is its pr
 source documents are not counted; open owner question). When a preparer approves, the run's
 ``self_approval_rule`` decides: "Warn only" (the default) approves with a message and marks the run
 ``self_approved``; "Refuse" refuses. The rule can be raised to Refuse at any time and never lowered, and an
-amendment keeps it. No role is exempt. Known limit: the rule is per run; WP-S2 (which owns Card Company Settings)
+amendment keeps it; a saved run keeps its stored ``amended_from`` (Frappe checks it on insert only). No role
+is exempt. Known limit: the rule is per run; WP-S2 (which owns Card Company Settings)
 applies the stricter of a per-company rule and the run's rule.
 
 Company isolation is the generic FR-131 scope (``card.company_scope``, registered for this DocType); the totals
@@ -643,9 +644,13 @@ def prepare_run(doc: Document) -> None:
 		stored = frappe.db.get_value(
 			DOCTYPE,
 			doc.name,
-			["submitted_by", "edited_by", "version", "company", "month", "year"],
+			["submitted_by", "edited_by", "version", "company", "month", "year", "amended_from"],
 			as_dict=True,
 		)
+	if stored:
+		# Frappe checks amended_from on insert only: a saved run keeps its stored chain (preparers, rule,
+		# version), whatever a client sends
+		doc.amended_from = stored.amended_from
 	if stored and (
 		stored.company != doc.company or stored.month != doc.month or cint(stored.year) != doc.year
 	):

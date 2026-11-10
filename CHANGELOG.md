@@ -54,7 +54,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `_has_any_role`): creator, submitter and every editor of the run and of every run of its amendment chain are
   preparers; the run's `self_approval_rule` "Warn only (period run)" (default: approve, message, `self_approved`)
   / "Refuse (period run)" (refuse; no role exempt) can be raised to Refuse at any time, never lowered, and an
-  amendment keeps it. Nothing calls the run from posting yet (WP-S2 adds the opt-in requirement before
+  amendment keeps it; a saved run keeps its stored `amended_from` on every later save (Frappe checks it on insert
+  only), so a client cannot drop the chain's preparers, rule or version. Nothing calls the run from posting yet (WP-S2 adds the opt-in requirement before
   `post_month`). Affected functions: new `card/gl/period_run.py` (`build_snapshot`, `document_fingerprint`,
   `check_current`, `prepare_run`, `record_submitter`, `check_transition`, `check_cancel`, `run_preparers`,
   `active_run`, `approved_run`, `run_state`; endpoints `build_run` (POST) and `period_run_status` (GET, read
@@ -62,7 +63,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `card_period_run.js` (current/stale banner, Approve / Return buttons); `card/company_scope.py`
   `COMPANY_SOURCES` + "Card Period Run" (its `amended_from`). Reads, without changing, `card.gl.posting`
   (`_customer_transports`, `_unheld_batch`, `_TRANSPORT_SOURCE_FIELDS`), `card.gl.preflight` and
-  `card.transport_costs`. Tests: `card/tests/test_period_run.py` (43, including a mixed month whose totals per
+  `card.transport_costs`. Tests: `card/tests/test_period_run.py` (44, including a mixed month whose totals per
   side equal the posting preview's sources, and a two-connection concurrency test); two rows in
   `card/tests/test_bola_matrix.py`; `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (two DocType rows, two
   endpoint rows). PR #222.

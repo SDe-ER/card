@@ -609,6 +609,55 @@ class TestPeriodRun(_CustomerCardsBase):
 			self._set_status(second, period_run.APPROVED, admin)
 		self.assertEqual(self._set_status(second, period_run.APPROVED, self.accountant).self_approved, 0)
 
+	def test_a_draft_amendment_keeps_its_chain(self):
+		"""Frappe checks amended_from on insert only: a client that clears it on a later save (frappe.client.save
+		or set_value) must not drop the earlier versions' preparers or rule."""
+		from frappe.client import save as rest_save
+
+		admin = self._user("sys", ("System Manager",))
+		first = self._build(user=admin)
+		self._as(
+			admin,
+			lambda: (
+				frappe.get_doc(RUN, first.name)
+				.update({"self_approval_rule": period_run.RULE_REFUSE})
+				.submit()
+			),
+		)
+		self._cancel(first, user=self.preparer)
+		second = self._amend(first, user=self.preparer2)
+		doc = frappe.get_doc(RUN, second.name).as_dict()
+		doc.update({"amended_from": None, "self_approval_rule": period_run.RULE_WARN, "version": 1})
+		self._as(self.preparer2, rest_save, frappe.as_json(doc))
+		self._as(self.preparer2, rest_set_value, RUN, second.name, "amended_from", None)
+		self._as(self.preparer2, rest_set_value, RUN, second.name, {"company": self.company, "month": MONTH})
+		stored = self._stored(
+			second.name, "amended_from", "self_approval_rule", "version", "company", "month"
+		)
+		self.assertEqual(
+			stored,
+			{
+				"amended_from": first.name,
+				"self_approval_rule": period_run.RULE_REFUSE,
+				"version": 2,
+				"company": self.company,
+				"month": MONTH,
+			},
+		)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(self.preparer2, rest_set_value, RUN, second.name, "month", "08")
+		self._as(self.preparer2, lambda: frappe.get_doc(RUN, second.name).submit())
+		# the creator of version 1 is still a preparer of version 2: refused under Refuse
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(second, period_run.APPROVED, admin)
+		# after submit the link cannot change at all (not allow on submit)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(self.accountant, rest_set_value, RUN, second.name, "amended_from", None)
+		self.assertEqual(self._stored(second.name, "amended_from").amended_from, first.name)
+		# the one-active-run guard still sees the month: no second run can start
+		with self.assertRaises(frappe.DuplicateEntryError):
+			self._build()
+
 	# ---------- forged approval fields, every route ----------
 	def test_rest_insert_with_docstatus_1_stays_pending(self):
 		data = {
