@@ -19,6 +19,7 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
+   "permlevel": 1,
    "reqd": 1
   },
   {
@@ -26,13 +27,15 @@
    "fieldname": "fuel_type",
    "fieldtype": "Select",
    "label": "Diesel price fuel type",
-   "options": "Diesel"
+   "options": "Diesel",
+   "permlevel": 1
   },
   {
    "fieldname": "valid_from",
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Diesel price valid from",
+   "permlevel": 1,
    "reqd": 1
   },
   {
@@ -41,6 +44,7 @@
    "in_list_view": 1,
    "label": "Diesel unit price (per litre)",
    "options": "currency",
+   "permlevel": 1,
    "reqd": 1
   },
   {
@@ -48,20 +52,22 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Diesel price currency",
-   "options": "Currency"
+   "options": "Currency",
+   "permlevel": 1
   },
   {
    "fieldname": "uom",
    "fieldtype": "Link",
    "label": "Diesel price unit of measure",
-   "options": "UOM"
+   "options": "UOM",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 18:00:00.000000",
+ "modified": "2026-11-10 21:14:48.148000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Diesel Price",
