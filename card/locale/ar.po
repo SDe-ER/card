@@ -6243,6 +6243,51 @@ msgstr "لا يمكن أن يكون المبلغ المتفق عليه (ليس �
 msgid "Billable stopped days"
 msgstr "أيام التوقف المحتسبة إيجارًا"
 
+#. Name of a report
+#: card/card/report/equipment_location_history/equipment_location_history.json
+msgid "Equipment Location History"
+msgstr "سجل مواقع المعدات"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "You are not permitted to read {0}, which the location history needs."
+msgstr "ليست لديك صلاحية قراءة {0}، وهي لازمة لسجل المواقع."
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Select the period of the location history."
+msgstr "حدد فترة سجل المواقع."
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Equipment {0} does not belong to company {1}."
+msgstr "المعدة {0} لا تتبع الشركة {1}."
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
+msgid "Initial place"
+msgstr "المكان الابتدائي"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
+msgid "Location type"
+msgstr "نوع الموقع"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
+msgid "Source type"
+msgstr "نوع المستند المصدر"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
+msgid "Source document"
+msgstr "المستند المصدر"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Overlapping projects"
+msgstr "مشاريع متداخلة"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
+msgstr "بعض المعدات على مشروعين في نفس الأيام (تخصيصات متداخلة)؛ راجع الصفوف المعلّمة بالتداخل."
+
 #: card/gl/masters.py
 msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
 msgstr "قالبا ضريبة المشتريات والمبيعات للشركة {0} يحملان نسبتي ضريبة قيمة مضافة مختلفتين ({1})؛ يرحّل CARD نسبة ضريبة قياسية واحدة لكل شركة. وحّد القالبين قبل الترحيل."
