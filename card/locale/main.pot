@@ -5930,3 +5930,71 @@ msgstr ""
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Day billing basis used"
 msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Give the month as YYYY-MM or as a date of that month."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Company or project not found."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to create monthly cards for company {0} and project {1}."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read daily logs."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read equipment {0}."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generate monthly cards"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Create or update the draft monthly cards of project {0} for the month of {1} from the approved daily logs? Submitted cards are not changed."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generating monthly cards"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "not on the project that day"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "component of a unit that day"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards created"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards updated"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards unchanged"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted cards not changed"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days left out"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards not saved"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Monthly cards from daily logs"
+msgstr ""
