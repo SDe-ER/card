@@ -31,7 +31,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     (refused). Only status منتهية (Ended) stops new use; متوقفة (Stopped) and في الصيانة (Under Maintenance) stay
     allowed. Never stopped: a return to the supplier (end of a rental), a move of an owned machine to storage or a
     workshop (how it is retired), and a monthly card whose period starts on or before the equipment's exit date
-    (else its rental end), so the final partial month is carded; without an end date every new card is checked.
+    (else its rental end once it has passed; a contract end still ahead gives no allowance), so the final
+    partial month is carded; without such a date every new card is checked.
     The assignment a transport creates is not checked again (`card_from_transport` flag in `card/transfer.py`).
     Project Diesel Fill is not guarded in this change.
   - **Impact:** permissions — none (the setting is level 1 like the other company fields). Accounting — none.

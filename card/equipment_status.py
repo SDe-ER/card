@@ -7,11 +7,11 @@ also when the company has no row or the value is empty) shows a message and save
 Only new records, or a record whose equipment changes, are checked, and a transport again on
 submit; existing records are never changed. Exempt: a transport to the supplier, a move of an
 owned machine to storage or a workshop (how it is retired), and a monthly card whose period starts
-on or before the equipment's exit date (else rental end)."""
+on or before the equipment's exit date (else its rental end, once passed)."""
 
 import frappe
 from frappe import _
-from frappe.utils import getdate
+from frappe.utils import getdate, nowdate
 
 from card.constants import EQUIPMENT_STATUS_ENDED, STATUS_RULE_ENFORCE, STATUS_RULE_WARN
 from card.settings import company_setting
@@ -35,11 +35,21 @@ def _messages():
 	}
 
 
+def _last_work_day(eq):
+	"""The exit date when set; else the rental end, only once it has passed (a contract end years
+	ahead is no exit); else None (no final-month allowance)."""
+	if eq.exit_date:
+		return getdate(eq.exit_date)
+	if eq.rental_end_date and getdate(eq.rental_end_date) <= getdate(nowdate()):
+		return getdate(eq.rental_end_date)
+	return None
+
+
 def check_equipment_status(equipment, use, company=None, period_start=None):
 	"""Warn or refuse a new `use` ("assignment", "transport" or "monthly card") of an equipment
 	whose status stops new use. The equipment's own company decides the rule when no company is
 	given. With `period_start` (a monthly card), a period that starts on or before the equipment's
-	exit date (else its rental end) is its last work, not a new use: never stopped."""
+	exit date (else its rental end, once passed) is its last work, not a new use: never stopped."""
 	if not equipment:
 		return
 	eq = frappe.db.get_value(
@@ -47,8 +57,7 @@ def check_equipment_status(equipment, use, company=None, period_start=None):
 	)
 	if not eq or eq.status not in BLOCKED_STATUSES:
 		return
-	end = eq.exit_date or eq.rental_end_date
-	if period_start and end and getdate(period_start) <= getdate(end):
+	if period_start and (end := _last_work_day(eq)) and getdate(period_start) <= end:
 		return
 	company = company or eq.company
 	message = _messages()[use].format(equipment, _(eq.status))

@@ -9,7 +9,7 @@ records are never changed. Data is per test and rolled back."""
 
 import frappe
 from frappe.tests import IntegrationTestCase
-from frappe.utils import add_days
+from frappe.utils import add_days, nowdate
 
 from card.constants import EQUIPMENT_STATUS_ENDED, STATUS_RULE_ENFORCE, STATUS_RULE_WARN
 from card.equipment_status import BLOCKED_STATUSES, check_equipment_status, status_rule
@@ -166,6 +166,48 @@ class TestEquipmentStatusGuard(IntegrationTestCase):
 			lambda: self._card(eq2, proj2, [3]).insert(ignore_permissions=True), "no new monthly card"
 		)
 
+	def test_without_an_exit_date_only_a_passed_rental_end_allows_the_final_month(self):
+		self._rule(STATUS_RULE_ENFORCE)
+		# rental end inside the card month and already passed: the final partial month is allowed
+		eq, proj = self._on_project("RPAST")
+		frappe.db.set_value("Card Equipment", eq, {"exit_date": None, "rental_end_date": self._d(15)})
+		self._clear_messages()
+		self._card(eq, proj, [3]).insert(ignore_permissions=True)
+		self.assertFalse(self._warned("has status"))
+		# rental end still ahead (a contract end, not an exit): no allowance, refused
+		eq2, proj2 = self._on_project("RFUT")
+		frappe.db.set_value(
+			"Card Equipment", eq2, {"exit_date": None, "rental_end_date": add_days(nowdate(), 365)}
+		)
+		self._refused(
+			lambda: self._card(eq2, proj2, [3]).insert(ignore_permissions=True), "no new monthly card"
+		)
+
+	def test_the_exit_date_wins_over_the_rental_end(self):
+		self._rule(STATUS_RULE_ENFORCE)
+		# exit before the card month, rental end far ahead: refused (the exit date decides)
+		eq, proj = self._on_project("EXWIN")
+		frappe.db.set_value(
+			"Card Equipment",
+			eq,
+			{"exit_date": add_days(self._d(1), -1), "rental_end_date": add_days(nowdate(), 365)},
+		)
+		self._refused(
+			lambda: self._card(eq, proj, [3]).insert(ignore_permissions=True), "no new monthly card"
+		)
+
+	def test_a_card_of_another_company_fails_on_the_company_not_the_status(self):
+		self._rule(STATUS_RULE_ENFORCE)
+		eq, proj = self._on_project("CO")
+		card = self._card(eq, proj, [3])
+		card.company = self._other_company()
+		frappe.db.savepoint("card_refused")
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			card.insert(ignore_permissions=True)
+		frappe.db.rollback(save_point="card_refused")
+		self.assertIn("does not match the equipment's company", str(ctx.exception))
+		self.assertNotIn("has status", str(ctx.exception))
+
 	def test_enforce_allows_active_stopped_and_maintenance_equipment(self):
 		self._rule(STATUS_RULE_ENFORCE)
 		for status in ("نشطة", "متوقفة", "في الصيانة"):
@@ -259,6 +301,14 @@ class TestEquipmentStatusGuard(IntegrationTestCase):
 				t = self._draft(eq, destination)
 				t.submit()
 				self.assertFalse(self._warned("has status"))
+
+	def test_a_rented_machine_moved_to_storage_or_a_workshop_is_refused(self):
+		# only an owned machine is retired through storage or a workshop; a rented one returns to its supplier
+		self._rule(STATUS_RULE_ENFORCE)
+		for destination in ("Storage", "Workshop"):
+			with self.subTest(destination=destination):
+				eq, _proj = self._on_project("R" + destination[:3], rented=True)
+				self._refused(lambda eq=eq, d=destination: self._draft(eq, d), "no new transport")
 
 	def test_a_row_added_to_an_existing_draft_is_checked(self):
 		active = self._equipment().name
