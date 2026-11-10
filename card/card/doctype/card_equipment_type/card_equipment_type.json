@@ -62,7 +62,7 @@
    "fieldname": "default_consumption_rates",
    "fieldtype": "Table",
    "label": "Type default consumption rates (litres per hour)",
-   "options": "Card Consumption Rate"
+   "options": "Card Type Consumption Rate"
   }
  ],
  "grid_page_length": 50,

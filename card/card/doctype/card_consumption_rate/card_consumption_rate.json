@@ -15,7 +15,8 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Consumption rate valid from",
-   "reqd": 1
+   "reqd": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "litres_per_hour",
@@ -23,13 +24,15 @@
    "in_list_view": 1,
    "label": "Consumption rate (litres per hour)",
    "non_negative": 1,
-   "reqd": 1
+   "reqd": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "reason",
    "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Consumption rate reason"
+   "label": "Consumption rate reason",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,

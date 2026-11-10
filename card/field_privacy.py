@@ -17,8 +17,6 @@ from frappe.utils import cint
 HISTORY_LEVEL = 1  # Versions reach level-0 readers: every field above level 0 is masked there
 MASKED = "•••"
 PRIVATE_DOCTYPES = ("Card Equipment",)
-# FR-144: rows of these child DocTypes are masked whole when their table is above level 0
-WHOLE_ROW_DOCTYPES = ("Card Consumption Rate",)
 
 
 def restricted_fields(doctype, level=HISTORY_LEVEL):
@@ -32,7 +30,7 @@ def mask_restricted_version(doc, method=None):
 		return
 	meta = frappe.get_meta(doc.ref_doctype)
 	restricted = restricted_fields(doc.ref_doctype)
-	child = {df.fieldname: _restricted_row_fields(df) for df in meta.get_table_fields()}
+	child = {df.fieldname: restricted_fields(df.options) for df in meta.get_table_fields()}
 	data = json.loads(doc.data)
 	masked = _mask_changes(data.get("changed"), restricted)
 	for table, row in (data.get("added") or []) + (data.get("removed") or []):
@@ -45,14 +43,6 @@ def mask_restricted_version(doc, method=None):
 			masked = _mask_changes(entry[3], child.get(entry[0], ())) or masked
 	if masked:
 		doc.data = frappe.as_json(data, indent=None, separators=(",", ":"))
-
-
-def _restricted_row_fields(table_field):
-	"""The row fields of a table masked in the change history: those above level 0 and, for the FR-144
-	consumption rates, every field when the table itself is above level 0 (a level-0 reader cannot open it)."""
-	if cint(table_field.permlevel) >= HISTORY_LEVEL and table_field.options in WHOLE_ROW_DOCTYPES:
-		return {df.fieldname for df in frappe.get_meta(table_field.options).fields}
-	return restricted_fields(table_field.options)
 
 
 def _mask_changes(changes, restricted):
