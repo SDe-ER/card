@@ -50,6 +50,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (a merge rename's `before_rename` writes before Frappe's rename check; the refusal rolls it back). PR #203. Affected (this entry): tests and documentation only;
   the production fix and its impact are under Security. Rollback: revert the commits (no data or schema involved).
 
+### Documentation
+- **Architecture pack** (`docs/architecture/`; #40, #54; PR #202). Reason: the epics ask for a domain map, state transitions,
+  source-of-truth matrix, localization matrix, accounting examples, risk register, international test matrix and
+  roadmap before any new design is coded. Eight files plus an index, read from the code on `main` @ `8ededce`
+  (DocType JSON, controllers, `hooks.py`, `card/gl/`, patches); anything not implemented is marked Planned with its
+  issue. The permission matrix is not repeated: it links to `docs/governance/ROLE-ACTION-MATRIX.md`. Documentation
+  only: no change to code, permissions, accounting, data or the API. Rollback: revert the commit.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
