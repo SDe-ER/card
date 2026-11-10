@@ -6150,3 +6150,7 @@ msgstr ""
 #: card/intake.py
 msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
 msgstr ""
+
+#: card/cancel_reason.py
+msgid "{0} {1} cannot be cancelled with changes: {2} differs from the stored record."
+msgstr ""
