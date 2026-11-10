@@ -234,7 +234,8 @@ class TestReasonCompanyAndParty(_StopBase):
 		card = self._stop_card(
 			self._equipment(),
 			[
-				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "responsible_party": self.customer},
+				# no type given: the reason's default type is taken (the form picks the record)
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name},
 				{"day_status": BREAKDOWN, "responsible_party_type": "Company"},
 				{
 					"day_status": BREAKDOWN,
@@ -242,14 +243,22 @@ class TestReasonCompanyAndParty(_StopBase):
 					"responsible_party_name": "Road closure",
 				},
 				{"day_status": LEAVE, "responsible_party_name": "dropped"},
+				{
+					"day_status": CLIENT_STOP,
+					"stop_reason": reason.name,
+					"responsible_party_type": "Customer",
+					"responsible_party": self.customer,
+					"responsible_party_name": "dropped",
+				},
 			],
 		)
 		self.assertEqual(card.days[0].responsible_party_type, "Customer")  # the reason's default
-		self.assertEqual(card.days[0].responsible_party, self.customer)
 		self.assertEqual(card.days[1].responsible_party, self.company)  # the card's company
 		self.assertEqual(card.days[2].responsible_party_name, "Road closure")
 		self.assertFalse(card.days[2].responsible_party)
 		self.assertFalse(card.days[3].responsible_party_name)
+		self.assertEqual(card.days[4].responsible_party, self.customer)
+		self.assertFalse(card.days[4].responsible_party_name)
 		with self.assertRaises(frappe.ValidationError):
 			self._stop_card(
 				self._equipment(),
@@ -346,7 +355,13 @@ class TestDowntimeReport(_StopBase):
 			[
 				{"working_hours": 8},
 				{"day_status": BREAKDOWN},  # older style: no reason
-				{"working_hours": 6, "stop_reason": billable.name, "stopped_hours": 2},
+				{
+					"working_hours": 6,
+					"stop_reason": billable.name,
+					"stopped_hours": 2,
+					"responsible_party_type": "Customer",
+					"responsible_party": self.customer,
+				},
 				{"day_status": BREAKDOWN, "stop_reason": plain.name, "stopped_hours": 10},
 			],
 			submit=True,
