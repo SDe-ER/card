@@ -49,6 +49,31 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   in `card/transfer.py`, `employee_tool_custody.py`, `card/api.py` `_sync_registry_row` and `card/party_registry.py`
   (a merge rename's `before_rename` writes before Frappe's rename check; the refusal rolls it back). PR #203. Affected (this entry): tests and documentation only;
   the production fix and its impact are under Security. Rollback: revert the commits (no data or schema involved).
+- **Equipment Location History report** (FR-130, #53, #127). Reason: the owner needs to see where each equipment was on
+  each period, not only today. New read-only Script Report `Equipment Location History` (roles as the equipment statements and
+  Equipment Downtime: System Manager, Card Manager, Card User, Accounts Manager): for one company, an optional equipment and a
+  date range, one row per date-aware segment with equipment, from date, to date, location type (Project / Workshop / Storage /
+  Supplier / Initial place), location (project title, the transport's place, the equipment supplier of a return to the supplier,
+  or the initial place), project, an "Overlapping projects" mark and the source document (Dynamic Link). Segments use the rules
+  CARD already applies, from `card.transfer`: a project while a Card Equipment Assignment is in force (`_in_force`), with the
+  transport that opened it as source; the assignment dates are those the transport wrote, so the move-day rule recorded on each
+  transport (FR-117) is respected and a later change of the company setting does not rewrite history; otherwise the place of
+  the last submitted transport on or before the day (as `current_location` does for today); otherwise the company's initial
+  place (FR-116, empty when not set). A move to a workshop, storage or supplier on day T shows the project on T and the new
+  place from T+1. A unit counts its own assignments and transports on every day and a component's only on the days the
+  component is in the unit (`_in_unit_on`); every day is decided from the full history, so a row does not depend on the date
+  range, which only clips it (`month_assignments`, used by cards, is unchanged). Two projects in force on the same days get one
+  row each, marked, with a report message. Reads are batched: one assignment query, one component query, and per machine only
+  its last transport before the range plus those inside it. Company isolation on the server (`resolve_company`; an equipment
+  of another company is refused with PermissionError; transports and components of another company are not read); the user's
+  roles must read Card Equipment, Card Equipment Assignment and Equipment Transport before anything is read. Added to the CARD
+  Reports sidebar. PR #201. Affected: new `card/location_history.py` (`submitted_moves`, `company_segments`, `_History`),
+  `card/card/report/equipment_location_history/`, `card/card/sidebar/card_reports/card_reports.json`, locale (the generic
+  labels under `msgctxt "Card"`), `card/tests/test_location_history.py`, `card/tests/test_report_access.py`. Impact: permissions
+  none (no role widened, no `ignore_permissions`); accounting none (no GL, no document created); data none (read only, no
+  patch); API none (no whitelisted method). Known limit: the initial place covers the period before the first move whatever
+  the equipment's creation date. Rollback limits: reverting removes the report; the Report and Sidebar records stay on a
+  migrated site until removed by hand.
 
 ### Documentation
 - **Architecture pack** (`docs/architecture/`; #40, #54; PR #202). Reason: the epics ask for a domain map, state transitions,
