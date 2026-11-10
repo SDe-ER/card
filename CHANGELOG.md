@@ -16,6 +16,56 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
+  plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
+  operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
+  per-equipment hourly consumption baseline; #47 for each machine's own L/h. Until now only the static Card Equipment
+  `expected_consumption` existed. Two new child DocTypes with `valid_from` (required), `litres_per_hour` (required,
+  zero or more) and `reason`: **Card Consumption Rate** = Card Equipment `consumption_rates` (the equipment's own
+  rates; the table and every row field at permlevel 1, the level of the static field, so Frappe applies the
+  equipment's level-1 rights to the field values on every path: form, `frappe.client.get` / `get_list` / `get_value`,
+  report view fields and filters, change history. Known limit (Frappe v16, tracked as FR-148): filters and
+  `order_by` on `litres_per_hour` in `frappe.client.get_list` / `get_value` of the child DocType itself
+  (`parent="Card Equipment"`) are not permission-checked by Frappe for a child DocType without its own permissions,
+  so a level-0 reader can still infer a rate by filtering, without reading it (documented by
+  `test_known_limit_child_list_filter_reveals_rate`); System Manager and Card Manager write, Card User and Accounts Manager read, Card
+  Supervisor (level 0) and Card Operator / CARD Mobile (no read on the equipment) see no rate, O-20); **Card Type
+  Consumption Rate** = Card Equipment Type `default_consumption_rates` (the type default; level-0 fields because the
+  type has no level-1 DocPerms; optional `company`: a row for one company or, empty, for every company; the type now
+  tracks changes). Who changes type rates: only Card Manager and System Manager (checked in
+  `CardEquipmentType.validate` through `card.consumption.validate_type_rate_changes`; Card User keeps writing the
+  other type fields; no DocPerm added); a company-restricted user only rows of a permitted company (a row with no
+  company applies to every company, so only an unrestricted user adds, changes or removes it). The row's `company`
+  Link has `ignore_user_permissions` = 1: without it, Frappe's User Permission check on child link values
+  (`Document.check_permission`) would lock a company-A user out of reading or saving the whole type as soon as it
+  has a company-B row; write access stays enforced by `validate_type_rate_changes`, and other companies' type rows
+  stay readable to type readers (rates, not amounts; known limit).
+  A row is valid from its date until the next row of the same table (and company) — no end date; two rows of one
+  table (and company) on the same date are refused. A row dated before today is final: its date, rate, reason and
+  company cannot change and it cannot be removed; a correction is a new row, and a new backdated row needs a reason
+  (`validate_past_rows`; a new table, so no existing behaviour changes). New read-only helper
+  `card.consumption.consumption_rate(equipment, on_date)` / `consumption_rate_details` (source and valid_from): the
+  equipment's row valid on the date → "Daily standard" `daily_diesel_consumption / daily_hours` when both are set (the
+  basis Equipment Diesel Analysis uses first, so the helper equals that report for every equipment) → the static
+  `expected_consumption` (0 = not set) → the type row for the equipment's company → the type row with no company →
+  None; not whitelisted, no REST endpoint. Known limit: the type step reads the equipment's current type, also for
+  past dates. The static field stays (read-only on the form once dated rows exist; a change after that only shows a
+  warning). The change history masks the equipment rate rows through the existing `card.field_privacy` rule (row
+  fields above level 0), as for every other level-1 equipment value: Versions keep who and when, not the values;
+  `card.field_privacy` is unchanged. Patch `card.patches.v4_8_0.seed_consumption_rates`: each equipment with a static
+  value above 0, no daily standard basis and no rate row gets one row with that value valid from 2000-01-01
+  (inserted on its own: no save, no new modified time); idempotent (an equipment with rows is skipped). Affected: new
+  `card/consumption.py`, new `card/card/doctype/card_consumption_rate/*` and `card_type_consumption_rate/*`,
+  `card_equipment.json/.py`, `card_equipment_type.json/.py`, `card/patches.txt`, locale,
+  `docs/governance/ROLE-ACTION-MATRIX.md`. Tests: `card/tests/test_consumption_rate.py`. PR: #223. Impact:
+  permissions none added (rows follow the parents' DocPerms and Company User Permissions; type rate writes narrowed
+  to Card Manager / System Manager on a new table); accounting none (no GL, no posting reads the rate); data: one
+  seeded row per equipment with only a static rate, consumption_rate() returns the same value as before on every
+  date; API: none (no new whitelisted method). No existing caller is switched: Equipment Diesel Analysis is
+  unchanged. Rollback limits: a code rollback leaves the two new tables and the seeded rows in the database (unused
+  by the older code); the static fields are unchanged, so the older behaviour returns as it was. The
+  `ignore_user_permissions` property lives in the DocType JSON and is removed with the code; with an older FR-144
+  build a company-restricted user would again be locked out of a type that has rows of another company.
 - **FR-147 — Card Period Run: versioned monthly period run with accountant approval (#49; closure plan WP-S1).**
   Reason: #49 asks for "source records → approved period run → draft billing documents → accountant approval",
   with the approval tied to the run version so that a source edited after the approval needs a new run and a new
@@ -688,6 +738,89 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Deploy preconditions: on Production `frappe.get_hooks("override_whitelisted_methods")` for both keys lists the
   DAWM entry, then the CARD entry; no Webhook, Notification or Server Script exists on Card Settings.
   Rollback: revert the commits; no data to restore.
+- **Child-table rows follow the level of their table; the Card Settings timeline follows the reader's level
+  (FR-148, SEC-1). PR #227.** Reason: Frappe 16 checks the fields of a child row against the child DocType's own
+  `permlevel` on the child list routes (`frappe.client.get_list` / `get_value` with `parent=`,
+  `frappe.desk.reportview` with a `` `tab<Child>`.`field` `` column or a child-field filter). It does not apply the
+  level of the parent's Table field there; the form and `frappe.client.get` do. Four CARD tables above level 0 had
+  child DocTypes whose fields were all at level 0. What leaked, with the DocPerms of the code:
+  **Card Equipment `components`** (level 1; Card Equipment Component: component, role, from/to date, change reason)
+  to **Card Supervisor** (level 0 only), through all three routes, the report-view filter and the form's change
+  history; **Card Settings `diesel_price_schedule`** (level 1; Card Diesel Price: company, fuel type, valid from,
+  unit price, currency, unit) to **Card Manager** (levels 0 and 2), through `get_list` / `get_value` and the Card
+  Settings change history (`getdoc` / `get_docinfo` returned the Version rows with the full diesel rows).
+  **Card Settings `project_transport_prices`** and **`location_cost_centers`** (level 2) had the same gap, but no
+  role of the code reads Card Settings at level 0 without level 2. Card Operator, Card User (Card Settings),
+  Card Reviewer and Accounts User have no read on these parents.
+  Fix 1 (schema): every field of Card Equipment Component and Card Diesel Price is at level 1, every field of Card
+  Project Transport Price and Card Location Cost Center at level 2, the level of their only table (no child DocType
+  is shared by tables at different levels); no role, DocPerm, hook or data change.
+  Fix 2 (Card Settings timeline): new `mask_docinfo_versions_by_level()` in
+  `card/card/doctype/card_settings/card_settings.py`, run by the existing FR-133 overrides `getdoc` /
+  `get_docinfo` and by the reply to a form save (`apply_fieldlevel_read_permissions`; only a role with write on
+  Card Settings saves it: Card Manager's DocPerms there are read-only, levels 0 and 2), after the FR-133 company
+  filter: per
+  reader, the values of every Card Settings field and child row at a level he cannot read are replaced by the
+  `card/field_privacy.py` mask in `changed`, `added`, `removed` and `row_changed`; who changed what and when stays.
+  Both this mask and the FR-133 company filter (`_scoped_version_data`) read the Version data through
+  `_version_changes`, which rebuilds it in Frappe's own shape only (`changed` [field, old, new], `added` / `removed`
+  [table, row], `row_changed` [table, idx, row name, changes], and Frappe's `data_import`, `updater_reference`,
+  `impersonated_by`, `audit_user`, `creation`, `created_by`): extra elements and unknown keys are dropped, and so is
+  any entry whose table, field, company or row name is not a string or whose value is not a plain value; data that
+  is not a JSON object is shown empty; it never raises.
+  The Versions are stored unmasked, so a reader of the level (Accounts Manager) sees the real values; Card Settings
+  is not added to the write-time `PRIVATE_DOCTYPES` (the owner's 2026-10-31 rule is unchanged).
+  Affected: the four child DocType JSONs; `card_settings.py` (`getdoc`, `get_docinfo`,
+  `apply_fieldlevel_read_permissions`, `_scoped_version_data`, new `_hidden_settings_fields`,
+  `mask_docinfo_versions_by_level`, `_masked_version_data`); new `card/tests/test_child_permlevel_leak.py` (guard driven by an enumeration of every
+  CARD DocType and by the installed meta; shared-child check; role probes for every CARD role, Accounts Manager,
+  Accounts User and a test-only level-0 role on the three routes, the report-view filter and the form; report view
+  for permitted readers; server reads; component history; Card Settings timeline masked for Card Manager and for a
+  level-0 reader, real values for Accounts Manager, stored Version unmasked, a removed row, the form-save reply,
+  malformed Versions; prints; a writer without the level (a test-only level-0 role) cannot overwrite or empty the
+  rows of Card Equipment or Card Settings through `savedocs` or `frappe.client.save`); `card/tests/test_equipment_g2.py`
+  (the #59 Version check now expects the masked component row).
+  Impact on permissions: level-0-only readers lose the plain field values on the routes listed under "Closed";
+  readers of the table's level keep the form, the print, report view (child columns and filters) and every server
+  path (`frappe.get_all` / `frappe.db`, used by the posting, transport price, diesel price, component and location
+  history code). Two Frappe 16 behaviours to know: (1) `frappe.client.get_list` / `get_value` on a child DocType
+  return no field above level 0 to anyone, readers of the level included (`frappe/desk/reportview.py`
+  `validate_fields`); no CARD Desk script, report, print or CARD Mobile screen reads these rows that way (Card
+  Company Settings has behaved so since v1.2.2). (2) The change history of Card Equipment masks every field above
+  level 0 for every reader (`card/field_privacy.py`, owner decision 2026-10-31): component row changes in new
+  Versions keep who and when, not the values.
+  **Closed** for a level-0-only reader of the parent (tests and sandbox probes, every fixed table): plain child
+  fields selected through `frappe.client.get_list` / `get_value` with `parent=`; report-view child columns of a
+  non-Single parent; report-view filters on child fields of the parent query (PermissionError); the form,
+  `frappe.client.get` and prints; the Card Equipment change history from now on; the Card Settings change history
+  (masked per reader on `getdoc`, `get_docinfo` and the form-save reply, old Versions included).
+  **Still open (Frappe 16 core).** Queries on the child DocType itself with `parent=<Parent>`, through
+  `frappe.client.get_list` / `get_value`, `frappe.desk.reportview.get` / `get_list` / `get_count` (doctype = the
+  child) and REST v1 `/api/resource/<Child>?parent=<Parent>`, still accept filters, `order_by` and `group_by` on
+  child fields and aggregate fields (`{"MIN"|"MAX": "<field>"}`). Until Frappe core is fixed, a determined level-0
+  reader can still read every hidden field of every child row, one call at a time: with a `name=<row>` filter and a
+  `{"MIN"|"MAX": field}` aggregate, or prefix by prefix with a LIKE filter on `frappe.desk.reportview.get`. REST v2
+  (`/api/v2/document/<Child>`) refuses both. Cause: `frappe/database/query.py` skips the field-level check when the
+  queried DocType has no permissions of its own, as every child DocType (`query.py:1031`; the filter and order-by
+  checks of `:1374` pass no parent; the permission query conditions of `:1706-1709` are those of the parent, so a
+  `permission_query_conditions` hook on the child is not applied), and `frappe/desk/reportview.py`
+  `validate_fields` skips aggregate (dict) fields (`reportview.py:153`) and checks the child's levels against the
+  child DocType itself (`:177`). Owner options: **Card Equipment** (not a Single): no clean CARD-only mitigation exists; an
+  `override_whitelisted_methods` entry would cover the `/api/method/...` routes only, because REST v1
+  `/api/resource` calls `frappe.client.get_list` directly, and `before_request` hooks run before token
+  authentication; an upstream Frappe fix is needed. **Card Settings** (a Single): every child-query route reaches
+  the CARD `has_permission` hook with a lazy Card Settings document for ptype select or read
+  (`frappe/permissions.py:120-129` → `:903-910` → `:135-136` → `:239`); refusing that lazy-document check to a
+  reader without a table's level would close the aggregate read and the filter oracle on Card Diesel Price (and on
+  the level-2 tables), at a cost: for Card Manager, `frappe.get_print("Card Settings")`,
+  `frappe.client.get_single_value` and a document-less `frappe.has_permission("Card Settings")` would be refused.
+  Not implemented: it needs the owner's decision. Production context (from the code at `e566174` and a read-only
+  check on 2026-11-10: no Custom DocPerm exists on Card Settings or Card Equipment): the level-2 tables are not
+  reachable there; the remaining exposure is Card Supervisor to the unit component rows and Card Manager to the
+  diesel price schedule. Accounting, data and API: no GL, no data change, no new endpoint. Rollback limits: revert
+  the commits and migrate; the levels return to 0 and the Card Settings timeline is no longer masked. Card Equipment
+  Versions written while the change was live keep the masked component values (nothing to restore; the rows
+  themselves are unchanged); Versions written before it keep their raw values.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

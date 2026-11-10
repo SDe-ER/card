@@ -5931,6 +5931,82 @@ msgstr ""
 msgid "Day billing basis used"
 msgstr ""
 
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate valid from"
+msgstr ""
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate (litres per hour)"
+msgstr ""
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate reason"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Equipment consumption rates (litres per hour)"
+msgstr ""
+
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Default consumption rates"
+msgstr ""
+
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Type default consumption rates (litres per hour)"
+msgstr ""
+
+#: card/consumption.py
+msgid "Row {0}: enter the date the consumption rate is valid from."
+msgstr ""
+
+#: card/consumption.py
+msgid "Row {0}: the consumption rate cannot be negative."
+msgstr ""
+
+#: card/consumption.py
+msgid "Rows {0} and {1} both start a consumption rate on {2}. Keep one row per date."
+msgstr ""
+
+#: card/consumption.py
+msgid "Duplicate consumption rate"
+msgstr ""
+
+#: card/consumption.py
+msgid "This equipment has dated consumption rates. They decide the rate from their dates; the expected consumption (liter/hour) is used only before the first dated rate."
+msgstr ""
+
+#: card/card/doctype/card_type_consumption_rate/card_type_consumption_rate.json
+msgid "Consumption rate company"
+msgstr ""
+
+#: card/consumption.py
+msgid "The consumption rate valid from {0} is already in use and cannot be removed. Add a new row with a reason instead."
+msgstr ""
+
+#: card/consumption.py
+msgid "The consumption rate valid from {0} is already in use and cannot be changed. Add a new row with a reason instead."
+msgstr ""
+
+#: card/consumption.py
+msgid "Consumption rate in use"
+msgstr ""
+
+#: card/consumption.py
+msgid "Row {0}: a consumption rate dated before today needs a reason."
+msgstr ""
+
+#: card/consumption.py
+msgid "Only a Card Manager or System Manager can change the default consumption rates."
+msgstr ""
+
+#: card/consumption.py
+msgid "You cannot change the default consumption rates of company {0}."
+msgstr ""
+
+#: card/consumption.py
+msgid "A default consumption rate with no company applies to every company. Only a user who is not limited to some companies can change it."
+msgstr ""
+
 #: card/card/doctype/card_period_run/card_period_run.json
 msgid "Card Period Run"
 msgstr ""

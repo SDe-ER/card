@@ -118,6 +118,7 @@ def getdoc(doctype: str, name: str | int):
 	every row of another company."""
 	_call_previous(GETDOC, doctype=doctype, name=name)
 	scope_docinfo_versions()
+	mask_docinfo_versions_by_level()
 
 
 @frappe.whitelist(methods=["GET", "POST"])
@@ -129,6 +130,7 @@ def get_docinfo(
 	"""Override of ``frappe.desk.form.load.get_docinfo``: as ``getdoc``."""
 	_call_previous(GET_DOCINFO, doc=doc, doctype=doctype, name=name)
 	scope_docinfo_versions()
+	mask_docinfo_versions_by_level()
 
 
 def scope_docinfo_versions():
@@ -150,34 +152,175 @@ def scope_docinfo_versions():
 	]
 
 
-def _scoped_version_data(data, allowed, companies):
+_SCALARS = (str, int, float, bool, type(None))
+
+
+def _version_changes(data):
+	"""FR-148: the Version ``data`` of Card Settings rebuilt in Frappe's own shape only (``Version.update_version_info``):
+	``changed`` [field, old, new], ``added`` / ``removed`` [table, row], ``row_changed`` [table, idx, row name,
+	[[field, old, new], ...]], and Frappe's own ``data_import``, ``updater_reference``, ``impersonated_by``,
+	``audit_user``, ``creation`` and ``created_by``. Every other key and every extra element is
+	dropped; an entry whose table, field or row name is not a string, whose row is not an object, or whose value is
+	not a plain value (text, number, check, empty) is dropped. Never raises; data that is not a JSON object gives
+	empty lists."""
 	import json
 
 	try:
-		changes = json.loads(data or "{}")
-	except ValueError:
-		return "{}"
+		raw = json.loads(data or "{}")
+	except (TypeError, ValueError):
+		raw = {}
+	if not isinstance(raw, dict):
+		raw = {}
+
+	def items(key):
+		value = raw.get(key)
+		return value if isinstance(value, list) else []
+
+	def change(entry):
+		if isinstance(entry, list) and len(entry) >= 3 and isinstance(entry[0], str):
+			if isinstance(entry[1], _SCALARS) and isinstance(entry[2], _SCALARS):
+				return [entry[0], entry[1], entry[2]]
+		return None
+
+	def row(entry):
+		if (
+			isinstance(entry, list)
+			and len(entry) >= 2
+			and isinstance(entry[0], str)
+			and isinstance(entry[1], dict)
+		):
+			values = {k: v for k, v in entry[1].items() if isinstance(k, str) and isinstance(v, _SCALARS)}
+			return [entry[0], values]
+		return None
+
+	def row_change(entry):
+		if (
+			isinstance(entry, list)
+			and len(entry) >= 4
+			and isinstance(entry[0], str)
+			and isinstance(entry[1], int | type(None))
+			and not isinstance(entry[1], bool)
+			and isinstance(entry[2], str)
+			and isinstance(entry[3], list)
+		):
+			return [entry[0], entry[1], entry[2], [c for c in (change(x) for x in entry[3]) if c]]
+		return None
+
+	changes = {
+		"changed": [c for c in (change(e) for e in items("changed")) if c],
+		"added": [r for r in (row(e) for e in items("added")) if r],
+		"removed": [r for r in (row(e) for e in items("removed")) if r],
+		"row_changed": [r for r in (row_change(e) for e in items("row_changed")) if r],
+	}
+	# Frappe's own extra keys (frappe/core/doctype/version/version.py): plain text, or the updater reference
+	# {doctype, docname, label} of Auto Repeat / Assignment Rule
+	for key in ("data_import", "impersonated_by", "audit_user", "creation", "created_by"):
+		if key in raw and isinstance(raw[key], _SCALARS):
+			changes[key] = raw[key]
+	reference = raw.get("updater_reference")
+	if isinstance(reference, dict):
+		changes["updater_reference"] = {
+			k: reference[k] for k in ("doctype", "docname", "label") if isinstance(reference.get(k), str)
+		}
+	elif "updater_reference" in raw and isinstance(reference, str | type(None)):
+		changes["updater_reference"] = reference
+	return changes
+
+
+def _scoped_version_data(data, allowed, companies):
+	changes = _version_changes(data)
 
 	def visible_row(entry):
-		table, row = entry[0], entry[1] if len(entry) > 1 else None
-		return table not in SCOPED_TABLES or (isinstance(row, dict) and row.get("company") in allowed)
+		# [table, row]
+		table, row = entry
+		if table not in SCOPED_TABLES:
+			return True
+		company = row.get("company")
+		return isinstance(company, str) and company in allowed
 
 	def visible_change(entry):
 		# [table, idx, row name, [[field, old, new], ...]]
-		if entry[0] not in SCOPED_TABLES:
+		table, _idx, name, row_changes = entry
+		if table not in SCOPED_TABLES:
 			return True
-		if companies.get(entry[2] if len(entry) > 2 else None) not in allowed:
+		company = companies.get(name)
+		if not isinstance(company, str) or company not in allowed:
 			return False
 		return all(
-			c[0] != "company" or (c[1] in allowed and c[2] in allowed)
-			for c in (entry[3] if len(entry) > 3 else [])
+			c[0] != "company"
+			or (isinstance(c[1], str) and c[1] in allowed and isinstance(c[2], str) and c[2] in allowed)
+			for c in row_changes
 		)
 
 	for key in ("added", "removed"):
-		if changes.get(key):
-			changes[key] = [e for e in changes[key] if visible_row(e)]
-	if changes.get("row_changed"):
-		changes["row_changed"] = [e for e in changes["row_changed"] if visible_change(e)]
+		changes[key] = [e for e in changes[key] if visible_row(e)]
+	changes["row_changed"] = [e for e in changes["row_changed"] if visible_change(e)]
+	return frappe.as_json(changes, indent=None, separators=(",", ":"))
+
+
+# ---------- FR-148: the Card Settings timeline follows the reader's permission levels ----------
+
+
+def _hidden_settings_fields(user=None):
+	"""FR-148: (fields, {table: child fields}) of Card Settings that ``user`` (default: the session user) may
+	not read: a field at a level he has no read on, every field of a table at such a level, and every child
+	field at such a level. None for Administrator (Frappe applies no level to him)."""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return None
+	meta = frappe.get_meta("Card Settings")
+	levels = set(meta.get_permlevel_access("read", user=user))
+	fields = {
+		df.fieldname
+		for df in meta.fields
+		if df.fieldtype not in LAYOUT_FIELDTYPES and cint(df.permlevel) not in levels
+	}
+	tables = {}
+	for table in meta.get_table_fields():
+		child = [df for df in frappe.get_meta(table.options).fields if df.fieldtype not in LAYOUT_FIELDTYPES]
+		hidden_table = cint(table.permlevel) not in levels
+		hidden = {df.fieldname for df in child if hidden_table or cint(df.permlevel) not in levels}
+		if hidden:
+			tables[table.fieldname] = hidden
+	return fields, tables
+
+
+def mask_docinfo_versions_by_level():
+	"""FR-148: in ``frappe.response.docinfo.versions`` of Card Settings, mask (``card.field_privacy.MASKED``)
+	the old and new values of every field, and every child row value, at a level the reader cannot read: in
+	``changed``, ``added``, ``removed`` and ``row_changed``. Who changed what and when stays. The Versions
+	are stored unmasked (a reader of the level, e.g. Accounts Manager, sees the real values); this is a
+	read-time mask for Card Settings only."""
+	docinfo = frappe.response.get("docinfo")
+	if not docinfo or docinfo.get("doctype") != "Card Settings" or not docinfo.get("versions"):
+		return
+	hidden = _hidden_settings_fields()
+	if not hidden or not (hidden[0] or hidden[1]):
+		return
+	docinfo["versions"] = [
+		{**version, "data": _masked_version_data(version.get("data"), *hidden)}
+		for version in docinfo["versions"]
+	]
+
+
+def _masked_version_data(data, fields, tables):
+	"""The Version ``data`` in Frappe's shape (``_version_changes``) with the hidden values masked."""
+	from card.field_privacy import MASKED
+
+	changes = _version_changes(data)
+	for change in changes["changed"]:
+		if change[0] in fields:
+			change[1:] = [MASKED, MASKED]
+	for key in ("added", "removed"):
+		for table, row in changes[key]:
+			for field in tables.get(table, ()):
+				if field in row:
+					row[field] = MASKED
+	for table, _idx, _name, row_changes in changes["row_changed"]:
+		hidden = tables.get(table, ())
+		for change in row_changes:
+			if change[0] in hidden:
+				change[1:] = [MASKED, MASKED]
 	return frappe.as_json(changes, indent=None, separators=(",", ":"))
 
 
@@ -219,6 +362,7 @@ class CardSettings(Document):
 		super().apply_fieldlevel_read_permissions()
 		# the form save (savedocs) builds the timeline before this call
 		scope_docinfo_versions()
+		mask_docinfo_versions_by_level()
 		if self.flags.card_hidden_company_rows:
 			# the form shows a note (card_settings.js); set here, as the form save resets __onload
 			# after on_change
