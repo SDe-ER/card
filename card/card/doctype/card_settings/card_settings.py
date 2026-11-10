@@ -72,13 +72,51 @@ def settings_row_query_conditions(user=None, doctype=None):
 # ---------- FR-133: the change history (Version) of Card Settings in the form timeline ----------
 
 
+GETDOC = "frappe.desk.form.load.getdoc"
+GET_DOCINFO = "frappe.desk.form.load.get_docinfo"
+CARD_OVERRIDES = {
+	GETDOC: "card.card.doctype.card_settings.card_settings.getdoc",
+	GET_DOCINFO: "card.card.doctype.card_settings.card_settings.get_docinfo",
+}
+
+
+def _previous_override(original):
+	"""The method CARD's override of ``original`` wraps: the override registered before CARD's in
+	``override_whitelisted_methods`` (an app installed before CARD, e.g. DAWM's own security
+	filter), else Frappe's original. Frappe calls only the last registered override
+	(``frappe.override_whitelisted_method``), so CARD keeps the earlier ones in the chain. Never
+	CARD's own entry; a re-entry (an earlier override that itself calls the last override) gets
+	Frappe's original, so the chain cannot loop."""
+	own = CARD_OVERRIDES[original]
+	active = frappe.local.flags.setdefault("card_override_active", set())
+	if original in active:
+		return frappe.get_attr(original)
+	chain = list((frappe.get_hooks("override_whitelisted_methods", {}) or {}).get(original) or [])
+	position = max((i for i, method in enumerate(chain) if method == own), default=len(chain))
+	for method in reversed(chain[:position]):
+		if method not in (own, original):
+			return frappe.get_attr(method)
+	return frappe.get_attr(original)
+
+
+def _call_previous(original, **kwargs):
+	method = _previous_override(original)
+	active = frappe.local.flags.setdefault("card_override_active", set())
+	entered = original not in active
+	active.add(original)
+	try:
+		return method(**kwargs)
+	finally:
+		if entered:
+			active.discard(original)
+
+
 @frappe.whitelist(methods=["GET", "POST"])
 def getdoc(doctype: str, name: str | int):
-	"""Override of ``frappe.desk.form.load.getdoc`` (wraps it, nothing copied): the Card Settings
-	timeline of a company-restricted user carries no row of another company."""
-	from frappe.desk.form import load
-
-	load.getdoc(doctype, name)
+	"""Override of ``frappe.desk.form.load.getdoc``: calls the previous override in the hook chain
+	(or Frappe's method), then removes from the Card Settings timeline of a company-restricted user
+	every row of another company."""
+	_call_previous(GETDOC, doctype=doctype, name=name)
 	scope_docinfo_versions()
 
 
@@ -88,10 +126,8 @@ def get_docinfo(
 	doctype: str | None = None,
 	name: str | int | None = None,
 ):
-	"""Override of ``frappe.desk.form.load.get_docinfo`` (wraps it): as ``getdoc``."""
-	from frappe.desk.form import load
-
-	load.get_docinfo(doc, doctype, name)
+	"""Override of ``frappe.desk.form.load.get_docinfo``: as ``getdoc``."""
+	_call_previous(GET_DOCINFO, doc=doc, doctype=doctype, name=name)
 	scope_docinfo_versions()
 
 

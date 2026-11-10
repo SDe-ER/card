@@ -291,7 +291,8 @@ before_tests = "card.install.before_tests"
 # 	"frappe.desk.doctype.event.event.get_events": "card.event.get_events"
 # }
 # FR-133: the Card Settings timeline (Version rows) of a company-restricted user carries no row of
-# another company; both wrap the frappe method and change only the Card Settings response
+# another company; each calls the override registered before it (e.g. DAWM's own filter) or the
+# frappe method, and changes only the Card Settings response
 override_whitelisted_methods = {
 	"frappe.desk.form.load.getdoc": "card.card.doctype.card_settings.card_settings.getdoc",
 	"frappe.desk.form.load.get_docinfo": "card.card.doctype.card_settings.card_settings.get_docinfo",

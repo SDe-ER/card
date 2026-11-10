@@ -17,6 +17,48 @@ from card.card.doctype.card_settings.card_settings import settings_company_scope
 from card.tests.test_controllers import _ensure_masters
 
 SETTINGS = {"parent": "Card Settings", "parenttype": "Card Settings"}
+HERE = "card.tests.test_settings_company_scope"
+
+
+def _fake_filter():
+	"""An earlier app's own security filter (as DAWM's): marks the response and clears comments."""
+	frappe.response["fake_override_ran"] = (frappe.response.get("fake_override_ran") or 0) + 1
+	if frappe.response.get("docinfo"):
+		frappe.response.docinfo["comments"] = ["redacted by the earlier override"]
+
+
+def fake_getdoc(doctype, name):
+	from frappe.desk.form import load
+
+	load.getdoc(doctype, name)
+	_fake_filter()
+
+
+def fake_get_docinfo(doc=None, doctype=None, name=None):
+	from frappe.desk.form import load
+
+	load.get_docinfo(doc, doctype, name)
+	_fake_filter()
+
+
+def looping_getdoc(doctype, name):
+	"""An earlier override that calls the last registered override (would loop without a guard)."""
+	frappe.get_attr(frappe.override_whitelisted_method("frappe.desk.form.load.getdoc"))(doctype, name)
+	_fake_filter()
+
+
+def _with_chain(chain):
+	"""frappe.get_hooks with ``override_whitelisted_methods`` replaced by ``chain``."""
+	from unittest.mock import patch
+
+	real = frappe.get_hooks
+
+	def get_hooks(hook=None, default=None, app_name=None):
+		if hook == "override_whitelisted_methods":
+			return chain
+		return real(hook, default, app_name) if hook else real()
+
+	return patch.object(frappe, "get_hooks", side_effect=get_hooks)
 
 
 class TestSettingsCompanyScope(IntegrationTestCase):
@@ -521,6 +563,50 @@ class TestSettingsCompanyScope(IntegrationTestCase):
 		frappe.local.response = frappe._dict(docs=[])
 		savedocs(json.dumps(doc, default=str), "Save")
 		self.assertEqual(self._leaks(frappe.response.docinfo["versions"]), [])
+
+	def test_an_earlier_override_keeps_running(self):
+		"""DAWM (installed before CARD) overrides the same two methods with its own filter: CARD
+		calls it, so both filters apply, for Card Settings and for any other doctype."""
+		chain = {
+			"frappe.desk.form.load.getdoc": [f"{HERE}.fake_getdoc", scope.CARD_OVERRIDES[scope.GETDOC]],
+			"frappe.desk.form.load.get_docinfo": [
+				f"{HERE}.fake_get_docinfo",
+				scope.CARD_OVERRIDES[scope.GET_DOCINFO],
+			],
+		}
+		self._history()
+		frappe.set_user(self._user(self.a))
+		with _with_chain(chain):
+			for doctype, name in (("Card Settings", "Card Settings"), ("Company", self.a)):
+				for call in (
+					lambda: scope.getdoc(doctype, name),
+					lambda: scope.get_docinfo(doctype=doctype, name=name),
+				):
+					frappe.local.response = frappe._dict(docs=[])
+					call()
+					self.assertEqual(frappe.response.get("fake_override_ran"), 1, doctype)
+					self.assertEqual(
+						frappe.response.docinfo["comments"], ["redacted by the earlier override"]
+					)
+					if doctype == "Card Settings":
+						self.assertTrue(frappe.response.docinfo["versions"])
+						self.assertEqual(self._leaks(frappe.response.docinfo["versions"]), [])
+
+	def test_no_earlier_override_calls_frappe_and_a_loop_is_cut(self):
+		frappe.set_user(self._user(self.a))
+		with _with_chain({"frappe.desk.form.load.getdoc": [scope.CARD_OVERRIDES[scope.GETDOC]]}):
+			frappe.local.response = frappe._dict(docs=[])
+			scope.getdoc("Card Settings", "Card Settings")
+			self.assertEqual(self._companies(frappe.response.docs[0], "company_settings"), {self.a})
+		chain = {
+			"frappe.desk.form.load.getdoc": [f"{HERE}.looping_getdoc", scope.CARD_OVERRIDES[scope.GETDOC]]
+		}
+		with _with_chain(chain):
+			frappe.local.response = frappe._dict(docs=[])
+			scope.getdoc("Card Settings", "Card Settings")
+			self.assertEqual(frappe.response.get("fake_override_ran"), 1)
+			self.assertEqual(self._companies(frappe.response.docs[0], "company_settings"), {self.a})
+		self.assertFalse(frappe.local.flags.get("card_override_active"))
 
 	def test_timeline_is_complete_for_an_unrestricted_user(self):
 		self._history()
