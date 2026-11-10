@@ -27,7 +27,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   company are on or after that date. The Diesel Settings price box shows today's price and, for a company with a schedule,
   "Change price" adds a dated row. Patch `v4_7_0.seed_diesel_price_schedule` (post_model_sync, idempotent) gives each company with
   `diesel_unit_price` > 0 and no schedule one row with that price, valid from its earliest fill date (today without fills);
-  `diesel_unit_price` is not changed. PR: see the pull request of branch `feat/diesel-price-schedule-46`. Affected:
+  `diesel_unit_price` is not changed. PR #195. Affected:
   `project_diesel_fill.py` (`scheduled_diesel_price`, `diesel_price(company, on_date)`, `get_diesel_price_context` gains `date`,
   `_apply_price`), `project_diesel_fill.js` (price on the fill date), `diesel_import.py` `_check_price` (session date),
   `card_settings.py` (`_validate_diesel_price_schedule`, `COMPANY_TABLES`), `card_settings.js`, `card_settings.json`, locale.
