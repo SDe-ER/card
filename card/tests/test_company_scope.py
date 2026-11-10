@@ -64,6 +64,10 @@ def scope_problems(meta, doctypes):
 		target = field.get("options")
 		if field.get("fieldtype") != "Link" or target in (None, "Company") or field["fieldname"] == "company":
 			continue
+		if field["fieldname"] == "amended_from" and target == meta.get("name"):
+			# Frappe's own amend link of a submittable DocType (DocType.make_amendable): the record's company
+			# field governs; the package controller must refuse an amendment of another company's record
+			continue
 		target_company = _field_target_meta(target, doctypes).get("company") or {}
 		if target_company.get("fieldtype") == "Link" and target_company.get("options") == "Company":
 			if target not in company_scope.COMPANY_SOURCES:
@@ -162,6 +166,11 @@ class TestCompanyScopeHooks(IntegrationTestCase):
 		self.assertEqual(scope_problems(meta(company, equipment), {}), [])
 		fetched = {**company, "fetch_from": "equipment.company"}
 		self.assertEqual(scope_problems(meta(fetched, equipment), {}), [])
+		amend = {"fieldname": "amended_from", "fieldtype": "Link", "options": "Card Scope Probe"}
+		self.assertEqual(scope_problems(meta(company, amend), {"Card Scope Probe": meta(company)}), [])
+		# any other link to the DocType itself still needs the company check
+		self_link = {**amend, "fieldname": "previous_reading"}
+		self.assertTrue(scope_problems(meta(company, self_link), {"Card Scope Probe": meta(company)}))
 		cases = {
 			"no company": meta(equipment),
 			"not mandatory": meta({**company, "reqd": 0}),
