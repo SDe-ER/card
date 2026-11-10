@@ -43,7 +43,7 @@ is `settings.py` `_DEFAULTS`.
 | Field | Type | JSON default | Code default | Read by (file:line) | Status |
 |---|---|---|---|---|---|
 | `enable_accounting` | Check, level 2 | 0 | 0 | `gl/preflight.py:18`; `accounting_settings.py:15` (direct `get_single_value`) | Used. Two readers; the docstring of `accounting_settings.py` still says "none yet" |
-| `auto_submit` | Check, level 2 | 0 | 0 | none (only `settings.py:13` and patch `v1_2/init_card_settings_defaults.py:16`) | **Dead** (FR-015, Broken) |
+| `auto_submit` | Check, level 2 | 0 | — (removed from `_DEFAULTS`, FR-124) | none (only the one-time patch `v1_2/init_card_settings_defaults.py:16`, which wrote the stored default) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 | `default_shift` | Select, level 2 | نهاري | نهاري | `card_monthly_card.py:87` | Used: pre-fill of a new card's shift |
 | `max_day_shift_hours` | Float, level 2 | 12 | 12.0 | `card_monthly_card.py:180-181` (inline `or 12`) | Used: warning only (FR-017) |
 | `max_night_shift_hours` | Float, level 2 | 12 | 12.0 | `card_monthly_card.py:180-181` (inline `or 12`) | Used: warning only (FR-017) |
@@ -58,7 +58,7 @@ is `settings.py` `_DEFAULTS`.
 | `period_lock_date` | Date, level 2 | — | None | `period_lock.py:40`; `gl/preflight.py:123` | Used (FR-050) |
 | `period_lock_override_role` | Link Role, level 2 | — | None | `period_lock.py:47`; `gl/preflight.py:125` | Used |
 | `notify_on_card_submit` | Check, level 2 | 0 | 0 | `card_monthly_card.py:490` | Used |
-| `notify_on_posting` | Check, level 2 | 0 | 0 | none (only `settings.py:28` and patch `v1_2/init_card_settings_defaults.py:27`) | **Dead** (FR-015, Broken) |
+| `notify_on_posting` | Check, level 2 | 0 | — (removed from `_DEFAULTS`, FR-124) | none (only the one-time patch `v1_2/init_card_settings_defaults.py:27`, which wrote the stored default) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 | `notify_on_period_lock_override` | Check, level 2 | 0 | 0 | `period_lock.py:72` | Used |
 | `default_rate_basis` | Select, level 2 | — | "" | `card_equipment.py:408` | Used: pre-fill of both rate bases |
 | `standard_month_hours` | Float, level 2 | 260 | 260.0 | `card_equipment.py:152`, `card_monthly_card.py:437` (inline `or 260`) | Used (FR-016) |
@@ -96,8 +96,8 @@ is read by `gl/preflight.py:36-41` `company_settings_row` (posting) and `account
 | `vat_item_tax_template`, `vat_zero_item_tax_template` | Link Item Tax Template | `gl/masters.py:182-194` (created when empty), `gl/posting.py`, `gl/preflight.py` | Used |
 | `diesel_unit_price` | Currency | `project_diesel_fill.py:177-186` `diesel_price`; `card_settings.js` | Used (FR-002). One value, no dates (FR-035 planned) |
 | `diesel_price_vat_basis` | Select (empty / Exclusive / Inclusive) | `gl/posting.py:925`; `gl/integrity.py:440` | Used (FR-090). Empty = posting refused for review |
-| `bank_cash_account` | Link Account | none | **Dead** (FR-015, Broken) |
-| `mode_of_payment` | Link Mode of Payment | none | **Dead** (FR-015, Broken) |
+| `bank_cash_account` | Link Account | none (only the generic account-company check in `card_settings.py` `validate`, which covers every Account link of a row) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
+| `mode_of_payment` | Link Mode of Payment | none | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 
 ## 4. Dead settings (FR-015)
 
@@ -112,6 +112,15 @@ the first two) appear in `settings.py` `_DEFAULTS`, but no code reads them. Chan
 | `mode_of_payment` | Card Company Settings | No reader | Same as `bank_cash_account` |
 
 No field is deleted without the owner's approval (FEATURE-REGISTRY rules).
+
+**FR-124 (WP-08, issue #50, in review): all four are retired, not deleted.** Each field is `hidden: 1` and
+`read_only: 1` with the description "Deprecated – not used" (Arabic in `card/locale/ar.po`: "متوقف – غير مستخدم").
+The columns and any stored values stay; no patch is needed (hiding is a DocType property). `auto_submit` and
+`notify_on_posting` are removed from `settings.py` `_DEFAULTS` (no reader). The one-time patch
+`v1_2/init_card_settings_defaults.py` is unchanged (it has already run and only wrote the stored defaults).
+`card/tests/test_deprecated_settings.py` checks that the fields are hidden and that no code in the app (patches,
+tests and translations excluded) reads them. Wiring one up later means: remove the deprecation, add the reader,
+document it here and add a wiring test. No setting of the four is read today, so none is left "used".
 
 ## 5. Hardcoded values that affect behaviour
 

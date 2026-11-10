@@ -8,9 +8,10 @@ field to 0.0, which would mask the default."""
 
 import frappe
 
+# FR-124 (WP-08): the two deprecated Card Settings fields (docs/governance/SETTINGS-AND-CONSTANTS.md section 4)
+# are hidden, read only and never read, so they have no default here. Their columns and stored values stay.
 _DEFAULTS = {
 	"enable_accounting": 0,
-	"auto_submit": 0,
 	"default_shift": "نهاري",
 	"max_day_shift_hours": 12.0,
 	"max_night_shift_hours": 12.0,
@@ -25,7 +26,6 @@ _DEFAULTS = {
 	"period_lock_date": None,
 	"period_lock_override_role": None,
 	"notify_on_card_submit": 0,
-	"notify_on_posting": 0,
 	"notify_on_period_lock_override": 0,
 	# F.5: calculation bases
 	"default_rate_basis": "",

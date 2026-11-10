@@ -4665,6 +4665,11 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py
 msgid "The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+#: card/card/doctype/card_settings/card_settings.json
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Deprecated – not used"
+msgstr ""
+
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Diesel fill project check"
 msgstr ""
