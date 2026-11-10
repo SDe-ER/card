@@ -69,6 +69,7 @@
   "gl_posting",
   "posted",
   "amended_from",
+  "cancel_reason",
   "equipment",
   "from_location",
   "to_location"
@@ -184,6 +185,15 @@
    "label": "Amended From",
    "no_copy": 1,
    "options": "Equipment Transport",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.docstatus==2",
+   "fieldname": "cancel_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancel Reason",
+   "no_copy": 1,
    "print_hide": 1,
    "read_only": 1
   },
@@ -577,7 +587,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 15:00:00.000000",
+ "modified": "2026-11-10 17:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport",

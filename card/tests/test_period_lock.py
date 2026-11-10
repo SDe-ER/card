@@ -7,6 +7,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import flt, get_last_day, getdate, nowdate
 
 from card.notifications import notify
+from card.tests.cancel_reason import with_reason
 from card.tests.diesel_price import use_fill_price
 from card.tests.test_controllers import _ensure_masters
 
@@ -128,7 +129,7 @@ class TestPeriodLockAndSnapshot(IntegrationTestCase):
 		self._set("period_lock_date", self.lock_date)
 		self._set("period_lock_override_role", None)
 		with self.assertRaises(frappe.ValidationError):
-			card.cancel()
+			with_reason(card).cancel()
 
 	def test_lock_blocks_delete(self):
 		self._set("period_lock_date", None)

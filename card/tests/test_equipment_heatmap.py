@@ -16,6 +16,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import get_datetime, getdate, nowdate
 
+from card.tests.cancel_reason import with_reason
 from card.tests.test_controllers import _days, _ensure_masters
 
 
@@ -134,7 +135,7 @@ class TestEquipmentHeatmap(IntegrationTestCase):
 		# ليلي shift: the duplicate guard blocks a second card with the same
 		# equipment+month+year+shift while the draft (نهاري) one exists.
 		c_cancel = self._make_card(eq, hours_list=[], shift="ليلي", submit=True, days_override=days2)
-		c_cancel.cancel()
+		with_reason(c_cancel).cancel()
 		c_cancel.reload()
 		self.assertEqual(c_cancel.docstatus, 2)
 		result = self._get_timeline_data("Card Equipment", eq.name)

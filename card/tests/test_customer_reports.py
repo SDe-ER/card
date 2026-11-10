@@ -17,6 +17,7 @@ from frappe.utils import flt
 
 from card.constants import DIR_RENTED_OUT, DIR_SUBRENTAL, OWNED
 from card.settings import setting
+from card.tests.cancel_reason import with_reason
 from card.tests.test_controllers import _days, _ensure_masters
 
 RENTED = "إيجار"
@@ -220,7 +221,7 @@ class TestCustomerReports(IntegrationTestCase):
 
 	def test_cancelled_card_is_not_listed(self):
 		card = self._card(self._rented_out("-CAN"), [10], submit=True)
-		card.cancel()
+		with_reason(card).cancel()
 		_cols, rows, _msg, _summary = _statement(self._filters(customer=self.customer, include_draft=1))
 		self.assertEqual(self._card_rows(rows), [])
 
