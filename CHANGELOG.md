@@ -25,6 +25,41 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `docs/governance/HRMS-PARITY.md` compares the CARD equipment model with the Frappe HR employee model (official
   HRMS `version-16` source and docs.frappe.io/hr only) and records the upgrade-rehearsal CI evidence. Impact on
   permissions, accounting, data and the API: none. Rollback: revert the commit.
+- **Every monthly card shows its value on the CARD workspace** (FR-111, PR #185, owner requirement
+  2026-11-10; target: next release).
+  - **Reason:** the chart "مبالغ الكروت الشهرية" and the number card "مبالغ الشهر الماضي" summed only the supplier
+    `amount`, which is 0 for owned and managed equipment; a month with only owned cards (for example an owned crusher
+    rented to a customer) looked empty.
+  - **Change:** new module `card.card_value` and Dashboard Chart Source **Card Monthly Values**
+    (`card/card/dashboard_chart_source/card_monthly_values/`). Per submitted card: supplier side (`مستأجَرة من مورد`,
+    `إيجار من الباطن`) → `net_amount`; customer side (`مؤجَّرة لعميل`, `إيجار من الباطن`) → `customer_net_amount`;
+    owned or managed equipment (`ملك`, `طرف ثالث`) with an internal rate → hours × rate, or working days × rate when the
+    basis is per day. Each value is its own series and is never added to another. A card with no supplier or customer
+    side and no internal rate still counts: number cards show how many such cards and how many hours last month.
+    New Card Equipment fields `internal_rate_basis` (Select `بالساعة`/`باليوم`, default per hour) and `internal_rate`
+    (Currency), level 2 like `internal_hourly_rate`, in the "Internal cost" section, which now also shows for managed
+    (`طرف ثالث`) equipment; both are commercial terms (a change needs a reason). An equipment with only the older
+    `internal_hourly_rate` is valued per hour with it. The chart filter "Include draft cards" is off by default, as the
+    old chart (submitted cards only).
+  - **Fixtures:** the chart "مبالغ الكروت الشهرية" becomes a Custom chart on that source (three series per month:
+    "تكلفة إيجار من موردين", "قيمة تشغيل لعملاء", "قيمة تشغيل داخلي"); the number card "مبالغ الشهر الماضي" (name kept)
+    becomes a Custom card for last month's supplier cost (label "تكلفة إيجار من موردين - الشهر الماضي", now
+    `net_amount` with additions and deductions, it was `amount`); four new Custom number cards (customer value,
+    internal value, "كروت بدون سعر داخلي", hours without an internal rate) are added to the Card workspace.
+  - **Permissions:** none widened. Reads use `frappe.get_list`, so the Card Monthly Card read right and Company User
+    Permissions apply (no hard-coded company; the optional company filter cannot widen them). The internal series and
+    the two missing-rate cards need read access to the level-2 rate fields (System Manager, Card Manager, Accounts
+    Manager); other users get the supplier and customer series only and "N/A" on those cards. The source is not
+    cached (Frappe's `cache_source` key is per chart, not per user). The chart and the five number-card methods are
+    side-effect-free reads declared `methods=["POST"]` because Frappe's dashboard widgets call them with
+    `frappe.xcall`, which always sends POST.
+  - **Accounting:** none. No document or GL entry is created or changed; the internal value is for display only.
+  - **Data / schema:** two new nullable columns on `tabCard Equipment`; no patch (the fixtures overwrite the chart,
+    number cards and workspace on `migrate`, as before). **API:** five new POST methods in `card.card_value` and the
+    source method `card.card.dashboard_chart_source.card_monthly_values.card_monthly_values.get`.
+  - **Rollback:** older code ignores the two new columns (they stay, with their values). Its fixtures restore the old
+    Sum chart, number card and workspace on its next `migrate`; the four new number cards and the Dashboard Chart
+    Source stay in the database, off the workspace, until removed by hand (their methods no longer exist there).
 
 ### Changed
 - **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill

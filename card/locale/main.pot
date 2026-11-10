@@ -4123,6 +4123,32 @@ msgstr ""
 msgid "The statement print template has no style block."
 msgstr ""
 
+#. Label of the internal_rate_basis (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate basis"
+msgstr ""
+
+#. Label of the internal_rate (Currency) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate"
+msgstr ""
+
+#: card/card_value.py
+msgid "Rental cost from suppliers"
+msgstr ""
+
+#: card/card_value.py
+msgid "Operating value for customers"
+msgstr ""
+
+#: card/card_value.py
+msgid "Internal operating value (owned or managed equipment)"
+msgstr ""
+
+#: card/card/dashboard_chart_source/card_monthly_values/card_monthly_values.js
+msgid "Include draft cards"
+msgstr ""
+
 #: card/attachment_validator.py
 msgid "The attached file is empty."
 msgstr ""

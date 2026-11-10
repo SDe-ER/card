@@ -5342,6 +5342,32 @@ msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح C
 msgid "The statement print template has no style block."
 msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."
 
+#. Label of the internal_rate_basis (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate basis"
+msgstr "أساس السعر الداخلي للتشغيل"
+
+#. Label of the internal_rate (Currency) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate"
+msgstr "السعر الداخلي للتشغيل"
+
+#: card/card_value.py
+msgid "Rental cost from suppliers"
+msgstr "تكلفة إيجار من موردين"
+
+#: card/card_value.py
+msgid "Operating value for customers"
+msgstr "قيمة تشغيل لعملاء"
+
+#: card/card_value.py
+msgid "Internal operating value (owned or managed equipment)"
+msgstr "قيمة تشغيل داخلي (معدات ملك أو مُدارة)"
+
+#: card/card/dashboard_chart_source/card_monthly_values/card_monthly_values.js
+msgid "Include draft cards"
+msgstr "تضمين الكروت المسودة"
+
 #: card/attachment_validator.py
 msgid "The attached file is empty."
 msgstr "الملف المرفق فارغ."

@@ -39,6 +39,8 @@ COMMERCIAL_FIELDS = (
 	"daily_hours",
 	"الوقود_على",
 	"internal_hourly_rate",
+	"internal_rate_basis",
+	"internal_rate",
 	"customer_rate_type",
 	"customer_rate",
 	"customer_rate_night",
