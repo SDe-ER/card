@@ -10,6 +10,7 @@ from card.attachment_validator import check_attachment_content, claim_file, requ
 from card.company import single_company, validate_equipment_company
 from card.constants import MOVE_DAY_NEXT, NON_COMPANY_PAYERS, OTHER_PARTY, OTHER_PARTY_TYPES, OWNED
 from card.equipment_status import check_equipment_status
+from card.intake import apply_transport_intake, claim_transport_evidence
 from card.settings import company_setting, setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
@@ -96,6 +97,11 @@ class EquipmentTransport(Document):
 				"Pending" if self.customer_billable or self.supplier_recoverable else "No decision needed"
 			)
 		self._record_editor()
+		# FR-146 (#52): optional intake provenance; nothing happens for a transport without it
+		apply_transport_intake(self)
+
+	def on_update(self):
+		claim_transport_evidence(self)
 
 	def _check_equipment_status(self, all_rows=False):
 		"""FR-122: an ended equipment gets no new transport. On save, a new transport, a changed
