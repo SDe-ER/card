@@ -200,11 +200,11 @@ class TestEquipmentStatusGuard(IntegrationTestCase):
 		self._rule(STATUS_RULE_ENFORCE)
 		eq, proj = self._on_project("CO")
 		card = self._card(eq, proj, [3])
+		# `company` is fetched from the equipment on every save, so the mismatch is reached by calling
+		# the controller step directly with a stale company (what an out-of-date record would carry)
 		card.company = self._other_company()
-		frappe.db.savepoint("card_refused")
 		with self.assertRaises(frappe.ValidationError) as ctx:
-			card.insert(ignore_permissions=True)
-		frappe.db.rollback(save_point="card_refused")
+			card.before_validate()
 		self.assertIn("does not match the equipment's company", str(ctx.exception))
 		self.assertNotIn("has status", str(ctx.exception))
 
