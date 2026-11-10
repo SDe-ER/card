@@ -440,6 +440,18 @@ CASES = {
 	"card.card_value.internal_value_last_month": Case(**NUMBER_CARD),
 	"card.card_value.cards_without_internal_rate_last_month": Case(**NUMBER_CARD),
 	"card.card_value.hours_without_internal_rate_last_month": Case(**NUMBER_CARD),
+	# ---------- cancel with a reason (FR-123) ----------
+	"card.cancel_reason.cancel_with_reason": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="CARD transaction doctype only; cancel on the record (Frappe cancel right)",
+		isolation="doc.check_permission(cancel) (has_card_permission / has_transport_permission / has_diesel_fill_permission)",
+		effects="Stores the reason and cancels the document; one Info Comment",
+		writes=True,
+		cross=lambda c: {"doctype": CARD, "name": c.card_b, "reason": "x"},
+		own=lambda c: {"doctype": CARD, "name": c.card_a, "reason": "x"},
+		denied=((), ("Card User",), ("Accounts Manager",)),
+	),
 	# ---------- catalog ----------
 	"card.catalog.search": Case(
 		method=GET,
