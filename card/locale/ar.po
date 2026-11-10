@@ -7171,6 +7171,82 @@ msgstr "يوم كامل"
 msgid "Day billing basis used"
 msgstr "أساس احتساب اليوم المستخدم"
 
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate valid from"
+msgstr "معدل الاستهلاك ساري من"
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate (litres per hour)"
+msgstr "معدل الاستهلاك (لتر في الساعة)"
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Consumption rate reason"
+msgstr "سبب معدل الاستهلاك"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Equipment consumption rates (litres per hour)"
+msgstr "معدلات استهلاك المعدة (لتر في الساعة)"
+
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Default consumption rates"
+msgstr "معدلات الاستهلاك الافتراضية"
+
+#: card/card/doctype/card_equipment_type/card_equipment_type.json
+msgid "Type default consumption rates (litres per hour)"
+msgstr "معدلات الاستهلاك الافتراضية للنوع (لتر في الساعة)"
+
+#: card/consumption.py
+msgid "Row {0}: enter the date the consumption rate is valid from."
+msgstr "الصف {0}: أدخل التاريخ الذي يسري منه معدل الاستهلاك."
+
+#: card/consumption.py
+msgid "Row {0}: the consumption rate cannot be negative."
+msgstr "الصف {0}: معدل الاستهلاك لا يمكن أن يكون سالبًا."
+
+#: card/consumption.py
+msgid "Rows {0} and {1} both start a consumption rate on {2}. Keep one row per date."
+msgstr "الصفان {0} و{1} يبدأ كلاهما معدل استهلاك في {2}. اترك صفًا واحدًا لكل تاريخ."
+
+#: card/consumption.py
+msgid "Duplicate consumption rate"
+msgstr "معدل استهلاك مكرر"
+
+#: card/consumption.py
+msgid "This equipment has dated consumption rates. They decide the rate from their dates; the expected consumption (liter/hour) is used only before the first dated rate."
+msgstr "لهذه المعدة معدلات استهلاك مؤرخة، وهي التي تحدد المعدل حسب تواريخها؛ ولا يُستخدم الاستهلاك المتوقع (لتر/ساعة) إلا قبل أول معدل مؤرخ."
+
+#: card/card/doctype/card_type_consumption_rate/card_type_consumption_rate.json
+msgid "Consumption rate company"
+msgstr "شركة معدل الاستهلاك"
+
+#: card/consumption.py
+msgid "The consumption rate valid from {0} is already in use and cannot be removed. Add a new row with a reason instead."
+msgstr "معدل الاستهلاك الساري من {0} مستخدم بالفعل ولا يمكن حذفه. أضف صفًا جديدًا مع السبب بدلًا من ذلك."
+
+#: card/consumption.py
+msgid "The consumption rate valid from {0} is already in use and cannot be changed. Add a new row with a reason instead."
+msgstr "معدل الاستهلاك الساري من {0} مستخدم بالفعل ولا يمكن تعديله. أضف صفًا جديدًا مع السبب بدلًا من ذلك."
+
+#: card/consumption.py
+msgid "Consumption rate in use"
+msgstr "معدل الاستهلاك مستخدم"
+
+#: card/consumption.py
+msgid "Row {0}: a consumption rate dated before today needs a reason."
+msgstr "الصف {0}: معدل الاستهلاك المؤرخ قبل اليوم يحتاج إلى سبب."
+
+#: card/consumption.py
+msgid "Only a Card Manager or System Manager can change the default consumption rates."
+msgstr "لا يغيّر معدلات الاستهلاك الافتراضية إلا مدير كارت أو مدير النظام."
+
+#: card/consumption.py
+msgid "You cannot change the default consumption rates of company {0}."
+msgstr "لا يمكنك تغيير معدلات الاستهلاك الافتراضية للشركة {0}."
+
+#: card/consumption.py
+msgid "A default consumption rate with no company applies to every company. Only a user who is not limited to some companies can change it."
+msgstr "معدل الاستهلاك الافتراضي بدون شركة يسري على كل الشركات، ولا يغيّره إلا مستخدم غير مقيّد ببعض الشركات."
+
 #: card/card/doctype/card_period_run/card_period_run.json
 msgid "Card Period Run"
 msgstr "دورة الفترة"
