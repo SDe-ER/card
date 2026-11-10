@@ -36,7 +36,8 @@ value.
 | Placement | Equipment Transport | Submittable, track_changes | `TRN-.#####` | Project (destination, source, cost, billing), Supplier (transporter, equipment supplier), Customer, Location, Cost Center, Purchase Invoice, GL Posting Log, Card Equipment Assignment |
 | Placement | Equipment Transport Item | Child of Equipment Transport | none | Card Equipment, previous/created assignment, Project, Location |
 | Operation | Card Monthly Card | Submittable, track_changes | `EOMC-{year}-{month}-{####}` | Card Equipment, Project, Company, Supplier, Customer, Employee, Purchase Invoice, Sales Invoice, GL Posting Log |
-| Operation | Card Monthly Card Day, Card Monthly Card Adjustment | Children of Card Monthly Card | none | none (day status, hours; typed additions and deductions with a side) |
+| Operation | Card Monthly Card Day, Card Monthly Card Adjustment | Children of Card Monthly Card | none | Day row: day status, hours, and (FR-118) Card Stop Reason, stopped hours, billable snapshot, responsible party (Dynamic Link). Adjustment: typed additions and deductions with a side |
+| Settings | Card Stop Reason | Master, track_changes | `<reason> - <company abbreviation>` (controller `autoname`) | Company; `billable` (default off), `enabled`, optional matching day status, default responsible party type (FR-118, #45) |
 | Operation | Project Diesel Fill | Submittable, track_changes | `DSL-.#####` | Project, Supplier, Company, Card Equipment, Cost Center, Purchase Invoice, GL Posting Log |
 | Operation | Diesel Fill Equipment | Child of Project Diesel Fill | none | Card Equipment (match status Unmatched, Matched, Third Party) |
 | Money | GL Posting Log | Audit record, no user edits | none | Company, Supplier or Customer, Purchase Invoice / Sales Invoice / Journal Entry (dynamic), User |
@@ -46,7 +47,7 @@ value.
 | Stock and parts | Employee Tool Custody | Submittable, track_changes | `ETC-.#####` | Employee, Item, Warehouse, Project, Card Equipment, Stock Entry |
 | Stock and parts | Card Equipment Part | Master, track_changes (fitment: which part fits which model or machine) | `CFP-{#####}` | Item, Card Equipment Model, Card Equipment, User, Equipment Needs Request, Company |
 
-Workspace, number cards, dashboard charts, print formats and roles `Card Manager` / `Card User` ship as fixtures
+The read-only **Equipment Downtime** report (`card/card/report/equipment_downtime`, FR-118) lists stopped days and hours of a company's monthly cards by reason, responsible party, equipment, project or month; a day row without a reason appears under its day status, so older months are kept. Workspace, number cards, dashboard charts, print formats and roles `Card Manager` / `Card User` ship as fixtures
 (`card/hooks.py` `fixtures`). Other roles used by the code (`Card Supervisor`, `Card Operator`, `Accounts Manager`,
 `Stock Manager`) are read from the DocType permissions; the full role-by-action table is in
 [ROLE-ACTION-MATRIX.md](../governance/ROLE-ACTION-MATRIX.md).
@@ -88,7 +89,7 @@ CARD creates standard documents through the Document API and links back to them 
 | Concept in #40 | State | Issue |
 |---|---|---|
 | Project contract with multiple customers and a commercial responsibility matrix | No contract DocType. A customer is carried on the equipment and the card | #41 |
-| Configurable stopped reasons with no automatic entitlement | Only a fixed day-status Select (work, day off, holiday, client stop) | #45 |
+| Configurable stopped reasons with no automatic entitlement | **Implemented as FR-118 (PR #194, merged):** Card Stop Reason per company, billable off by default. The four fixed day statuses remain and their billing is unchanged. Whether it is live is the registry's call | #45 |
 | Tank inventory and bulk fuel delivery allocation | No tank or delivery DocType. Diesel stays per-fill | #47 |
 | Maintenance and operating-cost capture by equipment | Reports read ERPNext expenses; no capture DocType | #48 |
 | Period approval before billing | No period document. Posting is by party and month | #49 |

@@ -5,7 +5,7 @@ readiness) then #120 (P1 equipment), #121 (P2 transport), #122 (P3 project assig
 #54 add design work around that order; they do not reorder it. An optional improvement never blocks a phase: it goes in
 the backlog, linked to its phase (`AGENTS.md`).
 
-"Exists" means present in code at `main` @ `ad50b93` and listed in the registry; it does not mean live. Status is owned
+"Exists" means present in code at `main` @ `8ededce` and listed in the registry; it does not mean live. Status is owned
 by [FEATURE-REGISTRY.md](../governance/FEATURE-REGISTRY.md). A phase closes only after its acceptance criteria pass in real
 use with evidence and the owner's approval (#118).
 
@@ -31,7 +31,7 @@ use with evidence and the owner's approval (#118).
 | #42 | Equipment master, ownership, yard, combined unit | Master, ownership rules, combined units of owned pieces, identity keys, status guard (FR-122), configurable initial location (Card Company Settings `initial_location`) | Open points are those listed in the issue (for example no operation cards while parked); confirm each against the registry before P1 | P1 |
 | #43 | Single authoritative transfer, effective-dated location | Transport drives assignments; move-day rule; derived location; cancel guards | Arrival-date semantics: the issue asks for one effective date equal to arrival; the code applies the company move-day rule (WP-15, owner decision pending). Controlled correction flow for conflicting historical changes | P2, P3 |
 | #44 | Daily input, monthly cards, project splits, generation | Monthly Card with day rows; project derived from assignments | Automatic generation, project splits within a month, daily log (FR-022) | P4 |
-| #45 | Configurable stopped reasons, no automatic entitlement | Fixed day-status Select | Reason table with billable flags (FR-061) | P4 |
+| #45 | Configurable stopped reasons, no automatic entitlement | Card Stop Reason (billable off by default), stop reason and stopped hours on the day row, 24-hour cap, billable stopped hours on the card, Equipment Downtime report, seed patch (FR-118, PR #194 merged) | User-extensible day-status table with billable flags (FR-061) is a different, still Planned request | P4 |
 | #46 | Effective-dated fuel price, immutable fill snapshot | Company price on fill (FR-002); price schedule (FR-125) in `[Unreleased]` | Unit and currency snapshot on each fill (the issue asks for both; the price is fixed on the fill today, the unit is not recorded); fuel type; configurable unit | P5 |
 | #47 | Bulk delivery allocation, tank inventory | Per-fill diesel only | Delivery, tank, measured-vs-estimated provenance (FR-034) | Owner model decision |
 | #48 | Equipment-centric maintenance, transport and operating cost | Reports over ERPNext expenses and the dimension | Capture of maintenance, parts, oils and miscellaneous expenses with source documents; multi-equipment allocation of one expense | P7 |
