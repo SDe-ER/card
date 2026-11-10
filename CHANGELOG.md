@@ -43,7 +43,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `frappe.get_list`, FR-131 company scope); project and equipment must belong to the company. Affected functions:
   new `card/daily_log_generation.py`; `card_daily_log.js` (button); `card/tests/test_bola_matrix.py` (FR-129 row for
   the new endpoint) and `docs/governance/ROLE-ACTION-MATRIX.md` (endpoint table regenerated, one row). Tests:
-  `card/tests/test_daily_log_generation.py` (19). PR: see the FR-145 registry row.
+  `card/tests/test_daily_log_generation.py` (19). PR #221.
   Impact: permissions — none changed (no role, DocPerm or `ignore_permissions`); the action is limited to users who
   can already create monthly cards (Card Manager, Card User, System Manager). Accounting none (draft cards only; no
   GL, no invoice). Data: writes draft Card Monthly Cards only when a user runs the action; nothing runs by itself; no
