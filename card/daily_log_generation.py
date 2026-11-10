@@ -279,18 +279,32 @@ def _apply_days(card, rows, shift, overwritten):
 	return changed
 
 
-def _stale_rows(days, covered):
-	"""Day rows (not in ``covered``) whose notes name a daily log that is no longer Approved and submitted."""
-	named = {d.notes: d for d in days if d.notes and getdate(d.operation_date) not in covered}
-	if not named:
+def _stale_rows(days, covered, company, project, equipment):
+	"""Day rows (not in ``covered``) that came from a daily log no longer Approved and submitted. A day counts only
+	when the log its notes name is a log of the card's company and project, dated on the day's date, with a row for
+	the card's equipment (the filters of ``_approved_rows``); any other text in the notes, a log name typed by hand
+	included, is never touched or reported."""
+	candidates = [d for d in days if d.notes and getdate(d.operation_date) not in covered]
+	if not candidates:
 		return []
-	logs = frappe.get_all(
-		LOG_DOCTYPE,
-		filters={"name": ["in", list(named)]},
-		fields=["name", "docstatus", "approval_status"],
-	)
-	stale = {log.name for log in logs if not (log.docstatus == 1 and log.approval_status == APPROVED)}
-	return [d for d in days if d.notes in stale and getdate(d.operation_date) not in covered]
+	log, row = frappe.qb.DocType(LOG_DOCTYPE), frappe.qb.DocType(LOG_ROW_DOCTYPE)
+	found = (
+		frappe.qb.from_(log)
+		.join(row)
+		.on((row.parent == log.name) & (row.parenttype == LOG_DOCTYPE))
+		.select(log.name, log.log_date, log.docstatus, log.approval_status)
+		.where(log.name.isin(list({d.notes for d in candidates})))
+		.where(log.company == company)
+		.where(log.project == project)
+		.where(row.equipment == equipment)
+		.distinct()
+	).run(as_dict=True)
+	stale = {
+		(r.name, getdate(r.log_date))
+		for r in found
+		if not (r.docstatus == 1 and r.approval_status == APPROVED)
+	}
+	return [d for d in candidates if (d.notes, getdate(d.operation_date)) in stale]
 
 
 def _stale_entry(card, shift, row):
@@ -306,7 +320,7 @@ def _stale_entry(card, shift, row):
 
 def _clear_stale(card, rows, shift, cleared):
 	"""Empty the draft card's days that came from a log no longer approved; True when something changed."""
-	stale = _stale_rows(card.get("days") or [], set(rows))
+	stale = _stale_rows(card.get("days") or [], set(rows), card.company, card.project, card.equipment)
 	for row in stale:
 		cleared.append(_stale_entry(card.name, shift, row))
 		row.update({"working_hours": 0, "notes": None, **dict.fromkeys(STOP_FIELDS)})
@@ -314,19 +328,22 @@ def _clear_stale(card, rows, shift, cleared):
 	return bool(stale)
 
 
-def _kept_submitted(name, shift, rows):
+def _kept_submitted(name, shift, rows, company, project, equipment):
 	days = frappe.get_all(
 		CARD_DAY,
 		filters={"parent": name, "parenttype": CARD},
 		fields=["operation_date", "working_hours", "stopped_hours", "notes"],
 	)
-	return {"card": name, "stale_days": [_stale_entry(name, shift, d) for d in _stale_rows(days, set(rows))]}
+	stale = _stale_rows(days, set(rows), company, project, equipment)
+	return {"card": name, "stale_days": [_stale_entry(name, shift, d) for d in stale]}
 
 
 def _build_card(company, project, equipment, month, year, shift, existing, rows, result):
 	"""Create or update one shift card. ``existing`` is (name, docstatus) from the locking read, or None."""
 	if existing and existing[1] == 1:
-		result["kept_submitted"].append(_kept_submitted(existing[0], shift, rows))
+		result["kept_submitted"].append(
+			_kept_submitted(existing[0], shift, rows, company, project, equipment)
+		)
 		return
 	if not existing and not _shift_has_hours(rows, shift):
 		return

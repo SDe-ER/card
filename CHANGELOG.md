@@ -31,7 +31,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   notes name the log, the day name is set as the form sets it), every other day row is kept. **The approved log
   wins:** a draft day whose values differed from the log (a manual correction or an earlier log) is replaced and
   listed in `overwritten_days` (card, date, old and new hours, stopped hours and notes; also shown in the dialog). A
-  day whose notes name a log that is no longer Approved (cancelled after generation) is cleared on a draft card
+  day whose notes name a log that is no longer Approved (cancelled after generation) — counted only when that log is
+  of the card's company and project, dated on the day and has a row for the card's equipment; any other text,
+  a hand-typed log name included, is never touched or reported — is cleared on a draft card
   (hours, stop data and notes emptied; `cleared_days`) and only reported on a submitted card (`stale_days` of its
   `kept_submitted` entry). Each card is built and saved through the card's own `insert()` /
   `save()` with the user's permissions, so the card's validation runs unchanged (duplicate guard, assignment days,
@@ -51,7 +53,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `frappe.get_list`, FR-131 company scope); project and equipment must belong to the company. Affected functions:
   new `card/daily_log_generation.py`; `card_daily_log.js` (button); `card/tests/test_bola_matrix.py` (FR-129 row for
   the new endpoint) and `docs/governance/ROLE-ACTION-MATRIX.md` (endpoint table regenerated, one row). Tests:
-  `card/tests/test_daily_log_generation.py` (28) and `card/tests/test_daily_log_generation_concurrency.py` (3, two
+  `card/tests/test_daily_log_generation.py` (29) and `card/tests/test_daily_log_generation_concurrency.py` (3, two
   real connections; fails without the locking read). PR #221.
   Impact: permissions — none changed (no role, DocPerm or `ignore_permissions`); the action is limited to users who
   can already create monthly cards (Card Manager, Card User, System Manager). Accounting none (draft cards only; no

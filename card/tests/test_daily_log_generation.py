@@ -682,3 +682,44 @@ class TestDailyLogGeneration(_CustomerCardsBase):
 				frappe.clear_messages()
 		self.assertEqual(messages[0], messages[1])
 		self.assertNotIn(company_b, messages[0])
+
+	def test_hand_typed_log_names_are_never_cleared_or_reported(self):
+		self._log(1, [self._row(8)])
+		(card,) = self._run()["created"]
+		other_date = self._log(2, [self._row(5)])
+		self._cancel(other_date)
+		other = self._equipment()
+		other_equipment = self._log(4, [{"equipment": other.name, "day_hours": 6}])
+		self._cancel(other_equipment)
+		company_b = self._company_b()
+		foreign = "TEST-K2-LOG-B-" + self.token
+		frappe.db.sql(
+			"insert into `tabCard Daily Log` (name, company, project, log_date, docstatus, approval_status) "
+			"values (%s, %s, %s, %s, 2, 'Pending')",
+			(foreign, company_b, self.project, self._day(5)),
+		)
+		frappe.db.sql(
+			"insert into `tabCard Daily Log Row` (name, parent, parenttype, parentfield, idx, equipment) "
+			"values (%s, %s, 'Card Daily Log', 'rows', 1, %s)",
+			(foreign + "-R", foreign, self.eq.name),
+		)
+		doc = frappe.get_doc(CARD, card)
+		for n, note in ((3, other_date.name), (4, other_equipment.name), (5, foreign)):
+			doc.append(
+				"days",
+				{"operation_date": self._day(n), "day_status": "عمل", "working_hours": 4, "notes": note},
+			)
+		doc.save()
+		result = self._run()
+		self.assertEqual(result["cleared_days"], [])
+		self.assertEqual(result["unchanged"], [card])
+		rows = self._days(card)
+		for n, note in ((3, other_date.name), (4, other_equipment.name), (5, foreign)):
+			with self.subTest(day=n):
+				self.assertEqual(
+					(rows[str(self._day(n))].working_hours, rows[str(self._day(n))].notes), (4, note)
+				)
+		# the same names on a submitted card are not reported either
+		frappe.get_doc(CARD, card).submit()
+		(kept,) = self._run()["kept_submitted"]
+		self.assertEqual(kept, {"card": card, "stale_days": []})
