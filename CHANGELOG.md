@@ -54,7 +54,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     Card Owner Deduction (wage lines and Salary Slip names are payroll data; the report keeps its wage gate), with
     API, list-view and export tests. Second review: a deduction dated before the owner's cut-over is listed, not counted; an approval checks the
     submitted card's ownership snapshot; a Salary Slip whose employee has any card in the period is refused (it is
-    already shared automatically); amendment chains resolved in bulk; the supplier reports use `DIR_RENTED_OUT`.
+    already shared automatically); amendment chains resolved in bulk; the supplier reports use `DIR_RENTED_OUT`. Third
+    review (owner decisions 2026-11-11): the reversal of a possible-duplicate accrual (Purchase Invoice return,
+    reversing Journal Entry, or a debit against it) is set aside too, so it nets to zero for the owner; the
+    duplicate test uses the start date of the machine the accrual is booked on (cost center), not the owner's
+    earliest; only a voucher that debits the company's equipment-rental expense account is a manual accrual of
+    dues (a genuine owner invoice, for example spare parts, is counted and stays a machine expense); each card
+    keeps the start date (`owner_entitlement_from`, fetched snapshot) and a change of owner clears the machine's
+    date for the new owner; the owner model is mandatory in the form for new equipment only, and a month without
+    it is shown as incomplete instead of "not managed".
 - **FR-149 — CARD documentation site (`website/`, Astro Starlight, English + Arabic).** Reason: the owner asked for a
   full user and API documentation site in the style of the Whatomate docs. New static site under `website/`
   (sections Getting Started, Features, Reports, API Reference; English at the root and Arabic RTL under `/ar/`),

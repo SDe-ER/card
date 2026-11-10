@@ -1097,3 +1097,118 @@ class TestOwnerDeductionAccess(OwnerFixtures):
 		)
 		with self.assertRaises(frappe.PermissionError):
 			reportview.export_query()
+
+
+class TestReviewRound4(OwnerFixtures):
+	"""Owner decisions 2026-11-11 (e1-e5): reversals, start date per machine, genuine owner invoices,
+	ownership transfer, owner model on legacy equipment."""
+
+	def setUp(self):
+		super().setUp()
+		accounts = [
+			r.name
+			for r in self._account(root_type="Expense")
+			if (r.account_type or "") in ("", "Expense Account", "Chargeable")
+			and r.name not in os_.excluded_expense_accounts(self.company)
+		]
+		if len(accounts) < 2:
+			self.skipTest("the test company needs two plain expense accounts")
+		self.rent, self.parts = accounts[0], accounts[1]
+		self._company_row(equipment_rental_expense_account=self.rent)
+
+	def _company_row(self, **values):
+		name = frappe.db.get_value(
+			"Card Company Settings",
+			{"parent": "Card Settings", "parenttype": "Card Settings", "company": self.company},
+			"name",
+		)
+		if name:
+			frappe.db.set_value("Card Company Settings", name, values)
+		else:
+			frappe.get_doc(
+				{
+					"doctype": "Card Company Settings",
+					"parent": "Card Settings",
+					"parenttype": "Card Settings",
+					"parentfield": "company_settings",
+					"company": self.company,
+					**values,
+				}
+			).db_insert()
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+
+	def _owner_je(self, owner, account, cc, amount, date="2026-09-28", reverse_of=None):
+		owner_line = self._owner_line(
+			owner, debit=amount if reverse_of else 0, credit=0 if reverse_of else amount
+		)
+		if reverse_of:
+			owner_line.update({"reference_type": "Journal Entry", "reference_name": reverse_of})
+		other = {"account": account, "cost_center": cc}
+		other["credit_in_account_currency" if reverse_of else "debit_in_account_currency"] = amount
+		return self._je([owner_line, other], date)
+
+	def test_the_reversal_of_a_duplicate_accrual_nets_to_zero(self):
+		owner = self._supplier("-R1")
+		cc = self._cost_center("-R1")
+		eq = self._equipment(owner, model=OWNER_MODEL_SELF, cost_center=cc)
+		self._card(eq)
+		dup = self._owner_je(owner, self.rent, cc, 22500)
+		self._owner_je(owner, self.rent, cc, 22500, date="2026-09-29", reverse_of=dup.name)
+		with patch.object(os_, "salary_slips", lambda *a: []):
+			s = self._statement([owner])
+		o = s.owners[owner]
+		self.assertEqual(o.closing, 22500)  # the card once; accrual and its reversal both set aside
+		self.assertEqual(o.duplicate_accruals, 0)
+
+	def test_the_start_date_is_per_machine(self):
+		owner = self._supplier("-R2")
+		cc_x, cc_y = self._cost_center("-X2"), self._cost_center("-Y2")
+		x = self._equipment(owner, model=OWNER_MODEL_SELF, cost_center=cc_x, since="2026-09-01")
+		self._equipment(owner, model=OWNER_MODEL_SELF, cost_center=cc_y, since="2026-12-01")
+		self._card(x)
+		self._owner_je(owner, self.rent, cc_y, 5000)  # machine Y is still settled by manual accruals
+		with patch.object(os_, "salary_slips", lambda *a: []):
+			s = self._statement([owner])
+		self.assertEqual(s.owners[owner].closing, 22500 + 5000)
+		self.assertEqual(s.owners[owner].duplicate_accruals, 0)
+
+	def test_a_genuine_owner_invoice_is_not_a_duplicate(self):
+		owner = self._supplier("-R3")
+		cc = self._cost_center("-R3")
+		eq = self._equipment(owner, model=OWNER_MODEL_MANAGED, cost_center=cc)
+		self._card(eq)
+		self._owner_je(owner, self.parts, cc, 3000)  # the owner sold spare parts for his machine
+		with patch.object(os_, "salary_slips", lambda *a: []):
+			s = self._statement([owner])
+		o = s.owners[owner]
+		self.assertEqual(o.duplicate_accruals, 0)
+		self.assertEqual(s.months[0].expenses, 3000)  # a machine expense of the managed partner
+		self.assertEqual(o.closing, 22500 - 3000 + 3000)  # owed for the parts, deducted as expense
+
+	def test_a_new_owner_gets_his_own_start_date(self):
+		first, second = self._supplier("-R4a"), self._supplier("-R4b")
+		eq = self._equipment(first, model=OWNER_MODEL_SELF, since="2026-09-01")
+		card = self._card(eq)
+		self.assertEqual(str(card.owner_entitlement_from), "2026-09-01")
+		eq.reload()
+		eq.supplier = second
+		eq.commercial_change_reason = "transfer " + self.token
+		eq.save(ignore_permissions=True)
+		self.assertFalse(eq.owner_entitlement_from)
+		s = self._statement([first], show_ledger=False, show_wages=False)
+		self.assertEqual(s.owners[first].entitlement, 22500)  # his own date, from his card
+
+	def test_owner_model_is_mandatory_only_for_new_equipment(self):
+		field = frappe.get_meta("Card Equipment").get_field("owner_model")
+		self.assertIn("__islocal", field.mandatory_depends_on)
+		owner = self._supplier("-R5")
+		eq = self._equipment(owner, model=OWNER_MODEL_SELF)
+		self._card(eq)
+		frappe.db.set_value("Card Equipment", eq.name, "owner_model", None)  # a legacy machine
+		frappe.db.set_value(
+			"Card Monthly Card", {"equipment": eq.name}, "owner_model", None, update_modified=False
+		)
+		with patch.object(os_, "salary_slips", lambda *a: []):
+			s = self._statement([owner])
+		self.assertTrue(s.months[0].no_owner_model)
+		self.assertFalse(s.owners[owner].complete)

@@ -158,6 +158,7 @@ def equipment_cards(company, equipment_names, until):
 			"working_days",
 			"operator",
 			"owner_model",
+			"owner_entitlement_from",
 			"amended_from",
 			"customer_amount",
 			"customer_net_amount",
@@ -380,6 +381,16 @@ def _with_descendants(doctype, name):
 	)
 
 
+def rent_expense_accounts(company):
+	"""The company's equipment-rental expense account and its children: a voucher that credits an
+	owner and debits one of them is a manual accrual of the owner's dues. Any other voucher that
+	credits the owner (for example his invoice for spare parts) is a genuine amount due to him.
+	None when the account is not set: then every voucher that credits the owner is treated as an
+	accrual of dues (the behaviour before the setting is used)."""
+	account = company_setting(company, "equipment_rental_expense_account")
+	return _with_descendants("Account", account) if account else None
+
+
 def deductible_expense_accounts(company):
 	"""The company's Expense ledger accounts, without diesel and payroll accounts."""
 	excluded = excluded_expense_accounts(company)
@@ -392,7 +403,7 @@ def deductible_expense_accounts(company):
 	]
 
 
-def cost_center_expenses(company, cost_center, start, end, accounts, owners=()):
+def cost_center_expenses(company, cost_center, start, end, accounts, owners=(), rent_accounts=None):
 	"""Net amount of ``accounts`` on the cost center itself in the period (debit - credit); a recharge
 	that credits the expense on the same cost center nets here once. The expense side of a voucher
 	that CREDITS an owner (a manual accrual of the owner's dues booked as an expense of the machine) is
@@ -411,7 +422,7 @@ def cost_center_expenses(company, cost_center, start, end, accounts, owners=()):
 			["posting_date", ">=", start],
 			["posting_date", "<=", end],
 		],
-		fields=["voucher_type", "voucher_no", "debit", "credit"],
+		fields=["voucher_type", "voucher_no", "account", "debit", "credit"],
 		limit_page_length=0,
 	)
 	accruals = set()
@@ -432,9 +443,15 @@ def cost_center_expenses(company, cost_center, start, end, accounts, owners=()):
 				limit_page_length=0,
 			)
 		}
-	return flt(
-		sum(flt(r.debit) - flt(r.credit) for r in rows if (r.voucher_type, r.voucher_no) not in accruals), 2
-	)
+
+	def accrual_side(r):
+		# the rent side of an owner accrual is the owner's revenue; a genuine owner invoice (parts)
+		# stays a machine expense
+		return (r.voucher_type, r.voucher_no) in accruals and (
+			rent_accounts is None or r.account in rent_accounts
+		)
+
+	return flt(sum(flt(r.debit) - flt(r.credit) for r in rows if not accrual_side(r)), 2)
 
 
 def cost_center_days(company, cost_center, month):
@@ -593,7 +610,7 @@ def recorded_deductions(company, equipment_names, start, end):
 # ---------------------------------------------------------------- party ledger
 
 
-def owner_ledger(company, owners, until):
+def owner_ledger(company, owners, until, rent_accounts=None):
 	"""Classified party-ledger lines of the owners, every payable account, up to ``until``."""
 	if not owners:
 		return []
@@ -636,6 +653,7 @@ def owner_ledger(company, owners, until):
 				"party",
 				"debit",
 				"credit",
+				"cost_center",
 			],
 			limit_page_length=0,
 		):
@@ -657,7 +675,54 @@ def owner_ledger(company, owners, until):
 		)
 		line.effect = flt(flt(line.credit) - flt(line.debit), 2)  # + = due to the owner
 		line.allocated = bool(line.against_voucher and line.against_voucher != line.voucher_no)
+		rest = [
+			r
+			for r in others[(line.voucher_type, line.voucher_no)]
+			if r.name != line.name and not (r.party_type == "Supplier" and r.party == line.party)
+		]
+		line.cost_centers = {r.cost_center for r in rest if r.cost_center}
+		line.rent_accrual = rent_accounts is None or any(r.account in rent_accounts for r in rest)
+	_set_reversals(lines)
 	return lines
+
+
+def _set_reversals(lines):
+	"""``line.reverses`` = the voucher a debit line reverses: a Purchase Invoice return (its
+	``return_against``), a reversing Journal Entry (``reversal_of``), or a debit made against that
+	voucher. Payments are never reversals."""
+	pis = list({l.voucher_no for l in lines if l.voucher_type == "Purchase Invoice"})
+	jes = list({l.voucher_no for l in lines if l.voucher_type == "Journal Entry"})
+	returns = {}
+	if pis:
+		returns = {
+			r.name: r.return_against
+			for r in frappe.get_all(
+				"Purchase Invoice",
+				filters={"name": ["in", pis], "is_return": 1},
+				fields=["name", "return_against"],
+				limit_page_length=0,
+			)
+		}
+	reversals = {}
+	if jes and frappe.get_meta("Journal Entry").has_field("reversal_of"):
+		reversals = {
+			r.name: r.reversal_of
+			for r in frappe.get_all(
+				"Journal Entry",
+				filters={"name": ["in", jes], "reversal_of": ["is", "set"]},
+				fields=["name", "reversal_of"],
+				limit_page_length=0,
+			)
+		}
+	for line in lines:
+		line.reverses = None
+		if line.kind == PAYMENT or flt(line.debit) <= flt(line.credit):
+			continue
+		line.reverses = (
+			returns.get(line.voucher_no)
+			or reversals.get(line.voucher_no)
+			or (line.against_voucher if line.against_voucher != line.voucher_no else None)
+		)
 
 
 def classify(line, voucher_rows, account_types):
@@ -738,8 +803,17 @@ def build_statement(
 		if (owner, eq) in cutover:
 			continue
 		machine = by_name[eq]
-		first = None
-		if owner == machine.supplier and machine.owner_entitlement_from:
+		# the start date each owner's submitted cards carry (a new owner gets his own); a machine's
+		# current date only for its current owner
+		snapshots = [
+			getdate(get_first_day(c.owner_entitlement_from))
+			for (o, e, _m), cs in months.items()
+			if (o, e) == (owner, eq)
+			for c in cs
+			if c.docstatus == 1 and c.get("owner_entitlement_from")
+		]
+		first = min(snapshots) if snapshots else None
+		if not first and owner == machine.supplier and machine.owner_entitlement_from:
 			first = getdate(get_first_day(machine.owner_entitlement_from))
 		if not first:
 			# no cut-over set: the first submitted card month of this owner, else the first card month
@@ -790,13 +864,20 @@ def build_statement(
 		row.approval_records = [n for r in revenue for n in r.approval_records]
 		row.approval_mismatch = any(r.approval_mismatch for r in revenue)
 		row.expenses = 0.0
+		row.no_owner_model = not model
 		row.no_cost_center = managed and show_ledger and not machine.cost_center
 		if managed and show_ledger and machine.cost_center:
 			key = (machine.cost_center, month)
 			if key not in cc_cache:
 				cc_cache[key] = (
 					cost_center_expenses(
-						company, machine.cost_center, month, get_last_day(month), accounts, owners
+						company,
+						machine.cost_center,
+						month,
+						get_last_day(month),
+						accounts,
+						owners,
+						rent_expense_accounts(company),
 					),
 					cost_center_days(company, machine.cost_center, month),
 				)
@@ -811,7 +892,7 @@ def build_statement(
 		)
 		apply_recorded(row, recorded.pop((owner, eq, month), {}), show_wages)
 		row.entitlement = flt(row.confirmed - row.deductions, 2)
-		row.complete = bool(show_ledger and show_wages and not row.no_cost_center)
+		row.complete = bool(show_ledger and show_wages and not row.no_cost_center and not row.no_owner_model)
 		month_rows.append(row)
 
 	# a submitted deduction in a month with no card of its owner on that machine is never dropped:
@@ -872,9 +953,14 @@ def build_statement(
 		)
 	month_rows.sort(key=lambda r: (r.owner or "", r.equipment, r.month))
 
-	owner_cutover = {}
-	for (owner, _eq), first in cutover.items():
-		owner_cutover[owner] = min(owner_cutover.get(owner, first), first)
+	def cut_for(owner, eq):
+		if (owner, eq) in cutover:
+			return cutover[(owner, eq)]
+		machine = by_name.get(eq)
+		if machine and owner == machine.supplier and machine.owner_entitlement_from:
+			return getdate(get_first_day(machine.owner_entitlement_from))
+		return None
+
 	# Purchase Invoices CARD posted for an owner's cards (a rented-in machine) are not manual accruals
 	card_invoices = set(
 		frappe.get_all(
@@ -890,7 +976,35 @@ def build_statement(
 	)
 
 	owner_rows = {}
-	ledger = owner_ledger(company, owners, end) if show_ledger else []
+	rent_accounts = rent_expense_accounts(company) if show_ledger else None
+	ledger = owner_ledger(company, owners, end, rent_accounts) if show_ledger else []
+	duplicate_vouchers = set()
+	for line in ledger:
+		line.duplicate = False
+		if line.kind != ACCRUAL or not line.rent_accrual:
+			continue
+		if line.voucher_type == "Purchase Invoice" and line.voucher_no in card_invoices:
+			continue
+		# the machine(s) the accrual is booked on (cost center); one machine only: that one
+		mine = [eq for eq, m in by_name.items() if m.cost_center and m.cost_center in line.cost_centers]
+		if not mine:
+			owned = [eq for eq in by_name if cut_for(line.party, eq)]
+			mine = owned if len(owned) == 1 else []
+		cuts = [cut_for(line.party, eq) for eq in mine]
+		if not mine or not all(cuts):
+			if not mine and any(cut_for(line.party, eq) for eq in by_name):
+				warnings.append(
+					_(
+						"Manual accrual {0} {1} names no machine of the owner; check it against the cards."
+					).format(line.voucher_type, line.voucher_no)
+				)
+			continue
+		if getdate(line.posting_date) >= max(cuts):
+			line.duplicate = True
+			duplicate_vouchers.add(line.voucher_no)
+	for line in ledger:
+		if line.reverses and line.reverses in duplicate_vouchers:
+			line.duplicate = True  # a reversal of a duplicate accrual nets to zero for the owner
 	for owner in owners:
 		o = frappe._dict(
 			owner=owner,
@@ -921,17 +1035,10 @@ def build_statement(
 				o.confirmed += row.confirmed
 				o.pending += row.pending
 				o.deductions += row.deductions
-		cut = owner_cutover.get(owner)
 		for line in ledger:
 			if line.party != owner:
 				continue
-			duplicate = (
-				line.kind == ACCRUAL
-				and cut
-				and getdate(line.posting_date) >= cut
-				and not (line.voucher_type == "Purchase Invoice" and line.voucher_no in card_invoices)
-			)
-			line.duplicate = bool(duplicate)
+			duplicate = line.duplicate
 			before = getdate(line.posting_date) < start
 			if before:
 				if not duplicate and not (family and line.kind == PAYMENT):

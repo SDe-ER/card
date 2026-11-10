@@ -6802,3 +6802,9 @@ msgstr ""
 #: card/intake.py
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr ""
+
+msgid "Manual accrual {0} {1} names no machine of the owner; check it against the cards."
+msgstr ""
+
+msgid "The equipment has no owner model: deductions not computed."
+msgstr ""

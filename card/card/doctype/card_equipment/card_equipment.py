@@ -349,6 +349,14 @@ class CardEquipment(Document):
 			or self.has_value_changed("owner_model")
 		):
 			return
+		if (
+			not self.is_new()
+			and self.has_value_changed("supplier")
+			and not self.has_value_changed("owner_entitlement_from")
+		):
+			# the earlier owner's start date stays on his submitted cards; the new owner starts with his
+			# own (empty = his first submitted card month)
+			self.owner_entitlement_from = None
 		if not self.supplier:
 			frappe.throw(_("Third-party equipment requires its owner (supplier)."))
 		if self.owner_model not in OWNER_MODELS:

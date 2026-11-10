@@ -198,6 +198,8 @@ def month_row(m, parent, indent, vat, show_ledger):
 		notes.append(_("A card row changed after its approval was recorded; the smaller amount is used."))
 	if m.check:
 		notes.append(_("The customer net is not fully explained: {0}").format(m.check))
+	if m.get("no_owner_model"):
+		notes.append(_("The equipment has no owner model: deductions not computed."))
 	if m.no_cost_center:
 		notes.append(_("The equipment has no cost center: expenses not computed."))
 	if m.unclassified:
