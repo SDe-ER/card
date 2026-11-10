@@ -1895,6 +1895,17 @@ msgstr ""
 msgid "Only Card Manager may approve equipment needs."
 msgstr ""
 
+msgid "You reviewed, edited or submitted this equipment needs review; another approver must approve it."
+msgstr ""
+
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json
+msgid "Review submitted by"
+msgstr ""
+
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json
+msgid "Review edited by"
+msgstr ""
+
 msgid "You also need permission to create Material Requests in ERPNext (for example Stock User)."
 msgstr ""
 
@@ -4654,4 +4665,54 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py
 msgid "The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other party bears the cost"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other Party"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other party type"
+msgstr ""
+
+#: card/card/report/transport_accounting_review/transport_accounting_review.py
+msgid "Other party bearing the transport cost"
+msgstr ""
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py
+msgid "Agreed amount (not company cost)"
+msgstr ""
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py
+msgid "Transports not paid by the company"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the type of the other party that bears the transport cost."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the other party that bears the transport cost."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} is not an employee of company {1}."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} is not active."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The other party {0} was not found."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The other party {0} is disabled."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The agreed amount (not company cost) cannot be negative."
 msgstr ""
