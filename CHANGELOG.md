@@ -192,6 +192,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
+- **CI: upgrade rehearsal on the current Production platform** (PR #192; refs #119, #120). The rehearsal now runs on
+  frappe `v16.55.2` / erpnext `v16.54.0` (the Production platform of 2026-11-10; tags checked on GitHub) instead of
+  16.51.1 / 16.50.0, and on every pull request: the path filter is removed because the job takes about 5 minutes
+  and runs in parallel with the CARD unit tests (about 10-16 minutes), so no pull request waits longer, and Python
+  code that migrate runs is rehearsed too. Files: `.github/workflows/upgrade-rehearsal.yml`,
+  `.github/helper/upgrade_rehearsal.sh`, `docs/governance/HRMS-PARITY.md`. HRMS stays off the rehearsal site (CARD
+  depends on frappe and erpnext only). Impact on permissions, accounting, data and the API: none. Rollback: revert
+  the commit.
 - **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill
   without equipment is now ONE Purchase Invoice line (its full amount, the project, no equipment) instead of one
   line per equipment split by operating hours; an hours-based split is an estimate, not a posting basis. Its cost
