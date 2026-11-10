@@ -13,6 +13,7 @@ from frappe.utils import add_days, getdate
 from card.constants import MOVE_DAY_NEXT, MOVE_DAY_SAME
 from card.settings import company_setting
 from card.tests import test_transfer as _transfer
+from card.tests.cancel_reason import with_reason
 from card.tests.test_controllers import _ensure_masters
 from card.tests.transport_parties import company_paid
 from card.transfer import current_location
@@ -175,7 +176,7 @@ class TestTransportCompanyRules(IntegrationTestCase):
 		created = t.created_assignment
 		self._company_row(move_day_rule=MOVE_DAY_NEXT)  # a later change of the setting
 		t.reload()
-		t.cancel()
+		with_reason(t).cancel()
 		self.assertFalse(frappe.db.exists("Card Equipment Assignment", created))
 		self.assertIsNone(self._to(old.name))
 		self.assertEqual(frappe.db.get_value("Card Equipment", eq, "current_project"), proj_a)
@@ -199,7 +200,7 @@ class TestTransportCompanyRules(IntegrationTestCase):
 		self._submitted_card(eq, proj_b, [10])
 		frappe.db.savepoint("card_refused")
 		with self.assertRaisesRegex(frappe.ValidationError, "operation days are recorded"):
-			t.cancel()
+			with_reason(t).cancel()
 		frappe.db.rollback(save_point="card_refused")
 
 	def test_move_day_rule_refuses_leaving_on_the_arrival_day(self):
