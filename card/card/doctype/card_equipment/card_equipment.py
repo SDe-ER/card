@@ -9,7 +9,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder.functions import Sum, UnixTimestamp
-from frappe.utils import add_days, cstr, flt, getdate
+from frappe.utils import add_days, cint, cstr, flt, getdate
 
 from card.attachment_validator import (
 	check_attachment_content,
@@ -19,6 +19,7 @@ from card.attachment_validator import (
 )
 from card.constants import (
 	CUSTOMER_BILLING_DIRECTIONS,
+	OWNED,
 	SUPPLIER_BILLING_DIRECTIONS,
 	allowed_directions,
 	derive_direction,
@@ -39,6 +40,8 @@ COMMERCIAL_FIELDS = (
 	"daily_hours",
 	"الوقود_على",
 	"internal_hourly_rate",
+	"internal_rate_basis",
+	"internal_rate",
 	"customer_rate_type",
 	"customer_rate",
 	"customer_rate_night",
@@ -122,6 +125,15 @@ class CardEquipment(Document):
 		# so depreciation entries land on the equipment in GL. No-op without the dimension.
 		sync_asset_dimension(self)
 		self.claim_document_files()
+		# WP-05: the pieces that joined or left this unit get their derived component flag
+		# (move_component syncs once itself, after both units are saved)
+		if not frappe.flags.get("card_defer_unit_flag_sync"):
+			before = self.get_doc_before_save()
+			pieces = {r.component for r in self.get("components") or [] if r.component}
+			pieces.update(
+				r.component for r in (before.get("components") if before else None) or [] if r.component
+			)
+			sync_unit_component_flags(pieces)
 		if self.has_value_changed("equipment_model"):
 			# FR-077: a machine's fitment rows carry its model (filters, conflict check)
 			frappe.db.set_value(
@@ -132,9 +144,17 @@ class CardEquipment(Document):
 				update_modified=False,
 			)
 
+	def on_trash(self):
+		# WP-05: a deleted unit's pieces are re-derived once its rows are gone (after_delete)
+		self.flags.card_unit_pieces = {r.component for r in self.get("components") or [] if r.component}
+
+	def after_delete(self):
+		sync_unit_component_flags(self.flags.get("card_unit_pieces") or ())
+
 	def validate(self):
 		self.sync_asset_details()
 		self.apply_new_record_defaults()
+		self.keep_derived_unit_component()
 		self.validate_rental_direction()
 		self.validate_commercial_change_reason()
 		self.validate_unique_asset()
@@ -147,6 +167,7 @@ class CardEquipment(Document):
 			# blocked by an unrelated save
 			self.validate_company_change()
 			self.validate_asset_link()
+			self.validate_owned_unit()
 			self.validate_components()
 			self.validate_document_files()
 		# Ported from Server Script "Card Equipment - Hourly Rate" (Before Validate).
@@ -416,6 +437,42 @@ class CardEquipment(Document):
 				)
 			)
 
+	def keep_derived_unit_component(self):
+		"""WP-05: is_unit_component is derived from the units' component tables
+		(sync_unit_component_flags), never written by a save (REST and imports included):
+		a new equipment starts with the derived value, an existing one keeps the stored one."""
+		if self.is_new():
+			self.is_unit_component = 1 if self.name and unit_of_component(self.name) else 0
+			return
+		self.is_unit_component = cint(frappe.db.get_value(self.doctype, self.name, "is_unit_component"))
+
+	def validate_owned_unit(self):
+		"""#42 (WP-04): a combined unit and each of its pieces are owned equipment. Checked
+		when a record becomes a unit or a piece, or its ownership changes, so a legacy rented
+		unit is never blocked by an unrelated save (get_unit_integrity_issues lists it)."""
+		if self.ownership == OWNED:
+			return
+		ownership = _(self.meta.get_label("ownership"))
+		became_unit = self.is_unit and (self.is_new() or self.has_value_changed("is_unit"))
+		if became_unit or (self.is_unit and self.has_value_changed("ownership")):
+			frappe.throw(
+				_("Only owned equipment can be a unit. Set {0} to owned or untick the unit option.").format(
+					ownership
+				),
+				title=_("Unit needs owned equipment"),
+			)
+		if not self.is_new() and self.has_value_changed("ownership"):
+			# locking read: a unit saved at the same moment that adds this piece is seen
+			# (its save locks this equipment row and re-reads the ownership the same way)
+			unit = unit_of_component(self.name, for_update=True)
+			if unit:
+				frappe.throw(
+					_(
+						"Equipment {0} is a component of unit {1}; a unit component must be owned. Take it out of the unit first."
+					).format(self.name, unit),
+					title=_("Unit needs owned equipment"),
+				)
+
 	def validate_components(self):
 		"""#56: a unit's components decide which assignments its card days are
 		checked against (card.transfer.validate_card_days)."""
@@ -424,7 +481,12 @@ class CardEquipment(Document):
 		if before and not self.has_value_changed("is_unit") and not self._company_changed():
 			if _component_keys(before.get("components") or []) == _component_keys(rows):
 				return
-		check_unit_components(self.name, self.company, self.is_unit, rows)
+		# WP-04: only a piece that joins the unit now is checked for ownership
+		was_open = {
+			r.component for r in (before.get("components") if before else None) or [] if not r.to_date
+		}
+		joining = {r.component for r in rows if r.component and not r.get("to_date")} - was_open
+		check_unit_components(self.name, self.company, self.is_unit, rows, self.ownership, joining)
 
 	def apply_new_record_defaults(self):
 		# Card Settings pre-fill for NEW equipment only; a provided value is never overridden.
@@ -452,15 +514,26 @@ def _component_keys(rows):
 	return [(r.get("component"), str(r.get("from_date") or ""), str(r.get("to_date") or "")) for r in rows]
 
 
-def check_unit_components(unit, company, is_unit, rows):
+def check_unit_components(unit, company, is_unit, rows, ownership=None, joining=()):
 	"""#56: the component rules of a unit, shared by the unit's save
 	(CardEquipment.validate_components) and a component row saved on its own
 	(CardEquipmentComponent.validate).
 
 	v3.0.0: a row with a `to_date` is history (the piece left the unit), so only rows
-	still in the unit count for "listed twice" and "already belongs to another unit"."""
+	still in the unit count for "listed twice" and "already belongs to another unit".
+
+	#42 (WP-04): a piece that joins the unit (`joining`) must be owned, and so must the
+	unit it joins. Pieces already in a legacy unit are not re-checked, so closing their
+	rows (taking them out) stays possible."""
 	if rows and not is_unit:
 		frappe.throw(_("Only a unit can list components."))
+	if joining and ownership != OWNED:
+		frappe.throw(
+			_(
+				"Only owned equipment can be a unit; unit {0} is not owned, so no component can join it."
+			).format(unit),
+			title=_("Unit needs owned equipment"),
+		)
 	for row in rows:
 		if row.get("from_date") and row.get("to_date") and getdate(row.to_date) < getdate(row.from_date):
 			frappe.throw(_("Component {0}: the To date is before the From date.").format(row.component))
@@ -497,12 +570,19 @@ def check_unit_components(unit, company, is_unit, rows):
 		# crossed lock order between two multi-component units can deadlock, which
 		# the database resolves by aborting one of the saves.
 		info = frappe.db.get_value(
-			"Card Equipment", component, ["company", "is_unit"], as_dict=True, for_update=True
+			"Card Equipment", component, ["company", "is_unit", "ownership"], as_dict=True, for_update=True
 		)
 		if not info:
 			continue  # frappe's link validation reports the missing equipment
 		if info.is_unit:
 			frappe.throw(_("Component {0} is itself a unit.").format(component))
+		if component in joining and info.ownership != OWNED:
+			frappe.throw(
+				_("Component {0} is not owned equipment; only owned equipment can be part of a unit.").format(
+					component
+				),
+				title=_("Unit needs owned equipment"),
+			)
 		if info.company != company:
 			frappe.throw(
 				_("Component {0} belongs to company {1}; the unit belongs to {2}.").format(
@@ -522,6 +602,135 @@ def check_unit_components(unit, company, is_unit, rows):
 		)
 		if other:
 			frappe.throw(_("Component {0} already belongs to unit {1}.").format(component, other))
+
+
+# ---------- WP-05: the unit-component flag follows the units' component tables ----------
+_COMPONENT_ROWS = {"parenttype": "Card Equipment", "parentfield": "components"}
+
+
+def unit_of_component(equipment, for_update=False):
+	"""The unit `equipment` is a current component of (a row with no To date), else None.
+	for_update: a locking read, which returns the latest committed rows (MariaDB REPEATABLE
+	READ), as check_unit_components does when a piece joins a unit."""
+	if not equipment:
+		return None
+	return frappe.db.get_value(
+		"Card Equipment Component",
+		{**_COMPONENT_ROWS, "component": equipment, "to_date": ["is", "not set"]},
+		"parent",
+		for_update=for_update,
+	)
+
+
+def component_periods(equipment):
+	"""Every period `equipment` was or is a component of a unit: [{unit, from_date, to_date}]
+	(an empty date is open on that side)."""
+	return frappe.get_all(
+		"Card Equipment Component",
+		filters={**_COMPONENT_ROWS, "component": equipment},
+		fields=["parent as unit", "from_date", "to_date"],
+	)
+
+
+def derived_unit_component(equipment):
+	return 1 if unit_of_component(equipment) else 0
+
+
+def sync_unit_component_flags(pieces):
+	"""Store the derived is_unit_component of each piece (db.set_value: the piece's own
+	validate and on_update do not run, its modified date stays). A change leaves a comment
+	on the piece."""
+	for piece in sorted(p for p in pieces if p):
+		stored = frappe.db.get_value("Card Equipment", piece, "is_unit_component")
+		if stored is None:
+			continue  # the piece no longer exists
+		derived = derived_unit_component(piece)
+		if cint(stored) == derived:
+			continue
+		frappe.db.set_value("Card Equipment", piece, "is_unit_component", derived, update_modified=False)
+		unit = unit_of_component(piece)
+		frappe.get_doc("Card Equipment", piece).add_comment(
+			"Info",
+			_("Unit component flag set from the component table of unit {0}.").format(unit)
+			if derived
+			else _("Unit component flag cleared: the equipment is no longer a current component of a unit."),
+		)
+
+
+def unit_integrity_issues(equipment_rows):
+	"""#42/WP-04 and WP-05: what the owned-only and derived-flag rules find in existing
+	records, for the given equipment ({name, company, ownership, is_unit, is_unit_component}).
+	Read-only: nothing is changed here."""
+	by_name = {e.name: e for e in equipment_rows}
+	if not by_name:
+		return []
+	open_rows = frappe.get_all(
+		"Card Equipment Component",
+		filters={**_COMPONENT_ROWS, "to_date": ["is", "not set"]},
+		fields=["parent", "component"],
+	)
+	listed = {
+		r.component
+		for r in frappe.get_all("Card Equipment Component", filters=_COMPONENT_ROWS, fields=["component"])
+	}
+	unit_of = {r.component: r.parent for r in open_rows if r.component}
+	issues = []
+
+	def add(issue, eq, unit=None):
+		issues.append(
+			frappe._dict(issue=issue, message=_(issue), equipment=eq.name, company=eq.company, unit=unit)
+		)
+
+	for eq in sorted(by_name.values(), key=lambda e: e.name):
+		if cint(eq.is_unit) and eq.ownership != OWNED:
+			add("Unit is not owned", eq)
+		unit = unit_of.get(eq.name)
+		if unit and eq.ownership != OWNED:
+			add("Component is not owned", eq, unit)
+		if cint(eq.is_unit_component) and not unit:
+			# never listed in any unit: ambiguous (the unit's table may never have been filled in);
+			# kept until a Card Manager resolves it (resync_unit_component_flag)
+			add(
+				"Component flag without a unit"
+				if eq.name not in listed
+				else "Component flag after leaving its unit",
+				eq,
+			)
+		if unit and not cint(eq.is_unit_component):
+			add("Current component without the flag", eq, unit)
+	return issues
+
+
+@frappe.whitelist(methods=["GET"])
+def get_unit_integrity_issues(company: str | None = None):
+	"""#42/WP-04, WP-05: existing records that break the owned-only unit rule or whose
+	unit-component flag does not match the component tables, for the equipment the user may
+	read (Company User Permissions apply). Read-only; nothing is changed."""
+	frappe.has_permission("Card Equipment", "read", throw=True)
+	filters = {"company": company} if company else {}
+	rows = frappe.get_list(
+		"Card Equipment",
+		filters=filters,
+		fields=["name", "company", "ownership", "is_unit", "is_unit_component"],
+		limit_page_length=0,
+	)
+	return unit_integrity_issues(rows)
+
+
+@frappe.whitelist(methods=["POST"])
+def resync_unit_component_flag(equipment: str):
+	"""WP-05: set one equipment's unit-component flag to the value its component rows give
+	(for a flag the migration kept because it was ambiguous). Card Manager level: the flag
+	is permission level 1, like the components table."""
+	doc = frappe.get_doc("Card Equipment", equipment)
+	doc.check_permission("write")
+	if not doc.has_permlevel_access_to("is_unit_component", permission_type="write"):
+		frappe.throw(
+			_("You are not permitted to change the unit component flag of {0}.").format(equipment),
+			frappe.PermissionError,
+		)
+	sync_unit_component_flags([equipment])
+	return derived_unit_component(equipment)
 
 
 def get_timeline_data(doctype: str, name: str) -> dict:
@@ -619,12 +828,23 @@ def move_component(unit: str, component: str, target_unit: str, date: str, reaso
 	row = _close_component(source, component, day, reason)
 	_check_no_approved_card_from(target, day)
 	_check_component_on_project(target, component, day)
-	# close first: the target's "already belongs to another unit" check reads the DB
-	source.save()
-	target.append(
-		"components", {"component": component, "role": row.role, "from_date": day, "change_reason": reason}
+	# close first: the target's "already belongs to another unit" check reads the DB.
+	# The piece stays a component throughout: its flag is synced once, after both saves
+	# (no cleared-then-set pair of comments)
+	deferred = frappe.flags.get("card_defer_unit_flag_sync")
+	frappe.flags.card_defer_unit_flag_sync = True
+	try:
+		source.save()
+		target.append(
+			"components",
+			{"component": component, "role": row.role, "from_date": day, "change_reason": reason},
+		)
+		target.save()
+	finally:
+		frappe.flags.card_defer_unit_flag_sync = deferred
+	sync_unit_component_flags(
+		{r.component for doc in (source, target) for r in doc.components if r.component}
 	)
-	target.save()
 	return target.name
 
 

@@ -72,6 +72,14 @@ def get_card_context(equipment: str, month: str, year: str, project: str | None 
 					if _in_unit_on(r, getdate(d))
 				)
 			}
+	if days:
+		# WP-05: a piece's days inside a unit period belong on the unit's card
+		# (CardMonthlyCard._refuse_unit_component_days), so the form does not offer them
+		from card.card.doctype.card_equipment.card_equipment import component_periods
+
+		periods = component_periods(equipment)
+		if periods:
+			days = {d for d in days if not any(_in_unit_on(p, getdate(d)) for p in periods)}
 	return {"projects": projects, "project": project, "days": sorted(days)}
 
 
@@ -111,12 +119,7 @@ class CardMonthlyCard(Document):
 		)
 		if not eq:
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
-		if eq.is_unit_component:
-			frappe.throw(
-				_(
-					"This equipment is a unit component; the monthly card is kept on the unit, not the component."
-				)
-			)
+		self._refuse_unit_component_days(eq)
 		if self.company and self.company != eq.company:
 			frappe.throw(_("The card's company does not match the equipment's company"))
 
@@ -386,6 +389,38 @@ class CardMonthlyCard(Document):
 						title=_("Review rental period"),
 						indicator="orange",
 					)
+
+	def _refuse_unit_component_days(self, eq):
+		"""WP-05 (#42): a piece is billed on its unit's card while it is in the unit, so its
+		own card may not record working hours on a day inside a component period of any unit (the dated
+		rows of the units' component tables). A flag ticked before the flag was derived,
+		on equipment no unit lists, still refuses the whole card: nothing says when the
+		piece was in a unit (get_unit_integrity_issues lists those)."""
+		from card.card.doctype.card_equipment.card_equipment import component_periods
+
+		periods = component_periods(self.equipment)
+		if not periods:
+			if eq.is_unit_component:
+				frappe.throw(
+					_(
+						"This equipment is a unit component; the monthly card is kept on the unit, not the component."
+					)
+				)
+			return
+		for d in self.days:
+			# like validate_card_days: only a day with hours is billed; the form adds a 0-hour
+			# row for every day of the month the machine was on the project
+			if not d.operation_date or flt(d.working_hours) <= 0:
+				continue
+			day = getdate(d.operation_date)
+			unit = next((p.unit for p in periods if _in_unit_on(p, day)), None)
+			if unit:
+				frappe.throw(
+					_(
+						"On {0} equipment {1} is a component of unit {2}; that day belongs on the unit's card, not the component's."
+					).format(frappe.format(day, "Date"), self.equipment, unit),
+					title=_("Unit component"),
+				)
 
 	def _resolve_project(self, first_day, last_day):
 		"""The user picks the equipment, month and shift; the project is the one the
