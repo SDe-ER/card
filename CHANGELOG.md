@@ -392,6 +392,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   workflows, the report count corrected to 19, and the Features section brought up to v4.5.0 (settlement,
   posting integrity, transport cost responsibility, equipment financial privacy). Requested by the owner. Documentation only: no change to
   code, permissions, accounting, data or the API. Rollback: revert the commit.
+- **Architecture pack** (`docs/architecture/`; #40, #54). Reason: the epics ask for a domain map, state transitions,
+  source-of-truth matrix, localization matrix, accounting examples, risk register, international test matrix and
+  roadmap before any new design is coded. Eight files plus an index, read from the code on `main` @ `2210d91`
+  (DocType JSON, controllers, `hooks.py`, `card/gl/`, patches); anything not implemented is marked Planned with its
+  issue. The permission matrix is not repeated: it links to `docs/governance/ROLE-ACTION-MATRIX.md`. Documentation
+  only: no change to code, permissions, accounting, data or the API. Rollback: revert the commit.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
