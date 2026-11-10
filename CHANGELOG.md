@@ -28,7 +28,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   guard tests require every whitelisted function in the table with its decorator's HTTP methods. Four cross-company create
   gaps are reported, not fixed, and kept as expected failures: `card.tool_custody.move` and `frappe.client.insert` on
   Employee Tool Custody, Equipment Needs Request and Equipment Needs Review (company set in `validate` after Frappe's create
-  check; no company `has_permission` hook). PR #PRNUM. Affected: tests and documentation only. Impact: no change to
+  check; no company `has_permission` hook). PR #203. Affected: tests and documentation only. Impact: no change to
   permissions, accounting, data or the API. Rollback: revert the commit (no data or schema involved).
 - **Effective-dated diesel price schedule** (FR-125, #46, #124 WP-10). Reason: the diesel price changes over time and a fill
   must take the price valid on its own date. Card Settings > Diesel Settings gets the table **Diesel price schedule** (new child
