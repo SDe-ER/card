@@ -30,7 +30,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   it); two companies may share a key. The evidence must be a private JPEG/PNG/WebP/PDF of this transport (or the
   user's own upload, then claimed), checked by `card.attachment_validator`; its SHA-256 is computed on the server from
   the File bytes, and a hash sent by the client is never kept. The same evidence on another live transport of the
-  company only warns (owner rule 2026-11-10: new rules warn-only or opt-in). PR pending.
+  company only warns (owner rule 2026-11-10: new rules warn-only or opt-in). PR #220.
   Impact: permissions none (no role, DocPerm or endpoint added; `card.intake.propose` is WP-N3); accounting none (no
   posting reads these fields); data: six new nullable columns and one index on `tabEquipment Transport`, no patch,
   existing transports keep empty values and are saved, submitted and cancelled exactly as before (no lock is taken
