@@ -1,0 +1,371 @@
+{
+ "actions": [],
+ "creation": "2026-11-10 20:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-11-10 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Period Run",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "CPR-.#####",
+ "naming_rule": "Expression (old style)",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "title_field": "company",
+ "show_title_field_in_link": 0,
+ "permissions": [
+  {
+   "role": "System Manager",
+   "permlevel": 0,
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Card Manager",
+   "permlevel": 0,
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "export": 1,
+   "report": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "permlevel": 0,
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "print": 1,
+   "export": 1,
+   "report": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Card Manager",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "permlevel": 1,
+   "read": 1
+  }
+ ],
+ "field_order": [
+  "company",
+  "month",
+  "year",
+  "version",
+  "self_approval_rule",
+  "column_break_approval",
+  "approval_status",
+  "submitted_by",
+  "edited_by",
+  "approved_by",
+  "approved_on",
+  "approved_version",
+  "approved_hash",
+  "self_approved",
+  "return_reason",
+  "returned_by",
+  "returned_on",
+  "snapshot_section",
+  "built_on",
+  "snapshot_hash",
+  "currency",
+  "diesel_vat_basis",
+  "fingerprint_version",
+  "source_count",
+  "column_break_totals",
+  "supplier_source_count",
+  "supplier_total",
+  "customer_source_count",
+  "customer_total",
+  "sources_section",
+  "sources",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "month",
+   "fieldtype": "Select",
+   "label": "Period run month",
+   "options": "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Int",
+   "label": "Period run year",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "label": "Period run version",
+   "in_list_view": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "self_approval_rule",
+   "fieldtype": "Select",
+   "label": "Period run self-approval rule",
+   "options": "Warn only (period run)\nRefuse (period run)",
+   "default": "Warn only (period run)",
+   "allow_on_submit": 1,
+   "description": "Refuse: whoever prepared, edited or submitted the run (or an earlier version) cannot approve it. Once Refuse, the rule stays Refuse for this run and its later versions."
+  },
+  {
+   "fieldname": "column_break_approval",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "label": "Period run approval",
+   "options": "Pending\nApproved\nReturned for correction",
+   "default": "Pending",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1
+  },
+  {
+   "fieldname": "submitted_by",
+   "fieldtype": "Link",
+   "label": "Period run submitted by",
+   "options": "User",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "edited_by",
+   "fieldtype": "Small Text",
+   "label": "Period run edited by",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Period run approved by",
+   "options": "User",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Period run approved on",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_version",
+   "fieldtype": "Int",
+   "label": "Period run approved version",
+   "depends_on": "eval:doc.approved_by",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_hash",
+   "fieldtype": "Data",
+   "label": "Approved snapshot fingerprint",
+   "hidden": 1,
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "self_approved",
+   "fieldtype": "Check",
+   "label": "Approved by its own preparer",
+   "depends_on": "eval:doc.self_approved",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "return_reason",
+   "fieldtype": "Small Text",
+   "label": "Period run return reason",
+   "depends_on": "eval:doc.approval_status=='Returned for correction'",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "returned_by",
+   "fieldtype": "Link",
+   "label": "Period run returned by",
+   "options": "User",
+   "depends_on": "eval:doc.approval_status=='Returned for correction'",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "returned_on",
+   "fieldtype": "Datetime",
+   "label": "Period run returned on",
+   "depends_on": "eval:doc.approval_status=='Returned for correction'",
+   "allow_on_submit": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "snapshot_section",
+   "fieldtype": "Section Break",
+   "label": "Period run snapshot"
+  },
+  {
+   "fieldname": "built_on",
+   "fieldtype": "Datetime",
+   "label": "Snapshot built on",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "snapshot_hash",
+   "fieldtype": "Data",
+   "label": "Snapshot fingerprint",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Period run currency",
+   "options": "Currency",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "diesel_vat_basis",
+   "fieldtype": "Data",
+   "label": "Diesel price VAT basis at build",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "fingerprint_version",
+   "fieldtype": "Int",
+   "label": "Period run fingerprint version",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "source_count",
+   "fieldtype": "Int",
+   "label": "Source documents in the run",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_totals",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_source_count",
+   "fieldtype": "Int",
+   "label": "Supplier-side documents",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "supplier_total",
+   "fieldtype": "Currency",
+   "label": "Supplier-side gross source total",
+   "description": "The source documents' own amounts (a diesel fill at its gross fill amount). Not the invoice total: with a VAT-inclusive diesel price the invoice books the net part.",
+   "options": "currency",
+   "permlevel": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "customer_source_count",
+   "fieldtype": "Int",
+   "label": "Customer-side documents",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "customer_total",
+   "fieldtype": "Currency",
+   "label": "Customer-side gross source total",
+   "options": "currency",
+   "permlevel": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sources_section",
+   "fieldtype": "Section Break",
+   "label": "Period run source documents"
+  },
+  {
+   "fieldname": "sources",
+   "fieldtype": "Table",
+   "label": "Period run source documents",
+   "options": "Card Period Run Source",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Card Period Run",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ]
+}
