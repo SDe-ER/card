@@ -7177,7 +7177,7 @@ msgstr "اعتماد الكارت الشهري"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card submitted by"
-msgstr "اعتمد الكارت الشهري (Submit)"
+msgstr "مقدِّم الكارت الشهري للاعتماد (Submit)"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by"
@@ -7218,3 +7218,7 @@ msgstr "أنشأت هذا الكارت الشهري أو عدّلته وتعتم
 #: card/governance.py
 msgid "Monthly card self-approval"
 msgstr "اعتماد الكارت الشهري من معدّه"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by its own preparer"
+msgstr "اعتمده معدّه"

@@ -434,6 +434,46 @@ class TestCardSoD(_CustomerCardsBase):
 		self._submit(third.name, self.manager)
 		self.assertEqual(self._stored(third.name).docstatus, 1)
 
+	def test_clearing_amended_from_keeps_the_chain(self):
+		"""Review finding 1: Frappe checks ``amended_from`` on insert only; a later save that clears it keeps the
+		stored value, so the original's creator stays a preparer."""
+		self._set_rule(self.company, governance.RULE_REFUSE)
+		first = self._draft(self.manager2)
+		self._submit(first.name, self.manager)
+		frappe.set_user(self.manager)
+		with_reason(frappe.get_doc(CARD, first.name)).cancel()
+		frappe.set_user("Administrator")
+		for route in ("save", "set_value"):
+			with self.subTest(route=route):
+				second = self._amend(first.name, self.preparer)
+				frappe.set_user(self.preparer)
+				if route == "save":
+					frappe.client.save({**frappe.get_doc(CARD, second.name).as_dict(), "amended_from": None})
+				else:
+					frappe.client.set_value(CARD, second.name, "amended_from", None)
+				frappe.set_user("Administrator")
+				self.assertEqual(frappe.db.get_value(CARD, second.name, "amended_from"), first.name)
+				self._refused(self._submit, second.name, self.manager2)
+				self.assertEqual(self._stored(second.name).docstatus, 0)
+				frappe.delete_doc(CARD, second.name, force=True, ignore_permissions=True)
+
+	def test_cancel_restore_on_its_own(self):
+		"""Review finding 4: with the FR-123 field check patched out, the governance before_cancel alone keeps the
+		stored approval when a cancel request carries forged values."""
+		from frappe.api import v1
+
+		card = self._approved()
+		before = self._approval(card.name)
+		frappe.set_user(self.manager)
+		frappe.local.form_dict = frappe._dict(
+			data=frappe.as_json({"docstatus": 2, "cancel_reason": TEST_REASON, **FORGED})
+		)
+		with patch("card.cancel_reason._refuse_changes"):
+			v1.update_doc(CARD, card.name)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored(card.name).docstatus, 2)
+		self.assertEqual(self._approval(card.name), before)
+
 	def test_legacy_draft_without_editors(self):
 		self._set_rule(self.company, governance.RULE_REFUSE)
 		draft = self._draft()

@@ -18,9 +18,9 @@ Server-written fields (read only, no copy; a client value is never kept on any r
 - ``self_approved``: the approver was a preparer and the company rule let it through (Warn only).
 
 Preparers: the creator (``owner``, read from the database) and every editor of the card and of every card of its
-amendment chain (``amended_from``, read from the database as well). A card saved before FR-143 has no editor list:
-the user who last saved the draft (``modified_by``) is taken as its editor at its next save or submit, and an
-older card of the chain counts with its creator only. The approver of an earlier card of the chain is not a
+amendment chain (``amended_from``: a saved card keeps its stored value, a sent change is dropped). A card saved
+before FR-143 has no editor list: the user who last saved the draft (``modified_by``) is taken as its editor at
+its next save or submit, and an older card of the chain counts with its creator only. The approver of an earlier card of the chain is not a
 preparer of the amendment (it is the normal approver of the correction).
 
 Rule per company (Card Company Settings ``card_approval_rule``, owner decision O-07): "Warn only (card approval)"
@@ -75,7 +75,7 @@ def card_preparers(doc):
 	chain. The values of ``doc`` itself are the server's (``on_validate`` set them from the database)."""
 	users = {doc.get("owner"), *_lines(doc.get("edited_by"))}
 	seen = {doc.name}
-	pending = [doc.get("amended_from"), getattr(doc.flags, "card_stored_amended_from", None)]
+	pending = [doc.get("amended_from")]
 	while pending:
 		name = pending.pop()
 		if not name or name in seen:
@@ -100,9 +100,10 @@ def on_validate(doc, method=None):
 	stored = None if doc.is_new() else _stored(doc, ("owner", "edited_by", "modified_by", "amended_from"))
 	editors = []
 	if stored:
-		# the creator is the stored one (Frappe writes a sent ``owner`` on an update)
+		# the creator and the amended card are the stored ones: Frappe writes a sent ``owner`` or ``amended_from``
+		# on an update (it checks ``amended_from`` on insert only), which would drop preparers
 		doc.owner = stored.owner
-		doc.flags.card_stored_amended_from = stored.amended_from
+		doc.amended_from = stored.amended_from
 		# a card saved before FR-143: its last draft editor
 		editors = _lines(stored.edited_by) or _lines(stored.modified_by)
 	user = frappe.session.user

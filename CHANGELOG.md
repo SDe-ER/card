@@ -29,7 +29,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   does not). All are written by the server only on every route (form save/submit, REST v1/v2 insert and PUT,
   `frappe.client.insert/save/submit/set_value`, savedocs, bulk update/submit/cancel, Data Import): validate clears
   the approval fields and reads the creator (`owner`) and the editors from the database with a locking read (a sent
-  `owner` is replaced by the stored one), an update after submit and a cancel restore the stored values. Preparers =
+  `owner` or a changed `amended_from` is replaced by the stored one, as Frappe checks `amended_from` on insert only), an update after submit and a cancel restore the stored values. Preparers =
   the creator and every editor of the card and of every card of its `amended_from` chain; the approver of an
   earlier card of the chain is not a preparer of the correction; a draft saved before FR-143 counts its last saver
   (`modified_by`) as its editor. New per-company **Card Company Settings `card_approval_rule`** (permlevel 1, like

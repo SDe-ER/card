@@ -5978,3 +5978,7 @@ msgstr ""
 #: card/governance.py
 msgid "Monthly card self-approval"
 msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by its own preparer"
+msgstr ""
