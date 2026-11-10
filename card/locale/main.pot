@@ -4531,6 +4531,46 @@ msgstr ""
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr ""
 
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price valid from"
+msgstr ""
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price currency"
+msgstr ""
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price unit of measure"
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "Diesel price schedule"
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Diesel price schedule: company {0} has two prices valid from {1}."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Diesel price schedule row {0}: the price must be greater than zero."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Diesel price schedule row {0}: the currency must be {1}, the currency of company {2}."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "{0} submitted diesel fills of company {1} are dated on or after {2}. They keep their saved price; the new price applies to new fills only."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Company {0} has a Diesel price schedule: change its diesel price by adding a dated row to the schedule, not in the diesel unit price."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.js
+msgid "Valid from {0} (Diesel price schedule)"
+msgstr ""
+
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "CARD Monthly Posting"
 msgstr ""
