@@ -91,6 +91,8 @@
   "asset_purchase_value",
   "column_break_bjjv",
   "internal_hourly_rate",
+  "internal_rate_basis",
+  "internal_rate",
   "meter_tab",
   "meter_section",
   "meter_type",
@@ -448,7 +450,7 @@
    "permlevel": 1
   },
   {
-   "depends_on": "eval:doc.ownership=='ملك'",
+   "depends_on": "eval:['ملك','طرف ثالث'].includes(doc.ownership)",
    "fieldname": "owned_section",
    "fieldtype": "Section Break",
    "label": "Internal cost"
@@ -500,6 +502,20 @@
    "fieldname": "internal_hourly_rate",
    "fieldtype": "Currency",
    "label": "Internal hourly rate",
+   "permlevel": 2
+  },
+  {
+   "default": "بالساعة",
+   "fieldname": "internal_rate_basis",
+   "fieldtype": "Select",
+   "label": "Internal operating rate basis",
+   "options": "بالساعة\nباليوم",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "internal_rate",
+   "fieldtype": "Currency",
+   "label": "Internal operating rate",
    "permlevel": 2
   },
   {
@@ -599,7 +615,8 @@
   {
    "fieldname": "registration_file",
    "fieldtype": "Attach",
-   "label": "Registration image"
+   "label": "Registration image",
+   "no_copy": 1
   },
   {
    "fieldname": "inspection_expiry",
@@ -609,7 +626,8 @@
   {
    "fieldname": "inspection_file",
    "fieldtype": "Attach",
-   "label": "Inspection certificate"
+   "label": "Inspection certificate",
+   "no_copy": 1
   },
   {
    "fieldname": "column_break_qqic",
@@ -633,7 +651,8 @@
   {
    "fieldname": "insurance_file",
    "fieldtype": "Attach",
-   "label": "Insurance file"
+   "label": "Insurance file",
+   "no_copy": 1
   },
   {
    "fieldname": "column_break_rgdb",
@@ -652,7 +671,8 @@
   {
    "fieldname": "tuv_file",
    "fieldtype": "Attach",
-   "label": "TUV image"
+   "label": "TUV image",
+   "no_copy": 1
   },
   {
    "fieldname": "exit_tab",
@@ -811,7 +831,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-11-08 23:30:00.000000",
+ "modified": "2026-11-10 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

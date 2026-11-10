@@ -11,6 +11,7 @@ from frappe.utils import flt
 
 from card.card.doctype.project_diesel_fill.project_diesel_fill import totalizer_bounds
 from card.tests.diesel_price import set_diesel_price
+from card.tests.sample_files import png
 from card.tests.test_controllers import _ensure_masters
 from card.tests.test_settings_wiring import _role_user, _set
 
@@ -71,9 +72,9 @@ class TestDieselSessionEvidence(IntegrationTestCase):
 		form's temporary name, which Frappe relinks to the real name on insert."""
 		data = {
 			"doctype": "File",
-			"file_name": f"meter-{frappe.generate_hash(length=10)}.txt",
+			"file_name": f"meter-{frappe.generate_hash(length=10)}.png",
 			"is_private": private,
-			"content": content or frappe.generate_hash(length=32),
+			"content": png(content or frappe.generate_hash(length=32)),
 		}
 		if attach:
 			data.update(

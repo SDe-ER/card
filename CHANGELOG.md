@@ -16,6 +16,50 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Governance inventories (documentation only; refs #40, #50, #52, #54).**
+  `docs/governance/SETTINGS-AND-CONSTANTS.md` lists every Card Settings and Card Company Settings field with its
+  readers (file:line), the code defaults and inline fallbacks, the precedence document → Card Company Settings →
+  Card Settings → code default, the four dead settings of FR-015 and the hardcoded values that affect behaviour
+  (WP-18). `docs/governance/INTAKE-PROVENANCE-DESIGN.md` is a design, not implemented, for source keys, evidence
+  hashes, idempotency, review and permissions of movement and operation intake (WP-21).
+  `docs/governance/HRMS-PARITY.md` compares the CARD equipment model with the Frappe HR employee model (official
+  HRMS `version-16` source and docs.frappe.io/hr only) and records the upgrade-rehearsal CI evidence. Impact on
+  permissions, accounting, data and the API: none. Rollback: revert the commit.
+- **Every monthly card shows its value on the CARD workspace** (FR-111, PR #185, owner requirement
+  2026-11-10; target: next release).
+  - **Reason:** the chart "مبالغ الكروت الشهرية" and the number card "مبالغ الشهر الماضي" summed only the supplier
+    `amount`, which is 0 for owned and managed equipment; a month with only owned cards (for example an owned crusher
+    rented to a customer) looked empty.
+  - **Change:** new module `card.card_value` and Dashboard Chart Source **Card Monthly Values**
+    (`card/card/dashboard_chart_source/card_monthly_values/`). Per submitted card: supplier side (`مستأجَرة من مورد`,
+    `إيجار من الباطن`) → `net_amount`; customer side (`مؤجَّرة لعميل`, `إيجار من الباطن`) → `customer_net_amount`;
+    owned or managed equipment (`ملك`, `طرف ثالث`) with an internal rate → hours × rate, or working days × rate when the
+    basis is per day. Each value is its own series and is never added to another. A card with no supplier or customer
+    side and no internal rate still counts: number cards show how many such cards and how many hours last month.
+    New Card Equipment fields `internal_rate_basis` (Select `بالساعة`/`باليوم`, default per hour) and `internal_rate`
+    (Currency), level 2 like `internal_hourly_rate`, in the "Internal cost" section, which now also shows for managed
+    (`طرف ثالث`) equipment; both are commercial terms (a change needs a reason). An equipment with only the older
+    `internal_hourly_rate` is valued per hour with it. The chart filter "Include draft cards" is off by default, as the
+    old chart (submitted cards only).
+  - **Fixtures:** the chart "مبالغ الكروت الشهرية" becomes a Custom chart on that source (three series per month:
+    "تكلفة إيجار من موردين", "قيمة تشغيل لعملاء", "قيمة تشغيل داخلي"); the number card "مبالغ الشهر الماضي" (name kept)
+    becomes a Custom card for last month's supplier cost (label "تكلفة إيجار من موردين - الشهر الماضي", now
+    `net_amount` with additions and deductions, it was `amount`); four new Custom number cards (customer value,
+    internal value, "كروت بدون سعر داخلي", hours without an internal rate) are added to the Card workspace.
+  - **Permissions:** none widened. Reads use `frappe.get_list`, so the Card Monthly Card read right and Company User
+    Permissions apply (no hard-coded company; the optional company filter cannot widen them). The internal series and
+    the two missing-rate cards need read access to the level-2 rate fields (System Manager, Card Manager, Accounts
+    Manager); other users get the supplier and customer series only and "N/A" on those cards. The source is not
+    cached (Frappe's `cache_source` key is per chart, not per user). The chart and the five number-card methods are
+    side-effect-free reads declared `methods=["POST"]` because Frappe's dashboard widgets call them with
+    `frappe.xcall`, which always sends POST.
+  - **Accounting:** none. No document or GL entry is created or changed; the internal value is for display only.
+  - **Data / schema:** two new nullable columns on `tabCard Equipment`; no patch (the fixtures overwrite the chart,
+    number cards and workspace on `migrate`, as before). **API:** five new POST methods in `card.card_value` and the
+    source method `card.card.dashboard_chart_source.card_monthly_values.card_monthly_values.get`.
+  - **Rollback:** older code ignores the two new columns (they stay, with their values). Its fixtures restore the old
+    Sum chart, number card and workspace on its next `migrate`; the four new number cards and the Dashboard Chart
+    Source stay in the database, off the workspace, until removed by hand (their methods no longer exist there).
 - **Analytics reports: Equipment Partial Margin, Unbilled Card Work, Equipment Maintenance Cost** (#53, #127 P8;
   audit work packages WP-16 and WP-17; FR-112, FR-113, FR-114; PR #188). Target version: next release.
   - **Reason:** #53 and the go-live phase P8 (#127) ask for equipment profitability, unbilled work and a maintenance
@@ -62,6 +106,38 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code-only. Reverting removes the reports from the code; migrate does not delete the three Report
     records it created (delete them by hand if wanted). No data to restore.
 
+### Changed
+- **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill
+  without equipment is now ONE Purchase Invoice line (its full amount, the project, no equipment) instead of one
+  line per equipment split by operating hours; an hours-based split is an estimate, not a posting basis. Its cost
+  center is the fill's own, else the project's (no assignment of any equipment; "Cost allocation needs review" when
+  neither is usable). Direct fills (with equipment) are unchanged. The line description no longer says "estimated
+  share". The GL equipment dimension therefore no longer includes tank diesel. Diesel reports and
+  `get_card_diesel` keep their labelled estimates and are unchanged; the PI-item-based Equipment Consumption no
+  longer includes tank diesel per equipment, while the Estimated reports still show the labelled estimate. The
+  "Equipment Expenses Without Equipment" guard report no longer lists project-tank diesel lines (identified through
+  the fill that points to the invoice) and counts them in a separate tile. Submitted invoices and posting logs are not
+  touched. Tank diesel's cost center moves from the equipment assignment's to the fill's own or the project's, so
+  cost-center and equipment-dimension reports around the release are not month-to-month comparable.
+  **Rebuild open draft postings built before this release before submitting them.** Enforced (Owner decision
+  2026-11-10): the builder now records its version (`"builder": 2`) in the GL Posting Log's `built_snapshot` JSON
+  (not in the signature hash, so other drafts still match); `card.gl.integrity.check_built_signature` refuses the
+  submit of a draft built by an earlier builder when it holds a project-tank fill ("Rebuild the posting from CARD
+  before submitting it", Arabic translation in `ar.po`), also when an Accounts Manager accepted a correction on it.
+  A pre-change draft without a project-tank fill submits as before. PR #163. Affected: `card/gl/posting.py`
+  (`build_monthly_posting`, diesel loop, `fill_line_cost_center`), `card/gl/integrity.py` (`BUILDER_VERSION`,
+  `stored_snapshot`, `check_builder_version`), guard report `equipment_expenses_without_equipment.py`. Impact:
+  permissions none; accounting: the distribution of tank diesel moves to the project line (totals unchanged; no GL
+  write by CARD); data: no patch, no schema change, existing logs and submitted invoices untouched; API none.
+  Rollback: revert the commits; drafts built by the new builder keep one project-level tank line and the old code
+  submits them as they are (rebuild them to get the old split).
+- **Feature registry corrected (documentation only).** FR-073, FR-074, FR-075 (v4.1.0), FR-085, FR-086, FR-086b
+  (v4.2.0), FR-087 (v4.2.1) and FR-088 (v4.2.2) were still *In review* / *In development* although merged and
+  released; they are now Implemented with their pull requests, merge commits and releases. FR-038 names the
+  transport cost-center checks of FR-091 and FR-093. Rows released in v4.3.0 to v4.4.3 no longer say "not
+  deployed" (deployed 2026-11-09 per `DEPLOYMENTS.md`); v4.5.0 is released, not deployed.
+  No row deleted. Impact: none. Rollback: revert the commit.
+
 ### Documentation
 - **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order
   (equipment, transport, project assignment, monthly card, daily hours), in English with an Arabic summary.
@@ -91,6 +167,36 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Security
+- **Attachment validation and privacy** (H-CARD-1, H-CARD-2; FR-099; PR #162).
+  - **Reason:** meter photos, the custody receipt, fitment evidence, the transport authorization document and the Card
+    Equipment registration / inspection / insurance / TUV files accepted any bytes under any name, and the transport
+    document and the equipment files could be a public file or a file of another record.
+  - **Change:** a shared validator (`card/attachment_validator.py`: `check_attachment_content`, `require_record_file`,
+    `claim_file`) accepts only JPEG, PNG, WebP or PDF, detected by content (the file name must agree), up to 10 MB;
+    an image must decode and stay at or below 50 megapixels (checked from the header before decoding; Pillow's
+    decompression-bomb warning is an error); meter photos accept images only. Bytes are read through the File API
+    (`File.get_content(encodings=())`). Used by `ProjectDieselFill._check_photos`, `EmployeeToolCustody` (signed
+    receipt), `CardEquipmentPart` (fitment evidence), `equipment_transport._billing_values` (authorization document)
+    and `CardEquipment.validate_document_files`. It runs only when a file is new or changed (not on a company change,
+    not when an amendment keeps the amended record's photo or receipt), so evidence saved earlier stays valid. The
+    transport document and the four equipment document files must be private files of their own record; the user's
+    own unattached upload is claimed by the record on save. The old "any readable File with this URL" check is
+    removed. The four equipment document fields are `no_copy` (Duplicate no longer copies them).
+  - **Impact:** permissions and API: stricter; a save with a non-allowed, oversize, undecodable, public or another
+    record's file is refused. Data: no patch, nothing changed or deleted; files already stored as public stay public
+    until a separate owner decision; unchanged legacy values are not re-checked. Schema: `no_copy` on four Card
+    Equipment fields (DocType JSON, applied by `bench migrate`). Accounting: none.
+  - **Known limits** (accepted by the owner, review of PR #162): HEIC photos are refused (Pillow has no decoder);
+    save them as JPEG first. A financial re-decision that keeps a transport's existing authorization document is
+    refused when that document is an older unattached upload: the accountant uploads it again. When the same user
+    saves two records at the same time with one unattached upload, only the first record claims the file; the
+    second keeps a link to a file attached to the first.
+  - **Translations:** the eleven new messages of `card/attachment_validator.py` are translated in
+    `card/locale/ar.po` (and listed in `main.pot`).
+  - **Convention:** an Attach / Attach Image field that holds evidence or a document is validated in its controller
+    with `card.attachment_validator` when the value is new or changed.
+  - **Rollback:** revert the merge of PR #162 and migrate (the `no_copy` flags return); nothing to undo in data. File
+    rows claimed by a record stay attached to it (they are that record's own files).
 - **Read endpoints GET-only and diesel fill company permission** (H-CARD-3, H-CARD-4; FR-098; PR #161).
   - **Reason:** a whitelisted function without `methods=` answers GET, POST, PUT and DELETE, and Frappe checks CSRF
     for the last three only; read handlers should answer GET. Project Diesel Fill had no record-level company check.

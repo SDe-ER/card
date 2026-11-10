@@ -1546,6 +1546,9 @@ msgstr "اضبط حسابات مصروفات الكارت في الإعدادا�
 msgid "Lines without equipment"
 msgstr "سطور بدون معدة"
 
+msgid "Project tank diesel lines (intended, not listed)"
+msgstr "سطور ديزل خزان المشروع (مقصودة، غير مدرجة)"
+
 msgid "Net amount without equipment"
 msgstr "صافي المبالغ بدون معدة"
 
@@ -2039,8 +2042,16 @@ msgstr "المشروع {0} تابع للشركة {1}، وهذا النقل تا�
 msgid "Equipment {0} is already assigned to project {1} from {2} to {3}."
 msgstr "المعدة {0} معيّنة بالفعل على المشروع {1} من {2} إلى {3}."
 
-msgid "Diesel fill {0} — {1} L estimated share of {2} L (split by hours)"
-msgstr "تعبئة ديزل {0} — {1} لتر حصة تقديرية من {2} لتر (توزيع بالساعات)"
+msgid "Diesel fill {0} — {1} L (project tank, not allocated to equipment)"
+msgstr "تعبئة ديزل {0} — {1} لتر (خزان المشروع، غير موزّعة على المعدات)"
+
+#: card/gl/integrity.py
+msgid "{0} was built before project-tank diesel fills post as one project-level line: it splits {1} per equipment by operating hours, an estimate. Rebuild the posting from CARD before submitting it."
+msgstr "تم إنشاء {0} قبل أن تُرحَّل تعبئات ديزل خزان المشروع كسطر واحد على مستوى المشروع: فهو يوزّع {1} على المعدات حسب ساعات التشغيل، وهذا تقدير. أعد بناء القيد من CARD قبل اعتماده."
+
+#: card/gl/integrity.py
+msgid "CARD posting must be rebuilt"
+msgstr "يجب إعادة بناء قيد CARD"
 
 msgid "Invoiced through Card (net before VAT)"
 msgstr "مفوتر عبر Card (الصافي قبل الضريبة)"
@@ -5553,6 +5564,76 @@ msgstr "الديزل غير المرحّل بعد معروض بمبلغ التع
 #: card/analytics.py
 msgid "The diesel price VAT basis is not verified for these suppliers, so their fills not posted yet are shown at the fill amount: {0}."
 msgstr "أساس ضريبة القيمة المضافة لسعر الديزل غير مُتحقق منه لهؤلاء الموردين، لذلك تُعرض تعبئاتهم غير المرحّلة بعد بمبلغ التعبئة: {0}."
+
+#. Label of the internal_rate_basis (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate basis"
+msgstr "أساس السعر الداخلي للتشغيل"
+
+#. Label of the internal_rate (Currency) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate"
+msgstr "السعر الداخلي للتشغيل"
+
+#: card/card_value.py
+msgid "Rental cost from suppliers"
+msgstr "تكلفة إيجار من موردين"
+
+#: card/card_value.py
+msgid "Operating value for customers"
+msgstr "قيمة تشغيل لعملاء"
+
+#: card/card_value.py
+msgid "Internal operating value (owned or managed equipment)"
+msgstr "قيمة تشغيل داخلي (معدات ملك أو مُدارة)"
+
+#: card/card/dashboard_chart_source/card_monthly_values/card_monthly_values.js
+msgid "Include draft cards"
+msgstr "تضمين الكروت المسودة"
+
+#: card/attachment_validator.py
+msgid "The attached file is empty."
+msgstr "الملف المرفق فارغ."
+
+#: card/attachment_validator.py
+msgid "The attached file is larger than {0} MB."
+msgstr "حجم الملف المرفق أكبر من {0} ميجابايت."
+
+#: card/attachment_validator.py
+msgid "Attach a JPEG, PNG, WebP or PDF file."
+msgstr "أرفق ملفًا بصيغة JPEG أو PNG أو WebP أو PDF."
+
+#: card/attachment_validator.py
+msgid "Attach a JPEG, PNG or WebP image."
+msgstr "أرفق صورة بصيغة JPEG أو PNG أو WebP."
+
+#: card/attachment_validator.py
+msgid "The file name does not match its content. Attach a JPEG, PNG, WebP or PDF file."
+msgstr "اسم الملف لا يطابق محتواه. أرفق ملفًا بصيغة JPEG أو PNG أو WebP أو PDF."
+
+#: card/attachment_validator.py
+msgid "The PDF file is incomplete or damaged."
+msgstr "ملف PDF غير مكتمل أو تالف."
+
+#: card/attachment_validator.py
+msgid "The image file is damaged or cannot be read."
+msgstr "ملف الصورة تالف أو لا يمكن قراءته."
+
+#: card/attachment_validator.py
+msgid "The image has too many pixels (more than {0} megapixels)."
+msgstr "دقة الصورة أكبر من المسموح (أكثر من {0} ميجابكسل)."
+
+#: card/attachment_validator.py
+msgid "Attach a private file uploaded to this record."
+msgstr "أرفق ملفًا خاصًا مرفوعًا على هذا السجل."
+
+#: card/attachment_validator.py
+msgid "The attached file was not found."
+msgstr "الملف المرفق غير موجود."
+
+#: card/attachment_validator.py
+msgid "The attached file could not be read."
+msgstr "تعذّرت قراءة الملف المرفق."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "A diesel fill cannot be shared with everyone."

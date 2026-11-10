@@ -346,17 +346,30 @@ class TestCostAllocation(_PostingBase):
 			[(r.cost_center, r.project, r.card_equipment) for r in rows], [(assigned, self.project, eq.name)]
 		)
 
-	def test_tank_fill_share_follows_the_assignment_of_the_days_worked(self):
+	def test_tank_fill_takes_the_project_cost_center_not_the_equipment_assignment(self):
+		"""D1: a tank fill is one project-level line; no per-equipment assignment applies."""
 		eq = self._equipment()
 		assigned = self._cc("ASSIGN")
-		self._set_project_cc(self._cc("PROJ"))
+		project_cc = self._cc("PROJ")
+		self._set_project_cc(project_cc)
 		self._assign(eq, assigned, "2026-09-01", "2026-09-10")
 		self._card(eq, [8, 8], submit=True)  # worked 1-2 Sep on the project
-		fill = self._fill(date="2026-09-20")  # tank fill, no equipment, after the assignment ended
+		fill = self._fill(date="2026-09-20")  # tank fill, no equipment
 		pi = self._pi()
-		share = [i for i in pi.items if fill.name in i.description]
-		self.assertTrue(share)
-		self.assertEqual({(i.cost_center, i.card_equipment) for i in share}, {(assigned, eq.name)})
+		lines = [i for i in pi.items if fill.name in i.description]
+		self.assertEqual({(i.cost_center, i.card_equipment or None) for i in lines}, {(project_cc, None)})
+
+	def test_tank_fill_without_a_usable_cost_center_is_an_exception(self):
+		"""D1 AC-5: no own cost center and no project cost center -> refused for review; the
+		equipment's cost center and assignments are never a fallback for a tank fill."""
+		eq = self._equipment(cost_center=self._cc("EQ"))
+		self._assign(eq, self._cc("ASSIGN"))
+		self._set_project_cc(None)
+		self._card(eq, [8], submit=True)
+		self._fill(date="2026-09-20")  # tank fill, no equipment
+		with self.assertRaisesRegex(frappe.ValidationError, "cost center"):
+			self._pi()
+		self.assertFalse(frappe.get_all("GL Posting Log", filters={"party": self.supplier}))
 
 	# ---- transport follows its explicitly verified cost bearer (Owner decisions 2026-10-30) ----
 	def _transport(self, eq, destination="Project", project=None, place=None, bearer="Company"):
