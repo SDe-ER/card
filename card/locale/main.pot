@@ -5217,3 +5217,19 @@ msgstr ""
 #: card/card/doctype/card_diesel_price/card_diesel_price.json
 msgid "Diesel price fuel type"
 msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Day billing basis"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Prorated by hours"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Full day"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Day billing basis used"
+msgstr ""

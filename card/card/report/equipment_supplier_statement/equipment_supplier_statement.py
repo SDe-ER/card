@@ -3,6 +3,7 @@ from frappe import _
 
 from card.adjustments import sided_adjustments
 from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
+from card.card_value import PER_DAY, day_billing_basis
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
@@ -79,6 +80,8 @@ def execute(filters=None):
 				"year",
 				"rate_type",
 				"rate",
+				"day_billing_basis",
+				"day_billing_basis_used",
 				"working_days",
 				"total_working_hours",
 				"billable_stopped_hours",
@@ -178,6 +181,7 @@ def execute(filters=None):
 			ded = 0.0
 			rates = set()
 			rtypes = set()
+			bases = set()
 			card_rows = []
 			for c in be["cards"]:
 				cd = card_dates.get(c.name) or []
@@ -201,6 +205,17 @@ def execute(filters=None):
 				ded = ded + c_ded
 				rates.add(flt(c.rate))
 				rtypes.add(c.rate_type or "")
+				# FR-138: the day billing basis of a per-day rate: a submitted card shows the basis it was
+				# priced with, a draft the equipment's current one (a card saved before FR-138: prorated)
+				if c.rate_type == PER_DAY:
+					c_basis = day_billing_basis(
+						c.day_billing_basis_used
+						if c.docstatus == 1 and c.day_billing_basis_used
+						else c.day_billing_basis
+					)
+				else:
+					c_basis = None
+				bases.add(c_basis)
 				card_rows.append(
 					{
 						"row_id": e_id + "|C|" + c.name,
@@ -217,6 +232,7 @@ def execute(filters=None):
 						"hours": c_hours,
 						"stopped_hours": c_stopped,
 						"rate_type": c.rate_type,
+						"day_billing_basis": None if owned or not c_basis else _(c_basis),
 						"rate": None if owned else flt(c.rate),
 						"hourly_rate": c_hourly,
 						"amount": c_amount,
@@ -241,6 +257,9 @@ def execute(filters=None):
 				"hours": flt(hours, 2),
 				"stopped_hours": flt(stopped, 2),
 				"rate_type": next(iter(rtypes)) if len(rtypes) == 1 else "متعدد",
+				"day_billing_basis": None
+				if owned or not any(bases)
+				else (_(next(iter(bases))) if len(bases) == 1 else "متعدد"),
 				"rate": None if owned else (next(iter(rates)) if len(rates) == 1 else None),
 				"hourly_rate": None if owned or not (hours + stopped) else flt(amount / (hours + stopped), 2),
 				"amount": flt(amount, 2),
@@ -312,6 +331,12 @@ def execute(filters=None):
 		columns = [
 			*columns,
 			{"fieldname": "rate_type", "label": _("Rate type"), "fieldtype": "Data", "width": 90},
+			{
+				"fieldname": "day_billing_basis",
+				"label": _("Day billing basis"),
+				"fieldtype": "Data",
+				"width": 110,
+			},
 			{"fieldname": "rate", "label": _("Rate"), "fieldtype": "Currency", "width": 100},
 			{"fieldname": "hourly_rate", "label": _("Hourly rate"), "fieldtype": "Currency", "width": 100},
 			{"fieldname": "amount", "label": _("Operating amount"), "fieldtype": "Currency", "width": 120},
