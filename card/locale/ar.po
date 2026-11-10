@@ -2568,6 +2568,17 @@ msgstr "المراجعة في حالة المسودة فقط تستقبل الط
 msgid "Only Card Manager may approve equipment needs."
 msgstr "اعتماد احتياجات المعدات لمدير Card فقط."
 
+msgid "You reviewed, edited or submitted this equipment needs review; another approver must approve it."
+msgstr "أنت من راجع طلب احتياجات المعدات هذا أو عدّله أو قدّمه؛ يجب أن يعتمده معتمد آخر."
+
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json
+msgid "Review submitted by"
+msgstr "مقدّم المراجعة"
+
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json
+msgid "Review edited by"
+msgstr "معدّلو المراجعة"
+
 msgid "You also need permission to create Material Requests in ERPNext (for example Stock User)."
 msgstr "تحتاج أيضًا إلى صلاحية إنشاء طلبات المواد في ERPNext (مثل Stock User)."
 
@@ -5902,3 +5913,55 @@ msgstr "تم إنشاء ترحيل المسودة {0}."
 #: card/gl/posting.py
 msgid "CARD posting items or VAT item tax templates are not set up yet for company {0}; the first posting creates them, so some item columns of this preview are empty."
 msgstr "لم تُجهَّز بعد أصناف ترحيل CARD أو قوالب ضريبة الأصناف للشركة {0}؛ ينشئها أول ترحيل، لذلك قد تظهر بعض أعمدة الأصناف في هذه المعاينة فارغة."
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other party bears the cost"
+msgstr "طرف آخر يتحمل التكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other Party"
+msgstr "طرف آخر"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other party type"
+msgstr "نوع الطرف الآخر"
+
+#: card/card/report/transport_accounting_review/transport_accounting_review.py
+msgid "Other party bearing the transport cost"
+msgstr "الطرف الآخر الذي يتحمل تكلفة النقل"
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py
+msgid "Agreed amount (not company cost)"
+msgstr "المبلغ المتفق عليه (ليس تكلفة على الشركة)"
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py
+msgid "Transports not paid by the company"
+msgstr "نقلات لا تدفعها الشركة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the type of the other party that bears the transport cost."
+msgstr "اختر نوع الطرف الآخر الذي يتحمل تكلفة النقل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the other party that bears the transport cost."
+msgstr "اختر الطرف الآخر الذي يتحمل تكلفة النقل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} is not an employee of company {1}."
+msgstr "الموظف {0} ليس موظفًا في الشركة {1}."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} is not active."
+msgstr "الموظف {0} غير نشط."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The other party {0} was not found."
+msgstr "الطرف الآخر {0} غير موجود."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The other party {0} is disabled."
+msgstr "الطرف الآخر {0} معطّل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The agreed amount (not company cost) cannot be negative."
+msgstr "لا يمكن أن يكون المبلغ المتفق عليه (ليس تكلفة على الشركة) سالبًا."

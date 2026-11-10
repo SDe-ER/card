@@ -23,6 +23,13 @@ SHIFT_NIGHT = "ليلي"
 MOVE_DAY_NEXT = "New assignment starts the day after the move"
 MOVE_DAY_SAME = "New assignment starts on the move day"
 
+# #43/#48/#121 (WP-14): payers of a transport the company does not pay. Their agreed amount
+# (Equipment Transport.informational_amount) is information only: never company cost, never posted.
+OTHER_PARTY = "Other Party"
+NON_COMPANY_PAYERS = ("Equipment Supplier", "Customer", OTHER_PARTY)
+# who may be named as the other party that bears a move (Equipment Transport.party_type)
+OTHER_PARTY_TYPES = ("Supplier", "Customer", "Employee")
+
 
 def allowed_directions(ownership):
 	"""Directions an equipment's ownership permits. ملك runs internally or is
