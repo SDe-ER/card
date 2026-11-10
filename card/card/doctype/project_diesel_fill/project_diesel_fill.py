@@ -6,7 +6,7 @@ import json
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, cstr, flt, get_datetime, getdate, now_datetime
+from frappe.utils import cint, cstr, flt, get_datetime, getdate, now_datetime, nowdate
 
 from card.attachment_validator import IMAGE_KINDS, check_attachment_content
 from card.company import single_company, validate_equipment_company
@@ -177,10 +177,37 @@ def totalizer_bounds(value):
 	return int(known) * scale, int(known) * scale + scale - 1
 
 
-def diesel_price(company):
-	"""The diesel price per litre of `company` from Card Settings, or 0."""
+def scheduled_diesel_price(company, on_date=None):
+	"""FR-125: the price of `company`'s Diesel price schedule row with the latest valid_from on or
+	before `on_date` (today when empty), or None when the schedule has no such row."""
+	if not company:
+		return None
+	row = frappe.get_all(
+		"Card Diesel Price",
+		filters={
+			"parent": "Card Settings",
+			"parenttype": "Card Settings",
+			"parentfield": "diesel_price_schedule",
+			"company": company,
+			"valid_from": ["<=", getdate(on_date or nowdate())],
+		},
+		fields=["unit_price"],
+		order_by="valid_from desc",
+		limit=1,
+	)
+	return flt(row[0].unit_price) if row else None
+
+
+def diesel_price(company, on_date=None):
+	"""The diesel price per litre of `company` on `on_date` from Card Settings, or 0.
+
+	FR-125: the Diesel price schedule row with the latest valid_from on or before the date; with no
+	such row (no schedule, or a date before its first row) the company's diesel_unit_price, as before."""
 	if not company:
 		return 0
+	scheduled = scheduled_diesel_price(company, on_date)
+	if scheduled is not None:
+		return scheduled
 	from card.accounting_settings import get_company_settings
 
 	row = get_company_settings(company, throw=False)
@@ -248,16 +275,17 @@ def deny_cross_company_share(doc, method=None):
 
 
 @frappe.whitelist(methods=["GET"])
-def get_diesel_price_context(company: str | None = None):
-	"""What the fill form needs before saving (read only): the company price and whether the
-	current user may grant a price exception. Fill users cannot read Card Settings."""
+def get_diesel_price_context(company: str | None = None, date: str | None = None):
+	"""What the fill form needs before saving (read only): the company price on the fill date
+	(FR-125; today when empty) and whether the current user may grant a price exception. Fill users
+	cannot read Card Settings."""
 	from card.report_access import permitted_companies
 
 	frappe.has_permission("Project Diesel Fill", "read", throw=True)
 	if not company or company not in permitted_companies("Project Diesel Fill"):
 		return {"price": 0, "can_except": False, "can_zero": False, "exception_role": None}
 	return {
-		"price": diesel_price(company),
+		"price": diesel_price(company, date or None),
 		"can_except": can_except_price(),
 		"can_zero": can_zero_price(),
 		"exception_role": setting("diesel_price_exception_role"),
@@ -722,7 +750,7 @@ class ProjectDieselFill(Document):
 		"""FR-002 price lock (Owner Q1–Q4). Submitted and cancelled fills never reach validate."""
 		before = None if self.is_new() else self.get_doc_before_save()
 		precision = self.precision("unit_price") or 2
-		company_price = flt(diesel_price(self.company), precision)
+		company_price = flt(diesel_price(self.company, self.date), precision)  # FR-125: on the fill date
 		price = flt(self.unit_price, precision)
 		self.company_price = company_price
 		if before is None and self.amended_from and cint(self.price_exception):
@@ -777,9 +805,10 @@ class ProjectDieselFill(Document):
 		if before.price_source == COMPANY_PRICE:
 			# Owner 2026-10-20: a saved draft keeps the price it was created with; a later company price
 			# change only warns (new fills take the new price)
-			if self.company != before.company:
+			# FR-125: a new date may fall in another price period, so it is decided like a new company
+			if self.company != before.company or getdate(self.date) != getdate(before.date):
 				if price != company_price:
-					self._needs_review(company_price)  # its price belonged to the old company
+					self._needs_review(company_price)  # its price belonged to the old company or date
 				else:
 					self.price_source = COMPANY_PRICE
 				return
