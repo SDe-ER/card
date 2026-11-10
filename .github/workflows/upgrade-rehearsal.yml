@@ -1,18 +1,14 @@
 name: Upgrade rehearsal
 
 # Go-live P0 (#119): upgrade a synthetic CARD v1.0.1 site on the production frappe/erpnext
-# versions to the code under test, migrate twice and compare the data. Synthetic data only.
+# versions (frappe 16.55.2 / erpnext 16.54.0, Production platform of 2026-11-10; HRMS is not
+# installed: CARD depends on frappe and erpnext only) to the code under test, migrate twice and
+# compare the data. Synthetic data only.
 on:
-  pull_request:
-    paths:
-      - "card/patches.txt"
-      - "card/patches/**"
-      - "card/**/doctype/**/*.json"
-      - "card/fixtures/**"
-      - "card/install.py"
-      - "card/hooks.py"
-      - ".github/helper/upgrade_rehearsal.*"
-      - ".github/workflows/upgrade-rehearsal.yml"
+  # No path filter (#119, #120): the rehearsal takes about 5 minutes and runs in parallel with the
+  # CARD unit tests (about 10-16 minutes), so it adds no wall-clock time to a pull request, and a
+  # Python change that migrate runs (hooks, install, setup code) is rehearsed too.
+  pull_request: {}
   workflow_dispatch:
     inputs:
       from_ref:
@@ -30,7 +26,7 @@ jobs:
   rehearsal:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
-    name: Upgrade rehearsal (CARD v1.0.1 -> this code, frappe 16.51.1 / erpnext 16.50.0)
+    name: Upgrade rehearsal (CARD v1.0.1 -> this code, frappe 16.55.2 / erpnext 16.54.0)
 
     services:
       mariadb:
