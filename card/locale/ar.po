@@ -6748,7 +6748,7 @@ msgstr "تاريخ التحقق من اليومية"
 
 #: card/card/doctype/card_daily_log/card_daily_log.json
 msgid "Verified by supervisor"
-msgstr "تم تحقق المشرف"
+msgstr "تحقق منها المشرف"
 
 #: card/card/doctype/card_daily_log/card_daily_log.json
 msgid "Returned for correction"

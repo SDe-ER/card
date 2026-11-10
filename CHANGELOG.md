@@ -20,8 +20,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Reason: #44 and #123 ask for daily entry from paper/WhatsApp and an operator/supervisor → manager approval with no
   self-approval; until now hours were entered only on the monthly card day rows. New submittable DocType **Card
   Daily Log** (header: company (required), project (required), date, site supervisor; rows **Card Daily Log Row**:
-  equipment, day shift hours, night shift hours, stop reason, stopped hours, responsible party type and record
-  (optional, as on the FR-118 card day rows, no rule yet), notes) and the per-company master **Card Daily Log
+  equipment, day shift hours, night shift hours, stop reason, stopped hours, responsible party type, record and
+  name (optional, the FR-118 card day-row rule through `CardMonthlyCard._normalise_responsible_party`: an empty
+  type takes the stop reason's default, a Company party is the log's company and another company is refused,
+  Other keeps a free-text name only), notes) and the per-company master **Card Daily Log
   Settings**: `self_approval_rule` "Warn only (daily log)" (default) / "Refuse (daily log)", and
   `require_supervisor_verification` (Check, default 0). Flow: a Card Operator (own logs only), Card Supervisor or
   Card Manager enters and submits; a Card Manager (or System Manager) then approves or returns it with a reason
@@ -36,7 +38,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `before_update_after_submit`, and a cancel (form, REST PUT with `docstatus` 2, savedocs, bulk) reads the stored
   approval with a row lock in `before_cancel` and keeps the stored approval fields. FR-121 style separation of
   duties: the creator, the submitter and every editor of the log and of every log of its amendment chain are its
-  preparers; when one of them approves, the company rule decides — "Warn only" (default, also for a company without
+  preparers, and so is every supervisor who verified one of them; when one of them approves, the company rule decides — "Warn only" (default, also for a company without
   a settings record) approves with a warning and marks the log `self_approved`, "Refuse" refuses (no role exempt,
   Administrator included). An approved log is cancelled only by an approver. Row rules, the same as the monthly
   card day rows and through the same functions: shift limits only warn (owner 2026-10-14; Card Settings
@@ -52,13 +54,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   cancelled log of the same company that the user can read (Frappe copies the original's attachments), and
   `card.company_scope.COMPANY_SOURCES` gains "Card Daily Log" so the `amended_from` link carries its company. Card
   Daily Log Settings is scoped by the Company User Permissions that apply to Card Daily Log (`applicable_for`
-  included): `card.daily_log.settings_permission` / `settings_query_conditions`, registered in `card/hooks.py`. No
+  included): `card.daily_log.settings_permission` / `settings_query_conditions`, and a DocShare of it with
+  everyone or with a user outside its company is refused (`deny_cross_company_settings_share`), all registered in
+  `card/hooks.py`. No
   monthly card is generated from a log yet (WP-K2). Affected functions: new `card/daily_log.py` (`prepare`,
   `validate_log`, `record_submitter`, `check_transition`, `check_cancel`, `self_approval_rule`,
   `requires_supervisor_verification`, `log_preparers`, `settings_permission`, `settings_query_conditions`), new
   controllers and `card_daily_log.js` (Verify / Approve / Return buttons); `card/company_scope.py`
-  `COMPANY_SOURCES`; `card/hooks.py` (two entries for Card Daily Log Settings). Tests: `card/tests/test_daily_log.py`
-  (48, including a two-connection concurrency test). `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (three new
+  `COMPANY_SOURCES`; `card/hooks.py` (two permission entries and one DocShare validate entry for Card Daily Log Settings). Tests: `card/tests/test_daily_log.py`
+  (53, including a two-connection concurrency test). `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (three new
   DocType rows). PR #218.
   Impact: permissions — new DocPerms on the new DocTypes only (Card Daily Log: System Manager full; Card Manager
   full except delete; Card Supervisor read/create/write/submit/cancel/amend; Card Operator the same on own logs

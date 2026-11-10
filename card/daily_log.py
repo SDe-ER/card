@@ -94,14 +94,14 @@ def requires_supervisor_verification(company):
 
 
 def _add_preparers(users, row):
-	users.update({row.get("owner"), row.get("submitted_by")})
+	users.update({row.get("owner"), row.get("submitted_by"), row.get("verified_by")})
 	users.update((row.get("edited_by") or "").split("\n"))
 
 
 def log_preparers(doc):
 	"""Users who prepared the log, all written by the server: its creator, its submitter and every user who saved
-	it as a draft, for the log and every log of its amendment chain (an amendment never clears a preparer). A saved
-	log is read from the database."""
+	it as a draft, and the supervisor who verified it, for the log and every log of its amendment chain (an
+	amendment never clears a preparer or an earlier verifier). A saved log is read from the database."""
 	users = set()
 	_add_preparers(users, doc)
 	seen = set()
@@ -109,7 +109,7 @@ def log_preparers(doc):
 	while name and name not in seen:
 		seen.add(name)
 		row = frappe.db.get_value(
-			DOCTYPE, name, ["owner", "submitted_by", "edited_by", "amended_from"], as_dict=True
+			DOCTYPE, name, ["owner", "submitted_by", "edited_by", "verified_by", "amended_from"], as_dict=True
 		)
 		if not row:
 			break
@@ -178,6 +178,7 @@ def validate_log(doc):
 		if night > max_night:
 			over_limit.append(f"{row.equipment} ({_('Night shift hours')}: {night})")
 		_check_stop_reason(row, doc.company)
+		_responsible_party(row, doc.company, log_date)
 		if row.equipment not in stored_equipment:
 			# FR-122: same rule as a monthly card (a daily log becomes monthly card days)
 			check_equipment_status(row.equipment, "monthly card", doc.company, period_start=log_date)
@@ -223,6 +224,21 @@ def _check_stop_reason(row, company):
 	reason = validate_downtime_fields(probe, company, False)
 	if not cint(reason.enabled):
 		frappe.throw(_("Stop reason {0} is disabled; choose an enabled reason.").format(row.stop_reason))
+
+
+def _responsible_party(row, company, log_date):
+	"""The monthly card day-row rule (FR-118): an empty party type takes the stop reason's default; a Company party
+	is the log's company (empty means the log's company); Other keeps a free-text name only; Supplier and Customer
+	keep their record. Through the card's own function, not a copy."""
+	from card.card.doctype.card_monthly_card.card_monthly_card import CardMonthlyCard
+
+	if not row.responsible_party_type and row.stop_reason:
+		row.responsible_party_type = frappe.db.get_value(
+			"Card Stop Reason", row.stop_reason, "default_responsible_party_type"
+		)
+	# the card's message names the row by its day: a daily log row's day is the log's date (not stored)
+	row.operation_date = log_date
+	CardMonthlyCard._normalise_responsible_party(row, company)
 
 
 def _check_assignment(doc, row, log_date):
@@ -381,6 +397,32 @@ def check_cancel(doc):
 
 
 # ---------- Card Daily Log Settings: company scope ----------
+def deny_cross_company_settings_share(doc, method=None):
+	"""DocShare validate: Frappe 16 falls back to a DocShare after ``settings_permission`` denied, so a share would
+	reopen another company's daily log rules. Refuse a share of Card Daily Log Settings with everyone, and with a
+	user limited (for Card Daily Log) to companies other than the record's. Every other DocType is not affected."""
+	if doc.share_doctype != SETTINGS_DOCTYPE:
+		return
+	from card.company_scope import _restricted
+
+	if doc.get("everyone") or not doc.user:
+		frappe.throw(
+			_("A CARD record of type {0} cannot be shared with everyone.").format(_(doc.share_doctype)),
+			frappe.PermissionError,
+		)
+	companies = _restricted(doc.user, DOCTYPE)
+	if companies is None:
+		return
+	company = frappe.db.get_value(SETTINGS_DOCTYPE, doc.share_name, "company")
+	if company and company not in companies:
+		frappe.throw(
+			_(
+				"This CARD record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
+			).format(_(doc.share_doctype), company),
+			frappe.PermissionError,
+		)
+
+
 def settings_permission(doc, ptype=None, user=None, debug=False):
 	"""has_permission of Card Daily Log Settings: a user limited to some companies for Card Daily Log (Company User
 	Permissions that apply to Card Daily Log, applicable_for included) sees and changes only those companies'

@@ -261,6 +261,8 @@ doc_events = {
 		"validate": [
 			"card.card.doctype.project_diesel_fill.project_diesel_fill.deny_cross_company_share",
 			"card.company_scope.deny_cross_company_share",
+			# FR-142: Card Daily Log Settings, scoped by the Card Daily Log company permissions
+			"card.daily_log.deny_cross_company_settings_share",
 		]
 	},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record

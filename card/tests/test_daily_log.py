@@ -782,6 +782,107 @@ class TestDailyLog(_CustomerCardsBase):
 		)
 		self.assertEqual(row, {"responsible_party_type": "Supplier", "responsible_party": self.supplier})
 
+	def test_responsible_company_must_be_the_log_company(self):
+		other = self._company_b()
+		with self.assertRaises(frappe.ValidationError):
+			self._log(
+				[
+					{
+						"equipment": self.eq.name,
+						"stopped_hours": 2,
+						"responsible_party_type": "Company",
+						"responsible_party": other,
+					}
+				]
+			)
+		doc = self._log(
+			[{"equipment": self.eq.name, "stopped_hours": 2, "responsible_party_type": "Company"}]
+		)
+		self.assertEqual(doc.rows[0].responsible_party, self.company)
+
+	def test_responsible_party_other_keeps_a_name_only(self):
+		"""As on a monthly card day row: Other names the party in free text (the record link stays empty)."""
+		doc = self._log(
+			[
+				{
+					"equipment": self.eq.name,
+					"stopped_hours": 2,
+					"responsible_party_type": "Other",
+					"responsible_party_name": "Road closure by the municipality",
+				}
+			]
+		)
+		row = frappe.db.get_value(
+			"Card Daily Log Row",
+			{"parent": doc.name},
+			["responsible_party_type", "responsible_party", "responsible_party_name"],
+			as_dict=True,
+		)
+		self.assertEqual(
+			row,
+			{
+				"responsible_party_type": "Other",
+				"responsible_party": None,
+				"responsible_party_name": "Road closure by the municipality",
+			},
+		)
+
+	def test_responsible_party_defaults_from_the_stop_reason(self):
+		reason = self._reason()
+		frappe.db.set_value("Card Stop Reason", reason.name, "default_responsible_party_type", "Company")
+		doc = self._log([{"equipment": self.eq.name, "stop_reason": reason.name, "stopped_hours": 3}])
+		self.assertEqual(
+			(doc.rows[0].responsible_party_type, doc.rows[0].responsible_party), ("Company", self.company)
+		)
+		# no party and no reason: nothing is set
+		doc = self._log([{"equipment": self.eq2.name, "day_hours": 3}])
+		self.assertFalse(doc.rows[0].responsible_party_type)
+		self.assertFalse(doc.rows[0].responsible_party)
+
+	def test_an_earlier_verifier_in_the_chain_is_a_preparer(self):
+		self._rule(daily_log.RULE_REFUSE, verification=1)
+		both = self._user("sup-mgr-chain", ("Card Supervisor", "Card Manager"))
+		first = self._set_status(self._log(), daily_log.VERIFIED, both)
+		frappe.set_user(self.manager)
+		frappe.get_doc(LOG, first.name).cancel()
+		frappe.set_user(self.operator)
+		amended = frappe.copy_doc(frappe.get_doc(LOG, first.name))
+		amended.docstatus = 0
+		amended.amended_from = first.name
+		amended.insert()
+		amended.submit()
+		frappe.set_user("Administrator")
+		amended = self._set_status(amended, daily_log.VERIFIED, self._user("sup-chain", ("Card Supervisor",)))
+		self.assertIn(both, daily_log.log_preparers(frappe.get_doc(LOG, amended.name)))
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(amended, daily_log.APPROVED, both)
+		self.assertEqual(
+			self._set_status(amended, daily_log.APPROVED, self.manager).approved_by, self.manager
+		)
+
+	def test_settings_share_across_companies_is_refused(self):
+		from frappe.share import add_docshare
+
+		other = self._company_b()
+		theirs = frappe.get_doc(
+			{"doctype": SETTINGS, "company": other, "self_approval_rule": daily_log.RULE_REFUSE}
+		).insert(ignore_permissions=True)
+		mine = frappe.get_doc({"doctype": SETTINGS, "company": self.company}).insert(ignore_permissions=True)
+		restricted = self._user("share-mgr", ("Card Manager",), company=self.company, applicable_for=LOG)
+		with self.assertRaises(frappe.PermissionError):
+			add_docshare(
+				SETTINGS, theirs.name, restricted, read=1, write=1, flags={"ignore_share_permission": 1}
+			)
+		with self.assertRaises(frappe.PermissionError):
+			add_docshare(SETTINGS, mine.name, everyone=1, read=1, flags={"ignore_share_permission": 1})
+		self.assertFalse(frappe.db.exists("DocShare", {"share_doctype": SETTINGS, "share_name": theirs.name}))
+		self.assertFalse(frappe.has_permission(SETTINGS, "read", theirs.name, user=restricted))
+		# a share within the user's company, and any share for an unrestricted user, is allowed
+		add_docshare(SETTINGS, mine.name, restricted, read=1, flags={"ignore_share_permission": 1})
+		add_docshare(SETTINGS, theirs.name, self.manager, read=1, flags={"ignore_share_permission": 1})
+		# the guard leaves every other DocType alone
+		daily_log.deny_cross_company_settings_share(frappe._dict(share_doctype="ToDo", everyone=1, user=None))
+
 
 class TestDailyLogConcurrency(IntegrationTestCase):
 	"""Review finding 3: two requests that submit a log for the same equipment, project and date at the same time
