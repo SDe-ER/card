@@ -52,6 +52,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   DocPerm or endpoint added); accounting none; data none (no schema or patch); API none (existing REST routes).
   Rollback: revert the frontend files and rebuild; no data to undo (logs created from the phone are ordinary Card
   Daily Logs). PR #234.
+- **FR-149 — CARD documentation site (`website/`, Astro Starlight, English + Arabic).** Reason: the owner asked for a
+  full user and API documentation site in the style of the Whatomate docs. New static site under `website/`
+  (sections Getting Started, Features, Reports, API Reference; English at the root and Arabic RTL under `/ar/`),
+  written from the current code with fictitious example data only, and a GitHub Pages workflow
+  `.github/workflows/docs.yml` (builds on pull requests that touch `website/`; deploys from `main` only after
+  Pages is enabled in the repository settings). Affected functions: none; no Python, DocType, permission,
+  accounting, data or API change. Note: a GitHub Pages site is public even for a private repository. Rollback:
+  revert the commit and disable Pages; nothing on any site changes.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
