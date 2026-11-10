@@ -3,6 +3,7 @@ from frappe import _
 
 from card.dimension import DIMENSION_FIELD, gl_has_dimension_field
 from card.report_access import can_view_ledger, readable_links, resolve_company
+from card.report_currency import company_currency_report
 
 # The CARD-mapped expense account fields on Card Company Settings (owner O3
 # amendment 4: the account list comes from settings, never hardcoded).
@@ -32,6 +33,7 @@ def _tank_fill_keys(company, invoices):
 	return {(f.purchase_invoice, f.project) for f in fills}
 
 
+@company_currency_report("GL Entry")
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	# Report: "Equipment Expenses Without Equipment" (O3 guard report). Read-only.

@@ -9,6 +9,7 @@ from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
 from card.adjustments import validate_downtime_fields
 from card.api import recompute_customer, recompute_supplier
 from card.card.doctype.card_stop_reason.card_stop_reason import SIDE_BOTH, billable_side_of
+from card.card_value import bills_full_days, day_billing_basis
 
 # direction constants live in card.constants (re-exported here for callers/tests)
 from card.constants import (
@@ -111,6 +112,7 @@ class CardMonthlyCard(Document):
 				"rate_type",
 				"rate",
 				"daily_hours",
+				"day_billing_basis",
 				"rental_start_date",
 				"rental_end_date",
 				"is_unit_component",
@@ -148,6 +150,8 @@ class CardMonthlyCard(Document):
 		# fetch_from does not refresh on the submit save (docstatus is already 1 by
 		# then), so this explicit read keeps submit-time direction/rates current.
 		self.card_direction = eq.rental_direction or derive_direction(eq.ownership)
+		# FR-138 (C-05): the equipment's day billing basis, mirrored live like the rates (empty = prorated)
+		self.day_billing_basis = day_billing_basis(eq.day_billing_basis)
 		if self.card_direction not in allowed_directions(eq.ownership):
 			frappe.throw(
 				_(
@@ -195,6 +199,8 @@ class CardMonthlyCard(Document):
 		billable_stop_days = 0
 		# FR-134: billable stopped hours per billed side (a Both reason counts on each side)
 		stopped_for = {"Supplier": 0.0, "Customer": 0.0}
+		# FR-138: days billed only by billable stopped hours, per side (a "Full day" basis bills them)
+		stop_days_for = {"Supplier": 0, "Customer": 0}
 		reason_sides = getattr(self, "_reason_sides", None) or {}
 		work_days = 0
 		limit_field = "max_day_shift_hours" if self.shift == "نهاري" else "max_night_shift_hours"
@@ -245,6 +251,8 @@ class CardMonthlyCard(Document):
 				for billed_side in stopped_for:
 					if side in (SIDE_BOTH, billed_side):
 						stopped_for[billed_side] = stopped_for[billed_side] + day_stopped_billed
+						if h <= 0:
+							stop_days_for[billed_side] = stop_days_for[billed_side] + 1
 			if day_stopped_billed > 0 and h <= 0:
 				# a day billed only by billable stopped hours (not already a working day)
 				billable_stop_days = billable_stop_days + 1
@@ -273,9 +281,16 @@ class CardMonthlyCard(Document):
 		self.customer_billable_stopped_hours = flt(stopped_for["Customer"], 2)
 		supplier_billed_hours = total_hours + flt(stopped_for["Supplier"], 2)
 		customer_billed_hours = total_hours + flt(stopped_for["Customer"], 2)
+		# FR-138: a "Full day" basis bills each billed day at the per-day rate (operating days and
+		# days billed only by billable stopped hours of that side); otherwise billed hours x hourly rate
+		supplier_billed_days = work_days + stop_days_for["Supplier"]
+		customer_billed_days = work_days + stop_days_for["Customer"]
 		if self.card_direction in SUPPLIER_BILLING_DIRECTIONS:
-			hourly_rate = self._hourly_for(eq.rate_type, flt(eq.rate), eq.daily_hours, required=True)
-			self.amount = flt(supplier_billed_hours * hourly_rate, 2)
+			if bills_full_days(eq.rate_type, self.day_billing_basis):
+				self.amount = flt(supplier_billed_days * flt(eq.rate), 2)
+			else:
+				hourly_rate = self._hourly_for(eq.rate_type, flt(eq.rate), eq.daily_hours, required=True)
+				self.amount = flt(supplier_billed_hours * hourly_rate, 2)
 		else:
 			self.amount = 0  # internal / rented-out: no supplier billing
 
@@ -376,10 +391,13 @@ class CardMonthlyCard(Document):
 
 		# ---- customer-side amount (rate mirrored from the equipment; the SI itself is S3) ----
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS:
-			customer_hourly = self._hourly_for(
-				self.customer_rate_type, flt(self.customer_rate), eq.daily_hours, required=False
-			)
-			self.customer_amount = flt(customer_billed_hours * customer_hourly, 2)
+			if bills_full_days(self.customer_rate_type, self.day_billing_basis):
+				self.customer_amount = flt(customer_billed_days * flt(self.customer_rate), 2)
+			else:
+				customer_hourly = self._hourly_for(
+					self.customer_rate_type, flt(self.customer_rate), eq.daily_hours, required=False
+				)
+				self.customer_amount = flt(customer_billed_hours * customer_hourly, 2)
 		else:
 			self.customer_amount = 0
 		self.customer_net_amount = (
@@ -751,6 +769,10 @@ class CardMonthlyCard(Document):
 		self.db_set("direction_used", self.card_direction, update_modified=False)
 		self.db_set("customer_used", self.customer, update_modified=False)
 		self.db_set("rate_basis_used", self.rate_type, update_modified=False)
+		# FR-138: the day billing basis this card was priced with (set by the submit save's mirror)
+		self.db_set(
+			"day_billing_basis_used", day_billing_basis(self.day_billing_basis), update_modified=False
+		)
 
 	def _sync_customer(self):
 		# Customer registry sync (phase E, non-blocking like the supplier one).

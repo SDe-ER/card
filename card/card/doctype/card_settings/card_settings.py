@@ -4,17 +4,299 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, formatdate, getdate
+from frappe.utils import cint, flt, formatdate, getdate
 
 from card.settings import validate_company_warehouses
 
 # per-company tables: a row steers that company's postings (FR-125: and its diesel prices)
 COMPANY_TABLES = ("company_settings", "adjustment_types", "diesel_price_schedule")
 
+# FR-133 (R-14, O-19): the per-company tables a company-restricted user reads only for the companies
+# he is permitted; the rows of other companies are hidden on every read and kept on every save
+SCOPED_TABLES = ("company_settings", "adjustment_types", "diesel_price_schedule")
+SCOPED_CHILD_DOCTYPES = ("Card Company Settings", "Card Adjustment Type", "Card Diesel Price")
+LAYOUT_FIELDTYPES = ("Section Break", "Column Break", "Tab Break", "HTML", "Button", "Heading", "Fold")
+
+
+def settings_company_scope(user=None):
+	"""FR-133: the companies whose Card Settings rows ``user`` (default: the session user) may read,
+	or None when he may read every row: Administrator, System Manager, and a user without a User
+	Permission on Company that applies to CARD (the standard Frappe multi-company rule, the same set
+	the save check ``_validate_company_scope`` uses)."""
+	user = user or frappe.session.user
+	if user == "Administrator" or "System Manager" in frappe.get_roles(user):
+		return None
+	from card.report_access import CARD_DOCTYPE, permitted_companies
+
+	entries = frappe.permissions.get_user_permissions(user).get("Company") or []
+	if not any(not e.get("applicable_for") or e.get("applicable_for") == CARD_DOCTYPE for e in entries):
+		return None
+	return set(permitted_companies(user=user))
+
+
+def settings_row_readable(row, user=None):
+	"""FR-133: False when ``row`` is a Card Settings row of a company ``user`` may not read."""
+	if row.get("parenttype") != "Card Settings" or row.get("parentfield") not in SCOPED_TABLES:
+		return True
+	allowed = settings_company_scope(user)
+	return allowed is None or row.get("company") in allowed
+
+
+def has_settings_permission(doc, ptype=None, user=None, debug=False):
+	"""FR-133 ``has_permission`` hook: a company-restricted user may use the Card Settings Single
+	only as CARD scopes it (``CardSettings.has_permission`` removes the other companies' rows before
+	Frappe's checks run). A check on the whole stored Single — the child-table list and value reads
+	(``frappe.client.get_list`` / ``get_value``, ``frappe.desk.reportview.get`` with
+	``parent="Card Settings"``) and a child row read on its own — is refused to him while another
+	company has a row. Frappe 16 applies no list condition to a child table of a Single
+	(``frappe/database/query.py`` ``add_permission_conditions``), so this is the list control."""
+	allowed = settings_company_scope(user)
+	if allowed is None:
+		return True
+	return all(row.get("company") in allowed for table in SCOPED_TABLES for row in (doc.get(table) or []))
+
+
+def settings_row_query_conditions(user=None, doctype=None):
+	"""FR-133 ``permission_query_conditions`` for the scoped child DocTypes, as a second layer: a
+	company-restricted user lists only his companies' Card Settings rows (rows of any other parent
+	are not touched). Frappe 16 does not apply it to a child table of a Single (see
+	``has_settings_permission``); it applies if Frappe ever does."""
+	allowed = settings_company_scope(user)
+	if allowed is None or doctype not in SCOPED_CHILD_DOCTYPES:
+		return ""
+	table = f"`tab{doctype}`"
+	companies = ", ".join(frappe.db.escape(c) for c in sorted(allowed)) or "''"
+	return f"({table}.`parenttype` != 'Card Settings' or {table}.`company` in ({companies}))"
+
+
+# ---------- FR-133: the change history (Version) of Card Settings in the form timeline ----------
+
+
+GETDOC = "frappe.desk.form.load.getdoc"
+GET_DOCINFO = "frappe.desk.form.load.get_docinfo"
+CARD_OVERRIDES = {
+	GETDOC: "card.card.doctype.card_settings.card_settings.getdoc",
+	GET_DOCINFO: "card.card.doctype.card_settings.card_settings.get_docinfo",
+}
+
+
+def _previous_override(original):
+	"""The method CARD's override of ``original`` wraps: the override registered before CARD's in
+	``override_whitelisted_methods`` (an app installed before CARD, e.g. DAWM's own security
+	filter), else Frappe's original. Frappe calls only the last registered override
+	(``frappe.override_whitelisted_method``), so CARD keeps the earlier ones in the chain. Never
+	CARD's own entry; a re-entry (an earlier override that itself calls the last override) gets
+	Frappe's original, so the chain cannot loop."""
+	own = CARD_OVERRIDES[original]
+	active = frappe.local.flags.setdefault("card_override_active", set())
+	if original in active:
+		return frappe.get_attr(original)
+	chain = list((frappe.get_hooks("override_whitelisted_methods", {}) or {}).get(original) or [])
+	position = max((i for i, method in enumerate(chain) if method == own), default=len(chain))
+	for method in reversed(chain[:position]):
+		if method not in (own, original):
+			return frappe.get_attr(method)
+	return frappe.get_attr(original)
+
+
+def _call_previous(original, **kwargs):
+	method = _previous_override(original)
+	active = frappe.local.flags.setdefault("card_override_active", set())
+	entered = original not in active
+	active.add(original)
+	try:
+		return method(**kwargs)
+	finally:
+		if entered:
+			active.discard(original)
+
+
+@frappe.whitelist(methods=["GET", "POST"])
+def getdoc(doctype: str, name: str | int):
+	"""Override of ``frappe.desk.form.load.getdoc``: calls the previous override in the hook chain
+	(or Frappe's method), then removes from the Card Settings timeline of a company-restricted user
+	every row of another company."""
+	_call_previous(GETDOC, doctype=doctype, name=name)
+	scope_docinfo_versions()
+
+
+@frappe.whitelist(methods=["GET", "POST"])
+def get_docinfo(
+	doc: Document | dict | str | None = None,
+	doctype: str | None = None,
+	name: str | int | None = None,
+):
+	"""Override of ``frappe.desk.form.load.get_docinfo``: as ``getdoc``."""
+	_call_previous(GET_DOCINFO, doc=doc, doctype=doctype, name=name)
+	scope_docinfo_versions()
+
+
+def scope_docinfo_versions():
+	"""Remove from ``frappe.response.docinfo.versions`` every change of a row of a company the user
+	may not read (added, removed, changed, or moved from or to such a company)."""
+	docinfo = frappe.response.get("docinfo")
+	if not docinfo or docinfo.get("doctype") != "Card Settings" or not docinfo.get("versions"):
+		return
+	allowed = settings_company_scope()
+	if allowed is None:
+		return
+	companies = {}
+	for child in SCOPED_CHILD_DOCTYPES:
+		for row in frappe.get_all(child, filters={"parenttype": "Card Settings"}, fields=["name", "company"]):
+			companies[row.name] = row.company
+	docinfo["versions"] = [
+		{**version, "data": _scoped_version_data(version.get("data"), allowed, companies)}
+		for version in docinfo["versions"]
+	]
+
+
+def _scoped_version_data(data, allowed, companies):
+	import json
+
+	try:
+		changes = json.loads(data or "{}")
+	except ValueError:
+		return "{}"
+
+	def visible_row(entry):
+		table, row = entry[0], entry[1] if len(entry) > 1 else None
+		return table not in SCOPED_TABLES or (isinstance(row, dict) and row.get("company") in allowed)
+
+	def visible_change(entry):
+		# [table, idx, row name, [[field, old, new], ...]]
+		if entry[0] not in SCOPED_TABLES:
+			return True
+		if companies.get(entry[2] if len(entry) > 2 else None) not in allowed:
+			return False
+		return all(
+			c[0] != "company" or (c[1] in allowed and c[2] in allowed)
+			for c in (entry[3] if len(entry) > 3 else [])
+		)
+
+	for key in ("added", "removed"):
+		if changes.get(key):
+			changes[key] = [e for e in changes[key] if visible_row(e)]
+	if changes.get("row_changed"):
+		changes["row_changed"] = [e for e in changes["row_changed"] if visible_change(e)]
+	return frappe.as_json(changes, indent=None, separators=(",", ":"))
+
+
+def _normalised(df, value):
+	if df.fieldtype in ("Int", "Check"):
+		return cint(value)
+	if df.fieldtype in ("Float", "Currency", "Percent", "Duration"):
+		return flt(value)
+	if df.fieldtype in ("Date", "Datetime") and value:
+		return str(getdate(value)) if df.fieldtype == "Date" else str(value)
+	return value or None
+
 
 class CardSettings(Document):
+	def has_permission(self, permtype="read", *, debug=False, user=None) -> bool:
+		"""FR-133: for a company-restricted user, Frappe's User Permission check on the child rows'
+		Company links runs on his companies' rows only. Without this, any row of another company
+		refuses him the whole Single (Frappe 16 checks child links on read and write), and the
+		filter below could never apply. The other rows are never shown to him
+		(``apply_fieldlevel_read_permissions``) and never changed by him (``before_validate`` puts
+		them back, ``_validate_company_scope`` refuses a change); every other check is Frappe's."""
+		allowed = None if self.flags.ignore_permissions else settings_company_scope(user)
+		if allowed is None:
+			return super().has_permission(permtype, debug=debug, user=user)
+		stored = {table: self.get(table) for table in SCOPED_TABLES}
+		try:
+			for table, rows in stored.items():
+				self.__dict__[table] = [r for r in rows or [] if r.get("company") in allowed]
+			return super().has_permission(permtype, debug=debug, user=user)
+		finally:
+			for table, rows in stored.items():
+				self.__dict__[table] = rows
+
+	def apply_fieldlevel_read_permissions(self):
+		"""FR-133: every read path (Desk form, REST v1/v2, frappe.client.get and the reply to a
+		save) removes the rows of the companies the user may not read before the permlevel rules
+		run (they clear ``company`` for a user without level 1, so the filter comes first)."""
+		self._hide_other_company_rows()
+		super().apply_fieldlevel_read_permissions()
+		# the form save (savedocs) builds the timeline before this call
+		scope_docinfo_versions()
+		if self.flags.card_hidden_company_rows:
+			# the form shows a note (card_settings.js); set here, as the form save resets __onload
+			# after on_change
+			self.set_onload("card_hidden_company_rows", self.flags.card_hidden_company_rows)
+
+	def _hide_other_company_rows(self):
+		allowed = settings_company_scope()
+		if allowed is None:
+			return 0
+		hidden = 0
+		for table in SCOPED_TABLES:
+			rows = self.get(table) or []
+			kept = [r for r in rows if r.get("company") in allowed]
+			if len(kept) != len(rows):
+				hidden += len(rows) - len(kept)
+				self.set(table, [])
+				for idx, row in enumerate(kept, 1):
+					row.idx = idx
+					self.append(table, row)
+		self.flags.card_hidden_company_rows = (self.flags.card_hidden_company_rows or 0) + hidden
+		return hidden
+
+	def before_validate(self):
+		self._reattach_hidden_company_rows()
+
+	def _reattach_hidden_company_rows(self):
+		"""FR-133: a company-restricted user saves a form without the rows of other companies;
+		Frappe deletes every stored row missing from a save, so the stored rows of the companies he
+		may not read are put back unchanged, at their stored position. A row he sends under such a
+		row's name is not replaced here: ``_validate_company_scope`` refuses it when it differs."""
+		if frappe.flags.in_patch or frappe.flags.in_install:
+			return
+		allowed = settings_company_scope()
+		before = self.get_doc_before_save()
+		if allowed is None or not before:
+			return
+		for table in SCOPED_TABLES:
+			present = {r.name for r in self.get(table) or []}
+			hidden = [
+				(position, r)
+				for position, r in enumerate(sorted(before.get(table) or [], key=lambda r: cint(r.idx)))
+				if r.get("company") not in allowed and r.name not in present
+			]
+			if not hidden:
+				continue
+			rows = list(self.get(table) or [])
+			for position, row in hidden:
+				rows.insert(min(position, len(rows)), row.as_dict())
+			self.set(table, [])
+			for idx, row in enumerate(rows, 1):
+				row = self.append(table, row)
+				row.idx = idx
+
+	def on_change(self):
+		# FR-133: frappe.client.save, frappe.client.set_value, frappe.client.insert of a row and the
+		# REST v1 PUT reply with this very object; a restricted user gets his companies' rows only.
+		# Nothing is written, and the document cache is already cleared (clear_cache runs before
+		# on_change), so no cached copy changes; the object is the reply of the request.
+		self._hide_other_company_rows()
+
+	def _hidden_names(self):
+		"""Names of the rows of companies the session user may not read (they reach validate
+		unchanged: ``_validate_company_scope`` refuses any change first)."""
+		allowed = settings_company_scope()
+		if allowed is None:
+			return set()
+		return {r.name for t in SCOPED_TABLES for r in self.get(t) or [] if r.get("company") not in allowed}
+
+	def _rows(self, table):
+		"""FR-133: the rows ``validate`` checks: a restricted user's save does not re-check (and
+		never names in a message) the unchanged rows of other companies; every rule is per company,
+		so his own companies' rows are checked in full."""
+		hidden = self.flags.card_hidden_names or set()
+		return [r for r in self.get(table) or [] if r.name not in hidden]
+
 	def validate(self):
 		self._validate_company_scope()
+		self.flags.card_hidden_names = self._hidden_names()
 		seen = set()
 		account_fields = [
 			f.fieldname
@@ -25,7 +307,7 @@ class CardSettings(Document):
 			# could otherwise block every save while nobody can see the field to clear it
 			and not (f.hidden and f.read_only)
 		]
-		for row in self.get("company_settings") or []:
+		for row in self._rows("company_settings"):
 			if row.company in seen:
 				frappe.throw(_("Duplicate company in Card Company Settings: {0}").format(row.company))
 			seen.add(row.company)
@@ -53,7 +335,7 @@ class CardSettings(Document):
 			projects.add(row.project)
 		self._validate_adjustment_types()
 		self._validate_diesel_price_schedule()
-		validate_company_warehouses(self)  # FR-135
+		validate_company_warehouses(_ScopedRows(self))  # FR-135; FR-133: visible rows only
 
 	def _validate_diesel_price_schedule(self):
 		"""FR-125: one price per company and date, above zero, in the company's currency (a fill
@@ -68,7 +350,7 @@ class CardSettings(Document):
 			r.company: flt(r.diesel_unit_price)
 			for r in (before.get("company_settings") if before else []) or []
 		}
-		for row in (self.get("company_settings") or []) if before else []:
+		for row in self._rows("company_settings") if before else []:
 			# review M1: with a schedule the company's price changes only by a dated schedule row
 			if row.company in scheduled and flt(row.diesel_unit_price) != old_prices.get(row.company, 0):
 				frappe.throw(
@@ -76,7 +358,7 @@ class CardSettings(Document):
 						"Company {0} has a Diesel price schedule: change its diesel price by adding a dated row to the schedule, not in the diesel unit price."
 					).format(row.company)
 				)
-		for row in self.get("diesel_price_schedule") or []:
+		for row in self._rows("diesel_price_schedule"):
 			key = (row.company, str(getdate(row.valid_from)) if row.valid_from else None)
 			if key in seen:
 				frappe.throw(
@@ -137,6 +419,23 @@ class CardSettings(Document):
 				if name not in new:
 					touched.add(row.company)
 		denied = sorted(c for c in touched if c and c not in allowed)
+		# FR-133: a company-restricted user maintains his companies' rows only; every site-wide
+		# field (warehouses, request days, policies, ...) stays as stored
+		if before and settings_company_scope() is not None:
+			changed = [
+				df.label or df.fieldname
+				for df in self.meta.fields
+				if df.fieldtype not in LAYOUT_FIELDTYPES
+				and df.fieldtype not in frappe.model.table_fields
+				and _normalised(df, self.get(df.fieldname)) != _normalised(df, before.get(df.fieldname))
+			]
+			if changed:
+				frappe.throw(
+					_(
+						"Your Card Settings access is limited to your companies' rows; you cannot change the site-wide fields: {0}."
+					).format(", ".join(_(label) for label in changed)),
+					frappe.PermissionError,
+				)
 		if denied:
 			frappe.throw(
 				_("You are not permitted to change the Card settings of company {0}.").format(
@@ -151,7 +450,7 @@ class CardSettings(Document):
 		The posting builder re-checks at posting time; this keeps bad rows from
 		being saved in the first place."""
 		seen = set()
-		for row in self.get("adjustment_types") or []:
+		for row in self._rows("adjustment_types"):
 			key = (row.company, (row.type_name or "").strip())
 			if key in seen:
 				frappe.throw(
@@ -186,6 +485,21 @@ class CardSettings(Document):
 						row.account, row.type_name
 					)
 				)
+
+
+class _ScopedRows:
+	"""FR-133: the Card Settings a restricted user's save validates: the scoped tables give only the
+	rows ``CardSettings._rows`` checks (unchanged rows of other companies are neither re-checked nor
+	named); every other value is the document's."""
+
+	def __init__(self, doc):
+		self._doc = doc
+
+	def get(self, key, default=None):
+		return self._doc._rows(key) if key in SCOPED_TABLES else self._doc.get(key, default)
+
+	def get_doc_before_save(self):
+		return self._doc.get_doc_before_save()
 
 
 def _row_values(row):

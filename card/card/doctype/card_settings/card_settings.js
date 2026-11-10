@@ -20,6 +20,8 @@ function card_can_write(frm, permlevel) {
 	return card_can(frm, permlevel, "write");
 }
 
+// FR-133: the server already removes the rows of companies the user may not see; this filter
+// stays for the form state between a local edit and the next load
 function card_price_rows(frm) {
 	const rows = (frm.doc.company_settings || []).filter((r) => r.company);
 	const allowed = ((frappe.defaults.get_user_permissions() || {}).Company || []).map(
@@ -201,6 +203,17 @@ frappe.ui.form.on("Card Settings", {
 	refresh(frm) {
 		// the permission roles are changed only by users who may write them (the server enforces it)
 		frm.toggle_display(CARD_ADVANCED_ROLES, card_can_write(frm, 2));
+		// FR-133: the server sends a company-restricted user his companies' rows only, and keeps
+		// the other companies' rows when he saves
+		if ((frm.doc.__onload || {}).card_hidden_company_rows) {
+			frm.dashboard.add_comment(
+				__(
+					"Card Settings rows of companies you are not permitted to see are hidden and stay unchanged when you save.",
+				),
+				"blue",
+				true,
+			);
+		}
 		card_render_diesel_price(frm);
 	},
 });

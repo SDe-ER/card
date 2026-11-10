@@ -58,6 +58,25 @@ CARD_FIELDS = (
 )
 SERIES = ("supplier", "customer", "internal")
 
+# FR-138 (#123, #44; C-05, O-06): how a per-day ("باليوم") supplier or customer rate becomes a card amount.
+# "Prorated by hours" (the default, the behaviour before FR-138): billed hours x rate / daily hours.
+# "Full day": billed days x rate, whatever the hours of each day. Set per equipment (day_billing_basis);
+# a submitted card keeps the basis it was priced with (day_billing_basis_used).
+DAY_BASIS_PRORATED = "Prorated by hours"
+DAY_BASIS_FULL_DAY = "Full day"
+DAY_BILLING_BASES = (DAY_BASIS_PRORATED, DAY_BASIS_FULL_DAY)
+
+
+def day_billing_basis(value):
+	"""The day billing basis of a stored value: "Full day" only when set so; anything else (empty on an
+	equipment or a card saved before FR-138) is the default "Prorated by hours"."""
+	return DAY_BASIS_FULL_DAY if value == DAY_BASIS_FULL_DAY else DAY_BASIS_PRORATED
+
+
+def bills_full_days(rate_basis, basis):
+	"""True when a side with this rate basis is billed by full days: only a per-day rate under "Full day"."""
+	return rate_basis == PER_DAY and day_billing_basis(basis) == DAY_BASIS_FULL_DAY
+
 
 def series_labels():
 	return {

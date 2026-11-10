@@ -32,6 +32,7 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 | DocType | Kind | Read | Write | Create | Submit | Cancel | Delete | Field levels | Company isolation |
 |---|---|---|---|---|---|---|---|---|---|
 | Card Adjustment Type | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
+| Card Agreement Responsibility | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Company Settings | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Diesel Price | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Equipment | Master | System Manager, Card Manager, Card User, Accounts Manager, Card Supervisor | System Manager, Card Manager, Card User | System Manager, Card Manager | - | - | System Manager | L1 read: System Manager, Card Manager, Card User, Accounts Manager; write: System Manager, Card Manager<br>L2 read: System Manager, Card Manager, Accounts Manager; write: System Manager, Card Manager | Company User Permission on `company` |
@@ -49,6 +50,7 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 | Card Monthly Card Adjustment | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Monthly Card Day | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Project Transport Price | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
+| Card Rate Agreement | Submittable | System Manager, Card Manager, Accounts Manager, Card User | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
 | Card Settings | Single | System Manager, Accounts Manager, Card Manager | System Manager, Accounts Manager | System Manager | - | - | - | L1 read: System Manager, Accounts Manager; write: System Manager, Accounts Manager<br>L2 read: System Manager, Accounts Manager, Card Manager; write: System Manager | Single: role permissions only |
 | Card Stop Reason | Master | System Manager, Card Manager, Card Supervisor, Card User, Accounts Manager | System Manager, Card Manager | System Manager, Card Manager | - | - | System Manager | - | Company User Permission on `company` |
 | Diesel Fill Equipment | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
@@ -93,6 +95,8 @@ to company A is kept from company B's records through that endpoint.
 | `card.card.doctype.card_equipment.card_equipment.replace_component` | POST | write on the unit and write level of components (level 1); read on the new component | doc.check_permission on both records (Company User Permission) | Closes one component row and appends another; saves the unit |
 | `card.card.doctype.card_equipment.card_equipment.resync_unit_component_flag` | POST | write on the record and write level of is_unit_component (level 1) | doc.check_permission(write) (Company User Permission) | Sets is_unit_component on the listed equipment |
 | `card.card.doctype.card_monthly_card.card_monthly_card.get_card_context` | GET | Card Equipment read on the record | doc.check_permission(read) (Company User Permission) | None (read only) |
+| `card.card.doctype.card_settings.card_settings.get_docinfo` | GET, POST | override of frappe.desk.form.load.get_docinfo: Frappe read check (CardSettings.has_permission) | FR-133: other companies' Card Settings Version changes removed | None (read only; GET and POST as the Desk form timeline loads) |
+| `card.card.doctype.card_settings.card_settings.getdoc` | GET, POST | override of frappe.desk.form.load.getdoc: Frappe read check (CardSettings.has_permission) | FR-133: other companies' Card Settings rows and their Version changes removed | None (read only; GET and POST as the Desk form loads) |
 | `card.card.doctype.equipment_transport.equipment_transport.billing_customer` | GET | Accounts Manager role; read on the transport | doc.check_permission(read) (has_transport_permission); project must be of the transport's company | None (read only) |
 | `card.card.doctype.equipment_transport.equipment_transport.get_equipment_location` | GET | Card Equipment read on the record | doc.check_permission(read) (Company User Permission) | None (read only) |
 | `card.card.doctype.equipment_transport.equipment_transport.record_financial_decision` | POST | Accounts Manager role; read on the transport; not its creator, editor or submitter | has_transport_permission and permitted_companies(Equipment Transport) | db_set of the financial decision fields; one Version; one Info Comment |
