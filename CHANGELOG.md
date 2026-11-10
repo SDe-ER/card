@@ -65,6 +65,29 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the equipment's creation date. Rollback limits: reverting removes the report; the Report and Sidebar records stay on a
   migrated site until removed by hand.
 
+### Fixed
+- **VAT rate of the CARD item tax templates from the company's tax templates** (FR-127, #50, PR #199). Reason:
+  `ensure_posting_masters` created "CARD VAT 15% - <abbr>" with the rate 15 hardcoded, and the posting preview
+  (`_masters_to_provision`) and the preflight (`check_template_mapping`) also expected a hardcoded 15; CARD rules forbid a
+  hardcoded VAT rate. One source of truth, no new field: `card.gl.masters.standard_vat_rate(row)` is the single positive
+  rate of the company's configured purchase and sales tax templates (Card Company Settings `purchase_tax_template` /
+  `sales_tax_template`); a purchase and a sales template with different rates are refused (masters setup, preflight,
+  preview block); no configured template gives no rate and no VAT lines, exactly as before; nothing is inferred. The
+  item tax template, the posting preview (`_template_vat_rate`), the diesel inclusive net-back and the reconciliation
+  (`_vat_rate`) all read this one rate. The rate rows of an existing linked item tax template are never changed
+  (ERPNext recalculates `item_tax_rate` from the template on every validate, so changing them would change the VAT of
+  old drafts at submit): at the same rate only its accounts are reconciled; at another rate a new "CARD VAT {rate}% -
+  <abbr>" template is created and linked in the company row, and the old template stays as it is (not renamed, rates
+  unchanged). The 0% template stays 0. The built posting log now also stores the built VAT (each line's
+  `item_tax_rate` and `total_taxes_and_charges`, `integrity.vat_snapshot`, outside the signature); the submit gate
+  (`check_built_vat`, when the content otherwise matches the built or accepted signature) refuses a draft whose VAT changed since the build; a log written before
+  this change has no VAT key and is compared exactly as before. Tests: `card/tests/test_vat_rate_setting.py`. Impact:
+  with the 15% templates in use, template names, rates and postings are unchanged. Permissions: none. Schema: none.
+  Accounting: a changed company tax template rate gives new drafts the new rate; old drafts keep theirs; a draft whose
+  VAT changed between build and submit is refused (rebuild). API: the posting log's `built_snapshot` JSON gains the key
+  `vat` for new builds. Rollback: revert the commits; a "CARD VAT {rate}%" template created meanwhile stays (a master,
+  harmless) and stays linked in the company row until the row is cleared.
+
 ### Documentation
 - **Architecture pack** (`docs/architecture/`; #40, #54; PR #202). Reason: the epics ask for a domain map, state transitions,
   source-of-truth matrix, localization matrix, accounting examples, risk register, international test matrix and

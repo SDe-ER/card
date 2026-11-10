@@ -5008,6 +5008,18 @@ msgstr ""
 msgid "Billable stopped days"
 msgstr ""
 
+#: card/gl/masters.py
+msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
+msgstr ""
+
+#: card/gl/masters.py
+msgid "Item tax template {0} does not carry the rate {1}%; CARD never changes the rate of an existing template."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
+msgstr ""
+
 #. Name of a report
 #: card/card/report/equipment_location_history/equipment_location_history.json
 msgid "Equipment Location History"

@@ -99,17 +99,81 @@ def vat_account_heads(row):
 	return heads
 
 
-def _reconcile_item_tax_template(name, heads, rate):
-	"""A drifted template (the company's VAT account heads changed) is
-	re-pointed at the current heads instead of dead-ending every posting."""
-	expected = {head: flt(rate) for head in heads}
-	current = {
+def _single_template_rate(template, child_dt):
+	"""The single positive VAT rate of a purchase or sales tax template; None when it has none.
+	A template with several positive rates is refused (the per-line overrides are single-rate)."""
+	rates = {
+		flt(d.rate)
+		for d in frappe.get_all(
+			child_dt,
+			filters={
+				"parent": template,
+				"parenttype": child_dt.replace("Taxes and Charges", "Taxes and Charges Template"),
+			},
+			fields=["rate"],
+		)
+		if flt(d.rate) > 0
+	}
+	if len(rates) > 1:
+		frappe.throw(
+			_(
+				"Tax template {0} carries multiple VAT rows; posting through multi-rate templates is not supported yet (the per-line overrides are single-rate) — configure a single-rate template for posting."
+			).format(template)
+		)
+	return rates.pop() if rates else None
+
+
+def standard_vat_rate(row):
+	"""FR-127: the ONE standard VAT rate CARD posts for a company — the single positive rate of the
+	company's configured purchase and sales tax templates (Card Company Settings). Nothing is inferred:
+	no configured template (or no positive rate) gives None, exactly as today no VAT lines; a purchase
+	and a sales template with different rates are refused."""
+	rates = {}
+	for template_field, child_dt in (
+		("purchase_tax_template", "Purchase Taxes and Charges"),
+		("sales_tax_template", "Sales Taxes and Charges"),
+	):
+		template = row.get(template_field)
+		if template:
+			rate = _single_template_rate(template, child_dt)
+			if rate is not None:
+				rates[template] = rate
+	if len(set(rates.values())) > 1:
+		frappe.throw(
+			_(
+				"The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
+			).format(row.company, ", ".join(f"{t}: {r:g}%" for t, r in sorted(rates.items())))
+		)
+	return next(iter(rates.values())) if rates else None
+
+
+def _item_tax_rows(name):
+	return {
 		d.tax_type: flt(d.tax_rate)
 		for d in frappe.get_all(
 			"Item Tax Template Detail", filters={"parent": name}, fields=["tax_type", "tax_rate"]
 		)
 	}
-	if current == expected:
+
+
+def _carries_rate(name, rate):
+	"""True when every row of the item tax template carries `rate` (or it has no rows yet)."""
+	return all(r == flt(rate) for r in _item_tax_rows(name).values())
+
+
+def _reconcile_item_tax_template(name, heads, rate):
+	"""A drifted template (the company's VAT account heads changed) is re-pointed at the current
+	heads instead of dead-ending every posting — ONLY at the same rate. FR-127: the rate rows of an
+	existing template are never changed (ERPNext recalculates item_tax_rate from the template on every
+	validate, so a changed rate would silently change the VAT of old drafts); the caller creates a
+	new template for a new rate."""
+	if not _carries_rate(name, rate):
+		frappe.throw(
+			_(
+				"Item tax template {0} does not carry the rate {1}%; CARD never changes the rate of an existing template."
+			).format(name, f"{flt(rate):g}")
+		)
+	if _item_tax_rows(name) == {head: flt(rate) for head in heads}:
 		return
 	doc = frappe.get_doc("Item Tax Template", name)
 	doc.set("taxes", [{"tax_type": head, "tax_rate": rate} for head in sorted(heads)])
@@ -180,18 +244,24 @@ def ensure_posting_masters(company):
 	heads = vat_account_heads(row)
 	abbr = _abbr(company)
 	if heads:
+		# FR-127: the standard rate is the single rate of the company's tax templates. A linked
+		# template is never renamed and its rate rows are never changed: at the same rate only its
+		# accounts are reconciled; at another rate a new "CARD VAT {rate}% - <abbr>" template is
+		# created and linked, and the old one stays as it is for the drafts that use it.
+		vat_rate = standard_vat_rate(row)
 		for fieldname, title, rate in (
-			("vat_item_tax_template", f"CARD VAT 15% - {abbr}", 15),
+			("vat_item_tax_template", f"CARD VAT {vat_rate:g}% - {abbr}", vat_rate),
 			("vat_zero_item_tax_template", f"CARD VAT 0% - {abbr}", 0),
 		):
-			if not row.get(fieldname):
+			linked = row.get(fieldname)
+			if linked and frappe.db.exists("Item Tax Template", linked) and _carries_rate(linked, rate):
+				_reconcile_item_tax_template(linked, heads, rate)
+			else:
 				row.db_set(
 					fieldname,
 					_ensure_item_tax_template(company, title, heads, rate),
 					update_modified=False,
 				)
-			else:
-				_reconcile_item_tax_template(row.get(fieldname), heads, rate)
 
 	for t in settings.get("adjustment_types") or []:
 		if t.company != company or t.disabled:
