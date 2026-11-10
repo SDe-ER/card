@@ -13,6 +13,12 @@ DIR_INTERNAL = "تشغيل داخلي"  # owned, used internally, no billing
 CUSTOMER_BILLING_DIRECTIONS = (DIR_RENTED_OUT, DIR_SUBRENTAL)
 SUPPLIER_BILLING_DIRECTIONS = (DIR_RENTED_IN, DIR_SUBRENTAL)
 
+# third-party-owned equipment (Card Equipment.owner_model, stored Select values; Owner 2026-11-10).
+# The owner's entitlement is informational only (Crusher Owner Statement); CARD never posts it.
+OWNER_MODEL_MANAGED = "Managed partner"  # SDCE operates the machine for its owner
+OWNER_MODEL_SELF = "Self-operating owner"  # the owner operates it under the company's name
+OWNER_MODELS = (OWNER_MODEL_MANAGED, OWNER_MODEL_SELF)
+
 # card shifts (stored Select values of Card Monthly Card.shift)
 SHIFT_DAY = "نهاري"
 SHIFT_NIGHT = "ليلي"
@@ -39,10 +45,13 @@ OTHER_PARTY_TYPES = ("Supplier", "Customer", "Employee")
 
 def allowed_directions(ownership):
 	"""Directions an equipment's ownership permits. ملك runs internally or is
-	rented out; anything else (إيجار and the existing طرف ثالث, whose managed
-	flow is deferred) is the rented side."""
+	rented out; طرف ثالث (another owner's machine) is also rented out to a customer
+	on the company's name (Owner 2026-11-10), besides the rented side; anything
+	else (إيجار) is the rented side."""
 	if ownership == OWNED:
 		return (DIR_RENTED_OUT, DIR_INTERNAL)
+	if ownership == THIRD_PARTY:
+		return (DIR_RENTED_OUT, DIR_RENTED_IN, DIR_SUBRENTAL)
 	return (DIR_RENTED_IN, DIR_SUBRENTAL)
 
 

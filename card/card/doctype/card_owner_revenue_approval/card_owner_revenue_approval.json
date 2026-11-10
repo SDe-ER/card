@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "format:OWA-{#####}",
+ "creation": "2026-11-10 22:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "monthly_card",
+  "adjustment_row",
+  "description",
+  "gross_amount",
+  "column_break_cora1",
+  "company",
+  "equipment",
+  "owner_supplier",
+  "approval_section",
+  "approval_status",
+  "approved_amount",
+  "approval_date",
+  "column_break_cora2",
+  "customer_reference",
+  "evidence",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "monthly_card",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Monthly card",
+   "options": "Card Monthly Card",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "adjustment_row",
+   "fieldtype": "Data",
+   "label": "Card addition row",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Description",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gross_amount",
+   "fieldtype": "Currency",
+   "label": "Amount on the card (before VAT)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cora1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "owner_supplier",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Owner",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approval_section",
+   "fieldtype": "Section Break",
+   "label": "Customer approval"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Approval status",
+   "options": "Pending\nApproved\nPartially approved\nRejected",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.approval_status===\"Partially approved\"",
+   "fieldname": "approved_amount",
+   "fieldtype": "Currency",
+   "label": "Approved amount (before VAT)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "depends_on": "eval:[\"Approved\",\"Partially approved\",\"Rejected\"].includes(doc.approval_status)",
+   "fieldname": "approval_date",
+   "fieldtype": "Date",
+   "label": "Approval date",
+   "mandatory_depends_on": "eval:[\"Approved\",\"Partially approved\"].includes(doc.approval_status)"
+  },
+  {
+   "fieldname": "column_break_cora2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_reference",
+   "fieldtype": "Data",
+   "label": "Customer reference"
+  },
+  {
+   "depends_on": "eval:doc.approval_status!==\"Pending\"",
+   "fieldname": "evidence",
+   "fieldtype": "Attach",
+   "label": "Evidence",
+   "mandatory_depends_on": "eval:[\"Approved\",\"Partially approved\"].includes(doc.approval_status)"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-10 22:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Owner Revenue Approval",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "create": 1,
+   "write": 1,
+   "delete": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "create": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card User"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "search_fields": "monthly_card,owner_supplier,approval_status",
+ "title_field": "description"
+}

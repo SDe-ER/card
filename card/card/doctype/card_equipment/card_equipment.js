@@ -247,7 +247,9 @@ function card_apply_ownership_defaults(frm) {
 	// same rule as card.constants.allowed_directions
 	const allowed = owned
 		? ["مؤجَّرة لعميل", "تشغيل داخلي"]
-		: ["مستأجَرة من مورد", "إيجار من الباطن"];
+		: frm.doc.ownership === "طرف ثالث"
+		  ? ["مؤجَّرة لعميل", "مستأجَرة من مورد", "إيجار من الباطن"]
+		  : ["مستأجَرة من مورد", "إيجار من الباطن"];
 	if (!allowed.includes(frm.doc.rental_direction)) {
 		frm.set_value("rental_direction", owned ? "تشغيل داخلي" : "مستأجَرة من مورد");
 	}

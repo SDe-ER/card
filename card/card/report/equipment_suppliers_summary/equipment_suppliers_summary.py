@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 
 from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
+from card.constants import DIR_RENTED_OUT
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
 from card.report_currency import company_currency_report
@@ -40,6 +41,9 @@ def execute(filters=None):
 		["from_date", "<=", end],
 		["docstatus", "=", 1],
 		["ownership", "!=", "ملك"],
+		# a third-party machine rented out to a customer bills no supplier: its owner's dues are
+		# in the Crusher Owner Statement (Owner 2026-11-10)
+		["card_direction", "!=", DIR_RENTED_OUT],
 		["supplier", "is", "set"],
 	]
 	if filters.get("project"):

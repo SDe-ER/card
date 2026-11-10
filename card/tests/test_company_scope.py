@@ -94,7 +94,7 @@ class TestCompanyScopeHooks(IntegrationTestCase):
 		from card import hooks
 
 		self.assertEqual(tuple(hooks._COMPANY_SCOPED), company_scope.SCOPED_DOCTYPES)
-		self.assertEqual(len(set(company_scope.SCOPED_DOCTYPES)), 9)
+		self.assertEqual(len(set(company_scope.SCOPED_DOCTYPES)), 11)
 
 	def test_every_planned_doctype_is_registered(self):
 		has_perm = frappe.get_hooks("has_permission")

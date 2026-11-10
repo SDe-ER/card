@@ -16,6 +16,53 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-150 — Third-party equipment owners and the Crusher Owner Statement (Owner 2026-11-10).** Reason: crushers
+  owned by partners or by their own owners run under the company's name; the card is the only source of what each
+  owner is due, and no CARD record said who owns the machine, how it is run, or what is due after deductions.
+  - `card.constants.allowed_directions`: `طرف ثالث` also allows `مؤجَّرة لعميل` (the 2026-11-10 "direction not
+    valid for ownership" error). New `OWNER_MODELS` (Managed partner, Self-operating owner).
+  - Card Equipment: `supplier` (owner) required and shown for `طرف ثالث`, in the standard filter and indexed;
+    new `owner_model` and `owner_entitlement_from` (permlevel 1, commercial fields with a change reason), cleared
+    for any other ownership; a third-party machine may wait for its customer rate. Card Monthly Card: new
+    read-only `owner_model` (fetched), `supplier` in the standard filter and indexed; `before_submit` refuses a
+    customer-billing card without a customer rate.
+  - Equipment Supplier Statement and Equipment Suppliers Summary leave out rented-out cards (they bill no supplier).
+  - New DocTypes Card Owner Revenue Approval and Card Owner Deduction (generic company scope, FR-131); new fields
+    `Card Adjustment Type.owner_revenue`, `Card Equipment Supplier.settlement_family`.
+  - New Script Report Crusher Owner Statement (`card.owner_statement`) with an A4 PDF
+    (`card.card.report.crusher_owner_statement.owner_statement_pdf.download_pdf`, POST, report roles); sidebar
+    links in Card Parties and Card Reports.
+  - Permissions: report roles System Manager, Card Manager, Accounts Manager; ledger figures only with General
+    Ledger read; wages only with a bulk Salary Slip read (a role read without owner limit, no User Permission
+    on Employee or Salary Slip, the company permitted for Salary Slip) — an Employee who reads only his own slip
+    never sees them, and the dues are then shown as incomplete. Approval: Card Manager writes, Card User and Accounts Manager
+    read. Deduction: Accounts Manager creates and submits; Card Manager has no access (review fix below). No
+    existing grant changed.
+  - Accounting: none. Read-only and informational; nothing posts, `enable_accounting` unchanged. Data: no patch;
+    the Production data steps are a separate approved migration. API: one new POST endpoint.
+  - Rollback: revert the commit and migrate; the new DocTypes' rows are information only (no ledger effect).
+  - Review fixes (owner decisions 2026-11-10, third batch): a month's owner model is the snapshot on its submitted
+    cards (`month_owner_model`), never today's equipment setting; a Card Owner Deduction belongs to the owner of the
+    submitted card covering its posting date (`owner_supplier`), and the statement keys lines by that owner; a
+    deduction in a month with no card of its owner becomes its own row plus a warning (never dropped); a deduction
+    whose source is no longer submitted stops applying and is listed; wages are keyed by card and the cost-center
+    month is shared by card working days (`cost_center_share`), so two owners of one machine in a month are counted
+    once; a customer approval follows the card through cancel and amend (same row position, side, type and amount,
+    read-time, no write) and a unique index on (monthly card, adjustment row) backs the duplicate check; the
+    automatic-deduction refusal checks only the accounts the statement deducts; supplier registry figures leave out
+    rented-out third-party cards; one card query per employee for wages. Security: Card Manager loses its DocPerm on
+    Card Owner Deduction (wage lines and Salary Slip names are payroll data; the report keeps its wage gate), with
+    API, list-view and export tests. Second review: a deduction dated before the owner's cut-over is listed, not counted; an approval checks the
+    submitted card's ownership snapshot; a Salary Slip whose employee has any card in the period is refused (it is
+    already shared automatically); amendment chains resolved in bulk; the supplier reports use `DIR_RENTED_OUT`. Third
+    review (owner decisions 2026-11-11): the reversal of a possible-duplicate accrual (Purchase Invoice return,
+    reversing Journal Entry, or a debit against it) is set aside too, so it nets to zero for the owner; the
+    duplicate test uses the start date of the machine the accrual is booked on (cost center), not the owner's
+    earliest; only a voucher that debits the company's equipment-rental expense account is a manual accrual of
+    dues (a genuine owner invoice, for example spare parts, is counted and stays a machine expense); each card
+    keeps the start date (`owner_entitlement_from`, fetched snapshot) and a change of owner clears the machine's
+    date for the new owner; the owner model is mandatory in the form for new equipment only, and a month without
+    it is shown as incomplete instead of "not managed".
 - **FR-149 — CARD documentation site (`website/`, Astro Starlight, English + Arabic).** Reason: the owner asked for a
   full user and API documentation site in the style of the Whatomate docs. New static site under `website/`
   (sections Getting Started, Features, Reports, API Reference; English at the root and Arabic RTL under `/ar/`),

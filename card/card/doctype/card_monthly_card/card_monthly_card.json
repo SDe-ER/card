@@ -26,6 +26,8 @@
   "site_location",
   "equipment_info_col",
   "supplier",
+  "owner_model",
+  "owner_entitlement_from",
   "customer",
   "rate_type",
   "rate",
@@ -182,7 +184,24 @@
    "fieldtype": "Link",
    "label": "Owner",
    "options": "Supplier",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "equipment.owner_model",
+   "fieldname": "owner_model",
+   "fieldtype": "Data",
+   "label": "Owner model",
    "read_only": 1
+  },
+  {
+   "fieldname": "owner_entitlement_from",
+   "fieldtype": "Date",
+   "label": "Owner entitlement from",
+   "fetch_from": "equipment.owner_entitlement_from",
+   "read_only": 1,
+   "no_copy": 0
   },
   {
    "fieldname": "from_date",
@@ -561,7 +580,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 23:10:00.000000",
+ "modified": "2026-11-11 01:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card",
