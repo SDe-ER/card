@@ -17,7 +17,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ### Added
 - **Configurable stop reasons, the responsible party of a stopped day and the Equipment Downtime report** (FR-118,
-  WP-09, refs #45 #123, PR #PRNUM; target: next release).
+  WP-09, refs #45 #123, PR #194; target: next release).
   - **Reason:** #45 (owner decision): record why, how long and because of whom equipment stood still, from a
     configurable per-company catalogue, with **no rental for stopped periods unless explicitly configured**; #123 asks
     for a downtime report.
