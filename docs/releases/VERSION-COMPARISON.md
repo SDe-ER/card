@@ -58,6 +58,22 @@ the tag (`git show <tag>:<path>`).
 | A4 print of the Equipment Supplier Statement (FR-089) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Choose Landscape in the PDF dialog; v4.4.0: standard print style, direction from the user's language, totals under the amount columns, Additions/Deductions only when used, no equipment no./rate columns; v4.4.1: short printed totals (opening + period charges − payments = closing, picked by stable summary keys), reconciliation figures on the screen report only; the PDF button still renders with wkhtmltopdf (use browser Print for Arabic); v4.4.2: every card of the period printed, totals from the cards only (cards net; not yet invoiced through CARD, before VAT, when positive), no ledger lines, issued-by footer, full From/To dates, Noto Sans Arabic; v4.4.3: the PDF button renders with the Chrome PDF generator (server-built page, filters only), A4 portrait on one page, font kept under a site print style | PR #150; PR #171; PR #175; PR #178; PR #180 |
 | Print language and direction for CARD prints, Jinja `card_print_is_rtl` (FR-055, FR-045, FR-089) | v4.4.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Display only; code-only rollback to v4.3.0 needs a forced re-import of the five standard formats | PR #171, #172; CHANGELOG 4.4.0 |
 | Settlement phase 1: accrual journal link and Card Settlement Status report (FR-110) | v4.5.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Accountant-only link (POST); report for System Manager / Accounts Manager with ledger access; no GL write | PR #182 |
+| Read endpoints GET-only; diesel fill company isolation (FR-098) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Six read functions refuse POST/PUT/DELETE; cross-company read, write and share of a fill refused | PR #161 |
+| Attachment validation and privacy (FR-099) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | JPEG/PNG/WebP/PDF by content, 10 MB; transport and equipment documents private to their record; HEIC refused | PR #162 |
+| Project-tank diesel posts at project level (FR-100) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | One project-level line; older drafts with a tank fill refused on submit until rebuilt | PR #163 |
+| Optional meter extraction in Project Diesel Fill (FR-101) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Off by default (site_config keys); IP-literal worker URL only | PR #164 |
+| Card values on the CARD workspace (FR-111) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Supplier, customer and internal series; internal rate fields (level 2) | PR #185 |
+| Equipment Partial Margin, Unbilled Card Work, Equipment Maintenance Cost reports (FR-112 to FR-114) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Read-only; margin and maintenance need the Card Equipment dimension | PR #188 |
+| Owned-only units, derived component flag, initial place, move-day rule (FR-115 to FR-117) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Patch `v4_6_0.derive_unit_component_flag`; per-company settings, defaults unchanged | PR #187 |
+| Configurable stop reasons, responsible party, Equipment Downtime report (FR-118) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Patch `v4_6_0.seed_stop_reasons` (non-billable); billing unchanged until a reason is billable | PR #194 |
+| CARD Monthly Posting page with a preview (FR-119) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Preview GET, writes nothing; posting unchanged | PR #193 |
+| Other-party transport responsibility, agreed amount (FR-120) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Never company cost, never posted | PR #190 |
+| Reviewer is not the approver on equipment needs (FR-121) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Enforced by default; no role exempt | PR #189 |
+| Equipment status guard per company (FR-122) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Warn only by default | PR #191 |
+| Mandatory cancel reason, override comments (FR-123) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Workflow cancel action and List bulk cancel refused for the three doctypes | PR #197 |
+| Dead settings retired (FR-124) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Hidden, read only, values kept | PR #198 |
+| Effective-dated diesel price schedule (FR-125) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Patch `v4_7_0.seed_diesel_price_schedule`; `diesel_unit_price` read-only once scheduled | PR #195 |
+| Diesel fill project check per company (FR-126) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Warn only by default | PR #196 |
 | Portal catalog under ERPNext v16.54.0+ Company Restriction (FR-076 fix) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Earlier versions: empty catalog for Card portal roles on ERPNext ≥ 16.54.0; Partially Verified (CI only) | PR #169 |
 
 ## Reading the matrix
@@ -70,4 +86,4 @@ the tag (`git show <tag>:<path>`).
   version — do not assume a capability from an issue or a plan.
 
 Per-version detail: [v1.0.0](v1.0.0.md) · [v1.0.1](v1.0.1.md) · [v1.2.0](v1.2.0.md) ·
-[v1.2.1](v1.2.1.md) · [v1.2.2](v1.2.2.md) · [v3.0.0](v3.0.0.md) · [v4.3.0](v4.3.0.md) · [v4.4.0](v4.4.0.md) · [v4.4.1](v4.4.1.md) · [v4.4.2](v4.4.2.md) · [v4.4.3](v4.4.3.md) · [v4.5.0](v4.5.0.md) · Guidance: [Which version should I use?](WHICH-VERSION.md)
+[v1.2.1](v1.2.1.md) · [v1.2.2](v1.2.2.md) · [v3.0.0](v3.0.0.md) · [v4.3.0](v4.3.0.md) · [v4.4.0](v4.4.0.md) · [v4.4.1](v4.4.1.md) · [v4.4.2](v4.4.2.md) · [v4.4.3](v4.4.3.md) · [v4.5.0](v4.5.0.md) · [v4.6.0](v4.6.0.md) · Guidance: [Which version should I use?](WHICH-VERSION.md)
