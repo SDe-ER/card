@@ -435,6 +435,44 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Deploy preconditions: on Production `frappe.get_hooks("override_whitelisted_methods")` for both keys lists the
   DAWM entry, then the CARD entry; no Webhook, Notification or Server Script exists on Card Settings.
   Rollback: revert the commits; no data to restore.
+- **Child-table rows follow the level of their table (FR-148, SEC-1). PR to be linked.** Reason: Frappe 16 checks
+  the fields of a child row against the child DocType's own `permlevel` on the child list routes
+  (`frappe.client.get_list` / `frappe.client.get_value` with `parent=`, `frappe.desk.reportview` with a
+  `` `tab<Child>`.`field` `` column or a child-field filter). It does not apply the level of the parent's Table field
+  there; the form and `frappe.client.get` do. Four CARD tables above level 0 had child DocTypes whose fields were all
+  at level 0, so every level-0 reader of the parent read them through those routes, could test guessed values with a
+  report-view child filter, and (Card Equipment) read the row values in the form's change history. What leaked, with
+  the DocPerms of the code: **Card Equipment `components`** (level 1; Card Equipment Component: component, role,
+  from/to date, change reason) to **Card Supervisor** (level 0 only), through all three routes, the filter and the
+  timeline; **Card Settings `diesel_price_schedule`** (level 1; Card Diesel Price: company, fuel type, valid from,
+  unit price, currency, unit) to **Card Manager** (levels 0 and 2), through `get_list` / `get_value` (report view
+  lists no Single). **Card Settings `project_transport_prices`** and **`location_cost_centers`** (level 2) had the
+  same gap, but no role of the code reads Card Settings at level 0 without level 2; they are fixed as a precaution
+  (a role given level-0 read later, e.g. by a Custom DocPerm, would have read them). Card Operator, Card User (Card
+  Settings) and Card Reviewer have no read on these parents and received nothing. Fix: every field of Card
+  Equipment Component and Card Diesel Price is at level 1, every field of Card Project Transport Price and Card
+  Location Cost Center at level 2, the level of their only table (no child DocType is shared by tables at different
+  levels). No role, DocPerm, hook or data change. Affected: the four child DocType JSONs; new
+  `card/tests/test_child_permlevel_leak.py` (guard driven by an enumeration of every CARD DocType: any table above
+  level 0 with a child field below its level fails; same check on the installed meta; role probes for every CARD
+  role and Accounts Manager on the three routes, the report-view filter and the form; component history masked);
+  `card/tests/test_equipment_g2.py` (the #59 Version check now expects the masked component row). Impact on
+  permissions: level-0-only readers lose these rows on every route; readers of the table's level keep the form, the
+  print, report view (child columns and filters) and every server path (`frappe.get_all` / `frappe.db`, used by the
+  posting, transport price, diesel price, component and location history code). Two Frappe 16 behaviours to know:
+  (1) `frappe.client.get_list` / `get_value` on a child DocType return no field above level 0 to anyone, readers of
+  the level included (`frappe/desk/reportview.py` `validate_fields` reads the levels of the child DocType itself);
+  no CARD Desk script, report, print or CARD Mobile screen reads these rows that way (Card Company Settings has
+  behaved so since v1.2.2). (2) The change history of Card Equipment masks every field above level 0 for every
+  reader (`card/field_privacy.py`, owner decision 2026-10-31): component row changes in new Versions keep who and
+  when, not the values. Residual, not closed by this change: a direct child query
+  (`frappe.client.get_list("<Child>", parent=..., filters={"<child field>": ...})`) still answers a guessed value
+  as a row count, because Frappe 16 checks no field level on a filter of the queried child DocType
+  (`frappe/database/query.py`, simple field filter with no `parent_doctype` for the permission check); closing it
+  needs a whitelisted-method override registered in `card/hooks.py` (follow-up). Accounting, data and API: no GL,
+  no data change, no new endpoint. Rollback limits: revert the commit and migrate; the levels return to 0. Versions
+  written while the change was live keep the masked component values (nothing to restore; the rows themselves are
+  unchanged). Versions written before it keep their raw values.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

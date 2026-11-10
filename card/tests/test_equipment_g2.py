@@ -19,6 +19,7 @@ from frappe.utils import add_days, getdate, nowdate
 
 from card import transfer
 from card.dimension import ASSET_LINK_FIELD
+from card.field_privacy import MASKED
 from card.tests.cancel_reason import with_reason
 from card.tests.test_customer import _CustomerCardsBase
 from card.tests.transport_parties import company_paid
@@ -546,7 +547,14 @@ class TestG2ComponentRows(_G2Base):
 			limit=1,
 			pluck="data",
 		)
-		self.assertTrue(version and free.name in version[0], "unit Version must record the component change")
+		self.assertTrue(version, "unit Version must record the component change")
+		# FR-148: the components table is at level 1, so the history keeps the row change (who, when) but not
+		# its values, like every other field above level 0 (card/field_privacy.py)
+		changes = json.loads(version[0])
+		added = [row for table, row in changes.get("added") or [] if table == "components"]
+		self.assertTrue(added, "unit Version must record the component change")
+		self.assertNotIn(free.name, version[0])
+		self.assertEqual(added[0].get("component"), MASKED)
 
 	def test_card_user_cannot_put_a_row_valid_or_not(self):
 		a, free = self._owned(), self._owned()
