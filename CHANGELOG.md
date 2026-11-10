@@ -28,7 +28,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   today); otherwise the company's initial place (FR-116, empty when not set). Segments are clipped to the date range. Company
   isolation on the server (`resolve_company`; an equipment of another company is refused with PermissionError; transports of
   another company are not read); the user's roles must read Card Equipment, Card Equipment Assignment and Equipment Transport
-  before anything is read. Added to the CARD Reports sidebar. PR pending. Affected: new `card/location_history.py`
+  before anything is read. Added to the CARD Reports sidebar. PR #201. Affected: new `card/location_history.py`
   (`submitted_moves`, `equipment_segments`, `company_segments`), `card/card/report/equipment_location_history/`,
   `card/card/sidebar/card_reports/card_reports.json`, locale, `card/tests/test_location_history.py`,
   `card/tests/test_report_access.py`. Impact: permissions none (no role widened, no `ignore_permissions`); accounting none (no
