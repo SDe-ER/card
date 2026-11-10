@@ -1,13 +1,15 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""FR-122 (#42, #120): an ended Card Equipment gets no NEW assignment, transport or monthly card.
+"""FR-122 (#42, #120): an ended Card Equipment gets no NEW assignment, transport or monthly card;
+FR-128 (#124, #42): nor a new diesel fill.
 
 The rule is per company (Card Company Settings `equipment_status_rule`): "Warn only" (the default,
 also when the company has no row or the value is empty) shows a message and saves; "Refuse" stops it.
 Only new records, or a record whose equipment changes, are checked, and a transport again on
 submit; existing records are never changed. Exempt: a transport to the supplier, a move of an
 owned machine to storage or a workshop (how it is retired), and a monthly card whose period starts
-on or before the equipment's exit date (else its rental end, once passed)."""
+on or before the equipment's exit date (else its rental end, once passed); a diesel fill dated on or
+before that day likewise (its fill date is the day checked)."""
 
 import frappe
 from frappe import _
@@ -32,6 +34,7 @@ def _messages():
 		"assignment": _("Equipment {0} has status {1}; it should get no new assignment."),
 		"transport": _("Equipment {0} has status {1}; it should get no new transport."),
 		"monthly card": _("Equipment {0} has status {1}; it should get no new monthly card."),
+		"diesel fill": _("Equipment {0} has status {1}; it should get no new diesel fill."),
 	}
 
 
@@ -46,10 +49,11 @@ def _last_work_day(eq):
 
 
 def check_equipment_status(equipment, use, company=None, period_start=None):
-	"""Warn or refuse a new `use` ("assignment", "transport" or "monthly card") of an equipment
-	whose status stops new use. The equipment's own company decides the rule when no company is
-	given. With `period_start` (a monthly card), a period that starts on or before the equipment's
-	exit date (else its rental end, once passed) is its last work, not a new use: never stopped."""
+	"""Warn or refuse a new `use` ("assignment", "transport", "monthly card" or "diesel fill") of an
+	equipment whose status stops new use. The equipment's own company decides the rule when no company
+	is given. With `period_start` (a monthly card's first day, or a diesel fill's date), a period or day
+	on or before the equipment's exit date (else its rental end, once passed) is its last work, not a
+	new use: never stopped."""
 	if not equipment:
 		return
 	eq = frappe.db.get_value(

@@ -16,6 +16,29 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Equipment status guard on project diesel fills** (FR-128; refs #124, #42). Reason: an ended equipment (status منتهية)
+  could still get a new Project Diesel Fill; PR #191 (FR-122) guarded assignments, transports and monthly cards and left
+  diesel fills as a TODO. Change: `ProjectDieselFill._check_equipment_status` calls the existing
+  `card.equipment_status.check_equipment_status` (new use "diesel fill", one new message
+  "Equipment {0} has status {1}; it should get no new diesel fill.") for the direct-charge equipment and every listed
+  equipment, with the fill's company and its date as the day. A new fill, or a draft whose company or date changed, checks
+  every equipment; otherwise only an equipment added to the draft is checked (compared with the stored fill, as the
+  transport does), so an unchanged saved draft is not checked again on save. `before_submit` checks every equipment again;
+  the validate of that same submit skips the check, so a warning shows once. An amended copy of a cancelled fill is a new
+  fill and is checked: under Refuse, amending a fill whose equipment has ended without an exit date is refused; the
+  workaround is to set the equipment's exit date (a fill on or before it is allowed), consistent with FR-122. Another
+  company's equipment fails on the company match before its status is read.
+  A fill dated on or before the equipment's exit date (else its rental end once passed; the FR-122 `_last_work_day`
+  rule) is its last work and is never stopped. Same per-company rule as FR-122: Card Company Settings
+  `equipment_status_rule` "Warn only (equipment status)" (the default, also for an empty value or a company without a
+  row: a message and the fill is saved) or "Refuse (equipment status)". Only status منتهية stops; Stopped and Under
+  Maintenance do not; a project-tank fill without equipment is not checked. Affected: `card/equipment_status.py`
+  (`_messages`, docstrings), `project_diesel_fill.py` (`validate`, `before_submit`, `_check_equipment_status`, `_day`),
+  locale (one Arabic string); tests `card/tests/test_diesel_fill_status_guard.py`. PR #200. Impact: permissions none; accounting
+  none (no GL; submitted fills are never re-validated or changed); data none (no patch, no setting added, existing fills
+  unchanged); API: saving a new or changed fill, or submitting a draft, with an ended equipment shows a warning by
+  default, or raises a ValidationError when the company chose Refuse. Rollback limits: reverting the commit removes the
+  check; nothing is stored by it.
 - **Equipment Location History report** (FR-130, #53, #127). Reason: the owner needs to see where each equipment was on
   each period, not only today. New read-only Script Report `Equipment Location History` (roles as the equipment statements and
   Equipment Downtime: System Manager, Card Manager, Card User, Accounts Manager): for one company, an optional equipment and a

@@ -10,6 +10,7 @@ from frappe.utils import cint, cstr, flt, formatdate, get_datetime, getdate, now
 
 from card.attachment_validator import IMAGE_KINDS, check_attachment_content
 from card.company import single_company, validate_equipment_company
+from card.equipment_status import check_equipment_status
 from card.settings import company_setting, setting
 
 
@@ -178,6 +179,11 @@ def _filled_equipment_of(doc):
 	names.discard(None)
 	names.discard("")
 	return sorted(names)
+
+
+def _day(value):
+	"""The date of a stored or form value; None stays None (getdate(None) would be today)."""
+	return getdate(value) if value else None
 
 
 def equipment_on_project(equipment, project, on_date):
@@ -392,6 +398,7 @@ class ProjectDieselFill(Document):
 		# the project) is added in a later stage, gated by owner approval.
 		self.amount = flt(flt(self.litres) * flt(self.unit_price), 2)
 		self._check_equipment_mode()
+		self._check_equipment_status()  # after the row company check, so another company's status is never shown
 		self._check_equipment_on_project()
 		self._check_photos()
 		warnings = self._check_totalizer() + self._check_overlaps()
@@ -429,6 +436,8 @@ class ProjectDieselFill(Document):
 		# Owner 2026-10-26 (Phase 1): the operations review is separate from the accounting submit
 		if self.review_status != OPERATIONS_APPROVED:
 			frappe.throw(_("The diesel fill needs operations approval before submit."))
+		# FR-128: every equipment again, whatever changed since the draft was saved (as a transport)
+		self._check_equipment_status(all_rows=True)
 
 	def _guard_source(self):
 		"""The source fields (read only on the form) come from the session import only, never from a
@@ -563,6 +572,36 @@ class ProjectDieselFill(Document):
 							row.idx, self.company, company
 						)
 					)
+
+	def _check_equipment_status(self, all_rows=False):
+		"""FR-128 (#124, #42): an ended equipment gets no new diesel fill, by the FR-122 rule of
+		card.equipment_status (per company, Warn only by default; a fill dated on or before the exit date,
+		else a passed rental end, is its last work). On save, a new fill or a changed company or date
+		checks the direct-charge and every listed equipment, otherwise only an equipment added to the
+		draft (compared with the stored fill, as a transport); on submit (`all_rows`) every one again, and
+		the validate of that submit is skipped. An amendment is a new fill: checked."""
+		if not all_rows and getattr(self, "_action", None) == "submit":
+			return  # before_submit checks every equipment right after validate: one message, not two
+		known = set()
+		if not all_rows and not self.is_new():
+			stored = frappe.db.get_value(
+				self.doctype, self.name, ["company", "date", "card_equipment"], as_dict=True
+			)
+			if stored and (stored.company, _day(stored.date)) == (self.company, _day(self.date)):
+				known = {stored.card_equipment} | set(
+					frappe.get_all(
+						"Diesel Fill Equipment",
+						filters={
+							"parent": self.name,
+							"parenttype": self.doctype,
+							"parentfield": "equipment_filled",
+						},
+						pluck="card_equipment",
+					)
+				)
+		for equipment in _filled_equipment_of(self):
+			if equipment not in known:
+				check_equipment_status(equipment, "diesel fill", self.company, period_start=self.date)
 
 	def _check_equipment_on_project(self):
 		"""FR-126 (#124 WP-11): the direct-charge equipment and every listed equipment need a Card Equipment
