@@ -486,6 +486,39 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   and fill form fields are unchanged. Rollback: revert the commit.
 
 ### Security
+- **FR-142 / FR-140 — a cancel can no longer rewrite a Card Daily Log or an Equipment Meter Reading.** Reason: Frappe
+  skips `validate` and `validate_update_after_submit` on a cancel and stores the fields and child rows the request
+  sends (`frappe/model/document.py`); reproduced on a sandbox site: a REST PUT `{"docstatus": 2, ...}`, a savedocs
+  Cancel with a modified document and a bulk update with `docstatus` 2 and data each stored changed hours rows, log
+  date and notes on a cancelled daily log, and a REST PUT changed the engine hours, the reading time and the notes
+  of a cancelled meter reading. Fix: both cancels now run the generic FR-123 guard of `card/cancel_reason.py`
+  (`_refuse_changes`, `CancelChangesDocumentError`, already used by the monthly card): a cancel that changes any
+  stored field or row is refused and the document stays submitted. The daily log first restores its server-written
+  approval fields, preparers and editors from the database (FR-142 behaviour, unchanged) and then refuses any other
+  change. No cancel reason is required on these DocTypes (unchanged). Affected functions: `card.daily_log.check_cancel`,
+  `EquipmentMeterReading.before_cancel`. Tests: `test_daily_log.py` (REST PUT with rows, date, notes; savedocs with a
+  row and the notes; bulk update with data; plain cancels still work), `test_meter_reading.py` (REST PUT, savedocs,
+  bulk; plain cancel). PR #226.
+  Also: Frappe checks `amended_from` on insert only, so a save (`frappe.client.save`, `frappe.client.set_value`)
+  could clear or change it on a draft; reproduced on a Card Daily Log, where a cleared link dropped the earlier
+  versions' preparers and let a manager who edited an earlier version approve the amendment under Refuse. A save of
+  an existing Card Daily Log or Equipment Meter Reading now keeps the stored `amended_from`
+  (`card.daily_log.prepare`, `EquipmentMeterReading._validate_amended_from`); tests clear it by `client.save` and by
+  `set_value` and the approval stays refused, and set it on an existing record and it stays empty.
+  Review hardening of the shared guard (`card/cancel_reason.py` `_changed_field`, `_rows_changed`, `_norm`,
+  `_refuse_changes`): Frappe also skips `validate_constants` on a cancel and `db_update` writes every column, so a
+  cancel could still rewrite the document's `owner` / `creation` and each row's `idx` (row order), `owner` and
+  `creation`; reproduced on Equipment Meter Reading and Card Daily Log. These standard columns are now compared
+  too; float fields are compared at 9 decimals, the stored precision (a change of 0.0000001 was accepted). The
+  hardening also applies to the FR-123 doctypes (Card Monthly Card, Equipment Transport, Project Diesel Fill),
+  whose message is unchanged; Card Daily Log and Equipment Meter Reading use a new neutral message ("... cannot
+  be cancelled with changes: ... differs from the stored record.", Arabic added). Tests: owner and creation on the
+  log, the reading and the three FR-123 doctypes; added, removed, reordered, emptied rows, swapped `idx` and a forged
+  row owner or creation on the log; 100.0000001 engine hours on the reading.
+  Impact: permissions none; accounting none; data: a cancel request that also changes the document is refused
+  (a plain cancel is unchanged), and a save no longer changes `amended_from`; API: such a cancel request now fails
+  with `CancelChangesDocumentError`, and a sent `amended_from` on an update is ignored. Rollback limits:
+  code only; nothing stored to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
   User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with

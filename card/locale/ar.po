@@ -7315,6 +7315,10 @@ msgstr "مفتاح المصدر {0} مستخدم بالفعل في النقل {1
 msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
 msgstr "نفس مستند المصدر مرفق بالفعل بالنقل {0}. تأكد أنه لم يُدخل مرتين."
 
+#: card/cancel_reason.py
+msgid "{0} {1} cannot be cancelled with changes: {2} differs from the stored record."
+msgstr "لا يمكن إلغاء {0} {1} مع تعديلات: {2} يختلف عن السجل المحفوظ."
+
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approval"
 msgstr "اعتماد الكارت الشهري"
