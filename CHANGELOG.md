@@ -16,6 +16,95 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Governance inventories (documentation only; refs #40, #50, #52, #54).**
+  `docs/governance/SETTINGS-AND-CONSTANTS.md` lists every Card Settings and Card Company Settings field with its
+  readers (file:line), the code defaults and inline fallbacks, the precedence document → Card Company Settings →
+  Card Settings → code default, the four dead settings of FR-015 and the hardcoded values that affect behaviour
+  (WP-18). `docs/governance/INTAKE-PROVENANCE-DESIGN.md` is a design, not implemented, for source keys, evidence
+  hashes, idempotency, review and permissions of movement and operation intake (WP-21).
+  `docs/governance/HRMS-PARITY.md` compares the CARD equipment model with the Frappe HR employee model (official
+  HRMS `version-16` source and docs.frappe.io/hr only) and records the upgrade-rehearsal CI evidence. Impact on
+  permissions, accounting, data and the API: none. Rollback: revert the commit.
+- **Every monthly card shows its value on the CARD workspace** (FR-111, PR #185, owner requirement
+  2026-11-10; target: next release).
+  - **Reason:** the chart "مبالغ الكروت الشهرية" and the number card "مبالغ الشهر الماضي" summed only the supplier
+    `amount`, which is 0 for owned and managed equipment; a month with only owned cards (for example an owned crusher
+    rented to a customer) looked empty.
+  - **Change:** new module `card.card_value` and Dashboard Chart Source **Card Monthly Values**
+    (`card/card/dashboard_chart_source/card_monthly_values/`). Per submitted card: supplier side (`مستأجَرة من مورد`,
+    `إيجار من الباطن`) → `net_amount`; customer side (`مؤجَّرة لعميل`, `إيجار من الباطن`) → `customer_net_amount`;
+    owned or managed equipment (`ملك`, `طرف ثالث`) with an internal rate → hours × rate, or working days × rate when the
+    basis is per day. Each value is its own series and is never added to another. A card with no supplier or customer
+    side and no internal rate still counts: number cards show how many such cards and how many hours last month.
+    New Card Equipment fields `internal_rate_basis` (Select `بالساعة`/`باليوم`, default per hour) and `internal_rate`
+    (Currency), level 2 like `internal_hourly_rate`, in the "Internal cost" section, which now also shows for managed
+    (`طرف ثالث`) equipment; both are commercial terms (a change needs a reason). An equipment with only the older
+    `internal_hourly_rate` is valued per hour with it. The chart filter "Include draft cards" is off by default, as the
+    old chart (submitted cards only).
+  - **Fixtures:** the chart "مبالغ الكروت الشهرية" becomes a Custom chart on that source (three series per month:
+    "تكلفة إيجار من موردين", "قيمة تشغيل لعملاء", "قيمة تشغيل داخلي"); the number card "مبالغ الشهر الماضي" (name kept)
+    becomes a Custom card for last month's supplier cost (label "تكلفة إيجار من موردين - الشهر الماضي", now
+    `net_amount` with additions and deductions, it was `amount`); four new Custom number cards (customer value,
+    internal value, "كروت بدون سعر داخلي", hours without an internal rate) are added to the Card workspace.
+  - **Permissions:** none widened. Reads use `frappe.get_list`, so the Card Monthly Card read right and Company User
+    Permissions apply (no hard-coded company; the optional company filter cannot widen them). The internal series and
+    the two missing-rate cards need read access to the level-2 rate fields (System Manager, Card Manager, Accounts
+    Manager); other users get the supplier and customer series only and "N/A" on those cards. The source is not
+    cached (Frappe's `cache_source` key is per chart, not per user). The chart and the five number-card methods are
+    side-effect-free reads declared `methods=["POST"]` because Frappe's dashboard widgets call them with
+    `frappe.xcall`, which always sends POST.
+  - **Accounting:** none. No document or GL entry is created or changed; the internal value is for display only.
+  - **Data / schema:** two new nullable columns on `tabCard Equipment`; no patch (the fixtures overwrite the chart,
+    number cards and workspace on `migrate`, as before). **API:** five new POST methods in `card.card_value` and the
+    source method `card.card.dashboard_chart_source.card_monthly_values.card_monthly_values.get`.
+  - **Rollback:** older code ignores the two new columns (they stay, with their values). Its fixtures restore the old
+    Sum chart, number card and workspace on its next `migrate`; the four new number cards and the Dashboard Chart
+    Source stay in the database, off the workspace, until removed by hand (their methods no longer exist there).
+- **Analytics reports: Equipment Partial Margin, Unbilled Card Work, Equipment Maintenance Cost** (#53, #127 P8;
+  audit work packages WP-16 and WP-17; FR-112, FR-113, FR-114; PR #188). Target version: next release.
+  - **Reason:** #53 and the go-live phase P8 (#127) ask for equipment profitability, unbilled work and a maintenance
+    report; none existed.
+  - **Change:** three read-only Script Reports in the CARD Reports sidebar, all for one company (mandatory filter,
+    validated with `card.report_access.resolve_company`) and one period; shared reading helpers in the new module
+    `card.analytics`.
+    - **Equipment Partial Margin** (System Manager, Accounts Manager; General Ledger access required,
+      `can_view_ledger`): per equipment and project, revenue from submitted Sales Invoice lines carrying the Card
+      Equipment accounting dimension (net of VAT, company currency, credit notes included); the customer net of
+      submitted cards no submitted document recognised yet, in a separate "not invoiced yet" column that is never
+      added to revenue or the margin; supplier rental as recognised by submitted documents (CARD purchase invoices,
+      linked invoices, accrual journal entries linked with `card.gl.journal_link`), with the supplier net not yet
+      recognised shown apart and not added to costs; diesel of direct fills at the posting's valuation (the net booked
+      on a submitted CARD posting; a fill not posted yet is converted to net by the posting's own rule,
+      `card.gl.posting._apply_diesel_vat_basis`, and kept at its amount with a message where the diesel VAT basis is
+      not verified); project-tank fills are not split by equipment and stay
+      on a project-level line "unallocated tank diesel" (#118 rule 7); company-borne transport by its recorded
+      equipment shares (same rule as `card.transport_costs`); maintenance and other costs tagged with the dimension.
+      Labelled "partial margin: excludes depreciation, labour, insurance and overhead". The message states the timing:
+      revenue and maintenance by document posting date, rental and the not-invoiced columns by the card's start date.
+    - **Unbilled Card Work** (System Manager, Accounts Manager, Card Manager; the user's roles must read the GL Posting
+      Log): submitted cards, supplier side and customer side apart, that no active GL Posting Log and no invoice link
+      of that side holds; optionally the cards held by a draft posting.
+    - **Equipment Maintenance Cost** (System Manager, Accounts Manager; General Ledger access required): submitted
+      Purchase Invoice lines and Material Issue Stock Entry lines tagged with the Card Equipment dimension. Invoices
+      that recognise CARD cards, diesel fills or transports (and their returns), fixed-asset lines and lines of stock
+      items are left out (a stock item reaches the equipment through its material issue; counting the purchase too
+      would count it twice).
+    - Without the Card Equipment dimension (FR-031) the margin shows a clear message and leaves revenue and maintenance
+      out; the maintenance report shows the message and no rows. Nothing fails.
+  - **Changed (no behaviour change):** `card.transport_costs` exposes its company-cost rule as
+    `company_cost_project(row)` and `TRANSPORT_COST_FIELDS`; `transport_cost_by_project` uses them.
+    `card.report_access.role_reads(doctype)` is a public name for the existing role-read check.
+  - **Affected:** new `card/analytics.py`; new reports `equipment_partial_margin`, `unbilled_card_work`,
+    `equipment_maintenance_cost`; `card/transport_costs.py`; `card/report_access.py`; Sidebar "Card Reports"
+    (three links; file `modified` bumped so migrate imports it); `card/locale/ar.po`, `card/locale/main.pot`;
+    tests `test_analytics_reports.py` (20), `test_report_access.py` (filter check covers the new reports).
+  - **Impact:** permissions — none widened: the reports read business documents with `frappe.get_list` (the user's
+    permissions and User Permissions apply), child rows only of the parents returned, and the GL Posting Log only
+    after the server-side role gate. Accounting — none: nothing is posted, created or changed; no GL write. Data —
+    none written. Schema — none (three Report records and the sidebar rows are created by migrate). API — no new
+    whitelisted method.
+  - **Rollback:** code-only. Reverting removes the reports from the code; migrate does not delete the three Report
+    records it created (delete them by hand if wanted). No data to restore.
 - **A combined unit is owned equipment only** (#42, WP-04; FR-115; PR #187).
   - **Reason:** owner requirement in #42: the "two machines together" option is available only for owned equipment,
     in the UI and the backend, including ownership changes and existing records.
@@ -40,6 +129,36 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
+- **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill
+  without equipment is now ONE Purchase Invoice line (its full amount, the project, no equipment) instead of one
+  line per equipment split by operating hours; an hours-based split is an estimate, not a posting basis. Its cost
+  center is the fill's own, else the project's (no assignment of any equipment; "Cost allocation needs review" when
+  neither is usable). Direct fills (with equipment) are unchanged. The line description no longer says "estimated
+  share". The GL equipment dimension therefore no longer includes tank diesel. Diesel reports and
+  `get_card_diesel` keep their labelled estimates and are unchanged; the PI-item-based Equipment Consumption no
+  longer includes tank diesel per equipment, while the Estimated reports still show the labelled estimate. The
+  "Equipment Expenses Without Equipment" guard report no longer lists project-tank diesel lines (identified through
+  the fill that points to the invoice) and counts them in a separate tile. Submitted invoices and posting logs are not
+  touched. Tank diesel's cost center moves from the equipment assignment's to the fill's own or the project's, so
+  cost-center and equipment-dimension reports around the release are not month-to-month comparable.
+  **Rebuild open draft postings built before this release before submitting them.** Enforced (Owner decision
+  2026-11-10): the builder now records its version (`"builder": 2`) in the GL Posting Log's `built_snapshot` JSON
+  (not in the signature hash, so other drafts still match); `card.gl.integrity.check_built_signature` refuses the
+  submit of a draft built by an earlier builder when it holds a project-tank fill ("Rebuild the posting from CARD
+  before submitting it", Arabic translation in `ar.po`), also when an Accounts Manager accepted a correction on it.
+  A pre-change draft without a project-tank fill submits as before. PR #163. Affected: `card/gl/posting.py`
+  (`build_monthly_posting`, diesel loop, `fill_line_cost_center`), `card/gl/integrity.py` (`BUILDER_VERSION`,
+  `stored_snapshot`, `check_builder_version`), guard report `equipment_expenses_without_equipment.py`. Impact:
+  permissions none; accounting: the distribution of tank diesel moves to the project line (totals unchanged; no GL
+  write by CARD); data: no patch, no schema change, existing logs and submitted invoices untouched; API none.
+  Rollback: revert the commits; drafts built by the new builder keep one project-level tank line and the old code
+  submits them as they are (rebuild them to get the old split).
+- **Feature registry corrected (documentation only).** FR-073, FR-074, FR-075 (v4.1.0), FR-085, FR-086, FR-086b
+  (v4.2.0), FR-087 (v4.2.1) and FR-088 (v4.2.2) were still *In review* / *In development* although merged and
+  released; they are now Implemented with their pull requests, merge commits and releases. FR-038 names the
+  transport cost-center checks of FR-091 and FR-093. Rows released in v4.3.0 to v4.4.3 no longer say "not
+  deployed" (deployed 2026-11-09 per `DEPLOYMENTS.md`); v4.5.0 is released, not deployed.
+  No row deleted. Impact: none. Rollback: revert the commit.
 - **Move-day rule of a project → project transport, per company** (#43, #121, #122; WP-15; FR-117; PR #187). Owner wording in
   #43: "one effective date equal to arrival date" and "approval makes destination effective on arrival/effective
   date"; the open decision on #121/#122/#43: "on a project → project move, which project gets the move day?".

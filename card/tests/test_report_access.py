@@ -102,6 +102,9 @@ REPORT_MODULES = (
 	"equipment_expenses_without_equipment",
 	"operating_cost_by_project",
 	"transport_cost_by_project",
+	"equipment_partial_margin",
+	"unbilled_card_work",
+	"equipment_maintenance_cost",
 )
 
 

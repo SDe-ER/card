@@ -128,6 +128,12 @@ def _role_reads(doctype):
 	return bool(perms.get("read")) and "read" not in (perms.get("if_owner") or {})
 
 
+def role_reads(doctype):
+	"""True when the user's ROLES grant read on ``doctype`` without an owner restriction
+	(a document share never qualifies) — the gate for reports that read it in bulk."""
+	return _role_reads(doctype)
+
+
 SHOW_TITLE_FOR = ("Project",)
 
 
