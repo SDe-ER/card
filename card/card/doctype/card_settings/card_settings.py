@@ -157,29 +157,40 @@ def _scoped_version_data(data, allowed, companies):
 
 	try:
 		changes = json.loads(data or "{}")
-	except ValueError:
+	except (TypeError, ValueError):
+		return "{}"
+	if not isinstance(changes, dict):
 		return "{}"
 
 	def visible_row(entry):
+		if not isinstance(entry, list) or not entry or not isinstance(entry[0], str):
+			return False
 		table, row = entry[0], entry[1] if len(entry) > 1 else None
 		return table not in SCOPED_TABLES or (isinstance(row, dict) and row.get("company") in allowed)
 
 	def visible_change(entry):
 		# [table, idx, row name, [[field, old, new], ...]]
+		if not isinstance(entry, list) or not entry or not isinstance(entry[0], str):
+			return False
 		if entry[0] not in SCOPED_TABLES:
 			return True
 		if companies.get(entry[2] if len(entry) > 2 else None) not in allowed:
 			return False
+		row_changes = entry[3] if len(entry) > 3 and isinstance(entry[3], list) else []
 		return all(
-			c[0] != "company" or (c[1] in allowed and c[2] in allowed)
-			for c in (entry[3] if len(entry) > 3 else [])
+			isinstance(c, list)
+			and len(c) > 2
+			and (c[0] != "company" or (c[1] in allowed and c[2] in allowed))
+			for c in row_changes
 		)
 
 	for key in ("added", "removed"):
 		if changes.get(key):
-			changes[key] = [e for e in changes[key] if visible_row(e)]
+			entries = changes[key] if isinstance(changes[key], list) else []
+			changes[key] = [e for e in entries if visible_row(e)]
 	if changes.get("row_changed"):
-		changes["row_changed"] = [e for e in changes["row_changed"] if visible_change(e)]
+		entries = changes["row_changed"] if isinstance(changes["row_changed"], list) else []
+		changes["row_changed"] = [e for e in entries if visible_change(e)]
 	return frappe.as_json(changes, indent=None, separators=(",", ":"))
 
 
@@ -229,32 +240,57 @@ def mask_docinfo_versions_by_level():
 
 
 def _masked_version_data(data, fields, tables):
+	"""The Version ``data`` with the hidden values masked. Data that is not a JSON object becomes ``{}``;
+	a malformed entry (not a list, a field or table name that is not a string) is dropped, never shown."""
 	import json
 
 	from card.field_privacy import MASKED
 
 	try:
 		changes = json.loads(data or "{}")
-	except ValueError:
+	except (TypeError, ValueError):
+		return "{}"
+	if not isinstance(changes, dict):
 		return "{}"
 
-	def mask_changes(entries, hidden):
-		for change in entries or []:
-			if isinstance(change, list) and change and change[0] in hidden:
-				change[1:] = [MASKED] * (len(change) - 1)
+	def named(entry):
+		return isinstance(entry, list) and entry and isinstance(entry[0], str)
 
-	mask_changes(changes.get("changed"), fields)
+	def masked_changes(entries, hidden):
+		# [[field, old, new], ...]
+		kept = []
+		for change in entries if isinstance(entries, list) else []:
+			if not named(change):
+				continue
+			if change[0] in hidden:
+				change[1:] = [MASKED] * (len(change) - 1)
+			kept.append(change)
+		return kept
+
+	if "changed" in changes:
+		changes["changed"] = masked_changes(changes.get("changed"), fields)
 	for key in ("added", "removed"):
-		for entry in changes.get(key) or []:
-			row = entry[1] if isinstance(entry, list) and len(entry) > 1 else None
-			if isinstance(row, dict):
-				for field in tables.get(entry[0], ()):
-					if field in row:
-						row[field] = MASKED
-	for entry in changes.get("row_changed") or []:
-		# [table, idx, row name, [[field, old, new], ...]]
-		if isinstance(entry, list) and len(entry) > 3:
-			mask_changes(entry[3], tables.get(entry[0], ()))
+		if key not in changes:
+			continue
+		kept = []
+		for entry in changes.get(key) if isinstance(changes.get(key), list) else []:
+			# [table, row]
+			if not named(entry) or len(entry) < 2 or not isinstance(entry[1], dict):
+				continue
+			for field in tables.get(entry[0], ()):
+				if field in entry[1]:
+					entry[1][field] = MASKED
+			kept.append(entry)
+		changes[key] = kept
+	if "row_changed" in changes:
+		kept = []
+		for entry in changes.get("row_changed") if isinstance(changes.get("row_changed"), list) else []:
+			# [table, idx, row name, [[field, old, new], ...]]
+			if not named(entry) or len(entry) < 4:
+				continue
+			entry[3] = masked_changes(entry[3], tables.get(entry[0], ()))
+			kept.append(entry)
+		changes["row_changed"] = kept
 	return frappe.as_json(changes, indent=None, separators=(",", ":"))
 
 

@@ -455,12 +455,23 @@ class TestSettingsTimelineByLevel(ChildPermlevelFixtures):
 			valid_from="2032-01-01",
 			unit_price=1111.5,
 		)
+		self._child(
+			"Card Diesel Price",
+			"Card Settings",
+			"Card Settings",
+			"diesel_price_schedule",
+			company=self.company,
+			valid_from="2032-03-03",
+			unit_price=2222.75,
+		)
 		old = frappe.get_doc("Card Settings")
 		new = frappe.get_doc("Card Settings")
 		new.append(
 			"diesel_price_schedule",
 			{"company": self.company, "valid_from": "2032-02-02", "unit_price": 7777.123},
 		)
+		# a removed level-1 row
+		new.diesel_price_schedule = [r for r in new.diesel_price_schedule if r.unit_price != 2222.75]
 		row = next(r for r in new.diesel_price_schedule if r.unit_price == 1111.5)
 		row.unit_price = 6666.25
 		new.append("project_transport_prices", {"project": project.name, "amount": 5555.75})
@@ -472,8 +483,11 @@ class TestSettingsTimelineByLevel(ChildPermlevelFixtures):
 		version = frappe.new_doc("Version")
 		self.assertTrue(version.update_version_info(old, new))
 		version.insert(ignore_permissions=True)
-		# row and field changes are stored formatted (e.g. "6,666.25"), added rows raw
-		return {"level 1": ["7777.123", "6,666.25"], "level 2": ["5555.75", location.name, "4,444.50"]}
+		# row and field changes are stored formatted (e.g. "6,666.25"), added and removed rows raw
+		return {
+			"level 1": ["7777.123", "6,666.25", "2222.75"],
+			"level 2": ["5555.75", location.name, "4,444.50"],
+		}
 
 	def _timelines(self, user):
 		from card.card.doctype.card_settings import card_settings as scope
@@ -530,6 +544,101 @@ class TestSettingsTimelineByLevel(ChildPermlevelFixtures):
 			pluck="data",
 		)
 		self.assertIn("7777.123", stored[0])
+
+	def test_the_version_records_the_removed_row(self):
+		"""The fixture's Version has a removed level-1 row (so the mask of ``removed`` is exercised)."""
+		self._settings_version()
+		stored = frappe.get_all(
+			"Version",
+			filters={"ref_doctype": "Card Settings"},
+			order_by="creation desc",
+			limit=1,
+			pluck="data",
+		)
+		removed = json.loads(stored[0]).get("removed") or []
+		self.assertTrue(
+			any(t == "diesel_price_schedule" and r.get("unit_price") == 2222.75 for t, r in removed)
+		)
+
+	def test_the_form_save_reply_is_masked(self):
+		"""The timeline returned by the form save (savedocs) is masked as well. Card Manager cannot save Card
+		Settings (read-only DocPerms at levels 0 and 2), so the writer is a test-only role that reads and writes
+		level 0 only."""
+		from frappe.desk.form.save import savedocs
+
+		from card.card.doctype.card_settings import card_settings as scope
+
+		values = self._settings_version()
+		user = self._grant_level_0("Card Settings", write=1)
+		frappe.set_user(user)
+		frappe.local.response = frappe._dict(docs=[])
+		scope.getdoc("Card Settings", "Card Settings")
+		doc = frappe.response.docs[0].as_dict()
+		frappe.local.response = frappe._dict(docs=[])
+		savedocs(json.dumps(doc, default=str), "Save")
+		versions = (frappe.response.get("docinfo") or {}).get("versions") or []
+		frappe.set_user("Administrator")
+		self.assertTrue(versions)
+		blob = json.dumps(
+			[json.loads(v.get("data") or "{}") for v in versions], ensure_ascii=False, default=str
+		)
+		for value in values["level 1"] + values["level 2"]:
+			self.assertNotIn(value, blob)
+
+	def test_malformed_versions_do_not_break_the_timeline(self):
+		"""A Version whose data is not a JSON object, or has entries with a list or dict as field or table name,
+		is shown as empty or without those entries; getdoc and get_docinfo still answer, and nothing leaks; for
+		an unrestricted and a company-restricted Card Manager (the FR-133 company filter runs first)."""
+		values = self._settings_version()
+		for data in (
+			"[]",
+			"5",
+			"null",
+			'"s"',
+			"not json",
+			json.dumps(
+				{
+					"changed": [[["unit_price"], 7777.123, 7777.123], "bad"],
+					"added": [[{"t": 1}, {"unit_price": 7777.123}], [["diesel_price_schedule"], {}], "bad"],
+					"removed": "bad",
+					"row_changed": [[["diesel_price_schedule"], 1, "x", [["unit_price", 7777.123, 1]]], [1]],
+				}
+			),
+		):
+			frappe.get_doc(
+				{
+					"doctype": "Version",
+					"ref_doctype": "Card Settings",
+					"docname": "Card Settings",
+					"data": data,
+				}
+			).db_insert()
+		manager = self._user("Card Manager")
+		restricted = f"fr148-r-{frappe.generate_hash(length=8)}@example.com"
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": restricted,
+				"first_name": "FR148",
+				"send_welcome_email": 0,
+				"roles": [{"role": "Card Manager"}],
+			}
+		).insert(ignore_permissions=True)
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": restricted,
+				"allow": "Company",
+				"for_value": self.company,
+				"apply_to_all_doctypes": 1,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=restricted)
+		for user in (manager, restricted):
+			for label, blob in self._timelines(user).items():
+				with self.subTest(user=user, route=label):
+					for value in values["level 1"]:
+						self.assertNotIn(value, blob)
 
 
 class TestChildPermlevelPrintAndWrite(ChildPermlevelFixtures):
@@ -601,3 +710,38 @@ class TestChildPermlevelPrintAndWrite(ChildPermlevelFixtures):
 		frappe.client.save(doc)
 		frappe.set_user("Administrator")
 		self.assertEqual(self._stored("Card Equipment", unit, "components"), before)
+
+	def test_a_settings_writer_without_the_level_cannot_empty_the_hidden_tables(self):
+		"""Card Settings: a writer of level 0 only (a test-only role; Card Manager's DocPerms there are
+		read-only) saves without the diesel schedule (level 1) and the transport prices (level 2); the stored
+		rows are kept on both routes, and a forged row is not written."""
+		from frappe.desk.form.save import savedocs
+
+		self._fixtures()
+		tables = ("diesel_price_schedule", "project_transport_prices")
+		before = {t: self._stored("Card Settings", "Card Settings", t) for t in tables}
+		self.assertTrue(all(before.values()))
+		user = self._grant_level_0("Card Settings", write=1)
+		for route in ("savedocs", "client.save"):
+			with self.subTest(route=route):
+				frappe.set_user(user)
+				doc = frappe.client.get("Card Settings")
+				for table in tables:
+					self.assertFalse(doc.get(table))  # hidden from him
+				doc["diesel_price_schedule"] = [
+					{"company": self.company, "valid_from": "2033-01-01", "unit_price": 1.5}
+				]
+				doc["project_transport_prices"] = []
+				if route == "savedocs":
+					frappe.local.response = frappe._dict(docs=[])
+					savedocs(json.dumps(doc, default=str), "Save")
+				else:
+					frappe.client.save(doc)
+				frappe.set_user("Administrator")
+				for table in tables:
+					self.assertEqual(self._stored("Card Settings", "Card Settings", table), before[table])
+				self.assertFalse(
+					frappe.db.exists(
+						"Card Diesel Price", {"parent": "Card Settings", "valid_from": "2033-01-01"}
+					)
+				)
