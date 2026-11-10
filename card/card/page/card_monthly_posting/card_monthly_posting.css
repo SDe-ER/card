@@ -1,0 +1,29 @@
+/* CARD Monthly Posting: the party list, then the preview of one party's next draft. */
+.cmp {
+	padding: var(--padding-md, 15px);
+}
+.cmp-table {
+	width: 100%;
+	font-size: var(--text-sm, 13px);
+}
+.cmp-table td {
+	vertical-align: top;
+	overflow-wrap: anywhere;
+}
+.cmp-empty {
+	padding: var(--padding-md, 15px) 0;
+}
+.cmp-preview {
+	margin-top: var(--margin-lg, 20px);
+}
+.cmp-card > div {
+	margin-bottom: var(--margin-md, 15px);
+}
+.cmp-totals-table {
+	max-width: 520px;
+	margin-inline-start: auto;
+}
+.cmp-lines,
+.cmp-parties {
+	overflow-x: auto;
+}

@@ -236,13 +236,16 @@ def _refuse_multi_rate_templates(row):
 			)
 
 
-def check_template_mapping(row):
+def check_template_mapping(row, provisioned=True):
 	"""The per-line VAT override only works while the templates still point at
 	the live VAT account heads AND the posting items carry no item-level
 	taxes (else the engine silently swaps the row template). vat_account_heads
 	shape-asserts each tax template (only 'On Net Total' rows, non-negative
 	rates); multi-rate templates are additionally refused for POSTING until the
-	override layer carries per-head rates (_refuse_multi_rate_templates)."""
+	override layer carries per-head rates (_refuse_multi_rate_templates).
+	provisioned=False (the posting preview, FR-119, before the first post provisions the
+	CARD item tax templates): every other check runs; the CARD templates' rows are not
+	checked, because ensure_posting_masters creates or repairs them first."""
 	_refuse_multi_rate_templates(row)
 	# Accounts Settings copy-toggles would ADD tax rows from the dual-head
 	# item tax templates (e.g. the sales VAT head onto a purchase invoice).
@@ -257,7 +260,7 @@ def check_template_mapping(row):
 	heads = vat_account_heads(row)
 	for fieldname, expected_rate in (("vat_item_tax_template", 15), ("vat_zero_item_tax_template", 0)):
 		template = row.get(fieldname)
-		if not template:
+		if not template or not provisioned:
 			continue
 		details = frappe.get_all(
 			"Item Tax Template Detail",

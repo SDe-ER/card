@@ -124,7 +124,7 @@ def _check_price(session):
 		if not invoice.get("invoice_no"):
 			frappe.throw(_("A historical diesel price needs its supplier invoice number."))
 		return
-	company_price = flt(diesel_price(session.get("company")))
+	company_price = flt(diesel_price(session.get("company"), session.get("date")))  # FR-125
 	if price != company_price:
 		frappe.throw(
 			_(
