@@ -185,12 +185,13 @@ class TestEquipmentStatusGuard(IntegrationTestCase):
 
 	def test_the_exit_date_wins_over_the_rental_end(self):
 		self._rule(STATUS_RULE_ENFORCE)
-		# exit before the card month, rental end far ahead: refused (the exit date decides)
+		# exit the day before the card month; the rental end is past and inside the card month, so on
+		# its own it would allow the card: refused, because the exit date decides
 		eq, proj = self._on_project("EXWIN")
 		frappe.db.set_value(
 			"Card Equipment",
 			eq,
-			{"exit_date": add_days(self._d(1), -1), "rental_end_date": add_days(nowdate(), 365)},
+			{"exit_date": add_days(self._d(1), -1), "rental_end_date": self._d(15)},
 		)
 		self._refused(
 			lambda: self._card(eq, proj, [3]).insert(ignore_permissions=True), "no new monthly card"
