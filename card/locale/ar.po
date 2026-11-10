@@ -2568,6 +2568,17 @@ msgstr "المراجعة في حالة المسودة فقط تستقبل الط
 msgid "Only Card Manager may approve equipment needs."
 msgstr "اعتماد احتياجات المعدات لمدير Card فقط."
 
+msgid "You reviewed, edited or submitted this equipment needs review; another approver must approve it."
+msgstr "أنت من راجع طلب احتياجات المعدات هذا أو عدّله أو قدّمه؛ يجب أن يعتمده معتمد آخر."
+
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json
+msgid "Review submitted by"
+msgstr "مقدّم المراجعة"
+
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json
+msgid "Review edited by"
+msgstr "معدّلو المراجعة"
+
 msgid "You also need permission to create Material Requests in ERPNext (for example Stock User)."
 msgstr "تحتاج أيضًا إلى صلاحية إنشاء طلبات المواد في ERPNext (مثل Stock User)."
 
@@ -5794,6 +5805,150 @@ msgstr "إلغاء بهذا السبب"
 #: card/public/js/cancel_reason.js
 msgid "Cancelled with the reason recorded."
 msgstr "تم الإلغاء وتسجيل السبب."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "CARD Monthly Posting"
+msgstr "الترحيل الشهري CARD"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "No CARD posting yet"
+msgstr "لا يوجد ترحيل CARD بعد"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Draft posting"
+msgstr "ترحيل مسودة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "No CARD documents or postings for this company and month."
+msgstr "لا توجد مستندات أو ترحيلات CARD لهذه الشركة في هذا الشهر."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Documents not yet in a posting"
+msgstr "مستندات لم تدخل في ترحيل بعد"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "CARD postings"
+msgstr "ترحيلات CARD"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "linked supplier invoice"
+msgstr "فاتورة مورد مربوطة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Preview lines"
+msgstr "معاينة البنود"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Rebuild replaces draft {0}"
+msgstr "إعادة البناء تستبدل المسودة {0}"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Posting date {0}"
+msgstr "تاريخ الترحيل {0}"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "This posting cannot be built yet:"
+msgstr "لا يمكن بناء هذا الترحيل بعد:"
+
+#: card/gl/posting.py
+msgid "This posting cannot be built yet."
+msgstr "لا يمكن بناء هذا الترحيل بعد."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "VAT on the line"
+msgstr "ضريبة القيمة المضافة على البند"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "No VAT on this posting"
+msgstr "لا ضريبة قيمة مضافة على هذا الترحيل"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Zero-rated"
+msgstr "خاضع لنسبة الصفر"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Total of the posting lines"
+msgstr "إجمالي بنود الترحيل"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Discount on Net Total (customer deductions)"
+msgstr "خصم على صافي الإجمالي (خصومات العميل)"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Net total of the posting"
+msgstr "صافي إجمالي الترحيل"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Taxable net"
+msgstr "الصافي الخاضع للضريبة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Zero-rated net"
+msgstr "الصافي الخاضع لنسبة الصفر"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "VAT {0}% (estimate; ERPNext computes the invoice taxes)"
+msgstr "ضريبة القيمة المضافة {0}% (تقديرية؛ يحسب النظام ضرائب الفاتورة)"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Tax template {0}"
+msgstr "قالب الضريبة {0}"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "No VAT: the supplier has no tax ID."
+msgstr "بدون ضريبة قيمة مضافة: لا يوجد رقم ضريبي للمورد."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "CARD source documents"
+msgstr "مستندات CARD المصدر"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Supplier invoices to review"
+msgstr "فواتير موردين تحتاج مراجعة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "These supplier invoices around this month may cover the same operations. Link each one to the CARD documents it pays for, or tick it when an accountant confirms it is unrelated."
+msgstr "قد تغطي فواتير الموردين هذه، المسجلة حول هذا الشهر، العمليات نفسها. اربط كل فاتورة بمستندات CARD التي تسددها، أو حدّدها عندما يؤكد المحاسب أنها غير مرتبطة."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "no bill no."
+msgstr "بدون رقم فاتورة المورد"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "draft supplier invoice"
+msgstr "فاتورة مورد مسودة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "{0} more supplier invoice(s) you cannot open must be reviewed by an accountant."
+msgstr "يجب أن يراجع المحاسب {0} فاتورة مورد إضافية لا يمكنك فتحها."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Only an accountant may declare supplier invoices unrelated."
+msgstr "لا يحق إلا للمحاسب اعتبار فواتير الموردين غير مرتبطة."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Rebuild draft posting"
+msgstr "إعادة بناء ترحيل المسودة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Create draft posting"
+msgstr "إنشاء ترحيل مسودة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Delete draft {0} and build it again from the current CARD documents? The new draft may differ from this preview if documents changed since it was shown."
+msgstr "حذف المسودة {0} وبناؤها من جديد من مستندات CARD الحالية؟ قد تختلف المسودة الجديدة عن هذه المعاينة إذا تغيّرت المستندات بعد عرضها."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Create a draft {0} from the current CARD documents? It may differ from this preview if documents changed since it was shown."
+msgstr "إنشاء مسودة {0} من مستندات CARD الحالية؟ قد تختلف عن هذه المعاينة إذا تغيّرت المستندات بعد عرضها."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Draft posting {0} created."
+msgstr "تم إنشاء ترحيل المسودة {0}."
+
+#: card/gl/posting.py
+msgid "CARD posting items or VAT item tax templates are not set up yet for company {0}; the first posting creates them, so some item columns of this preview are empty."
+msgstr "لم تُجهَّز بعد أصناف ترحيل CARD أو قوالب ضريبة الأصناف للشركة {0}؛ ينشئها أول ترحيل، لذلك قد تظهر بعض أعمدة الأصناف في هذه المعاينة فارغة."
 
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Other party bears the cost"
