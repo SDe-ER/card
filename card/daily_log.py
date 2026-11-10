@@ -33,6 +33,7 @@ from frappe import _
 from frappe.utils import cint, flt, getdate, now_datetime, nowdate
 
 from card.adjustments import validate_downtime_fields
+from card.cancel_reason import _refuse_changes as refuse_cancel_changes
 from card.company_scope import check_child_companies
 from card.equipment_status import check_equipment_status
 from card.settings import setting
@@ -121,13 +122,22 @@ def log_preparers(doc):
 # ---------- draft and submit ----------
 def prepare(doc):
 	"""validate (draft save and submit, REST insert with docstatus 1 included): the approval stays Pending and
-	the approval fields empty; the stored submitter is kept and the current user is recorded as an editor."""
+	the approval fields empty; the stored submitter and the stored ``amended_from`` are kept and the current user
+	is recorded as an editor."""
 	doc.approval_status = PENDING
 	for field in APPROVAL_FIELDS:
 		doc.set(field, None)
 	doc.self_approved = 0
-	stored = None if doc.is_new() else frappe.db.get_value(DOCTYPE, doc.name, ["submitted_by", "edited_by"])
+	stored = (
+		None
+		if doc.is_new()
+		else frappe.db.get_value(DOCTYPE, doc.name, ["submitted_by", "edited_by", "amended_from"])
+	)
 	doc.submitted_by = stored[0] if stored else None
+	if stored:
+		# Frappe checks amended_from on insert only: a save may not clear or change it, so the amendment chain
+		# (and its preparers) stays the one the log was created with
+		doc.amended_from = stored[2]
 	editors = [e for e in ((stored[1] if stored else "") or "").split("\n") if e]
 	if frappe.session.user not in editors:
 		editors.append(frappe.session.user)
@@ -385,11 +395,17 @@ def _return(doc, old, verification, reason):
 
 def check_cancel(doc):
 	"""before_cancel, on every route (form, REST PUT with docstatus 2, savedocs, bulk): the approval and the
-	preparers are read from the database (a cancel may carry a forged document) and kept; an approved log is
-	cancelled by an approver only (monthly cards may come from it)."""
+	preparers are read from the database (a cancel may carry a forged document) and kept; a cancel that changes any
+	other stored field or row is refused (``CancelChangesDocumentError``); an approved log is cancelled by an
+	approver only (monthly cards may come from it)."""
 	stored = frappe.db.get_value(DOCTYPE, doc.name, list(SERVER_FIELDS), as_dict=True, for_update=True)
 	for field in SERVER_FIELDS:
 		doc.set(field, stored.get(field))
+	# Frappe skips validate on a cancel and stores what the request sends: any other change (header, rows, hours,
+	# date) refuses the cancel, through the generic FR-123 guard the monthly card uses
+	latest = doc.get_latest()
+	if latest:
+		refuse_cancel_changes(doc, latest, neutral=True)
 	if stored.approval_status == APPROVED and not _has_any_role(APPROVER_ROLES):
 		frappe.throw(
 			_("An approved daily log can only be cancelled by a Card Manager."), frappe.PermissionError
