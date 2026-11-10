@@ -12,10 +12,13 @@ days; the Equipment Supplier Statement shows the basis used. All data is per-tes
 import frappe
 from frappe.utils import flt
 
+from card.card.report.equipment_customer_statement.equipment_customer_statement import (
+	execute as customer_statement,
+)
 from card.card.report.equipment_supplier_statement.equipment_supplier_statement import (
 	execute as supplier_statement,
 )
-from card.card_value import DAY_BASIS_FULL_DAY, DAY_BASIS_PRORATED, day_billing_basis
+from card.card_value import DAY_BASIS_FULL_DAY, DAY_BASIS_PRORATED, DAY_BILLING_BASES, day_billing_basis
 from card.patches.v4_8_0 import default_day_billing_basis
 from card.tests.cancel_reason import with_reason
 from card.tests.test_stop_reasons import CLIENT_STOP, STATEMENT, _StopBase
@@ -257,3 +260,61 @@ class TestDayBillingBasis(_StopBase):
 		row = next(r for r in rows if r.get("card") == draft.name)
 		self.assertEqual(row["day_billing_basis"], frappe._(DAY_BASIS_FULL_DAY))
 		self.assertEqual(row["amount"], 2250.0)
+
+	# ---- Equipment Customer Statement: basis used and the effective hourly rate ----
+	def _customer_rows(self, **kw):
+		filters = {
+			"company": self.company,
+			"customer": self.customer,
+			"from_month": 9,
+			"from_year": 2026,
+			"project": self.project,
+			**kw,
+		}
+		columns, rows, *_ = customer_statement(filters)
+		self.assertIn("day_billing_basis", [c["fieldname"] for c in columns])
+		return {r.get("card"): r for r in rows if r.get("card")}, rows
+
+	def test_customer_statement_full_day_submitted_card(self):
+		eq = self._sub_rental(day_billing_basis=DAY_BASIS_FULL_DAY)  # 1200/day to the customer
+		card = self._card(eq, HOURS, submit=True)
+		prorated = self._card(self._sub_rental(), HOURS, submit=True)
+		self._set_basis(eq, DAY_BASIS_PRORATED)  # later change: the statement keeps the used one
+		by_card, rows = self._customer_rows()
+		row = by_card[card.name]
+		self.assertEqual(row["day_billing_basis"], frappe._(DAY_BASIS_FULL_DAY))
+		self.assertEqual(row["customer_amount"], 3600.0)
+		# not the nominal snapshot (120/h): the amount over every billed hour, as on the supplier statement
+		self.assertEqual(row["hourly_rate"], flt(3600.0 / 26, 2))
+		# a prorated card keeps the snapshot rate, as before
+		self.assertEqual(by_card[prorated.name]["day_billing_basis"], frappe._(DAY_BASIS_PRORATED))
+		self.assertEqual(by_card[prorated.name]["hourly_rate"], 120.0)
+		equipment_row = next(r for r in rows if r.get("row_id", "").endswith("|E|" + eq.name))
+		self.assertEqual(equipment_row["day_billing_basis"], frappe._(DAY_BASIS_FULL_DAY))
+
+	def test_customer_statement_full_day_stopped_hours_and_draft(self):
+		eq = self._sub_rental(day_billing_basis=DAY_BASIS_FULL_DAY)
+		customer_only = self._reason(billable=1, side="Customer")
+		draft = self._stop_card(
+			eq,
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": customer_only.name, "stopped_hours": 4},
+			],
+		)
+		by_card, _rows = self._customer_rows(include_draft=1)
+		row = by_card[draft.name]
+		self.assertEqual(row["day_billing_basis"], frappe._(DAY_BASIS_FULL_DAY))  # current basis
+		self.assertEqual(row["customer_amount"], 2400.0)
+		self.assertEqual(row["hourly_rate"], 200.0)  # 2,400 over 8 + 4 customer-billed hours
+		draft.submit()
+		by_card, _rows = self._customer_rows()
+		self.assertEqual(by_card[draft.name]["hourly_rate"], 200.0)
+
+	def test_card_basis_fields_are_translated_selects(self):
+		meta = frappe.get_meta("Card Monthly Card")
+		for fieldname in ("day_billing_basis", "day_billing_basis_used"):
+			df = meta.get_field(fieldname)
+			self.assertEqual(df.fieldtype, "Select")
+			self.assertTrue(df.read_only)
+			self.assertEqual([o for o in df.options.split("\n") if o], list(DAY_BILLING_BASES))
