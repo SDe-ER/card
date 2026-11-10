@@ -6066,3 +6066,36 @@ msgstr "الطرف الآخر {0} معطّل."
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "The agreed amount (not company cost) cannot be negative."
 msgstr "لا يمكن أن يكون المبلغ المتفق عليه (ليس تكلفة على الشركة) سالبًا."
+
+#. Name of a report
+#: card/card/report/equipment_location_history/equipment_location_history.json
+msgid "Equipment Location History"
+msgstr "سجل مواقع المعدات"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "You are not permitted to read {0}, which the location history needs."
+msgstr "ليست لديك صلاحية قراءة {0}، وهي لازمة لسجل المواقع."
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Select the period of the location history."
+msgstr "حدد فترة سجل المواقع."
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Equipment {0} does not belong to company {1}."
+msgstr "المعدة {0} لا تتبع الشركة {1}."
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Initial place"
+msgstr "المكان الابتدائي"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Location type"
+msgstr "نوع الموقع"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Source type"
+msgstr "نوع المستند المصدر"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Source document"
+msgstr "المستند المصدر"

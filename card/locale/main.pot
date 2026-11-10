@@ -4827,3 +4827,36 @@ msgstr ""
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "The agreed amount (not company cost) cannot be negative."
 msgstr ""
+
+#. Name of a report
+#: card/card/report/equipment_location_history/equipment_location_history.json
+msgid "Equipment Location History"
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "You are not permitted to read {0}, which the location history needs."
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Select the period of the location history."
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Equipment {0} does not belong to company {1}."
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Initial place"
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Location type"
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Source type"
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Source document"
+msgstr ""

@@ -16,6 +16,25 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Equipment Location History report** (FR-130, #53, #127). Reason: the owner needs to see where each equipment was on
+  each period, not only today. New read-only Script Report `Equipment Location History` (roles as the equipment statements:
+  System Manager, Card Manager, Card User, Accounts Manager): for one company, an optional equipment and a date range, one row
+  per date-aware segment with equipment, from date, to date, location type (Project / Workshop / Storage / Supplier / Initial
+  place), location, project and the source document (Dynamic Link). Segments use the rules CARD already applies, from
+  `card.transfer`: a project while a Card Equipment Assignment is in force (`_in_force`, rows from `month_assignments`, so a unit
+  uses its components' assignments), with the transport that opened it as source; the assignment dates are those the transport
+  wrote, so the move-day rule recorded on each transport (FR-117) is respected and a later change of the company setting does
+  not rewrite history; otherwise the place of the last submitted transport on or before the day (as `current_location` does for
+  today); otherwise the company's initial place (FR-116, empty when not set). Segments are clipped to the date range. Company
+  isolation on the server (`resolve_company`; an equipment of another company is refused with PermissionError; transports of
+  another company are not read); the user's roles must read Card Equipment, Card Equipment Assignment and Equipment Transport
+  before anything is read. Added to the CARD Reports sidebar. PR pending. Affected: new `card/location_history.py`
+  (`submitted_moves`, `equipment_segments`, `company_segments`), `card/card/report/equipment_location_history/`,
+  `card/card/sidebar/card_reports/card_reports.json`, locale, `card/tests/test_location_history.py`,
+  `card/tests/test_report_access.py`. Impact: permissions none (no role widened, no `ignore_permissions`); accounting none (no
+  GL, no document created); data none (read only, no patch); API none (no whitelisted method). Known limit: the initial place
+  covers the period before the first move whatever the equipment's creation date. Rollback limits: reverting removes the
+  report; the Report and Sidebar records stay on a migrated site until removed by hand.
 - **Effective-dated diesel price schedule** (FR-125, #46, #124 WP-10). Reason: the diesel price changes over time and a fill
   must take the price valid on its own date. Card Settings > Diesel Settings gets the table **Diesel price schedule** (new child
   DocType `Card Diesel Price`: company, valid from, price per litre, currency defaulting to and limited to the company currency,
