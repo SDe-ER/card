@@ -3,7 +3,7 @@ from frappe import _
 from frappe.utils import flt
 
 from card.report_access import readable_links, resolve_company
-from card.transport_costs import transport_cost_by_project
+from card.transport_costs import not_company_cost_by_project, transport_cost_by_project
 
 
 def get_columns():
@@ -18,6 +18,13 @@ def get_columns():
 		{"fieldname": "diesel", "label": _("Diesel"), "fieldtype": "Currency", "width": 140},
 		{"fieldname": "transport", "label": _("Transport"), "fieldtype": "Currency", "width": 140},
 		{"fieldname": "total", "label": _("Total operating cost"), "fieldtype": "Currency", "width": 160},
+		# #43/#48/#121 (WP-14): moves the company does not pay; shown apart, never in the total
+		{
+			"fieldname": "transport_not_company_cost",
+			"label": _("Agreed amount (not company cost)"),
+			"fieldtype": "Currency",
+			"width": 170,
+		},
 	]
 
 
@@ -55,15 +62,14 @@ def execute(filters=None):
 	filters.company = resolve_company(filters, "Project Diesel Fill", "Equipment Transport")
 
 	diesel = get_project_totals("Project Diesel Fill", filters)
-	transport = {
-		project: entry["amount"]
-		for project, entry in transport_cost_by_project(
-			filters.get("company"), filters.get("from_date"), filters.get("to_date"), filters.get("project")
-		).items()
+	args = (filters.get("company"), filters.get("from_date"), filters.get("to_date"), filters.get("project"))
+	transport = {project: entry["amount"] for project, entry in transport_cost_by_project(*args).items()}
+	informational = {
+		project: entry["amount"] for project, entry in not_company_cost_by_project(*args).items()
 	}
 
 	data = []
-	for project in sorted(set(diesel) | set(transport)):
+	for project in sorted(set(diesel) | set(transport) | set(informational)):
 		diesel_amount = flt(diesel.get(project), 2)
 		transport_amount = flt(transport.get(project), 2)
 		data.append(
@@ -72,6 +78,7 @@ def execute(filters=None):
 				"diesel": diesel_amount,
 				"transport": transport_amount,
 				"total": flt(diesel_amount + transport_amount, 2),
+				"transport_not_company_cost": flt(informational.get(project), 2),
 			}
 		)
 
