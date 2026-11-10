@@ -87,7 +87,7 @@ class EquipmentMeterReading(Document):
 		(hours, date, equipment, evidence) is refused through the generic FR-123 guard."""
 		latest = self.get_latest()
 		if latest:
-			refuse_cancel_changes(self, latest)
+			refuse_cancel_changes(self, latest, neutral=True)
 		frappe.db.get_value("Card Equipment", self.equipment, "name", for_update=True)
 		previous, _same_time, following = neighbour_readings(
 			self.equipment, self.reading_datetime, exclude=self.name, for_update=True

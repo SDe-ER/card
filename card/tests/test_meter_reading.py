@@ -264,6 +264,36 @@ class TestMeterReading(IntegrationTestCase):
 		frappe.get_doc(DOCTYPE, doc.name).cancel()
 		self.assertEqual(self._stored(doc.name), {**before, "docstatus": 2})
 
+	def test_cancel_cannot_change_owner_creation_or_a_tiny_amount(self):
+		from frappe.api import v1
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		supervisor = self._user(("Card Supervisor",))
+		for label, data in (
+			("owner and creation", {"owner": "Administrator", "creation": "2020-01-01 00:00:00"}),
+			("creation", {"creation": "2020-01-01 00:00:00"}),
+			("below 1e-6", {"engine_hours": 100.0000001}),
+		):
+			with self.subTest(change=label):
+				doc = self._fresh_reading(label[:2].upper())
+				before = frappe.db.get_value(
+					DOCTYPE, doc.name, ["docstatus", "owner", "creation", "engine_hours"], as_dict=True
+				)
+				frappe.set_user(supervisor)
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json({"docstatus": 2, **data}))
+				try:
+					with self.assertRaises(CancelChangesDocumentError):
+						v1.update_doc(DOCTYPE, doc.name)
+				finally:
+					frappe.set_user("Administrator")
+				self.assertEqual(
+					frappe.db.get_value(
+						DOCTYPE, doc.name, ["docstatus", "owner", "creation", "engine_hours"], as_dict=True
+					),
+					before,
+				)
+
 	def test_cancel_by_savedocs_cannot_change_the_reading(self):
 		"""savedocs Cancel either cancels the client's document (refused by the guard) or cancels the stored record
 		and ignores the client's values (Frappe 16.55): no stored field changes either way."""

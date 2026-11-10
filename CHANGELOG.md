@@ -476,6 +476,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   an existing Card Daily Log or Equipment Meter Reading now keeps the stored `amended_from`
   (`card.daily_log.prepare`, `EquipmentMeterReading._validate_amended_from`); tests clear it by `client.save` and by
   `set_value` and the approval stays refused, and set it on an existing record and it stays empty.
+  Review hardening of the shared guard (`card/cancel_reason.py` `_changed_field`, `_rows_changed`, `_norm`,
+  `_refuse_changes`): Frappe also skips `validate_constants` on a cancel and `db_update` writes every column, so a
+  cancel could still rewrite the document's `owner` / `creation` and each row's `idx` (row order), `owner` and
+  `creation`; reproduced on Equipment Meter Reading and Card Daily Log. These standard columns are now compared
+  too; float fields are compared at 9 decimals, the stored precision (a change of 0.0000001 was accepted). The
+  hardening also applies to the FR-123 doctypes (Card Monthly Card, Equipment Transport, Project Diesel Fill),
+  whose message is unchanged; Card Daily Log and Equipment Meter Reading use a new neutral message ("... cannot
+  be cancelled with changes: ... differs from the stored record.", Arabic added). Tests: owner and creation on the
+  log, the reading and the three FR-123 doctypes; added, removed, reordered, emptied rows, swapped `idx` and a forged
+  row owner or creation on the log; 100.0000001 engine hours on the reading.
   Impact: permissions none; accounting none; data: a cancel request that also changes the document is refused
   (a plain cancel is unchanged), and a save no longer changes `amended_from`; API: such a cancel request now fails
   with `CancelChangesDocumentError`, and a sent `amended_from` on an update is ignored. Rollback limits:

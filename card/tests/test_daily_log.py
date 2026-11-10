@@ -689,6 +689,84 @@ class TestDailyLog(_CustomerCardsBase):
 		frappe.set_user("Administrator")
 		self.assertEqual(self._snapshot(doc.name), (2, *before[1:]))
 
+	def _put_cancel(self, name, user, data):
+		from frappe.api import v1
+
+		frappe.set_user(user)
+		frappe.local.form_dict = frappe._dict(data=frappe.as_json({"docstatus": 2, **data}))
+		try:
+			return v1.update_doc(LOG, name)
+		finally:
+			frappe.set_user("Administrator")
+
+	def _full_snapshot(self, name):
+		doc = frappe.get_doc(LOG, name)
+		return (
+			self._snapshot(name),
+			doc.owner,
+			str(doc.creation),
+			[(r.name, r.idx, r.owner, str(r.creation)) for r in doc.rows],
+		)
+
+	def test_cancel_cannot_change_owner_or_creation(self):
+		from card.cancel_reason import CancelChangesDocumentError
+
+		for user, data in (
+			(self.manager, {"owner": self.manager}),
+			(self.operator, {"creation": "2020-01-01 00:00:00"}),
+			(self.manager, {"owner": "Administrator", "creation": "2020-01-01 00:00:00"}),
+		):
+			with self.subTest(user=user, data=list(data)):
+				eq = self._equipment()
+				doc = self._log([{"equipment": eq.name, "day_hours": 4}])
+				before = self._full_snapshot(doc.name)
+				with self.assertRaises(CancelChangesDocumentError):
+					self._put_cancel(doc.name, user, data)
+				self.assertEqual(self._full_snapshot(doc.name), before)
+
+	def test_cancel_cannot_change_the_rows(self):
+		"""Added, removed, reordered (list order or idx), emptied rows and a forged row owner or creation."""
+		from card.cancel_reason import CancelChangesDocumentError
+
+		def rows_of(name):
+			return [dict(r) for r in frappe.get_doc(LOG, name).as_dict()["rows"]]
+
+		def swapped_idx(rows):
+			rows[0]["idx"], rows[1]["idx"] = rows[1]["idx"], rows[0]["idx"]
+			return rows
+
+		def forged(field, value):
+			def change(rows):
+				rows[0][field] = value
+				return rows
+
+			return change
+
+		eq3 = self._equipment()
+		changes = {
+			"added": lambda rows: [
+				*rows,
+				{"doctype": "Card Daily Log Row", "equipment": eq3.name, "day_hours": 1},
+			],
+			"removed": lambda rows: rows[:1],
+			"reordered": lambda rows: list(reversed(rows)),
+			"emptied": lambda rows: [],
+			"swapped idx": swapped_idx,
+			"row owner": forged("owner", "Administrator"),
+			"row creation": forged("creation", "2020-01-01 00:00:00"),
+		}
+		for offset, (label, change) in enumerate(changes.items()):
+			with self.subTest(change=label):
+				eq_a, eq_b = self._equipment(), self._equipment()
+				doc = self._log(
+					[{"equipment": eq_a.name, "day_hours": 4}, {"equipment": eq_b.name, "night_hours": 2}],
+					log_date=add_days(self.day, -offset),
+				)
+				before = self._full_snapshot(doc.name)
+				with self.assertRaises(CancelChangesDocumentError):
+					self._put_cancel(doc.name, self.operator, {"rows": change(rows_of(doc.name))})
+				self.assertEqual(self._full_snapshot(doc.name), before)
+
 	def test_cancel_by_savedocs_cannot_change_the_log(self):
 		"""savedocs Cancel: depending on the Frappe version it either cancels the client's document (the guard must
 		refuse a change) or cancels the stored record and ignores the client's values (Frappe 16.55). Either way no

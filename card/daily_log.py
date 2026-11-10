@@ -405,7 +405,7 @@ def check_cancel(doc):
 	# date) refuses the cancel, through the generic FR-123 guard the monthly card uses
 	latest = doc.get_latest()
 	if latest:
-		refuse_cancel_changes(doc, latest)
+		refuse_cancel_changes(doc, latest, neutral=True)
 	if stored.approval_status == APPROVED and not _has_any_role(APPROVER_ROLES):
 		frappe.throw(
 			_("An approved daily log can only be cancelled by a Card Manager."), frappe.PermissionError
