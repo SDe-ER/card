@@ -74,7 +74,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   by the older code); the static fields are unchanged, so the older behaviour returns as it was. The
   `ignore_user_permissions` property lives in the DocType JSON and is removed with the code; with an older FR-144
   build a company-restricted user would again be locked out of a type that has rows of another company.
-  **Follow-up: per-hour rate takes precedence over the daily figure (PR #PRNUM).** Owner decision 2026-11-11:
+  **Follow-up: per-hour rate takes precedence over the daily figure (PR #239).** Owner decision 2026-11-11:
   per-hour is the real rate when both exist (equipment with both a static `expected_consumption` and
   `daily_diesel_consumption` with `daily_hours`; 4 such equipment on Production). Affected functions:
   `card.consumption.consumption_rate_details` / `consumption_rate` (static per-hour now before the daily standard;
