@@ -74,6 +74,10 @@ the tag (`git show <tag>:<path>`).
 | Dead settings retired (FR-124) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Hidden, read only, values kept | PR #198 |
 | Effective-dated diesel price schedule (FR-125) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Patch `v4_7_0.seed_diesel_price_schedule`; `diesel_unit_price` read-only once scheduled | PR #195 |
 | Diesel fill project check per company (FR-126) | v4.6.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Warn only by default | PR #196 |
+| Company checks on tool custody, equipment needs request and review; role and action matrix (FR-129) | v4.7.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Enforced by default for company-restricted users; `move` checks create first; records created before are not changed | PR #203 |
+| VAT rate of the CARD item tax templates from the company's tax templates (FR-127) | v4.7.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | No hardcoded 15; different purchase/sales rates refused; existing templates never re-rated; changed VAT refused on submit; read-only pre-deploy check | PR #199 |
+| Equipment status guard on project diesel fills (FR-128) | v4.7.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Warn only by default (`equipment_status_rule`) | PR #200 |
+| Equipment Location History report (FR-130) | v4.7.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Read-only; company isolation on the server | PR #201 |
 | Portal catalog under ERPNext v16.54.0+ Company Restriction (FR-076 fix) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Earlier versions: empty catalog for Card portal roles on ERPNext ≥ 16.54.0; Partially Verified (CI only) | PR #169 |
 
 ## Reading the matrix
@@ -86,4 +90,4 @@ the tag (`git show <tag>:<path>`).
   version — do not assume a capability from an issue or a plan.
 
 Per-version detail: [v1.0.0](v1.0.0.md) · [v1.0.1](v1.0.1.md) · [v1.2.0](v1.2.0.md) ·
-[v1.2.1](v1.2.1.md) · [v1.2.2](v1.2.2.md) · [v3.0.0](v3.0.0.md) · [v4.3.0](v4.3.0.md) · [v4.4.0](v4.4.0.md) · [v4.4.1](v4.4.1.md) · [v4.4.2](v4.4.2.md) · [v4.4.3](v4.4.3.md) · [v4.5.0](v4.5.0.md) · [v4.6.0](v4.6.0.md) · Guidance: [Which version should I use?](WHICH-VERSION.md)
+[v1.2.1](v1.2.1.md) · [v1.2.2](v1.2.2.md) · [v3.0.0](v3.0.0.md) · [v4.3.0](v4.3.0.md) · [v4.4.0](v4.4.0.md) · [v4.4.1](v4.4.1.md) · [v4.4.2](v4.4.2.md) · [v4.4.3](v4.4.3.md) · [v4.5.0](v4.5.0.md) · [v4.6.0](v4.6.0.md) · [v4.7.0](v4.7.0.md) · Guidance: [Which version should I use?](WHICH-VERSION.md)
