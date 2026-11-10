@@ -5494,6 +5494,10 @@ msgid "Equipment {0} has status {1}; it should get no new monthly card."
 msgstr "المعدة {0} حالتها {1}؛ لا ينبغي أن يُسجل لها كرت شهري جديد."
 
 #: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new diesel fill."
+msgstr "المعدة {0} حالتها {1}؛ لا ينبغي أن تُسجل لها تعبئة ديزل جديدة."
+
+#: card/equipment_status.py
 msgid "The equipment status rule of company {0} refuses it."
 msgstr "قاعدة حالة المعدة للشركة {0} ترفض ذلك."
 
@@ -6287,3 +6291,15 @@ msgstr "مشاريع متداخلة"
 #: card/card/report/equipment_location_history/equipment_location_history.py
 msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
 msgstr "بعض المعدات على مشروعين في نفس الأيام (تخصيصات متداخلة)؛ راجع الصفوف المعلّمة بالتداخل."
+
+#: card/gl/masters.py
+msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
+msgstr "قالبا ضريبة المشتريات والمبيعات للشركة {0} يحملان نسبتي ضريبة قيمة مضافة مختلفتين ({1})؛ يرحّل CARD نسبة ضريبة قياسية واحدة لكل شركة. وحّد القالبين قبل الترحيل."
+
+#: card/gl/masters.py
+msgid "Item tax template {0} does not carry the rate {1}%; CARD never changes the rate of an existing template."
+msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ لا يغيّر CARD نسبة قالب موجود أبدًا."
+
+#: card/gl/integrity.py
+msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
+msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."

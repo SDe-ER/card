@@ -4255,6 +4255,10 @@ msgid "Equipment {0} has status {1}; it should get no new monthly card."
 msgstr ""
 
 #: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new diesel fill."
+msgstr ""
+
+#: card/equipment_status.py
 msgid "The equipment status rule of company {0} refuses it."
 msgstr ""
 
@@ -5002,6 +5006,18 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Billable stopped days"
+msgstr ""
+
+#: card/gl/masters.py
+msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
+msgstr ""
+
+#: card/gl/masters.py
+msgid "Item tax template {0} does not carry the rate {1}%; CARD never changes the rate of an existing template."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
 msgstr ""
 
 #. Name of a report

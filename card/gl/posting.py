@@ -668,7 +668,7 @@ def _plan_monthly_posting(
 				).format(party, company)
 			)
 	else:
-		vat_registered = True  # owned rental revenue is always 15% ZATCA per the design
+		vat_registered = True  # owned rental revenue is always VAT-able (ZATCA); the rate comes from the sales tax template
 		tax_template = row.sales_tax_template
 		if not tax_template:
 			frappe.throw(
@@ -743,14 +743,17 @@ def _masters_to_provision(company, row):
 	"""Read-only: True when ensure_posting_masters would create or repair something
 	(a posting item, a VAT item tax template, an adjustment type's item) — the
 	preview does not provision, so it says so instead."""
-	from card.gl.masters import POSTING_ITEMS, vat_account_heads
+	from card.gl.masters import POSTING_ITEMS, standard_vat_rate, vat_account_heads
 
 	for fieldname, _code, _name in POSTING_ITEMS:
 		if not row.get(fieldname) or not frappe.db.exists("Item", row.get(fieldname)):
 			return True
 	heads = vat_account_heads(row)
 	if heads:
-		for fieldname, rate in (("vat_item_tax_template", 15), ("vat_zero_item_tax_template", 0)):
+		for fieldname, rate in (
+			("vat_item_tax_template", standard_vat_rate(row)),
+			("vat_zero_item_tax_template", 0),
+		):
 			if not row.get(fieldname):
 				return True
 			current = {
@@ -879,7 +882,7 @@ def build_monthly_posting(company, party_type, party, month, year, reviewed_invo
 			"origin": "Built",
 			"built_signature": integrity.full_signature(built),
 			"lines_signature": integrity.lines_signature(built),
-			"built_snapshot": integrity.stored_snapshot(built),
+			"built_snapshot": integrity.stored_snapshot(built, integrity.vat_snapshot(inv)),
 			"reviewed_invoices": ", ".join(sorted(reviewed_invoices)) or None,
 			"remarks": _build_remarks(plan.diesel_note, reviewed_invoices),
 		}
@@ -948,20 +951,15 @@ def _build_remarks(diesel_note, reviewed_invoices):
 	return " ".join(p for p in parts if p) or None
 
 
-def _vat_rate(template):
-	"""The single VAT rate of a purchase tax template (multi-rate templates are refused by preflight)."""
-	rates = {
-		flt(r.rate)
-		for r in frappe.get_all(
-			"Purchase Taxes and Charges",
-			filters={"parent": template, "parenttype": "Purchase Taxes and Charges Template"},
-			fields=["rate"],
-		)
-		if flt(r.rate) > 0
-	}
-	if len(rates) != 1:
+def _vat_rate(row):
+	"""FR-127: the company's one standard VAT rate (card.gl.masters.standard_vat_rate), for the diesel
+	net-back and the reconciliation — the same rate the CARD item tax template and the preview use."""
+	from card.gl.masters import _single_template_rate, standard_vat_rate
+
+	template = row.get("purchase_tax_template")
+	if not template or not _single_template_rate(template, "Purchase Taxes and Charges"):
 		frappe.throw(_("Tax template {0} must have exactly one VAT rate to post diesel.").format(template))
-	return rates.pop()
+	return standard_vat_rate(row)
 
 
 def _apply_diesel_vat_basis(row, lines, sources, tax_template, party):
@@ -983,7 +981,7 @@ def _apply_diesel_vat_basis(row, lines, sources, tax_template, party):
 		)
 	if basis != "Inclusive":
 		return None
-	rate = _vat_rate(tax_template)
+	rate = _vat_rate(row)
 	gross = flt(sum(flt(line["rate"], 2) for line in fill_lines), 2)
 	net_by_fill = {}
 	for line in fill_lines:
@@ -1082,25 +1080,14 @@ def _as_list(value):
 # ---- FR-119 (#49, #126): the posting screen's reads — side-effect free ----
 
 
-def _template_vat_rate(tax_template, party_type):
-	"""The single positive VAT rate of the posting's tax template, for the preview's VAT
-	estimate (preflight refuses multi-rate templates for posting)."""
+def _template_vat_rate(tax_template, row):
+	"""The preview's VAT rate: FR-127, the company's one standard rate (the rate the CARD item tax
+	template carries); 0 when the posting has no tax template."""
+	from card.gl.masters import standard_vat_rate
+
 	if not tax_template:
 		return 0.0
-	child_dt = "Purchase Taxes and Charges" if party_type == "Supplier" else "Sales Taxes and Charges"
-	rates = {
-		flt(r.rate)
-		for r in frappe.get_all(
-			child_dt,
-			filters={
-				"parent": tax_template,
-				"parenttype": child_dt.replace("Taxes and Charges", "Taxes and Charges Template"),
-			},
-			fields=["rate"],
-		)
-		if flt(r.rate) > 0
-	}
-	return rates.pop() if len(rates) == 1 else 0.0
+	return flt(standard_vat_rate(row))
 
 
 def _party_name(party_type, party):
@@ -1156,7 +1143,7 @@ def preview_monthly_posting(company, party_type, party, month, year):
 		item["taxable"] = line["taxable"]
 		item["rate"] = flt(item["rate"], 2)
 	taxable = flt(sum(i["rate"] for i in items if i["taxable"]) - plan.total_discount, 2)
-	vat_rate = _template_vat_rate(plan.tax_template, party_type)
+	vat_rate = _template_vat_rate(plan.tax_template, plan.row)
 	out.update(
 		posting_date=str(plan.last_day),
 		sequence=plan.sequence,
