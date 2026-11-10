@@ -7741,3 +7741,11 @@ msgstr "لا يمكن تغيير مصدر إدخال نقل معتمد ({0})."
 #: card/intake.py
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr "النقل {0} له مستند مصدر وهو ملغى؛ يُحتفظ به مع مستنده ولا يمكن حذفه."
+
+#: card/child_integrity.py
+msgid "{0} {1} cannot store row {2} of {3}: the row belongs to another document. Remove it and add the line as a new row."
+msgstr "لا يمكن أن يحفظ {0} {1} الصف {2} من {3}: الصف يتبع مستندًا آخر. احذفه وأضف البند كصف جديد."
+
+#: card/child_integrity.py
+msgid "Row of another document"
+msgstr "صف من مستند آخر"

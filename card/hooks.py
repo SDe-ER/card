@@ -291,6 +291,12 @@ doc_events = {
 	},
 }
 
+# FR-153 (SEC-2): a stored child row cannot be moved to another document. Appended last, for every CARD DocType
+# with a table and every CARD child DocType, read from CARD's own DocType JSON files (never "*", no ERPNext DocType)
+from card.child_integrity import extend_doc_events as _fr153_extend_doc_events
+
+_fr153_extend_doc_events(doc_events)
+
 # Scheduled Tasks
 # ---------------
 

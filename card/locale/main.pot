@@ -6501,3 +6501,11 @@ msgstr ""
 #: card/intake.py
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr ""
+
+#: card/child_integrity.py
+msgid "{0} {1} cannot store row {2} of {3}: the row belongs to another document. Remove it and add the line as a new row."
+msgstr ""
+
+#: card/child_integrity.py
+msgid "Row of another document"
+msgstr ""
