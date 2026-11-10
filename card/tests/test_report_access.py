@@ -105,6 +105,7 @@ REPORT_MODULES = (
 	"equipment_partial_margin",
 	"unbilled_card_work",
 	"equipment_maintenance_cost",
+	"equipment_location_history",
 )
 
 
