@@ -5758,3 +5758,15 @@ msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.py
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr "لا يمكن مشاركة تعبئة ديزل تابعة للشركة {0} مع مستخدم من خارج هذه الشركة."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Diesel fill project check"
+msgstr "فحص مشروع تعبئة الديزل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A new diesel fill, or one whose equipment, project or date changed, needs each equipment assigned to the fill's project on the fill date. Warn: a message, the fill is saved. Enforce: the fill is refused. Off: no check. Empty: Warn. Submitted fills are never checked again."
+msgstr "تعبئة الديزل الجديدة، أو التي تغيّرت معدتها أو مشروعها أو تاريخها، تحتاج أن تكون كل معدة مسندة إلى مشروع التعبئة في تاريخ التعبئة. Warn: رسالة وتُحفظ التعبئة. Enforce: تُرفض التعبئة. Off: بلا فحص. فارغ: Warn. لا يُعاد فحص التعبئات المعتمدة."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.py
+msgid "Equipment {0} has no assignment on project {1} on {2}."
+msgstr "المعدة {0} ليس لها إسناد على المشروع {1} في {2}."

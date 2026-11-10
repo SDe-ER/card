@@ -6,11 +6,11 @@ import json
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, cstr, flt, get_datetime, getdate, now_datetime
+from frappe.utils import cint, cstr, flt, formatdate, get_datetime, getdate, now_datetime
 
 from card.attachment_validator import IMAGE_KINDS, check_attachment_content
 from card.company import single_company, validate_equipment_company
-from card.settings import setting
+from card.settings import company_setting, setting
 
 
 def can_change_diesel_supplier():
@@ -163,6 +163,37 @@ SOURCE_FIELDS = (
 
 def _equipment_rows(doc):
 	return [(row.card_equipment, row.reported_name, row.match_status) for row in doc.get("equipment_filled")]
+
+
+# FR-126 (#124 WP-11): is the equipment of a fill on the fill's project? Per company; Warn by default
+PROJECT_CHECK_OFF = "Off"
+PROJECT_CHECK_WARN = "Warn"
+PROJECT_CHECK_ENFORCE = "Enforce"
+
+
+def _filled_equipment_of(doc):
+	"""The direct-charge equipment and the listed equipment of a fill, sorted, without repeats."""
+	names = {doc.get("card_equipment")} | {row.card_equipment for row in doc.get("equipment_filled") or []}
+	names.discard(None)
+	names.discard("")
+	return sorted(names)
+
+
+def equipment_on_project(equipment, project, on_date):
+	"""A Card Equipment Assignment of `equipment` on `project` covers `on_date` (an empty from date
+	covers every day before its end; an empty to date is open-ended)."""
+	assignment = frappe.qb.DocType("Card Equipment Assignment")
+	day = getdate(on_date)
+	return bool(
+		frappe.qb.from_(assignment)
+		.select(assignment.name)
+		.where(assignment.equipment == equipment)
+		.where(assignment.project == project)
+		.where(assignment.from_date.isnull() | (assignment.from_date <= day))
+		.where(assignment.to_date.isnull() | (assignment.to_date >= day))
+		.limit(1)
+		.run()
+	)
 
 
 def totalizer_bounds(value):
@@ -335,6 +366,7 @@ class ProjectDieselFill(Document):
 		# the project) is added in a later stage, gated by owner approval.
 		self.amount = flt(flt(self.litres) * flt(self.unit_price), 2)
 		self._check_equipment_mode()
+		self._check_equipment_on_project()
 		self._check_photos()
 		warnings = self._check_totalizer() + self._check_overlaps()
 		# the extraction block is information: it is kept apart from `warnings`, which turn a Draft into Needs Review
@@ -505,6 +537,33 @@ class ProjectDieselFill(Document):
 							row.idx, self.company, company
 						)
 					)
+
+	def _check_equipment_on_project(self):
+		"""FR-126 (#124 WP-11): the direct-charge equipment and every listed equipment need a Card Equipment
+		Assignment on the fill's project covering the fill date. Per company (Card Company Settings
+		`diesel_fill_project_check`): Off, Warn (the default, also when empty: a message, the fill is saved)
+		or Enforce (refused). Only a new fill, or one whose equipment, project or date changed, is checked;
+		submitted fills never reach validate."""
+		mode = company_setting(self.company, "diesel_fill_project_check") or PROJECT_CHECK_WARN
+		if mode == PROJECT_CHECK_OFF or not (self.project and self.date):
+			return
+		before = None if self.is_new() else self.get_doc_before_save()
+		equipment = _filled_equipment_of(self)
+		if before is not None and not (
+			self.has_value_changed("project")
+			or self.has_value_changed("date")
+			or equipment != _filled_equipment_of(before)
+		):
+			return
+		missing = [e for e in equipment if not equipment_on_project(e, self.project, self.date)]
+		if not missing:
+			return
+		message = _("Equipment {0} has no assignment on project {1} on {2}.").format(
+			", ".join(missing), self.project, formatdate(self.date)
+		)
+		if mode == PROJECT_CHECK_ENFORCE:
+			frappe.throw(message, title=_("Diesel fill project check"))
+		frappe.msgprint(message, indicator="orange", title=_("Diesel fill project check"))
 
 	def _photo_needs_content_check(self, field, url):
 		"""H-CARD-1 content check only for a photo that is new or changed (not for a company change or an

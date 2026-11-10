@@ -16,6 +16,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Diesel fill project check** (FR-126, #124 WP-11, #31). Reason: diesel charged to an equipment that is not on the fill's
+  project puts the cost on the wrong project. A fill's direct-charge equipment and every listed equipment need a Card Equipment
+  Assignment on the fill's project covering the fill date (empty from date: from the start; empty to date: open-ended). New Card
+  Company Settings Select `diesel_fill_project_check` (level 1): Off, Warn (default; an empty value also means Warn: a message and
+  the fill is saved) or Enforce (refused). Only a new fill, or a fill whose equipment, project or date changed, is checked; submitted
+  fills never reach validate and an unchanged draft submits as before. PR: see the pull request of branch
+  `feat/diesel-fill-project-check`. Affected: `project_diesel_fill.py` (`ProjectDieselFill._check_equipment_on_project`,
+  `equipment_on_project`, `_filled_equipment_of`), `card_company_settings.json`, locale. Impact: permissions none; accounting
+  none (no GL; nothing reposted); data none (no patch, no fill changed); API none. Default: Warn, so existing work only sees a
+  message. The equipment-status guard for diesel fills (TODO of PR #191) is not included because `card/equipment_status.py` is
+  not on main yet; it is a follow-up. Rollback limits: reverting removes the check; the stored setting value stays unused in the
+  database.
 - **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
   An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
   opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself

@@ -30,6 +30,7 @@
   "pricing_section",
   "diesel_unit_price",
   "diesel_price_vat_basis",
+  "diesel_fill_project_check",
   "settlement_section",
   "bank_cash_account",
   "column_break_settlement",
@@ -234,6 +235,15 @@
    "permlevel": 1
   },
   {
+   "default": "Warn",
+   "description": "A new diesel fill, or one whose equipment, project or date changed, needs each equipment assigned to the fill's project on the fill date. Warn: a message, the fill is saved. Enforce: the fill is refused. Off: no check. Empty: Warn. Submitted fills are never checked again.",
+   "fieldname": "diesel_fill_project_check",
+   "fieldtype": "Select",
+   "label": "Diesel fill project check",
+   "options": "Off\nWarn\nEnforce",
+   "permlevel": 1
+  },
+  {
    "fieldname": "equipment_section",
    "fieldtype": "Section Break",
    "label": "Equipment and transport",
@@ -266,7 +276,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 12:00:00.000000",
+ "modified": "2026-11-10 13:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",
