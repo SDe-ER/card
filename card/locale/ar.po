@@ -6457,3 +6457,162 @@ msgstr "لتغيير الإضافات والخصومات عدّل الكرت ا�
 msgid "Diesel price fuel type"
 msgstr "نوع الوقود لسعر الديزل"
 
+#: card/daily_log.py
+msgid "Project {0} belongs to company {1}; the daily log is for company {2}."
+msgstr "المشروع {0} تابع للشركة {1}؛ اليومية للشركة {2}."
+
+#: card/daily_log.py
+msgid "Add at least one equipment row to the daily log."
+msgstr "أضف سطر معدة واحدًا على الأقل إلى اليومية."
+
+#: card/daily_log.py
+msgid "Equipment {0} is listed twice in the daily log (row {1})."
+msgstr "المعدة {0} مكررة في اليومية (السطر {1})."
+
+#: card/daily_log.py
+msgid "Row {0}: hours cannot be negative."
+msgstr "السطر {0}: لا يمكن أن تكون الساعات سالبة."
+
+#: card/daily_log.py
+msgid "Cannot record hours for a future day: {0}"
+msgstr "لا يمكن تسجيل ساعات ليوم في المستقبل: {0}"
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): day, night and stopped hours together ({2}) exceed 24 hours."
+msgstr "السطر {0} ({1}): مجموع ساعات النهار والليل والتوقف ({2}) يتجاوز 24 ساعة."
+
+#: card/daily_log.py
+msgid "Rows over the shift limit (day {0} h, night {1} h); the hours are recorded, review them: {2}"
+msgstr "سطور تجاوزت حد الوردية (نهاري {0} س، ليلي {1} س)؛ الساعات مسجلة، راجعها: {2}"
+
+#: card/daily_log.py
+msgid "A daily log can only amend a cancelled daily log of the same company."
+msgstr "اليومية لا تعدّل إلا يومية ملغاة لنفس الشركة."
+
+#: card/daily_log.py
+msgid "A daily log for this project and date already lists these equipment: {0}"
+msgstr "توجد يومية لهذا المشروع وهذا التاريخ فيها هذه المعدات بالفعل: {0}"
+
+#: card/daily_log.py
+msgid "Invalid daily log approval status: {0}"
+msgstr "حالة اعتماد يومية غير صحيحة: {0}"
+
+#: card/daily_log.py
+msgid "Only Card Manager may approve or return a daily log."
+msgstr "اعتماد اليومية أو إرجاعها لمدير Card فقط."
+
+#: card/daily_log.py
+msgid "This daily log is already approved or returned; cancel and amend it to change it."
+msgstr "هذه اليومية معتمدة أو مرجعة بالفعل؛ ألغها وعدّلها لتغييرها."
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log; another approver must approve it (company rule: Refuse)."
+msgstr "أنت من أنشأ هذه اليومية أو عدّلها أو قدّمها؛ يجب أن يعتمدها معتمد آخر (قاعدة الشركة: رفض)."
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log and approve it yourself; it is marked for review (company rule: Warn)."
+msgstr "أنت من أنشأ هذه اليومية أو عدّلها أو قدّمها وتعتمدها بنفسك؛ تم تعليمها للمراجعة (قاعدة الشركة: تحذير)."
+
+#: card/daily_log.py
+msgid "Daily log self-approval"
+msgstr "اعتماد اليومية من معدّها"
+
+#: card/daily_log.py
+msgid "Enter the reason for returning the daily log."
+msgstr "اكتب سبب إرجاع اليومية."
+
+#: card/daily_log.py
+msgid "A daily log cannot go back to Pending; cancel and amend it instead."
+msgstr "لا يمكن إرجاع اليومية إلى قيد الانتظار؛ ألغها وعدّلها بدلًا من ذلك."
+
+#: card/daily_log.py
+msgid "An approved daily log can only be cancelled by a Card Manager."
+msgstr "اليومية المعتمدة لا يلغيها إلا مدير Card."
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Approve daily log"
+msgstr "اعتماد اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Return daily log"
+msgstr "إرجاع اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log return reason"
+msgstr "سبب إرجاع اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log date"
+msgstr "تاريخ اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Site supervisor"
+msgstr "مشرف الموقع"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approval"
+msgstr "اعتماد اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log submitted by"
+msgstr "قدّم اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log edited by"
+msgstr "عدّل اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approved by"
+msgstr "اعتمد اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approved on"
+msgstr "تاريخ اعتماد اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Approved by its own preparer"
+msgstr "اعتمدها معدّها"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log returned by"
+msgstr "أرجع اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log returned on"
+msgstr "تاريخ إرجاع اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Equipment hours"
+msgstr "ساعات المعدات"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log equipment rows"
+msgstr "سطور معدات اليومية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Card Daily Log"
+msgstr "اليومية"
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Card Daily Log Row"
+msgstr "سطر اليومية"
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift hours"
+msgstr "ساعات الوردية النهارية"
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift hours"
+msgstr "ساعات الوردية الليلية"
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Card Daily Log Settings"
+msgstr "إعدادات اليومية"
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Daily log self-approval rule"
+msgstr "قاعدة اعتماد اليومية من معدّها"
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Refuse"
+msgstr "رفض"

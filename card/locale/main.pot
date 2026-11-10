@@ -5217,3 +5217,163 @@ msgstr ""
 #: card/card/doctype/card_diesel_price/card_diesel_price.json
 msgid "Diesel price fuel type"
 msgstr ""
+
+#: card/daily_log.py
+msgid "Project {0} belongs to company {1}; the daily log is for company {2}."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Add at least one equipment row to the daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Equipment {0} is listed twice in the daily log (row {1})."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0}: hours cannot be negative."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Cannot record hours for a future day: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): day, night and stopped hours together ({2}) exceed 24 hours."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Rows over the shift limit (day {0} h, night {1} h); the hours are recorded, review them: {2}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log can only amend a cancelled daily log of the same company."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log for this project and date already lists these equipment: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Invalid daily log approval status: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Only Card Manager may approve or return a daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "This daily log is already approved or returned; cancel and amend it to change it."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log; another approver must approve it (company rule: Refuse)."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log and approve it yourself; it is marked for review (company rule: Warn)."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Daily log self-approval"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Enter the reason for returning the daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log cannot go back to Pending; cancel and amend it instead."
+msgstr ""
+
+#: card/daily_log.py
+msgid "An approved daily log can only be cancelled by a Card Manager."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Approve daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Return daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log return reason"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log date"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Site supervisor"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approval"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log submitted by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log edited by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approved by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approved on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Approved by its own preparer"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log returned by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log returned on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Equipment hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log equipment rows"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Card Daily Log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Card Daily Log Row"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Card Daily Log Settings"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Daily log self-approval rule"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Refuse"
+msgstr ""
