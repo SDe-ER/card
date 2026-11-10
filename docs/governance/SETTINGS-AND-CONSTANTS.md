@@ -96,6 +96,7 @@ is read by `gl/preflight.py:36-41` `company_settings_row` (posting) and `account
 | `vat_item_tax_template`, `vat_zero_item_tax_template` | Link Item Tax Template | `gl/masters.py:182-194` (created when empty), `gl/posting.py`, `gl/preflight.py` | Used |
 | `diesel_unit_price` | Currency | `project_diesel_fill.py:177-186` `diesel_price`; `card_settings.js` | Used (FR-002). One value, no dates (FR-035 planned) |
 | `diesel_price_vat_basis` | Select (empty / Exclusive / Inclusive) | `gl/posting.py:925`; `gl/integrity.py:440` | Used (FR-090). Empty = posting refused for review |
+| `equipment_status_rule` | Select ("Warn only (equipment status)" / "Refuse (equipment status)"; empty = Warn only) | `card/equipment_status.py` `status_rule`, `check_equipment_status` (Card Equipment Assignment, Equipment Transport, Card Monthly Card) | Used (FR-122, In review). Default Warn only |
 | `bank_cash_account` | Link Account | none (only the generic account-company check in `card_settings.py` `validate`, which covers every Account link of a row) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 | `mode_of_payment` | Link Mode of Payment | none | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 
@@ -138,7 +139,7 @@ business rule that should be a master.
 | Rate bases | باليوم, بالساعة, بالشهر | `card_equipment.py:142-154`, `card_monthly_card.py:425-437` (literals) | Keep; add constants |
 | Day status | عمل, إجازة, عطل, توقف من العميل (default عمل) | `card_monthly_card_day.json` `day_status`; `card_monthly_card.py:193` (any status but عمل sets 0 hours) | **Move to a master** (WP-09: Card Stop Reason with a billable flag per company, #45). Today the four statuses are fixed and never billable |
 | Adjustment kinds | إضافة, خصم | `adjustments.py:13-14`; `card_adjustment_type.json` | Keep |
-| Equipment status | نشطة, متوقفة, في الصيانة, منتهية | `card_equipment.json` `status`; `materials.py:28` `ENDED_STATUS` | Keep |
+| Equipment status | نشطة, متوقفة, في الصيانة, منتهية | `card_equipment.json` `status`; `materials.py:28` `ENDED_STATUS`; `constants.py` `EQUIPMENT_STATUS_ENDED` (FR-122 guard) | Keep |
 | Fuel / operator payer | المؤجر, الشركة | `card_equipment.json`, Card Settings | Keep |
 | Diesel supplier policy | ثابت, متغير | Card Settings; `project_diesel_fill.py:20,850` | Keep |
 | Asset link field name | `الأصل_في_erpnext` | `dimension.py:24`, `asset_mapping_review.py:10`, `equipment_meter_reconciliation.py:21` | Keep (field name, not a value) |

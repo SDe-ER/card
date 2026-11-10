@@ -107,7 +107,7 @@ not, and the CARD domain needs it) · **N/A** (no equipment meaning).
 
 | Gap | Related issue / FR | Blocked by |
 |---|---|---|
-| Equipment status not enforced (ended machine can still be assigned and carded) | #42 | — |
+| Equipment status not enforced (ended machine can still be assigned and carded) | #42, FR-122 (In review: warn by default, Refuse per company) | Diesel fills not guarded yet |
 | Dated rates, prices and policies | #46, #50, FR-035 | — (FR-035), owner (agreements) |
 | Downtime reasons and responsible party | #45, FR-009, WP-09 | FR-020 decision |
 | Daily operating log and check-in-like intake | FR-022, #52 | Owner decision |
