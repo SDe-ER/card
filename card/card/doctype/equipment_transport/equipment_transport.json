@@ -24,6 +24,8 @@
   "responsibility",
   "payer",
   "cost_bearer",
+  "party_type",
+  "party",
   "column_break_responsibility",
   "cost_project",
   "cost_basis",
@@ -32,6 +34,7 @@
   "overhead_cost_center",
   "section_break_cost",
   "amount",
+  "informational_amount",
   "cost_borne_by",
   "transport_supplier",
   "cost_center",
@@ -319,7 +322,7 @@
    "fieldname": "responsibility",
    "fieldtype": "Select",
    "label": "Transport responsibility",
-   "options": "\nCompany bears the cost\nCompany pays, bills the customer\nCompany pays, recovers from equipment supplier\nEquipment supplier bears the cost\nCustomer pays the transporter directly\nNo transport charge\nResponsibility needs review",
+   "options": "\nCompany bears the cost\nCompany pays, bills the customer\nCompany pays, recovers from equipment supplier\nEquipment supplier bears the cost\nCustomer pays the transporter directly\nOther party bears the cost\nNo transport charge\nResponsibility needs review",
    "reqd": 1,
    "in_standard_filter": 1
   },
@@ -327,7 +330,7 @@
    "fieldname": "payer",
    "fieldtype": "Select",
    "label": "Transporter paid by",
-   "options": "\nCompany\nEquipment Supplier\nCustomer\nNo charge",
+   "options": "\nCompany\nEquipment Supplier\nCustomer\nOther Party\nNo charge",
    "read_only": 1,
    "hidden": 1
   },
@@ -335,7 +338,7 @@
    "fieldname": "cost_bearer",
    "fieldtype": "Select",
    "label": "Cost borne by",
-   "options": "\nCompany\nEquipment Supplier\nCustomer",
+   "options": "\nCompany\nEquipment Supplier\nCustomer\nOther Party",
    "read_only": 1,
    "hidden": 1
   },
@@ -559,11 +562,33 @@
    "no_copy": 1,
    "options": "\nNew assignment starts the day after the move\nNew assignment starts on the move day",
    "read_only": 1
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "label": "Other party type",
+   "options": "\nSupplier\nCustomer\nEmployee",
+   "depends_on": "eval:doc.responsibility==\"Other party bears the cost\"",
+   "mandatory_depends_on": "eval:doc.responsibility==\"Other party bears the cost\""
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "label": "Other party bearing the transport cost",
+   "options": "party_type",
+   "depends_on": "eval:doc.responsibility==\"Other party bears the cost\"",
+   "mandatory_depends_on": "eval:doc.responsibility==\"Other party bears the cost\""
+  },
+  {
+   "fieldname": "informational_amount",
+   "fieldtype": "Currency",
+   "label": "Agreed amount (not company cost)",
+   "depends_on": "eval:[\"Equipment supplier bears the cost\",\"Customer pays the transporter directly\",\"Other party bears the cost\"].includes(doc.responsibility)"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 13:00:00.000000",
+ "modified": "2026-11-10 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport",

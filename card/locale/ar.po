@@ -5794,3 +5794,55 @@ msgstr "إلغاء بهذا السبب"
 #: card/public/js/cancel_reason.js
 msgid "Cancelled with the reason recorded."
 msgstr "تم الإلغاء وتسجيل السبب."
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other party bears the cost"
+msgstr "طرف آخر يتحمل التكلفة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other Party"
+msgstr "طرف آخر"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Other party type"
+msgstr "نوع الطرف الآخر"
+
+#: card/card/report/transport_accounting_review/transport_accounting_review.py
+msgid "Other party bearing the transport cost"
+msgstr "الطرف الآخر الذي يتحمل تكلفة النقل"
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py
+msgid "Agreed amount (not company cost)"
+msgstr "المبلغ المتفق عليه (ليس تكلفة على الشركة)"
+
+#: card/card/report/transport_cost_by_project/transport_cost_by_project.py
+msgid "Transports not paid by the company"
+msgstr "نقلات لا تدفعها الشركة"
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the type of the other party that bears the transport cost."
+msgstr "اختر نوع الطرف الآخر الذي يتحمل تكلفة النقل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Select the other party that bears the transport cost."
+msgstr "اختر الطرف الآخر الذي يتحمل تكلفة النقل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} is not an employee of company {1}."
+msgstr "الموظف {0} ليس موظفًا في الشركة {1}."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "Employee {0} is not active."
+msgstr "الموظف {0} غير نشط."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The other party {0} was not found."
+msgstr "الطرف الآخر {0} غير موجود."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The other party {0} is disabled."
+msgstr "الطرف الآخر {0} معطّل."
+
+#: card/card/doctype/equipment_transport/equipment_transport.py
+msgid "The agreed amount (not company cost) cannot be negative."
+msgstr "لا يمكن أن يكون المبلغ المتفق عليه (ليس تكلفة على الشركة) سالبًا."

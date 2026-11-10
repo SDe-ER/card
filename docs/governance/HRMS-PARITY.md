@@ -97,10 +97,10 @@ not, and the CARD domain needs it) · **N/A** (no equipment meaning).
 
 | Item | Evidence |
 |---|---|
-| Workflow | `.github/workflows/upgrade-rehearsal.yml` (PR #130): installs CARD `v1.0.1` (input `from_ref`) on frappe `v16.51.1` / erpnext `v16.50.0` with MariaDB 10.6, seeds synthetic data, upgrades to the code under test, runs `migrate` twice and compares (`.github/helper/upgrade_rehearsal.sh:62-69`, `upgrade_rehearsal.py` `seed`, `snapshot`, `compare`) |
-| When it runs | On pull requests that touch `card/patches*`, DocType JSON, `card/fixtures/**`, `card/install.py`, `card/hooks.py` or the rehearsal files; also on manual dispatch. It does not run on a documentation-only pull request |
+| Workflow | `.github/workflows/upgrade-rehearsal.yml` (PR #130): installs CARD `v1.0.1` (input `from_ref`) on frappe `v16.55.2` / erpnext `v16.54.0` (raised from 16.51.1 / 16.50.0 by the `ci/upgrade-rehearsal-current-platform` change) with MariaDB 10.6, seeds synthetic data, upgrades to the code under test, runs `migrate` twice and compares (`.github/helper/upgrade_rehearsal.sh:62-69`, `upgrade_rehearsal.py` `seed`, `snapshot`, `compare`) |
+| When it runs | On every pull request (path filter removed: about 5 minutes, in parallel with the unit tests) and on manual dispatch. Before the `ci/upgrade-rehearsal-current-platform` change it ran only for patches, DocType JSON, fixtures, `install.py`, `hooks.py` and the rehearsal files |
 | Recent runs (GitHub Actions) | 42696233347 on `857fd48` (PR #182, v4.5.0 content): success · 42625079640 on `a53a1a0` (PR #175): success · 42610231268 on `de3643d` (PR #172): success, after 42609616038 on `35439b4` failed and was fixed in the same pull request · 42706530545 on `ff2b919` (PR #161, open): success |
-| Gap | The pinned versions (frappe 16.51.1, erpnext 16.50.0) are older than the Production platform update of 2026-11-10 recorded in `docs/releases/DEPLOYMENTS.md` (frappe 16.55.2, ERPNext 16.54.0). Raise the pins in a separate CI change after re-verifying the site versions |
+| Gap | Closed by the `ci/upgrade-rehearsal-current-platform` change (pins = the Production platform of 2026-11-10 in `docs/releases/DEPLOYMENTS.md`: frappe 16.55.2, ERPNext 16.54.0). Re-raise the pins after each Production platform update |
 | HRMS on the rehearsal site | Not installed, which matches the dependency rule |
 
 ## 9. Summary of gaps
