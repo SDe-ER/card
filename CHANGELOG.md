@@ -40,6 +40,33 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     saving a new assignment, transport or card, or submitting a transport, of an ended machine shows a warning, or
     raises a ValidationError under Refuse. Eight new Arabic strings.
   - **Rollback:** revert the commit; an older version ignores the new column.
+- **Transport costs the company does not pay, and an "other party" responsibility** (FR-120, refs #43, #48, #121;
+  WP-14; PR #190).
+  - **Reason:** when the equipment supplier, the customer or another party pays a move, the amount agreed with
+    them was lost (the transporter cost is 0 for these moves), and a party other than the supplier or the customer
+    could not be recorded.
+  - **Change:** Equipment Transport gets the responsibility **Other party bears the cost** (payer and cost bearer
+    `Other Party`) with the party named in `party_type` (Supplier, Customer or Employee) and `party` (Dynamic
+    Link, label "Other party bearing the transport cost"); an employee must be an active employee of the
+    transport's company (the message never names another company), a missing or disabled party is refused. New optional
+    Currency `informational_amount` ("Agreed amount (not company cost)") on moves the equipment supplier, the
+    customer or the other party pays; every other move keeps 0 and no party. Affected functions:
+    `EquipmentTransport._apply_other_party`, `_apply_informational_amount`, `_cancel_key` (a cancel cannot rewrite
+    the new fields); `card.transport_costs.not_company_cost_project` and `not_company_cost_by_project`; the reports
+    Transport Cost by Project (columns "Transports not paid by the company" and "Agreed amount (not company cost)"),
+    Operating Cost by Project (column "Agreed amount (not company cost)", not in the total) and Transport Accounting
+    Review (columns "Agreed amount (not company cost)" and "Other party bearing the transport cost"). New constants
+    in `card/constants.py`.
+  - **Impact:** permissions: none (no role, no permission change; the fields are level 0 like the transporter
+    cost). Picking an Employee party on the form needs Employee read permission (no role is widened for it); the
+    server-side company check is what enforces the scope. Accounting: none: the amount is never company cost, never in the partial margin and never posted (the
+    P1-2 posting exclusion of transports with a responsibility is kept). Data: three new nullable/zero columns on
+    Equipment Transport, new Select options; no patch, existing transports unchanged. API: the new fields are
+    accepted on save; a client that sends payer and bearer `Other Party` gets the new scenario.
+  - **Rollback:** revert the commit. The added columns stay in the database (Frappe does not drop them) and are
+    then unused; a transport submitted with "Other party bears the cost" keeps that stored value, which an older
+    version counts as a move the company does not pay in its reports but refuses on a new save (unknown
+    responsibility); amend such transports before a rollback.
 - **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
   An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
   opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself
@@ -189,6 +216,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
+- **CI: upgrade rehearsal on the current Production platform** (PR #192; refs #119, #120). The rehearsal now runs on
+  frappe `v16.55.2` / erpnext `v16.54.0` (the Production platform of 2026-11-10; tags checked on GitHub) instead of
+  16.51.1 / 16.50.0, and on every pull request: the path filter is removed because the job takes about 5 minutes
+  and runs in parallel with the CARD unit tests (about 10-16 minutes), so no pull request waits longer, and Python
+  code that migrate runs is rehearsed too. Files: `.github/workflows/upgrade-rehearsal.yml`,
+  `.github/helper/upgrade_rehearsal.sh`, `docs/governance/HRMS-PARITY.md`. HRMS stays off the rehearsal site (CARD
+  depends on frappe and erpnext only). Impact on permissions, accounting, data and the API: none. Rollback: revert
+  the commit.
 - **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill
   without equipment is now ONE Purchase Invoice line (its full amount, the project, no equipment) instead of one
   line per equipment split by operating hours; an hours-based split is an estimate, not a posting basis. Its cost
@@ -298,6 +333,22 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Security
+- **Reviewer is not the approver on equipment needs** (FR-121, PR #189; refs #125, #51; FR-005 open point).
+  - **Reason:** reviewer and approver of an Equipment Needs Review were separated by role only; one user holding
+    both roles could review, edit or submit a review and then approve it.
+  - **Change:** Equipment Needs Review records on the server who submitted it (`submitted_by`, new read-only field,
+    set in `before_submit`) and every user who saved the draft (`edited_by`, new hidden field, from the stored value
+    as in `EquipmentTransport._record_editor`); neither can be set by the client. `card.materials.approve_review`
+    (the only approve entry point) refuses with a PermissionError every preparer (`review_preparers`): the reviewer
+    (`supervisor`, or the owner of a legacy review without one), the submitter and every recorded editor. No role
+    is exempt: Administrator and System Manager are refused like anyone else. The form hides Approve from them.
+    Enforced by default (FR-005 already called for it).
+  - **Impact:** permissions — narrower: whoever prepared a review cannot approve it; another Card Manager (or
+    System Manager) approves it. Accounting none (approval still makes draft Material Requests only). Data — two
+    new columns, empty on existing reviews (a legacy pending review falls back to its supervisor or owner); no
+    record is changed, an already approved review stays approved. API — `approve_review` can now raise
+    PermissionError. Three new Arabic strings.
+  - **Rollback:** revert the commit; an older version ignores the two columns.
 - **Attachment validation and privacy** (H-CARD-1, H-CARD-2; FR-099; PR #162).
   - **Reason:** meter photos, the custody receipt, fitment evidence, the transport authorization document and the Card
     Equipment registration / inspection / insurance / TUV files accepted any bytes under any name, and the transport
