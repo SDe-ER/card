@@ -376,7 +376,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     correct for the component tables.
 
 ### Fixed
-- **VAT rate of the CARD item tax templates from company settings** (FR-127, #50, PR #PRNUM). Reason: `ensure_posting_masters`
+- **VAT rate of the CARD item tax templates from company settings** (FR-127, #50, PR #199). Reason: `ensure_posting_masters`
   created "CARD VAT 15% - <abbr>" with the rate 15 hardcoded, and the posting preview (`_masters_to_provision`) and the
   preflight (`check_template_mapping`) also expected a hardcoded 15; CARD rules forbid a hardcoded VAT rate. Card Company
   Settings gets the Percent field `vat_rate` ("CARD standard VAT rate (%)", level 1, default 15); Card Settings refuses a rate
