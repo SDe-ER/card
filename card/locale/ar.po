@@ -6388,3 +6388,7 @@ msgstr "لا يمكن نقل سطر إضافة/خصم إلى كرت آخر."
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.py
 msgid "To change additions and deductions, edit monthly card {0} itself; a direct row update is not allowed."
 msgstr "لتغيير الإضافات والخصومات عدّل الكرت الشهري {0} نفسه؛ التعديل المباشر على السطر غير مسموح."
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price fuel type"
+msgstr "نوع الوقود لسعر الديزل"

@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "company",
+  "fuel_type",
   "valid_from",
   "unit_price",
   "currency",
@@ -19,6 +20,13 @@
    "label": "Company",
    "options": "Company",
    "reqd": 1
+  },
+  {
+   "default": "Diesel",
+   "fieldname": "fuel_type",
+   "fieldtype": "Select",
+   "label": "Diesel price fuel type",
+   "options": "Diesel"
   },
   {
    "fieldname": "valid_from",
@@ -53,7 +61,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 12:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Diesel Price",
