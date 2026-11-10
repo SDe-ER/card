@@ -3,6 +3,7 @@ from frappe import _
 from frappe.utils import flt
 
 from card.report_access import readable_links, resolve_company
+from card.report_currency import company_currency_report
 from card.transport_costs import not_company_cost_by_project, transport_cost_by_project
 
 
@@ -33,6 +34,7 @@ def get_columns():
 	]
 
 
+@company_currency_report("Equipment Transport")
 def execute(filters=None):
 	# Report: "Transport Cost by Project" (Script Report, standard, ref doctype: Equipment Transport)
 	# Read-only. One row per project: number and total amount of SUBMITTED Equipment Transport docs in range.

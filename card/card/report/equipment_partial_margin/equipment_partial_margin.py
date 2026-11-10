@@ -26,6 +26,7 @@ from frappe.utils import flt, getdate
 
 from card import analytics
 from card.report_access import can_view_ledger, readable_links, resolve_company
+from card.report_currency import company_currency_report
 
 DOCTYPES = (
 	analytics.CARD,
@@ -40,6 +41,7 @@ COST_KEYS = ("rental", "diesel", "tank_diesel", "transport", "maintenance")
 AMOUNT_KEYS = ("revenue", "unbilled_revenue", *COST_KEYS, "total_cost", "margin", "unbilled_rental")
 
 
+@company_currency_report(*DOCTYPES)
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	company = resolve_company(filters, *DOCTYPES)

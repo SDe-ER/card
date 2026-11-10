@@ -4,10 +4,12 @@ from frappe import _
 from card.adjustments import sided_adjustments
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
+from card.report_currency import company_currency_report
 from card.settings import setting
 from card.transfer import billed_day_rows, with_stopped_hours_column
 
 
+@company_currency_report()
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	# Report: "Equipment Supplier Statement" (Script Report, non-standard, ref doctype: Card Monthly Card)
