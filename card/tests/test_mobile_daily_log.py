@@ -197,3 +197,55 @@ class TestMobileDailyLogRest(_CustomerCardsBase):
 		self.assertEqual(stored.docstatus, 0)
 		self.assertEqual(stored.approval_status, "Pending")
 		self.assertFalse(stored.return_reason)
+
+	def _returned_and_cancelled(self):
+		doc = self._create()
+		self._as(
+			self.operator,
+			v1.update_doc,
+			LOG,
+			doc.name,
+			data={"docstatus": 1, "modified": str(self._stored(doc.name).modified)},
+		)
+		self._set_status(self._stored(doc.name), "Returned for correction", self.manager, "Too many hours")
+		self._as(
+			self.operator,
+			v1.update_doc,
+			LOG,
+			doc.name,
+			data={"docstatus": 2, "modified": str(self._stored(doc.name).modified)},
+		)
+		return doc.name
+
+	def _amendments(self, name):
+		# frontend/src/data/dailyLog.ts amendmentOf
+		form = {
+			"fields": frappe.as_json(["name", "docstatus", "approval_status"]),
+			"filters": frappe.as_json([["amended_from", "=", name]]),
+		}
+		return self._as(self.operator, v1.document_list, LOG, form=form)
+
+	def test_failed_correction_is_listed_and_recovered(self):
+		# the cancel went through, the amending draft did not: the operator still finds the log
+		name = self._returned_and_cancelled()
+		form = {
+			"fields": frappe.as_json([*LIST_FIELDS, "amended_from"]),
+			"filters": frappe.as_json([["owner", "=", self.operator], ["docstatus", "=", 2]]),
+		}
+		cancelled = self._as(self.operator, v1.document_list, LOG, form=form)
+		self.assertEqual(
+			[(r["name"], r["approval_status"]) for r in cancelled], [(name, "Returned for correction")]
+		)
+		self.assertEqual(self._amendments(name), [])
+		# "Create corrected draft": the amendment only
+		amended = self._create(amended_from=name)
+		self.assertEqual(self._stored(amended.name).amended_from, name)
+		self.assertEqual([r["name"] for r in self._amendments(name)], [amended.name])
+
+	def test_a_second_correction_is_refused_by_the_server(self):
+		# the client checks first (amendmentOf); the server refuses a second amendment anyway: Frappe gives
+		# it the same name, and the log's duplicate guard refuses the same equipment, project and date
+		name = self._returned_and_cancelled()
+		self._create(amended_from=name)
+		with self.assertRaises((frappe.DuplicateEntryError, frappe.UniqueValidationError)):
+			self._create(amended_from=name)
