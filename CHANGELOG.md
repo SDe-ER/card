@@ -16,6 +16,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Role and action matrix with cross-company negative tests** (FR-129, #51, #35, #54). Reason: one checked record of who
+  may do what on every CARD DocType and endpoint, and a guard that no endpoint skips company isolation.
+  `docs/governance/ROLE-ACTION-MATRIX.md` lists every CARD DocType (level-0 read, write, create, submit, cancel, delete roles,
+  field levels, company mechanism from the DocType JSON and the `has_permission` / `permission_query_conditions` hooks) and
+  every `@frappe.whitelist` endpoint (HTTP method, server gate, company isolation, side effects); both tables are rendered from
+  `card/tests/test_bola_matrix.py` and a test fails when they drift. The new suite generates, per endpoint (62), a
+  cross-company test (a user limited to company A with the endpoint's roles is refused on company B's records, or gets no
+  company-B value; nothing is written), a role test (users without the role are refused; nothing is written) and, for read
+  endpoints, a no-write test (transaction write counter, row counts and last `modified` of the watched tables unchanged);
+  guard tests require every whitelisted function in the table with its decorator's HTTP methods. Four cross-company create
+  gaps are reported, not fixed, and kept as expected failures: `card.tool_custody.move` and `frappe.client.insert` on
+  Employee Tool Custody, Equipment Needs Request and Equipment Needs Review (company set in `validate` after Frappe's create
+  check; no company `has_permission` hook). PR #PRNUM. Affected: tests and documentation only. Impact: no change to
+  permissions, accounting, data or the API. Rollback: revert the commit (no data or schema involved).
 - **Effective-dated diesel price schedule** (FR-125, #46, #124 WP-10). Reason: the diesel price changes over time and a fill
   must take the price valid on its own date. Card Settings > Diesel Settings gets the table **Diesel price schedule** (new child
   DocType `Card Diesel Price`: company, valid from, price per litre, currency defaulting to and limited to the company currency,
