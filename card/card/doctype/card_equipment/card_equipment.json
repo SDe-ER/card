@@ -400,7 +400,8 @@
    "fieldname": "min_hours",
    "fieldtype": "Float",
    "hidden": 1,
-   "label": "Minimum hours per month"
+   "label": "Deprecated – not used",
+   "read_only": 1
   },
   {
    "fieldname": "operator_on",
@@ -834,7 +835,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-11-10 12:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

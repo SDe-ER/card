@@ -10,6 +10,8 @@
   "enabled",
   "column_break_csr1",
   "billable",
+  "billable_side",
+  "billable_approval_reason",
   "default_responsible_party_type",
   "day_status",
   "notes_section",
@@ -49,11 +51,27 @@
   },
   {
    "default": "0",
-   "description": "Off (default): the stopped hours of this reason earn no rental. On: they are billed like operating hours on the card. Downtime is never billed automatically unless a Card Manager ticks this.",
+   "description": "Off (default): the stopped hours of this reason earn no rental. On: they are billed like operating hours on the side chosen below. Downtime is never billed automatically unless a Card Manager ticks this and records the approval. The recommended route for a downtime charge is a downtime-charge addition on the card.",
    "fieldname": "billable",
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Billable"
+  },
+  {
+   "default": "Both",
+   "depends_on": "eval:doc.billable",
+   "description": "Which invoice bills the stopped hours of a billable reason. Both is the behaviour before v4.8.0.",
+   "fieldname": "billable_side",
+   "fieldtype": "Select",
+   "label": "Billable side",
+   "options": "Both\nSupplier\nCustomer"
+  },
+  {
+   "depends_on": "eval:doc.billable",
+   "description": "Required when billing is switched on or its side changes: who approved billing it and under which agreement.",
+   "fieldname": "billable_approval_reason",
+   "fieldtype": "Small Text",
+   "label": "Billable approval reason"
   },
   {
    "fieldname": "default_responsible_party_type",
@@ -81,7 +99,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-10 14:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Stop Reason",

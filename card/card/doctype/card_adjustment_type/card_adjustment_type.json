@@ -12,6 +12,7 @@
   "account",
   "taxable",
   "item",
+  "is_downtime_charge",
   "disabled"
  ],
  "fields": [
@@ -65,6 +66,13 @@
   },
   {
    "default": "0",
+   "description": "On: a card row of this type charges for downtime and must name the stop reason, the responsible party and the agreement reference. This is the explicit route for any downtime charge (FR-134).",
+   "fieldname": "is_downtime_charge",
+   "fieldtype": "Check",
+   "label": "Downtime charge"
+  },
+  {
+   "default": "0",
    "description": "Disabled types are hidden from new card rows; existing rows stay valid.",
    "fieldname": "disabled",
    "fieldtype": "Check",
@@ -75,7 +83,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-10-15 10:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Adjustment Type",
