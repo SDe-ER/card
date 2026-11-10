@@ -299,6 +299,19 @@ class TestV4Materials(IntegrationTestCase):
 		materials.pull_requests(review.name)
 		return frappe.get_doc("Equipment Needs Review", review.name)
 
+	def _approve(self, review):
+		"""approve_review as the current user (usually Administrator). The tests drive the supervisor's
+		steps as Administrator for brevity; the review is recorded as prepared (edited and submitted)
+		by its separate reviewer only, so that the approver is not one of its preparers (FR-121)."""
+		reviewer = frappe.db.get_value("Equipment Needs Review", review, "supervisor")
+		frappe.db.set_value(
+			"Equipment Needs Review",
+			review,
+			{"edited_by": reviewer, "submitted_by": reviewer},
+			update_modified=False,
+		)
+		return materials.approve_review(review)
+
 	def test_full_cycle_to_material_requests(self):
 		request = self._ask(
 			[
@@ -333,10 +346,10 @@ class TestV4Materials(IntegrationTestCase):
 		card_user = self._user("cu", ["Card User"])
 		frappe.set_user(card_user)
 		with self.assertRaises(frappe.PermissionError):
-			materials.approve_review(review.name)
+			self._approve(review.name)
 		frappe.set_user("Administrator")
 
-		created = materials.approve_review(review.name)
+		created = self._approve(review.name)
 		mrs = {frappe.db.get_value("Material Request", n, "material_request_type"): n for n in created}
 		self.assertEqual(set(mrs), {"Purchase"})  # the tool goes through a custody handover (#113)
 		purchase = frappe.get_doc("Material Request", mrs["Purchase"])
@@ -365,7 +378,7 @@ class TestV4Materials(IntegrationTestCase):
 		review.reload()
 		self.assertEqual([row.kind for row in review.items if row.request == request], ["Tool"])
 		review.submit()
-		created = materials.approve_review(review.name)
+		created = self._approve(review.name)
 		self.assertFalse(
 			frappe.get_all("Material Request Item", filters={"parent": ["in", created or [""]]}),
 			"a tool from the store needs no Material Request",
@@ -392,7 +405,7 @@ class TestV4Materials(IntegrationTestCase):
 		frappe.db.set_single_value("Card Settings", "tool_custody_warehouse", None)
 		before = frappe.db.count("Material Request"), frappe.db.count("Employee Tool Custody")
 		with self.assertRaises(frappe.ValidationError):
-			materials.approve_review(review.name)
+			self._approve(review.name)
 		self.assertEqual(
 			(frappe.db.count("Material Request"), frappe.db.count("Employee Tool Custody")), before
 		)
@@ -405,7 +418,7 @@ class TestV4Materials(IntegrationTestCase):
 		before = frappe.db.count("Material Request")
 		frappe.set_user(manager)
 		with self.assertRaises(frappe.PermissionError):
-			materials.approve_review(review.name)
+			self._approve(review.name)
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.count("Material Request"), before)
 		self.assertNotEqual(
@@ -415,7 +428,7 @@ class TestV4Materials(IntegrationTestCase):
 		frappe.get_doc("User", manager).add_roles("Stock User")
 		frappe.set_user(manager)
 		try:
-			(name,) = materials.approve_review(review.name)
+			(name,) = self._approve(review.name)
 		finally:
 			frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value("Material Request", name, ["owner", "docstatus"]), (manager, 0))
@@ -484,6 +497,76 @@ class TestV4Materials(IntegrationTestCase):
 		review.save()
 		self.assertEqual(frappe.db.get_value("Equipment Needs Review", review.name, "supervisor"), reviewer)
 
+	def test_a_manager_who_edits_and_submits_cannot_approve(self):
+		# a supervisor creates the draft; a Card Manager edits the approved quantity and submits it
+		supervisor = self._user("sup121", ["Card Supervisor"])
+		manager = self._approver("edsub")
+		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 2}])
+		review = self._review(reviewer=supervisor)
+		frappe.set_user(manager)
+		try:
+			review = frappe.get_doc("Equipment Needs Review", review.name)
+			for row in review.items:
+				row.approved_qty = 1
+			review.save()
+			review.submit()
+		finally:
+			frappe.set_user("Administrator")
+		stored = frappe.db.get_value(
+			"Equipment Needs Review", review.name, ["supervisor", "submitted_by", "edited_by"], as_dict=True
+		)
+		self.assertEqual((stored.supervisor, stored.submitted_by), (supervisor, manager))
+		self.assertIn(manager, stored.edited_by.split("\n"))
+		self._refused(review, manager)
+
+	def test_a_user_who_only_edited_the_draft_cannot_approve(self):
+		editor = self._approver("edonly")
+		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
+		review = self._review()
+		frappe.set_user(editor)
+		try:
+			frappe.get_doc("Equipment Needs Review", review.name).save()
+		finally:
+			frappe.set_user("Administrator")
+		review = frappe.get_doc("Equipment Needs Review", review.name)
+		review.submit()
+		self._refused(review, editor)
+
+	def test_preparers_cannot_be_set_by_hand(self):
+		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 1}])
+		review = self._review()
+		review.edited_by, review.submitted_by = "someone@example.com", "someone@example.com"
+		review.save()
+		stored = frappe.db.get_value(
+			"Equipment Needs Review", review.name, ["submitted_by", "edited_by"], as_dict=True
+		)
+		self.assertIsNone(stored.submitted_by)
+		self.assertNotIn("someone@example.com", stored.edited_by)
+		review.reload()
+		review.submit()
+		self.assertEqual(
+			frappe.db.get_value("Equipment Needs Review", review.name, "submitted_by"), "Administrator"
+		)
+
+	def test_a_legacy_review_without_a_supervisor_falls_back_to_its_owner(self):
+		owner = self._approver("legacy")
+		review = self._submitted_review(self._user("legsup", ["Card Supervisor"]))
+		# a review saved before FR-121: no supervisor, no submitter, no editors; its owner reviewed it
+		frappe.db.set_value(
+			"Equipment Needs Review",
+			review.name,
+			{"supervisor": None, "submitted_by": None, "edited_by": None, "owner": owner},
+			update_modified=False,
+		)
+		self._refused(review, owner)
+		other = self._approver("legacy2")
+		frappe.set_user(other)
+		try:
+			materials.approve_review(review.name)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("Equipment Needs Review", review.name, "approved_by"), other)
+
 	def test_supervisor_reads_equipment_without_editing_it(self):
 		supervisor = self._user("sup3", ["Card Supervisor"])
 		self.assertTrue(frappe.has_permission("Card Equipment", "read", self.eq, user=supervisor))
@@ -544,7 +627,7 @@ class TestV4Materials(IntegrationTestCase):
 		review = self._review()
 		review.submit()
 		with self.assertRaises(frappe.ValidationError):
-			materials.approve_review(review.name)
+			self._approve(review.name)
 
 	def test_store_issue_keeps_equipment_through_erpnext_mapping(self):
 		if not frappe.get_meta("Stock Entry Detail").has_field("card_equipment"):
@@ -552,7 +635,7 @@ class TestV4Materials(IntegrationTestCase):
 		self._ask([{"kind": "Part", "item_code": self.filter, "qty": 2}])
 		review = self._review()
 		review.submit()
-		(name,) = materials.approve_review(review.name)
+		(name,) = self._approve(review.name)
 		mr = frappe.get_doc("Material Request", name)
 		self.assertEqual(mr.material_request_type, "Material Issue")
 		mr.submit()
@@ -770,7 +853,7 @@ class TestV4Materials(IntegrationTestCase):
 		frappe.db.set_value("Item", self.tool, "is_stock_item", 0)
 		before = frappe.db.count("Material Request")
 		with self.assertRaises(frappe.ValidationError) as refused:
-			materials.approve_review(review.name)
+			self._approve(review.name)
 		self.assertIn(self.tool, str(refused.exception))
 		self.assertEqual(frappe.db.count("Material Request"), before)
 		self.assertEqual(
@@ -922,7 +1005,7 @@ class TestV4Materials(IntegrationTestCase):
 				row.approved_qty = 0
 		review.save()
 		review.submit()
-		materials.approve_review(review.name)
+		self._approve(review.name)
 		line = next(
 			row
 			for row in frappe.get_doc("Equipment Needs Review", review.name).items

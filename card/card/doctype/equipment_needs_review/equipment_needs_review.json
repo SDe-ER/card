@@ -10,6 +10,8 @@
   "to_date",
   "column_break_main",
   "supervisor",
+  "submitted_by",
+  "edited_by",
   "approval_status",
   "approved_by",
   "approved_on",
@@ -56,6 +58,22 @@
    "label": "Supervisor",
    "options": "User",
    "read_only": 1
+  },
+  {
+   "fieldname": "submitted_by",
+   "fieldtype": "Link",
+   "label": "Review submitted by",
+   "options": "User",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "edited_by",
+   "fieldtype": "Small Text",
+   "label": "Review edited by",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
   },
   {
    "fieldname": "approval_status",
@@ -110,7 +128,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-19 17:00:00.000000",
+ "modified": "2026-11-10 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Needs Review",

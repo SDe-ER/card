@@ -18,8 +18,12 @@ frappe.ui.form.on("Equipment Needs Review", {
 			);
 		}
 		const approver = frappe.user.has_role(["Card Manager", "System Manager"]);
-		// FR-121: the reviewer never approves his own review (the server refuses it too)
-		const reviewer = frm.doc.supervisor === frappe.session.user;
+		// FR-121: whoever reviewed, edited or submitted it never approves (the server decides)
+		const user = frappe.session.user;
+		const reviewer =
+			(frm.doc.supervisor || frm.doc.owner) === user ||
+			frm.doc.submitted_by === user ||
+			(frm.doc.edited_by || "").split("\n").includes(user);
 		if (
 			frm.doc.docstatus === 1 &&
 			frm.doc.approval_status === "Pending" &&
