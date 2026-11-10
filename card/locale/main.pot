@@ -6485,3 +6485,100 @@ msgstr ""
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by its own preparer"
 msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Add"
+msgstr ""
+
+msgid "Add equipment"
+msgstr ""
+
+msgid "After sending you can no longer change the daily log."
+msgstr ""
+
+msgid "Approved. It can no longer be changed."
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Cancelled"
+msgstr ""
+
+msgid "Choose the project and the date."
+msgstr ""
+
+msgid "Correct this daily log"
+msgstr ""
+
+msgid "Daily log"
+msgstr ""
+
+msgid "Daily logs"
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Draft"
+msgstr ""
+
+msgid "Draft saved. Send it to the supervisor when it is complete."
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Edit"
+msgstr ""
+
+msgid "Edit daily log"
+msgstr ""
+
+msgid "My daily logs"
+msgstr ""
+
+msgid "New daily log"
+msgstr ""
+
+msgid "No daily logs yet."
+msgstr ""
+
+msgid "No stop reason"
+msgstr ""
+
+msgid "Not sent yet. You can still change it."
+msgstr ""
+
+msgid "Open in CARD Desk"
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Project"
+msgstr ""
+
+msgid "Row {0}: hours cannot be negative or exceed 24 hours together."
+msgstr ""
+
+msgid "Save draft"
+msgstr ""
+
+msgid "Sent to the supervisor. Waiting for approval."
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Something went wrong. Try again."
+msgstr ""
+
+msgid "The returned daily log is cancelled and a new draft with the same hours opens for your correction."
+msgstr ""
+
+msgid "This daily log was sent to the supervisor; it can no longer be edited."
+msgstr ""
+
+msgid "View daily log"
+msgstr ""
+
+msgid "Your account is not linked to an employee of a company."
+msgstr ""
+
+msgid "Your daily log was sent to the supervisor."
+msgstr ""

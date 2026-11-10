@@ -75,3 +75,75 @@ export async function post<T>(method: string, params: Record<string, unknown> = 
   })
   return handle<T>(method, res)
 }
+
+// Frappe's standard REST resource routes (/api/resource/<doctype>), under the user's own
+// permissions: the server applies the DocType's role permissions, `if_owner`, the company scope
+// and every controller rule. Errors come back as `_server_messages`, as for /api/method.
+function resourceUrl(doctype: string, name?: string) {
+  const base = `/api/resource/${encodeURIComponent(doctype)}`
+  return name ? `${base}/${encodeURIComponent(name)}` : base
+}
+
+function writeHeaders() {
+  return {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'X-Frappe-CSRF-Token': window.csrf_token || '',
+  }
+}
+
+// the body of a resource route is {data: ...}; `handle` reads `message`, so wrap it
+async function handleResource<T>(res: Response): Promise<T> {
+  const body = (await res
+    .clone()
+    .json()
+    .catch(() => null)) as Record<string, unknown> | null
+  if (!res.ok) return handle<T>('resource', res)
+  return body?.data as T
+}
+
+export async function listResource<T>(
+  doctype: string,
+  params: { fields: string[]; filters?: unknown[]; order_by?: string; limit?: number },
+): Promise<T[]> {
+  const query = new URLSearchParams({
+    fields: JSON.stringify(params.fields),
+    limit_page_length: String(params.limit ?? 20),
+  })
+  if (params.filters) query.set('filters', JSON.stringify(params.filters))
+  if (params.order_by) query.set('order_by', params.order_by)
+  const res = await fetch(`${resourceUrl(doctype)}?${query}`, {
+    headers: { Accept: 'application/json' },
+  })
+  return handleResource<T[]>(res)
+}
+
+export async function getResource<T>(doctype: string, name: string): Promise<T> {
+  const res = await fetch(resourceUrl(doctype, name), { headers: { Accept: 'application/json' } })
+  return handleResource<T>(res)
+}
+
+export async function insertResource<T>(
+  doctype: string,
+  data: Record<string, unknown>,
+): Promise<T> {
+  const res = await fetch(resourceUrl(doctype), {
+    method: 'POST',
+    headers: writeHeaders(),
+    body: JSON.stringify(data),
+  })
+  return handleResource<T>(res)
+}
+
+export async function updateResource<T>(
+  doctype: string,
+  name: string,
+  data: Record<string, unknown>,
+): Promise<T> {
+  const res = await fetch(resourceUrl(doctype, name), {
+    method: 'PUT',
+    headers: writeHeaders(),
+    body: JSON.stringify(data),
+  })
+  return handleResource<T>(res)
+}

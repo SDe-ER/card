@@ -16,6 +16,42 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-150 — CARD Mobile daily log screens for operators (#44, #123, FR-022; closure plan WP-K3).** Reason: #44
+  asks for daily entry and #123 for daily entry with operator/supervisor approval; FR-142 added the Card Daily Log
+  on the server but an operator could only reach it in CARD Desk, which operators cannot open. New CARD Mobile
+  (`frontend/`) screens: **My daily logs** (`/cdms/daily-logs`: the user's own drafts and submitted logs, newest
+  first, with their state), **New daily log** and **Edit daily log** (date, project, one row per machine of the
+  operator on that project with day, night and stopped hours and notes; machines added or removed; a draft only),
+  **Daily log** (state as stored: Draft, Pending, Verified by supervisor, Approved, Returned for correction with
+  the return reason) with **Send to supervisor** (submit) on a draft and **Correct this daily log** on a returned
+  log (cancel it, then a new draft that amends it with the same header and rows). A bottom-navigation tab and a
+  Home link open the list. Affected code: `frontend/src/router.ts` (four routes), `frontend/src/data/api.ts`
+  (`listResource`, `getResource`, `insertResource`, `updateResource`: Frappe's standard `/api/resource` routes),
+  new `frontend/src/data/dailyLog.ts`, `frontend/src/pages/DailyLogList.vue`, `DailyLogForm.vue`,
+  `DailyLogView.vue`, `frontend/src/components/DailyLogBadge.vue`, `DailyLogDetail.vue`, `DailyLogRowFields.vue`,
+  `BottomNav.vue` (fifth operator tab), `Home.vue` (link), `frontend/src/i18n.ts` (`__()` returns the English
+  source when there is no `window`, for unit tests). The server decides everything: no CARD endpoint was added; the
+  screens use the standard REST routes under the user's own permissions (Card Operator `if_owner`, the FR-131 company
+  scope, every FR-142 rule), the machines and projects come from the existing `card.materials.get_portal_context`,
+  the company from the user's Active Employee (the server refuses a project of another company). The screens send
+  only the fields an operator enters (`project`, `log_date`, `notes`, `company` on create; row `equipment`, hours,
+  `notes`, and the stored stop reason and responsible party kept as they were) plus `modified` (a save over a newer
+  version is refused); submit and cancel send only `docstatus` and `modified`. No approval, editor, preparer or
+  status field is ever sent, and no approve, verify or return action is offered to any role on CARD Mobile:
+  supervisors and managers get a link to the log in CARD Desk. The stop reason picker shows only to users who may
+  read the company's stop reasons (an operator may not: the server refuses and the picker is hidden; the supervisor
+  names the reason). A daily log has no money field; none is read or shown (O-20). New strings: CARD-specific
+  msgids, generic words under the context "Card Mobile", Arabic in `card/locale/ar.po` and `main.pot`; logical
+  (RTL-safe) sides, LTR numbers and dates. Tests: `frontend/src/data/dailyLog.spec.ts` (actions per state and role,
+  no approval action for any role, payload allowlists without approval or money fields, list fields, submit and
+  correction bodies, stop reasons refused for operators, error display), `frontend/src/pages/DailyLog.spec.ts`
+  (rendered actions per state and role, return reason, stored state, no money, error box, RTL: logical sides only,
+  LTR numbers and dates, translatable strings), `card/tests/test_mobile_daily_log.py` (the same REST bodies as a Card
+  Operator on Frappe: create, own-only list and read, save with a stale stamp refused, submit by docstatus, forged
+  approval fields ignored, stop reasons refused, correction of a returned log). Impact: permissions none (no role,
+  DocPerm or endpoint added); accounting none; data none (no schema or patch); API none (existing REST routes).
+  Rollback: revert the frontend files and rebuild; no data to undo (logs created from the phone are ordinary Card
+  Daily Logs).
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a

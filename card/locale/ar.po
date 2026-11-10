@@ -7725,3 +7725,100 @@ msgstr "اعتماد الكارت الشهري من معدّه"
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by its own preparer"
 msgstr "اعتمده معدّه"
+
+msgctxt "Card Mobile"
+msgid "Add"
+msgstr "إضافة"
+
+msgid "Add equipment"
+msgstr "إضافة معدة"
+
+msgid "After sending you can no longer change the daily log."
+msgstr "بعد الإرسال لا يمكنك تعديل اليومية."
+
+msgid "Approved. It can no longer be changed."
+msgstr "معتمدة. لا يمكن تعديلها بعد الآن."
+
+msgctxt "Card Mobile"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "Card Mobile"
+msgid "Cancelled"
+msgstr "ملغاة"
+
+msgid "Choose the project and the date."
+msgstr "اختر المشروع والتاريخ."
+
+msgid "Correct this daily log"
+msgstr "تصحيح هذه اليومية"
+
+msgid "Daily log"
+msgstr "اليومية"
+
+msgid "Daily logs"
+msgstr "اليوميات"
+
+msgctxt "Card Mobile"
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Draft saved. Send it to the supervisor when it is complete."
+msgstr "تم حفظ المسودة. أرسلها للمشرف عند اكتمالها."
+
+msgctxt "Card Mobile"
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Edit daily log"
+msgstr "تعديل اليومية"
+
+msgid "My daily logs"
+msgstr "يومياتي"
+
+msgid "New daily log"
+msgstr "يومية جديدة"
+
+msgid "No daily logs yet."
+msgstr "لا توجد يوميات بعد."
+
+msgid "No stop reason"
+msgstr "بدون سبب توقف"
+
+msgid "Not sent yet. You can still change it."
+msgstr "لم تُرسل بعد. ما زال بإمكانك تعديلها."
+
+msgid "Open in CARD Desk"
+msgstr "فتح في CARD Desk"
+
+msgctxt "Card Mobile"
+msgid "Project"
+msgstr "المشروع"
+
+msgid "Row {0}: hours cannot be negative or exceed 24 hours together."
+msgstr "السطر {0}: لا يمكن أن تكون الساعات سالبة أو أن يتجاوز مجموعها 24 ساعة."
+
+msgid "Save draft"
+msgstr "حفظ كمسودة"
+
+msgid "Sent to the supervisor. Waiting for approval."
+msgstr "أُرسلت للمشرف. بانتظار الاعتماد."
+
+msgctxt "Card Mobile"
+msgid "Something went wrong. Try again."
+msgstr "حدث خطأ. حاول مرة أخرى."
+
+msgid "The returned daily log is cancelled and a new draft with the same hours opens for your correction."
+msgstr "تُلغى اليومية المرجعة وتُفتح مسودة جديدة بنفس الساعات لتصحيحها."
+
+msgid "This daily log was sent to the supervisor; it can no longer be edited."
+msgstr "أُرسلت هذه اليومية للمشرف؛ لا يمكن تعديلها بعد الآن."
+
+msgid "View daily log"
+msgstr "عرض اليومية"
+
+msgid "Your account is not linked to an employee of a company."
+msgstr "حسابك غير مرتبط بموظف في شركة."
+
+msgid "Your daily log was sent to the supervisor."
+msgstr "تم إرسال يوميتك إلى المشرف."
