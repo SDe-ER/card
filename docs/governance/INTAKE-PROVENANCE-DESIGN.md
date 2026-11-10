@@ -28,6 +28,12 @@ deleted (`card.intake.keep_evidence_of_deleted_transport`, `on_trash`). Re-attac
 its amendment is allowed (the amendment names the same file as evidence) and the file stays protected. The File delete
 protection needs Frappe 16.55.0 or later (earlier versions remove the bytes on disk before the hook refuses).
 
+Known limits of N1: code that bypasses `on_trash` (`frappe.delete_doc(..., ignore_on_trash=True)`, and ERPNext's
+company transaction deletion, Transaction Deletion Record, which uses raw deletes) removes these transports and
+leaves the evidence File detached, after which its uploader can delete it. On a draft, `File.optimize_file` can
+rewrite the evidence bytes while `intake_evidence_hash` stays as computed, so submit freezes a stale hash; N3 or a
+later change should recompute or verify the hash on submit.
+
 ## 1. Problem
 
 Field data reaches the office on paper, in WhatsApp messages and photos, and from external systems. Today only

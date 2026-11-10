@@ -625,7 +625,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   name and size through REST PUT; re-attaching to the amendment; allow-on-submit customisation; cancel by REST PUT and
   by savedocs (outcome-based); forged hash through `frappe.client.set_value`, REST PUT and bulk update; intake fields
   frozen after submit; two committed drafts given the same key concurrently; case-insensitive key match; a real
-  cancel freeing the key. Each guard branch is covered by a test that fails when it is removed (mutation check).
+  cancel freeing the key. The mutation check found every guard branch caught by a test except one judged not exploitable: dropping `before.content_hash` from the same-content lookup (only `doc.content_hash` left; M10).
   Docs: `INTAKE-PROVENANCE-DESIGN.md` section 0 and the FR-146 row record how N1 differs from the design. PR #228.
   Impact: permissions: no role or DocPerm added; a delete or change of such a File, and a delete of a cancelled
   transport with evidence, are refused for every user, including System Manager and Administrator (known behaviour,
@@ -639,7 +639,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Production and CI run 16.55.2. Release PR: state "Frappe 16.55.0 or later" for these protections in the
   Compatibility and Known Limitations sections. (2) An upload with `attached_to_field` = `intake_evidence` to a
   submitted transport adds a File row (clutter only; the transport's evidence and hash do not change). (3) The
-  `on_trash` lookup on `intake_evidence` uses no index (a prefix index may be added later if File deletes slow down).
+  `on_trash` lookup on `intake_evidence` uses no index (a prefix index may be added later if File deletes slow down). (4) Code that bypasses `on_trash` is not covered: `frappe.delete_doc(..., ignore_on_trash=True)`, and ERPNext's
+  company transaction deletion (Transaction Deletion Record, a System Manager tool), which deletes these transports
+  with raw deletes and leaves the evidence File detached, after which its uploader can delete it. (5) On a DRAFT,
+  `File.optimize_file` can rewrite the evidence bytes while `intake_evidence_hash` stays as computed, so submit
+  freezes a stale hash (backlog: recompute or verify the hash on submit).
   Rollback: reverting removes the guards; no data to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
