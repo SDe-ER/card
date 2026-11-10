@@ -7437,6 +7437,102 @@ msgstr "المستندات المصدرية لدورة الفترة هذه لم 
 msgid "The source documents of this period run changed after it was built; cancel and amend it to build a new version."
 msgstr "تغيّرت المستندات المصدرية لدورة الفترة هذه بعد بنائها؛ ألغها ثم عدّلها لبناء إصدار جديد."
 
+#: card/daily_log_generation.py
+msgid "Give the month as YYYY-MM or as a date of that month."
+msgstr "أدخل الشهر بصيغة YYYY-MM أو بتاريخ من أيام ذلك الشهر."
+
+#: card/daily_log_generation.py
+msgid "Company or project not found."
+msgstr "الشركة أو المشروع غير موجود."
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to create monthly cards for company {0} and project {1}."
+msgstr "لا تملك صلاحية إنشاء كروت شهرية للشركة {0} والمشروع {1}."
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read daily logs."
+msgstr "لا تملك صلاحية الاطلاع على اليوميات."
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read equipment {0}."
+msgstr "لا تملك صلاحية الاطلاع على المعدة {0}."
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generate monthly cards"
+msgstr "إنشاء الكروت الشهرية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Create or update the draft monthly cards of project {0} for the month of {1} from the approved daily logs? Submitted cards are not changed."
+msgstr "إنشاء أو تحديث مسودات الكروت الشهرية للمشروع {0} عن شهر {1} من اليوميات المعتمدة؟ الكروت المعتمدة لا تتغير."
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generating monthly cards"
+msgstr "جارٍ إنشاء الكروت الشهرية"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "not on the project that day"
+msgstr "المعدة لم تكن على المشروع في هذا اليوم"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "component of a unit that day"
+msgstr "المعدة جزء من وحدة في هذا اليوم"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards created"
+msgstr "الكروت المنشأة"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards updated"
+msgstr "الكروت المحدثة"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards unchanged"
+msgstr "الكروت بدون تغيير"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted cards not changed"
+msgstr "كروت معتمدة لم تتغير"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days left out"
+msgstr "أيام مستبعدة"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards not saved"
+msgstr "كروت لم تُحفظ"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Monthly cards from daily logs"
+msgstr "الكروت الشهرية من اليوميات"
+
+#: card/daily_log_generation.py
+msgid "Changed by another run; run the generation again."
+msgstr "غيّرتها عملية إنشاء أخرى؛ أعد تشغيل الإنشاء."
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days replaced from the approved log"
+msgstr "أيام استُبدلت من اليومية المعتمدة"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day hours"
+msgstr "ساعات يوم الكارت"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day notes"
+msgstr "ملاحظات يوم الكارت"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days cleared (their daily log is no longer approved)"
+msgstr "أيام أُفرغت (يوميتها لم تعد معتمدة)"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted card days whose daily log is no longer approved (not changed)"
+msgstr "أيام في كروت معتمدة يوميتها لم تعد معتمدة (لم تتغير)"
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Equipment changed by another run"
+msgstr "معدات غيّرتها عملية إنشاء أخرى"
+
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Intake source"
 msgstr "مصدر الإدخال"

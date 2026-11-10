@@ -6196,6 +6196,102 @@ msgstr ""
 #: card/card/doctype/card_period_run/card_period_run.js
 msgid "The source documents of this period run changed after it was built; cancel and amend it to build a new version."
 
+#: card/daily_log_generation.py
+msgid "Give the month as YYYY-MM or as a date of that month."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Company or project not found."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to create monthly cards for company {0} and project {1}."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read daily logs."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read equipment {0}."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generate monthly cards"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Create or update the draft monthly cards of project {0} for the month of {1} from the approved daily logs? Submitted cards are not changed."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generating monthly cards"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "not on the project that day"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "component of a unit that day"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards created"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards updated"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards unchanged"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted cards not changed"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days left out"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards not saved"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Monthly cards from daily logs"
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Changed by another run; run the generation again."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days replaced from the approved log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day notes"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days cleared (their daily log is no longer approved)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted card days whose daily log is no longer approved (not changed)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Equipment changed by another run"
+msgstr ""
+
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Intake source"
 msgstr ""
