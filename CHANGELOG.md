@@ -51,7 +51,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   approval fields ignored, stop reasons refused, correction of a returned log). Impact: permissions none (no role,
   DocPerm or endpoint added); accounting none; data none (no schema or patch); API none (existing REST routes).
   Rollback: revert the frontend files and rebuild; no data to undo (logs created from the phone are ordinary Card
-  Daily Logs).
+  Daily Logs). PR #234.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
