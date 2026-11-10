@@ -88,10 +88,13 @@
   {
    "default": "0",
    "depends_on": "eval:doc.enable_accounting",
+   "description": "Deprecated – not used",
    "fieldname": "auto_submit",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Auto-submit postings",
-   "permlevel": 2
+   "permlevel": 2,
+   "read_only": 1
   },
   {
    "fieldname": "company_config_section",
@@ -252,10 +255,13 @@
   },
   {
    "default": "0",
+   "description": "Deprecated – not used",
    "fieldname": "notify_on_posting",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Notify on accounting posting",
-   "permlevel": 2
+   "permlevel": 2,
+   "read_only": 1
   },
   {
    "default": "0",
@@ -450,7 +456,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-20 12:00:00.000000",
+ "modified": "2026-11-10 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

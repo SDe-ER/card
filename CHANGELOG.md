@@ -165,6 +165,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
+- **Dead settings retired, not deleted** (FR-124, WP-08, FR-015, #50). Reason: four settings had no reader, so changing
+  them did nothing. `auto_submit` and `notify_on_posting` (Card Settings) and `bank_cash_account` and `mode_of_payment`
+  (Card Company Settings) are now hidden and read only with the description "Deprecated – not used" (Arabic in
+  `card/locale/ar.po`); the two Card Settings entries are removed from `settings.py` `_DEFAULTS`. No reader was found for
+  any of the four, so none was wired up. PR #TBD. Affected: `card_settings.json`, `card_company_settings.json`,
+  `card/settings.py`, `docs/governance/SETTINGS-AND-CONSTANTS.md`; test `test_deprecated_settings.py` (fields hidden,
+  no reader in the app code). Permissions: none changed (same permlevels). Accounting: none. Data: columns and stored
+  values kept; no patch. API: the fields stay in the DocType and API reads; a write through the API is still stored but
+  has no effect, as before. Rollback limits: code revert only (the fields show again).
 - **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill
   without equipment is now ONE Purchase Invoice line (its full amount, the project, no equipment) instead of one
   line per equipment split by operating hours; an hours-based split is an estimate, not a posting basis. Its cost
