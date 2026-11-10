@@ -181,7 +181,13 @@ class TestCostAllocation(_PostingBase):
 		)
 		for c in components:
 			unit.append("components", {"component": c.name, "role": "R"})
-		unit.insert(ignore_permissions=True)
+		# a rented unit recorded before the owned-only rule (#42, WP-04): such legacy records
+		# still post; a new rented unit is refused (test_unit_ownership.py)
+		frappe.flags.in_patch = True
+		try:
+			unit.insert(ignore_permissions=True)
+		finally:
+			frappe.flags.in_patch = False
 		return unit
 
 	def test_unit_without_its_own_assignment_uses_its_components(self):

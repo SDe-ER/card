@@ -5342,6 +5342,102 @@ msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح C
 msgid "The statement print template has no style block."
 msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."
 
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Only owned equipment can be a unit. Set {0} to owned or untick the unit option."
+msgstr "الوحدة يجب أن تكون معدة مملوكة. اجعل {0} «ملك» أو ألغِ خيار الوحدة."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit needs owned equipment"
+msgstr "الوحدة تحتاج معدة مملوكة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment {0} is a component of unit {1}; a unit component must be owned. Take it out of the unit first."
+msgstr "المعدة {0} مكوّن في الوحدة {1}؛ مكوّن الوحدة يجب أن يكون مملوكًا. أخرجها من الوحدة أولًا."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Only owned equipment can be a unit; unit {0} is not owned, so no component can join it."
+msgstr "الوحدة يجب أن تكون معدة مملوكة؛ الوحدة {0} غير مملوكة، فلا يمكن إضافة مكوّن إليها."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component {0} is not owned equipment; only owned equipment can be part of a unit."
+msgstr "المكوّن {0} ليس معدة مملوكة؛ المعدات المملوكة فقط يمكن أن تكون جزءًا من وحدة."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit component flag set from the component table of unit {0}."
+msgstr "تم تفعيل علامة «مكوّن وحدة» من جدول مكوّنات الوحدة {0}."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit component flag cleared: the equipment is no longer a current component of a unit."
+msgstr "تم إلغاء علامة «مكوّن وحدة»: المعدة لم تعد مكوّنًا حاليًا في أي وحدة."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit is not owned"
+msgstr "الوحدة غير مملوكة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component is not owned"
+msgstr "المكوّن غير مملوك"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component flag without a unit"
+msgstr "علامة مكوّن بدون وحدة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component flag after leaving its unit"
+msgstr "علامة مكوّن بعد خروجه من الوحدة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Current component without the flag"
+msgstr "مكوّن حالي بدون العلامة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "You are not permitted to change the unit component flag of {0}."
+msgstr "غير مسموح لك بتغيير علامة «مكوّن وحدة» للمعدة {0}."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "On {0} equipment {1} is a component of unit {2}; that day belongs on the unit's card, not the component's."
+msgstr "في {0} كانت المعدة {1} مكوّنًا في الوحدة {2}؛ هذا اليوم يُسجّل في كارت الوحدة، لا في كارت المكوّن."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Unit component"
+msgstr "مكوّن وحدة"
+
+#: card/transfer.py
+msgid "Equipment {0} reached project {1} on {2}; under the move-day rule of company {3} it cannot leave for another project on the same day. Use a later date."
+msgstr "المعدة {0} وصلت إلى المشروع {1} في {2}؛ وفق قاعدة يوم النقل للشركة {3} لا يمكن نقلها لمشروع آخر في نفس اليوم. استخدم تاريخًا لاحقًا."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Equipment and transport"
+msgstr "المعدات والنقل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Initial place of new equipment"
+msgstr "المكان الابتدائي للمعدة الجديدة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Where an equipment of this company with no movement history (no assignment and no approved transport) is recorded, shown as From on its first transport. Empty: storage without a place."
+msgstr "المكان الذي تُسجّل فيه معدة هذه الشركة التي ليس لها سجل حركة (بدون تخصيص وبدون نقل معتمد)، ويظهر في «من» بأول نقل لها. فارغ: تخزين بدون مكان محدد."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Move-day rule"
+msgstr "قاعدة يوم النقل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Project to project transport: the day after the move (the old project keeps the move day), or on the move day (the move day goes to the new project). Empty: the day after the move."
+msgstr "النقل من مشروع لمشروع: بدء التخصيص الجديد في اليوم التالي للنقل (يوم النقل يبقى للمشروع القديم)، أو في يوم النقل نفسه (يوم النقل يذهب للمشروع الجديد). فارغ: اليوم التالي للنقل."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "New assignment starts the day after the move"
+msgstr "التخصيص الجديد يبدأ في اليوم التالي للنقل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "New assignment starts on the move day"
+msgstr "التخصيص الجديد يبدأ في يوم النقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
+msgstr "تؤخذ من إعدادات الشركة في CARD عند حفظ النقل وتبقى كما اعتُمدت."
+
 #. Name of a report
 #: card/card/report/equipment_partial_margin/equipment_partial_margin.json
 msgid "Equipment Partial Margin"

@@ -268,7 +268,8 @@
    "fieldname": "is_unit",
    "fieldtype": "Check",
    "label": "Unit (two machines bundled)",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only_depends_on": "eval:doc.ownership !== \"ملك\" && !doc.is_unit"
   },
   {
    "depends_on": "eval:doc.is_unit",
@@ -730,7 +731,9 @@
    "fieldname": "is_unit_component",
    "fieldtype": "Check",
    "label": "Unit component (no monthly card)",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only": 1,
+   "no_copy": 1
   },
   {
    "depends_on": "eval:[\"مؤجَّرة لعميل\",\"إيجار من الباطن\"].includes(doc.rental_direction)",

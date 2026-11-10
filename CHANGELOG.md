@@ -105,6 +105,28 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     whitelisted method.
   - **Rollback:** code-only. Reverting removes the reports from the code; migrate does not delete the three Report
     records it created (delete them by hand if wanted). No data to restore.
+- **A combined unit is owned equipment only** (#42, WP-04; FR-115; PR #187).
+  - **Reason:** owner requirement in #42: the "two machines together" option is available only for owned equipment,
+    in the UI and the backend, including ownership changes and existing records.
+  - **Change:** `card_equipment.py` `validate_owned_unit` and `check_unit_components` refuse a rented (or third-party)
+    equipment that becomes a unit, a unit or a listed component whose ownership changes away from owned, a piece that
+    is not owned joining a unit, and any piece joining a unit that is not owned. The same rules cover the form, REST,
+    `frappe.client`, a component row saved on its own and `replace_component` / `move_component`. Existing records are
+    not blocked by an unrelated save and are never changed: `get_unit_integrity_issues` (`methods=["GET"]`, Card
+    Equipment read, the user's Company User Permissions apply) lists them, and a piece of a legacy rented unit can
+    still be taken out. The components grid and the unit actions offer only owned, non-unit equipment of the unit's
+    company; the unit tick is read-only on equipment that is not owned.
+  - **Impact:** permissions — none widened. Accounting — none. Data — none written. API — one new GET method.
+  - **Rollback:** code only; nothing to undo in data.
+- **Initial place of new equipment per company** (#42, WP-06; FR-116; PR #187). New field `initial_location` (Location) in
+  Card Settings > Company settings. `card.transfer.current_location` returns it as the storage place of any equipment
+  with no movement history (no assignment and no approved transport; this includes an existing equipment never moved,
+  not only a new one), so the first transport shows it as From (row `from_location`,
+  header `source_location`) and a move to that same place is refused as "already there". No place is hardcoded; empty
+  (the default) keeps "storage without a place", as before.
+  - **Impact:** permissions — the field is permission level 1 of Card Settings (Accounts Manager, System Manager
+    write), like the other company fields. Accounting, data, API — none.
+  - **Rollback:** code and schema; an older version ignores the column.
 
 ### Changed
 - **Project-tank diesel posts at project level** (D1, FR-100, Owner direction 2026-11-02). A Project Diesel Fill
@@ -137,6 +159,46 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   transport cost-center checks of FR-091 and FR-093. Rows released in v4.3.0 to v4.4.3 no longer say "not
   deployed" (deployed 2026-11-09 per `DEPLOYMENTS.md`); v4.5.0 is released, not deployed.
   No row deleted. Impact: none. Rollback: revert the commit.
+- **Move-day rule of a project → project transport, per company** (#43, #121, #122; WP-15; FR-117; PR #187). Owner wording in
+  #43: "one effective date equal to arrival date" and "approval makes destination effective on arrival/effective
+  date"; the open decision on #121/#122/#43: "on a project → project move, which project gets the move day?".
+  - **Change:** new field `move_day_rule` in Card Settings > Company settings: "New assignment starts the day after the
+    move" (default, the rule CARD always applied: the old project keeps the move day) or "New assignment starts on the
+    move day" (the move day goes to the new project; the old assignment ends the day before). Each transport to a
+    project records the rule of its company when it is saved and submitted (`Equipment Transport.move_day_rule`,
+    read-only, not copied on amend, part of the cancel check), so a later change of the setting never changes how an
+    approved move is applied or cancelled. Transports recorded before this change have no rule and keep the next-day
+    behaviour. `card.transfer._apply_row_transfer`, `_written_by`, `check_cancel_allowed`. Card-day protection stays:
+    under the move-day rule a submitted card day of the old project on the move day refuses the transport
+    (`_refuse_dropped_card_days`), a machine that arrived on a project that day cannot leave it for another project the
+    same day, and a submitted card day of the new project on or after the day its assignment starts refuses the cancel.
+    First entries and moves to a workshop, storage or the supplier are unchanged.
+  - **Impact:** permissions — none widened (the setting is permission level 1). Accounting — none directly; under the
+    move-day rule the move day's card and cost belong to the new project. Data — none written on deploy. API — none.
+  - **Rollback:** code and schema. A transport submitted under the move-day rule keeps assignments that end the day
+    before the move; an older version cancels it only if the old assignment ends on the move date, so cancel such
+    transports before a rollback or fix forward.
+- **`is_unit_component` is derived from the units' component tables** (#42, WP-05; FR-057, FR-115; PR #187).
+  - **Reason:** the flag was a manual tick, so a piece could carry its own monthly card while its unit's card billed
+    the same days (FR-057 open point).
+  - **Change:** the field is read-only and maintained by the server: ticked while a unit's component row lists the
+    equipment with no To date (`sync_unit_component_flags`, on the unit's save and delete and on a component row
+    inserted or saved on its own; a comment records each change; `move_component` syncs once after both units are
+    saved). A save never writes it. The monthly card refuses working hours of a piece on a day inside a component
+    period of any unit (`CardMonthlyCard._refuse_unit_component_days`; 0-hour rows pass, as in
+    `validate_card_days`), and `get_card_context` no longer offers those days to the form. A piece no unit lists but
+    whose flag was ticked before still takes no card at all. `resync_unit_component_flag` (`methods=["POST"]`, Card
+    Manager level: the flag's permission level 1) sets one equipment to its derived value.
+  - **Patch `card.patches.v4_6_0.derive_unit_component_flag`:** writes the flag only where it is unambiguous (the
+    equipment is listed in a unit's component table: ticked when a row is open, cleared when every row is closed);
+    keeps a ticked flag on equipment no unit lists (ambiguous: the unit's table may never have been filled in); lists
+    those and every rented unit or rented component in one Error Log entry ("CARD unit records to review (#42)").
+    Only the flag column is written (no modified date, no Version). Idempotent: a second run writes nothing.
+  - **Impact:** permissions — none widened. Accounting — a piece can carry its own card for days outside its unit
+    periods (before: refused for the whole time the tick was set); a listed piece that had no tick now takes no card
+    for its unit days. Data — the patch above. API — one new POST method.
+  - **Rollback:** an older version reads the flag as a manual tick again; the values the patch wrote stay and are
+    correct for the component tables.
 
 ### Documentation
 - **README rewritten.** New "How CARD works" section with a flow diagram and five steps in order

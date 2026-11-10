@@ -4123,6 +4123,102 @@ msgstr ""
 msgid "The statement print template has no style block."
 msgstr ""
 
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Only owned equipment can be a unit. Set {0} to owned or untick the unit option."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit needs owned equipment"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment {0} is a component of unit {1}; a unit component must be owned. Take it out of the unit first."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Only owned equipment can be a unit; unit {0} is not owned, so no component can join it."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component {0} is not owned equipment; only owned equipment can be part of a unit."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit component flag set from the component table of unit {0}."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit component flag cleared: the equipment is no longer a current component of a unit."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit is not owned"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component is not owned"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component flag without a unit"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component flag after leaving its unit"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Current component without the flag"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "You are not permitted to change the unit component flag of {0}."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "On {0} equipment {1} is a component of unit {2}; that day belongs on the unit's card, not the component's."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Unit component"
+msgstr ""
+
+#: card/transfer.py
+msgid "Equipment {0} reached project {1} on {2}; under the move-day rule of company {3} it cannot leave for another project on the same day. Use a later date."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Equipment and transport"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Initial place of new equipment"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Where an equipment of this company with no movement history (no assignment and no approved transport) is recorded, shown as From on its first transport. Empty: storage without a place."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Move-day rule"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Project to project transport: the day after the move (the old project keeps the move day), or on the move day (the move day goes to the new project). Empty: the day after the move."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "New assignment starts the day after the move"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "New assignment starts on the move day"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
+msgstr ""
+
 #. Name of a report
 #: card/card/report/equipment_partial_margin/equipment_partial_margin.json
 msgid "Equipment Partial Margin"

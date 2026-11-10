@@ -5,10 +5,16 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from card.card.doctype.card_equipment.card_equipment import check_unit_components
+from card.card.doctype.card_equipment.card_equipment import check_unit_components, sync_unit_component_flags
 
 
 class CardEquipmentComponent(Document):
+	def on_update(self):
+		"""WP-05: a row inserted or saved on its own (not through its unit) re-derives its
+		piece's unit-component flag; the unit's own save does this in its on_update."""
+		if self.parenttype == "Card Equipment" and self.component:
+			sync_unit_component_flags([self.component])
+
 	def validate(self):
 		"""#56: runs only when the row itself is saved (REST PUT on the row,
 		frappe.client.save); the unit's own save checks its rows in
@@ -35,7 +41,7 @@ class CardEquipmentComponent(Document):
 			return
 		# for_update: serialize a standalone row insert with the unit's own save (#59)
 		unit = frappe.db.get_value(
-			"Card Equipment", self.parent, ["company", "is_unit"], as_dict=True, for_update=True
+			"Card Equipment", self.parent, ["company", "is_unit", "ownership"], as_dict=True, for_update=True
 		)
 		if not unit:
 			return
@@ -49,4 +55,7 @@ class CardEquipmentComponent(Document):
 		components = [mine if row.name == self.name else row for row in rows]
 		if self.name not in {row.name for row in rows}:
 			components.append(mine)
-		check_unit_components(self.parent, unit.company, unit.is_unit, components)
+		# WP-04: a row inserted on its own is a piece joining the unit (an existing row is
+		# refused above), so its ownership and the unit's are checked
+		joining = {self.component} if self.component and not self.to_date else set()
+		check_unit_components(self.parent, unit.company, unit.is_unit, components, unit.ownership, joining)
