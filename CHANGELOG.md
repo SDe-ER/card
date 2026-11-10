@@ -53,7 +53,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     summaries count a billable stopped day in the days (`card.transfer.billed_day_rows`) and show a "Billable
     stopped hours" column with its totals only when a row has a value (`with_stopped_hours_column`; the approved
     print adds the column the same way, `statement_pdf._with_stopped_hours`, so a statement without billable stops
-    prints exactly as before). Hourly rate: a submitted card shows the rate stored at submit (`hourly_rate_used`,
+    prints exactly as before; the standard Print Format "Equipment Supplier Statement A4" ships the same template). Hourly rate: a submitted card shows the rate stored at submit (`hourly_rate_used`,
     `customer_rate_used`), a draft its amount over operating plus billable stopped hours.
   - **Defaults (no behaviour change):** a card without reasons bills exactly as before, every seeded and new reason
     is not billable, the four fixed day statuses and their effect (a non-working status zeroes the operating hours)
