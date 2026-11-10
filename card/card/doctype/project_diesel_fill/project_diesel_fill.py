@@ -6,11 +6,11 @@ import json
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, cstr, flt, get_datetime, getdate, now_datetime, nowdate
+from frappe.utils import cint, cstr, flt, formatdate, get_datetime, getdate, now_datetime, nowdate
 
 from card.attachment_validator import IMAGE_KINDS, check_attachment_content
 from card.company import single_company, validate_equipment_company
-from card.settings import setting
+from card.settings import company_setting, setting
 
 
 def can_change_diesel_supplier():
@@ -163,6 +163,35 @@ SOURCE_FIELDS = (
 
 def _equipment_rows(doc):
 	return [(row.card_equipment, row.reported_name, row.match_status) for row in doc.get("equipment_filled")]
+
+
+# FR-126 (#124 WP-11): is the equipment of a fill on the fill's project? Per company; Warn by default
+# (CARD-specific values, so a generic "Off"/"Warn" msgid of Frappe is never overridden)
+PROJECT_CHECK_OFF = "Off (diesel project check)"
+PROJECT_CHECK_WARN = "Warn only (diesel project check)"
+PROJECT_CHECK_ENFORCE = "Refuse (diesel project check)"
+
+
+def _filled_equipment_of(doc):
+	"""The direct-charge equipment and the listed equipment of a fill, sorted, without repeats."""
+	names = {doc.get("card_equipment")} | {row.card_equipment for row in doc.get("equipment_filled") or []}
+	names.discard(None)
+	names.discard("")
+	return sorted(names)
+
+
+def equipment_on_project(equipment, project, on_date):
+	"""A Card Equipment Assignment of `equipment` on `project` is in force on `on_date`, by the rule of
+	card.transfer._in_force (the one the equipment location and the transports use): a from date on or
+	before the day and an empty or later to date. An assignment without a from date covers no day."""
+	from card.transfer import _in_force
+
+	rows = frappe.get_all(
+		"Card Equipment Assignment",
+		filters={"equipment": equipment, "project": project},
+		fields=["name", "from_date", "to_date"],
+	)
+	return bool(_in_force(rows, getdate(on_date)))
 
 
 def totalizer_bounds(value):
@@ -363,6 +392,7 @@ class ProjectDieselFill(Document):
 		# the project) is added in a later stage, gated by owner approval.
 		self.amount = flt(flt(self.litres) * flt(self.unit_price), 2)
 		self._check_equipment_mode()
+		self._check_equipment_on_project()
 		self._check_photos()
 		warnings = self._check_totalizer() + self._check_overlaps()
 		# the extraction block is information: it is kept apart from `warnings`, which turn a Draft into Needs Review
@@ -533,6 +563,34 @@ class ProjectDieselFill(Document):
 							row.idx, self.company, company
 						)
 					)
+
+	def _check_equipment_on_project(self):
+		"""FR-126 (#124 WP-11): the direct-charge equipment and every listed equipment need a Card Equipment
+		Assignment on the fill's project covering the fill date. Per company (Card Company Settings
+		`diesel_fill_project_check`): Off, Warn only (the default, also when empty: a message, the fill is
+		saved) or Refuse. Only a new fill, or one whose company, equipment, project or date changed, is
+		checked; submitted fills never reach validate."""
+		mode = company_setting(self.company, "diesel_fill_project_check") or PROJECT_CHECK_WARN
+		if mode == PROJECT_CHECK_OFF or not (self.project and self.date):
+			return
+		before = None if self.is_new() else self.get_doc_before_save()
+		equipment = _filled_equipment_of(self)
+		if before is not None and not (
+			self.has_value_changed("company")
+			or self.has_value_changed("project")
+			or self.has_value_changed("date")
+			or equipment != _filled_equipment_of(before)
+		):
+			return
+		missing = [e for e in equipment if not equipment_on_project(e, self.project, self.date)]
+		if not missing:
+			return
+		message = _("Equipment {0} has no assignment on project {1} on {2}.").format(
+			", ".join(missing), self.project, formatdate(self.date)
+		)
+		if mode == PROJECT_CHECK_ENFORCE:
+			frappe.throw(message, title=_("Diesel fill project check"))
+		frappe.msgprint(message, indicator="orange", title=_("Diesel fill project check"))
 
 	def _photo_needs_content_check(self, field, url):
 		"""H-CARD-1 content check only for a photo that is new or changed (not for a company change or an
