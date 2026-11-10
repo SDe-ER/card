@@ -124,6 +124,7 @@ function card_check_period(frm) {
 function card_load_hourly(frm) {
 	if (!frm.doc.equipment) {
 		frm._card_hourly = 0;
+		frm._card_full_day_rate = null;
 		frm._card_supplier_side = false;
 		return Promise.resolve();
 	}
@@ -134,10 +135,19 @@ function card_load_hourly(frm) {
 			"ownership",
 			"customer_rate",
 			"customer_rate_night",
+			"rate_type",
+			"rate",
+			"day_billing_basis",
 		])
 		.then((r) => {
 			const v = (r && r.message) || {};
 			frm._card_hourly = flt(v.approved_hourly_rate);
+			// FR-138: a per-day rate under "Full day" bills each billed day at the day rate
+			// (mirror of card.card_value.bills_full_days; the server recalculates on save)
+			frm._card_full_day_rate =
+				v.rate_type === "باليوم" && v.day_billing_basis === "Full day"
+					? flt(v.rate)
+					: null;
 			// F.7: only supplier-billing directions accrue a supplier amount
 			const dir =
 				v.rental_direction || (v.ownership === "ملك" ? "تشغيل داخلي" : "مستأجَرة من مورد");
@@ -211,16 +221,26 @@ function card_calc(frm) {
 	} // never touch submitted/cancelled cards
 	let hours = 0,
 		work_days = 0,
-		billable_stopped = 0;
+		billable_stopped = 0,
+		stop_only_days = 0;
 	(frm.doc.days || []).forEach((r) => {
 		if (r.day_status !== "عمل") r.working_hours = 0;
 		hours += flt(r.working_hours);
 		if (flt(r.working_hours) > 0) work_days++;
 		// FR-118: only an explicitly billable stop reason bills its stopped hours
-		if (r.stop_reason && cint(r.reason_billable)) billable_stopped += flt(r.stopped_hours);
+		if (r.stop_reason && cint(r.reason_billable)) {
+			billable_stopped += flt(r.stopped_hours);
+			if (flt(r.stopped_hours) > 0 && flt(r.working_hours) <= 0) stop_only_days++;
+		}
 	});
 	const billed_hours = hours + billable_stopped;
-	const amount = frm._card_supplier_side ? flt(billed_hours * flt(frm._card_hourly), 2) : 0;
+	let amount = 0;
+	if (frm._card_supplier_side) {
+		amount =
+			frm._card_full_day_rate !== null && frm._card_full_day_rate !== undefined
+				? flt((work_days + stop_only_days) * frm._card_full_day_rate, 2)
+				: flt(billed_hours * flt(frm._card_hourly), 2);
+	}
 
 	// v4: additions / deductions (display only; the server recalculates on save)
 	// net_amount is the supplier side only (a row without a side takes the

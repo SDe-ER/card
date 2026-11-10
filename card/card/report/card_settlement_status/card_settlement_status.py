@@ -28,6 +28,7 @@ from frappe.utils import flt, getdate
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
 from card.report_access import can_view_ledger, resolve_company
+from card.report_currency import company_currency_report
 
 CARD = "Card Monthly Card"
 SIDE = {
@@ -43,6 +44,7 @@ PAYMENT_VOUCHERS = ("Payment Entry", "Journal Entry")
 TOLERANCE = 0.01
 
 
+@company_currency_report(CARD, "Payment Ledger Entry")
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	party_type = filters.get("party_type") or "Supplier"

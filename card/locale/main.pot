@@ -5066,6 +5066,107 @@ msgstr ""
 msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
 msgstr ""
 
+#: card/card/report/posting_source_integrity/posting_source_integrity.js
+#: card/card/sidebar/card_reports/card_reports.json
+msgid "Posting Source Integrity"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Integrity check"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Source status"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Posted flag"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Purchase Invoice on the source"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Sales Invoice on the source"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Log status"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Document of the log"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Amount in the log"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Read only. Sources whose invoice link, posted flag and GL Posting Log disagree. Nothing is changed by this report."
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Held by more than one submitted {0} posting: {1}"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "{0} {1} is linked on the source, but no submitted GL Posting Log lists the source"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "{0} {1} is linked on the source, but the GL Posting Log posted it on {2}"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "The linked {0} {1} does not exist"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "The linked {0} {1} is not submitted"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Submitted GL Posting Log {0} posted the source on {1}, but the source has no {2} link"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Marked posted, but no submitted posting and no invoice link"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "A submitted posting lists the source, but it is not marked posted"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "The source is cancelled but still posted"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Held by {0} active posting log(s)"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "GL Posting Log {0} lists {1} {2}, which no longer exists"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Sources listed"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Sources to review"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.js
+msgid "Problems only"
+msgstr ""
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.js
+msgid "All posted sources"
+msgstr ""
+
 #: card/company_scope.py
 msgid "A CARD record of type {0} cannot be shared with everyone."
 msgstr ""
@@ -5316,4 +5417,27 @@ msgstr ""
 
 #: card/gl/posting.py
 msgid "{0}: the amount {1} cannot be split over its machines without a negative part."
+
+#: card/card/doctype/card_settings/card_settings.js
+msgid "Card Settings rows of companies you are not permitted to see are hidden and stay unchanged when you save."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Your Card Settings access is limited to your companies' rows; you cannot change the site-wide fields: {0}."
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Day billing basis"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Prorated by hours"
+msgstr ""
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Full day"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Day billing basis used"
 msgstr ""
