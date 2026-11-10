@@ -47,15 +47,20 @@ charge explicit (for example a proposed addition the reviewer approves), never a
 ### 4.1 Billable stop reasons stay possible, but are audited and sided
 
 - `billable` stays off by default (FR-118 default unchanged). O-03: SDCE keeps every reason non-billable.
-- A billable reason must have `billable_approval_reason` (who approved it, under which agreement). Saving a billable
-  reason without it is refused.
+- A billable reason must have `billable_approval_reason` (who approved it, under which agreement) when billing is
+  switched on or its side changes; saving that change without it is refused. A reason that was billable before
+  FR-134 can still be edited or switched off without one.
 - `billable_side` is Supplier, Customer or Both (default Both). Existing reasons get Both (patch
   `v4_8_0.stop_reason_billable_side`), which is exactly the merged FR-118 behaviour.
 - A card bills a billable reason's stopped hours only on its side. On a card that does not bill that side
   (for example a Customer reason on a rented-in card) the day row's `reason_billable` is 0, so every report,
   statement and summary that reads it stays consistent.
-- On a sub-rental card (bills both sides) a one-sided reason is billed on its side's amount only; the card's
-  `billable_stopped_hours` (shown on statements and summaries) still counts it, and a review warning says so.
+- The card stores the hours per side (`supplier_billable_stopped_hours`, `customer_billable_stopped_hours`); the
+  supplier and customer statements and summaries read their own side, also in the hourly rate. `billable_stopped_hours`
+  (all billable stopped hours) is kept for compatibility. Cards saved before FR-134 are filled from it by patch
+  `v4_8_0.backfill_side_stopped_hours`, and read from it as a fallback; they are never repriced.
+- On a sub-rental card (bills both sides) a one-sided reason gets a review warning. Known limit: a day billed only by
+  a one-sided reason still counts as a billed day on both statements.
 - Card Stop Reason has `track_changes` on: every change of `billable`, side or approval is in its Version history.
 
 ### 4.2 Downtime charge addition (the recommended route)
@@ -68,8 +73,11 @@ charge explicit (for example a proposed addition the reviewer approves), never a
     for Other);
   - `agreement_reference`: the contract clause, letter or approval that allows the charge.
 - The row is an ordinary addition or deduction on its side: same account, tax and posting rules as any typed row.
-- If the same card also bills that stop reason through `billable` on its days, the card warns that the downtime may
-  be charged twice (review only, not blocked).
+- If the same card also bills that stop reason on the same side through `billable` on its days, the card warns that
+  the downtime may be charged twice (review only, not blocked).
+- A row saved or inserted on its own (REST PUT/POST on Card Monthly Card Adjustment) may not change the amount, type,
+  side or a downtime field: the change must go through the card's own save, which runs these rules and records the
+  change in the card's Version history.
 - Audit: Card Monthly Card has `track_changes` on, so the row and every edit of it are in the card's Version history;
   the card's review and submit flow is the approval.
 
@@ -78,7 +86,8 @@ charge explicit (for example a proposed addition the reviewer approves), never a
 - Defaults: no reason is billable, no type is a downtime charge, every existing reason bills Both. Cards, amounts
   and postings of existing data are unchanged.
 - Rollback: reverting the code leaves the new columns (`billable_side`, `billable_approval_reason`,
-  `is_downtime_charge`, the downtime fields on adjustment rows) in the database, unused. A one-sided reason would
+  `is_downtime_charge`, the downtime fields on adjustment rows, the per-side stopped hours on cards) in the
+  database, unused. A one-sided reason would
   bill both sides again after a rollback; check `billable_side` before rolling back if any reason is billable.
 
 ## 6. Open owner question
