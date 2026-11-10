@@ -6303,3 +6303,104 @@ msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ ل�
 #: card/gl/integrity.py
 msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
 msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.js
+#: card/card/sidebar/card_reports/card_reports.json
+msgid "Posting Source Integrity"
+msgstr "سلامة مصادر الترحيل"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Integrity check"
+msgstr "فحص السلامة"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Source status"
+msgstr "حالة المصدر"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Posted flag"
+msgstr "علامة الترحيل"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Purchase Invoice on the source"
+msgstr "فاتورة المشتريات على المصدر"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Sales Invoice on the source"
+msgstr "فاتورة المبيعات على المصدر"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Log status"
+msgstr "حالة السجل"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Document of the log"
+msgstr "مستند السجل"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Amount in the log"
+msgstr "المبلغ في السجل"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Read only. Sources whose invoice link, posted flag and GL Posting Log disagree. Nothing is changed by this report."
+msgstr "للقراءة فقط. المصادر التي لا يتطابق فيها رابط الفاتورة وعلامة الترحيل وسجل الترحيل المحاسبي. لا يغيّر هذا التقرير أي شيء."
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Held by more than one submitted {0} posting: {1}"
+msgstr "محجوز في أكثر من ترحيل {0} مُعتمد: {1}"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "{0} {1} is linked on the source, but no submitted GL Posting Log lists the source"
+msgstr "{0} {1} مربوطة على المصدر، لكن لا يوجد سجل ترحيل محاسبي مُعتمد يذكر المصدر"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "{0} {1} is linked on the source, but the GL Posting Log posted it on {2}"
+msgstr "{0} {1} مربوطة على المصدر، لكن سجل الترحيل المحاسبي رحّله على {2}"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "The linked {0} {1} does not exist"
+msgstr "{0} {1} المربوطة غير موجودة"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "The linked {0} {1} is not submitted"
+msgstr "{0} {1} المربوطة غير مُعتمدة"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Submitted GL Posting Log {0} posted the source on {1}, but the source has no {2} link"
+msgstr "سجل الترحيل المحاسبي المُعتمد {0} رحّل المصدر على {1}، لكن المصدر ليس عليه رابط {2}"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Marked posted, but no submitted posting and no invoice link"
+msgstr "معلَّم كمُرحَّل، لكن لا يوجد ترحيل مُعتمد ولا رابط فاتورة"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "A submitted posting lists the source, but it is not marked posted"
+msgstr "ترحيل مُعتمد يذكر المصدر، لكنه غير معلَّم كمُرحَّل"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "The source is cancelled but still posted"
+msgstr "المصدر ملغى لكنه ما زال مُرحَّلًا"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Held by {0} active posting log(s)"
+msgstr "محجوز في {0} سجل ترحيل نشط"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "GL Posting Log {0} lists {1} {2}, which no longer exists"
+msgstr "سجل الترحيل المحاسبي {0} يذكر {1} {2}، وهو لم يعد موجودًا"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Sources listed"
+msgstr "المصادر المعروضة"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.py
+msgid "Sources to review"
+msgstr "مصادر تحتاج مراجعة"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.js
+msgid "Problems only"
+msgstr "المشكلات فقط"
+
+#: card/card/report/posting_source_integrity/posting_source_integrity.js
+msgid "All posted sources"
+msgstr "كل المصادر المُرحَّلة"
