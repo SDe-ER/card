@@ -35,6 +35,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
 ### Added
+- **FR-132 — Fill price snapshot: currency, unit and valid-from on each diesel fill (#46, supports #124; WP-X,
+  conflict C-18).** Reason: #46 asks for the applied price *and* its currency/unit snapshot on each fill; until now a
+  fill stored only `unit_price`, `price_source` and `company_price`. New read-only, no-copy fields on Project Diesel
+  Fill: `price_currency` (Link Currency), `price_uom` (Link UOM) and `price_valid_from` (Date). They describe
+  `company_price` and are set where `diesel_price()` resolves it: from the Diesel price schedule row (its currency,
+  else the company currency; its unit; its valid from), or for the company's `diesel_unit_price` (no dated row) the
+  company currency with no unit and no date. An empty unit means per litre (the price label); no unit conversion and
+  no currency conversion. Wherever the fill keeps its earlier company price (an unchanged price exception, a saved
+  Company Price draft) it keeps the earlier snapshot too; submitted and cancelled fills never change; an amendment
+  resolves its own. Card Diesel Price gets `fuel_type` (Select, one option "Diesel", default "Diesel"); it is
+  informative only: the price lookup and the one-price-per-company-and-date rule are unchanged. Affected functions:
+  `project_diesel_fill.py` new `diesel_price_details`, `_scheduled_price_row`, `ProjectDieselFill._set_price_snapshot`;
+  `diesel_price` and `scheduled_diesel_price` now read through them (same values); `_apply_price`. Tests:
+  `card/tests/test_fill_price_snapshot.py`. PR #209.
+  Impact: permissions none (fields follow the fill's DocPerms, permlevel 0, as `unit_price`); accounting none (the
+  price, the amount and the posting are unchanged; CARD writes no GL); data: three new nullable columns on
+  `tabProject Diesel Fill`, fills saved before this change keep an empty snapshot (no backfill); one new column on
+  `tabCard Diesel Price` whose database default fills "Diesel" into existing rows on migrate (no patch); API: the
+  new fields appear in the fill's REST document; `get_diesel_price_context` unchanged. Rollback limits: code rollback
+  leaves the extra columns and their values in the database (harmless; Frappe ignores columns not in the DocType);
+  nothing else to undo.
 - **#54 acceptance suite: GL neutrality, two companies with two currencies, month end under a site time zone,
   POST-only writers** (FR-136, #54, #53, #40; branch `feat/acceptance-suite`, PR #210).
   Reason: the #54 acceptance tests and the test-matrix rows 1, 2, 4, 14 and 15 of

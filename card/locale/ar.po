@@ -6404,3 +6404,7 @@ msgstr "المشكلات فقط"
 #: card/card/report/posting_source_integrity/posting_source_integrity.js
 msgid "All posted sources"
 msgstr "كل المصادر المُرحَّلة"
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price fuel type"
+msgstr "نوع الوقود لسعر الديزل"

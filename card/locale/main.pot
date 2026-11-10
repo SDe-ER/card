@@ -5164,4 +5164,7 @@ msgstr ""
 
 #: card/card/report/posting_source_integrity/posting_source_integrity.js
 msgid "All posted sources"
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Diesel price fuel type"
 msgstr ""

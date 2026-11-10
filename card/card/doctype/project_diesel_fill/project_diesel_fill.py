@@ -215,6 +215,12 @@ def totalizer_bounds(value):
 def scheduled_diesel_price(company, on_date=None):
 	"""FR-125: the price of `company`'s Diesel price schedule row with the latest valid_from on or
 	before `on_date` (today when empty), or None when the schedule has no such row."""
+	row = _scheduled_price_row(company, on_date)
+	return flt(row.unit_price) if row else None
+
+
+def _scheduled_price_row(company, on_date=None):
+	"""The Card Diesel Price row that `scheduled_diesel_price` reads, or None."""
 	if not company:
 		return None
 	row = frappe.get_all(
@@ -226,11 +232,37 @@ def scheduled_diesel_price(company, on_date=None):
 			"company": company,
 			"valid_from": ["<=", getdate(on_date or nowdate())],
 		},
-		fields=["unit_price"],
+		fields=["unit_price", "currency", "uom", "valid_from"],
 		order_by="valid_from desc",
 		limit=1,
 	)
-	return flt(row[0].unit_price) if row else None
+	return row[0] if row else None
+
+
+def diesel_price_details(company, on_date=None):
+	"""FR-132: the price `diesel_price` returns, with what it was resolved from: `currency`, `uom`
+	and `valid_from` of the schedule row, or, for the company's diesel_unit_price (no dated row), the
+	company currency with no unit and no date. An empty unit means per litre (the price label); no
+	unit conversion is made. Nothing resolved (no company, or no price at all) = all empty."""
+	empty = frappe._dict(price=0, currency=None, uom=None, valid_from=None)
+	if not company:
+		return empty
+	row = _scheduled_price_row(company, on_date)
+	company_currency = frappe.get_cached_value("Company", company, "default_currency")
+	if row:
+		return frappe._dict(
+			price=flt(row.unit_price),
+			currency=row.currency or company_currency,
+			uom=row.uom or None,
+			valid_from=row.valid_from,
+		)
+	from card.accounting_settings import get_company_settings
+
+	settings = get_company_settings(company, throw=False)
+	price = flt(settings.get("diesel_unit_price")) if settings else 0
+	if not price:
+		return empty
+	return frappe._dict(price=price, currency=company_currency, uom=None, valid_from=None)
 
 
 def diesel_price(company, on_date=None):
@@ -238,15 +270,7 @@ def diesel_price(company, on_date=None):
 
 	FR-125: the Diesel price schedule row with the latest valid_from on or before the date; with no
 	such row (no schedule, or a date before its first row) the company's diesel_unit_price, as before."""
-	if not company:
-		return 0
-	scheduled = scheduled_diesel_price(company, on_date)
-	if scheduled is not None:
-		return scheduled
-	from card.accounting_settings import get_company_settings
-
-	row = get_company_settings(company, throw=False)
-	return flt(row.get("diesel_unit_price")) if row else 0
+	return diesel_price_details(company, on_date).price
 
 
 def _holds(fieldname):
@@ -847,9 +871,11 @@ class ProjectDieselFill(Document):
 		"""FR-002 price lock (Owner Q1–Q4). Submitted and cancelled fills never reach validate."""
 		before = None if self.is_new() else self.get_doc_before_save()
 		precision = self.precision("unit_price") or 2
-		company_price = flt(diesel_price(self.company, self.date), precision)  # FR-125: on the fill date
+		resolved = diesel_price_details(self.company, self.date)  # FR-125: on the fill date
+		company_price = flt(resolved.price, precision)
 		price = flt(self.unit_price, precision)
 		self.company_price = company_price
+		self._set_price_snapshot(resolved)
 		if before is None and self.amended_from and cint(self.price_exception):
 			self._drop_copied_exception()
 
@@ -860,6 +886,7 @@ class ProjectDieselFill(Document):
 			# the company price it replaced (the audited original value)
 			self.exception_by, self.exception_on = before.exception_by, before.exception_on
 			self.company_price = before.company_price
+			self._set_price_snapshot(before)
 		if cint(self.price_exception):
 			self.price_source = EXCEPTION
 			self._note_price_change(before, self.exception_reason)
@@ -911,6 +938,7 @@ class ProjectDieselFill(Document):
 				return
 			self.price_source = COMPANY_PRICE
 			self.company_price = before.company_price
+			self._set_price_snapshot(before)
 			if price != company_price:
 				frappe.msgprint(
 					_("This draft keeps its price {0}; the current company price is {1}.").format(
@@ -934,6 +962,21 @@ class ProjectDieselFill(Document):
 			self.price_source = COMPANY_PRICE
 		else:
 			self._needs_review(company_price)
+
+	def _set_price_snapshot(self, source):
+		"""FR-132: price_currency, price_uom and price_valid_from always describe company_price. They
+		are set with it from the resolved price, or kept from `source` (the saved fill) wherever
+		company_price is kept, so a kept price never pairs with another period's details. A fill saved
+		before FR-132 keeps its empty snapshot: nothing is filled in after the fact."""
+		if isinstance(source, Document):
+			source = frappe._dict(
+				currency=source.get("price_currency"),
+				uom=source.get("price_uom"),
+				valid_from=source.get("price_valid_from"),
+			)
+		self.price_currency = source.currency or None
+		self.price_uom = source.uom or None
+		self.price_valid_from = source.valid_from or None
 
 	def _drop_copied_exception(self):
 		"""Amend copies every field, the exception included: an exception approved on the cancelled
