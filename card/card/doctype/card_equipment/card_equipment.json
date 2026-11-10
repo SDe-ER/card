@@ -73,6 +73,7 @@
   "rental_start_date",
   "rate_type",
   "rate",
+  "day_billing_basis",
   "min_hours",
   "column_break_uwcr",
   "contract_no",
@@ -434,6 +435,15 @@
    "fieldtype": "Currency",
    "label": "Rate",
    "mandatory_depends_on": "eval:[\"مستأجَرة من مورد\",\"إيجار من الباطن\"].includes(doc.rental_direction)",
+   "permlevel": 1
+  },
+  {
+   "default": "Prorated by hours",
+   "depends_on": "eval:doc.rate_type===\"باليوم\" || doc.customer_rate_type===\"باليوم\"",
+   "fieldname": "day_billing_basis",
+   "fieldtype": "Select",
+   "label": "Day billing basis",
+   "options": "Prorated by hours\nFull day",
    "permlevel": 1
   },
   {
@@ -835,7 +845,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-11-10 18:00:00.000000",
+ "modified": "2026-11-10 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",

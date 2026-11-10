@@ -16,6 +16,47 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-138 — Day billing basis per equipment: "Prorated by hours" (default) or "Full day" (#123, #44; WP-AB,
+  conflict C-05, owner decision O-06 default).** Reason: FR-024 left the per-day ("باليوم") method open between the
+  current hours-prorated amount and full-day billing (see "Planned" below); O-06 keeps prorated as the default and
+  allows full-day billing per equipment where the contract says so. Card Equipment gets `day_billing_basis` (Select,
+  "Prorated by hours" / "Full day", default "Prorated by hours", permlevel 1, a commercial field: a change needs a
+  commercial change reason). Card Monthly Card gets `day_billing_basis` (read-only Select, same options, mirrored live
+  from the equipment like the rates) and `day_billing_basis_used` (read-only Select, same options, no copy,
+  snapshotted on submit); both are Selects so their values are translated. Rule: a side whose rate
+  basis is "باليوم" under "Full day" is billed `billed days x rate`, where billed days = operating days + days billed
+  only by billable stopped hours of that side (FR-134); the hours of a day no longer change its amount. Every other
+  case (default basis, an empty value on equipment saved before FR-138, hourly or monthly rates) keeps
+  `billed hours x hourly rate` exactly as before. On a sub-rental card each side applies the basis to its own rate
+  basis and billed days. Submitted cards are never repriced (no recompute after submit; the snapshot records the
+  basis used); a draft follows the equipment on its next save; an amended card is priced and snapshotted with the
+  equipment's basis at its own submit. The Equipment Supplier Statement and the Equipment Customer Statement show a "Day
+  billing basis" column (per-day cards only: the snapshot of a submitted card, the current basis of a draft).
+  On the customer statement a "Full day" card's hourly rate is its customer amount over its billed hours
+  (operating + customer-side billable stopped hours), as the supplier statement already shows it, instead of the
+  nominal `customer_rate_used`; prorated cards keep the snapshot rate. The draft form preview
+  (`card_monthly_card.js`) mirrors `bills_full_days` for the supplier amount. Affected functions:
+  `card/card_value.py` (new `DAY_BASIS_PRORATED`, `DAY_BASIS_FULL_DAY`, `day_billing_basis`, `bills_full_days`);
+  `CardMonthlyCard.before_validate` (amount and customer amount), `_snapshot_settings_used`;
+  `card_equipment.py` `COMMERCIAL_FIELDS`; `equipment_supplier_statement.execute`;
+  `equipment_customer_statement.execute`; `card_monthly_card.js` `card_load_hourly`, `card_calc`; patch
+  `card.patches.v4_8_0.default_day_billing_basis` (fills the default on equipment with an empty value, idempotent,
+  no modified change). Tests: `card/tests/test_day_billing_basis.py`. PR #214.
+  Impact: permissions none (the equipment field is permlevel 1 like the rates; the card fields are level 0 and
+  carry no amount; no role or DocPerm change); accounting none by default (amounts unchanged unless an equipment is
+  set to "Full day"; postings take the card amounts as before; CARD writes no GL); data: one new column on
+  `tabCard Equipment` (filled with the default by the patch), two new nullable columns on `tabCard Monthly Card`;
+  cards submitted before FR-138 keep an empty `day_billing_basis_used`, read as "Prorated by hours" (they were
+  priced so); API: the new fields appear in the REST documents. Known limits (O-06 decision text): one basis
+  per equipment applies to both sides of a sub-rental card (a contract with a full-day supplier and a prorated
+  customer, or the reverse, needs a later per-side option); a day-shift and a night-shift card of the same
+  machine and day are each billed a full day under "Full day" (each shift card stands alone, as before); hours
+  over `daily_hours` earn nothing extra under "Full day" and there is no overtime (FR-008 / WP-L1, O-13);
+  `hourly_rate_used` / `customer_rate_used` keep the nominal rate / daily hours on a "Full day" card (the
+  statements show the effective rate); the form preview treats every billable stop reason as Both until saved
+  (FR-134 limit). Rollback limits: code rollback
+  leaves the columns and their values (harmless); a card priced "Full day" keeps its stored amounts and would be
+  repriced prorated on its next draft save only.
 - **FR-132 — Fill price snapshot: currency, unit and valid-from on each diesel fill (#46, supports #124; WP-X,
   conflict C-18).** Reason: #46 asks for the applied price *and* its currency/unit snapshot on each fill; until now a
   fill stored only `unit_price`, `price_source` and `company_price`. New read-only, no-copy fields on Project Diesel

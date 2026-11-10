@@ -6558,3 +6558,19 @@ msgstr "لتغيير الإضافات والخصومات عدّل الكرت ا�
 msgid "Diesel price fuel type"
 msgstr "نوع الوقود لسعر الديزل"
 
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Day billing basis"
+msgstr "أساس احتساب اليوم"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Prorated by hours"
+msgstr "تناسبي حسب الساعات"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Full day"
+msgstr "يوم كامل"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Day billing basis used"
+msgstr "أساس احتساب اليوم المستخدم"
