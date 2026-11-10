@@ -5021,17 +5021,29 @@ msgid "Equipment {0} does not belong to company {1}."
 msgstr ""
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
 msgid "Initial place"
 msgstr ""
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
 msgid "Location type"
 msgstr ""
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
 msgid "Source type"
 msgstr ""
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
 msgid "Source document"
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Overlapping projects"
+msgstr ""
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
 msgstr ""

@@ -4,7 +4,8 @@
 
 For one company, an optional equipment and a period: where each equipment was, in
 date-aware segments (a project assignment, the place a transport sent it to, or the
-company's initial place). The rules are those of `card.transfer`, applied by
+company's initial place). A move to a workshop, storage or supplier on day T shows the
+project on T and the new place from T+1. The rules are those of `card.transfer`, applied by
 `card.location_history`; this report writes nothing."""
 
 import frappe
@@ -43,12 +44,19 @@ def execute(filters=None):
 				frappe.PermissionError,
 			)
 		equipment_filters["name"] = filters.equipment
-	equipment = frappe.get_list(EQUIPMENT, filters=equipment_filters, pluck="name", order_by="name")
+	equipment = frappe.get_list(
+		EQUIPMENT, filters=equipment_filters, fields=["name", "is_unit"], order_by="name", limit_page_length=0
+	)
 
 	rows = company_segments(company, start, end, equipment)
+	message = None
+	if any(r.get("overlap") for r in rows):
+		message = _(
+			"Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
+		)
 	_label_rows(rows)
 	columns = readable_links(_columns(), rows)
-	return columns, rows
+	return columns, rows, message
 
 
 def _label_rows(rows):
@@ -60,7 +68,7 @@ def _label_rows(rows):
 				"Project", filters={"name": ["in", projects]}, fields=["name", "project_name"], as_list=True
 			)
 		)
-	labels = {INITIAL: _("Initial place")}
+	labels = {INITIAL: _("Initial place", context="Card")}
 	for row in rows:
 		kind = row["location_type"]
 		row["location_type"] = labels.get(kind) or _(kind)
@@ -79,7 +87,12 @@ def _columns():
 		},
 		{"fieldname": "from_date", "label": _("From date"), "fieldtype": "Date", "width": 110},
 		{"fieldname": "to_date", "label": _("To date"), "fieldtype": "Date", "width": 110},
-		{"fieldname": "location_type", "label": _("Location type"), "fieldtype": "Data", "width": 120},
+		{
+			"fieldname": "location_type",
+			"label": _("Location type", context="Card"),
+			"fieldtype": "Data",
+			"width": 120,
+		},
 		{"fieldname": "location", "label": _("Location"), "fieldtype": "Data", "width": 200},
 		{
 			"fieldname": "project",
@@ -89,15 +102,21 @@ def _columns():
 			"width": 140,
 		},
 		{
+			"fieldname": "overlap",
+			"label": _("Overlapping projects"),
+			"fieldtype": "Check",
+			"width": 90,
+		},
+		{
 			"fieldname": "source_doctype",
-			"label": _("Source type"),
+			"label": _("Source type", context="Card"),
 			"fieldtype": "Link",
 			"options": "DocType",
 			"width": 160,
 		},
 		{
 			"fieldname": "source_document",
-			"label": _("Source document"),
+			"label": _("Source document", context="Card"),
 			"fieldtype": "Dynamic Link",
 			"options": "source_doctype",
 			"width": 170,

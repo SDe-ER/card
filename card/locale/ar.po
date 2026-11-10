@@ -6261,17 +6261,29 @@ msgid "Equipment {0} does not belong to company {1}."
 msgstr "المعدة {0} لا تتبع الشركة {1}."
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
 msgid "Initial place"
 msgstr "المكان الابتدائي"
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
 msgid "Location type"
 msgstr "نوع الموقع"
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
 msgid "Source type"
 msgstr "نوع المستند المصدر"
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
+msgctxt "Card"
 msgid "Source document"
 msgstr "المستند المصدر"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Overlapping projects"
+msgstr "مشاريع متداخلة"
+
+#: card/card/report/equipment_location_history/equipment_location_history.py
+msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
+msgstr "بعض المعدات على مشروعين في نفس الأيام (تخصيصات متداخلة)؛ راجع الصفوف المعلّمة بالتداخل."
