@@ -6787,4 +6787,18 @@ msgid "Deductions recorded in a month with no card of this owner on the machine.
 msgstr ""
 
 msgid "{0}: deductions of {1} on {2} in {3} are before the cut-over {4}; they are not counted."
+#: card/intake.py
+msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
+msgstr ""
+
+#: card/intake.py
+msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
+msgstr ""
+
+#: card/intake.py
+msgid "The intake source of a submitted transport cannot be changed ({0})."
+msgstr ""
+
+#: card/intake.py
+msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr ""
