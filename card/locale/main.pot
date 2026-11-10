@@ -6025,6 +6025,7 @@ msgstr ""
 
 #: card/card/doctype/card_daily_log/card_daily_log.js
 msgid "Equipment changed by another run"
+msgstr ""
 
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Intake source"
