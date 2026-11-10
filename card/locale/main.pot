@@ -1476,6 +1476,7 @@ msgstr ""
 msgid "نهاري"
 msgstr ""
 
+
 #: card/dock/card/card.json
 msgid "Card Dashboard"
 msgstr ""
@@ -1709,6 +1710,7 @@ msgstr ""
 
 msgid "Operator provided by"
 msgstr ""
+
 
 msgid "Expired documents: {0}"
 msgstr ""
@@ -1984,6 +1986,7 @@ msgstr ""
 
 msgid "Returnable tool"
 msgstr ""
+
 
 msgid "Cancel Stock Entry {0} first."
 msgstr ""
@@ -3939,6 +3942,9 @@ msgstr ""
 msgid "Cards net for the period"
 msgstr ""
 
+
+
+
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Work done not yet invoiced (before VAT)"
 msgstr ""
@@ -4070,6 +4076,7 @@ msgstr ""
 #: card/card/report/card_settlement_status/card_settlement_status.py
 msgid "Remaining on the card"
 msgstr ""
+
 
 #: card/card/report/card_settlement_status/card_settlement_status.py
 msgid "Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
@@ -5924,6 +5931,150 @@ msgstr ""
 msgid "Day billing basis used"
 msgstr ""
 
+#: card/daily_log_generation.py
+msgid "Give the month as YYYY-MM or as a date of that month."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Company or project not found."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to create monthly cards for company {0} and project {1}."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read daily logs."
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "You are not allowed to read equipment {0}."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generate monthly cards"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Create or update the draft monthly cards of project {0} for the month of {1} from the approved daily logs? Submitted cards are not changed."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Generating monthly cards"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "not on the project that day"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "component of a unit that day"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards created"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards updated"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards unchanged"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted cards not changed"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days left out"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Cards not saved"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Monthly cards from daily logs"
+msgstr ""
+
+#: card/daily_log_generation.py
+msgid "Changed by another run; run the generation again."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days replaced from the approved log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Card day notes"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Days cleared (their daily log is no longer approved)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Submitted card days whose daily log is no longer approved (not changed)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Equipment changed by another run"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake channel"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source key"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Optional external id of the source (message id, sheet number). One live transport per company and key."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake received on"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence SHA-256"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Paper"
+msgstr ""
+
+#: card/intake.py
+msgid "Select a valid intake channel."
+msgstr ""
+
+#: card/intake.py
+msgid "The intake received time cannot be in the future."
+msgstr ""
+
+#: card/intake.py
+msgid "Intake source key {0} is already used by transport {1} of company {2}."
+msgstr ""
+
+#: card/intake.py
+msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
+msgstr ""
+
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approval"
 msgstr ""
@@ -5974,52 +6125,4 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Monthly card approved by its own preparer"
-msgstr ""
-
-#: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Intake source"
-msgstr ""
-
-#: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Intake channel"
-msgstr ""
-
-#: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Intake source key"
-msgstr ""
-
-#: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Optional external id of the source (message id, sheet number). One live transport per company and key."
-msgstr ""
-
-#: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Intake received on"
-msgstr ""
-
-#: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Intake evidence"
-msgstr ""
-
-#: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Intake evidence SHA-256"
-msgstr ""
-
-#: card/card/doctype/equipment_transport/equipment_transport.json
-msgid "Paper"
-msgstr ""
-
-#: card/intake.py
-msgid "Select a valid intake channel."
-msgstr ""
-
-#: card/intake.py
-msgid "The intake received time cannot be in the future."
-msgstr ""
-
-#: card/intake.py
-msgid "Intake source key {0} is already used by transport {1} of company {2}."
-msgstr ""
-
-#: card/intake.py
-msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
 msgstr ""
