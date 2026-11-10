@@ -42,9 +42,22 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   move the company does not pay. A billing project of another company is refused. The duplicate guard is the FR-090
   one per side (GL Posting Source membership, then the invoice link on submit); the built signature and snapshot
   apply to the new lines. Transports recorded before P1-2 keep their P1-0 rule in both modes.
+  Review fixes (independent accounting review of PR #215): cancelling the Purchase Invoice of a transport whose
+  customer Sales Invoice is still submitted keeps it `posted` (Equipment Transport has no `sales_invoice` field, so
+  `card.gl.events._other_side_still_posted` now reads the other side from its submitted GL Posting Log; other
+  sources unchanged); a recovery above the transport cost is refused; the recovery deduction and the customer
+  lines are split per machine in the proportions of the transport's equipment shares (remainder on the last
+  machine); the recharge income account must be an Income account; a cancelled billing project is refused.
+  Known limits (owner questions): transports held in Post ("Company absorbs", deduction from another supplier,
+  "Separate invoice") have no manual-link path yet — "link supplier invoice" still refuses every P1-2 transport, so
+  the accountant enters those invoices without a CARD link; the Transport Accounting Review report keeps its P1-2
+  wording ("Purchase Invoice posting waits") under Post; a customer-side Net Total discount (taxable card
+  deductions) is apportioned by ERPNext over every line of the Sales Invoice, the transport recharge lines included
+  (same VAT base; the per-line split of the discount is ERPNext's).
   Affected functions: `card.gl.posting._supplier_sources`, `_plan_monthly_posting`, `month_parties`,
   `transport_line_cost_center` (its place check moved to `_place_cost_center`, same behaviour), new
-  `responsibility_line_allocation`, `_responsibility_transports`, `_customer_transports`; `card.gl.preflight`
+  `responsibility_line_allocation`, `_responsibility_transports`, `_customer_transports`,
+  `_customer_transport_lines`, `_split_by_shares`; `card.gl.events._other_side_still_posted`; `card.gl.preflight`
   `posts_transport_responsibility`, `require_transport_recharge_account`; `card.transport_costs`
   `supplier_posting_kind`, `customer_billing_eligible`.
   Impact: permissions none (no role, DocPerm or `ignore_permissions` added; the new fields are permlevel 1 like the
