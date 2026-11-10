@@ -6537,3 +6537,19 @@ msgstr "النقل {0} غير مشمول: تكلفته تُسترد بالخصم
 #: card/gl/posting.py
 msgid "Transport {0} is not included: the company absorbs it and no cost project is recorded; enter the supplier invoice manually."
 msgstr "النقل {0} غير مشمول: الشركة تتحمله ولم يُسجَّل مشروع تكلفة؛ أدخل فاتورة المورد يدويًا."
+
+#: card/gl/posting.py
+msgid "no billing project"
+msgstr "بدون مشروع فوترة"
+
+#: card/gl/posting.py
+msgid "{0}: its billing project {1} is cancelled; return the decision for correction."
+msgstr "{0}: مشروع الفوترة {1} ملغى؛ أعد القرار للتصحيح."
+
+#: card/gl/posting.py
+msgid "Transport {0}: the amount recovered from the equipment supplier ({1}) is more than the transport cost ({2}); return the decision for correction."
+msgstr "النقل {0}: المبلغ المسترد من مورد المعدة ({1}) أكبر من تكلفة النقل ({2})؛ أعد القرار للتصحيح."
+
+#: card/gl/preflight.py
+msgid "Configure Card Settings for company {0}: the transport recharge income account {1} must be an income account."
+msgstr "اضبط إعدادات CARD للشركة {0}: حساب إيراد إعادة تحميل النقل {1} يجب أن يكون حساب إيرادات."

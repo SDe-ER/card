@@ -33,6 +33,13 @@ def require_transport_recharge_account(row):
 	"""Post: a transport billed to the customer needs the company's own recharge income account
 	(an enabled leaf account of the company; never the rental income account, never assumed)."""
 	require_accounts(row, ["transport_recharge_income_account"])
+	account = row.get("transport_recharge_income_account")
+	if frappe.db.get_value("Account", account, "root_type") != "Income":
+		frappe.throw(
+			_(
+				"Configure Card Settings for company {0}: the transport recharge income account {1} must be an income account."
+			).format(row.company, account)
+		)
 
 
 def require_item_read(posting_doctype):

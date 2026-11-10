@@ -82,7 +82,7 @@ class TestTransportResponsibilityPosting(_P0Base):
 		settings.save(ignore_permissions=True)
 		frappe.clear_cache(doctype="Card Settings")
 
-	def _new(self, amount=400, supplier=None):
+	def _new(self, amount=400, supplier=None, machines=1):
 		t = frappe.new_doc("Equipment Transport")
 		t.update(
 			{
@@ -94,7 +94,8 @@ class TestTransportResponsibilityPosting(_P0Base):
 				"amount": amount,
 			}
 		)
-		t.append("items", {"card_equipment": self._equipment().name})
+		for _i in range(machines):
+			t.append("items", {"card_equipment": self._equipment().name})
 		return t
 
 	def _submitted(self, t):
@@ -114,8 +115,8 @@ class TestTransportResponsibilityPosting(_P0Base):
 		user.insert(ignore_permissions=True)
 		frappe.set_user(email)
 
-	def _decided(self, bearer, decision, supplier=None, **values):
-		t = company_paid(self._new(supplier=supplier))
+	def _decided(self, bearer, decision, supplier=None, machines=1, **values):
+		t = company_paid(self._new(supplier=supplier, machines=machines))
 		t.cost_bearer = bearer
 		self._submitted(t)
 		self._accountant()
@@ -126,10 +127,11 @@ class TestTransportResponsibilityPosting(_P0Base):
 		t.reload()
 		return t
 
-	def _billed(self, mode="Monthly invoice", amount=650):
+	def _billed(self, mode="Monthly invoice", amount=650, machines=1):
 		return self._decided(
 			"Customer",
 			"Bill customer",
+			machines=machines,
 			customer=self.customer,
 			billing_project=self.project,
 			billing_amount=amount,
@@ -138,11 +140,12 @@ class TestTransportResponsibilityPosting(_P0Base):
 			confirmed=1,
 		)
 
-	def _recovered(self, mode="Deduct from monthly dues", supplier=None, amount=150):
+	def _recovered(self, mode="Deduct from monthly dues", supplier=None, amount=150, machines=1):
 		return self._decided(
 			"Equipment Supplier",
 			"Recover from equipment supplier",
 			supplier=supplier,
+			machines=machines,
 			recovery_mode=mode,
 			recovery_amount=amount,
 		)
@@ -444,3 +447,88 @@ class TestTransportResponsibilityPosting(_P0Base):
 		si.submit()
 		self.assertEqual((pi.docstatus, si.docstatus), (1, 1))
 		self.assertEqual(frappe.db.get_value("Equipment Transport", t.name, "posted"), 1)
+
+	# ---- review findings (F-1 .. F-7)
+	def test_cancelling_the_purchase_invoice_keeps_a_customer_posted_transport_posted(self):
+		"""F-1: Equipment Transport has no sales_invoice field; its customer side is read from the
+		submitted Customer log."""
+		self._mode(POST)
+		t = self._billed()
+		pi = self._pi()
+		pi.submit()
+		si = self._si()
+		si.submit()
+		pi.reload()
+		pi.cancel()
+		self.assertEqual(frappe.db.get_value("Equipment Transport", t.name, "posted"), 1)
+		self.assertFalse(frappe.db.get_value("Equipment Transport", t.name, "purchase_invoice"))
+		si.reload()
+		si.cancel()
+		self.assertEqual(frappe.db.get_value("Equipment Transport", t.name, "posted"), 0)
+
+	def test_a_cancelled_posting_frees_the_transport_for_a_new_build(self):
+		self._mode(POST)
+		t = self._billed()
+		pi = self._pi()
+		pi.submit()
+		pi.reload()
+		pi.cancel()
+		self.assertIn(t.name, {r.name for r in self._sources()})
+		again = self._pi()
+		self.assertNotEqual(again.name, pi.name)
+		self.assertEqual([flt(i.rate) for i in self._transport_lines(again, t.name)], [400])
+		again.submit()
+		self.assertEqual(
+			frappe.db.get_value("Equipment Transport", t.name, ["purchase_invoice", "posted"]),
+			(again.name, 1),
+		)
+		si = self._si()
+		si.submit()
+		si.reload()
+		si.cancel()
+		self.assertEqual(frappe.db.get_value("Equipment Transport", t.name, "posted"), 1)  # PI still on
+		si2 = self._si()
+		self.assertEqual([flt(i.rate) for i in self._transport_lines(si2, t.name)], [650])
+
+	def test_a_recovery_above_the_transport_cost_is_refused(self):
+		"""F-2"""
+		self._mode(POST)
+		self._recovered(amount=500)
+		with self.assertRaisesRegex(frappe.ValidationError, "more than the transport cost"):
+			self._pi()
+
+	def test_multi_machine_recovery_and_billing_follow_the_shares(self):
+		"""F-3: the recovery and customer lines are split per machine like the cost lines; the parts add
+		up to the amount exactly (remainder on the last machine)."""
+		self._mode(POST)
+		recovered = self._recovered(amount=100, machines=3)
+		shares = [(r.card_equipment, flt(r.amount)) for r in recovered.items]
+		self.assertEqual(round(sum(a for _e, a in shares), 2), 400)
+		lines = self._transport_lines(self._pi(), recovered.name)
+		costs = {i.card_equipment: flt(i.rate) for i in lines if flt(i.rate) > 0}
+		deductions = {i.card_equipment: flt(i.rate) for i in lines if flt(i.rate) < 0}
+		self.assertEqual(costs, dict(shares))
+		self.assertEqual(set(deductions), {e for e, _a in shares})
+		self.assertEqual(round(sum(deductions.values()), 2), -100)
+		for equipment, share in shares[:-1]:
+			self.assertEqual(deductions[equipment], -flt(100 * share / 400, 2))
+		billed = self._billed(amount=650, machines=3)
+		parts = {i.card_equipment: flt(i.rate) for i in self._transport_lines(self._si(), billed.name)}
+		self.assertEqual(set(parts), {r.card_equipment for r in billed.items})
+		self.assertEqual(round(sum(parts.values()), 2), 650)
+		self.assertTrue(all(v > 0 for v in parts.values()))
+
+	def test_the_recharge_account_must_be_an_income_account(self):
+		"""F-5"""
+		self._mode(POST, account=self.exp_transport)
+		self._billed()
+		with self.assertRaisesRegex(frappe.ValidationError, "must be an income account"):
+			self._si()
+
+	def test_a_cancelled_billing_project_is_refused(self):
+		"""F-7"""
+		self._mode(POST)
+		self._billed()
+		frappe.db.set_value("Project", self.project, "status", "Cancelled")
+		with self.assertRaisesRegex(frappe.ValidationError, "is cancelled"):
+			self._si()

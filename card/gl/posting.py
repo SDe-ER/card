@@ -325,13 +325,21 @@ def _billing_project_cost_center(transport, company, label):
 	company (cross-company refused) and its cost center."""
 	project = transport.billing_project
 	row = (
-		frappe.db.get_value("Project", project, ["company", "cost_center"], as_dict=True) if project else None
+		frappe.db.get_value("Project", project, ["company", "cost_center", "status"], as_dict=True)
+		if project
+		else None
 	)
 	if not row or row.company != company:
 		_allocation_exception(
 			_(
 				"{0}: its billing project {1} does not belong to company {2}; return the decision for correction."
-			).format(label, project or _("none"), company)
+			).format(label, project or _("no billing project"), company)
+		)
+	if row.status == "Cancelled":
+		_allocation_exception(
+			_("{0}: its billing project {1} is cancelled; return the decision for correction.").format(
+				label, project
+			)
 		)
 	return _required_allocation(row.cost_center, company, _("Project {0}").format(project), label)
 
@@ -364,10 +372,20 @@ def responsibility_line_allocation(transport, company):
 	return None, None
 
 
-def _single_equipment(shares):
-	"""The equipment of a one-machine transport (its deduction or customer line carries it), else None."""
-	machines = {equipment for equipment, _amount in shares if equipment}
-	return machines.pop() if len(machines) == 1 else None
+def _split_by_shares(amount, shares):
+	"""[(equipment, part)] of `amount` in the proportions of the transport's equipment shares (the
+	transporter cost lines), rounded to the halala with the remainder on the last share, so the parts add
+	up to `amount` exactly. Zero parts are left out (one part is always kept)."""
+	amount = flt(amount, 2)
+	base = flt(sum(flt(share, 2) for _equipment, share in shares), 2)
+	if len(shares) < 2 or base <= 0:
+		return [(shares[0][0] if len(shares) == 1 else None, amount)]
+	parts, given = [], 0.0
+	for i, (equipment, share) in enumerate(shares):
+		part = flt(amount - given, 2) if i == len(shares) - 1 else flt(amount * flt(share, 2) / base, 2)
+		given = flt(given + part, 2)
+		parts.append((equipment, part))
+	return [p for p in parts if p[1]] or [parts[-1]]
 
 
 def _responsibility_transports(company, party, first_day, last_day, held=None):
@@ -427,22 +445,31 @@ def _responsibility_supplier_lines(transport, shares, row, company, description)
 					transport.name
 				)
 			)
-		# a deduction line on the supplier's own invoice (Purchase Invoices carry negative lines, as the
-		# card supplier-side deductions do), on the same account and cost center as the transport line
-		lines.append(
-			{
-				"item_code": row.transport_item,
-				"rate": -recovery,
-				"account": row.transport_expense_account,
-				"project": project,
-				"cost_center": cost_center,
-				"card_equipment": _single_equipment(shares),
-				"taxable": 1,
-				"description": _("Transport {0}: recovery from equipment supplier {1}").format(
-					transport.name, transport.equipment_supplier
-				),
-			}
+		if recovery > total:
+			frappe.throw(
+				_(
+					"Transport {0}: the amount recovered from the equipment supplier ({1}) is more than the transport cost ({2}); return the decision for correction."
+				).format(transport.name, recovery, total)
+			)
+		# deduction lines on the supplier's own invoice (Purchase Invoices carry negative lines, as the
+		# card supplier-side deductions do), split per machine like the transport lines, on the same
+		# account and cost center
+		description = _("Transport {0}: recovery from equipment supplier {1}").format(
+			transport.name, transport.equipment_supplier
 		)
+		for equipment, part in _split_by_shares(recovery, shares):
+			lines.append(
+				{
+					"item_code": row.transport_item,
+					"rate": -part,
+					"account": row.transport_expense_account,
+					"project": project,
+					"cost_center": cost_center,
+					"card_equipment": equipment,
+					"taxable": 1,
+					"description": description,
+				}
+			)
 		total = flt(total - recovery, 2)
 	return lines, total
 
@@ -469,9 +496,10 @@ def _customer_transports(company, party, first_day, last_day):
 	return [r for r in rows if tc.customer_billing_eligible(r)]
 
 
-def _customer_transport_line(transport, shares, row, company):
-	"""The Sales Invoice line of a transport billed to the customer: the approved billing amount (never the
-	transporter cost), on the billing project. ZATCA (owner 2026-10-15): never a negative line."""
+def _customer_transport_lines(transport, shares, row, company):
+	"""The Sales Invoice lines of a transport billed to the customer: the approved billing amount (never the
+	transporter cost), split per machine like the transport lines, on the billing project. ZATCA (owner
+	2026-10-15): never a negative line."""
 	amount = flt(transport.billing_amount, 2)
 	if amount <= 0:
 		frappe.throw(
@@ -480,18 +508,23 @@ def _customer_transport_line(transport, shares, row, company):
 			).format(transport.name)
 		)
 	label = _("Transport {0}").format(transport.name)
-	return {
-		"item_code": row.transport_item,
-		"rate": amount,
-		"account": row.transport_recharge_income_account,
-		"project": transport.billing_project,
-		"cost_center": _billing_project_cost_center(transport, company, label),
-		"card_equipment": _single_equipment(shares),
-		"taxable": 1,
-		"description": _("Equipment transport {0} billed to the customer (reference {1})").format(
-			transport.name, transport.billing_reference or ""
-		),
-	}
+	cost_center = _billing_project_cost_center(transport, company, label)
+	description = _("Equipment transport {0} billed to the customer (reference {1})").format(
+		transport.name, transport.billing_reference or ""
+	)
+	return [
+		{
+			"item_code": row.transport_item,
+			"rate": part,
+			"account": row.transport_recharge_income_account,
+			"project": transport.billing_project,
+			"cost_center": cost_center,
+			"card_equipment": equipment,
+			"taxable": 1,
+			"description": description,
+		}
+		for equipment, part in _split_by_shares(amount, shares)
+	]
 
 
 def _held_transport_warnings(company, party, first_day, last_day):
@@ -878,9 +911,11 @@ def _plan_monthly_posting(
 				preflight.require_transport_recharge_account(row)
 			billed_shares = _transport_shares(billed)
 			for t in billed:
-				line = _customer_transport_line(t, billed_shares[t.name], row, company)
-				lines.append(line)
-				sources["Equipment Transport"].append((t.name, flt(line["rate"], 2)))
+				t_lines = _customer_transport_lines(t, billed_shares[t.name], row, company)
+				lines.extend(t_lines)
+				sources["Equipment Transport"].append(
+					(t.name, flt(sum(flt(line["rate"], 2) for line in t_lines), 2))
+				)
 		if total_discount and any(not line["taxable"] for line in lines):
 			# A Net Total discount is apportioned across ALL lines, so a
 			# zero-rated line would absorb part of a fully-taxable deduction
