@@ -278,9 +278,17 @@ doc_events = {
 	},
 	# #113: a signed tool-custody receipt stays a private file of its own custody record
 	"File": {
-		"before_validate": "card.custody_receipt.keep_private",
+		"before_validate": [
+			"card.custody_receipt.keep_private",
+			# FR-146: the intake evidence of a submitted or cancelled transport stays private and on its transport
+			"card.intake.keep_transport_evidence_file",
+		],
 		"before_insert": "card.custody_receipt.keep_on_its_record",
-		"on_trash": "card.custody_receipt.keep_while_recorded",
+		"on_trash": [
+			"card.custody_receipt.keep_while_recorded",
+			# FR-146: the intake evidence of a submitted or cancelled transport is kept
+			"card.intake.keep_transport_evidence",
+		],
 	},
 }
 

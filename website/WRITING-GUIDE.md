@@ -1,0 +1,62 @@
+# CARD docs — writing guide (for every page)
+
+Site: Astro Starlight (like https://shridarpatil.github.io/whatomate/features/dashboard/). English pages under
+`src/content/docs/<section>/<slug>.md`; Arabic pages mirror them under `src/content/docs/ar/<section>/<slug>.md`
+(same slug, same order, same structure). Both languages are required for every page.
+
+## Frontmatter
+```
+---
+title: Monthly Cards            # Arabic page: Arabic title
+description: One sentence.       # Arabic page: Arabic
+sidebar:
+  order: 6                       # same number in en and ar
+---
+```
+
+## Page structure (mirror Whatomate)
+1. `## Overview` — one or two paragraphs: what it is and why it exists.
+2. `## Key concepts` (or `## Key fields`) — short titled entries or a table.
+3. `## Features` with `###` subsections — each feature explained: what it does, rules, who can do it, limits.
+   Use tables for comparisons, bullet lists for fields/options, numbered lists for workflows.
+4. Optional `## Workflow` (numbered steps) and `## Permissions` (role table).
+5. `## Related` — links to related pages.
+Starlight asides are allowed: `:::note`, `:::tip`, `:::caution`, `:::danger` (Arabic pages: same syntax, Arabic text).
+
+## Facts
+- Every statement must be true for the CURRENT code in /home/claude/card (branch main as cloned). Read the DocType
+  JSON (`card/card/doctype/*/*.json`), controllers (`*.py`), `card/*.py`, reports (`card/card/report/*`),
+  `docs/governance/FEATURE-REGISTRY.md`, `README.md`, `docs/architecture/*`, `docs/releases/v4.*.md`, `docs/mobile`.
+- Only document what the registry marks Implemented (or code clearly has). Planned/opt-in items: say so explicitly.
+- Use the real field labels. The UI is bilingual: English labels from the JSON `label`, Arabic from
+  `card/locale/ar.po` (or the Arabic option value stored in Select options). In English pages write the English
+  label and, where helpful, the Arabic in parentheses for Select values that are stored in Arabic (e.g. «ملك» (Owned)).
+- No FR-/WS-/issue numbers, no internal plan names, no commit hashes in the user-facing text.
+
+## Forbidden content (repository rule: never commit real company data)
+- No real company, customer, supplier, person, project, site, server, host, IP, e-mail, phone, user name or amount.
+- Examples use fictitious data only: "Example Contracting Co." / «شركة المثال للمقاولات», "Supplier A" / «المورد أ»,
+  "EQ-0001", "PROJ-0001", round example amounts.
+- No secrets, no production details, no deployment internals.
+
+## Links
+- Use absolute paths with the base: English `/card/features/monthly-cards/`, Arabic `/card/ar/features/monthly-cards/`.
+
+## Arabic style
+- Clear Modern Standard Arabic suitable for official documentation (not colloquial). Same content and depth as
+  English (a translation, not a summary). Technical terms may keep the English term in parentheses once.
+
+## Screenshots
+- Do NOT add images now. Where Whatomate shows a screenshot, add an HTML comment `<!-- screenshot: <slug>-<name> -->`
+  at that spot so screenshots with demo data can be added later.
+
+## Page slugs and sidebar order (whole site)
+getting-started: introduction(1), installation(2), configuration(3)
+features: workspace-dashboard(1), equipment(2), units-components(3), assignments-locations(4), daily-logs(5),
+  monthly-cards(6), rate-agreements(7), adjustments(8), invoicing-posting(9), suppliers-customers(10), diesel(11),
+  meter-readings(12), transport(13), maintenance-parts(14), equipment-needs(15), tool-custody(16), card-mobile(17),
+  roles-permissions(18), notifications-alerts(19), print-formats(20), languages(21)
+reports: overview(1), operations(2), parties-statements(3), diesel-fuel(4), transport-costs(5), maintenance-assets(6),
+  accounting-control(7)
+api-reference: overview(1), equipment(2), cards-daily-logs(3), diesel(4), transport(5), materials-needs(6),
+  parties-statements(7), posting-accounting(8), mobile-settings(9)

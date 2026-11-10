@@ -7925,3 +7925,19 @@ msgstr "فروقات الديزل والحالات الشاذة"
 #: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
 msgid "Card Diesel Variance Threshold"
 msgstr "حد فروقات الديزل"
+
+#: card/intake.py
+msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
+msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ ويُحتفظ به."
+
+#: card/intake.py
+msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
+msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ يبقى خاصًا ومرفقًا بنقله."
+
+#: card/intake.py
+msgid "The intake source of a submitted transport cannot be changed ({0})."
+msgstr "لا يمكن تغيير مصدر إدخال نقل معتمد ({0})."
+
+#: card/intake.py
+msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
+msgstr "النقل {0} له مستند مصدر وهو ملغى؛ يُحتفظ به مع مستنده ولا يمكن حذفه."
