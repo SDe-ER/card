@@ -16,6 +16,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-147 — CARD documentation site (`website/`, Astro Starlight, English + Arabic).** Reason: the owner asked for a
+  full user and API documentation site in the style of the Whatomate docs. New static site under `website/`
+  (sections Getting Started, Features, Reports, API Reference; English at the root and Arabic RTL under `/ar/`),
+  written from the current code with fictitious example data only, and a GitHub Pages workflow
+  `.github/workflows/docs.yml` (builds on pull requests that touch `website/`; deploys from `main` only after
+  Pages is enabled in the repository settings). Affected functions: none; no Python, DocType, permission,
+  accounting, data or API change. Note: a GitHub Pages site is public even for a private repository. Rollback:
+  revert the commit and disable Pages; nothing on any site changes.
 - **FR-145 — Draft monthly cards from approved daily logs (#44, #123, FR-022; closure plan WP-K2).** Reason: #44
   asks for automatic card generation from daily entry with no duplicate between the manual and the automatic route,
   and #123 for daily entry feeding the monthly cards; FR-142 records and approves the logs but generated nothing.
