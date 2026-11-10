@@ -690,24 +690,38 @@ class TestDailyLog(_CustomerCardsBase):
 		self.assertEqual(self._snapshot(doc.name), (2, *before[1:]))
 
 	def test_cancel_by_savedocs_cannot_change_the_log(self):
+		"""savedocs Cancel: depending on the Frappe version it either cancels the client's document (the guard must
+		refuse a change) or cancels the stored record and ignores the client's values (Frappe 16.55). Either way no
+		stored field or row changes."""
 		from frappe.desk.form.save import savedocs
 
 		from card.cancel_reason import CancelChangesDocumentError
 
-		doc = self._log()
-		before = self._snapshot(doc.name)
-		for change in ("row", "notes"):
+		for offset, change in enumerate(("row", "notes")):
 			with self.subTest(change=change):
+				eq = self._equipment()
+				doc = self._log(
+					[{"equipment": eq.name, "day_hours": 4}], log_date=add_days(self.day, -offset)
+				)
+				before = self._snapshot(doc.name)
 				frappe.set_user(self.operator)
 				sent = frappe.get_doc(LOG, doc.name).as_dict()
 				if change == "row":
 					sent["rows"][0]["day_hours"] = 12
 				else:
 					sent["notes"] = "rewritten at cancel"
-				with self.assertRaises(CancelChangesDocumentError):
+				try:
 					savedocs(frappe.as_json(sent), "Cancel")
-				frappe.set_user("Administrator")
-				self.assertEqual(self._snapshot(doc.name), before)
+					refused = False
+				except CancelChangesDocumentError:
+					refused = True
+				finally:
+					frappe.set_user("Administrator")
+				after = self._snapshot(doc.name)
+				self.assertEqual(after[1:], before[1:])
+				self.assertEqual(after[0], 1 if refused else 2)
+		# an unchanged document is cancelled
+		doc = self._log(log_date=add_days(self.day, -5))
 		frappe.set_user(self.operator)
 		savedocs(frappe.as_json(frappe.get_doc(LOG, doc.name).as_dict()), "Cancel")
 		frappe.set_user("Administrator")
@@ -715,6 +729,8 @@ class TestDailyLog(_CustomerCardsBase):
 
 	def test_bulk_cancel_with_data_cannot_change_the_log(self):
 		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+
+		from card.cancel_reason import CancelChangesDocumentError
 
 		doc = self._log()
 		before = self._snapshot(doc.name)
@@ -727,6 +743,12 @@ class TestDailyLog(_CustomerCardsBase):
 				{"docstatus": 2, "notes": "x", "log_date": str(add_days(self.day, -30))},
 			)
 			self.assertEqual(failed, [doc.name])
+			self.assertEqual(self._snapshot(doc.name), before)
+			# the error the bulk action caught: what it does with the document, without its commit and rollback
+			with self.assertRaises(CancelChangesDocumentError):
+				sent = frappe.get_doc(LOG, doc.name)
+				sent.update({"docstatus": 2, "notes": "x"})
+				sent.save()
 			self.assertEqual(self._snapshot(doc.name), before)
 			self.assertEqual(submit_cancel_or_update_docs(LOG, [doc.name], "cancel"), [])
 		frappe.set_user("Administrator")
