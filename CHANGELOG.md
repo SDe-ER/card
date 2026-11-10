@@ -405,8 +405,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `EquipmentMeterReading.before_cancel`. Tests: `test_daily_log.py` (REST PUT with rows, date, notes; savedocs with a
   row and the notes; bulk update with data; plain cancels still work), `test_meter_reading.py` (REST PUT, savedocs,
   bulk; plain cancel). PR #226.
+  Also: Frappe checks `amended_from` on insert only, so a save (`frappe.client.save`, `frappe.client.set_value`)
+  could clear or change it on a draft; reproduced on a Card Daily Log, where a cleared link dropped the earlier
+  versions' preparers and let a manager who edited an earlier version approve the amendment under Refuse. A save of
+  an existing Card Daily Log or Equipment Meter Reading now keeps the stored `amended_from`
+  (`card.daily_log.prepare`, `EquipmentMeterReading._validate_amended_from`); tests clear it by `client.save` and by
+  `set_value` and the approval stays refused, and set it on an existing record and it stays empty.
   Impact: permissions none; accounting none; data: a cancel request that also changes the document is refused
-  (a plain cancel is unchanged); API: such a request now fails with `CancelChangesDocumentError`. Rollback limits:
+  (a plain cancel is unchanged), and a save no longer changes `amended_from`; API: such a cancel request now fails
+  with `CancelChangesDocumentError`, and a sent `amended_from` on an update is ignored. Rollback limits:
   code only; nothing stored to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company

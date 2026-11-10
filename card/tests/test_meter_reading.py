@@ -282,6 +282,19 @@ class TestMeterReading(IntegrationTestCase):
 			refused = True
 		self.assertEqual(self._stored(doc.name), {**before, "docstatus": 1 if refused else 2})
 
+	def test_amended_from_is_kept_on_a_save(self):
+		first = self._fresh_reading("A1")
+		first.cancel()
+		amended = frappe.copy_doc(frappe.get_doc(DOCTYPE, first.name))
+		amended.docstatus = 0
+		amended.amended_from = first.name
+		amended.insert()
+		frappe.client.set_value(DOCTYPE, amended.name, "amended_from", None)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, amended.name, "amended_from"), first.name)
+		plain = self._reading(120, "2026-09-05 08:00:00", submit=False)
+		frappe.client.set_value(DOCTYPE, plain.name, "amended_from", first.name)
+		self.assertFalse(frappe.db.get_value(DOCTYPE, plain.name, "amended_from"))
+
 	# ---------- cancel keeps the sequence ----------
 	def test_cancel_of_a_reset_that_a_later_reading_needs_refused(self):
 		"""100, 10 (reset), 20: cancelling the reset would leave 100 -> 20 without a reset."""

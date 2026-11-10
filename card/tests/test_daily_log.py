@@ -785,6 +785,60 @@ class TestDailyLog(_CustomerCardsBase):
 			self._set_status(third, daily_log.APPROVED, other).approval_status, daily_log.APPROVED
 		)
 
+	def _amendment_of_a_manager_edited_log(self):
+		"""Refuse rule; L1 edited by the manager, cancelled; L2 is a draft amendment entered by the operator."""
+		self._rule(daily_log.RULE_REFUSE)
+		first = self._log(submit=False)
+		frappe.set_user(self.manager)
+		edited = frappe.get_doc(LOG, first.name)
+		edited.rows[0].day_hours = 9
+		edited.save()
+		frappe.set_user(self.operator)
+		frappe.get_doc(LOG, first.name).submit()
+		frappe.get_doc(LOG, first.name).cancel()
+		second = frappe.copy_doc(frappe.get_doc(LOG, first.name))
+		second.docstatus = 0
+		second.amended_from = first.name
+		second.insert()
+		frappe.set_user("Administrator")
+		return first, second
+
+	def test_amended_from_cannot_be_cleared_by_a_save(self):
+		from frappe.client import save as rest_save
+
+		first, second = self._amendment_of_a_manager_edited_log()
+		frappe.set_user(self.operator)
+		sent = frappe.get_doc(LOG, second.name).as_dict()
+		sent["amended_from"] = None
+		rest_save(frappe.as_json(sent))
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(LOG, second.name, "amended_from"), first.name)
+		frappe.set_user(self.operator)
+		frappe.get_doc(LOG, second.name).submit()
+		frappe.set_user("Administrator")
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(second, daily_log.APPROVED, self.manager)
+
+	def test_amended_from_cannot_be_cleared_by_set_value(self):
+		first, second = self._amendment_of_a_manager_edited_log()
+		frappe.set_user(self.operator)
+		rest_set_value(LOG, second.name, "amended_from", None)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(LOG, second.name, "amended_from"), first.name)
+		frappe.set_user(self.operator)
+		frappe.get_doc(LOG, second.name).submit()
+		frappe.set_user("Administrator")
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(second, daily_log.APPROVED, self.manager)
+
+	def test_amended_from_cannot_be_set_on_an_existing_log(self):
+		first, _second = self._amendment_of_a_manager_edited_log()
+		plain = self._log(submit=False, log_date=add_days(self.day, -9))
+		frappe.set_user(self.operator)
+		rest_set_value(LOG, plain.name, "amended_from", first.name)
+		frappe.set_user("Administrator")
+		self.assertFalse(frappe.db.get_value(LOG, plain.name, "amended_from"))
+
 	# ---------- supervisor step (opt-in, review finding 7) ----------
 	def test_supervisor_step_is_off_by_default(self):
 		self.assertFalse(daily_log.requires_supervisor_verification(self.company))

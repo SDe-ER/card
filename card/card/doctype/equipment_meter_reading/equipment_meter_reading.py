@@ -125,6 +125,9 @@ class EquipmentMeterReading(Document):
 		self.company = company
 
 	def _validate_amended_from(self):
+		if not self.is_new():
+			# Frappe checks amended_from on insert only: a save keeps the link the reading was created with
+			self.amended_from = frappe.db.get_value(DOCTYPE, self.name, "amended_from")
 		if not self.amended_from or not (self.is_new() or self.has_value_changed("amended_from")):
 			return
 		source = frappe.db.get_value(DOCTYPE, self.amended_from, ["company", "docstatus"], as_dict=True)

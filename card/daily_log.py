@@ -122,13 +122,22 @@ def log_preparers(doc):
 # ---------- draft and submit ----------
 def prepare(doc):
 	"""validate (draft save and submit, REST insert with docstatus 1 included): the approval stays Pending and
-	the approval fields empty; the stored submitter is kept and the current user is recorded as an editor."""
+	the approval fields empty; the stored submitter and the stored ``amended_from`` are kept and the current user
+	is recorded as an editor."""
 	doc.approval_status = PENDING
 	for field in APPROVAL_FIELDS:
 		doc.set(field, None)
 	doc.self_approved = 0
-	stored = None if doc.is_new() else frappe.db.get_value(DOCTYPE, doc.name, ["submitted_by", "edited_by"])
+	stored = (
+		None
+		if doc.is_new()
+		else frappe.db.get_value(DOCTYPE, doc.name, ["submitted_by", "edited_by", "amended_from"])
+	)
 	doc.submitted_by = stored[0] if stored else None
+	if stored:
+		# Frappe checks amended_from on insert only: a save may not clear or change it, so the amendment chain
+		# (and its preparers) stays the one the log was created with
+		doc.amended_from = stored[2]
 	editors = [e for e in ((stored[1] if stored else "") or "").split("\n") if e]
 	if frappe.session.user not in editors:
 		editors.append(frappe.session.user)
