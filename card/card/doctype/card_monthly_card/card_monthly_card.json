@@ -41,6 +41,7 @@
   "column_break_eubn",
   "amount",
   "amended_from",
+  "cancel_reason",
   "adjustments_section",
   "adjustments",
   "adjustments_col",
@@ -246,6 +247,16 @@
    "search_index": 1
   },
   {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.docstatus==2",
+   "fieldname": "cancel_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancel Reason",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
    "fieldname": "adjustments_section",
    "fieldtype": "Section Break",
    "label": "Additions and deductions"
@@ -434,7 +445,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-19 06:00:00.000000",
+ "modified": "2026-11-10 13:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card",

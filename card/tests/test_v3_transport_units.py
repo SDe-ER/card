@@ -10,6 +10,7 @@ from frappe.utils import flt, getdate
 from card.card.doctype.card_equipment.card_equipment import move_component, replace_component
 from card.gl.posting import _transport_shares
 from card.tests import test_transfer as _transfer
+from card.tests.cancel_reason import with_reason
 from card.tests.test_controllers import _ensure_masters
 from card.tests.transport_parties import as_recorded_before_p12, company_paid, paid_by
 
@@ -103,7 +104,7 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 				getdate(self._d(10)),
 			)
 		self.assertTrue(all(r.created_assignment and r.previous_assignment for r in t.items))
-		t.cancel()
+		with_reason(t).cancel()
 		for eq, old in ((a, old_a), (b, old_b)):
 			self.assertFalse(frappe.db.get_value("Card Equipment Assignment", old.name, "to_date"))
 			self.assertEqual(frappe.db.get_value("Card Equipment", eq, "current_project"), pa)
@@ -119,7 +120,7 @@ class TestV3TransportAndUnits(IntegrationTestCase):
 		t.submit()
 		t.reload()
 		self.assertNotEqual(t.items[0].previous_assignment, victim_assignment.name)
-		t.cancel()
+		with_reason(t).cancel()
 		self.assertTrue(frappe.db.exists("Card Equipment Assignment", victim_assignment.name))
 		self.assertFalse(frappe.db.get_value("Card Equipment Assignment", victim_assignment.name, "to_date"))
 

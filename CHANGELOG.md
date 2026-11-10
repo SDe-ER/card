@@ -16,6 +16,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Mandatory cancel reason and a reviewable period-lock override** (FR-123, WP-07, #35, #51, governance G0). Reason: a
+  cancelled card, fill or transport had no recorded reason, a cancel request could still change the stored card (FR-050
+  open gap 1), and a period-lock override was only in the server log. Card Monthly Card, Equipment Transport and Project
+  Diesel Fill get `cancel_reason` (Small Text, allow on submit, no copy, read only). The form's Cancel asks for the reason
+  and cancels through `card.cancel_reason.cancel_with_reason` (POST; one request, so a refused cancel keeps no reason).
+  `before_cancel` refuses a cancel without a reason on every path (Desk, REST `docstatus` 2, Python/API) and refuses a
+  cancel request that changes any other stored field or child row; `on_cancel` adds an Info Comment with the actor, the
+  reason and the date. A save or submit drops a copied reason; an update after submit cannot set it. A period-lock override
+  (`card.period_lock`) now also adds an Info Comment on the stored document (actor, action, date, lock date) next to the
+  existing log. PR #TBD. Affected: `card/cancel_reason.py` (new), `card/period_lock.py` (`_log_override`,
+  `_comment_override`), `card/hooks.py` (doc_events of the three doctypes, `doctype_js`), `card/public/js/cancel_reason.js`
+  (new), the three DocType JSON files, `card/locale/ar.po`, `main.pot`. Permissions: none widened; the cancel uses Frappe's
+  cancel permission and the doctypes' company has_permission hooks; Workflow and roles unchanged. Accounting: none (no GL
+  entry, no posting change). Data: one new column per doctype; existing records untouched (records cancelled earlier keep
+  an empty reason; no patch). API: a cancel without `cancel_reason` is now refused for these three doctypes, including
+  Frappe's "cancel all linked documents". Rollback limits: code revert only; the added columns stay (harmless) and the
+  stored reasons and comments remain.
 - **Meter extraction inside the existing Diesel Fill** (FR-101, Owner decision 2026-11-02; no new DocType, field or table).
   An optional LOCAL worker (`card_meter_worker_url` / `card_meter_worker_token` in site_config; absent = nothing changes) reads the
   opening and closing meter photos after they are saved. CARD validates every byte the worker returns, crops the counter itself
