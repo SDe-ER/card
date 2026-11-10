@@ -49,7 +49,7 @@
   },
   {
    "default": "1",
-   "description": "Taxable lines carry the 15% VAT item tax template; non-taxable lines carry the 0% template.",
+   "description": "Taxable lines carry the VAT item tax template at the company rate (from its tax templates); non-taxable lines carry the 0% template.",
    "fieldname": "taxable",
    "fieldtype": "Check",
    "in_list_view": 1,

@@ -6331,3 +6331,23 @@ msgstr "أنواع الإضافات والخصومات المعرّفة لكل �
 #: card/settings.py
 msgid "Card Settings: warehouse {0} belongs to company {1}, not {2}."
 msgstr "إعدادات CARD: المخزن {0} يتبع الشركة {1} وليس {2}."
+
+#: card/card/doctype/card_adjustment_type/card_adjustment_type.json
+msgid "Taxable lines carry the VAT item tax template at the company rate (from its tax templates); non-taxable lines carry the 0% template."
+msgstr "البنود الخاضعة للضريبة تحمل قالب ضريبة الصنف بنسبة الشركة (من قوالب الضريبة الخاصة بها)؛ والبنود غير الخاضعة تحمل قالب 0%."
+
+#: card/settings.py
+msgid "The store set for {0} in Card Settings is not in that company. Ask a CARD manager."
+msgstr "المخزن المحدد للشركة {0} في إعدادات CARD لا يتبع هذه الشركة. راجع مدير CARD."
+
+#: card/settings.py
+msgid "Card Settings: warehouse {0} is a group; choose a stock warehouse."
+msgstr "إعدادات CARD: المخزن {0} مجموعة؛ اختر مخزنًا فعليًا."
+
+#: card/settings.py
+msgid "Card Settings: warehouse {0} is disabled."
+msgstr "إعدادات CARD: المخزن {0} معطّل."
+
+#: card/settings.py
+msgid "Card Settings: tools of {0} are held in custody; return them before changing its tool custody store."
+msgstr "إعدادات CARD: توجد أدوات للشركة {0} في العهدة؛ أرجعها قبل تغيير مخزن عهدة الأدوات الخاص بها."

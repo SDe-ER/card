@@ -207,7 +207,11 @@ class TestCompanyWarehouses(v4.TestV4Materials):
 			with self.subTest(reader=reader.__name__):
 				with self.assertRaises(frappe.ValidationError) as refused:
 					reader(self.company)
-				self.assertIn(foreign, str(refused.exception))
+				# the reader may not see the other company: neither it nor its warehouse is named
+				message = str(refused.exception)
+				self.assertIn(self.company, message)
+				self.assertNotIn(foreign, message)
+				self.assertNotIn(frappe.db.get_value("Warehouse", foreign, "company"), message)
 				self.assertIsNone(reader(self.company, strict=False))
 		self.assertIsNone(self._screen("Administrator", "context")["default_stores"].get(self.company))
 		with self.assertRaises(frappe.ValidationError):
@@ -221,6 +225,149 @@ class TestCompanyWarehouses(v4.TestV4Materials):
 		with self.assertRaises(frappe.ValidationError) as refused:
 			doc.save()
 		self.assertIn(foreign, str(refused.exception))
+
+	def test_a_group_or_disabled_warehouse_is_refused(self):
+		group = frappe.db.get_value("Warehouse", self.company_store, "parent_warehouse")
+		if not group:
+			self.skipTest("the test warehouses have no parent group")
+		with self.assertRaisesRegex(frappe.ValidationError, "group"):
+			settings.validate_company_warehouses(self._row_doc(self.company, store_warehouse=group))
+		frappe.db.set_value("Warehouse", self.company_custody, "disabled", 1)
+		with self.assertRaisesRegex(frappe.ValidationError, "disabled"):
+			settings.validate_company_warehouses(
+				self._row_doc(self.company, custody_warehouse=self.company_custody)
+			)
+
+	def test_the_custody_store_cannot_change_while_tools_are_held(self):
+		self._set_row(custody_warehouse=None)
+		self._custody("Handover", qty=1, warehouse=self.store)  # held in the site custody store
+		doc = frappe.get_doc("Card Settings")
+		row = next(r for r in doc.company_settings if r.company == self.company)
+		row.custody_warehouse = self.company_custody
+		with self.assertRaisesRegex(frappe.ValidationError, "held in custody"):
+			doc.save()
+		# the store in force does not change: allowed
+		doc.reload()
+		row = next(r for r in doc.company_settings if r.company == self.company)
+		row.custody_warehouse = self.custody
+		row.store_warehouse = self.company_store
+		doc.save()
+		self.assertEqual(settings.custody_warehouse(self.company), self.custody)
+
+	def test_the_custody_store_can_change_when_nothing_is_held(self):
+		doc = frappe.get_doc("Card Settings")
+		row = next(r for r in doc.company_settings if r.company == self.company)
+		row.custody_warehouse = self.company_custody
+		doc.save()
+		self.assertEqual(settings.custody_warehouse(self.company), self.company_custody)
+
+	# ---------- the Tool Custody screen ----------
+	def _company(self, label):
+		name = f"FR135 {label} {self.token}"
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": name,
+				"abbr": label[:2].upper() + self.token[:4].upper(),
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
+		)
+		co.name = name
+		co.db_insert()
+		wh = frappe.new_doc("Warehouse")
+		wh.update({"warehouse_name": f"FR135 {label} store {self.token}", "company": name})
+		wh.name = f"FR135 {label} store {self.token} - {co.abbr}"
+		wh.db_insert()
+		row = frappe.get_doc(
+			{
+				"doctype": "Card Company Settings",
+				"parent": "Card Settings",
+				"parenttype": "Card Settings",
+				"parentfield": "company_settings",
+				"company": name,
+				"store_warehouse": wh.name,
+				"idx": 98,
+			}
+		)
+		row.db_insert()
+		emp = frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"first_name": f"FR135 {label} {self.token}",
+				"gender": "Male",
+				"date_of_birth": "1990-01-01",
+				"date_of_joining": "2020-01-01",
+				"company": name,
+				"status": "Active",
+			}
+		).insert(ignore_permissions=True)
+		return name, wh.name, emp.name
+
+	def _screen_store(self, ctx, company):
+		"""The store the dialog sends (tool_custody.js default_store): the company's, else the site's."""
+		return ctx["default_stores"].get(company) or ctx["default_store"]
+
+	def test_move_with_the_store_the_screen_sends(self):
+		self._set_row(store_warehouse=self.company_store)
+		ctx = self._screen("Administrator", "context")
+		company = self._screen("Administrator", "employee_company", employee=self.operator)["company"]
+		self.assertEqual(company, self.company)
+		warehouse = self._screen_store(ctx, company)
+		self.assertEqual(warehouse, self.company_store)
+		made = self._screen(
+			"Administrator",
+			"move",
+			movement="Handover",
+			employee=self.operator,
+			item_code=self.tool,
+			qty=1,
+			warehouse=warehouse,
+		)
+		self.assertEqual(
+			frappe.db.get_value("Employee Tool Custody", made["name"], "warehouse"), self.company_store
+		)
+
+	def test_a_user_of_two_companies_gets_each_companys_store(self):
+		self._set_row(store_warehouse=self.company_store)
+		other, other_store, other_emp = self._company("Two")
+		third, _third_store, third_emp = self._company("Out")
+		user = self._user("two", ["Card Supervisor", "Stock Manager"])
+		for company in (self.company, other):
+			frappe.get_doc(
+				{"doctype": "User Permission", "user": user, "allow": "Company", "for_value": company}
+			).insert(ignore_permissions=True)
+		frappe.clear_cache(user=user)
+		ctx = self._screen(user, "context")
+		self.assertEqual(set(ctx["default_stores"]), {self.company, other})
+		self.assertEqual(ctx["default_stores"][self.company], self.company_store)
+		self.assertEqual(ctx["default_stores"][other], other_store)
+		for employee, company in ((self.operator, self.company), (other_emp, other)):
+			with self.subTest(employee=employee):
+				got = self._screen(user, "employee_company", employee=employee)["company"]
+				self.assertEqual(got, company)
+				self.assertEqual(self._screen_store(ctx, got), ctx["default_stores"][company])
+				# the store search follows the employee's company
+				stores = {
+					r[0]
+					for r in self._screen(
+						user,
+						"store_query",
+						doctype="Warehouse",
+						txt="",
+						searchfield="name",
+						start=0,
+						page_len=50,
+						filters={"company": got},
+					)
+				}
+				self.assertIn(ctx["default_stores"][company], stores)
+				self.assertFalse(
+					stores - set(frappe.get_all("Warehouse", {"company": company}, pluck="name"))
+				)
+		with self.assertRaises(frappe.PermissionError):
+			self._screen(user, "employee_company", employee=third_emp)
+		self.assertNotIn(third, ctx["default_stores"])
 
 	# ---------- schema and labels ----------
 	def test_new_fields_are_optional_and_empty_by_default(self):
@@ -240,7 +387,7 @@ class TestCompanyWarehouses(v4.TestV4Materials):
 
 	def test_no_label_names_a_fixed_vat_rate(self):
 		# FR-127: the rate comes from the company's tax templates; only the 0% template is fixed
-		for doctype in ("Card Company Settings", "Card Settings"):
+		for doctype in ("Card Company Settings", "Card Settings", "Card Adjustment Type"):
 			for field in frappe.get_meta(doctype).fields:
 				if field.fieldname == "vat_zero_item_tax_template":
 					continue
