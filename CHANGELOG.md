@@ -60,6 +60,50 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   date; API: none (no new whitelisted method). No existing caller is switched: Equipment Diesel Analysis is
   unchanged. Rollback limits: a code rollback leaves the two new tables and the seeded rows in the database (unused
   by the older code); the static fields are unchanged, so the older behaviour returns as it was.
+- **FR-145 — Draft monthly cards from approved daily logs (#44, #123, FR-022; closure plan WP-K2).** Reason: #44
+  asks for automatic card generation from daily entry with no duplicate between the manual and the automatic route,
+  and #123 for daily entry feeding the monthly cards; FR-142 records and approves the logs but generated nothing.
+  New manual action `card.daily_log_generation.generate_monthly_cards(company, project, month, equipment=None)`
+  (`methods=["POST"]`, type hints on every argument; `month` is YYYY-MM or a date of the month) and a **Generate
+  monthly cards** button on an approved Card Daily Log (`card_daily_log.js`, for users who can create a Card Monthly
+  Card; it shows created, updated, unchanged and submitted cards, days left out and cards not saved). It reads only
+  Approved, submitted logs of the company, project and month (optionally one equipment) and creates or updates DRAFT
+  Card Monthly Cards, one per equipment, project, month and shift (the card's own duplicate key): a log row's day
+  shift hours and its stop data (stop reason, stopped hours, responsible party type, record and name) go to the day
+  row of the day shift card, its night shift hours to the night shift card; a shift card is created only when a log
+  row has hours for it; a draft card's day covered by an approved log is set from the log on every run (the day's
+  notes name the log, the day name is set as the form sets it), every other day row is kept. **The approved log
+  wins:** a draft day whose values differed from the log (a manual correction or an earlier log) is replaced and
+  listed in `overwritten_days` (card, date, old and new hours, stopped hours and notes; also shown in the dialog). A
+  day whose notes name a log that is no longer Approved (cancelled after generation) — counted only when that log is
+  of the card's company and project, dated on the day and has a row for the card's equipment; any other text,
+  a hand-typed log name included, is never touched or reported — is cleared on a draft card
+  (hours, stop data and notes emptied; `cleared_days`) and only reported on a submitted card (`stale_days` of its
+  `kept_submitted` entry). Each card is built and saved through the card's own `insert()` /
+  `save()` with the user's permissions, so the card's validation runs unchanged (duplicate guard, assignment days,
+  unit-component days, stop reasons and billable snapshot, rates, fiscal-year window). A submitted card is never
+  changed (reported) and no card is ever submitted. Repeat-safe: a second run changes nothing (no duplicate day or
+  card); a log approved later fills its day; the equipment row is locked during its cards (the card's duplicate guard
+  reads without a lock), then its cards of the month are read with a locking read (`FOR UPDATE`, the latest
+  committed rows) and compared with the request's snapshot: when another run changed them after this request
+  started, the equipment is skipped and listed in `conflicts` ("run again"), so two concurrent runs never create a
+  card twice. A missing project and another company's project get the same "not found" answer. Left out and reported, never written: a day the equipment is not on the project (yard,
+  workshop, storage or another project; `card.transfer.validate_card_days`) and a day it is a component of a unit
+  (`component_periods`; the day belongs on the unit's card, as `CardMonthlyCard._refuse_unit_component_days`
+  requires). A machine moved during the month gets one card per project (each run names one project). A card that
+  fails its own validation is rolled back alone (savepoint) and reported; a permission error stops the run.
+  Authorization: the user must be allowed to create a Card Monthly Card of the company and project (probe card:
+  DocPerm, Company User Permissions, `has_card_permission`) and to read Card Daily Logs (read through
+  `frappe.get_list`, FR-131 company scope); project and equipment must belong to the company. Affected functions:
+  new `card/daily_log_generation.py`; `card_daily_log.js` (button); `card/tests/test_bola_matrix.py` (FR-129 row for
+  the new endpoint) and `docs/governance/ROLE-ACTION-MATRIX.md` (endpoint table regenerated, one row). Tests:
+  `card/tests/test_daily_log_generation.py` (29) and `card/tests/test_daily_log_generation_concurrency.py` (3, two
+  real connections; fails without the locking read). PR #221.
+  Impact: permissions — none changed (no role, DocPerm or `ignore_permissions`); the action is limited to users who
+  can already create monthly cards (Card Manager, Card User, System Manager). Accounting none (draft cards only; no
+  GL, no invoice). Data: writes draft Card Monthly Cards only when a user runs the action; nothing runs by itself; no
+  patch. API: one new POST endpoint. Rollback limits: code rollback removes the action and the button; the draft
+  cards it created stay as ordinary draft cards (edit or delete them as usual).
 - **FR-146 — Equipment Transport intake provenance (#52, #43; closure plan WP-N1).** Reason: #52 asks that a
   movement entered from paper, WhatsApp or email keeps its source, received time and original attachment, and that
   the same source never creates two records. New optional Equipment Transport fields (section "Intake source",
