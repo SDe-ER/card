@@ -25,7 +25,10 @@ from card.tests.test_controllers import _ensure_masters
 
 TABLE_FIELDTYPES = ("Table", "Table MultiSelect")
 LAYOUT_FIELDTYPES = ("Section Break", "Column Break", "Tab Break", "HTML", "Button", "Heading", "Fold")
-PROBE_ROLES = (*CARD_ROLES, "Accounts Manager")
+PROBE_ROLES = (*CARD_ROLES, "Accounts Manager", "Accounts User")
+# a test-only role (rolled back with each test) that reads or writes a parent at level 0 only, as a Custom DocPerm
+# could give on a site; no role of the code reads Card Settings at level 0 without level 2
+LEVEL_0_ROLE = "TEST FR148 Level 0"
 # the tables FR-148 fixed: (parent, table field)
 FIXED = (
 	("Card Equipment", "components"),
@@ -126,9 +129,8 @@ class TestChildPermlevelGuard(IntegrationTestCase):
 			self.assertIn(parent_field, tables)
 
 
-class TestChildPermlevelProbes(IntegrationTestCase):
-	"""Role probes on the fixed tables: frappe.client.get_list / get_value with ``parent=``, the reportview child
-	column and child filter, and the form read as the control."""
+class ChildPermlevelFixtures(IntegrationTestCase):
+	"""Data, users and routes shared by the FR-148 probes (no tests of its own)."""
 
 	@classmethod
 	def setUpClass(cls):
@@ -143,6 +145,33 @@ class TestChildPermlevelProbes(IntegrationTestCase):
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		frappe.db.rollback()
+		for doctype in ("Card Settings", "Card Equipment"):
+			frappe.clear_cache(doctype=doctype)
+
+	def _grant_level_0(self, *doctypes, write=0):
+		"""Give LEVEL_0_ROLE level-0 read (and write) on ``doctypes`` through Custom DocPerms; rolled back."""
+		from frappe.permissions import setup_custom_perms
+
+		if not frappe.db.exists("Role", LEVEL_0_ROLE):
+			frappe.get_doc({"doctype": "Role", "role_name": LEVEL_0_ROLE, "desk_access": 1}).insert(
+				ignore_permissions=True
+			)
+		for doctype in doctypes:
+			setup_custom_perms(doctype)
+			frappe.get_doc(
+				{
+					"doctype": "Custom DocPerm",
+					"parent": doctype,
+					"parenttype": "DocType",
+					"parentfield": "permissions",
+					"role": LEVEL_0_ROLE,
+					"permlevel": 0,
+					"read": 1,
+					"write": write,
+				}
+			).insert(ignore_permissions=True)
+			frappe.clear_cache(doctype=doctype)
+		return self._user(LEVEL_0_ROLE)
 
 	# ---- data ----
 	def _user(self, role):
@@ -314,18 +343,23 @@ class TestChildPermlevelProbes(IntegrationTestCase):
 			int(p.permlevel or 0) for p in frappe.get_meta(parent).permissions if p.role == role and p.read
 		}
 
-	# ---- probes ----
+
+class TestChildPermlevelProbes(ChildPermlevelFixtures):
+	"""Role probes on the fixed tables: frappe.client.get_list / get_value with ``parent=``, the reportview child
+	column and child filter, and the form read as the control."""
+
 	def test_level_0_readers_receive_no_value_of_a_higher_level_table(self):
 		"""Driven by the enumeration and the parents' DocPerms: every probe role is checked against every fixed
 		table; at least one level-0-only reader per non-empty case (Card Supervisor on components, Card
 		Manager on the diesel price schedule) proves the probe is not vacuous."""
 		data = self._fixtures()
+		self._grant_level_0("Card Settings", "Card Equipment")
 		probed = set()
 		for parent, fieldname, level, child in high_level_tables():
 			if (parent, fieldname) not in data:
 				continue
 			name, child, fields, markers, oracle = data[(parent, fieldname)]
-			for role in PROBE_ROLES:
+			for role in (*PROBE_ROLES, LEVEL_0_ROLE):
 				levels = self._levels(parent, role)
 				frappe.set_user(self._user(role))
 				replies, hit = self._child_routes(parent, name, child, fieldname, fields, oracle)
@@ -345,6 +379,8 @@ class TestChildPermlevelProbes(IntegrationTestCase):
 						probed.add((parent, fieldname, role))
 		self.assertIn(("Card Equipment", "components", "Card Supervisor"), probed)
 		self.assertIn(("Card Settings", "diesel_price_schedule", "Card Manager"), probed)
+		self.assertIn(("Card Settings", "project_transport_prices", LEVEL_0_ROLE), probed)
+		self.assertIn(("Card Settings", "location_cost_centers", LEVEL_0_ROLE), probed)
 
 	def test_permitted_readers_keep_the_child_column_in_reports(self):
 		"""A reader of the components' level keeps the child column and the child filter in report view."""
@@ -394,3 +430,174 @@ class TestChildPermlevelProbes(IntegrationTestCase):
 		frappe.set_user("Administrator")
 		self.assertTrue(versions)
 		self.assertNotIn(marker, json.dumps(versions, default=str))
+
+
+class TestSettingsTimelineByLevel(ChildPermlevelFixtures):
+	"""FR-148: the Card Settings timeline (Version rows in getdoc / get_docinfo) masks, per reader, every field
+	and child row value at a level he cannot read; a reader of the level sees the real values."""
+
+	def _settings_version(self):
+		"""A real Version of Card Settings (Frappe's own diff of the stored and the changed document) that adds a
+		row to each fixed table, changes one row and one level-2 field; inserted without the settings rules."""
+		cost_center = frappe.db.get_value("Cost Center", {"company": self.company, "is_group": 0}, "name")
+		project = frappe.get_doc(
+			{"doctype": "Project", "project_name": "TEST-FR148-T-" + self.token, "company": self.company}
+		).insert(ignore_permissions=True)
+		location = frappe.get_doc(
+			{"doctype": "Location", "location_name": "TEST-FR148-TL-" + self.token}
+		).insert(ignore_permissions=True)
+		self._child(
+			"Card Diesel Price",
+			"Card Settings",
+			"Card Settings",
+			"diesel_price_schedule",
+			company=self.company,
+			valid_from="2032-01-01",
+			unit_price=1111.5,
+		)
+		old = frappe.get_doc("Card Settings")
+		new = frappe.get_doc("Card Settings")
+		new.append(
+			"diesel_price_schedule",
+			{"company": self.company, "valid_from": "2032-02-02", "unit_price": 7777.123},
+		)
+		row = next(r for r in new.diesel_price_schedule if r.unit_price == 1111.5)
+		row.unit_price = 6666.25
+		new.append("project_transport_prices", {"project": project.name, "amount": 5555.75})
+		new.append(
+			"location_cost_centers",
+			{"company": self.company, "location": location.name, "cost_center": cost_center},
+		)
+		new.reconciliation_tolerance = 4444.5
+		version = frappe.new_doc("Version")
+		self.assertTrue(version.update_version_info(old, new))
+		version.insert(ignore_permissions=True)
+		# row and field changes are stored formatted (e.g. "6,666.25"), added rows raw
+		return {"level 1": ["7777.123", "6,666.25"], "level 2": ["5555.75", location.name, "4,444.50"]}
+
+	def _timelines(self, user):
+		from card.card.doctype.card_settings import card_settings as scope
+
+		frappe.set_user(user)
+		replies = {}
+		for label, call in (
+			("getdoc", lambda: scope.getdoc("Card Settings", "Card Settings")),
+			("get_docinfo", lambda: scope.get_docinfo(doctype="Card Settings", name="Card Settings")),
+		):
+			frappe.local.response = frappe._dict(docs=[])
+			call()
+			versions = frappe.response.docinfo.get("versions") or []
+			replies[label] = json.dumps(
+				[json.loads(v.get("data") or "{}") for v in versions], ensure_ascii=False, default=str
+			)
+		frappe.set_user("Administrator")
+		return replies
+
+	def test_card_manager_sees_the_diesel_rows_masked_and_the_level_2_values(self):
+		from card.field_privacy import MASKED
+
+		values = self._settings_version()
+		for label, blob in self._timelines(self._user("Card Manager")).items():
+			with self.subTest(route=label):
+				for value in values["level 1"]:
+					self.assertNotIn(value, blob)
+				self.assertIn(MASKED, blob)
+				for value in values["level 2"]:
+					self.assertIn(value, blob)  # Card Manager reads level 2
+
+	def test_accounts_manager_sees_the_real_values(self):
+		values = self._settings_version()
+		for label, blob in self._timelines(self._user("Accounts Manager")).items():
+			with self.subTest(route=label):
+				for value in values["level 1"] + values["level 2"]:
+					self.assertIn(value, blob)
+
+	def test_a_level_0_reader_sees_every_higher_level_value_masked(self):
+		values = self._settings_version()
+		user = self._grant_level_0("Card Settings")
+		for label, blob in self._timelines(user).items():
+			with self.subTest(route=label):
+				for value in values["level 1"] + values["level 2"]:
+					self.assertNotIn(value, blob)
+
+	def test_the_masking_is_per_reader_and_the_stored_version_keeps_the_values(self):
+		self._settings_version()
+		stored = frappe.get_all(
+			"Version",
+			filters={"ref_doctype": "Card Settings"},
+			order_by="creation desc",
+			limit=1,
+			pluck="data",
+		)
+		self.assertIn("7777.123", stored[0])
+
+
+class TestChildPermlevelPrintAndWrite(ChildPermlevelFixtures):
+	"""FR-148: prints carry no hidden row; a role without the table's level cannot overwrite or empty the rows."""
+
+	def test_print_carries_no_hidden_component_row(self):
+		name, _child, _fields, markers, _oracle = self._fixtures()[("Card Equipment", "components")]
+		frappe.set_user(self._user("Card Supervisor"))
+		try:
+			html = frappe.get_print("Card Equipment", name)
+		except frappe.PermissionError:
+			frappe.clear_messages()
+			html = ""
+		frappe.set_user("Administrator")
+		for marker in markers[1:]:
+			self.assertNotIn(marker, html)
+		frappe.set_user(self._user("Card Manager"))
+		html = frappe.get_print("Card Equipment", name)
+		frappe.set_user("Administrator")
+		self.assertIn(markers[-1], html)  # the control: a reader of level 1 prints the rows
+
+	def test_print_of_settings_carries_no_hidden_diesel_row(self):
+		self._fixtures()
+		frappe.set_user(self._user("Card Manager"))
+		try:
+			html = frappe.get_print("Card Settings", "Card Settings")
+		except frappe.PermissionError:
+			frappe.clear_messages()
+			html = ""
+		frappe.set_user("Administrator")
+		self.assertNotIn("4321.987", html)
+
+	def _stored(self, parent, name, fieldname):
+		return sorted(
+			frappe.get_all(
+				frappe.get_meta(parent).get_field(fieldname).options,
+				filters={"parent": name, "parenttype": parent, "parentfield": fieldname},
+				pluck="name",
+			)
+		)
+
+	def test_a_writer_without_the_level_cannot_empty_or_overwrite_the_rows(self):
+		from frappe.desk.form.save import savedocs
+
+		data = self._fixtures()
+		unit = data[("Card Equipment", "components")][0]
+		before = self._stored("Card Equipment", unit, "components")
+		self.assertTrue(before)
+		user = self._grant_level_0("Card Equipment", write=1)
+		for route in ("savedocs", "client.save"):
+			with self.subTest(route=route):
+				frappe.set_user(user)
+				doc = frappe.client.get("Card Equipment", unit)
+				self.assertFalse(doc.get("components"))  # hidden from him
+				doc["components"] = [{"component": unit, "role": "forged", "change_reason": "forged"}]
+				if route == "savedocs":
+					frappe.local.response = frappe._dict(docs=[])
+					savedocs(json.dumps(doc, default=str), "Save")
+				else:
+					frappe.client.save(doc)
+				frappe.set_user("Administrator")
+				self.assertEqual(self._stored("Card Equipment", unit, "components"), before)
+				self.assertFalse(
+					frappe.db.exists("Card Equipment Component", {"parent": unit, "role": "forged"})
+				)
+		frappe.set_user(user)
+		doc = frappe.client.get("Card Equipment", unit)
+		doc["components"] = []
+		frappe.client.save(doc)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._stored("Card Equipment", unit, "components"), before)

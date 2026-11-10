@@ -118,6 +118,7 @@ def getdoc(doctype: str, name: str | int):
 	every row of another company."""
 	_call_previous(GETDOC, doctype=doctype, name=name)
 	scope_docinfo_versions()
+	mask_docinfo_versions_by_level()
 
 
 @frappe.whitelist(methods=["GET", "POST"])
@@ -129,6 +130,7 @@ def get_docinfo(
 	"""Override of ``frappe.desk.form.load.get_docinfo``: as ``getdoc``."""
 	_call_previous(GET_DOCINFO, doc=doc, doctype=doctype, name=name)
 	scope_docinfo_versions()
+	mask_docinfo_versions_by_level()
 
 
 def scope_docinfo_versions():
@@ -181,6 +183,81 @@ def _scoped_version_data(data, allowed, companies):
 	return frappe.as_json(changes, indent=None, separators=(",", ":"))
 
 
+# ---------- FR-148: the Card Settings timeline follows the reader's permission levels ----------
+
+
+def _hidden_settings_fields(user=None):
+	"""FR-148: (fields, {table: child fields}) of Card Settings that ``user`` (default: the session user) may
+	not read: a field at a level he has no read on, every field of a table at such a level, and every child
+	field at such a level. None for Administrator (Frappe applies no level to him)."""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return None
+	meta = frappe.get_meta("Card Settings")
+	levels = set(meta.get_permlevel_access("read", user=user))
+	fields = {
+		df.fieldname
+		for df in meta.fields
+		if df.fieldtype not in LAYOUT_FIELDTYPES and cint(df.permlevel) not in levels
+	}
+	tables = {}
+	for table in meta.get_table_fields():
+		child = [df for df in frappe.get_meta(table.options).fields if df.fieldtype not in LAYOUT_FIELDTYPES]
+		hidden_table = cint(table.permlevel) not in levels
+		hidden = {df.fieldname for df in child if hidden_table or cint(df.permlevel) not in levels}
+		if hidden:
+			tables[table.fieldname] = hidden
+	return fields, tables
+
+
+def mask_docinfo_versions_by_level():
+	"""FR-148: in ``frappe.response.docinfo.versions`` of Card Settings, mask (``card.field_privacy.MASKED``)
+	the old and new values of every field, and every child row value, at a level the reader cannot read: in
+	``changed``, ``added``, ``removed`` and ``row_changed``. Who changed what and when stays. The Versions
+	are stored unmasked (a reader of the level, e.g. Accounts Manager, sees the real values); this is a
+	read-time mask for Card Settings only."""
+	docinfo = frappe.response.get("docinfo")
+	if not docinfo or docinfo.get("doctype") != "Card Settings" or not docinfo.get("versions"):
+		return
+	hidden = _hidden_settings_fields()
+	if not hidden or not (hidden[0] or hidden[1]):
+		return
+	docinfo["versions"] = [
+		{**version, "data": _masked_version_data(version.get("data"), *hidden)}
+		for version in docinfo["versions"]
+	]
+
+
+def _masked_version_data(data, fields, tables):
+	import json
+
+	from card.field_privacy import MASKED
+
+	try:
+		changes = json.loads(data or "{}")
+	except ValueError:
+		return "{}"
+
+	def mask_changes(entries, hidden):
+		for change in entries or []:
+			if isinstance(change, list) and change and change[0] in hidden:
+				change[1:] = [MASKED] * (len(change) - 1)
+
+	mask_changes(changes.get("changed"), fields)
+	for key in ("added", "removed"):
+		for entry in changes.get(key) or []:
+			row = entry[1] if isinstance(entry, list) and len(entry) > 1 else None
+			if isinstance(row, dict):
+				for field in tables.get(entry[0], ()):
+					if field in row:
+						row[field] = MASKED
+	for entry in changes.get("row_changed") or []:
+		# [table, idx, row name, [[field, old, new], ...]]
+		if isinstance(entry, list) and len(entry) > 3:
+			mask_changes(entry[3], tables.get(entry[0], ()))
+	return frappe.as_json(changes, indent=None, separators=(",", ":"))
+
+
 def _normalised(df, value):
 	if df.fieldtype in ("Int", "Check"):
 		return cint(value)
@@ -219,6 +296,7 @@ class CardSettings(Document):
 		super().apply_fieldlevel_read_permissions()
 		# the form save (savedocs) builds the timeline before this call
 		scope_docinfo_versions()
+		mask_docinfo_versions_by_level()
 		if self.flags.card_hidden_company_rows:
 			# the form shows a note (card_settings.js); set here, as the form save resets __onload
 			# after on_change
