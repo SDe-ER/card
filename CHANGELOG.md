@@ -66,6 +66,35 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   by the older code); the static fields are unchanged, so the older behaviour returns as it was. The
   `ignore_user_permissions` property lives in the DocType JSON and is removed with the code; with an older FR-144
   build a company-restricted user would again be locked out of a type that has rows of another company.
+- **FR-143 — Separation of duties on the monthly card (FR-006; #35, #51, #123; closure plan WP-D1, owner decision
+  O-07).** Reason: owner 2026-10-19 "whoever created or entered a monthly card never approves it, enforced on the
+  server" (R-13: the creator could submit his own card). A monthly card has no review step or Workflow yet (WP-D2),
+  so its **approval is its submit**; D1 adds only the guard on that step. New module `card/governance.py`
+  (`on_validate`, `before_submit`, `before_update_after_submit`, `before_cancel`, `card_preparers`,
+  `approval_rule`), wired as additive `doc_events` of Card Monthly Card in `card/hooks.py` (after the existing
+  FR-123, period-lock and posting events, which keep their order). New read-only, no-copy fields on **Card Monthly
+  Card** (collapsible section "Monthly card approval", shown after submit): `submitted_by`, `approved_by`,
+  `approved_on`, `self_approved`, and the hidden `edited_by` (every user who saved the draft; a submit request that
+  also changes an editable field or row, and a REST insert with `docstatus` 1, records its user too; a plain submit
+  does not). All are written by the server only on every route (form save/submit, REST v1/v2 insert and PUT,
+  `frappe.client.insert/save/submit/set_value`, savedocs, bulk update/submit/cancel, Data Import): validate clears
+  the approval fields and reads the creator (`owner`) and the editors from the database with a locking read (a sent
+  `owner` or a changed `amended_from` is replaced by the stored one, as Frappe checks `amended_from` on insert only), an update after submit and a cancel restore the stored values. Preparers =
+  the creator and every editor of the card and of every card of its `amended_from` chain; the approver of an
+  earlier card of the chain is not a preparer of the correction; a draft saved before FR-143 counts its last saver
+  (`modified_by`) as its editor. New per-company **Card Company Settings `card_approval_rule`** (permlevel 1, like
+  the other company rules): "Warn only (card approval)" — the default, also with no company row or an empty value —
+  submits with a warning and marks the card `self_approved`; "Refuse (card approval)" refuses the submit. No role
+  is exempt (Administrator and System Manager included). The Card Daily Log keeps its own
+  `Card Daily Log Settings.self_approval_rule` (FR-142): the two rules are deliberately not merged in this
+  package (K1 backlog note; recorded in the registry). Impact: permissions — no role, DocPerm or permission hook
+  added or widened; the rule row follows the FR-133 company scope of Card Settings (a company-restricted user
+  changes only his companies' rule). Accounting — none (no GL, no posting change; amounts unchanged). Data — five
+  new columns on `tabCard Monthly Card` and one on `tabCard Company Settings`; existing cards are not changed (the
+  fields stay empty on cards submitted before FR-143; no patch). API — a submit by a preparer now returns a warning
+  message (default) or a PermissionError (Refuse). Default behaviour unchanged: every submit that worked before
+  still works. Tests: `card/tests/test_card_sod.py`. Rollback limits: a code rollback leaves the new columns and
+  their values in the database (Frappe does not drop columns); they are inert without the code. PR: #224.
 - **FR-145 — Draft monthly cards from approved daily logs (#44, #123, FR-022; closure plan WP-K2).** Reason: #44
   asks for automatic card generation from daily entry with no duplicate between the manual and the automatic route,
   and #123 for daily entry feeding the monthly cards; FR-142 records and approves the logs but generated nothing.
