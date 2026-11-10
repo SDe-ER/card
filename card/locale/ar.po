@@ -8025,3 +8025,6 @@ msgstr "خصم المالك {0} لم يعد يُحتسب: مستنده المص�
 
 msgid "Deductions recorded in a month with no card of this owner on the machine."
 msgstr "خصومات مسجلة في شهر لا يوجد فيه كارت لهذا المالك على المعدة."
+
+msgid "{0}: deductions of {1} on {2} in {3} are before the cut-over {4}; they are not counted."
+msgstr "{0}: خصومات بقيمة {1} على {2} في {3} قبل تاريخ البداية {4}؛ لا تُحتسب."

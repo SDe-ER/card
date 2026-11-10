@@ -85,7 +85,7 @@ class CardOwnerDeduction(Document):
 			operated = frappe.db.exists(
 				"Card Monthly Card",
 				{
-					"equipment": self.equipment,
+					# any machine: the statement shares the slip over every card of the period
 					"operator": slip.employee,
 					"docstatus": ["in", [0, 1]],
 					"from_date": ["<=", slip.end_date],

@@ -158,6 +158,7 @@ def equipment_cards(company, equipment_names, until):
 			"working_days",
 			"operator",
 			"owner_model",
+			"amended_from",
 			"customer_amount",
 			"customer_net_amount",
 			"sales_invoice",
@@ -262,7 +263,7 @@ APPROVAL_FIELDS = [
 ]
 
 
-def card_approvals(card_names, rows_by_card=None):
+def card_approvals(card_names, rows_by_card=None, amended_from=None):
 	"""{card: {adjustment row: approval}}.
 
 	A customer's approval survives a cancel and amend of the card: an approval recorded on an earlier
@@ -280,8 +281,9 @@ def card_approvals(card_names, rows_by_card=None):
 		out[approval.monthly_card][approval.adjustment_row] = approval
 	if rows_by_card is None:
 		return out
+	chains = amendment_chains(amended_from or {})
 	for card in card_names:
-		ancestors = amendment_ancestors(card)
+		ancestors = chains.get(card) or []
 		if not ancestors:
 			continue
 		inherited = frappe.get_all(
@@ -307,14 +309,36 @@ def card_approvals(card_names, rows_by_card=None):
 	return out
 
 
-def amendment_ancestors(card):
-	"""Earlier versions of an amended card, nearest first."""
-	chain = []
-	current = frappe.db.get_value("Card Monthly Card", card, "amended_from")
-	while current and current not in chain and len(chain) < 50:
-		chain.append(current)
-		current = frappe.db.get_value("Card Monthly Card", current, "amended_from")
-	return chain
+def amendment_chains(amended_from):
+	"""{card: [earlier versions, nearest first]} for ``amended_from`` = {card: its amended_from}.
+	Resolved level by level with one query per level (the cancelled versions are not in the card list)."""
+	parent = {c: a for c, a in amended_from.items() if a}
+	pending = {a for a in parent.values() if a not in parent}
+	seen = set(parent)
+	for _level in range(50):
+		pending -= seen
+		if not pending:
+			break
+		seen |= pending
+		rows = frappe.get_all(
+			"Card Monthly Card",
+			filters=[["name", "in", list(pending)]],
+			fields=["name", "amended_from"],
+			limit_page_length=0,
+		)
+		pending = set()
+		for row in rows:
+			if row.amended_from:
+				parent[row.name] = row.amended_from
+				pending.add(row.amended_from)
+	chains = {}
+	for card in amended_from:
+		chain, current = [], parent.get(card)
+		while current and current not in chain and len(chain) < 50:
+			chain.append(current)
+			current = parent.get(current)
+		chains[card] = chain
+	return chains
 
 
 def _same_row(old, new):
@@ -689,7 +713,7 @@ def build_statement(
 	by_name = {m.name: m for m in machines}
 	cards = equipment_cards(company, list(by_name), end)
 	rows_by_card = card_rows([c.name for c in cards])
-	approvals = card_approvals([c.name for c in cards], rows_by_card)
+	approvals = card_approvals([c.name for c in cards], rows_by_card, {c.name: c.amended_from for c in cards})
 	owner_types = owner_revenue_types(company)
 
 	# the owner of each card: a submitted card keeps the owner it was submitted with (third-party
@@ -799,6 +823,17 @@ def build_statement(
 		if owner not in owners or eq not in by_name:
 			continue
 		machine = by_name[eq]
+		cut = cutover.get((owner, eq))
+		if not cut and owner == machine.supplier and machine.owner_entitlement_from:
+			cut = getdate(get_first_day(machine.owner_entitlement_from))
+		if cut and month < cut:
+			total = flt(sum(lines.values()), 2)
+			warnings.append(
+				_(
+					"{0}: deductions of {1} on {2} in {3} are before the cut-over {4}; they are not counted."
+				).format(owner, total, eq, month_label(month), month_label(cut))
+			)
+			continue
 		row = frappe._dict(
 			owner=owner,
 			equipment=eq,

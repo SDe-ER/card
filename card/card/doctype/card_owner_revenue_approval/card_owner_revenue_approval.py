@@ -37,7 +37,7 @@ class CardOwnerRevenueApproval(Document):
 		card = frappe.db.get_value(
 			"Card Monthly Card",
 			self.monthly_card,
-			["name", "company", "equipment", "supplier", "docstatus"],
+			["name", "company", "equipment", "supplier", "ownership", "docstatus"],
 			as_dict=True,
 		)
 		if not card:
@@ -53,7 +53,9 @@ class CardOwnerRevenueApproval(Document):
 		equipment = frappe.db.get_value(
 			"Card Equipment", card.equipment, ["ownership", "supplier"], as_dict=True
 		)
-		if not equipment or equipment.ownership != THIRD_PARTY:
+		# a submitted card keeps the ownership it was submitted with; a draft follows the equipment
+		ownership = card.ownership if card.docstatus == 1 else (equipment or {}).get("ownership")
+		if not equipment or ownership != THIRD_PARTY:
 			frappe.throw(_("Only a card of third-party equipment has an owner revenue approval."))
 		self.company = card.company
 		self.equipment = card.equipment

@@ -6785,3 +6785,6 @@ msgstr ""
 
 msgid "Deductions recorded in a month with no card of this owner on the machine."
 msgstr ""
+
+msgid "{0}: deductions of {1} on {2} in {3} are before the cut-over {4}; they are not counted."
+msgstr ""

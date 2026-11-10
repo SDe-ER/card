@@ -1017,6 +1017,18 @@ class TestReviewRound2(OwnerFixtures):
 		)
 		self.assertTrue(index)
 
+	def test_a_deduction_before_the_cut_over_is_listed_not_counted(self):
+		owner = self._supplier("-K")
+		eq = self._equipment(owner, model=OWNER_MODEL_SELF, since="2026-09-01")
+		self._card(eq)
+		self._deduction(eq, self._bank_source(700, "2026-08-10"), 700, date="2026-08-10")
+		s = os_.build_statement(
+			self.company, [owner], "2026-08-01", "2026-09-30", show_ledger=False, show_wages=False
+		)
+		self.assertFalse([m for m in s.months if m.no_card])
+		self.assertEqual(s.owners[owner].entitlement, 22500)
+		self.assertTrue(any("cut-over" in w for w in s.warnings))
+
 
 class TestOwnerDeductionAccess(OwnerFixtures):
 	"""A Card Manager without Salary Slip read never reads owner deductions (wages are payroll data)."""

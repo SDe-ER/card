@@ -52,7 +52,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     automatic-deduction refusal checks only the accounts the statement deducts; supplier registry figures leave out
     rented-out third-party cards; one card query per employee for wages. Security: Card Manager loses its DocPerm on
     Card Owner Deduction (wage lines and Salary Slip names are payroll data; the report keeps its wage gate), with
-    API, list-view and export tests.
+    API, list-view and export tests. Second review: a deduction dated before the owner's cut-over is listed, not counted; an approval checks the
+    submitted card's ownership snapshot; a Salary Slip whose employee has any card in the period is refused (it is
+    already shared automatically); amendment chains resolved in bulk; the supplier reports use `DIR_RENTED_OUT`.
 - **FR-144 — Effective-dated diesel consumption rates: type default and equipment override (#31, #42, #47; closure
   plan WP-H1).** Reason: #31 asks for expected consumption = operating hours × an effective-dated rate (litres per
   operating hour) per equipment or equipment type with a per-equipment override, scoped per company; #42 for a
