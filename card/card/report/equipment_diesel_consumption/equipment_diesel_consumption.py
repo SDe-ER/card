@@ -4,6 +4,7 @@ from frappe.utils import flt, getdate
 
 from card.diesel import UNALLOCATED, allocate_project_diesel
 from card.report_access import readable_links, resolve_company
+from card.report_currency import company_currency_report
 
 
 def get_columns():
@@ -48,6 +49,7 @@ def get_columns():
 	]
 
 
+@company_currency_report("Project Diesel Fill", "Card Monthly Card")
 def execute(filters=None):
 	# Report: "Equipment Diesel Consumption" (Script Report, standard, ref doctype: Project Diesel Fill)
 	# Read-only. Per (project, month): reuses card.diesel.allocate_project_diesel, which returns the diesel

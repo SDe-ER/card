@@ -16,6 +16,7 @@ from card.diesel_reconciliation import (
 	vat_basis,
 )
 from card.report_access import readable_links, resolve_company
+from card.report_currency import company_currency_report
 
 
 def get_columns():
@@ -66,6 +67,7 @@ def get_columns():
 	]
 
 
+@company_currency_report(*DOCTYPES)
 def execute(filters=None):
 	# Report: "Diesel Invoice Reconciliation" (P1-1). Read-only: compares CARD diesel sessions with the
 	# suppliers' own Purchase Invoices; it creates, changes or links nothing. A difference it shows is a

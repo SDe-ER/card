@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "autoname": "EMR-.#####",
+ "creation": "2026-11-10 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "equipment",
+  "company",
+  "reading_datetime",
+  "engine_hours",
+  "source",
+  "column_break_reading",
+  "previous_reading",
+  "previous_engine_hours",
+  "is_meter_reset",
+  "reset_reason",
+  "evidence_section",
+  "attachment",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "read_only": 1,
+   "fetch_from": "equipment.company",
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "reading_datetime",
+   "fieldtype": "Datetime",
+   "label": "Reading date and time",
+   "reqd": 1,
+   "default": "Now",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "engine_hours",
+   "fieldtype": "Float",
+   "label": "Engine hours",
+   "reqd": 1,
+   "in_list_view": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Reading source",
+   "options": "Weekly reading\nHandover reading\nService reading\nOther reading",
+   "default": "Weekly reading",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_reading",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "previous_reading",
+   "fieldtype": "Data",
+   "label": "Previous reading",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "Snapshot when the reading was saved or submitted; not updated when an earlier reading is added or cancelled later."
+  },
+  {
+   "fieldname": "previous_engine_hours",
+   "fieldtype": "Float",
+   "label": "Previous engine hours",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "Snapshot when the reading was saved or submitted; not updated when an earlier reading is added or cancelled later."
+  },
+  {
+   "fieldname": "is_meter_reset",
+   "fieldtype": "Check",
+   "label": "Meter reset",
+   "default": "0"
+  },
+  {
+   "fieldname": "reset_reason",
+   "fieldtype": "Small Text",
+   "label": "Reset reason",
+   "depends_on": "eval:doc.is_meter_reset",
+   "mandatory_depends_on": "eval:doc.is_meter_reset"
+  },
+  {
+   "fieldname": "evidence_section",
+   "fieldtype": "Section Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Meter photo or document"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Equipment Meter Reading",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-10 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Equipment Meter Reading",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Card Manager",
+   "permlevel": 0,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Card Supervisor",
+   "permlevel": 0,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Card User",
+   "permlevel": 0,
+   "read": 1,
+   "print": 1,
+   "report": 1
+  }
+ ],
+ "search_fields": "equipment,reading_datetime",
+ "sort_field": "reading_datetime",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "equipment",
+ "track_changes": 1
+}

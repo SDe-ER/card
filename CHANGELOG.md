@@ -67,6 +67,165 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   creates no document). Data: three new tables, nothing written to existing records, no patch. API: the new
   DocTypes' REST resources. Rollback limits: code rollback leaves the three tables and their rows (harmless,
   unused); delete the DocTypes to remove them, after K2 only if no monthly card was generated from a log.
+- **FR-139 — Transport responsibility posting, per company: Hold (default) or Post (#49, #126, #43; WP-T,
+  conflict C-09, owner decision O-14, PR #215).** Reason: #49 and #126 ask for customer transport charging and the
+  posting of transport responsibility scenarios, while the owner decision of 2026-10-31 (FR-093, P1-2) holds every
+  transport recorded with a responsibility out of the monthly build until the accountant and the tax adviser decide.
+  Both now hold: new per-company setting Card Company Settings `transport_responsibility_posting` ("Hold (transport
+  responsibility posting)", the default, also for an empty value and for every existing row; or "Post (transport
+  responsibility posting)") and `transport_recharge_income_account` (Link Account, used by Post only). **Hold keeps
+  the P1-2 filter of `card.gl.posting._supplier_sources` unchanged** (same query, same fields, same order — tested
+  against a copy of the v4.7.0 query). **Post** (DRAFT standard ERPNext invoices only, through the existing monthly
+  builder; no GL write, no auto-submit): on the transporter's monthly Purchase Invoice a submitted transport the
+  company pays is added when the company bears it (line on its explicit cost project, place cost center or overhead
+  cost center — never the origin or destination), or when its financial decision is approved: "Bill customer" (line
+  on the approved billing project's cost center), "Recover from equipment supplier" by adjustment document (line
+  only; the accountant issues the recovery document) or by deduction from monthly dues when the equipment supplier is
+  the transporter (the line plus a negative recovery line on the same Purchase Invoice, same account and the
+  company's CARD cost center; the transport reserves the net amount). On the customer's monthly Sales Invoice a
+  transport whose approved decision is "Bill customer" with "Monthly invoice" adds one positive line of its
+  `billing_amount` (never the transporter cost) on the billing project, with the recharge income account; a zero or
+  negative amount is refused (ZATCA rule of 2026-10-15: no negative Sales Invoice line). VAT is never inferred: every
+  line carries the company's CARD item tax template (FR-127 `standard_vat_rate`), as all CARD lines do. Still held in
+  Post (listed as preview warnings): a pending or returned decision, "Company absorbs" (no cost project is recorded
+  for the absorbed cost), a deduction from another supplier than the transporter (one transport is one supplier-side
+  source), a "Separate invoice" on the customer side (the transporter line still posts), "needs review" and every
+  move the company does not pay. A billing project of another company is refused. The duplicate guard is the FR-090
+  one per side (GL Posting Source membership, then the invoice link on submit); the built signature and snapshot
+  apply to the new lines. Transports recorded before P1-2 keep their P1-0 rule in both modes.
+  Review fixes (independent accounting review of PR #215): cancelling the Purchase Invoice of a transport whose
+  customer Sales Invoice is still submitted keeps it `posted` (Equipment Transport has no `sales_invoice` field, so
+  `card.gl.events._other_side_still_posted` now reads the other side from its submitted GL Posting Log; other
+  sources unchanged); a recovery above the transport cost is refused; the recovery deduction and the customer
+  lines are split per machine in the proportions of the transport's equipment shares — only over machines with
+  a positive share, the rounding remainder on the largest share, a negative part refused, so no negative Sales
+  Invoice line and no part for a machine without cost; the recharge income account must be an Income account; a cancelled billing project is refused.
+  Known limits (owner questions): transports held in Post ("Company absorbs", deduction from another supplier,
+  "Separate invoice") have no manual-link path yet — "link supplier invoice" still refuses every P1-2 transport, so
+  the accountant enters those invoices without a CARD link; the Transport Accounting Review report keeps its P1-2
+  wording under Post (its status texts still say that posting waits, e.g. "Company cost recorded — Purchase
+  Invoice posting waits for the accountant", "Customer billing recorded — invoicing waits for the accountant and the
+  tax adviser" and "Recovery recorded — not posted until the accountant decides"); a customer-side Net Total discount (taxable card
+  deductions) is apportioned by ERPNext over every line of the Sales Invoice, the transport recharge lines included
+  (same VAT base; the per-line split of the discount is ERPNext's).
+  Affected functions: `card.gl.posting._supplier_sources`, `_plan_monthly_posting`, `month_parties`,
+  `transport_line_cost_center` (its place check moved to `_place_cost_center`, same behaviour), new
+  `responsibility_line_allocation`, `_responsibility_transports`, `_customer_transports`,
+  `_customer_transport_lines`, `_split_by_shares`; `card.gl.events._other_side_still_posted`; `card.gl.preflight`
+  `posts_transport_responsibility`, `require_transport_recharge_account`; `card.transport_costs`
+  `supplier_posting_kind`, `customer_billing_eligible`.
+  Impact: permissions none (no role, DocPerm or `ignore_permissions` added; the new fields are permlevel 1 like the
+  rest of the company row); accounting none under Hold; under Post more draft invoice lines, posted only after an
+  accountant submits them; data: two new columns, empty on existing rows (= Hold), no patch; API: no new or changed
+  endpoint (`post_month`, `rebuild_month`, `preview_month`, `posting_month_parties` keep their signatures). Not
+  changed: the Transport Accounting Review report text and "link supplier invoice", which still refuses P1-2
+  transports. Rollback: revert the commit; the two columns stay in the database and can be dropped only by a
+  separate approved task. Drafts built under Post are ordinary CARD drafts and can be deleted (their sources are
+  freed); submitted ones are reversed by cancelling the invoice (Sales Invoice: a credit note when ZATCA applies).
+  After a revert, a transport already linked to a submitted Purchase Invoice stays linked.
+- **FR-140 — Equipment Meter Reading: engine-hour readings per equipment (#31 D6; closure plan WP-H2).** Reason:
+  #31 separates engine hours (meter) from billable hours, and O-11 D6 sets weekly meter readings by the site
+  supervisor; no record of meter readings existed. New submittable DocType **Equipment Meter Reading** (naming
+  `EMR-.#####`, track changes): `equipment` (Card Equipment), `company` (mandatory, read only, fetched from the
+  equipment and always replaced by the equipment's company on the server), `reading_datetime`, `engine_hours`,
+  `source` (Weekly reading, default / Handover reading / Service reading / Other reading), `is_meter_reset` with a
+  mandatory `reset_reason`, read-only `previous_reading` / `previous_engine_hours`, a private `attachment` and
+  `notes`. Rules (server, every entry point): engine hours are never negative; compared with the submitted readings
+  of the same equipment just before and just after its date and time, a lower reading is refused unless it is a
+  meter reset with a reason (a reset is accepted only for a lower reading), a backdated reading may not exceed the
+  next one unless that one is a reset (and must stay above a later reset, so that reset stays lower), and two
+  submitted readings never share a date and time; drafts and cancelled readings do not count; the check runs again
+  on submit under a row lock on the Card Equipment record, so two parallel submits cannot both pass. A cancel takes
+  the same lock and is refused when it would leave the next submitted reading out of sequence (lower than the new
+  previous reading without a reset, or a reset without a higher previous reading). An amendment must amend a cancelled reading of the same company that the user
+  may read (Frappe copies the attachments of `amended_from`). The attachment must be a private JPEG, PNG, WebP or PDF
+  of this record or the user's own upload, which the reading then claims (`card.attachment_validator`). Affected
+  functions: new `equipment_meter_reading.py` (`neighbour_readings`, `EquipmentMeterReading.validate`,
+  `before_submit`, `before_cancel`, `on_update`). Tests: `card/tests/test_meter_reading.py`; `card/tests/test_company_scope.py`: the
+  planned-DocType guard accepts Frappe's own `amended_from` self-link of a submittable DocType (any other self-link
+  is still refused). `docs/governance/ROLE-ACTION-MATRIX.md`: new DocType row. PR #217.
+  - Permissions: Card Manager (all), Card Supervisor (create, write, submit, cancel, amend), Card User (read, print,
+    report); no DocPerm for any other role (Administrator only, as for every DocType). Company isolation through the
+    generic company scope (FR-131, already registered for this DocType): a company-restricted user can neither read,
+    list, create, move nor amend a reading of another company.
+  - Accounting: none (no posting, no GL; CARD writes no GL). Data: one new table; nothing existing changes; the
+    reading feeds nothing yet (monthly card, billable hours, diesel figures unchanged; WP-H1/H3 will read it).
+  - API: the standard REST resource of the new DocType; no new whitelisted method.
+  - Rollback limits: code rollback leaves the `tabEquipment Meter Reading` table and its rows (harmless); readings
+    entered meanwhile stay in the database and become visible again on a later re-deploy.
+  - Known limits: `previous_reading` / `previous_engine_hours` are a snapshot taken at save/submit; a reading added
+    earlier or cancelled later does not update them. WP-H1/H3 must work out the sequence (and engine hours per
+    period) from the submitted readings themselves, never from these fields. Engine hours only (no km meters; backlog).
+    Parallel submits are proven by a lock and locking-read unit test and the reviewer's two-connection probe; a
+    two-connection race test in the suite is backlog.
+- **FR-141 — Dated rate agreements, built opt-in and not wired (#41; closure plan WP-M1, conflict C-16, owner
+  decision O-08 default).** Reason: #41 needs effective agreements per equipment, party and project, and "no automatic
+  billing when several agreements match"; FR-023 (dated agreements) was postponed by the owner on 2026-10-19, so the
+  model is added unused and changes nothing until the opt-in wiring (WP-M2..M4) is merged and enabled per company.
+  New submittable DocType Card Rate Agreement (company; an equipment or an equipment type; supplier and/or customer;
+  optional project and work zone; valid from / valid to, empty end = open-ended; rates per hour, day, month and
+  quantity unit in the company currency) and child table Card Agreement Responsibility (cost category Rental /
+  Diesel / Transport / Maintenance, paid by Company / Customer / Supplier / Other party, share %, optional single
+  equipment; shares total 100% per category). New `card/agreements.py`: `resolve(company, equipment, party, date,
+  project=None, zone=None)` returns None when nothing matches, the agreement when one does, and raises
+  `AmbiguousAgreementError` when several do (CARD never chooses); every filter runs in SQL (`valid_from` and
+  `valid_to` indexed); the party is required; `project=None` / `zone=None` match only agreements without a project /
+  zone; the zone is compared stripped and case-folded (`normalise_zone`); a zero rate means no rate for that basis.
+  `validate_agreement`, `check_overlap` (same key and overlapping dates refused; at submit the company row is locked
+  and the clashing agreements are read with a locking read, so the second of two concurrent submits sees the
+  first); an agreement for one equipment takes that equipment's type; company checks on equipment, project,
+  amendment and child rows (`card.company_scope.check_child_companies`); a responsibility row may name an equipment
+  only on a type-level agreement. A changed rate is a new agreement (no field is allow-on-submit). Nothing calls
+  `resolve()` yet. `test_company_scope` guard skips Frappe's own `amended_from` self-link; ROLE-ACTION-MATRIX DocType
+  table regenerated. Tests: `card/tests/test_agreements_resolve.py`, `card/tests/test_agreements_concurrency.py`
+  (two committed concurrent submits). PR #216.
+  Impact: permissions: new DocType only (System Manager full; Card Manager create, write, submit, cancel, amend;
+  Accounts Manager and Card User read; no existing role or DocPerm changed), records isolated by company through the
+  FR-131 hooks; accounting none (CARD writes no GL; posting does not read agreements); data: two new tables (indexes
+  on `valid_from`, `valid_to`), no patch,
+  existing records untouched; API: standard REST of the new DocType, no whitelisted method. Rollback limits: code
+  rollback leaves the two tables and any agreements entered (unused by older code, harmless).
+- **FR-138 — Day billing basis per equipment: "Prorated by hours" (default) or "Full day" (#123, #44; WP-AB,
+  conflict C-05, owner decision O-06 default).** Reason: FR-024 left the per-day ("باليوم") method open between the
+  current hours-prorated amount and full-day billing (see "Planned" below); O-06 keeps prorated as the default and
+  allows full-day billing per equipment where the contract says so. Card Equipment gets `day_billing_basis` (Select,
+  "Prorated by hours" / "Full day", default "Prorated by hours", permlevel 1, a commercial field: a change needs a
+  commercial change reason). Card Monthly Card gets `day_billing_basis` (read-only Select, same options, mirrored live
+  from the equipment like the rates) and `day_billing_basis_used` (read-only Select, same options, no copy,
+  snapshotted on submit); both are Selects so their values are translated. Rule: a side whose rate
+  basis is "باليوم" under "Full day" is billed `billed days x rate`, where billed days = operating days + days billed
+  only by billable stopped hours of that side (FR-134); the hours of a day no longer change its amount. Every other
+  case (default basis, an empty value on equipment saved before FR-138, hourly or monthly rates) keeps
+  `billed hours x hourly rate` exactly as before. On a sub-rental card each side applies the basis to its own rate
+  basis and billed days. Submitted cards are never repriced (no recompute after submit; the snapshot records the
+  basis used); a draft follows the equipment on its next save; an amended card is priced and snapshotted with the
+  equipment's basis at its own submit. The Equipment Supplier Statement and the Equipment Customer Statement show a "Day
+  billing basis" column (per-day cards only: the snapshot of a submitted card, the current basis of a draft).
+  On the customer statement a "Full day" card's hourly rate is its customer amount over its billed hours
+  (operating + customer-side billable stopped hours), as the supplier statement already shows it, instead of the
+  nominal `customer_rate_used`; prorated cards keep the snapshot rate. The draft form preview
+  (`card_monthly_card.js`) mirrors `bills_full_days` for the supplier amount. Affected functions:
+  `card/card_value.py` (new `DAY_BASIS_PRORATED`, `DAY_BASIS_FULL_DAY`, `day_billing_basis`, `bills_full_days`);
+  `CardMonthlyCard.before_validate` (amount and customer amount), `_snapshot_settings_used`;
+  `card_equipment.py` `COMMERCIAL_FIELDS`; `equipment_supplier_statement.execute`;
+  `equipment_customer_statement.execute`; `card_monthly_card.js` `card_load_hourly`, `card_calc`; patch
+  `card.patches.v4_8_0.default_day_billing_basis` (fills the default on equipment with an empty value, idempotent,
+  no modified change). Tests: `card/tests/test_day_billing_basis.py`. PR #214.
+  Impact: permissions none (the equipment field is permlevel 1 like the rates; the card fields are level 0 and
+  carry no amount; no role or DocPerm change); accounting none by default (amounts unchanged unless an equipment is
+  set to "Full day"; postings take the card amounts as before; CARD writes no GL); data: one new column on
+  `tabCard Equipment` (filled with the default by the patch), two new nullable columns on `tabCard Monthly Card`;
+  cards submitted before FR-138 keep an empty `day_billing_basis_used`, read as "Prorated by hours" (they were
+  priced so); API: the new fields appear in the REST documents. Known limits (O-06 decision text): one basis
+  per equipment applies to both sides of a sub-rental card (a contract with a full-day supplier and a prorated
+  customer, or the reverse, needs a later per-side option); a day-shift and a night-shift card of the same
+  machine and day are each billed a full day under "Full day" (each shift card stands alone, as before); hours
+  over `daily_hours` earn nothing extra under "Full day" and there is no overtime (FR-008 / WP-L1, O-13);
+  `hourly_rate_used` / `customer_rate_used` keep the nominal rate / daily hours on a "Full day" card (the
+  statements show the effective rate); the form preview treats every billable stop reason as Both until saved
+  (FR-134 limit). Rollback limits: code rollback
+  leaves the columns and their values (harmless); a card priced "Full day" keeps its stored amounts and would be
+  repriced prorated on its next draft save only.
 - **FR-132 — Fill price snapshot: currency, unit and valid-from on each diesel fill (#46, supports #124; WP-X,
   conflict C-18).** Reason: #46 asks for the applied price *and* its currency/unit snapshot on each fill; until now a
   fill stored only `unit_price`, `price_source` and `company_price`. New read-only, no-copy fields on Project Diesel
@@ -179,6 +338,99 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   "Deprecated – not used" (Arabic «مُهمَل – غير مستخدم» in `ar.po`; the same msgid of the FR-124 settings now reads
   «مُهمَل» instead of «متوقف», which also means "stopped"); the column and stored values are kept. Impact: none on permissions,
   accounting, data or the API. Rollback: restore the label.
+- **#54 acceptance suite: GL neutrality, two companies with two currencies, month end under a site time zone,
+  POST-only writers** (FR-136, #54, #53, #40; branch `feat/acceptance-suite`, PR #210).
+  Reason: the #54 acceptance tests and the test-matrix rows 1, 2, 4, 14 and 15 of
+  `docs/architecture/07-international-test-matrix.md` were missing (risks R-16, R-26). New tests only:
+  `card/tests/test_gl_neutrality.py` (static scan: no production module writes GL Entry, Payment Ledger Entry, Stock
+  Ledger Entry or Account Closing Balance rows by document, `frappe.db`, raw SQL or query builder, or calls an ERPNext
+  ledger writer; submit and cancel of monthly card, diesel fill and transport, and the draft monthly posting, add no
+  ledger row; the Purchase Invoice submit adds only its own balanced rows; a second active posting log of the same
+  party-month is refused by the unique `posting_key` in the database), `test_two_currency_posting.py` (a real second
+  company in another currency, one supplier for both: each posting takes only its company's sources, is in its
+  company currency at rate 1 against its own payable, expense accounts, cost centers and project, and posts ledger rows
+  of its company and currency only), `test_month_end_timezone.py` (one UTC instant that is already 1 October in UTC+3 and
+  UTC+14 and still 30 September in UTC-7 and UTC-10: site-local today, the future-day check of a card, the number cards'
+  "last month", month ends 28/29/30/31, posting dated the month end after local midnight, period lock by date),
+  `test_writer_methods_post.py` (every `@frappe.whitelist` names `methods=`; every writer of the FR-129 matrix allows
+  POST only and Frappe refuses its GET; every GET endpoint is read-only in the matrix and has no direct write call).
+  Known limit: the writer test sees only write calls made directly in an endpoint's body; a write reached through a
+  helper is caught only by the FR-129 run-time no-write test. Impact: tests only; no change to permissions,
+  accounting, data or the API. Rollback: revert the commit.
+- **Posting Source Integrity report** (FR-136, PR #210, risk R-25, #54). Reason: a source's invoice link and `posted` flag are
+  written with `db.set_value` on invoice submit, so a direct database edit, an import or an older version can split a
+  source from its GL Posting Log without a trace. New read-only Script Report (System Manager, Accounts Manager; on the
+  CARD Reports sidebar): for one company the user may see and a period, every monthly card, diesel fill and transport
+  that a posting touched, with the check result: invoice link without a submitted log, link to another invoice than the
+  log's, submitted log without the link, more than one submitted posting of a side, linked invoice missing or not
+  submitted, `posted` flag out of step, cancelled source still posted; and log rows whose source no longer exists. It
+  changes, links, posts and repairs nothing. Affected: new `card/card/report/posting_source_integrity/*`,
+  `card/card/sidebar/card_reports/card_reports.json`. Impact: a new report for two existing roles; no DocPerm or role
+  change; no accounting, data or API change. Rollback: revert the commit; the Report record stays on a migrated site until it is
+  deleted by hand (it only reads).
+
+### Changed
+- **Reports label money with the company currency** (FR-136, PR #210, #53, owner default O-17: company currency only,
+  labelled, no conversion). Reason: a Currency column without a currency shows the site's default symbol
+  (`frappe.meta.get_field_currency`), so a second company in another currency saw its amounts with the wrong symbol. New
+  `card/report_currency.py`: the decorator `company_currency_report` on the `execute` of the 15 single-company CARD
+  reports with money (Card Settlement Status, Diesel Invoice Reconciliation, Equipment Customer Statement, Equipment
+  Customers Summary, Equipment Diesel Consumption, Equipment Expenses Without Equipment, Equipment Maintenance Cost,
+  Equipment Partial Margin, Equipment Supplier Statement, Equipment Suppliers Summary, Operating Cost by Project,
+  Transport Accounting Review, Transport Cost by Project, Unbilled Card Work, Posting Source Integrity) resolves the
+  company the report ran for with the report's own doctypes and sets each Currency column without `options` to the row
+  field `currency`, each dict row's `currency` and each Currency summary tile's `currency` to that company's default
+  currency; Equipment Consumption, which spans the permitted companies, adds each row's company and its currency.
+  Values, column order and labels are unchanged; nothing is converted. Impact: display only for a one-currency site
+  (the symbol is the same); no permission, accounting, data or API change; report rows carry one more key
+  (`currency`; Equipment Consumption also `company`). Known limits: a report total row keeps the site default
+  symbol; server-side formatting (export, print) of Equipment Consumption formats every row with one currency; card
+  and fill form fields are unchanged. Rollback: revert the commit.
+
+### Security
+- **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
+  the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
+  User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with
+  one limited to CARD documents he read every company's rows (accounts, items, adjustment types, diesel prices) and
+  their change history. Now, for a user with a Company User Permission that applies to CARD (not Administrator, not
+  System Manager):
+  - reads of the Single (Desk form, REST v1/v2, `frappe.client.get`, save replies of `savedocs`,
+    `frappe.client.save` / `set_value` / `insert` and REST v1 PUT) carry only his companies' `company_settings`,
+    `adjustment_types` and `diesel_price_schedule` rows; the form shows a note;
+  - the form timeline (Version rows, via overrides of `frappe.desk.form.load.getdoc` and `get_docinfo` that wrap
+    the Frappe methods, and the `savedocs` reply) carries no added, removed, changed or moved row of another company;
+  - a save by him puts the stored rows of the other companies back unchanged at their stored position (never
+    deleted); a changed copy, a new row or a row moved to another company is refused; he cannot change any
+    site-wide (non-table) field; unchanged hidden rows are not re-validated or named in a message (every rule is
+    per company, so his own rows, including the FR-125 one-price-per-date rule, are checked in full);
+  - a child row read on its own, and the child-table list, value and report-view reads (`frappe.client.get_list`,
+    `get_value`, `frappe.desk.reportview.get` with `parent="Card Settings"`), are refused while another company has a
+    row (`has_permission` hook on Card Settings; Frappe 16 applies no list condition to a child table of a Single,
+    so the `permission_query_conditions` added for the three child DocTypes are a second layer only).
+  System Manager, Administrator, users without a Company User Permission and server code (`frappe.get_doc`,
+  `frappe.get_all`, postings) read every row as before. Affected functions: `CardSettings.has_permission`,
+  `apply_fieldlevel_read_permissions`, `before_validate` (`_reattach_hidden_company_rows`), `on_change`,
+  `validate` (`_rows`), `_validate_company_scope`; new `settings_company_scope`, `settings_row_readable`,
+  `has_settings_permission`, `settings_row_query_conditions`, `getdoc`, `get_docinfo` (via `_previous_override`),
+  `scope_docinfo_versions`, `_ScopedRows` (FR-135 warehouse check on visible rows);
+  `has_permission` of Card Company Settings, Card Adjustment Type and Card Diesel Price; `card/hooks.py`
+  (`has_permission`, `permission_query_conditions`, `override_whitelisted_methods`); `card_settings.js` (note).
+  Impact: permissions — Frappe's User Permission check on the Single runs on the user's companies' rows only, so a
+  company-restricted Accounts Manager can open Card Settings and save his companies' rows (before: refused while
+  another company had a row); he can no longer change site-wide fields nor read child rows on their own; no role,
+  DocPerm or permlevel changed. Accounting: none (no GL write; posting reads unchanged). Data: none (no patch, no
+  schema change; rows only re-attached, never rewritten). API: readers with a Company restriction get fewer rows and
+  a filtered timeline; the two Desk load methods are overridden for every doctype but change only the Card Settings
+  response. Known limits: (1) the two overrides wrap the override registered before CARD's
+  (`override_whitelisted_methods` chain; Frappe calls only the last one), so DAWM's own `getdoc` /
+  `get_docinfo` filter (installed before CARD) keeps running; with no earlier override they call Frappe's
+  method; a re-entry calls Frappe's method (no loop). An app installed after CARD that overrides the same methods
+  without calling the previous one would disable both filters. (2) The reply object of a save is filtered in
+  `on_change` (the document cache is already cleared then; nothing is written): Webhooks, Notifications and Server
+  Scripts that run after `on_change` on Card Settings during a restricted user's save see only his rows.
+  Deploy preconditions: on Production `frappe.get_hooks("override_whitelisted_methods")` for both keys lists the
+  DAWM entry, then the CARD entry; no Webhook, Notification or Server Script exists on Card Settings.
+  Rollback: revert the commits; no data to restore.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

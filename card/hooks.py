@@ -156,6 +156,10 @@ _COMPANY_SCOPED = (
 # The CARD party registries are per party across companies: a user restricted
 # to some companies sees only the parties that have cards there (#23).
 permission_query_conditions = {
+	# FR-133: Card Settings rows of other companies (second layer; see has_settings_permission)
+	"Card Company Settings": "card.card.doctype.card_settings.card_settings.settings_row_query_conditions",
+	"Card Adjustment Type": "card.card.doctype.card_settings.card_settings.settings_row_query_conditions",
+	"Card Diesel Price": "card.card.doctype.card_settings.card_settings.settings_row_query_conditions",
 	"Card Equipment Supplier": "card.party_registry.supplier_query_conditions",
 	"Card Equipment Customer": "card.party_registry.customer_query_conditions",
 	# v4.0.0: an operator sees only his own equipment needs
@@ -171,6 +175,8 @@ permission_query_conditions = {
 }
 
 has_permission = {
+	# FR-133: a company-restricted user uses Card Settings only as CARD scopes it
+	"Card Settings": "card.card.doctype.card_settings.card_settings.has_settings_permission",
 	"Card Equipment Supplier": "card.party_registry.has_registry_permission",
 	"Card Equipment Customer": "card.party_registry.has_registry_permission",
 	"Equipment Needs Request": "card.materials.needs_request_permission",
@@ -311,6 +317,13 @@ before_tests = "card.install.before_tests"
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "card.event.get_events"
 # }
+# FR-133: the Card Settings timeline (Version rows) of a company-restricted user carries no row of
+# another company; each calls the override registered before it (e.g. DAWM's own filter) or the
+# frappe method, and changes only the Card Settings response
+override_whitelisted_methods = {
+	"frappe.desk.form.load.getdoc": "card.card.doctype.card_settings.card_settings.getdoc",
+	"frappe.desk.form.load.get_docinfo": "card.card.doctype.card_settings.card_settings.get_docinfo",
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,

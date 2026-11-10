@@ -16,10 +16,12 @@ from frappe.utils import flt, getdate
 
 from card import analytics
 from card.report_access import can_view_ledger, readable_links, resolve_company
+from card.report_currency import company_currency_report
 
 DOCTYPES = ("Purchase Invoice", "Stock Entry", "GL Entry")
 
 
+@company_currency_report(*DOCTYPES)
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	company = resolve_company(filters, *DOCTYPES)

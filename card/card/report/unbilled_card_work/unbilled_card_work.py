@@ -19,10 +19,12 @@ from frappe.utils import cint, flt, getdate
 
 from card import analytics
 from card.report_access import readable_links, resolve_company, role_reads
+from card.report_currency import company_currency_report
 
 SIDES = ("Supplier", "Customer")
 
 
+@company_currency_report(analytics.CARD, "GL Posting Log")
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	company = resolve_company(filters, analytics.CARD, "GL Posting Log")
