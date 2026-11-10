@@ -673,12 +673,15 @@ class TestOwnerStatement(OwnerFixtures):
 		self.assertEqual(by_eq[b.name], 3000)  # 6 of 9 working days
 
 	def _employee(self, suffix):
+		# a clean CI site has no Gender records (the setup wizard creates them on a real site)
+		if not frappe.db.exists("Gender", "Male"):
+			frappe.get_doc({"doctype": "Gender", "gender": "Male"}).insert(ignore_permissions=True)
 		return (
 			frappe.get_doc(
 				{
 					"doctype": "Employee",
 					"first_name": "COS-" + suffix + "-" + self.token,
-					"gender": frappe.db.get_value("Gender", {}, "name") or "Male",
+					"gender": "Male",
 					"date_of_birth": "1990-01-01",
 					"date_of_joining": "2020-01-01",
 					"company": self.company,
