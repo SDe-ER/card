@@ -102,3 +102,26 @@ class EquipmentNeedsReview(Document):
 			frappe.db.set_value(
 				"Equipment Needs Request", request, "review_status", status, update_modified=False
 			)
+
+
+def has_review_permission(doc, ptype=None, user=None, debug=False):
+	"""FR-129 company check for every path (read, create, REST insert, save, submit, cancel): the company is
+	set from the Project in validate, after Frappe's create check, so the stored company (saved review) and
+	the project's company decide; the company sent counts only when no project is set. Scope = the Company
+	User Permissions that apply to reviews. A user without a company restriction is not affected.
+	A controller can only deny (Frappe 16 treats a falsy return as a denial)."""
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(user or frappe.session.user, "Equipment Needs Review")
+	if companies is None:
+		return True
+	owners = set()
+	if not doc.is_new():
+		owners.add(frappe.db.get_value(doc.doctype, doc.name, "company"))
+	if doc.get("project"):
+		owners.add(frappe.db.get_value("Project", doc.project, "company"))
+	else:
+		owners.add(doc.get("company"))
+	owners.discard(None)
+	owners.discard("")
+	return all(company in companies for company in owners)

@@ -108,8 +108,27 @@ def needs_request_query(user=None):
 	)
 
 
-def needs_request_permission(doc, ptype=None, user=None):
+def needs_request_permission(doc, ptype=None, user=None, debug=False):
+	"""FR-129 company check first, for every path (read, create, REST insert with or without docstatus 1,
+	save, submit, cancel): the company is set from the equipment in validate, after Frappe's create check,
+	so the stored company (saved request) and the equipment's company decide; the company sent counts only
+	when no equipment is set. Then operators see only their own requests."""
 	user = user or frappe.session.user
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(user, "Equipment Needs Request")
+	if companies is not None:
+		owners = set()
+		if not doc.is_new():
+			owners.add(frappe.db.get_value(doc.doctype, doc.name, "company"))
+		if doc.get("equipment"):
+			owners.add(frappe.db.get_value("Card Equipment", doc.equipment, "company"))
+		else:
+			owners.add(doc.get("company"))
+		owners.discard(None)
+		owners.discard("")
+		if not all(company in companies for company in owners):
+			return False
 	if not _operator_only(user):
 		return True
 	return bool(doc.operator) and doc.operator == session_employee(user)
