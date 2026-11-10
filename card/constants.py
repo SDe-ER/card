@@ -23,6 +23,12 @@ SHIFT_NIGHT = "ليلي"
 MOVE_DAY_NEXT = "New assignment starts the day after the move"
 MOVE_DAY_SAME = "New assignment starts on the move day"
 
+# FR-122 (#42, #120): Card Equipment.status that stops new use, and the per-company rule
+# (Card Company Settings.equipment_status_rule). Empty = Warn, so nothing is refused on deploy.
+EQUIPMENT_STATUS_ENDED = "منتهية"
+STATUS_RULE_WARN = "Warn"
+STATUS_RULE_ENFORCE = "Enforce"
+
 
 def allowed_directions(ownership):
 	"""Directions an equipment's ownership permits. ملك runs internally or is

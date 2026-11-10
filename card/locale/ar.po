@@ -5434,6 +5434,34 @@ msgstr "التخصيص الجديد يبدأ في اليوم التالي للن
 msgid "New assignment starts on the move day"
 msgstr "التخصيص الجديد يبدأ في يوم النقل"
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Equipment status rule"
+msgstr "قاعدة حالة المعدة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "An equipment with status Ended on a new assignment, transport or monthly card: Warn shows a message and saves; Enforce refuses. Existing records are never changed. Empty: Warn."
+msgstr "معدة حالتها منتهية في تخصيص أو نقل أو كرت شهري جديد: «تحذير» يعرض رسالة ويحفظ، و«منع» يرفض. السجلات الموجودة لا تتغير أبدًا. فارغ: تحذير."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Enforce"
+msgstr "منع"
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new assignment."
+msgstr "المعدة {0} حالتها {1}؛ لا ينبغي أن يُسجل لها تخصيص جديد."
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new transport."
+msgstr "المعدة {0} حالتها {1}؛ لا ينبغي أن يُسجل لها نقل جديد."
+
+#: card/equipment_status.py
+msgid "Equipment {0} has status {1}; it should get no new monthly card."
+msgstr "المعدة {0} حالتها {1}؛ لا ينبغي أن يُسجل لها كرت شهري جديد."
+
+#: card/equipment_status.py
+msgid "The equipment status rule of company {0} refuses it."
+msgstr "قاعدة حالة المعدة للشركة {0} ترفض ذلك."
+
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
 msgstr "تؤخذ من إعدادات الشركة في CARD عند حفظ النقل وتبقى كما اعتُمدت."

@@ -16,6 +16,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Equipment status guard** (FR-122, PR #TBD; refs #42, #120).
+  - **Reason:** the Card Equipment status was a plain field: an ended machine (status منتهية) could still get a new
+    assignment, transport or monthly card.
+  - **Change:** new `card/equipment_status.py` (`check_equipment_status`, `status_rule`) called from
+    `CardEquipmentAssignment.validate`, `EquipmentTransport._check_equipment_status` and
+    `CardMonthlyCard.before_validate`. Only a NEW record, or a record whose equipment changes (compared with the
+    stored value), is checked. New Card Company Settings field `equipment_status_rule` (Warn / Enforce, permission
+    level 1): Warn (the default, also for an empty value or a company without a row) shows a message and saves;
+    Enforce refuses. Only status منتهية (Ended) stops new use; متوقفة (Stopped) and في الصيانة (Under Maintenance)
+    stay allowed. A transport back to the supplier is never stopped. The assignment a transport creates is not
+    checked again (`card_from_transport` flag set in `card/transfer.py`), so a transport saved before a status
+    change still applies. Project Diesel Fill is not guarded in this change.
+  - **Impact:** permissions — none (the setting is level 1 like the other company fields). Accounting — none.
+    Data — none: existing records are never changed; nothing is refused until a company chooses Enforce. API —
+    saving a new assignment, transport or card of an ended machine shows a warning, or raises a ValidationError
+    under Enforce. Seven new Arabic strings.
+  - **Rollback:** revert the commit; an older version ignores the new column.
 - **Governance inventories (documentation only; refs #40, #50, #52, #54).**
   `docs/governance/SETTINGS-AND-CONSTANTS.md` lists every Card Settings and Card Company Settings field with its
   readers (file:line), the code defaults and inline fallbacks, the precedence document → Card Company Settings →

@@ -9,6 +9,7 @@ from frappe.utils import cint, cstr, flt, getdate
 from card.attachment_validator import check_attachment_content, claim_file, require_record_file
 from card.company import single_company, validate_equipment_company
 from card.constants import MOVE_DAY_NEXT, OWNED
+from card.equipment_status import check_equipment_status
 from card.settings import company_setting, setting
 from card.transfer import apply_transfer, check_cancel_allowed, reverse_transfer
 
@@ -67,6 +68,7 @@ class EquipmentTransport(Document):
 		self._default_ownership()
 		for row in self.items:
 			validate_equipment_company(frappe._dict(company=self.company, equipment=row.card_equipment))
+		self._check_equipment_status()
 		self._detect_movements()
 		self._set_move_day_rule()
 		self._validate_project_company()
@@ -89,6 +91,26 @@ class EquipmentTransport(Document):
 				"Pending" if self.customer_billable or self.supplier_recoverable else "No decision needed"
 			)
 		self._record_editor()
+
+	def _check_equipment_status(self):
+		"""FR-122: an ended equipment gets no new transport. Only a new transport or a machine added
+		to a draft is checked; a return to the supplier is the normal end of a rental, never stopped."""
+		if (self.destination_type or "Project") == "Supplier":
+			return
+		known = (
+			set()
+			if self.is_new()
+			else set(
+				frappe.get_all(
+					"Equipment Transport Item",
+					filters={"parent": self.name, "parenttype": self.doctype},
+					pluck="card_equipment",
+				)
+			)
+		)
+		for row in self.items:
+			if row.card_equipment not in known:
+				check_equipment_status(row.card_equipment, "transport", self.company)
 
 	def _record_editor(self):
 		"""Everyone who saves the draft is kept (from the stored value, never from the client): none of them

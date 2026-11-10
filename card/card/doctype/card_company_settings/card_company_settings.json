@@ -37,7 +37,8 @@
   "equipment_section",
   "initial_location",
   "column_break_equipment",
-  "move_day_rule"
+  "move_day_rule",
+  "equipment_status_rule"
  ],
  "fields": [
   {
@@ -260,13 +261,22 @@
    "label": "Move-day rule",
    "options": "New assignment starts the day after the move\nNew assignment starts on the move day",
    "permlevel": 1
+  },
+  {
+   "default": "Warn",
+   "description": "An equipment with status Ended on a new assignment, transport or monthly card: Warn shows a message and saves; Enforce refuses. Existing records are never changed. Empty: Warn.",
+   "fieldname": "equipment_status_rule",
+   "fieldtype": "Select",
+   "label": "Equipment status rule",
+   "options": "Warn\nEnforce",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 12:00:00.000000",
+ "modified": "2026-11-10 03:48:33.520393",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",

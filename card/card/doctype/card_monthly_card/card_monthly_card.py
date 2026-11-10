@@ -21,6 +21,7 @@ from card.constants import (
 	allowed_directions,
 	derive_direction,
 )
+from card.equipment_status import check_equipment_status, equipment_is_new_on
 from card.notifications import notify
 from card.settings import setting
 from card.transfer import (
@@ -120,6 +121,8 @@ class CardMonthlyCard(Document):
 		if not eq:
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
 		self._refuse_unit_component_days(eq)
+		if equipment_is_new_on(self):  # FR-122: an ended equipment gets no new monthly card
+			check_equipment_status(self.equipment, "monthly card", eq.company)
 		if self.company and self.company != eq.company:
 			frappe.throw(_("The card's company does not match the equipment's company"))
 
