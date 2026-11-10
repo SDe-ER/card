@@ -263,12 +263,12 @@
    "permlevel": 1
   },
   {
-   "default": "Warn",
-   "description": "An equipment with status Ended on a new assignment, transport or monthly card: Warn shows a message and saves; Enforce refuses. Existing records are never changed. Empty: Warn.",
+   "default": "Warn only (equipment status)",
+   "description": "An equipment with status Ended on a new assignment, transport or monthly card: Warn only shows a message and saves; Refuse stops it. Never stopped: a return to the supplier, an owned machine moved to storage or a workshop, a card of the month of its exit. Existing records are never changed. Empty: Warn only.",
    "fieldname": "equipment_status_rule",
    "fieldtype": "Select",
    "label": "Equipment status rule",
-   "options": "Warn\nEnforce",
+   "options": "Warn only (equipment status)\nRefuse (equipment status)",
    "permlevel": 1
   }
  ],
@@ -276,7 +276,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 03:48:33.520393",
+ "modified": "2026-11-10 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",

@@ -5439,12 +5439,16 @@ msgid "Equipment status rule"
 msgstr "قاعدة حالة المعدة"
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "An equipment with status Ended on a new assignment, transport or monthly card: Warn shows a message and saves; Enforce refuses. Existing records are never changed. Empty: Warn."
-msgstr "معدة حالتها منتهية في تخصيص أو نقل أو كرت شهري جديد: «تحذير» يعرض رسالة ويحفظ، و«منع» يرفض. السجلات الموجودة لا تتغير أبدًا. فارغ: تحذير."
+msgid "An equipment with status Ended on a new assignment, transport or monthly card: Warn only shows a message and saves; Refuse stops it. Never stopped: a return to the supplier, an owned machine moved to storage or a workshop, a card of the month of its exit. Existing records are never changed. Empty: Warn only."
+msgstr "معدة حالتها منتهية في تخصيص أو نقل أو كرت شهري جديد: «تحذير فقط» يعرض رسالة ويحفظ، و«رفض» يمنع الحفظ. لا يُمنع أبدًا: إرجاعها للمورد، ونقل معدة مملوكة إلى التخزين أو الورشة، وكرت شهر خروجها. السجلات الموجودة لا تتغير أبدًا. فارغ: تحذير فقط."
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "Enforce"
-msgstr "منع"
+msgid "Warn only (equipment status)"
+msgstr "تحذير فقط"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (equipment status)"
+msgstr "رفض"
 
 #: card/equipment_status.py
 msgid "Equipment {0} has status {1}; it should get no new assignment."

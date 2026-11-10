@@ -96,7 +96,7 @@ is read by `gl/preflight.py:36-41` `company_settings_row` (posting) and `account
 | `vat_item_tax_template`, `vat_zero_item_tax_template` | Link Item Tax Template | `gl/masters.py:182-194` (created when empty), `gl/posting.py`, `gl/preflight.py` | Used |
 | `diesel_unit_price` | Currency | `project_diesel_fill.py:177-186` `diesel_price`; `card_settings.js` | Used (FR-002). One value, no dates (FR-035 planned) |
 | `diesel_price_vat_basis` | Select (empty / Exclusive / Inclusive) | `gl/posting.py:925`; `gl/integrity.py:440` | Used (FR-090). Empty = posting refused for review |
-| `equipment_status_rule` | Select (Warn / Enforce; empty = Warn) | `card/equipment_status.py` `status_rule`, `check_equipment_status` (Card Equipment Assignment, Equipment Transport, Card Monthly Card) | Used (FR-122, In review). Default Warn |
+| `equipment_status_rule` | Select ("Warn only (equipment status)" / "Refuse (equipment status)"; empty = Warn only) | `card/equipment_status.py` `status_rule`, `check_equipment_status` (Card Equipment Assignment, Equipment Transport, Card Monthly Card) | Used (FR-122, In review). Default Warn only |
 | `bank_cash_account` | Link Account | none | **Dead** (FR-015, Broken) |
 | `mode_of_payment` | Link Mode of Payment | none | **Dead** (FR-015, Broken) |
 

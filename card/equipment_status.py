@@ -2,13 +2,16 @@
 # For license information, please see LICENSE
 """FR-122 (#42, #120): an ended Card Equipment gets no NEW assignment, transport or monthly card.
 
-The rule is per company (Card Company Settings `equipment_status_rule`): Warn (the default, also
-when the company has no row or the value is empty) shows a message and saves; Enforce refuses.
-Only new records, or a record whose equipment changes, are checked: existing records are never
-changed or blocked by a later status change."""
+The rule is per company (Card Company Settings `equipment_status_rule`): "Warn only" (the default,
+also when the company has no row or the value is empty) shows a message and saves; "Refuse" stops it.
+Only new records, or a record whose equipment changes, are checked, and a transport again on
+submit; existing records are never changed. Exempt: a transport to the supplier, a move of an
+owned machine to storage or a workshop (how it is retired), and a monthly card whose period starts
+on or before the equipment's exit date (else rental end)."""
 
 import frappe
 from frappe import _
+from frappe.utils import getdate
 
 from card.constants import EQUIPMENT_STATUS_ENDED, STATUS_RULE_ENFORCE, STATUS_RULE_WARN
 from card.settings import company_setting
@@ -19,7 +22,7 @@ BLOCKED_STATUSES = (EQUIPMENT_STATUS_ENDED,)
 
 
 def status_rule(company):
-	"""Enforce or Warn for the company; anything but Enforce warns."""
+	"""Refuse or Warn only for the company; anything but Refuse warns."""
 	return company_setting(company, "equipment_status_rule") or STATUS_RULE_WARN
 
 
@@ -32,14 +35,20 @@ def _messages():
 	}
 
 
-def check_equipment_status(equipment, use, company=None):
+def check_equipment_status(equipment, use, company=None, period_start=None):
 	"""Warn or refuse a new `use` ("assignment", "transport" or "monthly card") of an equipment
 	whose status stops new use. The equipment's own company decides the rule when no company is
-	given."""
+	given. With `period_start` (a monthly card), a period that starts on or before the equipment's
+	exit date (else its rental end) is its last work, not a new use: never stopped."""
 	if not equipment:
 		return
-	eq = frappe.db.get_value("Card Equipment", equipment, ["status", "company"], as_dict=True)
+	eq = frappe.db.get_value(
+		"Card Equipment", equipment, ["status", "company", "exit_date", "rental_end_date"], as_dict=True
+	)
 	if not eq or eq.status not in BLOCKED_STATUSES:
+		return
+	end = eq.exit_date or eq.rental_end_date
+	if period_start and end and getdate(period_start) <= getdate(end):
 		return
 	company = company or eq.company
 	message = _messages()[use].format(equipment, _(eq.status))

@@ -26,8 +26,8 @@ MOVE_DAY_SAME = "New assignment starts on the move day"
 # FR-122 (#42, #120): Card Equipment.status that stops new use, and the per-company rule
 # (Card Company Settings.equipment_status_rule). Empty = Warn, so nothing is refused on deploy.
 EQUIPMENT_STATUS_ENDED = "منتهية"
-STATUS_RULE_WARN = "Warn"
-STATUS_RULE_ENFORCE = "Enforce"
+STATUS_RULE_WARN = "Warn only (equipment status)"
+STATUS_RULE_ENFORCE = "Refuse (equipment status)"
 
 
 def allowed_directions(ownership):

@@ -4220,11 +4220,15 @@ msgid "Equipment status rule"
 msgstr ""
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "An equipment with status Ended on a new assignment, transport or monthly card: Warn shows a message and saves; Enforce refuses. Existing records are never changed. Empty: Warn."
+msgid "An equipment with status Ended on a new assignment, transport or monthly card: Warn only shows a message and saves; Refuse stops it. Never stopped: a return to the supplier, an owned machine moved to storage or a workshop, a card of the month of its exit. Existing records are never changed. Empty: Warn only."
 msgstr ""
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "Enforce"
+msgid "Warn only (equipment status)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (equipment status)"
 msgstr ""
 
 #: card/equipment_status.py
