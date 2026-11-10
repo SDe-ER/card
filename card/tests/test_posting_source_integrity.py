@@ -121,3 +121,99 @@ class TestPostingSourceIntegrity(_PostingBase):
 			execute({"company": self.company})
 		with self.assertRaises(frappe.ValidationError):
 			execute({"company": self.company, "from_date": "2026-09-30", "to_date": "2026-09-01"})
+
+
+class TestPostingSourceIntegrityCompanyIsolation(_PostingBase):
+	"""Policy section 6: an Accounts Manager limited to company A never sees company B through the report."""
+
+	def setUp(self):
+		super().setUp()
+		self.company_b = "TEST-PSI-B-" + self.token
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": self.company_b,
+				"abbr": "P" + self.token[:6].upper(),
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
+		)
+		co.name = self.company_b
+		co.db_insert()
+		# a posted-looking company-B source (raw: only the stored company matters to the report)
+		self.card_b = "TEST-PSI-CARD-B-" + self.token
+		card = frappe.new_doc("Card Monthly Card")
+		card.update(
+			{
+				"company": self.company_b,
+				"docstatus": 1,
+				"month": "09",
+				"year": 2026,
+				"from_date": "2026-09-01",
+				"to_date": "2026-09-30",
+				"posted": 1,
+				"purchase_invoice": "ACC-PINV-B-" + self.token,
+			}
+		)
+		card.name = self.card_b
+		card.db_insert()
+		# a company-A source the report lists (posted flag without any posting)
+		self.card_a = self._card(self._equipment(), [3], submit=True).name
+		frappe.db.set_value("Card Monthly Card", self.card_a, "posted", 1, update_modified=False)
+		self.user = "test-psi-am-" + self.token + "@example.com"
+		frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": self.user,
+				"first_name": "PSI AM",
+				"roles": [{"role": "Accounts Manager"}],
+			}
+		).insert(ignore_permissions=True)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def _limit_to_a(self, applicable_for=None):
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": self.user,
+				"allow": "Company",
+				"for_value": self.company,
+				"apply_to_all_doctypes": 0 if applicable_for else 1,
+				"applicable_for": applicable_for,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=self.user)
+
+	def _run(self, **filters):
+		return execute({"show": "All", **PERIOD, **filters})
+
+	def test_control_administrator_sees_company_b(self):
+		rows = self._run(company=self.company_b)[1]
+		self.assertIn(self.card_b, [r["source"] for r in rows])
+
+	def test_company_b_is_refused(self):
+		self._limit_to_a()
+		frappe.set_user(self.user)
+		with self.assertRaises(frappe.PermissionError):
+			self._run(company=self.company_b)
+
+	def test_no_company_filter_returns_only_company_a(self):
+		self._limit_to_a()
+		frappe.set_user(self.user)
+		rows = self._run()[1]
+		sources = [r["source"] for r in rows]
+		self.assertIn(self.card_a, sources)
+		self.assertNotIn(self.card_b, sources)
+		self.assertFalse([r for r in rows if self.company_b in str(r)])
+
+	def test_permission_for_the_log_only_also_blocks_company_b(self):
+		self._limit_to_a(applicable_for="GL Posting Log")
+		frappe.set_user(self.user)
+		with self.assertRaises(frappe.PermissionError):
+			self._run(company=self.company_b)
+		sources = [r["source"] for r in self._run()[1]]
+		self.assertIn(self.card_a, sources)
+		self.assertNotIn(self.card_b, sources)

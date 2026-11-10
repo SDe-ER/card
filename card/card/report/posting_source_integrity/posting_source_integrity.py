@@ -113,7 +113,7 @@ def check_sources(company, from_date, to_date):
 			LOG,
 			filters={"company": company, "status": ["in", list(ACTIVE_STATES)]},
 			fields=["name", "status", "party_type", "posting_doctype", "posting_doc", "month", "year"],
-			limit_page_length=0,
+			limit=0,
 		)
 	}
 	holders = {}  # (doctype, name) -> [(log, amount)]
@@ -122,7 +122,7 @@ def check_sources(company, from_date, to_date):
 			"GL Posting Source",
 			filters={"parenttype": LOG, "parent": ["in", list(logs)]},
 			fields=["parent", "source_doctype", "source_name", "amount"],
-			limit_page_length=0,
+			limit=0,
 		):
 			holders.setdefault((row.source_doctype, row.source_name), []).append(
 				(logs[row.parent], row.amount)
@@ -140,7 +140,7 @@ def check_sources(company, from_date, to_date):
 				date_field: ["between", [from_date, to_date]],
 			},
 			fields=["name", "docstatus", "posted", f"{date_field} as date", *sides],
-			limit_page_length=0,
+			limit=0,
 		):
 			sources[(doctype, src.name)] = (src, sides)
 
