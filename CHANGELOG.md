@@ -191,9 +191,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   are refused until the run is approved and current; the invoices built are unchanged. Data: two new columns on
   Card Company Settings (existing rows: 0 and Warn only = current behaviour); no patch. API: one new GET method;
   `post_month`, `rebuild_month`, `preview_month` and the builders refuse more when the setting is on. Known limits:
-  the hand-booked invoice links (`link_supplier_invoice`, `link_accrual_journal`) and the submit of a draft
-  invoice are not gated (owner question); a real build with the setting on locks every source document of the
-  company-month until it commits. Rollback limits: a code rollback leaves the two columns (unused); drafts built
+  the hand-booked invoice links (`link_supplier_invoice`, `link_accrual_journal`) and the submit of a CARD draft
+  invoice are not gated yet (owner 2026-11-11: wanted, in a later wave, not in this change); a real build with the
+  setting on locks every source document of the company-month until it commits (owner 2026-11-11: accepted). Rollback limits: a code rollback leaves the two columns (unused); drafts built
   under the gate stay valid ERPNext drafts.
 - **FR-143 — Separation of duties on the monthly card (FR-006; #35, #51, #123; closure plan WP-D1, owner decision
   O-07).** Reason: owner 2026-10-19 "whoever created or entered a monthly card never approves it, enforced on the
