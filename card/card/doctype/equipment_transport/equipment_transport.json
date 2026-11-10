@@ -43,6 +43,13 @@
   "transport_method",
   "company",
   "remarks",
+  "section_break_intake",
+  "intake_channel",
+  "intake_source_key",
+  "intake_received_on",
+  "column_break_intake",
+  "intake_evidence",
+  "intake_evidence_hash",
   "section_break_financial",
   "financial_status",
   "financial_decision",
@@ -583,11 +590,57 @@
    "fieldtype": "Currency",
    "label": "Agreed amount (not company cost)",
    "depends_on": "eval:[\"Equipment supplier bears the cost\",\"Customer pays the transporter directly\",\"Other party bears the cost\"].includes(doc.responsibility)"
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.intake_source_key || doc.intake_channel || doc.intake_received_on || doc.intake_evidence",
+   "fieldname": "section_break_intake",
+   "fieldtype": "Section Break",
+   "label": "Intake source"
+  },
+  {
+   "fieldname": "intake_channel",
+   "fieldtype": "Select",
+   "label": "Intake channel",
+   "no_copy": 1,
+   "options": "\nManual\nPaper\nWhatsApp\nEmail\nOther"
+  },
+  {
+   "fieldname": "intake_source_key",
+   "fieldtype": "Data",
+   "label": "Intake source key",
+   "no_copy": 1,
+   "search_index": 1,
+   "description": "Optional external id of the source (message id, sheet number). One live transport per company and key."
+  },
+  {
+   "fieldname": "intake_received_on",
+   "fieldtype": "Datetime",
+   "label": "Intake received on",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_intake",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "intake_evidence",
+   "fieldtype": "Attach",
+   "label": "Intake evidence",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "intake_evidence_hash",
+   "fieldtype": "Data",
+   "label": "Intake evidence SHA-256",
+   "no_copy": 1,
+   "read_only": 1,
+   "length": 64
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-10 17:00:00.000000",
+ "modified": "2026-11-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport",

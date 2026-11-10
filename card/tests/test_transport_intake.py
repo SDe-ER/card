@@ -1,0 +1,473 @@
+# Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
+# For license information, please see LICENSE
+"""FR-146 (#52, #43; WP-N1): intake provenance of an Equipment Transport.
+
+Optional source key, channel, received time and private evidence file; the evidence SHA-256 is the server's.
+One live transport per company and source key (company lock plus locking read); the same evidence warns only.
+A transport without intake fields behaves as before. Everything here is rolled back; the two-connection race
+is in TestTransportIntakeConcurrency below (committed test data, removed in tearDown)."""
+
+import contextvars
+import hashlib
+import threading
+from unittest.mock import patch
+
+import frappe
+from frappe.tests import IntegrationTestCase
+from frappe.utils import add_days, add_to_date, getdate, now_datetime, nowdate
+
+from card.intake import DEFAULT_CHANNEL, DuplicateIntakeError
+from card.tests.sample_files import pdf, png
+from card.tests.test_assignment_overlap_concurrency import (
+	GRACE,
+	SAFE_ERRORS,
+	WAIT,
+	_delete,
+	_Request,
+	_wait_any,
+)
+from card.tests.test_controllers import _ensure_masters
+
+DOCTYPE = "Equipment Transport"
+INTAKE_FIELDS = (
+	"intake_source_key",
+	"intake_channel",
+	"intake_received_on",
+	"intake_evidence",
+	"intake_evidence_hash",
+)
+
+
+def _sha(content):
+	return hashlib.sha256(content).hexdigest()
+
+
+class _Fixtures:
+	def _project(self, company):
+		proj = frappe.new_doc("Project")
+		proj.project_name = "TEST-N1-PRJ-" + frappe.generate_hash(length=8)
+		proj.company = company
+		proj.insert(ignore_permissions=True)
+		return proj.name
+
+	def _equipment(self, company):
+		eq = frappe.new_doc("Card Equipment")
+		eq.company = company
+		eq.equipment_type = self.etype
+		eq.equipment_name = "TEST-N1-EQ-" + frappe.generate_hash(length=8)
+		eq.ownership = "ملك"  # owned: no supplier needed
+		eq.rate_type = "باليوم"
+		eq.rate = 750
+		eq.daily_hours = 10
+		eq.insert(ignore_permissions=True)
+		return eq.name
+
+	def _values(self, company, project, equipment, day, **intake):
+		return {
+			"doctype": DOCTYPE,
+			"date": str(add_days(self.base, day)),
+			"company": company,
+			"project": project,
+			"items": [{"card_equipment": equipment}],
+			"responsibility": "No transport charge",
+			**intake,
+		}
+
+
+class TestTransportIntake(IntegrationTestCase, _Fixtures):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._m = _ensure_masters()
+
+	def setUp(self):
+		frappe.set_user("Administrator")
+		self.token = frappe.generate_hash(length=8)
+		self.company = self._m["company"]
+		self.etype = self._m["etype"]
+		self.base = getdate(add_days(nowdate(), -20))
+		frappe.db.set_single_value("Card Settings", "period_lock_date", None)
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+		self.project = self._project(self.company)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def _transport(self, day=1, company=None, project=None, **intake):
+		company = company or self.company
+		values = self._values(company, project or self.project, self._equipment(company), day, **intake)
+		return frappe.get_doc(values).insert()
+
+	def _file(self, content, name):
+		return frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": f"{frappe.generate_hash(length=6)}-{name}",
+				"content": content,
+				"is_private": 1,
+			}
+		).insert(ignore_permissions=True)
+
+	def _other_company(self):
+		name = "TEST-N1-CO-" + self.token
+		co = frappe.new_doc("Company")
+		co.update(
+			{
+				"company_name": name,
+				"abbr": "N" + self.token[:6].upper(),
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
+		)
+		co.name = name
+		co.db_insert()
+		return name
+
+	def _warnings(self):
+		return [str(m) for m in frappe.message_log if "same intake evidence" in str(m)]
+
+	# ---------- existing transports unchanged ----------
+
+	def test_transport_without_intake_fields_is_unchanged(self):
+		with (
+			patch("card.intake.check_source_key") as key_check,
+			patch("card.intake.warn_reused_evidence") as evidence_check,
+		):
+			t = self._transport()
+			t.remarks = "re-saved"
+			t.save()
+			t.submit()
+		key_check.assert_not_called()
+		evidence_check.assert_not_called()
+		stored = frappe.db.get_value(DOCTYPE, t.name, list(INTAKE_FIELDS), as_dict=True)
+		self.assertEqual(stored, {f: None for f in INTAKE_FIELDS})
+		self.assertEqual(t.docstatus, 1)
+		self.assertTrue(t.created_assignment)
+
+	def test_transport_recorded_before_fr146_resaves_unchanged(self):
+		t = self._transport()
+		# a row stored before the columns existed: every intake column empty
+		frappe.db.set_value(DOCTYPE, t.name, {f: None for f in INTAKE_FIELDS}, update_modified=False)
+		doc = frappe.get_doc(DOCTYPE, t.name)
+		before = {
+			f: doc.get(f) for f in ("payer", "cost_bearer", "amount", "financial_status", "move_day_rule")
+		}
+		doc.save()
+		self.assertEqual({f: doc.get(f) for f in before}, before)
+		self.assertEqual({f: doc.get(f) for f in INTAKE_FIELDS}, {f: None for f in INTAKE_FIELDS})
+
+	def test_fields_are_optional_and_not_copied(self):
+		meta = frappe.get_meta(DOCTYPE)
+		for field in INTAKE_FIELDS:
+			df = meta.get_field(field)
+			self.assertFalse(df.reqd, field)
+			self.assertFalse(df.default, field)
+			self.assertTrue(df.no_copy, field)
+		self.assertTrue(meta.get_field("intake_evidence_hash").read_only)
+
+	# ---------- source key ----------
+
+	def test_duplicate_source_key_is_refused(self):
+		first = self._transport(intake_source_key="WA-0001")
+		self.assertEqual(first.intake_channel, DEFAULT_CHANNEL)
+		with self.assertRaises(DuplicateIntakeError) as ctx:
+			self._transport(day=2, intake_source_key=" WA-0001 ")
+		self.assertIn(first.name, str(ctx.exception))
+		# the submitted transport still holds the key
+		first.submit()
+		with self.assertRaises(DuplicateIntakeError):
+			self._transport(day=3, intake_source_key="WA-0001")
+
+	def test_resave_keeps_its_own_key(self):
+		t = self._transport(intake_source_key="WA-0002", intake_channel="WhatsApp")
+		t.remarks = "edited"
+		t.save()
+		self.assertEqual(t.intake_source_key, "WA-0002")
+		self.assertEqual(t.intake_channel, "WhatsApp")
+
+	def test_cancelled_transport_frees_its_key(self):
+		t = self._transport(intake_source_key="WA-0003")
+		frappe.db.set_value(DOCTYPE, t.name, "docstatus", 2, update_modified=False)
+		again = self._transport(day=2, intake_source_key="WA-0003")
+		self.assertEqual(again.intake_source_key, "WA-0003")
+
+	def test_two_companies_may_share_a_key(self):
+		self._transport(intake_source_key="SHEET-7")
+		other = self._other_company()
+		t = self._transport(company=other, project=self._project(other), intake_source_key="SHEET-7")
+		self.assertEqual(t.intake_source_key, "SHEET-7")
+
+	def test_key_check_locks_the_company_and_uses_a_locking_read(self):
+		queries = []
+		real_sql = frappe.db.sql
+
+		def spy(query, *args, **kwargs):
+			queries.append(str(query))
+			return real_sql(query, *args, **kwargs)
+
+		with patch.object(frappe.db, "sql", side_effect=spy):
+			self._transport(intake_source_key="LOCK-1")
+		lock = next(i for i, q in enumerate(queries) if "`tabCompany`" in q and "FOR UPDATE" in q.upper())
+		read = next(
+			i
+			for i, q in enumerate(queries)
+			if "intake_source_key" in q and "FOR UPDATE" in q.upper() and "`tabEquipment Transport`" in q
+		)
+		self.assertLess(lock, read)
+
+	def test_channel_and_received_on(self):
+		with self.assertRaises(frappe.ValidationError):
+			self._transport(intake_source_key="X-1", intake_channel="Fax")
+		with self.assertRaises(frappe.ValidationError):
+			self._transport(intake_received_on=add_to_date(now_datetime(), hours=2))
+		t = self._transport(intake_received_on=add_to_date(now_datetime(), hours=-2))
+		self.assertEqual(t.intake_channel, DEFAULT_CHANNEL)
+
+	# ---------- evidence hash ----------
+
+	def test_hash_is_computed_from_the_private_file_and_the_file_is_claimed(self):
+		content = png("n1-a" + self.token)
+		f = self._file(content, "sheet.png")
+		t = self._transport(intake_evidence=f.file_url, intake_channel="Paper")
+		self.assertEqual(t.intake_evidence_hash, _sha(content))
+		row = frappe.db.get_value(
+			"File", f.name, ["attached_to_doctype", "attached_to_name", "attached_to_field"], as_dict=True
+		)
+		self.assertEqual((row.attached_to_doctype, row.attached_to_name), (DOCTYPE, t.name))
+		self.assertEqual(row.attached_to_field, "intake_evidence")
+
+	def test_forged_client_hash_is_ignored(self):
+		forged = "0" * 64
+		t = self._transport(intake_evidence_hash=forged)
+		self.assertIsNone(t.intake_evidence_hash)
+		content = pdf("n1-b" + self.token)
+		f = self._file(content, "sheet.pdf")
+		t2 = self._transport(day=2, intake_evidence=f.file_url, intake_evidence_hash=forged)
+		self.assertEqual(t2.intake_evidence_hash, _sha(content))
+		t2.intake_evidence_hash = forged  # unchanged evidence: the stored hash is kept
+		t2.save()
+		self.assertEqual(t2.intake_evidence_hash, _sha(content))
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t2.name, "intake_evidence_hash"), _sha(content))
+		# a REST-style update with a forged hash
+		frappe.get_doc(DOCTYPE, t2.name).update({"intake_evidence_hash": forged}).save()
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t2.name, "intake_evidence_hash"), _sha(content))
+
+	def test_public_or_foreign_evidence_is_refused(self):
+		public = frappe.get_doc(
+			{"doctype": "File", "file_name": "pub-%s.png" % self.token, "content": png("p"), "is_private": 0}
+		).insert(ignore_permissions=True)
+		with self.assertRaises(frappe.ValidationError):
+			self._transport(intake_evidence=public.file_url)
+		owner = self._transport()
+		foreign = self._file(png("f" + self.token), "f.png")
+		frappe.db.set_value(
+			"File", foreign.name, {"attached_to_doctype": DOCTYPE, "attached_to_name": owner.name}
+		)
+		with self.assertRaises(frappe.ValidationError):
+			self._transport(day=2, intake_evidence=foreign.file_url)
+		bad = self._file(b"not an image", "x.txt")
+		with self.assertRaises(frappe.ValidationError):
+			self._transport(day=3, intake_evidence=bad.file_url)
+
+	def test_reused_evidence_warns_within_the_company_only(self):
+		content = png("n1-c" + self.token)
+		first = self._transport(intake_evidence=self._file(content, "a.png").file_url)
+		frappe.clear_messages()
+		second = self._transport(day=2, intake_evidence=self._file(content, "b.png").file_url)
+		self.assertEqual(second.intake_evidence_hash, first.intake_evidence_hash)
+		self.assertTrue(any(first.name in w for w in self._warnings()), frappe.message_log)
+		self.assertEqual(second.docstatus, 0)  # saved: warn only
+		other = self._other_company()
+		frappe.clear_messages()
+		self._transport(
+			company=other, project=self._project(other), intake_evidence=self._file(content, "c.png").file_url
+		)
+		self.assertEqual(self._warnings(), [])
+
+	def test_removing_evidence_clears_the_hash(self):
+		content = png("n1-d" + self.token)
+		t = self._transport(intake_evidence=self._file(content, "d.png").file_url)
+		t.intake_evidence = None
+		t.save()
+		self.assertIsNone(t.intake_evidence_hash)
+		self.assertEqual(t.intake_channel, DEFAULT_CHANNEL)  # the channel stays as entered
+
+	def test_amendment_keeps_key_and_evidence(self):
+		from card.tests.cancel_reason import with_reason
+
+		content = png("n1-e" + self.token)
+		t = self._transport(intake_source_key="AM-1", intake_evidence=self._file(content, "e.png").file_url)
+		t.submit()
+		with_reason(frappe.get_doc(DOCTYPE, t.name)).cancel()
+		amended = frappe.copy_doc(frappe.get_doc(DOCTYPE, t.name))
+		amended.amended_from = t.name
+		amended.docstatus = 0
+		# the links the cancel undid (reverse_transfer) are not carried over
+		for row in [amended, *amended.items]:
+			row.created_assignment = row.previous_assignment = None
+		amended.insert()
+		self.assertEqual(amended.intake_source_key, "AM-1")
+		self.assertEqual(amended.intake_evidence_hash, _sha(content))
+
+
+class TestTransportIntakeConcurrency(IntegrationTestCase, _Fixtures):
+	"""Two requests save a transport with the same company and source key at the same time: one is refused.
+	Each request has its own connection and REPEATABLE READ snapshot, taken before either writes (the same
+	harness as test_assignment_overlap_concurrency)."""
+
+	CLEANED = ("Equipment Transport", "Card Equipment", "Project")
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.site, cls.sites_path = frappe.local.site, frappe.local.sites_path
+		cls.has_snapshot_isolation = bool(frappe.db.sql("show variables like 'innodb_snapshot_isolation'"))
+		cls._m = _ensure_masters()
+		frappe.db.commit()  # nosemgrep: masters seen by the other connections
+
+	def setUp(self):
+		self.token = frappe.generate_hash(length=8)
+		self.created = {doctype: [] for doctype in self.CLEANED}
+		self.started = self._committed(frappe.utils.now)
+		self._committed(self._make_records)
+
+	def tearDown(self):
+		self._committed(self._remove_records)
+
+	def _connect(self):
+		frappe.init(self.site, sites_path=self.sites_path)
+		frappe.connect()
+		frappe.set_user("Administrator")
+		frappe.flags.in_test = True
+
+	def _committed(self, fn):
+		out = {}
+
+		def run():
+			try:
+				self._connect()
+				out["value"] = fn()
+				frappe.db.commit()  # nosemgrep: test data seen by the other connections
+			except Exception as e:
+				out["error"] = e
+				if getattr(frappe.local, "db", None):
+					frappe.db.rollback()
+			finally:
+				frappe.destroy()
+
+		thread = threading.Thread(target=run, daemon=True, context=contextvars.Context())
+		thread.start()
+		thread.join(WAIT * 4)
+		if thread.is_alive():
+			raise TimeoutError("helper connection did not finish")
+		if "error" in out:
+			raise out["error"]
+		return out.get("value")
+
+	def _race(self, first, second, snapshot_isolation=False):
+		one = _Request(self, first, snapshot_isolation)
+		two = _Request(self, second, snapshot_isolation)
+		two.release.set()
+		try:
+			one.start()
+			two.start()
+			self.assertTrue(one.snapshot.wait(WAIT) and two.snapshot.wait(WAIT), "requests did not start")
+			one.go.set()
+			self.assertTrue(_wait_any(one.written, one.finished), "first request did not write")
+			self.assertIsNone(one.error, "first request failed alone: %r" % one.error)
+			two.go.set()
+			two.finished.wait(GRACE)
+			one.release.set()
+		finally:
+			for request in (one, two):
+				request.go.set()
+				request.release.set()
+			one.join(WAIT * 2)
+			two.join(WAIT * 2)
+		self.assertFalse(one.is_alive() or two.is_alive(), "a request did not end")
+		self.assertTrue(one.committed, "first request: %r" % one.error)
+		return one, two
+
+	def _make_records(self):
+		self.company = self._m["company"]
+		self.etype = self._m["etype"]
+		self.base = getdate(add_days(nowdate(), 70))
+		self.project = self._project(self.company)
+		self.created["Project"].append(self.project)
+		self.e1, self.e2 = self._equipment(self.company), self._equipment(self.company)
+		self.created["Card Equipment"] += [self.e1, self.e2]
+
+	def _insert(self, equipment, key):
+		doc = frappe.get_doc(self._values(self.company, self.project, equipment, 1, intake_source_key=key))
+		doc.insert()
+		self.created["Equipment Transport"].append(doc.name)
+		return doc.name
+
+	def _keyed(self, key):
+		return self._committed(
+			lambda: frappe.get_all(
+				DOCTYPE, filters={"company": self.company, "intake_source_key": key}, pluck="name"
+			)
+		)
+
+	def _remove_records(self):
+		names = frappe.get_all(
+			DOCTYPE, filters={"intake_source_key": ["like", "%" + self.token]}, pluck="name"
+		)
+		for name in set(names) | set(self.created["Equipment Transport"]):
+			if frappe.db.exists(DOCTYPE, name):
+				_delete(DOCTYPE, name)
+		for doctype in ("Card Equipment", "Project"):
+			for name in self.created[doctype]:
+				if frappe.db.exists(doctype, name):
+					_delete(doctype, name)
+		mine = [n for names in self.created.values() for n in names] + names or [""]
+		since = {"creation": [">=", self.started]}
+		frappe.db.delete("Version", {"docname": ["in", mine], **since})
+		frappe.db.delete("Comment", {"reference_name": ["in", mine], **since})
+		for doctype in self.CLEANED:
+			frappe.db.delete(
+				"Deleted Document", {"deleted_doctype": doctype, **since, "deleted_name": ["in", mine]}
+			)
+
+	def test_two_concurrent_saves_with_one_key(self):
+		key = "RACE-" + self.token
+		_one, two = self._race(lambda: self._insert(self.e1, key), lambda: self._insert(self.e2, key))
+		self.assertFalse(two.committed, "the second request was not refused")
+		self.assertIsInstance(two.error, DuplicateIntakeError, repr(two.error))
+		self.assertEqual(len(self._keyed(key)), 1)
+
+	def test_two_concurrent_saves_with_the_server_snapshot_setting(self):
+		# MariaDB 11.8 (snapshot isolation ON) may refuse with error 1020 instead of the message
+		key = "RACE2-" + self.token
+		_one, two = self._race(
+			lambda: self._insert(self.e1, key), lambda: self._insert(self.e2, key), snapshot_isolation=None
+		)
+		self.assertFalse(two.committed)
+		self.assertIsInstance(two.error, SAFE_ERRORS, repr(two.error))
+		self.assertEqual(len(self._keyed(key)), 1)
+
+	def test_a_plain_read_would_not_see_the_first_save(self):
+		"""Proof the locking read matters: after the company lock, the second request's plain read (its snapshot)
+		does not see the first, committed transport, while its locking read does."""
+		key = "RACE3-" + self.token
+		seen = {}
+
+		def second():
+			frappe.db.get_value("Company", self.company, "name", for_update=True)
+			# after the lock the first request has committed; a plain read still reads the snapshot
+			plain = frappe.get_all(DOCTYPE, filters={"intake_source_key": key}, pluck="name")
+			transport = frappe.qb.DocType(DOCTYPE)
+			locking = (
+				frappe.qb.from_(transport)
+				.select(transport.name)
+				.where(transport.intake_source_key == key)
+				.for_update()
+			).run(pluck=True)
+			seen.update(plain=plain, locking=locking)
+
+		_one, two = self._race(lambda: self._insert(self.e1, key), second)
+		self.assertIsNone(two.error, repr(two.error))
+		self.assertEqual(seen["plain"], [])
+		self.assertEqual(len(seen["locking"]), 1)
