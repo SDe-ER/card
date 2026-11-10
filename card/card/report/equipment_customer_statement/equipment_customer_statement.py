@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 
 from card.adjustments import sided_adjustments
+from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
@@ -84,6 +85,8 @@ def execute(filters=None):
 				"customer_amount",
 				"total_working_hours",
 				"billable_stopped_hours",
+				"supplier_billable_stopped_hours",
+				"customer_billable_stopped_hours",
 				"docstatus",
 				"from_date",
 			],
@@ -181,7 +184,7 @@ def execute(filters=None):
 				for d in cd:
 					dates.add(d)
 				c_hours = flt(c.total_working_hours)
-				c_stopped = flt(c.billable_stopped_hours)
+				c_stopped = side_stopped_hours(c, "Customer")
 				c_amount = flt(c.customer_amount, 2)
 				c_add, c_ded = sided.get(c.name, (0.0, 0.0))
 				hours = hours + c_hours

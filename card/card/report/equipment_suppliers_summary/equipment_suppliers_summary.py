@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 
+from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
 from card.report_currency import company_currency_report
@@ -53,6 +54,8 @@ def execute(filters=None):
 			"equipment",
 			"total_working_hours",
 			"billable_stopped_hours",
+			"supplier_billable_stopped_hours",
+			"customer_billable_stopped_hours",
 			"net_amount",
 		],
 		limit_page_length=0,
@@ -83,7 +86,7 @@ def execute(filters=None):
 		a["eq"].add(c.equipment)
 		a["cards"] = a["cards"] + 1
 		a["hours"] = a["hours"] + flt(c.total_working_hours)
-		a["stopped"] = a["stopped"] + flt(c.billable_stopped_hours)
+		a["stopped"] = a["stopped"] + side_stopped_hours(c, "Supplier")
 		# supplier-side net (the PI's figure): customer-side rows of a sub-rental card are not the supplier's
 		a["net"] = a["net"] + flt(c.net_amount)
 
