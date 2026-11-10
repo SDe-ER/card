@@ -540,7 +540,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   forged hash through `frappe.client.set_value`, REST PUT and bulk update; intake fields frozen after submit; two
   committed drafts given the same key concurrently; case-insensitive key match; a real cancel freeing the key. The
   new guard tests fail with the guards disabled. Docs: `INTAKE-PROVENANCE-DESIGN.md` section 0 and the FR-146 row
-  record how N1 differs from the design. PR pending.
+  record how N1 differs from the design. PR #228.
   Impact: permissions: no role or DocPerm added; a delete or change of such a File is refused for every user,
   including System Manager and Administrator (known behaviour, accepted by the coordinator 2026-11-10: deleting a
   submitted or cancelled transport that has evidence is refused too, as its attachments are deleted with it, the
