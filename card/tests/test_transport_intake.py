@@ -9,6 +9,7 @@ is in TestTransportIntakeConcurrency below (committed test data, removed in tear
 
 import contextvars
 import hashlib
+import os
 import threading
 from unittest.mock import patch
 
@@ -93,6 +94,7 @@ class TestTransportIntake(IntegrationTestCase, _Fixtures):
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		frappe.db.rollback()
+		frappe.clear_cache(doctype=DOCTYPE)  # a test may have added a Property Setter (rolled back)
 
 	def _transport(self, day=1, company=None, project=None, **intake):
 		company = company or self.company
@@ -187,10 +189,21 @@ class TestTransportIntake(IntegrationTestCase, _Fixtures):
 		self.assertEqual(t.intake_channel, "WhatsApp")
 
 	def test_cancelled_transport_frees_its_key(self):
+		from card.tests.cancel_reason import with_reason
+
 		t = self._transport(intake_source_key="WA-0003")
-		frappe.db.set_value(DOCTYPE, t.name, "docstatus", 2, update_modified=False)
+		t.submit()
+		with_reason(frappe.get_doc(DOCTYPE, t.name)).cancel()
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t.name, "docstatus"), 2)
 		again = self._transport(day=2, intake_source_key="WA-0003")
 		self.assertEqual(again.intake_source_key, "WA-0003")
+
+	def test_keys_match_case_insensitively(self):
+		# the column uses the database's case-insensitive collation: "wa-0004" is the key "WA-0004"
+		first = self._transport(intake_source_key="WA-0004")
+		with self.assertRaises(DuplicateIntakeError) as ctx:
+			self._transport(day=2, intake_source_key="wa-0004")
+		self.assertIn(first.name, str(ctx.exception))
 
 	def test_two_companies_may_share_a_key(self):
 		self._transport(intake_source_key="SHEET-7")
@@ -252,6 +265,341 @@ class TestTransportIntake(IntegrationTestCase, _Fixtures):
 		# a REST-style update with a forged hash
 		frappe.get_doc(DOCTYPE, t2.name).update({"intake_evidence_hash": forged}).save()
 		self.assertEqual(frappe.db.get_value(DOCTYPE, t2.name, "intake_evidence_hash"), _sha(content))
+
+	def _with_evidence(self, seed):
+		content = png(seed + self.token)
+		return self._transport(intake_evidence=self._file(content, "%s.png" % seed).file_url), _sha(content)
+
+	def test_forged_hash_through_set_value_rest_put_and_bulk_update(self):
+		from frappe.api import v1
+		from frappe.client import set_value as rest_set_value
+		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+
+		forged = "f" * 64
+		t, real = self._with_evidence("routes")
+		bare = self._transport(day=2)
+
+		rest_set_value(DOCTYPE, t.name, "intake_evidence_hash", forged)
+		rest_set_value(DOCTYPE, bare.name, "intake_evidence_hash", forged)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t.name, "intake_evidence_hash"), real)
+		self.assertIsNone(frappe.db.get_value(DOCTYPE, bare.name, "intake_evidence_hash"))
+
+		frappe.local.form_dict = frappe._dict(data=frappe.as_json({"intake_evidence_hash": forged}))
+		v1.update_doc(DOCTYPE, t.name)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t.name, "intake_evidence_hash"), real)
+
+		# the bulk action commits after each document and rolls back a failure: kept inside the test transaction
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			failed = submit_cancel_or_update_docs(
+				DOCTYPE, [t.name, bare.name], "update", {"intake_evidence_hash": forged}
+			)
+		self.assertEqual(failed, [])  # both saved; the hash is the server's
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t.name, "intake_evidence_hash"), real)
+		self.assertIsNone(frappe.db.get_value(DOCTYPE, bare.name, "intake_evidence_hash"))
+
+	def test_intake_fields_are_frozen_after_submit(self):
+		from frappe.api import v1
+		from frappe.client import set_value as rest_set_value
+
+		t, real = self._with_evidence("frozen")
+		t.intake_source_key = "FROZEN-1"
+		t.save()
+		t.submit()
+		other = self._file(png("other" + self.token), "other.png")
+		changes = {
+			"intake_source_key": "FROZEN-2",
+			"intake_channel": "Email",
+			"intake_received_on": "2020-01-01 10:00:00",
+			"intake_evidence": other.file_url,
+			"intake_evidence_hash": "e" * 64,
+		}
+		for field, value in changes.items():
+			with self.subTest(field=field):
+				with self.assertRaises(frappe.ValidationError):
+					rest_set_value(DOCTYPE, t.name, field, value)
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json({field: value}))
+				with self.assertRaises(frappe.ValidationError):
+					v1.update_doc(DOCTYPE, t.name)
+		stored = frappe.db.get_value(DOCTYPE, t.name, list(INTAKE_FIELDS), as_dict=True)
+		self.assertEqual(stored.intake_source_key, "FROZEN-1")
+		self.assertEqual(stored.intake_evidence_hash, real)
+		self.assertNotEqual(stored.intake_evidence, other.file_url)
+
+	def _on_disk(self, row):
+		"""The evidence bytes are still on disk (a refused File delete must not remove them; Frappe >= 16.55.0
+		defers the disk delete of File.on_trash to the commit, see FR-146 known limits)."""
+		path = frappe.get_doc("File", row).get_full_path()
+		self.assertTrue(os.path.exists(path), "file removed from disk: %s" % path)
+
+	def test_evidence_of_a_submitted_or_cancelled_transport_is_kept(self):
+		from frappe.client import delete as rest_delete
+
+		from card.tests.cancel_reason import with_reason
+
+		draft, _ = self._with_evidence("draft")
+		draft_file = frappe.db.get_value("File", {"file_url": draft.intake_evidence}, "name")
+		submitted, _ = self._with_evidence("submitted")
+		submitted.submit()
+		kept = frappe.db.get_value("File", {"file_url": submitted.intake_evidence}, "name")
+		self._as_user("Card Manager")
+		with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+			rest_delete("File", kept)
+		frappe.set_user("Administrator")
+		self._on_disk(kept)
+		with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+			frappe.delete_doc("File", kept, ignore_permissions=True)
+		self._on_disk(kept)
+		# detached from the transport, still kept
+		frappe.db.set_value("File", kept, {"attached_to_doctype": None, "attached_to_name": None})
+		with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+			frappe.delete_doc("File", kept, ignore_permissions=True)
+		self._on_disk(kept)
+		with_reason(frappe.get_doc(DOCTYPE, submitted.name)).cancel()
+		with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+			frappe.delete_doc("File", kept, ignore_permissions=True)
+		self.assertTrue(frappe.db.exists("File", kept))
+		self._on_disk(kept)
+		# a draft's evidence may still be removed
+		frappe.delete_doc("File", draft_file, ignore_permissions=True)
+		self.assertFalse(frappe.db.exists("File", draft_file))
+
+	def _assert_transport_and_evidence_exist(self, t, row):
+		self.assertTrue(frappe.db.exists(DOCTYPE, t.name), "transport deleted")
+		self.assertTrue(frappe.db.exists("File", row), "evidence File row deleted")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t.name, "intake_evidence"), t.intake_evidence)
+		self._on_disk(row)
+
+	def test_cancelled_transport_with_evidence_is_not_deleted(self):
+		"""HIGH-1 (#228 review): Frappe deletes the row before its attachments, so the transport itself refuses."""
+		from frappe.client import delete as rest_delete
+		from frappe.desk.reportview import delete_items
+
+		from card.tests.cancel_reason import with_reason
+
+		t, _real, row = self._submitted_with_evidence("del-cancelled")
+		with_reason(frappe.get_doc(DOCTYPE, t.name)).cancel()
+		for user in ("Administrator", self._as_user("System Manager", switch=False)):
+			frappe.set_user(user)
+			with self.subTest(user=user, route="delete_doc"):
+				with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+					frappe.delete_doc(DOCTYPE, t.name)
+				self._assert_transport_and_evidence_exist(t, row)
+			with self.subTest(user=user, route="frappe.client.delete"):
+				with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+					rest_delete(DOCTYPE, t.name)
+				self._assert_transport_and_evidence_exist(t, row)
+			with self.subTest(user=user, route="list view delete_items"):
+				frappe.local.form_dict = frappe._dict(items=frappe.as_json([t.name]), doctype=DOCTYPE)
+				# delete_bulk commits or rolls back each item: kept inside the test transaction
+				with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+					delete_items()
+				self._assert_transport_and_evidence_exist(t, row)
+		frappe.set_user("Administrator")
+		# a cancelled transport without evidence is deleted as before
+		plain = self._transport(day=9)
+		plain.submit()
+		with_reason(frappe.get_doc(DOCTYPE, plain.name)).cancel()
+		frappe.delete_doc(DOCTYPE, plain.name)
+		self.assertFalse(frappe.db.exists(DOCTYPE, plain.name))
+
+	def test_submitted_transport_with_evidence_is_not_deleted(self):
+		from frappe.client import delete as rest_delete
+
+		t, _real, row = self._submitted_with_evidence("del-submitted")
+		for route in (lambda: frappe.delete_doc(DOCTYPE, t.name), lambda: rest_delete(DOCTYPE, t.name)):
+			with self.assertRaises(frappe.ValidationError):
+				route()
+			self._assert_transport_and_evidence_exist(t, row)
+
+	def _as_user(self, role, switch=True):
+		email = "n1-%s-%s@example.com" % (frappe.scrub(role), self.token)
+		if not frappe.db.exists("User", email):
+			user = frappe.new_doc("User")
+			user.update({"email": email, "first_name": "N1 " + role, "send_welcome_email": 0})
+			user.insert(ignore_permissions=True)
+			user.add_roles(role)
+		if switch:
+			frappe.set_user(email)
+		return email
+
+	def _submitted_with_evidence(self, seed):
+		t, real = self._with_evidence(seed)
+		t.submit()
+		row = frappe.db.get_value("File", {"file_url": t.intake_evidence}, "name")
+		return t, real, row
+
+	def _assert_evidence_kept(self, t, real, row):
+		stored = frappe.db.get_value(
+			DOCTYPE, t.name, ["intake_evidence", "intake_evidence_hash", "docstatus"], as_dict=True
+		)
+		self.assertEqual((stored.intake_evidence, stored.intake_evidence_hash), (t.intake_evidence, real))
+		f = frappe.db.get_value(
+			"File", row, ["file_url", "is_private", "attached_to_doctype", "attached_to_name"], as_dict=True
+		)
+		self.assertEqual((f.file_url, f.is_private), (t.intake_evidence, 1))
+		self.assertEqual((f.attached_to_doctype, f.attached_to_name), (DOCTYPE, t.name))
+		return stored
+
+	def test_evidence_file_is_not_moved_detached_made_public_or_renamed(self):
+		from frappe.client import set_value as rest_set_value
+
+		t, real, row = self._submitted_with_evidence("move")
+		other = self._transport(day=5)
+		for field, value in (
+			("attached_to_name", other.name),
+			("attached_to_doctype", "Card Equipment"),
+			("attached_to_name", None),
+			("is_private", 0),
+			("file_url", "/private/files/renamed-%s.png" % self.token),
+		):
+			with self.subTest(field=field):
+				with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+					rest_set_value("File", row, field, value)
+				self._assert_evidence_kept(t, real, row)
+		with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+			frappe.get_doc("File", row).delete()
+		self._on_disk(row)
+		# a draft's evidence is not protected
+		draft, _ = self._with_evidence("move-draft")
+		draft_row = frappe.db.get_value("File", {"file_url": draft.intake_evidence}, "name")
+		rest_set_value("File", draft_row, "attached_to_name", other.name)
+		self.assertEqual(frappe.db.get_value("File", draft_row, "attached_to_name"), other.name)
+
+	def test_cancelled_evidence_is_not_moved_made_public_or_renamed(self):
+		"""M7: the evidence of a CANCELLED transport is protected too (not only docstatus 1)."""
+		from frappe.client import set_value as rest_set_value
+
+		from card.tests.cancel_reason import with_reason
+
+		t, real, row = self._submitted_with_evidence("move-cancelled")
+		with_reason(frappe.get_doc(DOCTYPE, t.name)).cancel()
+		other = self._transport(day=6)
+		for field, value in (
+			("attached_to_name", other.name),
+			("is_private", 0),
+			("file_url", "/private/files/renamed-c-%s.png" % self.token),
+		):
+			with self.subTest(field=field):
+				with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+					rest_set_value("File", row, field, value)
+				self._assert_evidence_kept(t, real, row)
+
+	def test_public_copy_with_the_same_bytes_cannot_be_made_private(self):
+		"""M4: Frappe moves every row with the same content when one changes its private state, so a public copy
+		of the evidence bytes may not be made private (the evidence File's URL would change with it)."""
+		from frappe.client import set_value as rest_set_value
+
+		content = png("same-bytes" + self.token)
+		f = self._file(content, "same.png")
+		t = self._transport(intake_evidence=f.file_url)
+		t.submit()
+		row = frappe.db.get_value("File", {"file_url": t.intake_evidence}, "name")
+		copy = frappe.get_doc(
+			{"doctype": "File", "file_name": "copy-%s.png" % self.token, "content": content, "is_private": 0}
+		).insert(ignore_permissions=True)
+		self.assertEqual(copy.content_hash, frappe.db.get_value("File", row, "content_hash"))
+		self.assertNotEqual(copy.file_url, t.intake_evidence)
+		with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+			rest_set_value("File", copy.name, "is_private", 1)
+		self.assertEqual(frappe.db.get_value("File", row, "file_url"), t.intake_evidence)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t.name, "intake_evidence"), t.intake_evidence)
+		self._on_disk(row)
+
+	def test_evidence_file_identity_is_frozen_through_rest_put(self):
+		"""LOW-1: content hash, file name and size of the evidence File do not change after submit."""
+		from frappe.api import v1
+
+		t, real, row = self._submitted_with_evidence("identity")
+		stored = frappe.db.get_value("File", row, ["content_hash", "file_name", "file_size"], as_dict=True)
+		for field, value in (
+			("content_hash", "0" * 32),
+			("file_name", "renamed-%s.png" % self.token),
+			("file_size", 1),
+		):
+			with self.subTest(field=field):
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json({field: value}))
+				with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+					v1.update_doc("File", row)
+				self.assertEqual(frappe.db.get_value("File", row, field), stored[field])
+				self._assert_evidence_kept(t, real, row)
+
+	def test_amendment_may_re_attach_the_original_evidence(self):
+		"""LOW-4: re-attaching the original's evidence File to its amendment is allowed; it stays protected."""
+		from frappe.client import set_value as rest_set_value
+
+		from card.tests.cancel_reason import with_reason
+
+		t, real, row = self._submitted_with_evidence("reattach")
+		with_reason(frappe.get_doc(DOCTYPE, t.name)).cancel()
+		amended = frappe.copy_doc(frappe.get_doc(DOCTYPE, t.name))
+		amended.amended_from = t.name
+		amended.docstatus = 0
+		for r in [amended, *amended.items]:
+			r.created_assignment = r.previous_assignment = None
+		amended.insert()
+		self.assertEqual(amended.intake_evidence_hash, real)
+		frappe.get_doc("File", row).update({"attached_to_name": amended.name}).save()
+		self.assertEqual(frappe.db.get_value("File", row, "attached_to_name"), amended.name)
+		with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+			rest_set_value("File", row, "is_private", 0)
+		with self.assertRaisesRegex(frappe.ValidationError, "intake evidence"):
+			frappe.delete_doc("File", row, ignore_permissions=True)
+		self._on_disk(row)
+
+	def test_allow_on_submit_customisation_cannot_change_the_intake(self):
+		from frappe.client import set_value as rest_set_value
+		from frappe.custom.doctype.property_setter.property_setter import make_property_setter
+
+		t, real, row = self._submitted_with_evidence("aos")
+		other = self._file(png("aos-other" + self.token), "aos-other.png")
+		changes = {
+			"intake_evidence": other.file_url,
+			"intake_evidence_hash": "a" * 64,
+			"intake_source_key": "AOS-2",
+			"intake_channel": "Email",
+			"intake_received_on": "2020-01-01 10:00:00",
+		}
+		for field in changes:
+			make_property_setter(
+				DOCTYPE, field, "allow_on_submit", 1, "Check", validate_fields_for_doctype=False
+			)
+		frappe.clear_cache(doctype=DOCTYPE)
+		for field, value in changes.items():
+			with self.subTest(field=field):
+				with self.assertRaises(frappe.UpdateAfterSubmitError):
+					rest_set_value(DOCTYPE, t.name, field, value)
+				self._assert_evidence_kept(t, real, row)
+		self.assertIsNone(frappe.db.get_value(DOCTYPE, t.name, "intake_source_key"))
+
+	def test_cancel_cannot_change_the_intake(self):
+		from frappe.api import v1
+		from frappe.desk.form.save import savedocs
+
+		from card.tests.cancel_reason import TEST_REASON
+
+		t, real, row = self._submitted_with_evidence("cancel")
+		other = self._file(png("cancel-other" + self.token), "cancel-other.png")
+		forged = {
+			"intake_evidence": other.file_url,
+			"intake_evidence_hash": "c" * 64,
+			"intake_source_key": "CANCEL-2",
+		}
+		# REST PUT with docstatus 2: refused, nothing changes
+		frappe.local.form_dict = frappe._dict(
+			data=frappe.as_json({"docstatus": 2, "cancel_reason": TEST_REASON, **forged})
+		)
+		with self.assertRaises(frappe.ValidationError):
+			v1.update_doc(DOCTYPE, t.name)
+		self.assertEqual(self._assert_evidence_kept(t, real, row).docstatus, 1)
+		# savedocs Cancel with a forged document: whatever Frappe does with the request (16.55 ignores the
+		# client values on cancel), the stored intake is unchanged
+		doc = frappe.get_doc(DOCTYPE, t.name).as_dict()
+		doc.update({"cancel_reason": TEST_REASON, **forged})
+		try:
+			savedocs(frappe.as_json(doc), "Cancel")
+		except frappe.ValidationError:
+			pass
+		self._assert_evidence_kept(t, real, row)
 
 	def test_public_or_foreign_evidence_is_refused(self):
 		public = frappe.get_doc(
@@ -437,6 +785,20 @@ class TestTransportIntakeConcurrency(IntegrationTestCase, _Fixtures):
 		self.assertFalse(two.committed, "the second request was not refused")
 		self.assertIsInstance(two.error, DuplicateIntakeError, repr(two.error))
 		self.assertEqual(len(self._keyed(key)), 1)
+
+	def test_two_committed_drafts_take_one_key_concurrently(self):
+		key = "RACE4-" + self.token
+		d1, d2 = self._committed(lambda: (self._insert(self.e1, None), self._insert(self.e2, None)))
+
+		def set_key(name):
+			doc = frappe.get_doc(DOCTYPE, name)
+			doc.intake_source_key = key
+			doc.save()
+
+		_one, two = self._race(lambda: set_key(d1), lambda: set_key(d2))
+		self.assertFalse(two.committed, "the second request was not refused")
+		self.assertIsInstance(two.error, DuplicateIntakeError, repr(two.error))
+		self.assertEqual(self._keyed(key), [d1])
 
 	def test_two_concurrent_saves_with_the_server_snapshot_setting(self):
 		# MariaDB 11.8 (snapshot isolation ON) may refuse with error 1020 instead of the message
