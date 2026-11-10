@@ -17,6 +17,7 @@ from frappe.tests import IntegrationTestCase
 
 from card import company_scope
 from card.company_scope import (
+	check_child_companies,
 	company_query_conditions,
 	deny_cross_company_share,
 	document_companies,
@@ -27,6 +28,49 @@ from card.tests.test_controllers import _ensure_masters
 FILL = "Project Diesel Fill"
 ASSIGNMENT = "Card Equipment Assignment"
 REPO = pathlib.Path(__file__).resolve().parents[2]
+
+
+def _field_target_meta(target, doctypes):
+	"""The fields of ``target`` as {fieldname: field}: from the repository JSON (a planned DocType may link
+	another one not installed yet), else from the site."""
+	if target in doctypes:
+		return {f["fieldname"]: f for f in doctypes[target].get("fields") or []}
+	if frappe.db.exists("DocType", target):
+		return {f.fieldname: f.as_dict() for f in frappe.get_meta(target).fields}
+	return {}
+
+
+def scope_problems(meta, doctypes):
+	"""What keeps the generic company scope from isolating the DocType ``meta`` (a DocType JSON dict)."""
+	problems = []
+	if meta.get("istable") or meta.get("issingle"):
+		problems.append("child table or single")
+	fields = {f["fieldname"]: f for f in meta.get("fields") or []}
+	company = fields.get("company")
+	if not company or company.get("fieldtype") != "Link" or company.get("options") != "Company":
+		problems.append("no Company `company` field")
+	else:
+		if not company.get("reqd"):
+			problems.append("`company` is not mandatory")
+		fetch = company.get("fetch_from")
+		if fetch:
+			source = fields.get(fetch.split(".", 1)[0]) or {}
+			if (
+				source.get("fieldtype") != "Link"
+				or source.get("options") not in company_scope.COMPANY_SOURCES
+			):
+				problems.append(f"`company` is fetched from {fetch}, not from a company source link")
+	for field in fields.values():
+		target = field.get("options")
+		if field.get("fieldtype") != "Link" or target in (None, "Company") or field["fieldname"] == "company":
+			continue
+		target_company = _field_target_meta(target, doctypes).get("company") or {}
+		if target_company.get("fieldtype") == "Link" and target_company.get("options") == "Company":
+			if target not in company_scope.COMPANY_SOURCES:
+				problems.append(
+					f"link `{field['fieldname']}` to {target} (has a company) is not in COMPANY_SOURCES"
+				)
+	return problems
 
 
 def _repo_doctypes():
@@ -88,24 +132,51 @@ class TestCompanyScopeHooks(IntegrationTestCase):
 		deny_cross_company_share(frappe._dict(share_doctype=absent, everyone=1, user=None))
 
 	def test_present_planned_doctypes_carry_a_company(self):
-		"""A planned DocType, once its package adds it, has a Company ``company`` field or a link to a company
-		source; otherwise the generic scope would not isolate it."""
+		"""A planned DocType, once its package adds it: a mandatory Company ``company`` field, not fetched or
+		fetched from a company source link, and every link to a company-owned DocType listed in COMPANY_SOURCES;
+		otherwise the generic scope would not isolate it."""
 		doctypes = _repo_doctypes()
+		self.assertEqual(
+			{
+				name: meta.get("module")
+				for name, meta in doctypes.items()
+				if name in company_scope.SCOPED_DOCTYPES
+			},
+			{name: "Card" for name in doctypes if name in company_scope.SCOPED_DOCTYPES},
+		)
 		for doctype in company_scope.SCOPED_DOCTYPES:
 			meta = doctypes.get(doctype)
 			if not meta:
 				continue  # not merged yet: its hooks are inert
 			with self.subTest(doctype=doctype):
-				self.assertFalse(meta.get("istable") or meta.get("issingle"))
-				links = {
-					(f["fieldname"], f.get("options"))
-					for f in meta.get("fields") or []
-					if f.get("fieldtype") == "Link"
-				}
-				self.assertTrue(
-					("company", "Company") in links
-					or any(target in company_scope.COMPANY_SOURCES for _field, target in links)
-				)
+				self.assertEqual(scope_problems(meta, doctypes), [])
+
+	def test_scope_guard_itself(self):
+		"""The guard above, on synthetic DocTypes (no planned DocType exists yet)."""
+
+		def meta(*fields, **props):
+			return {"name": "Card Scope Probe", "module": "Card", "fields": list(fields), **props}
+
+		company = {"fieldname": "company", "fieldtype": "Link", "options": "Company", "reqd": 1}
+		equipment = {"fieldname": "equipment", "fieldtype": "Link", "options": "Card Equipment"}
+		self.assertEqual(scope_problems(meta(company, equipment), {}), [])
+		fetched = {**company, "fetch_from": "equipment.company"}
+		self.assertEqual(scope_problems(meta(fetched, equipment), {}), [])
+		cases = {
+			"no company": meta(equipment),
+			"not mandatory": meta({**company, "reqd": 0}),
+			"fetched from a non-source": meta(
+				{**company, "fetch_from": "employee.company"},
+				{"fieldname": "employee", "fieldtype": "Link", "options": "Employee"},
+			),
+			"unlisted company-owned link": meta(
+				company, {"fieldname": "cost_center", "fieldtype": "Link", "options": "Cost Center"}
+			),
+			"child table": meta(company, istable=1),
+		}
+		for label, probe in cases.items():
+			with self.subTest(case=label):
+				self.assertTrue(scope_problems(probe, {}))
 
 
 class TestCompanyScope(IntegrationTestCase):
@@ -208,8 +279,11 @@ class TestCompanyScope(IntegrationTestCase):
 		# a source link of company B on a company-A record is refused too
 		self.assertFalse(self._allowed(frappe.new_doc(FILL, company=self.A, project=self.proj_b)))
 		self.assertFalse(self._allowed(frappe.new_doc(FILL, company=self.A, card_equipment=self.eq_b)))
-		# nothing chosen yet: no objection (the mandatory fields stop the save)
-		self.assertTrue(self._allowed(frappe.new_doc(FILL)))
+		# no company yet: refused for a restricted user (the server could set one he may not use) ...
+		self.assertFalse(self._allowed(frappe.new_doc(FILL)))
+		# ... but a source link resolves it
+		self.assertTrue(self._allowed(frappe.new_doc(FILL, card_equipment=self.eq_a)))
+		self.assertTrue(self._allowed(frappe.new_doc(FILL), user=self._user()))
 
 	def test_company_field_takeover_and_move_denied(self):
 		doc = frappe.get_doc(FILL, self.fill_b)
@@ -268,6 +342,7 @@ class TestCompanyScope(IntegrationTestCase):
 		doc = frappe.get_doc(ASSIGNMENT, self.asg_b)
 		doc.equipment, doc.project = self.eq_a, self.proj_a  # take over: the stored links still count
 		self.assertFalse(self._allowed(doc))
+		self.assertFalse(self._allowed(frappe.new_doc(ASSIGNMENT)))  # no link yet: no company
 
 	def test_link_only_list(self):
 		names = (self.asg_a, self.asg_b)
@@ -316,3 +391,88 @@ class TestCompanyScope(IntegrationTestCase):
 	def test_share_guard_ignores_other_doctypes(self):
 		# Card Equipment Assignment is not in the scope list: its shares are not checked here
 		deny_cross_company_share(self._share(ASSIGNMENT, self.asg_b, user=self.user))
+
+	# ---------- CARD module only ----------
+	def test_other_modules_are_never_checked(self):
+		todo = frappe.new_doc("ToDo")  # Desk module, no company: would be refused as a new CARD record
+		self.assertTrue(has_company_permission(todo, "create", user=self.user))
+		self.assertTrue(company_scope.is_scoped("Sales Invoice"))
+		self.assertEqual(company_query_conditions(user=self.user, doctype="Sales Invoice"), "")
+		with patch.object(company_scope, "SCOPED_DOCTYPES", ("ToDo",)):
+			deny_cross_company_share(self._share("ToDo", "x", everyone=1))
+
+	# ---------- child rows (package helper) ----------
+	def test_check_child_companies(self):
+		doc = frappe.new_doc(FILL, company=self.A)
+		doc.append("equipment_filled", {"card_equipment": self.eq_a})
+		check_child_companies(doc, "equipment_filled", "card_equipment")
+		doc.append("equipment_filled", {"card_equipment": self.eq_b})
+		with self.assertRaises(frappe.ValidationError):
+			check_child_companies(doc, "equipment_filled", "card_equipment")
+		with self.assertRaises(frappe.ValidationError):
+			check_child_companies(doc, "equipment_filled", "name")  # not a company source link
+
+	# ---------- end to end through Frappe (patched registration) ----------
+	def _generic_only(self):
+		"""Project Diesel Fill with the generic hook as its only controller check."""
+		real = frappe.get_hooks
+
+		def get_hooks(hook=None, default=None, app_name=None):
+			result = real(hook, default, app_name)
+			if hook == "has_permission":
+				result = dict(result or {})
+				result[FILL] = [company_scope.HAS_PERMISSION]
+			return result
+
+		return patch.object(frappe, "get_hooks", side_effect=get_hooks)
+
+	def test_end_to_end_read(self):
+		with self._generic_only():
+			self.assertFalse(
+				frappe.has_permission(FILL, "read", doc=frappe.get_doc(FILL, self.fill_b), user=self.user)
+			)
+			self.assertTrue(
+				frappe.has_permission(FILL, "read", doc=frappe.get_doc(FILL, self.fill_a), user=self.user)
+			)
+
+	def test_end_to_end_insert(self):
+		user = self._user(restrict=self.A, roles=("Card Manager",))
+		refused = (
+			{"company": self.B, "project": self.proj_b},
+			# company A passes the standard Company User Permission; the company-B project is caught by the hook
+			{"company": self.A, "project": self.proj_b},
+			{"company": self.A, "card_equipment": self.eq_b},
+		)
+		with self._generic_only():
+			for docstatus in (0, 1):
+				for values in refused:
+					with self.subTest(docstatus=docstatus, **values):
+						frappe.set_user(user)
+						doc = frappe.get_doc({"doctype": FILL, "docstatus": docstatus, **values})
+						with self.assertRaises(frappe.PermissionError):
+							doc.insert()
+						frappe.set_user("Administrator")
+						self.assertFalse(
+							frappe.db.exists(FILL, {"project": values.get("project") or "-", "owner": user})
+						)
+				with self.subTest(docstatus=docstatus, control="company A"):
+					# positive control: the same user's company-A record passes the permission check (it may
+					# still fail later validation, which is not a permission error)
+					frappe.set_user(user)
+					frappe.db.savepoint("scope_e2e")
+					try:
+						frappe.get_doc(
+							{
+								"doctype": FILL,
+								"docstatus": docstatus,
+								"company": self.A,
+								"project": self.proj_a,
+							}
+						).insert()
+					except frappe.PermissionError:
+						self.fail("company-A insert refused by a permission check")
+					except Exception:
+						pass
+					finally:
+						frappe.db.rollback(save_point="scope_e2e")
+						frappe.set_user("Administrator")

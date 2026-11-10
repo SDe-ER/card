@@ -20,8 +20,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   #44, #49, #52). Reason: the close-all packages add nine DocTypes, and each needs the company isolation of the
   existing CARD hooks; registering it once keeps later packages out of `card/hooks.py`. New `card/company_scope.py`:
   `has_company_permission` (record check: the company sent and stored, plus the company of each new or changed
-  top-level Link to Card Equipment or Project; for a DocType without a `company` field also the stored link),
-  `company_query_conditions` (list twin) and `deny_cross_company_share` (DocShare validate). `card/hooks.py` registers
+  top-level Link to Card Equipment, Project, Card Monthly Card or Warehouse; for a DocType without a `company` field
+  also the stored link; a new record of a restricted user that has no company yet is refused; CARD-module DocTypes
+  only),
+  `company_query_conditions` (list twin), `deny_cross_company_share` (DocShare validate) and the package helper
+  `check_child_companies` (companies on child-table rows are each package's own responsibility). `card/hooks.py` registers
   them for Equipment Meter Reading, Card Daily Log, Card Rate Agreement, Card Period Run, Card Approval Delegation,
   Diesel Dispense, Tank Dip Reading, Equipment Operating Group and Card Intake Record; the DocShare validate hook
   becomes a list (the diesel fill check is kept first). PR #208 (branch
