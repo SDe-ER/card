@@ -103,7 +103,11 @@ def _other_active_holder(doctype, name, log):
 def _other_side_still_posted(doctype, name, cleared_field):
 	other = "sales_invoice" if cleared_field == "purchase_invoice" else "purchase_invoice"
 	if not frappe.get_meta(doctype).has_field(other):
-		return False
+		# FR-139: a source without a link field for the other side (Equipment Transport has no
+		# sales_invoice) is still posted on that side while a SUBMITTED log of that side holds it
+		other_side = "Customer" if cleared_field == "purchase_invoice" else "Supplier"
+		holder = active_log_holding(doctype, name, other_side)
+		return bool(holder and holder.status == "Submitted")
 	return bool(frappe.db.get_value(doctype, name, other))
 
 

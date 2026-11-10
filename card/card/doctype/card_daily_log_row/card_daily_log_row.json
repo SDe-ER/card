@@ -1,0 +1,101 @@
+{
+ "actions": [],
+ "creation": "2026-11-10 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "links": [],
+ "modified": "2026-11-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Daily Log Row",
+ "owner": "Administrator",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1,
+ "permissions": [],
+ "field_order": [
+  "equipment",
+  "equipment_name",
+  "day_hours",
+  "night_hours",
+  "stop_reason",
+  "stopped_hours",
+  "responsible_party_type",
+  "responsible_party",
+  "responsible_party_name",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "equipment_name",
+   "fieldtype": "Data",
+   "label": "Equipment name",
+   "fetch_from": "equipment.equipment_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "day_hours",
+   "fieldtype": "Float",
+   "label": "Day shift hours",
+   "in_list_view": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "night_hours",
+   "fieldtype": "Float",
+   "label": "Night shift hours",
+   "in_list_view": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "stop_reason",
+   "fieldtype": "Link",
+   "label": "Stop reason",
+   "options": "Card Stop Reason",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "stopped_hours",
+   "fieldtype": "Float",
+   "label": "Stopped hours",
+   "in_list_view": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "responsible_party_type",
+   "fieldtype": "Select",
+   "label": "Responsible party",
+   "options": "\nCompany\nSupplier\nCustomer\nOther"
+  },
+  {
+   "fieldname": "responsible_party",
+   "fieldtype": "Dynamic Link",
+   "label": "Responsible party record",
+   "options": "responsible_party_type",
+   "depends_on": "eval:doc.responsible_party_type && doc.responsible_party_type!='Other'"
+  },
+  {
+   "fieldname": "responsible_party_name",
+   "fieldtype": "Data",
+   "label": "Responsible party name",
+   "depends_on": "eval:doc.responsible_party_type=='Other'"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ]
+}

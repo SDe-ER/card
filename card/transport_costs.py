@@ -99,3 +99,80 @@ def not_company_cost_by_project(company=None, from_date=None, to_date=None, proj
 		entry["transports"] += 1
 		entry["amount"] += flt(row.informational_amount)
 	return totals
+
+
+# ---- FR-139 (#49, #126, #43; conflict C-09, owner decision O-14): transport responsibility posting ----
+# Per company (Card Company Settings.transport_responsibility_posting). "Hold" (the default, and an empty
+# value) keeps the P1-2 rule of 2026-10-31: a transport recorded with a responsibility scenario is never
+# posted. "Post" lets the monthly builder (card.gl.posting) add it to the draft invoices. Only the
+# classification lives here; the builder makes the lines. No GL, no VAT decision: the lines carry the
+# company's CARD item tax template (FR-127 rate) exactly as every other CARD line.
+
+# what the builder reads of a transport recorded with a responsibility (all stored by the server)
+RESPONSIBILITY_POSTING_FIELDS = (
+	"responsibility",
+	"payer",
+	"cost_bearer",
+	"cost_basis",
+	"cost_project",
+	"overhead_cost_center",
+	"equipment_supplier",
+	"financial_status",
+	"financial_decision",
+	"customer",
+	"billing_project",
+	"billing_amount",
+	"billing_mode",
+	"recovery_mode",
+	"recovery_amount",
+)
+
+# the supplier-side kinds of a transport the company pays
+COMPANY_COST = "Company cost"  # the company bears it: the transporter's line on its cost allocation
+BILLED_TO_CUSTOMER = "Billed to customer"  # recharged: the transporter's line on the billing project
+RECOVERED_BY_DEDUCTION = "Recovered by deduction"  # same supplier: the line and the recovery deduction
+RECOVERED_BY_ADJUSTMENT = "Recovered by adjustment document"  # the line; the recovery is the accountant's
+
+# why a transport the company pays stays out of the build in Post mode (the builder says it in the preview)
+HELD_NOT_PAID = "not paid by the company"
+HELD_DECISION = "decision not approved"
+HELD_OTHER_SUPPLIER = "recovery from another supplier"
+HELD_ABSORBED = "absorbed without a cost project"
+
+
+def supplier_posting_kind(row):
+	"""(kind, reason) of a submitted transport recorded with a responsibility, on the transporter's
+	Purchase Invoice: kind is one of the constants above, or None with the HELD_* reason it is not posted."""
+	if row.payer != "Company":
+		return None, HELD_NOT_PAID
+	if row.cost_bearer == "Company":
+		return COMPANY_COST, None
+	if row.financial_status != "Approved":
+		return None, HELD_DECISION
+	if row.cost_bearer == "Customer" and row.financial_decision == "Bill customer":
+		return BILLED_TO_CUSTOMER, None
+	if (
+		row.cost_bearer == "Equipment Supplier"
+		and row.financial_decision == "Recover from equipment supplier"
+	):
+		if row.recovery_mode == "Adjustment document":
+			return RECOVERED_BY_ADJUSTMENT, None
+		if row.equipment_supplier and row.equipment_supplier == row.get("transport_supplier"):
+			return RECOVERED_BY_DEDUCTION, None
+		# the deduction belongs on another supplier's invoice; one transport is one supplier-side source
+		return None, HELD_OTHER_SUPPLIER
+	# "Company absorbs": no cost project is recorded for the absorbed cost, and none is assumed
+	return None, HELD_ABSORBED
+
+
+def customer_billing_eligible(row):
+	"""A transport whose approved decision bills the customer on the monthly Sales Invoice."""
+	return bool(
+		row.responsibility
+		and row.payer == "Company"
+		and row.cost_bearer == "Customer"
+		and row.financial_status == "Approved"
+		and row.financial_decision == "Bill customer"
+		and row.billing_mode == "Monthly invoice"
+		and row.customer
+	)

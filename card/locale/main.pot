@@ -5319,6 +5319,314 @@ msgstr ""
 msgid "Diesel price fuel type"
 msgstr ""
 
+#: card/daily_log.py
+msgid "Project {0} belongs to company {1}; the daily log is for company {2}."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Add at least one equipment row to the daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Equipment {0} is listed twice in the daily log (row {1})."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0}: hours cannot be negative."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Cannot record hours for a future day: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): day, night and stopped hours together ({2}) exceed 24 hours."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Rows over the shift limit (day {0} h, night {1} h); the hours are recorded, review them: {2}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log can only amend a cancelled daily log of the same company."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log for this project and date already lists these equipment: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Invalid daily log approval status: {0}"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Only Card Manager may approve or return a daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "This daily log is already approved or returned; cancel and amend it to change it."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log; another approver must approve it (company rule: Refuse)."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log and approve it yourself; it is marked for review (company rule: Warn)."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Daily log self-approval"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Enter the reason for returning the daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A daily log cannot go back to Pending; cancel and amend it instead."
+msgstr ""
+
+#: card/daily_log.py
+msgid "An approved daily log can only be cancelled by a Card Manager."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Approve daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Return daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log return reason"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log date"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Site supervisor"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approval"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log submitted by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log edited by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approved by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log approved on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Approved by its own preparer"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log returned by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log returned on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Equipment hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log equipment rows"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Card Daily Log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Card Daily Log Row"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift hours"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Card Daily Log Settings"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Daily log self-approval rule"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Company {0} does not use supervisor verification of daily logs."
+msgstr ""
+
+#: card/daily_log.py
+msgid "This daily log is already verified."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Only a Card Supervisor may verify a daily log."
+msgstr ""
+
+#: card/daily_log.py
+msgid "You created, edited or submitted this daily log; another supervisor must verify it."
+msgstr ""
+
+#: card/daily_log.py
+msgid "A supervisor must verify this daily log before it is approved."
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.js
+msgid "Verify daily log"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log verified by"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Daily log verified on"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Verified by supervisor"
+msgstr ""
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgid "Returned for correction"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Warn only (daily log)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Refuse (daily log)"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json
+msgid "Daily log supervisor verification required"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport responsibility posting"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A transport recorded with a responsibility scenario: Hold keeps it out of the monthly invoices (as before; the Transport Accounting Review lists it). Post adds it to the monthly draft invoices: the transporter's Purchase Invoice line, the customer's Sales Invoice line from the approved billing amount, and the equipment supplier's recovery as a deduction. Switch to Post only after the accountant and the tax adviser agree. Empty: Hold."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Hold (transport responsibility posting)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Post (transport responsibility posting)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport recharge income account"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Income account of the transport cost billed to a customer (Post only). Must be an enabled, non-group account of this company."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: {1} has no cost center; set it, then build again."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: its billing project {1} does not belong to company {2}; return the decision for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Cost project {0}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "The overhead cost center"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: where the company's cost is charged is not recorded; review it."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "billed to the customer"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "recovered from the equipment supplier"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: the amount recovered from the equipment supplier is not recorded."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: recovery from equipment supplier {1}"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: its billing amount must be positive (Sales Invoices carry no negative lines); return the decision for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Equipment transport {0} billed to the customer (reference {1})"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: its financial decision is pending or was returned for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: its cost is recovered by deduction from another supplier than the transporter; record the recovery as an adjustment document or enter the invoices manually."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0} is not included: the company absorbs it and no cost project is recorded; enter the supplier invoice manually."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "no billing project"
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: its billing project {1} is cancelled; return the decision for correction."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Transport {0}: the amount recovered from the equipment supplier ({1}) is more than the transport cost ({2}); return the decision for correction."
+msgstr ""
+
+#: card/gl/preflight.py
+msgid "Configure Card Settings for company {0}: the transport recharge income account {1} must be an income account."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "{0}: the amount {1} cannot be split over its machines without a negative part."
+msgstr ""
+
 #: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json
 msgid "Equipment Meter Reading"
 msgstr ""

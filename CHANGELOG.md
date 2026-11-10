@@ -40,6 +40,117 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Accounting: none. Read-only and informational; nothing posts, `enable_accounting` unchanged. Data: no patch;
     the Production data steps are a separate approved migration. API: one new POST endpoint.
   - Rollback: revert the commit and migrate; the new DocTypes' rows are information only (no ledger effect).
+- **FR-142 — Card Daily Log: daily equipment hours with manager approval (#44, #123, FR-022; closure plan WP-K1).**
+  Reason: #44 and #123 ask for daily entry from paper/WhatsApp and an operator/supervisor → manager approval with no
+  self-approval; until now hours were entered only on the monthly card day rows. New submittable DocType **Card
+  Daily Log** (header: company (required), project (required), date, site supervisor; rows **Card Daily Log Row**:
+  equipment, day shift hours, night shift hours, stop reason, stopped hours, responsible party type, record and
+  name (optional, the FR-118 card day-row rule through `CardMonthlyCard._normalise_responsible_party`: an empty
+  type takes the stop reason's default, a Company party is the log's company and another company is refused,
+  Other keeps a free-text name only), notes) and the per-company master **Card Daily Log
+  Settings**: `self_approval_rule` "Warn only (daily log)" (default) / "Refuse (daily log)", and
+  `require_supervisor_verification` (Check, default 0). Flow: a Card Operator (own logs only), Card Supervisor or
+  Card Manager enters and submits; a Card Manager (or System Manager) then approves or returns it with a reason
+  ("Returned for correction") by saving `approval_status` on the submitted log; an approved or returned log is
+  final and is corrected by cancel and amend. Opt-in supervisor step: with `require_supervisor_verification` set, a
+  submitted log is first "Verified by supervisor" by a Card Supervisor who is not its preparer (`verified_by/on`),
+  and only then approved by a manager; the verifier counts as a preparer for the approval; a Card Supervisor may
+  also return a Pending log in that mode. Every approval field (`approval_status`, `verified_by/on`,
+  `approved_by/on`, `self_approved`, `return_reason`, `returned_by/on`, `submitted_by`, `edited_by`) is written by
+  the server only, on every route (form save, REST insert with `docstatus` 1, `frappe.client.set_value`, bulk
+  update): a draft and a submit always reset them to Pending, a change after submit is checked in
+  `before_update_after_submit`, and a cancel (form, REST PUT with `docstatus` 2, savedocs, bulk) reads the stored
+  approval with a row lock in `before_cancel` and keeps the stored approval fields. FR-121 style separation of
+  duties: the creator, the submitter and every editor of the log and of every log of its amendment chain are its
+  preparers, and so is every supervisor who verified one of them; when one of them approves, the company rule decides — "Warn only" (default, also for a company without
+  a settings record) approves with a warning and marks the log `self_approved`, "Refuse" refuses (no role exempt,
+  Administrator included). An approved log is cancelled only by an approver. Row rules, the same as the monthly
+  card day rows and through the same functions: shift limits only warn (owner 2026-10-14; Card Settings
+  `max_day_shift_hours` / `max_night_shift_hours`); a row with hours must be on an assignment of the equipment to
+  the project on the log date (`card.transfer.validate_card_days`; equipment without assignment history is not
+  checked, as on the card); the equipment status rule of the company (`check_equipment_status`, with the monthly
+  card message); a stop reason must be an enabled reason of the log's company (`validate_downtime_fields`); day +
+  night + stopped hours ≤ 24; no hours on a future date. One log per equipment, project and date (cancelled logs
+  excepted): the equipment rows are locked, then the other logs are read with one locking query (`FOR UPDATE`, the
+  latest committed rows), so two concurrent submits cannot both pass. Company isolation: the generic FR-131 hooks
+  (already registered for Card Daily Log); every row's equipment must belong to the log's company
+  (`check_child_companies`); the project's company must be the log's company; an amendment may only amend a
+  cancelled log of the same company that the user can read (Frappe copies the original's attachments), and
+  `card.company_scope.COMPANY_SOURCES` gains "Card Daily Log" so the `amended_from` link carries its company. Card
+  Daily Log Settings is scoped by the Company User Permissions that apply to Card Daily Log (`applicable_for`
+  included): `card.daily_log.settings_permission` / `settings_query_conditions`, and a DocShare of it with
+  everyone or with a user outside its company is refused (`deny_cross_company_settings_share`), all registered in
+  `card/hooks.py`. No
+  monthly card is generated from a log yet (WP-K2). Affected functions: new `card/daily_log.py` (`prepare`,
+  `validate_log`, `record_submitter`, `check_transition`, `check_cancel`, `self_approval_rule`,
+  `requires_supervisor_verification`, `log_preparers`, `settings_permission`, `settings_query_conditions`), new
+  controllers and `card_daily_log.js` (Verify / Approve / Return buttons); `card/company_scope.py`
+  `COMPANY_SOURCES`; `card/hooks.py` (two permission entries and one DocShare validate entry for Card Daily Log Settings). Tests: `card/tests/test_daily_log.py`
+  (53, including a two-connection concurrency test). `docs/governance/ROLE-ACTION-MATRIX.md` regenerated (three new
+  DocType rows). PR #218.
+  Impact: permissions — new DocPerms on the new DocTypes only (Card Daily Log: System Manager full; Card Manager
+  full except delete; Card Supervisor read/create/write/submit/cancel/amend; Card Operator the same on own logs
+  (`if_owner`); Card User read. Card Daily Log Settings: System Manager read/create/write/delete; Card Manager read);
+  no existing role or DocPerm changed; no new whitelisted endpoint. Accounting none (CARD writes no GL; a log
+  creates no document). Data: three new tables, nothing written to existing records, no patch. API: the new
+  DocTypes' REST resources. Rollback limits: code rollback leaves the three tables and their rows (harmless,
+  unused); delete the DocTypes to remove them, after K2 only if no monthly card was generated from a log.
+- **FR-139 — Transport responsibility posting, per company: Hold (default) or Post (#49, #126, #43; WP-T,
+  conflict C-09, owner decision O-14, PR #215).** Reason: #49 and #126 ask for customer transport charging and the
+  posting of transport responsibility scenarios, while the owner decision of 2026-10-31 (FR-093, P1-2) holds every
+  transport recorded with a responsibility out of the monthly build until the accountant and the tax adviser decide.
+  Both now hold: new per-company setting Card Company Settings `transport_responsibility_posting` ("Hold (transport
+  responsibility posting)", the default, also for an empty value and for every existing row; or "Post (transport
+  responsibility posting)") and `transport_recharge_income_account` (Link Account, used by Post only). **Hold keeps
+  the P1-2 filter of `card.gl.posting._supplier_sources` unchanged** (same query, same fields, same order — tested
+  against a copy of the v4.7.0 query). **Post** (DRAFT standard ERPNext invoices only, through the existing monthly
+  builder; no GL write, no auto-submit): on the transporter's monthly Purchase Invoice a submitted transport the
+  company pays is added when the company bears it (line on its explicit cost project, place cost center or overhead
+  cost center — never the origin or destination), or when its financial decision is approved: "Bill customer" (line
+  on the approved billing project's cost center), "Recover from equipment supplier" by adjustment document (line
+  only; the accountant issues the recovery document) or by deduction from monthly dues when the equipment supplier is
+  the transporter (the line plus a negative recovery line on the same Purchase Invoice, same account and the
+  company's CARD cost center; the transport reserves the net amount). On the customer's monthly Sales Invoice a
+  transport whose approved decision is "Bill customer" with "Monthly invoice" adds one positive line of its
+  `billing_amount` (never the transporter cost) on the billing project, with the recharge income account; a zero or
+  negative amount is refused (ZATCA rule of 2026-10-15: no negative Sales Invoice line). VAT is never inferred: every
+  line carries the company's CARD item tax template (FR-127 `standard_vat_rate`), as all CARD lines do. Still held in
+  Post (listed as preview warnings): a pending or returned decision, "Company absorbs" (no cost project is recorded
+  for the absorbed cost), a deduction from another supplier than the transporter (one transport is one supplier-side
+  source), a "Separate invoice" on the customer side (the transporter line still posts), "needs review" and every
+  move the company does not pay. A billing project of another company is refused. The duplicate guard is the FR-090
+  one per side (GL Posting Source membership, then the invoice link on submit); the built signature and snapshot
+  apply to the new lines. Transports recorded before P1-2 keep their P1-0 rule in both modes.
+  Review fixes (independent accounting review of PR #215): cancelling the Purchase Invoice of a transport whose
+  customer Sales Invoice is still submitted keeps it `posted` (Equipment Transport has no `sales_invoice` field, so
+  `card.gl.events._other_side_still_posted` now reads the other side from its submitted GL Posting Log; other
+  sources unchanged); a recovery above the transport cost is refused; the recovery deduction and the customer
+  lines are split per machine in the proportions of the transport's equipment shares — only over machines with
+  a positive share, the rounding remainder on the largest share, a negative part refused, so no negative Sales
+  Invoice line and no part for a machine without cost; the recharge income account must be an Income account; a cancelled billing project is refused.
+  Known limits (owner questions): transports held in Post ("Company absorbs", deduction from another supplier,
+  "Separate invoice") have no manual-link path yet — "link supplier invoice" still refuses every P1-2 transport, so
+  the accountant enters those invoices without a CARD link; the Transport Accounting Review report keeps its P1-2
+  wording under Post (its status texts still say that posting waits, e.g. "Company cost recorded — Purchase
+  Invoice posting waits for the accountant", "Customer billing recorded — invoicing waits for the accountant and the
+  tax adviser" and "Recovery recorded — not posted until the accountant decides"); a customer-side Net Total discount (taxable card
+  deductions) is apportioned by ERPNext over every line of the Sales Invoice, the transport recharge lines included
+  (same VAT base; the per-line split of the discount is ERPNext's).
+  Affected functions: `card.gl.posting._supplier_sources`, `_plan_monthly_posting`, `month_parties`,
+  `transport_line_cost_center` (its place check moved to `_place_cost_center`, same behaviour), new
+  `responsibility_line_allocation`, `_responsibility_transports`, `_customer_transports`,
+  `_customer_transport_lines`, `_split_by_shares`; `card.gl.events._other_side_still_posted`; `card.gl.preflight`
+  `posts_transport_responsibility`, `require_transport_recharge_account`; `card.transport_costs`
+  `supplier_posting_kind`, `customer_billing_eligible`.
+  Impact: permissions none (no role, DocPerm or `ignore_permissions` added; the new fields are permlevel 1 like the
+  rest of the company row); accounting none under Hold; under Post more draft invoice lines, posted only after an
+  accountant submits them; data: two new columns, empty on existing rows (= Hold), no patch; API: no new or changed
+  endpoint (`post_month`, `rebuild_month`, `preview_month`, `posting_month_parties` keep their signatures). Not
+  changed: the Transport Accounting Review report text and "link supplier invoice", which still refuses P1-2
+  transports. Rollback: revert the commit; the two columns stay in the database and can be dropped only by a
+  separate approved task. Drafts built under Post are ordinary CARD drafts and can be deleted (their sources are
+  freed); submitted ones are reversed by cancelling the invoice (Sales Invoice: a credit note when ZATCA applies).
+  After a revert, a transport already linked to a submitted Purchase Invoice stays linked.
 - **FR-140 — Equipment Meter Reading: engine-hour readings per equipment (#31 D6; closure plan WP-H2).** Reason:
   #31 separates engine hours (meter) from billable hours, and O-11 D6 sets weekly meter readings by the site
   supervisor; no record of meter readings existed. New submittable DocType **Equipment Meter Reading** (naming
