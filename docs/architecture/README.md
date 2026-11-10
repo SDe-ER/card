@@ -5,7 +5,7 @@ v16 parity audit and global acceptance suite) ask for a set of architecture docu
 Nothing here changes code, data, permissions or accounting. It does not replace the owner's sign-off that #54
 requires before coding.
 
-Baseline: `main` @ `2210d91`. Every fact below was read from the code at that commit: DocType JSON under
+Baseline: `main` @ `ad50b93`. Every fact below was read from the code at that commit: DocType JSON under
 `card/card/doctype/`, the controllers next to them, `card/hooks.py`, `card/gl/*`, `card/patches/`, `card/settings.py`
 and `card/constants.py`. Paths are relative to the repository root. Line numbers are deliberately not used (they drift);
 search for the function name. Where the code does not implement something, the text says **Planned** with the issue

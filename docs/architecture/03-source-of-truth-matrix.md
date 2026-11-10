@@ -44,7 +44,7 @@ moment and kept even if the owner later changes.
 | Posting amount | The invoice's `grand_total` (after submit) | Log `amount`; sources total must equal invoice `net_total` within `reconciliation_tolerance` at submit | ERPNext | Rebuild instead of editing |
 | Accrual booked by hand | The Journal Entry | A Linked GL Posting Log lists the cards it recognised so they are not invoiced twice (`gl/journal_link.py`) | Accountant | Cancelling the Journal Entry frees the cards |
 | Accounts, items, tax templates | Card Company Settings, per company | Invoice lines and header (`gl/posting.py`). Posting items and item tax templates are provisioned by `gl/masters.py` | Card Manager, Accounts Manager | Version of Card Settings |
-| VAT | The tax template named in Card Company Settings | Invoice taxes copied from the template. CARD never infers a rate (`gl/preflight.py` refuses multi-rate templates) | Accounts Manager | Template is ERPNext's |
+| VAT | The tax template named in Card Company Settings | Invoice tax rows are copied from the template; the rate applied per line comes from the Item Tax Templates `gl/masters.py` provisions, set to 15 (taxable) and 0 (non-taxable) in code. CARD does not read a rate from the company's own tax template for lines. `gl/preflight.py` refuses multi-rate templates | Accounts Manager | Templates are ERPNext's; the 15 and 0 are constants in `gl/masters.py` (R-07) |
 | Period closed | Card Settings `period_lock_date` plus ERPNext period rules | `gl/preflight.check_period_open` | Card Manager | Override logged |
 
 ## 4. Stock and parts facts

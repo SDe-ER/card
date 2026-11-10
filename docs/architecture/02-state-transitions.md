@@ -12,7 +12,8 @@ Notation: `A -> B [who / guard]`. "Server" means the controller writes it; the c
 
 | Guard | Applies to | Source |
 |---|---|---|
-| Period lock: save, submit, amend, cancel and delete refused when the document date (or its stored date) is on or before `period_lock_date`; an override role bypasses it and every bypass is logged | Card Monthly Card, Project Diesel Fill, Equipment Transport | `card/period_lock.py`, hooks `_PERIOD_LOCK_EVENTS` |
+| Period lock: save, submit, amend, cancel and delete refused when the document date (or its stored date) is on or before `period_lock_date`; an override role bypasses it, and every bypass is logged and recorded as a Comment on the document (FR-123) | Card Monthly Card, Project Diesel Fill, Equipment Transport | `card/period_lock.py`, hooks `_PERIOD_LOCK_EVENTS` |
+| Mandatory cancel reason (FR-123, #197): a cancel without a reason is refused, a cancel request that changes any other stored field or row is refused, and the reason is stored on `cancel_reason` and in a Comment. This holds on every path: the form (which asks for the reason and calls `cancel_with_reason`), REST, a workflow cancel action, and the list view's bulk cancel; a workflow cancel action and a bulk cancel send no reason, so the server refuses them. Documents cancelled before FR-123 keep an empty reason | the same three | `card/cancel_reason.py`, `card/public/js/cancel_reason.js` |
 | Held-source guard: a source in an active (Draft or Submitted) posting cannot be cancelled | the same three | `card/gl/events.py` `block_source_cancel` |
 | Cancelled sources can be amended; an amended copy of a posted source is refused unless the posting was cancelled | the same three | `card/gl/events.py` `_block_amended_copy` |
 | Equipment status guard: an ended machine gets no new assignment, transport or card; Warn only by default, Refuse per company | Assignment, Transport, Monthly Card | `card/equipment_status.py`, setting `equipment_status_rule` |
@@ -58,7 +59,7 @@ Draft --submit--> Submitted --cancel--> Cancelled
 | Transition | Who / guard | Effect |
 |---|---|---|
 | Draft to Submitted | Equipment status re-checked for every row; `submitted_by` written; period lock | `apply_transfer`: closes the machine's open assignment, opens a new one, syncs location. The move day belongs to the new project or the old one by the company's `move_day_rule` (empty means the day after, as before) |
-| Submitted to Cancelled | `check_cancel_allowed`: refused if a later transfer exists for a machine, if card days exist on the new project after the move, or if an assignment link was not written by this transport. A cancel cannot change the stored rows (`_refuse_changes_on_cancel`) | `reverse_transfer` undoes only what this transport wrote |
+| Submitted to Cancelled | A cancel reason is required (section 1). `check_cancel_allowed`: refused if a later transfer exists for a machine, if card days exist on the new project after the move, or if an assignment link was not written by this transport. A cancel cannot change the stored rows (`_refuse_changes_on_cancel`) | `reverse_transfer` undoes only what this transport wrote |
 | `financial_status` to Approved or Rejected | `record_financial_decision`: Accounts Manager only, never the transport's creator, editor or submitter; row-locked; decision must fit the cost bearer (customer or equipment supplier) | Recorded only. Customer billing, supplier recovery and absorption postings are **not built** (see [05-accounting-examples.md](05-accounting-examples.md) section 6) |
 | Edit after submit | Refused for the financial fields (`before_update_after_submit`) | |
 
@@ -75,7 +76,7 @@ Draft --submit--> Submitted --cancel--> Cancelled --amend--> Draft (new name)
 |---|---|---|
 | Save (Draft) | Roles Card User, Card Manager, Accounts Manager. Days must fall in the month, no duplicates, no negative or future hours, and, for a machine that has assignment history, inside an assignment period for the card's project (`card.transfer.validate_card_days`; a machine with no history is not constrained); project is derived from assignments | Totals and amounts recomputed by `before_validate`; direction mirrored from the equipment |
 | Draft to Submitted | A customer-billing card needs the equipment's customer (`before_submit`); period lock | `_snapshot_settings_used` stores the rates, daily hours, direction and customer used, so later changes do not move a submitted card; registry rows synced; optional notification |
-| Submitted to Cancelled | Blocked while a Draft or Submitted posting holds the card (`block_source_cancel`); period lock | Registry rows re-synced |
+| Submitted to Cancelled | A cancel reason is required (section 1); blocked while a Draft or Submitted posting holds the card (`block_source_cancel`); period lock | Registry rows re-synced; reason stored and commented |
 | Posting flag `posted` | Server only: set on invoice submit, cleared when the last invoice that holds the card is cancelled (`gl/events.py`) | Display and guard |
 
 The separation-of-duties rule "whoever created a card never approves it" is **Planned** (FR-006, #51). Today a card
@@ -98,6 +99,7 @@ Operations Approved --material edit by anyone--> Needs Review
 | To Operations Approved or Rejected | `Card Manager` or `System Manager` only (`REVIEW_ROLES`); approval needs the closing photo and reading; the reviewer is the session user |
 | Material edit after approval | Any user's change to a reviewed field returns it to Needs Review (`REVIEWED_FIELDS`) |
 | Draft to Submitted | Refused unless `review_status` is Operations Approved and the price is decided (`before_submit`) |
+| Submitted to Cancelled | A cancel reason is required (section 1); blocked while a posting holds the fill; period lock | Reason stored and commented |
 | Amendment | The cancelled fill's review is not inherited; the amendment starts at Draft |
 | Posting | Imported WhatsApp sessions (`source_key` set) are never put into a CARD posting; their supplier's own invoice is entered separately (`gl/posting.py` `_supplier_sources`) |
 

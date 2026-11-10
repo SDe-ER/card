@@ -5,7 +5,7 @@ readiness) then #120 (P1 equipment), #121 (P2 transport), #122 (P3 project assig
 #54 add design work around that order; they do not reorder it. An optional improvement never blocks a phase: it goes in
 the backlog, linked to its phase (`AGENTS.md`).
 
-"Exists" means present in code at `main` @ `2210d91` and listed in the registry; it does not mean live. Status is owned
+"Exists" means present in code at `main` @ `ad50b93` and listed in the registry; it does not mean live. Status is owned
 by [FEATURE-REGISTRY.md](../governance/FEATURE-REGISTRY.md). A phase closes only after its acceptance criteria pass in real
 use with evidence and the owner's approval (#118).
 

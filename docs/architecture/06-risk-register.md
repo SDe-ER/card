@@ -1,7 +1,7 @@
 # Risk register
 
 Scope: #54 asks for a reviewed risk register before coding. This is the register as read from the code at `main` @
-`2210d91`. It lists risks that exist in the repository today, not hypothetical ones. Each row states the evidence, the
+`ad50b93`. It lists risks that exist in the repository today, not hypothetical ones. Each row states the evidence, the
 control that already exists, the residual risk, and the next action with its issue. Likelihood and impact use
 Low / Medium / High, judged from the code, not measured.
 
@@ -22,8 +22,8 @@ behaviour for existing data must be opt-in per company or warn-only by default (
 | ID | Risk | Evidence | Existing control | Residual (L / I) | Next action |
 |---|---|---|---|---|---|
 | R-05 | The same operation is invoiced twice (by CARD and by hand) | Manual supplier invoices and accrual Journal Entries exist for older months | One active posting per party-month-side via a unique key; sources reserved and locked during a build; accountant must review hand-booked invoices of the month before a supplier build (`gl/integrity.manual_invoice_candidates`, `require_reviewed`); accrual and invoice linking (`journal_link.py`, `integrity.link_supplier_invoice`); `check_not_a_copy` at submit | Medium / High | The review of hand-booked invoices is a human judgement. Keep the reports `unbilled_card_work`, `diesel_invoice_reconciliation` and `card_settlement_status` in the month-end routine (#126) |
-| R-06 | `ignore_permissions=True` appears in production code | 34 lines with `ignore_permissions=True` outside tests and patches, in `gl/posting.py`, `gl/masters.py`, `gl/integrity.py`, `gl/journal_link.py`, `transfer.py`, `api.py`, `party_registry.py`, `dimension.py`, `employee_tool_custody.py`, `install.py`, `notifications.py`, `tool_custody.py` | Each is behind a role and company gate (for postings: `gl/posting._checked_endpoint_args`; for the custody Stock Entry draft: the confirmer's own Stock Entry rights). `AGENTS.md` forbids using it to make something work | Medium / High | A new endpoint that skips the gate would be a privilege bug. Add a test that fails when a new `ignore_permissions` appears without an allow-list entry (#54 acceptance: permissions) |
-| R-07 | VAT input assumed from a tax identifier on the supplier; customer sales always taxed | `gl/posting.py`, `gl/events.py` | Missing templates refuse the build instead of dropping VAT; multi-rate templates refused | Medium / High outside KSA | Move the two assumptions behind a company setting before a second country is onboarded (#54; see [04-localization-matrix.md](04-localization-matrix.md)) |
+| R-06 | `ignore_permissions=True` appears in production code | 34 lines outside tests and patches, in `gl/posting.py`, `gl/masters.py`, `gl/integrity.py`, `gl/journal_link.py`, `transfer.py`, `api.py`, `party_registry.py`, `dimension.py`, `employee_tool_custody.py`, `equipment_transport.py`, `install.py`, `notifications.py`, `tool_custody.py`. Classified in section 6 | Every site is one of: gated by an explicit role and company check before the call; a lifecycle hook that runs inside an already-authorised document event; install or manual-only; or a system record (comment, version, notification). Section 6 lists the sites that carry **no explicit check of their own**. `AGENTS.md` forbids using the flag to make something work | Medium / High | A new call that skips the gate would be a privilege bug. Add a test that fails when a new `ignore_permissions` appears without an allow-list entry, and review each no-check site in section 6 (#54 acceptance: permissions) |
+| R-07 | The VAT rate on generated lines is a constant (15 taxable, 0 non-taxable, in `gl/masters.py`); VAT input is assumed from a tax identifier on the supplier; customer sales always taxed | `gl/masters.py` `ensure_posting_masters`, `gl/posting.py`, `gl/events.py` | Missing templates refuse the build instead of dropping VAT; multi-rate templates refused; a drifted template is re-pointed to the constants rather than left wrong | Medium / High outside KSA | Move these assumptions (rate constants, tax identifier test, always-taxed sales) behind a company setting before a second country is onboarded (#54; see [04-localization-matrix.md](04-localization-matrix.md)) |
 | R-08 | Customer-side non-taxable deduction and customer transport billing are not supported | `gl/posting.py` `_card_lines` raises; `record_financial_decision` records only | Refusal with a message; no silent posting | Low / Medium | Owner decision on the representation (credit note vs other), then build (#49, #41) |
 | R-09 | Rates are not effective-dated | `Card Equipment` rate fields; CHANGELOG "Dated rate agreements" postponed (FR-023) | Submitted cards snapshot the rate used | Medium / Medium | A rate change reprices every later draft card. Keep the reason requirement; plan dated agreements (#41) |
 | R-10 | Billing basis "per day" is hours-prorated, not full-day | CHANGELOG [Unreleased] "Planned": `amount = total_working_hours x (rate / daily_hours)` | Behaviour documented; unchanged | Medium / Medium | Owner confirms the default and the switch (FR-024) |
@@ -61,3 +61,31 @@ behaviour for existing data must be opt-in per company or warn-only by default (
 | R-27 | The mobile app (`frontend/`) is a second permission surface | `card/mobile.py`, `card/www/cdms`, `test_mobile.py` | Server-side permission checks; read endpoints GET only | Low / Medium | Mobile role-based navigation is Planned (FR-059) |
 | R-28 | Print fonts install into the bench user's home | `card/fonts.py` | Best-effort, logged, falls back to DejaVu | Low / Low | Verify on each new server |
 | R-29 | Skills required by `AGENTS.md` may be missing in a session | `docs/governance/SKILL-SUBSTITUTES.md` | Approved substitutes and a mandatory review procedure | Low / Low | None |
+
+## 6. `ignore_permissions=True` sites (R-06)
+
+Read at `main` @ `ad50b93`. Function names are the stable reference; the file is searched by name, not by line.
+
+**Gated by an explicit check before the call**
+
+| Site | Gate |
+|---|---|
+| `gl/posting.py` `build_monthly_posting` (invoice and log insert), `rebuild_monthly_posting` (draft delete) | `_checked_endpoint_args`: Card Manager or System Manager, and a company within the caller's scope for the source and written DocTypes |
+| `gl/integrity.py` `link_supplier_invoice` (log insert) | Accountant roles and company scope, checked in the function |
+| `gl/journal_link.py` `link_accrual_journal` (log insert) | Accountant role, company scope, read and submit right on the Journal Entry |
+| `tool_custody.py` `item_query` (`get_all` of Items) | `_check_screen()` (screen roles and custody read); Items have no DocPerm for those roles |
+
+**No explicit check inside the function (reviewed in this register)**
+
+| Site | Kind | Why it is reachable, and what bounds it |
+|---|---|---|
+| `transfer.py` `_apply_row_transfer` (close and open assignment), `reverse_transfer` (delete and reopen assignment) | Lifecycle hook | Runs from Equipment Transport `on_submit` and `on_cancel`, after Frappe's submit or cancel permission and the company `has_permission` hook. Assignment overlap and company rules still run in the assignment's own `validate` |
+| `transfer.py` location sync (Comment inserts in `sync_equipment_location` and the overlap record) | System record | A Comment on Card Equipment; also reachable from the daily scheduler job |
+| `employee_tool_custody.py` `_make_stock_entry` (draft Material Issue for Loss or Damage) and `on_cancel` (delete of the draft it made) | Lifecycle hook | Confirmed Handover and Return use the confirmer's own Stock Entry rights (no flag). The flag applies to the Loss or Damage draft, made on submit of a custody record the user was allowed to submit, and to deleting that same draft on cancel (`_made_here` checks it was made by this record) |
+| `equipment_transport.py` `_audit_status_change` (Version insert) | System record | Called only from `record_financial_decision`, after its role, company and separation-of-duties checks |
+| `api.py` `_sync_registry_row` (registry rename, insert, save) | Lifecycle hook and manual endpoint | Called from Card Monthly Card events and from `refresh_supplier` and `refresh_customer`, which require System Manager. The function itself checks nothing |
+| `party_registry.py` `before_rename`, `after_rename` | Lifecycle hook | Run on a Supplier or Customer rename or merge, after ERPNext's own rename permission |
+| `notifications.py` `notify` (Notification Log insert) | System record | Recipients are chosen by the calling code; failures are logged and swallowed |
+| `gl/masters.py` `ensure_posting_masters`, `ensure_selling_price_list` and their helpers (Item Group, Item, Item Tax Template, Price List) | Provisioning | Called only from the gated posting build. The module has no check of its own, so a new caller would bypass the gate |
+| `dimension.py` `ensure_card_equipment_dimension` (Accounting Dimension) | Manual only | Run by an administrator with `bench execute`, and by the test bootstrap. Never by migrate |
+| `install.py` (launcher entries, Property Setter, Module Def and Desktop Icon cleanup) | Install and migrate | Run by `after_install`, `after_migrate` and patches |

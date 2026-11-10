@@ -57,8 +57,9 @@ From `card/hooks.py`:
 
 | Hook | Target | Handler | Purpose |
 |---|---|---|---|
-| `doc_events` | Card Monthly Card, Project Diesel Fill, Equipment Transport | `card.period_lock.on_validate / on_cancel / on_trash` | Server-side period lock |
-| `doc_events` | the same three | `card.gl.events.block_source_cancel` (before_cancel) | A source held by an active posting cannot be cancelled |
+| `doc_events` | Card Monthly Card, Project Diesel Fill, Equipment Transport | `card.period_lock.on_validate / on_cancel / on_trash` | Server-side period lock. An override by the configured role is logged, notified and, since FR-123 (#197), also written as a Comment on the document |
+| `doc_events` | the same three | `card.cancel_reason.on_validate` (validate), `before_update_after_submit`, `before_cancel`, `on_cancel` | FR-123 (#197): a cancel needs a reason, changes no other stored field or row, and leaves a Comment with actor, reason and date. A save never keeps a reason. The form's Cancel button is replaced by `card.cancel_reason.cancel_with_reason` (`card/public/js/cancel_reason.js`) |
+| `doc_events` | the same three | `card.gl.events.block_source_cancel` (before_cancel, runs after the cancel-reason check) | A source held by an active posting cannot be cancelled |
 | `doc_events` | Purchase Invoice, Sales Invoice | `card.gl.events.validate / before_submit / on_submit / before_cancel / on_trash` | Keeps the posting log and the source links true; blocks edits that would break the build |
 | `doc_events` | Journal Entry | `card.gl.journal_link.before_cancel` | Frees cards when a linked accrual is cancelled |
 | `doc_events` | Supplier, Customer | `card.party_registry.before_rename / after_rename` | Keeps the party registries in step |

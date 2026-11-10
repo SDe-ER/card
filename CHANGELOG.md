@@ -419,7 +419,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   code, permissions, accounting, data or the API. Rollback: revert the commit.
 - **Architecture pack** (`docs/architecture/`; #40, #54; PR #202). Reason: the epics ask for a domain map, state transitions,
   source-of-truth matrix, localization matrix, accounting examples, risk register, international test matrix and
-  roadmap before any new design is coded. Eight files plus an index, read from the code on `main` @ `2210d91`
+  roadmap before any new design is coded. Eight files plus an index, read from the code on `main` @ `ad50b93`
   (DocType JSON, controllers, `hooks.py`, `card/gl/`, patches); anything not implemented is marked Planned with its
   issue. The permission matrix is not repeated: it links to `docs/governance/ROLE-ACTION-MATRIX.md`. Documentation
   only: no change to code, permissions, accounting, data or the API. Rollback: revert the commit.

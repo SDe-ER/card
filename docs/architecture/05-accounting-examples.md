@@ -16,8 +16,26 @@ Document API; ERPNext posts the ledger when a person submits them. A search of `
 CARD does **not** create: Journal Entry, Payment Entry, Purchase Order, Purchase Receipt, Credit Note, Asset Movement,
 Timesheet or Expense Claim. It reads Payment Entry and Journal Entry only for reports (`card/report/card_settlement_status`).
 
-Amounts below are illustrative. "Company A" has a company currency "CUR" and a single-rate purchase tax template of
-10% and sales tax template of 10%. The rate is only an example: CARD copies whatever the template holds.
+Amounts below are illustrative. "Company A" has a company currency "CUR" and single-rate purchase and sales tax
+templates. The VAT rate on a generated line comes from the per-company Item Tax Templates that
+`gl/masters.py` provisions (section 0), which today are 15% for a taxable line and 0% for a non-taxable one; the examples
+use 15% for that reason. Whether that is acceptable outside the current regime is risk R-07.
+
+## 0. Masters CARD provisions before the first posting
+
+`ensure_posting_masters` (`card/gl/masters.py`, called from the gated build; idempotent) creates standard ERPNext
+masters through `insert(ignore_permissions=True)` and fills the blanks of the company's Card Company Settings row:
+
+| Master | Created when | Content |
+|---|---|---|
+| Item Group "Card Services" and "Card Adjustments" | Missing | Containers for the items below |
+| Item `CARD-RENTAL`, `CARD-DIESEL`, `CARD-TRANSPORT`, `CARD-RENTAL-OUT` | The matching item field of the company row is empty | Service items for the four kinds of invoice line |
+| One Item per enabled adjustment type, named `CARD-ADJ-<TYPE>-<company abbreviation>` | The type has no item | Line item of a typed addition or deduction |
+| Item Tax Template "CARD VAT 15% - <abbr>" and "CARD VAT 0% - <abbr>" | The company row has none and the company's VAT account heads can be read from the tax templates | Rates 15 and 0 on those heads. An existing template named in the row is re-pointed (heads and rates) to match |
+| Price List "Standard Selling" (selling, enabled, company currency) | Only when Selling Settings has no default and no enabled selling list exists | A Sales Invoice needs a selling price list; the rates on the invoice are explicit and pricing rules are ignored |
+
+The posting preview (`_masters_to_provision`) reports what the first posting would create without creating it. Where
+the masters sit in the settings model: [03-source-of-truth-matrix.md](03-source-of-truth-matrix.md) section 3.
 
 ## 1. Supplier side: one draft Purchase Invoice per supplier per month
 
@@ -46,7 +64,7 @@ Draft Purchase Invoice created (company currency, rate 1, `update_stock` 0, post
 | Diesel fill DSL-00001 | `diesel_item` | `diesel_expense_account` | 1,000.00 | P1 | the fill's own | CEQ-0001 |
 | Equipment transport TRN-00001 | `transport_item` | `transport_expense_account` | 400.00 | P1 | resolved by the transport | CEQ-0001 |
 
-Net total 6,400.00. The purchase tax template adds 640.00 (10%). Grand total 7,040.00. Credit-to is the company's
+Net total 6,400.00. The purchase tax adds 960.00 (15%). Grand total 7,360.00. Credit-to is the company's
 `payable_account`. CARD also writes:
 
 - one **GL Posting Log** (status Draft, `origin` Built, `posting_key` = company|Supplier|Supplier X|10|2026) with
@@ -61,15 +79,15 @@ What ERPNext posts when the accountant submits it (not written by CARD):
 | Equipment rental expense (net of the deduction line) | 5,000.00 | |
 | Diesel expense | 1,000.00 | |
 | Transport expense | 400.00 | |
-| VAT input (tax template account head) | 640.00 | |
-| Payable to Supplier X | | 7,040.00 |
+| VAT input (tax template account head) | 960.00 | |
+| Payable to Supplier X | | 7,360.00 |
 
 On submit CARD writes the invoice link and `posted` on the card, fill and transport and sets the log to Submitted. The
 accountant must also enter the supplier's Bill No and Bill Date if Supplier X holds a tax identifier (`gl/events.py`
 `before_submit`).
 
 **Inclusive diesel price.** If the company's `diesel_price_vat_basis` is Inclusive and the supplier is VAT-registered,
-each fill line is booked net: a fill of 1,100.00 gross becomes 1,000.00 with 100.00 VAT, so VAT is not added twice
+each fill line is booked net: a fill of 1,150.00 gross becomes 1,000.00 with 150.00 VAT, so VAT is not added twice
 (`_apply_diesel_vat_basis`). If the basis is not set, the build is refused for review.
 
 ## 2. Customer side: one draft Sales Invoice per customer per month
@@ -82,10 +100,10 @@ taxable customer deduction of **500.00**.
 | Line | One item `rental_out_item`, rate 9,000.00, income account `equipment_rental_income_account`, project P1, dimension CEQ-0002 |
 | Negative lines | **None.** The rule for the e-invoicing regime is built in: a taxable deduction becomes `discount_amount` 500.00 applied on Net Total |
 | Net total after discount | 8,500.00 |
-| Sales tax template | 10% = 850.00 |
-| Grand total | 9,350.00, debit-to `receivable_account` |
+| Sales tax | 15% = 1,275.00 |
+| Grand total | 9,775.00, debit-to `receivable_account` |
 
-ERPNext posts: debit receivable 9,350.00; credit rental income 8,500.00; credit VAT output 850.00. A non-taxable
+ERPNext posts: debit receivable 9,775.00; credit rental income 8,500.00; credit VAT output 1,275.00. A non-taxable
 customer deduction is refused (it would shift the VAT base). A zero-rated line mixed with a deduction discount is
 refused for the same reason. A customer-billing card needs the customer on the equipment before it can be submitted.
 
