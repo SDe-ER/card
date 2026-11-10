@@ -15,16 +15,18 @@ so existing/seed cards and controller tests are unaffected.
 
 #56: the equipment's current_project / assignment_date are read-only and
 derived from the assignment in force TODAY (sync_equipment_location). A
-transfer opens the new assignment the day after its date, so the fields move
-to the new project from that day on: through the next assignment event, or
-the daily job when Card Settings enables it.
+project -> project transfer opens the new assignment the day after its date, or
+on its date when the company's move-day rule says so (#43/#121/#122, WP-15), so
+the fields move to the new project from that day on: through the next
+assignment event, or the daily job when Card Settings enables it.
 """
 
 import frappe
 from frappe import _
 from frappe.utils import add_days, cint, flt, getdate, nowdate
 
-from card.settings import setting
+from card.constants import MOVE_DAY_SAME
+from card.settings import company_setting, setting
 
 
 # ---------- assignment helpers ----------
@@ -34,7 +36,7 @@ def _open_assignment(equipment):
 	rows = frappe.get_all(
 		"Card Equipment Assignment",
 		filters={"equipment": equipment, "to_date": ["is", "not set"]},
-		fields=["name", "project"],
+		fields=["name", "project", "from_date"],
 		order_by="from_date desc, creation desc",
 		limit=1,
 	)
@@ -280,8 +282,9 @@ def current_location(equipment, exclude=None):
 	"""Where the equipment is now (Owner 2026-10-19): on the project of its open
 	assignment; otherwise wherever its last approved transport sent it (workshop,
 	storage, supplier); otherwise in storage — equipment never assigned to a project is
-	recorded as coming from storage on its first move. `exclude` leaves out the
-	transport being edited."""
+	recorded as coming from storage on its first move. #42 (WP-06): that storage is the
+	initial place set for the equipment's company in Card Settings (none when it is not
+	set, as before). `exclude` leaves out the transport being edited."""
 	open_row = _open_assignment(equipment)
 	if open_row:
 		return frappe._dict(type="Project", project=open_row.project, location=None)
@@ -298,7 +301,10 @@ def current_location(equipment, exclude=None):
 		return frappe._dict(
 			type=last[0].destination_type, project=None, location=last[0].destination_location
 		)
-	return frappe._dict(type="Storage", project=None, location=None, initial=1)
+	company = frappe.db.get_value("Card Equipment", equipment, "company")
+	return frappe._dict(
+		type="Storage", project=None, location=company_setting(company, "initial_location"), initial=1
+	)
 
 
 # ---------- transfer (Equipment Transport on_submit / on_cancel) ----------
@@ -345,10 +351,21 @@ def _apply_row_transfer(txn, row):
 		if prev:
 			# save (not db.set_value) so the change is in the assignment's history
 			closing = frappe.get_doc("Card Equipment Assignment", prev.name)
-			closing.to_date = tdate
+			if move_day_to_destination(txn):
+				# WP-15: the move day goes to the new project; the old one ends the day before
+				if prev.from_date and getdate(prev.from_date) >= tdate:
+					frappe.throw(
+						_(
+							"Equipment {0} reached project {1} on {2}; under the move-day rule of company {3} it cannot leave for another project on the same day. Use a later date."
+						).format(equipment, prev.project, frappe.format(tdate, "Date"), txn.company)
+					)
+				closing.to_date = add_days(tdate, -1)
+				new_from = tdate
+			else:
+				closing.to_date = tdate
+				new_from = add_days(tdate, 1)
 			closing.save(ignore_permissions=True, ignore_version=False)
 			_set_link(txn, row, "previous_assignment", prev.name)
-			new_from = add_days(tdate, 1)
 		else:
 			new_from = tdate
 		na = frappe.new_doc("Card Equipment Assignment")
@@ -361,6 +378,14 @@ def _apply_row_transfer(txn, row):
 	finally:
 		frappe.flags.card_defer_location_sync = deferred
 	sync_equipment_location(equipment, source="transfer")
+
+
+def move_day_to_destination(txn):
+	"""WP-15: True when the transport's move-day rule gives the move day to the new project.
+	The rule is the one recorded on the transport (from the company's Card Settings when it
+	was saved); empty, as on every transport recorded before the rule existed, means the day
+	after the move."""
+	return (txn.get("move_day_rule") or "") == MOVE_DAY_SAME
 
 
 def _set_link(txn, row, fieldname, value):
@@ -388,8 +413,10 @@ def check_cancel_allowed(txn):
 					equipment
 				)
 			)
-		# (b) no card day recorded on the new project after the transfer
-		if _card_day_after(equipment, txn.project, tdate):
+		# (b) no card day recorded on the new project from the day its assignment started
+		# (WP-15: the move day itself when the move day went to the new project)
+		start = _created_from(row) or add_days(tdate, 1)
+		if _card_day_after(equipment, txn.project, add_days(start, -1)):
 			frappe.throw(
 				_(
 					"Cannot cancel: operation days are recorded for equipment {0} on project {1} after the transfer date."
@@ -516,7 +543,7 @@ def _written_by(txn, row, fieldname):
 			return False
 		if a.to_date:
 			return False
-	elif not a.to_date or getdate(a.to_date) != tdate:
+	elif not a.to_date or getdate(a.to_date) != _closed_on(txn):
 		return False
 	item = frappe.qb.DocType("Equipment Transport Item")
 	transport = frappe.qb.DocType("Equipment Transport")
@@ -532,6 +559,22 @@ def _written_by(txn, row, fieldname):
 		.run()
 	)
 	return not claimed
+
+
+def _closed_on(txn):
+	"""The end date apply_transfer gave the previous assignment: the transport date, or the
+	day before it for a move to a project under the move-day rule (WP-15)."""
+	tdate = getdate(txn.date)
+	if (txn.get("destination_type") or "Project") == "Project" and move_day_to_destination(txn):
+		return getdate(add_days(tdate, -1))
+	return tdate
+
+
+def _created_from(row):
+	if not row.get("created_assignment"):
+		return None
+	start = frappe.db.get_value("Card Equipment Assignment", row.created_assignment, "from_date")
+	return getdate(start) if start else None
 
 
 def _card_day_after(equipment, project, tdate):

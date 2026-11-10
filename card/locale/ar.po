@@ -5362,6 +5362,351 @@ msgstr "تعذّر إنشاء ملف PDF. راجع مولّد PDF بمتصفح C
 msgid "The statement print template has no style block."
 msgstr "قالب طباعة الكشف لا يحتوي على تنسيق."
 
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Only owned equipment can be a unit. Set {0} to owned or untick the unit option."
+msgstr "الوحدة يجب أن تكون معدة مملوكة. اجعل {0} «ملك» أو ألغِ خيار الوحدة."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit needs owned equipment"
+msgstr "الوحدة تحتاج معدة مملوكة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Equipment {0} is a component of unit {1}; a unit component must be owned. Take it out of the unit first."
+msgstr "المعدة {0} مكوّن في الوحدة {1}؛ مكوّن الوحدة يجب أن يكون مملوكًا. أخرجها من الوحدة أولًا."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Only owned equipment can be a unit; unit {0} is not owned, so no component can join it."
+msgstr "الوحدة يجب أن تكون معدة مملوكة؛ الوحدة {0} غير مملوكة، فلا يمكن إضافة مكوّن إليها."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component {0} is not owned equipment; only owned equipment can be part of a unit."
+msgstr "المكوّن {0} ليس معدة مملوكة؛ المعدات المملوكة فقط يمكن أن تكون جزءًا من وحدة."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit component flag set from the component table of unit {0}."
+msgstr "تم تفعيل علامة «مكوّن وحدة» من جدول مكوّنات الوحدة {0}."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit component flag cleared: the equipment is no longer a current component of a unit."
+msgstr "تم إلغاء علامة «مكوّن وحدة»: المعدة لم تعد مكوّنًا حاليًا في أي وحدة."
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Unit is not owned"
+msgstr "الوحدة غير مملوكة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component is not owned"
+msgstr "المكوّن غير مملوك"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component flag without a unit"
+msgstr "علامة مكوّن بدون وحدة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Component flag after leaving its unit"
+msgstr "علامة مكوّن بعد خروجه من الوحدة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "Current component without the flag"
+msgstr "مكوّن حالي بدون العلامة"
+
+#: card/card/doctype/card_equipment/card_equipment.py
+msgid "You are not permitted to change the unit component flag of {0}."
+msgstr "غير مسموح لك بتغيير علامة «مكوّن وحدة» للمعدة {0}."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "On {0} equipment {1} is a component of unit {2}; that day belongs on the unit's card, not the component's."
+msgstr "في {0} كانت المعدة {1} مكوّنًا في الوحدة {2}؛ هذا اليوم يُسجّل في كارت الوحدة، لا في كارت المكوّن."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Unit component"
+msgstr "مكوّن وحدة"
+
+#: card/transfer.py
+msgid "Equipment {0} reached project {1} on {2}; under the move-day rule of company {3} it cannot leave for another project on the same day. Use a later date."
+msgstr "المعدة {0} وصلت إلى المشروع {1} في {2}؛ وفق قاعدة يوم النقل للشركة {3} لا يمكن نقلها لمشروع آخر في نفس اليوم. استخدم تاريخًا لاحقًا."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Equipment and transport"
+msgstr "المعدات والنقل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Initial place of new equipment"
+msgstr "المكان الابتدائي للمعدة الجديدة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Where an equipment of this company with no movement history (no assignment and no approved transport) is recorded, shown as From on its first transport. Empty: storage without a place."
+msgstr "المكان الذي تُسجّل فيه معدة هذه الشركة التي ليس لها سجل حركة (بدون تخصيص وبدون نقل معتمد)، ويظهر في «من» بأول نقل لها. فارغ: تخزين بدون مكان محدد."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Move-day rule"
+msgstr "قاعدة يوم النقل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Project to project transport: the day after the move (the old project keeps the move day), or on the move day (the move day goes to the new project). Empty: the day after the move."
+msgstr "النقل من مشروع لمشروع: بدء التخصيص الجديد في اليوم التالي للنقل (يوم النقل يبقى للمشروع القديم)، أو في يوم النقل نفسه (يوم النقل يذهب للمشروع الجديد). فارغ: اليوم التالي للنقل."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "New assignment starts the day after the move"
+msgstr "التخصيص الجديد يبدأ في اليوم التالي للنقل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "New assignment starts on the move day"
+msgstr "التخصيص الجديد يبدأ في يوم النقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
+msgstr "تؤخذ من إعدادات الشركة في CARD عند حفظ النقل وتبقى كما اعتُمدت."
+
+#. Name of a report
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.json
+msgid "Equipment Partial Margin"
+msgstr "الهامش الجزئي للمعدات"
+
+#. Name of a report
+#: card/card/report/unbilled_card_work/unbilled_card_work.json
+msgid "Unbilled Card Work"
+msgstr "أعمال الكروت غير المفوترة"
+
+#. Name of a report
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.json
+msgid "Equipment Maintenance Cost"
+msgstr "تكلفة صيانة المعدات"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "The equipment partial margin shows financial figures; it needs General Ledger access."
+msgstr "الهامش الجزئي للمعدات يعرض أرقاماً مالية؛ ويتطلب صلاحية الاطلاع على دفتر الأستاذ العام."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Select the period of the partial margin."
+msgstr "حدد فترة الهامش الجزئي."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Partial margin: excludes depreciation, labour, insurance and overhead."
+msgstr "هامش جزئي: لا يشمل الإهلاك والعمالة والتأمين والمصاريف العامة."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Monthly cards are not shown: you cannot read Card Monthly Card."
+msgstr "الكروت الشهرية غير معروضة: لا تملك صلاحية قراءة الكروت الشهرية."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Diesel is not shown: you cannot read Project Diesel Fill."
+msgstr "الديزل غير معروض: لا تملك صلاحية قراءة تعبئات ديزل المشاريع."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Transport is not shown: you cannot read Equipment Transport."
+msgstr "النقل غير معروض: لا تملك صلاحية قراءة نقل المعدات."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "The Card Equipment accounting dimension is not set up on this site, so revenue and maintenance cannot be attributed to equipment and are not shown. Ask the system manager to create the dimension."
+msgstr "البُعد المحاسبي «معدة CARD» غير مُعد على هذا الموقع، لذلك لا يمكن نسبة الإيرادات والصيانة إلى المعدات ولا تُعرض. اطلب من مدير النظام إنشاء البُعد."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Revenue is not shown: you cannot read Sales Invoice."
+msgstr "الإيرادات غير معروضة: لا تملك صلاحية قراءة فواتير المبيعات."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Equipment line"
+msgstr "سطر معدة"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Project level: unallocated tank diesel and shared costs"
+msgstr "على مستوى المشروع: ديزل الخزان غير الموزع والتكاليف المشتركة"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Not invoiced yet is the card net that no submitted invoice or journal entry recognised; it is never added to revenue, costs or the margin. Project-tank diesel is never split by equipment."
+msgstr "«لم يُفوتر بعد» هو صافي الكروت الذي لم تثبته فاتورة أو قيد يومية معتمد؛ ولا يُضاف أبداً إلى الإيرادات أو التكاليف أو الهامش. ولا يُوزَّع ديزل خزان المشروع على المعدات."
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Equipment revenue"
+msgstr "إيرادات المعدات"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Customer cards not invoiced yet"
+msgstr "كروت العملاء غير المفوترة بعد"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Partial cost"
+msgstr "التكلفة الجزئية"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Partial margin"
+msgstr "الهامش الجزئي"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Unallocated tank diesel"
+msgstr "ديزل الخزان غير الموزع"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Margin line"
+msgstr "سطر الهامش"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Customer cards not invoiced yet (not in revenue)"
+msgstr "كروت العملاء غير المفوترة بعد (خارج الإيرادات)"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Supplier rental"
+msgstr "إيجار الموردين"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Diesel (direct fills)"
+msgstr "الديزل (تعبئة مباشرة)"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Company transport"
+msgstr "نقل على الشركة"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Maintenance and other tagged costs"
+msgstr "الصيانة والتكاليف الأخرى المنسوبة للمعدة"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Supplier cards not invoiced yet (not in costs)"
+msgstr "كروت الموردين غير المفوترة بعد (خارج التكاليف)"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Unbilled card work needs read access to the monthly cards and to the GL Posting Log."
+msgstr "أعمال الكروت غير المفوترة تتطلب صلاحية قراءة الكروت الشهرية وسجل الترحيل المحاسبي."
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Select the period of the unbilled card work."
+msgstr "حدد فترة أعمال الكروت غير المفوترة."
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Choose the supplier side, the customer side or both."
+msgstr "اختر جانب المورد أو جانب العميل أو كليهما."
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Supplier side"
+msgstr "جانب المورد"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Not invoiced"
+msgstr "غير مفوتر"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Held by a draft posting"
+msgstr "محجوز في ترحيل مسودة"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Supplier cards not invoiced"
+msgstr "كروت الموردين غير المفوترة"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Customer cards not invoiced"
+msgstr "كروت العملاء غير المفوترة"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Submitted monthly cards that no invoice or linked journal entry of their side recognises yet. Amounts are the card net (supplier side) or the customer net (customer side), before VAT."
+msgstr "كروت شهرية معتمدة لم تثبتها بعد فاتورة أو قيد يومية مربوط من جانبها. المبالغ هي صافي الكارت (جانب المورد) أو صافي العميل (جانب العميل)، قبل ضريبة القيمة المضافة."
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Billing side"
+msgstr "جانب الفوترة"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Card amount not invoiced"
+msgstr "مبلغ الكارت غير المفوتر"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Billing status"
+msgstr "حالة الفوترة"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Document type"
+msgstr "نوع المستند"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.py
+msgid "Draft document"
+msgstr "المستند المسودة"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.js
+msgid "Both billing sides"
+msgstr "جانبا الفوترة"
+
+#: card/card/report/unbilled_card_work/unbilled_card_work.js
+msgid "Include cards held by a draft posting"
+msgstr "تضمين الكروت المحجوزة في ترحيل مسودة"
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "The equipment maintenance cost shows financial figures; it needs General Ledger access."
+msgstr "تكلفة صيانة المعدات تعرض أرقاماً مالية؛ وتتطلب صلاحية الاطلاع على دفتر الأستاذ العام."
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "Select the period of the maintenance cost."
+msgstr "حدد فترة تكلفة الصيانة."
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "The Card Equipment accounting dimension is not set up on this site, so no cost can be attributed to equipment. Ask the system manager to create the dimension."
+msgstr "البُعد المحاسبي «معدة CARD» غير مُعد على هذا الموقع، لذلك لا يمكن نسبة أي تكلفة إلى المعدات. اطلب من مدير النظام إنشاء البُعد."
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "Equipment with tagged costs"
+msgstr "معدات عليها تكاليف منسوبة"
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock items (counted when they are issued) are not counted here; depreciation, labour and insurance are not included."
+msgstr "سطور فواتير الشراء وصرف المواد المنسوبة إلى بُعد «معدة CARD»، صافية من ضريبة القيمة المضافة وبعملة الشركة. لا تُحتسب هنا الفواتير التي تثبت كروت CARD أو تعبئات الديزل أو النقل، ولا سطور الأصول الثابتة، ولا أصناف المخزون (تُحتسب عند صرفها)؛ ولا تشمل الإهلاك والعمالة والتأمين."
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "Cost document"
+msgstr "مستند التكلفة"
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "Expense account"
+msgstr "حساب المصروف"
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "Maintenance cost"
+msgstr "تكلفة الصيانة"
+
+#: card/analytics.py
+msgid "Maintenance from these documents is not shown, you cannot read them: {0}."
+msgstr "الصيانة من هذه المستندات غير معروضة، لأنك لا تملك صلاحية قراءتها: {0}."
+
+#: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
+msgid "Cost item"
+msgstr "صنف التكلفة"
+
+#: card/card/report/equipment_partial_margin/equipment_partial_margin.py
+msgid "Timing: revenue and maintenance follow the posting date of their documents; supplier rental and the not-invoiced columns follow the start date of the card; diesel and transport follow their own date. A card invoiced in a later period shows its revenue in that period."
+msgstr "التوقيت: الإيرادات والصيانة تتبع تاريخ ترحيل مستنداتها؛ وإيجار الموردين وأعمدة «غير المفوتر» تتبع تاريخ بداية الكارت؛ والديزل والنقل يتبعان تاريخهما. الكارت الذي يُفوتر في فترة لاحقة تظهر إيراداته في تلك الفترة."
+
+#: card/analytics.py
+msgid "Diesel not posted yet is shown at the fill amount: Card Settings has no row for this company."
+msgstr "الديزل غير المرحّل بعد معروض بمبلغ التعبئة: لا يوجد صف لهذه الشركة في إعدادات CARD."
+
+#: card/analytics.py
+msgid "The diesel price VAT basis is not verified for these suppliers, so their fills not posted yet are shown at the fill amount: {0}."
+msgstr "أساس ضريبة القيمة المضافة لسعر الديزل غير مُتحقق منه لهؤلاء الموردين، لذلك تُعرض تعبئاتهم غير المرحّلة بعد بمبلغ التعبئة: {0}."
+
+#. Label of the internal_rate_basis (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate basis"
+msgstr "أساس السعر الداخلي للتشغيل"
+
+#. Label of the internal_rate (Currency) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Internal operating rate"
+msgstr "السعر الداخلي للتشغيل"
+
+#: card/card_value.py
+msgid "Rental cost from suppliers"
+msgstr "تكلفة إيجار من موردين"
+
+#: card/card_value.py
+msgid "Operating value for customers"
+msgstr "قيمة تشغيل لعملاء"
+
+#: card/card_value.py
+msgid "Internal operating value (owned or managed equipment)"
+msgstr "قيمة تشغيل داخلي (معدات ملك أو مُدارة)"
+
+#: card/card/dashboard_chart_source/card_monthly_values/card_monthly_values.js
+msgid "Include draft cards"
+msgstr "تضمين الكروت المسودة"
+
 #: card/attachment_validator.py
 msgid "The attached file is empty."
 msgstr "الملف المرفق فارغ."

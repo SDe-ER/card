@@ -17,6 +17,12 @@ SUPPLIER_BILLING_DIRECTIONS = (DIR_RENTED_IN, DIR_SUBRENTAL)
 SHIFT_DAY = "نهاري"
 SHIFT_NIGHT = "ليلي"
 
+# #43/#121/#122 (WP-15): which project gets the move day of a project -> project transport.
+# Stored Select values of Card Company Settings.move_day_rule and Equipment Transport.move_day_rule.
+# An empty value is the rule CARD always applied (the next day), so nothing changes on deploy.
+MOVE_DAY_NEXT = "New assignment starts the day after the move"
+MOVE_DAY_SAME = "New assignment starts on the move day"
+
 
 def allowed_directions(ownership):
 	"""Directions an equipment's ownership permits. ملك runs internally or is

@@ -18,6 +18,7 @@
   "column_break_route",
   "destination_type",
   "project",
+  "move_day_rule",
   "destination_location",
   "section_break_responsibility",
   "responsibility",
@@ -537,11 +538,21 @@
    "read_only": 1,
    "hidden": 1,
    "no_copy": 1
+  },
+  {
+   "depends_on": "eval:doc.destination_type == \"Project\"",
+   "description": "Taken from the company's Card Settings when the transport is saved and kept as approved.",
+   "fieldname": "move_day_rule",
+   "fieldtype": "Select",
+   "label": "Move-day rule",
+   "no_copy": 1,
+   "options": "\nNew assignment starts the day after the move\nNew assignment starts on the move day",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-31 15:45:00.000000",
+ "modified": "2026-11-10 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport",

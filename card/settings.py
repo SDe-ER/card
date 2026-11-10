@@ -64,3 +64,21 @@ def setting(fieldname):
 		except (TypeError, ValueError):
 			return default
 	return val
+
+
+def company_setting(company, fieldname):
+	"""A value of the company's row in Card Settings > Company settings, or None when the
+	company has no row or the value is empty. No company is ever assumed."""
+	if not company:
+		return None
+	value = frappe.db.get_value(
+		"Card Company Settings",
+		{
+			"parent": "Card Settings",
+			"parenttype": "Card Settings",
+			"parentfield": "company_settings",
+			"company": company,
+		},
+		fieldname,
+	)
+	return value or None
