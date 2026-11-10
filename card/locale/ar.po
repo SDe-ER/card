@@ -6558,6 +6558,14 @@ msgstr "لتغيير الإضافات والخصومات عدّل الكرت ا�
 msgid "Diesel price fuel type"
 msgstr "نوع الوقود لسعر الديزل"
 
+#: card/card/doctype/card_settings/card_settings.js
+msgid "Card Settings rows of companies you are not permitted to see are hidden and stay unchanged when you save."
+msgstr "صفوف إعدادات CARD الخاصة بالشركات غير المسموح لك برؤيتها مخفية، وتبقى كما هي عند الحفظ."
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Your Card Settings access is limited to your companies' rows; you cannot change the site-wide fields: {0}."
+msgstr "صلاحيتك على إعدادات CARD تقتصر على صفوف شركاتك؛ لا يمكنك تعديل الحقول العامة للموقع: {0}."
+
 
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Day billing basis"
