@@ -19,6 +19,7 @@ from frappe.utils import add_days, getdate, nowdate
 
 from card import transfer
 from card.dimension import ASSET_LINK_FIELD
+from card.tests.cancel_reason import with_reason
 from card.tests.test_customer import _CustomerCardsBase
 from card.tests.transport_parties import company_paid
 
@@ -734,7 +735,7 @@ class TestG2Location(_G2Base):
 		self._assign(eq.name, self.project, self._days_from(-30))
 		tr = self._transport(eq, b, self._days_from(-1))
 		self.assertEqual(self._loc(eq).current_project, b)
-		tr.cancel()
+		with_reason(tr).cancel()
 		self.assertEqual(self._loc(eq).current_project, self.project)
 		self.assertFalse(frappe.flags.get("card_defer_location_sync"))
 

@@ -30,6 +30,7 @@ from card.transfer import (
 	_has_any_assignment,
 	_in_unit_on,
 	assignment_projects,
+	is_billed_day,
 	month_assignments,
 	validate_card_days,
 )
@@ -120,6 +121,9 @@ class CardMonthlyCard(Document):
 		)
 		if not eq:
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
+		# FR-118 (#45): stop reasons and the responsible party of each day row, before the
+		# unit and assignment checks (a billable stopped day is billed like a working day)
+		self._resolve_stop_reasons(eq.company)
 		self._refuse_unit_component_days(eq)
 		if self.company and self.company != eq.company:
 			frappe.throw(_("The card's company does not match the equipment's company"))
@@ -163,6 +167,7 @@ class CardMonthlyCard(Document):
 
 		# ---- v3.0.0 (Owner 2026-10-19): the project comes from the approved transports ----
 		self._resolve_project(first_day, last_day)
+		self._warn_foreign_responsible_party()
 
 		# customer mismatch is a review flag, never a block (owner F.7.3)
 		if self.project and self.customer:
@@ -184,6 +189,8 @@ class CardMonthlyCard(Document):
 		seen = {}
 		hours_by_date = {}
 		total_hours = 0.0
+		billable_stopped = 0.0
+		billable_stop_days = 0
 		work_days = 0
 		limit_field = "max_day_shift_hours" if self.shift == "نهاري" else "max_night_shift_hours"
 		max_hours = flt(setting(limit_field)) or 12
@@ -205,14 +212,32 @@ class CardMonthlyCard(Document):
 				frappe.throw(_("Negative hours on day {0}").format(key))
 			if h > 0 and d > today:
 				frappe.throw(_("Cannot record operating hours for a future day: {0}").format(key))
-			if h > max_hours:
+			stopped = flt(row.stopped_hours)
+			if stopped > 0 and d > today:
+				frappe.throw(_("Cannot record stopped hours for a future day: {0}").format(key))
+			# FR-118: a day has 24 hours, operating and stopped together (a day without stopped
+			# hours keeps the old rule: the shift limit only warns)
+			if stopped > 0 and h + stopped > 24:
+				frappe.throw(
+					_("Day {0}: operating hours ({1}) and stopped hours ({2}) exceed 24 hours.").format(
+						key, h, stopped
+					)
+				)
+			day_stopped_billed = stopped if stopped > 0 and cint(row.reason_billable) else 0.0
+			billed_day = h + day_stopped_billed
+			if billed_day > max_hours:
 				# Shift limit is advisory only: every recorded hour is billed, so a day
 				# over the limit is flagged for review, never blocked (owner 2026-10-14).
-				over_shift_limit.append(key + " (" + str(h) + ")")
+				# FR-118: billable stopped hours count, as they are billed too.
+				over_shift_limit.append(key + " (" + str(billed_day) + ")")
 			if h > 0:
 				total_hours = total_hours + h
 				work_days = work_days + 1
 				hours_by_date[key] = h
+			billable_stopped = billable_stopped + day_stopped_billed
+			if day_stopped_billed > 0 and h <= 0:
+				# a day billed only by billable stopped hours (not already a working day)
+				billable_stop_days = billable_stop_days + 1
 
 		# ---- shift limit (advisory warning, never blocks; every recorded hour is billed) ----
 		if over_shift_limit:
@@ -229,9 +254,14 @@ class CardMonthlyCard(Document):
 		self.rate = flt(eq.rate)
 		self.total_working_hours = total_hours
 		self.working_days = work_days
+		# FR-118: only stopped hours of an explicitly billable reason are billed; with no
+		# billable reason this is 0 and every amount is what it was before
+		self.billable_stopped_hours = flt(billable_stopped, 2)
+		self.billable_stopped_days = billable_stop_days
+		billed_hours = total_hours + flt(self.billable_stopped_hours)
 		if self.card_direction in SUPPLIER_BILLING_DIRECTIONS:
 			hourly_rate = self._hourly_for(eq.rate_type, flt(eq.rate), eq.daily_hours, required=True)
-			self.amount = flt(total_hours * hourly_rate, 2)
+			self.amount = flt(billed_hours * hourly_rate, 2)
 		else:
 			self.amount = 0  # internal / rented-out: no supplier billing
 
@@ -311,7 +341,7 @@ class CardMonthlyCard(Document):
 			customer_hourly = self._hourly_for(
 				self.customer_rate_type, flt(self.customer_rate), eq.daily_hours, required=False
 			)
-			self.customer_amount = flt(total_hours * customer_hourly, 2)
+			self.customer_amount = flt(billed_hours * customer_hourly, 2)
 		else:
 			self.customer_amount = 0
 		self.customer_net_amount = (
@@ -395,6 +425,89 @@ class CardMonthlyCard(Document):
 						indicator="orange",
 					)
 
+	def _resolve_stop_reasons(self, company):
+		"""FR-118 (#45): a day row's stop reason must be an enabled reason of the card's
+		company; the row keeps whether it was billable (a snapshot, so a submitted card never
+		follows a later change of the reason). A row without a reason is never billable, so
+		a card without reasons bills exactly as before. The responsible party is normalised:
+		a record for Company/Supplier/Customer, a free-text name for Other."""
+		names = list({row.stop_reason for row in self.days or [] if row.stop_reason})
+		reasons = {}
+		if names:
+			reasons = {
+				r.name: r
+				for r in frappe.get_all(
+					"Card Stop Reason",
+					filters={"name": ["in", names]},
+					fields=["name", "company", "enabled", "billable", "default_responsible_party_type"],
+				)
+			}
+		for row in self.days or []:
+			if not row.stop_reason:
+				row.reason_billable = 0
+			else:
+				reason = reasons.get(row.stop_reason)
+				if not reason:
+					frappe.throw(_("Stop reason {0} does not exist.").format(row.stop_reason))
+				if reason.company != company:
+					frappe.throw(
+						_(
+							"Stop reason {0} belongs to another company; choose a reason of company {1}."
+						).format(row.stop_reason, company),
+						frappe.PermissionError,
+					)
+				if not cint(reason.enabled):
+					frappe.throw(
+						_("Stop reason {0} is disabled; choose an enabled reason (day {1}).").format(
+							row.stop_reason, row.operation_date
+						)
+					)
+				row.reason_billable = cint(reason.billable)
+				if not row.responsible_party_type and reason.default_responsible_party_type:
+					row.responsible_party_type = reason.default_responsible_party_type
+			self._normalise_responsible_party(row, company)
+
+	@staticmethod
+	def _normalise_responsible_party(row, company):
+		party_type = row.responsible_party_type
+		if not party_type:
+			row.responsible_party = None
+			row.responsible_party_name = None
+			return
+		if party_type == "Other":
+			row.responsible_party = None
+			return
+		row.responsible_party_name = None
+		if party_type == "Company":
+			if not row.responsible_party:
+				row.responsible_party = company
+			elif row.responsible_party != company:
+				frappe.throw(
+					_("The responsible company on day {0} must be the card's company {1}.").format(
+						row.operation_date, company
+					)
+				)
+
+	def _warn_foreign_responsible_party(self):
+		"""FR-118 (review L2): a supplier or customer held responsible for a stopped day that is
+		not the card's own supplier or customer is flagged for review, never blocked."""
+		own = {"Supplier": self.supplier, "Customer": self.customer}
+		foreign = []
+		for row in self.days or []:
+			party_type = row.responsible_party_type
+			if party_type in own and row.responsible_party and row.responsible_party != own[party_type]:
+				foreign.append(
+					"{0} ({1}: {2})".format(row.operation_date, _(party_type), row.responsible_party)
+				)
+		if foreign:
+			frappe.msgprint(
+				_(
+					"The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+				).format(_(", ", context="Card").join(foreign)),
+				title=_("Responsible party"),
+				indicator="orange",
+			)
+
 	def _refuse_unit_component_days(self, eq):
 		"""WP-05 (#42): a piece is billed on its unit's card while it is in the unit, so its
 		own card may not record working hours on a day inside a component period of any unit (the dated
@@ -415,7 +528,7 @@ class CardMonthlyCard(Document):
 		for d in self.days:
 			# like validate_card_days: only a day with hours is billed; the form adds a 0-hour
 			# row for every day of the month the machine was on the project
-			if not d.operation_date or flt(d.working_hours) <= 0:
+			if not d.operation_date or not is_billed_day(d):
 				continue
 			day = getdate(d.operation_date)
 			unit = next((p.unit for p in periods if _in_unit_on(p, day)), None)

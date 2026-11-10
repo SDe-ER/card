@@ -12,6 +12,7 @@ from frappe.utils import flt
 from card.card.doctype.equipment_transport.equipment_transport import record_financial_decision
 from card.card.report.transport_accounting_review.transport_accounting_review import execute as review
 from card.gl.posting import _supplier_sources
+from card.tests.cancel_reason import with_reason
 from card.tests.test_p0_posting_integrity import _P0Base
 from card.tests.transport_parties import as_recorded_before_p12, company_paid, paid_by
 
@@ -417,7 +418,7 @@ class TestTransportCostBearing(_P0Base):
 		frappe.set_user("Administrator")
 		first.reload()
 		first.submit()
-		first.cancel()
+		with_reason(first).cancel()
 		amended = frappe.copy_doc(first, ignore_no_copy=False)
 		amended.docstatus = 0
 		amended.previous_assignment = amended.created_assignment = None  # header mirrors
@@ -509,7 +510,7 @@ class TestTransportCostBearing(_P0Base):
 		record_financial_decision(t.name, "Company absorbs", absorption_reason="Owner approval")
 		frappe.set_user("Administrator")
 		t.reload()
-		t.cancel()
+		with_reason(t).cancel()
 		amended = frappe.copy_doc(t, ignore_no_copy=False)
 		amended.docstatus = 0
 		amended.previous_assignment = amended.created_assignment = None  # header mirrors

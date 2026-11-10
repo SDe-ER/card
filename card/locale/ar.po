@@ -5802,6 +5802,178 @@ msgstr "لا يمكن مشاركة تعبئة الديزل مع الجميع."
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr "لا يمكن مشاركة تعبئة ديزل تابعة للشركة {0} مع مستخدم من خارج هذه الشركة."
 
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Card Stop Reason"
+msgstr "سبب توقف المعدة"
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Billable"
+msgstr "يُحتسب إيجارًا"
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Default responsible party"
+msgstr "الجهة المسؤولة الافتراضية"
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Matching day status"
+msgstr "حالة اليوم المقابلة"
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Off (default): the stopped hours of this reason earn no rental. On: they are billed like operating hours on the card. Downtime is never billed automatically unless a Card Manager ticks this."
+msgstr "غير مفعّل (الافتراضي): ساعات التوقف لهذا السبب لا يُستحق عنها إيجار. مفعّل: تُحتسب مثل ساعات التشغيل في الكرت. لا يُحتسب التوقف إيجارًا تلقائيًا إلا إذا فعّل مدير الكروت هذا الخيار."
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "The fixed card day status this reason was created from, if any."
+msgstr "حالة يوم الكرت الثابتة التي أُنشئ منها هذا السبب، إن وجدت."
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Stop reason"
+msgstr "سبب التوقف"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Stopped hours"
+msgstr "ساعات التوقف"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Billable stop"
+msgstr "توقف يُحتسب إيجارًا"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party"
+msgstr "الجهة المسؤولة"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party record"
+msgstr "سجل الجهة المسؤولة"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party name"
+msgstr "اسم الجهة المسؤولة"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Billable stopped hours"
+msgstr "ساعات التوقف المحتسبة إيجارًا"
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Stop reason {0} already exists for company {1}."
+msgstr "سبب التوقف {0} موجود بالفعل للشركة {1}."
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Enter the stop reason."
+msgstr "أدخل سبب التوقف."
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Invalid responsible party type: {0}"
+msgstr "نوع الجهة المسؤولة غير صالح: {0}"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Cannot record stopped hours for a future day: {0}"
+msgstr "لا يمكن تسجيل ساعات توقف ليوم في المستقبل: {0}"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} does not exist."
+msgstr "سبب التوقف {0} غير موجود."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} belongs to another company; choose a reason of company {1}."
+msgstr "سبب التوقف {0} تابع لشركة أخرى؛ اختر سببًا من أسباب الشركة {1}."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} is disabled; choose an enabled reason (day {1})."
+msgstr "سبب التوقف {0} معطّل؛ اختر سببًا مفعّلًا (اليوم {1})."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "The responsible company on day {0} must be the card's company {1}."
+msgstr "الشركة المسؤولة في يوم {0} يجب أن تكون شركة الكرت {1}."
+
+#: card/card/report/equipment_downtime/equipment_downtime.json
+msgid "Equipment Downtime"
+msgstr "توقفات المعدات"
+
+#: card/card/report/equipment_downtime/equipment_downtime.js
+msgid "Group downtime by"
+msgstr "تجميع التوقف حسب"
+
+#: card/card/report/equipment_downtime/equipment_downtime.js
+msgid "Each day"
+msgstr "كل يوم"
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Equipment downtime needs read access to the monthly cards."
+msgstr "تقرير توقفات المعدات يحتاج صلاحية قراءة الكروت الشهرية."
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Select the period of the equipment downtime."
+msgstr "اختر فترة توقفات المعدات."
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Invalid grouping: {0}"
+msgstr "تجميع غير صالح: {0}"
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Stopped days"
+msgstr "أيام التوقف"
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Full stopped days"
+msgstr "أيام التوقف الكاملة"
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "No reason"
+msgstr "بدون سبب"
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Draft card"
+msgstr "كرت مسودة"
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Stopped days are card days with a stop reason, stopped hours or a non-working status. Stopped hours earn rental only under a billable stop reason."
+msgstr "أيام التوقف هي أيام الكرت التي لها سبب توقف أو ساعات توقف أو حالة غير «عمل». ساعات التوقف لا يُستحق عنها إيجار إلا مع سبب توقف يُحتسب إيجارًا."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Day {0}: operating hours ({1}) and stopped hours ({2}) exceed 24 hours."
+msgstr "اليوم {0}: ساعات التشغيل ({1}) وساعات التوقف ({2}) تتجاوز 24 ساعة."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+msgstr "الجهة المسؤولة عن أيام التوقف هذه ليست مورد الكرت أو عميله (للمراجعة): {0}"
+
+#: card/cancel_reason.py
+msgid "{0} is not a CARD transaction."
+msgstr "{0} ليس من معاملات CARD."
+
+#: card/cancel_reason.py
+msgid "The cancel reason is recorded only when the document is cancelled."
+msgstr "يُسجَّل سبب الإلغاء عند إلغاء المستند فقط."
+
+#: card/cancel_reason.py
+msgid "A cancel reason is required to cancel {0} {1}."
+msgstr "سبب الإلغاء مطلوب لإلغاء {0} {1}."
+
+#: card/cancel_reason.py
+msgid "Cancelled by {0} on {1}. Reason: {2}"
+msgstr "ألغاه {0} بتاريخ {1}. السبب: {2}"
+
+#: card/cancel_reason.py
+msgid "{0} {1} is cancelled as approved; {2} cannot be changed when cancelling."
+msgstr "يُلغى {0} {1} كما اعتُمد؛ لا يمكن تغيير {2} عند الإلغاء."
+
+#: card/period_lock.py
+msgid "Period lock overridden by {0} on {1}: {2} with lock date {3}."
+msgstr "تجاوز {0} قفل الفترة بتاريخ {1}: {2} مع تاريخ القفل {3}."
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel Reason"
+msgstr "سبب الإلغاء"
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel with this reason"
+msgstr "إلغاء بهذا السبب"
+
+#: card/public/js/cancel_reason.js
+msgid "Cancelled with the reason recorded."
+msgstr "تم الإلغاء وتسجيل السبب."
+
 #: card/card/doctype/card_settings/card_settings.json
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Deprecated – not used"
@@ -6066,6 +6238,10 @@ msgstr "الطرف الآخر {0} معطّل."
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "The agreed amount (not company cost) cannot be negative."
 msgstr "لا يمكن أن يكون المبلغ المتفق عليه (ليس تكلفة على الشركة) سالبًا."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Billable stopped days"
+msgstr "أيام التوقف المحتسبة إيجارًا"
 
 #: card/gl/masters.py
 msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."

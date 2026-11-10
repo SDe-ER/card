@@ -19,6 +19,7 @@ from card.constants import (
 	DIR_SUBRENTAL,
 	OWNED,
 )
+from card.tests.cancel_reason import with_reason
 from card.tests.test_controllers import _days, _ensure_masters, _registry_figures
 
 RENTED = "إيجار"
@@ -315,7 +316,7 @@ class TestCustomerRegistry(_CustomerCardsBase):
 		self.assertEqual(fig.total_hours, 20.0)
 		self.assertEqual(fig.total, 2000.0)  # operational accrual, not a balance
 		self.assertTrue(fig.first_month)
-		card.cancel()
+		with_reason(card).cancel()
 		fig = _registry_figures("Customer", self.customer)
 		self.assertEqual(fig.card_count, 0)
 		self.assertEqual(fig.total, 0)

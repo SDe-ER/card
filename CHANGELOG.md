@@ -16,6 +16,86 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **Mandatory cancel reason and a reviewable period-lock override** (FR-123, WP-07, #35, #51, governance G0). Reason: a
+  cancelled card, fill or transport had no recorded reason, a cancel request could still change the stored card (FR-050
+  open gap 1), and a period-lock override was only in the server log. Card Monthly Card, Equipment Transport and Project
+  Diesel Fill get `cancel_reason` (Small Text, no copy, read only; not "allow on submit": a cancel stores it without
+  Frappe's update-after-submit check, so no update-after-submit path is opened). The form's Cancel asks for the reason
+  and cancels through `card.cancel_reason.cancel_with_reason` (POST; one request, so a refused cancel keeps no reason).
+  `before_cancel` refuses a cancel without a reason on every path (Desk, REST `docstatus` 2, Python/API) and refuses a
+  cancel request that changes any other stored field or child row; `on_cancel` adds an Info Comment with the actor, the
+  reason and the date. A save or submit drops a copied reason; an update after submit cannot set it. A period-lock override
+  (`card.period_lock`) now also adds an Info Comment on the stored document (actor, action, date, lock date) next to the
+  existing log. PR #197. Affected: `card/cancel_reason.py` (new), `card/period_lock.py` (`_log_override`,
+  `_comment_override`), `card/hooks.py` (doc_events of the three doctypes, `doctype_js`), `card/public/js/cancel_reason.js`
+  (new), the three DocType JSON files, `card/locale/ar.po`, `main.pot`. Permissions: none widened; the cancel uses Frappe's
+  cancel permission and the doctypes' company has_permission hooks; Workflow and roles unchanged. Accounting: none (no GL
+  entry, no posting change). Data: one new column per doctype; existing records untouched (records cancelled earlier keep
+  an empty reason; no patch). API: a cancel without `cancel_reason` is now refused for these three doctypes, including
+  Frappe's "cancel all linked documents". Rollback limits: code revert only; the added columns stay (harmless) and the
+  stored reasons and comments remain.
+  Review fixes (PR #197): the reason is stored as plain text (HTML tags and any left `<` `>` removed in
+  `before_cancel`, because Frappe skips `_validate`/`_sanitize_content` on cancel; a reason that is only markup is
+  refused); the change check has no default-value tolerance (Frappe fills defaults only for new documents and new
+  rows). Known limits: an active Workflow's cancel action (`apply_workflow` -> `doc.cancel`) cannot send a reason, so
+  it is refused (the Card Monthly Card workflow is inactive on Production today); the List view bulk cancel
+  (`submit_cancel_or_update_docs`, a background job above 20 records) is refused too: cancel each record from its
+  form with a reason.
+- **Configurable stop reasons, the responsible party of a stopped day and the Equipment Downtime report** (FR-118,
+  WP-09, refs #45 #123, PR #194; target: next release).
+  - **Reason:** #45 (owner decision): record why, how long and because of whom equipment stood still, from a
+    configurable per-company catalogue, with **no rental for stopped periods unless explicitly configured**; #123 asks
+    for a downtime report.
+  - **Change:** new master DocType **Card Stop Reason** (`company` mandatory, `reason_name`, `enabled`, `billable`
+    default off, optional `default_responsible_party_type`, `day_status` it matches, notes; named
+    "<reason> - <company abbr>", unique per company; `track_changes` on; written by System Manager and Card Manager,
+    read by Card User, Card Supervisor and Accounts Manager; Company User Permissions apply through its `company`
+    link). Card Monthly Card Day gets `stop_reason` (Link, the form offers only enabled reasons of the card's company),
+    `stopped_hours`, `reason_billable` (read-only snapshot of the reason's flag), `responsible_party_type`
+    (Company / Supplier / Customer / Other), `responsible_party` (Dynamic Link) and `responsible_party_name` (Other).
+    Card Monthly Card gets `billable_stopped_hours` (read-only). `CardMonthlyCard._resolve_stop_reasons` refuses a
+    reason of another company, a missing or a disabled reason, takes the reason's default responsible party, sets a
+    Company party to the card's company (another company is refused) and clears the fields that do not fit the type.
+    Only the stopped hours of a row whose reason is billable are added to the billed hours of both sides
+    (`amount`, `customer_amount`); `total_working_hours` and `working_days` stay operating figures. A billable
+    stopped day must fall inside the assignment period and outside a unit-component period like a working day
+    (`card.transfer.is_billed_day`, used by `validate_card_days` and `_refuse_unit_component_days`); stopped hours on a
+    future day are refused. New read-only Script Report **Equipment Downtime** (`card/card/report/equipment_downtime`):
+    stopped days, full stopped days, stopped hours and billable stopped hours by stop reason, responsible party,
+    equipment, project, month or each day; one company through `card.report_access.resolve_company`, the cards the
+    user may read through `frappe.get_list`, submitted cards (drafts on request); rows of older cards without a
+    reason are shown under their day status. Added to the Card Reports sidebar. Patch
+    `card.patches.v4_6_0.seed_stop_reasons` (post_model_sync) creates, for each company that has cards, one reason
+    per non-working day status (إجازة, عطل, توقف من العميل) with billable off. The seed covers only the companies
+    that have cards when `bench migrate` runs; a company that gets its first card later creates its reasons by hand.
+  - **Review of PR #194:** the day queries that keep a submitted card day inside its assignment
+    (`card.transfer._card_day_after`, `card_equipment_assignment._refuse_dropped_card_days`) and the cost-centre day
+    choice of a CARD posting (`card.gl.posting.card_cost_center`) count a billable stopped day as a billed day;
+    operating plus stopped hours over 24 on one day are refused (a day without stopped hours keeps the old rule);
+    billable stopped hours count in the advisory shift-limit warning; a Supplier or Customer held responsible that
+    is not the card's own gets a review warning (never a block); the internal value of an owned card
+    (`card.card_value`) counts billable stopped hours (per hour) and billable stopped days (per day). The Equipment Supplier/Customer Statements and the two
+    summaries count a billable stopped day in the days (`card.transfer.billed_day_rows`) and show a "Billable
+    stopped hours" column with its totals only when a row has a value (`with_stopped_hours_column`; the approved
+    print adds the column the same way, `statement_pdf._with_stopped_hours`, so a statement without billable stops
+    prints exactly as before; the standard Print Format "Equipment Supplier Statement A4" ships the same template). Hourly rate: the
+    supplier statement shows each card's amount over operating plus billable stopped hours (with no billable stop:
+    amount / operating hours, exactly as before); the customer statement keeps the submit-time rate
+    (`customer_rate_used`) for submitted cards and uses amount over operating plus billable stopped hours for
+    drafts. The internal value per day (`card.card_value`) also counts the days billed only by billable stopped
+    hours (new read-only card field `billable_stopped_days`).
+  - **Defaults (no behaviour change):** a card without reasons bills exactly as before, every seeded and new reason
+    is not billable, the four fixed day statuses and their effect (a non-working status zeroes the operating hours)
+    are unchanged, and the patch writes no card or day row. `min_hours` is still not read (FR-020 stays an open owner
+    decision).
+  - **Impact:** permissions: one new master with the roles above, no role widened, no `ignore_permissions` in
+    production code. Accounting: none by default; once a Card Manager ticks `billable` on a reason, the card amounts
+    (and so the CARD postings built from them) include those stopped hours. Data: new table and new columns; the
+    patch inserts reasons only. API: no new whitelisted method. No statement, summary or dashboard figure
+    changes for cards without billable stops.
+  - **Rollback:** revert the PR; the new columns and the Card Stop Reason table and rows stay in the database
+    (harmless, unread). Cards saved with a billable reason keep their amounts until they are saved again (drafts) or
+    amended (submitted).
 - **Effective-dated diesel price schedule** (FR-125, #46, #124 WP-10). Reason: the diesel price changes over time and a fill
   must take the price valid on its own date. Card Settings > Diesel Settings gets the table **Diesel price schedule** (new child
   DocType `Card Diesel Price`: company, valid from, price per litre, currency defaulting to and limited to the company currency,

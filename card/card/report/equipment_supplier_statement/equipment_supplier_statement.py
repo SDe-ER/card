@@ -5,6 +5,7 @@ from card.adjustments import sided_adjustments
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.settings import setting
+from card.transfer import billed_day_rows, with_stopped_hours_column
 
 
 def execute(filters=None):
@@ -79,6 +80,7 @@ def execute(filters=None):
 				"rate",
 				"working_days",
 				"total_working_hours",
+				"billable_stopped_hours",
 				"amount",
 				"docstatus",
 				"from_date",
@@ -108,17 +110,8 @@ def execute(filters=None):
 	# operating dates per card (hours > 0) -> distinct days per equipment, first/last date
 	card_dates = {}
 	if cards:
-		rows = frappe.get_all(
-			"Card Monthly Card Day",
-			filters=[
-				["parent", "in", [c.name for c in cards]],
-				["parenttype", "=", "Card Monthly Card"],
-				["working_hours", ">", 0],
-			],
-			fields=["parent", "operation_date"],
-			limit_page_length=0,
-			parent_doctype="Card Monthly Card",
-		)
+		# FR-118: a day bills with operating hours or billable stopped hours (is_billed_day)
+		rows = billed_day_rows([c.name for c in cards])
 		for r in rows:
 			k = r.parent
 			if k not in card_dates:
@@ -128,7 +121,16 @@ def execute(filters=None):
 	owned = stype != "مورد"
 
 	data_rows = []
-	grand = {"days": 0, "hours": 0.0, "amount": 0.0, "add": 0.0, "ded": 0.0, "net": 0.0, "eq": set()}
+	grand = {
+		"days": 0,
+		"hours": 0.0,
+		"stopped": 0.0,
+		"amount": 0.0,
+		"add": 0.0,
+		"ded": 0.0,
+		"net": 0.0,
+		"eq": set(),
+	}
 
 	projects = []
 	by_project = {}
@@ -154,6 +156,7 @@ def execute(filters=None):
 			"project": p if p != "-" else None,
 			"working_days": 0,
 			"hours": 0.0,
+			"stopped_hours": 0.0,
 			"amount": 0.0,
 			"additions": 0.0,
 			"deductions": 0.0,
@@ -166,6 +169,7 @@ def execute(filters=None):
 			e_id = p_id + "|E|" + e
 			dates = set()
 			hours = 0.0
+			stopped = 0.0
 			amount = 0.0
 			add = 0.0
 			ded = 0.0
@@ -179,8 +183,17 @@ def execute(filters=None):
 				c_amount = 0 if owned else flt(c.amount, 2)
 				c_add, c_ded = sided.get(c.name, (0.0, 0.0))
 				c_net = 0 if owned else flt(c_amount + c_add - c_ded, 2)
-				hours = hours + flt(c.total_working_hours)
+				c_hours = flt(c.total_working_hours)
+				c_stopped = flt(c.billable_stopped_hours)
+				hours = hours + c_hours
+				stopped = stopped + c_stopped
 				amount = amount + c_amount
+				# FR-118: the card's amount over every billed hour (operating + billable stopped); with no
+				# billable stop this is the earlier amount / operating hours, unchanged
+				if owned or not (c_hours + c_stopped):
+					c_hourly = None
+				else:
+					c_hourly = flt(c_amount / (c_hours + c_stopped), 2)
 				add = add + c_add
 				ded = ded + c_ded
 				rates.add(flt(c.rate))
@@ -198,12 +211,11 @@ def execute(filters=None):
 						"first_date": min(cd) if cd else None,
 						"last_date": max(cd) if cd else None,
 						"working_days": len(set(cd)),
-						"hours": flt(c.total_working_hours),
+						"hours": c_hours,
+						"stopped_hours": c_stopped,
 						"rate_type": c.rate_type,
 						"rate": None if owned else flt(c.rate),
-						"hourly_rate": None
-						if owned or not flt(c.total_working_hours)
-						else flt(c_amount / flt(c.total_working_hours), 2),
+						"hourly_rate": c_hourly,
 						"amount": c_amount,
 						"additions": c_add,
 						"deductions": c_ded,
@@ -224,9 +236,10 @@ def execute(filters=None):
 				"last_date": sorted_dates[-1] if sorted_dates else None,
 				"working_days": len(dates),
 				"hours": flt(hours, 2),
+				"stopped_hours": flt(stopped, 2),
 				"rate_type": next(iter(rtypes)) if len(rtypes) == 1 else "متعدد",
 				"rate": None if owned else (next(iter(rates)) if len(rates) == 1 else None),
-				"hourly_rate": None if owned or not hours else flt(amount / hours, 2),
+				"hourly_rate": None if owned or not (hours + stopped) else flt(amount / (hours + stopped), 2),
 				"amount": flt(amount, 2),
 				"additions": flt(add, 2),
 				"deductions": flt(ded, 2),
@@ -237,6 +250,7 @@ def execute(filters=None):
 			data_rows.extend(card_rows)
 			p_row["working_days"] = p_row["working_days"] + len(dates)
 			p_row["hours"] = flt(p_row["hours"] + hours, 2)
+			p_row["stopped_hours"] = flt(p_row["stopped_hours"] + stopped, 2)
 			p_row["amount"] = flt(p_row["amount"] + amount, 2)
 			p_row["additions"] = flt(p_row["additions"] + add, 2)
 			p_row["deductions"] = flt(p_row["deductions"] + ded, 2)
@@ -244,6 +258,7 @@ def execute(filters=None):
 			grand["eq"].add(e)
 		grand["days"] = grand["days"] + p_row["working_days"]
 		grand["hours"] = grand["hours"] + p_row["hours"]
+		grand["stopped"] = grand["stopped"] + p_row["stopped_hours"]
 		grand["amount"] = grand["amount"] + p_row["amount"]
 		grand["add"] = grand["add"] + p_row["additions"]
 		grand["ded"] = grand["ded"] + p_row["deductions"]
@@ -258,6 +273,7 @@ def execute(filters=None):
 				"label": _("Grand total"),
 				"working_days": grand["days"],
 				"hours": flt(grand["hours"], 2),
+				"stopped_hours": flt(grand["stopped"], 2),
 				"amount": flt(grand["amount"], 2),
 				"additions": flt(grand["add"], 2),
 				"deductions": flt(grand["ded"], 2),
@@ -465,6 +481,6 @@ def execute(filters=None):
 			"Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
 		).format(start, end)
 
-	columns = readable_links(columns, data_rows)
+	columns = readable_links(with_stopped_hours_column(columns, data_rows), data_rows)
 	data = [columns, data_rows, message, None, summary, True]
 	return data

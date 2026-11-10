@@ -4563,6 +4563,178 @@ msgstr ""
 msgid "A diesel fill of company {0} cannot be shared with a user outside that company."
 msgstr ""
 
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Card Stop Reason"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Billable"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Default responsible party"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Matching day status"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Off (default): the stopped hours of this reason earn no rental. On: they are billed like operating hours on the card. Downtime is never billed automatically unless a Card Manager ticks this."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "The fixed card day status this reason was created from, if any."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Stop reason"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Stopped hours"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Billable stop"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party record"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Responsible party name"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Billable stopped hours"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Stop reason {0} already exists for company {1}."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Enter the stop reason."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Invalid responsible party type: {0}"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Cannot record stopped hours for a future day: {0}"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} does not exist."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} belongs to another company; choose a reason of company {1}."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Stop reason {0} is disabled; choose an enabled reason (day {1})."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "The responsible company on day {0} must be the card's company {1}."
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.json
+msgid "Equipment Downtime"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.js
+msgid "Group downtime by"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.js
+msgid "Each day"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Equipment downtime needs read access to the monthly cards."
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Select the period of the equipment downtime."
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Invalid grouping: {0}"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Stopped days"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Full stopped days"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "No reason"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Draft card"
+msgstr ""
+
+#: card/card/report/equipment_downtime/equipment_downtime.py
+msgid "Stopped days are card days with a stop reason, stopped hours or a non-working status. Stopped hours earn rental only under a billable stop reason."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Day {0}: operating hours ({1}) and stopped hours ({2}) exceed 24 hours."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "The responsible party of these stopped days is not the card's own supplier or customer (review): {0}"
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "{0} is not a CARD transaction."
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "The cancel reason is recorded only when the document is cancelled."
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "A cancel reason is required to cancel {0} {1}."
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "Cancelled by {0} on {1}. Reason: {2}"
+msgstr ""
+
+#: card/cancel_reason.py
+msgid "{0} {1} is cancelled as approved; {2} cannot be changed when cancelling."
+msgstr ""
+
+#: card/period_lock.py
+msgid "Period lock overridden by {0} on {1}: {2} with lock date {3}."
+msgstr ""
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel Reason"
+msgstr ""
+
+#: card/public/js/cancel_reason.js
+msgid "Cancel with this reason"
+msgstr ""
+
+#: card/public/js/cancel_reason.js
+msgid "Cancelled with the reason recorded."
+msgstr ""
+
 #: card/card/doctype/card_settings/card_settings.json
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Deprecated – not used"
@@ -4827,6 +4999,9 @@ msgstr ""
 #: card/card/doctype/equipment_transport/equipment_transport.py
 msgid "The agreed amount (not company cost) cannot be negative."
 msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Billable stopped days"
 
 #: card/gl/masters.py
 msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."

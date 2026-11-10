@@ -18,6 +18,7 @@ from frappe.utils import add_days, getdate, nowdate
 
 from card.period_lock import PeriodLockDateChangeError
 from card.tests import test_period_lock
+from card.tests.cancel_reason import store_reason, with_reason
 from card.tests.diesel_price import approve_fill, use_fill_price
 from card.tests.transport_parties import company_paid
 
@@ -99,6 +100,7 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 
 	def _cancel_request(self, doc, **changes):
 		"""What Desk sends for Cancel: the whole document JSON (with any changes) plus action=Cancel."""
+		store_reason(doc.doctype, doc.name)  # FR-123: the request carries the reason
 		d = frappe.get_doc(doc.doctype, doc.name).as_dict()
 		d.update(changes or {"to_date": FAR_DATE})
 		frappe.db.savepoint("period_lock_cancel")
@@ -342,7 +344,7 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 		frappe.db.savepoint("period_lock_direct_cancel")
 		with self.assertRaises(frappe.ValidationError) as refused:
 			try:
-				d.cancel()
+				with_reason(d).cancel()
 			except Exception:
 				frappe.db.rollback(save_point="period_lock_direct_cancel")
 				raise
@@ -411,6 +413,7 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 		t = self._submitted(self._transport(day))
 		for doc, field in ((card, "to_date"), (fill, "date"), (t, "date")):
 			before = self._stored(doc, field)
+			store_reason(doc.doctype, doc.name)
 			d = frappe.get_doc(doc.doctype, doc.name).as_dict()
 			savedocs(json.dumps(d, default=str), "Cancel")  # unchanged Desk cancel request
 			self.assertEqual(frappe.db.get_value(doc.doctype, doc.name, "docstatus"), 2)
@@ -422,6 +425,7 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 			self.assertEqual(len(self._month_days(self._today())), 1)
 			card = self._submitted(self._current_card())
 			if not self._cancel_keeps_the_date(card, "to_date", to_date=FAR_DATE):
+				store_reason(card.doctype, card.name)
 				d = frappe.get_doc(card.doctype, card.name).as_dict()
 				savedocs(json.dumps(d, default=str), "Cancel")  # unchanged Desk cancel request
 			self.assertEqual(frappe.db.get_value(card.doctype, card.name, "docstatus"), 2)
@@ -438,11 +442,11 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 	def test_guard_locked_plain_cancel_refused(self):
 		fill = self._submitted(self._fill())
 		with self._refused():
-			frappe.get_doc(fill.doctype, fill.name).cancel()
+			with_reason(frappe.get_doc(fill.doctype, fill.name)).cancel()
 
 	def test_guard_override_role_allows_locked_cancel(self):
 		fill = self._submitted(self._fill())
 		self._set("period_lock_override_role", "System Manager")  # Administrator holds it
-		frappe.get_doc(fill.doctype, fill.name).cancel()
+		with_reason(frappe.get_doc(fill.doctype, fill.name)).cancel()
 		self.assertEqual(frappe.db.get_value(fill.doctype, fill.name, "docstatus"), 2)
 		self.assertEqual(self._stored(fill), getdate(self.lock_date))

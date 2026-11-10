@@ -187,6 +187,22 @@
    "child": 0,
    "collapsible": 1,
    "hidden": 0,
+   "icon": "clock",
+   "indent": 0,
+   "is_default_module": 0,
+   "keep_closed": 0,
+   "label": "Equipment Downtime",
+   "link_to": "Equipment Downtime",
+   "link_type": "Report",
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "added": 0,
+   "child": 0,
+   "collapsible": 1,
+   "hidden": 0,
    "icon": "gauge",
    "indent": 0,
    "is_default_module": 0,
@@ -279,7 +295,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-11-10 12:00:00.000000",
+ "modified": "2026-11-10 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Reports",
