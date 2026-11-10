@@ -24,6 +24,35 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Pages is enabled in the repository settings). Affected functions: none; no Python, DocType, permission,
   accounting, data or API change. Note: a GitHub Pages site is public even for a private repository. Rollback:
   revert the commit and disable Pages; nothing on any site changes.
+- **FR-143 — Separation of duties on the monthly card (FR-006; #35, #51, #123; closure plan WP-D1, owner decision
+  O-07).** Reason: owner 2026-10-19 "whoever created or entered a monthly card never approves it, enforced on the
+  server" (R-13: the creator could submit his own card). A monthly card has no review step or Workflow yet (WP-D2),
+  so its **approval is its submit**; D1 adds only the guard on that step. New module `card/governance.py`
+  (`on_validate`, `before_submit`, `before_update_after_submit`, `before_cancel`, `card_preparers`,
+  `approval_rule`), wired as additive `doc_events` of Card Monthly Card in `card/hooks.py` (after the existing
+  FR-123, period-lock and posting events, which keep their order). New read-only, no-copy fields on **Card Monthly
+  Card** (collapsible section "Monthly card approval", shown after submit): `submitted_by`, `approved_by`,
+  `approved_on`, `self_approved`, and the hidden `edited_by` (every user who saved the draft; a submit request that
+  also changes an editable field or row, and a REST insert with `docstatus` 1, records its user too; a plain submit
+  does not). All are written by the server only on every route (form save/submit, REST v1/v2 insert and PUT,
+  `frappe.client.insert/save/submit/set_value`, savedocs, bulk update/submit/cancel, Data Import): validate clears
+  the approval fields and reads the creator (`owner`) and the editors from the database with a locking read (a sent
+  `owner` or a changed `amended_from` is replaced by the stored one, as Frappe checks `amended_from` on insert only), an update after submit and a cancel restore the stored values. Preparers =
+  the creator and every editor of the card and of every card of its `amended_from` chain; the approver of an
+  earlier card of the chain is not a preparer of the correction; a draft saved before FR-143 counts its last saver
+  (`modified_by`) as its editor. New per-company **Card Company Settings `card_approval_rule`** (permlevel 1, like
+  the other company rules): "Warn only (card approval)" — the default, also with no company row or an empty value —
+  submits with a warning and marks the card `self_approved`; "Refuse (card approval)" refuses the submit. No role
+  is exempt (Administrator and System Manager included). The Card Daily Log keeps its own
+  `Card Daily Log Settings.self_approval_rule` (FR-142): the two rules are deliberately not merged in this
+  package (K1 backlog note; recorded in the registry). Impact: permissions — no role, DocPerm or permission hook
+  added or widened; the rule row follows the FR-133 company scope of Card Settings (a company-restricted user
+  changes only his companies' rule). Accounting — none (no GL, no posting change; amounts unchanged). Data — five
+  new columns on `tabCard Monthly Card` and one on `tabCard Company Settings`; existing cards are not changed (the
+  fields stay empty on cards submitted before FR-143; no patch). API — a submit by a preparer now returns a warning
+  message (default) or a PermissionError (Refuse). Default behaviour unchanged: every submit that worked before
+  still works. Tests: `card/tests/test_card_sod.py`. Rollback limits: a code rollback leaves the new columns and
+  their values in the database (Frappe does not drop columns); they are inert without the code. PR: #224.
 - **FR-145 — Draft monthly cards from approved daily logs (#44, #123, FR-022; closure plan WP-K2).** Reason: #44
   asks for automatic card generation from daily entry with no duplicate between the manual and the automatic route,
   and #123 for daily entry feeding the monthly cards; FR-142 records and approves the logs but generated nothing.
@@ -465,6 +494,39 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   and fill form fields are unchanged. Rollback: revert the commit.
 
 ### Security
+- **FR-142 / FR-140 — a cancel can no longer rewrite a Card Daily Log or an Equipment Meter Reading.** Reason: Frappe
+  skips `validate` and `validate_update_after_submit` on a cancel and stores the fields and child rows the request
+  sends (`frappe/model/document.py`); reproduced on a sandbox site: a REST PUT `{"docstatus": 2, ...}`, a savedocs
+  Cancel with a modified document and a bulk update with `docstatus` 2 and data each stored changed hours rows, log
+  date and notes on a cancelled daily log, and a REST PUT changed the engine hours, the reading time and the notes
+  of a cancelled meter reading. Fix: both cancels now run the generic FR-123 guard of `card/cancel_reason.py`
+  (`_refuse_changes`, `CancelChangesDocumentError`, already used by the monthly card): a cancel that changes any
+  stored field or row is refused and the document stays submitted. The daily log first restores its server-written
+  approval fields, preparers and editors from the database (FR-142 behaviour, unchanged) and then refuses any other
+  change. No cancel reason is required on these DocTypes (unchanged). Affected functions: `card.daily_log.check_cancel`,
+  `EquipmentMeterReading.before_cancel`. Tests: `test_daily_log.py` (REST PUT with rows, date, notes; savedocs with a
+  row and the notes; bulk update with data; plain cancels still work), `test_meter_reading.py` (REST PUT, savedocs,
+  bulk; plain cancel). PR #226.
+  Also: Frappe checks `amended_from` on insert only, so a save (`frappe.client.save`, `frappe.client.set_value`)
+  could clear or change it on a draft; reproduced on a Card Daily Log, where a cleared link dropped the earlier
+  versions' preparers and let a manager who edited an earlier version approve the amendment under Refuse. A save of
+  an existing Card Daily Log or Equipment Meter Reading now keeps the stored `amended_from`
+  (`card.daily_log.prepare`, `EquipmentMeterReading._validate_amended_from`); tests clear it by `client.save` and by
+  `set_value` and the approval stays refused, and set it on an existing record and it stays empty.
+  Review hardening of the shared guard (`card/cancel_reason.py` `_changed_field`, `_rows_changed`, `_norm`,
+  `_refuse_changes`): Frappe also skips `validate_constants` on a cancel and `db_update` writes every column, so a
+  cancel could still rewrite the document's `owner` / `creation` and each row's `idx` (row order), `owner` and
+  `creation`; reproduced on Equipment Meter Reading and Card Daily Log. These standard columns are now compared
+  too; float fields are compared at 9 decimals, the stored precision (a change of 0.0000001 was accepted). The
+  hardening also applies to the FR-123 doctypes (Card Monthly Card, Equipment Transport, Project Diesel Fill),
+  whose message is unchanged; Card Daily Log and Equipment Meter Reading use a new neutral message ("... cannot
+  be cancelled with changes: ... differs from the stored record.", Arabic added). Tests: owner and creation on the
+  log, the reading and the three FR-123 doctypes; added, removed, reordered, emptied rows, swapped `idx` and a forged
+  row owner or creation on the log; 100.0000001 engine hours on the reading.
+  Impact: permissions none; accounting none; data: a cancel request that also changes the document is refused
+  (a plain cancel is unchanged), and a save no longer changes `amended_from`; API: such a cancel request now fails
+  with `CancelChangesDocumentError`, and a sent `amended_from` on an update is ignored. Rollback limits:
+  code only; nothing stored to undo.
 - **Card Settings company scope (FR-133, #50, closure plan R-14 / C-19, owner O-19 default-on). PR #213.** Reason:
   the per-company rows of the Card Settings Single were all-or-nothing for a company-restricted user: with a Company
   User Permission for every doctype Frappe 16 refused him the whole form as soon as another company had a row; with

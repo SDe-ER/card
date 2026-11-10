@@ -651,6 +651,187 @@ class TestDailyLog(_CustomerCardsBase):
 		frappe.set_user("Administrator")
 		self.assertEqual(self._stored(doc.name).docstatus, 2)
 
+	# ---------- a cancel changes nothing else (FR-142 cancel integrity) ----------
+	def _snapshot(self, name):
+		doc = frappe.get_doc(LOG, name)
+		return (
+			doc.docstatus,
+			str(doc.log_date),
+			doc.project,
+			doc.notes,
+			[(r.equipment, r.day_hours, r.night_hours, r.stopped_hours, r.notes) for r in doc.rows],
+		)
+
+	def test_cancel_by_rest_put_cannot_change_the_log(self):
+		from frappe.api import v1
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		doc = self._log()
+		before = self._snapshot(doc.name)
+		rows = [dict(r, day_hours=11, night_hours=3) for r in frappe.get_doc(LOG, doc.name).as_dict()["rows"]]
+		for data in (
+			{"docstatus": 2, "rows": rows},
+			{"docstatus": 2, "log_date": str(add_days(self.day, -20))},
+			{"docstatus": 2, "notes": "rewritten at cancel"},
+		):
+			with self.subTest(data=list(data)):
+				frappe.set_user(self.operator)
+				frappe.local.form_dict = frappe._dict(data=frappe.as_json(data))
+				with self.assertRaises(CancelChangesDocumentError):
+					v1.update_doc(LOG, doc.name)
+				frappe.set_user("Administrator")
+				self.assertEqual(self._snapshot(doc.name), before)
+		# a plain cancel still works
+		frappe.set_user(self.operator)
+		frappe.local.form_dict = frappe._dict(data=frappe.as_json({"docstatus": 2}))
+		v1.update_doc(LOG, doc.name)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._snapshot(doc.name), (2, *before[1:]))
+
+	def _put_cancel(self, name, user, data):
+		from frappe.api import v1
+
+		frappe.set_user(user)
+		frappe.local.form_dict = frappe._dict(data=frappe.as_json({"docstatus": 2, **data}))
+		try:
+			return v1.update_doc(LOG, name)
+		finally:
+			frappe.set_user("Administrator")
+
+	def _full_snapshot(self, name):
+		doc = frappe.get_doc(LOG, name)
+		return (
+			self._snapshot(name),
+			doc.owner,
+			str(doc.creation),
+			[(r.name, r.idx, r.owner, str(r.creation)) for r in doc.rows],
+		)
+
+	def test_cancel_cannot_change_owner_or_creation(self):
+		from card.cancel_reason import CancelChangesDocumentError
+
+		for user, data in (
+			(self.manager, {"owner": self.manager}),
+			(self.operator, {"creation": "2020-01-01 00:00:00"}),
+			(self.manager, {"owner": "Administrator", "creation": "2020-01-01 00:00:00"}),
+		):
+			with self.subTest(user=user, data=list(data)):
+				eq = self._equipment()
+				doc = self._log([{"equipment": eq.name, "day_hours": 4}])
+				before = self._full_snapshot(doc.name)
+				with self.assertRaises(CancelChangesDocumentError):
+					self._put_cancel(doc.name, user, data)
+				self.assertEqual(self._full_snapshot(doc.name), before)
+
+	def test_cancel_cannot_change_the_rows(self):
+		"""Added, removed, reordered (list order or idx), emptied rows and a forged row owner or creation."""
+		from card.cancel_reason import CancelChangesDocumentError
+
+		def rows_of(name):
+			return [dict(r) for r in frappe.get_doc(LOG, name).as_dict()["rows"]]
+
+		def swapped_idx(rows):
+			rows[0]["idx"], rows[1]["idx"] = rows[1]["idx"], rows[0]["idx"]
+			return rows
+
+		def forged(field, value):
+			def change(rows):
+				rows[0][field] = value
+				return rows
+
+			return change
+
+		eq3 = self._equipment()
+		changes = {
+			"added": lambda rows: [
+				*rows,
+				{"doctype": "Card Daily Log Row", "equipment": eq3.name, "day_hours": 1},
+			],
+			"removed": lambda rows: rows[:1],
+			"reordered": lambda rows: list(reversed(rows)),
+			"emptied": lambda rows: [],
+			"swapped idx": swapped_idx,
+			"row owner": forged("owner", "Administrator"),
+			"row creation": forged("creation", "2020-01-01 00:00:00"),
+		}
+		for offset, (label, change) in enumerate(changes.items()):
+			with self.subTest(change=label):
+				eq_a, eq_b = self._equipment(), self._equipment()
+				doc = self._log(
+					[{"equipment": eq_a.name, "day_hours": 4}, {"equipment": eq_b.name, "night_hours": 2}],
+					log_date=add_days(self.day, -offset),
+				)
+				before = self._full_snapshot(doc.name)
+				with self.assertRaises(CancelChangesDocumentError):
+					self._put_cancel(doc.name, self.operator, {"rows": change(rows_of(doc.name))})
+				self.assertEqual(self._full_snapshot(doc.name), before)
+
+	def test_cancel_by_savedocs_cannot_change_the_log(self):
+		"""savedocs Cancel: depending on the Frappe version it either cancels the client's document (the guard must
+		refuse a change) or cancels the stored record and ignores the client's values (Frappe 16.55). Either way no
+		stored field or row changes."""
+		from frappe.desk.form.save import savedocs
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		for offset, change in enumerate(("row", "notes")):
+			with self.subTest(change=change):
+				eq = self._equipment()
+				doc = self._log(
+					[{"equipment": eq.name, "day_hours": 4}], log_date=add_days(self.day, -offset)
+				)
+				before = self._snapshot(doc.name)
+				frappe.set_user(self.operator)
+				sent = frappe.get_doc(LOG, doc.name).as_dict()
+				if change == "row":
+					sent["rows"][0]["day_hours"] = 12
+				else:
+					sent["notes"] = "rewritten at cancel"
+				try:
+					savedocs(frappe.as_json(sent), "Cancel")
+					refused = False
+				except CancelChangesDocumentError:
+					refused = True
+				finally:
+					frappe.set_user("Administrator")
+				after = self._snapshot(doc.name)
+				self.assertEqual(after[1:], before[1:])
+				self.assertEqual(after[0], 1 if refused else 2)
+		# an unchanged document is cancelled
+		doc = self._log(log_date=add_days(self.day, -5))
+		frappe.set_user(self.operator)
+		savedocs(frappe.as_json(frappe.get_doc(LOG, doc.name).as_dict()), "Cancel")
+		frappe.set_user("Administrator")
+		self.assertEqual(self._snapshot(doc.name)[0], 2)
+
+	def test_bulk_cancel_with_data_cannot_change_the_log(self):
+		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
+
+		from card.cancel_reason import CancelChangesDocumentError
+
+		doc = self._log()
+		before = self._snapshot(doc.name)
+		frappe.set_user(self.operator)
+		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
+			failed = submit_cancel_or_update_docs(
+				LOG,
+				[doc.name],
+				"update",
+				{"docstatus": 2, "notes": "x", "log_date": str(add_days(self.day, -30))},
+			)
+			self.assertEqual(failed, [doc.name])
+			self.assertEqual(self._snapshot(doc.name), before)
+			# the error the bulk action caught: what it does with the document, without its commit and rollback
+			with self.assertRaises(CancelChangesDocumentError):
+				sent = frappe.get_doc(LOG, doc.name)
+				sent.update({"docstatus": 2, "notes": "x"})
+				sent.save()
+			self.assertEqual(self._snapshot(doc.name), before)
+			self.assertEqual(submit_cancel_or_update_docs(LOG, [doc.name], "cancel"), [])
+		frappe.set_user("Administrator")
+		self.assertEqual(self._snapshot(doc.name), (2, *before[1:]))
+
 	# ---------- amendment chain (review finding 6) ----------
 	def test_amendment_keeps_the_earlier_preparers(self):
 		self._rule(daily_log.RULE_REFUSE)
@@ -681,6 +862,60 @@ class TestDailyLog(_CustomerCardsBase):
 		self.assertEqual(
 			self._set_status(third, daily_log.APPROVED, other).approval_status, daily_log.APPROVED
 		)
+
+	def _amendment_of_a_manager_edited_log(self):
+		"""Refuse rule; L1 edited by the manager, cancelled; L2 is a draft amendment entered by the operator."""
+		self._rule(daily_log.RULE_REFUSE)
+		first = self._log(submit=False)
+		frappe.set_user(self.manager)
+		edited = frappe.get_doc(LOG, first.name)
+		edited.rows[0].day_hours = 9
+		edited.save()
+		frappe.set_user(self.operator)
+		frappe.get_doc(LOG, first.name).submit()
+		frappe.get_doc(LOG, first.name).cancel()
+		second = frappe.copy_doc(frappe.get_doc(LOG, first.name))
+		second.docstatus = 0
+		second.amended_from = first.name
+		second.insert()
+		frappe.set_user("Administrator")
+		return first, second
+
+	def test_amended_from_cannot_be_cleared_by_a_save(self):
+		from frappe.client import save as rest_save
+
+		first, second = self._amendment_of_a_manager_edited_log()
+		frappe.set_user(self.operator)
+		sent = frappe.get_doc(LOG, second.name).as_dict()
+		sent["amended_from"] = None
+		rest_save(frappe.as_json(sent))
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(LOG, second.name, "amended_from"), first.name)
+		frappe.set_user(self.operator)
+		frappe.get_doc(LOG, second.name).submit()
+		frappe.set_user("Administrator")
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(second, daily_log.APPROVED, self.manager)
+
+	def test_amended_from_cannot_be_cleared_by_set_value(self):
+		first, second = self._amendment_of_a_manager_edited_log()
+		frappe.set_user(self.operator)
+		rest_set_value(LOG, second.name, "amended_from", None)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(LOG, second.name, "amended_from"), first.name)
+		frappe.set_user(self.operator)
+		frappe.get_doc(LOG, second.name).submit()
+		frappe.set_user("Administrator")
+		with self.assertRaises(frappe.PermissionError):
+			self._set_status(second, daily_log.APPROVED, self.manager)
+
+	def test_amended_from_cannot_be_set_on_an_existing_log(self):
+		first, _second = self._amendment_of_a_manager_edited_log()
+		plain = self._log(submit=False, log_date=add_days(self.day, -9))
+		frappe.set_user(self.operator)
+		rest_set_value(LOG, plain.name, "amended_from", first.name)
+		frappe.set_user("Administrator")
+		self.assertFalse(frappe.db.get_value(LOG, plain.name, "amended_from"))
 
 	# ---------- supervisor step (opt-in, review finding 7) ----------
 	def test_supervisor_step_is_off_by_default(self):

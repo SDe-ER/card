@@ -25,6 +25,9 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
   `test_every_whitelisted_function_is_in_the_table`; the HTTP methods are checked against the decorators by
   `test_table_methods_match_the_decorators`.
 - "(own)" after a role means an `if_owner` right. A child table has no rights of its own: its parent's apply.
+- Card Monthly Card submit: the submit is the card's approval; the submitter must not be a preparer (its creator or
+  an editor of the card or of its amendment chain) under the company's `card_approval_rule` (FR-143: "Warn only"
+  by default, "Refuse" per company). No role is exempt.
 
 ## DocTypes
 

@@ -6074,3 +6074,59 @@ msgstr ""
 #: card/intake.py
 msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
 msgstr ""
+
+#: card/cancel_reason.py
+msgid "{0} {1} cannot be cancelled with changes: {2} differs from the stored record."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approval"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card submitted by"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved on"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card edited by"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Monthly card approval rule"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Warn only (card approval)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (card approval)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A monthly card submitted (approved) by a user who created or edited it, or any card it amends: Warn only submits with a message and marks the card; Refuse stops the submit. No role is exempt. Empty: Warn only."
+msgstr ""
+
+#: card/governance.py
+msgid "You created or edited this monthly card; another user must submit (approve) it (company rule: Refuse)."
+msgstr ""
+
+#: card/governance.py
+msgid "You created or edited this monthly card and submit (approve) it yourself; it is marked for review (company rule: Warn)."
+msgstr ""
+
+#: card/governance.py
+msgid "Monthly card self-approval"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Monthly card approved by its own preparer"
+msgstr ""
