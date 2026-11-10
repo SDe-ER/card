@@ -322,10 +322,32 @@ class TestDieselFillStatusGuard(IntegrationTestCase):
 		eq = self._equipment(ended=True)
 		f = self._fill(equipment=eq)
 		self.assertEqual(messages(), 1)
-		# a submit whose validate would re-check (date changed) still shows it once: before_submit only
+		# a submit shows it once: before_submit checks, the validate of the same submit does not
 		approve_fill(f)
 		f.reload()
-		f.date = add_days(DAY, 1)
 		frappe.clear_messages()
 		f.submit()
 		self.assertEqual(messages(), 1)
+
+	def test_the_validate_of_a_submit_leaves_the_check_to_before_submit(self):
+		# any change the save-time check would see voids the operations approval, so a real submit cannot
+		# reach it with a change: the skip is shown on the method itself
+		draft = frappe.get_doc(
+			{
+				"doctype": "Project Diesel Fill",
+				"date": DAY,
+				"company": self.company,
+				"project": self.project,
+				"supplier": self.supplier,
+				"litres": 100,
+				"card_equipment": self._equipment(ended=True),
+			}
+		)
+		draft._action = "submit"
+		draft._check_equipment_status()
+		self.assertEqual(messages(), 0)
+		draft._check_equipment_status(all_rows=True)  # what before_submit calls
+		self.assertEqual(messages(), 1)
+		draft._action = "save"
+		draft._check_equipment_status()
+		self.assertEqual(messages(), 2)
