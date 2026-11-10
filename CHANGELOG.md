@@ -34,7 +34,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   functions: new `equipment_meter_reading.py` (`neighbour_readings`, `EquipmentMeterReading.validate`,
   `before_submit`, `on_update`). Tests: `card/tests/test_meter_reading.py`; `card/tests/test_company_scope.py`: the
   planned-DocType guard accepts Frappe's own `amended_from` self-link of a submittable DocType (any other self-link
-  is still refused). `docs/governance/ROLE-ACTION-MATRIX.md`: new DocType row. PR #PRNUM.
+  is still refused). `docs/governance/ROLE-ACTION-MATRIX.md`: new DocType row. PR #217.
   - Permissions: Card Manager (all), Card Supervisor (create, write, submit, cancel, amend), Card User (read, print,
     report); no DocPerm for any other role (Administrator only, as for every DocType). Company isolation through the
     generic company scope (FR-131, already registered for this DocType): a company-restricted user can neither read,
