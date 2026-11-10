@@ -6025,4 +6025,51 @@ msgstr ""
 
 #: card/card/doctype/card_daily_log/card_daily_log.js
 msgid "Equipment changed by another run"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake channel"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake source key"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Optional external id of the source (message id, sheet number). One live transport per company and key."
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake received on"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake evidence SHA-256"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Paper"
+msgstr ""
+
+#: card/intake.py
+msgid "Select a valid intake channel."
+msgstr ""
+
+#: card/intake.py
+msgid "The intake received time cannot be in the future."
+msgstr ""
+
+#: card/intake.py
+msgid "Intake source key {0} is already used by transport {1} of company {2}."
+msgstr ""
+
+#: card/intake.py
+msgid "The same intake evidence is already attached to transport {0}. Check that it is not entered twice."
 msgstr ""
