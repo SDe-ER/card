@@ -34,6 +34,36 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
 
+### Added
+- **Downtime governance** (FR-134, #45, conflict C-07, owner decision O-03 default). Reason: #45 allows a downtime
+  charge only as an explicit, approved manual addition with reason, party, agreement reference and audit trail, but a
+  billable stop reason (FR-118) billed every stopped hour on both sides with no recorded approval.
+  - Card Stop Reason: `billable_side` (Both / Supplier / Customer, default Both) and `billable_approval_reason`
+    (required when `billable` is on; `track_changes` stays on). `billable` stays off by default.
+  - Card Monthly Card (`before_validate`, `_resolve_stop_reasons`): a billable reason bills its stopped hours on its
+    side only; on a card that does not bill that side the day row's `reason_billable` is 0. A sub-rental card with a
+    one-sided reason gets a review warning (`billable_stopped_hours` still counts it).
+  - Card Adjustment Type: flag `is_downtime_charge` (default off). Card Monthly Card Adjustment: `stop_reason`,
+    `responsible_party_type`, `responsible_party`, `responsible_party_name`, `agreement_reference`; a row of a
+    downtime-charge type must name an enabled stop reason of the card's company, the responsible party and the
+    agreement reference (`card.adjustments.validate_downtime_fields`). A stop reason of another company is refused on
+    any row. A downtime charge whose reason is also billable on the card's days is flagged for review (not blocked).
+  - Patch `v4_8_0.stop_reason_billable_side`: sets Both on existing reasons without a side (idempotent).
+  - `docs/governance/DOWNTIME-MINIMUM-GUARANTEE.md`: the minimum-guarantee assessment #45 asks for.
+  - PR: see the pull request of branch `feat/downtime-governance`.
+  - Impact: permissions none (no role or DocPerm changed); accounting none by default (no reason is billable, no type
+    is flagged; a downtime charge is an ordinary typed addition with the type's account and tax); data: new columns,
+    existing reasons get side Both, no card or day row is written; API: new optional fields on the adjustment rows,
+    a billable reason saved through the API without an approval reason is refused.
+  - Rollback limits: the new columns stay after a code rollback; a one-sided reason bills both sides again after a
+    rollback.
+
+### Changed
+- **FR-020 `min_hours` retired** (FR-134, #45). Reason: no code reads it and CARD implements no minimum guarantee
+  (O-03; see `DOWNTIME-MINIMUM-GUARANTEE.md`). Card Equipment `min_hours` is hidden, read only and labelled
+  "Deprecated – not used" (Arabic in `ar.po`); the column and stored values are kept. Impact: none on permissions,
+  accounting, data or the API. Rollback: restore the label.
+
 ## [4.7.0] — 2026-11-10
 
 Minor release on top of v4.6.0: five pull requests (#199, #200, #201, #202, #203). Security first: company checks on

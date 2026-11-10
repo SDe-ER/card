@@ -15,6 +15,7 @@ from frappe.utils import flt, getdate
 
 from card.card.report.equipment_downtime.equipment_downtime import execute as downtime
 from card.patches.v4_6_0 import seed_stop_reasons
+from card.patches.v4_8_0 import stop_reason_billable_side
 from card.tests.test_customer import _CustomerCardsBase
 
 WORK, LEAVE, BREAKDOWN, CLIENT_STOP = "عمل", "إجازة", "عطل", "توقف من العميل"
@@ -26,7 +27,9 @@ class _StopBase(_CustomerCardsBase):
 		frappe.set_user("Administrator")
 		super().tearDown()
 
-	def _reason(self, name=None, company=None, billable=0, enabled=1, party_type=None):
+	def _reason(
+		self, name=None, company=None, billable=0, enabled=1, party_type=None, side=None, approval=None
+	):
 		return frappe.get_doc(
 			{
 				"doctype": "Card Stop Reason",
@@ -35,6 +38,11 @@ class _StopBase(_CustomerCardsBase):
 				"billable": billable,
 				"enabled": enabled,
 				"default_responsible_party_type": party_type,
+				"billable_side": side,
+				# FR-134: a billable reason records its approval
+				"billable_approval_reason": approval
+				if approval is not None
+				else ("TEST approval " + self.token if billable else None),
 			}
 		).insert(ignore_permissions=True)
 
@@ -671,3 +679,113 @@ class TestReviewFixes(_StopBase):
 		row = next(r for r in rows if r.get("card") == card.name)
 		self.assertEqual(row["hourly_rate"], flt(777.78 / 7, 2))
 		self.assertNotEqual(row["hourly_rate"], 120)
+
+
+class TestBillableSide(_StopBase):
+	"""FR-134 (#45, C-07): a billable reason names its side and its approval reason."""
+
+	def test_default_side_is_both_and_billable_stays_off(self):
+		reason = self._reason()
+		self.assertEqual(reason.billable, 0)
+		self.assertEqual(reason.billable_side, "Both")
+		self.assertFalse(reason.billable_approval_reason)
+
+	def test_billable_reason_needs_an_approval_reason(self):
+		with self.assertRaisesRegex(frappe.ValidationError, "billable approval reason"):
+			self._reason(billable=1, approval="  ")
+		reason = self._reason(billable=0)
+		reason.billable = 1
+		with self.assertRaisesRegex(frappe.ValidationError, "billable approval reason"):
+			reason.save(ignore_permissions=True)
+		reason.reload()
+		reason.billable = 1
+		reason.billable_approval_reason = "Agreed with the customer, letter 12"
+		reason.save(ignore_permissions=True)
+		self.assertEqual(reason.billable_side, "Both")
+
+	def test_invalid_side_is_refused(self):
+		with self.assertRaises(frappe.ValidationError):
+			self._reason(billable=1, side="Nobody")
+
+	def test_both_side_bills_both_amounts_as_before(self):
+		eq = self._sub_rental()  # 75/h supplier, 120/h customer
+		reason = self._reason(billable=1, side="Both")
+		card = self._stop_card(
+			eq,
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4},
+			],
+		)
+		self.assertEqual(flt(card.billable_stopped_hours), 4)
+		self.assertEqual(flt(card.amount), 12 * 75.0)
+		self.assertEqual(flt(card.customer_amount), 12 * 120.0)
+
+	def test_supplier_side_on_sub_rental_bills_the_supplier_only(self):
+		eq = self._sub_rental()
+		reason = self._reason(billable=1, side="Supplier")
+		card = self._stop_card(
+			eq,
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4},
+			],
+		)
+		self.assertEqual(card.days[1].reason_billable, 1)
+		self.assertEqual(flt(card.amount), 12 * 75.0)
+		self.assertEqual(flt(card.customer_amount), 8 * 120.0)
+
+	def test_customer_side_on_sub_rental_bills_the_customer_only(self):
+		eq = self._sub_rental()
+		reason = self._reason(billable=1, side="Customer")
+		card = self._stop_card(
+			eq,
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4},
+			],
+		)
+		self.assertEqual(flt(card.amount), 8 * 75.0)
+		self.assertEqual(flt(card.customer_amount), 12 * 120.0)
+
+	def test_side_the_card_does_not_bill_is_not_billable(self):
+		# a rented-in card bills the supplier only: a Customer reason earns nothing on it
+		eq = self._equipment()
+		reason = self._reason(billable=1, side="Customer")
+		card = self._stop_card(
+			eq,
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4},
+			],
+		)
+		self.assertEqual(card.days[1].reason_billable, 0)
+		self.assertEqual(flt(card.billable_stopped_hours), 0)
+		self.assertEqual(card.billable_stopped_days, 0)
+		self.assertEqual(flt(card.amount), 8 * 75.0)
+
+	def test_matching_side_on_single_side_card_bills(self):
+		eq = self._equipment()
+		reason = self._reason(billable=1, side="Supplier")
+		card = self._stop_card(
+			eq,
+			[
+				{"working_hours": 8},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 4},
+			],
+		)
+		self.assertEqual(card.days[1].reason_billable, 1)
+		self.assertEqual(flt(card.amount), 12 * 75.0)
+
+	def test_patch_sets_both_on_rows_without_a_side_and_is_idempotent(self):
+		reason = self._reason(billable=1, side="Supplier")
+		legacy = self._reason()
+		frappe.db.set_value("Card Stop Reason", legacy.name, "billable_side", None, update_modified=False)
+		stop_reason_billable_side.execute()
+		stop_reason_billable_side.execute()
+		self.assertEqual(frappe.db.get_value("Card Stop Reason", legacy.name, "billable_side"), "Both")
+		self.assertEqual(frappe.db.get_value("Card Stop Reason", reason.name, "billable_side"), "Supplier")
+		self.assertEqual(frappe.db.get_value("Card Stop Reason", legacy.name, "billable"), 0)
+
+	def test_stop_reason_is_audited(self):
+		self.assertEqual(frappe.get_meta("Card Stop Reason").track_changes, 1)

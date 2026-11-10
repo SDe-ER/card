@@ -6,7 +6,9 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
 
+from card.adjustments import validate_downtime_fields
 from card.api import recompute_customer, recompute_supplier
+from card.card.doctype.card_stop_reason.card_stop_reason import SIDE_BOTH, billable_side_of
 
 # direction constants live in card.constants (re-exported here for callers/tests)
 from card.constants import (
@@ -123,7 +125,7 @@ class CardMonthlyCard(Document):
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
 		# FR-118 (#45): stop reasons and the responsible party of each day row, before the
 		# unit and assignment checks (a billable stopped day is billed like a working day)
-		self._resolve_stop_reasons(eq.company)
+		self._resolve_stop_reasons(eq.company, eq.rental_direction or derive_direction(eq.ownership))
 		self._refuse_unit_component_days(eq)
 		if self.company and self.company != eq.company:
 			frappe.throw(_("The card's company does not match the equipment's company"))
@@ -191,6 +193,9 @@ class CardMonthlyCard(Document):
 		total_hours = 0.0
 		billable_stopped = 0.0
 		billable_stop_days = 0
+		# FR-134: billable stopped hours per billed side (a Both reason counts on each side)
+		stopped_for = {"Supplier": 0.0, "Customer": 0.0}
+		reason_sides = getattr(self, "_reason_sides", None) or {}
 		work_days = 0
 		limit_field = "max_day_shift_hours" if self.shift == "نهاري" else "max_night_shift_hours"
 		max_hours = flt(setting(limit_field)) or 12
@@ -235,6 +240,11 @@ class CardMonthlyCard(Document):
 				work_days = work_days + 1
 				hours_by_date[key] = h
 			billable_stopped = billable_stopped + day_stopped_billed
+			if day_stopped_billed > 0:
+				side = reason_sides.get(row.stop_reason, SIDE_BOTH)
+				for billed_side in stopped_for:
+					if side in (SIDE_BOTH, billed_side):
+						stopped_for[billed_side] = stopped_for[billed_side] + day_stopped_billed
 			if day_stopped_billed > 0 and h <= 0:
 				# a day billed only by billable stopped hours (not already a working day)
 				billable_stop_days = billable_stop_days + 1
@@ -258,10 +268,12 @@ class CardMonthlyCard(Document):
 		# billable reason this is 0 and every amount is what it was before
 		self.billable_stopped_hours = flt(billable_stopped, 2)
 		self.billable_stopped_days = billable_stop_days
-		billed_hours = total_hours + flt(self.billable_stopped_hours)
+		# FR-134: each side bills its own billable stopped hours (Both reasons: the same as before)
+		supplier_billed_hours = total_hours + flt(stopped_for["Supplier"], 2)
+		customer_billed_hours = total_hours + flt(stopped_for["Customer"], 2)
 		if self.card_direction in SUPPLIER_BILLING_DIRECTIONS:
 			hourly_rate = self._hourly_for(eq.rate_type, flt(eq.rate), eq.daily_hours, required=True)
-			self.amount = flt(billed_hours * hourly_rate, 2)
+			self.amount = flt(supplier_billed_hours * hourly_rate, 2)
 		else:
 			self.amount = 0  # internal / rented-out: no supplier billing
 
@@ -278,7 +290,12 @@ class CardMonthlyCard(Document):
 		total_additions = 0.0
 		total_deductions = 0.0
 		sided = {"Supplier": 0.0, "Customer": 0.0}
+		billable_day_reasons = {
+			row.stop_reason for row in self.days or [] if row.stop_reason and cint(row.reason_billable)
+		}
+		double_charged = []
 		for adj in self.adjustments or []:
+			typ = None
 			a = flt(adj.amount)
 			if a <= 0:
 				frappe.throw(
@@ -295,6 +312,11 @@ class CardMonthlyCard(Document):
 						).format(adj.adjustment_type_ref, self.company)
 					)
 				adj.adjustment_type = typ.kind
+			# FR-134 (#45, C-07): a downtime charge names its stop reason, party and agreement
+			is_downtime_charge = bool(typ and cint(typ.get("is_downtime_charge")))
+			validate_downtime_fields(adj, self.company or eq.company, is_downtime_charge)
+			if is_downtime_charge and adj.stop_reason in billable_day_reasons:
+				double_charged.append(adj.description or adj.adjustment_type_ref or "")
 			if not adj.side:
 				if self.card_direction == DIR_SUBRENTAL:
 					frappe.throw(
@@ -330,6 +352,14 @@ class CardMonthlyCard(Document):
 			else:
 				frappe.throw(_("Unknown type in additions and deductions: {0}").format(adj.adjustment_type))
 			sided[adj.side] = sided[adj.side] + signed
+		if double_charged:
+			frappe.msgprint(
+				_(
+					"These downtime charges name a stop reason that is also billable on the card's days, so the same downtime may be charged twice (review): {0}"
+				).format(_(", ", context="Card").join(double_charged)),
+				title=_("Downtime charge"),
+				indicator="orange",
+			)
 		self.total_additions = flt(total_additions, 2)
 		self.total_deductions = flt(total_deductions, 2)
 		# Supplier net: rental amount + supplier-side rows only (legacy rows are
@@ -341,7 +371,7 @@ class CardMonthlyCard(Document):
 			customer_hourly = self._hourly_for(
 				self.customer_rate_type, flt(self.customer_rate), eq.daily_hours, required=False
 			)
-			self.customer_amount = flt(billed_hours * customer_hourly, 2)
+			self.customer_amount = flt(customer_billed_hours * customer_hourly, 2)
 		else:
 			self.customer_amount = 0
 		self.customer_net_amount = (
@@ -425,12 +455,16 @@ class CardMonthlyCard(Document):
 						indicator="orange",
 					)
 
-	def _resolve_stop_reasons(self, company):
+	def _resolve_stop_reasons(self, company, direction=None):
 		"""FR-118 (#45): a day row's stop reason must be an enabled reason of the card's
 		company; the row keeps whether it was billable (a snapshot, so a submitted card never
 		follows a later change of the reason). A row without a reason is never billable, so
 		a card without reasons bills exactly as before. The responsible party is normalised:
-		a record for Company/Supplier/Customer, a free-text name for Other."""
+		a record for Company/Supplier/Customer, a free-text name for Other.
+
+		FR-134: a billable reason bills only its billable side. ``reason_billable`` is set
+		when the reason bills on at least one side this card bills (Both: as before; a
+		Supplier or Customer reason on a card that does not bill that side is not billable)."""
 		names = list({row.stop_reason for row in self.days or [] if row.stop_reason})
 		reasons = {}
 		if names:
@@ -439,9 +473,23 @@ class CardMonthlyCard(Document):
 				for r in frappe.get_all(
 					"Card Stop Reason",
 					filters={"name": ["in", names]},
-					fields=["name", "company", "enabled", "billable", "default_responsible_party_type"],
+					fields=[
+						"name",
+						"company",
+						"enabled",
+						"billable",
+						"billable_side",
+						"default_responsible_party_type",
+					],
 				)
 			}
+		billed_sides = set()
+		if direction in SUPPLIER_BILLING_DIRECTIONS:
+			billed_sides.add("Supplier")
+		if direction in CUSTOMER_BILLING_DIRECTIONS:
+			billed_sides.add("Customer")
+		self._reason_sides = {name: billable_side_of(r) for name, r in reasons.items()}
+		one_sided = set()
 		for row in self.days or []:
 			if not row.stop_reason:
 				row.reason_billable = 0
@@ -462,10 +510,29 @@ class CardMonthlyCard(Document):
 							row.stop_reason, row.operation_date
 						)
 					)
-				row.reason_billable = cint(reason.billable)
+				side = billable_side_of(reason)
+				row.reason_billable = (
+					cint(reason.billable) if side == SIDE_BOTH or side in billed_sides else 0
+				)
+				if row.reason_billable and side != SIDE_BOTH and len(billed_sides) > 1:
+					one_sided.add((row.stop_reason, side))
 				if not row.responsible_party_type and reason.default_responsible_party_type:
 					row.responsible_party_type = reason.default_responsible_party_type
 			self._normalise_responsible_party(row, company)
+		if one_sided:
+			# a sub-rental card bills both sides; its billable stopped hours (statements,
+			# summaries) count the reason, but only the named side's amount includes it
+			frappe.msgprint(
+				_(
+					"These billable stop reasons bill one side only; the other side's amount does not include their stopped hours (review): {0}"
+				).format(
+					_(", ", context="Card").join(
+						"{0} ({1})".format(name, _(side)) for name, side in sorted(one_sided)
+					)
+				),
+				title=_("Billable side"),
+				indicator="orange",
+			)
 
 	@staticmethod
 	def _normalise_responsible_party(row, company):

@@ -4584,7 +4584,7 @@ msgid "Matching day status"
 msgstr ""
 
 #: card/card/doctype/card_stop_reason/card_stop_reason.json
-msgid "Off (default): the stopped hours of this reason earn no rental. On: they are billed like operating hours on the card. Downtime is never billed automatically unless a Card Manager ticks this."
+msgid "Off (default): the stopped hours of this reason earn no rental. On: they are billed like operating hours on the side chosen below. Downtime is never billed automatically unless a Card Manager ticks this and records the approval. The recommended route for a downtime charge is a downtime-charge addition on the card."
 msgstr ""
 
 #: card/card/doctype/card_stop_reason/card_stop_reason.json
@@ -5063,4 +5063,68 @@ msgstr ""
 
 #: card/card/report/equipment_location_history/equipment_location_history.py
 msgid "Some equipment is on two projects on the same days (overlapping assignments); see the rows marked as overlapping."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Billable side"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Billable approval reason"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Which invoice bills the stopped hours of a billable reason. Both is the behaviour before v4.8.0."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.json
+msgid "Required when the reason is billable: who approved billing it and under which agreement."
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "Invalid billable side: {0}"
+msgstr ""
+
+#: card/card/doctype/card_stop_reason/card_stop_reason.py
+msgid "A billable stop reason needs a billable approval reason (who approved it and under which agreement)."
+msgstr ""
+
+#: card/card/doctype/card_adjustment_type/card_adjustment_type.json
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Downtime charge"
+msgstr ""
+
+#: card/card/doctype/card_adjustment_type/card_adjustment_type.json
+msgid "On: a card row of this type charges for downtime and must name the stop reason, the responsible party and the agreement reference. This is the explicit route for any downtime charge (FR-134)."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Required when the adjustment type is a downtime charge (Card Settings)."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+#: card/adjustments.py
+msgid "Agreement reference"
+msgstr ""
+
+#: card/adjustments.py
+msgid "The downtime charge {0} needs: {1}."
+msgstr ""
+
+#: card/adjustments.py
+msgid "Stop reason {0} is disabled; choose an enabled reason."
+msgstr ""
+
+#: card/adjustments.py
+msgid "The responsible company of the downtime charge {0} must be the card's company {1}."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "These downtime charges name a stop reason that is also billable on the card's days, so the same downtime may be charged twice (review): {0}"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "These billable stop reasons bill one side only; the other side's amount does not include their stopped hours (review): {0}"
 msgstr ""
