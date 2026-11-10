@@ -578,7 +578,10 @@ class ProjectDieselFill(Document):
 		card.equipment_status (per company, Warn only by default; a fill dated on or before the exit date,
 		else a passed rental end, is its last work). On save, a new fill or a changed company or date
 		checks the direct-charge and every listed equipment, otherwise only an equipment added to the
-		draft (compared with the stored fill, as a transport); on submit (`all_rows`) every one again."""
+		draft (compared with the stored fill, as a transport); on submit (`all_rows`) every one again, and
+		the validate of that submit is skipped. An amendment is a new fill: checked."""
+		if not all_rows and getattr(self, "_action", None) == "submit":
+			return  # before_submit checks every equipment right after validate: one message, not two
 		known = set()
 		if not all_rows and not self.is_new():
 			stored = frappe.db.get_value(

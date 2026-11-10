@@ -144,7 +144,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   "Equipment {0} has status {1}; it should get no new diesel fill.") for the direct-charge equipment and every listed
   equipment, with the fill's company and its date as the day. A new fill, or a draft whose company or date changed, checks
   every equipment; otherwise only an equipment added to the draft is checked (compared with the stored fill, as the
-  transport does), so an unchanged saved draft is not checked again on save. `before_submit` checks every equipment again.
+  transport does), so an unchanged saved draft is not checked again on save. `before_submit` checks every equipment again;
+  the validate of that same submit skips the check, so a warning shows once. An amended copy of a cancelled fill is a new
+  fill and is checked: under Refuse, amending a fill whose equipment has ended without an exit date is refused; the
+  workaround is to set the equipment's exit date (a fill on or before it is allowed), consistent with FR-122. Another
+  company's equipment fails on the company match before its status is read.
   A fill dated on or before the equipment's exit date (else its rental end once passed; the FR-122 `_last_work_day`
   rule) is its last work and is never stopped. Same per-company rule as FR-122: Card Company Settings
   `equipment_status_rule` "Warn only (equipment status)" (the default, also for an empty value or a company without a

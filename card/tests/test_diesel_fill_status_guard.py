@@ -6,7 +6,9 @@ default and the value when empty; Refuse). The direct-charge equipment and every
 are checked on a new fill, on a changed company or date (all) and for an equipment added to a draft;
 an unchanged saved draft is not checked again on save, and every equipment is checked again on
 submit, as a transport. A fill dated on or before the equipment's exit date (else its rental end,
-once passed) is its last work: never stopped. Data is per test and rolled back."""
+once passed) is its last work: never stopped. An amendment is a new fill and is checked (an ended
+equipment without an exit date is refused under Refuse; set its exit date). Another company's
+equipment fails on the company match before its status is read. Data is per test and rolled back."""
 
 import re
 
@@ -16,9 +18,10 @@ from frappe.utils import add_days, nowdate
 
 from card.card.doctype.project_diesel_fill.project_diesel_fill import PROJECT_CHECK_OFF
 from card.constants import EQUIPMENT_STATUS_ENDED, STATUS_RULE_ENFORCE, STATUS_RULE_WARN
+from card.tests.cancel_reason import with_reason
 from card.tests.diesel_price import approve_fill
 from card.tests.test_controllers import _ensure_masters
-from card.tests.test_diesel_fill_project_check import prepare_fill_settings
+from card.tests.test_diesel_fill_project_check import TestDieselFillProjectCheck, prepare_fill_settings
 from card.tests.test_diesel_fill_project_check import set_mode as set_project_check
 
 MESSAGE = "no new diesel fill"
@@ -31,6 +34,12 @@ def set_rule(company, value):
 		{"parent": "Card Settings", "parentfield": "company_settings", "company": company},
 		"equipment_status_rule",
 		value,
+	)
+
+
+def messages(text=MESSAGE):
+	return sum(
+		text in str(m.get("message") if isinstance(m, dict) else m) for m in frappe.local.message_log or []
 	)
 
 
@@ -74,9 +83,24 @@ class TestDieselFillStatusGuard(IntegrationTestCase):
 
 	# ---------- helpers ----------
 
-	def _equipment(self, ended=False, **values):
+	_company = TestDieselFillProjectCheck._company  # another company with a diesel price row
+
+	def _project(self, company):
+		return (
+			frappe.get_doc(
+				{
+					"doctype": "Project",
+					"project_name": "TEST-DFSG-PRJ-" + frappe.generate_hash(length=8),
+					"company": company,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+
+	def _equipment(self, ended=False, company=None, **values):
 		d = frappe.new_doc("Card Equipment")
-		d.company = self.company
+		d.company = company or self.company
 		d.equipment_type = self._m["etype"]
 		d.ownership = "ملك"
 		d.equipment_name = "TEST-DFSG-EQ-" + frappe.generate_hash(length=6)
@@ -242,3 +266,66 @@ class TestDieselFillStatusGuard(IntegrationTestCase):
 		set_rule(self.company, STATUS_RULE_ENFORCE)
 		eq = self._equipment(ended=True, exit_date=add_days(DAY, -1), rental_end_date=DAY)
 		self._refused(lambda: self._fill(date=DAY, equipment=eq))
+
+	# ---------- review notes (L1, L3) ----------
+
+	def test_a_changed_company_rechecks_every_equipment(self):
+		other = self._company()
+		set_project_check(other, PROJECT_CHECK_OFF)
+		set_rule(other, STATUS_RULE_ENFORCE)
+		eq = self._equipment(ended=True)
+		f = self._fill(equipment=eq)  # this company: Warn (default), saved
+		# the same equipment record, now of the other company (only the company of the fill changes)
+		frappe.db.set_value("Card Equipment", eq, "company", other)
+		f.reload()
+		f.company, f.project = other, self._project(other)
+		self._refused(f.save, "equipment status rule of company " + re.escape(other))
+
+	def test_an_amended_copy_is_checked(self):
+		eq = self._equipment()
+		f = self._fill(equipment=eq)
+		approve_fill(f)
+		f.submit()
+		self._end(eq)  # ended after the submit, without an exit date
+		set_rule(self.company, STATUS_RULE_ENFORCE)
+		with_reason(f).cancel()
+
+		def amend():
+			a = frappe.copy_doc(f)
+			a.amended_from, a.docstatus = f.name, 0
+			return a.insert()
+
+		self._refused(amend)
+		# the workaround (consistent with FR-122): record the exit date; the fill day is its last work
+		frappe.db.set_value("Card Equipment", eq, "exit_date", DAY)
+		frappe.clear_messages()  # the refused attempt left its message
+		a = amend()
+		self.assertEqual(a.amended_from, f.name)
+		self.assertFalse(warned())
+
+	def test_another_companys_equipment_fails_on_the_company_not_the_status(self):
+		other = self._company()
+		set_rule(other, STATUS_RULE_ENFORCE)
+		set_rule(self.company, STATUS_RULE_ENFORCE)
+		foreign = self._equipment(ended=True, company=other)
+		for kw in ({"equipment": foreign}, {"listed": [foreign]}):
+			with self.subTest(**{k: str(v) for k, v in kw.items()}):
+				frappe.db.savepoint("card_company_order")
+				with self.assertRaises(frappe.ValidationError) as ctx:
+					self._fill(**kw)
+				frappe.db.rollback(save_point="card_company_order")
+				self.assertIn("does not match the equipment's company", str(ctx.exception))
+				self.assertNotIn("has status", str(ctx.exception))
+				self.assertFalse(warned("has status"))
+
+	def test_warn_shows_the_message_exactly_once(self):
+		eq = self._equipment(ended=True)
+		f = self._fill(equipment=eq)
+		self.assertEqual(messages(), 1)
+		# a submit whose validate would re-check (date changed) still shows it once: before_submit only
+		approve_fill(f)
+		f.reload()
+		f.date = add_days(DAY, 1)
+		frappe.clear_messages()
+		f.submit()
+		self.assertEqual(messages(), 1)
