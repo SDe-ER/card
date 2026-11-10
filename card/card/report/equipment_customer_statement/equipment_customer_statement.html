@@ -185,6 +185,7 @@
 	</tr>
 </table>
 {% if (filters.include_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards") %}</b></p>{% } %}
+{% if (!filters.customer) { %}<p class="ess-note"><b>{%= __("Select a customer to display the statement.") %}</b></p>{% } %}
 <table class="ess-rows">
 	<thead>
 		<tr>
