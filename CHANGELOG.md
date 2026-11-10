@@ -196,7 +196,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   them did nothing. `auto_submit` and `notify_on_posting` (Card Settings) and `bank_cash_account` and `mode_of_payment`
   (Card Company Settings) are now hidden and read only with the description "Deprecated – not used" (Arabic in
   `card/locale/ar.po`); the two Card Settings entries are removed from `settings.py` `_DEFAULTS`. No reader was found for
-  any of the four, so none was wired up. PR #198. Affected: `card_settings.json`, `card_company_settings.json`,
+  any of the four, so none was wired up. The account-company check of `CardSettings.validate` skips a retired (hidden,
+  read only) account field, so an old value of another company stored there cannot block saving Card Settings while
+  nobody can see the field to clear it. PR #198. Affected: `card_settings.json`, `card_company_settings.json`,
+  `card_settings.py` (`validate`),
   `card/settings.py`, `docs/governance/SETTINGS-AND-CONSTANTS.md`; test `test_deprecated_settings.py` (fields hidden,
   no reader in the app code). Permissions: none changed (same permlevels). Accounting: none. Data: columns and stored
   values kept; no patch. API: the fields stay in the DocType and API reads; a write through the API is still stored but

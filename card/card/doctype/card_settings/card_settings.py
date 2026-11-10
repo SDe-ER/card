@@ -16,7 +16,11 @@ class CardSettings(Document):
 		account_fields = [
 			f.fieldname
 			for f in frappe.get_meta("Card Company Settings").fields
-			if f.fieldtype == "Link" and f.options == "Account"
+			if f.fieldtype == "Link"
+			and f.options == "Account"
+			# FR-124: a retired field (hidden and read only) is never checked: a stored old value
+			# could otherwise block every save while nobody can see the field to clear it
+			and not (f.hidden and f.read_only)
 		]
 		for row in self.get("company_settings") or []:
 			if row.company in seen:
