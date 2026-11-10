@@ -35,7 +35,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `CardMonthlyCard.before_validate` (amount and customer amount), `_snapshot_settings_used`;
   `card_equipment.py` `COMMERCIAL_FIELDS`; `equipment_supplier_statement.execute`; patch
   `card.patches.v4_8_0.default_day_billing_basis` (fills the default on equipment with an empty value, idempotent,
-  no modified change). Tests: `card/tests/test_day_billing_basis.py`. PR #TBD.
+  no modified change). Tests: `card/tests/test_day_billing_basis.py`. PR #214.
   Impact: permissions none (the equipment field is permlevel 1 like the rates; the card fields are level 0 and
   carry no amount; no role or DocPerm change); accounting none by default (amounts unchanged unless an equipment is
   set to "Full day"; postings take the card amounts as before; CARD writes no GL); data: one new column on
