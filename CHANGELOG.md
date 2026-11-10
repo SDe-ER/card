@@ -15,6 +15,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Security
+- **Company checks on Employee Tool Custody, Equipment Needs Request and Equipment Needs Review** (FR-129, #51, #35,
+  #54; PR #203). Reason: a user limited to company A could create records in company B, and with `docstatus` 1 also
+  submit them, through `card.tool_custody.move` and `frappe.client.insert`: Frappe checks create/submit on the values
+  the client sends (company empty, the user's default company, or any value) and `validate` then set the company from
+  the employee, the equipment or the project. A submitted company-B Loss made B's draft Material Issue
+  (`_make_stock_entry`, `ignore_permissions`) and changed B's custody balances; a Loss above the balance answered with
+  B's balance. Fix: record-level checks on the company the server will set, on every path (read, create, insert with
+  `docstatus` 1, save, submit, cancel): `has_custody_permission` (stored company and the companies of `employee` and
+  `to_employee`, after the existing delete rule), `needs_request_permission` (stored company and the equipment's
+  company, before the operator rule), new `has_review_permission` (stored company and the project's company,
+  registered in `hooks.py`); `move` checks create on the new record before it reads anything for the worker.
+  Affected: `employee_tool_custody.py`, `card/materials.py`, `equipment_needs_review.py`, `card/hooks.py`,
+  `card/tool_custody.py`. Impact: permissions only (deny-only hooks); users without a Company User Permission, or
+  with one covering every company, are unaffected; no accounting, data, schema or API change; existing records are
+  not changed. Rollback: revert the commit; no patch or data to undo (records created across companies before the
+  fix are not detected or changed by it).
+
 ### Added
 - **Role and action matrix with cross-company negative tests** (FR-129, #51, #35, #54). Reason: one checked record of who
   may do what on every CARD DocType and endpoint, and a guard that no endpoint skips company isolation.
@@ -26,13 +44,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   company-B value; nothing is written), a role test (users without the role are refused; nothing is written) and, for read
   endpoints, a no-write test (transaction write counter, row counts and last `modified` of the watched tables unchanged);
   guard tests require every whitelisted function in the table with its decorator's HTTP methods. Four cross-company create
-  gaps are reported, not fixed, and kept as expected failures: `card.tool_custody.move` and `frappe.client.insert` on
-  Employee Tool Custody, Equipment Needs Request and Equipment Needs Review (company set in `validate` after Frappe's create
-  check; no company `has_permission` hook). An allow-list guard requires every `ignore_permissions` site in production
+  gaps it found are fixed in the same PR (see Security above) and their tests pass. An allow-list guard requires every `ignore_permissions` site in production
   code to be listed with a reason, and four tests prove that Frappe's company and DocType checks run before the sites
   in `card/transfer.py`, `employee_tool_custody.py`, `card/api.py` `_sync_registry_row` and `card/party_registry.py`
-  (a merge rename's `before_rename` writes before Frappe's rename check; the refusal rolls it back). PR #203. Affected: tests and documentation only. Impact: no change to
-  permissions, accounting, data or the API. Rollback: revert the commit (no data or schema involved).
+  (a merge rename's `before_rename` writes before Frappe's rename check; the refusal rolls it back). PR #203. Affected (this entry): tests and documentation only;
+  the production fix and its impact are under Security. Rollback: revert the commits (no data or schema involved).
 - **Mandatory cancel reason and a reviewable period-lock override** (FR-123, WP-07, #35, #51, governance G0). Reason: a
   cancelled card, fill or transport had no recorded reason, a cancel request could still change the stored card (FR-050
   open gap 1), and a period-lock override was only in the server log. Card Monthly Card, Equipment Transport and Project

@@ -30,6 +30,7 @@ from dataclasses import dataclass
 import frappe
 from frappe.client import cancel as rest_cancel
 from frappe.client import insert as rest_insert
+from frappe.client import save as rest_save
 from frappe.client import submit as rest_submit
 from frappe.model.rename_doc import rename_doc
 from frappe.tests import IntegrationTestCase
@@ -87,6 +88,7 @@ class Case:
 	denied_result result -> True for an endpoint that answers a user without the role with an empty value
 	operator the test user is linked to an active Employee of company A (portal endpoints)
 	hole     a reported cross-company gap: the cross test is an expected failure
+	allowed  positive control: the same company-A user succeeds with ``own`` (test_allowed_on_own_company__*)
 	"""
 
 	method: tuple
@@ -106,6 +108,7 @@ class Case:
 	denied_result: Callable | None = None
 	operator: bool = False
 	hole: str = ""
+	allowed: bool = False
 
 
 def _search(txt="", filters=None, doctype=""):
@@ -303,6 +306,7 @@ CASES = {
 		cross=lambda c: {"equipment": c.eq_b},
 		own=lambda c: {"equipment": c.eq_a},
 		denied=((), ("Card User",)),
+		allowed=True,
 	),
 	"card.card.doctype.card_equipment.card_equipment.get_shift_heatmap": Case(
 		method=GET,
@@ -367,6 +371,7 @@ CASES = {
 		cross=lambda c: {"transport": c.trn_b, "decision": "Return for correction", "note": "x"},
 		own=lambda c: {"transport": c.trn_a, "decision": "Return for correction", "note": "x"},
 		denied=((), ("Card Manager",), ("Card User",)),
+		allowed=True,
 	),
 	"card.card.doctype.equipment_transport.equipment_transport.billing_customer": Case(
 		method=GET,
@@ -776,8 +781,8 @@ CASES = {
 	"card.tool_custody.move": Case(
 		method=POST,
 		roles=("Card Supervisor",),
-		gate="screen role; Employee Tool Custody create (insert with the user's own permissions)",
-		isolation="company taken from the Employee in validate, after Frappe's create check",
+		gate="screen role; create on the new record (check_permission before any read for the worker); insert with the user's own permissions",
+		isolation="has_custody_permission: the companies of the employee and the receiving employee (FR-129)",
 		effects="Inserts one draft Employee Tool Custody",
 		writes=True,
 		cross=lambda c: {
@@ -787,48 +792,82 @@ CASES = {
 			"qty": 1,
 			"to_employee": c.emp_b2,
 		},
+		own=lambda c: {
+			"movement": "Transfer",
+			"employee": c.emp_a,
+			"item_code": c.item,
+			"qty": 1,
+			"to_employee": c.emp_a2,
+		},
 		denied=((), ("Card User",)),
-		hole=(
-			"card/tool_custody.py move() inserts with the user's create right while the custody company is "
-			"still empty; EmployeeToolCustody.validate then sets it from the Employee "
-			"(employee_tool_custody.py validate), and Employee Tool Custody has no company has_permission "
-			"hook, so a user limited to company A creates a draft movement in company B."
-		),
+		allowed=True,
 	),
 }
 
-# Frappe's own insert endpoint on CARD DocTypes whose company is set in validate (after Frappe's create check)
-# and that have no company has_permission hook. Each probe is a test of its own.
+# Frappe's own insert endpoint (frappe.client.insert, also with docstatus 1 = insert and submit) on the CARD
+# DocTypes whose company the server sets in validate, after Frappe's create check: name -> (doctype, roles,
+# company-B doc, company-A doc or None). Each probe is a test of its own; the company-A doc is its positive control.
 REST_CREATE_PROBES = {
-	"Equipment Needs Review": (
+	"equipment_needs_review": (
+		"Equipment Needs Review",
 		("Card Supervisor",),
 		lambda c: {"doctype": "Equipment Needs Review", "project": c.proj_b},
-		"EquipmentNeedsReview.validate sets company from the Project after the create check; no company hook",
+		lambda c: {"doctype": "Equipment Needs Review", "project": c.proj_a},
 	),
-	"Equipment Needs Request": (
+	"equipment_needs_request": (
+		"Equipment Needs Request",
 		("Card Supervisor",),
-		lambda c: {
-			"doctype": "Equipment Needs Request",
-			"equipment": c.eq_b,
-			"operator": c.emp_b,
-			"items": [{"kind": "Part", "description": "x", "qty": 1}],
-		},
-		"EquipmentNeedsRequest.validate sets company from the equipment after the create check; no company hook",
+		lambda c: _request_doc(c.eq_b, c.emp_b),
+		lambda c: _request_doc(c.eq_a, c.emp_a),
 	),
-	"Employee Tool Custody": (
+	"equipment_needs_request_submitted": (
+		"Equipment Needs Request",
 		("Card Supervisor",),
-		lambda c: {
-			"doctype": "Employee Tool Custody",
-			"movement": "Transfer",
-			"employee": c.emp_b,
-			"to_employee": c.emp_b2,
-			"item_code": c.item,
-			"qty": 1,
-			"date": nowdate(),
-		},
-		"EmployeeToolCustody.validate sets company from the Employee after the create check; no company hook",
+		lambda c: {**_request_doc(c.eq_b, c.emp_b), "docstatus": 1},
+		None,
+	),
+	"employee_tool_custody": (
+		"Employee Tool Custody",
+		("Card Supervisor",),
+		lambda c: _transfer_doc(c.emp_b, c.emp_b2, c.item),
+		lambda c: _transfer_doc(c.emp_a, c.emp_a2, c.item),
+	),
+	"employee_tool_custody_loss_submitted": (
+		"Employee Tool Custody",
+		("Card Supervisor",),
+		lambda c: {**_transfer_doc(c.emp_b, None, c.item), "movement": "Loss", "docstatus": 1},
+		None,
+	),
+	"employee_tool_custody_loss_over_balance": (
+		"Employee Tool Custody",
+		("Card Supervisor",),
+		lambda c: {**_transfer_doc(c.emp_b, None, c.item), "movement": "Loss", "qty": 5, "docstatus": 1},
+		None,
 	),
 }
+
+
+def _request_doc(equipment, operator):
+	return {
+		"doctype": "Equipment Needs Request",
+		"equipment": equipment,
+		"operator": operator,
+		"items": [{"kind": "Part", "description": "x", "qty": 1}],
+	}
+
+
+def _transfer_doc(employee, to_employee, item):
+	doc = {
+		"doctype": "Employee Tool Custody",
+		"movement": "Transfer",
+		"employee": employee,
+		"item_code": item,
+		"qty": 1,
+		"date": nowdate(),
+	}
+	if to_employee:
+		doc["to_employee"] = to_employee
+	return doc
 
 
 # Every ignore_permissions=True (call keyword) and `.ignore_permissions = True` (flag) in production code
@@ -842,12 +881,14 @@ IGNORE_PERMISSIONS_ALLOWED = {
 	),
 	("card/card/doctype/employee_tool_custody/employee_tool_custody.py", "_make_stock_entry"): (
 		1,
-		"Loss/Damage draft Material Issue made on submit, in the custody's company; the submit right on the "
-		"custody record (company User Permission) is checked first",
+		"Loss/Damage draft Material Issue made on submit, in the custody's company; Frappe checks submit on "
+		"the custody record first, and has_custody_permission (FR-129) refuses a user who may not see the "
+		"employee's company (test_rest_create_other_company__employee_tool_custody_loss_submitted)",
 	),
 	("card/card/doctype/employee_tool_custody/employee_tool_custody.py", "on_cancel"): (
 		1,
-		"deletes only the draft entry this movement made (same company, own marker); cancel right checked first",
+		"deletes only the draft entry this movement made (same company, own marker); cancel right and "
+		"has_custody_permission checked first (test_loss_entry_needs_the_custody_rights_of_its_company)",
 	),
 	("card/card/doctype/equipment_transport/equipment_transport.py", "_audit_status_change"): (
 		1,
@@ -932,7 +973,14 @@ def ignore_permission_sites():
 			hits = sum(1 for k in node.keywords if k.arg == "ignore_permissions" and truthy(k.value))
 		elif isinstance(node, ast.Assign) and truthy(node.value):
 			hits = sum(
-				1 for t in node.targets if isinstance(t, ast.Attribute) and t.attr == "ignore_permissions"
+				1
+				for t in node.targets
+				if (isinstance(t, ast.Attribute) and t.attr == "ignore_permissions")
+				or (
+					isinstance(t, ast.Subscript)
+					and isinstance(t.slice, ast.Constant)
+					and t.slice.value == "ignore_permissions"
+				)
 			)
 		if hits:
 			out[(rel, func)] = out.get((rel, func), 0) + hits
@@ -1131,7 +1179,11 @@ class TestBolaMatrix(IntegrationTestCase):
 		c.emp_a = self._raw(
 			"Employee", f"EMP-A-{token}", first_name="A1", employee_name="A1", company=c.A, status="Active"
 		)
+		c.emp_a2 = self._raw(
+			"Employee", f"EMP-A2-{token}", first_name="A2", employee_name="A2", company=c.A, status="Active"
+		)
 		frappe.db.set_value("Card Equipment", c.eq_b, {"operator": c.emp_b, "current_project": c.proj_b})
+		frappe.db.set_value("Card Equipment", c.eq_a, {"operator": c.emp_a, "current_project": c.proj_a})
 		c.wh_b = self._raw("Warehouse", f"WH-{b}", warehouse_name=f"WH-{b}", company=c.B, is_group=0)
 
 		first, end = str(last), str(get_last_day(last))
@@ -1232,18 +1284,19 @@ class TestBolaMatrix(IntegrationTestCase):
 				docstatus=1,
 				status="Submitted",
 			)
-		# company B holds a tool (a Transfer needs a balance) and has a diesel price
-		self._raw(
-			"Employee Tool Custody",
-			f"CUS-HELD-{b}",
-			company=c.B,
-			employee=c.emp_b,
-			movement="Handover",
-			item_code=c.item,
-			qty=2,
-			date=first,
-			docstatus=1,
-		)
+		# each company's first worker holds two tools (a Transfer or a Loss needs a balance); B has a diesel price
+		for company, employee, tag in ((c.B, c.emp_b, b), (c.A, c.emp_a, f"A-{token}")):
+			self._raw(
+				"Employee Tool Custody",
+				f"CUS-HELD-{tag}",
+				company=company,
+				employee=employee,
+				movement="Handover",
+				item_code=c.item,
+				qty=2,
+				date=first,
+				docstatus=1,
+			)
 		self._raw(
 			"Card Company Settings",
 			f"CCS-{b}",
@@ -1377,7 +1430,7 @@ class TestBolaMatrix(IntegrationTestCase):
 		if case.cross is None:
 			self.assertTrue(case.unscoped, f"{path}: no company case and no reason")
 			if case.writes:
-				return  # documented in unscoped; nothing company-scoped to aim at
+				self.skipTest(case.unscoped)  # nothing company-scoped to aim at
 			kwargs = case.own(c) if case.own else {}
 		else:
 			kwargs = case.cross(c)
@@ -1426,20 +1479,44 @@ class TestBolaMatrix(IntegrationTestCase):
 		self.assertIsNone(exc, f"{path}: the allowed read failed ({exc!r})")
 		self._assert_quiet(before, writes, path, "a read", case)
 
-	def _check_rest_create(self, doctype, roles, doc):
+	def _messages(self, exc):
+		log = getattr(frappe.local, "message_log", None) or []
+		return " ".join([str(exc or ""), *(json.dumps(m) if not isinstance(m, str) else m for m in log)])
+
+	def _check_rest_create(self, doctype, roles, doc, own):
 		c = self.ctx
-		frappe.set_user(self._user(roles, restrict=c.A))
-		before = frappe.db.count(doctype, {"company": c.B})
+		# a custody store of company B: without the company check a Loss would make B's Material Issue
+		frappe.db.set_single_value("Card Settings", "tool_custody_warehouse", c.wh_b)
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+		user = self._user(roles, restrict=c.A)
+		frappe.set_user(user)
+		before = (frappe.db.count(doctype, {"company": c.B}), frappe.db.count("Stock Entry"))
+		exc = None
 		try:
 			rest_insert(doc(c))
-			refused = False
-		except THROWN:
-			refused = True
-		finally:
-			frappe.clear_messages()
+		except Exception as error:
+			exc = error
+		text = self._messages(exc)
+		frappe.clear_messages()
 		frappe.set_user("Administrator")
-		self.assertTrue(refused, f"{doctype}: a company-A user created a company-B record")
-		self.assertEqual(frappe.db.count(doctype, {"company": c.B}), before)
+		self.assertIsInstance(
+			exc, PERMISSION, f"{doctype}: a company-A user created a company-B record ({exc!r})"
+		)
+		self.assertEqual((frappe.db.count(doctype, {"company": c.B}), frappe.db.count("Stock Entry")), before)
+		for secret in ("holds", c.emp_b, c.B):
+			self.assertNotIn(secret, text, f"{doctype}: the refusal tells company-B data")
+		if own:
+			frappe.set_user(user)
+			name = rest_insert(own(c))["name"]
+			frappe.set_user("Administrator")
+			self.assertEqual(frappe.db.get_value(doctype, name, "company"), c.A)
+
+	def _check_allowed(self, path, case):
+		c = self.ctx
+		frappe.set_user(self._user(case.roles, restrict=c.A, operator=case.operator))
+		exc, _result = self._call(path, case.own(c))
+		frappe.set_user("Administrator")
+		self.assertIsNone(exc, f"{path}: the company-A call failed ({exc!r})")
 
 	# ---------- guards: the table follows the code ----------
 	def test_every_whitelisted_function_is_in_the_table(self):
@@ -1454,8 +1531,8 @@ class TestBolaMatrix(IntegrationTestCase):
 				self.assertEqual(
 					sorted(frappe.allowed_http_methods_for_whitelisted_func[fn]), sorted(case.method)
 				)
-				if case.method == GET:
-					self.assertFalse(case.writes, "a GET-only endpoint is documented as writing")
+				if case.writes:
+					self.assertNotIn("GET", case.method, "a writing endpoint accepts GET")
 
 	def test_every_row_is_scoped_or_says_why(self):
 		for path, case in CASES.items():
@@ -1676,6 +1753,66 @@ class TestBolaMatrix(IntegrationTestCase):
 						frappe.db.get_value("Card Equipment Supplier", c.sup_b, "modified"), modified
 					)
 
+	def test_server_set_company_doctypes_check_the_company(self):
+		"""Every CARD DocType (not a child table) whose company the server sets (read-only field) has a
+		has_permission hook, or a REST create probe here: Frappe checks create on the company sent."""
+		has_perm, _query = _hooks()
+		probed = {doctype for doctype, *_rest in REST_CREATE_PROBES.values()}
+		for meta in card_doctypes():
+			company = next((f for f in meta.get("fields") or [] if f["fieldname"] == "company"), None)
+			if meta.get("istable") or not company or not company.get("read_only"):
+				continue
+			with self.subTest(doctype=meta["name"]):
+				self.assertTrue(meta["name"] in has_perm or meta["name"] in probed)
+
+	def test_draft_cannot_be_moved_to_other_company(self):
+		"""A company-A draft re-pointed to company B (custody employee, request equipment, review project)
+		is refused by the record-level check on the new value; the stored record is unchanged."""
+		c = self.ctx
+		custody = self._raw(
+			"Employee Tool Custody",
+			f"CUS-T-A-{c.token}",
+			company=c.A,
+			employee=c.emp_a,
+			to_employee=c.emp_a2,
+			movement="Transfer",
+			item_code=c.item,
+			qty=1,
+			date=nowdate(),
+			docstatus=0,
+		)
+		request = self._raw(
+			"Equipment Needs Request",
+			f"REQ-A-{c.token}",
+			company=c.A,
+			equipment=c.eq_a,
+			operator=c.emp_a,
+			project=c.proj_a,
+			request_date=nowdate(),
+			docstatus=0,
+		)
+		cases = (
+			("Employee Tool Custody", custody, {"employee": c.emp_b, "to_employee": c.emp_b2}),
+			("Employee Tool Custody", custody, {"employee": c.emp_b}),
+			("Equipment Needs Request", request, {"equipment": c.eq_b, "operator": c.emp_b}),
+			("Equipment Needs Review", c.review_a, {"project": c.proj_b}),
+		)
+		user = self._user(("Card Supervisor",), restrict=c.A)
+		for doctype, name, change in cases:
+			with self.subTest(doctype=doctype, change=change):
+				frappe.set_user("Administrator")
+				stored = frappe.db.get_value(doctype, name, ["modified", *change], as_dict=True)
+				doc = frappe.get_doc(doctype, name).as_dict()
+				doc.update(change)
+				frappe.set_user(user)
+				with self.assertRaises(PERMISSION):
+					rest_save(doc)
+				frappe.clear_messages()
+				frappe.set_user("Administrator")
+				self.assertEqual(
+					frappe.db.get_value(doctype, name, ["modified", *change], as_dict=True), stored
+				)
+
 	def test_matrix_document_matches_the_source(self):
 		text = MATRIX_DOC.read_text()
 		self.assertEqual(
@@ -1706,18 +1843,21 @@ for _path, _case in CASES.items():
 	setattr(TestBolaMatrix, f"test_role_refused__{_slug(_path)}", _make("role", _path, _case))
 	if not _case.writes:
 		setattr(TestBolaMatrix, f"test_read_makes_no_write__{_slug(_path)}", _make("read", _path, _case))
+	if _case.allowed:
+		setattr(
+			TestBolaMatrix, f"test_allowed_on_own_company__{_slug(_path)}", _make("allowed", _path, _case)
+		)
 
 
-def _make_rest(doctype, roles, doc):
+def _make_rest(doctype, roles, doc, own):
 	def test(self):
-		self._check_rest_create(doctype, roles, doc)
+		self._check_rest_create(doctype, roles, doc, own)
 
 	test.__doc__ = f"frappe.client.insert: {doctype}"
 	return test
 
 
-for _doctype, (_roles, _doc, _hole) in REST_CREATE_PROBES.items():
-	_test = _make_rest(_doctype, _roles, _doc)
-	if _hole:
-		_test = unittest.expectedFailure(_test)
-	setattr(TestBolaMatrix, f"test_rest_create_other_company__{_doctype.lower().replace(' ', '_')}", _test)
+for _probe, (_doctype, _roles, _doc, _own) in REST_CREATE_PROBES.items():
+	setattr(
+		TestBolaMatrix, f"test_rest_create_other_company__{_probe}", _make_rest(_doctype, _roles, _doc, _own)
+	)

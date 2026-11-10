@@ -55,7 +55,7 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 | Employee Tool Custody | Submittable | System Manager, Card Manager, Stock Manager, Card Supervisor, Card User | System Manager, Card Manager, Stock Manager, Card Supervisor | System Manager, Card Manager, Stock Manager, Card Supervisor | System Manager, Card Manager, Stock Manager, Card Supervisor | System Manager, Card Manager, Stock Manager | System Manager, Card Manager | - | Company User Permission on `company`; has_permission `has_custody_permission` |
 | Equipment Needs Request | Submittable | System Manager, Card Manager, Card Supervisor, Card Operator, Card User | System Manager, Card Manager, Card Supervisor, Card Operator | System Manager, Card Manager, Card Supervisor, Card Operator | System Manager, Card Manager, Card Supervisor, Card Operator | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager | - | Company User Permission on `company`; has_permission `needs_request_permission`; permission_query_conditions `needs_request_query` |
 | Equipment Needs Request Item | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
-| Equipment Needs Review | Submittable | System Manager, Card Manager, Card Supervisor, Card User | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager | - | Company User Permission on `company` |
+| Equipment Needs Review | Submittable | System Manager, Card Manager, Card Supervisor, Card User | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager | - | Company User Permission on `company`; has_permission `has_review_permission` |
 | Equipment Needs Review Item | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Equipment Transport | Submittable | System Manager, Card Manager, Card User, Accounts Manager | System Manager, Card Manager, Card User | System Manager, Card Manager, Card User | System Manager, Card Manager | System Manager, Card Manager | System Manager | L1 read: System Manager, Card Manager, Accounts Manager; write: - | Company User Permission on `company`; has_permission `has_transport_permission` |
 | Equipment Transport Item | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
@@ -132,7 +132,7 @@ to company A is kept from company B's records through that endpoint.
 | `card.tool_custody.context` | GET | Card Supervisor, Card Manager, Stock Manager or System Manager, and Employee Tool Custody read | None: flags about the session user | None (read only) |
 | `card.tool_custody.employee_query` | GET | screen role and Employee Tool Custody read | query_companies(filters, Employee Tool Custody); Employee User Permissions | None (read only) |
 | `card.tool_custody.item_query` | GET | screen role and Employee Tool Custody read (then Item get_all with ignore_permissions) | None: Items are global masters | None (read only) |
-| `card.tool_custody.move` | POST | screen role; Employee Tool Custody create (insert with the user's own permissions) | company taken from the Employee in validate, after Frappe's create check | Inserts one draft Employee Tool Custody |
+| `card.tool_custody.move` | POST | screen role; create on the new record (check_permission before any read for the worker); insert with the user's own permissions | has_custody_permission: the companies of the employee and the receiving employee (FR-129) | Inserts one draft Employee Tool Custody |
 | `card.tool_custody.store_query` | GET | screen role and Employee Tool Custody read | query_companies(filters, Employee Tool Custody); Warehouse User Permissions | None (read only) |
 | `card.tool_custody.view` | GET | screen role and Employee Tool Custody read | frappe.get_list on Employee Tool Custody (Company User Permission) | None (read only) |
 <!-- endpoint-matrix:end -->
@@ -149,35 +149,57 @@ diesel fill, review, custody records, invoice, journal entry, asset, employees a
   nothing is written.
 - `test_read_makes_no_write__*` (read endpoints): an allowed company-A call runs no write query and changes no row
   count or `modified` value of the watched tables.
-- `test_rest_create_other_company__*`: Frappe's own insert (`frappe.client.insert`) on the CARD DocTypes whose
-  company is set in `validate`, after Frappe's create check, and that have no company `has_permission` hook.
+- `test_rest_create_other_company__*`: Frappe's own insert (`frappe.client.insert`, also with `docstatus` 1, which
+  inserts and submits in one call) on the CARD DocTypes whose company the server sets in `validate`: refused with
+  `PermissionError`, no record or Stock Entry added, and the refusal names no company-B value (no custody balance);
+  the same user then creates the company-A record (positive control).
+- `test_allowed_on_own_company__*` (a representative set of writing endpoints): the same company-A user succeeds on
+  company A.
+- `test_draft_cannot_be_moved_to_other_company`: a company-A draft re-pointed to company B (custody employee, request
+  equipment, review project) is refused on save.
+- `test_server_set_company_doctypes_check_the_company`: every non-child CARD DocType with a read-only (server-set)
+  `company` field has a `has_permission` hook or a REST create probe.
 
-## Open findings (reported, not fixed here)
+## Fixed in this change (FR-129 security fix)
 
-Each is an expected-failure test, so CI stays green; an "unexpected success" means the gap was closed.
+The first version of this suite found that a user limited to company A could create, and with `docstatus` 1 also
+submit, records in company B:
 
-| Test | Where | Scenario |
-|---|---|---|
-| `test_cross_company__tool_custody_move` | `card/tool_custody.py` `move`; `employee_tool_custody.py` `EmployeeToolCustody.validate` (company from the Employee); no company hook for Employee Tool Custody in `card/hooks.py` | A Card Supervisor limited to company A calls `move` (Transfer) for two employees of company B; the draft custody movement is created in company B and the answer says `may_confirm`. Confirming it is refused (submit check on the stored company). |
-| `test_rest_create_other_company__employee_tool_custody` | same as above, through `frappe.client.insert` | A user limited to company A inserts a draft movement for a company-B employee. |
-| `test_rest_create_other_company__equipment_needs_request` | `equipment_needs_request.py` `EquipmentNeedsRequest.validate` (company from the equipment); no company hook | A Card Supervisor limited to company A inserts a draft request for a company-B machine and its operator. |
-| `test_rest_create_other_company__equipment_needs_review` | `equipment_needs_review.py` `EquipmentNeedsReview.validate` (company from the Project); no company hook | A Card Supervisor limited to company A inserts a draft review on a company-B project. |
+| Path | Before the fix |
+|---|---|
+| `card.tool_custody.move` and `frappe.client.insert` on Employee Tool Custody | A company-A Card Supervisor created a Transfer for two company-B employees; the insert response returned the record (and `may_confirm`). With `docstatus` 1 a Loss was created and submitted in company B, its draft Material Issue made with `ignore_permissions` (`_make_stock_entry`), changing B's custody balances; a Loss above the balance answered with B's balance ("B1 holds 2 of ..."). |
+| `frappe.client.insert` on Equipment Needs Request | A draft (or, with `docstatus` 1, submitted) request for a company-B machine and its operator. |
+| `frappe.client.insert` on Equipment Needs Review | A draft review on a company-B project. |
 
-In all four, Frappe checks the create right on the values the client sends (company still empty), and the
-controller fills the company afterwards, as found for Card Monthly Card (D2) and Equipment Transport (D3) before
-their `has_permission` hooks. The user cannot read the record afterwards.
+Cause: Frappe checks create (and submit) on the values the client sends: `company` empty, the user's default
+company filled in by Frappe for a new document, or whatever was sent. `validate` then set the real company from the
+employee, equipment or project, as found for Card Monthly Card (D2) and Equipment Transport (D3) before their hooks.
+
+Fix: record-level hooks that decide on the company the server will set, for every path (read, create, insert with
+`docstatus` 1, save, submit, cancel):
+
+- `employee_tool_custody.py` `has_custody_permission`: after the existing delete rule, the stored company (saved
+  record) and the companies of `employee` and `to_employee`; the company sent only when no employee is set.
+- `card/materials.py` `needs_request_permission`: the same check (stored company plus the equipment's company) before
+  the operator rule.
+- `equipment_needs_review.py` `has_review_permission` (new, registered in `card/hooks.py`): stored company plus the
+  project's company.
+- `card.tool_custody.move` checks create on the new record before it reads anything for the worker (defence in depth;
+  the custody record's own rule, because the screen roles hold no Employee read).
+
+A user without a company restriction (no Company User Permission, or one that covers every company) is not affected.
 
 ## `ignore_permissions` sites
 
-`IGNORE_PERMISSIONS_ALLOWED` in the test module lists every `ignore_permissions=True` and
-`.ignore_permissions = True` in production code (`card/`, tests and patches excluded) per file and function, with
+`IGNORE_PERMISSIONS_ALLOWED` in the test module lists every `ignore_permissions=True`,
+`.ignore_permissions = True` and `flags["ignore_permissions"] = True` in production code (`card/`, tests and patches excluded) per file and function, with
 its count and a one-line reason; `test_ignore_permissions_sites_are_allowed` fails on any new or moved site. The
 sites without their own check in the same function are proven to sit behind Frappe's permission check:
 
 | Site | Reached from | Test |
 |---|---|---|
 | `card/transfer.py` `_apply_row_transfer`, `reverse_transfer` (assignment close / open / delete / reopen) | Equipment Transport submit / cancel | `test_transport_cannot_move_other_company_equipment`: a user of company B cannot submit or cancel a company-A transport, nor insert a transport (company B or empty) with company-A equipment; the equipment's assignments are unchanged |
-| `card/card/doctype/employee_tool_custody/employee_tool_custody.py` `_make_stock_entry` (Loss / Damage draft Material Issue), `on_cancel` (draft entry deletion) | Employee Tool Custody submit / cancel | `test_loss_entry_needs_the_custody_rights_of_its_company`: a user of company A cannot submit a company-B Loss or cancel one; a role without submit is refused on its own company's Loss; no Stock Entry added or deleted |
+| `card/card/doctype/employee_tool_custody/employee_tool_custody.py` `_make_stock_entry` (Loss / Damage draft Material Issue), `on_cancel` (draft entry deletion) | Employee Tool Custody submit / cancel, including `frappe.client.insert` with `docstatus` 1 | Before the FR-129 fix a company-A user reached `_make_stock_entry` for company B by inserting a submitted Loss (see above); now `has_custody_permission` refuses it first: `test_rest_create_other_company__employee_tool_custody_loss_submitted`, `..._loss_over_balance`, `test_loss_entry_needs_the_custody_rights_of_its_company` (a user of company A cannot submit or cancel a company-B Loss; a role without submit is refused on its own company's Loss; no Stock Entry added or deleted) |
 | `card/api.py` `_sync_registry_row` | `CardMonthlyCard._sync_supplier` / `_sync_customer` (card submit / cancel); `card.api.refresh_supplier` / `refresh_customer` (the recompute loop; System Manager only); the rename hooks below | `test_registry_sync_needs_the_card_rights_of_its_company`; `test_role_refused__api_refresh_supplier` / `_customer` |
 | `card/party_registry.py` `before_rename`, `after_rename` | Supplier / Customer rename and merge | `test_supplier_rename_without_write_is_refused` |
 

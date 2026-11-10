@@ -155,6 +155,8 @@ has_permission = {
 	"Card Equipment Supplier": "card.party_registry.has_registry_permission",
 	"Card Equipment Customer": "card.party_registry.has_registry_permission",
 	"Equipment Needs Request": "card.materials.needs_request_permission",
+	# FR-129: a review belongs to its project's company (company set in validate)
+	"Equipment Needs Review": "card.card.doctype.equipment_needs_review.equipment_needs_review.has_review_permission",
 	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.has_assignment_permission",
 	"Card Monthly Card": "card.card.doctype.card_monthly_card.card_monthly_card.has_card_permission",
 	"Equipment Transport": "card.card.doctype.equipment_transport.equipment_transport.has_transport_permission",

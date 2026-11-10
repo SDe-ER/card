@@ -391,8 +391,32 @@ class EmployeeToolCustody(Document):
 def has_custody_permission(doc, ptype=None, user=None, debug=False):
 	"""A cancelled movement with a signed receipt is evidence: nobody deletes it, and so nobody deletes
 	its receipt either (Frappe's File.validate_protected_file asks this before it removes the disk file,
-	which a later refusal could not bring back). Administrator is not checked by Frappe here."""
-	return not (ptype == "delete" and doc.docstatus == 2 and doc.handover_receipt)
+	which a later refusal could not bring back). Administrator is not checked by Frappe here.
+
+	FR-129 company check, for every path (read, create, REST insert with or without docstatus 1, save,
+	submit, cancel): the company is set from the Employee in validate, after Frappe's create check, so the
+	companies that decide are those of the employee and the receiving employee (and, for a saved movement,
+	the stored company); the company sent counts only when no employee is set. Scope = the Company User
+	Permissions that apply to custody records. A user without a company restriction is not affected.
+	A controller can only deny (Frappe 16 treats a falsy return as a denial)."""
+	if ptype == "delete" and doc.docstatus == 2 and doc.handover_receipt:
+		return False
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(user or frappe.session.user, "Employee Tool Custody")
+	if companies is None:
+		return True
+	owners = set()
+	if not doc.is_new():
+		owners.add(frappe.db.get_value(doc.doctype, doc.name, "company"))
+	employees = [e for e in (doc.get("employee"), doc.get("to_employee")) if e]
+	if employees:
+		owners.update(frappe.get_all("Employee", filters={"name": ["in", employees]}, pluck="company"))
+	else:
+		owners.add(doc.get("company"))
+	owners.discard(None)
+	owners.discard("")
+	return all(company in companies for company in owners)
 
 
 def confirmer_excluded(doc):

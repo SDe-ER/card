@@ -418,6 +418,10 @@ def move(
 		doc.to_employee = to_employee
 	else:
 		doc.warehouse = warehouse or setting("default_store_warehouse")
+	# FR-129 defence in depth, before anything is read for the worker: the record-level check (the custody
+	# company comes from the employees) refuses an employee of a company the user may not see. The screen
+	# roles hold no Employee read, so the custody record's own rule is checked, not Employee's.
+	doc.check_permission("create")
 	machines = operator_equipment(employee)
 	if movement == "Handover" and machines:
 		# the worker's machine and its project, as for his requests
