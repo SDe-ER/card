@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
-- **FR-142 — Third-party equipment owners and the Crusher Owner Statement (Owner 2026-11-10).** Reason: crushers
+- **FR-147 — Third-party equipment owners and the Crusher Owner Statement (Owner 2026-11-10).** Reason: crushers
   owned by partners or by their own owners run under the company's name; the card is the only source of what each
   owner is due, and no CARD record said who owns the machine, how it is run, or what is due after deductions.
   - `card.constants.allowed_directions`: `طرف ثالث` also allows `مؤجَّرة لعميل` (the 2026-11-10 "direction not
