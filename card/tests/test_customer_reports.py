@@ -323,7 +323,8 @@ class TestCustomerReports(IntegrationTestCase):
 
 	def test_statement_summary_items_have_stable_keys(self):
 		# FR-149: the A4 print picks its totals by key (labels are translated); keys follow the supplier
-		# statement where the meaning is the same; labels, values and order are unchanged
+		# statement where the meaning is the same (the customer GL debits have their own key); labels, values and
+		# order are unchanged
 		self._card(self._rented_out("-K"), [10, 10], submit=True)
 		_cols, _rows, _msg, summary = _statement(self._filters(customer=self.customer))
 		expected = [
@@ -331,7 +332,7 @@ class TestCustomerReports(IntegrationTestCase):
 			("days", "Operating days"),
 			("hours", "Operating hours"),
 			("net_cards", "Total accrued (cards)"),
-			("accrued", "Invoiced entries (Debit)"),
+			("invoiced_entries", "Invoiced entries (Debit)"),
 			("invoiced", "Invoiced through Card (net before VAT)"),
 			("not_invoiced", "Not invoiced through Card"),
 			("outside", "ERPNext invoices outside Card — to reconcile (net before VAT)"),

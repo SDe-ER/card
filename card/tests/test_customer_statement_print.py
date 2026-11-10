@@ -72,6 +72,7 @@ class TestCustomerStatementPrint(IntegrationTestCase):
 	def test_columns_and_optional_columns(self):
 		template = _template()
 		columns = re.findall(r'\["(\w+)", ([\d.]+), "\w+"\]', template.split("var rows = []")[0])
+		self.assertTrue(columns)
 		self.assertEqual(
 			[c[0] for c in columns],
 			[
@@ -80,6 +81,7 @@ class TestCustomerStatementPrint(IntegrationTestCase):
 				"last_date",
 				"working_days",
 				"hours",
+				"customer_rate_type",
 				"customer_rate",
 				"customer_amount",
 				"additions",
@@ -92,6 +94,9 @@ class TestCustomerStatementPrint(IntegrationTestCase):
 		self.assertIn("var optional = { additions: 1, deductions: 1 };", template)
 		self.assertIn('if (has_value("stopped_hours"))', template)
 		self.assertIn('var totals_from = "customer_rate";', template)
+		# owner 2026-11-10: the contract rate (rate type + customer rate), never the effective hourly rate
+		self.assertNotIn('"hourly_rate"', template)
+		self.assertIn('if (f[2] === "type") return v ? esc(__(String(v))) : "";', template)
 		# every column label comes from the report's own columns (already in the user's language)
 		source = _read(*REPORT_DIR, "equipment_customer_statement.py")
 		for fieldname, _width in columns:
@@ -126,6 +131,14 @@ class TestCustomerStatementPrint(IntegrationTestCase):
 			match = re.search(rf'msgid "{re.escape(text)}"\nmsgstr "([^"]*)"', po)
 			if match:
 				self.assertNotRegex(match.group(1), r"(?i)erpnext|frappe")
+
+	def test_draft_note_follows_the_rows(self):
+		# the server includes drafts also by the Card Settings default (filter unset): the note follows the rows
+		template = _template()
+		self.assertIn("var has_draft = !!filters.include_draft;", template)
+		self.assertIn('String(rows[r].label || "").indexOf(__("(Draft)")) !== -1', template)
+		self.assertIn('{% if (has_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards")', template)
+		self.assertIn('" " + _("(Draft)")', _read(*REPORT_DIR, "equipment_customer_statement.py"))
 
 	def test_signatures_and_footer(self):
 		template = _template()
