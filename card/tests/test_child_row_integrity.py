@@ -23,6 +23,10 @@ from frappe.utils import add_days, nowdate
 
 from card import child_integrity, daily_log
 from card.child_integrity import CHILD_HANDLER, EVENTS, PARENT_HANDLER, ForeignChildRowError
+
+# the events the guard MUST be wired on (asserted here, not read from EVENTS: a mutation of EVENTS that drops one
+# of these must fail the enumeration tests — lesson 12, mutation-test every guard)
+REQUIRED_EVENTS = ("validate", "before_update_after_submit", "before_cancel")
 from card.tests import test_daily_log as _dl
 from card.tests.test_customer import _CustomerCardsBase
 
@@ -76,9 +80,10 @@ class TestChildRowIntegrityMeta(_CustomerCardsBase):
 		parents, children = _meta_doctypes()
 		for doctypes, handler in ((parents, PARENT_HANDLER), (children, CHILD_HANDLER)):
 			for doctype in doctypes:
-				for event in EVENTS:
+				for event in REQUIRED_EVENTS:
 					with self.subTest(doctype=doctype, event=event):
 						self.assertIn(handler, events.get(doctype, {}).get(event) or [])
+		self.assertEqual(set(EVENTS), set(REQUIRED_EVENTS))
 		modules = set(_card_modules())
 		for doctype, entry in events.items():
 			handlers = {
@@ -109,7 +114,7 @@ class TestChildRowIntegrityMeta(_CustomerCardsBase):
 				foreign = _plant(df.options, "TEST-FR153-OTHER-" + self.token, doctype, df.fieldname)
 				own = _plant(df.options, mine, doctype, df.fieldname)
 				other_field = _plant(df.options, mine, doctype, "other_field")
-				for event in EVENTS:
+				for event in REQUIRED_EVENTS:
 					check = self._handler(doctype, event, PARENT_HANDLER)
 					with self.subTest(doctype=doctype, table=df.fieldname, event=event):
 						for name in (foreign, other_field):
@@ -141,7 +146,7 @@ class TestChildRowIntegrityMeta(_CustomerCardsBase):
 				continue  # a child DocType no CARD table uses yet
 			parenttype, parentfield = owners[child]
 			name = _plant(child, "TEST-FR153-VICTIM-" + self.token, parenttype, parentfield)
-			for event in EVENTS:
+			for event in REQUIRED_EVENTS:
 				check = self._handler(child, event, CHILD_HANDLER)
 				with self.subTest(child=child, event=event):
 					for change in (
@@ -383,20 +388,25 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 		self._assert_refused(self.operator, mine, victim, foreign, "child bulk_update", attempt)
 
 	def test_cancel_cannot_take_a_row(self):
+		"""The guard's ``before_cancel`` handler refuses a foreign row name on a cancelling document.
+		The handler is called directly: the full cancel route is tested in TestChildRowIntegrityMeta
+		(``test_parent_handler_on_every_card_doctype``) across every CARD DocType, and here the integration
+		test cannot reach ``check_rows`` through the full REST cancel because ``card.cancel_reason.before_cancel``
+		and ``card.daily_log.check_cancel`` compare rows by name and refuse the change first (defence in depth).
+		The assertion is on ``ForeignChildRowError``, so this test fails if ``before_cancel`` leaves ``EVENTS``
+		or if the handler is ever changed to let foreign rows through (lesson 12)."""
 		victim = self._victims()["approved"]
 		mine = self._log([self._row()])
 		foreign = self._rows(LOG, victim)[0]
-		stored = frappe.get_doc(LOG, mine.name)
-		rows = [{"name": r.name, "equipment": r.equipment, "day_hours": r.day_hours} for r in stored.rows]
-		frappe.set_user(self.operator)
-		frappe.local.form_dict = frappe._dict(
-			data=frappe.as_json({"docstatus": 2, "rows": [*rows, self._row(name=foreign)]})
-		)
-		with self.assertRaises(frappe.ValidationError):
-			v1.update_doc(LOG, mine.name)
-		frappe.set_user("Administrator")
+		doc = frappe.get_doc(LOG, mine.name)
+		doc.append("rows", self._row(name=foreign))
+		doc.docstatus = 2
+		with self.assertRaises(ForeignChildRowError):
+			child_integrity.check_rows(doc, "before_cancel")
+		# the guard is wired on ``before_cancel`` for this DocType; removing ``before_cancel`` from ``EVENTS``
+		# makes this assertion fail (together with the enumeration tests in TestChildRowIntegrityMeta)
+		self.assertIn(PARENT_HANDLER, frappe.get_hooks("doc_events")[LOG]["before_cancel"])
 		self.assertEqual(self._where(ROW, foreign), (victim, LOG, "rows"))
-		self.assertEqual(frappe.db.get_value(LOG, mine.name, "docstatus"), 1)
 
 	# ---------- Card Monthly Card: days and adjustments ----------
 	def _submitted_card(self, hours):
