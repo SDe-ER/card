@@ -721,8 +721,7 @@ def _columns():
 		col(
 			"variance_cost",
 			_(
-				"Variance cost at the average fill price (not a loss; at the fills' recorded price, VAT basis as"
-				" entered on the fill)"
+				"Variance cost at the average fill price (not a loss; at the fills' recorded price, VAT basis as entered on the fill)"
 			),
 			"Currency",
 		),
