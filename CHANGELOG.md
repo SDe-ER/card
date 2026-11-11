@@ -16,6 +16,66 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-150 — CARD Mobile daily log screens for operators (#44, #123, FR-022; closure plan WP-K3).** Reason: #44
+  asks for daily entry and #123 for daily entry with operator/supervisor approval; FR-142 added the Card Daily Log
+  on the server but an operator could only reach it in CARD Desk, which operators cannot open. New CARD Mobile
+  (`frontend/`) screens: **My daily logs** (`/cdms/daily-logs`: the user's own drafts and submitted logs, newest
+  first, with their state), **New daily log** and **Edit daily log** (date, project, one row per machine of the
+  operator on that project with day, night and stopped hours and notes; machines added or removed; a draft only),
+  **Daily log** (state as stored: Draft, Pending, Verified by supervisor, Approved, Returned for correction with
+  the return reason) with **Send to supervisor** (submit) on a draft and **Correct this daily log** on a returned
+  log. The correction is two requests: 1. cancel the returned log (only `docstatus` and `modified` are sent);
+  2. ask the server whether any log already amends it (`amended_from` filter, the user's own permissions) and, if
+  none, create the corrected draft that amends it with the same header and rows. When step 2 fails (network,
+  validation, period lock, session), the log stays cancelled and "Returned for correction": **My daily logs** keeps
+  listing it with the badge "Corrected draft missing" and the log offers **Create corrected draft**, which repeats
+  step 2 only. A log that some log amends offers nothing; if a correction was created meanwhile, the page opens it.
+  Server backstop: a second amendment of the same log gets the same name (Frappe `<log>-1`) and the daily log
+  duplicate guard refuses the same equipment, project and date, so a retry never creates a second correction. A
+  save or submit over a newer version (`TimestampMismatchError`) shows a short translated message with a
+  **Reload** button that reads the stored log again (not Frappe's raw text). A stored stop reason is shown by its
+  readable name: the reason's `reason_name` for users who may read the reasons, otherwise the part of the record
+  name before " - <company abbreviation>" (CARD's stop reason naming, `reason_docname`); no permission is widened.
+  Stop reasons that fail to load for any reason other than a refusal are said on the form (the hours can still be
+  saved). A bottom-navigation tab and a Home link open the list. Affected code: `frontend/src/router.ts` (four routes), `frontend/src/data/api.ts`
+  (`listResource`, `getResource`, `insertResource`, `updateResource`: Frappe's standard `/api/resource` routes),
+  new `frontend/src/data/dailyLog.ts`, `frontend/src/pages/DailyLogList.vue`, `DailyLogForm.vue`,
+  `DailyLogView.vue`, `frontend/src/components/DailyLogBadge.vue`, `DailyLogDetail.vue`, `DailyLogRowFields.vue`,
+  `BottomNav.vue` (fifth operator tab), `Home.vue` (link), `frontend/src/i18n.ts` (`__()` returns the English
+  source when there is no `window`, for unit tests), `frontend/src/data/api.ts` (`ApiError.excType`),
+  `frontend/vite.config.ts` (two Vitest projects: `unit` as before, `pages` mounts the pages with the in-memory
+  renderer `frontend/src/test/renderer.ts` in the environment `frontend/src/test/web-env.ts`; no new dependency). The server decides everything: no CARD endpoint was added; the
+  screens use the standard REST routes under the user's own permissions (Card Operator `if_owner`, the FR-131 company
+  scope, every FR-142 rule), the machines and projects come from the existing `card.materials.get_portal_context`,
+  the company from the user's Active Employee (the server refuses a project of another company). The screens send
+  only the fields an operator enters (`project`, `log_date`, `notes`, `company` on create; row `equipment`, hours,
+  `notes`, and the stored stop reason and responsible party kept as they were) plus `modified` (a save over a newer
+  version is refused); submit and cancel send only `docstatus` and `modified`. No approval, editor, preparer or
+  status field is ever sent, and no approve, verify or return action is offered to any role on CARD Mobile:
+  supervisors and managers get a link to the log in CARD Desk. The stop reason picker shows only to users who may
+  read the company's stop reasons (an operator may not: the server refuses and the picker is hidden; the supervisor
+  names the reason). A daily log has no money field; none is read or shown (O-20). New strings: CARD-specific
+  msgids, generic words under the context "Card Mobile", Arabic in `card/locale/ar.po` and `main.pot`; logical
+  (RTL-safe) sides, LTR numbers and dates. Tests: `frontend/src/data/dailyLog.spec.ts` (actions per state and role,
+  no approval action for any role, payload allowlists without approval or money fields, list fields, submit and
+  correction bodies, a failed second request recovered from the list, no second correction, stop reasons refused
+  for operators and other failures not hidden, stale saves, stop reason labels, error display),
+  `frontend/src/test/DailyLogPages.spec.ts` (the pages mounted: a correction never submits, recovery after a failed
+  correction, nothing offered on a corrected or unknown log, existing correction opened, stale submit and save with
+  Reload, a submitted log never shows the form, stop reason failure warning, readable stored reason, list badge),
+  `frontend/src/pages/DailyLog.spec.ts`
+  (rendered actions per state and role, return reason, stored state, no money, error box, RTL: logical sides only,
+  LTR numbers and dates, translatable strings), `card/tests/test_mobile_daily_log.py` (the same REST bodies as a Card
+  Operator on Frappe: create, own-only list and read, save with a stale stamp refused, submit by docstatus, forged
+  approval fields ignored, stop reasons refused, correction of a returned log, a failed correction listed and
+  recovered, a second correction refused by the server). Defaults, pending the owner's confirmation: the operator
+  corrects a returned log on the phone; the log's company is the operator's Active Employee company; approvals stay
+  in CARD Desk; the new strings are in Arabic only (bn, hi and ur show English). Impact: permissions none (no role,
+  DocPerm or endpoint added); accounting none; data none (no schema or patch); API none (existing REST routes).
+  Rollback: revert the frontend files and rebuild. Logs created or corrected from the phone stay as ordinary Card
+  Daily Logs (drafts, submitted, cancelled and their amendments) and are not undone by the rollback; a returned log
+  cancelled on the phone whose corrected draft was not created stays cancelled and is corrected in CARD Desk
+  (Amend) after a rollback. PR #234.
 - **FR-149 — Documentation site: screenshots, generated Reference, Arabic home and font (follow-up to PR #229).**
   Reason: the owner asked for professional screenshots of every screen, a better Arabic font, and a site that stays in
   sync with the repository. Adds 96 screenshots (48 screens, English and Arabic UI) captured from a disposable demo

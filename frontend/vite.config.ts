@@ -47,5 +47,27 @@ export default defineConfig({
       },
     }),
   ],
-  test: { environment: 'node', include: ['src/**/*.spec.ts'] },
+  test: {
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'node',
+          include: ['src/**/*.spec.ts'],
+          exclude: ['src/test/**'],
+        },
+      },
+      {
+        // page tests: components mounted (browser build, not SSR) with the in-memory renderer of
+        // src/test/renderer.ts; no DOM library
+        extends: true,
+        test: {
+          name: 'pages',
+          environment: './src/test/web-env.ts',
+          include: ['src/test/**/*.spec.ts'],
+        },
+      },
+    ],
+  },
 })
