@@ -20,11 +20,15 @@
 [![Python 3.14](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fe5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org/en/v1.0.0/)
 
-**[Documentation](https://sde-er.github.io/card/)** ·
-**[التوثيق بالعربية](https://sde-er.github.io/card/ar/)** ·
+<br>
+
+[![Documentation](https://img.shields.io/badge/Documentation-English-0089FF?style=for-the-badge&logo=readthedocs&logoColor=white)](https://sde-er.github.io/card/)
+[![التوثيق بالعربية](https://img.shields.io/badge/Documentation-Arabic-0A7B4F?style=for-the-badge&logo=readthedocs&logoColor=white)](https://sde-er.github.io/card/ar/)
+
 [What's new](https://sde-er.github.io/card/releases/whats-new/) ·
 [Installation](https://sde-er.github.io/card/getting-started/installation/) ·
-[API](https://sde-er.github.io/card/api-reference/overview/)
+[API](https://sde-er.github.io/card/api-reference/overview/) ·
+[Releases](https://github.com/SDe-ER/card/releases)
 
 </div>
 
