@@ -685,7 +685,9 @@ def _drop_notes(rows, texts):
 		joined = row.get("notes") or ""
 		if not joined:
 			continue
-		kept = [piece for piece in (part.strip() for part in joined.split(";")) if piece and piece not in drop]
+		kept = [
+			piece for piece in (part.strip() for part in joined.split(";")) if piece and piece not in drop
+		]
 		row["notes"] = "; ".join(kept)
 
 
@@ -744,7 +746,9 @@ def _summary(rows, tank):
 		},
 		{
 			"key": "filled_amount",
-			"label": _("Direct fills amount (at the fills' recorded price, VAT basis as entered on the fill)"),
+			"label": _(
+				"Direct fills amount (at the fills' recorded price, VAT basis as entered on the fill)"
+			),
 			"value": flt(sum(r["filled_amount"] for r in rows), 2),
 			"datatype": "Currency",
 		},

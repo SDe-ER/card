@@ -337,9 +337,7 @@ class TestDieselVariance(IntegrationTestCase):
 		rate, source = book.rate(eq, frappe.utils.getdate("2026-09-01"))
 		expected = consumption_rate_details(eq, "2026-09-01")
 		if (rate, source) != (expected.rate, expected.source):
-			self.skipTest(
-				"skipped until #239 merges and consumption_rate_details precedence matches FR-144"
-			)
+			self.skipTest("skipped until #239 merges and consumption_rate_details precedence matches FR-144")
 		self._set_type_rates([("2026-01-01", 20), ("2026-09-10", 22, self.a), ("2026-09-20", 0)])
 		equipment = [
 			self._equipment(rates=[("2026-03-01", 14), ("2026-09-15", 16)], static=9, daily=120),
@@ -374,18 +372,14 @@ class TestDieselVariance(IntegrationTestCase):
 		self._set_type_rates([("2026-01-01", 20)])
 		day = frappe.utils.getdate("2026-09-01")
 		# 1) equipment dated row wins, even with static and daily set
-		eq_full = self._equipment(
-			rates=[("2026-03-01", 14), ("2026-09-15", 16)], static=9, daily=120
-		)
+		eq_full = self._equipment(rates=[("2026-03-01", 14), ("2026-09-15", 16)], static=9, daily=120)
 		# 2) static wins over daily when both are set, and over the type default
 		eq_static_daily = self._equipment(static=9, daily=120)
 		# 3) daily wins when static is 0 (not set); still wins over the type default
 		eq_daily_only = self._equipment(daily=120)
 		# 4) type default is used only when neither static nor daily is set
 		eq_type_only = self._equipment()
-		info = dva._equipment_info(
-			{eq_full, eq_static_daily, eq_daily_only, eq_type_only}, frappe._dict()
-		)
+		info = dva._equipment_info({eq_full, eq_static_daily, eq_daily_only, eq_type_only}, frappe._dict())
 		book = dva.RateBook(info)
 		self.assertEqual(book.rate(eq_full, day), (14.0, SOURCE_EQUIPMENT))
 		# the static is 9 (per hour), not the daily 120/10 = 12
@@ -641,9 +635,7 @@ class TestDieselVariance(IntegrationTestCase):
 		frappe.set_user("Administrator")
 		# An Accounts Manager has no DocPerm on Equipment Meter Reading — fall back to the proxy
 		frappe.set_user(self._user(("Accounts Manager",)))
-		self.assertFalse(
-			frappe.has_permission("Equipment Meter Reading", "read", user=frappe.session.user)
-		)
+		self.assertFalse(frappe.has_permission("Equipment Meter Reading", "read", user=frappe.session.user))
 		row = self._row(eq)
 		self.assertEqual(row["hours_basis"], dva.basis_proxy())
 		self.assertIsNone(row["engine_hours"])
