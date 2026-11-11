@@ -1,14 +1,22 @@
 name: Docs site
 
+# The documentation site (website/) is rebuilt and republished whenever the CARD code or the docs change on main,
+# so new DocTypes, fields, reports and API methods appear in the generated Reference section without manual work.
+# The build always regenerates the Reference pages, so the published site never lags the code. The check step only
+# warns when the committed copies in website/src/content/docs/reference are stale (run `cd website && npm run
+# generate` and commit the result); it never blocks another pull request.
+
 on:
   push:
     branches: [main]
     paths:
       - "website/**"
+      - "card/**"
       - ".github/workflows/docs.yml"
   pull_request:
     paths:
       - "website/**"
+      - "card/**"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -16,7 +24,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: docs-pages
+  group: docs-pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -27,13 +35,19 @@ jobs:
         working-directory: website
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: website/package-lock.json
       - run: npm ci
-      - run: npx astro build
+      - name: Committed Reference pages match the code
+        run: npm run check:reference || echo "::warning title=Docs reference out of date::Run 'cd website && npm run generate' and commit the result."
+      - name: Build
+        run: npm run build
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'
         with:

@@ -21,6 +21,8 @@ them. They are the basis for later maintenance and consumption features.
 :::
 
 <!-- screenshot: meter-readings-form -->
+![An equipment meter reading](../../../assets/screenshots/en/meter-readings-form.webp)
+*An equipment meter reading*
 
 ## Key concepts
 
@@ -113,6 +115,8 @@ Cumulative readings are never added up as hours. The report writes nothing and s
 baseline needs a verified meter reading and a verified maintenance event.
 
 <!-- screenshot: meter-readings-reconciliation -->
+![Equipment Meter Reconciliation report](../../../assets/screenshots/en/meter-readings-reconciliation.webp)
+*Equipment Meter Reconciliation report*
 
 ### Maintenance warnings by hours
 

@@ -23,6 +23,8 @@ sidebar:
 :::
 
 <!-- screenshot: daily-logs-form -->
+![يومية تشغيل بصفوفها](../../../../assets/screenshots/ar/daily-logs-form.webp)
+*يومية تشغيل بصفوفها*
 
 ## المفاهيم الأساسية
 
@@ -163,6 +165,8 @@ sidebar:
 والأيام المفرَّغة، والأيام غير المحدَّثة في الكروت المقدَّمة، والتعارضات، والأيام المستبعدة، والكروت التي لم تُحفظ.
 
 <!-- screenshot: daily-logs-generation-result -->
+![صفوف اليومية](../../../../assets/screenshots/ar/daily-logs-generation-result.webp)
+*صفوف اليومية*
 
 ## سير العمل
 

@@ -53,6 +53,8 @@ sidebar:
 يرحّل.
 
 <!-- screenshot: transport-accounting-review -->
+![تقرير مراجعة محاسبة النقل](../../../../assets/screenshots/ar/transport-accounting-review.webp)
+*تقرير مراجعة محاسبة النقل*
 
 **الفلاتر**
 

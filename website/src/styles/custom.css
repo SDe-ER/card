@@ -1,4 +1,73 @@
-/* CARD docs — Arabic text uses Noto Sans Arabic, the font CARD prints use. */
+/* CARD docs — typography and screenshot styling.
+ * Arabic text uses IBM Plex Sans Arabic (self-hosted from @fontsource, SIL Open Font License),
+ * with Latin text in the same family so mixed Arabic/English lines share one rhythm. */
+@import "@fontsource/ibm-plex-sans-arabic/400.css";
+@import "@fontsource/ibm-plex-sans-arabic/500.css";
+@import "@fontsource/ibm-plex-sans-arabic/600.css";
+@import "@fontsource/ibm-plex-sans-arabic/700.css";
+
 :root[dir="rtl"] {
-	--sl-font: "Noto Sans Arabic", "Noto Sans", Tahoma, sans-serif;
+	--sl-font: "IBM Plex Sans Arabic", system-ui, sans-serif;
+	--sl-line-height: 1.85;
+	--sl-line-height-headings: 1.4;
+}
+
+:root[dir="rtl"] .sl-markdown-content {
+	letter-spacing: 0;
+	word-spacing: 0.02em;
+}
+
+:root[dir="rtl"] .sl-markdown-content :is(h1, h2, h3, h4) {
+	font-weight: 700;
+}
+
+:root[dir="rtl"] code,
+:root[dir="rtl"] pre {
+	direction: ltr;
+	unicode-bidi: isolate;
+}
+
+/* Screenshots: framed like an app window, with the caption under the image. */
+.sl-markdown-content p:has(> img) {
+	margin: 1.75rem 0;
+	text-align: center;
+}
+
+.sl-markdown-content p > img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: 0.6rem;
+	box-shadow:
+		0 1px 2px rgb(0 0 0 / 0.06),
+		0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.sl-markdown-content p:has(> img) > em {
+	display: block;
+	margin-top: 0.6rem;
+	font-size: var(--sl-text-sm);
+	font-style: normal;
+	color: var(--sl-color-gray-3);
+}
+
+/* Phone screenshots (CARD Mobile) keep a phone width instead of filling the column. */
+.sl-markdown-content p > img[src*="card-mobile"] {
+	max-width: 340px;
+	margin-inline: auto;
+	border-radius: 1.4rem;
+}
+
+/* Home page screenshot under the hero. */
+.home-shot {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin: 0 auto 2.5rem;
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: 0.8rem;
+	box-shadow:
+		0 2px 4px rgb(0 0 0 / 0.06),
+		0 16px 40px rgb(0 0 0 / 0.12);
 }

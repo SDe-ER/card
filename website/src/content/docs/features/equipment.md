@@ -18,6 +18,8 @@ the ERPNext **Asset**, where it is working now, its meter and maintenance data, 
 leaves the fleet.
 
 <!-- screenshot: equipment-form -->
+![A rented machine in the equipment form](../../../assets/screenshots/en/equipment-form.webp)
+*A rented machine in the equipment form*
 
 ## Key concepts
 
@@ -217,6 +219,8 @@ default daily-hours setting), the equipment is created at once; otherwise the pr
 fields to complete. A third-party machine always needs its rental direction and commercial terms.
 
 <!-- screenshot: equipment-create-from-asset -->
+![The equipment list](../../../assets/screenshots/en/equipment-create-from-asset.webp)
+*The equipment list*
 
 ### Status and the status guard
 

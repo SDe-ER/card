@@ -17,6 +17,8 @@ supplier's monthly draft Purchase Invoice (see [Invoicing & Posting](/card/featu
 the diesel consumption and analysis reports. Fills are named `DSL-#####`.
 
 <!-- screenshot: diesel-form -->
+![A project diesel fill](../../../assets/screenshots/en/diesel-form.webp)
+*A project diesel fill*
 
 ## Key concepts
 
@@ -47,6 +49,8 @@ posting** and **Remarks** are collapsed or shown only when relevant. The operati
 first save.
 
 <!-- screenshot: diesel-meter-photos -->
+![Meter readings on a diesel fill](../../../assets/screenshots/en/diesel-meter-photos.webp)
+*Meter readings on a diesel fill*
 
 ### Meter photos and readings
 

@@ -21,6 +21,8 @@ Parts and consumables belong to the machine; tools are the operator's custody (s
 penalties: a repeated request is only flagged for review.
 
 <!-- screenshot: equipment-needs-review -->
+![An equipment needs request](../../../assets/screenshots/en/equipment-needs-review.webp)
+*An equipment needs request*
 
 ## Key concepts
 
@@ -86,6 +88,8 @@ or System Manager. CARD Mobile (`/cdms`) offers the same request flow in its **N
 [CARD Mobile](/card/features/card-mobile/)).
 
 <!-- screenshot: equipment-needs-portal -->
+![The equipment needs page](../../../assets/screenshots/en/equipment-needs-portal.webp)
+*The equipment needs page*
 
 ### Equipment Needs Review
 

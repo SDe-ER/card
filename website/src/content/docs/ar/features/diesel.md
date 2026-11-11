@@ -16,6 +16,8 @@ sidebar:
 `DSL-#####`.
 
 <!-- screenshot: diesel-form -->
+![تعبئة ديزل لمشروع](../../../../assets/screenshots/ar/diesel-form.webp)
+*تعبئة ديزل لمشروع*
 
 ## المفاهيم الأساسية
 
@@ -45,6 +47,8 @@ sidebar:
 أو عند الحاجة فقط. ويظهر قسم مراجعة التشغيل بعد أول حفظ.
 
 <!-- screenshot: diesel-meter-photos -->
+![قراءات العداد في تعبئة الديزل](../../../../assets/screenshots/ar/diesel-meter-photos.webp)
+*قراءات العداد في تعبئة الديزل*
 
 ### صور العداد وقراءاته
 

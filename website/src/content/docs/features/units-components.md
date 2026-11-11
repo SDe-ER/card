@@ -16,6 +16,8 @@ Units are for owned equipment only. Each piece is still its own Card Equipment r
 and meter, but while it is inside a unit it is billed on the unit's card and not on a card of its own.
 
 <!-- screenshot: units-components-unit-form -->
+![A crusher in the equipment form](../../../assets/screenshots/en/units-components-unit-form.webp)
+*A crusher in the equipment form*
 
 ## Key concepts
 
