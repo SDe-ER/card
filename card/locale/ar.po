@@ -7854,6 +7854,10 @@ msgstr "لا يمكن تغيير مصدر إدخال نقل معتمد ({0})."
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr "النقل {0} له مستند مصدر وهو ملغى؛ يُحتفظ به مع مستنده ولا يمكن حذفه."
 
+#: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py
+msgid "Expected = operating hours x the per-hour expected consumption when it is set, otherwise operating hours x (daily diesel consumption / daily standard hours). Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) plus estimated (project-tank fills split by card hours, not measured). The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
+msgstr "المتوقع = ساعات التشغيل × الاستهلاك المتوقع بالساعة إذا كان محددًا، وإلا ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الموزع = اللترات الموزعة من تعبئات الديزل المعتمدة: المسجلة (تعبئة مباشرة للمعدة) زائد التقديرية (تعبئات خزان المشروع موزعة بساعات الكارت، غير مقاسة). الفرق يقارن المتوقع بالموزع، وليس الاستهلاك المقاس. للعرض فقط — بدون محاسبة."
+
 msgctxt "Card Mobile"
 msgid "Add"
 msgstr "إضافة"
