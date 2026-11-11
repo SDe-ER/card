@@ -100,6 +100,14 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Transport recharge income account | `transport_recharge_income_account` | Link | Account |  |
 
 
+**Period approval**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Require an approved period run before posting | `require_period_approval` | Check |  |  |
+| Period run self-approval rule | `period_run_self_approval_rule` | Select | Warn only (period run) · Refuse (period run) |  |
+
+
 ## Permissions
 
 No own permissions: access follows the parent document.

@@ -17,7 +17,7 @@ sidebar:
 |---|---|
 | [أنواع المستندات](/card/ar/reference/doctypes/card-adjustment-type/) | 41 |
 | [التقارير](/card/ar/reference/reports/) | 25 |
-| [نقاط الـ API](/card/ar/reference/api-endpoints/) | 69 |
+| [نقاط الـ API](/card/ar/reference/api-endpoints/) | 70 |
 
 
 ## أنواع المستندات

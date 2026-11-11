@@ -65,3 +65,12 @@ reports: overview(1), operations(2), parties-statements(3), diesel-fuel(4), tran
   accounting-control(7)
 api-reference: overview(1), equipment(2), cards-daily-logs(3), diesel(4), transport(5), materials-needs(6),
   parties-statements(7), posting-accounting(8), mobile-settings(9)
+
+## What's new (every change)
+
+- Every change adds a dated entry under "Next release" in `releases/whats-new.md` and `ar/releases/whats-new.md`,
+  in the right group (Documentation, Operations, Accounting and control, Security). Say in plain language what
+  changed and what it means for users; link the feature page. No issue numbers, registry ids or hashes.
+- On a release, move the entries into one row of the "Released versions" table, in both languages.
+- `README.md` stays a short entry point: logo, badges, one paragraph, highlights, quick start, links to this site.
+

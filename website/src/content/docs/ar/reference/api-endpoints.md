@@ -30,7 +30,7 @@ sidebar:
 | [`card.gl.integrity`](#card-gl-integrity) | 2 |
 | [`card.gl.journal_link`](#card-gl-journal-link) | 1 |
 | [`card.gl.period_run`](#card-gl-period-run) | 2 |
-| [`card.gl.posting`](#card-gl-posting) | 4 |
+| [`card.gl.posting`](#card-gl-posting) | 5 |
 | [`card.materials`](#card-materials) | 8 |
 | [`card.mobile`](#card-mobile) | 1 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
@@ -200,6 +200,7 @@ sidebar:
 | `card.gl.posting.post_month` | POST | `company: str`<br/>`party_type: str`<br/>`party: str`<br/>`month: str`<br/>`year: str`<br/>`reviewed_invoices: str \| list \| None = None` |
 | `card.gl.posting.posting_month_parties` | GET | `company: str`<br/>`month: str`<br/>`year: str` |
 | `card.gl.posting.preview_month` | GET | `company: str`<br/>`party_type: str`<br/>`party: str`<br/>`month: str`<br/>`year: str` |
+| `card.gl.posting.posting_period_run` | GET | `company: str`<br/>`month: str`<br/>`year: str` |
 
 
 <h2 id="card-materials"><code>card.materials</code></h2>

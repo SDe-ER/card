@@ -30,7 +30,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.gl.integrity`](#card-gl-integrity) | 2 |
 | [`card.gl.journal_link`](#card-gl-journal-link) | 1 |
 | [`card.gl.period_run`](#card-gl-period-run) | 2 |
-| [`card.gl.posting`](#card-gl-posting) | 4 |
+| [`card.gl.posting`](#card-gl-posting) | 5 |
 | [`card.materials`](#card-materials) | 8 |
 | [`card.mobile`](#card-mobile) | 1 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
@@ -258,11 +258,13 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | `card.gl.posting.post_month` | POST | `company: str`<br/>`party_type: str`<br/>`party: str`<br/>`month: str`<br/>`year: str`<br/>`reviewed_invoices: str \| list \| None = None` |
 | `card.gl.posting.posting_month_parties` | GET | `company: str`<br/>`month: str`<br/>`year: str` |
 | `card.gl.posting.preview_month` | GET | `company: str`<br/>`party_type: str`<br/>`party: str`<br/>`month: str`<br/>`year: str` |
+| `card.gl.posting.posting_period_run` | GET | `company: str`<br/>`month: str`<br/>`year: str` |
 
 - `rebuild_month` — Desk entry point for rebuilding a draft posting after late documents.
 - `post_month` — Desk entry point (S4 wires the button). Card Manager / System Manager only. reviewed_invoices: supplier invoices an accountant declares unrelated (P0).
 - `posting_month_parties` — Posting screen: the parties of the month with their posting status. Read only. Each side is listed only when the caller may build that side's postings.
 - `preview_month` — Posting screen: the lines the next post (or rebuild) would create. Read only — nothing is inserted, saved, reserved or logged; post_month / rebuild_month write.
+- `posting_period_run` — Posting screen: whether the company requires an approved period run before posting, the state of the month's run and why posting is refused. Read only (it rebuilds the run's live snapshot); no amounts. The same role and company checks as the party list.
 
 
 <h2 id="card-materials"><code>card.materials</code></h2>
