@@ -19,6 +19,7 @@ import frappe.client
 from frappe.desk.form.save import savedocs
 from frappe.model.workflow import apply_workflow, get_workflow_name, is_transition_condition_satisfied
 from frappe.tests import IntegrationTestCase
+from frappe.utils import cint
 
 from card import cancel_reason, governance, governance_workflows
 from card.cancel_reason import cancel_with_reason
@@ -559,6 +560,88 @@ class TestNativeWorkflows(IntegrationTestCase):
 				self.assertEqual(cancel_reason._skipped(fake), {"cancel_reason"})
 			with patch.object(frappe, "get_cached_value", return_value="workflow_state"):
 				self.assertEqual(cancel_reason._skipped(fake), {"cancel_reason", "workflow_state"})
+
+	def test_approve_transition_allow_self_approval_per_doctype(self):
+		"""Owner decision (2026-11-11, reiteration of FR-143 / WP-D2a): only the monthly card may let the
+		creator approve (its Approve is still gated by FR-143's per-company Warn/Refuse rule); Equipment
+		Transport and Project Diesel Fill keep Frappe's native rule "the creator cannot approve", i.e.
+		``allow_self_approval = 0`` on every Approve transition. Send-for-Review and Return-for-Correction
+		keep ``allow_self_approval = 1`` because a preparer must be able to send their own draft and a
+		Card Manager may return their own request. Each Approve transition is asserted individually, so a
+		flip of any one row fails this test (addresses the reviewer finding that a mutation flipping
+		``self_approval = 1`` for transport or fill was not caught by the suite)."""
+		expected = {
+			"Card Monthly Card": 1,
+			"Equipment Transport": 0,
+			"Project Diesel Fill": 0,
+		}
+		for doctype, name in WORKFLOWS.items():
+			with self.subTest(doctype=doctype):
+				# the Python source (so a source mutation is caught before any install)
+				rows = governance_workflows.transitions(doctype)
+				self.assertTrue(rows, "the transitions table must not be empty")
+				for state, action, next_state, role, self_approval, _cond in rows:
+					with self.subTest(transition=(state, action, next_state, role), layer="source"):
+						if action == ACTION_APPROVE:
+							self.assertEqual(
+								cint(self_approval),
+								expected[doctype],
+								msg=(
+									f"{doctype} source Approve transition {state} -> {next_state} "
+									f"(role {role}) must have allow_self_approval={expected[doctype]}"
+								),
+							)
+						else:
+							self.assertEqual(cint(self_approval), 1)
+				# the installed Workflow record (so a DB edit that lifts the rule is caught too)
+				wf = frappe.get_doc("Workflow", name)
+				approve = [t for t in wf.transitions if t.action == ACTION_APPROVE]
+				self.assertTrue(approve, "the workflow must ship Approve transitions")
+				for t in approve:
+					with self.subTest(transition=(t.state, t.next_state, t.allowed), layer="db"):
+						self.assertEqual(
+							cint(t.allow_self_approval),
+							expected[doctype],
+							msg=(
+								f"{doctype} DB Approve transition {t.state} -> {t.next_state} "
+								f"(role {t.allowed}) must have allow_self_approval={expected[doctype]}"
+							),
+						)
+				# Send-for-Review and Return-for-Correction are not approvals: the creator may do both
+				for t in wf.transitions:
+					if t.action in (ACTION_SEND, ACTION_RETURN):
+						with self.subTest(transition=(t.state, t.action, t.next_state, t.allowed)):
+							self.assertEqual(cint(t.allow_self_approval), 1)
+
+	def test_rest_put_at_docstatus_1_on_submitted_doc_does_not_re_approve(self):
+		"""FR-152: with an active Workflow a REST PUT (or Python save) on an already-submitted record
+		that sends ``docstatus = 1`` either (a) is a no-op when the state value matches the stored state
+		and no other field changes (Frappe's ``update_after_submit`` path), or (b) is refused with
+		``UpdateAfterSubmitError`` when the request would rewrite ``workflow_state`` (hidden, no copy,
+		``allow_on_submit = 0``). In both cases the stored record's docstatus and workflow_state stay
+		what the approve set them to: no re-submit and no state rewrite slips through at
+		``docstatus = 1`` (addresses the reviewer finding on the ``_check_submit`` path and documents
+		the intended behaviour)."""
+		for doctype in WORKFLOWS:
+			with self.subTest(doctype=doctype):
+				self._activate(doctype)
+				doc = self._draft(doctype)
+				self._approve(doc)
+				baseline = self._stored(doc)
+				self.assertEqual((baseline.docstatus, baseline.workflow_state), (1, STATE_APPROVED))
+				# state == stored, docstatus unchanged: silently normalized (Frappe's no-op update)
+				d = frappe.get_doc(doctype, doc.name)
+				d.update({"docstatus": 1, "workflow_state": STATE_APPROVED})
+				d.save()
+				noop = self._stored(doc)
+				self.assertEqual((noop.docstatus, noop.workflow_state), (1, STATE_APPROVED))
+				# state != stored: refused (workflow_state has allow_on_submit = 0)
+				for state in (STATE_BEFORE_GOVERNANCE, STATE_PENDING, STATE_DRAFT):
+					d = frappe.get_doc(doctype, doc.name)
+					d.update({"docstatus": 1, "workflow_state": state})
+					self._refused(frappe.ValidationError, d.save)
+				after = self._stored(doc)
+				self.assertEqual((after.docstatus, after.workflow_state), (1, STATE_APPROVED))
 
 	def _set_rule(self, company, rule):
 		name = frappe.db.get_value("Card Company Settings", {**SETTINGS, "company": company}, "name")
