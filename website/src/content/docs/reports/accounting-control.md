@@ -38,6 +38,8 @@ yet, which expenses miss their machine tag, and whether the links between source
   [Equipment Maintenance Cost](/card/reports/maintenance-assets/#equipment-maintenance-cost) report.
 
 <!-- screenshot: accounting-partial-margin -->
+![Equipment Partial Margin report](../../../assets/screenshots/en/accounting-partial-margin.webp)
+*Equipment Partial Margin report*
 
 **Filters:** **Company** (required), **From date** / **To date** (required, current month by default), **Project**,
 **Equipment**.
@@ -107,6 +109,8 @@ the company and period whose link, posted flag and posting log disagree. It repa
 decision.
 
 <!-- screenshot: accounting-posting-source-integrity -->
+![Posting Source Integrity report](../../../assets/screenshots/en/accounting-posting-source-integrity.webp)
+*Posting Source Integrity report*
 
 **Filters:** **Company** (required), **From date** / **To date** (required; start of year to today), **Show** –
 "Problems only" (default) or "All posted sources".

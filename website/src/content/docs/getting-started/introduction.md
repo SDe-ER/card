@@ -27,6 +27,8 @@ CARD Desk is the complete management system. CARD Mobile is a phone front end fo
 site; it does not copy the Desk. See [CARD Mobile](/card/features/card-mobile/) for its current scope.
 
 <!-- screenshot: introduction-workspace -->
+![The CARD workspace](../../../assets/screenshots/en/introduction-workspace.webp)
+*The CARD workspace*
 
 ## Who it is for
 

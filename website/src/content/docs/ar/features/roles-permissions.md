@@ -13,6 +13,8 @@ sidebar:
 ERPNext. وتُنفَّذ عمليات الترحيل والاعتماد بصلاحيات المستخدم نفسه.
 
 <!-- screenshot: roles-permissions-role-list -->
+![أدوار CARD](../../../../assets/screenshots/ar/roles-permissions-role-list.webp)
+*أدوار CARD*
 
 ## المفاهيم الأساسية
 

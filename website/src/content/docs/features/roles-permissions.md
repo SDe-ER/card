@@ -13,6 +13,8 @@ checks every action; CARD never treats a hidden field or a hidden button as a pe
 user's ERPNext rights. Postings and approvals run with the user's own rights.
 
 <!-- screenshot: roles-permissions-role-list -->
+![The CARD roles](../../../assets/screenshots/en/roles-permissions-role-list.webp)
+*The CARD roles*
 
 ## Key concepts
 

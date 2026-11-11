@@ -20,6 +20,8 @@ Capital tools recorded as ERPNext Assets are not custody records: their custodia
 Movement), and the [Worker Custody](#worker-custody-report) report shows both.
 
 <!-- screenshot: tool-custody-form -->
+![A tool custody handover](../../../assets/screenshots/en/tool-custody-form.webp)
+*A tool custody handover*
 
 ## Key fields
 
@@ -126,6 +128,8 @@ shown. The page is open to Card Supervisor, Card Manager, Stock Manager and Syst
 start on Awaiting, others on Held tools.
 
 <!-- screenshot: tool-custody-screen -->
+![The tool custody screen](../../../assets/screenshots/en/tool-custody-screen.webp)
+*The tool custody screen*
 
 ### Worker Custody report
 

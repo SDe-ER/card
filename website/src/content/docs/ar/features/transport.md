@@ -17,6 +17,8 @@ sidebar:
 يختار المستخدم المعدات والوجهة، أما المكان الذي تأتي منه كل معدة فيُقرأ من سجلها ولا يُكتب يدويًا.
 
 <!-- screenshot: transport-form -->
+![عملية نقل معدات](../../../../assets/screenshots/ar/transport-form.webp)
+*عملية نقل معدات*
 
 ## المفاهيم الأساسية
 
@@ -194,6 +196,8 @@ sidebar:
 وثلاثة أسطر للتوقيع (أعدّه، استلمه، اعتمده). ويتبع اتجاه الصفحة لغة الطباعة. انظر [نماذج الطباعة](/card/ar/features/print-formats/).
 
 <!-- screenshot: transport-print -->
+![قالب طباعة النقل](../../../../assets/screenshots/ar/transport-print.webp)
+*قالب طباعة النقل*
 
 ### الترحيل
 

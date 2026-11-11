@@ -91,6 +91,18 @@ const reviewer = computed(() => ctx.value?.roles.some((r) => r !== 'Card Operato
         </span>
       </RouterLink>
 
+      <RouterLink
+        :to="{ name: 'DailyLogs' }"
+        class="flex min-h-[3.5rem] items-center justify-between rounded-lg border border-outline-gray-1 p-4"
+        data-testid="daily-logs-link"
+      >
+        <span>{{ __('My daily logs') }}</span>
+        <span
+          class="lucide-chevron-right size-4 text-ink-gray-5 rtl:rotate-180"
+          aria-hidden="true"
+        />
+      </RouterLink>
+
       <a
         v-if="reviewer"
         href="/app/equipment-needs-review"

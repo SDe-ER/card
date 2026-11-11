@@ -48,6 +48,8 @@ which Assets need a CARD equipment record. It also lists owned equipment without
 changes nothing.
 
 <!-- screenshot: asset-mapping-review -->
+![Asset Mapping Review report](../../../assets/screenshots/en/asset-mapping-review.webp)
+*Asset Mapping Review report*
 
 **Filters:** **Company** (required); **Show** – "Needs a decision only" (default) or "All Assets".
 

@@ -18,6 +18,8 @@ submits them in ERPNext, and ERPNext posts the General Ledger. A GL Posting Log 
 set of integrity checks makes sure that what reaches the ledger is exactly what CARD built from its source documents.
 
 <!-- screenshot: invoicing-posting-page -->
+![The CARD Monthly Posting page](../../../assets/screenshots/en/invoicing-posting-page.webp)
+*The CARD Monthly Posting page*
 
 ## Key concepts
 
@@ -58,6 +60,8 @@ The VAT figure in the preview is an estimate: ERPNext computes the invoice taxes
 also differ from the preview if documents changed after it was shown; the confirmation dialog says so.
 
 <!-- screenshot: invoicing-posting-preview -->
+![Monthly posting preview](../../../assets/screenshots/en/invoicing-posting-preview.webp)
+*Monthly posting preview*
 
 ### Supplier side: one draft Purchase Invoice per supplier
 

@@ -633,6 +633,15 @@ CASES = {
 		own=lambda c: {"company": c.A, "month": c.month, "year": c.year},
 		denied=((), ("Card User",), ("Accounts Manager",)),
 	),
+	"card.gl.posting.posting_period_run": Case(
+		method=GET,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager (either posting side); run details only with Card Period Run read",
+		isolation="_checked_endpoint_args per side: permitted_companies(sources, invoice, GL Posting Log)",
+		cross=lambda c: {"company": c.B, "month": c.month, "year": c.year},
+		own=lambda c: {"company": c.A, "month": c.month, "year": c.year},
+		denied=((), ("Card User",), ("Accounts Manager",)),
+	),
 	# ---------- period run (FR-147) ----------
 	"card.gl.period_run.build_run": Case(
 		method=POST,

@@ -21,6 +21,8 @@ sidebar:
 :::
 
 <!-- screenshot: card-mobile-home -->
+![الشاشة الرئيسية في CARD Mobile](../../../../assets/screenshots/ar/card-mobile-home.webp)
+*الشاشة الرئيسية في CARD Mobile*
 
 ## المفاهيم الأساسية
 
@@ -76,6 +78,8 @@ sidebar:
 مع الرسالة: «تم إرسال طلبك للمشرف.»
 
 <!-- screenshot: card-mobile-new-request -->
+![الطلبات في CARD Mobile](../../../../assets/screenshots/ar/card-mobile-new-request.webp)
+*الطلبات في CARD Mobile*
 
 ### طلباتي
 

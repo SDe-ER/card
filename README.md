@@ -8,9 +8,12 @@
 
 إدارة تشغيل المعدات
 
+**[Documentation](https://sde-er.github.io/card/) · [التوثيق بالعربية](https://sde-er.github.io/card/ar/)**
+
 <!-- Build and quality -->
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
 [![Linters](https://github.com/SDe-ER/card/actions/workflows/linters.yml/badge.svg)](https://github.com/SDe-ER/card/actions/workflows/linters.yml)
+[![Docs site](https://github.com/SDe-ER/card/actions/workflows/docs.yml/badge.svg?branch=main)](https://sde-er.github.io/card/)
 [![CodeQL](https://github.com/SDe-ER/card/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/SDe-ER/card/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/SDe-ER/card/graph/badge.svg)](https://codecov.io/gh/SDe-ER/card)
 

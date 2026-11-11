@@ -16,6 +16,77 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-150 — CARD Mobile daily log screens for operators (#44, #123, FR-022; closure plan WP-K3).** Reason: #44
+  asks for daily entry and #123 for daily entry with operator/supervisor approval; FR-142 added the Card Daily Log
+  on the server but an operator could only reach it in CARD Desk, which operators cannot open. New CARD Mobile
+  (`frontend/`) screens: **My daily logs** (`/cdms/daily-logs`: the user's own drafts and submitted logs, newest
+  first, with their state), **New daily log** and **Edit daily log** (date, project, one row per machine of the
+  operator on that project with day, night and stopped hours and notes; machines added or removed; a draft only),
+  **Daily log** (state as stored: Draft, Pending, Verified by supervisor, Approved, Returned for correction with
+  the return reason) with **Send to supervisor** (submit) on a draft and **Correct this daily log** on a returned
+  log. The correction is two requests: 1. cancel the returned log (only `docstatus` and `modified` are sent);
+  2. ask the server whether any log already amends it (`amended_from` filter, the user's own permissions) and, if
+  none, create the corrected draft that amends it with the same header and rows. When step 2 fails (network,
+  validation, period lock, session), the log stays cancelled and "Returned for correction": **My daily logs** keeps
+  listing it with the badge "Corrected draft missing" and the log offers **Create corrected draft**, which repeats
+  step 2 only. A log that some log amends offers nothing; if a correction was created meanwhile, the page opens it.
+  Server backstop: a second amendment of the same log gets the same name (Frappe `<log>-1`) and the daily log
+  duplicate guard refuses the same equipment, project and date, so a retry never creates a second correction. A
+  save or submit over a newer version (`TimestampMismatchError`) shows a short translated message with a
+  **Reload** button that reads the stored log again (not Frappe's raw text). A stored stop reason is shown by its
+  readable name: the reason's `reason_name` for users who may read the reasons, otherwise the part of the record
+  name before " - <company abbreviation>" (CARD's stop reason naming, `reason_docname`); no permission is widened.
+  Stop reasons that fail to load for any reason other than a refusal are said on the form (the hours can still be
+  saved). A bottom-navigation tab and a Home link open the list. Affected code: `frontend/src/router.ts` (four routes), `frontend/src/data/api.ts`
+  (`listResource`, `getResource`, `insertResource`, `updateResource`: Frappe's standard `/api/resource` routes),
+  new `frontend/src/data/dailyLog.ts`, `frontend/src/pages/DailyLogList.vue`, `DailyLogForm.vue`,
+  `DailyLogView.vue`, `frontend/src/components/DailyLogBadge.vue`, `DailyLogDetail.vue`, `DailyLogRowFields.vue`,
+  `BottomNav.vue` (fifth operator tab), `Home.vue` (link), `frontend/src/i18n.ts` (`__()` returns the English
+  source when there is no `window`, for unit tests), `frontend/src/data/api.ts` (`ApiError.excType`),
+  `frontend/vite.config.ts` (two Vitest projects: `unit` as before, `pages` mounts the pages with the in-memory
+  renderer `frontend/src/test/renderer.ts` in the environment `frontend/src/test/web-env.ts`; no new dependency). The server decides everything: no CARD endpoint was added; the
+  screens use the standard REST routes under the user's own permissions (Card Operator `if_owner`, the FR-131 company
+  scope, every FR-142 rule), the machines and projects come from the existing `card.materials.get_portal_context`,
+  the company from the user's Active Employee (the server refuses a project of another company). The screens send
+  only the fields an operator enters (`project`, `log_date`, `notes`, `company` on create; row `equipment`, hours,
+  `notes`, and the stored stop reason and responsible party kept as they were) plus `modified` (a save over a newer
+  version is refused); submit and cancel send only `docstatus` and `modified`. No approval, editor, preparer or
+  status field is ever sent, and no approve, verify or return action is offered to any role on CARD Mobile:
+  supervisors and managers get a link to the log in CARD Desk. The stop reason picker shows only to users who may
+  read the company's stop reasons (an operator may not: the server refuses and the picker is hidden; the supervisor
+  names the reason). A daily log has no money field; none is read or shown (O-20). New strings: CARD-specific
+  msgids, generic words under the context "Card Mobile", Arabic in `card/locale/ar.po` and `main.pot`; logical
+  (RTL-safe) sides, LTR numbers and dates. Tests: `frontend/src/data/dailyLog.spec.ts` (actions per state and role,
+  no approval action for any role, payload allowlists without approval or money fields, list fields, submit and
+  correction bodies, a failed second request recovered from the list, no second correction, stop reasons refused
+  for operators and other failures not hidden, stale saves, stop reason labels, error display),
+  `frontend/src/test/DailyLogPages.spec.ts` (the pages mounted: a correction never submits, recovery after a failed
+  correction, nothing offered on a corrected or unknown log, existing correction opened, stale submit and save with
+  Reload, a submitted log never shows the form, stop reason failure warning, readable stored reason, list badge),
+  `frontend/src/pages/DailyLog.spec.ts`
+  (rendered actions per state and role, return reason, stored state, no money, error box, RTL: logical sides only,
+  LTR numbers and dates, translatable strings), `card/tests/test_mobile_daily_log.py` (the same REST bodies as a Card
+  Operator on Frappe: create, own-only list and read, save with a stale stamp refused, submit by docstatus, forged
+  approval fields ignored, stop reasons refused, correction of a returned log, a failed correction listed and
+  recovered, a second correction refused by the server). Defaults, pending the owner's confirmation: the operator
+  corrects a returned log on the phone; the log's company is the operator's Active Employee company; approvals stay
+  in CARD Desk; the new strings are in Arabic only (bn, hi and ur show English). Impact: permissions none (no role,
+  DocPerm or endpoint added); accounting none; data none (no schema or patch); API none (existing REST routes).
+  Rollback: revert the frontend files and rebuild. Logs created or corrected from the phone stay as ordinary Card
+  Daily Logs (drafts, submitted, cancelled and their amendments) and are not undone by the rollback; a returned log
+  cancelled on the phone whose corrected draft was not created stays cancelled and is corrected in CARD Desk
+  (Amend) after a rollback. PR #234.
+- **FR-149 — Documentation site: screenshots, generated Reference, Arabic home and font (follow-up to PR #229).**
+  Reason: the owner asked for professional screenshots of every screen, a better Arabic font, and a site that stays in
+  sync with the repository. Adds 96 screenshots (48 screens, English and Arabic UI) captured from a disposable demo
+  site with fictitious data (`website/scripts/screenshots/seed_demo.py`, `capture.mjs`, `shots.json`, `place.py`);
+  a generated Reference section (every DocType with its fields and permissions, every report with its filters and
+  roles, every whitelisted method) built from the code by `website/scripts/generate_reference.py` on every build;
+  an Arabic home page; IBM Plex Sans Arabic (self-hosted, SIL OFL) for Arabic text; `sharp` 0.35.5. The docs
+  workflow now also rebuilds and republishes when `card/**` changes on `main`, and warns (never blocks) when the
+  committed Reference pages are stale. AGENTS.md asks agents to regenerate the Reference and update the pages with
+  each change. Affected functions: none; no Python, DocType, permission, accounting, data or API change. Rollback:
+  revert the commit; the previous site is republished from `main`.
 - **FR-149 — CARD documentation site (`website/`, Astro Starlight, English + Arabic).** Reason: the owner asked for a
   full user and API documentation site in the style of the Whatomate docs. New static site under `website/`
   (sections Getting Started, Features, Reports, API Reference; English at the root and Arabic RTL under `/ar/`),
@@ -165,6 +236,53 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   live snapshot on every form refresh (backlog: cache or a lighter check if months grow large). Rollback limits:
   code rollback leaves the two tables and their rows (harmless, unused until WP-S2); delete the DocTypes to
   remove them.
+- **FR-154 — An approved, current period run before the monthly posting, opt-in per company (#49; closure plan
+  WP-S2).** Reason: #49 asks for "source records → approved period run → draft billing documents → accountant
+  approval"; FR-147 built the run but nothing posted from it. New Card Company Settings fields (section "Period
+  approval"): `require_period_approval` (Check, default 0) and `period_run_self_approval_rule` ("Warn only (period
+  run)" default / "Refuse (period run)"; empty = Warn only). With `require_period_approval` = 1 the monthly posting
+  of a company-month (`card.gl.posting._plan_monthly_posting`, both sides) is refused (`PeriodRunRequiredError`, a
+  ValidationError, so the preview shows it as `blocked`) unless, in this order: the month has an active Card Period
+  Run; it is submitted, approved, and the approval is for its current version and snapshot; it was not approved by
+  one of its preparers while the company's self-approval rule is Refuse; every source the posting is about to bill
+  is in the run on that side, for that party, with the run's fingerprint of the document as the posting read it
+  (a fill also with the supplier VAT registration and the company diesel VAT basis the run holds); and the run is
+  current (`check_current`). Amounts are never compared with invoice amounts: the run holds GROSS source amounts and
+  the posting books the net part of a VAT-inclusive diesel price; the fingerprints cover the source amounts. VAT is
+  never inferred. Routes covered (one gate in the builder): whitelisted `post_month` and `rebuild_month`, a direct
+  or background-job call of `build_monthly_posting` / `rebuild_monthly_posting`, the preview (`preview_month`);
+  `rebuild_monthly_posting` also checks the run state before it deletes the old draft. Concurrency: in a real build
+  the gate reads the month's run rows with `frappe.qb … for_update()` and rebuilds the live snapshot with locking
+  reads (the selection, every source document and its rows, the fill suppliers, the company's settings row:
+  `period_run.build_snapshot(for_update=True)`, `check_current(for_update=True)`, `posting._rows`), so a run
+  cancelled or approved, or a source changed or added, by another request is seen, and none can commit until the
+  posting does; the preview does not lock. Self-approval: the stricter of the run's rule and the company's rule
+  applies (`period_run.effective_self_approval_rule`): a run built while the company rule is Refuse takes Refuse, an
+  approval checks the company rule again, and a self-approved run is refused for posting under the company's Refuse
+  rule. The CARD Monthly Posting page shows the month's run (version, approval, current or changed) and, when the
+  setting is on, why posting is refused (new GET `card.gl.posting.posting_period_run`, same role and company checks
+  as the party list; run details only with Card Period Run read; no amounts). Affected functions:
+  `card/gl/period_gate.py` (new), `card.gl.posting._plan_monthly_posting`, `rebuild_monthly_posting`,
+  `_customer_transports` (optional locking read), `_rows` (new), `posting_period_run` (new);
+  `card.gl.period_run._selection`, `build_snapshot`, `check_current`, `diesel_vat_basis`, `_vat_registered`
+  (optional locking reads, default unchanged), `_strictest_rule`, `_approve`, `company_self_approval_rule`,
+  `effective_self_approval_rule` (new); `card_company_settings.json`; `card_monthly_posting.js`. Tests:
+  `card/tests/test_period_run_posting.py` (off by default and the run never read, the same invoice with and
+  without the gate, every route refused, rebuild refused before the delete, each refusal reason, both sides post,
+  FR-139 Hold and Post, stale run, VAT-inclusive diesel net against the gross run, basis and registration compared,
+  side/party/fingerprint per document, another month, company and run self-approval rules, the screen read and its
+  permission, locking in the build and none in the preview; two connections: a source changed, a source added, a
+  supplier registered, the VAT basis changed, a switch to FR-139 Post and a run cancelled while the gate runs);
+  `card/tests/test_bola_matrix.py` and `docs/governance/ROLE-ACTION-MATRIX.md` (one endpoint row). PR #235.
+  Impact: permissions — none (no role, DocPerm or permission change; the new fields sit at permlevel 1 like the
+  rest of the company row). Accounting: with the setting off, none (the posting is unchanged); with it on, postings
+  are refused until the run is approved and current; the invoices built are unchanged. Data: two new columns on
+  Card Company Settings (existing rows: 0 and Warn only = current behaviour); no patch. API: one new GET method;
+  `post_month`, `rebuild_month`, `preview_month` and the builders refuse more when the setting is on. Known limits:
+  the hand-booked invoice links (`link_supplier_invoice`, `link_accrual_journal`) and the submit of a CARD draft
+  invoice are not gated yet (owner 2026-11-11: wanted, in a later wave, not in this change); a real build with the
+  setting on locks every source document of the company-month until it commits (owner 2026-11-11: accepted). Rollback limits: a code rollback leaves the two columns (unused); drafts built
+  under the gate stay valid ERPNext drafts.
 - **FR-143 — Separation of duties on the monthly card (FR-006; #35, #51, #123; closure plan WP-D1, owner decision
   O-07).** Reason: owner 2026-10-19 "whoever created or entered a monthly card never approves it, enforced on the
   server" (R-13: the creator could submit his own card). A monthly card has no review step or Workflow yet (WP-D2),

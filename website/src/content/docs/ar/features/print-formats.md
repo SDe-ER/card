@@ -16,6 +16,8 @@ sidebar:
 المكتوبة من اليمين، ومن اليسار إلى اليمين في غيرها.
 
 <!-- screenshot: print-formats-monthly-card -->
+![قالب طباعة الكارت الشهري](../../../../assets/screenshots/ar/print-formats-monthly-card.webp)
+*قالب طباعة الكارت الشهري*
 
 ## المفاهيم الأساسية
 

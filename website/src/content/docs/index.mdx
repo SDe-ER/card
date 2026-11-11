@@ -1,13 +1,60 @@
 ---
 title: CARD
-description: Equipment management for Frappe / ERPNext
+description: Equipment operations management for Frappe and ERPNext — monthly operating cards, rentals, diesel, transport, maintenance and statements.
 template: splash
 hero:
-  tagline: Monthly operating cards, rentals, diesel, transport and owner statements — built on Frappe and ERPNext.
+  title: Equipment operations, from the site to the ledger
+  tagline: CARD records what every machine did each day, prices it by its rental terms, and turns it into standard ERPNext invoices and statements — for owned, rented and sub-let equipment.
   image:
     file: ../../assets/card-logo.svg
   actions:
     - text: Get started
       link: /card/getting-started/introduction/
       icon: right-arrow
+    - text: Explore features
+      link: /card/features/monthly-cards/
+      variant: minimal
 ---
+
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import workspace from "../../assets/screenshots/en/introduction-workspace.webp";
+
+<Image src={workspace} alt="The CARD workspace with number cards, shortcuts and charts" class="home-shot" />
+
+## What CARD does
+
+<CardGrid>
+	<Card title="Monthly operating cards" icon="document">
+		One card per machine, project and month: daily hours, stoppages with their reasons and responsible party,
+		additions and deductions, and the supplier and customer totals.
+	</Card>
+	<Card title="Rentals in every direction" icon="random">
+		Owned, rented-in, rented-out and sub-let equipment, each priced by the day, hour or month with the day billing
+		basis you agreed.
+	</Card>
+	<Card title="Diesel, transport and meters" icon="rocket">
+		Metered diesel sessions allocated by working hours, equipment transport with cost responsibility, and engine-hour
+		readings reconciled against the cards.
+	</Card>
+	<Card title="Standard ERPNext accounting" icon="approve-check">
+		CARD never writes ledger entries itself. It prepares draft Purchase and Sales Invoices from submitted cards, by
+		company and party, with posting checks.
+	</Card>
+	<Card title="Statements and reports" icon="list-format">
+		Supplier and customer statements in A4, settlement status, downtime, diesel analysis, partial margin and more —
+		25 reports in total.
+	</Card>
+	<Card title="Arabic and English" icon="translate">
+		Every screen, print and report in Arabic (right to left) and English, with the app named CARD in every language.
+	</Card>
+</CardGrid>
+
+## Start here
+
+<CardGrid>
+	<LinkCard title="Introduction" description="What CARD is, who it is for and its main ideas." href="/card/getting-started/introduction/" />
+	<LinkCard title="Installation" description="Install CARD on a Frappe / ERPNext bench." href="/card/getting-started/installation/" />
+	<LinkCard title="Configuration" description="Card Settings and the per-company accounts, items and rules." href="/card/getting-started/configuration/" />
+	<LinkCard title="Reference" description="Every DocType, field, report and API method, generated from the code." href="/card/reference/" />
+</CardGrid>

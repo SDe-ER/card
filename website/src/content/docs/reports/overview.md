@@ -17,6 +17,8 @@ therefore scopes every report itself: by company, by the roles that may run it, 
 and by whether the user may see ledger figures. The rules are the same for every report and are described below.
 
 <!-- screenshot: reports-overview-sidebar -->
+![Reports in the CARD workspace](../../../assets/screenshots/en/reports-overview-sidebar.webp)
+*Reports in the CARD workspace*
 
 ## Key concepts
 
