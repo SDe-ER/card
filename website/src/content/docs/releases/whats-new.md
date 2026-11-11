@@ -53,6 +53,9 @@ per site.
 
 ### Accounting and control
 
+- **2026-11-12 — Approved period run before posting (optional per company).** A company can require that a
+  month's cards, diesel fills and transports are in an approved, up-to-date Card Period Run before they are posted.
+  Off by default. See [Invoicing and posting](/card/features/invoicing-posting/#period-run-before-posting-opt-in).
 - **Separation of duties on monthly cards.** The people who prepared a card are recorded. Each company chooses
   whether a preparer who submits the card only gets a warning (the default) or is refused. See
   [Monthly cards](/card/features/monthly-cards/).

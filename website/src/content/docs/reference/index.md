@@ -17,7 +17,7 @@ This section is built from the code itself, so it always matches the current ver
 |---|---|
 | [DocTypes](/card/reference/doctypes/card-adjustment-type/) | 41 |
 | [Reports](/card/reference/reports/) | 25 |
-| [API endpoints](/card/reference/api-endpoints/) | 69 |
+| [API endpoints](/card/reference/api-endpoints/) | 70 |
 
 
 ## DocTypes
