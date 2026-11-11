@@ -32,6 +32,10 @@ per site.
 
 ### Operations
 
+- **2026-11-12 — Daily logs on CARD Mobile.** Operators can now record their daily logs from their phones: list
+  their own logs, create and edit a draft (day, night and stopped hours per machine), send it to the supervisor, and
+  correct a log that was returned with a reason. See [CARD Mobile](/card/features/card-mobile/) and
+  [Daily logs](/card/features/daily-logs/).
 - **Daily logs.** Site supervisors record each machine's day and night hours per project and day. A manager
   approves the log, and draft monthly cards can be generated from approved logs. See
   [Daily logs](/card/features/daily-logs/).

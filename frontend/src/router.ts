@@ -8,6 +8,27 @@ export const router = createRouter({
     { path: '/', name: 'Home', component: () => import('./pages/Home.vue') },
     { path: '/new', name: 'NewRequest', component: () => import('./pages/NewRequest.vue') },
     { path: '/requests', name: 'Requests', component: () => import('./pages/Requests.vue') },
+    // FR-150: Card Daily Log
+    {
+      path: '/daily-logs',
+      name: 'DailyLogs',
+      component: () => import('./pages/DailyLogList.vue'),
+    },
+    {
+      path: '/daily-logs/new',
+      name: 'DailyLogNew',
+      component: () => import('./pages/DailyLogForm.vue'),
+    },
+    {
+      path: '/daily-logs/:name',
+      name: 'DailyLogView',
+      component: () => import('./pages/DailyLogView.vue'),
+    },
+    {
+      path: '/daily-logs/:name/edit',
+      name: 'DailyLogEdit',
+      component: () => import('./pages/DailyLogForm.vue'),
+    },
     { path: '/catalog', name: 'Catalog', component: () => import('./pages/Catalog.vue') },
     { path: '/profile', name: 'Profile', component: () => import('./pages/Profile.vue') },
     { path: '/login', name: 'Login', component: () => import('./pages/Login.vue') },

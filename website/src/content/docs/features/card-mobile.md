@@ -13,8 +13,9 @@ covers the actions people need on site, with the same accounts, the same data an
 
 The current release covers the operator side of [equipment needs](/card/features/equipment-needs/): an operator
 sees his machines, asks for parts, consumables and tools, and follows his requests. Card Users can also open a
-read-only parts catalog. Hours entry, approvals, custody and notifications on the phone are planned (see
-[Planned screens](#planned-screens)).
+read-only parts catalog. Operators can also record their [daily logs](/card/features/daily-logs/) on the phone
+(see [Daily logs on the phone](#daily-logs-on-the-phone)). Supervisor and manager approvals, custody and
+notifications on the phone are planned (see [Planned screens](#planned-screens)).
 
 :::caution[Device support]
 Installation on real iPhone and Android phones has not been tested yet. Device support will be stated only after
@@ -139,13 +140,31 @@ build is picked up.
 - Touch targets of at least 48 px and one main action per screen.
 - Zoom is allowed.
 
+### Daily logs on the phone
+
+Added after release v4.7.0. An operator opens **Daily logs** from the bottom bar:
+
+| Screen | What it does |
+|---|---|
+| My daily logs (`/cdms/daily-logs`) | The operator's own logs, newest first, each with its state |
+| New daily log / Edit daily log | Date, project and one row per machine of the operator on that project, with day, night and stopped hours and notes; machines can be added or removed. Saves a draft only |
+| Daily log | The log as stored, with its state: Draft, Pending, Verified by supervisor, Approved, or Returned for correction with the reason |
+
+- **Send to supervisor** submits a draft.
+- **Correct this daily log** on a returned log cancels it and creates a corrected draft with the same header and
+  rows. If the second step fails (for example the network drops), the log shows "Corrected draft missing" and offers
+  **Create corrected draft**, which repeats only that step. The server refuses a second correction of the same log.
+- If someone else changed the log in the meantime, the screen shows a short message and asks to reload.
+
+Supervisor verification and manager approval stay in CARD Desk.
+
 ### Planned screens
 
 Planned, not implemented:
 
 | Screen | For |
 |---|---|
-| Daily operating hours: entry, review and approval with separation of duties | Operators, supervisors, managers |
+| Daily operating hours: supervisor review and manager approval on the phone | Supervisors, managers |
 | Supervisor review, request on behalf of an operator, custody | Supervisors |
 | Manager approvals | Managers |
 | My tools in custody | Operators |

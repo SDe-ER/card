@@ -7741,3 +7741,128 @@ msgstr "لا يمكن تغيير مصدر إدخال نقل معتمد ({0})."
 #: card/intake.py
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr "النقل {0} له مستند مصدر وهو ملغى؛ يُحتفظ به مع مستنده ولا يمكن حذفه."
+
+msgctxt "Card Mobile"
+msgid "Add"
+msgstr "إضافة"
+
+msgid "Add equipment"
+msgstr "إضافة معدة"
+
+msgid "After sending you can no longer change the daily log."
+msgstr "بعد الإرسال لا يمكنك تعديل اليومية."
+
+msgid "Approved. It can no longer be changed."
+msgstr "معتمدة. لا يمكن تعديلها بعد الآن."
+
+msgctxt "Card Mobile"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "Card Mobile"
+msgid "Cancelled"
+msgstr "ملغاة"
+
+msgid "Choose the project and the date."
+msgstr "اختر المشروع والتاريخ."
+
+msgid "Correct this daily log"
+msgstr "تصحيح هذه اليومية"
+
+msgid "Daily log"
+msgstr "اليومية"
+
+msgid "Daily logs"
+msgstr "اليوميات"
+
+msgctxt "Card Mobile"
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Draft saved. Send it to the supervisor when it is complete."
+msgstr "تم حفظ المسودة. أرسلها للمشرف عند اكتمالها."
+
+msgctxt "Card Mobile"
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Edit daily log"
+msgstr "تعديل اليومية"
+
+msgid "My daily logs"
+msgstr "يومياتي"
+
+msgid "New daily log"
+msgstr "يومية جديدة"
+
+msgid "No daily logs yet."
+msgstr "لا توجد يوميات بعد."
+
+msgid "No stop reason"
+msgstr "بدون سبب توقف"
+
+msgid "Not sent yet. You can still change it."
+msgstr "لم تُرسل بعد. ما زال بإمكانك تعديلها."
+
+msgid "Open in CARD Desk"
+msgstr "فتح في CARD Desk"
+
+msgctxt "Card Mobile"
+msgid "Project"
+msgstr "المشروع"
+
+msgid "Row {0}: hours cannot be negative or exceed 24 hours together."
+msgstr "السطر {0}: لا يمكن أن تكون الساعات سالبة أو أن يتجاوز مجموعها 24 ساعة."
+
+msgid "Save draft"
+msgstr "حفظ كمسودة"
+
+msgid "Sent to the supervisor. Waiting for approval."
+msgstr "أُرسلت للمشرف. بانتظار الاعتماد."
+
+msgctxt "Card Mobile"
+msgid "Something went wrong. Try again."
+msgstr "حدث خطأ. حاول مرة أخرى."
+
+msgid "The returned daily log is cancelled and a new draft with the same hours opens for your correction."
+msgstr "تُلغى اليومية المرجعة وتُفتح مسودة جديدة بنفس الساعات لتصحيحها."
+
+msgid "This daily log was sent to the supervisor; it can no longer be edited."
+msgstr "أُرسلت هذه اليومية للمشرف؛ لا يمكن تعديلها بعد الآن."
+
+msgid "View daily log"
+msgstr "عرض اليومية"
+
+msgid "Your account is not linked to an employee of a company."
+msgstr "حسابك غير مرتبط بموظف في شركة."
+
+msgid "Your daily log was sent to the supervisor."
+msgstr "تم إرسال يوميتك إلى المشرف."
+
+msgid "A new draft with the same hours opens for your correction."
+msgstr "تُفتح مسودة جديدة بنفس الساعات لتصحيحها."
+
+msgid "Corrected draft missing"
+msgstr "المسودة المصححة غير موجودة"
+
+msgid "Create corrected draft"
+msgstr "إنشاء المسودة المصححة"
+
+msgctxt "Card Mobile"
+msgid "Reload"
+msgstr "إعادة التحميل"
+
+msgid "Stop reasons could not be loaded. You can still save the hours."
+msgstr "تعذّر تحميل أسباب التوقف. ما زال بإمكانك حفظ الساعات."
+
+msgid "This daily log was already corrected: {0}"
+msgstr "تم تصحيح هذه اليومية بالفعل: {0}"
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version."
+msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحميلها لعرض أحدث نسخة."
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version; your unsaved changes will be lost."
+msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحميلها لعرض أحدث نسخة؛ ستُفقد تغييراتك غير المحفوظة."
+
+msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
+msgstr "أُلغيت هذه اليومية المرجعة، لكن لم تُنشأ مسودتها المصححة. أنشئها الآن."
