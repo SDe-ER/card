@@ -2,10 +2,12 @@
 # For license information, please see LICENSE
 """FR-144 (#31, #42, #47): effective-dated consumption rates (litres per operating hour).
 
-consumption_rate(equipment, on_date) = the equipment's row valid on the date, else daily_diesel_consumption /
-daily_hours (the Equipment Diesel Analysis basis), else the static expected_consumption, else the type row of the
-equipment's company, else the type row with no company, else None. The seed patch gives each equipment with only a
-static value one row from 2000-01-01, so every date keeps today's value; a second run adds nothing. Equipment rows are
+consumption_rate(equipment, on_date) = the equipment's row valid on the date, else the static per-hour
+expected_consumption (owner decision 2026-11-11: it is the real rate when a daily figure exists too), else
+daily_diesel_consumption / daily_hours, else the type row of the equipment's company, else the type row with no
+company, else None; Equipment Diesel Analysis uses the same order. The seed patch gives each equipment with a static
+value (also one with daily figures) one row from 2000-01-01, so every date keeps today's value; a second run adds
+nothing. Equipment rows are
 level-1 data on every read path; type rows are changed by Card Manager / System Manager only, within the user's
 companies. Rows dated before today are final. Everything is created per test and rolled back."""
 
@@ -48,10 +50,10 @@ def _rows(rates):
 
 def _report_expected(hours, daily, daily_hours, per_hour):
 	"""Equipment Diesel Analysis (FR-033) expected litres, as equipment_diesel_analysis.py computes them."""
-	if flt(daily) and flt(daily_hours) > 0:
-		return flt(hours * flt(daily) / flt(daily_hours), 3)
 	if flt(per_hour):
 		return flt(hours * flt(per_hour), 3)
+	if flt(daily) and flt(daily_hours) > 0:
+		return flt(hours * flt(daily) / flt(daily_hours), 3)
 	return None
 
 
@@ -168,18 +170,23 @@ class TestConsumptionRate(IntegrationTestCase):
 
 	# ---------- resolution ----------
 
-	def test_order_equipment_row_daily_static_type(self):
+	def test_order_equipment_row_static_daily_type(self):
 		self._set_type_rates([("2026-01-01", 20)])
 		eq = self._equipment(static=9, daily=120, rates=[("2026-03-01", 14)])
 		self.assertEqual(consumption_rate_details(eq.name, "2026-03-15").source, SOURCE_EQUIPMENT)
 		self.assertEqual(consumption_rate(eq.name, "2026-03-15"), 14)
-		# before the equipment row: daily standard (120 L / 10 h), not the static value or the type row
+		# before the equipment row: the static per-hour value (owner decision 2026-11-11), not the daily standard
+		# (120 L / 10 h = 12) or the type row
 		details = consumption_rate_details(eq.name, "2026-02-01")
+		self.assertEqual((details.rate, details.source, details.valid_from), (9, SOURCE_STATIC, None))
+		# only daily figures: the daily standard comes before the type row
+		eq2 = self._equipment(daily=120)
+		details = consumption_rate_details(eq2.name, "2026-02-01")
 		self.assertEqual((details.rate, details.source, details.valid_from), (12, SOURCE_DAILY, None))
-		# no daily basis: the static value comes before the type row
-		eq2 = self._equipment(static=9)
-		self.assertEqual(consumption_rate_details(eq2.name, "2026-02-01").source, SOURCE_STATIC)
-		self.assertEqual(consumption_rate(eq2.name, "2026-02-01"), 9)
+		# only a static value: the static value comes before the type row
+		eq4 = self._equipment(static=9)
+		self.assertEqual(consumption_rate_details(eq4.name, "2026-02-01").source, SOURCE_STATIC)
+		self.assertEqual(consumption_rate(eq4.name, "2026-02-01"), 9)
 		# nothing on the equipment: the type row
 		eq3 = self._equipment()
 		details = consumption_rate_details(eq3.name, "2026-02-01")
@@ -193,6 +200,20 @@ class TestConsumptionRate(IntegrationTestCase):
 		bare = self._equipment()
 		details = consumption_rate_details(bare.name, "2026-03-01")
 		self.assertEqual((details.rate, details.source), (0, SOURCE_TYPE))
+
+	def test_per_hour_wins_over_daily_when_both_set(self):
+		# owner decision 2026-11-11: the per-hour figure is the real rate when both figures exist
+		eq = self._equipment(static=7.5, daily=100, daily_hours=8)  # daily basis would be 12.5
+		details = consumption_rate_details(eq.name, "2026-03-01")
+		self.assertEqual((details.rate, details.source, details.valid_from), (7.5, SOURCE_STATIC, None))
+		self.assertEqual(consumption_rate(eq.name, "2026-03-01"), 7.5)
+		# only daily figures: the daily standard is used
+		daily_only = self._equipment(daily=100, daily_hours=8)
+		details = consumption_rate_details(daily_only.name, "2026-03-01")
+		self.assertEqual((details.rate, details.source), (12.5, SOURCE_DAILY))
+		# a static 0 means "not set": the daily standard is used
+		zero = self._equipment(static=0, daily=100, daily_hours=8)
+		self.assertEqual(consumption_rate_details(zero.name, "2026-03-01").source, SOURCE_DAILY)
 
 	def test_daily_basis_needs_both_fields(self):
 		eq = self._equipment(static=9, daily=150, daily_hours=0)
@@ -350,9 +371,10 @@ class TestConsumptionRate(IntegrationTestCase):
 		with_static = self._equipment(static=9.5)
 		without = self._equipment()
 		zero = self._equipment(static=0)
-		daily = self._equipment(static=9, daily=150)
+		both = self._equipment(static=9, daily=150)  # per-hour and daily figures (per-hour 9 L/h is the rate)
+		daily_only = self._equipment(daily=150)
 		already = self._equipment(static=4, rates=[("2026-01-01", 6)])
-		subjects = (with_static, without, zero, daily, already)
+		subjects = (with_static, without, zero, both, daily_only, already)
 
 		def snapshot():
 			return {
@@ -375,11 +397,24 @@ class TestConsumptionRate(IntegrationTestCase):
 		self.assertEqual(frappe.db.get_value("Card Equipment", with_static.name, "expected_consumption"), 9.5)
 		self.assertEqual(self._seed_rows(without.name), [])
 		self.assertEqual(self._seed_rows(zero.name), [])
-		self.assertEqual(self._seed_rows(daily.name), [])  # daily standard basis kept (report parity)
-		self.assertEqual(len(self._seed_rows(already.name)), 1)
+		# owner decision 2026-11-11: equipment with both figures is seeded from its per-hour value
+		seeded = self._seed_rows(both.name)
+		self.assertEqual(
+			[(r.litres_per_hour, getdate(r.valid_from)) for r in seeded], [(9, getdate("2000-01-01"))]
+		)
+		self.assertEqual(consumption_rate_details(both.name, "2040-01-01").source, SOURCE_EQUIPMENT)
+		self.assertEqual(consumption_rate(both.name, "2040-01-01"), 9)
+		self.assertEqual(self._seed_rows(daily_only.name), [])  # only daily figures: not seeded
+		self.assertEqual(consumption_rate_details(daily_only.name, "2040-01-01").source, SOURCE_DAILY)
+		# an existing dated row is never overwritten and nothing is added beside it
+		kept = self._seed_rows(already.name)
+		self.assertEqual(
+			[(r.litres_per_hour, getdate(r.valid_from)) for r in kept], [(6, getdate("2026-01-01"))]
+		)
 
-		seed_consumption_rates.execute()  # second migrate
-		self.assertEqual(len(self._seed_rows(with_static.name)), 1)
+		rows_before = {eq.name: self._seed_rows(eq.name) for eq in subjects}
+		seed_consumption_rates.execute()  # second migrate changes nothing
+		self.assertEqual({eq.name: self._seed_rows(eq.name) for eq in subjects}, rows_before)
 		self.assertEqual(snapshot(), before)
 		doc = frappe.get_doc("Card Equipment", with_static.name)
 		doc.save(ignore_permissions=True)  # the seeded row passes validation

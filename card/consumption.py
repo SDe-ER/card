@@ -14,11 +14,13 @@ the next row of the same table (and, on a type, of the same company), with no en
 
 `consumption_rate(equipment, on_date)` resolves, in this order:
 1. the equipment's own row valid on the date;
-2. "daily standard": daily_diesel_consumption / daily_hours when both are set (the basis Equipment Diesel Analysis
-   uses first, FR-033), so the helper equals that report for every existing equipment;
-3. the equipment's static `expected_consumption` (0 = not set);
+2. the equipment's static per-hour `expected_consumption` when set (0 = not set). Owner decision 2026-11-11: when
+   an equipment has both a per-hour and a daily figure, the per-hour figure is the real rate;
+3. "daily standard": daily_diesel_consumption / daily_hours when both are set;
 4. the type row valid on the date for the equipment's company, else the type row with no company;
 5. None (no rate: a caller must not divide by it or invent one).
+Equipment Diesel Analysis (FR-033) uses the same order for steps 2 and 3, so the helper equals that report for every
+equipment with no dated row.
 
 A row whose valid_from is before today is final: its date, rate, company and reason cannot change and it cannot be
 deleted; a correction is a new row with a reason, and a new backdated row needs a reason too.
@@ -84,12 +86,13 @@ def consumption_rate_details(equipment, on_date=None):
 	row = _row_on(EQUIPMENT_ROW_DOCTYPE, "Card Equipment", values.name, EQUIPMENT_TABLE, on_date)
 	if row:
 		return _result(flt(row.litres_per_hour), SOURCE_EQUIPMENT, row.valid_from)
-	# FR-033 parity: Equipment Diesel Analysis uses this basis before the per-hour field
-	if flt(values.daily_diesel_consumption) and flt(values.daily_hours) > 0:
-		return _result(flt(values.daily_diesel_consumption) / flt(values.daily_hours), SOURCE_DAILY)
+	# owner decision 2026-11-11: the per-hour figure is the real rate when both figures exist (same order as
+	# Equipment Diesel Analysis, FR-033 parity)
 	static = flt(values.get(STATIC_FIELD))
 	if static:
 		return _result(static, SOURCE_STATIC)
+	if flt(values.daily_diesel_consumption) and flt(values.daily_hours) > 0:
+		return _result(flt(values.daily_diesel_consumption) / flt(values.daily_hours), SOURCE_DAILY)
 	if values.equipment_type:
 		row = None
 		if values.company:
