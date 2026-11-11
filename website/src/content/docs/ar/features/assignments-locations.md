@@ -16,6 +16,8 @@ sidebar:
 مكانها من آخر نقل معتمد لها (ورشة أو مستودع أو مورد)، أو من المكان الابتدائي للشركة.
 
 <!-- screenshot: assignments-locations-assignment-form -->
+![تعيين معدة لمشروع](../../../../assets/screenshots/ar/assignments-locations-assignment-form.webp)
+*تعيين معدة لمشروع*
 
 ## الحقول الأساسية
 
@@ -153,6 +155,8 @@ sidebar:
 التي يكون فيها داخل الوحدة فقط. ويُحدَّد كل يوم من السجل الكامل، فلا تتوقف الصفوف أبدًا على الفترة المطلوبة.
 
 <!-- screenshot: assignments-locations-location-history -->
+![تقرير سجل مواقع المعدات](../../../../assets/screenshots/ar/assignments-locations-location-history.webp)
+*تقرير سجل مواقع المعدات*
 
 ## سير العمل
 

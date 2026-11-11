@@ -6695,6 +6695,118 @@ msgstr ""
 msgid "Card Diesel Variance Threshold"
 msgstr ""
 
+#: card/gl/period_gate.py
+msgid "Approved period run required"
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "Company {0} requires an approved period run before posting {1}/{2}, and there is none. Build the period run, submit it and have an accountant approve it."
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} is still a draft. Submit it and have an accountant approve it before posting."
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} was returned for correction ({3}). Cancel and amend it, then have the new version approved before posting."
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} is waiting for an accountant's approval; posting needs an approved period run."
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "The approval of period run {0} is not for its current version. Cancel and amend the run and have the new version approved before posting."
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "Period run {0} was approved by one of its preparers, and the self-approval rule of company {1} is Refuse. Cancel and amend the run and have another accountant approve the new version."
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "The CARD documents of {0}/{1} changed after period run {2} was approved (added: {3}; removed: {4}; changed: {5}). Cancel and amend the run and have the new version approved before posting."
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "{0} (not in the run on this side)"
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "{0} (another party in the run)"
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "{0} (changed since the run was built)"
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "{0} (supplier VAT registration changed)"
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "diesel price VAT basis {0} (the run was built with {1})"
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "Approved period run {0} does not hold these documents of {1} {2} as the posting would bill them: {3}. Cancel and amend the run and have the new version approved before posting."
+msgstr ""
+
+#: card/gl/period_gate.py
+msgid "Posting needs an approved, current period run of company {0} for {1}/{2}, and you cannot open it."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Draft period run"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run version {0}"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run is current"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run changed since it was built"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run approved by its preparer"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "This company does not require an approved period run before posting (Card Company Settings)."
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Posting is refused for this month:"
+msgstr ""
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "The approved period run is current; posting is allowed. Each posting is checked against it again."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Period approval"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Require an approved period run before posting"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "On: the monthly posting (draft Purchase and Sales Invoices) of a month is refused until the company's Card Period Run for that month is submitted, approved by an accountant and still current; every document the posting bills is checked against the run. Off (the default): posting as before."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A period run approved by a user who built, edited or submitted it (or an earlier version): Warn only approves with a message and marks the run; Refuse stops the approval, and a run approved that way is not accepted for posting. The stricter of this rule and the run's own rule applies. Empty: Warn only."
+msgstr ""
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
 msgstr ""
@@ -6709,4 +6821,133 @@ msgstr ""
 
 #: card/intake.py
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
+msgstr ""
+
+#: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py
+msgid "Expected = operating hours x the per-hour expected consumption when it is set, otherwise operating hours x (daily diesel consumption / daily standard hours). Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) plus estimated (project-tank fills split by card hours, not measured). The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Add"
+msgstr ""
+
+msgid "Add equipment"
+msgstr ""
+
+msgid "After sending you can no longer change the daily log."
+msgstr ""
+
+msgid "Approved. It can no longer be changed."
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Cancelled"
+msgstr ""
+
+msgid "Choose the project and the date."
+msgstr ""
+
+msgid "Correct this daily log"
+msgstr ""
+
+msgid "Daily log"
+msgstr ""
+
+msgid "Daily logs"
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Draft"
+msgstr ""
+
+msgid "Draft saved. Send it to the supervisor when it is complete."
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Edit"
+msgstr ""
+
+msgid "Edit daily log"
+msgstr ""
+
+msgid "My daily logs"
+msgstr ""
+
+msgid "New daily log"
+msgstr ""
+
+msgid "No daily logs yet."
+msgstr ""
+
+msgid "No stop reason"
+msgstr ""
+
+msgid "Not sent yet. You can still change it."
+msgstr ""
+
+msgid "Open in CARD Desk"
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Project"
+msgstr ""
+
+msgid "Row {0}: hours cannot be negative or exceed 24 hours together."
+msgstr ""
+
+msgid "Save draft"
+msgstr ""
+
+msgid "Sent to the supervisor. Waiting for approval."
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Something went wrong. Try again."
+msgstr ""
+
+msgid "The returned daily log is cancelled and a new draft with the same hours opens for your correction."
+msgstr ""
+
+msgid "This daily log was sent to the supervisor; it can no longer be edited."
+msgstr ""
+
+msgid "View daily log"
+msgstr ""
+
+msgid "Your account is not linked to an employee of a company."
+msgstr ""
+
+msgid "Your daily log was sent to the supervisor."
+msgstr ""
+
+msgid "A new draft with the same hours opens for your correction."
+msgstr ""
+
+msgid "Corrected draft missing"
+msgstr ""
+
+msgid "Create corrected draft"
+msgstr ""
+
+msgctxt "Card Mobile"
+msgid "Reload"
+msgstr ""
+
+msgid "Stop reasons could not be loaded. You can still save the hours."
+msgstr ""
+
+msgid "This daily log was already corrected: {0}"
+msgstr ""
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version."
+msgstr ""
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version; your unsaved changes will be lost."
+msgstr ""
+
+msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
 msgstr ""

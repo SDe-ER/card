@@ -16,6 +16,8 @@ sidebar:
 فوتر فعلًا عبر CARD ومع دفتر الطرف الرسمي.
 
 <!-- screenshot: suppliers-customers-registry -->
+![سجل موردي المعدات](../../../../assets/screenshots/ar/suppliers-customers-registry.webp)
+*سجل موردي المعدات*
 
 ## المفاهيم الأساسية
 
@@ -59,6 +61,8 @@ sidebar:
 كان الطرف يتعامل مع شركة واحدة فقط.
 
 <!-- screenshot: suppliers-customers-figures -->
+![أرقام المورد](../../../../assets/screenshots/ar/suppliers-customers-figures.webp)
+*أرقام المورد*
 
 ### تحديث الأرقام
 
@@ -127,6 +131,8 @@ sidebar:
 العربي متصلًا الحروف تشكيلًا صحيحًا.
 
 <!-- screenshot: suppliers-customers-a4 -->
+![كشف حساب مورد المعدات](../../../../assets/screenshots/ar/suppliers-customers-a4.webp)
+*كشف حساب مورد المعدات*
 
 ### حالة التسوية
 

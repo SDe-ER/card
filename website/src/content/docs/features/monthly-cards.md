@@ -17,6 +17,8 @@ A submitted card is the source for the supplier and customer statements and for 
 Invoices (see [Invoicing & Posting](/card/features/invoicing-posting/)). The card never writes ledger entries itself.
 
 <!-- screenshot: monthly-cards-form -->
+![A monthly card](../../../assets/screenshots/en/monthly-cards-form.webp)
+*A monthly card*
 
 ## Key concepts
 

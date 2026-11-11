@@ -7935,6 +7935,118 @@ msgstr "فروقات الديزل والحالات الشاذة"
 msgid "Card Diesel Variance Threshold"
 msgstr "حد فروقات الديزل"
 
+#: card/gl/period_gate.py
+msgid "Approved period run required"
+msgstr "دورة فترة معتمدة مطلوبة"
+
+#: card/gl/period_gate.py
+msgid "Company {0} requires an approved period run before posting {1}/{2}, and there is none. Build the period run, submit it and have an accountant approve it."
+msgstr "تشترط الشركة {0} دورة فترة معتمدة قبل ترحيل {1}/{2}، ولا توجد دورة. أنشئ دورة الفترة واعتمد إرسالها (Submit) ثم اطلب من المحاسب اعتمادها."
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} is still a draft. Submit it and have an accountant approve it before posting."
+msgstr "دورة الفترة {0} لـ {1}/{2} ما زالت مسودة. اعتمد إرسالها (Submit) واطلب من المحاسب اعتمادها قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} was returned for correction ({3}). Cancel and amend it, then have the new version approved before posting."
+msgstr "أُعيدت دورة الفترة {0} لـ {1}/{2} للتصحيح ({3}). ألغِها وعدّلها (Amend)، ثم اطلب اعتماد الإصدار الجديد قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} is waiting for an accountant's approval; posting needs an approved period run."
+msgstr "دورة الفترة {0} لـ {1}/{2} بانتظار اعتماد المحاسب؛ الترحيل يتطلب دورة فترة معتمدة."
+
+#: card/gl/period_gate.py
+msgid "The approval of period run {0} is not for its current version. Cancel and amend the run and have the new version approved before posting."
+msgstr "اعتماد دورة الفترة {0} ليس لإصدارها الحالي. ألغِ الدورة وعدّلها (Amend) واطلب اعتماد الإصدار الجديد قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "Period run {0} was approved by one of its preparers, and the self-approval rule of company {1} is Refuse. Cancel and amend the run and have another accountant approve the new version."
+msgstr "اعتمد دورة الفترة {0} أحدُ معدّيها، وقاعدة الاعتماد الذاتي للشركة {1} هي «رفض». ألغِ الدورة وعدّلها (Amend) واطلب من محاسب آخر اعتماد الإصدار الجديد."
+
+#: card/gl/period_gate.py
+msgid "The CARD documents of {0}/{1} changed after period run {2} was approved (added: {3}; removed: {4}; changed: {5}). Cancel and amend the run and have the new version approved before posting."
+msgstr "تغيّرت مستندات CARD لـ {0}/{1} بعد اعتماد دورة الفترة {2} (أُضيف: {3}؛ أُزيل: {4}؛ تغيّر: {5}). ألغِ الدورة وعدّلها (Amend) واطلب اعتماد الإصدار الجديد قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "{0} (not in the run on this side)"
+msgstr "{0} (غير موجود في الدورة على هذا الطرف)"
+
+#: card/gl/period_gate.py
+msgid "{0} (another party in the run)"
+msgstr "{0} (مسجّل في الدورة لطرف آخر)"
+
+#: card/gl/period_gate.py
+msgid "{0} (changed since the run was built)"
+msgstr "{0} (تغيّر بعد إنشاء الدورة)"
+
+#: card/gl/period_gate.py
+msgid "{0} (supplier VAT registration changed)"
+msgstr "{0} (تغيّر تسجيل المورد في ضريبة القيمة المضافة)"
+
+#: card/gl/period_gate.py
+msgid "diesel price VAT basis {0} (the run was built with {1})"
+msgstr "أساس ضريبة القيمة المضافة لسعر الديزل {0} (أُنشئت الدورة على {1})"
+
+#: card/gl/period_gate.py
+msgid "Approved period run {0} does not hold these documents of {1} {2} as the posting would bill them: {3}. Cancel and amend the run and have the new version approved before posting."
+msgstr "دورة الفترة المعتمدة {0} لا تتضمن مستندات {1} {2} هذه كما سيُفوترها الترحيل: {3}. ألغِ الدورة وعدّلها (Amend) واطلب اعتماد الإصدار الجديد قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "Posting needs an approved, current period run of company {0} for {1}/{2}, and you cannot open it."
+msgstr "الترحيل يتطلب دورة فترة معتمدة وحديثة للشركة {0} لـ {1}/{2}، ولا تملك صلاحية فتحها."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Draft period run"
+msgstr "دورة فترة مسودة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run version {0}"
+msgstr "إصدار دورة الفترة {0}"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run is current"
+msgstr "دورة الفترة حديثة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run changed since it was built"
+msgstr "تغيّرت دورة الفترة بعد إنشائها"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run approved by its preparer"
+msgstr "اعتمد دورة الفترة معدُّها"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run"
+msgstr "دورة الفترة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "This company does not require an approved period run before posting (Card Company Settings)."
+msgstr "لا تشترط هذه الشركة دورة فترة معتمدة قبل الترحيل (إعدادات الشركة في CARD)."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Posting is refused for this month:"
+msgstr "الترحيل مرفوض لهذا الشهر:"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "The approved period run is current; posting is allowed. Each posting is checked against it again."
+msgstr "دورة الفترة المعتمدة حديثة؛ الترحيل مسموح. يُطابَق كل ترحيل معها مرة أخرى."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Period approval"
+msgstr "اعتماد الفترة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Require an approved period run before posting"
+msgstr "اشتراط دورة فترة معتمدة قبل الترحيل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "On: the monthly posting (draft Purchase and Sales Invoices) of a month is refused until the company's Card Period Run for that month is submitted, approved by an accountant and still current; every document the posting bills is checked against the run. Off (the default): posting as before."
+msgstr "مفعّل: يُرفض الترحيل الشهري (مسودات فواتير الشراء والمبيعات) لشهرٍ ما حتى تُرسل دورة الفترة للشركة لذلك الشهر ويعتمدها محاسب وتبقى حديثة؛ ويُطابَق كل مستند يُفوتره الترحيل مع الدورة. غير مفعّل (الافتراضي): الترحيل كما كان."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A period run approved by a user who built, edited or submitted it (or an earlier version): Warn only approves with a message and marks the run; Refuse stops the approval, and a run approved that way is not accepted for posting. The stricter of this rule and the run's own rule applies. Empty: Warn only."
+msgstr "دورة فترة يعتمدها مستخدم أنشأها أو عدّلها أو اعتمد إرسالها (أو إصدارًا سابقًا منها): «تنبيه فقط» يعتمدها مع رسالة ويعلّم الدورة؛ «رفض» يمنع الاعتماد، ولا تُقبل للترحيل دورة اعتُمدت بهذه الطريقة. تُطبّق الأشد بين هذه القاعدة وقاعدة الدورة نفسها. فارغ: تنبيه فقط."
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
 msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ ويُحتفظ به."
@@ -7950,3 +8062,132 @@ msgstr "لا يمكن تغيير مصدر إدخال نقل معتمد ({0})."
 #: card/intake.py
 msgid "Transport {0} has intake evidence and is cancelled; it is kept with its evidence and cannot be deleted."
 msgstr "النقل {0} له مستند مصدر وهو ملغى؛ يُحتفظ به مع مستنده ولا يمكن حذفه."
+
+#: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py
+msgid "Expected = operating hours x the per-hour expected consumption when it is set, otherwise operating hours x (daily diesel consumption / daily standard hours). Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) plus estimated (project-tank fills split by card hours, not measured). The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
+msgstr "المتوقع = ساعات التشغيل × الاستهلاك المتوقع بالساعة إذا كان محددًا، وإلا ساعات التشغيل × (استهلاك الديزل اليومي ÷ ساعات اليوم القياسي). الموزع = اللترات الموزعة من تعبئات الديزل المعتمدة: المسجلة (تعبئة مباشرة للمعدة) زائد التقديرية (تعبئات خزان المشروع موزعة بساعات الكارت، غير مقاسة). الفرق يقارن المتوقع بالموزع، وليس الاستهلاك المقاس. للعرض فقط — بدون محاسبة."
+
+msgctxt "Card Mobile"
+msgid "Add"
+msgstr "إضافة"
+
+msgid "Add equipment"
+msgstr "إضافة معدة"
+
+msgid "After sending you can no longer change the daily log."
+msgstr "بعد الإرسال لا يمكنك تعديل اليومية."
+
+msgid "Approved. It can no longer be changed."
+msgstr "معتمدة. لا يمكن تعديلها بعد الآن."
+
+msgctxt "Card Mobile"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "Card Mobile"
+msgid "Cancelled"
+msgstr "ملغاة"
+
+msgid "Choose the project and the date."
+msgstr "اختر المشروع والتاريخ."
+
+msgid "Correct this daily log"
+msgstr "تصحيح هذه اليومية"
+
+msgid "Daily log"
+msgstr "اليومية"
+
+msgid "Daily logs"
+msgstr "اليوميات"
+
+msgctxt "Card Mobile"
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Draft saved. Send it to the supervisor when it is complete."
+msgstr "تم حفظ المسودة. أرسلها للمشرف عند اكتمالها."
+
+msgctxt "Card Mobile"
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Edit daily log"
+msgstr "تعديل اليومية"
+
+msgid "My daily logs"
+msgstr "يومياتي"
+
+msgid "New daily log"
+msgstr "يومية جديدة"
+
+msgid "No daily logs yet."
+msgstr "لا توجد يوميات بعد."
+
+msgid "No stop reason"
+msgstr "بدون سبب توقف"
+
+msgid "Not sent yet. You can still change it."
+msgstr "لم تُرسل بعد. ما زال بإمكانك تعديلها."
+
+msgid "Open in CARD Desk"
+msgstr "فتح في CARD Desk"
+
+msgctxt "Card Mobile"
+msgid "Project"
+msgstr "المشروع"
+
+msgid "Row {0}: hours cannot be negative or exceed 24 hours together."
+msgstr "السطر {0}: لا يمكن أن تكون الساعات سالبة أو أن يتجاوز مجموعها 24 ساعة."
+
+msgid "Save draft"
+msgstr "حفظ كمسودة"
+
+msgid "Sent to the supervisor. Waiting for approval."
+msgstr "أُرسلت للمشرف. بانتظار الاعتماد."
+
+msgctxt "Card Mobile"
+msgid "Something went wrong. Try again."
+msgstr "حدث خطأ. حاول مرة أخرى."
+
+msgid "The returned daily log is cancelled and a new draft with the same hours opens for your correction."
+msgstr "تُلغى اليومية المرجعة وتُفتح مسودة جديدة بنفس الساعات لتصحيحها."
+
+msgid "This daily log was sent to the supervisor; it can no longer be edited."
+msgstr "أُرسلت هذه اليومية للمشرف؛ لا يمكن تعديلها بعد الآن."
+
+msgid "View daily log"
+msgstr "عرض اليومية"
+
+msgid "Your account is not linked to an employee of a company."
+msgstr "حسابك غير مرتبط بموظف في شركة."
+
+msgid "Your daily log was sent to the supervisor."
+msgstr "تم إرسال يوميتك إلى المشرف."
+
+msgid "A new draft with the same hours opens for your correction."
+msgstr "تُفتح مسودة جديدة بنفس الساعات لتصحيحها."
+
+msgid "Corrected draft missing"
+msgstr "المسودة المصححة غير موجودة"
+
+msgid "Create corrected draft"
+msgstr "إنشاء المسودة المصححة"
+
+msgctxt "Card Mobile"
+msgid "Reload"
+msgstr "إعادة التحميل"
+
+msgid "Stop reasons could not be loaded. You can still save the hours."
+msgstr "تعذّر تحميل أسباب التوقف. ما زال بإمكانك حفظ الساعات."
+
+msgid "This daily log was already corrected: {0}"
+msgstr "تم تصحيح هذه اليومية بالفعل: {0}"
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version."
+msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحميلها لعرض أحدث نسخة."
+
+msgid "This daily log was changed meanwhile. Reload it to see the latest version; your unsaved changes will be lost."
+msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحميلها لعرض أحدث نسخة؛ ستُفقد تغييراتك غير المحفوظة."
+
+msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
+msgstr "أُلغيت هذه اليومية المرجعة، لكن لم تُنشأ مسودتها المصححة. أنشئها الآن."

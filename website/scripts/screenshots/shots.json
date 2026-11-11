@@ -1,0 +1,235 @@
+{
+  "_comment": "Screenshot list for the CARD docs. path is relative to the site; {company} is replaced. scroll is a CSS selector or text to bring into view; mobile uses a phone viewport.",
+  "shots": [
+    {
+      "name": "introduction-workspace",
+      "path": "/app/card"
+    },
+    {
+      "name": "workspace-dashboard-overview",
+      "path": "/app/card"
+    },
+    {
+      "name": "workspace-dashboard-shortcuts",
+      "path": "/app/card",
+      "scrollText": [
+        "Reports",
+        "التقارير"
+      ]
+    },
+    {
+      "name": "languages-workspace-arabic",
+      "path": "/app/card",
+      "lang": "ar"
+    },
+    {
+      "name": "reports-overview-sidebar",
+      "path": "/app/card",
+      "scrollText": [
+        "Reports",
+        "التقارير"
+      ],
+      "scroll": 330
+    },
+    {
+      "name": "configuration-card-settings",
+      "path": "/app/card-settings"
+    },
+    {
+      "name": "roles-permissions-role-list",
+      "path": "/app/role?name=%5B%22like%22%2C%22%25Card%25%22%5D"
+    },
+    {
+      "name": "notifications-alerts-bell",
+      "path": "/app/card",
+      "click": "[aria-label*='otification'], [title*='otification'], .notifications-icon"
+    },
+    {
+      "name": "equipment-form",
+      "path": "/app/card-equipment/{eq:WL-02}"
+    },
+    {
+      "name": "equipment-create-from-asset",
+      "path": "/app/card-equipment"
+    },
+    {
+      "name": "units-components-unit-form",
+      "path": "/app/card-equipment/{eq:CR-03}"
+    },
+    {
+      "name": "assignments-locations-assignment-form",
+      "path": "/app/card-equipment-assignment/{asg:CR-03}"
+    },
+    {
+      "name": "assignments-locations-location-history",
+      "path": "/app/query-report/Equipment Location History?company={company}&from_date=2026-09-01&to_date=2026-10-31"
+    },
+    {
+      "name": "operations-location-history",
+      "path": "/app/query-report/Equipment Location History?company={company}&from_date=2026-09-01&to_date=2026-10-31"
+    },
+    {
+      "name": "transport-form",
+      "path": "/app/equipment-transport/{trn}"
+    },
+    {
+      "name": "transport-print",
+      "path": "/printview?doctype=Equipment%20Transport&name={trn}&format=Equipment%20Transport%20Print&no_letterhead=1"
+    },
+    {
+      "name": "transport-accounting-review",
+      "path": "/app/query-report/Transport Accounting Review?company={company}&from_date=2026-09-01&to_date=2026-11-30&show=All"
+    },
+    {
+      "name": "tool-custody-form",
+      "path": "/app/employee-tool-custody/{etc}"
+    },
+    {
+      "name": "tool-custody-screen",
+      "path": "/app/tool-custody"
+    },
+    {
+      "name": "daily-logs-form",
+      "path": "/app/card-daily-log/{cdl}"
+    },
+    {
+      "name": "daily-logs-generation-result",
+      "path": "/app/card-daily-log/{cdl}",
+      "scrollSel": "[data-fieldname='rows']"
+    },
+    {
+      "name": "monthly-cards-form",
+      "path": "/app/card-monthly-card/{card:WL-02}"
+    },
+    {
+      "name": "adjustments-card-table",
+      "path": "/app/card-monthly-card/{card:CR-03}",
+      "scrollSel": "[data-fieldname='adjustments']"
+    },
+    {
+      "name": "print-formats-monthly-card",
+      "path": "/printview?doctype=Card%20Monthly%20Card&name={card:WL-02}&format=Card%20Monthly%20Card%20Print&no_letterhead=1"
+    },
+    {
+      "name": "rate-agreements-form",
+      "path": "/app/card-rate-agreement/{cra}"
+    },
+    {
+      "name": "invoicing-posting-page",
+      "path": "/app/card-monthly-posting",
+      "setSelect": {
+        "from": "11",
+        "to": "10"
+      }
+    },
+    {
+      "name": "invoicing-posting-preview",
+      "path": "/app/card-monthly-posting",
+      "scroll": 300,
+      "setSelect": {
+        "from": "11",
+        "to": "10"
+      }
+    },
+    {
+      "name": "suppliers-customers-registry",
+      "path": "/app/card-equipment-supplier"
+    },
+    {
+      "name": "suppliers-customers-figures",
+      "path": "/app/card-equipment-supplier/Desert Equipment Rentals"
+    },
+    {
+      "name": "suppliers-customers-a4",
+      "path": "/app/query-report/Equipment Supplier Statement?company={company}&supplier=Desert Equipment Rentals&from_date=2026-10-01&to_date=2026-10-31"
+    },
+    {
+      "name": "statements-supplier-statement",
+      "path": "/app/query-report/Equipment Supplier Statement?company={company}&supplier=Desert Equipment Rentals&from_date=2026-10-01&to_date=2026-10-31"
+    },
+    {
+      "name": "statements-settlement-status",
+      "path": "/app/query-report/Card Settlement Status?company={company}"
+    },
+    {
+      "name": "diesel-form",
+      "path": "/app/project-diesel-fill/{dsl}"
+    },
+    {
+      "name": "diesel-meter-photos",
+      "path": "/app/project-diesel-fill/{dsl}",
+      "scrollText": [
+        "Meter photos",
+        "صور العداد",
+        "Opening"
+      ]
+    },
+    {
+      "name": "diesel-analysis",
+      "path": "/app/query-report/Equipment Diesel Analysis?company={company}&from_month=10&from_year=2026&to_month=10&to_year=2026"
+    },
+    {
+      "name": "diesel-invoice-reconciliation",
+      "path": "/app/query-report/Diesel Invoice Reconciliation?company={company}&from_date=2026-10-01&to_date=2026-10-31"
+    },
+    {
+      "name": "meter-readings-form",
+      "path": "/app/equipment-meter-reading/{emr}"
+    },
+    {
+      "name": "meter-readings-reconciliation",
+      "path": "/app/query-report/Equipment Meter Reconciliation?company={company}"
+    },
+    {
+      "name": "operations-equipment-downtime",
+      "path": "/app/query-report/Equipment Downtime?company={company}&from_date=2026-10-01&to_date=2026-10-31"
+    },
+    {
+      "name": "maintenance-parts-catalog",
+      "path": "/app/card-equipment-model"
+    },
+    {
+      "name": "maintenance-parts-fitment",
+      "path": "/app/card-equipment-part"
+    },
+    {
+      "name": "asset-mapping-review",
+      "path": "/app/query-report/Asset Mapping Review?company={company}"
+    },
+    {
+      "name": "equipment-needs-review",
+      "path": "/app/equipment-needs-request/{enr}"
+    },
+    {
+      "name": "equipment-needs-portal",
+      "path": "/equipment-needs",
+      "as": "operator"
+    },
+    {
+      "name": "accounting-partial-margin",
+      "path": "/app/query-report/Equipment Partial Margin?company={company}&from_date=2026-10-01&to_date=2026-10-31"
+    },
+    {
+      "name": "accounting-posting-source-integrity",
+      "path": "/app/query-report/Posting Source Integrity?company={company}&from_date=2026-10-01&to_date=2026-10-31&show=All"
+    },
+    {
+      "name": "card-mobile-home",
+      "path": "/cdms",
+      "mobile": true,
+      "as": "operator"
+    },
+    {
+      "name": "card-mobile-new-request",
+      "path": "/cdms",
+      "mobile": true,
+      "clickText": [
+        "Requests",
+        "الطلبات",
+        "New request",
+        "طلب جديد"
+      ],
+      "as": "operator"
+    }
+  ]
+}

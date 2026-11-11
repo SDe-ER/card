@@ -10,14 +10,15 @@ def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	filters.company = resolve_company(filters, "Card Monthly Card", "Project Diesel Fill")
 	# Report: "Equipment Diesel Analysis" (F.2). Read-only, no accounting.
-	# Per equipment x project x month: expected litres = operating hours x
-	# (daily_diesel_consumption / daily standard hours) vs the litres ALLOCATED
+	# Per equipment x project x month: expected litres = operating hours x the
+	# per-hour expected_consumption when set (owner decision 2026-11-11: the
+	# per-hour figure is the real rate when both exist), else x
+	# (daily_diesel_consumption / daily standard hours), vs the litres ALLOCATED
 	# from submitted Project Diesel Fills (card.diesel allocation), shown split
 	# into recorded (direct fills) and estimated (tank fills split by hours, #33),
 	# with the variance (expected vs allocated — not measured consumption) and
-	# variance %. Equipment without a daily consumption
-	# figure falls back to the older per-hour expected_consumption; with neither,
-	# the expected side is left empty (flagged, never a crash).
+	# variance %. With neither figure the expected side is left empty (flagged,
+	# never a crash).
 
 	flt = frappe.utils.flt
 	cint = frappe.utils.cint
@@ -92,12 +93,13 @@ def execute(filters=None):
 		a = agg[key]
 		info = eq_info.get(equipment) or frappe._dict()
 		hours = flt(a["hours"], 2)
-		# expected: daily figure spread over the standard day; fallback to the per-hour figure
+		# expected: the per-hour figure when set (owner decision 2026-11-11: it is the real rate when both
+		# exist); else the daily figure spread over the standard day. Same order as card.consumption (FR-144).
 		expected = None
-		if flt(info.get("daily_diesel_consumption")) and flt(info.get("daily_hours")) > 0:
-			expected = flt(hours * flt(info.daily_diesel_consumption) / flt(info.daily_hours), 3)
-		elif flt(info.get("expected_consumption")):
+		if flt(info.get("expected_consumption")):
 			expected = flt(hours * flt(info.expected_consumption), 3)
+		elif flt(info.get("daily_diesel_consumption")) and flt(info.get("daily_hours")) > 0:
+			expected = flt(hours * flt(info.daily_diesel_consumption) / flt(info.daily_hours), 3)
 		share = allocated(project, month, year, equipment)
 		# "actual_litres" keeps its fieldname; it holds the ALLOCATED litres
 		actual = flt(share.get("litres"))
@@ -235,7 +237,8 @@ def execute(filters=None):
 		},
 	]
 	message = _(
-		"Expected = operating hours x (daily diesel consumption / daily standard hours). "
+		"Expected = operating hours x the per-hour expected consumption when it is set, otherwise operating hours"
+		" x (daily diesel consumption / daily standard hours). "
 		"Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) "
 		"plus estimated (project-tank fills split by card hours, not measured). "
 		"The variance compares expected vs allocated, not measured consumption. Display only — no accounting."

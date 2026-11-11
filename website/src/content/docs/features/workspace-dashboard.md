@@ -16,6 +16,8 @@ All figures on the workspace are read with the user's own permissions: a user li
 the figures of those companies, and amounts a user may not read are not shown.
 
 <!-- screenshot: workspace-dashboard-overview -->
+![Workspace number cards and charts](../../../assets/screenshots/en/workspace-dashboard-overview.webp)
+*Workspace number cards and charts*
 
 ## Key concepts
 
@@ -84,6 +86,8 @@ The workspace groups its shortcuts in four blocks:
 - **Accounting** — Purchase Invoice, Sales Invoice, Payment Entry (the standard ERPNext lists).
 
 <!-- screenshot: workspace-dashboard-shortcuts -->
+![Shortcuts and report links](../../../assets/screenshots/en/workspace-dashboard-shortcuts.webp)
+*Shortcuts and report links*
 
 ### Launcher (Dock)
 
