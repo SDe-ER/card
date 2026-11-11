@@ -16,6 +16,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-149 — "What's new" in English and Arabic; short README (owner request 2026-11-12).** Reason: the owner
+  asked that every update appear on the documentation site with an explanation in Arabic and English, and that the
+  README become a short professional entry point that links to the site. Adds `website/.../releases/whats-new.md`
+  (EN and AR: merged-but-unreleased changes in plain language and every released version) and a Development and
+  contributing page (EN and AR) that takes over the README's development, checks, contributing and release
+  sections. The README keeps logo, badges, a short description, highlights, quick start, documentation links,
+  contributing, security and license. AGENTS.md, the pull request template and `website/WRITING-GUIDE.md` require a
+  What's new entry with every change; the docs workflow warns on a pull request that changes `card/` or
+  `CHANGELOG.md` without one, and also rebuilds the site when `CHANGELOG.md` changes. Affected functions: none; no
+  app code, permission, accounting, data or API change. Rollback: revert the commit.
 - **FR-149 — Documentation site: screenshots, generated Reference, Arabic home and font (follow-up to PR #229).**
   Reason: the owner asked for professional screenshots of every screen, a better Arabic font, and a site that stays in
   sync with the repository. Adds 96 screenshots (48 screens, English and Arabic UI) captured from a disposable demo
