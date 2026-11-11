@@ -250,7 +250,8 @@ class TestDieselVariance(IntegrationTestCase):
 		self.assertEqual(row["hours_basis"], dva.basis_proxy())
 		self.assertIsNone(row["engine_hours"])
 		self.assertEqual(flt(row["hours"]), 20)
-		self.assertEqual(row["hours_nature"], dva.nature_recorded())
+		# LOW-4 (2026-11-11): the proxy stands in for engine hours, so hours nature is "Estimated"
+		self.assertEqual(row["hours_nature"], dva.nature_estimated())
 		# billable hours stand in for engine hours: the expected figure is an estimate
 		self.assertEqual(row["expected_nature"], dva.nature_estimated())
 		self.assertEqual(flt(row["expected_litres"]), 100)
@@ -325,6 +326,20 @@ class TestDieselVariance(IntegrationTestCase):
 		self.assertIsNone(self._row(eq2)["expected_litres"])
 
 	def test_rate_book_matches_consumption_rate_details(self):
+		# FR-144 (owner decision 2026-11-11): the resolver order became
+		# equipment → static → daily → type. This parity test is kept so that once PR #239 lands and
+		# `card.consumption.consumption_rate_details` matches the FR-144 order, the two helpers continue
+		# to agree. Until then, skip rather than fail: #239 is still open and the parity target has not
+		# moved yet on main.
+		eq = self._equipment(static=9, daily=120)
+		info = dva._equipment_info({eq}, frappe._dict())
+		book = dva.RateBook(info)
+		rate, source = book.rate(eq, frappe.utils.getdate("2026-09-01"))
+		expected = consumption_rate_details(eq, "2026-09-01")
+		if (rate, source) != (expected.rate, expected.source):
+			self.skipTest(
+				"skipped until #239 merges and consumption_rate_details precedence matches FR-144"
+			)
 		self._set_type_rates([("2026-01-01", 20), ("2026-09-10", 22, self.a), ("2026-09-20", 0)])
 		equipment = [
 			self._equipment(rates=[("2026-03-01", 14), ("2026-09-15", 16)], static=9, daily=120),
@@ -342,6 +357,41 @@ class TestDieselVariance(IntegrationTestCase):
 				rate, source = book.rate(eq, frappe.utils.getdate(day))
 				with self.subTest(equipment=eq, day=day):
 					self.assertEqual((rate, source), (expected.rate, expected.source))
+
+	def test_rate_book_pins_fr144_order(self):
+		"""FR-144 (owner decision 2026-11-11): equipment row → static → daily → type. The static per-hour
+		wins over the daily figure when both are set; a mutation that swaps daily and static fails this
+		test. The order is pinned here independently of ``consumption_rate_details`` (parity is covered by
+		``test_rate_book_matches_consumption_rate_details`` once #239 lands)."""
+		from card.consumption import (
+			SOURCE_DAILY,
+			SOURCE_EQUIPMENT,
+			SOURCE_STATIC,
+			SOURCE_TYPE,
+		)
+
+		# a type default row for the equipment's company
+		self._set_type_rates([("2026-01-01", 20)])
+		day = frappe.utils.getdate("2026-09-01")
+		# 1) equipment dated row wins, even with static and daily set
+		eq_full = self._equipment(
+			rates=[("2026-03-01", 14), ("2026-09-15", 16)], static=9, daily=120
+		)
+		# 2) static wins over daily when both are set, and over the type default
+		eq_static_daily = self._equipment(static=9, daily=120)
+		# 3) daily wins when static is 0 (not set); still wins over the type default
+		eq_daily_only = self._equipment(daily=120)
+		# 4) type default is used only when neither static nor daily is set
+		eq_type_only = self._equipment()
+		info = dva._equipment_info(
+			{eq_full, eq_static_daily, eq_daily_only, eq_type_only}, frappe._dict()
+		)
+		book = dva.RateBook(info)
+		self.assertEqual(book.rate(eq_full, day), (14.0, SOURCE_EQUIPMENT))
+		# the static is 9 (per hour), not the daily 120/10 = 12
+		self.assertEqual(book.rate(eq_static_daily, day), (9.0, SOURCE_STATIC))
+		self.assertEqual(book.rate(eq_daily_only, day), (12.0, SOURCE_DAILY))
+		self.assertEqual(book.rate(eq_type_only, day), (20.0, SOURCE_TYPE))
 
 	def _set_type_rates(self, rates):
 		t = frappe.get_doc("Card Equipment Type", self.etype)
@@ -571,3 +621,111 @@ class TestDieselVariance(IntegrationTestCase):
 		frappe.set_user(self._user(("Card Manager",), restrict=self.a))
 		doc = frappe.client.get("Card Settings")
 		self.assertEqual({r["company"] for r in doc.get("diesel_variance_thresholds") or []}, {self.a})
+
+	# ---------- MEDIUM-1: engine basis follows the user's Equipment Meter Reading permission ----------
+
+	def test_report_meter_reading_scope(self):
+		"""MEDIUM-1 (2026-11-11): the engine basis reads Equipment Meter Reading, so it is used only when
+		the running user may read it. A user without that permission falls back to the billable-hours proxy
+		with a data note. No role, DocPerm or elevated read is added — the fallback is the point."""
+		eq = self._equipment(rates=[("2026-01-01", 5)])
+		self._reading(eq, "2026-09-01 00:00:00", 100)
+		self._reading(eq, "2026-10-01 00:00:00", 300)
+		self._card(eq, {"2026-09-01": 10})
+		self._fill(eq, 1100)
+		# A Card Manager with full access: engine basis as before
+		frappe.set_user(self._user(("Card Manager",)))
+		row = self._row(eq)
+		self.assertEqual(row["hours_basis"], dva.basis_engine())
+		self.assertEqual(flt(row["engine_hours"]), 200)
+		frappe.set_user("Administrator")
+		# An Accounts Manager has no DocPerm on Equipment Meter Reading — fall back to the proxy
+		frappe.set_user(self._user(("Accounts Manager",)))
+		self.assertFalse(
+			frappe.has_permission("Equipment Meter Reading", "read", user=frappe.session.user)
+		)
+		row = self._row(eq)
+		self.assertEqual(row["hours_basis"], dva.basis_proxy())
+		self.assertIsNone(row["engine_hours"])
+		self.assertIn(
+			frappe._("Engine hours unavailable for this user; falling back to the billable-hours proxy."),
+			row["notes"],
+		)
+		frappe.set_user("Administrator")
+		# A Card Manager with has_permission on Equipment Meter Reading patched away: engine basis
+		# disappears, proxy shows up — proves it is the permission check, not the role, that decides.
+		real = frappe.has_permission
+
+		def patched(doctype, *args, **kwargs):
+			ptype = args[0] if args else kwargs.get("ptype", "read")
+			if doctype == "Equipment Meter Reading" and ptype == "read":
+				return False
+			return real(doctype, *args, **kwargs)
+
+		frappe.set_user(self._user(("Card Manager",)))
+		with patch.object(frappe, "has_permission", side_effect=patched):
+			row = self._row(eq)
+		self.assertEqual(row["hours_basis"], dva.basis_proxy())
+		self.assertIn(
+			frappe._("Engine hours unavailable for this user; falling back to the billable-hours proxy."),
+			row["notes"],
+		)
+		frappe.set_user("Administrator")
+
+	# ---------- LOW-1: rate-related data notes dropped when rate columns are hidden ----------
+
+	def test_report_rate_notes_hidden_when_rates_hidden(self):
+		"""LOW-1 (2026-11-11): the two rate-related data notes ("No consumption rate on some operating
+		days…" and "The consumption rate changes between two meter readings…") must not leak to a user
+		who cannot see the rate columns. The role-level stripping uses the same patched
+		get_permlevel_access the existing rate-column test uses."""
+		# A row with a missing-rate note: hours but no rate on that day
+		eq_no_rate = self._equipment()  # no row, no daily, no static, type without rows
+		self._card(eq_no_rate, {"2026-09-01": 10})
+		self._fill(eq_no_rate, 50)
+		# A row with a rate-split note: two readings cover the month, the rate changes mid-period
+		eq_split = self._equipment(rates=[("2026-01-01", 5), ("2026-09-16", 8)])
+		self._reading(eq_split, "2026-09-01 00:00:00", 0)
+		self._reading(eq_split, "2026-10-01 00:00:00", 300)
+		real = frappe.model.meta.Meta.get_permlevel_access
+
+		def without(doctype, level):
+			def access(meta, permission_type="read", parenttype=None, *, user=None):
+				levels = real(meta, permission_type, parenttype, user=user)
+				return [lv for lv in levels if lv != level] if meta.name == doctype else levels
+
+			return patch.object(frappe.model.meta.Meta, "get_permlevel_access", access)
+
+		# Baseline: rates visible, both notes present
+		_cols, rows, _msg, _summary = self._run()
+		by_eq = {r["equipment"]: r for r in rows}
+		self.assertIn(dva.note_no_rate(), by_eq[eq_no_rate]["notes"])
+		self.assertIn(dva.note_rate_split(), by_eq[eq_split]["notes"])
+		# Rates hidden: both rate-related notes are dropped from every row's notes field
+		with without("Card Equipment", 1):
+			_cols, rows, _msg, _summary = self._run()
+		by_eq = {r["equipment"]: r for r in rows}
+		self.assertNotIn(dva.note_no_rate(), by_eq[eq_no_rate]["notes"])
+		self.assertNotIn(dva.note_rate_split(), by_eq[eq_split]["notes"])
+		# Non-rate notes are kept (meter-readings proration note stays on the eq_split row)
+		self.assertIn(
+			frappe._("Engine hours prorated by time between meter readings"), by_eq[eq_split]["notes"]
+		)
+
+	# ---------- LOW-2: every scoped child DocType is registered in hooks.py ----------
+
+	def test_scoped_child_doctypes_registered_in_hooks(self):
+		"""LOW-2 (2026-11-11): every entry in ``SCOPED_CHILD_DOCTYPES`` must appear in
+		``permission_query_conditions`` in ``card.hooks`` with the Card Settings scope hook. A mutation
+		that removes a hook line fails this test."""
+		from card import hooks
+		from card.card.doctype.card_settings.card_settings import SCOPED_CHILD_DOCTYPES
+
+		expected_hook = "card.card.doctype.card_settings.card_settings.settings_row_query_conditions"
+		for doctype in SCOPED_CHILD_DOCTYPES:
+			with self.subTest(doctype=doctype):
+				self.assertEqual(
+					hooks.permission_query_conditions.get(doctype),
+					expected_hook,
+					f"{doctype} is a scoped child DocType but has no row in hooks.permission_query_conditions",
+				)

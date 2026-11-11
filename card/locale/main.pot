@@ -6579,11 +6579,23 @@ msgid "Direct fills amount"
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Direct fills amount (at the fills' recorded price, VAT basis as entered on the fill)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
 msgid "Variance litres (filled - expected, not a loss)"
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
 msgid "Variance cost at the average fill price (not a loss)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance cost at the average fill price (not a loss; at the fills' recorded price, VAT basis as entered on the fill)"
+msgstr ""
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Engine hours unavailable for this user; falling back to the billable-hours proxy."
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py

@@ -7819,12 +7819,24 @@ msgid "Direct fills amount"
 msgstr "مبلغ التعبئات المباشرة"
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Direct fills amount (at the fills' recorded price, VAT basis as entered on the fill)"
+msgstr "مبلغ التعبئات المباشرة (بسعر التعبئة المسجَّل، أساس ضريبة القيمة المضافة كما هو مُدخل على الحقل)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
 msgid "Variance litres (filled - expected, not a loss)"
 msgstr "فرق اللترات (المعبأ - المتوقع، ليس فقدًا)"
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
 msgid "Variance cost at the average fill price (not a loss)"
 msgstr "تكلفة الفرق بمتوسط سعر التعبئة (ليست فقدًا)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance cost at the average fill price (not a loss; at the fills' recorded price, VAT basis as entered on the fill)"
+msgstr "تكلفة الفرق بمتوسط سعر التعبئة (ليست فقدًا؛ بسعر التعبئة المسجَّل، أساس ضريبة القيمة المضافة كما هو مُدخل على الحقل)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Engine hours unavailable for this user; falling back to the billable-hours proxy."
+msgstr "ساعات المحرك غير متاحة لهذا المستخدم؛ يتم الرجوع إلى تقدير الساعات المستحقة."
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
 msgid "Anomaly flags"

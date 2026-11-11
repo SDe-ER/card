@@ -14,23 +14,28 @@ One row per equipment and calendar month (clipped to the selected dates) of ONE 
     the whole month (a reading at or before its start, one at or after its end, no meter reset in between). Each
     interval's hours are spread evenly over its time to apply the rate of each day. The nature is "Recorded" when
     readings fall exactly on the month's limits and every interval has one rate; otherwise "Estimated" (time
-    proration).
+    proration). The engine basis is used only when the running user may read Equipment Meter Reading; otherwise
+    (and with a project filter) the billable-hours proxy stands in, with a data note on the row.
   - "Billable-hours proxy": otherwise, the operating hours of the days of the company's submitted monthly cards
-    (``working_hours`` of each day row). Always "Estimated": billable hours stand in for engine hours. With a
-    project filter the proxy is always used, as engine hours belong to the equipment, not to a project.
+    (``working_hours`` of each day row). Hours nature is "Estimated": billable hours stand in for engine hours.
+    With a project filter the proxy is always used, as engine hours belong to the equipment, not to a project.
 - Expected litres: Σ over the days (hours of the day × the FR-144 consumption rate valid on that day), with the
-  rate order of ``card.consumption.consumption_rate_details`` (equipment row, daily standard, static, type row of
-  the equipment's company, type row with no company), resolved in memory from batched reads. A day with hours and
-  no rate leaves the expected side empty and flags the row (never a crash, never an invented rate).
+  FR-144 order (owner decision 2026-11-11): equipment dated row → static per-hour (``expected_consumption`` when
+  set, 0 = not set) → daily standard (``daily_diesel_consumption / daily_hours``) → type row of the equipment's
+  company → type row with no company → None. ``RateBook`` resolves it in memory from batched reads. A day with
+  hours and no rate leaves the expected side empty and flags the row (never a crash, never an invented rate).
 - Variance = filled − expected (litres, %, and cost at the month's average direct-fill price). A variance is an
   analytical signal, NOT a loss; this report makes no loss claim (loss comes only from tank dips, a later WP).
+  Amounts are the fills' recorded amount (VAT basis as entered on the fill row); the report never infers VAT.
 - Anomaly flags come only from the company's row in Card Settings ``diesel_variance_thresholds``; with no row (the
-  default) nothing is flagged as an anomaly. Data notes (no rate, proxy used) are always shown.
+  default) nothing is flagged as an anomaly. Data notes about the proxy or the meter readings are always shown;
+  notes about rates are hidden when the rate columns are hidden (same user).
 
 Access: the report roles of Equipment Diesel Analysis; one company the user may see for the doctypes read
 (``card.report_access.resolve_company``). Rates and every figure derived from them need level-1 read on Card
-Equipment (the level of the rates); amounts need read on the fill amount's level. Columns a user may not read are
-removed, never sent. Every read is batched (a fixed number of queries whatever the number of rows)."""
+Equipment (the level of the rates); amounts need read on the fill amount's level; the engine basis needs read on
+Equipment Meter Reading (checked at the session user). Columns a user may not read are removed, never sent. Every
+read is batched (a fixed number of queries whatever the number of rows)."""
 
 from collections import defaultdict
 from datetime import datetime, time, timedelta
@@ -92,6 +97,14 @@ def nature_estimated():
 	return _("Estimated figure")
 
 
+def note_no_rate():
+	return _("No consumption rate on some operating days: expected litres not computed")
+
+
+def note_rate_split():
+	return _("The consumption rate changes between two meter readings: hours split by time")
+
+
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
 	company = resolve_company(filters, *DOCTYPES)
@@ -100,10 +113,17 @@ def execute(filters=None):
 	show_rates = 1 in frappe.get_meta(EQUIPMENT).get_permlevel_access("read")
 	amount_level = cint(frappe.get_meta(FILL).get_field("amount").permlevel)
 	show_amounts = amount_level in frappe.get_meta(FILL).get_permlevel_access("read")
+	# MEDIUM-1 guard: the engine basis reads Equipment Meter Reading, so it is only taken when the running user
+	# may read it. Checked at the session user; no elevated read. A user without that permission falls back to
+	# the billable-hours proxy with a data note on the row.
+	can_read_readings = frappe.has_permission(READING, "read", user=frappe.session.user)
 
 	fills, tank = _direct_fills(filters, start, end)
 	card_hours = _card_hours(filters, start, end)
-	readings = {} if filters.get("project") else _readings(filters, start, end)
+	if filters.get("project") or not can_read_readings:
+		readings = {}
+	else:
+		readings = _readings(filters, start, end)
 	equipment = set(fills) | set(card_hours) | set(readings)
 	info = _equipment_info(equipment, filters)
 	equipment = set(info)
@@ -114,7 +134,18 @@ def execute(filters=None):
 	for eq in sorted(equipment, key=lambda e: ((info[e].equipment_name or e), e)):
 		meter = EngineHours(readings.get(eq) or [])
 		for p_start, p_end in _months(start, end):
-			row = _row(eq, info[eq], p_start, p_end, fills.get(eq), card_hours.get(eq), meter, book, filters)
+			row = _row(
+				eq,
+				info[eq],
+				p_start,
+				p_end,
+				fills.get(eq),
+				card_hours.get(eq),
+				meter,
+				book,
+				filters,
+				can_read_readings=can_read_readings,
+			)
 			if row is None:
 				continue
 			_flag(row, threshold, show_rates)
@@ -124,6 +155,8 @@ def execute(filters=None):
 	summary = _summary(rows, tank)
 	if not show_rates:
 		_strip(columns, rows, summary, RATE_FIELDS)
+		# LOW-1: a user who may not read rates must not see rate-related data notes either
+		_drop_notes(rows, (note_no_rate(), note_rate_split()))
 	if not show_amounts:
 		_strip(columns, rows, summary, AMOUNT_FIELDS)
 	for row in rows:
@@ -411,16 +444,19 @@ class RateBook:
 		return None
 
 	def rate(self, equipment, day):
-		"""(rate or None, source or None) on ``day``, in the order of consumption_rate_details."""
+		"""(rate or None, source or None) on ``day``, in the FR-144 order (owner decision 2026-11-11):
+		equipment dated row → static per-hour (``expected_consumption`` when set, 0 = not set) → daily standard
+		(``daily_diesel_consumption / daily_hours``) → type row of the equipment's company → type row with no
+		company → None. The static per-hour decides over the daily figure when both are set."""
 		src_equipment, src_daily, src_static, src_type = self.sources
 		values = self.info[equipment]
 		row = self._first(self.equipment_rows.get(equipment) or [], day, any_company=True)
 		if row:
 			return flt(row.litres_per_hour), src_equipment
-		if flt(values.daily_diesel_consumption) and flt(values.daily_hours) > 0:
-			return flt(values.daily_diesel_consumption) / flt(values.daily_hours), src_daily
 		if flt(values.expected_consumption):
 			return flt(values.expected_consumption), src_static
+		if flt(values.daily_diesel_consumption) and flt(values.daily_hours) > 0:
+			return flt(values.daily_diesel_consumption) / flt(values.daily_hours), src_daily
 		if values.equipment_type:
 			rows = self.type_rows.get(values.equipment_type) or []
 			row = None
@@ -497,12 +533,23 @@ class EngineHours:
 # ---------- rows ----------
 
 
-def _row(eq, info, p_start, p_end, fills_by_month, card_days, meter, book, filters):
+def _row(
+	eq,
+	info,
+	p_start,
+	p_end,
+	fills_by_month,
+	card_days,
+	meter,
+	book,
+	filters,
+	can_read_readings=True,
+):
 	month = _month_key(p_start)
 	fill = (fills_by_month or {}).get(month) or {"litres": 0.0, "amount": 0.0, "projects": set()}
 	billable = {d: v for d, v in (card_days or {}).items() if p_start <= d <= p_end}
 	billable_hours = flt(sum(v["hours"] for v in billable.values()), 2)
-	engine = None if filters.get("project") else meter.for_period(p_start, p_end)
+	engine = None if (filters.get("project") or not can_read_readings) else meter.for_period(p_start, p_end)
 	if not (fill["litres"] or fill["amount"] or billable_hours or engine):
 		return None
 
@@ -518,6 +565,11 @@ def _row(eq, info, p_start, p_end, fills_by_month, card_days, meter, book, filte
 		if filters.get("project"):
 			notes.append(
 				_("Project filter: engine hours belong to the equipment, the billable-hours proxy is used")
+			)
+		elif not can_read_readings:
+			# MEDIUM-1: engine hours need read on Equipment Meter Reading
+			notes.append(
+				_("Engine hours unavailable for this user; falling back to the billable-hours proxy.")
 			)
 		elif billable_hours:
 			notes.append(_("Meter readings do not cover the month: the billable-hours proxy is used"))
@@ -544,12 +596,14 @@ def _row(eq, info, p_start, p_end, fills_by_month, card_days, meter, book, filte
 				rate_split = True
 				break
 	if missing_rate:
-		notes.append(_("No consumption rate on some operating days: expected litres not computed"))
+		notes.append(note_no_rate())
 		expected = None
 	else:
 		expected = flt(expected, 3)
-	# card hours and exact meter differences are recorded; hours prorated between readings are estimated
-	hours_nature = nature_estimated() if engine and not exact else nature_recorded()
+	# LOW-4 (2026-11-11): exact engine differences are recorded; the billable-hours proxy stands in for engine
+	# hours, so it is "Estimated" (not "Recorded"), matching the docs; time-prorated engine hours are "Estimated"
+	# as well. Only readings that fall on the month limits with one rate per interval are "Recorded".
+	hours_nature = nature_recorded() if engine and exact else nature_estimated()
 	if engine and exact and not rate_split:
 		expected_nature = nature_recorded()
 	else:
@@ -557,7 +611,7 @@ def _row(eq, info, p_start, p_end, fills_by_month, card_days, meter, book, filte
 	if engine and not exact:
 		notes.append(_("Engine hours prorated by time between meter readings"))
 	if rate_split:
-		notes.append(_("The consumption rate changes between two meter readings: hours split by time"))
+		notes.append(note_rate_split())
 
 	filled = flt(fill["litres"], 3)
 	variance = flt(filled - expected, 3) if expected is not None else None
@@ -623,6 +677,18 @@ def _strip(columns, rows, summary, keys):
 	summary[:] = [t for t in summary if t.get("key") not in keys]
 
 
+def _drop_notes(rows, texts):
+	"""Remove data-note entries whose text is in ``texts`` from each row's joined ``notes`` string. Entries are
+	semicolon-separated (see ``_row``); other notes keep their order."""
+	drop = set(texts)
+	for row in rows:
+		joined = row.get("notes") or ""
+		if not joined:
+			continue
+		kept = [piece for piece in (part.strip() for part in joined.split(";")) if piece and piece not in drop]
+		row["notes"] = "; ".join(kept)
+
+
 def _columns():
 	def col(fieldname, label, fieldtype="Data", width=110, **extra):
 		return {"fieldname": fieldname, "label": label, "fieldtype": fieldtype, "width": width, **extra}
@@ -643,10 +709,21 @@ def _columns():
 		col("expected_nature", _("Expected litres nature"), width=110),
 		col("filled_litres", _("Filled litres (direct fills)"), "Float", precision=3),
 		col("filled_nature", _("Filled litres nature"), width=110),
-		col("filled_amount", _("Direct fills amount"), "Currency"),
+		col(
+			"filled_amount",
+			_("Direct fills amount (at the fills' recorded price, VAT basis as entered on the fill)"),
+			"Currency",
+		),
 		col("variance_litres", _("Variance litres (filled - expected, not a loss)"), "Float", precision=3),
 		col("variance_pct", _("Variance %"), "Percent", width=90),
-		col("variance_cost", _("Variance cost at the average fill price (not a loss)"), "Currency"),
+		col(
+			"variance_cost",
+			_(
+				"Variance cost at the average fill price (not a loss; at the fills' recorded price, VAT basis as"
+				" entered on the fill)"
+			),
+			"Currency",
+		),
 		col("anomaly", _("Anomaly flags"), width=200),
 		col("notes", _("Data notes"), width=260),
 	]
@@ -667,7 +744,7 @@ def _summary(rows, tank):
 		},
 		{
 			"key": "filled_amount",
-			"label": _("Direct fills amount"),
+			"label": _("Direct fills amount (at the fills' recorded price, VAT basis as entered on the fill)"),
 			"value": flt(sum(r["filled_amount"] for r in rows), 2),
 			"datatype": "Currency",
 		},
