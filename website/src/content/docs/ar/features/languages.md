@@ -14,6 +14,8 @@ sidebar:
 ويظهر اسم التطبيق **CARD** في كل اللغات.
 
 <!-- screenshot: languages-workspace-arabic -->
+![مساحة عمل CARD باللغة العربية](../../../../assets/screenshots/ar/languages-workspace-arabic.webp)
+*مساحة عمل CARD باللغة العربية*
 
 ## المفاهيم الأساسية
 

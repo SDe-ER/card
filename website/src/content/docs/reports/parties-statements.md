@@ -35,6 +35,8 @@ for a supplier, reconciled with the supplier's ledger: credits are accruals (lia
 (liability down).
 
 <!-- screenshot: statements-supplier-statement -->
+![Equipment Supplier Statement report](../../../assets/screenshots/en/statements-supplier-statement.webp)
+*Equipment Supplier Statement report*
 
 **Filters**
 
@@ -141,6 +143,8 @@ other documents settled (credit notes, adjustments) and what remains. Every amou
 Ledger Entry** of the recognising document, so a cancelled or reconciled payment shows at once.
 
 <!-- screenshot: statements-settlement-status -->
+![Card Settlement Status report](../../../assets/screenshots/en/statements-settlement-status.webp)
+*Card Settlement Status report*
 
 **Filters**
 

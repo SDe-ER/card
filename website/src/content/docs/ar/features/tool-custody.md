@@ -19,6 +19,8 @@ sidebar:
 Asset Movement)، ويعرض تقرير [عهد العمال](#تقرير-عهد-العمال) النوعين معًا.
 
 <!-- screenshot: tool-custody-form -->
+![تسليم عهدة أداة](../../../../assets/screenshots/ar/tool-custody-form.webp)
+*تسليم عهدة أداة*
 
 ## الحقول الأساسية
 
@@ -118,6 +120,8 @@ Asset Movement)، ويعرض تقرير [عهد العمال](#تقرير-عهد
 المخزن والمديرون على تبويب «بانتظار التأكيد»، والآخرون على «الأدوات في العهدة».
 
 <!-- screenshot: tool-custody-screen -->
+![شاشة عهدة الأدوات](../../../../assets/screenshots/ar/tool-custody-screen.webp)
+*شاشة عهدة الأدوات*
 
 ### تقرير عهد العمال
 

@@ -21,6 +21,8 @@ sidebar:
 :::
 
 <!-- screenshot: rate-agreements-form -->
+![اتفاقية أسعار](../../../../assets/screenshots/ar/rate-agreements-form.webp)
+*اتفاقية أسعار*
 
 ## المفاهيم الأساسية
 

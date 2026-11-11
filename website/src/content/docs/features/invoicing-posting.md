@@ -18,6 +18,8 @@ submits them in ERPNext, and ERPNext posts the General Ledger. A GL Posting Log 
 set of integrity checks makes sure that what reaches the ledger is exactly what CARD built from its source documents.
 
 <!-- screenshot: invoicing-posting-page -->
+![The CARD Monthly Posting page](../../../assets/screenshots/en/invoicing-posting-page.webp)
+*The CARD Monthly Posting page*
 
 ## Key concepts
 
@@ -58,6 +60,8 @@ The VAT figure in the preview is an estimate: ERPNext computes the invoice taxes
 also differ from the preview if documents changed after it was shown; the confirmation dialog says so.
 
 <!-- screenshot: invoicing-posting-preview -->
+![Monthly posting preview](../../../assets/screenshots/en/invoicing-posting-preview.webp)
+*Monthly posting preview*
 
 ### Supplier side: one draft Purchase Invoice per supplier
 
@@ -229,6 +233,28 @@ Cancelling the linked invoice or Journal Entry frees the sources again.
 The read-only report **Card Settlement Status** shows, per submitted card of one party, the document that recognised
 it (CARD invoice, linked invoice or linked Journal Entry), the card's share, what is paid and what remains, from
 ERPNext's Payment Ledger. See [Suppliers & Customers](/card/features/suppliers-customers/).
+
+### Period run before posting (opt-in)
+
+Added after release v4.7.0. A company can require an approved **Card Period Run** before its monthly posting. In
+**Card Company Settings**, section *Period approval*:
+
+| Field | Meaning |
+|---|---|
+| Require an approved period run before posting | Off by default. When on, the monthly posting of a company and month is refused unless the conditions below hold |
+| Period run self-approval rule | *Warn only (period run)* (default) or *Refuse (period run)*: what happens when one of the run's preparers approves it |
+
+With the setting on, posting (and its preview, and a rebuild) goes ahead only when:
+
+1. the month has an active Card Period Run that is submitted and approved, for its current version;
+2. it was not approved by one of its preparers while the company's rule is *Refuse*;
+3. every card, diesel fill and transport the posting is about to bill is in the run, on the same side and for the
+   same party, unchanged since the run was built;
+4. the run is still current: nothing was added or changed after it.
+
+Otherwise the preview shows the company and month as *blocked* with the reason. Amounts on invoices are never
+compared with the run; the run fingerprints the source documents instead. A run and a posting running at the same
+time cannot overtake each other.
 
 ### Period lock
 

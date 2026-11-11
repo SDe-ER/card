@@ -17,6 +17,8 @@ things on top of them:
   every machine has its maintenance cost in the official ledger.
 
 <!-- screenshot: maintenance-parts-catalog -->
+![Equipment models](../../../assets/screenshots/en/maintenance-parts-catalog.webp)
+*Equipment models*
 
 ## Key concepts
 
@@ -98,6 +100,8 @@ Rules:
 - Fitment rows are **retired, never deleted**. Retiring needs a reason; restoring sends the row back to review.
 
 <!-- screenshot: maintenance-parts-fitment -->
+![Parts fitment records](../../../assets/screenshots/en/maintenance-parts-fitment.webp)
+*Parts fitment records*
 
 ### Fitment review
 

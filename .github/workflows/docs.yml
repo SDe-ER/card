@@ -1,14 +1,24 @@
 name: Docs site
 
+# The documentation site (website/) is rebuilt and republished whenever the CARD code or the docs change on main,
+# so new DocTypes, fields, reports and API methods appear in the generated Reference section without manual work.
+# The build always regenerates the Reference pages, so the published site never lags the code. The check step only
+# warns when the committed copies in website/src/content/docs/reference are stale (run `cd website && npm run
+# generate` and commit the result); it never blocks another pull request.
+
 on:
   push:
     branches: [main]
     paths:
       - "website/**"
+      - "card/**"
+      - "CHANGELOG.md"
       - ".github/workflows/docs.yml"
   pull_request:
     paths:
       - "website/**"
+      - "card/**"
+      - "CHANGELOG.md"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -16,7 +26,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: docs-pages
+  group: docs-pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -27,13 +37,32 @@ jobs:
         working-directory: website
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check that What's new was updated
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE_SHA"...HEAD)
+          if echo "$changed" | grep -qE '^(card/|CHANGELOG\.md$)'; then
+            for f in website/src/content/docs/releases/whats-new.md website/src/content/docs/ar/releases/whats-new.md; do
+              echo "$changed" | grep -qx "$f" || echo "::warning title=What's new not updated::Add an entry for this change to $f (English and Arabic)."
+            done
+          fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: website/package-lock.json
       - run: npm ci
-      - run: npx astro build
+      - name: Committed Reference pages match the code
+        run: npm run check:reference || echo "::warning title=Docs reference out of date::Run 'cd website && npm run generate' and commit the result."
+      - name: Build
+        run: npm run build
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'
         with:

@@ -80,6 +80,18 @@ local commit  ≠  push  ≠  merge  ≠  tag / release  ≠  deploy  ≠  rollb
 - Update `docs/governance/FEATURE-REGISTRY.md` when a feature is added, fixed, changed, disabled or removed. A plan
   is not an implementation; a merge is not a release; a release is not a deployment.
 - Add or update tests; run the CI commands below before asking for a push.
+- Documentation site (`website/`, published at https://sde-er.github.io/card/) — every change reaches it:
+  - add a dated entry that explains, in plain language, what changed and what it means for users to "What's new" in
+    English (`website/src/content/docs/releases/whats-new.md`) and in Arabic
+    (`website/src/content/docs/ar/releases/whats-new.md`), under "Next release"; on a release, move the entries into
+    the version table;
+  - when a DocType, field, report or whitelisted method changes, run `cd website && npm run generate` and commit the
+    regenerated Reference pages;
+  - when a feature's behaviour changes, update its page under `website/src/content/docs/` (English) and `.../ar/`
+    (Arabic) following `website/WRITING-GUIDE.md`;
+  - keep `README.md` short: it links to the site and holds no feature details.
+  The site rebuilds from `main` on every push that touches `card/`, `website/` or `CHANGELOG.md`. Screenshots use
+  fictitious demo data only (`website/scripts/screenshots/`).
 - Never commit secrets, hosts, user names, customer data or real company data.
 
 ## Engineering rules

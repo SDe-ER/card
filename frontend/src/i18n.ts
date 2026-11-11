@@ -13,5 +13,7 @@ export function translate(
 }
 
 export function __(text: string, args: unknown[] = [], context?: string): string {
-  return translate(window.__messages, text, args, context)
+  // no window outside the browser (unit tests): the English source
+  const messages = typeof window === 'undefined' ? undefined : window.__messages
+  return translate(messages, text, args, context)
 }

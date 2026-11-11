@@ -33,6 +33,8 @@ sidebar:
 بدفتر حسابه: فالدائن قيود استحقاق (زيادة الالتزام)، والمدين مدفوعات (نقص الالتزام).
 
 <!-- screenshot: statements-supplier-statement -->
+![تقرير كشف حساب مورد المعدات](../../../../assets/screenshots/ar/statements-supplier-statement.webp)
+*تقرير كشف حساب مورد المعدات*
 
 **الفلاتر**
 
@@ -134,6 +136,8 @@ sidebar:
 الملغاة أو المطابَقة فورًا.
 
 <!-- screenshot: statements-settlement-status -->
+![تقرير حالة تسوية الكروت](../../../../assets/screenshots/ar/statements-settlement-status.webp)
+*تقرير حالة تسوية الكروت*
 
 **الفلاتر**
 

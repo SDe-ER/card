@@ -16,6 +16,8 @@ sidebar:
 الشركات، ولا تظهر المبالغ التي لا يجوز له قراءتها.
 
 <!-- screenshot: workspace-dashboard-overview -->
+![بطاقات الأرقام والرسوم في مساحة العمل](../../../../assets/screenshots/ar/workspace-dashboard-overview.webp)
+*بطاقات الأرقام والرسوم في مساحة العمل*
 
 ## المفاهيم الأساسية
 
@@ -83,6 +85,8 @@ sidebar:
 - **المحاسبة** — فاتورة المشتريات، وفاتورة المبيعات، وسند الدفع (Payment Entry) — وهي قوائم ERPNext القياسية.
 
 <!-- screenshot: workspace-dashboard-shortcuts -->
+![الاختصارات وروابط التقارير](../../../../assets/screenshots/ar/workspace-dashboard-shortcuts.webp)
+*الاختصارات وروابط التقارير*
 
 ### المشغِّل (Dock)
 

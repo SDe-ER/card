@@ -19,6 +19,8 @@ ERPNext:
 CARD أي قيد إلى الدفتر، ولا ينشئ خصومات رواتب أو جزاءات أبدًا؛ فالطلب المتكرر لا يُعلَّم إلا للمراجعة.
 
 <!-- screenshot: equipment-needs-review -->
+![طلب احتياجات معدة](../../../../assets/screenshots/ar/equipment-needs-review.webp)
+*طلب احتياجات معدة*
 
 ## المفاهيم الأساسية
 
@@ -80,6 +82,8 @@ CARD أي قيد إلى الدفتر، ولا ينشئ خصومات رواتب �
 System Manager. ويقدم CARD Mobile ‏(`/cdms`) مسار الطلب نفسه في شاشة **طلب جديد** (انظر [CARD Mobile](/card/ar/features/card-mobile/)).
 
 <!-- screenshot: equipment-needs-portal -->
+![صفحة احتياجات المعدات](../../../../assets/screenshots/ar/equipment-needs-portal.webp)
+*صفحة احتياجات المعدات*
 
 ### مراجعة احتياجات المعدات
 

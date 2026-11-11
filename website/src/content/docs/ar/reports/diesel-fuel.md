@@ -28,6 +28,8 @@ sidebar:
 الفرق. ويقارن الفرق بين اللترات المتوقعة والموزعة، لا الاستهلاك المقيس.
 
 <!-- screenshot: diesel-analysis -->
+![تقرير تحليل ديزل المعدات](../../../../assets/screenshots/ar/diesel-analysis.webp)
+*تقرير تحليل ديزل المعدات*
 
 **الفلاتر**
 
@@ -73,6 +75,8 @@ sidebar:
 نقطة للمراجعة، وليس إثباتًا لفوترة زائدة أو فاتورة مفقودة أو دفعة مفقودة. ولا يُنشأ شيء ولا يُغيَّر ولا يُربط.
 
 <!-- screenshot: diesel-invoice-reconciliation -->
+![تقرير مطابقة فواتير الديزل](../../../../assets/screenshots/ar/diesel-invoice-reconciliation.webp)
+*تقرير مطابقة فواتير الديزل*
 
 **الفلاتر**
 
