@@ -23,6 +23,8 @@ company. Rate agreements are part of the current development line (after release
 :::
 
 <!-- screenshot: rate-agreements-form -->
+![A rate agreement](../../../assets/screenshots/en/rate-agreements-form.webp)
+*A rate agreement*
 
 ## Key concepts
 

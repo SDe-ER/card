@@ -3,11 +3,16 @@ import { computed, ref } from 'vue'
 import { getSessionContext } from '../data/session'
 import { __ } from '../i18n'
 
-const profile = { to: { name: 'Profile' }, icon: 'lucide-circle-user', label: __('Profile', [], 'Card Mobile') }
+const profile = {
+  to: { name: 'Profile' },
+  icon: 'lucide-circle-user',
+  label: __('Profile', [], 'Card Mobile'),
+}
 const operatorItems = [
   { to: { name: 'Home' }, icon: 'lucide-house', label: __('Home', [], 'Card Mobile') },
   { to: { name: 'NewRequest' }, icon: 'lucide-circle-plus', label: __('New request') },
   { to: { name: 'Requests' }, icon: 'lucide-list-checks', label: __('My requests') },
+  { to: { name: 'DailyLogs' }, icon: 'lucide-clipboard-clock', label: __('Daily logs') },
   profile,
 ]
 // a catalog viewer (Card User) has no requests
@@ -29,7 +34,12 @@ const items = computed(() =>
   <nav
     class="bottom-nav fixed bottom-0 left-1/2 z-10 w-full max-w-[480px] -translate-x-1/2 border-t border-outline-gray-1 bg-surface-base"
   >
-    <ul class="grid" :class="items.length === 4 ? 'grid-cols-4' : 'grid-cols-2'">
+    <ul
+      class="grid"
+      :class="
+        items.length === 5 ? 'grid-cols-5' : items.length === 4 ? 'grid-cols-4' : 'grid-cols-2'
+      "
+    >
       <li v-for="item in items" :key="item.icon">
         <RouterLink
           :to="item.to"

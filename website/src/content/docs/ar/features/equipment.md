@@ -17,6 +17,8 @@ sidebar:
 عملها الحالي، وبيانات العداد والصيانة، ومستنداتها النظامية، وطريقة خروجها من الأسطول.
 
 <!-- screenshot: equipment-form -->
+![معدة مستأجرة في نموذج المعدات](../../../../assets/screenshots/ar/equipment-form.webp)
+*معدة مستأجرة في نموذج المعدات*
 
 ## المفاهيم الأساسية
 
@@ -206,6 +208,8 @@ sidebar:
 والشروط التجارية.
 
 <!-- screenshot: equipment-create-from-asset -->
+![قائمة المعدات](../../../../assets/screenshots/ar/equipment-create-from-asset.webp)
+*قائمة المعدات*
 
 ### الحالة وضابط الحالة
 

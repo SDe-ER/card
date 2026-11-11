@@ -22,6 +22,8 @@ those tests on an HTTPS site.
 :::
 
 <!-- screenshot: card-mobile-home -->
+![CARD Mobile home screen](../../../assets/screenshots/en/card-mobile-home.webp)
+*CARD Mobile home screen*
 
 ## Key concepts
 
@@ -77,6 +79,8 @@ quantity, and an item without a confirmed fit for the machine needs a reason (*W
 fit?*). After sending, the app opens **My requests** with the message *Your request was sent to the supervisor.*
 
 <!-- screenshot: card-mobile-new-request -->
+![CARD Mobile requests](../../../assets/screenshots/en/card-mobile-new-request.webp)
+*CARD Mobile requests*
 
 ### My requests
 

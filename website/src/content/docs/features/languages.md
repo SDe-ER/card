@@ -15,6 +15,8 @@ Mobile and in prints.
 The application name shows as **CARD** in every language.
 
 <!-- screenshot: languages-workspace-arabic -->
+![The CARD workspace in Arabic](../../../assets/screenshots/en/languages-workspace-arabic.webp)
+*The CARD workspace in Arabic*
 
 ## Key concepts
 
