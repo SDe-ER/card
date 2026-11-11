@@ -16,6 +16,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-149 — README badges trimmed (owner request 2026-11-12).** Keeps CI, CodeQL, coverage, release, license and one
+  Frappe/ERPNext v16 badge; drops the docs-site, separate ERPNext, Python and Conventional Commits badges (the
+  documentation buttons, the installation page and CONTRIBUTING cover them). The Arabic tagline is marked right to
+  left so it displays in order. README only; rollback: revert the commit.
 - **FR-149 — "What's new" in English and Arabic; short README (owner request 2026-11-12).** Reason: the owner
   asked that every update appear on the documentation site with an explanation in Arabic and English, and that the
   README become a short professional entry point that links to the site. Adds `website/.../releases/whats-new.md`
