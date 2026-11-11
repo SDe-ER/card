@@ -219,6 +219,53 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   live snapshot on every form refresh (backlog: cache or a lighter check if months grow large). Rollback limits:
   code rollback leaves the two tables and their rows (harmless, unused until WP-S2); delete the DocTypes to
   remove them.
+- **FR-154 — An approved, current period run before the monthly posting, opt-in per company (#49; closure plan
+  WP-S2).** Reason: #49 asks for "source records → approved period run → draft billing documents → accountant
+  approval"; FR-147 built the run but nothing posted from it. New Card Company Settings fields (section "Period
+  approval"): `require_period_approval` (Check, default 0) and `period_run_self_approval_rule` ("Warn only (period
+  run)" default / "Refuse (period run)"; empty = Warn only). With `require_period_approval` = 1 the monthly posting
+  of a company-month (`card.gl.posting._plan_monthly_posting`, both sides) is refused (`PeriodRunRequiredError`, a
+  ValidationError, so the preview shows it as `blocked`) unless, in this order: the month has an active Card Period
+  Run; it is submitted, approved, and the approval is for its current version and snapshot; it was not approved by
+  one of its preparers while the company's self-approval rule is Refuse; every source the posting is about to bill
+  is in the run on that side, for that party, with the run's fingerprint of the document as the posting read it
+  (a fill also with the supplier VAT registration and the company diesel VAT basis the run holds); and the run is
+  current (`check_current`). Amounts are never compared with invoice amounts: the run holds GROSS source amounts and
+  the posting books the net part of a VAT-inclusive diesel price; the fingerprints cover the source amounts. VAT is
+  never inferred. Routes covered (one gate in the builder): whitelisted `post_month` and `rebuild_month`, a direct
+  or background-job call of `build_monthly_posting` / `rebuild_monthly_posting`, the preview (`preview_month`);
+  `rebuild_monthly_posting` also checks the run state before it deletes the old draft. Concurrency: in a real build
+  the gate reads the month's run rows with `frappe.qb … for_update()` and rebuilds the live snapshot with locking
+  reads (the selection, every source document and its rows, the fill suppliers, the company's settings row:
+  `period_run.build_snapshot(for_update=True)`, `check_current(for_update=True)`, `posting._rows`), so a run
+  cancelled or approved, or a source changed or added, by another request is seen, and none can commit until the
+  posting does; the preview does not lock. Self-approval: the stricter of the run's rule and the company's rule
+  applies (`period_run.effective_self_approval_rule`): a run built while the company rule is Refuse takes Refuse, an
+  approval checks the company rule again, and a self-approved run is refused for posting under the company's Refuse
+  rule. The CARD Monthly Posting page shows the month's run (version, approval, current or changed) and, when the
+  setting is on, why posting is refused (new GET `card.gl.posting.posting_period_run`, same role and company checks
+  as the party list; run details only with Card Period Run read; no amounts). Affected functions:
+  `card/gl/period_gate.py` (new), `card.gl.posting._plan_monthly_posting`, `rebuild_monthly_posting`,
+  `_customer_transports` (optional locking read), `_rows` (new), `posting_period_run` (new);
+  `card.gl.period_run._selection`, `build_snapshot`, `check_current`, `diesel_vat_basis`, `_vat_registered`
+  (optional locking reads, default unchanged), `_strictest_rule`, `_approve`, `company_self_approval_rule`,
+  `effective_self_approval_rule` (new); `card_company_settings.json`; `card_monthly_posting.js`. Tests:
+  `card/tests/test_period_run_posting.py` (off by default and the run never read, the same invoice with and
+  without the gate, every route refused, rebuild refused before the delete, each refusal reason, both sides post,
+  FR-139 Hold and Post, stale run, VAT-inclusive diesel net against the gross run, basis and registration compared,
+  side/party/fingerprint per document, another month, company and run self-approval rules, the screen read and its
+  permission, locking in the build and none in the preview; two connections: a source changed, a source added, a
+  supplier registered, the VAT basis changed, a switch to FR-139 Post and a run cancelled while the gate runs);
+  `card/tests/test_bola_matrix.py` and `docs/governance/ROLE-ACTION-MATRIX.md` (one endpoint row). PR #235.
+  Impact: permissions — none (no role, DocPerm or permission change; the new fields sit at permlevel 1 like the
+  rest of the company row). Accounting: with the setting off, none (the posting is unchanged); with it on, postings
+  are refused until the run is approved and current; the invoices built are unchanged. Data: two new columns on
+  Card Company Settings (existing rows: 0 and Warn only = current behaviour); no patch. API: one new GET method;
+  `post_month`, `rebuild_month`, `preview_month` and the builders refuse more when the setting is on. Known limits:
+  the hand-booked invoice links (`link_supplier_invoice`, `link_accrual_journal`) and the submit of a CARD draft
+  invoice are not gated yet (owner 2026-11-11: wanted, in a later wave, not in this change); a real build with the
+  setting on locks every source document of the company-month until it commits (owner 2026-11-11: accepted). Rollback limits: a code rollback leaves the two columns (unused); drafts built
+  under the gate stay valid ERPNext drafts.
 - **FR-143 — Separation of duties on the monthly card (FR-006; #35, #51, #123; closure plan WP-D1, owner decision
   O-07).** Reason: owner 2026-10-19 "whoever created or entered a monthly card never approves it, enforced on the
   server" (R-13: the creator could submit his own card). A monthly card has no review step or Workflow yet (WP-D2),

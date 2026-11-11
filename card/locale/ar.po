@@ -7726,6 +7726,118 @@ msgstr "اعتماد الكارت الشهري من معدّه"
 msgid "Monthly card approved by its own preparer"
 msgstr "اعتمده معدّه"
 
+#: card/gl/period_gate.py
+msgid "Approved period run required"
+msgstr "دورة فترة معتمدة مطلوبة"
+
+#: card/gl/period_gate.py
+msgid "Company {0} requires an approved period run before posting {1}/{2}, and there is none. Build the period run, submit it and have an accountant approve it."
+msgstr "تشترط الشركة {0} دورة فترة معتمدة قبل ترحيل {1}/{2}، ولا توجد دورة. أنشئ دورة الفترة واعتمد إرسالها (Submit) ثم اطلب من المحاسب اعتمادها."
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} is still a draft. Submit it and have an accountant approve it before posting."
+msgstr "دورة الفترة {0} لـ {1}/{2} ما زالت مسودة. اعتمد إرسالها (Submit) واطلب من المحاسب اعتمادها قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} was returned for correction ({3}). Cancel and amend it, then have the new version approved before posting."
+msgstr "أُعيدت دورة الفترة {0} لـ {1}/{2} للتصحيح ({3}). ألغِها وعدّلها (Amend)، ثم اطلب اعتماد الإصدار الجديد قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "Period run {0} for {1}/{2} is waiting for an accountant's approval; posting needs an approved period run."
+msgstr "دورة الفترة {0} لـ {1}/{2} بانتظار اعتماد المحاسب؛ الترحيل يتطلب دورة فترة معتمدة."
+
+#: card/gl/period_gate.py
+msgid "The approval of period run {0} is not for its current version. Cancel and amend the run and have the new version approved before posting."
+msgstr "اعتماد دورة الفترة {0} ليس لإصدارها الحالي. ألغِ الدورة وعدّلها (Amend) واطلب اعتماد الإصدار الجديد قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "Period run {0} was approved by one of its preparers, and the self-approval rule of company {1} is Refuse. Cancel and amend the run and have another accountant approve the new version."
+msgstr "اعتمد دورة الفترة {0} أحدُ معدّيها، وقاعدة الاعتماد الذاتي للشركة {1} هي «رفض». ألغِ الدورة وعدّلها (Amend) واطلب من محاسب آخر اعتماد الإصدار الجديد."
+
+#: card/gl/period_gate.py
+msgid "The CARD documents of {0}/{1} changed after period run {2} was approved (added: {3}; removed: {4}; changed: {5}). Cancel and amend the run and have the new version approved before posting."
+msgstr "تغيّرت مستندات CARD لـ {0}/{1} بعد اعتماد دورة الفترة {2} (أُضيف: {3}؛ أُزيل: {4}؛ تغيّر: {5}). ألغِ الدورة وعدّلها (Amend) واطلب اعتماد الإصدار الجديد قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "{0} (not in the run on this side)"
+msgstr "{0} (غير موجود في الدورة على هذا الطرف)"
+
+#: card/gl/period_gate.py
+msgid "{0} (another party in the run)"
+msgstr "{0} (مسجّل في الدورة لطرف آخر)"
+
+#: card/gl/period_gate.py
+msgid "{0} (changed since the run was built)"
+msgstr "{0} (تغيّر بعد إنشاء الدورة)"
+
+#: card/gl/period_gate.py
+msgid "{0} (supplier VAT registration changed)"
+msgstr "{0} (تغيّر تسجيل المورد في ضريبة القيمة المضافة)"
+
+#: card/gl/period_gate.py
+msgid "diesel price VAT basis {0} (the run was built with {1})"
+msgstr "أساس ضريبة القيمة المضافة لسعر الديزل {0} (أُنشئت الدورة على {1})"
+
+#: card/gl/period_gate.py
+msgid "Approved period run {0} does not hold these documents of {1} {2} as the posting would bill them: {3}. Cancel and amend the run and have the new version approved before posting."
+msgstr "دورة الفترة المعتمدة {0} لا تتضمن مستندات {1} {2} هذه كما سيُفوترها الترحيل: {3}. ألغِ الدورة وعدّلها (Amend) واطلب اعتماد الإصدار الجديد قبل الترحيل."
+
+#: card/gl/period_gate.py
+msgid "Posting needs an approved, current period run of company {0} for {1}/{2}, and you cannot open it."
+msgstr "الترحيل يتطلب دورة فترة معتمدة وحديثة للشركة {0} لـ {1}/{2}، ولا تملك صلاحية فتحها."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Draft period run"
+msgstr "دورة فترة مسودة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run version {0}"
+msgstr "إصدار دورة الفترة {0}"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run is current"
+msgstr "دورة الفترة حديثة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run changed since it was built"
+msgstr "تغيّرت دورة الفترة بعد إنشائها"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run approved by its preparer"
+msgstr "اعتمد دورة الفترة معدُّها"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Period run"
+msgstr "دورة الفترة"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "This company does not require an approved period run before posting (Card Company Settings)."
+msgstr "لا تشترط هذه الشركة دورة فترة معتمدة قبل الترحيل (إعدادات الشركة في CARD)."
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "Posting is refused for this month:"
+msgstr "الترحيل مرفوض لهذا الشهر:"
+
+#: card/card/page/card_monthly_posting/card_monthly_posting.js
+msgid "The approved period run is current; posting is allowed. Each posting is checked against it again."
+msgstr "دورة الفترة المعتمدة حديثة؛ الترحيل مسموح. يُطابَق كل ترحيل معها مرة أخرى."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Period approval"
+msgstr "اعتماد الفترة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Require an approved period run before posting"
+msgstr "اشتراط دورة فترة معتمدة قبل الترحيل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "On: the monthly posting (draft Purchase and Sales Invoices) of a month is refused until the company's Card Period Run for that month is submitted, approved by an accountant and still current; every document the posting bills is checked against the run. Off (the default): posting as before."
+msgstr "مفعّل: يُرفض الترحيل الشهري (مسودات فواتير الشراء والمبيعات) لشهرٍ ما حتى تُرسل دورة الفترة للشركة لذلك الشهر ويعتمدها محاسب وتبقى حديثة؛ ويُطابَق كل مستند يُفوتره الترحيل مع الدورة. غير مفعّل (الافتراضي): الترحيل كما كان."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A period run approved by a user who built, edited or submitted it (or an earlier version): Warn only approves with a message and marks the run; Refuse stops the approval, and a run approved that way is not accepted for posting. The stricter of this rule and the run's own rule applies. Empty: Warn only."
+msgstr "دورة فترة يعتمدها مستخدم أنشأها أو عدّلها أو اعتمد إرسالها (أو إصدارًا سابقًا منها): «تنبيه فقط» يعتمدها مع رسالة ويعلّم الدورة؛ «رفض» يمنع الاعتماد، ولا تُقبل للترحيل دورة اعتُمدت بهذه الطريقة. تُطبّق الأشد بين هذه القاعدة وقاعدة الدورة نفسها. فارغ: تنبيه فقط."
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
 msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ ويُحتفظ به."
