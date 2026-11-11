@@ -683,9 +683,12 @@ class TestDieselVariance(IntegrationTestCase):
 		eq_no_rate = self._equipment()  # no row, no daily, no static, type without rows
 		self._card(eq_no_rate, {"2026-09-01": 10})
 		self._fill(eq_no_rate, 50)
-		# A row with a rate-split note: two readings cover the month, the rate changes mid-period
+		# A row with a rate-split note AND a proration note: two readings cover the month, the rate
+		# changes mid-period, and the earlier reading is slightly before the month limit so ``exact`` is
+		# False (the proration note needs that). This also lets the final assertion check that a non-rate
+		# note (the proration note) survives the strip.
 		eq_split = self._equipment(rates=[("2026-01-01", 5), ("2026-09-16", 8)])
-		self._reading(eq_split, "2026-09-01 00:00:00", 0)
+		self._reading(eq_split, "2026-08-31 23:50:00", 0)
 		self._reading(eq_split, "2026-10-01 00:00:00", 300)
 		real = frappe.model.meta.Meta.get_permlevel_access
 
