@@ -35,6 +35,11 @@ export default defineConfig({
           items: [{ autogenerate: { directory: "getting-started" } }],
         },
         {
+          label: "Releases",
+          translations: { ar: "الإصدارات" },
+          items: [{ autogenerate: { directory: "releases" } }],
+        },
+        {
           label: "Features",
           translations: { ar: "المزايا" },
           items: [{ autogenerate: { directory: "features" } }],

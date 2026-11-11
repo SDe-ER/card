@@ -19,8 +19,8 @@ submitting a card or touching a submitted one.
 
 :::note
 Daily logs are part of the current development line of CARD (after release v4.7.0). The DocType opens at
-`/app/card-daily-log`; there is no Desk sidebar link and no CARD Mobile screen for it yet. Hours entry on mobile is
-planned.
+`/app/card-daily-log`; there is no Desk sidebar link for it yet. Operators enter their logs on
+[CARD Mobile](/card/features/card-mobile/#daily-logs-on-the-phone).
 :::
 
 <!-- screenshot: daily-logs-form -->

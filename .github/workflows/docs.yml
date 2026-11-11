@@ -12,11 +12,13 @@ on:
     paths:
       - "website/**"
       - "card/**"
+      - "CHANGELOG.md"
       - ".github/workflows/docs.yml"
   pull_request:
     paths:
       - "website/**"
       - "card/**"
+      - "CHANGELOG.md"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -35,6 +37,19 @@ jobs:
         working-directory: website
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check that What's new was updated
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE_SHA"...HEAD)
+          if echo "$changed" | grep -qE '^(card/|CHANGELOG\.md$)'; then
+            for f in website/src/content/docs/releases/whats-new.md website/src/content/docs/ar/releases/whats-new.md; do
+              echo "$changed" | grep -qx "$f" || echo "::warning title=What's new not updated::Add an entry for this change to $f (English and Arabic)."
+            done
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
