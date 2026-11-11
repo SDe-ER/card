@@ -30,6 +30,8 @@ sidebar:
 مخزن أو مورد في اليوم (ي) يُظهر المشروع في اليوم (ي) والمكان الجديد ابتداءً من اليوم التالي.
 
 <!-- screenshot: operations-location-history -->
+![تقرير سجل مواقع المعدات](../../../../assets/screenshots/ar/operations-location-history.webp)
+*تقرير سجل مواقع المعدات*
 
 **الفلاتر**
 
@@ -54,6 +56,8 @@ sidebar:
 ساعات توقف أو حالة يوم غير «عمل»؛ أما اليوم القديم الذي لا سبب له فيُعرض تحت حالة يومه حتى لا تضيع الأشهر السابقة.
 
 <!-- screenshot: operations-equipment-downtime -->
+![تقرير توقف المعدات](../../../../assets/screenshots/ar/operations-equipment-downtime.webp)
+*تقرير توقف المعدات*
 
 **الفلاتر**
 

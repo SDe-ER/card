@@ -17,6 +17,8 @@ by hand. When a machine is not on a project, its place is read from its last app
 supplier), or from the company's initial place.
 
 <!-- screenshot: assignments-locations-assignment-form -->
+![An equipment assignment](../../../assets/screenshots/en/assignments-locations-assignment-form.webp)
+*An equipment assignment*
 
 ## Key fields
 
@@ -160,6 +162,8 @@ component's history only on the days that component is in the unit. Each day is 
 rows never depend on the range asked for.
 
 <!-- screenshot: assignments-locations-location-history -->
+![Equipment Location History report](../../../assets/screenshots/en/assignments-locations-location-history.webp)
+*Equipment Location History report*
 
 ## Workflow
 

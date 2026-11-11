@@ -17,6 +17,8 @@ sidebar:
 ضوابط السلامة أن ما يصل إلى الدفتر هو بالضبط ما بناه CARD من مستنداته المصدرية.
 
 <!-- screenshot: invoicing-posting-page -->
+![صفحة الترحيل الشهري](../../../../assets/screenshots/ar/invoicing-posting-page.webp)
+*صفحة الترحيل الشهري*
 
 ## المفاهيم الأساسية
 
@@ -55,6 +57,8 @@ sidebar:
 تغيرت المستندات بعد عرضها، ويذكر مربع التأكيد ذلك.
 
 <!-- screenshot: invoicing-posting-preview -->
+![معاينة الترحيل الشهري](../../../../assets/screenshots/ar/invoicing-posting-preview.webp)
+*معاينة الترحيل الشهري*
 
 ### جانب المورد: مسودة فاتورة شراء واحدة لكل مورد
 

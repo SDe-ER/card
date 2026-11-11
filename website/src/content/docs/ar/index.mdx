@@ -1,0 +1,60 @@
+---
+title: CARD
+description: إدارة تشغيل المعدات على Frappe وERPNext — كروت التشغيل الشهرية والإيجار والديزل والنقل والصيانة وكشوف الحساب.
+template: splash
+hero:
+  title: تشغيل المعدات، من الموقع إلى دفتر الأستاذ
+  tagline: يسجّل CARD ما قامت به كل معدة يومًا بيوم، ويسعّره وفق شروط الإيجار، ثم يحوّله إلى فواتير وكشوف حساب قياسية في ERPNext — للمعدات المملوكة والمستأجرة والمؤجَّرة من الباطن.
+  image:
+    file: ../../../assets/card-logo.svg
+  actions:
+    - text: ابدأ الآن
+      link: /card/ar/getting-started/introduction/
+      icon: left-arrow
+    - text: استعرض المزايا
+      link: /card/ar/features/monthly-cards/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import workspace from "../../../assets/screenshots/ar/languages-workspace-arabic.webp";
+
+<Image src={workspace} alt="مساحة عمل CARD بالعربية مع بطاقات الأرقام والاختصارات والرسوم" class="home-shot" />
+
+## ماذا يقدّم CARD
+
+<CardGrid>
+	<Card title="كروت التشغيل الشهرية" icon="document">
+		كارت واحد لكل معدة ومشروع وشهر: ساعات التشغيل اليومية، والتوقفات بأسبابها والجهة المسؤولة عنها، والإضافات
+		والخصومات، وإجماليات جانب المورد وجانب العميل.
+	</Card>
+	<Card title="الإيجار بكل اتجاهاته" icon="random">
+		معدات مملوكة ومستأجرة ومؤجَّرة لعملاء ومؤجَّرة من الباطن، تُسعَّر باليوم أو بالساعة أو بالشهر وفق أساس احتساب اليوم
+		المتفق عليه.
+	</Card>
+	<Card title="الديزل والنقل والعدادات" icon="rocket">
+		جلسات ديزل بقراءات العداد تُوزَّع حسب ساعات التشغيل، ونقل المعدات مع تحديد المسؤول عن التكلفة، وقراءات ساعات
+		المحرك مطابَقة مع الكروت.
+	</Card>
+	<Card title="محاسبة ERPNext القياسية" icon="approve-check">
+		لا يكتب CARD قيودًا في دفتر الأستاذ بنفسه، بل يجهّز مسودات فواتير الشراء والمبيعات من الكروت المقدَّمة، لكل شركة
+		وطرف، مع فحوص الترحيل.
+	</Card>
+	<Card title="كشوف الحساب والتقارير" icon="list-format">
+		كشوف حساب الموردين والعملاء بمقاس A4، وحالة التسوية، والتوقفات، وتحليل الديزل، والهامش الجزئي، وغيرها — 25
+		تقريرًا.
+	</Card>
+	<Card title="العربية والإنجليزية" icon="translate">
+		كل شاشة وطباعة وتقرير بالعربية (من اليمين إلى اليسار) وبالإنجليزية، ويظهر اسم التطبيق CARD في كل اللغات.
+	</Card>
+</CardGrid>
+
+## ابدأ من هنا
+
+<CardGrid>
+	<LinkCard title="مقدمة" description="ما هو CARD، ولمن صُمّم، وأفكاره الأساسية." href="/card/ar/getting-started/introduction/" />
+	<LinkCard title="التثبيت" description="تثبيت CARD على bench يعمل بـ Frappe وERPNext." href="/card/ar/getting-started/installation/" />
+	<LinkCard title="الإعداد" description="إعدادات الكارت والحسابات والأصناف والقواعد لكل شركة." href="/card/ar/getting-started/configuration/" />
+	<LinkCard title="المرجع" description="كل أنواع المستندات والحقول والتقارير ودوال الـ API، مولَّدة من الشيفرة." href="/card/ar/reference/" />
+</CardGrid>

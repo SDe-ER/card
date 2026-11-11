@@ -16,6 +16,8 @@ sidebar:
 على صلاحية فواتير العملاء للفوترة الإلكترونية لدى ZATCA (لا سطور سالبة).
 
 <!-- screenshot: adjustments-card-table -->
+![الإضافات والخصومات في الكارت الشهري](../../../../assets/screenshots/ar/adjustments-card-table.webp)
+*الإضافات والخصومات في الكارت الشهري*
 
 ## المفاهيم الأساسية
 

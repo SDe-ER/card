@@ -16,6 +16,8 @@ Every value has a built-in default. When a field has never been set, CARD behave
 existed, so a new site works with an empty Card Settings until accounting posting is switched on.
 
 <!-- screenshot: configuration-card-settings -->
+![Card Settings](../../../assets/screenshots/en/configuration-card-settings.webp)
+*Card Settings*
 
 ## Key concepts
 

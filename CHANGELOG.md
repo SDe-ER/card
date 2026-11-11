@@ -16,6 +16,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-149 — Documentation site: screenshots, generated Reference, Arabic home and font (follow-up to PR #229).**
+  Reason: the owner asked for professional screenshots of every screen, a better Arabic font, and a site that stays in
+  sync with the repository. Adds 96 screenshots (48 screens, English and Arabic UI) captured from a disposable demo
+  site with fictitious data (`website/scripts/screenshots/seed_demo.py`, `capture.mjs`, `shots.json`, `place.py`);
+  a generated Reference section (every DocType with its fields and permissions, every report with its filters and
+  roles, every whitelisted method) built from the code by `website/scripts/generate_reference.py` on every build;
+  an Arabic home page; IBM Plex Sans Arabic (self-hosted, SIL OFL) for Arabic text; `sharp` 0.35.5. The docs
+  workflow now also rebuilds and republishes when `card/**` changes on `main`, and warns (never blocks) when the
+  committed Reference pages are stale. AGENTS.md asks agents to regenerate the Reference and update the pages with
+  each change. Affected functions: none; no Python, DocType, permission, accounting, data or API change. Rollback:
+  revert the commit; the previous site is republished from `main`.
 - **FR-149 — CARD documentation site (`website/`, Astro Starlight, English + Arabic).** Reason: the owner asked for a
   full user and API documentation site in the style of the Whatomate docs. New static site under `website/`
   (sections Getting Started, Features, Reports, API Reference; English at the root and Arabic RTL under `/ar/`),

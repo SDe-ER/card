@@ -27,6 +27,8 @@ CARD تطبيق مبني على إطار Frappe، موجَّه إلى المقا
 الموقع، ولا تكرّر واجهة Desk. راجع [CARD Mobile](/card/ar/features/card-mobile/) لمعرفة نطاقه الحالي.
 
 <!-- screenshot: introduction-workspace -->
+![مساحة عمل CARD](../../../../assets/screenshots/ar/introduction-workspace.webp)
+*مساحة عمل CARD*
 
 ## لمن صُمِّم
 
