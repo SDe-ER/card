@@ -479,6 +479,18 @@ CASES = {
 		own=lambda c: {"doctype": CARD, "name": c.card_a, "reason": "x"},
 		denied=((), ("Card User",), ("Accounts Manager",)),
 	),
+	# ---------- return for correction (FR-152) ----------
+	"card.governance_workflows.return_for_correction": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="CARD transaction doctype only; non-empty reason; write on the record, then Frappe apply_workflow (transition, role, active Workflow)",
+		isolation="doc.check_permission(write) (has_card_permission / has_transport_permission / has_diesel_fill_permission)",
+		effects="Returns the document to Draft through its Workflow, stores return_reason; one Info Comment",
+		writes=True,
+		cross=lambda c: {"doctype": CARD, "name": c.card_b, "reason": "x"},
+		own=lambda c: {"doctype": CARD, "name": c.card_a, "reason": "x"},
+		denied=((), ("Accounts Manager",)),
+	),
 	# ---------- catalog ----------
 	"card.catalog.search": Case(
 		method=GET,

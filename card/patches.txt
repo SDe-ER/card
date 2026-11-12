@@ -37,3 +37,4 @@ card.patches.v4_8_0.stop_reason_billable_side
 card.patches.v4_8_0.backfill_side_stopped_hours
 card.patches.v4_8_0.default_day_billing_basis
 card.patches.v4_8_0.seed_consumption_rates
+card.patches.v4_8_0.native_workflows_inactive
