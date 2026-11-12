@@ -8272,3 +8272,15 @@ msgstr "طريقة توزيع ديزل الخزان"
 
 msgid "Rate used (L/h)"
 msgstr "المعدل المستخدم (لتر/ساعة)"
+
+#: card/governance.py
+msgid "{0} {1} is in state {2}; editing requires one of these roles: {3}."
+msgstr "{0} {1} في الحالة {2}؛ التعديل يستلزم أحد هذه الأدوار: {3}."
+
+#: card/governance.py
+msgid "(new)"
+msgstr "(جديد)"
+
+#: card/governance.py
+msgid "Workflow state edit refused"
+msgstr "رُفض تعديل حالة سير العمل"

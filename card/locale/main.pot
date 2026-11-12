@@ -7032,3 +7032,15 @@ msgstr ""
 
 msgid "Rate used (L/h)"
 msgstr ""
+
+#: card/governance.py
+msgid "{0} {1} is in state {2}; editing requires one of these roles: {3}."
+msgstr ""
+
+#: card/governance.py
+msgid "(new)"
+msgstr ""
+
+#: card/governance.py
+msgid "Workflow state edit refused"
+msgstr ""
