@@ -22,6 +22,9 @@
   "section_break_equipment",
   "equipment_filled",
   "card_equipment",
+  "section_break_allocation",
+  "diesel_fill_allocation",
+  "allocation_review",
   "section_break_price",
   "unit_price",
   "amount",
@@ -170,6 +173,30 @@
    "fieldtype": "Link",
    "label": "Equipment (direct charge)",
    "options": "Card Equipment"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:(doc.diesel_fill_allocation && doc.diesel_fill_allocation.length) || doc.allocation_review",
+   "fieldname": "section_break_allocation",
+   "fieldtype": "Section Break",
+   "label": "Allocation (estimated, display only)"
+  },
+  {
+   "description": "Per-equipment estimated split of a tank fill, frozen at submit. Report and card display only; the fill still posts one project-level line (FR-100).",
+   "fieldname": "diesel_fill_allocation",
+   "fieldtype": "Table",
+   "label": "Diesel fill allocation",
+   "no_copy": 1,
+   "options": "Diesel Fill Allocation",
+   "read_only": 1
+  },
+  {
+   "description": "Why no allocation row was written (e.g. no operating hours).",
+   "fieldname": "allocation_review",
+   "fieldtype": "Small Text",
+   "label": "Allocation review",
+   "no_copy": 1,
+   "read_only": 1
   },
   {
    "fieldname": "section_break_price",
@@ -531,7 +558,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-11 14:52:30.000000",
+ "modified": "2026-11-12 09:15:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Project Diesel Fill",

@@ -413,6 +413,7 @@ class ProjectDieselFill(Document):
 			self.company = single_company()  # F.8: default to THE company
 		validate_equipment_company(self, "card_equipment")  # F.8 consistency
 		self._guard_source()
+		self._guard_allocation()
 		self._check_link_values()
 		self._enforce_diesel_supplier()
 		self._apply_price()
@@ -462,6 +463,24 @@ class ProjectDieselFill(Document):
 			frappe.throw(_("The diesel fill needs operations approval before submit."))
 		# FR-128: every equipment again, whatever changed since the draft was saved (as a transport)
 		self._check_equipment_status(all_rows=True)
+		# FR-157 (WP-G1, C-03): write the frozen per-equipment estimated split for a tank-style fill.
+		# Display only; the GL posting (FR-100) is unchanged. No backfill (C-06): legacy submitted
+		# fills never reach this path; the FR-033 read-time estimate keeps serving them.
+		from card.diesel_fill_allocation import write_rows
+
+		write_rows(self)
+
+	def _guard_allocation(self):
+		"""FR-157 (WP-G1): the allocation rows are written by the server on submit only; a draft
+		save or a REST insert that carries rows (or an `allocation_review` note) has them cleared.
+		The parent's `allow_on_submit` = 0 on the child field then keeps the submitted rows frozen,
+		together with the FR-123 cancel guard (`card/cancel_reason.py:_refuse_changes` compares the
+		rows, their standard columns and every parent field but `cancel_reason`)."""
+		if self.docstatus == 0:
+			if self.get("diesel_fill_allocation"):
+				self.set("diesel_fill_allocation", [])
+			if self.get("allocation_review"):
+				self.set("allocation_review", None)
 
 	def _guard_source(self):
 		"""The source fields (read only on the form) come from the session import only, never from a
