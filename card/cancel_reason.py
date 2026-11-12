@@ -36,6 +36,8 @@ from frappe.utils import (
 
 FIELD = "cancel_reason"
 DOCTYPES = ("Card Monthly Card", "Equipment Transport", "Project Diesel Fill")
+# FR-152: the state field of the CARD Workflows (card.governance_workflows.STATE_FIELD)
+WORKFLOW_STATE_FIELD = "workflow_state"
 
 
 class CancelReasonRequiredError(frappe.ValidationError):
@@ -63,6 +65,8 @@ def cancel_with_reason(doctype: str, name: str, reason: str | None = None):
 	doc = frappe.get_doc(doctype, name)
 	doc.check_permission("cancel")
 	doc.set(FIELD, cstr(reason).strip())
+	# FR-152: with an active Workflow this is the only accepted cancel route (card.governance_workflows)
+	doc.flags.card_cancel_with_reason = True
 	doc.cancel()
 	return {"name": doc.name, "docstatus": doc.docstatus}
 
@@ -73,6 +77,10 @@ def on_validate(doc, method=None):
 	# (Python copy_doc copies no_copy fields; Desk's amend never copies cancel_reason)
 	if doc.get(FIELD):
 		doc.set(FIELD, None)
+	# FR-152: the native Workflow state and its guards (no new doc_events in hooks.py)
+	from card import governance_workflows
+
+	governance_workflows.on_validate(doc, method)
 
 
 def before_update_after_submit(doc, method=None):
@@ -86,6 +94,10 @@ def before_update_after_submit(doc, method=None):
 
 def before_cancel(doc, method=None):
 	"""Runs before Frappe stores the cancel, so a refusal keeps the document submitted."""
+	from card import governance_workflows
+
+	# FR-152: with an active Workflow only cancel_with_reason may cancel (a Workflow cancel action is refused)
+	governance_workflows.check_cancel_route(doc)
 	stored = doc.get_latest()
 	if stored:
 		_refuse_changes(doc, stored)
@@ -95,6 +107,8 @@ def before_cancel(doc, method=None):
 			CancelReasonRequiredError,
 		)
 	doc.set(FIELD, _reason(doc))
+	# FR-152: the Workflow state follows the cancel (set by the server, after the comparison above)
+	governance_workflows.set_cancelled_state(doc)
 
 
 def on_cancel(doc, method=None):
@@ -113,8 +127,12 @@ def _skipped(doc):
 	skip = {FIELD}
 	workflow = get_workflow_name(doc.doctype)
 	if workflow:
-		# a workflow's cancel action sets its own state field (Workflow is not changed here)
-		skip.add(frappe.get_cached_value("Workflow", workflow, "workflow_state_field"))
+		# a workflow's cancel action sets its own state field (Workflow is not changed here); FR-152: only the
+		# dedicated ``workflow_state`` field is skipped, so a Workflow whose state field is a business field (for
+		# example a Card Daily Log ``approval_status``) cannot change that field by a cancel
+		field = frappe.get_cached_value("Workflow", workflow, "workflow_state_field")
+		if field == WORKFLOW_STATE_FIELD:
+			skip.add(field)
 	return skip
 
 

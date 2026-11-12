@@ -66,7 +66,58 @@ if (!window.card_cancel_reason_registered) {
 		frappe.validated = false;
 	};
 
+	// FR-152: the workflow action "Return for Correction" asks for its mandatory reason, then
+	// card.governance_workflows.return_for_correction applies the action with it in one request; the
+	// standard apply_workflow request is not sent (the server refuses a return without the reason).
+	const RETURN_ACTION = "Return for Correction";
+	const ask_return_reason = () =>
+		new Promise((resolve) => {
+			let reason = null;
+			const d = new frappe.ui.Dialog({
+				title: __("Return for Correction"),
+				fields: [
+					{
+						fieldname: "reason",
+						fieldtype: "Small Text",
+						label: __("Return for correction reason"),
+						reqd: 1,
+					},
+				],
+				primary_action_label: __("Return with this reason"),
+				primary_action(values) {
+					const text = (values.reason || "").trim();
+					if (!text) return;
+					reason = text;
+					d.hide();
+				},
+			});
+			d.onhide = () => resolve(reason);
+			d.show();
+		});
+
+	const before_workflow_action = async (frm) => {
+		if (frm.selected_workflow_action !== RETURN_ACTION) return;
+		frappe.dom.unfreeze();
+		const reason = await ask_return_reason();
+		if (reason) {
+			try {
+				await frappe.call({
+					method: "card.governance_workflows.return_for_correction",
+					type: "POST",
+					args: { doctype: frm.doctype, name: frm.docname, reason },
+					freeze: true,
+				});
+			} catch (e) {
+				// refused on the server: frappe already shows the server's message
+			}
+			await frm.reload_doc();
+		}
+		frm.selected_workflow_action = null;
+		// never resolves: the standard apply_workflow request must not run after this handler
+		return new Promise(() => {});
+	};
+
 	for (const doctype of ["Card Monthly Card", "Equipment Transport", "Project Diesel Fill"]) {
-		frappe.ui.form.on(doctype, { before_cancel });
+		frappe.ui.form.on(doctype, { before_cancel, before_workflow_action });
 	}
 }
