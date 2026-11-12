@@ -18,6 +18,14 @@ from card.settings import company_setting, setting
 TRANSPORT_POSTING_HOLD = "Hold (transport responsibility posting)"
 TRANSPORT_POSTING_POST = "Post (transport responsibility posting)"
 
+# FR-156 (#49, #126; C-10, O-15): Card Company Settings.non_taxable_customer_deduction. Refuse is the default
+# and the meaning of an empty value: the 2026-10-15 ZATCA rule stays exactly as it is (the owner's own
+# decision on representation is still pending the tax adviser). Credit note turns on a separate draft Sales
+# Invoice (`is_return=1`) against the month's SI for non-taxable customer deductions; the original SI is
+# never touched and never carries a negative line.
+NON_TAXABLE_DEDUCTION_REFUSE = "Refuse (non-taxable customer deduction)"
+NON_TAXABLE_DEDUCTION_CREDIT_NOTE = "Credit note (non-taxable customer deduction)"
+
 
 def require_enabled():
 	if not setting("enable_accounting"):
@@ -27,6 +35,12 @@ def require_enabled():
 def posts_transport_responsibility(company):
 	"""True only when the company's row says Post; no row, an empty value or Hold keep the hold."""
 	return company_setting(company, "transport_responsibility_posting") == TRANSPORT_POSTING_POST
+
+
+def credit_notes_non_taxable_customer_deduction(company):
+	"""True only when the company's row says Credit note; no row, an empty value or Refuse keep today's
+	refusal of a non-taxable customer deduction at build time."""
+	return company_setting(company, "non_taxable_customer_deduction") == NON_TAXABLE_DEDUCTION_CREDIT_NOTE
 
 
 def require_transport_recharge_account(row):
