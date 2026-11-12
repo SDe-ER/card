@@ -32,6 +32,13 @@ per site.
 
 ### Operations
 
+- **2026-11-13 — Where a day on a monthly card came from.** Each day row on a monthly card can now record its
+  source (manual — the default, paper sheet, WhatsApp, mobile app or import), an optional external key (sheet
+  number, message id) and the time the office received the source. A day's intake fields are optional, and a card
+  entered by hand carries "manual" as before. When the source and the key are both filled in, the same pair cannot
+  be used on two days in the same company and month — one sheet or one message names one day. A fingerprint
+  (SHA-256) of the source document is stored next to the day; it is written by the server and never by the user.
+  After a card is submitted its source fields never change.
 - **2026-11-12 — Daily logs on CARD Mobile.** Operators can now record their daily logs from their phones: list
   their own logs, create and edit a draft (day, night and stopped hours per machine), send it to the supervisor, and
   correct a log that was returned with a reason. See [CARD Mobile](/card/features/card-mobile/) and

@@ -241,11 +241,18 @@ _POSTING_EVENTS = {
 # FR-143 (FR-006, WP-D1): separation of duties on the monthly card (card.governance); added after the
 # source events, which keep their order
 _CARD_EVENTS = dict(_SOURCE_EVENTS)
-_CARD_EVENTS["validate"] = [*_SOURCE_EVENTS["validate"], "card.governance.on_validate"]
+_CARD_EVENTS["validate"] = [
+	*_SOURCE_EVENTS["validate"],
+	"card.governance.on_validate",
+	# FR-158 (WP-N2): day row intake provenance — normalise fields + dedupe the (source, key) pair
+	"card.intake.apply_card_day_intake",
+]
 _CARD_EVENTS["before_submit"] = "card.governance.before_submit"
 _CARD_EVENTS["before_update_after_submit"] = [
 	_SOURCE_EVENTS["before_update_after_submit"],
 	"card.governance.before_update_after_submit",
+	# FR-158: the intake provenance of a submitted card day never changes (also with allow-on-submit)
+	"card.intake.freeze_submitted_card_day_intake",
 ]
 _CARD_EVENTS["before_cancel"] = [*_SOURCE_EVENTS["before_cancel"], "card.governance.before_cancel"]
 doc_events = {

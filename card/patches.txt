@@ -38,3 +38,4 @@ card.patches.v4_8_0.backfill_side_stopped_hours
 card.patches.v4_8_0.default_day_billing_basis
 card.patches.v4_8_0.seed_consumption_rates
 card.patches.v4_8_0.native_workflows_inactive
+card.patches.v4_8_0.n2_default_intake_source

@@ -8251,3 +8251,56 @@ msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحم
 
 msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
 msgstr "أُلغيت هذه اليومية المرجعة، لكن لم تُنشأ مسودتها المصححة. أنشئها الآن."
+
+# FR-158 (WP-N2): Card Monthly Card day row intake provenance
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Where this day row came from. A hand entry stays \"manual\"."
+msgstr "من أين جاء هذا اليوم. الإدخال اليدوي يظل \"manual\"."
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Optional external id of the source (message id, sheet number). One day row per company-month and (source, key)."
+msgstr "معرّف خارجي اختياري للمصدر (رقم الرسالة أو رقم الورقة). يوم واحد لكل شركة وشهر و(مصدر، مفتاح)."
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "manual"
+msgstr "يدوي"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "paper"
+msgstr "ورقي"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "whatsapp"
+msgstr "واتساب"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "mobile"
+msgstr "تطبيق موبايل"
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "import"
+msgstr "استيراد"
+
+#: card/intake.py
+msgid "Day {0}: select a valid intake source."
+msgstr "يوم {0}: اختر مصدر إدخال صحيح."
+
+#: card/intake.py
+msgid "Day {0}: the intake received time cannot be in the future."
+msgstr "يوم {0}: وقت استلام المصدر لا يمكن أن يكون في المستقبل."
+
+#: card/intake.py
+msgid "Day {0}: the intake evidence hash must be 64 hex characters."
+msgstr "يوم {0}: بصمة مستند المصدر لازم تكون 64 حرف ست عشري."
+
+#: card/intake.py
+msgid "Intake source {0} / key {1} is used on day {2} and day {3} of this card; one source key names one day row."
+msgstr "مصدر الإدخال {0} / المفتاح {1} مستخدم في يوم {2} ويوم {3} في نفس الكارت؛ المفتاح الواحد يخص يومًا واحدًا."
+
+#: card/intake.py
+msgid "Intake source {0} / key {1} is already used on day {2} of card {3} ({4}/{5}, company {6})."
+msgstr "مصدر الإدخال {0} / المفتاح {1} مستخدم بالفعل في يوم {2} من كارت {3} ({4}/{5}، شركة {6})."
+
+#: card/intake.py
+msgid "The intake provenance of a submitted card day cannot be changed ({0})."
+msgstr "لا يمكن تعديل مصدر إدخال يوم في كارت معتمد ({0})."
