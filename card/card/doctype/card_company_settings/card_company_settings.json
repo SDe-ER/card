@@ -50,6 +50,7 @@
   "transport_responsibility_posting",
   "column_break_transport_posting",
   "transport_recharge_income_account",
+  "non_taxable_customer_deduction",
   "period_approval_section",
   "require_period_approval",
   "column_break_period_approval",
@@ -377,6 +378,15 @@
    "permlevel": 1
   },
   {
+   "default": "Refuse (non-taxable customer deduction)",
+   "description": "A non-taxable customer-side deduction on a monthly card (ZATCA: no negative Sales Invoice lines, and a Net Total discount would change the VAT base): Refuse keeps today's behaviour (the posting is refused and the owner decides the representation). Credit note posts the deduction as a separate draft Sales Invoice with is_return=1 against the month's submitted Sales Invoice (standard ERPNext credit note), so the original invoice is never touched and no negative line appears on it. Switch to Credit note only after the tax adviser agrees. Empty: Refuse.",
+   "fieldname": "non_taxable_customer_deduction",
+   "fieldtype": "Select",
+   "label": "Non-taxable customer deduction",
+   "options": "Refuse (non-taxable customer deduction)\nCredit note (non-taxable customer deduction)",
+   "permlevel": 1
+  },
+  {
    "fieldname": "period_approval_section",
    "fieldtype": "Section Break",
    "label": "Period approval",
@@ -424,7 +434,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-12 09:20:00.000000",
+ "modified": "2026-11-13 00:30:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",

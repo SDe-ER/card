@@ -16,6 +16,59 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-156 — Credit note for non-taxable customer-side deductions, per-company opt-in (#49, #126; closure plan
+  WP-U, conflict C-10, owner decision O-15).** Reason: #49 asks for cancellations/returns to be posted correctly;
+  the owner's 2026-10-15 ZATCA rule refused a non-taxable customer-side deduction on the monthly Sales Invoice
+  (no negative SI lines and a Net Total discount would shift the VAT base). C-10 resolves it with a per-company
+  option: Refuse (the default, and an empty value) keeps the historical refusal exactly; Credit note posts the
+  deduction as a separate draft Sales Invoice with `is_return` = 1 so the main SI carries no negative line.
+  New field on the `Card Company Settings` child table (`card_company_settings.json`):
+  `non_taxable_customer_deduction` (Select, permlevel 1, default "Refuse (non-taxable customer deduction)";
+  options "Refuse (non-taxable customer deduction)", "Credit note (non-taxable customer deduction)"). New reader
+  `card/gl/preflight.py` `credit_notes_non_taxable_customer_deduction(company)`. `card/gl/posting.py`
+  `_card_lines` returns a 4-tuple `(card, lines, discount, cn_deductions_total)`: when the caller passes an open
+  `credit_note_items` list, a non-taxable customer-side deduction is appended to it (card name, project, cost
+  center, equipment, item, account, amount, description) and excluded from `lines` and `discount` instead of
+  refused. `_plan_monthly_posting` passes the open list only on the customer side and only when the company's
+  mode is Credit note; the main SI's log source amount adds back the deferred deductions so the submit-time
+  reconciliation check (lines total == sources total) stays honest across the main SI and the CN; the preview
+  adds a warning naming the number and total of deductions that will be issued on the CN. `card/gl/events.py`
+  `_build_non_taxable_credit_note` runs in `on_submit` of the main Sales Invoice: re-derives the deductions by
+  walking the cards the log reserves (immutable on a submitted card), re-checks the current mode (Refuse now
+  when build was Credit note is refused fail-closed with a translated message), locks the main log row
+  `FOR UPDATE` (two-connection race, Lesson 4) and creates a standalone draft Sales Invoice with `is_return` = 1
+  (no `return_against` on purpose: the deduction items are not on the main SI so ERPNext's
+  `validate_returned_items` would noise-print; the link is kept on the CN log and on each CN line's description).
+  Each CN item carries the `vat_zero_item_tax_template`, so the CN's taxes computation adds no VAT line. The CN's
+  own `GL Posting Log` row is created with `origin = "Credit Note"` (new option) and `remarks` starting with the
+  backlink tag `"FR-156 credit note for <main log name>"`; `GLPostingLog.validate` extends the posting-key logic
+  (`card/card/doctype/gl_posting_log/gl_posting_log.py`) with a parallel CN digest clause so the DB unique index
+  blocks a second CN for the same main log. Idempotent: a repeated submit finds the active CN via the backlink
+  tag and returns it. Backlinks: the CN log carries the main log on `remarks`; each affected card carries an
+  Info Comment naming the CN and the amount (no new field on `Card Monthly Card`). Cancel path (pattern of
+  FR-110 `journal_link.py`): cancelling the main SI is refused while an active CN exists; the accountant
+  cancels or deletes the CN first, so the pair cancels atomically; cancelling the CN alone leaves the main SI
+  submitted. FR-004 kept (CARD never auto-submits): the CN is left as a Draft for the accountant's review.
+  Role / DocPerm: unchanged (writer still restricted to System Manager / Card Manager as every other posting
+  rule; no `ignore_permissions` beyond the `card_gl_build` flag already used for the generated invoice and log).
+  Defaults: SDCE and every existing company start on Refuse (the current behaviour); the owner flips to Credit
+  note per company only after the tax adviser answers (O-15). Tests: `card/tests/test_credit_note.py` (Refuse
+  mode still refuses, mode reader, main SI carries no negative line, submit builds the CN draft standalone with
+  the zero-rate template, main SI total matches sources at submit, backlink tag, card Comment names the CN,
+  taxable and non-taxable deductions split cleanly, idempotency, cross-company isolation, mode flip between
+  build and submit is refused, cancel path pair, two-connection race builds at most one CN, Lesson-12 mutation
+  guards per branch);
+  `card/tests/test_payment_entry_parity.py` (pair outstanding sums to zero after a native ERPNext Payment Entry,
+  GL entries of the pair plus PE net to zero on the customer's party ledger, company currency label O-17).
+  Files touched: `card/gl/posting.py`, `card/gl/events.py`, `card/card/doctype/card_company_settings/card_company_settings.json`,
+  `card/card/doctype/gl_posting_log/gl_posting_log.json`, `card/card/doctype/gl_posting_log/gl_posting_log.py`,
+  `card/gl/preflight.py`, `card/locale/ar.po`, `card/locale/main.pot`, `card/tests/test_credit_note.py`,
+  `card/tests/test_payment_entry_parity.py`, `card/tests/test_print_formats.py` (4-tuple unpack), `card/tests/test_sided_totals.py` (4-tuple unpack).
+  Impact: a new per-company option (default-neutral); no DocPerm or role change; no accounting change in Refuse
+  mode; in Credit note mode CARD creates one extra draft Sales Invoice per month per customer with non-taxable
+  customer-side deductions (the accountant submits both as today). No whitelisted endpoint added. Rollback:
+  revert the commit; a migrated site keeps the new field and the new origin option, both inert while the mode
+  stays Refuse (the default) and no "Credit Note" log exists.
 - **FR-158 — Card Monthly Card day row intake provenance (#52, #44; closure plan WP-N2).** Reason: #52 and #44 call
   for every day row entered from paper, a WhatsApp photo, the mobile app or an external import to keep where it
   came from, so the office can prove why a card day exists and so the same source never creates two day rows. The

@@ -58,6 +58,14 @@ class GLPostingLog(Document):
 				# a short digest of the invoice name keeps long party names inside the key's length
 				digest = hashlib.sha1((self.posting_doc or "").encode()).hexdigest()[:12]
 				self.posting_key = "{0}|L|{1}".format(self.posting_key, digest)
+			# FR-156 (#49, #126; C-10, O-15): a credit note draft issued after the
+			# monthly Sales Invoice is submitted, to carry the non-taxable
+			# customer-side deductions the SI could not (ZATCA: no negative SI
+			# lines). Its own unit (one CN per returning invoice): the sources'
+			# membership stays on the main log.
+			elif self.origin == "Credit Note":
+				digest = hashlib.sha1((self.posting_doc or "").encode()).hexdigest()[:12]
+				self.posting_key = "{0}|CN|{1}".format(self.posting_key, digest)
 		else:
 			self.posting_key = None
 

@@ -980,6 +980,12 @@ IGNORE_PERMISSIONS_ALLOWED = {
 		1,
 		"install / before_tests bootstrap of the Accounting Dimension; no request path",
 	),
+	("card/gl/events.py", "_build_non_taxable_credit_note"): (
+		2,
+		"FR-156: the credit note draft and its GL Posting Log, created in on_submit of the main SI "
+		"(after `_check_credit_note_mode_still_on` in before_submit); same pattern as "
+		"`build_monthly_posting` which also inserts a draft invoice + its log under the posting gate",
+	),
 	("card/gl/integrity.py", "link_supplier_invoice"): (1, "Linked GL Posting Log after the endpoint's gate"),
 	("card/gl/journal_link.py", "link_accrual_journal"): (
 		1,

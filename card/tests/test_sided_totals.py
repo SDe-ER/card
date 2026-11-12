@@ -118,7 +118,7 @@ class TestSidedTotals(_CustomerCardsBase):
 		)
 		billed = {}
 		for side in ("Supplier", "Customer"):
-			_doc, lines, discount = _card_lines(self.card.name, side, row, {})
+			_doc, lines, discount, _cn = _card_lines(self.card.name, side, row, {})
 			billed[side] = sum(line["rate"] for line in lines) - discount
 		recompute_supplier(self.supplier)
 		recompute_customer(self.customer)

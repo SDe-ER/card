@@ -140,7 +140,7 @@ class TestPrintFormats(_CustomerCardsBase):
 			equipment_rental_income_account="X",
 		)
 		for side, label in (("Supplier", "صافي المورد قبل الضريبة"), ("Customer", "صافي العميل قبل الضريبة")):
-			_doc, lines, discount = _card_lines(card.name, side, row, {})
+			_doc, lines, discount, _cn = _card_lines(card.name, side, row, {})
 			self.assertEqual(_cell(html, label), fmt_money(sum(line["rate"] for line in lines) - discount))
 
 	def test_no_adjustments_prints_gross_equal_to_net(self):

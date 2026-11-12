@@ -679,11 +679,24 @@ def _customer_cards(company, party, month, year):
 	)
 
 
-def _card_lines(card_name, side, row, types):
-	"""The invoice lines one card contributes on one side."""
+def _card_lines(card_name, side, row, types, credit_note_items=None):
+	"""The invoice lines one card contributes on one side.
+
+	FR-156 (#49, #126; C-10, O-15): when the company's non-taxable customer-side
+	deduction mode is Credit note (opt-in), the caller passes an open
+	``credit_note_items`` list for the customer side; a non-taxable customer-side
+	deduction is appended to that list (one row per deduction), excluded from
+	``lines`` and from ``discount``, and billed later on a separate draft Sales
+	Invoice with ``is_return`` = 1 built in ``card/gl/events.py`` after the main SI
+	is submitted. Without the list (Refuse mode, the default; or the supplier side)
+	the deduction is refused at build, as before. Returns (card, lines, discount,
+	cn_deductions_total): the sum of the non-taxable customer-side deductions
+	deferred to a credit note on this card (0 when none or when the list is None).
+	"""
 	card = frappe.get_doc("Card Monthly Card", card_name)
 	cost_center = card_cost_center(card, card.company)
 	lines = []
+	credit_note_mode = credit_note_items is not None
 	if side == "Supplier":
 		base_rate, base_item, base_account = (
 			flt(card.amount, 2),
@@ -714,6 +727,7 @@ def _card_lines(card_name, side, row, types):
 	)
 	total = base_rate
 	discount = 0.0
+	cn_deductions_total = 0.0
 	for adj in card.get("adjustments") or []:
 		if (adj.side or "Supplier") != side:
 			continue
@@ -730,14 +744,34 @@ def _card_lines(card_name, side, row, types):
 			# ZATCA rule (owner 2026-10-15): NO negative lines on Sales Invoices.
 			# Taxable customer deductions become an invoice discount on Net Total
 			# (same VAT base effect); non-taxable ones cannot be represented as a
-			# Net Total discount without shifting VAT — refuse until the owner
-			# decides the representation (credit note vs Grand Total discount).
+			# Net Total discount without shifting VAT. FR-156 (owner O-15): a
+			# per-company option issues a separate draft credit note for them;
+			# Refuse (the default) keeps the historical refusal.
 			if typ is not None and not typ.taxable:
-				frappe.throw(
-					_(
-						"Non-taxable customer-side deduction {0} on card {1} is not supported on a Sales Invoice (ZATCA: no negative lines; a Net Total discount would change the VAT base). Ask the owner for the representation."
-					).format(adj.adjustment_type_ref or adj.description or "", card.name)
+				if not credit_note_mode:
+					frappe.throw(
+						_(
+							"Non-taxable customer-side deduction {0} on card {1} is not supported on a Sales Invoice (ZATCA: no negative lines; a Net Total discount would change the VAT base). Ask the owner for the representation."
+						).format(adj.adjustment_type_ref or adj.description or "", card.name)
+					)
+				# FR-156: defer to a separate draft credit note (built at submit)
+				credit_note_items.append(
+					{
+						"card": card.name,
+						"project": card.project,
+						"cost_center": cost_center,
+						"card_equipment": card.equipment,
+						"item_code": typ.item or base_item,
+						"account": typ.account or base_account,
+						"amount": flt(adj.amount, 2),
+						"adjustment_type_ref": adj.adjustment_type_ref,
+						"description": "{0} — {1} — {2}".format(
+							typ.type_name, card.name, adj.description or ""
+						),
+					}
 				)
+				cn_deductions_total = flt(cn_deductions_total + flt(adj.amount, 2), 2)
+				continue
 			discount = flt(discount + flt(adj.amount, 2), 2)
 			continue
 		lines.append(
@@ -755,7 +789,7 @@ def _card_lines(card_name, side, row, types):
 			}
 		)
 	_assert_identity(card, total, expected, side)
-	return card, lines, discount
+	return card, lines, discount, cn_deductions_total
 
 
 def _plan_monthly_posting(
@@ -840,13 +874,14 @@ def _plan_monthly_posting(
 	lines = []
 	total_discount = 0.0
 	sources = {"Card Monthly Card": [], "Project Diesel Fill": [], "Equipment Transport": []}
+	credit_note_items = None
 	if party_type == "Supplier":
 		cards, fills, transports = _supplier_sources(company, party, first_day, last_day, month, year)
 		cards = _exclude_held(cards, "Card Monthly Card", party_type, ignore_logs)
 		fills = _exclude_held(fills, "Project Diesel Fill", party_type, ignore_logs)
 		transports = _exclude_held(transports, "Equipment Transport", party_type, ignore_logs)
 		for c in cards:
-			card, card_lines, _discount = _card_lines(c.name, "Supplier", row, types)
+			card, card_lines, _discount, _cn_deductions = _card_lines(c.name, "Supplier", row, types)
 			lines.extend(card_lines)
 			sources["Card Monthly Card"].append((card.name, flt(card.net_amount, 2)))
 		for fill in fills:
@@ -914,11 +949,25 @@ def _plan_monthly_posting(
 		customer_cards = _exclude_held(
 			_customer_cards(company, party, month, year), "Card Monthly Card", party_type, ignore_logs
 		)
+		# FR-156 (#49, #126; C-10, O-15): when the company opts in to the Credit note route,
+		# pass an open list to `_card_lines` so it defers non-taxable customer-side deductions
+		# to a separate draft Sales Invoice with `is_return` = 1 that `card/gl/events.py`
+		# builds after the main SI is submitted. Refuse (the default) keeps the open list
+		# as None, so `_card_lines` keeps the historical refusal.
+		if preflight.credit_notes_non_taxable_customer_deduction(company):
+			credit_note_items = []
 		for c in customer_cards:
-			card, card_lines, discount = _card_lines(c.name, "Customer", row, types)
+			card, card_lines, discount, cn_deductions = _card_lines(
+				c.name, "Customer", row, types, credit_note_items
+			)
 			lines.extend(card_lines)
 			total_discount = flt(total_discount + discount, 2)
-			sources["Card Monthly Card"].append((card.name, flt(card.customer_net_amount, 2)))
+			# the source amount is what the main SI actually bills: `customer_net_amount`
+			# subtracts every signed adjustment of this card, so the deductions deferred to
+			# the credit note are added back to keep the submit-time reconciliation check
+			# (lines total == sources total) honest across the main SI and its CN
+			source_amount = flt(flt(card.customer_net_amount, 2) + cn_deductions, 2)
+			sources["Card Monthly Card"].append((card.name, source_amount))
 		if preflight.posts_transport_responsibility(company):
 			# FR-139 Post: the transports billed to this customer on the monthly invoice
 			billed = _exclude_held(
@@ -936,6 +985,16 @@ def _plan_monthly_posting(
 				sources["Equipment Transport"].append(
 					(t.name, flt(sum(flt(line["rate"], 2) for line in t_lines), 2))
 				)
+		if credit_note_items:
+			# FR-156: the preview warns that a separate credit note will be built after submit
+			warnings.append(
+				_(
+					"After this Sales Invoice is submitted, a draft credit note will be built for {0} non-taxable customer-side deduction(s) totalling {1}."
+				).format(
+					len(credit_note_items),
+					flt(sum(flt(item["amount"], 2) for item in credit_note_items), 2),
+				)
+			)
 		if total_discount and any(not line["taxable"] for line in lines):
 			# A Net Total discount is apportioned across ALL lines, so a
 			# zero-rated line would absorb part of a fully-taxable deduction
@@ -1040,6 +1099,11 @@ def _plan_monthly_posting(
 		diesel_note=diesel_note,
 		candidates=candidates,
 		warnings=warnings,
+		# FR-156 (#49, #126; C-10, O-15): non-taxable customer-side deductions
+		# the main SI could not carry — issued as a separate draft credit note by
+		# `card/gl/events.py` after the main SI is submitted. Refuse mode (the
+		# default): the deduction is refused at build and this list stays empty.
+		credit_note_items=list(credit_note_items or []) if party_type == "Customer" else [],
 	)
 
 

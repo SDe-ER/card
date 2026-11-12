@@ -8252,6 +8252,58 @@ msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحم
 msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
 msgstr "أُلغيت هذه اليومية المرجعة، لكن لم تُنشأ مسودتها المصححة. أنشئها الآن."
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Non-taxable customer deduction"
+msgstr "خصم غير خاضع للضريبة من العميل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A non-taxable customer-side deduction on a monthly card (ZATCA: no negative Sales Invoice lines, and a Net Total discount would change the VAT base): Refuse keeps today's behaviour (the posting is refused and the owner decides the representation). Credit note posts the deduction as a separate draft Sales Invoice with is_return=1 against the month's submitted Sales Invoice (standard ERPNext credit note), so the original invoice is never touched and no negative line appears on it. Switch to Credit note only after the tax adviser agrees. Empty: Refuse."
+msgstr "خصم غير خاضع للضريبة من جانب العميل على البطاقة الشهرية (هيئة الزكاة والضريبة: ممنوع أي سطر سالب في فاتورة المبيعات، وخصم على صافي المجموع يغيّر وعاء الضريبة): «رفض» يُبقي السلوك الحالي (ترحيل الشهر مرفوض وينتظر قرار المالك بالتمثيل). «إشعار دائن» يُرحّل الخصم في فاتورة مبيعات منفصلة بمسودة is_return=1 مقابل فاتورة المبيعات المعتمدة للشهر (إشعار دائن قياسي في ERPNext)، فلا تُمَس الفاتورة الأصلية ولا يظهر عليها أي سطر سالب. حوّل إلى «إشعار دائن» فقط بعد موافقة المستشار الضريبي. فارغ: رفض."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (non-taxable customer deduction)"
+msgstr "رفض (خصم غير خاضع للضريبة من العميل)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Credit note (non-taxable customer deduction)"
+msgstr "إشعار دائن (خصم غير خاضع للضريبة من العميل)"
+
+#: card/gl/events.py
+msgid "{0} has an active credit note {1} for non-taxable customer-side deductions; cancel or delete that credit note before cancelling this invoice."
+msgstr "{0} له إشعار دائن نشط {1} للخصومات غير الخاضعة للضريبة من جانب العميل؛ ألغِ أو احذف إشعار الدائن قبل إلغاء هذه الفاتورة."
+
+#: card/gl/events.py
+msgid "Sales Invoice {0} was built with non-taxable customer-side deductions deferred to a credit note, but company {1} no longer allows the credit-note route. Cancel this invoice and rebuild the posting."
+msgstr "أُنشئت فاتورة المبيعات {0} مع تأجيل الخصومات غير الخاضعة للضريبة من جانب العميل إلى إشعار دائن، لكن الشركة {1} لم تعد تسمح بمسار إشعار الدائن. ألغِ هذه الفاتورة وأعد إنشاء الترحيل."
+
+#: card/gl/events.py
+msgid "FR-156: credit note of {0} for non-taxable customer-side deductions (ZATCA: no negative Sales Invoice lines)."
+msgstr "FR-156: إشعار دائن لـ {0} للخصومات غير الخاضعة للضريبة من جانب العميل (هيئة الزكاة والضريبة: ممنوع أي سطر سالب في فواتير المبيعات)."
+
+#: card/gl/events.py
+msgid "credit note of {0}"
+msgstr "إشعار دائن لـ {0}"
+
+#: card/gl/events.py
+msgid "non-taxable"
+msgstr "غير خاضع للضريبة"
+
+#: card/gl/events.py
+msgid "non-taxable customer-side deductions deferred by the main Sales Invoice"
+msgstr "خصومات غير خاضعة للضريبة من جانب العميل مؤجّلة من فاتورة المبيعات الرئيسية"
+
+#: card/gl/events.py
+msgid "affected cards"
+msgstr "البطاقات المتأثرة"
+
+#: card/gl/events.py
+msgid "FR-156: non-taxable customer-side deductions {0} of this card issued as credit note {1} (parent invoice {2})."
+msgstr "FR-156: الخصومات غير الخاضعة للضريبة من جانب العميل {0} لهذه البطاقة أُصدرت كإشعار دائن {1} (الفاتورة الأصل {2})."
+
+#: card/gl/posting.py
+msgid "After this Sales Invoice is submitted, a draft credit note will be built for {0} non-taxable customer-side deduction(s) totalling {1}."
+msgstr "بعد اعتماد فاتورة المبيعات هذه، سيُنشأ إشعار دائن مسودة لعدد {0} خصم غير خاضع للضريبة من جانب العميل بإجمالي {1}."
+
 # FR-158 (WP-N2): Card Monthly Card day row intake provenance
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Where this day row came from. A hand entry stays \"manual\"."

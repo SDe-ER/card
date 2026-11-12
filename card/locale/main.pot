@@ -7012,6 +7012,58 @@ msgstr ""
 msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
 msgstr ""
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Non-taxable customer deduction"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "A non-taxable customer-side deduction on a monthly card (ZATCA: no negative Sales Invoice lines, and a Net Total discount would change the VAT base): Refuse keeps today's behaviour (the posting is refused and the owner decides the representation). Credit note posts the deduction as a separate draft Sales Invoice with is_return=1 against the month's submitted Sales Invoice (standard ERPNext credit note), so the original invoice is never touched and no negative line appears on it. Switch to Credit note only after the tax adviser agrees. Empty: Refuse."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Refuse (non-taxable customer deduction)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Credit note (non-taxable customer deduction)"
+msgstr ""
+
+#: card/gl/events.py
+msgid "{0} has an active credit note {1} for non-taxable customer-side deductions; cancel or delete that credit note before cancelling this invoice."
+msgstr ""
+
+#: card/gl/events.py
+msgid "Sales Invoice {0} was built with non-taxable customer-side deductions deferred to a credit note, but company {1} no longer allows the credit-note route. Cancel this invoice and rebuild the posting."
+msgstr ""
+
+#: card/gl/events.py
+msgid "FR-156: credit note of {0} for non-taxable customer-side deductions (ZATCA: no negative Sales Invoice lines)."
+msgstr ""
+
+#: card/gl/events.py
+msgid "credit note of {0}"
+msgstr ""
+
+#: card/gl/events.py
+msgid "non-taxable"
+msgstr ""
+
+#: card/gl/events.py
+msgid "non-taxable customer-side deductions deferred by the main Sales Invoice"
+msgstr ""
+
+#: card/gl/events.py
+msgid "affected cards"
+msgstr ""
+
+#: card/gl/events.py
+msgid "FR-156: non-taxable customer-side deductions {0} of this card issued as credit note {1} (parent invoice {2})."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "After this Sales Invoice is submitted, a draft credit note will be built for {0} non-taxable customer-side deduction(s) totalling {1}."
+msgstr ""
+
 # FR-158 (WP-N2): Card Monthly Card day row intake provenance
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Where this day row came from. A hand entry stays \"manual\"."
