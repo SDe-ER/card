@@ -7064,6 +7064,27 @@ msgstr ""
 msgid "After this Sales Invoice is submitted, a draft credit note will be built for {0} non-taxable customer-side deduction(s) totalling {1}."
 msgstr ""
 
+msgid "Diesel Fill Allocation"
+msgstr ""
+
+msgid "Diesel fill allocation"
+msgstr ""
+
+msgid "Diesel fill allocation (estimated)"
+msgstr ""
+
+msgid "Allocation (estimated, display only)"
+msgstr ""
+
+msgid "Allocation review"
+msgstr ""
+
+msgid "Tank diesel estimate weighting"
+msgstr ""
+
+msgid "Rate used (L/h)"
+msgstr ""
+
 #: card/governance.py
 msgid "{0} {1} is in state {2}; editing requires one of these roles: {3}."
 msgstr ""

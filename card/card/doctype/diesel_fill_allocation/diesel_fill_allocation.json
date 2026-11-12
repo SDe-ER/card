@@ -1,0 +1,115 @@
+{
+ "actions": [],
+ "creation": "2026-11-12 09:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 0,
+ "engine": "InnoDB",
+ "field_order": [
+  "equipment",
+  "card_equipment_name",
+  "basis",
+  "rule",
+  "hours",
+  "rate_used",
+  "allocated_litres",
+  "remainder",
+  "review_flag",
+  "frozen_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "equipment.equipment_name",
+   "fieldname": "card_equipment_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Equipment name",
+   "read_only": 1
+  },
+  {
+   "default": "estimated",
+   "fieldname": "basis",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Basis",
+   "options": "estimated\nmeasured",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rule",
+   "fieldtype": "Data",
+   "label": "Rule",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Operating hours",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "Litres per operating hour used to weight this row (Hours × Rate weighting only).",
+   "fieldname": "rate_used",
+   "fieldtype": "Float",
+   "label": "Rate used (L/h)",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "allocated_litres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Allocated litres",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "This row absorbs the rounding remainder so the row litres sum to the fill litres exactly.",
+   "fieldname": "remainder",
+   "fieldtype": "Check",
+   "label": "Remainder row",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "The equipment has no operating hours or no consumption rate for the fill month; the row carries no litres and needs a manual review.",
+   "fieldname": "review_flag",
+   "fieldtype": "Check",
+   "label": "Needs review",
+   "read_only": 1
+  },
+  {
+   "fieldname": "frozen_on",
+   "fieldtype": "Datetime",
+   "label": "Frozen on",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-12 09:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Diesel Fill Allocation",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "idx",
+ "sort_order": "ASC",
+ "states": []
+}
