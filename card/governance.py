@@ -197,3 +197,78 @@ def before_cancel(doc, method=None):
 	FR-123 (``card.cancel_reason.before_cancel``, which runs first) already refuses a cancel request that changes
 	a stored field; this read is the second layer."""
 	_restore(doc)
+
+
+# ---------- FR-155 (WP-D2b; closure plan C-14, O-10): native-workflow state guards ----------
+"""FR-155 extends FR-152 (``card.governance_workflows``) with the state-edit guard that Frappe enforces in the form
+only. When an active Workflow is attached to a CARD transaction (Card Monthly Card, Equipment Transport, Project
+Diesel Fill), a save by any route (form, REST v1/v2 ``update`` and ``insert``, ``frappe.client.set_value`` /
+``save`` / ``submit`` / ``insert``, ``savedocs``, ``bulk_update``) is accepted only when the current user holds a
+role listed in the stored state's ``allow_edit`` (Workflow Document State) or is making a declared state transition
+(which Frappe's ``validate_workflow`` and FR-152's ``_check_submit`` already check). Administrator is NOT exempt
+(FR-121 precedent). Inactive Workflow (the default, O-10): no change. The companion bypass suite
+(``card/tests/test_workflow_bypass.py``) proves that no route can forge ``workflow_state``, ``return_reason`` or
+the approver fields, skip a transition, or reach another company's queue."""
+
+
+class WorkflowStateEditError(frappe.PermissionError):
+	pass
+
+
+def _stored_state(doctype, name, state_field):
+	"""Locking read of the stored ``workflow_state`` and ``docstatus``; the committed values, not the request's
+	snapshot. Returns (state, docstatus) or (None, None) when the record is gone."""
+	row = frappe.db.get_value(doctype, name, (state_field, "docstatus"), as_dict=True, for_update=True)
+	if not row:
+		return None, None
+	return row.get(state_field), row.get("docstatus")
+
+
+def _state_edit_roles(workflow, state):
+	"""Every role listed in ``allow_edit`` for ``state`` (one state has one row per role in Frappe)."""
+	return {s.allow_edit for s in workflow.states if s.state == state and s.allow_edit}
+
+
+def check_workflow_state_edit(doc, method=None):
+	"""FR-155: state-edit guard on every save. Runs after ``card.cancel_reason.on_validate`` (which calls
+	``governance_workflows.on_validate``): when an active Workflow is attached, the saving user must hold a role
+	in the stored state's ``allow_edit``. A state transition (``doc`` state != stored state) is left to Frappe's
+	``validate_workflow`` and FR-152's ``_check_submit``; a plain draft save, an update of a draft and an update
+	after submit all run through here. Administrator is NOT exempt."""
+	from card import governance_workflows as _gw
+
+	if doc.doctype not in _gw.WORKFLOWS:
+		return
+	workflow = _gw._active_workflow(doc.doctype)
+	if not workflow:
+		return
+	state_field = workflow.workflow_state_field
+	if doc.is_new():
+		stored_state = _gw._default_state(workflow, 0)
+		if stored_state is None:
+			return
+	else:
+		stored_state, stored_docstatus = _stored_state(doc.doctype, doc.name, state_field)
+		if stored_state is None:
+			stored_state = _gw._default_state(workflow, stored_docstatus or 0)
+		if stored_state is None:
+			return
+	current_state = doc.get(state_field) or stored_state
+	if current_state != stored_state:
+		# transition: Frappe's validate_workflow checks who may transition; D2a's _check_submit handles docstatus 1
+		return
+	allow_edit = _state_edit_roles(workflow, stored_state)
+	if not allow_edit:
+		return
+	user_roles = set(frappe.get_roles(frappe.session.user))
+	if not (allow_edit & user_roles):
+		frappe.throw(
+			_("{0} {1} is in state {2}; editing requires one of these roles: {3}.").format(
+				_(doc.doctype),
+				doc.name or _("(new)"),
+				_(stored_state),
+				", ".join(sorted(allow_edit)),
+			),
+			WorkflowStateEditError,
+			title=_("Workflow state edit refused"),
+		)
