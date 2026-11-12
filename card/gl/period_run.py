@@ -6,8 +6,9 @@ A period run holds a snapshot of every source document the monthly posting bills
 total per side and a version number. An accountant approves the run; the approval is tied to that exact version
 and snapshot.
 
-Nothing posts from a run yet: WP-S2 adds "an approved, current period run is required before post_month" (opt-in
-per company). The run writes no GL entry, no invoice and nothing on any source; it is a review record only.
+FR-154 (WP-S2, ``card.gl.period_gate``) uses the run: with the company's ``require_period_approval`` on, the monthly
+posting refuses a company-month without an approved, current run (off by default). The run writes no GL entry, no
+invoice and nothing on any source; it is a review record only.
 
 What the snapshot covers: the WHOLE month, posted and unposted documents alike, selected by the filters
 ``card.gl.posting`` uses for its sources (``_supplier_sources``, ``_responsibility_transports``,
@@ -71,8 +72,9 @@ source documents are not counted; open owner question). When a preparer approves
 ``self_approval_rule`` decides: "Warn only" (the default) approves with a message and marks the run
 ``self_approved``; "Refuse" refuses. The rule can be raised to Refuse at any time and never lowered, and an
 amendment keeps it; a saved run keeps its stored ``amended_from`` (Frappe checks it on insert only). No role
-is exempt. Known limit: the rule is per run; WP-S2 (which owns Card Company Settings)
-applies the stricter of a per-company rule and the run's rule.
+is exempt. FR-154: the stricter of the run's rule and the company's ``period_run_self_approval_rule`` (Card
+Company Settings, empty = Warn only) applies: a run built while the company rule is Refuse takes Refuse, and an
+approval checks the company rule again (``effective_self_approval_rule``).
 
 Company isolation is the generic FR-131 scope (``card.company_scope``, registered for this DocType); the totals
 and row amounts sit at permlevel 1, read by the roles that read card amounts (O-20: never Card Operator or
@@ -91,7 +93,7 @@ from card.cancel_reason import _refuse_changes
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
 from card.daily_log import _add_preparers, _has_any_role
 from card.gl import preflight
-from card.gl.posting import _TRANSPORT_SOURCE_FIELDS, _customer_transports, _unheld_batch
+from card.gl.posting import _TRANSPORT_SOURCE_FIELDS, _customer_transports, _rows, _unheld_batch
 from card.report_access import permitted_companies
 from card.settings import company_setting
 
@@ -303,8 +305,39 @@ def _supplier_transport_amount(transport) -> float:
 	return amount
 
 
-def _selection(company: str, month: str, year: int) -> dict:
-	"""{(doctype, name): {"Supplier": (party, amount), "Customer": (party, amount)}} of the company-month."""
+def _posts_responsibility(company: str, for_update: bool = False) -> bool:
+	"""preflight.posts_transport_responsibility, or with for_update from a locking read of the company's row."""
+	if not for_update:
+		return preflight.posts_transport_responsibility(company)
+	return (
+		_company_row_value(company, "transport_responsibility_posting", for_update=True)
+		== preflight.TRANSPORT_POSTING_POST
+	)
+
+
+def _company_row_value(company: str, fieldname: str, for_update: bool = False) -> str:
+	"""A value of the company's Card Company Settings row ("" when none); with for_update a locking read."""
+	if not for_update:
+		return cstr(company_setting(company, fieldname))
+	return cstr(
+		frappe.db.get_value(
+			"Card Company Settings",
+			{
+				"parent": "Card Settings",
+				"parenttype": "Card Settings",
+				"parentfield": "company_settings",
+				"company": company,
+			},
+			fieldname,
+			for_update=True,
+		)
+	)
+
+
+def _selection(company: str, month: str, year: int, for_update: bool = False) -> dict:
+	"""{(doctype, name): {"Supplier": (party, amount), "Customer": (party, amount)}} of the company-month.
+	for_update (FR-154, the posting gate inside the posting transaction): every read is a locking read, so it
+	sees the latest committed documents (not the request's REPEATABLE READ snapshot) and holds them."""
 	first, last = _bounds(month, year)
 	out = {}
 
@@ -313,8 +346,9 @@ def _selection(company: str, month: str, year: int) -> dict:
 
 	# copy of card.gl.posting._supplier_sources (cards) and _customer_cards, without the invoice-link filter;
 	# WP-S2 should expose shared builders so the run and the posting read one selection
-	for row in frappe.get_all(
+	for row in _rows(
 		CARD,
+		for_update=for_update,
 		filters={
 			"docstatus": 1,
 			"company": company,
@@ -332,8 +366,9 @@ def _selection(company: str, month: str, year: int) -> dict:
 		if row.card_direction in CUSTOMER_BILLING_DIRECTIONS:
 			add(CARD, row.name, "Customer", row.customer, row.customer_net_amount)
 	# copy of card.gl.posting._supplier_sources (fills), without the purchase_invoice filter (WP-S2: shared builder)
-	for row in frappe.get_all(
+	for row in _rows(
 		FILL,
+		for_update=for_update,
 		filters={
 			"docstatus": 1,
 			"company": company,
@@ -346,8 +381,9 @@ def _selection(company: str, month: str, year: int) -> dict:
 		add(FILL, row.name, "Supplier", row.supplier, row.amount)
 	# copy of card.gl.posting._supplier_sources (P1-2 transports), without the purchase_invoice filter
 	# (WP-S2: shared builder)
-	for row in frappe.get_all(
+	for row in _rows(
 		TRANSPORT,
+		for_update=for_update,
 		filters={
 			"docstatus": 1,
 			"company": company,
@@ -359,11 +395,12 @@ def _selection(company: str, month: str, year: int) -> dict:
 		fields=["name", "transport_supplier", "amount"],
 	):
 		add(TRANSPORT, row.name, "Supplier", row.transport_supplier, row.amount)
-	if preflight.posts_transport_responsibility(company):
+	if _posts_responsibility(company, for_update):
 		# copy of card.gl.posting._responsibility_transports, without the purchase_invoice filter (WP-S2: shared
 		# builder)
-		for row in frappe.get_all(
+		for row in _rows(
 			TRANSPORT,
+			for_update=for_update,
 			filters={
 				"docstatus": 1,
 				"company": company,
@@ -378,7 +415,7 @@ def _selection(company: str, month: str, year: int) -> dict:
 				row.posting_kind = kind
 				add(TRANSPORT, row.name, "Supplier", row.transport_supplier, _supplier_transport_amount(row))
 		# card.gl.posting._customer_transports itself (it has no invoice-link filter)
-		for row in _customer_transports(company, None, first, last):
+		for row in _customer_transports(company, None, first, last, for_update=for_update):
 			add(TRANSPORT, row.name, "Customer", row.customer, row.billing_amount)
 	return out
 
@@ -406,15 +443,15 @@ def _posted(selection: dict) -> set:
 	return posted
 
 
-def diesel_vat_basis(company: str) -> str:
+def diesel_vat_basis(company: str, for_update: bool = False) -> str:
 	"""The company's configured diesel price VAT basis (Card Company Settings ``diesel_price_vat_basis``), as the
 	posting reads it; empty when not configured. Never inferred."""
-	return cstr(company_setting(company, "diesel_price_vat_basis"))
+	return _company_row_value(company, "diesel_price_vat_basis", for_update=for_update)
 
 
-def _vat_registered(supplier) -> int:
+def _vat_registered(supplier, for_update: bool = False) -> int:
 	"""The posting's rule: a supplier with its own tax ID is VAT-registered. Never inferred otherwise."""
-	return 1 if supplier and frappe.db.get_value("Supplier", supplier, "tax_id") else 0
+	return 1 if supplier and frappe.db.get_value("Supplier", supplier, "tax_id", for_update=for_update) else 0
 
 
 def _snapshot_hash(company, month, year, version, rows, vat_basis="") -> str:
@@ -435,19 +472,26 @@ def _snapshot_hash(company, month, year, version, rows, vat_basis="") -> str:
 
 
 def build_snapshot(
-	company: str, month: str | int, year: str | int, version: int = FINGERPRINT_VERSION
+	company: str,
+	month: str | int,
+	year: str | int,
+	version: int = FINGERPRINT_VERSION,
+	for_update: bool = False,
 ) -> frappe._dict:
 	"""Every source document the monthly posting of ``company`` bills for ``month``/``year`` (the whole month), as a
-	period-run snapshot. Reads only; the caller checks the permissions."""
+	period-run snapshot. Reads only; the caller checks the permissions. for_update (FR-154, inside the posting
+	transaction only): the selection, every source document with its rows, the company's settings row and the fill
+	suppliers are read with locking reads, so the snapshot is the latest committed state and stays so until the
+	transaction ends. The posted flags (information only) are plain reads."""
 	month, year = _month(month), _year(year)
 	currency = frappe.get_cached_value("Company", company, "default_currency")
-	selection = _selection(company, month, year)
+	selection = _selection(company, month, year, for_update=for_update)
 	posted = _posted(selection)
 	order = {doctype: i for i, doctype in enumerate(SOURCE_DOCTYPES)}
 	rows = []
 	for doctype, name in sorted(selection, key=lambda key: (order[key[0]], key[1])):
 		sides = selection[(doctype, name)]
-		doc = frappe.get_doc(doctype, name)
+		doc = frappe.get_doc(doctype, name, for_update=for_update or None)
 		supplier, supplier_amount = sides.get("Supplier", (None, 0.0))
 		customer, customer_amount = sides.get("Customer", (None, 0.0))
 		rows.append(
@@ -462,7 +506,7 @@ def build_snapshot(
 				"customer_side": 1 if "Customer" in sides else 0,
 				"supplier_amount": supplier_amount,
 				"customer_amount": customer_amount,
-				"supplier_vat_registered": _vat_registered(supplier) if doctype == FILL else 0,
+				"supplier_vat_registered": _vat_registered(supplier, for_update) if doctype == FILL else 0,
 				"supplier_posted": 1 if (doctype, name, "Supplier") in posted else 0,
 				"customer_posted": 1 if (doctype, name, "Customer") in posted else 0,
 				"currency": currency,
@@ -472,7 +516,7 @@ def build_snapshot(
 		)
 	supplier_rows = [r for r in rows if r["supplier_side"]]
 	customer_rows = [r for r in rows if r["customer_side"]]
-	vat_basis = diesel_vat_basis(company)
+	vat_basis = diesel_vat_basis(company, for_update=for_update)
 	return frappe._dict(
 		diesel_vat_basis=vat_basis,
 		company=company,
@@ -490,13 +534,18 @@ def build_snapshot(
 	)
 
 
-def check_current(run: Document) -> frappe._dict:
+def check_current(run: Document, for_update: bool = False) -> frappe._dict:
 	"""Compare a run (a loaded Card Period Run) with the live source documents, with the run's fingerprint
 	version. Reads only. Returns ``current`` and the documents ``added`` (now selected, not in the run),
 	``removed`` (in the run, no longer selected) and ``changed`` (fingerprint, party or amount differs), by name;
-	``posted_since`` lists the sides posted since the run was built (information only)."""
+	``posted_since`` lists the sides posted since the run was built (information only). for_update: the live
+	snapshot is built with locking reads (``build_snapshot``; FR-154, inside the posting transaction only)."""
 	live = build_snapshot(
-		run.company, run.month, run.year, cint(run.fingerprint_version) or FINGERPRINT_VERSION
+		run.company,
+		run.month,
+		run.year,
+		cint(run.fingerprint_version) or FINGERPRINT_VERSION,
+		for_update=for_update,
 	)
 
 	def key(r):
@@ -633,9 +682,27 @@ def _chain_refuses(name: str | None) -> bool:
 	return False
 
 
+def company_self_approval_rule(company: str) -> str:
+	"""FR-154: the company's own rule (Card Company Settings ``period_run_self_approval_rule``); empty or no row:
+	Warn only (the FR-147 behaviour)."""
+	return (
+		RULE_REFUSE if company_setting(company, "period_run_self_approval_rule") == RULE_REFUSE else RULE_WARN
+	)
+
+
+def effective_self_approval_rule(doc: Document) -> str:
+	"""FR-154: the stricter of the run's own rule and the company's rule."""
+	if doc.get("self_approval_rule") == RULE_REFUSE or company_self_approval_rule(doc.company) == RULE_REFUSE:
+		return RULE_REFUSE
+	return RULE_WARN
+
+
 def _strictest_rule(doc: Document) -> str:
-	"""Refuse when the run sends it, stores it, or any run of its amendment chain has it; else Warn only."""
+	"""Refuse when the run sends it, stores it, any run of its amendment chain has it, or the company's rule
+	(FR-154) is Refuse; else Warn only."""
 	if doc.get("self_approval_rule") == RULE_REFUSE:
+		return RULE_REFUSE
+	if company_self_approval_rule(doc.company) == RULE_REFUSE:
 		return RULE_REFUSE
 	if _chain_refuses(doc.name if not doc.is_new() else doc.get("amended_from")):
 		return RULE_REFUSE
@@ -812,7 +879,8 @@ def _approve(doc: Document) -> None:
 	user = frappe.session.user
 	self_approved = user in run_preparers(doc)
 	if self_approved:
-		if doc.self_approval_rule == RULE_REFUSE:
+		# FR-154: the stricter of the run's rule and the company's rule (raised after the run was built)
+		if effective_self_approval_rule(doc) == RULE_REFUSE:
 			frappe.throw(
 				_(
 					"You prepared, edited or submitted this period run (or an earlier version); another accountant must approve it (rule: Refuse)."

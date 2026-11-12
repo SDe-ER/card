@@ -69,6 +69,91 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   endpoint table of `docs/governance/ROLE-ACTION-MATRIX.md` (cross-company and role refusals). Rollback limits: a code rollback leaves the columns, their values and the
   Workflow records (inactive, harmless); an activated Workflow must be deactivated by the owner before a rollback,
   or Frappe keeps applying it without the CARD guards. PR: #236.
+- **FR-149 — README badges trimmed (owner request 2026-11-12).** Keeps CI, CodeQL, coverage, release, license and one
+  Frappe/ERPNext v16 badge; drops the docs-site, separate ERPNext, Python and Conventional Commits badges (the
+  documentation buttons, the installation page and CONTRIBUTING cover them). The Arabic tagline is marked right to
+  left so it displays in order. README only; rollback: revert the commit.
+- **FR-149 — "What's new" in English and Arabic; short README (owner request 2026-11-12).** Reason: the owner
+  asked that every update appear on the documentation site with an explanation in Arabic and English, and that the
+  README become a short professional entry point that links to the site. Adds `website/.../releases/whats-new.md`
+  (EN and AR: merged-but-unreleased changes in plain language and every released version) and a Development and
+  contributing page (EN and AR) that takes over the README's development, checks, contributing and release
+  sections. The README keeps logo, badges, a short description, highlights, quick start, documentation links,
+  contributing, security and license. AGENTS.md, the pull request template and `website/WRITING-GUIDE.md` require a
+  What's new entry with every change; the docs workflow warns on a pull request that changes `card/` or
+  `CHANGELOG.md` without one, and also rebuilds the site when `CHANGELOG.md` changes. Affected functions: none; no
+  app code, permission, accounting, data or API change. Rollback: revert the commit.
+- **FR-150 — CARD Mobile daily log screens for operators (#44, #123, FR-022; closure plan WP-K3).** Reason: #44
+  asks for daily entry and #123 for daily entry with operator/supervisor approval; FR-142 added the Card Daily Log
+  on the server but an operator could only reach it in CARD Desk, which operators cannot open. New CARD Mobile
+  (`frontend/`) screens: **My daily logs** (`/cdms/daily-logs`: the user's own drafts and submitted logs, newest
+  first, with their state), **New daily log** and **Edit daily log** (date, project, one row per machine of the
+  operator on that project with day, night and stopped hours and notes; machines added or removed; a draft only),
+  **Daily log** (state as stored: Draft, Pending, Verified by supervisor, Approved, Returned for correction with
+  the return reason) with **Send to supervisor** (submit) on a draft and **Correct this daily log** on a returned
+  log. The correction is two requests: 1. cancel the returned log (only `docstatus` and `modified` are sent);
+  2. ask the server whether any log already amends it (`amended_from` filter, the user's own permissions) and, if
+  none, create the corrected draft that amends it with the same header and rows. When step 2 fails (network,
+  validation, period lock, session), the log stays cancelled and "Returned for correction": **My daily logs** keeps
+  listing it with the badge "Corrected draft missing" and the log offers **Create corrected draft**, which repeats
+  step 2 only. A log that some log amends offers nothing; if a correction was created meanwhile, the page opens it.
+  Server backstop: a second amendment of the same log gets the same name (Frappe `<log>-1`) and the daily log
+  duplicate guard refuses the same equipment, project and date, so a retry never creates a second correction. A
+  save or submit over a newer version (`TimestampMismatchError`) shows a short translated message with a
+  **Reload** button that reads the stored log again (not Frappe's raw text). A stored stop reason is shown by its
+  readable name: the reason's `reason_name` for users who may read the reasons, otherwise the part of the record
+  name before " - <company abbreviation>" (CARD's stop reason naming, `reason_docname`); no permission is widened.
+  Stop reasons that fail to load for any reason other than a refusal are said on the form (the hours can still be
+  saved). A bottom-navigation tab and a Home link open the list. Affected code: `frontend/src/router.ts` (four routes), `frontend/src/data/api.ts`
+  (`listResource`, `getResource`, `insertResource`, `updateResource`: Frappe's standard `/api/resource` routes),
+  new `frontend/src/data/dailyLog.ts`, `frontend/src/pages/DailyLogList.vue`, `DailyLogForm.vue`,
+  `DailyLogView.vue`, `frontend/src/components/DailyLogBadge.vue`, `DailyLogDetail.vue`, `DailyLogRowFields.vue`,
+  `BottomNav.vue` (fifth operator tab), `Home.vue` (link), `frontend/src/i18n.ts` (`__()` returns the English
+  source when there is no `window`, for unit tests), `frontend/src/data/api.ts` (`ApiError.excType`),
+  `frontend/vite.config.ts` (two Vitest projects: `unit` as before, `pages` mounts the pages with the in-memory
+  renderer `frontend/src/test/renderer.ts` in the environment `frontend/src/test/web-env.ts`; no new dependency). The server decides everything: no CARD endpoint was added; the
+  screens use the standard REST routes under the user's own permissions (Card Operator `if_owner`, the FR-131 company
+  scope, every FR-142 rule), the machines and projects come from the existing `card.materials.get_portal_context`,
+  the company from the user's Active Employee (the server refuses a project of another company). The screens send
+  only the fields an operator enters (`project`, `log_date`, `notes`, `company` on create; row `equipment`, hours,
+  `notes`, and the stored stop reason and responsible party kept as they were) plus `modified` (a save over a newer
+  version is refused); submit and cancel send only `docstatus` and `modified`. No approval, editor, preparer or
+  status field is ever sent, and no approve, verify or return action is offered to any role on CARD Mobile:
+  supervisors and managers get a link to the log in CARD Desk. The stop reason picker shows only to users who may
+  read the company's stop reasons (an operator may not: the server refuses and the picker is hidden; the supervisor
+  names the reason). A daily log has no money field; none is read or shown (O-20). New strings: CARD-specific
+  msgids, generic words under the context "Card Mobile", Arabic in `card/locale/ar.po` and `main.pot`; logical
+  (RTL-safe) sides, LTR numbers and dates. Tests: `frontend/src/data/dailyLog.spec.ts` (actions per state and role,
+  no approval action for any role, payload allowlists without approval or money fields, list fields, submit and
+  correction bodies, a failed second request recovered from the list, no second correction, stop reasons refused
+  for operators and other failures not hidden, stale saves, stop reason labels, error display),
+  `frontend/src/test/DailyLogPages.spec.ts` (the pages mounted: a correction never submits, recovery after a failed
+  correction, nothing offered on a corrected or unknown log, existing correction opened, stale submit and save with
+  Reload, a submitted log never shows the form, stop reason failure warning, readable stored reason, list badge),
+  `frontend/src/pages/DailyLog.spec.ts`
+  (rendered actions per state and role, return reason, stored state, no money, error box, RTL: logical sides only,
+  LTR numbers and dates, translatable strings), `card/tests/test_mobile_daily_log.py` (the same REST bodies as a Card
+  Operator on Frappe: create, own-only list and read, save with a stale stamp refused, submit by docstatus, forged
+  approval fields ignored, stop reasons refused, correction of a returned log, a failed correction listed and
+  recovered, a second correction refused by the server). Defaults, pending the owner's confirmation: the operator
+  corrects a returned log on the phone; the log's company is the operator's Active Employee company; approvals stay
+  in CARD Desk; the new strings are in Arabic only (bn, hi and ur show English). Impact: permissions none (no role,
+  DocPerm or endpoint added); accounting none; data none (no schema or patch); API none (existing REST routes).
+  Rollback: revert the frontend files and rebuild. Logs created or corrected from the phone stay as ordinary Card
+  Daily Logs (drafts, submitted, cancelled and their amendments) and are not undone by the rollback; a returned log
+  cancelled on the phone whose corrected draft was not created stays cancelled and is corrected in CARD Desk
+  (Amend) after a rollback. PR #234.
+- **FR-149 — Documentation site: screenshots, generated Reference, Arabic home and font (follow-up to PR #229).**
+  Reason: the owner asked for professional screenshots of every screen, a better Arabic font, and a site that stays in
+  sync with the repository. Adds 96 screenshots (48 screens, English and Arabic UI) captured from a disposable demo
+  site with fictitious data (`website/scripts/screenshots/seed_demo.py`, `capture.mjs`, `shots.json`, `place.py`);
+  a generated Reference section (every DocType with its fields and permissions, every report with its filters and
+  roles, every whitelisted method) built from the code by `website/scripts/generate_reference.py` on every build;
+  an Arabic home page; IBM Plex Sans Arabic (self-hosted, SIL OFL) for Arabic text; `sharp` 0.35.5. The docs
+  workflow now also rebuilds and republishes when `card/**` changes on `main`, and warns (never blocks) when the
+  committed Reference pages are stale. AGENTS.md asks agents to regenerate the Reference and update the pages with
+  each change. Affected functions: none; no Python, DocType, permission, accounting, data or API change. Rollback:
+  revert the commit; the previous site is republished from `main`.
 - **FR-149 — CARD documentation site (`website/`, Astro Starlight, English + Arabic).** Reason: the owner asked for a
   full user and API documentation site in the style of the Whatomate docs. New static site under `website/`
   (sections Getting Started, Features, Reports, API Reference; English at the root and Arabic RTL under `/ar/`),
@@ -106,27 +191,44 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   company cannot change and it cannot be removed; a correction is a new row, and a new backdated row needs a reason
   (`validate_past_rows`; a new table, so no existing behaviour changes). New read-only helper
   `card.consumption.consumption_rate(equipment, on_date)` / `consumption_rate_details` (source and valid_from): the
-  equipment's row valid on the date → "Daily standard" `daily_diesel_consumption / daily_hours` when both are set (the
-  basis Equipment Diesel Analysis uses first, so the helper equals that report for every equipment) → the static
-  `expected_consumption` (0 = not set) → the type row for the equipment's company → the type row with no company →
-  None; not whitelisted, no REST endpoint. Known limit: the type step reads the equipment's current type, also for
+  equipment's row valid on the date → the static per-hour `expected_consumption` when set (0 = not set) → "Daily
+  standard" `daily_diesel_consumption / daily_hours` when both are set → the type row for the equipment's company →
+  the type row with no company → None (order changed by the follow-up below; Equipment Diesel Analysis uses the same
+  order, so the helper equals that report for every equipment with no dated row); not whitelisted, no REST endpoint. Known limit: the type step reads the equipment's current type, also for
   past dates. The static field stays (read-only on the form once dated rows exist; a change after that only shows a
   warning). The change history masks the equipment rate rows through the existing `card.field_privacy` rule (row
   fields above level 0), as for every other level-1 equipment value: Versions keep who and when, not the values;
   `card.field_privacy` is unchanged. Patch `card.patches.v4_8_0.seed_consumption_rates`: each equipment with a static
-  value above 0, no daily standard basis and no rate row gets one row with that value valid from 2000-01-01
+  value above 0 and no rate row (also one with daily figures, follow-up below) gets one row with that value valid from 2000-01-01
   (inserted on its own: no save, no new modified time); idempotent (an equipment with rows is skipped). Affected: new
   `card/consumption.py`, new `card/card/doctype/card_consumption_rate/*` and `card_type_consumption_rate/*`,
   `card_equipment.json/.py`, `card_equipment_type.json/.py`, `card/patches.txt`, locale,
   `docs/governance/ROLE-ACTION-MATRIX.md`. Tests: `card/tests/test_consumption_rate.py`. PR: #223. Impact:
   permissions none added (rows follow the parents' DocPerms and Company User Permissions; type rate writes narrowed
   to Card Manager / System Manager on a new table); accounting none (no GL, no posting reads the rate); data: one
-  seeded row per equipment with only a static rate, consumption_rate() returns the same value as before on every
+  seeded row per equipment with a static rate, consumption_rate() returns the same value as before on every
   date; API: none (no new whitelisted method). No existing caller is switched: Equipment Diesel Analysis is
   unchanged. Rollback limits: a code rollback leaves the two new tables and the seeded rows in the database (unused
   by the older code); the static fields are unchanged, so the older behaviour returns as it was. The
   `ignore_user_permissions` property lives in the DocType JSON and is removed with the code; with an older FR-144
   build a company-restricted user would again be locked out of a type that has rows of another company.
+  **Follow-up: per-hour rate takes precedence over the daily figure (PR #239).** Owner decision 2026-11-11:
+  per-hour is the real rate when both exist (equipment with both a static `expected_consumption` and
+  `daily_diesel_consumption` with `daily_hours`; 4 such equipment on Production). Affected functions:
+  `card.consumption.consumption_rate_details` / `consumption_rate` (static per-hour now before the daily standard;
+  the equipment dated row stays first), the seed patch `card.patches.v4_8_0.seed_consumption_rates` (edited in place:
+  v4.8.0 is not released and docs/releases/DEPLOYMENTS.md records no Production run; equipment with a per-hour value
+  is now seeded also when it has daily figures; equipment with only daily figures stays unseeded; still idempotent,
+  never overwrites or adds beside an existing dated row), and Equipment Diesel Analysis (`execute`: expected litres =
+  hours × per-hour when set, else hours × daily / daily_hours; message text updated, Arabic added). Report impact:
+  for equipment with both figures, Expected litres, Variance and Variance % change from the daily basis to the
+  per-hour basis; the Daily consumption column still shows the daily figure; equipment with only one figure is
+  unchanged. Impact: permissions none; accounting none (display only, no GL, no posting reads the rate); data: the
+  seed adds one more row for each both-figure equipment (its per-hour value from 2000-01-01); API none. Rollback
+  limits: a code rollback restores the daily-first order in the helper and the report, but the rows already seeded
+  for both-figure equipment stay and an older FR-144 build would then answer the per-hour value from them on every
+  date (delete those seeded rows, reason "Seeded from the static expected consumption (FR-144)", to return to the
+  daily basis). Tests: `card/tests/test_consumption_rate.py`, `card/tests/test_diesel_analysis.py`.
 - **FR-147 — Card Period Run: versioned monthly period run with accountant approval (#49; closure plan WP-S1).**
   Reason: #49 asks for "source records → approved period run → draft billing documents → accountant approval",
   with the approval tied to the run version so that a source edited after the approval needs a new run and a new
@@ -201,6 +303,53 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   live snapshot on every form refresh (backlog: cache or a lighter check if months grow large). Rollback limits:
   code rollback leaves the two tables and their rows (harmless, unused until WP-S2); delete the DocTypes to
   remove them.
+- **FR-154 — An approved, current period run before the monthly posting, opt-in per company (#49; closure plan
+  WP-S2).** Reason: #49 asks for "source records → approved period run → draft billing documents → accountant
+  approval"; FR-147 built the run but nothing posted from it. New Card Company Settings fields (section "Period
+  approval"): `require_period_approval` (Check, default 0) and `period_run_self_approval_rule` ("Warn only (period
+  run)" default / "Refuse (period run)"; empty = Warn only). With `require_period_approval` = 1 the monthly posting
+  of a company-month (`card.gl.posting._plan_monthly_posting`, both sides) is refused (`PeriodRunRequiredError`, a
+  ValidationError, so the preview shows it as `blocked`) unless, in this order: the month has an active Card Period
+  Run; it is submitted, approved, and the approval is for its current version and snapshot; it was not approved by
+  one of its preparers while the company's self-approval rule is Refuse; every source the posting is about to bill
+  is in the run on that side, for that party, with the run's fingerprint of the document as the posting read it
+  (a fill also with the supplier VAT registration and the company diesel VAT basis the run holds); and the run is
+  current (`check_current`). Amounts are never compared with invoice amounts: the run holds GROSS source amounts and
+  the posting books the net part of a VAT-inclusive diesel price; the fingerprints cover the source amounts. VAT is
+  never inferred. Routes covered (one gate in the builder): whitelisted `post_month` and `rebuild_month`, a direct
+  or background-job call of `build_monthly_posting` / `rebuild_monthly_posting`, the preview (`preview_month`);
+  `rebuild_monthly_posting` also checks the run state before it deletes the old draft. Concurrency: in a real build
+  the gate reads the month's run rows with `frappe.qb … for_update()` and rebuilds the live snapshot with locking
+  reads (the selection, every source document and its rows, the fill suppliers, the company's settings row:
+  `period_run.build_snapshot(for_update=True)`, `check_current(for_update=True)`, `posting._rows`), so a run
+  cancelled or approved, or a source changed or added, by another request is seen, and none can commit until the
+  posting does; the preview does not lock. Self-approval: the stricter of the run's rule and the company's rule
+  applies (`period_run.effective_self_approval_rule`): a run built while the company rule is Refuse takes Refuse, an
+  approval checks the company rule again, and a self-approved run is refused for posting under the company's Refuse
+  rule. The CARD Monthly Posting page shows the month's run (version, approval, current or changed) and, when the
+  setting is on, why posting is refused (new GET `card.gl.posting.posting_period_run`, same role and company checks
+  as the party list; run details only with Card Period Run read; no amounts). Affected functions:
+  `card/gl/period_gate.py` (new), `card.gl.posting._plan_monthly_posting`, `rebuild_monthly_posting`,
+  `_customer_transports` (optional locking read), `_rows` (new), `posting_period_run` (new);
+  `card.gl.period_run._selection`, `build_snapshot`, `check_current`, `diesel_vat_basis`, `_vat_registered`
+  (optional locking reads, default unchanged), `_strictest_rule`, `_approve`, `company_self_approval_rule`,
+  `effective_self_approval_rule` (new); `card_company_settings.json`; `card_monthly_posting.js`. Tests:
+  `card/tests/test_period_run_posting.py` (off by default and the run never read, the same invoice with and
+  without the gate, every route refused, rebuild refused before the delete, each refusal reason, both sides post,
+  FR-139 Hold and Post, stale run, VAT-inclusive diesel net against the gross run, basis and registration compared,
+  side/party/fingerprint per document, another month, company and run self-approval rules, the screen read and its
+  permission, locking in the build and none in the preview; two connections: a source changed, a source added, a
+  supplier registered, the VAT basis changed, a switch to FR-139 Post and a run cancelled while the gate runs);
+  `card/tests/test_bola_matrix.py` and `docs/governance/ROLE-ACTION-MATRIX.md` (one endpoint row). PR #235.
+  Impact: permissions — none (no role, DocPerm or permission change; the new fields sit at permlevel 1 like the
+  rest of the company row). Accounting: with the setting off, none (the posting is unchanged); with it on, postings
+  are refused until the run is approved and current; the invoices built are unchanged. Data: two new columns on
+  Card Company Settings (existing rows: 0 and Warn only = current behaviour); no patch. API: one new GET method;
+  `post_month`, `rebuild_month`, `preview_month` and the builders refuse more when the setting is on. Known limits:
+  the hand-booked invoice links (`link_supplier_invoice`, `link_accrual_journal`) and the submit of a CARD draft
+  invoice are not gated yet (owner 2026-11-11: wanted, in a later wave, not in this change); a real build with the
+  setting on locks every source document of the company-month until it commits (owner 2026-11-11: accepted). Rollback limits: a code rollback leaves the two columns (unused); drafts built
+  under the gate stay valid ERPNext drafts.
 - **FR-143 — Separation of duties on the monthly card (FR-006; #35, #51, #123; closure plan WP-D1, owner decision
   O-07).** Reason: owner 2026-10-19 "whoever created or entered a monthly card never approves it, enforced on the
   server" (R-13: the creator could submit his own card). A monthly card has no review step or Workflow yet (WP-D2),
@@ -671,6 +820,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   and fill form fields are unchanged. Rollback: revert the commit.
 
 ### Security
+- **FR-153 (SEC-2) — a stored child row can no longer be moved to another CARD document.** Reason: Frappe stores an
+  existing child row with `UPDATE ... WHERE name=%s` and writes the row's `parent`, `parenttype` and `parentfield`
+  from the document being saved, without comparing them with the stored row (`frappe/model/document.py`
+  `update_child_table` / `db_update`, unchanged in Frappe 16.55.2). A save that carried the name of a row of another
+  document therefore moved that row; the other document was not saved, so none of its checks (approval, update after
+  submit, company scope) ran, and it could stay submitted or approved without the row. Reproduced on a sandbox site
+  on Card Daily Log (rows of a submitted, an approved, another company's and the user's own other log), Card Monthly
+  Card (days and adjustments of a submitted card, also by an update after submit that swaps one row for another)
+  and Card Settings, and through a child row saved on its own (REST `/api/resource/<child>`,
+  `frappe.client.bulk_update` of the child). Fix: new `card/child_integrity.py`. `check_rows` (parent `validate`,
+  `before_update_after_submit`, `before_cancel`) refuses a row that is not new and whose stored parent, parent type
+  or parent field differs from the document (one query per table field); `check_row` (the same events on the child
+  DocType, which Frappe runs only when a row is saved on its own) refuses a change of the row's stored parent, parent
+  type or parent field. New rows, amendments, `frappe.copy_doc`, and adding, removing and reordering rows are not
+  affected. The DocTypes are read from CARD's own DocType JSON files (`card_doctypes`) and appended last to
+  `doc_events` in `card/hooks.py` (no `"*"`, no ERPNext or Frappe DocType; existing handlers keep their order), so a
+  new CARD DocType with a table is covered. Error `ForeignChildRowError` (translated). Detection of rows moved before
+  this fix: read-only queries in `docs/governance/CHILD-ROW-REASSIGNMENT-CHECK.md` (SELECT only; not a patch).
+  Tests: `card/tests/test_child_row_integrity.py` (every CARD DocType from meta; REST PUT v1/v2,
+  `frappe.client.save`, `set_value`, `bulk_update`, savedocs, Desk bulk update, child routes, cancel, update after
+  submit; legitimate flows; mutation-tested). Impact: permissions none (no role or DocPerm change); accounting none
+  (no GL); data none (no patch, no stored value changes; only a save that carries another document's row is refused);
+  API: such a request now fails with a validation error. Rollback: revert the commit;
+  nothing to undo on any site. PR #238.
 - **FR-142 / FR-140 — a cancel can no longer rewrite a Card Daily Log or an Equipment Meter Reading.** Reason: Frappe
   skips `validate` and `validate_update_after_submit` on a cancel and stores the fields and child rows the request
   sends (`frappe/model/document.py`); reproduced on a sandbox site: a REST PUT `{"docstatus": 2, ...}`, a savedocs

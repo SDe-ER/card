@@ -13,6 +13,8 @@ Notifications are off by default and switched on in Card Settings; warnings are 
 unless a company rule is set to refuse.
 
 <!-- screenshot: notifications-alerts-bell -->
+![Notifications in the desk](../../../assets/screenshots/en/notifications-alerts-bell.webp)
+*Notifications in the desk*
 
 ## Key concepts
 

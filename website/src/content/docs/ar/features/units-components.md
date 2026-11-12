@@ -15,6 +15,8 @@ sidebar:
 الوحدة تُفوتَر في كارت الوحدة لا في كارت خاص بها.
 
 <!-- screenshot: units-components-unit-form -->
+![كسارة في نموذج المعدات](../../../../assets/screenshots/ar/units-components-unit-form.webp)
+*كسارة في نموذج المعدات*
 
 ## المفاهيم الأساسية
 

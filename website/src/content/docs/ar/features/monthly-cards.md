@@ -17,6 +17,8 @@ sidebar:
 [الفوترة والترحيل](/card/ar/features/invoicing-posting/)). ولا يكتب الكارت نفسه أي قيود في دفتر الأستاذ.
 
 <!-- screenshot: monthly-cards-form -->
+![كارت تشغيل شهري](../../../../assets/screenshots/ar/monthly-cards-form.webp)
+*كارت تشغيل شهري*
 
 ## المفاهيم الأساسية
 

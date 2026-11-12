@@ -16,6 +16,8 @@ When the month is posted, every typed row becomes its own line on the draft Purc
 that keep customer invoices valid for ZATCA e-invoicing (no negative lines).
 
 <!-- screenshot: adjustments-card-table -->
+![Additions and deductions on a monthly card](../../../assets/screenshots/en/adjustments-card-table.webp)
+*Additions and deductions on a monthly card*
 
 ## Key concepts
 

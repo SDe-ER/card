@@ -24,6 +24,7 @@ PR title must follow Conventional Commits, e.g.
 - [ ] No real company, supplier, operator or financial data in code, tests, screenshots or fixtures
 - [ ] CHANGELOG.md updated under [Unreleased] (reason, impact on permissions/accounting/data/API, rollback limits)
 - [ ] Feature Registry updated when a feature is added, fixed, changed, disabled or removed
+- [ ] Docs site: entry added to "What's new" in English and Arabic (`website/src/content/docs/releases/whats-new.md` and `website/src/content/docs/ar/releases/whats-new.md`); feature pages updated; `cd website && npm run generate` run when DocTypes, fields, reports or API methods changed
 - [ ] Target version stated (see docs/governance/CHANGE-VERSIONING-ROLLBACK-POLICY.md)
 
 <!-- Put "closes #XXXX" to auto-close the related issue. -->

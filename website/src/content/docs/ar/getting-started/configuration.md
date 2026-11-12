@@ -16,6 +16,8 @@ sidebar:
 يعمل الموقع الجديد بإعدادات فارغة إلى أن يُفعَّل الترحيل المحاسبي.
 
 <!-- screenshot: configuration-card-settings -->
+![إعدادات الكارت](../../../../assets/screenshots/ar/configuration-card-settings.webp)
+*إعدادات الكارت*
 
 ## المفاهيم الأساسية
 
