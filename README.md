@@ -6,19 +6,14 @@
 
 **Equipment operations management for Frappe and ERPNext**
 
-إدارة تشغيل المعدات على Frappe وERPNext
+<p dir="rtl">إدارة تشغيل المعدات على Frappe و ERPNext</p>
 
 [![CI](https://github.com/SDe-ER/card/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SDe-ER/card/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/SDe-ER/card/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/SDe-ER/card/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/SDe-ER/card/graph/badge.svg)](https://codecov.io/gh/SDe-ER/card)
-[![Docs](https://github.com/SDe-ER/card/actions/workflows/docs.yml/badge.svg?branch=main)](https://sde-er.github.io/card/)
 [![Latest release](https://img.shields.io/github/v/release/SDe-ER/card?label=release)](https://github.com/SDe-ER/card/releases/latest)
 [![License: MIT](https://img.shields.io/github/license/SDe-ER/card)](LICENSE)
-<br>
-[![Frappe v16](https://img.shields.io/badge/Frappe-v16-0089FF)](https://github.com/frappe/frappe)
-[![ERPNext v16](https://img.shields.io/badge/ERPNext-v16-0089FF)](https://github.com/frappe/erpnext)
-[![Python 3.14](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fe5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org/en/v1.0.0/)
+[![Frappe and ERPNext v16](https://img.shields.io/badge/Frappe%20%7C%20ERPNext-v16-0089FF)](https://github.com/frappe/erpnext)
 
 <br>
 
