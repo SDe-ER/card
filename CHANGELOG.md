@@ -767,6 +767,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   and fill form fields are unchanged. Rollback: revert the commit.
 
 ### Security
+- **FR-153 (SEC-2) — a stored child row can no longer be moved to another CARD document.** Reason: Frappe stores an
+  existing child row with `UPDATE ... WHERE name=%s` and writes the row's `parent`, `parenttype` and `parentfield`
+  from the document being saved, without comparing them with the stored row (`frappe/model/document.py`
+  `update_child_table` / `db_update`, unchanged in Frappe 16.55.2). A save that carried the name of a row of another
+  document therefore moved that row; the other document was not saved, so none of its checks (approval, update after
+  submit, company scope) ran, and it could stay submitted or approved without the row. Reproduced on a sandbox site
+  on Card Daily Log (rows of a submitted, an approved, another company's and the user's own other log), Card Monthly
+  Card (days and adjustments of a submitted card, also by an update after submit that swaps one row for another)
+  and Card Settings, and through a child row saved on its own (REST `/api/resource/<child>`,
+  `frappe.client.bulk_update` of the child). Fix: new `card/child_integrity.py`. `check_rows` (parent `validate`,
+  `before_update_after_submit`, `before_cancel`) refuses a row that is not new and whose stored parent, parent type
+  or parent field differs from the document (one query per table field); `check_row` (the same events on the child
+  DocType, which Frappe runs only when a row is saved on its own) refuses a change of the row's stored parent, parent
+  type or parent field. New rows, amendments, `frappe.copy_doc`, and adding, removing and reordering rows are not
+  affected. The DocTypes are read from CARD's own DocType JSON files (`card_doctypes`) and appended last to
+  `doc_events` in `card/hooks.py` (no `"*"`, no ERPNext or Frappe DocType; existing handlers keep their order), so a
+  new CARD DocType with a table is covered. Error `ForeignChildRowError` (translated). Detection of rows moved before
+  this fix: read-only queries in `docs/governance/CHILD-ROW-REASSIGNMENT-CHECK.md` (SELECT only; not a patch).
+  Tests: `card/tests/test_child_row_integrity.py` (every CARD DocType from meta; REST PUT v1/v2,
+  `frappe.client.save`, `set_value`, `bulk_update`, savedocs, Desk bulk update, child routes, cancel, update after
+  submit; legitimate flows; mutation-tested). Impact: permissions none (no role or DocPerm change); accounting none
+  (no GL); data none (no patch, no stored value changes; only a save that carries another document's row is refused);
+  API: such a request now fails with a validation error. Rollback: revert the commit;
+  nothing to undo on any site. PR #238.
 - **FR-142 / FR-140 — a cancel can no longer rewrite a Card Daily Log or an Equipment Meter Reading.** Reason: Frappe
   skips `validate` and `validate_update_after_submit` on a cancel and stores the fields and child rows the request
   sends (`frappe/model/document.py`); reproduced on a sandbox site: a REST PUT `{"docstatus": 2, ...}`, a savedocs
