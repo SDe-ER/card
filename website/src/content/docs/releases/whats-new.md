@@ -39,6 +39,13 @@ per site.
   be used on two days in the same company and month — one sheet or one message names one day. A fingerprint
   (SHA-256) of the source document is stored next to the day; it is written by the server and never by the user.
   After a card is submitted its source fields never change.
+- **2026-11-12 — Allocation rows for tank diesel fills (display only).** When a project-tank diesel fill is
+  submitted, CARD now stores a per-machine estimated split of the litres, frozen at submit, so reports and the
+  card always read the same figures. Each company chooses the weighting — share by hours (the default, same as
+  before) or share by hours × litres-per-hour. The posting still books the fill as one project-level line; the
+  rows never reach the general ledger. A machine with no hours or no rate is kept in the list with a review
+  flag and no litres, and the rounding remainder is marked on one row so the row litres always add up to the
+  fill litres.
 - **2026-11-12 — Daily logs on CARD Mobile.** Operators can now record their daily logs from their phones: list
   their own logs, create and edit a draft (day, night and stopped hours per machine), send it to the supervisor, and
   correct a log that was returned with a reason. See [CARD Mobile](/card/features/card-mobile/) and

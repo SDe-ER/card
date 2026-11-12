@@ -8305,6 +8305,27 @@ msgstr "مصدر الإدخال {0} / المفتاح {1} مستخدم بالفع
 msgid "The intake provenance of a submitted card day cannot be changed ({0})."
 msgstr "لا يمكن تعديل مصدر إدخال يوم في كارت معتمد ({0})."
 
+msgid "Diesel Fill Allocation"
+msgstr "توزيع تعبئة الديزل"
+
+msgid "Diesel fill allocation"
+msgstr "توزيع تعبئة الديزل"
+
+msgid "Diesel fill allocation (estimated)"
+msgstr "توزيع تعبئة الديزل (تقديري)"
+
+msgid "Allocation (estimated, display only)"
+msgstr "التوزيع (تقديري، للعرض فقط)"
+
+msgid "Allocation review"
+msgstr "مراجعة التوزيع"
+
+msgid "Tank diesel estimate weighting"
+msgstr "طريقة توزيع ديزل الخزان"
+
+msgid "Rate used (L/h)"
+msgstr "المعدل المستخدم (لتر/ساعة)"
+
 #: card/governance.py
 msgid "{0} {1} is in state {2}; editing requires one of these roles: {3}."
 msgstr "{0} {1} في الحالة {2}؛ التعديل يستلزم أحد هذه الأدوار: {3}."
