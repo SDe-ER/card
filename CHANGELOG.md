@@ -16,6 +16,62 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-158 — Card Monthly Card day row intake provenance (#52, #44; closure plan WP-N2).** Reason: #52 and #44 call
+  for every day row entered from paper, a WhatsApp photo, the mobile app or an external import to keep where it
+  came from, so the office can prove why a card day exists and so the same source never creates two day rows. The
+  closure plan's `INTAKE-PROVENANCE-DESIGN.md` names Card Monthly Card as the second target for this provenance
+  after Equipment Transport (FR-146). Four new fields on `Card Monthly Card Day` (child table of Card Monthly
+  Card), all optional and `no_copy`, inside a collapsible "Intake source" section: `intake_source` (Select,
+  default `"manual"` — `"manual"` | `"paper"` | `"whatsapp"` | `"mobile"` | `"import"`), `intake_source_key`
+  (Data, `search_index`), `intake_received_on` (Datetime) and `intake_evidence_hash` (Data, `read_only`, length
+  64). Every new field stays at permlevel 0, matching the parent `days` table permlevel (FR-148 child permlevel
+  guard runs clean). The controller is a new helper in `card/intake.py` (extends the FR-146 module instead of a
+  new file): `apply_card_day_intake` runs in `validate` after `card.governance.on_validate`, and
+  `freeze_submitted_card_day_intake` runs in `before_update_after_submit` after `card.governance`. Both are wired
+  through the existing `_CARD_EVENTS` map in `card/hooks.py` — no new `doc_events` key on the parent and no change
+  to the source-event chain (FR-123, FR-143 and the period lock keep their order). Dedupe guard
+  (`_check_day_intake_dedupe`): when both `intake_source` (not `"manual"`) and `intake_source_key` are present,
+  the pair uniquely identifies a day row — within one card draft and across every live card (docstatus 0 or 1) of
+  the same company-month; a cancelled card frees its keys. The check takes a locking read on the sibling cards'
+  day rows with `frappe.qb ... .for_update()` through a join to the parent `Card Monthly Card` (same pattern as
+  FR-146's company lock on the transport), so under REPEATABLE READ the second of two concurrent saves sees the
+  first one's committed rows and is refused. Hash (`_server_day_hash`): the server writes it, never the client —
+  on a new row the value is empty unless an adapter sets the server flag through `set_card_day_evidence_hash`
+  (documented entry point for WP-N3); on a resave the stored row's value is kept; on an amendment the hash of the
+  source card's day with the same (source, key) pair is carried over. Submit freeze: every intake field of a
+  submitted card day is refused on every route — form save, REST PUT (`frappe.api.v1.update_doc`), `frappe.client
+  .set_value` on the child row, savedocs and bulk update — also when a Property Setter opens `allow_on_submit` on
+  them. New patch `card.patches.v4_8_0.n2_default_intake_source` sets `intake_source` = `"manual"` on every
+  existing day row that stored it empty (one `set_value` per row, `update_modified=False`, idempotent); the
+  controller already reads empty as `"manual"`, so the patch is cosmetic for the Desk and for reports and never
+  reprices or submits a card. Opt-in / warn-only compatibility: every new field is optional, the dedupe guard
+  fires only when both source and key are present and source is not `"manual"`, a day row with no intake fields
+  behaves exactly as today, and existing submitted cards keep their values. New tests
+  `card/tests/test_card_day_intake.py` cover: baseline (a card without intake fields saves and submits unchanged;
+  a row stored before FR-158 resaves unchanged); dedupe within one card; dedupe across cards within the same
+  company-month; same pair in a different month or a different company is allowed; cancelled card frees its key;
+  submitted card still holds its key; invalid source refused; future `intake_received_on` refused; server-written
+  hash kept; a client hash on insert is dropped (every route — Desk save, REST PUT with child rows,
+  `frappe.client.set_value`); intake fields frozen after submit over REST PUT; a Property Setter opening
+  `allow_on_submit` cannot change them; a cancel that forges an intake field is refused by `card.cancel_reason.
+  _refuse_changes` (FR-123, neutral=False — Card Monthly Card is an FR-123 doctype); amendment keeps the keys and
+  the hash; the patch is idempotent on a second run; Lesson 12 mutation tests prove each guard's own failure
+  (dedupe guard off → a dup inserts; freeze hook off and allow_on_submit on → a REST PUT changes the stored
+  intake; normaliser off → a forged client hash reaches storage); two-connection race (`test_two_concurrent_saves
+  _with_one_key_refuse_the_second`) proves the parent lock plus the locking read refuse the second request
+  (committed test data, cleaned in tearDown). Impact on permissions: none (no role, DocPerm or `ignore_permissions`
+  change; the hash field's `read_only` carries into Frappe's own child-row refusal). Impact on accounting: none
+  (`card/gl/*` untouched; CARD still never writes GL, totals unchanged). Impact on data: on a new row the fields
+  are empty; after a migrate the patch backfills `intake_source` = `"manual"` on every day row that had it empty.
+  Impact on the API: `card/intake.py` gains four public names — `apply_card_day_intake`,
+  `freeze_submitted_card_day_intake`, `set_card_day_evidence_hash`, `DAY_SOURCES` and `DAY_DEFAULT_SOURCE`; no
+  existing function changes signature. Rollback limits: the code and the patch can be rolled back; the four columns
+  added to `tabCard Monthly Card Day` stay (standard Frappe DocType rollback behaviour), and the backfilled
+  `intake_source = "manual"` stays visible on every day row (semantically equivalent to the pre-FR-158 empty
+  state). Owner questions: none for this WP on top of #52's answered one in `INTAKE-PROVENANCE-DESIGN.md`. Refs:
+  #52, #44, FR-146 (precedent for the evidence-hash and submit-freeze pattern), FR-148 (child permlevel guard),
+  FR-123 (cancel refuses changes), Frappe 16.55.2 REPEATABLE READ snapshot + locking read semantics. Closure plan:
+  section C row N2.
 - **FR-157 — Diesel Fill Allocation rows for tank-style diesel fills, frozen on submit (#31, #47, #124; closure
   plan WP-G1, C-03, C-06, owner decision O-04).** Reason: #31/#47 ask for an audited per-equipment split of a
   project-tank fill (Σ = litres, the remainder lands on one row, zero hours/rate goes to a review queue); C-03

@@ -21,7 +21,12 @@
   "responsible_party_type",
   "responsible_party",
   "responsible_party_name",
-  "notes"
+  "notes",
+  "intake_section",
+  "intake_source",
+  "intake_source_key",
+  "intake_received_on",
+  "intake_evidence_hash"
  ],
  "fields": [
   {
@@ -118,13 +123,51 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Notes"
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.intake_source_key || (doc.intake_source && doc.intake_source !== \"manual\") || doc.intake_received_on || doc.intake_evidence_hash",
+   "fieldname": "intake_section",
+   "fieldtype": "Section Break",
+   "label": "Intake source"
+  },
+  {
+   "fieldname": "intake_source",
+   "fieldtype": "Select",
+   "label": "Intake source",
+   "no_copy": 1,
+   "options": "manual\npaper\nwhatsapp\nmobile\nimport",
+   "default": "manual",
+   "description": "Where this day row came from. A hand entry stays \"manual\"."
+  },
+  {
+   "fieldname": "intake_source_key",
+   "fieldtype": "Data",
+   "label": "Intake source key",
+   "no_copy": 1,
+   "search_index": 1,
+   "description": "Optional external id of the source (message id, sheet number). One day row per company-month and (source, key)."
+  },
+  {
+   "fieldname": "intake_received_on",
+   "fieldtype": "Datetime",
+   "label": "Intake received on",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "intake_evidence_hash",
+   "fieldtype": "Data",
+   "label": "Intake evidence SHA-256",
+   "no_copy": 1,
+   "read_only": 1,
+   "length": 64
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-10 14:00:00.000000",
+ "modified": "2026-11-12 17:30:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card Day",

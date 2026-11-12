@@ -7012,6 +7012,59 @@ msgstr ""
 msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
 msgstr ""
 
+# FR-158 (WP-N2): Card Monthly Card day row intake provenance
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Where this day row came from. A hand entry stays \"manual\"."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "Optional external id of the source (message id, sheet number). One day row per company-month and (source, key)."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "manual"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "paper"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "whatsapp"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "mobile"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
+msgid "import"
+msgstr ""
+
+#: card/intake.py
+msgid "Day {0}: select a valid intake source."
+msgstr ""
+
+#: card/intake.py
+msgid "Day {0}: the intake received time cannot be in the future."
+msgstr ""
+
+#: card/intake.py
+msgid "Day {0}: the intake evidence hash must be 64 hex characters."
+msgstr ""
+
+#: card/intake.py
+msgid "Intake source {0} / key {1} is used on day {2} and day {3} of this card; one source key names one day row."
+msgstr ""
+
+#: card/intake.py
+msgid "Intake source {0} / key {1} is already used on day {2} of card {3} ({4}/{5}, company {6})."
+msgstr ""
+
+#: card/intake.py
+msgid "The intake provenance of a submitted card day cannot be changed ({0})."
+msgstr ""
+
 msgid "Diesel Fill Allocation"
 msgstr ""
 
