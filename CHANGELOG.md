@@ -69,6 +69,45 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   customer-side deductions (the accountant submits both as today). No whitelisted endpoint added. Rollback:
   revert the commit; a migrated site keeps the new field and the new origin option, both inert while the mode
   stays Refuse (the default) and no "Credit Note" log exists.
+- **FR-155 — Native-workflow state guards + bypass suite (#35, #51, #123; closure plan WP-D2b, C-14, owner
+  decision O-10).** Reason: FR-152 (WP-D2a) shipped the three CARD Workflows inactive, with submit, cancel and
+  return-reason routes guarded through `card/cancel_reason.py` → `card/governance_workflows.py`. FR-152 left two
+  pieces for WP-D2b: the per-state edit lock Frappe enforces in the form only, and a comprehensive bypass test
+  suite that proves no route can forge `workflow_state`, `return_reason` or the approver fields, skip a
+  transition, or reach another company's queue. New function `card.governance.check_workflow_state_edit` runs at
+  the end of the `validate` doc_events chain on Card Monthly Card, Equipment Transport and Project Diesel Fill
+  (added to `_SOURCE_EVENTS["validate"]` in `card/hooks.py` so all three doctypes pick it up with no new hook
+  entry per doctype). When an active Workflow is attached, the guard reads the stored `workflow_state` with a
+  locking read (`for_update=True`, Lesson 4) and refuses the save unless the saving user holds a role listed in
+  the stored state's `allow_edit` rows of the Workflow (`WorkflowStateEditError`, inherits
+  `frappe.PermissionError`); a legitimate state transition (`doc` state ≠ stored state) returns early and is
+  left to Frappe's `validate_workflow` and FR-152's `_check_submit`. Administrator is NOT exempt (FR-121
+  precedent: Administrator holds every role, so Frappe allows them unless the role set carves them out — that is
+  Frappe-native and intentional for the state-edit lock). Inactive Workflow (the default, O-10 — activation is
+  owner setup action W-16): the guard returns at the `_active_workflow(doc.doctype)` check, behaviour unchanged.
+  New file `card/tests/test_workflow_bypass.py` (19 integration tests): per-state edit lock on every doctype
+  (direct call, wiring order, Card-User-refused and Card-Manager-allowed in Pending Review, legitimate
+  transition kept through, mutation proof by patching the guard out); direct-submit refusal on every bypass
+  route (`frappe.client.set_value` on `docstatus` / `workflow_state` / `return_reason`, `frappe.client.insert`
+  with `docstatus = 1`, REST PUT with a forged state by a non-transition user, savedocs Submit on transport and
+  fill, `bulk_workflow_approval`, Administrator); return-for-correction flow confined to the endpoint on every
+  doctype; cancel path routed through `cancel_with_reason` even under bulk update at `docstatus = 2`;
+  second-company approval queue isolation across `frappe.get_list` of the doctype, the same filtered by
+  `workflow_state`, `apply_workflow` on a foreign doc, and the Workflow Action list; mutation proofs (Lesson 12)
+  for FR-152's direct-submit guard (`governance_workflows._check_submit`) and cancel-route guard
+  (`governance_workflows.check_cancel_route`), each patched out to show the test fails. Impact: permissions — no
+  role, DocPerm, user permission or whitelist decorator added or widened; the new hook only denies. Accounting —
+  none (no GL; nothing posts). Data — no DocType JSON changes, no new field, no patch; `card/hooks.py` gets one
+  additional entry in `_SOURCE_EVENTS["validate"]` so all three transaction doctypes run the guard. API —
+  unchanged while every Workflow is inactive (the default); once an owner activates a Workflow for a doctype,
+  the state-edit guard refuses a save by a user who does not hold an `allow_edit` role for the stored state
+  (behaviour change tied to activation, O-10 / W-16). Known limitation: `check_workflow_state_edit` fires on
+  `validate` only (save and submit); it does not fire on `update_after_submit` (Frappe runs
+  `before_update_after_submit` without validate), so updates to `allow_on_submit` fields on a submitted
+  Equipment Transport keep going through FR-152's state field protections (`workflow_state`'s
+  `allow_on_submit = 0`) and DocPerm, but not through this guard — the per-state role check targets draft and
+  transition flows, which is where the owner-approved lock matters. Rollback limits: a code rollback leaves no
+  schema or data change; the three CARD Workflows remain, inactive by default. PR: TBD.
 - **FR-152 — Native approval Workflows for the monthly card, transport and diesel fill, created INACTIVE (#35 G1,
   #51, #123; closure plan WP-D2a, C-14, owner decision O-10).** Reason: #35 G1 asks for native Frappe Workflows
   (Draft → Pending Review → Approved, Return for Correction with a reason, review skippable per company) without

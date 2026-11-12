@@ -224,7 +224,12 @@ _PERIOD_LOCK_EVENTS = {
 # (and therefore cannot be amended) until the posting is cancelled/deleted.
 _SOURCE_EVENTS = dict(_PERIOD_LOCK_EVENTS)
 # FR-123 (WP-07, governance G0): a cancel needs a reason, changes no other field and is commented
-_SOURCE_EVENTS["validate"] = [_PERIOD_LOCK_EVENTS["validate"], "card.cancel_reason.on_validate"]
+# FR-155 (WP-D2b): native-workflow state-edit guard runs last on validate; a no-op with an inactive Workflow
+_SOURCE_EVENTS["validate"] = [
+	_PERIOD_LOCK_EVENTS["validate"],
+	"card.cancel_reason.on_validate",
+	"card.governance.check_workflow_state_edit",
+]
 _SOURCE_EVENTS["before_update_after_submit"] = "card.cancel_reason.before_update_after_submit"
 _SOURCE_EVENTS["before_cancel"] = ["card.cancel_reason.before_cancel", "card.gl.events.block_source_cancel"]
 _SOURCE_EVENTS["on_cancel"] = [_PERIOD_LOCK_EVENTS["on_cancel"], "card.cancel_reason.on_cancel"]

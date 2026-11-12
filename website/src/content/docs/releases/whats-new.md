@@ -69,6 +69,10 @@ per site.
 
 ### Security
 
+- **2026-11-12 — Native-workflow state guards.** When an owner activates a CARD approval workflow (optional,
+  off by default), the server now refuses a save from any route by a user who does not hold an edit role for
+  the stored state — the form lock applied from Desk earlier is now applied to REST, bulk updates and
+  `frappe.client` calls too. Behaviour is unchanged while every CARD workflow stays inactive.
 - A cancelled daily log or meter reading can no longer be rewritten.
 - The evidence attached to a submitted transport is kept.
 - Users limited to some companies see only those companies in Card Settings.

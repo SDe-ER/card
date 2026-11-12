@@ -7063,3 +7063,15 @@ msgstr ""
 #: card/gl/posting.py
 msgid "After this Sales Invoice is submitted, a draft credit note will be built for {0} non-taxable customer-side deduction(s) totalling {1}."
 msgstr ""
+
+#: card/governance.py
+msgid "{0} {1} is in state {2}; editing requires one of these roles: {3}."
+msgstr ""
+
+#: card/governance.py
+msgid "(new)"
+msgstr ""
+
+#: card/governance.py
+msgid "Workflow state edit refused"
+msgstr ""

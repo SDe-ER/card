@@ -8303,3 +8303,15 @@ msgstr "FR-156: الخصومات غير الخاضعة للضريبة من جا�
 #: card/gl/posting.py
 msgid "After this Sales Invoice is submitted, a draft credit note will be built for {0} non-taxable customer-side deduction(s) totalling {1}."
 msgstr "بعد اعتماد فاتورة المبيعات هذه، سيُنشأ إشعار دائن مسودة لعدد {0} خصم غير خاضع للضريبة من جانب العميل بإجمالي {1}."
+
+#: card/governance.py
+msgid "{0} {1} is in state {2}; editing requires one of these roles: {3}."
+msgstr "{0} {1} في الحالة {2}؛ التعديل يستلزم أحد هذه الأدوار: {3}."
+
+#: card/governance.py
+msgid "(new)"
+msgstr "(جديد)"
+
+#: card/governance.py
+msgid "Workflow state edit refused"
+msgstr "رُفض تعديل حالة سير العمل"
