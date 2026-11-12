@@ -160,6 +160,7 @@ permission_query_conditions = {
 	"Card Company Settings": "card.card.doctype.card_settings.card_settings.settings_row_query_conditions",
 	"Card Adjustment Type": "card.card.doctype.card_settings.card_settings.settings_row_query_conditions",
 	"Card Diesel Price": "card.card.doctype.card_settings.card_settings.settings_row_query_conditions",
+	"Card Diesel Variance Threshold": "card.card.doctype.card_settings.card_settings.settings_row_query_conditions",
 	"Card Equipment Supplier": "card.party_registry.supplier_query_conditions",
 	"Card Equipment Customer": "card.party_registry.customer_query_conditions",
 	# v4.0.0: an operator sees only his own equipment needs

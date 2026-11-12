@@ -800,6 +800,49 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `card/card/sidebar/card_reports/card_reports.json`. Impact: a new report for two existing roles; no DocPerm or role
   change; no accounting, data or API change. Rollback: revert the commit; the Report record stays on a migrated site until it is
   deleted by hand (it only reads).
+- **FR-151 — Diesel Variance Anomaly report (#31; closure plan WP-H3).** Reason: #31 asks for a variance and anomaly
+  report per equipment and period with thresholds per company, a basis and a nature on every consumption figure, and
+  "variance ≠ loss". New read-only Script Report **Diesel Variance Anomaly** (sidebar label "Diesel Variance &
+  Anomaly"; the record name has no "&" because Frappe derives the module path from it) in
+  `card/card/report/diesel_variance_anomaly/*`, on the CARD Reports sidebar after Equipment Diesel Analysis. One row
+  per equipment and calendar month of ONE company: expected litres = Σ day hours × the FR-144 rate valid on that day,
+  with the FR-144 order (owner decision 2026-11-11): equipment dated row → static per-hour (`expected_consumption`
+  when set, 0 = not set) → daily standard (`daily_diesel_consumption / daily_hours`) → type row of the equipment's
+  company → type row with no company → None. The static per-hour decides over the daily figure when both are set.
+  `RateBook` resolves it in memory from batched reads; a parity test against `card.consumption.consumption_rate_details`
+  skips conditionally until #239 lands and that helper's order matches FR-144, with a direct unit test
+  (`test_rate_book_pins_fr144_order`) pinning the order in the meantime. Hours from submitted Equipment Meter
+  Readings (FR-140) when they cover the whole month ("Engine hours", "Recorded" when readings fall on the month
+  limits, otherwise prorated by time and "Estimated"; a meter reset or a gap falls back), else the day rows of
+  submitted monthly cards ("Billable-hours proxy", hours nature "Estimated", and expected nature "Estimated");
+  with a project filter always the proxy (engine hours belong to the equipment). The engine basis is only used
+  when the running user may read Equipment Meter Reading (checked at the session user, no elevated read); a user
+  without that permission falls back to the proxy with a data note (MEDIUM-1, 2026-11-11). Filled litres = the
+  company's submitted direct fills (`card_equipment` set; the "recorded" part of `card.diesel`, same rule);
+  project-tank fills are NOT split across equipment (owner decision 2026-11-10 on #31, #118 rule 7) and are shown
+  once as a project-level summary figure. Variance = filled − expected (litres, %, cost at the month's average
+  direct-fill price), labelled "not a loss"; the report makes no loss claim (loss only from tank dips, WP-I).
+  Amounts are at the fills' recorded price (VAT basis as entered on the fill row); the report never infers VAT.
+  A day with hours and no rate leaves the expected side empty with a data note (never a crash or an invented
+  rate). Anomaly flags (variance above threshold, fill without hours, hours without fill) only from the company's
+  row in the new Card Settings table `diesel_variance_thresholds` (child DocType **Card Diesel Variance Threshold**:
+  company, variance %, minimum litres, two checks; every field at permlevel 2 like the table: System Manager writes,
+  Accounts Manager and Card Manager read; last on the Diesel Settings tab, no field help, `test_settings_layout`
+  updated); no row = no flags (default). The table is a FR-133 scoped table (`SCOPED_TABLES`, `COMPANY_TABLES`,
+  `SCOPED_CHILD_DOCTYPES`, `permission_query_conditions` in `card/hooks.py` — every scoped child DocType carries
+  a hook row, asserted by `test_scoped_child_doctypes_registered_in_hooks`): a company-restricted user reads and
+  changes his companies' rows only; one row per company, no negative threshold
+  (`CardSettings._validate_diesel_variance_thresholds`). Access: the roles of Equipment Diesel Analysis (System
+  Manager, Card Manager, Card User, Accounts Manager; Card Operator, Card Supervisor and CARD Mobile have none);
+  `resolve_company` over Card Monthly Card, Project Diesel Fill and Equipment Meter Reading; rate and derived
+  columns (rate, source, expected, variance, variance flag) removed for a user without level-1 read on Card
+  Equipment, amount columns for a user without read on the fill amount's level. Data notes about rates ("No
+  consumption rate on some operating days…", "The consumption rate changes between two meter readings…") are
+  dropped from every row when rate columns are stripped (LOW-1, 2026-11-11). Fixed number of queries whatever the
+  number of rows (tested); a period is at most 366 days. Tests: `card/tests/test_diesel_variance.py` (23). PR #233.
+  Impact: a new report and a new optional settings table; no DocPerm or role change; no accounting, posting or
+  stored-data change; no whitelisted endpoint. Rollback: revert the commit; the Report and DocType records stay on
+  a migrated site until deleted by hand, threshold rows stay in the database and are read by nothing.
 
 ### Changed
 - **Reports label money with the company currency** (FR-136, PR #210, #53, owner default O-17: company currency only,
@@ -1074,6 +1117,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
+- **No-split rule under owner review per #31 comment 6777551346**; follow-up PR may add per-equipment
+  allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
+  remains in force until replaced.
 
 ## [4.7.0] — 2026-11-10
 

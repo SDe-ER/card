@@ -113,10 +113,19 @@ class TestCardSettingsLayout(IntegrationTestCase):
 			for f in order[start + 1 : end]
 			if self.meta.get_field(f).fieldtype not in ("Section Break", "Column Break")
 		]
-		# FR-125: the dated price schedule sits under the price box
+		# FR-125: the dated price schedule sits under the price box; FR-151: the optional anomaly
+		# thresholds come last in the diesel tab
 		self.assertEqual(
-			data, ["diesel_price_html", "diesel_price_schedule", "diesel_supplier_policy", "diesel_supplier"]
+			data,
+			[
+				"diesel_price_html",
+				"diesel_price_schedule",
+				"diesel_supplier_policy",
+				"diesel_supplier",
+				"diesel_variance_thresholds",
+			],
 		)
+		self.assertFalse(self.meta.get_field("diesel_variance_thresholds").description)  # no field help
 		self.assertFalse(self.meta.get_field("diesel_price_schedule").description)  # no field help
 		self.assertEqual(self.meta.get_field("diesel_price_html").fieldtype, "HTML")  # display only
 		self.assertFalse(self.meta.get_field("diesel_supplier_policy").description)  # no field help

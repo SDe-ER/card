@@ -7726,6 +7726,215 @@ msgstr "اعتماد الكارت الشهري من معدّه"
 msgid "Monthly card approved by its own preparer"
 msgstr "اعتمده معدّه"
 
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Engine hours (meter readings)"
+msgstr "ساعات المحرك (قراءات العداد)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Billable-hours proxy (card hours)"
+msgstr "بديل الساعات المفوترة (ساعات الكارت)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Recorded figure"
+msgstr "رقم مسجل"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Estimated figure"
+msgstr "رقم تقديري"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance = filled litres (direct fills recorded for the equipment) minus expected litres (hours x the consumption rate valid on each day). A variance is an analytical signal, not a fuel loss; this report makes no loss claim."
+msgstr "الفرق = اللترات المعبأة (التعبئات المباشرة المسجلة للمعدة) ناقص اللترات المتوقعة (الساعات × معدل الاستهلاك الساري في كل يوم). الفرق مؤشر تحليلي وليس فقدًا للوقود؛ هذا التقرير لا يثبت أي فقد."
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Hours basis: engine hours from meter readings when they cover the whole month, otherwise the billable-hours proxy (card hours), an estimate."
+msgstr "أساس الساعات: ساعات المحرك من قراءات العداد إذا غطت الشهر كله، وإلا فبديل الساعات المفوترة (ساعات الكارت) وهو تقدير."
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Project-tank fills are not split across equipment; their litres are shown once, as a project-level figure."
+msgstr "تعبئات خزان المشروع لا توزع على المعدات؛ تظهر لتراتها مرة واحدة كرقم على مستوى المشروع."
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "No consumption rate on some operating days: expected litres not computed"
+msgstr "لا يوجد معدل استهلاك في بعض أيام التشغيل: لم تُحسب اللترات المتوقعة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Engine hours prorated by time between meter readings"
+msgstr "ساعات المحرك موزعة بالتناسب الزمني بين قراءات العداد"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "The consumption rate changes between two meter readings: hours split by time"
+msgstr "معدل الاستهلاك يتغير بين قراءتي عداد: الساعات موزعة بالتناسب الزمني"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Diesel fill without operating hours"
+msgstr "تعبئة ديزل بدون ساعات تشغيل"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Operating hours without a diesel fill"
+msgstr "ساعات تشغيل بدون تعبئة ديزل"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Projects of the fills and cards"
+msgstr "مشاريع التعبئات والكروت"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Billable hours (cards)"
+msgstr "الساعات المفوترة (الكروت)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Hours basis"
+msgstr "أساس الساعات"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Hours used for expected litres"
+msgstr "الساعات المستخدمة للترات المتوقعة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Hours nature"
+msgstr "طبيعة الساعات"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Average consumption rate (litres/hour)"
+msgstr "متوسط معدل الاستهلاك (لتر/ساعة)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Consumption rate source"
+msgstr "مصدر معدل الاستهلاك"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Expected litres nature"
+msgstr "طبيعة اللترات المتوقعة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Filled litres (direct fills)"
+msgstr "اللترات المعبأة (تعبئات مباشرة)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Filled litres nature"
+msgstr "طبيعة اللترات المعبأة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Direct fills amount"
+msgstr "مبلغ التعبئات المباشرة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Direct fills amount (at the fills' recorded price, VAT basis as entered on the fill)"
+msgstr "مبلغ التعبئات المباشرة (بسعر التعبئة المسجَّل، أساس ضريبة القيمة المضافة كما هو مُدخل على الحقل)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance litres (filled - expected, not a loss)"
+msgstr "فرق اللترات (المعبأ - المتوقع، ليس فقدًا)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance cost at the average fill price (not a loss)"
+msgstr "تكلفة الفرق بمتوسط سعر التعبئة (ليست فقدًا)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance cost at the average fill price (not a loss; at the fills' recorded price, VAT basis as entered on the fill)"
+msgstr "تكلفة الفرق بمتوسط سعر التعبئة (ليست فقدًا؛ بسعر التعبئة المسجَّل، أساس ضريبة القيمة المضافة كما هو مُدخل على الحقل)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Engine hours unavailable for this user; falling back to the billable-hours proxy."
+msgstr "ساعات المحرك غير متاحة لهذا المستخدم؛ يتم الرجوع إلى تقدير الساعات المستحقة."
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Anomaly flags"
+msgstr "تنبيهات الحالات الشاذة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Data notes"
+msgstr "ملاحظات البيانات"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Rows with anomaly flags"
+msgstr "صفوف بها تنبيهات شاذة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Project-tank fill litres (not attributed to any equipment)"
+msgstr "لترات تعبئات خزان المشروع (غير منسوبة لأي معدة)"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "No anomaly thresholds are set for this company in Card Settings: nothing is flagged."
+msgstr "لا توجد حدود للحالات الشاذة لهذه الشركة في إعدادات CARD: لا يتم تعليم أي صف."
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Consumption rates and the figures derived from them are hidden for your role."
+msgstr "معدلات الاستهلاك والأرقام المحسوبة منها مخفية عن دورك."
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Dated rate of the equipment"
+msgstr "المعدل المؤرخ للمعدة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Daily diesel standard of the equipment"
+msgstr "معيار الديزل اليومي للمعدة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Static expected consumption of the equipment"
+msgstr "الاستهلاك المتوقع الثابت للمعدة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Default rate of the equipment type"
+msgstr "المعدل الافتراضي لنوع المعدة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Project filter: engine hours belong to the equipment, the billable-hours proxy is used"
+msgstr "فلتر المشروع: ساعات المحرك تخص المعدة، لذلك يُستخدم بديل الساعات المفوترة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Variance above the company threshold"
+msgstr "الفرق أعلى من حد الشركة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Select a period of at most {0} days for the diesel variance report."
+msgstr "اختر فترة لا تزيد عن {0} يومًا لتقرير فروقات الديزل."
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
+msgid "Meter readings do not cover the month: the billable-hours proxy is used"
+msgstr "قراءات العداد لا تغطي الشهر: يُستخدم بديل الساعات المفوترة"
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Duplicate company in the diesel variance anomaly thresholds: {0}"
+msgstr "شركة مكررة في حدود الحالات الشاذة لفروقات الديزل: {0}"
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Row {0}: a diesel variance anomaly threshold cannot be negative."
+msgstr "الصف {0}: حد الحالات الشاذة لفروقات الديزل لا يمكن أن يكون سالبًا."
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Diesel variance % threshold"
+msgstr "حد نسبة فرق الديزل %"
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Minimum diesel variance (litres)"
+msgstr "الحد الأدنى لفرق الديزل (لتر)"
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Flag diesel fills without operating hours"
+msgstr "تعليم تعبئات الديزل بدون ساعات تشغيل"
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Flag operating hours without diesel fills"
+msgstr "تعليم ساعات التشغيل بدون تعبئات ديزل"
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "Diesel variance anomaly thresholds"
+msgstr "حدود الحالات الشاذة لفروقات الديزل"
+
+
+#: card/card/sidebar/card_reports/card_reports.json
+msgid "Diesel Variance & Anomaly"
+msgstr "فروقات الديزل والحالات الشاذة"
+
+#: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.json
+msgid "Diesel Variance Anomaly"
+msgstr "فروقات الديزل والحالات الشاذة"
+
+#: card/card/doctype/card_diesel_variance_threshold/card_diesel_variance_threshold.json
+msgid "Card Diesel Variance Threshold"
+msgstr "حد فروقات الديزل"
+
 #: card/gl/period_gate.py
 msgid "Approved period run required"
 msgstr "دورة فترة معتمدة مطلوبة"

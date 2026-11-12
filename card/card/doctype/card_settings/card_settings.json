@@ -39,6 +39,8 @@
   "diesel_supplier_policy",
   "diesel_col",
   "diesel_supplier",
+  "diesel_variance_section",
+  "diesel_variance_thresholds",
   "transport_tab",
   "transport_section",
   "project_transport_prices",
@@ -341,6 +343,19 @@
    "permlevel": 2
   },
   {
+   "fieldname": "diesel_variance_section",
+   "fieldtype": "Section Break",
+   "label": "Diesel variance anomaly thresholds",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "diesel_variance_thresholds",
+   "fieldtype": "Table",
+   "label": "Diesel variance anomaly thresholds",
+   "options": "Card Diesel Variance Threshold",
+   "permlevel": 2
+  },
+  {
    "fieldname": "diesel_col",
    "fieldtype": "Column Break"
   },
@@ -471,7 +486,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-11-10 18:00:00.000000",
+ "modified": "2026-11-11 00:21:37.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "creation": "2026-11-10 23:17:41.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "variance_pct_threshold",
+  "min_variance_litres",
+  "flag_fill_without_hours",
+  "flag_hours_without_fill"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "permlevel": 2,
+   "reqd": 1
+  },
+  {
+   "fieldname": "variance_pct_threshold",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Diesel variance % threshold",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "min_variance_litres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Minimum diesel variance (litres)",
+   "permlevel": 2,
+   "precision": "3"
+  },
+  {
+   "default": "0",
+   "fieldname": "flag_fill_without_hours",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Flag diesel fills without operating hours",
+   "permlevel": 2
+  },
+  {
+   "default": "0",
+   "fieldname": "flag_hours_without_fill",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Flag operating hours without diesel fills",
+   "permlevel": 2
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-10 23:17:41.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Diesel Variance Threshold",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
