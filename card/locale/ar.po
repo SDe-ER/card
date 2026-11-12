@@ -8304,3 +8304,15 @@ msgstr "مصدر الإدخال {0} / المفتاح {1} مستخدم بالفع
 #: card/intake.py
 msgid "The intake provenance of a submitted card day cannot be changed ({0})."
 msgstr "لا يمكن تعديل مصدر إدخال يوم في كارت معتمد ({0})."
+
+#: card/governance.py
+msgid "{0} {1} is in state {2}; editing requires one of these roles: {3}."
+msgstr "{0} {1} في الحالة {2}؛ التعديل يستلزم أحد هذه الأدوار: {3}."
+
+#: card/governance.py
+msgid "(new)"
+msgstr "(جديد)"
+
+#: card/governance.py
+msgid "Workflow state edit refused"
+msgstr "رُفض تعديل حالة سير العمل"

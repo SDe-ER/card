@@ -7064,3 +7064,15 @@ msgstr ""
 #: card/intake.py
 msgid "The intake provenance of a submitted card day cannot be changed ({0})."
 msgstr ""
+
+#: card/governance.py
+msgid "{0} {1} is in state {2}; editing requires one of these roles: {3}."
+msgstr ""
+
+#: card/governance.py
+msgid "(new)"
+msgstr ""
+
+#: card/governance.py
+msgid "Workflow state edit refused"
+msgstr ""
