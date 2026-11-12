@@ -16,6 +16,43 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-157 — Diesel Fill Allocation rows for tank-style diesel fills, frozen on submit (#31, #47, #124; closure
+  plan WP-G1, C-03, C-06, owner decision O-04).** Reason: #31/#47 ask for an audited per-equipment split of a
+  project-tank fill (Σ = litres, the remainder lands on one row, zero hours/rate goes to a review queue); C-03
+  resolves that against the owner's 2026-11-02 decision (FR-100: tank diesel never reaches GL) by keeping the
+  split a labelled estimate for reports and the card only. New child DocType `Diesel Fill Allocation` with fields
+  `equipment`, `card_equipment_name` (fetched), `basis` (`estimated`/`measured`; G1 writes `estimated` only, G2
+  will add manual overrides), `rule` (`hours` or `hours×rate`), `hours`, `rate_used`, `allocated_litres`,
+  `remainder`, `review_flag` and `frozen_on` (every field read-only; parent `allow_on_submit` = 0 keeps the rows
+  frozen after submit). New table field `diesel_fill_allocation` and `allocation_review` note on `Project Diesel
+  Fill`. The controller clears client-supplied rows on draft save (`_guard_allocation`, with a mutation test) and
+  writes the rows in `before_submit` only — a fill with `card_equipment` set (one measured equipment) writes no
+  rows and keeps today's FR-033 recorded path. New module `card/diesel_fill_allocation.py` (`plan_allocation`,
+  `write_rows`, `HOURS_WEIGHTING`, `HOURS_RATE_WEIGHTING`) uses `card.diesel.project_operating_hours` and
+  `card.diesel.split_by_weights` (so the remainder lands on the SAME equipment as the existing largest-remainder
+  display rule), and `card.consumption.consumption_rate` on the fill date for Hours × Rate. Per-company
+  `tank_estimate_weighting` on Card Company Settings (Select: `Hours (tank estimate)` default, `Hours × Rate
+  (tank estimate)`; permlevel 1), seeded to `Hours` by the new idempotent patch
+  `card.patches.v4_8_0.seed_tank_estimate_weighting` (writes only rows without a value, no `modified` bump; a
+  second migrate finds nothing to do). No posting change: `card/gl/posting.py` is untouched; the allocation module
+  imports nothing from `card.gl.*` and writes no GL entries. No backfill (C-06): the rows are generated at the
+  moment of a NEW or AMENDED submit only; legacy submitted fills keep the FR-033 read-time estimate from
+  `card.diesel.allocate_project_diesel`. Reports and the card read these rows only when G2 wires the fallback —
+  G1 introduces the rows and the setting; the existing readers are not changed. Cancel: the FR-123 guard in
+  `card.cancel_reason._refuse_changes` already compares every row and standard column, so a cancel that mutates
+  the rows is refused with the FR-123 message. New tests: `card/tests/test_fill_allocation.py` (16 tests: Hours
+  default, zero-hours review + remainder, Hours × Rate, Hours × Rate zero-rate review, all-zero no rows + parent
+  note, rounding remainder on one row, direct-charge fill writes no rows, draft guard clears client rows,
+  mutation proof when the guard is patched out, frozen on REST save, frozen on `frappe.client.set_value`, cancel
+  refused on row change (FR-123) then clean cancel, posting module imports no GL, no GL Entry after submit,
+  cross-company refused by `has_diesel_fill_permission`, amendment starts without rows and rewrites on submit).
+  `card/tests/test_diesel_allocation.py` adds one legacy fallback test (a pre-FR-157 fill with the rows wiped
+  still shows the FR-033 estimate). Impact — permissions: none; roles unchanged. Accounting: none; GL unchanged,
+  posting path unchanged. Data: a new DocType + a new child table on `Project Diesel Fill` + a new parent note +
+  one Select on Card Company Settings; the patch writes the default value only where empty. API: no new
+  whitelisted method. Rollback limits: the patch's writes are idempotent (safe to re-run); removing the DocType
+  after a submit drops the stored allocation rows for that company — the FR-033 reader continues to serve
+  reports and the card (C-06 legacy behaviour).
 - **FR-152 — Native approval Workflows for the monthly card, transport and diesel fill, created INACTIVE (#35 G1,
   #51, #123; closure plan WP-D2a, C-14, owner decision O-10).** Reason: #35 G1 asks for native Frappe Workflows
   (Draft → Pending Review → Approved, Return for Correction with a reason, review skippable per company) without

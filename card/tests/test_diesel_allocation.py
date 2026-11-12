@@ -440,3 +440,28 @@ class TestDieselAllocation(IntegrationTestCase):
 		t.amount = 3500
 		company_paid(t).insert(ignore_permissions=True)
 		self.assertAlmostEqual(flt(t.amount), 3500.0)
+
+	# ---- FR-157 (WP-G1, C-06): the legacy FR-033 fallback still works for pre-FR-157 fills ----
+	def test_legacy_fill_without_allocation_rows_still_shows_fr033_estimate(self):
+		# simulate a fill submitted before FR-157 by clearing its allocation rows after submit
+		eq1 = self._make_equipment("EQ1")
+		eq2 = self._make_equipment("EQ2")
+		self._make_card(eq1, [self._day(2, 10)])
+		self._make_card(eq2, [self._day(2, 10), self._day(3, 10), self._day(4, 10)])
+		fill = self._make_fill(litres=400, unit_price=1)
+		# wipe the frozen rows and the review note as if the fill came from a version before FR-157
+		frappe.db.delete(
+			"Diesel Fill Allocation",
+			{
+				"parent": fill.name,
+				"parenttype": fill.doctype,
+				"parentfield": "diesel_fill_allocation",
+			},
+		)
+		frappe.db.set_value("Project Diesel Fill", fill.name, "allocation_review", None)
+		# the FR-033 read-time estimate keeps working for the legacy fill
+		alloc = allocate_project_diesel(self.project, self.month_str, self.year_str, self.company)
+		self.assertAlmostEqual(flt(alloc[eq1.name]["litres"]), 100.0)
+		self.assertAlmostEqual(flt(alloc[eq2.name]["litres"]), 300.0)
+		self.assertAlmostEqual(flt(alloc[eq1.name]["litres_estimated"]), 100.0)
+		self.assertAlmostEqual(flt(alloc[eq1.name]["litres_recorded"]), 0.0)

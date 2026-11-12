@@ -8251,3 +8251,24 @@ msgstr "تم تعديل هذه اليومية في الأثناء. أعد تحم
 
 msgid "This returned daily log was cancelled, but its corrected draft was not created. Create it now."
 msgstr "أُلغيت هذه اليومية المرجعة، لكن لم تُنشأ مسودتها المصححة. أنشئها الآن."
+
+msgid "Diesel Fill Allocation"
+msgstr "توزيع تعبئة الديزل"
+
+msgid "Diesel fill allocation"
+msgstr "توزيع تعبئة الديزل"
+
+msgid "Diesel fill allocation (estimated)"
+msgstr "توزيع تعبئة الديزل (تقديري)"
+
+msgid "Allocation (estimated, display only)"
+msgstr "التوزيع (تقديري، للعرض فقط)"
+
+msgid "Allocation review"
+msgstr "مراجعة التوزيع"
+
+msgid "Tank diesel estimate weighting"
+msgstr "طريقة توزيع ديزل الخزان"
+
+msgid "Rate used (L/h)"
+msgstr "المعدل المستخدم (لتر/ساعة)"

@@ -53,7 +53,9 @@
   "period_approval_section",
   "require_period_approval",
   "column_break_period_approval",
-  "period_run_self_approval_rule"
+  "period_run_self_approval_rule",
+  "diesel_allocation_section",
+  "tank_estimate_weighting"
  ],
  "fields": [
   {
@@ -401,13 +403,28 @@
    "label": "Period run self-approval rule",
    "options": "Warn only (period run)\nRefuse (period run)",
    "permlevel": 1
+  },
+  {
+   "fieldname": "diesel_allocation_section",
+   "fieldtype": "Section Break",
+   "label": "Diesel fill allocation (estimated)",
+   "permlevel": 1
+  },
+  {
+   "default": "Hours (tank estimate)",
+   "description": "How a tank diesel fill's litres are split per equipment for reports and the card (display only; the posting is unchanged — FR-100). Hours: share = hours / Σ hours (matches the FR-033 read-time estimate, the default). Hours × Rate: share = (hours × litres per hour) / Σ (hours × rate), with the FR-144 dated rate on the fill date. Empty: Hours.",
+   "fieldname": "tank_estimate_weighting",
+   "fieldtype": "Select",
+   "label": "Tank diesel estimate weighting",
+   "options": "Hours (tank estimate)\nHours × Rate (tank estimate)",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-11 01:49:00.000000",
+ "modified": "2026-11-12 09:20:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",
