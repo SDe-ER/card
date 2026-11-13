@@ -40,7 +40,7 @@ merged (decision recorded with FR-143)."""
 import frappe
 from frappe import _
 from frappe.model import no_value_fields, table_fields
-from frappe.utils import now_datetime
+from frappe.utils import escape_html, getdate, now_datetime, today
 
 from card.cancel_reason import _differs
 from card.settings import company_setting
@@ -49,6 +49,20 @@ DOCTYPE = "Card Monthly Card"
 RULE_FIELD = "card_approval_rule"
 RULE_WARN = "Warn only (card approval)"
 RULE_REFUSE = "Refuse (card approval)"
+
+# FR-163 (WP-D5; #35 G4; closure plan C-12, owner decision O-12): CARD approval delegation.
+# The delegate IS the acting user; they just inherit the delegator's authority within the
+# scope / company / window of a submitted Card Approval Delegation. A delegation grants no role
+# (the delegate must already hold the delegator's CARD approver roles, enforced on the delegation
+# save). ``user_acting_on_behalf`` resolves the active delegation for ``(user, doctype, company)``;
+# the SoD creator check (FR-143), tier role check (FR-159) and the submit comment all consult it.
+DELEGATION_DOCTYPE = "Card Approval Delegation"
+DELEGATION_SCOPE_ALL = "All CARD approvals"
+DELEGATION_DOCTYPE_TO_SCOPE = {
+	"Card Monthly Card": "Monthly Cards",
+	"Equipment Transport": "Transports",
+	"Project Diesel Fill": "Diesel Fills",
+}
 
 # written at the submit only (every other save clears them)
 APPROVAL_FIELDS = ("submitted_by", "approved_by", "approved_on", "self_approved")
@@ -95,6 +109,82 @@ def card_preparers(doc):
 		users.update(_lines(row.edited_by))
 		pending.append(row.amended_from)
 	return {u for u in users if u}
+
+
+# ---------- FR-163 (WP-D5): CARD approval delegation ----------
+def user_acting_on_behalf(user, doctype, company, date=None):
+	"""Return the delegator on whose queue ``user`` acts today for ``(doctype, company)``, or None.
+
+	Looks up a submitted, non-cancelled ``Card Approval Delegation`` in which ``user`` is the
+	``delegate_user``, ``company`` is the delegation's company, ``date`` is inside [from_date,
+	to_date], and ``approval_scope`` is ``SCOPE_ALL`` or the scope matching ``doctype``. The newest
+	matching delegation wins (by ``creation`` desc); a locking read (``for update``) is used so a
+	parallel update to the delegation does not slip through during an in-flight submit (Lesson 4).
+
+	Returns ``None`` when the DocType is not installed (second-migrate safety), when no delegation
+	exists, or when ``user`` is Guest / unset.
+
+	FR-121 precedent: Administrator holds every role already and is never exempt from a server
+	guard; this function does NOT special-case Administrator either — if a delegation names
+	Administrator as delegate, Administrator acts on behalf of its delegator too."""
+	if not user or user in ("Guest", ""):
+		return None
+	if not frappe.db.exists("DocType", DELEGATION_DOCTYPE):
+		return None
+	scope = DELEGATION_DOCTYPE_TO_SCOPE.get(doctype)
+	if not scope:
+		return None
+	date = getdate(date or today())
+	rows = frappe.db.sql(
+		"""
+		select name, delegator_user, approval_scope
+		from `tabCard Approval Delegation`
+		where delegate_user = %s
+		  and company = %s
+		  and docstatus = 1
+		  and status = 'Active'
+		  and approval_scope in (%s, %s)
+		  and from_date <= %s
+		  and to_date >= %s
+		order by creation desc
+		for update
+		""",
+		(user, company, DELEGATION_SCOPE_ALL, scope, date, date),
+		as_dict=True,
+	)
+	if not rows:
+		return None
+	return rows[0].delegator_user
+
+
+def _acting_on_behalf_delegation(user, doctype, company, date=None):
+	"""Variant of :func:`user_acting_on_behalf` that returns the full delegation row (name,
+	delegator) when one exists, for use by the submit-time comment."""
+	if not user or user in ("Guest", ""):
+		return None
+	if not frappe.db.exists("DocType", DELEGATION_DOCTYPE):
+		return None
+	scope = DELEGATION_DOCTYPE_TO_SCOPE.get(doctype)
+	if not scope:
+		return None
+	date = getdate(date or today())
+	rows = frappe.db.sql(
+		"""
+		select name, delegator_user
+		from `tabCard Approval Delegation`
+		where delegate_user = %s
+		  and company = %s
+		  and docstatus = 1
+		  and status = 'Active'
+		  and approval_scope in (%s, %s)
+		  and from_date <= %s
+		  and to_date >= %s
+		order by creation desc
+		""",
+		(user, company, DELEGATION_SCOPE_ALL, scope, date, date),
+		as_dict=True,
+	)
+	return rows[0] if rows else None
 
 
 # ---------- doc_events (card/hooks.py) ----------
@@ -164,9 +254,20 @@ def before_submit(doc, method=None):
 	(FR-143), and the submitter must hold the role required by the card's resolved approval tier
 	(FR-159). The tier field is server-written on validate; this re-resolves it under a locking
 	read on the company's settings row so a tier change pushed in parallel does not slip through
-	(Lesson 4). Administrator is NOT exempt (FR-121 precedent)."""
+	(Lesson 4). Administrator is NOT exempt (FR-121 precedent).
+
+	FR-163 (WP-D5): when the submitting user is a delegate acting on behalf of ``delegator`` for
+	this doctype / company today, both the SoD creator check and the tier role check also consider
+	the delegator's identity. The delegate inherits the delegator's authority within the window;
+	the delegate IS the submitter (``submitted_by`` / ``approved_by`` stay the delegate), so an
+	Info Comment on the card records the delegation."""
 	user = frappe.session.user
-	self_approved = user in card_preparers(doc)
+	delegator = user_acting_on_behalf(user, doc.doctype, doc.get("company"))
+	preparers = card_preparers(doc)
+	# FR-163: both the acting user and (when acting on behalf) the delegator count as preparers
+	# of the card for the SoD check — a delegate submitting the delegator's own card is still
+	# a self-approval.
+	self_approved = user in preparers or (delegator is not None and delegator in preparers)
 	if self_approved:
 		if approval_rule(doc.company) == RULE_REFUSE:
 			frappe.throw(
@@ -183,7 +284,7 @@ def before_submit(doc, method=None):
 			title=_("Monthly card self-approval"),
 			indicator="orange",
 		)
-	# FR-159: refuse a submit when the user does not hold the tier's role_required
+	# FR-159 / FR-163: refuse a submit when neither the user nor the delegator holds the tier's role.
 	_check_approval_tier_role(doc)
 	doc.update(
 		{
@@ -192,6 +293,42 @@ def before_submit(doc, method=None):
 			"approved_on": now_datetime(),
 			"self_approved": 1 if self_approved else 0,
 		}
+	)
+	# FR-163: flag for the post-submit log comment; Comments created in ``before_submit`` are not
+	# persisted because the document itself is still unsaved — the actual comment is added from
+	# ``after_submit`` / ``on_submit`` by ``log_delegation_use``.
+	if delegator:
+		frappe.flags.card_delegation_use = (doc.name, delegator, user)
+
+
+def log_delegation_use(doc, method=None):
+	"""FR-163: on_submit hook. If the submit was performed through a Card Approval Delegation
+	(flag set by ``before_submit``), record an Info Comment on the approved card naming the
+	delegator, the delegate and the delegation. The comment is the auditable "every use logged"
+	trail required by owner decision O-12.
+
+	Falls back to a live lookup when the flag is absent (e.g. a background submit route that
+	cleared ``frappe.flags`` between ``before_submit`` and ``on_submit``)."""
+	flag = frappe.flags.get("card_delegation_use") if hasattr(frappe, "flags") else None
+	delegator = delegate = delegation_name = None
+	if flag and flag[0] == doc.name:
+		delegator, delegate = flag[1], flag[2]
+		frappe.flags.card_delegation_use = None
+		row = _acting_on_behalf_delegation(delegate, doc.doctype, doc.get("company"))
+		delegation_name = row.name if row else ""
+	else:
+		user = frappe.session.user
+		row = _acting_on_behalf_delegation(user, doc.doctype, doc.get("company"))
+		if not row:
+			return
+		delegate = user
+		delegator = row.delegator_user
+		delegation_name = row.name
+	doc.add_comment(
+		"Info",
+		_("Approved on behalf of {0} by {1} per delegation {2}.").format(
+			escape_html(delegator), escape_html(delegate), escape_html(delegation_name or "")
+		),
 	)
 
 
@@ -321,31 +458,49 @@ def _apply_resolved_tier(doc):
 def user_holds_approval_tier_role(doc, user=None):
 	"""True when ``user`` (the current session user by default) may submit ``doc`` at its resolved
 	tier: tier 0 (no threshold matched, or no rows) always passes; otherwise the user must hold the
-	tier's ``role_required`` role. Exposed for the Workflow approve-transition condition (FR-152;
-	see ``card.governance_workflows``) through ``frappe.get_attr``; also used by the server guard."""
+	tier's ``role_required`` role, OR a delegator the user acts on behalf of holds it (FR-163).
+	Exposed for the Workflow approve-transition condition (FR-152; see ``card.governance_workflows``)
+	through ``frappe.get_attr``; also used by the server guard."""
 	user = user or frappe.session.user
 	tier = resolve_approval_tier(doc)
 	if not tier:
 		return True
-	return tier["role_required"] in set(frappe.get_roles(user))
+	role = tier["role_required"]
+	if role in set(frappe.get_roles(user)):
+		return True
+	delegator = user_acting_on_behalf(user, doc.get("doctype") or DOCTYPE, doc.get("company"))
+	if delegator and role in set(frappe.get_roles(delegator)):
+		return True
+	return False
 
 
 def _check_approval_tier_role(doc):
 	"""FR-159: refuse a submit when the running user does not hold the tier's ``role_required``.
 	Administrator is NOT exempt (FR-121 precedent). Called from ``before_submit`` only; the tier is
-	re-resolved here under the locking read so a forged client value is ignored."""
+	re-resolved here under the locking read so a forged client value is ignored.
+
+	FR-163 (WP-D5): when the user acts on behalf of a delegator (an active Card Approval
+	Delegation for the user / doctype / company today), the tier check passes if EITHER the user
+	or the delegator holds ``role_required``. The delegation itself stays without role grants:
+	the delegate's DocPerm is unchanged, only the server-side tier gate consults the delegator.
+	Discovered through ``user_acting_on_behalf`` so the existing single-argument signature is
+	kept — test mocks ``lambda doc: None`` still work."""
 	tier = resolve_approval_tier(doc)
 	if not tier:
 		return
 	user = frappe.session.user
-	if tier["role_required"] in set(frappe.get_roles(user)):
+	role = tier["role_required"]
+	if role in set(frappe.get_roles(user)):
+		return
+	delegator = user_acting_on_behalf(user, doc.doctype, doc.get("company"))
+	if delegator and role in set(frappe.get_roles(delegator)):
 		return
 	frappe.throw(
 		_(
 			"{0} needs the role {1} to submit this monthly card (approval tier {2}: net amount at or above {3}, company rule)."
 		).format(
 			user,
-			tier["role_required"],
+			role,
 			tier["tier_name"] or tier["tier_index"],
 			tier["amount_threshold"],
 		),

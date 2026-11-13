@@ -260,6 +260,9 @@ _CARD_EVENTS["before_update_after_submit"] = [
 	"card.intake.freeze_submitted_card_day_intake",
 ]
 _CARD_EVENTS["before_cancel"] = [*_SOURCE_EVENTS["before_cancel"], "card.governance.before_cancel"]
+# FR-163 (WP-D5): log the delegation use on submit (Info Comment). The hook is a no-op when the
+# submitting user is not acting on behalf through an active Card Approval Delegation.
+_CARD_EVENTS["on_submit"] = "card.governance.log_delegation_use"
 doc_events = {
 	"Card Monthly Card": _CARD_EVENTS,
 	# meter extraction (optional local worker): marker/crop after an applied pass, enqueue on a new photo
@@ -319,7 +322,12 @@ _fr153_extend_doc_events(doc_events)
 
 scheduler_events = {
 	# #56: no-op unless Card Settings enables the daily location sync
-	"daily": ["card.transfer.sync_equipment_locations_daily"],
+	# FR-163 (WP-D5): expire Card Approval Delegations whose to_date is before today (idempotent;
+	# no-op when the DocType is not yet installed on a second-migrate rehearsal)
+	"daily": [
+		"card.transfer.sync_equipment_locations_daily",
+		"card.card.doctype.card_approval_delegation.card_approval_delegation.expire_delegations_past_to_date",
+	],
 }
 
 # scheduler_events = {
