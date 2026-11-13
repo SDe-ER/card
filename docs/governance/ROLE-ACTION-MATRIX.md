@@ -36,7 +36,7 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 |---|---|---|---|---|---|---|---|---|---|
 | Card Adjustment Type | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Agreement Responsibility | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
-| Card Approval Delegation | Submittable | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager | - | Company User Permission on `company`; no new hook — the delegation itself grants no role, the FR-163 `user_acting_on_behalf` lookup is server-side only |
+| Card Approval Delegation | Submittable | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager, Card Manager | System Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |
 | Card Approval Tier Threshold | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Company Settings | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Consumption Rate | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
