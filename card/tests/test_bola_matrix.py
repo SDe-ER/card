@@ -1042,6 +1042,18 @@ IGNORE_PERMISSIONS_ALLOWED = {
 		2,
 		"delete/reopen the assignments the transport wrote, on cancel; cancel right checked first",
 	),
+	("card/diesel_stock.py", "post_dispense"): (
+		1,
+		"FR-164: draft Stock Entry (Material Issue) created in on_submit of Diesel Dispense; "
+		"submit right and has_company_permission on the Dispense checked first (test_diesel_dispense "
+		"TestDieselDispenseCrossCompany), SE's company copied from the Dispense's",
+	),
+	("card/diesel_stock.py", "drop_stock_entry_by_name"): (
+		1,
+		"FR-164: deletes only the draft Stock Entry this dispense made (same company, docstatus 0 only); "
+		"cancel right and cancel-reason guard checked first on the Dispense; a submitted SE is refused "
+		"and the dispense cancel is refused too",
+	),
 }
 
 

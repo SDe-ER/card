@@ -32,6 +32,19 @@ per site.
 
 ### Operations
 
+- **2026-11-13 — Diesel tanks as Warehouses, off by default.** Groundwork is in place for a new tank-based
+  diesel workflow. Each company has a new "Enable diesel tanks" switch in Card Settings → Company settings,
+  which starts at **off**: nothing changes on a company that leaves it off, and the existing direct-fill
+  flow (Project Diesel Fill) is untouched. When the owner turns it on for a company, a new document
+  **Diesel Dispense** lets the office record litres leaving one fuel tank (an ERPNext Warehouse of type
+  "Fuel Tank") to one project on one date, optionally attributed to one piece of equipment. Each submitted
+  dispense creates a **draft** Stock Entry that the accountant reviews and submits — nothing is auto-posted,
+  and the resulting stock movement stays at project level (never a per-equipment GL line). Cancelling the
+  dispense deletes the draft Stock Entry; if the accountant has already submitted the Stock Entry, the
+  dispense refuses to cancel until the Stock Entry is cancelled through ERPNext. The matching tank balance
+  comes from ERPNext's standard Stock Ledger for now; the CARD-specific tank reconciliation report arrives
+  in a later release.
+
 - **2026-11-13 — Approval delegation that grants no role.** The owner can now create a Card Approval Delegation
   that lets one approver act on another approver's queue for a date window and a chosen scope (all CARD approvals
   or only monthly cards, transports or diesel fills), for a given company. The delegation does **not** grant any
