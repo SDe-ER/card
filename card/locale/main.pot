@@ -7313,3 +7313,51 @@ msgstr ""
 #: card/card/report/diesel_group_analysis/diesel_group_analysis.py
 msgid "Group litres"
 msgstr ""
+
+#: card/governance.py
+msgid "Approved on behalf of {0} by {1} per delegation {2}."
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation ``from_date`` must not be after ``to_date``."
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation window"
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegator {0} does not hold any CARD approver role ({1}); a delegation can only be granted by an approver."
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation delegator role"
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegator and delegate must be different users."
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation users"
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegate {0} must already hold the delegator's CARD approver roles; missing: {1}. Delegation grants no role."
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation delegate role"
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegator {0} already has an active delegation {1} for {2} / {3} between {4} and {5}."
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation overlap"
+msgstr ""
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation cancelled by {0}."
+msgstr ""

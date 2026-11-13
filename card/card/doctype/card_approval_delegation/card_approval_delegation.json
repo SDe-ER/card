@@ -1,0 +1,169 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "CAD-.#####",
+ "creation": "2026-11-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "delegator_user",
+  "delegate_user",
+  "column_break_header",
+  "company",
+  "approval_scope",
+  "window_section",
+  "from_date",
+  "to_date",
+  "column_break_window",
+  "status",
+  "reason_section",
+  "reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "delegator_user",
+   "fieldtype": "Link",
+   "label": "Delegator (grantor)",
+   "options": "User",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1,
+   "description": "The approver whose queue is delegated. Must already hold a CARD approver role (Card Manager, Card Reviewer or Accounts Manager)."
+  },
+  {
+   "fieldname": "delegate_user",
+   "fieldtype": "Link",
+   "label": "Delegate (grantee)",
+   "options": "User",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1,
+   "description": "The user acting on behalf of the delegator. Must already hold the same CARD approver role as the delegator (this delegation grants no role)."
+  },
+  {
+   "fieldname": "column_break_header",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "approval_scope",
+   "fieldtype": "Select",
+   "label": "Approval scope",
+   "options": "All CARD approvals\nMonthly Cards\nTransports\nDiesel Fills",
+   "default": "All CARD approvals",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Which CARD approvals the delegation covers."
+  },
+  {
+   "fieldname": "window_section",
+   "fieldtype": "Section Break",
+   "label": "Delegation window"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From date",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To date",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_window",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Delegation status",
+   "options": "Active\nExpired\nCancelled",
+   "default": "Active",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Server-written: Active within the window, Expired after to_date, Cancelled on docstatus = 2."
+  },
+  {
+   "fieldname": "reason_section",
+   "fieldtype": "Section Break",
+   "label": "Reason"
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Small Text",
+   "label": "Reason",
+   "reqd": 1,
+   "description": "Why the delegation is granted (leave, travel, hand-over)."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Approval Delegation",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "permlevel": 0,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Card Manager",
+   "permlevel": 0,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  }
+ ],
+ "quick_entry": 0,
+ "search_fields": "delegator_user,delegate_user,company,approval_scope,status",
+ "show_name_in_global_search": 0,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "delegate_user",
+ "track_changes": 1
+}
