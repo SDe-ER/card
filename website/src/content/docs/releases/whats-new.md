@@ -38,6 +38,16 @@ per site.
   the Supplier or Customer roles, and the preview switch on Company settings is off on every company. A later
   release wires the routes and the permission hook, and the owner turns the switch on per company when he is
   ready. The owner's 2026-11-10 decision is kept: the portal is in scope, off by default.
+- **2026-11-13 — Equipment operating groups and a Diesel Group Analysis report.** An operating group is a named
+  set of machines that work together — for example a crusher plant made of a crusher, a generator and an
+  excavator. Each group belongs to one company; a machine belongs to at most one active group of its company at
+  a time; when the machine should move to another group, its dates are set and a new group opens on the next
+  day. The new **Diesel Group Analysis** report shows, for one company and a date range, the litres the group's
+  machines received: direct fills marked **measured**, and tank-fill shares marked **estimated** (never
+  re-labelled measured). A separate "shared bucket (outside the group)" line shows what the same tank fill
+  delivered to machines that are not in the group, so the two numbers never overlap and the fill's litres add up
+  exactly once. Groups do not change any card, any fill or any accounting — they are a reading tool only. An
+  empty catalog of groups keeps everything as it is today.
 - **2026-11-13 — Where a day on a monthly card came from.** Each day row on a monthly card can now record its
   source (manual — the default, paper sheet, WhatsApp, mobile app or import), an optional external key (sheet
   number, message id) and the time the office received the source. A day's intake fields are optional, and a card
