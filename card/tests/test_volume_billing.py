@@ -42,7 +42,7 @@ class TestVolumeBilling(_StopBase):
 			**kw,
 		)
 
-	def _volume_card(self, eq, rows, shift="نهاري", submit=False):
+	def _volume_card(self, eq, rows, shift="نهاري", submit=False, adjustments=None):
 		"""rows: dicts of day-row values; the day number is the position (1-based)."""
 		c = frappe.new_doc("Card Monthly Card")
 		c.equipment = eq.name
@@ -54,6 +54,8 @@ class TestVolumeBilling(_StopBase):
 			row = {"operation_date": "2026-09-%02d" % i, "day_status": WORK, "working_hours": 0}
 			row.update(values)
 			c.append("days", row)
+		for adj in adjustments or []:
+			c.append("adjustments", adj)
 		c.insert(ignore_permissions=True)
 		if submit:
 			c.submit()
@@ -305,8 +307,12 @@ class TestVolumeBilling(_StopBase):
 		template = frappe.get_jenv().from_string(
 			frappe.get_doc("Print Format", "Card Monthly Card Print").html
 		)
+		deduction = {"adjustment_type": "خصم", "amount": 100, "description": "TEST deduction"}
 		card = self._volume_card(
-			self._volume_equipment(), [{"loads_count": 40, "working_hours": 10}], submit=True
+			self._volume_equipment(),
+			[{"loads_count": 40, "working_hours": 10}],
+			submit=True,
+			adjustments=[deduction],
 		)
 		doc = frappe.get_doc("Card Monthly Card", card.name)
 		amount = frappe.utils.fmt_money(doc.customer_amount)
@@ -319,12 +325,27 @@ class TestVolumeBilling(_StopBase):
 			finally:
 				frappe.set_user("Administrator")
 
+		# users with money read: the amount, rate, settlement and money columns are in the HTML
 		for role in ("Card User", "Card Manager"):
 			html = render(role)
 			self.assertIn(amount, html, role)
+			self.assertIn(rate, html, role)
 			self.assertIn("Total amount", html, role)
+			self.assertIn("Customer settlement", html, role)
+			self.assertIn("Adjustment amount", html, role)
+			self.assertIn('class="emc-sum-m"', html, role)
+			self.assertIn('class="emc-sum-g"', html, role)
+		# Card Operator: the money columns are absent from the HTML (header, cells and totals column)
 		operator = render("Card Operator")
 		self.assertNotIn(amount, operator)
 		self.assertNotIn(rate, operator)
 		self.assertNotIn("Total amount", operator)
-		self.assertIn("Total loads", operator)  # loads and volume are not money
+		self.assertNotIn("Customer settlement", operator)
+		self.assertNotIn("Adjustment amount", operator)
+		self.assertNotIn('class="emc-sum-m"', operator)
+		self.assertNotIn('class="emc-sum-g"', operator)
+		self.assertNotIn("Supplier settlement", operator)
+		# non-money content stays: the adjustment description, the loads, the hours
+		self.assertIn("TEST deduction", operator)
+		self.assertIn("Total loads", operator)
+		self.assertIn("Total operating hours", operator)
