@@ -297,3 +297,34 @@ class TestVolumeBilling(_StopBase):
 			pot = dict(re.findall(r'^msgid "(.*)"\nmsgstr "(.*)"$', fh.read(), re.M))
 		for msgid in new:
 			self.assertTrue(pot.get(msgid), f"main.pot: no source for {msgid!r}")
+
+	# ---- standard print (Card Monthly Card Print): money only for a user with money read (FR-162) ----
+	def test_standard_print_hides_rate_and_amount_without_money_read(self):
+		from card.tests.test_card_money_privacy import _user
+
+		template = frappe.get_jenv().from_string(
+			frappe.get_doc("Print Format", "Card Monthly Card Print").html
+		)
+		card = self._volume_card(
+			self._volume_equipment(), [{"loads_count": 40, "working_hours": 10}], submit=True
+		)
+		doc = frappe.get_doc("Card Monthly Card", card.name)
+		amount = frappe.utils.fmt_money(doc.customer_amount)
+		rate = frappe.utils.fmt_money(doc.customer_rate)
+
+		def render(role):
+			frappe.set_user(_user([role], restrict=self.company))
+			try:
+				return template.render({"doc": doc, "letter_head": None})
+			finally:
+				frappe.set_user("Administrator")
+
+		for role in ("Card User", "Card Manager"):
+			html = render(role)
+			self.assertIn(amount, html, role)
+			self.assertIn("Total amount", html, role)
+		operator = render("Card Operator")
+		self.assertNotIn(amount, operator)
+		self.assertNotIn(rate, operator)
+		self.assertNotIn("Total amount", operator)
+		self.assertIn("Total loads", operator)  # loads and volume are not money
