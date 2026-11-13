@@ -34,13 +34,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `_check_approval_tier_role(doc)` is called from `before_submit` and raises
   `ApprovalTierMissingRoleError` (subclass of `frappe.PermissionError`) when the running user does not
   hold the tier's role. `SERVER_FIELDS` extends with the two tier fields so update-after-submit and cancel
-  restore them. Administrator is NOT exempt (FR-121 / FR-155 precedent). `card/governance_workflows.py`
-  extends FR-152's transitions for `Card Monthly Card` only: the Approve transition conditions
-  (Draft -> Approved under `REVIEW_OFF_CONDITION`, Pending Review -> Approved) are composed with
-  `APPROVAL_TIER_CONDITION = 'frappe.get_attr("card.governance.user_holds_approval_tier_role")(doc)'`,
-  so once the Workflow is activated (owner setup W-16, O-10 after P4 acceptance) the Approve action is
-  also gated by the same tier check; the transport and the diesel fill keep their native approve
-  transitions unchanged. New doc `docs/governance/AUTHORIZATION-RULE-NOTE.md` explains how the owner
+  restore them. Administrator is NOT exempt (FR-121 / FR-155 precedent). The tier role check is NOT
+  inlined in the Workflow Transition condition because Frappe's workflow `safe_eval` whitelist
+  (`frappe.model.workflow.get_workflow_safe_globals`) exposes only `frappe.db.get_value / get_list`,
+  `frappe.session` and a few `frappe.utils` helpers — not `frappe.get_attr` or any CARD module (verified
+  at `frappe/model/workflow.py:81`); the running user's role list is also not exposed. Instead the
+  server guard in `before_submit` carries the check on every submit route, `apply_workflow(doc,
+  "Approve")` included (it calls `doc.submit()` which runs `before_submit`); a user without the tier's
+  `role_required` then raises `ApprovalTierMissingRoleError` and the workflow transition fails. So
+  `card/governance_workflows.py` adds no CARD-specific condition on Approve beyond FR-152's existing
+  `REVIEW_OFF_CONDITION`; the transport and the diesel fill keep their native approve transitions
+  unchanged. `user_holds_approval_tier_role(doc, user=None)` is still exported from
+  `card.governance` for future hosts and for tests. New doc `docs/governance/AUTHORIZATION-RULE-NOTE.md` explains how the owner
   sets an ERPNext Authorization Rule on `Purchase Invoice` / `Sales Invoice` grand total per company to
   complement the CARD source gate at the invoice side; this is guidance only, no code. Defaults
   (behaviour-neutral): a company with an empty `approval_tier_thresholds` table is tier 0 everywhere —
@@ -70,8 +75,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   data: on the monthly card, the two new tier fields are empty until the next save; the migrate only
   adds columns. Impact on the API: `card.governance` gains the public names `resolve_approval_tier`,
   `user_holds_approval_tier_role`, `ApprovalTierMissingRoleError`, `TIER_FIELDS`, `TIER_TABLE_FIELD`,
-  `TIER_CHILD_DOCTYPE`; `card.governance_workflows` gains `APPROVAL_TIER_CONDITION`; no existing
-  function changes signature. Rollback limits: the governance guards can be rolled back; the two new
+  `TIER_CHILD_DOCTYPE`; `card.governance_workflows` is unchanged in public surface (FR-159's
+  enforcement is purely server-side; no CARD-specific Workflow Transition condition is added, because
+  Frappe's workflow `safe_eval` whitelist does not expose `frappe.get_attr`); no existing function
+  changes signature. Rollback limits: the governance guards can be rolled back; the two new
   columns on `tabCard Monthly Card` and the one new child table `tabCard Approval Tier Threshold`
   stay (standard Frappe DocType rollback behaviour), and the stored `approval_tier = 0` on cards saved
   while FR-159 is active stays visible (semantically equivalent to the pre-FR-159 empty state); a site

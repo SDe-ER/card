@@ -474,8 +474,13 @@ class TestApprovalTierServerWritten(_TierBase):
 
 
 class TestApprovalTierWorkflow(_TierBase):
-	"""Workflow condition parity (FR-152 Approve transition, FR-159 condition). The Workflow is
-	inactive by default; this test activates it in the test (W-16 stays owner setup)."""
+	"""Workflow parity (FR-152 Approve transition + FR-159 server guard). The Workflow is inactive by
+	default (owner setup W-16 activates it). The tier check is NOT part of the Workflow Transition
+	condition (Frappe's ``get_workflow_safe_globals`` whitelist does not expose ``frappe.get_attr`` or
+	CARD modules; see note in ``card/governance_workflows.py``): instead the guard in
+	``card.governance.before_submit`` runs on every submit route, ``apply_workflow(doc, "Approve")``
+	included (it calls ``doc.submit()``). This test activates the Workflow and proves parity through
+	that path."""
 
 	def tearDown(self):
 		try:
@@ -504,8 +509,10 @@ class TestApprovalTierWorkflow(_TierBase):
 		frappe.clear_cache(doctype=CARD)
 
 	def test_approve_transition_refuses_without_tier_role(self):
-		"""With the Workflow active, Approve a Pending Review card above tier 1: a Card Manager
-		without ``role_required`` cannot approve."""
+		"""With the Workflow active, Approve a Pending Review card above tier 1 by a Card Manager
+		without the tier role: ``apply_workflow`` calls ``doc.submit()`` which runs ``before_submit``,
+		which raises ``ApprovalTierMissingRoleError`` (``frappe.PermissionError``). The card stays
+		Pending Review."""
 		from frappe.model.workflow import apply_workflow
 
 		from card.governance_workflows import ACTION_APPROVE, ACTION_SEND, STATE_PENDING
@@ -519,15 +526,11 @@ class TestApprovalTierWorkflow(_TierBase):
 		doc = apply_workflow(frappe.get_doc(CARD, draft.name), ACTION_SEND)
 		frappe.set_user("Administrator")
 		self.assertEqual(doc.workflow_state, STATE_PENDING)
-		# Approve by a Card Manager without the tier role: the transition is not available
-		# (the condition `user_holds_approval_tier_role(doc)` is False). Frappe raises
-		# WorkflowTransitionError.
-		from frappe.exceptions import WorkflowTransitionError
-
+		# Approve by a Card Manager without the tier role: server guard refuses the submit
 		frappe.db.savepoint("tier_wf_refuse")
 		try:
 			frappe.set_user(self.manager)
-			with self.assertRaises(WorkflowTransitionError):
+			with self.assertRaises(ApprovalTierMissingRoleError):
 				apply_workflow(frappe.get_doc(CARD, draft.name), ACTION_APPROVE)
 		finally:
 			frappe.db.rollback(save_point="tier_wf_refuse")
@@ -536,6 +539,8 @@ class TestApprovalTierWorkflow(_TierBase):
 		self.assertEqual(frappe.db.get_value(CARD, draft.name, "workflow_state"), STATE_PENDING)
 
 	def test_approve_transition_allows_with_tier_role(self):
+		"""Same path: a user holding the tier role goes through the workflow transition and the card
+		reaches docstatus 1 / Approved."""
 		from frappe.model.workflow import apply_workflow
 
 		from card.governance_workflows import ACTION_APPROVE, ACTION_SEND, STATE_APPROVED

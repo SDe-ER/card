@@ -95,5 +95,9 @@ own rollback is "clear the `approval_tier_thresholds` rows on Card Company Setti
 - ERPNext Authorization Rule: <https://docs.frappe.io/erpnext/authorization-rule>.
 - Frappe permission types: <https://docs.frappe.io/framework/permission-types>.
 - Closure plan rows: section C "E", section E "W-17", section F "O-07".
-- CARD governance: `card/governance.py` (FR-159 helpers), `card/governance_workflows.py` (FR-152
-  Approve-transition condition with `user_holds_approval_tier_role`).
+- CARD governance: `card/governance.py` (FR-159 helpers; the server guard
+  `_check_approval_tier_role` runs in `before_submit`, so `apply_workflow(doc, "Approve")` → `doc.submit()`
+  → the guard are all the same code path). The Workflow Transition condition (FR-152) is not extended
+  with a tier check, because Frappe's workflow `safe_eval` whitelist
+  (`frappe.model.workflow.get_workflow_safe_globals`, `frappe/model/workflow.py:81`) does not expose
+  `frappe.get_attr` or the running user's role list.
