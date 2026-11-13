@@ -1,0 +1,17 @@
+# Gitleaks configuration for CARD.
+# Allowlist: three test modules that build test names from a literal prefix plus
+# self.token, a value created at runtime by frappe.generate_hash(length=8).
+# No credential is stored in these files. Both the path and the pattern must match,
+# so every other finding in these files and elsewhere is still reported.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "CARD test fixtures: literal prefix + runtime random self.token"
+condition = "AND"
+paths = [
+  '''card/tests/test_company_scope\.py''',
+  '''card/tests/test_daily_log\.py''',
+  '''card/tests/test_daily_log_generation_concurrency\.py''',
+]
+regexes = ['''self\.token''']

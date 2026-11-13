@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="card/public/images/card-logo.svg" alt="CARD logo" height="96">
+<img src="card/public/images/card-logo-512.png" alt="CARD logo" height="96">
 
 <h1>CARD</h1>
 
