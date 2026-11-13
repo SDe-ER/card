@@ -214,3 +214,51 @@ class TestVolumeBilling(_StopBase):
 		equipment_row = next(r for r in rows if str(r.get("row_id", "")).endswith("|E|" + eq.name))
 		self.assertIsNone(equipment_row["hourly_rate"])
 		self.assertEqual(equipment_row["total_loads"], 40)
+
+	# ---- print format, number cards and the CARD dashboard (plan step 7, D15) ----
+	def test_print_format_shows_loads_and_volume_only_on_per_m3_cards(self):
+		template = frappe.get_jenv().from_string(frappe.get_doc("Print Format", "كارت تشغيل شهري").html)
+		card = self._volume_card(
+			self._volume_equipment(), [{"loads_count": 40, "working_hours": 10}], submit=True
+		)
+		per_m3 = template.render({"doc": frappe.get_doc("Card Monthly Card", card.name), "letter_head": None})
+		self.assertIn("Total loads", per_m3)
+		self.assertIn("Total volume (m³)", per_m3)
+		self.assertIn("640.00", per_m3)
+		hourly = self._rented_out(customer_rate=100, customer_rate_type="بالساعة")
+		hourly_card = self._card(hourly, [4, 10, 12], submit=True)
+		plain = template.render(
+			{"doc": frappe.get_doc("Card Monthly Card", hourly_card.name), "letter_head": None}
+		)
+		self.assertNotIn("Total loads", plain)
+		self.assertNotIn("Total volume (m³)", plain)
+
+	def test_number_cards_and_dashboard_show_loads_and_volume_last_month(self):
+		import json
+
+		from card.card_value import loads_last_month, volume_last_month
+
+		for name, method in (
+			("Loads last month", "card.card_value.loads_last_month"),
+			("Volume last month (m³)", "card.card_value.volume_last_month"),
+		):
+			card = frappe.db.get_value("Number Card", name, ["method", "type", "function"], as_dict=True)
+			self.assertIsNotNone(card, name)
+			self.assertEqual(card.method, method)
+			self.assertEqual(card.type, "Custom")
+		with open(frappe.get_app_path("card", "fixtures", "workspace.json"), encoding="utf-8") as fh:
+			dashboard = json.load(fh)[0]
+		shown = {
+			b["data"]["number_card_name"]
+			for b in json.loads(dashboard["content"])
+			if b["type"] == "number_card"
+		}
+		self.assertIn("Loads last month", shown)
+		self.assertIn("Volume last month (m³)", shown)
+		loads = loads_last_month({"company": self.company})
+		self.assertEqual(loads["fieldtype"], "Int")
+		self.assertEqual(loads["route"], ["List", "Card Monthly Card"])
+		self.assertEqual(loads["route_options"]["customer_rate_type"], PER_M3)
+		volume = volume_last_month({"company": self.company})
+		self.assertEqual(volume["fieldtype"], "Float")
+		self.assertGreaterEqual(flt(volume["value"]), 0)

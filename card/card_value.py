@@ -283,6 +283,38 @@ def hours_without_internal_rate_last_month(filters: str | dict | list | None = N
 	}
 
 
+def _volume_last_month(filters):
+	"""FR-166: the submitted per-m³ cards of last month, company-scoped like the other monthly values.
+	Permission-checked read; drafts are not counted."""
+	frappe.has_permission(CARD, "read", throw=True)
+	filters = _filters(filters)
+	start, end = _last_month()
+	conditions = [
+		[CARD, "docstatus", "=", 1],
+		[CARD, "customer_rate_type", "=", PER_VOLUME_M3],
+		[CARD, "from_date", ">=", start],
+		[CARD, "from_date", "<=", end],
+	]
+	if filters.get("company"):
+		conditions.append([CARD, "company", "=", filters.get("company")])
+	rows = frappe.get_list(CARD, fields=["total_loads", "total_volume_m3"], filters=conditions, limit=0)
+	route = _route(start, end, False, filters.get("company"))
+	route["route_options"]["customer_rate_type"] = PER_VOLUME_M3
+	return rows, route
+
+
+@frappe.whitelist(methods=["POST"])
+def loads_last_month(filters: str | dict | list | None = None) -> dict:
+	rows, route = _volume_last_month(filters)
+	return {"value": sum(cint(r.total_loads) for r in rows), "fieldtype": "Int", **route}
+
+
+@frappe.whitelist(methods=["POST"])
+def volume_last_month(filters: str | dict | list | None = None) -> dict:
+	rows, route = _volume_last_month(filters)
+	return {"value": flt(sum(flt(r.total_volume_m3) for r in rows), 2), "fieldtype": "Float", **route}
+
+
 def chart_data(chart, filters=None, from_date=None, to_date=None, timespan=None, time_interval=None):
 	"""Labels and one dataset per series for the monthly card values chart."""
 	filters = _filters(filters)
