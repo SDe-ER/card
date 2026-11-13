@@ -45,6 +45,14 @@ per site.
   comes from ERPNext's standard Stock Ledger for now; the CARD-specific tank reconciliation report arrives
   in a later release.
 
+- **2026-11-13 — Approval delegation that grants no role.** The owner can now create a Card Approval Delegation
+  that lets one approver act on another approver's queue for a date window and a chosen scope (all CARD approvals
+  or only monthly cards, transports or diesel fills), for a given company. The delegation does **not** grant any
+  role to the delegate: the delegate must already hold the same CARD approver role as the delegator (Card Manager,
+  Card Reviewer or Accounts Manager), and the save is refused otherwise. Inside the window, the delegate's submit
+  of a monthly card inherits the delegator's identity for the separation-of-duties and approval-tier checks only;
+  every such use is logged on the card. A delegation expires automatically after its end date (daily job), and a
+  cancellation is audited. Empty catalog = today's behaviour unchanged; no new role, permission or API endpoint.
 - **2026-11-13 — Approval tiers for the monthly card.** Each company can now add approval-tier thresholds to its
   row in Card Settings (Monthly card approval tiers): a tier names a net-amount threshold and the role a user
   must already hold to submit a card at or above that amount. A company with no thresholds behaves exactly as
