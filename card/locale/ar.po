@@ -8656,3 +8656,33 @@ msgstr "تداخل في التفويض"
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.py
 msgid "Delegation cancelled by {0}."
 msgstr "أُلغي التفويض بواسطة {0}."
+
+msgid "Load volume (m³)"
+msgstr "سعة الرد (م³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "سعة الرد (م³) مطلوبة لسعر العميل بالمتر المكعب"
+
+msgid "Load volume used (m³)"
+msgstr "سعة الرد المعتمدة (م³)"
+
+msgid "Total loads"
+msgstr "إجمالي الردود"
+
+msgid "Total volume (m³)"
+msgstr "إجمالي الحجم (م³)"
+
+msgid "Loads"
+msgstr "عدد الردود"
+
+msgid "Negative loads on day {0}"
+msgstr "عدد ردود سالب في اليوم {0}"
+
+msgid "Loads can be recorded only on a working day: {0}"
+msgstr "لا تُسجَّل الردود إلا في يوم عمل: {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "لا يمكن تسجيل ردود ليوم مستقبلي: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "بالمتر المكعب"

@@ -7417,3 +7417,33 @@ msgstr ""
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.py
 msgid "Delegation cancelled by {0}."
 msgstr ""
+
+msgid "Load volume (m³)"
+msgstr ""
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr ""
+
+msgid "Load volume used (m³)"
+msgstr ""
+
+msgid "Total loads"
+msgstr ""
+
+msgid "Total volume (m³)"
+msgstr ""
+
+msgid "Loads"
+msgstr ""
+
+msgid "Negative loads on day {0}"
+msgstr ""
+
+msgid "Loads can be recorded only on a working day: {0}"
+msgstr ""
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr ""
+
+msgid "بالمتر المكعب"
+msgstr ""
