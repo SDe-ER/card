@@ -16,6 +16,109 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-164 — Diesel Dispense → draft Stock Entry; tanks as Warehouses, off by default (#31, #47; closure
+  plan WP-I1, owner decision O-11 D1).** Reason: #31 D1 (approved 2026-11-10) models tanks as Warehouses
+  (not a new table) and asks CARD to build on ERPNext's Stock Entry standard for the "tank → project"
+  movement, so a tank's running balance comes from the Stock Ledger instead of a CARD-only counter.
+  Scaffold wave of I; I2 (Tank Dip Reading → draft Stock Reconciliation) and I3 (Tank Stock Reconciliation
+  report) follow. New submittable DocType `Diesel Dispense` (`autoname DDS-.#####`, `track_changes=1`,
+  `is_submittable=1`) with user-facing fields `company` (Link Company, required, `set_only_once`), `date`
+  (Date, required), `tank_warehouse` (Link Warehouse, required — must be a Warehouse of warehouse type
+  "Fuel Tank" of the same company), `project` (Link Project, required), `card_equipment` (Link Card
+  Equipment, optional), `dispensed_litres` (Float, `non_negative`, precision 3, required and strictly
+  positive), `evidence_attachment` (Attach), `notes` (Small Text); server-written fields `stock_entry`
+  (Link Stock Entry, `read_only`, `no_copy`, `print_hide`) and `posting_key` (Data, `unique`, `read_only`,
+  `no_copy`, `print_hide`). On submit the server builds and INSERTS (never submits — FR-004) one draft
+  Stock Entry of purpose `Material Issue` that consumes `dispensed_litres` of the company's diesel item
+  (`Card Company Settings.diesel_item`, never hardcoded) from the tank Warehouse to the project; the
+  detail row carries `allow_zero_valuation_rate = 1` so a fresh tank with no valuation history inserts
+  cleanly, and the accountant sets the real `basic_rate` (or a receipt first seeds the valuation) before
+  submitting. FR-100 is preserved: one project-level line, never per equipment at GL (the optional
+  `card_equipment` passes through to the detail row's `card_equipment` column only when that custom field
+  exists on Stock Entry Detail on the site; CARD does not create the Custom Field). Idempotency (FR-090):
+  the derived `posting_key = company|date|tank_warehouse|project|card_equipment|-` has a DB unique index;
+  a second active (Draft/Submitted) dispense for the same tuple is refused as `UniqueValidationError`
+  (`DuplicateEntryError` on a raw `db_insert`); cancelling a dispense clears the key (NULL), so a
+  corrected dispense for the same tuple can be entered. Cancel (Lesson 2): on `before_cancel` the generic
+  FR-123 `card.cancel_reason._refuse_changes(..., neutral=True)` refuses a cancel that changes any other
+  stored field; `on_cancel` clears the Dispense's `stock_entry` back-reference FIRST (else Frappe's
+  `LinkExistsError` refuses the delete) and then deletes the draft Stock Entry (docstatus 0); a Stock
+  Entry already submitted (docstatus 1) refuses the Dispense cancel with a clear message. Server-written
+  field defence (Lesson 1): `_restore_server_fields_on_save` runs in `validate` on every save route (form
+  save, REST insert / PUT with docstatus = 0 or 1, savedocs, `frappe.client.set_value`, bulk update) and
+  either forces the fields empty on insert or restores them from the stored row on every save; a forged
+  Link to a nonexistent Stock Entry is additionally refused by Frappe's own `_validate_links`. Opt-in per
+  company: new field `enable_diesel_tanks` (Check, permlevel 1, default 0) appended at the tail of
+  `Card Company Settings` under a new collapsible `diesel_tanks_section`; `card.card.doctype.diesel_dispense
+  .diesel_dispense.cint_flag(company)` reads it with the default 0 for a company with no row. With the
+  flag off, insert and submit are refused (`DieselTanksDisabledError`, subclass of `ValidationError`);
+  the direct-fill flow (`Project Diesel Fill`) is not touched. New module `card/diesel_stock.py` with
+  `is_fuel_tank_warehouse(warehouse)` (checks `Warehouse.warehouse_type == "Fuel Tank"`),
+  `check_warehouse_company(warehouse, company)` (defence-in-depth same-company check with a clearer
+  message than the generic hook), `build_stock_entry_for_dispense(dispense)` (constructs the draft SE
+  without inserting), `post_dispense(dispense)` (invoked from `on_submit`; inserts the draft with
+  `ignore_permissions=True` because the submitting user may hold Diesel Dispense submit but not Stock
+  Entry create — the draft then shows up in Stock Entry queues under ERPNext's own permissions),
+  `drop_stock_entry_by_name(name)` (invoked from `on_cancel` after the back-reference is cleared, refuses
+  to delete a submitted SE). Scoping: `card/hooks.py` `_COMPANY_SCOPED` and `card/company_scope.py`
+  `SCOPED_DOCTYPES` already pre-register "Diesel Dispense" (planned in waves 5–6 for this WP), so the
+  generic FR-131 `has_company_permission` / `company_query_conditions` cover the new DocType without
+  new hooks lines. `card/company_scope.py` `COMPANY_SOURCES` gains one entry mapping `Stock Entry` to
+  `company`: the Dispense's `stock_entry` Link is now treated by the generic scope exactly as any other
+  source link (and the dispense always builds the SE with `company = dispense.company`). New patch
+  `card/patches/v4_8_0/i1_seed_enable_diesel_tanks.py` sets `enable_diesel_tanks = 0` on every Card
+  Company Settings row whose value is NULL / empty; the column has a NOT NULL default 0 on the schema
+  so the patch is a no-op in practice (defence-in-depth, idempotent). Tests:
+  `card/tests/test_diesel_dispense.py` (31 integration tests: default flag off refuses insert; flag on
+  creates and submits a draft Stock Entry with the right shape, UOM, company, project, source warehouse
+  and no target warehouse; posting-key set and matched; duplicate tuple refused; different equipment ->
+  different key; cancel clears the key and the stock_entry link, and the next corrected dispense is
+  accepted; zero / negative litres refused; warehouse without "Fuel Tank" type refused; warehouse of
+  another company refused; cross-company list isolation; cross-company REST insert refused by a
+  Company-B-restricted Card User; Lesson 1 forgery on insert (posting_key dropped; `stock_entry` Link
+  to a nonexistent SE refused by `_validate_links`, to an existing wrong SE silently dropped on insert);
+  Lesson 1 draft save route drops client server fields; Lesson 2 cancel deletes the draft Stock Entry,
+  refuses an other-field change (`CancelChangesDocumentError`), and refuses when the SE has been
+  submitted (skipped on a CI site that lacks accounting masters); Lesson 4 concurrency: the DB unique
+  index refuses the second raw `db_insert` of the same posting_key; Lesson 5: server-written fields are
+  `read_only`, the company-settings flag is permlevel 1; Lesson 10 modified-stamp move-forward; Lesson 12
+  mutation proofs: removing the enable gate lets a flag-off company insert, removing the posting-key
+  derivation lets a duplicate insert, removing the fuel-tank check accepts a plain Warehouse; Lesson 13
+  docstring guard: no per-equipment GL claim, no auto-submit claim — the module docstrings reference
+  FR-100 and FR-004 explicitly). Role / DocPerm: unchanged (permissions mirror the sibling wave-7
+  submittable DocTypes: read/report to Card User and Accounts Manager, create/write to Card Manager /
+  Card User, submit/cancel/amend to Card Manager / System Manager, delete to System Manager; no
+  `ignore_permissions` added beyond the two documented sites in `card/diesel_stock.py` listed in
+  `test_bola_matrix.py`'s `IGNORE_PERMISSIONS_ALLOWED`; no role grant; no new whitelist). Files touched:
+  `card/card/doctype/diesel_dispense/*` (new), `card/diesel_stock.py` (new),
+  `card/card/doctype/card_company_settings/card_company_settings.json` (append `diesel_tanks_section` +
+  `enable_diesel_tanks` at the tail), `card/hooks.py` (already pre-registers "Diesel Dispense"),
+  `card/company_scope.py` (already pre-registers "Diesel Dispense" in `SCOPED_DOCTYPES`; append
+  `"Stock Entry": "company"` to `COMPANY_SOURCES`), `card/patches/v4_8_0/i1_seed_enable_diesel_tanks.py`
+  (new), `card/patches.txt`, `card/tests/test_bola_matrix.py` (two new `IGNORE_PERMISSIONS_ALLOWED`
+  entries for `post_dispense` and `drop_stock_entry_by_name`), `card/tests/test_diesel_dispense.py`
+  (new), `card/locale/ar.po`, `card/locale/main.pot`, `CHANGELOG.md`,
+  `docs/governance/FEATURE-REGISTRY.md`, `docs/governance/ROLE-ACTION-MATRIX.md`,
+  `website/src/content/docs/releases/whats-new.md`, `website/src/content/docs/ar/releases/whats-new.md`.
+  Impact on permissions: none (no DocPerm added or widened on an existing DocType; no new role; no
+  `ignore_permissions` beyond the two documented sites in `card/diesel_stock.py`). Impact on accounting:
+  none at CARD's own write level (CARD still writes no GL). The draft Stock Entry is a standard ERPNext
+  document; when the accountant submits it, ERPNext's Stock Ledger and GL postings write themselves
+  under ERPNext's own rules. FR-100 is preserved by construction: the Stock Entry is one project-level
+  line, never per-equipment at GL. Impact on data: the new `enable_diesel_tanks` column materialises as
+  0 on `bench migrate` for every existing Card Company Settings row; no existing row or diesel fill is
+  changed. Impact on the API: `card.card.doctype.diesel_dispense.diesel_dispense` exposes
+  `DieselDispense`, `DieselTanksDisabledError`, `NotAFuelTankWarehouseError`, `build_posting_key`,
+  `cint_flag`, `ENABLE_FLAG`, `FUEL_TANK_WAREHOUSE_TYPE`, `SERVER_FIELDS`; `card.diesel_stock` exposes
+  `is_fuel_tank_warehouse`, `check_warehouse_company`, `build_stock_entry_for_dispense`, `post_dispense`,
+  `drop_stock_entry_by_name` and the backward-compat `drop_linked_stock_entry`; no existing function
+  signature changes. Rollback limits: a submitted Diesel Dispense that leaves a submitted Stock Entry
+  behind requires that Stock Entry to be cancelled through ERPNext first; a draft Stock Entry is deleted
+  by the Dispense cancel. Scaffold only for the tank module: I2 (Tank Dip Reading) and I3 (Tank Stock
+  Reconciliation report) are not merged yet, so an owner who flips the flag to 1 can insert dispenses
+  but has no in-CARD reconciliation view until I3 — ERPNext's standard Stock Ledger and Stock Balance
+  reports cover the tank balance in the meantime.
+
 - **FR-159 — Monthly card approval tiers per company and Authorization Rule note (#35, #49; closure plan
   WP-E, section C row E).** Reason: #35 G3 asks for approval thresholds "configurable per company", and #49
   wants the submit of a draft invoice gated at high values; both are addressed by one server guard on

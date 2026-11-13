@@ -8552,3 +8552,59 @@ msgstr "التعبئة"
 #: card/card/report/diesel_group_analysis/diesel_group_analysis.py
 msgid "Group litres"
 msgstr "لترات المجموعة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Diesel tanks"
+msgstr "تانكات الديزل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Enable diesel tanks"
+msgstr "تفعيل تانكات الديزل"
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "Diesel Dispense"
+msgstr "صرف ديزل"
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "Tank (From Warehouse)"
+msgstr "التانك (المخزن المصدر)"
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "Dispensed Litres"
+msgstr "اللترات المصروفة"
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "Evidence Attachment"
+msgstr "مرفق الإثبات"
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "Posting Key"
+msgstr "مفتاح التسجيل"
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.py
+msgid "Tank"
+msgstr "التانك"
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.py
+msgid "Diesel tanks are not enabled for company {0}. Enable {1} in Card Company Settings first."
+msgstr "تانكات الديزل غير مُفعَّلة للشركة {0}. فعِّل «{1}» في إعدادات شركة الكارت أولًا."
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.py
+msgid "Dispensed litres must be greater than zero (got {0})."
+msgstr "لا بد أن تكون اللترات المصروفة أكبر من صفر (المُدخل {0})."
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.py
+msgid "Warehouse {0} is not a diesel tank (its warehouse type is not {1})."
+msgstr "المخزن {0} ليس تانك ديزل (نوعه ليس {1})."
+
+#: card/diesel_stock.py
+msgid "Tank warehouse {0} belongs to company {1}, not to {2}."
+msgstr "التانك {0} يتبع الشركة {1}، لا الشركة {2}."
+
+#: card/diesel_stock.py
+msgid "The company {0} has no Diesel item configured in Card Company Settings. Set it before entering a Diesel Dispense."
+msgstr "الشركة {0} ليس عندها «صنف الديزل» مُهيَّأً في إعدادات شركة الكارت. ضع الصنف قبل تسجيل صرف الديزل."
+
+#: card/diesel_stock.py
+msgid "Cannot cancel Diesel Dispense: its Stock Entry {0} has been submitted. Cancel the Stock Entry first."
+msgstr "لا يمكن إلغاء عملية صرف الديزل: حركة المخزون {0} قد اعتُمِدت. ألغِ حركة المخزون أولًا."

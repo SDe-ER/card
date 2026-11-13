@@ -57,6 +57,10 @@ COMPANY_SOURCES = {
 	# FR-142: a daily log's amended_from (Frappe copies the original's attachments into the amendment)
 	"Card Daily Log": "company",
 	"Card Period Run": "company",  # FR-147: a period run's amended_from
+	# FR-164 (WP-I1): a Diesel Dispense's server-written back-reference to its draft Stock Entry.
+	# A Link to Stock Entry carries that record's company; the dispense always builds the SE
+	# with ``company = dispense.company``, so this is consistent by construction.
+	"Stock Entry": "company",
 }
 
 HAS_PERMISSION = "card.company_scope.has_company_permission"

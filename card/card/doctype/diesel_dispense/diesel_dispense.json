@@ -1,0 +1,217 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "DDS-.#####",
+ "creation": "2026-11-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "date",
+  "column_break_dd_main",
+  "tank_warehouse",
+  "project",
+  "card_equipment",
+  "section_break_dd_qty",
+  "dispensed_litres",
+  "column_break_dd_qty",
+  "notes",
+  "section_break_dd_evidence",
+  "evidence_attachment",
+  "section_break_dd_system",
+  "stock_entry",
+  "posting_key",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "search_index": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_dd_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The fuel tank the diesel is dispensed FROM. Must be a Warehouse of warehouse type \"Fuel Tank\" in the same company.",
+   "fieldname": "tank_warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tank (From Warehouse)",
+   "options": "Warehouse",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "description": "The project that consumes the dispensed litres. FR-100: the resulting Stock Entry stays at project level and never splits per equipment at GL.",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "description": "Optional: the equipment the dispense is attributable to (for reports). Does NOT add a GL line for this equipment (FR-100).",
+   "fieldname": "card_equipment",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Card Equipment",
+   "options": "Card Equipment",
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_dd_qty",
+   "fieldtype": "Section Break",
+   "label": "Quantity"
+  },
+  {
+   "description": "Litres dispensed from the tank. Must be greater than zero.",
+   "fieldname": "dispensed_litres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Dispensed Litres",
+   "non_negative": 1,
+   "precision": "3",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_dd_qty",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_dd_evidence",
+   "fieldtype": "Section Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "evidence_attachment",
+   "fieldtype": "Attach",
+   "label": "Evidence Attachment"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_dd_system",
+   "fieldtype": "Section Break",
+   "label": "System"
+  },
+  {
+   "description": "The draft Stock Entry created by the server on submit. Not auto-submitted (FR-004).",
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "label": "Stock Entry",
+   "no_copy": 1,
+   "options": "Stock Entry",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "description": "FR-090 idempotency guard: unique while the Dispense is active (Draft/Submitted). Cleared on cancel so a corrected dispense can be entered.",
+   "fieldname": "posting_key",
+   "fieldtype": "Data",
+   "label": "Posting Key",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Diesel Dispense",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Diesel Dispense",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager"
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "date,tank_warehouse,project,card_equipment",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "project",
+ "track_changes": 1
+}
