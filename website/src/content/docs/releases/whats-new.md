@@ -18,6 +18,10 @@ per site.
 
 ## Next release (merged, not yet released)
 
+### Packaging
+
+- **2026-11-13 — Declared Frappe version range (no behaviour change).** CARD now declares in its packaging metadata that it supports Frappe 16.50.0 up to, but not including, 17.0.0. This is a first step toward a Frappe Cloud Marketplace listing. Nothing changes on a running site.
+
 ### Documentation
 
 - **2026-11-12 — "What's new" in two languages and a shorter README.** This page now records every change in

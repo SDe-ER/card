@@ -1434,6 +1434,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   a migrated site until deleted by hand, threshold rows stay in the database and are read by nothing.
 
 ### Changed
+- **Frappe version range declared in packaging (FR-165, Marketplace readiness; no runtime change).** `pyproject.toml` gains `[tool.bench.frappe-dependencies] frappe = ">=16.50.0,<17.0.0"`. `required_apps` (`erpnext` only) was checked against the code: no module imports `hrms`. Reason: the Frappe Marketplace needs a declared supported Frappe range (owner request 2026-11-13). Affected: packaging metadata only; no function, DocType, permission, data, accounting or API change. Impact: permissions none; accounting none; data none; API none. Rollback: revert the commit. PR: pending (`chore/step0-release-readiness`).
 - **Reports label money with the company currency** (FR-136, PR #210, #53, owner default O-17: company currency only,
   labelled, no conversion). Reason: a Currency column without a currency shows the site's default symbol
   (`frappe.meta.get_field_currency`), so a second company in another currency saw its amounts with the wrong symbol. New
