@@ -87,7 +87,13 @@ def execute(filters=None):
 
 	rows = sorted(
 		direct_rows + alloc_rows + shared_rows,
-		key=lambda r: (r["group"] or "", r["date"] or "", r["section"], r["fill"] or "", r["equipment"] or ""),
+		key=lambda r: (
+			r["group"] or "",
+			r["date"] or "",
+			r["section"],
+			r["fill"] or "",
+			r["equipment"] or "",
+		),
 	)
 
 	summary = _summary(rows)
@@ -120,9 +126,7 @@ def _groups_in_scope(company, group_filter):
 	if group_filter:
 		if not frappe.has_permission(GROUP, "read", doc=group_filter):
 			frappe.throw(_("Not permitted"), frappe.PermissionError)
-		row = frappe.db.get_value(
-			GROUP, group_filter, ["name", "company", "enabled"], as_dict=True
-		)
+		row = frappe.db.get_value(GROUP, group_filter, ["name", "company", "enabled"], as_dict=True)
 		if not row or row.company != company or not row.enabled:
 			return []
 		return [row.name]
@@ -400,17 +404,15 @@ def _empty_summary():
 
 
 def _message_no_groups():
-	return _(
-		"No operating group of this company is readable to you, or the chosen group is disabled."
-	)
+	return _("No operating group of this company is readable to you, or the chosen group is disabled.")
 
 
 __all__ = [
-	"execute",
-	"BASIS_MEASURED",
 	"BASIS_ESTIMATED",
-	"SECTION_DIRECT",
+	"BASIS_MEASURED",
 	"SECTION_ALLOCATION",
+	"SECTION_DIRECT",
 	"SECTION_SHARED",
+	"execute",
 	"permitted_companies",
 ]

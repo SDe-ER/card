@@ -72,13 +72,15 @@ class EquipmentOperatingGroup(Document):
 
 	def _validate_member_dates(self):
 		for row in self.get("members") or []:
-			if row.effective_from and row.effective_to and getdate(row.effective_from) > getdate(
-				row.effective_to
+			if (
+				row.effective_from
+				and row.effective_to
+				and getdate(row.effective_from) > getdate(row.effective_to)
 			):
 				frappe.throw(
-					_(
-						"Row {0}: Effective from ({1}) is after Effective to ({2})."
-					).format(row.idx, row.effective_from, row.effective_to),
+					_("Row {0}: Effective from ({1}) is after Effective to ({2}).").format(
+						row.idx, row.effective_from, row.effective_to
+					),
 					frappe.ValidationError,
 				)
 
@@ -96,9 +98,9 @@ class EquipmentOperatingGroup(Document):
 					continue
 				if _ranges_overlap(start, end, other_start, other_end):
 					frappe.throw(
-						_(
-							"Rows {0} and {1} name the same equipment {2} on overlapping dates."
-						).format(other_idx, row.idx, row.equipment),
+						_("Rows {0} and {1} name the same equipment {2} on overlapping dates.").format(
+							other_idx, row.idx, row.equipment
+						),
 						frappe.ValidationError,
 					)
 			seen.append((row.idx, row.equipment, start, end))
@@ -157,8 +159,7 @@ class EquipmentOperatingGroup(Document):
 					"Equipment is already in another active operating group of this company on overlapping dates: {0}"
 				).format(
 					", ".join(
-						"{0} (row {1}, other group: {2})".format(eq, idx, other)
-						for idx, eq, other in clashes
+						"{0} (row {1}, other group: {2})".format(eq, idx, other) for idx, eq, other in clashes
 					)
 				),
 				frappe.ValidationError,
