@@ -55,6 +55,64 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   fields drop back to permlevel 0 and every current level-0 reader sees amounts again; nothing is
   deleted. PR TBD.
 
+- **FR-163 — Card Approval Delegation without role grants (#35 G4; closure plan WP-D5, conflict C-12, owner
+  decision O-12 approved 2026-11-10).** Reason: #35 Q5 (G4) defers delegation to this phase; conflict C-12 vs
+  AGENTS.md "Do not widen roles" is resolved by a delegation that grants no role. The delegate must already
+  hold the CARD approver role of the delegator (enforced on insert). New submittable DocType
+  `Card Approval Delegation` (`CAD-.#####`, `card/card/doctype/card_approval_delegation/`): fields
+  `delegator_user` (Link User, required), `delegate_user` (Link User, required), `company` (Link Company,
+  required), `approval_scope` (Select `All CARD approvals` / `Monthly Cards` / `Transports` / `Diesel Fills`,
+  default `All CARD approvals`), `from_date` and `to_date` (Date, required, from <= to), `reason` (Small Text,
+  required), `status` (Select `Active` / `Expired` / `Cancelled`, server-written, read-only, no_copy).
+  Permissions: System Manager and Card Manager read/write/create/submit/cancel; no role widened. Server rules
+  (`card/card/doctype/card_approval_delegation/card_approval_delegation.py`): `validate` resolves status from
+  the window and docstatus (a client value is dropped on every route — Lesson 1); refuses when the delegator
+  holds no CARD approver role (Card Manager / Card Reviewer / Accounts Manager); refuses when the delegate's
+  role set is not a superset of the delegator's CARD approver role set ("delegate must already hold" message);
+  refuses when delegator equals delegate; refuses when `from_date > to_date`; refuses overlap with any active
+  delegation for the same (delegator, company) whose scope intersects (SCOPE_ALL covers every specific scope),
+  under `frappe.qb ... .for_update()` (Lesson 4); `before_submit` re-runs the overlap check with the locking
+  read; `before_update_after_submit` restores status from the stored row; `before_cancel` calls the FR-123
+  helper `_refuse_changes(doc, doc.get_latest(), neutral=True)` so a cancel request that changes any stored
+  field is refused (Lesson 2, cancel path); `on_cancel` sets `status = Cancelled` and logs the action.
+  Governance integration (`card/governance.py`): new `user_acting_on_behalf(user, doctype, company, date=None)`
+  resolves the active delegation for `(user, doctype, company)` through a locking read and returns the
+  delegator (or None); it is called from (a) `before_submit` of Card Monthly Card so the SoD creator check
+  (FR-143) also counts the delegator as a preparer when the delegate submits — a delegate submitting the
+  delegator's own draft is still a self-approval under Refuse; (b) `_check_approval_tier_role` so the tier
+  gate (FR-159) passes if EITHER the user or the delegator holds the tier's `role_required` (no DocPerm
+  widened; the delegate's own role set is unchanged). `user_holds_approval_tier_role` (FR-159) consults
+  `user_acting_on_behalf` too. New `on_submit` hook `card.governance.log_delegation_use` on Card Monthly Card
+  writes an Info Comment "Approved on behalf of {delegator} by {delegate} per delegation {name}" after a
+  submit through an active delegation; no-op otherwise ("every use logged" per O-12). New scheduler daily
+  event `card.card.doctype.card_approval_delegation.card_approval_delegation.expire_delegations_past_to_date`
+  sets `status = Expired` for every submitted delegation whose `to_date` is strictly before today
+  (idempotent, safe on a second run, no-op when the DocType is not yet installed on a second-migrate
+  rehearsal). FR-121 precedent kept: Administrator is NOT exempt from the "delegate must already hold role"
+  check (if Administrator is named as delegate, their roles still have to be a superset). Defaults
+  (behaviour-neutral): empty `Card Approval Delegation` table → every CARD approval guard behaves exactly as
+  before FR-163; FR-143, FR-155, FR-159 checks stay unchanged. FR-100 preserved (no GL, no posting change, no
+  `ignore_permissions`). Tests: new `card/tests/test_delegation.py` with 35 tests covering: schema wiring
+  (DocType installed, scheduler event registered, `on_submit` hook on Card Monthly Card); happy path (insert +
+  submit → `Active`); delegate-role check (plain Card User refused, delegator without approver role refused,
+  delegator == delegate refused); overlap check (same scope refused, SCOPE_ALL covers specific, specific
+  covered by SCOPE_ALL, disjoint scopes allowed, disjoint dates allowed, cancelled delegation frees the slot,
+  `from > to` refused); acting-on-behalf (delegate submits on behalf of delegator → Info Comment names the
+  delegation; delegate submitting delegator's own draft → self-approval refused under Refuse rule;
+  non-delegate but role-holder submits without delegation comment; delegation outside window does not apply;
+  cross-company isolation; from/to boundary dates; scope scoping — Monthly Cards does NOT cover Project Diesel
+  Fill); Lesson 1 forgery (`status` on insert dropped, `status` via `frappe.client.set_value` server-restored,
+  `status` via save on a submitted doc restored); Lesson 2 cancel path (forged values refused by
+  `_refuse_changes`, clean cancel sets `status = Cancelled`); expiry (scheduler expires past delegations,
+  idempotent on second run, leaves active rows alone, expired delegation does not grant acting-on-behalf);
+  Lesson 4 concurrency (two parallel transactions overlap a committed blocker, both refused by the
+  `for_update` lock); Lesson 12 mutation proofs (delegate-role check removed lets a Card User through,
+  overlap check removed lets two active delegations through, `_resolve_status` removed lets forged status
+  through on insert, positive control proves the guard blocks the forge); Lesson 13 (DocType description and
+  module docstring do NOT claim role grants). Rollback impact: dropping the code leaves the `Card Approval
+  Delegation` DocType and its rows as data (standard Frappe behaviour); every CARD approval guard falls back
+  to the pre-FR-163 single-identity check (equivalent to an empty delegation table). No new role, DocPerm, user
+  permission, patch or API endpoint; no `ignore_permissions` in production code. [feat/fr-163-d5-approval-delegation]
 - **FR-159 — Monthly card approval tiers per company and Authorization Rule note (#35, #49; closure plan
   WP-E, section C row E).** Reason: #35 G3 asks for approval thresholds "configurable per company", and #49
   wants the submit of a draft invoice gated at high values; both are addressed by one server guard on

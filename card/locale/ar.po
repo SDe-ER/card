@@ -8552,3 +8552,51 @@ msgstr "التعبئة"
 #: card/card/report/diesel_group_analysis/diesel_group_analysis.py
 msgid "Group litres"
 msgstr "لترات المجموعة"
+
+#: card/governance.py
+msgid "Approved on behalf of {0} by {1} per delegation {2}."
+msgstr "اعتُمدت نيابةً عن {0} بواسطة {1} بموجب التفويض {2}."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation ``from_date`` must not be after ``to_date``."
+msgstr "تاريخ بدء التفويض لا يصح أن يكون بعد تاريخ الانتهاء."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation window"
+msgstr "نافذة التفويض"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegator {0} does not hold any CARD approver role ({1}); a delegation can only be granted by an approver."
+msgstr "المفوِّض {0} لا يحمل أي دور اعتماد في CARD ({1})؛ التفويض لا يُمنح إلا من معتمد."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation delegator role"
+msgstr "دور المفوِّض في التفويض"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegator and delegate must be different users."
+msgstr "المفوِّض والمفوَّض إليه يجب أن يكونا مستخدمَين مختلفَين."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation users"
+msgstr "مستخدمو التفويض"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegate {0} must already hold the delegator's CARD approver roles; missing: {1}. Delegation grants no role."
+msgstr "المفوَّض إليه {0} يجب أن يحمل بالفعل أدوار الاعتماد في CARD التي يحملها المفوِّض؛ المفقود: {1}. التفويض لا يمنح أي دور."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation delegate role"
+msgstr "دور المفوَّض إليه في التفويض"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegator {0} already has an active delegation {1} for {2} / {3} between {4} and {5}."
+msgstr "لدى المفوِّض {0} تفويض نشط بالفعل {1} للشركة {2} / النطاق {3} بين {4} و{5}."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation overlap"
+msgstr "تداخل في التفويض"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.py
+msgid "Delegation cancelled by {0}."
+msgstr "أُلغي التفويض بواسطة {0}."
