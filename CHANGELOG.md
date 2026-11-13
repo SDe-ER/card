@@ -16,6 +16,85 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-160 — Equipment Operating Group + Diesel Group Analysis report (#31; closure plan WP-J, owner acceptance
+  on #31 "Group analytics without double counting").** Reason: #31 criterion 4 (owner architecture considerations)
+  asks for group-level diesel analytics (for example a crusher + a generator + an excavator that run together)
+  while preserving individual equipment records and avoiding double counting. The closure plan's section A1 marks
+  the acceptance criterion "Group analytics total equals the sum of member equipment plus explicit shared bucket —
+  no litre counted twice (tested)" as NOT-STARTED until WP-J. New standard (non-submittable) DocType
+  `Equipment Operating Group` (`card/card/doctype/equipment_operating_group/*`): fields `company` (Link Company,
+  required, `set_only_once`, `search_index`), `group_name` (Data, required, `set_only_once`), `enabled` (Check,
+  default 1), `description` (Small Text), and a child table `members` of a new `istable=1` child DocType
+  `Equipment Operating Group Member` (`card/card/doctype/equipment_operating_group_member/*`) with fields
+  `equipment` (Link Card Equipment, required, `search_index`), `equipment_name` (Data, `fetch_from`, `read_only`),
+  `effective_from` (Date), `effective_to` (Date). Name is `<group_name> - <abbr>` (pattern of Card Stop Reason /
+  ERPNext masters), so the same group name is allowed across companies and a second group with the same name in
+  one company is refused by the DB (unique name). Controller rules (`validate`, run on every save route — form
+  save, REST insert / PUT with `docstatus = 0`, `frappe.client.set_value`, savedocs, bulk update): `group_name`
+  and `company` required; each member row's equipment belongs to the group's company (via
+  `card.company_scope.check_child_companies`, FR-131); `effective_from` must not be after `effective_to` when both
+  set; same equipment refused twice in one group on overlapping dates; same equipment refused in two ACTIVE
+  (`enabled = 1`) groups of the same company on overlapping dates, under a `FOR UPDATE` locking read on
+  `tabEquipment Operating Group Member` joined to `tabEquipment Operating Group` so two concurrent saves under
+  REPEATABLE READ refuse the second (Lesson 4 concurrency). Disabled groups are inactive and never block another
+  group. New Script Report `Diesel Group Analysis` (`card/card/report/diesel_group_analysis/*`): filters
+  `company` (required, `resolve_company`), `from_date` and `to_date` (required, period length capped at
+  `MAX_DAYS = 400`), optional `group`. Output rows per (group, date): **direct fill (measured)** rows for a
+  submitted Project Diesel Fill whose `card_equipment` is a group member on the fill date, with litres = fill
+  litres; **allocation (estimated)** rows for a submitted tank-style Project Diesel Fill (no `card_equipment`)
+  whose FR-157 `diesel_fill_allocation` row names a group member, with litres = row's `allocated_litres` and the
+  stored basis (FR-157 stores `estimated` today); **shared bucket (estimated)** aggregated row per tank fill whose
+  allocation touched the group, summing the fill's other allocation rows (non-members or members of groups outside
+  the report filter). The summary carries two tiles ("Group litres", "Shared bucket (outside the group)") so the
+  reader never adds the two by hand — the shared-bucket row is a diagnostic and does NOT add to the group total.
+  Basis labels are translated literals (`_("measured")`, `_("estimated")`) and the FR-033 + FR-157 convention lives
+  in constants `BASIS_MEASURED` / `BASIS_ESTIMATED` — an allocation row stays "estimated" (Lesson 13: never
+  relabel an estimated row as measured). A legacy tank fill submitted before FR-157 carries no allocation rows and
+  so does NOT contribute to any group row (owner decision 2026-11-10 on #31, closure plan C-06: no backfill, the
+  FR-033 read-time split lives in `card.diesel.allocate_project_diesel` and the Equipment Diesel Analysis report).
+  Hooks: the generic company-scope hooks of FR-131 already register `Equipment Operating Group` in
+  `card/hooks.py` `_COMPANY_SCOPED`, so no `hooks.py` edit is needed — the hooks become active now that the
+  DocType exists and the `test_present_planned_doctypes_carry_a_company` guard passes with the new JSON. Sidebar:
+  Diesel Group Analysis added to `card/card/sidebar/card_reports/card_reports.json` right after Diesel Variance &
+  Anomaly. Defaults: no change to any posting, card, fill, allocation or report other than the new report; an
+  empty catalog of groups (the default on every existing company) is equivalent to WP-J being disabled — no group,
+  no row in Diesel Group Analysis, every other report unchanged. Role / DocPerm: no role or DocPerm widened beyond
+  O-09/16/20 — the DocType grants read/report to Card User, Card Supervisor and Accounts Manager, write to Card
+  Manager and System Manager (pattern of Card Stop Reason / Card Diesel Price); no `ignore_permissions` beyond the
+  tests' own fixture `insert(ignore_permissions=True)`. FR-100 preserved: the report never writes a GL entry, never
+  changes a card and never splits a legacy fill. Tests: `card/tests/test_operating_group.py` (29 tests across four
+  classes — `TestEquipmentOperatingGroupRules` covers the create path, the duplicate-name refusal, the dates
+  guard, the overlap guard within one group and across two groups, the disabled-group slot release, the Lesson 12
+  mutation proofs (overlap guard and company check each removed in isolation and shown to let a bad row in), the
+  Lesson 5 child permlevel guard against the DocType; `TestEquipmentOperatingGroupAccess` covers BOLA — a Company
+  B user cannot read a Company A group through `has_permission` / `frappe.get_list` / `frappe.client.get`, cannot
+  create a group in Company A and cannot add a Company A equipment to a Company B group;
+  `TestEquipmentOperatingGroupDeleteProtection` covers the disabled-group fade-out in the report; the main
+  `TestDieselGroupAnalysisReport` covers a direct fill for a member (measured), a direct fill for a non-member
+  (not reported), a tank fill that splits across members and a shared bucket (sum equals the fill litres — no
+  litre counted twice, allocation basis stays `estimated`), a tank fill with only members (no shared bucket), a
+  tank fill with no members (no row), effective dates shape membership, the `group` filter narrows to one group,
+  the date-range validation, cross-company filter refusal; `TestOperatingGroupConcurrency` covers the Lesson 4
+  two-connection race through committed transactions). Patch: NONE — this is an add-only DocType, there is no
+  existing data to migrate and the new sidebar entry is a JSON edit picked up by the standard `bench migrate`.
+  Files touched: `card/card/doctype/equipment_operating_group/equipment_operating_group.json`,
+  `card/card/doctype/equipment_operating_group/equipment_operating_group.py`,
+  `card/card/doctype/equipment_operating_group/__init__.py`,
+  `card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json`,
+  `card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.py`,
+  `card/card/doctype/equipment_operating_group_member/__init__.py`,
+  `card/card/report/diesel_group_analysis/diesel_group_analysis.json`,
+  `card/card/report/diesel_group_analysis/diesel_group_analysis.js`,
+  `card/card/report/diesel_group_analysis/diesel_group_analysis.py`,
+  `card/card/report/diesel_group_analysis/__init__.py`,
+  `card/card/sidebar/card_reports/card_reports.json`, `card/locale/ar.po`, `card/locale/main.pot`,
+  `card/tests/test_operating_group.py`, `website/src/content/docs/releases/whats-new.md`,
+  `website/src/content/docs/ar/releases/whats-new.md`. Impact: new DocType and new report, no role / DocPerm / user
+  permission widened, no `ignore_permissions` added, no whitelisted endpoint added, no GL entry, no change to any
+  posting rule (FR-100 preserved), no change to any existing report, no patch. Rollback: revert the commit; a
+  migrated site drops the empty `Equipment Operating Group` and child tables with the standard
+  `bench uninstall-app` only; otherwise leaves them in place (they are inert when empty). The sidebar entry stays
+  until a future JSON edit removes it.
 - **FR-156 — Credit note for non-taxable customer-side deductions, per-company opt-in (#49, #126; closure plan
   WP-U, conflict C-10, owner decision O-15).** Reason: #49 asks for cancellations/returns to be posted correctly;
   the owner's 2026-10-15 ZATCA rule refused a non-taxable customer-side deduction on the monthly Sales Invoice

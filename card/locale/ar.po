@@ -8389,3 +8389,103 @@ msgstr "(جديد)"
 #: card/governance.py
 msgid "Workflow state edit refused"
 msgstr "رُفض تعديل حالة سير العمل"
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Equipment Operating Group"
+msgstr "مجموعة تشغيل معدات"
+
+#: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgid "Equipment Operating Group Member"
+msgstr "عضو مجموعة تشغيل المعدات"
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Group"
+msgstr "مجموعة"
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Members"
+msgstr "أعضاء"
+
+#: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgid "Effective from"
+msgstr "ساري من"
+
+#: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgid "Effective to"
+msgstr "ساري حتى"
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Operating group {0} already exists for company {1}."
+msgstr "مجموعة التشغيل {0} موجودة بالفعل للشركة {1}."
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Enter the operating group name."
+msgstr "ادخل اسم مجموعة التشغيل."
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Row {0}: Effective from ({1}) is after Effective to ({2})."
+msgstr "السطر {0}: تاريخ السريان ({1}) بعد تاريخ الانتهاء ({2})."
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Rows {0} and {1} name the same equipment {2} on overlapping dates."
+msgstr "السطران {0} و {1} يحملان نفس المعدة {2} في فترات متداخلة."
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Equipment is already in another active operating group of this company on overlapping dates: {0}"
+msgstr "المعدة مُسجَّلة بالفعل في مجموعة تشغيل أخرى فعّالة لنفس الشركة في فترات متداخلة: {0}"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.json
+msgid "Diesel Group Analysis"
+msgstr "تحليل ديزل المجموعة"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.js
+msgid "Operating group"
+msgstr "مجموعة التشغيل"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Invalid period: end is before start."
+msgstr "الفترة غير صحيحة: تاريخ النهاية قبل تاريخ البداية."
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Select a period of at most {0} days for the Diesel Group Analysis report."
+msgstr "اختر فترة لا تتجاوز {0} يومًا لتقرير تحليل ديزل المجموعة."
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "No operating group of this company is readable to you, or the chosen group is disabled."
+msgstr "لا توجد مجموعة تشغيل لهذه الشركة متاحة لك، أو المجموعة المختارة معطَّلة."
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Direct fill (member)"
+msgstr "تعبئة مباشرة (عضو)"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Allocation (member)"
+msgstr "توزيع (عضو)"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Shared bucket (outside the group)"
+msgstr "الرصيد المشترك (خارج المجموعة)"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "measured"
+msgstr "مقيس"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "estimated"
+msgstr "مقدر"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Section"
+msgstr "الجزء"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Basis"
+msgstr "الأساس"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Fill"
+msgstr "التعبئة"
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Group litres"
+msgstr "لترات المجموعة"
