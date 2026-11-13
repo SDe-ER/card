@@ -17,7 +17,7 @@ build-backend = "flit_core.buildapi"
 
 # Frappe versions this app supports (Frappe Marketplace / bench compatibility)
 [tool.bench.frappe-dependencies]
-frappe = ">=16.50.0,<17.0.0"
+frappe = ">=16.55.2,<17.0.0"
 
 # These dependencies are only installed when developer mode is enabled
 [tool.bench.dev-dependencies]

@@ -20,7 +20,7 @@ per site.
 
 ### Packaging
 
-- **2026-11-13 — Declared Frappe version range (no behaviour change).** CARD now declares in its packaging metadata that it supports Frappe 16.50.0 up to, but not including, 17.0.0. This is packaging metadata only; it does not mean the app is published on any marketplace. Nothing changes on a running site.
+- **2026-11-13 — Declared Frappe version range (no behaviour change).** CARD now declares in its packaging metadata that it supports Frappe 16.55.2 up to, but not including, 17.0.0. This is packaging metadata only; it does not mean the app is published on any marketplace. Nothing changes on a running site.
 
 ### Documentation
 
