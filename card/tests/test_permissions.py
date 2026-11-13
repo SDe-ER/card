@@ -24,9 +24,7 @@ def _cmc_perms(permlevel=0):
 	read-only scoped rights on the money fields and carry no document-level actions. The level-0 rows still hold
 	submit/cancel/create/write/read/report, which is what every existing assertion in this module checks."""
 	return {
-		p.role: p
-		for p in frappe.get_meta("Card Monthly Card").permissions
-		if (p.permlevel or 0) == permlevel
+		p.role: p for p in frappe.get_meta("Card Monthly Card").permissions if (p.permlevel or 0) == permlevel
 	}
 
 
