@@ -7185,3 +7185,103 @@ msgstr ""
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Approval tier name"
 msgstr ""
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Equipment Operating Group"
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgid "Equipment Operating Group Member"
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Group"
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Members"
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgid "Effective from"
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgid "Effective to"
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Operating group {0} already exists for company {1}."
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Enter the operating group name."
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Row {0}: Effective from ({1}) is after Effective to ({2})."
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Rows {0} and {1} name the same equipment {2} on overlapping dates."
+msgstr ""
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py
+msgid "Equipment is already in another active operating group of this company on overlapping dates: {0}"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.json
+msgid "Diesel Group Analysis"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.js
+msgid "Operating group"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Invalid period: end is before start."
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Select a period of at most {0} days for the Diesel Group Analysis report."
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "No operating group of this company is readable to you, or the chosen group is disabled."
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Direct fill (member)"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Allocation (member)"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Shared bucket (outside the group)"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "measured"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "estimated"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Section"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Basis"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Fill"
+msgstr ""
+
+#: card/card/report/diesel_group_analysis/diesel_group_analysis.py
+msgid "Group litres"
+msgstr ""
