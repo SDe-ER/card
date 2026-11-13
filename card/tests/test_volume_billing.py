@@ -1,0 +1,189 @@
+# Copyright (c) 2026, SDCE and contributors
+# For license information, please see LICENSE
+"""Volume billing per m³ and per load (plan 2026-11-14, FR-166).
+
+A customer side on the per-m³ basis ("بالمتر المكعب") bills loads x load volume (m³) x rate per m³
+before VAT. The day rate is customer_rate, the night rate customer_rate_night. Hours are recorded but
+not billed on this basis, and billable stops add nothing. The supplier side keeps its own rate basis.
+Proven here: day and night amounts, zero-hour loads, the working-day rule, mandatory load volume,
+permlevels, the submit snapshot, the period-run fingerprint, and unchanged hourly/daily/monthly
+pricing. All data is per-test and rolled back."""
+
+import frappe
+from frappe.utils import flt
+
+from card.constants import DIR_RENTED_OUT, DIR_SUBRENTAL, OWNED, SHIFT_NIGHT
+from card.gl.period_run import document_fingerprint
+from card.tests.test_customer import RENTED
+from card.tests.test_stop_reasons import CLIENT_STOP, LEAVE, WORK, _StopBase
+
+PER_M3 = "بالمتر المكعب"
+LOAD_VOLUME = 16  # m³ per load (worked example: 40 loads x 16 m³ x 2 SAR = 1,280 SAR)
+
+
+class TestVolumeBilling(_StopBase):
+	def _volume_equipment(self, customer_rate=2, load_volume=LOAD_VOLUME, night_rate=None, **kw):
+		"""A rented-out machine billed to the customer per m³ (day rate customer_rate)."""
+		extra = {}
+		if load_volume is not None:
+			extra["load_volume_m3"] = load_volume
+		if night_rate is not None:
+			extra["customer_rate_night"] = night_rate
+		return self._equipment(
+			OWNED,
+			direction=DIR_RENTED_OUT,
+			customer=self.customer,
+			customer_rate=customer_rate,
+			customer_rate_type=PER_M3,
+			**extra,
+			**kw,
+		)
+
+	def _volume_card(self, eq, rows, shift="نهاري", submit=False):
+		"""rows: dicts of day-row values; the day number is the position (1-based)."""
+		c = frappe.new_doc("Card Monthly Card")
+		c.equipment = eq.name
+		c.project = self.project
+		c.shift = shift
+		c.month = "09"
+		c.year = 2026
+		for i, values in enumerate(rows, start=1):
+			row = {"operation_date": "2026-09-%02d" % i, "day_status": WORK, "working_hours": 0}
+			row.update(values)
+			c.append("days", row)
+		c.insert(ignore_permissions=True)
+		if submit:
+			c.submit()
+		c.reload()
+		return c
+
+	# ---- amounts ----
+	def test_day_card_bills_loads_times_volume_times_rate(self):
+		eq = self._volume_equipment()
+		card = self._volume_card(
+			eq,
+			[{"loads_count": 25, "working_hours": 10}, {"loads_count": 15, "working_hours": 6}],
+			submit=True,
+		)
+		self.assertEqual(card.total_loads, 40)
+		self.assertEqual(flt(card.total_volume_m3), 640.0)
+		self.assertEqual(flt(card.load_volume_used), 16.0)
+		self.assertEqual(flt(card.customer_rate_used), 2.0)  # SAR per m³ for a per-m³ card
+		self.assertEqual(flt(card.customer_amount), 1280.0)
+		self.assertEqual(flt(card.customer_net_amount), 1280.0)
+		self.assertEqual(flt(card.total_working_hours), 16)  # hours are still recorded
+
+	def test_night_card_uses_customer_rate_night(self):
+		eq = self._volume_equipment(customer_rate=2, night_rate=3)
+		card = self._volume_card(
+			eq, [{"loads_count": 40, "working_hours": 10}], shift=SHIFT_NIGHT, submit=True
+		)
+		self.assertEqual(flt(card.customer_rate_used), 3.0)
+		self.assertEqual(flt(card.customer_amount), 40 * 16 * 3.0)  # 1,920
+
+	def test_stopped_hours_add_nothing(self):
+		eq = self._volume_equipment()
+		reason = self._reason(billable=1)
+		card = self._volume_card(
+			eq,
+			[
+				{"loads_count": 40, "working_hours": 10},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 8},
+			],
+			submit=True,
+		)
+		self.assertEqual(flt(card.customer_amount), 1280.0)
+
+	def test_loads_with_zero_hours_are_billed(self):
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 4, "working_hours": 0}], submit=True)
+		self.assertEqual(card.total_loads, 4)
+		self.assertEqual(flt(card.customer_amount), 128.0)
+
+	def test_per_m3_supplier_side_keeps_its_own_rate(self):
+		# Q2 (approved): per-m³ applies to the customer side only
+		eq = self._equipment(
+			RENTED,
+			direction=DIR_SUBRENTAL,
+			customer=self.customer,
+			customer_rate=2,
+			customer_rate_type=PER_M3,
+			load_volume_m3=LOAD_VOLUME,
+		)
+		card = self._volume_card(
+			eq,
+			[
+				{"loads_count": 40, "working_hours": 4},
+				{"working_hours": 10},
+				{"working_hours": 12},
+			],
+			submit=True,
+		)
+		self.assertEqual(flt(card.amount), 26 * 75.0)  # supplier: 750/day over 10 h, hourly as before
+		self.assertEqual(flt(card.customer_amount), 1280.0)
+
+	# ---- validation ----
+	def test_loads_on_a_non_working_day_are_refused(self):
+		eq = self._volume_equipment()
+		with self.assertRaises(frappe.ValidationError):
+			self._volume_card(eq, [{"day_status": LEAVE, "loads_count": 3}])
+
+	def test_negative_loads_are_refused(self):
+		eq = self._volume_equipment()
+		with self.assertRaises(frappe.ValidationError):
+			self._volume_card(eq, [{"loads_count": -1, "working_hours": 8}])
+
+	def test_per_m3_equipment_needs_a_load_volume(self):
+		with self.assertRaisesRegex(frappe.ValidationError, "(?i)load volume"):
+			self._volume_equipment(load_volume=None)
+
+	# ---- permissions and privacy ----
+	def test_load_volume_is_a_commercial_field_at_permlevel_1(self):
+		from card.card.doctype.card_equipment.card_equipment import COMMERCIAL_FIELDS
+
+		self.assertIn("load_volume_m3", COMMERCIAL_FIELDS)
+		self.assertEqual(frappe.get_meta("Card Equipment").get_field("load_volume_m3").permlevel, 1)
+
+	def test_money_is_permlevel_1_and_volumes_are_not_money(self):
+		from card.field_privacy import CARD_MONEY_FIELDS
+
+		meta = frappe.get_meta("Card Monthly Card")
+		self.assertEqual(meta.get_field("customer_amount").permlevel, 1)
+		self.assertEqual(meta.get_field("customer_rate_used").permlevel, 1)
+		self.assertEqual(meta.get_field("load_volume_used").permlevel, 1)
+		self.assertEqual(meta.get_field("total_loads").permlevel, 0)
+		self.assertEqual(meta.get_field("total_volume_m3").permlevel, 0)
+		for name in ("load_volume_used", "total_loads", "total_volume_m3"):
+			self.assertFalse(meta.get_field(name).allow_on_submit, name)
+			self.assertNotIn(name, CARD_MONEY_FIELDS)
+
+	# ---- submitted cards and period runs ----
+	def test_submitted_card_is_not_repriced_by_an_equipment_change(self):
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		eq.reload()
+		eq.load_volume_m3 = 20
+		eq.customer_rate = 5
+		eq.commercial_change_reason = "TEST volume " + self.token
+		eq.save(ignore_permissions=True)
+		card.reload()
+		self.assertEqual(flt(card.customer_amount), 1280.0)
+		self.assertEqual(flt(card.load_volume_used), 16.0)
+		self.assertEqual(flt(card.customer_rate_used), 2.0)
+
+	def test_fingerprint_covers_customer_amount(self):
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		fingerprint = document_fingerprint(card, 1)
+		self.assertEqual(fingerprint, document_fingerprint(frappe.get_doc("Card Monthly Card", card.name), 1))
+		card.customer_amount = flt(card.customer_amount) + 1
+		self.assertNotEqual(fingerprint, document_fingerprint(card, 1))
+
+	# ---- regression: existing bases unchanged (these pass on current code) ----
+	def test_hourly_daily_and_monthly_customer_rates_are_unchanged(self):
+		hourly = self._rented_out(customer_rate=100, customer_rate_type="بالساعة")
+		self.assertEqual(flt(self._card(hourly, [4, 10, 12], submit=True).customer_amount), 2600.0)
+		daily = self._rented_out(customer_rate=1000, customer_rate_type="باليوم")
+		self.assertEqual(flt(self._card(daily, [4, 10, 12], submit=True).customer_amount), 2600.0)
+		monthly = self._rented_out(customer_rate=26000, customer_rate_type="بالشهر")
+		self.assertEqual(flt(self._card(monthly, [4, 10, 12], submit=True).customer_amount), 2600.0)
