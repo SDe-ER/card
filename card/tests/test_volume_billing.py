@@ -12,6 +12,9 @@ pricing. All data is per-test and rolled back."""
 import frappe
 from frappe.utils import flt
 
+from card.card.report.equipment_customer_statement.equipment_customer_statement import (
+	execute as customer_statement,
+)
 from card.constants import DIR_RENTED_OUT, DIR_SUBRENTAL, OWNED, SHIFT_NIGHT
 from card.gl.period_run import document_fingerprint
 from card.tests.test_customer import RENTED
@@ -187,3 +190,27 @@ class TestVolumeBilling(_StopBase):
 		self.assertEqual(flt(self._card(daily, [4, 10, 12], submit=True).customer_amount), 2600.0)
 		monthly = self._rented_out(customer_rate=26000, customer_rate_type="بالشهر")
 		self.assertEqual(flt(self._card(monthly, [4, 10, 12], submit=True).customer_amount), 2600.0)
+
+	# ---- customer statement: a per-m³ row shows loads, m³ and the rate per m³, never an hourly rate ----
+	def test_statement_per_m3_rows_show_loads_volume_and_rate_not_hourly(self):
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		filters = {
+			"company": self.company,
+			"customer": self.customer,
+			"from_month": 9,
+			"from_year": 2026,
+			"project": self.project,
+		}
+		columns, rows, *_ = customer_statement(filters)
+		self.assertIn("total_volume_m3", [c["fieldname"] for c in columns])
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(row["customer_rate_type"], PER_M3)
+		self.assertIsNone(row["hourly_rate"])
+		self.assertEqual(row["total_loads"], 40)
+		self.assertEqual(flt(row["total_volume_m3"]), 640.0)
+		self.assertEqual(flt(row["customer_rate"]), 2.0)
+		self.assertEqual(flt(row["customer_amount"]), 1280.0)
+		equipment_row = next(r for r in rows if str(r.get("row_id", "")).endswith("|E|" + eq.name))
+		self.assertIsNone(equipment_row["hourly_rate"])
+		self.assertEqual(equipment_row["total_loads"], 40)

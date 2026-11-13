@@ -83,6 +83,8 @@ def execute(filters=None):
 				"customer_rate_type",
 				"customer_rate",
 				"customer_rate_used",
+				"total_loads",
+				"total_volume_m3",
 				"day_billing_basis",
 				"day_billing_basis_used",
 				"customer_amount",
@@ -129,6 +131,8 @@ def execute(filters=None):
 	data_rows = []
 	grand = {
 		"days": 0,
+		"loads": None,
+		"volume": None,
 		"hours": 0.0,
 		"stopped": 0.0,
 		"amount": 0.0,
@@ -164,6 +168,8 @@ def execute(filters=None):
 			"hours": 0.0,
 			"stopped_hours": 0.0,
 			"customer_amount": 0.0,
+			"total_loads": None,
+			"total_volume_m3": None,
 			"additions": 0.0,
 			"deductions": 0.0,
 			"net": 0.0,
@@ -181,6 +187,9 @@ def execute(filters=None):
 			ded = 0.0
 			rates = set()
 			rtypes = set()
+			# FR-166: loads and m³ of the per-m³ cards only (a per-m³ row shows no hourly rate)
+			loads = 0
+			volume = 0.0
 			bases = set()
 			card_rows = []
 			for c in be["cards"]:
@@ -197,6 +206,9 @@ def execute(filters=None):
 				add = add + c_add
 				ded = ded + c_ded
 				rates.add(flt(c.customer_rate))
+				if c.customer_rate_type == PER_VOLUME_M3:
+					loads = loads + cint(c.total_loads)
+					volume = volume + flt(c.total_volume_m3)
 				rtypes.add(c.customer_rate_type or "")
 				# FR-138: the day billing basis of a per-day customer rate: a submitted card shows the basis it
 				# was priced with, a draft the equipment's current one (a card saved before FR-138: prorated)
@@ -242,6 +254,10 @@ def execute(filters=None):
 						"customer_rate_type": c.customer_rate_type,
 						"day_billing_basis": _(c_basis) if c_basis else None,
 						"customer_rate": flt(c.customer_rate),
+						"total_loads": cint(c.total_loads) if c.customer_rate_type == PER_VOLUME_M3 else None,
+						"total_volume_m3": flt(c.total_volume_m3)
+						if c.customer_rate_type == PER_VOLUME_M3
+						else None,
 						"hourly_rate": c_hourly,
 						"customer_amount": c_amount,
 						"additions": c_add,
@@ -268,7 +284,12 @@ def execute(filters=None):
 				if not any(bases)
 				else (_(next(iter(bases))) if len(bases) == 1 else "متعدد"),
 				"customer_rate": next(iter(rates)) if len(rates) == 1 else None,
-				"hourly_rate": None if not (hours + stopped) else flt(amount / (hours + stopped), 2),
+				"total_loads": loads if PER_VOLUME_M3 in rtypes else None,
+				"total_volume_m3": flt(volume, 2) if PER_VOLUME_M3 in rtypes else None,
+				# a per-m³ row has no hourly rate (no hours-divided figure either)
+				"hourly_rate": None
+				if PER_VOLUME_M3 in rtypes or not (hours + stopped)
+				else flt(amount / (hours + stopped), 2),
 				"customer_amount": flt(amount, 2),
 				"additions": flt(add, 2),
 				"deductions": flt(ded, 2),
@@ -284,6 +305,11 @@ def execute(filters=None):
 			p_row["additions"] = flt(p_row["additions"] + add, 2)
 			p_row["deductions"] = flt(p_row["deductions"] + ded, 2)
 			p_row["net"] = flt(p_row["net"] + amount + add - ded, 2)
+			if PER_VOLUME_M3 in rtypes:
+				p_row["total_loads"] = (p_row["total_loads"] or 0) + loads
+				p_row["total_volume_m3"] = flt((p_row["total_volume_m3"] or 0) + volume, 2)
+				grand["loads"] = (grand["loads"] or 0) + loads
+				grand["volume"] = flt((grand["volume"] or 0) + volume, 2)
 			grand["eq"].add(e)
 		grand["days"] = grand["days"] + p_row["working_days"]
 		grand["hours"] = grand["hours"] + p_row["hours"]
@@ -306,6 +332,8 @@ def execute(filters=None):
 				"customer_amount": flt(grand["amount"], 2),
 				"additions": flt(grand["add"], 2),
 				"deductions": flt(grand["ded"], 2),
+				"total_loads": grand["loads"],
+				"total_volume_m3": grand["volume"],
 				"net": flt(grand["net"], 2),
 				"bold": 1,
 			}
@@ -347,6 +375,14 @@ def execute(filters=None):
 			"width": 110,
 		},
 		{"fieldname": "customer_rate", "label": _("Customer rate"), "fieldtype": "Currency", "width": 100},
+		{"fieldname": "total_loads", "label": _("Total loads"), "fieldtype": "Int", "width": 90},
+		{
+			"fieldname": "total_volume_m3",
+			"label": _("Total volume (m³)"),
+			"fieldtype": "Float",
+			"precision": 2,
+			"width": 110,
+		},
 		{"fieldname": "hourly_rate", "label": _("Hourly rate"), "fieldtype": "Currency", "width": 100},
 		{
 			"fieldname": "customer_amount",
