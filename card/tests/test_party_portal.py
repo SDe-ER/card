@@ -94,10 +94,12 @@ class TestPartyPortalScaffold(IntegrationTestCase):
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
-		# Clear only what tests set; do not wipe ``frappe.local.flags``
-		# wholesale — ``currently_saving`` and friends are framework state
-		# that the next test's setUp relies on.
-		frappe.form_dict = frappe._dict()
+		# Clear only what tests set. ``frappe.form_dict`` is a LocalProxy;
+		# NEVER assign to the module-level name (``frappe.form_dict = …``)
+		# because that replaces the proxy for the whole process, which
+		# breaks every later test's REST and print-format calls. Set the
+		# proxy's underlying local instead.
+		frappe.local.form_dict = frappe._dict()
 		if hasattr(frappe.local, "flags") and frappe.local.flags is not None:
 			frappe.local.flags.redirect_location = None
 		try:
@@ -473,7 +475,7 @@ class TestPartyPortalScaffold(IntegrationTestCase):
 		user = self._portal_user("Supplier", self.supplier_a)
 		frappe.set_user(user)
 		ctx = frappe._dict()
-		frappe.form_dict = frappe._dict(name="whatever")
+		frappe.local.form_dict = frappe._dict(name="whatever")
 		with self.assertRaises(frappe.PageDoesNotExistError):
 			mod.get_context(ctx)
 
@@ -486,7 +488,7 @@ class TestPartyPortalScaffold(IntegrationTestCase):
 		user = self._portal_user("Supplier", self.supplier_a)
 		frappe.set_user(user)
 		ctx = frappe._dict()
-		frappe.form_dict = frappe._dict(name=name)
+		frappe.local.form_dict = frappe._dict(name=name)
 		mod.get_context(ctx)
 		self.assertIsNotNone(ctx.card)
 		self.assertEqual(ctx.card.name, name)
@@ -500,7 +502,7 @@ class TestPartyPortalScaffold(IntegrationTestCase):
 		user = self._portal_user("Supplier", self.supplier_a)
 		frappe.set_user(user)
 		ctx = frappe._dict()
-		frappe.form_dict = frappe._dict(name=name)
+		frappe.local.form_dict = frappe._dict(name=name)
 		with self.assertRaises(frappe.PageDoesNotExistError):
 			mod.get_context(ctx)
 
@@ -522,7 +524,7 @@ class TestPartyPortalScaffold(IntegrationTestCase):
 		frappe.set_user(user)
 		ctx = frappe._dict()
 		# forged request
-		frappe.form_dict = frappe._dict(party=self.supplier_b, party_type="Supplier")
+		frappe.local.form_dict = frappe._dict(party=self.supplier_b, party_type="Supplier")
 		mod.get_context(ctx)
 		self.assertEqual(ctx.party, self.supplier_a)
 		self.assertEqual(ctx.party_type, "Supplier")
