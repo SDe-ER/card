@@ -36,6 +36,7 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 |---|---|---|---|---|---|---|---|---|---|
 | Card Adjustment Type | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Agreement Responsibility | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
+| Card Approval Tier Threshold | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Company Settings | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Consumption Rate | Child | - | - | - | - | - | - | - | Child table: the parent's permissions |
 | Card Daily Log | Submittable | System Manager, Card Manager, Card Supervisor, Card Operator (own), Card User | System Manager, Card Manager, Card Supervisor, Card Operator (own) | System Manager, Card Manager, Card Supervisor, Card Operator (own) | System Manager, Card Manager, Card Supervisor, Card Operator (own) | System Manager, Card Manager, Card Supervisor, Card Operator (own) | System Manager | - | Company User Permission on `company`; has_permission `has_company_permission`; permission_query_conditions `company_query_conditions` |

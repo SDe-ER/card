@@ -99,11 +99,26 @@ REVIEW_OFF_CONDITION = (
 	'"company_settings", "company": doc.company}, "*", as_dict=True) or {}).get("card_review_required")'
 )
 
+# FR-159 (WP-E): the approval-tier role check is NOT attached to the Workflow Transition condition because
+# Frappe's workflow ``safe_eval`` whitelist (``frappe.model.workflow.get_workflow_safe_globals``) exposes
+# only ``frappe.db.get_value / get_list``, ``frappe.session`` and a few ``frappe.utils`` helpers; it does
+# not expose ``frappe.get_attr`` or any CARD module (verified at frappe/model/workflow.py:81). Any attempt
+# to inline the tier logic in the condition would also need the running user's role list, which the
+# whitelist does not expose. Instead the tier check lives in the server guard
+# ``card.governance._check_approval_tier_role`` which runs in ``before_submit`` on every submit route,
+# including ``frappe.model.workflow.apply_workflow(doc, "Approve")`` (it calls ``doc.submit()`` which
+# runs ``before_submit``); a user without the tier's ``role_required`` then raises
+# ``ApprovalTierMissingRoleError`` (``frappe.PermissionError``) and the workflow transition fails. So the
+# Workflow definition stays identical to FR-152 (D2a) — no CARD-specific condition on Approve beyond
+# ``REVIEW_OFF_CONDITION``, and the tier is enforced server-side.
+
 
 def transitions(doctype):
 	"""(state, action, next state, role, allow self approval, condition). The monthly card's approval leaves
 	self-approval to FR-143 (``card.governance``, per-company Warn/Refuse rule); the transport and the diesel fill
-	keep Frappe's native rule (the creator cannot approve)."""
+	keep Frappe's native rule (the creator cannot approve). The approval-tier role check (FR-159) is enforced
+	through the server guard, not through the Workflow Transition condition (see ``APPROVAL_TIER_CONDITION``
+	note above)."""
 	self_approval = 1 if doctype == "Card Monthly Card" else 0
 	return (
 		(STATE_DRAFT, ACTION_SEND, STATE_PENDING, "Card User", 1, None),

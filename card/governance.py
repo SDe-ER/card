@@ -52,8 +52,15 @@ RULE_REFUSE = "Refuse (card approval)"
 
 # written at the submit only (every other save clears them)
 APPROVAL_FIELDS = ("submitted_by", "approved_by", "approved_on", "self_approved")
+# FR-159 (WP-E): resolved tier is server-written on validate (every save, submit included),
+# restored on update-after-submit and cancel; a client value is never kept.
+TIER_FIELDS = ("approval_tier", "approval_tier_name")
 # written by the server only; restored from the database after the submit (update after submit, cancel)
-SERVER_FIELDS = (*APPROVAL_FIELDS, "edited_by")
+SERVER_FIELDS = (*APPROVAL_FIELDS, "edited_by", *TIER_FIELDS)
+
+# FR-159: per-company threshold child table on Card Company Settings
+TIER_TABLE_FIELD = "approval_tier_thresholds"
+TIER_CHILD_DOCTYPE = "Card Approval Tier Threshold"
 
 
 def approval_rule(company):
@@ -93,7 +100,9 @@ def card_preparers(doc):
 # ---------- doc_events (card/hooks.py) ----------
 def on_validate(doc, method=None):
 	"""validate (draft save and submit, insert with docstatus 1 included): the approval fields stay empty, the
-	creator and the editors are taken from the database and the current user is recorded as an editor."""
+	creator and the editors are taken from the database and the current user is recorded as an editor. FR-159
+	also computes ``approval_tier`` from the company's Approval tier thresholds (server-written; a client value
+	is dropped). The tier is kept in sync with the card's current net amount on every save."""
 	for field in APPROVAL_FIELDS:
 		doc.set(field, None)
 	doc.self_approved = 0
@@ -110,6 +119,7 @@ def on_validate(doc, method=None):
 	if user not in editors and (doc.docstatus == 0 or doc.is_new() or _inputs_changed(doc)):
 		editors.append(user)
 	doc.edited_by = "\n".join(editors)
+	_apply_resolved_tier(doc)
 
 
 def _editable(df):
@@ -150,7 +160,11 @@ def _rows_changed(table_df, rows, stored_rows):
 
 
 def before_submit(doc, method=None):
-	"""The submit is the card's approval: a preparer approves only under the company's Warn rule."""
+	"""The submit is the card's approval: a preparer approves only under the company's Warn rule
+	(FR-143), and the submitter must hold the role required by the card's resolved approval tier
+	(FR-159). The tier field is server-written on validate; this re-resolves it under a locking
+	read on the company's settings row so a tier change pushed in parallel does not slip through
+	(Lesson 4). Administrator is NOT exempt (FR-121 precedent)."""
 	user = frappe.session.user
 	self_approved = user in card_preparers(doc)
 	if self_approved:
@@ -169,6 +183,8 @@ def before_submit(doc, method=None):
 			title=_("Monthly card self-approval"),
 			indicator="orange",
 		)
+	# FR-159: refuse a submit when the user does not hold the tier's role_required
+	_check_approval_tier_role(doc)
 	doc.update(
 		{
 			"submitted_by": user,
@@ -197,6 +213,145 @@ def before_cancel(doc, method=None):
 	FR-123 (``card.cancel_reason.before_cancel``, which runs first) already refuses a cancel request that changes
 	a stored field; this read is the second layer."""
 	_restore(doc)
+
+
+# ---------- FR-159 (WP-E; closure plan C row E; #35, #49): approval tiers ----------
+"""FR-159 adds per-company net-amount thresholds that gate a monthly card's submit by role. An empty
+``approval_tier_thresholds`` child table on the company's Card Company Settings row means every card is
+tier 0: current behaviour, any user with Card Monthly Card write may submit. With rows, each threshold
+names a ``role_required`` (an existing Role); a card whose net amount reaches the threshold is at that
+tier, and the submitter must already hold that Role. The highest matching threshold wins. The row grants
+no DocPerm of its own: it only names a required role, so no permission is widened.
+
+Both the net amount and the thresholds use the company currency (O-17). The amount is the larger of the
+card's absolute supplier net and absolute customer net, so a refund-shaped card (negative net) is still
+gated by its size. The thresholds row is read with a locking read (``for_update``) so a tier change
+pushed in parallel to an in-flight submit does not slip through (Lesson 4).
+
+The guard runs in ``before_submit`` so every submit route goes through it: form Submit, REST v1/v2
+insert with docstatus 1, REST PUT docstatus 1, ``frappe.client.submit``, savedocs Submit, bulk submit
+and ``bulk_workflow_approval``. Administrator is NOT exempt (FR-121 precedent); the Workflow approve
+transition composed by FR-152 reads the same tier through ``user_holds_approval_tier_role`` (see
+``card.governance_workflows``) so the Approve action is also gated once the Workflow is activated
+(W-16)."""
+
+
+class ApprovalTierMissingRoleError(frappe.PermissionError):
+	"""Raised when a user who does not hold the card's resolved tier role tries to submit (FR-159)."""
+
+	pass
+
+
+def _card_net_amount(doc):
+	"""The card's resolved net amount for tier matching: the larger of the absolute supplier net
+	(``net_amount``) and absolute customer net (``customer_net_amount``). A draft that has not run
+	the card controller yet (test harness, bulk insert) falls back to the stored values."""
+	from frappe.utils import flt
+
+	supplier = flt(doc.get("net_amount"))
+	customer = flt(doc.get("customer_net_amount"))
+	return max(abs(supplier), abs(customer))
+
+
+def _company_tier_rows(company):
+	"""Read the company's threshold rows with a locking read on the settings child table, sorted by
+	amount_threshold descending (highest first). Returns an empty list when the company has no row,
+	no thresholds or the child DocType is not installed yet (second-migrate safety). Lesson 4: the
+	``for_update`` locks the committed rows so a parallel edit cannot change tier for an in-flight
+	submit."""
+	if not company:
+		return []
+	if not frappe.db.exists("DocType", TIER_CHILD_DOCTYPE):
+		return []
+	rows = frappe.db.sql(
+		"""
+		select tier_name, amount_threshold, role_required
+		from `tabCard Approval Tier Threshold`
+		where parenttype = %s and parentfield = %s and parent = %s and company = %s
+		order by amount_threshold desc, idx asc
+		for update
+		""",
+		("Card Settings", TIER_TABLE_FIELD, "Card Settings", company),
+		as_dict=True,
+	)
+	# drop rows missing a role (defensive; required= on the JSON refuses them at save time)
+	return [
+		r for r in rows if (r.get("role_required") or "").strip() and r.get("amount_threshold") is not None
+	]
+
+
+def resolve_approval_tier(doc):
+	"""The highest matching tier for ``doc`` (dict with ``tier_index``, ``tier_name``,
+	``amount_threshold``, ``role_required``), or None when no threshold matches. Tier 1 is the lowest
+	threshold, tier N the highest; a card under every threshold is tier 0 (None here). The read is
+	locking (``for_update``) so concurrent settings edits do not change the tier of an in-flight
+	submit (Lesson 4)."""
+	from frappe.utils import flt
+
+	rows = _company_tier_rows(doc.get("company"))
+	if not rows:
+		return None
+	net = _card_net_amount(doc)
+	# rows are sorted amount_threshold desc; the first one the net reaches wins
+	for position, row in enumerate(rows):
+		if net >= flt(row.amount_threshold):
+			# tier_index: 1 = lowest threshold (last in the sorted desc list), N = highest (first)
+			tier_index = len(rows) - position
+			return {
+				"tier_index": tier_index,
+				"tier_name": row.tier_name or "",
+				"amount_threshold": flt(row.amount_threshold),
+				"role_required": row.role_required,
+			}
+	return None
+
+
+def _apply_resolved_tier(doc):
+	"""Server-write ``approval_tier`` / ``approval_tier_name`` on validate from the live net amount
+	and the company's thresholds. A client value is dropped. Called from ``on_validate`` only."""
+	tier = resolve_approval_tier(doc)
+	if tier:
+		doc.set("approval_tier", int(tier["tier_index"]))
+		doc.set("approval_tier_name", tier["tier_name"])
+	else:
+		doc.set("approval_tier", 0)
+		doc.set("approval_tier_name", None)
+
+
+def user_holds_approval_tier_role(doc, user=None):
+	"""True when ``user`` (the current session user by default) may submit ``doc`` at its resolved
+	tier: tier 0 (no threshold matched, or no rows) always passes; otherwise the user must hold the
+	tier's ``role_required`` role. Exposed for the Workflow approve-transition condition (FR-152;
+	see ``card.governance_workflows``) through ``frappe.get_attr``; also used by the server guard."""
+	user = user or frappe.session.user
+	tier = resolve_approval_tier(doc)
+	if not tier:
+		return True
+	return tier["role_required"] in set(frappe.get_roles(user))
+
+
+def _check_approval_tier_role(doc):
+	"""FR-159: refuse a submit when the running user does not hold the tier's ``role_required``.
+	Administrator is NOT exempt (FR-121 precedent). Called from ``before_submit`` only; the tier is
+	re-resolved here under the locking read so a forged client value is ignored."""
+	tier = resolve_approval_tier(doc)
+	if not tier:
+		return
+	user = frappe.session.user
+	if tier["role_required"] in set(frappe.get_roles(user)):
+		return
+	frappe.throw(
+		_(
+			"{0} needs the role {1} to submit this monthly card (approval tier {2}: net amount at or above {3}, company rule)."
+		).format(
+			user,
+			tier["role_required"],
+			tier["tier_name"] or tier["tier_index"],
+			tier["amount_threshold"],
+		),
+		ApprovalTierMissingRoleError,
+		title=_("Monthly card approval tier"),
+	)
 
 
 # ---------- FR-155 (WP-D2b; closure plan C-14, O-10): native-workflow state guards ----------

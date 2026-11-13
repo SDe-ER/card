@@ -56,6 +56,8 @@
   "customer_amount",
   "customer_net_amount",
   "approval_section",
+  "approval_tier",
+  "approval_tier_name",
   "submitted_by",
   "approved_by",
   "approved_on",
@@ -345,6 +347,27 @@
    "label": "Monthly card approval"
   },
   {
+   "default": "0",
+   "description": "Resolved tier for the card's net amount against the company's Approval tier thresholds (FR-159). Server-written on validate; a client value is dropped. 0 means no threshold matched (current behaviour: any user with Card Monthly Card write may submit).",
+   "fieldname": "approval_tier",
+   "fieldtype": "Int",
+   "label": "Approval tier",
+   "no_copy": 1,
+   "non_negative": 1,
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.approval_tier",
+   "description": "Short label of the resolved tier (FR-159).",
+   "fieldname": "approval_tier_name",
+   "fieldtype": "Data",
+   "label": "Approval tier name",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
    "fieldname": "submitted_by",
    "fieldtype": "Link",
    "label": "Monthly card submitted by",
@@ -587,7 +610,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-11 14:52:10.000000",
+ "modified": "2026-11-13 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card",

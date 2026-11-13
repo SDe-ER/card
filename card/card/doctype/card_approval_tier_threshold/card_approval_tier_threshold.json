@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "creation": "2026-11-13 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "tier_name",
+  "amount_threshold",
+  "role_required"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "permlevel": 1,
+   "reqd": 1
+  },
+  {
+   "description": "Short label for the tier (e.g. Tier 1, Director). Shown on the card's approval tier field.",
+   "fieldname": "tier_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tier name",
+   "permlevel": 1,
+   "reqd": 1
+  },
+  {
+   "description": "A card whose net amount reaches this threshold needs the role below to submit. The highest matching threshold wins; a card under every threshold is tier 0 (no role required, current behaviour).",
+   "fieldname": "amount_threshold",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Net amount threshold",
+   "non_negative": 1,
+   "permlevel": 1,
+   "reqd": 1
+  },
+  {
+   "description": "The role the user submitting the card must already hold. Must be an existing role (managed through Role Permission Manager by the owner). This row grants no permission of its own; it only names a required role.",
+   "fieldname": "role_required",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Role required",
+   "options": "Role",
+   "permlevel": 1,
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-13 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Approval Tier Threshold",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

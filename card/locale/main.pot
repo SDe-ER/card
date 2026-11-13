@@ -7150,6 +7150,42 @@ msgstr ""
 msgid "Workflow state edit refused"
 msgstr ""
 
+#: card/governance.py
+msgid "{0} needs the role {1} to submit this monthly card (approval tier {2}: net amount at or above {3}, company rule)."
+msgstr ""
+
+#: card/governance.py
+msgid "Monthly card approval tier"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Monthly card approval tiers"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Approval tier thresholds"
+msgstr ""
+
+#: card/card/doctype/card_approval_tier_threshold/card_approval_tier_threshold.json
+msgid "Tier name"
+msgstr ""
+
+#: card/card/doctype/card_approval_tier_threshold/card_approval_tier_threshold.json
+msgid "Net amount threshold"
+msgstr ""
+
+#: card/card/doctype/card_approval_tier_threshold/card_approval_tier_threshold.json
+msgid "Role required"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Approval tier"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Approval tier name"
+msgstr ""
+
 #: card/www/card-portal/index.py
 msgid "My cards"
 msgstr ""
