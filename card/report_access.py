@@ -134,6 +134,35 @@ def role_reads(doctype):
 	return _role_reads(doctype)
 
 
+def role_reads_money(doctype=CARD_DOCTYPE):
+	"""True when the user's ROLES grant read on the money permlevel (FR-162) of ``doctype``.
+
+	Mirrors :func:`card.field_privacy.can_view_money` and is the gate CARD reports use to decide whether a Monthly
+	Card money column reaches the browser. Card Operator and the CARD Mobile portal roles are not level-1 readers,
+	so the column is dropped for them; the four current level-0 readers keep it."""
+	from card.field_privacy import can_view_money
+
+	return can_view_money(doctype=doctype)
+
+
+def strip_money(columns, rows, keys=None, summary=None, tile_labels=()):
+	"""Remove money columns, row values and summary tiles in place of hiding them (same shape as
+	:func:`strip_ledger`). Defaults to the Card Monthly Card level-1 field set (FR-162). Report callers pass the
+	keys they actually expose when they rename columns."""
+	from card.field_privacy import CARD_MONEY_FIELDS
+
+	keys = tuple(keys) if keys is not None else CARD_MONEY_FIELDS
+	columns = [c for c in columns if (c.get("fieldname") if isinstance(c, dict) else None) not in keys]
+	for row in rows or ():
+		if isinstance(row, dict):
+			for key in keys:
+				row.pop(key, None)
+	if summary is not None:
+		summary = [t for t in summary if (t.get("label") if isinstance(t, dict) else None) not in tile_labels]
+		return columns, summary
+	return columns
+
+
 SHOW_TITLE_FOR = ("Project",)
 
 

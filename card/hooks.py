@@ -83,7 +83,13 @@ doctype_js = {
 # ----------
 
 # add methods and filters to jinja environment
-jinja = {"methods": ["card.print_utils.card_amount_in_words", "card.print_utils.card_print_is_rtl"]}
+jinja = {
+	"methods": [
+		"card.print_utils.card_amount_in_words",
+		"card.print_utils.card_print_is_rtl",
+		"card.field_privacy.card_print_can_view_money",
+	]
+}
 
 # Installation
 # ------------

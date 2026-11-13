@@ -16,6 +16,45 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-162 — Money privacy on Card Monthly Card (#51; closure plan WP-F, section C row F, conflict C-20,
+  Owner decision O-20 approved 2026-11-10).** Reason: #51 asks for "docstatus, workflow, permlevels, user
+  permissions, audit" on money amounts; the owner wants amounts hidden from Card Operator and from the
+  CARD Mobile portal only, with every current reader keeping visibility. The ten Currency fields of
+  `Card Monthly Card` (`rate`, `amount`, `total_additions`, `total_deductions`, `net_amount`,
+  `hourly_rate_used`, `customer_rate`, `customer_amount`, `customer_rate_used`, `customer_net_amount`)
+  move from permlevel 0 to permlevel 1 (`card_monthly_card.json`); the `Card Monthly Card Adjustment.amount`
+  child field moves to permlevel 1 as well (`card_monthly_card_adjustment.json`). Four new matching
+  permlevel-1 DocPerm rows grant level-1 read to the four current level-0 readers only: System Manager
+  (read+write), Card Manager (read+write), Card User (read), Accounts Manager (read). No DocPerm row is
+  added for Card Operator or for any CARD Mobile portal role, so a future change that grants them a
+  level-0 read would still never give them the money fields (defense in depth). `card/field_privacy.py`
+  gains `CARD_MONEY_FIELDS`, `MONEY_DOCTYPE`, `MONEY_LEVEL`, `can_view_money(doctype, user, level)`,
+  `card_print_can_view_money()` (Jinja, registered in `hooks.jinja.methods`) and
+  `strip_money(columns, rows, keys, summary, tile_labels)`. `card/report_access.py` adds
+  `role_reads_money(doctype)` and `strip_money(columns, rows, keys, summary, tile_labels)` as the
+  report-code API (mirror of `strip_ledger`). The Card Monthly Card print format
+  (`card/fixtures/print_format.json`) wraps the four rate/total rows (`customer_rate`, `customer_amount`,
+  `rate`, `amount`) inside `{% if card_print_can_view_money() %}`, so a Card Operator or CARD Mobile
+  session that has print permission through some future route still does not see the money block. New
+  idempotent patch `card.patches.v4_8_0.f_set_amount_permlevel` clears the cache and asserts (a) every
+  money field is at permlevel 1, (b) the adjustment child's `amount` is at permlevel 1, (c) the four
+  permlevel-1 reader rows exist; it raises `frappe.ValidationError` with a clear message if `bench
+  migrate` did not apply the JSON. Tests: `card/tests/test_card_money_privacy.py` (13 tests): JSON shape,
+  level-1 readers see amount through REST, Card Operator / Card Supervisor are blocked by
+  `can_view_money`, REST `set_value` by a Card Operator refused (Lesson 1), child `amount` follows parent
+  permlevel (Lesson 5), savedocs Cancel probe keeps stored amount (Lesson 7), print format hides money
+  rows for Card Operator and keeps them for Card Manager (direct Jinja render), `strip_money` drops money
+  columns and row values, Lesson-12 mutation proofs (code-deletion probe for the permlevel and the Jinja
+  guard), Lesson-13 docstring matches O-20 wording. Permissions impact: Card Operator (no DocPerm today)
+  and the CARD Mobile portal roles (no DocPerm today) are locked out of every money field by permlevel,
+  so if a future change grants them level-0 read they still see nothing. Accounting impact: none (no GL
+  change; no posting change; no invoice change). Data impact: none (stored values unchanged; permlevel
+  controls visibility only). API impact: REST read of a money field as a role without level-1 read
+  returns `None` for that field; REST write is refused (Frappe `get_valid_dict` drops the field);
+  `has_permission(doctype, "write")` for level-0 roles unchanged. Rollback: revert the commit — the money
+  fields drop back to permlevel 0 and every current level-0 reader sees amounts again; nothing is
+  deleted. PR TBD.
+
 - **FR-159 — Monthly card approval tiers per company and Authorization Rule note (#35, #49; closure plan
   WP-E, section C row E).** Reason: #35 G3 asks for approval thresholds "configurable per company", and #49
   wants the submit of a draft invoice gated at high values; both are addressed by one server guard on
