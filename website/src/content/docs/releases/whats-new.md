@@ -32,6 +32,15 @@ per site.
 
 ### Operations
 
+- **2026-11-13 — Approval tiers for the monthly card.** Each company can now add approval-tier thresholds to its
+  row in Card Settings (Monthly card approval tiers): a tier names a net-amount threshold and the role a user
+  must already hold to submit a card at or above that amount. A company with no thresholds behaves exactly as
+  today — any user who may write a monthly card may submit it. With thresholds, the card's resolved tier is
+  shown on the form (read-only, server-written), and the office picks the role for each tier from the roles
+  the owner already has — no new role or permission is added. The highest matching threshold wins; a refund
+  (negative amount) is gated by its absolute size. A matching ERPNext Authorization Rule on the generated
+  Purchase or Sales Invoice complements the source gate at the invoice side; the owner configures the two
+  together per company. Administrator is not exempt from the tier gate.
 - **2026-11-13 — Where a day on a monthly card came from.** Each day row on a monthly card can now record its
   source (manual — the default, paper sheet, WhatsApp, mobile app or import), an optional external key (sheet
   number, message id) and the time the office received the source. A day's intake fields are optional, and a card

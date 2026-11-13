@@ -99,17 +99,49 @@ REVIEW_OFF_CONDITION = (
 	'"company_settings", "company": doc.company}, "*", as_dict=True) or {}).get("card_review_required")'
 )
 
+# FR-159 (WP-E): a monthly card's Approve transition also requires the role of the resolved approval tier;
+# empty thresholds table (current behaviour) → helper returns True. The helper is called through
+# ``frappe.get_attr`` so ``frappe.safe_eval`` of the condition accepts it.
+APPROVAL_TIER_CONDITION = 'frappe.get_attr("card.governance.user_holds_approval_tier_role")(doc)'
+
+
+def _approve_condition(doctype, base):
+	"""Compose the Approve-transition condition for ``doctype``: the base condition (review toggle on
+	the Draft -> Approved transition, or None for Pending Review -> Approved) AND, for Card Monthly
+	Card, the approval-tier role check (FR-159). The transport and the diesel fill keep their native
+	approve transitions unchanged."""
+	if doctype != "Card Monthly Card":
+		return base
+	if base:
+		return "({0}) and ({1})".format(base, APPROVAL_TIER_CONDITION)
+	return APPROVAL_TIER_CONDITION
+
 
 def transitions(doctype):
 	"""(state, action, next state, role, allow self approval, condition). The monthly card's approval leaves
 	self-approval to FR-143 (``card.governance``, per-company Warn/Refuse rule); the transport and the diesel fill
-	keep Frappe's native rule (the creator cannot approve)."""
+	keep Frappe's native rule (the creator cannot approve). For the monthly card, the Approve transitions also
+	check the running user holds the resolved approval-tier role (FR-159)."""
 	self_approval = 1 if doctype == "Card Monthly Card" else 0
 	return (
 		(STATE_DRAFT, ACTION_SEND, STATE_PENDING, "Card User", 1, None),
 		(STATE_DRAFT, ACTION_SEND, STATE_PENDING, "Card Manager", 1, None),
-		(STATE_DRAFT, ACTION_APPROVE, STATE_APPROVED, "Card Manager", self_approval, REVIEW_OFF_CONDITION),
-		(STATE_PENDING, ACTION_APPROVE, STATE_APPROVED, "Card Manager", self_approval, None),
+		(
+			STATE_DRAFT,
+			ACTION_APPROVE,
+			STATE_APPROVED,
+			"Card Manager",
+			self_approval,
+			_approve_condition(doctype, REVIEW_OFF_CONDITION),
+		),
+		(
+			STATE_PENDING,
+			ACTION_APPROVE,
+			STATE_APPROVED,
+			"Card Manager",
+			self_approval,
+			_approve_condition(doctype, None),
+		),
 		(STATE_PENDING, ACTION_RETURN, STATE_DRAFT, "Card Manager", 1, None),
 	)
 

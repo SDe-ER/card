@@ -16,6 +16,69 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-159 — Monthly card approval tiers per company and Authorization Rule note (#35, #49; closure plan
+  WP-E, section C row E).** Reason: #35 G3 asks for approval thresholds "configurable per company", and #49
+  wants the submit of a draft invoice gated at high values; both are addressed by one server guard on
+  `Card Monthly Card.submit` plus a complementary ERPNext-native Authorization Rule on the generated draft
+  Purchase/Sales Invoice. New child DocType `Card Approval Tier Threshold` (`company` Link to Company,
+  `tier_name` Data, `amount_threshold` Currency non_negative, `role_required` Link to Role; every field
+  permlevel 1). New child table `approval_tier_thresholds` on `Card Company Settings` (permlevel 1,
+  `card_company_settings.json`). New read-only server-written field `approval_tier` (Int, non_negative,
+  `no_copy`, `print_hide`, permlevel 0, default 0) and companion label `approval_tier_name` (Data,
+  read-only, `no_copy`) on `Card Monthly Card`. New governance helpers in `card/governance.py`:
+  `resolve_approval_tier(doc)` reads the company's rows with a locking read (`for update`, Lesson 4) and
+  returns the highest matching tier for `max(abs(net_amount), abs(customer_net_amount))`;
+  `user_holds_approval_tier_role(doc, user=None)` returns True for tier 0 or when `user` holds the tier's
+  `role_required`; `_apply_resolved_tier(doc)` is called from `on_validate` after the FR-143 fields so a
+  client-supplied `approval_tier` / `approval_tier_name` is dropped on every route (Lesson 1);
+  `_check_approval_tier_role(doc)` is called from `before_submit` and raises
+  `ApprovalTierMissingRoleError` (subclass of `frappe.PermissionError`) when the running user does not
+  hold the tier's role. `SERVER_FIELDS` extends with the two tier fields so update-after-submit and cancel
+  restore them. Administrator is NOT exempt (FR-121 / FR-155 precedent). `card/governance_workflows.py`
+  extends FR-152's transitions for `Card Monthly Card` only: the Approve transition conditions
+  (Draft -> Approved under `REVIEW_OFF_CONDITION`, Pending Review -> Approved) are composed with
+  `APPROVAL_TIER_CONDITION = 'frappe.get_attr("card.governance.user_holds_approval_tier_role")(doc)'`,
+  so once the Workflow is activated (owner setup W-16, O-10 after P4 acceptance) the Approve action is
+  also gated by the same tier check; the transport and the diesel fill keep their native approve
+  transitions unchanged. New doc `docs/governance/AUTHORIZATION-RULE-NOTE.md` explains how the owner
+  sets an ERPNext Authorization Rule on `Purchase Invoice` / `Sales Invoice` grand total per company to
+  complement the CARD source gate at the invoice side; this is guidance only, no code. Defaults
+  (behaviour-neutral): a company with an empty `approval_tier_thresholds` table is tier 0 everywhere —
+  no role gate, exactly today's behaviour; SDCE starts on empty and the owner populates per company when
+  ready (setup step W-17). Tests: new `card/tests/test_approval_tier.py` with the resolution tests
+  (no rows, under threshold, at threshold, highest wins, customer-side amount, negative net, two
+  companies BOLA), the submit-guard tests (no thresholds, under threshold, above without role,
+  above with role, nested tiers highest wins, Administrator not exempt, two-company isolation), the
+  server-written field tests (client value dropped on insert/save/set_value/REST PUT, savedocs Cancel
+  with forged tier), the Workflow condition parity tests (Approve refused without role, Approve allowed
+  with role — the Workflow is activated inside the test and deactivated in tearDown), the Lesson 4
+  concurrency test (`for_update` in the resolver, parallel submit sees a newly inserted threshold), and
+  the Lesson 12 mutation proofs (removing `_apply_resolved_tier` from `on_validate` keeps tier 0;
+  removing `_check_approval_tier_role` lets the submit through; removing the role check makes the
+  refusal assertion itself fail). Role / DocPerm: unchanged (`role_required` names an existing Role the
+  owner already has, managed through Role Permission Manager; the threshold row grants nothing on its
+  own; no `ignore_permissions` added). Files touched: `card/card/doctype/card_approval_tier_threshold/*`
+  (new), `card/card/doctype/card_company_settings/card_company_settings.json`,
+  `card/card/doctype/card_monthly_card/card_monthly_card.json`, `card/governance.py`,
+  `card/governance_workflows.py`, `docs/governance/AUTHORIZATION-RULE-NOTE.md` (new),
+  `card/tests/test_approval_tier.py` (new), `card/locale/ar.po`, `card/locale/main.pot`,
+  `CHANGELOG.md`, `docs/governance/FEATURE-REGISTRY.md`,
+  `website/src/content/docs/releases/whats-new.md`,
+  `website/src/content/docs/ar/releases/whats-new.md`. Impact on permissions: none (no DocPerm added or
+  widened, no new role, no `ignore_permissions` beyond test fixtures that only reach the new tier
+  helper). Impact on accounting: none (CARD still writes no GL entries; totals unchanged). Impact on
+  data: on the monthly card, the two new tier fields are empty until the next save; the migrate only
+  adds columns. Impact on the API: `card.governance` gains the public names `resolve_approval_tier`,
+  `user_holds_approval_tier_role`, `ApprovalTierMissingRoleError`, `TIER_FIELDS`, `TIER_TABLE_FIELD`,
+  `TIER_CHILD_DOCTYPE`; `card.governance_workflows` gains `APPROVAL_TIER_CONDITION`; no existing
+  function changes signature. Rollback limits: the governance guards can be rolled back; the two new
+  columns on `tabCard Monthly Card` and the one new child table `tabCard Approval Tier Threshold`
+  stay (standard Frappe DocType rollback behaviour), and the stored `approval_tier = 0` on cards saved
+  while FR-159 is active stays visible (semantically equivalent to the pre-FR-159 empty state); a site
+  that had owner-populated threshold rows keeps them in the database until the owner deletes them.
+  Refs: #35 (G3 approval thresholds), #49 (billing approval gates), FR-143 / FR-152 / FR-155
+  (precedents for the server-written field restore, workflow condition composition and bypass suite),
+  closure plan sections C row E, E (W-17), F (O-07). Closure plan: WP-E.
 - **FR-156 — Credit note for non-taxable customer-side deductions, per-company opt-in (#49, #126; closure plan
   WP-U, conflict C-10, owner decision O-15).** Reason: #49 asks for cancellations/returns to be posted correctly;
   the owner's 2026-10-15 ZATCA rule refused a non-taxable customer-side deduction on the monthly Sales Invoice
