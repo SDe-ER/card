@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "ဝန်ထုပ်ပမာဏ (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "ဖောက်သည် m³ နှုန်းအတွက် ဝန်ထုပ်ပမာဏ (m³) လိုအပ်သည်"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "အသုံးပြုထားသော ဝန်ထုပ်ပမာဏ (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "စုစုပေါင်း ခရီးစဉ်"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "စုစုပေါင်းပမာဏ (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "ခရီးစဉ်"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "ရက် {0} တွင် အနုတ်ခရီးစဉ်"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "ခရီးစဉ်ကို အလုပ်ရက်တွင်သာ မှတ်တမ်းတင်နိုင်သည်: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "နောင်ရက်အတွက် ခရီးစဉ် မှတ်တမ်းတင်၍ မရပါ: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "m³ လျှင်"
+
+msgid "Loads last month"
+msgstr "ပြီးခဲ့သောလ ခရီးစဉ်"
+
+msgid "Volume last month (m³)"
+msgstr "ပြီးခဲ့သောလ ပမာဏ (m³)"

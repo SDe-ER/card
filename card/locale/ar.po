@@ -8686,3 +8686,9 @@ msgstr "لا يمكن تسجيل ردود ليوم مستقبلي: {0}"
 
 msgid "بالمتر المكعب"
 msgstr "بالمتر المكعب"
+
+msgid "Loads last month"
+msgstr "عدد الردود الشهر الماضي"
+
+msgid "Volume last month (m³)"
+msgstr "حجم الردود الشهر الماضي (م³)"

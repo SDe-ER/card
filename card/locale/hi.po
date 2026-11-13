@@ -476,31 +476,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "लोड आयतन (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "प्रति m³ ग्राहक दर के लिए लोड आयतन (m³) आवश्यक है"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "उपयोग किया गया लोड आयतन (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "कुल लोड"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "कुल आयतन (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "लोड"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "दिन {0} पर ऋणात्मक लोड"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "लोड केवल कार्य दिवस पर दर्ज किए जा सकते हैं: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "भविष्य के दिन के लिए लोड दर्ज नहीं किए जा सकते: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "प्रति घन मीटर"
+
+msgid "Loads last month"
+msgstr "पिछले महीने के लोड"
+
+msgid "Volume last month (m³)"
+msgstr "पिछले महीने का आयतन (m³)"

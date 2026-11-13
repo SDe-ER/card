@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Обем на курса (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Обемът на курса (m³) е задължителен за тарифата на клиента за m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Използван обем на курса (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Общо курсове"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Общ обем (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Курсове"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Отрицателни курсове за ден {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Курсове може да се записват само в работен ден: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Не може да се записват курсове за бъдещ ден: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "На m³"
+
+msgid "Loads last month"
+msgstr "Курсове миналия месец"
+
+msgid "Volume last month (m³)"
+msgstr "Обем миналия месец (m³)"

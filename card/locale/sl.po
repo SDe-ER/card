@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Prostornina tovora (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Prostornina tovora (m³) je obvezna za stranko po ceni na m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Uporabljena prostornina tovora (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Skupaj tovorov"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Skupna prostornina (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Tovori"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Negativni tovori na dan {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Tovore je mogoče vnesti samo na delovni dan: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Tovorov ni mogoče vnesti za prihodnji dan: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Na m³"
+
+msgid "Loads last month"
+msgstr "Tovori prejšnji mesec"
+
+msgid "Volume last month (m³)"
+msgstr "Prostornina prejšnji mesec (m³)"

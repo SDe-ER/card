@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Обсяг вантажу (м³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Обсяг вантажу (м³) обов'язковий для тарифу клієнта за м³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Використаний обсяг вантажу (м³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Усього рейсів"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Загальний обсяг (м³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Рейси"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Від'ємні рейси за {0}-е число"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Рейси можна вносити лише в робочий день: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Не можна вносити рейси за майбутню дату: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "За м³"
+
+msgid "Loads last month"
+msgstr "Рейси за минулий місяць"
+
+msgid "Volume last month (m³)"
+msgstr "Обсяг за минулий місяць (м³)"

@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Volumul încărcăturii (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Volumul încărcăturii (m³) este obligatoriu pentru tariful clientului pe m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Volumul încărcăturii utilizat (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Total încărcături"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Volum total (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Încărcături"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Încărcături negative în ziua {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Încărcăturile pot fi înregistrate doar într-o zi lucrătoare: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Nu se pot înregistra încărcături pentru o zi viitoare: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Pe m³"
+
+msgid "Loads last month"
+msgstr "Încărcături luna trecută"
+
+msgid "Volume last month (m³)"
+msgstr "Volum luna trecută (m³)"

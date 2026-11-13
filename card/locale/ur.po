@@ -476,31 +476,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "لوڈ حجم (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "فی m³ کسٹمر ریٹ کے لیے لوڈ حجم (m³) درکار ہے"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "استعمال شدہ لوڈ حجم (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "کل لوڈ"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "کل حجم (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "لوڈ"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "دن {0} پر منفی لوڈ"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "لوڈ صرف کاری دن پر درج کیے جا سکتے ہیں: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "مستقبل کے دن کے لیے لوڈ درج نہیں کیے جا سکتے: {0}"
 
 msgid "بالمتر المكعب"
 msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "پچھلے مہینے کے لوڈ"
+
+msgid "Volume last month (m³)"
+msgstr "پچھلے مہینے کا حجم (m³)"

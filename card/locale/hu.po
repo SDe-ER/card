@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Rakomány térfogata (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "A rakomány térfogata (m³) kötelező a vevői m³-ár esetén"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Felhasznált rakomány-térfogat (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Összes fuvar"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Összes térfogat (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Fuvarok"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Negatív fuvarok a(z) {0}. napon"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Fuvar csak munkanapon rögzíthető: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Fuvar nem rögzíthető jövőbeli napra: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "m³-enként"
+
+msgid "Loads last month"
+msgstr "Fuvarok az előző hónapban"
+
+msgid "Volume last month (m³)"
+msgstr "Térfogat az előző hónapban (m³)"

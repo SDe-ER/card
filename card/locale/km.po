@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "បរិមាណផ្ទុក (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "ត្រូវការបរិមាណផ្ទុក (m³) សម្រាប់អត្រាអតិថិជនក្នុងមួយ m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "បរិមាណផ្ទុកដែលបានប្រើ (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "ចំនួនផ្ទុកសរុប"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "បរិមាណសរុប (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "ចំនួនផ្ទុក"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "ចំនួនផ្ទុកអវិជ្ជមាននៅថ្ងៃ {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "អាចកត់ត្រាចំនួនផ្ទុកបានតែនៅថ្ងៃធ្វើការ៖ {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "មិនអាចកត់ត្រាចំនួនផ្ទុកសម្រាប់ថ្ងៃអនាគតបានទេ៖ {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "ក្នុងមួយ m³"
+
+msgid "Loads last month"
+msgstr "ចំនួនផ្ទុកខែមុន"
+
+msgid "Volume last month (m³)"
+msgstr "បរិមាណខែមុន (m³)"

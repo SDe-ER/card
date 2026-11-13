@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Ачааны эзлэхүүн (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Үйлчлүүлэгчийн m³ тарифт ачааны эзлэхүүн (m³) шаардлагатай"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Ашигласан ачааны эзлэхүүн (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Нийт ачаа"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Нийт эзлэхүүн (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Ачаа"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "{0} өдрийн сөрөг ачаа"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Ачааг зөвхөн ажлын өдөр бүртгэнэ: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Ирээдүйн өдрийн ачааг бүртгэх боломжгүй: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "m³-ын үнэ"
+
+msgid "Loads last month"
+msgstr "Өмнөх сарын ачаа"
+
+msgid "Volume last month (m³)"
+msgstr "Өмнөх сарын эзлэхүүн (m³)"

@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "装载体积 (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "客户按 m³ 计价时必须填写装载体积 (m³)"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "已用装载体积 (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "总车次"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "总体积 (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "车次"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "{0} 日出现负车次"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "车次只能在工作日登记：{0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "不能登记未来日期的车次：{0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "按每立方米"
+
+msgid "Loads last month"
+msgstr "上月车次"
+
+msgid "Volume last month (m³)"
+msgstr "上月体积 (m³)"

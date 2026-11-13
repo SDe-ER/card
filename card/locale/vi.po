@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Khối lượng chuyến hàng (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Cần có khối lượng chuyến hàng (m³) cho đơn giá khách hàng theo m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Khối lượng chuyến hàng đã dùng (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Tổng số chuyến"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Tổng khối lượng (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Số chuyến"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Số chuyến âm vào ngày {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Chỉ có thể ghi chuyến vào ngày làm việc: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Không thể ghi chuyến cho ngày trong tương lai: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Theo m³"
+
+msgid "Loads last month"
+msgstr "Số chuyến tháng trước"
+
+msgid "Volume last month (m³)"
+msgstr "Khối lượng tháng trước (m³)"

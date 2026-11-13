@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Volume de chargement (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Le volume de chargement (m³) est requis pour le tarif client au m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Volume de chargement utilisé (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Total des rotations"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Volume total (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Rotations"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Rotations négatives le jour {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Les rotations ne peuvent être saisies qu'un jour ouvrable : {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Impossible de saisir des rotations pour un jour futur : {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Par m³"
+
+msgid "Loads last month"
+msgstr "Rotations du mois dernier"
+
+msgid "Volume last month (m³)"
+msgstr "Volume du mois dernier (m³)"

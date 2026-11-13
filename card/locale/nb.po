@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Lastevolum (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Lastevolum (m³) kreves for kundens pris per m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Brukt lastevolum (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Totalt antall lass"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Totalt volum (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Lass"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Negative lass på dag {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Lass kan bare registreres på en arbeidsdag: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Lass kan ikke registreres for en fremtidig dag: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "Lass forrige måned"
+
+msgid "Volume last month (m³)"
+msgstr "Volum forrige måned (m³)"

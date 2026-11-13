@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Yuk hajmi (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Mijoz uchun m³ narxi bo'yicha yuk hajmi (m³) talab qilinadi"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Ishlatilgan yuk hajmi (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Jami reyslar"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Umumiy hajm (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Reyslar"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "{0}-kuni manfiy reyslar"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Reyslar faqat ish kunida qayd etiladi: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Kelajak kun uchun reys qayd etib bo'lmaydi: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "m³ uchun"
+
+msgid "Loads last month"
+msgstr "O'tgan oy reyslari"
+
+msgid "Volume last month (m³)"
+msgstr "O'tgan oy hajmi (m³)"

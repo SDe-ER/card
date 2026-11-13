@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Obujam tereta (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Obujam tereta (m³) obavezan je za kupčevu cijenu po m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Korišteni obujam tereta (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Ukupno tereta"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Ukupni obujam (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Tereti"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Negativni tereti za dan {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Tereti se mogu evidentirati samo radnim danom: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Tereti se ne mogu evidentirati za budući dan: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Po m³"
+
+msgid "Loads last month"
+msgstr "Tereti prošlog mjeseca"
+
+msgid "Volume last month (m³)"
+msgstr "Obujam prošlog mjeseca (m³)"

@@ -262,3 +262,38 @@ class TestVolumeBilling(_StopBase):
 		volume = volume_last_month({"company": self.company})
 		self.assertEqual(volume["fieldtype"], "Float")
 		self.assertGreaterEqual(flt(volume["value"]), 0)
+
+	# ---- translation rule (FR-166): every new CARD msgid has a real translation in every locale ----
+	def test_every_new_msgid_is_translated_in_every_locale(self):
+		import glob
+		import os
+		import re
+
+		new = [
+			"Load volume (m³)",
+			"Load volume (m³) is required for the per-m³ customer rate",
+			"Load volume used (m³)",
+			"Total loads",
+			"Total volume (m³)",
+			"Loads",
+			"Negative loads on day {0}",
+			"Loads can be recorded only on a working day: {0}",
+			"Cannot record loads for a future day: {0}",
+			"بالمتر المكعب",
+			"Loads last month",
+			"Volume last month (m³)",
+		]
+		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
+		for path in glob.glob(os.path.join(locale_dir, "*.po")):
+			name = os.path.basename(path)
+			with open(path, encoding="utf-8") as fh:
+				pairs = dict(re.findall(r'^msgid "(.*)"\nmsgstr "(.*)"$', fh.read(), re.M))
+			for msgid in new:
+				value = pairs.get(msgid)
+				self.assertTrue(value, f"{name}: no translation for {msgid!r}")
+				if "{0}" in msgid:
+					self.assertIn("{0}", value, f"{name}: placeholder lost in {msgid!r}")
+		with open(os.path.join(locale_dir, "main.pot"), encoding="utf-8") as fh:
+			pot = dict(re.findall(r'^msgid "(.*)"\nmsgstr "(.*)"$', fh.read(), re.M))
+		for msgid in new:
+			self.assertTrue(pot.get(msgid), f"main.pot: no source for {msgid!r}")

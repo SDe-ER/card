@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Yük hacmi (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Müşteri m³ fiyatı için yük hacmi (m³) zorunludur"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Kullanılan yük hacmi (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Toplam sefer"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Toplam hacim (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Seferler"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "{0} gününde negatif sefer"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Sefer yalnızca iş gününde kaydedilebilir: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Gelecek bir gün için sefer kaydedilemez: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "m³ başına"
+
+msgid "Loads last month"
+msgstr "Geçen ay seferleri"
+
+msgid "Volume last month (m³)"
+msgstr "Geçen ay hacmi (m³)"

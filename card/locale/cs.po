@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Objem nákladu (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Objem nákladu (m³) je povinný pro zákaznickou sazbu za m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Použitý objem nákladu (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Celkem nákladů"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Celkový objem (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Náklady"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Záporný počet nákladů v den {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Náklady lze zapsat pouze v pracovní den: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Náklady nelze zapsat na budoucí den: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Za m³"
+
+msgid "Loads last month"
+msgstr "Náklady za minulý měsíc"
+
+msgid "Volume last month (m³)"
+msgstr "Objem za minulý měsíc (m³)"

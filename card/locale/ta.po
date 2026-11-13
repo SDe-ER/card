@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "சரக்கு அளவு (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "வாடிக்கையாளர் m³ கட்டணத்திற்கு சரக்கு அளவு (m³) தேவை"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "பயன்படுத்திய சரக்கு அளவு (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "மொத்த சரக்கு பயணங்கள்"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "மொத்த அளவு (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "சரக்கு பயணங்கள்"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "{0} ஆம் நாளில் எதிர்மறை பயணங்கள்"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "வேலை நாளில் மட்டுமே பயணங்களைப் பதிவு செய்ய முடியும்: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "எதிர்கால நாளுக்கு பயணங்களைப் பதிவு செய்ய முடியாது: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "m³ க்கு"
+
+msgid "Loads last month"
+msgstr "கடந்த மாத பயணங்கள்"
+
+msgid "Volume last month (m³)"
+msgstr "கடந்த மாத அளவு (m³)"

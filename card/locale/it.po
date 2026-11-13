@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Volume di carico (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Il volume di carico (m³) è obbligatorio per la tariffa cliente al m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Volume di carico utilizzato (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Totale carichi"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Volume totale (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Carichi"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Carichi negativi il giorno {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "I carichi si possono registrare solo in un giorno lavorativo: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Impossibile registrare carichi per un giorno futuro: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Al m³"
+
+msgid "Loads last month"
+msgstr "Carichi del mese scorso"
+
+msgid "Volume last month (m³)"
+msgstr "Volume del mese scorso (m³)"

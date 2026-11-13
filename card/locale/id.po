@@ -12,31 +12,37 @@ msgid "Card"
 msgstr "CARD"
 
 msgid "Load volume (m³)"
-msgstr ""
+msgstr "Volume muatan (m³)"
 
 msgid "Load volume (m³) is required for the per-m³ customer rate"
-msgstr ""
+msgstr "Volume muatan (m³) wajib untuk tarif pelanggan per m³"
 
 msgid "Load volume used (m³)"
-msgstr ""
+msgstr "Volume muatan terpakai (m³)"
 
 msgid "Total loads"
-msgstr ""
+msgstr "Total muatan"
 
 msgid "Total volume (m³)"
-msgstr ""
+msgstr "Total volume (m³)"
 
 msgid "Loads"
-msgstr ""
+msgstr "Muatan"
 
 msgid "Negative loads on day {0}"
-msgstr ""
+msgstr "Muatan negatif pada hari {0}"
 
 msgid "Loads can be recorded only on a working day: {0}"
-msgstr ""
+msgstr "Muatan hanya dapat dicatat pada hari kerja: {0}"
 
 msgid "Cannot record loads for a future day: {0}"
-msgstr ""
+msgstr "Muatan tidak dapat dicatat untuk hari mendatang: {0}"
 
 msgid "بالمتر المكعب"
-msgstr ""
+msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "Muatan bulan lalu"
+
+msgid "Volume last month (m³)"
+msgstr "Volume bulan lalu (m³)"
