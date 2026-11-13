@@ -129,6 +129,14 @@ per site.
 
 ### Security
 
+- **2026-11-13 — Money amounts on the monthly card are gated by a field level.** The ten money fields on the
+  monthly card (rate, total amount, additions, deductions, net due, customer rate, customer amount,
+  customer net amount and the two hourly-rate snapshots) and the amount on each addition or deduction row
+  now sit at field level 1. The four roles that read the monthly card today — System Manager, Card Manager,
+  Card User and Accounts Manager — are the only roles granted level-1 read, so every current reader sees
+  amounts exactly as before. Card Operator and the CARD Mobile portal roles are not level-1 readers; if the
+  owner later grants either a monthly-card read, that role still will not see money. The monthly-card print
+  hides the rate and total rows in the same case.
 - **2026-11-12 — Native-workflow state guards.** When an owner activates a CARD approval workflow (optional,
   off by default), the server now refuses a save from any route by a user who does not hold an edit role for
   the stored state — the form lock applied from Desk earlier is now applied to REST, bulk updates and

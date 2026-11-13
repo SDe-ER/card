@@ -17,8 +17,15 @@ REPORTS = (
 )
 
 
-def _cmc_perms():
-	return {p.role: p for p in frappe.get_meta("Card Monthly Card").permissions}
+def _cmc_perms(permlevel=0):
+	"""The DocPerm rows of Card Monthly Card at one permlevel, keyed by role.
+
+	FR-162 adds permlevel-1 rows for System Manager, Card Manager, Card User and Accounts Manager; those are
+	read-only scoped rights on the money fields and carry no document-level actions. The level-0 rows still hold
+	submit/cancel/create/write/read/report, which is what every existing assertion in this module checks."""
+	return {
+		p.role: p for p in frappe.get_meta("Card Monthly Card").permissions if (p.permlevel or 0) == permlevel
+	}
 
 
 class TestCardPermissions(IntegrationTestCase):
