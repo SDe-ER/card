@@ -3,7 +3,7 @@ from frappe import _
 
 from card.adjustments import sided_adjustments
 from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
-from card.card_value import DAY_BASIS_FULL_DAY, PER_DAY, day_billing_basis
+from card.card_value import DAY_BASIS_FULL_DAY, PER_DAY, PER_VOLUME_M3, day_billing_basis
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
@@ -213,7 +213,10 @@ def execute(filters=None):
 				# so its effective hourly rate is derived from the accrued amount (same value, any rate type).
 				# FR-138: a "Full day" card was not priced by an hourly rate, so (as on the supplier
 				# statement) its effective rate is its amount over every billed hour
-				if c.docstatus == 1 and flt(c.customer_rate_used) and c_basis != DAY_BASIS_FULL_DAY:
+				if c.customer_rate_type == PER_VOLUME_M3:
+					# FR-166: a per-m³ card has no hourly rate; its customer rate is SAR per m³
+					c_hourly = None
+				elif c.docstatus == 1 and flt(c.customer_rate_used) and c_basis != DAY_BASIS_FULL_DAY:
 					c_hourly = flt(c.customer_rate_used)
 				elif c_hours + c_stopped:
 					# FR-118: billable stopped hours are billed hours too

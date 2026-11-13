@@ -12,6 +12,7 @@
   "day_name",
   "day_status",
   "working_hours",
+  "loads_count",
   "idle_reason",
   "stop_section",
   "stop_reason",
@@ -62,6 +63,14 @@
    "in_list_view": 1,
    "label": "Operating hours",
    "non_negative": 1
+  },
+  {
+   "fieldname": "loads_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Loads",
+   "non_negative": 1,
+   "read_only_depends_on": "eval:doc.day_status!=\"عمل\""
   },
   {
    "fieldname": "idle_reason",

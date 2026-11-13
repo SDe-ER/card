@@ -9,7 +9,7 @@ from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
 from card.adjustments import validate_downtime_fields
 from card.api import recompute_customer, recompute_supplier
 from card.card.doctype.card_stop_reason.card_stop_reason import SIDE_BOTH, billable_side_of
-from card.card_value import bills_full_days, day_billing_basis
+from card.card_value import PER_VOLUME_M3, bills_full_days, day_billing_basis
 
 # direction constants live in card.constants (re-exported here for callers/tests)
 from card.constants import (
@@ -120,6 +120,7 @@ class CardMonthlyCard(Document):
 				"customer_rate_type",
 				"customer_rate",
 				"customer_rate_night",
+				"load_volume_m3",
 			],
 			as_dict=True,
 		)
@@ -195,6 +196,8 @@ class CardMonthlyCard(Document):
 		seen = {}
 		hours_by_date = {}
 		total_hours = 0.0
+		# FR-166: loads counted on working days (volume is priced only on a per-m³ customer rate)
+		loads_total = 0
 		billable_stopped = 0.0
 		billable_stop_days = 0
 		# FR-134: billable stopped hours per billed side (a Both reason counts on each side)
@@ -221,6 +224,15 @@ class CardMonthlyCard(Document):
 			h = flt(row.working_hours)
 			if h < 0:
 				frappe.throw(_("Negative hours on day {0}").format(key))
+			# FR-166: loads are entered on a working day, zero hours allowed (the day status decides)
+			loads = cint(row.loads_count)
+			if loads < 0:
+				frappe.throw(_("Negative loads on day {0}").format(key))
+			if loads and row.day_status != "عمل":
+				frappe.throw(_("Loads can be recorded only on a working day: {0}").format(key))
+			if loads and d > today:
+				frappe.throw(_("Cannot record loads for a future day: {0}").format(key))
+			loads_total = loads_total + loads
 			if h > 0 and d > today:
 				frappe.throw(_("Cannot record operating hours for a future day: {0}").format(key))
 			stopped = flt(row.stopped_hours)
@@ -271,6 +283,7 @@ class CardMonthlyCard(Document):
 		self.rate_type = eq.rate_type
 		self.rate = flt(eq.rate)
 		self.total_working_hours = total_hours
+		self.total_loads = loads_total
 		self.working_days = work_days
 		# FR-118: only stopped hours of an explicitly billable reason are billed; with no
 		# billable reason this is 0 and every amount is what it was before
@@ -390,8 +403,13 @@ class CardMonthlyCard(Document):
 		self.net_amount = flt(flt(self.amount) + sided["Supplier"], 2)
 
 		# ---- customer-side amount (rate mirrored from the equipment; the SI itself is S3) ----
+		self.total_volume_m3 = 0
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS:
-			if bills_full_days(self.customer_rate_type, self.day_billing_basis):
+			if self.customer_rate_type == PER_VOLUME_M3:
+				# FR-166: loads x load volume (m³) x rate per m³ before VAT; hours and billable stops add nothing
+				self.total_volume_m3 = flt(loads_total * flt(eq.load_volume_m3), 3)
+				self.customer_amount = flt(self.total_volume_m3 * flt(self.customer_rate), 2)
+			elif bills_full_days(self.customer_rate_type, self.day_billing_basis):
 				self.customer_amount = flt(customer_billed_days * flt(self.customer_rate), 2)
 			else:
 				customer_hourly = self._hourly_for(
@@ -756,13 +774,25 @@ class CardMonthlyCard(Document):
 		)
 		daily_hours = flt(eq.daily_hours)
 		hourly = self._hourly_for(self.rate_type, flt(self.rate), daily_hours, required=False)
+		# FR-166: a per-m³ customer card stores its rate per m³ (SAR) as customer_rate_used, not an hourly rate;
+		# customer_rate_type tells the two apart
+		per_volume = self.customer_rate_type == PER_VOLUME_M3
 		self.db_set("daily_hours_used", daily_hours, update_modified=False)
 		self.db_set("hourly_rate_used", hourly, update_modified=False)
 		self.db_set("diesel_policy_used", eq.get("الوقود_على"), update_modified=False)
 		# customer-side snapshot (phase E): the hourly rate the customer amount used
 		self.db_set(
 			"customer_rate_used",
-			self._hourly_for(self.customer_rate_type, flt(self.customer_rate), daily_hours, required=False),
+			flt(self.customer_rate)
+			if per_volume
+			else self._hourly_for(
+				self.customer_rate_type, flt(self.customer_rate), daily_hours, required=False
+			),
+			update_modified=False,
+		)
+		self.db_set(
+			"load_volume_used",
+			flt(frappe.db.get_value("Card Equipment", self.equipment, "load_volume_m3")) if per_volume else 0,
 			update_modified=False,
 		)
 		# F.7 snapshot: direction, customer and the supplier rate basis used at submit

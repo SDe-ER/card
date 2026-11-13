@@ -40,6 +40,8 @@ from card.constants import (
 CARD = "Card Monthly Card"
 EQUIPMENT = "Card Equipment"
 PER_DAY = "باليوم"
+# FR-166: customer rate per m³ (loads x load volume x rate); customer side only
+PER_VOLUME_M3 = "بالمتر المكعب"
 INTERNAL_OWNERSHIPS = (OWNED, THIRD_PARTY)
 RATE_FIELDS = ("internal_rate", "internal_rate_basis", "internal_hourly_rate")
 CARD_FIELDS = (
