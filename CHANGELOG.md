@@ -16,6 +16,60 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-161 — Party portal scaffold, off by default (#51; closure plan WP-O1, conflict C-11, owner decision
+  O-16).** Reason: #51 asks for supplier / customer portals that see only their own permitted data, and the
+  owner (2026-11-10) kept the portal in scope but switches it on later. WP-O1 lands the scaffold only: the
+  pages, the helper module and a preview flag. The routes stay unwired and the Supplier / Customer roles still
+  have no DocPerm read on Card Monthly Card — both wire up in WP-O2 (wave 10) on the owner's explicit approval
+  (O-16). New module `card/portal.py` with three helpers (plain Python, no `@frappe.whitelist`):
+  `get_party_from_user(user)` resolves the logged-in user to `(party_type, party)` through the standard
+  ERPNext Contact → Dynamic Link chain (`Contact.email_id` = user → `Contact.links` → the first Supplier /
+  Customer link, ordered by `idx`); `list_party_cards(party_type, party, user)` returns submitted Card Monthly
+  Card rows for that party inside the user's permitted companies (`docstatus = 1`, the party-link field
+  (`supplier` or `customer`) equals `party`, `company` in `_restricted_companies(user, "Card Monthly Card")`
+  when the user is restricted); `get_party_card(name, user)` loads one card by name after the same own-party +
+  permitted-company filter. The party is always resolved from the server session; `list_party_cards` is a
+  trusted downstream helper that assumes `(party_type, party)` came from `get_party_from_user` — the www
+  handlers never read a party from the request (Lesson 1). New www pages under `card/www/card-portal/`: the
+  landing page (`index.py` + `index.html`) and the single-card view (`view/index.py` + `view/index.html`). Each
+  handler runs the enable-flag gate first: when no company has `enable_party_portal` = 1, it raises
+  `frappe.PageDoesNotExistError` (HTTP 404, not 403, to hide enablement; O-16). Guests are sent to
+  `/login?redirect-to=…` so the login round-trip lands back on the same view. The single-card view takes the
+  card name from `?name=` in this scaffold wave; WP-O2 will add `website_route_rules` so
+  `/card-portal/<card-name>` becomes a clean URL. New field on `Card Company Settings`
+  (`card_company_settings.json`): `enable_party_portal` (Check, permlevel 1, default `"0"`), placed at the
+  tail of its own collapsible "Party portal (preview)" section so it does not collide with other wave-6 fields
+  on the same child table. `card/hooks.py` is NOT touched by this PR: `has_website_permission` for Card
+  Monthly Card and the `/card-portal` route rules are WP-O2's scope (wave 10). No DocPerm or role grant.
+  No `ignore_permissions`. No whitelisted endpoint (the helpers are called by the www handlers and by tests,
+  never over REST). Defaults: `enable_party_portal` is 0 on every company on a fresh install and on upgrades
+  (no backfill patch is needed — the Check field materialises as 0 for every existing row on
+  `bench migrate`); every portal URL returns 404 for every viewer until the owner switches the flag on for a
+  specific company AND WP-O2 is deployed. Tests: `card/tests/test_party_portal.py` (29 tests:
+  `get_party_from_user` on a Supplier-linked and a Customer-linked portal user, Guest, Administrator, a
+  Website User with no Contact and a Contact with no party link; `list_party_cards` returns three cards of
+  Supplier-A out of five in the same company, two of Customer-A, excludes drafts and cancelled rows (cancel
+  routed through FR-123), isolates a second company by `User Permission` on Company, refuses an unknown party
+  doctype and an empty party; `get_party_card` returns own, refuses another party's card, refuses a draft,
+  refuses an empty name; the landing handler returns 404 when the flag is off on every company, returns the
+  list when the flag is on, redirects Guest to `/login`, shows an empty list for a Website User with no party
+  link; the single-card handler returns 404 when off, returns the card when on, returns 404 for another
+  party's name; Lesson 1 forgery: `?party=Supplier-B` on the request is ignored, the handler still resolves
+  Supplier-A from the session and returns only A's cards; Lesson 5: the new `enable_party_portal` field sits
+  at the table's permlevel 1, default `"0"`; Lesson 12 mutation proofs — monkey-patch
+  `_portal_enabled` to always return True → `test_portal_landing_returns_404_when_disabled` no longer 404s,
+  and a mutated `list_party_cards` that drops the party-link filter leaks Supplier-B into Supplier-A's list;
+  scaffold-inertness guards — no `has_website_permission` on Card Monthly Card in `hooks.py`, no
+  `/card-portal` route rule, no `@frappe.whitelist` on any helper).
+  Files touched: `card/portal.py`, `card/www/card-portal/__init__.py`, `card/www/card-portal/index.py`,
+  `card/www/card-portal/index.html`, `card/www/card-portal/view/__init__.py`,
+  `card/www/card-portal/view/index.py`, `card/www/card-portal/view/index.html`,
+  `card/card/doctype/card_company_settings/card_company_settings.json`,
+  `card/locale/main.pot`, `card/locale/ar.po`, `card/tests/test_party_portal.py`.
+  Impact: a new per-company preview flag (default off) and three unreachable www pages. No DocPerm or role
+  change. No endpoint added. No accounting change. Rollback: revert the commit; a migrated site keeps the
+  new Check column on `tabCard Company Settings` (default 0) with no effect — nothing reads it until WP-O2
+  wires the route and hooks.
 - **FR-156 — Credit note for non-taxable customer-side deductions, per-company opt-in (#49, #126; closure plan
   WP-U, conflict C-10, owner decision O-15).** Reason: #49 asks for cancellations/returns to be posted correctly;
   the owner's 2026-10-15 ZATCA rule refused a non-taxable customer-side deduction on the monthly Sales Invoice

@@ -8389,3 +8389,31 @@ msgstr "(جديد)"
 #: card/governance.py
 msgid "Workflow state edit refused"
 msgstr "رُفض تعديل حالة سير العمل"
+
+#: card/www/card-portal/index.py
+msgid "My cards"
+msgstr "بطاقاتي"
+
+#: card/www/card-portal/view/index.py
+msgid "My card"
+msgstr "بطاقتي"
+
+#: card/www/card-portal/view/index.py
+msgid "Card {0}"
+msgstr "البطاقة {0}"
+
+#: card/www/card-portal/index.html
+msgid "Your account is not linked to a supplier or a customer. Ask your contact at the company."
+msgstr "حسابك مش مربوط بمورد أو عميل. كلم جهة تواصلك في الشركة."
+
+#: card/www/card-portal/index.html
+msgid "No cards yet for your account."
+msgstr "لسه مفيش بطاقات على حسابك."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Party portal (preview)"
+msgstr "بوابة الأطراف (معاينة)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Enable party portal (preview)"
+msgstr "تفعيل بوابة الأطراف (معاينة)"

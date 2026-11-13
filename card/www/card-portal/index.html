@@ -1,0 +1,57 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<style>
+	.card-portal { max-width: 720px; margin: 0 auto; padding: 0 16px 32px; }
+	.card-portal h1 { font-size: 1.4rem; margin: 16px 0; }
+	.card-portal .empty { border: 1px dashed #cfd6db; border-radius: 10px; padding: 16px; color: #6b7780; }
+	.card-portal table { width: 100%; border-collapse: collapse; background: #fff; }
+	.card-portal th, .card-portal td { padding: 10px 8px; border-bottom: 1px solid #e2e6e9; text-align: start; }
+	.card-portal th { background: #f3f3f3; font-weight: 600; }
+	.card-portal tr:hover td { background: #f8f9fa; }
+	.card-portal .muted { color: #6b7780; font-size: .9rem; }
+	.card-portal a { color: #1f876c; text-decoration: none; }
+</style>
+
+<div class="card-portal">
+	<h1>{{ _("My cards") }}</h1>
+	<div class="muted">
+		{% if party and party_type %}
+			{{ _(party_type) | e }} — {{ party | e }}
+		{% else %}
+			{{ _("Your account is not linked to a supplier or a customer. Ask your contact at the company.") }}
+		{% endif %}
+	</div>
+
+	{% if cards %}
+	<table>
+		<thead>
+			<tr>
+				<th>{{ _("Card") }}</th>
+				<th>{{ _("Equipment") }}</th>
+				<th>{{ _("Project") }}</th>
+				<th>{{ _("Month") }}</th>
+				<th>{{ _("Year") }}</th>
+				<th>{{ _("Shift") }}</th>
+				<th>{{ _("Hours") }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for c in cards %}
+			<tr>
+				<td>{{ c.name | e }}</td>
+				<td>{{ (c.equipment_name or c.equipment or "") | e }}</td>
+				<td>{{ (c.project or "") | e }}</td>
+				<td>{{ (c.month or "") | e }}</td>
+				<td>{{ (c.year or "") | e }}</td>
+				<td>{{ _(c.shift or "") | e }}</td>
+				<td>{{ "%g" | format(c.total_working_hours or 0) }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% elif party %}
+	<p class="empty">{{ _("No cards yet for your account.") }}</p>
+	{% endif %}
+</div>
+{% endblock %}

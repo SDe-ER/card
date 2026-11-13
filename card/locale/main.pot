@@ -7149,3 +7149,31 @@ msgstr ""
 #: card/governance.py
 msgid "Workflow state edit refused"
 msgstr ""
+
+#: card/www/card-portal/index.py
+msgid "My cards"
+msgstr ""
+
+#: card/www/card-portal/view/index.py
+msgid "My card"
+msgstr ""
+
+#: card/www/card-portal/view/index.py
+msgid "Card {0}"
+msgstr ""
+
+#: card/www/card-portal/index.html
+msgid "Your account is not linked to a supplier or a customer. Ask your contact at the company."
+msgstr ""
+
+#: card/www/card-portal/index.html
+msgid "No cards yet for your account."
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Party portal (preview)"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Enable party portal (preview)"
+msgstr ""

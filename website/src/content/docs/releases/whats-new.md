@@ -32,6 +32,12 @@ per site.
 
 ### Operations
 
+- **2026-11-13 — Party portal scaffold, built but not reachable yet.** The groundwork for the supplier /
+  customer portal that will let a partner see only their own monthly cards is now in the code. In this release
+  it is **not reachable**: every URL under `/card-portal` returns "page not found", no permission is granted to
+  the Supplier or Customer roles, and the preview switch on Company settings is off on every company. A later
+  release wires the routes and the permission hook, and the owner turns the switch on per company when he is
+  ready. The owner's 2026-11-10 decision is kept: the portal is in scope, off by default.
 - **2026-11-13 — Where a day on a monthly card came from.** Each day row on a monthly card can now record its
   source (manual — the default, paper sheet, WhatsApp, mobile app or import), an optional external key (sheet
   number, message id) and the time the office received the source. A day's intake fields are optional, and a card
