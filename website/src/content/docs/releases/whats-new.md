@@ -41,6 +41,12 @@ per site.
   (negative amount) is gated by its absolute size. A matching ERPNext Authorization Rule on the generated
   Purchase or Sales Invoice complements the source gate at the invoice side; the owner configures the two
   together per company. Administrator is not exempt from the tier gate.
+- **2026-11-13 — Party portal scaffold, built but not reachable yet.** The groundwork for the supplier /
+  customer portal that will let a partner see only their own monthly cards is now in the code. In this release
+  it is **not reachable**: every URL under `/card-portal` returns "page not found", no permission is granted to
+  the Supplier or Customer roles, and the preview switch on Company settings is off on every company. A later
+  release wires the routes and the permission hook, and the owner turns the switch on per company when he is
+  ready. The owner's 2026-11-10 decision is kept: the portal is in scope, off by default.
 - **2026-11-13 — Equipment operating groups and a Diesel Group Analysis report.** An operating group is a named
   set of machines that work together — for example a crusher plant made of a crusher, a generator and an
   excavator. Each group belongs to one company; a machine belongs to at most one active group of its company at

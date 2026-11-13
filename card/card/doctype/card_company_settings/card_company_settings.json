@@ -58,7 +58,9 @@
   "diesel_allocation_section",
   "tank_estimate_weighting",
   "approval_tiers_section",
-  "approval_tier_thresholds"
+  "approval_tier_thresholds",
+  "party_portal_section",
+  "enable_party_portal"
  ],
  "fields": [
   {
@@ -444,13 +446,28 @@
    "label": "Approval tier thresholds",
    "options": "Card Approval Tier Threshold",
    "permlevel": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "party_portal_section",
+   "fieldtype": "Section Break",
+   "label": "Party portal (preview)",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "description": "Preview switch for the supplier / customer portal under /card-portal (FR-161, WP-O1 scaffold). 0 (default): the portal returns 404 for every viewer, hiding its existence. 1: enables the portal views on this company; WP-O2 (wave 10) wires the website routes and the own-party permission hooks, and the owner grants read to the Supplier and Customer roles on his explicit approval (O-16). Flipping this to 1 before WP-O2 is deployed has no effect on the live site: the routes are not wired yet, and the portal roles still have no read DocPerm on Card Monthly Card.",
+   "fieldname": "enable_party_portal",
+   "fieldtype": "Check",
+   "label": "Enable party portal (preview)",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-13 10:00:00.000000",
+ "modified": "2026-11-13 14:25:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",
