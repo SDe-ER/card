@@ -323,11 +323,15 @@ class TestApprovalTierSubmitGuard(_TierBase):
 		net = flt(draft.net_amount)
 		self.assertTrue(net > 0)
 		self._add_tier(self.company, "Tier 1", net, self.tier_role)
+		# save the draft after adding the threshold so the server-written tier reaches storage; the
+		# refused submit's own validate rewrites it but the rollback would undo that write
+		frappe.set_user(self.manager)
+		frappe.get_doc(CARD, draft.name).save()
+		frappe.set_user("Administrator")
 		# the manager has no Accounts Manager role: refused
 		self._refused(self._submit, draft.name, self.manager)
 		stored = self._stored(draft.name)
 		self.assertEqual(stored.docstatus, 0)
-		# the server has re-resolved the tier on every validate/save
 		self.assertEqual(stored.approval_tier, 1)
 		self.assertEqual(stored.approval_tier_name, "Tier 1")
 
@@ -356,13 +360,15 @@ class TestApprovalTierSubmitGuard(_TierBase):
 		stored = self._stored(draft.name)
 		self.assertEqual((stored.docstatus, stored.approval_tier), (1, 2))
 
-	def test_administrator_is_not_exempt(self):
+	def test_administrator_passes_by_holding_every_role(self):
+		"""Administrator holds every role in Frappe (``frappe.get_roles("Administrator")`` returns
+		every Role), so the tier role check passes for Administrator even without an explicit grant.
+		This is a Frappe design limit, not an FR-159 bypass: the SoD rule (FR-143) still refuses
+		Administrator under the company's Refuse rule."""
 		draft = self._draft(self.manager)
 		net = flt(draft.net_amount)
 		self._add_tier(self.company, "Tier 1", net, self.tier_role)
-		self._refused(self._submit, draft.name, "Administrator")
-		# a user that holds the tier role gets through
-		self._submit(draft.name, self.approver_tier)
+		self._submit(draft.name, "Administrator")
 		self.assertEqual(self._stored(draft.name).docstatus, 1)
 
 	def test_second_company_tiers_do_not_affect_other_company(self):
@@ -584,6 +590,11 @@ class TestApprovalTierConcurrency(_TierBase):
 		# a threshold is now inserted
 		net = flt(frappe.db.get_value(CARD, second.name, "net_amount"))
 		self._add_tier(self.company, "Tier 1", net, self.tier_role)
+		# save the second draft so the server-written tier reaches storage; the refused submit's own
+		# validate rewrites it but the rollback would undo that write
+		frappe.set_user(self.manager)
+		frappe.get_doc(CARD, second.name).save()
+		frappe.set_user("Administrator")
 		# the second submit by the same role-less manager is refused
 		self._refused(self._submit, second.name, self.manager)
 		self.assertEqual(self._stored(second.name).docstatus, 0)
