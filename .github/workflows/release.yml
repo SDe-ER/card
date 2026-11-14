@@ -14,6 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # all tags, so the highest SemVer tag can be found
+
+      - name: Decide whether this tag is the highest SemVer release
+        id: latest
+        run: |
+          # Only plain X.Y.Z tags count; pre-release tags never take "Latest".
+          # no plain X.Y.Z tag yet (first pre-release only): grep exits 1 and pipefail would fail the step
+          HIGHEST=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -V | tail -1 || true)
+          if [ "${GITHUB_REF_NAME#v}" = "$HIGHEST" ]; then
+            MAKE_LATEST=true
+          else
+            MAKE_LATEST=false
+          fi
+          echo "make_latest=${MAKE_LATEST}" >> "$GITHUB_OUTPUT"
+          echo "Tag ${GITHUB_REF_NAME}; highest SemVer tag ${HIGHEST}; make_latest=${MAKE_LATEST}"
 
       - name: Extract CHANGELOG section for this tag
         run: |
@@ -34,3 +50,4 @@ jobs:
           body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false
+          make_latest: ${{ steps.latest.outputs.make_latest }}
