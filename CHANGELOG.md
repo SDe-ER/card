@@ -15,6 +15,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **CI — release Latest by SemVer (`.github/workflows/release.yml`).** Reason: release v4.6.0 was published 12 seconds after v4.7.0 (2026-11-10) with `make_latest` not set, so GitHub showed v4.6.0 as Latest until v4.7.0 was marked Latest on 2026-11-14. The workflow now fetches all tags and sets `make_latest` to `true` only for the highest plain X.Y.Z tag, and `false` otherwise; it does not fail when no plain tag exists yet. Affected: the release workflow only; no app code, data, permissions or API. Rollback: revert the workflow file. Verified by a local dry run of the decision with simulated tag names (v4.7.0 true; v4.6.0 and v5.0.0-rc1 false); it runs for real on the next tag.
+
 ### Added
 
 _Nothing yet._
