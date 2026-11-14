@@ -593,9 +593,14 @@ def _card_day_after(equipment, project, tdate):
 
 # ---------- card-day validation (Card Monthly Card before_validate) ----------
 def is_billed_day(d):
-	"""A card day row that bills: operating hours, or (FR-118) stopped hours of an
-	explicitly billable stop reason. With no billable reason this is the old rule."""
-	return flt(d.working_hours) > 0 or (cint(d.get("reason_billable")) and flt(d.get("stopped_hours")) > 0)
+	"""A card day row that bills: operating hours, loads (FR-166: a per-m³ load is billed on a zero-hour day),
+	or (FR-118) stopped hours of an explicitly billable stop reason. With no loads and no billable reason this
+	is the old rule."""
+	return (
+		flt(d.working_hours) > 0
+		or cint(d.get("loads_count")) > 0
+		or (cint(d.get("reason_billable")) and flt(d.get("stopped_hours")) > 0)
+	)
 
 
 def billed_day_rows(card_names):
@@ -609,7 +614,14 @@ def billed_day_rows(card_names):
 			["parent", "in", list(card_names)],
 			["parenttype", "=", "Card Monthly Card"],
 		],
-		fields=["parent", "operation_date", "working_hours", "reason_billable", "stopped_hours"],
+		fields=[
+			"parent",
+			"operation_date",
+			"working_hours",
+			"loads_count",
+			"reason_billable",
+			"stopped_hours",
+		],
 		limit_page_length=0,
 		parent_doctype="Card Monthly Card",
 	)

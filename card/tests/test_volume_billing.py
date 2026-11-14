@@ -172,6 +172,21 @@ class TestVolumeBilling(_StopBase):
 		self.assertEqual(card.days[0].loads_count, 0)
 		self.assertEqual(card.total_loads, 0)
 
+	def test_loads_only_day_outside_the_assignment_is_refused(self):
+		# review (2709979): a zero-hour day with loads bills the customer, so the assignment rule applies to it too
+		eq = self._volume_equipment()
+		frappe.get_doc(
+			{
+				"doctype": "Card Equipment Assignment",
+				"equipment": eq.name,
+				"project": self.project,
+				"from_date": "2026-09-01",
+				"to_date": "2026-09-01",
+			}
+		).insert(ignore_permissions=True)
+		with self.assertRaisesRegex(frappe.ValidationError, "outside the equipment's assignment period"):
+			self._volume_card(eq, [{"working_hours": 8}, {"loads_count": 5, "working_hours": 0}])
+
 	def test_priced_volume_is_exact_before_rounding(self):
 		# FR-166 (review F2): 7 x 1.2345 x 3 = 25.9245, rounded once to 25.92 (no intermediate rounding)
 		eq = self._volume_equipment(customer_rate=3, load_volume=1.2345)
