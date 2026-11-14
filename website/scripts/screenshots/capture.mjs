@@ -25,8 +25,23 @@ const { shots } = JSON.parse(readFileSync(join(here, "shots.json"), "utf8"));
 
 // API calls go through the demo user's logged-in session (set after login in run()).
 let apiCtx;
+// Session POSTs need Frappe's CSRF token; it is read from the logged-in desk page once per session.
+let csrfToken = null;
+async function getCsrf() {
+  if (!csrfToken) {
+    const html = await (await apiCtx.get(`${SITE}/app`)).text();
+    const m = html.match(/csrf_token["'\s:=]+["']([^"']{16,})["']/);
+    if (!m) throw new Error("csrf token not found on /app");
+    csrfToken = m[1];
+  }
+  return csrfToken;
+}
+
 async function api(_ctx, method, args) {
-  const r = await apiCtx.post(`${SITE}/api/method/${method}`, { data: args });
+  const r = await apiCtx.post(`${SITE}/api/method/${method}`, {
+    data: args,
+    headers: { "X-Frappe-CSRF-Token": await getCsrf() },
+  });
   if (!r.ok()) throw new Error(`${method}: ${r.status()} ${await r.text()}`);
   return (await r.json()).message;
 }
@@ -164,6 +179,7 @@ async function run() {
     if (!login.ok()) throw new Error(`login failed: ${login.status()}`);
     // API calls reuse this logged-in session, so no API key pair is needed.
     apiCtx = ctx.request;
+    csrfToken = null;
     await api(ctx, "frappe.client.set_value", {
       doctype: "User",
       name: USER,
