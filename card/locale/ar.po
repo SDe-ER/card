@@ -8678,9 +8678,6 @@ msgstr "عدد الردود"
 msgid "Negative loads on day {0}"
 msgstr "عدد ردود سالب في اليوم {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "لا تُسجَّل الردود إلا في يوم عمل: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "لا يمكن تسجيل ردود ليوم مستقبلي: {0}"
 

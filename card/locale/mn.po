@@ -32,9 +32,6 @@ msgstr "Ачаа"
 msgid "Negative loads on day {0}"
 msgstr "{0} өдрийн сөрөг ачаа"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Ачааг зөвхөн ажлын өдөр бүртгэнэ: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Ирээдүйн өдрийн ачааг бүртгэх боломжгүй: {0}"
 

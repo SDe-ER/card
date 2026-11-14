@@ -32,9 +32,6 @@ msgstr "Reyslar"
 msgid "Negative loads on day {0}"
 msgstr "{0}-kuni manfiy reyslar"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Reyslar faqat ish kunida qayd etiladi: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Kelajak kun uchun reys qayd etib bo'lmaydi: {0}"
 

@@ -32,9 +32,6 @@ msgstr "Cargas"
 msgid "Negative loads on day {0}"
 msgstr "Cargas negativas el día {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Las cargas solo se pueden registrar en un día laborable: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "No se pueden registrar cargas para un día futuro: {0}"
 

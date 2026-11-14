@@ -32,9 +32,6 @@ msgstr "Kuormat"
 msgid "Negative loads on day {0}"
 msgstr "Negatiiviset kuormat päivänä {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Kuormia voi kirjata vain työpäivänä: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Kuormia ei voi kirjata tulevalle päivälle: {0}"
 

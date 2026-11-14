@@ -32,9 +32,6 @@ msgstr "Vožnje"
 msgid "Negative loads on day {0}"
 msgstr "Negativne vožnje za dan {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Vožnje se mogu unositi samo radnim danom: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Vožnje se ne mogu unositi za budući dan: {0}"
 

@@ -496,9 +496,6 @@ msgstr "लोड"
 msgid "Negative loads on day {0}"
 msgstr "दिन {0} पर ऋणात्मक लोड"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "लोड केवल कार्य दिवस पर दर्ज किए जा सकते हैं: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "भविष्य के दिन के लिए लोड दर्ज नहीं किए जा सकते: {0}"
 

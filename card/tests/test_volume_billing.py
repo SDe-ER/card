@@ -360,7 +360,6 @@ class TestVolumeBilling(_StopBase):
 			"Total volume (m³)",
 			"Loads",
 			"Negative loads on day {0}",
-			"Loads can be recorded only on a working day: {0}",
 			"Cannot record loads for a future day: {0}",
 			"بالمتر المكعب",
 			"Loads last month",

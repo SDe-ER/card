@@ -32,9 +32,6 @@ msgstr "ចំនួនផ្ទុក"
 msgid "Negative loads on day {0}"
 msgstr "ចំនួនផ្ទុកអវិជ្ជមាននៅថ្ងៃ {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "អាចកត់ត្រាចំនួនផ្ទុកបានតែនៅថ្ងៃធ្វើការ៖ {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "មិនអាចកត់ត្រាចំនួនផ្ទុកសម្រាប់ថ្ងៃអនាគតបានទេ៖ {0}"
 

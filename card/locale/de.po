@@ -32,9 +32,6 @@ msgstr "Fuhren"
 msgid "Negative loads on day {0}"
 msgstr "Negative Fuhren am Tag {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Fuhren können nur an einem Arbeitstag erfasst werden: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Fuhren können nicht für einen zukünftigen Tag erfasst werden: {0}"
 

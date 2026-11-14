@@ -32,9 +32,6 @@ msgstr "Рейсы"
 msgid "Negative loads on day {0}"
 msgstr "Отрицательные рейсы за {0}-е число"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Рейсы можно вносить только в рабочий день: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Нельзя вносить рейсы за будущий день: {0}"
 

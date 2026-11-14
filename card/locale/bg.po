@@ -32,9 +32,6 @@ msgstr "Курсове"
 msgid "Negative loads on day {0}"
 msgstr "Отрицателни курсове за ден {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Курсове може да се записват само в работен ден: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Не може да се записват курсове за бъдещ ден: {0}"
 

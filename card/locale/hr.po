@@ -32,9 +32,6 @@ msgstr "Tereti"
 msgid "Negative loads on day {0}"
 msgstr "Negativni tereti za dan {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Tereti se mogu evidentirati samo radnim danom: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Tereti se ne mogu evidentirati za budući dan: {0}"
 

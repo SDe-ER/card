@@ -32,9 +32,6 @@ msgstr "بارها"
 msgid "Negative loads on day {0}"
 msgstr "بارهای منفی در روز {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "بار فقط در روز کاری قابل ثبت است: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "ثبت بار برای روز آینده امکان‌پذیر نیست: {0}"
 

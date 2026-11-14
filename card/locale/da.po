@@ -32,9 +32,6 @@ msgstr "Læs"
 msgid "Negative loads on day {0}"
 msgstr "Negative læs på dag {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Læs kan kun registreres på en arbejdsdag: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Læs kan ikke registreres for en fremtidig dag: {0}"
 

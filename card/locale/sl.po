@@ -32,9 +32,6 @@ msgstr "Tovori"
 msgid "Negative loads on day {0}"
 msgstr "Negativni tovori na dan {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Tovore je mogoče vnesti samo na delovni dan: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Tovorov ni mogoče vnesti za prihodnji dan: {0}"
 

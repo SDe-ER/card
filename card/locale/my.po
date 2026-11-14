@@ -32,9 +32,6 @@ msgstr "ခရီးစဉ်"
 msgid "Negative loads on day {0}"
 msgstr "ရက် {0} တွင် အနုတ်ခရီးစဉ်"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "ခရီးစဉ်ကို အလုပ်ရက်တွင်သာ မှတ်တမ်းတင်နိုင်သည်: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "နောင်ရက်အတွက် ခရီးစဉ် မှတ်တမ်းတင်၍ မရပါ: {0}"
 

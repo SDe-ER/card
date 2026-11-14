@@ -32,9 +32,6 @@ msgstr "Viagens"
 msgid "Negative loads on day {0}"
 msgstr "Viagens negativas no dia {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "As viagens só podem ser registadas em dia útil: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Não é possível registar viagens para um dia futuro: {0}"
 

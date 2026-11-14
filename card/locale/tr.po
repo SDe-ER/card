@@ -32,9 +32,6 @@ msgstr "Seferler"
 msgid "Negative loads on day {0}"
 msgstr "{0} gününde negatif sefer"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Sefer yalnızca iş gününde kaydedilebilir: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Gelecek bir gün için sefer kaydedilemez: {0}"
 

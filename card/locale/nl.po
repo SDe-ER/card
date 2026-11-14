@@ -32,9 +32,6 @@ msgstr "Ritten"
 msgid "Negative loads on day {0}"
 msgstr "Negatieve ritten op dag {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Ritten kunnen alleen op een werkdag worden vastgelegd: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Ritten kunnen niet voor een toekomstige dag worden vastgelegd: {0}"
 

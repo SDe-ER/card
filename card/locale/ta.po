@@ -32,9 +32,6 @@ msgstr "சரக்கு பயணங்கள்"
 msgid "Negative loads on day {0}"
 msgstr "{0} ஆம் நாளில் எதிர்மறை பயணங்கள்"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "வேலை நாளில் மட்டுமே பயணங்களைப் பதிவு செய்ய முடியும்: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "எதிர்கால நாளுக்கு பயணங்களைப் பதிவு செய்ய முடியாது: {0}"
 

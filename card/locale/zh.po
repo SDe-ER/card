@@ -32,9 +32,6 @@ msgstr "车次"
 msgid "Negative loads on day {0}"
 msgstr "{0} 日出现负车次"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "车次只能在工作日登记：{0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "不能登记未来日期的车次：{0}"
 

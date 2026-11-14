@@ -32,9 +32,6 @@ msgstr "Fuvarok"
 msgid "Negative loads on day {0}"
 msgstr "Negatív fuvarok a(z) {0}. napon"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Fuvar csak munkanapon rögzíthető: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Fuvar nem rögzíthető jövőbeli napra: {0}"
 

@@ -229,8 +229,6 @@ class CardMonthlyCard(Document):
 			loads = cint(row.loads_count)
 			if loads < 0:
 				frappe.throw(_("Negative loads on day {0}").format(key))
-			if loads and row.day_status != "عمل":
-				frappe.throw(_("Loads can be recorded only on a working day: {0}").format(key))
 			if loads and d > today:
 				frappe.throw(_("Cannot record loads for a future day: {0}").format(key))
 			loads_total = loads_total + loads

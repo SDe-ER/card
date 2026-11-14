@@ -32,9 +32,6 @@ msgstr "Muatan"
 msgid "Negative loads on day {0}"
 msgstr "Muatan negatif pada hari {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Muatan hanya dapat dicatat pada hari kerja: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Muatan tidak dapat dicatat untuk hari mendatang: {0}"
 

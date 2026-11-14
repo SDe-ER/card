@@ -32,9 +32,6 @@ msgstr "운반 횟수"
 msgid "Negative loads on day {0}"
 msgstr "{0}일의 음수 운반 횟수"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "운반 횟수는 근무일에만 기록할 수 있습니다: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "미래 날짜에는 운반 횟수를 기록할 수 없습니다: {0}"
 

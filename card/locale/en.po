@@ -298,9 +298,6 @@ msgstr "Loads"
 msgid "Negative loads on day {0}"
 msgstr "Negative loads on day {0}"
 
-msgid "Loads can be recorded only on a working day: {0}"
-msgstr "Loads can be recorded only on a working day: {0}"
-
 msgid "Cannot record loads for a future day: {0}"
 msgstr "Cannot record loads for a future day: {0}"
 
