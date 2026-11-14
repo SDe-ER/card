@@ -217,21 +217,44 @@ class TestVolumeBilling(_StopBase):
 		finally:
 			frappe.set_user("Administrator")
 
-	def test_card_user_reads_the_volume_and_the_number_card_still_works(self):
+	def test_card_user_and_card_manager_read_the_volume_number_card(self):
 		from card.card_value import volume_last_month
 		from card.tests.test_card_money_privacy import _user
 
 		eq = self._volume_equipment()
 		self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		for role in ("Card User", "Card Manager"):
+			frappe.set_user(_user([role], restrict=self.company))
+			try:
+				rows = frappe.get_list("Card Monthly Card", fields=["total_volume_m3"], limit=1)
+				self.assertTrue(rows and "total_volume_m3" in rows[0], role)
+				result = volume_last_month({"company": self.company})
+			finally:
+				frappe.set_user("Administrator")
+			self.assertEqual(result["fieldtype"], "Float", role)
+			self.assertGreaterEqual(flt(result["value"]), 0, role)
+
+	def test_volume_number_card_refuses_a_read_without_permlevel_1(self):
+		# owner review: a user who can read the card but not the permlevel-1 volume gets PermissionError, never 0.
+		# The field-level rule is overridden only inside this test (no real DocPerm is changed).
+		from unittest import mock
+
+		from card.card_value import volume_last_month
+		from card.tests.test_card_money_privacy import _user
+
+		meta_cls = type(frappe.get_meta("Card Monthly Card"))
+		original = meta_cls.get_permitted_fieldnames
+
+		def without_level_1(self, *args, **kwargs):
+			return [f for f in original(self, *args, **kwargs) if f != "total_volume_m3"]
+
 		frappe.set_user(_user(["Card User"], restrict=self.company))
 		try:
-			rows = frappe.get_list("Card Monthly Card", fields=["total_volume_m3"], limit=1)
-			self.assertTrue(rows and "total_volume_m3" in rows[0])
-			result = volume_last_month({"company": self.company})
+			with mock.patch.object(meta_cls, "get_permitted_fieldnames", without_level_1):
+				with self.assertRaises(frappe.PermissionError):
+					volume_last_month({"company": self.company})
 		finally:
 			frappe.set_user("Administrator")
-		self.assertEqual(result["fieldtype"], "Float")
-		self.assertGreaterEqual(flt(result["value"]), 0)
 
 	# ---- submitted cards and period runs ----
 	def test_submitted_card_is_not_repriced_by_an_equipment_change(self):

@@ -287,6 +287,12 @@ def _volume_last_month(filters):
 	"""FR-166: the submitted per-m³ cards of last month, company-scoped like the other monthly values.
 	Permission-checked read; drafts are not counted."""
 	frappe.has_permission(CARD, "read", throw=True)
+	# owner review: total_volume_m3 is permlevel 1. A user who may read the card but not that field is refused
+	# here; a 0 would be a misleading value (the query builder would silently drop the field)
+	if "total_volume_m3" not in frappe.get_meta(CARD).get_permitted_fieldnames(permission_type="read"):
+		frappe.throw(
+			_("You do not have permission to read the total volume on monthly cards"), frappe.PermissionError
+		)
 	filters = _filters(filters)
 	start, end = _last_month()
 	conditions = [

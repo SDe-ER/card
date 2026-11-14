@@ -104,12 +104,13 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
 
 ## How volume billing appears
 
-- **Monthly card print**: the print shows Total loads and Total volume (m³) for per-m³ cards, next to the rate and the
-  total. Users without money read (for example Card Operator) get the print without any rate or amount column.
+- **Monthly card print**: the print shows Total loads for per-m³ cards to everyone who can read the card. Total volume (m³),
+  the rate and the amount are money-level: they appear only for users with money read (Card User and Card Manager). Card Operator
+  gets the print without any of them.
 - **Customer statement**: a per-m³ row shows the basis, total loads, total volume, the rate per m³ and the amount. The
   row has no hourly rate and no hours-divided figure.
-- **Dashboard**: two number cards on the CARD workspace show the loads and the volume of last month, from submitted
-  per-m³ cards, for the companies the user may read.
+- **Dashboard**: two number cards on the CARD workspace show the loads and the volume of last month, from submitted per-m³ cards,
+  for the companies the user may read. A user who may read the card but not the volume gets an error on the volume card, never a 0.
 
 ## Permissions
 
