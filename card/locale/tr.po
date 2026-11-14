@@ -43,3 +43,6 @@ msgstr "Geçen ay seferleri"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Sefer yalnızca müşteri fiyat türü m³ başına olan karta kaydedilebilir"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Bu kartta çalışma saatleri var ama yük yok, bu yüzden müşteri tutarı sıfır. Yükleri kontrol edin."

@@ -43,3 +43,6 @@ msgstr "Kuormat viime kuussa"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Kuormia voi kirjata vain kortille, jonka asiakashinnoittelu on per m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Tässä kortissa on käyttötunteja mutta ei kuormia, joten asiakkaan summa on nolla. Tarkista kuormat."

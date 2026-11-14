@@ -43,3 +43,6 @@ msgstr "Náklady za minulý měsíc"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Náklady lze zapsat pouze na kartu, jejíž typ sazby zákazníka je za m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Tato karta má provozní hodiny, ale žádné nakládky, takže částka zákazníka je nulová. Zkontrolujte nakládky."

@@ -43,3 +43,6 @@ msgstr "ចំនួនផ្ទុកខែមុន"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "អាចកត់ត្រាចំនួនផ្ទុកបានតែលើកាតដែលប្រភេទអត្រាអតិថិជនជាក្នុងមួយ m³ ប៉ុណ្ណោះ"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "កាតនេះមានម៉ោងប្រតិបត្តិការ តែគ្មានចំនួនដឹក ដូច្នេះចំនួនទឹកប្រាក់អតិថិជនគឺសូន្យ។ សូមពិនិត្យចំនួនដឹក។"

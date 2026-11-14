@@ -43,3 +43,6 @@ msgstr "கடந்த மாத பயணங்கள்"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "வாடிக்கையாளர் கட்டண வகை m³ க்கு என உள்ள அட்டையில் மட்டுமே பயணங்களைப் பதிவு செய்ய முடியும்"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "இந்த அட்டையில் இயக்க நேரம் உள்ளது ஆனால் ஏற்றுதல்கள் இல்லை, எனவே வாடிக்கையாளர் தொகை பூஜ்யம். ஏற்றுதல்களைச் சரிபார்க்கவும்."

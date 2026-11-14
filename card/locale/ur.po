@@ -507,3 +507,6 @@ msgstr "پچھلے مہینے کے لوڈ"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "لوڈ صرف اس کارڈ پر درج کیے جا سکتے ہیں جس کی کسٹمر ریٹ کی قسم فی m³ ہو"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "اس کارڈ میں آپریشن کے گھنٹے ہیں مگر لوڈ نہیں ہیں، اس لیے گاہک کی رقم صفر ہے۔ لوڈ چیک کریں۔"

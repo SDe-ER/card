@@ -43,3 +43,6 @@ msgstr "Rotations du mois dernier"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Les rotations ne peuvent être saisies que sur une carte dont le type de tarif client est au m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Cette carte a des heures d'exploitation mais aucune charge, donc le montant client est nul. Vérifiez les charges."

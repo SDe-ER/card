@@ -43,3 +43,6 @@ msgstr "O'tgan oy reyslari"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Reyslar faqat mijoz narx turi m³ uchun bo'lgan kartada qayd etiladi"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Bu kartada ish soatlari bor, lekin yuklar yo'q, shuning uchun mijoz summasi nolga teng. Yuklarni tekshiring."

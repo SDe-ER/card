@@ -43,3 +43,6 @@ msgstr "Muatan bulan lalu"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Muatan hanya dapat dicatat pada kartu dengan tipe tarif pelanggan per m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Kartu ini memiliki jam operasi tetapi tanpa muatan, sehingga jumlah pelanggan nol. Periksa muatannya."

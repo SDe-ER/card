@@ -26,7 +26,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`loads_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
   hourly rate; two new columns), both monthly card print formats (loads and volume rows; the standard print removes
   every money column from users without money read, owner decision 2026-11-13), dashboard number card "Loads last
-  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a BOLA matrix row for the number-card endpoint,
+  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a non-blocking warning when a per-m³ card has
+  operating hours and no loads (customer amount zero; owner decision 2026-11-14), a BOLA matrix row for the number-card endpoint,
   translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
   docs. PR #258.
   Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new

@@ -43,3 +43,6 @@ msgstr "Lass forrige måned"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Lass kan bare registreres på et kort der kundens prisype er per m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Dette kortet har driftstimer, men ingen lass, så kundebeløpet er null. Kontroller lassene."

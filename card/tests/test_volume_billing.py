@@ -202,6 +202,17 @@ class TestVolumeBilling(_StopBase):
 		with self.assertRaisesRegex(frappe.ValidationError, "customer rate type is per m"):
 			self._volume_card(eq, [{"loads_count": 3, "working_hours": 10}])
 
+	def test_hours_without_loads_warn_and_still_save_and_submit(self):
+		# owner decision (2026-11-14): hours with no loads on a per-m³ card = customer amount 0; warn, never refuse
+		eq = self._volume_equipment()
+		frappe.local.message_log = []
+		card = self._volume_card(eq, [{"loads_count": 0, "working_hours": 10}], submit=True)
+		self.assertEqual(card.docstatus, 1)  # save and submit both succeed
+		self.assertEqual(flt(card.customer_amount), 0)
+		self.assertEqual(flt(card.total_working_hours), 10)  # hours stay recorded for cost
+		shown = " ".join(str(m) for m in frappe.local.message_log)
+		self.assertIn("This card has operating hours but no loads", shown)
+
 	def test_zero_loads_are_allowed_on_a_card_not_billed_per_m3(self):
 		eq = self._rented_out(customer_rate=1000)
 		card = self._volume_card(eq, [{"loads_count": 0, "working_hours": 10}])
@@ -364,6 +375,7 @@ class TestVolumeBilling(_StopBase):
 			"بالمتر المكعب",
 			"Loads last month",
 			"Loads can be recorded only on a card whose customer rate type is per m³",
+			"This card has operating hours but no loads, so the customer amount is zero. Check the loads.",
 		]
 		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
 		for path in glob.glob(os.path.join(locale_dir, "*.po")):

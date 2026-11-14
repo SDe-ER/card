@@ -507,3 +507,6 @@ msgstr "গত মাসের লোড"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "শুধু গ্রাহক হারের ধরন প্রতি ঘন মিটার হলে কার্ডে লোড নথিভুক্ত করা যায়"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "এই কার্ডে কার্যকরী ঘণ্টা আছে কিন্তু লোড নেই, তাই গ্রাহকের পরিমাণ শূন্য। লোড যাচাই করুন।"

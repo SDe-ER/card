@@ -43,3 +43,6 @@ msgstr "Fuhren letzter Monat"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Fuhren können nur auf einer Karte erfasst werden, deren Kundentarif pro m³ ist"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Diese Karte hat Betriebsstunden, aber keine Ladungen, daher ist der Kundenbetrag null. Bitte die Ladungen prüfen."

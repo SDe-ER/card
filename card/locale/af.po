@@ -43,3 +43,6 @@ msgstr "Ladings verlede maand"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ladings kan net op 'n kaart met kliënttarief-tipe per m³ aangeteken word"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Hierdie kaart het bedryfsure maar geen laaie nie, dus is die kliëntbedrag nul. Kontroleer die laaie."

@@ -43,3 +43,6 @@ msgstr "Fuvarok az előző hónapban"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Fuvar csak olyan kártyán rögzíthető, amelynek vevői díjtípusa m³-enként"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Ennek a kártyának van üzemóraja, de nincs fuvar, ezért a vevői összeg nulla. Ellenőrizze a fuvarokat."

@@ -43,3 +43,6 @@ msgstr "上月车次"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "只能在客户计价类型为按 m³ 的卡片上登记车次"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "该卡有运行小时但没有装载次数，因此客户金额为零。请核对装载次数。"

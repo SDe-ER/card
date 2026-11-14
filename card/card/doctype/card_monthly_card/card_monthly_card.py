@@ -415,6 +415,15 @@ class CardMonthlyCard(Document):
 				priced_volume = loads_total * self._load_volume_m3
 				self.total_volume_m3 = flt(priced_volume, 3)
 				self.customer_amount = flt(priced_volume * flt(self.customer_rate), 2)
+				if flt(total_hours) > 0 and not loads_total:
+					# owner decision (2026-11-14): hours stay recorded for cost; warn only, never refuse
+					frappe.msgprint(
+						_(
+							"This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+						),
+						indicator="orange",
+						alert=True,
+					)
 			elif bills_full_days(self.customer_rate_type, self.day_billing_basis):
 				self.customer_amount = flt(customer_billed_days * flt(self.customer_rate), 2)
 			else:

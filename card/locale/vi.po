@@ -43,3 +43,6 @@ msgstr "Số chuyến tháng trước"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Chỉ có thể ghi chuyến vào thẻ có loại đơn giá khách hàng là theo m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Thẻ này có giờ vận hành nhưng không có chuyến chở, nên số tiền khách hàng bằng không. Hãy kiểm tra số chuyến."

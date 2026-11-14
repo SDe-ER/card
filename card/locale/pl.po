@@ -43,3 +43,6 @@ msgstr "Kursy w poprzednim miesiącu"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Kursy można rejestrować tylko na karcie, której typ stawki klienta to za m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Ta karta ma godziny pracy, ale brak kursów, więc kwota klienta wynosi zero. Sprawdź kursy."

@@ -113,6 +113,8 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
   for the companies the user may read. The dashboard shows no volume and no amount; the volume is read on the monthly card,
   in the print and in the customer statement, where the existing permissions apply.
 
+- **Warning**: a per-m³ card with operating hours but no loads gets a warning on save and on submit, because its customer amount is zero. The warning does not block the save or the submit, and the hours stay recorded for cost. Check the loads before you submit.
+
 ## Permissions
 
 - The number of loads is a count the operator can enter. The total volume, the rate and the amount are restricted like money: Card User and Card Manager read them; Card Operator does not.

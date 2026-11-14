@@ -43,3 +43,6 @@ msgstr "ပြီးခဲ့သောလ ခရီးစဉ်"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "ဖောက်သည်နှုန်းအမျိုးအစား m³ လျှင် ဖြစ်သော ကတ်တွင်သာ ခရီးစဉ် မှတ်တမ်းတင်နိုင်သည်"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "ဤကဒ်တွင် လည်ပတ်ချိန်ရှိသော်လည်း ပို့ဆောင်မှုမရှိပါ၊ ထို့ကြောင့် ဖောက်သည်ငွေပမာဏ သုည ဖြစ်ပါသည်။ ပို့ဆောင်မှုများကို စစ်ဆေးပါ။"

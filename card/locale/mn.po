@@ -43,3 +43,6 @@ msgstr "Өмнөх сарын ачаа"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ачааг зөвхөн үйлчлүүлэгчийн тариф м³-ын үнээр тохируулсан картад бүртгэнэ"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Энэ картад ажиллах цаг байгаа ч ачилт байхгүй тул харилцагчийн дүн тэг байна. Ачилтаа шалгана уу."

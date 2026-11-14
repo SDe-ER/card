@@ -43,3 +43,6 @@ msgstr "Vožnje prošlog meseca"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Vožnje se mogu unositi samo na karticu čija je vrsta cene za kupca po m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Ova kartica ima radne sate, ali nema utovara, pa je iznos za kupca nula. Proverite utovare."

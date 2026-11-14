@@ -43,3 +43,6 @@ msgstr "Încărcături luna trecută"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Încărcăturile pot fi înregistrate doar pe un card al cărui tip de tarif pentru client este pe m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Acest card are ore de funcționare, dar nicio încărcătură, deci suma clientului este zero. Verificați încărcăturile."

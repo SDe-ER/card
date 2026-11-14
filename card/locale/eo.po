@@ -43,3 +43,6 @@ msgstr "Ŝarĝoj lastmonate"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ŝarĝoj rajtas esti registrataj nur en karto kies kliento-prezspeco estas po m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Ĉi tiu karto havas operaciajn horojn sed neniujn ŝarĝojn, do la kliento-sumo estas nulo. Kontrolu la ŝarĝojn."

@@ -43,3 +43,6 @@ msgstr "เที่ยวเดือนที่แล้ว"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "บันทึกเที่ยวได้เฉพาะการ์ดที่ประเภทอัตราลูกค้าเป็นต่อ m³ เท่านั้น"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "การ์ดนี้มีชั่วโมงการทำงานแต่ไม่มีการขนส่ง ดังนั้นยอดลูกค้าเป็นศูนย์ โปรดตรวจสอบจำนวนเที่ยวขนส่ง"

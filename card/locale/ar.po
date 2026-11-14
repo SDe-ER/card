@@ -8689,3 +8689,6 @@ msgstr "عدد الردود الشهر الماضي"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "لا يمكن تسجيل الردود إلا في كارت نوع سعر العميل فيه بالمتر المكعب"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "الكارت فيه ساعات تشغيل ومفيهوش ردود، فمبلغ العميل = صفر. اتأكد من عدد الردود."

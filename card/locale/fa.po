@@ -43,3 +43,6 @@ msgstr "بارهای ماه گذشته"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "ثبت بار فقط در کارتی امکان‌پذیر است که نوع نرخ مشتری آن به ازای هر متر مکعب باشد"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "این کارت ساعت کاری دارد اما بار ندارد، بنابراین مبلغ مشتری صفر است. بارها را بررسی کنید."

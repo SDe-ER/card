@@ -43,3 +43,6 @@ msgstr "Viagens do mês passado"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "As viagens só podem ser registadas num cartão cujo tipo de tarifa do cliente é por m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Este cartão tem horas de operação, mas nenhuma carga, por isso o valor do cliente é zero. Verifique as cargas."
