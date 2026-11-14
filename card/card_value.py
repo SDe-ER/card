@@ -303,10 +303,10 @@ def _volume_last_month(filters):
 	]
 	if filters.get("company"):
 		conditions.append([CARD, "company", "=", filters.get("company")])
-	# one aggregate row (SQL SUM, permission-checked by get_list), not one row per card
+	# one aggregate row (SUM through the dict field syntax, permission-checked by get_list), not one row per card
 	totals = frappe.get_list(
 		CARD,
-		fields=["sum(total_loads) as loads", "sum(total_volume_m3) as volume"],
+		fields=[{"SUM": "total_loads", "as": "loads"}, {"SUM": "total_volume_m3", "as": "volume"}],
 		filters=conditions,
 		limit=0,
 	)
