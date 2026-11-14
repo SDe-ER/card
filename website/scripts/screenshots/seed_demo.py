@@ -761,6 +761,10 @@ def seed():
 		frappe.db.set_value("Employee", EMPLOYEES["Ali"], "user_id", "operator@example.com")
 
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone seeding script run outside a request; each record is kept even if a later one fails
+	# Fail the job on any record error: a half-built demo must not be captured.
+	failed = [m for m in LOG if m.startswith("!")]
+	if failed:
+		raise RuntimeError(f"seed_demo: {len(failed)} record error(s); first: {failed[0]}")
 	log("SEED_DONE")
 
 

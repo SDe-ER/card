@@ -18,6 +18,23 @@ ABBR = "EXC"
 MANAGER = "demo.manager@example.com"
 
 
+def install_base_masters():
+	"""The ERPNext fixture installer the setup wizard runs (erpnext/setup/setup_wizard/setup_wizard.py L74-75,
+	stage_fixtures -> fixtures.install(country)). It creates Item Group, Territory, Customer Group, Supplier Group,
+	UOMs and the other base masters (erpnext/setup/setup_wizard/operations/install_fixtures.py L325-361)."""
+	from erpnext.setup.setup_wizard.operations import install_fixtures
+
+	install_fixtures.install("Saudi Arabia")
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone CI bootstrap run outside a request
+
+
+def ensure_gender():
+	# Not created by the installer above (not found in install_fixtures.py); the Employee link needs it.
+	for name in ("Male", "Female"):
+		if not frappe.db.exists("Gender", name):
+			frappe.get_doc({"doctype": "Gender", "gender": name}).insert(ignore_permissions=True)
+
+
 def ensure_warehouse_types():
 	# The setup wizard creates these; the company insert and CARD's diesel tanks need them.
 	for name in ("Transit", "Fuel Tank"):
@@ -87,6 +104,8 @@ def complete_setup():
 	for app in frappe.get_installed_apps():
 		if frappe.db.exists("Installed Application", {"app_name": app}):
 			enable_setup_wizard_complete(app)
+	# disable_future_access() (setup_wizard.py L409-410) sets this default; without it Desk opens the welcome page.
+	frappe.db.set_default("desktop:home_page", "workspace")
 	frappe.db.set_single_value("System Settings", "enable_onboarding", 0)
 	frappe.db.set_single_value("System Settings", "setup_complete", 1)
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone CI bootstrap run outside a request
@@ -96,6 +115,8 @@ def complete_setup():
 
 
 def prepare():
+	install_base_masters()
+	ensure_gender()
 	ensure_warehouse_types()
 	ensure_company()
 	ensure_fiscal_year()

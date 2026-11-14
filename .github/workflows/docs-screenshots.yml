@@ -91,12 +91,21 @@ jobs:
         run: |
           ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_operator.py').read())"
 
+      - name: Verify the per-m3 demo data
+        working-directory: /home/runner/frappe-bench/sites
+        run: |
+          ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_verify.py').read())"
+
       - name: Install Playwright (pinned, not a site dependency)
         working-directory: website
         run: |
           npm ci
           npm install --no-save playwright@1.64.1
           npx playwright install --with-deps chromium
+
+      - name: Clear the checked-in images on the runner (only fresh captures are uploaded)
+        working-directory: website
+        run: rm -rf src/assets/screenshots/en src/assets/screenshots/ar
 
       - name: Capture screenshots
         working-directory: website
@@ -105,6 +114,18 @@ jobs:
           USER_NAME: demo.manager@example.com
           COMPANY: Example Contracting Co.
         run: node scripts/screenshots/capture.mjs
+
+      - name: Verify the captured images (required volume-billing set, no duplicates)
+        working-directory: website
+        run: |
+          for l in en ar; do
+            dup=$(sha256sum src/assets/screenshots/$l/*.webp | awk '{print $1}' | sort | uniq -d | wc -l)
+            if [ "$dup" != "0" ]; then echo "::error::duplicate images in $l (a defect screen repeated)"; exit 1; fi
+            for n in volume-billing-equipment-commercial volume-billing-monthly-card-days volume-billing-card-totals volume-billing-print volume-billing-customer-statement volume-billing-loads-card; do
+              test -s "src/assets/screenshots/$l/$n.webp" || { echo "::error::missing $l/$n"; exit 1; }
+            done
+          done
+          echo "IMAGE GATE OK"
 
       - name: Upload the captured images
         uses: actions/upload-artifact@v4

@@ -33,17 +33,23 @@ def check():
 	from card.materials import PORTAL_ROLES, has_any_role, portal_context, session_employee
 
 	frappe.set_user(OPERATOR)
-	context = portal_context()
-	print(
-		"OPERATOR_CHECK employee=%s has_portal_role=%s allowed=%s machines=%s"
-		% (
-			bool(session_employee(OPERATOR)),
-			has_any_role(PORTAL_ROLES, OPERATOR),
-			context.get("allowed"),
-			len(context.get("machines") or []),
+	try:
+		context = portal_context()
+		employee = bool(session_employee(OPERATOR))
+		allowed = bool(context.get("allowed"))
+		print(
+			"OPERATOR_CHECK employee=%s has_portal_role=%s allowed=%s machines=%s"
+			% (
+				employee,
+				has_any_role(PORTAL_ROLES, OPERATOR),
+				allowed,
+				len(context.get("machines") or []),
+			)
 		)
-	)
-	frappe.set_user("Administrator")
+	finally:
+		frappe.set_user("Administrator")
+	if not (employee and allowed):
+		raise RuntimeError("operator is not allowed by CARD: employee and allowed must be True")
 
 
 configure()

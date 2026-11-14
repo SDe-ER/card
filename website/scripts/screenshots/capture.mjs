@@ -25,6 +25,9 @@ const { shots } = JSON.parse(readFileSync(join(here, "shots.json"), "utf8"));
 
 // API calls go through the demo user's logged-in session (set after login in run()).
 let apiCtx;
+// A page showing the Desk welcome screen or the "not configured" screen is a defect: the shot fails, no image is written.
+const DEFECT =
+  /Get Started|Let's give your business a home|not set up to ask for equipment needs|غير مهيأ لطلب/;
 // Session POSTs need Frappe's CSRF token; it is read from the logged-in desk page once per session.
 let csrfToken = null;
 async function getCsrf() {
@@ -247,6 +250,10 @@ async function run() {
           timeout: 60000,
         });
         await settle(page);
+        const landed = page.url();
+        const bodyText = await page.evaluate(() => document.body.innerText || "");
+        console.log(`[route] ${lang}/${s.name} -> ${landed}`);
+        if (DEFECT.test(bodyText)) throw new Error(`defect screen at ${landed}`);
         if (s.click) {
           await page
             .locator(s.click)
@@ -338,6 +345,7 @@ async function run() {
   }
   await browser.close();
   console.log(results.join("\n"));
+  if (results.some((r) => r.startsWith("FAIL"))) throw new Error("one or more screenshots failed");
 }
 
 run().catch((e) => {
