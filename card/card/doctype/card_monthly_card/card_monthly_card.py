@@ -421,8 +421,8 @@ class CardMonthlyCard(Document):
 						_(
 							"This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 						),
+						title=_("Check the loads"),
 						indicator="orange",
-						alert=True,
 					)
 			elif bills_full_days(self.customer_rate_type, self.day_billing_basis):
 				self.customer_amount = flt(customer_billed_days * flt(self.customer_rate), 2)

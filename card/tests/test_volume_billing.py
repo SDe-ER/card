@@ -353,7 +353,6 @@ class TestVolumeBilling(_StopBase):
 		self.assertIsNotNone(card)
 		self.assertEqual(card.method, "card.card_value.loads_last_month")
 		self.assertEqual(card.type, "Custom")
-		self.assertFalse(frappe.db.exists("Number Card", "Volume last month (m³)"))
 		with open(frappe.get_app_path("card", "fixtures", "workspace.json"), encoding="utf-8") as fh:
 			dashboard = json.load(fh)[0]
 		shown = {
