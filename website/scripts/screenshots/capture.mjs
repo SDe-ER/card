@@ -23,7 +23,7 @@ const COMPANY = process.env.COMPANY || "Example Contracting Co.";
 const only = process.argv.slice(2);
 const { shots } = JSON.parse(readFileSync(join(here, "shots.json"), "utf8"));
 
-// API calls use token auth (API_TOKEN="key:secret" of the demo user) so they never depend on the browser session.
+// API calls go through the demo user's logged-in session (set after login in run()).
 let apiCtx;
 async function api(_ctx, method, args) {
   const r = await apiCtx.post(`${SITE}/api/method/${method}`, { data: args });
@@ -151,12 +151,6 @@ async function clickText(page, texts) {
 
 async function run() {
   const browser = await chromium.launch();
-  const { request } = createRequire(
-    process.env.PLAYWRIGHT_FROM || import.meta.url,
-  )("playwright");
-  apiCtx = await request.newContext({
-    extraHTTPHeaders: { Authorization: `token ${process.env.API_TOKEN}` },
-  });
   const results = [];
   for (const lang of ["en", "ar"]) {
     const ctx = await browser.newContext({
@@ -168,6 +162,8 @@ async function run() {
       data: { usr: USER, pwd: PASS },
     });
     if (!login.ok()) throw new Error(`login failed: ${login.status()}`);
+    // API calls reuse this logged-in session, so no API key pair is needed.
+    apiCtx = ctx.request;
     await api(ctx, "frappe.client.set_value", {
       doctype: "User",
       name: USER,

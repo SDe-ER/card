@@ -77,8 +77,6 @@ jobs:
 
       - name: Bootstrap company, fiscal year and demo manager
         working-directory: /home/runner/frappe-bench/sites
-        env:
-          DEMO_KEYS_FILE: ${{ runner.temp }}/demo_keys.json
         run: |
           ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_bootstrap.py').read())"
 
@@ -87,15 +85,6 @@ jobs:
         run: |
           ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/seed_demo.py').read())" | tee "${RUNNER_TEMP}/seed.log"
           grep -q SEED_DONE "${RUNNER_TEMP}/seed.log"
-
-      - name: Read the demo API key pair (masked)
-        run: |
-          key=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['api_key'])" "${RUNNER_TEMP}/demo_keys.json")
-          secret=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['api_secret'])" "${RUNNER_TEMP}/demo_keys.json")
-          echo "::add-mask::${key}"
-          echo "::add-mask::${secret}"
-          echo "API_TOKEN=${key}:${secret}" >> "$GITHUB_ENV"
-          rm -f "${RUNNER_TEMP}/demo_keys.json"
 
       - name: Install Playwright (pinned, not a site dependency)
         working-directory: website
