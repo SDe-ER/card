@@ -64,6 +64,7 @@ On each day row of the monthly card:
 - On a day that is not a working day (leave, breakdown, client stop) the loads are cleared when the card is saved,
   as the operating hours are. Loads cannot be recorded for a future date. Future dates are refused for hours too.
 - A negative number of loads is refused.
+- Loads are refused on a card whose customer rate type is not per m³ (per day, per hour or per month). Such a card keeps zero loads.
 
 The card totals then show:
 
@@ -112,8 +113,7 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
 
 ## Permissions
 
-- The loads, the volume and the totals are counts and volumes. The rate and the amount are money and keep their
-  existing permission (Card User and Card Manager read them; Card Operator does not).
+- The number of loads is a count the operator can enter. The total volume, the rate and the amount are restricted like money: Card User and Card Manager read them; Card Operator does not.
 - The number cards read only submitted cards of the user's own companies. A user without read on monthly cards sees
   no value.
 - No permission was widened to add this feature.

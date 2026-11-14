@@ -46,3 +46,6 @@ msgstr "Fuhren letzter Monat"
 
 msgid "Volume last month (m³)"
 msgstr "Volumen letzter Monat (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Fuhren können nur auf einer Karte erfasst werden, deren Kundentarif pro m³ ist"

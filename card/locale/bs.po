@@ -46,3 +46,6 @@ msgstr "Tereti prošlog mjeseca"
 
 msgid "Volume last month (m³)"
 msgstr "Zapremina prošlog mjeseca (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Tereti se mogu evidentirati samo na kartici čiji je tip cijene za kupca po m³"

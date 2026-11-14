@@ -46,3 +46,6 @@ msgstr "ចំនួនផ្ទុកខែមុន"
 
 msgid "Volume last month (m³)"
 msgstr "បរិមាណខែមុន (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "អាចកត់ត្រាចំនួនផ្ទុកបានតែលើកាតដែលប្រភេទអត្រាអតិថិជនជាក្នុងមួយ m³ ប៉ុណ្ណោះ"

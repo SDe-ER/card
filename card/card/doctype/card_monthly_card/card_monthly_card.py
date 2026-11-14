@@ -284,6 +284,9 @@ class CardMonthlyCard(Document):
 		self.rate_type = eq.rate_type
 		self.rate = flt(eq.rate)
 		self.total_working_hours = total_hours
+		# FR-166 (owner D1): loads belong to a card billed per m³; a daily, hourly or monthly card refuses them
+		if loads_total and self.customer_rate_type != PER_VOLUME_M3:
+			frappe.throw(_("Loads can be recorded only on a card whose customer rate type is per m³"))
 		self.total_loads = loads_total
 		self.working_days = work_days
 		# FR-118: only stopped hours of an explicitly billable reason are billed; with no

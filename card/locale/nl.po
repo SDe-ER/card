@@ -46,3 +46,6 @@ msgstr "Ritten vorige maand"
 
 msgid "Volume last month (m³)"
 msgstr "Volume vorige maand (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Ritten kunnen alleen worden vastgelegd op een kaart met een klanttarief per m³"

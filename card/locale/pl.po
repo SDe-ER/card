@@ -46,3 +46,6 @@ msgstr "Kursy w poprzednim miesiącu"
 
 msgid "Volume last month (m³)"
 msgstr "Objętość w poprzednim miesiącu (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Kursy można rejestrować tylko na karcie, której typ stawki klienta to za m³"

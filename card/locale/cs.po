@@ -46,3 +46,6 @@ msgstr "Náklady za minulý měsíc"
 
 msgid "Volume last month (m³)"
 msgstr "Objem za minulý měsíc (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Náklady lze zapsat pouze na kartu, jejíž typ sazby zákazníka je za m³"

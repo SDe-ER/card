@@ -46,3 +46,6 @@ msgstr "Kuormat viime kuussa"
 
 msgid "Volume last month (m³)"
 msgstr "Tilavuus viime kuussa (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Kuormia voi kirjata vain kortille, jonka asiakashinnoittelu on per m³"

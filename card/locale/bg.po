@@ -46,3 +46,6 @@ msgstr "Курсове миналия месец"
 
 msgid "Volume last month (m³)"
 msgstr "Обем миналия месец (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Курсове може да се записват само в карта с тип на тарифата за клиента по m³"

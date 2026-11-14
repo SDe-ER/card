@@ -544,6 +544,7 @@
    "fieldname": "total_volume_m3",
    "fieldtype": "Float",
    "label": "Total volume (m³)",
+   "permlevel": 1,
    "read_only": 1
   },
   {

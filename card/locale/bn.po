@@ -510,3 +510,6 @@ msgstr "গত মাসের লোড"
 
 msgid "Volume last month (m³)"
 msgstr "গত মাসের আয়তন (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "শুধু গ্রাহক হারের ধরন প্রতি ঘন মিটার হলে কার্ডে লোড নথিভুক্ত করা যায়"

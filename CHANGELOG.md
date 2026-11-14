@@ -29,7 +29,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   month" and "Volume last month (m³)" in the CARD workspace, BOLA matrix rows for the two number-card endpoints,
   translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
   docs. PR #258.
-  Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the new
+  Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
   number cards read submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
   still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
   fields only, empty by default; no patch, no migrate change to submitted cards (none is recalculated). API: two

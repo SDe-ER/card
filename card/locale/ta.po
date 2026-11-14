@@ -46,3 +46,6 @@ msgstr "கடந்த மாத பயணங்கள்"
 
 msgid "Volume last month (m³)"
 msgstr "கடந்த மாத அளவு (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "வாடிக்கையாளர் கட்டண வகை m³ க்கு என உள்ள அட்டையில் மட்டுமே பயணங்களைப் பதிவு செய்ய முடியும்"

@@ -46,3 +46,6 @@ msgstr "Cargas del mes pasado"
 
 msgid "Volume last month (m³)"
 msgstr "Volumen del mes pasado (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Las cargas solo se pueden registrar en una tarjeta cuyo tipo de tarifa de cliente es por m³"

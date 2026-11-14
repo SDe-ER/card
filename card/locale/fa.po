@@ -46,3 +46,6 @@ msgstr "بارهای ماه گذشته"
 
 msgid "Volume last month (m³)"
 msgstr "حجم ماه گذشته (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "ثبت بار فقط در کارتی امکان‌پذیر است که نوع نرخ مشتری آن به ازای هر متر مکعب باشد"

@@ -188,10 +188,50 @@ class TestVolumeBilling(_StopBase):
 		self.assertEqual(meta.get_field("customer_rate_used").permlevel, 1)
 		self.assertEqual(meta.get_field("load_volume_used").permlevel, 1)
 		self.assertEqual(meta.get_field("total_loads").permlevel, 0)
-		self.assertEqual(meta.get_field("total_volume_m3").permlevel, 0)
+		self.assertEqual(
+			meta.get_field("total_volume_m3").permlevel, 1
+		)  # owner D2: volume is restricted like money
+		self.assertEqual(frappe.get_meta("Card Monthly Card Day").get_field("loads_count").permlevel, 0)
 		for name in ("load_volume_used", "total_loads", "total_volume_m3"):
 			self.assertFalse(meta.get_field(name).allow_on_submit, name)
 			self.assertNotIn(name, CARD_MONEY_FIELDS)
+
+	# ---- owner D1 and D2 (review of 2026-11-14) ----
+	def test_loads_are_refused_on_a_card_not_billed_per_m3(self):
+		eq = self._rented_out(customer_rate=1000)  # per-day customer rate, not per m³
+		with self.assertRaisesRegex(frappe.ValidationError, "customer rate type is per m"):
+			self._volume_card(eq, [{"loads_count": 3, "working_hours": 10}])
+
+	def test_zero_loads_are_allowed_on_a_card_not_billed_per_m3(self):
+		eq = self._rented_out(customer_rate=1000)
+		card = self._volume_card(eq, [{"loads_count": 0, "working_hours": 10}])
+		self.assertEqual(card.total_loads, 0)
+
+	def test_card_operator_gets_no_total_volume_through_get_list(self):
+		from card.tests.test_card_money_privacy import _user
+
+		frappe.set_user(_user(["Card Operator"], restrict=self.company))
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				frappe.get_list("Card Monthly Card", fields=["total_volume_m3"], limit=1)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_card_user_reads_the_volume_and_the_number_card_still_works(self):
+		from card.card_value import volume_last_month
+		from card.tests.test_card_money_privacy import _user
+
+		eq = self._volume_equipment()
+		self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		frappe.set_user(_user(["Card User"], restrict=self.company))
+		try:
+			rows = frappe.get_list("Card Monthly Card", fields=["total_volume_m3"], limit=1)
+			self.assertTrue(rows and "total_volume_m3" in rows[0])
+			result = volume_last_month({"company": self.company})
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(result["fieldtype"], "Float")
+		self.assertGreaterEqual(flt(result["value"]), 0)
 
 	# ---- submitted cards and period runs ----
 	def test_submitted_card_is_not_repriced_by_an_equipment_change(self):
@@ -315,6 +355,7 @@ class TestVolumeBilling(_StopBase):
 			"بالمتر المكعب",
 			"Loads last month",
 			"Volume last month (m³)",
+			"Loads can be recorded only on a card whose customer rate type is per m³",
 		]
 		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
 		for path in glob.glob(os.path.join(locale_dir, "*.po")):
@@ -364,6 +405,7 @@ class TestVolumeBilling(_StopBase):
 			self.assertIn("Total amount", html, role)
 			self.assertIn("Customer settlement", html, role)
 			self.assertIn("Adjustment amount", html, role)
+			self.assertIn("Total volume (m³)", html, role)
 			self.assertIn('class="emc-sum-m"', html, role)
 			self.assertIn('class="emc-sum-g"', html, role)
 		# Card Operator: the money columns are absent from the HTML (header, cells and totals column)
@@ -379,4 +421,5 @@ class TestVolumeBilling(_StopBase):
 		# non-money content stays: the adjustment description, the loads, the hours
 		self.assertIn("TEST deduction", operator)
 		self.assertIn("Total loads", operator)
+		self.assertNotIn("Total volume (m³)", operator)  # owner D2: the volume is money-level
 		self.assertIn("Total operating hours", operator)

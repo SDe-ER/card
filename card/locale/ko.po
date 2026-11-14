@@ -46,3 +46,6 @@ msgstr "지난달 운반 횟수"
 
 msgid "Volume last month (m³)"
 msgstr "지난달 부피 (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "고객 요율 유형이 m³당인 카드에만 운반 횟수를 기록할 수 있습니다"

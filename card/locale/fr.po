@@ -46,3 +46,6 @@ msgstr "Rotations du mois dernier"
 
 msgid "Volume last month (m³)"
 msgstr "Volume du mois dernier (m³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Les rotations ne peuvent être saisies que sur une carte dont le type de tarif client est au m³"

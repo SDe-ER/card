@@ -46,3 +46,6 @@ msgstr "Рейси за минулий місяць"
 
 msgid "Volume last month (m³)"
 msgstr "Обсяг за минулий місяць (м³)"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Рейси можна вносити лише в картку, де тип тарифу клієнта — за м³"
