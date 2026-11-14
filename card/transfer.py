@@ -584,7 +584,7 @@ def _card_day_after(equipment, project, tdate):
 			"""select 1 from `tabCard Monthly Card Day` d
 			join `tabCard Monthly Card` c on c.name = d.parent
 			where c.equipment=%s and c.project=%s and c.docstatus=1
-			and (d.working_hours > 0 or (d.reason_billable = 1 and d.stopped_hours > 0))
+			and (d.working_hours > 0 or d.loads_count > 0 or (d.reason_billable = 1 and d.stopped_hours > 0))
 			and d.operation_date > %s limit 1""",
 			(equipment, project, str(tdate)),
 		)
