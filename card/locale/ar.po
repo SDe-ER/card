@@ -8695,3 +8695,6 @@ msgstr "الكارت فيه ساعات تشغيل ومفيهوش ردود، فم
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "اتمسحت الردود في الأيام دي لأنها مش أيام عمل: {0}"
+
+msgid "Check the loads"
+msgstr "راجع الردود"

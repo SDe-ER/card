@@ -513,3 +513,6 @@ msgstr "इस कार्ड में संचालन घंटे है�
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "इन गैर-कार्य दिवसों पर लोड हटा दिए गए: {0}"
+
+msgid "Check the loads"
+msgstr "लोड जाँचें"

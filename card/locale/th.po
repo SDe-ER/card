@@ -49,3 +49,6 @@ msgstr "การ์ดนี้มีชั่วโมงการทำงา
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "ลบจำนวนเที่ยวที่บรรทุกในวันที่ไม่ใช่วันทำงานดังต่อไปนี้แล้ว: {0}"
+
+msgid "Check the loads"
+msgstr "ตรวจสอบจำนวนเที่ยว"

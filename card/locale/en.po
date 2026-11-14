@@ -315,3 +315,6 @@ msgstr "This card has operating hours but no loads, so the customer amount is ze
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Loads were cleared on these non-working days: {0}"
+
+msgid "Check the loads"
+msgstr "Check the loads"

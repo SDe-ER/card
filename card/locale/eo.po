@@ -49,3 +49,6 @@ msgstr "Ĉi tiu karto havas operaciajn horojn sed neniujn ŝarĝojn, do la klien
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Ŝarĝoj estis forigitaj en ĉi tiuj nelaborataj tagoj: {0}"
+
+msgid "Check the loads"
+msgstr "Kontrolu la ŝarĝojn"

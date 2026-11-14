@@ -49,3 +49,6 @@ msgstr "이 카드에는 운영 시간이 있지만 적재 횟수가 없어 고�
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "비근무일에 다음 적재 건수가 삭제되었습니다: {0}"
+
+msgid "Check the loads"
+msgstr "적재 건수 확인"

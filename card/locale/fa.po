@@ -49,3 +49,6 @@ msgstr "این کارت ساعت کاری دارد اما بار ندارد، ب
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "بارها در این روزهای غیرکاری پاک شدند: {0}"
+
+msgid "Check the loads"
+msgstr "بارها را بررسی کنید"

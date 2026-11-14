@@ -49,3 +49,6 @@ msgstr "Тази карта има работни часове, но няма к
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Товарите бяха изчистени в тези неработни дни: {0}"
+
+msgid "Check the loads"
+msgstr "Проверете товаренията"

@@ -49,3 +49,6 @@ msgstr "កាតនេះមានម៉ោងប្រតិបត្តិក
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "ការផ្ទុកត្រូវបានលុបនៅថ្ងៃមិនមែនជាថ្ងៃធ្វើការទាំងនេះ: {0}"
+
+msgid "Check the loads"
+msgstr "ពិនិត្យការផ្ទុក"

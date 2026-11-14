@@ -49,3 +49,6 @@ msgstr "Ta kartica ima delovne ure, vendar ni prevozov, zato je znesek stranke n
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Tovori so bili na teh nedelovnih dneh izbrisani: {0}"
+
+msgid "Check the loads"
+msgstr "Preverite tovore"

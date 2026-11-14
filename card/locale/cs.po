@@ -49,3 +49,6 @@ msgstr "Tato karta má provozní hodiny, ale žádné nakládky, takže částka
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Počty nákladů byly na těchto nepracovních dnech vynulovány: {0}"
+
+msgid "Check the loads"
+msgstr "Zkontrolujte náklady"

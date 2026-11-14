@@ -49,3 +49,6 @@ msgstr "Ова картица има радне сате, али нема уто
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Товари су обрисани у овим нерадним данима: {0}"
+
+msgid "Check the loads"
+msgstr "Проверите товаре"

@@ -493,6 +493,7 @@ class TestVolumeBilling(_StopBase):
 			"Loads can be recorded only on a card whose customer rate type is per m³",
 			"This card has operating hours but no loads, so the customer amount is zero. Check the loads.",
 			"Loads were cleared on these non-working days: {0}",
+			"Check the loads",
 		]
 		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
 		for path in glob.glob(os.path.join(locale_dir, "*.po")):

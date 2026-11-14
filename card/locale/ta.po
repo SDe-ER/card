@@ -49,3 +49,6 @@ msgstr "இந்த அட்டையில் இயக்க நேரம்
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "இந்த வேலை இல்லாத நாட்களில் சுமைகள் அழிக்கப்பட்டன: {0}"
+
+msgid "Check the loads"
+msgstr "சுமைகளைச் சரிபார்க்கவும்"

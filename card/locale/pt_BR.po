@@ -49,3 +49,6 @@ msgstr "Este cartão tem horas de operação, mas nenhuma carga, por isso o valo
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "As cargas foram zeradas nestes dias não úteis: {0}"
+
+msgid "Check the loads"
+msgstr "Verifique as cargas"

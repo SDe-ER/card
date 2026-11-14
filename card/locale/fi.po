@@ -49,3 +49,6 @@ msgstr "Tässä kortissa on käyttötunteja mutta ei kuormia, joten asiakkaan su
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Kuormat poistettiin näinä ei-työpäivinä: {0}"
+
+msgid "Check the loads"
+msgstr "Tarkista kuormat"

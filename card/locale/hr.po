@@ -49,3 +49,6 @@ msgstr "Ova kartica ima radne sate, ali nema utovara, pa je iznos za kupca nula.
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Tereti su obrisani na ovim neradnim danima: {0}"
+
+msgid "Check the loads"
+msgstr "Provjerite terete"

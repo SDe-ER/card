@@ -49,3 +49,6 @@ msgstr "ဤကဒ်တွင် လည်ပတ်ချိန်ရှိသ�
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "အလုပ်မလုပ်သော ရက်များတွင် ဝန်ဆောင်မှု အရေအတွက်များ ဖျက်လိုက်ပါသည်: {0}"
+
+msgid "Check the loads"
+msgstr "ဝန်ဆောင်မှု အရေအတွက် စစ်ဆေးပါ"

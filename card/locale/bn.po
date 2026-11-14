@@ -513,3 +513,6 @@ msgstr "এই কার্ডে কার্যকরী ঘণ্টা আ�
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "এই অ-কর্মদিবসগুলোতে লোড মুছে ফেলা হয়েছে: {0}"
+
+msgid "Check the loads"
+msgstr "লোড যাচাই করুন"

@@ -49,3 +49,6 @@ msgstr "Deze kaart heeft bedrijfsuren maar geen ladingen, dus het klantbedrag is
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Ritten zijn op deze niet-werkdagen gewist: {0}"
+
+msgid "Check the loads"
+msgstr "Controleer de ritten"

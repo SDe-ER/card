@@ -49,3 +49,6 @@ msgstr "Kortet har drifttimmar men inga lass, så kundbeloppet är noll. Kontrol
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Lass rensades under dessa icke-arbetsdagar: {0}"
+
+msgid "Check the loads"
+msgstr "Kontrollera lass"

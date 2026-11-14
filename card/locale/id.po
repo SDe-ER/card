@@ -49,3 +49,6 @@ msgstr "Kartu ini memiliki jam operasi tetapi tanpa muatan, sehingga jumlah pela
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Muatan dihapus pada hari bukan kerja berikut: {0}"
+
+msgid "Check the loads"
+msgstr "Periksa muatan"

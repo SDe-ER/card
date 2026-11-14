@@ -49,3 +49,6 @@ msgstr "Ennek a kártyának van üzemóraja, de nincs fuvar, ezért a vevői ös
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "A fuvarok száma ezeken a munkaszüneti napokon törlődött: {0}"
+
+msgid "Check the loads"
+msgstr "Ellenőrizze a fuvarokat"

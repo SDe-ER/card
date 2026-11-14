@@ -49,3 +49,6 @@ msgstr "Esta tarjeta tiene horas de operación pero no cargas, así que el impor
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Se borraron las cargas en estos días no laborables: {0}"
+
+msgid "Check the loads"
+msgstr "Revise las cargas"

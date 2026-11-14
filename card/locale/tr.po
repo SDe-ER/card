@@ -49,3 +49,6 @@ msgstr "Bu kartta çalışma saatleri var ama yük yok, bu yüzden müşteri tut
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Bu çalışılmayan günlerde yük sayıları silindi: {0}"
+
+msgid "Check the loads"
+msgstr "Yükleri kontrol edin"

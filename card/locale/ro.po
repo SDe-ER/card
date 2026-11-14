@@ -49,3 +49,6 @@ msgstr "Acest card are ore de funcționare, dar nicio încărcătură, deci suma
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Încărcăturile au fost șterse în aceste zile nelucrătoare: {0}"
+
+msgid "Check the loads"
+msgstr "Verificați încărcăturile"

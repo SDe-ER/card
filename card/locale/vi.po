@@ -49,3 +49,6 @@ msgstr "Thẻ này có giờ vận hành nhưng không có chuyến chở, nên 
 
 msgid "Loads were cleared on these non-working days: {0}"
 msgstr "Số chuyến đã bị xóa vào các ngày không làm việc sau: {0}"
+
+msgid "Check the loads"
+msgstr "Kiểm tra số chuyến"
