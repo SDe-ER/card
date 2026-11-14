@@ -9,7 +9,7 @@ from card.reconciliation import cards_invoiced, invoices_outside_card, reconcili
 from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
 from card.report_currency import company_currency_report
 from card.settings import setting
-from card.transfer import billed_day_rows, with_stopped_hours_column
+from card.transfer import customer_billed_day_rows, with_stopped_hours_column
 
 
 @company_currency_report()
@@ -120,8 +120,9 @@ def execute(filters=None):
 	# operating dates per card (hours > 0) -> distinct days per equipment, first/last date
 	card_dates = {}
 	if cards:
-		# FR-118: a day bills with operating hours or billable stopped hours (is_billed_day)
-		rows = billed_day_rows([c.name for c in cards], include_loads=True)
+		# FR-118: a day bills with operating hours or billable stopped hours (is_billed_day);
+		# FR-166: on a per-m³ card a billable stop-only day is a stop day, not a billed day
+		rows = customer_billed_day_rows(cards)
 		for r in rows:
 			k = r.parent
 			if k not in card_dates:

@@ -430,6 +430,42 @@ class TestVolumeBilling(_StopBase):
 		self.assertIsNone(equipment_row["hourly_rate"])
 		self.assertEqual(equipment_row["total_loads"], 40)
 
+	# ---- FR-166 z1: a billable stop-only day on a per-m³ card is a stop day, not a billed day ----
+	def test_billable_stop_only_day_is_not_a_billed_day_on_a_per_m3_card(self):
+		from card.card.report.equipment_customers_summary.equipment_customers_summary import (
+			execute as customers_summary,
+		)
+
+		eq = self._volume_equipment()
+		reason = self._reason(billable=1)
+		card = self._volume_card(
+			eq,
+			[
+				{"loads_count": 40, "working_hours": 10},
+				{"day_status": CLIENT_STOP, "stop_reason": reason.name, "stopped_hours": 8},
+			],
+			submit=True,
+		)
+		self.assertEqual(flt(card.customer_amount), 1280.0)
+		filters = {
+			"company": self.company,
+			"customer": self.customer,
+			"from_month": 9,
+			"from_year": 2026,
+			"project": self.project,
+		}
+		_columns, rows, *_ = customer_statement(filters)
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(row["working_days"], 1)  # the stop day is not a billed day
+		self.assertEqual(str(row["first_date"]), "2026-09-01")
+		self.assertEqual(str(row["last_date"]), "2026-09-01")
+		self.assertEqual(flt(row["customer_amount"]), 1280.0)
+		_summary_columns, summary_rows, *_ = customers_summary(
+			{"company": self.company, "from_month": 9, "from_year": 2026, "project": self.project}
+		)
+		summary_row = next(r for r in summary_rows if r.get("customer") == self.customer)
+		self.assertEqual(summary_row["working_days"], 1)
+
 	# ---- print format, number cards and the CARD dashboard (plan step 7, D15) ----
 	def test_print_format_shows_loads_and_volume_only_on_per_m3_cards(self):
 		template = frappe.get_jenv().from_string(frappe.get_doc("Print Format", "كارت تشغيل شهري").html)

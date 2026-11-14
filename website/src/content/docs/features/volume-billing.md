@@ -87,7 +87,8 @@ A day card and a night card for the same equipment and project are separate docu
 
 - Operating hours are recorded every day, for cost and productivity. On this basis they do not change the amount.
 - A billable stop reason adds nothing to the customer amount on a per-m³ card. Stopped hours are still recorded as
-  before, so the cost reports keep their meaning.
+  before, so the cost reports keep their meaning. A day with only a billable stop (no operating hours, no loads) is a
+  stop day: it is not a billed day on the customer statement or the customers summary, so the day count matches the amount.
 - Only loads and the load volume create the customer amount.
 
 ## Additions and deductions

@@ -25,6 +25,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, cint, flt, getdate, nowdate
 
+from card.card_value import PER_VOLUME_M3
 from card.constants import MOVE_DAY_SAME
 from card.settings import company_setting, setting
 
@@ -626,6 +627,16 @@ def billed_day_rows(card_names, include_loads=False):
 		parent_doctype="Card Monthly Card",
 	)
 	return [r for r in rows if is_billed_day(r, include_loads)]
+
+
+def customer_billed_day_rows(cards):
+	"""Customer-side billed days of these cards (the customer statement and the customers summary count these).
+	FR-166 (z1): a billable stop adds nothing on a per-m³ card, so on such a card a day billed only by a billable
+	stop (no operating hours, no loads) is a stop day, not a billed day. Its stopped hours stay visible as recorded.
+	Other customer bases keep the is_billed_day rule. Read-only; ``cards`` need ``name`` and ``customer_rate_type``."""
+	per_m3 = {c.name for c in cards if c.customer_rate_type == PER_VOLUME_M3}
+	rows = billed_day_rows([c.name for c in cards], include_loads=True)
+	return [r for r in rows if r.parent not in per_m3 or flt(r.working_hours) > 0 or cint(r.loads_count) > 0]
 
 
 def stopped_hours_column(rows, width=110):
