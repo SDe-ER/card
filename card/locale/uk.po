@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Обсяг вантажу (м³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Обсяг вантажу (м³) обов'язковий для тарифу клієнта за м³"
+
+msgid "Load volume used (m³)"
+msgstr "Використаний обсяг вантажу (м³)"
+
+msgid "Total loads"
+msgstr "Усього рейсів"
+
+msgid "Total volume (m³)"
+msgstr "Загальний обсяг (м³)"
+
+msgid "Loads"
+msgstr "Рейси"
+
+msgid "Negative loads on day {0}"
+msgstr "Від'ємні рейси за {0}-е число"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Не можна вносити рейси за майбутню дату: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "За м³"
+
+msgid "Loads last month"
+msgstr "Рейси за минулий місяць"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Рейси можна вносити лише в картку, де тип тарифу клієнта — за м³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "У цій картці є робочі години, але немає рейсів, тому сума для клієнта дорівнює нулю. Перевірте рейси."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Кількість рейсів обнулено в ці неробочі дні: {0}"
+
+msgid "Check the loads"
+msgstr "Перевірте рейси"

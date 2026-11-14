@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Yuk hajmi (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Mijoz uchun m³ narxi bo'yicha yuk hajmi (m³) talab qilinadi"
+
+msgid "Load volume used (m³)"
+msgstr "Ishlatilgan yuk hajmi (m³)"
+
+msgid "Total loads"
+msgstr "Jami reyslar"
+
+msgid "Total volume (m³)"
+msgstr "Umumiy hajm (m³)"
+
+msgid "Loads"
+msgstr "Reyslar"
+
+msgid "Negative loads on day {0}"
+msgstr "{0}-kuni manfiy reyslar"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Kelajak kun uchun reys qayd etib bo'lmaydi: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "m³ uchun"
+
+msgid "Loads last month"
+msgstr "O'tgan oy reyslari"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Reyslar faqat mijoz narx turi m³ uchun bo'lgan kartada qayd etiladi"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Bu kartada ish soatlari bor, lekin yuklar yo'q, shuning uchun mijoz summasi nolga teng. Yuklarni tekshiring."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Ushbu dam olish kunlarida yuklar soni tozalandi: {0}"
+
+msgid "Check the loads"
+msgstr "Yuklarni tekshiring"

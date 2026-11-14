@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Laadvolume (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Laadvolume (m³) is verplicht voor het klanttarief per m³"
+
+msgid "Load volume used (m³)"
+msgstr "Gebruikt laadvolume (m³)"
+
+msgid "Total loads"
+msgstr "Totaal aantal ritten"
+
+msgid "Total volume (m³)"
+msgstr "Totaal volume (m³)"
+
+msgid "Loads"
+msgstr "Ritten"
+
+msgid "Negative loads on day {0}"
+msgstr "Negatieve ritten op dag {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Ritten kunnen niet voor een toekomstige dag worden vastgelegd: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "Ritten vorige maand"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Ritten kunnen alleen worden vastgelegd op een kaart met een klanttarief per m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Deze kaart heeft bedrijfsuren maar geen ladingen, dus het klantbedrag is nul. Controleer de ladingen."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Ritten zijn op deze niet-werkdagen gewist: {0}"
+
+msgid "Check the loads"
+msgstr "Controleer de ritten"

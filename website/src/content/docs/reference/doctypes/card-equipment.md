@@ -172,9 +172,10 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Label | Field name | Type | Options / link | Required |
 |---|---|---|---|---|
 | Unit component (no monthly card) <small>(read only)</small> | `is_unit_component` | Check |  |  |
-| Customer rate type | `customer_rate_type` | Select | باليوم · بالساعة · بالشهر |  |
+| Customer rate type | `customer_rate_type` | Select | باليوم · بالساعة · بالشهر · بالمتر المكعب |  |
 | Customer rate | `customer_rate` | Currency |  |  |
 | Customer rate (night shift) | `customer_rate_night` | Currency |  |  |
+| Load volume (m³) | `load_volume_m3` | Float |  |  |
 | Customer | `default_customer` | Link | Customer |  |
 | Rental direction | `rental_direction` | Select | مستأجَرة من مورد · مؤجَّرة لعميل · إيجار من الباطن · تشغيل داخلي |  |
 | Reason for commercial change | `commercial_change_reason` | Small Text |  |  |

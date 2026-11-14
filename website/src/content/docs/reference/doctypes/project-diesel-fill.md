@@ -45,6 +45,14 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Equipment filled | `equipment_filled` | Table | [Diesel Fill Equipment](/card/reference/doctypes/diesel-fill-equipment/) |  |
 | Equipment (direct charge) | `card_equipment` | Link | [Card Equipment](/card/reference/doctypes/card-equipment/) |  |
 
+
+**Allocation (estimated, display only)**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Diesel fill allocation <small>(read only)</small> | `diesel_fill_allocation` | Table | [Diesel Fill Allocation](/card/reference/doctypes/diesel-fill-allocation/) |  |
+| Allocation review <small>(read only)</small> | `allocation_review` | Small Text |  |  |
+
 | Label | Field name | Type | Options / link | Required |
 |---|---|---|---|---|
 | Unit price <small>(read only)</small> | `unit_price` | Currency |  |  |
@@ -125,9 +133,18 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Remarks | `remarks` | Small Text |  |  |
 
 
+**Approval workflow**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Workflow State <small>(hidden, read only)</small> | `workflow_state` | Link | Workflow State |  |
+| Return for correction reason <small>(read only)</small> | `return_reason` | Small Text |  |  |
+
+
 ## Child tables
 
 - [Diesel Fill Equipment](/card/reference/doctypes/diesel-fill-equipment/)
+- [Diesel Fill Allocation](/card/reference/doctypes/diesel-fill-allocation/)
 
 
 ## Permissions

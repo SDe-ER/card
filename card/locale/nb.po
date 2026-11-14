@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Lastevolum (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Lastevolum (m³) kreves for kundens pris per m³"
+
+msgid "Load volume used (m³)"
+msgstr "Brukt lastevolum (m³)"
+
+msgid "Total loads"
+msgstr "Totalt antall lass"
+
+msgid "Total volume (m³)"
+msgstr "Totalt volum (m³)"
+
+msgid "Loads"
+msgstr "Lass"
+
+msgid "Negative loads on day {0}"
+msgstr "Negative lass på dag {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Lass kan ikke registreres for en fremtidig dag: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "Lass forrige måned"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Lass kan bare registreres på et kort der kundens prisype er per m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Dette kortet har driftstimer, men ingen lass, så kundebeløpet er null. Kontroller lassene."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Lass ble slettet på disse ikke-arbeidsdagene: {0}"
+
+msgid "Check the loads"
+msgstr "Kontroller lassene"

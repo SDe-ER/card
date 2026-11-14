@@ -118,6 +118,14 @@ sidebar:
 | بصمة مستند المصدر (SHA-256) <small>(للقراءة فقط)</small> | `intake_evidence_hash` | Data |  |  |
 
 
+**سير عمل الاعتماد**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| Workflow State <small>(مخفي, للقراءة فقط)</small> | `workflow_state` | Link | Workflow State |  |
+| سبب الإرجاع للتصحيح <small>(للقراءة فقط)</small> | `return_reason` | Small Text |  |  |
+
+
 ## الجداول الفرعية
 
 - [معدة رحلة النقل](/card/ar/reference/doctypes/equipment-transport-item/)

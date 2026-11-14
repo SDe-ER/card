@@ -79,6 +79,8 @@ This page is generated from the CARD source code on every build. Edit the code, 
 
 | Label | Field name | Type | Options / link | Required |
 |---|---|---|---|---|
+| Approval tier <small>(read only)</small> | `approval_tier` | Int |  |  |
+| Approval tier name <small>(read only)</small> | `approval_tier_name` | Data |  |  |
 | Monthly card submitted by <small>(read only)</small> | `submitted_by` | Link | User |  |
 | Monthly card approved by <small>(read only)</small> | `approved_by` | Link | User |  |
 | Monthly card approved on <small>(read only)</small> | `approved_on` | Datetime |  |  |
@@ -98,11 +100,14 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Fuel charged to (used) <small>(read only)</small> | `diesel_policy_used` | Data |  |  |
 | Card direction <small>(read only)</small> | `card_direction` | Select | مستأجَرة من مورد · مؤجَّرة لعميل · إيجار من الباطن · تشغيل داخلي |  |
 | Customer <small>(read only)</small> | `customer` | Link | Customer |  |
-| Customer rate type <small>(read only)</small> | `customer_rate_type` | Select | باليوم · بالساعة · بالشهر |  |
+| Customer rate type <small>(read only)</small> | `customer_rate_type` | Select | باليوم · بالساعة · بالشهر · بالمتر المكعب |  |
 | Customer rate <small>(read only)</small> | `customer_rate` | Currency |  |  |
 | Day billing basis <small>(read only)</small> | `day_billing_basis` | Select | Prorated by hours · Full day |  |
 | Customer amount <small>(read only)</small> | `customer_amount` | Currency |  |  |
 | Customer hourly rate used <small>(read only)</small> | `customer_rate_used` | Currency |  |  |
+| Load volume used (m³) <small>(read only)</small> | `load_volume_used` | Float |  |  |
+| Total loads <small>(read only)</small> | `total_loads` | Int |  |  |
+| Total volume (m³) <small>(read only)</small> | `total_volume_m3` | Float |  |  |
 | Direction used <small>(read only)</small> | `direction_used` | Data |  |  |
 | Customer used <small>(read only)</small> | `customer_used` | Data |  |  |
 | Rate basis used <small>(read only)</small> | `rate_basis_used` | Data |  |  |
@@ -119,6 +124,14 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Operator | `operator` | Link | Employee |  |
 
 
+**Approval workflow**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Workflow State <small>(hidden, read only)</small> | `workflow_state` | Link | Workflow State |  |
+| Return for correction reason <small>(read only)</small> | `return_reason` | Small Text |  |  |
+
+
 ## Child tables
 
 - [Card Monthly Card Day](/card/reference/doctypes/card-monthly-card-day/)
@@ -133,3 +146,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Card Manager | read, write, create, submit, cancel, amend, report, export, print, email |
 | Card User | read, write, create, report, print, email |
 | Accounts Manager | read, report, export, print |
+| System Manager (permlevel 1) | read, write |
+| Card Manager (permlevel 1) | read, write |
+| Card User (permlevel 1) | read |
+| Accounts Manager (permlevel 1) | read |

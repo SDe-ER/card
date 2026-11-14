@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "ဝန်ထုပ်ပမာဏ (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "ဖောက်သည် m³ နှုန်းအတွက် ဝန်ထုပ်ပမာဏ (m³) လိုအပ်သည်"
+
+msgid "Load volume used (m³)"
+msgstr "အသုံးပြုထားသော ဝန်ထုပ်ပမာဏ (m³)"
+
+msgid "Total loads"
+msgstr "စုစုပေါင်း ခရီးစဉ်"
+
+msgid "Total volume (m³)"
+msgstr "စုစုပေါင်းပမာဏ (m³)"
+
+msgid "Loads"
+msgstr "ခရီးစဉ်"
+
+msgid "Negative loads on day {0}"
+msgstr "ရက် {0} တွင် အနုတ်ခရီးစဉ်"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "နောင်ရက်အတွက် ခရီးစဉ် မှတ်တမ်းတင်၍ မရပါ: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "m³ လျှင်"
+
+msgid "Loads last month"
+msgstr "ပြီးခဲ့သောလ ခရီးစဉ်"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "ဖောက်သည်နှုန်းအမျိုးအစား m³ လျှင် ဖြစ်သော ကတ်တွင်သာ ခရီးစဉ် မှတ်တမ်းတင်နိုင်သည်"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "ဤကဒ်တွင် လည်ပတ်ချိန်ရှိသော်လည်း ပို့ဆောင်မှုမရှိပါ၊ ထို့ကြောင့် ဖောက်သည်ငွေပမာဏ သုည ဖြစ်ပါသည်။ ပို့ဆောင်မှုများကို စစ်ဆေးပါ။"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "အလုပ်မလုပ်သော ရက်များတွင် ဝန်ဆောင်မှု အရေအတွက်များ ဖျက်လိုက်ပါသည်: {0}"
+
+msgid "Check the loads"
+msgstr "ဝန်ဆောင်မှု အရေအတွက် စစ်ဆေးပါ"

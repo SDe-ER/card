@@ -305,6 +305,12 @@ The internal operating rate of owned equipment is already restricted on the equi
 Company User Permissions apply: a card's company is always its equipment's company, and a restricted user can
 neither create nor move a card into another company.
 
+## Volume billing cards
+
+On a card for equipment billed per m³, enter **Loads** on each working day row. The card then shows **Total loads**,
+**Total volume (m³)** and the customer amount: total volume × the customer rate, before VAT. Operating hours are still
+recorded but are not billed on this basis. See [Volume billing](/card/features/volume-billing/).
+
 ## Related
 
 - [Daily Logs](/card/features/daily-logs/)

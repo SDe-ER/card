@@ -147,6 +147,13 @@ NUMBER_CARD = dict(
 	own=lambda c: {"filters": {"company": c.A}},
 )
 
+# loads and m³ of last month (FR-166): counts and volumes, read only; company-scoped by get_list
+# (Company User Permission and the company filter); Card Operator has no read on Card Monthly Card, so it is refused
+VOLUME_ISOLATION = (
+	"frappe.get_list on Card Monthly Card (has_permission read; Company User Permission; company filter)"
+)
+VOLUME_CARD = dict(NUMBER_CARD, isolation=VOLUME_ISOLATION, denied=((), ("Card Operator",)))
+
 CASES = {
 	# ---------- card.api ----------
 	"card.api.party_figures": Case(
@@ -467,6 +474,7 @@ CASES = {
 	"card.card_value.internal_value_last_month": Case(**NUMBER_CARD),
 	"card.card_value.cards_without_internal_rate_last_month": Case(**NUMBER_CARD),
 	"card.card_value.hours_without_internal_rate_last_month": Case(**NUMBER_CARD),
+	"card.card_value.loads_last_month": Case(**VOLUME_CARD),
 	# ---------- cancel with a reason (FR-123) ----------
 	"card.cancel_reason.cancel_with_reason": Case(
 		method=POST,

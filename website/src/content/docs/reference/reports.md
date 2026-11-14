@@ -14,7 +14,9 @@ This page is generated from the CARD source code on every build. Edit the code, 
 |---|---|---|
 | [Asset Mapping Review](#asset-mapping-review) | [Card Equipment](/card/reference/doctypes/card-equipment/) | System Manager, Card Manager, Accounts Manager |
 | [Card Settlement Status](#card-settlement-status) | [Card Monthly Card](/card/reference/doctypes/card-monthly-card/) | System Manager, Accounts Manager |
+| [Diesel Group Analysis](#diesel-group-analysis) | [Equipment Operating Group](/card/reference/doctypes/equipment-operating-group/) | System Manager, Card Manager, Card User, Accounts Manager |
 | [Diesel Invoice Reconciliation](#diesel-invoice-reconciliation) | [Project Diesel Fill](/card/reference/doctypes/project-diesel-fill/) | System Manager, Accounts Manager |
+| [Diesel Variance Anomaly](#diesel-variance-anomaly) | [Project Diesel Fill](/card/reference/doctypes/project-diesel-fill/) | System Manager, Card Manager, Card User, Accounts Manager |
 | [Equipment Consumption](#equipment-consumption) | [Card Equipment](/card/reference/doctypes/card-equipment/) | System Manager, Card Manager, Card Supervisor, Card User, Stock Manager, Accounts Manager |
 | [Equipment Customer Statement](#equipment-customer-statement) | [Card Monthly Card](/card/reference/doctypes/card-monthly-card/) | System Manager, Card Manager, Card User, Accounts Manager |
 | [Equipment Customers Summary](#equipment-customers-summary) | [Card Monthly Card](/card/reference/doctypes/card-monthly-card/) | System Manager, Card Manager, Card User, Accounts Manager |
@@ -66,6 +68,20 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | To date | `to_date` | Date | Yes |
 
 
+<h2 id="diesel-group-analysis">Diesel Group Analysis</h2>
+
+- Type: Script Report
+- Based on: Equipment Operating Group
+- Roles: System Manager, Card Manager, Card User, Accounts Manager
+
+| Label | Field name | Type | Required |
+|---|---|---|---|
+| Company | `company` | Autocomplete | Yes |
+| From date | `from_date` | Date | Yes |
+| To date | `to_date` | Date | Yes |
+| Operating group | `group` | Link → Equipment Operating Group |  |
+
+
 <h2 id="diesel-invoice-reconciliation">Diesel Invoice Reconciliation</h2>
 
 - Type: Script Report
@@ -81,6 +97,22 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Diesel sessions to include | `session_status` | Select |  |
 | Invoice date window (days) | `date_window_days` | Int |  |
 | Delivery charge up to (litres) | `max_delivery_litres` | Float |  |
+
+
+<h2 id="diesel-variance-anomaly">Diesel Variance Anomaly</h2>
+
+- Type: Script Report
+- Based on: Project Diesel Fill
+- Roles: System Manager, Card Manager, Card User, Accounts Manager
+
+| Label | Field name | Type | Required |
+|---|---|---|---|
+| Company | `company` | Autocomplete | Yes |
+| From date | `from_date` | Date | Yes |
+| To date | `to_date` | Date | Yes |
+| Project | `project` | Autocomplete |  |
+| Equipment | `equipment` | Link → Card Equipment |  |
+| Equipment type | `equipment_type` | Link → Card Equipment Type |  |
 
 
 <h2 id="equipment-consumption">Equipment Consumption</h2>

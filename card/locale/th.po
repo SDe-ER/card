@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "ปริมาตรการขนส่ง (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "ต้องระบุปริมาตรการขนส่ง (m³) สำหรับอัตราลูกค้าต่อ m³"
+
+msgid "Load volume used (m³)"
+msgstr "ปริมาตรการขนส่งที่ใช้ (m³)"
+
+msgid "Total loads"
+msgstr "จำนวนเที่ยวรวม"
+
+msgid "Total volume (m³)"
+msgstr "ปริมาตรรวม (m³)"
+
+msgid "Loads"
+msgstr "เที่ยว"
+
+msgid "Negative loads on day {0}"
+msgstr "จำนวนเที่ยวติดลบในวันที่ {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "ไม่สามารถบันทึกเที่ยวสำหรับวันในอนาคตได้: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "ต่อ m³"
+
+msgid "Loads last month"
+msgstr "เที่ยวเดือนที่แล้ว"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "บันทึกเที่ยวได้เฉพาะการ์ดที่ประเภทอัตราลูกค้าเป็นต่อ m³ เท่านั้น"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "การ์ดนี้มีชั่วโมงการทำงานแต่ไม่มีการขนส่ง ดังนั้นยอดลูกค้าเป็นศูนย์ โปรดตรวจสอบจำนวนเที่ยวขนส่ง"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "ลบจำนวนเที่ยวที่บรรทุกในวันที่ไม่ใช่วันทำงานดังต่อไปนี้แล้ว: {0}"
+
+msgid "Check the loads"
+msgstr "ตรวจสอบจำนวนเที่ยว"

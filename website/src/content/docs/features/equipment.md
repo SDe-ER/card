@@ -331,6 +331,13 @@ A machine can be a **unit** that bundles two machines (for example a crusher and
 Company User Permissions limit every role to the equipment of its companies. See
 [Roles & Permissions](/card/features/roles-permissions/).
 
+## Volume billing (per m³)
+
+To bill the customer per load and per cubic metre, set **Customer rate type** to **Per m³** and enter **Load volume (m³)**;
+it is required and must be greater than zero. **Customer rate** is then the rate per m³ for day shifts, and **Customer
+rate (night shift)** applies to night cards when it is set. The supplier side keeps its own rate basis. See
+[Volume billing](/card/features/volume-billing/).
+
 ## Related
 
 - [Units & Components](/card/features/units-components/)

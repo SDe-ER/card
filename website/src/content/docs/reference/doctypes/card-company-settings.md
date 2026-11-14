@@ -98,6 +98,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 |---|---|---|---|---|
 | Transport responsibility posting | `transport_responsibility_posting` | Select | Hold (transport responsibility posting) · Post (transport responsibility posting) |  |
 | Transport recharge income account | `transport_recharge_income_account` | Link | Account |  |
+| Non-taxable customer deduction | `non_taxable_customer_deduction` | Select | Refuse (non-taxable customer deduction) · Credit note (non-taxable customer deduction) |  |
 
 
 **Period approval**
@@ -106,6 +107,39 @@ This page is generated from the CARD source code on every build. Edit the code, 
 |---|---|---|---|---|
 | Require an approved period run before posting | `require_period_approval` | Check |  |  |
 | Period run self-approval rule | `period_run_self_approval_rule` | Select | Warn only (period run) · Refuse (period run) |  |
+
+
+**Diesel fill allocation (estimated)**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Tank diesel estimate weighting | `tank_estimate_weighting` | Select | Hours (tank estimate) · Hours × Rate (tank estimate) |  |
+
+
+**Monthly card approval tiers**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Approval tier thresholds | `approval_tier_thresholds` | Table | [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/) |  |
+
+
+**Party portal (preview)**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Enable party portal (preview) | `enable_party_portal` | Check |  |  |
+
+
+**Diesel tanks**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Enable diesel tanks | `enable_diesel_tanks` | Check |  |  |
+
+
+## Child tables
+
+- [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/)
 
 
 ## Permissions

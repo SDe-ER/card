@@ -42,7 +42,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Remarks | `remarks` | Small Text |  |  |
 | Sequence <small>(read only)</small> | `sequence` | Int |  |  |
 | Sources <small>(read only)</small> | `sources` | Table | [GL Posting Source](/card/reference/doctypes/gl-posting-source/) |  |
-| Origin <small>(read only)</small> | `origin` | Select | Built · Linked |  |
+| Origin <small>(read only)</small> | `origin` | Select | Built · Linked · Credit Note |  |
 
 
 **Integrity**

@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Volume muatan (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Volume muatan (m³) wajib untuk tarif pelanggan per m³"
+
+msgid "Load volume used (m³)"
+msgstr "Volume muatan terpakai (m³)"
+
+msgid "Total loads"
+msgstr "Total muatan"
+
+msgid "Total volume (m³)"
+msgstr "Total volume (m³)"
+
+msgid "Loads"
+msgstr "Muatan"
+
+msgid "Negative loads on day {0}"
+msgstr "Muatan negatif pada hari {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Muatan tidak dapat dicatat untuk hari mendatang: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "Muatan bulan lalu"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Muatan hanya dapat dicatat pada kartu dengan tipe tarif pelanggan per m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Kartu ini memiliki jam operasi tetapi tanpa muatan, sehingga jumlah pelanggan nol. Periksa muatannya."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Muatan dihapus pada hari bukan kerja berikut: {0}"
+
+msgid "Check the loads"
+msgstr "Periksa muatan"

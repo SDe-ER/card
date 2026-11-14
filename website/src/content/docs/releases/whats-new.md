@@ -18,6 +18,10 @@ per site.
 
 ## Next release (merged, not yet released)
 
+_Nothing merged yet._
+
+## v4.8.0 — 2026-11-14
+
 ### Packaging
 
 - **2026-11-14 — Release page «Latest» set by SemVer (no effect on the app).** The release workflow now marks a GitHub Release as Latest only when its tag is the highest plain version number (X.Y.Z). A release published out of order no longer takes the Latest badge. Pre-release tags never do.
@@ -37,6 +41,12 @@ per site.
 
 ### Operations
 
+- **2026-11-14 — Volume billing per m³ and per load.** An equipment can bill the customer per load and per cubic
+  metre: loads × load volume × rate per m³, before VAT. Enter the loads on the working days of the monthly card; the
+  card shows total loads, total volume and the amount. Night cards use the night rate when one is set. Hours are still
+  recorded but are not billed on this basis. The monthly card print, the customer statement and a dashboard number
+  card shows the new figure. Existing cards are unchanged. If a save clears loads on a non-working day, or a per-m³ card
+  has hours and no loads, the form shows a message; imports and background jobs show none. See [Volume billing](/card/features/volume-billing/).
 - **2026-11-13 — Diesel tanks as Warehouses, off by default.** Groundwork is in place for a new tank-based
   diesel workflow. Each company has a new "Enable diesel tanks" switch in Card Settings → Company settings,
   which starts at **off**: nothing changes on a company that leaves it off, and the existing direct-fill
@@ -155,6 +165,7 @@ per site.
 
 | Version | Date | What it brought |
 |---|---|---|
+| [4.8.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.8.0.md) | 2026-11-14 | Big minor (43 merges): separation of duties on monthly card submit; versioned Card Period Run with accountant approval; native approval workflows (inactive by default); approval tiers; approval delegation that grants no role; money privacy on Card Monthly Card (Operator/Mobile cannot see amounts); Diesel Dispense → draft Stock Entry with tanks as Warehouses (off by default per company); per-hour rate precedence; diesel variance and fill-allocation reports; daily log mobile screens; credit note for non-taxable deductions; keep intake evidence of submitted transports; child-row cross-document guard; party portal scaffold (off by default); Marketplace packaging metadata. Every new rule is opt-in per company or warn-only — current behaviour is the default. No CARD GL write anywhere |
 | [4.7.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.7.0.md) | 2026-11-10 | Company checks on tool custody and on equipment needs requests and reviews; VAT rate taken from the company's tax templates; equipment status check on diesel fills; Equipment Location History report; role and action matrix |
 | [4.6.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.6.0.md) | 2026-11-10 | Security fixes (read-only requests, attachment checks, a reviewer cannot also approve); a reason is required to cancel; stop reasons and the Equipment Downtime report; diesel prices by date; per-company checks on equipment and diesel; posting preview page; three analysis reports |
 | [4.5.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.5.0.md) | 2026-11-09 | A supplier accrual journal entry can be linked to its cards so they are never invoiced again; Card Settlement Status report (paid and remaining per card) |

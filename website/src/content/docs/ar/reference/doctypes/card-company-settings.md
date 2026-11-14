@@ -100,6 +100,7 @@ sidebar:
 |---|---|---|---|---|
 | ترحيل نقل المعدات حسب المسؤولية | `transport_responsibility_posting` | Select | تعليق (ترحيل النقل حسب المسؤولية) · ترحيل (ترحيل النقل حسب المسؤولية) |  |
 | حساب إيراد إعادة تحميل النقل | `transport_recharge_income_account` | Link | الحساب |  |
+| خصم غير خاضع للضريبة من العميل | `non_taxable_customer_deduction` | Select | رفض (خصم غير خاضع للضريبة من العميل) · إشعار دائن (خصم غير خاضع للضريبة من العميل) |  |
 
 
 **اعتماد الفترة**
@@ -108,6 +109,39 @@ sidebar:
 |---|---|---|---|---|
 | اشتراط دورة فترة معتمدة قبل الترحيل | `require_period_approval` | Check |  |  |
 | قاعدة الاعتماد الذاتي لدورة الفترة | `period_run_self_approval_rule` | Select | تنبيه فقط (دورة الفترة) · رفض (دورة الفترة) |  |
+
+
+**توزيع تعبئة الديزل (تقديري)**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| طريقة توزيع ديزل الخزان | `tank_estimate_weighting` | Select | Hours (tank estimate) · Hours × Rate (tank estimate) |  |
+
+
+**مستويات اعتماد البطاقة الشهرية**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| حدود مستويات الاعتماد | `approval_tier_thresholds` | Table | [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/) |  |
+
+
+**بوابة الأطراف (معاينة)**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| تفعيل بوابة الأطراف (معاينة) | `enable_party_portal` | Check |  |  |
+
+
+**تانكات الديزل**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| تفعيل تانكات الديزل | `enable_diesel_tanks` | Check |  |  |
+
+
+## الجداول الفرعية
+
+- [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/)
 
 
 ## الصلاحيات

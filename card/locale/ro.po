@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Volumul încărcăturii (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Volumul încărcăturii (m³) este obligatoriu pentru tariful clientului pe m³"
+
+msgid "Load volume used (m³)"
+msgstr "Volumul încărcăturii utilizat (m³)"
+
+msgid "Total loads"
+msgstr "Total încărcături"
+
+msgid "Total volume (m³)"
+msgstr "Volum total (m³)"
+
+msgid "Loads"
+msgstr "Încărcături"
+
+msgid "Negative loads on day {0}"
+msgstr "Încărcături negative în ziua {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Nu se pot înregistra încărcături pentru o zi viitoare: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Pe m³"
+
+msgid "Loads last month"
+msgstr "Încărcături luna trecută"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Încărcăturile pot fi înregistrate doar pe un card al cărui tip de tarif pentru client este pe m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Acest card are ore de funcționare, dar nicio încărcătură, deci suma clientului este zero. Verificați încărcăturile."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Încărcăturile au fost șterse în aceste zile nelucrătoare: {0}"
+
+msgid "Check the loads"
+msgstr "Verificați încărcăturile"

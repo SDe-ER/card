@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Objętość ładunku (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Objętość ładunku (m³) jest wymagana dla stawki klienta za m³"
+
+msgid "Load volume used (m³)"
+msgstr "Wykorzystana objętość ładunku (m³)"
+
+msgid "Total loads"
+msgstr "Łącznie kursów"
+
+msgid "Total volume (m³)"
+msgstr "Łączna objętość (m³)"
+
+msgid "Loads"
+msgstr "Kursy"
+
+msgid "Negative loads on day {0}"
+msgstr "Ujemne kursy w dniu {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Nie można rejestrować kursów na przyszły dzień: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Za m³"
+
+msgid "Loads last month"
+msgstr "Kursy w poprzednim miesiącu"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Kursy można rejestrować tylko na karcie, której typ stawki klienta to za m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Ta karta ma godziny pracy, ale brak kursów, więc kwota klienta wynosi zero. Sprawdź kursy."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Liczba kursów została wyzerowana w tych dniach wolnych od pracy: {0}"
+
+msgid "Check the loads"
+msgstr "Sprawdź liczbę kursów"

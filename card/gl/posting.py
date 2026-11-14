@@ -230,7 +230,10 @@ def card_cost_center(card, company):
 	assignments counted are those covering the card's working days (all its days when
 	none was worked)."""
 	worked = [
-		getdate(d.operation_date) for d in card.get("days") or [] if d.operation_date and is_billed_day(d)
+		# posting keeps the hours rule: loads-only days would otherwise move a line's cost center (review of 8beac69)
+		getdate(d.operation_date)
+		for d in card.get("days") or []
+		if d.operation_date and is_billed_day(d, include_loads=False)
 	]
 	days = worked or [getdate(d.operation_date) for d in card.get("days") or [] if d.operation_date]
 	if not days:

@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "சரக்கு அளவு (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "வாடிக்கையாளர் m³ கட்டணத்திற்கு சரக்கு அளவு (m³) தேவை"
+
+msgid "Load volume used (m³)"
+msgstr "பயன்படுத்திய சரக்கு அளவு (m³)"
+
+msgid "Total loads"
+msgstr "மொத்த சரக்கு பயணங்கள்"
+
+msgid "Total volume (m³)"
+msgstr "மொத்த அளவு (m³)"
+
+msgid "Loads"
+msgstr "சரக்கு பயணங்கள்"
+
+msgid "Negative loads on day {0}"
+msgstr "{0} ஆம் நாளில் எதிர்மறை பயணங்கள்"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "எதிர்கால நாளுக்கு பயணங்களைப் பதிவு செய்ய முடியாது: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "m³ க்கு"
+
+msgid "Loads last month"
+msgstr "கடந்த மாத பயணங்கள்"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "வாடிக்கையாளர் கட்டண வகை m³ க்கு என உள்ள அட்டையில் மட்டுமே பயணங்களைப் பதிவு செய்ய முடியும்"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "இந்த அட்டையில் இயக்க நேரம் உள்ளது ஆனால் ஏற்றுதல்கள் இல்லை, எனவே வாடிக்கையாளர் தொகை பூஜ்யம். ஏற்றுதல்களைச் சரிபார்க்கவும்."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "இந்த வேலை இல்லாத நாட்களில் சுமைகள் அழிக்கப்பட்டன: {0}"
+
+msgid "Check the loads"
+msgstr "சுமைகளைச் சரிபார்க்கவும்"

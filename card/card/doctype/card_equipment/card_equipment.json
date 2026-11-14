@@ -85,6 +85,7 @@
   "customer_rate_type",
   "customer_rate",
   "customer_rate_night",
+  "load_volume_m3",
   "owned_section",
   "asset_item",
   "asset_location",
@@ -754,7 +755,7 @@
    "fieldtype": "Select",
    "label": "Customer rate type",
    "mandatory_depends_on": "eval:[\"مؤجَّرة لعميل\",\"إيجار من الباطن\"].includes(doc.rental_direction)",
-   "options": "\nباليوم\nبالساعة\nبالشهر",
+   "options": "\nباليوم\nبالساعة\nبالشهر\nبالمتر المكعب",
    "permlevel": 1
   },
   {
@@ -772,6 +773,16 @@
    "label": "Customer rate (night shift)",
    "non_negative": 1,
    "permlevel": 1
+  },
+  {
+   "depends_on": "eval:doc.customer_rate_type==\"بالمتر المكعب\"",
+   "fieldname": "load_volume_m3",
+   "fieldtype": "Float",
+   "label": "Load volume (m³)",
+   "mandatory_depends_on": "eval:doc.customer_rate_type==\"بالمتر المكعب\"",
+   "non_negative": 1,
+   "permlevel": 1,
+   "precision": "4"
   },
   {
    "depends_on": "eval:[\"مؤجَّرة لعميل\",\"إيجار من الباطن\"].includes(doc.rental_direction)",

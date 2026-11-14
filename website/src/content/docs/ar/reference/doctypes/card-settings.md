@@ -114,6 +114,13 @@ sidebar:
 |---|---|---|---|---|
 | سياسة مورد الديزل | `diesel_supplier_policy` | Select | ثابت · متغير |  |
 | مورد الديزل | `diesel_supplier` | Link | المورد |  |
+
+
+**حدود الحالات الشاذة لفروقات الديزل**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| حدود الحالات الشاذة لفروقات الديزل | `diesel_variance_thresholds` | Table | [حد فروقات الديزل](/card/ar/reference/doctypes/card-diesel-variance-threshold/) |  |
 | دور تعديل مورد الديزل | `diesel_supplier_editor_role` | Link | الدور |  |
 | دور استثناء سعر الديزل | `diesel_price_exception_role` | Link | الدور |  |
 | دور السعر الصفري للديزل | `diesel_zero_price_role` | Link | الدور |  |
@@ -160,6 +167,7 @@ sidebar:
 
 - [إعدادات كارت للشركة](/card/ar/reference/doctypes/card-company-settings/)
 - [سعر الديزل](/card/ar/reference/doctypes/card-diesel-price/)
+- [حد فروقات الديزل](/card/ar/reference/doctypes/card-diesel-variance-threshold/)
 - [سعر النقل للمشروع](/card/ar/reference/doctypes/card-project-transport-price/)
 - [نوع الإضافة والخصم](/card/ar/reference/doctypes/card-adjustment-type/)
 - [مركز تكلفة المكان](/card/ar/reference/doctypes/card-location-cost-center/)

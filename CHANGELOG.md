@@ -19,6 +19,64 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **CI — release Latest by SemVer (`.github/workflows/release.yml`).** Reason: release v4.6.0 was published 12 seconds after v4.7.0 (2026-11-10) with `make_latest` not set, so GitHub showed v4.6.0 as Latest until v4.7.0 was marked Latest on 2026-11-14. The workflow now fetches all tags and sets `make_latest` to `true` only for the highest plain X.Y.Z tag, and `false` otherwise; it does not fail when no plain tag exists yet. Affected: the release workflow only; no app code, data, permissions or API. Rollback: revert the workflow file. Verified by a local dry run of the decision with simulated tag names (v4.7.0 true; v4.6.0 and v5.0.0-rc1 false); it runs for real on the next tag.
 
 ### Added
+- **FR-166 — Volume billing per m³ and per load (customer side).** Reason: owner rule of 2026-11-13: a machine
+  carrying material is billed per load and per cubic metre, before VAT: loads × load volume (m³) × rate per m³.
+  Hours are still recorded but not billed on this basis; billable stops add nothing. Affected code: DocTypes
+  `Card Equipment` (new `load_volume_m3`, option «بالمتر المكعب» on `customer_rate_type`, `COMMERCIAL_FIELDS`,
+  per-m³ check in `validate_rental_direction`), `Card Monthly Card` (new `total_loads`, `total_volume_m3`,
+  `load_volume_used`; per-m³ branch of the customer amount; snapshot in `_snapshot_settings_used`),
+  `Card Monthly Card Day` (new `loads_count`, working-day and future-date rules), `card/card_value.py`
+  (`loads_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
+  hourly rate; two new columns), both monthly card print formats (loads and volume rows; the standard print removes
+  every money column from users without money read, owner decision 2026-11-13), dashboard number card "Loads last
+  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a non-blocking warning when a per-m³ card has
+  operating hours and no loads (customer amount zero; owner decision 2026-11-14), a day with loads and zero hours counts as a billed day for the assignment and unit-component rules, for shortening or deleting an assignment and cancelling a transfer, and for the customer statement and summary (reviews of 2709979, 2dc1c08 and ca63356; `is_billed_day`, `billed_day_rows(include_loads=True)`, `_refuse_dropped_card_days`, `_card_day_after`); supplier reports keep the hours rule, a non-blocking message listing the non-working days whose loads were cleared on save (`_interactive_form_save`; owner decision 2026-11-14), both messages shown only on an interactive form save and not on imports, patches, migrations, muted runs or background jobs (owner decision 2026-11-14), on a per-m³ card a billable stop-only day is a stop day, not a billed day, on the customer statement and summary (`customer_billed_day_rows`; owner decision z1, 2026-11-14), a BOLA matrix row for the number-card endpoint,
+  translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
+  docs. PR #258.
+  Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
+  number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
+  still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
+  fields only, empty by default; no submitted card is changed. No patch: the volume Number Card never
+  reached Production (4.7.0); a dev or QA site that imported it keeps an orphan Number Card until it is removed by hand. API: one
+  whitelisted read endpoint (`loads_last_month`, POST). Rollback: revert the code; the new fields stay in the database and are ignored by
+  the older code, and existing cards are untouched. A card priced per m³ after the change shows its totals only while
+  the new code runs.
+
+### Changed
+
+_Nothing yet._
+
+### Security
+
+_Nothing yet._
+
+### Planned
+- **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
+  permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
+  a different manager (separation of duties enforced on the server); equipment, projects,
+  assignment, transport, monthly cards, diesel, materials, tools and custody, suppliers, costs and
+  reports on the phone; in-app notifications. Accounting documents stay in ERPNext Desk.
+- **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
+  deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;
+  fresh installs currently get frappe's computed fallback. When the app drops pre‑16.50 support, ship
+  the authoritative `Sidebar` file (generated by frappe's `mark_as_standard`, not hand‑encoded) under
+  `card/card/sidebar/card/` and remove the now‑inert `Workspace Sidebar` fixture. Kept backward‑safe
+  for now because a static `Sidebar` file breaks doc‑sync on pre‑16.50 frappe (doctype absent).
+- **Configurable billing basis for the "باليوم" (per‑day) method**, per equipment/contract: the
+  current behaviour is **hours‑prorated** — `amount = total_working_hours × (rate / daily_hours)`
+  (e.g. 88 h at rate 600 / 10 h‑day → 5,280). Add an option for **full‑day** billing
+  (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
+  default and the switch.
+- **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
+- **No-split rule under owner review per #31 comment 6777551346**; follow-up PR may add per-equipment
+  allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
+  remains in force until replaced.
+
+## [4.8.0] — 2026-11-14
+
+Big minor release: 43 first-parent merges from v4.7.0 (PRs #208–#256). Governance and privacy: separation of duties on the monthly card submit (FR-143), versioned Card Period Run with accountant approval (FR-147), native approval workflows created inactive (FR-152), child-row cross-document guard (FR-153), posting requires an approved period run (FR-154), workflow state guards + bypass suite (FR-155), approval tiers + authorization rule (FR-159), money privacy on Card Monthly Card (FR-162, owner O-20), approval delegation without role grants (FR-163, owner O-12). Diesel: per-hour rate takes precedence over daily (FR-144), variance and anomaly report (FR-151), fill allocation rows (FR-157), operating group + diesel group analysis (FR-160), **Diesel Dispense → draft Stock Entry with tanks as Warehouses, off by default** (FR-164, owner O-11 D1). Billing and credit: credit note for non-taxable deductions (FR-156). Transport and intake: keep intake evidence of submitted transports (FR-146), effective-dated consumption rates with type default and equipment override (FR-145), enforce parent permlevel on child-table reads (FR-148), card day provenance (FR-158). Reports and mobile: Equipment Customer Statement A4 (FR-149), Crusher Owner Statement (FR-150), daily log screens for operators (FR-150 mobile). Portal scaffold (FR-161 off by default, owner O-16 deferred). Packaging (FR-165, Frappe 16.55.2–16.x declared). FR-100 preserved: no CARD GL write anywhere. Owner-approved decisions O-09/11/12/16/20 held throughout. All new cross-cutting behaviour is opt-in per company or warn-only — current behaviour is the default. Full page: [docs/releases/v4.8.0.md](docs/releases/v4.8.0.md).
+
+### Added
 - **FR-164 — Diesel Dispense → draft Stock Entry; tanks as Warehouses, off by default (#31, #47; closure
   plan WP-I1, owner decision O-11 D1).** Reason: #31 D1 (approved 2026-11-10) models tanks as Warehouses
   (not a new table) and asks CARD to build on ERPNext's Stock Entry standard for the "tank → project"
@@ -1691,28 +1749,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the commits and migrate; the levels return to 0 and the Card Settings timeline is no longer masked. Card Equipment
   Versions written while the change was live keep the masked component values (nothing to restore; the rows
   themselves are unchanged); Versions written before it keep their raw values.
-
-### Planned
-- **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
-  permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
-  a different manager (separation of duties enforced on the server); equipment, projects,
-  assignment, transport, monthly cards, diesel, materials, tools and custody, suppliers, costs and
-  reports on the phone; in-app notifications. Accounting documents stay in ERPNext Desk.
-- **Ship the native `Sidebar` for fresh 16.50+ installs.** The desk renders `Sidebar` (not the
-  deprecated `Workspace Sidebar`). Upgraded sites get the curated Card sidebar via the v1.0.1 fold;
-  fresh installs currently get frappe's computed fallback. When the app drops pre‑16.50 support, ship
-  the authoritative `Sidebar` file (generated by frappe's `mark_as_standard`, not hand‑encoded) under
-  `card/card/sidebar/card/` and remove the now‑inert `Workspace Sidebar` fixture. Kept backward‑safe
-  for now because a static `Sidebar` file breaks doc‑sync on pre‑16.50 frappe (doctype absent).
-- **Configurable billing basis for the "باليوم" (per‑day) method**, per equipment/contract: the
-  current behaviour is **hours‑prorated** — `amount = total_working_hours × (rate / daily_hours)`
-  (e.g. 88 h at rate 600 / 10 h‑day → 5,280). Add an option for **full‑day** billing
-  (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
-  default and the switch.
-- **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
-- **No-split rule under owner review per #31 comment 6777551346**; follow-up PR may add per-equipment
-  allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
-  remains in force until replaced.
 
 ## [4.7.0] — 2026-11-10
 

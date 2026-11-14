@@ -15,6 +15,12 @@ card/www/cdms.html
 # Local scratch / parity harnesses (never shipped)
 local/
 
+# Agent session data (never shipped) — Claude Code / Cowork writes these under the repo
+.claude/
+
+# Redis dump file (dev-tool side effect, not source) — never shipped
+dump.rdb
+
 # Editor / OS
 *.swp
 .DS_Store

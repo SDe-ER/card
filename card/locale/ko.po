@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "적재 부피 (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "고객 m³ 요율에는 적재 부피(m³)가 필요합니다"
+
+msgid "Load volume used (m³)"
+msgstr "사용된 적재 부피 (m³)"
+
+msgid "Total loads"
+msgstr "총 운반 횟수"
+
+msgid "Total volume (m³)"
+msgstr "총 부피 (m³)"
+
+msgid "Loads"
+msgstr "운반 횟수"
+
+msgid "Negative loads on day {0}"
+msgstr "{0}일의 음수 운반 횟수"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "미래 날짜에는 운반 횟수를 기록할 수 없습니다: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "m³당"
+
+msgid "Loads last month"
+msgstr "지난달 운반 횟수"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "고객 요율 유형이 m³당인 카드에만 운반 횟수를 기록할 수 있습니다"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "이 카드에는 운영 시간이 있지만 적재 횟수가 없어 고객 금액이 0입니다. 적재 횟수를 확인하세요."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "비근무일에 다음 적재 건수가 삭제되었습니다: {0}"
+
+msgid "Check the loads"
+msgstr "적재 건수 확인"

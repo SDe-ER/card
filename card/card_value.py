@@ -40,6 +40,8 @@ from card.constants import (
 CARD = "Card Monthly Card"
 EQUIPMENT = "Card Equipment"
 PER_DAY = "باليوم"
+# FR-166: customer rate per m³ (loads x load volume x rate); customer side only
+PER_VOLUME_M3 = "بالمتر المكعب"
 INTERNAL_OWNERSHIPS = (OWNED, THIRD_PARTY)
 RATE_FIELDS = ("internal_rate", "internal_rate_basis", "internal_hourly_rate")
 CARD_FIELDS = (
@@ -279,6 +281,35 @@ def hours_without_internal_rate_last_month(filters: str | dict | list | None = N
 		"fieldtype": "Float",
 		**route,
 	}
+
+
+@frappe.whitelist(methods=["POST"])
+def loads_last_month(filters: str | dict | list | None = None) -> dict:
+	"""FR-166: the loads of last month on the submitted per-m³ cards, company-scoped like the other monthly values.
+	total_loads is permlevel 0 (a count, not money), so every user who can read the card sees the number.
+	Permission-checked read; drafts are not counted."""
+	frappe.has_permission(CARD, "read", throw=True)
+	filters = _filters(filters)
+	start, end = _last_month()
+	conditions = [
+		[CARD, "docstatus", "=", 1],
+		[CARD, "customer_rate_type", "=", PER_VOLUME_M3],
+		[CARD, "from_date", ">=", start],
+		[CARD, "from_date", "<=", end],
+	]
+	if filters.get("company"):
+		conditions.append([CARD, "company", "=", filters.get("company")])
+	# one aggregate row (SUM through the dict field syntax, permission-checked by get_list), not one row per card
+	totals = frappe.get_list(
+		CARD,
+		fields=[{"SUM": "total_loads", "as": "loads"}],
+		filters=conditions,
+		limit=0,
+	)
+	total = totals[0] if totals else frappe._dict()
+	route = _route(start, end, False, filters.get("company"))
+	route["route_options"]["customer_rate_type"] = PER_VOLUME_M3
+	return {"value": cint(total.get("loads")), "fieldtype": "Int", **route}
 
 
 def chart_data(chart, filters=None, from_date=None, to_date=None, timespan=None, time_interval=None):
