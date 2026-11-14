@@ -81,6 +81,8 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
+| مستوى الاعتماد <small>(للقراءة فقط)</small> | `approval_tier` | Int |  |  |
+| اسم مستوى الاعتماد <small>(للقراءة فقط)</small> | `approval_tier_name` | Data |  |  |
 | مقدِّم الكارت الشهري للاعتماد (Submit) <small>(للقراءة فقط)</small> | `submitted_by` | Link | المستخدم |  |
 | معتمد الكارت الشهري <small>(للقراءة فقط)</small> | `approved_by` | Link | المستخدم |  |
 | تاريخ اعتماد الكارت الشهري <small>(للقراءة فقط)</small> | `approved_on` | Datetime |  |  |
@@ -100,11 +102,14 @@ sidebar:
 | الوقود على (المستخدم) <small>(للقراءة فقط)</small> | `diesel_policy_used` | Data |  |  |
 | اتجاه الكارت <small>(للقراءة فقط)</small> | `card_direction` | Select | مستأجَرة من مورد · مؤجَّرة لعميل · إيجار من الباطن · تشغيل داخلي |  |
 | العميل <small>(للقراءة فقط)</small> | `customer` | Link | العميل |  |
-| نوع سعر العميل <small>(للقراءة فقط)</small> | `customer_rate_type` | Select | باليوم · بالساعة · بالشهر |  |
+| نوع سعر العميل <small>(للقراءة فقط)</small> | `customer_rate_type` | Select | باليوم · بالساعة · بالشهر · بالمتر المكعب |  |
 | سعر العميل <small>(للقراءة فقط)</small> | `customer_rate` | Currency |  |  |
 | أساس احتساب اليوم <small>(للقراءة فقط)</small> | `day_billing_basis` | Select | تناسبي حسب الساعات · يوم كامل |  |
 | مبلغ العميل <small>(للقراءة فقط)</small> | `customer_amount` | Currency |  |  |
 | سعر الساعة للعميل المستخدم <small>(للقراءة فقط)</small> | `customer_rate_used` | Currency |  |  |
+| سعة الرد المعتمدة (م³) <small>(للقراءة فقط)</small> | `load_volume_used` | Float |  |  |
+| إجمالي الردود <small>(للقراءة فقط)</small> | `total_loads` | Int |  |  |
+| إجمالي الحجم (م³) <small>(للقراءة فقط)</small> | `total_volume_m3` | Float |  |  |
 | الاتجاه المستخدم <small>(للقراءة فقط)</small> | `direction_used` | Data |  |  |
 | العميل المستخدم <small>(للقراءة فقط)</small> | `customer_used` | Data |  |  |
 | أساس السعر المستخدم <small>(للقراءة فقط)</small> | `rate_basis_used` | Data |  |  |
@@ -121,6 +126,14 @@ sidebar:
 | المشغّل | `operator` | Link | الموظف |  |
 
 
+**سير عمل الاعتماد**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| Workflow State <small>(مخفي, للقراءة فقط)</small> | `workflow_state` | Link | Workflow State |  |
+| سبب الإرجاع للتصحيح <small>(للقراءة فقط)</small> | `return_reason` | Small Text |  |  |
+
+
 ## الجداول الفرعية
 
 - [يوم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-day/)
@@ -135,3 +148,7 @@ sidebar:
 | مدير الكروت | قراءة, كتابة, إنشاء, تقديم, إلغاء, تعديل, تقرير, تصدير, طباعة, بريد |
 | مستخدم الكروت | قراءة, كتابة, إنشاء, تقرير, طباعة, بريد |
 | مدير الحسابات | قراءة, تقرير, تصدير, طباعة |
+| مدير النظام (permlevel 1) | قراءة, كتابة |
+| مدير الكروت (permlevel 1) | قراءة, كتابة |
+| مستخدم الكروت (permlevel 1) | قراءة |
+| مدير الحسابات (permlevel 1) | قراءة |

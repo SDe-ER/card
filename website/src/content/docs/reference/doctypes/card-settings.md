@@ -112,6 +112,13 @@ This page is generated from the CARD source code on every build. Edit the code, 
 |---|---|---|---|---|
 | Diesel supplier policy | `diesel_supplier_policy` | Select | ثابت · متغير |  |
 | Diesel supplier | `diesel_supplier` | Link | Supplier |  |
+
+
+**Diesel variance anomaly thresholds**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Diesel variance anomaly thresholds | `diesel_variance_thresholds` | Table | [Card Diesel Variance Threshold](/card/reference/doctypes/card-diesel-variance-threshold/) |  |
 | Diesel supplier editor role | `diesel_supplier_editor_role` | Link | Role |  |
 | Diesel price exception role | `diesel_price_exception_role` | Link | Role |  |
 | Diesel zero price role | `diesel_zero_price_role` | Link | Role |  |
@@ -158,6 +165,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 
 - [Card Company Settings](/card/reference/doctypes/card-company-settings/)
 - [Card Diesel Price](/card/reference/doctypes/card-diesel-price/)
+- [Card Diesel Variance Threshold](/card/reference/doctypes/card-diesel-variance-threshold/)
 - [Card Project Transport Price](/card/reference/doctypes/card-project-transport-price/)
 - [Card Adjustment Type](/card/reference/doctypes/card-adjustment-type/)
 - [Card Location Cost Center](/card/reference/doctypes/card-location-cost-center/)

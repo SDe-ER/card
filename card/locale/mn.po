@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Ачааны эзлэхүүн (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Үйлчлүүлэгчийн m³ тарифт ачааны эзлэхүүн (m³) шаардлагатай"
+
+msgid "Load volume used (m³)"
+msgstr "Ашигласан ачааны эзлэхүүн (m³)"
+
+msgid "Total loads"
+msgstr "Нийт ачаа"
+
+msgid "Total volume (m³)"
+msgstr "Нийт эзлэхүүн (m³)"
+
+msgid "Loads"
+msgstr "Ачаа"
+
+msgid "Negative loads on day {0}"
+msgstr "{0} өдрийн сөрөг ачаа"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Ирээдүйн өдрийн ачааг бүртгэх боломжгүй: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "m³-ын үнэ"
+
+msgid "Loads last month"
+msgstr "Өмнөх сарын ачаа"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Ачааг зөвхөн үйлчлүүлэгчийн тариф м³-ын үнээр тохируулсан картад бүртгэнэ"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Энэ картад ажиллах цаг байгаа ч ачилт байхгүй тул харилцагчийн дүн тэг байна. Ачилтаа шалгана уу."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Эдгээр ажлын бус өдрүүдэд ачааны тоо арилгагдсан: {0}"
+
+msgid "Check the loads"
+msgstr "Ачааны тоог шалгана уу"

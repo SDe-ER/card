@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Prostornina tovora (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Prostornina tovora (m³) je obvezna za stranko po ceni na m³"
+
+msgid "Load volume used (m³)"
+msgstr "Uporabljena prostornina tovora (m³)"
+
+msgid "Total loads"
+msgstr "Skupaj tovorov"
+
+msgid "Total volume (m³)"
+msgstr "Skupna prostornina (m³)"
+
+msgid "Loads"
+msgstr "Tovori"
+
+msgid "Negative loads on day {0}"
+msgstr "Negativni tovori na dan {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Tovorov ni mogoče vnesti za prihodnji dan: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Na m³"
+
+msgid "Loads last month"
+msgstr "Tovori prejšnji mesec"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Tovore je mogoče vnesti samo na kartico, katere vrsta cene za stranko je na m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Ta kartica ima delovne ure, vendar ni prevozov, zato je znesek stranke nič. Preverite prevoze."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Tovori so bili na teh nedelovnih dneh izbrisani: {0}"
+
+msgid "Check the loads"
+msgstr "Preverite tovore"

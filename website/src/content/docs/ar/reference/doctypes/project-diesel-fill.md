@@ -47,6 +47,14 @@ sidebar:
 | المعدات التي تمت تعبئتها | `equipment_filled` | Table | [معدات تعبئة الديزل](/card/ar/reference/doctypes/diesel-fill-equipment/) |  |
 | المعدة (تحميل مباشر) | `card_equipment` | Link | [المعدات](/card/ar/reference/doctypes/card-equipment/) |  |
 
+
+**التوزيع (تقديري، للعرض فقط)**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| توزيع تعبئة الديزل <small>(للقراءة فقط)</small> | `diesel_fill_allocation` | Table | [توزيع تعبئة الديزل](/card/ar/reference/doctypes/diesel-fill-allocation/) |  |
+| مراجعة التوزيع <small>(للقراءة فقط)</small> | `allocation_review` | Small Text |  |  |
+
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
 | سعر الوحدة <small>(للقراءة فقط)</small> | `unit_price` | Currency |  |  |
@@ -127,9 +135,18 @@ sidebar:
 | ملاحظات | `remarks` | Small Text |  |  |
 
 
+**سير عمل الاعتماد**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| Workflow State <small>(مخفي, للقراءة فقط)</small> | `workflow_state` | Link | Workflow State |  |
+| سبب الإرجاع للتصحيح <small>(للقراءة فقط)</small> | `return_reason` | Small Text |  |  |
+
+
 ## الجداول الفرعية
 
 - [معدات تعبئة الديزل](/card/ar/reference/doctypes/diesel-fill-equipment/)
+- [توزيع تعبئة الديزل](/card/ar/reference/doctypes/diesel-fill-allocation/)
 
 
 ## الصلاحيات

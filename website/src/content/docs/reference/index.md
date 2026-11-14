@@ -15,9 +15,9 @@ This section is built from the code itself, so it always matches the current ver
 
 | | |
 |---|---|
-| [DocTypes](/card/reference/doctypes/card-adjustment-type/) | 41 |
-| [Reports](/card/reference/reports/) | 25 |
-| [API endpoints](/card/reference/api-endpoints/) | 70 |
+| [DocTypes](/card/reference/doctypes/card-adjustment-type/) | 48 |
+| [Reports](/card/reference/reports/) | 27 |
+| [API endpoints](/card/reference/api-endpoints/) | 73 |
 
 
 ## DocTypes
@@ -26,12 +26,15 @@ This section is built from the code itself, so it always matches the current ver
 |---|---|
 | [Card Adjustment Type](/card/reference/doctypes/card-adjustment-type/) | Child table (rows inside another document) |
 | [Card Agreement Responsibility](/card/reference/doctypes/card-agreement-responsibility/) | Child table (rows inside another document) |
+| [Card Approval Delegation](/card/reference/doctypes/card-approval-delegation/) | Submittable (Draft → Submitted → Cancelled) |
+| [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/) | Child table (rows inside another document) |
 | [Card Company Settings](/card/reference/doctypes/card-company-settings/) | Child table (rows inside another document) |
 | [Card Consumption Rate](/card/reference/doctypes/card-consumption-rate/) | Child table (rows inside another document) |
 | [Card Daily Log](/card/reference/doctypes/card-daily-log/) | Submittable (Draft → Submitted → Cancelled) |
 | [Card Daily Log Row](/card/reference/doctypes/card-daily-log-row/) | Child table (rows inside another document) |
 | [Card Daily Log Settings](/card/reference/doctypes/card-daily-log-settings/) | Document |
 | [Card Diesel Price](/card/reference/doctypes/card-diesel-price/) | Child table (rows inside another document) |
+| [Card Diesel Variance Threshold](/card/reference/doctypes/card-diesel-variance-threshold/) | Child table (rows inside another document) |
 | [Card Equipment](/card/reference/doctypes/card-equipment/) | Document |
 | [Card Equipment Assignment](/card/reference/doctypes/card-equipment-assignment/) | Document |
 | [Card Equipment Category](/card/reference/doctypes/card-equipment-category/) | Document |
@@ -53,6 +56,8 @@ This section is built from the code itself, so it always matches the current ver
 | [Card Settings](/card/reference/doctypes/card-settings/) | Single (one settings record) |
 | [Card Stop Reason](/card/reference/doctypes/card-stop-reason/) | Document |
 | [Card Type Consumption Rate](/card/reference/doctypes/card-type-consumption-rate/) | Child table (rows inside another document) |
+| [Diesel Dispense](/card/reference/doctypes/diesel-dispense/) | Submittable (Draft → Submitted → Cancelled) |
+| [Diesel Fill Allocation](/card/reference/doctypes/diesel-fill-allocation/) | Child table (rows inside another document) |
 | [Diesel Fill Equipment](/card/reference/doctypes/diesel-fill-equipment/) | Child table (rows inside another document) |
 | [Employee Tool Custody](/card/reference/doctypes/employee-tool-custody/) | Submittable (Draft → Submitted → Cancelled) |
 | [Equipment Meter Reading](/card/reference/doctypes/equipment-meter-reading/) | Submittable (Draft → Submitted → Cancelled) |
@@ -60,6 +65,8 @@ This section is built from the code itself, so it always matches the current ver
 | [Equipment Needs Request Item](/card/reference/doctypes/equipment-needs-request-item/) | Child table (rows inside another document) |
 | [Equipment Needs Review](/card/reference/doctypes/equipment-needs-review/) | Submittable (Draft → Submitted → Cancelled) |
 | [Equipment Needs Review Item](/card/reference/doctypes/equipment-needs-review-item/) | Child table (rows inside another document) |
+| [Equipment Operating Group](/card/reference/doctypes/equipment-operating-group/) | Document |
+| [Equipment Operating Group Member](/card/reference/doctypes/equipment-operating-group-member/) | Child table (rows inside another document) |
 | [Equipment Transport](/card/reference/doctypes/equipment-transport/) | Submittable (Draft → Submitted → Cancelled) |
 | [Equipment Transport Item](/card/reference/doctypes/equipment-transport-item/) | Child table (rows inside another document) |
 | [GL Posting Log](/card/reference/doctypes/gl-posting-log/) | Document |

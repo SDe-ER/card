@@ -73,6 +73,9 @@
   "daily_hours_used",
   "hourly_rate_used",
   "customer_rate_used",
+  "load_volume_used",
+  "total_loads",
+  "total_volume_m3",
   "diesel_policy_used",
   "direction_used",
   "customer_used",
@@ -491,7 +494,7 @@
    "fieldname": "customer_rate_type",
    "fieldtype": "Select",
    "label": "Customer rate type",
-   "options": "\nباليوم\nبالساعة\nبالشهر",
+   "options": "\nباليوم\nبالساعة\nبالشهر\nبالمتر المكعب",
    "read_only": 1
   },
   {
@@ -521,6 +524,26 @@
    "fieldname": "customer_rate_used",
    "fieldtype": "Currency",
    "label": "Customer hourly rate used",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "load_volume_used",
+   "fieldtype": "Float",
+   "label": "Load volume used (m³)",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_loads",
+   "fieldtype": "Int",
+   "label": "Total loads",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_volume_m3",
+   "fieldtype": "Float",
+   "label": "Total volume (m³)",
    "permlevel": 1,
    "read_only": 1
   },

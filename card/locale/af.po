@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Laaivolume (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Laaivolume (m³) is nodig vir die kliënttarief per m³"
+
+msgid "Load volume used (m³)"
+msgstr "Gebruikte laaivolume (m³)"
+
+msgid "Total loads"
+msgstr "Totale ladings"
+
+msgid "Total volume (m³)"
+msgstr "Totale volume (m³)"
+
+msgid "Loads"
+msgstr "Ladings"
+
+msgid "Negative loads on day {0}"
+msgstr "Negatiewe ladings op dag {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Ladings kan nie vir 'n toekomstige dag aangeteken word nie: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "Ladings verlede maand"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Ladings kan net op 'n kaart met kliënttarief-tipe per m³ aangeteken word"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Hierdie kaart het bedryfsure maar geen laaie nie, dus is die kliëntbedrag nul. Kontroleer die laaie."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Ladings is op hierdie nie-werkdae uitgevee: {0}"
+
+msgid "Check the loads"
+msgstr "Kontroleer die ladings"

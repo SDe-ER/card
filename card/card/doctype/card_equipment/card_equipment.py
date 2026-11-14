@@ -17,6 +17,7 @@ from card.attachment_validator import (
 	new_form_prefix,
 	require_record_file,
 )
+from card.card_value import PER_VOLUME_M3
 from card.constants import (
 	CUSTOMER_BILLING_DIRECTIONS,
 	OWNED,
@@ -47,6 +48,7 @@ COMMERCIAL_FIELDS = (
 	"customer_rate_type",
 	"customer_rate",
 	"customer_rate_night",
+	"load_volume_m3",
 	"default_customer",
 	"rental_direction",
 	"operator_on",
@@ -323,6 +325,9 @@ class CardEquipment(Document):
 				frappe.throw(
 					_("Direction {0} requires the customer rate and its basis.").format(self.rental_direction)
 				)
+			# FR-166: the per-m³ customer rate bills loads x this load volume
+			if self.customer_rate_type == PER_VOLUME_M3 and flt(self.load_volume_m3) <= 0:
+				frappe.throw(_("Load volume (m³) is required for the per-m³ customer rate"))
 
 	def validate_unique_asset(self):
 		# One ERPNext Asset <-> at most one Card Equipment.

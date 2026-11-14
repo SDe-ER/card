@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Kuormatilavuus (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Kuormatilavuus (m³) vaaditaan asiakkaan m³-hintaan"
+
+msgid "Load volume used (m³)"
+msgstr "Käytetty kuormatilavuus (m³)"
+
+msgid "Total loads"
+msgstr "Kuormat yhteensä"
+
+msgid "Total volume (m³)"
+msgstr "Kokonaistilavuus (m³)"
+
+msgid "Loads"
+msgstr "Kuormat"
+
+msgid "Negative loads on day {0}"
+msgstr "Negatiiviset kuormat päivänä {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Kuormia ei voi kirjata tulevalle päivälle: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "Kuormat viime kuussa"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Kuormia voi kirjata vain kortille, jonka asiakashinnoittelu on per m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Tässä kortissa on käyttötunteja mutta ei kuormia, joten asiakkaan summa on nolla. Tarkista kuormat."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Kuormat poistettiin näinä ei-työpäivinä: {0}"
+
+msgid "Check the loads"
+msgstr "Tarkista kuormat"

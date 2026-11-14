@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Обем на курса (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Обемът на курса (m³) е задължителен за тарифата на клиента за m³"
+
+msgid "Load volume used (m³)"
+msgstr "Използван обем на курса (m³)"
+
+msgid "Total loads"
+msgstr "Общо курсове"
+
+msgid "Total volume (m³)"
+msgstr "Общ обем (m³)"
+
+msgid "Loads"
+msgstr "Курсове"
+
+msgid "Negative loads on day {0}"
+msgstr "Отрицателни курсове за ден {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Не може да се записват курсове за бъдещ ден: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "На m³"
+
+msgid "Loads last month"
+msgstr "Курсове миналия месец"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Курсове може да се записват само в карта с тип на тарифата за клиента по m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Тази карта има работни часове, но няма курсове, затова сумата за клиента е нула. Проверете курсовете."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Товарите бяха изчистени в тези неработни дни: {0}"
+
+msgid "Check the loads"
+msgstr "Проверете товаренията"

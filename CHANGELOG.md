@@ -16,8 +16,28 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
-
-_Nothing yet._
+- **FR-166 — Volume billing per m³ and per load (customer side).** Reason: owner rule of 2026-11-13: a machine
+  carrying material is billed per load and per cubic metre, before VAT: loads × load volume (m³) × rate per m³.
+  Hours are still recorded but not billed on this basis; billable stops add nothing. Affected code: DocTypes
+  `Card Equipment` (new `load_volume_m3`, option «بالمتر المكعب» on `customer_rate_type`, `COMMERCIAL_FIELDS`,
+  per-m³ check in `validate_rental_direction`), `Card Monthly Card` (new `total_loads`, `total_volume_m3`,
+  `load_volume_used`; per-m³ branch of the customer amount; snapshot in `_snapshot_settings_used`),
+  `Card Monthly Card Day` (new `loads_count`, working-day and future-date rules), `card/card_value.py`
+  (`loads_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
+  hourly rate; two new columns), both monthly card print formats (loads and volume rows; the standard print removes
+  every money column from users without money read, owner decision 2026-11-13), dashboard number card "Loads last
+  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a non-blocking warning when a per-m³ card has
+  operating hours and no loads (customer amount zero; owner decision 2026-11-14), a day with loads and zero hours counts as a billed day for the assignment and unit-component rules, for shortening or deleting an assignment and cancelling a transfer, and for the customer statement and summary (reviews of 2709979, 2dc1c08 and ca63356; `is_billed_day`, `billed_day_rows(include_loads=True)`, `_refuse_dropped_card_days`, `_card_day_after`); supplier reports keep the hours rule, a non-blocking message listing the non-working days whose loads were cleared on save (`_interactive_form_save`; owner decision 2026-11-14), both messages shown only on an interactive form save and not on imports, patches, migrations, muted runs or background jobs (owner decision 2026-11-14), on a per-m³ card a billable stop-only day is a stop day, not a billed day, on the customer statement and summary (`customer_billed_day_rows`; owner decision z1, 2026-11-14), a BOLA matrix row for the number-card endpoint,
+  translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
+  docs. PR #258.
+  Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
+  number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
+  still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
+  fields only, empty by default; no submitted card is changed. No patch: the volume Number Card never
+  reached Production (4.7.0); a dev or QA site that imported it keeps an orphan Number Card until it is removed by hand. API: one
+  whitelisted read endpoint (`loads_last_month`, POST). Rollback: revert the code; the new fields stay in the database and are ignored by
+  the older code, and existing cards are untouched. A card priced per m³ after the change shows its totals only while
+  the new code runs.
 
 ### Changed
 

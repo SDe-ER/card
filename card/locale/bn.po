@@ -474,3 +474,45 @@ msgstr "Accounting"
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "লোড আয়তন (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "প্রতি m³ গ্রাহক হারের জন্য লোড আয়তন (m³) প্রয়োজন"
+
+msgid "Load volume used (m³)"
+msgstr "ব্যবহৃত লোড আয়তন (m³)"
+
+msgid "Total loads"
+msgstr "মোট লোড"
+
+msgid "Total volume (m³)"
+msgstr "মোট আয়তন (m³)"
+
+msgid "Loads"
+msgstr "লোড"
+
+msgid "Negative loads on day {0}"
+msgstr "দিন {0}-এ ঋণাত্মক লোড"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "ভবিষ্যৎ দিনের জন্য লোড নথিভুক্ত করা যাবে না: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "প্রতি ঘন মিটার"
+
+msgid "Loads last month"
+msgstr "গত মাসের লোড"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "শুধু গ্রাহক হারের ধরন প্রতি ঘন মিটার হলে কার্ডে লোড নথিভুক্ত করা যায়"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "এই কার্ডে কার্যকরী ঘণ্টা আছে কিন্তু লোড নেই, তাই গ্রাহকের পরিমাণ শূন্য। লোড যাচাই করুন।"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "এই অ-কর্মদিবসগুলোতে লোড মুছে ফেলা হয়েছে: {0}"
+
+msgid "Check the loads"
+msgstr "লোড যাচাই করুন"

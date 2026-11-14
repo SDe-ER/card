@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Khối lượng chuyến hàng (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Cần có khối lượng chuyến hàng (m³) cho đơn giá khách hàng theo m³"
+
+msgid "Load volume used (m³)"
+msgstr "Khối lượng chuyến hàng đã dùng (m³)"
+
+msgid "Total loads"
+msgstr "Tổng số chuyến"
+
+msgid "Total volume (m³)"
+msgstr "Tổng khối lượng (m³)"
+
+msgid "Loads"
+msgstr "Số chuyến"
+
+msgid "Negative loads on day {0}"
+msgstr "Số chuyến âm vào ngày {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Không thể ghi chuyến cho ngày trong tương lai: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Theo m³"
+
+msgid "Loads last month"
+msgstr "Số chuyến tháng trước"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Chỉ có thể ghi chuyến vào thẻ có loại đơn giá khách hàng là theo m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Thẻ này có giờ vận hành nhưng không có chuyến chở, nên số tiền khách hàng bằng không. Hãy kiểm tra số chuyến."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Số chuyến đã bị xóa vào các ngày không làm việc sau: {0}"
+
+msgid "Check the loads"
+msgstr "Kiểm tra số chuyến"

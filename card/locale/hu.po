@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Rakomány térfogata (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "A rakomány térfogata (m³) kötelező a vevői m³-ár esetén"
+
+msgid "Load volume used (m³)"
+msgstr "Felhasznált rakomány-térfogat (m³)"
+
+msgid "Total loads"
+msgstr "Összes fuvar"
+
+msgid "Total volume (m³)"
+msgstr "Összes térfogat (m³)"
+
+msgid "Loads"
+msgstr "Fuvarok"
+
+msgid "Negative loads on day {0}"
+msgstr "Negatív fuvarok a(z) {0}. napon"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Fuvar nem rögzíthető jövőbeli napra: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "m³-enként"
+
+msgid "Loads last month"
+msgstr "Fuvarok az előző hónapban"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Fuvar csak olyan kártyán rögzíthető, amelynek vevői díjtípusa m³-enként"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Ennek a kártyának van üzemóraja, de nincs fuvar, ezért a vevői összeg nulla. Ellenőrizze a fuvarokat."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "A fuvarok száma ezeken a munkaszüneti napokon törlődött: {0}"
+
+msgid "Check the loads"
+msgstr "Ellenőrizze a fuvarokat"

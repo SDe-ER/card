@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Запремина терета (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Запремина терета (m³) је обавезна за купчеву цену по m³"
+
+msgid "Load volume used (m³)"
+msgstr "Коришћена запремина терета (m³)"
+
+msgid "Total loads"
+msgstr "Укупно вожњи"
+
+msgid "Total volume (m³)"
+msgstr "Укупна запремина (m³)"
+
+msgid "Loads"
+msgstr "Вожње"
+
+msgid "Negative loads on day {0}"
+msgstr "Негативне вожње за дан {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Вожње се не могу уносити за будући дан: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "По m³"
+
+msgid "Loads last month"
+msgstr "Вожње прошлог месеца"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Вожње се могу уносити само на картицу чија је врста цене за купца по m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Ова картица има радне сате, али нема утовара, па је износ за купца нула. Проверите утоваре."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Товари су обрисани у овим нерадним данима: {0}"
+
+msgid "Check the loads"
+msgstr "Проверите товаре"

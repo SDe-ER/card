@@ -474,3 +474,45 @@ msgstr "Accounting"
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "لوڈ حجم (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "فی m³ کسٹمر ریٹ کے لیے لوڈ حجم (m³) درکار ہے"
+
+msgid "Load volume used (m³)"
+msgstr "استعمال شدہ لوڈ حجم (m³)"
+
+msgid "Total loads"
+msgstr "کل لوڈ"
+
+msgid "Total volume (m³)"
+msgstr "کل حجم (m³)"
+
+msgid "Loads"
+msgstr "لوڈ"
+
+msgid "Negative loads on day {0}"
+msgstr "دن {0} پر منفی لوڈ"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "مستقبل کے دن کے لیے لوڈ درج نہیں کیے جا سکتے: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Per m³"
+
+msgid "Loads last month"
+msgstr "پچھلے مہینے کے لوڈ"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "لوڈ صرف اس کارڈ پر درج کیے جا سکتے ہیں جس کی کسٹمر ریٹ کی قسم فی m³ ہو"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "اس کارڈ میں آپریشن کے گھنٹے ہیں مگر لوڈ نہیں ہیں، اس لیے گاہک کی رقم صفر ہے۔ لوڈ چیک کریں۔"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "ان غیر کاری دنوں میں لوڈز صاف کر دیے گئے: {0}"
+
+msgid "Check the loads"
+msgstr "لوڈز چیک کریں"

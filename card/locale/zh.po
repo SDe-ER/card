@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "装载体积 (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "客户按 m³ 计价时必须填写装载体积 (m³)"
+
+msgid "Load volume used (m³)"
+msgstr "已用装载体积 (m³)"
+
+msgid "Total loads"
+msgstr "总车次"
+
+msgid "Total volume (m³)"
+msgstr "总体积 (m³)"
+
+msgid "Loads"
+msgstr "车次"
+
+msgid "Negative loads on day {0}"
+msgstr "{0} 日出现负车次"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "不能登记未来日期的车次：{0}"
+
+msgid "بالمتر المكعب"
+msgstr "按每立方米"
+
+msgid "Loads last month"
+msgstr "上月车次"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "只能在客户计价类型为按 m³ 的卡片上登记车次"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "该卡有运行小时但没有装载次数，因此客户金额为零。请核对装载次数。"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "这些非工作日的装载次数已被清除：{0}"
+
+msgid "Check the loads"
+msgstr "核对装载次数"

@@ -8656,3 +8656,45 @@ msgstr "تداخل في التفويض"
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.py
 msgid "Delegation cancelled by {0}."
 msgstr "أُلغي التفويض بواسطة {0}."
+
+msgid "Load volume (m³)"
+msgstr "سعة الرد (م³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "سعة الرد (م³) مطلوبة لسعر العميل بالمتر المكعب"
+
+msgid "Load volume used (m³)"
+msgstr "سعة الرد المعتمدة (م³)"
+
+msgid "Total loads"
+msgstr "إجمالي الردود"
+
+msgid "Total volume (m³)"
+msgstr "إجمالي الحجم (م³)"
+
+msgid "Loads"
+msgstr "عدد الردود"
+
+msgid "Negative loads on day {0}"
+msgstr "عدد ردود سالب في اليوم {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "لا يمكن تسجيل ردود ليوم مستقبلي: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "بالمتر المكعب"
+
+msgid "Loads last month"
+msgstr "عدد الردود الشهر الماضي"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "لا يمكن تسجيل الردود إلا في كارت نوع سعر العميل فيه بالمتر المكعب"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "الكارت فيه ساعات تشغيل ومفيهوش ردود، فمبلغ العميل = صفر. اتأكد من عدد الردود."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "اتمسحت الردود في الأيام دي لأنها مش أيام عمل: {0}"
+
+msgid "Check the loads"
+msgstr "راجع الردود"

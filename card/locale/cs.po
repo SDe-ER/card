@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Objem nákladu (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Objem nákladu (m³) je povinný pro zákaznickou sazbu za m³"
+
+msgid "Load volume used (m³)"
+msgstr "Použitý objem nákladu (m³)"
+
+msgid "Total loads"
+msgstr "Celkem nákladů"
+
+msgid "Total volume (m³)"
+msgstr "Celkový objem (m³)"
+
+msgid "Loads"
+msgstr "Náklady"
+
+msgid "Negative loads on day {0}"
+msgstr "Záporný počet nákladů v den {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Náklady nelze zapsat na budoucí den: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Za m³"
+
+msgid "Loads last month"
+msgstr "Náklady za minulý měsíc"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Náklady lze zapsat pouze na kartu, jejíž typ sazby zákazníka je za m³"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Tato karta má provozní hodiny, ale žádné nakládky, takže částka zákazníka je nulová. Zkontrolujte nakládky."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Počty nákladů byly na těchto nepracovních dnech vynulovány: {0}"
+
+msgid "Check the loads"
+msgstr "Zkontrolujte náklady"

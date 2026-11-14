@@ -29,6 +29,7 @@ sidebar:
 | اليوم <small>(للقراءة فقط)</small> | `day_name` | Data |  |  |
 | حالة اليوم | `day_status` | Select | عمل · إجازة · عطل · توقف من العميل |  |
 | ساعات التشغيل | `working_hours` | Float |  |  |
+| عدد الردود | `loads_count` | Int |  |  |
 | سبب التوقف | `idle_reason` | Data |  |  |
 
 
@@ -43,6 +44,16 @@ sidebar:
 | سجل الجهة المسؤولة | `responsible_party` | Dynamic Link | responsible_party_type |  |
 | اسم الجهة المسؤولة | `responsible_party_name` | Data |  |  |
 | ملاحظات | `notes` | Data |  |  |
+
+
+**مصدر الإدخال**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| مصدر الإدخال | `intake_source` | Select | يدوي · ورقي · واتساب · تطبيق موبايل · استيراد |  |
+| مفتاح المصدر | `intake_source_key` | Data |  |  |
+| تاريخ ووقت الاستلام | `intake_received_on` | Datetime |  |  |
+| بصمة مستند المصدر (SHA-256) <small>(للقراءة فقط)</small> | `intake_evidence_hash` | Data |  |  |
 
 
 ## الصلاحيات

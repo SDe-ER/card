@@ -10,3 +10,45 @@ msgstr ""
 #: card/desktop_icon/card.json
 msgid "Card"
 msgstr "CARD"
+
+msgid "Load volume (m³)"
+msgstr "Ladevolumen (m³)"
+
+msgid "Load volume (m³) is required for the per-m³ customer rate"
+msgstr "Ladevolumen (m³) ist für den Kundentarif pro m³ erforderlich"
+
+msgid "Load volume used (m³)"
+msgstr "Verwendetes Ladevolumen (m³)"
+
+msgid "Total loads"
+msgstr "Fuhren gesamt"
+
+msgid "Total volume (m³)"
+msgstr "Gesamtvolumen (m³)"
+
+msgid "Loads"
+msgstr "Fuhren"
+
+msgid "Negative loads on day {0}"
+msgstr "Negative Fuhren am Tag {0}"
+
+msgid "Cannot record loads for a future day: {0}"
+msgstr "Fuhren können nicht für einen zukünftigen Tag erfasst werden: {0}"
+
+msgid "بالمتر المكعب"
+msgstr "Pro m³"
+
+msgid "Loads last month"
+msgstr "Fuhren letzter Monat"
+
+msgid "Loads can be recorded only on a card whose customer rate type is per m³"
+msgstr "Fuhren können nur auf einer Karte erfasst werden, deren Kundentarif pro m³ ist"
+
+msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+msgstr "Diese Karte hat Betriebsstunden, aber keine Ladungen, daher ist der Kundenbetrag null. Bitte die Ladungen prüfen."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Ladungen wurden an diesen arbeitsfreien Tagen gelöscht: {0}"
+
+msgid "Check the loads"
+msgstr "Ladungen prüfen"

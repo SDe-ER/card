@@ -21,7 +21,7 @@ sidebar:
 | [`card.card.doctype.equipment_transport.equipment_transport`](#card-card-doctype-equipment-transport-equipment-transport) | 3 |
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
 | [`card.card.report.equipment_supplier_statement.statement_pdf`](#card-card-report-equipment-supplier-statement-statement-pdf) | 1 |
-| [`card.card_value`](#card-card-value) | 5 |
+| [`card.card_value`](#card-card-value) | 7 |
 | [`card.catalog`](#card-catalog) | 2 |
 | [`card.daily_log_generation`](#card-daily-log-generation) | 1 |
 | [`card.diesel`](#card-diesel) | 1 |
@@ -31,6 +31,7 @@ sidebar:
 | [`card.gl.journal_link`](#card-gl-journal-link) | 1 |
 | [`card.gl.period_run`](#card-gl-period-run) | 2 |
 | [`card.gl.posting`](#card-gl-posting) | 5 |
+| [`card.governance_workflows`](#card-governance-workflows) | 1 |
 | [`card.materials`](#card-materials) | 8 |
 | [`card.mobile`](#card-mobile) | 1 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
@@ -130,6 +131,7 @@ sidebar:
 | `card.card_value.internal_value_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.cards_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.hours_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
+| `card.card_value.loads_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 
 
 <h2 id="card-catalog"><code>card.catalog</code></h2>
@@ -201,6 +203,13 @@ sidebar:
 | `card.gl.posting.posting_month_parties` | GET | `company: str`<br/>`month: str`<br/>`year: str` |
 | `card.gl.posting.preview_month` | GET | `company: str`<br/>`party_type: str`<br/>`party: str`<br/>`month: str`<br/>`year: str` |
 | `card.gl.posting.posting_period_run` | GET | `company: str`<br/>`month: str`<br/>`year: str` |
+
+
+<h2 id="card-governance-workflows"><code>card.governance_workflows</code></h2>
+
+| مسار الدالة | طرق HTTP | المعاملات |
+|---|---|---|
+| `card.governance_workflows.return_for_correction` | POST | `doctype: str`<br/>`name: str`<br/>`reason: str \| None = None` |
 
 
 <h2 id="card-materials"><code>card.materials</code></h2>
