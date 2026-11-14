@@ -297,22 +297,29 @@ def _volume_last_month(filters):
 	]
 	if filters.get("company"):
 		conditions.append([CARD, "company", "=", filters.get("company")])
-	rows = frappe.get_list(CARD, fields=["total_loads", "total_volume_m3"], filters=conditions, limit=0)
+	# one aggregate row (SQL SUM, permission-checked by get_list), not one row per card
+	totals = frappe.get_list(
+		CARD,
+		fields=["sum(total_loads) as loads", "sum(total_volume_m3) as volume"],
+		filters=conditions,
+		limit=0,
+	)
+	total = totals[0] if totals else frappe._dict()
 	route = _route(start, end, False, filters.get("company"))
 	route["route_options"]["customer_rate_type"] = PER_VOLUME_M3
-	return rows, route
+	return cint(total.get("loads")), flt(total.get("volume"), 2), route
 
 
 @frappe.whitelist(methods=["POST"])
 def loads_last_month(filters: str | dict | list | None = None) -> dict:
-	rows, route = _volume_last_month(filters)
-	return {"value": sum(cint(r.total_loads) for r in rows), "fieldtype": "Int", **route}
+	loads, _volume, route = _volume_last_month(filters)
+	return {"value": loads, "fieldtype": "Int", **route}
 
 
 @frappe.whitelist(methods=["POST"])
 def volume_last_month(filters: str | dict | list | None = None) -> dict:
-	rows, route = _volume_last_month(filters)
-	return {"value": flt(sum(flt(r.total_volume_m3) for r in rows), 2), "fieldtype": "Float", **route}
+	_loads, volume, route = _volume_last_month(filters)
+	return {"value": volume, "fieldtype": "Float", **route}
 
 
 def chart_data(chart, filters=None, from_date=None, to_date=None, timespan=None, time_interval=None):

@@ -221,6 +221,7 @@ class CardMonthlyCard(Document):
 			seen[key] = 1
 			if row.day_status != "عمل":
 				row.working_hours = 0
+				row.loads_count = 0  # FR-166: loads are cleared with the hours, not refused on save
 			h = flt(row.working_hours)
 			if h < 0:
 				frappe.throw(_("Negative hours on day {0}").format(key))
@@ -404,11 +405,15 @@ class CardMonthlyCard(Document):
 
 		# ---- customer-side amount (rate mirrored from the equipment; the SI itself is S3) ----
 		self.total_volume_m3 = 0
+		# FR-166: the load volume of this validate, reused by the submit snapshot (no second read)
+		self._load_volume_m3 = flt(eq.load_volume_m3)
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS:
 			if self.customer_rate_type == PER_VOLUME_M3:
-				# FR-166: loads x load volume (m³) x rate per m³ before VAT; hours and billable stops add nothing
-				self.total_volume_m3 = flt(loads_total * flt(eq.load_volume_m3), 3)
-				self.customer_amount = flt(self.total_volume_m3 * flt(self.customer_rate), 2)
+				# FR-166: loads x load volume (m³) x rate per m³ before VAT; hours and billable stops add nothing.
+				# The product is exact; only the amount is rounded, total_volume_m3 is for display.
+				priced_volume = loads_total * self._load_volume_m3
+				self.total_volume_m3 = flt(priced_volume, 3)
+				self.customer_amount = flt(priced_volume * flt(self.customer_rate), 2)
 			elif bills_full_days(self.customer_rate_type, self.day_billing_basis):
 				self.customer_amount = flt(customer_billed_days * flt(self.customer_rate), 2)
 			else:
@@ -792,7 +797,7 @@ class CardMonthlyCard(Document):
 		)
 		self.db_set(
 			"load_volume_used",
-			flt(frappe.db.get_value("Card Equipment", self.equipment, "load_volume_m3")) if per_volume else 0,
+			flt(getattr(self, "_load_volume_m3", 0)) if per_volume else 0,
 			update_modified=False,
 		)
 		# F.7 snapshot: direction, customer and the supplier rate basis used at submit

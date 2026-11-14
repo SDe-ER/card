@@ -61,8 +61,8 @@ On each day row of the monthly card:
 - **Operating hours** are entered as before.
 - **Loads** (number of loads on that day) is entered on a working day, that is a day whose status is working. A day
   with zero hours can still carry loads, because the day status decides and not the hours.
-- Loads cannot be recorded on a day that is not a working day (leave, breakdown, client stop), and cannot be recorded
-  for a future date. Future dates are refused for hours too.
+- On a day that is not a working day (leave, breakdown, client stop) the loads are cleared when the card is saved,
+  as the operating hours are. Loads cannot be recorded for a future date. Future dates are refused for hours too.
 - A negative number of loads is refused.
 
 The card totals then show:

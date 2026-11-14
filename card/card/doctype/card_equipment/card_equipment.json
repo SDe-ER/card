@@ -781,7 +781,8 @@
    "label": "Load volume (m³)",
    "mandatory_depends_on": "eval:doc.customer_rate_type==\"بالمتر المكعب\"",
    "non_negative": 1,
-   "permlevel": 1
+   "permlevel": 1,
+   "precision": "4"
   },
   {
    "depends_on": "eval:[\"مؤجَّرة لعميل\",\"إيجار من الباطن\"].includes(doc.rental_direction)",

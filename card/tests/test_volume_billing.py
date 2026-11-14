@@ -128,10 +128,41 @@ class TestVolumeBilling(_StopBase):
 		self.assertEqual(flt(card.customer_amount), 1280.0)
 
 	# ---- validation ----
-	def test_loads_on_a_non_working_day_are_refused(self):
+	def test_loads_are_cleared_when_the_day_becomes_a_non_working_day(self):
+		# FR-166 (review F1): loads are zeroed with the hours on a non-working day; the save succeeds
 		eq = self._volume_equipment()
-		with self.assertRaises(frappe.ValidationError):
-			self._volume_card(eq, [{"day_status": LEAVE, "loads_count": 3}])
+		card = self._volume_card(eq, [{"loads_count": 3, "working_hours": 8}])
+		card.days[0].day_status = LEAVE
+		card.save(ignore_permissions=True)
+		card.reload()
+		self.assertEqual(card.days[0].loads_count, 0)
+		self.assertEqual(card.total_loads, 0)
+		self.assertEqual(flt(card.customer_amount), 0.0)
+
+	def test_loads_on_a_new_non_working_day_are_zeroed_on_save(self):
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"day_status": LEAVE, "loads_count": 3}])
+		self.assertEqual(card.days[0].loads_count, 0)
+		self.assertEqual(card.total_loads, 0)
+
+	def test_priced_volume_is_exact_before_rounding(self):
+		# FR-166 (review F2): 7 x 1.2345 x 3 = 25.9245, rounded once to 25.92 (no intermediate rounding)
+		eq = self._volume_equipment(customer_rate=3, load_volume=1.2345)
+		card = self._volume_card(eq, [{"loads_count": 7, "working_hours": 10}], submit=True)
+		self.assertEqual(flt(card.customer_amount), 25.92)
+		self.assertEqual(flt(card.load_volume_used, 4), 1.2345)
+
+	def test_loads_last_month_refuses_card_operator(self):
+		# FR-166 (review F4): the aggregate keeps the read check; Card Operator has no read on monthly cards
+		from card.card_value import loads_last_month
+		from card.tests.test_card_money_privacy import _user
+
+		frappe.set_user(_user(["Card Operator"], restrict=self.company))
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				loads_last_month({"company": self.company})
+		finally:
+			frappe.set_user("Administrator")
 
 	def test_negative_loads_are_refused(self):
 		eq = self._volume_equipment()
