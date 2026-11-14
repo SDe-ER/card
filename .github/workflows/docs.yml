@@ -63,7 +63,7 @@ jobs:
         run: npm run check:reference || echo "::warning title=Docs reference out of date::Run 'cd website && npm run generate' and commit the result."
       - name: Build
         run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: github.event_name != 'pull_request'
         with:
           path: website/dist
