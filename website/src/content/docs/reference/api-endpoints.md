@@ -21,7 +21,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.card.doctype.equipment_transport.equipment_transport`](#card-card-doctype-equipment-transport-equipment-transport) | 3 |
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
 | [`card.card.report.equipment_supplier_statement.statement_pdf`](#card-card-report-equipment-supplier-statement-statement-pdf) | 1 |
-| [`card.card_value`](#card-card-value) | 5 |
+| [`card.card_value`](#card-card-value) | 7 |
 | [`card.catalog`](#card-catalog) | 2 |
 | [`card.daily_log_generation`](#card-daily-log-generation) | 1 |
 | [`card.diesel`](#card-diesel) | 1 |
@@ -31,6 +31,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.gl.journal_link`](#card-gl-journal-link) | 1 |
 | [`card.gl.period_run`](#card-gl-period-run) | 2 |
 | [`card.gl.posting`](#card-gl-posting) | 5 |
+| [`card.governance_workflows`](#card-governance-workflows) | 1 |
 | [`card.materials`](#card-materials) | 8 |
 | [`card.mobile`](#card-mobile) | 1 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
@@ -168,6 +169,8 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | `card.card_value.internal_value_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.cards_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.hours_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
+| `card.card_value.loads_last_month` | POST | `filters: str \| dict \| list \| None = None` |
+| `card.card_value.volume_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 
 
 <h2 id="card-catalog"><code>card.catalog</code></h2>
@@ -265,6 +268,15 @@ This page is generated from the CARD source code on every build. Edit the code, 
 - `posting_month_parties` — Posting screen: the parties of the month with their posting status. Read only. Each side is listed only when the caller may build that side's postings.
 - `preview_month` — Posting screen: the lines the next post (or rebuild) would create. Read only — nothing is inserted, saved, reserved or logged; post_month / rebuild_month write.
 - `posting_period_run` — Posting screen: whether the company requires an approved period run before posting, the state of the month's run and why posting is refused. Read only (it rebuilds the run's live snapshot); no amounts. The same role and company checks as the party list.
+
+
+<h2 id="card-governance-workflows"><code>card.governance_workflows</code></h2>
+
+| Method path | HTTP methods | Arguments |
+|---|---|---|
+| `card.governance_workflows.return_for_correction` | POST | `doctype: str`<br/>`name: str`<br/>`reason: str \| None = None` |
+
+- `return_for_correction` — The form's "Return for Correction": apply the Workflow action with its mandatory reason in one request. Frappe's ``apply_workflow`` checks the transition, the role and the document permission.
 
 
 <h2 id="card-materials"><code>card.materials</code></h2>

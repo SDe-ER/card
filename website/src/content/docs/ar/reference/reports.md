@@ -14,7 +14,9 @@ sidebar:
 |---|---|---|
 | [مراجعة ربط الأصول](#asset-mapping-review) | [المعدات](/card/ar/reference/doctypes/card-equipment/) | مدير النظام, مدير الكروت, مدير الحسابات |
 | [حالة تسوية الكروت](#card-settlement-status) | [كارت التشغيل الشهري](/card/ar/reference/doctypes/card-monthly-card/) | مدير النظام, مدير الحسابات |
+| [تحليل ديزل المجموعة](#diesel-group-analysis) | [مجموعة تشغيل معدات](/card/ar/reference/doctypes/equipment-operating-group/) | مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات |
 | [مطابقة فواتير الديزل](#diesel-invoice-reconciliation) | [تعبئة ديزل للمشروع](/card/ar/reference/doctypes/project-diesel-fill/) | مدير النظام, مدير الحسابات |
+| [فروقات الديزل والحالات الشاذة](#diesel-variance-anomaly) | [تعبئة ديزل للمشروع](/card/ar/reference/doctypes/project-diesel-fill/) | مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات |
 | [استهلاك المعدات](#equipment-consumption) | [المعدات](/card/ar/reference/doctypes/card-equipment/) | مدير النظام, مدير الكروت, مشرف الكروت, مستخدم الكروت, مدير المخزون, مدير الحسابات |
 | [كشف حساب العميل](#equipment-customer-statement) | [كارت التشغيل الشهري](/card/ar/reference/doctypes/card-monthly-card/) | مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات |
 | [ملخص العملاء](#equipment-customers-summary) | [كارت التشغيل الشهري](/card/ar/reference/doctypes/card-monthly-card/) | مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات |
@@ -70,6 +72,22 @@ sidebar:
 | إلى تاريخ | `to_date` | Date | نعم |
 
 
+<h2 id="diesel-group-analysis">تحليل ديزل المجموعة</h2>
+
+**Diesel Group Analysis**
+
+- النوع: Script Report
+- مبني على: مجموعة تشغيل معدات
+- الأدوار: مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات
+
+| التسمية | اسم الحقل | النوع | إلزامي |
+|---|---|---|---|
+| الشركة | `company` | Autocomplete | نعم |
+| من تاريخ | `from_date` | Date | نعم |
+| إلى تاريخ | `to_date` | Date | نعم |
+| مجموعة التشغيل | `group` | Link → مجموعة تشغيل معدات |  |
+
+
 <h2 id="diesel-invoice-reconciliation">مطابقة فواتير الديزل</h2>
 
 **Diesel Invoice Reconciliation**
@@ -87,6 +105,24 @@ sidebar:
 | جلسات الديزل المشمولة | `session_status` | Select |  |
 | مدى تاريخ الفاتورة (أيام) | `date_window_days` | Int |  |
 | أجرة التوصيل حتى (لتر) | `max_delivery_litres` | Float |  |
+
+
+<h2 id="diesel-variance-anomaly">فروقات الديزل والحالات الشاذة</h2>
+
+**Diesel Variance Anomaly**
+
+- النوع: Script Report
+- مبني على: تعبئة ديزل للمشروع
+- الأدوار: مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات
+
+| التسمية | اسم الحقل | النوع | إلزامي |
+|---|---|---|---|
+| الشركة | `company` | Autocomplete | نعم |
+| من تاريخ | `from_date` | Date | نعم |
+| إلى تاريخ | `to_date` | Date | نعم |
+| المشروع | `project` | Autocomplete |  |
+| المعدات | `equipment` | Link → المعدات |  |
+| نوع المعدة | `equipment_type` | Link → نوع المعدة |  |
 
 
 <h2 id="equipment-consumption">استهلاك المعدات</h2>

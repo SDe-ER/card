@@ -116,6 +116,14 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Intake evidence SHA-256 <small>(read only)</small> | `intake_evidence_hash` | Data |  |  |
 
 
+**Approval workflow**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Workflow State <small>(hidden, read only)</small> | `workflow_state` | Link | Workflow State |  |
+| Return for correction reason <small>(read only)</small> | `return_reason` | Small Text |  |  |
+
+
 ## Child tables
 
 - [Equipment Transport Item](/card/reference/doctypes/equipment-transport-item/)

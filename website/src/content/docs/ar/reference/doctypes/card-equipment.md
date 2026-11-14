@@ -174,9 +174,10 @@ sidebar:
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
 | مكوّن وحدة (بدون كارت شهري) <small>(للقراءة فقط)</small> | `is_unit_component` | Check |  |  |
-| نوع سعر العميل | `customer_rate_type` | Select | باليوم · بالساعة · بالشهر |  |
+| نوع سعر العميل | `customer_rate_type` | Select | باليوم · بالساعة · بالشهر · بالمتر المكعب |  |
 | سعر العميل | `customer_rate` | Currency |  |  |
 | سعر العميل (الوردية الليلية) | `customer_rate_night` | Currency |  |  |
+| سعة الرد (م³) | `load_volume_m3` | Float |  |  |
 | العميل | `default_customer` | Link | العميل |  |
 | اتجاه التأجير | `rental_direction` | Select | مستأجَرة من مورد · مؤجَّرة لعميل · إيجار من الباطن · تشغيل داخلي |  |
 | سبب تغيير الشروط التجارية | `commercial_change_reason` | Small Text |  |  |
