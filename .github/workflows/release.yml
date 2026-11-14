@@ -21,7 +21,8 @@ jobs:
         id: latest
         run: |
           # Only plain X.Y.Z tags count; pre-release tags never take "Latest".
-          HIGHEST=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -V | tail -1)
+          # no plain X.Y.Z tag yet (first pre-release only): grep exits 1 and pipefail would fail the step
+          HIGHEST=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -V | tail -1 || true)
           if [ "${GITHUB_REF_NAME#v}" = "$HIGHEST" ]; then
             MAKE_LATEST=true
           else

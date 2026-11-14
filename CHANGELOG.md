@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Changed
-- **CI — release Latest by SemVer (`.github/workflows/release.yml`).** Reason: on 2026-11-10 the GitHub Release v4.6.0 took the Latest badge from v4.7.0 because both releases were published in the same minute and `make_latest` was not set. The workflow now fetches all tags and sets `make_latest` to `true` only for the highest plain X.Y.Z tag, and `false` otherwise. Affected: the release workflow only; no app code, data, permissions or API. Rollback: revert the workflow file; the Latest badge then follows publish order again. Verified by a local dry run of the tag decision (v4.7.0 true; v4.6.0 and v5.0.0-rc1 false); it runs for real on the next tag.
+- **CI — release Latest by SemVer (`.github/workflows/release.yml`).** Reason: release v4.6.0 was published 12 seconds after v4.7.0 (2026-11-10) with `make_latest` not set, so GitHub showed v4.6.0 as Latest until v4.7.0 was marked Latest on 2026-11-14. The workflow now fetches all tags and sets `make_latest` to `true` only for the highest plain X.Y.Z tag, and `false` otherwise; it does not fail when no plain tag exists yet. Affected: the release workflow only; no app code, data, permissions or API. Rollback: revert the workflow file. Verified by a local dry run of the decision with simulated tag names (v4.7.0 true; v4.6.0 and v5.0.0-rc1 false); it runs for real on the next tag.
 
 ### Added
 - **FR-164 — Diesel Dispense → draft Stock Entry; tanks as Warehouses, off by default (#31, #47; closure
