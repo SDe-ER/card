@@ -36,6 +36,11 @@ per site.
 
 ### Operations
 
+- **2026-11-14 — Volume billing per m³ and per load.** An equipment can bill the customer per load and per cubic
+  metre: loads × load volume × rate per m³, before VAT. Enter the loads on the working days of the monthly card; the
+  card shows total loads, total volume and the amount. Night cards use the night rate when one is set. Hours are still
+  recorded but are not billed on this basis. The monthly card print, the customer statement and two dashboard number
+  cards show the new figures. Existing cards are unchanged. See [Volume billing](/card/features/volume-billing/).
 - **2026-11-13 — Diesel tanks as Warehouses, off by default.** Groundwork is in place for a new tank-based
   diesel workflow. Each company has a new "Enable diesel tanks" switch in Card Settings → Company settings,
   which starts at **off**: nothing changes on a company that leaves it off, and the existing direct-fill
