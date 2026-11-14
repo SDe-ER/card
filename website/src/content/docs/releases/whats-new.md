@@ -18,6 +18,10 @@ per site.
 
 ## Next release (merged, not yet released)
 
+_Nothing merged yet._
+
+## v4.8.0 — 2026-11-14
+
 ### Packaging
 
 - **2026-11-13 — Declared Frappe version range (no behaviour change).** CARD now declares in its packaging metadata that it supports Frappe 16.55.2 up to, but not including, 17.0.0. This is packaging metadata only; it does not mean the app is published on any marketplace. Nothing changes on a running site.
@@ -160,6 +164,7 @@ per site.
 
 | Version | Date | What it brought |
 |---|---|---|
+| [4.8.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.8.0.md) | 2026-11-14 | Big minor (43 merges): separation of duties on monthly card submit; versioned Card Period Run with accountant approval; native approval workflows (inactive by default); approval tiers; approval delegation that grants no role; money privacy on Card Monthly Card (Operator/Mobile cannot see amounts); Diesel Dispense → draft Stock Entry with tanks as Warehouses (off by default per company); per-hour rate precedence; diesel variance and fill-allocation reports; daily log mobile screens; credit note for non-taxable deductions; keep intake evidence of submitted transports; child-row cross-document guard; party portal scaffold (off by default); Marketplace packaging metadata. Every new rule is opt-in per company or warn-only — current behaviour is the default. No CARD GL write anywhere |
 | [4.7.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.7.0.md) | 2026-11-10 | Company checks on tool custody and on equipment needs requests and reviews; VAT rate taken from the company's tax templates; equipment status check on diesel fills; Equipment Location History report; role and action matrix |
 | [4.6.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.6.0.md) | 2026-11-10 | Security fixes (read-only requests, attachment checks, a reviewer cannot also approve); a reason is required to cancel; stop reasons and the Equipment Downtime report; diesel prices by date; per-company checks on equipment and diesel; posting preview page; three analysis reports |
 | [4.5.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.5.0.md) | 2026-11-09 | A supplier accrual journal entry can be linked to its cards so they are never invoiced again; Card Settlement Status report (paid and remaining per card) |
