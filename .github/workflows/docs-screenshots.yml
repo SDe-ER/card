@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: "24"  # same as ci.yml: frappe's frontend tooling requires Node 24
 
       - name: Add test site to hosts
         run: echo "127.0.0.1 test_site" | sudo tee -a /etc/hosts
