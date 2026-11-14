@@ -20,6 +20,13 @@ ABBR = "EXC"
 MANAGER = "demo.manager@example.com"
 
 
+def ensure_warehouse_types():
+	# The setup wizard creates these; the company insert and CARD's diesel tanks need them.
+	for name in ("Transit", "Fuel Tank"):
+		if not frappe.db.exists("Warehouse Type", name):
+			frappe.get_doc({"doctype": "Warehouse Type", "name": name}).insert(ignore_permissions=True)
+
+
 def ensure_company():
 	if frappe.db.exists("Company", COMPANY):
 		return
@@ -80,6 +87,7 @@ def write_keys(user):
 
 
 def prepare():
+	ensure_warehouse_types()
 	ensure_company()
 	ensure_fiscal_year()
 	user = ensure_manager(os.environ["DEMO_PASS"])
