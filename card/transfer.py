@@ -592,20 +592,20 @@ def _card_day_after(equipment, project, tdate):
 
 
 # ---------- card-day validation (Card Monthly Card before_validate) ----------
-def is_billed_day(d):
-	"""A card day row that bills: operating hours, loads (FR-166: a per-m³ load is billed on a zero-hour day),
-	or (FR-118) stopped hours of an explicitly billable stop reason. With no loads and no billable reason this
-	is the old rule."""
+def is_billed_day(d, include_loads=True):
+	"""A card day row that bills: operating hours, loads (FR-166: a per-m³ load is billed on a zero-hour day;
+	the assignment guards always count it), or (FR-118) stopped hours of an explicitly billable stop reason.
+	Supplier-side reports pass include_loads=False: their amounts never price loads."""
 	return (
 		flt(d.working_hours) > 0
-		or cint(d.get("loads_count")) > 0
+		or (include_loads and cint(d.get("loads_count")) > 0)
 		or (cint(d.get("reason_billable")) and flt(d.get("stopped_hours")) > 0)
 	)
 
 
-def billed_day_rows(card_names):
+def billed_day_rows(card_names, include_loads=False):
 	"""Day rows (parent, operation_date) of these monthly cards that bill (is_billed_day):
-	the days the statements and summaries count. Read-only."""
+	the days the statements and summaries count. Read-only. Customer reports pass include_loads=True."""
 	if not card_names:
 		return []
 	rows = frappe.get_all(
@@ -625,7 +625,7 @@ def billed_day_rows(card_names):
 		limit_page_length=0,
 		parent_doctype="Card Monthly Card",
 	)
-	return [r for r in rows if is_billed_day(r)]
+	return [r for r in rows if is_billed_day(r, include_loads)]
 
 
 def stopped_hours_column(rows, width=110):

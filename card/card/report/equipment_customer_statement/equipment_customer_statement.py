@@ -121,7 +121,7 @@ def execute(filters=None):
 	card_dates = {}
 	if cards:
 		# FR-118: a day bills with operating hours or billable stopped hours (is_billed_day)
-		rows = billed_day_rows([c.name for c in cards])
+		rows = billed_day_rows([c.name for c in cards], include_loads=True)
 		for r in rows:
 			k = r.parent
 			if k not in card_dates:

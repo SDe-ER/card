@@ -205,6 +205,14 @@ class TestVolumeBilling(_StopBase):
 		with self.assertRaises(frappe.ValidationError):
 			assignment.save(ignore_permissions=True)
 
+	def test_supplier_side_day_rule_ignores_loads(self):
+		# review (ca63356): supplier reports keep the hours rule; the assignment guards count loads by default
+		from card.transfer import is_billed_day
+
+		loads_only = {"working_hours": 0, "loads_count": 5}
+		self.assertFalse(is_billed_day(loads_only, include_loads=False))
+		self.assertTrue(is_billed_day(loads_only))
+
 	def test_priced_volume_is_exact_before_rounding(self):
 		# FR-166 (review F2): 7 x 1.2345 x 3 = 25.9245, rounded once to 25.92 (no intermediate rounding)
 		eq = self._volume_equipment(customer_rate=3, load_volume=1.2345)

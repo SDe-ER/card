@@ -71,7 +71,7 @@ def execute(filters=None):
 	eq_dates = {}
 	if cards:
 		# FR-118: a day bills with operating hours or billable stopped hours (is_billed_day)
-		rows = billed_day_rows([c.name for c in cards])
+		rows = billed_day_rows([c.name for c in cards], include_loads=True)
 		for r in rows:
 			k = card_key.get(r.parent)
 			if k not in eq_dates:
