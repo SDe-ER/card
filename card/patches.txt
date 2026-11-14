@@ -42,3 +42,4 @@ card.patches.v4_8_0.n2_default_intake_source
 card.patches.v4_8_0.seed_tank_estimate_weighting
 card.patches.v4_8_0.f_set_amount_permlevel
 card.patches.v4_8_0.i1_seed_enable_diesel_tanks
+card.patches.v5_0_0.remove_volume_number_card

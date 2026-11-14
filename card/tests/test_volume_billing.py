@@ -42,16 +42,16 @@ class TestVolumeBilling(_StopBase):
 			**kw,
 		)
 
-	def _volume_card(self, eq, rows, shift="نهاري", submit=False, adjustments=None):
-		"""rows: dicts of day-row values; the day number is the position (1-based)."""
+	def _volume_card(self, eq, rows, shift="نهاري", submit=False, adjustments=None, ym=("09", 2026)):
+		"""rows: dicts of day-row values; the day number is the position (1-based). ym: (month, year) of the card."""
 		c = frappe.new_doc("Card Monthly Card")
 		c.equipment = eq.name
 		c.project = self.project
 		c.shift = shift
-		c.month = "09"
-		c.year = 2026
+		c.month = ym[0]
+		c.year = ym[1]
 		for i, values in enumerate(rows, start=1):
-			row = {"operation_date": "2026-09-%02d" % i, "day_status": WORK, "working_hours": 0}
+			row = {"operation_date": "%s-%s-%02d" % (ym[1], ym[0], i), "day_status": WORK, "working_hours": 0}
 			row.update(values)
 			c.append("days", row)
 		for adj in adjustments or []:
@@ -222,11 +222,16 @@ class TestVolumeBilling(_StopBase):
 		# permlevel-1 total volume (the field-level rule is overridden only inside this test; no DocPerm is changed)
 		from unittest import mock
 
+		from frappe.utils import add_months, getdate, nowdate
+
 		from card.card_value import loads_last_month
 		from card.tests.test_card_money_privacy import _user
 
+		last = getdate(add_months(nowdate(), -1))  # loads_last_month reads the previous calendar month
 		eq = self._volume_equipment()
-		self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		self._volume_card(
+			eq, [{"loads_count": 40, "working_hours": 10}], submit=True, ym=("%02d" % last.month, last.year)
+		)
 		meta_cls = type(frappe.get_meta("Card Monthly Card"))
 		original = meta_cls.get_permitted_fieldnames
 
@@ -240,7 +245,7 @@ class TestVolumeBilling(_StopBase):
 		finally:
 			frappe.set_user("Administrator")
 		self.assertEqual(result["fieldtype"], "Int")
-		self.assertGreaterEqual(result["value"], 0)
+		self.assertEqual(result["value"], 40)
 
 	# ---- submitted cards and period runs ----
 	def test_submitted_card_is_not_repriced_by_an_equipment_change(self):

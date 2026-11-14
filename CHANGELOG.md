@@ -32,8 +32,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
   number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
   still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
-  fields only, empty by default; no patch, no migrate change to submitted cards (none is recalculated). API: two
-  whitelisted read endpoints (POST). Rollback: revert the code; the new fields stay in the database and are ignored by
+  fields only, empty by default; no submitted card is changed. Patch `card.patches.v5_0_0.remove_volume_number_card`
+  deletes the removed volume Number Card on sites that imported it (idempotent; one row, nothing else). API: one
+  whitelisted read endpoint (`loads_last_month`, POST). Rollback: revert the code; the new fields stay in the database and are ignored by
   the older code, and existing cards are untouched. A card priced per m³ after the change shows its totals only while
   the new code runs.
 - **FR-164 — Diesel Dispense → draft Stock Entry; tanks as Warehouses, off by default (#31, #47; closure

@@ -116,8 +116,8 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
 ## Permissions
 
 - The number of loads is a count the operator can enter. The total volume, the rate and the amount are restricted like money: Card User and Card Manager read them; Card Operator does not.
-- The number card reads only submitted cards of the user's own companies. A user without read on monthly cards sees
-  no value.
+- The number card reads only submitted cards of the user's own companies. A user without read on monthly cards gets
+  a permission error, not a zero.
 - No permission was widened to add this feature.
 
 ## Limitations
