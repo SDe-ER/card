@@ -450,6 +450,7 @@ def seed():
 		("GN-04", "Valley Road Upgrade", "2026-09-17"),
 		("MC-05", "Industrial Park Phase 2", "2026-09-10"),
 		("EX-06", "Industrial Park Phase 2", "2026-09-10"),
+		("WL-05", "Valley Road Upgrade", "2026-09-05"),
 	):
 		if code in EQUIP and proj in PROJECTS:
 			get_or_make(
