@@ -46,3 +46,6 @@ msgstr "บันทึกเที่ยวได้เฉพาะการ์
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "การ์ดนี้มีชั่วโมงการทำงานแต่ไม่มีการขนส่ง ดังนั้นยอดลูกค้าเป็นศูนย์ โปรดตรวจสอบจำนวนเที่ยวขนส่ง"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "ลบจำนวนเที่ยวที่บรรทุกในวันที่ไม่ใช่วันทำงานดังต่อไปนี้แล้ว: {0}"

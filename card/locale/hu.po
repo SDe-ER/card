@@ -46,3 +46,6 @@ msgstr "Fuvar csak olyan kártyán rögzíthető, amelynek vevői díjtípusa m�
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Ennek a kártyának van üzemóraja, de nincs fuvar, ezért a vevői összeg nulla. Ellenőrizze a fuvarokat."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "A fuvarok száma ezeken a munkaszüneti napokon törlődött: {0}"

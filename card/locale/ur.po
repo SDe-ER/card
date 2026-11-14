@@ -510,3 +510,6 @@ msgstr "لوڈ صرف اس کارڈ پر درج کیے جا سکتے ہیں جس
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "اس کارڈ میں آپریشن کے گھنٹے ہیں مگر لوڈ نہیں ہیں، اس لیے گاہک کی رقم صفر ہے۔ لوڈ چیک کریں۔"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "ان غیر کاری دنوں میں لوڈز صاف کر دیے گئے: {0}"

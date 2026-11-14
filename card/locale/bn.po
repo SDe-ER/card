@@ -510,3 +510,6 @@ msgstr "শুধু গ্রাহক হারের ধরন প্রত�
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "এই কার্ডে কার্যকরী ঘণ্টা আছে কিন্তু লোড নেই, তাই গ্রাহকের পরিমাণ শূন্য। লোড যাচাই করুন।"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "এই অ-কর্মদিবসগুলোতে লোড মুছে ফেলা হয়েছে: {0}"

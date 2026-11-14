@@ -88,6 +88,19 @@ def get_card_context(equipment: str, month: str, year: str, project: str | None 
 	return {"projects": projects, "project": project, "days": sorted(days)}
 
 
+def _interactive_form_save():
+	"""True only for a save made at the form (an HTTP request). Imports, patches, migrations, muted runs and
+	background jobs show no operator warning (owner decision 2026-11-14, FR-166)."""
+	if (
+		frappe.flags.in_import
+		or frappe.flags.in_patch
+		or frappe.flags.in_migrate
+		or frappe.flags.mute_messages
+	):
+		return False
+	return bool(getattr(frappe.local, "request", None))
+
+
 class CardMonthlyCard(Document):
 	def before_validate(self):
 		# Ported verbatim-in-behaviour from Server Script "Card Monthly Card - Validate" v4 (Before Validate).
@@ -209,6 +222,7 @@ class CardMonthlyCard(Document):
 		limit_field = "max_day_shift_hours" if self.shift == "نهاري" else "max_night_shift_hours"
 		max_hours = flt(setting(limit_field)) or 12
 		over_shift_limit = []
+		cleared_loads = []
 		for row in self.days:
 			if not row.operation_date:
 				frappe.throw(_("There is a day row without a date"))
@@ -221,6 +235,8 @@ class CardMonthlyCard(Document):
 			seen[key] = 1
 			if row.day_status != "عمل":
 				row.working_hours = 0
+				if cint(row.loads_count):
+					cleared_loads.append(key)
 				row.loads_count = 0  # FR-166: loads are cleared with the hours, not refused on save
 			h = flt(row.working_hours)
 			if h < 0:
@@ -275,6 +291,16 @@ class CardMonthlyCard(Document):
 					"Days over the {0}-hour shift limit for shift {1} (recorded and billed — review): {2}"
 				).format(max_hours, _(self.shift), _(", ", context="Card").join(over_shift_limit)),
 				title=_("Shift hours exceeded warning"),
+				indicator="orange",
+			)
+
+		# ---- loads cleared on non-working days (FR-166, owner 2026-11-14): kept cleared, but never silent ----
+		if cleared_loads and _interactive_form_save():
+			frappe.msgprint(
+				_("Loads were cleared on these non-working days: {0}").format(
+					_(", ", context="Card").join(cleared_loads)
+				),
+				title=_("Check the loads"),
 				indicator="orange",
 			)
 
@@ -415,7 +441,7 @@ class CardMonthlyCard(Document):
 				priced_volume = loads_total * self._load_volume_m3
 				self.total_volume_m3 = flt(priced_volume, 3)
 				self.customer_amount = flt(priced_volume * flt(self.customer_rate), 2)
-				if flt(total_hours) > 0 and not loads_total:
+				if flt(total_hours) > 0 and not loads_total and _interactive_form_save():
 					# owner decision (2026-11-14): hours stay recorded for cost; warn only, never refuse
 					frappe.msgprint(
 						_(

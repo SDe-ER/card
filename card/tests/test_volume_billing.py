@@ -62,6 +62,33 @@ class TestVolumeBilling(_StopBase):
 		c.reload()
 		return c
 
+	def _interactive(self):
+		"""The next save is an interactive form save (an HTTP request); restored after the test."""
+		saved = getattr(frappe.local, "request", None)
+		frappe.local.request = frappe._dict(method="POST")
+		self.addCleanup(setattr, frappe.local, "request", saved)
+
+	def _flag(self, name):
+		saved = frappe.flags.get(name)
+		frappe.flags[name] = True
+		self.addCleanup(frappe.flags.__setitem__, name, saved)
+
+	def _hours_then_cleared_loads_card(self):
+		# day 1: hours with no loads; day 2: loads on a non-working day, cleared on save
+		eq = self._volume_equipment()
+		return self._volume_card(
+			eq, [{"loads_count": 0, "working_hours": 10}, {"day_status": LEAVE, "loads_count": 3}]
+		)
+
+	def _assert_quiet_save(self):
+		frappe.local.message_log = []
+		card = self._hours_then_cleared_loads_card()
+		self.assertEqual(card.days[1].loads_count, 0)  # the clearing still happens
+		self.assertEqual(card.docstatus, 0)
+		shown = " ".join(str(m) for m in frappe.local.message_log)
+		self.assertNotIn("Loads were cleared on these non-working days", shown)
+		self.assertNotIn("This card has operating hours but no loads", shown)
+
 	# ---- amounts ----
 	def test_day_card_bills_loads_times_volume_times_rate(self):
 		eq = self._volume_equipment()
@@ -205,6 +232,7 @@ class TestVolumeBilling(_StopBase):
 	def test_hours_without_loads_warn_and_still_save_and_submit(self):
 		# owner decision (2026-11-14): hours with no loads on a per-m³ card = customer amount 0; warn, never refuse
 		eq = self._volume_equipment()
+		self._interactive()
 		frappe.local.message_log = []
 		card = self._volume_card(eq, [{"loads_count": 0, "working_hours": 10}], submit=True)
 		self.assertEqual(card.docstatus, 1)  # save and submit both succeed
@@ -212,6 +240,43 @@ class TestVolumeBilling(_StopBase):
 		self.assertEqual(flt(card.total_working_hours), 10)  # hours stay recorded for cost
 		shown = " ".join(str(m) for m in frappe.local.message_log)
 		self.assertIn("This card has operating hours but no loads", shown)
+
+	def test_interactive_save_says_which_loads_were_cleared(self):
+		# FR-166 (owner 2026-11-14): the clearing stays, but the operator is told the non-working dates
+		self._interactive()
+		frappe.local.message_log = []
+		card = self._hours_then_cleared_loads_card()
+		self.assertEqual(card.days[1].loads_count, 0)
+		shown = " ".join(str(m) for m in frappe.local.message_log)
+		self.assertIn("Loads were cleared on these non-working days: 2026-09-02", shown)
+		self.assertIn("This card has operating hours but no loads", shown)
+
+	def test_in_import_flag_silences_both_messages(self):
+		self._interactive()
+		self._flag("in_import")
+		self._assert_quiet_save()
+
+	def test_in_patch_flag_silences_both_messages(self):
+		self._interactive()
+		self._flag("in_patch")
+		self._assert_quiet_save()
+
+	def test_in_migrate_flag_silences_both_messages(self):
+		self._interactive()
+		self._flag("in_migrate")
+		self._assert_quiet_save()
+
+	def test_mute_messages_flag_silences_both_messages(self):
+		self._interactive()
+		self._flag("mute_messages")
+		self._assert_quiet_save()
+
+	def test_background_save_without_a_request_is_quiet(self):
+		# a background job or console run has no HTTP request
+		saved = getattr(frappe.local, "request", None)
+		frappe.local.request = None
+		self.addCleanup(setattr, frappe.local, "request", saved)
+		self._assert_quiet_save()
 
 	def test_no_warning_when_loads_are_present(self):
 		# the warning is for hours with NO loads only: a normal per-m³ card with loads must stay silent
@@ -386,6 +451,7 @@ class TestVolumeBilling(_StopBase):
 			"Loads last month",
 			"Loads can be recorded only on a card whose customer rate type is per m³",
 			"This card has operating hours but no loads, so the customer amount is zero. Check the loads.",
+			"Loads were cleared on these non-working days: {0}",
 		]
 		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
 		for path in glob.glob(os.path.join(locale_dir, "*.po")):

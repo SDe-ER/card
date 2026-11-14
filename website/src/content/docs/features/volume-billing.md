@@ -114,6 +114,8 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
   in the print and in the customer statement, where the existing permissions apply.
 
 - **Warning**: a per-m³ card with operating hours but no loads gets a warning on save and on submit, because its customer amount is zero. The warning does not block the save or the submit, and the hours stay recorded for cost. Check the loads before you submit.
+- **Loads cleared on a non-working day**: when a save clears loads entered on a day that is not a working day, the card says which dates were cleared ("Loads were cleared on these non-working days"). The loads are still cleared.
+- **Where the messages show**: both messages appear only when a user saves the card from the form. Imports, patches, migrations, muted runs and background jobs show neither message.
 
 ## Permissions
 

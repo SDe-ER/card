@@ -46,3 +46,6 @@ msgstr "Ritten kunnen alleen worden vastgelegd op een kaart met een klanttarief 
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Deze kaart heeft bedrijfsuren maar geen ladingen, dus het klantbedrag is nul. Controleer de ladingen."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Ritten zijn op deze niet-werkdagen gewist: {0}"

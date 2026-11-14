@@ -46,3 +46,6 @@ msgstr "Les rotations ne peuvent être saisies que sur une carte dont le type de
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Cette carte a des heures d'exploitation mais aucune charge, donc le montant client est nul. Vérifiez les charges."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Les chargements ont été effacés pendant ces jours non ouvrables : {0}"

@@ -46,3 +46,6 @@ msgstr "As viagens só podem ser registadas num cartão cujo tipo de tarifa do c
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Este cartão tem horas de operação, mas nenhuma carga, por isso o valor do cliente é zero. Verifique as cargas."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "As cargas foram zeradas nestes dias não úteis: {0}"

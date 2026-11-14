@@ -510,3 +510,6 @@ msgstr "लोड केवल उस कार्ड पर दर्ज कि
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "इस कार्ड में संचालन घंटे हैं पर लोड नहीं हैं, इसलिए ग्राहक राशि शून्य है। लोड जाँचें।"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "इन गैर-कार्य दिवसों पर लोड हटा दिए गए: {0}"

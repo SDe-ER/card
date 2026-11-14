@@ -46,3 +46,6 @@ msgstr "Рейсы можно вносить только в карту, где 
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "В этой карте есть часы работы, но нет рейсов, поэтому сумма для клиента равна нулю. Проверьте рейсы."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Рейсы были обнулены в следующие нерабочие дни: {0}"

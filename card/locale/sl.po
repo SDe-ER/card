@@ -46,3 +46,6 @@ msgstr "Tovore je mogoče vnesti samo na kartico, katere vrsta cene za stranko j
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Ta kartica ima delovne ure, vendar ni prevozov, zato je znesek stranke nič. Preverite prevoze."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Tovori so bili na teh nedelovnih dneh izbrisani: {0}"

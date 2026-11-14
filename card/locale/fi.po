@@ -46,3 +46,6 @@ msgstr "Kuormia voi kirjata vain kortille, jonka asiakashinnoittelu on per m³"
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Tässä kortissa on käyttötunteja mutta ei kuormia, joten asiakkaan summa on nolla. Tarkista kuormat."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Kuormat poistettiin näinä ei-työpäivinä: {0}"

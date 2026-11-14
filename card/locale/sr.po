@@ -46,3 +46,6 @@ msgstr "Вожње се могу уносити само на картицу ч�
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Ова картица има радне сате, али нема утовара, па је износ за купца нула. Проверите утоваре."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Товари су обрисани у овим нерадним данима: {0}"

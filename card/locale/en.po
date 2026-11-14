@@ -312,3 +312,6 @@ msgstr "Loads can be recorded only on a card whose customer rate type is per m³
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Loads were cleared on these non-working days: {0}"

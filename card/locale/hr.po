@@ -46,3 +46,6 @@ msgstr "Tereti se mogu evidentirati samo na kartici čija je vrsta cijene za kup
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Ova kartica ima radne sate, ali nema utovara, pa je iznos za kupca nula. Provjerite utovare."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Tereti su obrisani na ovim neradnim danima: {0}"

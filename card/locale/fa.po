@@ -46,3 +46,6 @@ msgstr "ثبت بار فقط در کارتی امکان‌پذیر است که �
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "این کارت ساعت کاری دارد اما بار ندارد، بنابراین مبلغ مشتری صفر است. بارها را بررسی کنید."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "بارها در این روزهای غیرکاری پاک شدند: {0}"

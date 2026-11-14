@@ -46,3 +46,6 @@ msgstr "អាចកត់ត្រាចំនួនផ្ទុកបានត
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "កាតនេះមានម៉ោងប្រតិបត្តិការ តែគ្មានចំនួនដឹក ដូច្នេះចំនួនទឹកប្រាក់អតិថិជនគឺសូន្យ។ សូមពិនិត្យចំនួនដឹក។"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "ការផ្ទុកត្រូវបានលុបនៅថ្ងៃមិនមែនជាថ្ងៃធ្វើការទាំងនេះ: {0}"

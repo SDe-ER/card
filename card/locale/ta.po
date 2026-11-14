@@ -46,3 +46,6 @@ msgstr "வாடிக்கையாளர் கட்டண வகை m³ �
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "இந்த அட்டையில் இயக்க நேரம் உள்ளது ஆனால் ஏற்றுதல்கள் இல்லை, எனவே வாடிக்கையாளர் தொகை பூஜ்யம். ஏற்றுதல்களைச் சரிபார்க்கவும்."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "இந்த வேலை இல்லாத நாட்களில் சுமைகள் அழிக்கப்பட்டன: {0}"

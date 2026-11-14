@@ -46,3 +46,6 @@ msgstr "고객 요율 유형이 m³당인 카드에만 운반 횟수를 기록�
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "이 카드에는 운영 시간이 있지만 적재 횟수가 없어 고객 금액이 0입니다. 적재 횟수를 확인하세요."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "비근무일에 다음 적재 건수가 삭제되었습니다: {0}"

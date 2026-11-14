@@ -46,3 +46,6 @@ msgstr "只能在客户计价类型为按 m³ 的卡片上登记车次"
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "该卡有运行小时但没有装载次数，因此客户金额为零。请核对装载次数。"
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "这些非工作日的装载次数已被清除：{0}"

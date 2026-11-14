@@ -46,3 +46,6 @@ msgstr "Muatan hanya dapat dicatat pada kartu dengan tipe tarif pelanggan per mÂ
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Kartu ini memiliki jam operasi tetapi tanpa muatan, sehingga jumlah pelanggan nol. Periksa muatannya."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Muatan dihapus pada hari bukan kerja berikut: {0}"

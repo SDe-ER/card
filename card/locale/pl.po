@@ -46,3 +46,6 @@ msgstr "Kursy można rejestrować tylko na karcie, której typ stawki klienta to
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Ta karta ma godziny pracy, ale brak kursów, więc kwota klienta wynosi zero. Sprawdź kursy."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Liczba kursów została wyzerowana w tych dniach wolnych od pracy: {0}"

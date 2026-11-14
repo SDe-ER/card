@@ -8692,3 +8692,6 @@ msgstr "لا يمكن تسجيل الردود إلا في كارت نوع سعر
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "الكارت فيه ساعات تشغيل ومفيهوش ردود، فمبلغ العميل = صفر. اتأكد من عدد الردود."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "اتمسحت الردود في الأيام دي لأنها مش أيام عمل: {0}"

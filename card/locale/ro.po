@@ -46,3 +46,6 @@ msgstr "Încărcăturile pot fi înregistrate doar pe un card al cărui tip de t
 
 msgid "This card has operating hours but no loads, so the customer amount is zero. Check the loads."
 msgstr "Acest card are ore de funcționare, dar nicio încărcătură, deci suma clientului este zero. Verificați încărcăturile."
+
+msgid "Loads were cleared on these non-working days: {0}"
+msgstr "Încărcăturile au fost șterse în aceste zile nelucrătoare: {0}"
