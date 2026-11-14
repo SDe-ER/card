@@ -86,6 +86,11 @@ jobs:
           ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/seed_demo.py').read())" | tee "${RUNNER_TEMP}/seed.log"
           grep -q SEED_DONE "${RUNNER_TEMP}/seed.log"
 
+      - name: Configure the synthetic operator (CARD permission check printed)
+        working-directory: /home/runner/frappe-bench/sites
+        run: |
+          ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_operator.py').read())"
+
       - name: Install Playwright (pinned, not a site dependency)
         working-directory: website
         run: |

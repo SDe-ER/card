@@ -230,6 +230,46 @@
         "طلب جديد"
       ],
       "as": "operator"
+    },
+    {
+      "name": "volume-billing-equipment-commercial",
+      "path": "/app/card-equipment/{eq:WL-05}",
+      "scrollText": [
+        "Customer rate type",
+        "نوع سعر العميل"
+      ]
+    },
+    {
+      "name": "volume-billing-monthly-card-days",
+      "path": "/app/card-monthly-card/{card:WL-05}",
+      "scrollText": [
+        "Loads",
+        "الحمولات"
+      ]
+    },
+    {
+      "name": "volume-billing-card-totals",
+      "path": "/app/card-monthly-card/{card:WL-05}",
+      "scrollText": [
+        "Total loads",
+        "إجمالي الردود"
+      ]
+    },
+    {
+      "name": "volume-billing-print",
+      "path": "/printview?doctype=Card%20Monthly%20Card&name={card:WL-05}&format=Card%20Monthly%20Card%20Print&no_letterhead=1"
+    },
+    {
+      "name": "volume-billing-customer-statement",
+      "path": "/app/query-report/Equipment Customer Statement?company={company}&customer=Example Roads Co.&from_month=10&from_year=2026&to_month=10&to_year=2026&include_draft=1"
+    },
+    {
+      "name": "volume-billing-loads-card",
+      "path": "/app/card",
+      "scrollText": [
+        "Loads last month",
+        "الحمولات"
+      ]
     }
   ]
 }

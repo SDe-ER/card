@@ -74,11 +74,33 @@ def ensure_manager(password):
 	return frappe.get_doc("User", MANAGER)
 
 
+def complete_setup():
+	"""Complete the setup wizard the official way, so Desk opens on the workspace and not on the welcome screen.
+
+	frappe v16 source (frappe/__init__.py, is_setup_complete): setup is complete when every 'Installed Application'
+	row of frappe and erpnext has is_setup_complete = 1. enable_setup_wizard_complete(app) sets that flag for one app
+	(frappe/desk/page/setup_wizard/setup_wizard.py, def enable_setup_wizard_complete). disable_future_access() in the
+	same module sets System Settings.setup_complete from is_setup_complete(). Onboarding is switched off for the demo.
+	"""
+	from frappe.desk.page.setup_wizard.setup_wizard import enable_setup_wizard_complete
+
+	for app in frappe.get_installed_apps():
+		if frappe.db.exists("Installed Application", {"app_name": app}):
+			enable_setup_wizard_complete(app)
+	frappe.db.set_single_value("System Settings", "enable_onboarding", 0)
+	frappe.db.set_single_value("System Settings", "setup_complete", 1)
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone CI bootstrap run outside a request
+	frappe.clear_cache()
+	frappe.clear_cache(doctype="System Settings")
+	print("SETUP_COMPLETE", frappe.is_setup_complete())
+
+
 def prepare():
 	ensure_warehouse_types()
 	ensure_company()
 	ensure_fiscal_year()
 	ensure_manager(os.environ["DEMO_PASS"])
+	complete_setup()
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone CI bootstrap run outside a request
 	print("BOOTSTRAP_DONE")
 

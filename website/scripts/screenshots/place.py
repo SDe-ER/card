@@ -73,6 +73,12 @@ CAPTIONS = {
 	"accounting-posting-source-integrity": ("Posting Source Integrity report", "تقرير سلامة مصادر الترحيل"),
 	"card-mobile-home": ("CARD Mobile home screen", "الشاشة الرئيسية في CARD Mobile"),
 	"card-mobile-new-request": ("CARD Mobile requests", "الطلبات في CARD Mobile"),
+	"volume-billing-equipment-commercial": ("A per-m³ customer rate on the equipment", "سعر العميل بالمتر المكعب على المعدة"),
+	"volume-billing-monthly-card-days": ("Loads on the monthly card day rows", "الحمولات في صفوف أيام الكارت الشهري"),
+	"volume-billing-card-totals": ("Card totals for a per-m³ card", "إجماليات كارت بالمتر المكعب"),
+	"volume-billing-print": ("Monthly card print with loads", "طباعة الكارت الشهري مع الحمولات"),
+	"volume-billing-customer-statement": ("Customer statement on a per-m³ row", "كشف العميل لصف بالمتر المكعب"),
+	"volume-billing-loads-card": ("Loads number card on the CARD workspace", "بطاقة الحمولات في مساحة عمل CARD"),
 }
 
 
