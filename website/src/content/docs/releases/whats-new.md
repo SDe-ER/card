@@ -20,6 +20,7 @@ per site.
 
 ### Packaging
 
+- **2026-11-14 — Release page «Latest» set by SemVer (no effect on the app).** The release workflow now marks a GitHub Release as Latest only when its tag is the highest plain version number (X.Y.Z). A release published out of order no longer takes the Latest badge. Pre-release tags never do.
 - **2026-11-13 — Declared Frappe version range (no behaviour change).** CARD now declares in its packaging metadata that it supports Frappe 16.55.2 up to, but not including, 17.0.0. This is packaging metadata only; it does not mean the app is published on any marketplace. Nothing changes on a running site.
 
 ### Documentation
