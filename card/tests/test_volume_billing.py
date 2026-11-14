@@ -209,7 +209,7 @@ class TestVolumeBilling(_StopBase):
 		# review (ca63356): supplier reports keep the hours rule; the assignment guards count loads by default
 		from card.transfer import is_billed_day
 
-		loads_only = {"working_hours": 0, "loads_count": 5}
+		loads_only = frappe._dict(working_hours=0, loads_count=5)
 		self.assertFalse(is_billed_day(loads_only, include_loads=False))
 		self.assertTrue(is_billed_day(loads_only))
 
