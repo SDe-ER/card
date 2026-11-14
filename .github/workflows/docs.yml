@@ -69,7 +69,8 @@ jobs:
           path: website/dist
 
   deploy:
-    if: github.event_name != 'pull_request'
+    # Pages deploys only from main. A feature-branch or manual run never publishes the docs site.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:
