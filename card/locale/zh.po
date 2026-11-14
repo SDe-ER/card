@@ -44,8 +44,5 @@ msgstr "按每立方米"
 msgid "Loads last month"
 msgstr "上月车次"
 
-msgid "Volume last month (m³)"
-msgstr "上月体积 (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "只能在客户计价类型为按 m³ 的卡片上登记车次"

@@ -44,8 +44,5 @@ msgstr "Po m³"
 msgid "Loads last month"
 msgstr "Ŝarĝoj lastmonate"
 
-msgid "Volume last month (m³)"
-msgstr "Volumo lastmonate (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ŝarĝoj rajtas esti registrataj nur en karto kies kliento-prezspeco estas po m³"

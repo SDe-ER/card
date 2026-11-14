@@ -44,8 +44,5 @@ msgstr "Per m³"
 msgid "Loads last month"
 msgstr "Muatan bulan lalu"
 
-msgid "Volume last month (m³)"
-msgstr "Volume bulan lalu (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Muatan hanya dapat dicatat pada kartu dengan tipe tarif pelanggan per m³"

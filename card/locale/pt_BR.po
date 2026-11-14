@@ -44,8 +44,5 @@ msgstr "Por m³"
 msgid "Loads last month"
 msgstr "Viagens do mês passado"
 
-msgid "Volume last month (m³)"
-msgstr "Volume do mês passado (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "As viagens só podem ser registradas em um cartão cujo tipo de tarifa do cliente é por m³"

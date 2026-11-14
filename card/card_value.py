@@ -283,16 +283,12 @@ def hours_without_internal_rate_last_month(filters: str | dict | list | None = N
 	}
 
 
-def _volume_last_month(filters):
-	"""FR-166: the submitted per-m³ cards of last month, company-scoped like the other monthly values.
+@frappe.whitelist(methods=["POST"])
+def loads_last_month(filters: str | dict | list | None = None) -> dict:
+	"""FR-166: the loads of last month on the submitted per-m³ cards, company-scoped like the other monthly values.
+	total_loads is permlevel 0 (a count, not money), so every user who can read the card sees the number.
 	Permission-checked read; drafts are not counted."""
 	frappe.has_permission(CARD, "read", throw=True)
-	# owner review: total_volume_m3 is permlevel 1. A user who may read the card but not that field is refused
-	# here; a 0 would be a misleading value (the query builder would silently drop the field)
-	if "total_volume_m3" not in frappe.get_meta(CARD).get_permitted_fieldnames(permission_type="read"):
-		frappe.throw(
-			_("You do not have permission to read the total volume on monthly cards"), frappe.PermissionError
-		)
 	filters = _filters(filters)
 	start, end = _last_month()
 	conditions = [
@@ -306,26 +302,14 @@ def _volume_last_month(filters):
 	# one aggregate row (SUM through the dict field syntax, permission-checked by get_list), not one row per card
 	totals = frappe.get_list(
 		CARD,
-		fields=[{"SUM": "total_loads", "as": "loads"}, {"SUM": "total_volume_m3", "as": "volume"}],
+		fields=[{"SUM": "total_loads", "as": "loads"}],
 		filters=conditions,
 		limit=0,
 	)
 	total = totals[0] if totals else frappe._dict()
 	route = _route(start, end, False, filters.get("company"))
 	route["route_options"]["customer_rate_type"] = PER_VOLUME_M3
-	return cint(total.get("loads")), flt(total.get("volume"), 2), route
-
-
-@frappe.whitelist(methods=["POST"])
-def loads_last_month(filters: str | dict | list | None = None) -> dict:
-	loads, _volume, route = _volume_last_month(filters)
-	return {"value": loads, "fieldtype": "Int", **route}
-
-
-@frappe.whitelist(methods=["POST"])
-def volume_last_month(filters: str | dict | list | None = None) -> dict:
-	_loads, volume, route = _volume_last_month(filters)
-	return {"value": volume, "fieldtype": "Float", **route}
+	return {"value": cint(total.get("loads")), "fieldtype": "Int", **route}
 
 
 def chart_data(chart, filters=None, from_date=None, to_date=None, timespan=None, time_interval=None):

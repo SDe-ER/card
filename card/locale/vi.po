@@ -44,8 +44,5 @@ msgstr "Theo m³"
 msgid "Loads last month"
 msgstr "Số chuyến tháng trước"
 
-msgid "Volume last month (m³)"
-msgstr "Khối lượng tháng trước (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Chỉ có thể ghi chuyến vào thẻ có loại đơn giá khách hàng là theo m³"

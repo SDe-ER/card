@@ -334,33 +334,5 @@
   "label": "Loads last month",
   "name": "Loads last month",
   "method": "card.card_value.loads_last_month"
- },
- {
-  "aggregate_function_based_on": null,
-  "background_color": null,
-  "currency": null,
-  "docstatus": 0,
-  "doctype": "Number Card",
-  "document_type": "Card Monthly Card",
-  "dynamic_filters_json": null,
-  "filters_config": null,
-  "filters_json": "{}",
-  "function": "Count",
-  "is_public": 1,
-  "is_standard": 0,
-  "module": "Card",
-  "modified": "2026-11-14 12:00:00.000000",
-  "parent_document_type": null,
-  "report_field": null,
-  "report_function": "Sum",
-  "report_name": null,
-  "show_full_number": 1,
-  "show_percentage_stats": 0,
-  "stats_time_interval": "Daily",
-  "type": "Custom",
-  "color": "#449CF0",
-  "label": "Volume last month (m³)",
-  "name": "Volume last month (m³)",
-  "method": "card.card_value.volume_last_month"
  }
 ]

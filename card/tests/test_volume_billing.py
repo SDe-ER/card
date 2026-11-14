@@ -217,31 +217,16 @@ class TestVolumeBilling(_StopBase):
 		finally:
 			frappe.set_user("Administrator")
 
-	def test_card_user_and_card_manager_read_the_volume_number_card(self):
-		from card.card_value import volume_last_month
+	def test_loads_number_card_needs_no_permlevel_1(self):
+		# FR-166 owner decision: total_loads is permlevel 0, so the loads card works for a user who may not read the
+		# permlevel-1 total volume (the field-level rule is overridden only inside this test; no DocPerm is changed)
+		from unittest import mock
+
+		from card.card_value import loads_last_month
 		from card.tests.test_card_money_privacy import _user
 
 		eq = self._volume_equipment()
 		self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
-		for role in ("Card User", "Card Manager"):
-			frappe.set_user(_user([role], restrict=self.company))
-			try:
-				rows = frappe.get_list("Card Monthly Card", fields=["total_volume_m3"], limit=1)
-				self.assertTrue(rows and "total_volume_m3" in rows[0], role)
-				result = volume_last_month({"company": self.company})
-			finally:
-				frappe.set_user("Administrator")
-			self.assertEqual(result["fieldtype"], "Float", role)
-			self.assertGreaterEqual(flt(result["value"]), 0, role)
-
-	def test_volume_number_card_refuses_a_read_without_permlevel_1(self):
-		# owner review: a user who can read the card but not the permlevel-1 volume gets PermissionError, never 0.
-		# The field-level rule is overridden only inside this test (no real DocPerm is changed).
-		from unittest import mock
-
-		from card.card_value import volume_last_month
-		from card.tests.test_card_money_privacy import _user
-
 		meta_cls = type(frappe.get_meta("Card Monthly Card"))
 		original = meta_cls.get_permitted_fieldnames
 
@@ -251,10 +236,11 @@ class TestVolumeBilling(_StopBase):
 		frappe.set_user(_user(["Card User"], restrict=self.company))
 		try:
 			with mock.patch.object(meta_cls, "get_permitted_fieldnames", without_level_1):
-				with self.assertRaises(frappe.PermissionError):
-					volume_last_month({"company": self.company})
+				result = loads_last_month({"company": self.company})
 		finally:
 			frappe.set_user("Administrator")
+		self.assertEqual(result["fieldtype"], "Int")
+		self.assertGreaterEqual(result["value"], 0)
 
 	# ---- submitted cards and period runs ----
 	def test_submitted_card_is_not_repriced_by_an_equipment_change(self):
@@ -329,19 +315,18 @@ class TestVolumeBilling(_StopBase):
 		self.assertNotIn("Total loads", plain)
 		self.assertNotIn("Total volume (m³)", plain)
 
-	def test_number_cards_and_dashboard_show_loads_and_volume_last_month(self):
+	def test_loads_number_card_and_dashboard_show_loads_last_month(self):
 		import json
 
-		from card.card_value import loads_last_month, volume_last_month
+		from card.card_value import loads_last_month
 
-		for name, method in (
-			("Loads last month", "card.card_value.loads_last_month"),
-			("Volume last month (m³)", "card.card_value.volume_last_month"),
-		):
-			card = frappe.db.get_value("Number Card", name, ["method", "type", "function"], as_dict=True)
-			self.assertIsNotNone(card, name)
-			self.assertEqual(card.method, method)
-			self.assertEqual(card.type, "Custom")
+		card = frappe.db.get_value(
+			"Number Card", "Loads last month", ["method", "type", "function"], as_dict=True
+		)
+		self.assertIsNotNone(card)
+		self.assertEqual(card.method, "card.card_value.loads_last_month")
+		self.assertEqual(card.type, "Custom")
+		self.assertFalse(frappe.db.exists("Number Card", "Volume last month (m³)"))
 		with open(frappe.get_app_path("card", "fixtures", "workspace.json"), encoding="utf-8") as fh:
 			dashboard = json.load(fh)[0]
 		shown = {
@@ -350,14 +335,11 @@ class TestVolumeBilling(_StopBase):
 			if b["type"] == "number_card"
 		}
 		self.assertIn("Loads last month", shown)
-		self.assertIn("Volume last month (m³)", shown)
+		self.assertNotIn("Volume last month (m³)", shown)
 		loads = loads_last_month({"company": self.company})
 		self.assertEqual(loads["fieldtype"], "Int")
 		self.assertEqual(loads["route"], ["List", "Card Monthly Card"])
 		self.assertEqual(loads["route_options"]["customer_rate_type"], PER_M3)
-		volume = volume_last_month({"company": self.company})
-		self.assertEqual(volume["fieldtype"], "Float")
-		self.assertGreaterEqual(flt(volume["value"]), 0)
 
 	# ---- translation rule (FR-166): every new CARD msgid has a real translation in every locale ----
 	def test_every_new_msgid_is_translated_in_every_locale(self):
@@ -377,7 +359,6 @@ class TestVolumeBilling(_StopBase):
 			"Cannot record loads for a future day: {0}",
 			"بالمتر المكعب",
 			"Loads last month",
-			"Volume last month (m³)",
 			"Loads can be recorded only on a card whose customer rate type is per m³",
 		]
 		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")

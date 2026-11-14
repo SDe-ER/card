@@ -44,8 +44,5 @@ msgstr "Po m³"
 msgid "Loads last month"
 msgstr "Vožnje prošlog meseca"
 
-msgid "Volume last month (m³)"
-msgstr "Zapremina prošlog meseca (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Vožnje se mogu unositi samo na karticu čija je vrsta cene za kupca po m³"

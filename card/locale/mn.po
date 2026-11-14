@@ -44,8 +44,5 @@ msgstr "m³-ын үнэ"
 msgid "Loads last month"
 msgstr "Өмнөх сарын ачаа"
 
-msgid "Volume last month (m³)"
-msgstr "Өмнөх сарын эзлэхүүн (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ачааг зөвхөн үйлчлүүлэгчийн тариф м³-ын үнээр тохируулсан картад бүртгэнэ"

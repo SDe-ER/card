@@ -109,13 +109,14 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
   gets the print without any of them.
 - **Customer statement**: a per-m³ row shows the basis, total loads, total volume, the rate per m³ and the amount. The
   row has no hourly rate and no hours-divided figure.
-- **Dashboard**: two number cards on the CARD workspace show the loads and the volume of last month, from submitted per-m³ cards,
-  for the companies the user may read. A user who may read the card but not the volume gets an error on the volume card, never a 0.
+- **Dashboard**: a number card on the CARD workspace shows the total loads of last month, from submitted per-m³ cards,
+  for the companies the user may read. The dashboard shows no volume and no amount; the volume is read on the monthly card,
+  in the print and in the customer statement, where the existing permissions apply.
 
 ## Permissions
 
 - The number of loads is a count the operator can enter. The total volume, the rate and the amount are restricted like money: Card User and Card Manager read them; Card Operator does not.
-- The number cards read only submitted cards of the user's own companies. A user without read on monthly cards sees
+- The number card reads only submitted cards of the user's own companies. A user without read on monthly cards sees
   no value.
 - No permission was widened to add this feature.
 

@@ -8690,8 +8690,5 @@ msgstr "بالمتر المكعب"
 msgid "Loads last month"
 msgstr "عدد الردود الشهر الماضي"
 
-msgid "Volume last month (m³)"
-msgstr "حجم الردود الشهر الماضي (م³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "لا يمكن تسجيل الردود إلا في كارت نوع سعر العميل فيه بالمتر المكعب"

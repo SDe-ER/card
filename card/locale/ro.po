@@ -44,8 +44,5 @@ msgstr "Pe m³"
 msgid "Loads last month"
 msgstr "Încărcături luna trecută"
 
-msgid "Volume last month (m³)"
-msgstr "Volum luna trecută (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Încărcăturile pot fi înregistrate doar pe un card al cărui tip de tarif pentru client este pe m³"

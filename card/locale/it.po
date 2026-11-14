@@ -44,8 +44,5 @@ msgstr "Al m³"
 msgid "Loads last month"
 msgstr "Carichi del mese scorso"
 
-msgid "Volume last month (m³)"
-msgstr "Volume del mese scorso (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "I carichi si possono registrare solo su una scheda con tipo di tariffa cliente al m³"

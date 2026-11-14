@@ -23,14 +23,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   per-m³ check in `validate_rental_direction`), `Card Monthly Card` (new `total_loads`, `total_volume_m3`,
   `load_volume_used`; per-m³ branch of the customer amount; snapshot in `_snapshot_settings_used`),
   `Card Monthly Card Day` (new `loads_count`, working-day and future-date rules), `card/card_value.py`
-  (`loads_last_month`, `volume_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
+  (`loads_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
   hourly rate; two new columns), both monthly card print formats (loads and volume rows; the standard print removes
-  every money column from users without money read, owner decision 2026-11-13), dashboard number cards "Loads last
-  month" and "Volume last month (m³)" in the CARD workspace, BOLA matrix rows for the two number-card endpoints,
+  every money column from users without money read, owner decision 2026-11-13), dashboard number card "Loads last
+  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a BOLA matrix row for the number-card endpoint,
   translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
   docs. PR #258.
   Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
-  number cards read submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
+  number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
   still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
   fields only, empty by default; no patch, no migrate change to submitted cards (none is recalculated). API: two
   whitelisted read endpoints (POST). Rollback: revert the code; the new fields stay in the database and are ignored by

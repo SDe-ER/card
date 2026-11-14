@@ -44,8 +44,5 @@ msgstr "m³ uchun"
 msgid "Loads last month"
 msgstr "O'tgan oy reyslari"
 
-msgid "Volume last month (m³)"
-msgstr "O'tgan oy hajmi (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Reyslar faqat mijoz narx turi m³ uchun bo'lgan kartada qayd etiladi"

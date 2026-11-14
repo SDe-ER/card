@@ -132,7 +132,6 @@ sidebar:
 | `card.card_value.cards_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.hours_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.loads_last_month` | POST | `filters: str \| dict \| list \| None = None` |
-| `card.card_value.volume_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 
 
 <h2 id="card-catalog"><code>card.catalog</code></h2>

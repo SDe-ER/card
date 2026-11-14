@@ -44,8 +44,5 @@ msgstr "ต่อ m³"
 msgid "Loads last month"
 msgstr "เที่ยวเดือนที่แล้ว"
 
-msgid "Volume last month (m³)"
-msgstr "ปริมาตรเดือนที่แล้ว (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "บันทึกเที่ยวได้เฉพาะการ์ดที่ประเภทอัตราลูกค้าเป็นต่อ m³ เท่านั้น"

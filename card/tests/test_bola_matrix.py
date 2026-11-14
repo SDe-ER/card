@@ -475,7 +475,6 @@ CASES = {
 	"card.card_value.cards_without_internal_rate_last_month": Case(**NUMBER_CARD),
 	"card.card_value.hours_without_internal_rate_last_month": Case(**NUMBER_CARD),
 	"card.card_value.loads_last_month": Case(**VOLUME_CARD),
-	"card.card_value.volume_last_month": Case(**VOLUME_CARD),
 	# ---------- cancel with a reason (FR-123) ----------
 	"card.cancel_reason.cancel_with_reason": Case(
 		method=POST,

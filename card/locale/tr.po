@@ -44,8 +44,5 @@ msgstr "m³ başına"
 msgid "Loads last month"
 msgstr "Geçen ay seferleri"
 
-msgid "Volume last month (m³)"
-msgstr "Geçen ay hacmi (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Sefer yalnızca müşteri fiyat türü m³ başına olan karta kaydedilebilir"

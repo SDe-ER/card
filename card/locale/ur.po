@@ -508,8 +508,5 @@ msgstr "Per m³"
 msgid "Loads last month"
 msgstr "پچھلے مہینے کے لوڈ"
 
-msgid "Volume last month (m³)"
-msgstr "پچھلے مہینے کا حجم (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "لوڈ صرف اس کارڈ پر درج کیے جا سکتے ہیں جس کی کسٹمر ریٹ کی قسم فی m³ ہو"

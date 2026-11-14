@@ -44,8 +44,5 @@ msgstr "Per m³"
 msgid "Loads last month"
 msgstr "Lass förra månaden"
 
-msgid "Volume last month (m³)"
-msgstr "Volym förra månaden (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Lass kan bara registreras på ett kort där kundens pristyp är per m³"

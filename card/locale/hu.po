@@ -44,8 +44,5 @@ msgstr "m³-enként"
 msgid "Loads last month"
 msgstr "Fuvarok az előző hónapban"
 
-msgid "Volume last month (m³)"
-msgstr "Térfogat az előző hónapban (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Fuvar csak olyan kártyán rögzíthető, amelynek vevői díjtípusa m³-enként"

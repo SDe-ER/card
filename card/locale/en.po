@@ -310,8 +310,5 @@ msgstr "Per m³"
 msgid "Loads last month"
 msgstr "Loads last month"
 
-msgid "Volume last month (m³)"
-msgstr "Volume last month (m³)"
-
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Loads can be recorded only on a card whose customer rate type is per m³"
