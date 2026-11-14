@@ -33,8 +33,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
   number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
   still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
-  fields only, empty by default; no submitted card is changed. Patch `card.patches.v5_0_0.remove_volume_number_card`
-  deletes the removed volume Number Card on sites that imported it (idempotent; one row, nothing else). API: one
+  fields only, empty by default; no submitted card is changed. No patch: the volume Number Card never
+  reached Production (4.7.0); a dev or QA site that imported it keeps an orphan Number Card until it is removed by hand. API: one
   whitelisted read endpoint (`loads_last_month`, POST). Rollback: revert the code; the new fields stay in the database and are ignored by
   the older code, and existing cards are untouched. A card priced per m³ after the change shows its totals only while
   the new code runs.

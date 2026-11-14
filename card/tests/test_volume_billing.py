@@ -213,6 +213,15 @@ class TestVolumeBilling(_StopBase):
 		shown = " ".join(str(m) for m in frappe.local.message_log)
 		self.assertIn("This card has operating hours but no loads", shown)
 
+	def test_no_warning_when_loads_are_present(self):
+		# the warning is for hours with NO loads only: a normal per-m³ card with loads must stay silent
+		eq = self._volume_equipment()
+		frappe.local.message_log = []
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		self.assertEqual(card.docstatus, 1)
+		shown = " ".join(str(m) for m in frappe.local.message_log)
+		self.assertNotIn("This card has operating hours but no loads", shown)
+
 	def test_zero_loads_are_allowed_on_a_card_not_billed_per_m3(self):
 		eq = self._rented_out(customer_rate=1000)
 		card = self._volume_card(eq, [{"loads_count": 0, "working_hours": 10}])
@@ -233,16 +242,13 @@ class TestVolumeBilling(_StopBase):
 		# permlevel-1 total volume (the field-level rule is overridden only inside this test; no DocPerm is changed)
 		from unittest import mock
 
-		from frappe.utils import add_months, getdate, nowdate
+		from frappe.utils import getdate
 
 		from card.card_value import loads_last_month
 		from card.tests.test_card_money_privacy import _user
 
-		last = getdate(add_months(nowdate(), -1))  # loads_last_month reads the previous calendar month
 		eq = self._volume_equipment()
-		self._volume_card(
-			eq, [{"loads_count": 40, "working_hours": 10}], submit=True, ym=("%02d" % last.month, last.year)
-		)
+		self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
 		meta_cls = type(frappe.get_meta("Card Monthly Card"))
 		original = meta_cls.get_permitted_fieldnames
 
@@ -251,7 +257,12 @@ class TestVolumeBilling(_StopBase):
 
 		frappe.set_user(_user(["Card User"], restrict=self.company))
 		try:
-			with mock.patch.object(meta_cls, "get_permitted_fieldnames", without_level_1):
+			# the card is September 2026; pin "last month" to it so the test does not depend on today's date
+			last_month = (getdate("2026-09-01"), getdate("2026-09-30"))
+			with (
+				mock.patch.object(meta_cls, "get_permitted_fieldnames", without_level_1),
+				mock.patch("card.card_value._last_month", return_value=last_month),
+			):
 				result = loads_last_month({"company": self.company})
 		finally:
 			frappe.set_user("Administrator")
