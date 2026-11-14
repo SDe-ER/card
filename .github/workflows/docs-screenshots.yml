@@ -27,7 +27,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"  # same as ci.yml: frappe version-16 requires Python 3.14
 
       - name: Setup Node
         uses: actions/setup-node@v7
