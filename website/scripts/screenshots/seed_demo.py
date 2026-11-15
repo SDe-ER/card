@@ -545,6 +545,8 @@ def seed():
 			CARDS[code] = c.name
 			if code == "WL-05":
 				# per-m3 card: 40 loads on every working day (16 m3 each); loads are only accepted on a per-m3 card
+				# a savepoint keeps the rollback to this save: earlier uncommitted cards of the loop survive
+				frappe.db.savepoint("wl05_loads")
 				try:
 					loaded = frappe.get_doc("Card Monthly Card", c.name)
 					for row in loaded.days:
@@ -552,7 +554,7 @@ def seed():
 					loaded.save()
 					log(f"+ loads on {c.name}")
 				except Exception as e:
-					frappe.db.rollback()
+					frappe.db.rollback(save_point="wl05_loads")
 					log(f"! loads {c.name}: {type(e).__name__}: {str(e)[:300]}")
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone seeding script run outside a request
 

@@ -194,7 +194,7 @@ async function clickText(page, texts) {
   for (const t of texts) {
     const loc = page.getByText(t, { exact: false }).first();
     if (await loc.isVisible().catch(() => false)) {
-      await loc.click();
+      await loc.click({ timeout: 3000 });
       await page.waitForTimeout(1200);
       return true;
     }
