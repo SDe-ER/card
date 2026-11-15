@@ -403,6 +403,28 @@ def seed():
 				"meter_type": "ساعات",
 			},
 		),
+		(
+			"Wheel Loader 950M (WL-05)",
+			"Wheel Loader",
+			"Caterpillar",
+			"966M",
+			"ملك",
+			# per-m³ customer billing is only valid on a customer-billing direction (CUSTOMER_BILLING_DIRECTIONS)
+			"مؤجَّرة لعميل",
+			{
+				"plate_no": "WL-5005",
+				"serial_no": "CAT-950-0005",
+				"internal_rate_basis": "بالساعة",
+				"internal_hourly_rate": 120,
+				"customer_rate_type": "بالمتر المكعب",
+				"load_volume_m3": 16,
+				"customer_rate": 2,
+				"default_customer": "Example Roads Co.",
+				"meter_type": "ساعات",
+				"opening_meter": 1200,
+				"current_meter": 1330,
+			},
+		),
 	]
 	for name, typ, mk, model, own, direction, extra in EQ_DEF:
 		vals = {
@@ -429,6 +451,7 @@ def seed():
 		("GN-04", "Valley Road Upgrade", "2026-09-17"),
 		("MC-05", "Industrial Park Phase 2", "2026-09-10"),
 		("EX-06", "Industrial Park Phase 2", "2026-09-10"),
+		("WL-05", "Valley Road Upgrade", "2026-09-05"),
 	):
 		if code in EQUIP and proj in PROJECTS:
 			get_or_make(
@@ -507,6 +530,7 @@ def seed():
 		),
 		("MC-05", "Industrial Park Phase 2", normal, {}),
 		("EX-06", "Industrial Park Phase 2", normal, {}),
+		("WL-05", "Valley Road Upgrade", normal, {}),
 	):
 		if code not in EQUIP or proj not in PROJECTS:
 			continue
@@ -519,6 +543,20 @@ def seed():
 		)
 		if c:
 			CARDS[code] = c.name
+			if code == "WL-05":
+				# per-m3 card: 40 loads on every working day (16 m3 each); loads are only accepted on a per-m3 card
+				# a savepoint keeps the rollback to this save: earlier uncommitted cards of the loop survive
+				frappe.db.savepoint("wl05_loads")
+				try:
+					loaded = frappe.get_doc("Card Monthly Card", c.name)
+					for row in loaded.days:
+						row.loads_count = 40 if row.day_status == "عمل" else 0
+					loaded.save()
+					log(f"+ loads on {c.name}")
+				except Exception as e:
+					frappe.db.rollback(save_point="wl05_loads")
+					log(f"! loads {c.name}: {type(e).__name__}: {str(e)[:300]}")
+				frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone seeding script run outside a request
 
 	# submit two cards so the submitted view, statements and posting have data
 	for code in ("WL-02", "EX-06"):
@@ -727,6 +765,10 @@ def seed():
 		frappe.db.set_value("Employee", EMPLOYEES["Ali"], "user_id", "operator@example.com")
 
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone seeding script run outside a request; each record is kept even if a later one fails
+	# Fail the job on any record error: a half-built demo must not be captured.
+	failed = [m for m in LOG if m.startswith("!")]
+	if failed:
+		raise RuntimeError(f"seed_demo: {len(failed)} record error(s); first: {failed[0]}")
 	log("SEED_DONE")
 
 
