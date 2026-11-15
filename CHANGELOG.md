@@ -16,38 +16,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Changed
-- **Docs — two screenshots removed (`equipment-needs-portal`, `card-mobile-home`, EN and AR).** Reason: Google Safe Browsing lists sde-er.github.io/card/ as having pages that may deceive visitors into giving personal information (Transparency Report, 2026-11-15, owner decision to remove both images). The two images look like sign-in or request forms; no page in the built site has an HTML form or password field. Affected: docs images, the two docs pages (equipment needs, CARD Mobile EN/AR), their entries in `shots.json` and `place.py`; no app code, data, permissions or API. Rollback: restore the four webp files from git history and the entries from this commit. PR: pending.
-- **Docs site — Google Search Console verification tag (`website/astro.config.mjs`).** Reason: the docs site at `sde-er.github.io/card` was shown as "Dangerous site" by Google Safe Browsing on 2026-11-15; the owner needs Search Console ownership to request a review. The head gets one `google-site-verification` meta tag once the token is set; while the token is the placeholder, no tag is emitted. Affected: the docs site head only; no app code, data, permissions or API. Rollback: revert the config file. PR: pending (not merged).
-- **Docs screenshots — volume billing images and image gate (`website/scripts/screenshots/`).** Reason: the docs showed no volume-billing images. Placed: the monthly card print (EN, AR) and two sections cropped from it, the days grid and the card totals (EN, AR), from the CI run 43687907431 artifact (commits 423635a and 691dfd9; PR pending) (synthetic data, reviewed image by image). Not placed: the equipment commercial form (per-m³ fields are below the fold), the customer statement (empty: the seeded card is a draft), the loads card (shows 0 for the same reason). The gate (`check_images.py`) fails on an undeclared duplicate and lists it with its route; `allowDuplicateOf` in `shots.json` is available for intentional same-page shots; none is declared yet, because the duplicates of run 43687907431 (workspace, posting, diesel, AR) are capture defects tracked in issue #266. A miss in a click, scroll or section step now fails the shot. Affected: docs assets, docs pages (volume billing EN/AR), capture tooling only; no app code, data, permissions or API. Rollback: remove the placed images and their image lines (`place.py`).
-- **CI — release Latest by SemVer (`.github/workflows/release.yml`).** Reason: release v4.6.0 was published 12 seconds after v4.7.0 (2026-11-10) with `make_latest` not set, so GitHub showed v4.6.0 as Latest until v4.7.0 was marked Latest on 2026-11-14. The workflow now fetches all tags and sets `make_latest` to `true` only for the highest plain X.Y.Z tag, and `false` otherwise; it does not fail when no plain tag exists yet. Affected: the release workflow only; no app code, data, permissions or API. Rollback: revert the workflow file. Verified by a local dry run of the decision with simulated tag names (v4.7.0 true; v4.6.0 and v5.0.0-rc1 false); it runs for real on the next tag.
-
-### Added
-- **FR-167 — Review copy print for unapproved Card Monthly Cards.** Reason: owner request 2026-11-15: an unapproved card must be recognisable on paper. Affected: Print Format `Card Monthly Card Print` (template and CSS only: a banner, a meta line and a watermark on draft cards; the `(Draft)` title label is replaced); six strings in `card/locale/*.po` and `main.pot` (`Review Copy — Not Approved`, `REVIEW COPY`, and four under `msgctxt "Card Review Copy"`). Permissions, accounting, data and API: no change; money gating unchanged (`card_print_can_view_money`). Print Settings unchanged. PR: pending. Rollback: revert the template only; the print returns to the previous draft label, no data change.
-- **Docs — CI-generated screenshots (manual workflow `docs-screenshots.yml`).** Reason: the documentation screenshots must be reproducible and show only fictitious data. A manually triggered CI job builds a throwaway bench, seeds the demo data and captures the pages in Arabic and English at 1440px with Playwright (pinned 1.64.1). It is not a pull request check and cannot block a merge; it deploys nothing. Affected: docs only; no app code, data or permissions. Rollback: delete the workflow and the two scripts; the captured images are plain files. Verified only by the CI run of the job itself.
-- **FR-166 — Volume billing per m³ and per load (customer side).** Reason: owner rule of 2026-11-13: a machine
-  carrying material is billed per load and per cubic metre, before VAT: loads × load volume (m³) × rate per m³.
-  Hours are still recorded but not billed on this basis; billable stops add nothing. Affected code: DocTypes
-  `Card Equipment` (new `load_volume_m3`, option «بالمتر المكعب» on `customer_rate_type`, `COMMERCIAL_FIELDS`,
-  per-m³ check in `validate_rental_direction`), `Card Monthly Card` (new `total_loads`, `total_volume_m3`,
-  `load_volume_used`; per-m³ branch of the customer amount; snapshot in `_snapshot_settings_used`),
-  `Card Monthly Card Day` (new `loads_count`, working-day and future-date rules), `card/card_value.py`
-  (`loads_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
-  hourly rate; two new columns), both monthly card print formats (loads and volume rows; the standard print removes
-  every money column from users without money read, owner decision 2026-11-13), dashboard number card "Loads last
-  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a non-blocking warning when a per-m³ card has
-  operating hours and no loads (customer amount zero; owner decision 2026-11-14), a day with loads and zero hours counts as a billed day for the assignment and unit-component rules, for shortening or deleting an assignment and cancelling a transfer, and for the customer statement and summary (reviews of 2709979, 2dc1c08 and ca63356; `is_billed_day`, `billed_day_rows(include_loads=True)`, `_refuse_dropped_card_days`, `_card_day_after`); supplier reports keep the hours rule, a non-blocking message listing the non-working days whose loads were cleared on save (`_interactive_form_save`; owner decision 2026-11-14), both messages shown only on an interactive form save and not on imports, patches, migrations, muted runs or background jobs (owner decision 2026-11-14), on a per-m³ card a billable stop-only day is a stop day, not a billed day, on the customer statement and summary (`customer_billed_day_rows`; owner decision z1, 2026-11-14), a BOLA matrix row for the number-card endpoint,
-  translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
-  docs. PR #258. Target release: v4.9.0 (not yet tagged; the v4.8.0 tag is a separate decision).
-  Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
-  number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
-  still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
-  fields only, empty by default; no submitted card is changed. No patch: the volume Number Card never
-  reached Production (4.7.0); a dev or QA site that imported it keeps an orphan Number Card until it is removed by hand. API: one
-  whitelisted read endpoint (`loads_last_month`, POST). Rollback: revert the code; the new fields stay in the database and are ignored by
-  the older code, and existing cards are untouched. A card priced per m³ after the change shows its totals only while
-  the new code runs.
-
-### Changed
 
 _Nothing yet._
 
@@ -76,6 +44,53 @@ _Nothing yet._
 - **No-split rule under owner review per #31 comment 6777551346**; follow-up PR may add per-equipment
   allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
   remains in force until replaced.
+
+## [4.9.0] — 2026-11-15
+
+### Added
+- **FR-167 — Review copy print for unapproved Card Monthly Cards.** Reason: owner request 2026-11-15: an unapproved card must be recognisable on paper. Affected: Print Format `Card Monthly Card Print` (template and CSS only: a banner, a meta line and a watermark on draft cards; the `(Draft)` title label is replaced); six strings in `card/locale/*.po` and `main.pot` (`Review Copy — Not Approved`, `REVIEW COPY`, and four under `msgctxt "Card Review Copy"`). Permissions, accounting, data and API: no change; money gating unchanged (`card_print_can_view_money`). Print Settings unchanged. PR: pending. Rollback: revert the template only; the print returns to the previous draft label, no data change.
+- **Docs — CI-generated screenshots (manual workflow `docs-screenshots.yml`).** Reason: the documentation screenshots must be reproducible and show only fictitious data. A manually triggered CI job builds a throwaway bench, seeds the demo data and captures the pages in Arabic and English at 1440px with Playwright (pinned 1.64.1). It is not a pull request check and cannot block a merge; it deploys nothing. Affected: docs only; no app code, data or permissions. Rollback: delete the workflow and the two scripts; the captured images are plain files. Verified only by the CI run of the job itself.
+- **FR-166 — Volume billing per m³ and per load (customer side).** Reason: owner rule of 2026-11-13: a machine
+  carrying material is billed per load and per cubic metre, before VAT: loads × load volume (m³) × rate per m³.
+  Hours are still recorded but not billed on this basis; billable stops add nothing. Affected code: DocTypes
+  `Card Equipment` (new `load_volume_m3`, option «بالمتر المكعب» on `customer_rate_type`, `COMMERCIAL_FIELDS`,
+  per-m³ check in `validate_rental_direction`), `Card Monthly Card` (new `total_loads`, `total_volume_m3`,
+  `load_volume_used`; per-m³ branch of the customer amount; snapshot in `_snapshot_settings_used`),
+  `Card Monthly Card Day` (new `loads_count`, working-day and future-date rules), `card/card_value.py`
+  (`loads_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
+  hourly rate; two new columns), both monthly card print formats (loads and volume rows; the standard print removes
+  every money column from users without money read, owner decision 2026-11-13), dashboard number card "Loads last
+  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a non-blocking warning when a per-m³ card has
+  operating hours and no loads (customer amount zero; owner decision 2026-11-14), a day with loads and zero hours counts as a billed day for the assignment and unit-component rules, for shortening or deleting an assignment and cancelling a transfer, and for the customer statement and summary (reviews of 2709979, 2dc1c08 and ca63356; `is_billed_day`, `billed_day_rows(include_loads=True)`, `_refuse_dropped_card_days`, `_card_day_after`); supplier reports keep the hours rule, a non-blocking message listing the non-working days whose loads were cleared on save (`_interactive_form_save`; owner decision 2026-11-14), both messages shown only on an interactive form save and not on imports, patches, migrations, muted runs or background jobs (owner decision 2026-11-14), on a per-m³ card a billable stop-only day is a stop day, not a billed day, on the customer statement and summary (`customer_billed_day_rows`; owner decision z1, 2026-11-14), a BOLA matrix row for the number-card endpoint,
+  translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
+  docs. PR #258. Target release: v4.9.0 (not yet tagged; the v4.8.0 tag is a separate decision).
+  Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
+  number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
+  still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
+  fields only, empty by default; no submitted card is changed. No patch: the volume Number Card never
+  reached Production (4.7.0); a dev or QA site that imported it keeps an orphan Number Card until it is removed by hand. API: one
+  whitelisted read endpoint (`loads_last_month`, POST). Rollback: revert the code; the new fields stay in the database and are ignored by
+  the older code, and existing cards are untouched. A card priced per m³ after the change shows its totals only while
+  the new code runs.
+
+### Changed
+- **Docs — two screenshots removed (`equipment-needs-portal`, `card-mobile-home`, EN and AR).** Reason: Google Safe Browsing lists sde-er.github.io/card/ as having pages that may deceive visitors into giving personal information (Transparency Report, 2026-11-15, owner decision to remove both images). The two images look like sign-in or request forms; no page in the built site has an HTML form or password field. Affected: docs images, the two docs pages (equipment needs, CARD Mobile EN/AR), their entries in `shots.json` and `place.py`; no app code, data, permissions or API. Rollback: restore the four webp files from git history and the entries from this commit. PR: pending.
+- **Docs site — Google Search Console verification tag (`website/astro.config.mjs`).** Reason: the docs site at `sde-er.github.io/card` was shown as "Dangerous site" by Google Safe Browsing on 2026-11-15; the owner needs Search Console ownership to request a review. The head gets one `google-site-verification` meta tag once the token is set; while the token is the placeholder, no tag is emitted. Affected: the docs site head only; no app code, data, permissions or API. Rollback: revert the config file. PR: pending (not merged).
+- **Docs screenshots — volume billing images and image gate (`website/scripts/screenshots/`).** Reason: the docs showed no volume-billing images. Placed: the monthly card print (EN, AR) and two sections cropped from it, the days grid and the card totals (EN, AR), from the CI run 43687907431 artifact (commits 423635a and 691dfd9; PR pending) (synthetic data, reviewed image by image). Not placed: the equipment commercial form (per-m³ fields are below the fold), the customer statement (empty: the seeded card is a draft), the loads card (shows 0 for the same reason). The gate (`check_images.py`) fails on an undeclared duplicate and lists it with its route; `allowDuplicateOf` in `shots.json` is available for intentional same-page shots; none is declared yet, because the duplicates of run 43687907431 (workspace, posting, diesel, AR) are capture defects tracked in issue #266. A miss in a click, scroll or section step now fails the shot. Affected: docs assets, docs pages (volume billing EN/AR), capture tooling only; no app code, data, permissions or API. Rollback: remove the placed images and their image lines (`place.py`).
+- **CI — release Latest by SemVer (`.github/workflows/release.yml`).** Reason: release v4.6.0 was published 12 seconds after v4.7.0 (2026-11-10) with `make_latest` not set, so GitHub showed v4.6.0 as Latest until v4.7.0 was marked Latest on 2026-11-14. The workflow now fetches all tags and sets `make_latest` to `true` only for the highest plain X.Y.Z tag, and `false` otherwise; it does not fail when no plain tag exists yet. Affected: the release workflow only; no app code, data, permissions or API. Rollback: revert the workflow file. Verified by a local dry run of the decision with simulated tag names (v4.7.0 true; v4.6.0 and v5.0.0-rc1 false); it runs for real on the next tag.
+
+### Migration
+
+- No new patch in 4.9.0. `bench migrate` syncs the DocTypes (new fields and the new per-m³ option of the rate type), the fixtures (Number Card "Loads last month", the workspace, the print formats) and the translations.
+- A site on v4.7.0 runs the v4.8.0 patches once on its first migrate (see the v4.8.0 page, sections 9 and 12). Patch Log rows are not reversed by a rollback.
+- Rollback is code only and does not restore the database. See the v4.9.0 page, section 12, for what the older code does with the new data.
+
+### Known limitations
+
+- A draft card or equipment with the per-m³ rate type cannot be saved by the v4.7.0 code (the option is missing there).
+- The Arabic print format "كارت تشغيل شهري" (legacy) still prints drafts without the review-copy banner; only the standard format does.
+- "Printed by" shows the session user; a print made by a background job shows the system user.
+- Runtime checks on Production are not done by this release; see the v4.9.0 page, section 14.
 
 ## [4.8.0] — 2026-11-14
 

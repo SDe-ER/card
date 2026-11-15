@@ -18,6 +18,9 @@ per site.
 
 ## Next release (merged, not yet released)
 
+_Nothing yet._
+
+## v4.9.0 — 2026-11-15
 - **2026-11-15 — Review copy for unapproved cards.** An unapproved Card Monthly Card (not yet submitted) now prints as a *Review Copy — Not Approved*: one banner under the title, the workflow state, who printed it and when (site time zone), and a light *REVIEW COPY* watermark on every page. Submitted cards print exactly as before, and the generic draft label is replaced by this one. Amounts show only as before. No data, permission or print setting changes. Not released yet.
 
 ## v4.8.0 — 2026-11-14
@@ -165,6 +168,7 @@ per site.
 
 | Version | Date | What it brought |
 |---|---|---|
+| [4.9.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.9.0.md) | 2026-11-15 | Volume billing per m³ and per load (customer side); review copy print for unapproved cards; docs and CI only otherwise |
 | [4.8.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.8.0.md) | 2026-11-14 | Big minor (43 merges): separation of duties on monthly card submit; versioned Card Period Run with accountant approval; native approval workflows (inactive by default); approval tiers; approval delegation that grants no role; money privacy on Card Monthly Card (Operator/Mobile cannot see amounts); Diesel Dispense → draft Stock Entry with tanks as Warehouses (off by default per company); per-hour rate precedence; diesel variance and fill-allocation reports; daily log mobile screens; credit note for non-taxable deductions; keep intake evidence of submitted transports; child-row cross-document guard; party portal scaffold (off by default); Marketplace packaging metadata. Every new rule is opt-in per company or warn-only — current behaviour is the default. No CARD GL write anywhere |
 | [4.7.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.7.0.md) | 2026-11-10 | Company checks on tool custody and on equipment needs requests and reviews; VAT rate taken from the company's tax templates; equipment status check on diesel fills; Equipment Location History report; role and action matrix |
 | [4.6.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.6.0.md) | 2026-11-10 | Security fixes (read-only requests, attachment checks, a reviewer cannot also approve); a reason is required to cancel; stop reasons and the Equipment Downtime report; diesel prices by date; per-company checks on equipment and diesel; posting preview page; three analysis reports |

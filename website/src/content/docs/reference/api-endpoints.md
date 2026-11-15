@@ -21,7 +21,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.card.doctype.equipment_transport.equipment_transport`](#card-card-doctype-equipment-transport-equipment-transport) | 3 |
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
 | [`card.card.report.equipment_supplier_statement.statement_pdf`](#card-card-report-equipment-supplier-statement-statement-pdf) | 1 |
-| [`card.card_value`](#card-card-value) | 7 |
+| [`card.card_value`](#card-card-value) | 6 |
 | [`card.catalog`](#card-catalog) | 2 |
 | [`card.daily_log_generation`](#card-daily-log-generation) | 1 |
 | [`card.diesel`](#card-diesel) | 1 |
@@ -170,6 +170,8 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | `card.card_value.cards_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.hours_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.loads_last_month` | POST | `filters: str \| dict \| list \| None = None` |
+
+- `loads_last_month` — The loads of last month on the submitted per-m³ cards, company-scoped like the other monthly values. total_loads is permlevel 0 (a count, not money), so every user who can read the card sees the number. Permission-checked read; drafts are not counted.
 
 
 <h2 id="card-catalog"><code>card.catalog</code></h2>
