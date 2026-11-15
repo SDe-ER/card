@@ -242,7 +242,6 @@ def _route(start, end, include_drafts=False, company=None):
 # workspace). They read nothing they do not return and write nothing.
 
 
-@frappe.whitelist(methods=["POST"])
 def _require_money():
 	"""FR-162 on the dashboard: a money value is refused to a user whose roles have no money read.
 	The list query would only strip the amounts and show zeros; this refuses instead."""
@@ -252,6 +251,7 @@ def _require_money():
 		)
 
 
+@frappe.whitelist(methods=["POST"])
 def supplier_cost_last_month(filters: str | dict | list | None = None) -> dict:
 	_require_money()
 	result, _w, route = _last_month_totals(filters)
