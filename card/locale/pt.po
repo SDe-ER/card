@@ -52,3 +52,25 @@ msgstr "As cargas foram zeradas nestes dias não úteis: {0}"
 
 msgid "Check the loads"
 msgstr "Verifique as cargas"
+
+msgid "Review Copy — Not Approved"
+msgstr "Cópia de revisão — Não aprovada"
+
+msgid "REVIEW COPY"
+msgstr "CÓPIA DE REVISÃO"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Estado do fluxo de trabalho"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Ainda não aprovada"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Impresso por"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Impresso em"

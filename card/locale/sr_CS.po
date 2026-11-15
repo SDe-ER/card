@@ -52,3 +52,25 @@ msgstr "Tovari su obrisani u ovim neradnim danima: {0}"
 
 msgid "Check the loads"
 msgstr "Proverite tovare"
+
+msgid "Review Copy — Not Approved"
+msgstr "Primerak za pregled — Nije odobreno"
+
+msgid "REVIEW COPY"
+msgstr "PRIMERAK ZA PREGLED"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Stanje radnog toka"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Još nije odobreno"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Štampao"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Štampano"

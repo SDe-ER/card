@@ -52,3 +52,25 @@ msgstr "Ladings is op hierdie nie-werkdae uitgevee: {0}"
 
 msgid "Check the loads"
 msgstr "Kontroleer die ladings"
+
+msgid "Review Copy — Not Approved"
+msgstr "Hersieningskopie — Nie goedgekeur"
+
+msgid "REVIEW COPY"
+msgstr "HERSIENINGSKOPIE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Werkvloeistatus"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Nog nie goedgekeur nie"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Gedruk deur"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Gedruk op"

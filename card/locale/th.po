@@ -52,3 +52,25 @@ msgstr "ลบจำนวนเที่ยวที่บรรทุกใน
 
 msgid "Check the loads"
 msgstr "ตรวจสอบจำนวนเที่ยว"
+
+msgid "Review Copy — Not Approved"
+msgstr "สำเนาสำหรับตรวจทาน — ยังไม่อนุมัติ"
+
+msgid "REVIEW COPY"
+msgstr "สำเนาสำหรับตรวจทาน"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "สถานะเวิร์กโฟลว์"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "ยังไม่อนุมัติ"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "พิมพ์โดย"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "พิมพ์เมื่อ"

@@ -52,3 +52,25 @@ msgstr "Les chargements ont été effacés pendant ces jours non ouvrables : {0}
 
 msgid "Check the loads"
 msgstr "Vérifier les chargements"
+
+msgid "Review Copy — Not Approved"
+msgstr "Copie de relecture — Non approuvée"
+
+msgid "REVIEW COPY"
+msgstr "COPIE DE RELECTURE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "État du workflow"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Pas encore approuvée"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Imprimé par"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Imprimé le"

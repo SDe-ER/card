@@ -52,3 +52,25 @@ msgstr "Muatan dihapus pada hari bukan kerja berikut: {0}"
 
 msgid "Check the loads"
 msgstr "Periksa muatan"
+
+msgid "Review Copy — Not Approved"
+msgstr "Salinan Tinjauan — Belum Disetujui"
+
+msgid "REVIEW COPY"
+msgstr "SALINAN TINJAUAN"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Status alur kerja"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Belum disetujui"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Dicetak oleh"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Dicetak pada"

@@ -52,3 +52,25 @@ msgstr "Số chuyến đã bị xóa vào các ngày không làm việc sau: {0}
 
 msgid "Check the loads"
 msgstr "Kiểm tra số chuyến"
+
+msgid "Review Copy — Not Approved"
+msgstr "Bản sao xem xét — Chưa phê duyệt"
+
+msgid "REVIEW COPY"
+msgstr "BẢN SAO XEM XÉT"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Trạng thái quy trình"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Chưa phê duyệt"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "In bởi"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "In lúc"

@@ -8698,3 +8698,25 @@ msgstr "اتمسحت الردود في الأيام دي لأنها مش أيا�
 
 msgid "Check the loads"
 msgstr "راجع الردود"
+
+msgid "Review Copy — Not Approved"
+msgstr "نسخة مراجعة — غير معتمدة"
+
+msgid "REVIEW COPY"
+msgstr "نسخة مراجعة"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "حالة سير العمل"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "غير معتمدة بعد"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "طُبعت بواسطة"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "تاريخ الطباعة"

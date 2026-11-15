@@ -52,3 +52,25 @@ msgstr "இந்த வேலை இல்லாத நாட்களில்
 
 msgid "Check the loads"
 msgstr "சுமைகளைச் சரிபார்க்கவும்"
+
+msgid "Review Copy — Not Approved"
+msgstr "மதிப்பாய்வு நகல் — அங்கீகரிக்கப்படவில்லை"
+
+msgid "REVIEW COPY"
+msgstr "மதிப்பாய்வு நகல்"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "பணிப்பாய்வு நிலை"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "இன்னும் அங்கீகரிக்கப்படவில்லை"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "அச்சிட்டவர்"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "அச்சிட்ட நேரம்"
