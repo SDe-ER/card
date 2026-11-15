@@ -151,13 +151,22 @@ class TestReviewCopyPrint(_StopBase):
 		card = self._rented_card()
 		self.assertIn(MONEY_ROW, self._html(card))
 
-	def test_money_rows_hidden_from_a_card_operator_on_a_draft(self):
-		# the review banner adds no money: a Card Operator's draft print still has no amount row
+	def test_money_rows_hidden_from_a_no_money_role_on_a_draft(self):
+		# Card User can print a draft (permlevel 0 print) but has no level-1 read on the money fields: the banner
+		# adds no money, so the amount row must stay out of this print for that role (FR-162 gate on this format)
+		card = self._rented_card()
+		user = _user(["Card User"])
+		self.addCleanup(frappe.delete_doc, "User", user, ignore_permissions=True, force=True)
+		frappe.set_user(user)
+		html = self._html(card)
+		self.assertNotIn(MONEY_ROW, html)
+		self.assertIn(BANNER, html)
+
+	def test_card_operator_cannot_print_a_card(self):
+		# Card Operator has no print right on Card Monthly Card (existing rule, not changed here)
 		card = self._rented_card()
 		operator = _user(["Card Operator"])
 		self.addCleanup(frappe.delete_doc, "User", operator, ignore_permissions=True, force=True)
 		frappe.set_user(operator)
-		# Card Operator has no print right on a card (existing rule, not changed here): the draft print is refused,
-		# so no amount row is printed. Money gating for this role is covered by test_card_money_privacy.
 		with self.assertRaises(frappe.PermissionError):
 			self._html(card)
