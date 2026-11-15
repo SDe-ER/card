@@ -79,6 +79,8 @@ the tag (`git show <tag>:<path>`).
 | Equipment status guard on project diesel fills (FR-128) | v4.7.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Warn only by default (`equipment_status_rule`) | PR #200 |
 | Equipment Location History report (FR-130) | v4.7.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Read-only; company isolation on the server | PR #201 |
 | Portal catalog under ERPNext v16.54.0+ Company Restriction (FR-076 fix) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Earlier versions: empty catalog for Card portal roles on ERPNext ≥ 16.54.0; Partially Verified (CI only) | PR #169 |
+| Volume billing per m³ and per load (FR-166) | v4.9.0 | — | — | — | — | — | — | — | — | v4.9.0: per-m³ rate type, loads and volume fields, "Loads last month" number card; saving a per-m³ document needs v4.9.0 code (rollback note in the v4.9.0 page, section 12) | v4.9.0 page; PR #258 |
+| Review copy print for unapproved cards (FR-167) | v4.9.0 | — | — | — | — | — | — | — | — | v4.9.0: banner, meta line and watermark on draft cards; "(Draft)" label replaced; submitted cards unchanged | v4.9.0 page; PR #268 |
 
 ## Reading the matrix
 
