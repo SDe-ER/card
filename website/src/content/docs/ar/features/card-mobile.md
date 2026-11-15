@@ -22,8 +22,6 @@ sidebar:
 بـ HTTPS.
 :::
 
-<!-- screenshot: card-mobile-home -->
-![الشاشة الرئيسية في CARD Mobile](../../../../assets/screenshots/ar/card-mobile-home.webp)
 *الشاشة الرئيسية في CARD Mobile*
 
 ## المفاهيم الأساسية

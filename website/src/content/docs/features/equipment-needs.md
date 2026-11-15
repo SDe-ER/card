@@ -87,8 +87,6 @@ The page requires the user to be linked to an active Employee and to hold Card O
 or System Manager. CARD Mobile (`/cdms`) offers the same request flow in its **New request** screen (see
 [CARD Mobile](/card/features/card-mobile/)).
 
-<!-- screenshot: equipment-needs-portal -->
-![The equipment needs page](../../../assets/screenshots/en/equipment-needs-portal.webp)
 *The equipment needs page*
 
 ### Equipment Needs Review

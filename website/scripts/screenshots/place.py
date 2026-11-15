@@ -68,10 +68,8 @@ CAPTIONS = {
 	"maintenance-parts-fitment": ("Parts fitment records", "سجلات توافق قطع الغيار"),
 	"asset-mapping-review": ("Asset Mapping Review report", "تقرير مراجعة ربط الأصول"),
 	"equipment-needs-review": ("An equipment needs request", "طلب احتياجات معدة"),
-	"equipment-needs-portal": ("The equipment needs page", "صفحة احتياجات المعدات"),
 	"accounting-partial-margin": ("Equipment Partial Margin report", "تقرير الهامش الجزئي للمعدات"),
 	"accounting-posting-source-integrity": ("Posting Source Integrity report", "تقرير سلامة مصادر الترحيل"),
-	"card-mobile-home": ("CARD Mobile home screen", "الشاشة الرئيسية في CARD Mobile"),
 	"card-mobile-new-request": ("CARD Mobile requests", "الطلبات في CARD Mobile"),
 	"volume-billing-equipment-commercial": (
 		"A per-m³ customer rate on the equipment",

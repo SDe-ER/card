@@ -22,8 +22,6 @@ Installation on real iPhone and Android phones has not been tested yet. Device s
 those tests on an HTTPS site.
 :::
 
-<!-- screenshot: card-mobile-home -->
-![CARD Mobile home screen](../../../assets/screenshots/en/card-mobile-home.webp)
 *CARD Mobile home screen*
 
 ## Key concepts
