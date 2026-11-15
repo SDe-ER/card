@@ -75,7 +75,8 @@ class TestReviewCopyPrint(_StopBase):
 		self.assertIn("Printed by", html)
 		self.assertIn("Printed at", html)
 		# the meta line shows the stored workflow state, or "Not yet approved" when none is set
-		self.assertIn(card.get("workflow_state") or "Not yet approved", html)
+		state = card.get("workflow_state") or "Not yet approved"
+		self.assertIn(f"Workflow state: {state}", html)
 
 	def test_pending_review_state_keeps_the_banner_and_watermark(self):
 		# a card sent for review is still unapproved: the banner keys on docstatus, not on the workflow state name
@@ -85,6 +86,31 @@ class TestReviewCopyPrint(_StopBase):
 		self.assertIn("Pending Review", html)
 		self.assertIn(BANNER, html)
 		self.assertIn(WATERMARK, html)
+
+	def test_every_review_copy_msgid_is_translated_in_every_locale(self):
+		import glob
+		import os
+		import re
+
+		entries = [
+			(None, "Review Copy — Not Approved"),
+			(None, "REVIEW COPY"),
+			("Card Review Copy", "Workflow state"),
+			("Card Review Copy", "Not yet approved"),
+			("Card Review Copy", "Printed by"),
+			("Card Review Copy", "Printed at"),
+		]
+		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
+		for path in glob.glob(os.path.join(locale_dir, "*.po")):
+			with open(path, encoding="utf-8") as fh:
+				text = fh.read()
+			for ctx, msgid in entries:
+				prefix = f'msgctxt "{ctx}"\n' if ctx else ""
+				match = re.search(prefix + 'msgid "' + re.escape(msgid) + '"\nmsgstr "([^"]+)"', text)
+				self.assertTrue(
+					match and match.group(1).strip(),
+					f"{os.path.basename(path)}: no translation for {msgid!r}",
+				)
 
 	def test_draft_has_one_label_and_no_generic_draft_heading(self):
 		card = self._rented_card()
