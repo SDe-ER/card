@@ -74,7 +74,8 @@ class TestReviewCopyPrint(_StopBase):
 		self.assertIn("emc-review-wm", html)  # the watermark is fixed to the page, repeated on every page
 		self.assertIn("Printed by", html)
 		self.assertIn("Printed at", html)
-		self.assertIn("Workflow state", html)
+		# the meta line shows the stored workflow state, or "Not yet approved" when none is set
+		self.assertIn(card.get("workflow_state") or "Not yet approved", html)
 
 	def test_pending_review_state_keeps_the_banner_and_watermark(self):
 		# a card sent for review is still unapproved: the banner keys on docstatus, not on the workflow state name
