@@ -52,3 +52,25 @@ msgstr "Încărcăturile au fost șterse în aceste zile nelucrătoare: {0}"
 
 msgid "Check the loads"
 msgstr "Verificați încărcăturile"
+
+msgid "Review Copy — Not Approved"
+msgstr "Copie de verificare — Neaprobată"
+
+msgid "REVIEW COPY"
+msgstr "COPIE DE VERIFICARE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Starea fluxului de lucru"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Încă neaprobată"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Tipărit de"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Tipărit la"

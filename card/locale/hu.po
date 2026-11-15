@@ -52,3 +52,25 @@ msgstr "A fuvarok száma ezeken a munkaszüneti napokon törlődött: {0}"
 
 msgid "Check the loads"
 msgstr "Ellenőrizze a fuvarokat"
+
+msgid "Review Copy — Not Approved"
+msgstr "Átnézési példány — Nincs jóváhagyva"
+
+msgid "REVIEW COPY"
+msgstr "ÁTNÉZÉSI PÉLDÁNY"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Munkafolyamat-állapot"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Még nincs jóváhagyva"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Nyomtatta"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Nyomtatás ideje"

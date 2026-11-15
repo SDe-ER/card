@@ -52,3 +52,25 @@ msgstr "Počty nákladů byly na těchto nepracovních dnech vynulovány: {0}"
 
 msgid "Check the loads"
 msgstr "Zkontrolujte náklady"
+
+msgid "Review Copy — Not Approved"
+msgstr "Kontrolní kopie — Neschváleno"
+
+msgid "REVIEW COPY"
+msgstr "KONTROLNÍ KOPIE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Stav pracovního postupu"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Zatím neschváleno"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Vytiskl"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Vytištěno"

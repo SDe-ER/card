@@ -52,3 +52,25 @@ msgstr "Ladungen wurden an diesen arbeitsfreien Tagen gelöscht: {0}"
 
 msgid "Check the loads"
 msgstr "Ladungen prüfen"
+
+msgid "Review Copy — Not Approved"
+msgstr "Prüfkopie — Nicht genehmigt"
+
+msgid "REVIEW COPY"
+msgstr "PRÜFKOPIE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Workflow-Status"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Noch nicht genehmigt"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Gedruckt von"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Gedruckt am"

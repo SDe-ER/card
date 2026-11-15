@@ -52,3 +52,25 @@ msgstr "Эдгээр ажлын бус өдрүүдэд ачааны тоо ар
 
 msgid "Check the loads"
 msgstr "Ачааны тоог шалгана уу"
+
+msgid "Review Copy — Not Approved"
+msgstr "Шалгалтын хуулбар — Батлагдаагүй"
+
+msgid "REVIEW COPY"
+msgstr "ШАЛГАЛТЫН ХУУЛБАР"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Ажлын урсгалын төлөв"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Одоогоор батлагдаагүй"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Хэвлэсэн"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Хэвлэсэн огноо"

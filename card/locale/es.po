@@ -52,3 +52,25 @@ msgstr "Se borraron las cargas en estos días no laborables: {0}"
 
 msgid "Check the loads"
 msgstr "Revise las cargas"
+
+msgid "Review Copy — Not Approved"
+msgstr "Copia de revisión — No aprobada"
+
+msgid "REVIEW COPY"
+msgstr "COPIA DE REVISIÓN"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Estado del flujo de trabajo"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Aún no aprobada"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Impreso por"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Impreso el"

@@ -52,3 +52,25 @@ msgstr "Ritten zijn op deze niet-werkdagen gewist: {0}"
 
 msgid "Check the loads"
 msgstr "Controleer de ritten"
+
+msgid "Review Copy — Not Approved"
+msgstr "Controlekopie — Niet goedgekeurd"
+
+msgid "REVIEW COPY"
+msgstr "CONTROLEKOPIE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Workflowstatus"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Nog niet goedgekeurd"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Afgedrukt door"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Afgedrukt op"

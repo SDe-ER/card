@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing merged yet._
+- **2026-11-15 — Review copy for unapproved cards.** An unapproved Card Monthly Card (not yet submitted) now prints as a *Review Copy — Not Approved*: one banner under the title, the workflow state, who printed it and when (site time zone), and a light *REVIEW COPY* watermark on every page. Submitted cards print exactly as before, and the generic draft label is replaced by this one. Amounts show only as before. No data, permission or print setting changes. Not released yet.
 
 ## v4.8.0 — 2026-11-14
 

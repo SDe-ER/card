@@ -52,3 +52,25 @@ msgstr "Bu çalışılmayan günlerde yük sayıları silindi: {0}"
 
 msgid "Check the loads"
 msgstr "Yükleri kontrol edin"
+
+msgid "Review Copy — Not Approved"
+msgstr "İnceleme Kopyası — Onaylanmadı"
+
+msgid "REVIEW COPY"
+msgstr "İNCELEME KOPYASI"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "İş akışı durumu"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Henüz onaylanmadı"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Yazdıran"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Yazdırılma zamanı"

@@ -52,3 +52,25 @@ msgstr "Tovori so bili na teh nedelovnih dneh izbrisani: {0}"
 
 msgid "Check the loads"
 msgstr "Preverite tovore"
+
+msgid "Review Copy — Not Approved"
+msgstr "Pregledni izvod — Ni odobreno"
+
+msgid "REVIEW COPY"
+msgstr "PREGLEDNI IZVOD"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Stanje poteka dela"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Še ni odobreno"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Natisnil"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Natisnjeno"

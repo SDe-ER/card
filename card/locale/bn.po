@@ -516,3 +516,25 @@ msgstr "এই অ-কর্মদিবসগুলোতে লোড মু�
 
 msgid "Check the loads"
 msgstr "লোড যাচাই করুন"
+
+msgid "Review Copy — Not Approved"
+msgstr "পর্যালোচনা কপি — অনুমোদিত নয়"
+
+msgid "REVIEW COPY"
+msgstr "পর্যালোচনা কপি"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "ওয়ার্কফ্লো অবস্থা"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "এখনও অনুমোদিত নয়"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "মুদ্রণকারী"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "মুদ্রণের সময়"

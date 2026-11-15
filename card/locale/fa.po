@@ -52,3 +52,25 @@ msgstr "بارها در این روزهای غیرکاری پاک شدند: {0}"
 
 msgid "Check the loads"
 msgstr "بارها را بررسی کنید"
+
+msgid "Review Copy — Not Approved"
+msgstr "نسخهٔ بازبینی — تأیید نشده"
+
+msgid "REVIEW COPY"
+msgstr "نسخهٔ بازبینی"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "وضعیت گردش کار"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "هنوز تأیید نشده"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "چاپ توسط"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "زمان چاپ"

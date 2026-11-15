@@ -62,6 +62,8 @@ The monthly operation card of one machine, shift and month.
   deductions and *net before VAT*. The net equals the amount CARD puts on that side's invoice line before VAT.
 - **Signatures** — driver / operator (with his name), site supervisor approval, project manager approval.
 
+**Review copy.** A card that is not approved yet (not submitted, including any workflow state before approval) prints as a review copy: a banner *Review Copy — Not Approved* under the title, the workflow state, the name of the person who printed it (the session user; a background-job print shows the system user) and the time (site time zone), and a light *REVIEW COPY* watermark on every page. A submitted card prints without them. All card data prints as before; the amounts follow the money permission as before.
+
 The legacy Arabic format «كارت تشغيل شهري» ships as a fixture and stays available as an alternative with the same
 style and the same print-language behaviour.
 

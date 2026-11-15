@@ -516,3 +516,25 @@ msgstr "ان غیر کاری دنوں میں لوڈز صاف کر دیے گئے:
 
 msgid "Check the loads"
 msgstr "لوڈز چیک کریں"
+
+msgid "Review Copy — Not Approved"
+msgstr "جائزہ کی نقل — منظور نہیں"
+
+msgid "REVIEW COPY"
+msgstr "جائزہ کی نقل"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "ورک فلو کی حیثیت"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "ابھی منظور نہیں"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "پرنٹ کرنے والا"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "پرنٹ کا وقت"

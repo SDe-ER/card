@@ -52,3 +52,25 @@ msgstr "Ushbu dam olish kunlarida yuklar soni tozalandi: {0}"
 
 msgid "Check the loads"
 msgstr "Yuklarni tekshiring"
+
+msgid "Review Copy — Not Approved"
+msgstr "Koʻrib chiqish nusxasi — Tasdiqlanmagan"
+
+msgid "REVIEW COPY"
+msgstr "KOʻRIB CHIQISH NUSXASI"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Ish oqimi holati"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Hali tasdiqlanmagan"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Chop etgan"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Chop etilgan"

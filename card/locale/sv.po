@@ -52,3 +52,25 @@ msgstr "Lass rensades under dessa icke-arbetsdagar: {0}"
 
 msgid "Check the loads"
 msgstr "Kontrollera lass"
+
+msgid "Review Copy — Not Approved"
+msgstr "Granskningskopia — Ej godkänd"
+
+msgid "REVIEW COPY"
+msgstr "GRANSKNINGSKOPIA"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Arbetsflödesstatus"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Ännu inte godkänd"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Utskriven av"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Utskriven"
