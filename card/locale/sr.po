@@ -52,3 +52,25 @@ msgstr "Товари су обрисани у овим нерадним дани
 
 msgid "Check the loads"
 msgstr "Проверите товаре"
+
+msgid "Review Copy — Not Approved"
+msgstr "Примерак за преглед — Није одобрено"
+
+msgid "REVIEW COPY"
+msgstr "ПРИМЕРАК ЗА ПРЕГЛЕД"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Стање радног тока"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Још није одобрено"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Штампао"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Штампано"

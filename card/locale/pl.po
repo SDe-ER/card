@@ -52,3 +52,25 @@ msgstr "Liczba kursów została wyzerowana w tych dniach wolnych od pracy: {0}"
 
 msgid "Check the loads"
 msgstr "Sprawdź liczbę kursów"
+
+msgid "Review Copy — Not Approved"
+msgstr "Kopia do przeglądu — Niezatwierdzona"
+
+msgid "REVIEW COPY"
+msgstr "KOPIA DO PRZEGLĄDU"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Stan przepływu pracy"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Jeszcze niezatwierdzona"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Wydrukował"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Wydrukowano"

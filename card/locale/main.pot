@@ -7459,3 +7459,25 @@ msgstr "Loads were cleared on these non-working days: {0}"
 
 msgid "Check the loads"
 msgstr "Check the loads"
+
+msgid "Review Copy — Not Approved"
+msgstr ""
+
+msgid "REVIEW COPY"
+msgstr ""
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr ""
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr ""
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr ""
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr ""

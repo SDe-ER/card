@@ -52,3 +52,25 @@ msgstr "Læs blev slettet på disse ikke-arbejdsdage: {0}"
 
 msgid "Check the loads"
 msgstr "Kontrollér læssene"
+
+msgid "Review Copy — Not Approved"
+msgstr "Gennemgangskopi — Ikke godkendt"
+
+msgid "REVIEW COPY"
+msgstr "GENNEMGANGSKOPI"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Workflowstatus"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Endnu ikke godkendt"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Udskrevet af"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Udskrevet"

@@ -52,3 +52,25 @@ msgstr "I carichi sono stati azzerati in questi giorni non lavorativi: {0}"
 
 msgid "Check the loads"
 msgstr "Verifica i carichi"
+
+msgid "Review Copy — Not Approved"
+msgstr "Copia di revisione — Non approvata"
+
+msgid "REVIEW COPY"
+msgstr "COPIA DI REVISIONE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Stato del flusso di lavoro"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Non ancora approvata"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Stampato da"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Stampato il"

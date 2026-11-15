@@ -52,3 +52,25 @@ msgstr "Ŝarĝoj estis forigitaj en ĉi tiuj nelaborataj tagoj: {0}"
 
 msgid "Check the loads"
 msgstr "Kontrolu la ŝarĝojn"
+
+msgid "Review Copy — Not Approved"
+msgstr "Revizia kopio — Ne aprobita"
+
+msgid "REVIEW COPY"
+msgstr "REVIZIA KOPIO"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Laborfluo-stato"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Ankoraŭ ne aprobita"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Presita de"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Presita je"

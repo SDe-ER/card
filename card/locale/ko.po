@@ -52,3 +52,25 @@ msgstr "비근무일에 다음 적재 건수가 삭제되었습니다: {0}"
 
 msgid "Check the loads"
 msgstr "적재 건수 확인"
+
+msgid "Review Copy — Not Approved"
+msgstr "검토용 사본 — 승인되지 않음"
+
+msgid "REVIEW COPY"
+msgstr "검토용 사본"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "워크플로 상태"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "아직 승인되지 않음"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "출력자"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "출력 일시"

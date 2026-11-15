@@ -52,3 +52,25 @@ msgstr "ការផ្ទុកត្រូវបានលុបនៅថ្ង
 
 msgid "Check the loads"
 msgstr "ពិនិត្យការផ្ទុក"
+
+msgid "Review Copy — Not Approved"
+msgstr "ច្បាប់ចម្លងសម្រាប់ពិនិត្យ — មិនទាន់អនុម័ត"
+
+msgid "REVIEW COPY"
+msgstr "ច្បាប់ចម្លងសម្រាប់ពិនិត្យ"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "ស្ថានភាពលំហូរការងារ"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "មិនទាន់អនុម័តនៅឡើយ"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "បោះពុម្ពដោយ"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "បោះពុម្ពនៅ"

@@ -52,3 +52,25 @@ msgstr "Kuormat poistettiin näinä ei-työpäivinä: {0}"
 
 msgid "Check the loads"
 msgstr "Tarkista kuormat"
+
+msgid "Review Copy — Not Approved"
+msgstr "Tarkistuskopio — Ei hyväksytty"
+
+msgid "REVIEW COPY"
+msgstr "TARKISTUSKOPIO"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Työnkulun tila"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Ei vielä hyväksytty"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Tulostaja"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Tulostettu"

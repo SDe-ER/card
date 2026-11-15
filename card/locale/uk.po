@@ -52,3 +52,25 @@ msgstr "Кількість рейсів обнулено в ці неробоч�
 
 msgid "Check the loads"
 msgstr "Перевірте рейси"
+
+msgid "Review Copy — Not Approved"
+msgstr "Копія для перевірки — Не затверджено"
+
+msgid "REVIEW COPY"
+msgstr "КОПІЯ ДЛЯ ПЕРЕВІРКИ"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Стан робочого процесу"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Ще не затверджено"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Надрукував"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Надруковано"

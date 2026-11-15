@@ -52,3 +52,25 @@ msgstr "အလုပ်မလုပ်သော ရက်များတွင�
 
 msgid "Check the loads"
 msgstr "ဝန်ဆောင်မှု အရေအတွက် စစ်ဆေးပါ"
+
+msgid "Review Copy — Not Approved"
+msgstr "စိစစ်ရန်မိတ္တူ — မအတည်ပြုရသေး"
+
+msgid "REVIEW COPY"
+msgstr "စိစစ်ရန်မိတ္တူ"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "အလုပ်စီးဆင်းမှုအခြေအနေ"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "မအတည်ပြုရသေးပါ"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "ပရင့်ထုတ်သူ"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "ပရင့်ထုတ်ချိန်"

@@ -516,3 +516,25 @@ msgstr "इन गैर-कार्य दिवसों पर लोड ह
 
 msgid "Check the loads"
 msgstr "लोड जाँचें"
+
+msgid "Review Copy — Not Approved"
+msgstr "समीक्षा प्रति — अनुमोदित नहीं"
+
+msgid "REVIEW COPY"
+msgstr "समीक्षा प्रति"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "वर्कफ़्लो स्थिति"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "अभी अनुमोदित नहीं"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "मुद्रित द्वारा"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "मुद्रण समय"

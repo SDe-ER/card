@@ -52,3 +52,25 @@ msgstr "这些非工作日的装载次数已被清除：{0}"
 
 msgid "Check the loads"
 msgstr "核对装载次数"
+
+msgid "Review Copy — Not Approved"
+msgstr "审阅副本 — 未批准"
+
+msgid "REVIEW COPY"
+msgstr "审阅副本"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "工作流状态"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "尚未批准"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "打印人"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "打印时间"
