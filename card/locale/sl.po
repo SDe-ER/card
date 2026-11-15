@@ -174,5 +174,3 @@ msgstr "Uskladitev števcev (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Prevoz opreme (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Nimate dovoljenja za ogled zneskov mesečnih kartic."

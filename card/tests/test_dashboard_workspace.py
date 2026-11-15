@@ -35,52 +35,50 @@ def _load(name):
 
 
 class TestMoneyGate(IntegrationTestCase):
-	"""FR-162 on the dashboard: the money methods refuse a user whose roles have no money read."""
+	"""FR-162 on the dashboard: a user without money read gets no figure, and no card is read for that user."""
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		frappe.db.rollback()
 
-	def _refused(self, user, call):
+	def _as(self, user, call):
 		frappe.set_user(user)
 		try:
-			with self.assertRaises(frappe.PermissionError):
-				call()
+			return call()
 		finally:
 			frappe.set_user("Administrator")
 
-	def test_card_operator_is_refused_by_every_money_method(self):
+	def _no_figure(self, user):
+		operator = user
+		with patch("card.card_value.get_card_values") as read:
+			for name in MONEY_METHODS:
+				with self.subTest(method=name):
+					result = self._as(operator, lambda n=name: getattr(cv, n)())
+					self.assertIsNone(result["value"])
+			chart = self._as(
+				operator, lambda: cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT)
+			)
+			self.assertEqual(chart, {"labels": [], "datasets": []})
+			read.assert_not_called()
+
+	def test_card_operator_gets_no_figure_and_reads_no_card(self):
 		operator = _user(["Card Operator"])
 		self.addCleanup(frappe.delete_doc, "User", operator, ignore_permissions=True, force=True)
-		for name in MONEY_METHODS:
-			with self.subTest(method=name):
-				self._refused(operator, lambda n=name: getattr(cv, n)())
+		self._no_figure(operator)
 
-	def test_card_operator_is_refused_by_the_monthly_values_chart(self):
-		operator = _user(["Card Operator"])
-		self.addCleanup(frappe.delete_doc, "User", operator, ignore_permissions=True, force=True)
-		self._refused(
-			operator,
-			lambda: cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT),
-		)
-
-	def test_card_supervisor_is_refused_by_the_money_methods(self):
+	def test_card_supervisor_gets_no_figure_and_reads_no_card(self):
 		supervisor = _user(["Card Supervisor"])
 		self.addCleanup(frappe.delete_doc, "User", supervisor, ignore_permissions=True, force=True)
-		for name in MONEY_METHODS:
-			with self.subTest(method=name):
-				self._refused(supervisor, lambda n=name: getattr(cv, n)())
+		self._no_figure(supervisor)
 
 	def test_money_reader_gets_the_value(self):
 		reader = _user(["Card Manager"])
 		self.addCleanup(frappe.delete_doc, "User", reader, ignore_permissions=True, force=True)
-		frappe.set_user(reader)
-		try:
-			for name in MONEY_METHODS:
-				with self.subTest(method=name):
-					self.assertIn("value", getattr(cv, name)())
-		finally:
-			frappe.set_user("Administrator")
+		for name in MONEY_METHODS:
+			with self.subTest(method=name):
+				result = self._as(reader, lambda n=name: getattr(cv, n)())
+				self.assertIn("value", result)
+				self.assertIsNotNone(result["value"])
 
 
 class TestSupplierCardMatchesChart(IntegrationTestCase):

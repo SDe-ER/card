@@ -174,5 +174,3 @@ msgstr "Усклађивање бројила (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Превоз опреме (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Немате дозволу да видите износе месечних картица."

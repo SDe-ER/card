@@ -174,5 +174,3 @@ msgstr "Тоолуурын тохиргоо (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Техникийн тээвэр (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Та сарын картуудын дүнг харах эрхгүй байна."

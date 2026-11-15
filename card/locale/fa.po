@@ -174,5 +174,3 @@ msgstr "تطبیق کنتور (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "حمل تجهیزات (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "شما اجازه مشاهده مبلغ کارت‌های ماهانه را ندارید."

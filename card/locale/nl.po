@@ -174,5 +174,3 @@ msgstr "Meterafstemming (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Materieeltransport (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "U heeft geen toestemming om de bedragen van maandkaarten te zien."

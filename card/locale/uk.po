@@ -174,5 +174,3 @@ msgstr "Звірка лічильників (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Перевезення техніки (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "У вас немає дозволу на перегляд сум місячних карток."

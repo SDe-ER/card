@@ -174,5 +174,3 @@ msgstr "Uzgodnienie liczników (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transport sprzętu (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Brak uprawnień do wyświetlania kwot kart miesięcznych."

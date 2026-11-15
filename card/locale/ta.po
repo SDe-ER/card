@@ -174,5 +174,3 @@ msgstr "மீட்டர் சரிபார்ப்பு (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "உபகரண போக்குவரத்து (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "மாதாந்திர அட்டைகளின் தொகைகளைப் பார்க்க உங்களுக்கு அனுமதி இல்லை."

@@ -638,5 +638,3 @@ msgstr "মিটার মিলকরণ (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "যন্ত্রপাতি পরিবহন (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "মাসিক কার্ডের পরিমাণ দেখার অনুমতি আপনার নেই।"

@@ -174,5 +174,3 @@ msgstr "Đối chiếu đồng hồ (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Vận chuyển thiết bị (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Bạn không có quyền xem số tiền của thẻ hàng tháng."

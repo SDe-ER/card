@@ -174,5 +174,3 @@ msgstr "Måleravstemming (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Utstyrstransport (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Du har ikke tilgang til å se beløpene for månedlige kort."

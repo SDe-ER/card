@@ -242,32 +242,33 @@ def _route(start, end, include_drafts=False, company=None):
 # workspace). They read nothing they do not return and write nothing.
 
 
-def _require_money():
-	"""FR-162 on the dashboard: a money value is refused to a user whose roles have no money read.
-	The list query would only strip the amounts and show zeros; this refuses instead."""
-	if not can_view_money():
-		frappe.throw(
-			_("You do not have permission to see the amounts of monthly cards."), frappe.PermissionError
-		)
+def _money_visible():
+	"""FR-162 on the dashboard: True when the user may see money values (money read on monthly cards).
+	A user without it gets no figure and no card is read for that user: the Number Card shows its own
+	"N/A" text (no error dialog), and the monthly values chart shows no series."""
+	return can_view_money()
 
 
 @frappe.whitelist(methods=["POST"])
 def supplier_cost_last_month(filters: str | dict | list | None = None) -> dict:
-	_require_money()
+	if not _money_visible():
+		return {"value": None, "fieldtype": "Currency"}
 	result, _w, route = _last_month_totals(filters)
 	return {"value": result["supplier"], "fieldtype": "Currency", **route}
 
 
 @frappe.whitelist(methods=["POST"])
 def customer_value_last_month(filters: str | dict | list | None = None) -> dict:
-	_require_money()
+	if not _money_visible():
+		return {"value": None, "fieldtype": "Currency"}
 	result, _w, route = _last_month_totals(filters)
 	return {"value": result["customer"], "fieldtype": "Currency", **route}
 
 
 @frappe.whitelist(methods=["POST"])
 def internal_value_last_month(filters: str | dict | list | None = None) -> dict:
-	_require_money()
+	if not _money_visible():
+		return {"value": None, "fieldtype": "Currency"}
 	result, with_internal, route = _last_month_totals(filters)
 	return {
 		"value": result["internal"] if with_internal else None,
@@ -327,7 +328,8 @@ def loads_last_month(filters: str | dict | list | None = None) -> dict:
 
 def chart_data(chart, filters=None, from_date=None, to_date=None, timespan=None, time_interval=None):
 	"""Labels and one dataset per series for the monthly card values chart."""
-	_require_money()
+	if not _money_visible():
+		return {"labels": [], "datasets": []}
 	filters = _filters(filters)
 	timegrain = time_interval or chart.get("time_interval") or "Monthly"
 	timespan = timespan or chart.get("timespan") or "Last Year"

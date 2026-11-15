@@ -174,5 +174,3 @@ msgstr "Vyúčtování měřidel (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Přeprava techniky (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Nemáte oprávnění zobrazit částky měsíčních karet."

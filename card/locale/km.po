@@ -174,5 +174,3 @@ msgstr "ការផ្គូផ្គងម៉ែត្រ (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "ការដឹកជញ្ជូនឧបករណ៍ (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "អ្នកមិនមានសិទ្ធិមើលចំនួនទឹកប្រាក់នៃកាតប្រចាំខែទេ។"

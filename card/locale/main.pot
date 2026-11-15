@@ -7581,5 +7581,3 @@ msgstr ""
 msgid "Equipment transport (CARD)"
 msgstr ""
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr ""

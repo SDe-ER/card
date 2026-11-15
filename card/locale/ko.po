@@ -174,5 +174,3 @@ msgstr "계량기 대사 (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "장비 운송 (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "월간 카드 금액을 볼 권한이 없습니다."

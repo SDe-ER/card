@@ -174,5 +174,3 @@ msgstr "Hisoblagich solishtiruvi (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Texnika tashish (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Oylik kartalar summasini ko'rish uchun ruxsatingiz yo'q."

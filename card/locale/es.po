@@ -174,5 +174,3 @@ msgstr "Conciliación de medidores (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transporte de equipo (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "No tiene permiso para ver los importes de las tarjetas mensuales."

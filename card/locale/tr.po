@@ -174,5 +174,3 @@ msgstr "Sayaç mutabakatı (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Ekipman taşıma (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Aylık kartların tutarlarını görme yetkiniz yok."

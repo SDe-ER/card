@@ -638,5 +638,3 @@ msgstr "میٹر مفاہمت (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "مشینری کی ترسیل (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "آپ کو ماہانہ کارڈز کی رقوم دیکھنے کی اجازت نہیں ہے۔"

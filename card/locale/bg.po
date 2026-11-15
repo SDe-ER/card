@@ -174,5 +174,3 @@ msgstr "Съгласуване на показанията (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Транспорт на техника (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Нямате разрешение да виждате сумите на месечните карти."

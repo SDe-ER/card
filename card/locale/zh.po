@@ -174,5 +174,3 @@ msgstr "计量表核对 (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "设备运输 (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "您没有权限查看月度卡金额。"

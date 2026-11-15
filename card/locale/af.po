@@ -174,5 +174,3 @@ msgstr "Meterversoening (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Toerusting-vervoer (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Jy het nie toestemming om die bedrae van maandelikse kaarte te sien nie."

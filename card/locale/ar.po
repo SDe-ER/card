@@ -8820,5 +8820,3 @@ msgstr "مطابقة العدادات"
 msgid "Equipment transport (CARD)"
 msgstr "نقل المعدة"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "ليس لديك صلاحية لرؤية مبالغ الكروت الشهرية."

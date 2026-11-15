@@ -174,5 +174,3 @@ msgstr "Mittarien täsmäytys (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Kaluston kuljetus (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Sinulla ei ole oikeutta nähdä kuukausikorttien summia."

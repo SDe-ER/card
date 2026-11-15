@@ -174,5 +174,3 @@ msgstr "Órajel-egyeztetés (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Eszközszállítás (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Nincs jogosultsága a havi kártyák összegeinek megtekintéséhez."

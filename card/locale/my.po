@@ -174,5 +174,3 @@ msgstr "မီတာ ပြန်လည်တိုက်ဆိုင်ခြ�
 msgid "Equipment transport (CARD)"
 msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်မှု (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "လစဉ်ကတ်များ၏ ငွေပမာဏများကို ကြည့်ရှုရန် ခွင့်ပြုချက်မရှိပါ။"

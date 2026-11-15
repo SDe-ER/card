@@ -174,5 +174,3 @@ msgstr "Zählerabgleich (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Gerätetransport (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Sie haben keine Berechtigung, die Beträge der Monatskarten zu sehen."

@@ -174,5 +174,3 @@ msgstr "Reconciliere contoare (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transport echipament (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Nu aveți permisiunea de a vedea sumele cardurilor lunare."

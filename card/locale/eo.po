@@ -174,5 +174,3 @@ msgstr "Kongruigo de mezuriloj (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transporto de ekipaĵo (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Vi ne havas permeson vidi la sumojn de monataj kartoj."

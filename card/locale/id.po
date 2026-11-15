@@ -174,5 +174,3 @@ msgstr "Rekonsiliasi meter (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transportasi peralatan (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "Anda tidak memiliki izin untuk melihat jumlah kartu bulanan."

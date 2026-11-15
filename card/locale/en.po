@@ -440,5 +440,3 @@ msgstr "Meter reconciliation (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Equipment transport (CARD)"
 
-msgid "You do not have permission to see the amounts of monthly cards."
-msgstr "You do not have permission to see the amounts of monthly cards."
