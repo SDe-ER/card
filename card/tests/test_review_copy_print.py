@@ -12,6 +12,7 @@ engine (frappe.get_print) with the standard format "Card Monthly Card Print". Al
 import glob
 import os
 import re
+from unittest import mock
 
 import frappe
 
@@ -151,15 +152,24 @@ class TestReviewCopyPrint(_StopBase):
 		card = self._rented_card()
 		self.assertIn(MONEY_ROW, self._html(card))
 
-	def test_money_rows_hidden_from_a_no_money_role_on_a_draft(self):
-		# Card User can print a draft (permlevel 0 print) but has no level-1 read on the money fields: the banner
-		# adds no money, so the amount row must stay out of this print for that role (FR-162 gate on this format)
+	def test_money_rows_hidden_when_the_money_gate_is_closed(self):
+		# the format's own money guard (card_print_can_view_money -> can_view_money) decides the amount rows: with the
+		# gate closed the draft print has no amount row and keeps the banner. Patched in place of a real no-money
+		# printing role, because no role in the permission matrix can print a card without level-1 read.
+		card = self._rented_card()
+		with mock.patch("card.field_privacy.can_view_money", return_value=False):
+			html = self._html(card)
+		self.assertNotIn(MONEY_ROW, html)
+		self.assertIn(BANNER, html)
+
+	def test_card_user_draft_print_shows_the_money_row(self):
+		# Card User has print and level-1 read on Card Monthly Card: the review copy shows the amount row, as before
 		card = self._rented_card()
 		user = _user(["Card User"])
 		self.addCleanup(frappe.delete_doc, "User", user, ignore_permissions=True, force=True)
 		frappe.set_user(user)
 		html = self._html(card)
-		self.assertNotIn(MONEY_ROW, html)
+		self.assertIn(MONEY_ROW, html)
 		self.assertIn(BANNER, html)
 
 	def test_card_operator_cannot_print_a_card(self):
