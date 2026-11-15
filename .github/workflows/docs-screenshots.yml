@@ -113,24 +113,41 @@ jobs:
           SITE: http://test_site:8000
           USER_NAME: demo.manager@example.com
           COMPANY: Example Contracting Co.
-        run: node scripts/screenshots/capture.mjs
+        run: |
+          set -o pipefail
+          node scripts/screenshots/capture.mjs 2>&1 | tee "$RUNNER_TEMP/capture.log"
 
       - name: Verify the captured images (required volume-billing set, no duplicates)
+        if: always()
         working-directory: website
         run: |
+          fail=0
           for l in en ar; do
-            dup=$(sha256sum src/assets/screenshots/$l/*.webp | awk '{print $1}' | sort | uniq -d | wc -l)
-            if [ "$dup" != "0" ]; then echo "::error::duplicate images in $l (a defect screen repeated)"; exit 1; fi
+            (cd "src/assets/screenshots/$l" && sha256sum ./*.webp 2>/dev/null) > "$RUNNER_TEMP/hashes-$l.txt" || true
+            awk '{ h=$1; f=$2; sub(/^\.\//, "", f); sub(/\.webp$/, "", f); n[h]++; m[h]=m[h] " " f }
+                 END { for (h in n) if (n[h] > 1) print m[h] }' "$RUNNER_TEMP/hashes-$l.txt" > "$RUNNER_TEMP/dups-$l.txt"
+            while read -r group; do
+              [ -z "$group" ] && continue
+              fail=1
+              desc=""
+              for name in $group; do
+                route=$(grep -F "[route] $l/$name -> " "$RUNNER_TEMP/capture.log" | tail -1 | sed 's/.*-> //')
+                desc="$desc $name [${route:-no route logged}];"
+              done
+              echo "::error::duplicate images in $l (identical bytes):$desc"
+            done < "$RUNNER_TEMP/dups-$l.txt"
             for n in volume-billing-equipment-commercial volume-billing-monthly-card-days volume-billing-card-totals volume-billing-print volume-billing-customer-statement volume-billing-loads-card; do
-              test -s "src/assets/screenshots/$l/$n.webp" || { echo "::error::missing $l/$n"; exit 1; }
+              test -s "src/assets/screenshots/$l/$n.webp" || { echo "::error::missing $l/$n"; fail=1; }
             done
           done
+          if [ "$fail" != "0" ]; then exit 1; fi
           echo "IMAGE GATE OK"
 
-      - name: Upload the captured images
+      - name: Upload the captured images (also when the gate fails, for inspection)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: docs-screenshots
           path: website/src/assets/screenshots
           retention-days: 14
-          if-no-files-found: error
+          if-no-files-found: warn

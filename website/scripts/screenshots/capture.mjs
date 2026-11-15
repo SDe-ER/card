@@ -28,6 +28,24 @@ let apiCtx;
 // A page showing the Desk welcome screen or the "not configured" screen is a defect: the shot fails, no image is written.
 const DEFECT =
   /Get Started|Let's give your business a home|not set up to ask for equipment needs|غير مهيأ لطلب/;
+// A number card is captured alone: the innermost widget whose label matches one of the texts, once its value
+// has rendered (a digit appears). No match or no value is a failed shot, never a page-sized image.
+async function elementShot(page, texts) {
+  for (const text of texts) {
+    const loc = page
+      .locator(".widget")
+      .filter({ hasText: text })
+      .filter({ hasNot: page.locator(".widget") })
+      .first();
+    if ((await loc.count()) === 0) continue;
+    await loc.scrollIntoViewIfNeeded();
+    await page.waitForFunction((el) => /\d/.test(el.innerText || ""), await loc.elementHandle(), {
+      timeout: 30000,
+    });
+    return loc.screenshot({ type: "png" });
+  }
+  throw new Error(`no number card labelled ${texts.join(" / ")}`);
+}
 // Session POSTs need Frappe's CSRF token; it is read from the logged-in desk page once per session.
 let csrfToken = null;
 async function getCsrf() {
@@ -319,7 +337,9 @@ async function run() {
             else window.scrollTo(0, y);
           }, s.scroll);
         await page.waitForTimeout(500);
-        const png = await page.screenshot({ type: "png" });
+        const png = s.elementText
+          ? await elementShot(page, s.elementText)
+          : await page.screenshot({ type: "png" });
         const file = join(OUT, lang, `${s.name}.webp`);
         await sharp(png).webp({ quality: 82 }).toFile(file);
         results.push(`ok   ${lang}/${s.name}`);
