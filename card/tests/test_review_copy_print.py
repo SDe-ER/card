@@ -9,6 +9,10 @@ this format. Money follows card_print_can_view_money() exactly as before (FR-162
 engine (frappe.get_print) with the standard format "Card Monthly Card Print". All data is per-test and rolled back.
 """
 
+import glob
+import os
+import re
+
 import frappe
 
 from card.constants import DIR_RENTED_OUT, OWNED
@@ -88,10 +92,6 @@ class TestReviewCopyPrint(_StopBase):
 		self.assertIn(WATERMARK, html)
 
 	def test_every_review_copy_msgid_is_translated_in_every_locale(self):
-		import glob
-		import os
-		import re
-
 		entries = [
 			(None, "Review Copy — Not Approved"),
 			(None, "REVIEW COPY"),
