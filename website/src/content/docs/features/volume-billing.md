@@ -59,6 +59,8 @@ Only the customer side uses the per-m³ basis. The supplier rate and its basis a
 ## Entering loads on the monthly card
 
 <!-- screenshot: volume-billing-monthly-card-days -->
+![Days of a per-m³ monthly card](../../../assets/screenshots/en/volume-billing-monthly-card-days.webp)
+*Days of a per-m³ monthly card*
 
 On each day row of the monthly card:
 
@@ -77,6 +79,8 @@ The card totals then show:
 - **Customer amount**: total volume × the customer rate (before VAT).
 
 <!-- screenshot: volume-billing-card-totals -->
+![Card totals for a per-m³ card](../../../assets/screenshots/en/volume-billing-card-totals.webp)
+*Card totals for a per-m³ card*
 
 ## Day and night cards
 
@@ -112,6 +116,8 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
 ## How volume billing appears
 
 <!-- screenshot: volume-billing-print -->
+![Monthly card print with loads](../../../assets/screenshots/en/volume-billing-print.webp)
+*Monthly card print with loads*
 
 <!-- screenshot: volume-billing-customer-statement -->
 

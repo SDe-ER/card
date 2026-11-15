@@ -113,31 +113,10 @@ jobs:
           set -o pipefail
           node scripts/screenshots/capture.mjs 2>&1 | tee "$RUNNER_TEMP/capture.log"
 
-      - name: Verify the captured images (required volume-billing set, no duplicates)
+      - name: Verify the captured images (required set; duplicates only when declared in shots.json)
         if: always()
         working-directory: website
-        run: |
-          fail=0
-          for l in en ar; do
-            (cd "src/assets/screenshots/$l" && sha256sum ./*.webp 2>/dev/null) > "$RUNNER_TEMP/hashes-$l.txt" || true
-            awk '{ h=$1; f=$2; sub(/^\.\//, "", f); sub(/\.webp$/, "", f); n[h]++; m[h]=m[h] " " f }
-                 END { for (h in n) if (n[h] > 1) print m[h] }' "$RUNNER_TEMP/hashes-$l.txt" > "$RUNNER_TEMP/dups-$l.txt"
-            while read -r group; do
-              [ -z "$group" ] && continue
-              fail=1
-              desc=""
-              for name in $group; do
-                route=$(grep -F "[route] $l/$name -> " "$RUNNER_TEMP/capture.log" | tail -1 | sed 's/.*-> //')
-                desc="$desc $name [${route:-no route logged}];"
-              done
-              echo "::error::duplicate images in $l (identical bytes):$desc"
-            done < "$RUNNER_TEMP/dups-$l.txt"
-            for n in volume-billing-equipment-commercial volume-billing-monthly-card-days volume-billing-card-totals volume-billing-print volume-billing-customer-statement volume-billing-loads-card; do
-              test -s "src/assets/screenshots/$l/$n.webp" || { echo "::error::missing $l/$n"; fail=1; }
-            done
-          done
-          if [ "$fail" != "0" ]; then exit 1; fi
-          echo "IMAGE GATE OK"
+        run: python3 scripts/screenshots/check_images.py src/assets/screenshots "$RUNNER_TEMP/capture.log" scripts/screenshots/shots.json
 
       - name: Upload the captured images (also when the gate fails, for inspection)
         if: always()

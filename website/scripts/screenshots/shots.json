@@ -7,7 +7,8 @@
     },
     {
       "name": "workspace-dashboard-overview",
-      "path": "/app/card"
+      "path": "/app/card",
+      "allowDuplicateOf": "introduction-workspace"
     },
     {
       "name": "workspace-dashboard-shortcuts",
@@ -15,12 +16,14 @@
       "scrollText": [
         "Reports",
         "التقارير"
-      ]
+      ],
+      "allowDuplicateOf": "introduction-workspace"
     },
     {
       "name": "languages-workspace-arabic",
       "path": "/app/card",
-      "lang": "ar"
+      "lang": "ar",
+      "allowDuplicateOf": "introduction-workspace"
     },
     {
       "name": "reports-overview-sidebar",
@@ -42,7 +45,8 @@
     {
       "name": "notifications-alerts-bell",
       "path": "/app/card",
-      "click": "[aria-label*='otification'], [title*='otification'], .notifications-icon"
+      "click": "[aria-label*='otification'], [title*='otification'], .notifications-icon",
+      "allowDuplicateOf": "introduction-workspace"
     },
     {
       "name": "equipment-form",
@@ -129,7 +133,8 @@
       "setSelect": {
         "from": "11",
         "to": "10"
-      }
+      },
+      "allowDuplicateOf": "invoicing-posting-page"
     },
     {
       "name": "suppliers-customers-registry",
@@ -162,7 +167,8 @@
         "Meter photos",
         "صور العداد",
         "Opening"
-      ]
+      ],
+      "allowDuplicateOf": "diesel-form"
     },
     {
       "name": "diesel-analysis",
@@ -245,7 +251,8 @@
       "scrollText": [
         "Loads",
         "الحمولات"
-      ]
+      ],
+      "allowDuplicateOf": "volume-billing-card-totals"
     },
     {
       "name": "volume-billing-card-totals",

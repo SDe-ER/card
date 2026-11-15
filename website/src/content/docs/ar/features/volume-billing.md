@@ -59,6 +59,8 @@ sidebar:
 ## تسجيل الردود في الكارت الشهري
 
 <!-- screenshot: volume-billing-monthly-card-days -->
+![أيام كارت بالمتر المكعب الشهري](../../../../assets/screenshots/ar/volume-billing-monthly-card-days.webp)
+*أيام كارت بالمتر المكعب الشهري*
 
 في كل صف يوم من الكارت:
 
@@ -76,6 +78,8 @@ sidebar:
 - **مبلغ العميل**: إجمالي الحجم × سعر العميل (قبل الضريبة).
 
 <!-- screenshot: volume-billing-card-totals -->
+![إجماليات كارت بالمتر المكعب](../../../../assets/screenshots/ar/volume-billing-card-totals.webp)
+*إجماليات كارت بالمتر المكعب*
 
 ## الكارت النهاري والكارت الليلي
 
@@ -111,6 +115,8 @@ sidebar:
 ## كيف تظهر الفوترة بالحجم
 
 <!-- screenshot: volume-billing-print -->
+![طباعة الكارت الشهري مع الحمولات](../../../../assets/screenshots/ar/volume-billing-print.webp)
+*طباعة الكارت الشهري مع الحمولات*
 
 <!-- screenshot: volume-billing-customer-statement -->
 
