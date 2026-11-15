@@ -13,7 +13,8 @@ EMPLOYEE_NAME = ("Ali", "Example")
 
 
 def _as_user(user):
-	frappe.set_user(user)  # nosemgrep: frappe-setuser -- standalone CI script, operator session check
+	# nosemgrep: frappe-setuser -- standalone CI script, operator session check
+	frappe.set_user(user)
 
 
 def configure():
