@@ -201,23 +201,12 @@
       "path": "/app/equipment-needs-request/{enr}"
     },
     {
-      "name": "equipment-needs-portal",
-      "path": "/equipment-needs",
-      "as": "operator"
-    },
-    {
       "name": "accounting-partial-margin",
       "path": "/app/query-report/Equipment Partial Margin?company={company}&from_date=2026-10-01&to_date=2026-10-31"
     },
     {
       "name": "accounting-posting-source-integrity",
       "path": "/app/query-report/Posting Source Integrity?company={company}&from_date=2026-10-01&to_date=2026-10-31&show=All"
-    },
-    {
-      "name": "card-mobile-home",
-      "path": "/cdms",
-      "mobile": true,
-      "as": "operator"
     },
     {
       "name": "card-mobile-new-request",

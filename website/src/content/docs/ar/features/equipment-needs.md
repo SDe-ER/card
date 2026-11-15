@@ -81,8 +81,6 @@ CARD أي قيد إلى الدفتر، ولا ينشئ خصومات رواتب �
 تتطلب الصفحة أن يكون المستخدم مرتبطًا بموظف نشط وأن يحمل أحد الأدوار Card Operator أو Card Supervisor أو Card Manager أو
 System Manager. ويقدم CARD Mobile ‏(`/cdms`) مسار الطلب نفسه في شاشة **طلب جديد** (انظر [CARD Mobile](/card/ar/features/card-mobile/)).
 
-<!-- screenshot: equipment-needs-portal -->
-![صفحة احتياجات المعدات](../../../../assets/screenshots/ar/equipment-needs-portal.webp)
 *صفحة احتياجات المعدات*
 
 ### مراجعة احتياجات المعدات
