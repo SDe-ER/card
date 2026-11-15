@@ -71,6 +71,24 @@ class TestMoneyGate(IntegrationTestCase):
 		self.addCleanup(frappe.delete_doc, "User", supervisor, ignore_permissions=True, force=True)
 		self._no_figure(supervisor)
 
+	def test_user_without_card_read_is_still_refused(self):
+		nobody = _user([])
+		self.addCleanup(frappe.delete_doc, "User", nobody, ignore_permissions=True, force=True)
+		for name in MONEY_METHODS:
+			with self.subTest(method=name):
+				frappe.set_user(nobody)
+				try:
+					with self.assertRaises(frappe.PermissionError):
+						getattr(cv, name)()
+				finally:
+					frappe.set_user("Administrator")
+		frappe.set_user(nobody)
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT)
+		finally:
+			frappe.set_user("Administrator")
+
 	def test_money_reader_gets_the_value(self):
 		reader = _user(["Card Manager"])
 		self.addCleanup(frappe.delete_doc, "User", reader, ignore_permissions=True, force=True)

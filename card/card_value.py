@@ -251,6 +251,7 @@ def _money_visible():
 
 @frappe.whitelist(methods=["POST"])
 def supplier_cost_last_month(filters: str | dict | list | None = None) -> dict:
+	frappe.has_permission(CARD, "read", throw=True)
 	if not _money_visible():
 		return {"value": None, "fieldtype": "Currency"}
 	result, _w, route = _last_month_totals(filters)
@@ -259,6 +260,7 @@ def supplier_cost_last_month(filters: str | dict | list | None = None) -> dict:
 
 @frappe.whitelist(methods=["POST"])
 def customer_value_last_month(filters: str | dict | list | None = None) -> dict:
+	frappe.has_permission(CARD, "read", throw=True)
 	if not _money_visible():
 		return {"value": None, "fieldtype": "Currency"}
 	result, _w, route = _last_month_totals(filters)
@@ -267,6 +269,7 @@ def customer_value_last_month(filters: str | dict | list | None = None) -> dict:
 
 @frappe.whitelist(methods=["POST"])
 def internal_value_last_month(filters: str | dict | list | None = None) -> dict:
+	frappe.has_permission(CARD, "read", throw=True)
 	if not _money_visible():
 		return {"value": None, "fieldtype": "Currency"}
 	result, with_internal, route = _last_month_totals(filters)
@@ -328,6 +331,7 @@ def loads_last_month(filters: str | dict | list | None = None) -> dict:
 
 def chart_data(chart, filters=None, from_date=None, to_date=None, timespan=None, time_interval=None):
 	"""Labels and one dataset per series for the monthly card values chart."""
+	frappe.has_permission(CARD, "read", throw=True)
 	if not _money_visible():
 		return {"labels": [], "datasets": []}
 	filters = _filters(filters)
