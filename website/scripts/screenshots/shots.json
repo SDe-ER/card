@@ -266,10 +266,7 @@
     {
       "name": "volume-billing-loads-card",
       "path": "/app/card",
-      "elementText": [
-        "Loads last month",
-        "الحمولات"
-      ]
+      "elementName": "Loads last month"
     }
   ]
 }

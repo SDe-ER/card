@@ -28,15 +28,32 @@ let apiCtx;
 // A page showing the Desk welcome screen or the "not configured" screen is a defect: the shot fails, no image is written.
 const DEFECT =
   /Get Started|Let's give your business a home|not set up to ask for equipment needs|غير مهيأ لطلب/;
-// A number card is captured alone: the innermost widget whose label matches one of the texts, once its value
-// has rendered (a digit appears). No match or no value is a failed shot, never a page-sized image.
-async function elementShot(page, texts) {
-  for (const text of texts) {
-    const loc = page
-      .locator(".widget")
-      .filter({ hasText: text })
-      .filter({ hasNot: page.locator(".widget") })
-      .first();
+// A number card is captured alone. It is found first by its record name, which Frappe writes to the widget as
+// data-widget-name and which does not change with the language. The translated label from the app's own locale
+// file (read at run time, never hard-coded) is the fallback. The shot waits until the value renders (a digit).
+// No match or no value is a failed shot, never a page-sized image.
+const LOCALE_DIR = join(here, "..", "..", "..", "card", "locale");
+function translatedLabel(lang, msgid) {
+  if (lang === "en") return msgid;
+  const po = readFileSync(join(LOCALE_DIR, `${lang}.po`), "utf8");
+  const head = `msgid "${msgid}"\nmsgstr "`;
+  const at = po.indexOf(head);
+  if (at < 0) return null;
+  const start = at + head.length;
+  return po.slice(start, po.indexOf('"', start));
+}
+async function elementShot(page, lang, name) {
+  const candidates = [page.locator(`.widget[data-widget-name="${name}"]`)];
+  const label = translatedLabel(lang, name);
+  if (label)
+    candidates.push(
+      page
+        .locator(".widget")
+        .filter({ hasText: label })
+        .filter({ hasNot: page.locator(".widget") }),
+    );
+  for (const base of candidates) {
+    const loc = base.first();
     if ((await loc.count()) === 0) continue;
     await loc.scrollIntoViewIfNeeded();
     await page.waitForFunction((el) => /\d/.test(el.innerText || ""), await loc.elementHandle(), {
@@ -44,7 +61,7 @@ async function elementShot(page, texts) {
     });
     return loc.screenshot({ type: "png" });
   }
-  throw new Error(`no number card labelled ${texts.join(" / ")}`);
+  throw new Error(`no number card "${name}" (label ${label ?? "n/a"})`);
 }
 // Session POSTs need Frappe's CSRF token; it is read from the logged-in desk page once per session.
 let csrfToken = null;
@@ -337,8 +354,8 @@ async function run() {
             else window.scrollTo(0, y);
           }, s.scroll);
         await page.waitForTimeout(500);
-        const png = s.elementText
-          ? await elementShot(page, s.elementText)
+        const png = s.elementName
+          ? await elementShot(page, lang, s.elementName)
           : await page.screenshot({ type: "png" });
         const file = join(OUT, lang, `${s.name}.webp`);
         await sharp(png).webp({ quality: 82 }).toFile(file);
