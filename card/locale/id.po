@@ -74,3 +74,105 @@ msgstr "Dicetak oleh"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Dicetak pada"
+
+msgid "CARD operations dashboard"
+msgstr "Dasbor operasional CARD"
+
+msgid "Financial performance — last month"
+msgstr "Kinerja keuangan — bulan lalu"
+
+msgid "Needs review (CARD)"
+msgstr "Perlu ditinjau (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Kartu bulanan terbaru (CARD)"
+
+msgid "CARD customers"
+msgstr "Pelanggan CARD"
+
+msgid "CARD suppliers"
+msgstr "Pemasok CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Solar dan operasional (CARD)"
+
+msgid "New monthly card"
+msgstr "Kartu bulanan baru"
+
+msgid "New equipment transport"
+msgstr "Transportasi peralatan baru"
+
+msgid "Customer statement (CARD)"
+msgstr "Laporan pelanggan (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Kartu bulanan (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Peralatan (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Penugasan (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Pelanggan peralatan (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Transportasi peralatan (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Nilai operasional pelanggan - bulan lalu"
+
+msgid "Supplier operating value - last month"
+msgstr "Nilai operasional pemasok - bulan lalu"
+
+msgid "Internal operating value - last month"
+msgstr "Nilai operasional internal - bulan lalu"
+
+msgid "Cards last month"
+msgstr "Kartu bulan lalu"
+
+msgid "Rented equipment (CARD)"
+msgstr "Peralatan sewaan (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Muatan bulan lalu (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Kartu draf (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Kartu tanpa tarif internal (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Jam operasional tanpa tarif (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Ringkasan pelanggan (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Laporan pemasok (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Ringkasan pemasok (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Laporan pemasok A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Konsumsi solar (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Biaya operasional per proyek (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Biaya transportasi per proyek (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Rekonsiliasi meter (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Transportasi peralatan (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "Anda tidak memiliki izin untuk melihat jumlah kartu bulanan."

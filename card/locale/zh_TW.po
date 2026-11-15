@@ -74,3 +74,105 @@ msgstr "列印者"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "列印時間"
+
+msgid "CARD operations dashboard"
+msgstr "CARD 營運儀表板"
+
+msgid "Financial performance — last month"
+msgstr "財務表現 — 上月"
+
+msgid "Needs review (CARD)"
+msgstr "待審核 (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "最新月卡 (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD 客戶"
+
+msgid "CARD suppliers"
+msgstr "CARD 供應商"
+
+msgid "Diesel and operations (CARD)"
+msgstr "柴油與營運 (CARD)"
+
+msgid "New monthly card"
+msgstr "新增月卡"
+
+msgid "New equipment transport"
+msgstr "新增設備運輸"
+
+msgid "Customer statement (CARD)"
+msgstr "客戶對帳單 (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "月卡 (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "設備 (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "任務指派 (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "設備客戶 (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "設備運輸 (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "客戶營運價值 - 上月"
+
+msgid "Supplier operating value - last month"
+msgstr "供應商營運價值 - 上月"
+
+msgid "Internal operating value - last month"
+msgstr "內部營運價值 - 上月"
+
+msgid "Cards last month"
+msgstr "上月卡片"
+
+msgid "Rented equipment (CARD)"
+msgstr "租賃設備 (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "上月運量 (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "草稿卡 (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "無內部費率的卡 (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "無費率的營運時數 (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "客戶摘要 (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "供應商對帳單 (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "供應商摘要 (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "供應商對帳單 A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "柴油用量 (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "依專案統計的營運成本 (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "依專案統計的運輸成本 (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "計量表核對 (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "設備運輸 (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "您沒有權限查看月卡金額。"

@@ -74,3 +74,105 @@ msgstr "Штампао"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Штампано"
+
+msgid "CARD operations dashboard"
+msgstr "CARD операцијска табла"
+
+msgid "Financial performance — last month"
+msgstr "Финансијски учинак — прошли месец"
+
+msgid "Needs review (CARD)"
+msgstr "Потребна провера (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Најновије месечне картице (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD купци"
+
+msgid "CARD suppliers"
+msgstr "CARD добављачи"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Дизел и операције (CARD)"
+
+msgid "New monthly card"
+msgstr "Нова месечна картица"
+
+msgid "New equipment transport"
+msgstr "Нови превоз опреме"
+
+msgid "Customer statement (CARD)"
+msgstr "Извод купца (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Месечне картице (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Опрема (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Додељивања (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Купци опреме (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Превози опреме (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Оперативна вредност за купце - прошли месец"
+
+msgid "Supplier operating value - last month"
+msgstr "Оперативна вредност добављача - прошли месец"
+
+msgid "Internal operating value - last month"
+msgstr "Интерна оперативна вредност - прошли месец"
+
+msgid "Cards last month"
+msgstr "Картице прошлог месеца"
+
+msgid "Rented equipment (CARD)"
+msgstr "Изнајмљена опрема (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Утовари прошлог месеца (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Нацрти картица (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Картице без интерне цене (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Радни сати без цене (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Резиме купаца (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Извод добављача (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Резиме добављача (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Извод добављача A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Потрошња дизела (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Оперативни трошак по пројекту (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Трошак превоза по пројекту (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Усклађивање бројила (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Превоз опреме (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "Немате дозволу да видите износе месечних картица."

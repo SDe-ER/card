@@ -538,3 +538,105 @@ msgstr "پرنٹ کرنے والا"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "پرنٹ کا وقت"
+
+msgid "CARD operations dashboard"
+msgstr "CARD آپریشنز ڈیش بورڈ"
+
+msgid "Financial performance — last month"
+msgstr "مالی کارکردگی — گزشتہ ماہ"
+
+msgid "Needs review (CARD)"
+msgstr "جائزہ درکار ہے (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "تازہ ترین ماہانہ کارڈز (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD کسٹمرز"
+
+msgid "CARD suppliers"
+msgstr "CARD سپلائرز"
+
+msgid "Diesel and operations (CARD)"
+msgstr "ڈیزل اور آپریشنز (CARD)"
+
+msgid "New monthly card"
+msgstr "نیا ماہانہ کارڈ"
+
+msgid "New equipment transport"
+msgstr "نئی مشینری کی ترسیل"
+
+msgid "Customer statement (CARD)"
+msgstr "کسٹمر اسٹیٹمنٹ (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "ماہانہ کارڈز (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "مشینری (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "اسائنمنٹس (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "مشینری کے کسٹمرز (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "مشینری کی ترسیلات (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "کسٹمرز کے لیے آپریٹنگ ویلیو - گزشتہ ماہ"
+
+msgid "Supplier operating value - last month"
+msgstr "سپلائر کی آپریٹنگ ویلیو - گزشتہ ماہ"
+
+msgid "Internal operating value - last month"
+msgstr "اندرونی آپریٹنگ ویلیو - گزشتہ ماہ"
+
+msgid "Cards last month"
+msgstr "گزشتہ ماہ کے کارڈز"
+
+msgid "Rented equipment (CARD)"
+msgstr "کرائے کی مشینری (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "گزشتہ ماہ کی لوڈز (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "مسودہ کارڈز (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "اندرونی ریٹ کے بغیر کارڈز (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "کسٹمر خلاصہ (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "سپلائر اسٹیٹمنٹ (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "سپلائرز کا خلاصہ (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "سپلائر اسٹیٹمنٹ A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "ڈیزل کی کھپت (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "پروجیکٹ کے لحاظ سے آپریٹنگ لاگت (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "پروجیکٹ کے لحاظ سے ترسیل کی لاگت (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "میٹر مفاہمت (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "مشینری کی ترسیل (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "آپ کو ماہانہ کارڈز کی رقوم دیکھنے کی اجازت نہیں ہے۔"

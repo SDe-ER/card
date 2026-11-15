@@ -74,3 +74,105 @@ msgstr "Yazdıran"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Yazdırılma zamanı"
+
+msgid "CARD operations dashboard"
+msgstr "CARD operasyon paneli"
+
+msgid "Financial performance — last month"
+msgstr "Finansal performans — geçen ay"
+
+msgid "Needs review (CARD)"
+msgstr "İnceleme gerekiyor (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Son aylık kartlar (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD müşterileri"
+
+msgid "CARD suppliers"
+msgstr "CARD tedarikçileri"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Dizel ve operasyonlar (CARD)"
+
+msgid "New monthly card"
+msgstr "Yeni aylık kart"
+
+msgid "New equipment transport"
+msgstr "Yeni ekipman taşıma"
+
+msgid "Customer statement (CARD)"
+msgstr "Müşteri ekstresi (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Aylık kartlar (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Ekipman (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Atamalar (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Ekipman müşterileri (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Ekipman taşımaları (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Müşteriler için operasyon değeri - geçen ay"
+
+msgid "Supplier operating value - last month"
+msgstr "Tedarikçi operasyon değeri - geçen ay"
+
+msgid "Internal operating value - last month"
+msgstr "İç operasyon değeri - geçen ay"
+
+msgid "Cards last month"
+msgstr "Geçen ayki kartlar"
+
+msgid "Rented equipment (CARD)"
+msgstr "Kiralık ekipman (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Geçen ayki yükler (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Taslak kartlar (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "İç oranı olmayan kartlar (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Oranı olmayan çalışma saatleri (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Müşteri özeti (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Tedarikçi ekstresi (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Tedarikçi özeti (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Tedarikçi ekstresi A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dizel tüketimi (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Projeye göre operasyon maliyeti (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Projeye göre taşıma maliyeti (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Sayaç mutabakatı (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Ekipman taşıma (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "Aylık kartların tutarlarını görme yetkiniz yok."

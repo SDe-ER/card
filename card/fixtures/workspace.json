@@ -6,13 +6,8 @@
     "label": "مبالغ الكروت الشهرية"
    }
   ],
-  "content": "[{\"id\": \"9b85ff67d2\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"CARD Dashboard Header\", \"col\": 12}}, {\"id\": \"096288fa6b\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"كارت جديد\", \"col\": 4}}, {\"id\": \"fde457d982\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"نقل معدة\", \"col\": 4}}, {\"id\": \"e882bdb454\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"كشف حساب\", \"col\": 4}}, {\"id\": \"c2b73b6384\", \"type\": \"header\", \"data\": {\"text\": \"الأداء المالي — الشهر الماضي\", \"col\": 12, \"level\": 4}}, {\"id\": \"285a96c17e\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"قيمة تشغيل لعملاء - الشهر الماضي\", \"col\": 4}}, {\"id\": \"278fc136d5\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"مبالغ الشهر الماضي\", \"col\": 4}}, {\"id\": \"6c1810a31a\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"قيمة تشغيل داخلي - الشهر الماضي\", \"col\": 4}}, {\"id\": \"fb60a229a6\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت الشهر الماضي\", \"col\": 4}}, {\"id\": \"7e9807dad2\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"المعدات المؤجرة\", \"col\": 4}}, {\"id\": \"117e38696d\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Loads last month\", \"col\": 4}}, {\"id\": \"5ca6e48779\", \"type\": \"header\", \"data\": {\"text\": \"يحتاج مراجعة\", \"col\": 12, \"level\": 4}}, {\"id\": \"319c04f4b8\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت مسودة\", \"col\": 4}}, {\"id\": \"317fcab9e4\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت بدون سعر داخلي\", \"col\": 4}}, {\"id\": \"214bb8ad8b\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"ساعات تشغيل بدون سعر داخلي - الشهر الماضي\", \"col\": 4}}, {\"id\": \"880ad5a671\", \"type\": \"chart\", \"data\": {\"chart_name\": \"مبالغ الكروت الشهرية\", \"col\": 7}}, {\"id\": \"79ae255e24\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"الكروت الشهرية\", \"col\": 1}}, {\"id\": \"f4649a5108\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"المعدات\", \"col\": 1}}, {\"id\": \"e3011aac33\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"التعيينات\", \"col\": 1}}, {\"id\": \"0a023fa0a5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"عملاء المعدات\", \"col\": 1}}, {\"id\": \"76841281bb\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"نقل المعدات\", \"col\": 1}}, {\"id\": \"290d51f2f3\", \"type\": \"card\", \"data\": {\"card_name\": \"العملاء\", \"col\": 4}}, {\"id\": \"e5d4f40905\", \"type\": \"card\", \"data\": {\"card_name\": \"الموردين\", \"col\": 4}}, {\"id\": \"082c47d480\", \"type\": \"card\", \"data\": {\"card_name\": \"الديزل والتشغيل\", \"col\": 4}}, {\"id\": \"0379fd2eb0\", \"type\": \"header\", \"data\": {\"text\": \"قائمة سريعة\", \"col\": 12, \"level\": 4}}, {\"id\": \"82f84a181d\", \"type\": \"quick_list\", \"data\": {\"quick_list_name\": \"آخر الكروت الشهرية\", \"col\": 12}}]",
-  "custom_blocks": [
-   {
-    "custom_block_name": "CARD Dashboard Header",
-    "label": "لوحة تشغيل المعدات"
-   }
-  ],
+  "content": "[{\"id\": \"af2c79c411\", \"type\": \"header\", \"data\": {\"text\": \"CARD operations dashboard\", \"col\": 12, \"level\": 4}}, {\"id\": \"1d20d14b82\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"New monthly card\", \"col\": 4}}, {\"id\": \"3f776a8407\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"New equipment transport\", \"col\": 4}}, {\"id\": \"d02ce63854\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Customer statement (CARD)\", \"col\": 4}}, {\"id\": \"52853c635a\", \"type\": \"header\", \"data\": {\"text\": \"Financial performance — last month\", \"col\": 12, \"level\": 4}}, {\"id\": \"11d1499741\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"قيمة تشغيل لعملاء - الشهر الماضي\", \"col\": 4}}, {\"id\": \"6c726168d0\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"مبالغ الشهر الماضي\", \"col\": 4}}, {\"id\": \"564d6a6ed6\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"قيمة تشغيل داخلي - الشهر الماضي\", \"col\": 4}}, {\"id\": \"449a2cc6ca\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت الشهر الماضي\", \"col\": 4}}, {\"id\": \"29a151ad9e\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"المعدات المؤجرة\", \"col\": 4}}, {\"id\": \"0232b1360e\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Loads last month\", \"col\": 4}}, {\"id\": \"25c67532ed\", \"type\": \"header\", \"data\": {\"text\": \"Needs review (CARD)\", \"col\": 12, \"level\": 4}}, {\"id\": \"113f1b1c43\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت مسودة\", \"col\": 4}}, {\"id\": \"c14f9bda5c\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت بدون سعر داخلي\", \"col\": 4}}, {\"id\": \"d83de6167f\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"ساعات تشغيل بدون سعر داخلي - الشهر الماضي\", \"col\": 4}}, {\"id\": \"08940bd410\", \"type\": \"chart\", \"data\": {\"chart_name\": \"مبالغ الكروت الشهرية\", \"col\": 12}}, {\"id\": \"3c15bcca77\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Monthly cards (CARD)\", \"col\": 3}}, {\"id\": \"bb8627b01a\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Equipment (CARD)\", \"col\": 3}}, {\"id\": \"577b976b7a\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Assignments (CARD)\", \"col\": 2}}, {\"id\": \"6f60c4ef87\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Equipment customers (CARD)\", \"col\": 2}}, {\"id\": \"8c6116c8eb\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Equipment transports (CARD)\", \"col\": 2}}, {\"id\": \"6843012d78\", \"type\": \"card\", \"data\": {\"card_name\": \"CARD customers\", \"col\": 4}}, {\"id\": \"a7ab2b6a06\", \"type\": \"card\", \"data\": {\"card_name\": \"CARD suppliers\", \"col\": 4}}, {\"id\": \"5e88d248dd\", \"type\": \"card\", \"data\": {\"card_name\": \"Diesel and operations (CARD)\", \"col\": 4}}, {\"id\": \"a32709283d\", \"type\": \"header\", \"data\": {\"text\": \"Latest monthly cards (CARD)\", \"col\": 12, \"level\": 4}}, {\"id\": \"17ae62f537\", \"type\": \"quick_list\", \"data\": {\"quick_list_name\": \"Latest monthly cards (CARD)\", \"col\": 12}}]",
+  "custom_blocks": [],
   "docstatus": 0,
   "doctype": "Workspace",
   "external_link": null,
@@ -27,7 +22,7 @@
   "links": [
    {
     "type": "Card Break",
-    "label": "العملاء",
+    "label": "CARD customers",
     "link_type": null,
     "link_to": null,
     "hidden": 0,
@@ -35,7 +30,7 @@
    },
    {
     "type": "Link",
-    "label": "كشف حساب عميل",
+    "label": "Customer statement (CARD)",
     "link_type": "Report",
     "link_to": "Equipment Customer Statement",
     "is_query_report": 1,
@@ -44,7 +39,7 @@
    },
    {
     "type": "Link",
-    "label": "ملخص العملاء",
+    "label": "Customer summary (CARD)",
     "link_type": "Report",
     "link_to": "Equipment Customers Summary",
     "is_query_report": 1,
@@ -53,7 +48,7 @@
    },
    {
     "type": "Link",
-    "label": "عملاء المعدات",
+    "label": "Equipment customers (CARD)",
     "link_type": "DocType",
     "link_to": "Card Equipment Customer",
     "is_query_report": 0,
@@ -62,7 +57,7 @@
    },
    {
     "type": "Card Break",
-    "label": "الموردين",
+    "label": "CARD suppliers",
     "link_type": null,
     "link_to": null,
     "hidden": 0,
@@ -70,7 +65,7 @@
    },
    {
     "type": "Link",
-    "label": "كشف حساب مورد",
+    "label": "Supplier statement (CARD)",
     "link_type": "Report",
     "link_to": "Equipment Supplier Statement",
     "is_query_report": 1,
@@ -79,7 +74,7 @@
    },
    {
     "type": "Link",
-    "label": "ملخص الموردين",
+    "label": "Suppliers summary (CARD)",
     "link_type": "Report",
     "link_to": "Equipment Suppliers Summary",
     "is_query_report": 1,
@@ -87,8 +82,18 @@
     "onboard": 0
    },
    {
+    "type": "Link",
+    "label": "Supplier statement A4 (CARD)",
+    "link_type": "URL",
+    "link_to": null,
+    "url": "/app/query-report/Equipment Supplier Statement",
+    "is_query_report": 0,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
     "type": "Card Break",
-    "label": "الديزل والتشغيل",
+    "label": "Diesel and operations (CARD)",
     "link_type": null,
     "link_to": null,
     "hidden": 0,
@@ -96,7 +101,7 @@
    },
    {
     "type": "Link",
-    "label": "استهلاك الديزل",
+    "label": "Diesel consumption (CARD)",
     "link_type": "Report",
     "link_to": "Equipment Diesel Consumption",
     "is_query_report": 1,
@@ -105,7 +110,7 @@
    },
    {
     "type": "Link",
-    "label": "تكلفة التشغيل حسب المشروع",
+    "label": "Operating cost by project (CARD)",
     "link_type": "Report",
     "link_to": "Operating Cost by Project",
     "is_query_report": 1,
@@ -114,7 +119,7 @@
    },
    {
     "type": "Link",
-    "label": "تكلفة النقل حسب المشروع",
+    "label": "Transport cost by project (CARD)",
     "link_type": "Report",
     "link_to": "Transport Cost by Project",
     "is_query_report": 1,
@@ -123,7 +128,7 @@
    },
    {
     "type": "Link",
-    "label": "مطابقة العدادات",
+    "label": "Meter reconciliation (CARD)",
     "link_type": "Report",
     "link_to": "Equipment Meter Reconciliation",
     "is_query_report": 1,
@@ -138,39 +143,39 @@
   "number_cards": [
    {
     "number_card_name": "قيمة تشغيل لعملاء - الشهر الماضي",
-    "label": "قيمة تشغيل لعملاء - الشهر الماضي"
+    "label": "Operating value for customers - last month"
    },
    {
     "number_card_name": "مبالغ الشهر الماضي",
-    "label": "قيمة التشغيل للموردين - الشهر الماضي"
+    "label": "Supplier operating value - last month"
    },
    {
     "number_card_name": "قيمة تشغيل داخلي - الشهر الماضي",
-    "label": "قيمة تشغيل داخلي - الشهر الماضي"
+    "label": "Internal operating value - last month"
    },
    {
     "number_card_name": "كروت الشهر الماضي",
-    "label": "كروت الشهر الماضي"
+    "label": "Cards last month"
    },
    {
     "number_card_name": "المعدات المؤجرة",
-    "label": "المعدات المؤجرة"
+    "label": "Rented equipment (CARD)"
    },
    {
     "number_card_name": "Loads last month",
-    "label": "عدد الردود الشهر الماضي"
+    "label": "Loads last month (CARD)"
    },
    {
     "number_card_name": "كروت مسودة",
-    "label": "كروت مسودة"
+    "label": "Draft cards (CARD)"
    },
    {
     "number_card_name": "كروت بدون سعر داخلي",
-    "label": "كروت بدون سعر داخلي"
+    "label": "Cards without internal rate (CARD)"
    },
    {
     "number_card_name": "ساعات تشغيل بدون سعر داخلي - الشهر الماضي",
-    "label": "ساعات تشغيل بدون سعر"
+    "label": "Operating hours without rate (CARD)"
    }
   ],
   "parent_page": null,
@@ -178,7 +183,7 @@
   "quick_lists": [
    {
     "document_type": "Card Monthly Card",
-    "label": "آخر الكروت الشهرية",
+    "label": "Latest monthly cards (CARD)",
     "quick_list_filter": "{}"
    }
   ],
@@ -187,7 +192,7 @@
   "sequence_id": 0.0,
   "shortcuts": [
    {
-    "label": "كارت جديد",
+    "label": "New monthly card",
     "type": "DocType",
     "link_to": "Card Monthly Card",
     "doc_view": "New",
@@ -201,7 +206,7 @@
     "url": null
    },
    {
-    "label": "نقل معدة",
+    "label": "New equipment transport",
     "type": "DocType",
     "link_to": "Equipment Transport",
     "doc_view": "New",
@@ -215,7 +220,7 @@
     "url": null
    },
    {
-    "label": "كشف حساب",
+    "label": "Customer statement (CARD)",
     "type": "Report",
     "link_to": "Equipment Customer Statement",
     "doc_view": "List",
@@ -229,7 +234,7 @@
     "url": null
    },
    {
-    "label": "الكروت الشهرية",
+    "label": "Monthly cards (CARD)",
     "type": "DocType",
     "link_to": "Card Monthly Card",
     "doc_view": "List",
@@ -243,7 +248,7 @@
     "url": null
    },
    {
-    "label": "المعدات",
+    "label": "Equipment (CARD)",
     "type": "DocType",
     "link_to": "Card Equipment",
     "doc_view": "List",
@@ -257,7 +262,7 @@
     "url": null
    },
    {
-    "label": "التعيينات",
+    "label": "Assignments (CARD)",
     "type": "DocType",
     "link_to": "Card Equipment Assignment",
     "doc_view": "List",
@@ -271,7 +276,7 @@
     "url": null
    },
    {
-    "label": "عملاء المعدات",
+    "label": "Equipment customers (CARD)",
     "type": "DocType",
     "link_to": "Card Equipment Customer",
     "doc_view": "List",
@@ -285,7 +290,7 @@
     "url": null
    },
    {
-    "label": "نقل المعدات",
+    "label": "Equipment transports (CARD)",
     "type": "DocType",
     "link_to": "Equipment Transport",
     "doc_view": "List",

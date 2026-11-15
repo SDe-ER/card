@@ -538,3 +538,105 @@ msgstr "मुद्रित द्वारा"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "मुद्रण समय"
+
+msgid "CARD operations dashboard"
+msgstr "CARD संचालन डैशबोर्ड"
+
+msgid "Financial performance — last month"
+msgstr "वित्तीय प्रदर्शन — पिछला महीना"
+
+msgid "Needs review (CARD)"
+msgstr "समीक्षा आवश्यक (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "नवीनतम मासिक कार्ड (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD ग्राहक"
+
+msgid "CARD suppliers"
+msgstr "CARD आपूर्तिकर्ता"
+
+msgid "Diesel and operations (CARD)"
+msgstr "डीज़ल और संचालन (CARD)"
+
+msgid "New monthly card"
+msgstr "नया मासिक कार्ड"
+
+msgid "New equipment transport"
+msgstr "नया उपकरण परिवहन"
+
+msgid "Customer statement (CARD)"
+msgstr "ग्राहक विवरण (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "मासिक कार्ड (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "उपकरण (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "असाइनमेंट (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "उपकरण ग्राहक (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "उपकरण परिवहन (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "ग्राहकों के लिए संचालन मूल्य - पिछला महीना"
+
+msgid "Supplier operating value - last month"
+msgstr "आपूर्तिकर्ता संचालन मूल्य - पिछला महीना"
+
+msgid "Internal operating value - last month"
+msgstr "आंतरिक संचालन मूल्य - पिछला महीना"
+
+msgid "Cards last month"
+msgstr "पिछले महीने के कार्ड"
+
+msgid "Rented equipment (CARD)"
+msgstr "किराये के उपकरण (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "पिछले महीने के लोड (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "ड्राफ़्ट कार्ड (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "आंतरिक दर के बिना कार्ड (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "बिना दर के संचालन घंटे (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "ग्राहक सारांश (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "आपूर्तिकर्ता विवरण (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "आपूर्तिकर्ता सारांश (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "आपूर्तिकर्ता विवरण A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "डीज़ल खपत (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "परियोजना के अनुसार संचालन लागत (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "परियोजना के अनुसार परिवहन लागत (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "मीटर मिलान (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "उपकरण परिवहन (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "आपको मासिक कार्ड की राशि देखने की अनुमति नहीं है।"

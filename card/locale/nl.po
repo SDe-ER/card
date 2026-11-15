@@ -74,3 +74,105 @@ msgstr "Afgedrukt door"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Afgedrukt op"
+
+msgid "CARD operations dashboard"
+msgstr "CARD-bedieningsdashboard"
+
+msgid "Financial performance — last month"
+msgstr "Financiële prestaties — vorige maand"
+
+msgid "Needs review (CARD)"
+msgstr "Controle nodig (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Recentste maandkaarten (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD-klanten"
+
+msgid "CARD suppliers"
+msgstr "CARD-leveranciers"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Diesel en bedrijfsvoering (CARD)"
+
+msgid "New monthly card"
+msgstr "Nieuwe maandkaart"
+
+msgid "New equipment transport"
+msgstr "Nieuw materieeltransport"
+
+msgid "Customer statement (CARD)"
+msgstr "Klantafschrift (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Maandkaarten (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Materieel (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Toewijzingen (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Materieelklanten (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Materieeltransporten (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Bedrijfswaarde voor klanten - vorige maand"
+
+msgid "Supplier operating value - last month"
+msgstr "Bedrijfswaarde leveranciers - vorige maand"
+
+msgid "Internal operating value - last month"
+msgstr "Interne bedrijfswaarde - vorige maand"
+
+msgid "Cards last month"
+msgstr "Kaarten vorige maand"
+
+msgid "Rented equipment (CARD)"
+msgstr "Gehuurd materieel (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Ladingen vorige maand (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Conceptkaarten (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Kaarten zonder interne tarief (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Bedrijfsuren zonder tarief (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Klantsamenvatting (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Leverancierafschrift (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Leveranciersamenvatting (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Leverancierafschrift A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dieselverbruik (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Bedrijfskosten per project (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Transportkosten per project (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Meterafstemming (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Materieeltransport (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "U heeft geen toestemming om de bedragen van maandkaarten te zien."

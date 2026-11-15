@@ -340,3 +340,105 @@ msgstr "Printed by"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Printed at"
+
+msgid "CARD operations dashboard"
+msgstr "CARD operations dashboard"
+
+msgid "Financial performance — last month"
+msgstr "Financial performance — last month"
+
+msgid "Needs review (CARD)"
+msgstr "Needs review (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Latest monthly cards (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD customers"
+
+msgid "CARD suppliers"
+msgstr "CARD suppliers"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Diesel and operations (CARD)"
+
+msgid "New monthly card"
+msgstr "New monthly card"
+
+msgid "New equipment transport"
+msgstr "New equipment transport"
+
+msgid "Customer statement (CARD)"
+msgstr "Customer statement (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Monthly cards (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Equipment (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Assignments (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Equipment customers (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Equipment transports (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Operating value for customers - last month"
+
+msgid "Supplier operating value - last month"
+msgstr "Supplier operating value - last month"
+
+msgid "Internal operating value - last month"
+msgstr "Internal operating value - last month"
+
+msgid "Cards last month"
+msgstr "Cards last month"
+
+msgid "Rented equipment (CARD)"
+msgstr "Rented equipment (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Loads last month (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Draft cards (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Cards without internal rate (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Operating hours without rate (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Customer summary (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Supplier statement (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Suppliers summary (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Supplier statement A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Diesel consumption (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Operating cost by project (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Transport cost by project (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Meter reconciliation (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Equipment transport (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "You do not have permission to see the amounts of monthly cards."

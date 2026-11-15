@@ -146,8 +146,12 @@ class TestWorkspaceFixture(IntegrationTestCase):
 		ws = self._workspace()
 		sidebar = next(s for s in _load("workspace_sidebar.json") if s.get("name") == "Card")
 		listed = {i.get("link_to") for i in sidebar.get("items", []) if i.get("link_to")}
+		urls = {i.get("url") for i in sidebar.get("items", []) if i.get("url")}
 		for row in ws.get("links", []):
-			if row.get("type") == "Card Break" or not row.get("link_to"):
+			if row.get("type") == "Card Break":
+				continue
+			if row.get("link_type") == "URL":
+				self.assertIn(row["url"], urls, row.get("label"))
 				continue
 			self.assertIn(row["link_to"], listed, row.get("label"))
 		for row in ws.get("shortcuts", []):

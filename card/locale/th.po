@@ -74,3 +74,105 @@ msgstr "พิมพ์โดย"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "พิมพ์เมื่อ"
+
+msgid "CARD operations dashboard"
+msgstr "แดชบอร์ดการดำเนินงาน CARD"
+
+msgid "Financial performance — last month"
+msgstr "ผลการดำเนินงานทางการเงิน — เดือนที่แล้ว"
+
+msgid "Needs review (CARD)"
+msgstr "ต้องตรวจสอบ (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "การ์ดรายเดือนล่าสุด (CARD)"
+
+msgid "CARD customers"
+msgstr "ลูกค้า CARD"
+
+msgid "CARD suppliers"
+msgstr "ซัพพลายเออร์ CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "ดีเซลและการดำเนินงาน (CARD)"
+
+msgid "New monthly card"
+msgstr "การ์ดรายเดือนใหม่"
+
+msgid "New equipment transport"
+msgstr "การขนส่งอุปกรณ์ใหม่"
+
+msgid "Customer statement (CARD)"
+msgstr "รายการลูกค้า (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "การ์ดรายเดือน (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "อุปกรณ์ (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "การมอบหมายงาน (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "ลูกค้าอุปกรณ์ (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "การขนส่งอุปกรณ์ (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "มูลค่าการดำเนินงานสำหรับลูกค้า - เดือนที่แล้ว"
+
+msgid "Supplier operating value - last month"
+msgstr "มูลค่าการดำเนินงานของซัพพลายเออร์ - เดือนที่แล้ว"
+
+msgid "Internal operating value - last month"
+msgstr "มูลค่าการดำเนินงานภายใน - เดือนที่แล้ว"
+
+msgid "Cards last month"
+msgstr "การ์ดเดือนที่แล้ว"
+
+msgid "Rented equipment (CARD)"
+msgstr "อุปกรณ์เช่า (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "งานขนส่งเดือนที่แล้ว (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "การ์ดฉบับร่าง (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "การ์ดที่ไม่มีอัตราภายใน (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "ชั่วโมงทำงานที่ไม่มีอัตรา (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "สรุปลูกค้า (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "รายการซัพพลายเออร์ (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "สรุปซัพพลายเออร์ (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "รายการซัพพลายเออร์ A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "การใช้ดีเซล (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "ต้นทุนการดำเนินงานตามโครงการ (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "ต้นทุนการขนส่งตามโครงการ (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "การกระทบยอดมิเตอร์ (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "การขนส่งอุปกรณ์ (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "คุณไม่มีสิทธิ์ดูยอดเงินของการ์ดรายเดือน"

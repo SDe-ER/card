@@ -8720,3 +8720,105 @@ msgstr "طُبعت بواسطة"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "تاريخ الطباعة"
+
+msgid "CARD operations dashboard"
+msgstr "لوحة تشغيل المعدات"
+
+msgid "Financial performance — last month"
+msgstr "الأداء المالي — الشهر الماضي"
+
+msgid "Needs review (CARD)"
+msgstr "يحتاج مراجعة"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "آخر الكروت الشهرية"
+
+msgid "CARD customers"
+msgstr "العملاء"
+
+msgid "CARD suppliers"
+msgstr "الموردين"
+
+msgid "Diesel and operations (CARD)"
+msgstr "الديزل والتشغيل"
+
+msgid "New monthly card"
+msgstr "كارت جديد"
+
+msgid "New equipment transport"
+msgstr "نقل معدة"
+
+msgid "Customer statement (CARD)"
+msgstr "كشف حساب"
+
+msgid "Monthly cards (CARD)"
+msgstr "الكروت الشهرية"
+
+msgid "Equipment (CARD)"
+msgstr "المعدات"
+
+msgid "Assignments (CARD)"
+msgstr "التعيينات"
+
+msgid "Equipment customers (CARD)"
+msgstr "عملاء المعدات"
+
+msgid "Equipment transports (CARD)"
+msgstr "نقل المعدات"
+
+msgid "Operating value for customers - last month"
+msgstr "قيمة التشغيل للعملاء - الشهر الماضي"
+
+msgid "Supplier operating value - last month"
+msgstr "قيمة التشغيل للموردين - الشهر الماضي"
+
+msgid "Internal operating value - last month"
+msgstr "قيمة التشغيل الداخلي - الشهر الماضي"
+
+msgid "Cards last month"
+msgstr "كروت الشهر الماضي"
+
+msgid "Rented equipment (CARD)"
+msgstr "المعدات المؤجرة"
+
+msgid "Loads last month (CARD)"
+msgstr "عدد الردود الشهر الماضي"
+
+msgid "Draft cards (CARD)"
+msgstr "كروت مسودة"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "كروت بدون سعر داخلي"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "ساعات تشغيل بدون سعر"
+
+msgid "Customer summary (CARD)"
+msgstr "ملخص العملاء"
+
+msgid "Supplier statement (CARD)"
+msgstr "كشف حساب مورد"
+
+msgid "Suppliers summary (CARD)"
+msgstr "ملخص الموردين"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "كشف المورد A4"
+
+msgid "Diesel consumption (CARD)"
+msgstr "استهلاك الديزل"
+
+msgid "Operating cost by project (CARD)"
+msgstr "تكلفة التشغيل حسب المشروع"
+
+msgid "Transport cost by project (CARD)"
+msgstr "تكلفة النقل حسب المشروع"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "مطابقة العدادات"
+
+msgid "Equipment transport (CARD)"
+msgstr "نقل المعدة"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "ليس لديك صلاحية لرؤية مبالغ الكروت الشهرية."

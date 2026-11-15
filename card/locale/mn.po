@@ -74,3 +74,105 @@ msgstr "Хэвлэсэн"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Хэвлэсэн огноо"
+
+msgid "CARD operations dashboard"
+msgstr "CARD үйл ажиллагааны самбар"
+
+msgid "Financial performance — last month"
+msgstr "Санхүүгийн гүйцэтгэл — өнгөрсөн сар"
+
+msgid "Needs review (CARD)"
+msgstr "Шалгах шаардлагатай (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Сүүлийн сарын карт (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD харилцагчид"
+
+msgid "CARD suppliers"
+msgstr "CARD нийлүүлэгчид"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Дизель ба үйл ажиллагаа (CARD)"
+
+msgid "New monthly card"
+msgstr "Шинэ сарын карт"
+
+msgid "New equipment transport"
+msgstr "Шинэ техник тээвэр"
+
+msgid "Customer statement (CARD)"
+msgstr "Харилцагчийн тооцоо (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Сарын карт (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Техник (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Хуваарилалт (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Техникийн харилцагчид (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Техникийн тээвэр (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Харилцагчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
+msgid "Supplier operating value - last month"
+msgstr "Нийлүүлэгчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
+msgid "Internal operating value - last month"
+msgstr "Дотоод үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
+msgid "Cards last month"
+msgstr "Өнгөрсөн сарын карт"
+
+msgid "Rented equipment (CARD)"
+msgstr "Түрээсийн техник (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Өнгөрсөн сарын ачаа (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Ноорог карт (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Дотоод ханш байхгүй карт (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Ханшгүй үйл ажиллагааны цаг (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Харилцагчийн хураангуй (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Нийлүүлэгчийн тооцоо (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Нийлүүлэгчдийн хураангуй (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Нийлүүлэгчийн тооцоо A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Дизелийн зарцуулалт (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Төслөөр үйл ажиллагааны зардал (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Төслөөр тээврийн зардал (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Тоолуурын тохиргоо (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Техникийн тээвэр (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "Та сарын картуудын дүнг харах эрхгүй байна."

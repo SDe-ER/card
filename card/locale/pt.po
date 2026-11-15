@@ -74,3 +74,105 @@ msgstr "Impresso por"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Impresso em"
+
+msgid "CARD operations dashboard"
+msgstr "Painel de operações CARD"
+
+msgid "Financial performance — last month"
+msgstr "Desempenho financeiro — mês anterior"
+
+msgid "Needs review (CARD)"
+msgstr "Requer revisão (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Cartões mensais recentes (CARD)"
+
+msgid "CARD customers"
+msgstr "Clientes CARD"
+
+msgid "CARD suppliers"
+msgstr "Fornecedores CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Gasóleo e operações (CARD)"
+
+msgid "New monthly card"
+msgstr "Novo cartão mensal"
+
+msgid "New equipment transport"
+msgstr "Novo transporte de equipamento"
+
+msgid "Customer statement (CARD)"
+msgstr "Extrato de cliente (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Cartões mensais (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Equipamento (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Atribuições (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Clientes de equipamento (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Transportes de equipamento (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Valor operacional para clientes - mês anterior"
+
+msgid "Supplier operating value - last month"
+msgstr "Valor operacional de fornecedores - mês anterior"
+
+msgid "Internal operating value - last month"
+msgstr "Valor operacional interno - mês anterior"
+
+msgid "Cards last month"
+msgstr "Cartões do mês anterior"
+
+msgid "Rented equipment (CARD)"
+msgstr "Equipamento alugado (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Cargas do mês anterior (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Cartões em rascunho (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Cartões sem taxa interna (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Horas de operação sem taxa (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Resumo de clientes (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Extrato de fornecedor (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Resumo de fornecedores (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Extrato de fornecedor A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Consumo de gasóleo (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Custo operacional por projeto (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Custo de transporte por projeto (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Reconciliação de contadores (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Transporte de equipamento (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "Não tem permissão para ver os valores dos cartões mensais."

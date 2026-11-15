@@ -74,3 +74,105 @@ msgstr "Nyomtatta"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Nyomtatás ideje"
+
+msgid "CARD operations dashboard"
+msgstr "CARD üzemeltetési irányítópult"
+
+msgid "Financial performance — last month"
+msgstr "Pénzügyi teljesítmény — múlt hónap"
+
+msgid "Needs review (CARD)"
+msgstr "Felülvizsgálatot igényel (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Legutóbbi havi kártyák (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD ügyfelek"
+
+msgid "CARD suppliers"
+msgstr "CARD beszállítók"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Dízel és üzemeltetés (CARD)"
+
+msgid "New monthly card"
+msgstr "Új havi kártya"
+
+msgid "New equipment transport"
+msgstr "Új eszközszállítás"
+
+msgid "Customer statement (CARD)"
+msgstr "Ügyfél-kivonat (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Havi kártyák (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Eszközök (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Hozzárendelések (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Eszközös ügyfelek (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Eszközszállítások (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Ügyfelek üzemi értéke - múlt hónap"
+
+msgid "Supplier operating value - last month"
+msgstr "Beszállítói üzemi érték - múlt hónap"
+
+msgid "Internal operating value - last month"
+msgstr "Belső üzemi érték - múlt hónap"
+
+msgid "Cards last month"
+msgstr "Kártyák múlt hónapban"
+
+msgid "Rented equipment (CARD)"
+msgstr "Bérelt eszközök (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Rakományok múlt hónapban (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Piszkozat kártyák (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Belső díj nélküli kártyák (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Díj nélküli üzemóraszám (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Ügyféláttekintés (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Beszállítói kivonat (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Beszállítói összesítő (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Beszállítói kivonat A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dízelfogyasztás (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Projektenkénti üzemi költség (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Projektenkénti szállítási költség (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Órajel-egyeztetés (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Eszközszállítás (CARD)"
+
+msgid "You do not have permission to see the amounts of monthly cards."
+msgstr "Nincs jogosultsága a havi kártyák összegeinek megtekintéséhez."
