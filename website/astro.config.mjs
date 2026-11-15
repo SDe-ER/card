@@ -2,6 +2,14 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
+// Google Search Console ownership token (HTML tag method). PLACEHOLDER until the owner creates the property and
+// supplies the token: while the value starts with "REPLACE", no tag is emitted. Replace the value with the token
+// exactly as Search Console shows it (the content of the meta tag), nothing else.
+const SEARCH_CONSOLE_TOKEN = "REPLACE_WITH_SEARCH_CONSOLE_TOKEN";
+const searchConsoleHead = SEARCH_CONSOLE_TOKEN.startsWith("REPLACE")
+  ? []
+  : [{ tag: "meta", attrs: { name: "google-site-verification", content: SEARCH_CONSOLE_TOKEN } }];
+
 export default defineConfig({
   site: "https://sde-er.github.io",
   base: "/card",
@@ -11,6 +19,7 @@ export default defineConfig({
       description: "Equipment management for Frappe / ERPNext — documentation",
       logo: { src: "./src/assets/card-logo.svg", alt: "CARD" },
       favicon: "/favicon.svg",
+      head: searchConsoleHead,
       defaultLocale: "root",
       locales: {
         root: { label: "English", lang: "en" },
