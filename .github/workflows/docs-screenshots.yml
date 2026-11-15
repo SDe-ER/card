@@ -7,10 +7,6 @@ name: Docs screenshots
 
 on:
   workflow_dispatch:
-  # TEMPORARY (removed in the next commit): workflow_dispatch needs the file on the default branch, so the first run
-  # happens from a push to this feature branch. Not a pull_request trigger, so it never blocks a merge.
-  push:
-    branches: [docs/screenshots-ci]
 
 permissions:
   contents: read
