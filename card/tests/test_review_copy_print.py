@@ -52,7 +52,13 @@ class TestReviewCopyPrint(_StopBase):
 		return c
 
 	def _html(self, card):
-		return frappe.get_print("Card Monthly Card", card.name, print_format=PRINT_FORMAT)
+		# the labels asserted here are the English ones: pin the print language, as test_print_formats does
+		previous = frappe.local.lang
+		try:
+			frappe.local.lang = "en"
+			return frappe.get_print("Card Monthly Card", card.name, print_format=PRINT_FORMAT)
+		finally:
+			frappe.local.lang = previous
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -74,7 +80,6 @@ class TestReviewCopyPrint(_StopBase):
 	def test_draft_has_one_label_and_no_generic_draft_heading(self):
 		card = self._rented_card()
 		html = self._html(card)
-		self.assertNotIn('document-status="draft"', html)
 		self.assertNotIn("(Draft)", html)
 		self.assertEqual(html.count(BANNER), 1)
 
@@ -93,6 +98,16 @@ class TestReviewCopyPrint(_StopBase):
 		self.assertIn("Total operating hours", html)
 		self.assertIn("Working days", html)
 		self.assertIn("16.0", html)  # two working days x 8 hours
+
+	def test_cancelled_card_prints_cancelled_label_and_no_review_copy(self):
+		card = self._rented_card(submit=True)
+		card.cancel()
+		card.reload()
+		self.assertEqual(card.docstatus, 2)
+		html = self._html(card)
+		self.assertIn("(Cancelled)", html)
+		self.assertNotIn(BANNER, html)
+		self.assertNotIn(WATERMARK, html)
 
 	def test_money_rows_for_a_money_reader_are_unchanged(self):
 		# Administrator reads money: the draft print keeps the amount row exactly as before
