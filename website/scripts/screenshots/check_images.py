@@ -30,6 +30,18 @@ REQUIRED = [
 ]
 
 
+def _read_text(path):
+	with open(
+		path, encoding="utf-8", errors="replace"
+	) as fh:  # nosemgrep: frappe-security-file-traversal -- CI argument
+		return fh.read()
+
+
+def _digest(path):
+	with open(path, "rb") as fh:  # nosemgrep: frappe-security-file-traversal -- CI images folder
+		return hashlib.sha256(fh.read()).hexdigest()
+
+
 def route_for(log, lang, name):
 	matches = re.findall(r"\[route\] " + re.escape(f"{lang}/{name}") + r" -> (\S+)", log)
 	return matches[-1] if matches else "no route logged"
