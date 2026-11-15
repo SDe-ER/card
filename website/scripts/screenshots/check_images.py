@@ -36,11 +36,15 @@ def route_for(log, lang, name):
 
 
 def check(root, log_path, shots_path):
-	with open(shots_path, encoding="utf-8") as fh:
+	with open(
+		shots_path, encoding="utf-8"
+	) as fh:  # nosemgrep: frappe-security-file-traversal -- path is the workflow argument, not user input
 		shots = {s["name"]: s for s in json.load(fh)["shots"]}
 	log = ""
 	if os.path.exists(log_path):
-		with open(log_path, encoding="utf-8", errors="replace") as fh:
+		with open(
+			log_path, encoding="utf-8", errors="replace"
+		) as fh:  # nosemgrep: frappe-security-file-traversal -- path is the workflow argument, not user input
 			log = fh.read()
 	failures = []
 	for lang in LANGS:
@@ -48,7 +52,9 @@ def check(root, log_path, shots_path):
 		files = sorted(f for f in os.listdir(folder) if f.endswith(".webp")) if os.path.isdir(folder) else []
 		groups = defaultdict(list)
 		for f in files:
-			with open(os.path.join(folder, f), "rb") as fh:
+			with (
+				open(os.path.join(folder, f), "rb") as fh
+			):  # nosemgrep: frappe-security-file-traversal -- folder is the CI images dir, names from listdir
 				groups[hashlib.sha256(fh.read()).hexdigest()].append(f[: -len(".webp")])
 		for names in groups.values():
 			if len(names) < 2:

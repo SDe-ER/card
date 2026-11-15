@@ -56,9 +56,13 @@ async function elementShot(page, lang, name) {
     const loc = base.first();
     if ((await loc.count()) === 0) continue;
     await loc.scrollIntoViewIfNeeded();
-    await page.waitForFunction((el) => /\d/.test(el.innerText || ""), await loc.elementHandle(), {
-      timeout: 30000,
-    });
+    await page.waitForFunction(
+      (el) => /\d/.test(el.innerText || ""),
+      await loc.elementHandle(),
+      {
+        timeout: 30000,
+      },
+    );
     return loc.screenshot({ type: "png" });
   }
   throw new Error(`no number card "${name}" (label ${label ?? "n/a"})`);
@@ -286,16 +290,21 @@ async function run() {
         });
         await settle(page);
         const landed = page.url();
-        const bodyText = await page.evaluate(() => document.body.innerText || "");
+        const bodyText = await page.evaluate(
+          () => document.body.innerText || "",
+        );
         console.log(`[route] ${lang}/${s.name} -> ${landed}`);
-        if (DEFECT.test(bodyText)) throw new Error(`defect screen at ${landed}`);
+        if (DEFECT.test(bodyText))
+          throw new Error(`defect screen at ${landed}`);
         // a missing or failing click is a failed shot, never a silently unchanged page
         if (s.click) {
           await page.locator(s.click).first().click({ timeout: 3000 });
           await page.waitForTimeout(900);
         }
         if (s.clickText && !(await clickText(page, s.clickText)))
-          throw new Error(`no visible element for click: ${s.clickText.join(" / ")}`);
+          throw new Error(
+            `no visible element for click: ${s.clickText.join(" / ")}`,
+          );
         // Frappe v16 scrolls an inner container, not the window: bring every grid into view once so lazy
         // rows render, then return to the top.
         await page.evaluate(async () => {
@@ -332,7 +341,9 @@ async function run() {
             if (el) el.scrollIntoView({ block: "start" });
           }, s.scrollSel);
         if (s.scrollText && !(await scrollToText(page, s.scrollText)))
-          throw new Error(`no section to scroll to: ${s.scrollText.join(" / ")}`);
+          throw new Error(
+            `no section to scroll to: ${s.scrollText.join(" / ")}`,
+          );
         if (typeof s.scroll === "number")
           await page.evaluate((y) => {
             // scroll the largest scrollable element (the desk's main column), or the window
@@ -381,7 +392,8 @@ async function run() {
   }
   await browser.close();
   console.log(results.join("\n"));
-  if (results.some((r) => r.startsWith("FAIL"))) throw new Error("one or more screenshots failed");
+  if (results.some((r) => r.startsWith("FAIL")))
+    throw new Error("one or more screenshots failed");
 }
 
 run().catch((e) => {

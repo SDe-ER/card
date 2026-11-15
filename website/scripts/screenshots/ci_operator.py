@@ -32,7 +32,9 @@ def configure():
 def check():
 	from card.materials import PORTAL_ROLES, has_any_role, portal_context, session_employee
 
-	frappe.set_user(OPERATOR)
+	frappe.set_user(
+		OPERATOR
+	)  # nosemgrep: frappe-setuser -- standalone CI script: the operator's own permission check needs the operator's session, never a request
 	try:
 		context = portal_context()
 		employee = bool(session_employee(OPERATOR))
@@ -47,7 +49,9 @@ def check():
 			)
 		)
 	finally:
-		frappe.set_user("Administrator")
+		frappe.set_user(
+			"Administrator"
+		)  # nosemgrep: frappe-setuser -- standalone CI script: restores the bootstrap user after the operator check
 	if not (employee and allowed):
 		raise RuntimeError("operator is not allowed by CARD: employee and allowed must be True")
 
