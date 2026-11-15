@@ -12,6 +12,7 @@ engine (frappe.get_print) with the standard format "Card Monthly Card Print". Al
 import frappe
 
 from card.constants import DIR_RENTED_OUT, OWNED
+from card.tests.cancel_reason import with_reason
 from card.tests.test_card_money_privacy import _user
 from card.tests.test_stop_reasons import WORK, _StopBase
 
@@ -73,9 +74,16 @@ class TestReviewCopyPrint(_StopBase):
 		self.assertIn("emc-review-wm", html)  # the watermark is fixed to the page, repeated on every page
 		self.assertIn("Printed by", html)
 		self.assertIn("Printed at", html)
-		self.assertIn(
-			"Not yet approved", html
-		)  # no workflow on this site: the state reads as not yet approved
+		self.assertIn("Workflow state", html)
+
+	def test_pending_review_state_keeps_the_banner_and_watermark(self):
+		# a card sent for review is still unapproved: the banner keys on docstatus, not on the workflow state name
+		card = self._rented_card()
+		card.db_set("workflow_state", "Pending Review", update_modified=False)
+		html = self._html(card)
+		self.assertIn("Pending Review", html)
+		self.assertIn(BANNER, html)
+		self.assertIn(WATERMARK, html)
 
 	def test_draft_has_one_label_and_no_generic_draft_heading(self):
 		card = self._rented_card()
@@ -101,7 +109,7 @@ class TestReviewCopyPrint(_StopBase):
 
 	def test_cancelled_card_prints_cancelled_label_and_no_review_copy(self):
 		card = self._rented_card(submit=True)
-		card.cancel()
+		with_reason(card).cancel()
 		card.reload()
 		self.assertEqual(card.docstatus, 2)
 		html = self._html(card)
