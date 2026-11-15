@@ -5,10 +5,18 @@ import starlight from "@astrojs/starlight";
 // Google Search Console ownership token (HTML tag method). PLACEHOLDER until the owner creates the property and
 // supplies the token: while the value starts with "REPLACE", no tag is emitted. Replace the value with the token
 // exactly as Search Console shows it (the content of the meta tag), nothing else.
-const SEARCH_CONSOLE_TOKEN = "REPLACE_WITH_SEARCH_CONSOLE_TOKEN";
+const SEARCH_CONSOLE_TOKEN = "OSL4nIQzRTRN9QiMIt6pBauayeXQScDljJet7aIeDoc";
 const searchConsoleHead = SEARCH_CONSOLE_TOKEN.startsWith("REPLACE")
   ? []
-  : [{ tag: "meta", attrs: { name: "google-site-verification", content: SEARCH_CONSOLE_TOKEN } }];
+  : [
+      {
+        tag: "meta",
+        attrs: {
+          name: "google-site-verification",
+          content: SEARCH_CONSOLE_TOKEN,
+        },
+      },
+    ];
 
 export default defineConfig({
   site: "https://sde-er.github.io",
