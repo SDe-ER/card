@@ -21,7 +21,7 @@ This table repeats the last recorded evidence. It is **not** a live check of wha
 
 | Environment | Version | Tag | Commit | Deployed | Evidence |
 |---|---|---|---|---|---|
-| Production | v4.7.0 | `v4.7.0` | `e566174` | 2026-11-10 (UTC) | Verified by post-deployment checks on 2026-11-10 (UTC) (private operations record). Re-verify on the site before relying on it |
+| Production | v4.9.0 | `v4.9.0` | `660633b` | 2026-11-15 (UTC) | Verified by post-deployment checks on 2026-11-15 (UTC) (private operations record): version and image, migrate run twice, invariant snapshot before and after, URL checks. One equipment data step is still open (see history). Re-verify on the site before relying on it |
 
 ## Reference versions
 
@@ -29,8 +29,8 @@ These three are different facts and are never inferred from each other:
 
 | Term | Value | Basis |
 |---|---|---|
-| **Last GitHub Release** | v4.7.0 (`e566174`, 2026-11-10) | Git tag and GitHub Release |
-| **Last Verified Production Deployment** | v4.7.0 (`e566174`), deployed 2026-11-10 (UTC) | Post-deployment checks dated 2026-11-10 (UTC). This is the last evidence, not a check of the current state |
+| **Last GitHub Release** | v4.9.0 (`660633b`, 2026-11-15) | Git tag and GitHub Release |
+| **Last Verified Production Deployment** | v4.9.0 (`660633b`), deployed 2026-11-15 (UTC) | Post-deployment checks dated 2026-11-15 (UTC). This is the last evidence, not a check of the current state |
 | **Last Known Good Release** | Not established | No release has a recorded known-good acceptance (a verified deployment plus a documented period of correct operation). Set it only when that evidence is recorded |
 
 Releases with no recorded Production deployment: v1.2.0, v1.2.1, v1.2.2, v3.0.0, v4.0.0, v4.1.0, v4.5.0, v4.6.0 (their changes reached Production with v4.7.0 on 2026-11-10). v4.1.1 ran on
@@ -53,3 +53,5 @@ Production (observed 2026-10-25), but its deployment was not recorded here when 
 | 2026-11-09 | Production | Upgrade to v4.4.3 (`688eb71`; image deploy; no patch, no DocType change; only the Equipment Supplier Statement A4 Print Format re-imported) | v4.4.2 → v4.4.3 | Verified by post-deployment checks on 2026-11-09 (UTC): migrate run twice, clean both times; only the Equipment Supplier Statement A4 Print Format re-imported; the report PDF button renders with the Chrome PDF generator on one A4 portrait page (private operations record). Rollback target: v4.4.2 (`27108b5`) |
 | 2026-11-10 | Production | Platform update: frappe 16.55.2, ERPNext 16.54.0, HRMS 16.53.1, ksa_compliance 0.62.0; CARD not changed | v4.4.3 → v4.4.3 (CARD unchanged) | Verified by post-update checks on 2026-11-10 (UTC): CARD 4.4.3 unchanged, migrate clean; GL, payment ledger, ZATCA and payroll invariants unchanged (private operations record) |
 | 2026-11-10 | Production | Upgrade to v4.7.0 (`e566174`; image deploy; also brings v4.5.0 and v4.6.0; patches `v4_6_0.derive_unit_component_flag`, `v4_6_0.seed_stop_reasons`, `v4_7_0.seed_diesel_price_schedule`; DocType sync; CARD translations compiled into the image) | v4.4.3 → v4.7.0 | Verified by post-deployment checks on 2026-11-10 (UTC): FR-127 pre- and post-deploy check `RESULT: PASS`, version and image, the three patches in the Patch Log, migrate run twice with no change on the second run, accounting and ZATCA invariants unchanged, FR-127/FR-128/FR-129/FR-130 checks of v4.7.0 section 12.7 and the v4.6.0 seeds as expected, no new CARD error (private operations record). Not checked: FR-129 per-record checks (no tool custody, needs request or needs review record on the site), browser checks of the Cancel dialog and of the reports as a Card Manager. Rollback target: v4.4.3 (`688eb71`) |
+| 2026-11-15 | Production | Late record: platform update to frappe 16.56.0, ERPNext 16.55.0, HRMS 16.53.2 (CARD unchanged, 4.7.0); the platform was running before the v4.9.0 deployment and its own deployment was not recorded here when it happened | v4.7.0 (last recorded) → v4.7.0 on the updated platform | Observed on the site on 2026-11-15 (UTC) during the v4.9.0 pre-deployment checks (private operations record) |
+| 2026-11-15 | Production | Upgrade to v4.9.0 (`660633b`, tag `v4.9.0`; image deploy on the platform above; the ten `v4_8_0` patches ran once on migrate #1, migrate #2 changed nothing; DocType sync; Card Monthly Card Print re-imported; Number Card "Loads last month" installed). One equipment data step was not completed on this date (a transport record is needed before the draft cards can be created) | v4.7.0 → v4.9.0 | Verified by post-deployment checks on 2026-11-15 (UTC): version and image, migrate run twice, invariant snapshot before and after (submitted-card amounts identical, GL and payment ledger unchanged), URL checks, maintenance off (private operations record) |
