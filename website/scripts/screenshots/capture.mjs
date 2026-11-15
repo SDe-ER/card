@@ -194,7 +194,7 @@ async function clickText(page, texts) {
   for (const t of texts) {
     const loc = page.getByText(t, { exact: false }).first();
     if (await loc.isVisible().catch(() => false)) {
-      await loc.click().catch(() => {});
+      await loc.click();
       await page.waitForTimeout(1200);
       return true;
     }
@@ -289,15 +289,13 @@ async function run() {
         const bodyText = await page.evaluate(() => document.body.innerText || "");
         console.log(`[route] ${lang}/${s.name} -> ${landed}`);
         if (DEFECT.test(bodyText)) throw new Error(`defect screen at ${landed}`);
+        // a missing or failing click is a failed shot, never a silently unchanged page
         if (s.click) {
-          await page
-            .locator(s.click)
-            .first()
-            .click({ timeout: 3000 })
-            .catch(() => {});
+          await page.locator(s.click).first().click({ timeout: 3000 });
           await page.waitForTimeout(900);
         }
-        if (s.clickText) await clickText(page, s.clickText);
+        if (s.clickText && !(await clickText(page, s.clickText)))
+          throw new Error(`no visible element for click: ${s.clickText.join(" / ")}`);
         // Frappe v16 scrolls an inner container, not the window: bring every grid into view once so lazy
         // rows render, then return to the top.
         await page.evaluate(async () => {
@@ -333,7 +331,8 @@ async function run() {
             const el = document.querySelector(sel);
             if (el) el.scrollIntoView({ block: "start" });
           }, s.scrollSel);
-        if (s.scrollText) await scrollToText(page, s.scrollText);
+        if (s.scrollText && !(await scrollToText(page, s.scrollText)))
+          throw new Error(`no section to scroll to: ${s.scrollText.join(" / ")}`);
         if (typeof s.scroll === "number")
           await page.evaluate((y) => {
             // scroll the largest scrollable element (the desk's main column), or the window
