@@ -90,6 +90,7 @@ _Nothing yet._
 - A draft card or equipment with the per-m³ rate type cannot be saved by the v4.7.0 code (the option is missing there).
 - The Arabic print format "كارت تشغيل شهري" (legacy) still prints drafts without the review-copy banner; only the standard format does.
 - "Printed by" shows the session user; a print made by a background job shows the system user.
+- **FR-164 — accounting risk (Known Limitation).** A draft Material Issue Stock Entry is created with `allow_zero_valuation_rate = 1`, so a dispense submitted before the accountant sets `basic_rate` can carry zero valuation into the GL. Owner decision 2026-11-13: `enable_diesel_tanks` must not be turned on for any company until this is resolved and the owner approves. No code change in v4.9.0.
 - Runtime checks on Production are not done by this release; see the v4.9.0 page, section 14.
 
 ## [4.8.0] — 2026-11-14

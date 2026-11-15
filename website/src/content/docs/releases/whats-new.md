@@ -21,6 +21,13 @@ per site.
 _Nothing yet._
 
 ## v4.9.0 — 2026-11-15
+
+- **2026-11-14 — Volume billing per m³ and per load.** An equipment can bill the customer per load and per cubic
+  metre: loads × load volume × rate per m³, before VAT. Enter the loads on the working days of the monthly card; the
+  card shows total loads, total volume and the amount. Night cards use the night rate when one is set. Hours are still
+  recorded but are not billed on this basis. The monthly card print, the customer statement and a dashboard number
+  card shows the new figure. Existing cards are unchanged. If a save clears loads on a non-working day, or a per-m³ card
+  has hours and no loads, the form shows a message; imports and background jobs show none. See [Volume billing](/card/features/volume-billing/).
 - **2026-11-15 — Review copy for unapproved cards.** An unapproved Card Monthly Card (not yet submitted) now prints as a *Review Copy — Not Approved*: one banner under the title, the workflow state, who printed it and when (site time zone), and a light *REVIEW COPY* watermark on every page. Submitted cards print exactly as before, and the generic draft label is replaced by this one. Amounts show only as before. No data, permission or print setting changes. Not released yet.
 
 ## v4.8.0 — 2026-11-14
@@ -44,12 +51,6 @@ _Nothing yet._
 
 ### Operations
 
-- **2026-11-14 — Volume billing per m³ and per load.** An equipment can bill the customer per load and per cubic
-  metre: loads × load volume × rate per m³, before VAT. Enter the loads on the working days of the monthly card; the
-  card shows total loads, total volume and the amount. Night cards use the night rate when one is set. Hours are still
-  recorded but are not billed on this basis. The monthly card print, the customer statement and a dashboard number
-  card shows the new figure. Existing cards are unchanged. If a save clears loads on a non-working day, or a per-m³ card
-  has hours and no loads, the form shows a message; imports and background jobs show none. See [Volume billing](/card/features/volume-billing/).
 - **2026-11-13 — Diesel tanks as Warehouses, off by default.** Groundwork is in place for a new tank-based
   diesel workflow. Each company has a new "Enable diesel tanks" switch in Card Settings → Company settings,
   which starts at **off**: nothing changes on a company that leaves it off, and the existing direct-fill
