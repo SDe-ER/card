@@ -469,6 +469,7 @@ fixtures = [
 	{"dt": "Sidebar", "filters": [["name", "=", "Card"]]},
 	{"dt": "Number Card", "filters": [["module", "=", "Card"]]},
 	{"dt": "Dashboard Chart", "filters": [["module", "=", "Card"]]},
+	{"dt": "Custom HTML Block", "filters": [["name", "=", "CARD Dashboard Header"]]},
 	{"dt": "Print Format", "filters": [["module", "=", "Card"], ["standard", "=", "No"]]},
 	{"dt": "Role", "filters": [["name", "in", ["Card Manager", "Card User"]]]},
 	{

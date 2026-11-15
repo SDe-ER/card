@@ -1,0 +1,10 @@
+[
+ {
+  "doctype": "Custom HTML Block",
+  "name": "CARD Dashboard Header",
+  "private": 0,
+  "html": "<h3>لوحة تشغيل المعدات</h3>",
+  "style": null,
+  "script": null
+ }
+]

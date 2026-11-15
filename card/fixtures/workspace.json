@@ -2,16 +2,17 @@
  {
   "charts": [
    {
-    "chart_name": "\u0645\u0628\u0627\u0644\u063a \u0627\u0644\u0643\u0631\u0648\u062a \u0627\u0644\u0634\u0647\u0631\u064a\u0629",
-    "label": "\u0645\u0628\u0627\u0644\u063a \u0627\u0644\u0643\u0631\u0648\u062a \u0627\u0644\u0634\u0647\u0631\u064a\u0629"
-   },
-   {
-    "chart_name": "\u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u062f\u064a\u0632\u0644 \u0627\u0644\u0634\u0647\u0631\u064a\u0629",
-    "label": "\u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u062f\u064a\u0632\u0644 \u0627\u0644\u0634\u0647\u0631\u064a\u0629"
+    "chart_name": "مبالغ الكروت الشهرية",
+    "label": "مبالغ الكروت الشهرية"
    }
   ],
-  "content": "[{\"id\": \"fc7f83c403\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0627\\u0644\\u0645\\u0639\\u062f\\u0627\\u062a \\u0627\\u0644\\u0645\\u0624\\u062c\\u0631\\u0629\", \"col\": 3}}, {\"id\": \"08b419e221\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0643\\u0631\\u0648\\u062a \\u0645\\u0633\\u0648\\u062f\\u0629\", \"col\": 3}}, {\"id\": \"c10fb94725\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0645\\u0628\\u0627\\u0644\\u063a \\u0627\\u0644\\u0634\\u0647\\u0631 \\u0627\\u0644\\u0645\\u0627\\u0636\\u064a\", \"col\": 3}}, {\"id\": \"c10fb94726\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0642\\u064a\\u0645\\u0629 \\u062a\\u0634\\u063a\\u064a\\u0644 \\u0644\\u0639\\u0645\\u0644\\u0627\\u0621 - \\u0627\\u0644\\u0634\\u0647\\u0631 \\u0627\\u0644\\u0645\\u0627\\u0636\\u064a\", \"col\": 3}}, {\"id\": \"c10fb94727\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0642\\u064a\\u0645\\u0629 \\u062a\\u0634\\u063a\\u064a\\u0644 \\u062f\\u0627\\u062e\\u0644\\u064a - \\u0627\\u0644\\u0634\\u0647\\u0631 \\u0627\\u0644\\u0645\\u0627\\u0636\\u064a\", \"col\": 3}}, {\"id\": \"c10fb94728\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0643\\u0631\\u0648\\u062a \\u0628\\u062f\\u0648\\u0646 \\u0633\\u0639\\u0631 \\u062f\\u0627\\u062e\\u0644\\u064a\", \"col\": 3}}, {\"id\": \"c10fb94729\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0633\\u0627\\u0639\\u0627\\u062a \\u062a\\u0634\\u063a\\u064a\\u0644 \\u0628\\u062f\\u0648\\u0646 \\u0633\\u0639\\u0631 \\u062f\\u0627\\u062e\\u0644\\u064a - \\u0627\\u0644\\u0634\\u0647\\u0631 \\u0627\\u0644\\u0645\\u0627\\u0636\\u064a\", \"col\": 3}}, {\"id\": \"c10fb9472a\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Loads last month\", \"col\": 3}}, {\"id\": \"7e7ff69701\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0643\\u0631\\u0648\\u062a \\u0627\\u0644\\u0634\\u0647\\u0631 \\u0627\\u0644\\u0645\\u0627\\u0636\\u064a\", \"col\": 3}}, {\"id\": \"347da02358\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"653b7d14db\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0627\\u0644\\u0643\\u0631\\u0648\\u062a \\u0627\\u0644\\u0634\\u0647\\u0631\\u064a\\u0629\", \"col\": 3}}, {\"id\": \"2ebe838d65\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0627\\u0644\\u062a\\u0639\\u064a\\u064a\\u0646\\u0627\\u062a\", \"col\": 3}}, {\"id\": \"08ba743f86\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0627\\u0644\\u0645\\u0639\\u062f\\u0627\\u062a\", \"col\": 3}}, {\"id\": \"3bdcf4f0d0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0643\\u0627\\u0631\\u062a \\u062c\\u062f\\u064a\\u062f\", \"col\": 3}}, {\"id\": \"75ae2f17e1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"cd88ae12cb\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0645\\u0644\\u062e\\u0635 \\u0627\\u0644\\u0645\\u0648\\u0631\\u062f\\u064a\\u0646\", \"col\": 3}}, {\"id\": \"b5d770e332\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0643\\u0634\\u0641 \\u062d\\u0633\\u0627\\u0628 \\u0645\\u0648\\u0631\\u062f\", \"col\": 3}}, {\"id\": \"12556aaf93\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0639\\u0645\\u0644\\u0627\\u0621 \\u0627\\u0644\\u0645\\u0639\\u062f\\u0627\\u062a\", \"col\": 3}}, {\"id\": \"f2bf1b8ad7\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0645\\u0644\\u062e\\u0635 \\u0627\\u0644\\u0639\\u0645\\u0644\\u0627\\u0621\", \"col\": 3}}, {\"id\": \"25ff894325\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0643\\u0634\\u0641 \\u062d\\u0633\\u0627\\u0628 \\u0639\\u0645\\u064a\\u0644\", \"col\": 3}}, {\"id\": \"b5d8ba5503\", \"type\": \"chart\", \"data\": {\"chart_name\": \"\\u0645\\u0628\\u0627\\u0644\\u063a \\u0627\\u0644\\u0643\\u0631\\u0648\\u062a \\u0627\\u0644\\u0634\\u0647\\u0631\\u064a\\u0629\", \"col\": 12}}, {\"id\": \"84c1c361dc\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"5b4b0c20de\", \"type\": \"header\", \"data\": {\"text\": \"\\u0627\\u0644\\u062f\\u064a\\u0632\\u0644 \\u0648\\u0627\\u0644\\u062a\\u0634\\u063a\\u064a\\u0644\", \"col\": 12, \"level\": 4}}, {\"id\": \"06c0647300\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0625\\u062c\\u0645\\u0627\\u0644\\u064a \\u0644\\u062a\\u0631\\u0627\\u062a \\u0627\\u0644\\u062f\\u064a\\u0632\\u0644\", \"col\": 4}}, {\"id\": \"17990254ab\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0625\\u062c\\u0645\\u0627\\u0644\\u064a \\u062a\\u0643\\u0644\\u0641\\u0629 \\u0627\\u0644\\u062f\\u064a\\u0632\\u0644\", \"col\": 4}}, {\"id\": \"5244ffd186\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"\\u0625\\u062c\\u0645\\u0627\\u0644\\u064a \\u062a\\u0643\\u0644\\u0641\\u0629 \\u0627\\u0644\\u0646\\u0642\\u0644\", \"col\": 4}}, {\"id\": \"6ec15e9ddf\", \"type\": \"chart\", \"data\": {\"chart_name\": \"\\u062a\\u0643\\u0644\\u0641\\u0629 \\u0627\\u0644\\u062f\\u064a\\u0632\\u0644 \\u0627\\u0644\\u0634\\u0647\\u0631\\u064a\\u0629\", \"col\": 12}}, {\"id\": \"8c393e4aad\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u0627\\u0633\\u062a\\u0647\\u0644\\u0627\\u0643 \\u062f\\u064a\\u0632\\u0644 \\u0627\\u0644\\u0645\\u0639\\u062f\\u0627\\u062a\", \"col\": 4}}, {\"id\": \"1ec1197acd\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u062a\\u0643\\u0644\\u0641\\u0629 \\u0627\\u0644\\u0646\\u0642\\u0644 \\u0628\\u0627\\u0644\\u0645\\u0634\\u0631\\u0648\\u0639\", \"col\": 4}}, {\"id\": \"c806ce12c9\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"\\u062a\\u0643\\u0644\\u0641\\u0629 \\u0627\\u0644\\u062a\\u0634\\u063a\\u064a\\u0644 \\u0628\\u0627\\u0644\\u0645\\u0634\\u0631\\u0648\\u0639\", \"col\": 4}}, {\"id\": \"a444c0c5e6\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"218c99d90c\", \"type\": \"header\", \"data\": {\"text\": \"\\u0627\\u0644\\u0645\\u062d\\u0627\\u0633\\u0628\\u0629\", \"col\": 12, \"level\": 4}}, {\"id\": \"418d570c82\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Purchase Invoice\", \"col\": 4}}, {\"id\": \"a60ed22ec9\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sales Invoice\", \"col\": 4}}, {\"id\": \"5bbe04f89b\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Payment Entry\", \"col\": 4}}]",
-  "custom_blocks": [],
+  "content": "[{\"id\": \"9b85ff67d2\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"CARD Dashboard Header\", \"col\": 12}}, {\"id\": \"096288fa6b\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"كارت جديد\", \"col\": 4}}, {\"id\": \"fde457d982\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"نقل معدة\", \"col\": 4}}, {\"id\": \"e882bdb454\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"كشف حساب\", \"col\": 4}}, {\"id\": \"c2b73b6384\", \"type\": \"header\", \"data\": {\"text\": \"الأداء المالي — الشهر الماضي\", \"col\": 12, \"level\": 4}}, {\"id\": \"285a96c17e\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"قيمة تشغيل لعملاء - الشهر الماضي\", \"col\": 4}}, {\"id\": \"278fc136d5\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"مبالغ الشهر الماضي\", \"col\": 4}}, {\"id\": \"6c1810a31a\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"قيمة تشغيل داخلي - الشهر الماضي\", \"col\": 4}}, {\"id\": \"fb60a229a6\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت الشهر الماضي\", \"col\": 4}}, {\"id\": \"7e9807dad2\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"المعدات المؤجرة\", \"col\": 4}}, {\"id\": \"117e38696d\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Loads last month\", \"col\": 4}}, {\"id\": \"5ca6e48779\", \"type\": \"header\", \"data\": {\"text\": \"يحتاج مراجعة\", \"col\": 12, \"level\": 4}}, {\"id\": \"319c04f4b8\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت مسودة\", \"col\": 4}}, {\"id\": \"317fcab9e4\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"كروت بدون سعر داخلي\", \"col\": 4}}, {\"id\": \"214bb8ad8b\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"ساعات تشغيل بدون سعر داخلي - الشهر الماضي\", \"col\": 4}}, {\"id\": \"880ad5a671\", \"type\": \"chart\", \"data\": {\"chart_name\": \"مبالغ الكروت الشهرية\", \"col\": 7}}, {\"id\": \"79ae255e24\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"الكروت الشهرية\", \"col\": 1}}, {\"id\": \"f4649a5108\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"المعدات\", \"col\": 1}}, {\"id\": \"e3011aac33\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"التعيينات\", \"col\": 1}}, {\"id\": \"0a023fa0a5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"عملاء المعدات\", \"col\": 1}}, {\"id\": \"76841281bb\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"نقل المعدات\", \"col\": 1}}, {\"id\": \"290d51f2f3\", \"type\": \"card\", \"data\": {\"card_name\": \"العملاء\", \"col\": 4}}, {\"id\": \"e5d4f40905\", \"type\": \"card\", \"data\": {\"card_name\": \"الموردين\", \"col\": 4}}, {\"id\": \"082c47d480\", \"type\": \"card\", \"data\": {\"card_name\": \"الديزل والتشغيل\", \"col\": 4}}, {\"id\": \"0379fd2eb0\", \"type\": \"header\", \"data\": {\"text\": \"قائمة سريعة\", \"col\": 12, \"level\": 4}}, {\"id\": \"82f84a181d\", \"type\": \"quick_list\", \"data\": {\"quick_list_name\": \"آخر الكروت الشهرية\", \"col\": 12}}]",
+  "custom_blocks": [
+   {
+    "custom_block_name": "CARD Dashboard Header",
+    "label": "لوحة تشغيل المعدات"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Workspace",
   "external_link": null,
@@ -23,274 +24,279 @@
   "label": "Card",
   "link_to": null,
   "link_type": "DocType",
-  "links": [],
+  "links": [
+   {
+    "type": "Card Break",
+    "label": "العملاء",
+    "link_type": null,
+    "link_to": null,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "كشف حساب عميل",
+    "link_type": "Report",
+    "link_to": "Equipment Customer Statement",
+    "is_query_report": 1,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "ملخص العملاء",
+    "link_type": "Report",
+    "link_to": "Equipment Customers Summary",
+    "is_query_report": 1,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "عملاء المعدات",
+    "link_type": "DocType",
+    "link_to": "Card Equipment Customer",
+    "is_query_report": 0,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Card Break",
+    "label": "الموردين",
+    "link_type": null,
+    "link_to": null,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "كشف حساب مورد",
+    "link_type": "Report",
+    "link_to": "Equipment Supplier Statement",
+    "is_query_report": 1,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "ملخص الموردين",
+    "link_type": "Report",
+    "link_to": "Equipment Suppliers Summary",
+    "is_query_report": 1,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Card Break",
+    "label": "الديزل والتشغيل",
+    "link_type": null,
+    "link_to": null,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "استهلاك الديزل",
+    "link_type": "Report",
+    "link_to": "Equipment Diesel Consumption",
+    "is_query_report": 1,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "تكلفة التشغيل حسب المشروع",
+    "link_type": "Report",
+    "link_to": "Operating Cost by Project",
+    "is_query_report": 1,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "تكلفة النقل حسب المشروع",
+    "link_type": "Report",
+    "link_to": "Transport Cost by Project",
+    "is_query_report": 1,
+    "hidden": 0,
+    "onboard": 0
+   },
+   {
+    "type": "Link",
+    "label": "مطابقة العدادات",
+    "link_type": "Report",
+    "link_to": "Equipment Meter Reconciliation",
+    "is_query_report": 1,
+    "hidden": 0,
+    "onboard": 0
+   }
+  ],
   "modified": "2026-11-10 12:00:00.000000",
   "module": "Card",
   "module_onboarding": null,
   "name": "Card",
   "number_cards": [
    {
-    "label": "\u0627\u0644\u0645\u0639\u062f\u0627\u062a \u0627\u0644\u0645\u0624\u062c\u0631\u0629",
-    "number_card_name": "\u0627\u0644\u0645\u0639\u062f\u0627\u062a \u0627\u0644\u0645\u0624\u062c\u0631\u0629"
+    "number_card_name": "قيمة تشغيل لعملاء - الشهر الماضي",
+    "label": "قيمة تشغيل لعملاء - الشهر الماضي"
    },
    {
-    "label": "\u0643\u0631\u0648\u062a \u0645\u0633\u0648\u062f\u0629",
-    "number_card_name": "\u0643\u0631\u0648\u062a \u0645\u0633\u0648\u062f\u0629"
+    "number_card_name": "مبالغ الشهر الماضي",
+    "label": "قيمة التشغيل للموردين - الشهر الماضي"
    },
    {
-    "label": "\u062a\u0643\u0644\u0641\u0629 \u0625\u064a\u062c\u0627\u0631 \u0645\u0646 \u0645\u0648\u0631\u062f\u064a\u0646 - \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a",
-    "number_card_name": "\u0645\u0628\u0627\u0644\u063a \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a"
+    "number_card_name": "قيمة تشغيل داخلي - الشهر الماضي",
+    "label": "قيمة تشغيل داخلي - الشهر الماضي"
    },
    {
-    "label": "\u0642\u064a\u0645\u0629 \u062a\u0634\u063a\u064a\u0644 \u0644\u0639\u0645\u0644\u0627\u0621 - \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a",
-    "number_card_name": "\u0642\u064a\u0645\u0629 \u062a\u0634\u063a\u064a\u0644 \u0644\u0639\u0645\u0644\u0627\u0621 - \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a"
+    "number_card_name": "كروت الشهر الماضي",
+    "label": "كروت الشهر الماضي"
    },
    {
-    "label": "\u0642\u064a\u0645\u0629 \u062a\u0634\u063a\u064a\u0644 \u062f\u0627\u062e\u0644\u064a - \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a",
-    "number_card_name": "\u0642\u064a\u0645\u0629 \u062a\u0634\u063a\u064a\u0644 \u062f\u0627\u062e\u0644\u064a - \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a"
+    "number_card_name": "المعدات المؤجرة",
+    "label": "المعدات المؤجرة"
    },
    {
-    "label": "\u0643\u0631\u0648\u062a \u0628\u062f\u0648\u0646 \u0633\u0639\u0631 \u062f\u0627\u062e\u0644\u064a",
-    "number_card_name": "\u0643\u0631\u0648\u062a \u0628\u062f\u0648\u0646 \u0633\u0639\u0631 \u062f\u0627\u062e\u0644\u064a"
+    "number_card_name": "Loads last month",
+    "label": "عدد الردود الشهر الماضي"
    },
    {
-    "label": "\u0633\u0627\u0639\u0627\u062a \u062a\u0634\u063a\u064a\u0644 \u0628\u062f\u0648\u0646 \u0633\u0639\u0631 \u062f\u0627\u062e\u0644\u064a - \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a",
-    "number_card_name": "\u0633\u0627\u0639\u0627\u062a \u062a\u0634\u063a\u064a\u0644 \u0628\u062f\u0648\u0646 \u0633\u0639\u0631 \u062f\u0627\u062e\u0644\u064a - \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a"
+    "number_card_name": "كروت مسودة",
+    "label": "كروت مسودة"
    },
    {
-    "label": "Loads last month",
-    "number_card_name": "Loads last month"
+    "number_card_name": "كروت بدون سعر داخلي",
+    "label": "كروت بدون سعر داخلي"
    },
    {
-    "label": "\u0643\u0631\u0648\u062a \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a",
-    "number_card_name": "\u0643\u0631\u0648\u062a \u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0645\u0627\u0636\u064a"
-   },
-   {
-    "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u0644\u062a\u0631\u0627\u062a \u0627\u0644\u062f\u064a\u0632\u0644",
-    "number_card_name": "\u0625\u062c\u0645\u0627\u0644\u064a \u0644\u062a\u0631\u0627\u062a \u0627\u0644\u062f\u064a\u0632\u0644"
-   },
-   {
-    "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u062f\u064a\u0632\u0644",
-    "number_card_name": "\u0625\u062c\u0645\u0627\u0644\u064a \u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u062f\u064a\u0632\u0644"
-   },
-   {
-    "label": "\u0625\u062c\u0645\u0627\u0644\u064a \u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u0646\u0642\u0644",
-    "number_card_name": "\u0625\u062c\u0645\u0627\u0644\u064a \u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u0646\u0642\u0644"
+    "number_card_name": "ساعات تشغيل بدون سعر داخلي - الشهر الماضي",
+    "label": "ساعات تشغيل بدون سعر"
    }
   ],
   "parent_page": null,
   "public": 1,
-  "quick_lists": [],
+  "quick_lists": [
+   {
+    "document_type": "Card Monthly Card",
+    "label": "آخر الكروت الشهرية",
+    "quick_list_filter": "{}"
+   }
+  ],
   "restrict_to_domain": null,
   "roles": [],
   "sequence_id": 0.0,
   "shortcuts": [
    {
-    "color": "Red",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u0627\u0644\u0643\u0631\u0648\u062a \u0627\u0644\u0634\u0647\u0631\u064a\u0629",
+    "label": "كارت جديد",
+    "type": "DocType",
     "link_to": "Card Monthly Card",
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
+    "doc_view": "New",
     "stats_filter": null,
+    "color": "Red",
+    "report_ref_doctype": null,
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "restrict_to_domain": null,
+    "url": null
+   },
+   {
+    "label": "نقل معدة",
     "type": "DocType",
-    "url": null
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
+    "link_to": "Equipment Transport",
+    "doc_view": "New",
+    "stats_filter": null,
+    "color": "Red",
+    "report_ref_doctype": null,
     "format": null,
     "icon": null,
     "kanban_board": null,
-    "label": "\u0643\u0634\u0641 \u062d\u0633\u0627\u0628 \u0645\u0648\u0631\u062f",
-    "link_to": "Equipment Supplier Statement",
-    "report_ref_doctype": "Card Monthly Card",
     "restrict_to_domain": null,
-    "stats_filter": null,
+    "url": null
+   },
+   {
+    "label": "كشف حساب",
     "type": "Report",
-    "url": null
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u0645\u0644\u062e\u0635 \u0627\u0644\u0645\u0648\u0631\u062f\u064a\u0646",
-    "link_to": "Equipment Suppliers Summary",
-    "report_ref_doctype": "Card Monthly Card",
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "Report",
-    "url": null
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u0627\u0644\u062a\u0639\u064a\u064a\u0646\u0627\u062a",
-    "link_to": "Card Equipment Assignment",
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "DocType",
-    "url": null
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u0627\u0644\u0645\u0639\u062f\u0627\u062a",
-    "link_to": "Card Equipment",
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "DocType",
-    "url": null
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u0643\u0627\u0631\u062a \u062c\u062f\u064a\u062f",
-    "link_to": null,
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "URL",
-    "url": "/desk/card-monthly-card/new"
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u0627\u0633\u062a\u0647\u0644\u0627\u0643 \u062f\u064a\u0632\u0644 \u0627\u0644\u0645\u0639\u062f\u0627\u062a",
-    "link_to": "Equipment Diesel Consumption",
-    "report_ref_doctype": "Project Diesel Fill",
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "Report",
-    "url": null
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u0646\u0642\u0644 \u0628\u0627\u0644\u0645\u0634\u0631\u0648\u0639",
-    "link_to": "Transport Cost by Project",
-    "report_ref_doctype": "Equipment Transport",
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "Report",
-    "url": null
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u062a\u0643\u0644\u0641\u0629 \u0627\u0644\u062a\u0634\u063a\u064a\u0644 \u0628\u0627\u0644\u0645\u0634\u0631\u0648\u0639",
-    "link_to": "Operating Cost by Project",
-    "report_ref_doctype": "Project Diesel Fill",
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "Report",
-    "url": null
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "Purchase Invoice",
-    "link_to": "Purchase Invoice",
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "URL",
-    "url": "/app/purchase-invoice"
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "Sales Invoice",
-    "link_to": "Sales Invoice",
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "URL",
-    "url": "/app/sales-invoice"
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "Payment Entry",
-    "link_to": "Payment Entry",
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "URL",
-    "url": "/app/payment-entry"
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u0639\u062f\u0627\u062a",
-    "link_to": "Card Equipment Customer",
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "DocType"
-   },
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "\u0643\u0634\u0641 \u062d\u0633\u0627\u0628 \u0639\u0645\u064a\u0644",
     "link_to": "Equipment Customer Statement",
-    "report_ref_doctype": "Card Monthly Card",
-    "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "Report"
-   },
-   {
-    "color": "Grey",
     "doc_view": "List",
+    "stats_filter": null,
+    "color": "Grey",
+    "report_ref_doctype": "Card Monthly Card",
     "format": null,
     "icon": null,
     "kanban_board": null,
-    "label": "\u0645\u0644\u062e\u0635 \u0627\u0644\u0639\u0645\u0644\u0627\u0621",
-    "link_to": "Equipment Customers Summary",
-    "report_ref_doctype": "Card Monthly Card",
     "restrict_to_domain": null,
-    "stats_filter": null,
-    "type": "Report"
+    "url": null
+   },
+   {
+    "label": "الكروت الشهرية",
+    "type": "DocType",
+    "link_to": "Card Monthly Card",
+    "doc_view": "List",
+    "stats_filter": "{}",
+    "color": "Grey",
+    "report_ref_doctype": null,
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "restrict_to_domain": null,
+    "url": null
+   },
+   {
+    "label": "المعدات",
+    "type": "DocType",
+    "link_to": "Card Equipment",
+    "doc_view": "List",
+    "stats_filter": "{}",
+    "color": "Grey",
+    "report_ref_doctype": null,
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "restrict_to_domain": null,
+    "url": null
+   },
+   {
+    "label": "التعيينات",
+    "type": "DocType",
+    "link_to": "Card Equipment Assignment",
+    "doc_view": "List",
+    "stats_filter": "{}",
+    "color": "Grey",
+    "report_ref_doctype": null,
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "restrict_to_domain": null,
+    "url": null
+   },
+   {
+    "label": "عملاء المعدات",
+    "type": "DocType",
+    "link_to": "Card Equipment Customer",
+    "doc_view": "List",
+    "stats_filter": "{}",
+    "color": "Grey",
+    "report_ref_doctype": null,
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "restrict_to_domain": null,
+    "url": null
+   },
+   {
+    "label": "نقل المعدات",
+    "type": "DocType",
+    "link_to": "Equipment Transport",
+    "doc_view": "List",
+    "stats_filter": "{}",
+    "color": "Grey",
+    "report_ref_doctype": null,
+    "format": null,
+    "icon": null,
+    "kanban_board": null,
+    "restrict_to_domain": null,
+    "url": null
    }
   ],
   "standard": 0,
