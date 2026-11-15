@@ -409,7 +409,8 @@ def seed():
 			"Caterpillar",
 			"966M",
 			"ملك",
-			"تشغيل داخلي",
+			# per-m³ customer billing is only valid on a customer-billing direction (CUSTOMER_BILLING_DIRECTIONS)
+			"مؤجَّرة لعميل",
 			{
 				"plate_no": "WL-5005",
 				"serial_no": "CAT-950-0005",
