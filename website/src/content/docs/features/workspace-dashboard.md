@@ -94,7 +94,7 @@ The workspace groups its shortcuts in four blocks:
 The **CARD** workspace opens with the operations dashboard, top to bottom:
 
 1. **Header:** the title and three shortcuts: a new monthly card, a new equipment transport and the customer statement.
-2. **Financial performance — last month:** customer operating value, supplier operating value (the supplier rental cost, the same figure as the monthly values chart) and internal operating value. Amounts are the full figures with thousands separators. A user without money read on monthly cards sees "N/A" in these cards and no amounts in the chart; no card is read for that user, and no error dialog is shown. Card Operator has no Desk access, so it does not open this workspace at all.
+2. **Financial performance — last month:** customer operating value, supplier operating value (the supplier rental cost, the same figure as the monthly values chart) and internal operating value. Amounts are the full figures with thousands separators. A user without money read on monthly cards sees "N/A" in these cards and no amounts in the chart; no card is read for that user, and no error dialog is shown. The workspace is visible only to Card Manager, Card User and Accounts Manager, the roles that can read monthly cards. Card Operator and Card Supervisor cannot read monthly cards and do not see it.
 3. **Operations last month:** cards last month, rented equipment and the number of loads.
 4. **Needs review:** draft cards, cards without an internal rate and operating hours without a rate. The number shows the state; each card opens its filtered list.
 5. **Monthly values chart** (full width), with five shortcuts underneath, each with its count.

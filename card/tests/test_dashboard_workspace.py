@@ -35,7 +35,8 @@ def _load(name):
 
 
 class TestMoneyGate(IntegrationTestCase):
-	"""FR-162 on the dashboard: a user without money read gets no figure, and no card is read for that user."""
+	"""FR-162 on the dashboard: a user who cannot read monthly cards is refused, and a user who can read them but
+	has no money read gets no figure and no card is read for that user."""
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -48,46 +49,42 @@ class TestMoneyGate(IntegrationTestCase):
 		finally:
 			frappe.set_user("Administrator")
 
-	def _no_figure(self, user):
-		operator = user
+	def _refused(self, user):
 		with patch("card.card_value.get_card_values") as read:
 			for name in MONEY_METHODS:
 				with self.subTest(method=name):
-					result = self._as(operator, lambda n=name: getattr(cv, n)())
+					with self.assertRaises(frappe.PermissionError):
+						self._as(user, lambda n=name: getattr(cv, n)())
+			with self.assertRaises(frappe.PermissionError):
+				self._as(user, lambda: cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT))
+			read.assert_not_called()
+
+	def test_card_operator_is_refused(self):
+		operator = _user(["Card Operator"])
+		self.addCleanup(frappe.delete_doc, "User", operator, ignore_permissions=True, force=True)
+		self._refused(operator)
+
+	def test_card_supervisor_is_refused(self):
+		supervisor = _user(["Card Supervisor"])
+		self.addCleanup(frappe.delete_doc, "User", supervisor, ignore_permissions=True, force=True)
+		self._refused(supervisor)
+
+	def test_user_without_money_read_gets_no_figure_and_reads_no_card(self):
+		reader = _user(["Card Manager"])
+		self.addCleanup(frappe.delete_doc, "User", reader, ignore_permissions=True, force=True)
+		with (
+			patch("card.card_value.can_view_money", return_value=False),
+			patch("card.card_value.get_card_values") as read,
+		):
+			for name in MONEY_METHODS:
+				with self.subTest(method=name):
+					result = self._as(reader, lambda n=name: getattr(cv, n)())
 					self.assertIsNone(result["value"])
 			chart = self._as(
-				operator, lambda: cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT)
+				reader, lambda: cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT)
 			)
 			self.assertEqual(chart, {"labels": [], "datasets": []})
 			read.assert_not_called()
-
-	def test_card_operator_gets_no_figure_and_reads_no_card(self):
-		operator = _user(["Card Operator"])
-		self.addCleanup(frappe.delete_doc, "User", operator, ignore_permissions=True, force=True)
-		self._no_figure(operator)
-
-	def test_card_supervisor_gets_no_figure_and_reads_no_card(self):
-		supervisor = _user(["Card Supervisor"])
-		self.addCleanup(frappe.delete_doc, "User", supervisor, ignore_permissions=True, force=True)
-		self._no_figure(supervisor)
-
-	def test_user_without_card_read_is_still_refused(self):
-		nobody = _user([])
-		self.addCleanup(frappe.delete_doc, "User", nobody, ignore_permissions=True, force=True)
-		for name in MONEY_METHODS:
-			with self.subTest(method=name):
-				frappe.set_user(nobody)
-				try:
-					with self.assertRaises(frappe.PermissionError):
-						getattr(cv, name)()
-				finally:
-					frappe.set_user("Administrator")
-		frappe.set_user(nobody)
-		try:
-			with self.assertRaises(frappe.PermissionError):
-				cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT)
-		finally:
-			frappe.set_user("Administrator")
 
 	def test_money_reader_gets_the_value(self):
 		reader = _user(["Card Manager"])
@@ -173,6 +170,12 @@ class TestWorkspaceFixture(IntegrationTestCase):
 		for row in ws.get("shortcuts", []):
 			if row.get("link_to"):
 				self.assertIn(row["link_to"], listed, row.get("label"))
+
+	def test_workspace_is_visible_only_to_roles_that_can_read_monthly_cards(self):
+		allowed = {r.get("role") for r in self._workspace().get("roles", [])}
+		self.assertEqual(allowed, {"Card Manager", "Card User", "Accounts Manager"})
+		self.assertNotIn("Card Operator", allowed)
+		self.assertNotIn("Card Supervisor", allowed)
 
 	def test_fixture_import_is_idempotent(self):
 		path = _fixture("workspace.json")

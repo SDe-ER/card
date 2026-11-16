@@ -188,7 +188,17 @@
    }
   ],
   "restrict_to_domain": null,
-  "roles": [],
+  "roles": [
+   {
+    "role": "Card Manager"
+   },
+   {
+    "role": "Card User"
+   },
+   {
+    "role": "Accounts Manager"
+   }
+  ],
   "sequence_id": 0.0,
   "shortcuts": [
    {
