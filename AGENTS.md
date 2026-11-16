@@ -60,18 +60,20 @@ section applies also when that file is not loaded.
 
 ## Approval ladder
 
-Each step needs the owner's explicit approval for that step; one approval never covers the next:
+Routine steps are authorized by `docs/AUTONOMOUS_DEVELOPMENT_POLICY.md` (owner, 2026-11-16). The gates in that document
+apply to every step, and platform permissions and branch protection still apply:
 
 ```
 local commit  ≠  push  ≠  merge  ≠  tag / release  ≠  deploy  ≠  rollback
 ```
 
-- Commit only when the owner asked for it or the approved task includes committing. Use a `feat/`, `fix/` or
-  `docs/` branch, never `main`; stage explicit paths only; one task per commit (Conventional Commits).
+- Commit routine work on a `feat/`, `fix/`, `docs/` or `chore/` branch, never `main`; stage explicit paths only; one
+  task per commit (Conventional Commits).
 - Never rewrite published history: no force-push, no amending or rebasing published commits, no moving, renaming or
   deleting tags, no retroactive releases.
-- Never deploy, migrate, restore or roll back any production site without a separate explicit approval for that
-  action, a verified backup and the written rollback plan required by the policy.
+- Deploy, migrate, restore or roll back a production site only after the gates in section 4 of
+  `docs/AUTONOMOUS_DEVELOPMENT_POLICY.md` pass (verified backup, migration checks, accounting checks, written rollback
+  plan). If a gate cannot be shown, record the blocker and continue with independent work.
 
 ## Every change
 
