@@ -74,3 +74,103 @@ msgstr "چاپ توسط"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "زمان چاپ"
+
+msgid "CARD operations dashboard"
+msgstr "داشبورد عملیات CARD"
+
+msgid "Financial performance — last month"
+msgstr "عملکرد مالی — ماه گذشته"
+
+msgid "Needs review (CARD)"
+msgstr "نیازمند بازبینی (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "آخرین کارت‌های ماهانه (CARD)"
+
+msgid "CARD customers"
+msgstr "مشتریان CARD"
+
+msgid "CARD suppliers"
+msgstr "تأمین‌کنندگان CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "گازوئیل و عملیات (CARD)"
+
+msgid "New monthly card"
+msgstr "کارت ماهانه جدید"
+
+msgid "New equipment transport"
+msgstr "حمل تجهیزات جدید"
+
+msgid "Customer statement (CARD)"
+msgstr "صورت‌حساب مشتری (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "کارت‌های ماهانه (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "تجهیزات (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "واگذاری‌ها (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "مشتریان تجهیزات (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "حمل‌های تجهیزات (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "ارزش عملیاتی برای مشتریان - ماه گذشته"
+
+msgid "Supplier operating value - last month"
+msgstr "ارزش عملیاتی تأمین‌کنندگان - ماه گذشته"
+
+msgid "Internal operating value - last month"
+msgstr "ارزش عملیاتی داخلی - ماه گذشته"
+
+msgid "Cards last month"
+msgstr "کارت‌های ماه گذشته"
+
+msgid "Rented equipment (CARD)"
+msgstr "تجهیزات اجاره‌ای (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "بارها در ماه گذشته (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "کارت‌های پیش‌نویس (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "کارت‌های بدون نرخ داخلی (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "ساعات عملیاتی بدون نرخ (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "خلاصه مشتریان (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "صورت‌حساب تأمین‌کننده (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "خلاصه تأمین‌کنندگان (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "صورت‌حساب تأمین‌کننده A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "مصرف گازوئیل (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "هزینه عملیاتی بر اساس پروژه (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "هزینه حمل بر اساس پروژه (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "تطبیق کنتور (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "حمل تجهیزات (CARD)"
+

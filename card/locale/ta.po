@@ -74,3 +74,103 @@ msgstr "அச்சிட்டவர்"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "அச்சிட்ட நேரம்"
+
+msgid "CARD operations dashboard"
+msgstr "CARD செயல்பாட்டு டாஷ்போர்டு"
+
+msgid "Financial performance — last month"
+msgstr "நிதி செயல்திறன் — கடந்த மாதம்"
+
+msgid "Needs review (CARD)"
+msgstr "மதிப்பாய்வு தேவை (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "சமீபத்திய மாதாந்திர அட்டைகள் (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD வாடிக்கையாளர்கள்"
+
+msgid "CARD suppliers"
+msgstr "CARD சப்ளையர்கள்"
+
+msgid "Diesel and operations (CARD)"
+msgstr "டீசல் மற்றும் செயல்பாடுகள் (CARD)"
+
+msgid "New monthly card"
+msgstr "புதிய மாதாந்திர அட்டை"
+
+msgid "New equipment transport"
+msgstr "புதிய உபகரண போக்குவரத்து"
+
+msgid "Customer statement (CARD)"
+msgstr "வாடிக்கையாளர் அறிக்கை (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "மாதாந்திர அட்டைகள் (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "உபகரணங்கள் (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "ஒதுக்கீடுகள் (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "உபகரண வாடிக்கையாளர்கள் (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "உபகரண போக்குவரத்துகள் (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "வாடிக்கையாளர்களுக்கான செயல்பாட்டு மதிப்பு - கடந்த மாதம்"
+
+msgid "Supplier operating value - last month"
+msgstr "சப்ளையர் செயல்பாட்டு மதிப்பு - கடந்த மாதம்"
+
+msgid "Internal operating value - last month"
+msgstr "உள் செயல்பாட்டு மதிப்பு - கடந்த மாதம்"
+
+msgid "Cards last month"
+msgstr "கடந்த மாத அட்டைகள்"
+
+msgid "Rented equipment (CARD)"
+msgstr "வாடகை உபகரணங்கள் (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "கடந்த மாத சுமைகள் (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "வரைவு அட்டைகள் (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "உள் கட்டணம் இல்லாத அட்டைகள் (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "கட்டணம் இல்லாத இயக்க நேரம் (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "வாடிக்கையாளர் சுருக்கம் (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "சப்ளையர் அறிக்கை (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "சப்ளையர் சுருக்கம் (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "சப்ளையர் அறிக்கை A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "டீசல் நுகர்வு (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "திட்டவாரி செயல்பாட்டு செலவு (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "திட்டவாரி போக்குவரத்து செலவு (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "மீட்டர் சரிபார்ப்பு (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "உபகரண போக்குவரத்து (CARD)"
+

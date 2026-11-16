@@ -74,3 +74,103 @@ msgstr "Gedruk deur"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Gedruk op"
+
+msgid "CARD operations dashboard"
+msgstr "CARD-bedryfspaneel"
+
+msgid "Financial performance — last month"
+msgstr "Finansiële prestasie — laaste maand"
+
+msgid "Needs review (CARD)"
+msgstr "Benodig hersiening (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Jongste maandelikse kaarte (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD-kliënte"
+
+msgid "CARD suppliers"
+msgstr "CARD-verskaffers"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Diesel en bedrywe (CARD)"
+
+msgid "New monthly card"
+msgstr "Nuwe maandelikse kaart"
+
+msgid "New equipment transport"
+msgstr "Nuwe toerusting-vervoer"
+
+msgid "Customer statement (CARD)"
+msgstr "Kliëntestaat (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Maandelikse kaarte (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Toerusting (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Opdragte (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Toerusting-kliënte (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Toerusting-vervoere (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Bedryfswaarde vir kliënte - laaste maand"
+
+msgid "Supplier operating value - last month"
+msgstr "Verskaffer-bedryfswaarde - laaste maand"
+
+msgid "Internal operating value - last month"
+msgstr "Interne bedryfswaarde - laaste maand"
+
+msgid "Cards last month"
+msgstr "Kaarte laaste maand"
+
+msgid "Rented equipment (CARD)"
+msgstr "Gehuurde toerusting (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Ladings laaste maand (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Konsep-kaarte (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Kaarte sonder interne tarief (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Bedryfsure sonder tarief (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Kliënteopsomming (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Verskafferstaat (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Verskaffers-opsomming (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Verskafferstaat A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Diesel-verbruik (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Bedryfskoste per projek (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Vervoerkoste per projek (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Meterversoening (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Toerusting-vervoer (CARD)"
+

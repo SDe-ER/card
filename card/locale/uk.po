@@ -74,3 +74,103 @@ msgstr "Надрукував"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Надруковано"
+
+msgid "CARD operations dashboard"
+msgstr "Панель операцій CARD"
+
+msgid "Financial performance — last month"
+msgstr "Фінансові показники — минулий місяць"
+
+msgid "Needs review (CARD)"
+msgstr "Потребує перевірки (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Останні місячні картки (CARD)"
+
+msgid "CARD customers"
+msgstr "Клієнти CARD"
+
+msgid "CARD suppliers"
+msgstr "Постачальники CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Дизель і операції (CARD)"
+
+msgid "New monthly card"
+msgstr "Нова місячна картка"
+
+msgid "New equipment transport"
+msgstr "Нове перевезення техніки"
+
+msgid "Customer statement (CARD)"
+msgstr "Виписка клієнта (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Місячні картки (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Техніка (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Призначення (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Клієнти техніки (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Перевезення техніки (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Операційна вартість для клієнтів - минулий місяць"
+
+msgid "Supplier operating value - last month"
+msgstr "Операційна вартість постачальника - минулий місяць"
+
+msgid "Internal operating value - last month"
+msgstr "Внутрішня операційна вартість - минулий місяць"
+
+msgid "Cards last month"
+msgstr "Картки за минулий місяць"
+
+msgid "Rented equipment (CARD)"
+msgstr "Орендована техніка (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Рейси за минулий місяць (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Чернеткові картки (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Картки без внутрішнього тарифу (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Години роботи без тарифу (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Підсумок по клієнтах (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Виписка постачальника (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Підсумок по постачальниках (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Виписка постачальника A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Витрати дизеля (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Операційні витрати за проєктами (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Витрати на перевезення за проєктами (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Звірка лічильників (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Перевезення техніки (CARD)"
+

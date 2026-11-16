@@ -74,3 +74,103 @@ msgstr "In bởi"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "In lúc"
+
+msgid "CARD operations dashboard"
+msgstr "Bảng điều khiển vận hành CARD"
+
+msgid "Financial performance — last month"
+msgstr "Hiệu quả tài chính — tháng trước"
+
+msgid "Needs review (CARD)"
+msgstr "Cần xem xét (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Thẻ hàng tháng mới nhất (CARD)"
+
+msgid "CARD customers"
+msgstr "Khách hàng CARD"
+
+msgid "CARD suppliers"
+msgstr "Nhà cung cấp CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Dầu diesel và vận hành (CARD)"
+
+msgid "New monthly card"
+msgstr "Thẻ hàng tháng mới"
+
+msgid "New equipment transport"
+msgstr "Vận chuyển thiết bị mới"
+
+msgid "Customer statement (CARD)"
+msgstr "Sao kê khách hàng (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Thẻ hàng tháng (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Thiết bị (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Phân công (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Khách hàng thiết bị (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Vận chuyển thiết bị (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Giá trị vận hành cho khách hàng - tháng trước"
+
+msgid "Supplier operating value - last month"
+msgstr "Giá trị vận hành nhà cung cấp - tháng trước"
+
+msgid "Internal operating value - last month"
+msgstr "Giá trị vận hành nội bộ - tháng trước"
+
+msgid "Cards last month"
+msgstr "Thẻ tháng trước"
+
+msgid "Rented equipment (CARD)"
+msgstr "Thiết bị thuê (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Chuyến hàng tháng trước (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Thẻ nháp (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Thẻ chưa có đơn giá nội bộ (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Giờ vận hành chưa có đơn giá (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Tóm tắt khách hàng (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Sao kê nhà cung cấp (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Tóm tắt nhà cung cấp (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Sao kê nhà cung cấp A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Mức tiêu thụ diesel (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Chi phí vận hành theo dự án (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Chi phí vận chuyển theo dự án (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Đối chiếu đồng hồ (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Vận chuyển thiết bị (CARD)"
+

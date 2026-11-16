@@ -1,0 +1,186 @@
+# Copyright (c) 2026, SDCE and contributors
+# For license information, please see LICENSE
+"""v4.10.0 CARD workspace dashboard: the money number cards and the monthly values chart refuse a user without
+money read (FR-162), the supplier card equals the chart's supplier series for the same month, a company-restricted
+user sees only that company, the workspace fixture imports idempotently, and every link of the workspace is in the
+Card sidebar. Structure checks read the fixtures; the money checks run the real methods."""
+
+import json
+import os
+from datetime import date
+from unittest.mock import patch
+
+import frappe
+from frappe.modules.import_file import import_file_by_path
+from frappe.tests import IntegrationTestCase
+
+from card import card_value as cv
+from card.tests.test_card_money_privacy import _user
+
+SEPT = ("2026-09-01", "2026-09-30")
+MONEY_METHODS = (
+	"customer_value_last_month",
+	"supplier_cost_last_month",
+	"internal_value_last_month",
+)
+
+
+def _fixture(name):
+	return os.path.join(frappe.get_app_path("card"), "fixtures", name)
+
+
+def _load(name):
+	with open(_fixture(name), encoding="utf-8") as fh:
+		return json.load(fh)
+
+
+class TestMoneyGate(IntegrationTestCase):
+	"""FR-162 on the dashboard: a user who cannot read monthly cards is refused, and a user who can read them but
+	has no money read gets no figure and no card is read for that user."""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def _as(self, user, call):
+		frappe.set_user(user)
+		try:
+			return call()
+		finally:
+			frappe.set_user("Administrator")
+
+	def _refused(self, user):
+		with patch("card.card_value.get_card_values") as read:
+			for name in MONEY_METHODS:
+				with self.subTest(method=name):
+					with self.assertRaises(frappe.PermissionError):
+						self._as(user, lambda n=name: getattr(cv, n)())
+			with self.assertRaises(frappe.PermissionError):
+				self._as(user, lambda: cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT))
+			read.assert_not_called()
+
+	def test_card_operator_is_refused(self):
+		operator = _user(["Card Operator"])
+		self.addCleanup(frappe.delete_doc, "User", operator, ignore_permissions=True, force=True)
+		self._refused(operator)
+
+	def test_card_supervisor_is_refused(self):
+		supervisor = _user(["Card Supervisor"])
+		self.addCleanup(frappe.delete_doc, "User", supervisor, ignore_permissions=True, force=True)
+		self._refused(supervisor)
+
+	def test_user_without_money_read_gets_no_figure_and_reads_no_card(self):
+		reader = _user(["Card Manager"])
+		self.addCleanup(frappe.delete_doc, "User", reader, ignore_permissions=True, force=True)
+		with (
+			patch("card.card_value.can_view_money", return_value=False),
+			patch("card.card_value.get_card_values") as read,
+		):
+			for name in MONEY_METHODS:
+				with self.subTest(method=name):
+					result = self._as(reader, lambda n=name: getattr(cv, n)())
+					self.assertIsNone(result["value"])
+			chart = self._as(
+				reader, lambda: cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT)
+			)
+			self.assertEqual(chart, {"labels": [], "datasets": []})
+			read.assert_not_called()
+
+	def test_money_reader_gets_the_value(self):
+		reader = _user(["Card Manager"])
+		self.addCleanup(frappe.delete_doc, "User", reader, ignore_permissions=True, force=True)
+		for name in MONEY_METHODS:
+			with self.subTest(method=name):
+				result = self._as(reader, lambda n=name: getattr(cv, n)())
+				self.assertIn("value", result)
+				self.assertIsNotNone(result["value"])
+
+
+class TestSupplierCardMatchesChart(IntegrationTestCase):
+	"""The supplier Number Card and the chart's supplier series read the same totals for the same month."""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def test_supplier_card_equals_chart_supplier_series_for_the_same_month(self):
+		september = (date(2026, 9, 1), date(2026, 9, 30))
+		with patch("card.card_value._last_month", return_value=september):
+			card_value = cv.supplier_cost_last_month()["value"]
+		chart = cv.chart_data(frappe._dict(timespan="Select Date Range"), {}, *SEPT)
+		supplier = next(ds for ds in chart["datasets"] if ds["name"] == cv.series_labels()["supplier"])
+		self.assertEqual(round(float(card_value), 2), round(float(supplier["values"][-1]), 2))
+
+
+class TestDashboardCompanyScope(IntegrationTestCase):
+	"""A company-restricted user sees the supplier card only for that company (the list is user-permission scoped)."""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def test_restricted_user_sees_no_more_than_the_unrestricted_total(self):
+		company = frappe.db.get_single_value("Global Defaults", "default_company")
+		if not company:
+			self.skipTest("no default company on this site")
+		unrestricted = _user(["Card Manager"])
+		restricted = _user(["Card Manager"], restrict=company)
+		self.addCleanup(frappe.delete_doc, "User", unrestricted, ignore_permissions=True, force=True)
+		self.addCleanup(frappe.delete_doc, "User", restricted, ignore_permissions=True, force=True)
+		frappe.set_user(unrestricted)
+		try:
+			everything = float(cv.supplier_cost_last_month()["value"])
+		finally:
+			frappe.set_user("Administrator")
+		frappe.set_user(restricted)
+		try:
+			mine = float(cv.supplier_cost_last_month()["value"])
+		finally:
+			frappe.set_user("Administrator")
+		self.assertLessEqual(mine, everything)
+
+
+class TestWorkspaceFixture(IntegrationTestCase):
+	"""The workspace fixture is structure-checked from the files and imports idempotently."""
+
+	def _workspace(self):
+		return next(w for w in _load("workspace.json") if w.get("name") == "Card")
+
+	def test_every_block_reference_exists_in_its_fixture(self):
+		ws = self._workspace()
+		numbers = {n["name"] for n in _load("number_card.json")}
+		charts = {c["name"] for c in _load("dashboard_chart.json")}
+		for row in ws.get("number_cards", []):
+			self.assertIn(row["number_card_name"], numbers)
+		for row in ws.get("charts", []):
+			self.assertIn(row["chart_name"], charts)
+
+	def test_every_link_of_the_workspace_is_in_the_card_sidebar(self):
+		ws = self._workspace()
+		sidebar = next(s for s in _load("workspace_sidebar.json") if s.get("name") == "Card")
+		listed = {i.get("link_to") for i in sidebar.get("items", []) if i.get("link_to")}
+		urls = {i.get("url") for i in sidebar.get("items", []) if i.get("url")}
+		for row in ws.get("links", []):
+			if row.get("type") == "Card Break":
+				continue
+			if row.get("link_type") == "URL":
+				self.assertIn(row["url"], urls, row.get("label"))
+				continue
+			self.assertIn(row["link_to"], listed, row.get("label"))
+		for row in ws.get("shortcuts", []):
+			if row.get("link_to"):
+				self.assertIn(row["link_to"], listed, row.get("label"))
+
+	def test_workspace_is_visible_only_to_roles_that_can_read_monthly_cards(self):
+		allowed = {r.get("role") for r in self._workspace().get("roles", [])}
+		self.assertEqual(allowed, {"Card Manager", "Card User", "Accounts Manager"})
+		self.assertNotIn("Card Operator", allowed)
+		self.assertNotIn("Card Supervisor", allowed)
+
+	def test_fixture_import_is_idempotent(self):
+		path = _fixture("workspace.json")
+		import_file_by_path(path, force=True)
+		first = frappe.db.get_value("Workspace", "Card", "modified")
+		import_file_by_path(path, force=True)
+		second = frappe.db.get_value("Workspace", "Card", "modified")
+		self.assertEqual(str(first), str(second))

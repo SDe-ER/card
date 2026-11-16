@@ -36,6 +36,7 @@ from card.constants import (
 	THIRD_PARTY,
 	derive_direction,
 )
+from card.field_privacy import can_view_money
 
 CARD = "Card Monthly Card"
 EQUIPMENT = "Card Equipment"
@@ -241,20 +242,36 @@ def _route(start, end, include_drafts=False, company=None):
 # workspace). They read nothing they do not return and write nothing.
 
 
+def _money_visible():
+	"""FR-162 on the dashboard: True when the user may see money values (money read on monthly cards).
+	A user without it gets no figure and no card is read for that user: the Number Card shows its own
+	"N/A" text (no error dialog), and the monthly values chart shows no series."""
+	return can_view_money()
+
+
 @frappe.whitelist(methods=["POST"])
 def supplier_cost_last_month(filters: str | dict | list | None = None) -> dict:
+	frappe.has_permission(CARD, "read", throw=True)
+	if not _money_visible():
+		return {"value": None, "fieldtype": "Currency"}
 	result, _w, route = _last_month_totals(filters)
 	return {"value": result["supplier"], "fieldtype": "Currency", **route}
 
 
 @frappe.whitelist(methods=["POST"])
 def customer_value_last_month(filters: str | dict | list | None = None) -> dict:
+	frappe.has_permission(CARD, "read", throw=True)
+	if not _money_visible():
+		return {"value": None, "fieldtype": "Currency"}
 	result, _w, route = _last_month_totals(filters)
 	return {"value": result["customer"], "fieldtype": "Currency", **route}
 
 
 @frappe.whitelist(methods=["POST"])
 def internal_value_last_month(filters: str | dict | list | None = None) -> dict:
+	frappe.has_permission(CARD, "read", throw=True)
+	if not _money_visible():
+		return {"value": None, "fieldtype": "Currency"}
 	result, with_internal, route = _last_month_totals(filters)
 	return {
 		"value": result["internal"] if with_internal else None,
@@ -314,6 +331,9 @@ def loads_last_month(filters: str | dict | list | None = None) -> dict:
 
 def chart_data(chart, filters=None, from_date=None, to_date=None, timespan=None, time_interval=None):
 	"""Labels and one dataset per series for the monthly card values chart."""
+	frappe.has_permission(CARD, "read", throw=True)
+	if not _money_visible():
+		return {"labels": [], "datasets": []}
 	filters = _filters(filters)
 	timegrain = time_interval or chart.get("time_interval") or "Monthly"
 	timespan = timespan or chart.get("timespan") or "Last Year"

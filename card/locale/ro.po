@@ -74,3 +74,103 @@ msgstr "Tipărit de"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Tipărit la"
+
+msgid "CARD operations dashboard"
+msgstr "Tablou de bord operațional CARD"
+
+msgid "Financial performance — last month"
+msgstr "Performanță financiară — luna trecută"
+
+msgid "Needs review (CARD)"
+msgstr "Necesită verificare (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Cele mai recente carduri lunare (CARD)"
+
+msgid "CARD customers"
+msgstr "Clienți CARD"
+
+msgid "CARD suppliers"
+msgstr "Furnizori CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Motorină și operațiuni (CARD)"
+
+msgid "New monthly card"
+msgstr "Card lunar nou"
+
+msgid "New equipment transport"
+msgstr "Transport nou de echipament"
+
+msgid "Customer statement (CARD)"
+msgstr "Extras de cont client (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Carduri lunare (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Echipamente (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Alocări (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Clienți pentru echipamente (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Transporturi de echipamente (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Valoare operațională pentru clienți - luna trecută"
+
+msgid "Supplier operating value - last month"
+msgstr "Valoare operațională furnizori - luna trecută"
+
+msgid "Internal operating value - last month"
+msgstr "Valoare operațională internă - luna trecută"
+
+msgid "Cards last month"
+msgstr "Carduri din luna trecută"
+
+msgid "Rented equipment (CARD)"
+msgstr "Echipamente închiriate (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Încărcări din luna trecută (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Carduri ciornă (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Carduri fără tarif intern (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Ore de funcționare fără tarif (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Sumar clienți (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Extras furnizor (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Sumar furnizori (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Extras furnizor A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Consum de motorină (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Cost operațional pe proiect (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Cost de transport pe proiect (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Reconciliere contoare (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Transport echipament (CARD)"
+

@@ -538,3 +538,103 @@ msgstr "মুদ্রণকারী"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "মুদ্রণের সময়"
+
+msgid "CARD operations dashboard"
+msgstr "CARD অপারেশন ড্যাশবোর্ড"
+
+msgid "Financial performance — last month"
+msgstr "আর্থিক কর্মক্ষমতা — গত মাস"
+
+msgid "Needs review (CARD)"
+msgstr "পর্যালোচনা প্রয়োজন (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "সাম্প্রতিক মাসিক কার্ড (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD গ্রাহক"
+
+msgid "CARD suppliers"
+msgstr "CARD সরবরাহকারী"
+
+msgid "Diesel and operations (CARD)"
+msgstr "ডিজেল ও অপারেশন (CARD)"
+
+msgid "New monthly card"
+msgstr "নতুন মাসিক কার্ড"
+
+msgid "New equipment transport"
+msgstr "নতুন যন্ত্রপাতি পরিবহন"
+
+msgid "Customer statement (CARD)"
+msgstr "গ্রাহক বিবরণী (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "মাসিক কার্ড (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "যন্ত্রপাতি (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "অ্যাসাইনমেন্ট (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "যন্ত্রপাতির গ্রাহক (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "যন্ত্রপাতি পরিবহন (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "গ্রাহকদের জন্য পরিচালন মূল্য - গত মাস"
+
+msgid "Supplier operating value - last month"
+msgstr "সরবরাহকারী পরিচালন মূল্য - গত মাস"
+
+msgid "Internal operating value - last month"
+msgstr "অভ্যন্তরীণ পরিচালন মূল্য - গত মাস"
+
+msgid "Cards last month"
+msgstr "গত মাসের কার্ড"
+
+msgid "Rented equipment (CARD)"
+msgstr "ভাড়া করা যন্ত্রপাতি (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "গত মাসের লোড (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "খসড়া কার্ড (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "অভ্যন্তরীণ হার ছাড়া কার্ড (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "হার ছাড়া পরিচালন ঘণ্টা (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "গ্রাহক সারসংক্ষেপ (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "সরবরাহকারী বিবরণী (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "সরবরাহকারী সারসংক্ষেপ (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "সরবরাহকারী বিবরণী A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "ডিজেল খরচ (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "প্রকল্প অনুযায়ী পরিচালন ব্যয় (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "প্রকল্প অনুযায়ী পরিবহন ব্যয় (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "মিটার মিলকরণ (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "যন্ত্রপাতি পরিবহন (CARD)"
+

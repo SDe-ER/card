@@ -74,3 +74,103 @@ msgstr "Presita de"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Presita je"
+
+msgid "CARD operations dashboard"
+msgstr "CARD-operacia panelo"
+
+msgid "Financial performance — last month"
+msgstr "Financa rezulto — pasinta monato"
+
+msgid "Needs review (CARD)"
+msgstr "Bezonas revizion (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Lastaj monataj kartoj (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD-klientoj"
+
+msgid "CARD suppliers"
+msgstr "CARD-liveruloj"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Dizelo kaj operacioj (CARD)"
+
+msgid "New monthly card"
+msgstr "Nova monata karto"
+
+msgid "New equipment transport"
+msgstr "Nova transporto de ekipaĵo"
+
+msgid "Customer statement (CARD)"
+msgstr "Klienta konto (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Monataj kartoj (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Ekipaĵo (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Asignoj (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Klientoj de ekipaĵo (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Transportoj de ekipaĵo (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Operacia valoro por klientoj - pasinta monato"
+
+msgid "Supplier operating value - last month"
+msgstr "Operacia valoro de liveruloj - pasinta monato"
+
+msgid "Internal operating value - last month"
+msgstr "Interna operacia valoro - pasinta monato"
+
+msgid "Cards last month"
+msgstr "Kartoj pasinta monato"
+
+msgid "Rented equipment (CARD)"
+msgstr "Lulita ekipaĵo (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Ŝarĝoj pasinta monato (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Skizaj kartoj (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Kartoj sen interna tarifo (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Operaciaj horoj sen tarifo (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Resumo de klientoj (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Konto de liveranto (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Resumo de liveruloj (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Konto de liveranto A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dizela konsumo (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Operaciaj kostoj laŭ projekto (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Transportaj kostoj laŭ projekto (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Kongruigo de mezuriloj (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Transporto de ekipaĵo (CARD)"
+

@@ -18,6 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
+- **2026-11-15 — The CARD dashboard is redesigned.** The CARD workspace now opens with an operations dashboard: the month's financial figures (customers, suppliers, internal), the cards that need review, the monthly values chart with shortcuts under it, the links in three groups, and the latest monthly cards. The money figures are refused to users without money permission. Not released yet.
 _Nothing yet._
 
 ## v4.9.0 — 2026-11-15

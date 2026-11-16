@@ -7481,3 +7481,103 @@ msgstr ""
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr ""
+
+msgid "CARD operations dashboard"
+msgstr ""
+
+msgid "Financial performance — last month"
+msgstr ""
+
+msgid "Needs review (CARD)"
+msgstr ""
+
+msgid "Latest monthly cards (CARD)"
+msgstr ""
+
+msgid "CARD customers"
+msgstr ""
+
+msgid "CARD suppliers"
+msgstr ""
+
+msgid "Diesel and operations (CARD)"
+msgstr ""
+
+msgid "New monthly card"
+msgstr ""
+
+msgid "New equipment transport"
+msgstr ""
+
+msgid "Customer statement (CARD)"
+msgstr ""
+
+msgid "Monthly cards (CARD)"
+msgstr ""
+
+msgid "Equipment (CARD)"
+msgstr ""
+
+msgid "Assignments (CARD)"
+msgstr ""
+
+msgid "Equipment customers (CARD)"
+msgstr ""
+
+msgid "Equipment transports (CARD)"
+msgstr ""
+
+msgid "Operating value for customers - last month"
+msgstr ""
+
+msgid "Supplier operating value - last month"
+msgstr ""
+
+msgid "Internal operating value - last month"
+msgstr ""
+
+msgid "Cards last month"
+msgstr ""
+
+msgid "Rented equipment (CARD)"
+msgstr ""
+
+msgid "Loads last month (CARD)"
+msgstr ""
+
+msgid "Draft cards (CARD)"
+msgstr ""
+
+msgid "Cards without internal rate (CARD)"
+msgstr ""
+
+msgid "Operating hours without rate (CARD)"
+msgstr ""
+
+msgid "Customer summary (CARD)"
+msgstr ""
+
+msgid "Supplier statement (CARD)"
+msgstr ""
+
+msgid "Suppliers summary (CARD)"
+msgstr ""
+
+msgid "Supplier statement A4 (CARD)"
+msgstr ""
+
+msgid "Diesel consumption (CARD)"
+msgstr ""
+
+msgid "Operating cost by project (CARD)"
+msgstr ""
+
+msgid "Transport cost by project (CARD)"
+msgstr ""
+
+msgid "Meter reconciliation (CARD)"
+msgstr ""
+
+msgid "Equipment transport (CARD)"
+msgstr ""
+

@@ -74,3 +74,103 @@ msgstr "Skrevet ut av"
 msgctxt "Card Review Copy"
 msgid "Printed at"
 msgstr "Skrevet ut"
+
+msgid "CARD operations dashboard"
+msgstr "CARD driftsdashbord"
+
+msgid "Financial performance — last month"
+msgstr "Økonomisk resultat — forrige måned"
+
+msgid "Needs review (CARD)"
+msgstr "Må gjennomgås (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Siste månedlige kort (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD-kunder"
+
+msgid "CARD suppliers"
+msgstr "CARD-leverandører"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Diesel og drift (CARD)"
+
+msgid "New monthly card"
+msgstr "Nytt månedlig kort"
+
+msgid "New equipment transport"
+msgstr "Ny utstyrstransport"
+
+msgid "Customer statement (CARD)"
+msgstr "Kundeoversikt (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Månedlige kort (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Utstyr (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Tildelinger (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Utstyrskunder (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Utstyrstransporter (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Driftsverdi for kunder - forrige måned"
+
+msgid "Supplier operating value - last month"
+msgstr "Leverandørens driftsverdi - forrige måned"
+
+msgid "Internal operating value - last month"
+msgstr "Intern driftsverdi - forrige måned"
+
+msgid "Cards last month"
+msgstr "Kort forrige måned"
+
+msgid "Rented equipment (CARD)"
+msgstr "Leid utstyr (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Lass forrige måned (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Kladdekort (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Kort uten intern sats (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Driftstimer uten sats (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Kundesammendrag (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Leverandøroversikt (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Leverandørsammendrag (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Leverandøroversikt A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dieselforbruk (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Driftskostnad per prosjekt (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Transportkostnad per prosjekt (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Måleravstemming (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Utstyrstransport (CARD)"
+
