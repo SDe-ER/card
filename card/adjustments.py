@@ -39,9 +39,12 @@ def sided_adjustments(card_names, side):
 	for r in frappe.get_all(
 		"Card Monthly Card Adjustment",
 		filters=[["parent", "in", list(card_names)], ["parenttype", "=", "Card Monthly Card"]],
-		fields=["parent", "side", "adjustment_type", "amount"],
+		fields=["parent", "side", "adjustment_type", "amount", "is_cash_disbursement"],
 		limit_page_length=0,
 	):
+		if cint(r.is_cash_disbursement):
+			# recorded, not posted: a pending owner-paid cash row is in no statement total (owner decisions 2026-11-16)
+			continue
 		if (r.side or "Supplier") != side:
 			continue
 		add, ded = out.get(r.parent, (0.0, 0.0))

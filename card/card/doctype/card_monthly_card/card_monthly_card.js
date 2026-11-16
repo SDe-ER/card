@@ -250,6 +250,8 @@ function card_calc(frm) {
 		deductions = 0,
 		supplier_signed = 0;
 	(frm.doc.adjustments || []).forEach((a) => {
+		// a pending owner-paid cash row is recorded but not counted (the server skips it too)
+		if (a.is_cash_disbursement) return;
 		const signed = a.adjustment_type === "إضافة" ? flt(a.amount) : -flt(a.amount);
 		if (a.adjustment_type === "إضافة") additions += flt(a.amount);
 		else if (a.adjustment_type === "خصم") deductions += flt(a.amount);

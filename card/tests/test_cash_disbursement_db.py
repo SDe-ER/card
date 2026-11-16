@@ -103,3 +103,17 @@ class TestCashRowDraftIntegration(_AdjBase):
 		card = self._typed_card(eq, [ordinary])
 		self.assertEqual(card.total_deductions, 120)
 		self.assertEqual(card.adjustments[0].is_cash_disbursement, 0)
+
+	def test_statement_totals_exclude_a_pending_cash_row(self):
+		from card.adjustments import sided_adjustments
+
+		eq = self._equipment(direction=DIR_RENTED_IN)
+		ordinary = {
+			"adjustment_type": "خصم",
+			"description": "Late delivery",
+			"amount": 120,
+			"side": "Supplier",
+		}
+		card = self._typed_card(eq, [dict(self.cash_row), ordinary])
+		# the Draft's cash row (300) is not in the statement figures; only the ordinary deduction (120) is
+		self.assertEqual(sided_adjustments([card.name], "Supplier").get(card.name), (0.0, 120.0))
