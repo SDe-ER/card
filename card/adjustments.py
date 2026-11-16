@@ -9,10 +9,23 @@ backfill_adjustment_side stored and what net_amount was computed with."""
 
 import frappe
 from frappe import _
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, getdate
 
 ADDITION = "إضافة"
 DEDUCTION = "خصم"
+
+
+def check_adjustment_date(description, adjustment_date, period_start, period_end):
+	"""An addition/deduction is dated and falls inside its card's period (Owner, 2026-11-16):
+	every movement must carry a date so the card and its statements can be computed by date."""
+	if not adjustment_date:
+		frappe.throw(_("Enter the date of the addition/deduction: {0}").format(description or ""))
+	if not (getdate(period_start) <= getdate(adjustment_date) <= getdate(period_end)):
+		frappe.throw(
+			_("The date of the addition/deduction {0} must be inside the card period ({1} to {2}).").format(
+				description or "", period_start, period_end
+			)
+		)
 
 
 def sided_adjustments(card_names, side):

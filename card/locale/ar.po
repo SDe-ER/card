@@ -8820,3 +8820,11 @@ msgstr "مطابقة العدادات"
 msgid "Equipment transport (CARD)"
 msgstr "نقل المعدة"
 
+msgid "Adjustment date"
+msgstr "تاريخ الإضافة/الخصم"
+
+msgid "Enter the date of the addition/deduction: {0}"
+msgstr "أدخل تاريخ الإضافة/الخصم: {0}"
+
+msgid "The date of the addition/deduction {0} must be inside the card period ({1} to {2})."
+msgstr "يجب أن يقع تاريخ الإضافة/الخصم {0} داخل فترة الكارت ({1} إلى {2})."

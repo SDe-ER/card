@@ -89,7 +89,10 @@ class TestDayBillingBasis(_StopBase):
 		)
 		for i, h in enumerate(HOURS, start=1):
 			c.append("days", {"operation_date": "2026-09-%02d" % i, "day_status": "عمل", "working_hours": h})
-		c.append("adjustments", {"adjustment_type": "خصم", "amount": 100, "description": "TEST"})
+		c.append(
+			"adjustments",
+			{"adjustment_date": "2026-09-01", "adjustment_type": "خصم", "amount": 100, "description": "TEST"},
+		)
 		c.insert(ignore_permissions=True)
 		self.assertEqual(flt(c.amount), 2250.0)
 		self.assertEqual(flt(c.net_amount), 2150.0)

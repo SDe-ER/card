@@ -119,7 +119,7 @@ class TestAdjustmentSides(_AdjBase):
 		for row in _days([8, 8]):
 			c.append("days", row)
 		for r in rows:
-			c.append("adjustments", r)
+			c.append("adjustments", {"adjustment_date": "2026-09-01", **r})
 		c.insert(ignore_permissions=True)
 		c.reload()
 		return c

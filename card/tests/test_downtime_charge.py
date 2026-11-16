@@ -64,13 +64,14 @@ class _DowntimeBase(_AdjBase):
 			row.update(values)
 			c.append("days", row)
 		for r in adjustments:
-			c.append("adjustments", r)
+			c.append("adjustments", {"adjustment_date": "2026-09-01", **r})
 		c.insert(ignore_permissions=True)
 		c.reload()
 		return c
 
 	def _charge(self, reason=None, **kw):
 		row = {
+			"adjustment_date": "2026-09-01",
 			"adjustment_type_ref": self.charge_type,
 			"description": "Standby charge",
 			"amount": 500,

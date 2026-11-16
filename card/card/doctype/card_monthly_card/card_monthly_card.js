@@ -502,6 +502,16 @@ frappe.ui.form.on("Card Monthly Card Day", {
 });
 
 frappe.ui.form.on("Card Monthly Card Adjustment", {
+	// a new row takes today's date, kept inside the card's period (the server checks it on save)
+	adjustments_add(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		if (row.adjustment_date) return;
+		let day = frappe.datetime.get_today();
+		const start = frm.doc.from_date;
+		if (start && day < start) day = start;
+		if (frm.doc.to_date && day > frm.doc.to_date) day = frm.doc.to_date;
+		frappe.model.set_value(cdt, cdn, "adjustment_date", day);
+	},
 	adjustment_type: card_calc,
 	amount: card_calc,
 	adjustments_remove: card_calc,

@@ -20,6 +20,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 
 | Label | Field name | Type | Options / link | Required |
 |---|---|---|---|---|
+| Adjustment date | `adjustment_date` | Date |  | Yes |
 | Type | `adjustment_type` | Select | إضافة · خصم | Yes |
 | Description | `description` | Data |  | Yes |
 | Amount | `amount` | Currency |  | Yes |

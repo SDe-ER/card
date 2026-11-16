@@ -8,6 +8,7 @@ from frappe.model.document import Document
 # FR-134 (#45): fields whose change must go through the card's own save, so it is validated with
 # the card's rules and recorded in the card's Version history
 GUARDED_FIELDS = (
+	"adjustment_date",
 	"amount",
 	"adjustment_type",
 	"adjustment_type_ref",

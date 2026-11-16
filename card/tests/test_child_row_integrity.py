@@ -412,7 +412,15 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 	def _submitted_card(self, hours):
 		card = self._card(self._equipment(), hours)
 		card = frappe.get_doc(MC, card.name)
-		card.append("adjustments", {"adjustment_type": "خصم", "description": "TEST-FR153", "amount": 5})
+		card.append(
+			"adjustments",
+			{
+				"adjustment_date": card.from_date,
+				"adjustment_type": "خصم",
+				"description": "TEST-FR153",
+				"amount": 5,
+			},
+		)
 		card.save(ignore_permissions=True)
 		card.submit()
 		return frappe.get_doc(MC, card.name)
@@ -430,6 +438,7 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 					"adjustments": [
 						{
 							"name": victim.adjustments[0].name,
+							"adjustment_date": victim.adjustments[0].adjustment_date,
 							"adjustment_type": "خصم",
 							"description": "x",
 							"amount": 1,

@@ -54,6 +54,7 @@ The **Additions and deductions** table of a monthly card:
 
 - **Adjustment type** – the configured type's name for the card's company; it sets **Type** (Addition / Deduction)
   from the type's kind. Older rows without a type keep working and count on the supplier side.
+- **Date** – required. The day of the addition or deduction; it must fall inside the card's month. A new row takes today's date when today is inside that month. Rows saved before v4.10.0 took the first day of their card's month.
 - **Description** and **Amount** – required; the amount must be greater than zero (the kind gives the sign).
 - **Side** – Supplier or Customer. Empty takes the card's billed side (Customer for a card rented to a customer,
   Supplier otherwise). A sub-rental card bills both parties, so every row must choose its side.

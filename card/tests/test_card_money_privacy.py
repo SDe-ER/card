@@ -121,7 +121,7 @@ class TestCardMoneyPrivacy(IntegrationTestCase):
 		for row in _days([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9]):
 			c.append("days", row)
 		for adj in adjustments or ():
-			c.append("adjustments", adj)
+			c.append("adjustments", {"adjustment_date": "2026-09-01", **adj})
 		c.insert(ignore_permissions=True)
 		if submit:
 			c.submit()

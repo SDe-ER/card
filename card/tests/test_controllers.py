@@ -272,7 +272,7 @@ class TestCardMonthlyCard(IntegrationTestCase):
 		for row in _days(hours_list):
 			c.append("days", row)
 		for adj in adjustments or []:
-			c.append("adjustments", adj)
+			c.append("adjustments", {"adjustment_date": "2026-09-01", **adj})
 		c.insert(ignore_permissions=True)
 		if submit:
 			c.submit()
