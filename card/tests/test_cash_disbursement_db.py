@@ -36,6 +36,24 @@ def _cash_account(company):
 
 
 class TestCashRowDraftIntegration(_AdjBase):
+	def _typed_card(self, eq, rows):
+		"""A Draft monthly card for September 2026 with two worked days and the given adjustment rows."""
+		from card.tests.test_controllers import _days
+
+		c = frappe.new_doc("Card Monthly Card")
+		c.equipment = eq.name
+		c.project = self.project
+		c.shift = "نهاري"
+		c.month = "09"
+		c.year = 2026
+		for row in _days([8, 8]):
+			c.append("days", row)
+		for r in rows:
+			c.append("adjustments", {"adjustment_date": "2026-09-01", **r})
+		c.insert(ignore_permissions=True)
+		c.reload()
+		return c
+
 	def setUp(self):
 		super().setUp()
 		self._clear_types()
