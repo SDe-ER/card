@@ -200,7 +200,14 @@ class TestCardMoneyPrivacy(IntegrationTestCase):
 		not a level-1 reader of the parent would never see the child's amount at level 0 (can_view_money False)."""
 		adj_card = self._card(
 			self._alt_equipment(),
-			adjustments=[{"adjustment_type": "إضافة", "description": "money-adj", "amount": 500}],
+			adjustments=[
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type": "إضافة",
+					"description": "money-adj",
+					"amount": 500,
+				}
+			],
 		)
 
 		# the child DocType has no DocPerms (istable=1); level-1 rights come from the parent

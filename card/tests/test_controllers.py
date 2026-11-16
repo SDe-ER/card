@@ -315,8 +315,18 @@ class TestCardMonthlyCard(IntegrationTestCase):
 			eq,
 			[10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9],  # 8175
 			adjustments=[
-				{"adjustment_type": "إضافة", "description": "add", "amount": 500},
-				{"adjustment_type": "خصم", "description": "ded", "amount": 200},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type": "إضافة",
+					"description": "add",
+					"amount": 500,
+				},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type": "خصم",
+					"description": "ded",
+					"amount": 200,
+				},
 			],
 		)
 		self.assertEqual(flt(c.total_additions), 500.0)

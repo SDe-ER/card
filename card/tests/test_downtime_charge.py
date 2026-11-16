@@ -99,8 +99,18 @@ class TestDowntimeChargeDefaults(_DowntimeBase):
 		card = self._card(
 			eq,
 			[
-				{"adjustment_type_ref": self.plain_type, "description": "Mob", "amount": 100},
-				{"adjustment_type": ADDITION, "description": "legacy", "amount": 50},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": self.plain_type,
+					"description": "Mob",
+					"amount": 100,
+				},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type": ADDITION,
+					"description": "legacy",
+					"amount": 50,
+				},
 			],
 		)
 		self.assertEqual(flt(card.total_additions), 150)
@@ -177,6 +187,7 @@ class TestDowntimeChargeRules(_DowntimeBase):
 				self._equipment(),
 				[
 					{
+						"adjustment_date": "2026-09-01",
 						"adjustment_type_ref": self.plain_type,
 						"description": "Mob",
 						"amount": 100,
@@ -327,7 +338,7 @@ class TestDowntimeChargeRest(_DowntimeBase):
 			{"stop_reason": None},
 			{"responsible_party_type": "Other", "responsible_party_name": "x"},
 			{"side": "Customer"},
-			{"adjustment_type_ref": self.plain_type},
+			{"adjustment_date": "2026-09-01", "adjustment_type_ref": self.plain_type},
 		):
 			self.assertFalse(
 				self._rest(update_doc, "Card Monthly Card Adjustment", row, values=values), values
