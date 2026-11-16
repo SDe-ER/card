@@ -9,6 +9,8 @@ from frappe.model.document import Document
 # the card's rules and recorded in the card's Version history
 GUARDED_FIELDS = (
 	"adjustment_date",
+	"is_cash_disbursement",
+	"cash_account",
 	"amount",
 	"adjustment_type",
 	"adjustment_type_ref",

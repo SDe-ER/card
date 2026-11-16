@@ -7589,3 +7589,27 @@ msgstr ""
 
 msgid "The date of the addition/deduction {0} must be inside the card period ({1} to {2})."
 msgstr ""
+
+msgid "Cash paid on behalf of the equipment owner"
+msgstr ""
+
+msgid "Cash account for the owner-paid expense"
+msgstr ""
+
+msgid "Choose the cash account the expense was paid from."
+msgstr ""
+
+msgid "Cash account {0} does not exist."
+msgstr ""
+
+msgid "Cash account {0} belongs to another company."
+msgstr ""
+
+msgid "Cash account {0} must be an enabled account, not a group."
+msgstr ""
+
+msgid "Account {0} is not a Cash account (its Account Type must be Cash)."
+msgstr ""
+
+msgid "Cash paid on behalf of an equipment owner is not enabled yet: the row {0} is refused until its payment approval and Journal Entry are built."
+msgstr ""

@@ -9,6 +9,8 @@
  "field_order": [
   "adjustment_date",
   "adjustment_type_ref",
+  "is_cash_disbursement",
+  "cash_account",
   "side",
   "adjustment_type",
   "description",
@@ -22,6 +24,21 @@
   "responsible_party_name"
  ],
  "fields": [
+  {
+   "default": "0",
+   "fieldname": "is_cash_disbursement",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Cash paid on behalf of the equipment owner"
+  },
+  {
+   "depends_on": "eval:doc.is_cash_disbursement",
+   "fieldname": "cash_account",
+   "fieldtype": "Link",
+   "label": "Cash account for the owner-paid expense",
+   "options": "Account",
+   "mandatory_depends_on": "eval:doc.is_cash_disbursement"
+  },
   {
    "fieldname": "adjustment_date",
    "fieldtype": "Date",

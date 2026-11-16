@@ -6,7 +6,11 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
 
-from card.adjustments import check_adjustment_date, validate_downtime_fields
+from card.adjustments import (
+	check_adjustment_date,
+	refuse_cash_disbursement_until_enabled,
+	validate_downtime_fields,
+)
 from card.api import recompute_customer, recompute_supplier
 from card.card.doctype.card_stop_reason.card_stop_reason import SIDE_BOTH, billable_side_of
 from card.card_value import PER_VOLUME_M3, bills_full_days, day_billing_basis
@@ -367,6 +371,7 @@ class CardMonthlyCard(Document):
 					)
 				)
 			check_adjustment_date(adj.description, adj.adjustment_date, self.from_date, self.to_date)
+			refuse_cash_disbursement_until_enabled(adj)
 			if adj.adjustment_type_ref:
 				typ = configured.get((self.company, adj.adjustment_type_ref))
 				if not typ or typ.disabled:

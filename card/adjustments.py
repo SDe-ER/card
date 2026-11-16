@@ -121,3 +121,35 @@ def _normalise_party(adj, company, label):
 					"The responsible company of the downtime charge {0} must be the card's company {1}."
 				).format(label, company)
 			)
+
+
+CASH_ACCOUNT_TYPE = "Cash"
+CASH_DISBURSEMENT_NOT_ENABLED = (
+	"Cash paid on behalf of an equipment owner is not enabled yet: the row {0} is refused until its "
+	"payment approval and Journal Entry are built."
+)
+
+
+def validate_cash_account(account, company):
+	"""The account that pays a cash disbursement must be an enabled leaf of the same company whose
+	Account Type is Cash (Petty Cash or Cash). The account number is not evidence: the type is read."""
+	if not account:
+		frappe.throw(_("Choose the cash account the expense was paid from."))
+	row = frappe.db.get_value(
+		"Account", account, ["company", "is_group", "disabled", "account_type"], as_dict=True
+	)
+	if not row:
+		frappe.throw(_("Cash account {0} does not exist.").format(account))
+	if row.company != company:
+		frappe.throw(_("Cash account {0} belongs to another company.").format(account))
+	if row.is_group or row.disabled:
+		frappe.throw(_("Cash account {0} must be an enabled account, not a group.").format(account))
+	if row.account_type != CASH_ACCOUNT_TYPE:
+		frappe.throw(_("Account {0} is not a Cash account (its Account Type must be Cash).").format(account))
+
+
+def refuse_cash_disbursement_until_enabled(adj):
+	"""Step 1 gate: an owner-paid cash row cannot be saved as an invoice line or a cash entry until its
+	approval and Journal Entry exist, so it can never be counted twice."""
+	if cint(adj.get("is_cash_disbursement")):
+		frappe.throw(_(CASH_DISBURSEMENT_NOT_ENABLED).format(adj.description or ""))
