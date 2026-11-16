@@ -8850,5 +8850,11 @@ msgstr "يجب أن يكون حساب النقدية {0} حسابًا مفعّل
 msgid "Account {0} is not a Cash account (its Account Type must be Cash)."
 msgstr "الحساب {0} ليس حساب نقدية (يجب أن يكون نوعه نقدية)."
 
-msgid "Cash paid on behalf of an equipment owner is not enabled yet: the row {0} is refused until its payment approval and Journal Entry are built."
-msgstr "النقد المدفوع نيابةً عن مالك المعدة غير مفعّل بعد: الصف {0} مرفوض حتى يُبنى اعتماد الدفع وقيد اليومية."
+msgid "Recorded only: not posted and not counted in the card until its cash approval and Journal Entry exist."
+msgstr "مسجّل فقط: لا يُرحَّل ولا يُحتسب في الكارت حتى يوجد اعتماد النقد وقيد اليومية."
+
+msgid "The owner-paid cash row {0} needs a supplier-billed card with the equipment owner as its supplier."
+msgstr "الصف النقدي المدفوع نيابةً عن المالك {0} يحتاج كارت مُحمَّل على مورد، والمالك هو المورد."
+
+msgid "Cash paid on behalf of an equipment owner is recorded but not posted yet, so the card cannot be submitted: {0}."
+msgstr "النقد المدفوع نيابةً عن مالك المعدة مسجّل ولم يُرحَّل بعد، لذلك لا يمكن اعتماد الكارت: {0}."

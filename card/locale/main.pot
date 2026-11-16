@@ -7611,5 +7611,11 @@ msgstr ""
 msgid "Account {0} is not a Cash account (its Account Type must be Cash)."
 msgstr ""
 
-msgid "Cash paid on behalf of an equipment owner is not enabled yet: the row {0} is refused until its payment approval and Journal Entry are built."
+msgid "Recorded only: not posted and not counted in the card until its cash approval and Journal Entry exist."
+msgstr ""
+
+msgid "The owner-paid cash row {0} needs a supplier-billed card with the equipment owner as its supplier."
+msgstr ""
+
+msgid "Cash paid on behalf of an equipment owner is recorded but not posted yet, so the card cannot be submitted: {0}."
 msgstr ""

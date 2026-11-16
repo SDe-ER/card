@@ -1,15 +1,16 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""Step 1 of the owner-paid cash expense feature (Owner, 2026-11-16): the cash account is validated by its
-actual Account Type, and an owner-paid cash row is refused until its approval and Journal Entry exist.
-Pure validators with the account read patched, so no site data is needed."""
+"""FR-170 step 1 (owner decisions 2026-11-16): an owner-paid cash row is validated when the Draft is saved,
+it is excluded from the card's totals, and the card cannot be submitted while it is pending. Pure checks with
+the account read patched, so no site data is needed."""
 
 from unittest import TestCase
 from unittest.mock import patch
 
 import frappe
 
-from card.adjustments import refuse_cash_disbursement_until_enabled, validate_cash_account
+from card.adjustments import refuse_cash_rows_on_submit, validate_cash_account, validate_cash_row
+from card.constants import DIR_INTERNAL, DIR_RENTED_IN
 
 COMPANY = "Test Company"
 
@@ -20,15 +21,21 @@ def _account(**overrides):
 	return frappe._dict(row)
 
 
+def _cash_row(account="1120 - Petty Cash", **overrides):
+	row = {"is_cash_disbursement": 1, "cash_account": account, "description": "diesel"}
+	row.update(overrides)
+	return frappe._dict(row)
+
+
 class TestCashAccountValidation(TestCase):
 	def _validate(self, account, row):
 		with patch("frappe.db.get_value", return_value=row):
 			validate_cash_account(account, COMPANY)
 
-	def test_petty_cash_account_is_accepted(self):
+	def test_petty_cash_account_1120_is_accepted(self):
 		self._validate("1120 - Petty Cash", _account())
 
-	def test_cash_account_is_accepted(self):
+	def test_cash_account_1110_is_accepted(self):
 		self._validate("1110 - Cash", _account())
 
 	def test_bank_account_is_refused_even_with_a_cash_looking_name(self):
@@ -54,11 +61,38 @@ class TestCashAccountValidation(TestCase):
 			self._validate("9999 - Nope", None)
 
 
-class TestCashDisbursementGate(TestCase):
-	def test_an_owner_paid_cash_row_is_refused_until_it_is_enabled(self):
-		with self.assertRaises(frappe.ValidationError):
-			refuse_cash_disbursement_until_enabled(frappe._dict(is_cash_disbursement=1, description="diesel"))
+class TestCashRowSaveValidation(TestCase):
+	"""A Draft with a valid cash row saves; an invalid cash account or a non-supplier card does not."""
 
-	def test_an_ordinary_row_passes_the_gate(self):
-		refuse_cash_disbursement_until_enabled(frappe._dict(is_cash_disbursement=0, description="diesel"))
-		refuse_cash_disbursement_until_enabled(frappe._dict(description="diesel"))
+	def test_ordinary_row_is_not_a_cash_row_and_is_not_checked(self):
+		self.assertFalse(validate_cash_row(frappe._dict(is_cash_disbursement=0), COMPANY, None, DIR_INTERNAL))
+
+	def test_valid_cash_row_on_a_supplier_card_saves(self):
+		with patch("frappe.db.get_value", return_value=_account()):
+			self.assertTrue(validate_cash_row(_cash_row(), COMPANY, "Owner Supplier", DIR_RENTED_IN))
+
+	def test_invalid_cash_account_fails_the_save(self):
+		with patch("frappe.db.get_value", return_value=_account(account_type="Bank")):
+			with self.assertRaises(frappe.ValidationError):
+				validate_cash_row(_cash_row("1210 - Bank"), COMPANY, "Owner Supplier", DIR_RENTED_IN)
+
+	def test_cash_row_without_the_owner_supplier_fails_the_save(self):
+		with patch("frappe.db.get_value", return_value=_account()):
+			with self.assertRaises(frappe.ValidationError):
+				validate_cash_row(_cash_row(), COMPANY, None, DIR_RENTED_IN)
+			with self.assertRaises(frappe.ValidationError):
+				validate_cash_row(_cash_row(), COMPANY, "Owner Supplier", DIR_INTERNAL)
+
+
+class TestCashRowSubmitGate(TestCase):
+	"""Posting is blocked while a cash row is pending; a card with no cash rows submits as before."""
+
+	def test_a_pending_cash_row_blocks_submission(self):
+		with self.assertRaises(frappe.ValidationError):
+			refuse_cash_rows_on_submit([_cash_row()])
+
+	def test_a_card_without_cash_rows_submits(self):
+		refuse_cash_rows_on_submit([frappe._dict(is_cash_disbursement=0, description="diesel")])
+		refuse_cash_rows_on_submit([frappe._dict(description="diesel")])
+		refuse_cash_rows_on_submit([])
+		refuse_cash_rows_on_submit(None)

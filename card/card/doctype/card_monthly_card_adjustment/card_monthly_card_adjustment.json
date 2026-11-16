@@ -29,6 +29,7 @@
    "fieldname": "is_cash_disbursement",
    "fieldtype": "Check",
    "in_list_view": 1,
+   "description": "Recorded only: not posted and not counted in the card until its cash approval and Journal Entry exist.",
    "label": "Cash paid on behalf of the equipment owner"
   },
   {

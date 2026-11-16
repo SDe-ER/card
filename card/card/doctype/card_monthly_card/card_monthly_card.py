@@ -8,7 +8,8 @@ from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
 
 from card.adjustments import (
 	check_adjustment_date,
-	refuse_cash_disbursement_until_enabled,
+	refuse_cash_rows_on_submit,
+	validate_cash_row,
 	validate_downtime_fields,
 )
 from card.api import recompute_customer, recompute_supplier
@@ -371,7 +372,9 @@ class CardMonthlyCard(Document):
 					)
 				)
 			check_adjustment_date(adj.description, adj.adjustment_date, self.from_date, self.to_date)
-			refuse_cash_disbursement_until_enabled(adj)
+			is_cash_row = validate_cash_row(
+				adj, self.company or eq.company, self.supplier, self.card_direction
+			)
 			if adj.adjustment_type_ref:
 				typ = configured.get((self.company, adj.adjustment_type_ref))
 				if not typ or typ.disabled:
@@ -411,6 +414,9 @@ class CardMonthlyCard(Document):
 							"The card has no supplier; a supplier-side addition/deduction needs one: {0}."
 						).format(adj.adjustment_type_ref)
 					)
+			if is_cash_row:
+				# recorded, not posted: not in the card's totals or its invoice lines (owner decisions 2026-11-16)
+				continue
 			signed = a if adj.adjustment_type == "إضافة" else -a
 			if adj.adjustment_type == "إضافة":
 				total_additions = total_additions + a
@@ -769,6 +775,7 @@ class CardMonthlyCard(Document):
 			)
 
 	def before_submit(self):
+		refuse_cash_rows_on_submit(self.adjustments)
 		# A card that bills a customer is final only when its EQUIPMENT carries the customer.
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS and not self.customer:
 			frappe.throw(

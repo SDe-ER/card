@@ -11,6 +11,8 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate
 
+from card.constants import SUPPLIER_BILLING_DIRECTIONS
+
 ADDITION = "إضافة"
 DEDUCTION = "خصم"
 
@@ -124,10 +126,6 @@ def _normalise_party(adj, company, label):
 
 
 CASH_ACCOUNT_TYPE = "Cash"
-CASH_DISBURSEMENT_NOT_ENABLED = (
-	"Cash paid on behalf of an equipment owner is not enabled yet: the row {0} is refused until its "
-	"payment approval and Journal Entry are built."
-)
 
 
 def validate_cash_account(account, company):
@@ -148,8 +146,30 @@ def validate_cash_account(account, company):
 		frappe.throw(_("Account {0} is not a Cash account (its Account Type must be Cash).").format(account))
 
 
-def refuse_cash_disbursement_until_enabled(adj):
-	"""Step 1 gate: an owner-paid cash row cannot be saved as an invoice line or a cash entry until its
-	approval and Journal Entry exist, so it can never be counted twice."""
-	if cint(adj.get("is_cash_disbursement")):
-		frappe.throw(_(CASH_DISBURSEMENT_NOT_ENABLED).format(adj.description or ""))
+def validate_cash_row(adj, company, supplier, direction):
+	"""Save-time checks of an owner-paid cash row. A Draft may be saved and edited with such a row; the
+	row is only validated here. Returns True when the row is a cash disbursement (it is then excluded from
+	the card's totals and its invoice recognition). Owner decisions 2026-11-16: the payment is made on behalf
+	of the equipment owner, so the card must be supplier-billed and carry the owner's supplier."""
+	if not cint(adj.get("is_cash_disbursement")):
+		return False
+	validate_cash_account(adj.get("cash_account"), company)
+	if direction not in SUPPLIER_BILLING_DIRECTIONS or not supplier:
+		frappe.throw(
+			_(
+				"The owner-paid cash row {0} needs a supplier-billed card with the equipment owner as its supplier."
+			).format(adj.get("description") or "")
+		)
+	return True
+
+
+def refuse_cash_rows_on_submit(rows):
+	"""Submit gate: a card whose cash rows have no approval and no Journal Entry yet cannot be submitted,
+	so no monthly invoice, period run or other posting can recognise them (Step 2 lifts this for approved rows)."""
+	pending = [r.get("description") or "" for r in rows or [] if cint(r.get("is_cash_disbursement"))]
+	if pending:
+		frappe.throw(
+			_(
+				"Cash paid on behalf of an equipment owner is recorded but not posted yet, so the card cannot be submitted: {0}."
+			).format(", ".join(pending))
+		)
