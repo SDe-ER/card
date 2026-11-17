@@ -92,46 +92,47 @@ def post_cash_disbursement(name):
 	if row.status != "Approved":
 		frappe.throw(_("Only an approved cash payment can be posted; {0} is {1}.").format(name, row.status))
 
-	doc = frappe.get_doc(DOCTYPE, name)
+	# The role check above authorises the posting. Everything ERPNext reads for the entry (the Supplier's party
+	# account, the Accounts, the Journal Entry itself) is then done as the system account, because a Card Manager
+	# does not hold the Accounts rights that ERPNext checks. The accounts are fixed by the record. The session
+	# user is restored in every case.
 	from erpnext.accounts.party import get_party_account
 
-	entry = frappe.get_doc(
-		{
-			"doctype": "Journal Entry",
-			"voucher_type": "Journal Entry",
-			"company": doc.company,
-			"posting_date": doc.payment_date,
-			"user_remark": "Card cash payment {0} ({1}) for card {2}, row {3}, on behalf of {4}".format(
-				doc.name, doc.transaction_key, doc.card, doc.adjustment_row, doc.supplier
-			),
-			"accounts": [
-				{
-					"account": get_party_account("Supplier", doc.supplier, doc.company),
-					"party_type": "Supplier",
-					"party": doc.supplier,
-					"debit_in_account_currency": doc.amount,
-					"project": doc.project,
-				},
-				{"account": doc.cash_account, "credit_in_account_currency": doc.amount},
-			],
-		}
-	)
-	# The role check above authorises the posting. The Journal Entry is then written as the system account,
-	# because ERPNext reads the Accounts of an entry under the user's own rights, which a Card Manager does not
-	# hold; the accounts are fixed by the record, and the session user is restored afterwards.
 	previous = frappe.session.user
 	frappe.set_user("Administrator")
 	try:
+		doc = frappe.get_doc(DOCTYPE, name)
+		entry = frappe.get_doc(
+			{
+				"doctype": "Journal Entry",
+				"voucher_type": "Journal Entry",
+				"company": doc.company,
+				"posting_date": doc.payment_date,
+				"user_remark": "Card cash payment {0} ({1}) for card {2}, row {3}, on behalf of {4}".format(
+					doc.name, doc.transaction_key, doc.card, doc.adjustment_row, doc.supplier
+				),
+				"accounts": [
+					{
+						"account": get_party_account("Supplier", doc.supplier, doc.company),
+						"party_type": "Supplier",
+						"party": doc.supplier,
+						"debit_in_account_currency": doc.amount,
+						"project": doc.project,
+					},
+					{"account": doc.cash_account, "credit_in_account_currency": doc.amount},
+				],
+			}
+		)
 		entry.insert()
 		entry.submit()
+		frappe.db.set_value(
+			DOCTYPE,
+			name,
+			{"status": "Posted", "journal_entry": entry.name, "posted_on": now_datetime()},
+			update_modified=False,
+		)
 	finally:
 		frappe.set_user(previous)
-	frappe.db.set_value(
-		DOCTYPE,
-		name,
-		{"status": "Posted", "journal_entry": entry.name, "posted_on": now_datetime()},
-		update_modified=False,
-	)
 	return entry.name
 
 
