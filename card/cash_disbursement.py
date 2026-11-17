@@ -149,6 +149,28 @@ def _entry_for(name):
 	)
 
 
+def _revalidate_source(doc):
+	"""Before a Journal Entry is built: the approved payment must still match its source. The card row must still be a
+	cash row with the approved amount and Cash account, and the Supplier must still be the card's beneficiary. The
+	executor takes no amount, account or Supplier from anywhere but the approved record and its source."""
+	card = frappe.get_doc("Card Monthly Card", doc.card)
+	source = next((r for r in card.adjustments or [] if r.name == doc.adjustment_row), None)
+	if (
+		not source
+		or not cint(source.is_cash_disbursement)
+		or flt(source.amount, 2) != flt(doc.amount, 2)
+		or source.cash_account != doc.cash_account
+		or card.supplier != doc.supplier
+		or card.company != doc.company
+	):
+		frappe.throw(
+			_(
+				"The source of cash payment {0} changed after approval (row, amount, Cash account or Supplier); it is not posted."
+			).format(doc.name),
+			frappe.ValidationError,
+		)
+
+
 def execute_posting(name):
 	"""Accounting execution. Run by the executor under the service identity. Creates one submitted Journal Entry,
 	or links the one an interrupted earlier run already created. Returns the entry name."""
@@ -172,6 +194,7 @@ def execute_posting(name):
 				_("You are not permitted for the company of the cash payment {0}.").format(name),
 				frappe.PermissionError,
 			)
+		_revalidate_source(doc)
 		entry = frappe.get_doc(
 			{
 				"doctype": "Journal Entry",

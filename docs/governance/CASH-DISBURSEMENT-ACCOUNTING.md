@@ -172,3 +172,52 @@ type needs owner approval; this assessment does not change it.
 - No Desk button for approve, queue or execute is exposed yet (server-side functions only).
 - Currency: the flow is single-currency (company currency).
 - Rollback: revert the code; posted and cancelled entries remain as ERPNext documents.
+
+## 9. Security review of the cash workflow (FR-170)
+
+### 9.1 ignore_permissions sites introduced by FR-170
+
+| Site | Why ignore_permissions | Explicit authorization that replaces the document right |
+|---|---|---|
+| `card/cash_disbursement.py` `request_cash_disbursement`: insert of the payment record | The payment DocType grants create to Card Manager only, and a Card User must be able to request from the card. | The caller must have write on the Monthly Card (`check_permission("write")`, its company checked). The row is revalidated: it must be a cash row; the amount and the Cash account come from that row, never from client input; the Supplier is the card's stored beneficiary; the evidence and the payment date are validated; one payment per row. |
+
+No other FR-170 code uses ignore_permissions. The allowlist entry is not an approval: the explicit authorization above is.
+
+### 9.2 Executor (dispatch) checks, per record
+
+1. The caller is the dedicated service role (`run_posting_queue`); anything else is a permission error.
+2. Candidates are limited to the caller's permitted companies, checked on each row (Company User Permission).
+3. Only status Posting (an approved and queued payment) is processed.
+4. `execute_posting` checks the company again (`has_cash_disbursement_permission`).
+5. The source is revalidated before any entry is built: the card row is still a cash row, its amount and Cash account
+   equal the approved values, the Supplier is still the card's beneficiary, and the company matches. A change is refused
+   (Posting Failed; no entry). Test: `test_the_executor_refuses_a_source_changed_after_approval`.
+6. The Journal Entry is created once (unique payment link; remark lookup for an interrupted run); the posting records
+   the identity that posted (`posted_by`), the claimant, the approver and the requester.
+
+No document right is granted to the service role on the payment DocType (a Custom DocPerm would replace the DocType's
+matrix for every role; this was found and removed in CI).
+
+### 9.3 Immutability after approval
+
+The economic fields (company, supplier, card, adjustment row, amount, payment date, Cash account), the status, the
+evidence, the transaction key, the Journal Entry link, `replaces`, the approval and posting stamps, the posting error and
+`posted_by` cannot change through a normal save. The controlled cancellation request is the only transition allowed
+from Posted, and it is a server-side flag that a client request cannot set.
+
+### 9.4 Accounting regression protection
+
+- A pending cash row is excluded from the card's additions, deductions and supplier net
+  (`test_a_pending_cash_row_is_in_no_card_total_and_no_net`).
+- The invoice-line builder skips the cash row, so the lines match the stored net; without this a submit was refused
+  (`Reconciliation mismatch`, found in CI on 943bf7f).
+- The Supplier invoice consistency check at submit is the regression guard for lines against totals.
+
+### 9.5 Open findings (not yet closed)
+
+- The Customer-side and settlement-report and period-run fingerprint exclusions are covered only by the shared
+  totals and the invoice identity check; there is no dedicated test for each report yet.
+- The service identity is a test identity. A production identity, its token and its runner need owner approval.
+- The HTTP dispatch (a request with the identity's token) is not yet verified in a non-production environment.
+- Code Review and Security Review have not been run on the final commit.
+

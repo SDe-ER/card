@@ -38,7 +38,9 @@ class TestCashOperationalWorkflow(_PostingBase):
 		self.card_user = self._user("Card User")
 		self.manager = self._user("Card Manager")
 		self.second_manager = self._user("Card Manager")
-		self.accountant = self._user("Accounts Manager")
+		self.accountant = self._user(
+			"System Manager"
+		)  # the accounting administrator who cancels the entry (ERPNext cancel saves a cancelled document; this site grants that to System Manager)
 		self.service = self._service_user()
 		self.payable = frappe.get_cached_value("Company", self.company, "default_payable_account")
 

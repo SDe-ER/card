@@ -1032,7 +1032,7 @@ def _transfer_doc(employee, to_employee, item):
 # fails test_ignore_permissions_sites_are_allowed until it is reviewed and listed here.
 IGNORE_PERMISSIONS_ALLOWED = {
 	("card/cash_disbursement.py", "request_cash_disbursement"): (
-		2,
+		1,
 		"cash payment record inserted after the requester's write permission on the Monthly Card is checked (company checked by the card); the payment DocType grants create only to Card Manager, and a Card User may request from the card",
 	),
 	("card/api.py", "_sync_registry_row"): (

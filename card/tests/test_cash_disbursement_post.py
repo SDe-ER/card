@@ -9,6 +9,7 @@ the Card Manager cannot execute a posting; the service identity can, and only fo
 interrupted run never creates a second entry."""
 
 import frappe
+from frappe.utils import flt
 
 from card.cash_disbursement import (
 	SERVICE_ROLE,
@@ -652,3 +653,36 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertEqual([r["status"] for r in again], ["Posted"])
 		self.assertEqual(self._journal_entries_for(name), [again[0]["journal_entry"]])
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "posting_error"), None)
+
+	def test_the_executor_refuses_a_source_changed_after_approval(self):
+		"""Security: the approved amount, Cash account and source row are revalidated before any Journal Entry is built.
+		A changed source row is not posted (Posting Failed, no entry); after the source is restored, one entry is posted."""
+		card, name = self._approved(amount=300)
+		row = next(r for r in card.adjustments if r.is_cash_disbursement)
+		frappe.db.set_value("Card Monthly Card Adjustment", row.name, "amount", 999)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posting Failed"])
+		self.assertIn("changed after approval", results[0]["error"])
+		self.assertEqual(self._journal_entries_for(name), [])
+
+		frappe.db.set_value("Card Monthly Card Adjustment", row.name, "amount", 300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		again = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in again], ["Posted"])
+		self.assertEqual(self._journal_entries_for(name), [again[0]["journal_entry"]])
+
+	def test_a_pending_cash_row_is_in_no_card_total_and_no_net(self):
+		"""Accounting regression: a pending owner-paid cash row adds nothing to the card's totals or its supplier net, so
+		the invoice lines built from the card match its stored net (the submit-time identity check)."""
+		card, _row = self._card_with_cash_row(amount=300)
+		card.reload()
+		self.assertEqual(flt(card.total_deductions, 2), 0)
+		self.assertEqual(flt(card.total_additions, 2), 0)
+		self.assertEqual(flt(card.net_amount, 2), flt(card.amount, 2))
