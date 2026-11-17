@@ -7640,3 +7640,12 @@ msgstr ""
 
 msgid "The period of payment date {0} is closed; the payment cannot be posted into it."
 msgstr ""
+
+msgid "Enter the reason for correcting the supplier of this card."
+msgstr ""
+
+msgid "Reason for correcting the supplier"
+msgstr ""
+
+msgid "Required when a Card Manager changes the supplier of a saved card. Kept with the card's Version history."
+msgstr ""

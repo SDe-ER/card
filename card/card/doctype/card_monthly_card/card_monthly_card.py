@@ -32,7 +32,7 @@ from card.constants import (
 from card.equipment_status import check_equipment_status, equipment_is_new_on
 from card.notifications import notify
 from card.settings import setting
-from card.settlement import supplier_change_refused
+from card.settlement import correction_reason_missing, supplier_change_refused
 from card.transfer import (
 	_assigned_on,
 	_component_rows,
@@ -158,6 +158,8 @@ class CardMonthlyCard(Document):
 			stored_supplier = (
 				None if self.is_new() else frappe.db.get_value(self.doctype, self.name, "supplier")
 			)
+		if correction_reason_missing(stored_supplier, self.supplier, self.supplier_correction_reason):
+			frappe.throw(_("Enter the reason for correcting the supplier of this card."))
 		if supplier_change_refused(frappe.get_roles(), stored_supplier, self.supplier, eq.get("supplier")):
 			frappe.throw(
 				_(

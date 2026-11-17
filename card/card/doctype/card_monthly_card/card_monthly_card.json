@@ -26,6 +26,7 @@
   "site_location",
   "equipment_info_col",
   "supplier",
+  "supplier_correction_reason",
   "customer",
   "rate_type",
   "rate",
@@ -190,6 +191,12 @@
    "label": "Owner",
    "options": "Supplier",
    "read_only": 1
+  },
+  {
+   "fieldname": "supplier_correction_reason",
+   "fieldtype": "Small Text",
+   "label": "Reason for correcting the supplier",
+   "description": "Required when a Card Manager changes the supplier of a saved card. Kept with the card's Version history."
   },
   {
    "fieldname": "from_date",

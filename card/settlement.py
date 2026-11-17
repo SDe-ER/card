@@ -58,6 +58,11 @@ def supplier_change_refused(roles, stored_supplier, new_supplier, equipment_supp
 	return new_supplier != stored_supplier
 
 
+def correction_reason_missing(stored_supplier, new_supplier, reason):
+	"""True when a save changes a saved card's supplier without the recorded reason (Version history keeps it)."""
+	return bool(stored_supplier and new_supplier != stored_supplier and not (reason or "").strip())
+
+
 def posting_block_reason(beneficiary_type):
 	"""None when the beneficiary type is verified for posting; otherwise the reason to block it."""
 	if beneficiary_type in VERIFIED_BENEFICIARY_TYPES:

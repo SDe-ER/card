@@ -8879,3 +8879,12 @@ msgstr "تاريخ الدفع {0} لا يمكن أن يكون في المستق�
 
 msgid "The period of payment date {0} is closed; the payment cannot be posted into it."
 msgstr "الفترة التي يقع فيها تاريخ الدفع {0} مغلقة؛ لا يمكن ترحيل الدفع فيها."
+
+msgid "Enter the reason for correcting the supplier of this card."
+msgstr "أدخل سبب تصحيح مورد هذا الكارت."
+
+msgid "Reason for correcting the supplier"
+msgstr "سبب تصحيح المورد"
+
+msgid "Required when a Card Manager changes the supplier of a saved card. Kept with the card's Version history."
+msgstr "إلزامي عندما يغيّر مدير الكارت مورد كارت محفوظ. يُحفظ مع سجل الإصدارات للكارت."
