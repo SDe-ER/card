@@ -10,6 +10,18 @@ A cash expense on a monthly card is paid by the company in cash on behalf of the
 card keeps as its beneficiary). The payment is not an invoice line of the rental invoice. Owner decision 2026-11-16:
 it is posted by a standard Journal Entry at the approved payment, not by the monthly invoice.
 
+## 1a. Accounting rationale for the Journal Entry (owner decision 2026-11-17)
+
+This transaction represents a recoverable cash payment on behalf of a beneficiary. It is not an additional rental
+expense and not a second payment of an existing invoice. For verified external Suppliers:
+
+- Debit: Supplier Accounts Payable (the beneficiary's party account, `get_party_account`).
+- Credit: the approved Cash account.
+
+The subsequent reconciliation allocates the existing Supplier debit against eligible rental Purchase Invoices. It
+creates no further cash movement. Journal Entry is the document type of this implementation; a change of document type
+requires the evidence of section 7 and the owner's explicit approval.
+
 ## 2. Accounting entries
 
 | Event | Document | Effect |
