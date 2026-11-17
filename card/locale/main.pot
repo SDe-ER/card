@@ -7649,3 +7649,6 @@ msgstr ""
 
 msgid "Required when a Card Manager changes the supplier of a saved card. Kept with the card's Version history."
 msgstr ""
+
+msgid "Supplier corrected from {0} to {1}. Reason: {2}"
+msgstr ""

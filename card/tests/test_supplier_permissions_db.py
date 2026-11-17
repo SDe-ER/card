@@ -92,10 +92,16 @@ class TestSupplierPermissionsDB(_AdjBase):
 		card.save()
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "supplier"), self.other)
-		versions = frappe.get_all(
-			"Version", filters={"ref_doctype": "Card Monthly Card", "docname": card.name}, pluck="data"
+		comments = frappe.get_all(
+			"Comment",
+			filters={
+				"reference_doctype": "Card Monthly Card",
+				"reference_name": card.name,
+				"comment_type": "Info",
+			},
+			pluck="content",
 		)
-		self.assertTrue(any(self.other in (v or "") for v in versions))
+		self.assertTrue(any("Owner entered wrongly on the equipment" in (c or "") for c in comments))
 
 	def test_manager_correction_without_a_reason_is_refused(self):
 		eq = self._equipment(direction=DIR_RENTED_IN)

@@ -160,6 +160,9 @@ class CardMonthlyCard(Document):
 			)
 		if correction_reason_missing(stored_supplier, self.supplier, self.supplier_correction_reason):
 			frappe.throw(_("Enter the reason for correcting the supplier of this card."))
+		if stored_supplier and self.supplier != stored_supplier:
+			# the correction is written to the card's comments on save (see on_update)
+			self.flags.supplier_correction = (stored_supplier, self.supplier, self.supplier_correction_reason)
 		if supplier_change_refused(frappe.get_roles(), stored_supplier, self.supplier, eq.get("supplier")):
 			frappe.throw(
 				_(
@@ -807,6 +810,12 @@ class CardMonthlyCard(Document):
 			)
 
 	def on_update(self):
+		correction = self.flags.get("supplier_correction")
+		if correction:
+			old, new, reason = correction
+			self.add_comment(
+				"Info", _("Supplier corrected from {0} to {1}. Reason: {2}").format(old, new, reason.strip())
+			)
 		# report filters link to the party registries; a party must be selectable
 		# from its first card, draft included (submit/cancel keep the totals)
 		if (

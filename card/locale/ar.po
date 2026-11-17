@@ -8888,3 +8888,6 @@ msgstr "سبب تصحيح المورد"
 
 msgid "Required when a Card Manager changes the supplier of a saved card. Kept with the card's Version history."
 msgstr "إلزامي عندما يغيّر مدير الكارت مورد كارت محفوظ. يُحفظ مع سجل الإصدارات للكارت."
+
+msgid "Supplier corrected from {0} to {1}. Reason: {2}"
+msgstr "تم تصحيح المورد من {0} إلى {1}. السبب: {2}"
