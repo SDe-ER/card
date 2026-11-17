@@ -155,7 +155,9 @@ class CardMonthlyCard(Document):
 			# an amended card carries the historical beneficiary of the card it amends
 			stored_supplier = frappe.db.get_value(self.doctype, self.amended_from, "supplier")
 		else:
-			stored_supplier = None if self.is_new() else frappe.db.get_value(self.doctype, self.name, "supplier")
+			stored_supplier = (
+				None if self.is_new() else frappe.db.get_value(self.doctype, self.name, "supplier")
+			)
 		if supplier_change_refused(frappe.get_roles(), stored_supplier, self.supplier, eq.get("supplier")):
 			frappe.throw(
 				_(
