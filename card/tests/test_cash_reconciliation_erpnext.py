@@ -95,6 +95,10 @@ class TestCashReconciliationERPNext(_PostingBase):
 		self._card(eq, [5], submit=True)
 		name = build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
 		pi = frappe.get_doc("Purchase Invoice", name)
+		# VAT input needs the supplier's own invoice number and date before submission (CARD rule)
+		pi.bill_no = "SUP-BILL-" + name
+		pi.bill_date = "2026-09-30"
+		pi.save()
 		pi.submit()
 		return frappe.get_doc("Purchase Invoice", name)
 
