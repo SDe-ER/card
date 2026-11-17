@@ -148,9 +148,14 @@ class CardMonthlyCard(Document):
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
 		# the card keeps the beneficiary it was created with (FR-171 review): the equipment's current
 		# owner is a default for a card that has none; a later owner change never overwrites it
-		if not self.supplier and eq.get("supplier"):
+		if not self.docstatus and not self.supplier and eq.get("supplier"):
+			# a Draft only: the default is never set by a submit (the period's beneficiary is fixed at creation)
 			self.supplier = eq.get("supplier")
-		stored_supplier = None if self.is_new() else frappe.db.get_value(self.doctype, self.name, "supplier")
+		if self.is_new() and self.amended_from:
+			# an amended card carries the historical beneficiary of the card it amends
+			stored_supplier = frappe.db.get_value(self.doctype, self.amended_from, "supplier")
+		else:
+			stored_supplier = None if self.is_new() else frappe.db.get_value(self.doctype, self.name, "supplier")
 		if supplier_change_refused(frappe.get_roles(), stored_supplier, self.supplier, eq.get("supplier")):
 			frappe.throw(
 				_(
