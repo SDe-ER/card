@@ -800,7 +800,16 @@ class CardMonthlyCard(Document):
 			)
 
 	def before_submit(self):
-		refuse_cash_rows_on_submit(self.adjustments)
+		posted_rows = (
+			frappe.get_all(
+				"Card Cash Disbursement",
+				filters={"card": self.name, "status": "Posted"},
+				pluck="adjustment_row",
+			)
+			if not self.is_new()
+			else []
+		)
+		refuse_cash_rows_on_submit(self.adjustments, posted_rows)
 		# A card that bills a customer is final only when its EQUIPMENT carries the customer.
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS and not self.customer:
 			frappe.throw(

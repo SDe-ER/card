@@ -166,10 +166,15 @@ def validate_cash_row(adj, company, supplier, direction):
 	return True
 
 
-def refuse_cash_rows_on_submit(rows):
-	"""Submit gate: a card whose cash rows have no approval and no Journal Entry yet cannot be submitted,
-	so no monthly invoice, period run or other posting can recognise them (Step 2 lifts this for approved rows)."""
-	pending = [r.get("description") or "" for r in rows or [] if cint(r.get("is_cash_disbursement"))]
+def refuse_cash_rows_on_submit(rows, posted_rows=()):
+	"""Submit gate: a cash row blocks the card's submission only until its payment is Posted (its Journal
+	Entry exists). posted_rows holds the names of the rows whose payment is posted. A posted row is not an
+	invoice line, so the monthly card submits without it."""
+	pending = [
+		r.get("description") or ""
+		for r in rows or []
+		if cint(r.get("is_cash_disbursement")) and r.get("name") not in set(posted_rows or ())
+	]
 	if pending:
 		frappe.throw(
 			_(
