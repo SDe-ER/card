@@ -638,3 +638,86 @@ msgstr "میٹر مفاہمت (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "مشینری کی ترسیل (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "کارڈ {1} کی قطار {0} کے لیے نقد ادائیگی پہلے ہی درخواست کی جا چکی ہے۔"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "نقد ادائیگی کی درخواست صرف مسودہ کارڈ پر کی جا سکتی ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "منسوخی کی وجہ درج کریں۔"
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "صرف منسوخ شدہ نقد ادائیگی کو تبدیل کیا جا سکتا ہے؛ {0} کی حیثیت {1} ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "صرف کارڈ مینیجر نقد ادائیگی کی منظوری دے سکتا ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "صرف کارڈ مینیجر نقد ادائیگی کو پوسٹ کر سکتا ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "صرف کارڈ مینیجر منسوخی کی درخواست کر سکتا ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "صرف کارڈ مینیجر تبدیلی کی درخواست کر سکتا ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "صرف زیر التوا نقد ادائیگی کی منظوری دی جا سکتی ہے؛ {0} کی حیثیت {1} ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "صرف پوسٹ شدہ نقد ادائیگی کو منسوخ کیا جا سکتا ہے؛ {0} کی حیثیت {1} ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "صرف قطار میں موجود نقد ادائیگی پر عمل کیا جا سکتا ہے؛ {0} کی حیثیت {1} ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "صرف منظور شدہ نقد ادائیگی کو پوسٹنگ کی قطار میں رکھا جا سکتا ہے؛ {0} کی حیثیت {1} ہے۔"
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "کارڈ {1} کی قطار {0} پر پہلے ہی ایک فعال نقد ادائیگی ({2}) موجود ہے۔"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "نقد ادائیگی {0} موجود نہیں ہے۔"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "نقد ادائیگی {0} کی حیثیت {1} ہے؛ اسے حذف نہیں کیا جا سکتا۔ اس کے بجائے منسوخ کریں۔"
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "درخواست گزار اپنی نقد ادائیگی کی خود منظوری نہیں دے سکتا۔"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "قطار {0} اب کارڈ {1} پر موجود نہیں ہے۔"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "قطار {0} کارڈ {1} پر نقد ادائیگی نہیں ہے۔"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "نقد ادائیگی {0} منظور ہو چکی ہے؛ {1} تبدیل نہیں کیا جا سکتا۔ اسے منسوخ کریں اور تبدیلی کی درخواست کریں۔"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "جرنل اندراج {0} میں ابھی بھی فعال مختص شدہ رقمیں ہیں۔ منسوخ کرنے سے پہلے انہیں ERPNext میں نمٹائیں (مفاہمت واپس لیں یا لنک ہٹائیں)۔"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "جرنل اندراج {0} نقد ادائیگی {1} کو ادا کرتا ہے۔ پہلے وجہ کے ساتھ منسوخی کی درخواست کریں؛ اس کے بعد ادائیگی کو منسوخ شدہ نشان زد کیا جائے گا۔"

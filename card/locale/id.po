@@ -174,3 +174,86 @@ msgstr "Rekonsiliasi meter (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transportasi peralatan (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Pembayaran tunai untuk baris {0} pada kartu {1} sudah diminta."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Pembayaran tunai hanya dapat diminta pada kartu draf."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Berikan alasan pembatalan."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Hanya pembayaran tunai yang dibatalkan yang dapat diganti; {0} berstatus {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Hanya Manajer Kartu yang dapat menyetujui pembayaran tunai."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Hanya Manajer Kartu yang dapat memposting pembayaran tunai."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Hanya Manajer Kartu yang dapat meminta pembatalan."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Hanya Manajer Kartu yang dapat meminta penggantian."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Hanya pembayaran tunai yang Menunggu yang dapat disetujui; {0} berstatus {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Hanya pembayaran tunai yang sudah diposting yang dapat dibatalkan; {0} berstatus {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Hanya pembayaran tunai dalam antrean yang dapat dijalankan; {0} berstatus {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Hanya pembayaran tunai yang disetujui yang dapat dimasukkan ke antrean posting; {0} berstatus {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Baris {0} pada kartu {1} sudah memiliki pembayaran tunai aktif ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Pembayaran tunai {0} tidak ada."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Pembayaran tunai {0} berstatus {1}; tidak dapat dihapus. Batalkan saja."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Pemohon tidak dapat menyetujui pembayaran tunainya sendiri."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Baris {0} tidak lagi ada pada kartu {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Baris {0} bukan pembayaran tunai pada kartu {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Pembayaran tunai {0} telah disetujui; {1} tidak dapat diubah. Batalkan dan minta penggantian."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Entri jurnal {0} masih memiliki alokasi aktif. Selesaikan di ERPNext (batalkan rekonsiliasi atau lepaskan tautan) sebelum membatalkannya."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Entri jurnal {0} membayar pembayaran tunai {1}. Minta pembatalan dengan alasan terlebih dahulu; pembayaran akan ditandai Dibatalkan."

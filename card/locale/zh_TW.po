@@ -174,3 +174,86 @@ msgstr "計量表核對 (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "設備運輸 (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "卡片 {1} 第 {0} 列的現金支付已被申請。"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "只能對草稿狀態的卡片申請現金支付。"
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "請填寫取消原因。"
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "只能替換已取消的現金支付；{0} 的狀態為 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "只有卡片管理員可以核准現金支付。"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "只有卡片管理員可以過帳現金支付。"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "只有卡片管理員可以申請取消。"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "只有卡片管理員可以申請替換。"
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "只能核准待處理的現金支付；{0} 的狀態為 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "只能取消已過帳的現金支付；{0} 的狀態為 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "只能執行排隊中的現金支付；{0} 的狀態為 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "只能將已核准的現金支付加入過帳佇列；{0} 的狀態為 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "卡片 {1} 第 {0} 列已有一筆有效的現金支付（{2}）。"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "現金支付 {0} 不存在。"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "現金支付 {0} 的狀態為 {1}，無法刪除。請改為取消。"
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "申請人不能核准自己的現金支付。"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "第 {0} 列已不在卡片 {1} 上。"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "第 {0} 列不是卡片 {1} 上的現金支付。"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "現金支付 {0} 已核准，{1} 不能再修改。請取消後申請替換。"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "日記帳分錄 {0} 仍有有效的沖銷分配。取消前請先在 ERPNext 中處理（取消對帳或取消關聯）。"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "日記帳分錄 {0} 用於支付現金支付 {1}。請先填寫原因申請取消；之後該支付將被標記為已取消。"

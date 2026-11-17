@@ -174,3 +174,86 @@ msgstr "Conciliação de medidores (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transporte de equipamento (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Um pagamento em dinheiro para a linha {0} do cartão {1} já foi solicitado."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Um pagamento em dinheiro só pode ser solicitado para um cartão em rascunho."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Informe o motivo do cancelamento."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Somente um pagamento em dinheiro cancelado pode ser substituído; {0} está {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Somente um gerente de cartões pode aprovar um pagamento em dinheiro."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Somente um gerente de cartões pode lançar um pagamento em dinheiro."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Somente um gerente de cartões pode solicitar um cancelamento."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Somente um gerente de cartões pode solicitar uma substituição."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Somente um pagamento em dinheiro pendente pode ser aprovado; {0} está {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Somente um pagamento em dinheiro lançado pode ser cancelado; {0} está {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Somente um pagamento em dinheiro na fila pode ser executado; {0} está {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Somente um pagamento em dinheiro aprovado pode ser colocado na fila para lançamento; {0} está {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "A linha {0} do cartão {1} já possui um pagamento em dinheiro ativo ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "O pagamento em dinheiro {0} não existe."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "O pagamento em dinheiro {0} está {1}; ele não pode ser excluído. Cancele-o."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "O solicitante não pode aprovar o próprio pagamento em dinheiro."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "A linha {0} não está mais no cartão {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "A linha {0} não é um pagamento em dinheiro no cartão {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "O pagamento em dinheiro {0} está aprovado; {1} não pode ser alterado. Cancele-o e solicite uma substituição."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "O lançamento contábil {0} ainda possui alocações ativas. Resolva-as no ERPNext (desfazer a conciliação ou desvincular) antes de cancelá-lo."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "O lançamento contábil {0} quita o pagamento em dinheiro {1}. Solicite primeiro o cancelamento com um motivo; o pagamento será marcado como Cancelado."

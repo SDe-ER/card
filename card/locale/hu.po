@@ -174,3 +174,86 @@ msgstr "Órajel-egyeztetés (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Eszközszállítás (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "A(z) {1} kártya {0}. sorához már kértek készpénzes kifizetést."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Készpénzes kifizetés csak tervezet állapotú kártyán kérhető."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Adja meg a törlés okát."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Csak a törölt készpénzes kifizetés cserélhető le; a(z) {0} állapota: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Készpénzes kifizetést csak kártyakezelő hagyhat jóvá."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Készpénzes kifizetést csak kártyakezelő könyvelhet."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Törlést csak kártyakezelő kérhet."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Cserét csak kártyakezelő kérhet."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Csak függőben lévő készpénzes kifizetés hagyható jóvá; a(z) {0} állapota: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Csak könyvelt készpénzes kifizetés törölhető; a(z) {0} állapota: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Csak sorban álló készpénzes kifizetés hajtható végre; a(z) {0} állapota: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Csak jóváhagyott készpénzes kifizetés tehető könyvelési sorba; a(z) {0} állapota: {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "A(z) {1} kártya {0}. sorának már van aktív készpénzes kifizetése ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "A(z) {0} készpénzes kifizetés nem létezik."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "A(z) {0} készpénzes kifizetés állapota: {1}; nem törölhető. Helyette törölje."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "A kérelmező nem hagyhatja jóvá a saját készpénzes kifizetését."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "A(z) {0} sor már nincs a(z) {1} kártyán."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "A(z) {0} sor nem készpénzes kifizetés a(z) {1} kártyán."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "A(z) {0} készpénzes kifizetés jóvá van hagyva; a(z) {1} nem módosítható. Törölje, és kérjen cserét."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "A(z) {0} naplóbejegyzésnek még vannak aktív hozzárendelései. Rendezze őket az ERPNext-ben (a egyeztetés visszavonása vagy a kapcsolat megszüntetése) a törlés előtt."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "A(z) {0} naplóbejegyzés a(z) {1} készpénzes kifizetést rendezi. Először kérjen törlést indokkal; ezután a kifizetés Törölt állapotot kap."

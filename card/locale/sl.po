@@ -174,3 +174,86 @@ msgstr "Uskladitev števcev (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Prevoz opreme (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Gotovinsko plačilo za vrstico {0} kartice {1} je že zahtevano."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Gotovinsko plačilo je mogoče zahtevati samo za kartico v osnutku."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Navedite razlog za preklic."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Nadomestiti je mogoče le preklicano gotovinsko plačilo; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Gotovinsko plačilo lahko odobri samo upravitelj kartic."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Gotovinsko plačilo lahko knjiži samo upravitelj kartic."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Preklic lahko zahteva samo upravitelj kartic."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Nadomestilo lahko zahteva samo upravitelj kartic."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Odobriti je mogoče le gotovinsko plačilo v čakanju; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Preklicati je mogoče le knjiženo gotovinsko plačilo; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Izvesti je mogoče le gotovinsko plačilo v čakalni vrsti; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "V čakalno vrsto za knjiženje je mogoče dodati le odobreno gotovinsko plačilo; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Vrstica {0} kartice {1} že ima aktivno gotovinsko plačilo ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Gotovinsko plačilo {0} ne obstaja."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Gotovinsko plačilo {0} je {1}; ni ga mogoče izbrisati. Namesto tega ga prekličite."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Vlagatelj ne more odobriti lastnega gotovinskega plačila."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Vrstica {0} ni več na kartici {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Vrstica {0} ni gotovinsko plačilo na kartici {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Gotovinsko plačilo {0} je odobreno; {1} ni mogoče spremeniti. Prekličite ga in zahtevajte nadomestilo."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Knjižen vnos {0} ima še aktivne dodelitve. Pred preklicem jih uredite v ERPNext (prekličite uskladitev ali prekinite povezavo)."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Knjižen vnos {0} poravnava gotovinsko plačilo {1}. Najprej zahtevajte preklic z razlogom; plačilo bo nato označeno kot Preklicano."

@@ -174,3 +174,86 @@ msgstr "Vyúčtování měřidel (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Přeprava techniky (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Hotová platba pro řádek {0} karty {1} už byla vyžádána."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Hotovou platbu lze vyžádat pouze u karty v konceptu."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Uveďte důvod zrušení."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Nahradit lze pouze zrušenou hotovou platbu; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Hotovou platbu může schválit pouze správce karet."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Hotovou platbu může zaúčtovat pouze správce karet."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Zrušení může vyžádat pouze správce karet."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Náhradu může vyžádat pouze správce karet."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Schválit lze pouze čekající hotovou platbu; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Zrušit lze pouze zaúčtovanou hotovou platbu; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Provést lze pouze hotovou platbu ve frontě; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Do fronty k zaúčtování lze zařadit pouze schválenou hotovou platbu; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Řádek {0} karty {1} už má aktivní hotovou platbu ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Hotová platba {0} neexistuje."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Hotová platba {0} je {1}; nelze ji smazat. Zrušte ji."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Žadatel nemůže schválit vlastní hotovou platbu."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Řádek {0} už není na kartě {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Řádek {0} není hotová platba na kartě {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Hotová platba {0} je schválena; {1} nelze změnit. Zrušte ji a požádejte o náhradu."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Účetní záznam {0} má stále aktivní alokace. Před zrušením je vyřešte v ERPNext (zrušit párování nebo odpojit)."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Účetní záznam {0} hradí hotovou platbu {1}. Nejprve požádejte o zrušení s uvedením důvodu; platba pak bude označena jako Zrušeno."

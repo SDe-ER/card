@@ -370,10 +370,28 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		request_cancellation(name, "Wrong receipt; period closed")
 		frappe.set_user("Administrator")
+		# the refused cancel is rolled back to the savepoint, as the request is rolled back in production
+		frappe.db.savepoint("ccd_closed_cancel")
 		with self.assertRaises(ClosedAccountingPeriod):
 			frappe.get_doc("Journal Entry", entry).cancel()
+		frappe.db.rollback(save_point="ccd_closed_cancel")
 		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "journal_entry"), entry)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancellation Requested")
+
+	def test_late_approval_of_a_payment_dated_in_a_closed_period_is_refused(self):
+		"""A Pending payment dated in a period closed later cannot be approved: it could never be posted."""
+		from erpnext.accounts.doctype.accounting_period.accounting_period import ClosedAccountingPeriod
+
+		card, row = self._card_with_cash_row()
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-LATE")
+		self._close_period("2026-09-01", "2026-09-30")
+		frappe.set_user(self.manager)
+		with self.assertRaises(ClosedAccountingPeriod):
+			approve_cash_disbursement(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
+		self.assertEqual(self._journal_entries_for(name), [])
 
 	def test_an_allocated_journal_entry_is_not_cancelled(self):
 		"""Reconciliation safety: while the entry has active allocations, neither the request nor the cancel passes."""

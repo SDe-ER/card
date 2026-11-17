@@ -174,3 +174,86 @@ msgstr "မီတာ ပြန်လည်တိုက်ဆိုင်ခြ�
 msgid "Equipment transport (CARD)"
 msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်မှု (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "ကတ် {1} ၏ အတန်း {0} အတွက် ငွေသား ပေးချေမှုကို တောင်းဆိုပြီးဖြစ်သည်။"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "ငွေသား ပေးချေမှုကို မူကြမ်းကတ်ပေါ်တွင်သာ တောင်းဆိုနိုင်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "ပယ်ဖျက်ရသည့် အကြောင်းရင်းကို ထည့်ပါ။"
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "ပယ်ဖျက်ပြီးသော ငွေသား ပေးချေမှုကိုသာ အစားထိုးနိုင်သည်; {0} သည် {1} ဖြစ်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "ကတ်မန်နေဂျာသာ ငွေသား ပေးချေမှုကို အတည်ပြုနိုင်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "ကတ်မန်နေဂျာသာ ငွေသား ပေးချေမှုကို ပို့စ်တင်နိုင်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "ကတ်မန်နေဂျာသာ ပယ်ဖျက်ရန် တောင်းဆိုနိုင်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "ကတ်မန်နေဂျာသာ အစားထိုးရန် တောင်းဆိုနိုင်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "ဆိုင်းငံ့ထားသော ငွေသား ပေးချေမှုကိုသာ အတည်ပြုနိုင်သည်; {0} သည် {1} ဖြစ်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "ပို့စ်တင်ပြီးသော ငွေသား ပေးချေမှုကိုသာ ပယ်ဖျက်နိုင်သည်; {0} သည် {1} ဖြစ်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "တန်းစီထားသော ငွေသား ပေးချေမှုကိုသာ လုပ်ဆောင်နိုင်သည်; {0} သည် {1} ဖြစ်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "အတည်ပြုပြီးသော ငွေသား ပေးချေမှုကိုသာ ပို့စ်တင်ရန် တန်းစီနိုင်သည်; {0} သည် {1} ဖြစ်သည်။"
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "ကတ် {1} ၏ အတန်း {0} တွင် ဆက်လက်အသုံးပြုနေသော ငွေသား ပေးချေမှု ({2}) ရှိပြီးဖြစ်သည်။"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "ငွေသား ပေးချေမှု {0} မရှိပါ။"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "ငွေသား ပေးချေမှု {0} သည် {1} ဖြစ်သဖြင့် ဖျက်၍မရပါ။ အစားထိုးတွင် ပယ်ဖျက်ပါ။"
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "တောင်းဆိုသူသည် မိမိ၏ ငွေသား ပေးချေမှုကို ကိုယ်တိုင် အတည်ပြုခွင့်မရှိပါ။"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "အတန်း {0} သည် ကတ် {1} ပေါ်တွင် မရှိတော့ပါ။"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "အတန်း {0} သည် ကတ် {1} ပေါ်ရှိ ငွေသား ပေးချေမှု မဟုတ်ပါ။"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "ငွေသား ပေးချေမှု {0} ကို အတည်ပြုပြီးဖြစ်သဖြင့် {1} ကို ပြောင်းလဲ၍မရပါ။ ပယ်ဖျက်ပြီး အစားထိုးတောင်းဆိုပါ။"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "ဂျာနယ်စာရင်း {0} တွင် ဆက်လက်အသုံးပြုနေသော ခွဲဝေမှုများ ရှိနေသေးသည်။ ပယ်ဖျက်မီ ERPNext တွင် ဖြေရှင်းပါ (ပြန်ညှိမှု ဖြုတ်ခြင်း သို့မဟုတ် ချိတ်ဆက်မှု ဖြုတ်ခြင်း)။"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "ဂျာနယ်စာရင်း {0} သည် ငွေသား ပေးချေမှု {1} ကို ပေးချေသည်။ ပထမဦးစွာ အကြောင်းရင်းဖြင့် ပယ်ဖျက်ရန် တောင်းဆိုပါ; ထို့နောက် ပေးချေမှုကို ပယ်ဖျက်ပြီးဟု အမှတ်အသားပြုမည်။"

@@ -174,3 +174,86 @@ msgstr "Mätaravstämning (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Maskintransport (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "En kontantbetalning för rad {0} på kort {1} har redan begärts."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "En kontantbetalning kan bara begäras för ett kort i utkast."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Ange skälet till makuleringen."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Endast en makulerad kontantbetalning kan ersättas; {0} är {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Endast en kortansvarig kan godkänna en kontantbetalning."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Endast en kortansvarig kan bokföra en kontantbetalning."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Endast en kortansvarig kan begära makulering."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Endast en kortansvarig kan begära ersättning."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Endast en väntande kontantbetalning kan godkännas; {0} är {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Endast en bokförd kontantbetalning kan makuleras; {0} är {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Endast en kontantbetalning i kö kan köras; {0} är {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Endast en godkänd kontantbetalning kan köas för bokföring; {0} är {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Rad {0} på kort {1} har redan en aktiv kontantbetalning ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Kontantbetalningen {0} finns inte."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Kontantbetalningen {0} är {1}; den kan inte tas bort. Makulera den i stället."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Den som begärt kan inte godkänna sin egen kontantbetalning."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Rad {0} finns inte längre på kort {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Rad {0} är inte en kontantbetalning på kort {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Kontantbetalningen {0} är godkänd; {1} kan inte ändras. Makulera den och begär en ersättning."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Verifikationen {0} har fortfarande aktiva tilldelningar. Reglera dem i ERPNext (ta bort avstämningen eller kopplingen) innan den makuleras."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Verifikationen {0} reglerar kontantbetalningen {1}. Begär först makulering med en motivering; betalningen markeras då som Makulerad."

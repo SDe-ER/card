@@ -76,6 +76,12 @@ def approve_cash_disbursement(name):
 	"""Explicit approval by a Card Manager who is not the requester."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can approve a cash payment."))
 	doc = frappe.get_doc(DOCTYPE, name)
+	# ERPNext's own closed-period rule: a payment dated in a closed period could never be posted, so it is not approved
+	from erpnext.accounts.general_ledger import validate_accounting_period
+
+	validate_accounting_period(
+		[frappe._dict(posting_date=doc.payment_date, company=doc.company, voucher_type="Journal Entry")]
+	)
 	if doc.owner == frappe.session.user:
 		frappe.throw(_("The requester cannot approve their own cash payment."))
 	if doc.status != "Pending":

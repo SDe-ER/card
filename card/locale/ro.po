@@ -174,3 +174,86 @@ msgstr "Reconciliere contoare (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transport echipament (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Există deja o plată în numerar solicitată pentru rândul {0} al cardului {1}."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "O plată în numerar poate fi solicitată doar pentru un card în ciornă."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Indicați motivul anulării."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Doar o plată în numerar anulată poate fi înlocuită; {0} este {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Doar un manager de carduri poate aproba o plată în numerar."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Doar un manager de carduri poate înregistra o plată în numerar."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Doar un manager de carduri poate solicita anularea."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Doar un manager de carduri poate solicita înlocuirea."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Doar o plată în numerar în așteptare poate fi aprobată; {0} este {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Doar o plată în numerar înregistrată poate fi anulată; {0} este {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Doar o plată în numerar din coadă poate fi executată; {0} este {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Doar o plată în numerar aprobată poate fi pusă în coada de înregistrare; {0} este {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Rândul {0} al cardului {1} are deja o plată în numerar activă ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Plata în numerar {0} nu există."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Plata în numerar {0} este {1}; nu poate fi ștearsă. Anulați-o în schimb."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Solicitantul nu își poate aproba propria plată în numerar."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Rândul {0} nu mai există pe cardul {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Rândul {0} nu este o plată în numerar pe cardul {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Plata în numerar {0} este aprobată; {1} nu poate fi modificat. Anulați-o și solicitați o înlocuire."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Înregistrarea de jurnal {0} are încă alocări active. Rezolvați-le în ERPNext (anulați reconcilierea sau dezlegați) înainte de anulare."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Înregistrarea de jurnal {0} achită plata în numerar {1}. Solicitați mai întâi anularea cu un motiv; plata va fi apoi marcată ca Anulată."

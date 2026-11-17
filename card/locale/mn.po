@@ -174,3 +174,86 @@ msgstr "Тоолуурын тохиргоо (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Техникийн тээвэр (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "{1} картын {0}-р мөрийн бэлэн мөнгөний төлбөрийг аль хэдийн хүсэлт болгосон байна."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Бэлэн мөнгөний төлбөрийг зөвхөн ноорог картад хүсэлт болгох боломжтой."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Цуцлах шалтгаанаа оруулна уу."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Зөвхөн цуцлагдсан бэлэн мөнгөний төлбөрийг солих боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Зөвхөн карт менежер бэлэн мөнгөний төлбөрийг батлах эрхтэй."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Зөвхөн карт менежер бэлэн мөнгөний төлбөрийг бүртгэх эрхтэй."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Зөвхөн карт менежер цуцлуулах хүсэлт гаргах эрхтэй."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Зөвхөн карт менежер солих хүсэлт гаргах эрхтэй."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Зөвхөн хүлээгдэж буй бэлэн мөнгөний төлбөрийг батлах боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Зөвхөн бүртгэгдсэн бэлэн мөнгөний төлбөрийг цуцлах боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Зөвхөн дарааллаас гүйцэтгэх бэлэн мөнгөний төлбөрийг гүйцэтгэх боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Зөвхөн батлагдсан бэлэн мөнгөний төлбөрийг бүртгэлийн дараалалд оруулах боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "{1} картын {0}-р мөрөнд аль хэдийн идэвхтэй бэлэн мөнгөний төлбөр ({2}) байна."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "{0} бэлэн мөнгөний төлбөр байхгүй байна."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "{0} бэлэн мөнгөний төлбөрийн төлөв нь {1} тул устгах боломжгүй. Оронд нь цуцална уу."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Хүсэлт гаргагч өөрийн бэлэн мөнгөний төлбөрийг батлах боломжгүй."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "{0}-р мөр {1} картад байхгүй болсон байна."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "{0}-р мөр {1} картын бэлэн мөнгөний төлбөр биш байна."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "{0} бэлэн мөнгөний төлбөрийг батлагдсан тул {1}-г өөрчлөх боломжгүй. Цуцлаад солих хүсэлт гаргана уу."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "{0} гүйлгээний бичилтэд идэвхтэй хуваарилалт үлдсэн байна. Цуцлахаас өмнө ERPNext дээр шийдвэрлэнэ үү (тохируулгыг буцаах эсвэл холбоосыг салгах)."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "{0} гүйлгээний бичилт нь {1} бэлэн мөнгөний төлбөрийг төлж байна. Эхлээд шалтгаантайгаар цуцлуулах хүсэлт гаргана уу; дараа нь төлбөр Цуцлагдсан гэж тэмдэглэгдэнэ."

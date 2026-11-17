@@ -174,3 +174,86 @@ msgstr "Kongruigo de mezuriloj (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Transporto de ekipaĵo (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Mona pago por linio {0} de karto {1} jam estas petita."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Mona pago povas esti petita nur por karto en skizo."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Donu la kialon de la nuligo."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Nur nuligita mona pago povas esti anstataŭigita; {0} estas {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Nur kartadministranto povas aprobi monan pagon."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Nur kartadministranto povas registri monan pagon."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Nur kartadministranto povas peti nuligon."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Nur kartadministranto povas peti anstataŭigon."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Nur atendanta mona pago povas esti aprobita; {0} estas {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Nur registrita mona pago povas esti nuligita; {0} estas {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Nur mona pago en vico povas esti plenumita; {0} estas {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Nur aprobita mona pago povas esti metita en vicon por registrado; {0} estas {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Linio {0} de karto {1} jam havas aktivan monan pagon ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "La mona pago {0} ne ekzistas."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "La mona pago {0} estas {1}; ĝi ne povas esti forigita. Nuligu ĝin anstataŭe."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "La petanto ne povas aprobi sian propran monan pagon."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Linio {0} ne plu estas sur karto {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Linio {0} ne estas mona pago sur karto {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "La mona pago {0} estas aprobita; {1} ne povas esti ŝanĝita. Nuligu ĝin kaj petu anstataŭigon."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Ĵurnala enskribo {0} ankoraŭ havas aktivajn asignojn. Solvu ilin en ERPNext (malligi aŭ forigi ligon) antaŭ ol nuligi ĝin."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Ĵurnala enskribo {0} pagas monan pagon {1}. Unue petu nuligon kun kialo; la pago tiam estos markita kiel Nuligita."
