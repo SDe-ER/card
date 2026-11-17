@@ -65,6 +65,7 @@ class TestCashDisbursementPosting(_AdjBase):
 			"Supplier": {"read": 1},
 			"Company": {"read": 1},
 			"Project": {"read": 1},
+			"Card Cash Disbursement": {"read": 1},
 		}
 		for doctype, rights in grants.items():
 			frappe.get_doc(
@@ -615,3 +616,40 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancelled")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "journal_entry"), entry)
 		self.assertEqual(frappe.db.get_value(DOCTYPE, new, "status"), "Posted")
+
+	def test_only_the_service_identity_can_dispatch_the_queue(self):
+		_card, name = self._approved()
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		with self.assertRaises(frappe.PermissionError):
+			frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
+		self.assertEqual(self._journal_entries_for(name), [])
+
+	def test_a_failed_posting_is_recorded_retried_and_posted_once(self):
+		"""A real database failure (the Cash account is disabled, so the Journal Entry is refused) rolls the attempt back,
+		records Posting Failed with the error, and a retry after the fix posts exactly one entry."""
+		_card, name = self._approved(amount=300)
+		account = frappe.db.get_value(DOCTYPE, name, "cash_account")
+		frappe.db.set_value("Account", account, "disabled", 1)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posting Failed"])
+		self.assertTrue(results[0]["error"])
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting Failed")
+		self.assertTrue(frappe.db.get_value(DOCTYPE, name, "posting_error"))
+		self.assertEqual(self._journal_entries_for(name), [])  # the failed attempt left no entry
+
+		frappe.db.set_value("Account", account, "disabled", 0)
+		frappe.set_user(self.manager)
+		queue_posting(name)  # a failed payment can be queued again (the retry)
+		frappe.set_user(self.service)
+		again = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in again], ["Posted"])
+		self.assertEqual(self._journal_entries_for(name), [again[0]["journal_entry"]])
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "posting_error"), None)

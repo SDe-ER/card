@@ -36,6 +36,7 @@ from frappe.model.rename_doc import rename_doc
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_months, get_first_day, get_last_day, nowdate
 
+from card.cash_disbursement import SERVICE_ROLE
 from card.constants import DIR_SUBRENTAL
 from card.tests.test_cash_disbursement_db import _cash_account
 from card.tests.test_controllers import _ensure_masters
@@ -491,6 +492,37 @@ CASES = {
 		cross=lambda c: {"name": c.appr_b},
 		own=lambda c: {"name": c.appr_a},
 		denied=((), ("Card User",)),
+	),
+	"card.cash_disbursement.request_cash_disbursement": Case(
+		method=POST,
+		roles=("Card User",),
+		gate="write on the card (its company checked); a flagged cash row with an amount above zero; evidence; one payment per row; the Supplier the card keeps",
+		isolation="doc.check_permission(write) on the card (Company User Permission on the card's company)",
+		effects="Inserts one Pending cash payment for the row (audited); no ledger effect",
+		writes=True,
+		cross=lambda c: {"card": c.card_b, "row": "ROW-B", "payment_date": nowdate(), "evidence": "BOLA"},
+		denied=((),),
+	),
+	"card.cash_disbursement.get_cash_disbursements": Case(
+		method=GET,
+		roles=("Card User",),
+		gate="read on the card (its company checked)",
+		isolation="doc.check_permission(read) on the card (Company User Permission on the card's company)",
+		effects="None (read only)",
+		cross=lambda c: {"card": c.card_b},
+		denied=((),),
+	),
+	"card.cash_disbursement.run_posting_queue": Case(
+		method=POST,
+		roles=(SERVICE_ROLE,),
+		gate="the dedicated accounting service identity only; the queue the caller is permitted for",
+		isolation="frappe.get_list applies the caller's Company User Permission; execute_posting checks the payment's company",
+		effects="Posts each queued payment as one submitted Journal Entry; a failure is recorded as Posting Failed",
+		writes=True,
+		cross=lambda c: {"limit": 20},
+		expect="no_leak",
+		leak=lambda result, c: any(r.get("name") == c.post_b for r in result),
+		denied=((), ("Card Manager",), ("Card User",)),
 	),
 	# ---------- reports ----------
 	"card.card.report.equipment_supplier_statement.statement_pdf.download_pdf": Case(
@@ -1272,6 +1304,16 @@ class TestBolaMatrix(IntegrationTestCase):
 		doc.db_insert()
 		return name
 
+	def _card_row(self, company, name):
+		"""A Draft monthly card of one company (matrix fixture for the card-level access check; the card's
+		children and validations are not needed to refuse a company-B call)."""
+		doc = frappe.get_doc(
+			{"doctype": "Card Monthly Card", "name": name, "company": company, "docstatus": 0}
+		)
+		doc.flags.ignore_links = True
+		doc.db_insert()
+		return name
+
 	def _ccd(self, company, supplier, label, status="Posted", cash_account=None):
 		"""A cash payment of one company in the given state (matrix fixture). It is inserted as Posted (no cash-account
 		check on a company without a chart) and moved to the requested state directly; the card and the row are not
@@ -1333,6 +1375,20 @@ class TestBolaMatrix(IntegrationTestCase):
 		c.pend_b = self._ccd(c.B, c.sup_b, "PB" + b, "Pending")
 		c.appr_a = self._ccd(c.A, c.sup_a, "AA" + token, "Approved", _cash_account(c.A))
 		c.appr_b = self._ccd(c.B, c.sup_b, "AB" + b, "Approved")
+		c.post_b = self._ccd(c.B, c.sup_b, "PO" + b, "Posting")
+		c.card_b = self._card_row(c.B, "EOMC-BOLA-B-" + token)
+		if not frappe.db.exists("Role", SERVICE_ROLE):
+			frappe.get_doc({"doctype": "Role", "role_name": SERVICE_ROLE}).insert(ignore_permissions=True)
+		frappe.get_doc(
+			{
+				"doctype": "Custom DocPerm",
+				"parent": "Card Cash Disbursement",
+				"role": SERVICE_ROLE,
+				"permlevel": 0,
+				"read": 1,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(doctype="Card Cash Disbursement")
 		c.cust_a = self._customer(f"CUST-A-{token}")
 		c.cust_b = self._customer(f"CUST-{b}")
 		for registry, field, party in (

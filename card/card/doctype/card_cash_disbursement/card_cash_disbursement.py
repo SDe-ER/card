@@ -28,6 +28,8 @@ EVIDENCE_AFTER_APPROVAL = (
 	"approved_by",
 	"approved_on",
 	"posted_on",
+	"posted_by",
+	"posting_error",
 	"posting_claimed_by",
 	"posting_claimed_on",
 )

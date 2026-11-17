@@ -430,6 +430,8 @@ frappe.ui.form.on("Card Monthly Card", {
 		card_lock_project(frm);
 		card_render_card_links(frm);
 		card_render_diesel(frm);
+		card_cash_request(frm);
+		card_cash_status(frm);
 	},
 	equipment(frm) {
 		card_load_hourly(frm);
@@ -518,3 +520,93 @@ frappe.ui.form.on("Card Monthly Card Adjustment", {
 	amount: card_calc,
 	adjustments_remove: card_calc,
 });
+
+// FR-170: the cash payments of this card. Posting status and reconciliation status are shown as separate indicators.
+const CASH_POSTING_INDICATORS = {
+	Pending: [__("Cash: pending approval"), "orange"],
+	Approved: [__("Cash: approved"), "blue"],
+	Posting: [__("Cash: queued for posting"), "blue"],
+	"Posting Failed": [__("Cash: posting failed"), "red"],
+	Posted: [__("Cash: posted"), "green"],
+	"Cancellation Requested": [__("Cash: cancellation requested"), "orange"],
+	Cancelled: [__("Cash: cancelled"), "darkgrey"],
+};
+const CASH_RECONCILIATION_INDICATORS = {
+	Unreconciled: [__("Cash: not reconciled"), "orange"],
+	"Partially reconciled": [__("Cash: partially reconciled"), "blue"],
+	"Fully reconciled": [__("Cash: fully reconciled"), "green"],
+};
+
+function card_cash_status(frm) {
+	if (frm.is_new()) return;
+	frappe.call({
+		method: "card.cash_disbursement.get_cash_disbursements",
+		args: { card: frm.doc.name },
+		callback: (r) => {
+			(r.message || []).forEach((row) => {
+				const posting = CASH_POSTING_INDICATORS[row.status];
+				if (posting) frm.dashboard.add_indicator(posting[0], posting[1]);
+				if (row.replacement_pending)
+					frm.dashboard.add_indicator(__("Cash: replacement pending"), "orange");
+				const recon = CASH_RECONCILIATION_INDICATORS[row.reconciliation];
+				if (recon) frm.dashboard.add_indicator(recon[0], recon[1]);
+			});
+		},
+	});
+}
+
+function card_cash_request(frm) {
+	if (frm.is_new() || frm.doc.docstatus !== 0) return;
+	const cash_rows = (frm.doc.adjustments || []).filter((a) => cint(a.is_cash_disbursement));
+	if (!cash_rows.length) return;
+	frm.add_custom_button(
+		__("Request cash approval"),
+		() =>
+			frappe.prompt(
+				[
+					{
+						label: __("Cash row"),
+						fieldname: "row",
+						fieldtype: "Select",
+						options: cash_rows.map((a) => a.name).join("\n"),
+						default: cash_rows[0].name,
+						reqd: 1,
+					},
+					{
+						label: __("Payment date"),
+						fieldname: "payment_date",
+						fieldtype: "Date",
+						default: frappe.datetime.get_today(),
+						reqd: 1,
+					},
+					{
+						label: __("Evidence (receipt number or reference)"),
+						fieldname: "evidence",
+						fieldtype: "Data",
+						reqd: 1,
+					},
+				],
+				(values) =>
+					frappe.call({
+						method: "card.cash_disbursement.request_cash_disbursement",
+						args: {
+							card: frm.doc.name,
+							row: values.row,
+							payment_date: values.payment_date,
+							evidence: values.evidence,
+						},
+						freeze: true,
+						callback: () => {
+							frappe.show_alert({
+								message: __("Cash approval requested"),
+								indicator: "green",
+							});
+							frm.reload_doc();
+						},
+					}),
+				__("Request cash approval"),
+				__("Request"),
+			),
+		__("Actions"),
+	);
+}

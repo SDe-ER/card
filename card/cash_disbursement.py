@@ -21,7 +21,7 @@ posting run under a row lock, and a retry or a recovered run finds the entry by 
 
 import frappe
 from frappe import _
-from frappe.utils import cint, now_datetime, nowdate
+from frappe.utils import cint, flt, now_datetime, nowdate
 
 from card.settlement import posting_block_reason, resolve_beneficiary, validate_payment_date
 
@@ -37,15 +37,26 @@ def _check_role(roles, allowed, message):
 		frappe.throw(message, frappe.PermissionError)
 
 
-def request_cash_disbursement(card, row, payment_date, evidence):
-	"""Record a Pending cash payment for a flagged row of a Draft card (the requester is the record owner)."""
+@frappe.whitelist(methods=["POST"])
+def request_cash_disbursement(card: str, row: str, payment_date: str, evidence: str) -> str:
+	"""Record a Pending cash payment for a flagged row of a Draft card (the requester is the record owner).
+
+	The card's company is checked for the caller (read on the card). The beneficiary is the Supplier the card keeps
+	(historical snapshot, never the equipment's current owner). The row must be a cash row with a positive amount and
+	a validated Cash account; the evidence is required; one payment per row, in any status."""
 	doc = frappe.get_doc("Card Monthly Card", card)
-	doc.check_permission("read")
+	# the request is an action on the card: whoever may edit the card (its company included) may request its payment.
+	# The payment record is then inserted under that explicit card check, not by widening the payment DocType's rights.
+	doc.check_permission("write")
 	if doc.docstatus != 0:
 		frappe.throw(_("A cash payment is requested on a Draft card only."))
 	source = next((r for r in doc.adjustments or [] if r.name == row), None)
 	if not source or not cint(source.is_cash_disbursement):
 		frappe.throw(_("The row {0} is not a cash payment on card {1}.").format(row, card))
+	if flt(source.amount) <= 0:
+		frappe.throw(_("The cash payment on row {0} must be an amount above zero.").format(row))
+	if not (evidence or "").strip():
+		frappe.throw(_("Enter the evidence of the cash payment (receipt number or reference)."))
 	if frappe.db.exists(DOCTYPE, {"card": card, "adjustment_row": row}):
 		frappe.throw(_("A cash payment is already requested for row {0} of card {1}.").format(row, card))
 	beneficiary_type, supplier = resolve_beneficiary(doc.card_direction, doc.supplier)
@@ -68,7 +79,10 @@ def request_cash_disbursement(card, row, payment_date, evidence):
 			"evidence": evidence,
 			"status": "Pending",
 		}
-	).insert()
+	)
+	record.insert(
+		ignore_permissions=True
+	)  # authorised above: write on the card (company checked by the card)
 	return record.name
 
 
@@ -106,9 +120,11 @@ def queue_posting(name: str) -> str | None:
 		frappe.throw(_("The cash payment {0} does not exist.").format(name))
 	if row.status == "Posted":
 		return row.journal_entry
-	if row.status != "Approved":
+	if row.status not in ("Approved", "Posting Failed"):
 		frappe.throw(
-			_("Only an approved cash payment can be queued for posting; {0} is {1}.").format(name, row.status)
+			_("Only an approved or failed cash payment can be queued for posting; {0} is {1}.").format(
+				name, row.status
+			)
 		)
 	frappe.db.set_value(
 		DOCTYPE,
@@ -117,6 +133,7 @@ def queue_posting(name: str) -> str | None:
 			"status": "Posting",
 			"posting_claimed_by": frappe.session.user,
 			"posting_claimed_on": now_datetime(),
+			"posting_error": None,
 		},
 		update_modified=False,
 	)
@@ -148,6 +165,7 @@ def execute_posting(name):
 		from erpnext.accounts.party import get_party_account
 
 		doc = frappe.get_doc(DOCTYPE, name)
+		doc.check_permission("write")  # the executing identity must be permitted for the payment's company
 		entry = frappe.get_doc(
 			{
 				"doctype": "Journal Entry",
@@ -181,7 +199,12 @@ def execute_posting(name):
 	frappe.db.set_value(
 		DOCTYPE,
 		name,
-		{"status": "Posted", "journal_entry": entry_name, "posted_on": now_datetime()},
+		{
+			"status": "Posted",
+			"journal_entry": entry_name,
+			"posted_on": now_datetime(),
+			"posted_by": frappe.session.user,
+		},
 		update_modified=False,
 	)
 	return entry_name
@@ -334,3 +357,92 @@ def has_cash_disbursement_permission(doc, ptype=None, user=None, debug=False):
 	if not doc.is_new():
 		owners.add(frappe.db.get_value(DOCTYPE, doc.name, "company"))
 	return bool(companies) and all(c in companies for c in owners if c)
+
+
+@frappe.whitelist(methods=["POST"])
+def run_posting_queue(limit: int = 20) -> list:
+	"""The accounting executor's dispatch: process the queued payments the caller may post, one at a time.
+
+	Only the dedicated service identity (SERVICE_ROLE) may call it, so the posting always runs as that identity; no
+	code switches the user. Candidates come from frappe.get_list, which applies the caller's company permissions, so
+	a payment of a company the identity is not permitted for is not even selected. Each payment is posted inside a
+	savepoint: a failure rolls back that payment only and records status "Posting Failed" with the error, and the
+	payment stays queueable again. A payment already posted by an interrupted run is linked, not posted twice
+	(execute_posting). Returns one result per processed payment."""
+	_check_role(
+		frappe.get_roles(),
+		(SERVICE_ROLE,),
+		_("Only the accounting service identity can run the posting queue."),
+	)
+	candidates = frappe.get_list(
+		DOCTYPE,
+		filters={"status": "Posting"},
+		fields=["name"],
+		order_by="posting_claimed_on asc",
+		limit=min(max(cint(limit), 1), 100),
+	)
+	results = []
+	for candidate in candidates:
+		frappe.db.savepoint("ccd_posting")
+		try:
+			entry = execute_posting(candidate.name)
+			results.append({"name": candidate.name, "status": "Posted", "journal_entry": entry})
+		except Exception as error:
+			frappe.db.rollback(save_point="ccd_posting")
+			message = frappe.utils.strip_html(str(error))[:1000]
+			frappe.db.set_value(
+				DOCTYPE,
+				candidate.name,
+				{"status": "Posting Failed", "posting_error": message},
+				update_modified=False,
+			)
+			results.append({"name": candidate.name, "status": "Posting Failed", "error": message})
+	return results
+
+
+def reconciliation_status(journal_entry, amount) -> str:
+	"""The reconciliation of a posted payment, kept apart from its posting status. Source: active allocations of the
+	Journal Entry's party row in the Payment Ledger Entry (delinked = 0; the allocation rows of erpnext version-16,
+	which have the other document on one side). Returns "" before posting."""
+	if not journal_entry:
+		return ""
+	amounts = frappe.get_all(
+		"Payment Ledger Entry",
+		filters={"delinked": 0, "against_voucher_no": journal_entry, "voucher_no": ["!=", journal_entry]},
+		pluck="amount",
+	) + frappe.get_all(
+		"Payment Ledger Entry",
+		filters={"delinked": 0, "voucher_no": journal_entry, "against_voucher_no": ["!=", journal_entry]},
+		pluck="amount",
+	)
+	allocated = sum(abs(flt(value)) for value in amounts)
+	if allocated <= 0:
+		return "Unreconciled"
+	if allocated + 0.005 < flt(amount):
+		return "Partially reconciled"
+	return "Fully reconciled"
+
+
+@frappe.whitelist(methods=["GET"])
+def get_cash_disbursements(card: str) -> list:
+	"""Read-only status of the cash payments of one card, for the card's form. The caller must be permitted to read
+	the card (its company). Each entry carries the posting status, the reconciliation status (kept separate), the
+	cancellation state and whether a replacement is pending."""
+	frappe.get_doc("Card Monthly Card", card).check_permission("read")
+	rows = frappe.get_all(
+		DOCTYPE,
+		filters={"card": card},
+		fields=["name", "adjustment_row", "status", "journal_entry", "amount", "posting_error", "replaces"],
+		order_by="creation asc",
+	)
+	pending_replacements = {
+		r.replaces
+		for r in frappe.get_all(DOCTYPE, filters={"status": "Pending"}, fields=["replaces"])
+		if r.replaces
+	}
+	for row in rows:
+		row["reconciliation"] = (
+			reconciliation_status(row.journal_entry, row.amount) if row.status == "Posted" else ""
+		)
+		row["replacement_pending"] = row.name in pending_replacements
+	return rows

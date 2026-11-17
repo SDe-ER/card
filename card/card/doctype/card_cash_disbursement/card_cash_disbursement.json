@@ -29,7 +29,9 @@
   "cancellation_requested_on",
   "cancelled_by",
   "cancelled_on",
-  "replaces"
+  "replaces",
+  "posting_error",
+  "posted_by"
  ],
  "fields": [
   {
@@ -109,7 +111,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nApproved\nPosting\nPosted\nCancellation Requested\nCancelled",
+   "options": "Pending\nApproved\nPosting\nPosting Failed\nPosted\nCancellation Requested\nCancelled",
    "default": "Pending",
    "read_only": 1,
    "in_list_view": 1
@@ -197,6 +199,18 @@
    "label": "Replaces",
    "read_only": 1,
    "options": "Card Cash Disbursement"
+  },
+  {
+   "fieldname": "posting_error",
+   "fieldtype": "Small Text",
+   "label": "Posting Error",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted_by",
+   "fieldtype": "Data",
+   "label": "Posted By",
+   "read_only": 1
   }
  ],
  "links": [],
