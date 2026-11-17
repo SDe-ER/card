@@ -20,24 +20,22 @@ from card.settlement import (
 
 
 class TestBeneficiary(TestCase):
-	def test_supplier_owner_of_a_rented_in_card_is_verified(self):
-		self.assertEqual(
-			resolve_beneficiary(DIR_RENTED_IN, "Owner Co", "Owner Co"), (BENEFICIARY_SUPPLIER, "Owner Co")
-		)
+	def test_supplier_of_a_rented_in_card_is_the_verified_beneficiary(self):
+		self.assertEqual(resolve_beneficiary(DIR_RENTED_IN, "Owner Co"), (BENEFICIARY_SUPPLIER, "Owner Co"))
 
-	def test_card_supplier_that_is_not_the_current_owner_is_refused(self):
-		with self.assertRaises(frappe.ValidationError):
-			resolve_beneficiary(DIR_RENTED_IN, "Old Owner", "New Owner")
+	def test_historical_supplier_is_kept_as_stored_after_an_owner_change(self):
+		# the card's stored supplier is the identity of its period; the equipment's current owner is not an input
+		self.assertEqual(resolve_beneficiary(DIR_RENTED_IN, "Old Owner"), (BENEFICIARY_SUPPLIER, "Old Owner"))
 
 	def test_customer_billed_card_has_no_supplier_beneficiary(self):
 		with self.assertRaises(frappe.ValidationError):
-			resolve_beneficiary(DIR_RENTED_OUT, "Owner Co", "Owner Co")
+			resolve_beneficiary(DIR_RENTED_OUT, "Owner Co")
 		with self.assertRaises(frappe.ValidationError):
-			resolve_beneficiary(DIR_INTERNAL, "Owner Co", "Owner Co")
+			resolve_beneficiary(DIR_INTERNAL, "Owner Co")
 
 	def test_card_without_supplier_is_refused(self):
 		with self.assertRaises(frappe.ValidationError):
-			resolve_beneficiary(DIR_RENTED_IN, None, "Owner Co")
+			resolve_beneficiary(DIR_RENTED_IN, None)
 
 
 class TestPostingGate(TestCase):

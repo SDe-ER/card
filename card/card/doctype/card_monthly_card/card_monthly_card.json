@@ -185,7 +185,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "equipment.supplier",
    "fieldname": "supplier",
    "fieldtype": "Link",
    "label": "Owner",

@@ -135,3 +135,27 @@ class TestCashRowDraftIntegration(_AdjBase):
 		card = self._typed_card(eq, [dict(self.cash_row), ordinary])
 		# the Draft's cash row (300) is not in the statement figures; only the ordinary deduction (120) is
 		self.assertEqual(sided_adjustments([card.name], "Supplier").get(card.name), (0.0, 120.0))
+
+	def test_draft_keeps_its_historical_supplier_when_the_equipment_owner_changes(self):
+		"""FR-171 review: a later owner change does not overwrite the beneficiary a card was created with."""
+		eq = self._equipment(direction=DIR_RENTED_IN)
+		original = frappe.db.get_value("Card Equipment", eq.name, "supplier")
+		self.assertTrue(original)
+		card = self._typed_card(eq, [])
+		self.assertEqual(card.supplier, original)
+
+		group = frappe.db.get_value("Supplier Group", {"is_group": 0}, "name")
+		new_owner = frappe.get_doc(
+			{
+				"doctype": "Supplier",
+				"supplier_name": "Test Owner " + frappe.generate_hash(length=6),
+				"supplier_group": group,
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.set_value("Card Equipment", eq.name, "supplier", new_owner.name)
+
+		card = frappe.get_doc("Card Monthly Card", card.name)
+		card.save()
+		card.reload()
+		self.assertEqual(card.supplier, original)
+		self.assertNotEqual(card.supplier, new_owner.name)

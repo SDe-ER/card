@@ -135,6 +135,7 @@ class CardMonthlyCard(Document):
 				"rental_end_date",
 				"is_unit_component",
 				"default_customer",
+				"supplier",
 				"customer_rate_type",
 				"customer_rate",
 				"customer_rate_night",
@@ -144,6 +145,10 @@ class CardMonthlyCard(Document):
 		)
 		if not eq:
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
+		# the card keeps the beneficiary it was created with (FR-171 review): the equipment's current
+		# owner is a default for a card that has none; a later owner change never overwrites it
+		if not self.supplier and eq.get("supplier"):
+			self.supplier = eq.get("supplier")
 		# FR-118 (#45): stop reasons and the responsible party of each day row, before the
 		# unit and assignment checks (a billable stopped day is billed like a working day)
 		self._resolve_stop_reasons(eq.company, eq.rental_direction or derive_direction(eq.ownership))

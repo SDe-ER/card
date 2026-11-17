@@ -27,22 +27,17 @@ BENEFICIARY_SUPPLIER = "Supplier"
 VERIFIED_BENEFICIARY_TYPES = (BENEFICIARY_SUPPLIER,)
 
 
-def resolve_beneficiary(card_direction, card_supplier, equipment_supplier):
-	"""The Supplier that is the beneficiary of an owner-paid cash expense on this card.
+def resolve_beneficiary(card_direction, card_supplier):
+	"""The financial beneficiary of an owner-paid cash expense on this card: the Supplier the card keeps.
 
-	Verified only when the card is supplier-billed, the card names a Supplier, and that Supplier is the
-	equipment's current Lessor / Owner (so the owner has not changed under the card). Anything else
-	raises: the owner is then not a verified beneficiary and the cash row cannot be posted."""
+	The card keeps the beneficiary it was created with (its supplier, a one-time default from the equipment's
+	current owner). It is not compared with the equipment's current owner, because ownership or management can
+	change after the operating period; the stored value is the identity of that period (FR-171 review).
+	Verified only for a supplier-billed card that names a Supplier."""
 	if card_direction not in SUPPLIER_BILLING_DIRECTIONS:
 		frappe.throw(_("The card is not supplier-billed, so no supplier beneficiary can be verified."))
 	if not card_supplier:
 		frappe.throw(_("The card has no supplier, so the beneficiary cannot be verified."))
-	if card_supplier != equipment_supplier:
-		frappe.throw(
-			_(
-				"The card's supplier {0} is not the equipment's current owner {1}. Review the owner before posting."
-			).format(card_supplier, equipment_supplier or "")
-		)
 	return BENEFICIARY_SUPPLIER, card_supplier
 
 
