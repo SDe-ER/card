@@ -266,7 +266,9 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertTrue(frappe.has_permission("Account", "read", user=self.service))
 		self.assertFalse(frappe.has_permission("Purchase Invoice", "write", user=self.service))
 		self.assertFalse(frappe.has_permission("Card Monthly Card", "write", user=self.service))
-		self.assertFalse(frappe.has_permission("User", "write", user=self.service))
+		# a user may always edit their own User profile (Frappe standard); another user's record must be refused
+		other = frappe.get_doc("User", self.card_user)
+		self.assertFalse(frappe.has_permission("User", "write", doc=other, user=self.service))
 
 	def test_a_card_submits_only_after_its_cash_payment_is_posted(self):
 		card, name = self._approved()
