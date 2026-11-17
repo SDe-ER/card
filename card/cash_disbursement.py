@@ -176,10 +176,12 @@ def execute_posting(name):
 	return entry_name
 
 
-def _has_active_allocations(entry_name):
+def _has_active_allocations(entry_name: str | None) -> bool:
 	"""True while the Journal Entry is still allocated against another document (an invoice or a payment
 	reconciliation). Source: Payment Ledger Entry, fields voucher_no, against_voucher_no and delinked (verified in
 	erpnext version-16). Such an entry is not cancelled here: the allocation is resolved in ERPNext first."""
+	if not entry_name:
+		return False
 	return bool(
 		frappe.db.exists(
 			"Payment Ledger Entry",
@@ -202,7 +204,7 @@ def _refuse_if_allocated(entry_name):
 
 
 @frappe.whitelist(methods=["POST"])
-def request_cancellation(name, reason):
+def request_cancellation(name: str, reason: str) -> str:
 	"""Record the reason for cancelling a posted cash payment. ERPNext's own Journal Entry cancellation (a human
 	action) is then allowed; without this request the linked entry cannot be cancelled. The payment is not
 	reversed, reposted or replaced here, and a replacement needs its own request and approval."""
@@ -218,8 +220,61 @@ def request_cancellation(name, reason):
 	doc.cancellation_reason = reason
 	doc.cancellation_requested_by = frappe.session.user
 	doc.cancellation_requested_on = now_datetime()
+	doc.flags.controlled_transition = "cancellation_request"
 	doc.save()
 	return doc.name
+
+
+def request_replacement(name, payment_date, evidence):
+	"""A correction after cancellation: a new Pending payment for the same flagged row, linked to the cancelled one
+	(``replaces``). It needs its own approval by a different Card Manager. The cancelled payment and its Journal Entry
+	stay as they are; nothing is reposted by this call."""
+	frappe.has_permission(DOCTYPE, "create", throw=True)
+	original = frappe.get_doc(DOCTYPE, name)
+	if original.status != "Cancelled":
+		frappe.throw(
+			_("Only a cancelled cash payment can be replaced; {0} is {1}.").format(name, original.status)
+		)
+	live = frappe.db.exists(
+		DOCTYPE,
+		{"card": original.card, "adjustment_row": original.adjustment_row, "status": ["!=", "Cancelled"]},
+	)
+	if live:
+		frappe.throw(
+			_("Row {0} of card {1} already has a live cash payment ({2}).").format(
+				original.adjustment_row, original.card, live
+			)
+		)
+	source = next(
+		(
+			r
+			for r in frappe.get_doc("Card Monthly Card", original.card).adjustments or []
+			if r.name == original.adjustment_row
+		),
+		None,
+	)
+	if not source:
+		frappe.throw(
+			_("The row {0} is no longer on card {1}.").format(original.adjustment_row, original.card)
+		)
+	record = frappe.get_doc(
+		{
+			"doctype": DOCTYPE,
+			"company": original.company,
+			"supplier": original.supplier,
+			"card": original.card,
+			"adjustment_row": original.adjustment_row,
+			"equipment": original.equipment,
+			"project": original.project,
+			"amount": source.amount,
+			"payment_date": payment_date,
+			"cash_account": source.cash_account,
+			"evidence": evidence,
+			"status": "Pending",
+			"replaces": original.name,
+		}
+	).insert()
+	return record.name
 
 
 def before_journal_entry_cancel(doc, method=None):

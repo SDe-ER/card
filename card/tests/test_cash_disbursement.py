@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import frappe
 
-from card.adjustments import refuse_cash_rows_on_submit, validate_cash_account, validate_cash_row
+from card.adjustments import validate_cash_account, validate_cash_row
 from card.constants import DIR_INTERNAL, DIR_RENTED_IN
 
 COMPANY = "Test Company"
@@ -82,30 +82,3 @@ class TestCashRowSaveValidation(TestCase):
 				validate_cash_row(_cash_row(), COMPANY, None, DIR_RENTED_IN)
 			with self.assertRaises(frappe.ValidationError):
 				validate_cash_row(_cash_row(), COMPANY, "Owner Supplier", DIR_INTERNAL)
-
-
-class TestCashRowSubmitGate(TestCase):
-	"""Posting is blocked while a cash row is pending; a card with no cash rows submits as before."""
-
-	def test_a_pending_cash_row_blocks_submission(self):
-		with self.assertRaises(frappe.ValidationError):
-			refuse_cash_rows_on_submit([_cash_row()])
-
-	def test_a_card_without_cash_rows_submits(self):
-		refuse_cash_rows_on_submit([frappe._dict(is_cash_disbursement=0, description="diesel")])
-		refuse_cash_rows_on_submit([frappe._dict(description="diesel")])
-		refuse_cash_rows_on_submit([])
-		refuse_cash_rows_on_submit(None)
-
-
-class TestPostedRowsDoNotBlockSubmit(TestCase):
-	def test_a_posted_cash_row_does_not_block_submission(self):
-		row = _cash_row()
-		row.name = "row-1"
-		refuse_cash_rows_on_submit([row], posted_rows=["row-1"])
-
-	def test_an_unposted_cash_row_still_blocks_submission(self):
-		row = _cash_row()
-		row.name = "row-1"
-		with self.assertRaises(frappe.ValidationError):
-			refuse_cash_rows_on_submit([row], posted_rows=["row-2"])

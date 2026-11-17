@@ -28,7 +28,8 @@
   "cancellation_requested_by",
   "cancellation_requested_on",
   "cancelled_by",
-  "cancelled_on"
+  "cancelled_on",
+  "replaces"
  ],
  "fields": [
   {
@@ -189,6 +190,13 @@
    "fieldtype": "Datetime",
    "label": "Cancelled On",
    "read_only": 1
+  },
+  {
+   "fieldname": "replaces",
+   "fieldtype": "Link",
+   "label": "Replaces",
+   "read_only": 1,
+   "options": "Card Cash Disbursement"
   }
  ],
  "links": [],

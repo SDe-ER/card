@@ -270,17 +270,38 @@ class TestCashDisbursementPosting(_AdjBase):
 		other = frappe.get_doc("User", self.card_user)
 		self.assertFalse(frappe.has_permission("User", "write", doc=other, user=self.service))
 
-	def test_a_card_submits_only_after_its_cash_payment_is_posted(self):
-		card, name = self._approved()
-		with self.assertRaises(frappe.ValidationError):
-			frappe.get_doc("Card Monthly Card", card.name).submit()
-		frappe.set_user(self.manager)
-		queue_posting(name)
-		frappe.set_user(self.service)
-		execute_posting(name)
-		frappe.set_user("Administrator")
+	def test_a_monthly_card_with_its_own_pending_cash_row_submits_independently(self):
+		"""Independence: the card's own cash row is still Pending when the card is submitted. The card submits; the
+		row stays linked and visible; it is in no adjustment total and no ledger entry; approval and posting still work
+		after submission; the row is counted in no total, before or after posting (never counted twice)."""
+		from card.adjustments import sided_adjustments
+
+		card, row = self._card_with_cash_row(amount=300)
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-1")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
+
 		frappe.get_doc("Card Monthly Card", card.name).submit()
 		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "docstatus"), 1)
+
+		# visible and linked to the card
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "card"), card.name)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "adjustment_row"), row.name)
+		# excluded from the adjustment totals, and no ledger effect while pending
+		self.assertEqual(sided_adjustments([card.name], "Supplier").get(card.name, (0.0, 0.0)), (0.0, 0.0))
+		self.assertEqual(self._journal_entries_for(name), [])
+
+		# approval and posting still work after the card is submitted
+		frappe.set_user(self.manager)
+		approve_cash_disbursement(name)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		entry = execute_posting(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+		self.assertEqual(self._journal_entries_for(name), [entry])
+		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "docstatus"), 1)
+		# the posted payment is still in no card total (counted once, in the Journal Entry only)
+		self.assertEqual(sided_adjustments([card.name], "Supplier").get(card.name, (0.0, 0.0)), (0.0, 0.0))
 
 	def test_a_card_without_cash_rows_submits_while_another_payment_is_pending(self):
 		"""Independence: the submit gate applies only to a card's own cash rows, never to another card's payment."""
@@ -397,3 +418,158 @@ class TestCashDisbursementPosting(_AdjBase):
 			queue_posting(name)  # a cancelled payment is never reposted automatically
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])
+
+	def _ledger_row(self, entry, supplier, voucher, against, amount, delinked=0):
+		"""A Payment Ledger Entry shaped like ERPNext v16 writes it (fields verified in erpnext version-16). The
+		original row of a Journal Entry has voucher == against; an allocation has the other document on one side."""
+		from frappe.utils import now_datetime
+
+		doc = frappe.get_doc(
+			{
+				"doctype": "Payment Ledger Entry",
+				"company": self.company,
+				"account_type": "Payable",
+				"account": "CCD-TEST-PAYABLE",
+				"party_type": "Supplier",
+				"party": supplier,
+				"voucher_type": voucher[0],
+				"voucher_no": voucher[1],
+				"against_voucher_type": against[0],
+				"against_voucher_no": against[1],
+				"amount": amount,
+				"amount_in_account_currency": amount,
+				"posting_date": "2026-09-10",
+				"delinked": delinked,
+			}
+		)
+		doc.name = frappe.generate_hash(length=10)
+		doc.owner = doc.modified_by = "Administrator"
+		doc.creation = doc.modified = now_datetime()
+		doc.db_insert()
+
+	def _with_original_ledger_row(self, name, entry, amount=300):
+		record = frappe.get_doc(DOCTYPE, name)
+		je = ("Journal Entry", entry)
+		self._ledger_row(entry, record.supplier, je, je, amount)
+		return record
+
+	def test_unreconciled_journal_entry_cancels_after_an_authorized_request(self):
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		self._with_original_ledger_row(name, entry)  # only the original row: nothing allocated
+		frappe.set_user(self.manager)
+		request_cancellation(name, "Unreconciled; wrong supplier")
+		frappe.set_user("Administrator")
+		frappe.get_doc("Journal Entry", entry).cancel()
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancelled")
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 2)
+
+	def test_partially_reconciled_journal_entry_cannot_be_cancelled(self):
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		record = self._with_original_ledger_row(name, entry)
+		# an active allocation of 100 against the Journal Entry (a Purchase Invoice side, delinked = 0)
+		self._ledger_row(
+			entry, record.supplier, ("Purchase Invoice", "PI-CCD-PART"), ("Journal Entry", entry), 100
+		)
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			request_cancellation(name, "Partially reconciled")
+		frappe.set_user("Administrator")
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc("Journal Entry", entry).cancel()
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+
+	def test_fully_reconciled_journal_entry_cannot_be_cancelled(self):
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		record = self._with_original_ledger_row(name, entry)
+		self._ledger_row(
+			entry, record.supplier, ("Purchase Invoice", "PI-CCD-FULL"), ("Journal Entry", entry), 300
+		)
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			request_cancellation(name, "Fully reconciled")
+		frappe.set_user("Administrator")
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc("Journal Entry", entry).cancel()
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)
+
+	def test_a_previously_delinked_allocation_does_not_block_cancellation(self):
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		record = self._with_original_ledger_row(name, entry)
+		# an allocation that was unreconciled earlier: its ledger row is delinked, so ERPNext no longer counts it
+		self._ledger_row(
+			entry, record.supplier, ("Purchase Invoice", "PI-CCD-OLD"), ("Journal Entry", entry), 300, 1
+		)
+		frappe.set_user(self.manager)
+		request_cancellation(name, "Allocation was undone earlier")
+		frappe.set_user("Administrator")
+		frappe.get_doc("Journal Entry", entry).cancel()
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancelled")
+
+	def test_a_posted_payment_is_immutable_except_the_cancellation_request(self):
+		_card, name, entry = self._posted()
+		record = frappe.get_doc(DOCTYPE, name)
+		record.amount = 999
+		with self.assertRaises(frappe.ValidationError):
+			record.save()
+		record = frappe.get_doc(DOCTYPE, name)
+		record.evidence = "rewritten receipt"
+		with self.assertRaises(frappe.ValidationError):
+			record.save()
+		record = frappe.get_doc(DOCTYPE, name)
+		record.status = "Pending"  # a Posted payment cannot be sent back to Pending
+		with self.assertRaises(frappe.ValidationError):
+			record.save()
+		record = frappe.get_doc(DOCTYPE, name)
+		record.journal_entry = None  # the link to the accounting evidence cannot be cut
+		with self.assertRaises(frappe.ValidationError):
+			record.save()
+		with self.assertRaises(frappe.ValidationError):
+			frappe.delete_doc(DOCTYPE, name)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "journal_entry"), entry)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "amount"), 300)
+
+	def test_a_cancelled_payment_is_replaced_by_a_new_payment_with_its_own_approval(self):
+		from card.cash_disbursement import request_cancellation, request_replacement
+
+		_card, name, entry = self._posted()
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			request_replacement(name, "2026-09-11", "Receipt R-2")  # refused: the original is still Posted
+		request_cancellation(name, "Wrong receipt")
+		frappe.set_user("Administrator")
+		frappe.get_doc("Journal Entry", entry).cancel()
+
+		frappe.set_user(self.manager)
+		new = request_replacement(name, "2026-09-11", "Receipt R-2")
+		frappe.set_user("Administrator")
+		record = frappe.get_doc(DOCTYPE, new)
+		self.assertEqual(record.status, "Pending")
+		self.assertEqual(record.replaces, name)
+		self.assertNotEqual(record.transaction_key, frappe.db.get_value(DOCTYPE, name, "transaction_key"))
+
+		second = self._user("Card Manager")  # the correction needs a different approver than the requester
+		frappe.set_user(second)
+		approve_cash_disbursement(new)
+		queue_posting(new)
+		frappe.set_user(self.service)
+		new_entry = execute_posting(new)
+		frappe.set_user("Administrator")
+
+		self.assertNotEqual(new_entry, entry)
+		self.assertEqual(frappe.db.get_value("Journal Entry", new_entry, "docstatus"), 1)
+		self.assertEqual(
+			frappe.db.get_value("Journal Entry", entry, "docstatus"), 2
+		)  # the original stays cancelled
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancelled")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "journal_entry"), entry)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, new, "status"), "Posted")

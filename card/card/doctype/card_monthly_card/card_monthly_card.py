@@ -8,7 +8,6 @@ from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
 
 from card.adjustments import (
 	check_adjustment_date,
-	refuse_cash_rows_on_submit,
 	validate_cash_row,
 	validate_downtime_fields,
 )
@@ -800,16 +799,8 @@ class CardMonthlyCard(Document):
 			)
 
 	def before_submit(self):
-		posted_rows = (
-			frappe.get_all(
-				"Card Cash Disbursement",
-				filters={"card": self.name, "status": "Posted"},
-				pluck="adjustment_row",
-			)
-			if not self.is_new()
-			else []
-		)
-		refuse_cash_rows_on_submit(self.adjustments, posted_rows)
+		# A pending owner-paid cash row does not block the card: it is in no total and no ledger entry until its
+		# payment is approved and posted, and that payment is independent of the card's submission.
 		# A card that bills a customer is final only when its EQUIPMENT carries the customer.
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS and not self.customer:
 			frappe.throw(

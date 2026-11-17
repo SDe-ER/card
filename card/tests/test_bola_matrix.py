@@ -458,6 +458,17 @@ CASES = {
 		own=lambda c: {"name": c.fill_a, "reason": "x"},
 		denied=((), ("Card User",)),
 	),
+	"card.cash_disbursement.request_cancellation": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; a Posted payment with no active allocation; a reason",
+		isolation="doc.save: has_cash_disbursement_permission (Company User Permission on company)",
+		effects="Sets the payment to Cancellation Requested with the reason (audited); cancels nothing",
+		writes=True,
+		cross=lambda c: {"name": c.ccd_b, "reason": "x"},
+		own=lambda c: {"name": c.ccd_a, "reason": "x"},
+		denied=((), ("Card User",)),
+	),
 	# ---------- reports ----------
 	"card.card.report.equipment_supplier_statement.statement_pdf.download_pdf": Case(
 		method=POST,
@@ -1238,6 +1249,28 @@ class TestBolaMatrix(IntegrationTestCase):
 		doc.db_insert()
 		return name
 
+	def _ccd(self, company, supplier, label):
+		"""A Posted cash payment of one company (matrix fixture; links are not validated here)."""
+		doc = frappe.get_doc(
+			{
+				"doctype": "Card Cash Disbursement",
+				"company": company,
+				"supplier": supplier,
+				"card": "CARD-" + label,
+				"adjustment_row": "ROW-" + label,
+				"amount": 100,
+				"payment_date": nowdate(),
+				"cash_account": "CASH-" + label,
+				"evidence": "BOLA fixture",
+				"status": "Posted",
+				"transaction_key": frappe.generate_hash(length=64),
+			}
+		)
+		doc.flags.ignore_links = True
+		doc.flags.ignore_mandatory = True
+		doc.insert(ignore_permissions=True)
+		return doc.name
+
 	def _fixtures(self):
 		token = frappe.generate_hash(length=8)
 		c = frappe._dict(token=token, A=self._m["company"])
@@ -1267,6 +1300,8 @@ class TestBolaMatrix(IntegrationTestCase):
 		frappe.db.set_value("Card Equipment", c.eq_b, "is_unit_component", 1)  # an integrity issue to list
 		c.sup_a = self._supplier(f"SUP-A-{token}")
 		c.sup_b = self._supplier(f"SUP-{b}")
+		c.ccd_a = self._ccd(c.A, c.sup_a, "A" + token)
+		c.ccd_b = self._ccd(c.B, c.sup_b, b)
 		c.cust_a = self._customer(f"CUST-A-{token}")
 		c.cust_b = self._customer(f"CUST-{b}")
 		for registry, field, party in (

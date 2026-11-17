@@ -70,7 +70,7 @@ def posting_block_reason(beneficiary_type):
 	return _("The accounting treatment of this beneficiary type is not verified (assumptions A1 to A5).")
 
 
-def cash_transaction_key(card_name, row_name, amount, payment_date, cash_account):
+def cash_transaction_key(card_name, row_name, amount, payment_date, cash_account, revision=""):
 	"""The stable identity of one owner-paid cash transaction: a SHA-256 over the source card, the source
 	row, the amount, the payment date and the cash account. The same economic event always gets the same key,
 	so a retry cannot post it twice; a changed payment is a different key and needs its own approval."""
@@ -81,6 +81,8 @@ def cash_transaction_key(card_name, row_name, amount, payment_date, cash_account
 		"payment_date": str(getdate(payment_date)),
 		"cash_account": cash_account,
 	}
+	if revision:
+		payload["revision"] = revision  # a replacement of a cancelled payment has its own identity
 	return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
 
 
