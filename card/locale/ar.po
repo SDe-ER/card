@@ -8891,3 +8891,87 @@ msgstr "إلزامي عندما يغيّر مدير الكارت مورد كار
 
 msgid "Supplier corrected from {0} to {1}. Reason: {2}"
 msgstr "تم تصحيح المورد من {0} إلى {1}. السبب: {2}"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "طلب صرف نقدي موجود بالفعل للصف {0} من الكارت {1}."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "يُطلب الصرف النقدي على كارت مسودة فقط."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "اكتب سبب الإلغاء."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "لا يُستبدل إلا صرف نقدي ملغى؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "مدير الكارت فقط يملك اعتماد الصرف النقدي."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "مدير الكارت فقط يملك ترحيل الصرف النقدي."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "مدير الكارت فقط يملك طلب إلغاء الصرف النقدي."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "مدير الكارت فقط يملك طلب استبدال الصرف النقدي."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "لا يُعتمد إلا صرف نقدي معلق؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "لا يُلغى إلا صرف نقدي مُرحَّل؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "لا يُنفَّذ إلا صرف نقدي في قائمة الترحيل؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "لا يُضاف للترحيل إلا صرف نقدي معتمد؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "الصف {0} من الكارت {1} لديه صرف نقدي نشط بالفعل ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "الصرف النقدي {0} غير موجود."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "الصرف النقدي {0} حالته {1}؛ لا يمكن حذفه. ألغِه بدلاً من ذلك."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "لا يمكن لطالب الصرف أن يعتمد صرفه النقدي بنفسه."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "الصف {0} لم يعد موجوداً في الكارت {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "الصف {0} ليس صرفاً نقدياً في الكارت {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "الصرف النقدي {0} معتمد؛ لا يمكن تغيير {1}. ألغِه واطلب استبدالاً."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "ما زال لقيد اليومية {0} تخصيصات نشطة. سوِّها في ERPNext (إلغاء التسوية أو فك الربط) قبل إلغائه."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "قيد اليومية {0} يسدد الصرف النقدي {1}. اطلب إلغاءه بسبب أولاً؛ بعدها يُعلَّم الصرف ملغى."
