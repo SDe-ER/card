@@ -176,6 +176,54 @@ def execute_posting(name):
 	return entry_name
 
 
+@frappe.whitelist(methods=["POST"])
+def request_cancellation(name, reason):
+	"""Record the reason for cancelling a posted cash payment. ERPNext's own Journal Entry cancellation (a human
+	action) is then allowed; without this request the linked entry cannot be cancelled. The payment is not
+	reversed, reposted or replaced here, and a replacement needs its own request and approval."""
+	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can request a cancellation."))
+	reason = (reason or "").strip()
+	if not reason:
+		frappe.throw(_("Give the reason for the cancellation."))
+	doc = frappe.get_doc(DOCTYPE, name)
+	if doc.status != "Posted":
+		frappe.throw(_("Only a posted cash payment can be cancelled; {0} is {1}.").format(name, doc.status))
+	doc.status = "Cancellation Requested"
+	doc.cancellation_reason = reason
+	doc.cancellation_requested_by = frappe.session.user
+	doc.cancellation_requested_on = now_datetime()
+	doc.save()
+	return doc.name
+
+
+def before_journal_entry_cancel(doc, method=None):
+	"""A cash-payment Journal Entry is cancelled only after its payment has a recorded cancellation request.
+	Other Journal Entries pass through untouched."""
+	row = frappe.db.get_value(DOCTYPE, {"journal_entry": doc.name}, ["name", "status"], as_dict=True)
+	if not row:
+		return
+	if row.status != "Cancellation Requested":
+		frappe.throw(
+			_(
+				"Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+			).format(doc.name, row.name)
+		)
+
+
+def on_journal_entry_cancel(doc, method=None):
+	"""After ERPNext cancels the entry: mark the payment Cancelled with the actor and the time. The entry stays
+	linked (audit), and a Cancelled payment can never be queued, executed or posted again."""
+	name = frappe.db.get_value(DOCTYPE, {"journal_entry": doc.name}, "name")
+	if not name:
+		return
+	frappe.db.set_value(
+		DOCTYPE,
+		name,
+		{"status": "Cancelled", "cancelled_by": frappe.session.user, "cancelled_on": now_datetime()},
+		update_modified=False,
+	)
+
+
 def has_cash_disbursement_permission(doc, ptype=None, user=None, debug=False):
 	"""Document-level company check (every path): the company of the record, sent or stored, must be one the
 	user is permitted for. Unrestricted users are not limited. Denial only, as Frappe expects."""

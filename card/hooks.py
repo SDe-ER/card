@@ -279,7 +279,13 @@ doc_events = {
 	"Purchase Invoice": dict(_POSTING_EVENTS),
 	"Sales Invoice": dict(_POSTING_EVENTS),
 	# settlement phase 1: cancelling a linked supplier accrual journal frees its cards
-	"Journal Entry": {"before_cancel": "card.gl.journal_link.before_cancel"},
+	"Journal Entry": {
+		"before_cancel": [
+			"card.gl.journal_link.before_cancel",
+			"card.cash_disbursement.before_journal_entry_cancel",
+		],
+		"on_cancel": "card.cash_disbursement.on_journal_entry_cancel",
+	},
 	# the CARD party registries follow ERPNext renames and merges
 	"Supplier": {
 		"before_rename": "card.party_registry.before_rename",

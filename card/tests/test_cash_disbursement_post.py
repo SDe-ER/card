@@ -321,3 +321,53 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
+
+	def _posted(self):
+		"""A cash payment posted through the real executor path; returns (card, payment, journal entry)."""
+		card, name = self._approved()
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		entry = execute_posting(name)
+		frappe.set_user("Administrator")
+		return card, name, entry
+
+	def test_a_posted_journal_entry_cannot_be_cancelled_without_a_cancellation_request(self):
+		_card, name, entry = self._posted()
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc("Journal Entry", entry).cancel()
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+
+	def test_only_a_card_manager_can_request_a_cancellation(self):
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, _entry = self._posted()
+		frappe.set_user(self.card_user)
+		with self.assertRaises(frappe.ValidationError):
+			request_cancellation(name, "Wrong supplier")
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+
+	def test_a_cancellation_request_cancels_the_entry_and_blocks_any_repost(self):
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		frappe.set_user(self.manager)
+		request_cancellation(name, "Wrong supplier on the receipt")
+		frappe.set_user("Administrator")
+		frappe.get_doc("Journal Entry", entry).cancel()
+
+		record = frappe.get_doc(DOCTYPE, name)
+		self.assertEqual(record.status, "Cancelled")
+		self.assertEqual(record.journal_entry, entry)  # kept for the audit trail
+		self.assertEqual(record.cancellation_reason, "Wrong supplier on the receipt")
+		self.assertEqual(record.cancelled_by, "Administrator")
+		self.assertTrue(record.cancelled_on)
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 2)
+
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			queue_posting(name)  # a cancelled payment is never reposted automatically
+		frappe.set_user("Administrator")
+		self.assertEqual(self._journal_entries_for(name), [])
