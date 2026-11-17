@@ -328,28 +328,52 @@ class TestCashDisbursementPosting(_AdjBase):
 		with patch("card.party_registry._restricted_companies", return_value=None):
 			self.assertTrue(has_cash_disbursement_permission(record, "read", user=self.card_user))
 
-	def test_a_closed_accounting_period_refuses_the_posting(self):
-		"""UNVERIFIED until CI runs it: ERPNext must refuse a Journal Entry dated in a closed Accounting Period,
-		so a payment dated in a closed month cannot be posted into it. The service identity runs the posting."""
-		_card, name = self._approved()
-		frappe.get_doc(
+	def _close_period(self, start, end):
+		"""A closed Accounting Period for Journal Entries (ERPNext closes a document type per period)."""
+		return frappe.get_doc(
 			{
 				"doctype": "Accounting Period",
 				"period_name": "CCD closed " + frappe.generate_hash(length=6),
 				"company": self.company,
-				"start_date": "2026-09-01",
-				"end_date": "2026-09-30",
+				"start_date": start,
+				"end_date": end,
 				"closed_documents": [{"document_type": "Journal Entry", "closed": 1}],
 			}
 		).insert(ignore_permissions=True)
+
+	def test_a_closed_accounting_period_refuses_the_posting(self):
+		"""ERPNext refuses a Journal Entry dated in a closed Accounting Period (accounting_period.py
+		validate_accounting_period_on_doc_save, raising ClosedAccountingPeriod). Source: erpnext version-16."""
+		from erpnext.accounts.doctype.accounting_period.accounting_period import ClosedAccountingPeriod
+
+		_card, name = self._approved()
+		self._close_period("2026-09-01", "2026-09-30")
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		with self.assertRaises(frappe.ValidationError):
+		with self.assertRaises(ClosedAccountingPeriod):
 			execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
+
+	def test_a_closed_accounting_period_refuses_the_cancellation(self):
+		"""ERPNext refuses to cancel accounting entries in a closed period (general_ledger.validate_accounting_period:
+		"You cannot create or cancel any accounting entries ..."). A posted payment in a later-closed period stays Posted
+		and its entry stays submitted."""
+		from erpnext.accounts.doctype.accounting_period.accounting_period import ClosedAccountingPeriod
+
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		self._close_period("2026-09-01", "2026-09-30")
+		frappe.set_user(self.manager)
+		request_cancellation(name, "Wrong receipt; period closed")
+		frappe.set_user("Administrator")
+		with self.assertRaises(ClosedAccountingPeriod):
+			frappe.get_doc("Journal Entry", entry).cancel()
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "journal_entry"), entry)
 
 	def test_an_allocated_journal_entry_is_not_cancelled(self):
 		"""Reconciliation safety: while the entry has active allocations, neither the request nor the cancel passes."""
