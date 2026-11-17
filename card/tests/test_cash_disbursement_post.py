@@ -281,3 +281,43 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user("Administrator")
 		frappe.get_doc("Card Monthly Card", card.name).submit()
 		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "docstatus"), 1)
+
+	def test_company_scope_refuses_a_record_outside_the_users_companies(self):
+		"""The document-level hook: a record of a company the user is not permitted for is refused on every path."""
+		from unittest.mock import patch
+
+		from card.cash_disbursement import has_cash_disbursement_permission
+
+		_card, name = self._approved()
+		record = frappe.get_doc(DOCTYPE, name)
+		with patch("card.party_registry._restricted_companies", return_value=["Another Company"]):
+			self.assertFalse(has_cash_disbursement_permission(record, "read", user=self.card_user))
+		with patch("card.party_registry._restricted_companies", return_value=[]):
+			self.assertFalse(has_cash_disbursement_permission(record, "read", user=self.card_user))
+		with patch("card.party_registry._restricted_companies", return_value=[self.company]):
+			self.assertTrue(has_cash_disbursement_permission(record, "read", user=self.card_user))
+		with patch("card.party_registry._restricted_companies", return_value=None):
+			self.assertTrue(has_cash_disbursement_permission(record, "read", user=self.card_user))
+
+	def test_a_closed_accounting_period_refuses_the_posting(self):
+		"""UNVERIFIED until CI runs it: ERPNext must refuse a Journal Entry dated in a closed Accounting Period,
+		so a payment dated in a closed month cannot be posted into it. The service identity runs the posting."""
+		_card, name = self._approved()
+		frappe.get_doc(
+			{
+				"doctype": "Accounting Period",
+				"period_name": "CCD closed " + frappe.generate_hash(length=6),
+				"company": self.company,
+				"start_date": "2026-09-01",
+				"end_date": "2026-09-30",
+				"closed_documents": [{"document_type": "Journal Entry", "closed": 1}],
+			}
+		).insert(ignore_permissions=True)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		with self.assertRaises(frappe.ValidationError):
+			execute_posting(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._journal_entries_for(name), [])
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
