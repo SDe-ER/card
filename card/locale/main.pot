@@ -7619,3 +7619,24 @@ msgstr ""
 
 msgid "Cash paid on behalf of an equipment owner is recorded but not posted yet, so the card cannot be submitted: {0}."
 msgstr ""
+
+msgid "The card is not supplier-billed, so no supplier beneficiary can be verified."
+msgstr ""
+
+msgid "The card has no supplier, so the beneficiary cannot be verified."
+msgstr ""
+
+msgid "The card's supplier {0} is not the equipment's current owner {1}. Review the owner before posting."
+msgstr ""
+
+msgid "The accounting treatment of this beneficiary type is not verified (assumptions A1 to A5)."
+msgstr ""
+
+msgid "Enter the payment date of the cash expense."
+msgstr ""
+
+msgid "The payment date {0} cannot be in the future."
+msgstr ""
+
+msgid "The period of payment date {0} is closed; the payment cannot be posted into it."
+msgstr ""

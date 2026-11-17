@@ -8858,3 +8858,24 @@ msgstr "الصف النقدي المدفوع نيابةً عن المالك {0} 
 
 msgid "Cash paid on behalf of an equipment owner is recorded but not posted yet, so the card cannot be submitted: {0}."
 msgstr "النقد المدفوع نيابةً عن مالك المعدة مسجّل ولم يُرحَّل بعد، لذلك لا يمكن اعتماد الكارت: {0}."
+
+msgid "The card is not supplier-billed, so no supplier beneficiary can be verified."
+msgstr "الكارت غير مُحمَّل على مورد، لذلك لا يمكن التحقق من مستفيد مورد."
+
+msgid "The card has no supplier, so the beneficiary cannot be verified."
+msgstr "الكارت بدون مورد، لذلك لا يمكن التحقق من المستفيد."
+
+msgid "The card's supplier {0} is not the equipment's current owner {1}. Review the owner before posting."
+msgstr "مورد الكارت {0} ليس المالك الحالي للمعدة {1}. راجع المالك قبل الترحيل."
+
+msgid "The accounting treatment of this beneficiary type is not verified (assumptions A1 to A5)."
+msgstr "المعالجة المحاسبية لهذا النوع من المستفيدين غير متحققة (الافتراضات من A1 إلى A5)."
+
+msgid "Enter the payment date of the cash expense."
+msgstr "أدخل تاريخ دفع المصروف النقدي."
+
+msgid "The payment date {0} cannot be in the future."
+msgstr "تاريخ الدفع {0} لا يمكن أن يكون في المستقبل."
+
+msgid "The period of payment date {0} is closed; the payment cannot be posted into it."
+msgstr "الفترة التي يقع فيها تاريخ الدفع {0} مغلقة؛ لا يمكن ترحيل الدفع فيها."
