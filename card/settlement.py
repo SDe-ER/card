@@ -41,6 +41,23 @@ def resolve_beneficiary(card_direction, card_supplier):
 	return BENEFICIARY_SUPPLIER, card_supplier
 
 
+SUPPLIER_CORRECTION_ROLES = ("Card Manager", "System Manager")
+
+
+def supplier_change_refused(roles, stored_supplier, new_supplier, equipment_supplier):
+	"""True when a save would set the card's historical beneficiary without a correction role.
+
+	The field is read only on the Desk form, but the API writes any field the user may write, so the server
+	checks it here (FR-171 security review). A new card may take the equipment's current owner as its supplier;
+	any other value, and any change of a stored supplier, needs Card Manager or System Manager (the documented
+	correction of an incorrect assignment)."""
+	if set(roles or ()) & set(SUPPLIER_CORRECTION_ROLES):
+		return False
+	if stored_supplier is None:
+		return bool(new_supplier) and new_supplier != equipment_supplier
+	return new_supplier != stored_supplier
+
+
 def posting_block_reason(beneficiary_type):
 	"""None when the beneficiary type is verified for posting; otherwise the reason to block it."""
 	if beneficiary_type in VERIFIED_BENEFICIARY_TYPES:

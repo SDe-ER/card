@@ -15,6 +15,7 @@ from card.settlement import (
 	cash_transaction_key,
 	posting_block_reason,
 	resolve_beneficiary,
+	supplier_change_refused,
 	validate_payment_date,
 )
 
@@ -89,3 +90,23 @@ class TestPaymentDate(TestCase):
 	def test_a_missing_date_is_refused(self):
 		with self.assertRaises(frappe.ValidationError):
 			validate_payment_date(None, date(2026, 11, 17), False)
+
+
+class TestSupplierChangeGuard(TestCase):
+	"""FR-171 security review: only a correction role may set or change a card's supplier on the server."""
+
+	def test_new_card_may_take_the_equipment_owner(self):
+		self.assertFalse(supplier_change_refused(["Card User"], None, "Owner Co", "Owner Co"))
+
+	def test_new_card_with_another_supplier_is_refused_for_a_non_manager(self):
+		self.assertTrue(supplier_change_refused(["Card User"], None, "Other Co", "Owner Co"))
+
+	def test_changing_a_stored_supplier_is_refused_for_a_non_manager(self):
+		self.assertTrue(supplier_change_refused(["Card User"], "Owner Co", "Other Co", "Owner Co"))
+
+	def test_unchanged_stored_supplier_is_allowed(self):
+		self.assertFalse(supplier_change_refused(["Card User"], "Old Owner", "Old Owner", "New Owner"))
+
+	def test_card_manager_may_correct_a_supplier(self):
+		self.assertFalse(supplier_change_refused(["Card Manager"], "Owner Co", "Other Co", "Owner Co"))
+		self.assertFalse(supplier_change_refused(["System Manager"], None, "Other Co", "Owner Co"))

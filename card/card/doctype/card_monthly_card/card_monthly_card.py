@@ -32,6 +32,7 @@ from card.constants import (
 from card.equipment_status import check_equipment_status, equipment_is_new_on
 from card.notifications import notify
 from card.settings import setting
+from card.settlement import supplier_change_refused
 from card.transfer import (
 	_assigned_on,
 	_component_rows,
@@ -149,6 +150,13 @@ class CardMonthlyCard(Document):
 		# owner is a default for a card that has none; a later owner change never overwrites it
 		if not self.supplier and eq.get("supplier"):
 			self.supplier = eq.get("supplier")
+		stored_supplier = None if self.is_new() else frappe.db.get_value(self.doctype, self.name, "supplier")
+		if supplier_change_refused(frappe.get_roles(), stored_supplier, self.supplier, eq.get("supplier")):
+			frappe.throw(
+				_(
+					"Only a Card Manager can set or change the supplier of this card; it is {0}, the equipment's owner is {1}."
+				).format(stored_supplier or self.supplier or "", eq.get("supplier") or "")
+			)
 		# FR-118 (#45): stop reasons and the responsible party of each day row, before the
 		# unit and assignment checks (a billable stopped day is billed like a working day)
 		self._resolve_stop_reasons(eq.company, eq.rental_direction or derive_direction(eq.ownership))
