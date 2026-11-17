@@ -176,6 +176,31 @@ def execute_posting(name):
 	return entry_name
 
 
+def _has_active_allocations(entry_name):
+	"""True while the Journal Entry is still allocated against another document (an invoice or a payment
+	reconciliation). Source: Payment Ledger Entry, fields voucher_no, against_voucher_no and delinked (verified in
+	erpnext version-16). Such an entry is not cancelled here: the allocation is resolved in ERPNext first."""
+	return bool(
+		frappe.db.exists(
+			"Payment Ledger Entry",
+			{"delinked": 0, "voucher_no": entry_name, "against_voucher_no": ["!=", entry_name]},
+		)
+		or frappe.db.exists(
+			"Payment Ledger Entry",
+			{"delinked": 0, "against_voucher_no": entry_name, "voucher_no": ["!=", entry_name]},
+		)
+	)
+
+
+def _refuse_if_allocated(entry_name):
+	if _has_active_allocations(entry_name):
+		frappe.throw(
+			_(
+				"Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+			).format(entry_name)
+		)
+
+
 @frappe.whitelist(methods=["POST"])
 def request_cancellation(name, reason):
 	"""Record the reason for cancelling a posted cash payment. ERPNext's own Journal Entry cancellation (a human
@@ -188,6 +213,7 @@ def request_cancellation(name, reason):
 	doc = frappe.get_doc(DOCTYPE, name)
 	if doc.status != "Posted":
 		frappe.throw(_("Only a posted cash payment can be cancelled; {0} is {1}.").format(name, doc.status))
+	_refuse_if_allocated(doc.journal_entry)
 	doc.status = "Cancellation Requested"
 	doc.cancellation_reason = reason
 	doc.cancellation_requested_by = frappe.session.user
@@ -202,6 +228,7 @@ def before_journal_entry_cancel(doc, method=None):
 	row = frappe.db.get_value(DOCTYPE, {"journal_entry": doc.name}, ["name", "status"], as_dict=True)
 	if not row:
 		return
+	_refuse_if_allocated(doc.name)
 	if row.status != "Cancellation Requested":
 		frappe.throw(
 			_(

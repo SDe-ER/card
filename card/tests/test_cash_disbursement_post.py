@@ -282,6 +282,14 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.get_doc("Card Monthly Card", card.name).submit()
 		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "docstatus"), 1)
 
+	def test_a_card_without_cash_rows_submits_while_another_payment_is_pending(self):
+		"""Independence: the submit gate applies only to a card's own cash rows, never to another card's payment."""
+		self._approved()  # another card's payment waits for the executor
+		eq = self._equipment(direction=DIR_RENTED_IN)
+		card = self._typed_card(eq, [])
+		card.submit()
+		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "docstatus"), 1)
+
 	def test_company_scope_refuses_a_record_outside_the_users_companies(self):
 		"""The document-level hook: a record of a company the user is not permitted for is refused on every path."""
 		from unittest.mock import patch
@@ -321,6 +329,24 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
+
+	def test_an_allocated_journal_entry_is_not_cancelled(self):
+		"""Reconciliation safety: while the entry has active allocations, neither the request nor the cancel passes."""
+		from unittest.mock import patch
+
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		frappe.set_user(self.manager)
+		with patch("card.cash_disbursement._has_active_allocations", return_value=True):
+			with self.assertRaises(frappe.ValidationError):
+				request_cancellation(name, "Wrong supplier")
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+		with patch("card.cash_disbursement._has_active_allocations", return_value=True):
+			with self.assertRaises(frappe.ValidationError):
+				frappe.get_doc("Journal Entry", entry).cancel()
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)
 
 	def _posted(self):
 		"""A cash payment posted through the real executor path; returns (card, payment, journal entry)."""
