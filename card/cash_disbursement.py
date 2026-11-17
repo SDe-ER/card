@@ -72,7 +72,8 @@ def request_cash_disbursement(card, row, payment_date, evidence):
 	return record.name
 
 
-def approve_cash_disbursement(name):
+@frappe.whitelist(methods=["POST"])
+def approve_cash_disbursement(name: str) -> str:
 	"""Explicit approval by a Card Manager who is not the requester."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can approve a cash payment."))
 	doc = frappe.get_doc(DOCTYPE, name)
@@ -93,10 +94,13 @@ def approve_cash_disbursement(name):
 	return doc.name
 
 
-def queue_posting(name):
+@frappe.whitelist(methods=["POST"])
+def queue_posting(name: str) -> str | None:
 	"""Claim an Approved cash payment for the accounting executor (Approved -> Posting, under a row lock).
 	Creates no accounting entry. Returns the Journal Entry when the payment is already Posted."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can post a cash payment."))
+	# the company of the payment is checked on the server, for the caller (a raw row update has no permission check)
+	frappe.get_doc(DOCTYPE, name).check_permission("write")
 	row = frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"], as_dict=True, for_update=True)
 	if not row:
 		frappe.throw(_("The cash payment {0} does not exist.").format(name))

@@ -37,6 +37,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_months, get_first_day, get_last_day, nowdate
 
 from card.constants import DIR_SUBRENTAL
+from card.tests.test_cash_disbursement_db import _cash_account
 from card.tests.test_controllers import _ensure_masters
 from card.tests.transport_parties import company_paid
 
@@ -467,6 +468,28 @@ CASES = {
 		writes=True,
 		cross=lambda c: {"name": c.ccd_b, "reason": "x"},
 		own=lambda c: {"name": c.ccd_a, "reason": "x"},
+		denied=((), ("Card User",)),
+	),
+	"card.cash_disbursement.approve_cash_disbursement": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; a Pending payment; not the requester; no closed period",
+		isolation="doc.save: has_cash_disbursement_permission (Company User Permission on company)",
+		effects="Sets the payment to Approved with the approver and time (audited); creates no entry",
+		writes=True,
+		cross=lambda c: {"name": c.pend_b},
+		own=lambda c: {"name": c.pend_a},
+		denied=((), ("Card User",)),
+	),
+	"card.cash_disbursement.queue_posting": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; an Approved payment; company check on the record",
+		isolation="check_permission(write): has_cash_disbursement_permission (Company User Permission on company)",
+		effects="Claims an Approved payment for the accounting executor (Approved -> Posting); creates no entry",
+		writes=True,
+		cross=lambda c: {"name": c.appr_b},
+		own=lambda c: {"name": c.appr_a},
 		denied=((), ("Card User",)),
 	),
 	# ---------- reports ----------
@@ -1249,8 +1272,9 @@ class TestBolaMatrix(IntegrationTestCase):
 		doc.db_insert()
 		return name
 
-	def _ccd(self, company, supplier, label):
-		"""A Posted cash payment of one company (matrix fixture; links are not validated here)."""
+	def _ccd(self, company, supplier, label, status="Posted"):
+		"""A cash payment of one company in the given state (matrix fixture). Pending and Approved payments validate
+		a real Cash account of the company; the card and the row are not validated (they need not exist here)."""
 		doc = frappe.get_doc(
 			{
 				"doctype": "Card Cash Disbursement",
@@ -1260,9 +1284,9 @@ class TestBolaMatrix(IntegrationTestCase):
 				"adjustment_row": "ROW-" + label,
 				"amount": 100,
 				"payment_date": nowdate(),
-				"cash_account": "CASH-" + label,
+				"cash_account": _cash_account(company),
 				"evidence": "BOLA fixture",
-				"status": "Posted",
+				"status": status,
 				"transaction_key": frappe.generate_hash(length=64),
 			}
 		)
@@ -1302,6 +1326,10 @@ class TestBolaMatrix(IntegrationTestCase):
 		c.sup_b = self._supplier(f"SUP-{b}")
 		c.ccd_a = self._ccd(c.A, c.sup_a, "A" + token)
 		c.ccd_b = self._ccd(c.B, c.sup_b, b)
+		c.pend_a = self._ccd(c.A, c.sup_a, "PA" + token, "Pending")
+		c.pend_b = self._ccd(c.B, c.sup_b, "PB" + b, "Pending")
+		c.appr_a = self._ccd(c.A, c.sup_a, "AA" + token, "Approved")
+		c.appr_b = self._ccd(c.B, c.sup_b, "AB" + b, "Approved")
 		c.cust_a = self._customer(f"CUST-A-{token}")
 		c.cust_b = self._customer(f"CUST-{b}")
 		for registry, field, party in (
