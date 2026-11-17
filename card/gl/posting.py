@@ -22,7 +22,7 @@ import datetime
 
 import frappe
 from frappe import _
-from frappe.utils import flt, getdate
+from frappe.utils import cint, flt, getdate
 
 from card import transport_costs as tc
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
@@ -734,6 +734,8 @@ def _card_lines(card_name, side, row, types, credit_note_items=None):
 	for adj in card.get("adjustments") or []:
 		if (adj.side or "Supplier") != side:
 			continue
+		if cint(adj.get("is_cash_disbursement")):
+			continue  # an owner-paid cash row is recorded, not posted: no invoice line (owner decisions 2026-11-16)
 		signed = flt(adj.amount, 2) if adj.adjustment_type == "إضافة" else -flt(adj.amount, 2)
 		total = flt(total + signed, 2)
 		typ = types.get(adj.adjustment_type_ref) if adj.adjustment_type_ref else None

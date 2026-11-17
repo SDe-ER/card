@@ -84,7 +84,6 @@ class TestCashOperationalWorkflow(_PostingBase):
 			"Supplier": {"read": 1},
 			"Company": {"read": 1},
 			"Project": {"read": 1},
-			"Card Cash Disbursement": {"read": 1},
 		}
 		for doctype, rights in grants.items():
 			frappe.get_doc(

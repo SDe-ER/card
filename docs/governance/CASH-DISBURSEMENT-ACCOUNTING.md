@@ -144,7 +144,7 @@ type needs owner approval; this assessment does not change it.
 ### Executor dispatch (no enqueue, no identity switch)
 
 - `run_posting_queue` is a whitelisted POST. Only the dedicated service role may call it; otherwise a permission error.
-- Candidates come from `frappe.get_list`, which applies the caller's company permissions (a payment of a company the
+- Candidates are limited to the caller's permitted companies, checked on each row (a payment of a company the
   identity is not permitted for is not selected).
 - Each payment is posted inside a savepoint. A failure rolls back that payment only and records `Posting Failed` with
   the error. A retry is a new queue claim followed by the same dispatch; `execute_posting` finds an entry an earlier

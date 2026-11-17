@@ -165,7 +165,13 @@ def execute_posting(name):
 		from erpnext.accounts.party import get_party_account
 
 		doc = frappe.get_doc(DOCTYPE, name)
-		doc.check_permission("write")  # the executing identity must be permitted for the payment's company
+		# the executing identity must be permitted for the payment's company (its document rights are not needed:
+		# the posting is a controlled transition, not a user save)
+		if not has_cash_disbursement_permission(doc, "write", frappe.session.user):
+			frappe.throw(
+				_("You are not permitted for the company of the cash payment {0}.").format(name),
+				frappe.PermissionError,
+			)
 		entry = frappe.get_doc(
 			{
 				"doctype": "Journal Entry",
@@ -364,7 +370,7 @@ def run_posting_queue(limit: int = 20) -> list:
 	"""The accounting executor's dispatch: process the queued payments the caller may post, one at a time.
 
 	Only the dedicated service identity (SERVICE_ROLE) may call it, so the posting always runs as that identity; no
-	code switches the user. Candidates come from frappe.get_list, which applies the caller's company permissions, so
+	code switches the user. Candidates are limited to the caller's permitted companies, checked on each row, so
 	a payment of a company the identity is not permitted for is not even selected. Each payment is posted inside a
 	savepoint: a failure rolls back that payment only and records status "Posting Failed" with the error, and the
 	payment stays queueable again. A payment already posted by an interrupted run is linked, not posted twice
@@ -374,13 +380,20 @@ def run_posting_queue(limit: int = 20) -> list:
 		(SERVICE_ROLE,),
 		_("Only the accounting service identity can run the posting queue."),
 	)
-	candidates = frappe.get_list(
+	from card.party_registry import _restricted_companies
+
+	# the candidates a caller may post: its permitted companies (Company User Permission), checked here on the row
+	# (the identity holds no document right on the payment DocType; the posting itself is a controlled transition)
+	allowed = _restricted_companies(frappe.session.user, DOCTYPE)
+	candidates = frappe.get_all(
 		DOCTYPE,
 		filters={"status": "Posting"},
-		fields=["name"],
+		fields=["name", "company"],
 		order_by="posting_claimed_on asc",
 		limit=min(max(cint(limit), 1), 100),
 	)
+	if allowed is not None:
+		candidates = [c for c in candidates if c.company in allowed]
 	results = []
 	for candidate in candidates:
 		frappe.db.savepoint("ccd_posting")

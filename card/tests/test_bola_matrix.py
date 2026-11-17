@@ -510,13 +510,14 @@ CASES = {
 		isolation="doc.check_permission(read) on the card (Company User Permission on the card's company)",
 		effects="None (read only)",
 		cross=lambda c: {"card": c.card_b},
+		own=lambda c: {"card": c.card_a},
 		denied=((),),
 	),
 	"card.cash_disbursement.run_posting_queue": Case(
 		method=POST,
 		roles=(SERVICE_ROLE,),
 		gate="the dedicated accounting service identity only; the queue the caller is permitted for",
-		isolation="frappe.get_list applies the caller's Company User Permission; execute_posting checks the payment's company",
+		isolation="candidates limited to the caller's permitted companies (Company User Permission, explicit check); execute_posting checks the payment's company",
 		effects="Posts each queued payment as one submitted Journal Entry; a failure is recorded as Posting Failed",
 		writes=True,
 		cross=lambda c: {"limit": 20},
@@ -1030,6 +1031,10 @@ def _transfer_doc(employee, to_employee, item):
 # (card/, tests and patches excluded), per file and enclosing function: (count, why it is safe). A new site
 # fails test_ignore_permissions_sites_are_allowed until it is reviewed and listed here.
 IGNORE_PERMISSIONS_ALLOWED = {
+	("card/cash_disbursement.py", "request_cash_disbursement"): (
+		2,
+		"cash payment record inserted after the requester's write permission on the Monthly Card is checked (company checked by the card); the payment DocType grants create only to Card Manager, and a Card User may request from the card",
+	),
 	("card/api.py", "_sync_registry_row"): (
 		3,
 		"party registry row (global, no figures); reached only from refresh_* (System Manager), a card "
@@ -1377,18 +1382,9 @@ class TestBolaMatrix(IntegrationTestCase):
 		c.appr_b = self._ccd(c.B, c.sup_b, "AB" + b, "Approved")
 		c.post_b = self._ccd(c.B, c.sup_b, "PO" + b, "Posting")
 		c.card_b = self._card_row(c.B, "EOMC-BOLA-B-" + token)
+		c.card_a = self._card_row(c.A, "EOMC-BOLA-A-" + token)
 		if not frappe.db.exists("Role", SERVICE_ROLE):
 			frappe.get_doc({"doctype": "Role", "role_name": SERVICE_ROLE}).insert(ignore_permissions=True)
-		frappe.get_doc(
-			{
-				"doctype": "Custom DocPerm",
-				"parent": "Card Cash Disbursement",
-				"role": SERVICE_ROLE,
-				"permlevel": 0,
-				"read": 1,
-			}
-		).insert(ignore_permissions=True)
-		frappe.clear_cache(doctype="Card Cash Disbursement")
 		c.cust_a = self._customer(f"CUST-A-{token}")
 		c.cust_b = self._customer(f"CUST-{b}")
 		for registry, field, party in (
