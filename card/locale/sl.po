@@ -257,3 +257,107 @@ msgstr "Knjižen vnos {0} ima še aktivne dodelitve. Pred preklicem jih uredite 
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
 msgstr "Knjižen vnos {0} poravnava gotovinsko plačilo {1}. Najprej zahtevajte preklic z razlogom; plačilo bo nato označeno kot Preklicano."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Čaka odobritev"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "V čakalni vrsti za knjiženje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Knjiženje ni uspelo"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Zahtevan preklic"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Ni uskladeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Delno uskladeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Popolnoma uskladeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Odobrite to gotovinsko plačilo? Odobritelj ne sme biti vlagatelj."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Dodaj v čakalno vrsto za knjiženje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Ponovi knjiženje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Zahtevaj preklic"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Gotovina: čaka odobritev"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Gotovina: odobreno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Gotovina: v čakalni vrsti"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Gotovina: knjiženje ni uspelo"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Gotovina: knjiženo"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Gotovina: zahtevan preklic"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Gotovina: preklicano"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Gotovina: ni uskladeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Gotovina: delno uskladeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Gotovina: popolnoma uskladeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Gotovina: nadomestilo čaka"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Zahtevaj odobritev gotovinskega plačila"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Vrstica gotovine"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Dokazilo (številka računa ali sklic)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Odobritev gotovinskega plačila zahtevana"

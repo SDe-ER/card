@@ -257,3 +257,107 @@ msgstr "O lançamento contábil {0} ainda tem alocações ativas. Resolva-as no 
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
 msgstr "O lançamento contábil {0} liquida o pagamento em dinheiro {1}. Solicite primeiro o cancelamento com um motivo; o pagamento ficará então marcado como Cancelado."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Aguarda aprovação"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "Na fila para lançamento"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Falha no lançamento"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Cancelamento solicitado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Não conciliado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Parcialmente conciliado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Totalmente conciliado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Aprovar este pagamento em dinheiro? O aprovador não pode ser o solicitante."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Colocar na fila para lançamento"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Tentar o lançamento novamente"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Solicitar cancelamento"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Dinheiro: aguarda aprovação"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Dinheiro: aprovado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Dinheiro: na fila para lançamento"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Dinheiro: falha no lançamento"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Dinheiro: lançado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Dinheiro: cancelamento solicitado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Dinheiro: cancelado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Dinheiro: não conciliado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Dinheiro: parcialmente conciliado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Dinheiro: totalmente conciliado"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Dinheiro: substituição pendente"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Solicitar aprovação do pagamento em dinheiro"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Linha de dinheiro"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Comprovativo (número do recibo ou referência)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Aprovação do pagamento em dinheiro solicitada"

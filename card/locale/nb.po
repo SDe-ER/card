@@ -257,3 +257,107 @@ msgstr "Journalpost {0} har fortsatt aktive tildelinger. Løs dem i ERPNext (fje
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
 msgstr "Journalpost {0} betaler kontantbetaling {1}. Be først om kansellering med en begrunnelse; betalingen merkes da som Kansellert."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Venter på godkjenning"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "I kø for bokføring"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Bokføring mislyktes"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Kansellering er bedt om"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Ikke avstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Delvis avstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Fullt avstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Godkjenne denne kontantbetalingen? Godkjenneren kan ikke være den som ba om den."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Sett i kø for bokføring"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Prøv bokføring på nytt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Be om kansellering"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Kontant: venter på godkjenning"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Kontant: godkjent"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Kontant: i kø for bokføring"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Kontant: bokføring mislyktes"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Kontant: bokført"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Kontant: kansellering bedt om"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Kontant: kansellert"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Kontant: ikke avstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Kontant: delvis avstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Kontant: fullt avstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Kontant: erstatning venter"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Be om godkjenning av kontantbetaling"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Kontantlinje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Bilag (kvitteringsnummer eller referanse)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Godkjenning av kontantbetaling bedt om"

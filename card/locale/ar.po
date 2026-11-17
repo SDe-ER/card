@@ -8975,3 +8975,107 @@ msgstr "ما زال لقيد اليومية {0} تخصيصات نشطة. سوِ�
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
 msgstr "قيد اليومية {0} يسدد الصرف النقدي {1}. اطلب إلغاءه بسبب أولاً؛ بعدها يُعلَّم الصرف ملغى."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "بانتظار الاعتماد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "في قائمة الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "فشل الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "تم طلب الإلغاء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "غير مسوّى"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "مسوّى جزئياً"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "مسوّى بالكامل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "هل تعتمد هذا الصرف النقدي؟ يجب ألا يكون المعتمِد هو طالب الصرف."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "أضف إلى قائمة الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "أعد محاولة الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "اطلب الإلغاء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "نقدي: بانتظار الاعتماد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "نقدي: معتمد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "نقدي: في قائمة الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "نقدي: فشل الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "نقدي: مُرحَّل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "نقدي: تم طلب الإلغاء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "نقدي: ملغى"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "نقدي: غير مسوّى"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "نقدي: مسوّى جزئياً"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "نقدي: مسوّى بالكامل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "نقدي: استبدال بانتظار الاعتماد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "اطلب اعتماد الصرف النقدي"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "صف النقدية"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "الدليل (رقم الإيصال أو المرجع)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "تم طلب اعتماد الصرف النقدي"

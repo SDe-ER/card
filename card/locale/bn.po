@@ -721,3 +721,107 @@ msgstr "জার্নাল এন্ট্রি {0}-এ এখনও সক�
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
 msgstr "জার্নাল এন্ট্রি {0} নগদ প্রদান {1} পরিশোধ করে। প্রথমে একটি কারণসহ বাতিলের অনুরোধ করুন; তারপর প্রদানটি বাতিল হিসেবে চিহ্নিত হবে।"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "অনুমোদনের অপেক্ষায়"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "পোস্টিংয়ের সারিতে"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "পোস্টিং ব্যর্থ হয়েছে"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "বাতিলের অনুরোধ করা হয়েছে"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "মেলানো হয়নি"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "আংশিক মেলানো হয়েছে"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "সম্পূর্ণ মেলানো হয়েছে"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "এই নগদ প্রদান অনুমোদন করবেন? অনুমোদনকারী অনুরোধকারী হতে পারবেন না।"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "পোস্টিংয়ের সারিতে রাখুন"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "পোস্টিং আবার চেষ্টা করুন"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "বাতিলের অনুরোধ করুন"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "নগদ: অনুমোদনের অপেক্ষায়"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "নগদ: অনুমোদিত"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "নগদ: পোস্টিংয়ের সারিতে"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "নগদ: পোস্টিং ব্যর্থ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "নগদ: পোস্ট করা হয়েছে"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "নগদ: বাতিলের অনুরোধ করা হয়েছে"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "নগদ: বাতিল"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "নগদ: মেলানো হয়নি"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "নগদ: আংশিক মেলানো"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "নগদ: সম্পূর্ণ মেলানো"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "নগদ: প্রতিস্থাপন অপেক্ষমাণ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "নগদ অনুমোদনের অনুরোধ করুন"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "নগদ সারি"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "প্রমাণ (রসিদ নম্বর বা উল্লেখ)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "নগদ অনুমোদনের অনুরোধ করা হয়েছে"

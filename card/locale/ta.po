@@ -257,3 +257,107 @@ msgstr "பதிவேட்டு உள்ளீடு {0}க்கு இன
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
 msgstr "பதிவேட்டு உள்ளீடு {0} ரொக்கக் கட்டணம் {1}ஐ செலுத்துகிறது. முதலில் காரணத்துடன் ரத்துக்குக் கோரவும்; அதன் பின் கட்டணம் ரத்து செய்யப்பட்டது எனக் குறிக்கப்படும்."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "ஒப்புதலுக்காகக் காத்திருக்கிறது"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "பதிவுக்கான வரிசையில்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "பதிவு தோல்வியடைந்தது"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "ரத்துக்குக் கோரப்பட்டது"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "சமரசம் செய்யப்படவில்லை"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "பகுதியாகச் சமரசம்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "முழுமையாகச் சமரசம்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "இந்த ரொக்கக் கட்டணத்தை அங்கீகரிக்கவா? அங்கீகரிப்பவர் கோரியவராக இருக்கக்கூடாது."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "பதிவுக்கான வரிசையில் சேர்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "பதிவை மீண்டும் முயற்சி"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "ரத்துக்குக் கோரு"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "ரொக்கம்: ஒப்புதல் நிலுவையில்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "ரொக்கம்: அங்கீகரிக்கப்பட்டது"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "ரொக்கம்: வரிசையில்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "ரொக்கம்: பதிவு தோல்வி"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "ரொக்கம்: பதிவு செய்யப்பட்டது"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "ரொக்கம்: ரத்துக்குக் கோரப்பட்டது"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "ரொக்கம்: ரத்து செய்யப்பட்டது"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "ரொக்கம்: சமரசம் இல்லை"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "ரொக்கம்: பகுதியாகச் சமரசம்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "ரொக்கம்: முழுமையாகச் சமரசம்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "ரொக்கம்: மாற்று நிலுவையில்"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "ரொக்கக் கட்டண ஒப்புதலுக்குக் கோரு"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "ரொக்க வரிசை"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "ஆதாரம் (ரசீது எண் அல்லது குறிப்பு)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "ரொக்கக் கட்டண ஒப்புதல் கோரப்பட்டது"

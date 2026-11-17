@@ -257,3 +257,107 @@ msgstr "ធាតុកាសែត {0} នៅមានការបែងចែ�
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
 msgstr "ធាតុកាសែត {0} បង់ការបង់ប្រាក់សាច់ប្រាក់ {1}។ សូមស្នើការលុបចោលជាមួយមូលហេតុជាមុនសិន; បន្ទាប់មកការបង់ប្រាក់នឹងត្រូវបានសម្គាល់ថាបានលុបចោល។"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "កំពុងរង់ចាំការអនុម័ត"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "នៅក្នុងជួរសម្រាប់បញ្ចូលសៀវភៅ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "ការបញ្ចូលសៀវភៅបានបរាជ័យ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "បានស្នើការលុបចោល"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "មិនទាន់ផ្សះផ្សា"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "បានផ្សះផ្សាមួយផ្នែក"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "បានផ្សះផ្សាពេញលេញ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "អនុម័តការបង់ប្រាក់សាច់ប្រាក់នេះឬ? អ្នកអនុម័តមិនអាចជាអ្នកស្នើបានទេ។"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "ដាក់ចូលជួរសម្រាប់បញ្ចូលសៀវភៅ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "ព្យាយាមបញ្ចូលសៀវភៅម្តងទៀត"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "ស្នើការលុបចោល"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "សាច់ប្រាក់: កំពុងរង់ចាំការអនុម័ត"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "សាច់ប្រាក់: បានអនុម័ត"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "សាច់ប្រាក់: នៅក្នុងជួរ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "សាច់ប្រាក់: បញ្ចូលសៀវភៅបរាជ័យ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "សាច់ប្រាក់: បានបញ្ចូលសៀវភៅ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "សាច់ប្រាក់: បានស្នើលុបចោល"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "សាច់ប្រាក់: បានលុបចោល"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "សាច់ប្រាក់: មិនទាន់ផ្សះផ្សា"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "សាច់ប្រាក់: បានផ្សះផ្សាមួយផ្នែក"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "សាច់ប្រាក់: បានផ្សះផ្សាពេញលេញ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "សាច់ប្រាក់: រង់ចាំការជំនួស"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "ស្នើការអនុម័តការបង់ប្រាក់សាច់ប្រាក់"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "ជួរសាច់ប្រាក់"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "ភស្តុតាង (លេខបង្កាន់ដៃ ឬឯកសារយោង)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "បានស្នើការអនុម័តការបង់ប្រាក់សាច់ប្រាក់"

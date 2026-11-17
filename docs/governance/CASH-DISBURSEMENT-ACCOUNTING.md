@@ -120,6 +120,51 @@ rationale (an owner-paid expense with no invoice reference). A Payment Entry wou
 workspace contract, so the rationale must be recorded in the decisions register before release. Changing the document
 type needs owner approval; this assessment does not change it.
 
+## 7a. Operational workflow (implemented)
+
+| Step | Who | Endpoint or action | Result |
+|---|---|---|---|
+| Request | Card User (write on the card, company checked) | `request_cash_disbursement` (POST), Monthly Card action "Request cash approval" | one Pending payment for the cash row; duplicate refused |
+| Submit the card | the card owner | normal Monthly Card submission | independent: a Pending payment does not block it; the row stays linked and in no total |
+| Approve | Card Manager other than the requester | `approve_cash_disbursement` (POST) | Approved; approver and time recorded |
+| Queue | Card Manager (company checked) | `queue_posting` (POST) | Posting (atomic claim under a row lock); a failed payment may be queued again |
+| Dispatch | the accounting service identity only | `run_posting_queue` (POST) | each queued payment posted in a savepoint: one submitted Journal Entry, or Posting Failed with the error |
+| Reconciliation | an accountant | ERPNext Payment Reconciliation / Unreconcile Payment | reconciliation status shown separately (Not / Partially / Fully reconciled) |
+| Cancellation | Card Manager requests; an accountant cancels the Journal Entry | `request_cancellation` (POST), then ERPNext cancel | Cancelled; no repost |
+| Replacement | Card Manager requests; a different Card Manager approves | `request_replacement` (server side), then the same flow | a new payment linked by `replaces`; posted once |
+
+### Status model (two separate dimensions)
+
+- **Posting status** (the payment): Pending approval, Approved, Queued for posting, Posting failed, Posted,
+  Cancellation requested, Cancelled.
+- **Reconciliation status** (only for a posted payment, from the active allocations in the Payment Ledger Entry):
+  Not reconciled, Partially reconciled, Fully reconciled.
+- **Replacement pending**: a Pending payment whose `replaces` is the cancelled payment.
+
+### Executor dispatch (no enqueue, no identity switch)
+
+- `run_posting_queue` is a whitelisted POST. Only the dedicated service role may call it; otherwise a permission error.
+- Candidates come from `frappe.get_list`, which applies the caller's company permissions (a payment of a company the
+  identity is not permitted for is not selected).
+- Each payment is posted inside a savepoint. A failure rolls back that payment only and records `Posting Failed` with
+  the error. A retry is a new queue claim followed by the same dispatch; `execute_posting` finds an entry an earlier
+  run already created (by its remark) and links it instead of creating a second one.
+- Every posting records who requested, who approved, who claimed and who posted (`posted_by`), and the entry's remark
+  carries the requester and the approver.
+- Production: the service identity, its token and its runner are not provisioned. Creating them needs the owner's
+  explicit approval. Tests create the identity in the test site only.
+
+### Verification
+
+- `test_cash_operational_workflow.py`: one scenario through the real endpoints (request as Card User, submission while
+  pending, approval by another Card Manager, dispatch as the service identity through `frappe.call`, ERPNext
+  reconciliation and unreconciliation, accountant cancellation, replacement posted once). Ledger balances come from
+  ERPNext `get_balance_on`; invoice outstanding from the Purchase Invoice.
+- `test_cash_disbursement_post.py`: dispatch refused to a Card Manager; a disabled Cash account makes the real Journal
+  Entry insert fail: the attempt is rolled back, the payment is Posting Failed, the retry posts exactly one entry.
+- `test_bola_matrix.py`: cross-company refusal for the request, the status read, the queue and the dispatch endpoints
+  (fixtures for the access-control checks only; positive transitions are tested through real records).
+
 ## 8. Known limits and unverified items
 
 - Runtime proof of the reconciliation tests and the closed-period tests is pending CI on the commit that adds them.

@@ -257,3 +257,107 @@ msgstr "ဂျာနယ်စာရင်း {0} တွင် ဆက်လက်
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
 msgstr "ဂျာနယ်စာရင်း {0} သည် ငွေသား ပေးချေမှု {1} ကို ပေးချေသည်။ ပထမဦးစွာ အကြောင်းရင်းဖြင့် ပယ်ဖျက်ရန် တောင်းဆိုပါ; ထို့နောက် ပေးချေမှုကို ပယ်ဖျက်ပြီးဟု အမှတ်အသားပြုမည်။"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "အတည်ပြုရန် စောင့်ဆိုင်းနေသည်"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "ပို့စ်တင်ရန် တန်းစီထား"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "ပို့စ်တင်မှု မအောင်မြင်"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "ပယ်ဖျက်ရန် တောင်းဆိုထား"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "မကိုက်ညီသေး"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "တစ်စိတ်တစ်ပိုင်း ကိုက်ညီ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "အပြည့်အဝ ကိုက်ညီ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "ဤငွေသား ပေးချေမှုကို အတည်ပြုမလား? အတည်ပြုသူသည် တောင်းဆိုသူ မဖြစ်ရပါ။"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "ပို့စ်တင်ရန် တန်းစီထားရန်"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "ပို့စ်တင်မှုကို ထပ်ကြိုးစားရန်"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "ပယ်ဖျက်ရန် တောင်းဆိုရန်"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "ငွေသား: အတည်ပြုရန် စောင့်ဆိုင်း"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "ငွေသား: အတည်ပြုပြီး"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "ငွေသား: ပို့စ်တင်ရန် တန်းစီ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "ငွေသား: ပို့စ်တင်မှု မအောင်မြင်"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "ငွေသား: ပို့စ်တင်ပြီး"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "ငွေသား: ပယ်ဖျက်ရန် တောင်းဆို"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "ငွေသား: ပယ်ဖျက်ပြီး"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "ငွေသား: မကိုက်ညီသေး"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "ငွေသား: တစ်စိတ်တစ်ပိုင်း ကိုက်ညီ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "ငွေသား: အပြည့်အဝ ကိုက်ညီ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "ငွေသား: အစားထိုးရန် စောင့်ဆိုင်း"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "ငွေသား ပေးချေမှု အတည်ပြုချက် တောင်းဆိုရန်"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "ငွေသား အတန်း"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "အထောက်အထား (ငွေလက်ခံစာအမှတ် သို့မဟုတ် ကိုးကား)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "ငွေသား ပေးချေမှု အတည်ပြုချက် တောင်းဆိုပြီး"
