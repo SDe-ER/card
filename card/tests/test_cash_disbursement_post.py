@@ -166,7 +166,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		card, row = self._card_with_cash_row()
 		name = self._request(card, row)
 		original = frappe.get_doc("Card Cash Disbursement", name)
-		with self.assertRaises(frappe.DuplicateEntryError):
+		with self.assertRaises(frappe.ValidationError):  # the database unique violation, as Frappe reports it
 			frappe.get_doc(
 				{
 					"doctype": "Card Cash Disbursement",

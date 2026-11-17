@@ -30,7 +30,6 @@ def _check_role(roles, allowed, message):
 		frappe.throw(message)
 
 
-@frappe.whitelist(methods=["POST"])
 def request_cash_disbursement(card, row, payment_date, evidence):
 	"""Record a Pending cash payment for a flagged row of a Draft card (the requester is the record owner)."""
 	doc = frappe.get_doc("Card Monthly Card", card)
@@ -66,7 +65,6 @@ def request_cash_disbursement(card, row, payment_date, evidence):
 	return record.name
 
 
-@frappe.whitelist(methods=["POST"])
 def approve_cash_disbursement(name):
 	"""Explicit approval by a Card Manager who is not the requester."""
 	roles = frappe.get_roles()
@@ -83,7 +81,6 @@ def approve_cash_disbursement(name):
 	return doc.name
 
 
-@frappe.whitelist(methods=["POST"])
 def post_cash_disbursement(name):
 	"""Post the approved cash payment as one submitted Journal Entry; return it (the same one on a retry)."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can post a cash payment."))
@@ -119,10 +116,16 @@ def post_cash_disbursement(name):
 			],
 		}
 	)
-	# ignore_permissions: the posting is an explicit, role-checked service action of this record (above), and
-	# the entry's accounts are fixed by the record; the requester's own Journal Entry rights are not used.
-	entry.insert(ignore_permissions=True)
-	entry.submit()
+	# The role check above authorises the posting. The Journal Entry is then written as the system account,
+	# because ERPNext reads the Accounts of an entry under the user's own rights, which a Card Manager does not
+	# hold; the accounts are fixed by the record, and the session user is restored afterwards.
+	previous = frappe.session.user
+	frappe.set_user("Administrator")
+	try:
+		entry.insert()
+		entry.submit()
+	finally:
+		frappe.set_user(previous)
 	frappe.db.set_value(
 		DOCTYPE,
 		name,
@@ -130,3 +133,17 @@ def post_cash_disbursement(name):
 		update_modified=False,
 	)
 	return entry.name
+
+
+def has_cash_disbursement_permission(doc, ptype=None, user=None, debug=False):
+	"""Document-level company check (every path): the company of the record, sent or stored, must be one the
+	user is permitted for. Unrestricted users are not limited. Denial only, as Frappe expects."""
+	from card.party_registry import _restricted_companies
+
+	companies = _restricted_companies(user or frappe.session.user, DOCTYPE)
+	if companies is None:
+		return True
+	owners = {doc.get("company")}
+	if not doc.is_new():
+		owners.add(frappe.db.get_value(DOCTYPE, doc.name, "company"))
+	return bool(companies) and all(c in companies for c in owners if c)

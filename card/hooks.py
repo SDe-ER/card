@@ -193,6 +193,8 @@ has_permission = {
 	"Equipment Needs Review": "card.card.doctype.equipment_needs_review.equipment_needs_review.has_review_permission",
 	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.has_assignment_permission",
 	"Card Monthly Card": "card.card.doctype.card_monthly_card.card_monthly_card.has_card_permission",
+	# FR-170 step 2: a cash payment belongs to its company
+	"Card Cash Disbursement": "card.cash_disbursement.has_cash_disbursement_permission",
 	"Equipment Transport": "card.card.doctype.equipment_transport.equipment_transport.has_transport_permission",
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.has_fitment_permission",
 	# H-CARD-4: a diesel fill belongs to its company
