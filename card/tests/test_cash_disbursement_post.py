@@ -152,7 +152,7 @@ class TestCashDisbursementPosting(_AdjBase):
 	def test_unauthorized_user_cannot_queue_a_posting(self):
 		_card, name = self._approved()
 		frappe.set_user(self.card_user)
-		with self.assertRaises(frappe.ValidationError):
+		with self.assertRaises(frappe.PermissionError):
 			queue_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Approved")
@@ -391,7 +391,7 @@ class TestCashDisbursementPosting(_AdjBase):
 
 		_card, name, _entry = self._posted()
 		frappe.set_user(self.card_user)
-		with self.assertRaises(frappe.ValidationError):
+		with self.assertRaises(frappe.PermissionError):
 			request_cancellation(name, "Wrong supplier")
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")

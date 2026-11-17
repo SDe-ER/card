@@ -32,8 +32,9 @@ SERVICE_ROLE = "Card Cash Posting Service"
 
 
 def _check_role(roles, allowed, message):
+	"""A role refusal is a permission error (the access-control matrix expects it), not a validation error."""
 	if not set(roles) & set(allowed):
-		frappe.throw(message)
+		frappe.throw(message, frappe.PermissionError)
 
 
 def request_cash_disbursement(card, row, payment_date, evidence):
@@ -229,6 +230,11 @@ def request_replacement(name, payment_date, evidence):
 	"""A correction after cancellation: a new Pending payment for the same flagged row, linked to the cancelled one
 	(``replaces``). It needs its own approval by a different Card Manager. The cancelled payment and its Journal Entry
 	stay as they are; nothing is reposted by this call."""
+	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can request a replacement."))
+	# the row lock serialises concurrent requests for the same cancelled payment: the second waits, then sees the
+	# live replacement the first one inserted (at most one active replacement per cancelled transaction)
+	if frappe.db.get_value(DOCTYPE, name, "name", for_update=True) is None:
+		frappe.throw(_("The cash payment {0} does not exist.").format(name))
 	frappe.has_permission(DOCTYPE, "create", throw=True)
 	original = frappe.get_doc(DOCTYPE, name)
 	if original.status != "Cancelled":

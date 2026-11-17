@@ -102,13 +102,14 @@ class TestCashRowDraftIntegration(_AdjBase):
 		with self.assertRaises(frappe.ValidationError):
 			self._typed_card(eq, [bad])
 
-	def test_card_with_a_pending_cash_row_cannot_be_submitted(self):
+	def test_card_with_a_pending_cash_row_submits_independently(self):
+		"""A pending owner-paid cash row does not block the card (monthly-card independence); the row stays linked."""
 		eq = self._equipment(direction=DIR_RENTED_IN)
 		card = self._typed_card(eq, [dict(self.cash_row)])
-		with self.assertRaises(frappe.ValidationError):
-			card.submit()
+		card.submit()
 		card.reload()
-		self.assertEqual(card.docstatus, 0)
+		self.assertEqual(card.docstatus, 1)
+		self.assertTrue(any(r.is_cash_disbursement for r in card.adjustments))
 
 	def test_ordinary_card_keeps_its_deduction(self):
 		eq = self._equipment(direction=DIR_RENTED_IN)
