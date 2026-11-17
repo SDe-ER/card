@@ -21,7 +21,9 @@
   "journal_entry",
   "approved_by",
   "approved_on",
-  "posted_on"
+  "posted_on",
+  "posting_claimed_by",
+  "posting_claimed_on"
  ],
  "fields": [
   {
@@ -101,7 +103,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nApproved\nPosted",
+   "options": "Pending\nApproved\nPosting\nPosted",
    "default": "Pending",
    "read_only": 1,
    "in_list_view": 1
@@ -138,6 +140,19 @@
    "fieldname": "posted_on",
    "fieldtype": "Datetime",
    "label": "Posted on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posting_claimed_by",
+   "fieldtype": "Link",
+   "label": "Claimed for posting by",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posting_claimed_on",
+   "fieldtype": "Datetime",
+   "label": "Claimed on",
    "read_only": 1
   }
  ],

@@ -1,28 +1,34 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""FR-170 step 2: the cash-disbursement approval lifecycle and its Journal Entry (verified Suppliers only).
+"""FR-170 step 2: the cash-disbursement approval lifecycle and its accounting execution (verified Suppliers only).
 
-Lifecycle of one "Card Cash Disbursement" record: Pending (requested) -> Approved (by a Card Manager other
-than the requester) -> Posted (one submitted Journal Entry, linked back). The Journal Entry debits the
-Supplier's payable account for the card's historical Supplier and credits the approved Cash account.
+Two separate parts, by design (owner decision 2026-11-17):
 
-Exactly-once: the transaction key is unique in the database, the Journal Entry link is unique, and posting
-runs under a row lock and returns the existing Journal Entry when the record is already Posted. A failed
-submit rolls the whole transaction back, so the record stays Approved and a retry is safe.
+1. User-facing (runs under the real user's identity): request, approve, and queue_posting. queue_posting only
+   claims an Approved record (Approved -> Posting, under a row lock). It creates no accounting entry.
+2. Accounting execution: execute_posting. It creates one submitted Journal Entry (Dr the Supplier payable, Cr the
+   validated Cash account) and links it back. It is run by an executor under a dedicated service identity that
+   holds only the permissions the entry needs (see SERVICE_ROLE). This code never changes the session user, so the
+   identity used is the one the executor runs as, and it is verified by the tests.
 
-Only a supplier-billed card whose stored Supplier is the beneficiary is accepted (settlement.resolve_beneficiary).
-Other beneficiary types are not posted (settlement.posting_block_reason).
+Frappe's background queue is not used for execution: enqueue records the requesting session as the job user, so a
+queued job would run as the requester, not as the service identity (verified in frappe/utils/background_jobs.py,
+version-16: enqueue sets "user": frappe.session.user; execute_job calls frappe.set_user(user)).
+
+Exactly-once: the transaction key is unique in the database, the Journal Entry link is unique, the claim and the
+posting run under a row lock, and a retry or a recovered run finds the entry by its remark before creating one.
 """
 
 import frappe
 from frappe import _
 from frappe.utils import cint, now_datetime, nowdate
 
-from card.adjustments import validate_cash_account
 from card.settlement import posting_block_reason, resolve_beneficiary, validate_payment_date
 
 DOCTYPE = "Card Cash Disbursement"
 APPROVAL_ROLES = ("Card Manager", "System Manager")
+# the dedicated identity the executor runs as: no broad accounting role, only what one entry needs
+SERVICE_ROLE = "Card Cash Posting Service"
 
 
 def _check_role(roles, allowed, message):
@@ -67,8 +73,7 @@ def request_cash_disbursement(card, row, payment_date, evidence):
 
 def approve_cash_disbursement(name):
 	"""Explicit approval by a Card Manager who is not the requester."""
-	roles = frappe.get_roles()
-	_check_role(roles, APPROVAL_ROLES, _("Only a Card Manager can approve a cash payment."))
+	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can approve a cash payment."))
 	doc = frappe.get_doc(DOCTYPE, name)
 	if doc.owner == frappe.session.user:
 		frappe.throw(_("The requester cannot approve their own cash payment."))
@@ -81,8 +86,9 @@ def approve_cash_disbursement(name):
 	return doc.name
 
 
-def post_cash_disbursement(name):
-	"""Post the approved cash payment as one submitted Journal Entry; return it (the same one on a retry)."""
+def queue_posting(name):
+	"""Claim an Approved cash payment for the accounting executor (Approved -> Posting, under a row lock).
+	Creates no accounting entry. Returns the Journal Entry when the payment is already Posted."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can post a cash payment."))
 	row = frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"], as_dict=True, for_update=True)
 	if not row:
@@ -90,17 +96,46 @@ def post_cash_disbursement(name):
 	if row.status == "Posted":
 		return row.journal_entry
 	if row.status != "Approved":
-		frappe.throw(_("Only an approved cash payment can be posted; {0} is {1}.").format(name, row.status))
+		frappe.throw(
+			_("Only an approved cash payment can be queued for posting; {0} is {1}.").format(name, row.status)
+		)
+	frappe.db.set_value(
+		DOCTYPE,
+		name,
+		{
+			"status": "Posting",
+			"posting_claimed_by": frappe.session.user,
+			"posting_claimed_on": now_datetime(),
+		},
+		update_modified=False,
+	)
+	return name
 
-	# The role check above authorises the posting. Everything ERPNext reads for the entry (the Supplier's party
-	# account, the Accounts, the Journal Entry itself) is then done as the system account, because a Card Manager
-	# does not hold the Accounts rights that ERPNext checks. The accounts are fixed by the record. The session
-	# user is restored in every case.
-	from erpnext.accounts.party import get_party_account
 
-	previous = frappe.session.user
-	frappe.set_user("Administrator")
-	try:
+def _entry_for(name):
+	"""The Journal Entry (not cancelled) a payment created, found by its remark: the recovery key."""
+	return frappe.db.get_value(
+		"Journal Entry",
+		{"user_remark": ["like", "Card cash payment {0} (%".format(name)], "docstatus": ["!=", 2]},
+		"name",
+	)
+
+
+def execute_posting(name):
+	"""Accounting execution. Run by the executor under the service identity. Creates one submitted Journal Entry,
+	or links the one an interrupted earlier run already created. Returns the entry name."""
+	row = frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"], as_dict=True, for_update=True)
+	if not row:
+		frappe.throw(_("The cash payment {0} does not exist.").format(name))
+	if row.status == "Posted":
+		return row.journal_entry
+	if row.status != "Posting":
+		frappe.throw(_("Only a queued cash payment can be executed; {0} is {1}.").format(name, row.status))
+
+	entry_name = _entry_for(name)
+	if not entry_name:
+		from erpnext.accounts.party import get_party_account
+
 		doc = frappe.get_doc(DOCTYPE, name)
 		entry = frappe.get_doc(
 			{
@@ -108,8 +143,14 @@ def post_cash_disbursement(name):
 				"voucher_type": "Journal Entry",
 				"company": doc.company,
 				"posting_date": doc.payment_date,
-				"user_remark": "Card cash payment {0} ({1}) for card {2}, row {3}, on behalf of {4}".format(
-					doc.name, doc.transaction_key, doc.card, doc.adjustment_row, doc.supplier
+				"user_remark": "Card cash payment {0} ({1}) for card {2}, row {3}, on behalf of {4}; requested by {5}, approved by {6}".format(
+					doc.name,
+					doc.transaction_key,
+					doc.card,
+					doc.adjustment_row,
+					doc.supplier,
+					doc.owner,
+					doc.approved_by,
 				),
 				"accounts": [
 					{
@@ -125,15 +166,14 @@ def post_cash_disbursement(name):
 		)
 		entry.insert()
 		entry.submit()
-		frappe.db.set_value(
-			DOCTYPE,
-			name,
-			{"status": "Posted", "journal_entry": entry.name, "posted_on": now_datetime()},
-			update_modified=False,
-		)
-	finally:
-		frappe.set_user(previous)
-	return entry.name
+		entry_name = entry.name
+	frappe.db.set_value(
+		DOCTYPE,
+		name,
+		{"status": "Posted", "journal_entry": entry_name, "posted_on": now_datetime()},
+		update_modified=False,
+	)
+	return entry_name
 
 
 def has_cash_disbursement_permission(doc, ptype=None, user=None, debug=False):

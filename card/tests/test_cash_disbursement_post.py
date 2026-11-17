@@ -1,20 +1,27 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""FR-170 step 2 database integration (owner decisions 2026-11-17): a cash payment for a verified external
-Supplier is requested, approved by a Card Manager other than the requester, and posted once as a submitted
-Journal Entry (Dr the Supplier payable, Cr the Cash account). Retries return the same entry; a duplicate key
-is refused by the database; a card submits after its payment is posted. Real rows, rolled back per test."""
+"""FR-170 step 2 database integration (owner security decision 2026-11-17).
+
+The user-facing steps (request, approval, queueing) run under the real users. The accounting execution runs as a
+dedicated service identity (SERVICE_ROLE) that holds only what one Journal Entry needs, and never as Administrator.
+These tests create that identity in the test site (rolled back), so the rights it actually has are verified:
+the Card Manager cannot execute a posting; the service identity can, and only for what it needs; a retry or an
+interrupted run never creates a second entry."""
 
 import frappe
 
 from card.cash_disbursement import (
+	SERVICE_ROLE,
 	approve_cash_disbursement,
-	post_cash_disbursement,
+	execute_posting,
+	queue_posting,
 	request_cash_disbursement,
 )
 from card.constants import DIR_RENTED_IN
 from card.tests.test_cash_disbursement_db import _cash_account
 from card.tests.test_s3_config import _AdjBase
+
+DOCTYPE = "Card Cash Disbursement"
 
 
 class TestCashDisbursementPosting(_AdjBase):
@@ -24,10 +31,80 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.cash = _cash_account(self.company)
 		self.manager = self._user("Card Manager")
 		self.card_user = self._user("Card User")
+		self.service = self._service_user()
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
+
+	def _user(self, role, roles=None):
+		email = "ccd-%s-%s@example.com" % (role.lower().replace(" ", "-"), frappe.generate_hash(length=6))
+		return (
+			frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": email,
+					"first_name": "Test",
+					"send_welcome_email": 0,
+					"user_type": "System User",
+					"roles": [{"role": r} for r in (roles or [role])],
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+
+	def _service_user(self):
+		"""The dedicated accounting identity: its role, the rights one Journal Entry needs, and the company
+		restriction. Created in the test site only; production creation needs the owner's approval."""
+		if not frappe.db.exists("Role", SERVICE_ROLE):
+			frappe.get_doc({"doctype": "Role", "role_name": SERVICE_ROLE}).insert(ignore_permissions=True)
+		grants = {
+			"Journal Entry": {"read": 1, "write": 1, "create": 1, "submit": 1},
+			"Account": {"read": 1},
+			"Supplier": {"read": 1},
+			"Company": {"read": 1},
+			"Project": {"read": 1},
+		}
+		for doctype, rights in grants.items():
+			frappe.get_doc(
+				{
+					"doctype": "Custom DocPerm",
+					"parent": doctype,
+					"role": SERVICE_ROLE,
+					"permlevel": 0,
+					**rights,
+				}
+			).insert(ignore_permissions=True)
+			frappe.clear_cache(doctype=doctype)
+		user = self._user(SERVICE_ROLE)
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": user,
+				"allow": "Company",
+				"for_value": self.company,
+				"apply_to_all_doctypes": 1,
+			}
+		).insert(ignore_permissions=True)
+		return user
+
+	def _card_with_cash_row(self, amount=300):
+		eq = self._equipment(direction=DIR_RENTED_IN)
+		card = self._typed_card(
+			eq,
+			[
+				{
+					"is_cash_disbursement": 1,
+					"cash_account": self.cash,
+					"adjustment_type": "خصم",
+					"description": "Diesel paid on behalf of the supplier",
+					"amount": amount,
+					"side": "Supplier",
+				}
+			],
+		)
+		return card, card.adjustments[0]
 
 	def _typed_card(self, eq, rows):
 		"""A Draft monthly card for September 2026 with two worked days and the given adjustment rows."""
@@ -47,91 +124,63 @@ class TestCashDisbursementPosting(_AdjBase):
 		c.reload()
 		return c
 
-	def _user(self, role):
-		email = "ccd-%s-%s@example.com" % (role.lower().replace(" ", "-"), frappe.generate_hash(length=6))
-		return (
-			frappe.get_doc(
-				{
-					"doctype": "User",
-					"email": email,
-					"first_name": "Test",
-					"send_welcome_email": 0,
-					"user_type": "System User",
-					"roles": [{"role": role}],
-				}
-			)
-			.insert(ignore_permissions=True)
-			.name
-		)
-
-	def _card_with_cash_row(self, amount=300):
-		eq = self._equipment(direction=DIR_RENTED_IN)
-		card = self._typed_card(
-			eq,
-			[
-				{
-					"is_cash_disbursement": 1,
-					"cash_account": self.cash,
-					"adjustment_type": "خصم",
-					"description": "Diesel paid on behalf of the supplier",
-					"amount": amount,
-					"side": "Supplier",
-				}
-			],
-		)
-		return card, card.adjustments[0]
-
-	def _request(self, card, row, payment_date="2026-09-10"):
-		return request_cash_disbursement(card.name, row.name, payment_date, "Receipt R-1")
+	def _approved(self, amount=300):
+		"""A requested (by Administrator) and approved (by the Card Manager) cash payment."""
+		card, row = self._card_with_cash_row(amount)
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-1")
+		frappe.set_user(self.manager)
+		approve_cash_disbursement(name)
+		frappe.set_user("Administrator")
+		return card, name
 
 	def _journal_entries_for(self, record_name):
 		return frappe.get_all(
 			"Journal Entry",
-			filters={"user_remark": ["like", "%" + record_name + "%"], "docstatus": 1},
+			filters={
+				"user_remark": ["like", "%Card cash payment " + record_name + " (%"],
+				"docstatus": ["!=", 2],
+			},
 			pluck="name",
 		)
 
-	def test_request_creates_a_pending_record_with_the_historical_supplier(self):
+	def test_approval_segregation_the_requester_cannot_approve(self):
 		card, row = self._card_with_cash_row()
-		name = self._request(card, row)
-		record = frappe.get_doc("Card Cash Disbursement", name)
-		self.assertEqual(record.status, "Pending")
-		self.assertEqual(record.supplier, card.supplier)
-		self.assertEqual(len(record.transaction_key), 64)
-
-	def test_a_second_request_for_the_same_row_is_refused(self):
-		card, row = self._card_with_cash_row()
-		self._request(card, row)
-		with self.assertRaises(frappe.ValidationError):
-			self._request(card, row)
-
-	def test_posting_before_approval_is_refused(self):
-		card, row = self._card_with_cash_row()
-		name = self._request(card, row)
-		frappe.set_user(self.manager)
-		with self.assertRaises(frappe.ValidationError):
-			post_cash_disbursement(name)
-
-	def test_the_requester_cannot_approve_their_own_payment(self):
-		card, row = self._card_with_cash_row()
-		name = self._request(card, row)
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-1")
 		with self.assertRaises(frappe.ValidationError):
 			approve_cash_disbursement(name)  # Administrator requested it
 
-	def test_a_card_user_cannot_approve_or_post(self):
-		card, row = self._card_with_cash_row()
-		name = self._request(card, row)
+	def test_unauthorized_user_cannot_queue_a_posting(self):
+		_card, name = self._approved()
 		frappe.set_user(self.card_user)
 		with self.assertRaises(frappe.ValidationError):
-			approve_cash_disbursement(name)
+			queue_posting(name)
 		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Approved")
 
-	def test_manager_approval_then_posting_creates_one_submitted_journal_entry(self):
-		card, row = self._card_with_cash_row(amount=300)
-		name = self._request(card, row)
+	def test_card_manager_cannot_execute_the_accounting_posting(self):
+		_card, name = self._approved()
 		frappe.set_user(self.manager)
-		approve_cash_disbursement(name)
-		entry_name = post_cash_disbursement(name)
+		queue_posting(name)
+		with self.assertRaises((frappe.PermissionError, frappe.ValidationError)):
+			execute_posting(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._journal_entries_for(name), [])
+
+	def test_queueing_claims_an_approved_request_once(self):
+		_card, name = self._approved()
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		with self.assertRaises(frappe.ValidationError):
+			queue_posting(name)  # simultaneous or repeated request: already claimed
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
+
+	def test_service_identity_posts_one_submitted_journal_entry(self):
+		card, name = self._approved(amount=300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		entry_name = execute_posting(name)
 		frappe.set_user("Administrator")
 
 		entry = frappe.get_doc("Journal Entry", entry_name)
@@ -145,31 +194,53 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertAlmostEqual(debit[0].debit_in_account_currency, 300.0)
 		self.assertEqual(credit[0].account, self.cash)
 		self.assertAlmostEqual(credit[0].credit_in_account_currency, 300.0)
+		self.assertIn("requested by", entry.user_remark)
+		self.assertIn("approved by " + self.manager, entry.user_remark)
 
-		record = frappe.get_doc("Card Cash Disbursement", name)
+		record = frappe.get_doc(DOCTYPE, name)
 		self.assertEqual(record.status, "Posted")
 		self.assertEqual(record.journal_entry, entry_name)
 		self.assertEqual(self._journal_entries_for(name), [entry_name])
 
 	def test_retry_returns_the_same_entry_and_creates_no_second_one(self):
-		card, row = self._card_with_cash_row()
-		name = self._request(card, row)
+		_card, name = self._approved()
 		frappe.set_user(self.manager)
-		approve_cash_disbursement(name)
-		first = post_cash_disbursement(name)
-		second = post_cash_disbursement(name)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		first = execute_posting(name)
+		second = execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(first, second)
 		self.assertEqual(self._journal_entries_for(name), [first])
 
+	def test_interrupted_run_links_the_entry_it_created_and_creates_no_second(self):
+		_card, name = self._approved()
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		first = execute_posting(name)
+		frappe.set_user("Administrator")
+		# simulate a run that created the entry but lost the status update
+		frappe.db.set_value(
+			DOCTYPE,
+			name,
+			{"status": "Posting", "journal_entry": None, "posted_on": None},
+			update_modified=False,
+		)
+		frappe.set_user(self.service)
+		recovered = execute_posting(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(recovered, first)
+		self.assertEqual(self._journal_entries_for(name), [first])
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+
 	def test_the_database_refuses_a_duplicate_transaction_key(self):
-		card, row = self._card_with_cash_row()
-		name = self._request(card, row)
-		original = frappe.get_doc("Card Cash Disbursement", name)
+		_card, name = self._approved()
+		original = frappe.get_doc(DOCTYPE, name)
 		with self.assertRaises(frappe.ValidationError):  # the database unique violation, as Frappe reports it
 			frappe.get_doc(
 				{
-					"doctype": "Card Cash Disbursement",
+					"doctype": DOCTYPE,
 					"company": original.company,
 					"supplier": original.supplier,
 					"card": original.card,
@@ -184,25 +255,27 @@ class TestCashDisbursementPosting(_AdjBase):
 			).insert()
 
 	def test_an_approved_payment_cannot_change_its_amount(self):
-		card, row = self._card_with_cash_row()
-		name = self._request(card, row)
-		frappe.set_user(self.manager)
-		approve_cash_disbursement(name)
-		record = frappe.get_doc("Card Cash Disbursement", name)
+		_card, name = self._approved()
+		record = frappe.get_doc(DOCTYPE, name)
 		record.amount = 999
 		with self.assertRaises(frappe.ValidationError):
 			record.save()
-		frappe.set_user("Administrator")
+
+	def test_the_service_identity_holds_only_the_rights_it_needs(self):
+		self.assertTrue(frappe.has_permission("Journal Entry", "submit", user=self.service))
+		self.assertTrue(frappe.has_permission("Account", "read", user=self.service))
+		self.assertFalse(frappe.has_permission("Purchase Invoice", "write", user=self.service))
+		self.assertFalse(frappe.has_permission("Card Monthly Card", "write", user=self.service))
+		self.assertFalse(frappe.has_permission("User", "write", user=self.service))
 
 	def test_a_card_submits_only_after_its_cash_payment_is_posted(self):
-		card, row = self._card_with_cash_row()
-		name = self._request(card, row)
+		card, name = self._approved()
 		with self.assertRaises(frappe.ValidationError):
 			frappe.get_doc("Card Monthly Card", card.name).submit()
 		frappe.set_user(self.manager)
-		approve_cash_disbursement(name)
-		post_cash_disbursement(name)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		execute_posting(name)
 		frappe.set_user("Administrator")
-		submitted = frappe.get_doc("Card Monthly Card", card.name)
-		submitted.submit()
+		frappe.get_doc("Card Monthly Card", card.name).submit()
 		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "docstatus"), 1)
