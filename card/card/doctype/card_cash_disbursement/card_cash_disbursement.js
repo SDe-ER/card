@@ -18,15 +18,25 @@ frappe.ui.form.on("Card Cash Disbursement", {
 
 		if (frm.doc.status === "Pending") {
 			frm.add_custom_button(__("Approve"), () =>
-				frappe.confirm(__("Approve this cash payment? The approver must not be the requester."), () =>
-					act("card.cash_disbursement.approve_cash_disbursement", { name: frm.doc.name }, __("Approved"))
-				)
+				frappe.confirm(
+					__("Approve this cash payment? The approver must not be the requester."),
+					() =>
+						act(
+							"card.cash_disbursement.approve_cash_disbursement",
+							{ name: frm.doc.name },
+							__("Approved"),
+						),
+				),
 			);
 		}
 
 		if (frm.doc.status === "Approved") {
 			frm.add_custom_button(__("Queue for posting"), () =>
-				act("card.cash_disbursement.queue_posting", { name: frm.doc.name }, __("Queued for posting"))
+				act(
+					"card.cash_disbursement.queue_posting",
+					{ name: frm.doc.name },
+					__("Queued for posting"),
+				),
 			);
 		}
 
@@ -38,11 +48,11 @@ frappe.ui.form.on("Card Cash Disbursement", {
 						act(
 							"card.cash_disbursement.request_cancellation",
 							{ name: frm.doc.name, reason: values.reason },
-							__("Cancellation requested")
+							__("Cancellation requested"),
 						),
 					__("Request cancellation"),
-					__("Request")
-				)
+					__("Request"),
+				),
 			);
 		}
 	},

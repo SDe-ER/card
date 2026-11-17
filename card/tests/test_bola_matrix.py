@@ -1272,9 +1272,10 @@ class TestBolaMatrix(IntegrationTestCase):
 		doc.db_insert()
 		return name
 
-	def _ccd(self, company, supplier, label, status="Posted"):
-		"""A cash payment of one company in the given state (matrix fixture). Pending and Approved payments validate
-		a real Cash account of the company; the card and the row are not validated (they need not exist here)."""
+	def _ccd(self, company, supplier, label, status="Posted", cash_account=None):
+		"""A cash payment of one company in the given state (matrix fixture). It is inserted as Posted (no cash-account
+		check on a company without a chart) and moved to the requested state directly; the card and the row are not
+		validated (they need not exist here). Company A passes a real Cash account of its chart."""
 		doc = frappe.get_doc(
 			{
 				"doctype": "Card Cash Disbursement",
@@ -1284,15 +1285,17 @@ class TestBolaMatrix(IntegrationTestCase):
 				"adjustment_row": "ROW-" + label,
 				"amount": 100,
 				"payment_date": nowdate(),
-				"cash_account": _cash_account(company),
+				"cash_account": cash_account or "CASH-" + label,
 				"evidence": "BOLA fixture",
-				"status": status,
+				"status": "Posted",
 				"transaction_key": frappe.generate_hash(length=64),
 			}
 		)
 		doc.flags.ignore_links = True
 		doc.flags.ignore_mandatory = True
 		doc.insert(ignore_permissions=True)
+		if status != "Posted":
+			frappe.db.set_value("Card Cash Disbursement", doc.name, "status", status, update_modified=False)
 		return doc.name
 
 	def _fixtures(self):
@@ -1324,11 +1327,11 @@ class TestBolaMatrix(IntegrationTestCase):
 		frappe.db.set_value("Card Equipment", c.eq_b, "is_unit_component", 1)  # an integrity issue to list
 		c.sup_a = self._supplier(f"SUP-A-{token}")
 		c.sup_b = self._supplier(f"SUP-{b}")
-		c.ccd_a = self._ccd(c.A, c.sup_a, "A" + token)
+		c.ccd_a = self._ccd(c.A, c.sup_a, "A" + token, cash_account=_cash_account(c.A))
 		c.ccd_b = self._ccd(c.B, c.sup_b, b)
-		c.pend_a = self._ccd(c.A, c.sup_a, "PA" + token, "Pending")
+		c.pend_a = self._ccd(c.A, c.sup_a, "PA" + token, "Pending", _cash_account(c.A))
 		c.pend_b = self._ccd(c.B, c.sup_b, "PB" + b, "Pending")
-		c.appr_a = self._ccd(c.A, c.sup_a, "AA" + token, "Approved")
+		c.appr_a = self._ccd(c.A, c.sup_a, "AA" + token, "Approved", _cash_account(c.A))
 		c.appr_b = self._ccd(c.B, c.sup_b, "AB" + b, "Approved")
 		c.cust_a = self._customer(f"CUST-A-{token}")
 		c.cust_b = self._customer(f"CUST-{b}")
