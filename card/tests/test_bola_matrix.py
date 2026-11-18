@@ -2056,6 +2056,36 @@ class TestBolaMatrix(IntegrationTestCase):
 					frappe.db.get_value(doctype, name, ["modified", *change], as_dict=True), stored
 				)
 
+	def test_missing_and_foreign_payment_names_refuse_identically(self):
+		"""A name that does not exist and a payment of another company get the same error class and text, for every
+		state-changing cash action, so the response does not reveal which names exist (FR-170 review finding)."""
+		from card.cash_disbursement import (
+			approve_cash_disbursement,
+			queue_posting,
+			request_cancellation,
+			request_replacement,
+		)
+
+		c = self.ctx
+		frappe.set_user(self._user(("Card Manager",), restrict=c.A))
+		calls = {
+			"approve": lambda n: approve_cash_disbursement(n),
+			"queue": lambda n: queue_posting(n),
+			"cancel": lambda n: request_cancellation(n, "x"),
+			"replace": lambda n: request_replacement(n, "x", nowdate(), "E"),
+		}
+		try:
+			for action, call in calls.items():
+				texts = []
+				for name in ("NO-SUCH-PAYMENT-FR170", c.canc_b):
+					with self.subTest(action=action, name=name):
+						with self.assertRaises(frappe.PermissionError) as raised:
+							call(name)
+						texts.append((type(raised.exception), str(raised.exception)))
+				self.assertEqual(texts[0], texts[1], f"{action}: the refusals differ")
+		finally:
+			frappe.set_user("Administrator")
+
 	def test_matrix_document_matches_the_source(self):
 		text = MATRIX_DOC.read_text()
 		self.assertEqual(

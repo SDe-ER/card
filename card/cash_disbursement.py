@@ -44,10 +44,14 @@ def request_cash_disbursement(card: str, row: str, payment_date: str, evidence: 
 	The card's company is checked for the caller (read on the card). The beneficiary is the Supplier the card keeps
 	(historical snapshot, never the equipment's current owner). The row must be a cash row with a positive amount and
 	a validated Cash account; the evidence is required; one payment per row, in any status."""
+	# a locking read on the card row first; a missing card and a card of another company get the same refusal
+	if not frappe.db.get_value("Card Monthly Card", card, "name", for_update=True):
+		_refuse_payment()
 	doc = frappe.get_doc("Card Monthly Card", card)
 	# the request is an action on the card: whoever may edit the card (its company included) may request its payment.
 	# The payment record is then inserted under that explicit card check, not by widening the payment DocType's rights.
-	doc.check_permission("write")
+	if not frappe.has_permission("Card Monthly Card", "write", doc=doc):
+		_refuse_payment()
 	if doc.docstatus != 0:
 		frappe.throw(_("A cash payment is requested on a Draft card only."))
 	source = next((r for r in doc.adjustments or [] if r.name == row), None)
@@ -86,11 +90,32 @@ def request_cash_disbursement(card: str, row: str, payment_date: str, evidence: 
 	return record.name
 
 
+def _refuse_payment():
+	"""The one refusal for a payment the caller may not change, whether the name is missing or belongs to another
+	company: the same error class and text, so the response does not show which names exist."""
+	frappe.throw(_("You are not permitted to change this cash payment."), frappe.PermissionError)
+
+
+def _lock_payment(name):
+	"""The first read of every state-changing action: a locking read on the payment row, so no decision below is made on
+	a row another transaction is still changing."""
+	if not frappe.db.get_value(DOCTYPE, name, "name", for_update=True):
+		_refuse_payment()
+
+
+def _require_payment_right(doc, ptype="write"):
+	"""The company check of a locked payment (the same hook as the Desk), answered with the common refusal."""
+	if not frappe.has_permission(DOCTYPE, ptype, doc=doc):
+		_refuse_payment()
+
+
 @frappe.whitelist(methods=["POST"])
 def approve_cash_disbursement(name: str) -> str:
 	"""Explicit approval by a Card Manager who is not the requester."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can approve a cash payment."))
+	_lock_payment(name)
 	doc = frappe.get_doc(DOCTYPE, name)
+	_require_payment_right(doc, "write")
 	# ERPNext's own closed-period rule: a payment dated in a closed period could never be posted, so it is not approved
 	from erpnext.accounts.general_ledger import validate_accounting_period
 
@@ -113,8 +138,9 @@ def queue_posting(name: str) -> str | None:
 	"""Claim an Approved cash payment for the accounting executor (Approved -> Posting, under a row lock).
 	Creates no accounting entry. Returns the Journal Entry when the payment is already Posted."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can post a cash payment."))
+	_lock_payment(name)
 	# the company of the payment is checked on the server, for the caller (a raw row update has no permission check)
-	frappe.get_doc(DOCTYPE, name).check_permission("write")
+	_require_payment_right(frappe.get_doc(DOCTYPE, name), "write")
 	row = frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"], as_dict=True, for_update=True)
 	if not row:
 		frappe.throw(_("The cash payment {0} does not exist.").format(name))
@@ -343,7 +369,9 @@ def request_cancellation(name: str, reason: str) -> str:
 	reason = (reason or "").strip()
 	if not reason:
 		frappe.throw(_("Give the reason for the cancellation."))
+	_lock_payment(name)
 	doc = frappe.get_doc(DOCTYPE, name)
+	_require_payment_right(doc, "write")
 	if doc.status != "Posted":
 		frappe.throw(_("Only a posted cash payment can be cancelled; {0} is {1}.").format(name, doc.status))
 	_refuse_if_allocated(doc.journal_entry)
@@ -377,7 +405,7 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 		frappe.throw(_("You are not permitted to replace this cash payment."), frappe.PermissionError)
 	frappe.db.get_value("Card Monthly Card", locked.card, "name", for_update=True)
 	original = frappe.get_doc(DOCTYPE, name)
-	original.check_permission("write")
+	_require_payment_right(original, "write")
 	frappe.has_permission(DOCTYPE, "create", throw=True)
 	if original.status != "Cancelled":
 		frappe.throw(
