@@ -517,7 +517,7 @@ CASES = {
 		method=POST,
 		roles=(SERVICE_ROLE,),
 		gate="the dedicated accounting service identity only; the queue the caller is permitted for",
-		isolation="candidates limited to the caller's permitted companies (Company User Permission, explicit check); execute_posting checks the payment's company",
+		isolation="explicit Company User Permission grants only (no grant = no company); selection and execute_posting both check the company; no journal entry for an ungranted company",
 		effects="Posts each queued payment as one submitted Journal Entry; a failure is recorded as Posting Failed",
 		writes=True,
 		cross=lambda c: {"limit": 20},

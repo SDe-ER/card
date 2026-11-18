@@ -221,3 +221,19 @@ from Posted, and it is a server-side flag that a client request cannot set.
 - The HTTP dispatch (a request with the identity's token) is not yet verified in a non-production environment.
 - Code Review and Security Review have not been run on the final commit.
 
+
+### 9.6 Findings resolved in this change
+
+- **Finding 1 (fail-open company authorization), fixed.** `executor_companies()` reads only the identity's explicit
+  Company User Permission rows and returns an empty set when there are none. `run_posting_queue` selects candidates
+  with those companies in the query and returns nothing for an empty grant. `execute_posting` takes the grant as a
+  required argument and checks the payment's company before any write. A payment outside the grant is never marked
+  failed. Tests: no grant, one grant, several grants, cross-company denial, and no entry for an ungranted company.
+- **Finding 2 (forgeable journal-entry linkage), fixed.** The executor no longer searches entries by remark. The
+  durable link `Card Cash Disbursement.journal_entry` (unique in the database) is written in the same transaction
+  that creates the entry, before submission. Recovery follows only that link and validates the entry: not cancelled,
+  the payment's company, created by the executing identity, one Supplier debit to the payment's party account at the
+  approved amount, one credit to the approved Cash account at the approved amount. The remark is audit text only.
+  Tests: forged remark with a wrong amount; with a wrong Supplier; a linked entry with mismatched fields refused;
+  interruption before submit (nothing left, then retried); recovery of a linked draft (submitted once); repeated and
+  concurrent dispatch (one entry). The two-connection race is not reproducible in the single-connection suite.

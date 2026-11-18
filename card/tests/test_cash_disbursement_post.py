@@ -56,7 +56,7 @@ class TestCashDisbursementPosting(_AdjBase):
 			.name
 		)
 
-	def _service_user(self):
+	def _service_user(self, companies=None):
 		"""The dedicated accounting identity: its role, the rights one Journal Entry needs, and the company
 		restriction. Created in the test site only; production creation needs the owner's approval."""
 		if not frappe.db.exists("Role", SERVICE_ROLE):
@@ -69,6 +69,8 @@ class TestCashDisbursementPosting(_AdjBase):
 			"Project": {"read": 1},
 		}
 		for doctype, rights in grants.items():
+			if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": SERVICE_ROLE}):
+				continue  # granted once per test; a second identity only differs in its company grants
 			copy_standard_perms(doctype)
 			frappe.get_doc(
 				{
@@ -81,15 +83,16 @@ class TestCashDisbursementPosting(_AdjBase):
 			).insert(ignore_permissions=True)
 			frappe.clear_cache(doctype=doctype)
 		user = self._user(SERVICE_ROLE)
-		frappe.get_doc(
-			{
-				"doctype": "User Permission",
-				"user": user,
-				"allow": "Company",
-				"for_value": self.company,
-				"apply_to_all_doctypes": 1,
-			}
-		).insert(ignore_permissions=True)
+		for company in companies if companies is not None else [self.company]:
+			frappe.get_doc(
+				{
+					"doctype": "User Permission",
+					"user": user,
+					"allow": "Company",
+					"for_value": company,
+					"apply_to_all_doctypes": 1,
+				}
+			).insert(ignore_permissions=True)
 		return user
 
 	def _card_with_cash_row(self, amount=300):
@@ -140,8 +143,8 @@ class TestCashDisbursementPosting(_AdjBase):
 		return frappe.get_all(
 			"Journal Entry",
 			filters={
-				"user_remark": ["like", "%Card cash payment " + record_name + " (%"],
-				"docstatus": ["!=", 2],
+				"user_remark": ["like", "%Card cash payment " + record_name + "%"],
+				"docstatus": 1,
 			},
 			pluck="name",
 		)
@@ -165,7 +168,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		with self.assertRaises((frappe.PermissionError, frappe.ValidationError)):
-			execute_posting(name)
+			execute_posting(name, {self.company})
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])
 
@@ -183,7 +186,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		entry_name = execute_posting(name)
+		entry_name = execute_posting(name, {self.company})
 		frappe.set_user("Administrator")
 
 		entry = frappe.get_doc("Journal Entry", entry_name)
@@ -210,28 +213,29 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		first = execute_posting(name)
-		second = execute_posting(name)
+		first = execute_posting(name, {self.company})
+		second = execute_posting(name, {self.company})
 		frappe.set_user("Administrator")
 		self.assertEqual(first, second)
 		self.assertEqual(self._journal_entries_for(name), [first])
 
-	def test_interrupted_run_links_the_entry_it_created_and_creates_no_second(self):
+	def test_recovery_with_an_already_linked_valid_entry_creates_no_second_entry(self):
+		"""Interruption after the entry was submitted and linked, before the payment's status update: the recovery
+		validates the linked entry and marks the payment Posted; no second entry is created."""
 		_card, name = self._approved()
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		first = execute_posting(name)
+		first = execute_posting(name, {self.company})
 		frappe.set_user("Administrator")
-		# simulate a run that created the entry but lost the status update
 		frappe.db.set_value(
 			DOCTYPE,
 			name,
-			{"status": "Posting", "journal_entry": None, "posted_on": None},
+			{"status": "Posting", "posted_on": None, "posted_by": None},
 			update_modified=False,
 		)
 		frappe.set_user(self.service)
-		recovered = execute_posting(name)
+		recovered = execute_posting(name, {self.company})
 		frappe.set_user("Administrator")
 		self.assertEqual(recovered, first)
 		self.assertEqual(self._journal_entries_for(name), [first])
@@ -298,7 +302,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		approve_cash_disbursement(name)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		entry = execute_posting(name)
+		entry = execute_posting(name, {self.company})
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
 		self.assertEqual(self._journal_entries_for(name), [entry])
@@ -355,7 +359,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		queue_posting(name)
 		frappe.set_user(self.service)
 		with self.assertRaises(ClosedAccountingPeriod):
-			execute_posting(name)
+			execute_posting(name, {self.company})
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
@@ -420,7 +424,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		entry = execute_posting(name)
+		entry = execute_posting(name, {self.company})
 		frappe.set_user("Administrator")
 		return card, name, entry
 
@@ -607,7 +611,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		approve_cash_disbursement(new)
 		queue_posting(new)
 		frappe.set_user(self.service)
-		new_entry = execute_posting(new)
+		new_entry = execute_posting(new, {self.company})
 		frappe.set_user("Administrator")
 
 		self.assertNotEqual(new_entry, entry)
@@ -761,3 +765,247 @@ class TestCashDisbursementPosting(_AdjBase):
 		card, _row = self._card_with_cash_row(amount=300)
 		self.assertEqual(sided_adjustments([card.name], "Customer").get(card.name, (0.0, 0.0)), (0.0, 0.0))
 		self.assertEqual(sided_adjustments([card.name], "Supplier").get(card.name, (0.0, 0.0)), (0.0, 0.0))
+
+	# ---- Finding 1: the company grant is explicit and fail-closed (run_posting_queue and execute_posting) ----
+
+	def _second_company(self):
+		"""A second company of the test site (database insert, no chart: it is only used to prove a refusal)."""
+		token = frappe.generate_hash(length=6).upper()
+		name = "TEST-SEC-CO-" + token
+		company = frappe.new_doc("Company")
+		company.update(
+			{
+				"company_name": name,
+				"abbr": "S" + token[:5],
+				"default_currency": frappe.db.get_value("Company", self.company, "default_currency"),
+				"country": frappe.db.get_value("Company", self.company, "country"),
+			}
+		)
+		company.name = name
+		company.db_insert()
+		return name
+
+	def _foreign_posting(self, company):
+		"""A payment of another company in the Posting state (access-control fixture: the transition is not under test)."""
+		doc = frappe.get_doc(
+			{
+				"doctype": DOCTYPE,
+				"company": company,
+				"supplier": self.supplier,
+				"card": "CARD-FOREIGN-" + frappe.generate_hash(length=6),
+				"adjustment_row": "ROW-FOREIGN",
+				"amount": 100,
+				"payment_date": "2026-09-10",
+				"cash_account": self.cash,
+				"evidence": "foreign fixture",
+				"status": "Posted",
+				"transaction_key": frappe.generate_hash(length=64),
+			}
+		)
+		doc.flags.ignore_links = True
+		doc.flags.ignore_mandatory = True
+		doc.insert(ignore_permissions=True)
+		frappe.db.set_value(DOCTYPE, doc.name, "status", "Posting", update_modified=False)
+		return doc.name
+
+	def test_no_company_grant_means_no_company(self):
+		"""Service-role membership alone grants nothing: with no Company User Permission the dispatch returns nothing,
+		and a direct executor call with no company is refused. The payment stays queued and no entry is created."""
+		_card, name = self._approved(amount=300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user("Administrator")
+		identity = self._service_user(companies=[])
+		frappe.set_user(identity)
+		self.assertEqual(frappe.call("card.cash_disbursement.run_posting_queue", limit=5), [])
+		with self.assertRaises(frappe.PermissionError):
+			execute_posting(name, frozenset())
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
+		self.assertEqual(self._journal_entries_for(name), [])
+
+	def test_one_company_grant_posts_only_that_company(self):
+		_card, name = self._approved(amount=300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posted"])
+
+	def test_multiple_company_grants_post_each_granted_company(self):
+		"""Two granted companies: the payment of each is selected and attempted; neither is refused as unauthorized."""
+		second = self._second_company()
+		identity = self._service_user(companies=[self.company, second])
+		_card, name = self._approved(amount=300)
+		other = self._foreign_posting(second)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(identity)
+		results = {
+			r["name"]: r["status"] for r in frappe.call("card.cash_disbursement.run_posting_queue", limit=10)
+		}
+		frappe.set_user("Administrator")
+		self.assertEqual(results[name], "Posted")
+		self.assertIn(other, results)
+		self.assertNotEqual(results[other], "Not permitted")
+
+	def test_cross_company_posting_is_denied_and_creates_no_entry(self):
+		"""A company the identity is not granted is never selected, never posted, never marked failed, and a direct
+		executor call for it is refused before anything is written. No Journal Entry exists for that company."""
+		second = self._second_company()
+		identity = self._service_user(companies=[self.company])
+		foreign = self._foreign_posting(second)
+		_card, name = self._approved(amount=300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(identity)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=10)
+		with self.assertRaises(frappe.PermissionError):
+			execute_posting(foreign, {self.company})
+		frappe.set_user("Administrator")
+		self.assertNotIn(foreign, [r["name"] for r in results])
+		self.assertEqual(
+			frappe.db.get_value(DOCTYPE, foreign, ["status", "journal_entry"], as_dict=True).status, "Posting"
+		)
+		self.assertIsNone(frappe.db.get_value(DOCTYPE, foreign, "journal_entry"))
+		self.assertEqual(frappe.db.count("Journal Entry", {"company": second}), 0)
+
+	# ---- Finding 2: the entry is identified only by the durable link, validated, never by a remark ----
+
+	def _forged_entry(self, name, amount, party=None):
+		"""A draft Journal Entry with the remark of a payment, created outside the executor (a forgery attempt)."""
+		from erpnext.accounts.party import get_party_account
+
+		party = party or self.supplier
+		entry = frappe.get_doc(
+			{
+				"doctype": "Journal Entry",
+				"voucher_type": "Journal Entry",
+				"company": self.company,
+				"posting_date": "2026-09-10",
+				"user_remark": "Card cash payment " + name + " (forged) on behalf of the Supplier",
+				"accounts": [
+					{
+						"account": get_party_account("Supplier", party, self.company),
+						"party_type": "Supplier",
+						"party": party,
+						"debit_in_account_currency": amount,
+					},
+					{"account": self.cash, "credit_in_account_currency": amount},
+				],
+			}
+		).insert(ignore_permissions=True)
+		return entry.name
+
+	def test_a_forged_remark_with_a_wrong_amount_is_not_linked(self):
+		_card, name = self._approved(amount=300)
+		forged = self._forged_entry(name, 999)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		own = execute_posting(name, {self.company})
+		frappe.set_user("Administrator")
+		self.assertNotEqual(own, forged)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "journal_entry"), own)
+		self.assertEqual(frappe.db.get_value("Journal Entry", own, "docstatus"), 1)
+		self.assertEqual(frappe.db.get_value("Journal Entry", forged, "docstatus"), 0)
+
+	def test_a_forged_remark_with_a_wrong_supplier_is_not_linked(self):
+		_card, name = self._approved(amount=300)
+		other = frappe.get_doc(
+			{
+				"doctype": "Supplier",
+				"supplier_name": "FORGE-SUP-" + frappe.generate_hash(length=6),
+				"supplier_group": frappe.db.get_value("Supplier Group", {"is_group": 0}, "name"),
+			}
+		).insert(ignore_permissions=True)
+		forged = self._forged_entry(name, 300, party=other.name)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		own = execute_posting(name, {self.company})
+		frappe.set_user("Administrator")
+		self.assertNotEqual(own, forged)
+		self.assertEqual(
+			frappe.db.get_value("Journal Entry Account", {"parent": own, "party_type": "Supplier"}, "party"),
+			self.supplier,
+		)
+
+	def test_a_linked_entry_with_mismatched_fields_is_refused(self):
+		"""Correct transaction key in the remark, mismatched accounting fields, and the link written to it: the recovery
+		refuses it (Posting Failed with the mismatch), never marks the payment Posted, and does not touch the entry."""
+		_card, name = self._approved(amount=300)
+		key = frappe.db.get_value(DOCTYPE, name, "transaction_key")
+		forged = self._forged_entry(name, 999)
+		frappe.db.set_value(
+			"Journal Entry", forged, "user_remark", "Card cash payment " + name + " (" + key + ")"
+		)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.db.set_value(DOCTYPE, name, "journal_entry", forged, update_modified=False)
+		frappe.set_user(self.service)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posting Failed"])
+		self.assertIn("does not match", results[0]["error"])
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting Failed")
+		self.assertEqual(frappe.db.get_value("Journal Entry", forged, "docstatus"), 0)
+
+	def test_an_interruption_before_submit_leaves_no_entry_and_is_retried(self):
+		from unittest.mock import patch
+
+		from erpnext.accounts.doctype.journal_entry.journal_entry import JournalEntry
+
+		_card, name = self._approved(amount=300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		with patch.object(
+			JournalEntry, "submit", side_effect=frappe.ValidationError("interrupted before submit")
+		):
+			results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posting Failed"])
+		self.assertIsNone(frappe.db.get_value(DOCTYPE, name, "journal_entry"))
+		self.assertEqual(frappe.db.count("Journal Entry", {"user_remark": ["like", "%" + name + "%"]}), 0)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		again = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in again], ["Posted"])
+		self.assertEqual(self._journal_entries_for(name), [again[0]["journal_entry"]])
+
+	def test_recovery_of_a_linked_draft_entry_submits_it_once(self):
+		"""Interruption after the link was written and before submission: the recovery submits the linked entry and
+		marks the payment Posted; no second entry is created."""
+		from card.cash_disbursement import _create_entry
+
+		_card, name = self._approved(amount=300)
+		doc = frappe.get_doc(DOCTYPE, name)
+		frappe.set_user(self.service)
+		draft = _create_entry(doc)
+		frappe.db.set_value(DOCTYPE, name, "journal_entry", draft.name, update_modified=False)
+		frappe.db.set_value(DOCTYPE, name, "status", "Posting", update_modified=False)
+		frappe.set_user(self.service)
+		self.assertEqual(execute_posting(name, {self.company}), draft.name)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("Journal Entry", draft.name, "docstatus"), 1)
+		self.assertEqual(self._journal_entries_for(name), [draft.name])
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+
+	def test_repeated_or_concurrent_dispatch_creates_one_entry(self):
+		"""Two dispatches of the same queue (a retry or a second worker): the second finds the payment Posted, or waits on
+		the row lock and then finds it Posted; one submitted entry in every case. The two-connection race itself is not
+		reproducible in this single-connection suite; the row lock and the unique link are the database guarantees."""
+		_card, name = self._approved(amount=300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		first = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		second = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in first], ["Posted"])
+		self.assertEqual(second, [])
+		self.assertEqual(self._journal_entries_for(name), [first[0]["journal_entry"]])

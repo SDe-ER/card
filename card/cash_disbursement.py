@@ -140,15 +140,6 @@ def queue_posting(name: str) -> str | None:
 	return name
 
 
-def _entry_for(name):
-	"""The Journal Entry (not cancelled) a payment created, found by its remark: the recovery key."""
-	return frappe.db.get_value(
-		"Journal Entry",
-		{"user_remark": ["like", "Card cash payment {0} (%".format(name)], "docstatus": ["!=", 2]},
-		"name",
-	)
-
-
 def _revalidate_source(doc):
 	"""Before a Journal Entry is built: the approved payment must still match its source. The card row must still be a
 	cash row with the approved amount and Cash account, and the Supplier must still be the card's beneficiary. The
@@ -171,72 +162,142 @@ def _revalidate_source(doc):
 		)
 
 
-def execute_posting(name):
-	"""Accounting execution. Run by the executor under the service identity. Creates one submitted Journal Entry,
-	or links the one an interrupted earlier run already created. Returns the entry name."""
-	row = frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"], as_dict=True, for_update=True)
+def executor_companies(user=None):
+	"""The companies the executing identity is explicitly granted: its Company User Permission rules, and nothing else.
+
+	Fail closed: no rule means no company. Role membership alone never grants a company, and an unrestricted user is not
+	treated as "all companies" here (that reading is for display only, never for posting)."""
+	user = user or frappe.session.user
+	if not user or user == "Guest":
+		return frozenset()
+	return frozenset(
+		frappe.get_all("User Permission", filters={"user": user, "allow": "Company"}, pluck="for_value")
+	)
+
+
+def _require_company_grant(company, companies):
+	"""Refuse a company the identity is not explicitly granted (the same check at selection and before posting)."""
+	if not companies or company not in companies:
+		frappe.throw(
+			_("The accounting identity is not granted the company of this cash payment."),
+			frappe.PermissionError,
+		)
+
+
+def _create_entry(doc):
+	"""The draft Journal Entry of one approved payment: Dr the Supplier payable, Cr the validated Cash account.
+
+	The remark is human-readable audit text only; the identity of the entry is the link stored on the payment."""
+	from erpnext.accounts.party import get_party_account
+
+	entry = frappe.get_doc(
+		{
+			"doctype": "Journal Entry",
+			"voucher_type": "Journal Entry",
+			"company": doc.company,
+			"posting_date": doc.payment_date,
+			"user_remark": "Card cash payment {0} for card {1}, row {2}, on behalf of {3}; requested by {4}, approved by {5}".format(
+				doc.name, doc.card, doc.adjustment_row, doc.supplier, doc.owner, doc.approved_by
+			),
+			"accounts": [
+				{
+					"account": get_party_account("Supplier", doc.supplier, doc.company),
+					"party_type": "Supplier",
+					"party": doc.supplier,
+					"debit_in_account_currency": doc.amount,
+					"project": doc.project,
+				},
+				{"account": doc.cash_account, "credit_in_account_currency": doc.amount},
+			],
+		}
+	)
+	entry.insert()
+	return entry
+
+
+def _validated_entry(doc):
+	"""The Journal Entry a payment is linked to is accepted only when it is the entry of this payment: not cancelled, the
+	company of the payment, created by the executing identity, exactly one Supplier debit to the payment's Supplier at the
+	approved amount, and exactly one credit to the approved Cash account at the approved amount. Anything else is refused."""
+	from erpnext.accounts.party import get_party_account
+
+	entry = frappe.get_doc("Journal Entry", doc.journal_entry)
+
+	def refuse(reason):
+		frappe.throw(
+			_("The linked journal entry {0} does not match cash payment {1}: {2}.").format(
+				entry.name, doc.name, reason
+			),
+			frappe.ValidationError,
+		)
+
+	if entry.docstatus == 2:
+		refuse(_("it is cancelled"))
+	if entry.company != doc.company:
+		refuse(_("another company"))
+	if entry.owner != frappe.session.user:
+		refuse(_("not created by this accounting identity"))
+	if len(entry.accounts or []) != 2:
+		refuse(_("it does not have the two accounts of a payment"))
+	debits = [a for a in entry.accounts if flt(a.debit_in_account_currency, 2)]
+	credits = [a for a in entry.accounts if flt(a.credit_in_account_currency, 2)]
+	if len(debits) != 1 or len(credits) != 1:
+		refuse(_("its debit and credit do not form one payment"))
+	debit, credit = debits[0], credits[0]
+	if debit.party_type != "Supplier" or debit.party != doc.supplier:
+		refuse(_("the party is not the Supplier of the payment"))
+	if debit.account != get_party_account("Supplier", doc.supplier, doc.company):
+		refuse(_("the debit is not on the Supplier's payable account"))
+	if flt(debit.debit_in_account_currency, 2) != flt(doc.amount, 2):
+		refuse(_("the amount differs from the approved amount"))
+	if credit.account != doc.cash_account or flt(credit.credit_in_account_currency, 2) != flt(doc.amount, 2):
+		refuse(_("the Cash account or amount differs from the approved payment"))
+	return entry
+
+
+def execute_posting(name, companies):
+	"""Accounting execution for one approved payment, by the executing identity.
+
+	``companies`` is the identity's explicit company grant (executor_companies). An empty or missing set, or a payment
+	outside it, is refused before anything is written. The durable link ``journal_entry`` on the payment is the only way
+	an existing entry is recognised: it is set in the same transaction that creates the entry, before submission, and it
+	is unique in the database. Recovery validates the linked entry (see _validated_entry) and never searches by remark.
+	Returns the entry name."""
+	companies = frozenset(companies or ())
+	row = frappe.db.get_value(
+		DOCTYPE, name, ["status", "company", "journal_entry"], as_dict=True, for_update=True
+	)
 	if not row:
 		frappe.throw(_("The cash payment {0} does not exist.").format(name))
+	_require_company_grant(row.company, companies)
 	if row.status == "Posted":
 		return row.journal_entry
 	if row.status != "Posting":
 		frappe.throw(_("Only a queued cash payment can be executed; {0} is {1}.").format(name, row.status))
 
-	entry_name = _entry_for(name)
-	if not entry_name:
-		from erpnext.accounts.party import get_party_account
-
-		doc = frappe.get_doc(DOCTYPE, name)
-		# the executing identity must be permitted for the payment's company (its document rights are not needed:
-		# the posting is a controlled transition, not a user save)
-		if not has_cash_disbursement_permission(doc, "write", frappe.session.user):
-			frappe.throw(
-				_("You are not permitted for the company of the cash payment {0}.").format(name),
-				frappe.PermissionError,
-			)
-		_revalidate_source(doc)
-		entry = frappe.get_doc(
-			{
-				"doctype": "Journal Entry",
-				"voucher_type": "Journal Entry",
-				"company": doc.company,
-				"posting_date": doc.payment_date,
-				"user_remark": "Card cash payment {0} ({1}) for card {2}, row {3}, on behalf of {4}; requested by {5}, approved by {6}".format(
-					doc.name,
-					doc.transaction_key,
-					doc.card,
-					doc.adjustment_row,
-					doc.supplier,
-					doc.owner,
-					doc.approved_by,
-				),
-				"accounts": [
-					{
-						"account": get_party_account("Supplier", doc.supplier, doc.company),
-						"party_type": "Supplier",
-						"party": doc.supplier,
-						"debit_in_account_currency": doc.amount,
-						"project": doc.project,
-					},
-					{"account": doc.cash_account, "credit_in_account_currency": doc.amount},
-				],
-			}
-		)
-		entry.insert()
+	doc = frappe.get_doc(DOCTYPE, name)
+	_revalidate_source(doc)
+	if doc.journal_entry:
+		# recovery: the link was written by an earlier run; it is accepted only if it validates
+		entry = _validated_entry(doc)
+		if entry.docstatus == 0:
+			entry.submit()
+	else:
+		entry = _create_entry(doc)
+		# the durable relationship, written before submission in the same transaction (unique in the database)
+		frappe.db.set_value(DOCTYPE, name, "journal_entry", entry.name, update_modified=False)
 		entry.submit()
-		entry_name = entry.name
 	frappe.db.set_value(
 		DOCTYPE,
 		name,
 		{
 			"status": "Posted",
-			"journal_entry": entry_name,
 			"posted_on": now_datetime(),
 			"posted_by": frappe.session.user,
 		},
 		update_modified=False,
 	)
-	return entry_name
+	return entry.name
 
 
 def _has_active_allocations(entry_name: str | None) -> bool:
@@ -390,39 +451,37 @@ def has_cash_disbursement_permission(doc, ptype=None, user=None, debug=False):
 
 @frappe.whitelist(methods=["POST"])
 def run_posting_queue(limit: int = 20) -> list:
-	"""The accounting executor's dispatch: process the queued payments the caller may post, one at a time.
+	"""The accounting executor's dispatch, run by the dedicated service identity.
 
-	Only the dedicated service identity (SERVICE_ROLE) may call it, so the posting always runs as that identity; no
-	code switches the user. Candidates are limited to the caller's permitted companies, checked on each row, so
-	a payment of a company the identity is not permitted for is not even selected. Each payment is posted inside a
-	savepoint: a failure rolls back that payment only and records status "Posting Failed" with the error, and the
-	payment stays queueable again. A payment already posted by an interrupted run is linked, not posted twice
-	(execute_posting). Returns one result per processed payment."""
+	Fail closed on two levels. The caller must hold the service role, and it may act only for the companies it is
+	explicitly granted (executor_companies). With no grant the result is empty. Candidates are selected with the granted
+	companies in the query itself, and each payment is checked again immediately before posting (execute_posting). A
+	payment outside the grant is never selected, never posted and never marked failed. A failure of an authorized
+	payment rolls back that payment only (savepoint) and records Posting Failed with the error."""
 	_check_role(
 		frappe.get_roles(),
 		(SERVICE_ROLE,),
 		_("Only the accounting service identity can run the posting queue."),
 	)
-	from card.party_registry import _restricted_companies
-
-	# the candidates a caller may post: its permitted companies (Company User Permission), checked here on the row
-	# (the identity holds no document right on the payment DocType; the posting itself is a controlled transition)
-	allowed = _restricted_companies(frappe.session.user, DOCTYPE)
+	companies = executor_companies()
+	if not companies:
+		return []
 	candidates = frappe.get_all(
 		DOCTYPE,
-		filters={"status": "Posting"},
-		fields=["name", "company"],
+		filters={"status": "Posting", "company": ["in", sorted(companies)]},
+		fields=["name"],
 		order_by="posting_claimed_on asc",
 		limit=min(max(cint(limit), 1), 100),
 	)
-	if allowed is not None:
-		candidates = [c for c in candidates if c.company in allowed]
 	results = []
 	for candidate in candidates:
 		frappe.db.savepoint("ccd_posting")
 		try:
-			entry = execute_posting(candidate.name)
+			entry = execute_posting(candidate.name, companies)
 			results.append({"name": candidate.name, "status": "Posted", "journal_entry": entry})
+		except frappe.PermissionError:
+			frappe.db.rollback(save_point="ccd_posting")
+			results.append({"name": candidate.name, "status": "Not permitted"})
 		except Exception as error:
 			frappe.db.rollback(save_point="ccd_posting")
 			message = frappe.utils.strip_html(str(error))[:1000]
