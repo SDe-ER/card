@@ -9,7 +9,7 @@ the Card Manager cannot execute a posting; the service identity can, and only fo
 interrupted run never creates a second entry."""
 
 import frappe
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, nowdate
 
 from card.cash_disbursement import (
 	SERVICE_ROLE,
@@ -479,6 +479,65 @@ class TestCashDisbursementPosting(_AdjBase):
 		with self.assertRaises(frappe.ValidationError):
 			doc.save()
 		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Approved")
+
+	def test_refused_status_moves_create_no_accounting_entry(self):
+		"""FR-170 security (negative cases): every refused approval, posting and tampering attempt is refused, and none of
+		them creates a Journal Entry. Covers: a Card User calling approval; the requester approving her own request;
+		posting a Pending payment; queueing it; a plain save that approves it, sets approval evidence, or uses the
+		REST set_value route to approve it."""
+		from card.cash_disbursement import approve_cash_disbursement, execute_posting, queue_posting
+
+		card, row = self._card_with_cash_row()
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt NEG-1")
+		# 3. a user without an approval role calls the approval endpoint
+		frappe.set_user(self._user("Card User"))
+		with self.assertRaises(frappe.PermissionError):
+			approve_cash_disbursement(name)
+		# 4. the requester approves her own request (a Card Manager who requested it)
+		requester = self._user("Card Manager")
+		card2, row2 = self._card_with_cash_row()
+		frappe.set_user(requester)
+		own = request_cash_disbursement(card2.name, row2.name, "2026-09-10", "Receipt NEG-2")
+		with self.assertRaises(frappe.ValidationError):
+			approve_cash_disbursement(own)
+		# 5. posting without a valid approval: the service identity cannot post a Pending payment
+		frappe.set_user(self.service)
+		with self.assertRaises(frappe.ValidationError):
+			execute_posting(name)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=20)
+		self.assertNotIn(name, [r["name"] for r in results])
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			queue_posting(name)
+		# 7. tampering with the approval evidence by an ordinary save
+		doc = frappe.get_doc(DOCTYPE, name)
+		doc.approved_by = self.manager
+		doc.approved_on = nowdate()
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		# 1. Pending -> Approved by an ordinary save, and by the REST set_value route
+		doc = frappe.get_doc(DOCTYPE, name)
+		doc.status = "Approved"
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		with self.assertRaises(frappe.ValidationError):
+			frappe.client.set_value(DOCTYPE, name, "status", "Approved")
+		frappe.set_user("Administrator")
+		# 8. nothing moved and no accounting entry was created by any refused attempt
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
+		self.assertFalse(frappe.db.get_value(DOCTYPE, name, "approved_by"))
+		self.assertEqual(self._journal_entries_for(name), [])
+		self.assertEqual(self._journal_entries_for(own), [])
+
+	def test_approval_keeps_the_approver_and_the_time(self):
+		card, row = self._card_with_cash_row()
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt A-1")
+		frappe.set_user(self.manager)
+		approve_cash_disbursement(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "approved_by"), self.manager)
+		self.assertTrue(frappe.db.get_value(DOCTYPE, name, "approved_on"))
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Approved")
 
 	def test_a_posted_journal_entry_cannot_be_cancelled_without_a_cancellation_request(self):

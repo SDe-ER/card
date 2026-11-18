@@ -9118,7 +9118,7 @@ msgstr "إدراج الدفعة النقدية للترحيل"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.js
 msgid "Queue"
-msgstr "إدراج"
+msgstr "طابور"
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.js
 msgid "Request cash cancellation"
