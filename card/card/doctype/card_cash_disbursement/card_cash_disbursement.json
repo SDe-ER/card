@@ -30,6 +30,7 @@
   "cancelled_by",
   "cancelled_on",
   "replaces",
+  "replacement_reason",
   "posting_error",
   "posted_by"
  ],

@@ -100,10 +100,13 @@ frappe.ui.form.on("Card Cash Disbursement", {
 
 		// A replacement is a new Pending payment with its own approval by a different Card Manager. Clicking this creates
 		// no accounting entry; the server refuses a second live replacement for the same cancelled payment.
-		if (frm.doc.status === "Cancelled") {
-			frm.add_custom_button(__("Request replacement"), () =>
-				frappe.prompt(
-					[
+		// Shown to Card Managers only (the server enforces the same rule). The dialog stays open when the server refuses,
+		// so the typed reason and evidence are kept: frappe.prompt would hide the dialog before the server answers.
+		if (frm.doc.status === "Cancelled" && frappe.user.has_role("Card Manager")) {
+			frm.add_custom_button(__("Request replacement"), () => {
+				const dialog = new frappe.ui.Dialog({
+					title: __("Request replacement"),
+					fields: [
 						{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 },
 						{
 							label: __("Payment date"),
@@ -119,7 +122,8 @@ frappe.ui.form.on("Card Cash Disbursement", {
 							reqd: 1,
 						},
 					],
-					(values) =>
+					primary_action_label: __("Request"),
+					primary_action: (values) =>
 						frappe.call({
 							method: "card.cash_disbursement.request_replacement",
 							args: {
@@ -130,6 +134,7 @@ frappe.ui.form.on("Card Cash Disbursement", {
 							},
 							freeze: true,
 							callback: (r) => {
+								dialog.hide();
 								frappe.show_alert({
 									message: __("Replacement requested: {0}", [r.message]),
 									indicator: "green",
@@ -137,10 +142,9 @@ frappe.ui.form.on("Card Cash Disbursement", {
 								frappe.set_route("Form", "Card Cash Disbursement", r.message);
 							},
 						}),
-					__("Request replacement"),
-					__("Request"),
-				),
-			);
+				});
+				dialog.show();
+			});
 		}
 	},
 });

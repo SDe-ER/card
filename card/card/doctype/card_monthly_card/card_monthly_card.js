@@ -542,7 +542,7 @@ function card_cash_status(frm) {
 	frappe.call({
 		method: "card.cash_disbursement.get_cash_disbursements",
 		type: "GET", // the endpoint is GET-only (read); a default POST is refused with "Not permitted"
-		args:{ card: frm.doc.name },
+		args: { card: frm.doc.name },
 		callback: (r) => {
 			(r.message || []).forEach((row) => {
 				const posting = CASH_POSTING_INDICATORS[row.status];

@@ -593,16 +593,16 @@ class TestCashDisbursementPosting(_AdjBase):
 		import re
 		from pathlib import Path
 
-		doctype_dir = Path(__file__).resolve().parents[1] / "card" / "doctype"
+		# every JavaScript file of the CARD module, so a new Desk call site elsewhere is checked too
+		module_dir = Path(__file__).resolve().parents[1] / "card"
 		sites = 0
-		for script in (
-			"card_monthly_card/card_monthly_card.js",
-			"card_cash_disbursement/card_cash_disbursement.js",
-		):
-			text = (doctype_dir / script).read_text(encoding="utf-8")
+		for script in sorted(module_dir.rglob("*.js")):
+			text = script.read_text(encoding="utf-8")
 			for match in re.finditer(r"card\.cash_disbursement\.get_cash_disbursements", text):
 				sites += 1
-				self.assertIn('type: "GET"', text[match.start() : match.start() + 160], script)
+				# the call's own argument list: from the match up to the closing of its frappe.call block
+				call = text[match.start() : text.find("})", match.start()) + 2]
+				self.assertIn('type: "GET"', call, script.name)
 		self.assertGreaterEqual(sites, 2)
 
 	def test_replacement_needs_a_reason_is_stored_and_a_second_live_one_is_refused(self):

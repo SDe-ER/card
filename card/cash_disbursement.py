@@ -368,21 +368,26 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 		frappe.throw(_("Give the reason for the replacement."))
 	if not (evidence or "").strip():
 		frappe.throw(_("Enter the evidence of the replacement payment (receipt number or reference)."))
-	# the row lock serialises concurrent requests for the same cancelled payment: the second waits, then sees the
-	# live replacement the first one inserted (at most one active replacement per cancelled transaction)
-	if frappe.db.get_value(DOCTYPE, name, "name", for_update=True) is None:
-		frappe.throw(_("The cash payment {0} does not exist.").format(name))
-	frappe.has_permission(DOCTYPE, "create", throw=True)
-	# company authorization for the caller, checked before any state is revealed (cross-company refusal first)
-	frappe.get_doc(DOCTYPE, name).check_permission("write")
+	# Locking reads come first, so every plain read below sees the rows as committed after the locks were granted. The
+	# live check is per card row and two cancelled payments can share one row: the card row is locked too, so requests
+	# for the same row serialise and the second one sees the live replacement the first one inserted.
+	# A missing name and a refused company give the same PermissionError: the response does not show which names exist.
+	locked = frappe.db.get_value(DOCTYPE, name, ["card"], as_dict=True, for_update=True)
+	if not locked:
+		frappe.throw(_("You are not permitted to replace this cash payment."), frappe.PermissionError)
+	frappe.db.get_value("Card Monthly Card", locked.card, "name", for_update=True)
 	original = frappe.get_doc(DOCTYPE, name)
+	original.check_permission("write")
+	frappe.has_permission(DOCTYPE, "create", throw=True)
 	if original.status != "Cancelled":
 		frappe.throw(
 			_("Only a cancelled cash payment can be replaced; {0} is {1}.").format(name, original.status)
 		)
-	live = frappe.db.exists(
+	live = frappe.db.get_value(
 		DOCTYPE,
 		{"card": original.card, "adjustment_row": original.adjustment_row, "status": ["!=", "Cancelled"]},
+		"name",
+		for_update=True,
 	)
 	if live:
 		frappe.throw(
