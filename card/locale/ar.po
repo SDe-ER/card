@@ -9183,3 +9183,7 @@ msgstr "طُلب الإلغاء"
 #: card/cash_disbursement.py
 msgid "Unreconciled"
 msgstr "لم تتم تسويتها"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} has no approval; it cannot be posted."
+msgstr "الدفعة النقدية {0} ليس لها اعتماد؛ لا يمكن ترحيلها."

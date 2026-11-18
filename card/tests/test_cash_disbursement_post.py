@@ -486,6 +486,19 @@ class TestCashDisbursementPosting(_AdjBase):
 				frappe.set_user("Administrator")
 				self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
 
+	def test_posting_without_a_recorded_approval_is_refused(self):
+		"""FR-170 security review: even if a status were moved to Posting without an approval, the executor refuses it
+		and creates no Journal Entry (the approver is required)."""
+		card, row = self._card_with_cash_row()
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt NOAPP-1")
+		frappe.db.set_value(DOCTYPE, name, "status", "Posting")  # a tampered status: no approval exists
+		frappe.set_user(self.service)
+		with self.assertRaises(frappe.ValidationError):
+			execute_posting(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
+		self.assertEqual(self._journal_entries_for(name), [])
+
 	def test_a_plain_save_cannot_queue_an_approved_payment(self):
 		_card, name = self._approved()
 		frappe.set_user(self.manager)

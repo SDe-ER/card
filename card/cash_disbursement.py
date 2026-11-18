@@ -313,7 +313,7 @@ def execute_posting(name):
 	)
 	companies = executor_companies()
 	row = frappe.db.get_value(
-		DOCTYPE, name, ["status", "company", "journal_entry"], as_dict=True, for_update=True
+		DOCTYPE, name, ["status", "company", "journal_entry", "approved_by"], as_dict=True, for_update=True
 	)
 	if not row:
 		frappe.throw(_("The cash payment {0} does not exist.").format(name))
@@ -322,6 +322,12 @@ def execute_posting(name):
 		return row.journal_entry
 	if row.status != "Posting":
 		frappe.throw(_("Only a queued cash payment can be executed; {0} is {1}.").format(name, row.status))
+	# defence in depth: a posting needs a recorded approval, whatever moved the status (FR-170 security review)
+	if not row.approved_by:
+		frappe.throw(
+			_("The cash payment {0} has no approval; it cannot be posted.").format(name),
+			frappe.ValidationError,
+		)
 
 	doc = frappe.get_doc(DOCTYPE, name)
 	_revalidate_source(doc)
