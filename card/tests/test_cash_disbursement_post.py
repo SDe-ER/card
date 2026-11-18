@@ -19,6 +19,7 @@ from card.cash_disbursement import (
 	request_cash_disbursement,
 )
 from card.constants import DIR_RENTED_IN
+from card.tests.cash_service_perms import copy_standard_perms
 from card.tests.test_cash_disbursement_db import _cash_account
 from card.tests.test_s3_config import _AdjBase
 
@@ -68,6 +69,7 @@ class TestCashDisbursementPosting(_AdjBase):
 			"Project": {"read": 1},
 		}
 		for doctype, rights in grants.items():
+			copy_standard_perms(doctype)
 			frappe.get_doc(
 				{
 					"doctype": "Custom DocPerm",
@@ -686,3 +688,76 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertEqual(flt(card.total_deductions, 2), 0)
 		self.assertEqual(flt(card.total_additions, 2), 0)
 		self.assertEqual(flt(card.net_amount, 2), flt(card.amount, 2))
+
+	def test_cancelling_the_entry_needs_an_accounting_role(self):
+		"""Authorization: ERPNext's own cancel decides. An Accounts Manager (least-privileged accounting role that cancels
+		a Journal Entry in this site) cancels after the request; a Card Manager is refused by ERPNext itself."""
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		frappe.set_user(self.manager)
+		request_cancellation(name, "Wrong receipt; authorization test")
+		with self.assertRaises(frappe.PermissionError):
+			frappe.get_doc("Journal Entry", entry).cancel()  # Card Manager has no right to cancel the entry
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancellation Requested")
+
+		accountant = self._user("Accounts Manager")
+		frappe.set_user(accountant)
+		frappe.get_doc("Journal Entry", entry).cancel()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 2)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancelled")
+
+	def test_an_approved_payment_keeps_its_snapshot_when_the_equipment_owner_changes(self):
+		"""Historical integrity: the approved snapshot (company, beneficiary, source row, amount, Cash account, payment
+		date, approval evidence) does not follow the equipment. A later owner change neither changes the snapshot nor
+		moves the posting to the new owner: the Journal Entry debits the Supplier the card kept."""
+		card, name = self._approved(amount=300)
+		snapshot_fields = [
+			"company",
+			"supplier",
+			"adjustment_row",
+			"amount",
+			"cash_account",
+			"payment_date",
+			"evidence",
+		]
+		before = frappe.db.get_value(DOCTYPE, name, snapshot_fields, as_dict=True)
+		historical = frappe.db.get_value(DOCTYPE, name, "supplier")
+		self.assertEqual(historical, card.supplier)
+
+		new_owner = frappe.get_doc(
+			{
+				"doctype": "Supplier",
+				"supplier_name": "HIST-NEW-" + frappe.generate_hash(length=6),
+				"supplier_group": frappe.db.get_value("Supplier Group", {"is_group": 0}, "name"),
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.set_value("Card Equipment", card.equipment, "supplier", new_owner.name)
+
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, snapshot_fields, as_dict=True), before)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posted"])
+		entry = results[0]["journal_entry"]
+		debit = frappe.db.get_value(
+			"Journal Entry Account",
+			{"parent": entry, "debit_in_account_currency": ["!=", 0]},
+			["party", "party_type"],
+			as_dict=True,
+		)
+		self.assertEqual(debit.party, historical)
+		self.assertNotEqual(debit.party, new_owner.name)
+
+	def test_a_pending_cash_row_is_in_no_customer_side_total(self):
+		"""Regression: a cash row is a Supplier-side row (validated); no Customer-side total or invoice line counts it."""
+		from card.adjustments import sided_adjustments
+
+		card, _row = self._card_with_cash_row(amount=300)
+		self.assertEqual(sided_adjustments([card.name], "Customer").get(card.name, (0.0, 0.0)), (0.0, 0.0))
+		self.assertEqual(sided_adjustments([card.name], "Supplier").get(card.name, (0.0, 0.0)), (0.0, 0.0))

@@ -19,6 +19,7 @@ from card.cash_disbursement import (
 	request_cash_disbursement,
 )
 from card.gl.posting import build_monthly_posting
+from card.tests.cash_service_perms import copy_standard_perms
 from card.tests.test_cash_disbursement_db import _cash_account
 from card.tests.test_s3_posting import _PostingBase
 
@@ -67,6 +68,7 @@ class TestCashReconciliationERPNext(_PostingBase):
 			"Project": {"read": 1},
 		}
 		for doctype, rights in grants.items():
+			copy_standard_perms(doctype)
 			frappe.get_doc(
 				{
 					"doctype": "Custom DocPerm",

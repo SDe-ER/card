@@ -23,6 +23,7 @@ from card.cash_disbursement import (
 	request_replacement,
 )
 from card.gl.posting import build_monthly_posting
+from card.tests.cash_service_perms import copy_standard_perms
 from card.tests.test_cash_disbursement_db import _cash_account
 from card.tests.test_s3_posting import _PostingBase
 
@@ -38,9 +39,7 @@ class TestCashOperationalWorkflow(_PostingBase):
 		self.card_user = self._user("Card User")
 		self.manager = self._user("Card Manager")
 		self.second_manager = self._user("Card Manager")
-		self.accountant = self._user(
-			"System Manager"
-		)  # the accounting administrator who cancels the entry (ERPNext cancel saves a cancelled document; this site grants that to System Manager)
+		self.accountant = self._user("Accounts Manager")
 		self.service = self._service_user()
 		self.payable = frappe.get_cached_value("Company", self.company, "default_payable_account")
 
@@ -88,6 +87,7 @@ class TestCashOperationalWorkflow(_PostingBase):
 			"Project": {"read": 1},
 		}
 		for doctype, rights in grants.items():
+			copy_standard_perms(doctype)
 			frappe.get_doc(
 				{
 					"doctype": "Custom DocPerm",
@@ -192,6 +192,17 @@ class TestCashOperationalWorkflow(_PostingBase):
 		pi.save()
 		pi.submit()
 		rental = flt(frappe.db.get_value("Purchase Invoice", invoice, "grand_total"), 2)
+		# regression: the pending cash row is in no invoice line; the lines total the card's stored supplier net
+		line_total = flt(
+			frappe.db.sql(
+				"select coalesce(sum(base_net_amount), 0) from `tabPurchase Invoice Item` where parent = %s",
+				invoice,
+			)[0][0],
+			2,
+		)
+		self.assertEqual(
+			line_total, flt(frappe.db.get_value("Card Monthly Card", card.name, "net_amount"), 2)
+		)
 		self.assertEqual(self._invoice_outstanding(invoice), rental)
 		self.assertEqual(self._balance(), -rental)  # the invoice is the only payable so far
 
