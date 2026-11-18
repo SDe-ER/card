@@ -572,6 +572,40 @@ def reconciliation_status(journal_entry, amount) -> str:
 	return "Fully reconciled"
 
 
+def cash_row_status(card, row):
+	"""The display state of one cash row of a Monthly Card: the latest payment of the row, its status, the journal entry
+	and the reconciliation, as one label for the table. A plain read; nothing is written and nothing is posted."""
+	rows = frappe.get_all(
+		DOCTYPE,
+		filters={"card": card, "adjustment_row": row},
+		fields=["name", "status", "journal_entry", "amount"],
+		order_by="creation desc",
+		limit=1,
+	)
+	if not rows:
+		return {"name": None, "journal_entry": None, "label": _("Not requested")}
+	latest = rows[0]
+	label = _(latest.status)
+	if latest.status == "Posted":
+		recon = reconciliation_status(latest.journal_entry, latest.amount)
+		if recon:
+			label = f"{label} · {_(recon)}"
+	return {"name": latest.name, "journal_entry": latest.journal_entry, "label": label}
+
+
+@frappe.whitelist(methods=["GET"])
+def get_cash_row_status(card: str) -> dict:
+	"""The display state of every cash row of one card, keyed by the child row name, for the table of the Monthly Card.
+	The caller must be permitted to read the card. Read only."""
+	frappe.get_doc("Card Monthly Card", card).check_permission("read")
+	rows = frappe.get_all(
+		"Card Monthly Card Adjustment",
+		filters={"parent": card, "is_cash_disbursement": 1},
+		pluck="name",
+	)
+	return {row: cash_row_status(card, row) for row in rows}
+
+
 @frappe.whitelist(methods=["GET"])
 def get_cash_disbursements(card: str) -> list:
 	"""Read-only status of the cash payments of one card, for the card's form. The caller must be permitted to read

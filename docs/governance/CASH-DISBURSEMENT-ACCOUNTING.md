@@ -165,6 +165,28 @@ type needs owner approval; this assessment does not change it.
 - `test_bola_matrix.py`: cross-company refusal for the request, the status read, the queue and the dispatch endpoints
   (fixtures for the access-control checks only; positive transitions are tested through real records).
 
+### 7b. Where the cash payment is managed (FR-170 step 4)
+
+The Additions and deductions table of the Monthly Card is the only operational place: a cash payment is a cash row
+of the table (`is_cash_disbursement`, cash account, date, amount). The row shows its payment status and its journal
+entry (read-only columns, refreshed from the payment record); the actions sit in the card's Cash payments menu. Every
+action calls the existing server method, which checks the role, the company and the state again.
+
+Accounting effect of each step (unchanged backend rules):
+
+- Request, approve and queue create no ledger entry. Approval is refused for the requester.
+- Execute (service identity only) creates one submitted Journal Entry: Dr the Supplier payable, Cr the Cash account.
+- The rental Purchase Invoice does not include the cash row (no duplicate deduction). Its outstanding balance is
+  reduced only when ERPNext's Payment Reconciliation allocates the Journal Entry to it.
+- A cancellation request changes no ledger entry. The accountant cancels the Journal Entry in ERPNext after
+  unreconciling it; the payment then shows Cancelled.
+- A replacement is a new Pending payment linked to the cancelled one. It is approved by a different Card Manager and
+  posted once by the service identity. The cancelled entry stays cancelled, so the financial effect appears once.
+
+Verified on the isolated QA site (synthetic data): the sequence request, approval by a second Card Manager, queue,
+posting (one entry), cancellation, accountant cancel of the entry, replacement, approval, queue and posting (one
+further entry). The card shows one active journal entry at the end.
+
 ## 8. Known limits and unverified items
 
 - Runtime proof of the reconciliation tests and the closed-period tests is pending CI on the commit that adds them.

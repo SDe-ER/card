@@ -9103,3 +9103,55 @@ msgstr "تم طلب الاستبدال: {0}"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Payment date"
 msgstr "تاريخ الدفع"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payments"
+msgstr "الدفعات النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Approve cash payment"
+msgstr "اعتماد الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Queue cash for posting"
+msgstr "إدراج الدفعة النقدية للترحيل"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Queue"
+msgstr "إدراج"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Request cash cancellation"
+msgstr "طلب إلغاء الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Request cash replacement"
+msgstr "طلب استبدال الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payment approved"
+msgstr "تم اعتماد الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payment queued for posting"
+msgstr "أُدرجت الدفعة النقدية للترحيل"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Replacement requested"
+msgstr "تم طلب الاستبدال"
+
+#: card/cash_disbursement.py
+msgid "Not requested"
+msgstr "لم تُطلب"
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Cash payment status"
+msgstr "حالة الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Cash payment"
+msgstr "الدفعة النقدية"
+
+#: card/cash_disbursement.py
+msgid "You are not permitted to change this cash payment."
+msgstr "لا تملك صلاحية تغيير هذه الدفعة النقدية."

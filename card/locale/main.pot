@@ -7864,3 +7864,59 @@ msgstr ""
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Payment date"
 msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payments"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Approve cash payment"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Approve"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Queue cash for posting"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Queue"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Request cash cancellation"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Request cash replacement"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payment approved"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payment queued for posting"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Replacement requested"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Not requested"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Cash payment status"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Cash payment"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "You are not permitted to change this cash payment."
+msgstr ""

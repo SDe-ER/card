@@ -9,7 +9,7 @@ the Card Manager cannot execute a posting; the service identity can, and only fo
 interrupted run never creates a second entry."""
 
 import frappe
-from frappe.utils import flt
+from frappe.utils import cint, flt
 
 from card.cash_disbursement import (
 	SERVICE_ROLE,
@@ -427,6 +427,26 @@ class TestCashDisbursementPosting(_AdjBase):
 		entry = execute_posting(name)
 		frappe.set_user("Administrator")
 		return card, name, entry
+
+	def test_cash_row_columns_follow_the_payment_record(self):
+		"""The Additions & Deductions table shows the payment status, its journal entry and the reconciliation of its
+		cash row, read from the payment record (the authority); the amount of the row is never touched."""
+		from card.cash_disbursement import cash_row_status, get_cash_row_status
+
+		card, name, entry = self._posted()
+		row = next(r.name for r in card.adjustments if cint(r.is_cash_disbursement))
+		info = cash_row_status(card.name, row)
+		self.assertEqual(info["name"], name)
+		self.assertEqual(info["journal_entry"], entry)
+		self.assertTrue(info["label"].startswith("Posted"), info["label"])
+		by_row = get_cash_row_status(card.name)
+		self.assertEqual(by_row[row]["name"], name)
+		self.assertEqual(by_row[row]["journal_entry"], entry)
+		# the display columns read the record; the payment amount still equals the row amount (no change by the display)
+		self.assertEqual(
+			flt(frappe.db.get_value(DOCTYPE, name, "amount"), 2),
+			flt(frappe.db.get_value("Card Monthly Card Adjustment", row, "amount"), 2),
+		)
 
 	def test_a_posted_journal_entry_cannot_be_cancelled_without_a_cancellation_request(self):
 		_card, name, entry = self._posted()

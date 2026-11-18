@@ -10,6 +10,9 @@
   "adjustment_date",
   "adjustment_type_ref",
   "is_cash_disbursement",
+  "cash_status",
+  "cash_payment",
+  "cash_journal_entry",
   "cash_account",
   "side",
   "adjustment_type",
@@ -31,6 +34,34 @@
    "in_list_view": 1,
    "description": "Recorded only: not posted and not counted in the card until its cash approval and Journal Entry exist.",
    "label": "Cash paid on behalf of the equipment owner"
+  },
+  {
+   "fieldname": "cash_status",
+   "fieldtype": "Data",
+   "label": "Cash payment status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "no_copy": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "cash_payment",
+   "fieldtype": "Link",
+   "label": "Cash payment",
+   "options": "Card Cash Disbursement",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "cash_journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1,
+   "in_list_view": 1,
+   "no_copy": 1,
+   "columns": 3
   },
   {
    "depends_on": "eval:doc.is_cash_disbursement",

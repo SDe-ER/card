@@ -514,6 +514,16 @@ CASES = {
 		own=lambda c: {"name": c.canc_a, "reason": "x", "payment_date": nowdate(), "evidence": "BOLA"},
 		denied=((), ("Card User",)),
 	),
+	"card.cash_disbursement.get_cash_row_status": Case(
+		method=GET,
+		roles=("Card User",),
+		gate="read on the card (its company checked)",
+		isolation="doc.check_permission(read) on the card (Company User Permission on the card's company)",
+		effects="None (read only); the display state of each cash row of the card",
+		cross=lambda c: {"card": c.card_b},
+		own=lambda c: {"card": c.card_a},
+		denied=((),),
+	),
 	"card.cash_disbursement.get_cash_disbursements": Case(
 		method=GET,
 		roles=("Card User",),

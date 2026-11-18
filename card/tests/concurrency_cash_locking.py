@@ -119,8 +119,27 @@ def seed():
 	base.setUp()
 	cash = _cash_account(base.company)
 	names = {}
+	from card.tests.transport_parties import company_paid
+
 	for scenario in ("approval", "queue", "posting", "cancel_vs_posting", "duplicate"):
 		eq = base._equipment()
+		# the card's month needs an approved transport of the equipment to its project (CARD's own rule)
+		transport = frappe.new_doc("Equipment Transport")
+		transport.update(
+			{
+				"date": "2026-09-01",
+				"company": base.company,
+				"transport_supplier": base.supplier,
+				"destination_type": "Project",
+				"project": base.project,
+				"amount": 400,
+			}
+		)
+		transport.append("items", {"card_equipment": eq.name})
+		company_paid(transport, basis="Project", cost_project=base.project)
+		transport.insert(ignore_permissions=True)
+		transport.submit()
+		frappe.db.commit()
 		card = base._card(
 			eq,
 			[5],
@@ -145,9 +164,11 @@ def seed():
 		payment = request_cash_disbursement(card.name, row, nowdate(), f"FR170 {scenario}")
 		frappe.db.commit()
 		names[scenario]["payment"] = payment
-		frappe.set_user(USERS["manager_a"])
-		approve_cash_disbursement(payment)
-		frappe.db.commit()
+		# the approval race starts from a Pending payment: only the other scenarios are approved by the seed
+		if scenario != "approval":
+			frappe.set_user(USERS["manager_a"])
+			approve_cash_disbursement(payment)
+			frappe.db.commit()
 		# approved (not yet queued) for the queue race; queued for the posting races
 		if scenario in ("posting", "cancel_vs_posting"):
 			queue_posting(payment)

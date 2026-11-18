@@ -108,6 +108,7 @@ def _interactive_form_save():
 
 class CardMonthlyCard(Document):
 	def before_validate(self):
+		self._refresh_cash_rows()
 		# Ported verbatim-in-behaviour from Server Script "Card Monthly Card - Validate" v4 (Before Validate).
 		doc_month = cint(self.month)
 		doc_year = cint(self.year)
@@ -797,6 +798,22 @@ class CardMonthlyCard(Document):
 					"Card period {0}-{1} is outside the current fiscal year {2}; past cards are allowed only within it."
 				).format(self.year, self.month, fy_name)
 			)
+
+	def _refresh_cash_rows(self):
+		"""The display columns of the cash rows, from the Card Cash Disbursement records (the authority). Only the three
+		display columns change; no amount, account or total is touched, and the payment records are never written here."""
+		from card.cash_disbursement import cash_row_status
+
+		for row in self.adjustments or []:
+			if not cint(row.is_cash_disbursement):
+				row.cash_status = None
+				row.cash_payment = None
+				row.cash_journal_entry = None
+				continue
+			info = cash_row_status(self.name, row.name)
+			row.cash_status = info["label"]
+			row.cash_payment = info["name"]
+			row.cash_journal_entry = info["journal_entry"]
 
 	def before_submit(self):
 		# A pending owner-paid cash row does not block the card: it is in no total and no ledger entry until its

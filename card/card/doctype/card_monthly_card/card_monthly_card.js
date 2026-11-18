@@ -430,7 +430,7 @@ frappe.ui.form.on("Card Monthly Card", {
 		card_lock_project(frm);
 		card_render_card_links(frm);
 		card_render_diesel(frm);
-		card_cash_request(frm);
+		card_cash_actions(frm);
 		card_cash_status(frm);
 	},
 	equipment(frm) {
@@ -521,93 +521,227 @@ frappe.ui.form.on("Card Monthly Card Adjustment", {
 	adjustments_remove: card_calc,
 });
 
-// FR-170: the cash payments of this card. Posting status and reconciliation status are shown as separate indicators.
-const CASH_POSTING_INDICATORS = {
-	Pending: [__("Cash: pending approval"), "orange"],
-	Approved: [__("Cash: approved"), "blue"],
-	Posting: [__("Cash: queued for posting"), "blue"],
-	"Posting Failed": [__("Cash: posting failed"), "red"],
-	Posted: [__("Cash: posted"), "green"],
-	"Cancellation Requested": [__("Cash: cancellation requested"), "orange"],
-	Cancelled: [__("Cash: cancelled"), "darkgrey"],
-};
-const CASH_RECONCILIATION_INDICATORS = {
-	Unreconciled: [__("Cash: not reconciled"), "orange"],
-	"Partially reconciled": [__("Cash: partially reconciled"), "blue"],
-	"Fully reconciled": [__("Cash: fully reconciled"), "green"],
-};
+// FR-170: the cash payments of this card, managed from the Additions & Deductions table. Each cash row shows its payment
+// status and journal entry in the table; the actions for a row's payment sit on this card. Every action calls a server
+// method that checks the role, the company and the state again: hiding a button is not the control.
+function cash_row_label(frm, child_name) {
+	const a = (frm.doc.adjustments || []).find((x) => x.name === child_name);
+	if (!a) return child_name;
+	const amount = format_currency(a.amount, frm.doc.currency);
+	return `${a.idx}. ${frappe.datetime.str_to_user(a.adjustment_date) || ""} · ${amount} · ${a.description || ""}`;
+}
 
+// One payment: run at once. Several: the user picks the row by its label (never by a raw name).
+function cash_pick_payment(frm, payments, title, primary, run) {
+	if (payments.length === 1) return run(payments[0]);
+	const by_label = {};
+	payments.forEach((p) => {
+		by_label[cash_row_label(frm, p.adjustment_row)] = p;
+	});
+	return frappe.prompt(
+		{
+			label: __("Cash row"),
+			fieldname: "row",
+			fieldtype: "Select",
+			options: Object.keys(by_label).join("\n"),
+			default: Object.keys(by_label)[0],
+			reqd: 1,
+		},
+		(values) => run(by_label[values.row]),
+		title,
+		primary,
+	);
+}
+
+// The table's status columns: display only (set in memory, never saved as a change; the server refreshes them on save).
 function card_cash_status(frm) {
 	if (frm.is_new()) return;
 	frappe.call({
-		method: "card.cash_disbursement.get_cash_disbursements",
-		type: "GET", // the endpoint is GET-only (read); a default POST is refused with "Not permitted"
+		method: "card.cash_disbursement.get_cash_row_status",
+		type: "GET", // read-only endpoint; a default POST is refused with "Not permitted"
 		args: { card: frm.doc.name },
 		callback: (r) => {
-			(r.message || []).forEach((row) => {
-				const posting = CASH_POSTING_INDICATORS[row.status];
-				if (posting) frm.dashboard.add_indicator(posting[0], posting[1]);
-				if (row.replacement_pending)
-					frm.dashboard.add_indicator(__("Cash: replacement pending"), "orange");
-				const recon = CASH_RECONCILIATION_INDICATORS[row.reconciliation];
-				if (recon) frm.dashboard.add_indicator(recon[0], recon[1]);
+			const info = r.message || {};
+			(frm.doc.adjustments || []).forEach((row) => {
+				const s = info[row.name];
+				if (!s) return;
+				row.cash_status = s.label;
+				row.cash_payment = s.name;
+				row.cash_journal_entry = s.journal_entry;
 			});
+			frm.refresh_field("adjustments");
 		},
 	});
 }
 
-function card_cash_request(frm) {
-	if (frm.is_new() || frm.doc.docstatus !== 0) return;
+function card_cash_actions(frm) {
+	if (frm.is_new()) return;
 	const cash_rows = (frm.doc.adjustments || []).filter((a) => cint(a.is_cash_disbursement));
-	if (!cash_rows.length) return;
-	frm.add_custom_button(
-		__("Request cash approval"),
-		() =>
-			frappe.prompt(
-				[
-					{
-						label: __("Cash row"),
-						fieldname: "row",
-						fieldtype: "Select",
-						options: cash_rows.map((a) => a.name).join("\n"),
-						default: cash_rows[0].name,
-						reqd: 1,
+	if (frm.doc.docstatus === 0 && cash_rows.length) {
+		frm.add_custom_button(
+			__("Request cash approval"),
+			() =>
+				cash_pick_payment(
+					frm,
+					cash_rows.map((a) => ({ adjustment_row: a.name })),
+					__("Request cash approval"),
+					__("Request"),
+					(payment) =>
+						frappe.prompt(
+							[
+								{
+									label: __("Payment date"),
+									fieldname: "payment_date",
+									fieldtype: "Date",
+									default: frappe.datetime.get_today(),
+									reqd: 1,
+								},
+								{
+									label: __("Evidence (receipt number or reference)"),
+									fieldname: "evidence",
+									fieldtype: "Data",
+									reqd: 1,
+								},
+							],
+							(values) =>
+								frappe.call({
+									method: "card.cash_disbursement.request_cash_disbursement",
+									args: {
+										card: frm.doc.name,
+										row: payment.adjustment_row,
+										payment_date: values.payment_date,
+										evidence: values.evidence,
+									},
+									freeze: true,
+									callback: () => {
+										frappe.show_alert({ message: __("Cash approval requested"), indicator: "green" });
+										frm.reload_doc();
+									},
+								}),
+							__("Request cash approval"),
+							__("Request"),
+						),
+				),
+			__("Cash payments"),
+		);
+	}
+	frappe.call({
+		method: "card.cash_disbursement.get_cash_disbursements",
+		type: "GET",
+		args: { card: frm.doc.name },
+		callback: (r) => {
+			const payments = r.message || [];
+			const run_simple = (method, done) => (payment) =>
+				frappe.call({
+					method,
+					args: { name: payment.name },
+					freeze: true,
+					callback: () => {
+						frappe.show_alert({ message: done, indicator: "green" });
+						frm.reload_doc();
 					},
-					{
-						label: __("Payment date"),
-						fieldname: "payment_date",
-						fieldtype: "Date",
-						default: frappe.datetime.get_today(),
-						reqd: 1,
-					},
-					{
-						label: __("Evidence (receipt number or reference)"),
-						fieldname: "evidence",
-						fieldtype: "Data",
-						reqd: 1,
-					},
-				],
-				(values) =>
-					frappe.call({
-						method: "card.cash_disbursement.request_cash_disbursement",
-						args: {
-							card: frm.doc.name,
-							row: values.row,
-							payment_date: values.payment_date,
-							evidence: values.evidence,
-						},
-						freeze: true,
-						callback: () => {
-							frappe.show_alert({
-								message: __("Cash approval requested"),
-								indicator: "green",
-							});
-							frm.reload_doc();
-						},
-					}),
-				__("Request cash approval"),
-				__("Request"),
-			),
-		__("Actions"),
-	);
+				});
+			const with_status = (status) => payments.filter((p) => p.status === status);
+			const pending = with_status("Pending");
+			if (pending.length) {
+				frm.add_custom_button(
+					__("Approve cash payment"),
+					() =>
+						cash_pick_payment(frm, pending, __("Approve cash payment"), __("Approve"), (payment) =>
+							frappe.confirm(
+								__("Approve this cash payment? The approver must not be the requester."),
+								() =>
+									run_simple(
+										"card.cash_disbursement.approve_cash_disbursement",
+										__("Cash payment approved"),
+									)(payment),
+							),
+						),
+					__("Cash payments"),
+				);
+			}
+			const approved = [...with_status("Approved"), ...with_status("Posting Failed")];
+			if (approved.length) {
+				frm.add_custom_button(
+					__("Queue cash for posting"),
+					() =>
+						cash_pick_payment(frm, approved, __("Queue cash for posting"), __("Queue"), run_simple(
+							"card.cash_disbursement.queue_posting",
+							__("Cash payment queued for posting"),
+						)),
+					__("Cash payments"),
+				);
+			}
+			const posted = with_status("Posted");
+			if (posted.length) {
+				frm.add_custom_button(
+					__("Request cash cancellation"),
+					() =>
+						cash_pick_payment(frm, posted, __("Request cash cancellation"), __("Request"), (payment) =>
+							frappe.prompt(
+								{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 },
+								(values) =>
+									frappe.call({
+										method: "card.cash_disbursement.request_cancellation",
+										args: { name: payment.name, reason: values.reason },
+										freeze: true,
+										callback: () => {
+											frappe.show_alert({ message: __("Cancellation requested"), indicator: "green" });
+											frm.reload_doc();
+										},
+									}),
+								__("Request cash cancellation"),
+								__("Request"),
+							),
+						),
+					__("Cash payments"),
+				);
+			}
+			const replaceable = with_status("Cancelled").filter((p) => !p.replacement_pending);
+			if (replaceable.length) {
+				frm.add_custom_button(
+					__("Request cash replacement"),
+					() =>
+						cash_pick_payment(frm, replaceable, __("Request cash replacement"), __("Request"), (payment) =>
+							frappe.prompt(
+								[
+									{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 },
+									{
+										label: __("Payment date"),
+										fieldname: "payment_date",
+										fieldtype: "Date",
+										default: frappe.datetime.get_today(),
+										reqd: 1,
+									},
+									{
+										label: __("Evidence (receipt number or reference)"),
+										fieldname: "evidence",
+										fieldtype: "Data",
+										reqd: 1,
+									},
+								],
+								(values) =>
+									frappe.call({
+										method: "card.cash_disbursement.request_replacement",
+										args: {
+											name: payment.name,
+											reason: values.reason,
+											payment_date: values.payment_date,
+											evidence: values.evidence,
+										},
+										freeze: true,
+										callback: () => {
+											frappe.show_alert({ message: __("Replacement requested"), indicator: "green" });
+											frm.reload_doc();
+										},
+									}),
+								__("Request cash replacement"),
+								__("Request"),
+							),
+						),
+					__("Cash payments"),
+				);
+			}
+		},
+	});
 }
