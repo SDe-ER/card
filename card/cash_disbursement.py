@@ -402,7 +402,7 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 	# A missing name and a refused company give the same PermissionError: the response does not show which names exist.
 	locked = frappe.db.get_value(DOCTYPE, name, ["card"], as_dict=True, for_update=True)
 	if not locked:
-		frappe.throw(_("You are not permitted to replace this cash payment."), frappe.PermissionError)
+		_refuse_payment()
 	frappe.db.get_value("Card Monthly Card", locked.card, "name", for_update=True)
 	original = frappe.get_doc(DOCTYPE, name)
 	_require_payment_right(original, "write")
