@@ -158,7 +158,7 @@ class TestCashOperationalWorkflow(_PostingBase):
 		return frappe.get_all(
 			"Journal Entry",
 			filters={
-				"user_remark": ["like", "%Card cash payment " + record_name + " (%"],
+				"user_remark": ["like", "%Card cash payment " + record_name + " %"],
 				"docstatus": ["!=", 2],
 			},
 			pluck="name",

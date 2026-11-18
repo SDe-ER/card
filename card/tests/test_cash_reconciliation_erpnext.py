@@ -128,7 +128,7 @@ class TestCashReconciliationERPNext(_PostingBase):
 		approve_cash_disbursement(name)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		entry = execute_posting(name, {self.company})
+		entry = execute_posting(name)
 		frappe.set_user("Administrator")
 		return name, entry
 

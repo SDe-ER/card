@@ -255,7 +255,7 @@ def _validated_entry(doc):
 	return entry
 
 
-def execute_posting(name, companies):
+def execute_posting(name):
 	"""Accounting execution for one approved payment, by the executing identity.
 
 	``companies`` is the identity's explicit company grant (executor_companies). An empty or missing set, or a payment
@@ -263,7 +263,14 @@ def execute_posting(name, companies):
 	an existing entry is recognised: it is set in the same transaction that creates the entry, before submission, and it
 	is unique in the database. Recovery validates the linked entry (see _validated_entry) and never searches by remark.
 	Returns the entry name."""
-	companies = frozenset(companies or ())
+	# the posting boundary establishes the identity and its company grants itself, from the session and the stored
+	# permissions; no argument can supply or widen them
+	_check_role(
+		frappe.get_roles(),
+		(SERVICE_ROLE,),
+		_("Only the accounting service identity can post a cash payment."),
+	)
+	companies = executor_companies()
 	row = frappe.db.get_value(
 		DOCTYPE, name, ["status", "company", "journal_entry"], as_dict=True, for_update=True
 	)
@@ -477,7 +484,7 @@ def run_posting_queue(limit: int = 20) -> list:
 	for candidate in candidates:
 		frappe.db.savepoint("ccd_posting")
 		try:
-			entry = execute_posting(candidate.name, companies)
+			entry = execute_posting(candidate.name)
 			results.append({"name": candidate.name, "status": "Posted", "journal_entry": entry})
 		except frappe.PermissionError:
 			frappe.db.rollback(save_point="ccd_posting")

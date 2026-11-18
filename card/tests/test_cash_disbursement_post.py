@@ -168,7 +168,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		with self.assertRaises((frappe.PermissionError, frappe.ValidationError)):
-			execute_posting(name, {self.company})
+			execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])
 
@@ -186,7 +186,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		entry_name = execute_posting(name, {self.company})
+		entry_name = execute_posting(name)
 		frappe.set_user("Administrator")
 
 		entry = frappe.get_doc("Journal Entry", entry_name)
@@ -213,8 +213,8 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		first = execute_posting(name, {self.company})
-		second = execute_posting(name, {self.company})
+		first = execute_posting(name)
+		second = execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(first, second)
 		self.assertEqual(self._journal_entries_for(name), [first])
@@ -226,7 +226,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		first = execute_posting(name, {self.company})
+		first = execute_posting(name)
 		frappe.set_user("Administrator")
 		frappe.db.set_value(
 			DOCTYPE,
@@ -235,7 +235,7 @@ class TestCashDisbursementPosting(_AdjBase):
 			update_modified=False,
 		)
 		frappe.set_user(self.service)
-		recovered = execute_posting(name, {self.company})
+		recovered = execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(recovered, first)
 		self.assertEqual(self._journal_entries_for(name), [first])
@@ -302,7 +302,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		approve_cash_disbursement(name)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		entry = execute_posting(name, {self.company})
+		entry = execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
 		self.assertEqual(self._journal_entries_for(name), [entry])
@@ -359,7 +359,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		queue_posting(name)
 		frappe.set_user(self.service)
 		with self.assertRaises(ClosedAccountingPeriod):
-			execute_posting(name, {self.company})
+			execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
@@ -424,7 +424,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		entry = execute_posting(name, {self.company})
+		entry = execute_posting(name)
 		frappe.set_user("Administrator")
 		return card, name, entry
 
@@ -611,7 +611,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		approve_cash_disbursement(new)
 		queue_posting(new)
 		frappe.set_user(self.service)
-		new_entry = execute_posting(new, {self.company})
+		new_entry = execute_posting(new)
 		frappe.set_user("Administrator")
 
 		self.assertNotEqual(new_entry, entry)
@@ -819,7 +819,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(identity)
 		self.assertEqual(frappe.call("card.cash_disbursement.run_posting_queue", limit=5), [])
 		with self.assertRaises(frappe.PermissionError):
-			execute_posting(name, frozenset())
+			execute_posting(name)  # the identity has no company grant: refused before any write
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
 		self.assertEqual(self._journal_entries_for(name), [])
@@ -862,7 +862,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(identity)
 		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=10)
 		with self.assertRaises(frappe.PermissionError):
-			execute_posting(foreign, {self.company})
+			execute_posting(foreign)
 		frappe.set_user("Administrator")
 		self.assertNotIn(foreign, [r["name"] for r in results])
 		self.assertEqual(
@@ -904,7 +904,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		own = execute_posting(name, {self.company})
+		own = execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertNotEqual(own, forged)
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "journal_entry"), own)
@@ -924,7 +924,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(self.manager)
 		queue_posting(name)
 		frappe.set_user(self.service)
-		own = execute_posting(name, {self.company})
+		own = execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertNotEqual(own, forged)
 		self.assertEqual(
@@ -989,7 +989,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.db.set_value(DOCTYPE, name, "journal_entry", draft.name, update_modified=False)
 		frappe.db.set_value(DOCTYPE, name, "status", "Posting", update_modified=False)
 		frappe.set_user(self.service)
-		self.assertEqual(execute_posting(name, {self.company}), draft.name)
+		self.assertEqual(execute_posting(name), draft.name)
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value("Journal Entry", draft.name, "docstatus"), 1)
 		self.assertEqual(self._journal_entries_for(name), [draft.name])
@@ -1009,3 +1009,46 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertEqual([r["status"] for r in first], ["Posted"])
 		self.assertEqual(second, [])
 		self.assertEqual(self._journal_entries_for(name), [first[0]["journal_entry"]])
+
+	def test_a_linked_cancelled_entry_is_refused(self):
+		"""A link to a cancelled entry is never accepted: the payment is Posting Failed and stays unposted."""
+		_card, name = self._approved(amount=300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		own = execute_posting(name)
+		frappe.set_user("Administrator")
+		frappe.db.set_value(DOCTYPE, name, {"status": "Posting", "posted_on": None}, update_modified=False)
+		frappe.db.set_value("Journal Entry", own, "docstatus", 2, update_modified=False)
+		frappe.set_user(self.service)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posting Failed"])
+		self.assertIn("it is cancelled", results[0]["error"])
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting Failed")
+
+	def test_an_interruption_after_submit_before_status_update_rolls_back_and_posts_once(self):
+		"""Interruption after the entry was submitted but before the payment became Posted: the whole posting rolls
+		back (the entry and the link with it), the payment is Posting Failed, and the retry posts exactly one entry."""
+		from unittest.mock import patch
+
+		_card, name = self._approved(amount=300)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		with patch(
+			"card.cash_disbursement.now_datetime",
+			side_effect=frappe.ValidationError("interrupted after submit"),
+		):
+			results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posting Failed"])
+		self.assertIsNone(frappe.db.get_value(DOCTYPE, name, "journal_entry"))
+		self.assertEqual(self._journal_entries_for(name), [])
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user(self.service)
+		again = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in again], ["Posted"])
+		self.assertEqual(self._journal_entries_for(name), [again[0]["journal_entry"]])
