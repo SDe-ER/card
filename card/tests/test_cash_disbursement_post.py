@@ -471,6 +471,21 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
 		self.assertFalse(frappe.db.get_value(DOCTYPE, name, "approved_by"))
 
+	def test_a_plain_save_cannot_skip_to_any_other_status(self):
+		"""FR-170 review (High): a status pair with no server owner (Pending -> Posted, Pending -> Cancelled, ...) is refused
+		by a plain save, even though no flag is set (None must not equal None)."""
+		card, row = self._card_with_cash_row()
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt SKIP-1")
+		for target in ("Posted", "Cancelled", "Posting", "Cancellation Requested"):
+			with self.subTest(target=target):
+				frappe.set_user(self.manager)
+				doc = frappe.get_doc(DOCTYPE, name)
+				doc.status = target
+				with self.assertRaises(frappe.ValidationError):
+					doc.save()
+				frappe.set_user("Administrator")
+				self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
+
 	def test_a_plain_save_cannot_queue_an_approved_payment(self):
 		_card, name = self._approved()
 		frappe.set_user(self.manager)

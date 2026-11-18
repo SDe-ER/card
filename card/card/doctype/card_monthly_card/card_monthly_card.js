@@ -598,46 +598,48 @@ function card_cash_actions(frm) {
 	if (frm.is_new()) return;
 	const cash_rows = (frm.doc.adjustments || []).filter((a) => cint(a.is_cash_disbursement));
 	const is_manager = CASH_MANAGER_ROLES.some((r) => frappe.user_roles.includes(r));
-	if (frm.doc.docstatus === 0 && cash_rows.length) {
-		frm.add_custom_button(
-			__("Request cash approval"),
-			() =>
-				cash_pick_payment(
-					frm,
-					cash_rows.map((a) => ({ adjustment_row: a.name, name: null })),
-					__("Request cash approval"),
-					__("Request"),
-					(payment, dialog) =>
-						cash_dialog(
-							__("Request cash approval"),
-							[
-								{ label: __("Payment date"), fieldname: "payment_date", fieldtype: "Date", default: frappe.datetime.get_today(), reqd: 1 },
-								{ label: __("Evidence (receipt number or reference)"), fieldname: "evidence", fieldtype: "Data", reqd: 1 },
-							],
-							__("Request"),
-							(values, d) =>
-								frappe.call({
-									method: "card.cash_disbursement.request_cash_disbursement",
-									args: { card: frm.doc.name, row: payment.adjustment_row, payment_date: values.payment_date, evidence: values.evidence },
-									freeze: true,
-									callback: () => {
-										d.hide();
-										if (dialog) dialog.hide();
-										frappe.show_alert({ message: __("Cash approval requested"), indicator: "green" });
-										frm.reload_doc();
-									},
-								}),
-						),
-				),
-			__("Cash payments"),
-		);
-	}
 	frappe.call({
 		method: "card.cash_disbursement.get_cash_disbursements",
 		type: "GET",
 		args: { card: frm.doc.name },
 		callback: (r) => {
 			const payments = cash_actionable(frm, r.message || []);
+		const requestable = cash_rows.filter((a) => !payments.some((p) => p.adjustment_row === a.name));
+				if (frm.doc.docstatus === 0 && requestable.length) {
+			frm.add_custom_button(
+				__("Request cash approval"),
+				() =>
+					cash_pick_payment(
+						frm,
+						requestable.map((a) => ({ adjustment_row: a.name, name: null })),
+						__("Request cash approval"),
+						__("Request"),
+						(payment, dialog) =>
+							cash_dialog(
+								__("Request cash approval"),
+								[
+									{ label: __("Payment date"), fieldname: "payment_date", fieldtype: "Date", default: frappe.datetime.get_today(), reqd: 1 },
+									{ label: __("Evidence (receipt number or reference)"), fieldname: "evidence", fieldtype: "Data", reqd: 1 },
+								],
+								__("Request"),
+								(values, d) =>
+									frappe.call({
+										method: "card.cash_disbursement.request_cash_disbursement",
+										args: { card: frm.doc.name, row: payment.adjustment_row, payment_date: values.payment_date, evidence: values.evidence },
+										freeze: true,
+										callback: () => {
+											d.hide();
+											if (dialog) dialog.hide();
+											frappe.show_alert({ message: __("Cash approval requested"), indicator: "green" });
+											frm.reload_doc();
+										},
+									}),
+							),
+					),
+				__("Cash payments"),
+			);
+		}
+
 			const with_status = (status) => payments.filter((p) => p.status === status);
 			// every action below is a manager action: the menu is shown to Card Manager and System Manager only
 			if (!is_manager) return;

@@ -48,9 +48,9 @@ class CardCashDisbursement(Document):
 		if before and before.status != self.status:
 			# a status change is allowed only as the server's own transition (the flag is set by that action alone);
 			# a plain save of the record must not approve, queue or cancel it (FR-170 review, High)
-			if CONTROLLED_TRANSITIONS.get((before.status, self.status)) != self.flags.get(
-				"controlled_transition"
-			):
+			# an unlisted pair has no owner: it is refused even when no flag is set (None == None must not pass)
+			expected = CONTROLLED_TRANSITIONS.get((before.status, self.status))
+			if expected is None or self.flags.get("controlled_transition") != expected:
 				frappe.throw(
 					_("The cash payment {0} cannot move from {1} to {2} by a plain save.").format(
 						self.name, before.status, self.status
