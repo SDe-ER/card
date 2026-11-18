@@ -9182,4 +9182,4 @@ msgstr "طُلب الإلغاء"
 
 #: card/cash_disbursement.py
 msgid "Unreconciled"
-msgstr "غير مسوّاة"
+msgstr "لم تتم تسويتها"
