@@ -259,7 +259,7 @@ class TestCashOperationalWorkflow(_PostingBase):
 
 		# 10. replacement: a new Pending payment, approved by another Card Manager, posted once
 		frappe.set_user(self.manager)
-		replacement = request_replacement(name, "2026-09-11", "Receipt R-2")
+		replacement = request_replacement(name, "Wrong amount", "2026-09-11", "Receipt R-2")
 		frappe.set_user("Administrator")
 		self.assertTrue(
 			self._status(card.name, name)["replacement_pending"]
@@ -284,6 +284,6 @@ class TestCashOperationalWorkflow(_PostingBase):
 		# 11. no second live replacement for the same cancelled payment
 		frappe.set_user(self.manager)
 		with self.assertRaises(frappe.ValidationError):
-			request_replacement(name, "2026-09-12", "Receipt R-3")
+			request_replacement(name, "Wrong amount", "2026-09-12", "Receipt R-3")
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.count(DOCTYPE, {"replaces": name}), 1)

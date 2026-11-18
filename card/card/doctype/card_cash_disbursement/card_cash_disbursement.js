@@ -38,6 +38,7 @@ frappe.ui.form.on("Card Cash Disbursement", {
 		if (frm.doc.status === "Posted" && frm.doc.card) {
 			frappe.call({
 				method: "card.cash_disbursement.get_cash_disbursements",
+				type: "GET", // GET-only endpoint; a default POST is refused with "Not permitted"
 				args: { card: frm.doc.card },
 				callback: (r) => {
 					const mine = (r.message || []).find((row) => row.name === frm.doc.name);
@@ -92,6 +93,51 @@ frappe.ui.form.on("Card Cash Disbursement", {
 							__("Cancellation requested"),
 						),
 					__("Request cancellation"),
+					__("Request"),
+				),
+			);
+		}
+
+		// A replacement is a new Pending payment with its own approval by a different Card Manager. Clicking this creates
+		// no accounting entry; the server refuses a second live replacement for the same cancelled payment.
+		if (frm.doc.status === "Cancelled") {
+			frm.add_custom_button(__("Request replacement"), () =>
+				frappe.prompt(
+					[
+						{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 },
+						{
+							label: __("Payment date"),
+							fieldname: "payment_date",
+							fieldtype: "Date",
+							reqd: 1,
+							default: frappe.datetime.get_today(),
+						},
+						{
+							label: __("Evidence (receipt number or reference)"),
+							fieldname: "evidence",
+							fieldtype: "Small Text",
+							reqd: 1,
+						},
+					],
+					(values) =>
+						frappe.call({
+							method: "card.cash_disbursement.request_replacement",
+							args: {
+								name: frm.doc.name,
+								reason: values.reason,
+								payment_date: values.payment_date,
+								evidence: values.evidence,
+							},
+							freeze: true,
+							callback: (r) => {
+								frappe.show_alert({
+									message: __("Replacement requested: {0}", [r.message]),
+									indicator: "green",
+								});
+								frappe.set_route("Form", "Card Cash Disbursement", r.message);
+							},
+						}),
+					__("Request replacement"),
 					__("Request"),
 				),
 			);

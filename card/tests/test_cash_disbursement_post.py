@@ -587,19 +587,58 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "journal_entry"), entry)
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "amount"), 300)
 
+	def test_the_desk_reads_cash_status_with_a_get(self):
+		"""Regression: frappe.call sends POST unless type is set, and the GET-only status endpoint refuses a POST with
+		"Not permitted" on every Monthly Card form. Every Desk call site of that endpoint must declare type GET."""
+		import re
+		from pathlib import Path
+
+		doctype_dir = Path(__file__).resolve().parents[1] / "card" / "doctype"
+		sites = 0
+		for script in (
+			"card_monthly_card/card_monthly_card.js",
+			"card_cash_disbursement/card_cash_disbursement.js",
+		):
+			text = (doctype_dir / script).read_text(encoding="utf-8")
+			for match in re.finditer(r"card\.cash_disbursement\.get_cash_disbursements", text):
+				sites += 1
+				self.assertIn('type: "GET"', text[match.start() : match.start() + 160], script)
+		self.assertGreaterEqual(sites, 2)
+
+	def test_replacement_needs_a_reason_is_stored_and_a_second_live_one_is_refused(self):
+		from card.cash_disbursement import request_cancellation, request_replacement
+
+		_card, name, entry = self._posted()
+		frappe.set_user(self.manager)
+		request_cancellation(name, "Wrong receipt")
+		frappe.set_user("Administrator")
+		frappe.get_doc("Journal Entry", entry).cancel()
+
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			request_replacement(name, "   ", "2026-09-11", "Receipt R-2")  # the reason is mandatory
+		new = request_replacement(name, "Wrong amount", "2026-09-11", "Receipt R-2")
+		with self.assertRaises(frappe.ValidationError):
+			request_replacement(name, "Again", "2026-09-11", "Receipt R-9")  # one live replacement at a time
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, new, "replacement_reason"), "Wrong amount")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, new, "status"), "Pending")
+
 	def test_a_cancelled_payment_is_replaced_by_a_new_payment_with_its_own_approval(self):
 		from card.cash_disbursement import request_cancellation, request_replacement
 
 		_card, name, entry = self._posted()
 		frappe.set_user(self.manager)
 		with self.assertRaises(frappe.ValidationError):
-			request_replacement(name, "2026-09-11", "Receipt R-2")  # refused: the original is still Posted
+			request_replacement(
+				name, "Wrong amount", "2026-09-11", "Receipt R-2"
+			)  # refused: the original is still Posted
 		request_cancellation(name, "Wrong receipt")
 		frappe.set_user("Administrator")
 		frappe.get_doc("Journal Entry", entry).cancel()
 
 		frappe.set_user(self.manager)
-		new = request_replacement(name, "2026-09-11", "Receipt R-2")
+		new = request_replacement(name, "Wrong amount", "2026-09-11", "Receipt R-2")
 		frappe.set_user("Administrator")
 		record = frappe.get_doc(DOCTYPE, new)
 		self.assertEqual(record.status, "Pending")

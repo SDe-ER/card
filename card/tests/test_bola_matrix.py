@@ -503,6 +503,17 @@ CASES = {
 		cross=lambda c: {"card": c.card_b, "row": "ROW-B", "payment_date": nowdate(), "evidence": "BOLA"},
 		denied=((),),
 	),
+	"card.cash_disbursement.request_replacement": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; a Cancelled payment with no live replacement; a reason; evidence; a valid payment date",
+		isolation="check_permission(write) on the cancelled payment (Company User Permission on company), before any state is revealed",
+		effects="Inserts one Pending replacement linked to the cancelled payment (audited); no ledger effect, nothing posted",
+		writes=True,
+		cross=lambda c: {"name": c.canc_b, "reason": "x", "payment_date": nowdate(), "evidence": "BOLA"},
+		own=lambda c: {"name": c.canc_a, "reason": "x", "payment_date": nowdate(), "evidence": "BOLA"},
+		denied=((), ("Card User",)),
+	),
 	"card.cash_disbursement.get_cash_disbursements": Case(
 		method=GET,
 		roles=("Card User",),
@@ -1031,6 +1042,10 @@ def _transfer_doc(employee, to_employee, item):
 # (card/, tests and patches excluded), per file and enclosing function: (count, why it is safe). A new site
 # fails test_ignore_permissions_sites_are_allowed until it is reviewed and listed here.
 IGNORE_PERMISSIONS_ALLOWED = {
+	("card/cash_disbursement.py", "request_replacement"): (
+		1,
+		"replacement payment inserted after the Card Manager role check, the create right on the payment DocType and the write check on the cancelled original (company checked); it is Pending, links the original, and posts nothing",
+	),
 	("card/cash_disbursement.py", "request_cash_disbursement"): (
 		1,
 		"cash payment record inserted after the requester's write permission on the Monthly Card is checked (company checked by the card); the payment DocType grants create only to Card Manager, and a Card User may request from the card",
@@ -1381,6 +1396,8 @@ class TestBolaMatrix(IntegrationTestCase):
 		c.appr_a = self._ccd(c.A, c.sup_a, "AA" + token, "Approved", _cash_account(c.A))
 		c.appr_b = self._ccd(c.B, c.sup_b, "AB" + b, "Approved")
 		c.post_b = self._ccd(c.B, c.sup_b, "PO" + b, "Posting")
+		c.canc_a = self._ccd(c.A, c.sup_a, "CA" + token, "Cancelled", _cash_account(c.A))
+		c.canc_b = self._ccd(c.B, c.sup_b, "CB" + b, "Cancelled")
 		c.card_b = self._card_row(c.B, "EOMC-BOLA-B-" + token)
 		c.card_a = self._card_row(c.A, "EOMC-BOLA-A-" + token)
 		if not frappe.db.exists("Role", SERVICE_ROLE):

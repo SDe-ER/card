@@ -9079,3 +9079,27 @@ msgstr "الدليل (رقم الإيصال أو المرجع)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "تم طلب اعتماد الصرف النقدي"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request replacement"
+msgstr "طلب استبدال"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Replacement reason"
+msgstr "سبب الاستبدال"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Give the reason for the replacement."
+msgstr "اكتب سبب الاستبدال."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Enter the evidence of the replacement payment (receipt number or reference)."
+msgstr "أدخل دليل دفعة الاستبدال (رقم الإيصال أو المرجع)."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Replacement requested: {0}"
+msgstr "تم طلب الاستبدال: {0}"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Payment date"
+msgstr "تاريخ الدفع"

@@ -7840,3 +7840,27 @@ msgstr ""
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request replacement"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Replacement reason"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Give the reason for the replacement."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Enter the evidence of the replacement payment (receipt number or reference)."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Replacement requested: {0}"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Payment date"
+msgstr ""

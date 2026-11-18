@@ -356,16 +356,25 @@ def request_cancellation(name: str, reason: str) -> str:
 	return doc.name
 
 
-def request_replacement(name, payment_date, evidence):
+@frappe.whitelist(methods=["POST"])
+def request_replacement(name: str, reason: str, payment_date: str, evidence: str) -> str:
 	"""A correction after cancellation: a new Pending payment for the same flagged row, linked to the cancelled one
-	(``replaces``). It needs its own approval by a different Card Manager. The cancelled payment and its Journal Entry
-	stay as they are; nothing is reposted by this call."""
+	(``replaces``) and carrying the mandatory reason. It needs its own approval by a different Card Manager (approve_cash_
+	disbursement refuses the requester). The cancelled payment and its Journal Entry stay as they are; nothing is posted
+	by this call, so a click creates no ledger effect."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can request a replacement."))
+	reason = (reason or "").strip()
+	if not reason:
+		frappe.throw(_("Give the reason for the replacement."))
+	if not (evidence or "").strip():
+		frappe.throw(_("Enter the evidence of the replacement payment (receipt number or reference)."))
 	# the row lock serialises concurrent requests for the same cancelled payment: the second waits, then sees the
 	# live replacement the first one inserted (at most one active replacement per cancelled transaction)
 	if frappe.db.get_value(DOCTYPE, name, "name", for_update=True) is None:
 		frappe.throw(_("The cash payment {0} does not exist.").format(name))
 	frappe.has_permission(DOCTYPE, "create", throw=True)
+	# company authorization for the caller, checked before any state is revealed (cross-company refusal first)
+	frappe.get_doc(DOCTYPE, name).check_permission("write")
 	original = frappe.get_doc(DOCTYPE, name)
 	if original.status != "Cancelled":
 		frappe.throw(
@@ -393,6 +402,7 @@ def request_replacement(name, payment_date, evidence):
 		frappe.throw(
 			_("The row {0} is no longer on card {1}.").format(original.adjustment_row, original.card)
 		)
+	validate_payment_date(payment_date, nowdate(), False)
 	record = frappe.get_doc(
 		{
 			"doctype": DOCTYPE,
@@ -408,8 +418,12 @@ def request_replacement(name, payment_date, evidence):
 			"evidence": evidence,
 			"status": "Pending",
 			"replaces": original.name,
+			"replacement_reason": reason,
 		}
-	).insert()
+	)
+	record.insert(
+		ignore_permissions=True
+	)  # authorised above: create right and the company check on the original
 	return record.name
 
 
