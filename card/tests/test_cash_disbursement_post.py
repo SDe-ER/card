@@ -447,6 +447,39 @@ class TestCashDisbursementPosting(_AdjBase):
 			flt(frappe.db.get_value(DOCTYPE, name, "amount"), 2),
 			flt(frappe.db.get_value("Card Monthly Card Adjustment", row, "amount"), 2),
 		)
+		# the card's own refresh writes the three display columns of the cash row, and nothing else
+		doc = frappe.get_doc("Card Monthly Card", card.name)
+		amounts_before = [flt(r.amount, 2) for r in doc.adjustments]
+		doc._refresh_cash_rows()
+		child = next(r for r in doc.adjustments if r.name == row)
+		self.assertEqual(child.cash_payment, name)
+		self.assertEqual(child.cash_journal_entry, entry)
+		self.assertTrue(child.cash_status.startswith("Posted"), child.cash_status)
+		self.assertEqual([flt(r.amount, 2) for r in doc.adjustments], amounts_before)
+
+	def test_a_plain_save_cannot_approve_a_pending_payment(self):
+		"""FR-170 review (High): a Card Manager's ordinary save must not move a Pending payment to Approved."""
+		card, row = self._card_with_cash_row()
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-9")
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc(DOCTYPE, name)
+		doc.status = "Approved"
+		doc.approved_by = self.manager
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
+		self.assertFalse(frappe.db.get_value(DOCTYPE, name, "approved_by"))
+
+	def test_a_plain_save_cannot_queue_an_approved_payment(self):
+		_card, name = self._approved()
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc(DOCTYPE, name)
+		doc.status = "Posting"
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Approved")
 
 	def test_a_posted_journal_entry_cannot_be_cancelled_without_a_cancellation_request(self):
 		_card, name, entry = self._posted()

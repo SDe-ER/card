@@ -7920,3 +7920,35 @@ msgstr ""
 #: card/cash_disbursement.py
 msgid "You are not permitted to change this cash payment."
 msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The cash payment {0} cannot move from {1} to {2} by a plain save."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The approval fields of cash payment {0} are set by the approval only."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "You are not permitted to use this card for cash payments."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Posting"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Posting Failed"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Posted"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Cancellation Requested"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Unreconciled"
+msgstr ""

@@ -524,32 +524,52 @@ frappe.ui.form.on("Card Monthly Card Adjustment", {
 // FR-170: the cash payments of this card, managed from the Additions & Deductions table. Each cash row shows its payment
 // status and journal entry in the table; the actions for a row's payment sit on this card. Every action calls a server
 // method that checks the role, the company and the state again: hiding a button is not the control.
+const CASH_MANAGER_ROLES = ["Card Manager", "System Manager"];
+
 function cash_row_label(frm, child_name) {
 	const a = (frm.doc.adjustments || []).find((x) => x.name === child_name);
-	if (!a) return child_name;
+	if (!a) return null;
 	const amount = format_currency(a.amount, frm.doc.currency);
 	return `${a.idx}. ${frappe.datetime.str_to_user(a.adjustment_date) || ""} · ${amount} · ${a.description || ""}`;
 }
 
-// One payment: run at once. Several: the user picks the row by its label (never by a raw name).
+// The payments the user can act on: only the latest payment of each cash row (an earlier cancelled one is superseded),
+// and only a row that still exists on the card.
+function cash_actionable(frm, payments) {
+	const latest = {};
+	payments.forEach((p) => {
+		latest[p.adjustment_row] = p;
+	});
+	return Object.values(latest).filter((p) => cash_row_label(frm, p.adjustment_row) !== null);
+}
+
+// A dialog that stays open when the server refuses, so the typed values are kept. (frappe.prompt hides its dialog
+// before the callback runs, which would lose them.)
+function cash_dialog(title, fields, primary_label, on_submit) {
+	const dialog = new frappe.ui.Dialog({
+		title,
+		fields,
+		primary_action_label: primary_label,
+		primary_action: (values) => on_submit(values, dialog),
+	});
+	dialog.show();
+	return dialog;
+}
+
+// One payment: the dialog for it. Several: the user picks the payment by its row label (the label carries the payment
+// name, so two payments never collapse into one option).
 function cash_pick_payment(frm, payments, title, primary, run) {
-	if (payments.length === 1) return run(payments[0]);
+	if (payments.length === 1) return run(payments[0], null);
 	const by_label = {};
 	payments.forEach((p) => {
-		by_label[cash_row_label(frm, p.adjustment_row)] = p;
+		by_label[p.name ? `${cash_row_label(frm, p.adjustment_row)} · ${p.name}` : cash_row_label(frm, p.adjustment_row)] = p;
 	});
-	return frappe.prompt(
-		{
-			label: __("Cash row"),
-			fieldname: "row",
-			fieldtype: "Select",
-			options: Object.keys(by_label).join("\n"),
-			default: Object.keys(by_label)[0],
-			reqd: 1,
-		},
-		(values) => run(by_label[values.row]),
+	const options = Object.keys(by_label);
+	return cash_dialog(
 		title,
+		[{ label: __("Cash row"), fieldname: "row", fieldtype: "Select", options: options.join("\n"), default: options[0], reqd: 1 }],
 		primary,
+		(values, dialog) => run(by_label[values.row], dialog),
 	);
 }
 
@@ -577,49 +597,36 @@ function card_cash_status(frm) {
 function card_cash_actions(frm) {
 	if (frm.is_new()) return;
 	const cash_rows = (frm.doc.adjustments || []).filter((a) => cint(a.is_cash_disbursement));
+	const is_manager = CASH_MANAGER_ROLES.some((r) => frappe.user_roles.includes(r));
 	if (frm.doc.docstatus === 0 && cash_rows.length) {
 		frm.add_custom_button(
 			__("Request cash approval"),
 			() =>
 				cash_pick_payment(
 					frm,
-					cash_rows.map((a) => ({ adjustment_row: a.name })),
+					cash_rows.map((a) => ({ adjustment_row: a.name, name: null })),
 					__("Request cash approval"),
 					__("Request"),
-					(payment) =>
-						frappe.prompt(
+					(payment, dialog) =>
+						cash_dialog(
+							__("Request cash approval"),
 							[
-								{
-									label: __("Payment date"),
-									fieldname: "payment_date",
-									fieldtype: "Date",
-									default: frappe.datetime.get_today(),
-									reqd: 1,
-								},
-								{
-									label: __("Evidence (receipt number or reference)"),
-									fieldname: "evidence",
-									fieldtype: "Data",
-									reqd: 1,
-								},
+								{ label: __("Payment date"), fieldname: "payment_date", fieldtype: "Date", default: frappe.datetime.get_today(), reqd: 1 },
+								{ label: __("Evidence (receipt number or reference)"), fieldname: "evidence", fieldtype: "Data", reqd: 1 },
 							],
-							(values) =>
+							__("Request"),
+							(values, d) =>
 								frappe.call({
 									method: "card.cash_disbursement.request_cash_disbursement",
-									args: {
-										card: frm.doc.name,
-										row: payment.adjustment_row,
-										payment_date: values.payment_date,
-										evidence: values.evidence,
-									},
+									args: { card: frm.doc.name, row: payment.adjustment_row, payment_date: values.payment_date, evidence: values.evidence },
 									freeze: true,
 									callback: () => {
+										d.hide();
+										if (dialog) dialog.hide();
 										frappe.show_alert({ message: __("Cash approval requested"), indicator: "green" });
 										frm.reload_doc();
 									},
 								}),
-							__("Request cash approval"),
-							__("Request"),
 						),
 				),
 			__("Cash payments"),
@@ -630,31 +637,30 @@ function card_cash_actions(frm) {
 		type: "GET",
 		args: { card: frm.doc.name },
 		callback: (r) => {
-			const payments = r.message || [];
-			const run_simple = (method, done) => (payment) =>
+			const payments = cash_actionable(frm, r.message || []);
+			const with_status = (status) => payments.filter((p) => p.status === status);
+			// every action below is a manager action: the menu is shown to Card Manager and System Manager only
+			if (!is_manager) return;
+			const run_simple = (method, done) => (payment, dialog) =>
 				frappe.call({
 					method,
 					args: { name: payment.name },
 					freeze: true,
 					callback: () => {
+						if (dialog) dialog.hide();
 						frappe.show_alert({ message: done, indicator: "green" });
 						frm.reload_doc();
 					},
 				});
-			const with_status = (status) => payments.filter((p) => p.status === status);
 			const pending = with_status("Pending");
 			if (pending.length) {
 				frm.add_custom_button(
 					__("Approve cash payment"),
 					() =>
-						cash_pick_payment(frm, pending, __("Approve cash payment"), __("Approve"), (payment) =>
+						cash_pick_payment(frm, pending, __("Approve cash payment"), __("Approve"), (payment, dialog) =>
 							frappe.confirm(
 								__("Approve this cash payment? The approver must not be the requester."),
-								() =>
-									run_simple(
-										"card.cash_disbursement.approve_cash_disbursement",
-										__("Cash payment approved"),
-									)(payment),
+								() => run_simple("card.cash_disbursement.approve_cash_disbursement", __("Cash payment approved"))(payment, dialog),
 							),
 						),
 					__("Cash payments"),
@@ -665,10 +671,13 @@ function card_cash_actions(frm) {
 				frm.add_custom_button(
 					__("Queue cash for posting"),
 					() =>
-						cash_pick_payment(frm, approved, __("Queue cash for posting"), __("Queue"), run_simple(
-							"card.cash_disbursement.queue_posting",
-							__("Cash payment queued for posting"),
-						)),
+						cash_pick_payment(
+							frm,
+							approved,
+							__("Queue cash for posting"),
+							__("Queue"),
+							run_simple("card.cash_disbursement.queue_posting", __("Cash payment queued for posting")),
+						),
 					__("Cash payments"),
 				);
 			}
@@ -677,21 +686,23 @@ function card_cash_actions(frm) {
 				frm.add_custom_button(
 					__("Request cash cancellation"),
 					() =>
-						cash_pick_payment(frm, posted, __("Request cash cancellation"), __("Request"), (payment) =>
-							frappe.prompt(
-								{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 },
-								(values) =>
+						cash_pick_payment(frm, posted, __("Request cash cancellation"), __("Request"), (payment, dialog) =>
+							cash_dialog(
+								__("Request cash cancellation"),
+								[{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 }],
+								__("Request"),
+								(values, d) =>
 									frappe.call({
 										method: "card.cash_disbursement.request_cancellation",
 										args: { name: payment.name, reason: values.reason },
 										freeze: true,
 										callback: () => {
+											d.hide();
+											if (dialog) dialog.hide();
 											frappe.show_alert({ message: __("Cancellation requested"), indicator: "green" });
 											frm.reload_doc();
 										},
 									}),
-								__("Request cash cancellation"),
-								__("Request"),
 							),
 						),
 					__("Cash payments"),
@@ -702,41 +713,27 @@ function card_cash_actions(frm) {
 				frm.add_custom_button(
 					__("Request cash replacement"),
 					() =>
-						cash_pick_payment(frm, replaceable, __("Request cash replacement"), __("Request"), (payment) =>
-							frappe.prompt(
+						cash_pick_payment(frm, replaceable, __("Request cash replacement"), __("Request"), (payment, dialog) =>
+							cash_dialog(
+								__("Request cash replacement"),
 								[
 									{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 },
-									{
-										label: __("Payment date"),
-										fieldname: "payment_date",
-										fieldtype: "Date",
-										default: frappe.datetime.get_today(),
-										reqd: 1,
-									},
-									{
-										label: __("Evidence (receipt number or reference)"),
-										fieldname: "evidence",
-										fieldtype: "Data",
-										reqd: 1,
-									},
+									{ label: __("Payment date"), fieldname: "payment_date", fieldtype: "Date", default: frappe.datetime.get_today(), reqd: 1 },
+									{ label: __("Evidence (receipt number or reference)"), fieldname: "evidence", fieldtype: "Data", reqd: 1 },
 								],
-								(values) =>
+								__("Request"),
+								(values, d) =>
 									frappe.call({
 										method: "card.cash_disbursement.request_replacement",
-										args: {
-											name: payment.name,
-											reason: values.reason,
-											payment_date: values.payment_date,
-											evidence: values.evidence,
-										},
+										args: { name: payment.name, reason: values.reason, payment_date: values.payment_date, evidence: values.evidence },
 										freeze: true,
 										callback: () => {
+											d.hide();
+											if (dialog) dialog.hide();
 											frappe.show_alert({ message: __("Replacement requested"), indicator: "green" });
 											frm.reload_doc();
 										},
 									}),
-								__("Request cash replacement"),
-								__("Request"),
 							),
 						),
 					__("Cash payments"),

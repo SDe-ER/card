@@ -35,11 +35,38 @@ EVIDENCE_AFTER_APPROVAL = (
 )
 # the one controlled change a Posted payment may take: a cancellation request by request_cancellation()
 CANCELLATION_REQUEST = "cancellation_request"
+# the status changes a save may make, each only with the flag of the server action that owns it (FR-170 review)
+CONTROLLED_TRANSITIONS = {
+	("Pending", "Approved"): "approval",
+	("Posted", "Cancellation Requested"): CANCELLATION_REQUEST,
+}
 
 
 class CardCashDisbursement(Document):
 	def validate(self):
 		before = self.get_doc_before_save()
+		if before and before.status != self.status:
+			# a status change is allowed only as the server's own transition (the flag is set by that action alone);
+			# a plain save of the record must not approve, queue or cancel it (FR-170 review, High)
+			if CONTROLLED_TRANSITIONS.get((before.status, self.status)) != self.flags.get(
+				"controlled_transition"
+			):
+				frappe.throw(
+					_("The cash payment {0} cannot move from {1} to {2} by a plain save.").format(
+						self.name, before.status, self.status
+					)
+				)
+		if before and before.status == "Pending" and self.status == "Pending":
+			# approval fields are set only by approve_cash_disbursement()
+			approval_fields = ("approved_by", "approved_on", "journal_entry", "posted_on", "posted_by")
+			if self.flags.get("controlled_transition") != "approval" and any(
+				before.get(f) != self.get(f) for f in approval_fields
+			):
+				frappe.throw(
+					_("The approval fields of cash payment {0} are set by the approval only.").format(
+						self.name
+					)
+				)
 		if before and before.status != "Pending":
 			protected = (*FROZEN_AFTER_APPROVAL, *EVIDENCE_AFTER_APPROVAL, "status")
 			changed = [f for f in protected if before.get(f) != self.get(f)]

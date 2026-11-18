@@ -46,12 +46,10 @@ def request_cash_disbursement(card: str, row: str, payment_date: str, evidence: 
 	a validated Cash account; the evidence is required; one payment per row, in any status."""
 	# a locking read on the card row first; a missing card and a card of another company get the same refusal
 	if not frappe.db.get_value("Card Monthly Card", card, "name", for_update=True):
-		_refuse_payment()
-	doc = frappe.get_doc("Card Monthly Card", card)
+		_refuse_card()
 	# the request is an action on the card: whoever may edit the card (its company included) may request its payment.
 	# The payment record is then inserted under that explicit card check, not by widening the payment DocType's rights.
-	if not frappe.has_permission("Card Monthly Card", "write", doc=doc):
-		_refuse_payment()
+	doc = _card_for_read(card, "write")
 	if doc.docstatus != 0:
 		frappe.throw(_("A cash payment is requested on a Draft card only."))
 	source = next((r for r in doc.adjustments or [] if r.name == row), None)
@@ -96,6 +94,22 @@ def _refuse_payment():
 	frappe.throw(_("You are not permitted to change this cash payment."), frappe.PermissionError)
 
 
+def _refuse_card():
+	"""The one refusal for a card the caller may not use for cash payments (missing or of another company)."""
+	frappe.throw(_("You are not permitted to use this card for cash payments."), frappe.PermissionError)
+
+
+def _card_for_read(card, ptype="read"):
+	"""The card, if the caller may use it for ``ptype``. A missing card and a card of another company get the same
+	refusal, so the response does not show which card names exist."""
+	if not frappe.db.exists("Card Monthly Card", card):
+		_refuse_card()
+	doc = frappe.get_doc("Card Monthly Card", card)
+	if not frappe.has_permission("Card Monthly Card", ptype, doc=doc):
+		_refuse_card()
+	return doc
+
+
 def _lock_payment(name):
 	"""The first read of every state-changing action: a locking read on the payment row, so no decision below is made on
 	a row another transaction is still changing."""
@@ -129,6 +143,7 @@ def approve_cash_disbursement(name: str) -> str:
 	doc.status = "Approved"
 	doc.approved_by = frappe.session.user
 	doc.approved_on = now_datetime()
+	doc.flags.controlled_transition = "approval"  # the only save that may move Pending -> Approved
 	doc.save()
 	return doc.name
 
@@ -585,11 +600,26 @@ def cash_row_status(card, row):
 	if not rows:
 		return {"name": None, "journal_entry": None, "label": _("Not requested")}
 	latest = rows[0]
-	label = _(latest.status)
+	# literal translatable strings (a dynamic _(status) could not be extracted into the message catalogue)
+	status_labels = {
+		"Pending": _("Pending"),
+		"Approved": _("Approved"),
+		"Posting": _("Posting"),
+		"Posting Failed": _("Posting Failed"),
+		"Posted": _("Posted"),
+		"Cancellation Requested": _("Cancellation Requested"),
+		"Cancelled": _("Cancelled"),
+	}
+	recon_labels = {
+		"Unreconciled": _("Unreconciled"),
+		"Partially reconciled": _("Partially reconciled"),
+		"Fully reconciled": _("Fully reconciled"),
+	}
+	label = status_labels.get(latest.status, latest.status)
 	if latest.status == "Posted":
 		recon = reconciliation_status(latest.journal_entry, latest.amount)
 		if recon:
-			label = f"{label} · {_(recon)}"
+			label = f"{label} · {recon_labels.get(recon, recon)}"
 	return {"name": latest.name, "journal_entry": latest.journal_entry, "label": label}
 
 
@@ -597,7 +627,7 @@ def cash_row_status(card, row):
 def get_cash_row_status(card: str) -> dict:
 	"""The display state of every cash row of one card, keyed by the child row name, for the table of the Monthly Card.
 	The caller must be permitted to read the card. Read only."""
-	frappe.get_doc("Card Monthly Card", card).check_permission("read")
+	_card_for_read(card)
 	rows = frappe.get_all(
 		"Card Monthly Card Adjustment",
 		filters={"parent": card, "is_cash_disbursement": 1},
@@ -611,7 +641,7 @@ def get_cash_disbursements(card: str) -> list:
 	"""Read-only status of the cash payments of one card, for the card's form. The caller must be permitted to read
 	the card (its company). Each entry carries the posting status, the reconciliation status (kept separate), the
 	cancellation state and whether a replacement is pending."""
-	frappe.get_doc("Card Monthly Card", card).check_permission("read")
+	_card_for_read(card)
 	rows = frappe.get_all(
 		DOCTYPE,
 		filters={"card": card},

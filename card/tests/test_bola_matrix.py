@@ -2093,6 +2093,17 @@ class TestBolaMatrix(IntegrationTestCase):
 							call(name)
 						texts.append((type(raised.exception), str(raised.exception)))
 				self.assertEqual(texts[0], texts[1], f"{action}: the refusals differ")
+			# the card-level reads: a missing card and a card of another company get the same refusal
+			from card.cash_disbursement import get_cash_disbursements, get_cash_row_status
+
+			for action, call in (("row_status", get_cash_row_status), ("list", get_cash_disbursements)):
+				texts = []
+				for card in ("NO-SUCH-CARD-FR170", c.card_b):
+					with self.subTest(action=action, card=card):
+						with self.assertRaises(frappe.PermissionError) as raised:
+							call(card)
+						texts.append((type(raised.exception), str(raised.exception)))
+				self.assertEqual(texts[0], texts[1], f"{action}: the card refusals differ")
 		finally:
 			frappe.set_user("Administrator")
 

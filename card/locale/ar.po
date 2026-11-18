@@ -9155,3 +9155,31 @@ msgstr "الدفعة النقدية"
 #: card/cash_disbursement.py
 msgid "You are not permitted to change this cash payment."
 msgstr "لا تملك صلاحية تغيير هذه الدفعة النقدية."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The cash payment {0} cannot move from {1} to {2} by a plain save."
+msgstr "لا يمكن نقل الدفعة النقدية {0} من {1} إلى {2} بالحفظ العادي."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The approval fields of cash payment {0} are set by the approval only."
+msgstr "حقول الاعتماد للدفعة النقدية {0} يضبطها الاعتماد وحده."
+
+#: card/cash_disbursement.py
+msgid "You are not permitted to use this card for cash payments."
+msgstr "لا تملك صلاحية استخدام هذا الكارت للدفعات النقدية."
+
+#: card/cash_disbursement.py
+msgid "Posting"
+msgstr "قيد الترحيل"
+
+#: card/cash_disbursement.py
+msgid "Posting Failed"
+msgstr "فشل الترحيل"
+
+#: card/cash_disbursement.py
+msgid "Cancellation Requested"
+msgstr "طُلب الإلغاء"
+
+#: card/cash_disbursement.py
+msgid "Unreconciled"
+msgstr "غير مسوّاة"
