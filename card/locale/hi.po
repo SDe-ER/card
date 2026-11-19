@@ -638,3 +638,190 @@ msgstr "मीटर मिलान (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "उपकरण परिवहन (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "कार्ड {1} की पंक्ति {0} के लिए नकद भुगतान पहले ही अनुरोधित किया जा चुका है।"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "नकद भुगतान का अनुरोध केवल ड्राफ़्ट कार्ड पर किया जा सकता है।"
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "रद्द करने का कारण दें।"
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "केवल रद्द किया गया नकद भुगतान बदला जा सकता है; {0} की स्थिति {1} है।"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "नकद भुगतान को केवल कार्ड प्रबंधक स्वीकृत कर सकता है।"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "नकद भुगतान को केवल कार्ड प्रबंधक पोस्ट कर सकता है।"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "रद्दीकरण का अनुरोध केवल कार्ड प्रबंधक कर सकता है।"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "प्रतिस्थापन का अनुरोध केवल कार्ड प्रबंधक कर सकता है।"
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "केवल लंबित नकद भुगतान स्वीकृत किया जा सकता है; {0} की स्थिति {1} है।"
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "केवल पोस्ट किया गया नकद भुगतान रद्द किया जा सकता है; {0} की स्थिति {1} है।"
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "केवल कतार में रखा नकद भुगतान निष्पादित किया जा सकता है; {0} की स्थिति {1} है।"
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "केवल स्वीकृत नकद भुगतान पोस्टिंग के लिए कतार में रखा जा सकता है; {0} की स्थिति {1} है।"
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "कार्ड {1} की पंक्ति {0} पर पहले से एक सक्रिय नकद भुगतान ({2}) है।"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "नकद भुगतान {0} मौजूद नहीं है।"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "नकद भुगतान {0} की स्थिति {1} है; इसे हटाया नहीं जा सकता। इसके बजाय इसे रद्द करें।"
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "अनुरोधकर्ता अपना नकद भुगतान स्वयं स्वीकृत नहीं कर सकता।"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "पंक्ति {0} अब कार्ड {1} पर नहीं है।"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "पंक्ति {0} कार्ड {1} पर नकद भुगतान नहीं है।"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "नकद भुगतान {0} स्वीकृत है; {1} बदला नहीं जा सकता। इसे रद्द करें और प्रतिस्थापन का अनुरोध करें।"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "जर्नल प्रविष्टि {0} में अभी भी सक्रिय आवंटन हैं। रद्द करने से पहले उन्हें ERPNext में निपटाएँ (मिलान हटाएँ या लिंक तोड़ें)।"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "जर्नल प्रविष्टि {0} नकद भुगतान {1} का भुगतान करती है। पहले कारण के साथ रद्दीकरण का अनुरोध करें; फिर भुगतान रद्द के रूप में चिह्नित होगा।"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "अनुमोदन की प्रतीक्षा"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "पोस्टिंग की कतार में"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "पोस्टिंग विफल"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "रद्दीकरण का अनुरोध किया गया"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "मिलान नहीं हुआ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "आंशिक रूप से मिलान हुआ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "पूरी तरह मिलान हुआ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "क्या यह नकद भुगतान स्वीकृत करें? स्वीकृतकर्ता अनुरोधकर्ता नहीं हो सकता।"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "पोस्टिंग कतार में डालें"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "पोस्टिंग पुनः प्रयास करें"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "रद्दीकरण का अनुरोध करें"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "नकद: अनुमोदन की प्रतीक्षा"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "नकद: स्वीकृत"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "नकद: पोस्टिंग कतार में"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "नकद: पोस्टिंग विफल"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "नकद: पोस्ट किया गया"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "नकद: रद्दीकरण का अनुरोध"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "नकद: रद्द"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "नकद: मिलान नहीं हुआ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "नकद: आंशिक मिलान"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "नकद: पूरा मिलान"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "नकद: प्रतिस्थापन लंबित"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "नकद भुगतान अनुमोदन का अनुरोध करें"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "नकद पंक्ति"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "प्रमाण (रसीद संख्या या संदर्भ)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "नकद भुगतान अनुमोदन का अनुरोध किया गया"

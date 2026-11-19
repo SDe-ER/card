@@ -1,0 +1,275 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "CCD-.#####",
+ "creation": "2026-11-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "supplier",
+  "card",
+  "adjustment_row",
+  "equipment",
+  "project",
+  "amount",
+  "payment_date",
+  "cash_account",
+  "evidence",
+  "status",
+  "transaction_key",
+  "journal_entry",
+  "approved_by",
+  "approved_on",
+  "posted_on",
+  "posting_claimed_by",
+  "posting_claimed_on",
+  "cancellation_reason",
+  "cancellation_requested_by",
+  "cancellation_requested_on",
+  "cancelled_by",
+  "cancelled_on",
+  "replaces",
+  "replacement_reason",
+  "posting_error",
+  "posted_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1,
+   "read_only": 1,
+   "description": "The historical Supplier of the card (the verified beneficiary)."
+  },
+  {
+   "fieldname": "card",
+   "fieldtype": "Link",
+   "label": "Card",
+   "options": "Card Monthly Card",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "adjustment_row",
+   "fieldtype": "Data",
+   "label": "Source row",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Card Equipment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "reqd": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "label": "Payment date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cash_account",
+   "fieldtype": "Link",
+   "label": "Cash account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "evidence",
+   "fieldtype": "Small Text",
+   "label": "Supporting evidence",
+   "reqd": 1,
+   "description": "Receipt or voucher reference of the actual cash payment."
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nApproved\nPosting\nPosting Failed\nPosted\nCancellation Requested\nCancelled",
+   "default": "Pending",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "transaction_key",
+   "fieldtype": "Data",
+   "label": "Transaction key",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved by",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Approved on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted_on",
+   "fieldtype": "Datetime",
+   "label": "Posted on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posting_claimed_by",
+   "fieldtype": "Link",
+   "label": "Claimed for posting by",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posting_claimed_on",
+   "fieldtype": "Datetime",
+   "label": "Claimed on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancellation_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancellation Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancellation_requested_by",
+   "fieldtype": "Data",
+   "label": "Cancellation Requested By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancellation_requested_on",
+   "fieldtype": "Datetime",
+   "label": "Cancellation Requested On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancelled_by",
+   "fieldtype": "Data",
+   "label": "Cancelled By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancelled_on",
+   "fieldtype": "Datetime",
+   "label": "Cancelled On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "replaces",
+   "fieldtype": "Link",
+   "label": "Replaces",
+   "read_only": 1,
+   "options": "Card Cash Disbursement"
+  },
+  {
+   "fieldname": "replacement_reason",
+   "fieldtype": "Small Text",
+   "label": "Replacement reason",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "posting_error",
+   "fieldtype": "Small Text",
+   "label": "Posting Error",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted_by",
+   "fieldtype": "Data",
+   "label": "Posted By",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-17 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Card",
+ "name": "Card Cash Disbursement",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "email": 0,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Card Manager",
+   "share": 0,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 0,
+   "export": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 0,
+   "write": 0
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 0,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -72,7 +72,13 @@ class TestPrintFormats(_CustomerCardsBase):
 		for kind, amount, side, description in adjustments:
 			c.append(
 				"adjustments",
-				{"adjustment_type": kind, "amount": amount, "side": side, "description": description},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type": kind,
+					"amount": amount,
+					"side": side,
+					"description": description,
+				},
 			)
 		c.insert(ignore_permissions=True)
 		c.reload()

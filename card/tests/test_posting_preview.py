@@ -163,7 +163,13 @@ class TestPreviewEqualsPosting(_PreviewBase):
 			eq,
 			[8, 8],
 			adjustments=[
-				{"adjustment_type_ref": "Mobilization", "side": "Customer", "description": "m", "amount": 400}
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "Mobilization",
+					"side": "Customer",
+					"description": "m",
+					"amount": 400,
+				}
 			],
 			submit=True,
 		)

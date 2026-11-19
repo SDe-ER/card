@@ -38,6 +38,7 @@ class _ParityBase(_PostingBase):
 			[8, 8],
 			adjustments=[
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "DieselNT",
 					"side": "Customer",
 					"description": "nt",

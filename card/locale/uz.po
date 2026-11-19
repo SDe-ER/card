@@ -174,3 +174,190 @@ msgstr "Hisoblagich solishtiruvi (CARD)"
 msgid "Equipment transport (CARD)"
 msgstr "Texnika tashish (CARD)"
 
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "{1} kartasining {0}-qatori uchun naqd to'lov allaqachon so'ralgan."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Naqd to'lovni faqat qoralama holatidagi kartaga so'rash mumkin."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Bekor qilish sababini kiriting."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Faqat bekor qilingan naqd to'lovni almashtirish mumkin; {0} holati: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Naqd to'lovni faqat karta menejeri tasdiqlashi mumkin."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Naqd to'lovni faqat karta menejeri jurnalga yozishi mumkin."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Bekor qilishni faqat karta menejeri so'rashi mumkin."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Almashtirishni faqat karta menejeri so'rashi mumkin."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Faqat kutilayotgan naqd to'lovni tasdiqlash mumkin; {0} holati: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Faqat jurnalga yozilgan naqd to'lovni bekor qilish mumkin; {0} holati: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Faqat navbatdagi naqd to'lovni bajarish mumkin; {0} holati: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Faqat tasdiqlangan naqd to'lovni jurnalga yozish navbatiga qo'yish mumkin; {0} holati: {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "{1} kartasining {0}-qatorida allaqachon faol naqd to'lov ({2}) bor."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "{0} naqd to'lovi mavjud emas."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "{0} naqd to'lovi holati: {1}; uni o'chirib bo'lmaydi. Buning o'rniga bekor qiling."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "So'rovchi o'z naqd to'lovini tasdiqlay olmaydi."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "{0}-qator endi {1} kartasida yo'q."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "{0}-qator {1} kartasidagi naqd to'lov emas."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "{0} naqd to'lovi tasdiqlangan; {1} o'zgartirib bo'lmaydi. Uni bekor qiling va almashtirish so'rang."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "{0} jurnal yozuvida hali faol taqsimotlar bor. Bekor qilishdan oldin ularni ERPNext'da hal qiling (moslashtirishni bekor qilish yoki bog'lanishni uzish)."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "{0} jurnal yozuvi {1} naqd to'lovini qoplaydi. Avval sabab bilan bekor qilishni so'rang; shundan so'ng to'lov Bekor qilingan deb belgilanadi."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Tasdiqlashni kutmoqda"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "Jurnalga yozish navbatida"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Jurnalga yozish muvaffaqiyatsiz"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Bekor qilish so'ralgan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Moslashtirilmagan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Qisman moslashtirilgan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "To'liq moslashtirilgan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Bu naqd to'lovni tasdiqlaysizmi? Tasdiqlovchi so'rovchi bo'lishi mumkin emas."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Jurnalga yozish navbatiga qo'yish"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Jurnalga yozishni qayta urinish"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Bekor qilishni so'rash"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Naqd: tasdiqlashni kutmoqda"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Naqd: tasdiqlangan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Naqd: jurnalga yozish navbatida"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Naqd: jurnalga yozish muvaffaqiyatsiz"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Naqd: jurnalga yozilgan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Naqd: bekor qilish so'ralgan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Naqd: bekor qilingan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Naqd: moslashtirilmagan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Naqd: qisman moslashtirilgan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Naqd: to'liq moslashtirilgan"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Naqd: almashtirish kutilmoqda"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Naqd to'lov tasdig'ini so'rash"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Naqd qator"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Hujjat (kvitansiya raqami yoki havola)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Naqd to'lov tasdig'i so'ralgan"

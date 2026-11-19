@@ -7,7 +7,7 @@ sidebar:
 ---
 
 :::note
-تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة.
+تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة. وهي تتبع الفرع الرئيسي، فقد تصف تغييرات مدمجة لم تصدر بعد؛ راجع صفحة «ما الجديد».
 :::
 
 | الوحدة | نقاط الـ API |
@@ -22,6 +22,7 @@ sidebar:
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
 | [`card.card.report.equipment_supplier_statement.statement_pdf`](#card-card-report-equipment-supplier-statement-statement-pdf) | 1 |
 | [`card.card_value`](#card-card-value) | 6 |
+| [`card.cash_disbursement`](#card-cash-disbursement) | 8 |
 | [`card.catalog`](#card-catalog) | 2 |
 | [`card.daily_log_generation`](#card-daily-log-generation) | 1 |
 | [`card.diesel`](#card-diesel) | 1 |
@@ -132,6 +133,20 @@ sidebar:
 | `card.card_value.cards_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.hours_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.loads_last_month` | POST | `filters: str \| dict \| list \| None = None` |
+
+
+<h2 id="card-cash-disbursement"><code>card.cash_disbursement</code></h2>
+
+| مسار الدالة | طرق HTTP | المعاملات |
+|---|---|---|
+| `card.cash_disbursement.request_cash_disbursement` | POST | `card: str`<br/>`row: str`<br/>`payment_date: str`<br/>`evidence: str` |
+| `card.cash_disbursement.approve_cash_disbursement` | POST | `name: str` |
+| `card.cash_disbursement.queue_posting` | POST | `name: str` |
+| `card.cash_disbursement.request_cancellation` | POST | `name: str`<br/>`reason: str` |
+| `card.cash_disbursement.request_replacement` | POST | `name: str`<br/>`reason: str`<br/>`payment_date: str`<br/>`evidence: str` |
+| `card.cash_disbursement.run_posting_queue` | POST | `limit: int = 20` |
+| `card.cash_disbursement.get_cash_row_status` | GET | `card: str` |
+| `card.cash_disbursement.get_cash_disbursements` | GET | `card: str` |
 
 
 <h2 id="card-catalog"><code>card.catalog</code></h2>

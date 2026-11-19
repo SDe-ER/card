@@ -9,10 +9,25 @@ backfill_adjustment_side stored and what net_amount was computed with."""
 
 import frappe
 from frappe import _
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, getdate
+
+from card.constants import SUPPLIER_BILLING_DIRECTIONS
 
 ADDITION = "إضافة"
 DEDUCTION = "خصم"
+
+
+def check_adjustment_date(description, adjustment_date, period_start, period_end):
+	"""An addition/deduction is dated and falls inside its card's period (Owner, 2026-11-16):
+	every movement must carry a date so the card and its statements can be computed by date."""
+	if not adjustment_date:
+		frappe.throw(_("Enter the date of the addition/deduction: {0}").format(description or ""))
+	if not (getdate(period_start) <= getdate(adjustment_date) <= getdate(period_end)):
+		frappe.throw(
+			_("The date of the addition/deduction {0} must be inside the card period ({1} to {2}).").format(
+				description or "", period_start, period_end
+			)
+		)
 
 
 def sided_adjustments(card_names, side):
@@ -24,9 +39,12 @@ def sided_adjustments(card_names, side):
 	for r in frappe.get_all(
 		"Card Monthly Card Adjustment",
 		filters=[["parent", "in", list(card_names)], ["parenttype", "=", "Card Monthly Card"]],
-		fields=["parent", "side", "adjustment_type", "amount"],
+		fields=["parent", "side", "adjustment_type", "amount", "is_cash_disbursement"],
 		limit_page_length=0,
 	):
+		if cint(r.is_cash_disbursement):
+			# recorded, not posted: a pending owner-paid cash row is in no statement total (owner decisions 2026-11-16)
+			continue
 		if (r.side or "Supplier") != side:
 			continue
 		add, ded = out.get(r.parent, (0.0, 0.0))
@@ -108,3 +126,41 @@ def _normalise_party(adj, company, label):
 					"The responsible company of the downtime charge {0} must be the card's company {1}."
 				).format(label, company)
 			)
+
+
+CASH_ACCOUNT_TYPE = "Cash"
+
+
+def validate_cash_account(account, company):
+	"""The account that pays a cash disbursement must be an enabled leaf of the same company whose
+	Account Type is Cash (Petty Cash or Cash). The account number is not evidence: the type is read."""
+	if not account:
+		frappe.throw(_("Choose the cash account the expense was paid from."))
+	row = frappe.db.get_value(
+		"Account", account, ["company", "is_group", "disabled", "account_type"], as_dict=True
+	)
+	if not row:
+		frappe.throw(_("Cash account {0} does not exist.").format(account))
+	if row.company != company:
+		frappe.throw(_("Cash account {0} belongs to another company.").format(account))
+	if row.is_group or row.disabled:
+		frappe.throw(_("Cash account {0} must be an enabled account, not a group.").format(account))
+	if row.account_type != CASH_ACCOUNT_TYPE:
+		frappe.throw(_("Account {0} is not a Cash account (its Account Type must be Cash).").format(account))
+
+
+def validate_cash_row(adj, company, supplier, direction):
+	"""Save-time checks of an owner-paid cash row. A Draft may be saved and edited with such a row; the
+	row is only validated here. Returns True when the row is a cash disbursement (it is then excluded from
+	the card's totals and its invoice recognition). Owner decisions 2026-11-16: the payment is made on behalf
+	of the equipment owner, so the card must be supplier-billed and carry the owner's supplier."""
+	if not cint(adj.get("is_cash_disbursement")):
+		return False
+	validate_cash_account(adj.get("cash_account"), company)
+	if direction not in SUPPLIER_BILLING_DIRECTIONS or not supplier:
+		frappe.throw(
+			_(
+				"The owner-paid cash row {0} needs a supplier-billed card with the equipment owner as its supplier."
+			).format(adj.get("description") or "")
+		)
+	return True

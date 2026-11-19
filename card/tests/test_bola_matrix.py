@@ -36,7 +36,9 @@ from frappe.model.rename_doc import rename_doc
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_months, get_first_day, get_last_day, nowdate
 
+from card.cash_disbursement import SERVICE_ROLE
 from card.constants import DIR_SUBRENTAL
+from card.tests.test_cash_disbursement_db import _cash_account
 from card.tests.test_controllers import _ensure_masters
 from card.tests.transport_parties import company_paid
 
@@ -457,6 +459,92 @@ CASES = {
 		cross=lambda c: {"name": c.fill_b, "reason": "x"},
 		own=lambda c: {"name": c.fill_a, "reason": "x"},
 		denied=((), ("Card User",)),
+	),
+	"card.cash_disbursement.request_cancellation": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; a Posted payment with no active allocation; a reason",
+		isolation="doc.save: has_cash_disbursement_permission (Company User Permission on company)",
+		effects="Sets the payment to Cancellation Requested with the reason (audited); cancels nothing",
+		writes=True,
+		cross=lambda c: {"name": c.ccd_b, "reason": "x"},
+		own=lambda c: {"name": c.ccd_a, "reason": "x"},
+		denied=((), ("Card User",)),
+	),
+	"card.cash_disbursement.approve_cash_disbursement": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; a Pending payment; not the requester; no closed period",
+		isolation="doc.save: has_cash_disbursement_permission (Company User Permission on company)",
+		effects="Sets the payment to Approved with the approver and time (audited); creates no entry",
+		writes=True,
+		cross=lambda c: {"name": c.pend_b},
+		own=lambda c: {"name": c.pend_a},
+		denied=((), ("Card User",)),
+	),
+	"card.cash_disbursement.queue_posting": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; an Approved payment; company check on the record",
+		isolation="check_permission(write): has_cash_disbursement_permission (Company User Permission on company)",
+		effects="Claims an Approved payment for the accounting executor (Approved -> Posting); creates no entry",
+		writes=True,
+		cross=lambda c: {"name": c.appr_b},
+		own=lambda c: {"name": c.appr_a},
+		denied=((), ("Card User",)),
+	),
+	"card.cash_disbursement.request_cash_disbursement": Case(
+		method=POST,
+		roles=("Card User",),
+		gate="write on the card (its company checked); a flagged cash row with an amount above zero; evidence; one payment per row; the Supplier the card keeps",
+		isolation="doc.check_permission(write) on the card (Company User Permission on the card's company)",
+		effects="Inserts one Pending cash payment for the row (audited); no ledger effect",
+		writes=True,
+		cross=lambda c: {"card": c.card_b, "row": "ROW-B", "payment_date": nowdate(), "evidence": "BOLA"},
+		denied=((),),
+	),
+	"card.cash_disbursement.request_replacement": Case(
+		method=POST,
+		roles=("Card Manager",),
+		gate="Card Manager or System Manager; a Cancelled payment with no live replacement; a reason; evidence; a valid payment date",
+		isolation="check_permission(write) on the cancelled payment (Company User Permission on company), before any state is revealed",
+		effects="Inserts one Pending replacement linked to the cancelled payment (audited); no ledger effect, nothing posted",
+		writes=True,
+		cross=lambda c: {"name": c.canc_b, "reason": "x", "payment_date": nowdate(), "evidence": "BOLA"},
+		own=lambda c: {"name": c.canc_a, "reason": "x", "payment_date": nowdate(), "evidence": "BOLA"},
+		denied=((), ("Card User",)),
+	),
+	"card.cash_disbursement.get_cash_row_status": Case(
+		method=GET,
+		roles=("Card User",),
+		gate="read on the card (its company checked)",
+		isolation="doc.check_permission(read) on the card (Company User Permission on the card's company)",
+		effects="None (read only); the display state of each cash row of the card",
+		cross=lambda c: {"card": c.card_b},
+		own=lambda c: {"card": c.card_a},
+		denied=((),),
+	),
+	"card.cash_disbursement.get_cash_disbursements": Case(
+		method=GET,
+		roles=("Card User",),
+		gate="read on the card (its company checked)",
+		isolation="doc.check_permission(read) on the card (Company User Permission on the card's company)",
+		effects="None (read only)",
+		cross=lambda c: {"card": c.card_b},
+		own=lambda c: {"card": c.card_a},
+		denied=((),),
+	),
+	"card.cash_disbursement.run_posting_queue": Case(
+		method=POST,
+		roles=(SERVICE_ROLE,),
+		gate="the dedicated accounting service identity only; the queue the caller is permitted for",
+		isolation="explicit Company User Permission grants only (no grant = no company); selection and execute_posting both check the company; no journal entry for an ungranted company",
+		effects="Posts each queued payment as one submitted Journal Entry; a failure is recorded as Posting Failed",
+		writes=True,
+		cross=lambda c: {"limit": 20},
+		expect="no_leak",
+		leak=lambda result, c: any(r.get("name") == c.post_b for r in result),
+		denied=((), ("Card Manager",), ("Card User",)),
 	),
 	# ---------- reports ----------
 	"card.card.report.equipment_supplier_statement.statement_pdf.download_pdf": Case(
@@ -964,6 +1052,14 @@ def _transfer_doc(employee, to_employee, item):
 # (card/, tests and patches excluded), per file and enclosing function: (count, why it is safe). A new site
 # fails test_ignore_permissions_sites_are_allowed until it is reviewed and listed here.
 IGNORE_PERMISSIONS_ALLOWED = {
+	("card/cash_disbursement.py", "request_replacement"): (
+		1,
+		"replacement payment inserted after the Card Manager role check, the create right on the payment DocType and the write check on the cancelled original (company checked); it is Pending, links the original, and posts nothing",
+	),
+	("card/cash_disbursement.py", "request_cash_disbursement"): (
+		1,
+		"cash payment record inserted after the requester's write permission on the Monthly Card is checked (company checked by the card); the payment DocType grants create only to Card Manager, and a Card User may request from the card",
+	),
 	("card/api.py", "_sync_registry_row"): (
 		3,
 		"party registry row (global, no figures); reached only from refresh_* (System Manager), a card "
@@ -1238,6 +1334,41 @@ class TestBolaMatrix(IntegrationTestCase):
 		doc.db_insert()
 		return name
 
+	def _card_row(self, company, name):
+		"""A Draft monthly card of one company (matrix fixture for the card-level access check; the card's
+		children and validations are not needed to refuse a company-B call)."""
+		doc = frappe.get_doc(
+			{"doctype": "Card Monthly Card", "name": name, "company": company, "docstatus": 0}
+		)
+		doc.flags.ignore_links = True
+		doc.db_insert()
+		return name
+
+	def _ccd(self, company, supplier, label, status="Posted", cash_account=None):
+		"""A cash payment of one company in the given state (matrix fixture). It is written straight to the database as
+		Posted (the document validation would refuse a payment not created by a request, and a company without a chart
+		has no Cash account) and moved to the requested state directly; the card and the row are not validated (they
+		need not exist here). Company A passes a real Cash account of its chart."""
+		doc = frappe.get_doc(
+			{
+				"doctype": "Card Cash Disbursement",
+				"company": company,
+				"supplier": supplier,
+				"card": "CARD-" + label,
+				"adjustment_row": "ROW-" + label,
+				"amount": 100,
+				"payment_date": nowdate(),
+				"cash_account": cash_account or "CASH-" + label,
+				"evidence": "BOLA fixture",
+				"status": "Posted",
+				"transaction_key": frappe.generate_hash(length=64),
+			}
+		)
+		doc.db_insert()
+		if status != "Posted":
+			frappe.db.set_value("Card Cash Disbursement", doc.name, "status", status, update_modified=False)
+		return doc.name
+
 	def _fixtures(self):
 		token = frappe.generate_hash(length=8)
 		c = frappe._dict(token=token, A=self._m["company"])
@@ -1267,6 +1398,19 @@ class TestBolaMatrix(IntegrationTestCase):
 		frappe.db.set_value("Card Equipment", c.eq_b, "is_unit_component", 1)  # an integrity issue to list
 		c.sup_a = self._supplier(f"SUP-A-{token}")
 		c.sup_b = self._supplier(f"SUP-{b}")
+		c.ccd_a = self._ccd(c.A, c.sup_a, "A" + token, cash_account=_cash_account(c.A))
+		c.ccd_b = self._ccd(c.B, c.sup_b, b)
+		c.pend_a = self._ccd(c.A, c.sup_a, "PA" + token, "Pending", _cash_account(c.A))
+		c.pend_b = self._ccd(c.B, c.sup_b, "PB" + b, "Pending")
+		c.appr_a = self._ccd(c.A, c.sup_a, "AA" + token, "Approved", _cash_account(c.A))
+		c.appr_b = self._ccd(c.B, c.sup_b, "AB" + b, "Approved")
+		c.post_b = self._ccd(c.B, c.sup_b, "PO" + b, "Posting")
+		c.canc_a = self._ccd(c.A, c.sup_a, "CA" + token, "Cancelled", _cash_account(c.A))
+		c.canc_b = self._ccd(c.B, c.sup_b, "CB" + b, "Cancelled")
+		c.card_b = self._card_row(c.B, "EOMC-BOLA-B-" + token)
+		c.card_a = self._card_row(c.A, "EOMC-BOLA-A-" + token)
+		if not frappe.db.exists("Role", SERVICE_ROLE):
+			frappe.get_doc({"doctype": "Role", "role_name": SERVICE_ROLE}).insert(ignore_permissions=True)
 		c.cust_a = self._customer(f"CUST-A-{token}")
 		c.cust_b = self._customer(f"CUST-{b}")
 		for registry, field, party in (
@@ -1920,6 +2064,47 @@ class TestBolaMatrix(IntegrationTestCase):
 				self.assertEqual(
 					frappe.db.get_value(doctype, name, ["modified", *change], as_dict=True), stored
 				)
+
+	def test_missing_and_foreign_payment_names_refuse_identically(self):
+		"""A name that does not exist and a payment of another company get the same error class and text, for every
+		state-changing cash action, so the response does not reveal which names exist (FR-170 review finding)."""
+		from card.cash_disbursement import (
+			approve_cash_disbursement,
+			queue_posting,
+			request_cancellation,
+			request_replacement,
+		)
+
+		c = self.ctx
+		frappe.set_user(self._user(("Card Manager",), restrict=c.A))
+		calls = {
+			"approve": lambda n: approve_cash_disbursement(n),
+			"queue": lambda n: queue_posting(n),
+			"cancel": lambda n: request_cancellation(n, "x"),
+			"replace": lambda n: request_replacement(n, "x", nowdate(), "E"),
+		}
+		try:
+			for action, call in calls.items():
+				texts = []
+				for name in ("NO-SUCH-PAYMENT-FR170", c.canc_b):
+					with self.subTest(action=action, name=name):
+						with self.assertRaises(frappe.PermissionError) as raised:
+							call(name)
+						texts.append((type(raised.exception), str(raised.exception)))
+				self.assertEqual(texts[0], texts[1], f"{action}: the refusals differ")
+			# the card-level reads: a missing card and a card of another company get the same refusal
+			from card.cash_disbursement import get_cash_disbursements, get_cash_row_status
+
+			for action, call in (("row_status", get_cash_row_status), ("list", get_cash_disbursements)):
+				texts = []
+				for card in ("NO-SUCH-CARD-FR170", c.card_b):
+					with self.subTest(action=action, card=card):
+						with self.assertRaises(frappe.PermissionError) as raised:
+							call(card)
+						texts.append((type(raised.exception), str(raised.exception)))
+				self.assertEqual(texts[0], texts[1], f"{action}: the card refusals differ")
+		finally:
+			frappe.set_user("Administrator")
 
 	def test_matrix_document_matches_the_source(self):
 		text = MATRIX_DOC.read_text()

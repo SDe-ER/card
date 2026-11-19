@@ -8820,3 +8820,426 @@ msgstr "مطابقة العدادات"
 msgid "Equipment transport (CARD)"
 msgstr "نقل المعدة"
 
+msgid "Adjustment date"
+msgstr "التاريخ"
+
+msgid "Enter the date of the addition/deduction: {0}"
+msgstr "أدخل تاريخ الإضافة/الخصم: {0}"
+
+msgid "The date of the addition/deduction {0} must be inside the card period ({1} to {2})."
+msgstr "يجب أن يقع تاريخ الإضافة/الخصم {0} داخل فترة الكارت ({1} إلى {2})."
+
+msgid "Cash paid"
+msgstr "دفع نقدي"
+
+msgid "Cash account for the owner-paid expense"
+msgstr "حساب النقدية للمصروف المدفوع نيابةً عن المالك"
+
+msgid "Choose the cash account the expense was paid from."
+msgstr "اختر حساب النقدية الذي دُفع منه المصروف."
+
+msgid "Cash account {0} does not exist."
+msgstr "حساب النقدية {0} غير موجود."
+
+msgid "Cash account {0} belongs to another company."
+msgstr "حساب النقدية {0} يتبع شركة أخرى."
+
+msgid "Cash account {0} must be an enabled account, not a group."
+msgstr "يجب أن يكون حساب النقدية {0} حسابًا مفعّلًا وليس مجموعة."
+
+msgid "Account {0} is not a Cash account (its Account Type must be Cash)."
+msgstr "الحساب {0} ليس حساب نقدية (يجب أن يكون نوعه نقدية)."
+
+msgid "Recorded only: not posted and not counted in the card until its cash approval and Journal Entry exist."
+msgstr "مسجّل فقط: لا يُرحَّل ولا يُحتسب في الكارت حتى يوجد اعتماد النقد وقيد اليومية."
+
+msgid "The owner-paid cash row {0} needs a supplier-billed card with the equipment owner as its supplier."
+msgstr "الصف النقدي المدفوع نيابةً عن المالك {0} يحتاج كارت مُحمَّل على مورد، والمالك هو المورد."
+
+msgid "Cash paid on behalf of an equipment owner is recorded but not posted yet, so the card cannot be submitted: {0}."
+msgstr "النقد المدفوع نيابةً عن مالك المعدة مسجّل ولم يُرحَّل بعد، لذلك لا يمكن اعتماد الكارت: {0}."
+
+msgid "The card is not supplier-billed, so no supplier beneficiary can be verified."
+msgstr "الكارت غير مُحمَّل على مورد، لذلك لا يمكن التحقق من مستفيد مورد."
+
+msgid "The card has no supplier, so the beneficiary cannot be verified."
+msgstr "الكارت بدون مورد، لذلك لا يمكن التحقق من المستفيد."
+
+msgid "The card's supplier {0} is not the equipment's current owner {1}. Review the owner before posting."
+msgstr "مورد الكارت {0} ليس المالك الحالي للمعدة {1}. راجع المالك قبل الترحيل."
+
+msgid "The accounting treatment of this beneficiary type is not verified (assumptions A1 to A5)."
+msgstr "المعالجة المحاسبية لهذا النوع من المستفيدين غير متحققة (الافتراضات من A1 إلى A5)."
+
+msgid "Enter the payment date of the cash expense."
+msgstr "أدخل تاريخ دفع المصروف النقدي."
+
+msgid "The payment date {0} cannot be in the future."
+msgstr "تاريخ الدفع {0} لا يمكن أن يكون في المستقبل."
+
+msgid "The period of payment date {0} is closed; the payment cannot be posted into it."
+msgstr "الفترة التي يقع فيها تاريخ الدفع {0} مغلقة؛ لا يمكن ترحيل الدفع فيها."
+
+msgid "Enter the reason for correcting the supplier of this card."
+msgstr "أدخل سبب تصحيح مورد هذا الكارت."
+
+msgid "Reason for correcting the supplier"
+msgstr "سبب تصحيح المورد"
+
+msgid "Required when a Card Manager changes the supplier of a saved card. Kept with the card's Version history."
+msgstr "إلزامي عندما يغيّر مدير الكارت مورد كارت محفوظ. يُحفظ مع سجل الإصدارات للكارت."
+
+msgid "Supplier corrected from {0} to {1}. Reason: {2}"
+msgstr "تم تصحيح المورد من {0} إلى {1}. السبب: {2}"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "طلب صرف نقدي موجود بالفعل للصف {0} من الكارت {1}."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "يُطلب الصرف النقدي على كارت مسودة فقط."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "اكتب سبب الإلغاء."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "لا يُستبدل إلا صرف نقدي ملغى؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "مدير الكارت فقط يملك اعتماد الصرف النقدي."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "مدير الكارت فقط يملك ترحيل الصرف النقدي."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "مدير الكارت فقط يملك طلب إلغاء الصرف النقدي."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "مدير الكارت فقط يملك طلب استبدال الصرف النقدي."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "لا يُعتمد إلا صرف نقدي معلق؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "لا يُلغى إلا صرف نقدي مُرحَّل؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "لا يُنفَّذ إلا صرف نقدي في قائمة الترحيل؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "لا يُضاف للترحيل إلا صرف نقدي معتمد؛ الحالة الحالية لـ {0} هي {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "الصف {0} من الكارت {1} لديه صرف نقدي نشط بالفعل ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "الصرف النقدي {0} غير موجود."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "الصرف النقدي {0} حالته {1}؛ لا يمكن حذفه. ألغِه بدلاً من ذلك."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "لا يمكن لطالب الصرف أن يعتمد صرفه النقدي بنفسه."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "الصف {0} لم يعد موجوداً في الكارت {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "الصف {0} ليس صرفاً نقدياً في الكارت {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "الصرف النقدي {0} معتمد؛ لا يمكن تغيير {1}. ألغِه واطلب استبدالاً."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "ما زال لقيد اليومية {0} تخصيصات نشطة. سوِّها في ERPNext (إلغاء التسوية أو فك الربط) قبل إلغائه."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "قيد اليومية {0} يسدد الصرف النقدي {1}. اطلب إلغاءه بسبب أولاً؛ بعدها يُعلَّم الصرف ملغى."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "بانتظار الاعتماد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "في قائمة الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "فشل الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "تم طلب الإلغاء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "غير مسوّى"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "مسوّى جزئياً"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "مسوّى بالكامل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "هل تعتمد هذا الصرف النقدي؟ يجب ألا يكون المعتمِد هو طالب الصرف."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "أضف إلى قائمة الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "أعد محاولة الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "اطلب الإلغاء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "نقدي: بانتظار الاعتماد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "نقدي: معتمد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "نقدي: في قائمة الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "نقدي: فشل الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "نقدي: مُرحَّل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "نقدي: تم طلب الإلغاء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "نقدي: ملغى"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "نقدي: غير مسوّى"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "نقدي: مسوّى جزئياً"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "نقدي: مسوّى بالكامل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "نقدي: استبدال بانتظار الاعتماد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "اطلب اعتماد الصرف النقدي"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "صف النقدية"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "الدليل (رقم الإيصال أو المرجع)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "تم طلب اعتماد الصرف النقدي"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request replacement"
+msgstr "طلب استبدال"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Replacement reason"
+msgstr "سبب الاستبدال"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Give the reason for the replacement."
+msgstr "اكتب سبب الاستبدال."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Enter the evidence of the replacement payment (receipt number or reference)."
+msgstr "أدخل دليل دفعة الاستبدال (رقم الإيصال أو المرجع)."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Replacement requested: {0}"
+msgstr "تم طلب الاستبدال: {0}"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Payment date"
+msgstr "تاريخ الدفع"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payments"
+msgstr "الدفعات النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Approve cash payment"
+msgstr "اعتماد الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Queue cash for posting"
+msgstr "إدراج الدفعة النقدية للترحيل"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Queue"
+msgstr "طابور"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Request cash cancellation"
+msgstr "طلب إلغاء الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Request cash replacement"
+msgstr "طلب استبدال الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payment approved"
+msgstr "تم اعتماد الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payment queued for posting"
+msgstr "أُدرجت الدفعة النقدية للترحيل"
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Replacement requested"
+msgstr "تم طلب الاستبدال"
+
+#: card/cash_disbursement.py
+msgid "Not requested"
+msgstr "لم تُطلب"
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Cash payment status"
+msgstr "حالة الدفعة النقدية"
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Cash payment"
+msgstr "الدفعة النقدية"
+
+#: card/cash_disbursement.py
+msgid "You are not permitted to change this cash payment."
+msgstr "لا تملك صلاحية تغيير هذه الدفعة النقدية."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The cash payment {0} cannot move from {1} to {2} by a plain save."
+msgstr "لا يمكن نقل الدفعة النقدية {0} من {1} إلى {2} بالحفظ العادي."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The approval fields of cash payment {0} are set by the approval only."
+msgstr "حقول الاعتماد للدفعة النقدية {0} يضبطها الاعتماد وحده."
+
+#: card/cash_disbursement.py
+msgid "You are not permitted to use this card for cash payments."
+msgstr "لا تملك صلاحية استخدام هذا الكارت للدفعات النقدية."
+
+#: card/cash_disbursement.py
+msgid "Posting"
+msgstr "قيد الترحيل"
+
+#: card/cash_disbursement.py
+msgid "Posting Failed"
+msgstr "فشل الترحيل"
+
+#: card/cash_disbursement.py
+msgid "Cancellation Requested"
+msgstr "طُلب الإلغاء"
+
+#: card/cash_disbursement.py
+msgid "Unreconciled"
+msgstr "لم تتم تسويتها"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} has no approval; it cannot be posted."
+msgstr "الدفعة النقدية {0} ليس لها اعتماد؛ لا يمكن ترحيلها."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "A cash payment is created only by a request or a replacement on its card."
+msgstr "لا تُنشأ الدفعة النقدية إلا بطلب أو باستبدال من الكارت الخاص بها."
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment cannot be replaced."
+msgstr "الكارت {0} ملغى؛ لا يمكن استبدال دفعته النقدية."
+
+#: card/cash_disbursement.py
+msgid "Cash payment {0} is already replaced by {1}."
+msgstr "الدفعة النقدية {0} استُبدلت بالفعل بالدفعة {1}."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "These fields of cash payment {0} are fixed when it is created: {1}."
+msgstr "هذه الحقول في الدفعة النقدية {0} تُثبَّت عند إنشائها: {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved by its requester; it cannot be posted."
+msgstr "الدفعة النقدية {0} اعتمدها مقدّم طلبها؛ لا يمكن ترحيلها."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Financial summary"
+msgstr "الملخص المالي"
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} cannot be approved."
+msgstr "الكارت {0} ملغى؛ لا يمكن اعتماد دفعته النقدية {1}."
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} cannot be queued for posting."
+msgstr "الكارت {0} ملغى؛ لا يمكن إدراج دفعته النقدية {1} للترحيل."
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} is not posted."
+msgstr "الكارت {0} ملغى؛ لم تُرحَّل دفعته النقدية {1}."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Row {0} has cash payment {1}; it cannot be removed from the card. Delete the pending payment, or cancel the posted payment, first."
+msgstr "السطر {0} له الدفعة النقدية {1}؛ لا يمكن حذفه من الكارت. احذف الدفعة المعلقة، أو ألغِ الدفعة المُرحَّلة، أولًا."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Row {0} has cash payment {1}; {2} cannot be changed. Delete the pending payment, or cancel the posted payment, first."
+msgstr "السطر {0} له الدفعة النقدية {1}؛ لا يمكن تغيير {2}. احذف الدفعة المعلقة، أو ألغِ الدفعة المُرحَّلة، أولًا."
+
+#: card/gl/posting.py
+msgid "Row {0} of card {1} is paid by cash payment {2} but is not marked Cash paid; the card is not invoiced."
+msgstr "السطر {0} في الكارت {1} مدفوع بالدفعة النقدية {2} لكنه غير معلَّم «دفع نقدي»؛ لن يُفوتر الكارت."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Card {0} has cash payments that are not cancelled ({1}). Delete the pending payment, or cancel the posted payment, before cancelling the card."
+msgstr "الكارت {0} له دفعات نقدية غير ملغاة ({1}). احذف الدفعة المعلقة، أو ألغِ الدفعة المُرحَّلة، قبل إلغاء الكارت."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The cash payment {0} has a journal entry; cancel that entry instead."
+msgstr "للدفعة النقدية {0} قيد يومية؛ ألغِ ذلك القيد بدلًا من ذلك."
