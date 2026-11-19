@@ -20,6 +20,7 @@ from card.cash_disbursement import (
 	request_cash_disbursement,
 )
 from card.constants import DIR_RENTED_IN
+from card.tests.cancel_reason import with_reason
 from card.tests.cash_service_perms import copy_standard_perms
 from card.tests.test_cash_disbursement_db import _cash_account
 from card.tests.test_s3_config import _AdjBase
@@ -1639,7 +1640,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		if doc.docstatus == 0:
 			doc.submit()
 			doc.reload()
-		doc.cancel()
+		with_reason(doc).cancel()
 
 	def test_a_payment_of_a_cancelled_card_is_not_approved(self):
 		card, row = self._card_with_cash_row()
