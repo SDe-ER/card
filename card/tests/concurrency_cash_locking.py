@@ -17,10 +17,16 @@ Each check records every worker outcome and then reads the final state from a fr
 the final state is consistent (one linked, submitted entry at most; the status agrees with the entry) and the workers'
 outcomes are the ones the lock order allows.
 
-Run on the disposable site:
+Run on the disposable site (an optional developer runner: not in CI, refused on a site without `allow_tests`):
 
     bench --site <disposable-site> execute card.tests.concurrency_cash_locking.seed
     bench --site <disposable-site> execute card.tests.concurrency_cash_locking.run_all
+
+Configuration (environment, optional):
+
+- CARD_CONCURRENCY_USERS: JSON object with the keys requester, manager_a, manager_b and service (existing users of the
+  disposable site with the Card User, Card Manager and accounting service roles). Default: the synthetic users below.
+- CARD_CONCURRENCY_STATE: path of the state file shared by seed and run_all. Default: the site's private folder.
 """
 
 import json
@@ -37,11 +43,19 @@ USERS = {
 	"manager_b": "fr170.manager.b@example.invalid",
 	"service": "fr170.posting@example.invalid",
 }
-STATE_FILE = os.path.expanduser("~/fr170/run/concurrency-state.json")
+USERS.update(json.loads(os.environ.get("CARD_CONCURRENCY_USERS") or "{}"))
+
+
+def _require_test_site():
+	"""The runner commits synthetic records: it runs only on a site that allows tests (never Production)."""
+	if not frappe.conf.get("allow_tests"):
+		frappe.throw("concurrency_cash_locking runs only on a disposable test site (allow_tests is not set).")
 
 
 def _state_path():
-	return os.environ.get("FR170_CONCURRENCY_STATE", STATE_FILE)
+	return os.environ.get("CARD_CONCURRENCY_STATE") or frappe.get_site_path(
+		"private", "card-concurrency-state.json"
+	)
 
 
 def _worker(site, sites_path, user, fn, args, outcome, index):
@@ -106,6 +120,7 @@ def _check_entry_consistency(payment):
 
 def seed():
 	"""Create the synthetic cards and payments the scenarios need. Each scenario has its own card row."""
+	_require_test_site()
 	from card.cash_disbursement import (
 		approve_cash_disbursement,
 		queue_posting,
@@ -293,6 +308,7 @@ def run_duplicate(names):
 
 def run_all():
 	"""Run every scenario on its own committed records and print the summary (no entry is created twice)."""
+	_require_test_site()
 	names = _load_state()
 	results = [
 		run_approval(names),
