@@ -7590,7 +7590,7 @@ msgstr ""
 msgid "The date of the addition/deduction {0} must be inside the card period ({1} to {2})."
 msgstr ""
 
-msgid "Cash paid on behalf of the equipment owner"
+msgid "Cash paid"
 msgstr ""
 
 msgid "Cash account for the owner-paid expense"
@@ -7975,4 +7975,8 @@ msgstr ""
 
 #: card/cash_disbursement.py
 msgid "The cash payment {0} is approved by its requester; it cannot be posted."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Financial summary"
 msgstr ""

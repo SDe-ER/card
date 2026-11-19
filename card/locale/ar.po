@@ -8821,7 +8821,7 @@ msgid "Equipment transport (CARD)"
 msgstr "نقل المعدة"
 
 msgid "Adjustment date"
-msgstr "تاريخ الإضافة/الخصم"
+msgstr "التاريخ"
 
 msgid "Enter the date of the addition/deduction: {0}"
 msgstr "أدخل تاريخ الإضافة/الخصم: {0}"
@@ -8829,8 +8829,8 @@ msgstr "أدخل تاريخ الإضافة/الخصم: {0}"
 msgid "The date of the addition/deduction {0} must be inside the card period ({1} to {2})."
 msgstr "يجب أن يقع تاريخ الإضافة/الخصم {0} داخل فترة الكارت ({1} إلى {2})."
 
-msgid "Cash paid on behalf of the equipment owner"
-msgstr "نقد مدفوع نيابةً عن مالك المعدة"
+msgid "Cash paid"
+msgstr "دفع نقدي"
 
 msgid "Cash account for the owner-paid expense"
 msgstr "حساب النقدية للمصروف المدفوع نيابةً عن المالك"
@@ -9207,3 +9207,7 @@ msgstr "هذه الحقول في الدفعة النقدية {0} تُثبَّت 
 #: card/cash_disbursement.py
 msgid "The cash payment {0} is approved by its requester; it cannot be posted."
 msgstr "الدفعة النقدية {0} اعتمدها مقدّم طلبها؛ لا يمكن ترحيلها."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Financial summary"
+msgstr "الملخص المالي"
