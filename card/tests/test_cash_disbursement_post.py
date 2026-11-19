@@ -493,11 +493,31 @@ class TestCashDisbursementPosting(_AdjBase):
 		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt NOAPP-1")
 		frappe.db.set_value(DOCTYPE, name, "status", "Posting")  # a tampered status: no approval exists
 		frappe.set_user(self.service)
-		with self.assertRaises(frappe.ValidationError):
+		with self.assertRaisesRegex(frappe.ValidationError, "has no approval"):
 			execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
 		self.assertEqual(self._journal_entries_for(name), [])
+
+	def test_a_client_supplied_flags_key_cannot_approve_a_payment(self):
+		"""FR-170 security review: a client document carrying a flags key (the path of a save with client data) must
+		not carry the approval authority. Frappe's update() skips the reserved key 'flags', so the save is refused."""
+		card, row = self._card_with_cash_row()
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt FLAG-1")
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc(DOCTYPE, name)
+		doc.update(
+			{
+				"status": "Approved",
+				"approved_by": self.manager,
+				"flags": {"controlled_transition": "approval"},
+			}
+		)
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
+		self.assertFalse(frappe.db.get_value(DOCTYPE, name, "approved_by"))
 
 	def test_a_plain_save_cannot_queue_an_approved_payment(self):
 		_card, name = self._approved()
