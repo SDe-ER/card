@@ -89,7 +89,7 @@ The workspace groups its shortcuts in four blocks:
 ![Shortcuts and report links](../../../assets/screenshots/en/workspace-dashboard-shortcuts.webp)
 *Shortcuts and report links*
 
-### Dashboard layout (v4.10.0)
+### Dashboard layout (v4.10.0 — not released yet)
 
 The **CARD** workspace opens with the operations dashboard, top to bottom:
 
