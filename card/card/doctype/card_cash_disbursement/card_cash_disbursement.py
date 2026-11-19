@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, get_datetime, nowdate
+from frappe.utils import flt, get_datetime, getdate, nowdate
 
 from card.adjustments import validate_cash_account
 from card.settlement import cash_transaction_key, validate_payment_date
@@ -93,12 +93,14 @@ FIXED_FROM_CREATION = (
 
 
 def _differs(meta, before, doc, field):
-	"""A stored value compared as stored: a client save sends a datetime or a number as text, so an unchanged
+	"""A stored value compared as stored: a client save sends a date, a datetime or a number as text, so an unchanged
 	"2026-09-30 10:00:00" equals the stored datetime and "120" equals 120.0 (FR-170 final code review)."""
 	old, new = before.get(field), doc.get(field)
 	fieldtype = (meta.get_field(field) or frappe._dict()).fieldtype
 	if fieldtype == "Datetime":
 		return (get_datetime(old) if old else None) != (get_datetime(new) if new else None)
+	if fieldtype == "Date":
+		return (getdate(old) if old else None) != (getdate(new) if new else None)
 	if fieldtype in ("Currency", "Float"):
 		return flt(old) != flt(new)
 	return (old or None) != (new or None)
