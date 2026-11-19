@@ -201,7 +201,11 @@ def seed():
 		)
 	shift = _first_option("Card Monthly Card", "shift")
 
-	def card(machine):
+	deduction = _option("Card Monthly Card Adjustment", "adjustment_type", "خصم")
+	addition = _option("Card Monthly Card Adjustment", "adjustment_type", "إضافة")
+
+	def card(machine, month="09"):
+		# every card carries additions and deductions saved before rows had a date (FR-169 backfill)
 		return _insert(
 			{
 				"doctype": "Card Monthly Card",
@@ -209,9 +213,15 @@ def seed():
 				"project": project,
 				"company": COMPANY,
 				"shift": shift,
-				"month": "09",
+				"month": month,
 				"year": 2026,
-				"days": [{"operation_date": f"2026-09-{d:02d}", "working_hours": 10} for d in range(1, 6)],
+				"days": [
+					{"operation_date": f"2026-{month}-{d:02d}", "working_hours": 10} for d in range(1, 6)
+				],
+				"adjustments": [
+					{"adjustment_type": deduction, "description": "Rehearsal fuel deduction", "amount": 150},
+					{"adjustment_type": addition, "description": "Rehearsal overtime", "amount": 75},
+				],
 			}
 		)
 
@@ -224,6 +234,7 @@ def seed():
 		amended.insert(ignore_permissions=True)
 		amended.submit()
 	card(machines[2]).submit()
+	card(machines[0], month="10")  # a Draft card in use: it must still save after the upgrade
 	# the seeded rehearsal site must keep its synthetic data for the upgrade that follows
 	frappe.db.commit()  # nosemgrep
 	print(json.dumps(_summary(), indent=1, default=str))
@@ -261,6 +272,19 @@ def snapshot(path):
 	)
 	if frappe.db.table_exists("Equipment Transport"):
 		data["transports"] = frappe.db.count("Equipment Transport")
+	# FR-169: the date of every addition/deduction, next to its card's month (None before the column exists)
+	data["adjustment_dates"] = (
+		sorted(
+			[str(v) for v in row]
+			for row in frappe.db.sql(
+				"""select adj.name, adj.adjustment_date, card.from_date, card.year, card.month, card.docstatus
+				from `tabCard Monthly Card Adjustment` adj
+				join `tabCard Monthly Card` card on card.name = adj.parent"""
+			)
+		)
+		if frappe.db.has_column("Card Monthly Card Adjustment", "adjustment_date")
+		else None
+	)
 	data["patches"] = sorted(
 		r[0] for r in frappe.db.sql("select patch from `tabPatch Log` where patch like 'card.%%'")
 	)
@@ -307,6 +331,18 @@ def compare(before_path, after_path, mode):
 			len(with_serial) == 1 and with_serial[0]["serial_no_key"] == "258963",
 			"chassis number key backfilled",
 		)
+		dates = after["adjustment_dates"] or []
+		check(
+			len(dates) == len(before["records"]["Card Monthly Card Adjustment"]) > 0,
+			f"every legacy addition/deduction is in the date check ({len(dates)})",
+		)
+		# the card's from_date, or the first day of its month when from_date is empty
+		wrong = [
+			row
+			for row in dates
+			if row[1] != (row[2] if row[2] != "None" else f"{row[3]}-{int(row[4]):02d}-01")
+		]
+		check(not wrong, f"every legacy row took its card's first day (wrong: {wrong})")
 		missing = sorted(set(_patch_list()) - set(after["patches"]))
 		check(not missing, f"every CARD patch ran once ({len(after['patches'])}); missing {missing}")
 	else:
@@ -332,6 +368,16 @@ def smoke():
 				print(f"PASS legacy equipment {name} saves unchanged")
 			except Exception as e:
 				failures.append(f"legacy equipment {name}: {e}")
+		for name in frappe.get_all("Card Monthly Card", filters={"docstatus": 0}, pluck="name"):
+			try:
+				doc = frappe.get_doc("Card Monthly Card", name)
+				net = doc.net_amount
+				doc.save(ignore_permissions=True)
+				if doc.net_amount != net:
+					failures.append(f"legacy Draft card {name}: net {net} became {doc.net_amount}")
+				print(f"PASS legacy Draft card {name} saves with its dated rows ({doc.net_amount})")
+			except Exception as e:
+				failures.append(f"legacy Draft card {name}: {e}")
 		for name in frappe.get_all("Card Monthly Card", filters={"docstatus": 1}, pluck="name"):
 			doc = frappe.get_doc("Card Monthly Card", name)
 			doc.run_method("onload")

@@ -11,8 +11,10 @@ import frappe
 
 
 def execute():
-	if not frappe.db.has_column("Card Monthly Card Adjustment", "adjustment_date"):
-		return
+	# The patch is listed under [post_model_sync], so the schema sync has normally added the column already. As in
+	# v1_2.backfill_adjustment_side, the doctype is reloaded first: a site whose earlier migrate failed, or whose sync
+	# skipped the doctype, still gets the column before the rows are filled. The patch never ends without writing.
+	frappe.reload_doctype("Card Monthly Card Adjustment")
 	frappe.db.sql(
 		"""
 		UPDATE `tabCard Monthly Card Adjustment` adj
