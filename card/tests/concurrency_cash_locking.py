@@ -17,10 +17,11 @@ Each check records every worker outcome and then reads the final state from a fr
 the final state is consistent (one linked, submitted entry at most; the status agrees with the entry) and the workers'
 outcomes are the ones the lock order allows.
 
-Run on the disposable site (an optional developer runner: not in CI, refused on a site without `allow_tests`):
+Run on the disposable site (an optional developer runner: not collected by run-tests, not in CI; see
+_require_test_site for the sites it refuses):
 
-    bench --site <disposable-site> execute card.tests.concurrency_cash_locking.seed
-    bench --site <disposable-site> execute card.tests.concurrency_cash_locking.run_all
+    CARD_CONCURRENCY_SITE=<disposable-site> bench --site <disposable-site> execute card.tests.concurrency_cash_locking.seed
+    CARD_CONCURRENCY_SITE=<disposable-site> bench --site <disposable-site> execute card.tests.concurrency_cash_locking.run_all
 
 Configuration (environment, optional):
 
@@ -46,10 +47,38 @@ USERS = {
 USERS.update(json.loads(os.environ.get("CARD_CONCURRENCY_USERS") or "{}"))
 
 
+LOCAL_DB_HOSTS = {"", "localhost", "127.0.0.1", "::1"}
+LOCAL_SITE_SUFFIXES = (".localhost", ".test")
+
+
+def _is_local_name(name):
+	host = (name or "").split("://")[-1].split("/")[0].split(":")[0].lower()
+	return host in ("localhost", "127.0.0.1") or host.endswith(LOCAL_SITE_SUFFIXES)
+
+
 def _require_test_site():
-	"""The runner commits synthetic records: it runs only on a site that allows tests (never Production)."""
+	"""The runner commits synthetic records. It runs only on a disposable local site that the operator names
+	explicitly, and refuses anything that could be a production or shared site:
+
+	- the site config must set allow_tests;
+	- CARD_CONCURRENCY_SITE must name this exact site;
+	- the site name must end in .localhost or .test;
+	- the database must be on the local machine;
+	- a configured host_name must be local too."""
+	site = frappe.local.site or ""
+	refusals = []
 	if not frappe.conf.get("allow_tests"):
-		frappe.throw("concurrency_cash_locking runs only on a disposable test site (allow_tests is not set).")
+		refusals.append("allow_tests is not set")
+	if os.environ.get("CARD_CONCURRENCY_SITE") != site:
+		refusals.append("CARD_CONCURRENCY_SITE does not name this site")
+	if not site.lower().endswith(LOCAL_SITE_SUFFIXES):
+		refusals.append("the site name is not a .localhost or .test name")
+	if str(frappe.conf.get("db_host") or "").lower() not in LOCAL_DB_HOSTS:
+		refusals.append("the database is not local")
+	if frappe.conf.get("host_name") and not _is_local_name(frappe.conf.get("host_name")):
+		refusals.append("host_name is not local")
+	if refusals:
+		frappe.throw("concurrency_cash_locking refused on {0}: {1}.".format(site, "; ".join(refusals)))
 
 
 def _state_path():
