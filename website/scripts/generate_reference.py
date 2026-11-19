@@ -33,8 +33,8 @@ DOCS = WEBSITE / "src" / "content" / "docs"
 OUT = {"en": DOCS / "reference", "ar": DOCS / "ar" / "reference"}
 LAYOUT = {"Section Break", "Column Break", "Tab Break"}
 GENERATED_NOTE = {
-	"en": "This page is generated from the CARD source code on every build. Edit the code, not this page.",
-	"ar": "تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة.",
+	"en": "This page is generated from the CARD source code on every build. Edit the code, not this page. It follows the main branch, so it can describe changes that are merged but not released yet; see What's new.",
+	"ar": "تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة. وهي تتبع الفرع الرئيسي، فقد تصف تغييرات مدمجة لم تصدر بعد؛ راجع صفحة «ما الجديد».",
 }
 
 T = {

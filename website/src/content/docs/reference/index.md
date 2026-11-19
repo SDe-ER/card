@@ -8,7 +8,7 @@ sidebar:
 ---
 
 :::note
-This page is generated from the CARD source code on every build. Edit the code, not this page.
+This page is generated from the CARD source code on every build. Edit the code, not this page. It follows the main branch, so it can describe changes that are merged but not released yet; see What's new.
 :::
 
 This section is built from the code itself, so it always matches the current version of CARD. For explanations, workflows and examples, see the Features, Reports and API Reference sections.
