@@ -1345,9 +1345,10 @@ class TestBolaMatrix(IntegrationTestCase):
 		return name
 
 	def _ccd(self, company, supplier, label, status="Posted", cash_account=None):
-		"""A cash payment of one company in the given state (matrix fixture). It is inserted as Posted (no cash-account
-		check on a company without a chart) and moved to the requested state directly; the card and the row are not
-		validated (they need not exist here). Company A passes a real Cash account of its chart."""
+		"""A cash payment of one company in the given state (matrix fixture). It is written straight to the database as
+		Posted (the document validation would refuse a payment not created by a request, and a company without a chart
+		has no Cash account) and moved to the requested state directly; the card and the row are not validated (they
+		need not exist here). Company A passes a real Cash account of its chart."""
 		doc = frappe.get_doc(
 			{
 				"doctype": "Card Cash Disbursement",
@@ -1363,9 +1364,7 @@ class TestBolaMatrix(IntegrationTestCase):
 				"transaction_key": frappe.generate_hash(length=64),
 			}
 		)
-		doc.flags.ignore_links = True
-		doc.flags.ignore_mandatory = True
-		doc.insert(ignore_permissions=True)
+		doc.db_insert()
 		if status != "Posted":
 			frappe.db.set_value("Card Cash Disbursement", doc.name, "status", status, update_modified=False)
 		return doc.name

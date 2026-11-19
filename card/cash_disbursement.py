@@ -23,6 +23,10 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, now_datetime, nowdate
 
+from card.card.doctype.card_cash_disbursement.card_cash_disbursement import (
+	CREATION_REQUEST,
+	REPLACEMENT_REQUEST,
+)
 from card.settlement import posting_block_reason, resolve_beneficiary, validate_payment_date
 
 DOCTYPE = "Card Cash Disbursement"
@@ -82,6 +86,7 @@ def request_cash_disbursement(card: str, row: str, payment_date: str, evidence: 
 			"status": "Pending",
 		}
 	)
+	record.flags.controlled_transition = CREATION_REQUEST
 	record.insert(
 		ignore_permissions=True
 	)  # authorised above: write on the card (company checked by the card)
@@ -313,7 +318,11 @@ def execute_posting(name):
 	)
 	companies = executor_companies()
 	row = frappe.db.get_value(
-		DOCTYPE, name, ["status", "company", "journal_entry", "approved_by"], as_dict=True, for_update=True
+		DOCTYPE,
+		name,
+		["status", "company", "journal_entry", "approved_by", "approved_on", "owner"],
+		as_dict=True,
+		for_update=True,
 	)
 	if not row:
 		frappe.throw(_("The cash payment {0} does not exist.").format(name))
@@ -323,7 +332,8 @@ def execute_posting(name):
 	if row.status != "Posting":
 		frappe.throw(_("Only a queued cash payment can be executed; {0} is {1}.").format(name, row.status))
 	# defence in depth: a posting needs a recorded approval, whatever moved the status (FR-170 security review)
-	if not row.approved_by:
+	# (an approver, an approval time, and an approver who is not the requester: the four-eyes rule of the approval)
+	if not row.approved_by or not row.approved_on or row.approved_by == row.owner:
 		frappe.throw(
 			_("The cash payment {0} has no approval; it cannot be posted.").format(name),
 			frappe.ValidationError,
@@ -444,18 +454,27 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 				original.adjustment_row, original.card, live
 			)
 		)
-	source = next(
-		(
-			r
-			for r in frappe.get_doc("Card Monthly Card", original.card).adjustments or []
-			if r.name == original.adjustment_row
-		),
-		None,
-	)
+	# one replacement per cancelled payment: a second one would fork the chain (and reuse the first one's revision key)
+	successor = frappe.db.get_value(DOCTYPE, {"replaces": name}, "name")
+	if successor:
+		frappe.throw(_("Cash payment {0} is already replaced by {1}.").format(name, successor))
+	card = frappe.get_doc("Card Monthly Card", original.card)
+	source = next((r for r in card.adjustments or [] if r.name == original.adjustment_row), None)
 	if not source:
 		frappe.throw(
 			_("The row {0} is no longer on card {1}.").format(original.adjustment_row, original.card)
 		)
+	# the same source checks as a first request (FR-170 review): a cash row with a positive amount, on a card that is not
+	# cancelled, for a beneficiary that may be posted
+	if card.docstatus == 2:
+		frappe.throw(_("Card {0} is cancelled; its cash payment cannot be replaced.").format(card.name))
+	if not cint(source.is_cash_disbursement):
+		frappe.throw(_("The row {0} is not a cash payment on card {1}.").format(source.name, card.name))
+	if flt(source.amount) <= 0:
+		frappe.throw(_("The cash payment on row {0} must be an amount above zero.").format(source.name))
+	block = posting_block_reason(resolve_beneficiary(card.card_direction, card.supplier)[0])
+	if block:
+		frappe.throw(block)
 	validate_payment_date(payment_date, nowdate(), False)
 	record = frappe.get_doc(
 		{
@@ -475,6 +494,7 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 			"replacement_reason": reason,
 		}
 	)
+	record.flags.controlled_transition = REPLACEMENT_REQUEST
 	record.insert(
 		ignore_permissions=True
 	)  # authorised above: create right and the company check on the original

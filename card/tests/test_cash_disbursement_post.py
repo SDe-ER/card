@@ -11,6 +11,7 @@ interrupted run never creates a second entry."""
 import frappe
 from frappe.utils import cint, flt, nowdate
 
+from card.card.doctype.card_cash_disbursement.card_cash_disbursement import CREATION_REQUEST
 from card.cash_disbursement import (
 	SERVICE_ROLE,
 	approve_cash_disbursement,
@@ -244,22 +245,28 @@ class TestCashDisbursementPosting(_AdjBase):
 	def test_the_database_refuses_a_duplicate_transaction_key(self):
 		_card, name = self._approved()
 		original = frappe.get_doc(DOCTYPE, name)
-		with self.assertRaises(frappe.ValidationError):  # the database unique violation, as Frappe reports it
-			frappe.get_doc(
-				{
-					"doctype": DOCTYPE,
-					"company": original.company,
-					"supplier": original.supplier,
-					"card": original.card,
-					"adjustment_row": original.adjustment_row,
-					"amount": original.amount,
-					"payment_date": original.payment_date,
-					"cash_account": original.cash_account,
-					"evidence": "second copy",
-					"status": "Pending",
-					"transaction_key": original.transaction_key,
-				}
-			).insert()
+		copy = frappe.get_doc(
+			{
+				"doctype": DOCTYPE,
+				"company": original.company,
+				"supplier": original.supplier,
+				"card": original.card,
+				"adjustment_row": original.adjustment_row,
+				"amount": original.amount,
+				"payment_date": original.payment_date,
+				"cash_account": original.cash_account,
+				"evidence": "second copy",
+				"status": "Pending",
+				"transaction_key": original.transaction_key,
+			}
+		)
+		copy.flags.controlled_transition = (
+			CREATION_REQUEST  # as the request action would: the database is under test
+		)
+		with self.assertRaises(
+			frappe.UniqueValidationError
+		):  # the database unique violation, as Frappe reports it
+			copy.insert()
 
 	def test_an_approved_payment_cannot_change_its_amount(self):
 		_card, name = self._approved()
@@ -784,6 +791,132 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertEqual(frappe.db.get_value(DOCTYPE, new, "replacement_reason"), "Wrong amount")
 		self.assertEqual(frappe.db.get_value(DOCTYPE, new, "status"), "Pending")
 
+	def _cancelled_posted(self):
+		"""A posted payment, then its cancellation request and the cancellation of its entry; returns (card, payment)."""
+		from card.cash_disbursement import request_cancellation
+
+		card, name, entry = self._posted()
+		frappe.set_user(self.manager)
+		request_cancellation(name, "Wrong receipt")
+		frappe.set_user("Administrator")
+		frappe.get_doc("Journal Entry", entry).cancel()
+		return card, name
+
+	def test_a_direct_insert_cannot_create_a_queued_or_approved_payment(self):
+		"""FR-170 security review: a Card Manager has create on the payment DocType, so the API insert path
+		(frappe.client.insert) must not create a payment in any state but through the request or the replacement."""
+		from frappe.client import insert
+
+		card, row = self._card_with_cash_row()
+		other = self._user("Card Manager")
+		base = {
+			"doctype": DOCTYPE,
+			"company": card.company,
+			"supplier": card.supplier,
+			"card": card.name,
+			"adjustment_row": row.name,
+			"amount": row.amount,
+			"payment_date": "2026-09-10",
+			"cash_account": self.cash,
+			"evidence": "Receipt FORGED-1",
+		}
+		attempts = [
+			{"status": "Posting", "approved_by": other},
+			{"status": "Approved", "approved_by": other, "approved_on": "2026-09-10 10:00:00"},
+			{"status": "Posted", "journal_entry": "ACC-JV-FORGED"},
+			{"status": "Pending"},  # even a Pending one: the request's own checks would be skipped
+			{"status": "Pending", "replaces": "CCD-FORGED", "replacement_reason": "forged"},
+		]
+		frappe.set_user(self.manager)
+		for extra in attempts:
+			with self.subTest(extra=extra), self.assertRaises(frappe.ValidationError):
+				insert({**base, **extra})
+		frappe.set_user("Administrator")
+		self.assertFalse(frappe.db.exists(DOCTYPE, {"card": card.name}))
+
+	def test_the_executor_refuses_an_approval_recorded_by_the_requester(self):
+		"""Defence in depth: the posting checks the four-eyes rule again on the stored record."""
+		_card, name = self._approved()
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user("Administrator")
+		owner = frappe.db.get_value(DOCTYPE, name, "owner")
+		frappe.db.set_value(DOCTYPE, name, "approved_by", owner, update_modified=False)  # a tampered approver
+		frappe.set_user(self.service)
+		with self.assertRaisesRegex(frappe.ValidationError, "has no approval"):
+			execute_posting(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._journal_entries_for(name), [])
+
+	def test_the_replacement_link_and_reason_cannot_be_changed_by_a_save(self):
+		from card.cash_disbursement import request_replacement
+
+		_card, name = self._cancelled_posted()
+		frappe.set_user(self.manager)
+		new = request_replacement(name, "Wrong amount", "2026-09-11", "Receipt R-2")
+		for field, value in (("replacement_reason", "rewritten"), ("replaces", None)):
+			record = frappe.get_doc(DOCTYPE, new)
+			record.set(field, value)
+			with self.subTest(field=field), self.assertRaises(frappe.ValidationError):
+				record.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, new, "replacement_reason"), "Wrong amount")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, new, "replaces"), name)
+
+	def test_a_cancelled_payment_is_replaced_once(self):
+		"""A replaced payment cannot be replaced again after its replacement is cancelled: the chain does not fork."""
+		from card.cash_disbursement import request_cancellation, request_replacement
+
+		_card, name = self._cancelled_posted()
+		frappe.set_user(self.manager)
+		new = request_replacement(name, "Wrong amount", "2026-09-11", "Receipt R-2")
+		frappe.set_user(self._user("Card Manager"))
+		approve_cash_disbursement(new)
+		queue_posting(new)
+		frappe.set_user(self.service)
+		new_entry = execute_posting(new)
+		frappe.set_user(self.manager)
+		request_cancellation(new, "Wrong receipt again")
+		frappe.set_user("Administrator")
+		frappe.get_doc("Journal Entry", new_entry).cancel()
+
+		frappe.set_user(self.manager)
+		with self.assertRaisesRegex(frappe.ValidationError, "already replaced"):
+			request_replacement(name, "Third try", "2026-09-12", "Receipt R-3")
+		latest = request_replacement(
+			new, "Third try", "2026-09-12", "Receipt R-3"
+		)  # the latest one may be replaced
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, latest, "replaces"), new)
+		self.assertEqual(frappe.db.count(DOCTYPE, {"replaces": name}), 1)
+
+	def test_a_replacement_needs_the_same_source_checks_as_a_request(self):
+		"""A replacement is refused for a row that is no longer a cash row, for an amount of zero, and on a cancelled
+		card, as a first request is (FR-170 review)."""
+		from card.cash_disbursement import request_replacement
+
+		card, name = self._cancelled_posted()
+		row = frappe.db.get_value(DOCTYPE, name, "adjustment_row")
+		child = "Card Monthly Card Adjustment"
+		cases = (
+			("is_cash_disbursement", 0, "not a cash payment"),
+			("amount", 0, "above zero"),
+		)
+		for field, value, message in cases:
+			original = frappe.db.get_value(child, row, field)
+			frappe.db.set_value(child, row, field, value, update_modified=False)
+			frappe.set_user(self.manager)
+			with self.subTest(field=field), self.assertRaisesRegex(frappe.ValidationError, message):
+				request_replacement(name, "Wrong amount", "2026-09-11", "Receipt R-2")
+			frappe.set_user("Administrator")
+			frappe.db.set_value(child, row, field, original, update_modified=False)
+		frappe.db.set_value("Card Monthly Card", card.name, "docstatus", 2, update_modified=False)
+		frappe.set_user(self.manager)
+		with self.assertRaisesRegex(frappe.ValidationError, "is cancelled"):
+			request_replacement(name, "Wrong amount", "2026-09-11", "Receipt R-2")
+		frappe.set_user("Administrator")
+		self.assertFalse(frappe.db.exists(DOCTYPE, {"replaces": name}))
+
 	def test_a_cancelled_payment_is_replaced_by_a_new_payment_with_its_own_approval(self):
 		from card.cash_disbursement import request_cancellation, request_replacement
 
@@ -1001,9 +1134,7 @@ class TestCashDisbursementPosting(_AdjBase):
 				"transaction_key": frappe.generate_hash(length=64),
 			}
 		)
-		doc.flags.ignore_links = True
-		doc.flags.ignore_mandatory = True
-		doc.insert(ignore_permissions=True)
+		doc.db_insert()  # straight to the database: a direct insert of a non-requested payment is refused by validate
 		frappe.db.set_value(DOCTYPE, doc.name, "status", "Posting", update_modified=False)
 		return doc.name
 
