@@ -859,10 +859,12 @@ class CardMonthlyCard(Document):
 			):
 				changed = changed or ["is_cash_disbursement", "amount", "cash_account"]
 			if changed:
+				meta = frappe.get_meta("Card Monthly Card Adjustment")
+				labels = ", ".join(_(meta.get_label(f)) for f in dict.fromkeys(changed))
 				frappe.throw(
 					_(
 						"Row {0} has cash payment {1}; {2} cannot be changed. Delete the pending payment, or cancel the posted payment, first."
-					).format(row.idx, payment.name, ", ".join(dict.fromkeys(changed)))
+					).format(row.idx, payment.name, labels)
 				)
 
 	def _refresh_cash_rows(self):
