@@ -16,7 +16,9 @@ version is not running on a site until that site is upgraded. Which version a si
 per site.
 :::
 
-## Next release (merged, not yet released)
+## Next release: v4.10.0 (merged, not yet released)
+
+These changes are merged and planned for **v4.10.0**. The release is prepared but not tagged, and no site is known to run it yet. **v4.10.0 changes the API:** programs and Data Import files that add or change additions and deductions of a monthly card must now send each row's date. After an upgrade, cash payments can be requested and approved, but **no cash payment is posted** until the posting service is set up and switched on separately.
 
 - **2026-11-19 — The card row of a cash payment is locked.** While a cash payment of a row is pending, approved, posted or waiting for its cancellation, the row stays on the card and keeps its Cash paid tick, amount, cash account, type and side; the description and the date can still be changed. To change such a row, delete the pending payment or cancel the posted one first. This prevents the same cash from being deducted twice (once by its journal entry and again by the supplier invoice). A card cannot be cancelled while it has a cash payment that is not cancelled. An approved payment that was never posted (or whose posting failed) can now be cancelled with a reason from **Request cash cancellation**; nothing needs to be cancelled in ERPNext for it. A payment of a cancelled card is no longer approved, queued or posted, and the cancellation details of a payment can be written only by the cancellation itself.
 - **2026-11-19 — The Additions and deductions table uses the full width of the card.** The table is no longer squeezed next to the totals: it now spans the form, and the totals are shown under it in a **Financial summary** section. Date, type, description, side, amount, cash paid and cash payment status are readable without scrolling on a desktop.
@@ -25,8 +27,6 @@ per site.
 - **2026-11-18 — A cancelled cash payment can be replaced from the form.** A cancelled owner-paid cash payment now shows **Request replacement**. You enter a reason, the payment date and the receipt reference. The replacement waits for approval by a different Card Manager, and nothing is posted when you click. Only one live replacement can exist for a cancelled payment. Opening a Monthly Card no longer shows "Not permitted" to a Card User.
 - **2026-11-16 — Additions and deductions have a date.** Each addition or deduction on a monthly card now has its own date, shown in the table and at review. The date must fall inside the card's month, and a new row takes today's date. Cards saved before this change get the first day of their month; correct it on the card if needed.
 - **2026-11-15 — The CARD dashboard is redesigned.** The CARD workspace now opens with an operations dashboard: the month's financial figures (customers, suppliers, internal), the cards that need review, the monthly values chart with shortcuts under it, the links in three groups, and the latest monthly cards. The money figures are refused to users without money permission. Not released yet.
-_Nothing yet._
-
 ## v4.9.0 — 2026-11-15
 
 - **2026-11-14 — Volume billing per m³ and per load.** An equipment can bill the customer per load and per cubic

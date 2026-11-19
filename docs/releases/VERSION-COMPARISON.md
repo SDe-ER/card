@@ -81,6 +81,10 @@ the tag (`git show <tag>:<path>`).
 | Portal catalog under ERPNext v16.54.0+ Company Restriction (FR-076 fix) | v4.3.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Earlier versions: empty catalog for Card portal roles on ERPNext ≥ 16.54.0; Partially Verified (CI only) | PR #169 |
 | Volume billing per m³ and per load (FR-166) | v4.9.0 | — | — | — | — | — | — | — | — | v4.9.0: per-m³ rate type, loads and volume fields, "Loads last month" number card; saving a per-m³ document needs v4.9.0 code (rollback note in the v4.9.0 page, section 12) | v4.9.0 page; PR #258 |
 | Review copy print for unapproved cards (FR-167) | v4.9.0 | — | — | — | — | — | — | — | — | v4.9.0: banner, meta line and watermark on draft cards; "(Draft)" label replaced; submitted cards unchanged | v4.9.0 page; PR #268 |
+| CARD workspace dashboard and money gate (FR-168) | v4.10.0 (candidate) | — | — | — | — | — | — | — | — | v4.10.0: re-laid workspace; money methods return no figure ("N/A") without money read instead of zeros | v4.10.0 page; PR #273 |
+| Dated additions and deductions (FR-169) | v4.10.0 (candidate) | — | — | — | — | — | — | — | — | v4.10.0: `adjustment_date` required on every row (**breaking for REST and Data Import writers**); legacy rows backfilled by patch | v4.10.0 page, sections 9 and 12; PR #277 |
+| Owner-paid cash payments (FR-170) | v4.10.0 (candidate) | — | — | — | — | — | — | — | — | v4.10.0: request, approval by a different Card Manager, cancellation, replacement; **posting OFF** until the service identity and runner are approved; paid rows and cards with live payments locked | v4.10.0 page; PR #277 |
+| Card keeps its supplier; correction with a reason (FR-171) | v4.10.0 (candidate) | — | — | — | — | — | — | — | — | v4.10.0: supplier change without reason refused | v4.10.0 page; PR #277 |
 
 ## Reading the matrix
 
