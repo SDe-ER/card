@@ -107,7 +107,12 @@ frappe.ui.form.on("Card Cash Disbursement", {
 				const dialog = new frappe.ui.Dialog({
 					title: __("Request replacement"),
 					fields: [
-						{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 },
+						{
+							label: __("Reason"),
+							fieldname: "reason",
+							fieldtype: "Small Text",
+							reqd: 1,
+						},
 						{
 							label: __("Payment date"),
 							fieldname: "payment_date",
