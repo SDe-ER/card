@@ -9192,10 +9192,6 @@ msgstr "الدفعة النقدية {0} ليس لها اعتماد؛ لا يمك
 msgid "A cash payment is created only by a request or a replacement on its card."
 msgstr "لا تُنشأ الدفعة النقدية إلا بطلب أو باستبدال من الكارت الخاص بها."
 
-#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
-msgid "The replacement link and reason of cash payment {0} cannot be changed."
-msgstr "لا يمكن تغيير ربط الاستبدال وسببه للدفعة النقدية {0}."
-
 #: card/cash_disbursement.py
 msgid "Card {0} is cancelled; its cash payment cannot be replaced."
 msgstr "الكارت {0} ملغى؛ لا يمكن استبدال دفعته النقدية."
@@ -9203,3 +9199,11 @@ msgstr "الكارت {0} ملغى؛ لا يمكن استبدال دفعته ال
 #: card/cash_disbursement.py
 msgid "Cash payment {0} is already replaced by {1}."
 msgstr "الدفعة النقدية {0} استُبدلت بالفعل بالدفعة {1}."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "These fields of cash payment {0} are fixed when it is created: {1}."
+msgstr "هذه الحقول في الدفعة النقدية {0} تُثبَّت عند إنشائها: {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved by its requester; it cannot be posted."
+msgstr "الدفعة النقدية {0} اعتمدها مقدّم طلبها؛ لا يمكن ترحيلها."

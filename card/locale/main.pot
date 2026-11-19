@@ -7961,14 +7961,18 @@ msgstr ""
 msgid "A cash payment is created only by a request or a replacement on its card."
 msgstr ""
 
-#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
-msgid "The replacement link and reason of cash payment {0} cannot be changed."
-msgstr ""
-
 #: card/cash_disbursement.py
 msgid "Card {0} is cancelled; its cash payment cannot be replaced."
 msgstr ""
 
 #: card/cash_disbursement.py
 msgid "Cash payment {0} is already replaced by {1}."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "These fields of cash payment {0} are fixed when it is created: {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved by its requester; it cannot be posted."
 msgstr ""

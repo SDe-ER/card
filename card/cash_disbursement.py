@@ -332,10 +332,15 @@ def execute_posting(name):
 	if row.status != "Posting":
 		frappe.throw(_("Only a queued cash payment can be executed; {0} is {1}.").format(name, row.status))
 	# defence in depth: a posting needs a recorded approval, whatever moved the status (FR-170 security review)
-	# (an approver, an approval time, and an approver who is not the requester: the four-eyes rule of the approval)
-	if not row.approved_by or not row.approved_on or row.approved_by == row.owner:
+	if not row.approved_by or not row.approved_on:
 		frappe.throw(
 			_("The cash payment {0} has no approval; it cannot be posted.").format(name),
+			frappe.ValidationError,
+		)
+	# the four-eyes rule of the approval, checked again on the stored record
+	if row.approved_by == row.owner:
+		frappe.throw(
+			_("The cash payment {0} is approved by its requester; it cannot be posted.").format(name),
 			frappe.ValidationError,
 		)
 
@@ -472,15 +477,17 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 		frappe.throw(_("The row {0} is not a cash payment on card {1}.").format(source.name, card.name))
 	if flt(source.amount) <= 0:
 		frappe.throw(_("The cash payment on row {0} must be an amount above zero.").format(source.name))
-	block = posting_block_reason(resolve_beneficiary(card.card_direction, card.supplier)[0])
+	beneficiary_type, beneficiary = resolve_beneficiary(card.card_direction, card.supplier)
+	block = posting_block_reason(beneficiary_type)
 	if block:
 		frappe.throw(block)
 	validate_payment_date(payment_date, nowdate(), False)
 	record = frappe.get_doc(
 		{
 			"doctype": DOCTYPE,
-			"company": original.company,
-			"supplier": original.supplier,
+			# the beneficiary the posting check above was made for: the card's own (it may have been corrected)
+			"company": card.company,
+			"supplier": beneficiary,
 			"card": original.card,
 			"adjustment_row": original.adjustment_row,
 			"equipment": original.equipment,

@@ -807,6 +807,9 @@ class TestCashDisbursementPosting(_AdjBase):
 		(frappe.client.insert) must not create a payment in any state but through the request or the replacement."""
 		from frappe.client import insert
 
+		_paid_card, paid, entry = (
+			self._posted()
+		)  # real names, so link validation passes and the guard itself refuses
 		card, row = self._card_with_cash_row()
 		other = self._user("Card Manager")
 		base = {
@@ -823,16 +826,55 @@ class TestCashDisbursementPosting(_AdjBase):
 		attempts = [
 			{"status": "Posting", "approved_by": other},
 			{"status": "Approved", "approved_by": other, "approved_on": "2026-09-10 10:00:00"},
-			{"status": "Posted", "journal_entry": "ACC-JV-FORGED"},
+			{"status": "Posted", "journal_entry": entry},
 			{"status": "Pending"},  # even a Pending one: the request's own checks would be skipped
-			{"status": "Pending", "replaces": "CCD-FORGED", "replacement_reason": "forged"},
+			{"status": "Pending", "replaces": paid, "replacement_reason": "forged"},
 		]
 		frappe.set_user(self.manager)
 		for extra in attempts:
-			with self.subTest(extra=extra), self.assertRaises(frappe.ValidationError):
+			with (
+				self.subTest(extra=extra),
+				self.assertRaisesRegex(frappe.ValidationError, "created only by a request or a replacement"),
+			):
 				insert({**base, **extra})
 		frappe.set_user("Administrator")
 		self.assertFalse(frappe.db.exists(DOCTYPE, {"card": card.name}))
+
+	def test_a_pending_payment_keeps_its_requester_row_and_server_fields(self):
+		"""FR-170 final reviews: a plain save (frappe.client.save, PUT /api/resource) of a Pending payment cannot rewrite
+		the requester to self-approve, re-point it to another card row, or set a server-owned field."""
+		from frappe.client import save
+
+		card, row = self._card_with_cash_row()
+		frappe.set_user(self.manager)
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt OWN-1")
+		other_card, other_row = self._card_with_cash_row()
+		changes = [
+			{"owner": self._user("Card Manager")},
+			{"card": other_card.name, "adjustment_row": other_row.name},
+			{"amount": 1},
+			{"posting_claimed_by": self.manager},
+			{"cancellation_reason": "forged"},
+		]
+		for change in changes:
+			doc = frappe.get_doc(DOCTYPE, name).as_dict()
+			doc.update(change)
+			with self.subTest(change=change), self.assertRaises(frappe.ValidationError):
+				save(doc)
+		with self.assertRaisesRegex(frappe.ValidationError, "cannot approve their own"):
+			approve_cash_disbursement(name)  # the requester is still the owner
+		evidence = frappe.get_doc(DOCTYPE, name)
+		evidence.evidence = (
+			"Receipt OWN-1 (corrected)"  # the evidence of a pending request may still be corrected
+		)
+		evidence.save()
+		frappe.set_user("Administrator")
+		stored = frappe.db.get_value(
+			DOCTYPE, name, ["owner", "card", "amount", "status", "approved_by"], as_dict=True
+		)
+		self.assertEqual((stored.owner, stored.card, stored.status), (self.manager, card.name, "Pending"))
+		self.assertEqual(flt(stored.amount), flt(row.amount))
+		self.assertFalse(stored.approved_by)
 
 	def test_the_executor_refuses_an_approval_recorded_by_the_requester(self):
 		"""Defence in depth: the posting checks the four-eyes rule again on the stored record."""
@@ -843,7 +885,7 @@ class TestCashDisbursementPosting(_AdjBase):
 		owner = frappe.db.get_value(DOCTYPE, name, "owner")
 		frappe.db.set_value(DOCTYPE, name, "approved_by", owner, update_modified=False)  # a tampered approver
 		frappe.set_user(self.service)
-		with self.assertRaisesRegex(frappe.ValidationError, "has no approval"):
+		with self.assertRaisesRegex(frappe.ValidationError, "approved by its requester"):
 			execute_posting(name)
 		frappe.set_user("Administrator")
 		self.assertEqual(self._journal_entries_for(name), [])

@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import nowdate
+from frappe.utils import flt, nowdate
 
 from card.adjustments import validate_cash_account
 from card.settlement import cash_transaction_key, validate_payment_date
@@ -62,6 +62,19 @@ SERVER_OWNED_FIELDS = (
 )
 # the replacement link and its reason are written once, by request_replacement(), and never changed by a save
 REPLACEMENT_FIELDS = ("replaces", "replacement_reason")
+# fixed when the payment is created, in every status: the requester (the four-eyes rule compares the approver with it),
+# the card row it pays, its beneficiary, amount and Cash account, and the replacement link (FR-170 final reviews: a
+# plain save could rewrite the owner to self-approve, or re-point a pending payment to an already paid row)
+FIXED_FROM_CREATION = (
+	"owner",
+	"company",
+	"supplier",
+	"card",
+	"adjustment_row",
+	"amount",
+	"cash_account",
+	*REPLACEMENT_FIELDS,
+)
 
 
 class CardCashDisbursement(Document):
@@ -69,10 +82,19 @@ class CardCashDisbursement(Document):
 		before = self.get_doc_before_save()
 		if self.is_new():
 			self._validate_creation()
-		elif before and any(before.get(f) != self.get(f) for f in REPLACEMENT_FIELDS):
-			frappe.throw(
-				_("The replacement link and reason of cash payment {0} cannot be changed.").format(self.name)
-			)
+		elif before:
+			# Frappe casts numbers only after validate(): the amount is compared as a number, so "120" equals 120.0
+			changed = [
+				f
+				for f in FIXED_FROM_CREATION
+				if (flt(before.get(f)) != flt(self.get(f)) if f == "amount" else before.get(f) != self.get(f))
+			]
+			if changed:
+				frappe.throw(
+					_("These fields of cash payment {0} are fixed when it is created: {1}.").format(
+						self.name, ", ".join(changed)
+					)
+				)
 		if before and before.status != self.status:
 			# a status change is allowed only as the server's own transition (the flag is set by that action alone);
 			# a plain save of the record must not approve, queue or cancel it (FR-170 review, High)
@@ -85,10 +107,9 @@ class CardCashDisbursement(Document):
 					)
 				)
 		if before and before.status == "Pending" and self.status == "Pending":
-			# approval fields are set only by approve_cash_disbursement()
-			approval_fields = ("approved_by", "approved_on", "journal_entry", "posted_on", "posted_by")
+			# approval, posting and cancellation fields are set only by their server actions, never on a pending payment
 			if self.flags.get("controlled_transition") != "approval" and any(
-				before.get(f) != self.get(f) for f in approval_fields
+				before.get(f) != self.get(f) for f in SERVER_OWNED_FIELDS
 			):
 				frappe.throw(
 					_("The approval fields of cash payment {0} are set by the approval only.").format(
