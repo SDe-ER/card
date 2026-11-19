@@ -8004,3 +8004,7 @@ msgstr ""
 #: card/gl/posting.py
 msgid "Row {0} of card {1} is paid by cash payment {2} but is not marked Cash paid; the card is not invoiced."
 msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Card {0} has cash payments that are not cancelled ({1}). Delete the pending payment, or cancel the posted payment, before cancelling the card."
+msgstr ""

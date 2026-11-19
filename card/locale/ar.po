@@ -9235,3 +9235,7 @@ msgstr "السطر {0} له الدفعة النقدية {1}؛ لا يمكن تغ
 #: card/gl/posting.py
 msgid "Row {0} of card {1} is paid by cash payment {2} but is not marked Cash paid; the card is not invoiced."
 msgstr "السطر {0} في الكارت {1} مدفوع بالدفعة النقدية {2} لكنه غير معلَّم «دفع نقدي»؛ لن يُفوتر الكارت."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Card {0} has cash payments that are not cancelled ({1}). Delete the pending payment, or cancel the posted payment, before cancelling the card."
+msgstr "الكارت {0} له دفعات نقدية غير ملغاة ({1}). احذف الدفعة المعلقة، أو ألغِ الدفعة المُرحَّلة، قبل إلغاء الكارت."

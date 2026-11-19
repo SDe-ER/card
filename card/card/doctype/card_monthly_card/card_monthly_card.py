@@ -930,6 +930,21 @@ class CardMonthlyCard(Document):
 			self,
 		)
 
+	def before_cancel(self):
+		"""A card with a live cash payment is not cancelled: its amendment would copy the cash row under a new card name,
+		where neither the row lock nor the invoice check sees the payment, so the row could be unticked and deducted
+		again (FR-170 final security review). The payment is resolved first: delete a pending one, or cancel a posted
+		one (cancellation request, then the Journal Entry in ERPNext)."""
+		from card.cash_disbursement import live_payments
+
+		live = live_payments(self.name)
+		if live:
+			frappe.throw(
+				_(
+					"Card {0} has cash payments that are not cancelled ({1}). Delete the pending payment, or cancel the posted payment, before cancelling the card."
+				).format(self.name, ", ".join(sorted(p.name for p in live)))
+			)
+
 	def on_cancel(self):
 		self._sync_supplier()
 		self._sync_customer()

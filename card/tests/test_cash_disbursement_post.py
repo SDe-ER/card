@@ -1636,11 +1636,50 @@ class TestCashDisbursementPosting(_AdjBase):
 	# ---------------------------------------------------------------- FR-170 final audit M2: a cancelled card
 
 	def _cancel_card(self, card_name):
+		"""A card cancelled outside the guard (old data, or a cancellation that raced the guard): the payment
+		actions must still refuse it. The normal path refuses to cancel such a card (see the tests below)."""
+		doc = frappe.get_doc("Card Monthly Card", card_name)
+		if doc.docstatus == 0:
+			doc.submit()
+		frappe.db.set_value("Card Monthly Card", card_name, "docstatus", 2, update_modified=False)
+
+	def _submitted_cancel_refused(self, card_name):
 		doc = frappe.get_doc("Card Monthly Card", card_name)
 		if doc.docstatus == 0:
 			doc.submit()
 			doc.reload()
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			with_reason(doc).cancel()
+		self.assertIn("cash payments that are not cancelled", str(ctx.exception))
+		self.assertEqual(frappe.db.get_value("Card Monthly Card", card_name, "docstatus"), 1)
+
+	def test_a_card_with_a_live_payment_cannot_be_cancelled(self):
+		"""Security review: an amended card would copy the cash row under a new name, where the row lock and the
+		invoice check do not see the payment. So a card is not cancelled while any payment of it is Pending, Approved,
+		Posting or Posted."""
+		card, row = self._card_with_cash_row()
+		request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-1")
+		self._submitted_cancel_refused(card.name)
+		card, name = self._approved()
+		self._submitted_cancel_refused(card.name)
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user("Administrator")
+		self._submitted_cancel_refused(card.name)
+		card, name, entry = self._posted()
+		self._submitted_cancel_refused(card.name)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"]), ("Posted", entry))
+
+	def test_a_card_cancels_after_its_payment_is_cancelled(self):
+		"""The correction order: the posted payment is cancelled first (request, then its entry in ERPNext); then the
+		card cancels, and the entry stays cancelled with its audit link."""
+		card, name = self._cancelled_posted()
+		doc = frappe.get_doc("Card Monthly Card", card.name)
+		doc.submit()
+		doc.reload()
 		with_reason(doc).cancel()
+		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "docstatus"), 2)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancelled")
 
 	def test_a_payment_of_a_cancelled_card_is_not_approved(self):
 		card, row = self._card_with_cash_row()
@@ -1681,11 +1720,3 @@ class TestCashDisbursementPosting(_AdjBase):
 		with self.assertRaises(frappe.ValidationError):
 			queue_posting(name)
 		frappe.set_user("Administrator")
-
-	def test_a_posted_payment_stays_posted_when_its_card_is_cancelled(self):
-		"""The accounting evidence is kept: cancelling the card neither cancels nor changes the posted payment or its
-		Journal Entry (the correction stays the controlled cancellation in ERPNext)."""
-		card, name, entry = self._posted()
-		self._cancel_card(card.name)
-		self.assertEqual(frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"]), ("Posted", entry))
-		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)
