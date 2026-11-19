@@ -22,7 +22,12 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| تاريخ الإضافة/الخصم | `adjustment_date` | Date |  | نعم |
+| دفع نقدي | `is_cash_disbursement` | Check |  |  |
+| حالة الدفعة النقدية <small>(للقراءة فقط)</small> | `cash_status` | Data |  |  |
+| الدفعة النقدية <small>(للقراءة فقط)</small> | `cash_payment` | Link | [Card Cash Disbursement](/card/ar/reference/doctypes/card-cash-disbursement/) |  |
+| Journal Entry <small>(للقراءة فقط)</small> | `cash_journal_entry` | Link | Journal Entry |  |
+| حساب النقدية للمصروف المدفوع نيابةً عن المالك | `cash_account` | Link | الحساب |  |
+| التاريخ | `adjustment_date` | Date |  | نعم |
 | النوع | `adjustment_type` | Select | إضافة · خصم | نعم |
 | الوصف | `description` | Data |  | نعم |
 | المبلغ | `amount` | Currency |  | نعم |

@@ -22,6 +22,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
 | [`card.card.report.equipment_supplier_statement.statement_pdf`](#card-card-report-equipment-supplier-statement-statement-pdf) | 1 |
 | [`card.card_value`](#card-card-value) | 6 |
+| [`card.cash_disbursement`](#card-cash-disbursement) | 8 |
 | [`card.catalog`](#card-catalog) | 2 |
 | [`card.daily_log_generation`](#card-daily-log-generation) | 1 |
 | [`card.diesel`](#card-diesel) | 1 |
@@ -172,6 +173,29 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | `card.card_value.loads_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 
 - `loads_last_month` — The loads of last month on the submitted per-m³ cards, company-scoped like the other monthly values. total_loads is permlevel 0 (a count, not money), so every user who can read the card sees the number. Permission-checked read; drafts are not counted.
+
+
+<h2 id="card-cash-disbursement"><code>card.cash_disbursement</code></h2>
+
+| Method path | HTTP methods | Arguments |
+|---|---|---|
+| `card.cash_disbursement.request_cash_disbursement` | POST | `card: str`<br/>`row: str`<br/>`payment_date: str`<br/>`evidence: str` |
+| `card.cash_disbursement.approve_cash_disbursement` | POST | `name: str` |
+| `card.cash_disbursement.queue_posting` | POST | `name: str` |
+| `card.cash_disbursement.request_cancellation` | POST | `name: str`<br/>`reason: str` |
+| `card.cash_disbursement.request_replacement` | POST | `name: str`<br/>`reason: str`<br/>`payment_date: str`<br/>`evidence: str` |
+| `card.cash_disbursement.run_posting_queue` | POST | `limit: int = 20` |
+| `card.cash_disbursement.get_cash_row_status` | GET | `card: str` |
+| `card.cash_disbursement.get_cash_disbursements` | GET | `card: str` |
+
+- `request_cash_disbursement` — Record a Pending cash payment for a flagged row of a Draft card (the requester is the record owner).
+- `approve_cash_disbursement` — Explicit approval by a Card Manager who is not the requester.
+- `queue_posting` — Claim an Approved cash payment for the accounting executor (Approved -> Posting, under a row lock). Creates no accounting entry. Returns the Journal Entry when the payment is already Posted.
+- `request_cancellation` — Record the reason for cancelling a posted cash payment. ERPNext's own Journal Entry cancellation (a human action) is then allowed; without this request the linked entry cannot be cancelled. The payment is not reversed, reposted or replaced here, and a replacement needs its own request and approval.
+- `request_replacement` — A correction after cancellation: a new Pending payment for the same flagged row, linked to the cancelled one (``replaces``) and carrying the mandatory reason. It needs its own approval by a different Card Manager (approve_cash_ disbursement refuses the requester). The cancelled payment and its Journal Entry stay as they are; nothing is posted by this call, so a click creates no ledger effect.
+- `run_posting_queue` — The accounting executor's dispatch, run by the dedicated service identity.
+- `get_cash_row_status` — The display state of every cash row of one card, keyed by the child row name, for the table of the Monthly Card. The caller must be permitted to read the card. Read only.
+- `get_cash_disbursements` — Read-only status of the cash payments of one card, for the card's form. The caller must be permitted to read the card (its company). Each entry carries the posting status, the reconciliation status (kept separate), the cancellation state and whether a replacement is pending.
 
 
 <h2 id="card-catalog"><code>card.catalog</code></h2>

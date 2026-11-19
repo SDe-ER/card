@@ -37,6 +37,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Equipment name <small>(read only)</small> | `equipment_name` | Data |  |  |
 | Ownership <small>(read only)</small> | `ownership` | Data |  |  |
 | Owner <small>(read only)</small> | `supplier` | Link | Supplier |  |
+| Reason for correcting the supplier | `supplier_correction_reason` | Small Text |  |  |
 | From date <small>(read only)</small> | `from_date` | Date |  |  |
 | To date <small>(read only)</small> | `to_date` | Date |  |  |
 
@@ -70,6 +71,12 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Label | Field name | Type | Options / link | Required |
 |---|---|---|---|---|
 | Additions and deductions | `adjustments` | Table | [Card Monthly Card Adjustment](/card/reference/doctypes/card-monthly-card-adjustment/) |  |
+
+
+**Financial summary**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
 | Total additions <small>(read only)</small> | `total_additions` | Currency |  |  |
 | Total deductions <small>(read only)</small> | `total_deductions` | Currency |  |  |
 | Net due <small>(read only)</small> | `net_amount` | Currency |  |  |

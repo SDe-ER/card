@@ -443,6 +443,12 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 	original = frappe.get_doc(DOCTYPE, name)
 	_require_payment_right(original, "write")
 	frappe.has_permission(DOCTYPE, "create", throw=True)
+	# the card itself, before anything about it is answered: the caller must be able to read it (its company and the
+	# caller's User Permissions), as a first request checks the card; and it must still be in the original payment's
+	# company, since the checks above were made for that company (a Draft card moves company with its equipment)
+	card = _card_for_read(original.card, "read")
+	if card.company != original.company:
+		_refuse_payment()
 	if original.status != "Cancelled":
 		frappe.throw(
 			_("Only a cancelled cash payment can be replaced; {0} is {1}.").format(name, original.status)
@@ -463,7 +469,6 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 	successor = frappe.db.get_value(DOCTYPE, {"replaces": name}, "name")
 	if successor:
 		frappe.throw(_("Cash payment {0} is already replaced by {1}.").format(name, successor))
-	card = frappe.get_doc("Card Monthly Card", original.card)
 	source = next((r for r in card.adjustments or [] if r.name == original.adjustment_row), None)
 	if not source:
 		frappe.throw(
@@ -473,10 +478,6 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 	# cancelled, for a beneficiary that may be posted
 	if card.docstatus == 2:
 		frappe.throw(_("Card {0} is cancelled; its cash payment cannot be replaced.").format(card.name))
-	# the permission checks above were made for the original payment's company: a card that moved to another company
-	# (its equipment changed while Draft) is not replaced across companies
-	if card.company != original.company:
-		_refuse_payment()
 	if not cint(source.is_cash_disbursement):
 		frappe.throw(_("The row {0} is not a cash payment on card {1}.").format(source.name, card.name))
 	if flt(source.amount) <= 0:

@@ -15,9 +15,9 @@ This section is built from the code itself, so it always matches the current ver
 
 | | |
 |---|---|
-| [DocTypes](/card/reference/doctypes/card-adjustment-type/) | 48 |
+| [DocTypes](/card/reference/doctypes/card-adjustment-type/) | 49 |
 | [Reports](/card/reference/reports/) | 27 |
-| [API endpoints](/card/reference/api-endpoints/) | 72 |
+| [API endpoints](/card/reference/api-endpoints/) | 80 |
 
 
 ## DocTypes
@@ -28,6 +28,7 @@ This section is built from the code itself, so it always matches the current ver
 | [Card Agreement Responsibility](/card/reference/doctypes/card-agreement-responsibility/) | Child table (rows inside another document) |
 | [Card Approval Delegation](/card/reference/doctypes/card-approval-delegation/) | Submittable (Draft → Submitted → Cancelled) |
 | [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/) | Child table (rows inside another document) |
+| [Card Cash Disbursement](/card/reference/doctypes/card-cash-disbursement/) | Document |
 | [Card Company Settings](/card/reference/doctypes/card-company-settings/) | Child table (rows inside another document) |
 | [Card Consumption Rate](/card/reference/doctypes/card-consumption-rate/) | Child table (rows inside another document) |
 | [Card Daily Log](/card/reference/doctypes/card-daily-log/) | Submittable (Draft → Submitted → Cancelled) |

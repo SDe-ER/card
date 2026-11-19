@@ -71,6 +71,8 @@ FIXED_FROM_CREATION = (
 	"supplier",
 	"card",
 	"adjustment_row",
+	"equipment",
+	"project",  # the Journal Entry's project dimension comes from the payment record
 	"amount",
 	"cash_account",
 	*REPLACEMENT_FIELDS,

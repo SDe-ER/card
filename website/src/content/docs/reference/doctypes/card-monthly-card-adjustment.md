@@ -20,6 +20,11 @@ This page is generated from the CARD source code on every build. Edit the code, 
 
 | Label | Field name | Type | Options / link | Required |
 |---|---|---|---|---|
+| Cash paid | `is_cash_disbursement` | Check |  |  |
+| Cash payment status <small>(read only)</small> | `cash_status` | Data |  |  |
+| Cash payment <small>(read only)</small> | `cash_payment` | Link | [Card Cash Disbursement](/card/reference/doctypes/card-cash-disbursement/) |  |
+| Journal Entry <small>(read only)</small> | `cash_journal_entry` | Link | Journal Entry |  |
+| Cash account for the owner-paid expense | `cash_account` | Link | Account |  |
 | Adjustment date | `adjustment_date` | Date |  | Yes |
 | Type | `adjustment_type` | Select | إضافة · خصم | Yes |
 | Description | `description` | Data |  | Yes |

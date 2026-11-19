@@ -853,6 +853,8 @@ class TestCashDisbursementPosting(_AdjBase):
 			({"owner": self._user("Card Manager")}, "fixed when it is created"),
 			({"card": other_card.name, "adjustment_row": other_row.name}, "fixed when it is created"),
 			({"amount": 1}, "fixed when it is created"),
+			({"equipment": other_card.equipment}, "fixed when it is created"),
+			({"project": self._other_project()}, "fixed when it is created"),
 			({"posting_claimed_by": self.manager}, "set by the approval only"),
 			({"cancellation_reason": "forged"}, "set by the approval only"),
 		]
@@ -875,6 +877,43 @@ class TestCashDisbursementPosting(_AdjBase):
 		self.assertEqual((stored.owner, stored.card, stored.status), (self.manager, card.name, "Pending"))
 		self.assertEqual(flt(stored.amount), flt(row.amount))
 		self.assertFalse(stored.approved_by)
+
+	def _other_project(self):
+		"""A second Project of the test company (a real link, so only the payment guard can refuse it)."""
+		project = frappe.get_doc(
+			{
+				"doctype": "Project",
+				"project_name": "CCD other project " + frappe.generate_hash(length=6),
+				"company": self.company,
+			}
+		)
+		project.insert(ignore_permissions=True)
+		return project.name
+
+	def test_a_replacement_describes_the_card_and_stays_in_its_company(self):
+		"""FR-170 final reviews: the replacement takes equipment and project from the card, and a card that moved to
+		another company is refused with the common refusal (nothing about that card is answered)."""
+		from card.cash_disbursement import request_replacement
+
+		card, name = self._cancelled_posted()
+		frappe.set_user(self.manager)
+		new = request_replacement(name, "Wrong amount", "2026-09-11", "Receipt R-2")
+		frappe.set_user("Administrator")
+		stored = frappe.db.get_value(DOCTYPE, new, ["equipment", "project", "company"], as_dict=True)
+		expected = frappe.db.get_value(
+			"Card Monthly Card", card.name, ["equipment", "project", "company"], as_dict=True
+		)
+		self.assertEqual(stored, expected)
+
+		other_card, other_name = self._cancelled_posted()
+		frappe.db.set_value(
+			"Card Monthly Card", other_card.name, "company", "CCD Moved Company", update_modified=False
+		)
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.PermissionError):
+			request_replacement(other_name, "Wrong amount", "2026-09-11", "Receipt R-3")
+		frappe.set_user("Administrator")
+		self.assertFalse(frappe.db.exists(DOCTYPE, {"replaces": other_name}))
 
 	def test_the_executor_refuses_an_approval_recorded_by_the_requester(self):
 		"""Defence in depth: the posting checks the four-eyes rule again on the stored record."""
