@@ -35,6 +35,13 @@ EVIDENCE_AFTER_APPROVAL = (
 )
 # the one controlled change a Posted payment may take: a cancellation request by request_cancellation()
 CANCELLATION_REQUEST = "cancellation_request"
+# the fields that controlled change writes (with the status); every other field stays as it is
+CANCELLATION_REQUEST_FIELDS = (
+	"status",
+	"cancellation_reason",
+	"cancellation_requested_by",
+	"cancellation_requested_on",
+)
 # the status changes a save may make, each only with the flag of the server action that owns it (FR-170 review)
 CONTROLLED_TRANSITIONS = {
 	("Pending", "Approved"): "approval",
@@ -119,11 +126,15 @@ class CardCashDisbursement(Document):
 					)
 				)
 		if before and before.status != "Pending":
-			protected = (*FROZEN_AFTER_APPROVAL, *EVIDENCE_AFTER_APPROVAL, "status")
+			# the cancellation record too: its reason and actors are written only by request_cancellation() and the
+			# Journal Entry cancellation, never by a plain save (FR-170 final audit M1)
+			protected = dict.fromkeys(
+				(*FROZEN_AFTER_APPROVAL, *EVIDENCE_AFTER_APPROVAL, *SERVER_OWNED_FIELDS, "status")
+			)
 			changed = [f for f in protected if before.get(f) != self.get(f)]
 			controlled = self.flags.get("controlled_transition") == CANCELLATION_REQUEST
 			if controlled and before.status == "Posted" and self.status == "Cancellation Requested":
-				changed = [f for f in changed if f != "status"]
+				changed = [f for f in changed if f not in CANCELLATION_REQUEST_FIELDS]
 			if changed:
 				frappe.throw(
 					_(

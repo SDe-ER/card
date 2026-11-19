@@ -93,6 +93,24 @@ def request_cash_disbursement(card: str, row: str, payment_date: str, evidence: 
 	return record.name
 
 
+def live_payments(card):
+	"""The payments of a card that still stand for its rows: every status but Cancelled (a Cancellation Requested
+	payment still has its submitted Journal Entry). Each one fixes the cash row it pays (FR-170 final audit)."""
+	return frappe.get_all(
+		DOCTYPE,
+		filters={"card": card, "status": ["!=", "Cancelled"]},
+		fields=["name", "adjustment_row", "amount", "cash_account", "status"],
+	)
+
+
+def _refuse_cancelled_card(doc, message):
+	"""A payment of a cancelled card is not approved, queued or posted (FR-170 final audit). It stays as it is: a
+	pending one can be deleted, a queued one is marked Posting Failed by the executor, and nothing posted is changed.
+	``message`` is the translated refusal, with {0} = the card and {1} = the payment."""
+	if frappe.db.get_value("Card Monthly Card", doc.card, "docstatus") == 2:
+		frappe.throw(message.format(doc.card, doc.name), frappe.ValidationError)
+
+
 def _refuse_payment():
 	"""The one refusal for a payment the caller may not change, whether the name is missing or belongs to another
 	company: the same error class and text, so the response does not show which names exist."""
@@ -145,6 +163,7 @@ def approve_cash_disbursement(name: str) -> str:
 		frappe.throw(_("The requester cannot approve their own cash payment."))
 	if doc.status != "Pending":
 		frappe.throw(_("Only a Pending cash payment can be approved; {0} is {1}.").format(name, doc.status))
+	_refuse_cancelled_card(doc, _("Card {0} is cancelled; its cash payment {1} cannot be approved."))
 	doc.status = "Approved"
 	doc.approved_by = frappe.session.user
 	doc.approved_on = now_datetime()
@@ -160,7 +179,8 @@ def queue_posting(name: str) -> str | None:
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can post a cash payment."))
 	_lock_payment(name)
 	# the company of the payment is checked on the server, for the caller (a raw row update has no permission check)
-	_require_payment_right(frappe.get_doc(DOCTYPE, name), "write")
+	payment = frappe.get_doc(DOCTYPE, name)
+	_require_payment_right(payment, "write")
 	row = frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"], as_dict=True, for_update=True)
 	if not row:
 		frappe.throw(_("The cash payment {0} does not exist.").format(name))
@@ -172,6 +192,9 @@ def queue_posting(name: str) -> str | None:
 				name, row.status
 			)
 		)
+	_refuse_cancelled_card(
+		payment, _("Card {0} is cancelled; its cash payment {1} cannot be queued for posting.")
+	)
 	frappe.db.set_value(
 		DOCTYPE,
 		name,
@@ -191,6 +214,8 @@ def _revalidate_source(doc):
 	cash row with the approved amount and Cash account, and the Supplier must still be the card's beneficiary. The
 	executor takes no amount, account or Supplier from anywhere but the approved record and its source."""
 	card = frappe.get_doc("Card Monthly Card", doc.card)
+	# checked here, immediately before the entry is built: the card may be cancelled after approval or queueing
+	_refuse_cancelled_card(doc, _("Card {0} is cancelled; its cash payment {1} is not posted."))
 	source = next((r for r in card.adjustments or [] if r.name == doc.adjustment_row), None)
 	if (
 		not source

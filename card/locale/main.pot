@@ -7980,3 +7980,27 @@ msgstr ""
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "Financial summary"
 msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} cannot be approved."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} cannot be queued for posting."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} is not posted."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Row {0} has cash payment {1}; it cannot be removed from the card. Delete the pending payment, or cancel the posted payment, first."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Row {0} has cash payment {1}; {2} cannot be changed. Delete the pending payment, or cancel the posted payment, first."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Row {0} of card {1} is paid by cash payment {2} but is not marked Cash paid; the card is not invoiced."
+msgstr ""

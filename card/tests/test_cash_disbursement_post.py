@@ -1463,3 +1463,228 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user("Administrator")
 		self.assertEqual([r["status"] for r in again], ["Posted"])
 		self.assertEqual(self._journal_entries_for(name), [again[0]["journal_entry"]])
+
+	# ---------------------------------------------------------------- FR-170 final audit: the card row of a live payment
+
+	def _row_save_refused(self, card_name, change, user="Administrator"):
+		"""Apply ``change`` to the Draft card and save it as ``user``: the save must be refused."""
+		frappe.set_user(user)
+		doc = frappe.get_doc("Card Monthly Card", card_name)
+		change(doc)
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		frappe.set_user("Administrator")
+
+	def _cash_row(self, card_name):
+		doc = frappe.get_doc("Card Monthly Card", card_name)
+		return next(r for r in doc.adjustments if cint(r.is_cash_disbursement))
+
+	def test_a_paid_cash_row_cannot_be_unticked_or_changed_on_save(self):
+		"""H2: on a Draft card, the row of a posted payment cannot become an ordinary deduction (it would be deducted
+		again by the invoice) and keeps its amount, Cash account, kind and side."""
+		card, name, entry = self._posted()
+		row_name = self._cash_row(card.name).name
+		other_cash = frappe.copy_doc(frappe.get_doc("Account", self.cash))
+		other_cash.account_name = "Second cash " + frappe.generate_hash(length=4)
+		other_cash.insert(ignore_permissions=True)
+
+		def setter(field, value):
+			def change(doc):
+				next(r for r in doc.adjustments if r.name == row_name).set(field, value)
+
+			return change
+
+		for field, value in (
+			("is_cash_disbursement", 0),
+			("amount", 250),
+			("cash_account", other_cash.name),
+			("adjustment_type", "إضافة"),
+			("side", "Customer"),
+		):
+			self._row_save_refused(card.name, setter(field, value))
+		row = self._cash_row(card.name)
+		self.assertEqual((cint(row.is_cash_disbursement), flt(row.amount, 2)), (1, 300.0))
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"]), ("Posted", entry))
+
+	def test_a_paid_cash_row_cannot_be_removed_and_its_card_cannot_be_deleted(self):
+		"""H2: the row of a live payment stays on the card, and the card itself cannot be deleted (the payment links it)."""
+		card, name, _entry = self._posted()
+		row_name = self._cash_row(card.name).name
+		self._row_save_refused(card.name, lambda doc: doc.set("adjustments", []))
+		with self.assertRaises(frappe.LinkExistsError):
+			frappe.delete_doc("Card Monthly Card", card.name)
+		self.assertTrue(frappe.db.exists("Card Monthly Card Adjustment", row_name))
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posted")
+
+	def test_a_paid_cash_row_is_protected_on_the_api_save_paths(self):
+		"""H2: frappe.client.save (PUT /api/resource) and frappe.client.set_value on the row, as a Card Manager who may
+		edit the card, are refused like a form save."""
+		from frappe.client import save, set_value
+
+		card, _name, _entry = self._posted()
+		row = self._cash_row(card.name)
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc("Card Monthly Card", card.name).as_dict()
+		for adj in doc["adjustments"]:
+			if adj["name"] == row.name:
+				adj["is_cash_disbursement"] = 0
+		with self.assertRaises(frappe.ValidationError):
+			save(frappe.as_json(doc))
+		with self.assertRaises(frappe.ValidationError):
+			set_value("Card Monthly Card Adjustment", row.name, "is_cash_disbursement", 0)
+		with self.assertRaises(frappe.ValidationError):
+			set_value("Card Monthly Card Adjustment", row.name, {"amount": 1})
+		frappe.set_user("Administrator")
+		stored = frappe.db.get_value(
+			"Card Monthly Card Adjustment", row.name, ["is_cash_disbursement", "amount"]
+		)
+		self.assertEqual((cint(stored[0]), flt(stored[1], 2)), (1, 300.0))
+
+	def test_a_paid_cash_row_keeps_its_description_and_date_editable(self):
+		"""H2 is narrow: the description and the date of the row do not change what is paid, so they stay editable."""
+		card, _name, _entry = self._posted()
+		doc = frappe.get_doc("Card Monthly Card", card.name)
+		row = next(r for r in doc.adjustments if cint(r.is_cash_disbursement))
+		row.description = "Diesel paid on behalf of the supplier (receipt 7)"
+		row.adjustment_date = "2026-09-02"
+		doc.save()
+		self.assertEqual(
+			str(frappe.db.get_value("Card Monthly Card Adjustment", row.name, "adjustment_date")),
+			"2026-09-02",
+		)
+
+	def test_a_pending_payment_locks_its_row_until_it_is_deleted(self):
+		"""H2: a Pending payment fixes its row too. The authorized way to change the row is to delete the pending
+		payment first; then the row is an ordinary row again."""
+		card, row = self._card_with_cash_row(amount=300)
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-1")
+
+		def change_amount(doc):
+			doc.adjustments[0].amount = 200
+
+		self._row_save_refused(card.name, change_amount)
+		frappe.delete_doc(DOCTYPE, name)
+		doc = frappe.get_doc("Card Monthly Card", card.name)
+		change_amount(doc)
+		doc.save()
+		self.assertEqual(
+			flt(frappe.db.get_value("Card Monthly Card Adjustment", row.name, "amount"), 2), 200.0
+		)
+
+	def test_a_cancelled_payment_frees_its_row(self):
+		"""H2 keeps the correction path: after the payment is cancelled (its entry cancelled in ERPNext) the row may be
+		corrected, then replaced or turned into an ordinary deduction."""
+		card, name = self._cancelled_posted()
+		doc = frappe.get_doc("Card Monthly Card", card.name)
+		row = next(r for r in doc.adjustments if cint(r.is_cash_disbursement))
+		row.is_cash_disbursement = 0
+		row.cash_account = None
+		doc.save()
+		self.assertEqual(
+			cint(frappe.db.get_value("Card Monthly Card Adjustment", row.name, "is_cash_disbursement")), 0
+		)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancelled")
+
+	def test_the_invoice_builder_refuses_a_paid_row_that_is_not_marked_cash(self):
+		"""H2, old or damaged data: a row of a live payment that lost its Cash paid flag outside the card's save (raw
+		write) is never invoiced; the invoice builder refuses the card instead of deducting the amount a second time."""
+		from card.gl.posting import _card_lines, _types_map
+
+		card, name, _entry = self._posted()
+		row = self._cash_row(card.name)
+		frappe.db.set_value(
+			"Card Monthly Card Adjustment", row.name, "is_cash_disbursement", 0, update_modified=False
+		)
+		settings_row = frappe._dict(rental_item=None, equipment_rental_expense_account=None)
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			_card_lines(card.name, "Supplier", settings_row, _types_map(card.company))
+		self.assertIn(name, str(ctx.exception))
+
+	# ---------------------------------------------------------------- FR-170 final audit M1: the cancellation record
+
+	def test_the_cancellation_record_cannot_be_rewritten_by_a_save(self):
+		"""M1: the cancellation reason and its actors are written only by their server actions; a save of a Posted,
+		Cancellation Requested or Cancelled payment cannot set or rewrite them."""
+		from card.cash_disbursement import request_cancellation
+
+		_card, name, entry = self._posted()
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc(DOCTYPE, name)
+		doc.cancellation_reason = "Invented reason"
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		request_cancellation(name, "Wrong receipt")
+		for field, value in (
+			("cancellation_reason", "Rewritten reason"),
+			("cancellation_requested_by", "Administrator"),
+			("cancelled_by", self.manager),
+		):
+			doc = frappe.get_doc(DOCTYPE, name)
+			doc.set(field, value)
+			with self.assertRaises(frappe.ValidationError):
+				doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "cancellation_reason"), "Wrong receipt")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "cancellation_requested_by"), self.manager)
+		frappe.get_doc("Journal Entry", entry).cancel()
+		doc = frappe.get_doc(DOCTYPE, name)
+		doc.cancelled_on = "2026-09-30 10:00:00"
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+
+	# ---------------------------------------------------------------- FR-170 final audit M2: a cancelled card
+
+	def _cancel_card(self, card_name):
+		doc = frappe.get_doc("Card Monthly Card", card_name)
+		if doc.docstatus == 0:
+			doc.submit()
+			doc.reload()
+		doc.cancel()
+
+	def test_a_payment_of_a_cancelled_card_is_not_approved(self):
+		card, row = self._card_with_cash_row()
+		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-1")
+		self._cancel_card(card.name)
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			approve_cash_disbursement(name)
+		frappe.set_user("Administrator")
+		self.assertIn("is cancelled", str(ctx.exception))
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Pending")
+
+	def test_a_payment_of_a_cancelled_card_is_not_queued(self):
+		card, name = self._approved()
+		self._cancel_card(card.name)
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			queue_posting(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Approved")
+
+	def test_a_queued_payment_of_a_card_cancelled_before_execution_fails_without_an_entry(self):
+		"""Cancellation between queueing and execution: the executor checks the card immediately before the entry, marks
+		the payment Posting Failed with the reason, creates no entry, and the payment cannot be queued again."""
+		card, name = self._approved()
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user("Administrator")
+		self._cancel_card(card.name)
+		frappe.set_user(self.service)
+		results = frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user("Administrator")
+		self.assertEqual([r["status"] for r in results], ["Posting Failed"])
+		self.assertIn("is cancelled", results[0]["error"])
+		self.assertIsNone(frappe.db.get_value(DOCTYPE, name, "journal_entry"))
+		self.assertEqual(self._journal_entries_for(name), [])
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			queue_posting(name)
+		frappe.set_user("Administrator")
+
+	def test_a_posted_payment_stays_posted_when_its_card_is_cancelled(self):
+		"""The accounting evidence is kept: cancelling the card neither cancels nor changes the posted payment or its
+		Journal Entry (the correction stays the controlled cancellation in ERPNext)."""
+		card, name, entry = self._posted()
+		self._cancel_card(card.name)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"]), ("Posted", entry))
+		self.assertEqual(frappe.db.get_value("Journal Entry", entry, "docstatus"), 1)

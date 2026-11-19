@@ -731,11 +731,22 @@ def _card_lines(card_name, side, row, types, credit_note_items=None):
 	total = base_rate
 	discount = 0.0
 	cn_deductions_total = 0.0
+	from card.cash_disbursement import live_payments
+
+	# a row with a live cash payment is paid by its Journal Entry; it is never invoiced too, whatever its flag says
+	# (old or damaged data included): such a card is refused, not invoiced twice (FR-170 final audit H2)
+	paid_rows = {p.adjustment_row: p.name for p in live_payments(card.name)}
 	for adj in card.get("adjustments") or []:
 		if (adj.side or "Supplier") != side:
 			continue
 		if cint(adj.get("is_cash_disbursement")):
 			continue  # an owner-paid cash row is recorded, not posted: no invoice line (owner decisions 2026-11-16)
+		if adj.name in paid_rows:
+			frappe.throw(
+				_(
+					"Row {0} of card {1} is paid by cash payment {2} but is not marked Cash paid; the card is not invoiced."
+				).format(adj.idx, card.name, paid_rows[adj.name])
+			)
 		signed = flt(adj.amount, 2) if adj.adjustment_type == "إضافة" else -flt(adj.amount, 2)
 		total = flt(total + signed, 2)
 		typ = types.get(adj.adjustment_type_ref) if adj.adjustment_type_ref else None

@@ -93,6 +93,27 @@ def get_card_context(equipment: str, month: str, year: str, project: str | None 
 	return {"projects": projects, "project": project, "days": sorted(days)}
 
 
+# the source fields of a cash row that has a live payment: what is paid, from which Cash account, and how the row
+# would count if it were not a cash row (FR-170 final audit H2)
+PAID_CASH_ROW_FIELDS = (
+	"is_cash_disbursement",
+	"amount",
+	"cash_account",
+	"adjustment_type",
+	"adjustment_type_ref",
+	"side",
+)
+
+
+def _row_value(row, field):
+	"""A row value as it is stored, so a form's "120" equals 120.0 and an empty check equals 0."""
+	if field == "amount":
+		return flt(row.get(field), 2)
+	if field == "is_cash_disbursement":
+		return cint(row.get(field))
+	return row.get(field) or None
+
+
 def _interactive_form_save():
 	"""True only for a save made at the form (an HTTP request). Imports, patches, migrations, muted runs and
 	background jobs show no operator warning (owner decision 2026-11-14, FR-166)."""
@@ -108,6 +129,7 @@ def _interactive_form_save():
 
 class CardMonthlyCard(Document):
 	def before_validate(self):
+		self._protect_paid_cash_rows()
 		self._refresh_cash_rows()
 		# Ported verbatim-in-behaviour from Server Script "Card Monthly Card - Validate" v4 (Before Validate).
 		doc_month = cint(self.month)
@@ -798,6 +820,50 @@ class CardMonthlyCard(Document):
 					"Card period {0}-{1} is outside the current fiscal year {2}; past cards are allowed only within it."
 				).format(self.year, self.month, fy_name)
 			)
+
+	def _protect_paid_cash_rows(self):
+		"""A row with a live cash payment (any status but Cancelled) keeps what the payment pays: it stays on the card,
+		stays a cash row, and keeps its amount, Cash account, kind, type and side. Otherwise an unticked row would come
+		back into the totals and the invoice while its Journal Entry stands: a double deduction (FR-170 final audit H2).
+		Every save path runs this (form, REST, set_value on a row); the way to change such a row is to delete the pending
+		payment, or to cancel the posted one, first."""
+		if self.is_new():
+			return
+		from card.cash_disbursement import live_payments
+
+		payments = live_payments(self.name)
+		if not payments:
+			return
+		before = self.get_doc_before_save()
+		before_rows = {r.name: r for r in (before.adjustments or [])} if before else {}
+		rows = {r.name: r for r in self.adjustments or []}
+		for payment in payments:
+			row = rows.get(payment.adjustment_row)
+			if not row:
+				frappe.throw(
+					_(
+						"Row {0} has cash payment {1}; it cannot be removed from the card. Delete the pending payment, or cancel the posted payment, first."
+					).format(
+						before_rows[payment.adjustment_row].idx
+						if payment.adjustment_row in before_rows
+						else payment.adjustment_row,
+						payment.name,
+					)
+				)
+			old = before_rows.get(row.name)
+			changed = [f for f in PAID_CASH_ROW_FIELDS if old and _row_value(old, f) != _row_value(row, f)]
+			if (
+				not cint(row.is_cash_disbursement)
+				or flt(row.amount, 2) != flt(payment.amount, 2)
+				or row.cash_account != payment.cash_account
+			):
+				changed = changed or ["is_cash_disbursement", "amount", "cash_account"]
+			if changed:
+				frappe.throw(
+					_(
+						"Row {0} has cash payment {1}; {2} cannot be changed. Delete the pending payment, or cancel the posted payment, first."
+					).format(row.idx, payment.name, ", ".join(dict.fromkeys(changed)))
+				)
 
 	def _refresh_cash_rows(self):
 		"""The display columns of the cash rows, from the Card Cash Disbursement records (the authority). Only the three
