@@ -850,16 +850,16 @@ class TestCashDisbursementPosting(_AdjBase):
 		name = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt OWN-1")
 		other_card, other_row = self._card_with_cash_row()
 		changes = [
-			{"owner": self._user("Card Manager")},
-			{"card": other_card.name, "adjustment_row": other_row.name},
-			{"amount": 1},
-			{"posting_claimed_by": self.manager},
-			{"cancellation_reason": "forged"},
+			({"owner": self._user("Card Manager")}, "fixed when it is created"),
+			({"card": other_card.name, "adjustment_row": other_row.name}, "fixed when it is created"),
+			({"amount": 1}, "fixed when it is created"),
+			({"posting_claimed_by": self.manager}, "set by the approval only"),
+			({"cancellation_reason": "forged"}, "set by the approval only"),
 		]
-		for change in changes:
+		for change, message in changes:
 			doc = frappe.get_doc(DOCTYPE, name).as_dict()
 			doc.update(change)
-			with self.subTest(change=change), self.assertRaises(frappe.ValidationError):
+			with self.subTest(change=change), self.assertRaisesRegex(frappe.ValidationError, message):
 				save(doc)
 		with self.assertRaisesRegex(frappe.ValidationError, "cannot approve their own"):
 			approve_cash_disbursement(name)  # the requester is still the owner

@@ -473,6 +473,10 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 	# cancelled, for a beneficiary that may be posted
 	if card.docstatus == 2:
 		frappe.throw(_("Card {0} is cancelled; its cash payment cannot be replaced.").format(card.name))
+	# the permission checks above were made for the original payment's company: a card that moved to another company
+	# (its equipment changed while Draft) is not replaced across companies
+	if card.company != original.company:
+		_refuse_payment()
 	if not cint(source.is_cash_disbursement):
 		frappe.throw(_("The row {0} is not a cash payment on card {1}.").format(source.name, card.name))
 	if flt(source.amount) <= 0:
@@ -490,8 +494,8 @@ def request_replacement(name: str, reason: str, payment_date: str, evidence: str
 			"supplier": beneficiary,
 			"card": original.card,
 			"adjustment_row": original.adjustment_row,
-			"equipment": original.equipment,
-			"project": original.project,
+			"equipment": card.equipment,
+			"project": card.project,
 			"amount": source.amount,
 			"payment_date": payment_date,
 			"cash_account": source.cash_account,
