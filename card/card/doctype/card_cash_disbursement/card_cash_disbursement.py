@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, nowdate
+from frappe.utils import flt, get_datetime, nowdate
 
 from card.adjustments import validate_cash_account
 from card.settlement import cash_transaction_key, validate_payment_date
@@ -42,10 +42,16 @@ CANCELLATION_REQUEST_FIELDS = (
 	"cancellation_requested_by",
 	"cancellation_requested_on",
 )
+# an approved payment that was never posted (no Journal Entry) is cancelled directly by request_cancellation() with
+# its reason: there is no entry to cancel in ERPNext (FR-170 final code review)
+WITHDRAWAL = "withdrawal"
+WITHDRAWABLE_STATUSES = ("Approved", "Posting Failed")
+WITHDRAWAL_FIELDS = (*CANCELLATION_REQUEST_FIELDS, "cancelled_by", "cancelled_on")
 # the status changes a save may make, each only with the flag of the server action that owns it (FR-170 review)
 CONTROLLED_TRANSITIONS = {
 	("Pending", "Approved"): "approval",
 	("Posted", "Cancellation Requested"): CANCELLATION_REQUEST,
+	**{(status, "Cancelled"): WITHDRAWAL for status in WITHDRAWABLE_STATUSES},
 }
 # the only two ways a payment is created: the request on a card row and the replacement of a cancelled payment; each
 # server action sets its flag (a client cannot send flags), so a direct insert is refused (FR-170 security review)
@@ -86,6 +92,18 @@ FIXED_FROM_CREATION = (
 )
 
 
+def _differs(meta, before, doc, field):
+	"""A stored value compared as stored: a client save sends a datetime or a number as text, so an unchanged
+	"2026-09-30 10:00:00" equals the stored datetime and "120" equals 120.0 (FR-170 final code review)."""
+	old, new = before.get(field), doc.get(field)
+	fieldtype = (meta.get_field(field) or frappe._dict()).fieldtype
+	if fieldtype == "Datetime":
+		return (get_datetime(old) if old else None) != (get_datetime(new) if new else None)
+	if fieldtype in ("Currency", "Float"):
+		return flt(old) != flt(new)
+	return (old or None) != (new or None)
+
+
 class CardCashDisbursement(Document):
 	def validate(self):
 		before = self.get_doc_before_save()
@@ -118,7 +136,7 @@ class CardCashDisbursement(Document):
 		if before and before.status == "Pending" and self.status == "Pending":
 			# approval, posting and cancellation fields are set only by their server actions, never on a pending payment
 			if self.flags.get("controlled_transition") != "approval" and any(
-				before.get(f) != self.get(f) for f in SERVER_OWNED_FIELDS
+				_differs(self.meta, before, self, f) for f in SERVER_OWNED_FIELDS
 			):
 				frappe.throw(
 					_("The approval fields of cash payment {0} are set by the approval only.").format(
@@ -131,10 +149,19 @@ class CardCashDisbursement(Document):
 			protected = dict.fromkeys(
 				(*FROZEN_AFTER_APPROVAL, *EVIDENCE_AFTER_APPROVAL, *SERVER_OWNED_FIELDS, "status")
 			)
-			changed = [f for f in protected if before.get(f) != self.get(f)]
+			changed = [f for f in protected if _differs(self.meta, before, self, f)]
 			controlled = self.flags.get("controlled_transition") == CANCELLATION_REQUEST
 			if controlled and before.status == "Posted" and self.status == "Cancellation Requested":
 				changed = [f for f in changed if f not in CANCELLATION_REQUEST_FIELDS]
+			withdrawn = self.flags.get("controlled_transition") == WITHDRAWAL
+			if withdrawn and before.status in WITHDRAWABLE_STATUSES and self.status == "Cancelled":
+				if before.journal_entry or self.journal_entry:
+					frappe.throw(
+						_("The cash payment {0} has a journal entry; cancel that entry instead.").format(
+							self.name
+						)
+					)
+				changed = [f for f in changed if f not in WITHDRAWAL_FIELDS]
 			if changed:
 				frappe.throw(
 					_(

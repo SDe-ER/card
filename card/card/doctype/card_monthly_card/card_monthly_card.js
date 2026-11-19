@@ -733,7 +733,9 @@ function card_cash_actions(frm) {
 					__("Cash payments"),
 				);
 			}
-			const posted = with_status("Posted");
+			// a posted payment gets a cancellation request; an approved or failed one that was never posted is cancelled
+			// directly with its reason (no journal entry exists)
+			const posted = [...with_status("Posted"), ...approved.filter((p) => !p.journal_entry)];
 			if (posted.length) {
 				frm.add_custom_button(
 					__("Request cash cancellation"),

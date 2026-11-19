@@ -26,6 +26,8 @@ from frappe.utils import cint, flt, now_datetime, nowdate
 from card.card.doctype.card_cash_disbursement.card_cash_disbursement import (
 	CREATION_REQUEST,
 	REPLACEMENT_REQUEST,
+	WITHDRAWABLE_STATUSES,
+	WITHDRAWAL,
 )
 from card.settlement import posting_block_reason, resolve_beneficiary, validate_payment_date
 
@@ -425,7 +427,9 @@ def _refuse_if_allocated(entry_name):
 def request_cancellation(name: str, reason: str) -> str:
 	"""Record the reason for cancelling a posted cash payment. ERPNext's own Journal Entry cancellation (a human
 	action) is then allowed; without this request the linked entry cannot be cancelled. The payment is not
-	reversed, reposted or replaced here, and a replacement needs its own request and approval."""
+	reversed, reposted or replaced here, and a replacement needs its own request and approval. An Approved or
+	Posting Failed payment that has no Journal Entry is cancelled directly with the reason (nothing to cancel in
+	ERPNext); a payment in Posting is refused."""
 	_check_role(frappe.get_roles(), APPROVAL_ROLES, _("Only a Card Manager can request a cancellation."))
 	reason = (reason or "").strip()
 	if not reason:
@@ -433,6 +437,20 @@ def request_cancellation(name: str, reason: str) -> str:
 	_lock_payment(name)
 	doc = frappe.get_doc(DOCTYPE, name)
 	_require_payment_right(doc, "write")
+	if doc.status in WITHDRAWABLE_STATUSES and not doc.journal_entry:
+		# never posted (approved, or its posting failed): there is no entry to cancel in ERPNext, so the payment is
+		# cancelled here with its reason; its card row is then free and a replacement may be requested (FR-170 final
+		# code review: such a payment had no controlled exit and locked its row and card for good)
+		now = now_datetime()
+		doc.status = "Cancelled"
+		doc.cancellation_reason = reason
+		doc.cancellation_requested_by = frappe.session.user
+		doc.cancellation_requested_on = now
+		doc.cancelled_by = frappe.session.user
+		doc.cancelled_on = now
+		doc.flags.controlled_transition = WITHDRAWAL
+		doc.save()
+		return doc.name
 	if doc.status != "Posted":
 		frappe.throw(_("Only a posted cash payment can be cancelled; {0} is {1}.").format(name, doc.status))
 	_refuse_if_allocated(doc.journal_entry)

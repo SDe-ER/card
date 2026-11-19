@@ -8008,3 +8008,7 @@ msgstr ""
 #: card/card/doctype/card_monthly_card/card_monthly_card.py
 msgid "Card {0} has cash payments that are not cancelled ({1}). Delete the pending payment, or cancel the posted payment, before cancelling the card."
 msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The cash payment {0} has a journal entry; cancel that entry instead."
+msgstr ""

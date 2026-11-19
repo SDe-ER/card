@@ -82,7 +82,9 @@ frappe.ui.form.on("Card Cash Disbursement", {
 			);
 		}
 
-		if (frm.doc.status === "Posted") {
+		const never_posted =
+			["Approved", "Posting Failed"].includes(frm.doc.status) && !frm.doc.journal_entry;
+		if (frm.doc.status === "Posted" || never_posted) {
 			frm.add_custom_button(__("Request cancellation"), () =>
 				frappe.prompt(
 					{ label: __("Reason"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 },

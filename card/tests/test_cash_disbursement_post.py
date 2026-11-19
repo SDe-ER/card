@@ -1472,9 +1472,12 @@ class TestCashDisbursementPosting(_AdjBase):
 		frappe.set_user(user)
 		doc = frappe.get_doc("Card Monthly Card", card_name)
 		change(doc)
-		with self.assertRaises(frappe.ValidationError):
+		with self.assertRaises(frappe.ValidationError) as ctx:
 			doc.save()
 		frappe.set_user("Administrator")
+		self.assertIn(
+			"has cash payment", str(ctx.exception)
+		)  # the row lock refused it, not another card rule
 
 	def _cash_row(self, card_name):
 		doc = frappe.get_doc("Card Monthly Card", card_name)
@@ -1720,3 +1723,102 @@ class TestCashDisbursementPosting(_AdjBase):
 		with self.assertRaises(frappe.ValidationError):
 			queue_posting(name)
 		frappe.set_user("Administrator")
+
+	# ---------------------------------------------------------------- FR-170 final code review: never-posted payments
+
+	def test_an_approved_payment_that_was_never_posted_is_cancelled_with_its_reason(self):
+		"""Code review: an approved payment with no journal entry had no controlled exit and locked its row and its
+		card. A Card Manager cancels it with a reason; the row is then free and the card can be cancelled."""
+		from card.cash_disbursement import request_cancellation
+
+		card, name = self._approved()
+		frappe.set_user(self.manager)
+		request_cancellation(name, "Paid twice by mistake")
+		frappe.set_user("Administrator")
+		row = frappe.db.get_value(
+			DOCTYPE,
+			name,
+			["status", "cancellation_reason", "cancellation_requested_by", "cancelled_by", "journal_entry"],
+			as_dict=True,
+		)
+		self.assertEqual(
+			(
+				row.status,
+				row.cancellation_reason,
+				row.cancellation_requested_by,
+				row.cancelled_by,
+				row.journal_entry,
+			),
+			("Cancelled", "Paid twice by mistake", self.manager, self.manager, None),
+		)
+		self.assertEqual(self._journal_entries_for(name), [])
+		doc = frappe.get_doc("Card Monthly Card", card.name)
+		doc.adjustments[0].amount = 250
+		doc.save()
+		doc.submit()
+		doc.reload()
+		with_reason(doc).cancel()
+		self.assertEqual(frappe.db.get_value("Card Monthly Card", card.name, "docstatus"), 2)
+
+	def test_a_failed_posting_is_cancelled_with_its_reason_and_is_never_posted(self):
+		"""A payment whose posting failed (here: its card was cancelled outside the guard) is cancelled the same way;
+		it cannot be queued again and no entry exists."""
+		from card.cash_disbursement import request_cancellation
+
+		card, name = self._approved()
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		frappe.set_user("Administrator")
+		self._cancel_card(card.name)
+		frappe.set_user(self.service)
+		frappe.call("card.cash_disbursement.run_posting_queue", limit=5)
+		frappe.set_user(self.manager)
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting Failed")
+		request_cancellation(name, "Card cancelled")
+		with self.assertRaises(frappe.ValidationError):
+			queue_posting(name)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Cancelled")
+		self.assertEqual(self._journal_entries_for(name), [])
+
+	def test_a_payment_being_posted_or_pending_is_not_cancelled_this_way(self):
+		"""A payment in Posting may be executing now, and a Pending one is deleted instead: both are refused."""
+		from card.cash_disbursement import request_cancellation
+
+		_card, name = self._approved()
+		frappe.set_user(self.manager)
+		queue_posting(name)
+		with self.assertRaises(frappe.ValidationError):
+			request_cancellation(name, "Too late")
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Posting")
+		card, row = self._card_with_cash_row()
+		pending = request_cash_disbursement(card.name, row.name, "2026-09-10", "Receipt R-1")
+		frappe.set_user(self.manager)
+		with self.assertRaises(frappe.ValidationError):
+			request_cancellation(pending, "Not this way")
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, pending, "status"), "Pending")
+
+	def test_a_plain_save_cannot_cancel_an_approved_payment(self):
+		"""The direct cancellation is the server action's own transition; a save without its flag is refused."""
+		_card, name = self._approved()
+		frappe.set_user(self.manager)
+		doc = frappe.get_doc(DOCTYPE, name)
+		doc.status = "Cancelled"
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, "status"), "Approved")
+
+	def test_an_unchanged_client_save_of_a_posted_payment_is_not_refused(self):
+		"""Code review: a client save sends datetimes and numbers as text; an unchanged save of a Posted payment is
+		not refused as if approved_on or posted_on had changed."""
+		from frappe.client import save
+
+		_card, name, entry = self._posted()
+		frappe.set_user(self.manager)
+		doc = frappe.parse_json(frappe.as_json(frappe.get_doc(DOCTYPE, name).as_dict()))
+		save(frappe.as_json(doc))
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value(DOCTYPE, name, ["status", "journal_entry"]), ("Posted", entry))
