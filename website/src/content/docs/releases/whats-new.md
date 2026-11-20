@@ -16,6 +16,10 @@ version is not running on a site until that site is upgraded. Which version a si
 per site.
 :::
 
+## Next release: v4.10.1 (in review, not merged)
+
+- **2026-11-21 — The Additions and deductions table shows the date for everyone, and the totals follow each row at once.** Users who had chosen their own columns for the table before v4.10.0 did not see the new **Adjustment date** column; the upgrade now adds it in front of their columns and keeps the rest of their choice. When you add, change or delete an addition or deduction, or change its side or the Cash paid tick, the card's totals change at once: **Net due** for the supplier side and **Customer net amount** for the customer side (before, only the supplier side changed, so a card rented to a customer seemed not to react until it was saved). The server still recalculates every total on save. Nothing changes on saved or submitted cards.
+
 ## Next release: v4.10.0 (merged, not yet released)
 
 These changes are merged and planned for **v4.10.0**. The release is prepared but not tagged, and no site is known to run it yet. **v4.10.0 changes the API:** programs and Data Import files that add or change additions and deductions of a monthly card must now send each row's date. After an upgrade, cash payments can be requested and approved, but **no cash payment is posted** until the posting service is set up and switched on separately.

@@ -15,9 +15,25 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-
-_Nothing yet._
+### Fixed
+- **FR-172 — Additions and deductions table: the date column and the live totals** (owner report 2026-11-21).
+  - The required `adjustment_date` column was missing for users who had saved their own grid columns for the table
+    before v4.10.0: Frappe shows only a user's saved `GridView` columns, so a new column never appears for them.
+    Patch `v4_10_1.show_adjustment_date_in_saved_grid_columns` (post_model_sync) puts `adjustment_date` first in
+    every saved column list of `Card Monthly Card Adjustment` that lacks it; the other columns, their order and
+    widths are kept; the user-settings cache is synced first and cleared after (as frappe's own user-settings
+    patches do). A second run changes nothing.
+  - The form now recalculates `customer_net_amount` live (customer amount + customer-side additions − customer-side
+    deductions), as it already did for `net_amount`, and recalculates when a row's `side` or `is_cash_disbursement`
+    changes. Before, a card rented to a customer showed no change in its balance until it was saved. A sub-rental
+    row counts once its side is chosen, and a row with no amount yet is not counted (as on the server).
+  - Functions: `card_monthly_card.js` (`card_calc`, child events), the new patch. Tests:
+    `card/tests/test_adjustments_grid.py`.
+  - Impact: permissions none; accounting none (the server's totals, the invoice builders and every stored card
+    amount are unchanged; no GL, JE or PLE is created); data: only users' display settings (`__UserSettings`) of
+    `Card Monthly Card`; API none.
+  - Rollback: the code rollback restores v4.10.0 behaviour; the added column stays in the saved user settings
+    (harmless; a user can remove it with "Configure columns").
 
 ### Security
 

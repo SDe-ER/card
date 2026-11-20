@@ -67,6 +67,14 @@ Each side adds its own rows to its own total:
 
 **Total additions** and **Total deductions** show the sums of both sides together.
 
+On a Draft card these totals change as soon as a row is added, changed or deleted, or its side or Cash paid tick
+changes. The server recalculates them on save; the customer amount itself updates on save. A row marked **Cash paid**
+is recorded but not counted in the totals. A submitted card's rows cannot change: to correct them, cancel the card
+and amend it.
+
+If you chose your own columns for the table (**Configure columns**), the **Adjustment date** column is added in front
+of them by the v4.10.1 upgrade. **Reset to default** in the same dialog shows the standard columns.
+
 Rows are changed only through the card's own save, so every change is validated and kept in the card's history. A
 direct update of a row's amount, type, side or downtime fields (REST, `frappe.client`) is refused, and a row cannot be
 moved to another card.
