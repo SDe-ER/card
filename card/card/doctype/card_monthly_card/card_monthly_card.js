@@ -257,16 +257,14 @@ function card_calc(frm) {
 	const sided = { Supplier: 0, Customer: 0 };
 	(frm.doc.adjustments || []).forEach((a) => {
 		// a pending owner-paid cash row is recorded but not counted (the server skips it too)
-		if (cint(a.is_cash_disbursement)) return;
+		if (cint(a.is_cash_disbursement) || flt(a.amount) <= 0) return;
+		const signed = a.adjustment_type === "إضافة" ? flt(a.amount) : -flt(a.amount);
+		if (a.adjustment_type === "إضافة") additions += flt(a.amount);
+		else if (a.adjustment_type === "خصم") deductions += flt(a.amount);
+		else return;
+		// the side net counts a row once its side is known (Supplier or Customer, as on the server)
 		const side = a.side || default_side;
-		if (!side || flt(a.amount) <= 0) return;
-		if (a.adjustment_type === "إضافة") {
-			additions += flt(a.amount);
-			sided[side] += flt(a.amount);
-		} else if (a.adjustment_type === "خصم") {
-			deductions += flt(a.amount);
-			sided[side] -= flt(a.amount);
-		}
+		if (side in sided) sided[side] += signed;
 	});
 
 	frm.set_value("total_working_hours", hours);
@@ -276,13 +274,15 @@ function card_calc(frm) {
 	frm.set_value("total_additions", flt(additions, 2));
 	frm.set_value("total_deductions", flt(deductions, 2));
 	frm.set_value("net_amount", flt(amount + sided.Supplier, 2));
-	// FR-172: the customer side shows the effect of its rows at once; the customer amount itself is the
-	// server's (it updates on save), as are the authoritative totals
-	const customer_amount = flt(frm.doc.customer_amount);
-	frm.set_value(
-		"customer_net_amount",
-		customer_amount || sided.Customer ? flt(customer_amount + sided.Customer, 2) : 0,
-	);
+	// FR-172: the customer side shows the effect of its rows at once on a saved card. The customer amount
+	// itself is the server's (it updates on save), so a new card waits for its first save.
+	if (!frm.doc.__islocal) {
+		const customer_amount = flt(frm.doc.customer_amount);
+		frm.set_value(
+			"customer_net_amount",
+			customer_amount || sided.Customer ? flt(customer_amount + sided.Customer, 2) : 0,
+		);
+	}
 	frm.refresh_field("days");
 	card_color_fridays(frm);
 }
