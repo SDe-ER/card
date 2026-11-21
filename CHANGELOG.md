@@ -28,7 +28,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     changes. Before, a card rented to a customer showed no change in its balance until it was saved. A sub-rental
     row counts in its side's net once its side is chosen (it still counts in the two totals), a row with no amount yet is
     not counted, and a new card shows the customer net after its first save (the customer amount is the server's).
-  - Functions: `card_monthly_card.js` (`card_calc`, child events), the new patch. Tests:
+  - A refused save of a Draft card with additions/deductions (Production, 2026-11-20 21:39 UTC, HTTP 417; the
+    response body is not logged, so the exact message is not known). A dry run of that card's validation with every
+    write blocked showed that dated additions and deductions inside the period pass, and that the reachable refusals
+    are a free-text **Adjustment type** (`adjustment_type_ref`) that is not configured in Card Settings (the site has
+    none, and that column was first in the user's saved columns) and a date outside the card period. The first
+    message now also says how to proceed: clear the Adjustment type and choose Addition or Deduction in Type
+    (`ar.po` updated). No validation rule changed.
+  - Functions: `card_monthly_card.js` (`card_calc`, child events), `card_monthly_card.py` (message only), the new patch. Tests:
     `card/tests/test_adjustments_grid.py`.
   - Impact: permissions none; accounting none (the server's totals, the invoice builders and every stored card
     amount are unchanged; no GL, JE or PLE is created); data: only users' display settings (`__UserSettings`) of

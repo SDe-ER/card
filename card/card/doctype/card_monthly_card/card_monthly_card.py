@@ -427,7 +427,7 @@ class CardMonthlyCard(Document):
 				if not typ or typ.disabled:
 					frappe.throw(
 						_(
-							"Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings."
+							"Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings. To record this row without a configured type, clear the Adjustment type and choose Addition or Deduction in Type."
 						).format(adj.adjustment_type_ref, self.company)
 					)
 				adj.adjustment_type = typ.kind

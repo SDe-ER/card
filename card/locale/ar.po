@@ -1787,8 +1787,8 @@ msgstr "الحساب {0} مجموعة؛ اختر حساباً فرعياً لل�
 msgid "Account {0} is disabled; pick an active account for type {1}."
 msgstr "الحساب {0} معطّل؛ اختر حساباً فعالاً للنوع {1}."
 
-msgid "Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings."
-msgstr "نوع الإضافة/الخصم {0} غير معرّف (أو معطّل) للشركة {1} في إعدادات كارت."
+msgid "Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings. To record this row without a configured type, clear the Adjustment type and choose Addition or Deduction in Type."
+msgstr "نوع الإضافة/الخصم {0} غير معرّف (أو معطّل) للشركة {1} في إعدادات كارت. لتسجيل هذا السطر بدون نوع معرّف، امسح «نوع الإضافة/الخصم» واختر إضافة أو خصم في «النوع»."
 
 msgid "Sub-rental cards bill both parties; choose the side (Supplier/Customer) for the addition/deduction {0}."
 msgstr "كروت إيجار الباطن تُفوتر للطرفين؛ حدد الجانب (مورد/عميل) للإضافة/الخصم {0}."

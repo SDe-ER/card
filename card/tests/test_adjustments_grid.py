@@ -27,7 +27,7 @@ from card.tests.test_controllers import _days
 from card.tests.test_customer import _CustomerCardsBase
 
 ADD, DED = "إضافة", "خصم"
-LEDGERS = ("Journal Entry", "GL Entry", "Payment Ledger Entry")
+LEDGERS = ("Journal Entry", "GL Entry", "Payment Ledger Entry", "Purchase Invoice", "Sales Invoice")
 
 
 def _row(kind, amount, description, side=None, date="2026-09-01"):
@@ -182,6 +182,55 @@ class TestAdjustmentEffects(_CustomerCardsBase):
 		c.save(ignore_permissions=True)
 		c.submit()
 		self.assertEqual({dt: frappe.db.count(dt) for dt in LEDGERS}, before)
+
+
+class TestDraftSaveWithAdjustments(_CustomerCardsBase):
+	"""The refused save seen on Production on 2026-11-20 (a Draft supplier card, HTTP 417 on save). A dry run
+	of that card's validation (writes blocked) showed: valid dated additions and deductions pass; the reachable
+	refusals are a free-text Adjustment type that is not configured in Card Settings and a date outside the
+	card period. These tests keep both: valid rows save; each refusal says how to fix it."""
+
+	def _draft(self, rows):
+		c = frappe.new_doc("Card Monthly Card")
+		c.equipment = self._equipment().name  # rented from a supplier, as the Production card
+		c.project = self.project
+		c.shift = "نهاري"
+		c.month = "09"
+		c.year = 2026
+		for row in _days([10, 10, 10, 10, 8]):
+			c.append("days", row)
+		for row in rows:
+			c.append("adjustments", row)
+		c.insert(ignore_permissions=True)
+		return c
+
+	def test_draft_with_addition_and_deduction_saves(self):
+		c = self._draft(
+			[_row(ADD, 100, "overtime", date="2026-09-30"), _row(DED, 40, "fuel", date="2026-09-01")]
+		)
+		self.assertEqual(c.docstatus, 0)
+		self.assertEqual((c.total_additions, c.total_deductions, c.net_amount), (100, 40, 3660))
+		self.assertEqual([r.side for r in c.adjustments], ["Supplier", "Supplier"])
+		c.append("adjustments", _row(ADD, 10, "later row", date="2026-09-15"))
+		c.save(ignore_permissions=True)
+		self.assertEqual(c.net_amount, 3670)
+
+	def test_free_text_adjustment_type_is_refused_with_the_way_out(self):
+		unknown = "TEST-UNCONFIGURED-" + self.token
+		row = _row(DED, 40, "fuel", date="2026-09-05")
+		row["adjustment_type_ref"] = unknown
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			self._draft([row])
+		self.assertIn(unknown, str(ctx.exception))
+		self.assertIn("clear the Adjustment type", str(ctx.exception))
+		row["adjustment_type_ref"] = None  # what the message asks: the same row then saves
+		self.assertEqual(self._draft([row]).total_deductions, 40)
+
+	def test_date_outside_the_period_names_the_period(self):
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			self._draft([_row(ADD, 10, "late", date="2026-10-01")])
+		self.assertIn("2026-09-01", str(ctx.exception))
+		self.assertIn("2026-09-30", str(ctx.exception))
 
 
 def flt_sum(*values):
