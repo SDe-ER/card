@@ -243,19 +243,28 @@ function card_calc(frm) {
 	}
 
 	// v4: additions / deductions (display only; the server recalculates on save)
-	// net_amount is the supplier side only (a row without a side takes the
-	// card's billed side, as the server does on save)
-	const default_side = frm.doc.card_direction === "مؤجَّرة لعميل" ? "Customer" : "Supplier";
+	// net_amount is the supplier side, customer_net_amount the customer side; a row
+	// without a side takes the card's billed side, as the server does on save (a
+	// sub-rental row needs its side, so it counts only once the side is chosen)
+	const default_side =
+		frm.doc.card_direction === "إيجار من الباطن"
+			? null
+			: frm.doc.card_direction === "مؤجَّرة لعميل"
+			  ? "Customer"
+			  : "Supplier";
 	let additions = 0,
-		deductions = 0,
-		supplier_signed = 0;
+		deductions = 0;
+	const sided = { Supplier: 0, Customer: 0 };
 	(frm.doc.adjustments || []).forEach((a) => {
 		// a pending owner-paid cash row is recorded but not counted (the server skips it too)
-		if (a.is_cash_disbursement) return;
+		if (cint(a.is_cash_disbursement) || flt(a.amount) <= 0) return;
 		const signed = a.adjustment_type === "إضافة" ? flt(a.amount) : -flt(a.amount);
 		if (a.adjustment_type === "إضافة") additions += flt(a.amount);
 		else if (a.adjustment_type === "خصم") deductions += flt(a.amount);
-		if ((a.side || default_side) === "Supplier") supplier_signed += signed;
+		else return;
+		// the side net counts a row once its side is known (Supplier or Customer, as on the server)
+		const side = a.side || default_side;
+		if (side in sided) sided[side] += signed;
 	});
 
 	frm.set_value("total_working_hours", hours);
@@ -264,7 +273,16 @@ function card_calc(frm) {
 	frm.set_value("amount", amount);
 	frm.set_value("total_additions", flt(additions, 2));
 	frm.set_value("total_deductions", flt(deductions, 2));
-	frm.set_value("net_amount", flt(amount + supplier_signed, 2));
+	frm.set_value("net_amount", flt(amount + sided.Supplier, 2));
+	// FR-172: the customer side shows the effect of its rows at once on a saved card. The customer amount
+	// itself is the server's (it updates on save), so a new card waits for its first save.
+	if (!frm.doc.__islocal) {
+		const customer_amount = flt(frm.doc.customer_amount);
+		frm.set_value(
+			"customer_net_amount",
+			customer_amount || sided.Customer ? flt(customer_amount + sided.Customer, 2) : 0,
+		);
+	}
 	frm.refresh_field("days");
 	card_color_fridays(frm);
 }
@@ -518,6 +536,8 @@ frappe.ui.form.on("Card Monthly Card Adjustment", {
 	},
 	adjustment_type: card_calc,
 	amount: card_calc,
+	side: card_calc,
+	is_cash_disbursement: card_calc,
 	adjustments_remove: card_calc,
 });
 
