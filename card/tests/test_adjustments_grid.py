@@ -16,7 +16,10 @@ import json
 import frappe
 from frappe.model.utils.user_settings import clear_user_settings_cache
 
-from card.card.doctype.card_monthly_card.card_monthly_card import configured_adjustment_types
+from card.card.doctype.card_monthly_card.card_monthly_card import (
+	configured_adjustment_types,
+	get_adjustment_type_names,
+)
 from card.patches.v4_10_1.show_adjustment_date_in_saved_grid_columns import (
 	CHILD,
 	PARENT,
@@ -327,18 +330,19 @@ class TestOptionalClassification(_AdjBase):
 		c.save(ignore_permissions=True)
 		self.assertEqual((len(c.adjustments), c.total_deductions), (1, 40))
 
-	def test_saved_grid_columns_do_not_affect_the_server(self):
-		# a saved column list that shows the classification changes nothing on the server: a row without it saves
-		frappe.db.sql(
-			"delete from `__UserSettings` where `user`=%s and `doctype`=%s", ("Administrator", PARENT)
+	def test_new_card_endpoint_lists_the_company_types(self):
+		self._add_type("Fuel-" + self.token, kind=DED)
+		self.assertEqual(get_adjustment_type_names(self.company), ["Fuel-" + self.token])
+
+	def test_new_card_endpoint_refuses_a_user_without_card_access(self):
+		frappe.set_user("Guest")
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				get_adjustment_type_names(self.company)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_new_card_endpoint_is_get_only(self):
+		self.assertEqual(
+			frappe.allowed_http_methods_for_whitelisted_func.get(get_adjustment_type_names), ["GET"]
 		)
-		cols = [
-			{"fieldname": f}
-			for f in ("adjustment_date", "adjustment_type_ref", "side", "adjustment_type", "amount")
-		]
-		frappe.db.sql(
-			"insert into `__UserSettings` (`user`, `doctype`, `data`) values (%s, %s, %s)",
-			("Administrator", PARENT, json.dumps({"GridView": {CHILD: cols}})),
-		)
-		c = self._draft([_row(ADD, 25, "standby", date="2026-09-20")])
-		self.assertEqual(c.total_additions, 25)

@@ -26,11 +26,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     `configured_adjustment_types`). The form hides `adjustment_type_ref` (also from a saved column list) when that list
     is empty and no row has a value, and rebuilds the grid. Existing values are never hidden or cleared. The server
     validation is unchanged: an unconfigured value that is sent is still refused, with the v4.10.1 guidance.
-  - Functions: `card_monthly_card.py` (`onload`, `configured_adjustment_types`), `card_monthly_card.js`
+  - Functions: `card_monthly_card.py` (`onload`, `configured_adjustment_types`, `get_adjustment_type_names`), `card_monthly_card.js`
     (`card_toggle_adjustment_classification`). Tests: `card/tests/test_adjustments_grid.py`
     (`TestOptionalClassification`).
   - Impact: permissions none; accounting none (formulas, lifecycle and stored amounts unchanged); data none (no
-    patch); API: the form's `__onload` carries `adjustment_types` (type names of the card's company).
+    patch); API: the form's `__onload` carries `adjustment_types` (type names of the card's company), and a new
+    read-only `get_adjustment_type_names(company)` (`methods=["GET"]`; create or write on Monthly Cards and a permitted
+    company) serves a new, unsaved card.
   - Rollback: code only; the field shows again.
 
 ### Security
@@ -59,11 +61,10 @@ _Nothing yet._
   allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
   remains in force until replaced.
 
-## [4.10.1] — Unreleased (release candidate; date set when the tag is approved)
+## [4.10.1] — 2026-11-21
 
-> **Release candidate — not published.** v4.10.1 is published only when the owner approves the merge of this release
-> PR and then the tag; the date is set then. Published ≠ deployed (see DEPLOYMENTS.md). Patch release on top of
-> v4.10.0: backward compatible, no API, permission, DocType, schema or accounting change.
+> **Published 2026-11-21** (tag `v4.10.1`, commit `d58f6b7`). Patch release on top of v4.10.0: backward compatible, no
+> API, permission, DocType, schema or accounting change. Published ≠ deployed (see DEPLOYMENTS.md).
 
 ### Fixed
 - **FR-172 — Additions and deductions table: the date column and the live totals** (owner report 2026-11-21; PR #282).

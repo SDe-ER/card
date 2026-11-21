@@ -446,6 +446,22 @@ function card_adjustment_classification_hidden(doc) {
 }
 
 function card_toggle_adjustment_classification(frm) {
+	// a new card has no onload: ask once per company (read-only); the field stays hidden until the answer
+	if (frm.is_new() && frm.doc.company && frm._card_adj_types_company !== frm.doc.company) {
+		frm._card_adj_types_company = frm.doc.company;
+		frappe
+			.call({
+				method: "card.card.doctype.card_monthly_card.card_monthly_card.get_adjustment_type_names",
+				type: "GET",
+				args: { company: frm.doc.company },
+			})
+			.then((r) => {
+				frm.doc.__onload = Object.assign({}, frm.doc.__onload, {
+					adjustment_types: (r && r.message) || [],
+				});
+				card_toggle_adjustment_classification(frm);
+			});
+	}
 	const grid = frm.fields_dict.adjustments && frm.fields_dict.adjustments.grid;
 	const df = grid && (grid.docfields || []).find((d) => d.fieldname === "adjustment_type_ref");
 	if (!df) return;
@@ -473,6 +489,7 @@ frappe.ui.form.on("Card Monthly Card", {
 		card_cash_status(frm);
 		card_toggle_adjustment_classification(frm);
 	},
+	company: card_toggle_adjustment_classification,
 	equipment(frm) {
 		card_load_hourly(frm);
 		card_lock_project(frm).then(() => card_build(frm));
@@ -560,7 +577,10 @@ frappe.ui.form.on("Card Monthly Card Adjustment", {
 	amount: card_calc,
 	side: card_calc,
 	is_cash_disbursement: card_calc,
-	adjustments_remove: card_calc,
+	adjustments_remove(frm) {
+		card_calc(frm);
+		card_toggle_adjustment_classification(frm);
+	},
 });
 
 // FR-170: the cash payments of this card, managed from the Additions & Deductions table. Each cash row shows its payment
