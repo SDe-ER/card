@@ -16,7 +16,7 @@ sidebar:
 | [`card.cancel_reason`](#card-cancel-reason) | 1 |
 | [`card.card.dashboard_chart_source.card_monthly_values.card_monthly_values`](#card-card-dashboard-chart-source-card-monthly-values-card-monthly-values) | 1 |
 | [`card.card.doctype.card_equipment.card_equipment`](#card-card-doctype-card-equipment-card-equipment) | 5 |
-| [`card.card.doctype.card_monthly_card.card_monthly_card`](#card-card-doctype-card-monthly-card-card-monthly-card) | 1 |
+| [`card.card.doctype.card_monthly_card.card_monthly_card`](#card-card-doctype-card-monthly-card-card-monthly-card) | 2 |
 | [`card.card.doctype.card_settings.card_settings`](#card-card-doctype-card-settings-card-settings) | 2 |
 | [`card.card.doctype.equipment_transport.equipment_transport`](#card-card-doctype-equipment-transport-equipment-transport) | 3 |
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
@@ -86,6 +86,7 @@ sidebar:
 | مسار الدالة | طرق HTTP | المعاملات |
 |---|---|---|
 | `card.card.doctype.card_monthly_card.card_monthly_card.get_card_context` | GET | `equipment: str`<br/>`month: str`<br/>`year: str`<br/>`project: str \| None = None` |
+| `card.card.doctype.card_monthly_card.card_monthly_card.get_adjustment_type_names` | GET | `company: str` |
 
 
 <h2 id="card-card-doctype-card-settings-card-settings"><code>card.card.doctype.card_settings.card_settings</code></h2>

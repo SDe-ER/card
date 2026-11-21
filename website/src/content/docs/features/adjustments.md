@@ -52,8 +52,10 @@ A company-restricted user sees and changes only the types of their own companies
 
 The **Additions and deductions** table of a monthly card:
 
-- **Adjustment type** – the configured type's name for the card's company; it sets **Type** (Addition / Deduction)
-  from the type's kind. Older rows without a type keep working and count on the supplier side.
+- **Adjustment type** – optional. The configured type's name for the card's company; it sets **Type** (Addition /
+  Deduction) from the type's kind. Older rows without a type keep working and count on the supplier side. The field is
+  shown only when the card's company has configured types or a row already has one; without types, enter the row
+  with **Type** only. A name that is not configured is refused, and the message says to clear it.
 - **Date** – required. The day of the addition or deduction; it must fall inside the card's month. A new row takes today's date when today is inside that month. Rows saved before this change take the first day of their card's month (its start date) when the site is upgraded; correct a date on the card if needed. Not released yet. API clients that add or change rows must now send the date.
 - **Description** and **Amount** – required; the amount must be greater than zero (the kind gives the sign).
 - **Side** – Supplier or Customer. Empty takes the card's billed side (Customer for a card rented to a customer,

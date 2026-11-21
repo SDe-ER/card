@@ -435,6 +435,43 @@ function card_render_diesel(frm) {
 		});
 }
 
+// FR-173: the optional Adjustment type (a type configured in Card Settings) shows only when the card's company has
+// such types, or when a row already carries one (an existing value is never hidden or cleared). Otherwise the row is
+// entered with Type (Addition or Deduction), Side, Date, Amount and Description; the server still refuses an
+// unconfigured type that is sent.
+function card_adjustment_classification_hidden(doc) {
+	const configured = ((doc.__onload || {}).adjustment_types || []).length > 0;
+	const used = (doc.adjustments || []).some((r) => r.adjustment_type_ref);
+	return configured || used ? 0 : 1;
+}
+
+function card_toggle_adjustment_classification(frm) {
+	// a new card has no onload: ask once per company (read-only); the field stays hidden until the answer
+	if (frm.is_new() && frm.doc.company && frm._card_adj_types_company !== frm.doc.company) {
+		frm._card_adj_types_company = frm.doc.company;
+		frappe
+			.call({
+				method: "card.card.doctype.card_monthly_card.card_monthly_card.get_adjustment_type_names",
+				type: "GET",
+				args: { company: frm.doc.company },
+			})
+			.then((r) => {
+				frm.doc.__onload = Object.assign({}, frm.doc.__onload, {
+					adjustment_types: (r && r.message) || [],
+				});
+				card_toggle_adjustment_classification(frm);
+			});
+	}
+	const grid = frm.fields_dict.adjustments && frm.fields_dict.adjustments.grid;
+	const df = grid && (grid.docfields || []).find((d) => d.fieldname === "adjustment_type_ref");
+	if (!df) return;
+	const hidden = card_adjustment_classification_hidden(frm.doc);
+	if (cint(df.hidden) === hidden) return;
+	grid.update_docfield_property("adjustment_type_ref", "hidden", hidden);
+	// rebuild the columns: a column saved with "Configure columns" is dropped while its field is hidden
+	grid.reset_grid();
+}
+
 frappe.ui.form.on("Card Monthly Card", {
 	setup(frm) {
 		// FR-118: only the enabled stop reasons of the card's company
@@ -450,7 +487,9 @@ frappe.ui.form.on("Card Monthly Card", {
 		card_render_diesel(frm);
 		card_cash_actions(frm);
 		card_cash_status(frm);
+		card_toggle_adjustment_classification(frm);
 	},
+	company: card_toggle_adjustment_classification,
 	equipment(frm) {
 		card_load_hourly(frm);
 		card_lock_project(frm).then(() => card_build(frm));
@@ -538,7 +577,10 @@ frappe.ui.form.on("Card Monthly Card Adjustment", {
 	amount: card_calc,
 	side: card_calc,
 	is_cash_disbursement: card_calc,
-	adjustments_remove: card_calc,
+	adjustments_remove(frm) {
+		card_calc(frm);
+		card_toggle_adjustment_classification(frm);
+	},
 });
 
 // FR-170: the cash payments of this card, managed from the Additions & Deductions table. Each cash row shows its payment

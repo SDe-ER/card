@@ -16,9 +16,13 @@ version is not running on a site until that site is upgraded. Which version a si
 per site.
 :::
 
-## Next release: v4.10.1 (merged, not yet released)
+## Next release (merged, not yet released)
 
-These fixes are merged and planned for **v4.10.1**, a patch release on top of v4.10.0. The release is prepared but not tagged, and no site is known to run it yet. It changes no API, permission or accounting rule.
+- **2026-11-21 — Additions and deductions save without an Adjustment type.** When no addition/deduction types are configured in Card Settings for the card's company, the optional **Adjustment type** field is no longer shown in the table, also for users who had chosen it as a column. Enter each row with **Type** (Addition or Deduction), Side, Date, Amount and Description, and save. Where types are configured, or a row already has one, the field stays and works as before. Typing a name that is not configured is still refused, with a message that says how to fix the row.
+
+## v4.10.1 — 2026-11-21
+
+Patch release on top of v4.10.0. It changes no API, permission or accounting rule.
 
 - **2026-11-21 — The Additions and deductions table shows the date for everyone, and the totals follow each row at once.** Users who had chosen their own columns for the table before v4.10.0 did not see the new **Adjustment date** column; the upgrade now adds it in front of their columns and keeps the rest of their choice. When you add, change or delete an addition or deduction, or change its side or the Cash paid tick, the card's totals change at once: **Net due** for the supplier side and **Customer net amount** for the customer side (before, only the supplier side changed, so a card rented to a customer seemed not to react until it was saved). The server still recalculates every total on save. Nothing changes on saved or submitted cards. If a row's **Adjustment type** is not one of the types configured in Card Settings, the save is still refused, and the message now tells you to clear that field and choose Addition or Deduction in **Type**.
 
