@@ -127,7 +127,26 @@ def _interactive_form_save():
 	return bool(getattr(frappe.local, "request", None))
 
 
+def configured_adjustment_types(company):
+	"""Sorted names of the enabled Card Settings addition/deduction types of ``company`` (FR-173)."""
+	if not company:
+		return []
+	settings = frappe.get_cached_doc("Card Settings")
+	return sorted(
+		{
+			t.type_name
+			for t in settings.get("adjustment_types") or []
+			if t.company == company and t.type_name and not cint(t.disabled)
+		}
+	)
+
+
 class CardMonthlyCard(Document):
+	def onload(self):
+		# FR-173: the names of the enabled addition/deduction types of the card's company, so the form shows the
+		# optional Adjustment type only where a type can be chosen. Read-only (names only; no account or rule).
+		self.set_onload("adjustment_types", configured_adjustment_types(self.company))
+
 	def before_validate(self):
 		self._protect_paid_cash_rows()
 		self._refresh_cash_rows()

@@ -16,6 +16,7 @@ import json
 import frappe
 from frappe.model.utils.user_settings import clear_user_settings_cache
 
+from card.card.doctype.card_monthly_card.card_monthly_card import configured_adjustment_types
 from card.patches.v4_10_1.show_adjustment_date_in_saved_grid_columns import (
 	CHILD,
 	PARENT,
@@ -26,6 +27,7 @@ from card.patches.v4_10_1.show_adjustment_date_in_saved_grid_columns import (
 )
 from card.tests.test_controllers import _days
 from card.tests.test_customer import _CustomerCardsBase
+from card.tests.test_s3_config import _AdjBase
 
 ADD, DED = "إضافة", "خصم"
 LEDGERS = ("Journal Entry", "GL Entry", "Payment Ledger Entry", "Purchase Invoice", "Sales Invoice")
@@ -245,3 +247,98 @@ class TestDraftSaveWithAdjustments(_CustomerCardsBase):
 
 def flt_sum(*values):
 	return frappe.utils.flt(sum(frappe.utils.flt(v) for v in values), 2)
+
+
+class TestOptionalClassification(_AdjBase):
+	"""FR-173: the optional Adjustment type (`adjustment_type_ref`) never blocks a plain row. Production on
+	2026-11-21: no type configured, the user's saved columns showed the free-text Adjustment type next to Type,
+	and a value typed there refused the save. The form now shows that field only when the card's company has
+	types (or a row already has one); the server keeps refusing an unconfigured value that is sent."""
+
+	def setUp(self):
+		super().setUp()
+		self._clear_types()
+
+	def _draft(self, rows=()):
+		c = frappe.new_doc("Card Monthly Card")
+		c.equipment = self._equipment().name  # rented from a supplier
+		c.project = self.project
+		c.shift = "نهاري"
+		c.month = "09"
+		c.year = 2026
+		for row in _days([10, 10, 10, 10, 8]):
+			c.append("days", row)
+		for row in rows:
+			c.append("adjustments", row)
+		c.insert(ignore_permissions=True)
+		return c
+
+	def _onload_types(self, card):
+		card.run_onload()
+		return card.get_onload().get("adjustment_types")
+
+	def test_no_type_configured_form_gets_an_empty_list(self):
+		self.assertEqual(self._onload_types(self._draft()), [])
+
+	def test_onload_lists_the_enabled_types_of_the_card_company_only(self):
+		self._add_type("Fuel-" + self.token, kind=DED)
+		self._add_type("Old-" + self.token, kind=DED, disabled=1)
+		card = self._draft()
+		self.assertEqual(self._onload_types(card), ["Fuel-" + self.token])
+		self.assertEqual(configured_adjustment_types(None), [])
+		self.assertEqual(configured_adjustment_types("TEST-NO-SUCH-COMPANY-" + self.token), [])
+
+	def test_plain_rows_save_without_classification(self):
+		c = self._draft(
+			[_row(ADD, 100, "overtime", date="2026-09-10"), _row(DED, 40, "fuel", date="2026-09-11")]
+		)
+		self.assertEqual([r.adjustment_type_ref for r in c.adjustments], [None, None])
+		self.assertEqual((c.total_additions, c.total_deductions, c.net_amount), (100, 40, 3660))
+
+	def test_configured_classification_saves_and_is_kept(self):
+		name = "Fuel-" + self.token
+		self._add_type(name, kind=DED)
+		row = _row(ADD, 40, "fuel", date="2026-09-05")
+		row["adjustment_type_ref"] = name
+		c = self._draft([row])
+		# the type sets the kind (a deduction) and the classification stays on the row
+		self.assertEqual(
+			(c.adjustments[0].adjustment_type_ref, c.adjustments[0].adjustment_type), (name, DED)
+		)
+		c.save(ignore_permissions=True)
+		c.reload()
+		self.assertEqual(c.adjustments[0].adjustment_type_ref, name)
+
+	def test_unconfigured_classification_is_refused_and_the_card_is_unchanged(self):
+		c = self._draft()
+		row = _row(DED, 40, "fuel", date="2026-09-05")
+		row["adjustment_type_ref"] = (
+			DED  # what was typed on Production: the word "deduction" in the free-text field
+		)
+		c.append("adjustments", row)
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			c.save(ignore_permissions=True)
+		self.assertIn("clear the Adjustment type", str(ctx.exception))
+		self.assertEqual(frappe.db.count("Card Monthly Card Adjustment", {"parent": c.name}), 0)
+		c.reload()
+		c.append(
+			"adjustments", _row(DED, 40, "fuel", date="2026-09-05")
+		)  # the same row without the classification
+		c.save(ignore_permissions=True)
+		self.assertEqual((len(c.adjustments), c.total_deductions), (1, 40))
+
+	def test_saved_grid_columns_do_not_affect_the_server(self):
+		# a saved column list that shows the classification changes nothing on the server: a row without it saves
+		frappe.db.sql(
+			"delete from `__UserSettings` where `user`=%s and `doctype`=%s", ("Administrator", PARENT)
+		)
+		cols = [
+			{"fieldname": f}
+			for f in ("adjustment_date", "adjustment_type_ref", "side", "adjustment_type", "amount")
+		]
+		frappe.db.sql(
+			"insert into `__UserSettings` (`user`, `doctype`, `data`) values (%s, %s, %s)",
+			("Administrator", PARENT, json.dumps({"GridView": {CHILD: cols}})),
+		)
+		c = self._draft([_row(ADD, 25, "standby", date="2026-09-20")])
+		self.assertEqual(c.total_additions, 25)

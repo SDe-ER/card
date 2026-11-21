@@ -15,9 +15,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-
-_Nothing yet._
+### Fixed
+- **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (owner report 2026-11-21,
+  reproduced on Production after the v4.10.1 deployment: «نوع الإضافة/الخصم … غير معرّف (أو معطّل) في إعدادات كارت»).
+  - Root cause: the optional classification `Card Monthly Card Adjustment.adjustment_type_ref` (free text, label
+    "Adjustment type" / «نوع الإضافة/الخصم») sat in the user's saved grid columns right next to the required operation
+    selector `adjustment_type` ("Type" / «النوع»: إضافة / خصم). The site has no type configured in Card Settings, so
+    any value typed there is refused on save (three refused saves on 2026-11-21; no value was stored).
+  - Fix: `CardMonthlyCard.onload` sends the names of the enabled types of the card's company (read-only, names only;
+    `configured_adjustment_types`). The form hides `adjustment_type_ref` (also from a saved column list) when that list
+    is empty and no row has a value, and rebuilds the grid. Existing values are never hidden or cleared. The server
+    validation is unchanged: an unconfigured value that is sent is still refused, with the v4.10.1 guidance.
+  - Functions: `card_monthly_card.py` (`onload`, `configured_adjustment_types`), `card_monthly_card.js`
+    (`card_toggle_adjustment_classification`). Tests: `card/tests/test_adjustments_grid.py`
+    (`TestOptionalClassification`).
+  - Impact: permissions none; accounting none (formulas, lifecycle and stored amounts unchanged); data none (no
+    patch); API: the form's `__onload` carries `adjustment_types` (type names of the card's company).
+  - Rollback: code only; the field shows again.
 
 ### Security
 
