@@ -935,6 +935,7 @@ msgstr "إلى سنة"
 
 #. Label of the total_additions (Currency) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total additions"
 msgstr "إجمالي الإضافات"
 
@@ -946,6 +947,7 @@ msgstr "القيمة الإجمالية"
 #. Label of the total_deductions (Currency) field in DocType 'Card Monthly
 #. Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total deductions"
 msgstr "إجمالي الخصومات"
 
@@ -5117,40 +5119,20 @@ msgid "Supplier settlement"
 msgstr "تسوية المورد"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier gross"
-msgstr "إجمالي المورد"
+msgid "Total before additions and deductions"
+msgstr "الإجمالي قبل الإضافات والخصومات"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier additions"
-msgstr "إضافات المورد"
+msgid "Net after additions and deductions"
+msgstr "الصافي بعد الإضافات والخصومات"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier deductions"
-msgstr "خصومات المورد"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier net before VAT"
-msgstr "صافي المورد قبل الضريبة"
+msgid "Cash paid, not in the totals"
+msgstr "دفع نقدي، غير محتسب في الإجماليات"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Customer settlement"
 msgstr "تسوية العميل"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer gross"
-msgstr "إجمالي العميل"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer additions"
-msgstr "إضافات العميل"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer deductions"
-msgstr "خصومات العميل"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer net before VAT"
-msgstr "صافي العميل قبل الضريبة"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 #: card/fixtures/print_format.json
