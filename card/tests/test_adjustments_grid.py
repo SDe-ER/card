@@ -14,6 +14,7 @@ All data is per-test and rolled back."""
 import json
 
 import frappe
+from frappe.desk.form.load import run_onload
 from frappe.model.utils.user_settings import clear_user_settings_cache
 
 from card.card.doctype.card_monthly_card.card_monthly_card import (
@@ -277,7 +278,7 @@ class TestOptionalClassification(_AdjBase):
 		return c
 
 	def _onload_types(self, card):
-		card.run_onload()
+		run_onload(card)
 		return card.get_onload().get("adjustment_types")
 
 	def test_no_type_configured_form_gets_an_empty_list(self):
