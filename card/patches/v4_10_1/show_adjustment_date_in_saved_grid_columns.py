@@ -4,7 +4,7 @@
 
 Frappe shows only the saved columns of a child table when a user chose them with "Configure columns"
 (GridView user settings). A user who did that before v4.10.0 never sees the new required Adjustment date
-column. This patch puts that column first in every saved column list of the table that does not have it.
+column. This patch puts that column first (after any pinned columns) in every saved column list of the table that does not have it.
 The other saved columns, their order and widths stay as the user chose them. Only user display settings
 change; no document, amount or permission changes. A second run changes nothing."""
 
@@ -26,7 +26,11 @@ def add_date_column(data):
 		return None  # no saved columns: Frappe shows the DocType's list-view columns, date included
 	if any(isinstance(c, dict) and c.get("fieldname") == FIELD for c in columns):
 		return None
-	grid[CHILD] = [{"fieldname": FIELD, "sticky": 0}, *columns]
+	# first after the columns the user pinned (sticky columns stay pinned at the left edge, in their order)
+	at = 0
+	while at < len(columns) and isinstance(columns[at], dict) and columns[at].get("sticky"):
+		at += 1
+	grid[CHILD] = [*columns[:at], {"fieldname": FIELD, "sticky": 0}, *columns[at:]]
 	return data
 
 

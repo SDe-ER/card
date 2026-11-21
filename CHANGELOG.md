@@ -19,7 +19,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 - **FR-172 — Additions and deductions table: the date column and the live totals** (owner report 2026-11-21; PR #282).
   - The required `adjustment_date` column was missing for users who had saved their own grid columns for the table
     before v4.10.0: Frappe shows only a user's saved `GridView` columns, so a new column never appears for them.
-    Patch `v4_10_1.show_adjustment_date_in_saved_grid_columns` (post_model_sync) puts `adjustment_date` first in
+    Patch `v4_10_1.show_adjustment_date_in_saved_grid_columns` (post_model_sync) puts `adjustment_date` first (after any pinned columns) in
     every saved column list of `Card Monthly Card Adjustment` that lacks it; the other columns, their order and
     widths are kept; the user-settings cache is synced first and cleared after (as frappe's own user-settings
     patches do). A second run changes nothing.

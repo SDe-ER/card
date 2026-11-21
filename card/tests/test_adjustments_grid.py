@@ -14,6 +14,7 @@ All data is per-test and rolled back."""
 import json
 
 import frappe
+from frappe.model.utils.user_settings import clear_user_settings_cache
 
 from card.patches.v4_10_1.show_adjustment_date_in_saved_grid_columns import (
 	CHILD,
@@ -69,8 +70,17 @@ class TestSavedGridColumnsPatch(_CustomerCardsBase):
 		self.assertIsNone(add_date_column({"GridView": {CHILD: [{"fieldname": "adjustment_date"}]}}))
 		self.assertIsNone(add_date_column("corrupt"))
 
+	def test_date_column_goes_after_pinned_columns(self):
+		pinned = {"fieldname": "side", "width": 140, "sticky": 1}
+		out = add_date_column({"GridView": {CHILD: [pinned, {"fieldname": "amount", "sticky": 0}]}})
+		self.assertEqual(
+			[c["fieldname"] for c in out["GridView"][CHILD]], ["side", "adjustment_date", "amount"]
+		)
+
 	def test_patch_updates_saved_settings_once(self):
 		user = "Administrator"
+		# a cached copy of this user's settings would be synced over the test row by the patch
+		clear_user_settings_cache(PARENT)
 		frappe.db.sql("delete from `__UserSettings` where `user`=%s and `doctype`=%s", (user, PARENT))
 		frappe.db.sql(
 			"insert into `__UserSettings` (`user`, `doctype`, `data`) values (%s, %s, %s)",
