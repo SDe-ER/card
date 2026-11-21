@@ -16,13 +16,15 @@ version is not running on a site until that site is upgraded. Which version a si
 per site.
 :::
 
-## Next release: v4.10.1 (in review, not merged)
+## Next release: v4.10.1 (merged, not yet released)
+
+These fixes are merged and planned for **v4.10.1**, a patch release on top of v4.10.0. The release is prepared but not tagged, and no site is known to run it yet. It changes no API, permission or accounting rule.
 
 - **2026-11-21 — The Additions and deductions table shows the date for everyone, and the totals follow each row at once.** Users who had chosen their own columns for the table before v4.10.0 did not see the new **Adjustment date** column; the upgrade now adds it in front of their columns and keeps the rest of their choice. When you add, change or delete an addition or deduction, or change its side or the Cash paid tick, the card's totals change at once: **Net due** for the supplier side and **Customer net amount** for the customer side (before, only the supplier side changed, so a card rented to a customer seemed not to react until it was saved). The server still recalculates every total on save. Nothing changes on saved or submitted cards. If a row's **Adjustment type** is not one of the types configured in Card Settings, the save is still refused, and the message now tells you to clear that field and choose Addition or Deduction in **Type**.
 
-## Next release: v4.10.0 (merged, not yet released)
+## v4.10.0 — 2026-11-20
 
-These changes are merged and planned for **v4.10.0**. The release is prepared but not tagged, and no site is known to run it yet. **v4.10.0 changes the API:** programs and Data Import files that add or change additions and deductions of a monthly card must now send each row's date. After an upgrade, cash payments can be requested and approved, but **no cash payment is posted** until the posting service is set up and switched on separately.
+**v4.10.0 changes the API:** programs and Data Import files that add or change additions and deductions of a monthly card must send each row's date. After an upgrade, cash payments can be requested and approved, but **no cash payment is posted** until the posting service is set up and switched on separately.
 
 - **2026-11-19 — The card row of a cash payment is locked.** While a cash payment of a row is pending, approved, posted or waiting for its cancellation, the row stays on the card and keeps its Cash paid tick, amount, cash account, type and side; the description and the date can still be changed. To change such a row, delete the pending payment or cancel the posted one first. This prevents the same cash from being deducted twice (once by its journal entry and again by the supplier invoice). A card cannot be cancelled while it has a cash payment that is not cancelled. An approved payment that was never posted (or whose posting failed) can now be cancelled with a reason from **Request cash cancellation**; nothing needs to be cancelled in ERPNext for it. A payment of a cancelled card is no longer approved, queued or posted, and the cancellation details of a payment can be written only by the cancellation itself.
 - **2026-11-19 — The Additions and deductions table uses the full width of the card.** The table is no longer squeezed next to the totals: it now spans the form, and the totals are shown under it in a **Financial summary** section. Date, type, description, side, amount, cash paid and cash payment status are readable without scrolling on a desktop.
