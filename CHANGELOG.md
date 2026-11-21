@@ -15,9 +15,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-
-_Nothing yet._
+### Fixed
+- **FR-174 — Monthly Card print: four clear settlement totals per side** (owner request 2026-11-21).
+  - The default print format `Card Monthly Card Print` shows, for each billed side (Supplier settlement, Customer
+    settlement), four rows in this order: «الإجمالي قبل الإضافات والخصومات» (`amount` / `customer_amount`), «إجمالي
+    الإضافات», «إجمالي الخصومات» and «الصافي بعد الإضافات والخصومات» (the stored `net_amount` /
+    `customer_net_amount`, printed directly, so the adjustments are applied once). Amounts print with two decimals
+    and the company currency (`2,430.00 SAR`, `0.00 SAR`); the net row is larger, bold and on the header grey.
+  - The printed additions and deductions now leave out Cash paid rows, as the server's totals do (FR-170: a cash row
+    is recorded, not counted). Before, a card with a Cash paid deduction printed that deduction in the side total,
+    so gross + additions − deductions did not match the printed net.
+  - Functions: `card/card/print_format/card_monthly_card_print/card_monthly_card_print.json` (html, css);
+    `card/locale/main.pot`, `card/locale/ar.po` (two new labels; the eight old side labels removed, no other use).
+    Tests: `card/tests/test_print_formats.py`.
+  - Impact: permissions none (the money gate FR-162 is unchanged); accounting none (prints only; stored amounts,
+    formulas and invoice builders unchanged); data none (no patch; the standard print format is reloaded by
+    `bench migrate`); API none.
+  - Rollback: code only; the previous labels print again after the rollback's migrate.
 
 ### Security
 

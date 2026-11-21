@@ -1191,6 +1191,7 @@ msgstr ""
 
 #. Label of the total_additions (Currency) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total additions"
 msgstr ""
 
@@ -1202,6 +1203,7 @@ msgstr ""
 #. Label of the total_deductions (Currency) field in DocType 'Card Monthly
 #. Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total deductions"
 msgstr ""
 
@@ -3878,39 +3880,19 @@ msgid "Supplier settlement"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier gross"
+msgid "Total before additions and deductions"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier additions"
+msgid "Net after additions and deductions"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier deductions"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier net before VAT"
+msgid "Cash paid, not in the totals"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Customer settlement"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer gross"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer additions"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer deductions"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer net before VAT"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
