@@ -329,6 +329,125 @@ def supplier_ledger(company, supplier, start, end, equipment=None, project=None)
 	return out
 
 
+def scoped_month_ledger(company, supplier, start, end, equipment=None, project=None):
+	"""The month statement's ledger lines (opening, accrued, paid; VAT included, as that statement shows them)
+	with the same equipment/project rules as the date-range statement (FR-176, Owner 2026-11-22).
+
+	- A payment or another credit counts only when its supplier ledger row carries the selected equipment (Card
+	  Equipment dimension) / project; untagged ones up to ``end`` are information only (unallocated_paid,
+	  unallocated_other).
+	- The credit of a CARD posting is allocated by what it bills, whatever its party row carries: a Purchase Invoice by
+	  its item-line net share, a linked accrual Journal Entry by the net of its source cards. The untagged part of that
+	  credit is information too (unallocated_other); nothing disappears without a line."""
+	dimension = gl_has_dimension_field()
+	scope = _ledger_scope(equipment if dimension else None, project)
+	vouchers = card_vouchers(company, supplier)
+	shares = _card_voucher_shares(company, supplier, vouchers, scope) if scope else {}
+	out = {
+		"opening": 0.0,
+		"accrued": 0.0,
+		"paid": 0.0,
+		"unallocated_paid": 0.0,
+		"unallocated_other": 0.0,
+		"dimension_missing": bool(equipment) and not dimension,
+	}
+	fields = ["posting_date", "voucher_type", "voucher_no", "debit", "credit", "project"]
+	if dimension:
+		fields.append(DIMENSION_FIELD)
+	for g in frappe.get_all(
+		"GL Entry",
+		filters=[
+			["company", "=", company],
+			["party_type", "=", SUPPLIER],
+			["party", "=", supplier],
+			["is_cancelled", "=", 0],
+			["posting_date", "<=", end],
+		],
+		fields=fields,
+		limit_page_length=0,
+	):
+		match = _scope_match(g, scope)
+		debit = flt(g.debit) if match == "in" else 0.0
+		if match == "untagged":
+			out["unallocated_paid"] = out["unallocated_paid"] + flt(g.debit)
+		key = (g.voucher_type, g.voucher_no)
+		if flt(g.credit) and key in vouchers and scope:
+			scoped, untagged = shares.get(key, (0.0, 0.0))
+			credit = flt(g.credit) * scoped
+			out["unallocated_other"] = out["unallocated_other"] + flt(g.credit) * untagged
+		else:
+			credit = flt(g.credit) if match == "in" else 0.0
+			if match == "untagged":
+				out["unallocated_other"] = out["unallocated_other"] + flt(g.credit)
+		if getdate(g.posting_date) < start:
+			out["opening"] = out["opening"] + credit - debit
+		else:
+			out["accrued"] = out["accrued"] + credit
+			out["paid"] = out["paid"] + debit
+	for name in ("opening", "accrued", "paid", "unallocated_paid", "unallocated_other"):
+		out[name] = flt(out[name], 2)
+	return out
+
+
+def _card_voucher_shares(company, supplier, vouchers, scope):
+	"""{(doctype, name): (scoped share, untagged share)} of each CARD posting's credit: a Purchase Invoice by its
+	item-line net; another CARD posting (a linked accrual Journal Entry) by the net of the cards it bills."""
+	invoices = [name for doctype, name in vouchers if doctype == "Purchase Invoice"]
+	out = {}
+	if invoices:
+		scoped, untagged = _scoped_item_share(invoices, scope)
+		for name in invoices:
+			out[("Purchase Invoice", name)] = (scoped.get(name, 0.0), untagged.get(name, 0.0))
+	others = [(doctype, name) for doctype, name in vouchers if doctype != "Purchase Invoice"]
+	if not others:
+		return out
+	logs = frappe.get_all(
+		"GL Posting Log",
+		filters={
+			"company": company,
+			"party_type": SUPPLIER,
+			"party": supplier,
+			"status": "Submitted",
+			"posting_doc": ["in", [name for _doctype, name in others]],
+		},
+		fields=["name", "posting_doctype", "posting_doc"],
+		limit_page_length=0,
+	)
+	voucher_of = {log.name: (log.posting_doctype, log.posting_doc) for log in logs}
+	sources = frappe.get_all(
+		"GL Posting Source",
+		filters=[["parent", "in", list(voucher_of) or [""]], ["source_doctype", "=", "Card Monthly Card"]],
+		fields=["parent", "source_name"],
+		limit_page_length=0,
+	)
+	cards = {
+		c.name: c
+		for c in frappe.get_all(
+			"Card Monthly Card",
+			filters=[["name", "in", list({r.source_name for r in sources}) or [""]]],
+			fields=["name", "equipment", "project", "net_amount"],
+			limit_page_length=0,
+		)
+	}
+	total, scoped, untagged = {}, {}, {}
+	for r in sources:
+		card = cards.get(r.source_name)
+		if not card:
+			continue
+		key = voucher_of[r.parent]
+		net = flt(card.net_amount)
+		total[key] = total.get(key, 0.0) + net
+		# a card always carries its project; its equipment is the card's own (the Card Equipment dimension value)
+		match = _scope_match({DIMENSION_FIELD: card.equipment, "project": card.project}, scope)
+		if match == "in":
+			scoped[key] = scoped.get(key, 0.0) + net
+		elif match == "untagged":
+			untagged[key] = untagged.get(key, 0.0) + net
+	for key, t in total.items():
+		out[key] = (scoped.get(key, 0.0) / t, untagged.get(key, 0.0) / t) if t else (0.0, 0.0)
+	return out
+
+
 def _scoped_item_share(invoices, scope):
 	"""({invoice: share of its item net (base_net_amount) whose rows carry the scope}, {invoice: share of the
 	untagged rows}) (Owner decision D2); the VAT of untagged rows is shown as information, never added."""

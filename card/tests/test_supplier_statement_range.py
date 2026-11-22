@@ -502,3 +502,99 @@ class TestSupplierStatementRange(_PostingBase):
 		r = self._run(from_date="2026-09-01", to_date="2026-09-05")
 		self.assertEqual(r.by_key["previous_due"], flt(august.net_amount, 2))
 		self.assertEqual(r.by_key["current_due"], flt(flt(august.net_amount, 2) + r.by_key["period_net"], 2))
+
+	# ---- FR-176 follow-up: the month statement applies the same equipment rules ----
+	def test_month_statement_equipment_filter_counts_only_its_own_payments(self):
+		a, b = self._eq(), self._eq()
+		self._card(a, HOURS)
+		self._card(b, HOURS)
+		self._payment(300, "2026-09-03", equipment=a.name)  # linked
+		self._payment(200, "2026-09-04", equipment=b.name)  # another equipment
+		self._payment(100, "2026-09-02")  # unlinked: warned, never deducted
+		self._payment(40, "2026-08-20", equipment=a.name)  # before the month: in the opening
+		r = self._run(equipment=a.name)
+		self.assertEqual(r.by_key["paid"], 300)
+		self.assertEqual(r.by_key["opening"], -40)
+		self.assertEqual(r.by_key["unallocated_paid"], 100)
+		self.assertEqual(r.by_key["closing"], flt(-40 + r.by_key["accrued"] - 300, 2))
+		self.assertIn("entries without one are shown apart and not counted", r.message)
+		self.assertIn("net_cards", r.by_key)  # still the month statement
+		self.assertNotIn("period_net", r.by_key)
+
+	def test_month_statement_mixed_project_and_equipment_tags(self):
+		a = self._eq()
+		self._card(a, HOURS)
+		self._payment(70, "2026-09-03", equipment=a.name, project=self.project)
+		self._payment(30, "2026-09-03", project=self.project)  # project only
+		r = self._run(equipment=a.name, project=self.project)
+		self.assertEqual(r.by_key["paid"], 70)
+		self.assertEqual(r.by_key["unallocated_paid"], 30)
+		self.assertEqual(self._run(project=self.project).by_key["paid"], 100)
+
+	def test_month_statement_without_equipment_filter_is_unchanged(self):
+		a = self._eq()
+		self._card(a, HOURS)
+		self._payment(300, "2026-09-03", equipment=a.name)
+		self._payment(100, "2026-09-02")
+		self._payment(5, "2026-09-02", credit=True)
+		r = self._run()
+		self.assertEqual(r.by_key["paid"], 400)
+		self.assertEqual(r.by_key["accrued"], 5)
+		self.assertNotIn("unallocated_paid", r.by_key)
+		self.assertNotIn("entries without one are shown apart", r.message)
+
+	def test_month_statement_card_invoice_credit_counts_by_line_share(self):
+		self._vat_supplier()
+		a, b = self._eq(), self._eq()
+		self._card(a, [8, 8], submit=True)
+		self._card(b, [8], submit=True)
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		pi.bill_no = "TEST-BILL-" + self.token
+		pi.bill_date = pi.posting_date
+		pi.submit()
+		month = str(pi.posting_date)[5:7]
+		year = int(str(pi.posting_date)[:4])
+		total = sum(flt(i.base_net_amount) for i in pi.items)
+		own = sum(flt(i.base_net_amount) for i in pi.items if i.get("card_equipment") == a.name)
+		r = self._run(equipment=a.name, from_month=9, to_month=int(month), to_year=year)
+		credit = frappe.db.get_value(
+			"GL Entry", {"voucher_no": pi.name, "party": self.supplier, "is_cancelled": 0}, "credit"
+		)
+		self.assertEqual(r.by_key["accrued"], flt(flt(credit) * own / total, 2))
+		self.assertNotIn("unallocated_other", r.by_key)
+
+	def test_month_statement_linked_accrual_journal_counts_for_its_cards_equipment(self):
+		a, b = self._eq(), self._eq()
+		card_a = self._card(a, [8, 8], submit=True)
+		card_b = self._card(b, [8], submit=True)
+		je = self._payment(1000, "2026-09-30", credit=True)  # the accrual: no equipment on the party row
+		log = frappe.get_doc(
+			{
+				"doctype": "GL Posting Log",
+				"company": self.company,
+				"party_type": "Supplier",
+				"party": self.supplier,
+				"month": "09",
+				"year": 2026,
+				"posting_type": "Journal Entry",
+				"sequence": 1,
+				"status": "Draft",
+				"posting_doctype": "Journal Entry",
+				"posting_doc": je.name,
+			}
+		)
+		for card in (card_a, card_b):
+			log.append(
+				"sources", {"source_doctype": "Card Monthly Card", "source_name": card.name, "amount": 0}
+			)
+		log.flags.card_gl_build = (
+			True  # an out-of-band unit, inserted as the builder would (test_s3_posting._je_log)
+		)
+		log.insert(ignore_permissions=True)
+		log.db_set("status", "Submitted", update_modified=False)  # the linked accrual is submitted
+		share = flt(card_a.net_amount) / (flt(card_a.net_amount) + flt(card_b.net_amount))
+		r = self._run(equipment=a.name)
+		self.assertEqual(r.by_key["accrued"], flt(1000 * share, 2))
+		self.assertNotIn("unallocated_other", r.by_key)  # the accrual belongs to the two cards' equipment
