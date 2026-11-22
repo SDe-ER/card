@@ -371,6 +371,13 @@ CASES = {
 		denied=((), ("Card User",)),
 	),
 	# ---------- Card Monthly Card ----------
+	"card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours": Case(
+		method=GET,
+		roles=("Card User",),
+		gate="Card Monthly Card read (frappe.has_permission, throw)",
+		isolation="None: one global Card Settings number, no company data",
+		unscoped="returns the global standard month hours setting only",
+	),
 	"card.card.doctype.card_monthly_card.card_monthly_card.get_card_context": Case(
 		method=GET,
 		roles=("Card User",),
