@@ -9225,3 +9225,47 @@ msgstr "الكارت {0} له دفعات نقدية غير ملغاة ({1}). ا�
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
 msgid "The cash payment {0} has a journal entry; cancel that entry instead."
 msgstr "للدفعة النقدية {0} قيد يومية؛ ألغِ ذلك القيد بدلًا من ذلك."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Net work for the period"
+msgstr "صافي الأعمال خلال الفترة"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Balance carried from before the period"
+msgstr "الرصيد المرحَّل من قبل الفترة"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "VAT on CARD purchase invoices"
+msgstr "ضريبة القيمة المضافة على فواتير مشتريات CARD"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Other supplier credits (outside CARD)"
+msgstr "أرصدة دائنة أخرى للمورد (خارج CARD)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments in the period (submitted entries only)"
+msgstr "المدفوعات خلال الفترة (القيود المُرحَّلة فقط)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Current due to the supplier"
+msgstr "المستحق الحالي للمورد"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments in the period"
+msgstr "المدفوعات خلال الفترة"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments are submitted accounting entries only; draft journal entries are not counted."
+msgstr "المدفوعات هي القيود المحاسبية المُرحَّلة فقط؛ قيود اليومية المسودة لا تُحتسب."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "The work follows the filters; payments, VAT and other credits are for the whole supplier."
+msgstr "الأعمال حسب الفلاتر المختارة؛ أما المدفوعات والضريبة والأرصدة الدائنة الأخرى فهي للمورد كله."
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Payment amount"
+msgstr "مبلغ الدفعة"
+
+#: card/card/report/equipment_supplier_statement/statement_period.py
+msgid "Set both From date and To date, or clear both to use the months."
+msgstr "حدّد من تاريخ وإلى تاريخ معًا، أو امسحهما معًا لاستخدام الأشهر."

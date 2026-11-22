@@ -364,6 +364,8 @@ sidebar:
 | من سنة | `from_year` | Int | نعم |
 | إلى شهر | `to_month` | Select | نعم |
 | إلى سنة | `to_year` | Int | نعم |
+| من تاريخ | `from_date` | Date |  |
+| إلى تاريخ | `to_date` | Date |  |
 | المشروع | `project` | Autocomplete |  |
 | المعدات | `equipment` | Link → المعدات |  |
 | نوع المعدة | `equipment_type` | Link → نوع المعدة |  |

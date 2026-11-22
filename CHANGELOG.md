@@ -15,7 +15,54 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **FR-175 — Equipment Supplier Statement for a date range (interim settlement)** (owner request 2026-11-22).
+  - New optional filters `from_date` / `to_date`. When both are set they override the month filters; without them
+    the report works exactly as before (same rows, same summary keys).
+  - Work of the range: only the card day rows dated inside it (drafts when «Include drafts» is on; cancelled cards
+    never). A partial range prices its billed hours with the card's exact hourly rate (rate ÷ daily hours, e.g.
+    425 ÷ 8 = 53.125, never the 2-decimal rate); a per-day «Full day» card bills its days; a range that holds the
+    whole card uses the card's stored amount. Additions and deductions count by their own date (supplier side;
+    Cash paid rows skipped; a row without a date counts on its card's last day).
+  - Payments: the submitted supplier debit entries of the range (date, voucher, remark, amount), shown as a
+    «Payments in the period» group on screen and as a table on the printed statement. Draft journal entries are
+    never counted (GL Entry exists only for submitted documents; cancelled entries are skipped); the statement says so.
+  - Balance (owner-approved rule 2026-11-22), summary keys `previous_due`, `period_net`, `period_vat`,
+    `period_other`, `period_paid`, `current_due`: previous due = card work before the range + VAT of CARD purchase
+    invoices posted before it + supplier credits CARD did not post − supplier debits before it; current due =
+    previous due + period work + period VAT + other credits − period payments. Double-count guard: the credit of a
+    submitted CARD posting (GL Posting Log) is never counted, as the card work already counts it; only its VAT is
+    added (card work is before VAT). Card work follows the project/equipment filters; the ledger side is the whole
+    supplier's (the statement notes it when a filter is set). Users without ledger access see the period net only.
+  - Printed A4 statement (browser print and Chrome PDF): the period prints its own dates; the totals table under the
+    amount columns shows the balance lines (VAT and other credits only when not zero); the payments table is hidden
+    when empty; same approved print style, no new colours.
+  - Functions: `card/card/report/equipment_supplier_statement/equipment_supplier_statement.py` (`execute`,
+    `range_balance`), new `statement_period.py` (`date_range`, `range_work`, `supplier_ledger`, `previous_work`,
+    `card_vouchers`), `equipment_supplier_statement.js` (two filters), `equipment_supplier_statement.html`,
+    `statement_pdf.py`; `card/card/print_format/equipment_supplier_statement_a4/equipment_supplier_statement_a4.json`
+    (same template); `card/card_value.py` (`exact_hourly_rate`); `card/locale/main.pot`, `card/locale/ar.po`.
+    Tests: `card/tests/test_supplier_statement_range.py`.
+  - Impact: permissions none (same report roles and ledger gate `can_view_ledger`); accounting none (read-only;
+    reads GL Entry, Purchase Invoice and GL Posting Log, writes nothing); data none (no patch; the standard print
+    format is reloaded by `bench migrate`); API: the report's filters and summary keys (additive).
+  - Rollback: code only; the month statement is unchanged, so rolling back removes only the date-range statement.
+  - Pull request: #287.
+
 ### Fixed
+- **FR-175 — Monthly Card form shows the server's amount** (owner report 2026-11-22: a draft card showed net
+  6,271.77 while the server stored 6,271.13).
+  - The form priced hours with the equipment's 2-decimal `approved_hourly_rate` (53.13); the server prices with the
+    exact rate (425 ÷ 8 = 53.125). The form now uses the exact rate the server uses (per day: rate ÷ daily hours;
+    per hour: rate; per month: rate ÷ standard month hours, read through the new read-only GET
+    `card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours`), so a saved card opens with
+    the same values and is not marked unsaved.
+  - Functions: `card/card/doctype/card_monthly_card/card_monthly_card.js` (`card_load_hourly`, `card_exact_hourly`),
+    `card_monthly_card.py` (`get_standard_month_hours`, `methods=["GET"]`, Card Monthly Card read required).
+  - Impact: permissions none (the endpoint returns one Card Settings number to users who can read monthly cards);
+    accounting none (server pricing unchanged); data none; API: one new read-only GET method.
+  - Rollback: code only.
+  - Pull request: #287.
 - **FR-174 — Monthly Card print: four clear settlement totals per side** (owner request 2026-11-21).
   - The default print format `Card Monthly Card Print` shows, for each billed side (Supplier settlement, Customer
     settlement), four rows in this order: «الإجمالي قبل الإضافات والخصومات» (`amount` / `customer_amount`), «إجمالي
