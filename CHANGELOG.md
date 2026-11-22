@@ -16,6 +16,42 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-176 — Supplier payments linked to an equipment** (owner request and decisions D1–D3, 2026-11-22).
+  - The app creates the official ERPNext Accounting Dimension **Card Equipment** itself: patch
+    `v4_11_0.ensure_card_equipment_dimension` on migrate and `after_install` on a fresh install (idempotent, never
+    mandatory). ERPNext adds the `card_equipment` field to its accounting doctypes (Journal Entry Account, Payment
+    Entry, Purchase Invoice and its items, GL Entry and the others), so a payment can carry the equipment.
+    Supersedes the earlier "manual step only" rule.
+  - On uninstall the dimension is only disabled (its fields become read-only); it and the values in the ledger are
+    never deleted. A reinstall enables it again.
+  - Equipment Supplier Statement (date range): with an **Equipment** filter, payments, other credits and the balance
+    count only the supplier entries that carry that equipment; the VAT of a CARD purchase invoice is allocated by the
+    share of its line net that carries the equipment. Untagged supplier payments are never deducted: they show as
+    «Payments not allocated to an equipment (not deducted)» (up to the end date); untagged other credits show as
+    information only. A **Project** filter works the same with the entry's project. Without these filters every
+    supplier entry counts, as before. The printed A4 statement prints the information lines as notes.
+  - With both filters an entry counts only when it carries both the equipment and the project (a project-only
+    payment is never deducted from one equipment, so never from several). The VAT of CARD invoice lines without the
+    equipment/project shows as information. A site without the dimension says so and does not split by equipment.
+  - Disabled (uninstall), the dimension's fields become read-only and keep their values; enabled again by a
+    reinstall or the manual command. Known limitation: they stay Link fields (frappe refuses to change a custom field
+    from Link to Data), so after an uninstall they point at the deleted Card Equipment DocType; check the effect on
+    documents that carry a value before any uninstall.
+  - Known limitation: the month statement (no from/to dates) keeps its ledger lines for the whole supplier.
+  - Pull request: #289.
+  - Functions: `card/dimension.py` (`set_card_equipment_dimension_disabled`, docstring), new patch
+    `card/patches/v4_11_0/ensure_card_equipment_dimension.py`, `card/install.py` (`after_install`,
+    `before_uninstall`), `card/hooks.py` (`before_uninstall`), `statement_period.py` (`supplier_ledger`,
+    `_scope_match`, `_scoped_item_share`), `equipment_supplier_statement.py`, `.html`, `statement_pdf.py`, the A4
+    print format JSON; `main.pot`, `ar.po`. Tests: `card/tests/test_card_equipment_dimension.py` (new),
+    `card/tests/test_supplier_statement_range.py`.
+  - Impact: permissions none; accounting none (no document, amount or GL entry is written; the dimension is a field
+    the accountant fills); data/schema: one Accounting Dimension and ERPNext's standard empty `card_equipment` column
+    on each accounting table (`bench migrate` alters those tables); API: new summary keys `unallocated_paid`,
+    `unallocated_other`.
+  - Rollback: the code rollback leaves the dimension and its empty or filled columns in place (harmless, ERPNext
+    standard); it can be disabled from the Accounting Dimension form. Removing it would drop the columns and their
+    values, so it is never removed automatically.
 - **FR-175 — Equipment Supplier Statement for a date range (interim settlement)** (owner request 2026-11-22).
   - New optional filters `from_date` / `to_date`. When both are set they override the month filters; without them
     the report works exactly as before (same rows, same summary keys).

@@ -8038,3 +8038,31 @@ msgstr ""
 #: card/card/report/equipment_supplier_statement/statement_period.py
 msgid "Set both From date and To date, or clear both to use the months."
 msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments not allocated to an equipment (not deducted)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments not allocated to a project (not deducted)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Other supplier credits without the equipment or project (not added)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments, VAT and other credits count only when their accounting entry carries the selected equipment or project; entries without one are shown apart and not counted."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments without the selected equipment and project (not deducted)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "VAT of CARD invoice lines without the equipment or project (not added)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+msgstr ""

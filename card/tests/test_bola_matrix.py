@@ -1089,7 +1089,7 @@ IGNORE_PERMISSIONS_ALLOWED = {
 	),
 	("card/dimension.py", "ensure_card_equipment_dimension"): (
 		1,
-		"install / before_tests bootstrap of the Accounting Dimension; no request path",
+		"install / patch / before_tests bootstrap of the Accounting Dimension (FR-176); no request path",
 	),
 	("card/gl/events.py", "_build_non_taxable_credit_note"): (
 		2,

@@ -53,7 +53,7 @@ class TestSupplierStatementRange(_PostingBase):
 			total=next((r for r in rows if r.get("row_id") == "TOTAL"), {}),
 		)
 
-	def _payment(self, amount, date, submit=True, credit=False):
+	def _payment(self, amount, date, submit=True, credit=False, equipment=None, project=None):
 		"""A journal entry on the supplier (a payment/advance debit, or a non-CARD credit)."""
 		payable = frappe.get_cached_value("Company", self.company, "default_payable_account") or (
 			frappe.db.get_value(
@@ -76,6 +76,9 @@ class TestSupplierStatementRange(_PostingBase):
 				side: amount,
 				"is_advance": "No" if credit else "Yes",
 				"cost_center": cc,
+				# FR-176: the Card Equipment accounting dimension and the project on the supplier line
+				"card_equipment": equipment,
+				"project": project,
 			},
 		)
 		je.append("accounts", {"account": _cash_account(self.company), other: amount, "cost_center": cc})
@@ -226,15 +229,158 @@ class TestSupplierStatementRange(_PostingBase):
 		# (each of the two cards split at 16/17 may round by one halala)
 		self.assertAlmostEqual(late.by_key["current_due"], month.by_key["current_due"], delta=0.021)
 
-	def test_equipment_filter_keeps_payments_for_the_whole_supplier(self):
+	def test_equipment_type_filter_keeps_payments_for_the_whole_supplier(self):
 		eq = self._eq()
 		self._card(eq, HOURS)
-		self._card(self._eq(), HOURS)
 		self._payment(100, "2026-09-03")
-		r = self._run(from_date="2026-09-01", to_date="2026-09-05", equipment=eq.name)
-		self.assertEqual(r.by_key["period_net"], flt(37 * RATE / 8, 2))
+		r = self._run(from_date="2026-09-01", to_date="2026-09-05", equipment_type=eq.equipment_type)
 		self.assertEqual(r.by_key["period_paid"], 100)
 		self.assertIn("payments, VAT and other credits are for the whole supplier", r.message)
+
+	# ---- R8 / FR-176: payments linked to an equipment ----
+	def test_equipment_statement_counts_only_its_own_payments(self):
+		a, b = self._eq(), self._eq()
+		self._card(a, HOURS)
+		self._card(b, HOURS)
+		linked = self._payment(300, "2026-09-03", equipment=a.name)
+		self._payment(200, "2026-09-04", equipment=b.name)  # another equipment: neither counted nor warned
+		self._payment(100, "2026-09-02")  # no equipment: warned, never deducted
+		r = self._run(from_date="2026-09-01", to_date="2026-09-05", equipment=a.name)
+		net = flt(37 * RATE / 8, 2)
+		self.assertEqual(r.by_key["period_net"], net)
+		self.assertEqual(r.by_key["period_paid"], 300)
+		self.assertEqual(r.by_key["unallocated_paid"], 100)
+		self.assertEqual(r.by_key["current_due"], flt(net - 300, 2))
+		payments = [x for x in r.rows if x.get("payment") and x.get("parent_row")]
+		self.assertEqual([p["voucher_no"] for p in payments], [linked.name])
+		self.assertIn("entries without one are shown apart and not counted", r.message)
+		# the other equipment: its own payment only, the same untagged warning
+		other = self._run(from_date="2026-09-01", to_date="2026-09-05", equipment=b.name)
+		self.assertEqual(other.by_key["period_paid"], 200)
+		self.assertEqual(other.by_key["unallocated_paid"], 100)
+		# no equipment filter: every supplier payment, as before, and no warning line
+		whole = self._run(from_date="2026-09-01", to_date="2026-09-05")
+		self.assertEqual(whole.by_key["period_paid"], 600)
+		self.assertNotIn("unallocated_paid", whole.by_key)
+
+	def test_equipment_previous_due_uses_its_own_earlier_payments(self):
+		a, b = self._eq(), self._eq()
+		self._card(a, HOURS)
+		self._card(b, HOURS)
+		self._payment(500, "2026-09-10", equipment=a.name)
+		self._payment(700, "2026-09-11", equipment=b.name)
+		self._payment(50, "2026-09-12")
+		late = self._run(from_date="2026-09-17", to_date="2026-09-30", equipment=a.name)
+		first_16 = self._run(from_date="2026-09-01", to_date="2026-09-16", equipment=a.name)
+		self.assertEqual(late.by_key["previous_due"], flt(first_16.by_key["period_net"] - 500, 2))
+		self.assertEqual(late.by_key["period_paid"], 0)
+		self.assertEqual(late.by_key["unallocated_paid"], 50)  # untagged up to the end date
+
+	def test_draft_payment_with_equipment_is_never_counted(self):
+		a = self._eq()
+		self._card(a, HOURS)
+		self._payment(400, "2026-09-03", submit=False, equipment=a.name)
+		r = self._run(from_date="2026-09-01", to_date="2026-09-05", equipment=a.name)
+		self.assertEqual(r.by_key["period_paid"], 0)
+		self.assertNotIn("unallocated_paid", r.by_key)
+
+	def test_project_filter_uses_the_payment_project(self):
+		a = self._eq()
+		self._card(a, HOURS)
+		self._payment(120, "2026-09-03", project=self.project)
+		self._payment(80, "2026-09-04")
+		r = self._run(from_date="2026-09-01", to_date="2026-09-05", project=self.project)
+		self.assertEqual(r.by_key["period_paid"], 120)
+		self.assertEqual(r.by_key["unallocated_paid"], 80)
+		self.assertIn("Payments not allocated to a project (not deducted)", [s["label"] for s in r.summary])
+
+	def test_owner_scenario_payment_reissued_with_the_equipment(self):
+		# R7 shape: three equipment of one supplier; the 1,587.63 payment re-issued with the third equipment
+		eqs = [self._eq(), self._eq(), self._eq()]
+		for eq in eqs:
+			self._card(eq, HOURS)
+		self._payment(1587.63, "2026-09-16", equipment=eqs[2].name)
+		for eq, paid in zip(eqs, (0, 0, 1587.63), strict=True):
+			r = self._run(from_date="2026-09-01", to_date="2026-09-30", equipment=eq.name)
+			self.assertEqual(r.by_key["period_paid"], paid)
+			self.assertNotIn("unallocated_paid", r.by_key)
+			self.assertEqual(r.by_key["current_due"], flt(r.by_key["period_net"] - paid, 2))
+		whole = self._run(from_date="2026-09-01", to_date="2026-09-30")
+		self.assertEqual(whole.by_key["period_paid"], 1587.63)
+
+	def test_equipment_vat_is_allocated_by_the_invoice_item_share(self):
+		self._vat_supplier()
+		a, b = self._eq(), self._eq()
+		card_a = self._card(a, [8, 8], submit=True)
+		self._card(b, [8], submit=True)
+		pi = frappe.get_doc(
+			"Purchase Invoice", build_monthly_posting(self.company, "Supplier", self.supplier, 9, 2026)
+		)
+		pi.bill_no = "TEST-BILL-" + self.token
+		pi.bill_date = pi.posting_date
+		pi.submit()
+		vat = flt(pi.base_taxes_and_charges_added) - flt(pi.base_taxes_and_charges_deducted)
+		total = sum(flt(i.base_net_amount) for i in pi.items)
+		own = sum(flt(i.base_net_amount) for i in pi.items if i.get("card_equipment") == a.name)
+		self.assertTrue(own and own < total)  # premise: the invoice lines carry the equipment
+		r = self._run(from_date="2026-09-01", to_date=str(pi.posting_date), equipment=a.name)
+		self.assertEqual(r.by_key["period_vat"], flt(vat * own / total, 2))
+		self.assertEqual(r.by_key["period_net"], flt(card_a.net_amount, 2))
+
+	def test_equipment_and_project_filters_need_both_tags(self):
+		a, b = self._eq(), self._eq()
+		self._card(a, HOURS)
+		self._card(b, HOURS)
+		self._payment(
+			3000, "2026-09-03", project=self.project
+		)  # project only: never deducted from one equipment
+		self._payment(250, "2026-09-03", equipment=a.name, project=self.project)
+		for eq, paid in ((a, 250), (b, 0)):
+			r = self._run(
+				from_date="2026-09-01", to_date="2026-09-05", equipment=eq.name, project=self.project
+			)
+			self.assertEqual(r.by_key["period_paid"], paid)
+			self.assertEqual(r.by_key["unallocated_paid"], 3000)
+			labels = [s["label"] for s in r.summary]
+			self.assertIn("Payments without the selected equipment and project (not deducted)", labels)
+		# the project statement deducts both
+		whole_project = self._run(from_date="2026-09-01", to_date="2026-09-05", project=self.project)
+		self.assertEqual(whole_project.by_key["period_paid"], 3250)
+
+	def test_untagged_other_credit_is_information_only(self):
+		a = self._eq()
+		self._card(a, HOURS)
+		self._payment(90, "2026-09-03", credit=True)
+		self._payment(40, "2026-09-03", credit=True, equipment=a.name)
+		r = self._run(from_date="2026-09-01", to_date="2026-09-05", equipment=a.name)
+		self.assertEqual(r.by_key["period_other"], 40)
+		self.assertEqual(r.by_key["unallocated_other"], 90)
+		self.assertEqual(r.by_key["current_due"], flt(r.by_key["period_net"] + 40, 2))
+
+	def test_printed_statement_shows_the_unallocated_line(self):
+		a = self._eq()
+		self._card(a, HOURS)
+		self._payment(100, "2026-09-02")
+		filters = frappe._dict(
+			company=self.company,
+			statement_type="مورد",
+			supplier=self.supplier,
+			from_month=9,
+			from_year=2026,
+			from_date="2026-09-01",
+			to_date="2026-09-05",
+			equipment=a.name,
+			include_draft=1,
+		)
+		r = self._run(from_date="2026-09-01", to_date="2026-09-05", equipment=a.name)
+		html = build_html(filters, r.columns, r.rows, r.message, r.summary)
+		self.assertIn("Payments not allocated to an equipment (not deducted)", html)
+		template = frappe.read_file(
+			frappe.get_app_path(
+				"card", "card", "report", "equipment_supplier_statement", "equipment_supplier_statement.html"
+			)
+		)
+		self.assertIn("unallocated_paid", template)
 
 	# ---- R5: double-count guard and VAT of CARD purchase invoices ----
 	def test_card_invoice_credit_is_not_counted_twice_and_its_vat_is_added(self):

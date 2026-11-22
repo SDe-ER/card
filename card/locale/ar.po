@@ -9269,3 +9269,31 @@ msgstr "مبلغ الدفعة"
 #: card/card/report/equipment_supplier_statement/statement_period.py
 msgid "Set both From date and To date, or clear both to use the months."
 msgstr "حدّد من تاريخ وإلى تاريخ معًا، أو امسحهما معًا لاستخدام الأشهر."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments not allocated to an equipment (not deducted)"
+msgstr "مدفوعات غير موزعة على معدة (لم تُخصم)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments not allocated to a project (not deducted)"
+msgstr "مدفوعات غير موزعة على مشروع (لم تُخصم)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Other supplier credits without the equipment or project (not added)"
+msgstr "أرصدة دائنة أخرى للمورد بلا معدة أو مشروع (لم تُضف)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments, VAT and other credits count only when their accounting entry carries the selected equipment or project; entries without one are shown apart and not counted."
+msgstr "تُحتسب المدفوعات والضريبة والأرصدة الدائنة الأخرى فقط إذا كان قيدها المحاسبي يحمل المعدة أو المشروع المختار؛ والقيود التي لا تحمله تظهر منفصلة ولا تُحتسب."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments without the selected equipment and project (not deducted)"
+msgstr "مدفوعات لا تحمل المعدة والمشروع المختارين معًا (لم تُخصم)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "VAT of CARD invoice lines without the equipment or project (not added)"
+msgstr "ضريبة سطور فواتير CARD التي لا تحمل المعدة أو المشروع (لم تُضف)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+msgstr "البُعد المحاسبي Card Equipment غير موجود على هذا الموقع: المدفوعات والضريبة والأرصدة الدائنة الأخرى لا تُوزَّع حسب المعدة."
