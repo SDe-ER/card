@@ -7,6 +7,7 @@ from card.card.report.equipment_supplier_statement.statement_period import (
 	date_range,
 	previous_work,
 	range_work,
+	scoped_month_ledger,
 	supplier_ledger,
 )
 from card.card_value import PER_DAY, day_billing_basis
@@ -444,40 +445,51 @@ def execute(filters=None):
 			+ ledger_notice()
 		)
 	elif not owned:
-		# supplier GL: credit = accrual (liability up), debit = payment (liability down)
-		gl_open = frappe.get_all(
-			"GL Entry",
-			filters=[
-				["company", "=", _company],
-				["party_type", "=", "Supplier"],
-				["party", "=", supplier],
-				["is_cancelled", "=", 0],
-				["posting_date", "<", start],
-			],
-			fields=["debit", "credit"],
-			limit_page_length=0,
-		)
-		gl_period = frappe.get_all(
-			"GL Entry",
-			filters=[
-				["company", "=", _company],
-				["party_type", "=", "Supplier"],
-				["party", "=", supplier],
-				["is_cancelled", "=", 0],
-				["posting_date", ">=", start],
-				["posting_date", "<=", end],
-			],
-			fields=["debit", "credit"],
-			limit_page_length=0,
-		)
-		opening = 0.0
-		for g in gl_open:
-			opening = opening + flt(g.credit) - flt(g.debit)
-		accrued = 0.0
-		paid = 0.0
-		for g in gl_period:
-			accrued = accrued + flt(g.credit)
-			paid = paid + flt(g.debit)
+		# FR-176 (Owner 2026-11-22): an equipment / project filter applies the date-range statement's rules to the
+		# ledger lines too; without these filters the lines stay the whole supplier's, as before
+		scoped_ledger = None
+		if filters.get("equipment") or filters.get("project"):
+			scoped_ledger = scoped_month_ledger(
+				_company, supplier, start, end, filters.get("equipment"), filters.get("project")
+			)
+			opening = scoped_ledger["opening"]
+			accrued = scoped_ledger["accrued"]
+			paid = scoped_ledger["paid"]
+		else:
+			# supplier GL: credit = accrual (liability up), debit = payment (liability down)
+			gl_open = frappe.get_all(
+				"GL Entry",
+				filters=[
+					["company", "=", _company],
+					["party_type", "=", "Supplier"],
+					["party", "=", supplier],
+					["is_cancelled", "=", 0],
+					["posting_date", "<", start],
+				],
+				fields=["debit", "credit"],
+				limit_page_length=0,
+			)
+			gl_period = frappe.get_all(
+				"GL Entry",
+				filters=[
+					["company", "=", _company],
+					["party_type", "=", "Supplier"],
+					["party", "=", supplier],
+					["is_cancelled", "=", 0],
+					["posting_date", ">=", start],
+					["posting_date", "<=", end],
+				],
+				fields=["debit", "credit"],
+				limit_page_length=0,
+			)
+			opening = 0.0
+			for g in gl_open:
+				opening = opening + flt(g.credit) - flt(g.debit)
+			accrued = 0.0
+			paid = 0.0
+			for g in gl_period:
+				accrued = accrued + flt(g.credit)
+				paid = paid + flt(g.debit)
 		# rounded from the rounded parts so the printed opening + charges - payments = closing to the cent
 		closing = flt(opening, 2) + flt(accrued, 2) - flt(paid, 2)
 		# like-for-like: card nets are before VAT; the accrual credits include it
@@ -548,6 +560,29 @@ def execute(filters=None):
 				"indicator": "Red" if closing > 0 else "Green",
 			},
 		]
+		month_notes = []
+		if scoped_ledger is not None:
+			if scoped_ledger["unallocated_paid"]:
+				summary.append(
+					{
+						"key": "unallocated_paid",
+						"label": unallocated_paid_label(filters),
+						"value": scoped_ledger["unallocated_paid"],
+						"datatype": "Currency",
+						"indicator": "Orange",
+					}
+				)
+			if scoped_ledger["unallocated_other"]:
+				summary.append(
+					{
+						"key": "unallocated_other",
+						"label": _("Other supplier credits without the equipment or project (not added)"),
+						"value": scoped_ledger["unallocated_other"],
+						"datatype": "Currency",
+						"indicator": "Grey",
+					}
+				)
+			month_notes.append(scoped_ledger_note(scoped_ledger["dimension_missing"], filters))
 		message = (
 			_prefix
 			+ _(
@@ -555,6 +590,7 @@ def execute(filters=None):
 			).format(supplier, start, end, frappe.utils.nowdate())
 			+ " "
 			+ reconciliation_notice()
+			+ "".join(" " + note for note in month_notes)
 		)
 	else:
 		message = _prefix + _(
@@ -643,13 +679,9 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 	# FR-176: untagged supplier entries never change an equipment/project balance; shown apart, not counted
 	scoped = filters.get("equipment") or filters.get("project")
 	if scoped and ledger["unallocated_paid"]:
-		if filters.get("equipment") and filters.get("project"):
-			label = _("Payments without the selected equipment and project (not deducted)")
-		elif filters.get("equipment"):
-			label = _("Payments not allocated to an equipment (not deducted)")
-		else:
-			label = _("Payments not allocated to a project (not deducted)")
-		items.append(("unallocated_paid", label, ledger["unallocated_paid"], "Orange"))
+		items.append(
+			("unallocated_paid", unallocated_paid_label(filters), ledger["unallocated_paid"], "Orange")
+		)
 	if scoped and ledger["unallocated_other"]:
 		items.append(
 			(
@@ -724,20 +756,40 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 			}
 		)
 		notes.append(reconciliation_notice())
-	if ledger["dimension_missing"]:
-		notes.append(
-			_(
-				"The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
-			)
-		)
 	if filters.get("project") or filters.get("equipment"):
-		notes.append(
-			_(
-				"Payments, VAT and other credits count only when their accounting entry carries the selected equipment or project; entries without one are shown apart and not counted."
-			)
-		)
+		notes.append(scoped_ledger_note(ledger["dimension_missing"], filters))
 	elif filters.get("equipment_type"):
 		notes.append(
 			_("The work follows the filters; payments, VAT and other credits are for the whole supplier.")
 		)
 	return summary, head + " " + " ".join(notes), rows
+
+
+def unallocated_paid_label(filters):
+	"""FR-176: the warning line of the supplier payments that carry no selected equipment / project."""
+	if filters.get("equipment") and filters.get("project"):
+		return _("Payments without the selected equipment and project (not deducted)")
+	if filters.get("equipment"):
+		return _("Payments not allocated to an equipment (not deducted)")
+	return _("Payments not allocated to a project (not deducted)")
+
+
+def scoped_ledger_note(dimension_missing, filters):
+	"""FR-176: the statement note of an equipment / project filter (both statement modes)."""
+	note = _(
+		"Payments, VAT and other credits count only when their accounting entry carries the selected equipment or project; entries without one are shown apart and not counted."
+	)
+	if dimension_missing and not filters.get("project"):
+		# no scope applies: the ledger lines are the whole supplier's
+		return _(
+			"The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+		)
+	if dimension_missing:
+		note = (
+			_(
+				"The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+			)
+			+ " "
+			+ note
+		)
+	return note

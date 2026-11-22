@@ -90,7 +90,8 @@ the supplier**.
   the VAT of a CARD purchase invoice is split by that equipment's share of the invoice lines. Supplier payments
   without an equipment are never deducted: the statement shows them as **Payments not allocated to an equipment
   (not deducted)**; other credits without one show as information only. A **Project** filter works the same with the
-  entry's project. With an **Equipment type** filter only, or no filter, every supplier entry counts.
+  entry's project. With an **Equipment type** filter only, or no filter, every supplier entry counts. The month
+  statement (without dates) applies the same rules to its Opening balance, Accrual entries, Paid and closing lines.
 
 **Access.** System Manager, Card Manager, Card User, Accounts Manager. Ledger tiles for ledger readers only.
 

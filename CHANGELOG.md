@@ -36,8 +36,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Disabled (uninstall), the dimension's fields become read-only and keep their values; enabled again by a
     reinstall or the manual command. Known limitation: they stay Link fields (frappe refuses to change a custom field
     from Link to Data), so after an uninstall they point at the deleted Card Equipment DocType; check the effect on
-    documents that carry a value before any uninstall.
-  - Known limitation: the month statement (no from/to dates) keeps its ledger lines for the whole supplier.
+    documents that carry a value before any uninstall (accepted by the owner 2026-11-22; uninstalling CARD is not
+    planned).
+  - The month statement (no from/to dates) applies the same rules to its ledger lines (owner decision 2026-11-22,
+    follow-up PR): with an Equipment/Project filter, Opening balance, Accrual entries, Paid and the closing balance
+    count only the supplier entries that carry the selected equipment/project; the credit of a CARD posting counts
+    by what it bills (a purchase invoice by its line share, a linked accrual Journal Entry by its cards); untagged
+    payments show as «not deducted» and untagged credits (also the untagged part of a CARD posting) as information.
+    Without these filters the month statement is unchanged. Functions: `statement_period.scoped_month_ledger`,
+    `_card_voucher_shares`; tests in `card/tests/test_supplier_statement_range.py`. Impact: read-only report lines;
+    no permission, accounting, data or API change beyond the summary keys above. Rollback: code only.
+    Pull request: #290.
   - Pull request: #289.
   - Functions: `card/dimension.py` (`set_card_equipment_dimension_disabled`, docstring), new patch
     `card/patches/v4_11_0/ensure_card_equipment_dimension.py`, `card/install.py` (`after_install`,
