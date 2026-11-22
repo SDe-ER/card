@@ -46,6 +46,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     Without these filters the month statement is unchanged. Functions: `statement_period.scoped_month_ledger`,
     `_card_voucher_shares`; tests in `card/tests/test_supplier_statement_range.py`. Impact: read-only report lines;
     no permission, accounting, data or API change beyond the summary keys above. Rollback: code only.
+    Pull request: #290.
   - Pull request: #289.
   - Functions: `card/dimension.py` (`set_card_equipment_dimension_disabled`, docstring), new patch
     `card/patches/v4_11_0/ensure_card_equipment_dimension.py`, `card/install.py` (`after_install`,
