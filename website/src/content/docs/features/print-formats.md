@@ -58,8 +58,11 @@ The monthly operation card of one machine, shift and month.
 - **Card totals** — total operating hours, working days, the rate with its basis and the total amount; for a card
   with a customer side also the customer rate and amount. A card with neither side prints *Internal operation — Not
   billed*.
-- **Settlement** — for each billed side, a *Supplier settlement* or *Customer settlement* table: gross, additions,
-  deductions and *net before VAT*. The net equals the amount CARD puts on that side's invoice line before VAT.
+- **Settlement** — for each billed side, a *Supplier settlement* or *Customer settlement* table with four rows:
+  *Total before additions and deductions*, *Total additions*, *Total deductions* and *Net after additions and
+  deductions*. The net is the amount saved on the card (before VAT) and the amount CARD puts on that side's invoice
+  line before VAT; it is the large bold line. Amounts show two decimals and the currency. Cash paid rows are not
+  counted in these totals.
 - **Signatures** — driver / operator (with his name), site supervisor approval, project manager approval.
 
 **Review copy.** A card that is not approved yet (not submitted, including any workflow state before approval) prints as a review copy: a banner *Review Copy — Not Approved* under the title, the workflow state, the name of the person who printed it (the session user; a background-job print shows the system user) and the time (site time zone), and a light *REVIEW COPY* watermark on every page. A submitted card prints without them. All card data prints as before; the amounts follow the money permission as before.

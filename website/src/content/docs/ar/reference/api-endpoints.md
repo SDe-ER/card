@@ -85,6 +85,7 @@ sidebar:
 
 | مسار الدالة | طرق HTTP | المعاملات |
 |---|---|---|
+| `card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours` | GET | لا يوجد |
 | `card.card.doctype.card_monthly_card.card_monthly_card.get_card_context` | GET | `equipment: str`<br/>`month: str`<br/>`year: str`<br/>`project: str \| None = None` |
 | `card.card.doctype.card_monthly_card.card_monthly_card.get_adjustment_type_names` | GET | `company: str` |
 

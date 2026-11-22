@@ -106,9 +106,11 @@ This page is generated from the CARD source code on every build. Edit the code, 
 
 | Method path | HTTP methods | Arguments |
 |---|---|---|
+| `card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours` | GET | none |
 | `card.card.doctype.card_monthly_card.card_monthly_card.get_card_context` | GET | `equipment: str`<br/>`month: str`<br/>`year: str`<br/>`project: str \| None = None` |
 | `card.card.doctype.card_monthly_card.card_monthly_card.get_adjustment_type_names` | GET | `company: str` |
 
+- `get_standard_month_hours` — The standard month hours a per-month rate is spread over (Card Settings), so the card form prices exactly as the server does. Read-only; any user who can read monthly cards.
 - `get_card_context` — V3.0.0: what the card form fills in by itself once equipment, month and year are picked — the projects the approved transports put the equipment on that month, and the days it was on the chosen (or only) project. Read-only.
 - `get_adjustment_type_names` — For a new card that has no onload yet: the enabled addition/deduction type names of ``company``. Read-only. Needs create or write on Monthly Cards and a company the user may use for them.
 

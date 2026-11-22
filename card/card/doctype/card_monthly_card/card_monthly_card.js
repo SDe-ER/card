@@ -119,8 +119,8 @@ function card_check_period(frm) {
 	}
 }
 
-// Hourly rate comes from the equipment (approved_hourly_rate, computed by Server Script
-// "Card Equipment - Hourly Rate"). Display only: the server recalculates on save.
+// The hourly rate is the exact one the server prices with (card_exact_hourly, mirror of
+// card.card_value.exact_hourly_rate). Display only: the server recalculates on save.
 function card_load_hourly(frm) {
 	if (!frm.doc.equipment) {
 		frm._card_hourly = 0;
@@ -138,10 +138,16 @@ function card_load_hourly(frm) {
 			"rate_type",
 			"rate",
 			"day_billing_basis",
+			"daily_hours",
 		])
 		.then((r) => {
 			const v = (r && r.message) || {};
-			frm._card_hourly = flt(v.approved_hourly_rate);
+			// the exact hourly rate the server prices with (rate / daily hours, e.g. 425 / 8 = 53.125),
+			// never the 2-decimal approved_hourly_rate shown on the equipment (card.card_value.exact_hourly_rate)
+			return card_exact_hourly(v).then((hourly) => [v, hourly]);
+		})
+		.then(([v, hourly]) => {
+			frm._card_hourly = hourly;
 			// FR-138: a per-day rate under "Full day" bills each billed day at the day rate
 			// (mirror of card.card_value.bills_full_days; the server recalculates on save)
 			frm._card_full_day_rate =
@@ -169,6 +175,24 @@ function card_show_shift_customer_rate(frm, dir, v) {
 	const night = flt(v.customer_rate_night);
 	const rate = frm.doc.shift === "ليلي" && night > 0 ? night : flt(v.customer_rate);
 	if (flt(frm.doc.customer_rate) !== rate) frm.set_value("customer_rate", rate);
+}
+
+// Mirror of card.card_value.exact_hourly_rate: per hour = rate; per day = rate / daily hours;
+// per month = rate / the standard month hours (Card Settings, read through the server).
+function card_exact_hourly(v) {
+	const rate = flt(v.rate);
+	if (v.rate_type === "باليوم")
+		return Promise.resolve(flt(v.daily_hours) > 0 ? rate / flt(v.daily_hours) : 0);
+	if (v.rate_type === "بالساعة") return Promise.resolve(rate);
+	if (v.rate_type === "بالشهر") {
+		return frappe
+			.call({
+				method: "card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours",
+				type: "GET",
+			})
+			.then((r) => rate / (flt(r && r.message) || 260));
+	}
+	return Promise.resolve(0);
 }
 
 // F.7: the card's project follows the assignment covering the card's month

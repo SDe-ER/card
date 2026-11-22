@@ -81,6 +81,22 @@ def bills_full_days(rate_basis, basis):
 	return rate_basis == PER_DAY and day_billing_basis(basis) == DAY_BASIS_FULL_DAY
 
 
+def exact_hourly_rate(rate_basis, rate, daily_hours):
+	"""The unrounded hourly rate a card prices with (CardMonthlyCard._hourly_for without its errors):
+	per hour = rate; per day = rate / the daily hours; per month = rate / the standard month hours.
+	An undefined basis or a missing divisor gives 0. Never the 2-decimal rate shown on the equipment
+	(425 / 8 = 53.125, not 53.13)."""
+	if rate_basis == PER_DAY:
+		return flt(rate) / flt(daily_hours) if flt(daily_hours) > 0 else 0.0
+	if rate_basis == "بالساعة":
+		return flt(rate)
+	if rate_basis == "بالشهر":
+		from card.settings import setting
+
+		return flt(rate) / (flt(setting("standard_month_hours")) or 260)
+	return 0.0
+
+
 def series_labels():
 	return {
 		"supplier": _("Rental cost from suppliers"),
