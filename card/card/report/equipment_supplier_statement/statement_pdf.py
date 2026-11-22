@@ -50,6 +50,10 @@ OWNED_FIELDS = (
 	("hours", 14, "num"),
 )
 OPTIONAL_FIELDS = ("additions", "deductions")
+# date-range statement (Owner 2026-11-22): the balance lines, in print order; VAT and other credits print
+# only when not zero
+RANGE_KEYS = ("previous_due", "period_net", "period_vat", "period_other", "period_paid", "current_due")
+RANGE_OPTIONAL = ("period_vat", "period_other")
 STOPPED_HOURS_WIDTH = 7
 KEY_ORDER = {
 	11: (
@@ -129,7 +133,8 @@ def build_html(filters, columns, data, message, summary):
 	esc = frappe.utils.escape_html
 	label_of = {c.get("fieldname"): c.get("label") for c in columns or [] if c and c.get("fieldname")}
 	money = bool(label_of.get("net"))
-	rows = [r for r in data or [] if r]
+	rows = [r for r in data or [] if r and not r.get("payment")]
+	payments = [r for r in data or [] if r and r.get("payment") and r.get("parent_row")]
 
 	fields = _shown_fields(MONEY_FIELDS if money else OWNED_FIELDS, rows)
 	totals_width = _totals_width(fields, "hourly_rate" if money else "last_date")
@@ -151,6 +156,9 @@ def build_html(filters, columns, data, message, summary):
 	out.append("</table>")
 	if filters.get("include_draft"):
 		out.append(f'<p class="ess-note"><b>{esc(_("Includes draft cards"))}</b></p>')
+	if any(s and s.get("key") == "current_due" for s in summary or []):
+		note = _("Payments are submitted accounting entries only; draft journal entries are not counted.")
+		out.append(f'<p class="ess-note">{esc(note)}</p>')
 	if message and len(rows) < 2:
 		out.append(f'<p class="ess-note">{esc(str(message))}</p>')
 
@@ -189,6 +197,9 @@ def build_html(filters, columns, data, message, summary):
 				f'<tr><td class="ess-k">{esc(item.get("label") or "")}</td><td class="ess-v">{shown}</td></tr>'
 			)
 		out.append("</tbody></table>")
+
+	if payments:
+		out.append(_payments_table(payments))
 
 	signs = [_("Accountant signature"), _("Reviewer signature")]
 	if money:
@@ -242,6 +253,12 @@ def _totals_width(fields, start):
 
 def _totals(summary, money):
 	by_key = {s["key"]: s for s in summary if s and s.get("key")}
+	if money and "period_net" in by_key:
+		return [
+			{"label": by_key[k].get("label"), "value": by_key[k].get("value"), "datatype": "Currency"}
+			for k in RANGE_KEYS
+			if k in by_key and (k not in RANGE_OPTIONAL or flt(by_key[k].get("value")))
+		]
 	order = KEY_ORDER.get(len(summary), ("equipment", "days", "hours"))
 	for item, key in zip(summary, order, strict=False):
 		if item and not item.get("key") and key not in by_key:
@@ -267,8 +284,34 @@ def _totals(summary, money):
 	return totals or [s for s in summary if s]
 
 
+def _payments_table(payments):
+	"""The supplier debits of the range (date, voucher, remark, amount) — submitted entries only."""
+	esc = frappe.utils.escape_html
+	out = ['<table class="ess-rows ess-pay"><thead><tr><th style="width: 3%">#</th>']
+	for label, width in (
+		(_("Payment date"), 12),
+		(_("Voucher"), 20),
+		(_("Remarks"), 50),
+		(_("Payment amount"), 15),
+	):
+		out.append(f'<th style="width: {width}%">{esc(label)}</th>')
+	out.append("</tr></thead><tbody>")
+	for n, p in enumerate(payments, start=1):
+		out.append(
+			f'<tr class="ess-card"><td class="ess-c">{n}</td>'
+			f'<td class="ess-c">{esc(formatdate(p.get("posting_date")) if p.get("posting_date") else "")}</td>'
+			f'<td class="ess-t">{esc(p.get("voucher_no") or "")}</td>'
+			f'<td class="ess-t">{esc(p.get("remarks") or "")}</td>'
+			f'<td class="ess-num">{_num(p.get("net"))}</td></tr>'
+		)
+	out.append("</tbody></table>")
+	return f'<p class="ess-sub">{esc(_("Payments in the period"))}</p>' + "".join(out)
+
+
 def _period(filters):
-	"""First day of the start month to the last day of the end month."""
+	"""First day of the start month to the last day of the end month; a date range prints its own dates."""
+	if filters.get("from_date") and filters.get("to_date"):
+		return formatdate(getdate(filters.get("from_date"))), formatdate(getdate(filters.get("to_date")))
 
 	def day(month, year, last):
 		month, year = cint(month), cint(year)

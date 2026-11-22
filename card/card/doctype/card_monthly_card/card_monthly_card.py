@@ -45,6 +45,14 @@ from card.transfer import (
 
 
 @frappe.whitelist(methods=["GET"])
+def get_standard_month_hours():
+	"""The standard month hours a per-month rate is spread over (Card Settings), so the card form prices
+	exactly as the server does. Read-only; any user who can read monthly cards."""
+	frappe.has_permission("Card Monthly Card", "read", throw=True)
+	return flt(setting("standard_month_hours")) or 260
+
+
+@frappe.whitelist(methods=["GET"])
 def get_card_context(equipment: str, month: str, year: str, project: str | None = None):
 	"""v3.0.0: what the card form fills in by itself once equipment, month and year are
 	picked — the projects the approved transports put the equipment on that month, and

@@ -22,8 +22,12 @@
 			["working_days", 11, "int"], ["hours", 14, "num"]];
 	/* the print shows every row of the period: projects, equipment, every card, then the grand total */
 	var rows = [];
+	/* date-range statement: the supplier debits of the range print in their own table */
+	var payments = [];
 	for (var i = 0; i < original_data.length; i++) {
-		if (original_data[i]) rows.push(original_data[i]);
+		if (!original_data[i]) continue;
+		if (!original_data[i].payment) rows.push(original_data[i]);
+		else if (original_data[i].parent_row) payments.push(original_data[i]);
 	}
 	/* additions and deductions print only when some row has a value; the other columns share the freed width */
 	var optional = { additions: 1, deductions: 1 };
@@ -89,6 +93,17 @@
 		if (print_keys[k] === "not_invoiced" && !((parseFloat(it.value) || 0) > 0)) continue;
 		totals.push({ label: print_labels[print_keys[k]] || it.label, value: it.value, datatype: it.datatype });
 	}
+	/* date-range statement (Owner 2026-11-22): the balance lines; VAT and other credits only when not zero */
+	if (money && summary_of.period_net) {
+		var range_keys = ["previous_due", "period_net", "period_vat", "period_other", "period_paid", "current_due"];
+		totals = [];
+		for (var k = 0; k < range_keys.length; k++) {
+			var rk = summary_of[range_keys[k]];
+			if (!rk) continue;
+			if ((range_keys[k] === "period_vat" || range_keys[k] === "period_other") && !(parseFloat(rk.value) || 0)) continue;
+			totals.push({ label: rk.label, value: rk.value, datatype: "Currency" });
+		}
+	}
 	if (!totals.length) totals = summary;
 	/* the period prints as full dates, as the report computes it: first day of the start month to the last
 	   day of the end month (the end month and year default to the start ones) */
@@ -101,6 +116,11 @@
 	};
 	var period_from = period_day(filters.from_month, filters.from_year, false);
 	var period_to = period_day(filters.to_month || filters.from_month, filters.to_year || filters.from_year, true);
+	/* a date range prints its own dates */
+	if (filters.from_date && filters.to_date) {
+		period_from = frappe.datetime.str_to_user(filters.from_date);
+		period_to = frappe.datetime.str_to_user(filters.to_date);
+	}
 	var cell = function (row, f) {
 		var v = row[f[0]];
 		if (f[2] === "date") return day(v);
@@ -179,6 +199,8 @@
 	/* the signatures and the issued-by line stay together, on the page of the totals */
 	.ess .ess-end { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; }
 	.ess .ess-signs .ess-line { display: block; border-top: 1px solid #999; margin: 22px 15% 4px; }
+	/* date-range statement: the payments of the range, in the rows table style */
+	.ess .ess-sub { font-weight: 700; color: #525252; margin: 12px 0 4px; page-break-after: avoid; break-after: avoid; }
 </style>
 <div class="ess" dir="{%= frappe.utils.is_rtl() ? "rtl" : "ltr" %}">
 <div class="ess-co">{%= esc(filters.company || "") %}</div>
@@ -198,6 +220,7 @@
 	</tr>
 </table>
 {% if (filters.include_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards") %}</b></p>{% } %}
+{% if (summary_of.current_due) { %}<p class="ess-note">{%= esc(__("Payments are submitted accounting entries only; draft journal entries are not counted.")) %}</p>{% } %}
 {% if (raw.message && rows.length < 2) { %}<p class="ess-note">{%= esc(String(raw.message)) %}</p>{% } %}
 <table class="ess-rows">
 	<thead>
@@ -227,6 +250,31 @@
 		<tr>
 			<td class="ess-k">{%= esc(item.label || "") %}</td>
 			<td class="ess-v">{%= item.datatype === "Int" ? esc(String(item.value === undefined || item.value === null ? "" : item.value)) : num(item.value) %}</td>
+		</tr>
+		{% } %}
+	</tbody>
+</table>
+{% } %}
+{% if (payments.length) { %}
+<p class="ess-sub">{%= __("Payments in the period") %}</p>
+<table class="ess-rows ess-pay">
+	<thead>
+		<tr>
+			<th style="width: 3%">#</th>
+			<th style="width: 12%">{%= __("Payment date") %}</th>
+			<th style="width: 20%">{%= __("Voucher") %}</th>
+			<th style="width: 50%">{%= __("Remarks") %}</th>
+			<th style="width: 15%">{%= __("Payment amount") %}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for (var p = 0; p < payments.length; p++) { %}
+		<tr class="ess-card">
+			<td class="ess-c">{%= p + 1 %}</td>
+			<td class="ess-c">{%= day(payments[p].posting_date) %}</td>
+			<td class="ess-t">{%= esc(payments[p].voucher_no || "") %}</td>
+			<td class="ess-t">{%= esc(payments[p].remarks || "") %}</td>
+			<td class="ess-num">{%= num(payments[p].net) %}</td>
 		</tr>
 		{% } %}
 	</tbody>

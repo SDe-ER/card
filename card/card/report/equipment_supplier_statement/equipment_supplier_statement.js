@@ -92,6 +92,10 @@
 				reqd: 1,
 			},
 			{ fieldname: "to_year", label: __("To year"), fieldtype: "Int", default: py, reqd: 1 },
+			// interim settlement: both dates set = the statement of those days (overrides the months),
+			// with the balance carried from before and the payments of the range
+			{ fieldname: "from_date", label: __("From date"), fieldtype: "Date" },
+			{ fieldname: "to_date", label: __("To date"), fieldtype: "Date" },
 			{
 				fieldname: "project",
 				label: __("Project"),

@@ -7994,3 +7994,47 @@ msgstr ""
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
 msgid "The cash payment {0} has a journal entry; cancel that entry instead."
 msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Net work for the period"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Balance carried from before the period"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "VAT on CARD purchase invoices"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Other supplier credits (outside CARD)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments in the period (submitted entries only)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Current due to the supplier"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments in the period"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments are submitted accounting entries only; draft journal entries are not counted."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "The work follows the filters; payments, VAT and other credits are for the whole supplier."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Payment amount"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_period.py
+msgid "Set both From date and To date, or clear both to use the months."
+msgstr ""
