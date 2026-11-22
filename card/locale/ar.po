@@ -5115,8 +5115,8 @@ msgid "Not billed"
 msgstr "بدون فوترة"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier settlement"
-msgstr "تسوية المورد"
+msgid "Supplier settlement (before VAT)"
+msgstr "تسوية المورد (قبل الضريبة)"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total before additions and deductions"
@@ -5131,8 +5131,8 @@ msgid "Cash paid, not in the totals"
 msgstr "دفع نقدي، غير محتسب في الإجماليات"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer settlement"
-msgstr "تسوية العميل"
+msgid "Customer settlement (before VAT)"
+msgstr "تسوية العميل (قبل الضريبة)"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 #: card/fixtures/print_format.json

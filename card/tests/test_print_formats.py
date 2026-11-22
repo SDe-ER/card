@@ -32,7 +32,8 @@ BEFORE, ADDITIONS, DEDUCTIONS, NET = (
 	"إجمالي الخصومات",
 	"الصافي بعد الإضافات والخصومات",
 )
-SUPPLIER, CUSTOMER = "تسوية المورد", "تسوية العميل"
+# the settlement headers say the figures are before VAT (owner decision 2026-11-22)
+SUPPLIER, CUSTOMER = "تسوية المورد (قبل الضريبة)", "تسوية العميل (قبل الضريبة)"
 
 
 def _cell(html, label):
@@ -148,7 +149,7 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertEqual(card.net_amount, 3000)
 		html = self._print(card)
 		# the top box is the gross (the strip carries the net)
-		self.assertEqual(_cell(html, "القيمة الإجمالية"), fmt_money(3600))
+		self.assertEqual(_cell(html, "القيمة الإجمالية"), _sar(3600, self.company))
 		c = self.company
 		self.assertEqual(
 			_settlement(html, SUPPLIER),
@@ -169,7 +170,7 @@ class TestPrintFormats(_CustomerCardsBase):
 		)
 		self.assertEqual((card.net_amount, card.customer_net_amount), (3700, 5560))
 		html = self._print(card)
-		self.assertEqual(_cell(html, "القيمة الإجمالية"), fmt_money(3600))
+		self.assertEqual(_cell(html, "القيمة الإجمالية"), _sar(3600, self.company))
 		self.assertIn(frappe.db.get_value("Customer", self.customer, "customer_name"), html)
 		c = self.company
 		self.assertEqual(
@@ -351,9 +352,9 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertNotIn("كارت تشغيل معدة شهري", html)
 		# Urdu is right-to-left in CARD, although frappe is_rtl() lists only ar/he/fa/ps
 		self.assertIn('class="emc rtl" dir="rtl"', self._print(card, lang="ur"))
-		self.assertEqual(_cell(html, "Total amount"), fmt_money(3600))
+		self.assertEqual(_cell(html, "Total amount"), _sar(3600, self.company))
 		self.assertEqual(
-			_settlement(html, "Supplier settlement"),
+			_settlement(html, "Supplier settlement (before VAT)"),
 			[
 				("Total before additions and deductions", _sar(3600, self.company)),
 				("Total additions", _sar(0, self.company)),
@@ -361,7 +362,7 @@ class TestPrintFormats(_CustomerCardsBase):
 				("Net after additions and deductions", _sar(3000, self.company)),
 			],
 		)
-		self.assertIsNone(_settlement(html, "Customer settlement"))
+		self.assertIsNone(_settlement(html, "Customer settlement (before VAT)"))
 		# stored Arabic option values print in the print language (card/locale/en.po)
 		self.assertIn("Deduction", html)
 		legacy = self._print(card, LEGACY_MONTHLY, lang="en")
