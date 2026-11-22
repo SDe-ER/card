@@ -69,11 +69,11 @@ class TestCardEquipmentDimension(IntegrationTestCase):
 		fields = self._fields()
 		self.assertEqual(len(fields), count)  # every field (and its data) kept
 		self.assertTrue(all(f.read_only for f in fields))
-		# no Link to the DocType the uninstall deletes: the forms keep opening, the values stay
-		self.assertTrue(all(f.fieldtype == "Data" for f in fields))
 		self.assertEqual(set_card_equipment_dimension_disabled(True), "unchanged")
-		# a reinstall (or the manual command) enables it again, as Links to Card Equipment
+		# a reinstall (or the manual command) enables it again
 		self.assertEqual(ensure_card_equipment_dimension(), "enabled")
 		fields = self._fields()
 		self.assertFalse(any(f.read_only for f in fields))
-		self.assertTrue(all(f.fieldtype == "Link" and f.options == DIMENSION_DOCTYPE for f in fields))
+		self.assertTrue(
+			all(f.fieldtype == "Link" and f.options == DIMENSION_DOCTYPE for f in fields)
+		)  # unchanged

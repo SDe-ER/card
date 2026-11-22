@@ -67,10 +67,9 @@ def _is_disabled():
 
 def set_card_equipment_dimension_disabled(disabled):
 	"""Disable (uninstall) or enable again (reinstall) the dimension with ERPNext's own toggle: its custom fields
-	become read-only or editable; nothing is deleted. Disabled, the fields also become Data fields that keep their
-	values: the uninstall deletes the Card Equipment DocType, and a Link to a missing DocType would stop the forms
-	that carry a value from opening. Enabled again, they are Links to Card Equipment. A no-op when the dimension is
-	missing or already so."""
+	become read-only or editable; nothing is deleted. The fields stay Link fields (frappe refuses to change a custom
+	field from Link to Data); after an uninstall they point at the deleted Card Equipment DocType — a known
+	limitation, checked before any uninstall. A no-op when the dimension is missing or already so."""
 	name = frappe.db.get_value("Accounting Dimension", {"document_type": DIMENSION_DOCTYPE}, "name")
 	if not name:
 		return None
@@ -82,11 +81,6 @@ def set_card_equipment_dimension_disabled(disabled):
 	doc.db_set("disabled", 1 if disabled else 0)
 	# synchronous (the standard disable_dimension queues it): the uninstall/install hook is complete when it returns
 	toggle_disabling(doc=frappe.as_json(doc.as_dict()))
-	for name in frappe.get_all("Custom Field", filters={"fieldname": doc.fieldname}, pluck="name"):
-		field = frappe.get_doc("Custom Field", name)
-		field.fieldtype, field.options = ("Data", "") if disabled else ("Link", DIMENSION_DOCTYPE)
-		field.save(ignore_permissions=True)  # install/uninstall hook context, no user request
-		frappe.clear_cache(doctype=field.dt)
 	return "disabled" if disabled else "enabled"
 
 

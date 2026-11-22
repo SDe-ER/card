@@ -292,7 +292,7 @@ class TestSupplierStatementRange(_PostingBase):
 		r = self._run(from_date="2026-09-01", to_date="2026-09-05", project=self.project)
 		self.assertEqual(r.by_key["period_paid"], 120)
 		self.assertEqual(r.by_key["unallocated_paid"], 80)
-		self.assertIn("Payments not allocated to a project", [s["label"] for s in r.summary])
+		self.assertIn("Payments not allocated to a project (not deducted)", [s["label"] for s in r.summary])
 
 	def test_owner_scenario_payment_reissued_with_the_equipment(self):
 		# R7 shape: three equipment of one supplier; the 1,587.63 payment re-issued with the third equipment

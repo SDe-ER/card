@@ -33,9 +33,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - With both filters an entry counts only when it carries both the equipment and the project (a project-only
     payment is never deducted from one equipment, so never from several). The VAT of CARD invoice lines without the
     equipment/project shows as information. A site without the dimension says so and does not split by equipment.
-  - Disabled (uninstall), the dimension's fields become read-only Data fields that keep their values (no Link to the
-    Card Equipment DocType the uninstall deletes, so ERPNext forms keep opening); enabled again (reinstall or the
-    manual command), they are Links again.
+  - Disabled (uninstall), the dimension's fields become read-only and keep their values; enabled again by a
+    reinstall or the manual command. Known limitation: they stay Link fields (frappe refuses to change a custom field
+    from Link to Data), so after an uninstall they point at the deleted Card Equipment DocType; check the effect on
+    documents that carry a value before any uninstall.
   - Known limitation: the month statement (no from/to dates) keeps its ledger lines for the whole supplier.
   - Pull request: #289.
   - Functions: `card/dimension.py` (`set_card_equipment_dimension_disabled`, docstring), new patch
