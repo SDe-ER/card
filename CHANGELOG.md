@@ -40,11 +40,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Functions: `card/card/report/equipment_supplier_statement/equipment_supplier_statement.py` (`execute`,
     `range_balance`), new `statement_period.py` (`date_range`, `range_work`, `supplier_ledger`, `previous_work`,
     `card_vouchers`), `equipment_supplier_statement.js` (two filters), `equipment_supplier_statement.html`,
-    `statement_pdf.py`; `card/card_value.py` (`exact_hourly_rate`); `card/locale/main.pot`, `card/locale/ar.po`.
+    `statement_pdf.py`; `card/card/print_format/equipment_supplier_statement_a4/equipment_supplier_statement_a4.json`
+    (same template); `card/card_value.py` (`exact_hourly_rate`); `card/locale/main.pot`, `card/locale/ar.po`.
     Tests: `card/tests/test_supplier_statement_range.py`.
   - Impact: permissions none (same report roles and ledger gate `can_view_ledger`); accounting none (read-only;
-    reads GL Entry, Purchase Invoice and GL Posting Log, writes nothing); data none (no patch); API: the report's
-    filters and summary keys (additive).
+    reads GL Entry, Purchase Invoice and GL Posting Log, writes nothing); data none (no patch; the standard print
+    format is reloaded by `bench migrate`); API: the report's filters and summary keys (additive).
   - Rollback: code only; the month statement is unchanged, so rolling back removes only the date-range statement.
   - Pull request: #287.
 
