@@ -46,6 +46,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     reads GL Entry, Purchase Invoice and GL Posting Log, writes nothing); data none (no patch); API: the report's
     filters and summary keys (additive).
   - Rollback: code only; the month statement is unchanged, so rolling back removes only the date-range statement.
+  - Pull request: #287.
 
 ### Fixed
 - **FR-175 — Monthly Card form shows the server's amount** (owner report 2026-11-22: a draft card showed net
@@ -60,6 +61,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Impact: permissions none (the endpoint returns one Card Settings number to users who can read monthly cards);
     accounting none (server pricing unchanged); data none; API: one new read-only GET method.
   - Rollback: code only.
+  - Pull request: #287.
 - **FR-174 — Monthly Card print: four clear settlement totals per side** (owner request 2026-11-21).
   - The default print format `Card Monthly Card Print` shows, for each billed side (Supplier settlement, Customer
     settlement), four rows in this order: «الإجمالي قبل الإضافات والخصومات» (`amount` / `customer_amount`), «إجمالي
