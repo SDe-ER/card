@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-- **2026-11-22 — The printed Monthly Card says the settlement is before VAT, and every amount in the totals shows the currency.** The settlement tables are now titled **Supplier settlement (before VAT)** and **Customer settlement (before VAT)**, because VAT is added on the invoice. In the **Card totals** box, the rate and the total amount now print with two decimals and the currency (for example 3,600.00 SAR), like the settlement rows.
+- **2026-11-22 — The printed Monthly Card says the settlement is before VAT, and every amount in the totals shows the currency.** The settlement tables are now titled **Supplier settlement (before VAT)** and **Customer settlement (before VAT)**, because VAT is added on the invoice. In the **Card totals** box, every amount (the rate, the total amount and, for a customer card, the customer rate and amount) now prints with two decimals and the currency (for example 3,600.00 SAR), like the settlement rows.
 
 ## v4.11.0 — 2026-11-22
 

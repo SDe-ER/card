@@ -56,6 +56,12 @@ def _settlement(html, header):
 	return re.findall(r'<td class="k">([^<]*)</td><td class="v">([^<]*)</td>', m.group(1))
 
 
+def _card_totals(html):
+	"""The values of the Card totals box, in print order."""
+	m = re.search(r'<table class="emc-tot emc-totals">(.*?)</table>', html, re.S)
+	return re.findall(r'<td class="v">([^<]*)</td>', m.group(1))
+
+
 def _sar(value, company):
 	"""A settlement amount as printed: two decimals and the company currency (SAR for SDCE)."""
 	currency = frappe.get_cached_value("Company", company, "default_currency")
@@ -171,6 +177,18 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertEqual((card.net_amount, card.customer_net_amount), (3700, 5560))
 		html = self._print(card)
 		self.assertEqual(_cell(html, "القيمة الإجمالية"), _sar(3600, self.company))
+		# every money cell of the Card totals box: two decimals and the currency (hours and days are not money)
+		self.assertEqual(
+			_card_totals(html),
+			[
+				"48.0",
+				str(card.working_days),
+				_sar(card.rate, self.company),
+				_sar(3600, self.company),
+				_sar(card.customer_rate, self.company),
+				_sar(5760, self.company),
+			],
+		)
 		self.assertIn(frappe.db.get_value("Customer", self.customer, "customer_name"), html)
 		c = self.company
 		self.assertEqual(
