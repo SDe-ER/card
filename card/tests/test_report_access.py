@@ -307,8 +307,15 @@ class TestReportAccess(IntegrationTestCase):
 		self._raw_gl(self.company, credit=400)
 		self._raw_gl(self.other, credit=7000)
 		frappe.set_user(self._user(["Card User", "Accounts Manager"]))
-		_cols, _rows, _msg, summary = self._statement()
+		# FR-176: with a project filter an entry without that project is not counted, so the company check runs on
+		# the whole supplier (no project filter)
+		_cols, _rows, _msg, summary = self._statement(project=None)
 		self.assertEqual(flt(_value(summary, "Accrual entries (Credit)")), 400.0)
+		_cols, _rows, _msg, scoped = self._statement()
+		self.assertEqual(flt(_value(scoped, "Accrual entries (Credit)")), 0.0)
+		self.assertEqual(
+			flt(_key(scoped, "unallocated_other")), 400.0
+		)  # shown apart, never the other company's
 		# the A4 print picks its short statement by these stable keys (labels are translated)
 		keys = {item.get("key") for item in summary}
 		self.assertTrue({"opening", "accrued", "paid", "closing", "net_cards", "hours"} <= keys)
