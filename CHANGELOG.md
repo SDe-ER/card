@@ -37,6 +37,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     Card Equipment DocType the uninstall deletes, so ERPNext forms keep opening); enabled again (reinstall or the
     manual command), they are Links again.
   - Known limitation: the month statement (no from/to dates) keeps its ledger lines for the whole supplier.
+  - Pull request: #289.
   - Functions: `card/dimension.py` (`set_card_equipment_dimension_disabled`, docstring), new patch
     `card/patches/v4_11_0/ensure_card_equipment_dimension.py`, `card/install.py` (`after_install`,
     `before_uninstall`), `card/hooks.py` (`before_uninstall`), `statement_period.py` (`supplier_ledger`,
