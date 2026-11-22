@@ -27,6 +27,7 @@ from card.adjustments import ADDITION, DEDUCTION, sided_adjustments
 from card.card.doctype.card_stop_reason.card_stop_reason import SIDE_BOTH, billable_side_of
 from card.card_value import bills_full_days, day_billing_basis, exact_hourly_rate
 from card.constants import SUPPLIER_BILLING_DIRECTIONS
+from card.dimension import DIMENSION_FIELD, gl_has_dimension_field
 from card.transfer import is_billed_day
 
 SUPPLIER = "Supplier"
@@ -211,17 +212,56 @@ def card_vouchers(company, supplier):
 	}
 
 
-def supplier_ledger(company, supplier, start, end):
+def _scope_match(row, scope):
+	"""How a ledger row (or invoice item) relates to the statement's equipment/project scope (FR-176):
+	"in" = it carries every scoped field with the wanted value, "out" = it carries another equipment/project,
+	"untagged" = otherwise (a scoped field is empty). A row tagged with the project only is therefore never counted
+	for one equipment, so it is never deducted from several equipment. Without a scope every row is "in"."""
+	if not scope:
+		return "in"
+	values = [(row.get(field) or None, wanted) for field, wanted in scope.items()]
+	if any(value and value != wanted for value, wanted in values):
+		return "out"
+	if all(value == wanted for value, wanted in values):
+		return "in"
+	return "untagged"
+
+
+def _ledger_scope(equipment=None, project=None):
+	"""{GL field: wanted value} for the filters a ledger row can carry (Accounting Dimension card_equipment, project)."""
+	scope = {}
+	if equipment:
+		scope[DIMENSION_FIELD] = equipment
+	if project:
+		scope["project"] = project
+	return scope
+
+
+def supplier_ledger(company, supplier, start, end, equipment=None, project=None):
 	"""The supplier's ledger side of the balance, split before / inside the range.
 
-	Returns a dict: before and period, each with paid, vat, other (credits CARD did not post),
-	and payments (the debit entries of the range: date, voucher, remark, amount)."""
+	Returns a dict: before and period, each with paid, vat, other (credits CARD did not post); payments (the debit
+	entries of the range: date, voucher, remark, amount); and, with an equipment/project scope (FR-176, Owner decisions
+	2026-11-22), unallocated_paid / unallocated_other — the untagged supplier debits/credits up to ``end``, shown as
+	information and never counted. With a scope, a debit or credit counts only when its ledger row carries that
+	equipment (Accounting Dimension) / project; the VAT of a CARD purchase invoice is allocated by the share of its
+	item net that carries them."""
+	dimension = gl_has_dimension_field()
+	# without the Card Equipment dimension no entry can carry an equipment: the equipment scope does not apply
+	scope = _ledger_scope(equipment if dimension else None, project)
 	vouchers = card_vouchers(company, supplier)
 	out = {
 		"before": {"paid": 0.0, "vat": 0.0, "other": 0.0},
 		"period": {"paid": 0.0, "vat": 0.0, "other": 0.0},
 		"payments": [],
+		"unallocated_paid": 0.0,
+		"unallocated_other": 0.0,
+		"unallocated_vat": 0.0,
+		"dimension_missing": bool(equipment) and not dimension,
 	}
+	fields = ["posting_date", "voucher_type", "voucher_no", "debit", "credit", "remarks", "project"]
+	if dimension:
+		fields.append(DIMENSION_FIELD)
 	for g in frappe.get_all(
 		"GL Entry",
 		filters=[
@@ -231,43 +271,88 @@ def supplier_ledger(company, supplier, start, end):
 			["is_cancelled", "=", 0],
 			["posting_date", "<=", end],
 		],
-		fields=["posting_date", "voucher_type", "voucher_no", "debit", "credit", "remarks"],
+		fields=fields,
 		order_by="posting_date asc, creation asc",
 		limit_page_length=0,
 	):
+		match = _scope_match(g, scope)
 		part = out["before"] if getdate(g.posting_date) < start else out["period"]
+		card_posting = (g.voucher_type, g.voucher_no) in vouchers
 		if flt(g.debit):
-			part["paid"] = part["paid"] + flt(g.debit)
-			if part is out["period"]:
-				out["payments"].append(
-					{
-						"posting_date": g.posting_date,
-						"voucher_type": g.voucher_type,
-						"voucher_no": g.voucher_no,
-						"remarks": g.remarks,
-						"amount": flt(g.debit, 2),
-					}
-				)
+			if match == "in":
+				part["paid"] = part["paid"] + flt(g.debit)
+				if part is out["period"]:
+					out["payments"].append(
+						{
+							"posting_date": g.posting_date,
+							"voucher_type": g.voucher_type,
+							"voucher_no": g.voucher_no,
+							"remarks": g.remarks,
+							"amount": flt(g.debit, 2),
+						}
+					)
+			elif match == "untagged":
+				out["unallocated_paid"] = out["unallocated_paid"] + flt(g.debit)
 		# double-count guard: a CARD posting's credit is the card work already counted
-		if flt(g.credit) and (g.voucher_type, g.voucher_no) not in vouchers:
-			part["other"] = part["other"] + flt(g.credit)
+		if flt(g.credit) and not card_posting:
+			if match == "in":
+				part["other"] = part["other"] + flt(g.credit)
+			elif match == "untagged":
+				out["unallocated_other"] = out["unallocated_other"] + flt(g.credit)
 
 	invoices = [name for doctype, name in vouchers if doctype == "Purchase Invoice"]
 	if invoices:
+		share, untagged = _scoped_item_share(invoices, scope) if scope else ({}, {})
 		for pi in frappe.get_all(
 			"Purchase Invoice",
 			filters=[["name", "in", invoices], ["docstatus", "=", 1], ["posting_date", "<=", end]],
-			fields=["posting_date", "base_taxes_and_charges_added", "base_taxes_and_charges_deducted"],
+			fields=[
+				"name",
+				"posting_date",
+				"base_taxes_and_charges_added",
+				"base_taxes_and_charges_deducted",
+			],
 			limit_page_length=0,
 		):
 			part = out["before"] if getdate(pi.posting_date) < start else out["period"]
-			part["vat"] = (
-				part["vat"] + flt(pi.base_taxes_and_charges_added) - flt(pi.base_taxes_and_charges_deducted)
-			)
+			vat = flt(pi.base_taxes_and_charges_added) - flt(pi.base_taxes_and_charges_deducted)
+			if scope:
+				out["unallocated_vat"] = out["unallocated_vat"] + vat * untagged.get(pi.name, 0.0)
+				vat = vat * share.get(pi.name, 0.0)
+			part["vat"] = part["vat"] + vat
 	for key in ("before", "period"):
 		for field in ("paid", "vat", "other"):
 			out[key][field] = flt(out[key][field], 2)
+	out["unallocated_paid"] = flt(out["unallocated_paid"], 2)
+	out["unallocated_other"] = flt(out["unallocated_other"], 2)
+	out["unallocated_vat"] = flt(out["unallocated_vat"], 2)
 	return out
+
+
+def _scoped_item_share(invoices, scope):
+	"""({invoice: share of its item net (base_net_amount) whose rows carry the scope}, {invoice: share of the
+	untagged rows}) (Owner decision D2); the VAT of untagged rows is shown as information, never added."""
+	meta = frappe.get_meta("Purchase Invoice Item")
+	fields = ["parent", "base_net_amount"] + [f for f in scope if meta.has_field(f)]
+	total, scoped, untagged = {}, {}, {}
+	for item in frappe.get_all(
+		"Purchase Invoice Item",
+		filters=[["parent", "in", invoices], ["parenttype", "=", "Purchase Invoice"]],
+		fields=fields,
+		limit_page_length=0,
+	):
+		net = flt(item.base_net_amount)
+		total[item.parent] = total.get(item.parent, 0.0) + net
+		match = _scope_match(item, scope)
+		if match == "in":
+			scoped[item.parent] = scoped.get(item.parent, 0.0) + net
+		elif match == "untagged":
+			untagged[item.parent] = untagged.get(item.parent, 0.0) + net
+
+	def share(part):
+		return {name: (part.get(name, 0.0) / total[name]) if total[name] else 0.0 for name in total}
+
+	return share(scoped), share(untagged)
 
 
 def previous_work(cards_before, start):

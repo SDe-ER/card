@@ -570,7 +570,8 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 	"""Summary, message and payment rows of a supplier statement for a date range (Owner 2026-11-22).
 
 	The balance rule and its double-count guard are documented in statement_period. Card work follows the
-	report's filters; the ledger side (payments, VAT, other credits) is the whole supplier's."""
+	report's filters; the ledger side (payments, VAT, other credits) follows the equipment / project filter through
+	the entries' Card Equipment dimension and project (FR-176), and is the whole supplier's otherwise."""
 	flt = frappe.utils.flt
 	period_net = flt(grand["net"], 2)
 	summary = [
@@ -622,7 +623,10 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 				types[e.name] = e.equipment_type or ""
 		before_cards = [c for c in before_cards if types.get(c.equipment) == filters.get("equipment_type")]
 
-	ledger = supplier_ledger(company, supplier, start, end)
+	# FR-176: with an equipment/project filter the ledger side follows the entries' equipment dimension / project
+	ledger = supplier_ledger(
+		company, supplier, start, end, equipment=filters.get("equipment"), project=filters.get("project")
+	)
 	before, period = ledger["before"], ledger["period"]
 	previous_due = flt(
 		previous_work(before_cards, start) + before["vat"] + before["other"] - before["paid"], 2
@@ -636,6 +640,34 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 		("period_paid", _("Payments in the period (submitted entries only)"), period["paid"], "Orange"),
 		("current_due", _("Current due to the supplier"), current_due, "Red" if current_due > 0 else "Green"),
 	]
+	# FR-176: untagged supplier entries never change an equipment/project balance; shown apart, not counted
+	scoped = filters.get("equipment") or filters.get("project")
+	if scoped and ledger["unallocated_paid"]:
+		if filters.get("equipment") and filters.get("project"):
+			label = _("Payments without the selected equipment and project (not deducted)")
+		elif filters.get("equipment"):
+			label = _("Payments not allocated to an equipment (not deducted)")
+		else:
+			label = _("Payments not allocated to a project (not deducted)")
+		items.append(("unallocated_paid", label, ledger["unallocated_paid"], "Orange"))
+	if scoped and ledger["unallocated_other"]:
+		items.append(
+			(
+				"unallocated_other",
+				_("Other supplier credits without the equipment or project (not added)"),
+				ledger["unallocated_other"],
+				"Grey",
+			)
+		)
+	if scoped and ledger["unallocated_vat"]:
+		items.append(
+			(
+				"unallocated_vat",
+				_("VAT of CARD invoice lines without the equipment or project (not added)"),
+				ledger["unallocated_vat"],
+				"Grey",
+			)
+		)
 	for key, label, value, indicator in items:
 		summary.append(
 			{"key": key, "label": label, "value": value, "datatype": "Currency", "indicator": indicator}
@@ -692,7 +724,19 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 			}
 		)
 		notes.append(reconciliation_notice())
-	if filters.get("project") or filters.get("equipment") or filters.get("equipment_type"):
+	if ledger["dimension_missing"]:
+		notes.append(
+			_(
+				"The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+			)
+		)
+	if filters.get("project") or filters.get("equipment"):
+		notes.append(
+			_(
+				"Payments, VAT and other credits count only when their accounting entry carries the selected equipment or project; entries without one are shown apart and not counted."
+			)
+		)
+	elif filters.get("equipment_type"):
 		notes.append(
 			_("The work follows the filters; payments, VAT and other credits are for the whole supplier.")
 		)

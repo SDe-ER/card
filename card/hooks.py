@@ -103,7 +103,8 @@ after_migrate = ["card.fonts.ensure_fonts", "card.navigation.restore_launcher_en
 # Uninstallation
 # ------------
 
-# before_uninstall = "card.uninstall.before_uninstall"
+# FR-176: the Card Equipment accounting dimension is disabled, never deleted
+before_uninstall = "card.install.before_uninstall"
 # after_uninstall = "card.uninstall.after_uninstall"
 
 # Integration Setup

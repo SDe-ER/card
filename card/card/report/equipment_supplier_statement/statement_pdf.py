@@ -54,6 +54,8 @@ OPTIONAL_FIELDS = ("additions", "deductions")
 # only when not zero
 RANGE_KEYS = ("previous_due", "period_net", "period_vat", "period_other", "period_paid", "current_due")
 RANGE_OPTIONAL = ("period_vat", "period_other")
+# FR-176: information lines (not part of the balance), printed as notes under the totals
+RANGE_INFO = ("unallocated_paid", "unallocated_other", "unallocated_vat")
 STOPPED_HOURS_WIDTH = 7
 KEY_ORDER = {
 	11: (
@@ -198,6 +200,11 @@ def build_html(filters, columns, data, message, summary):
 			)
 		out.append("</tbody></table>")
 
+	for item in summary or []:
+		if item and item.get("key") in RANGE_INFO and flt(item.get("value")):
+			out.append(
+				f'<p class="ess-note"><b>{esc(item.get("label") or "")}: {_num(item.get("value"))}</b></p>'
+			)
 	if payments:
 		out.append(_payments_table(payments))
 

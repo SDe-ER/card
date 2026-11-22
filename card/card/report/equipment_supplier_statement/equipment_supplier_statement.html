@@ -255,6 +255,9 @@
 	</tbody>
 </table>
 {% } %}
+{% var info_keys = ["unallocated_paid", "unallocated_other", "unallocated_vat"]; for (var q = 0; q < info_keys.length; q++) { var info = summary_of[info_keys[q]]; if (info && (parseFloat(info.value) || 0)) { %}
+<p class="ess-note"><b>{%= esc(info.label || "") %}: {%= num(info.value) %}</b></p>
+{% } } %}
 {% if (payments.length) { %}
 <p class="ess-sub">{%= __("Payments in the period") %}</p>
 <table class="ess-rows ess-pay">
