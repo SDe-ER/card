@@ -57,7 +57,7 @@ The field **Auto-submit postings** is deprecated: it is hidden, read only and no
 | Default fuel charged to (new equipment) | empty | «المؤجر» (Lessor) or «الشركة» (Company) |
 | Default operator charged to (new equipment) | empty | «المؤجر» (Lessor) or «الشركة» (Company) |
 | Default rate basis | empty | Fills the supplier and customer rate basis on new equipment when left blank: «باليوم», «بالساعة», «بالشهر» |
-| Standard month hours | 260 | Hours a monthly rate is spread over (26 days × 10 hours) |
+| Standard month hours | 260 | Hours a monthly rate is spread over (26 days × 10 hours). Empty or 0 means not configured: CARD then refuses a per-month rate and names this setting |
 | Daily equipment location sync | off | When on, a daily job sets each equipment's current project and assignment date from the assignment in force today; an overwritten value leaves a comment. Equipment without assignment history is never changed |
 
 **Warnings**

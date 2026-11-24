@@ -137,7 +137,7 @@ class TestEquipmentDieselAnalysis(IntegrationTestCase):
 		self.assertEqual(flt(row["variance"]), -10.0)
 		self.assertEqual(flt(row["variance_pct"]), -10.0)
 		self.assertEqual(flt(_value(summary, "Expected litres")), 100.0)
-		self.assertEqual(flt(_value(summary, "Allocated litres")), 90.0)
+		self.assertEqual(flt(_value(summary, "Allocated litres (recorded + estimated)")), 90.0)
 		self.assertEqual(flt(_value(summary, "Recorded litres (direct fills)")), 90.0)
 		self.assertEqual(flt(_value(summary, "Estimated litres (hours split)")), 0.0)
 		self.assertEqual(flt(_value(summary, "Litres variance (expected vs allocated)")), -10.0)
@@ -181,7 +181,7 @@ class TestEquipmentDieselAnalysis(IntegrationTestCase):
 		_cols, rows, _msg, _chart, summary, _flag = self._run(from_month=1, to_month=1)
 		self.assertEqual(rows, [])
 		self.assertEqual(flt(_value(summary, "Expected litres")), 0.0)
-		self.assertEqual(flt(_value(summary, "Allocated litres")), 0.0)
+		self.assertEqual(flt(_value(summary, "Allocated litres (recorded + estimated)")), 0.0)
 
 	# ---- #33: allocated = recorded (direct) + estimated (hours split) ----
 	def test_tank_fill_is_estimated_and_mixed_sums_to_allocated(self):
@@ -206,7 +206,7 @@ class TestEquipmentDieselAnalysis(IntegrationTestCase):
 		self.assertEqual(flt(r1["variance"]), -20.0)
 		self.assertEqual(flt(r2["variance"]), -50.0)
 		# totals unchanged: allocated = every submitted litre of the period
-		self.assertEqual(flt(_value(summary, "Allocated litres")), 130.0)
+		self.assertEqual(flt(_value(summary, "Allocated litres (recorded + estimated)")), 130.0)
 		self.assertEqual(flt(_value(summary, "Recorded litres (direct fills)")), 30.0)
 		self.assertEqual(flt(_value(summary, "Estimated litres (hours split)")), 100.0)
 		self.assertEqual(flt(_value(summary, "Litres variance (expected vs allocated)")), -70.0)
@@ -217,7 +217,7 @@ class TestEquipmentDieselAnalysis(IntegrationTestCase):
 		columns, _rows, message, _chart, summary, _flag = self._run()
 		labels = {c["fieldname"]: c["label"] for c in columns}
 		# fieldname kept for compatibility; the label now says "allocated"
-		self.assertEqual(labels["actual_litres"], frappe._("Allocated litres"))
+		self.assertEqual(labels["actual_litres"], frappe._("Allocated litres (recorded + estimated)"))  # #31
 		self.assertEqual(labels["litres_recorded"], frappe._("Recorded litres (direct fills)"))
 		self.assertEqual(labels["litres_estimated"], frappe._("Estimated litres (hours split)"))
 		self.assertEqual(labels["variance"], frappe._("Litres variance (expected vs allocated)"))

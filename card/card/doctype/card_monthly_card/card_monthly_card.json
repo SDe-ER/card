@@ -545,6 +545,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.customer_rate_type==\"بالمتر المكعب\" || doc.total_loads",
    "fieldname": "load_volume_used",
    "fieldtype": "Float",
    "label": "Load volume used (m³)",
@@ -552,12 +553,14 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.customer_rate_type==\"بالمتر المكعب\" || doc.total_loads",
    "fieldname": "total_loads",
    "fieldtype": "Int",
    "label": "Total loads",
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.customer_rate_type==\"بالمتر المكعب\" || doc.total_loads",
    "fieldname": "total_volume_m3",
    "fieldtype": "Float",
    "label": "Total volume (m³)",
@@ -660,7 +663,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-19 15:00:00.000000",
+ "modified": "2026-11-25 00:30:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card",
