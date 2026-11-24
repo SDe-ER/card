@@ -19,6 +19,19 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 _Nothing yet._
 
+### Fixed
+- **Period run: a change of loads makes the run stale (FR-177, #263).** The period-run fingerprint version 1 did
+  not cover the Monthly Card load fields, so moving or changing loads on a per-m³ card with the same amount left
+  an approved run current. New runs use fingerprint version 2 (`card/gl/period_run.py`: version 1 plus
+  `loads_count`, `total_loads`, `total_volume_m3`, `load_volume_used`). Version 1 is unchanged; a run built with it,
+  or with no stored version, is still checked with version 1 (`check_current`, `period_gate._source_mismatches`).
+  A source without load values has the same fingerprint in both versions. A draft or returned run is rebuilt on
+  every save, so it moves to version 2 on its next save; submitted runs keep their version. A run with a version
+  this code does not know is reported as changed (empty fingerprint) and refused by the posting gate, never an
+  error. Impact: permissions none; accounting none (no document is created or changed; only the stale check of
+  new runs is stricter); data none (no patch); API none. Rollback: code only; code older than this change has no
+  version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
