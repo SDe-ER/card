@@ -19,6 +19,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 _Nothing yet._
 
+### CI
+- **GitHub Actions versions (Dependabot #243, #244, #245, #279 in one change).** `docs.yml`: `actions/checkout`
+  v4 → v7, `actions/upload-pages-artifact` v3 → v5 and `actions/deploy-pages` v4 → v5 (one Pages deploy, so the
+  pair moves together). `docs-screenshots.yml`: `actions/upload-artifact` v4 → v7 (as `upgrade-rehearsal.yml`
+  already uses). Workflow permissions unchanged. No application, permission, accounting, data or API change.
+  Rollback: revert the workflow lines.
+
 ### Tests
 - **Child-row integrity test follows frappe 16.61.0 (#293).** Since frappe version-16 16.61.0 (commit `e874c9d8d`,
   "submit, cancel and rename check permission on the stored document"), frappe refuses an operator's
