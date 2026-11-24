@@ -45,6 +45,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   reports reads level 1 today, so their reports are unchanged); accounting none; data none; API none (fewer keys
   for a user without level-1 read). Rollback: code only.
 
+### Documentation
+- **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
+  sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
+  change.
+
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report
   2026-11-21, reproduced on Production after the v4.10.1 deployment: «نوع الإضافة/الخصم … غير معرّف (أو معطّل) في
