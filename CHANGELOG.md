@@ -68,6 +68,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   The A4 print skips the missing items. Impact: permissions none (no role or DocPerm change; every role of these
   reports reads level 1 today, so their reports are unchanged); accounting none; data none; API none (fewer keys
   for a user without level-1 read). Rollback: code only.
+- **Card money level check for three more reports (FR-181, #301; Owner decision 2026-11-24).** When the user's roles
+  do not read permlevel 1 of Card Monthly Card (`role_reads_money`), with `strip_money`:
+  - Unbilled Card Work: no "Card amount not invoiced" (`amount`) and no tiles (both are sums of card nets). The list
+    of cards, sides, parties and documents stays.
+  - Card Settlement Status: no "Card net" (`net`) column and no "Cards net" tile.
+  - Equipment Partial Margin: no `unbilled_revenue`, no `unbilled_rental` and no "Customer cards not invoiced yet"
+    tile.
+  Figures of accounting documents (the card's share of its invoice, paid, remaining, revenue, supplier rental
+  recognised by a submitted document, margin) keep their own gate (`can_view_ledger`), as the Owner decided for the
+  invoice-side figures on 2026-11-24. Impact: permissions none (no role or DocPerm change; the roles of these
+  reports — System Manager, Accounts Manager, Card Manager — all read level 1, so their reports are unchanged);
+  accounting none; data none; API none (fewer keys for a user without level-1 read). Rollback: code only.
 
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report

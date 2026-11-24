@@ -27,7 +27,7 @@ from frappe.utils import flt, getdate
 
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
-from card.report_access import can_view_ledger, resolve_company
+from card.report_access import can_view_ledger, resolve_company, role_reads_money, strip_money
 from card.report_currency import company_currency_report
 
 CARD = "Card Monthly Card"
@@ -90,6 +90,10 @@ def execute(filters=None):
 		limit_page_length=0,
 	)
 	columns = _columns(party_type)
+	# #301: the card net is permlevel 1 of Card Monthly Card; the ledger figures keep can_view_ledger
+	reads_money = role_reads_money()
+	if not reads_money:
+		columns = strip_money(columns, None, keys=("net",))
 	if not cards:
 		return columns, [], None, None, []
 
@@ -173,6 +177,10 @@ def execute(filters=None):
 	message = _(
 		"Amounts come from the ledger of the recognising document (VAT included for invoices). A document that recognised several sources is shared by their amounts and its payments are allocated to the oldest first. Payments not allocated to a document are settled in the accounts with Payment Reconciliation."
 	)
+	if not reads_money:
+		columns, summary = strip_money(
+			columns, data, keys=("net",), summary=summary, tile_labels=(_("Cards net"),)
+		)
 	return columns, data, message, None, summary
 
 
