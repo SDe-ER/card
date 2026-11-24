@@ -294,6 +294,31 @@ class TestPartyPortalScaffold(IntegrationTestCase):
 		frappe.set_user(email)
 		self.assertIsNone(get_party_from_user())
 
+	# ---------- security review 2026-11-13, finding 8: two Contacts with the user's email ----------
+
+	def _second_contact(self, email, party_type, party_name):
+		contact = frappe.new_doc("Contact")
+		contact.first_name = "Second " + frappe.generate_hash(length=4)
+		contact.append("email_ids", {"email_id": email, "is_primary": 1})
+		contact.append("links", {"link_doctype": party_type, "link_name": party_name})
+		contact.insert(ignore_permissions=True)
+		return contact.name
+
+	def test_resolve_party_two_contacts_two_parties_none(self):
+		"""Two Contacts carry the user's email and point at different parties: the party is not certain, so
+		none is resolved, whatever the order of the Contacts."""
+		user = self._portal_user("Supplier", self.supplier_a)
+		self._second_contact(user, "Supplier", self.supplier_b)
+		frappe.set_user(user)
+		self.assertIsNone(get_party_from_user())
+		self.assertEqual(list_party_cards(*(get_party_from_user() or ("Supplier", ""))), [])
+
+	def test_resolve_party_two_contacts_same_party(self):
+		user = self._portal_user("Supplier", self.supplier_a)
+		self._second_contact(user, "Supplier", self.supplier_a)
+		frappe.set_user(user)
+		self.assertEqual(get_party_from_user(), ("Supplier", self.supplier_a))
+
 	# ---------- list_party_cards ----------
 
 	def test_list_party_cards_supplier_returns_own_three(self):
