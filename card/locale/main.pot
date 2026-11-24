@@ -6817,6 +6817,10 @@ msgstr ""
 msgid "Transport second person"
 msgstr ""
 
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake declared"
+msgstr ""
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
 msgstr ""

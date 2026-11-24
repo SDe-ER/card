@@ -8060,6 +8060,10 @@ msgstr "أدخلت هذا النقل أو عدّلته من ورقة أو رسا
 msgid "Transport second person"
 msgstr "المستخدم الثاني لاعتماد النقل"
 
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake declared"
+msgstr "مُدخل من مستند مصدر"
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
 msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ يبقى خاصًا ومرفقًا بنقله."
