@@ -278,7 +278,7 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 				raise (
 					ForeignChildRowError(failed[0]["exc"])
 					if "ForeignChildRowError" in failed[0]["exc"]
-					else Exception
+					else Exception(failed[0]["exc"])
 				)
 			return failed
 
@@ -315,7 +315,7 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 				raise (
 					ForeignChildRowError(failed[0]["exc"])
 					if "ForeignChildRowError" in failed[0]["exc"]
-					else Exception
+					else Exception(failed[0]["exc"])
 				)
 
 		def child_save():
