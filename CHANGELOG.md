@@ -16,6 +16,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Changed
+- **FR-186 — The loads figures show only on per-m³ cards (issue 264 part 2; owner decision 2026-11-24).** On the
+  Monthly Card form, "Load volume used (m³)", "Total loads" and "Total volume (m³)" show only when the customer rate
+  type is per m³ or the card already has loads (`depends_on` in `card_monthly_card.json`), and the Loads column of the
+  days table follows the same rule (`card_toggle_loads_column` in `card_monthly_card.js`, also for a user who saved
+  the column with "Configure columns"). A stored value is never hidden or cleared. The server rule is unchanged: loads
+  are refused on a card that is not billed per m³. Impact: permissions none; accounting none; data none (no
+  patch; migrate syncs the DocType); API none. Rollback: code only; the fields and the column show again.
+
+### Changed
 - **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
   decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
   - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
