@@ -33,8 +33,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Impact: permissions none; accounting none (a site with stored values prices as before; a site with none gets
     the same numbers stored); data: at most three Card Settings values; API: `get_standard_month_hours` can return
     0. Rollback: code only; the stored values stay and older code reads them.
-
-### Changed
 - **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
   decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
   - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
@@ -59,6 +57,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
 
 ### Security
+- **Party portal: explicit read check on the card reads (FR-182, issue 257, security review 2026-11-13 finding 7).**
+  `card.portal.list_party_cards` and `get_party_card` read with `frappe.get_all` / `frappe.db.get_value`, which
+  apply no DocPerm. They now return nothing unless the user's roles grant read on Card Monthly Card
+  (`card.portal._reads_cards`: a role permission only; an owner-only read or a shared card does not count). The docstring of `get_party_card` said this already; it
+  was wrong and is corrected. The portal stays off on every company (`enable_party_portal` = 0) and the portal
+  roles have no read on the cards (owner decision O-16 is open), so nothing changes for any user today. Impact:
+  permissions none (no role or DocPerm change; one more refusal); accounting none; data none; API none (the
+  helpers are not whitelisted). Rollback: code only.
+- **Party portal: an uncertain party resolves to no party (FR-183, issue 257, security review 2026-11-13 finding 8).**
+  `card.portal.get_party_from_user` took the first Contact whose email is the user's. When several Contacts carry
+  that email and point at different Suppliers / Customers, the database order decided whose cards the portal
+  would show. It now reads every such Contact (`_contact_party`) and returns a party only when they all agree;
+  otherwise `None`, so the portal shows nothing. Portal off on every company, so nothing changes today. Impact:
+  permissions none; accounting none; data none; API none. Rollback: code only.
 - **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
   reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
   of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
@@ -87,6 +99,29 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   The A4 print skips the missing items. Impact: permissions none (no role or DocPerm change; every role of these
   reports reads level 1 today, so their reports are unchanged); accounting none; data none; API none (fewer keys
   for a user without level-1 read). Rollback: code only.
+- **Card money level check for three more reports (FR-181, #301; Owner decision 2026-11-24).** When the user's roles
+  do not read permlevel 1 of Card Monthly Card (`role_reads_money`), with `strip_money`:
+  - Unbilled Card Work: no "Card amount not invoiced" (`amount`) and no tiles (both are sums of card nets). The list
+    of cards, sides, parties and documents stays.
+  - Card Settlement Status: no "Card net" (`net`) column and no "Cards net" tile.
+  - Equipment Partial Margin: no `unbilled_revenue`, no `unbilled_rental` and no "Customer cards not invoiced yet"
+    tile.
+  Figures of accounting documents (the card's share of its invoice, paid, remaining, revenue, supplier rental
+  recognised by a submitted document, margin) keep their own gate (`can_view_ledger`), as the Owner decided for the
+  invoice-side figures on 2026-11-24. Impact: permissions none (no role or DocPerm change; the roles of these
+  reports — System Manager, Accounts Manager, Card Manager — all read level 1, so their reports are unchanged);
+  accounting none; data none; API none (fewer keys for a user without level-1 read). Rollback: code only.
+
+### Documentation
+- **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
+  sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
+  change.
+- **One expense for several machines is split by hand (issue 48, owner decision 2026-11-24).** The maintenance page
+  of the documentation site (English and Arabic) says how: one Purchase Invoice line per machine with the Card
+  Equipment dimension. No code: standard ERPNext already does it.
+- **Registry sync:** FR-137, FR-143, FR-152, FR-155, FR-157, FR-159 and FR-163 were still listed as not merged; their
+  code is in v4.8.0. Statuses corrected to Implemented. The approval workflows stay inactive until the owner
+  activates them per site (issue 35).
 
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report
