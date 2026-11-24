@@ -116,6 +116,7 @@ sidebar:
 | تاريخ ووقت الاستلام | `intake_received_on` | Datetime |  |  |
 | مستند المصدر | `intake_evidence` | Attach |  |  |
 | بصمة مستند المصدر (SHA-256) <small>(للقراءة فقط)</small> | `intake_evidence_hash` | Data |  |  |
+| مُدخل من مستند مصدر <small>(مخفي, للقراءة فقط)</small> | `intake_declared` | Check |  |  |
 
 
 **سير عمل الاعتماد**

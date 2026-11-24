@@ -29,7 +29,8 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
   an editor of the card or of its amendment chain) under the company's `card_approval_rule` (FR-143: "Warn only"
   by default, "Refuse" per company). No role is exempt.
 - Equipment Transport submit: where the company turns `require_intake_second_person` on (FR-189, off by default),
-  a transport with intake provenance is not submitted by a user who entered it (its stored owner or an editor).
+  a transport with intake provenance, now or on an earlier save (server-written `intake_declared`), is not
+  submitted by a user who entered it (its stored owner or an editor).
   No role is exempt. No DocPerm changes.
 
 ## DocTypes

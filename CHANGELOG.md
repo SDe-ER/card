@@ -26,6 +26,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     received time, an evidence file or a channel other than Manual) is not submitted by a user who entered it. The
     submit is refused with a translated message; another user who may submit transports submits it. A transport
     without provenance is not affected. No user is exempt.
+  - New field `Equipment Transport.intake_declared` (Check, default 0, hidden, read only, `no_copy`): the server's
+    record that a transport was entered from evidence. `card.intake._set_intake_declared` writes it in `validate`:
+    1 from the first save that carries intake provenance, kept from the stored row, taken from the transport a new
+    amendment amends, never taken from the request and never back to 0. So an enterer who empties the intake
+    fields in a draft save stays under the rule (security review finding). The flag is frozen after submit with
+    the other intake fields (`freeze_submitted_intake`).
   - Functions: `card.intake.check_second_person` and `has_intake_provenance` (new), `IntakeSecondPersonError`
     (new, a `frappe.PermissionError`); `EquipmentTransport.before_submit` calls the check first, so form submit,
     REST with `docstatus` 1, `frappe.client.submit`, bulk submit and a workflow action all pass through it.
@@ -34,15 +40,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     company, or removes the provenance, is refused too.
   - Impact: permissions — no role, DocPerm or endpoint added or widened; with the setting on, one user loses the
     submit of his own intake transport. Accounting — none. Data — one new column on `tabCard Company Settings`
-    (default 0), no patch, no backfill, no change to stored transports. API — no new endpoint; a refused submit
+    (default 0) and one new column on `tabEquipment Transport` (`intake_declared`, default 0); no patch, no
+    backfill. The flag is written on the next save of a draft transport that carries intake provenance, also
+    where the company setting is off (it has no effect there); submitted and cancelled transports do not change. API — no new endpoint; a refused submit
     returns a permission error (HTTP 403 on REST).
-  - Tests: `card/tests/test_transport_intake.py` `TestTransportIntakeSecondPerson` (11). Not run on a bench in the
+  - Tests: `card/tests/test_transport_intake.py` `TestTransportIntakeSecondPerson` (17). Not run on a bench in the
     build session; CI must pass before a merge.
-  - Known limits: a user who removes the intake fields in a saved draft and then submits is not covered (the rule
-    covers transports marked as intake); a reviewer who changes values in the submit request itself may submit; an
-    approval delegate (FR-163) of the enterer is a different user and may submit.
-  - Rollback: revert the commits. The column and its values stay in the database and have no effect without the
-    code. Turning the setting off restores the earlier behaviour at once.
+  - Known limits: the rule covers transports that carried intake provenance on a save (a transport never marked
+    as intake is a hand entry); a reviewer who changes values in the submit request itself may submit; an approval
+    delegate (FR-163) of the enterer is a different user and may submit.
+  - Rollback: revert the commits. The two columns and their values stay in the database and have no effect
+    without the code. Turning the setting off restores the earlier behaviour at once.
 
 ### Changed
 - **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means

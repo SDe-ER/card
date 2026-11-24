@@ -103,7 +103,8 @@ any build (repository rule for UI changes).
 
 ### 3.2 Data
 
-- P1 adds one Check field to `Card Company Settings`. No field on the transport.
+- P1 adds one Check field to `Card Company Settings` and one hidden, server-written Check field to
+  `Equipment Transport` (`intake_declared`, added after the security review of the slice).
 - P3 adds two fields to `Project Diesel Fill`: optional, empty by default, `no_copy`.
 - P5 needs one place for the sheet file. Proposal: a small child table on `Card Monthly Card` (sheet number, private
   file, server-written hash). This is a new child DocType and the only one in this design. It is not final.
@@ -132,8 +133,9 @@ it is submitted. With the rule off, the enterer can submit, as today. With the r
 5. Administrator is not exempt (same as the monthly card rule in `card.governance.before_submit`).
 6. A reviewer can correct a value in the draft before he submits. The change history (`track_changes`) shows it.
    If he saves the draft before he submits, he becomes an enterer and cannot submit. See the limit in section 4.
-7. The rule covers only records that the enterer marked as intake. Making the intake fields mandatory is a separate
-   owner decision and is not proposed.
+7. The rule covers only records that the enterer marked as intake. A record marked one time stays marked: the
+   server keeps the flag `intake_declared` when the intake fields are emptied later. Making the intake fields
+   mandatory is a separate owner decision and is not proposed.
 
 ### 3.5 Permissions
 
@@ -164,7 +166,8 @@ guards continue to refuse deletion for submitted and cancelled records.
 
 ### 3.8 Migration
 
-- P1: one new column on the settings child table, default 0. No patch. No backfill. Existing transports do not
+- P1: one new column on the settings child table and one on the transport, default 0. No patch. No backfill.
+  A draft with intake provenance gets the flag at its next save. Submitted and cancelled transports do not
   change. A second `migrate` changes nothing.
 - P3: two new empty columns. No patch.
 - P4: hooks only. Existing files are protected from the first request after the deploy. No data change.
@@ -200,13 +203,13 @@ CI before a merge. The table and the lists below describe the slice as built.
 | Delegation | Not part of the slice as built. A delegate (FR-163) of the enterer is a different user and can submit. To count the delegator as an enterer, as monthly cards do (`card.governance.user_acting_on_behalf`), is a later change |
 | Forged request | The stored company and the stored intake fields count with the values sent. A submit request that changes the company, removes the provenance or names another `owner` or `edited_by` is refused also |
 | New permission | None |
-| New field on the transport | None. `submitted_by` already records the reviewer |
+| New field on the transport | `intake_declared` (Check, default 0, hidden, read only, `no_copy`). `card.intake._set_intake_declared` writes it in `validate`: stored flag, or the flag of the amended transport, or intake provenance in this save. The request never decides it and it never returns to 0. The flag is recorded also with the setting off. `submitted_by` already records the reviewer |
 
 Files to touch:
 
 1. `card/card/doctype/card_company_settings/card_company_settings.json`: the Check field, `permlevel` 1 as the
    other company settings.
-2. `card/intake.py`: one new function, for example `check_second_person(doc)`.
+2. `card/intake.py`: `check_second_person`, `has_intake_provenance`, `_set_intake_declared`.
 3. `card/card/doctype/equipment_transport/equipment_transport.py`: one call in `before_submit`.
 4. `card/tests/test_transport_intake.py`: new tests (below).
 5. `card/locale/`: the label and the message (CARD strings only).
@@ -223,9 +226,13 @@ Tests:
 6. Setting on: Administrator is the enterer and submits. Result: refused.
 7. Setting on: insert as submitted in one call. Result: refused.
 8. Setting on: a forged `owner` or `edited_by`, or the provenance removed in the submit request. Result: refused.
-9. The same results through REST PUT with `docstatus` 1, `frappe.client.submit` and bulk submit.
+9. The same results through REST PUT with `docstatus` 1 and `frappe.client.submit`.
+10. Setting on: the enterer empties the intake fields in a draft save, then submits. Result: refused.
+11. A forged `intake_declared` in a save, through `set_value` or in the submit request. Result: ignored.
+12. Setting on: an amendment built without the intake fields. Result: its enterer is refused.
+13. Setting off: the flag is recorded and nothing is refused.
 
-Not covered by a test: a workflow action (it calls the same submit), an amendment, and a delegate.
+Not covered by a test: bulk submit and a workflow action (both call the same submit), and a delegate.
 
 Known limit: a reviewer who changes values and submits in one request is not an enterer in the stored row, so the
 submit is allowed. The change history shows his changes. This is accepted for the slice.
