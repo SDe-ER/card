@@ -517,7 +517,9 @@ class TestVolumeBilling(_StopBase):
 			script = handle.read()
 		self.assertIn("function card_toggle_loads_column", script)
 		# shown (hidden = 0) on a per-m³ card or when a day has loads; hidden otherwise
-		self.assertIn('const hidden = frm.doc.customer_rate_type === "بالمتر المكعب" || used ? 0 : 1;', script)
+		self.assertIn(
+			'const hidden = frm.doc.customer_rate_type === "بالمتر المكعب" || used ? 0 : 1;', script
+		)
 		self.assertIn('update_docfield_property("loads_count", "hidden", hidden)', script)
 
 	def test_statement_without_money_level_read_has_no_money_values(self):
