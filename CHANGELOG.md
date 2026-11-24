@@ -40,6 +40,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
 
 ### Security
+- **Party portal: explicit read check on the card reads (FR-182, issue 257, security review 2026-11-13 finding 7).**
+  `card.portal.list_party_cards` and `get_party_card` read with `frappe.get_all` / `frappe.db.get_value`, which
+  apply no DocPerm. They now return nothing unless the user's roles grant read on Card Monthly Card
+  (`card.portal._reads_cards`: a role permission only; an owner-only read or a shared card does not count). The docstring of `get_party_card` said this already; it
+  was wrong and is corrected. The portal stays off on every company (`enable_party_portal` = 0) and the portal
+  roles have no read on the cards (owner decision O-16 is open), so nothing changes for any user today. Impact:
+  permissions none (no role or DocPerm change; one more refusal); accounting none; data none; API none (the
+  helpers are not whitelisted). Rollback: code only.
 - **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
   reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
   of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
