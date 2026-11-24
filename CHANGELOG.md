@@ -25,8 +25,10 @@ _Nothing yet._
   `frappe.client.bulk_update` of a submitted child row with `PermissionError` before CARD's foreign-row guard runs.
   `test_operator_child_bulk_update_cannot_take_an_approved_row` accepts either refusal and still checks that the row
   and both documents are unchanged; the guard on that route stays proven for the supervisor. The `bulk_update` test
-  helpers keep the traceback of an unexpected failure. Test code only: no application, permission, accounting,
-  data or API change.
+  helpers keep the traceback of an unexpected failure. Only a PermissionError raised by frappe's
+  `check_docstatus_transition` counts as the other refusal. Test code only: no application, permission,
+  accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
+  fails again.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

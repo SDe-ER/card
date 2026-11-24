@@ -315,7 +315,9 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 				exc = failed[0]["exc"]
 				if "ForeignChildRowError" in exc:
 					raise ForeignChildRowError(exc)
-				if "frappe.exceptions.PermissionError" in exc:
+				# only frappe's stored-document transition check (16.61.0) counts as the other refusal; any other
+				# PermissionError (for example on the operator's own draft) fails the test
+				if "frappe.exceptions.PermissionError" in exc and "check_docstatus_transition" in exc:
 					raise frappe.PermissionError(exc)
 				raise Exception(exc)
 
