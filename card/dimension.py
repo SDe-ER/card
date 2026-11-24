@@ -76,6 +76,7 @@ def _create_dimension():
 	make_dimension_in_accounting_doctypes(doc=doc)
 	return doc.name
 
+
 def _is_disabled():
 	return bool(frappe.db.get_value("Accounting Dimension", {"document_type": DIMENSION_DOCTYPE}, "disabled"))
 
