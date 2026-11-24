@@ -441,12 +441,39 @@ class TestPartyPortalScaffold(IntegrationTestCase):
 		self.assertEqual(get_party_card(name, user=user).name, name)
 
 	def test_reads_cards_follows_the_role_permissions(self):
+		"""The real check, not the simulated grant: no role, no cards; a role that reads the cards, the party's
+		own cards through the page handler; a shared card alone never opens the portal."""
+		self._set_portal(self.company, 1)
+		eq = self._equipment("RP1", self.company, supplier=self.supplier_a)
+		self._assign(eq, self.proj_a)
+		name = self._card(eq, self.proj_a)
+		other = self._equipment("RP2", self.company, supplier=self.supplier_b)
+		self._assign(other, self.proj_a)
+		other_name = self._card(other, self.proj_a)
 		user = self._portal_user("Supplier", self.supplier_a)
+		mod = _load_www_module(INDEX_PATH)
 		self._read_grant.stop()
 		try:
 			self.assertFalse(portal_mod._reads_cards(user))
 			self.assertTrue(portal_mod._reads_cards("Administrator"))
+			frappe.share.add(DOCTYPE, name, user, read=1)  # a share is not a role permission
+			frappe.clear_cache(user=user)
+			self.assertFalse(portal_mod._reads_cards(user))
+			frappe.set_user(user)
+			ctx = frappe._dict()
+			mod.get_context(ctx)
+			self.assertEqual(ctx.cards, [])
+			frappe.set_user("Administrator")
+			frappe.get_doc("User", user).add_roles("Card User")
+			frappe.clear_cache(user=user)
+			self.assertTrue(portal_mod._reads_cards(user))
+			frappe.set_user(user)
+			ctx = frappe._dict()
+			mod.get_context(ctx)
+			self.assertEqual([c.name for c in ctx.cards], [name])  # own party only
+			self.assertIsNone(get_party_card(other_name))
 		finally:
+			frappe.set_user("Administrator")
 			self._read_grant.start()
 
 	def test_get_party_card_empty_name_none(self):

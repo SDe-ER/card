@@ -153,9 +153,20 @@ def _reads_cards(user: str) -> bool:
 	the portal closed for every user whose roles cannot read the cards, also
 	when ``enable_party_portal`` is on (security review 2026-11-13, finding 7).
 	It grants nothing: the portal roles get read only by an owner decision
-	(O-16)."""
+	(O-16).
 
-	return bool(frappe.has_permission("Card Monthly Card", "read", user=user))
+	Only a role permission counts: a read limited to the user's own documents
+	(``if_owner``) or a document shared with the user does not open the
+	portal (same rule as ``card.report_access.role_reads``).
+
+	Before O-16 grants that read to a portal role, the standard read paths
+	(list view, REST) must be scoped to the user's own party as well: a
+	doctype-wide read is scoped by company only today."""
+
+	if user == "Administrator":
+		return True
+	perms = frappe.permissions.get_role_permissions(frappe.get_meta("Card Monthly Card"), user=user)
+	return bool(perms.get("read")) and "read" not in (perms.get("if_owner") or {})
 
 
 def list_party_cards(
