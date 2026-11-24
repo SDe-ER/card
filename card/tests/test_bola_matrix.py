@@ -371,6 +371,13 @@ CASES = {
 		denied=((), ("Card User",)),
 	),
 	# ---------- Card Monthly Card ----------
+	"card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours": Case(
+		method=GET,
+		roles=("Card User",),
+		gate="Card Monthly Card read (frappe.has_permission, throw)",
+		isolation="None: one global Card Settings number, no company data",
+		unscoped="returns the global standard month hours setting only",
+	),
 	"card.card.doctype.card_monthly_card.card_monthly_card.get_card_context": Case(
 		method=GET,
 		roles=("Card User",),
@@ -1082,7 +1089,7 @@ IGNORE_PERMISSIONS_ALLOWED = {
 	),
 	("card/dimension.py", "ensure_card_equipment_dimension"): (
 		1,
-		"install / before_tests bootstrap of the Accounting Dimension; no request path",
+		"install / patch / before_tests bootstrap of the Accounting Dimension (FR-176); no request path",
 	),
 	("card/gl/events.py", "_build_non_taxable_credit_note"): (
 		2,

@@ -126,8 +126,20 @@ def after_install():  # pragma: no cover (runs before coverage measurement start
 	from card.governance_workflows import ensure_workflows
 
 	ensure_workflows()
+	# FR-176: the Card Equipment accounting dimension (a reinstall enables the one the uninstall disabled)
+	from card.dimension import ensure_card_equipment_dimension
+
+	ensure_card_equipment_dimension()
 	# Same install-hook context as before_install: persist the reconciliation.
 	frappe.db.commit()  # nosemgrep
+
+
+def before_uninstall():
+	"""FR-176 (Owner decision 2026-11-22): disable the Card Equipment accounting dimension, never delete it or its
+	data — the equipment values already in the ledger stay; the fields become read-only."""
+	from card.dimension import set_card_equipment_dimension_disabled
+
+	set_card_equipment_dimension_disabled(True)
 
 
 def before_tests():
@@ -145,7 +157,7 @@ def before_tests():
 	_ensure_masters()
 	# S3 posting is fail-closed on the Card Equipment accounting dimension
 	# (preflight.require_equipment_dimension), so a clean test site must get it
-	# here — the committed bootstrap is the only automated caller (its ALTER
+	# here — besides the v4_11_0 patch and after_install (FR-176) (its ALTER
 	# TABLEs must never run inside a test transaction).
 	ensure_card_equipment_dimension()
 	# Test-bootstrap context, outside any test transaction by design.

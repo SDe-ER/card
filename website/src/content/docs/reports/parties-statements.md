@@ -46,6 +46,8 @@ for a supplier, reconciled with the supplier's ledger: credits are accruals (lia
 - **Supplier** – shown for the supplier type; lists registry suppliers with cards in the company. Without a supplier
   the report shows "Select a supplier to display the statement."
 - **From month**, **From year**, **To month**, **To year** – required; default to the previous month.
+- **From date**, **To date** – optional. When both are set they override the months: the statement covers those
+  days only (see *Statement for a date range* below).
 - **Project**, **Equipment**, **Equipment type** – optional.
 - **Include drafts** – defaults to the Card Settings value **Include draft in reports**; draft cards are labelled
   "(Draft)".
@@ -67,6 +69,29 @@ Net. An equipment row with several rate types or bases shows «متعدد» (Mul
 also sees **Accrual entries (Credit)**, **Invoiced through Card (net before VAT)**, **Not invoiced through Card**,
 **ERPNext invoices outside Card — to reconcile (net before VAT)**, **Opening balance**, **Paid (Debit)** and
 **Supplier closing balance** (opening + accruals − payments, VAT included).
+
+**Statement for a date range.** With **From date** and **To date** a supplier can be settled every few days from
+draft cards. A card is listed when its period overlaps the dates, and only its day rows inside the dates count. A
+partial range prices its billed hours with the card's exact hourly rate (rate ÷ daily hours, e.g. 425 ÷ 8 = 53.125);
+a per-day «Full day» card bills its days; a range that holds the whole card shows the card's own amount. Additions
+and deductions count by their own date. A ledger reader also sees a **Payments in the period** group (the submitted
+supplier debit entries of the range: date, voucher, remark, amount — draft journal entries never count) and these
+tiles: **Balance carried from before the period**, **Net work for the period**, **VAT on CARD purchase invoices**,
+**Other supplier credits (outside CARD)**, **Payments in the period (submitted entries only)** and **Current due to
+the supplier**.
+
+- Balance carried from before = card work before the range + VAT of CARD purchase invoices posted before it +
+  supplier credits that CARD did not post (opening balances, other invoices) − supplier debits before it.
+- Current due = balance carried from before + net work + VAT + other credits of the range − payments of the range.
+- An invoice or accrual entry made by CARD is not counted again: the card work already counts it; only its VAT is
+  added, as card work is before VAT.
+- Card work follows the project and equipment filters. With an **Equipment** filter, payments and other credits
+  count only when their accounting entry carries that equipment (the **Card Equipment** accounting dimension), and
+  the VAT of a CARD purchase invoice is split by that equipment's share of the invoice lines. Supplier payments
+  without an equipment are never deducted: the statement shows them as **Payments not allocated to an equipment
+  (not deducted)**; other credits without one show as information only. A **Project** filter works the same with the
+  entry's project. With an **Equipment type** filter only, or no filter, every supplier entry counts. The month
+  statement (without dates) applies the same rules to its Opening balance, Accrual entries, Paid and closing lines.
 
 **Access.** System Manager, Card Manager, Card User, Accounts Manager. Ledger tiles for ledger readers only.
 

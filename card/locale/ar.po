@@ -935,6 +935,7 @@ msgstr "إلى سنة"
 
 #. Label of the total_additions (Currency) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total additions"
 msgstr "إجمالي الإضافات"
 
@@ -946,6 +947,7 @@ msgstr "القيمة الإجمالية"
 #. Label of the total_deductions (Currency) field in DocType 'Card Monthly
 #. Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total deductions"
 msgstr "إجمالي الخصومات"
 
@@ -5117,40 +5119,20 @@ msgid "Supplier settlement"
 msgstr "تسوية المورد"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier gross"
-msgstr "إجمالي المورد"
+msgid "Total before additions and deductions"
+msgstr "الإجمالي قبل الإضافات والخصومات"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier additions"
-msgstr "إضافات المورد"
+msgid "Net after additions and deductions"
+msgstr "الصافي بعد الإضافات والخصومات"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier deductions"
-msgstr "خصومات المورد"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier net before VAT"
-msgstr "صافي المورد قبل الضريبة"
+msgid "Cash paid, not in the totals"
+msgstr "دفع نقدي، غير محتسب في الإجماليات"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Customer settlement"
 msgstr "تسوية العميل"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer gross"
-msgstr "إجمالي العميل"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer additions"
-msgstr "إضافات العميل"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer deductions"
-msgstr "خصومات العميل"
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer net before VAT"
-msgstr "صافي العميل قبل الضريبة"
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 #: card/fixtures/print_format.json
@@ -9243,3 +9225,75 @@ msgstr "الكارت {0} له دفعات نقدية غير ملغاة ({1}). ا�
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
 msgid "The cash payment {0} has a journal entry; cancel that entry instead."
 msgstr "للدفعة النقدية {0} قيد يومية؛ ألغِ ذلك القيد بدلًا من ذلك."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Net work for the period"
+msgstr "صافي الأعمال خلال الفترة"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Balance carried from before the period"
+msgstr "الرصيد المرحَّل من قبل الفترة"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "VAT on CARD purchase invoices"
+msgstr "ضريبة القيمة المضافة على فواتير مشتريات CARD"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Other supplier credits (outside CARD)"
+msgstr "أرصدة دائنة أخرى للمورد (خارج CARD)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments in the period (submitted entries only)"
+msgstr "المدفوعات خلال الفترة (القيود المُرحَّلة فقط)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Current due to the supplier"
+msgstr "المستحق الحالي للمورد"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments in the period"
+msgstr "المدفوعات خلال الفترة"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments are submitted accounting entries only; draft journal entries are not counted."
+msgstr "المدفوعات هي القيود المحاسبية المُرحَّلة فقط؛ قيود اليومية المسودة لا تُحتسب."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "The work follows the filters; payments, VAT and other credits are for the whole supplier."
+msgstr "الأعمال حسب الفلاتر المختارة؛ أما المدفوعات والضريبة والأرصدة الدائنة الأخرى فهي للمورد كله."
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Payment amount"
+msgstr "مبلغ الدفعة"
+
+#: card/card/report/equipment_supplier_statement/statement_period.py
+msgid "Set both From date and To date, or clear both to use the months."
+msgstr "حدّد من تاريخ وإلى تاريخ معًا، أو امسحهما معًا لاستخدام الأشهر."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments not allocated to an equipment (not deducted)"
+msgstr "مدفوعات غير موزعة على معدة (لم تُخصم)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments not allocated to a project (not deducted)"
+msgstr "مدفوعات غير موزعة على مشروع (لم تُخصم)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Other supplier credits without the equipment or project (not added)"
+msgstr "أرصدة دائنة أخرى للمورد بلا معدة أو مشروع (لم تُضف)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments, VAT and other credits count only when their accounting entry carries the selected equipment or project; entries without one are shown apart and not counted."
+msgstr "تُحتسب المدفوعات والضريبة والأرصدة الدائنة الأخرى فقط إذا كان قيدها المحاسبي يحمل المعدة أو المشروع المختار؛ والقيود التي لا تحمله تظهر منفصلة ولا تُحتسب."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments without the selected equipment and project (not deducted)"
+msgstr "مدفوعات لا تحمل المعدة والمشروع المختارين معًا (لم تُخصم)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "VAT of CARD invoice lines without the equipment or project (not added)"
+msgstr "ضريبة سطور فواتير CARD التي لا تحمل المعدة أو المشروع (لم تُضف)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+msgstr "البُعد المحاسبي Card Equipment غير موجود على هذا الموقع: المدفوعات والضريبة والأرصدة الدائنة الأخرى لا تُوزَّع حسب المعدة."

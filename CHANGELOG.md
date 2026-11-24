@@ -15,13 +15,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-
-_Nothing yet._
-
 ### Security
 
 _Nothing yet._
+
+### CI
+- **GitHub Actions versions (Dependabot #243, #244, #245, #279 in one change).** `docs.yml`: `actions/checkout`
+  v4 → v7, `actions/upload-pages-artifact` v3 → v5 and `actions/deploy-pages` v4 → v5 (one Pages deploy, so the
+  pair moves together). `docs-screenshots.yml`: `actions/upload-artifact` v4 → v7 (as `upgrade-rehearsal.yml`
+  already uses). Workflow permissions unchanged. No application, permission, accounting, data or API change.
+  Rollback: revert the workflow lines.
+
+### Tests
+- **Child-row integrity test follows frappe 16.61.0 (#293).** Since frappe version-16 16.61.0 (commit `e874c9d8d`,
+  "submit, cancel and rename check permission on the stored document"), frappe refuses an operator's
+  `frappe.client.bulk_update` of a submitted child row with `PermissionError` before CARD's foreign-row guard runs.
+  `test_operator_child_bulk_update_cannot_take_an_approved_row` accepts either refusal and still checks that the row
+  and both documents are unchanged; the guard on that route stays proven for the supervisor. The `bulk_update` test
+  helpers keep the traceback of an unexpected failure. Only a PermissionError raised by frappe's
+  `check_docstatus_transition` counts as the other refusal. Test code only: no application, permission,
+  accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
+  fails again.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
@@ -45,11 +59,149 @@ _Nothing yet._
   allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
   remains in force until replaced.
 
-## [4.10.1] — Unreleased (release candidate; date set when the tag is approved)
+## [4.11.0] — 2026-11-22
 
-> **Release candidate — not published.** v4.10.1 is published only when the owner approves the merge of this release
-> PR and then the tag; the date is set then. Published ≠ deployed (see DEPLOYMENTS.md). Patch release on top of
-> v4.10.0: backward compatible, no API, permission, DocType, schema or accounting change.
+> **Published 2026-11-22** (tag `v4.11.0`, owner approval 2026-11-22). Published ≠ deployed (see DEPLOYMENTS.md).
+> Minor release, backward compatible: the supplier statement for a date range (FR-175), payments linked to an
+> equipment through the Card Equipment accounting dimension (FR-176), the Monthly Card form shows the server's
+> amount (FR-175) and clearer Monthly Card print totals (FR-174). One patch (the accounting dimension: empty
+> columns on the ERPNext accounting tables); no permission or accounting change; one new read-only GET method.
+
+### Added
+- **FR-176 — Supplier payments linked to an equipment** (owner request and decisions D1–D3, 2026-11-22).
+  - The app creates the official ERPNext Accounting Dimension **Card Equipment** itself: patch
+    `v4_11_0.ensure_card_equipment_dimension` on migrate and `after_install` on a fresh install (idempotent, never
+    mandatory). ERPNext adds the `card_equipment` field to its accounting doctypes (Journal Entry Account, Payment
+    Entry, Purchase Invoice and its items, GL Entry and the others), so a payment can carry the equipment.
+    Supersedes the earlier "manual step only" rule.
+  - On uninstall the dimension is only disabled (its fields become read-only); it and the values in the ledger are
+    never deleted. A reinstall enables it again.
+  - Equipment Supplier Statement (date range): with an **Equipment** filter, payments, other credits and the balance
+    count only the supplier entries that carry that equipment; the VAT of a CARD purchase invoice is allocated by the
+    share of its line net that carries the equipment. Untagged supplier payments are never deducted: they show as
+    «Payments not allocated to an equipment (not deducted)» (up to the end date); untagged other credits show as
+    information only. A **Project** filter works the same with the entry's project. Without these filters every
+    supplier entry counts, as before. The printed A4 statement prints the information lines as notes.
+  - With both filters an entry counts only when it carries both the equipment and the project (a project-only
+    payment is never deducted from one equipment, so never from several). The VAT of CARD invoice lines without the
+    equipment/project shows as information. A site without the dimension says so and does not split by equipment.
+  - Disabled (uninstall), the dimension's fields become read-only and keep their values; enabled again by a
+    reinstall or the manual command. Known limitation: they stay Link fields (frappe refuses to change a custom field
+    from Link to Data), so after an uninstall they point at the deleted Card Equipment DocType; check the effect on
+    documents that carry a value before any uninstall (accepted by the owner 2026-11-22; uninstalling CARD is not
+    planned).
+  - The month statement (no from/to dates) applies the same rules to its ledger lines (owner decision 2026-11-22,
+    follow-up PR): with an Equipment/Project filter, Opening balance, Accrual entries, Paid and the closing balance
+    count only the supplier entries that carry the selected equipment/project; the credit of a CARD posting counts
+    by what it bills (a purchase invoice by its line share, a linked accrual Journal Entry by its cards); untagged
+    payments show as «not deducted» and untagged credits (also the untagged part of a CARD posting) as information.
+    Without these filters the month statement is unchanged. Functions: `statement_period.scoped_month_ledger`,
+    `_card_voucher_shares`; tests in `card/tests/test_supplier_statement_range.py`. Impact: read-only report lines;
+    no permission, accounting, data or API change beyond the summary keys above. Rollback: code only.
+    Pull request: #290.
+  - Pull request: #289.
+  - Functions: `card/dimension.py` (`set_card_equipment_dimension_disabled`, docstring), new patch
+    `card/patches/v4_11_0/ensure_card_equipment_dimension.py`, `card/install.py` (`after_install`,
+    `before_uninstall`), `card/hooks.py` (`before_uninstall`), `statement_period.py` (`supplier_ledger`,
+    `_scope_match`, `_scoped_item_share`), `equipment_supplier_statement.py`, `.html`, `statement_pdf.py`, the A4
+    print format JSON; `main.pot`, `ar.po`. Tests: `card/tests/test_card_equipment_dimension.py` (new),
+    `card/tests/test_supplier_statement_range.py`.
+  - Impact: permissions none; accounting none (no document, amount or GL entry is written; the dimension is a field
+    the accountant fills); data/schema: one Accounting Dimension and ERPNext's standard empty `card_equipment` column
+    on each accounting table (`bench migrate` alters those tables); API: new summary keys `unallocated_paid`,
+    `unallocated_other`.
+  - Rollback: the code rollback leaves the dimension and its empty or filled columns in place (harmless, ERPNext
+    standard); it can be disabled from the Accounting Dimension form. Removing it would drop the columns and their
+    values, so it is never removed automatically.
+- **FR-175 — Equipment Supplier Statement for a date range (interim settlement)** (owner request 2026-11-22).
+  - New optional filters `from_date` / `to_date`. When both are set they override the month filters; without them
+    the report works exactly as before (same rows, same summary keys).
+  - Work of the range: only the card day rows dated inside it (drafts when «Include drafts» is on; cancelled cards
+    never). A partial range prices its billed hours with the card's exact hourly rate (rate ÷ daily hours, e.g.
+    425 ÷ 8 = 53.125, never the 2-decimal rate); a per-day «Full day» card bills its days; a range that holds the
+    whole card uses the card's stored amount. Additions and deductions count by their own date (supplier side;
+    Cash paid rows skipped; a row without a date counts on its card's last day).
+  - Payments: the submitted supplier debit entries of the range (date, voucher, remark, amount), shown as a
+    «Payments in the period» group on screen and as a table on the printed statement. Draft journal entries are
+    never counted (GL Entry exists only for submitted documents; cancelled entries are skipped); the statement says so.
+  - Balance (owner-approved rule 2026-11-22), summary keys `previous_due`, `period_net`, `period_vat`,
+    `period_other`, `period_paid`, `current_due`: previous due = card work before the range + VAT of CARD purchase
+    invoices posted before it + supplier credits CARD did not post − supplier debits before it; current due =
+    previous due + period work + period VAT + other credits − period payments. Double-count guard: the credit of a
+    submitted CARD posting (GL Posting Log) is never counted, as the card work already counts it; only its VAT is
+    added (card work is before VAT). Card work follows the project/equipment filters; the ledger side is the whole
+    supplier's (the statement notes it when a filter is set). Users without ledger access see the period net only.
+  - Printed A4 statement (browser print and Chrome PDF): the period prints its own dates; the totals table under the
+    amount columns shows the balance lines (VAT and other credits only when not zero); the payments table is hidden
+    when empty; same approved print style, no new colours.
+  - Functions: `card/card/report/equipment_supplier_statement/equipment_supplier_statement.py` (`execute`,
+    `range_balance`), new `statement_period.py` (`date_range`, `range_work`, `supplier_ledger`, `previous_work`,
+    `card_vouchers`), `equipment_supplier_statement.js` (two filters), `equipment_supplier_statement.html`,
+    `statement_pdf.py`; `card/card/print_format/equipment_supplier_statement_a4/equipment_supplier_statement_a4.json`
+    (same template); `card/card_value.py` (`exact_hourly_rate`); `card/locale/main.pot`, `card/locale/ar.po`.
+    Tests: `card/tests/test_supplier_statement_range.py`.
+  - Impact: permissions none (same report roles and ledger gate `can_view_ledger`); accounting none (read-only;
+    reads GL Entry, Purchase Invoice and GL Posting Log, writes nothing); data none (no patch; the standard print
+    format is reloaded by `bench migrate`); API: the report's filters and summary keys (additive).
+  - Rollback: code only; the month statement is unchanged, so rolling back removes only the date-range statement.
+  - Pull request: #287.
+
+### Fixed
+- **FR-175 — Monthly Card form shows the server's amount** (owner report 2026-11-22: a draft card showed net
+  6,271.77 while the server stored 6,271.13).
+  - The form priced hours with the equipment's 2-decimal `approved_hourly_rate` (53.13); the server prices with the
+    exact rate (425 ÷ 8 = 53.125). The form now uses the exact rate the server uses (per day: rate ÷ daily hours;
+    per hour: rate; per month: rate ÷ standard month hours, read through the new read-only GET
+    `card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours`), so a saved card opens with
+    the same values and is not marked unsaved.
+  - Functions: `card/card/doctype/card_monthly_card/card_monthly_card.js` (`card_load_hourly`, `card_exact_hourly`),
+    `card_monthly_card.py` (`get_standard_month_hours`, `methods=["GET"]`, Card Monthly Card read required).
+  - Impact: permissions none (the endpoint returns one Card Settings number to users who can read monthly cards);
+    accounting none (server pricing unchanged); data none; API: one new read-only GET method.
+  - Rollback: code only.
+  - Pull request: #287.
+- **FR-174 — Monthly Card print: four clear settlement totals per side** (owner request 2026-11-21).
+  - The default print format `Card Monthly Card Print` shows, for each billed side (Supplier settlement, Customer
+    settlement), four rows in this order: «الإجمالي قبل الإضافات والخصومات» (`amount` / `customer_amount`), «إجمالي
+    الإضافات», «إجمالي الخصومات» and «الصافي بعد الإضافات والخصومات» (the stored `net_amount` /
+    `customer_net_amount`, printed directly, so the adjustments are applied once). Amounts print with two decimals
+    and the company currency (`2,430.00 SAR`, `0.00 SAR`); the net row is larger, bold and on the header grey.
+  - The printed additions and deductions now leave out Cash paid rows, as the server's totals do (FR-170: a cash row
+    is recorded, not counted). Before, a card with a Cash paid deduction printed that deduction in the side total,
+    so gross + additions − deductions did not match the printed net.
+  - Functions: `card/card/print_format/card_monthly_card_print/card_monthly_card_print.json` (html, css);
+    `card/locale/main.pot`, `card/locale/ar.po` (two new labels; the eight old side labels removed, no other use).
+    Tests: `card/tests/test_print_formats.py`.
+  - Impact: permissions none (the money gate FR-162 is unchanged); accounting none (prints only; stored amounts,
+    formulas and invoice builders unchanged); data none (no patch; the standard print format is reloaded by
+    `bench migrate`); API none.
+  - Rollback: code only; the previous labels print again after the rollback's migrate.
+
+### Migration
+- One patch, `card.patches.v4_11_0.ensure_card_equipment_dimension` (post_model_sync): creates the Accounting
+  Dimension Card Equipment (not mandatory) and ERPNext's standard empty `card_equipment` column on each accounting
+  table (an ALTER TABLE per table). A site that already has it is left as it is; a second migrate changes nothing.
+- `bench migrate` also reloads the two standard print formats (`Card Monthly Card Print`, `Equipment Supplier
+  Statement A4`). Then `clear-cache` and restart; no `bench build` (no `public/` or `frontend/` change).
+- Rollback target: v4.10.1 (tag commit `d58f6b7`), code only: v4.10.1 runs on the migrated data; the dimension and
+  its columns stay (harmless; they can be disabled). A database restore removes them with every later change.
+
+### Known limitations
+- The date-range balance is computed from card work (before VAT) plus ledger figures; supplier invoices booked
+  outside CARD are counted as other credits and flagged for reconciliation, never matched automatically.
+- Payments recorded before the dimension carry no equipment: with an Equipment filter they show as not allocated
+  (never deducted) until the accountant re-issues them with the equipment.
+- After an uninstall of CARD the dimension's Link fields point at the deleted Card Equipment DocType (accepted by
+  the owner 2026-11-22; uninstalling is not planned).
+- A partial range of a card rounds its own amount to the halala; the parts of one card can differ from the card
+  amount by 0.01.
+- Not yet verified on Production: the owner's acceptance figures (R7, R8), the migrate time of the dimension patch
+  and the Monthly Card form on a real Desk; post-deployment checks, read-only.
+
+## [4.10.1] — 2026-11-21
+
+> **Published 2026-11-21** (tag `v4.10.1`, commit `d58f6b7`). Published ≠ deployed (see DEPLOYMENTS.md). Patch
+> release on top of v4.10.0: backward compatible, no API, permission, DocType, schema or accounting change.
 
 ### Fixed
 - **FR-172 — Additions and deductions table: the date column and the live totals** (owner report 2026-11-21; PR #282).
