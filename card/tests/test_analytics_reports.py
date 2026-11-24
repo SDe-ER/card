@@ -166,7 +166,8 @@ class TestEquipmentPartialMargin(_AnalyticsBase):
 		self._card(eq, [8, 8], submit=True)
 		target = "card.card.report.equipment_partial_margin.equipment_partial_margin.role_reads_money"
 		with patch(target, return_value=False):
-			rows, _message, summary, columns = self._margin()
+			rows, message, summary, columns = self._margin()
+		self.assertNotIn("Not invoiced yet is the card net", message)
 		fieldnames = [c["fieldname"] for c in columns]
 		for key in ("unbilled_revenue", "unbilled_rental"):
 			self.assertNotIn(key, fieldnames)

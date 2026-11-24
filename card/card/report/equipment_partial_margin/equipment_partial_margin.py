@@ -139,11 +139,13 @@ def execute(filters=None):
 			totals[key] = flt(totals[key] + row[key], 2)
 		data.append(row)
 
-	notes.append(
-		_(
-			"Not invoiced yet is the card net that no submitted invoice or journal entry recognised; it is never added to revenue, costs or the margin. Project-tank diesel is never split by equipment."
+	reads_money = role_reads_money()
+	if reads_money:
+		notes.append(
+			_(
+				"Not invoiced yet is the card net that no submitted invoice or journal entry recognised; it is never added to revenue, costs or the margin. Project-tank diesel is never split by equipment."
+			)
 		)
-	)
 	notes.append(
 		_(
 			"Timing: revenue and maintenance follow the posting date of their documents; supplier rental and the not-invoiced columns follow the start date of the card; diesel and transport follow their own date. A card invoiced in a later period shows its revenue in that period."
@@ -182,7 +184,9 @@ def execute(filters=None):
 		},
 	]
 	columns = readable_links(get_columns(), data)
-	if not role_reads_money():
+	if not reads_money:
+		# #301: the two "not invoiced yet" figures are card nets. Supplier rental is what a submitted document
+		# recognised, an accounting figure the Owner keeps under can_view_ledger (decision 2026-11-24).
 		columns, summary = strip_money(
 			columns,
 			data,
