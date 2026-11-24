@@ -20,7 +20,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 _Nothing yet._
 
 ### Fixed
-- **Period run: a change of loads makes the run stale (FR-177, #263).** The period-run fingerprint version 1 did
+- **Period run: a change of loads makes the run stale (FR-177, #263, PR #294).** The period-run fingerprint version 1 did
   not cover the Monthly Card load fields, so moving or changing loads on a per-m³ card with the same amount left
   an approved run current. New runs use fingerprint version 2 (`card/gl/period_run.py`: version 1 plus
   `loads_count`, `total_loads`, `total_volume_m3`, `load_volume_used`). Version 1 is unchanged; a run built with it,
@@ -31,6 +31,24 @@ _Nothing yet._
   error. Impact: permissions none; accounting none (no document is created or changed; only the stale check of
   new runs is stricter); data none (no patch); API none. Rollback: code only; code older than this change has no
   version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
+
+### CI
+- **GitHub Actions versions (Dependabot #243, #244, #245, #279 in one change).** `docs.yml`: `actions/checkout`
+  v4 → v7, `actions/upload-pages-artifact` v3 → v5 and `actions/deploy-pages` v4 → v5 (one Pages deploy, so the
+  pair moves together). `docs-screenshots.yml`: `actions/upload-artifact` v4 → v7 (as `upgrade-rehearsal.yml`
+  already uses). Workflow permissions unchanged. No application, permission, accounting, data or API change.
+  Rollback: revert the workflow lines.
+
+### Tests
+- **Child-row integrity test follows frappe 16.61.0 (#293).** Since frappe version-16 16.61.0 (commit `e874c9d8d`,
+  "submit, cancel and rename check permission on the stored document"), frappe refuses an operator's
+  `frappe.client.bulk_update` of a submitted child row with `PermissionError` before CARD's foreign-row guard runs.
+  `test_operator_child_bulk_update_cannot_take_an_approved_row` accepts either refusal and still checks that the row
+  and both documents are unchanged; the guard on that route stays proven for the supervisor. The `bulk_update` test
+  helpers keep the traceback of an unexpected failure. Only a PermissionError raised by frappe's
+  `check_docstatus_transition` counts as the other refusal. Test code only: no application, permission,
+  accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
+  fails again.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
