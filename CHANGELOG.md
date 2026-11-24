@@ -41,6 +41,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   new runs is stricter); data none (no patch); API none. Rollback: code only; code older than this change has no
   version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
 
+### Changed
+- **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5, PR #297).** `is_billed_day`
+  defaulted to counting loads and `billed_day_rows` to ignoring them. Both now take `include_loads` as a required
+  keyword-only argument, and every caller states the rule it already used: the assignment guards
+  (`card/transfer.py`, `Card Monthly Card`) and the customer reports pass True; the supplier statement, the suppliers
+  summary, the supplier date-range statement and the posting pass False. No behaviour changes. Impact: permissions,
+  accounting, data and API (whitelisted methods) none; a custom caller outside CARD that relied on the defaults
+  now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
+  change and waits for the owner's approval.
+
 ### CI
 - **GitHub Actions versions (Dependabot #243, #244, #245, #279 in one change).** `docs.yml`: `actions/checkout`
   v4 → v7, `actions/upload-pages-artifact` v3 → v5 and `actions/deploy-pages` v4 → v5 (one Pages deploy, so the
@@ -58,6 +68,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `check_docstatus_transition` counts as the other refusal. Test code only: no application, permission,
   accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
   fails again.
+
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

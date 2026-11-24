@@ -593,10 +593,11 @@ def _card_day_after(equipment, project, tdate):
 
 
 # ---------- card-day validation (Card Monthly Card before_validate) ----------
-def is_billed_day(d, include_loads=True):
+def is_billed_day(d, *, include_loads):
 	"""A card day row that bills: operating hours, loads (FR-166: a per-m³ load is billed on a zero-hour day;
 	the assignment guards always count it), or (FR-118) stopped hours of an explicitly billable stop reason.
-	Supplier-side reports pass include_loads=False: their amounts never price loads."""
+	#264: ``include_loads`` is required and keyword-only, so every caller names its rule. The assignment guards and
+	customer reports pass True; supplier-side reports and postings pass False: their amounts never price loads."""
 	return (
 		flt(d.working_hours) > 0
 		or (include_loads and cint(d.get("loads_count")) > 0)
@@ -604,9 +605,10 @@ def is_billed_day(d, include_loads=True):
 	)
 
 
-def billed_day_rows(card_names, include_loads=False):
+def billed_day_rows(card_names, *, include_loads):
 	"""Day rows (parent, operation_date) of these monthly cards that bill (is_billed_day):
-	the days the statements and summaries count. Read-only. Customer reports pass include_loads=True."""
+	the days the statements and summaries count. Read-only. #264: ``include_loads`` is required and keyword-only;
+	customer reports pass True, supplier reports False."""
 	if not card_names:
 		return []
 	rows = frappe.get_all(
@@ -626,7 +628,7 @@ def billed_day_rows(card_names, include_loads=False):
 		limit_page_length=0,
 		parent_doctype="Card Monthly Card",
 	)
-	return [r for r in rows if is_billed_day(r, include_loads)]
+	return [r for r in rows if is_billed_day(r, include_loads=include_loads)]
 
 
 def customer_billed_day_rows(cards):
@@ -689,7 +691,7 @@ def validate_card_days(card):
 	if not unit_checked and not component_rows:
 		return
 	for d in card.days:
-		if not d.operation_date or not is_billed_day(d):
+		if not d.operation_date or not is_billed_day(d, include_loads=True):
 			continue
 		day = getdate(d.operation_date)
 		members = [r.component for r in component_rows if _in_unit_on(r, day)]
