@@ -2133,6 +2133,15 @@ msgstr "المزامنة اليومية للموقع: المشروع {0} ← {1}
 msgid "Enable Card Equipment accounting dimension"
 msgstr "تفعيل البعد المحاسبي للمعدة (Card Equipment)"
 
+msgid "Set {0} in Card Settings: a per-month rate cannot be priced without it."
+msgstr "حدِّد {0} في إعدادات CARD: لا يمكن تسعير سعر شهري بدونه."
+
+msgid "{0} is not set in Card Settings, so no shift limit was checked on this card."
+msgstr "{0} غير محدَّد في إعدادات CARD، لذلك لم يُفحص حد الوردية في هذا الكارت."
+
+msgid "Shift limit not configured"
+msgstr "حد الوردية غير محدَّد"
+
 msgid "Daily equipment location sync"
 msgstr "المزامنة اليومية لموقع المعدات"
 

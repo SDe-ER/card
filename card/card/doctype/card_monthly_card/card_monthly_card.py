@@ -30,7 +30,7 @@ from card.constants import (
 )
 from card.equipment_status import check_equipment_status, equipment_is_new_on
 from card.notifications import notify
-from card.settings import setting
+from card.settings import setting, standard_month_hours
 from card.settlement import correction_reason_missing, supplier_change_refused
 from card.transfer import (
 	_assigned_on,
@@ -49,7 +49,7 @@ def get_standard_month_hours():
 	"""The standard month hours a per-month rate is spread over (Card Settings), so the card form prices
 	exactly as the server does. Read-only; any user who can read monthly cards."""
 	frappe.has_permission("Card Monthly Card", "read", throw=True)
-	return flt(setting("standard_month_hours")) or 260
+	return standard_month_hours()
 
 
 @frappe.whitelist(methods=["GET"])
@@ -321,7 +321,8 @@ class CardMonthlyCard(Document):
 		reason_sides = getattr(self, "_reason_sides", None) or {}
 		work_days = 0
 		limit_field = "max_day_shift_hours" if self.shift == "نهاري" else "max_night_shift_hours"
-		max_hours = flt(setting(limit_field)) or 12
+		# #50: no hard-coded 12; a missing or zero limit is not configured and nothing is checked against it
+		max_hours = flt(setting(limit_field))
 		over_shift_limit = []
 		cleared_loads = []
 		for row in self.days:
@@ -364,7 +365,7 @@ class CardMonthlyCard(Document):
 				)
 			day_stopped_billed = stopped if stopped > 0 and cint(row.reason_billable) else 0.0
 			billed_day = h + day_stopped_billed
-			if billed_day > max_hours:
+			if max_hours > 0 and billed_day > max_hours:
 				# Shift limit is advisory only: every recorded hour is billed, so a day
 				# over the limit is flagged for review, never blocked (owner 2026-10-14).
 				# FR-118: billable stopped hours count, as they are billed too.
@@ -386,6 +387,14 @@ class CardMonthlyCard(Document):
 				billable_stop_days = billable_stop_days + 1
 
 		# ---- shift limit (advisory warning, never blocks; every recorded hour is billed) ----
+		if max_hours <= 0:
+			frappe.msgprint(
+				_("{0} is not set in Card Settings, so no shift limit was checked on this card.").format(
+					_(frappe.get_meta("Card Settings").get_label(limit_field))
+				),
+				title=_("Shift limit not configured"),
+				indicator="orange",
+			)
 		if over_shift_limit:
 			frappe.msgprint(
 				_(
@@ -847,8 +856,9 @@ class CardMonthlyCard(Document):
 		if basis == "بالساعة":
 			return rate
 		if basis == "بالشهر":
-			month_hours = flt(setting("standard_month_hours")) or 260
-			return rate / month_hours
+			# #50: never a hard-coded 260; a side that must price refuses a missing setting
+			month_hours = standard_month_hours(throw=required)
+			return rate / month_hours if month_hours > 0 else 0.0
 		if required:
 			frappe.throw(_("Equipment rate type is not defined: {0}").format(self.equipment))
 		return 0.0

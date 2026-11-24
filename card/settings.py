@@ -15,8 +15,10 @@ from frappe.utils import flt
 _DEFAULTS = {
 	"enable_accounting": 0,
 	"default_shift": "نهاري",
-	"max_day_shift_hours": 12.0,
-	"max_night_shift_hours": 12.0,
+	# #50 (owner decision 2026-11-24): the hour settings have no number in the code. A missing or zero value is
+	# "not configured"; the DocType defaults are stored once by store_hour_settings_defaults.
+	"max_day_shift_hours": 0.0,
+	"max_night_shift_hours": 0.0,
 	"default_daily_hours": 0.0,
 	"default_fuel_charged_to": "",
 	"default_operator_on": "",
@@ -31,7 +33,7 @@ _DEFAULTS = {
 	"notify_on_period_lock_override": 0,
 	# F.5: calculation bases
 	"default_rate_basis": "",
-	"standard_month_hours": 260.0,
+	"standard_month_hours": 0.0,
 	# F.1: diesel supplier policy + per-project transport prices
 	"diesel_supplier_policy": "متغير",
 	"diesel_supplier": "",
@@ -66,6 +68,42 @@ def setting(fieldname):
 		except (TypeError, ValueError):
 			return default
 	return val
+
+
+HOUR_SETTINGS = ("standard_month_hours", "max_day_shift_hours", "max_night_shift_hours")
+
+
+def store_hour_settings_defaults():
+	"""#50: store the DocType default of each hour setting that has no stored value (never configured), so the
+	number lives in Card Settings, where the owner sees and changes it, and not in the code. A stored value,
+	also an explicit 0, is never replaced. Called by after_install, the test bootstrap and patch
+	v4_12_0.store_hour_settings_defaults; the caller commits."""
+	meta = frappe.get_meta("Card Settings")
+	stored = {
+		field
+		for field, value in frappe.db.sql(
+			"select field, value from tabSingles where doctype='Card Settings' and field in %s",
+			[HOUR_SETTINGS],
+		)
+		if value not in (None, "")
+	}
+	for fieldname in HOUR_SETTINGS:
+		default = flt(meta.get_field(fieldname).default)
+		if fieldname not in stored and default > 0:
+			frappe.db.set_single_value("Card Settings", fieldname, default, update_modified=False)
+
+
+def standard_month_hours(throw=False):
+	"""The hours a per-month rate is spread over, or 0 when Card Settings has no value (#50: never a guess).
+	With throw, a missing value is refused with a message that names the setting."""
+	hours = flt(setting("standard_month_hours"))
+	if hours <= 0 and throw:
+		frappe.throw(
+			_("Set {0} in Card Settings: a per-month rate cannot be priced without it.").format(
+				_("Standard month hours")
+			)
+		)
+	return hours if hours > 0 else 0.0
 
 
 def company_setting(company, fieldname):

@@ -91,9 +91,10 @@ def exact_hourly_rate(rate_basis, rate, daily_hours):
 	if rate_basis == "بالساعة":
 		return flt(rate)
 	if rate_basis == "بالشهر":
-		from card.settings import setting
+		from card.settings import standard_month_hours
 
-		return flt(rate) / (flt(setting("standard_month_hours")) or 260)
+		month_hours = standard_month_hours()
+		return flt(rate) / month_hours if month_hours > 0 else 0.0
 	return 0.0
 
 
