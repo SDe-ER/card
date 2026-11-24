@@ -29,7 +29,7 @@ These three are different facts and are never inferred from each other:
 
 | Term | Value | Basis |
 |---|---|---|
-| **Last GitHub Release** | v4.10.1 (`d58f6b7`, 2026-11-21) | Git tag and GitHub Release |
+| **Last GitHub Release** | v4.11.0 (`5a39845`, 2026-11-22) | Git tag and GitHub Release |
 | **Last Verified Production Deployment** | v4.10.1 (`d58f6b7`), deployed 2026-11-21 (UTC) | Post-deployment checks dated 2026-11-21 (UTC); real Desk UI acceptance pending. This is the last evidence, not a check of the current state |
 | **Last Known Good Release** | Not established | No release has a recorded known-good acceptance (a verified deployment plus a documented period of correct operation). Set it only when that evidence is recorded |
 
