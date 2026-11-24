@@ -126,7 +126,8 @@ def after_install():  # pragma: no cover (runs before coverage measurement start
 	from card.governance_workflows import ensure_workflows
 
 	ensure_workflows()
-	# FR-176: the Card Equipment accounting dimension (a reinstall enables the one the uninstall disabled)
+	# FR-176: the Card Equipment accounting dimension, only when Card Settings switches it on (a reinstall then
+	# enables the one the uninstall disabled)
 	from card.dimension import ensure_card_equipment_dimension
 
 	ensure_card_equipment_dimension()
@@ -150,7 +151,7 @@ def before_tests():
 	test class erases them for every later class (Supplier inserts then fail
 	link validation on "Test Supplier Group"). A seeded site already has all
 	of these, so this is a no-op there."""
-	from card.dimension import ensure_card_equipment_dimension
+	from card.dimension import SWITCH_FIELD, ensure_card_equipment_dimension
 	from card.tests.test_controllers import _ensure_masters
 
 	frappe.clear_cache()
@@ -158,7 +159,8 @@ def before_tests():
 	# S3 posting is fail-closed on the Card Equipment accounting dimension
 	# (preflight.require_equipment_dimension), so a clean test site must get it
 	# here — besides the v4_11_0 patch and after_install (FR-176) (its ALTER
-	# TABLEs must never run inside a test transaction).
+	# TABLEs must never run inside a test transaction). The switch is off by default (Owner 2026-11-24).
+	frappe.db.set_single_value("Card Settings", SWITCH_FIELD, 1)
 	ensure_card_equipment_dimension()
 	# Test-bootstrap context, outside any test transaction by design.
 	frappe.db.commit()  # nosemgrep

@@ -2127,6 +2127,9 @@ msgstr "مزامنة الموقع بعد نقل: المشروع {0} ← {1}؛ ت
 msgid "Daily location sync: project {0} → {1}; assignment date {2} → {3}"
 msgstr "المزامنة اليومية للموقع: المشروع {0} ← {1}؛ تاريخ التعيين {2} ← {3}"
 
+msgid "Enable Card Equipment accounting dimension"
+msgstr "تفعيل البعد المحاسبي للمعدة (Card Equipment)"
+
 msgid "Daily equipment location sync"
 msgstr "المزامنة اليومية لموقع المعدات"
 

@@ -15,6 +15,26 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
+  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
+  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
+    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
+    returns `"switched off"` and creates or enables nothing. This covers the patch
+    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
+    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
+  - To create the dimension later: back up, turn the switch on, then run
+    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
+    removes nothing.
+  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
+    dimension enabled, and writes nothing else.
+  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off).
+  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
+    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
+  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
+    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
+
 ### Security
 - **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
   reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1

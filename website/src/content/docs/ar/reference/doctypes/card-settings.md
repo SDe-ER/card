@@ -31,6 +31,7 @@ sidebar:
 |---|---|---|---|---|
 | تفعيل الترحيل المحاسبي | `enable_accounting` | Check |  |  |
 | ترحيل تلقائي <small>(مخفي, للقراءة فقط)</small> | `auto_submit` | Check |  |  |
+| تفعيل البعد المحاسبي للمعدة (Card Equipment) | `enable_card_equipment_dimension` | Check |  |  |
 
 
 **إعدادات الشركات**

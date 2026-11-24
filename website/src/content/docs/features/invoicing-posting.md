@@ -162,7 +162,9 @@ documents, so invoice lines, Stock Entry and Material Request rows and GL entrie
 is linked to an ERPNext Asset, CARD keeps the Asset's dimension pointing at the equipment, so depreciation entries made
 by ERPNext also land on the machine.
 
-The dimension is created once by an administrator with a manual command; it is never created by a migration. Posting
+The dimension is created only when **Enable Card Equipment accounting dimension** is on in **Card Settings** (off by
+default). While it is off, an install or upgrade creates nothing. To create it, a system manager takes a backup, turns
+the switch on and runs `bench --site <site> execute card.dimension.ensure_card_equipment_dimension` once. Posting
 is **fail-closed**: while the dimension is missing or disabled, every build is refused with a message telling the
 administrator what to run.
 
