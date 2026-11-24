@@ -19,6 +19,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 _Nothing yet._
 
+### Tests
+- **Child-row integrity test follows frappe 16.61.0 (#293).** Since frappe version-16 16.61.0 (commit `e874c9d8d`,
+  "submit, cancel and rename check permission on the stored document"), frappe refuses an operator's
+  `frappe.client.bulk_update` of a submitted child row with `PermissionError` before CARD's foreign-row guard runs.
+  `test_operator_child_bulk_update_cannot_take_an_approved_row` accepts either refusal and still checks that the row
+  and both documents are unchanged; the guard on that route stays proven for the supervisor. The `bulk_update` test
+  helpers keep the traceback of an unexpected failure. Only a PermissionError raised by frappe's
+  `check_docstatus_transition` counts as the other refusal. Test code only: no application, permission,
+  accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
+  fails again.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
