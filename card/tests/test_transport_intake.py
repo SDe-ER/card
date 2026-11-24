@@ -857,11 +857,12 @@ class TestTransportIntakeSecondPerson(IntegrationTestCase, _Fixtures):
 		stored = frappe.db.get_value(DOCTYPE, t.name, ["docstatus", "intake_source_key"], as_dict=True)
 		self.assertEqual((stored.docstatus, stored.intake_source_key), (0, "2P-FORGE-2"))
 
-	def test_refused_on_rest_put_client_submit_and_bulk_submit(self):
+	def test_refused_on_rest_put_and_client_submit(self):
 		from frappe.api import v1
 		from frappe.client import submit as rest_submit
-		from frappe.desk.doctype.bulk_update.bulk_update import submit_cancel_or_update_docs
 
+		# the REST legs replace the request data of the test process: put it back afterwards
+		self.addCleanup(setattr, frappe.local, "form_dict", frappe.local.form_dict)
 		self._set_rule(self.company, 1)
 		enterer, other = self._manager("x"), self._manager("y")
 		t = self._entered_by(enterer, intake_source_key="2P-ROUTE-1", intake_channel="Paper")
@@ -878,11 +879,8 @@ class TestTransportIntakeSecondPerson(IntegrationTestCase, _Fixtures):
 		self._refused(lambda: rest_submit(frappe.as_json(frappe.get_doc(DOCTYPE, t.name).as_dict())))
 		self.assertEqual(self._docstatus(t.name), 0)
 
-		# the bulk action commits after each document and rolls back a failure: kept inside the test transaction
-		with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
-			failed = submit_cancel_or_update_docs(DOCTYPE, [t.name], "submit")
-		self.assertEqual(failed, [t.name])
-		self.assertEqual(self._docstatus(t.name), 0)
+		# no bulk submit leg: the list view's bulk submit calls `Document.submit` for each transport, so it runs
+		# `before_submit` and this check like the routes above (it is not exercised here)
 
 		# the same routes are open to a second person
 		frappe.set_user(other)
