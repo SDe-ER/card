@@ -15,6 +15,35 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **FR-189 — Optional second person for transports entered from evidence (issue 52; owner instruction
+  2026-11-25: implement what is concrete behind a setting that defaults to off).** Reason: a transport typed from a
+  paper sheet or a WhatsApp message had no check by a different person. Design:
+  `docs/design/issue-52-intake-from-paper-and-whatsapp.md` section 4.
+  - New field `Card Company Settings.require_intake_second_person` (Check, default 0, permlevel 1), label
+    "Transport from evidence needs a second person". Off, and for a company without a settings row: nothing changes.
+  - On for the transport's company: an Equipment Transport that carries intake provenance (FR-146: a source key, a
+    received time, an evidence file or a channel other than Manual) is not submitted by a user who entered it. The
+    submit is refused with a translated message; another user who may submit transports submits it. A transport
+    without provenance is not affected. No user is exempt.
+  - Functions: `card.intake.check_second_person` and `has_intake_provenance` (new), `IntakeSecondPersonError`
+    (new, a `frappe.PermissionError`); `EquipmentTransport.before_submit` calls the check first, so form submit,
+    REST with `docstatus` 1, `frappe.client.submit`, bulk submit and a workflow action all pass through it.
+  - The enterers are the stored `owner` and the stored `edited_by` list (kept by the server on every save). The
+    stored company and intake fields count with the ones sent, so a request that names another owner, editor or
+    company, or removes the provenance, is refused too.
+  - Impact: permissions — no role, DocPerm or endpoint added or widened; with the setting on, one user loses the
+    submit of his own intake transport. Accounting — none. Data — one new column on `tabCard Company Settings`
+    (default 0), no patch, no backfill, no change to stored transports. API — no new endpoint; a refused submit
+    returns a permission error (HTTP 403 on REST).
+  - Tests: `card/tests/test_transport_intake.py` `TestTransportIntakeSecondPerson` (11). Not run on a bench in the
+    build session; CI must pass before a merge.
+  - Known limits: a user who removes the intake fields in a saved draft and then submits is not covered (the rule
+    covers transports marked as intake); a reviewer who changes values in the submit request itself may submit; an
+    approval delegate (FR-163) of the enterer is a different user and may submit.
+  - Rollback: revert the commits. The column and its values stay in the database and have no effect without the
+    code. Turning the setting off restores the earlier behaviour at once.
+
 ### Changed
 - **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means
   "must be configured").** `standard_month_hours`, `max_day_shift_hours` and `max_night_shift_hours` no longer fall

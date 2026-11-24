@@ -1,11 +1,13 @@
 # Issue 52: intake from paper and WhatsApp — design
 
-**Status: design only.** This file changes no code, DocType, permission, setting or data.
-Baseline: `main` @ `b27be391` (2026-11-25). Every code claim below was read at that commit.
+**Status: design. The slice of section 4 is built as FR-189 (In review); every other part is design only.**
+Baseline: `main` @ `b27be391` (2026-11-25). Every code claim in sections 1 to 3 was read at that commit, before
+FR-189.
 
 Issue #52 carries the label `deferred` (owner comment of 2026-11-24, and the last-but-one row of the decision table
-in [08-roadmap.md](../architecture/08-roadmap.md)). The owner asked for this document after that comment. Code
-for section 4 starts only after the owner reopens the issue for that slice (decision 1 in section 5).
+in [08-roadmap.md](../architecture/08-roadmap.md)). The owner instruction of 2026-11-25 supersedes that note for
+this document and for the slice of section 4: "write the design doc, implement what is concrete behind a setting
+defaulting OFF". The issue label and the roadmap row were not changed.
 
 This document builds on [INTAKE-PROVENANCE-DESIGN.md](../governance/INTAKE-PROVENANCE-DESIGN.md), called "the base
 design" below. It does not repeat the base design. Where the two differ, section 3 says so.
@@ -122,7 +124,8 @@ it is submitted. With the rule off, the enterer can submit, as today. With the r
 
 ### 3.4 Rules
 
-1. An intake record is a record with evidence (`intake_evidence`) or with a channel other than empty and `Manual`.
+1. An intake record is a record with a source key, a received time, an evidence file, or a channel other than empty
+   and `Manual` (`card.intake.has_intake_provenance`). The channel `Manual` alone is a hand entry.
 2. Intake never approves, submits or posts. This is the rule of `card/intake.py` today and stays.
 3. The second-person rule is by company and off by default. Off means the behavior of today, without a warning.
 4. The server reads the enterer from stored values (`owner`, `edited_by`). It never trusts a value from the browser.
@@ -182,6 +185,11 @@ guards continue to refuse deletion for submitted and cancelled records.
 
 One change: **P1, the second-person rule for transports entered from evidence.**
 
+**Built as FR-189 (In review, not merged, not released, not deployed).** Code: `card.intake.check_second_person`,
+called first in `EquipmentTransport.before_submit`. Tests: `TestTransportIntakeSecondPerson` in
+`card/tests/test_transport_intake.py`. The tests were not run on a bench in the build session. They must pass in
+CI before a merge. The table and the lists below describe the slice as built.
+
 | Item | Value |
 |---|---|
 | Setting | `Card Company Settings.require_intake_second_person` (Check), label "Transport from evidence needs a second person" |
@@ -189,7 +197,8 @@ One change: **P1, the second-person rule for transports entered from evidence.**
 | Behavior when off | Exactly as today. No check, no message, no new stored value |
 | Behavior when on | At submit of an Equipment Transport that is an intake record (rule 1 of section 3.4), the server refuses the submit when the session user is the stored `owner` or is in the stored `edited_by` list. The message tells him that another user must submit. A transport without intake fields is not affected |
 | Read of the enterer | From the database row, not from the document in memory. `EquipmentTransport.validate` runs before `before_submit` and `_record_editor` adds the submitter to `edited_by` in memory |
-| Delegation | A delegate of the enterer is refused also, as for monthly cards (`card.governance.user_acting_on_behalf`, FR-163) |
+| Delegation | Not part of the slice as built. A delegate (FR-163) of the enterer is a different user and can submit. To count the delegator as an enterer, as monthly cards do (`card.governance.user_acting_on_behalf`), is a later change |
+| Forged request | The stored company and the stored intake fields count with the values sent. A submit request that changes the company, removes the provenance or names another `owner` or `edited_by` is refused also |
 | New permission | None |
 | New field on the transport | None. `submitted_by` already records the reviewer |
 
@@ -212,9 +221,11 @@ Tests:
 4. Setting on: transport without intake fields, submitted by its enterer. Result: allowed.
 5. Setting on for company A only: an intake transport of company B is submitted by its enterer. Result: allowed.
 6. Setting on: Administrator is the enterer and submits. Result: refused.
-7. Setting on: the delegate of the enterer submits. Result: refused.
-8. Setting on: amendment of a cancelled intake transport, submitted by the user who amended it. Result: refused.
-9. The same results through REST submit.
+7. Setting on: insert as submitted in one call. Result: refused.
+8. Setting on: a forged `owner` or `edited_by`, or the provenance removed in the submit request. Result: refused.
+9. The same results through REST PUT with `docstatus` 1, `frappe.client.submit` and bulk submit.
+
+Not covered by a test: a workflow action (it calls the same submit), an amendment, and a delegate.
 
 Known limit: a reviewer who changes values and submits in one request is not an enterer in the stored row, so the
 submit is allowed. The change history shows his changes. This is accepted for the slice.
@@ -222,13 +233,13 @@ submit is allowed. The change history shows his changes. This is accepted for th
 Effort estimate: about 2 working days. One day for code and tests, one day for the review gates, documentation and
 a check on the existing CARD QA site. No Production step is part of the slice.
 
-Owner decision necessary before code: decision 1 below. No other decision blocks the slice, because the setting is
-off for every company after the deploy.
+No owner decision blocks the slice, because the setting is off for every company after a deploy. A merge, a
+release, a deploy and turning the setting on for a company each need their own owner approval.
 
 ## 5. Open owner decisions
 
-1. **Reopen #52 for the slice of section 4?** Options: (a) yes, the slice only, (b) no, keep the issue deferred.
-   Recommendation: (a). The slice changes nothing until a company turns it on.
+1. **Reopen #52 for the slice of section 4?** Decided 2026-11-25: yes, the slice only (owner instruction quoted at
+   the top). Still open: the `deferred` label on the issue and the roadmap row.
 2. **Which companies turn the second-person rule on, and when?** Options: (a) none now, (b) a named company after
    the release. Recommendation: (a) until two people handle transports in that company each day.
 3. **How many years is evidence kept before a manual clean-up is allowed?** Options: (a) keep without limit,

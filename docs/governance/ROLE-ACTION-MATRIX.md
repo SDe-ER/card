@@ -28,6 +28,9 @@ env/bin/python -c "from card.tests.test_bola_matrix import render_endpoint_matri
 - Card Monthly Card submit: the submit is the card's approval; the submitter must not be a preparer (its creator or
   an editor of the card or of its amendment chain) under the company's `card_approval_rule` (FR-143: "Warn only"
   by default, "Refuse" per company). No role is exempt.
+- Equipment Transport submit: where the company turns `require_intake_second_person` on (FR-189, off by default),
+  a transport with intake provenance is not submitted by a user who entered it (its stored owner or an editor).
+  No role is exempt. No DocPerm changes.
 
 ## DocTypes
 
