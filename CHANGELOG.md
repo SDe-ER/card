@@ -15,6 +15,35 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **FR-188 — Loads on the daily log, opt-in per company (issue 44; owner instruction 2026-11-25: implement the
+  concrete part behind a setting that defaults to off).** A machine billed to its customer per m³ (FR-166) needs
+  loads on each working day. The daily log had no load field, so a card made from daily logs had zero loads until
+  a person typed them on the card.
+  - New per-company switch `Card Company Settings.daily_log_loads` (Check, default 0, permlevel 1). Off, also with
+    no settings row: a daily log row with loads is refused, and the generation neither reads, writes nor clears a
+    load count. This is the behaviour before this change.
+  - On: `Card Daily Log Row.day_loads` and `night_loads` (Int, non-negative, permlevel 0, counts and not money)
+    are accepted only for equipment whose customer rate type is per m³, and never on a future day
+    (`card.daily_log._check_loads`). A day with loads is checked against the assignments like a day with hours
+    (`_check_assignment`).
+  - On: `card.daily_log_generation.generate_monthly_cards` copies the day shift loads to `loads_count` of the day
+    shift card's day and the night shift loads to the night shift card's day (`_day_values`). A shift with loads
+    and no hours gets its card (`_shift_has_hours`). Every card is saved through its own validation, so the FR-166
+    rules decide. A log row without loads keeps a hand-entered load count of a day; an amended log replaces the
+    loads of the log it amends (`_keeps_card_loads`). A cancelled log clears the loads of its day on a draft card
+    (`_clear_stale`). A submitted card is never changed. `overwritten_days` entries get `old_loads` / `new_loads`
+    and `cleared_days` entries get `loads` only when the switch is on.
+  - The form shows the two fields from an onload flag (`CardDailyLog.onload`); a new log shows them after its
+    first save. CARD Mobile has no load fields yet.
+  - Permissions: no new role, DocPerm or whitelisted method. Accounting: none (draft cards only; no invoice or GL
+    code changed). Data: three new columns that default to 0, no patch, existing logs and cards unchanged. API:
+    the result of `generate_monthly_cards` gains the keys above only when the switch is on.
+  - Tests: `card/tests/test_daily_log_loads.py`. Not yet run on a site (written without a bench).
+  - Rollback: set the switch to 0 (loads already copied to draft cards stay and can be edited by hand), or revert
+    the commits; the three columns then stay in the database unused. Design:
+    `docs/design/issue-44-daily-input-and-cards.md`.
+
 ### Changed
 - **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means
   "must be configured").** `standard_month_hours`, `max_day_shift_hours` and `max_night_shift_hours` no longer fall

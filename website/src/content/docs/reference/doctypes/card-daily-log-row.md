@@ -24,6 +24,8 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Equipment name <small>(read only)</small> | `equipment_name` | Data |  |  |
 | Day shift hours | `day_hours` | Float |  |  |
 | Night shift hours | `night_hours` | Float |  |  |
+| Day shift loads | `day_loads` | Int |  |  |
+| Night shift loads | `night_loads` | Int |  |  |
 | Stop reason | `stop_reason` | Link | [Card Stop Reason](/card/reference/doctypes/card-stop-reason/) |  |
 | Stopped hours | `stopped_hours` | Float |  |  |
 | Responsible party | `responsible_party_type` | Select | Company · Supplier · Customer · Other |  |

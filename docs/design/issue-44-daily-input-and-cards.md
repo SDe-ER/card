@@ -1,14 +1,18 @@
 # Issue 44: daily input and monthly cards — design
 
-**Status: Draft design. Documentation only.** This file changes no code, no DocType and no data.
+**Status: Draft design. The slice of section 3 is implemented as FR-188 (owner instruction 2026-11-25). The
+rest is design only.**
 
 - Source checked: `main` @ `b27be391` (`card/__init__.py` `__version__` = 4.11.0).
 - Issue: #44 "daily input, monthly cards, project splits and automatic/manual generation". Parent: #40.
 - Owner decisions on the issue: 2026-11-10, the part that depends on commercial agreements (#41, FR-023) is
   postponed. 2026-11-24, the issue is deferred (`docs/architecture/08-roadmap.md` section 5).
-- This design is the "design first" step that the issue asks for. No implementation starts without the owner's GO.
+- This design is the "design first" step that the issue asks for. Owner instruction 2026-11-25: implement the
+  concrete part behind a setting that defaults to off. That part is section 3. No other part starts without the
+  owner's GO.
 - "Not verified" marks a fact that was not checked in the code for this document.
-- No test was run for this document. Each status below comes from reading the source.
+- No test was run for this document. Each status below comes from reading the source at `b27be391`, before
+  FR-188. Section 3 records what FR-188 changed.
 
 ## 1. Scope of the issue, item by item
 
@@ -219,6 +223,19 @@ reopens them, the card reads `card.agreements.resolve` on each work date and sto
 
 ## 3. Smallest safe slice
 
+**Implemented as FR-188** on branch `docs/design-issue-44` (local commits, not pushed, status "In review"). The
+tests in `card/tests/test_daily_log_loads.py` were written without a bench and were not run on a site.
+
+Differences from the plan below:
+
+- The form reads the setting from an onload flag (`CardDailyLog.onload`), not from a new whitelisted method. A
+  new daily log shows the two load fields after its first save.
+- The two load fields are not grid columns. They show in the row form.
+- Tests 1 and 13 are narrower: the refusal is tested on insert only, and no test covers a Card Operator and money
+  fields (the change adds no money field).
+- Test 12 checks `card.daily_log.loads_enabled` for two company names, not two full companies.
+- The popup of **Generate monthly cards** does not show the old and new loads. The result of the method has them.
+
 **The change: loads on the daily log (section 2.1), behind a company setting that is OFF by default.**
 
 It needs no new business decision. The owner approved customer billing per m³ and per load (FR-166). The slice
@@ -282,9 +299,8 @@ The Desk form is enough for the office and for supervisors.
 
 ## 4. Open owner decisions
 
-1. **Start the slice of section 3?**
-   Options: (a) yes, Desk only. (b) yes, with the mobile fields in the same release. (c) not now.
-   Recommendation: (a). It changes nothing until a company switches the setting on.
+1. **Start the slice of section 3?** Decided 2026-11-25: yes. Implemented as FR-188, Desk only.
+   Open: the mobile fields, and the company that switches the setting on.
 
 2. **Is a supplier paid by quantity?** (FR-010)
    Options: (a) no, suppliers stay on hour, day or month. (b) yes, per m³ with the same loads as the customer.
