@@ -10,6 +10,8 @@ range (draft and cancelled entries never count); R5 the balance (previous_due, p
 current_due) with the double-count guard for CARD postings and the VAT of CARD purchase invoices;
 the printed statement shows the balance lines and the payments; R6 the exact rate the card form uses."""
 
+from unittest.mock import patch
+
 import frappe
 from frappe.utils import flt
 
@@ -181,6 +183,78 @@ class TestSupplierStatementRange(_PostingBase):
 			self._run(from_date="2026-09-10", to_date="2026-09-01")
 
 	# ---- R4 / R5: payments and the running balance (the R7 shape with fixtures) ----
+	# ---- #295 (Owner decision 2026-11-24, option A): no figure derived from card amounts without the money level ----
+	MONEY_GATE = "card.card.report.equipment_supplier_statement.equipment_supplier_statement.role_reads_money"
+	CARD_MONEY = ("rate", "hourly_rate", "amount", "additions", "deductions", "net")
+
+	def test_range_statement_without_money_level_keeps_only_the_accounting_lines(self):
+		self._card(self._eq(), HOURS)
+		paid = self._payment(1000, "2026-09-16")
+		with patch(self.MONEY_GATE, return_value=False):
+			r = self._run(from_date="2026-09-01", to_date="2026-09-30")
+		# the net work, the balance carried from before the period and the current due add card work: gone
+		for key in ("period_net", "previous_due", "current_due", "net_cards", "not_invoiced"):
+			self.assertNotIn(key, r.by_key)
+		self.assertEqual(r.by_key["period_paid"], 1000)  # an accounting line stays
+		work_rows = [x for x in r.rows if not x.get("payment")]
+		self.assertTrue(work_rows)
+		for key in self.CARD_MONEY:
+			self.assertFalse([x for x in work_rows if key in x], key)
+		payments = [x for x in r.rows if x.get("payment") and x.get("parent_row")]
+		self.assertEqual([(p["voucher_no"], flt(p["net"])) for p in payments], [(paid.name, 1000.0)])
+		fieldnames = [c["fieldname"] for c in r.columns]
+		self.assertIn("net", fieldnames)  # the column of the payment amounts
+		for key in ("rate", "hourly_rate", "amount", "additions", "deductions"):
+			self.assertNotIn(key, fieldnames)
+
+	def test_month_statement_without_money_level_has_no_card_money(self):
+		self._card(self._eq(), HOURS)
+		with patch(self.MONEY_GATE, return_value=False):
+			r = self._run()
+		self.assertNotIn("net_cards", r.by_key)
+		self.assertNotIn("not_invoiced", r.by_key)
+		self.assertIn("opening", r.by_key)  # GL items keep their own gate (can_view_ledger)
+		fieldnames = [c["fieldname"] for c in r.columns]
+		for key in self.CARD_MONEY:
+			self.assertNotIn(key, fieldnames)
+			self.assertFalse([x for x in r.rows if key in x], key)
+
+	def test_suppliers_summary_without_money_level_has_no_card_money(self):
+		from card.card.report.equipment_suppliers_summary.equipment_suppliers_summary import (
+			execute as suppliers_summary,
+		)
+
+		self._card(self._eq(), HOURS, submit=True)
+		filters = {"company": self.company, "from_month": 9, "from_year": 2026}
+		target = "card.card.report.equipment_suppliers_summary.equipment_suppliers_summary.role_reads_money"
+		with patch(target, return_value=False):
+			columns, rows, _m, _c, summary, *_ = suppliers_summary(filters)
+		fieldnames = [c["fieldname"] for c in columns]
+		for key in ("net", "diff"):
+			self.assertNotIn(key, fieldnames)
+			self.assertFalse([x for x in rows if key in x], key)
+		labels = {t.get("label") for t in summary}
+		for label in ("Net cards", "Not invoiced through Card"):
+			self.assertNotIn(frappe._(label), labels)
+		self.assertTrue([x for x in rows if x.get("supplier") == self.supplier])  # the row itself stays
+
+	def test_every_money_report_role_reads_the_money_level(self):
+		"""Today every role of these reports reads permlevel 1 of Card Monthly Card, so their reports are unchanged
+		(checked on the DocPerms: Administrator passes role_reads_money whatever they say)."""
+		level_1 = {
+			p.role for p in frappe.get_meta("Card Monthly Card").permissions if p.permlevel == 1 and p.read
+		}
+		for report in (
+			"Equipment Supplier Statement",
+			"Equipment Suppliers Summary",
+			"Equipment Customers Summary",
+			"Equipment Customer Statement",
+		):
+			roles = {r.role for r in frappe.get_doc("Report", report).roles}
+			with self.subTest(report=report):
+				self.assertTrue(roles)
+				self.assertLessEqual(roles, level_1)
+
 	def test_payments_and_balance_across_ranges(self):
 		cards = [
 			self._card(

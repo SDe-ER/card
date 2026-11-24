@@ -526,6 +526,27 @@ class TestVolumeBilling(_StopBase):
 		for label in ("Total accrued (cards)", "Not invoiced through Card"):
 			self.assertNotIn(frappe._(label), labels)
 
+	def test_customers_summary_without_money_level_read_has_no_card_money(self):
+		"""#295 (Owner decision 2026-11-24, option A): no accrued cards and no amount not invoiced through Card."""
+		from card.card.report.equipment_customers_summary.equipment_customers_summary import (
+			execute as customers_summary,
+		)
+
+		eq = self._volume_equipment()
+		self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		target = "card.card.report.equipment_customers_summary.equipment_customers_summary.role_reads_money"
+		filters = {"company": self.company, "from_month": 9, "from_year": 2026, "project": self.project}
+		with patch(target, return_value=False):
+			columns, rows, _m, _c, summary, *_ = customers_summary(filters)
+		fieldnames = [c["fieldname"] for c in columns]
+		for key in ("accrued", "diff"):
+			self.assertNotIn(key, fieldnames)
+			self.assertFalse([r for r in rows if key in r], key)
+		labels = {t.get("label") for t in summary}
+		for label in ("Total accrued (cards)", "Not invoiced through Card"):
+			self.assertNotIn(frappe._(label), labels)
+		self.assertTrue([r for r in rows if r.get("customer") == self.customer])
+
 	def test_statement_with_money_level_read_is_unchanged(self):
 		"""Every role of the report reads level 1 of Card Monthly Card today, so their statement keeps every money
 		value. Checked on the DocPerms (Administrator would pass role_reads_money whatever they say)."""
