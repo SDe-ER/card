@@ -386,6 +386,14 @@ CASES = {
 		cross=lambda c: {"equipment": c.eq_b, "month": c.month, "year": c.year},
 		own=lambda c: {"equipment": c.eq_a, "month": c.month, "year": c.year},
 	),
+	"card.card.doctype.card_monthly_card.card_monthly_card.get_adjustment_type_names": Case(
+		method=GET,
+		roles=("Card User",),
+		gate="create or write on Card Monthly Card",
+		isolation="company in permitted_companies(Card Monthly Card)",
+		cross=lambda c: {"company": c.B},
+		own=lambda c: {"company": c.A},
+	),
 	# ---------- Equipment Transport ----------
 	"card.card.doctype.equipment_transport.equipment_transport.get_equipment_location": Case(
 		method=GET,
