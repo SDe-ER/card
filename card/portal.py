@@ -116,7 +116,10 @@ def get_party_from_user(user: str | None = None) -> tuple[str, str] | None:
 		return None
 
 	parties = set()
-	for contact_name in frappe.get_all("Contact", filters={"email_id": user}, pluck="name", order_by="name"):
+	contacts = frappe.get_all(
+		"Contact", filters={"email_id": user}, pluck="name", order_by="name", limit_page_length=0
+	)
+	for contact_name in contacts:
 		party = _contact_party(contact_name)
 		if party:
 			parties.add(party)
