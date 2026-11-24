@@ -254,6 +254,31 @@ class TestAccrualJournalLink(_P0Base):
 		rows, _s = self._status()
 		self.assertEqual((rows[card.name]["status"], rows[card.name]["remaining"]), ("Fully settled", 0))
 
+	def test_status_without_money_level_read_has_no_card_net(self):
+		"""#301: the card net is permlevel 1 of Card Monthly Card; the ledger figures keep can_view_ledger."""
+		from unittest.mock import patch
+
+		card = self._rental_card()
+		net = flt(card.net_amount, 2)
+		link_accrual_journal(self._accrual(net).name, [card.name])
+		filters = {
+			"company": self.company,
+			"party_type": "Supplier",
+			"party": self.supplier,
+			"from_date": "2026-09-01",
+			"to_date": "2026-12-31",
+		}
+		target = "card.card.report.card_settlement_status.card_settlement_status.role_reads_money"
+		with patch(target, return_value=False):
+			columns, data, _message, _chart, summary = settlement_status(filters)
+			empty_columns = settlement_status({**filters, "from_date": "2020-01-01", "to_date": "2020-01-31"})[0]
+		for cols in (columns, empty_columns):
+			self.assertNotIn("net", [c["fieldname"] for c in cols])
+		self.assertFalse([r for r in data if "net" in r])
+		self.assertNotIn("Cards net", {s["label"] for s in summary})
+		row = next(r for r in data if r["card"] == card.name)
+		self.assertEqual((row["share"], row["remaining"]), (net, net))
+
 	def test_payments_are_allocated_oldest_first(self):
 		first = self._rental_card()
 		second = self._rental_card()
