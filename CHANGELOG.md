@@ -16,6 +16,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Security
+- **Party portal: an uncertain party resolves to no party (FR-183, issue 257, security review 2026-11-13 finding 8).**
+  `card.portal.get_party_from_user` took the first Contact whose email is the user's. When several Contacts carry
+  that email and point at different Suppliers / Customers, the database order decided whose cards the portal
+  would show. It now reads every such Contact (`_contact_party`) and returns a party only when they all agree;
+  otherwise `None`, so the portal shows nothing. Portal off on every company, so nothing changes today. Impact:
+  permissions none; accounting none; data none; API none. Rollback: code only.
 - **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
   reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
   of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly

@@ -101,6 +101,10 @@ def get_party_from_user(user: str | None = None) -> tuple[str, str] | None:
 
 	Returns ``None`` when the user is Guest / Administrator, when no Contact
 	is linked by email, or when the Contact has no Supplier / Customer link.
+	Also ``None`` when several Contacts carry the user's email and resolve
+	to different parties: the party is then not certain, and which Contact
+	the database returns first must never decide whose cards are shown
+	(security review 2026-11-13, finding 8).
 	The party is never taken from a client argument: callers that need a
 	party for the current request must go through this function. Matches the
 	official ERPNext portal pattern (``erpnext/portal/utils.py:party_exists``
@@ -111,9 +115,16 @@ def get_party_from_user(user: str | None = None) -> tuple[str, str] | None:
 	if user in ("Guest", "Administrator") or not user:
 		return None
 
-	contact_name = frappe.db.get_value("Contact", {"email_id": user}, "name")
-	if not contact_name:
-		return None
+	parties = set()
+	for contact_name in frappe.get_all("Contact", filters={"email_id": user}, pluck="name", order_by="name"):
+		party = _contact_party(contact_name)
+		if party:
+			parties.add(party)
+	return parties.pop() if len(parties) == 1 else None
+
+
+def _contact_party(contact_name: str) -> tuple[str, str] | None:
+	"""The first Supplier / Customer link of one Contact, by the row order on the form."""
 
 	links = frappe.get_all(
 		"Dynamic Link",
