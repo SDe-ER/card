@@ -36,8 +36,59 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Rollback: code only; the field shows again.
 
 ### Security
+- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
+  reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
+  of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
+  rate, customer amount, total volume (with the total loads it gives the level-1 load volume), additions,
+  deductions and net, in columns, rows and the two summary tiles built on them (Total accrued (cards), Not
+  invoiced through Card), with the existing `strip_money` helper. Days, hours and loads stay; the accounting tiles
+  (GL, Sales Invoices made through CARD) keep their own gate (`can_view_ledger`). Equipment Customers Summary,
+  Equipment Supplier Statement and Equipment Suppliers Summary have no such check yet (follow-up #295). Impact:
+  permissions none (no
+  role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
+  data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
 
-_Nothing yet._
+### Fixed
+- **Period run: a change of loads makes the run stale (FR-177, #263, PR #294).** The period-run fingerprint version 1 did
+  not cover the Monthly Card load fields, so moving or changing loads on a per-m³ card with the same amount left
+  an approved run current. New runs use fingerprint version 2 (`card/gl/period_run.py`: version 1 plus
+  `loads_count`, `total_loads`, `total_volume_m3`, `load_volume_used`). Version 1 is unchanged; a run built with it,
+  or with no stored version, is still checked with version 1 (`check_current`, `period_gate._source_mismatches`).
+  A source without load values has the same fingerprint in both versions. A draft or returned run is rebuilt on
+  every save, so it moves to version 2 on its next save; submitted runs keep their version. A run with a version
+  this code does not know is reported as changed (empty fingerprint) and refused by the posting gate, never an
+  error. Impact: permissions none; accounting none (no document is created or changed; only the stale check of
+  new runs is stricter); data none (no patch); API none. Rollback: code only; code older than this change has no
+  version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
+
+### Changed
+- **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5, PR #297).** `is_billed_day`
+  defaulted to counting loads and `billed_day_rows` to ignoring them. Both now take `include_loads` as a required
+  keyword-only argument, and every caller states the rule it already used: the assignment guards
+  (`card/transfer.py`, `Card Monthly Card`) and the customer reports pass True; the supplier statement, the suppliers
+  summary, the supplier date-range statement and the posting pass False. No behaviour changes. Impact: permissions,
+  accounting, data and API (whitelisted methods) none; a custom caller outside CARD that relied on the defaults
+  now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
+  change and waits for the owner's approval.
+
+### CI
+- **GitHub Actions versions (Dependabot #243, #244, #245, #279 in one change).** `docs.yml`: `actions/checkout`
+  v4 → v7, `actions/upload-pages-artifact` v3 → v5 and `actions/deploy-pages` v4 → v5 (one Pages deploy, so the
+  pair moves together). `docs-screenshots.yml`: `actions/upload-artifact` v4 → v7 (as `upgrade-rehearsal.yml`
+  already uses). Workflow permissions unchanged. No application, permission, accounting, data or API change.
+  Rollback: revert the workflow lines.
+
+### Tests
+- **Child-row integrity test follows frappe 16.61.0 (#293).** Since frappe version-16 16.61.0 (commit `e874c9d8d`,
+  "submit, cancel and rename check permission on the stored document"), frappe refuses an operator's
+  `frappe.client.bulk_update` of a submitted child row with `PermissionError` before CARD's foreign-row guard runs.
+  `test_operator_child_bulk_update_cannot_take_an_approved_row` accepts either refusal and still checks that the row
+  and both documents are unchanged; the guard on that route stays proven for the supervisor. The `bulk_update` test
+  helpers keep the traceback of an unexpected failure. Only a PermissionError raised by frappe's
+  `check_docstatus_transition` counts as the other refusal. Test code only: no application, permission,
+  accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
+  fails again.
+
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

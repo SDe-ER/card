@@ -154,7 +154,7 @@ def _source_mismatches(run, party_type, party, sources, row, vat_registered) -> 
 	from card.gl import period_run
 
 	flag, party_field = _SIDE[party_type]
-	version = cint(run.fingerprint_version) or period_run.FINGERPRINT_VERSION
+	version = cint(run.fingerprint_version) or period_run.LEGACY_FINGERPRINT_VERSION
 	stored = {(r.source_doctype, r.source_name): r for r in run.get("sources") or []}
 	out = []
 	has_fill = False

@@ -6,7 +6,14 @@ from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hou
 from card.card_value import DAY_BASIS_FULL_DAY, PER_DAY, PER_VOLUME_M3, day_billing_basis
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
-from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
+from card.report_access import (
+	can_view_ledger,
+	ledger_notice,
+	readable_links,
+	resolve_company,
+	role_reads_money,
+	strip_money,
+)
 from card.report_currency import company_currency_report
 from card.settings import setting
 from card.transfer import customer_billed_day_rows, with_stopped_hours_column
@@ -536,6 +543,32 @@ def execute(filters=None):
 			).format(customer, start, end, frappe.utils.nowdate())
 			+ " "
 			+ reconciliation_notice()
+		)
+
+	# #259 (FR-166 item w): field-level check. The cards are read with frappe.get_all, which applies no
+	# permlevel. A user whose roles do not read the Monthly Card money level (permlevel 1: rates, amounts, total
+	# volume, additions and deductions) gets no such value, no value derived from them (hourly rate, net) and no
+	# summary tile built on them. Total volume goes too: with the total loads it gives the level-1 load volume.
+	# The accounting tiles (GL, and the Sales Invoices made through CARD) keep their own gate (can_view_ledger).
+	# The four report roles read level 1 today.
+	if not role_reads_money():
+		columns, summary = strip_money(
+			columns,
+			data_rows,
+			keys=[
+				"customer_rate",
+				"total_volume_m3",
+				"hourly_rate",
+				"customer_amount",
+				"additions",
+				"deductions",
+				"net",
+			],
+			summary=summary,
+			tile_labels=[
+				_("Total accrued (cards)"),
+				_("Not invoiced through Card"),
+			],
 		)
 
 	columns = readable_links(with_stopped_hours_column(columns, data_rows), data_rows)

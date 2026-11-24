@@ -9,6 +9,8 @@ Proven here: day and night amounts, zero-hour loads, the working-day rule, manda
 permlevels, the submit snapshot, the period-run fingerprint, and unchanged hourly/daily/monthly
 pricing. All data is per-test and rolled back."""
 
+from unittest.mock import patch
+
 import frappe
 from frappe.utils import flt
 
@@ -16,7 +18,9 @@ from card.card.report.equipment_customer_statement.equipment_customer_statement 
 	execute as customer_statement,
 )
 from card.constants import DIR_RENTED_OUT, DIR_SUBRENTAL, OWNED, SHIFT_NIGHT
+from card.gl import period_run
 from card.gl.period_run import document_fingerprint
+from card.report_access import role_reads_money
 from card.tests.test_customer import RENTED
 from card.tests.test_stop_reasons import CLIENT_STOP, LEAVE, WORK, _StopBase
 
@@ -211,7 +215,22 @@ class TestVolumeBilling(_StopBase):
 
 		loads_only = frappe._dict(working_hours=0, loads_count=5)
 		self.assertFalse(is_billed_day(loads_only, include_loads=False))
-		self.assertTrue(is_billed_day(loads_only))
+		self.assertTrue(is_billed_day(loads_only, include_loads=True))
+
+	def test_include_loads_is_an_explicit_required_choice(self):
+		"""#264 part 1: the two helpers had opposite defaults; each caller now chooses the loads rule on purpose."""
+		from card.transfer import billed_day_rows, is_billed_day
+
+		loads_only = frappe._dict(working_hours=0, loads_count=5)
+		with self.assertRaises(TypeError):
+			is_billed_day(loads_only)
+		with self.assertRaises(TypeError):
+			is_billed_day(loads_only, True)  # keyword only: the choice is named at the call
+		with self.assertRaises(TypeError):
+			billed_day_rows([])
+		with self.assertRaises(TypeError):
+			billed_day_rows([], True)
+		self.assertEqual(billed_day_rows([], include_loads=False), [])
 
 	def test_priced_volume_is_exact_before_rounding(self):
 		# FR-166 (review F2): 7 x 1.2345 x 3 = 25.9245, rounded once to 25.92 (no intermediate rounding)
@@ -397,6 +416,41 @@ class TestVolumeBilling(_StopBase):
 		card.customer_amount = flt(card.customer_amount) + 1
 		self.assertNotEqual(fingerprint, document_fingerprint(card, 1))
 
+	def test_fingerprint_v2_covers_the_load_fields(self):
+		"""#263: a load change that keeps every amount changes the version 2 fingerprint. Version 1 stays frozen
+		(a run keeps the version it was built with)."""
+		self.assertEqual(period_run.FINGERPRINT_VERSION, 2)
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		v1 = document_fingerprint(card, 1)
+		v2 = document_fingerprint(card, 2)
+		self.assertEqual(document_fingerprint(card), v2)
+		card.days[0].loads_count = 41
+		self.assertEqual(document_fingerprint(card, 1), v1)
+		self.assertNotEqual(document_fingerprint(card, 2), v2)
+		for field in ("total_loads", "total_volume_m3", "load_volume_used"):
+			with self.subTest(field=field):
+				fresh = frappe.get_doc("Card Monthly Card", card.name)
+				fresh.set(field, flt(fresh.get(field)) + 1)
+				self.assertEqual(document_fingerprint(fresh, 1), v1)
+				self.assertNotEqual(document_fingerprint(fresh, 2), v2)
+
+	def test_fingerprint_v2_extends_v1_and_matches_it_without_loads(self):
+		"""Version 2 keeps every version 1 field, and a document with no load values has the same fingerprint in
+		both versions, so non-volume sources are not reported as changed."""
+		v1, v2 = period_run.FINGERPRINT_FIELDS[1], period_run.FINGERPRINT_FIELDS[2]
+		self.assertEqual(set(v1), set(v2))
+		for doctype, (fields, tables) in v1.items():
+			self.assertLessEqual(set(fields), set(v2[doctype][0]), doctype)
+			self.assertEqual(set(tables), set(v2[doctype][1]), doctype)
+			for table, row_fields in tables.items():
+				self.assertLessEqual(set(row_fields), set(v2[doctype][1][table]), table)
+		self.assertNotIn("total_loads", v1["Card Monthly Card"][0])
+		self.assertNotIn("loads_count", v1["Card Monthly Card"][1]["days"])
+		hourly = self._rented_out(customer_rate=100, customer_rate_type="بالساعة")
+		card = self._card(hourly, [4, 10, 12], submit=True)
+		self.assertEqual(document_fingerprint(card, 1), document_fingerprint(card, 2))
+
 	# ---- regression: existing bases unchanged (these pass on current code) ----
 	def test_hourly_daily_and_monthly_customer_rates_are_unchanged(self):
 		hourly = self._rented_out(customer_rate=100, customer_rate_type="بالساعة")
@@ -429,6 +483,68 @@ class TestVolumeBilling(_StopBase):
 		equipment_row = next(r for r in rows if str(r.get("row_id", "")).endswith("|E|" + eq.name))
 		self.assertIsNone(equipment_row["hourly_rate"])
 		self.assertEqual(equipment_row["total_loads"], 40)
+
+	# ---- #259 (FR-166 item w): field-level check of the Monthly Card money level on the statement ----
+	STATEMENT_MONEY_KEYS = (
+		"customer_rate",
+		"total_volume_m3",
+		"hourly_rate",
+		"customer_amount",
+		"additions",
+		"deductions",
+		"net",
+	)
+
+	def _statement_filters(self):
+		return {
+			"company": self.company,
+			"customer": self.customer,
+			"from_month": 9,
+			"from_year": 2026,
+			"project": self.project,
+		}
+
+	def test_statement_without_money_level_read_has_no_money_values(self):
+		"""A user whose roles do not read permlevel 1 of Card Monthly Card gets no rate, amount, total volume
+		(with the total loads it gives the level-1 load volume), addition, deduction or net, in no column, row or
+		summary tile. Counts (days, hours, loads) stay."""
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		target = "card.card.report.equipment_customer_statement.equipment_customer_statement.role_reads_money"
+		with patch(target, return_value=False):
+			columns, rows, _message, _chart, summary, *_ = customer_statement(self._statement_filters())
+		fieldnames = [c["fieldname"] for c in columns]
+		for key in self.STATEMENT_MONEY_KEYS:
+			self.assertNotIn(key, fieldnames)
+			self.assertFalse([r for r in rows if key in r], key)
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(row["total_loads"], 40)
+		self.assertEqual(flt(row["hours"]), 10.0)
+		self.assertEqual(row["working_days"], 1)
+		# the tiles built on the card amounts go; the accounting tiles keep their own gate (can_view_ledger)
+		labels = {t.get("label") for t in summary}
+		for label in ("Total accrued (cards)", "Not invoiced through Card"):
+			self.assertNotIn(frappe._(label), labels)
+
+	def test_statement_with_money_level_read_is_unchanged(self):
+		"""Every role of the report reads level 1 of Card Monthly Card today, so their statement keeps every money
+		value. Checked on the DocPerms (Administrator would pass role_reads_money whatever they say)."""
+		report_roles = {r.role for r in frappe.get_doc("Report", "Equipment Customer Statement").roles}
+		self.assertTrue(report_roles)
+		level_1_readers = {
+			p.role for p in frappe.get_meta("Card Monthly Card").permissions if p.permlevel == 1 and p.read
+		}
+		self.assertLessEqual(report_roles, level_1_readers)
+		self.assertTrue(role_reads_money())
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		columns, rows, *_ = customer_statement(self._statement_filters())
+		fieldnames = [c["fieldname"] for c in columns]
+		for key in self.STATEMENT_MONEY_KEYS:
+			self.assertIn(key, fieldnames)
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(flt(row["customer_amount"]), 1280.0)
+		self.assertEqual(flt(row["total_volume_m3"]), 640.0)
 
 	# ---- FR-166 z1: a billable stop-only day on a per-m³ card is a stop day, not a billed day ----
 	def test_billable_stop_only_day_is_not_a_billed_day_on_a_per_m3_card(self):

@@ -278,7 +278,7 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 				raise (
 					ForeignChildRowError(failed[0]["exc"])
 					if "ForeignChildRowError" in failed[0]["exc"]
-					else Exception
+					else Exception(failed[0]["exc"])
 				)
 			return failed
 
@@ -312,11 +312,14 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 			}
 			failed = bulk_update(frappe.as_json([body]))["failed_docs"]
 			if failed:
-				raise (
-					ForeignChildRowError(failed[0]["exc"])
-					if "ForeignChildRowError" in failed[0]["exc"]
-					else Exception
-				)
+				exc = failed[0]["exc"]
+				if "ForeignChildRowError" in exc:
+					raise ForeignChildRowError(exc)
+				# only frappe's stored-document transition check (16.61.0) counts as the other refusal; any other
+				# PermissionError (for example on the operator's own draft) fails the test
+				if "frappe.exceptions.PermissionError" in exc and "check_docstatus_transition" in exc:
+					raise frappe.PermissionError(exc)
+				raise Exception(exc)
 
 		def child_save():
 			from frappe.client import save
@@ -339,14 +342,14 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 		}
 
 	# ---------- the attack is refused on every route ----------
-	def _assert_refused(self, user, mine, victim, foreign, route, attempt):
+	def _assert_refused(self, user, mine, victim, foreign, route, attempt, refusals=(ForeignChildRowError,)):
 		before_victim = self._rows(LOG, victim)
 		before_mine = self._rows(LOG, mine)
 		frappe.set_user(user)
 		try:
 			# a route without permission on the row (PermissionError) is refused too, but must not hide the guard:
-			# every case below must reach it
-			with self.assertRaises(ForeignChildRowError, msg=route):
+			# every case below must reach it, unless the caller names another refusal on purpose
+			with self.assertRaises(refusals, msg=route):
 				attempt()
 		finally:
 			frappe.set_user("Administrator")
@@ -381,11 +384,24 @@ class TestChildRowIntegrityRoutes(_CustomerCardsBase):
 					self._assert_refused(self.supervisor, mine, victim, foreign, route, attempt)
 
 	def test_operator_child_bulk_update_cannot_take_an_approved_row(self):
+		"""Since frappe version-16 16.61.0 (commit e874c9d8d, "submit, cancel and rename check permission on the
+		stored document"), Document.check_docstatus_transition checks the operator's permission on the stored,
+		submitted row and refuses with PermissionError before CARD's guard runs. Either refusal is correct; the row
+		and both documents must stay unchanged. The guard on this route stays proven for the supervisor, who passes
+		the frappe check (test_a_child_row_saved_on_its_own_keeps_its_document)."""
 		victim = self._victims()["approved"]
 		mine = self._log([self._row()], submit=False).name
 		foreign = self._rows(LOG, victim)[0]
 		attempt = self._attempts(mine, foreign)["child bulk_update"]
-		self._assert_refused(self.operator, mine, victim, foreign, "child bulk_update", attempt)
+		self._assert_refused(
+			self.operator,
+			mine,
+			victim,
+			foreign,
+			"child bulk_update",
+			attempt,
+			refusals=(ForeignChildRowError, frappe.PermissionError),
+		)
 
 	def test_cancel_cannot_take_a_row(self):
 		"""The guard's ``before_cancel`` handler refuses a foreign row name on a cancelling document.

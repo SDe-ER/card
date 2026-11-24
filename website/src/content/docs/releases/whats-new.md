@@ -18,6 +18,9 @@ per site.
 
 ## Next release (merged, not yet released)
 
+- **2026-11-24 — A period run notices a change of loads.** Before, an approved **Card Period Run** stayed current when the loads of a per-m³ card changed but its amount did not (for example, loads moved from one day to another). A new period run now also checks the loads, total loads, total volume and load volume of each card, so such a change marks the run as changed and it must be rebuilt before posting. Period runs built before this version keep their earlier check. Cards without loads are not affected.
+- **2026-11-24 — The customer statement checks who may see card amounts.** **Equipment Customer Statement** now shows rates, amounts, total volume, additions, deductions and net only to users whose roles may read the amounts of a **Monthly Card**. Today every role that opens this report may read them, so nothing changes for current users. The check protects the amounts if another role gets the report later.
+- **2026-11-24 — Internal: one clear rule for which days count as billed.** Inside CARD, every place that decides whether a card day counts as billed now says on purpose whether loads count. Nothing changes for users: the supplier side still ignores loads, and the customer side and the assignment checks still count them.
 - **2026-11-21 — Additions and deductions save without an Adjustment type.** When no addition/deduction types are configured in Card Settings for the card's company, the optional **Adjustment type** field is no longer shown in the table, also for users who had chosen it as a column. Enter each row with **Type** (Addition or Deduction), Side, Date, Amount and Description, and save. Where types are configured, or a row already has one, the field stays and works as before. Typing a name that is not configured is still refused, with a message that says how to fix the row.
 
 ## v4.11.0 — 2026-11-22
