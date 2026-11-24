@@ -102,6 +102,17 @@ class TestCustomerStatementPrint(IntegrationTestCase):
 		for fieldname, _width in columns:
 			self.assertIn(f'"fieldname": "{fieldname}"', source)
 
+	def test_money_columns_print_only_when_the_report_sends_them(self):
+		"""FR-178: without the card money level the report sends no rate, amount, addition, deduction or net
+		column. The print follows the report: a money column that is not in the report's columns is not
+		printed, so the layout never shows an empty amount column or a figure the screen hides."""
+		template = _template()
+		self.assertIn(
+			"var money = { customer_rate: 1, customer_amount: 1, additions: 1, deductions: 1, net: 1 };",
+			template,
+		)
+		self.assertIn("if (money[fields[f][0]] && label_of[fields[f][0]] === undefined) continue;", template)
+
 	def test_printed_totals_are_picked_by_key_only(self):
 		template = _template()
 		self.assertIn('var print_keys = ["net_cards", "not_invoiced"];', template)
