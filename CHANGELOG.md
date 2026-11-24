@@ -15,6 +15,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **FR-187 — A4 print of Equipment Customer Statement (issue 299; owner decision 2026-11-24: no hourly rate).** The
+  customer copy of the supplier A4 statement: report Print Format `Equipment Customer Statement A4` and the report's
+  HTML template (the same layout on both print paths), selected by default in the PDF dialog.
+  - Columns: item, first and last operation, days, hours, the contract rate (customer rate type, then the rate),
+    customer amount, additions and deductions (only when a row has one) and net. No hourly rate. Billable stopped
+    hours only when a row has them.
+  - Totals by stable summary keys only: the cards net and, when above zero, the work not yet invoiced through CARD.
+    No ledger, reconciliation or server message is printed, and no system name.
+  - The print follows the card money level (FR-178): a money column the report does not send is not printed.
+  - Every summary item of the customer statement now has a stable `key`.
+  - Functions: `equipment_customer_statement.html` / `.js` / `.py`, `card/card/print_format/equipment_customer_statement_a4/`,
+    `card/locale/`. Tests: `card/tests/test_customer_statement_print.py`, `test_customer_reports.py`.
+  - Impact: permissions none (the report's roles and gates are unchanged); accounting none (print only); data none
+    (migrate imports the new standard Print Format); API: summary items carry `key`. Rollback: code only; the Print
+    Format record stays until it is deleted by hand.
+
 ### Changed
 - **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
   decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).

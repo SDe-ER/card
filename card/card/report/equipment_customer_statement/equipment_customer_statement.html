@@ -38,9 +38,12 @@
 		}
 		fields = with_stopped;
 	}
+	/* FR-178: the report sends no money column to a user who cannot read the card amounts; the print follows it */
+	var money = { customer_rate: 1, customer_amount: 1, additions: 1, deductions: 1, net: 1 };
 	var shown = [];
 	var shown_width = 0;
 	for (var f = 0; f < fields.length; f++) {
+		if (money[fields[f][0]] && label_of[fields[f][0]] === undefined) continue;
 		if (!optional[fields[f][0]] || has_value(fields[f][0])) {
 			shown.push(fields[f]);
 			shown_width += fields[f][1];
@@ -175,6 +178,8 @@
 	/* the signatures and the issued-by line stay together, on the page of the totals */
 	.ess .ess-end { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; }
 	.ess .ess-signs .ess-line { display: block; border-top: 1px solid #999; margin: 22px 15% 4px; }
+	/* date-range statement: the payments of the range, in the rows table style */
+	.ess .ess-sub { font-weight: 700; color: #525252; margin: 12px 0 4px; page-break-after: avoid; break-after: avoid; }
 </style>
 <div class="ess" dir="{%= frappe.utils.is_rtl() ? "rtl" : "ltr" %}">
 <div class="ess-co">{%= esc(filters.company || "") %}</div>
