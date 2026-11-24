@@ -358,3 +358,4 @@ Checked against `main` @ `31fe7ce` (2026-10-20); FR-002 and FR-003 re-checked at
 | 2026-11-22 | FR-174, FR-175 and FR-176 Implemented (merged; released in v4.11.0). No row deleted |
 | 2026-11-22 | FR-176 added (payments linked to an equipment; In review). No row deleted |
 | 2026-11-22 | FR-176 follow-up: the month statement applies the equipment/project payment rules (In review). No row deleted |
+| 2026-11-24 | FR-166 follow-up (#264 part 1, review items y / z5): `is_billed_day` and `billed_day_rows` take a required keyword-only `include_loads`; every caller states its existing rule; no behaviour change (In review). Part 2 (loads column on per-m³ cards only) waits for owner UI approval. No row deleted |

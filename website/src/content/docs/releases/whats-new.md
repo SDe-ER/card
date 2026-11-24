@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-24 — Internal: one clear rule for which days count as billed.** Inside CARD, every place that decides whether a card day counts as billed now says on purpose whether loads count. Nothing changes for users: the supplier side still ignores loads, and the customer side and the assignment checks still count them.
 
 ## v4.11.0 — 2026-11-22
 

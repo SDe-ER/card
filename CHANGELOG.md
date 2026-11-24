@@ -19,6 +19,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 _Nothing yet._
 
+### Changed
+- **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5).** `is_billed_day`
+  defaulted to counting loads and `billed_day_rows` to ignoring them. Both now take `include_loads` as a required
+  keyword-only argument, and every caller states the rule it already used: the assignment guards
+  (`card/transfer.py`, `Card Monthly Card`) and the customer reports pass True; the supplier statement, the suppliers
+  summary, the supplier date-range statement and the posting pass False. No behaviour changes. Impact: permissions,
+  accounting, data and API (whitelisted methods) none; a custom caller outside CARD that relied on the defaults
+  now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
+  change and waits for the owner's approval.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by

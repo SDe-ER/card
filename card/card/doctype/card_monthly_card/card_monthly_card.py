@@ -745,9 +745,9 @@ class CardMonthlyCard(Document):
 				)
 			return
 		for d in self.days:
-			# like validate_card_days: only a day with hours is billed; the form adds a 0-hour
-			# row for every day of the month the machine was on the project
-			if not d.operation_date or not is_billed_day(d):
+			# like validate_card_days: a day with hours, loads or billable stopped hours is billed (is_billed_day); the
+			# form adds a 0-hour row for every day of the month the machine was on the project
+			if not d.operation_date or not is_billed_day(d, include_loads=True):
 				continue
 			day = getdate(d.operation_date)
 			unit = next((p.unit for p in periods if _in_unit_on(p, day)), None)

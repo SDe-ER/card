@@ -211,7 +211,22 @@ class TestVolumeBilling(_StopBase):
 
 		loads_only = frappe._dict(working_hours=0, loads_count=5)
 		self.assertFalse(is_billed_day(loads_only, include_loads=False))
-		self.assertTrue(is_billed_day(loads_only))
+		self.assertTrue(is_billed_day(loads_only, include_loads=True))
+
+	def test_include_loads_is_an_explicit_required_choice(self):
+		"""#264 part 1: the two helpers had opposite defaults; each caller now chooses the loads rule on purpose."""
+		from card.transfer import billed_day_rows, is_billed_day
+
+		loads_only = frappe._dict(working_hours=0, loads_count=5)
+		with self.assertRaises(TypeError):
+			is_billed_day(loads_only)
+		with self.assertRaises(TypeError):
+			is_billed_day(loads_only, True)  # keyword only: the choice is named at the call
+		with self.assertRaises(TypeError):
+			billed_day_rows([])
+		with self.assertRaises(TypeError):
+			billed_day_rows([], True)
+		self.assertEqual(billed_day_rows([], include_loads=False), [])
 
 	def test_priced_volume_is_exact_before_rounding(self):
 		# FR-166 (review F2): 7 x 1.2345 x 3 = 25.9245, rounded once to 25.92 (no intermediate rounding)
