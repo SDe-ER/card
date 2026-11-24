@@ -15,37 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-- **FR-186 — The loads figures show only on per-m³ cards (issue 264 part 2; owner decision 2026-11-24).** On the
-  Monthly Card form, "Load volume used (m³)", "Total loads" and "Total volume (m³)" show only when the customer rate
-  type is per m³ or the card already has loads (`depends_on` in `card_monthly_card.json`), and the Loads column of the
-  days table follows the same rule (`card_toggle_loads_column` in `card_monthly_card.js`, also for a user who saved
-  the column with "Configure columns"). A stored value is never hidden or cleared. The server rule is unchanged: loads
-  are refused on a card that is not billed per m³. Impact: permissions none; accounting none; data none (no
-  patch; migrate syncs the DocType); API none. Rollback: code only; the fields and the column show again.
-- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
-  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
-  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
-    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
-    returns `"switched off"` and creates or enables nothing. This covers the patch
-    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
-    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
-  - To create the dimension later: back up, turn the switch on, then run
-    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
-    removes nothing.
-  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
-    dimension enabled, and writes nothing else.
-  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
-    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
-    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
-    shows a message with the command (`CardSettings._explain_dimension_switch`).
-  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
-    disabled until the switch is on and the command runs again.
-  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
-    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
-  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
-    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
-
 ### Security
 - **Party portal: explicit read check on the card reads (FR-182, issue 257, security review 2026-11-13 finding 7).**
   `card.portal.list_party_cards` and `get_party_card` read with `frappe.get_all` / `frappe.db.get_value`, which
@@ -102,16 +71,108 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   reports — System Manager, Accounts Manager, Card Manager — all read level 1, so their reports are unchanged);
   accounting none; data none; API none (fewer keys for a user without level-1 read). Rollback: code only.
 
-### Documentation
-- **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
-  sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
-  change.
-- **One expense for several machines is split by hand (issue 48, owner decision 2026-11-24).** The maintenance page
-  of the documentation site (English and Arabic) says how: one Purchase Invoice line per machine with the Card
-  Equipment dimension. No code: standard ERPNext already does it.
-- **Registry sync:** FR-137, FR-143, FR-152, FR-155, FR-157, FR-159 and FR-163 were still listed as not merged; their
-  code is in v4.8.0. Statuses corrected to Implemented. The approval workflows stay inactive until the owner
-  activates them per site (issue 35).
+### Changed
+- **FR-186 — The loads figures show only on per-m³ cards (issue 264 part 2; owner decision 2026-11-24).** On the
+  Monthly Card form, "Load volume used (m³)", "Total loads" and "Total volume (m³)" show only when the customer rate
+  type is per m³ or the card already has loads (`depends_on` in `card_monthly_card.json`), and the Loads column of the
+  days table follows the same rule (`card_toggle_loads_column` in `card_monthly_card.js`, also for a user who saved
+  the column with "Configure columns"). A stored value is never hidden or cleared. The server rule is unchanged: loads
+  are refused on a card that is not billed per m³. Impact: permissions none; accounting none; data none (no
+  patch; migrate syncs the DocType); API none. Rollback: code only; the fields and the column show again.
+- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
+  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
+  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
+    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
+    returns `"switched off"` and creates or enables nothing. This covers the patch
+    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
+    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
+  - To create the dimension later: back up, turn the switch on, then run
+    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
+    removes nothing.
+  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
+    dimension enabled, and writes nothing else.
+  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
+    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
+    shows a message with the command (`CardSettings._explain_dimension_switch`).
+  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
+    disabled until the switch is on and the command runs again.
+  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
+    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
+  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
+    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
+- **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means
+  "must be configured").** `standard_month_hours`, `max_day_shift_hours` and `max_night_shift_hours` no longer fall
+  back to 260 and 12 when Card Settings has no value or 0.
+  - Standard month hours not configured: a per-month rate is refused with a message that names the setting, when
+    an equipment's rate is set or changed (`approved_hourly_rate`; a save that does not touch the rate keeps the
+    stored hourly rate), on either side of a Monthly Card (`_hourly_for`), and in the supplier statement's pricing
+    of draft days (`card_value.exact_hourly_rate`). Never an amount of zero. The form shows 0 and the server
+    refuses the save; `get_standard_month_hours` returns 0 then.
+  - Shift limit not configured: the Monthly Card says so in a message (form saves only) and checks no limit; the
+    daily log checks no limit. Every hour is still recorded and billed (the limit only ever warned).
+  - So that no site changes behaviour, `after_install` and the test bootstrap store the DocType default (260, 12,
+    12) of each hour setting that has no stored value (`card.settings.store_hour_settings_defaults`), and the
+    one-time patch `v4_12_0.store_hour_settings_defaults` does the same and also replaces a stored 0 (the old code
+    read 0 as the built-in number). From then on a 0 means "not configured".
+  - Impact: permissions none; accounting none (a site with stored values prices as before; a site with none gets
+    the same numbers stored); data: at most three Card Settings values; API: `get_standard_month_hours` can return
+    0. Rollback: code only; the stored values stay and older code reads them.
+- **FR-185 — Diesel totals that include an estimate say so (issue 31; owner decision 2026-11-24: an estimated
+  allocation is allowed, is always labelled, and a measured quantity always wins).** In Equipment Diesel
+  Consumption, Equipment Diesel Analysis and the diesel box of the Monthly Card, the total that adds recorded and
+  estimated litres is now labelled "Allocated litres (recorded + estimated)", and the cost built on it "Diesel cost
+  (incl. estimated)". The separate columns "Recorded litres (direct fills)" and "Estimated litres (hours split)" are
+  unchanged. No figure changes: a direct fill stays a recorded quantity and only a project-tank fill is split by
+  hours. Posting and Equipment Partial Margin still keep tank diesel at project level. Impact: permissions none;
+  accounting none; data none; API: two report column labels and one summary label changed (field names unchanged).
+  Rollback: code only.
+- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
+  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
+  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
+    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
+    returns `"switched off"` and creates or enables nothing. This covers the patch
+    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
+    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
+  - To create the dimension later: back up, turn the switch on, then run
+    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
+    removes nothing.
+  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
+    dimension enabled, and writes nothing else.
+  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
+    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
+    shows a message with the command (`CardSettings._explain_dimension_switch`).
+  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
+    disabled until the switch is on and the command runs again.
+  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
+    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
+  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
+    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
+- **FR-174 follow-up — Monthly Card print: "before VAT" headers and the Card totals amounts** (owner decisions
+  2026-11-22; PR #292).
+  - The settlement table headers now say the figures are before VAT: «تسوية المورد (قبل الضريبة)» and «تسوية العميل
+    (قبل الضريبة)» (English: "Supplier settlement (before VAT)", "Customer settlement (before VAT)"). The four rows
+    and their amounts are unchanged.
+  - The money cells of the Card totals box («الإجماليات»: rate, total amount, customer rate, customer amount) print
+    with the company currency. The amounts print with two decimals (`3,600.00 SAR`), as the settlement rows. The
+    rates keep the site's currency precision, so a rate such as 1,500.125 is never rounded (code review of #292).
+    Hours, days, loads and volume are unchanged.
+  - Functions: `card/card/print_format/card_monthly_card_print/card_monthly_card_print.json` (html);
+    `card/locale/main.pot`, `card/locale/ar.po` (the two headers replaced; the old ones have no other use). Tests:
+    `card/tests/test_print_formats.py`.
+  - Impact: permissions none (the money gate FR-162 is unchanged); accounting none (prints only); data none (no
+    patch; `bench migrate` reloads the standard print format); API none. The legacy format «كارت تشغيل شهري» is
+    unchanged.
+  - Rollback: code only; the previous headers and amounts print again after the rollback's migrate.
+- **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5, PR #297).** `is_billed_day`
+  defaulted to counting loads and `billed_day_rows` to ignoring them. Both now take `include_loads` as a required
+  keyword-only argument, and every caller states the rule it already used: the assignment guards
+  (`card/transfer.py`, `Card Monthly Card`) and the customer reports pass True; the supplier statement, the suppliers
+  summary, the supplier date-range statement and the posting pass False. No behaviour changes. Impact: permissions,
+  accounting, data and API (whitelisted methods) none; a custom caller outside CARD that relied on the defaults
+  now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
+  change and waits for the owner's approval.
 
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report
@@ -150,31 +211,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   new runs is stricter); data none (no patch); API none. Rollback: code only; code older than this change has no
   version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
 
-### Changed
-- **FR-174 follow-up — Monthly Card print: "before VAT" headers and the Card totals amounts** (owner decisions
-  2026-11-22; PR #292).
-  - The settlement table headers now say the figures are before VAT: «تسوية المورد (قبل الضريبة)» and «تسوية العميل
-    (قبل الضريبة)» (English: "Supplier settlement (before VAT)", "Customer settlement (before VAT)"). The four rows
-    and their amounts are unchanged.
-  - The money cells of the Card totals box («الإجماليات»: rate, total amount, customer rate, customer amount) print
-    with the company currency. The amounts print with two decimals (`3,600.00 SAR`), as the settlement rows. The
-    rates keep the site's currency precision, so a rate such as 1,500.125 is never rounded (code review of #292).
-    Hours, days, loads and volume are unchanged.
-  - Functions: `card/card/print_format/card_monthly_card_print/card_monthly_card_print.json` (html);
-    `card/locale/main.pot`, `card/locale/ar.po` (the two headers replaced; the old ones have no other use). Tests:
-    `card/tests/test_print_formats.py`.
-  - Impact: permissions none (the money gate FR-162 is unchanged); accounting none (prints only); data none (no
-    patch; `bench migrate` reloads the standard print format); API none. The legacy format «كارت تشغيل شهري» is
-    unchanged.
-  - Rollback: code only; the previous headers and amounts print again after the rollback's migrate.
-- **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5, PR #297).** `is_billed_day`
-  defaulted to counting loads and `billed_day_rows` to ignoring them. Both now take `include_loads` as a required
-  keyword-only argument, and every caller states the rule it already used: the assignment guards
-  (`card/transfer.py`, `Card Monthly Card`) and the customer reports pass True; the supplier statement, the suppliers
-  summary, the supplier date-range statement and the posting pass False. No behaviour changes. Impact: permissions,
-  accounting, data and API (whitelisted methods) none; a custom caller outside CARD that relied on the defaults
-  now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
-  change and waits for the owner's approval.
+### Documentation
+- **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
+  sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
+  change.
+- **One expense for several machines is split by hand (issue 48, owner decision 2026-11-24).** The maintenance page
+  of the documentation site (English and Arabic) says how: one Purchase Invoice line per machine with the Card
+  Equipment dimension. No code: standard ERPNext already does it.
+- **Registry sync:** FR-137, FR-143, FR-152, FR-155, FR-157, FR-159 and FR-163 were still listed as not merged; their
+  code is in v4.8.0. Statuses corrected to Implemented. The approval workflows stay inactive until the owner
+  activates them per site (issue 35).
 
 ### CI
 - **GitHub Actions versions (Dependabot #243, #244, #245, #279 in one change).** `docs.yml`: `actions/checkout`
@@ -194,7 +240,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
   fails again.
 
-
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -213,9 +258,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
-- **No-split rule under owner review per #31 comment 6777551346**; follow-up PR may add per-equipment
-  allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
-  remains in force until replaced.
+- **Tank diesel in posting and in the margin (issue 31).** Owner decision 2026-11-24: an estimated allocation to
+  equipment is allowed as a labelled display figure, and a measured quantity always wins (FR-185). Posting and
+  Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
+  7); whether an estimate may ever reach them is not decided.
 
 ## [4.11.0] — 2026-11-22
 

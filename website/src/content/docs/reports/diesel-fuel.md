@@ -18,7 +18,7 @@ They are display-only: they never post to the ledger and never change a card's n
 |---|---|
 | Recorded litres | Litres of direct fills to the machine. |
 | Estimated litres | The machine's share of project-tank fills, split by its card hours for the month (not measured). |
-| Allocated litres | Recorded plus estimated litres. |
+| Allocated litres (recorded + estimated) | Recorded plus estimated litres. |
 | Unallocated | Tank fills of a project-month in which no card has hours: they cannot be split and stay unallocated. |
 | Expected litres | Operating hours × (daily diesel consumption ÷ daily standard hours) of the equipment; or hours × the older per-hour expected consumption. |
 | Delivery stream | The diesel suppliers whose sessions and invoices are matched together (one delegate, combined invoices). |
@@ -40,10 +40,10 @@ submitted fills, with the variance. The variance compares expected and allocated
 - **Project**, **Equipment** – optional.
 
 **Columns:** Equipment name, Equipment number, Project, Operating month, Operating hours, Daily diesel consumption
-(litres per standard day), Expected litres, Allocated litres, Recorded litres (direct fills), Estimated litres (hours
+(litres per standard day), Expected litres, Allocated litres (recorded + estimated), Recorded litres (direct fills), Estimated litres (hours
 split), Litres variance (expected vs allocated), Variance %.
 
-**Totals.** Tiles **Operating hours**, **Expected litres**, **Allocated litres**, **Recorded litres**, **Estimated
+**Totals.** Tiles **Operating hours**, **Expected litres**, **Allocated litres (recorded + estimated)**, **Recorded litres**, **Estimated
 litres** (orange when not zero) and **Litres variance** (green within the Card Settings reconciliation tolerance).
 
 **Access.** System Manager, Card Manager, Card User, Accounts Manager.
@@ -58,8 +58,8 @@ direct fills in full, tank fills pro rata by hours, and an **Unallocated** row f
 
 **Filters:** **Company** (required), **From date**, **To date**, **Project**, **Equipment**.
 
-**Columns:** Equipment (or "Unallocated"), Project, Month, Allocated litres, Recorded litres (direct fills), Estimated
-litres (hours split), Diesel cost.
+**Columns:** Equipment (or "Unallocated"), Project, Month, Allocated litres (recorded + estimated), Recorded litres (direct fills), Estimated
+litres (hours split), Diesel cost (incl. estimated).
 
 **Totals.** None.
 

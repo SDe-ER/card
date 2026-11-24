@@ -190,7 +190,11 @@ function card_exact_hourly(v) {
 				method: "card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours",
 				type: "GET",
 			})
-			.then((r) => rate / (flt(r && r.message) || 260));
+			.then((r) => {
+				// #50: no hard-coded 260. Without the setting the form shows 0 and the server refuses the save
+				const month_hours = flt(r && r.message);
+				return month_hours > 0 ? rate / month_hours : 0;
+			});
 	}
 	return Promise.resolve(0);
 }
@@ -422,7 +426,16 @@ function card_render_diesel(frm) {
 				":</span> " +
 				value +
 				"</div>";
-			const parts = [line(__("Allocated litres"), format_number(flt(d.litres), null, 2))];
+			// #31: a total that includes an estimate says so; a card with direct fills only keeps the plain labels
+			const estimated = flt(d.litres_estimated);
+			const parts = [
+				line(
+					estimated
+						? __("Allocated litres (recorded + estimated)")
+						: __("Allocated litres"),
+					format_number(flt(d.litres), null, 2),
+				),
+			];
 			if (flt(d.litres_estimated)) {
 				parts.push(
 					line(
@@ -435,7 +448,12 @@ function card_render_diesel(frm) {
 					),
 				);
 			}
-			parts.push(line(__("Diesel cost"), format_currency(flt(d.amount))));
+			parts.push(
+				line(
+					estimated ? __("Diesel cost (incl. estimated)") : __("Diesel cost"),
+					format_currency(flt(d.amount)),
+				),
+			);
 			if (flt(d.litres_estimated)) {
 				parts.push(
 					'<div class="text-muted small">' +
