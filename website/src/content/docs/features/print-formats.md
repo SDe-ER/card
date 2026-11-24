@@ -56,7 +56,7 @@ The monthly operation card of one machine, shift and month.
   language), status, hours, idle reason and notes. Fridays and non-working days are shaded.
 - **Additions and deductions** — side (supplier or customer), type, description and amount, when the card has any.
 - **Card totals** — total operating hours, working days, the rate with its basis and the total amount; for a card
-  with a customer side also the customer rate and amount. Money shows two decimals and the currency. A card with
+  with a customer side also the customer rate and amount. Every amount shows the currency: amounts with two decimals, rates with the site's currency precision. A card with
   neither side prints *Internal operation — Not billed*.
 - **Settlement** — for each billed side, a *Supplier settlement (before VAT)* or *Customer settlement (before VAT)*
   table with four rows: *Total before additions and deductions*, *Total additions*, *Total deductions* and *Net after

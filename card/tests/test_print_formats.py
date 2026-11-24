@@ -68,6 +68,12 @@ def _sar(value, company):
 	return "%s %s" % (fmt_money(value, precision=2), currency)
 
 
+def _rate(value, company):
+	"""A rate as printed: the site's currency precision (never rounded to two decimals) and the currency."""
+	currency = frappe.get_cached_value("Company", company, "default_currency")
+	return "%s %s" % (fmt_money(value), currency)
+
+
 class TestPrintFormats(_CustomerCardsBase):
 	@classmethod
 	def setUpClass(cls):
@@ -168,6 +174,22 @@ class TestPrintFormats(_CustomerCardsBase):
 		)
 		self.assertIsNone(_settlement(html, CUSTOMER))
 
+	def test_rate_cells_keep_the_site_precision(self):
+		"""Review of #292: a rate is never rounded to two decimals on the print (a site with three-decimal
+		currency precision prints 1,500.125); the amount cells keep two decimals."""
+		previous = frappe.db.get_default("currency_precision")
+		frappe.db.set_default("currency_precision", "3")
+		try:
+			card = self._card_with(self._sub_rental(), [])
+			card.db_set("rate", 1500.125, update_modified=False)
+			html = self._print(card)  # the print loads the stored card by name
+			totals = _card_totals(html)
+			self.assertEqual(totals[2], _rate(1500.125, self.company))
+			self.assertIn("1,500.125", totals[2])
+			self.assertEqual(totals[3], _sar(card.amount, self.company))
+		finally:
+			frappe.db.set_default("currency_precision", previous or "")
+
 	def test_sub_rental_prints_each_side_with_its_own_rows(self):
 		# supplier 3,600 + 100 = 3,700; customer 1200/day = 120/h x 48 = 5,760 - 200 = 5,560
 		card = self._card_with(
@@ -177,15 +199,16 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertEqual((card.net_amount, card.customer_net_amount), (3700, 5560))
 		html = self._print(card)
 		self.assertEqual(_cell(html, "القيمة الإجمالية"), _sar(3600, self.company))
-		# every money cell of the Card totals box: two decimals and the currency (hours and days are not money)
+		# every money cell of the Card totals box shows the currency; amounts two decimals, rates the site's
+		# currency precision (hours and days are not money)
 		self.assertEqual(
 			_card_totals(html),
 			[
 				"48.0",
 				str(card.working_days),
-				_sar(card.rate, self.company),
+				_rate(card.rate, self.company),
 				_sar(3600, self.company),
-				_sar(card.customer_rate, self.company),
+				_rate(card.customer_rate, self.company),
 				_sar(5760, self.company),
 			],
 		)

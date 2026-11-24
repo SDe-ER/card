@@ -17,13 +17,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ### Changed
 - **FR-174 follow-up — Monthly Card print: "before VAT" headers and the Card totals amounts** (owner decisions
-  2026-11-22).
+  2026-11-22; PR #292).
   - The settlement table headers now say the figures are before VAT: «تسوية المورد (قبل الضريبة)» and «تسوية العميل
     (قبل الضريبة)» (English: "Supplier settlement (before VAT)", "Customer settlement (before VAT)"). The four rows
     and their amounts are unchanged.
   - The money cells of the Card totals box («الإجماليات»: rate, total amount, customer rate, customer amount) print
-    with two decimals and the company currency (`3,600.00 SAR`), as the settlement rows. Hours, days, loads and
-    volume are unchanged.
+    with the company currency. The amounts print with two decimals (`3,600.00 SAR`), as the settlement rows. The
+    rates keep the site's currency precision, so a rate such as 1,500.125 is never rounded (code review of #292).
+    Hours, days, loads and volume are unchanged.
   - Functions: `card/card/print_format/card_monthly_card_print/card_monthly_card_print.json` (html);
     `card/locale/main.pot`, `card/locale/ar.po` (the two headers replaced; the old ones have no other use). Tests:
     `card/tests/test_print_formats.py`.
