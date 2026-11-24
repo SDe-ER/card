@@ -18,6 +18,9 @@ per site.
 
 ## Next release (merged, not yet released)
 
+- **2026-11-24 — A period run notices a change of loads.** Before, an approved **Card Period Run** stayed current when the loads of a per-m³ card changed but its amount did not (for example, loads moved from one day to another). A new period run now also checks the loads, total loads, total volume and load volume of each card, so such a change marks the run as changed and it must be rebuilt before posting. Period runs built before this version keep their earlier check. Cards without loads are not affected.
+- **2026-11-24 — The customer statement checks who may see card amounts.** **Equipment Customer Statement** now shows rates, amounts, total volume, additions, deductions and net only to users whose roles may read the amounts of a **Monthly Card**. Today every role that opens this report may read them, so nothing changes for current users. The check protects the amounts if another role gets the report later.
+- **2026-11-24 — Internal: one clear rule for which days count as billed.** Inside CARD, every place that decides whether a card day counts as billed now says on purpose whether loads count. Nothing changes for users: the supplier side still ignores loads, and the customer side and the assignment checks still count them.
 - **2026-11-22 — The printed Monthly Card says the settlement is before VAT, and every amount in the totals shows the currency.** The settlement tables are now titled **Supplier settlement (before VAT)** and **Customer settlement (before VAT)**, because VAT is added on the invoice. In the **Card totals** box, every amount (the rate, the total amount and, for a customer card, the customer rate and amount) now prints with two decimals and the currency (for example 3,600.00 SAR), like the settlement rows.
 
 ## v4.11.0 — 2026-11-22

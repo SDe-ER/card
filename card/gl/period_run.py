@@ -142,8 +142,8 @@ SNAPSHOT_FIELDS = (
 SERVER_FIELDS = ("approval_status", *APPROVAL_FIELDS, "submitted_by", "edited_by", "self_approval_rule")
 
 # The billing fields of each source document and of its rows, per fingerprint version. A new version is added
-# here (never an edit of an existing one); a run keeps the version it was built with.
-FINGERPRINT_VERSION = 1
+# here (never an edit of an existing one); a run keeps the version it was built with. FINGERPRINT_VERSION (below)
+# is the version new runs use.
 FINGERPRINT_FIELDS = {
 	1: {
 		CARD: (
@@ -237,6 +237,19 @@ FINGERPRINT_FIELDS = {
 		),
 	}
 }
+# Version 2 (#263, FR-166): version 1 plus the load fields, so a change of loads that keeps every amount makes a
+# run stale. A document without load values has the same fingerprint in both versions (empty values left out).
+_V1_CARD_FIELDS, _V1_CARD_TABLES = FINGERPRINT_FIELDS[1][CARD]
+FINGERPRINT_FIELDS[2] = {
+	**FINGERPRINT_FIELDS[1],
+	CARD: (
+		(*_V1_CARD_FIELDS, "load_volume_used", "total_loads", "total_volume_m3"),
+		{**_V1_CARD_TABLES, "days": (*_V1_CARD_TABLES["days"], "loads_count")},
+	),
+}
+FINGERPRINT_VERSION = 2
+# A run with no stored fingerprint version was built before version 2 existed
+LEGACY_FINGERPRINT_VERSION = 1
 _SIDE_LINK = {"Supplier": "purchase_invoice", "Customer": "sales_invoice"}
 
 
@@ -281,7 +294,11 @@ def _empty(value) -> bool:
 
 def document_fingerprint(doc: Document, version: int = FINGERPRINT_VERSION) -> str:
 	"""SHA-256 of the billing content of a loaded source document (module docstring): the listed fields of the
-	document and of its rows, empty values left out."""
+	document and of its rows, empty values left out. A version this code does not know (a run built by a newer
+	CARD, read after a rollback) gives an empty fingerprint, which never matches a stored one: the run is reported
+	as changed and must be rebuilt, and the posting gate refuses it, in place of an error."""
+	if version not in FINGERPRINT_FIELDS:
+		return ""
 	fields, tables = FINGERPRINT_FIELDS[version][doc.doctype]
 	content = {"doctype": doc.doctype, "name": doc.name, "docstatus": cint(doc.docstatus)}
 	for field in fields:
@@ -544,7 +561,7 @@ def check_current(run: Document, for_update: bool = False) -> frappe._dict:
 		run.company,
 		run.month,
 		run.year,
-		cint(run.fingerprint_version) or FINGERPRINT_VERSION,
+		cint(run.fingerprint_version) or LEGACY_FINGERPRINT_VERSION,
 		for_update=for_update,
 	)
 

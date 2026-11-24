@@ -154,7 +154,7 @@ def execute(filters=None):
 		card_dates = {n: sorted(w["dates"]) for n, w in work.items()}
 	elif cards:
 		# FR-118: a day bills with operating hours or billable stopped hours (is_billed_day)
-		rows = billed_day_rows([c.name for c in cards])
+		rows = billed_day_rows([c.name for c in cards], include_loads=False)
 		for r in rows:
 			k = r.parent
 			if k not in card_dates:
