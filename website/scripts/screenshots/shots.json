@@ -1,5 +1,5 @@
 {
-  "_comment": "Screenshot list for the CARD docs. path is relative to the site; {company} is replaced. scroll is a CSS selector or text to bring into view; mobile uses a phone viewport.",
+  "_comment": "Screenshot list for the CARD docs. path is relative to the site; {company} is replaced. scroll is a CSS selector or text to bring into view; mobile uses a phone viewport. scrollSel and scrollText fail the shot when the target is missing. clickTextAfter clicks after setSelect. waitSel must become visible before the capture. allowDuplicateOf names the shot whose image this one may equal (check_images.py).",
   "shots": [
     {
       "name": "introduction-workspace",
@@ -7,20 +7,22 @@
     },
     {
       "name": "workspace-dashboard-overview",
-      "path": "/app/card"
+      "path": "/app/card",
+      "scrollText": [
+        "Financial performance",
+        "الأداء المالي"
+      ]
     },
     {
       "name": "workspace-dashboard-shortcuts",
       "path": "/app/card",
-      "scrollText": [
-        "Reports",
-        "التقارير"
-      ]
+      "scrollSel": ".widget.links-widget-box"
     },
     {
       "name": "languages-workspace-arabic",
       "path": "/app/card",
-      "lang": "ar"
+      "lang": "ar",
+      "allowDuplicateOf": "introduction-workspace"
     },
     {
       "name": "reports-overview-sidebar",
@@ -42,7 +44,8 @@
     {
       "name": "notifications-alerts-bell",
       "path": "/app/card",
-      "click": "[aria-label*='otification'], [title*='otification'], .notifications-icon"
+      "click": ".sidebar-notification:visible",
+      "waitSel": ".sidebar-panel-notifications:not(.hidden)"
     },
     {
       "name": "equipment-form",
@@ -125,11 +128,16 @@
     {
       "name": "invoicing-posting-preview",
       "path": "/app/card-monthly-posting",
-      "scroll": 300,
       "setSelect": {
         "from": "11",
         "to": "10"
-      }
+      },
+      "clickTextAfter": [
+        "Preview lines",
+        "معاينة البنود"
+      ],
+      "waitSel": ".cmp-preview .cmp-card",
+      "scrollSel": ".cmp-preview"
     },
     {
       "name": "suppliers-customers-registry",
@@ -158,11 +166,7 @@
     {
       "name": "diesel-meter-photos",
       "path": "/app/project-diesel-fill/{dsl}",
-      "scrollText": [
-        "Meter photos",
-        "صور العداد",
-        "Opening"
-      ]
+      "scrollSel": "[data-fieldname='section_break_evidence']"
     },
     {
       "name": "diesel-analysis",
@@ -231,10 +235,7 @@
     {
       "name": "volume-billing-monthly-card-days",
       "path": "/app/card-monthly-card/{card:WL-05}",
-      "scrollText": [
-        "Loads",
-        "الحمولات"
-      ]
+      "scrollSel": "[data-fieldname='days']"
     },
     {
       "name": "volume-billing-card-totals",
@@ -250,7 +251,8 @@
     },
     {
       "name": "volume-billing-customer-statement",
-      "path": "/app/query-report/Equipment Customer Statement?company={company}&customer=Example Roads Co.&from_month=10&from_year=2026&to_month=10&to_year=2026&include_draft=1"
+      "path": "/app/query-report/Equipment Customer Statement?company={company}&customer=Example Roads Co.&from_month=10&from_year=2026&to_month=10&to_year=2026&include_draft=1",
+      "waitSel": ".dt-scrollable .dt-row"
     },
     {
       "name": "volume-billing-loads-card",
