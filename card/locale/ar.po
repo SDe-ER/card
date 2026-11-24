@@ -1624,6 +1624,12 @@ msgstr "اللترات المتوقعة"
 msgid "Allocated litres"
 msgstr "اللترات الموزعة"
 
+msgid "Allocated litres (recorded + estimated)"
+msgstr "اللترات الموزعة (مسجّلة + تقديرية)"
+
+msgid "Diesel cost (incl. estimated)"
+msgstr "تكلفة الديزل (تشمل التقديري)"
+
 msgid "Recorded litres (direct fills)"
 msgstr "لترات مسجلة (تعبئة مباشرة)"
 

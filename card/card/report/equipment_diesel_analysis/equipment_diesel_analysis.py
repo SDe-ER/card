@@ -168,7 +168,7 @@ def execute(filters=None):
 		},
 		{
 			"fieldname": "actual_litres",
-			"label": _("Allocated litres"),
+			"label": _("Allocated litres (recorded + estimated)"),
 			"fieldtype": "Float",
 			"precision": 3,
 			"width": 110,
@@ -212,7 +212,7 @@ def execute(filters=None):
 			"indicator": "Blue",
 		},
 		{
-			"label": _("Allocated litres"),
+			"label": _("Allocated litres (recorded + estimated)"),
 			"value": flt(tot_actual, 3),
 			"datatype": "Float",
 			"indicator": "Blue",

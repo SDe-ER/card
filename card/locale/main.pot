@@ -352,6 +352,17 @@ msgstr ""
 msgid "Diesel cost"
 msgstr ""
 
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Diesel cost (incl. estimated)"
+msgstr ""
+
+#: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Allocated litres (recorded + estimated)"
+msgstr ""
+
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:278
 msgid "Display only — does not affect the rental amount."
 msgstr ""

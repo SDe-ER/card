@@ -40,10 +40,10 @@ submitted fills, with the variance. The variance compares expected and allocated
 - **Project**, **Equipment** – optional.
 
 **Columns:** Equipment name, Equipment number, Project, Operating month, Operating hours, Daily diesel consumption
-(litres per standard day), Expected litres, Allocated litres, Recorded litres (direct fills), Estimated litres (hours
+(litres per standard day), Expected litres, Allocated litres (recorded + estimated), Recorded litres (direct fills), Estimated litres (hours
 split), Litres variance (expected vs allocated), Variance %.
 
-**Totals.** Tiles **Operating hours**, **Expected litres**, **Allocated litres**, **Recorded litres**, **Estimated
+**Totals.** Tiles **Operating hours**, **Expected litres**, **Allocated litres (recorded + estimated)**, **Recorded litres**, **Estimated
 litres** (orange when not zero) and **Litres variance** (green within the Card Settings reconciliation tolerance).
 
 **Access.** System Manager, Card Manager, Card User, Accounts Manager.
@@ -58,8 +58,8 @@ direct fills in full, tank fills pro rata by hours, and an **Unallocated** row f
 
 **Filters:** **Company** (required), **From date**, **To date**, **Project**, **Equipment**.
 
-**Columns:** Equipment (or "Unallocated"), Project, Month, Allocated litres, Recorded litres (direct fills), Estimated
-litres (hours split), Diesel cost.
+**Columns:** Equipment (or "Unallocated"), Project, Month, Allocated litres (recorded + estimated), Recorded litres (direct fills), Estimated
+litres (hours split), Diesel cost (incl. estimated).
 
 **Totals.** None.
 

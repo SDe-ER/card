@@ -16,6 +16,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Changed
+- **FR-185 — Diesel totals that include an estimate say so (issue 31; owner decision 2026-11-24: an estimated
+  allocation is allowed, is always labelled, and a measured quantity always wins).** In Equipment Diesel
+  Consumption, Equipment Diesel Analysis and the diesel box of the Monthly Card, the total that adds recorded and
+  estimated litres is now labelled "Allocated litres (recorded + estimated)", and the cost built on it "Diesel cost
+  (incl. estimated)". The separate columns "Recorded litres (direct fills)" and "Estimated litres (hours split)" are
+  unchanged. No figure changes: a direct fill stays a recorded quantity and only a project-tank fill is split by
+  hours. Posting and Equipment Partial Margin still keep tank diesel at project level. Impact: permissions none;
+  accounting none; data none; API: two report column labels and one summary label changed (field names unchanged).
+  Rollback: code only.
+
+### Changed
 - **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
   decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
   - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
@@ -189,9 +200,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   (`amount = working_days × rate`). Current behaviour is unchanged until the owner confirms the
   default and the switch.
 - **Dated rate agreements** for equipment rates (owner decision 2026-10-19: postponed).
-- **No-split rule under owner review per #31 comment 6777551346**; follow-up PR may add per-equipment
-  allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
-  remains in force until replaced.
+- **Tank diesel in posting and in the margin (issue 31).** Owner decision 2026-11-24: an estimated allocation to
+  equipment is allowed as a labelled display figure, and a measured quantity always wins (FR-185). Posting and
+  Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
+  7); whether an estimate may ever reach them is not decided.
 
 ## [4.11.0] — 2026-11-22
 

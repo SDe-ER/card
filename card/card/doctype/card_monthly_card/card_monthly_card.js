@@ -422,7 +422,12 @@ function card_render_diesel(frm) {
 				":</span> " +
 				value +
 				"</div>";
-			const parts = [line(__("Allocated litres"), format_number(flt(d.litres), null, 2))];
+			const parts = [
+				line(
+					__("Allocated litres (recorded + estimated)"),
+					format_number(flt(d.litres), null, 2),
+				),
+			];
 			if (flt(d.litres_estimated)) {
 				parts.push(
 					line(
@@ -435,7 +440,7 @@ function card_render_diesel(frm) {
 					),
 				);
 			}
-			parts.push(line(__("Diesel cost"), format_currency(flt(d.amount))));
+			parts.push(line(__("Diesel cost (incl. estimated)"), format_currency(flt(d.amount))));
 			if (flt(d.litres_estimated)) {
 				parts.push(
 					'<div class="text-muted small">' +
