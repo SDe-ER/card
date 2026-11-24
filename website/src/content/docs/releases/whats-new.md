@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-24 — A period run notices a change of loads.** Before, an approved **Card Period Run** stayed current when the loads of a per-m³ card changed but its amount did not (for example, loads moved from one day to another). A new period run now also checks the loads, total loads, total volume and load volume of each card, so such a change marks the run as changed and it must be rebuilt before posting. Period runs built before this version keep their earlier check. Cards without loads are not affected.
 
 ## v4.11.0 — 2026-11-22
 
