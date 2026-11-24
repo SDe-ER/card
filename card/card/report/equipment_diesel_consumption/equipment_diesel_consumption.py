@@ -45,7 +45,12 @@ def get_columns():
 			"precision": 3,
 			"width": 120,
 		},
-		{"fieldname": "amount", "label": _("Diesel cost (incl. estimated)"), "fieldtype": "Currency", "width": 120},
+		{
+			"fieldname": "amount",
+			"label": _("Diesel cost (incl. estimated)"),
+			"fieldtype": "Currency",
+			"width": 120,
+		},
 	]
 
 
