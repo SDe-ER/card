@@ -236,6 +236,22 @@ Differences from the plan below:
 - Test 12 checks `card.daily_log.loads_enabled` for two company names, not two full companies.
 - The popup of **Generate monthly cards** does not show the old and new loads. The result of the method has them.
 
+Added after the review of FR-188:
+
+- A save that does not send the two load fields keeps the stored loads (`card/daily_log.py`
+  `keep_unsent_loads`). CARD Mobile sends rows without them (`frontend/src/data/dailyLog.ts` `ROW_FIELDS`), and
+  a REST update would store 0. The rule: a load field that is `None` on the row when `validate` runs was not
+  sent. A sent 0 is 0. The corrected draft of CARD Mobile is a new log with `amended_from` and rows without
+  names. Its unsent load fields take the value of the amended log's row of the same equipment.
+- OFF after ON: a log that holds loads is saved while its loads are unchanged or cleared. Only new or changed
+  loads are refused. The form shows the two fields read only on such a log.
+- OFF after ON: when a day is cleared because its log was cancelled, a load count equal to the loads of that
+  log's row is cleared with it (`card/daily_log_generation.py` `_clear_stale`). Another count is a hand entry
+  and is kept. Limit: a hand entry equal to the loads of the cancelled log is cleared too. No field records
+  the source of `loads_count`.
+- Not verified on a site: the `None` rule comes from reading the Frappe `version-16` source
+  (`frappe/model/document.py` `init_valid_columns`, `_save`, `insert`).
+
 **The change: loads on the daily log (section 2.1), behind a company setting that is OFF by default.**
 
 It needs no new business decision. The owner approved customer billing per m³ and per load (FR-166). The slice

@@ -21,8 +21,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   loads on each working day. The daily log had no load field, so a card made from daily logs had zero loads until
   a person typed them on the card.
   - New per-company switch `Card Company Settings.daily_log_loads` (Check, default 0, permlevel 1). Off, also with
-    no settings row: a daily log row with loads is refused, and the generation neither reads, writes nor clears a
-    load count. This is the behaviour before this change.
+    no settings row: a daily log row with new or changed loads is refused, and the generation copies no loads to a
+    card. This is the behaviour before this change.
   - On: `Card Daily Log Row.day_loads` and `night_loads` (Int, non-negative, permlevel 0, counts and not money)
     are accepted only for equipment whose customer rate type is per m³, and never on a future day
     (`card.daily_log._check_loads`). A day with loads is checked against the assignments like a day with hours
@@ -34,8 +34,22 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     loads of the log it amends (`_keeps_card_loads`). A cancelled log clears the loads of its day on a draft card
     (`_clear_stale`). A submitted card is never changed. `overwritten_days` entries get `old_loads` / `new_loads`
     and `cleared_days` entries get `loads` only when the switch is on.
+  - A client that does not send the two load fields cannot erase them (`card.daily_log.keep_unsent_loads`). CARD
+    Mobile sends rows without them, and a REST update would store 0. Rule: a load field that is `None` on the row
+    when `validate` runs was not sent (Frappe sets every column that is not in the data to `None`, and casts
+    numbers after `validate`); a sent 0 is 0. An unsent field of a stored row, matched by its row name inside
+    this log, keeps the stored value. On a new log that amends another one (the corrected draft of CARD Mobile)
+    it takes the value of the amended log's row of the same equipment. A form save sends every field and behaves
+    as before.
+  - After the switch is turned off, a log that holds loads is still saved while its loads are unchanged or
+    cleared; only new or changed loads are refused (`_check_loads`). The form then shows the two fields read
+    only on a log that holds loads.
+  - A day cleared because its log is no longer Approved: with the switch on its loads are cleared. With the
+    switch off (turned off after loads were copied) the load count is cleared only when it equals the loads of
+    that log's row (`_clear_stale`, `_log_loads`): it came from the log. Another count is a hand entry and is
+    kept. A company that never used the switch has no loads on its logs, so nothing changes for it.
   - The form shows the two fields from an onload flag (`CardDailyLog.onload`); a new log shows them after its
-    first save. CARD Mobile has no load fields yet.
+    first save. CARD Mobile has no load fields yet and no `frontend/` file changed.
   - Permissions: no new role, DocPerm or whitelisted method. Accounting: none (draft cards only; no invoice or GL
     code changed). Data: three new columns that default to 0, no patch, existing logs and cards unchanged. API:
     the result of `generate_monthly_cards` gains the keys above only when the switch is on.
