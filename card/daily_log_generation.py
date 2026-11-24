@@ -32,6 +32,15 @@ component of a unit (it belongs on the unit's card, as ``CardMonthlyCard._refuse
 A machine moved between two projects in the month gets one card per project: each run names one project and reads
 only that project's logs.
 
+Loads (FR-188, opt-in per company: Card Company Settings ``daily_log_loads``, default off = the run neither reads,
+writes nor clears a load count, the behaviour before FR-188). On, the day shift loads of a log row go to
+``loads_count`` of the day shift card's day and the night shift loads to the night shift card's day, and a shift
+with loads and no hours gets its card. The card's own rules decide (FR-166: loads only on a card whose customer
+rate type is per m³, never on a future day); a card that refuses them is rolled back alone and reported. A log
+row without loads never erases a hand-entered load count of a day, except a day written from another daily log
+(an amended log replaces the loads of the log it amends). A day with loads is checked against the assignments
+like a day with hours.
+
 Authorization: the user must be allowed to create a Card Monthly Card of the company and project (DocPerm, Company
 User Permissions, ``has_card_permission``) and to read the company's daily logs (FR-131 hooks through
 ``frappe.get_list``); every card is then inserted or saved with the user's own permissions. A missing project and a
@@ -43,7 +52,7 @@ from frappe import _
 from frappe.utils import cint, flt, get_last_day, getdate
 
 from card.constants import SHIFT_DAY, SHIFT_NIGHT
-from card.daily_log import APPROVED
+from card.daily_log import APPROVED, LOAD_FIELDS, loads_enabled
 from card.daily_log import DOCTYPE as LOG_DOCTYPE
 from card.daily_log import ROW_DOCTYPE as LOG_ROW_DOCTYPE
 from card.transfer import _in_unit_on, validate_card_days
@@ -61,6 +70,7 @@ STOP_FIELDS = (
 	"responsible_party_name",
 )
 HOUR_FIELDS = ("working_hours", "stopped_hours")
+LOADS_FIELD = "loads_count"  # FR-188: the card day field the loads of a daily log row are copied to
 
 SKIP_OFF_PROJECT = "off_project"
 SKIP_UNIT_COMPONENT = "unit_component"
@@ -110,8 +120,9 @@ def _authorize(company, project, equipment):
 			frappe.throw(_("Equipment {0} does not belong to company {1}.").format(equipment, company))
 
 
-def _approved_rows(company, project, first_day, last_day, equipment):
-	"""{equipment: {date: row}} of the Approved, submitted logs the user may read (FR-131 list scope)."""
+def _approved_rows(company, project, first_day, last_day, equipment, loads_on=False):
+	"""{equipment: {date: row}} of the Approved, submitted logs the user may read (FR-131 list scope). The load
+	fields are read only when the company uses loads on daily logs (FR-188)."""
 	logs = frappe.get_list(
 		LOG_DOCTYPE,
 		filters={
@@ -134,7 +145,14 @@ def _approved_rows(company, project, first_day, last_day, equipment):
 	for row in frappe.get_all(
 		LOG_ROW_DOCTYPE,
 		filters=filters,
-		fields=["parent", "equipment", "day_hours", "night_hours", *STOP_FIELDS],
+		fields=[
+			"parent",
+			"equipment",
+			"day_hours",
+			"night_hours",
+			*STOP_FIELDS,
+			*(LOAD_FIELDS if loads_on else ()),
+		],
 		order_by="idx asc",
 	):
 		row.log_date = dates[row.parent]
@@ -166,6 +184,11 @@ def _month_cards(equipment, project, month, year, lock=False):
 	if lock:
 		query = query.for_update()
 	return {r.name: (r.shift, r.docstatus, r.modified) for r in query.run(as_dict=True)}
+
+
+def _row_loads(row):
+	"""The loads of a log row, both shifts; 0 when the load fields were not read (FR-188 off)."""
+	return sum(cint(row.get(field)) for field in LOAD_FIELDS)
 
 
 def _on_project(equipment, project, day):
@@ -201,7 +224,7 @@ def _kept_days(equipment, project, rows, skipped):
 			)
 			continue
 		hours = flt(row.day_hours) + flt(row.night_hours) + flt(row.stopped_hours)
-		if hours > 0 and not _on_project(equipment, project, day):
+		if (hours > 0 or _row_loads(row) > 0) and not _on_project(equipment, project, day):
 			skipped.append(
 				{"equipment": equipment, "date": str(day), "reason": SKIP_OFF_PROJECT, "log": row.parent}
 			)
@@ -210,8 +233,8 @@ def _kept_days(equipment, project, rows, skipped):
 	return kept
 
 
-def _day_values(row, shift):
-	"""The card day row of one log row for one shift card."""
+def _day_values(row, shift, loads_on=False):
+	"""The card day row of one log row for one shift card; with ``loads_on`` (FR-188) the shift's loads too."""
 	values = {"day_status": WORK_STATUS, "notes": row.parent}
 	if shift == SHIFT_DAY:
 		values["working_hours"] = flt(row.day_hours)
@@ -221,13 +244,29 @@ def _day_values(row, shift):
 		values["working_hours"] = flt(row.night_hours)
 		values.update(dict.fromkeys(STOP_FIELDS))
 		values["stopped_hours"] = 0
+	if loads_on:
+		values[LOADS_FIELD] = cint(row.get("day_loads" if shift == SHIFT_DAY else "night_loads"))
 	return values
 
 
 def _shift_has_hours(rows, shift):
+	"""True when a log row has hours for the shift, or loads (0 when the load fields were not read)."""
 	if shift == SHIFT_DAY:
-		return any(flt(r.day_hours) > 0 or flt(r.stopped_hours) > 0 for r in rows.values())
-	return any(flt(r.night_hours) > 0 for r in rows.values())
+		return any(
+			flt(r.day_hours) > 0 or flt(r.stopped_hours) > 0 or cint(r.get("day_loads")) > 0
+			for r in rows.values()
+		)
+	return any(flt(r.night_hours) > 0 or cint(r.get("night_loads")) > 0 for r in rows.values())
+
+
+def _keeps_card_loads(current, values):
+	"""FR-188: a log row without loads leaves the load count of an existing card day as it is (a hand entry, or a
+	log approved before the company used loads on daily logs), except a day written from another daily log: the
+	log that replaces it also replaces its loads."""
+	if cint(values.get(LOADS_FIELD)):
+		return False
+	notes = current.get("notes")
+	return not (notes and notes != values.get("notes") and frappe.db.exists(LOG_DOCTYPE, notes))
 
 
 def _same(current, values):
@@ -242,6 +281,11 @@ def _same(current, values):
 
 
 def _change(card, shift, day, current, values):
+	loads = (
+		{"old_loads": cint(current.get(LOADS_FIELD)), "new_loads": cint(values.get(LOADS_FIELD))}
+		if LOADS_FIELD in values
+		else {}
+	)
 	return {
 		"card": card.name,
 		"equipment": card.equipment,
@@ -253,17 +297,20 @@ def _change(card, shift, day, current, values):
 		"new_stopped_hours": flt(values.get("stopped_hours")),
 		"old_notes": current.get("notes") or None,
 		"new_notes": values.get("notes") or None,
+		**loads,
 	}
 
 
-def _apply_days(card, rows, shift, overwritten):
+def _apply_days(card, rows, shift, overwritten, loads_on=False):
 	"""Set the card's day rows of the log dates (the approved log wins); a replaced day with other values is added
 	to ``overwritten``. True when something changed."""
 	by_date = {getdate(d.operation_date): d for d in card.get("days") or [] if d.operation_date}
 	changed = False
 	for day in sorted(rows):
-		values = _day_values(rows[day], shift)
+		values = _day_values(rows[day], shift, loads_on)
 		current = by_date.get(day)
+		if loads_on and current is not None and _keeps_card_loads(current, values):
+			del values[LOADS_FIELD]
 		if current is None:
 			card.append("days", {"operation_date": day, "day_name": day_name(day), **values})
 			changed = True
@@ -307,8 +354,8 @@ def _stale_rows(days, covered, company, project, equipment):
 	return [d for d in candidates if (d.notes, getdate(d.operation_date)) in stale]
 
 
-def _stale_entry(card, shift, row):
-	return {
+def _stale_entry(card, shift, row, loads_on=False):
+	entry = {
 		"card": card,
 		"shift": shift,
 		"date": str(getdate(row.operation_date)),
@@ -316,15 +363,21 @@ def _stale_entry(card, shift, row):
 		"hours": flt(row.working_hours),
 		"stopped_hours": flt(row.stopped_hours),
 	}
+	if loads_on:
+		entry["loads"] = cint(row.get(LOADS_FIELD))
+	return entry
 
 
-def _clear_stale(card, rows, shift, cleared):
-	"""Empty the draft card's days that came from a log no longer approved; True when something changed."""
+def _clear_stale(card, rows, shift, cleared, loads_on=False):
+	"""Empty the draft card's days that came from a log no longer approved (with ``loads_on``, FR-188, their loads
+	too); True when something changed."""
 	stale = _stale_rows(card.get("days") or [], set(rows), card.company, card.project, card.equipment)
 	for row in stale:
-		cleared.append(_stale_entry(card.name, shift, row))
+		cleared.append(_stale_entry(card.name, shift, row, loads_on))
 		row.update({"working_hours": 0, "notes": None, **dict.fromkeys(STOP_FIELDS)})
 		row.stopped_hours = 0
+		if loads_on:
+			row.set(LOADS_FIELD, 0)
 	return bool(stale)
 
 
@@ -338,7 +391,7 @@ def _kept_submitted(name, shift, rows, company, project, equipment):
 	return {"card": name, "stale_days": [_stale_entry(name, shift, d) for d in stale]}
 
 
-def _build_card(company, project, equipment, month, year, shift, existing, rows, result):
+def _build_card(company, project, equipment, month, year, shift, existing, rows, result, loads_on=False):
 	"""Create or update one shift card. ``existing`` is (name, docstatus) from the locking read, or None."""
 	if existing and existing[1] == 1:
 		result["kept_submitted"].append(
@@ -354,8 +407,8 @@ def _build_card(company, project, equipment, month, year, shift, existing, rows,
 	try:
 		if existing:
 			card = frappe.get_doc(CARD, existing[0])
-			changed = _apply_days(card, rows, shift, overwritten)
-			changed = _clear_stale(card, rows, shift, cleared) or changed
+			changed = _apply_days(card, rows, shift, overwritten, loads_on)
+			changed = _clear_stale(card, rows, shift, cleared, loads_on) or changed
 			if not changed:
 				result["unchanged"].append(card.name)
 				return
@@ -373,7 +426,7 @@ def _build_card(company, project, equipment, month, year, shift, existing, rows,
 					"shift": shift,
 				}
 			)
-			_apply_days(card, rows, shift, overwritten)
+			_apply_days(card, rows, shift, overwritten, loads_on)
 			card.insert()
 			result["created"].append(card.name)
 		result["overwritten_days"].extend(overwritten)
@@ -413,7 +466,9 @@ def generate_monthly_cards(company: str, project: str, month: str, equipment: st
 		"conflicts": [],
 		"errors": [],
 	}
-	by_equipment = _approved_rows(company, project, first_day, last_day, equipment)
+	# FR-188: the company's switch, read once for the run (off: no load field is read, written or cleared)
+	loads_on = loads_enabled(company)
+	by_equipment = _approved_rows(company, project, first_day, last_day, equipment, loads_on)
 	names = set(by_equipment) | _card_equipment(company, project, card_month, card_year, equipment)
 	for name in sorted(names):
 		# one run at a time per equipment, then the cards as committed by any other run (a locking read): the
@@ -432,6 +487,15 @@ def generate_monthly_cards(company: str, project: str, month: str, equipment: st
 		by_shift = {shift: (card, docstatus) for card, (shift, docstatus, _m) in latest.items()}
 		for shift in (SHIFT_DAY, SHIFT_NIGHT):
 			_build_card(
-				company, project, name, card_month, card_year, shift, by_shift.get(shift), rows, result
+				company,
+				project,
+				name,
+				card_month,
+				card_year,
+				shift,
+				by_shift.get(shift),
+				rows,
+				result,
+				loads_on,
 			)
 	return result

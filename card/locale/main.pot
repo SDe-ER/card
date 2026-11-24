@@ -8078,3 +8078,31 @@ msgstr ""
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
 msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift loads"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift loads"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Daily log loads"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Loads on daily logs"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0}: loads cannot be negative."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0}: loads on daily logs are not enabled for company {1}. Enter the loads on the monthly card, or enable Loads on daily logs for the company in Card Settings."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
+msgstr ""

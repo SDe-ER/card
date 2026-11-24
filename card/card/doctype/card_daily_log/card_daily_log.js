@@ -12,6 +12,17 @@ const VERIFIED = "Verified by supervisor";
 
 frappe.ui.form.on("Card Daily Log", {
 	refresh(frm) {
+		// FR-188: the two load fields of a row show only when the log's company uses loads on daily logs (the
+		// server sends the flag on load and refuses loads for any other company; a new log shows them after
+		// its first save)
+		const loads_on = Boolean((frm.doc.__onload || {}).daily_log_loads);
+		for (const fieldname of ["day_loads", "night_loads"]) {
+			frm.fields_dict.rows.grid.update_docfield_property(
+				fieldname,
+				"hidden",
+				loads_on ? 0 : 1,
+			);
+		}
 		const status = frm.doc.approval_status;
 		if (
 			frm.doc.docstatus === 1 &&

@@ -9312,3 +9312,31 @@ msgstr "ضريبة سطور فواتير CARD التي لا تحمل المعد�
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
 msgstr "البُعد المحاسبي Card Equipment غير موجود على هذا الموقع: المدفوعات والضريبة والأرصدة الدائنة الأخرى لا تُوزَّع حسب المعدة."
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift loads"
+msgstr "ردود الوردية النهارية"
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift loads"
+msgstr "ردود الوردية الليلية"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Daily log loads"
+msgstr "ردود اليومية"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Loads on daily logs"
+msgstr "الردود في اليوميات"
+
+#: card/daily_log.py
+msgid "Row {0}: loads cannot be negative."
+msgstr "السطر {0}: لا يمكن أن يكون عدد الردود سالبًا."
+
+#: card/daily_log.py
+msgid "Row {0}: loads on daily logs are not enabled for company {1}. Enter the loads on the monthly card, or enable Loads on daily logs for the company in Card Settings."
+msgstr "السطر {0}: تسجيل الردود في اليوميات غير مفعّل للشركة {1}. سجّل الردود في الكارت الشهري، أو فعّل «الردود في اليوميات» للشركة من إعدادات CARD."
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
+msgstr "السطر {0} ({1}): لا تُسجَّل الردود إلا لمعدة نوع سعر العميل لها بالمتر المكعب."
