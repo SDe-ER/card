@@ -132,7 +132,7 @@ class TestCardEquipmentDimension(IntegrationTestCase):
 		frappe.db.set_single_value("Card Settings", SWITCH_FIELD, 0)
 		record.execute()
 		self.assertEqual(frappe.db.get_single_value("Card Settings", SWITCH_FIELD), 1)
-		with mock_patch("card.dimension.has_dimension", return_value=False):
+		with mock_patch.object(record, "has_dimension", return_value=False):
 			frappe.db.set_single_value("Card Settings", SWITCH_FIELD, 0)
 			record.execute()
 			self.assertEqual(frappe.db.get_single_value("Card Settings", SWITCH_FIELD), 0)
