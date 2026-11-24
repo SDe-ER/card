@@ -150,9 +150,9 @@ def configured_adjustment_types(company):
 
 
 @frappe.whitelist(methods=["GET"])
-def get_adjustment_type_names(company: str):
+def get_adjustment_type_names(company: str | None = None):
 	"""FR-173, for a new card that has no onload yet: the enabled addition/deduction type names of ``company``.
-	Read-only. Needs create or write on Monthly Cards and a company the user may use for them."""
+	Read-only. Needs create or write on Monthly Cards and a company the user may use for them. No company: none."""
 	from card.report_access import permitted_companies
 
 	if not (
@@ -160,6 +160,8 @@ def get_adjustment_type_names(company: str):
 		or frappe.has_permission("Card Monthly Card", "write")
 	):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
+	if not company:
+		return []
 	if company not in permitted_companies("Card Monthly Card"):
 		frappe.throw(
 			_("You are not permitted to view data of company {0}").format(company), frappe.PermissionError
@@ -172,6 +174,8 @@ class CardMonthlyCard(Document):
 		# FR-173: the names of the enabled addition/deduction types of the card's company, so the form shows the
 		# optional Adjustment type only where a type can be chosen. Read-only (names only; no account or rule).
 		self.set_onload("adjustment_types", configured_adjustment_types(self.company))
+		# the company the names belong to: the form asks again when the card's company changes
+		self.set_onload("adjustment_types_company", self.company)
 
 	def before_validate(self):
 		self._protect_paid_cash_rows()

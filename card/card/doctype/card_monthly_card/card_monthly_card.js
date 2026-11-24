@@ -464,26 +464,45 @@ function card_render_diesel(frm) {
 // entered with Type (Addition or Deduction), Side, Date, Amount and Description; the server still refuses an
 // unconfigured type that is sent.
 function card_adjustment_classification_hidden(doc) {
-	const configured = ((doc.__onload || {}).adjustment_types || []).length > 0;
+	const onload = doc.__onload || {};
+	// the type names count only for the company they were built for
+	const known = onload.adjustment_types_company === doc.company;
+	const configured = known && (onload.adjustment_types || []).length > 0;
 	const used = (doc.adjustments || []).some((r) => r.adjustment_type_ref);
 	return configured || used ? 0 : 1;
 }
 
 function card_toggle_adjustment_classification(frm) {
-	// a new card has no onload: ask once per company (read-only); the field stays hidden until the answer
-	if (frm.is_new() && frm.doc.company && frm._card_adj_types_company !== frm.doc.company) {
-		frm._card_adj_types_company = frm.doc.company;
+	// the names are known for the card's company from the server onload (a saved card) or from this read-only call
+	// (a new card, or a company change). The state lives on the document, never on the reused form object. A late
+	// answer for an earlier company is ignored; a failed call is not remembered, so the next refresh asks again.
+	const company = frm.doc.company;
+	const onload = frm.doc.__onload || {};
+	if (
+		company &&
+		onload.adjustment_types_company !== company &&
+		frm.doc.__card_adj_types_pending !== company
+	) {
+		frm.doc.__card_adj_types_pending = company;
+		// frappe.xcall: a real Promise that rejects on a server error (frappe.call returns a jQuery deferred)
 		frappe
-			.call({
-				method: "card.card.doctype.card_monthly_card.card_monthly_card.get_adjustment_type_names",
-				type: "GET",
-				args: { company: frm.doc.company },
-			})
-			.then((r) => {
+			.xcall(
+				"card.card.doctype.card_monthly_card.card_monthly_card.get_adjustment_type_names",
+				{ company: company },
+				"GET",
+			)
+			.then((names) => {
+				if (frm.doc.company !== company) return;
 				frm.doc.__onload = Object.assign({}, frm.doc.__onload, {
-					adjustment_types: (r && r.message) || [],
+					adjustment_types: names || [],
+					adjustment_types_company: company,
 				});
 				card_toggle_adjustment_classification(frm);
+			})
+			.catch(() => {})
+			.finally(() => {
+				if (frm.doc.__card_adj_types_pending === company)
+					frm.doc.__card_adj_types_pending = null;
 			});
 	}
 	const grid = frm.fields_dict.adjustments && frm.fields_dict.adjustments.grid;

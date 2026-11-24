@@ -343,6 +343,17 @@ class TestOptionalClassification(_AdjBase):
 		finally:
 			frappe.set_user("Administrator")
 
+	def test_onload_names_the_company_of_its_types(self):
+		"""Review of #285: the form keeps the names only for the company they were built for, and asks again when
+		the card's company changes."""
+		card = self._draft()
+		run_onload(card)
+		self.assertEqual(card.get_onload().get("adjustment_types_company"), card.company)
+
+	def test_new_card_endpoint_without_a_company_returns_nothing(self):
+		self.assertEqual(get_adjustment_type_names(), [])
+		self.assertEqual(get_adjustment_type_names(""), [])
+
 	def test_new_card_endpoint_is_get_only(self):
 		self.assertEqual(
 			frappe.allowed_http_methods_for_whitelisted_func.get(get_adjustment_type_names), ["GET"]
