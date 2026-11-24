@@ -171,7 +171,7 @@ def execute(filters=None):
 			"label": _("Allocated litres (recorded + estimated)"),
 			"fieldtype": "Float",
 			"precision": 3,
-			"width": 110,
+			"width": 220,
 		},
 		{
 			"fieldname": "litres_recorded",

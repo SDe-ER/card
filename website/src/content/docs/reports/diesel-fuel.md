@@ -18,7 +18,7 @@ They are display-only: they never post to the ledger and never change a card's n
 |---|---|
 | Recorded litres | Litres of direct fills to the machine. |
 | Estimated litres | The machine's share of project-tank fills, split by its card hours for the month (not measured). |
-| Allocated litres | Recorded plus estimated litres. |
+| Allocated litres (recorded + estimated) | Recorded plus estimated litres. |
 | Unallocated | Tank fills of a project-month in which no card has hours: they cannot be split and stay unallocated. |
 | Expected litres | Operating hours × (daily diesel consumption ÷ daily standard hours) of the equipment; or hours × the older per-hour expected consumption. |
 | Delivery stream | The diesel suppliers whose sessions and invoices are matched together (one delegate, combined invoices). |

@@ -29,7 +29,7 @@ def get_columns():
 			"label": _("Allocated litres (recorded + estimated)"),
 			"fieldtype": "Float",
 			"precision": 3,
-			"width": 110,
+			"width": 220,
 		},
 		{
 			"fieldname": "litres_recorded",
@@ -49,7 +49,7 @@ def get_columns():
 			"fieldname": "amount",
 			"label": _("Diesel cost (incl. estimated)"),
 			"fieldtype": "Currency",
-			"width": 120,
+			"width": 180,
 		},
 	]
 

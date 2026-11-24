@@ -426,9 +426,13 @@ function card_render_diesel(frm) {
 				":</span> " +
 				value +
 				"</div>";
+			// #31: a total that includes an estimate says so; a card with direct fills only keeps the plain labels
+			const estimated = flt(d.litres_estimated);
 			const parts = [
 				line(
-					__("Allocated litres (recorded + estimated)"),
+					estimated
+						? __("Allocated litres (recorded + estimated)")
+						: __("Allocated litres"),
 					format_number(flt(d.litres), null, 2),
 				),
 			];
@@ -444,7 +448,12 @@ function card_render_diesel(frm) {
 					),
 				);
 			}
-			parts.push(line(__("Diesel cost (incl. estimated)"), format_currency(flt(d.amount))));
+			parts.push(
+				line(
+					estimated ? __("Diesel cost (incl. estimated)") : __("Diesel cost"),
+					format_currency(flt(d.amount)),
+				),
+			);
 			if (flt(d.litres_estimated)) {
 				parts.push(
 					'<div class="text-muted small">' +
