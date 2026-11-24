@@ -8,6 +8,7 @@
   "policy_section",
   "enable_accounting",
   "auto_submit",
+  "enable_card_equipment_dimension",
   "company_config_section",
   "company_settings",
   "adjustment_types_section",
@@ -99,6 +100,13 @@
    "label": "Auto-submit postings",
    "permlevel": 2,
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_card_equipment_dimension",
+   "fieldtype": "Check",
+   "label": "Enable Card Equipment accounting dimension",
+   "permlevel": 2
   },
   {
    "fieldname": "company_config_section",
@@ -486,7 +494,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-11-11 00:21:37.000000",
+ "modified": "2026-11-24 21:30:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

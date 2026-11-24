@@ -44,6 +44,7 @@ is `settings.py` `_DEFAULTS`.
 |---|---|---|---|---|---|
 | `enable_accounting` | Check, level 2 | 0 | 0 | `gl/preflight.py:18`; `accounting_settings.py:15` (direct `get_single_value`) | Used. Two readers; the docstring of `accounting_settings.py` still says "none yet" |
 | `auto_submit` | Check, level 2 | 0 | — (removed from `_DEFAULTS`, FR-124) | none (only the one-time patch `v1_2/init_card_settings_defaults.py:16`, which wrote the stored default) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
+| `enable_card_equipment_dimension` | Check, level 2 | 0 | — | `card/dimension.py` (`dimension_switched_on`) | **Implemented** (FR-180): while off, the Card Equipment accounting dimension is never created or enabled by the patch, the install hook or the manual command |
 | `default_shift` | Select, level 2 | نهاري | نهاري | `card_monthly_card.py:87` | Used: pre-fill of a new card's shift |
 | `max_day_shift_hours` | Float, level 2 | 12 | 12.0 | `card_monthly_card.py:180-181` (inline `or 12`) | Used: warning only (FR-017) |
 | `max_night_shift_hours` | Float, level 2 | 12 | 12.0 | `card_monthly_card.py:180-181` (inline `or 12`) | Used: warning only (FR-017) |
