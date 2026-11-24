@@ -1095,9 +1095,10 @@ IGNORE_PERMISSIONS_ALLOWED = {
 		1,
 		"Version of an authorized financial decision (record_financial_decision gate), as Frappe does",
 	),
-	("card/dimension.py", "ensure_card_equipment_dimension"): (
+	("card/dimension.py", "_create_dimension"): (
 		1,
-		"install / patch / before_tests bootstrap of the Accounting Dimension (FR-176); no request path",
+		"install / patch / before_tests bootstrap of the Accounting Dimension (FR-176), only when Card Settings "
+		"switches it on (FR-180); no request path",
 	),
 	("card/gl/events.py", "_build_non_taxable_credit_note"): (
 		2,

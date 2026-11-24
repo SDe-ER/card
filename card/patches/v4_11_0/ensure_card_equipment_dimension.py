@@ -6,7 +6,10 @@ has the dimension is left as it is; a second migrate changes nothing. Not mandat
 
 Writes: one Accounting Dimension (with a non-mandatory default row per company) and ERPNext's standard
 `card_equipment` custom field on each accounting doctype (empty columns). Never changes a document, amount,
-GL entry or permission."""
+GL entry or permission.
+
+Owner decision 2026-11-24: it does nothing while Card Settings "Enable Card Equipment accounting dimension" is off
+(the default), so a migrate never creates the dimension on its own."""
 
 from card.dimension import ensure_card_equipment_dimension
 

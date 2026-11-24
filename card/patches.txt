@@ -45,3 +45,4 @@ card.patches.v4_8_0.i1_seed_enable_diesel_tanks
 card.patches.v4_10_0.backfill_adjustment_date
 card.patches.v4_10_1.show_adjustment_date_in_saved_grid_columns
 card.patches.v4_11_0.ensure_card_equipment_dimension
+card.patches.v4_11_1.record_card_equipment_dimension_switch

@@ -29,6 +29,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 |---|---|---|---|---|
 | Enable accounting posting | `enable_accounting` | Check |  |  |
 | Auto-submit postings <small>(hidden, read only)</small> | `auto_submit` | Check |  |  |
+| Enable Card Equipment accounting dimension | `enable_card_equipment_dimension` | Check |  |  |
 
 
 **Company Configuration**

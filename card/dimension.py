@@ -7,15 +7,19 @@ document (and so the GL/TB/P&L/BS reports) carry the equipment. Creating it
 adds a `card_equipment` custom field to ~53 ERPNext doctypes (an ALTER TABLE
 on each, empty columns).
 
-Owner decision 2026-11-22 (FR-176, supersedes the earlier "manual step only" rule): the app creates it itself —
-patch `v4_11_0.ensure_card_equipment_dimension` on migrate and `after_install` on a fresh install — so supplier
-payments can be linked to an equipment. It is never mandatory. On uninstall it is only disabled (its fields become
-read-only), never deleted, so the equipment values already in the ledger are kept. The manual command still works:
+Owner decisions: 2026-11-22 (FR-176) — the app can create it itself (patch `v4_11_0.ensure_card_equipment_dimension`
+on migrate, `after_install` on a fresh install), so supplier payments can be linked to an equipment; 2026-11-24 —
+only when Card Settings "Enable Card Equipment accounting dimension" is on (default off). While the switch is off
+nothing is created or enabled again, by the patch, the install hook or the manual command. It is never mandatory. On
+uninstall it is only disabled (its fields become read-only), never deleted, so the equipment values already in the
+ledger are kept. To create it: back up, turn the switch on, then run
 
         bench --site <site> execute card.dimension.ensure_card_equipment_dimension
 
-card.install.before_tests also calls it (the committed test bootstrap; its ALTER TABLEs must never run inside a test
-transaction). GL posting still refuses to build without it (owner checkpoint B).
+Turning the switch off later creates nothing new and removes nothing. A reinstall starts with the switch off: the
+dimension the uninstall disabled stays disabled until the switch is on and the command runs again. card.install.before_tests turns the switch on
+and calls it (the committed test bootstrap; its ALTER TABLEs must never run inside a test transaction). GL posting
+still refuses to build without it (owner checkpoint B).
 """
 
 import frappe
@@ -23,6 +27,7 @@ import frappe
 DIMENSION_DOCTYPE = "Card Equipment"
 DIMENSION_FIELD = "card_equipment"
 ASSET_LINK_FIELD = "الأصل_في_erpnext"
+SWITCH_FIELD = "enable_card_equipment_dimension"
 
 
 def has_dimension():
@@ -34,14 +39,26 @@ def gl_has_dimension_field():
 	return frappe.get_meta("GL Entry").has_field(DIMENSION_FIELD)
 
 
+def dimension_switched_on():
+	"""Owner decision 2026-11-24: Card Settings decides whether this site may have the dimension (default off)."""
+	return bool(frappe.db.get_single_value("Card Settings", SWITCH_FIELD))
+
+
 def ensure_card_equipment_dimension():
-	"""Create the dimension (idempotent, non-mandatory for BS/PL); a disabled one is enabled again.
+	"""Create the dimension (idempotent, non-mandatory for BS/PL); a disabled one is enabled again. Does nothing
+	while the Card Settings switch is off.
 
 	Callers (FR-176): patch v4_11_0.ensure_card_equipment_dimension, after_install, the manual bench command and the
 	committed test bootstrap. The caller commits after it returns — this function never commits itself, and its
 	ALTER TABLEs must never run from a controller or inside a test transaction."""
+	if not dimension_switched_on():
+		return "switched off"
 	if has_dimension():
 		return set_card_equipment_dimension_disabled(False) if _is_disabled() else "exists"
+	return _create_dimension()
+
+
+def _create_dimension():
 	from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
 		make_dimension_in_accounting_doctypes,
 	)
