@@ -682,7 +682,7 @@ class TestVolumeBilling(_StopBase):
 			adjustments=[deduction],
 		)
 		doc = frappe.get_doc("Card Monthly Card", card.name)
-		amount = frappe.utils.fmt_money(doc.customer_amount)
+		amount = frappe.utils.fmt_money(doc.customer_amount, precision=2)
 		rate = frappe.utils.fmt_money(doc.customer_rate)
 
 		def render(role):

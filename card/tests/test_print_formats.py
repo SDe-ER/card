@@ -188,7 +188,10 @@ class TestPrintFormats(_CustomerCardsBase):
 			self.assertIn("1,500.125", totals[2])
 			self.assertEqual(totals[3], _sar(card.amount, self.company))
 		finally:
-			frappe.db.set_default("currency_precision", previous or "")
+			if previous is None:
+				frappe.defaults.clear_default("currency_precision")
+			else:
+				frappe.db.set_default("currency_precision", previous)
 
 	def test_sub_rental_prints_each_side_with_its_own_rows(self):
 		# supplier 3,600 + 100 = 3,700; customer 1200/day = 120/h x 48 = 5,760 - 200 = 5,560
