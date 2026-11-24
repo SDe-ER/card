@@ -160,6 +160,23 @@ class TestEquipmentPartialMargin(_AnalyticsBase):
 		self.assertEqual(row["margin"], 0)
 		self.assertEqual(summary["Customer cards not invoiced yet"], flt(card.customer_net_amount, 2))
 
+	def test_without_money_level_read_has_no_card_amounts(self):
+		"""#301: the two "not invoiced yet" columns are card nets (permlevel 1 of Card Monthly Card)."""
+		eq = self._sub_rental()
+		self._card(eq, [8, 8], submit=True)
+		target = "card.card.report.equipment_partial_margin.equipment_partial_margin.role_reads_money"
+		with patch(target, return_value=False):
+			rows, message, summary, columns = self._margin()
+		self.assertNotIn("Not invoiced yet is the card net", message)
+		fieldnames = [c["fieldname"] for c in columns]
+		for key in ("unbilled_revenue", "unbilled_rental"):
+			self.assertNotIn(key, fieldnames)
+			self.assertFalse([r for r in rows.values() if key in r], key)
+		self.assertNotIn("Customer cards not invoiced yet", summary)
+		# the ledger figures keep their own gate (can_view_ledger)
+		self.assertIn("margin", fieldnames)
+		self.assertIn((eq.name, self.project), rows)
+
 	def test_transport_shares_and_unshared_moves(self):
 		project = self.project
 		transports = [
@@ -284,6 +301,19 @@ class TestUnbilledCardWork(_AnalyticsBase):
 		self.assertNotIn((card.name, "Supplier"), rows)
 		rows, _s = self._unbilled(side="Supplier")
 		self.assertFalse(rows)
+
+	def test_without_money_level_read_has_no_card_amounts(self):
+		"""#301: the amount not invoiced is the card net (permlevel 1 of Card Monthly Card)."""
+		eq = self._sub_rental()
+		card = self._card(eq, [8, 8], submit=True)
+		target = "card.card.report.unbilled_card_work.unbilled_card_work.role_reads_money"
+		with patch(target, return_value=False):
+			columns, data, _message, _chart, summary = unbilled_work(self._period(project=self.project))
+		self.assertNotIn("amount", [c["fieldname"] for c in columns])
+		self.assertFalse([r for r in data if "amount" in r])
+		self.assertFalse(summary)  # both tiles are sums of card nets
+		# the list itself (which card is not invoiced, on which side) stays
+		self.assertEqual({r["party_type"] for r in data if r["card"] == card.name}, {"Supplier", "Customer"})
 
 	def test_linked_accrual_journal_entry_counts_as_recognised(self):
 		card = self._rental_card()

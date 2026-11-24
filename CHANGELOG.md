@@ -15,6 +15,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
+  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
+  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
+    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
+    returns `"switched off"` and creates or enables nothing. This covers the patch
+    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
+    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
+  - To create the dimension later: back up, turn the switch on, then run
+    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
+    removes nothing.
+  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
+    dimension enabled, and writes nothing else.
+  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
+    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
+    shows a message with the command (`CardSettings._explain_dimension_switch`).
+  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
+    disabled until the switch is on and the command runs again.
+  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
+    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
+  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
+    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
+
 ### Security
 - **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
   reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
@@ -44,6 +68,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   The A4 print skips the missing items. Impact: permissions none (no role or DocPerm change; every role of these
   reports reads level 1 today, so their reports are unchanged); accounting none; data none; API none (fewer keys
   for a user without level-1 read). Rollback: code only.
+- **Card money level check for three more reports (FR-181, #301; Owner decision 2026-11-24).** When the user's roles
+  do not read permlevel 1 of Card Monthly Card (`role_reads_money`), with `strip_money`:
+  - Unbilled Card Work: no "Card amount not invoiced" (`amount`) and no tiles (both are sums of card nets). The list
+    of cards, sides, parties and documents stays.
+  - Card Settlement Status: no "Card net" (`net`) column and no "Cards net" tile.
+  - Equipment Partial Margin: no `unbilled_revenue`, no `unbilled_rental` and no "Customer cards not invoiced yet"
+    tile.
+  Figures of accounting documents (the card's share of its invoice, paid, remaining, revenue, supplier rental
+  recognised by a submitted document, margin) keep their own gate (`can_view_ledger`), as the Owner decided for the
+  invoice-side figures on 2026-11-24. Impact: permissions none (no role or DocPerm change; the roles of these
+  reports — System Manager, Accounts Manager, Card Manager — all read level 1, so their reports are unchanged);
+  accounting none; data none; API none (fewer keys for a user without level-1 read). Rollback: code only.
 
 ### Documentation
 - **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
