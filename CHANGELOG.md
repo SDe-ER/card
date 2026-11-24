@@ -72,6 +72,35 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   accounting none; data none; API none (fewer keys for a user without level-1 read). Rollback: code only.
 
 ### Changed
+- **FR-186 — The loads figures show only on per-m³ cards (issue 264 part 2; owner decision 2026-11-24).** On the
+  Monthly Card form, "Load volume used (m³)", "Total loads" and "Total volume (m³)" show only when the customer rate
+  type is per m³ or the card already has loads (`depends_on` in `card_monthly_card.json`), and the Loads column of the
+  days table follows the same rule (`card_toggle_loads_column` in `card_monthly_card.js`, also for a user who saved
+  the column with "Configure columns"). A stored value is never hidden or cleared. The server rule is unchanged: loads
+  are refused on a card that is not billed per m³. Impact: permissions none; accounting none; data none (no
+  patch; migrate syncs the DocType); API none. Rollback: code only; the fields and the column show again.
+- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
+  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
+  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
+    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
+    returns `"switched off"` and creates or enables nothing. This covers the patch
+    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
+    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
+  - To create the dimension later: back up, turn the switch on, then run
+    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
+    removes nothing.
+  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
+    dimension enabled, and writes nothing else.
+  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
+    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
+    shows a message with the command (`CardSettings._explain_dimension_switch`).
+  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
+    disabled until the switch is on and the command runs again.
+  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
+    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
+  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
+    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
 - **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means
   "must be configured").** `standard_month_hours`, `max_day_shift_hours` and `max_night_shift_hours` no longer fall
   back to 260 and 12 when Card Settings has no value or 0.
