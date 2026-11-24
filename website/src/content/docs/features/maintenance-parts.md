@@ -159,6 +159,22 @@ one company and period:
 Filters: **Company**, **From date**, **To date**, **Project**, **Equipment**. Without the dimension the report explains
 it and lists nothing. The same lines feed the maintenance part of the **Equipment Partial Margin** report.
 
+### One expense for several machines
+
+One supplier invoice often covers several machines (for example one workshop invoice for three loaders). CARD does
+not split it by hours or equally. The accountant splits it by hand in ERPNext:
+
+1. Make sure the **Card Equipment** accounting dimension exists. It is off by default: a system manager turns on
+   **Enable Card Equipment accounting dimension** in **Card Settings** and runs the command described in
+   [Invoicing and posting](/card/features/invoicing-posting/).
+2. In the **Purchase Invoice**, enter one line for each machine, with the amount that belongs to that machine, and set
+   **Card Equipment** on each line.
+3. Submit the invoice in ERPNext as usual. CARD writes nothing.
+
+Each line then shows under its machine in **Equipment Maintenance Cost** and **Equipment Partial Margin**. A line
+without a machine is listed by **Equipment Expenses Without Equipment**. A split booked with a Journal Entry is not
+read by these reports.
+
 ## Workflow
 
 1. Create the equipment makes and models, then set make and model on each machine.

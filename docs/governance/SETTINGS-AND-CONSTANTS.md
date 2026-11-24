@@ -46,8 +46,8 @@ is `settings.py` `_DEFAULTS`.
 | `auto_submit` | Check, level 2 | 0 | — (removed from `_DEFAULTS`, FR-124) | none (only the one-time patch `v1_2/init_card_settings_defaults.py:16`, which wrote the stored default) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 | `enable_card_equipment_dimension` | Check, level 2 | 0 | — | `card/dimension.py` (`dimension_switched_on`) | **Implemented** (FR-180): while off, the Card Equipment accounting dimension is never created or enabled by the patch, the install hook or the manual command |
 | `default_shift` | Select, level 2 | نهاري | نهاري | `card_monthly_card.py:87` | Used: pre-fill of a new card's shift |
-| `max_day_shift_hours` | Float, level 2 | 12 | 12.0 | `card_monthly_card.py:180-181` (inline `or 12`) | Used: warning only (FR-017) |
-| `max_night_shift_hours` | Float, level 2 | 12 | 12.0 | `card_monthly_card.py:180-181` (inline `or 12`) | Used: warning only (FR-017) |
+| `max_day_shift_hours` | Float, level 2 | 12 | — (FR-184: no code fallback; the DocType default is stored once) | `card_monthly_card.py`, `daily_log.py` | Used: warning only (FR-017). Empty or 0 = not configured: no limit checked, the card says so |
+| `max_night_shift_hours` | Float, level 2 | 12 | — (FR-184: no code fallback; the DocType default is stored once) | `card_monthly_card.py`, `daily_log.py` | Used: warning only (FR-017). Empty or 0 = not configured: no limit checked, the card says so |
 | `default_daily_hours` | Float, level 2 | 0 | 0.0 | `card_equipment.py:398`; `api.py:391-392` | Used: pre-fill of new equipment |
 | `default_fuel_charged_to` | Select, level 2 | — | "" | `card_equipment.py:401` | Used: pre-fill |
 | `default_operator_on` | Select, level 2 | — | "" | `card_equipment.py:404` | Used: pre-fill |
@@ -62,7 +62,7 @@ is `settings.py` `_DEFAULTS`.
 | `notify_on_posting` | Check, level 2 | 0 | — (removed from `_DEFAULTS`, FR-124) | none (only the one-time patch `v1_2/init_card_settings_defaults.py:27`, which wrote the stored default) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 | `notify_on_period_lock_override` | Check, level 2 | 0 | 0 | `period_lock.py:72` | Used |
 | `default_rate_basis` | Select, level 2 | — | "" | `card_equipment.py:408` | Used: pre-fill of both rate bases |
-| `standard_month_hours` | Float, level 2 | 260 | 260.0 | `card_equipment.py:152`, `card_monthly_card.py:437` (inline `or 260`) | Used (FR-016) |
+| `standard_month_hours` | Float, level 2 | 260 | — (FR-184: no code fallback; the DocType default is stored once) | `card/settings.py` `standard_month_hours` (equipment, monthly card, `card_value.py`) | Used (FR-016). Empty or 0 = not configured: a per-month rate is refused with a message |
 | `sync_equipment_location_daily` | Check, level 2 | 0 | 0 | `transfer.py:222` (scheduler `hooks.py:225-228`) | Used: off by default (#56) |
 | `diesel_supplier_policy` | Select, level 2 | متغير | متغير | `project_diesel_fill.py:20,850` (inline `or "متغير"`); `card_settings.py:39` | Used |
 | `diesel_supplier` | Link Supplier, level 2 | — | "" | `project_diesel_fill.py:18` | Used |

@@ -190,7 +190,11 @@ function card_exact_hourly(v) {
 				method: "card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours",
 				type: "GET",
 			})
-			.then((r) => rate / (flt(r && r.message) || 260));
+			.then((r) => {
+				// #50: no hard-coded 260. Without the setting the form shows 0 and the server refuses the save
+				const month_hours = flt(r && r.message);
+				return month_hours > 0 ? rate / month_hours : 0;
+			});
 	}
 	return Promise.resolve(0);
 }
