@@ -300,6 +300,45 @@ class TestPartyPortalScaffold(IntegrationTestCase):
 		frappe.set_user(email)
 		self.assertIsNone(get_party_from_user())
 
+	# ---------- security review 2026-11-13, finding 8: two Contacts with the user's email ----------
+
+	def _second_contact(self, email, party_type, party_name):
+		contact = frappe.new_doc("Contact")
+		contact.first_name = "Second " + frappe.generate_hash(length=4)
+		contact.append("email_ids", {"email_id": email, "is_primary": 1})
+		contact.append("links", {"link_doctype": party_type, "link_name": party_name})
+		contact.insert(ignore_permissions=True)
+		return contact.name
+
+	def test_resolve_party_two_contacts_two_parties_none(self):
+		"""Two Contacts carry the user's email and point at different parties: the party is not certain, so
+		none is resolved, whatever the order of the Contacts."""
+		self._set_portal(self.company, 1)
+		names = []
+		for code, supplier in (("AM1", self.supplier_a), ("AM2", self.supplier_b)):
+			eq = self._equipment(code, self.company, supplier=supplier)
+			self._assign(eq, self.proj_a)
+			names.append(self._card(eq, self.proj_a))
+		user = self._portal_user("Supplier", self.supplier_a)
+		self.assertEqual(get_party_from_user(user), ("Supplier", self.supplier_a))
+		self.assertEqual(get_party_card(names[0], user=user).name, names[0])
+		self._second_contact(user, "Supplier", self.supplier_b)
+		frappe.set_user(user)
+		self.assertIsNone(get_party_from_user())
+		# neither party's card opens, and the landing page lists nothing
+		for name in names:
+			self.assertIsNone(get_party_card(name))
+		ctx = frappe._dict()
+		_load_www_module(INDEX_PATH).get_context(ctx)
+		self.assertIsNone(ctx.party)
+		self.assertEqual(ctx.cards, [])
+
+	def test_resolve_party_two_contacts_same_party(self):
+		user = self._portal_user("Supplier", self.supplier_a)
+		self._second_contact(user, "Supplier", self.supplier_a)
+		frappe.set_user(user)
+		self.assertEqual(get_party_from_user(), ("Supplier", self.supplier_a))
+
 	# ---------- list_party_cards ----------
 
 	def test_list_party_cards_supplier_returns_own_three(self):
