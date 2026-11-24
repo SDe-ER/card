@@ -18,6 +18,7 @@ from card.card.report.equipment_customer_statement.equipment_customer_statement 
 	execute as customer_statement,
 )
 from card.constants import DIR_RENTED_OUT, DIR_SUBRENTAL, OWNED, SHIFT_NIGHT
+from card.gl import period_run
 from card.gl.period_run import document_fingerprint
 from card.report_access import role_reads_money
 from card.tests.test_customer import RENTED
@@ -399,6 +400,41 @@ class TestVolumeBilling(_StopBase):
 		self.assertEqual(fingerprint, document_fingerprint(frappe.get_doc("Card Monthly Card", card.name), 1))
 		card.customer_amount = flt(card.customer_amount) + 1
 		self.assertNotEqual(fingerprint, document_fingerprint(card, 1))
+
+	def test_fingerprint_v2_covers_the_load_fields(self):
+		"""#263: a load change that keeps every amount changes the version 2 fingerprint. Version 1 stays frozen
+		(a run keeps the version it was built with)."""
+		self.assertEqual(period_run.FINGERPRINT_VERSION, 2)
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		v1 = document_fingerprint(card, 1)
+		v2 = document_fingerprint(card, 2)
+		self.assertEqual(document_fingerprint(card), v2)
+		card.days[0].loads_count = 41
+		self.assertEqual(document_fingerprint(card, 1), v1)
+		self.assertNotEqual(document_fingerprint(card, 2), v2)
+		for field in ("total_loads", "total_volume_m3", "load_volume_used"):
+			with self.subTest(field=field):
+				fresh = frappe.get_doc("Card Monthly Card", card.name)
+				fresh.set(field, flt(fresh.get(field)) + 1)
+				self.assertEqual(document_fingerprint(fresh, 1), v1)
+				self.assertNotEqual(document_fingerprint(fresh, 2), v2)
+
+	def test_fingerprint_v2_extends_v1_and_matches_it_without_loads(self):
+		"""Version 2 keeps every version 1 field, and a document with no load values has the same fingerprint in
+		both versions, so non-volume sources are not reported as changed."""
+		v1, v2 = period_run.FINGERPRINT_FIELDS[1], period_run.FINGERPRINT_FIELDS[2]
+		self.assertEqual(set(v1), set(v2))
+		for doctype, (fields, tables) in v1.items():
+			self.assertLessEqual(set(fields), set(v2[doctype][0]), doctype)
+			self.assertEqual(set(tables), set(v2[doctype][1]), doctype)
+			for table, row_fields in tables.items():
+				self.assertLessEqual(set(row_fields), set(v2[doctype][1][table]), table)
+		self.assertNotIn("total_loads", v1["Card Monthly Card"][0])
+		self.assertNotIn("loads_count", v1["Card Monthly Card"][1]["days"])
+		hourly = self._rented_out(customer_rate=100, customer_rate_type="بالساعة")
+		card = self._card(hourly, [4, 10, 12], submit=True)
+		self.assertEqual(document_fingerprint(card, 1), document_fingerprint(card, 2))
 
 	# ---- regression: existing bases unchanged (these pass on current code) ----
 	def test_hourly_daily_and_monthly_customer_rates_are_unchanged(self):

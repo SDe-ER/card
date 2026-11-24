@@ -387,6 +387,35 @@ class TestPeriodRun(_CustomerCardsBase):
 		frappe.db.set_value("Card Monthly Card Day", row, "working_hours", 9)
 		self.assertNotEqual(period_run.document_fingerprint(frappe.get_doc(CARD, self.rented)), before)
 
+	def test_a_load_change_makes_a_version_2_run_stale_and_version_1_runs_keep_version_1(self):
+		"""#263: a new run is built with fingerprint version 2, so a change of loads alone makes it stale. A run
+		built with version 1 is still compared with version 1 (its stored fingerprints stay valid)."""
+		# the legacy half relies on this: without load values the version 1 and 2 fingerprints are equal
+		card = frappe.get_doc(CARD, self.rented)
+		self.assertFalse(any(card.get(f) for f in ("total_loads", "total_volume_m3", "load_volume_used")))
+		self.assertFalse(any(d.loads_count for d in card.days))
+		run = self._submitted()
+		self.assertEqual(frappe.db.get_value(RUN, run.name, "fingerprint_version"), 2)
+		row = frappe.get_all("Card Monthly Card Day", filters={"parent": self.rented}, pluck="name", limit=1)[
+			0
+		]
+		frappe.db.set_value("Card Monthly Card Day", row, "loads_count", 3)
+		state = period_run.check_current(frappe.get_doc(RUN, run.name))
+		self.assertFalse(state.current)
+		self.assertEqual(state.changed, [self.rented])
+		legacy = frappe.get_doc(RUN, run.name)
+		legacy.fingerprint_version = 1
+		legacy.snapshot_hash = period_run.build_snapshot(self.company, MONTH, YEAR, 1).snapshot_hash
+		self.assertTrue(period_run.check_current(legacy).current)
+		legacy.fingerprint_version = 0  # a run without a stored version was built with version 1
+		self.assertTrue(period_run.check_current(legacy).current)
+		# a version this code does not know (built by a newer CARD) is reported as changed, never an error
+		unknown = frappe.get_doc(RUN, run.name)
+		unknown.fingerprint_version = 99
+		state = period_run.check_current(unknown)
+		self.assertFalse(state.current)
+		self.assertIn(self.rented, state.changed)
+
 	def test_fingerprint_ignores_unlisted_and_new_empty_fields(self):
 		"""A field outside the versioned list (here the operator's name) does not count, and a field added to the
 		list (as a later DocType field would be) does not change a fingerprint while it is empty: a migration that
@@ -396,17 +425,23 @@ class TestPeriodRun(_CustomerCardsBase):
 		frappe.db.set_value(CARD, self.rented, "operator_name", "Changed " + self.token)
 		doc = frappe.get_doc(CARD, self.rented)
 		self.assertEqual(period_run.document_fingerprint(doc), before)
-		fields, tables = period_run.FINGERPRINT_FIELDS[1][CARD]
-		extended = {
-			**period_run.FINGERPRINT_FIELDS[1],
-			CARD: (
-				(*fields, "new_empty_field"),
-				{**tables, "days": (*tables["days"], "new_empty_row_field")},
-			),
-		}
-		with patch.dict(period_run.FINGERPRINT_FIELDS, {1: extended}):
-			self.assertEqual(period_run.document_fingerprint(doc), before)
-			self.assertTrue(period_run.check_current(frappe.get_doc(RUN, run.name)).current)
+		# every version, frozen ones included: stored version 1 runs must survive a migration too
+		for version in sorted(period_run.FINGERPRINT_FIELDS):
+			fields, tables = period_run.FINGERPRINT_FIELDS[version][CARD]
+			extended = {
+				**period_run.FINGERPRINT_FIELDS[version],
+				CARD: (
+					(*fields, "new_empty_field"),
+					{**tables, "days": (*tables["days"], "new_empty_row_field")},
+				),
+			}
+			with self.subTest(version=version):
+				reference = period_run.document_fingerprint(doc, version)
+				with patch.dict(period_run.FINGERPRINT_FIELDS, {version: extended}):
+					self.assertEqual(period_run.document_fingerprint(doc, version), reference)
+					if version == period_run.FINGERPRINT_VERSION:
+						self.assertEqual(period_run.document_fingerprint(doc), before)
+						self.assertTrue(period_run.check_current(frappe.get_doc(RUN, run.name)).current)
 		self.assertEqual(period_run.approved_run(self.company, MONTH, YEAR), run.name)
 
 	def test_version_is_unique_per_company_and_month(self):
