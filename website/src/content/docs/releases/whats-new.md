@@ -18,6 +18,12 @@ per site.
 
 ## Next release (merged, not yet released)
 
+_Nothing yet._
+
+## v4.11.1 — 2026-11-24
+
+Patch release on top of v4.11.0 (release candidate until the owner approves the tag). The Card Equipment accounting dimension is now created only when you switch it on in Card Settings, so the upgrade adds nothing to the accounting documents. It changes no role, permission or accounting rule.
+
 - **2026-11-24 — The Card Equipment accounting dimension is off until you switch it on.** **Card Settings** has a new switch, **Enable Card Equipment accounting dimension**, and it is off by default. While it is off, an upgrade or install does not create the dimension and adds no field to the accounting documents. **Equipment Supplier Statement** with an **Equipment** filter then shows a note that payments, VAT and other credits are not split by equipment. To use the dimension, a system manager takes a backup, turns the switch on and runs the one command given in the Invoicing and posting page. A site that already has the dimension keeps it, with the switch on.
 - **2026-11-24 — Three more reports check who may see card amounts.** **Unbilled Card Work**, **Card Settlement Status** and **Equipment Partial Margin** now show card amounts (the card amount not invoiced, the card net) only to users whose roles may read the amounts of a **Monthly Card**. Figures that come from invoices and the ledger follow the ledger access as before. Today every role that opens these reports may read the amounts, so nothing changes for current users.
 - **2026-11-24 — The summaries and the supplier statement check who may see card amounts.** **Equipment Customers Summary**, **Equipment Suppliers Summary** and **Equipment Supplier Statement** now show figures taken from card amounts only to users whose roles may read the amounts of a **Monthly Card**. This also covers the balance carried from before the period and the current due of a date-range supplier statement, because they add card work. Payments and other accounting figures follow the ledger access as before. Today every role that opens these reports may read the amounts, so nothing changes for current users.

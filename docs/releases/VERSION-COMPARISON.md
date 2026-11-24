@@ -89,6 +89,10 @@ the tag (`git show <tag>:<path>`).
 | Monthly Card print: four settlement totals per side (FR-174) | v4.11.0 | — | — | — | — | — | — | — | — | v4.11.0: total before additions/deductions, additions, deductions, net per side; Cash paid rows not in the printed sums | v4.11.0 page; PR #286 |
 | Supplier statement for a date range, payments and balance due; form exact rate (FR-175) | v4.11.0 | — | — | — | — | — | — | — | — | v4.11.0: `from_date`/`to_date` override the months; balance keys `previous_due`…`current_due`; CARD postings not counted twice, VAT of CARD invoices added; month statement unchanged | v4.11.0 page; PR #287 |
 | Payments linked to an equipment; Card Equipment accounting dimension created by the app (FR-176) | v4.11.0 | — | — | — | — | — | — | — | — | v4.11.0: patch creates the dimension (not mandatory, empty columns); with an Equipment/Project filter both statement modes count only the entries that carry it; untagged payments never deducted | v4.11.0 page; PRs #289, #290 |
+| Card Equipment accounting dimension only on the Card Settings switch (FR-180) | v4.11.1 | — | — | — | — | — | — | — | — | v4.11.1: `enable_card_equipment_dimension` (default off); while off the patch, the install hook and the manual command create nothing; a site that has the dimension keeps it | v4.11.1 page; PR #303 |
+| Card money level checked in the statements, summaries and three analysis reports (FR-178, FR-179, FR-181) | v4.11.1 | — | — | — | — | — | — | — | — | v4.11.1: without read on permlevel 1 of Card Monthly Card no figure taken from card amounts is sent; accounting figures keep `can_view_ledger` | v4.11.1 page; PRs #296, #302, #304 |
+| Optional Adjustment type never blocks a plain addition or deduction (FR-173) | v4.11.1 | — | — | — | — | — | — | — | — | v4.11.1: the field is hidden when the company has no type configured and no row has a value; new GET `get_adjustment_type_names` | v4.11.1 page; PR #285 |
+| Period run fingerprint covers the load fields (FR-177) | v4.11.1 | — | — | — | — | — | — | — | — | v4.11.1: fingerprint version 2 for new runs; version 1 runs keep their check | v4.11.1 page; PR #294 |
 
 ## Reading the matrix
 
