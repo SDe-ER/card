@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Security
-- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259).** The report
+- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
   reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
   of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
   rate, customer amount, total volume (with the total loads it gives the level-1 load volume), additions,
@@ -27,6 +27,24 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   permissions none (no
   role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
   data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
+
+### CI
+- **GitHub Actions versions (Dependabot #243, #244, #245, #279 in one change).** `docs.yml`: `actions/checkout`
+  v4 → v7, `actions/upload-pages-artifact` v3 → v5 and `actions/deploy-pages` v4 → v5 (one Pages deploy, so the
+  pair moves together). `docs-screenshots.yml`: `actions/upload-artifact` v4 → v7 (as `upgrade-rehearsal.yml`
+  already uses). Workflow permissions unchanged. No application, permission, accounting, data or API change.
+  Rollback: revert the workflow lines.
+
+### Tests
+- **Child-row integrity test follows frappe 16.61.0 (#293).** Since frappe version-16 16.61.0 (commit `e874c9d8d`,
+  "submit, cancel and rename check permission on the stored document"), frappe refuses an operator's
+  `frappe.client.bulk_update` of a submitted child row with `PermissionError` before CARD's foreign-row guard runs.
+  `test_operator_child_bulk_update_cannot_take_an_approved_row` accepts either refusal and still checks that the row
+  and both documents are unchanged; the guard on that route stays proven for the supervisor. The `bulk_update` test
+  helpers keep the traceback of an unexpected failure. Only a PermissionError raised by frappe's
+  `check_docstatus_transition` counts as the other refusal. Test code only: no application, permission,
+  accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
+  fails again.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
