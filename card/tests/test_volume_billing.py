@@ -682,7 +682,7 @@ class TestVolumeBilling(_StopBase):
 			adjustments=[deduction],
 		)
 		doc = frappe.get_doc("Card Monthly Card", card.name)
-		amount = frappe.utils.fmt_money(doc.customer_amount)
+		amount = frappe.utils.fmt_money(doc.customer_amount, precision=2)
 		rate = frappe.utils.fmt_money(doc.customer_rate)
 
 		def render(role):
@@ -698,7 +698,7 @@ class TestVolumeBilling(_StopBase):
 			self.assertIn(amount, html, role)
 			self.assertIn(rate, html, role)
 			self.assertIn("Total amount", html, role)
-			self.assertIn("Customer settlement", html, role)
+			self.assertIn("Customer settlement (before VAT)", html, role)
 			self.assertIn("Adjustment amount", html, role)
 			self.assertIn("Total volume (m³)", html, role)
 			self.assertIn('class="emc-sum-m"', html, role)
@@ -708,11 +708,11 @@ class TestVolumeBilling(_StopBase):
 		self.assertNotIn(amount, operator)
 		self.assertNotIn(rate, operator)
 		self.assertNotIn("Total amount", operator)
-		self.assertNotIn("Customer settlement", operator)
+		self.assertNotIn("Customer settlement (before VAT)", operator)
 		self.assertNotIn("Adjustment amount", operator)
 		self.assertNotIn('class="emc-sum-m"', operator)
 		self.assertNotIn('class="emc-sum-g"', operator)
-		self.assertNotIn("Supplier settlement", operator)
+		self.assertNotIn("Supplier settlement (before VAT)", operator)
 		# non-money content stays: the adjustment description, the loads, the hours
 		self.assertIn("TEST deduction", operator)
 		self.assertIn("Total loads", operator)

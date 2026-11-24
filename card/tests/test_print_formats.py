@@ -32,7 +32,8 @@ BEFORE, ADDITIONS, DEDUCTIONS, NET = (
 	"إجمالي الخصومات",
 	"الصافي بعد الإضافات والخصومات",
 )
-SUPPLIER, CUSTOMER = "تسوية المورد", "تسوية العميل"
+# the settlement headers say the figures are before VAT (owner decision 2026-11-22)
+SUPPLIER, CUSTOMER = "تسوية المورد (قبل الضريبة)", "تسوية العميل (قبل الضريبة)"
 
 
 def _cell(html, label):
@@ -55,10 +56,22 @@ def _settlement(html, header):
 	return re.findall(r'<td class="k">([^<]*)</td><td class="v">([^<]*)</td>', m.group(1))
 
 
+def _card_totals(html):
+	"""The values of the Card totals box, in print order."""
+	m = re.search(r'<table class="emc-tot emc-totals">(.*?)</table>', html, re.S)
+	return re.findall(r'<td class="v">([^<]*)</td>', m.group(1))
+
+
 def _sar(value, company):
 	"""A settlement amount as printed: two decimals and the company currency (SAR for SDCE)."""
 	currency = frappe.get_cached_value("Company", company, "default_currency")
 	return "%s %s" % (fmt_money(value, precision=2), currency)
+
+
+def _rate(value, company):
+	"""A rate as printed: the site's currency precision (never rounded to two decimals) and the currency."""
+	currency = frappe.get_cached_value("Company", company, "default_currency")
+	return "%s %s" % (fmt_money(value), currency)
 
 
 class TestPrintFormats(_CustomerCardsBase):
@@ -148,7 +161,7 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertEqual(card.net_amount, 3000)
 		html = self._print(card)
 		# the top box is the gross (the strip carries the net)
-		self.assertEqual(_cell(html, "القيمة الإجمالية"), fmt_money(3600))
+		self.assertEqual(_cell(html, "القيمة الإجمالية"), _sar(3600, self.company))
 		c = self.company
 		self.assertEqual(
 			_settlement(html, SUPPLIER),
@@ -161,6 +174,25 @@ class TestPrintFormats(_CustomerCardsBase):
 		)
 		self.assertIsNone(_settlement(html, CUSTOMER))
 
+	def test_rate_cells_keep_the_site_precision(self):
+		"""Review of #292: a rate is never rounded to two decimals on the print (a site with three-decimal
+		currency precision prints 1,500.125); the amount cells keep two decimals."""
+		previous = frappe.db.get_default("currency_precision")
+		frappe.db.set_default("currency_precision", "3")
+		try:
+			card = self._card_with(self._sub_rental(), [])
+			card.db_set("rate", 1500.125, update_modified=False)
+			html = self._print(card)  # the print loads the stored card by name
+			totals = _card_totals(html)
+			self.assertEqual(totals[2], _rate(1500.125, self.company))
+			self.assertIn("1,500.125", totals[2])
+			self.assertEqual(totals[3], _sar(card.amount, self.company))
+		finally:
+			if previous is None:
+				frappe.defaults.clear_default("currency_precision")
+			else:
+				frappe.db.set_default("currency_precision", previous)
+
 	def test_sub_rental_prints_each_side_with_its_own_rows(self):
 		# supplier 3,600 + 100 = 3,700; customer 1200/day = 120/h x 48 = 5,760 - 200 = 5,560
 		card = self._card_with(
@@ -169,7 +201,20 @@ class TestPrintFormats(_CustomerCardsBase):
 		)
 		self.assertEqual((card.net_amount, card.customer_net_amount), (3700, 5560))
 		html = self._print(card)
-		self.assertEqual(_cell(html, "القيمة الإجمالية"), fmt_money(3600))
+		self.assertEqual(_cell(html, "القيمة الإجمالية"), _sar(3600, self.company))
+		# every money cell of the Card totals box shows the currency; amounts two decimals, rates the site's
+		# currency precision (hours and days are not money)
+		self.assertEqual(
+			_card_totals(html),
+			[
+				"48.0",
+				str(card.working_days),
+				_rate(card.rate, self.company),
+				_sar(3600, self.company),
+				_rate(card.customer_rate, self.company),
+				_sar(5760, self.company),
+			],
+		)
 		self.assertIn(frappe.db.get_value("Customer", self.customer, "customer_name"), html)
 		c = self.company
 		self.assertEqual(
@@ -351,9 +396,9 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertNotIn("كارت تشغيل معدة شهري", html)
 		# Urdu is right-to-left in CARD, although frappe is_rtl() lists only ar/he/fa/ps
 		self.assertIn('class="emc rtl" dir="rtl"', self._print(card, lang="ur"))
-		self.assertEqual(_cell(html, "Total amount"), fmt_money(3600))
+		self.assertEqual(_cell(html, "Total amount"), _sar(3600, self.company))
 		self.assertEqual(
-			_settlement(html, "Supplier settlement"),
+			_settlement(html, "Supplier settlement (before VAT)"),
 			[
 				("Total before additions and deductions", _sar(3600, self.company)),
 				("Total additions", _sar(0, self.company)),
@@ -361,7 +406,7 @@ class TestPrintFormats(_CustomerCardsBase):
 				("Net after additions and deductions", _sar(3000, self.company)),
 			],
 		)
-		self.assertIsNone(_settlement(html, "Customer settlement"))
+		self.assertIsNone(_settlement(html, "Customer settlement (before VAT)"))
 		# stored Arabic option values print in the print language (card/locale/en.po)
 		self.assertIn("Deduction", html)
 		legacy = self._print(card, LEGACY_MONTHLY, lang="en")

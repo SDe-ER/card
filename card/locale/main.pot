@@ -3876,7 +3876,7 @@ msgid "Not billed"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier settlement"
+msgid "Supplier settlement (before VAT)"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
@@ -3892,7 +3892,7 @@ msgid "Cash paid, not in the totals"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer settlement"
+msgid "Customer settlement (before VAT)"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
