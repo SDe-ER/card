@@ -28,10 +28,19 @@ a submitted log is first "Verified by supervisor" by a Card Supervisor who is no
 approved by a manager; the verifier counts as a preparer for the approval. A Card Supervisor may also return a
 Pending log in that mode.
 
-Loads (FR-188, opt-in per company: Card Company Settings ``daily_log_loads``, default off = no row may hold
+Loads (FR-188, opt-in per company: Card Company Settings ``daily_log_loads``, default off = no row may get
 loads, the behaviour before FR-188): a row may record the day shift loads and the night shift loads of equipment
 billed to its customer per m³ (FR-166), on a day that is not in the future. A day with loads is checked against
-the assignments like a day with hours. The loads reach the monthly card through the generation only."""
+the assignments like a day with hours. The loads reach the monthly card through the generation only.
+
+A load field that a save does not send is kept (``keep_unsent_loads``): a client that does not know the two
+fields (CARD Mobile) sends rows without them, and Frappe would store 0. An unsent field is ``None`` on the row
+when ``validate`` runs (``frappe.model.document.Document.init_valid_columns`` sets every column that is not in the
+data to ``None``; the numeric cast to 0 runs after ``validate``), a sent 0 is 0. An unsent field of a stored row
+(matched by its row name inside this log) takes the stored value; on a new log that amends another one (the
+corrected draft) it takes the value of the amended log's row of the same equipment. Only loads that are new or
+changed are checked against the switch and the per-m³ rule, so a log that holds loads is still saved after the
+switch was turned off."""
 
 import frappe
 from frappe import _
@@ -183,7 +192,8 @@ def validate_log(doc):
 	max_day = flt(setting("max_day_shift_hours"))
 	max_night = flt(setting("max_night_shift_hours"))
 	loads_on = loads_enabled(doc.company)
-	for row in doc.rows:
+	load_baselines = keep_unsent_loads(doc)
+	for row, load_baseline in zip(doc.rows, load_baselines, strict=True):
 		if row.equipment in seen:
 			frappe.throw(
 				_("Equipment {0} is listed twice in the daily log (row {1}).").format(row.equipment, row.idx)
@@ -205,7 +215,7 @@ def validate_log(doc):
 			over_limit.append(f"{row.equipment} ({_('Day shift hours')}: {day})")
 		if max_night > 0 and night > max_night:
 			over_limit.append(f"{row.equipment} ({_('Night shift hours')}: {night})")
-		_check_loads(row, doc, loads_on, future)
+		_check_loads(row, doc, loads_on, future, load_baseline)
 		_check_stop_reason(row, doc.company)
 		_responsible_party(row, doc.company, log_date)
 		if row.equipment not in stored_equipment:
@@ -223,14 +233,54 @@ def validate_log(doc):
 	_check_duplicates(doc)
 
 
-def _check_loads(row, doc, loads_on, future):
+def _load_baselines(doc):
+	"""The stored loads each row of ``doc`` starts from, one ``(day_loads, night_loads)`` per row in row order:
+	the stored row of this log with the same row name; on a new log that amends another one, the amended log's row
+	of the same equipment (a log lists an equipment once); otherwise no loads. A row name of another log matches
+	nothing."""
+	if doc.is_new():
+		parent, key = doc.get("amended_from"), "equipment"
+	else:
+		parent, key = doc.name, "name"
+	stored = {}
+	if parent:
+		stored = {
+			r.get(key): tuple(cint(r.get(field)) for field in LOAD_FIELDS)
+			for r in frappe.get_all(
+				ROW_DOCTYPE,
+				filters={"parent": parent, "parenttype": DOCTYPE},
+				fields=["name", "equipment", *LOAD_FIELDS],
+			)
+		}
+	return [stored.get(row.get(key), (0, 0)) for row in doc.rows]
+
+
+def keep_unsent_loads(doc):
+	"""FR-188: a load field the save did not send (``None`` on the row, module docstring) takes its stored value,
+	so a client that does not know the load fields cannot erase them; a sent value, 0 included, is kept as sent.
+	Returns the stored loads of each row (``_load_baselines``)."""
+	baselines = _load_baselines(doc)
+	for row, baseline in zip(doc.rows, baselines, strict=True):
+		for field, stored in zip(LOAD_FIELDS, baseline, strict=True):
+			if row.get(field) is None:
+				row.set(field, stored)
+	return baselines
+
+
+def _check_loads(row, doc, loads_on, future, baseline=(0, 0)):
 	"""FR-188: the loads of a row follow the monthly card's rules for ``loads_count`` (FR-166): never negative,
 	never on a future day, only on equipment billed to its customer per m³. With the company's switch off a row
-	holds no loads at all."""
-	day_loads, night_loads = (cint(row.get(field)) for field in LOAD_FIELDS)
-	if day_loads < 0 or night_loads < 0:
+	gets no loads. The switch and the per-m³ rule are checked only for loads that are new or changed against the
+	stored ``baseline``: a row that keeps its loads, or clears them, is saved also after the switch was turned
+	off."""
+	loads = tuple(cint(row.get(field)) for field in LOAD_FIELDS)
+	if min(loads) < 0:
 		frappe.throw(_("Row {0}: loads cannot be negative.").format(row.idx))
-	if not (day_loads or night_loads):
+	if not any(loads):
+		return
+	if future:
+		frappe.throw(_("Cannot record loads for a future day: {0}").format(doc.log_date))
+	if not any(value and value != stored for value, stored in zip(loads, baseline, strict=True)):
 		return
 	if not loads_on:
 		frappe.throw(
@@ -238,8 +288,6 @@ def _check_loads(row, doc, loads_on, future):
 				"Row {0}: loads on daily logs are not enabled for company {1}. Enter the loads on the monthly card, or enable Loads on daily logs for the company in Card Settings."
 			).format(row.idx, doc.company)
 		)
-	if future:
-		frappe.throw(_("Cannot record loads for a future day: {0}").format(doc.log_date))
 	if frappe.db.get_value("Card Equipment", row.equipment, "customer_rate_type") != PER_VOLUME_M3:
 		frappe.throw(
 			_(

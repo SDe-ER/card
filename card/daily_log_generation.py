@@ -32,8 +32,11 @@ component of a unit (it belongs on the unit's card, as ``CardMonthlyCard._refuse
 A machine moved between two projects in the month gets one card per project: each run names one project and reads
 only that project's logs.
 
-Loads (FR-188, opt-in per company: Card Company Settings ``daily_log_loads``, default off = the run neither reads,
-writes nor clears a load count, the behaviour before FR-188). On, the day shift loads of a log row go to
+Loads (FR-188, opt-in per company: Card Company Settings ``daily_log_loads``, default off = the run copies no
+loads to a card, the behaviour before FR-188; the one exception is a day cleared because its log is no longer
+Approved: when that log's row holds loads and the day's load count equals them, the count came from the log and is
+cleared with the day, so a switch turned off later leaves no loads without a log; a different count is a hand entry
+and is kept). On, the day shift loads of a log row go to
 ``loads_count`` of the day shift card's day and the night shift loads to the night shift card's day, and a shift
 with loads and no hours gets its card. The card's own rules decide (FR-166: loads only on a card whose customer
 rate type is per m³, never on a future day); a card that refuses them is rolled back alone and reported. A log
@@ -368,16 +371,35 @@ def _stale_entry(card, shift, row, loads_on=False):
 	return entry
 
 
+def _log_loads(logs, equipment, shift):
+	"""{log name: the loads its row of ``equipment`` holds for ``shift``} (FR-188)."""
+	field = "day_loads" if shift == SHIFT_DAY else "night_loads"
+	return {
+		r.parent: cint(r.get(field))
+		for r in frappe.get_all(
+			LOG_ROW_DOCTYPE,
+			filters={"parent": ["in", list(logs)], "parenttype": LOG_DOCTYPE, "equipment": equipment},
+			fields=["parent", field],
+		)
+	}
+
+
 def _clear_stale(card, rows, shift, cleared, loads_on=False):
-	"""Empty the draft card's days that came from a log no longer approved (with ``loads_on``, FR-188, their loads
-	too); True when something changed."""
+	"""Empty the draft card's days that came from a log no longer approved; True when something changed. FR-188:
+	with ``loads_on`` the loads of the day are cleared too. With the switch off (turned off after loads were
+	copied) only a load count equal to the loads of that log's row is cleared: it came from the log. Any other
+	count is a hand entry and is kept."""
 	stale = _stale_rows(card.get("days") or [], set(rows), card.company, card.project, card.equipment)
+	given = {} if loads_on or not stale else _log_loads({d.notes for d in stale}, card.equipment, shift)
 	for row in stale:
-		cleared.append(_stale_entry(card.name, shift, row, loads_on))
+		entry = _stale_entry(card.name, shift, row, loads_on)
+		from_log = given.get(row.notes)
+		if loads_on or (from_log and cint(row.get(LOADS_FIELD)) == from_log):
+			entry["loads"] = cint(row.get(LOADS_FIELD))
+			row.set(LOADS_FIELD, 0)
+		cleared.append(entry)
 		row.update({"working_hours": 0, "notes": None, **dict.fromkeys(STOP_FIELDS)})
 		row.stopped_hours = 0
-		if loads_on:
-			row.set(LOADS_FIELD, 0)
 	return bool(stale)
 
 
@@ -466,7 +488,7 @@ def generate_monthly_cards(company: str, project: str, month: str, equipment: st
 		"conflicts": [],
 		"errors": [],
 	}
-	# FR-188: the company's switch, read once for the run (off: no load field is read, written or cleared)
+	# FR-188: the company's switch, read once for the run (off: no loads are copied to a card)
 	loads_on = loads_enabled(company)
 	by_equipment = _approved_rows(company, project, first_day, last_day, equipment, loads_on)
 	names = set(by_equipment) | _card_equipment(company, project, card_month, card_year, equipment)
