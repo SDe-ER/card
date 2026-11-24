@@ -9,6 +9,8 @@ Proven here: day and night amounts, zero-hour loads, the working-day rule, manda
 permlevels, the submit snapshot, the period-run fingerprint, and unchanged hourly/daily/monthly
 pricing. All data is per-test and rolled back."""
 
+from unittest.mock import patch
+
 import frappe
 from frappe.utils import flt
 
@@ -17,6 +19,7 @@ from card.card.report.equipment_customer_statement.equipment_customer_statement 
 )
 from card.constants import DIR_RENTED_OUT, DIR_SUBRENTAL, OWNED, SHIFT_NIGHT
 from card.gl.period_run import document_fingerprint
+from card.report_access import role_reads_money
 from card.tests.test_customer import RENTED
 from card.tests.test_stop_reasons import CLIENT_STOP, LEAVE, WORK, _StopBase
 
@@ -429,6 +432,68 @@ class TestVolumeBilling(_StopBase):
 		equipment_row = next(r for r in rows if str(r.get("row_id", "")).endswith("|E|" + eq.name))
 		self.assertIsNone(equipment_row["hourly_rate"])
 		self.assertEqual(equipment_row["total_loads"], 40)
+
+	# ---- #259 (FR-166 item w): field-level check of the Monthly Card money level on the statement ----
+	STATEMENT_MONEY_KEYS = (
+		"customer_rate",
+		"total_volume_m3",
+		"hourly_rate",
+		"customer_amount",
+		"additions",
+		"deductions",
+		"net",
+	)
+
+	def _statement_filters(self):
+		return {
+			"company": self.company,
+			"customer": self.customer,
+			"from_month": 9,
+			"from_year": 2026,
+			"project": self.project,
+		}
+
+	def test_statement_without_money_level_read_has_no_money_values(self):
+		"""A user whose roles do not read permlevel 1 of Card Monthly Card gets no rate, amount, total volume
+		(with the total loads it gives the level-1 load volume), addition, deduction or net, in no column, row or
+		summary tile. Counts (days, hours, loads) stay."""
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		target = "card.card.report.equipment_customer_statement.equipment_customer_statement.role_reads_money"
+		with patch(target, return_value=False):
+			columns, rows, _message, _chart, summary, *_ = customer_statement(self._statement_filters())
+		fieldnames = [c["fieldname"] for c in columns]
+		for key in self.STATEMENT_MONEY_KEYS:
+			self.assertNotIn(key, fieldnames)
+			self.assertFalse([r for r in rows if key in r], key)
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(row["total_loads"], 40)
+		self.assertEqual(flt(row["hours"]), 10.0)
+		self.assertEqual(row["working_days"], 1)
+		# the tiles built on the card amounts go; the accounting tiles keep their own gate (can_view_ledger)
+		labels = {t.get("label") for t in summary}
+		for label in ("Total accrued (cards)", "Not invoiced through Card"):
+			self.assertNotIn(frappe._(label), labels)
+
+	def test_statement_with_money_level_read_is_unchanged(self):
+		"""Every role of the report reads level 1 of Card Monthly Card today, so their statement keeps every money
+		value. Checked on the DocPerms (Administrator would pass role_reads_money whatever they say)."""
+		report_roles = {r.role for r in frappe.get_doc("Report", "Equipment Customer Statement").roles}
+		self.assertTrue(report_roles)
+		level_1_readers = {
+			p.role for p in frappe.get_meta("Card Monthly Card").permissions if p.permlevel == 1 and p.read
+		}
+		self.assertLessEqual(report_roles, level_1_readers)
+		self.assertTrue(role_reads_money())
+		eq = self._volume_equipment()
+		card = self._volume_card(eq, [{"loads_count": 40, "working_hours": 10}], submit=True)
+		columns, rows, *_ = customer_statement(self._statement_filters())
+		fieldnames = [c["fieldname"] for c in columns]
+		for key in self.STATEMENT_MONEY_KEYS:
+			self.assertIn(key, fieldnames)
+		row = next(r for r in rows if r.get("card") == card.name)
+		self.assertEqual(flt(row["customer_amount"]), 1280.0)
+		self.assertEqual(flt(row["total_volume_m3"]), 640.0)
 
 	# ---- FR-166 z1: a billable stop-only day on a per-m³ card is a stop day, not a billed day ----
 	def test_billable_stop_only_day_is_not_a_billed_day_on_a_per_m3_card(self):

@@ -16,8 +16,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Security
-
-_Nothing yet._
+- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259).** The report
+  reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
+  of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
+  rate, customer amount, total volume (with the total loads it gives the level-1 load volume), additions,
+  deductions and net, in columns, rows and the two summary tiles built on them (Total accrued (cards), Not
+  invoiced through Card), with the existing `strip_money` helper. Days, hours and loads stay; the accounting tiles
+  (GL, Sales Invoices made through CARD) keep their own gate (`can_view_ledger`). Equipment Customers Summary,
+  Equipment Supplier Statement and Equipment Suppliers Summary have no such check yet (follow-up #295). Impact:
+  permissions none (no
+  role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
+  data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

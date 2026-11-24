@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-24 — The customer statement checks who may see card amounts.** **Equipment Customer Statement** now shows rates, amounts, total volume, additions, deductions and net only to users whose roles may read the amounts of a **Monthly Card**. Today every role that opens this report may read them, so nothing changes for current users. The check protects the amounts if another role gets the report later.
 
 ## v4.11.0 — 2026-11-22
 
