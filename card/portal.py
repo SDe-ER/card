@@ -101,6 +101,10 @@ def get_party_from_user(user: str | None = None) -> tuple[str, str] | None:
 
 	Returns ``None`` when the user is Guest / Administrator, when no Contact
 	is linked by email, or when the Contact has no Supplier / Customer link.
+	Also ``None`` when several Contacts carry the user's email and resolve
+	to different parties: the party is then not certain, and which Contact
+	the database returns first must never decide whose cards are shown
+	(security review 2026-11-13, finding 8).
 	The party is never taken from a client argument: callers that need a
 	party for the current request must go through this function. Matches the
 	official ERPNext portal pattern (``erpnext/portal/utils.py:party_exists``
@@ -111,9 +115,19 @@ def get_party_from_user(user: str | None = None) -> tuple[str, str] | None:
 	if user in ("Guest", "Administrator") or not user:
 		return None
 
-	contact_name = frappe.db.get_value("Contact", {"email_id": user}, "name")
-	if not contact_name:
-		return None
+	parties = set()
+	contacts = frappe.get_all(
+		"Contact", filters={"email_id": user}, pluck="name", order_by="name", limit_page_length=0
+	)
+	for contact_name in contacts:
+		party = _contact_party(contact_name)
+		if party:
+			parties.add(party)
+	return parties.pop() if len(parties) == 1 else None
+
+
+def _contact_party(contact_name: str) -> tuple[str, str] | None:
+	"""The first Supplier / Customer link of one Contact, by the row order on the form."""
 
 	links = frappe.get_all(
 		"Dynamic Link",
@@ -145,6 +159,30 @@ def _permitted_companies(user: str) -> list[str] | None:
 	return _restricted_companies(user, "Card Monthly Card")
 
 
+def _reads_cards(user: str) -> bool:
+	"""Return True when the roles of ``user`` grant read on Card Monthly Card.
+
+	``list_party_cards`` and ``get_party_card`` read with ``frappe.get_all`` and
+	``frappe.db.get_value``, which apply no DocPerm. This explicit check keeps
+	the portal closed for every user whose roles cannot read the cards, also
+	when ``enable_party_portal`` is on (security review 2026-11-13, finding 7).
+	It grants nothing: the portal roles get read only by an owner decision
+	(O-16).
+
+	Only a role permission counts: a read limited to the user's own documents
+	(``if_owner``) or a document shared with the user does not open the
+	portal (same rule as ``card.report_access.role_reads``).
+
+	Before O-16 grants that read to a portal role, the standard read paths
+	(list view, REST) must be scoped to the user's own party as well: a
+	doctype-wide read is scoped by company only today."""
+
+	if user == "Administrator":
+		return True
+	perms = frappe.permissions.get_role_permissions(frappe.get_meta("Card Monthly Card"), user=user)
+	return bool(perms.get("read")) and "read" not in (perms.get("if_owner") or {})
+
+
 def list_party_cards(
 	party_type: str,
 	party: str,
@@ -161,7 +199,9 @@ def list_party_cards(
 	  Customer) equals ``party``;
 	* ``company`` is restricted to the user's permitted set when
 	  ``_permitted_companies`` returns a bounded list (second-company
-	  isolation).
+	  isolation);
+	* the roles of ``user`` must grant read on Card Monthly Card
+	  (``_reads_cards``), otherwise the result is ``[]``.
 
 	The ``(party_type, party)`` pair is trusted and must come from
 	``get_party_from_user``; the forgery test (Lesson 1) covers the www index
@@ -176,6 +216,8 @@ def list_party_cards(
 	filters: dict[str, object] = {field: party, "docstatus": 1}
 
 	user = user or frappe.session.user
+	if not _reads_cards(user):
+		return []
 	companies = _permitted_companies(user)
 	if companies is not None:
 		if not companies:
@@ -203,14 +245,16 @@ def get_party_card(
 	party and the stored company is inside the user's permitted set. Returns
 	``None`` when any check fails — never raises, so an unauthorised view
 	handler can 404 the way it does for a missing row. The lookup goes
-	through ``frappe.db.get_value`` with explicit filters so a user that
-	cannot read Card Monthly Card (no DocPerm) gets ``None``, matching the
-	scaffold's inert posture."""
+	through ``frappe.db.get_value``, which applies no DocPerm, so the role
+	permission is checked first (``_reads_cards``): a user whose roles cannot
+	read Card Monthly Card gets ``None``."""
 
 	if not name:
 		return None
 
 	user = user or frappe.session.user
+	if not _reads_cards(user):
+		return None
 	party = get_party_from_user(user)
 	if not party:
 		return None
