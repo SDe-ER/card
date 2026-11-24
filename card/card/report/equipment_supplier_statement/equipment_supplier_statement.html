@@ -220,7 +220,7 @@
 	</tr>
 </table>
 {% if (filters.include_draft) { %}<p class="ess-note"><b>{%= __("Includes draft cards") %}</b></p>{% } %}
-{% if (summary_of.current_due) { %}<p class="ess-note">{%= esc(__("Payments are submitted accounting entries only; draft journal entries are not counted.")) %}</p>{% } %}
+{% if (summary_of.current_due || payments.length) { %}<p class="ess-note">{%= esc(__("Payments are submitted accounting entries only; draft journal entries are not counted.")) %}</p>{% } %}
 {% if (raw.message && rows.length < 2) { %}<p class="ess-note">{%= esc(String(raw.message)) %}</p>{% } %}
 <table class="ess-rows">
 	<thead>

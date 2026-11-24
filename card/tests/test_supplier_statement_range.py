@@ -201,11 +201,28 @@ class TestSupplierStatementRange(_PostingBase):
 		for key in self.CARD_MONEY:
 			self.assertFalse([x for x in work_rows if key in x], key)
 		payments = [x for x in r.rows if x.get("payment") and x.get("parent_row")]
-		self.assertEqual([(p["voucher_no"], flt(p["net"])) for p in payments], [(paid.name, 1000.0)])
+		self.assertEqual(
+			[(p["voucher_no"], flt(p["payment_amount"])) for p in payments], [(paid.name, 1000.0)]
+		)
 		fieldnames = [c["fieldname"] for c in r.columns]
-		self.assertIn("net", fieldnames)  # the column of the payment amounts
-		for key in ("rate", "hourly_rate", "amount", "additions", "deductions"):
+		self.assertIn("payment_amount", fieldnames)  # the payment amounts have their own column
+		for key in self.CARD_MONEY:
 			self.assertNotIn(key, fieldnames)
+		# the A4 PDF uses the hours layout (no empty money cells) and still lists the payment with its note
+		filters = {
+			"company": self.company,
+			"statement_type": "مورد",
+			"supplier": self.supplier,
+			"from_month": 9,
+			"from_year": 2026,
+			"from_date": "2026-09-01",
+			"to_date": "2026-09-30",
+			"include_draft": 1,
+		}
+		html = build_html(filters, r.columns, r.rows, r.message, r.summary)
+		self.assertIn(paid.name, html)
+		self.assertIn("Payments are submitted accounting entries only", html)
+		self.assertNotIn("Supplier signature", html)
 
 	def test_month_statement_without_money_level_has_no_card_money(self):
 		self._card(self._eq(), HOURS)
@@ -240,7 +257,7 @@ class TestSupplierStatementRange(_PostingBase):
 
 	def test_every_money_report_role_reads_the_money_level(self):
 		"""Today every role of these reports reads permlevel 1 of Card Monthly Card, so their reports are unchanged
-		(checked on the DocPerms: Administrator passes role_reads_money whatever they say)."""
+		(checked on the DocPerms of the shipped Report roles; a site Custom Role is not covered. Administrator passes role_reads_money whatever they say)."""
 		level_1 = {
 			p.role for p in frappe.get_meta("Card Monthly Card").permissions if p.permlevel == 1 and p.read
 		}

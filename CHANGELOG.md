@@ -36,8 +36,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Equipment Supplier Statement (`strip_card_money`): card, equipment, project and total rows lose rate, hourly
     rate, amount, additions, deductions and net. The summary items built on card amounts go: `net_cards`,
     `not_invoiced`, and in the date-range statement `period_net`, `previous_due` (balance carried from before
-    the period) and `current_due`, which add card work to the ledger. Payment rows are accounting entries and keep
-    their amount (the Net column stays when they are shown).
+    the period) and `current_due`, which add card work to the ledger. Payment rows are accounting entries: their
+    amount moves to a "Payment amount" column, and the Net column goes, so the A4 print and PDF use the hours
+    layout and still list the payments with their note.
+  - Both summaries sort by party code instead of the hidden card amount.
   Accounting items (GL balances, payments, VAT, other credits, invoices) keep their own gate (`can_view_ledger`).
   The A4 print skips the missing items. Impact: permissions none (no role or DocPerm change; every role of these
   reports reads level 1 today, so their reports are unchanged); accounting none; data none; API none (fewer keys

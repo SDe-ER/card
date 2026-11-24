@@ -159,7 +159,12 @@ def execute(filters=None):
 		"received": 0.0,
 		"closing": 0.0,
 	}
-	pairs = sorted([[-agg[k]["accrued"], k] for k in order])
+	# #295: without the money level the order follows the party code, never the hidden card amount
+	pairs = (
+		sorted([[-agg[k]["accrued"], k] for k in order])
+		if role_reads_money()
+		else sorted([[0, k] for k in order])
+	)
 	for pr in pairs:
 		s = pr[1]
 		a = agg[s]

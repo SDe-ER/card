@@ -622,8 +622,9 @@ def strip_card_money(columns, rows, summary):
 	"""#295 (option A): remove every value derived from card amounts, so it never reaches the browser.
 
 	- Card, equipment, project and total rows lose their rate, amount, additions, deductions and net.
-	- Payment rows (date-range statement) are accounting entries: they keep their amount in the Net column, which
-	  then stays. Their own gate is can_view_ledger.
+	- Payment rows (date-range statement) are accounting entries (gate: can_view_ledger). Their amount moves to its
+	  own "Payment amount" column; the Net column goes, so the prints use the hours layout (they pick the money
+	  layout by the Net column) and still list the payments with their amounts.
 	- Summary items built on card amounts go: net cards, not invoiced through Card, and in the date-range statement
 	  the net work, the balance carried from before the period and the current due (both add card work). The pure
 	  accounting items (VAT, other credits, payments, GL balances, invoices) stay under can_view_ledger."""
@@ -631,14 +632,20 @@ def strip_card_money(columns, rows, summary):
 	for row in rows or ():
 		if row.get("payment"):
 			has_payments = True
+			row["payment_amount"] = row.get("net")
 			continue
 		for key in CARD_MONEY_ROW_KEYS:
 			row.pop(key, None)
-	columns = [
-		c
-		for c in columns
-		if c.get("fieldname") not in CARD_MONEY_ROW_KEYS or (has_payments and c.get("fieldname") == "net")
-	]
+	columns = [c for c in columns if c.get("fieldname") not in CARD_MONEY_ROW_KEYS]
+	if has_payments:
+		columns.append(
+			{
+				"fieldname": "payment_amount",
+				"label": _("Payment amount"),
+				"fieldtype": "Currency",
+				"width": 120,
+			}
+		)
 	summary = [t for t in summary or () if t.get("key") not in CARD_MONEY_SUMMARY_KEYS]
 	return columns, summary
 
