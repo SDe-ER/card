@@ -16,8 +16,30 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Security
+- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
+  reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
+  of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
+  rate, customer amount, total volume (with the total loads it gives the level-1 load volume), additions,
+  deductions and net, in columns, rows and the two summary tiles built on them (Total accrued (cards), Not
+  invoiced through Card), with the existing `strip_money` helper. Days, hours and loads stay; the accounting tiles
+  (GL, Sales Invoices made through CARD) keep their own gate (`can_view_ledger`). Equipment Customers Summary,
+  Equipment Supplier Statement and Equipment Suppliers Summary have no such check yet (follow-up #295). Impact:
+  permissions none (no
+  role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
+  data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
 
-_Nothing yet._
+### Fixed
+- **Period run: a change of loads makes the run stale (FR-177, #263, PR #294).** The period-run fingerprint version 1 did
+  not cover the Monthly Card load fields, so moving or changing loads on a per-m³ card with the same amount left
+  an approved run current. New runs use fingerprint version 2 (`card/gl/period_run.py`: version 1 plus
+  `loads_count`, `total_loads`, `total_volume_m3`, `load_volume_used`). Version 1 is unchanged; a run built with it,
+  or with no stored version, is still checked with version 1 (`check_current`, `period_gate._source_mismatches`).
+  A source without load values has the same fingerprint in both versions. A draft or returned run is rebuilt on
+  every save, so it moves to version 2 on its next save; submitted runs keep their version. A run with a version
+  this code does not know is reported as changed (empty fingerprint) and refused by the posting gate, never an
+  error. Impact: permissions none; accounting none (no document is created or changed; only the stale check of
+  new runs is stricter); data none (no patch); API none. Rollback: code only; code older than this change has no
+  version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
 
 ### Changed
 - **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5, PR #297).** `is_billed_day`
