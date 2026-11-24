@@ -271,7 +271,9 @@ class TestAccrualJournalLink(_P0Base):
 		target = "card.card.report.card_settlement_status.card_settlement_status.role_reads_money"
 		with patch(target, return_value=False):
 			columns, data, _message, _chart, summary = settlement_status(filters)
-			empty_columns = settlement_status({**filters, "from_date": "2020-01-01", "to_date": "2020-01-31"})[0]
+			empty_columns = settlement_status(
+				{**filters, "from_date": "2020-01-01", "to_date": "2020-01-31"}
+			)[0]
 		for cols in (columns, empty_columns):
 			self.assertNotIn("net", [c["fieldname"] for c in cols])
 		self.assertFalse([r for r in data if "net" in r])

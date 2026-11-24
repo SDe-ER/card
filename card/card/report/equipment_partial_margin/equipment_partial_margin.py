@@ -25,7 +25,13 @@ from frappe import _
 from frappe.utils import flt, getdate
 
 from card import analytics
-from card.report_access import can_view_ledger, readable_links, resolve_company
+from card.report_access import (
+	can_view_ledger,
+	readable_links,
+	resolve_company,
+	role_reads_money,
+	strip_money,
+)
 from card.report_currency import company_currency_report
 
 DOCTYPES = (
@@ -39,6 +45,8 @@ DOCTYPES = (
 )
 COST_KEYS = ("rental", "diesel", "tank_diesel", "transport", "maintenance")
 AMOUNT_KEYS = ("revenue", "unbilled_revenue", *COST_KEYS, "total_cost", "margin", "unbilled_rental")
+# the card nets no submitted document recognised yet (permlevel 1 of Card Monthly Card, #301)
+CARD_MONEY_KEYS = ("unbilled_revenue", "unbilled_rental")
 
 
 @company_currency_report(*DOCTYPES)
@@ -173,7 +181,16 @@ def execute(filters=None):
 			"indicator": "Grey",
 		},
 	]
-	return readable_links(get_columns(), data), data, " ".join(notes), None, summary
+	columns = readable_links(get_columns(), data)
+	if not role_reads_money():
+		columns, summary = strip_money(
+			columns,
+			data,
+			keys=CARD_MONEY_KEYS,
+			summary=summary,
+			tile_labels=(_("Customer cards not invoiced yet"),),
+		)
+	return columns, data, " ".join(notes), None, summary
 
 
 def get_columns():
