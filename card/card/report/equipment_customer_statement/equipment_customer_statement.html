@@ -38,8 +38,21 @@
 		}
 		fields = with_stopped;
 	}
+	/* FR-166: a card billed per m3 prints its loads and its volume after the hours, so the amount can be checked
+	   (loads x load volume x rate); other statements keep the layout without them */
+	var quantity = [["total_loads", 6, "int"], ["total_volume_m3", 7, "num"]];
+	for (var q = quantity.length - 1; q >= 0; q--) {
+		if (!has_value(quantity[q][0])) continue;
+		var with_quantity = [];
+		var after = has_value("stopped_hours") ? "stopped_hours" : "hours";
+		for (var f = 0; f < fields.length; f++) {
+			with_quantity.push(fields[f]);
+			if (fields[f][0] === after) with_quantity.push(quantity[q]);
+		}
+		fields = with_quantity;
+	}
 	/* FR-178: the report sends no money column to a user who cannot read the card amounts; the print follows it */
-	var money = { customer_rate: 1, customer_amount: 1, additions: 1, deductions: 1, net: 1 };
+	var money = { customer_rate: 1, customer_amount: 1, additions: 1, deductions: 1, net: 1, total_volume_m3: 1 };
 	var shown = [];
 	var shown_width = 0;
 	for (var f = 0; f < fields.length; f++) {

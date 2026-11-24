@@ -21,7 +21,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   HTML template (the same layout on both print paths), selected by default in the PDF dialog.
   - Columns: item, first and last operation, days, hours, the contract rate (customer rate type, then the rate),
     customer amount, additions and deductions (only when a row has one) and net. No hourly rate. Billable stopped
-    hours only when a row has them.
+    hours only when a row has them. Loads and volume (m³) only when a row has them (cards billed per m³), so the
+    amount can be checked.
+  - Known limitation: the PDF button of this report uses the standard PDF generator. If Arabic letters come out
+    unjoined in the PDF, use Print and "Save as PDF" in the browser (not verified on a real Desk yet).
   - Totals by stable summary keys only: the cards net and, when above zero, the work not yet invoiced through CARD.
     No ledger, reconciliation or server message is printed, and no system name.
   - The print follows the card money level (FR-178): a money column the report does not send is not printed.

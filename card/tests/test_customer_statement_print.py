@@ -102,13 +102,23 @@ class TestCustomerStatementPrint(IntegrationTestCase):
 		for fieldname, _width in columns:
 			self.assertIn(f'"fieldname": "{fieldname}"', source)
 
+	def test_per_m3_cards_print_loads_and_volume(self):
+		"""Code review of FR-187: a per-m3 amount is loads x load volume x rate, so the print shows the loads and
+		the volume when a row has them. The volume stays behind the card money level, as on the screen."""
+		template = _template()
+		self.assertIn('var quantity = [["total_loads", 6, "int"], ["total_volume_m3", 7, "num"]];', template)
+		self.assertIn("if (!has_value(quantity[q][0])) continue;", template)
+		source = _read(*REPORT_DIR, "equipment_customer_statement.py")
+		for fieldname in ("total_loads", "total_volume_m3"):
+			self.assertIn(f'"fieldname": "{fieldname}"', source)
+
 	def test_money_columns_print_only_when_the_report_sends_them(self):
 		"""FR-178: without the card money level the report sends no rate, amount, addition, deduction or net
 		column. The print follows the report: a money column that is not in the report's columns is not
 		printed, so the layout never shows an empty amount column or a figure the screen hides."""
 		template = _template()
 		self.assertIn(
-			"var money = { customer_rate: 1, customer_amount: 1, additions: 1, deductions: 1, net: 1 };",
+			"var money = { customer_rate: 1, customer_amount: 1, additions: 1, deductions: 1, net: 1, total_volume_m3: 1 };",
 			template,
 		)
 		self.assertIn("if (money[fields[f][0]] && label_of[fields[f][0]] === undefined) continue;", template)
