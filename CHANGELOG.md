@@ -71,7 +71,49 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   reports — System Manager, Accounts Manager, Card Manager — all read level 1, so their reports are unchanged);
   accounting none; data none; API none (fewer keys for a user without level-1 read). Rollback: code only.
 
+### Added
+- **FR-187 — A4 print of Equipment Customer Statement (issue 299; owner decision 2026-11-24: no hourly rate).** The
+  customer copy of the supplier A4 statement: report Print Format `Equipment Customer Statement A4` and the report's
+  HTML template (the same layout on both print paths), selected by default in the PDF dialog.
+  - Columns: item, first and last operation, days, hours, the contract rate (customer rate type, then the rate),
+    customer amount, additions and deductions (only when a row has one) and net. No hourly rate. Billable stopped
+    hours only when a row has them. Loads and volume (m³) only when a row has them (cards billed per m³), so the
+    amount can be checked.
+  - Known limitation: the PDF button of this report uses the standard PDF generator. If Arabic letters come out
+    unjoined in the PDF, use Print and "Save as PDF" in the browser (not verified on a real Desk yet).
+  - Totals by stable summary keys only: the cards net and, when above zero, the work not yet invoiced through CARD.
+    No ledger, reconciliation or server message is printed, and no system name.
+  - The print follows the card money level (FR-178): a money column the report does not send is not printed.
+  - Every summary item of the customer statement now has a stable `key`.
+  - Functions: `equipment_customer_statement.html` / `.js` / `.py`, `card/card/print_format/equipment_customer_statement_a4/`,
+    `card/locale/`. Tests: `card/tests/test_customer_statement_print.py`, `test_customer_reports.py`.
+  - Impact: permissions none (the report's roles and gates are unchanged); accounting none (print only); data none
+    (migrate imports the new standard Print Format); API: summary items carry `key`. Rollback: code only; the Print
+    Format record stays until it is deleted by hand.
+
 ### Changed
+- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
+  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
+  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
+    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
+    returns `"switched off"` and creates or enables nothing. This covers the patch
+    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
+    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
+  - To create the dimension later: back up, turn the switch on, then run
+    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
+    removes nothing.
+  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
+    dimension enabled, and writes nothing else.
+  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
+    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
+    shows a message with the command (`CardSettings._explain_dimension_switch`).
+  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
+    disabled until the switch is on and the command runs again.
+  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
+    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
+  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
+    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
 - **FR-186 — The loads figures show only on per-m³ cards (issue 264 part 2; owner decision 2026-11-24).** On the
   Monthly Card form, "Load volume used (m³)", "Total loads" and "Total volume (m³)" show only when the customer rate
   type is per m³ or the card already has loads (`depends_on` in `card_monthly_card.json`), and the Loads column of the
