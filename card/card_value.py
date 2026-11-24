@@ -84,7 +84,8 @@ def bills_full_days(rate_basis, basis):
 def exact_hourly_rate(rate_basis, rate, daily_hours):
 	"""The unrounded hourly rate a card prices with (CardMonthlyCard._hourly_for without its errors):
 	per hour = rate; per day = rate / the daily hours; per month = rate / the standard month hours.
-	An undefined basis or a missing divisor gives 0. Never the 2-decimal rate shown on the equipment
+	An undefined basis or missing daily hours give 0; a per-month rate without Standard month hours in Card
+	Settings is refused (#50). Never the 2-decimal rate shown on the equipment
 	(425 / 8 = 53.125, not 53.13)."""
 	if rate_basis == PER_DAY:
 		return flt(rate) / flt(daily_hours) if flt(daily_hours) > 0 else 0.0
@@ -93,7 +94,8 @@ def exact_hourly_rate(rate_basis, rate, daily_hours):
 	if rate_basis == "بالشهر":
 		from card.settings import standard_month_hours
 
-		month_hours = standard_month_hours()
+		# #50: a per-month rate is never priced as zero or with a guess when the setting is missing
+		month_hours = standard_month_hours(throw=flt(rate) > 0)
 		return flt(rate) / month_hours if month_hours > 0 else 0.0
 	return 0.0
 

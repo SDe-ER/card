@@ -387,7 +387,7 @@ class CardMonthlyCard(Document):
 				billable_stop_days = billable_stop_days + 1
 
 		# ---- shift limit (advisory warning, never blocks; every recorded hour is billed) ----
-		if max_hours <= 0:
+		if max_hours <= 0 and _interactive_form_save():
 			frappe.msgprint(
 				_("{0} is not set in Card Settings, so no shift limit was checked on this card.").format(
 					_(frappe.get_meta("Card Settings").get_label(limit_field))
@@ -856,8 +856,9 @@ class CardMonthlyCard(Document):
 		if basis == "بالساعة":
 			return rate
 		if basis == "بالشهر":
-			# #50: never a hard-coded 260; a side that must price refuses a missing setting
-			month_hours = standard_month_hours(throw=required)
+			# #50: never a hard-coded 260. A per-month rate cannot be priced without the setting, on either
+			# side: a refusal that names the setting, never an amount of zero
+			month_hours = standard_month_hours(throw=required or flt(rate) > 0)
 			return rate / month_hours if month_hours > 0 else 0.0
 		if required:
 			frappe.throw(_("Equipment rate type is not defined: {0}").format(self.equipment))

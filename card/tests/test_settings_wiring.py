@@ -6,6 +6,8 @@ proves that changing the setting changes behaviour AND that the baseline
 value reproduces the pre-settings behaviour. Setting writes and all records
 are rolled back by the test transaction."""
 
+from unittest.mock import patch
+
 import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import flt
@@ -325,17 +327,24 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		frappe.clear_document_cache("Card Settings", "Card Settings")
 		self.assertEqual(setting("max_day_shift_hours"), 0.0)
 		self.assertEqual(setting("max_night_shift_hours"), 0.0)
+		form_save = "card.card.doctype.card_monthly_card.card_monthly_card._interactive_form_save"
 		for suffix, shift in (("-U13", "نهاري"), ("-U13N", "ليلي")):
 			frappe.local.message_log = []
-			card = self._card(self._equipment(suffix), [13], shift=shift)
+			with patch(form_save, return_value=True):
+				card = self._card(self._equipment(suffix), [13], shift=shift)
 			self.assertEqual(flt(card.total_working_hours), 13.0)
 			messages = self._shift_messages()
 			self.assertIn("is not set in Card Settings", messages)
 			self.assertNotIn("shift limit for shift", messages)  # no limit was checked
 		_set("max_day_shift_hours", 0)  # an explicit zero is the same: not configured
 		frappe.local.message_log = []
-		self._card(self._equipment("-Z13"), [13])
+		with patch(form_save, return_value=True):
+			self._card(self._equipment("-Z13"), [13])
 		self.assertIn("is not set in Card Settings", self._shift_messages())
+		# a save that is not made at the form (import, job, patch) shows no operator message
+		frappe.local.message_log = []
+		self._card(self._equipment("-J13"), [13])
+		self.assertNotIn("is not set in Card Settings", self._shift_messages())
 
 	def test_missing_hour_settings_get_the_doctype_defaults_once(self):
 		"""#50: an install or upgrade stores the DocType defaults of the hour settings that have no stored
@@ -351,6 +360,13 @@ class TestCardSettingsWiring(IntegrationTestCase):
 		self.assertEqual(setting("max_night_shift_hours"), 0.0)
 		_set("standard_month_hours", 200)
 		store_hour_settings_defaults()  # a stored value is never replaced
+		self.assertEqual(setting("standard_month_hours"), 200.0)
+		# the upgrade patch alone also replaces a stored 0: the old code read it as the built-in number
+		from card.patches.v4_12_0 import store_hour_settings_defaults as patch_module
+
+		patch_module.execute()
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+		self.assertEqual(setting("max_night_shift_hours"), 12.0)
 		self.assertEqual(setting("standard_month_hours"), 200.0)
 		self._card(self._equipment("-U12"), [12])
 		self._card(self._equipment("-U12N"), [12], shift="ليلي")
@@ -788,6 +804,13 @@ class TestRateBasisSettings(IntegrationTestCase):
 
 		eq = self._equipment(rate_type="بالشهر", rate=26000)  # configured (260): 100/h
 		self.assertEqual(flt(eq.approved_hourly_rate), 100.0)
+		rented_out = self._equipment(
+			ownership=OWNED,
+			rental_direction=DIR_RENTED_OUT,
+			default_customer=self.customer,
+			customer_rate_type="بالشهر",
+			customer_rate=52000,
+		)
 		for unset in ("missing", "zero"):
 			if unset == "missing":
 				frappe.db.delete("Singles", {"doctype": "Card Settings", "field": "standard_month_hours"})
@@ -796,12 +819,25 @@ class TestRateBasisSettings(IntegrationTestCase):
 				_set("standard_month_hours", 0)
 			self.assertEqual(setting("standard_month_hours"), 0.0, unset)
 			self.assertEqual(get_standard_month_hours(), 0.0, unset)
-			self.assertEqual(exact_hourly_rate("بالشهر", 26000, 10), 0.0, unset)
+			# the supplier statement prices draft days with this helper: refused, never an amount of zero
+			with self.assertRaises(frappe.ValidationError) as raised:
+				exact_hourly_rate("بالشهر", 26000, 10)
+			self.assertIn("Standard month hours", str(raised.exception), unset)
+			self.assertEqual(exact_hourly_rate("بالشهر", 0, 10), 0.0, unset)  # no rate, nothing to price
 			with self.assertRaises(frappe.ValidationError) as raised:
 				self._equipment(rate_type="بالشهر", rate=26000)
 			self.assertIn("Standard month hours", str(raised.exception), unset)
 			with self.assertRaises(frappe.ValidationError) as raised:
 				self._card(eq, [10])
+			self.assertIn("Standard month hours", str(raised.exception), unset)
+			# a save of the equipment that does not touch the rate is not blocked and keeps the hourly rate
+			eq.reload()
+			eq.equipment_name = "TEST-F5-EQ-" + frappe.generate_hash(length=6)
+			eq.save(ignore_permissions=True)
+			self.assertEqual(flt(eq.approved_hourly_rate), 100.0, unset)
+			# the customer side is refused too (a per-month customer rate is never billed as zero)
+			with self.assertRaises(frappe.ValidationError) as raised:
+				self._card(rented_out, [10])
 			self.assertIn("Standard month hours", str(raised.exception), unset)
 		# a per-day rate does not need the setting
 		self.assertEqual(flt(self._card(self._equipment(rate_type="باليوم", rate=750), [10]).amount), 750.0)

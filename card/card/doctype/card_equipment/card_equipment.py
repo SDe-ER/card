@@ -186,8 +186,12 @@ class CardEquipment(Document):
 			self.approved_hourly_rate = rate
 		elif self.rate_type == "بالشهر":
 			# F.5: monthly basis spreads the rate over the standard month hours
-			# #50: never a hard-coded 260; a missing setting is refused with a message that names it
-			self.approved_hourly_rate = flt(rate / standard_month_hours(throw=True), 2)
+			# #50: never a hard-coded 260. A missing setting is refused with a message that names it when the
+			# rate is set or changed; a save that does not touch the rate keeps the stored hourly rate
+			priced = self.is_new() or self.has_value_changed("rate") or self.has_value_changed("rate_type")
+			month_hours = standard_month_hours(throw=priced)
+			if month_hours > 0:
+				self.approved_hourly_rate = flt(rate / month_hours, 2)
 		else:
 			self.approved_hourly_rate = 0
 

@@ -1053,6 +1053,18 @@ msgstr ""
 msgid "Shift hours exceeded warning"
 msgstr ""
 
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Shift limit not configured"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "{0} is not set in Card Settings, so no shift limit was checked on this card."
+msgstr ""
+
+#: card/settings.py
+msgid "Set {0} in Card Settings: a per-month rate cannot be priced without it."
+msgstr ""
+
 #. Description of the 'Amount' (Currency) field in DocType 'Equipment
 #. Transport'
 #: card/card/doctype/equipment_transport/equipment_transport.json

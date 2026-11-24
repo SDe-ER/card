@@ -73,11 +73,15 @@ def setting(fieldname):
 HOUR_SETTINGS = ("standard_month_hours", "max_day_shift_hours", "max_night_shift_hours")
 
 
-def store_hour_settings_defaults():
+def store_hour_settings_defaults(replace_zero=False):
 	"""#50: store the DocType default of each hour setting that has no stored value (never configured), so the
 	number lives in Card Settings, where the owner sees and changes it, and not in the code. A stored value,
 	also an explicit 0, is never replaced. Called by after_install, the test bootstrap and patch
-	v4_12_0.store_hour_settings_defaults; the caller commits."""
+	v4_12_0.store_hour_settings_defaults; the caller commits.
+
+	replace_zero (the upgrade patch only): a stored 0 is replaced too. Until this version the code read 0 as
+	"use the built-in number", and Frappe stores 0 for a Float field that was added after Card Settings was
+	last saved, so on an upgraded site a 0 was never the owner's choice."""
 	meta = frappe.get_meta("Card Settings")
 	stored = {
 		field
@@ -85,7 +89,7 @@ def store_hour_settings_defaults():
 			"select field, value from tabSingles where doctype='Card Settings' and field in %s",
 			[HOUR_SETTINGS],
 		)
-		if value not in (None, "")
+		if value not in (None, "") and not (replace_zero and flt(value) <= 0)
 	}
 	for fieldname in HOUR_SETTINGS:
 		default = flt(meta.get_field(fieldname).default)
