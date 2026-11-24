@@ -10,7 +10,14 @@ equipment not billed per m³, negative loads and loads on a future day are refus
 nothing; a log without loads does not erase a hand-entered load count; an amended log replaces the loads (zero
 included) and the day is reported; a cancelled log clears the loads of its day on a draft card; a submitted card
 is never changed. The two row fields are plain counts (Int, level 0) and the setting is a level-1 Check that
-defaults to 0. Everything is rolled back; no role is widened."""
+defaults to 0.
+
+A client that does not send the two load fields (CARD Mobile) cannot erase them: a save of an existing row without
+the keys keeps the stored loads, a corrected draft (a new log that amends a cancelled one) without the keys takes
+the loads of the log it amends, and an explicit 0 clears them. After the switch is turned off, a log that holds
+loads is still saved while its loads are unchanged (or cleared); only new or changed loads are refused. A day
+cleared because its log was cancelled loses the loads the generation copied from that log, also with the switch
+off; loads typed by hand on a card are kept. Everything is rolled back; no role is widened."""
 
 import frappe
 from frappe.utils import add_days, add_months, flt, get_first_day, nowdate
@@ -376,3 +383,191 @@ class TestDailyLogLoads(_CustomerCardsBase):
 		self.assertEqual((result["updated"], result["overwritten_days"]), ([], []))
 		self.assertEqual(frappe.db.get_value(CARD, card, "modified"), modified)
 		self.assertEqual(self._card_day(card, 1).loads_count, 5)
+
+	# ---------- a client that does not send the load fields (CARD Mobile) ----------
+	def _draft_log(self, n, rows):
+		"""A saved draft daily log of day ``n`` of last month, by the operator."""
+		frappe.set_user(self.operator)
+		try:
+			doc = self._draft(rows, self._day(n))
+			doc.insert()
+		finally:
+			frappe.set_user("Administrator")
+			frappe.clear_messages()
+		return doc
+
+	def _rest_update(self, name, row_values, user=None):
+		"""Save the log as a REST update does (``doc.update(data)`` with the rows as plain dicts, then ``save``):
+		a key that the client did not send is not in the row."""
+		frappe.set_user(user or self.operator)
+		try:
+			doc = frappe.get_doc(LOG, name)
+			stored = doc.rows[0]
+			row = {"name": stored.name, "equipment": stored.equipment, **row_values}
+			doc.update({"rows": [row]})
+			doc.save()
+		finally:
+			frappe.set_user("Administrator")
+			frappe.clear_messages()
+		return frappe.get_doc(LOG, name).rows[0]
+
+	def _corrected_draft(self, log, row_values):
+		"""The corrected draft CARD Mobile creates: a new log that amends the cancelled one, rows without names."""
+		frappe.set_user(self.operator)
+		try:
+			doc = self._draft([{"equipment": self.eq.name, **row_values}], log.log_date)
+			doc.amended_from = log.name
+			doc.insert()
+		finally:
+			frappe.set_user("Administrator")
+			frappe.clear_messages()
+		return frappe.get_doc(LOG, doc.name).rows[0]
+
+	def test_a_save_without_the_load_keys_keeps_the_stored_loads(self):
+		self._loads_setting(1)
+		log = self._draft_log(1, [self._row(8, 6, day_loads=5, night_loads=2)])
+		row = self._rest_update(log.name, {"day_hours": 7, "night_hours": 6})
+		self.assertEqual((flt(row.day_hours), row.day_loads, row.night_loads), (7, 5, 2))
+		# one key sent, the other not: the sent one is stored, the other is kept
+		row = self._rest_update(log.name, {"day_hours": 7, "night_hours": 6, "day_loads": 9})
+		self.assertEqual((row.day_loads, row.night_loads), (9, 2))
+
+	def test_a_save_with_explicit_zero_loads_clears_them(self):
+		self._loads_setting(1)
+		log = self._draft_log(1, [self._row(8, 6, day_loads=5, night_loads=2)])
+		row = self._rest_update(
+			log.name, {"day_hours": 8, "night_hours": 6, "day_loads": 0, "night_loads": 0}
+		)
+		self.assertEqual((row.day_loads, row.night_loads), (0, 0))
+
+	def test_a_form_save_of_the_loaded_log_stores_the_loads_it_sends(self):
+		self._loads_setting(1)
+		log = self._draft_log(1, [self._row(8, 6, day_loads=5, night_loads=2)])
+		frappe.set_user(self.operator)
+		try:
+			doc = frappe.get_doc(LOG, log.name)
+			doc.rows[0].day_loads = 11
+			doc.save()
+			# the form sends every field of every row
+			doc = frappe.get_doc(LOG, log.name)
+			rows = [r.as_dict() for r in doc.rows]
+			rows[0]["night_loads"] = 0
+			doc.update({"rows": rows})
+			doc.save()
+		finally:
+			frappe.set_user("Administrator")
+			frappe.clear_messages()
+		row = frappe.get_doc(LOG, log.name).rows[0]
+		self.assertEqual((row.day_loads, row.night_loads), (11, 0))
+
+	def test_a_new_row_without_the_load_keys_has_no_loads(self):
+		self._loads_setting(1)
+		log = self._draft_log(1, [self._row(8, 6)])
+		row = frappe.get_doc(LOG, log.name).rows[0]
+		self.assertEqual((row.day_loads, row.night_loads), (0, 0))
+
+	def test_a_corrected_draft_without_the_load_keys_keeps_the_loads_of_the_cancelled_log(self):
+		self._loads_setting(1)
+		log = self._log(1, [self._row(8, 6, day_loads=5, night_loads=2)])
+		self._cancel(log)
+		row = self._corrected_draft(log, {"day_hours": 7, "night_hours": 6})
+		self.assertEqual((flt(row.day_hours), row.day_loads, row.night_loads), (7, 5, 2))
+
+	def test_a_corrected_draft_with_explicit_zero_loads_has_none(self):
+		self._loads_setting(1)
+		log = self._log(1, [self._row(8, 6, day_loads=5, night_loads=2)])
+		self._cancel(log)
+		row = self._corrected_draft(log, {"day_hours": 7, "night_hours": 6, "day_loads": 0, "night_loads": 0})
+		self.assertEqual((row.day_loads, row.night_loads), (0, 0))
+
+	def test_loads_of_a_row_of_another_log_are_not_taken(self):
+		self._loads_setting(1)
+		other = self._draft_log(2, [self._row(8, 6, day_loads=5, night_loads=2)])
+		log = self._draft_log(1, [self._row(8, 6)])
+		frappe.set_user(self.operator)
+		try:
+			doc = frappe.get_doc(LOG, log.name)
+			# a forged row name (a row of another log) is not a stored row of this log
+			doc.update({"rows": [{"name": other.rows[0].name, "equipment": self.eq.name, "day_hours": 8}]})
+			row = doc.rows[0]
+			daily_log.keep_unsent_loads(doc)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertFalse(row.day_loads)
+		self.assertFalse(row.night_loads)
+
+	# ---------- the switch turned off after loads were stored ----------
+	def test_off_after_on_a_log_with_unchanged_loads_is_still_saved(self):
+		self._loads_setting(1)
+		log = self._draft_log(1, [self._row(8, 6, day_loads=5, night_loads=2)])
+		self._loads_setting(0)
+		# the form: every field sent, loads unchanged
+		frappe.set_user(self.operator)
+		try:
+			doc = frappe.get_doc(LOG, log.name)
+			doc.rows[0].day_hours = 9
+			doc.save()
+		finally:
+			frappe.set_user("Administrator")
+			frappe.clear_messages()
+		# CARD Mobile: the load keys are not sent
+		row = self._rest_update(log.name, {"day_hours": 7, "night_hours": 6})
+		self.assertEqual((flt(row.day_hours), row.day_loads, row.night_loads), (7, 5, 2))
+
+	def test_off_after_on_changed_loads_are_refused_and_cleared_loads_are_accepted(self):
+		self._loads_setting(1)
+		log = self._draft_log(1, [self._row(8, 6, day_loads=5, night_loads=2)])
+		self._loads_setting(0)
+		with self.assertRaises(frappe.ValidationError):
+			self._rest_update(log.name, {"day_hours": 8, "night_hours": 6, "day_loads": 6})
+		row = self._rest_update(log.name, {"day_hours": 8, "night_hours": 6, "day_loads": 0})
+		self.assertEqual((row.day_loads, row.night_loads), (0, 2))
+
+	def test_off_after_on_a_corrected_draft_keeps_the_loads_of_the_cancelled_log(self):
+		self._loads_setting(1)
+		log = self._log(1, [self._row(8, 6, day_loads=5, night_loads=2)])
+		self._loads_setting(0)
+		self._cancel(log)
+		row = self._corrected_draft(log, {"day_hours": 7, "night_hours": 6})
+		self.assertEqual((row.day_loads, row.night_loads), (5, 2))
+
+	# ---------- a cancelled log and the switch turned off ----------
+	def test_off_after_on_a_cancelled_log_clears_the_loads_it_gave_the_card(self):
+		self._loads_setting(1)
+		self._log(1, [self._row(8, day_loads=6)])
+		log2 = self._log(2, [self._row(5, day_loads=4)])
+		(card,) = self._run()["created"]
+		self._loads_setting(0)
+		self._cancel(log2)
+		result = self._run()
+		self.assertEqual(result["updated"], [card])
+		(cleared,) = result["cleared_days"]
+		self.assertEqual(
+			(cleared["date"], cleared["log"], cleared["loads"]), (str(self._day(2)), log2.name, 4)
+		)
+		day2 = self._card_day(card, 2)
+		self.assertEqual((flt(day2.working_hours), day2.loads_count), (0, 0))
+		self.assertEqual(frappe.db.get_value(CARD, card, "total_loads"), 6)
+
+	def test_off_a_cancelled_log_keeps_loads_typed_on_the_card(self):
+		# the company never used loads on daily logs: the log holds none, so the loads of the day are a hand entry
+		log = self._log(1, [self._row(8)])
+		(card,) = self._run()["created"]
+		self._type_loads(card, 5)
+		self._cancel(log)
+		result = self._run()
+		self.assertEqual(result["updated"], [card])
+		(cleared,) = result["cleared_days"]
+		self.assertNotIn("loads", cleared)
+		day = self._card_day(card, 1)
+		self.assertEqual((flt(day.working_hours), day.loads_count), (0, 5))
+
+	def test_off_after_on_a_cancelled_log_keeps_other_loads_typed_on_the_card(self):
+		self._loads_setting(1)
+		log = self._log(1, [self._row(8, day_loads=4)])
+		(card,) = self._run()["created"]
+		self._loads_setting(0)
+		self._type_loads(card, 7)  # not the loads of the log: a hand entry
+		self._cancel(log)
+		self._run()
+		self.assertEqual(self._card_day(card, 1).loads_count, 7)
