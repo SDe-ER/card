@@ -18,6 +18,12 @@ per site.
 
 ## Next release (merged, not yet released)
 
+_Nothing yet._
+
+## v4.11.1 — 2026-11-25
+
+Patch release on top of v4.11.0. The Card Equipment accounting dimension is now created only when you switch it on in Card Settings, so the upgrade adds nothing to the accounting documents. It also brings the A4 print of the customer statement and several small fixes. It changes no role, permission or accounting rule.
+
 - **2026-11-24 — Standard month hours and the shift limits come only from Card Settings.** CARD no longer uses a built-in 260 hours or 12 hours when these settings are empty or zero. If **Standard month hours** is not set, a per-month rate is refused with a message that names the setting. If a shift limit is not set, the Monthly Card says so and checks no limit; the hours are recorded as before. The upgrade stores the usual values (260, 12, 12) where a site had none, so nothing changes until you change them.
 - **2026-11-24 — Diesel totals say when they include an estimate.** In **Equipment Diesel Consumption**, **Equipment Diesel Analysis** and the diesel box of a **Monthly Card**, the total litres are now labelled **Allocated litres (recorded + estimated)** and the cost **Diesel cost (incl. estimated)**. Recorded litres (direct fills into a machine) and estimated litres (a project-tank fill split by hours) are still shown apart. No figure changes.
 - **2026-11-25 — Loads show only on cards billed per m³.** On a **Monthly Card**, the **Loads** column of the days table and the fields **Total loads**, **Total volume (m³)** and **Load volume used (m³)** now show only when the customer is billed per m³, or when the card already has loads. Other cards no longer show an empty loads column. Nothing changes in saved cards.
