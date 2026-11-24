@@ -12,7 +12,13 @@ from card.card.report.equipment_supplier_statement.statement_period import (
 )
 from card.card_value import PER_DAY, day_billing_basis
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
-from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company
+from card.report_access import (
+	can_view_ledger,
+	ledger_notice,
+	readable_links,
+	resolve_company,
+	role_reads_money,
+)
 from card.report_currency import company_currency_report
 from card.settings import setting
 from card.transfer import billed_day_rows, with_stopped_hours_column
@@ -597,9 +603,44 @@ def execute(filters=None):
 			"Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
 		).format(start, end)
 
+	# #295 (Owner decision 2026-11-24, option A): a user whose roles do not read the Monthly Card money level
+	# (permlevel 1) gets no figure derived from card amounts (see strip_card_money)
+	if not role_reads_money():
+		columns, summary = strip_card_money(columns, data_rows, summary)
+
 	columns = readable_links(with_stopped_hours_column(columns, data_rows), data_rows)
 	data = [columns, data_rows, message, None, summary, True]
 	return data
+
+
+# #295: the card-money values of the statement rows and the summary items computed from card amounts
+CARD_MONEY_ROW_KEYS = ("rate", "hourly_rate", "amount", "additions", "deductions", "net")
+CARD_MONEY_SUMMARY_KEYS = ("net_cards", "not_invoiced", "period_net", "previous_due", "current_due")
+
+
+def strip_card_money(columns, rows, summary):
+	"""#295 (option A): remove every value derived from card amounts, so it never reaches the browser.
+
+	- Card, equipment, project and total rows lose their rate, amount, additions, deductions and net.
+	- Payment rows (date-range statement) are accounting entries: they keep their amount in the Net column, which
+	  then stays. Their own gate is can_view_ledger.
+	- Summary items built on card amounts go: net cards, not invoiced through Card, and in the date-range statement
+	  the net work, the balance carried from before the period and the current due (both add card work). The pure
+	  accounting items (VAT, other credits, payments, GL balances, invoices) stay under can_view_ledger."""
+	has_payments = False
+	for row in rows or ():
+		if row.get("payment"):
+			has_payments = True
+			continue
+		for key in CARD_MONEY_ROW_KEYS:
+			row.pop(key, None)
+	columns = [
+		c
+		for c in columns
+		if c.get("fieldname") not in CARD_MONEY_ROW_KEYS or (has_payments and c.get("fieldname") == "net")
+	]
+	summary = [t for t in summary or () if t.get("key") not in CARD_MONEY_SUMMARY_KEYS]
+	return columns, summary
 
 
 def range_balance(summary, grand, show_ledger, company, supplier, start, end, filters, base_filters, eq_type):

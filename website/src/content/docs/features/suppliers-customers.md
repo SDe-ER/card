@@ -126,6 +126,12 @@ invoiced through Card, invoices outside Card, and for ledger readers the opening
 paid or received and closing balance. Clicking a party name opens its statement. A difference between net cards and
 invoiced through Card is highlighted.
 
+Users whose roles may not read the amounts of a Monthly Card see no figure taken from card amounts in the two
+summaries and in the supplier statement: no net cards or total accrued, no amount not invoiced through Card, no
+rate or amount on the card rows, and in a date-range supplier statement no net work, no balance carried from
+before the period and no current due. Accounting figures (payments, VAT, ledger balances) follow the ledger
+access as before. Every role that opens these reports today may read the amounts.
+
 ### A4 statement print
 
 The supplier statement has a standard report print format, **Equipment Supplier Statement A4**, pre-selected in the

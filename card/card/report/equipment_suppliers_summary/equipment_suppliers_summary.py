@@ -3,7 +3,15 @@ from frappe import _
 
 from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
-from card.report_access import can_view_ledger, ledger_notice, readable_links, resolve_company, strip_ledger
+from card.report_access import (
+	can_view_ledger,
+	ledger_notice,
+	readable_links,
+	resolve_company,
+	role_reads_money,
+	strip_ledger,
+	strip_money,
+)
 from card.report_currency import company_currency_report
 from card.settings import setting
 from card.transfer import billed_day_rows, with_stopped_hours_column
@@ -292,6 +300,18 @@ def execute(filters=None):
 		message = message + " " + ledger_notice()
 	else:
 		message = message + " " + reconciliation_notice()
+
+	# #295 (Owner decision 2026-11-24, option A): a user whose roles do not read the Monthly Card money level
+	# (permlevel 1) gets no figure derived from card amounts: the cards net and the part not invoiced through Card.
+	# The accounting figures (GL, invoices) keep their own gate (can_view_ledger).
+	if not role_reads_money():
+		columns, summary = strip_money(
+			columns,
+			result,
+			keys=("net", "diff"),
+			summary=summary,
+			tile_labels=(_("Net cards"), _("Not invoiced through Card")),
+		)
 
 	columns = readable_links(with_stopped_hours_column(columns, result), result)
 	data = [columns, result, message, None, summary, True]
