@@ -456,6 +456,7 @@ class CardSettings(Document):
 
 	def validate(self):
 		self._validate_company_scope()
+		self._explain_dimension_switch()
 		self.flags.card_hidden_names = self._hidden_names()
 		seen = set()
 		account_fields = [
@@ -497,6 +498,23 @@ class CardSettings(Document):
 		self._validate_diesel_price_schedule()
 		self._validate_diesel_variance_thresholds()
 		validate_company_warehouses(_ScopedRows(self))  # FR-135; FR-133: visible rows only
+
+	def _explain_dimension_switch(self):
+		"""FR-180: the switch only allows the Card Equipment dimension; the bench command creates it (its ALTER
+		TABLEs never run from a save). Say so when the switch is turned on and the dimension is not there."""
+		from card.dimension import SWITCH_FIELD, _is_disabled, has_dimension
+
+		if not (cint(self.get(SWITCH_FIELD)) and self.has_value_changed(SWITCH_FIELD)):
+			return
+		if has_dimension() and not _is_disabled():
+			return
+		frappe.msgprint(
+			_(
+				"The Card Equipment accounting dimension is switched on but does not exist on this site yet. Take a backup, then run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+			),
+			indicator="orange",
+			alert=True,
+		)
 
 	def _validate_diesel_variance_thresholds(self):
 		"""FR-151: one anomaly threshold row per company; a threshold is zero (off) or more."""
