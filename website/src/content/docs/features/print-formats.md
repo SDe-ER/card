@@ -56,11 +56,11 @@ The monthly operation card of one machine, shift and month.
   language), status, hours, idle reason and notes. Fridays and non-working days are shaded.
 - **Additions and deductions** — side (supplier or customer), type, description and amount, when the card has any.
 - **Card totals** — total operating hours, working days, the rate with its basis and the total amount; for a card
-  with a customer side also the customer rate and amount. A card with neither side prints *Internal operation — Not
-  billed*.
-- **Settlement** — for each billed side, a *Supplier settlement* or *Customer settlement* table with four rows:
-  *Total before additions and deductions*, *Total additions*, *Total deductions* and *Net after additions and
-  deductions*. The net is the amount saved on the card (before VAT) and the amount CARD puts on that side's invoice
+  with a customer side also the customer rate and amount. Every amount shows the currency: amounts with two decimals, rates with the site's currency precision. A card with
+  neither side prints *Internal operation — Not billed*.
+- **Settlement** — for each billed side, a *Supplier settlement (before VAT)* or *Customer settlement (before VAT)*
+  table with four rows: *Total before additions and deductions*, *Total additions*, *Total deductions* and *Net after
+  additions and deductions*. The net is the amount saved on the card (before VAT) and the amount CARD puts on that side's invoice
   line before VAT; it is the large bold line. Amounts show two decimals and the currency. Cash paid rows are not
   counted in these totals.
 - **Signatures** — driver / operator (with his name), site supervisor approval, project manager approval.

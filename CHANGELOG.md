@@ -83,6 +83,22 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
 
 ### Changed
+- **FR-174 follow-up — Monthly Card print: "before VAT" headers and the Card totals amounts** (owner decisions
+  2026-11-22; PR #292).
+  - The settlement table headers now say the figures are before VAT: «تسوية المورد (قبل الضريبة)» and «تسوية العميل
+    (قبل الضريبة)» (English: "Supplier settlement (before VAT)", "Customer settlement (before VAT)"). The four rows
+    and their amounts are unchanged.
+  - The money cells of the Card totals box («الإجماليات»: rate, total amount, customer rate, customer amount) print
+    with the company currency. The amounts print with two decimals (`3,600.00 SAR`), as the settlement rows. The
+    rates keep the site's currency precision, so a rate such as 1,500.125 is never rounded (code review of #292).
+    Hours, days, loads and volume are unchanged.
+  - Functions: `card/card/print_format/card_monthly_card_print/card_monthly_card_print.json` (html);
+    `card/locale/main.pot`, `card/locale/ar.po` (the two headers replaced; the old ones have no other use). Tests:
+    `card/tests/test_print_formats.py`.
+  - Impact: permissions none (the money gate FR-162 is unchanged); accounting none (prints only); data none (no
+    patch; `bench migrate` reloads the standard print format); API none. The legacy format «كارت تشغيل شهري» is
+    unchanged.
+  - Rollback: code only; the previous headers and amounts print again after the rollback's migrate.
 - **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5, PR #297).** `is_billed_day`
   defaulted to counting loads and `billed_day_rows` to ignoring them. Both now take `include_loads` as a required
   keyword-only argument, and every caller states the rule it already used: the assignment guards
