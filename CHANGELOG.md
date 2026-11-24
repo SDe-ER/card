@@ -96,6 +96,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   accounting none; data none; API none (fewer keys for a user without level-1 read). Rollback: code only.
 
 ### Documentation
+- **Documentation screenshots: the duplicate captures are made distinct (issue 266; owner decision 2026-11-24: one
+  capture run after the fix).** `website/scripts/screenshots/`: the workspace, monthly card, posting preview and
+  diesel shots scroll to or open what each image is about (`scrollSel`, `clickTextAfter`, `waitSel`); a missing
+  target fails the shot; the customer statement and the loads card must show real values; the demo seed submits
+  the per-m³ card. Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no
+  application, permission, accounting, data or API change.
 - **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
   sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
   change.
