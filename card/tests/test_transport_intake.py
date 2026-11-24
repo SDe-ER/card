@@ -666,6 +666,13 @@ COMPANY_SETTINGS = {
 	"parentfield": "company_settings",
 }
 SECOND_PERSON_REFUSAL = "another user must submit"
+DECLARED_FIELD = "intake_declared"
+CLEARED = {
+	"intake_source_key": None,
+	"intake_channel": None,
+	"intake_received_on": None,
+	"intake_evidence": None,
+}
 
 
 class TestTransportIntakeSecondPerson(IntegrationTestCase, _Fixtures):
@@ -886,6 +893,104 @@ class TestTransportIntakeSecondPerson(IntegrationTestCase, _Fixtures):
 		frappe.set_user(other)
 		frappe.local.form_dict = frappe._dict(data=frappe.as_json({"docstatus": 1}))
 		v1.update_doc(DOCTYPE, t.name)
+		self.assertEqual(self._docstatus(t.name), 1)
+
+	# ---------- the server-kept flag `intake_declared` ----------
+	# It is set on the save that first carries intake provenance and never comes back to 0, so an enterer who
+	# empties the intake fields in a draft save does not leave the second-person rule. No request decides it.
+
+	def _declared(self, name):
+		return frappe.db.get_value(DOCTYPE, name, DECLARED_FIELD)
+
+	def _clear(self, name, **more):
+		frappe.get_doc(DOCTYPE, name).update({**CLEARED, **more}).save()
+
+	def test_field_is_hidden_read_only_and_off_by_default(self):
+		df = frappe.get_meta(DOCTYPE).get_field(DECLARED_FIELD)
+		self.assertIsNotNone(df, "Equipment Transport has no field %s" % DECLARED_FIELD)
+		self.assertEqual(df.fieldtype, "Check")
+		self.assertEqual(str(df.default), "0")
+		for prop in ("hidden", "read_only", "no_copy"):
+			self.assertTrue(df.get(prop), prop)
+		self.assertFalse(df.in_list_view)
+		self.assertFalse(df.description)
+
+	def test_clearing_the_intake_fields_in_a_draft_save_does_not_free_the_enterer(self):
+		self._set_rule(self.company, 1)
+		enterer, reviewer = self._manager("k"), self._manager("l")
+		t = self._entered_by(enterer, intake_source_key="2P-CLEAR-1", intake_channel="Paper")
+		self.assertEqual(self._declared(t.name), 1)
+		self._clear(t.name)
+		stored = frappe.db.get_value(DOCTYPE, t.name, ["intake_source_key", "intake_channel"], as_dict=True)
+		self.assertEqual((stored.intake_source_key, stored.intake_channel), (None, None))
+		self.assertEqual(self._declared(t.name), 1)
+		self._refused(lambda: frappe.get_doc(DOCTYPE, t.name).submit())
+		self.assertEqual(self._docstatus(t.name), 0)
+		self._submit_as(reviewer, t.name)
+		self.assertEqual(self._docstatus(t.name), 1)
+
+	def test_forged_flag_in_a_save_or_in_the_submit_request_is_ignored(self):
+		from frappe.client import set_value as rest_set_value
+
+		self._set_rule(self.company, 1)
+		enterer = self._manager("m")
+		t = self._entered_by(enterer, intake_source_key="2P-FLAG-1", intake_channel="WhatsApp")
+		# the intake fields emptied and the flag sent as 0, in one draft save and through set_value
+		self._clear(t.name, **{DECLARED_FIELD: 0})
+		self.assertEqual(self._declared(t.name), 1)
+		rest_set_value(DOCTYPE, t.name, DECLARED_FIELD, 0)
+		self.assertEqual(self._declared(t.name), 1)
+		# the flag sent as 0 with the submit itself
+		forged = frappe.get_doc(DOCTYPE, t.name).update({DECLARED_FIELD: 0})
+		self._refused(forged.submit)
+		self.assertEqual(self._docstatus(t.name), 0)
+		# a transport without provenance does not take the flag from a request either
+		frappe.set_user("Administrator")
+		plain = self._transport(day=2, **{DECLARED_FIELD: 1})
+		self.assertEqual(self._declared(plain.name), 0)
+		frappe.get_doc(DOCTYPE, plain.name).update({DECLARED_FIELD: 1}).save()
+		self.assertEqual(self._declared(plain.name), 0)
+
+	def test_amendment_without_the_intake_fields_is_still_covered(self):
+		from card.tests.cancel_reason import with_reason
+
+		self._set_rule(self.company, 1)
+		reviewer = self._manager("n")
+		t = self._transport(intake_source_key="2P-AMEND-1", intake_channel="Paper")
+		self._submit_as(reviewer, t.name)
+		frappe.set_user("Administrator")
+		with_reason(frappe.get_doc(DOCTYPE, t.name)).cancel()
+		amended = frappe.copy_doc(frappe.get_doc(DOCTYPE, t.name))
+		amended.amended_from = t.name
+		amended.docstatus = 0
+		# the links the cancel undid (reverse_transfer) are not carried over
+		for row in [amended, *amended.items]:
+			row.created_assignment = row.previous_assignment = None
+		amended.update({**CLEARED, DECLARED_FIELD: 0})
+		amended.insert()
+		self.assertIsNone(amended.intake_source_key)
+		self.assertEqual(self._declared(amended.name), 1)
+		self._refused(lambda: frappe.get_doc(DOCTYPE, amended.name).submit())
+		self.assertEqual(self._docstatus(amended.name), 0)
+
+	def test_a_transport_that_never_had_provenance_stays_unaffected(self):
+		self._set_rule(self.company, 1)
+		enterer = self._manager("u")
+		t = self._entered_by(enterer)
+		draft = frappe.get_doc(DOCTYPE, t.name)
+		draft.remarks = "re-saved"
+		draft.save()
+		self.assertEqual(self._declared(t.name), 0)
+		frappe.get_doc(DOCTYPE, t.name).submit()
+		self.assertEqual(self._docstatus(t.name), 1)
+		self.assertEqual(self._declared(t.name), 0)
+
+	def test_off_the_flag_is_recorded_and_nothing_is_refused(self):
+		enterer = self._manager("v")
+		t = self._entered_by(enterer, intake_source_key="2P-OFF-3", intake_channel="Paper")
+		self._clear(t.name)
+		self.assertEqual(self._declared(t.name), 1)
+		frappe.get_doc(DOCTYPE, t.name).submit()
 		self.assertEqual(self._docstatus(t.name), 1)
 
 
