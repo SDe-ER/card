@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 
 from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
+from card.constants import THIRD_PARTY
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import (
 	can_view_ledger,
@@ -13,7 +14,7 @@ from card.report_access import (
 	strip_money,
 )
 from card.report_currency import company_currency_report
-from card.settings import setting
+from card.settings import company_setting, setting
 from card.transfer import billed_day_rows, with_stopped_hours_column
 
 
@@ -41,6 +42,9 @@ def execute(filters=None):
 		frappe.throw(_("Invalid period: end is before start"))
 	company = resolve_company(filters)
 	show_ledger = can_view_ledger(company)
+	# FR-190 (issue 300): per-company switch, off by default. On: each supplier row also shows its partner
+	# machines (cards whose stored ownership is طرف ثالث) and the net of their cards. Off: the report of before.
+	partner_split = bool(cint(company_setting(company, "partner_equipment_split")))
 
 	cf = [
 		["company", "=", company],
@@ -60,6 +64,7 @@ def execute(filters=None):
 			"name",
 			"supplier",
 			"equipment",
+			"ownership",
 			"total_working_hours",
 			"billable_stopped_hours",
 			"supplier_billable_stopped_hours",
@@ -88,7 +93,15 @@ def execute(filters=None):
 	for c in cards:
 		s = c.supplier
 		if s not in agg:
-			agg[s] = {"eq": set(), "cards": 0, "hours": 0.0, "stopped": 0.0, "net": 0.0}
+			agg[s] = {
+				"eq": set(),
+				"cards": 0,
+				"hours": 0.0,
+				"stopped": 0.0,
+				"net": 0.0,
+				"partner_eq": set(),
+				"partner_net": 0.0,
+			}
 			order.append(s)
 		a = agg[s]
 		a["eq"].add(c.equipment)
@@ -97,6 +110,9 @@ def execute(filters=None):
 		a["stopped"] = a["stopped"] + side_stopped_hours(c, "Supplier")
 		# supplier-side net (the PI's figure): customer-side rows of a sub-rental card are not the supplier's
 		a["net"] = a["net"] + flt(c.net_amount)
+		if c.ownership == THIRD_PARTY:
+			a["partner_eq"].add(c.equipment)
+			a["partner_net"] = a["partner_net"] + flt(c.net_amount)
 
 	# GL per supplier (only suppliers that have cards in the period)
 	gl = {}
@@ -153,6 +169,8 @@ def execute(filters=None):
 		"opening": 0.0,
 		"paid": 0.0,
 		"closing": 0.0,
+		"partner_eq": 0,
+		"partner_net": 0.0,
 	}
 	# #295: without the money level the order follows the party code, never the hidden card amount
 	pairs = (
@@ -172,25 +190,30 @@ def execute(filters=None):
 		inv = flt(inv_net.get(s), 2)
 		diff = flt(net - inv, 2)
 		ext = flt(outside.get(s), 2)
-		result.append(
-			{
-				"supplier": s,
-				"supplier_name": names.get(s, s),
-				"equipment_count": len(a["eq"]),
-				"card_count": a["cards"],
-				"working_days": days,
-				"hours": flt(a["hours"], 2),
-				"stopped_hours": flt(a["stopped"], 2),
-				"net": net,
-				"accrued": flt(x["accrued"], 2),
-				"invoiced_net": inv,
-				"diff": diff,
-				"external_net": ext,
-				"opening": flt(x["opening"], 2),
-				"paid": flt(x["paid"], 2),
-				"closing": closing,
-			}
-		)
+		row = {
+			"supplier": s,
+			"supplier_name": names.get(s, s),
+			"equipment_count": len(a["eq"]),
+			"card_count": a["cards"],
+			"working_days": days,
+			"hours": flt(a["hours"], 2),
+			"stopped_hours": flt(a["stopped"], 2),
+			"net": net,
+			"accrued": flt(x["accrued"], 2),
+			"invoiced_net": inv,
+			"diff": diff,
+			"external_net": ext,
+			"opening": flt(x["opening"], 2),
+			"paid": flt(x["paid"], 2),
+			"closing": closing,
+		}
+		if partner_split:
+			partner_net = flt(a["partner_net"], 2)
+			row["partner_equipment_count"] = len(a["partner_eq"])
+			row["partner_net"] = partner_net
+			tot["partner_eq"] = tot["partner_eq"] + len(a["partner_eq"])
+			tot["partner_net"] = tot["partner_net"] + partner_net
+		result.append(row)
 		tot["eq"] = tot["eq"] + len(a["eq"])
 		tot["cards"] = tot["cards"] + a["cards"]
 		tot["days"] = tot["days"] + days
@@ -206,26 +229,28 @@ def execute(filters=None):
 		tot["closing"] = tot["closing"] + closing
 
 	if result:
-		result.append(
-			{
-				"supplier": None,
-				"supplier_name": _("Total"),
-				"is_total": 1,
-				"equipment_count": tot["eq"],
-				"card_count": tot["cards"],
-				"working_days": tot["days"],
-				"hours": flt(tot["hours"], 2),
-				"stopped_hours": flt(tot["stopped"], 2),
-				"net": flt(tot["net"], 2),
-				"accrued": flt(tot["accrued"], 2),
-				"invoiced_net": flt(tot["invoiced_net"], 2),
-				"diff": flt(tot["diff"], 2),
-				"external_net": flt(tot["external_net"], 2),
-				"opening": flt(tot["opening"], 2),
-				"paid": flt(tot["paid"], 2),
-				"closing": flt(tot["closing"], 2),
-			}
-		)
+		total_row = {
+			"supplier": None,
+			"supplier_name": _("Total"),
+			"is_total": 1,
+			"equipment_count": tot["eq"],
+			"card_count": tot["cards"],
+			"working_days": tot["days"],
+			"hours": flt(tot["hours"], 2),
+			"stopped_hours": flt(tot["stopped"], 2),
+			"net": flt(tot["net"], 2),
+			"accrued": flt(tot["accrued"], 2),
+			"invoiced_net": flt(tot["invoiced_net"], 2),
+			"diff": flt(tot["diff"], 2),
+			"external_net": flt(tot["external_net"], 2),
+			"opening": flt(tot["opening"], 2),
+			"paid": flt(tot["paid"], 2),
+			"closing": flt(tot["closing"], 2),
+		}
+		if partner_split:
+			total_row["partner_equipment_count"] = tot["partner_eq"]
+			total_row["partner_net"] = flt(tot["partner_net"], 2)
+		result.append(total_row)
 
 	columns = [
 		{"fieldname": "supplier_name", "label": _("Supplier"), "fieldtype": "Data", "width": 240},
@@ -282,6 +307,35 @@ def execute(filters=None):
 			"indicator": "Orange",
 		},
 	]
+	if partner_split:
+		# the count sits after the equipment count, the partner net after the cards net (columns and tiles)
+		columns.insert(
+			3,
+			{
+				"fieldname": "partner_equipment_count",
+				"label": _("Partner-owned equipment"),
+				"fieldtype": "Int",
+				"width": 90,
+			},
+		)
+		columns.insert(
+			8,
+			{
+				"fieldname": "partner_net",
+				"label": _("Net cards (partner-owned)"),
+				"fieldtype": "Currency",
+				"width": 130,
+			},
+		)
+		summary.insert(
+			2,
+			{
+				"label": _("Net cards (partner-owned)"),
+				"value": flt(tot["partner_net"], 2),
+				"datatype": "Currency",
+				"indicator": "Blue",
+			},
+		)
 	message = (
 		company
 		+ " — "
@@ -307,15 +361,16 @@ def execute(filters=None):
 		message = message + " " + reconciliation_notice()
 
 	# #295 (Owner decision 2026-11-24, option A): a user whose roles do not read the Monthly Card money level
-	# (permlevel 1) gets no figure derived from card amounts: the cards net and the part not invoiced through Card.
+	# (permlevel 1) gets no figure derived from card amounts: the cards net, the part not invoiced through Card and
+	# the partner-owned cards net (FR-190).
 	# The accounting figures (GL, invoices) keep their own gate (can_view_ledger).
 	if not role_reads_money():
 		columns, summary = strip_money(
 			columns,
 			result,
-			keys=("net", "diff"),
+			keys=("net", "diff", "partner_net"),
 			summary=summary,
-			tile_labels=(_("Net cards"), _("Not invoiced through Card")),
+			tile_labels=(_("Net cards"), _("Not invoiced through Card"), _("Net cards (partner-owned)")),
 		)
 
 	columns = readable_links(with_stopped_hours_column(columns, result), result)

@@ -8078,3 +8078,18 @@ msgstr ""
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
 msgstr ""
+
+#. Label of the partner_reports_section (Section Break) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Partner-owned equipment"
+msgstr ""
+
+#. Label of the partner_equipment_split (Check) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Show partner-owned equipment in the suppliers summary"
+msgstr ""
+
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Net cards (partner-owned)"
+msgstr ""
