@@ -7,7 +7,7 @@ sidebar:
 ---
 
 :::note
-This page is generated from the CARD source code on every build. Edit the code, not this page.
+This page is generated from the CARD source code on every build. Edit the code, not this page. It follows the main branch, so it can describe changes that are merged but not released yet; see What's new.
 :::
 
 | Reports | Based on | Roles |
@@ -326,6 +326,8 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | From year | `from_year` | Int | Yes |
 | To month | `to_month` | Select | Yes |
 | To year | `to_year` | Int | Yes |
+| From date | `from_date` | Date |  |
+| To date | `to_date` | Date |  |
 | Project | `project` | Autocomplete |  |
 | Equipment | `equipment` | Link → Card Equipment |  |
 | Equipment type | `equipment_type` | Link → Card Equipment Type |  |

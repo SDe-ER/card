@@ -103,7 +103,8 @@ after_migrate = ["card.fonts.ensure_fonts", "card.navigation.restore_launcher_en
 # Uninstallation
 # ------------
 
-# before_uninstall = "card.uninstall.before_uninstall"
+# FR-176: the Card Equipment accounting dimension is disabled, never deleted
+before_uninstall = "card.install.before_uninstall"
 # after_uninstall = "card.uninstall.after_uninstall"
 
 # Integration Setup
@@ -193,6 +194,8 @@ has_permission = {
 	"Equipment Needs Review": "card.card.doctype.equipment_needs_review.equipment_needs_review.has_review_permission",
 	"Card Equipment Assignment": "card.card.doctype.card_equipment_assignment.card_equipment_assignment.has_assignment_permission",
 	"Card Monthly Card": "card.card.doctype.card_monthly_card.card_monthly_card.has_card_permission",
+	# FR-170 step 2: a cash payment belongs to its company
+	"Card Cash Disbursement": "card.cash_disbursement.has_cash_disbursement_permission",
 	"Equipment Transport": "card.card.doctype.equipment_transport.equipment_transport.has_transport_permission",
 	"Card Equipment Part": "card.card.doctype.card_equipment_part.card_equipment_part.has_fitment_permission",
 	# H-CARD-4: a diesel fill belongs to its company
@@ -277,7 +280,13 @@ doc_events = {
 	"Purchase Invoice": dict(_POSTING_EVENTS),
 	"Sales Invoice": dict(_POSTING_EVENTS),
 	# settlement phase 1: cancelling a linked supplier accrual journal frees its cards
-	"Journal Entry": {"before_cancel": "card.gl.journal_link.before_cancel"},
+	"Journal Entry": {
+		"before_cancel": [
+			"card.gl.journal_link.before_cancel",
+			"card.cash_disbursement.before_journal_entry_cancel",
+		],
+		"on_cancel": "card.cash_disbursement.on_journal_entry_cancel",
+	},
 	# the CARD party registries follow ERPNext renames and merges
 	"Supplier": {
 		"before_rename": "card.party_registry.before_rename",

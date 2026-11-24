@@ -23,10 +23,67 @@ const COMPANY = process.env.COMPANY || "Example Contracting Co.";
 const only = process.argv.slice(2);
 const { shots } = JSON.parse(readFileSync(join(here, "shots.json"), "utf8"));
 
-// API calls use token auth (API_TOKEN="key:secret" of the demo user) so they never depend on the browser session.
+// API calls go through the demo user's logged-in session (set after login in run()).
 let apiCtx;
+// A page showing the Desk welcome screen or the "not configured" screen is a defect: the shot fails, no image is written.
+const DEFECT =
+  /Get Started|Let's give your business a home|not set up to ask for equipment needs|غير مهيأ لطلب/;
+// A number card is captured alone. It is found first by its record name, which Frappe writes to the widget as
+// data-widget-name and which does not change with the language. The translated label from the app's own locale
+// file (read at run time, never hard-coded) is the fallback. The shot waits until the value renders (a digit).
+// No match or no value is a failed shot, never a page-sized image.
+const LOCALE_DIR = join(here, "..", "..", "..", "card", "locale");
+function translatedLabel(lang, msgid) {
+  if (lang === "en") return msgid;
+  const po = readFileSync(join(LOCALE_DIR, `${lang}.po`), "utf8");
+  const head = `msgid "${msgid}"\nmsgstr "`;
+  const at = po.indexOf(head);
+  if (at < 0) return null;
+  const start = at + head.length;
+  return po.slice(start, po.indexOf('"', start));
+}
+async function elementShot(page, lang, name) {
+  const candidates = [page.locator(`.widget[data-widget-name="${name}"]`)];
+  const label = translatedLabel(lang, name);
+  if (label)
+    candidates.push(
+      page
+        .locator(".widget")
+        .filter({ hasText: label })
+        .filter({ hasNot: page.locator(".widget") }),
+    );
+  for (const base of candidates) {
+    const loc = base.first();
+    if ((await loc.count()) === 0) continue;
+    await loc.scrollIntoViewIfNeeded();
+    await page.waitForFunction(
+      (el) => /\d/.test(el.innerText || ""),
+      await loc.elementHandle(),
+      {
+        timeout: 30000,
+      },
+    );
+    return loc.screenshot({ type: "png" });
+  }
+  throw new Error(`no number card "${name}" (label ${label ?? "n/a"})`);
+}
+// Session POSTs need Frappe's CSRF token; it is read from the logged-in desk page once per session.
+let csrfToken = null;
+async function getCsrf() {
+  if (!csrfToken) {
+    const html = await (await apiCtx.get(`${SITE}/app`)).text();
+    const m = html.match(/csrf_token["'\s:=]+["']([^"']{16,})["']/);
+    if (!m) throw new Error("csrf token not found on /app");
+    csrfToken = m[1];
+  }
+  return csrfToken;
+}
+
 async function api(_ctx, method, args) {
-  const r = await apiCtx.post(`${SITE}/api/method/${method}`, { data: args });
+  const r = await apiCtx.post(`${SITE}/api/method/${method}`, {
+    data: args,
+    headers: { "X-Frappe-CSRF-Token": await getCsrf() },
+  });
   if (!r.ok()) throw new Error(`${method}: ${r.status()} ${await r.text()}`);
   return (await r.json()).message;
 }
@@ -141,7 +198,7 @@ async function clickText(page, texts) {
   for (const t of texts) {
     const loc = page.getByText(t, { exact: false }).first();
     if (await loc.isVisible().catch(() => false)) {
-      await loc.click().catch(() => {});
+      await loc.click({ timeout: 3000 });
       await page.waitForTimeout(1200);
       return true;
     }
@@ -151,12 +208,6 @@ async function clickText(page, texts) {
 
 async function run() {
   const browser = await chromium.launch();
-  const { request } = createRequire(
-    process.env.PLAYWRIGHT_FROM || import.meta.url,
-  )("playwright");
-  apiCtx = await request.newContext({
-    extraHTTPHeaders: { Authorization: `token ${process.env.API_TOKEN}` },
-  });
   const results = [];
   for (const lang of ["en", "ar"]) {
     const ctx = await browser.newContext({
@@ -168,6 +219,9 @@ async function run() {
       data: { usr: USER, pwd: PASS },
     });
     if (!login.ok()) throw new Error(`login failed: ${login.status()}`);
+    // API calls reuse this logged-in session, so no API key pair is needed.
+    apiCtx = ctx.request;
+    csrfToken = null;
     await api(ctx, "frappe.client.set_value", {
       doctype: "User",
       name: USER,
@@ -235,15 +289,22 @@ async function run() {
           timeout: 60000,
         });
         await settle(page);
+        const landed = page.url();
+        const bodyText = await page.evaluate(
+          () => document.body.innerText || "",
+        );
+        console.log(`[route] ${lang}/${s.name} -> ${landed}`);
+        if (DEFECT.test(bodyText))
+          throw new Error(`defect screen at ${landed}`);
+        // a missing or failing click is a failed shot, never a silently unchanged page
         if (s.click) {
-          await page
-            .locator(s.click)
-            .first()
-            .click({ timeout: 3000 })
-            .catch(() => {});
+          await page.locator(s.click).first().click({ timeout: 3000 });
           await page.waitForTimeout(900);
         }
-        if (s.clickText) await clickText(page, s.clickText);
+        if (s.clickText && !(await clickText(page, s.clickText)))
+          throw new Error(
+            `no visible element for click: ${s.clickText.join(" / ")}`,
+          );
         // Frappe v16 scrolls an inner container, not the window: bring every grid into view once so lazy
         // rows render, then return to the top.
         await page.evaluate(async () => {
@@ -279,7 +340,10 @@ async function run() {
             const el = document.querySelector(sel);
             if (el) el.scrollIntoView({ block: "start" });
           }, s.scrollSel);
-        if (s.scrollText) await scrollToText(page, s.scrollText);
+        if (s.scrollText && !(await scrollToText(page, s.scrollText)))
+          throw new Error(
+            `no section to scroll to: ${s.scrollText.join(" / ")}`,
+          );
         if (typeof s.scroll === "number")
           await page.evaluate((y) => {
             // scroll the largest scrollable element (the desk's main column), or the window
@@ -300,7 +364,9 @@ async function run() {
             else window.scrollTo(0, y);
           }, s.scroll);
         await page.waitForTimeout(500);
-        const png = await page.screenshot({ type: "png" });
+        const png = s.elementName
+          ? await elementShot(page, lang, s.elementName)
+          : await page.screenshot({ type: "png" });
         const file = join(OUT, lang, `${s.name}.webp`);
         await sharp(png).webp({ quality: 82 }).toFile(file);
         results.push(`ok   ${lang}/${s.name}`);
@@ -326,6 +392,8 @@ async function run() {
   }
   await browser.close();
   console.log(results.join("\n"));
+  if (results.some((r) => r.startsWith("FAIL")))
+    throw new Error("one or more screenshots failed");
 }
 
 run().catch((e) => {

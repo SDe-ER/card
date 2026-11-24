@@ -82,14 +82,15 @@ On every migrate CARD also installs its bundled Noto print fonts for the bench u
 stops the migrate) and restores any launcher entry missing from a saved Dock layout.
 
 :::caution[Card Equipment accounting dimension]
-Posting to ERPNext needs the **Card Equipment** accounting dimension. It is not created by install or migrate. An
-administrator creates it once with:
+CARD creates the **Card Equipment** accounting dimension itself, on install and on migrate (never mandatory). It
+adds ERPNext's standard `card_equipment` column to the accounting tables, so the first migrate that creates it alters
+those tables. Posting and the equipment supplier statement use it. The same step can still be run by hand:
 
 ```bash
 bench --site <your-site> execute card.dimension.ensure_card_equipment_dimension
 ```
 
-Until it exists, monthly posting refuses to run and says so.
+Uninstalling CARD only disables the dimension; it never deletes it or the values in the ledger.
 :::
 
 ### Patches

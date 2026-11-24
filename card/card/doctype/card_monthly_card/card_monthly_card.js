@@ -119,8 +119,8 @@ function card_check_period(frm) {
 	}
 }
 
-// Hourly rate comes from the equipment (approved_hourly_rate, computed by Server Script
-// "Card Equipment - Hourly Rate"). Display only: the server recalculates on save.
+// The hourly rate is the exact one the server prices with (card_exact_hourly, mirror of
+// card.card_value.exact_hourly_rate). Display only: the server recalculates on save.
 function card_load_hourly(frm) {
 	if (!frm.doc.equipment) {
 		frm._card_hourly = 0;
@@ -138,10 +138,16 @@ function card_load_hourly(frm) {
 			"rate_type",
 			"rate",
 			"day_billing_basis",
+			"daily_hours",
 		])
 		.then((r) => {
 			const v = (r && r.message) || {};
-			frm._card_hourly = flt(v.approved_hourly_rate);
+			// the exact hourly rate the server prices with (rate / daily hours, e.g. 425 / 8 = 53.125),
+			// never the 2-decimal approved_hourly_rate shown on the equipment (card.card_value.exact_hourly_rate)
+			return card_exact_hourly(v).then((hourly) => [v, hourly]);
+		})
+		.then(([v, hourly]) => {
+			frm._card_hourly = hourly;
 			// FR-138: a per-day rate under "Full day" bills each billed day at the day rate
 			// (mirror of card.card_value.bills_full_days; the server recalculates on save)
 			frm._card_full_day_rate =
@@ -169,6 +175,24 @@ function card_show_shift_customer_rate(frm, dir, v) {
 	const night = flt(v.customer_rate_night);
 	const rate = frm.doc.shift === "ليلي" && night > 0 ? night : flt(v.customer_rate);
 	if (flt(frm.doc.customer_rate) !== rate) frm.set_value("customer_rate", rate);
+}
+
+// Mirror of card.card_value.exact_hourly_rate: per hour = rate; per day = rate / daily hours;
+// per month = rate / the standard month hours (Card Settings, read through the server).
+function card_exact_hourly(v) {
+	const rate = flt(v.rate);
+	if (v.rate_type === "باليوم")
+		return Promise.resolve(flt(v.daily_hours) > 0 ? rate / flt(v.daily_hours) : 0);
+	if (v.rate_type === "بالساعة") return Promise.resolve(rate);
+	if (v.rate_type === "بالشهر") {
+		return frappe
+			.call({
+				method: "card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours",
+				type: "GET",
+			})
+			.then((r) => rate / (flt(r && r.message) || 260));
+	}
+	return Promise.resolve(0);
 }
 
 // F.7: the card's project follows the assignment covering the card's month
@@ -243,17 +267,28 @@ function card_calc(frm) {
 	}
 
 	// v4: additions / deductions (display only; the server recalculates on save)
-	// net_amount is the supplier side only (a row without a side takes the
-	// card's billed side, as the server does on save)
-	const default_side = frm.doc.card_direction === "مؤجَّرة لعميل" ? "Customer" : "Supplier";
+	// net_amount is the supplier side, customer_net_amount the customer side; a row
+	// without a side takes the card's billed side, as the server does on save (a
+	// sub-rental row needs its side, so it counts only once the side is chosen)
+	const default_side =
+		frm.doc.card_direction === "إيجار من الباطن"
+			? null
+			: frm.doc.card_direction === "مؤجَّرة لعميل"
+			  ? "Customer"
+			  : "Supplier";
 	let additions = 0,
-		deductions = 0,
-		supplier_signed = 0;
+		deductions = 0;
+	const sided = { Supplier: 0, Customer: 0 };
 	(frm.doc.adjustments || []).forEach((a) => {
+		// a pending owner-paid cash row is recorded but not counted (the server skips it too)
+		if (cint(a.is_cash_disbursement) || flt(a.amount) <= 0) return;
 		const signed = a.adjustment_type === "إضافة" ? flt(a.amount) : -flt(a.amount);
 		if (a.adjustment_type === "إضافة") additions += flt(a.amount);
 		else if (a.adjustment_type === "خصم") deductions += flt(a.amount);
-		if ((a.side || default_side) === "Supplier") supplier_signed += signed;
+		else return;
+		// the side net counts a row once its side is known (Supplier or Customer, as on the server)
+		const side = a.side || default_side;
+		if (side in sided) sided[side] += signed;
 	});
 
 	frm.set_value("total_working_hours", hours);
@@ -262,7 +297,16 @@ function card_calc(frm) {
 	frm.set_value("amount", amount);
 	frm.set_value("total_additions", flt(additions, 2));
 	frm.set_value("total_deductions", flt(deductions, 2));
-	frm.set_value("net_amount", flt(amount + supplier_signed, 2));
+	frm.set_value("net_amount", flt(amount + sided.Supplier, 2));
+	// FR-172: the customer side shows the effect of its rows at once on a saved card. The customer amount
+	// itself is the server's (it updates on save), so a new card waits for its first save.
+	if (!frm.doc.__islocal) {
+		const customer_amount = flt(frm.doc.customer_amount);
+		frm.set_value(
+			"customer_net_amount",
+			customer_amount || sided.Customer ? flt(customer_amount + sided.Customer, 2) : 0,
+		);
+	}
 	frm.refresh_field("days");
 	card_color_fridays(frm);
 }
@@ -428,6 +472,8 @@ frappe.ui.form.on("Card Monthly Card", {
 		card_lock_project(frm);
 		card_render_card_links(frm);
 		card_render_diesel(frm);
+		card_cash_actions(frm);
+		card_cash_status(frm);
 	},
 	equipment(frm) {
 		card_load_hourly(frm);
@@ -502,7 +548,339 @@ frappe.ui.form.on("Card Monthly Card Day", {
 });
 
 frappe.ui.form.on("Card Monthly Card Adjustment", {
+	// a new row takes today's date, kept inside the card's period (the server checks it on save)
+	adjustments_add(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		if (row.adjustment_date) return;
+		let day = frappe.datetime.get_today();
+		const start = frm.doc.from_date;
+		if (start && day < start) day = start;
+		if (frm.doc.to_date && day > frm.doc.to_date) day = frm.doc.to_date;
+		frappe.model.set_value(cdt, cdn, "adjustment_date", day);
+	},
 	adjustment_type: card_calc,
 	amount: card_calc,
+	side: card_calc,
+	is_cash_disbursement: card_calc,
 	adjustments_remove: card_calc,
 });
+
+// FR-170: the cash payments of this card, managed from the Additions & Deductions table. Each cash row shows its payment
+// status and journal entry in the table; the actions for a row's payment sit on this card. Every action calls a server
+// method that checks the role, the company and the state again: hiding a button is not the control.
+const CASH_MANAGER_ROLES = ["Card Manager", "System Manager"];
+
+function cash_row_label(frm, child_name) {
+	const a = (frm.doc.adjustments || []).find((x) => x.name === child_name);
+	if (!a) return null;
+	const amount = format_currency(a.amount, frm.doc.currency);
+	return `${a.idx}. ${frappe.datetime.str_to_user(a.adjustment_date) || ""} · ${amount} · ${
+		a.description || ""
+	}`;
+}
+
+// The payments the user can act on: only the latest payment of each cash row (an earlier cancelled one is superseded),
+// and only a row that still exists on the card.
+function cash_actionable(frm, payments) {
+	const latest = {};
+	payments.forEach((p) => {
+		latest[p.adjustment_row] = p;
+	});
+	return Object.values(latest).filter((p) => cash_row_label(frm, p.adjustment_row) !== null);
+}
+
+// A dialog that stays open when the server refuses, so the typed values are kept. (frappe.prompt hides its dialog
+// before the callback runs, which would lose them.)
+function cash_dialog(title, fields, primary_label, on_submit) {
+	const dialog = new frappe.ui.Dialog({
+		title,
+		fields,
+		primary_action_label: primary_label,
+		primary_action: (values) => on_submit(values, dialog),
+	});
+	dialog.show();
+	return dialog;
+}
+
+// One payment: the dialog for it. Several: the user picks the payment by its row label (the label carries the payment
+// name, so two payments never collapse into one option).
+function cash_pick_payment(frm, payments, title, primary, run) {
+	if (payments.length === 1) return run(payments[0], null);
+	const by_label = {};
+	payments.forEach((p) => {
+		by_label[
+			p.name
+				? `${cash_row_label(frm, p.adjustment_row)} · ${p.name}`
+				: cash_row_label(frm, p.adjustment_row)
+		] = p;
+	});
+	const options = Object.keys(by_label);
+	return cash_dialog(
+		title,
+		[
+			{
+				label: __("Cash row"),
+				fieldname: "row",
+				fieldtype: "Select",
+				options: options.join("\n"),
+				default: options[0],
+				reqd: 1,
+			},
+		],
+		primary,
+		(values, dialog) => run(by_label[values.row], dialog),
+	);
+}
+
+// The table's status columns: display only (set in memory, never saved as a change; the server refreshes them on save).
+function card_cash_status(frm) {
+	if (frm.is_new()) return;
+	frappe.call({
+		method: "card.cash_disbursement.get_cash_row_status",
+		type: "GET", // read-only endpoint; a default POST is refused with "Not permitted"
+		args: { card: frm.doc.name },
+		callback: (r) => {
+			const info = r.message || {};
+			(frm.doc.adjustments || []).forEach((row) => {
+				const s = info[row.name];
+				if (!s) return;
+				row.cash_status = s.label;
+				row.cash_payment = s.name;
+				row.cash_journal_entry = s.journal_entry;
+			});
+			frm.refresh_field("adjustments");
+		},
+	});
+}
+
+function card_cash_actions(frm) {
+	if (frm.is_new()) return;
+	const cash_rows = (frm.doc.adjustments || []).filter((a) => cint(a.is_cash_disbursement));
+	const is_manager = CASH_MANAGER_ROLES.some((r) => frappe.user_roles.includes(r));
+	frappe.call({
+		method: "card.cash_disbursement.get_cash_disbursements",
+		type: "GET",
+		args: { card: frm.doc.name },
+		callback: (r) => {
+			const payments = cash_actionable(frm, r.message || []);
+			const requestable = cash_rows.filter(
+				(a) => !payments.some((p) => p.adjustment_row === a.name),
+			);
+			if (frm.doc.docstatus === 0 && requestable.length) {
+				frm.add_custom_button(
+					__("Request cash approval"),
+					() =>
+						cash_pick_payment(
+							frm,
+							requestable.map((a) => ({ adjustment_row: a.name, name: null })),
+							__("Request cash approval"),
+							__("Request"),
+							(payment, dialog) =>
+								cash_dialog(
+									__("Request cash approval"),
+									[
+										{
+											label: __("Payment date"),
+											fieldname: "payment_date",
+											fieldtype: "Date",
+											default: frappe.datetime.get_today(),
+											reqd: 1,
+										},
+										{
+											label: __("Evidence (receipt number or reference)"),
+											fieldname: "evidence",
+											fieldtype: "Data",
+											reqd: 1,
+										},
+									],
+									__("Request"),
+									(values, d) =>
+										frappe.call({
+											method: "card.cash_disbursement.request_cash_disbursement",
+											args: {
+												card: frm.doc.name,
+												row: payment.adjustment_row,
+												payment_date: values.payment_date,
+												evidence: values.evidence,
+											},
+											freeze: true,
+											callback: () => {
+												d.hide();
+												if (dialog) dialog.hide();
+												frappe.show_alert({
+													message: __("Cash approval requested"),
+													indicator: "green",
+												});
+												frm.reload_doc();
+											},
+										}),
+								),
+						),
+					__("Cash payments"),
+				);
+			}
+
+			const with_status = (status) => payments.filter((p) => p.status === status);
+			// every action below is a manager action: the menu is shown to Card Manager and System Manager only
+			if (!is_manager) return;
+			const run_simple = (method, done) => (payment, dialog) =>
+				frappe.call({
+					method,
+					args: { name: payment.name },
+					freeze: true,
+					callback: () => {
+						if (dialog) dialog.hide();
+						frappe.show_alert({ message: done, indicator: "green" });
+						frm.reload_doc();
+					},
+				});
+			const pending = with_status("Pending");
+			if (pending.length) {
+				frm.add_custom_button(
+					__("Approve cash payment"),
+					() =>
+						cash_pick_payment(
+							frm,
+							pending,
+							__("Approve cash payment"),
+							__("Approve"),
+							(payment, dialog) =>
+								frappe.confirm(
+									__(
+										"Approve this cash payment? The approver must not be the requester.",
+									),
+									() =>
+										run_simple(
+											"card.cash_disbursement.approve_cash_disbursement",
+											__("Cash payment approved"),
+										)(payment, dialog),
+								),
+						),
+					__("Cash payments"),
+				);
+			}
+			const approved = [...with_status("Approved"), ...with_status("Posting Failed")];
+			if (approved.length) {
+				frm.add_custom_button(
+					__("Queue cash for posting"),
+					() =>
+						cash_pick_payment(
+							frm,
+							approved,
+							__("Queue cash for posting"),
+							__("Queue"),
+							run_simple(
+								"card.cash_disbursement.queue_posting",
+								__("Cash payment queued for posting"),
+							),
+						),
+					__("Cash payments"),
+				);
+			}
+			// a posted payment gets a cancellation request; an approved or failed one that was never posted is cancelled
+			// directly with its reason (no journal entry exists)
+			const posted = [...with_status("Posted"), ...approved.filter((p) => !p.journal_entry)];
+			if (posted.length) {
+				frm.add_custom_button(
+					__("Request cash cancellation"),
+					() =>
+						cash_pick_payment(
+							frm,
+							posted,
+							__("Request cash cancellation"),
+							__("Request"),
+							(payment, dialog) =>
+								cash_dialog(
+									__("Request cash cancellation"),
+									[
+										{
+											label: __("Reason"),
+											fieldname: "reason",
+											fieldtype: "Small Text",
+											reqd: 1,
+										},
+									],
+									__("Request"),
+									(values, d) =>
+										frappe.call({
+											method: "card.cash_disbursement.request_cancellation",
+											args: { name: payment.name, reason: values.reason },
+											freeze: true,
+											callback: () => {
+												d.hide();
+												if (dialog) dialog.hide();
+												frappe.show_alert({
+													message: __("Cancellation requested"),
+													indicator: "green",
+												});
+												frm.reload_doc();
+											},
+										}),
+								),
+						),
+					__("Cash payments"),
+				);
+			}
+			const replaceable = with_status("Cancelled").filter((p) => !p.replacement_pending);
+			if (replaceable.length) {
+				frm.add_custom_button(
+					__("Request cash replacement"),
+					() =>
+						cash_pick_payment(
+							frm,
+							replaceable,
+							__("Request cash replacement"),
+							__("Request"),
+							(payment, dialog) =>
+								cash_dialog(
+									__("Request cash replacement"),
+									[
+										{
+											label: __("Reason"),
+											fieldname: "reason",
+											fieldtype: "Small Text",
+											reqd: 1,
+										},
+										{
+											label: __("Payment date"),
+											fieldname: "payment_date",
+											fieldtype: "Date",
+											default: frappe.datetime.get_today(),
+											reqd: 1,
+										},
+										{
+											label: __("Evidence (receipt number or reference)"),
+											fieldname: "evidence",
+											fieldtype: "Data",
+											reqd: 1,
+										},
+									],
+									__("Request"),
+									(values, d) =>
+										frappe.call({
+											method: "card.cash_disbursement.request_replacement",
+											args: {
+												name: payment.name,
+												reason: values.reason,
+												payment_date: values.payment_date,
+												evidence: values.evidence,
+											},
+											freeze: true,
+											callback: () => {
+												d.hide();
+												if (dialog) dialog.hide();
+												frappe.show_alert({
+													message: __("Replacement requested"),
+													indicator: "green",
+												});
+												frm.reload_doc();
+											},
+										}),
+								),
+						),
+					__("Cash payments"),
+				);
+			}
+		},
+	});
+}

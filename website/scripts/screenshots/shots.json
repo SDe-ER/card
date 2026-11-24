@@ -201,23 +201,12 @@
       "path": "/app/equipment-needs-request/{enr}"
     },
     {
-      "name": "equipment-needs-portal",
-      "path": "/equipment-needs",
-      "as": "operator"
-    },
-    {
       "name": "accounting-partial-margin",
       "path": "/app/query-report/Equipment Partial Margin?company={company}&from_date=2026-10-01&to_date=2026-10-31"
     },
     {
       "name": "accounting-posting-source-integrity",
       "path": "/app/query-report/Posting Source Integrity?company={company}&from_date=2026-10-01&to_date=2026-10-31&show=All"
-    },
-    {
-      "name": "card-mobile-home",
-      "path": "/cdms",
-      "mobile": true,
-      "as": "operator"
     },
     {
       "name": "card-mobile-new-request",
@@ -230,6 +219,43 @@
         "طلب جديد"
       ],
       "as": "operator"
+    },
+    {
+      "name": "volume-billing-equipment-commercial",
+      "path": "/app/card-equipment/{eq:WL-05}",
+      "scrollText": [
+        "Customer rate type",
+        "نوع سعر العميل"
+      ]
+    },
+    {
+      "name": "volume-billing-monthly-card-days",
+      "path": "/app/card-monthly-card/{card:WL-05}",
+      "scrollText": [
+        "Loads",
+        "الحمولات"
+      ]
+    },
+    {
+      "name": "volume-billing-card-totals",
+      "path": "/app/card-monthly-card/{card:WL-05}",
+      "scrollText": [
+        "Total loads",
+        "إجمالي الردود"
+      ]
+    },
+    {
+      "name": "volume-billing-print",
+      "path": "/printview?doctype=Card%20Monthly%20Card&name={card:WL-05}&format=Card%20Monthly%20Card%20Print&no_letterhead=1"
+    },
+    {
+      "name": "volume-billing-customer-statement",
+      "path": "/app/query-report/Equipment Customer Statement?company={company}&customer=Example Roads Co.&from_month=10&from_year=2026&to_month=10&to_year=2026&include_draft=1"
+    },
+    {
+      "name": "volume-billing-loads-card",
+      "path": "/app/card",
+      "elementName": "Loads last month"
     }
   ]
 }

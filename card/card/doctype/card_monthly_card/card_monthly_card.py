@@ -6,7 +6,11 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
 
-from card.adjustments import validate_downtime_fields
+from card.adjustments import (
+	check_adjustment_date,
+	validate_cash_row,
+	validate_downtime_fields,
+)
 from card.api import recompute_customer, recompute_supplier
 from card.card.doctype.card_stop_reason.card_stop_reason import SIDE_BOTH, billable_side_of
 from card.card_value import PER_VOLUME_M3, bills_full_days, day_billing_basis
@@ -27,6 +31,7 @@ from card.constants import (
 from card.equipment_status import check_equipment_status, equipment_is_new_on
 from card.notifications import notify
 from card.settings import setting
+from card.settlement import correction_reason_missing, supplier_change_refused
 from card.transfer import (
 	_assigned_on,
 	_component_rows,
@@ -37,6 +42,14 @@ from card.transfer import (
 	month_assignments,
 	validate_card_days,
 )
+
+
+@frappe.whitelist(methods=["GET"])
+def get_standard_month_hours():
+	"""The standard month hours a per-month rate is spread over (Card Settings), so the card form prices
+	exactly as the server does. Read-only; any user who can read monthly cards."""
+	frappe.has_permission("Card Monthly Card", "read", throw=True)
+	return flt(setting("standard_month_hours")) or 260
 
 
 @frappe.whitelist(methods=["GET"])
@@ -88,6 +101,27 @@ def get_card_context(equipment: str, month: str, year: str, project: str | None 
 	return {"projects": projects, "project": project, "days": sorted(days)}
 
 
+# the source fields of a cash row that has a live payment: what is paid, from which Cash account, and how the row
+# would count if it were not a cash row (FR-170 final audit H2)
+PAID_CASH_ROW_FIELDS = (
+	"is_cash_disbursement",
+	"amount",
+	"cash_account",
+	"adjustment_type",
+	"adjustment_type_ref",
+	"side",
+)
+
+
+def _row_value(row, field):
+	"""A row value as it is stored, so a form's "120" equals 120.0 and an empty check equals 0."""
+	if field == "amount":
+		return flt(row.get(field), 2)
+	if field == "is_cash_disbursement":
+		return cint(row.get(field))
+	return row.get(field) or None
+
+
 def _interactive_form_save():
 	"""True only for a save made at the form (an HTTP request). Imports, patches, migrations, muted runs and
 	background jobs show no operator warning (owner decision 2026-11-14, FR-166)."""
@@ -103,6 +137,8 @@ def _interactive_form_save():
 
 class CardMonthlyCard(Document):
 	def before_validate(self):
+		self._protect_paid_cash_rows()
+		self._refresh_cash_rows()
 		# Ported verbatim-in-behaviour from Server Script "Card Monthly Card - Validate" v4 (Before Validate).
 		doc_month = cint(self.month)
 		doc_year = cint(self.year)
@@ -130,6 +166,7 @@ class CardMonthlyCard(Document):
 				"rental_end_date",
 				"is_unit_component",
 				"default_customer",
+				"supplier",
 				"customer_rate_type",
 				"customer_rate",
 				"customer_rate_night",
@@ -139,6 +176,29 @@ class CardMonthlyCard(Document):
 		)
 		if not eq:
 			frappe.throw(_("Equipment not found: {0}").format(self.equipment))
+		# the card keeps the beneficiary it was created with (FR-171 review): the equipment's current
+		# owner is a default for a card that has none; a later owner change never overwrites it
+		if not self.docstatus and not self.supplier and eq.get("supplier"):
+			# a Draft only: the default is never set by a submit (the period's beneficiary is fixed at creation)
+			self.supplier = eq.get("supplier")
+		if self.is_new() and self.amended_from:
+			# an amended card carries the historical beneficiary of the card it amends
+			stored_supplier = frappe.db.get_value(self.doctype, self.amended_from, "supplier")
+		else:
+			stored_supplier = (
+				None if self.is_new() else frappe.db.get_value(self.doctype, self.name, "supplier")
+			)
+		if correction_reason_missing(stored_supplier, self.supplier, self.supplier_correction_reason):
+			frappe.throw(_("Enter the reason for correcting the supplier of this card."))
+		if stored_supplier and self.supplier != stored_supplier:
+			# the correction is written to the card's comments on save (see on_update)
+			self.flags.supplier_correction = (stored_supplier, self.supplier, self.supplier_correction_reason)
+		if supplier_change_refused(frappe.get_roles(), stored_supplier, self.supplier, eq.get("supplier")):
+			frappe.throw(
+				_(
+					"Only a Card Manager can set or change the supplier of this card; it is {0}, the equipment's owner is {1}."
+				).format(stored_supplier or self.supplier or "", eq.get("supplier") or "")
+			)
 		# FR-118 (#45): stop reasons and the responsible party of each day row, before the
 		# unit and assignment checks (a billable stopped day is billed like a working day)
 		self._resolve_stop_reasons(eq.company, eq.rental_direction or derive_direction(eq.ownership))
@@ -366,12 +426,16 @@ class CardMonthlyCard(Document):
 						adj.description or ""
 					)
 				)
+			check_adjustment_date(adj.description, adj.adjustment_date, self.from_date, self.to_date)
+			is_cash_row = validate_cash_row(
+				adj, self.company or eq.company, self.supplier, self.card_direction
+			)
 			if adj.adjustment_type_ref:
 				typ = configured.get((self.company, adj.adjustment_type_ref))
 				if not typ or typ.disabled:
 					frappe.throw(
 						_(
-							"Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings."
+							"Addition/deduction type {0} is not configured (or is disabled) for company {1} in Card Settings. To record this row without a configured type, clear the Adjustment type and choose Addition or Deduction in Type."
 						).format(adj.adjustment_type_ref, self.company)
 					)
 				adj.adjustment_type = typ.kind
@@ -405,6 +469,9 @@ class CardMonthlyCard(Document):
 							"The card has no supplier; a supplier-side addition/deduction needs one: {0}."
 						).format(adj.adjustment_type_ref)
 					)
+			if is_cash_row:
+				# recorded, not posted: not in the card's totals or its invoice lines (owner decisions 2026-11-16)
+				continue
 			signed = a if adj.adjustment_type == "إضافة" else -a
 			if adj.adjustment_type == "إضافة":
 				total_additions = total_additions + a
@@ -762,7 +829,71 @@ class CardMonthlyCard(Document):
 				).format(self.year, self.month, fy_name)
 			)
 
+	def _protect_paid_cash_rows(self):
+		"""A row with a live cash payment (any status but Cancelled) keeps what the payment pays: it stays on the card,
+		stays a cash row, and keeps its amount, Cash account, kind, type and side. Otherwise an unticked row would come
+		back into the totals and the invoice while its Journal Entry stands: a double deduction (FR-170 final audit H2).
+		Every save path runs this (form, REST, set_value on a row); the way to change such a row is to delete the pending
+		payment, or to cancel the posted one, first."""
+		if self.is_new():
+			return
+		from card.cash_disbursement import live_payments
+
+		payments = live_payments(self.name)
+		if not payments:
+			return
+		before = self.get_doc_before_save()
+		before_rows = {r.name: r for r in (before.adjustments or [])} if before else {}
+		rows = {r.name: r for r in self.adjustments or []}
+		for payment in payments:
+			row = rows.get(payment.adjustment_row)
+			if not row:
+				frappe.throw(
+					_(
+						"Row {0} has cash payment {1}; it cannot be removed from the card. Delete the pending payment, or cancel the posted payment, first."
+					).format(
+						before_rows[payment.adjustment_row].idx
+						if payment.adjustment_row in before_rows
+						else payment.adjustment_row,
+						payment.name,
+					)
+				)
+			old = before_rows.get(row.name)
+			changed = [f for f in PAID_CASH_ROW_FIELDS if old and _row_value(old, f) != _row_value(row, f)]
+			if (
+				not cint(row.is_cash_disbursement)
+				or flt(row.amount, 2) != flt(payment.amount, 2)
+				or row.cash_account != payment.cash_account
+			):
+				changed = changed or ["is_cash_disbursement", "amount", "cash_account"]
+			if changed:
+				meta = frappe.get_meta("Card Monthly Card Adjustment")
+				labels = ", ".join(_(meta.get_label(f)) for f in dict.fromkeys(changed))
+				frappe.throw(
+					_(
+						"Row {0} has cash payment {1}; {2} cannot be changed. Delete the pending payment, or cancel the posted payment, first."
+					).format(row.idx, payment.name, labels)
+				)
+
+	def _refresh_cash_rows(self):
+		"""The display columns of the cash rows, from the Card Cash Disbursement records (the authority). Only the three
+		display columns change; no amount, account or total is touched, and the payment records are never written here."""
+		from card.cash_disbursement import cash_row_status
+
+		for row in self.adjustments or []:
+			if not cint(row.is_cash_disbursement):
+				row.cash_status = None
+				row.cash_payment = None
+				row.cash_journal_entry = None
+				continue
+			info = cash_row_status(self.name, row.name)
+			row.cash_status = info["label"]
+			row.cash_payment = info["name"]
+			row.cash_journal_entry = info["journal_entry"]
+
 	def before_submit(self):
+		# A pending owner-paid cash row does not block the card: it is in no total and no ledger entry until its
+		# payment is approved and posted, and that payment is independent of the card's submission.
 		# A card that bills a customer is final only when its EQUIPMENT carries the customer.
 		if self.card_direction in CUSTOMER_BILLING_DIRECTIONS and not self.customer:
 			frappe.throw(
@@ -772,6 +903,12 @@ class CardMonthlyCard(Document):
 			)
 
 	def on_update(self):
+		correction = self.flags.get("supplier_correction")
+		if correction:
+			old, new, reason = correction
+			self.add_comment(
+				"Info", _("Supplier corrected from {0} to {1}. Reason: {2}").format(old, new, reason.strip())
+			)
 		# report filters link to the party registries; a party must be selectable
 		# from its first card, draft included (submit/cancel keep the totals)
 		if (
@@ -800,6 +937,21 @@ class CardMonthlyCard(Document):
 			),
 			self,
 		)
+
+	def before_cancel(self):
+		"""A card with a live cash payment is not cancelled: its amendment would copy the cash row under a new card name,
+		where neither the row lock nor the invoice check sees the payment, so the row could be unticked and deducted
+		again (FR-170 final security review). The payment is resolved first: delete a pending one, or cancel a posted
+		one (cancellation request, then the Journal Entry in ERPNext)."""
+		from card.cash_disbursement import live_payments
+
+		live = live_payments(self.name)
+		if live:
+			frappe.throw(
+				_(
+					"Card {0} has cash payments that are not cancelled ({1}). Delete the pending payment, or cancel the posted payment, before cancelling the card."
+				).format(self.name, ", ".join(sorted(p.name for p in live)))
+			)
 
 	def on_cancel(self):
 		self._sync_supplier()

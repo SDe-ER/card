@@ -54,6 +54,7 @@ The **Additions and deductions** table of a monthly card:
 
 - **Adjustment type** – the configured type's name for the card's company; it sets **Type** (Addition / Deduction)
   from the type's kind. Older rows without a type keep working and count on the supplier side.
+- **Date** – required. The day of the addition or deduction; it must fall inside the card's month. A new row takes today's date when today is inside that month. Rows saved before this change take the first day of their card's month (its start date) when the site is upgraded; correct a date on the card if needed. Not released yet. API clients that add or change rows must now send the date.
 - **Description** and **Amount** – required; the amount must be greater than zero (the kind gives the sign).
 - **Side** – Supplier or Customer. Empty takes the card's billed side (Customer for a card rented to a customer,
   Supplier otherwise). A sub-rental card bills both parties, so every row must choose its side.
@@ -65,6 +66,14 @@ Each side adds its own rows to its own total:
 - **Customer net amount** = Customer amount + customer-side additions − customer-side deductions.
 
 **Total additions** and **Total deductions** show the sums of both sides together.
+
+On a Draft card these totals change as soon as a row is added, changed or deleted, or its side or Cash paid tick
+changes. The server recalculates them on save; the customer amount itself updates on save. A row marked **Cash paid**
+is recorded but not counted in the totals. A submitted card's rows cannot change: to correct them, cancel the card
+and amend it.
+
+If you chose your own columns for the table (**Configure columns**), the **Adjustment date** column is added in front
+of them by the v4.10.1 upgrade. **Reset to default** in the same dialog shows the standard columns.
 
 Rows are changed only through the card's own save, so every change is validated and kept in the card's history. A
 direct update of a row's amount, type, side or downtime fields (REST, `frappe.client`) is refused, and a row cannot be

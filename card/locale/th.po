@@ -52,3 +52,312 @@ msgstr "ลบจำนวนเที่ยวที่บรรทุกใน
 
 msgid "Check the loads"
 msgstr "ตรวจสอบจำนวนเที่ยว"
+
+msgid "Review Copy — Not Approved"
+msgstr "สำเนาสำหรับตรวจทาน — ยังไม่อนุมัติ"
+
+msgid "REVIEW COPY"
+msgstr "สำเนาสำหรับตรวจทาน"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "สถานะเวิร์กโฟลว์"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "ยังไม่อนุมัติ"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "พิมพ์โดย"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "พิมพ์เมื่อ"
+
+msgid "CARD operations dashboard"
+msgstr "แดชบอร์ดการดำเนินงาน CARD"
+
+msgid "Financial performance — last month"
+msgstr "ผลการดำเนินงานทางการเงิน — เดือนที่แล้ว"
+
+msgid "Needs review (CARD)"
+msgstr "ต้องตรวจสอบ (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "การ์ดรายเดือนล่าสุด (CARD)"
+
+msgid "CARD customers"
+msgstr "ลูกค้า CARD"
+
+msgid "CARD suppliers"
+msgstr "ซัพพลายเออร์ CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "ดีเซลและการดำเนินงาน (CARD)"
+
+msgid "New monthly card"
+msgstr "การ์ดรายเดือนใหม่"
+
+msgid "New equipment transport"
+msgstr "การขนส่งอุปกรณ์ใหม่"
+
+msgid "Customer statement (CARD)"
+msgstr "รายการลูกค้า (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "การ์ดรายเดือน (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "อุปกรณ์ (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "การมอบหมายงาน (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "ลูกค้าอุปกรณ์ (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "การขนส่งอุปกรณ์ (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "มูลค่าการดำเนินงานสำหรับลูกค้า - เดือนที่แล้ว"
+
+msgid "Supplier operating value - last month"
+msgstr "มูลค่าการดำเนินงานของซัพพลายเออร์ - เดือนที่แล้ว"
+
+msgid "Internal operating value - last month"
+msgstr "มูลค่าการดำเนินงานภายใน - เดือนที่แล้ว"
+
+msgid "Cards last month"
+msgstr "การ์ดเดือนที่แล้ว"
+
+msgid "Rented equipment (CARD)"
+msgstr "อุปกรณ์เช่า (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "งานขนส่งเดือนที่แล้ว (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "การ์ดฉบับร่าง (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "การ์ดที่ไม่มีอัตราภายใน (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "ชั่วโมงทำงานที่ไม่มีอัตรา (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "สรุปลูกค้า (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "รายการซัพพลายเออร์ (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "สรุปซัพพลายเออร์ (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "รายการซัพพลายเออร์ A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "การใช้ดีเซล (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "ต้นทุนการดำเนินงานตามโครงการ (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "ต้นทุนการขนส่งตามโครงการ (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "การกระทบยอดมิเตอร์ (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "การขนส่งอุปกรณ์ (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "มีการขอรับเงินสดสำหรับแถว {0} ของการ์ด {1} แล้ว"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "ขอรับเงินสดได้เฉพาะการ์ดที่อยู่ในสถานะฉบับร่างเท่านั้น"
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "ระบุเหตุผลในการยกเลิก"
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "แทนที่ได้เฉพาะรายการรับเงินสดที่ยกเลิกแล้วเท่านั้น; {0} อยู่ในสถานะ {1}"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "เฉพาะผู้จัดการการ์ดเท่านั้นที่อนุมัติการรับเงินสดได้"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "เฉพาะผู้จัดการการ์ดเท่านั้นที่บันทึกรายการรับเงินสดได้"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "เฉพาะผู้จัดการการ์ดเท่านั้นที่ขอยกเลิกได้"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "เฉพาะผู้จัดการการ์ดเท่านั้นที่ขอแทนที่ได้"
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "อนุมัติได้เฉพาะรายการรับเงินสดที่รอดำเนินการเท่านั้น; {0} อยู่ในสถานะ {1}"
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "ยกเลิกได้เฉพาะรายการรับเงินสดที่บันทึกแล้วเท่านั้น; {0} อยู่ในสถานะ {1}"
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "ดำเนินการได้เฉพาะรายการรับเงินสดที่อยู่ในคิวเท่านั้น; {0} อยู่ในสถานะ {1}"
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "นำเข้าคิวเพื่อบันทึกได้เฉพาะรายการรับเงินสดที่อนุมัติแล้วเท่านั้น; {0} อยู่ในสถานะ {1}"
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "แถว {0} ของการ์ด {1} มีรายการรับเงินสดที่ใช้งานอยู่แล้ว ({2})"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "ไม่พบรายการรับเงินสด {0}"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "รายการรับเงินสด {0} อยู่ในสถานะ {1} ไม่สามารถลบได้ ให้ยกเลิกแทน"
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "ผู้ขอไม่สามารถอนุมัติรายการรับเงินสดของตนเองได้"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "แถว {0} ไม่มีอยู่ในการ์ด {1} แล้ว"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "แถว {0} ไม่ใช่รายการรับเงินสดในการ์ด {1}"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "รายการรับเงินสด {0} ได้รับการอนุมัติแล้ว จึงเปลี่ยน {1} ไม่ได้ ให้ยกเลิกและขอแทนที่"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "รายการบัญชี {0} ยังมีการจัดสรรที่ใช้งานอยู่ กรุณาจัดการใน ERPNext (ยกเลิกการกระทบยอดหรือยกเลิกการเชื่อมโยง) ก่อนยกเลิก"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "รายการบัญชี {0} ชำระรายการรับเงินสด {1} ให้ขอยกเลิกพร้อมระบุเหตุผลก่อน จากนั้นรายการจะถูกทำเครื่องหมายว่ายกเลิก"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "รอการอนุมัติ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "อยู่ในคิวสำหรับบันทึก"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "การบันทึกล้มเหลว"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "ขอยกเลิกแล้ว"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "ยังไม่กระทบยอด"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "กระทบยอดบางส่วน"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "กระทบยอดครบถ้วน"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "อนุมัติรายการรับเงินสดนี้หรือไม่ ผู้อนุมัติต้องไม่ใช่ผู้ขอ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "เพิ่มเข้าคิวสำหรับบันทึก"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "ลองบันทึกอีกครั้ง"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "ขอยกเลิก"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "เงินสด: รอการอนุมัติ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "เงินสด: อนุมัติแล้ว"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "เงินสด: อยู่ในคิวสำหรับบันทึก"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "เงินสด: การบันทึกล้มเหลว"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "เงินสด: บันทึกแล้ว"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "เงินสด: ขอยกเลิกแล้ว"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "เงินสด: ยกเลิกแล้ว"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "เงินสด: ยังไม่กระทบยอด"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "เงินสด: กระทบยอดบางส่วน"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "เงินสด: กระทบยอดครบถ้วน"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "เงินสด: รอการแทนที่"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "ขออนุมัติรายการรับเงินสด"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "แถวเงินสด"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "หลักฐาน (เลขที่ใบเสร็จหรือข้อมูลอ้างอิง)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "ขออนุมัติรายการรับเงินสดแล้ว"

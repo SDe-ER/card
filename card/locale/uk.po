@@ -52,3 +52,312 @@ msgstr "Кількість рейсів обнулено в ці неробоч�
 
 msgid "Check the loads"
 msgstr "Перевірте рейси"
+
+msgid "Review Copy — Not Approved"
+msgstr "Копія для перевірки — Не затверджено"
+
+msgid "REVIEW COPY"
+msgstr "КОПІЯ ДЛЯ ПЕРЕВІРКИ"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Стан робочого процесу"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Ще не затверджено"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Надрукував"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Надруковано"
+
+msgid "CARD operations dashboard"
+msgstr "Панель операцій CARD"
+
+msgid "Financial performance — last month"
+msgstr "Фінансові показники — минулий місяць"
+
+msgid "Needs review (CARD)"
+msgstr "Потребує перевірки (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Останні місячні картки (CARD)"
+
+msgid "CARD customers"
+msgstr "Клієнти CARD"
+
+msgid "CARD suppliers"
+msgstr "Постачальники CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Дизель і операції (CARD)"
+
+msgid "New monthly card"
+msgstr "Нова місячна картка"
+
+msgid "New equipment transport"
+msgstr "Нове перевезення техніки"
+
+msgid "Customer statement (CARD)"
+msgstr "Виписка клієнта (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Місячні картки (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Техніка (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Призначення (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Клієнти техніки (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Перевезення техніки (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Операційна вартість для клієнтів - минулий місяць"
+
+msgid "Supplier operating value - last month"
+msgstr "Операційна вартість постачальника - минулий місяць"
+
+msgid "Internal operating value - last month"
+msgstr "Внутрішня операційна вартість - минулий місяць"
+
+msgid "Cards last month"
+msgstr "Картки за минулий місяць"
+
+msgid "Rented equipment (CARD)"
+msgstr "Орендована техніка (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Рейси за минулий місяць (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Чернеткові картки (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Картки без внутрішнього тарифу (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Години роботи без тарифу (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Підсумок по клієнтах (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Виписка постачальника (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Підсумок по постачальниках (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Виписка постачальника A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Витрати дизеля (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Операційні витрати за проєктами (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Витрати на перевезення за проєктами (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Звірка лічильників (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Перевезення техніки (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Готівковий платіж для рядка {0} картки {1} вже запитано."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Готівковий платіж можна запитати лише для картки в статусі чернетки."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Вкажіть причину скасування."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Замінити можна лише скасований готівковий платіж; {0} має статус {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Схвалити готівковий платіж може лише менеджер карток."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Провести готівковий платіж може лише менеджер карток."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Запросити скасування може лише менеджер карток."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Запросити заміну може лише менеджер карток."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Схвалити можна лише готівковий платіж в очікуванні; {0} має статус {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Скасувати можна лише проведений готівковий платіж; {0} має статус {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Виконати можна лише готівковий платіж у черзі; {0} має статус {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "До черги на проведення можна додати лише схвалений готівковий платіж; {0} має статус {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "У рядку {0} картки {1} вже є активний готівковий платіж ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Готівковий платіж {0} не існує."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Готівковий платіж {0} має статус {1}; його не можна видалити. Скасуйте його натомість."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Заявник не може схвалити власний готівковий платіж."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Рядка {0} більше немає на картці {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Рядок {0} не є готівковим платежем на картці {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Готівковий платіж {0} схвалено; {1} змінити не можна. Скасуйте його та запросіть заміну."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "У проводки журналу {0} ще є активні розподіли. Врегулюйте їх у ERPNext (скасуйте звірку або від'єднайте) перед скасуванням."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Проводка журналу {0} погашає готівковий платіж {1}. Спочатку запросіть скасування з причиною; платіж отримає статус «Скасовано»."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Очікує схвалення"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "У черзі на проведення"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Проведення не вдалося"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Запитано скасування"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Не звірено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Частково звірено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Повністю звірено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Схвалити цей готівковий платіж? Схвалювач не може бути заявником."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Поставити в чергу на проведення"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Повторити проведення"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Запитати скасування"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Готівка: очікує схвалення"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Готівка: схвалено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Готівка: у черзі на проведення"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Готівка: проведення не вдалося"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Готівка: проведено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Готівка: запитано скасування"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Готівка: скасовано"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Готівка: не звірено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Готівка: частково звірено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Готівка: повністю звірено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Готівка: очікує заміни"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Запитати схвалення готівкового платежу"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Рядок готівки"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Документ (номер квитанції або посилання)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Запитано схвалення готівкового платежу"

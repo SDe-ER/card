@@ -52,3 +52,312 @@ msgstr "Số chuyến đã bị xóa vào các ngày không làm việc sau: {0}
 
 msgid "Check the loads"
 msgstr "Kiểm tra số chuyến"
+
+msgid "Review Copy — Not Approved"
+msgstr "Bản sao xem xét — Chưa phê duyệt"
+
+msgid "REVIEW COPY"
+msgstr "BẢN SAO XEM XÉT"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Trạng thái quy trình"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Chưa phê duyệt"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "In bởi"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "In lúc"
+
+msgid "CARD operations dashboard"
+msgstr "Bảng điều khiển vận hành CARD"
+
+msgid "Financial performance — last month"
+msgstr "Hiệu quả tài chính — tháng trước"
+
+msgid "Needs review (CARD)"
+msgstr "Cần xem xét (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Thẻ hàng tháng mới nhất (CARD)"
+
+msgid "CARD customers"
+msgstr "Khách hàng CARD"
+
+msgid "CARD suppliers"
+msgstr "Nhà cung cấp CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Dầu diesel và vận hành (CARD)"
+
+msgid "New monthly card"
+msgstr "Thẻ hàng tháng mới"
+
+msgid "New equipment transport"
+msgstr "Vận chuyển thiết bị mới"
+
+msgid "Customer statement (CARD)"
+msgstr "Sao kê khách hàng (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Thẻ hàng tháng (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Thiết bị (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Phân công (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Khách hàng thiết bị (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Vận chuyển thiết bị (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Giá trị vận hành cho khách hàng - tháng trước"
+
+msgid "Supplier operating value - last month"
+msgstr "Giá trị vận hành nhà cung cấp - tháng trước"
+
+msgid "Internal operating value - last month"
+msgstr "Giá trị vận hành nội bộ - tháng trước"
+
+msgid "Cards last month"
+msgstr "Thẻ tháng trước"
+
+msgid "Rented equipment (CARD)"
+msgstr "Thiết bị thuê (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Chuyến hàng tháng trước (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Thẻ nháp (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Thẻ chưa có đơn giá nội bộ (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Giờ vận hành chưa có đơn giá (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Tóm tắt khách hàng (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Sao kê nhà cung cấp (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Tóm tắt nhà cung cấp (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Sao kê nhà cung cấp A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Mức tiêu thụ diesel (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Chi phí vận hành theo dự án (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Chi phí vận chuyển theo dự án (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Đối chiếu đồng hồ (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Vận chuyển thiết bị (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Đã yêu cầu thanh toán tiền mặt cho dòng {0} của thẻ {1}."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Chỉ có thể yêu cầu thanh toán tiền mặt cho thẻ ở trạng thái nháp."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Nhập lý do hủy."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Chỉ có thể thay thế khoản thanh toán tiền mặt đã hủy; {0} đang ở trạng thái {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Chỉ Quản lý thẻ mới có thể phê duyệt thanh toán tiền mặt."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Chỉ Quản lý thẻ mới có thể ghi sổ thanh toán tiền mặt."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Chỉ Quản lý thẻ mới có thể yêu cầu hủy."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Chỉ Quản lý thẻ mới có thể yêu cầu thay thế."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Chỉ có thể phê duyệt thanh toán tiền mặt đang chờ; {0} đang ở trạng thái {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Chỉ có thể hủy thanh toán tiền mặt đã ghi sổ; {0} đang ở trạng thái {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Chỉ có thể thực hiện thanh toán tiền mặt đang xếp hàng; {0} đang ở trạng thái {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Chỉ có thể xếp hàng ghi sổ thanh toán tiền mặt đã phê duyệt; {0} đang ở trạng thái {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Dòng {0} của thẻ {1} đã có một thanh toán tiền mặt đang hoạt động ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Thanh toán tiền mặt {0} không tồn tại."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Thanh toán tiền mặt {0} đang ở trạng thái {1}; không thể xóa. Hãy hủy thay thế."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Người yêu cầu không thể tự phê duyệt thanh toán tiền mặt của mình."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Dòng {0} không còn trên thẻ {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Dòng {0} không phải là thanh toán tiền mặt trên thẻ {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Thanh toán tiền mặt {0} đã được phê duyệt; không thể thay đổi {1}. Hãy hủy và yêu cầu thay thế."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Bút toán {0} vẫn còn phân bổ đang hoạt động. Hãy xử lý trong ERPNext (hủy đối chiếu hoặc gỡ liên kết) trước khi hủy."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Bút toán {0} thanh toán khoản thanh toán tiền mặt {1}. Hãy yêu cầu hủy kèm lý do trước; khoản thanh toán sau đó sẽ được đánh dấu là Đã hủy."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Chờ phê duyệt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "Trong hàng đợi ghi sổ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Ghi sổ thất bại"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Đã yêu cầu hủy"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Chưa đối chiếu"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Đối chiếu một phần"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Đối chiếu toàn bộ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Phê duyệt khoản thanh toán tiền mặt này? Người phê duyệt không được là người yêu cầu."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Đưa vào hàng đợi ghi sổ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Thử ghi sổ lại"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Yêu cầu hủy"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Tiền mặt: chờ phê duyệt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Tiền mặt: đã phê duyệt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Tiền mặt: trong hàng đợi ghi sổ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Tiền mặt: ghi sổ thất bại"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Tiền mặt: đã ghi sổ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Tiền mặt: đã yêu cầu hủy"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Tiền mặt: đã hủy"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Tiền mặt: chưa đối chiếu"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Tiền mặt: đối chiếu một phần"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Tiền mặt: đối chiếu toàn bộ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Tiền mặt: chờ thay thế"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Yêu cầu phê duyệt thanh toán tiền mặt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Dòng tiền mặt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Chứng từ (số biên lai hoặc tham chiếu)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Đã yêu cầu phê duyệt thanh toán tiền mặt"

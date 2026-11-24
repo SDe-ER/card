@@ -89,6 +89,20 @@ The workspace groups its shortcuts in four blocks:
 ![Shortcuts and report links](../../../assets/screenshots/en/workspace-dashboard-shortcuts.webp)
 *Shortcuts and report links*
 
+### Dashboard layout (v4.10.0 — not released yet)
+
+The **CARD** workspace opens with the operations dashboard, top to bottom:
+
+1. **Header:** the title and three shortcuts: a new monthly card, a new equipment transport and the customer statement.
+2. **Financial performance — last month:** customer operating value, supplier operating value (the supplier rental cost, the same figure as the monthly values chart) and internal operating value. Amounts are the full figures with thousands separators. A user without money read on monthly cards sees "N/A" in these cards and no amounts in the chart; no card is read for that user, and no error dialog is shown. The workspace is visible only to Card Manager, Card User and Accounts Manager, the roles that can read monthly cards. Card Operator and Card Supervisor cannot read monthly cards and do not see it.
+3. **Operations last month:** cards last month, rented equipment and the number of loads.
+4. **Needs review:** draft cards, cards without an internal rate and operating hours without a rate. The number shows the state; each card opens its filtered list.
+5. **Monthly values chart** (full width), with five shortcuts underneath, each with its count.
+6. **Links in three groups:** customers, suppliers, and diesel and operations.
+7. **Latest monthly cards:** a Quick List of the most recent cards.
+
+Every link on the dashboard is also in the **CARD** sidebar. The supplier statement A4 opens the supplier statement report, from which it can be printed in A4.
+
 ### Launcher (Dock)
 
 The CARD launcher has ten entries, in this order. Each opens a sidebar.

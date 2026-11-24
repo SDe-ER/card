@@ -1,0 +1,128 @@
+name: Docs screenshots
+
+# Generates the documentation screenshots on a CI bench with fictitious data (no QA, dev or production site).
+# Manual trigger only: it is never a pull request check, so it cannot block a merge. It uploads the captured images
+# as the artifact "docs-screenshots"; placing them in the docs is a separate, reviewed commit.
+# It deploys nothing: the Pages deploy stays in docs.yml, which runs only on main.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-24.04  # pinned, same as ci.yml
+    timeout-minutes: 120
+    name: Capture documentation screenshots (en and ar, 1440px)
+    services:
+      mariadb:
+        image: mariadb:10.6  # match production (MariaDB 10.6.27), same as ci.yml
+        env:
+          MARIADB_ROOT_PASSWORD: "root"
+        ports:
+          - 3306:3306
+        options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=2s --health-retries=5
+    steps:
+      - name: Clone
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"  # same as ci.yml: frappe version-16 requires Python 3.14
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"  # same as ci.yml: frappe's frontend tooling requires Node 24
+
+      - name: Add test site to hosts
+        run: echo "127.0.0.1 test_site" | sudo tee -a /etc/hosts
+
+      - name: Install bench, frappe, erpnext and CARD
+        timeout-minutes: 60
+        run: bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
+
+      - name: Build assets
+        working-directory: /home/runner/frappe-bench
+        env:
+          CI: "Yes"
+        run: bench build
+
+      - name: Wait for the site
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://test_site:8000/api/method/ping; then echo; exit 0; fi
+            sleep 5
+          done
+          echo "site did not answer"; exit 1
+
+      - name: Create the demo manager password (masked)
+        run: |
+          pass="$(openssl rand -base64 24)"
+          echo "::add-mask::${pass}"
+          echo "DEMO_PASS=${pass}" >> "$GITHUB_ENV"
+          echo "PASS=${pass}" >> "$GITHUB_ENV"
+
+      - name: Bootstrap company, fiscal year and demo manager
+        working-directory: /home/runner/frappe-bench/sites
+        run: |
+          ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_bootstrap.py').read())"
+
+      - name: Seed fictitious demo data
+        working-directory: /home/runner/frappe-bench/sites
+        run: |
+          ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/seed_demo.py').read())" | tee "${RUNNER_TEMP}/seed.log"
+          grep -q SEED_DONE "${RUNNER_TEMP}/seed.log"
+
+      - name: Configure the synthetic operator (CARD permission check printed)
+        working-directory: /home/runner/frappe-bench/sites
+        run: |
+          ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_operator.py').read())"
+
+      - name: Verify the per-m3 demo data
+        working-directory: /home/runner/frappe-bench/sites
+        run: |
+          ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_verify.py').read())"
+
+      - name: Install Playwright (pinned, not a site dependency)
+        working-directory: website
+        run: |
+          npm ci
+          npm install --no-save playwright@1.64.1
+          npx playwright install --with-deps chromium
+
+      - name: Clear the checked-in images on the runner (only fresh captures are uploaded)
+        working-directory: website
+        run: rm -rf src/assets/screenshots/en src/assets/screenshots/ar
+
+      - name: Capture screenshots
+        working-directory: website
+        env:
+          SITE: http://test_site:8000
+          USER_NAME: demo.manager@example.com
+          COMPANY: Example Contracting Co.
+        run: |
+          set -o pipefail
+          node scripts/screenshots/capture.mjs 2>&1 | tee "$RUNNER_TEMP/capture.log"
+
+      - name: Verify the captured images (required set; duplicates only when declared in shots.json)
+        if: always()
+        working-directory: website
+        run: python3 scripts/screenshots/check_images.py src/assets/screenshots "$RUNNER_TEMP/capture.log" scripts/screenshots/shots.json
+
+      - name: Upload the captured images (also when the gate fails, for inspection)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-screenshots
+          path: website/src/assets/screenshots
+          retention-days: 14
+          if-no-files-found: warn

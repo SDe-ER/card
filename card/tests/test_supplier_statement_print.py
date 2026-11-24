@@ -106,7 +106,8 @@ class TestSupplierStatementPrint(IntegrationTestCase):
 		template = _read(*REPORT_DIR, "equipment_supplier_statement.html")
 		# owner 2026-11-09: the printed totals come from the cards only (no ledger block); every card prints
 		self.assertIn('var print_keys = money ? ["net_cards", "not_invoiced"]', template)
-		self.assertIn("if (original_data[i]) rows.push(original_data[i]);", template)
+		# FR-175: every work row prints; the payment rows of a date-range statement print in their own table
+		self.assertIn("if (!original_data[i].payment) rows.push(original_data[i]);", template)
 		self.assertIn('["equipment", "days", "hours"]', template)
 		source = _read(*REPORT_DIR, "equipment_supplier_statement.py")
 		for key in ("equipment", "days", "hours", "net_cards", "accrued", "opening", "paid", "closing"):

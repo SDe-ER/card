@@ -52,3 +52,312 @@ msgstr "بارها در این روزهای غیرکاری پاک شدند: {0}"
 
 msgid "Check the loads"
 msgstr "بارها را بررسی کنید"
+
+msgid "Review Copy — Not Approved"
+msgstr "نسخهٔ بازبینی — تأیید نشده"
+
+msgid "REVIEW COPY"
+msgstr "نسخهٔ بازبینی"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "وضعیت گردش کار"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "هنوز تأیید نشده"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "چاپ توسط"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "زمان چاپ"
+
+msgid "CARD operations dashboard"
+msgstr "داشبورد عملیات CARD"
+
+msgid "Financial performance — last month"
+msgstr "عملکرد مالی — ماه گذشته"
+
+msgid "Needs review (CARD)"
+msgstr "نیازمند بازبینی (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "آخرین کارت‌های ماهانه (CARD)"
+
+msgid "CARD customers"
+msgstr "مشتریان CARD"
+
+msgid "CARD suppliers"
+msgstr "تأمین‌کنندگان CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "گازوئیل و عملیات (CARD)"
+
+msgid "New monthly card"
+msgstr "کارت ماهانه جدید"
+
+msgid "New equipment transport"
+msgstr "حمل تجهیزات جدید"
+
+msgid "Customer statement (CARD)"
+msgstr "صورت‌حساب مشتری (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "کارت‌های ماهانه (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "تجهیزات (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "واگذاری‌ها (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "مشتریان تجهیزات (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "حمل‌های تجهیزات (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "ارزش عملیاتی برای مشتریان - ماه گذشته"
+
+msgid "Supplier operating value - last month"
+msgstr "ارزش عملیاتی تأمین‌کنندگان - ماه گذشته"
+
+msgid "Internal operating value - last month"
+msgstr "ارزش عملیاتی داخلی - ماه گذشته"
+
+msgid "Cards last month"
+msgstr "کارت‌های ماه گذشته"
+
+msgid "Rented equipment (CARD)"
+msgstr "تجهیزات اجاره‌ای (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "بارها در ماه گذشته (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "کارت‌های پیش‌نویس (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "کارت‌های بدون نرخ داخلی (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "ساعات عملیاتی بدون نرخ (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "خلاصه مشتریان (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "صورت‌حساب تأمین‌کننده (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "خلاصه تأمین‌کنندگان (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "صورت‌حساب تأمین‌کننده A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "مصرف گازوئیل (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "هزینه عملیاتی بر اساس پروژه (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "هزینه حمل بر اساس پروژه (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "تطبیق کنتور (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "حمل تجهیزات (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "پرداخت نقدی برای ردیف {0} کارت {1} قبلاً درخواست شده است."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "پرداخت نقدی فقط برای کارت پیش‌نویس قابل درخواست است."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "دلیل لغو را وارد کنید."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "فقط پرداخت نقدی لغوشده را می‌توان جایگزین کرد؛ وضعیت {0} برابر {1} است."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "فقط مدیر کارت می‌تواند پرداخت نقدی را تأیید کند."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "فقط مدیر کارت می‌تواند پرداخت نقدی را ثبت کند."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "فقط مدیر کارت می‌تواند درخواست لغو بدهد."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "فقط مدیر کارت می‌تواند درخواست جایگزینی بدهد."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "فقط پرداخت نقدی در انتظار را می‌توان تأیید کرد؛ وضعیت {0} برابر {1} است."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "فقط پرداخت نقدی ثبت‌شده را می‌توان لغو کرد؛ وضعیت {0} برابر {1} است."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "فقط پرداخت نقدی در صف را می‌توان اجرا کرد؛ وضعیت {0} برابر {1} است."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "فقط پرداخت نقدی تأییدشده را می‌توان برای ثبت به صف برد؛ وضعیت {0} برابر {1} است."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "ردیف {0} کارت {1} از قبل یک پرداخت نقدی فعال ({2}) دارد."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "پرداخت نقدی {0} وجود ندارد."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "پرداخت نقدی {0} وضعیت {1} دارد؛ حذف آن ممکن نیست. به‌جای آن لغوش کنید."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "درخواست‌کننده نمی‌تواند پرداخت نقدی خودش را تأیید کند."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "ردیف {0} دیگر روی کارت {1} نیست."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "ردیف {0} روی کارت {1} یک پرداخت نقدی نیست."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "پرداخت نقدی {0} تأیید شده است؛ {1} قابل تغییر نیست. آن را لغو کنید و جایگزینی بخواهید."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "سند حسابداری {0} هنوز تخصیص‌های فعال دارد. پیش از لغو، آن‌ها را در ERPNext تسویه یا پیوند را حذف کنید."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "سند حسابداری {0} پرداخت نقدی {1} را تسویه می‌کند. ابتدا با ذکر دلیل درخواست لغو بدهید؛ سپس پرداخت لغوشده علامت می‌خورد."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "در انتظار تأیید"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "در صف ثبت"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "ثبت ناموفق بود"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "درخواست لغو ثبت شد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "تسویه نشده"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "تسویه جزئی"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "تسویه کامل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "این پرداخت نقدی تأیید شود؟ تأییدکننده نمی‌تواند درخواست‌کننده باشد."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "افزودن به صف ثبت"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "تلاش مجدد ثبت"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "درخواست لغو"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "نقدی: در انتظار تأیید"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "نقدی: تأیید شده"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "نقدی: در صف ثبت"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "نقدی: ثبت ناموفق"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "نقدی: ثبت شده"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "نقدی: درخواست لغو"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "نقدی: لغو شده"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "نقدی: تسویه نشده"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "نقدی: تسویه جزئی"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "نقدی: تسویه کامل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "نقدی: جایگزین در انتظار"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "درخواست تأیید پرداخت نقدی"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "ردیف نقدی"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "سند (شماره رسید یا مرجع)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "درخواست تأیید پرداخت نقدی ثبت شد"

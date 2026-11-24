@@ -55,7 +55,7 @@ class TestVolumeBilling(_StopBase):
 			row.update(values)
 			c.append("days", row)
 		for adj in adjustments or []:
-			c.append("adjustments", adj)
+			c.append("adjustments", {"adjustment_date": "2026-09-01", **adj})
 		c.insert(ignore_permissions=True)
 		if submit:
 			c.submit()
@@ -553,7 +553,12 @@ class TestVolumeBilling(_StopBase):
 		template = frappe.get_jenv().from_string(
 			frappe.get_doc("Print Format", "Card Monthly Card Print").html
 		)
-		deduction = {"adjustment_type": "خصم", "amount": 100, "description": "TEST deduction"}
+		deduction = {
+			"adjustment_date": "2026-09-01",
+			"adjustment_type": "خصم",
+			"amount": 100,
+			"description": "TEST deduction",
+		}
 		card = self._volume_card(
 			self._volume_equipment(),
 			[{"loads_count": 40, "working_hours": 10}],

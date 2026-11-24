@@ -1191,6 +1191,7 @@ msgstr ""
 
 #. Label of the total_additions (Currency) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total additions"
 msgstr ""
 
@@ -1202,6 +1203,7 @@ msgstr ""
 #. Label of the total_deductions (Currency) field in DocType 'Card Monthly
 #. Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Total deductions"
 msgstr ""
 
@@ -3878,39 +3880,19 @@ msgid "Supplier settlement"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier gross"
+msgid "Total before additions and deductions"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier additions"
+msgid "Net after additions and deductions"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier deductions"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Supplier net before VAT"
+msgid "Cash paid, not in the totals"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 msgid "Customer settlement"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer gross"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer additions"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer deductions"
-msgstr ""
-
-#: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
-msgid "Customer net before VAT"
 msgstr ""
 
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
@@ -7459,3 +7441,628 @@ msgstr "Loads were cleared on these non-working days: {0}"
 
 msgid "Check the loads"
 msgstr "Check the loads"
+
+msgid "Review Copy — Not Approved"
+msgstr ""
+
+msgid "REVIEW COPY"
+msgstr ""
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr ""
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr ""
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr ""
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr ""
+
+msgid "CARD operations dashboard"
+msgstr ""
+
+msgid "Financial performance — last month"
+msgstr ""
+
+msgid "Needs review (CARD)"
+msgstr ""
+
+msgid "Latest monthly cards (CARD)"
+msgstr ""
+
+msgid "CARD customers"
+msgstr ""
+
+msgid "CARD suppliers"
+msgstr ""
+
+msgid "Diesel and operations (CARD)"
+msgstr ""
+
+msgid "New monthly card"
+msgstr ""
+
+msgid "New equipment transport"
+msgstr ""
+
+msgid "Customer statement (CARD)"
+msgstr ""
+
+msgid "Monthly cards (CARD)"
+msgstr ""
+
+msgid "Equipment (CARD)"
+msgstr ""
+
+msgid "Assignments (CARD)"
+msgstr ""
+
+msgid "Equipment customers (CARD)"
+msgstr ""
+
+msgid "Equipment transports (CARD)"
+msgstr ""
+
+msgid "Operating value for customers - last month"
+msgstr ""
+
+msgid "Supplier operating value - last month"
+msgstr ""
+
+msgid "Internal operating value - last month"
+msgstr ""
+
+msgid "Cards last month"
+msgstr ""
+
+msgid "Rented equipment (CARD)"
+msgstr ""
+
+msgid "Loads last month (CARD)"
+msgstr ""
+
+msgid "Draft cards (CARD)"
+msgstr ""
+
+msgid "Cards without internal rate (CARD)"
+msgstr ""
+
+msgid "Operating hours without rate (CARD)"
+msgstr ""
+
+msgid "Customer summary (CARD)"
+msgstr ""
+
+msgid "Supplier statement (CARD)"
+msgstr ""
+
+msgid "Suppliers summary (CARD)"
+msgstr ""
+
+msgid "Supplier statement A4 (CARD)"
+msgstr ""
+
+msgid "Diesel consumption (CARD)"
+msgstr ""
+
+msgid "Operating cost by project (CARD)"
+msgstr ""
+
+msgid "Transport cost by project (CARD)"
+msgstr ""
+
+msgid "Meter reconciliation (CARD)"
+msgstr ""
+
+msgid "Equipment transport (CARD)"
+msgstr ""
+
+msgid "Adjustment date"
+msgstr ""
+
+msgid "Enter the date of the addition/deduction: {0}"
+msgstr ""
+
+msgid "The date of the addition/deduction {0} must be inside the card period ({1} to {2})."
+msgstr ""
+
+msgid "Cash paid"
+msgstr ""
+
+msgid "Cash account for the owner-paid expense"
+msgstr ""
+
+msgid "Choose the cash account the expense was paid from."
+msgstr ""
+
+msgid "Cash account {0} does not exist."
+msgstr ""
+
+msgid "Cash account {0} belongs to another company."
+msgstr ""
+
+msgid "Cash account {0} must be an enabled account, not a group."
+msgstr ""
+
+msgid "Account {0} is not a Cash account (its Account Type must be Cash)."
+msgstr ""
+
+msgid "Recorded only: not posted and not counted in the card until its cash approval and Journal Entry exist."
+msgstr ""
+
+msgid "The owner-paid cash row {0} needs a supplier-billed card with the equipment owner as its supplier."
+msgstr ""
+
+msgid "Cash paid on behalf of an equipment owner is recorded but not posted yet, so the card cannot be submitted: {0}."
+msgstr ""
+
+msgid "The card is not supplier-billed, so no supplier beneficiary can be verified."
+msgstr ""
+
+msgid "The card has no supplier, so the beneficiary cannot be verified."
+msgstr ""
+
+msgid "The card's supplier {0} is not the equipment's current owner {1}. Review the owner before posting."
+msgstr ""
+
+msgid "The accounting treatment of this beneficiary type is not verified (assumptions A1 to A5)."
+msgstr ""
+
+msgid "Enter the payment date of the cash expense."
+msgstr ""
+
+msgid "The payment date {0} cannot be in the future."
+msgstr ""
+
+msgid "The period of payment date {0} is closed; the payment cannot be posted into it."
+msgstr ""
+
+msgid "Enter the reason for correcting the supplier of this card."
+msgstr ""
+
+msgid "Reason for correcting the supplier"
+msgstr ""
+
+msgid "Required when a Card Manager changes the supplier of a saved card. Kept with the card's Version history."
+msgstr ""
+
+msgid "Supplier corrected from {0} to {1}. Reason: {2}"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request replacement"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Replacement reason"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Give the reason for the replacement."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Enter the evidence of the replacement payment (receipt number or reference)."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Replacement requested: {0}"
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Payment date"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payments"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Approve cash payment"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Approve"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Queue cash for posting"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Queue"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Request cash cancellation"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Request cash replacement"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payment approved"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Cash payment queued for posting"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Replacement requested"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Not requested"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Cash payment status"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
+msgid "Cash payment"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "You are not permitted to change this cash payment."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The cash payment {0} cannot move from {1} to {2} by a plain save."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The approval fields of cash payment {0} are set by the approval only."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "You are not permitted to use this card for cash payments."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Posting"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Posting Failed"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Posted"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Cancellation Requested"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Unreconciled"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} has no approval; it cannot be posted."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "A cash payment is created only by a request or a replacement on its card."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment cannot be replaced."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Cash payment {0} is already replaced by {1}."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "These fields of cash payment {0} are fixed when it is created: {1}."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved by its requester; it cannot be posted."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Financial summary"
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} cannot be approved."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} cannot be queued for posting."
+msgstr ""
+
+#: card/cash_disbursement.py
+msgid "Card {0} is cancelled; its cash payment {1} is not posted."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Row {0} has cash payment {1}; it cannot be removed from the card. Delete the pending payment, or cancel the posted payment, first."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Row {0} has cash payment {1}; {2} cannot be changed. Delete the pending payment, or cancel the posted payment, first."
+msgstr ""
+
+#: card/gl/posting.py
+msgid "Row {0} of card {1} is paid by cash payment {2} but is not marked Cash paid; the card is not invoiced."
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Card {0} has cash payments that are not cancelled ({1}). Delete the pending payment, or cancel the posted payment, before cancelling the card."
+msgstr ""
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.py
+msgid "The cash payment {0} has a journal entry; cancel that entry instead."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Net work for the period"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Balance carried from before the period"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "VAT on CARD purchase invoices"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Other supplier credits (outside CARD)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments in the period (submitted entries only)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Current due to the supplier"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments in the period"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments are submitted accounting entries only; draft journal entries are not counted."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "The work follows the filters; payments, VAT and other credits are for the whole supplier."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_pdf.py
+msgid "Payment amount"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/statement_period.py
+msgid "Set both From date and To date, or clear both to use the months."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments not allocated to an equipment (not deducted)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments not allocated to a project (not deducted)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Other supplier credits without the equipment or project (not added)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments, VAT and other credits count only when their accounting entry carries the selected equipment or project; entries without one are shown apart and not counted."
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "Payments without the selected equipment and project (not deducted)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "VAT of CARD invoice lines without the equipment or project (not added)"
+msgstr ""
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+msgstr ""

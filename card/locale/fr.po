@@ -52,3 +52,312 @@ msgstr "Les chargements ont été effacés pendant ces jours non ouvrables : {0}
 
 msgid "Check the loads"
 msgstr "Vérifier les chargements"
+
+msgid "Review Copy — Not Approved"
+msgstr "Copie de relecture — Non approuvée"
+
+msgid "REVIEW COPY"
+msgstr "COPIE DE RELECTURE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "État du workflow"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Pas encore approuvée"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Imprimé par"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Imprimé le"
+
+msgid "CARD operations dashboard"
+msgstr "Tableau de bord des opérations CARD"
+
+msgid "Financial performance — last month"
+msgstr "Performance financière — mois dernier"
+
+msgid "Needs review (CARD)"
+msgstr "À vérifier (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Dernières cartes mensuelles (CARD)"
+
+msgid "CARD customers"
+msgstr "Clients CARD"
+
+msgid "CARD suppliers"
+msgstr "Fournisseurs CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Gasoil et opérations (CARD)"
+
+msgid "New monthly card"
+msgstr "Nouvelle carte mensuelle"
+
+msgid "New equipment transport"
+msgstr "Nouveau transport d'équipement"
+
+msgid "Customer statement (CARD)"
+msgstr "Relevé client (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Cartes mensuelles (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Équipements (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Affectations (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Clients d'équipements (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Transports d'équipements (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Valeur d'exploitation des clients - mois dernier"
+
+msgid "Supplier operating value - last month"
+msgstr "Valeur d'exploitation fournisseurs - mois dernier"
+
+msgid "Internal operating value - last month"
+msgstr "Valeur d'exploitation interne - mois dernier"
+
+msgid "Cards last month"
+msgstr "Cartes du mois dernier"
+
+msgid "Rented equipment (CARD)"
+msgstr "Équipements loués (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Chargements du mois dernier (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Cartes brouillon (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Cartes sans tarif interne (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Heures d'exploitation sans tarif (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Récapitulatif clients (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Relevé fournisseur (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Récapitulatif fournisseurs (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Relevé fournisseur A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Consommation de gasoil (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Coût d'exploitation par projet (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Coût de transport par projet (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Rapprochement des compteurs (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Transport d'équipement (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Un paiement en espèces a déjà été demandé pour la ligne {0} de la carte {1}."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Un paiement en espèces ne peut être demandé que sur une carte à l'état brouillon."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Indiquez le motif de l'annulation."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Seul un paiement en espèces annulé peut être remplacé ; {0} est {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Seul un gestionnaire de cartes peut approuver un paiement en espèces."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Seul un gestionnaire de cartes peut comptabiliser un paiement en espèces."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Seul un gestionnaire de cartes peut demander une annulation."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Seul un gestionnaire de cartes peut demander un remplacement."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Seul un paiement en espèces en attente peut être approuvé ; {0} est {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Seul un paiement en espèces comptabilisé peut être annulé ; {0} est {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Seul un paiement en espèces en file d'attente peut être exécuté ; {0} est {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Seul un paiement en espèces approuvé peut être mis en file d'attente pour comptabilisation ; {0} est {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "La ligne {0} de la carte {1} a déjà un paiement en espèces actif ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Le paiement en espèces {0} n'existe pas."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Le paiement en espèces {0} est {1} ; il ne peut pas être supprimé. Annulez-le à la place."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Le demandeur ne peut pas approuver son propre paiement en espèces."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "La ligne {0} ne figure plus sur la carte {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "La ligne {0} n'est pas un paiement en espèces sur la carte {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Le paiement en espèces {0} est approuvé ; {1} ne peut plus être modifié. Annulez-le et demandez un remplacement."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "L'écriture de journal {0} a encore des imputations actives. Régularisez-les dans ERPNext (annulation du rapprochement ou dissociation) avant de l'annuler."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "L'écriture de journal {0} règle le paiement en espèces {1}. Demandez d'abord l'annulation avec un motif ; le paiement sera alors marqué Annulé."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "En attente d'approbation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "En file de comptabilisation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Échec de la comptabilisation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Annulation demandée"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Non rapprochée"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Partiellement rapprochée"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Entièrement rapprochée"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Approuver ce paiement en espèces ? L'approbateur ne peut pas être le demandeur."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Mettre en file de comptabilisation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Relancer la comptabilisation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Demander l'annulation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Espèces : en attente d'approbation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Espèces : approuvé"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Espèces : en file de comptabilisation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Espèces : échec de la comptabilisation"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Espèces : comptabilisé"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Espèces : annulation demandée"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Espèces : annulé"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Espèces : non rapprochée"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Espèces : partiellement rapprochée"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Espèces : entièrement rapprochée"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Espèces : remplacement en attente"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Demander l'approbation du paiement en espèces"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Ligne espèces"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Justificatif (numéro de reçu ou référence)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Approbation du paiement en espèces demandée"

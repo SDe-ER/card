@@ -52,3 +52,312 @@ msgstr "Kuormat poistettiin näinä ei-työpäivinä: {0}"
 
 msgid "Check the loads"
 msgstr "Tarkista kuormat"
+
+msgid "Review Copy — Not Approved"
+msgstr "Tarkistuskopio — Ei hyväksytty"
+
+msgid "REVIEW COPY"
+msgstr "TARKISTUSKOPIO"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Työnkulun tila"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Ei vielä hyväksytty"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Tulostaja"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Tulostettu"
+
+msgid "CARD operations dashboard"
+msgstr "CARD-toimintanäkymä"
+
+msgid "Financial performance — last month"
+msgstr "Taloudellinen tulos — viime kuukausi"
+
+msgid "Needs review (CARD)"
+msgstr "Vaatii tarkistusta (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Uusimmat kuukausikortit (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD-asiakkaat"
+
+msgid "CARD suppliers"
+msgstr "CARD-toimittajat"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Diesel ja toiminta (CARD)"
+
+msgid "New monthly card"
+msgstr "Uusi kuukausikortti"
+
+msgid "New equipment transport"
+msgstr "Uusi kaluston kuljetus"
+
+msgid "Customer statement (CARD)"
+msgstr "Asiakkaan tiliote (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Kuukausikortit (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Kalusto (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Kohdistukset (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Kaluston asiakkaat (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Kaluston kuljetukset (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Asiakkaiden toiminta-arvo - viime kuukausi"
+
+msgid "Supplier operating value - last month"
+msgstr "Toimittajien toiminta-arvo - viime kuukausi"
+
+msgid "Internal operating value - last month"
+msgstr "Sisäinen toiminta-arvo - viime kuukausi"
+
+msgid "Cards last month"
+msgstr "Kortit viime kuukaudelta"
+
+msgid "Rented equipment (CARD)"
+msgstr "Vuokrattu kalusto (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Kuormat viime kuukaudelta (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Luonnoskortit (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Kortit ilman sisäistä hintaa (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Käyttötunnit ilman hintaa (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Asiakasyhteenveto (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Toimittajan tiliote (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Toimittajayhteenveto (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Toimittajan tiliote A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dieselkulutus (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Toimintakustannukset projektin mukaan (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Kuljetuskustannukset projektin mukaan (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Mittarien täsmäytys (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Kaluston kuljetus (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Käteismaksu riville {0} kortilla {1} on jo pyydetty."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Käteismaksun voi pyytää vain luonnoksena olevalle kortille."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Anna peruutuksen syy."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Vain peruutettu käteismaksu voidaan korvata; {0} on {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Vain korttipäällikkö voi hyväksyä käteismaksun."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Vain korttipäällikkö voi kirjata käteismaksun."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Vain korttipäällikkö voi pyytää peruutusta."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Vain korttipäällikkö voi pyytää korvaamista."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Vain odottava käteismaksu voidaan hyväksyä; {0} on {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Vain kirjattu käteismaksu voidaan peruuttaa; {0} on {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Vain jonossa oleva käteismaksu voidaan suorittaa; {0} on {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Vain hyväksytty käteismaksu voidaan asettaa kirjausjonoon; {0} on {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Rivillä {0} kortilla {1} on jo aktiivinen käteismaksu ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Käteismaksua {0} ei ole olemassa."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Käteismaksu {0} on {1}; sitä ei voi poistaa. Peruuta se sen sijaan."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Pyytäjä ei voi hyväksyä omaa käteismaksuaan."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Rivi {0} ei ole enää kortilla {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Rivi {0} ei ole käteismaksu kortilla {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Käteismaksu {0} on hyväksytty; {1} ei voi muuttua. Peruuta se ja pyydä korvaaminen."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Kirjauksella {0} on vielä aktiivisia kohdistuksia. Ratkaise ne ERPNextissä (kumoa täsmäytys tai irrota) ennen peruuttamista."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Kirjaus {0} maksaa käteismaksun {1}. Pyydä ensin peruutus perusteluineen; maksu merkitään sitten Peruutetuksi."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Odottaa hyväksyntää"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "Kirjausjonossa"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Kirjaus epäonnistui"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Peruutus pyydetty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Ei täsmäytetty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Osittain täsmäytetty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Täysin täsmäytetty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Hyväksytäänkö tämä käteismaksu? Hyväksyjä ei voi olla pyytäjä."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Lisää kirjausjonoon"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Yritä kirjausta uudelleen"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Pyydä peruutusta"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Käteinen: odottaa hyväksyntää"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Käteinen: hyväksytty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Käteinen: kirjausjonossa"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Käteinen: kirjaus epäonnistui"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Käteinen: kirjattu"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Käteinen: peruutus pyydetty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Käteinen: peruutettu"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Käteinen: ei täsmäytetty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Käteinen: osittain täsmäytetty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Käteinen: täysin täsmäytetty"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Käteinen: korvaus odottaa"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Pyydä käteismaksun hyväksyntää"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Käteisrivi"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Tosite (kuittinumero tai viite)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Käteismaksun hyväksyntä pyydetty"

@@ -18,7 +18,43 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing merged yet._
+_Nothing yet._
+
+## v4.11.0 — 2026-11-22
+
+Minor release on top of v4.10.1. It adds the supplier statement for a date range and payments linked to an equipment, and changes no permission or accounting rule. The upgrade adds the Card Equipment accounting dimension (empty columns on the accounting tables).
+
+- **2026-11-22 — A payment can be linked to an equipment, and the equipment's statement deducts only its own payments.** CARD now creates the ERPNext accounting dimension **Card Equipment** by itself on upgrade, so a Journal Entry, Payment Entry or Purchase Invoice line can carry the equipment. In **Equipment Supplier Statement** with an **Equipment** filter, only the payments that carry that equipment are deducted from its balance; a supplier payment without an equipment is never deducted and is shown as **Payments not allocated to an equipment (not deducted)**. The VAT of an invoice made by CARD is split by each equipment's share of the invoice. The **Project** filter works the same way. The same rules apply to the month statement (without From/To dates). Without these filters the statement counts every supplier payment, as before. Uninstalling CARD only disables the dimension; it never deletes it or its values.
+- **2026-11-22 — Supplier statement for any date range, with payments and the balance due.** In **Equipment Supplier Statement**, set **From date** and **To date** (for example 1 to 5 November) to settle a supplier every few days. The statement then counts only the card days inside those dates, also on draft cards when **Include drafts** is on, and prices them with the exact hourly rate (425 ÷ 8 = 53.125). Additions and deductions count by their own date. Below the work it lists the **payments** of those dates (submitted entries only; a draft journal entry is never counted) and shows **Balance carried from before the period**, **Net work for the period**, **Payments in the period** and **Current due to the supplier**. The VAT of purchase invoices made by CARD is added, and an invoice made by CARD is never counted twice. The printed A4 statement shows the same lines. Without the two dates the statement works as before.
+- **2026-11-22 — A draft Monthly Card shows the same amount as the server.** The card form used the equipment's rounded hourly rate (53.13) while the server uses the exact rate (53.125), so a draft card could show 6,271.77 instead of 6,271.13. The form now uses the exact rate, and opening a saved card no longer marks it as changed.
+- **2026-11-21 — The printed Monthly Card shows four clear totals for each side.** At the bottom of the print, each billed side (supplier, customer) has four rows: **Total before additions and deductions**, **Total additions**, **Total deductions** and **Net after additions and deductions**. The net is the amount saved on the card, so each addition and deduction counts once. Amounts print with two decimals and the currency, also when they are zero (for example `0.00 SAR`), and the net is the large bold line at the end. Cash paid rows are listed but not counted in these totals, as on the card itself. Nothing changes in saved or submitted cards.
+
+## v4.10.1 — 2026-11-21
+
+Patch release on top of v4.10.0. It changes no API, permission or accounting rule.
+
+- **2026-11-21 — The Additions and deductions table shows the date for everyone, and the totals follow each row at once.** Users who had chosen their own columns for the table before v4.10.0 did not see the new **Adjustment date** column; the upgrade now adds it in front of their columns and keeps the rest of their choice. When you add, change or delete an addition or deduction, or change its side or the Cash paid tick, the card's totals change at once: **Net due** for the supplier side and **Customer net amount** for the customer side (before, only the supplier side changed, so a card rented to a customer seemed not to react until it was saved). The server still recalculates every total on save. Nothing changes on saved or submitted cards. If a row's **Adjustment type** is not one of the types configured in Card Settings, the save is still refused, and the message now tells you to clear that field and choose Addition or Deduction in **Type**.
+
+## v4.10.0 — 2026-11-20
+
+**v4.10.0 changes the API:** programs and Data Import files that add or change additions and deductions of a monthly card must send each row's date. After an upgrade, cash payments can be requested and approved, but **no cash payment is posted** until the posting service is set up and switched on separately.
+
+- **2026-11-19 — The card row of a cash payment is locked.** While a cash payment of a row is pending, approved, posted or waiting for its cancellation, the row stays on the card and keeps its Cash paid tick, amount, cash account, type and side; the description and the date can still be changed. To change such a row, delete the pending payment or cancel the posted one first. This prevents the same cash from being deducted twice (once by its journal entry and again by the supplier invoice). A card cannot be cancelled while it has a cash payment that is not cancelled. An approved payment that was never posted (or whose posting failed) can now be cancelled with a reason from **Request cash cancellation**; nothing needs to be cancelled in ERPNext for it. A payment of a cancelled card is no longer approved, queued or posted, and the cancellation details of a payment can be written only by the cancellation itself.
+- **2026-11-19 — The Additions and deductions table uses the full width of the card.** The table is no longer squeezed next to the totals: it now spans the form, and the totals are shown under it in a **Financial summary** section. Date, type, description, side, amount, cash paid and cash payment status are readable without scrolling on a desktop.
+- **2026-11-19 — Cash payments are harder to misuse.** A cash payment can now be created only from the card (Request cash approval) or as the replacement of a cancelled payment, never directly. The person who asked for a payment, its card row, supplier, amount and cash account stay fixed. A payment is posted only when a different Card Manager approved it. A cancelled payment can be replaced once, with the same checks as a new request.
+- **2026-11-18 — Cash payments are managed from the card's Additions and deductions table.** Each cash row shows its payment status (for example "Posted · Not reconciled") and its journal entry in the table. The payment actions are in the card's **Cash payments** menu: approve, queue, request cancellation and request replacement. You no longer open a separate cash payment form for these steps. A different person must approve each payment, and a replacement never posts by itself.
+- **2026-11-18 — A cancelled cash payment can be replaced from the form.** A cancelled owner-paid cash payment now shows **Request replacement**. You enter a reason, the payment date and the receipt reference. The replacement waits for approval by a different Card Manager, and nothing is posted when you click. Only one live replacement can exist for a cancelled payment. Opening a Monthly Card no longer shows "Not permitted" to a Card User.
+- **2026-11-16 — Additions and deductions have a date.** Each addition or deduction on a monthly card now has its own date, shown in the table and at review. The date must fall inside the card's month, and a new row takes today's date. Cards saved before this change get the first day of their month; correct it on the card if needed.
+- **2026-11-15 — The CARD dashboard is redesigned.** The CARD workspace now opens with an operations dashboard: the month's financial figures (customers, suppliers, internal), the cards that need review, the monthly values chart with shortcuts under it, the links in three groups, and the latest monthly cards. The money figures are refused to users without money permission. Not released yet.
+## v4.9.0 — 2026-11-15
+
+- **2026-11-14 — Volume billing per m³ and per load.** An equipment can bill the customer per load and per cubic
+  metre: loads × load volume × rate per m³, before VAT. Enter the loads on the working days of the monthly card; the
+  card shows total loads, total volume and the amount. Night cards use the night rate when one is set. Hours are still
+  recorded but are not billed on this basis. The monthly card print, the customer statement and a dashboard number
+  card shows the new figure. Existing cards are unchanged. If a save clears loads on a non-working day, or a per-m³ card
+  has hours and no loads, the form shows a message; imports and background jobs show none. See [Volume billing](/card/features/volume-billing/).
+- **2026-11-15 — Review copy for unapproved cards.** An unapproved Card Monthly Card (not yet submitted) now prints as a *Review Copy — Not Approved*: one banner under the title, the workflow state, who printed it and when (site time zone), and a light *REVIEW COPY* watermark on every page. Submitted cards print exactly as before, and the generic draft label is replaced by this one. Amounts show only as before. No data, permission or print setting changes. Not released yet.
 
 ## v4.8.0 — 2026-11-14
 
@@ -41,12 +77,6 @@ _Nothing merged yet._
 
 ### Operations
 
-- **2026-11-14 — Volume billing per m³ and per load.** An equipment can bill the customer per load and per cubic
-  metre: loads × load volume × rate per m³, before VAT. Enter the loads on the working days of the monthly card; the
-  card shows total loads, total volume and the amount. Night cards use the night rate when one is set. Hours are still
-  recorded but are not billed on this basis. The monthly card print, the customer statement and a dashboard number
-  card shows the new figure. Existing cards are unchanged. If a save clears loads on a non-working day, or a per-m³ card
-  has hours and no loads, the form shows a message; imports and background jobs show none. See [Volume billing](/card/features/volume-billing/).
 - **2026-11-13 — Diesel tanks as Warehouses, off by default.** Groundwork is in place for a new tank-based
   diesel workflow. Each company has a new "Enable diesel tanks" switch in Card Settings → Company settings,
   which starts at **off**: nothing changes on a company that leaves it off, and the existing direct-fill
@@ -165,6 +195,7 @@ _Nothing merged yet._
 
 | Version | Date | What it brought |
 |---|---|---|
+| [4.9.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.9.0.md) | 2026-11-15 | Volume billing per m³ and per load (customer side); review copy print for unapproved cards; docs and CI only otherwise |
 | [4.8.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.8.0.md) | 2026-11-14 | Big minor (43 merges): separation of duties on monthly card submit; versioned Card Period Run with accountant approval; native approval workflows (inactive by default); approval tiers; approval delegation that grants no role; money privacy on Card Monthly Card (Operator/Mobile cannot see amounts); Diesel Dispense → draft Stock Entry with tanks as Warehouses (off by default per company); per-hour rate precedence; diesel variance and fill-allocation reports; daily log mobile screens; credit note for non-taxable deductions; keep intake evidence of submitted transports; child-row cross-document guard; party portal scaffold (off by default); Marketplace packaging metadata. Every new rule is opt-in per company or warn-only — current behaviour is the default. No CARD GL write anywhere |
 | [4.7.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.7.0.md) | 2026-11-10 | Company checks on tool custody and on equipment needs requests and reviews; VAT rate taken from the company's tax templates; equipment status check on diesel fills; Equipment Location History report; role and action matrix |
 | [4.6.0](https://github.com/SDe-ER/card/blob/main/docs/releases/v4.6.0.md) | 2026-11-10 | Security fixes (read-only requests, attachment checks, a reviewer cannot also approve); a reason is required to cancel; stop reasons and the Equipment Downtime report; diesel prices by date; per-company checks on equipment and diesel; posting preview page; three analysis reports |

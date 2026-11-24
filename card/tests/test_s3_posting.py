@@ -166,9 +166,24 @@ class _PostingBase(_CustomerCardsBase):
 			eq,
 			[8, 8],
 			adjustments=[
-				{"adjustment_type_ref": "Mobilization", "description": "mob", "amount": 457.80},
-				{"adjustment_type_ref": "Penalty", "description": "pen", "amount": 213.40},
-				{"adjustment_type_ref": "DieselNT", "description": "dnt", "amount": 299.99},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "Mobilization",
+					"description": "mob",
+					"amount": 457.80,
+				},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "Penalty",
+					"description": "pen",
+					"amount": 213.40,
+				},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "DieselNT",
+					"description": "dnt",
+					"amount": 299.99,
+				},
 			],
 		)
 		self.assertEqual(flt(card.amount), 10333.40)
@@ -658,7 +673,14 @@ class TestPreflights(_PostingBase):
 		card = self._card(
 			eq,
 			[8, 8],
-			adjustments=[{"adjustment_type_ref": "Penalty", "description": "big", "amount": 500}],
+			adjustments=[
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "Penalty",
+					"description": "big",
+					"amount": 500,
+				}
+			],
 			submit=True,
 		)
 		try:
@@ -742,7 +764,13 @@ class TestCustomerMirror(_PostingBase):
 			eq,
 			[8, 8],
 			adjustments=[
-				{"adjustment_type_ref": "Mobilization", "side": "Customer", "description": "m", "amount": 400}
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "Mobilization",
+					"side": "Customer",
+					"description": "m",
+					"amount": 400,
+				}
 			],
 			submit=True,
 		)
@@ -906,12 +934,19 @@ class TestReviewGuards(_PostingBase):
 			[8, 8],
 			adjustments=[
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "MobilizationNT",
 					"side": "Customer",
 					"description": "nt-add",
 					"amount": 100,
 				},
-				{"adjustment_type_ref": "Penalty", "side": "Customer", "description": "p", "amount": 200},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "Penalty",
+					"side": "Customer",
+					"description": "p",
+					"amount": 200,
+				},
 			],
 			submit=True,
 		)
@@ -1253,12 +1288,19 @@ class TestZatcaSalesRules(_PostingBase):
 			[8, 8],
 			adjustments=[
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "Mobilization",
 					"side": "Customer",
 					"description": "m",
 					"amount": 400,
 				},
-				{"adjustment_type_ref": "Penalty", "side": "Customer", "description": "p", "amount": 200},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "Penalty",
+					"side": "Customer",
+					"description": "p",
+					"amount": 200,
+				},
 			],
 			submit=True,
 		)
@@ -1284,7 +1326,13 @@ class TestZatcaSalesRules(_PostingBase):
 			eq,
 			[8, 8],
 			adjustments=[
-				{"adjustment_type_ref": "DieselNT", "side": "Customer", "description": "d", "amount": 100}
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "DieselNT",
+					"side": "Customer",
+					"description": "d",
+					"amount": 100,
+				}
 			],
 			submit=True,
 		)

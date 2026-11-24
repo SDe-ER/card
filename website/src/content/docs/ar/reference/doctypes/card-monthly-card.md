@@ -7,7 +7,7 @@ sidebar:
 ---
 
 :::note
-تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة.
+تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة. وهي تتبع الفرع الرئيسي، فقد تصف تغييرات مدمجة لم تصدر بعد؛ راجع صفحة «ما الجديد».
 :::
 
 **Card Monthly Card**
@@ -39,6 +39,7 @@ sidebar:
 | اسم المعدة <small>(للقراءة فقط)</small> | `equipment_name` | Data |  |  |
 | الملكية <small>(للقراءة فقط)</small> | `ownership` | Data |  |  |
 | المالك <small>(للقراءة فقط)</small> | `supplier` | Link | المورد |  |
+| سبب تصحيح المورد | `supplier_correction_reason` | Small Text |  |  |
 | من تاريخ <small>(للقراءة فقط)</small> | `from_date` | Date |  |  |
 | إلى تاريخ <small>(للقراءة فقط)</small> | `to_date` | Date |  |  |
 
@@ -72,6 +73,12 @@ sidebar:
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
 | إضافات وخصومات | `adjustments` | Table | [إضافة أو خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/) |  |
+
+
+**الملخص المالي**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
 | إجمالي الإضافات <small>(للقراءة فقط)</small> | `total_additions` | Currency |  |  |
 | إجمالي الخصومات <small>(للقراءة فقط)</small> | `total_deductions` | Currency |  |  |
 | الصافي المستحق <small>(للقراءة فقط)</small> | `net_amount` | Currency |  |  |

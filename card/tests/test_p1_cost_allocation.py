@@ -67,7 +67,14 @@ class TestCostAllocation(_PostingBase):
 		self._card(
 			eq,
 			[8],
-			adjustments=[{"adjustment_type_ref": "Mobilization", "description": "m", "amount": 100}],
+			adjustments=[
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type_ref": "Mobilization",
+					"description": "m",
+					"amount": 100,
+				}
+			],
 			submit=True,
 		)
 		pi = self._pi()

@@ -52,3 +52,312 @@ msgstr "Bu çalışılmayan günlerde yük sayıları silindi: {0}"
 
 msgid "Check the loads"
 msgstr "Yükleri kontrol edin"
+
+msgid "Review Copy — Not Approved"
+msgstr "İnceleme Kopyası — Onaylanmadı"
+
+msgid "REVIEW COPY"
+msgstr "İNCELEME KOPYASI"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "İş akışı durumu"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Henüz onaylanmadı"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Yazdıran"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Yazdırılma zamanı"
+
+msgid "CARD operations dashboard"
+msgstr "CARD operasyon paneli"
+
+msgid "Financial performance — last month"
+msgstr "Finansal performans — geçen ay"
+
+msgid "Needs review (CARD)"
+msgstr "İnceleme gerekiyor (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Son aylık kartlar (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD müşterileri"
+
+msgid "CARD suppliers"
+msgstr "CARD tedarikçileri"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Dizel ve operasyonlar (CARD)"
+
+msgid "New monthly card"
+msgstr "Yeni aylık kart"
+
+msgid "New equipment transport"
+msgstr "Yeni ekipman taşıma"
+
+msgid "Customer statement (CARD)"
+msgstr "Müşteri ekstresi (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Aylık kartlar (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Ekipman (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Atamalar (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Ekipman müşterileri (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Ekipman taşımaları (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Müşteriler için operasyon değeri - geçen ay"
+
+msgid "Supplier operating value - last month"
+msgstr "Tedarikçi operasyon değeri - geçen ay"
+
+msgid "Internal operating value - last month"
+msgstr "İç operasyon değeri - geçen ay"
+
+msgid "Cards last month"
+msgstr "Geçen ayki kartlar"
+
+msgid "Rented equipment (CARD)"
+msgstr "Kiralık ekipman (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Geçen ayki yükler (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Taslak kartlar (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "İç oranı olmayan kartlar (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Oranı olmayan çalışma saatleri (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Müşteri özeti (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Tedarikçi ekstresi (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Tedarikçi özeti (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Tedarikçi ekstresi A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dizel tüketimi (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Projeye göre operasyon maliyeti (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Projeye göre taşıma maliyeti (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Sayaç mutabakatı (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Ekipman taşıma (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "{1} kartının {0}. satırı için nakit ödeme zaten talep edildi."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Nakit ödeme yalnızca taslak durumundaki bir kart için talep edilebilir."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "İptal nedenini girin."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Yalnızca iptal edilmiş bir nakit ödeme değiştirilebilir; {0} durumu: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Nakit ödemeyi yalnızca bir Kart Yöneticisi onaylayabilir."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Nakit ödemeyi yalnızca bir Kart Yöneticisi kaydedebilir."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "İptal talebini yalnızca bir Kart Yöneticisi oluşturabilir."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Değişim talebini yalnızca bir Kart Yöneticisi oluşturabilir."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Yalnızca bekleyen bir nakit ödeme onaylanabilir; {0} durumu: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Yalnızca kaydedilmiş bir nakit ödeme iptal edilebilir; {0} durumu: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Yalnızca kuyruktaki bir nakit ödeme çalıştırılabilir; {0} durumu: {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Yalnızca onaylanmış bir nakit ödeme kaydetme kuyruğuna alınabilir; {0} durumu: {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "{1} kartının {0}. satırında zaten etkin bir nakit ödeme var ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "{0} nakit ödemesi mevcut değil."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "{0} nakit ödemesinin durumu {1}; silinemez. Bunun yerine iptal edin."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Talep eden kişi kendi nakit ödemesini onaylayamaz."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "{0} satırı artık {1} kartında yok."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "{0} satırı {1} kartında bir nakit ödeme değil."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "{0} nakit ödemesi onaylandı; {1} değiştirilemez. İptal edin ve değişim talep edin."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "{0} yevmiye kaydının hâlâ etkin mahsupları var. İptal etmeden önce bunları ERPNext'te çözün (mutabakatı geri alın veya bağlantıyı kaldırın)."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "{0} yevmiye kaydı {1} nakit ödemesini kapatıyor. Önce bir nedenle iptal talep edin; ödeme bundan sonra İptal Edildi olarak işaretlenir."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Onay bekleniyor"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "Kayıt kuyruğunda"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Kayıt başarısız"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "İptal talep edildi"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Mutabık değil"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Kısmen mutabık"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Tamamen mutabık"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Bu nakit ödeme onaylansın mı? Onaylayan, talep eden kişi olamaz."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Kayıt kuyruğuna al"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Kaydı yeniden dene"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "İptal talep et"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Nakit: onay bekleniyor"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Nakit: onaylandı"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Nakit: kayıt kuyruğunda"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Nakit: kayıt başarısız"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Nakit: kaydedildi"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Nakit: iptal talep edildi"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Nakit: iptal edildi"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Nakit: mutabık değil"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Nakit: kısmen mutabık"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Nakit: tamamen mutabık"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Nakit: değişim bekleniyor"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Nakit ödeme onayı talep et"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Nakit satırı"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Belge (fiş numarası veya referans)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Nakit ödeme onayı talep edildi"

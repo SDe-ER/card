@@ -52,3 +52,312 @@ msgstr "ការផ្ទុកត្រូវបានលុបនៅថ្ង
 
 msgid "Check the loads"
 msgstr "ពិនិត្យការផ្ទុក"
+
+msgid "Review Copy — Not Approved"
+msgstr "ច្បាប់ចម្លងសម្រាប់ពិនិត្យ — មិនទាន់អនុម័ត"
+
+msgid "REVIEW COPY"
+msgstr "ច្បាប់ចម្លងសម្រាប់ពិនិត្យ"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "ស្ថានភាពលំហូរការងារ"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "មិនទាន់អនុម័តនៅឡើយ"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "បោះពុម្ពដោយ"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "បោះពុម្ពនៅ"
+
+msgid "CARD operations dashboard"
+msgstr "ផ្ទាំងប្រតិបត្តិការ CARD"
+
+msgid "Financial performance — last month"
+msgstr "ដំណើរការហិរញ្ញវត្ថុ — ខែមុន"
+
+msgid "Needs review (CARD)"
+msgstr "ត្រូវពិនិត្យ (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "កាតប្រចាំខែចុងក្រោយ (CARD)"
+
+msgid "CARD customers"
+msgstr "អតិថិជន CARD"
+
+msgid "CARD suppliers"
+msgstr "អ្នកផ្គត់ផ្គង់ CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "ប្រេងម៉ាស៊ូត និងប្រតិបត្តិការ (CARD)"
+
+msgid "New monthly card"
+msgstr "កាតប្រចាំខែថ្មី"
+
+msgid "New equipment transport"
+msgstr "ការដឹកជញ្ជូនឧបករណ៍ថ្មី"
+
+msgid "Customer statement (CARD)"
+msgstr "សេចក្តីថ្លែងការណ៍អតិថិជន (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "កាតប្រចាំខែ (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "ឧបករណ៍ (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "ការចាត់តាំង (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "អតិថិជនឧបករណ៍ (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "ការដឹកជញ្ជូនឧបករណ៍ (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "តម្លៃប្រតិបត្តិការសម្រាប់អតិថិជន - ខែមុន"
+
+msgid "Supplier operating value - last month"
+msgstr "តម្លៃប្រតិបត្តិការអ្នកផ្គត់ផ្គង់ - ខែមុន"
+
+msgid "Internal operating value - last month"
+msgstr "តម្លៃប្រតិបត្តិការផ្ទៃក្នុង - ខែមុន"
+
+msgid "Cards last month"
+msgstr "កាតខែមុន"
+
+msgid "Rented equipment (CARD)"
+msgstr "ឧបករណ៍ជួល (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "ការផ្ទុកខែមុន (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "កាតព្រាង (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "កាតគ្មានអត្រាផ្ទៃក្នុង (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "ម៉ោងប្រតិបត្តិការគ្មានអត្រា (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "សង្ខេបអតិថិជន (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "សេចក្តីថ្លែងការណ៍អ្នកផ្គត់ផ្គង់ (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "សង្ខេបអ្នកផ្គត់ផ្គង់ (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "សេចក្តីថ្លែងការណ៍អ្នកផ្គត់ផ្គង់ A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "ការប្រើប្រាស់ប្រេងម៉ាស៊ូត (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "ថ្លៃប្រតិបត្តិការតាមគម្រោង (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "ថ្លៃដឹកជញ្ជូនតាមគម្រោង (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "ការផ្គូផ្គងម៉ែត្រ (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "ការដឹកជញ្ជូនឧបករណ៍ (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "ការបង់ប្រាក់សាច់ប្រាក់សម្រាប់ជួរ {0} នៃកាត {1} ត្រូវបានស្នើរួចហើយ។"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "ការបង់ប្រាក់សាច់ប្រាក់អាចស្នើបានតែលើកាតសេចក្តីព្រាង។"
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "សូមផ្តល់មូលហេតុនៃការលុបចោល។"
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "អាចជំនួសបានតែការបង់ប្រាក់សាច់ប្រាក់ដែលបានលុបចោលប៉ុណ្ណោះ; {0} គឺ {1}។"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "មានតែអ្នកគ្រប់គ្រងកាតប៉ុណ្ណោះដែលអាចអនុម័តការបង់ប្រាក់សាច់ប្រាក់។"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "មានតែអ្នកគ្រប់គ្រងកាតប៉ុណ្ណោះដែលអាចបញ្ចូលការបង់ប្រាក់សាច់ប្រាក់ទៅក្នុងសៀវភៅ។"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "មានតែអ្នកគ្រប់គ្រងកាតប៉ុណ្ណោះដែលអាចស្នើការលុបចោល។"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "មានតែអ្នកគ្រប់គ្រងកាតប៉ុណ្ណោះដែលអាចស្នើការជំនួស។"
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "អាចអនុម័តបានតែការបង់ប្រាក់សាច់ប្រាក់ដែលកំពុងរង់ចាំប៉ុណ្ណោះ; {0} គឺ {1}។"
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "អាចលុបចោលបានតែការបង់ប្រាក់សាច់ប្រាក់ដែលបានបញ្ចូលក្នុងសៀវភៅប៉ុណ្ណោះ; {0} គឺ {1}។"
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "អាចប្រតិបត្តិបានតែការបង់ប្រាក់សាច់ប្រាក់ដែលនៅក្នុងជួរប៉ុណ្ណោះ; {0} គឺ {1}។"
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "អាចដាក់ចូលជួរសម្រាប់បញ្ចូលក្នុងសៀវភៅបានតែការបង់ប្រាក់សាច់ប្រាក់ដែលបានអនុម័តប៉ុណ្ណោះ; {0} គឺ {1}។"
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "ជួរ {0} នៃកាត {1} មានការបង់ប្រាក់សាច់ប្រាក់សកម្មរួចហើយ ({2})។"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "ការបង់ប្រាក់សាច់ប្រាក់ {0} មិនមានទេ។"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "ការបង់ប្រាក់សាច់ប្រាក់ {0} គឺ {1}; មិនអាចលុបបានទេ។ សូមលុបចោលវាជំនួសវិញ។"
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "អ្នកស្នើមិនអាចអនុម័តការបង់ប្រាក់សាច់ប្រាក់របស់ខ្លួនបានទេ។"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "ជួរ {0} លែងនៅលើកាត {1} ទៀតហើយ។"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "ជួរ {0} មិនមែនជាការបង់ប្រាក់សាច់ប្រាក់នៅលើកាត {1} ទេ។"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "ការបង់ប្រាក់សាច់ប្រាក់ {0} ត្រូវបានអនុម័ត; {1} មិនអាចផ្លាស់ប្តូរបានទេ។ សូមលុបចោលវា ហើយស្នើការជំនួស។"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "ធាតុកាសែត {0} នៅមានការបែងចែកសកម្ម។ សូមដោះស្រាយវាក្នុង ERPNext (ដកការផ្សះផ្សា ឬផ្តាច់ការភ្ជាប់) មុនពេលលុបចោល។"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "ធាតុកាសែត {0} បង់ការបង់ប្រាក់សាច់ប្រាក់ {1}។ សូមស្នើការលុបចោលជាមួយមូលហេតុជាមុនសិន; បន្ទាប់មកការបង់ប្រាក់នឹងត្រូវបានសម្គាល់ថាបានលុបចោល។"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "កំពុងរង់ចាំការអនុម័ត"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "នៅក្នុងជួរសម្រាប់បញ្ចូលសៀវភៅ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "ការបញ្ចូលសៀវភៅបានបរាជ័យ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "បានស្នើការលុបចោល"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "មិនទាន់ផ្សះផ្សា"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "បានផ្សះផ្សាមួយផ្នែក"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "បានផ្សះផ្សាពេញលេញ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "អនុម័តការបង់ប្រាក់សាច់ប្រាក់នេះឬ? អ្នកអនុម័តមិនអាចជាអ្នកស្នើបានទេ។"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "ដាក់ចូលជួរសម្រាប់បញ្ចូលសៀវភៅ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "ព្យាយាមបញ្ចូលសៀវភៅម្តងទៀត"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "ស្នើការលុបចោល"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "សាច់ប្រាក់: កំពុងរង់ចាំការអនុម័ត"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "សាច់ប្រាក់: បានអនុម័ត"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "សាច់ប្រាក់: នៅក្នុងជួរ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "សាច់ប្រាក់: បញ្ចូលសៀវភៅបរាជ័យ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "សាច់ប្រាក់: បានបញ្ចូលសៀវភៅ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "សាច់ប្រាក់: បានស្នើលុបចោល"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "សាច់ប្រាក់: បានលុបចោល"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "សាច់ប្រាក់: មិនទាន់ផ្សះផ្សា"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "សាច់ប្រាក់: បានផ្សះផ្សាមួយផ្នែក"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "សាច់ប្រាក់: បានផ្សះផ្សាពេញលេញ"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "សាច់ប្រាក់: រង់ចាំការជំនួស"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "ស្នើការអនុម័តការបង់ប្រាក់សាច់ប្រាក់"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "ជួរសាច់ប្រាក់"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "ភស្តុតាង (លេខបង្កាន់ដៃ ឬឯកសារយោង)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "បានស្នើការអនុម័តការបង់ប្រាក់សាច់ប្រាក់"

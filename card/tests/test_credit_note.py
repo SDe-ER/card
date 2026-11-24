@@ -54,6 +54,7 @@ class _CreditNoteBase(_PostingBase):
 		eq = self._rented_out(customer=customer or self.customer, customer_rate=customer_rate)
 		adjustments = [
 			{
+				"adjustment_date": "2026-09-01",
 				"adjustment_type_ref": "DieselNT",
 				"side": "Customer",
 				"description": "nt",
@@ -225,12 +226,14 @@ class TestCreditNoteMode(_CreditNoteBase):
 			[8, 8],
 			adjustments=[
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "Penalty",
 					"side": "Customer",
 					"description": "penT",
 					"amount": 200,
 				},
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "DieselNT",
 					"side": "Customer",
 					"description": "dntNT",

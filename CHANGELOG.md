@@ -15,37 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Changed
-- **CI — release Latest by SemVer (`.github/workflows/release.yml`).** Reason: release v4.6.0 was published 12 seconds after v4.7.0 (2026-11-10) with `make_latest` not set, so GitHub showed v4.6.0 as Latest until v4.7.0 was marked Latest on 2026-11-14. The workflow now fetches all tags and sets `make_latest` to `true` only for the highest plain X.Y.Z tag, and `false` otherwise; it does not fail when no plain tag exists yet. Affected: the release workflow only; no app code, data, permissions or API. Rollback: revert the workflow file. Verified by a local dry run of the decision with simulated tag names (v4.7.0 true; v4.6.0 and v5.0.0-rc1 false); it runs for real on the next tag.
-
-### Added
-- **FR-166 — Volume billing per m³ and per load (customer side).** Reason: owner rule of 2026-11-13: a machine
-  carrying material is billed per load and per cubic metre, before VAT: loads × load volume (m³) × rate per m³.
-  Hours are still recorded but not billed on this basis; billable stops add nothing. Affected code: DocTypes
-  `Card Equipment` (new `load_volume_m3`, option «بالمتر المكعب» on `customer_rate_type`, `COMMERCIAL_FIELDS`,
-  per-m³ check in `validate_rental_direction`), `Card Monthly Card` (new `total_loads`, `total_volume_m3`,
-  `load_volume_used`; per-m³ branch of the customer amount; snapshot in `_snapshot_settings_used`),
-  `Card Monthly Card Day` (new `loads_count`, working-day and future-date rules), `card/card_value.py`
-  (`loads_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
-  hourly rate; two new columns), both monthly card print formats (loads and volume rows; the standard print removes
-  every money column from users without money read, owner decision 2026-11-13), dashboard number card "Loads last
-  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a non-blocking warning when a per-m³ card has
-  operating hours and no loads (customer amount zero; owner decision 2026-11-14), a day with loads and zero hours counts as a billed day for the assignment and unit-component rules, for shortening or deleting an assignment and cancelling a transfer, and for the customer statement and summary (reviews of 2709979, 2dc1c08 and ca63356; `is_billed_day`, `billed_day_rows(include_loads=True)`, `_refuse_dropped_card_days`, `_card_day_after`); supplier reports keep the hours rule, a non-blocking message listing the non-working days whose loads were cleared on save (`_interactive_form_save`; owner decision 2026-11-14), both messages shown only on an interactive form save and not on imports, patches, migrations, muted runs or background jobs (owner decision 2026-11-14), on a per-m³ card a billable stop-only day is a stop day, not a billed day, on the customer statement and summary (`customer_billed_day_rows`; owner decision z1, 2026-11-14), a BOLA matrix row for the number-card endpoint,
-  translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
-  docs. PR #258.
-  Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
-  number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
-  still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
-  fields only, empty by default; no submitted card is changed. No patch: the volume Number Card never
-  reached Production (4.7.0); a dev or QA site that imported it keeps an orphan Number Card until it is removed by hand. API: one
-  whitelisted read endpoint (`loads_last_month`, POST). Rollback: revert the code; the new fields stay in the database and are ignored by
-  the older code, and existing cards are untouched. A card priced per m³ after the change shows its totals only while
-  the new code runs.
-
-### Changed
-
-_Nothing yet._
-
 ### Security
 
 _Nothing yet._
@@ -71,6 +40,316 @@ _Nothing yet._
 - **No-split rule under owner review per #31 comment 6777551346**; follow-up PR may add per-equipment
   allocation when confirmed. Current no-split behaviour (owner decision 2026-11-10 on #31, #118 rule 7)
   remains in force until replaced.
+
+## [4.11.0] — 2026-11-22
+
+> **Published 2026-11-22** (tag `v4.11.0`, owner approval 2026-11-22). Published ≠ deployed (see DEPLOYMENTS.md).
+> Minor release, backward compatible: the supplier statement for a date range (FR-175), payments linked to an
+> equipment through the Card Equipment accounting dimension (FR-176), the Monthly Card form shows the server's
+> amount (FR-175) and clearer Monthly Card print totals (FR-174). One patch (the accounting dimension: empty
+> columns on the ERPNext accounting tables); no permission or accounting change; one new read-only GET method.
+
+### Added
+- **FR-176 — Supplier payments linked to an equipment** (owner request and decisions D1–D3, 2026-11-22).
+  - The app creates the official ERPNext Accounting Dimension **Card Equipment** itself: patch
+    `v4_11_0.ensure_card_equipment_dimension` on migrate and `after_install` on a fresh install (idempotent, never
+    mandatory). ERPNext adds the `card_equipment` field to its accounting doctypes (Journal Entry Account, Payment
+    Entry, Purchase Invoice and its items, GL Entry and the others), so a payment can carry the equipment.
+    Supersedes the earlier "manual step only" rule.
+  - On uninstall the dimension is only disabled (its fields become read-only); it and the values in the ledger are
+    never deleted. A reinstall enables it again.
+  - Equipment Supplier Statement (date range): with an **Equipment** filter, payments, other credits and the balance
+    count only the supplier entries that carry that equipment; the VAT of a CARD purchase invoice is allocated by the
+    share of its line net that carries the equipment. Untagged supplier payments are never deducted: they show as
+    «Payments not allocated to an equipment (not deducted)» (up to the end date); untagged other credits show as
+    information only. A **Project** filter works the same with the entry's project. Without these filters every
+    supplier entry counts, as before. The printed A4 statement prints the information lines as notes.
+  - With both filters an entry counts only when it carries both the equipment and the project (a project-only
+    payment is never deducted from one equipment, so never from several). The VAT of CARD invoice lines without the
+    equipment/project shows as information. A site without the dimension says so and does not split by equipment.
+  - Disabled (uninstall), the dimension's fields become read-only and keep their values; enabled again by a
+    reinstall or the manual command. Known limitation: they stay Link fields (frappe refuses to change a custom field
+    from Link to Data), so after an uninstall they point at the deleted Card Equipment DocType; check the effect on
+    documents that carry a value before any uninstall (accepted by the owner 2026-11-22; uninstalling CARD is not
+    planned).
+  - The month statement (no from/to dates) applies the same rules to its ledger lines (owner decision 2026-11-22,
+    follow-up PR): with an Equipment/Project filter, Opening balance, Accrual entries, Paid and the closing balance
+    count only the supplier entries that carry the selected equipment/project; the credit of a CARD posting counts
+    by what it bills (a purchase invoice by its line share, a linked accrual Journal Entry by its cards); untagged
+    payments show as «not deducted» and untagged credits (also the untagged part of a CARD posting) as information.
+    Without these filters the month statement is unchanged. Functions: `statement_period.scoped_month_ledger`,
+    `_card_voucher_shares`; tests in `card/tests/test_supplier_statement_range.py`. Impact: read-only report lines;
+    no permission, accounting, data or API change beyond the summary keys above. Rollback: code only.
+    Pull request: #290.
+  - Pull request: #289.
+  - Functions: `card/dimension.py` (`set_card_equipment_dimension_disabled`, docstring), new patch
+    `card/patches/v4_11_0/ensure_card_equipment_dimension.py`, `card/install.py` (`after_install`,
+    `before_uninstall`), `card/hooks.py` (`before_uninstall`), `statement_period.py` (`supplier_ledger`,
+    `_scope_match`, `_scoped_item_share`), `equipment_supplier_statement.py`, `.html`, `statement_pdf.py`, the A4
+    print format JSON; `main.pot`, `ar.po`. Tests: `card/tests/test_card_equipment_dimension.py` (new),
+    `card/tests/test_supplier_statement_range.py`.
+  - Impact: permissions none; accounting none (no document, amount or GL entry is written; the dimension is a field
+    the accountant fills); data/schema: one Accounting Dimension and ERPNext's standard empty `card_equipment` column
+    on each accounting table (`bench migrate` alters those tables); API: new summary keys `unallocated_paid`,
+    `unallocated_other`.
+  - Rollback: the code rollback leaves the dimension and its empty or filled columns in place (harmless, ERPNext
+    standard); it can be disabled from the Accounting Dimension form. Removing it would drop the columns and their
+    values, so it is never removed automatically.
+- **FR-175 — Equipment Supplier Statement for a date range (interim settlement)** (owner request 2026-11-22).
+  - New optional filters `from_date` / `to_date`. When both are set they override the month filters; without them
+    the report works exactly as before (same rows, same summary keys).
+  - Work of the range: only the card day rows dated inside it (drafts when «Include drafts» is on; cancelled cards
+    never). A partial range prices its billed hours with the card's exact hourly rate (rate ÷ daily hours, e.g.
+    425 ÷ 8 = 53.125, never the 2-decimal rate); a per-day «Full day» card bills its days; a range that holds the
+    whole card uses the card's stored amount. Additions and deductions count by their own date (supplier side;
+    Cash paid rows skipped; a row without a date counts on its card's last day).
+  - Payments: the submitted supplier debit entries of the range (date, voucher, remark, amount), shown as a
+    «Payments in the period» group on screen and as a table on the printed statement. Draft journal entries are
+    never counted (GL Entry exists only for submitted documents; cancelled entries are skipped); the statement says so.
+  - Balance (owner-approved rule 2026-11-22), summary keys `previous_due`, `period_net`, `period_vat`,
+    `period_other`, `period_paid`, `current_due`: previous due = card work before the range + VAT of CARD purchase
+    invoices posted before it + supplier credits CARD did not post − supplier debits before it; current due =
+    previous due + period work + period VAT + other credits − period payments. Double-count guard: the credit of a
+    submitted CARD posting (GL Posting Log) is never counted, as the card work already counts it; only its VAT is
+    added (card work is before VAT). Card work follows the project/equipment filters; the ledger side is the whole
+    supplier's (the statement notes it when a filter is set). Users without ledger access see the period net only.
+  - Printed A4 statement (browser print and Chrome PDF): the period prints its own dates; the totals table under the
+    amount columns shows the balance lines (VAT and other credits only when not zero); the payments table is hidden
+    when empty; same approved print style, no new colours.
+  - Functions: `card/card/report/equipment_supplier_statement/equipment_supplier_statement.py` (`execute`,
+    `range_balance`), new `statement_period.py` (`date_range`, `range_work`, `supplier_ledger`, `previous_work`,
+    `card_vouchers`), `equipment_supplier_statement.js` (two filters), `equipment_supplier_statement.html`,
+    `statement_pdf.py`; `card/card/print_format/equipment_supplier_statement_a4/equipment_supplier_statement_a4.json`
+    (same template); `card/card_value.py` (`exact_hourly_rate`); `card/locale/main.pot`, `card/locale/ar.po`.
+    Tests: `card/tests/test_supplier_statement_range.py`.
+  - Impact: permissions none (same report roles and ledger gate `can_view_ledger`); accounting none (read-only;
+    reads GL Entry, Purchase Invoice and GL Posting Log, writes nothing); data none (no patch; the standard print
+    format is reloaded by `bench migrate`); API: the report's filters and summary keys (additive).
+  - Rollback: code only; the month statement is unchanged, so rolling back removes only the date-range statement.
+  - Pull request: #287.
+
+### Fixed
+- **FR-175 — Monthly Card form shows the server's amount** (owner report 2026-11-22: a draft card showed net
+  6,271.77 while the server stored 6,271.13).
+  - The form priced hours with the equipment's 2-decimal `approved_hourly_rate` (53.13); the server prices with the
+    exact rate (425 ÷ 8 = 53.125). The form now uses the exact rate the server uses (per day: rate ÷ daily hours;
+    per hour: rate; per month: rate ÷ standard month hours, read through the new read-only GET
+    `card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours`), so a saved card opens with
+    the same values and is not marked unsaved.
+  - Functions: `card/card/doctype/card_monthly_card/card_monthly_card.js` (`card_load_hourly`, `card_exact_hourly`),
+    `card_monthly_card.py` (`get_standard_month_hours`, `methods=["GET"]`, Card Monthly Card read required).
+  - Impact: permissions none (the endpoint returns one Card Settings number to users who can read monthly cards);
+    accounting none (server pricing unchanged); data none; API: one new read-only GET method.
+  - Rollback: code only.
+  - Pull request: #287.
+- **FR-174 — Monthly Card print: four clear settlement totals per side** (owner request 2026-11-21).
+  - The default print format `Card Monthly Card Print` shows, for each billed side (Supplier settlement, Customer
+    settlement), four rows in this order: «الإجمالي قبل الإضافات والخصومات» (`amount` / `customer_amount`), «إجمالي
+    الإضافات», «إجمالي الخصومات» and «الصافي بعد الإضافات والخصومات» (the stored `net_amount` /
+    `customer_net_amount`, printed directly, so the adjustments are applied once). Amounts print with two decimals
+    and the company currency (`2,430.00 SAR`, `0.00 SAR`); the net row is larger, bold and on the header grey.
+  - The printed additions and deductions now leave out Cash paid rows, as the server's totals do (FR-170: a cash row
+    is recorded, not counted). Before, a card with a Cash paid deduction printed that deduction in the side total,
+    so gross + additions − deductions did not match the printed net.
+  - Functions: `card/card/print_format/card_monthly_card_print/card_monthly_card_print.json` (html, css);
+    `card/locale/main.pot`, `card/locale/ar.po` (two new labels; the eight old side labels removed, no other use).
+    Tests: `card/tests/test_print_formats.py`.
+  - Impact: permissions none (the money gate FR-162 is unchanged); accounting none (prints only; stored amounts,
+    formulas and invoice builders unchanged); data none (no patch; the standard print format is reloaded by
+    `bench migrate`); API none.
+  - Rollback: code only; the previous labels print again after the rollback's migrate.
+
+### Migration
+- One patch, `card.patches.v4_11_0.ensure_card_equipment_dimension` (post_model_sync): creates the Accounting
+  Dimension Card Equipment (not mandatory) and ERPNext's standard empty `card_equipment` column on each accounting
+  table (an ALTER TABLE per table). A site that already has it is left as it is; a second migrate changes nothing.
+- `bench migrate` also reloads the two standard print formats (`Card Monthly Card Print`, `Equipment Supplier
+  Statement A4`). Then `clear-cache` and restart; no `bench build` (no `public/` or `frontend/` change).
+- Rollback target: v4.10.1 (tag commit `d58f6b7`), code only: v4.10.1 runs on the migrated data; the dimension and
+  its columns stay (harmless; they can be disabled). A database restore removes them with every later change.
+
+### Known limitations
+- The date-range balance is computed from card work (before VAT) plus ledger figures; supplier invoices booked
+  outside CARD are counted as other credits and flagged for reconciliation, never matched automatically.
+- Payments recorded before the dimension carry no equipment: with an Equipment filter they show as not allocated
+  (never deducted) until the accountant re-issues them with the equipment.
+- After an uninstall of CARD the dimension's Link fields point at the deleted Card Equipment DocType (accepted by
+  the owner 2026-11-22; uninstalling is not planned).
+- A partial range of a card rounds its own amount to the halala; the parts of one card can differ from the card
+  amount by 0.01.
+- Not yet verified on Production: the owner's acceptance figures (R7, R8), the migrate time of the dimension patch
+  and the Monthly Card form on a real Desk; post-deployment checks, read-only.
+
+## [4.10.1] — 2026-11-21
+
+> **Published 2026-11-21** (tag `v4.10.1`, commit `d58f6b7`). Published ≠ deployed (see DEPLOYMENTS.md). Patch
+> release on top of v4.10.0: backward compatible, no API, permission, DocType, schema or accounting change.
+
+### Fixed
+- **FR-172 — Additions and deductions table: the date column and the live totals** (owner report 2026-11-21; PR #282).
+  - The required `adjustment_date` column was missing for users who had saved their own grid columns for the table
+    before v4.10.0: Frappe shows only a user's saved `GridView` columns, so a new column never appears for them.
+    Patch `v4_10_1.show_adjustment_date_in_saved_grid_columns` (post_model_sync) puts `adjustment_date` first (after any pinned columns) in
+    every saved column list of `Card Monthly Card Adjustment` that lacks it; the other columns, their order and
+    widths are kept; the user-settings cache is synced first and cleared after (as frappe's own user-settings
+    patches do). A second run changes nothing.
+  - The form now recalculates `customer_net_amount` live (customer amount + customer-side additions − customer-side
+    deductions), as it already did for `net_amount`, and recalculates when a row's `side` or `is_cash_disbursement`
+    changes. Before, a card rented to a customer showed no change in its balance until it was saved. A sub-rental
+    row counts in its side's net once its side is chosen (it still counts in the two totals), a row with no amount yet is
+    not counted, and a new card shows the customer net after its first save (the customer amount is the server's).
+  - A refused save of a Draft card with additions/deductions (Production, 2026-11-20 21:39 UTC, HTTP 417; the
+    response body is not logged, so the exact message is not known). A dry run of that card's validation with every
+    write blocked showed that dated additions and deductions inside the period pass, and that the reachable refusals
+    are a free-text **Adjustment type** (`adjustment_type_ref`) that is not configured in Card Settings (the site has
+    none, and that column was first in the user's saved columns) and a date outside the card period. The first
+    message now also says how to proceed: clear the Adjustment type and choose Addition or Deduction in Type
+    (`ar.po` updated). No validation rule changed.
+  - Functions: `card_monthly_card.js` (`card_calc`, child events), `card_monthly_card.py` (message only), the new patch. Tests:
+    `card/tests/test_adjustments_grid.py`.
+  - Impact: permissions none; accounting none (the server's totals, the invoice builders and every stored card
+    amount are unchanged; no GL, JE or PLE is created); data: only users' display settings (`__UserSettings`) of
+    `Card Monthly Card`; API none.
+  - Rollback: the code rollback restores v4.10.0 behaviour; the added column stays in the saved user settings
+    (harmless; a user can remove it with "Configure columns").
+
+### Migration
+- One new patch, `card.patches.v4_10_1.show_adjustment_date_in_saved_grid_columns` (post_model_sync). It writes only
+  `__UserSettings` rows of `Card Monthly Card` whose saved `GridView` columns of `Card Monthly Card Adjustment` lack
+  `adjustment_date`, and clears that user-settings cache. It writes no document, amount, GL entry, invoice or
+  permission. A second migrate changes nothing.
+- Deploy: `bench migrate` + `clear-cache`; no `bench build` (no public/ or frontend/ change). Users reload open forms.
+
+### Known limitations
+- The exact message of the refused save of 2026-11-20 is not known (the response body is not logged); see Fixed.
+- The customer net on a Draft form adds the live rows to the last saved customer amount; the customer amount itself
+  updates on save.
+- Not verified on a real Desk browser; this is a post-deployment acceptance check.
+- A user who keeps a card form open during the upgrade and then resizes a grid column can save the old column list
+  again; a reload before editing avoids it.
+
+## [4.10.0] — 2026-11-20
+
+> **Published 2026-11-20** (tag `v4.10.0`, commit `d0614ea`). Published ≠ deployed (see DEPLOYMENTS.md).
+> v4.10.0 is a **minor version with documented breaking changes** (owner decision 2026-11-19, the same practice as
+> v4.3.0); it is **not backward-compatible** for the API clients listed below. 5.0.0 stays reserved for CARD Mobile.
+
+### Breaking changes — act on them before or right after migrate
+
+1. **FR-169 — `adjustment_date` is required on every addition/deduction row** (`Card Monthly Card Adjustment`).
+   There is no server default and no fallback. Any write of a `Card Monthly Card` that carries adjustment rows
+   without a date, or with a date outside the card's `from_date`..`to_date`, is refused:
+   - REST: `POST /api/resource/Card Monthly Card`, `PUT /api/resource/Card Monthly Card/<name>`,
+     `POST /api/v2/document/Card Monthly Card`, `PATCH /api/v2/document/Card Monthly Card/<name>`;
+   - methods: `frappe.client.insert`, `frappe.client.save`, `frappe.client.set_value` on a row;
+   - **Data Import** (insert or update) of monthly cards with adjustment rows: the template now has the column
+     "Adjustment date" (`adjustment_date`), and a row without it fails.
+   Error returned: `frappe.exceptions.MandatoryError` (missing date) or a validation error (date outside the
+   period); HTTP 417. Required client change: send `"adjustment_date": "YYYY-MM-DD"` inside the card period on
+   each row, for example `{"adjustments": [{"adjustment_date": "2026-09-14", "adjustment_type_ref": "...",
+   "description": "...", "amount": 150}]}`. Reads are unchanged (the field is added to the response). The Desk form
+   sets today's date (clamped to the period) on a new row. In this repository no server path and no CARD Mobile
+   screen writes rows without a date; **external integrations are not verified**.
+2. **FR-171 — a card keeps its supplier (beneficiary).** The supplier is set once from the equipment's owner and is
+   not refreshed. A save that changes the `supplier` of a saved Draft card without `supplier_correction_reason` is
+   refused, and an arbitrary supplier is refused; a submitted card's supplier never changes. Clients that correct a
+   supplier must send the reason (it is written to the card's comments).
+3. **FR-168 — the workspace money methods return no figure** (`customer_value_last_month`,
+   `supplier_cost_last_month`, `internal_value_last_month`, `chart_data`) to a user without money read (FR-162)
+   instead of zeros: the number card shows "N/A" and the chart has no series. A client that summed those zeros gets
+   no value now.
+4. **FR-170 — cash rows.** A row marked Cash paid is excluded from the card totals and the invoice (owner decision
+   2026-11-16). A row with a live cash payment (any status but Cancelled) cannot be removed, unticked or changed in
+   amount, Cash account, kind, type or side; a card with a live cash payment cannot be cancelled; a save that
+   tries is refused (HTTP 417).
+
+### Migration
+
+- New patch `card.patches.v4_10_0.backfill_adjustment_date` (`[post_model_sync]`; it reloads the doctype first):
+  every existing row without a date takes its card's `from_date` (or the first day of the card's year and month).
+  No amount, side, total or modified time changes; submitted cards are updated in this new column only; a second
+  migrate changes nothing. Rehearsed: CI upgrade rehearsal v1.0.1 -> candidate (legacy rows dated, second migrate
+  unchanged, a legacy Draft card saves) and a historical-schema rehearsal on an isolated QA site (51 rows, 37 cards).
+- DocType sync: new DocType `Card Cash Disbursement`; new fields on `Card Monthly Card Adjustment`
+  (`adjustment_date`, `is_cash_disbursement`, `cash_account`, `cash_status`, `cash_payment`, `cash_journal_entry`)
+  and `Card Monthly Card` (`supplier_correction_reason`; the Financial summary section). Fixtures: the Card workspace and its sidebar (FR-168).
+- New `doc_events` on **Journal Entry** (`before_cancel`, `on_cancel`): they act only on an entry linked to a cash
+  payment; every other Journal Entry passes through unchanged.
+- **No cash payment is posted by deploying.** Posting needs the role `Card Cash Posting Service` (not shipped), a
+  dedicated service user with explicit Company User Permissions and a runner calling
+  `card.cash_disbursement.run_posting_queue`; none exists after migrate, so the executor fails closed.
+
+### Changed
+- **Cash-payment concurrency runner is portable (FR-170 readiness).** Reason: `card/tests/concurrency_cash_locking.py` (an optional developer runner, not in CI) defaulted to a developer-specific state path. Affected: the state file is `CARD_CONCURRENCY_STATE` or the site's private folder; the four users can be set with `CARD_CONCURRENCY_USERS` (JSON); `seed` and `run_all` refuse a site without `allow_tests`. No runtime, permission, accounting or data impact. Rollback: revert the commit. PR: #277.
+- **Monthly Card: the Additions and deductions table uses the full form width (owner request 2026-11-19).** Reason: the table shared its section with the five totals in a second column, so it was about half the content width (420 px of 900 px on a desktop, 175 px on a tablet) and its headers were cut. Affected: `Card Monthly Card` layout only: the existing column break `adjustments_col` moves out of the table section into a new section `financial_summary_section` ("Financial summary", under the table, three columns: additions and deductions, net due, customer amounts); new layout field `summary_col_2`. `Card Monthly Card Adjustment`: list columns ordered Date, Type, Description, Side, Amount, Cash paid, Cash payment status, Journal Entry, with fixed grid widths (`width`, Desk grid only; print widths use `print_width` and are unchanged) so every header shows on a desktop and only the Journal Entry column scrolls; the check column label is shortened to "Cash paid" (Arabic "دفع نقدي"), and the Arabic column header "Adjustment date" becomes "التاريخ". No fieldname, fieldtype, formula, validation, permission or stored value changes; totals were checked equal before and after save and submit on the FR170 QA site. Print: the CARD print formats are unchanged (`test_print_formats`); the Frappe Standard print follows the field order, so it shows the new column order and the totals under a "Financial summary" heading. A user who had resized the grid keeps their own saved column settings until they reset them (Frappe per-user grid settings). Rollback: revert the commit and migrate. PR: pending.
+- **Cash payment: created only by a request or a replacement (FR-170 final security review).** Reason: release-blocking review finding, reproduced on the isolated QA site: a Card Manager (who has create on the DocType for the replacement action) could insert a payment through the API (`frappe.client.insert`) already in Posting with any approver, so the posting service would post it with no approval and no requester-versus-approver check. Affected: `Card Cash Disbursement.validate` refuses a new record unless the request or the replacement action created it (a server flag a client cannot send), as Pending, with no approval, posting or cancellation data; the replacement link and reason can no longer change after creation; `execute_posting` also requires an approval time and an approver who is not the requester; `request_replacement` runs the same source checks as a first request (cash row, amount above zero, posting-enabled beneficiary), refuses a cancelled card and refuses a second replacement of the same payment. Permissions: none widened or removed. Accounting: none (no posting rule changed). Data: no migration; existing records are not re-validated. Second round (code and security reviews of the fix): a plain save (`frappe.client.save`, PUT `/api/resource`, `bulk_update`) could rewrite `owner` of a Pending payment to self-approve, or re-point it to an already paid card row; now `owner`, company, supplier, card, row, amount, Cash account and the replacement fields are fixed from creation, every server-owned field is refused on a Pending save, a replacement takes the card's current beneficiary (the one the posting check used), and the executor reports an approval by the requester with its own message. Third round: `request_replacement` checks that the caller may read the card (company and User Permissions, as a first request does) and that the card is still in the original payment's company before it answers anything about the card (common refusal otherwise); the replacement takes equipment and project from the card; `equipment` and `project` are also fixed from creation (the Journal Entry's project dimension comes from the payment record). Website Reference pages regenerated (Card Cash Disbursement, cash endpoints, Monthly Card layout). Tests: seven new tests in `test_cash_disbursement_post.py`; two fixtures that wrote final-state records now write them to the database directly. Translations: 4 new message ids in `main.pot` and `ar.po`. Rollback: revert the commit. PR: pending.
+- **Cash payments in the Additions & Deductions table (FR-170 step 4).** Reason: the owner asked for one operational place: the Monthly Card table. Affected: `Card Monthly Card Adjustment` gets three read-only columns: `cash_status` (the payment's status, with the reconciliation state for a posted payment), `cash_payment` (link) and `cash_journal_entry` (link to the Journal Entry). `Card Monthly Card.before_validate` refreshes these from the payment records on save; the form refreshes them on load through the new GET endpoint `card.cash_disbursement.get_cash_row_status`. No amount, total or account is changed by the display. Actions on the card (Cash payments menu): request approval, approve (not the requester), queue, retry, request cancellation, request replacement; each one calls the existing server method, which checks role, company and state again. The rental invoice still excludes cash rows (no duplicate deduction). Tests: `test_cash_row_columns_follow_the_payment_record`, `test_bola_matrix` row for `get_cash_row_status`. Translations: 14 new message ids in `main.pot` and `ar.po`. Rollback: revert the commit; the three columns are empty on existing records. PR: pending.
+- **Cash payment: Desk replacement action, Desk read fix, and the QA evidence (FR-170 step 3).** Reason: the controlled replacement was server-side only, and every Monthly Card form showed "Not permitted" to a Card User. Affected: `card.cash_disbursement.request_replacement` is now a whitelisted POST (`name`, `reason`, `payment_date`, `evidence`); the Card Manager role is required, the caller must have write on the cancelled payment (company checked before any state is revealed), a reason and evidence are mandatory, the payment date is validated, and one live replacement per cancelled payment is refused. It creates one Pending payment linked to the original (`replaces`) with the reason in the new read-only field `replacement_reason`. It needs its own approval by a different Card Manager and posts nothing when clicked. The payment form shows "Request replacement" for a Cancelled payment. Cause of "Not permitted": the Monthly Card form and the payment form called the GET-only `get_cash_disbursements` with a default POST; the server refused the method (not a permission). Both calls now declare `type: "GET"`, and a regression test covers them. Tests: `test_cash_disbursement_post.py` (reason, stored reason, second live replacement refused, Desk GET), `test_bola_matrix.py` (new row, company B refused, Card User refused; the `ignore_permissions` allowlist lists the new insert). Translations: six new msgids in `main.pot` and `ar.po`; other locales still follow the bench i18n flow. Rollback: revert the commit; the new field stays empty on existing records and the server path falls back to no button. PR: pending.
+- **Cash-disbursement approval and Journal Entry for verified Suppliers (FR-170 step 2).** Reason: owner decisions 2026-11-17. Affected: new DocType `Card Cash Disbursement` (naming CCD-.#####; unique `transaction_key` and unique `journal_entry`, enforced by the database); `card.cash_disbursement`: `request_cash_disbursement` (Pending, from a flagged row of a Draft card, verified Supplier only), `approve_cash_disbursement` (Card Manager, not the requester), `queue_posting` (Card Manager; claims an Approved record Approved -> Posting under a row lock; creates no entry) and `execute_posting` (the accounting executor under a dedicated service identity `Card Cash Posting Service`: one submitted Journal Entry, Dr the Supplier payable, Cr the validated Cash account; an interrupted run is recovered by its remark, so no second entry); `Card Cash Disbursement` controller freezes the economic fields once approved. A pending cash row does not block the card's submission (monthly-card independence; see the later entry). Other beneficiary types are not posted. Permissions: Card Manager create/read/write; Accounts Manager read; System Manager all. No code switches the session user: the executor's identity is the one it runs as, verified in the tests (the Card Manager is refused; the service identity has only the needed rights). Enqueueing is not used: enqueue records the requesting session as the job user (frappe/utils/background_jobs.py, version-16). The functions are not whitelisted (server-side services until their access-matrix rows exist, outstanding). A company hook (`has_cash_disbursement_permission`) guards the record. Known limits: a Journal Entry cancellation is not yet linked back, and the closed-period refusal relies on ERPNext's submit check (not yet tested). Rollback: revert the DocType and the service; posted entries remain as ERPNext documents. PR: pending.
+- **Cash payment: security findings 1 and 2 fixed (FR-170 step 2).** Reason: security review of 2026-11-18 (release blockers). Affected: the dispatch accepts only the identity's explicit Company User Permission grants (none means no company); the executor is refused for any other company before any write; the existing Journal Entry is identified only by the durable, unique link written in the posting transaction, and is validated (company, creator, Supplier party, amount, Cash account) before it is accepted; remarks are audit text only. Tests in test_cash_disbursement_post.py. Rollback: revert the executor functions; no data migration (the link field already exists). PR: pending.
+- **Cash payment: request from the Monthly Card, dispatch of the posting queue, Desk statuses (FR-170 step 2).** Fixes on the same change: invoice lines skip cash rows (the pending cash deduction made the submit-time reconciliation fail); the executor does not need a DocType right (a Custom DocPerm would have replaced the payment DocType's rights for every role). Reason: owner decisions 2026-11-17 (an ordinary CARD user requests the cash approval from the card; the accounting service identity posts the approved queue; the posting and reconciliation statuses are shown separately). Affected: `card.cash_disbursement.request_cash_disbursement` is a whitelisted POST: the caller needs write on the card (its company checked), the row must be a cash row with an amount above zero, the evidence is required, one payment per row. The payment record is inserted under that explicit card check, so the payment DocType's rights are not widened. `run_posting_queue` is a whitelisted POST for the service identity only: it selects the queue and checks each row against the caller's permitted companies (Company User Permission), posts each payment in a savepoint, and records a failure as Posting Failed with its error; a failed payment can be queued again. `get_cash_disbursements` is a whitelisted GET (card read, company checked): posting status, reconciliation status (from the active allocations in the Payment Ledger Entry), replacement pending. Desk: the Monthly Card has a Request cash approval action (Draft cards) and a status indicator per payment; the payment form shows its posting status, its reconciliation status, Retry posting and Request cancellation. New fields: Posting Error and Posted By (read only); status Posting Failed. The executor identity needs read on the payment DocType (test grants). Rollback: revert the endpoints and the form scripts; posted entries remain as ERPNext documents. PR: pending.
+- **Cash payment: Desk actions, approval, posting and cancellation endpoints (FR-170 step 2).** Reason: owner decisions 2026-11-17 (secure Desk workflow: request, separate approval, execution under the accounting service identity, audit, controlled cancellation). Affected: `card.cash_disbursement.approve_cash_disbursement` and `queue_posting` are whitelisted POST endpoints (type-hinted; the queue checks the payment's company on the server, because the claim is a row update with no permission check). Desk form buttons (`card_cash_disbursement.js`): Approve (Pending), Queue for posting (Approved), Request cancellation with a reason (Posted). Matrix rows for approve and queue (`test_bola_matrix.py` CASES and `ROLE-ACTION-MATRIX.md`). Late approval is refused in a closed accounting period (ERPNext's own check, reused). Translations of the cash-disbursement messages in all 43 locales (insertions only). Not yet: the Desk request action (needs a company-scoped card fixture in the matrix) and the Desk translations of the new button labels. Permissions: none widened; the executor is not whitelisted. Rollback: revert the endpoints and the form script. PR: pending.
+- **Cash payment: role refusals are permission errors; ERPNext reconciliation tests (FR-170 step 2).** Reason: CI on 706d855 (BOLA matrix expects a permission error for a refused role; the pending-row submit test was superseded). Affected: `card.cash_disbursement._check_role` raises `PermissionError`; `request_replacement` requires a Card Manager and locks the cancelled payment row before its live-replacement check (one active replacement per cancelled payment). New tests `card/tests/test_cash_reconciliation_erpnext.py` run real ERPNext Payment Reconciliation and Unreconcile Payment against a CARD rental Purchase Invoice (unreconciled, partially, fully, and unreconciled-then-cancelled). Rollback: revert the tests and the lock. PR: pending.
+- **Cash payment: controlled cancellation, replacement, immutability and monthly-card independence (FR-170 step 2).** Reason: owner decisions 2026-11-17 (ERPNext is the accounting authority; a cancelled payment is never reposted automatically; a correction needs its own approval). Affected: `card.cash_disbursement.request_cancellation` (whitelisted POST; Card Manager; a Posted payment; a reason; refused while the entry has active allocations) and `before_journal_entry_cancel` / `on_journal_entry_cancel` (hooks on the standard Journal Entry: a cash-payment entry is cancelled only after the request; the payment becomes Cancelled with actor and time; the entry stays linked; a Cancelled payment is never queued, executed or reposted). Reconciliation: ERPNext Payment Ledger Entry semantics (verified in erpnext version-16): an original row has voucher equal to against; an allocation has the other document on one side with `delinked = 0`; a reversal or unreconciled row has `delinked = 1`. Only active allocations block. `request_replacement` (server-side, not whitelisted): a new Pending payment for the same row, linked by `replaces`, with its own revision in the transaction key; approved by a different Card Manager. `Card Cash Disbursement` validate: after approval, the economic fields, `status`, `evidence`, the journal link and the approval/posting stamps cannot change, except the cancellation request; delete is refused unless Pending. `cash_transaction_key` takes an optional `revision` (unchanged without one). Card submission: the pending-row gate is removed; a card with its own pending cash row submits, the row stays linked and visible, it is in no total and no ledger entry until approved and posted. Permissions: none widened; the new whitelisted method is a POST with a company-scoped save and an access-matrix row. Known limits: closed-period refusal by ERPNext on cancel and the reconciliation behaviour on a real Payment Reconciliation are unverified; the Desk buttons are not built. Rollback: revert the hooks and the fields; posted and cancelled entries remain as ERPNext documents. PR: pending.
+- **Supplier correction needs a reason; restricted-user tests (FR-171).** Reason: the owner's security requirement: a Card Manager may correct the supplier of an unposted Draft only with a recorded reason, written to the card's comments on save; no user changes the beneficiary of a submitted card. Affected: new field `Card Monthly Card.supplier_correction_reason`; `settlement.correction_reason_missing`; `before_validate` refuses a saved card's supplier change without the reason. Tests: `card/tests/test_supplier_permissions_db.py` (real users: Card User and Card Manager; arbitrary supplier refused; historical supplier kept; correction with reason and a comment; correction without reason refused; submitted card locked). Migration: none (the new field is empty for existing cards). Rollback: remove the field and the check. PR: pending.
+- **Card supplier is guarded on the server (FR-171 security review).** Reason: without the fetch refresh, the API could set a card's beneficiary (its supplier) to any Supplier, because the field is read only on the Desk form only. Affected: `card.settlement.supplier_change_refused` (new) and `card_monthly_card.before_validate`: a new card may take the equipment's owner; any other supplier, and any change of a stored supplier, needs Card Manager or System Manager. Permissions: no role is widened. Rollback: remove the check. PR: pending.
+- **Card beneficiary is kept, not refreshed (FR-171 review).** Reason: the owner's review of 299efff: an equipment's owner can change after an operating period, so the card's beneficiary must keep its historical identity. Affected: `Card Monthly Card.supplier` is no longer `fetch_from` the equipment (it was refreshed on every Draft save and so overwrote the beneficiary); it is set once, from the equipment's current owner, only when the card has none; `card.settlement.resolve_beneficiary(direction, supplier)` uses the card's stored supplier and no longer compares it with the equipment. Migration: none. A Draft keeps the supplier it holds now; a submitted card is unchanged (its supplier was never refreshed on submit). Rollback: restore the `fetch_from` line. Regression tests: `test_settlement.py` and `test_cash_disbursement_db.py` (owner change, Draft save). PR: pending.
+- **Settlement shared components (FR-170 step 2, stage 1).** Reason: owner decisions 2026-11-17: reuse components that do not depend on unresolved accounting classifications. Affected: new `card.settlement` (pure, no database write): `resolve_beneficiary` (a Supplier is verified only for a supplier-billed card whose supplier is the equipment's current Lessor / Owner), `posting_block_reason` (every beneficiary type other than Supplier is blocked, assumptions A1 to A5), `cash_transaction_key` (SHA-256 identity of one cash transaction, for exactly-once posting), `validate_payment_date` (not in the future, not in a closed period). No DocType, no posting, no migration. Rollback: revert the module. PR: pending.
+- **Owner-paid cash expenses: step 1 (FR-170).** Reason: owner decisions 2026-11-16 (cash expenses paid on behalf of an equipment owner are posted by a standard Journal Entry at the approved payment, not by the monthly invoice). Affected: `Card Monthly Card Adjustment` new fields `is_cash_disbursement` and `cash_account` (guarded fields); `card.adjustments.validate_cash_account` (the account must be an enabled leaf of the company with Account Type Cash); `card.adjustments.validate_cash_row` (save: the account and the owner's supplier are checked, a Draft saves) (the submit gate `refuse_cash_rows_on_submit` was removed later: a pending cash row no longer blocks the card). Pending cash rows are excluded from the card's totals and invoice lines. No GL effect yet; no migration of existing rows (none is flagged). Permissions: none widened. Rollback: revert the fields and the gate. PR: pending.
+- **Additions and deductions carry a date (FR-169).** Reason: owner, 2026-11-16: every movement must have a date so the card is computed and reviewed by date. Affected: `Card Monthly Card Adjustment` (new required field `adjustment_date`, first column; list view and review show it); `card.adjustments.check_adjustment_date` (the date is required and must fall inside the card's from_date..to_date) called from `card.card.doctype.card_monthly_card.card_monthly_card` validation; `card_monthly_card_adjustment.py` `GUARDED_FIELDS` (a changed date goes through the card's own save); `card_monthly_card.js` (new row defaults to today, clamped to the card period). Patch `card.patches.v4_10_0.backfill_adjustment_date` (post-sync, idempotent): existing rows take the card's first day; no amount, side or total changes, no modified time written. Permissions: none widened. Accounting: totals and GL-related documents unchanged (statements remain per card month). API: breaking for clients that write rows: an insert or save of `Card Monthly Card` through REST (`/api/resource`, `/api/v2/document`, `frappe.client.insert`/`save`) must send `adjustment_date` on every adjustment row, inside the card's period, or it is refused (MandatoryError / validation error); there is no server default. Reads are unchanged. In this repository no server path creates rows without a date (Desk sets today's date; CARD Mobile does not create cards); external integrations are not verified. Upgrade: the patch is under `[post_model_sync]` and reloads the doctype first; rehearsal with legacy rows in `.github/helper/upgrade_rehearsal.py`. Rollback: revert the code and the field; the patch's dates are harmless. PR: pending.
+- **CARD workspace re-layout and money gate (FR-168).** Reason: the approved operations dashboard (owner, 2026-11-15). The Card workspace is re-laid out with native blocks only: header, financial and review Number Cards (existing; the supplier card label is the workspace label), the existing monthly values chart with five counted shortcuts underneath, three Card Break link groups and a Quick List. The supplier statement A4 links to the report. Affected functions: `card.card_value.customer_value_last_month`, `supplier_cost_last_month`, `internal_value_last_month` and `chart_data` now return no figure to a user without money read (`_money_visible`, FR-162): the Number Card shows "N/A" and the chart shows no series, with no error dialog; before, such a user got zeros. Fixtures: `workspace.json`, `workspace_sidebar.json` (every workspace link is in the sidebar). Labels are English source with translations in all 43 locales. Permissions: no permission is widened; the money methods refuse where they used to return zeros. Accounting: none. Data: none. API: none new. Rollback: revert the fixtures and the four functions; the old layout is restored by the workspace fixture import. PR: pending.
+
+### Security
+
+- **A cash payment's card row is locked; a cancelled card's payment is not posted (FR-170 final audit).** Reason: the final pre-merge audit of PR #277 found that, on a Draft card, the row of a pending, approved or posted cash payment could be unticked, removed or changed by a save; an unticked row comes back into the card totals and the supplier invoice while its Journal Entry stands (double deduction). It also found that a payment of a cancelled card could still be approved, queued and posted, and that the cancellation reason and actors of a non-Pending payment could be rewritten by a save. Affected: `Card Monthly Card.before_validate` (`_protect_paid_cash_rows`: a row with a payment in any status but Cancelled stays on the card and keeps `is_cash_disbursement`, `amount`, `cash_account`, `adjustment_type`, `adjustment_type_ref` and `side`; description and date stay editable; every save path, including `frappe.client.save` and `frappe.client.set_value` on the row); `card.gl.posting._card_lines` (a row with a live payment that is not marked Cash paid refuses the card instead of being invoiced); `card.cash_disbursement` (`live_payments`; `approve_cash_disbursement`, `queue_posting` and the executor's source check refuse a cancelled card; a queued payment becomes Posting Failed with the reason and no entry); `Card Cash Disbursement.validate` (all server-owned fields, the cancellation fields included, are fixed once a payment leaves Pending; the cancellation request writes only its own fields). The way to change a locked row: delete the Pending payment, or cancel the posted one (controlled cancellation), first. `Card Monthly Card.before_cancel`: a card is not cancelled while any of its payments is not Cancelled (its amendment would copy the cash row under a new name, out of reach of the row lock). `request_cancellation`: an Approved or Posting Failed payment that has no Journal Entry is cancelled directly with its reason (status Cancelled, the requester recorded as canceller); a Posting payment is refused; the card and payment forms offer it. `Card Cash Disbursement.validate` compares datetimes and numbers as stored, so an unchanged client save is not refused. Patch `v4_10_0.backfill_adjustment_date` now reloads the doctype before filling (hardening; it is already a post-model-sync patch). Permissions: none widened. Accounting: no amount or total changes; posted entries are never changed. API: a save that changes a locked row is refused with a validation error. Tests: 12 new tests in `test_cash_disbursement_post.py`; upgrade rehearsal seeds legacy adjustment rows and a Draft card. Rollback: revert the commits; no data is written by these checks. PR: #277.
+
+## [4.9.0] — 2026-11-15
+
+### Added
+- **FR-167 — Review copy print for unapproved Card Monthly Cards.** Reason: owner request 2026-11-15: an unapproved card must be recognisable on paper. Affected: Print Format `Card Monthly Card Print` (template and CSS only: a banner, a meta line and a watermark on draft cards; the `(Draft)` title label is replaced); six strings in `card/locale/*.po` and `main.pot` (`Review Copy — Not Approved`, `REVIEW COPY`, and four under `msgctxt "Card Review Copy"`). Permissions, accounting, data and API: no change; money gating unchanged (`card_print_can_view_money`). Print Settings unchanged. PR: pending. Rollback: revert the template only; the print returns to the previous draft label, no data change.
+- **Docs — CI-generated screenshots (manual workflow `docs-screenshots.yml`).** Reason: the documentation screenshots must be reproducible and show only fictitious data. A manually triggered CI job builds a throwaway bench, seeds the demo data and captures the pages in Arabic and English at 1440px with Playwright (pinned 1.64.1). It is not a pull request check and cannot block a merge; it deploys nothing. Affected: docs only; no app code, data or permissions. Rollback: delete the workflow and the two scripts; the captured images are plain files. Verified only by the CI run of the job itself.
+- **FR-166 — Volume billing per m³ and per load (customer side).** Reason: owner rule of 2026-11-13: a machine
+  carrying material is billed per load and per cubic metre, before VAT: loads × load volume (m³) × rate per m³.
+  Hours are still recorded but not billed on this basis; billable stops add nothing. Affected code: DocTypes
+  `Card Equipment` (new `load_volume_m3`, option «بالمتر المكعب» on `customer_rate_type`, `COMMERCIAL_FIELDS`,
+  per-m³ check in `validate_rental_direction`), `Card Monthly Card` (new `total_loads`, `total_volume_m3`,
+  `load_volume_used`; per-m³ branch of the customer amount; snapshot in `_snapshot_settings_used`),
+  `Card Monthly Card Day` (new `loads_count`, working-day and future-date rules), `card/card_value.py`
+  (`loads_last_month`, whitelisted POST), `equipment_customer_statement` (per-m³ rows without an
+  hourly rate; two new columns), both monthly card print formats (loads and volume rows; the standard print removes
+  every money column from users without money read, owner decision 2026-11-13), dashboard number card "Loads last
+  month" in the CARD workspace (no volume card; owner decision 2026-11-14), a non-blocking warning when a per-m³ card has
+  operating hours and no loads (customer amount zero; owner decision 2026-11-14), a day with loads and zero hours counts as a billed day for the assignment and unit-component rules, for shortening or deleting an assignment and cancelling a transfer, and for the customer statement and summary (reviews of 2709979, 2dc1c08 and ca63356; `is_billed_day`, `billed_day_rows(include_loads=True)`, `_refuse_dropped_card_days`, `_card_day_after`); supplier reports keep the hours rule, a non-blocking message listing the non-working days whose loads were cleared on save (`_interactive_form_save`; owner decision 2026-11-14), both messages shown only on an interactive form save and not on imports, patches, migrations, muted runs or background jobs (owner decision 2026-11-14), on a per-m³ card a billable stop-only day is a stop day, not a billed day, on the customer statement and summary (`customer_billed_day_rows`; owner decision z1, 2026-11-14), a BOLA matrix row for the number-card endpoint,
+  translations of the new labels (machine translations, pending native review; `bn`, `en` and `ur` kept), and the
+  docs. PR #258. Target release: v4.9.0 (not yet tagged; the v4.8.0 tag is a separate decision).
+  Permissions: no permission is widened; the rate and the amount keep their existing permlevel and print rules; the total volume is permlevel 1 (like the amount; owner decision 2026-11-14), loads stay permlevel 0; the new
+  number card reads submitted cards through `get_list` (company-scoped, Card Operator refused). Accounting: none; CARD
+  still creates no GL entry, and the customer amount is the same amount the existing invoice path reads. Data: new
+  fields only, empty by default; no submitted card is changed. No patch: the volume Number Card never
+  reached Production (4.7.0); a dev or QA site that imported it keeps an orphan Number Card until it is removed by hand. API: one
+  whitelisted read endpoint (`loads_last_month`, POST). Rollback: revert the code; the new fields stay in the database and are ignored by
+  the older code, and existing cards are untouched. A card priced per m³ after the change shows its totals only while
+  the new code runs.
+
+### Changed
+- **Docs — two screenshots removed (`equipment-needs-portal`, `card-mobile-home`, EN and AR).** Reason: Google Safe Browsing lists sde-er.github.io/card/ as having pages that may deceive visitors into giving personal information (Transparency Report, 2026-11-15, owner decision to remove both images). The two images look like sign-in or request forms; no page in the built site has an HTML form or password field. Affected: docs images, the two docs pages (equipment needs, CARD Mobile EN/AR), their entries in `shots.json` and `place.py`; no app code, data, permissions or API. Rollback: restore the four webp files from git history and the entries from this commit. PR: pending.
+- **Docs site — Google Search Console verification tag (`website/astro.config.mjs`).** Reason: the docs site at `sde-er.github.io/card` was shown as "Dangerous site" by Google Safe Browsing on 2026-11-15; the owner needs Search Console ownership to request a review. The head gets one `google-site-verification` meta tag once the token is set; while the token is the placeholder, no tag is emitted. Affected: the docs site head only; no app code, data, permissions or API. Rollback: revert the config file. PR: pending (not merged).
+- **Docs screenshots — volume billing images and image gate (`website/scripts/screenshots/`).** Reason: the docs showed no volume-billing images. Placed: the monthly card print (EN, AR) and two sections cropped from it, the days grid and the card totals (EN, AR), from the CI run 43687907431 artifact (commits 423635a and 691dfd9; PR pending) (synthetic data, reviewed image by image). Not placed: the equipment commercial form (per-m³ fields are below the fold), the customer statement (empty: the seeded card is a draft), the loads card (shows 0 for the same reason). The gate (`check_images.py`) fails on an undeclared duplicate and lists it with its route; `allowDuplicateOf` in `shots.json` is available for intentional same-page shots; none is declared yet, because the duplicates of run 43687907431 (workspace, posting, diesel, AR) are capture defects tracked in issue #266. A miss in a click, scroll or section step now fails the shot. Affected: docs assets, docs pages (volume billing EN/AR), capture tooling only; no app code, data, permissions or API. Rollback: remove the placed images and their image lines (`place.py`).
+- **CI — release Latest by SemVer (`.github/workflows/release.yml`).** Reason: release v4.6.0 was published 12 seconds after v4.7.0 (2026-11-10) with `make_latest` not set, so GitHub showed v4.6.0 as Latest until v4.7.0 was marked Latest on 2026-11-14. The workflow now fetches all tags and sets `make_latest` to `true` only for the highest plain X.Y.Z tag, and `false` otherwise; it does not fail when no plain tag exists yet. Affected: the release workflow only; no app code, data, permissions or API. Rollback: revert the workflow file. Verified by a local dry run of the decision with simulated tag names (v4.7.0 true; v4.6.0 and v5.0.0-rc1 false); it runs for real on the next tag.
+
+### Migration
+
+- No new patch in 4.9.0. `bench migrate` syncs the DocTypes (new fields and the new per-m³ option of the rate type), the fixtures (Number Card "Loads last month", the workspace, the print formats) and the translations.
+- A site on v4.7.0 runs the v4.8.0 patches once on its first migrate (see the v4.8.0 page, sections 9 and 12). Patch Log rows are not reversed by a rollback.
+- Rollback is code only and does not restore the database. See the v4.9.0 page, section 12, for what the older code does with the new data.
+
+### Known limitations
+
+- A draft card or equipment with the per-m³ rate type cannot be saved by the v4.7.0 code (the option is missing there).
+- The Arabic print format "كارت تشغيل شهري" (legacy) still prints drafts without the review-copy banner; only the standard format does.
+- "Printed by" shows the session user; a print made by a background job shows the system user.
+- **FR-164 — accounting risk (Known Limitation).** A draft Material Issue Stock Entry is created with `allow_zero_valuation_rate = 1`, so a dispense submitted before the accountant sets `basic_rate` can carry zero valuation into the GL. Owner decision 2026-11-13: `enable_diesel_tanks` must not be turned on for any company until this is resolved and the owner approves. No code change in v4.9.0.
+- Runtime checks on Production are not done by this release; see the v4.9.0 page, section 14.
 
 ## [4.8.0] — 2026-11-14
 

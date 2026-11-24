@@ -52,3 +52,312 @@ msgstr "Товарите бяха изчистени в тези неработ�
 
 msgid "Check the loads"
 msgstr "Проверете товаренията"
+
+msgid "Review Copy — Not Approved"
+msgstr "Копие за преглед — Не е одобрено"
+
+msgid "REVIEW COPY"
+msgstr "КОПИЕ ЗА ПРЕГЛЕД"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Състояние на работния процес"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Все още не е одобрено"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Отпечатано от"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Отпечатано на"
+
+msgid "CARD operations dashboard"
+msgstr "Табло за операции CARD"
+
+msgid "Financial performance — last month"
+msgstr "Финансови резултати — миналия месец"
+
+msgid "Needs review (CARD)"
+msgstr "Изисква преглед (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Последни месечни карти (CARD)"
+
+msgid "CARD customers"
+msgstr "Клиенти CARD"
+
+msgid "CARD suppliers"
+msgstr "Доставчици CARD"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Дизел и операции (CARD)"
+
+msgid "New monthly card"
+msgstr "Нова месечна карта"
+
+msgid "New equipment transport"
+msgstr "Нов транспорт на техника"
+
+msgid "Customer statement (CARD)"
+msgstr "Извлечение на клиент (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Месечни карти (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Техника (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Задания (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Клиенти за техника (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Транспорти на техника (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Оперативна стойност за клиенти - миналия месец"
+
+msgid "Supplier operating value - last month"
+msgstr "Оперативна стойност за доставчици - миналия месец"
+
+msgid "Internal operating value - last month"
+msgstr "Вътрешна оперативна стойност - миналия месец"
+
+msgid "Cards last month"
+msgstr "Карти за миналия месец"
+
+msgid "Rented equipment (CARD)"
+msgstr "Наета техника (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Товарене миналия месец (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Чернови карти (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Карти без вътрешна ставка (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Оперативни часове без ставка (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Обобщение по клиенти (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Извлечение на доставчик (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Обобщение по доставчици (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Извлечение на доставчик A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Разход на дизел (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Оперативни разходи по проект (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Разходи за транспорт по проект (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Съгласуване на показанията (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Транспорт на техника (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Вече е заявено плащане в брой за ред {0} от карта {1}."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Плащане в брой може да се заяви само за карта в чернова."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Посочете причината за анулирането."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Само анулирано плащане в брой може да бъде заменено; {0} е {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Само мениджър на карти може да одобри плащане в брой."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Само мениджър на карти може да осчетоводи плащане в брой."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Само мениджър на карти може да заяви анулиране."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Само мениджър на карти може да заяви замяна."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Само плащане в брой в очакване може да бъде одобрено; {0} е {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Само осчетоводено плащане в брой може да бъде анулирано; {0} е {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Само плащане в брой в опашката може да бъде изпълнено; {0} е {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Само одобрено плащане в брой може да бъде поставено в опашката за осчетоводяване; {0} е {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Ред {0} от карта {1} вече има активно плащане в брой ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Плащането в брой {0} не съществува."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Плащането в брой {0} е {1}; не може да бъде изтрито. Анулирайте го вместо това."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Заявителят не може да одобри собственото си плащане в брой."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Редът {0} вече не е на карта {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Редът {0} не е плащане в брой на карта {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Плащането в брой {0} е одобрено; {1} не може да се променя. Анулирайте го и заявете замяна."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Журналният запис {0} все още има активни разпределения. Уредете ги в ERPNext (отмяна на уреждането или разкачане) преди анулиране."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Журналният запис {0} покрива плащане в брой {1}. Първо заявете анулиране с причина; плащането тогава се маркира като Анулирано."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Очаква одобрение"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "В опашка за осчетоводяване"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Осчетоводяването е неуспешно"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Заявено е анулиране"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Не е уредено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Частично уредено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Напълно уредено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Одобрявате ли това плащане в брой? Одобряващият не може да бъде заявителят."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Постави в опашка"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Опитай отново"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Заяви анулиране"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Пари в брой: очаква одобрение"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Пари в брой: одобрено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Пари в брой: в опашка"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Пари в брой: неуспешно осчетоводяване"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Пари в брой: осчетоводено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Пари в брой: заявено анулиране"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Пари в брой: анулирано"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Пари в брой: не е уредено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Пари в брой: частично уредено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Пари в брой: напълно уредено"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Пари в брой: очаква замяна"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Заяви одобрение на плащане в брой"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Ред за плащане в брой"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Доказателство (номер на разписка или референция)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Заявено е одобрение на плащане в брой"

@@ -40,6 +40,8 @@ invoice, as it is for any sale; the card works with amounts before VAT.
 
 ## Equipment setup
 
+<!-- screenshot: volume-billing-equipment-commercial -->
+
 On the equipment, in the **Customer** section:
 
 1. **Customer rate type**: choose **Per m³** (stored as «بالمتر المكعب»). The other choices are per day, per hour and
@@ -56,6 +58,10 @@ Only the customer side uses the per-m³ basis. The supplier rate and its basis a
 
 ## Entering loads on the monthly card
 
+<!-- screenshot: volume-billing-monthly-card-days -->
+![Days of a per-m³ monthly card](../../../assets/screenshots/en/volume-billing-monthly-card-days.webp)
+*Days of a per-m³ monthly card*
+
 On each day row of the monthly card:
 
 - **Operating hours** are entered as before.
@@ -71,6 +77,10 @@ The card totals then show:
 - **Total loads**: the sum of the loads on all day rows.
 - **Total volume (m³)**: total loads × the load volume of the equipment.
 - **Customer amount**: total volume × the customer rate (before VAT).
+
+<!-- screenshot: volume-billing-card-totals -->
+![Card totals for a per-m³ card](../../../assets/screenshots/en/volume-billing-card-totals.webp)
+*Card totals for a per-m³ card*
 
 ## Day and night cards
 
@@ -104,6 +114,14 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
 **Rate basis used** holds the supplier rate basis; the customer basis is the card's **Customer rate type**.
 
 ## How volume billing appears
+
+<!-- screenshot: volume-billing-print -->
+![Monthly card print with loads](../../../assets/screenshots/en/volume-billing-print.webp)
+*Monthly card print with loads*
+
+<!-- screenshot: volume-billing-customer-statement -->
+
+<!-- screenshot: volume-billing-loads-card -->
 
 - **Monthly card print**: the print shows Total loads for per-m³ cards to everyone who can read the card. Total volume (m³),
   the rate and the amount are money-level: they appear only for users with money read (Card User and Card Manager). Card Operator

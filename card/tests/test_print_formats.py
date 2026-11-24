@@ -25,12 +25,40 @@ MONTHLY = "Card Monthly Card Print"
 LEGACY_MONTHLY = "كارت تشغيل شهري"
 ADD, DED = "إضافة", "خصم"
 HOURS = [10, 10, 10, 10, 8]  # 48 h
+# FR-174: the four settlement rows of each billed side, in print order (owner's exact Arabic labels)
+BEFORE, ADDITIONS, DEDUCTIONS, NET = (
+	"الإجمالي قبل الإضافات والخصومات",
+	"إجمالي الإضافات",
+	"إجمالي الخصومات",
+	"الصافي بعد الإضافات والخصومات",
+)
+SUPPLIER, CUSTOMER = "تسوية المورد", "تسوية العميل"
 
 
 def _cell(html, label):
 	"""The value printed next to a totals label (None when the line is absent)."""
 	m = re.search(re.escape(label) + r'</td><td class="v">([^<]*)</td>', html)
 	return m.group(1).strip() if m else None
+
+
+def _settlement(html, header):
+	"""The (label, value) rows of one side's settlement table, in print order (None when the side is absent)."""
+	m = re.search(
+		r'<table class="emc-tot emc-net">\s*<tr><th colspan="2">'
+		+ re.escape(header)
+		+ r"</th></tr>(.*?)</table>",
+		html,
+		re.S,
+	)
+	if not m:
+		return None
+	return re.findall(r'<td class="k">([^<]*)</td><td class="v">([^<]*)</td>', m.group(1))
+
+
+def _sar(value, company):
+	"""A settlement amount as printed: two decimals and the company currency (SAR for SDCE)."""
+	currency = frappe.get_cached_value("Company", company, "default_currency")
+	return "%s %s" % (fmt_money(value, precision=2), currency)
 
 
 class TestPrintFormats(_CustomerCardsBase):
@@ -72,7 +100,13 @@ class TestPrintFormats(_CustomerCardsBase):
 		for kind, amount, side, description in adjustments:
 			c.append(
 				"adjustments",
-				{"adjustment_type": kind, "amount": amount, "side": side, "description": description},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type": kind,
+					"amount": amount,
+					"side": side,
+					"description": description,
+				},
 			)
 		c.insert(ignore_permissions=True)
 		c.reload()
@@ -95,10 +129,17 @@ class TestPrintFormats(_CustomerCardsBase):
 		self.assertEqual(card.customer_net_amount, 6000)
 		self.assertEqual(card.net_amount, 0)
 		html = self._print(card)
-		self.assertEqual(_cell(html, "صافي العميل قبل الضريبة"), fmt_money(6000))
-		self.assertEqual(_cell(html, "إجمالي العميل"), fmt_money(7200))
-		self.assertEqual(_cell(html, "خصومات العميل"), fmt_money(1200))
-		self.assertIsNone(_cell(html, "صافي المورد قبل الضريبة"))
+		c = self.company
+		self.assertEqual(
+			_settlement(html, CUSTOMER),
+			[
+				(BEFORE, _sar(7200, c)),
+				(ADDITIONS, _sar(0, c)),
+				(DEDUCTIONS, _sar(1200, c)),
+				(NET, _sar(6000, c)),
+			],
+		)
+		self.assertIsNone(_settlement(html, SUPPLIER))
 		self.assertIn("TEST-PRINT-DED", html)
 
 	def test_supplier_card_prints_the_supplier_net(self):
@@ -108,9 +149,17 @@ class TestPrintFormats(_CustomerCardsBase):
 		html = self._print(card)
 		# the top box is the gross (the strip carries the net)
 		self.assertEqual(_cell(html, "القيمة الإجمالية"), fmt_money(3600))
-		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3000))
-		self.assertEqual(_cell(html, "خصومات المورد"), fmt_money(600))
-		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
+		c = self.company
+		self.assertEqual(
+			_settlement(html, SUPPLIER),
+			[
+				(BEFORE, _sar(3600, c)),
+				(ADDITIONS, _sar(0, c)),
+				(DEDUCTIONS, _sar(600, c)),
+				(NET, _sar(3000, c)),
+			],
+		)
+		self.assertIsNone(_settlement(html, CUSTOMER))
 
 	def test_sub_rental_prints_each_side_with_its_own_rows(self):
 		# supplier 3,600 + 100 = 3,700; customer 1200/day = 120/h x 48 = 5,760 - 200 = 5,560
@@ -122,14 +171,25 @@ class TestPrintFormats(_CustomerCardsBase):
 		html = self._print(card)
 		self.assertEqual(_cell(html, "القيمة الإجمالية"), fmt_money(3600))
 		self.assertIn(frappe.db.get_value("Customer", self.customer, "customer_name"), html)
-		self.assertEqual(_cell(html, "إجمالي المورد"), fmt_money(3600))
-		self.assertEqual(_cell(html, "إضافات المورد"), fmt_money(100))
-		self.assertEqual(_cell(html, "خصومات المورد"), fmt_money(0))
-		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3700))
-		self.assertEqual(_cell(html, "إجمالي العميل"), fmt_money(5760))
-		self.assertEqual(_cell(html, "إضافات العميل"), fmt_money(0))
-		self.assertEqual(_cell(html, "خصومات العميل"), fmt_money(200))
-		self.assertEqual(_cell(html, "صافي العميل قبل الضريبة"), fmt_money(5560))
+		c = self.company
+		self.assertEqual(
+			_settlement(html, SUPPLIER),
+			[
+				(BEFORE, _sar(3600, c)),
+				(ADDITIONS, _sar(100, c)),
+				(DEDUCTIONS, _sar(0, c)),
+				(NET, _sar(3700, c)),
+			],
+		)
+		self.assertEqual(
+			_settlement(html, CUSTOMER),
+			[
+				(BEFORE, _sar(5760, c)),
+				(ADDITIONS, _sar(0, c)),
+				(DEDUCTIONS, _sar(200, c)),
+				(NET, _sar(5560, c)),
+			],
+		)
 		# the printed nets are what the monthly invoices bill before VAT
 		from card.gl.posting import _card_lines
 
@@ -139,16 +199,25 @@ class TestPrintFormats(_CustomerCardsBase):
 			equipment_rental_expense_account="X",
 			equipment_rental_income_account="X",
 		)
-		for side, label in (("Supplier", "صافي المورد قبل الضريبة"), ("Customer", "صافي العميل قبل الضريبة")):
+		for side, header in (("Supplier", SUPPLIER), ("Customer", CUSTOMER)):
 			_doc, lines, discount, _cn = _card_lines(card.name, side, row, {})
-			self.assertEqual(_cell(html, label), fmt_money(sum(line["rate"] for line in lines) - discount))
+			billed = sum(line["rate"] for line in lines) - discount
+			self.assertEqual(_settlement(html, header)[-1], (NET, _sar(billed, c)))
 
 	def test_no_adjustments_prints_gross_equal_to_net(self):
 		html = self._print(self._card_with(self._equipment(RENTED), []))
 		self.assertNotIn('class="emc-adj"', html)
-		self.assertEqual(_cell(html, "إجمالي المورد"), fmt_money(3600))
-		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3600))
-		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
+		c = self.company
+		self.assertEqual(
+			_settlement(html, SUPPLIER),
+			[
+				(BEFORE, _sar(3600, c)),
+				(ADDITIONS, _sar(0, c)),
+				(DEDUCTIONS, _sar(0, c)),
+				(NET, _sar(3600, c)),
+			],
+		)
+		self.assertIsNone(_settlement(html, CUSTOMER))
 
 	def test_a_v1_1_row_without_side_prints_on_the_supplier_side(self):
 		card = self._card_with(self._equipment(RENTED), [(DED, 600, "Supplier", "TEST-PRINT-V11")])
@@ -157,14 +226,79 @@ class TestPrintFormats(_CustomerCardsBase):
 		)
 		card.reload()
 		html = self._print(card)
-		self.assertEqual(_cell(html, "خصومات المورد"), fmt_money(600))
-		self.assertEqual(_cell(html, "صافي المورد قبل الضريبة"), fmt_money(3000))
-		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
+		rows = dict(_settlement(html, SUPPLIER))
+		self.assertEqual((rows[DEDUCTIONS], rows[NET]), (_sar(600, self.company), _sar(3000, self.company)))
+		self.assertIsNone(_settlement(html, CUSTOMER))
 
 	def test_internal_card_prints_no_settlement(self):
 		html = self._print(self._card_with(self._equipment(OWNED), []))
-		self.assertIsNone(_cell(html, "صافي المورد قبل الضريبة"))
-		self.assertIsNone(_cell(html, "صافي العميل قبل الضريبة"))
+		self.assertIsNone(_settlement(html, SUPPLIER))
+		self.assertIsNone(_settlement(html, CUSTOMER))
+
+	def _card_2430(self, adjustments, extra=()):
+		# 750/day over 10 h = 75/h x 32.4 h = 2,430.00
+		c = frappe.new_doc("Card Monthly Card")
+		c.update({"equipment": self._equipment(RENTED).name, "project": self.project, "shift": "نهاري"})
+		c.update({"month": "09", "year": 2026})
+		for row in _days([10, 10, 10, 2.4]):
+			c.append("days", row)
+		for kind, amount, description in adjustments:
+			row = {"adjustment_type": kind, "amount": amount, "side": "Supplier", "description": description}
+			c.append("adjustments", {"adjustment_date": "2026-09-02", **row})
+		for row in extra:
+			c.append("adjustments", {"adjustment_date": "2026-09-03", **row})
+		c.insert(ignore_permissions=True)
+		c.reload()
+		return c
+
+	def _assert_four_rows(self, card, before, additions, deductions, net):
+		# the four printed amounts are the saved card's: its base, additions, deductions and stored net
+		self.assertEqual(
+			(card.amount, card.total_additions, card.total_deductions, card.net_amount),
+			(before, additions, deductions, net),
+		)
+		c = self.company
+		self.assertEqual(
+			_settlement(self._print(card), SUPPLIER),
+			[
+				(BEFORE, _sar(before, c)),
+				(ADDITIONS, _sar(additions, c)),
+				(DEDUCTIONS, _sar(deductions, c)),
+				(NET, _sar(net, c)),
+			],
+		)
+
+	def test_diesel_deduction_only_prints_zero_additions(self):
+		self._assert_four_rows(self._card_2430([(DED, 200, "TEST-PRINT-DIESEL")]), 2430, 0, 200, 2230)
+
+	def test_additions_and_deductions_are_applied_once(self):
+		card = self._card_2430([(ADD, 150, "TEST-PRINT-ADD"), (DED, 200, "TEST-PRINT-DED2")])
+		self._assert_four_rows(card, 2430, 150, 200, 2380)
+
+	def test_net_row_is_the_last_highlighted_row(self):
+		html = self._print(self._card_2430([(DED, 200, "TEST-PRINT-BOLD")]))
+		net_row = '<tr class="last"><td class="k">%s</td><td class="v">%s</td></tr>'
+		self.assertIn(net_row % (NET, _sar(2230, self.company)), html)
+		self.assertIn(".emc-net tr.last td {", frappe.db.get_value("Print Format", MONTHLY, "css"))
+
+	def test_a_cash_row_is_not_counted_in_the_printed_totals(self):
+		# an owner-paid cash row is recorded, not in the card's totals: the printed rows still add up to the net
+		from card.tests.test_cash_disbursement_db import _cash_account
+
+		cash = {
+			"is_cash_disbursement": 1,
+			"cash_account": _cash_account(self.company),
+			"adjustment_type": DED,
+			"amount": 300,
+			"side": "Supplier",
+			"description": "TEST-PRINT-CASH",
+		}
+		card = self._card_2430([(DED, 200, "TEST-PRINT-DIESEL2")], extra=[cash])
+		self._assert_four_rows(card, 2430, 0, 200, 2230)
+		self.assertIn(
+			'TEST-PRINT-CASH <span class="emc-cash">(دفع نقدي، غير محتسب في الإجماليات)</span>',
+			self._print(card),
+		)
 
 	def test_adjustment_text_is_escaped(self):
 		card = self._card_with(self._equipment(RENTED), [(DED, 10, "Supplier", "<b>TEST-PRINT-ESC</b>")])
@@ -218,9 +352,16 @@ class TestPrintFormats(_CustomerCardsBase):
 		# Urdu is right-to-left in CARD, although frappe is_rtl() lists only ar/he/fa/ps
 		self.assertIn('class="emc rtl" dir="rtl"', self._print(card, lang="ur"))
 		self.assertEqual(_cell(html, "Total amount"), fmt_money(3600))
-		self.assertEqual(_cell(html, "Supplier deductions"), fmt_money(600))
-		self.assertEqual(_cell(html, "Supplier net before VAT"), fmt_money(3000))
-		self.assertIsNone(_cell(html, "Customer net before VAT"))
+		self.assertEqual(
+			_settlement(html, "Supplier settlement"),
+			[
+				("Total before additions and deductions", _sar(3600, self.company)),
+				("Total additions", _sar(0, self.company)),
+				("Total deductions", _sar(600, self.company)),
+				("Net after additions and deductions", _sar(3000, self.company)),
+			],
+		)
+		self.assertIsNone(_settlement(html, "Customer settlement"))
 		# stored Arabic option values print in the print language (card/locale/en.po)
 		self.assertIn("Deduction", html)
 		legacy = self._print(card, LEGACY_MONTHLY, lang="en")

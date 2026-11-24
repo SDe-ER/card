@@ -7,7 +7,7 @@ sidebar:
 ---
 
 :::note
-This page is generated from the CARD source code on every build. Edit the code, not this page.
+This page is generated from the CARD source code on every build. Edit the code, not this page. It follows the main branch, so it can describe changes that are merged but not released yet; see What's new.
 :::
 
 | Module | API endpoints |
@@ -16,12 +16,13 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.cancel_reason`](#card-cancel-reason) | 1 |
 | [`card.card.dashboard_chart_source.card_monthly_values.card_monthly_values`](#card-card-dashboard-chart-source-card-monthly-values-card-monthly-values) | 1 |
 | [`card.card.doctype.card_equipment.card_equipment`](#card-card-doctype-card-equipment-card-equipment) | 5 |
-| [`card.card.doctype.card_monthly_card.card_monthly_card`](#card-card-doctype-card-monthly-card-card-monthly-card) | 1 |
+| [`card.card.doctype.card_monthly_card.card_monthly_card`](#card-card-doctype-card-monthly-card-card-monthly-card) | 2 |
 | [`card.card.doctype.card_settings.card_settings`](#card-card-doctype-card-settings-card-settings) | 2 |
 | [`card.card.doctype.equipment_transport.equipment_transport`](#card-card-doctype-equipment-transport-equipment-transport) | 3 |
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
 | [`card.card.report.equipment_supplier_statement.statement_pdf`](#card-card-report-equipment-supplier-statement-statement-pdf) | 1 |
-| [`card.card_value`](#card-card-value) | 7 |
+| [`card.card_value`](#card-card-value) | 6 |
+| [`card.cash_disbursement`](#card-cash-disbursement) | 8 |
 | [`card.catalog`](#card-catalog) | 2 |
 | [`card.daily_log_generation`](#card-daily-log-generation) | 1 |
 | [`card.diesel`](#card-diesel) | 1 |
@@ -105,8 +106,10 @@ This page is generated from the CARD source code on every build. Edit the code, 
 
 | Method path | HTTP methods | Arguments |
 |---|---|---|
+| `card.card.doctype.card_monthly_card.card_monthly_card.get_standard_month_hours` | GET | none |
 | `card.card.doctype.card_monthly_card.card_monthly_card.get_card_context` | GET | `equipment: str`<br/>`month: str`<br/>`year: str`<br/>`project: str \| None = None` |
 
+- `get_standard_month_hours` — The standard month hours a per-month rate is spread over (Card Settings), so the card form prices exactly as the server does. Read-only; any user who can read monthly cards.
 - `get_card_context` — V3.0.0: what the card form fills in by itself once equipment, month and year are picked — the projects the approved transports put the equipment on that month, and the days it was on the chosen (or only) project. Read-only.
 
 
@@ -170,6 +173,31 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | `card.card_value.cards_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.hours_without_internal_rate_last_month` | POST | `filters: str \| dict \| list \| None = None` |
 | `card.card_value.loads_last_month` | POST | `filters: str \| dict \| list \| None = None` |
+
+- `loads_last_month` — The loads of last month on the submitted per-m³ cards, company-scoped like the other monthly values. total_loads is permlevel 0 (a count, not money), so every user who can read the card sees the number. Permission-checked read; drafts are not counted.
+
+
+<h2 id="card-cash-disbursement"><code>card.cash_disbursement</code></h2>
+
+| Method path | HTTP methods | Arguments |
+|---|---|---|
+| `card.cash_disbursement.request_cash_disbursement` | POST | `card: str`<br/>`row: str`<br/>`payment_date: str`<br/>`evidence: str` |
+| `card.cash_disbursement.approve_cash_disbursement` | POST | `name: str` |
+| `card.cash_disbursement.queue_posting` | POST | `name: str` |
+| `card.cash_disbursement.request_cancellation` | POST | `name: str`<br/>`reason: str` |
+| `card.cash_disbursement.request_replacement` | POST | `name: str`<br/>`reason: str`<br/>`payment_date: str`<br/>`evidence: str` |
+| `card.cash_disbursement.run_posting_queue` | POST | `limit: int = 20` |
+| `card.cash_disbursement.get_cash_row_status` | GET | `card: str` |
+| `card.cash_disbursement.get_cash_disbursements` | GET | `card: str` |
+
+- `request_cash_disbursement` — Record a Pending cash payment for a flagged row of a Draft card (the requester is the record owner).
+- `approve_cash_disbursement` — Explicit approval by a Card Manager who is not the requester.
+- `queue_posting` — Claim an Approved cash payment for the accounting executor (Approved -> Posting, under a row lock). Creates no accounting entry. Returns the Journal Entry when the payment is already Posted.
+- `request_cancellation` — Record the reason for cancelling a posted cash payment. ERPNext's own Journal Entry cancellation (a human action) is then allowed; without this request the linked entry cannot be cancelled. The payment is not reversed, reposted or replaced here, and a replacement needs its own request and approval. An Approved or Posting Failed payment that has no Journal Entry is cancelled directly with the reason (nothing to cancel in ERPNext); a payment in Posting is refused.
+- `request_replacement` — A correction after cancellation: a new Pending payment for the same flagged row, linked to the cancelled one (``replaces``) and carrying the mandatory reason. It needs its own approval by a different Card Manager (approve_cash_ disbursement refuses the requester). The cancelled payment and its Journal Entry stay as they are; nothing is posted by this call, so a click creates no ledger effect.
+- `run_posting_queue` — The accounting executor's dispatch, run by the dedicated service identity.
+- `get_cash_row_status` — The display state of every cash row of one card, keyed by the child row name, for the table of the Monthly Card. The caller must be permitted to read the card. Read only.
+- `get_cash_disbursements` — Read-only status of the cash payments of one card, for the card's form. The caller must be permitted to read the card (its company). Each entry carries the posting status, the reconciliation status (kept separate), the cancellation state and whether a replacement is pending.
 
 
 <h2 id="card-catalog"><code>card.catalog</code></h2>

@@ -52,3 +52,312 @@ msgstr "Læs blev slettet på disse ikke-arbejdsdage: {0}"
 
 msgid "Check the loads"
 msgstr "Kontrollér læssene"
+
+msgid "Review Copy — Not Approved"
+msgstr "Gennemgangskopi — Ikke godkendt"
+
+msgid "REVIEW COPY"
+msgstr "GENNEMGANGSKOPI"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Workflowstatus"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Endnu ikke godkendt"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Udskrevet af"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Udskrevet"
+
+msgid "CARD operations dashboard"
+msgstr "CARD driftsoverblik"
+
+msgid "Financial performance — last month"
+msgstr "Økonomisk resultat — sidste måned"
+
+msgid "Needs review (CARD)"
+msgstr "Kræver gennemgang (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Seneste månedskort (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD-kunder"
+
+msgid "CARD suppliers"
+msgstr "CARD-leverandører"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Diesel og drift (CARD)"
+
+msgid "New monthly card"
+msgstr "Nyt månedskort"
+
+msgid "New equipment transport"
+msgstr "Ny transport af udstyr"
+
+msgid "Customer statement (CARD)"
+msgstr "Kundeudskrift (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Månedskort (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Udstyr (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Tildelinger (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Udstyrskunder (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Udstyrstransporter (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Driftsværdi for kunder - sidste måned"
+
+msgid "Supplier operating value - last month"
+msgstr "Driftsværdi for leverandører - sidste måned"
+
+msgid "Internal operating value - last month"
+msgstr "Intern driftsværdi - sidste måned"
+
+msgid "Cards last month"
+msgstr "Kort sidste måned"
+
+msgid "Rented equipment (CARD)"
+msgstr "Lejet udstyr (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Læs sidste måned (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Kladdekort (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Kort uden intern sats (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Driftstimer uden sats (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Kundeoversigt (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Leverandørudskrift (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Leverandøroversigt (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Leverandørudskrift A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dieselforbrug (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Driftsomkostninger pr. projekt (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Transportomkostninger pr. projekt (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Målerafstemning (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Udstyrstransport (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Der er allerede anmodet om en kontantbetaling for linje {0} på kort {1}."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Der kan kun anmodes om en kontantbetaling på et kladdekort."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Angiv årsagen til annulleringen."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Kun en annulleret kontantbetaling kan erstattes; {0} er {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Kun en kortadministrator kan godkende en kontantbetaling."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Kun en kortadministrator kan bogføre en kontantbetaling."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Kun en kortadministrator kan anmode om annullering."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Kun en kortadministrator kan anmode om erstatning."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Kun en afventende kontantbetaling kan godkendes; {0} er {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Kun en bogført kontantbetaling kan annulleres; {0} er {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Kun en kontantbetaling i køen kan udføres; {0} er {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Kun en godkendt kontantbetaling kan sættes i kø til bogføring; {0} er {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Linje {0} på kort {1} har allerede en aktiv kontantbetaling ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Kontantbetalingen {0} findes ikke."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Kontantbetalingen {0} er {1}; den kan ikke slettes. Annuller den i stedet."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Den, der anmoder, kan ikke godkende sin egen kontantbetaling."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Linje {0} er ikke længere på kort {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Linje {0} er ikke en kontantbetaling på kort {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Kontantbetalingen {0} er godkendt; {1} kan ikke ændres. Annuller den og anmod om erstatning."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Postering {0} har stadig aktive tildelinger. Afklar dem i ERPNext (fjern afstemningen eller fjern forbindelsen), før den annulleres."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Postering {0} betaler kontantbetaling {1}. Anmod først om annullering med en begrundelse; betalingen markeres derefter som Annulleret."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Afventer godkendelse"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "I kø til bogføring"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Bogføring mislykkedes"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Annullering anmodet"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Ikke afstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Delvist afstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Fuldt afstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Godkend denne kontantbetaling? Godkenderen må ikke være den, der har anmodet."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Sæt i kø til bogføring"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Prøv bogføring igen"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Anmod om annullering"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Kontant: afventer godkendelse"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Kontant: godkendt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Kontant: i kø til bogføring"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Kontant: bogføring mislykkedes"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Kontant: bogført"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Kontant: annullering anmodet"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Kontant: annulleret"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Kontant: ikke afstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Kontant: delvist afstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Kontant: fuldt afstemt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Kontant: erstatning afventer"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Anmod om godkendelse af kontantbetaling"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Kontantlinje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Bilag (kvitteringsnummer eller reference)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Godkendelse af kontantbetaling anmodet"

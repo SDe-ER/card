@@ -52,3 +52,312 @@ msgstr "Tovari su obrisani na ovim neradnim danima: {0}"
 
 msgid "Check the loads"
 msgstr "Provjerite tovare"
+
+msgid "Review Copy — Not Approved"
+msgstr "Kopija za pregled — Nije odobreno"
+
+msgid "REVIEW COPY"
+msgstr "KOPIJA ZA PREGLED"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Status toka rada"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Još nije odobreno"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Štampao"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Štampano"
+
+msgid "CARD operations dashboard"
+msgstr "CARD kontrolna tabla za operacije"
+
+msgid "Financial performance — last month"
+msgstr "Finansijski učinak — prošli mjesec"
+
+msgid "Needs review (CARD)"
+msgstr "Potrebno pregledati (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Najnovije mjesečne kartice (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD kupci"
+
+msgid "CARD suppliers"
+msgstr "CARD dobavljači"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Dizel i operacije (CARD)"
+
+msgid "New monthly card"
+msgstr "Nova mjesečna kartica"
+
+msgid "New equipment transport"
+msgstr "Novi transport opreme"
+
+msgid "Customer statement (CARD)"
+msgstr "Izvod kupca (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Mjesečne kartice (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Oprema (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Zaduženja (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Kupci opreme (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Transporti opreme (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Operativna vrijednost za kupce - prošli mjesec"
+
+msgid "Supplier operating value - last month"
+msgstr "Operativna vrijednost dobavljača - prošli mjesec"
+
+msgid "Internal operating value - last month"
+msgstr "Interna operativna vrijednost - prošli mjesec"
+
+msgid "Cards last month"
+msgstr "Kartice za prošli mjesec"
+
+msgid "Rented equipment (CARD)"
+msgstr "Iznajmljena oprema (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Utovi prošli mjesec (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Nacrti kartica (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Kartice bez interne stope (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Radni sati bez stope (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Sažetak kupaca (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Izvod dobavljača (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Sažetak dobavljača (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Izvod dobavljača A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Potrošnja dizela (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Operativni troškovi po projektu (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Troškovi transporta po projektu (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Usklađivanje brojila (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Transport opreme (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Gotovinsko plaćanje za red {0} kartice {1} je već zatraženo."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Gotovinsko plaćanje se može tražiti samo za karticu u nacrtu."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Navedite razlog za otkazivanje."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Samo otkazano gotovinsko plaćanje može se zamijeniti; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Samo menadžer kartica može odobriti gotovinsko plaćanje."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Samo menadžer kartica može knjižiti gotovinsko plaćanje."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Samo menadžer kartica može zatražiti otkazivanje."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Samo menadžer kartica može zatražiti zamjenu."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Samo gotovinsko plaćanje na čekanju može se odobriti; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Samo proknjiženo gotovinsko plaćanje može se otkazati; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Samo gotovinsko plaćanje u redu može se izvršiti; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Samo odobreno gotovinsko plaćanje može se staviti u red za knjiženje; {0} je {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Red {0} kartice {1} već ima aktivno gotovinsko plaćanje ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Gotovinsko plaćanje {0} ne postoji."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Gotovinsko plaćanje {0} je {1}; ne može se obrisati. Umjesto toga ga otkažite."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Podnosilac zahtjeva ne može odobriti vlastito gotovinsko plaćanje."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Red {0} više nije na kartici {1}."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Red {0} nije gotovinsko plaćanje na kartici {1}."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Gotovinsko plaćanje {0} je odobreno; {1} se ne može mijenjati. Otkažite ga i zatražite zamjenu."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Nalog u dnevniku {0} i dalje ima aktivne alokacije. Riješite ih u ERPNext-u (poništite usklađivanje ili prekinite vezu) prije otkazivanja."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Nalog u dnevniku {0} plaća gotovinsko plaćanje {1}. Prvo zatražite otkazivanje s razlogom; plaćanje će tada biti označeno kao Otkazano."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Čeka odobrenje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "U redu za knjiženje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Knjiženje nije uspjelo"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Zatraženo otkazivanje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Nije usklađeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Djelimično usklađeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Potpuno usklađeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Odobriti ovo gotovinsko plaćanje? Odobravatelj ne smije biti podnosilac zahtjeva."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Stavi u red za knjiženje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Ponovo pokušaj knjiženje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Zatraži otkazivanje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Gotovina: čeka odobrenje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Gotovina: odobreno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Gotovina: u redu za knjiženje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Gotovina: knjiženje nije uspjelo"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Gotovina: proknjiženo"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Gotovina: zatraženo otkazivanje"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Gotovina: otkazano"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Gotovina: nije usklađeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Gotovina: djelimično usklađeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Gotovina: potpuno usklađeno"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Gotovina: zamjena na čekanju"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Zatraži odobrenje gotovinskog plaćanja"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Red gotovine"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Dokaz (broj računa ili referenca)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Zatraženo odobrenje gotovinskog plaćanja"

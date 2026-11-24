@@ -52,3 +52,312 @@ msgstr "这些非工作日的装载次数已被清除：{0}"
 
 msgid "Check the loads"
 msgstr "核对装载次数"
+
+msgid "Review Copy — Not Approved"
+msgstr "审阅副本 — 未批准"
+
+msgid "REVIEW COPY"
+msgstr "审阅副本"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "工作流状态"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "尚未批准"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "打印人"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "打印时间"
+
+msgid "CARD operations dashboard"
+msgstr "CARD 运营仪表板"
+
+msgid "Financial performance — last month"
+msgstr "财务表现 — 上月"
+
+msgid "Needs review (CARD)"
+msgstr "待审核 (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "最新月度卡 (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD 客户"
+
+msgid "CARD suppliers"
+msgstr "CARD 供应商"
+
+msgid "Diesel and operations (CARD)"
+msgstr "柴油与运营 (CARD)"
+
+msgid "New monthly card"
+msgstr "新建月度卡"
+
+msgid "New equipment transport"
+msgstr "新建设备运输"
+
+msgid "Customer statement (CARD)"
+msgstr "客户对账单 (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "月度卡 (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "设备 (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "任务分配 (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "设备客户 (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "设备运输 (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "客户运营价值 - 上月"
+
+msgid "Supplier operating value - last month"
+msgstr "供应商运营价值 - 上月"
+
+msgid "Internal operating value - last month"
+msgstr "内部运营价值 - 上月"
+
+msgid "Cards last month"
+msgstr "上月卡片"
+
+msgid "Rented equipment (CARD)"
+msgstr "租赁设备 (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "上月运输量 (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "草稿卡 (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "无内部费率的卡 (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "无费率的运营小时 (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "客户汇总 (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "供应商对账单 (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "供应商汇总 (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "供应商对账单 A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "柴油消耗 (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "按项目统计的运营成本 (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "按项目统计的运输成本 (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "计量表核对 (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "设备运输 (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "卡片 {1} 第 {0} 行的现金支付已被申请。"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "只能对草稿状态的卡片申请现金支付。"
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "请填写取消原因。"
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "只能替换已取消的现金支付；{0} 的状态为 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "只有卡片经理可以批准现金支付。"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "只有卡片经理可以过账现金支付。"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "只有卡片经理可以申请取消。"
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "只有卡片经理可以申请替换。"
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "只能批准待处理的现金支付；{0} 的状态为 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "只能取消已过账的现金支付；{0} 的状态为 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "只能执行排队中的现金支付；{0} 的状态为 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "只能将已批准的现金支付加入过账队列；{0} 的状态为 {1}。"
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "卡片 {1} 第 {0} 行已存在一笔有效的现金支付（{2}）。"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "现金支付 {0} 不存在。"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "现金支付 {0} 的状态为 {1}，无法删除。请改为取消。"
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "申请人不能批准自己的现金支付。"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "第 {0} 行已不在卡片 {1} 上。"
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "第 {0} 行不是卡片 {1} 上的现金支付。"
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "现金支付 {0} 已获批准，{1} 不能再修改。请取消后申请替换。"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "日记账分录 {0} 仍有有效的核销分配。取消前请先在 ERPNext 中处理（取消对账或取消关联）。"
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "日记账分录 {0} 用于支付现金支付 {1}。请先填写原因申请取消；随后该支付将被标记为已取消。"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "待审批"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "在过账队列中"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "过账失败"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "已申请取消"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "未核销"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "部分核销"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "全部核销"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "批准此现金支付？批准人不能是申请人。"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "加入过账队列"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "重试过账"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "申请取消"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "现金：待审批"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "现金：已批准"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "现金：在过账队列中"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "现金：过账失败"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "现金：已过账"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "现金：已申请取消"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "现金：已取消"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "现金：未核销"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "现金：部分核销"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "现金：全部核销"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "现金：待替换"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "申请现金支付审批"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "现金行"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "凭证（收据号或参考编号）"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "已申请现金支付审批"

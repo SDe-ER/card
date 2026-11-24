@@ -52,3 +52,312 @@ msgstr "Эдгээр ажлын бус өдрүүдэд ачааны тоо ар
 
 msgid "Check the loads"
 msgstr "Ачааны тоог шалгана уу"
+
+msgid "Review Copy — Not Approved"
+msgstr "Шалгалтын хуулбар — Батлагдаагүй"
+
+msgid "REVIEW COPY"
+msgstr "ШАЛГАЛТЫН ХУУЛБАР"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Ажлын урсгалын төлөв"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Одоогоор батлагдаагүй"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Хэвлэсэн"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Хэвлэсэн огноо"
+
+msgid "CARD operations dashboard"
+msgstr "CARD үйл ажиллагааны самбар"
+
+msgid "Financial performance — last month"
+msgstr "Санхүүгийн гүйцэтгэл — өнгөрсөн сар"
+
+msgid "Needs review (CARD)"
+msgstr "Шалгах шаардлагатай (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Сүүлийн сарын карт (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD харилцагчид"
+
+msgid "CARD suppliers"
+msgstr "CARD нийлүүлэгчид"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Дизель ба үйл ажиллагаа (CARD)"
+
+msgid "New monthly card"
+msgstr "Шинэ сарын карт"
+
+msgid "New equipment transport"
+msgstr "Шинэ техник тээвэр"
+
+msgid "Customer statement (CARD)"
+msgstr "Харилцагчийн тооцоо (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Сарын карт (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Техник (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Хуваарилалт (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Техникийн харилцагчид (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Техникийн тээвэр (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Харилцагчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
+msgid "Supplier operating value - last month"
+msgstr "Нийлүүлэгчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
+msgid "Internal operating value - last month"
+msgstr "Дотоод үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
+msgid "Cards last month"
+msgstr "Өнгөрсөн сарын карт"
+
+msgid "Rented equipment (CARD)"
+msgstr "Түрээсийн техник (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Өнгөрсөн сарын ачаа (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Ноорог карт (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Дотоод ханш байхгүй карт (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Ханшгүй үйл ажиллагааны цаг (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Харилцагчийн хураангуй (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Нийлүүлэгчийн тооцоо (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Нийлүүлэгчдийн хураангуй (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Нийлүүлэгчийн тооцоо A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Дизелийн зарцуулалт (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Төслөөр үйл ажиллагааны зардал (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Төслөөр тээврийн зардал (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Тоолуурын тохиргоо (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Техникийн тээвэр (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "{1} картын {0}-р мөрийн бэлэн мөнгөний төлбөрийг аль хэдийн хүсэлт болгосон байна."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Бэлэн мөнгөний төлбөрийг зөвхөн ноорог картад хүсэлт болгох боломжтой."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Цуцлах шалтгаанаа оруулна уу."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Зөвхөн цуцлагдсан бэлэн мөнгөний төлбөрийг солих боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Зөвхөн карт менежер бэлэн мөнгөний төлбөрийг батлах эрхтэй."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Зөвхөн карт менежер бэлэн мөнгөний төлбөрийг бүртгэх эрхтэй."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Зөвхөн карт менежер цуцлуулах хүсэлт гаргах эрхтэй."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Зөвхөн карт менежер солих хүсэлт гаргах эрхтэй."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Зөвхөн хүлээгдэж буй бэлэн мөнгөний төлбөрийг батлах боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Зөвхөн бүртгэгдсэн бэлэн мөнгөний төлбөрийг цуцлах боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Зөвхөн дарааллаас гүйцэтгэх бэлэн мөнгөний төлбөрийг гүйцэтгэх боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Зөвхөн батлагдсан бэлэн мөнгөний төлбөрийг бүртгэлийн дараалалд оруулах боломжтой; {0} нь {1} байна."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "{1} картын {0}-р мөрөнд аль хэдийн идэвхтэй бэлэн мөнгөний төлбөр ({2}) байна."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "{0} бэлэн мөнгөний төлбөр байхгүй байна."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "{0} бэлэн мөнгөний төлбөрийн төлөв нь {1} тул устгах боломжгүй. Оронд нь цуцална уу."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Хүсэлт гаргагч өөрийн бэлэн мөнгөний төлбөрийг батлах боломжгүй."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "{0}-р мөр {1} картад байхгүй болсон байна."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "{0}-р мөр {1} картын бэлэн мөнгөний төлбөр биш байна."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "{0} бэлэн мөнгөний төлбөрийг батлагдсан тул {1}-г өөрчлөх боломжгүй. Цуцлаад солих хүсэлт гаргана уу."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "{0} гүйлгээний бичилтэд идэвхтэй хуваарилалт үлдсэн байна. Цуцлахаас өмнө ERPNext дээр шийдвэрлэнэ үү (тохируулгыг буцаах эсвэл холбоосыг салгах)."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "{0} гүйлгээний бичилт нь {1} бэлэн мөнгөний төлбөрийг төлж байна. Эхлээд шалтгаантайгаар цуцлуулах хүсэлт гаргана уу; дараа нь төлбөр Цуцлагдсан гэж тэмдэглэгдэнэ."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Батлахыг хүлээж байна"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "Бүртгэлийн дараалалд"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Бүртгэл амжилтгүй"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Цуцлуулах хүсэлт гаргасан"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Тохируулаагүй"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Хэсэгчлэн тохируулсан"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Бүрэн тохируулсан"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Энэ бэлэн мөнгөний төлбөрийг батлах уу? Батлагч хүсэлт гаргагч байж болохгүй."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "Бүртгэлийн дараалалд оруулах"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Бүртгэлийг дахин оролдох"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Цуцлуулах хүсэлт гаргах"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Бэлэн мөнгө: батлахыг хүлээж байна"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Бэлэн мөнгө: батлагдсан"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Бэлэн мөнгө: дараалалд"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Бэлэн мөнгө: бүртгэл амжилтгүй"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Бэлэн мөнгө: бүртгэгдсэн"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Бэлэн мөнгө: цуцлуулах хүсэлт"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Бэлэн мөнгө: цуцлагдсан"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Бэлэн мөнгө: тохируулаагүй"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Бэлэн мөнгө: хэсэгчлэн тохируулсан"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Бэлэн мөнгө: бүрэн тохируулсан"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Бэлэн мөнгө: солих хүлээгдэж байна"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Бэлэн мөнгөний төлбөрийн батламж хүсэх"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Бэлэн мөнгөний мөр"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Баримт (кассын баримтын дугаар эсвэл лавлагаа)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Бэлэн мөнгөний төлбөрийн батламж хүсэгдсэн"

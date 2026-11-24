@@ -8,16 +8,16 @@ sidebar:
 ---
 
 :::note
-تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة.
+تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة. وهي تتبع الفرع الرئيسي، فقد تصف تغييرات مدمجة لم تصدر بعد؛ راجع صفحة «ما الجديد».
 :::
 
 يُبنى هذا القسم من الشيفرة نفسها، لذا يطابق دائمًا الإصدار الحالي من CARD. وللشرح وسير العمل والأمثلة راجع أقسام المزايا والتقارير ومرجع الـ API.
 
 | | |
 |---|---|
-| [أنواع المستندات](/card/ar/reference/doctypes/card-adjustment-type/) | 48 |
+| [أنواع المستندات](/card/ar/reference/doctypes/card-adjustment-type/) | 49 |
 | [التقارير](/card/ar/reference/reports/) | 27 |
-| [نقاط الـ API](/card/ar/reference/api-endpoints/) | 73 |
+| [نقاط الـ API](/card/ar/reference/api-endpoints/) | 81 |
 
 
 ## أنواع المستندات
@@ -28,6 +28,7 @@ sidebar:
 | [مسؤولية تكلفة في الاتفاقية](/card/ar/reference/doctypes/card-agreement-responsibility/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [Card Approval Delegation](/card/ar/reference/doctypes/card-approval-delegation/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
 | [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/) | جدول فرعي (صفوف داخل مستند آخر) |
+| [Card Cash Disbursement](/card/ar/reference/doctypes/card-cash-disbursement/) | مستند |
 | [إعدادات كارت للشركة](/card/ar/reference/doctypes/card-company-settings/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [معدل الاستهلاك](/card/ar/reference/doctypes/card-consumption-rate/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [اليومية](/card/ar/reference/doctypes/card-daily-log/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |

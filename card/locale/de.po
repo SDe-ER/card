@@ -52,3 +52,312 @@ msgstr "Ladungen wurden an diesen arbeitsfreien Tagen gelöscht: {0}"
 
 msgid "Check the loads"
 msgstr "Ladungen prüfen"
+
+msgid "Review Copy — Not Approved"
+msgstr "Prüfkopie — Nicht genehmigt"
+
+msgid "REVIEW COPY"
+msgstr "PRÜFKOPIE"
+
+msgctxt "Card Review Copy"
+msgid "Workflow state"
+msgstr "Workflow-Status"
+
+msgctxt "Card Review Copy"
+msgid "Not yet approved"
+msgstr "Noch nicht genehmigt"
+
+msgctxt "Card Review Copy"
+msgid "Printed by"
+msgstr "Gedruckt von"
+
+msgctxt "Card Review Copy"
+msgid "Printed at"
+msgstr "Gedruckt am"
+
+msgid "CARD operations dashboard"
+msgstr "CARD-Betriebsübersicht"
+
+msgid "Financial performance — last month"
+msgstr "Finanzielle Leistung — letzter Monat"
+
+msgid "Needs review (CARD)"
+msgstr "Prüfung erforderlich (CARD)"
+
+msgid "Latest monthly cards (CARD)"
+msgstr "Neueste Monatskarten (CARD)"
+
+msgid "CARD customers"
+msgstr "CARD-Kunden"
+
+msgid "CARD suppliers"
+msgstr "CARD-Lieferanten"
+
+msgid "Diesel and operations (CARD)"
+msgstr "Diesel und Betrieb (CARD)"
+
+msgid "New monthly card"
+msgstr "Neue Monatskarte"
+
+msgid "New equipment transport"
+msgstr "Neuer Gerätetransport"
+
+msgid "Customer statement (CARD)"
+msgstr "Kundenauszug (CARD)"
+
+msgid "Monthly cards (CARD)"
+msgstr "Monatskarten (CARD)"
+
+msgid "Equipment (CARD)"
+msgstr "Geräte (CARD)"
+
+msgid "Assignments (CARD)"
+msgstr "Zuweisungen (CARD)"
+
+msgid "Equipment customers (CARD)"
+msgstr "Gerätekunden (CARD)"
+
+msgid "Equipment transports (CARD)"
+msgstr "Gerätetransporte (CARD)"
+
+msgid "Operating value for customers - last month"
+msgstr "Betriebswert für Kunden - letzter Monat"
+
+msgid "Supplier operating value - last month"
+msgstr "Betriebswert Lieferanten - letzter Monat"
+
+msgid "Internal operating value - last month"
+msgstr "Interner Betriebswert - letzter Monat"
+
+msgid "Cards last month"
+msgstr "Karten letzter Monat"
+
+msgid "Rented equipment (CARD)"
+msgstr "Gemietete Geräte (CARD)"
+
+msgid "Loads last month (CARD)"
+msgstr "Ladungen letzter Monat (CARD)"
+
+msgid "Draft cards (CARD)"
+msgstr "Entwurfskarten (CARD)"
+
+msgid "Cards without internal rate (CARD)"
+msgstr "Karten ohne interne Rate (CARD)"
+
+msgid "Operating hours without rate (CARD)"
+msgstr "Betriebsstunden ohne Rate (CARD)"
+
+msgid "Customer summary (CARD)"
+msgstr "Kundenübersicht (CARD)"
+
+msgid "Supplier statement (CARD)"
+msgstr "Lieferantenauszug (CARD)"
+
+msgid "Suppliers summary (CARD)"
+msgstr "Lieferantenübersicht (CARD)"
+
+msgid "Supplier statement A4 (CARD)"
+msgstr "Lieferantenauszug A4 (CARD)"
+
+msgid "Diesel consumption (CARD)"
+msgstr "Dieselverbrauch (CARD)"
+
+msgid "Operating cost by project (CARD)"
+msgstr "Betriebskosten nach Projekt (CARD)"
+
+msgid "Transport cost by project (CARD)"
+msgstr "Transportkosten nach Projekt (CARD)"
+
+msgid "Meter reconciliation (CARD)"
+msgstr "Zählerabgleich (CARD)"
+
+msgid "Equipment transport (CARD)"
+msgstr "Gerätetransport (CARD)"
+
+#: card/cash_disbursement.py
+msgid "A cash payment is already requested for row {0} of card {1}."
+msgstr "Für Zeile {0} der Karte {1} wurde bereits eine Barzahlung angefordert."
+
+#: card/cash_disbursement.py
+msgid "A cash payment is requested on a Draft card only."
+msgstr "Eine Barzahlung kann nur für eine Karte im Entwurfsstatus angefordert werden."
+
+#: card/cash_disbursement.py
+msgid "Give the reason for the cancellation."
+msgstr "Geben Sie den Grund für die Stornierung an."
+
+#: card/cash_disbursement.py
+msgid "Only a cancelled cash payment can be replaced; {0} is {1}."
+msgstr "Nur eine stornierte Barzahlung kann ersetzt werden; {0} ist {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can approve a cash payment."
+msgstr "Nur ein Kartenmanager kann eine Barzahlung genehmigen."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can post a cash payment."
+msgstr "Nur ein Kartenmanager kann eine Barzahlung buchen."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a cancellation."
+msgstr "Nur ein Kartenmanager kann eine Stornierung anfordern."
+
+#: card/cash_disbursement.py
+msgid "Only a Card Manager can request a replacement."
+msgstr "Nur ein Kartenmanager kann einen Ersatz anfordern."
+
+#: card/cash_disbursement.py
+msgid "Only a Pending cash payment can be approved; {0} is {1}."
+msgstr "Nur eine ausstehende Barzahlung kann genehmigt werden; {0} ist {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a posted cash payment can be cancelled; {0} is {1}."
+msgstr "Nur eine gebuchte Barzahlung kann storniert werden; {0} ist {1}."
+
+#: card/cash_disbursement.py
+msgid "Only a queued cash payment can be executed; {0} is {1}."
+msgstr "Nur eine eingereihte Barzahlung kann ausgeführt werden; {0} ist {1}."
+
+#: card/cash_disbursement.py
+msgid "Only an approved cash payment can be queued for posting; {0} is {1}."
+msgstr "Nur eine genehmigte Barzahlung kann zur Buchung eingereiht werden; {0} ist {1}."
+
+#: card/cash_disbursement.py
+msgid "Row {0} of card {1} already has a live cash payment ({2})."
+msgstr "Zeile {0} der Karte {1} hat bereits eine aktive Barzahlung ({2})."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} does not exist."
+msgstr "Die Barzahlung {0} existiert nicht."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is {1}; it cannot be deleted. Cancel it instead."
+msgstr "Die Barzahlung {0} ist {1}; sie kann nicht gelöscht werden. Stornieren Sie sie stattdessen."
+
+#: card/cash_disbursement.py
+msgid "The requester cannot approve their own cash payment."
+msgstr "Der Antragsteller kann seine eigene Barzahlung nicht genehmigen."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is no longer on card {1}."
+msgstr "Zeile {0} ist nicht mehr auf der Karte {1} vorhanden."
+
+#: card/cash_disbursement.py
+msgid "The row {0} is not a cash payment on card {1}."
+msgstr "Zeile {0} ist auf der Karte {1} keine Barzahlung."
+
+#: card/cash_disbursement.py
+msgid "The cash payment {0} is approved; {1} cannot be changed. Cancel it and request a replacement."
+msgstr "Die Barzahlung {0} ist genehmigt; {1} kann nicht geändert werden. Stornieren Sie sie und beantragen Sie einen Ersatz."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
+msgstr "Der Journaleintrag {0} hat noch aktive Zuordnungen. Lösen Sie sie in ERPNext (Zuordnung aufheben oder Verknüpfung entfernen), bevor Sie ihn stornieren."
+
+#: card/cash_disbursement.py
+msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
+msgstr "Der Journaleintrag {0} begleicht die Barzahlung {1}. Beantragen Sie zuerst die Stornierung mit einer Begründung; die Zahlung wird dann als Storniert markiert."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Pending approval"
+msgstr "Wartet auf Genehmigung"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queued for posting"
+msgstr "In der Warteschlange zur Buchung"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posting failed"
+msgstr "Buchung fehlgeschlagen"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cancellation requested"
+msgstr "Stornierung angefordert"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Not reconciled"
+msgstr "Nicht zugeordnet"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Partially reconciled"
+msgstr "Teilweise zugeordnet"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Fully reconciled"
+msgstr "Vollständig zugeordnet"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Approve this cash payment? The approver must not be the requester."
+msgstr "Diese Barzahlung genehmigen? Der Genehmiger darf nicht der Antragsteller sein."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Queue for posting"
+msgstr "In die Buchungswarteschlange"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Retry posting"
+msgstr "Buchung erneut versuchen"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cancellation"
+msgstr "Stornierung anfordern"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: pending approval"
+msgstr "Bar: wartet auf Genehmigung"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: approved"
+msgstr "Bar: genehmigt"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: queued for posting"
+msgstr "Bar: in der Buchungswarteschlange"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posting failed"
+msgstr "Bar: Buchung fehlgeschlagen"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: posted"
+msgstr "Bar: gebucht"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancellation requested"
+msgstr "Bar: Stornierung angefordert"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: cancelled"
+msgstr "Bar: storniert"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: not reconciled"
+msgstr "Bar: nicht zugeordnet"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: partially reconciled"
+msgstr "Bar: teilweise zugeordnet"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: fully reconciled"
+msgstr "Bar: vollständig zugeordnet"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash: replacement pending"
+msgstr "Bar: Ersatz ausstehend"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Request cash approval"
+msgstr "Barzahlungsgenehmigung anfordern"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash row"
+msgstr "Barzeile"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Evidence (receipt number or reference)"
+msgstr "Beleg (Quittungsnummer oder Referenz)"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Cash approval requested"
+msgstr "Barzahlungsgenehmigung angefordert"

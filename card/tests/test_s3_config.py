@@ -119,7 +119,7 @@ class TestAdjustmentSides(_AdjBase):
 		for row in _days([8, 8]):
 			c.append("days", row)
 		for r in rows:
-			c.append("adjustments", r)
+			c.append("adjustments", {"adjustment_date": "2026-09-01", **r})
 		c.insert(ignore_permissions=True)
 		c.reload()
 		return c
@@ -133,14 +133,27 @@ class TestAdjustmentSides(_AdjBase):
 	def test_side_defaults_customer_on_rented_out(self):
 		self._clear_types()
 		eq = self._rented_out()
-		c = self._typed_card(eq, [{"adjustment_type": "إضافة", "description": "x", "amount": 50}])
+		c = self._typed_card(
+			eq,
+			[{"adjustment_date": "2026-09-01", "adjustment_type": "إضافة", "description": "x", "amount": 50}],
+		)
 		self.assertEqual(c.adjustments[0].side, "Customer")
 
 	def test_subrental_requires_explicit_side(self):
 		self._clear_types()
 		eq = self._sub_rental()
 		with self.assertRaises(frappe.ValidationError):
-			self._typed_card(eq, [{"adjustment_type": "خصم", "description": "x", "amount": 10}])
+			self._typed_card(
+				eq,
+				[
+					{
+						"adjustment_date": "2026-09-01",
+						"adjustment_type": "خصم",
+						"description": "x",
+						"amount": 10,
+					}
+				],
+			)
 
 	def test_customer_side_needs_customer_for_typed_rows(self):
 		self._clear_types()
@@ -151,6 +164,7 @@ class TestAdjustmentSides(_AdjBase):
 				eq,
 				[
 					{
+						"adjustment_date": "2026-09-01",
 						"adjustment_type_ref": "CustOnly-" + self.token,
 						"side": "Customer",
 						"description": "x",
@@ -165,12 +179,27 @@ class TestAdjustmentSides(_AdjBase):
 		with self.assertRaises(frappe.ValidationError):
 			self._typed_card(
 				eq,
-				[{"adjustment_type_ref": "NoSuchType-" + self.token, "description": "x", "amount": 10}],
+				[
+					{
+						"adjustment_date": "2026-09-01",
+						"adjustment_type_ref": "NoSuchType-" + self.token,
+						"description": "x",
+						"amount": 10,
+					}
+				],
 			)
 		self._add_type("Off-" + self.token, disabled=1)
 		with self.assertRaises(frappe.ValidationError):
 			self._typed_card(
-				eq, [{"adjustment_type_ref": "Off-" + self.token, "description": "x", "amount": 10}]
+				eq,
+				[
+					{
+						"adjustment_date": "2026-09-01",
+						"adjustment_type_ref": "Off-" + self.token,
+						"description": "x",
+						"amount": 10,
+					}
+				],
 			)
 
 	def test_kind_mirrors_type_on_typed_rows(self):
@@ -181,6 +210,7 @@ class TestAdjustmentSides(_AdjBase):
 			eq,
 			[
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "Mob-" + self.token,
 					"adjustment_type": "خصم",  # wrong on purpose: the type's kind must win
 					"description": "x",
@@ -199,8 +229,13 @@ class TestSidedNets(_AdjBase):
 			self,
 			eq,
 			[
-				{"adjustment_type": "إضافة", "description": "a", "amount": 200},
-				{"adjustment_type": "خصم", "description": "d", "amount": 50},
+				{
+					"adjustment_date": "2026-09-01",
+					"adjustment_type": "إضافة",
+					"description": "a",
+					"amount": 200,
+				},
+				{"adjustment_date": "2026-09-01", "adjustment_type": "خصم", "description": "d", "amount": 50},
 			],
 		)
 		# 16h * 75 = 1200; net = 1200 + 200 - 50
@@ -217,6 +252,7 @@ class TestSidedNets(_AdjBase):
 			eq,
 			[
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "CMob-" + self.token,
 					"side": "Customer",
 					"description": "c",
@@ -240,12 +276,14 @@ class TestSidedNets(_AdjBase):
 			eq,
 			[
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "SupDed-" + self.token,
 					"side": "Supplier",
 					"description": "s",
 					"amount": 100,
 				},
 				{
+					"adjustment_date": "2026-09-01",
 					"adjustment_type_ref": "CustAdd-" + self.token,
 					"side": "Customer",
 					"description": "c",
@@ -262,7 +300,9 @@ class TestSidedNets(_AdjBase):
 		self._clear_types()
 		eq = self._equipment(direction=DIR_RENTED_IN)
 		c = TestAdjustmentSides._typed_card(
-			self, eq, [{"adjustment_type": "خصم", "description": "old", "amount": 10}]
+			self,
+			eq,
+			[{"adjustment_date": "2026-09-01", "adjustment_type": "خصم", "description": "old", "amount": 10}],
 		)
 		frappe.db.set_value(
 			"Card Monthly Card Adjustment", c.adjustments[0].name, "side", "", update_modified=False
