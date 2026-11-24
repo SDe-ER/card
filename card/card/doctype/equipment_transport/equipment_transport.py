@@ -12,6 +12,7 @@ from card.constants import MOVE_DAY_NEXT, NON_COMPANY_PAYERS, OTHER_PARTY, OTHER
 from card.equipment_status import check_equipment_status
 from card.intake import (
 	apply_transport_intake,
+	check_second_person,
 	claim_transport_evidence,
 	freeze_submitted_intake,
 	keep_evidence_of_deleted_transport,
@@ -534,6 +535,8 @@ class EquipmentTransport(Document):
 	# The accounting posting (Purchase Invoice to the transport supplier, cost on the
 	# project) is added in a later stage, gated by owner approval.
 	def before_submit(self):
+		# FR-189 (#52): a transport entered from evidence is submitted by a second person where the company asks
+		check_second_person(self)
 		# P1-2 separation of duties: whoever submits a transport never records its financial decision
 		self.submitted_by = frappe.session.user
 		# FR-122: every machine again, whatever changed since the draft was saved

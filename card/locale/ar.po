@@ -8048,6 +8048,18 @@ msgstr "دورة فترة يعتمدها مستخدم أنشأها أو عدّل
 msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
 msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ ويُحتفظ به."
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport from evidence needs a second person"
+msgstr "النقل المُدخل من مستند مصدر يحتاج مستخدمًا ثانيًا"
+
+#: card/intake.py
+msgid "You entered or edited this transport from a paper sheet or a message; another user must submit it (company rule: second person)."
+msgstr "أدخلت هذا النقل أو عدّلته من ورقة أو رسالة؛ يجب أن يعتمده (Submit) مستخدم آخر (قاعدة الشركة: مستخدم ثانٍ)."
+
+#: card/intake.py
+msgid "Transport second person"
+msgstr "المستخدم الثاني لاعتماد النقل"
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
 msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ يبقى خاصًا ومرفقًا بنقله."

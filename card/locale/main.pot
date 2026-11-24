@@ -6805,6 +6805,18 @@ msgstr ""
 msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
 msgstr ""
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport from evidence needs a second person"
+msgstr ""
+
+#: card/intake.py
+msgid "You entered or edited this transport from a paper sheet or a message; another user must submit it (company rule: second person)."
+msgstr ""
+
+#: card/intake.py
+msgid "Transport second person"
+msgstr ""
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
 msgstr ""

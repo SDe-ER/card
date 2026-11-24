@@ -38,7 +38,7 @@ import re
 
 import frappe
 from frappe import _
-from frappe.utils import cstr, get_datetime, now_datetime
+from frappe.utils import cint, cstr, get_datetime, now_datetime
 
 from card.attachment_validator import (
 	check_attachment_content,
@@ -47,6 +47,7 @@ from card.attachment_validator import (
 	require_record_file,
 )
 from card.cancel_reason import _differs
+from card.settings import company_setting
 
 TRANSPORT = "Equipment Transport"
 DEFAULT_CHANNEL = "Manual"
@@ -57,7 +58,15 @@ HASH_FIELD = "intake_evidence_hash"
 INPUT_FIELDS = ("intake_source_key", "intake_channel", "intake_received_on", EVIDENCE_FIELD)
 
 
+# FR-189 (#52): Card Company Settings check, off by default
+SECOND_PERSON_SETTING = "require_intake_second_person"
+
+
 class DuplicateIntakeError(frappe.ValidationError):
+	pass
+
+
+class IntakeSecondPersonError(frappe.PermissionError):
 	pass
 
 
@@ -182,6 +191,53 @@ def freeze_submitted_intake(doc):
 				),
 				frappe.UpdateAfterSubmitError,
 			)
+
+
+def has_intake_provenance(values) -> bool:
+	"""A transport entered from evidence: it names a source key, a received time, an evidence file or a channel
+	other than "Manual". The channel "Manual" alone is a hand entry without a source."""
+	return bool(
+		values.get("intake_source_key")
+		or values.get("intake_received_on")
+		or values.get(EVIDENCE_FIELD)
+		or (values.get("intake_channel") or DEFAULT_CHANNEL) != DEFAULT_CHANNEL
+	)
+
+
+def check_second_person(doc):
+	"""`before_submit` (FR-189, #52): where the transport's company turns `require_intake_second_person` on, a
+	transport entered from evidence is not submitted by a user who entered it. Off (the default, also for a company
+	without a settings row) nothing is checked. The controller's submit path covers every route: form submit,
+	REST with docstatus 1, `frappe.client.submit`, bulk submit and a workflow action. No user is exempt.
+
+	Who entered it is read from the stored row, never from the request: `validate` has already added the submitter
+	to `edited_by` in memory, and a request may send any `owner`. The stored `edited_by` is the list the server
+	keeps on every save (`EquipmentTransport._record_editor` starts from the stored value and adds the session
+	user), so a draft save that names another owner or editor still leaves its saver on the list; the stored
+	`owner` covers a transport saved before `edited_by` existed. The stored company and the stored intake fields
+	count with the ones sent, so a submit request that changes the company or removes the provenance is refused
+	too. A transport inserted as submitted in one call has no stored row: its submitter is the user who entered
+	it."""
+	stored = None
+	if not doc.is_new():
+		stored = frappe.db.get_value(
+			doc.doctype, doc.name, ["owner", "edited_by", "company", *INPUT_FIELDS], as_dict=True
+		)
+	companies = {doc.get("company"), stored.company if stored else None} - {None, ""}
+	if not any(cint(company_setting(company, SECOND_PERSON_SETTING)) for company in companies):
+		return
+	if not (has_intake_provenance(doc) or (stored and has_intake_provenance(stored))):
+		return
+	user = frappe.session.user
+	enterers = {stored.owner, *cstr(stored.edited_by).split("\n")} if stored else {user}
+	if user in enterers:
+		frappe.throw(
+			_(
+				"You entered or edited this transport from a paper sheet or a message; another user must submit it (company rule: second person)."
+			),
+			IntakeSecondPersonError,
+			title=_("Transport second person"),
+		)
 
 
 def check_source_key(doc):
