@@ -11,14 +11,15 @@ customer net) are listed apart; a sub-rented card can be open on one side only.
 
 With "Include cards held by a draft posting" the cards whose recognising document is
 still a draft are listed too, marked as such. Readers: the roles that read the GL Posting
-Log (card.report_access.role_reads)."""
+Log (card.report_access.role_reads). The amounts are card nets: they are shown only to roles that read
+the money level of the Monthly Card (card.report_access.role_reads_money)."""
 
 import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate
 
 from card import analytics
-from card.report_access import readable_links, resolve_company, role_reads
+from card.report_access import readable_links, resolve_company, role_reads, role_reads_money, strip_money
 from card.report_currency import company_currency_report
 
 SIDES = ("Supplier", "Customer")
@@ -89,7 +90,11 @@ def execute(filters=None):
 	message = _(
 		"Submitted monthly cards that no invoice or linked journal entry of their side recognises yet. Amounts are the card net (supplier side) or the customer net (customer side), before VAT."
 	)
-	return readable_links(get_columns(), data), data, message, None, summary
+	columns = readable_links(get_columns(), data)
+	if not role_reads_money():
+		# #301: the amount not invoiced is the card net (permlevel 1 of Card Monthly Card); the list stays
+		columns, summary = strip_money(columns, data, keys=("amount",)), []
+	return columns, data, message, None, summary
 
 
 def get_columns():
