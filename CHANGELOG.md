@@ -104,6 +104,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   reports — System Manager, Accounts Manager, Card Manager — all read level 1, so their reports are unchanged);
   accounting none; data none; API none (fewer keys for a user without level-1 read). Rollback: code only.
 
+### Documentation
+- **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
+  sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
+  change.
+- **One expense for several machines is split by hand (issue 48, owner decision 2026-11-24).** The maintenance page
+  of the documentation site (English and Arabic) says how: one Purchase Invoice line per machine with the Card
+  Equipment dimension. No code: standard ERPNext already does it.
+- **Registry sync:** FR-137, FR-143, FR-152, FR-155, FR-157, FR-159 and FR-163 were still listed as not merged; their
+  code is in v4.8.0. Statuses corrected to Implemented. The approval workflows stay inactive until the owner
+  activates them per site (issue 35).
+
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report
   2026-11-21, reproduced on Production after the v4.10.1 deployment: «نوع الإضافة/الخصم … غير معرّف (أو معطّل) في

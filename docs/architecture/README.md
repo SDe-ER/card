@@ -2,8 +2,8 @@
 
 **Status: documentation only.** Epic #40 (CARD as an HRMS-grade equipment operations platform) and issue #54 (HRMS
 v16 parity audit and global acceptance suite) ask for a set of architecture documents. This directory holds them.
-Nothing here changes code, data, permissions or accounting. It does not replace the owner's sign-off that #54
-requires before coding.
+Nothing here changes code, data, permissions or accounting. Owner decision 2026-11-24: #54 is merged into #40 and
+closed; its deliverables and the owner's decisions per issue are in [08-roadmap.md](08-roadmap.md) sections 4 and 5.
 
 Baseline: `main` @ `8ededce`. Every fact below was read from the code at that commit: DocType JSON under
 `card/card/doctype/`, the controllers next to them, `card/hooks.py`, `card/gl/*`, `card/patches/`, `card/settings.py`
