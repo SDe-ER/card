@@ -15,6 +15,56 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Security
+- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
+  reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
+  of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
+  rate, customer amount, total volume (with the total loads it gives the level-1 load volume), additions,
+  deductions and net, in columns, rows and the two summary tiles built on them (Total accrued (cards), Not
+  invoiced through Card), with the existing `strip_money` helper. Days, hours and loads stay; the accounting tiles
+  (GL, Sales Invoices made through CARD) keep their own gate (`can_view_ledger`). Equipment Customers Summary,
+  Equipment Supplier Statement and Equipment Suppliers Summary have no such check yet (follow-up #295). Impact:
+  permissions none (no
+  role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
+  data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
+
+### Fixed
+- **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report
+  2026-11-21, reproduced on Production after the v4.10.1 deployment: «نوع الإضافة/الخصم … غير معرّف (أو معطّل) في
+  إعدادات كارت»).
+  - Root cause: the optional classification `Card Monthly Card Adjustment.adjustment_type_ref` (free text, label
+    "Adjustment type" / «نوع الإضافة/الخصم») sat in the user's saved grid columns right next to the required operation
+    selector `adjustment_type` ("Type" / «النوع»: إضافة / خصم). The site has no type configured in Card Settings, so
+    any value typed there is refused on save (three refused saves on 2026-11-21; no value was stored).
+  - Fix: `CardMonthlyCard.onload` sends the names of the enabled types of the card's company (read-only, names only;
+    `configured_adjustment_types`). The form hides `adjustment_type_ref` (also from a saved column list) when that list
+    is empty and no row has a value, and rebuilds the grid. Existing values are never hidden or cleared. The server
+    validation is unchanged: an unconfigured value that is sent is still refused, with the v4.10.1 guidance.
+  - Functions: `card_monthly_card.py` (`onload`, `configured_adjustment_types`, `get_adjustment_type_names`), `card_monthly_card.js`
+    (`card_toggle_adjustment_classification`). Tests: `card/tests/test_adjustments_grid.py`
+    (`TestOptionalClassification`).
+  - Impact: permissions none; accounting none (formulas, lifecycle and stored amounts unchanged); data none (no
+    patch); API: the form's `__onload` carries `adjustment_types` (type names of the card's company), and a new
+    read-only `get_adjustment_type_names(company)` (`methods=["GET"]`; create or write on Monthly Cards and a permitted
+    company) serves a new, unsaved card.
+  - Code review of #285: the form keeps the type names per company (`adjustment_types_company` in the onload).
+    It asks again on any company change, also on a saved draft. The state lives on the document, not on the
+    reused form object, so a second new card asks too. A late answer for an earlier company is ignored. A failed
+    call is not remembered, so the next refresh asks again. `get_adjustment_type_names` returns an empty list
+    without a company.
+  - Rollback: code only; the field shows again.
+- **Period run: a change of loads makes the run stale (FR-177, #263, PR #294).** The period-run fingerprint version 1 did
+  not cover the Monthly Card load fields, so moving or changing loads on a per-m³ card with the same amount left
+  an approved run current. New runs use fingerprint version 2 (`card/gl/period_run.py`: version 1 plus
+  `loads_count`, `total_loads`, `total_volume_m3`, `load_volume_used`). Version 1 is unchanged; a run built with it,
+  or with no stored version, is still checked with version 1 (`check_current`, `period_gate._source_mismatches`).
+  A source without load values has the same fingerprint in both versions. A draft or returned run is rebuilt on
+  every save, so it moves to version 2 on its next save; submitted runs keep their version. A run with a version
+  this code does not know is reported as changed (empty fingerprint) and refused by the posting gate, never an
+  error. Impact: permissions none; accounting none (no document is created or changed; only the stale check of
+  new runs is stricter); data none (no patch); API none. Rollback: code only; code older than this change has no
+  version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
+
 ### Changed
 - **FR-174 follow-up — Monthly Card print: "before VAT" headers and the Card totals amounts** (owner decisions
   2026-11-22; PR #292).
@@ -32,34 +82,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     patch; `bench migrate` reloads the standard print format); API none. The legacy format «كارت تشغيل شهري» is
     unchanged.
   - Rollback: code only; the previous headers and amounts print again after the rollback's migrate.
-
-### Security
-- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
-  reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
-  of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
-  rate, customer amount, total volume (with the total loads it gives the level-1 load volume), additions,
-  deductions and net, in columns, rows and the two summary tiles built on them (Total accrued (cards), Not
-  invoiced through Card), with the existing `strip_money` helper. Days, hours and loads stay; the accounting tiles
-  (GL, Sales Invoices made through CARD) keep their own gate (`can_view_ledger`). Equipment Customers Summary,
-  Equipment Supplier Statement and Equipment Suppliers Summary have no such check yet (follow-up #295). Impact:
-  permissions none (no
-  role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
-  data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
-
-### Fixed
-- **Period run: a change of loads makes the run stale (FR-177, #263, PR #294).** The period-run fingerprint version 1 did
-  not cover the Monthly Card load fields, so moving or changing loads on a per-m³ card with the same amount left
-  an approved run current. New runs use fingerprint version 2 (`card/gl/period_run.py`: version 1 plus
-  `loads_count`, `total_loads`, `total_volume_m3`, `load_volume_used`). Version 1 is unchanged; a run built with it,
-  or with no stored version, is still checked with version 1 (`check_current`, `period_gate._source_mismatches`).
-  A source without load values has the same fingerprint in both versions. A draft or returned run is rebuilt on
-  every save, so it moves to version 2 on its next save; submitted runs keep their version. A run with a version
-  this code does not know is reported as changed (empty fingerprint) and refused by the posting gate, never an
-  error. Impact: permissions none; accounting none (no document is created or changed; only the stale check of
-  new runs is stricter); data none (no patch); API none. Rollback: code only; code older than this change has no
-  version 2 and fails with an error on a version 2 run, so cancel and amend (rebuild) such runs after a rollback.
-
-### Changed
 - **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5, PR #297).** `is_billed_day`
   defaulted to counting loads and `billed_day_rows` to ignoring them. Both now take `include_loads` as a required
   keyword-only argument, and every caller states the rule it already used: the assignment guards
