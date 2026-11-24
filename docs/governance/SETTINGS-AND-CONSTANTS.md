@@ -76,6 +76,7 @@ is `settings.py` `_DEFAULTS`.
 | `default_store_warehouse` | Link Warehouse | — | "" | `materials.py:234`; `tool_custody.py:69,420` | Used |
 | `tool_custody_warehouse` | Link Warehouse | — | "" | `employee_tool_custody.py:57,237,277`; `materials.py:314` | Used |
 | `repeat_request_days` | Int | 30 | 30 | `materials.py:120` (inline `or 30`) | Used |
+| `partner_equipment_split` | Check (default 0) | `card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py` `execute` (through `card.settings.company_setting`) | Used (FR-190, In review). 0, empty or no row = the Equipment Suppliers Summary of before. 1 = per supplier the count of partner machines (cards whose stored `ownership` is `طرف ثالث`) and the net of their cards; the net follows the card money level |
 
 `default_store_warehouse`, `tool_custody_warehouse` and `repeat_request_days` are the site-wide fallback. FR-135 (in
 review) adds the per-company values on Card Company Settings (`store_warehouse`, `custody_warehouse`,

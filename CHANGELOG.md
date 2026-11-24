@@ -15,6 +15,29 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **FR-190 — Partner split in the Equipment Suppliers Summary, behind a company setting that is off (issue 300;
+  owner instruction 2026-11-25: implement what is concrete behind a setting that defaults to off).** Reason: the
+  owner wants to see which supplier machines belong to a partner and what their cards say the company owes.
+  Design: `docs/design/issue-300-partner-owned-equipment.md` (section 4).
+  - New field `Card Company Settings.partner_equipment_split` (Check, default 0, permlevel 1, section
+    "Partner-owned equipment").
+  - Off, or no row for the company: `equipment_suppliers_summary.execute` returns the same columns, rows, summary
+    and order as before.
+  - On for the report's company: each supplier row and the total row get `partner_equipment_count` and
+    `partner_net`, and the summary gets the tile "Net cards (partner-owned)". A partner machine is a machine whose
+    submitted card stores `ownership` = `طرف ثالث` (`card.constants.THIRD_PARTY`, fetched from
+    `Card Equipment.ownership`).
+  - Permissions: no role, DocPerm or report role changes. `partner_net` is card money: `strip_money` removes it
+    from the columns, rows and summary for a user without read on permlevel 1 of Card Monthly Card
+    (`role_reads_money`). The count stays, as the equipment count does.
+  - Accounting: none. No ledger or salary read is added. Data: one new column in the company settings table,
+    default 0, no patch. API: no new or changed whitelisted method. Company scope: `resolve_company`, unchanged.
+  - Tests: `card/tests/test_partner_equipment_split.py`. Not run on a site before this commit.
+  - Rollback: turn the setting off, or revert the commits. The column can stay. No data to restore.
+  - Not included: the entitlement after deductions, the partner statement and a filter for partner machines
+    only. They need the owner decisions listed in the design document.
+
 ### Changed
 - **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means
   "must be configured").** `standard_month_hours`, `max_day_shift_hours` and `max_night_shift_hours` no longer fall

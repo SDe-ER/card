@@ -1,14 +1,17 @@
 # Partner-owned equipment: design for issue 300
 
-Status: design only. This document authorizes no DocType, no permission, no posting and no migration.
+Status: design. The slice of section 4 is implemented as FR-190 (in review, not merged, not released). The rest
+of this document authorizes no DocType, no permission, no posting and no migration.
 
 Evidence: source inspection of `origin/main` at `b27be391` and of `origin/feat/crusher-owner-statement` at
 `1c696736`, on 2026-11-25. No site, bench or ERP was read. Statements about ERPNext are marked "not verified" when
 the installed ERPNext source was not read.
 
 Issue state on 2026-11-25: issue 300 is open, has the label `deferred`, and has the comment "Owner decision
-2026-11-24: deferred. No work on this issue until the Owner reopens it." No code change starts before the owner
-reopens the issue (decision D1).
+2026-11-24: deferred. No work on this issue until the Owner reopens it." A later owner instruction of 2026-11-25,
+relayed to the implementing agent, approved the design document and the slice of section 4 behind a setting that
+defaults to off. The label and the comment on the issue were not changed by this work. Each later phase needs its
+own owner decision.
 
 Terms used in this document:
 
@@ -206,11 +209,20 @@ Each phase sits behind its own field in `Card Company Settings`, default off, re
 
 One change: a **partner split in the Equipment Suppliers Summary**, behind a company setting that is off by default.
 
+**Implemented as FR-190** on 2026-11-25 (in review). Differences from the table below:
+
+- The filter value "Partner-owned only" was not built. The report JavaScript is unchanged.
+- The summary also gets one tile, "Net cards (partner-owned)", under the same card money level check.
+- The setting sits in its own collapsible section, "Partner-owned equipment".
+- `test_settings_layout.py` and `test_settings_wiring.py` needed no change: they do not list the fields of
+  `Card Company Settings`.
+- The tests were written first and were not run on a site.
+
 It answers the first owner request ("who owns each machine, and what do the cards say we owe each partner") with data
 and gates that exist today. It reads no ledger row that the report does not read today. It reads no salary. It adds
 no role, no DocType and no ERPNext document.
 
-Precondition: decision D1 (the owner reopens issue 300). No other owner decision is needed, because the slice shows
+Precondition: decision D1 (met on 2026-11-25 for this slice). No other owner decision is needed, because the slice shows
 only what `Card Equipment.supplier` ("Lessor / Owner") records today.
 
 | Item | Detail |
@@ -237,7 +249,7 @@ Limits of the slice, stated for the owner:
 
 | # | Decision | Options | Recommendation |
 |---|---|---|---|
-| D1 | Reopen issue 300? | (a) Reopen for the slice of section 4 only. (b) Keep deferred. | (a), when the go-live phases of issue 118 allow it. This document needs no reopening. |
+| D1 | Reopen issue 300? | (a) Reopen for the slice of section 4 only. (b) Keep deferred. | Decided 2026-11-25 for the slice (owner instruction, relayed). The label on the issue still says deferred: the owner updates it. |
 | D2 | How is a partner paid? | (a) A fixed rental rate per machine. (b) The customer revenue of the machine minus costs. (c) Both, chosen per machine. | (a) as the rule: it works today with standard invoices. (c) only if a real agreement requires (b). |
 | D3 | What is the partner in the books? | (a) A Supplier with a payable balance. (b) An owner current account without a party (assumptions A1 to A5 of `SETTLEMENT-PARTY-DESIGN.md`). | The accountant decides. (a) for a partner outside the company who receives payments. No code for (b) before the accountant confirms A1 to A5. |
 | D4 | Salaries charged to a partner | (a) The accountant books the charge in ERPNext. CARD shows the booked line and reads no payroll. (b) CARD reads salary slips and computes wages per machine for users with full payroll access. | (a). |

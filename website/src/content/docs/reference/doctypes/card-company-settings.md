@@ -137,6 +137,13 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Enable diesel tanks | `enable_diesel_tanks` | Check |  |  |
 
 
+**Partner-owned equipment**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Show partner-owned equipment in the suppliers summary | `partner_equipment_split` | Check |  |  |
+
+
 ## Child tables
 
 - [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/)
