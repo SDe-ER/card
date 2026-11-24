@@ -112,6 +112,10 @@ Ledger figures come from the customer's GL entries: **Opening balance**, **Invoi
 **Received (Credit)**, **Customer closing balance**. CARD stores no customer balance, so these stay at zero until Sales
 Invoices are posted.
 
+Rates, amounts, total volume, additions, deductions and net, and the **Total accrued (cards)** and **Not invoiced
+through Card** figures, show only to users whose roles may read the amounts of a Monthly Card. Every role that opens
+this report today may read them.
+
 ### Suppliers and customers summaries
 
 **Equipment Suppliers Summary** (ملخص الموردين) and **Equipment Customers Summary** (ملخص العملاء) list one row per
