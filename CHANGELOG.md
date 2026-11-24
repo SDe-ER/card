@@ -15,6 +15,19 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Security
+- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
+  reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
+  of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
+  rate, customer amount, total volume (with the total loads it gives the level-1 load volume), additions,
+  deductions and net, in columns, rows and the two summary tiles built on them (Total accrued (cards), Not
+  invoiced through Card), with the existing `strip_money` helper. Days, hours and loads stay; the accounting tiles
+  (GL, Sales Invoices made through CARD) keep their own gate (`can_view_ledger`). Equipment Customers Summary,
+  Equipment Supplier Statement and Equipment Suppliers Summary have no such check yet (follow-up #295). Impact:
+  permissions none (no
+  role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
+  data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
+
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report
   2026-11-21, reproduced on Production after the v4.10.1 deployment: «نوع الإضافة/الخصم … غير معرّف (أو معطّل) في
@@ -40,21 +53,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     call is not remembered, so the next refresh asks again. `get_adjustment_type_names` returns an empty list
     without a company.
   - Rollback: code only; the field shows again.
-
-### Security
-- **Equipment Customer Statement: field-level check of the Monthly Card money level (FR-178, #259, PR #296).** The report
-  reads the cards with `frappe.get_all`, which applies no permlevel. When the user's roles do not read permlevel 1
-  of Card Monthly Card (`card.report_access.role_reads_money`), the statement now leaves out the rate, hourly
-  rate, customer amount, total volume (with the total loads it gives the level-1 load volume), additions,
-  deductions and net, in columns, rows and the two summary tiles built on them (Total accrued (cards), Not
-  invoiced through Card), with the existing `strip_money` helper. Days, hours and loads stay; the accounting tiles
-  (GL, Sales Invoices made through CARD) keep their own gate (`can_view_ledger`). Equipment Customers Summary,
-  Equipment Supplier Statement and Equipment Suppliers Summary have no such check yet (follow-up #295). Impact:
-  permissions none (no
-  role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
-  data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
-
-### Fixed
 - **Period run: a change of loads makes the run stale (FR-177, #263, PR #294).** The period-run fingerprint version 1 did
   not cover the Monthly Card load fields, so moving or changing loads on a per-m³ card with the same amount left
   an approved run current. New runs use fingerprint version 2 (`card/gl/period_run.py`: version 1 plus

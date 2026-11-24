@@ -478,10 +478,12 @@ function card_toggle_adjustment_classification(frm) {
 	// answer for an earlier company is ignored; a failed call is not remembered, so the next refresh asks again.
 	const company = frm.doc.company;
 	const onload = frm.doc.__onload || {};
+	// a refused or failed call is asked again only after a company change (no repeated error dialog)
 	if (
 		company &&
 		onload.adjustment_types_company !== company &&
-		frm.doc.__card_adj_types_pending !== company
+		frm.doc.__card_adj_types_pending !== company &&
+		frm.doc.__card_adj_types_failed !== company
 	) {
 		frm.doc.__card_adj_types_pending = company;
 		// frappe.xcall: a real Promise that rejects on a server error (frappe.call returns a jQuery deferred)
@@ -499,7 +501,9 @@ function card_toggle_adjustment_classification(frm) {
 				});
 				card_toggle_adjustment_classification(frm);
 			})
-			.catch(() => {})
+			.catch(() => {
+				frm.doc.__card_adj_types_failed = company;
+			})
 			.finally(() => {
 				if (frm.doc.__card_adj_types_pending === company)
 					frm.doc.__card_adj_types_pending = null;
