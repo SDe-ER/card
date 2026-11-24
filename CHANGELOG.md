@@ -16,6 +16,23 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Changed
+- **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means
+  "must be configured").** `standard_month_hours`, `max_day_shift_hours` and `max_night_shift_hours` no longer fall
+  back to 260 and 12 when Card Settings has no value or 0.
+  - Standard month hours not configured: a per-month rate is refused with a message that names the setting, when
+    an equipment's rate is set or changed (`approved_hourly_rate`; a save that does not touch the rate keeps the
+    stored hourly rate), on either side of a Monthly Card (`_hourly_for`), and in the supplier statement's pricing
+    of draft days (`card_value.exact_hourly_rate`). Never an amount of zero. The form shows 0 and the server
+    refuses the save; `get_standard_month_hours` returns 0 then.
+  - Shift limit not configured: the Monthly Card says so in a message (form saves only) and checks no limit; the
+    daily log checks no limit. Every hour is still recorded and billed (the limit only ever warned).
+  - So that no site changes behaviour, `after_install` and the test bootstrap store the DocType default (260, 12,
+    12) of each hour setting that has no stored value (`card.settings.store_hour_settings_defaults`), and the
+    one-time patch `v4_12_0.store_hour_settings_defaults` does the same and also replaces a stored 0 (the old code
+    read 0 as the built-in number). From then on a 0 means "not configured".
+  - Impact: permissions none; accounting none (a site with stored values prices as before; a site with none gets
+    the same numbers stored); data: at most three Card Settings values; API: `get_standard_month_hours` can return
+    0. Rollback: code only; the stored values stay and older code reads them.
 - **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
   decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
   - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
