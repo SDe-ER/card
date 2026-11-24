@@ -20,7 +20,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 _Nothing yet._
 
 ### Changed
-- **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5).** `is_billed_day`
+- **The billed-day helpers need an explicit loads rule (#264 part 1, FR-166 review y / z5, PR #297).** `is_billed_day`
   defaulted to counting loads and `billed_day_rows` to ignoring them. Both now take `include_loads` as a required
   keyword-only argument, and every caller states the rule it already used: the assignment guards
   (`card/transfer.py`, `Card Monthly Card`) and the customer reports pass True; the supplier statement, the suppliers
@@ -28,6 +28,25 @@ _Nothing yet._
   accounting, data and API (whitelisted methods) none; a custom caller outside CARD that relied on the defaults
   now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
   change and waits for the owner's approval.
+
+### CI
+- **GitHub Actions versions (Dependabot #243, #244, #245, #279 in one change).** `docs.yml`: `actions/checkout`
+  v4 → v7, `actions/upload-pages-artifact` v3 → v5 and `actions/deploy-pages` v4 → v5 (one Pages deploy, so the
+  pair moves together). `docs-screenshots.yml`: `actions/upload-artifact` v4 → v7 (as `upgrade-rehearsal.yml`
+  already uses). Workflow permissions unchanged. No application, permission, accounting, data or API change.
+  Rollback: revert the workflow lines.
+
+### Tests
+- **Child-row integrity test follows frappe 16.61.0 (#293).** Since frappe version-16 16.61.0 (commit `e874c9d8d`,
+  "submit, cancel and rename check permission on the stored document"), frappe refuses an operator's
+  `frappe.client.bulk_update` of a submitted child row with `PermissionError` before CARD's foreign-row guard runs.
+  `test_operator_child_bulk_update_cannot_take_an_approved_row` accepts either refusal and still checks that the row
+  and both documents are unchanged; the guard on that route stays proven for the supervisor. The `bulk_update` test
+  helpers keep the traceback of an unexpected failure. Only a PermissionError raised by frappe's
+  `check_docstatus_transition` counts as the other refusal. Test code only: no application, permission,
+  accounting, data or API change. Rollback: revert the test change; with frappe 16.61.0 or later the test then
+  fails again.
+
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
