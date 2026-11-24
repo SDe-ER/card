@@ -23,10 +23,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   deductions and net, in columns, rows and the two summary tiles built on them (Total accrued (cards), Not
   invoiced through Card), with the existing `strip_money` helper. Days, hours and loads stay; the accounting tiles
   (GL, Sales Invoices made through CARD) keep their own gate (`can_view_ledger`). Equipment Customers Summary,
-  Equipment Supplier Statement and Equipment Suppliers Summary have no such check yet (follow-up #295). Impact:
+  Equipment Supplier Statement and Equipment Suppliers Summary: FR-179 below (#295). Impact:
   permissions none (no
   role or DocPerm changes; the four report roles read level 1, so their statement is unchanged); accounting none;
   data none; API none (same report, fewer keys for a user without level-1 read). Rollback: code only.
+- **Card money level check for the summaries and the supplier statement (FR-179, #295; Owner decision 2026-11-24,
+  option A).** When the user's roles do not read permlevel 1 of Card Monthly Card, no figure derived from card
+  amounts reaches the browser:
+  - Equipment Customers Summary: no accrued cards (`accrued`) and no part not invoiced through Card (`diff`),
+    in columns, rows and the two tiles.
+  - Equipment Suppliers Summary: no cards net (`net`) and no `diff`, in columns, rows and the two tiles.
+  - Equipment Supplier Statement (`strip_card_money`): card, equipment, project and total rows lose rate, hourly
+    rate, amount, additions, deductions and net. The summary items built on card amounts go: `net_cards`,
+    `not_invoiced`, and in the date-range statement `period_net`, `previous_due` (balance carried from before
+    the period) and `current_due`, which add card work to the ledger. Payment rows are accounting entries: their
+    amount moves to a "Payment amount" column, and the Net column goes, so the A4 print and PDF use the hours
+    layout and still list the payments with their note.
+  - Both summaries sort by party code instead of the hidden card amount.
+  Accounting items (GL balances, payments, VAT, other credits, invoices) keep their own gate (`can_view_ledger`).
+  The A4 print skips the missing items. Impact: permissions none (no role or DocPerm change; every role of these
+  reports reads level 1 today, so their reports are unchanged); accounting none; data none; API none (fewer keys
+  for a user without level-1 read). Rollback: code only.
 
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report

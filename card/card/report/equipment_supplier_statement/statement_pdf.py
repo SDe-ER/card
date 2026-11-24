@@ -158,7 +158,8 @@ def build_html(filters, columns, data, message, summary):
 	out.append("</table>")
 	if filters.get("include_draft"):
 		out.append(f'<p class="ess-note"><b>{esc(_("Includes draft cards"))}</b></p>')
-	if any(s and s.get("key") == "current_due" for s in summary or []):
+	# #295: also without the money level (no current_due), whenever payments are listed
+	if payments or any(s and s.get("key") == "current_due" for s in summary or []):
 		note = _("Payments are submitted accounting entries only; draft journal entries are not counted.")
 		out.append(f'<p class="ess-note">{esc(note)}</p>')
 	if message and len(rows) < 2:
