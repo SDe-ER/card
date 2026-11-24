@@ -1972,8 +1972,11 @@ msgstr "{0} مؤرخة في {1} خارج شهر وحدة الترحيل {2}/{3}�
 msgid "This equipment is a unit component; the monthly card is kept on the unit, not the component."
 msgstr "هذه المعدة مكوّن ضمن وحدة؛ الكارت الشهري يُسجّل على الوحدة لا على المكوّن."
 
-msgid "The Card Equipment accounting dimension is missing or disabled on this site; an administrator must run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
-msgstr "البُعد المحاسبي «معدة كارت» غير موجود أو معطّل على هذا الموقع؛ يجب أن ينفّذ مدير النظام: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+msgid "The Card Equipment accounting dimension is missing or disabled on this site; an administrator must turn on \"Enable Card Equipment accounting dimension\" in Card Settings and run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+msgstr "البُعد المحاسبي «معدة كارت» غير موجود أو معطّل على هذا الموقع؛ يجب أن يفعّل مدير النظام «تفعيل البعد المحاسبي للمعدة (Card Equipment)» في إعدادات CARD ثم ينفّذ: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+
+msgid "The Card Equipment accounting dimension is switched on but does not exist on this site yet. Take a backup, then run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+msgstr "البُعد المحاسبي للمعدة مفعّل في الإعدادات لكنه غير موجود على هذا الموقع بعد. خذ نسخة احتياطية ثم نفّذ: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
 
 msgid "The {0} field is missing on {1}; re-run the Card Equipment dimension setup before posting."
 msgstr "الحقل {0} غير موجود على {1}؛ أعد تنفيذ إعداد بُعد معدة كارت قبل الترحيل."

@@ -29,7 +29,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
     dimension enabled, and writes nothing else.
   - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
-    VAT and other credits are not split by equipment); posting stays fail-closed (and off).
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
+    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
+    shows a message with the command (`CardSettings._explain_dimension_switch`).
+  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
+    disabled until the switch is on and the command runs again.
   - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
     `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
   - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card

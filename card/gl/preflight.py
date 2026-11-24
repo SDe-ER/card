@@ -181,7 +181,7 @@ def require_equipment_dimension(posting_doctype):
 	if not dim or dim.disabled:
 		frappe.throw(
 			_(
-				"The Card Equipment accounting dimension is missing or disabled on this site; an administrator must run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+				'The Card Equipment accounting dimension is missing or disabled on this site; an administrator must turn on "Enable Card Equipment accounting dimension" in Card Settings and run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension'
 			)
 		)
 	for doctype in (posting_doctype + " Item", "GL Entry"):

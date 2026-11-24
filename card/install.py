@@ -126,8 +126,9 @@ def after_install():  # pragma: no cover (runs before coverage measurement start
 	from card.governance_workflows import ensure_workflows
 
 	ensure_workflows()
-	# FR-176: the Card Equipment accounting dimension, only when Card Settings switches it on (a reinstall then
-	# enables the one the uninstall disabled)
+	# FR-176 / FR-180: the Card Equipment accounting dimension, only when Card Settings switches it on. A fresh
+	# install and a reinstall start with the switch off (the uninstall removes the Card Settings values), so this
+	# creates or enables nothing until an administrator turns the switch on and runs the command.
 	from card.dimension import ensure_card_equipment_dimension
 
 	ensure_card_equipment_dimension()

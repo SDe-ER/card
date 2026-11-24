@@ -16,7 +16,8 @@ ledger are kept. To create it: back up, turn the switch on, then run
 
         bench --site <site> execute card.dimension.ensure_card_equipment_dimension
 
-Turning the switch off later creates nothing new and removes nothing. card.install.before_tests turns the switch on
+Turning the switch off later creates nothing new and removes nothing. A reinstall starts with the switch off: the
+dimension the uninstall disabled stays disabled until the switch is on and the command runs again. card.install.before_tests turns the switch on
 and calls it (the committed test bootstrap; its ALTER TABLEs must never run inside a test transaction). GL posting
 still refuses to build without it (owner checkpoint B).
 """

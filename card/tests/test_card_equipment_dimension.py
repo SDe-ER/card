@@ -23,6 +23,8 @@ DOCTYPES = ("GL Entry", "Journal Entry Account", "Payment Entry", "Purchase Invo
 class TestCardEquipmentDimension(IntegrationTestCase):
 	def tearDown(self):
 		frappe.db.rollback()
+		# the switch is read through the single-value cache: never leave a test's value behind
+		getattr(frappe.db, "value_cache", {}).pop("Card Settings", None)
 
 	def _fields(self):
 		return frappe.get_all(
@@ -134,3 +136,19 @@ class TestCardEquipmentDimension(IntegrationTestCase):
 			frappe.db.set_single_value("Card Settings", SWITCH_FIELD, 0)
 			record.execute()
 			self.assertEqual(frappe.db.get_single_value("Card Settings", SWITCH_FIELD), 0)
+
+	def test_turning_the_switch_on_explains_the_command(self):
+		frappe.db.set_single_value("Card Settings", SWITCH_FIELD, 0)
+		settings = frappe.get_doc("Card Settings")
+		settings.set(SWITCH_FIELD, 1)
+		frappe.clear_messages()
+		with mock_patch("card.dimension.has_dimension", return_value=False):
+			settings.save(ignore_permissions=True)
+		self.assertTrue([m for m in frappe.get_message_log() if "ensure_card_equipment_dimension" in str(m)])
+		self.assertEqual(frappe.db.count("Accounting Dimension", {"document_type": DIMENSION_DOCTYPE}), 1)
+
+	def test_preflight_names_the_switch(self):
+		from card.gl import preflight
+
+		source = open(preflight.__file__, encoding="utf-8").read()
+		self.assertIn("Enable Card Equipment accounting dimension", source)
