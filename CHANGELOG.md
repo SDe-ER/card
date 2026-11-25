@@ -15,6 +15,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Documentation
+- **Documentation screenshots: the duplicate captures are made distinct (issue 266; owner decision 2026-11-24: one
+  capture run after the fix).** `website/scripts/screenshots/`: the workspace, monthly card, posting preview and
+  diesel shots scroll to or open what each image is about (`scrollSel`, `clickTextAfter`, `waitSel`); a missing
+  target fails the shot; the customer statement and the loads card must show real values; the demo seed submits
+  the per-m³ card. Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no
+  application, permission, accounting, data or API change.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -207,12 +215,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
   change and waits for the owner's approval.
 ### Documentation
-- **Documentation screenshots: the duplicate captures are made distinct (issue 266; owner decision 2026-11-24: one
-  capture run after the fix).** `website/scripts/screenshots/`: the workspace, monthly card, posting preview and
-  diesel shots scroll to or open what each image is about (`scrollSel`, `clickTextAfter`, `waitSel`); a missing
-  target fails the shot; the customer statement and the loads card must show real values; the demo seed submits
-  the per-m³ card. Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no
-  application, permission, accounting, data or API change.
 - **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
   sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
   change.
