@@ -126,6 +126,11 @@ def after_install():  # pragma: no cover (runs before coverage measurement start
 	from card.governance_workflows import ensure_workflows
 
 	ensure_workflows()
+	# #50: the hour settings (standard month hours, shift limits) start with their DocType defaults stored,
+	# because the code has no fallback number for them
+	from card.settings import store_hour_settings_defaults
+
+	store_hour_settings_defaults()
 	# FR-176 / FR-180: the Card Equipment accounting dimension, only when Card Settings switches it on. A fresh
 	# install and a reinstall start with the switch off (the uninstall removes the Card Settings values), so this
 	# creates or enables nothing until an administrator turns the switch on and runs the command.
@@ -157,6 +162,10 @@ def before_tests():
 
 	frappe.clear_cache()
 	_ensure_masters()
+	# #50: a test site that never saved Card Settings gets the stored hour defaults, as an install does
+	from card.settings import store_hour_settings_defaults
+
+	store_hour_settings_defaults()
 	# S3 posting is fail-closed on the Card Equipment accounting dimension
 	# (preflight.require_equipment_dimension), so a clean test site must get it
 	# here — besides the v4_11_0 patch and after_install (FR-176) (its ALTER

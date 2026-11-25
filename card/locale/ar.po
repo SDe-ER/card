@@ -1624,6 +1624,12 @@ msgstr "اللترات المتوقعة"
 msgid "Allocated litres"
 msgstr "اللترات الموزعة"
 
+msgid "Allocated litres (recorded + estimated)"
+msgstr "اللترات الموزعة (مسجّلة + تقديرية)"
+
+msgid "Diesel cost (incl. estimated)"
+msgstr "تكلفة الديزل (تشمل التقديري)"
+
 msgid "Recorded litres (direct fills)"
 msgstr "لترات مسجلة (تعبئة مباشرة)"
 
@@ -2132,6 +2138,15 @@ msgstr "المزامنة اليومية للموقع: المشروع {0} ← {1}
 
 msgid "Enable Card Equipment accounting dimension"
 msgstr "تفعيل البعد المحاسبي للمعدة (Card Equipment)"
+
+msgid "Set {0} in Card Settings: a per-month rate cannot be priced without it."
+msgstr "حدِّد {0} في إعدادات CARD: لا يمكن تسعير سعر شهري بدونه."
+
+msgid "{0} is not set in Card Settings, so no shift limit was checked on this card."
+msgstr "{0} غير محدَّد في إعدادات CARD، لذلك لم يُفحص حد الوردية في هذا الكارت."
+
+msgid "Shift limit not configured"
+msgstr "حد الوردية غير محدَّد"
 
 msgid "Daily equipment location sync"
 msgstr "المزامنة اليومية لموقع المعدات"
@@ -4106,6 +4121,10 @@ msgstr "توقيع المراجع"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Supplier signature"
 msgstr "توقيع المورد"
+
+#: card/card/report/equipment_customer_statement/equipment_customer_statement.html
+msgid "Customer signature"
+msgstr "توقيع العميل"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Includes draft cards"

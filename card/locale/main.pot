@@ -352,6 +352,17 @@ msgstr ""
 msgid "Diesel cost"
 msgstr ""
 
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Diesel cost (incl. estimated)"
+msgstr ""
+
+#: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Allocated litres (recorded + estimated)"
+msgstr ""
+
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:278
 msgid "Display only — does not affect the rental amount."
 msgstr ""
@@ -1051,6 +1062,18 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:141
 msgid "Shift hours exceeded warning"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "Shift limit not configured"
+msgstr ""
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py
+msgid "{0} is not set in Card Settings, so no shift limit was checked on this card."
+msgstr ""
+
+#: card/settings.py
+msgid "Set {0} in Card Settings: a per-month rate cannot be priced without it."
 msgstr ""
 
 #. Description of the 'Amount' (Currency) field in DocType 'Equipment
@@ -2880,6 +2903,10 @@ msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Supplier signature"
+msgstr ""
+
+#: card/card/report/equipment_customer_statement/equipment_customer_statement.html
+msgid "Customer signature"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html

@@ -387,10 +387,10 @@ class TestDieselAllocation(IntegrationTestCase):
 	def test_consumption_report_columns_label_allocated_and_split(self):
 		cols, _data = execute({"company": self.company, "project": self.project})
 		labels = {c["fieldname"]: c["label"] for c in cols}
-		self.assertEqual(labels["litres"], frappe._("Allocated litres"))
+		self.assertEqual(labels["litres"], frappe._("Allocated litres (recorded + estimated)"))  # #31
 		self.assertEqual(labels["litres_recorded"], frappe._("Recorded litres (direct fills)"))
 		self.assertEqual(labels["litres_estimated"], frappe._("Estimated litres (hours split)"))
-		self.assertIn("amount", labels)
+		self.assertEqual(labels["amount"], frappe._("Diesel cost (incl. estimated)"))  # #31
 
 	# ---- D1 amount fields ----
 	def test_diesel_fill_amount_is_litres_times_price(self):

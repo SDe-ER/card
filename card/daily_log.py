@@ -163,8 +163,9 @@ def validate_log(doc):
 	stored_equipment = _stored_equipment(doc)
 	seen = set()
 	over_limit = []
-	max_day = flt(setting("max_day_shift_hours")) or 12
-	max_night = flt(setting("max_night_shift_hours")) or 12
+	# #50: no hard-coded 12; a missing or zero limit is not configured and nothing is checked against it
+	max_day = flt(setting("max_day_shift_hours"))
+	max_night = flt(setting("max_night_shift_hours"))
 	for row in doc.rows:
 		if row.equipment in seen:
 			frappe.throw(
@@ -183,9 +184,9 @@ def validate_log(doc):
 				)
 			)
 		# advisory only (owner 2026-10-14): every recorded hour counts; a row over the limit is reviewed
-		if day > max_day:
+		if max_day > 0 and day > max_day:
 			over_limit.append(f"{row.equipment} ({_('Day shift hours')}: {day})")
-		if night > max_night:
+		if max_night > 0 and night > max_night:
 			over_limit.append(f"{row.equipment} ({_('Night shift hours')}: {night})")
 		_check_stop_reason(row, doc.company)
 		_responsible_party(row, doc.company, log_date)

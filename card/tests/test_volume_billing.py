@@ -504,6 +504,24 @@ class TestVolumeBilling(_StopBase):
 			"project": self.project,
 		}
 
+	def test_loads_fields_show_only_on_per_m3_cards(self):
+		"""#264 part 2 (owner decision 2026-11-24): the loads figures of the card form show only on a card billed
+		per m³, or on a card that already has loads (a stored value is never hidden)."""
+		shown = 'eval:doc.customer_rate_type=="بالمتر المكعب" || doc.total_loads'
+		meta = frappe.get_meta("Card Monthly Card")
+		for fieldname in ("load_volume_used", "total_loads", "total_volume_m3"):
+			self.assertEqual(meta.get_field(fieldname).depends_on, shown, fieldname)
+		# the day column is hidden by the form script, with the same rule
+		path = frappe.get_app_path("card", "card", "doctype", "card_monthly_card", "card_monthly_card.js")
+		with open(path, encoding="utf-8") as handle:
+			script = handle.read()
+		self.assertIn("function card_toggle_loads_column", script)
+		# shown (hidden = 0) on a per-m³ card or when a day has loads; hidden otherwise
+		self.assertIn(
+			'const hidden = frm.doc.customer_rate_type === "بالمتر المكعب" || used ? 0 : 1;', script
+		)
+		self.assertIn('update_docfield_property("loads_count", "hidden", hidden)', script)
+
 	def test_statement_without_money_level_read_has_no_money_values(self):
 		"""A user whose roles do not read permlevel 1 of Card Monthly Card gets no rate, amount, total volume
 		(with the total loads it gives the level-1 load volume), addition, deduction or net, in no column, row or
