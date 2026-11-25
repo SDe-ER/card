@@ -38,6 +38,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Added
+- **FR-192 — Who pays the maintenance, on the equipment (issue 48; owner decision 2026-11-25, option 1).**
+  The equipment recorded who pays the fuel and the operator, but not who pays the maintenance.
+  - New field `Card Equipment.maintenance_on` (Select: empty, «المؤجر», «الشركة»; label "Maintenance charged
+    to", Arabic «الصيانة على»; permlevel 1), next to "Operator charged to" in Operation standards. It is the
+    same kind of field as "Fuel charged to". It is empty on existing and on new equipment until a user sets it.
+  - The field is a commercial term (`COMMERCIAL_FIELDS` in `card_equipment.py`): a change on a saved equipment
+    needs a new reason, as for the fuel field.
+  - Master data only. No code reads the field for a card, an invoice, a posting or a report. Maintenance
+    expenses stay manual.
+  - Impact: permissions none (the existing level 1 rules apply; no new role or DocPerm); accounting none; API
+    none; data: one new empty column `maintenance_on` on `tabCard Equipment`, added by `bench migrate`, no
+    patch. Rollback: the earlier code ignores the column; stored values stay in the database.
+  - Tests: `card/tests/test_equipment_maintenance_payer.py`.
+
 ## [4.12.1] — 2026-11-25
 
 > **Published 2026-11-25** (tag `v4.12.1`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).

@@ -52,6 +52,8 @@ COMMERCIAL_FIELDS = (
 	"default_customer",
 	"rental_direction",
 	"operator_on",
+	# FR-192: who pays the maintenance (master data only)
+	"maintenance_on",
 )
 
 # H-CARD-1/2: the equipment's document files (private, validated when set or changed)

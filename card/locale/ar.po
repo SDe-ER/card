@@ -9388,3 +9388,8 @@ msgstr "السطر {0}: تسجيل الردود في اليوميات غير م�
 #: card/daily_log.py
 msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
 msgstr "السطر {0} ({1}): لا تُسجَّل الردود إلا لمعدة نوع سعر العميل لها بالمتر المكعب."
+
+#. Label of the maintenance_on (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Maintenance charged to"
+msgstr "الصيانة على"
