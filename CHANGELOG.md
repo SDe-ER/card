@@ -15,6 +15,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+## [4.12.2] — 2026-11-25
+
+> **Published 2026-11-25** (tag `v4.12.2`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).
+> Patch release on top of v4.12.1, backward compatible. One fix: the PDF of the Equipment Customer Statement shapes
+> Arabic correctly (issue 324). One new whitelisted method, POST only. No patch; no database change; no role, DocPerm
+> or accounting change.
+
 ### Fixed
 - **Equipment Customer Statement: the PDF action shapes Arabic correctly (issue 324, PR #328; FR-187 follow-up).** The PDF
   action of the report used the standard report route (frappe `report_to_pdf`, wkhtmltopdf), which drew the letter
