@@ -9,13 +9,17 @@ One row per project for one company and period:
 - expenses: the net amount of submitted Purchase Invoice lines posted in the period (debit
   notes reduce expenses);
 - a line without a project takes the project of its invoice; a line with no project at all
-  sits on the row "No project", so the totals reconcile to the invoices.
+  sits on the row "No project", so the totals reconcile to the invoices;
+- opening invoices are not read; every Purchase Invoice line counts, also a stock or
+  fixed-asset purchase.
 
-Amounts are in the company currency, net of VAT (card.analytics.invoice_project_totals).
+Amounts are in the company currency, net of VAT (card.analytics.invoice_project_totals), summed
+unrounded and rounded once at the precision of the company currency.
 Journal Entries and GL Entries are not read and nothing is estimated. The margin is revenue
 minus purchase-invoice expenses, NOT the full net profit: payroll, depreciation, overhead and
 journal-entry costs are not included. Ledger readers only
-(card.report_access.can_view_ledger)."""
+(card.report_access.can_view_ledger) who read both invoice types: a margin built from one side
+only would mislead, so the report is refused instead."""
 
 import frappe
 from frappe import _
@@ -23,10 +27,10 @@ from frappe.utils import flt, getdate
 
 from card import analytics
 from card.report_access import can_view_ledger, readable_links, resolve_company
-from card.report_currency import company_currency_report
+from card.report_currency import company_currency, company_currency_report, currency_precision
 
 DOCTYPES = ("Sales Invoice", "Purchase Invoice")
-AMOUNT_KEYS = ("revenue", "expenses", "margin")
+SIDES = (("revenue", "Sales Invoice"), ("expenses", "Purchase Invoice"))
 
 
 @company_currency_report(*DOCTYPES)
@@ -38,54 +42,53 @@ def execute(filters=None):
 			_("The project profitability shows financial figures; it needs General Ledger access."),
 			frappe.PermissionError,
 		)
+	unreadable = [doctype for doctype in DOCTYPES if not analytics.can_read(doctype)]
+	if unreadable:
+		frappe.throw(
+			_("The project profitability needs read access to {0}.").format(
+				", ".join(_(doctype) for doctype in unreadable)
+			),
+			frappe.PermissionError,
+		)
 	if not (filters.get("from_date") and filters.get("to_date")):
 		frappe.throw(_("Select the period of the project profitability."))
 	start, end = getdate(filters.from_date), getdate(filters.to_date)
 	if end < start:
 		frappe.throw(_("Invalid period: end is before start"))
 
-	notes = [
-		_(
-			'Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. A line without a project takes the project of its invoice; lines with no project at all are on the row "No project". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included.'
-		)
-	]
-	unreadable = {
-		"Sales Invoice": _("Revenue is not shown: you cannot read Sales Invoice."),
-		"Purchase Invoice": _("Expenses are not shown: you cannot read Purchase Invoice."),
-	}
-	rows = {}
-	for key, doctype in (("revenue", "Sales Invoice"), ("expenses", "Purchase Invoice")):
-		if not analytics.can_read(doctype):
-			notes.append(unreadable[doctype])
-			continue
+	message = _(
+		'Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. Expenses include every Purchase Invoice line, stock and asset purchases too. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row "No project". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included.'
+	)
+	sums = {}
+	for key, doctype in SIDES:
 		totals = analytics.invoice_project_totals(doctype, company, start, end, filters.get("project"))
 		for project, amount in totals.items():
-			rows.setdefault(project, dict.fromkeys(AMOUNT_KEYS, 0.0))[key] = amount
+			sums.setdefault(project, dict.fromkeys(("revenue", "expenses"), 0.0))[key] = amount
 
-	names = analytics.project_names([project for project in rows if project])
+	precision = currency_precision(company_currency(company))
+
+	def amounts(revenue, expenses):
+		"""Unrounded sums rounded once, at the precision of the company currency."""
+		row = {"revenue": flt(revenue, precision), "expenses": flt(expenses, precision)}
+		row["margin"] = flt(row["revenue"] - row["expenses"], precision)
+		row["margin_percent"] = flt(row["margin"] / row["revenue"] * 100, 2) if row["revenue"] else None
+		return row
+
+	names = analytics.project_names([project for project in sums if project], company)
 	data = []
-	total = dict.fromkeys(AMOUNT_KEYS, 0.0)
-	for project, row in sorted(rows.items(), key=lambda item: (not item[0], item[0])):
-		row["margin"] = flt(row["revenue"] - row["expenses"], 2)
-		for key in AMOUNT_KEYS:
-			total[key] = flt(total[key] + row[key], 2)
+	for project, side in sorted(sums.items(), key=lambda item: (not item[0], item[0])):
+		row = amounts(side["revenue"], side["expenses"])
 		row.update(
 			{
 				"project": project or None,
 				"project_name": names.get(project) if project else _("No project"),
-				"margin_percent": _margin_percent(row),
 			}
 		)
 		data.append(row)
-	total.update(
-		{
-			"project": None,
-			"project_name": _("Total of all projects"),
-			"margin_percent": _margin_percent(total),
-			"is_total": 1,
-			"bold": 1,
-		}
+	total = amounts(
+		sum(side["revenue"] for side in sums.values()), sum(side["expenses"] for side in sums.values())
 	)
+	total.update({"project": None, "project_name": _("Total of all projects"), "is_total": 1, "bold": 1})
 	data.append(total)
 
 	summary = [
@@ -108,14 +111,8 @@ def execute(filters=None):
 			"indicator": "Green" if total["margin"] >= 0 else "Red",
 		},
 	]
-	return readable_links(get_columns(), data), data, " ".join(notes), None, summary
-
-
-def _margin_percent(row):
-	"""The margin as a percentage of revenue; None without revenue."""
-	if not row["revenue"]:
-		return None
-	return flt(row["margin"] / row["revenue"] * 100, 2)
+	# no rows passed: the Project column keeps the record name, the name has its own column
+	return readable_links(get_columns()), data, message, None, summary
 
 
 def get_columns():

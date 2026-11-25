@@ -33,4 +33,9 @@ frappe.query_reports["Project Invoice Profitability"] = {
 			}),
 		},
 	],
+	formatter(value, row, column, data, default_formatter) {
+		value = default_formatter(value, row, column, data);
+		if (data && data.bold) value = `<b>${value}</b>`;
+		return value;
+	},
 };

@@ -8173,11 +8173,11 @@ msgid "Select the period of the project profitability."
 msgstr ""
 
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
-msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
+msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. Expenses include every Purchase Invoice line, stock and asset purchases too. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
 msgstr ""
 
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
-msgid "Expenses are not shown: you cannot read Purchase Invoice."
+msgid "The project profitability needs read access to {0}."
 msgstr ""
 
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
