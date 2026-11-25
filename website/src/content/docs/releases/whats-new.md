@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-- **2026-11-25 — The equipment records who pays the maintenance.** **Equipment** has a new field, **Maintenance charged to**, next to **Operator charged to** on the **Cost and rental** tab. You select «المؤجر» (Lessor) or «الشركة» (Company), as for **Fuel charged to**. The field is empty until you set it. It is information only: it changes no card, invoice or accounting entry, and maintenance expenses are recorded by hand as before. It is a commercial term, so the users who can change the rate can change it, and a change needs a reason. No role or permission changes.
+- **2026-11-25 — The equipment records who pays the maintenance.** **Equipment** has a new field, **Maintenance charged to**, next to **Operator charged to** on the **Cost and rental** tab. You select «المؤجر» (Lessor) or «الشركة» (Company), as for **Fuel charged to**. The field is empty until you set it. It is information only: it changes no card, invoice or accounting entry, and maintenance expenses are recorded by hand as before. It is a commercial term, so the users who can change the rate can change it, and a change of a value already set needs a reason; the first value needs none. No role or permission changes.
 
 ## v4.12.1 — 2026-11-25
 

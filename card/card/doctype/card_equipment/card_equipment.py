@@ -56,6 +56,10 @@ COMMERCIAL_FIELDS = (
 	"maintenance_on",
 )
 
+# FR-192: these terms start empty on every existing equipment, so the first fill needs no
+# reason; a later change needs one
+FIRST_FILL_WITHOUT_REASON = ("maintenance_on",)
+
 # H-CARD-1/2: the equipment's document files (private, validated when set or changed)
 DOCUMENT_FILE_FIELDS = ("registration_file", "inspection_file", "insurance_file", "tuv_file")
 
@@ -247,7 +251,12 @@ class CardEquipment(Document):
 		before = self.get_doc_before_save()
 		if not before:
 			return
-		changed = [f for f in COMMERCIAL_FIELDS if _differs(before.get(f), self.get(f))]
+		changed = [
+			f
+			for f in COMMERCIAL_FIELDS
+			if _differs(before.get(f), self.get(f))
+			and not (f in FIRST_FILL_WITHOUT_REASON and not before.get(f))
+		]
 		if not changed:
 			return
 		reason = (self.commercial_change_reason or "").strip()

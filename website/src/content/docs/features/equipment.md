@@ -183,7 +183,9 @@ rates are used.
   (Company).
 - **Maintenance charged to** (الصيانة على) records who pays the maintenance of the machine: «المؤجر» or
   «الشركة». It is information only. It changes no card, invoice or accounting entry, and maintenance expenses
-  are recorded by hand.
+  are recorded by hand. CARD never fills this field automatically, also for an owned machine: it stays empty
+  until a user selects a value. The first value needs no **Reason for commercial change**; a later change
+  needs one.
 - For an owned machine, or when the operator is on the company, the **Operator** is an ERPNext Employee and the
   **Operator name** is fetched from it.
 - For a rented machine whose operator is on the lessor, the form asks instead for the external **Operator name** and

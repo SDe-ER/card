@@ -110,7 +110,7 @@ or receives no company-B value, and that nothing is written.
 | Level | Fields | Read | Write |
 |---|---|---|---|
 | 0 | Identity, type, status, documents, operator | All readers | Card Manager, Card User, System Manager |
-| 1 | Commercial terms: ownership, rental direction, lessor, customer, rates and rate types, contract, rental dates, daily hours, fuel and operator charged to, Asset, make and model, unit and components | System Manager, Card Manager, Card User, Accounts Manager | System Manager, Card Manager |
+| 1 | Commercial terms: ownership, rental direction, lessor, customer, rates and rate types, contract, rental dates, daily hours, fuel, operator and maintenance charged to, Asset, make and model, unit and components | System Manager, Card Manager, Card User, Accounts Manager | System Manager, Card Manager |
 | 2 | Financial: equipment cost center, Asset cost center, Asset purchase value, internal hourly rate, internal operating rate and its basis | System Manager, Card Manager, Accounts Manager | System Manager, Card Manager |
 
 - A change to a level 1 commercial field needs a new **Reason for commercial change**.
