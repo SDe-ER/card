@@ -243,6 +243,32 @@ class TestApprovalTierSchema(_TierBase):
 		self.assertEqual([r.tier_name for r in rows], ["Tier 2", "Tier 1"])
 		self.assertTrue(frappe.db.exists(governance.TIER_CHILD_DOCTYPE, kept))
 
+	def test_duplicate_threshold_of_a_company_is_refused(self):
+		"""#320: a company has one row per threshold amount and one row per tier name."""
+		row = {
+			"company": self.company,
+			"tier_name": "Tier 1",
+			"amount_threshold": 10_000,
+			"role_required": self.tier_role,
+		}
+		for second in (
+			{**row, "tier_name": "Tier 2"},  # same amount
+			{**row, "amount_threshold": 50_000},  # same name
+		):
+			settings = frappe.get_doc("Card Settings")
+			settings.append(governance.TIER_TABLE_FIELD, row)
+			settings.append(governance.TIER_TABLE_FIELD, second)
+			with self.assertRaises(frappe.ValidationError):
+				settings.save()
+			frappe.clear_document_cache("Card Settings", "Card Settings")
+		settings = frappe.get_doc("Card Settings")
+		settings.append(governance.TIER_TABLE_FIELD, row)
+		settings.append(
+			governance.TIER_TABLE_FIELD, {**row, "tier_name": "Tier 2", "amount_threshold": 50_000}
+		)
+		settings.save()
+		self.assertEqual(len(governance._company_tier_rows(self.company)), 2)
+
 
 class TestApprovalTierResolution(_TierBase):
 	"""Pure resolution: ``resolve_approval_tier`` on crafted docs; no save, no submit."""

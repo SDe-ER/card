@@ -128,7 +128,6 @@
    "permlevel": 1
   },
   {
-   "description": "Optional net-amount thresholds that gate a monthly card's submit by role (FR-159). Empty: every card is tier 0 and any user with Card Monthly Card write may submit, current behaviour. With rows: a card whose net amount reaches a threshold needs the matching Role on submit; the highest matching threshold wins. The role_required is only enforced — this table grants no role or DocPerm of its own.",
    "fieldname": "approval_tier_thresholds",
    "fieldtype": "Table",
    "label": "Approval tier thresholds",

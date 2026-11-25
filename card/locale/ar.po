@@ -7906,6 +7906,14 @@ msgid "Duplicate company in the diesel variance anomaly thresholds: {0}"
 msgstr "شركة مكررة في حدود الحالات الشاذة لفروقات الديزل: {0}"
 
 #: card/card/doctype/card_settings/card_settings.py
+msgid "Row {0}: company {1} already has an approval tier threshold of this amount."
+msgstr "الصف {0}: الشركة {1} لها حد مستوى اعتماد بنفس المبلغ."
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Row {0}: company {1} already has an approval tier named {2}."
+msgstr "الصف {0}: الشركة {1} لها مستوى اعتماد بالاسم {2}."
+
+#: card/card/doctype/card_settings/card_settings.py
 msgid "Row {0}: a diesel variance anomaly threshold cannot be negative."
 msgstr "الصف {0}: حد الحالات الشاذة لفروقات الديزل لا يمكن أن يكون سالبًا."
 
@@ -8421,11 +8429,11 @@ msgstr "المستخدم {0} يحتاج صلاحية الدور {1} لاعتما
 msgid "Monthly card approval tier"
 msgstr "مستوى اعتماد البطاقة الشهرية"
 
-#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/doctype/card_settings/card_settings.json
 msgid "Monthly card approval tiers"
 msgstr "مستويات اعتماد البطاقة الشهرية"
 
-#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/doctype/card_settings/card_settings.json
 msgid "Approval tier thresholds"
 msgstr "حدود مستويات الاعتماد"
 

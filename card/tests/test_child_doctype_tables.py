@@ -51,3 +51,4 @@ class TestChildDoctypeTables(unittest.TestCase):
 		self.assertIsNotNone(df)
 		self.assertEqual(df["options"], "Card Approval Tier Threshold")
 		self.assertEqual(df.get("permlevel"), 1)
+		self.assertFalse(df.get("description"))  # no field help under a field
