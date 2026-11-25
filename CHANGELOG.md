@@ -39,15 +39,21 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     when `validate` runs was not sent (Frappe sets every column that is not in the data to `None`, and casts
     numbers after `validate`); a sent 0 is 0. An unsent field of a stored row, matched by its row name inside
     this log, keeps the stored value. On a new log that amends another one (the corrected draft of CARD Mobile)
-    it takes the value of the amended log's row of the same equipment. A form save sends every field and behaves
-    as before.
+    it takes the value of the amended log's row of the same equipment, and only when the amended log has the
+    new log's company, project and date (`_load_baselines`): another `amended_from` gives no loads, so the
+    switch and the per-m³ rule are checked as for any new loads. The Desk form always sends the two fields: its
+    `validate` event (`card_daily_log.js`) sets an emptied load field to 0, so emptying a field on the form
+    clears it.
   - After the switch is turned off, a log that holds loads is still saved while its loads are unchanged or
     cleared; only new or changed loads are refused (`_check_loads`). The form then shows the two fields read
     only on a log that holds loads.
   - A day cleared because its log is no longer Approved: with the switch on its loads are cleared. With the
     switch off (turned off after loads were copied) the load count is cleared only when it equals the loads of
     that log's row (`_clear_stale`, `_log_loads`): it came from the log. Another count is a hand entry and is
-    kept. A company that never used the switch has no loads on its logs, so nothing changes for it.
+    kept. The same rule applies, with the switch off, to a day now set from another log (the corrected log):
+    a load count equal to the loads of the earlier log named in the day's notes is set to 0 and reported in
+    `overwritten_days` (`_apply_days`, `_loads_of_earlier_log`). A company that never used the switch has no
+    loads on its logs, so nothing changes for it.
   - The form shows the two fields from an onload flag (`CardDailyLog.onload`); a new log shows them after its
     first save. CARD Mobile has no load fields yet and no `frontend/` file changed.
   - Permissions: no new role, DocPerm or whitelisted method. Accounting: none (draft cards only; no invoice or GL

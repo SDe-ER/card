@@ -249,6 +249,13 @@ Added after the review of FR-188:
   log's row is cleared with it (`card/daily_log_generation.py` `_clear_stale`). Another count is a hand entry
   and is kept. Limit: a hand entry equal to the loads of the cancelled log is cleared too. No field records
   the source of `loads_count`.
+- The Desk form sends 0 for an emptied load field (`card_daily_log.js`, `validate`). Without it an emptied
+  field is null, the server reads null as "not sent" and restores the stored loads.
+- OFF after ON: a day now set from another log (the corrected log) loses a load count equal to the loads of the
+  earlier log named in its notes (`_apply_days`, `_loads_of_earlier_log`). The same limit applies: an equal hand
+  entry is cleared too.
+- A new log takes unsent loads from the log it amends only when that log has its company, project and date
+  (`_load_baselines`). A different `amended_from` gives no loads.
 - Not verified on a site: the `None` rule comes from reading the Frappe `version-16` source
   (`frappe/model/document.py` `init_valid_columns`, `_save`, `insert`).
 
