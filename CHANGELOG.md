@@ -15,6 +15,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Documentation
+- **Diesel: the estimated split of a project tank is display only (issue 31, owner decision 2026-11-25).** The
+  diesel page (English and Arabic) says that invoices and the margin reports keep the diesel of a project tank at
+  the project level, and that totals with an estimate are labelled (FR-185). No code change; no impact on
+  permissions, accounting, data or the API.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by

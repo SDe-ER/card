@@ -96,7 +96,9 @@ For the diesel reports and the diesel panel of a monthly card, a project-tank fi
 worked on the same project and month, in proportion to their operating hours on submitted cards of the same company.
 A single largest-remainder rule makes the shares add up exactly to the fill. Every figure keeps the recorded part
 (direct fills) and the estimated part (tank fills split by hours) apart. This split is for display only: it never
-changes a card's amount and is never used in a posting.
+changes a card's amount and is never used in a posting. Invoices and the margin reports keep the diesel of a project
+tank at the project level; the reports label every total that includes an estimate as estimated (owner decision
+2026-11-25).
 
 ### Diesel price
 
