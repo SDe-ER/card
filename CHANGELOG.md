@@ -38,6 +38,35 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Added
+- **FR-193 — Project Invoice Profitability report (issue 53; owner decision 2026-11-25, option 1).** The owner asked
+  for the revenue and the expenses of each project, read from the ERPNext invoices. CARD had the margin per
+  equipment (Equipment Partial Margin) but no figure per project from all invoices.
+  - New Script Report **Project Invoice Profitability**, read-only, for one company and one period (posting date),
+    with an optional project. Revenue is the net amount (`base_net_amount`, company currency) of the lines of
+    submitted Sales Invoices; expenses are the net amount of the lines of submitted Purchase Invoices. Credit notes
+    and debit notes are negative lines, so they reduce their side. A line without a project takes the project of
+    its invoice (the rule of `card.analytics.revenue_lines`); a line with no project at all is on the row
+    **No project**, so the totals equal the net totals of the invoices. Columns: Project, Project name, Project
+    revenue, Project expenses, Project margin, Project margin %; the last row is the total of all projects.
+  - The report reads no Journal Entry and no GL Entry and estimates nothing. The margin is revenue minus
+    purchase-invoice expenses. It is not the full net profit: payroll, depreciation, overhead and journal-entry
+    costs are not included. Every Purchase Invoice line counts, also a stock or fixed-asset purchase. The report
+    message says so.
+  - The name is not "Project Profitability" because ERPNext ships a standard report with that name (based on
+    timesheets and salary slips); a second report record with the same name is not possible.
+  - Functions: `card/card/report/project_invoice_profitability/` (new), `card/analytics.py`
+    (`invoice_project_totals`, `project_names`, new), `card/card/sidebar/card_reports/card_reports.json` (one
+    link), `card/locale/ar.po`, `card/locale/main.pot`. Tests: `card/tests/test_project_invoice_profitability.py`.
+  - Permissions: no new role and no DocPerm. Report roles System Manager and Accounts Manager, the roles of
+    Equipment Partial Margin. The server refuses a company the user may not see (`resolve_company`) and a user
+    without General Ledger read on that company (`can_view_ledger`). Invoices are read with `frappe.get_list`, so
+    the user's own permissions and User Permissions apply.
+  - Accounting: none. Read only; nothing is posted or changed. Data: none; no new DocType, field or patch. API: no
+    new whitelisted method.
+  - Rollback: revert the commit. A site that already migrated keeps the Report record and the sidebar link until
+    they are deleted by hand; they hold no data.
+
 ## [4.12.1] — 2026-11-25
 
 > **Published 2026-11-25** (tag `v4.12.1`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).
