@@ -262,19 +262,29 @@ _CARD_EVENTS["validate"] = [
 	# FR-158 (WP-N2): day row intake provenance — normalise fields + dedupe the (source, key) pair
 	"card.intake.apply_card_day_intake",
 ]
-_CARD_EVENTS["before_submit"] = "card.governance.before_submit"
+# FR-191: a card is approved only after the end of its month (Riyadh); checked first on every submit route
+_CARD_EVENTS["before_submit"] = ["card.approval_period.before_submit", "card.governance.before_submit"]
 _CARD_EVENTS["before_update_after_submit"] = [
 	_SOURCE_EVENTS["before_update_after_submit"],
 	"card.governance.before_update_after_submit",
 	# FR-158: the intake provenance of a submitted card day never changes (also with allow-on-submit)
 	"card.intake.freeze_submitted_card_day_intake",
+	# FR-191: open-month edits (recomputed) and the reopen / final approval transitions; last, after _restore
+	"card.open_month.before_update_after_submit",
 ]
 _CARD_EVENTS["before_cancel"] = [*_SOURCE_EVENTS["before_cancel"], "card.governance.before_cancel"]
+# FR-191: an open-month edit records its editor and the approval tier after the save
+_CARD_EVENTS["on_update_after_submit"] = "card.open_month.on_update_after_submit"
 # FR-163 (WP-D5): log the delegation use on submit (Info Comment). The hook is a no-op when the
 # submitting user is not acting on behalf through an active Card Approval Delegation.
 _CARD_EVENTS["on_submit"] = "card.governance.log_delegation_use"
 doc_events = {
 	"Card Monthly Card": _CARD_EVENTS,
+	# FR-191: a row of a submitted card saved on its own changes nothing (edits go through the card)
+	"Card Monthly Card Day": {"before_update_after_submit": "card.open_month.refuse_direct_row_update"},
+	"Card Monthly Card Adjustment": {
+		"before_update_after_submit": "card.open_month.refuse_direct_row_update"
+	},
 	# meter extraction (optional local worker): marker/crop after an applied pass, enqueue on a new photo
 	"Project Diesel Fill": {**_SOURCE_EVENTS, "on_update": "card.diesel_meter_extraction.after_fill_saved"},
 	"Equipment Transport": dict(_SOURCE_EVENTS),

@@ -19,6 +19,7 @@ All data is per-test and rolled back; the Workflow cache is cleared after every 
 an activated Workflow inside the test (activation itself stays an owner setup action, O-10 / W-16)."""
 
 import json
+from datetime import date
 from unittest.mock import patch
 
 import frappe
@@ -48,6 +49,10 @@ SETTINGS = {"parent": "Card Settings", "parenttype": "Card Settings", "parentfie
 REASON = "Operator needs to recheck day 2 hours"
 
 
+# FR-191: a Riyadh date after the month of every card of this module
+AFTER_ALL_MONTHS = date(2100, 1, 1)
+
+
 class TestWorkflowBypass(IntegrationTestCase):
 	"""FR-155 bypass suite. Shares the fixtures of ``TestPeriodLockAndSnapshot`` through
 	``TestPeriodLockExtraKeys`` (same approach as ``TestNativeWorkflows`` for FR-152)."""
@@ -73,6 +78,8 @@ class TestWorkflowBypass(IntegrationTestCase):
 
 	def setUp(self):
 		self.enterContext(self.freeze_time(MID_MONTH))
+		# FR-191: these cards are approved inside their month; the month-end rule has its own tests (test_open_month)
+		self.enterContext(patch("card.approval_period.riyadh_today", return_value=AFTER_ALL_MONTHS))
 		test_period_lock.TestPeriodLockAndSnapshot.setUp(self)
 		self._unlock()
 		# three users with distinct role sets, so the state-edit guard can be observed

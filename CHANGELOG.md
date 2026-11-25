@@ -91,6 +91,56 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     new whitelisted method.
   - Rollback: revert the commit. A site that already migrated keeps the Report record and the sidebar link until
     they are deleted by hand; they hold no data.
+### Changed
+- **FR-191 — A monthly card is approved only after the end of its month; saving is separate from approval;
+  open-month cards can be reopened on their original number (owner instruction 2026-11-25).** Users submitted
+  cards early in the month to see them in the supplier statement (`include_draft_in_reports` is 0, so the statement
+  counts submitted cards only). A submitted card could then not take more days or payments without Cancel + Amend.
+  - Rule (`card/approval_period.py`): the first permitted approval day is the first day of the month after the
+    card's `month`/`year` (December -> 1 January). "Today" is the current UTC time converted to Asia/Riyadh with
+    `zoneinfo`; the System Settings time zone is not read; creation and modified dates are not read. Checked first
+    in `before_submit` (every submit route: form, `frappe.client.submit`, REST, bulk submit, `apply_workflow`) and
+    in the final approval of an open-month card. No role is exempt, Administrator included. The end of a month
+    never approves a card by itself.
+  - Open-month state (`card/open_month.py`): new Workflow State "Open – month not ended" (docstatus 1). Reopen
+    (`reopen_card`, `reopen_open_month_cards`; System Manager; only while the month has not ended; refused for a
+    posted card or a card referenced by a Journal Entry, Payment Entry, GL Posting Log, Card Period Run or Card
+    Cash Disbursement) keeps the card's name, rows, attachments and comments, withdraws the approval fields and
+    writes an Info comment with the reason. No card is created, cancelled or amended.
+  - On an open card, the day rows, additions/deductions and site location can be changed with Update After Submit
+    (`allow_on_submit` on these fields and the computed totals in the DocType JSON; the state, approval, tier and
+    editor fields stay closed and are written only by the two CARD actions). Each such save runs the card's calculation again (hours, days, amounts, additions, deductions, nets,
+    approval tier, the submit-time snapshot `*_used`), records the editor for the separation-of-duties check and
+    refreshes the party registries. An open card that is posted, held by a posting log or referenced by a financial
+    document is not edited. Rates, equipment, project, parties,
+    company, direction and period stay frozen (Frappe refuses a change). On an approved card nothing of this can
+    change: `card.open_month.before_update_after_submit` refuses the change on every route (form, REST PUT,
+    `frappe.client.set_value`, bulk update); a `workflow_state` sent by a client is refused. A day or adjustment
+    row of a submitted card saved on its own (REST `/api/resource/<child>`, `frappe.client.save` of a child) changes
+    nothing (`card.open_month.refuse_direct_row_update`), so every edit goes through the card's checks.
+  - Final approval (`approve_open_month_card`, submit permission): refused before the month ends; runs the same
+    separation-of-duties and approval-tier checks as a submit (`governance.before_submit`) and logs a delegate's
+    approval (FR-163).
+  - Fiscal-year window: last month's card is judged in its own fiscal year, so a December card of a calendar
+    fiscal year can still be approved on 1 January.
+  - Posting: `gl/posting.py` (`_supplier_sources`, `_customer_cards`) and `gl/period_run.py` (`_selection`) skip
+    open-month cards (filtered in Python, so a card without a state is kept on every read path), and
+    `gl/journal_link.py` refuses to link a supplier accrual Journal Entry to an open card.
+  - Statements: Equipment Supplier Statement and Equipment Customer Statement label an open-month card
+    "(Provisional – month open, not approved)"; drafts keep "(Draft)". Draft visibility still follows the existing
+    `include_draft_in_reports` setting.
+  - Form: before the month ends the form shows the rule and the earliest approval date and keeps Save as its main
+    action; an open card shows a "Provisional" indicator and, after the month ends, an Approve button; a System
+    Manager sees "Reopen for open month" on an approved card of an unfinished month. The form reads the rule from
+    `card.approval_period.get_approval_eligibility` (GET, read permission).
+  - Patch `v4_13_0.open_month_workflow_state` (idempotent): creates the Workflow State when missing and adds it as a
+    submitted state of the "CARD Monthly Card Approval" Workflow. No Workflow transition is added. It changes no
+    card and never activates the Workflow. Limitation: with an active Workflow, Frappe refuses the two state
+    changes; activating the Workflow needs a follow-up decision for the open-month path.
+  - Impact: permissions — no new role or DocPerm; the reopen needs System Manager. Accounting — none; CARD posts no
+    GL. Data — none until a System Manager reopens a card. API — four new whitelisted methods (one GET, three
+    POST). Rollback — revert the code; a reopened card is returned to "Approved" with `approve_open_month_card`
+    after its month ends (or kept open); the Workflow State row stays (harmless).
 
 ## [4.12.2] — 2026-11-25
 

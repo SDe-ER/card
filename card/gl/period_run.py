@@ -94,6 +94,7 @@ from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTI
 from card.daily_log import _add_preparers, _has_any_role
 from card.gl import preflight
 from card.gl.posting import _TRANSPORT_SOURCE_FIELDS, _customer_transports, _rows, _unheld_batch
+from card.open_month import STATE_OPEN_MONTH
 from card.report_access import permitted_companies
 from card.settings import company_setting
 
@@ -376,8 +377,19 @@ def _selection(company: str, month: str, year: int, for_update: bool = False) ->
 				list(dict.fromkeys((*SUPPLIER_BILLING_DIRECTIONS, *CUSTOMER_BILLING_DIRECTIONS))),
 			],
 		},
-		fields=["name", "card_direction", "supplier", "customer", "net_amount", "customer_net_amount"],
+		fields=[
+			"name",
+			"card_direction",
+			"supplier",
+			"customer",
+			"net_amount",
+			"customer_net_amount",
+			"workflow_state",
+		],
 	):
+		if row.workflow_state == STATE_OPEN_MONTH:
+			# FR-191: a card of an open month is not finally approved and is never in a period run
+			continue
 		if row.card_direction in SUPPLIER_BILLING_DIRECTIONS:
 			add(CARD, row.name, "Supplier", row.supplier, row.net_amount)
 		if row.card_direction in CUSTOMER_BILLING_DIRECTIONS:

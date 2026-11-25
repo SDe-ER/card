@@ -12,6 +12,7 @@ state ``update_field`` that fills the reason), FR-143 on the approve transition,
 and the Connections data. All data is per-test and rolled back; the Workflow cache is cleared after every test."""
 
 import json
+from datetime import date
 from unittest.mock import patch
 
 import frappe
@@ -48,6 +49,10 @@ SETTINGS = {"parent": "Card Settings", "parenttype": "Card Settings", "parentfie
 EXISTING_ROLES = {"Card User", "Card Manager", "System Manager"}
 
 
+# FR-191: a Riyadh date after the month of every card of this module
+AFTER_ALL_MONTHS = date(2100, 1, 1)
+
+
 class TestNativeWorkflows(IntegrationTestCase):
 	@classmethod
 	def setUpClass(cls):
@@ -70,6 +75,8 @@ class TestNativeWorkflows(IntegrationTestCase):
 
 	def setUp(self):
 		self.enterContext(self.freeze_time(MID_MONTH))
+		# FR-191: these cards are approved inside their month; the month-end rule has its own tests (test_open_month)
+		self.enterContext(patch("card.approval_period.riyadh_today", return_value=AFTER_ALL_MONTHS))
 		test_period_lock.TestPeriodLockAndSnapshot.setUp(self)
 		self._unlock()
 		self.preparer = self._user("prep", ("Card User",))
@@ -179,16 +186,17 @@ class TestNativeWorkflows(IntegrationTestCase):
 				self.assertFalse(frappe.get_meta(doctype).get_workflow())
 				self.assertEqual(wf.states[0].state, STATE_DRAFT)
 				docstatus = {s.state: int(s.doc_status) for s in wf.states}
-				self.assertEqual(
-					docstatus,
-					{
-						STATE_DRAFT: 0,
-						STATE_PENDING: 0,
-						STATE_BEFORE_GOVERNANCE: 1,
-						STATE_APPROVED: 1,
-						STATE_CANCELLED: 2,
-					},
-				)
+				expected = {
+					STATE_DRAFT: 0,
+					STATE_PENDING: 0,
+					STATE_BEFORE_GOVERNANCE: 1,
+					STATE_APPROVED: 1,
+					STATE_CANCELLED: 2,
+				}
+				if doctype == "Card Monthly Card":
+					# FR-191: the open-month state of the monthly card (no transition leads to it)
+					expected["Open – month not ended"] = 1
+				self.assertEqual(docstatus, expected)
 				# Frappe's default for an empty submitted record is the first submitted state
 				self.assertEqual(
 					next(s.state for s in wf.states if s.doc_status == "1"), STATE_BEFORE_GOVERNANCE

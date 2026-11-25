@@ -36,6 +36,7 @@
    "label": "Day details"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "operation_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -43,6 +44,7 @@
    "reqd": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "day_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -50,6 +52,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "default": "\u0639\u0645\u0644",
    "fieldname": "day_status",
    "fieldtype": "Select",
@@ -58,6 +61,7 @@
    "options": "\u0639\u0645\u0644\n\u0625\u062c\u0627\u0632\u0629\n\u0639\u0637\u0644\n\u062a\u0648\u0642\u0641 \u0645\u0646 \u0627\u0644\u0639\u0645\u064a\u0644"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "working_hours",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -65,6 +69,7 @@
    "non_negative": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "loads_count",
    "fieldtype": "Int",
    "in_list_view": 1,
@@ -73,6 +78,7 @@
    "read_only_depends_on": "eval:doc.day_status!=\"عمل\""
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "idle_reason",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -85,6 +91,7 @@
    "label": "Downtime"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "stop_reason",
    "fieldtype": "Link",
    "label": "Stop reason",
@@ -92,12 +99,14 @@
    "search_index": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "stopped_hours",
    "fieldtype": "Float",
    "label": "Stopped hours",
    "non_negative": 1
   },
   {
+   "allow_on_submit": 1,
    "default": "0",
    "fieldname": "reason_billable",
    "fieldtype": "Check",
@@ -109,12 +118,14 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "responsible_party_type",
    "fieldtype": "Select",
    "label": "Responsible party",
    "options": "\nCompany\nSupplier\nCustomer\nOther"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:[\"Company\",\"Supplier\",\"Customer\"].includes(doc.responsible_party_type)",
    "fieldname": "responsible_party",
    "fieldtype": "Dynamic Link",
@@ -122,12 +133,14 @@
    "options": "responsible_party_type"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.responsible_party_type==\"Other\"",
    "fieldname": "responsible_party_name",
    "fieldtype": "Data",
    "label": "Responsible party name"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "notes",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -176,7 +189,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-12 17:30:00.000000",
+ "modified": "2026-11-25 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card Day",

@@ -9,6 +9,7 @@ stores the request's values before on_cancel, so a cancel is judged by the store
 change it."""
 
 import json
+from unittest.mock import patch
 
 import frappe
 from frappe.client import submit as client_submit
@@ -16,6 +17,7 @@ from frappe.desk.form.save import savedocs
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
+from card.approval_period import earliest_approval_date
 from card.period_lock import PeriodLockDateChangeError
 from card.tests import test_period_lock
 from card.tests.cancel_reason import store_reason, with_reason
@@ -94,7 +96,14 @@ class TestPeriodLockExtraKeys(IntegrationTestCase):
 		doc.insert(ignore_permissions=True)
 		if doc.doctype == "Project Diesel Fill":
 			approve_fill(doc)
-		doc.submit()
+		if doc.doctype == "Card Monthly Card":
+			# FR-191: a card is approved only after its month ends; these tests need a submitted current-month card
+			with patch(
+				"card.approval_period.riyadh_today", return_value=earliest_approval_date(doc.year, doc.month)
+			):
+				doc.submit()
+		else:
+			doc.submit()
 		self._lock()
 		return doc
 

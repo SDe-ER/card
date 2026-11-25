@@ -47,3 +47,4 @@ card.patches.v4_10_1.show_adjustment_date_in_saved_grid_columns
 card.patches.v4_11_0.ensure_card_equipment_dimension
 card.patches.v4_11_1.record_card_equipment_dimension_switch
 card.patches.v4_12_0.store_hour_settings_defaults
+card.patches.v4_13_0.open_month_workflow_state
