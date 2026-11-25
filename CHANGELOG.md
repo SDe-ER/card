@@ -38,6 +38,13 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+## [4.12.1] — 2026-11-25
+
+> **Published 2026-11-25** (tag `v4.12.1`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).
+> Patch release on top of v4.12.0, backward compatible. One fix: the Company settings row editor of Card Settings
+> opens again (issue 320). No patch; no database change; no role, DocPerm or accounting change; no new whitelisted
+> method.
+
 ### Fixed
 - **Card Settings: the Company settings row editor opens again (issue 320, PR #321; FR-159 follow-up).** The child DocType
   `Card Company Settings` held a Table field, `approval_tier_thresholds`. The Desk form supports a table one level

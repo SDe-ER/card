@@ -100,6 +100,7 @@ the tag (`git show <tag>:<path>`).
 | Loads on daily logs, behind a company setting (FR-188) | v4.12.0 | — | — | — | — | — | — | — | — | v4.12.0: `daily_log_loads` (default off); generation copies loads to per-m³ cards | v4.12.0 page; PR #315 |
 | Second person for transports entered from evidence, behind a company setting (FR-189) | v4.12.0 | — | — | — | — | — | — | — | — | v4.12.0: `require_intake_second_person` (default off); enforced in `before_submit` | v4.12.0 page; PR #316 |
 | Partner-owned equipment in Equipment Suppliers Summary, behind a company setting (FR-190) | v4.12.0 | — | — | — | — | — | — | — | — | v4.12.0: `partner_equipment_split` (default off); partner net behind the card money level | v4.12.0 page; PR #317 |
+| Company settings row editor opens; approval tier table on Card Settings (FR-159 fix, issue 320) | v4.12.1 | — | — | — | — | — | — | — | — | v4.12.1: the table moved from the company row to Card Settings; company scope and a duplicate check; no database change | v4.12.1 page; PR #321 |
 
 ## Reading the matrix
 
