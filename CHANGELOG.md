@@ -16,6 +16,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Documentation
+- **Documentation screenshots: the demo seed dates its addition row (issue 266).** The capture run of 2026-11-25
+  stopped in the seed: the demo addition had no `adjustment_date`, which is required since v4.10.0. Tooling only
+  (`website/scripts/screenshots/seed_demo.py`).
+- **Documentation screenshots: the duplicate captures are made distinct (issue 266; owner decision 2026-11-24: one
+  capture run after the fix).** `website/scripts/screenshots/`: the workspace, monthly card, posting preview and
+  diesel shots scroll to or open what each image is about (`scrollSel`, `clickTextAfter`, `waitSel`); a missing
+  target fails the shot; the customer statement and the loads card must show real values; the demo seed submits
+  the per-m³ card. Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no
+  application, permission, accounting, data or API change.
 - **Deployment record: the v4.11.1 upgrade of 2026-11-25 was rolled back in its window** (`docs/releases/DEPLOYMENTS.md`).
   The release itself passed every data check; a print check stopped the run because its baseline came from a stale
   cache. Production stays on v4.10.1. Documentation only.
