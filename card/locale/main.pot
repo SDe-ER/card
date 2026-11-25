@@ -8158,3 +8158,8 @@ msgstr ""
 #: card/daily_log.py
 msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
 msgstr ""
+
+#. Label of the maintenance_on (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Maintenance charged to"
+msgstr ""

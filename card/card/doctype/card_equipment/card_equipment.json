@@ -68,6 +68,7 @@
   "الوقود_على",
   "operation_standards_col",
   "operator_on",
+  "maintenance_on",
   "rental_section",
   "supplier",
   "rental_start_date",
@@ -410,6 +411,13 @@
    "fieldname": "operator_on",
    "fieldtype": "Select",
    "label": "Operator charged to",
+   "options": "\nالمؤجر\nالشركة",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "maintenance_on",
+   "fieldtype": "Select",
+   "label": "Maintenance charged to",
    "options": "\nالمؤجر\nالشركة",
    "permlevel": 1
   },
@@ -865,7 +873,7 @@
    "link_fieldname": "equipment"
   }
  ],
- "modified": "2026-11-10 20:00:00.000000",
+ "modified": "2026-11-25 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Equipment",
