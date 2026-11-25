@@ -11,6 +11,7 @@ import frappe
 from erpnext.controllers.sales_and_purchase_return import make_return_doc
 from frappe.utils import flt
 
+from card import analytics
 from card.card.report.project_invoice_profitability.project_invoice_profitability import (
 	execute as profitability,
 )
@@ -95,6 +96,7 @@ class TestProjectProfitability(_AnalyticsBase):
 					filters={
 						"company": self.company,
 						"docstatus": 1,
+						"is_opening": ["!=", "Yes"],
 						"posting_date": ["between", [PERIOD["from_date"], PERIOD["to_date"]]],
 					},
 					fields=["base_net_total"],
@@ -119,6 +121,7 @@ class TestProjectProfitability(_AnalyticsBase):
 		self.assertEqual(row["margin_percent"], 60.0)
 		self.assertIn("not the full net profit", message)
 		self.assertIn("Journal entries and the general ledger are not read", message)
+		self.assertIn("stock and asset purchases", message)
 
 	def test_totals_reconcile_to_the_invoices(self):
 		other = self._second_project()
@@ -184,6 +187,71 @@ class TestProjectProfitability(_AnalyticsBase):
 		self.assertFalse(rows)
 		self.assertEqual(total["revenue"], 0)
 		self.assertEqual(total["expenses"], 0)
+
+	def test_opening_invoices_are_not_read(self):
+		sale = self._si(1000, project=self.project)
+		purchase = self._pi(400, project=self.project)
+		self._si(50, project=self.project)
+		frappe.db.set_value("Sales Invoice", sale.name, "is_opening", "Yes", update_modified=False)
+		frappe.db.set_value("Purchase Invoice", purchase.name, "is_opening", "Yes", update_modified=False)
+		rows, _total, message, _summary, _columns = self._run(project=self.project)
+		self.assertEqual(rows[self.project]["revenue"], 50.0)
+		self.assertEqual(rows[self.project]["expenses"], 0)
+		self.assertIn("Opening invoices are not read", message)
+
+	def test_needs_read_on_both_invoice_types(self):
+		"""A margin built from one side only would mislead: the report is refused."""
+		self._si(1000, project=self.project)
+		real = analytics.can_read
+		for unreadable in ("Sales Invoice", "Purchase Invoice"):
+			with patch.object(
+				analytics,
+				"can_read",
+				side_effect=lambda doctype, u=unreadable: doctype != u and real(doctype),
+			):
+				with self.assertRaises(frappe.PermissionError, msg=unreadable):
+					profitability(self._period())
+
+	def test_amounts_are_summed_unrounded_and_rounded_once(self):
+		heads = {
+			"Sales Invoice": [frappe._dict(name="SI-1", project=None)],
+			"Purchase Invoice": [frappe._dict(name="PI-1", project=None)],
+		}
+		lines = {
+			"Sales Invoice Item": [frappe._dict(parent="SI-1", project="P1", base_net_amount=0.125)] * 3,
+			"Purchase Invoice Item": [frappe._dict(parent="PI-1", project="P1", base_net_amount=0.1)],
+		}
+		target = (
+			"card.card.report.project_invoice_profitability.project_invoice_profitability.currency_precision"
+		)
+		with (
+			patch.object(analytics.frappe, "get_list", side_effect=lambda doctype, **kw: heads[doctype]),
+			patch.object(analytics, "_children", side_effect=lambda child, *args, **kw: lines[child]),
+			patch(target, return_value=3),
+		):
+			rows, total, _message, summary, _columns = self._run()
+		self.assertEqual(rows["P1"]["revenue"], 0.375)
+		self.assertEqual(rows["P1"]["expenses"], 0.1)
+		self.assertEqual(rows["P1"]["margin"], 0.275)
+		self.assertEqual(total["revenue"], 0.375)
+		self.assertEqual(summary["Project margin"], 0.275)
+
+	def test_project_column_keeps_the_record_name_without_project_read(self):
+		self._si(1000, project=self.project)
+		with patch("card.report_access._role_reads", return_value=False):
+			rows, _total, _message, _summary, columns = self._run(project=self.project)
+		self.assertEqual(columns[0]["fieldtype"], "Data")
+		self.assertNotIn("options", columns[0])
+		row = rows[self.project]  # the record name stays; the name has its own column
+		self.assertEqual(row["project_name"], frappe.db.get_value("Project", self.project, "project_name"))
+
+	def test_project_of_another_company_shows_its_id_only(self):
+		foreign = self._second_project()
+		self._si(100, project=foreign)
+		frappe.db.set_value("Project", foreign, "company", self._other_company(), update_modified=False)
+		rows, _total, _message, _summary, _columns = self._run(project=foreign)
+		self.assertEqual(rows[foreign]["revenue"], 100.0)
+		self.assertIsNone(rows[foreign]["project_name"])
 
 	def test_date_window(self):
 		self._si(1000, project=self.project, posting_date="2026-10-05")
