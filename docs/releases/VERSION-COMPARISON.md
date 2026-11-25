@@ -97,6 +97,9 @@ the tag (`git show <tag>:<path>`).
 | Hour settings only from Card Settings (FR-184) | v4.11.1 | — | — | — | — | — | — | — | — | v4.11.1: no code fallback to 260 or 12; a per-month rate without Standard month hours is refused; the upgrade stores the defaults where missing or 0 | v4.11.1 page; PR #309 |
 | Loads figures only on per-m³ cards; diesel totals that include an estimate are labelled (FR-186, FR-185) | v4.11.1 | — | — | — | — | — | — | — | — | v4.11.1: display rules only; server rules and figures unchanged | v4.11.1 page; PRs #311, #310 |
 | Party portal reads need a role permission; an uncertain party resolves to none (FR-182, FR-183) | v4.11.1 | — | — | — | — | — | — | — | — | v4.11.1: the portal stays off on every company; hardening before any enablement | v4.11.1 page; PRs #305, #306 |
+| Loads on daily logs, behind a company setting (FR-188) | v4.12.0 | — | — | — | — | — | — | — | — | v4.12.0: `daily_log_loads` (default off); generation copies loads to per-m³ cards | v4.12.0 page; PR #315 |
+| Second person for transports entered from evidence, behind a company setting (FR-189) | v4.12.0 | — | — | — | — | — | — | — | — | v4.12.0: `require_intake_second_person` (default off); enforced in `before_submit` | v4.12.0 page; PR #316 |
+| Partner-owned equipment in Equipment Suppliers Summary, behind a company setting (FR-190) | v4.12.0 | — | — | — | — | — | — | — | — | v4.12.0: `partner_equipment_split` (default off); partner net behind the card money level | v4.12.0 page; PR #317 |
 
 ## Reading the matrix
 

@@ -521,6 +521,8 @@ def seed():
 				"adjustments": [
 					{
 						"adjustment_type": "إضافة",
+						# required since v4.10.0 (FR-169): the date of the addition, inside the card's month
+						"adjustment_date": f"{YEAR}-{MONTH:02d}-20",
 						"description": "Generator rental 17-09-2026 to 20-10-2026 (34 days x SAR 500)",
 						"amount": 17000,
 						"side": "Customer",
