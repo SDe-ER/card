@@ -25,6 +25,7 @@ see. The endpoints below serve the registry, the filters of the CARD reports and
 | GET, POST | `card.api.card_project_options` | Project filter options of the reports. |
 | GET | `card.api.report_defaults` | Report filter defaults from Card Settings. |
 | POST | `card.card.report.equipment_supplier_statement.statement_pdf.download_pdf` | Supplier statement as an A4 PDF. |
+| POST | `card.card.report.equipment_customer_statement.statement_pdf.download_pdf` | Customer statement as an A4 PDF. |
 
 ## party_figures
 
@@ -181,3 +182,20 @@ curl -s -X POST "https://<your-site>/api/method/card.card.report.equipment_suppl
 - [Suppliers and customers](/card/features/suppliers-customers/)
 - [Parties and statements reports](/card/reports/parties-statements/)
 - [Print formats](/card/features/print-formats/)
+
+## download_pdf (customer statement)
+
+`POST /api/method/card.card.report.equipment_customer_statement.statement_pdf.download_pdf`
+
+Runs the **Equipment Customer Statement** with the caller's permissions and returns the A4 statement as a PDF rendered
+by the Chrome PDF generator (correct Arabic shaping). The endpoint accepts filters only, never HTML.
+
+**Permission:** the report's roles, **print** on Card Monthly Card, and the standard report and filter-value checks;
+the company is validated by the report.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `filters` | object | Yes | The report filters: `company`, `customer`, `from_month`, `from_year`, `to_month`, `to_year`, `project`, `equipment`, `equipment_type`, `include_draft`. Plain values only; a list or object value is refused. |
+
+**Returns:** the PDF file (`Equipment Customer Statement.pdf`, translated). **Side effects:** writes an Access Log
+entry.

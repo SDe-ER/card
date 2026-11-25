@@ -20,6 +20,7 @@ sidebar:
 | [`card.card.doctype.card_settings.card_settings`](#card-card-doctype-card-settings-card-settings) | 2 |
 | [`card.card.doctype.equipment_transport.equipment_transport`](#card-card-doctype-equipment-transport-equipment-transport) | 3 |
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
+| [`card.card.report.equipment_customer_statement.statement_pdf`](#card-card-report-equipment-customer-statement-statement-pdf) | 1 |
 | [`card.card.report.equipment_supplier_statement.statement_pdf`](#card-card-report-equipment-supplier-statement-statement-pdf) | 1 |
 | [`card.card_value`](#card-card-value) | 6 |
 | [`card.cash_disbursement`](#card-cash-disbursement) | 8 |
@@ -116,6 +117,13 @@ sidebar:
 | `card.card.doctype.project_diesel_fill.project_diesel_fill.get_diesel_price_context` | GET | `company: str \| None = None`<br/>`date: str \| None = None` |
 | `card.card.doctype.project_diesel_fill.project_diesel_fill.use_company_price` | POST | `name: str`<br/>`reason: str \| None = None` |
 | `card.card.doctype.project_diesel_fill.project_diesel_fill.remove_price_exception` | POST | `name: str`<br/>`reason: str \| None = None` |
+
+
+<h2 id="card-card-report-equipment-customer-statement-statement-pdf"><code>card.card.report.equipment_customer_statement.statement_pdf</code></h2>
+
+| مسار الدالة | طرق HTTP | المعاملات |
+|---|---|---|
+| `card.card.report.equipment_customer_statement.statement_pdf.download_pdf` | POST | `filters: str \| dict \| None = None` |
 
 
 <h2 id="card-card-report-equipment-supplier-statement-statement-pdf"><code>card.card.report.equipment_supplier_statement.statement_pdf</code></h2>

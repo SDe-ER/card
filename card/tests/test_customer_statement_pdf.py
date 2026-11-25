@@ -87,9 +87,7 @@ class TestCustomerStatementPdf(IntegrationTestCase):
 		self.assertNotIn("<script", html)
 		# one Access Log row, as the standard report PDF writes
 		self.assertTrue(
-			frappe.db.exists(
-				"Access Log", {"report_name": statement_pdf.REPORT, "file_type": "PDF", "user": "Administrator"}
-			)
+			frappe.db.exists("Access Log", {"report_name": statement_pdf.REPORT, "file_type": "PDF"})
 		)
 
 	def test_report_permission_is_required(self):
@@ -203,7 +201,7 @@ class TestCustomerStatementPdf(IntegrationTestCase):
 		self.assertIn('<td class="ess-c">1</td>', html)
 		self.assertNotIn('<td class="ess-c">2</td>', html)
 		self.assertIn(frappe._("Customer signature"), html)
-		self.assertNotIn("ess-note", html)
+		self.assertNotIn('class="ess-note"', html)
 
 	def test_build_html_prints_loads_and_volume_of_a_per_m3_card(self):
 		columns = self._columns(

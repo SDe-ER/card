@@ -24,6 +24,7 @@ sidebar:
 | GET، POST | `card.api.card_project_options` | خيارات فلتر المشروع في التقارير. |
 | GET | `card.api.report_defaults` | القيم الافتراضية لفلاتر التقارير من الإعدادات. |
 | POST | `card.card.report.equipment_supplier_statement.statement_pdf.download_pdf` | كشف المورد بصيغة PDF بحجم A4. |
+| POST | `card.card.report.equipment_customer_statement.statement_pdf.download_pdf` | كشف العميل بصيغة PDF بحجم A4. |
 
 ## party_figures
 
@@ -177,3 +178,19 @@ curl -s -X POST "https://<your-site>/api/method/card.card.report.equipment_suppl
 - [الموردون والعملاء](/card/ar/features/suppliers-customers/)
 - [تقارير الأطراف والكشوف](/card/ar/reports/parties-statements/)
 - [تنسيقات الطباعة](/card/ar/features/print-formats/)
+
+## download_pdf (كشف العميل)
+
+`POST /api/method/card.card.report.equipment_customer_statement.statement_pdf.download_pdf`
+
+يشغّل **كشف حساب العميل** بصلاحيات المستدعي ويعيد كشف A4 ملفَّ PDF مولَّدًا بمولّد Chrome (بتشكيل عربي صحيح). ونقطة
+النهاية لا تقبل إلا الفلاتر، ولا تقبل HTML أبدًا.
+
+**الصلاحية:** أدوار التقرير، وصلاحية **الطباعة** على كروت التشغيل الشهرية، والفحوص القياسية للتقرير ولقيم الفلاتر؛ ويتحقق
+التقرير من الشركة.
+
+| المعامل | النوع | إلزامي | الوصف |
+|---|---|---|---|
+| `filters` | object | نعم | فلاتر التقرير: `company` و`customer` و`from_month` و`from_year` و`to_month` و`to_year` و`project` و`equipment` و`equipment_type` و`include_draft`. قيم بسيطة فقط؛ وتُرفض القيمة التي هي قائمة أو كائن. |
+
+**القيمة المعادة:** ملف PDF (`Equipment Customer Statement.pdf` مترجمًا). **الآثار الجانبية:** تسجيل قيد في سجل الوصول.

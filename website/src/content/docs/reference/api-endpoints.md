@@ -20,6 +20,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.card.doctype.card_settings.card_settings`](#card-card-doctype-card-settings-card-settings) | 2 |
 | [`card.card.doctype.equipment_transport.equipment_transport`](#card-card-doctype-equipment-transport-equipment-transport) | 3 |
 | [`card.card.doctype.project_diesel_fill.project_diesel_fill`](#card-card-doctype-project-diesel-fill-project-diesel-fill) | 5 |
+| [`card.card.report.equipment_customer_statement.statement_pdf`](#card-card-report-equipment-customer-statement-statement-pdf) | 1 |
 | [`card.card.report.equipment_supplier_statement.statement_pdf`](#card-card-report-equipment-supplier-statement-statement-pdf) | 1 |
 | [`card.card_value`](#card-card-value) | 6 |
 | [`card.cash_disbursement`](#card-cash-disbursement) | 8 |
@@ -154,6 +155,15 @@ This page is generated from the CARD source code on every build. Edit the code, 
 - `get_diesel_price_context` — What the fill form needs before saving (read only): the company price on the fill date (today when empty) and whether the current user may grant a price exception. Fill users cannot read Card Settings.
 - `use_company_price` — Explicit choice on a draft without an exception (the form offers it on Needs Review drafts): replace its price with the current company price. Owner 2026-10-20: changing a saved draft's price needs the exception role, a reason and an audit.
 - `remove_price_exception` — End the price exception of a saved draft: it returns to the current company price. Owner 2026-10-20: needs the exception role and a written reason; audited like every price change.
+
+
+<h2 id="card-card-report-equipment-customer-statement-statement-pdf"><code>card.card.report.equipment_customer_statement.statement_pdf</code></h2>
+
+| Method path | HTTP methods | Arguments |
+|---|---|---|
+| `card.card.report.equipment_customer_statement.statement_pdf.download_pdf` | POST | `filters: str \| dict \| None = None` |
+
+- `download_pdf` — Send the statement as a PDF file (Chrome generator). Same permissions as running and printing the report; the company is checked by the report.
 
 
 <h2 id="card-card-report-equipment-supplier-statement-statement-pdf"><code>card.card.report.equipment_supplier_statement.statement_pdf</code></h2>
