@@ -4,11 +4,16 @@
 generic FR-131 scope (card.company_scope, registered in hooks.py for this DocType)."""
 
 from frappe.model.document import Document
+from frappe.utils import cint
 
 from card import daily_log
 
 
 class CardDailyLog(Document):
+	def onload(self):
+		# FR-188: the form shows the load fields of a row only when the log's company uses them (a flag only)
+		self.set_onload(daily_log.LOADS_SETTING, cint(daily_log.loads_enabled(self.company)))
+
 	def validate(self):
 		daily_log.prepare(self)
 		daily_log.validate_log(self)

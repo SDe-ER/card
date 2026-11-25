@@ -4,7 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "links": [],
- "modified": "2026-11-11 12:00:00.000000",
+ "modified": "2026-11-25 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Daily Log Row",
@@ -20,6 +20,8 @@
   "equipment_name",
   "day_hours",
   "night_hours",
+  "day_loads",
+  "night_loads",
   "stop_reason",
   "stopped_hours",
   "responsible_party_type",
@@ -57,6 +59,18 @@
    "fieldtype": "Float",
    "label": "Night shift hours",
    "in_list_view": 1,
+   "non_negative": 1
+  },
+  {
+   "fieldname": "day_loads",
+   "fieldtype": "Int",
+   "label": "Day shift loads",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "night_loads",
+   "fieldtype": "Int",
+   "label": "Night shift loads",
    "non_negative": 1
   },
   {

@@ -26,7 +26,23 @@ preparer; when a preparer approves, the company's ``self_approval_rule`` (Card D
 Supervisor step (opt-in per company, ``require_supervisor_verification``, default off = the two-step flow above):
 a submitted log is first "Verified by supervisor" by a Card Supervisor who is not its preparer, and only then
 approved by a manager; the verifier counts as a preparer for the approval. A Card Supervisor may also return a
-Pending log in that mode."""
+Pending log in that mode.
+
+Loads (FR-188, opt-in per company: Card Company Settings ``daily_log_loads``, default off = no row may get
+loads, the behaviour before FR-188): a row may record the day shift loads and the night shift loads of equipment
+billed to its customer per m³ (FR-166), on a day that is not in the future. A day with loads is checked against
+the assignments like a day with hours. The loads reach the monthly card through the generation only.
+
+A load field that a save does not send is kept (``keep_unsent_loads``): a client that does not know the two
+fields (CARD Mobile) sends rows without them, and Frappe would store 0. An unsent field is ``None`` on the row
+when ``validate`` runs (``frappe.model.document.Document.init_valid_columns`` sets every column that is not in the
+data to ``None``; the numeric cast to 0 runs after ``validate``), a sent 0 is 0. An unsent field of a stored row
+(matched by its row name inside this log) takes the stored value; on a new log that amends another one (the
+corrected draft) it takes the value of the amended log's row of the same equipment, and only when the amended log
+has the new log's company, project and date (any other ``amended_from`` gives nothing). The Desk form sends 0 for
+an emptied load field (``card_daily_log.js``, ``validate``), so emptying a field there clears it. Only loads that are new or
+changed are checked against the switch and the per-m³ rule, so a log that holds loads is still saved after the
+switch was turned off."""
 
 import frappe
 from frappe import _
@@ -34,9 +50,10 @@ from frappe.utils import cint, flt, getdate, now_datetime, nowdate
 
 from card.adjustments import validate_downtime_fields
 from card.cancel_reason import _refuse_changes as refuse_cancel_changes
+from card.card_value import PER_VOLUME_M3
 from card.company_scope import check_child_companies
 from card.equipment_status import check_equipment_status
-from card.settings import setting
+from card.settings import company_setting, setting
 from card.transfer import validate_card_days
 
 DOCTYPE = "Card Daily Log"
@@ -51,6 +68,10 @@ STATUSES = (PENDING, VERIFIED, APPROVED, RETURNED)
 
 RULE_WARN = "Warn only (daily log)"
 RULE_REFUSE = "Refuse (daily log)"
+
+# FR-188: the per-company switch (Card Company Settings) and the two load fields of a daily log row
+LOADS_SETTING = "daily_log_loads"
+LOAD_FIELDS = ("day_loads", "night_loads")
 
 APPROVER_ROLES = ("Card Manager", "System Manager")
 SUPERVISOR_ROLE = "Card Supervisor"
@@ -92,6 +113,12 @@ def self_approval_rule(company):
 def requires_supervisor_verification(company):
 	"""True when the company asks a supervisor to verify a log before a manager approves it (default off)."""
 	return bool(cint(_company_rules(company).get("require_supervisor_verification")))
+
+
+def loads_enabled(company):
+	"""True only when the company's Card Company Settings row sets ``daily_log_loads`` (FR-188); no company, no
+	row or 0: daily logs carry no loads, as before."""
+	return cint(company_setting(company, LOADS_SETTING)) == 1
 
 
 def _add_preparers(users, row):
@@ -166,7 +193,9 @@ def validate_log(doc):
 	# #50: no hard-coded 12; a missing or zero limit is not configured and nothing is checked against it
 	max_day = flt(setting("max_day_shift_hours"))
 	max_night = flt(setting("max_night_shift_hours"))
-	for row in doc.rows:
+	loads_on = loads_enabled(doc.company)
+	load_baselines = keep_unsent_loads(doc)
+	for row, load_baseline in zip(doc.rows, load_baselines, strict=True):
 		if row.equipment in seen:
 			frappe.throw(
 				_("Equipment {0} is listed twice in the daily log (row {1}).").format(row.equipment, row.idx)
@@ -188,6 +217,7 @@ def validate_log(doc):
 			over_limit.append(f"{row.equipment} ({_('Day shift hours')}: {day})")
 		if max_night > 0 and night > max_night:
 			over_limit.append(f"{row.equipment} ({_('Night shift hours')}: {night})")
+		_check_loads(row, doc, loads_on, future, load_baseline)
 		_check_stop_reason(row, doc.company)
 		_responsible_party(row, doc.company, log_date)
 		if row.equipment not in stored_equipment:
@@ -203,6 +233,78 @@ def validate_log(doc):
 			indicator="orange",
 		)
 	_check_duplicates(doc)
+
+
+def _load_baselines(doc):
+	"""The stored loads each row of ``doc`` starts from, one ``(day_loads, night_loads)`` per row in row order:
+	the stored row of this log with the same row name; on a new log that amends another one, the amended log's row
+	of the same equipment (a log lists an equipment once), and only when the amended log has the new log's company,
+	project and date: a corrected draft keeps them, so another ``amended_from`` is not a correction and gives no
+	loads; otherwise no loads. A row name of another log matches nothing."""
+	if doc.is_new():
+		parent, key = doc.get("amended_from"), "equipment"
+		amended = parent and frappe.db.get_value(
+			DOCTYPE, parent, ["company", "project", "log_date"], as_dict=True
+		)
+		if not amended or (
+			(amended.company, amended.project, getdate(amended.log_date))
+			!= (doc.company, doc.project, getdate(doc.log_date))
+		):
+			parent = None
+	else:
+		parent, key = doc.name, "name"
+	stored = {}
+	if parent:
+		stored = {
+			r.get(key): tuple(cint(r.get(field)) for field in LOAD_FIELDS)
+			for r in frappe.get_all(
+				ROW_DOCTYPE,
+				filters={"parent": parent, "parenttype": DOCTYPE},
+				fields=["name", "equipment", *LOAD_FIELDS],
+			)
+		}
+	return [stored.get(row.get(key), (0, 0)) for row in doc.rows]
+
+
+def keep_unsent_loads(doc):
+	"""FR-188: a load field the save did not send (``None`` on the row, module docstring) takes its stored value,
+	so a client that does not know the load fields cannot erase them; a sent value, 0 included, is kept as sent.
+	Returns the stored loads of each row (``_load_baselines``)."""
+	baselines = _load_baselines(doc)
+	for row, baseline in zip(doc.rows, baselines, strict=True):
+		for field, stored in zip(LOAD_FIELDS, baseline, strict=True):
+			if row.get(field) is None:
+				row.set(field, stored)
+	return baselines
+
+
+def _check_loads(row, doc, loads_on, future, baseline=(0, 0)):
+	"""FR-188: the loads of a row follow the monthly card's rules for ``loads_count`` (FR-166): never negative,
+	never on a future day, only on equipment billed to its customer per m³. With the company's switch off a row
+	gets no loads. The switch and the per-m³ rule are checked only for loads that are new or changed against the
+	stored ``baseline``: a row that keeps its loads, or clears them, is saved also after the switch was turned
+	off."""
+	loads = tuple(cint(row.get(field)) for field in LOAD_FIELDS)
+	if min(loads) < 0:
+		frappe.throw(_("Row {0}: loads cannot be negative.").format(row.idx))
+	if not any(loads):
+		return
+	if future:
+		frappe.throw(_("Cannot record loads for a future day: {0}").format(doc.log_date))
+	if not any(value and value != stored for value, stored in zip(loads, baseline, strict=True)):
+		return
+	if not loads_on:
+		frappe.throw(
+			_(
+				"Row {0}: loads on daily logs are not enabled for company {1}. Enter the loads on the monthly card, or enable Loads on daily logs for the company in Card Settings."
+			).format(row.idx, doc.company)
+		)
+	if frappe.db.get_value("Card Equipment", row.equipment, "customer_rate_type") != PER_VOLUME_M3:
+		frappe.throw(
+			_(
+				"Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
+			).format(row.idx, row.equipment)
+		)
 
 
 def _stored_equipment(doc):
@@ -253,13 +355,16 @@ def _responsible_party(row, company, log_date):
 
 
 def _check_assignment(doc, row, log_date):
-	"""The monthly card rule: a day with hours (working or stopped) falls inside an assignment period of the
-	equipment (every component for a unit) on the log's project. Equipment without any assignment history is
-	not checked, as on a monthly card."""
+	"""The monthly card rule: a day with hours (working or stopped) or with loads (FR-188) falls inside an
+	assignment period of the equipment (every component for a unit) on the log's project. Equipment without any
+	assignment history is not checked, as on a monthly card."""
 	hours = flt(row.day_hours) + flt(row.night_hours) + flt(row.stopped_hours)
-	if hours <= 0:
+	loads = sum(cint(row.get(field)) for field in LOAD_FIELDS)
+	if hours <= 0 and loads <= 0:
 		return
-	day = frappe._dict(operation_date=log_date, working_hours=hours, stopped_hours=0, reason_billable=0)
+	day = frappe._dict(
+		operation_date=log_date, working_hours=hours, loads_count=loads, stopped_hours=0, reason_billable=0
+	)
 	validate_card_days(frappe._dict(equipment=row.equipment, project=doc.project, days=[day]))
 
 

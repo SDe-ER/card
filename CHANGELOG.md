@@ -16,6 +16,53 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Added
+- **FR-188 — Loads on the daily log, opt-in per company (issue 44; owner instruction 2026-11-25: implement the
+  concrete part behind a setting that defaults to off).** A machine billed to its customer per m³ (FR-166) needs
+  loads on each working day. The daily log had no load field, so a card made from daily logs had zero loads until
+  a person typed them on the card.
+  - New per-company switch `Card Company Settings.daily_log_loads` (Check, default 0, permlevel 1). Off, also with
+    no settings row: a daily log row with new or changed loads is refused, and the generation copies no loads to a
+    card. This is the behaviour before this change.
+  - On: `Card Daily Log Row.day_loads` and `night_loads` (Int, non-negative, permlevel 0, counts and not money)
+    are accepted only for equipment whose customer rate type is per m³, and never on a future day
+    (`card.daily_log._check_loads`). A day with loads is checked against the assignments like a day with hours
+    (`_check_assignment`).
+  - On: `card.daily_log_generation.generate_monthly_cards` copies the day shift loads to `loads_count` of the day
+    shift card's day and the night shift loads to the night shift card's day (`_day_values`). A shift with loads
+    and no hours gets its card (`_shift_has_hours`). Every card is saved through its own validation, so the FR-166
+    rules decide. A log row without loads keeps a hand-entered load count of a day; an amended log replaces the
+    loads of the log it amends (`_keeps_card_loads`). A cancelled log clears the loads of its day on a draft card
+    (`_clear_stale`). A submitted card is never changed. `overwritten_days` entries get `old_loads` / `new_loads`
+    and `cleared_days` entries get `loads` only when the switch is on.
+  - A client that does not send the two load fields cannot erase them (`card.daily_log.keep_unsent_loads`). CARD
+    Mobile sends rows without them, and a REST update would store 0. Rule: a load field that is `None` on the row
+    when `validate` runs was not sent (Frappe sets every column that is not in the data to `None`, and casts
+    numbers after `validate`); a sent 0 is 0. An unsent field of a stored row, matched by its row name inside
+    this log, keeps the stored value. On a new log that amends another one (the corrected draft of CARD Mobile)
+    it takes the value of the amended log's row of the same equipment, and only when the amended log has the
+    new log's company, project and date (`_load_baselines`): another `amended_from` gives no loads, so the
+    switch and the per-m³ rule are checked as for any new loads. The Desk form always sends the two fields: its
+    `validate` event (`card_daily_log.js`) sets an emptied load field to 0, so emptying a field on the form
+    clears it.
+  - After the switch is turned off, a log that holds loads is still saved while its loads are unchanged or
+    cleared; only new or changed loads are refused (`_check_loads`). The form then shows the two fields read
+    only on a log that holds loads.
+  - A day cleared because its log is no longer Approved: with the switch on its loads are cleared. With the
+    switch off (turned off after loads were copied) the load count is cleared only when it equals the loads of
+    that log's row (`_clear_stale`, `_log_loads`): it came from the log. Another count is a hand entry and is
+    kept. The same rule applies, with the switch off, to a day now set from another log (the corrected log):
+    a load count equal to the loads of the earlier log named in the day's notes is set to 0 and reported in
+    `overwritten_days` (`_apply_days`, `_loads_of_earlier_log`). A company that never used the switch has no
+    loads on its logs, so nothing changes for it.
+  - The form shows the two fields from an onload flag (`CardDailyLog.onload`); a new log shows them after its
+    first save. CARD Mobile has no load fields yet and no `frontend/` file changed.
+  - Permissions: no new role, DocPerm or whitelisted method. Accounting: none (draft cards only; no invoice or GL
+    code changed). Data: three new columns that default to 0, no patch, existing logs and cards unchanged. API:
+    the result of `generate_monthly_cards` gains the keys above only when the switch is on.
+  - Tests: `card/tests/test_daily_log_loads.py`. Not yet run on a site (written without a bench).
+  - Rollback: set the switch to 0 (loads already copied to draft cards stay and can be edited by hand), or revert
+    the commits; the three columns then stay in the database unused. Design:
+    `docs/design/issue-44-daily-input-and-cards.md`.
 - **FR-189 — Optional second person for transports entered from evidence (issue 52; owner instruction
   2026-11-25: implement what is concrete behind a setting that defaults to off).** Reason: a transport typed from a
   paper sheet or a WhatsApp message had no check by a different person. Design:

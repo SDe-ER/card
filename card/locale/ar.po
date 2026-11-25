@@ -9353,3 +9353,30 @@ msgstr "إظهار المعدات المملوكة لشركاء في ملخص ا
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
 msgid "Net cards (partner-owned)"
 msgstr "صافي الكروت (معدات الشركاء)"
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift loads"
+msgstr "ردود الوردية النهارية"
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift loads"
+msgstr "ردود الوردية الليلية"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Daily log loads"
+msgstr "ردود اليومية"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Loads on daily logs"
+msgstr "الردود في اليوميات"
+
+#: card/daily_log.py
+msgid "Row {0}: loads cannot be negative."
+msgstr "السطر {0}: لا يمكن أن يكون عدد الردود سالبًا."
+
+#: card/daily_log.py
+msgid "Row {0}: loads on daily logs are not enabled for company {1}. Enter the loads on the monthly card, or enable Loads on daily logs for the company in Card Settings."
+msgstr "السطر {0}: تسجيل الردود في اليوميات غير مفعّل للشركة {1}. سجّل الردود في الكارت الشهري، أو فعّل «الردود في اليوميات» للشركة من إعدادات CARD."
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
+msgstr "السطر {0} ({1}): لا تُسجَّل الردود إلا لمعدة نوع سعر العميل لها بالمتر المكعب."

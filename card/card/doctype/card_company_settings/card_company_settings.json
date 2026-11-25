@@ -65,7 +65,9 @@
   "diesel_tanks_section",
   "enable_diesel_tanks",
   "partner_reports_section",
-  "partner_equipment_split"
+  "partner_equipment_split",
+  "daily_log_loads_section",
+  "daily_log_loads"
  ],
  "fields": [
   {
@@ -502,13 +504,27 @@
    "fieldtype": "Check",
    "label": "Show partner-owned equipment in the suppliers summary",
    "permlevel": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "daily_log_loads_section",
+   "fieldtype": "Section Break",
+   "label": "Daily log loads",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "daily_log_loads",
+   "fieldtype": "Check",
+   "label": "Loads on daily logs",
+   "permlevel": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-25 12:00:00.000000",
+ "modified": "2026-11-25 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",

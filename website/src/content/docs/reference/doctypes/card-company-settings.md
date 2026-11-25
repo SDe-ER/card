@@ -145,6 +145,13 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Show partner-owned equipment in the suppliers summary | `partner_equipment_split` | Check |  |  |
 
 
+**Daily log loads**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Loads on daily logs | `daily_log_loads` | Check |  |  |
+
+
 ## Child tables
 
 - [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/)

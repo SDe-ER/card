@@ -171,6 +171,25 @@ cleared, stale days on submitted cards, conflicts, days left out and cards not s
 ![Daily log rows](../../../assets/screenshots/en/daily-logs-generation-result.webp)
 *Daily log rows*
 
+### Loads on a daily log (optional)
+
+A machine billed to its customer per m³ needs a load count for each working day (see
+[Volume billing](/card/features/volume-billing/)). By default you enter the loads on the Monthly Card.
+
+A user who may edit Card Settings can switch on **Loads on daily logs** for a company in **Card Settings** (company settings). It
+is off by default. When it is on:
+
+- A daily log row has **Day shift loads** and **Night shift loads**. On a new log the two fields show after the
+  first save.
+- Loads are accepted only for a machine whose customer rate type is per m³, and never on a future day.
+- **Generate monthly cards** copies the day shift loads to the day card and the night shift loads to the night
+  card. A shift with loads and no hours gets its card.
+- A daily log without loads does not erase loads typed on a card. An amended daily log replaces the loads of the
+  log it amends.
+- A submitted card is never changed.
+
+When the switch is off, a daily log with loads is refused and the generation does not touch the loads of a card.
+
 ## Workflow
 
 1. The operator or site supervisor creates a daily log for the project and date, adds a row per machine and submits it.

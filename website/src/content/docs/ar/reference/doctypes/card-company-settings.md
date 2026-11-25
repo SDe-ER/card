@@ -147,6 +147,13 @@ sidebar:
 | إظهار المعدات المملوكة لشركاء في ملخص الموردين | `partner_equipment_split` | Check |  |  |
 
 
+**ردود اليومية**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| الردود في اليوميات | `daily_log_loads` | Check |  |  |
+
+
 ## الجداول الفرعية
 
 - [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/)
