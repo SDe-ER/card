@@ -1,6 +1,6 @@
 ---
 title: Accounting Control Reports
-description: Partial margin per equipment, unbilled card work, expenses without equipment and posting source integrity.
+description: Partial margin per equipment, revenue and expenses per project, unbilled card work, expenses without equipment and posting source integrity.
 sidebar:
   order: 7
 ---
@@ -59,6 +59,41 @@ period shows its revenue in that period.
 **Access.** System Manager, Accounts Manager — ledger readers only. A part the user cannot read (monthly cards, diesel
 fills, transports, sales invoices) is left out and named in the message. Without the Card Equipment dimension,
 revenue and maintenance are not shown.
+
+## Project Invoice Profitability
+
+**Purpose.** One row per project for one company and period: what the submitted invoices say the project earned and
+spent. The report is read-only.
+
+- **Project revenue** – the net amount of the lines of submitted Sales Invoices posted in the period. A credit note
+  has negative lines, so it reduces revenue.
+- **Project expenses** – the net amount of the lines of submitted Purchase Invoices posted in the period. A debit
+  note reduces expenses. Every line counts, also a stock or fixed-asset purchase.
+- **Project margin** – revenue minus expenses. **Project margin %** is the margin as a percentage of revenue; it is
+  empty when the project has no revenue.
+
+A line without a project takes the project of its invoice. A line with no project at all is on the row **No
+project**, so the totals equal the net totals of the invoices. Amounts are net of VAT, in the company currency;
+each figure is rounded once, at the precision of that currency. Opening invoices are not read, because they carry
+balances of earlier periods.
+
+:::caution
+The margin is not the full net profit. The report reads invoices only. It does not read journal entries or the
+general ledger, and it estimates nothing. Payroll, depreciation, overhead and costs booked by journal entry are not
+included.
+:::
+
+**Filters:** **Company** (required), **From date** / **To date** (required, current month by default), **Project**.
+
+**Columns:** Project, Project name, Project revenue, Project expenses, Project margin, Project margin %.
+
+**Totals.** Tiles **Project revenue**, **Project expenses** and **Project margin** (green when not negative). The last
+row, **Total of all projects**, is the total of the rows.
+
+**Access.** System Manager, Accounts Manager — ledger readers only. The invoices are read with the user's own
+permissions. A user who cannot read Sales Invoice or Purchase Invoice is refused: a margin built from one side only
+would mislead. **Project name** is shown for a project of the report company; a project of another company shows
+its ID only.
 
 ## Unbilled Card Work
 

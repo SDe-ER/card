@@ -60,6 +60,37 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     none; data: one new empty column `maintenance_on` on `tabCard Equipment`, added by `bench migrate`, no
     patch. Rollback: the earlier code ignores the column; stored values stay in the database.
   - Tests: `card/tests/test_equipment_maintenance_payer.py`. PR #326.
+- **FR-193 — Project Invoice Profitability report (issue 53, PR #327; owner decision 2026-11-25, option 1).** The owner asked
+  for the revenue and the expenses of each project, read from the ERPNext invoices. CARD had the margin per
+  equipment (Equipment Partial Margin) but no figure per project from all invoices.
+  - New Script Report **Project Invoice Profitability**, read-only, for one company and one period (posting date),
+    with an optional project. Revenue is the net amount (`base_net_amount`, company currency) of the lines of
+    submitted Sales Invoices; expenses are the net amount of the lines of submitted Purchase Invoices. Credit notes
+    and debit notes are negative lines, so they reduce their side. A line without a project takes the project of
+    its invoice (the rule of `card.analytics.revenue_lines`); a line with no project at all is on the row
+    **No project**, so the totals equal the net totals of the invoices. Opening invoices (`is_opening` = Yes)
+    are not read: they carry balances of earlier periods. The sums are not rounded line by line; each figure is
+    rounded once, at the precision of the company currency (`card.report_currency.currency_precision`). Columns: Project, Project name, Project
+    revenue, Project expenses, Project margin, Project margin %; the last row is the total of all projects.
+  - The report reads no Journal Entry and no GL Entry and estimates nothing. The margin is revenue minus
+    purchase-invoice expenses. It is not the full net profit: payroll, depreciation, overhead and journal-entry
+    costs are not included. Every Purchase Invoice line counts, also a stock or fixed-asset purchase. The report
+    message says so.
+  - The name is not "Project Profitability" because ERPNext ships a standard report with that name (based on
+    timesheets and salary slips); a second report record with the same name is not possible.
+  - Functions: `card/card/report/project_invoice_profitability/` (new), `card/analytics.py`
+    (`invoice_project_totals`, `project_names`, new), `card/report_currency.py` (`currency_precision`, new),
+    `card/card/sidebar/card_reports/card_reports.json` (one link), `card/locale/ar.po`, `card/locale/main.pot`. Tests: `card/tests/test_project_invoice_profitability.py`.
+  - Permissions: no new role and no DocPerm. Report roles System Manager and Accounts Manager, the roles of
+    Equipment Partial Margin. The server refuses a company the user may not see (`resolve_company`) and a user
+    without General Ledger read on that company (`can_view_ledger`). A user who cannot read Sales Invoice or
+    Purchase Invoice is refused too: a margin built from one side only would mislead. Invoices are read with
+    `frappe.get_list`, so the user's own permissions and User Permissions apply. The name of a project is shown
+    only for a project of the report company (`project_names`); a project of another company shows its ID only.
+  - Accounting: none. Read only; nothing is posted or changed. Data: none; no new DocType, field or patch. API: no
+    new whitelisted method.
+  - Rollback: revert the commit. A site that already migrated keeps the Report record and the sidebar link until
+    they are deleted by hand; they hold no data.
 
 ## [4.12.2] — 2026-11-25
 

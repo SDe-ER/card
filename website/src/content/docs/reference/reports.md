@@ -34,6 +34,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [Equipment Suppliers Summary](#equipment-suppliers-summary) | [Card Monthly Card](/card/reference/doctypes/card-monthly-card/) | System Manager, Card Manager, Card User, Accounts Manager |
 | [Operating Cost by Project](#operating-cost-by-project) | [Project Diesel Fill](/card/reference/doctypes/project-diesel-fill/) | System Manager, Card Manager, Card User, Accounts Manager |
 | [Posting Source Integrity](#posting-source-integrity) | [GL Posting Log](/card/reference/doctypes/gl-posting-log/) | System Manager, Accounts Manager |
+| [Project Invoice Profitability](#project-invoice-profitability) | [Card Monthly Card](/card/reference/doctypes/card-monthly-card/) | System Manager, Accounts Manager |
 | [Repeat Equipment Requests](#repeat-equipment-requests) | [Equipment Needs Request](/card/reference/doctypes/equipment-needs-request/) | System Manager, Card Manager, Card Supervisor, Card User, Stock Manager, Accounts Manager |
 | [Transport Accounting Review](#transport-accounting-review) | [Equipment Transport](/card/reference/doctypes/equipment-transport/) | System Manager, Accounts Manager |
 | [Transport Cost by Project](#transport-cost-by-project) | [Equipment Transport](/card/reference/doctypes/equipment-transport/) | System Manager, Card Manager, Card User, Accounts Manager |
@@ -376,6 +377,20 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | From date | `from_date` | Date | Yes |
 | To date | `to_date` | Date | Yes |
 | Show | `show` | Select |  |
+
+
+<h2 id="project-invoice-profitability">Project Invoice Profitability</h2>
+
+- Type: Script Report
+- Based on: Card Monthly Card
+- Roles: System Manager, Accounts Manager
+
+| Label | Field name | Type | Required |
+|---|---|---|---|
+| Company | `company` | Autocomplete | Yes |
+| From date | `from_date` | Date | Yes |
+| To date | `to_date` | Date | Yes |
+| Project | `project` | Autocomplete |  |
 
 
 <h2 id="repeat-equipment-requests">Repeat Equipment Requests</h2>

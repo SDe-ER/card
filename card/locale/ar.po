@@ -9393,3 +9393,48 @@ msgstr "السطر {0} ({1}): لا تُسجَّل الردود إلا لمعدة
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "Maintenance charged to"
 msgstr "الصيانة على"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.js
+#: card/card/sidebar/card_reports/card_reports.json
+msgid "Project Invoice Profitability"
+msgstr "ربحية المشاريع من الفواتير"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "The project profitability shows financial figures; it needs General Ledger access."
+msgstr "ربحية المشاريع تعرض أرقاماً مالية؛ وتتطلب صلاحية الاطلاع على دفتر الأستاذ العام."
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Select the period of the project profitability."
+msgstr "اختر فترة ربحية المشاريع."
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. Expenses include every Purchase Invoice line, stock and asset purchases too. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
+msgstr "للقراءة فقط. الإيرادات هي صافي بنود فواتير المبيعات المعتمدة، والمصروفات هي صافي بنود فواتير المشتريات المعتمدة، حسب تاريخ الترحيل وبعملة الشركة. المصروفات تشمل كل بنود فواتير المشتريات، ومنها مشتريات المخزون والأصول. الفواتير الافتتاحية لا تُقرأ. البند الذي ليس عليه مشروع يأخذ مشروع فاتورته؛ والبنود التي ليس لها مشروع إطلاقاً تظهر في سطر «بدون مشروع». لا تُقرأ قيود اليومية ولا دفتر الأستاذ العام، ولا يوجد أي تقدير. الهامش هو الإيرادات ناقص مصروفات فواتير المشتريات، وليس صافي الربح الكامل: لا يشمل الرواتب ولا الإهلاك ولا المصروفات العمومية ولا تكاليف قيود اليومية."
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "The project profitability needs read access to {0}."
+msgstr "ربحية المشاريع تحتاج صلاحية قراءة {0}."
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "No project"
+msgstr "بدون مشروع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Total of all projects"
+msgstr "إجمالي كل المشاريع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project revenue"
+msgstr "إيرادات المشروع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project expenses"
+msgstr "مصروفات المشروع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project margin"
+msgstr "هامش المشروع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project margin %"
+msgstr "نسبة هامش المشروع %"
