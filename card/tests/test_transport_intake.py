@@ -834,12 +834,16 @@ class TestTransportIntakeSecondPerson(IntegrationTestCase, _Fixtures):
 		self._set_rule(self.company, 1)
 		enterer, other = self._manager("f"), self._manager("o")
 		t = self._entered_by(enterer, intake_source_key="2P-FORGE-1", intake_channel="WhatsApp")
-		# a draft save that names another user as the owner and as the only editor
-		frappe.get_doc(DOCTYPE, t.name).update({"owner": other, "edited_by": other}).save()
+		# a save that names another user as the owner is refused by Frappe itself (the owner is a constant)
+		with self.assertRaises(frappe.CannotChangeConstantError):
+			frappe.get_doc(DOCTYPE, t.name).update({"owner": other}).save()
+		self.assertEqual(frappe.db.get_value(DOCTYPE, t.name, "owner"), enterer)
+		# a draft save that names another user as the only editor: the server keeps its own list
+		frappe.get_doc(DOCTYPE, t.name).update({"edited_by": other}).save()
 		self.assertIn(enterer, frappe.db.get_value(DOCTYPE, t.name, "edited_by").split("\n"))
 		self._refused(lambda: frappe.get_doc(DOCTYPE, t.name).submit())
-		# the same values sent with the submit itself
-		forged = frappe.get_doc(DOCTYPE, t.name).update({"owner": other, "edited_by": other})
+		# the same value sent with the submit itself
+		forged = frappe.get_doc(DOCTYPE, t.name).update({"edited_by": other})
 		self._refused(forged.submit)
 		self.assertEqual(self._docstatus(t.name), 0)
 
