@@ -23,6 +23,29 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   the per-m³ card. Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no
   application, permission, accounting, data or API change.
 
+### Added
+- **FR-190 — Partner split in the Equipment Suppliers Summary, behind a company setting that is off (issue 300;
+  owner instruction 2026-11-25: implement what is concrete behind a setting that defaults to off).** Reason: the
+  owner wants to see which supplier machines belong to a partner and what their cards say the company owes.
+  Design: `docs/design/issue-300-partner-owned-equipment.md` (section 4).
+  - New field `Card Company Settings.partner_equipment_split` (Check, default 0, permlevel 1, section
+    "Partner-owned equipment").
+  - Off, or no row for the company: `equipment_suppliers_summary.execute` returns the same columns, rows, summary
+    and order as before.
+  - On for the report's company: each supplier row and the total row get `partner_equipment_count` and
+    `partner_net`, and the summary gets the tile "Net cards (partner-owned)". A partner machine is a machine whose
+    submitted card stores `ownership` = `طرف ثالث` (`card.constants.THIRD_PARTY`, fetched from
+    `Card Equipment.ownership`).
+  - Permissions: no role, DocPerm or report role changes. `partner_net` is card money: `strip_money` removes it
+    from the columns, rows and summary for a user without read on permlevel 1 of Card Monthly Card
+    (`role_reads_money`). The count stays, as the equipment count does.
+  - Accounting: none. No ledger or salary read is added. Data: one new column in the company settings table,
+    default 0, no patch. API: no new or changed whitelisted method. Company scope: `resolve_company`, unchanged.
+  - Tests: `card/tests/test_partner_equipment_split.py`. Not run on a site before this commit.
+  - Rollback: turn the setting off, or revert the commits. The column can stay. No data to restore.
+  - Not included: the entitlement after deductions, the partner statement and a filter for partner machines
+    only. They need the owner decisions listed in the design document.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -57,6 +80,48 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 > (FR-185); the Monthly Card print says "before VAT" (FR-174 follow-up); a period run notices a change of loads
 > (FR-177); two party-portal hardening changes (FR-182, FR-183; the portal stays off). Three patches, none of
 > which creates a document; no role, DocPerm or accounting change; one new read-only GET method.
+### Added
+
+### Changed
+- **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means
+  "must be configured").** `standard_month_hours`, `max_day_shift_hours` and `max_night_shift_hours` no longer fall
+  back to 260 and 12 when Card Settings has no value or 0.
+  - Standard month hours not configured: a per-month rate is refused with a message that names the setting, when
+    an equipment's rate is set or changed (`approved_hourly_rate`; a save that does not touch the rate keeps the
+    stored hourly rate), on either side of a Monthly Card (`_hourly_for`), and in the supplier statement's pricing
+    of draft days (`card_value.exact_hourly_rate`). Never an amount of zero. The form shows 0 and the server
+    refuses the save; `get_standard_month_hours` returns 0 then.
+  - Shift limit not configured: the Monthly Card says so in a message (form saves only) and checks no limit; the
+    daily log checks no limit. Every hour is still recorded and billed (the limit only ever warned).
+  - So that no site changes behaviour, `after_install` and the test bootstrap store the DocType default (260, 12,
+    12) of each hour setting that has no stored value (`card.settings.store_hour_settings_defaults`), and the
+    one-time patch `v4_12_0.store_hour_settings_defaults` does the same and also replaces a stored 0 (the old code
+    read 0 as the built-in number). From then on a 0 means "not configured".
+  - Impact: permissions none; accounting none (a site with stored values prices as before; a site with none gets
+    the same numbers stored); data: at most three Card Settings values; API: `get_standard_month_hours` can return
+    0. Rollback: code only; the stored values stay and older code reads them.
+- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
+  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
+  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
+    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
+    returns `"switched off"` and creates or enables nothing. This covers the patch
+    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
+    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
+  - To create the dimension later: back up, turn the switch on, then run
+    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
+    removes nothing.
+  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
+    dimension enabled, and writes nothing else.
+  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
+    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
+    shows a message with the command (`CardSettings._explain_dimension_switch`).
+  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
+    disabled until the switch is on and the command runs again.
+  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
+    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
+  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
+    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
 
 ### Security
 - **Party portal: explicit read check on the card reads (FR-182, issue 257, security review 2026-11-13 finding 7).**
