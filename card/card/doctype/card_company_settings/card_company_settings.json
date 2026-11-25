@@ -41,6 +41,7 @@
   "move_day_rule",
   "equipment_status_rule",
   "card_approval_rule",
+  "require_intake_second_person",
   "materials_section",
   "store_warehouse",
   "custody_warehouse",
@@ -319,6 +320,13 @@
    "fieldtype": "Select",
    "label": "Monthly card approval rule",
    "options": "Warn only (card approval)\nRefuse (card approval)",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "require_intake_second_person",
+   "fieldtype": "Check",
+   "label": "Transport from evidence needs a second person",
    "permlevel": 1
   },
   {

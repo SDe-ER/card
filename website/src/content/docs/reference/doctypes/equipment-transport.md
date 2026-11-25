@@ -114,6 +114,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Intake received on | `intake_received_on` | Datetime |  |  |
 | Intake evidence | `intake_evidence` | Attach |  |  |
 | Intake evidence SHA-256 <small>(read only)</small> | `intake_evidence_hash` | Data |  |  |
+| Intake declared <small>(hidden, read only)</small> | `intake_declared` | Check |  |  |
 
 
 **Approval workflow**

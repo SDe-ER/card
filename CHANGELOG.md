@@ -15,15 +15,42 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Documentation
-- **Documentation screenshots: the duplicate captures are made distinct (issue 266; owner decision 2026-11-24: one
-  capture run after the fix).** `website/scripts/screenshots/`: the workspace, monthly card, posting preview and
-  diesel shots scroll to or open what each image is about (`scrollSel`, `clickTextAfter`, `waitSel`); a missing
-  target fails the shot; the customer statement and the loads card must show real values; the demo seed submits
-  the per-m³ card. Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no
-  application, permission, accounting, data or API change.
-
 ### Added
+- **FR-189 — Optional second person for transports entered from evidence (issue 52; owner instruction
+  2026-11-25: implement what is concrete behind a setting that defaults to off).** Reason: a transport typed from a
+  paper sheet or a WhatsApp message had no check by a different person. Design:
+  `docs/design/issue-52-intake-from-paper-and-whatsapp.md` section 4.
+  - New field `Card Company Settings.require_intake_second_person` (Check, default 0, permlevel 1), label
+    "Transport from evidence needs a second person". Off, and for a company without a settings row: nothing changes.
+  - On for the transport's company: an Equipment Transport that carries intake provenance (FR-146: a source key, a
+    received time, an evidence file or a channel other than Manual) is not submitted by a user who entered it. The
+    submit is refused with a translated message; another user who may submit transports submits it. A transport
+    without provenance is not affected. No user is exempt.
+  - New field `Equipment Transport.intake_declared` (Check, default 0, hidden, read only, `no_copy`): the server's
+    record that a transport was entered from evidence. `card.intake._set_intake_declared` writes it in `validate`:
+    1 from the first save that carries intake provenance, kept from the stored row, taken from the transport a new
+    amendment amends, never taken from the request and never back to 0. So an enterer who empties the intake
+    fields in a draft save stays under the rule (security review finding). The flag is frozen after submit with
+    the other intake fields (`freeze_submitted_intake`).
+  - Functions: `card.intake.check_second_person` and `has_intake_provenance` (new), `IntakeSecondPersonError`
+    (new, a `frappe.PermissionError`); `EquipmentTransport.before_submit` calls the check first, so form submit,
+    REST with `docstatus` 1, `frappe.client.submit`, bulk submit and a workflow action all pass through it.
+  - The enterers are the stored `owner` and the stored `edited_by` list (kept by the server on every save). The
+    stored company and intake fields count with the ones sent, so a request that names another owner, editor or
+    company, or removes the provenance, is refused too.
+  - Impact: permissions — no role, DocPerm or endpoint added or widened; with the setting on, one user loses the
+    submit of his own intake transport. Accounting — none. Data — one new column on `tabCard Company Settings`
+    (default 0) and one new column on `tabEquipment Transport` (`intake_declared`, default 0); no patch, no
+    backfill. The flag is written on the next save of a draft transport that carries intake provenance, also
+    where the company setting is off (it has no effect there); submitted and cancelled transports do not change. API — no new endpoint; a refused submit
+    returns a permission error (HTTP 403 on REST).
+  - Tests: `card/tests/test_transport_intake.py` `TestTransportIntakeSecondPerson` (17). Not run on a bench in the
+    build session; CI must pass before a merge.
+  - Known limits: the rule covers transports that carried intake provenance on a save (a transport never marked
+    as intake is a hand entry); a reviewer who changes values in the submit request itself may submit; an approval
+    delegate (FR-163) of the enterer is a different user and may submit.
+  - Rollback: revert the commits. The two columns and their values stay in the database and have no effect
+    without the code. Turning the setting off restores the earlier behaviour at once.
 - **FR-190 — Partner split in the Equipment Suppliers Summary, behind a company setting that is off (issue 300;
   owner instruction 2026-11-25: implement what is concrete behind a setting that defaults to off).** Reason: the
   owner wants to see which supplier machines belong to a partner and what their cards say the company owes.
@@ -45,6 +72,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - Rollback: turn the setting off, or revert the commits. The column can stay. No data to restore.
   - Not included: the entitlement after deductions, the partner statement and a filter for partner machines
     only. They need the owner decisions listed in the design document.
+
+### Documentation
+- **Documentation screenshots: the duplicate captures are made distinct (issue 266; owner decision 2026-11-24: one
+  capture run after the fix).** `website/scripts/screenshots/`: the workspace, monthly card, posting preview and
+  diesel shots scroll to or open what each image is about (`scrollSel`, `clickTextAfter`, `waitSel`); a missing
+  target fails the shot; the customer statement and the loads card must show real values; the demo seed submits
+  the per-m³ card. Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no
+  application, permission, accounting, data or API change.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
@@ -80,6 +115,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 > (FR-185); the Monthly Card print says "before VAT" (FR-174 follow-up); a period run notices a change of loads
 > (FR-177); two party-portal hardening changes (FR-182, FR-183; the portal stays off). Three patches, none of
 > which creates a document; no role, DocPerm or accounting change; one new read-only GET method.
+### Added
 ### Added
 
 ### Changed
