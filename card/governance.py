@@ -72,7 +72,7 @@ TIER_FIELDS = ("approval_tier", "approval_tier_name")
 # written by the server only; restored from the database after the submit (update after submit, cancel)
 SERVER_FIELDS = (*APPROVAL_FIELDS, "edited_by", *TIER_FIELDS)
 
-# FR-159: per-company threshold child table on Card Company Settings
+# FR-159: threshold child table on Card Settings, one row per company and tier (#320)
 TIER_TABLE_FIELD = "approval_tier_thresholds"
 TIER_CHILD_DOCTYPE = "Card Approval Tier Threshold"
 
@@ -354,7 +354,7 @@ def before_cancel(doc, method=None):
 
 # ---------- FR-159 (WP-E; closure plan C row E; #35, #49): approval tiers ----------
 """FR-159 adds per-company net-amount thresholds that gate a monthly card's submit by role. An empty
-``approval_tier_thresholds`` child table on the company's Card Company Settings row means every card is
+``approval_tier_thresholds`` table on Card Settings without a row for the company means every card is
 tier 0: current behaviour, any user with Card Monthly Card write may submit. With rows, each threshold
 names a ``role_required`` (an existing Role); a card whose net amount reaches the threshold is at that
 tier, and the submitter must already hold that Role. The highest matching threshold wins. The row grants

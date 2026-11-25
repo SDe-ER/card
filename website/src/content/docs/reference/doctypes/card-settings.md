@@ -39,6 +39,13 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Company settings | `company_settings` | Table | [Card Company Settings](/card/reference/doctypes/card-company-settings/) |  |
 
 
+**Monthly card approval tiers**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Approval tier thresholds | `approval_tier_thresholds` | Table | [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/) |  |
+
+
 ### Operations
 
 
@@ -165,6 +172,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 ## Child tables
 
 - [Card Company Settings](/card/reference/doctypes/card-company-settings/)
+- [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/)
 - [Card Diesel Price](/card/reference/doctypes/card-diesel-price/)
 - [Card Diesel Variance Threshold](/card/reference/doctypes/card-diesel-variance-threshold/)
 - [Card Project Transport Price](/card/reference/doctypes/card-project-transport-price/)

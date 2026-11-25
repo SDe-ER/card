@@ -35,7 +35,7 @@ amount is directly comparable with the CARD approval tier (also company currency
 
 | Layer | Who gates | Where enforced | What it checks |
 |---|---|---|---|
-| CARD approval tier (FR-159, this release) | `card/governance.py` `_check_approval_tier_role` | `before_submit` of `Card Monthly Card` on every route | Net amount of one card against the per-company `approval_tier_thresholds` on Card Company Settings |
+| CARD approval tier (FR-159, this release) | `card/governance.py` `_check_approval_tier_role` | `before_submit` of `Card Monthly Card` on every route | Net amount of one card against the per-company `approval_tier_thresholds` on Card Settings |
 | Authorization Rule (manual setup, owner) | ERPNext `authorization_rule.py` | `before_submit` of `Purchase Invoice` and `Sales Invoice` | Grand total of the monthly CARD draft invoice |
 
 A single card is gated at submit (FR-159). The whole month's generated draft invoice, which can bundle
@@ -88,7 +88,7 @@ Neither rule changes the other's data.
 
 Removing Authorization Rule rows on Production restores the current ERPNext behaviour instantly; the
 rule is a configuration record, not code. The CARD approval tier is unaffected by that removal; its
-own rollback is "clear the `approval_tier_thresholds` rows on Card Company Settings" (per company).
+own rollback is "clear the `approval_tier_thresholds` rows on Card Settings" (per company).
 
 ## 8. References
 

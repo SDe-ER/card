@@ -38,6 +38,33 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Fixed
+- **Card Settings: the Company settings row editor opens again (issue 320; FR-159 follow-up).** The child DocType
+  `Card Company Settings` held a Table field, `approval_tier_thresholds`. The Desk form supports a table one level
+  deep only: a grid looks its field up on the DocType of the open form (frappe `grid.js` `setup_fields`), finds
+  none for a table inside a row, and `frappe.perm.get_field_display_status` then fails on `permlevel`. The row
+  editor did not open, so no company setting could be changed in the Desk form. The server saves child tables one
+  level deep too (`Document.update_children`), and `card.governance._company_tier_rows` has always read the
+  threshold rows of the parent `Card Settings` by their `company` column. The section **Monthly card approval
+  tiers** and the table `approval_tier_thresholds` now sit on `Card Settings` (same field name, label, child
+  DocType and permlevel 1), below **Company settings**; each row names its company.
+  - Functions: `card/card/doctype/card_settings/card_settings.json`,
+    `card/card/doctype/card_company_settings/card_company_settings.json` (field moved);
+    `card/card/doctype/card_settings/card_settings.py` (`COMPANY_TABLES`, `SCOPED_TABLES`,
+    `SCOPED_CHILD_DOCTYPES`) and `card/hooks.py` (`permission_query_conditions`): the table follows the FR-133
+    company scope of the other per-company tables, so a company-restricted user reads and changes the threshold
+    rows of his companies only. `card.governance` is not changed.
+  - Tests: `card/tests/test_child_doctype_tables.py` (new, needs no site: no child DocType of CARD has a table
+    field); `card/tests/test_approval_tier.py` (the field is on Card Settings; a save of Card Settings keeps the
+    stored rows and stores a new one).
+  - Impact: no patch and no database change (a Table field has no column; `tabCard Approval Tier Threshold` is
+    unchanged). Stored threshold rows already have the parent `Card Settings` and the parent field
+    `approval_tier_thresholds`, so they show in the new table without a data move. No role or DocPerm change; the
+    table stays at permlevel 1. No accounting change. No whitelisted method added or changed.
+  - Rollback: restore the previous code. Threshold rows saved from the new table stay in the database and still
+    apply at submit, but the previous form cannot show or edit them.
+  - Not verified: no Desk site was available for this change; the row editor was not opened in a browser.
+
 ## [4.12.0] — 2026-11-25
 
 > **Published 2026-11-25** (tag `v4.12.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).

@@ -119,13 +119,6 @@ sidebar:
 | طريقة توزيع ديزل الخزان | `tank_estimate_weighting` | Select | Hours (tank estimate) · Hours × Rate (tank estimate) |  |
 
 
-**مستويات اعتماد البطاقة الشهرية**
-
-| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
-|---|---|---|---|---|
-| حدود مستويات الاعتماد | `approval_tier_thresholds` | Table | [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/) |  |
-
-
 **بوابة الأطراف (معاينة)**
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
@@ -152,11 +145,6 @@ sidebar:
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
 | الردود في اليوميات | `daily_log_loads` | Check |  |  |
-
-
-## الجداول الفرعية
-
-- [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/)
 
 
 ## الصلاحيات

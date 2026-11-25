@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-25 — A company row in Card Settings opens for editing again.** In **Card Settings > Company settings**, the edit button of a row did not open the row, so a company's settings could not be changed in the form. The cause was the table **Approval tier thresholds** inside the row: the form cannot show a table inside a table row. The table is now in **Card Settings** itself, in the section **Monthly card approval tiers** below **Company settings**, and each of its rows names its company. Thresholds that are already stored stay as they are and show in the new place. No role, permission or accounting rule changes.
 
 ## v4.12.0 — 2026-11-25
 

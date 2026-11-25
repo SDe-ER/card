@@ -14,22 +14,25 @@ COMPANY_TABLES = (
 	"adjustment_types",
 	"diesel_price_schedule",
 	"diesel_variance_thresholds",
+	"approval_tier_thresholds",
 )
 
 # FR-133 (R-14, O-19): the per-company tables a company-restricted user reads only for the companies
 # he is permitted; the rows of other companies are hidden on every read and kept on every save
-# (FR-151: and the diesel variance anomaly thresholds)
+# (FR-151: and the diesel variance anomaly thresholds; #320: and the FR-159 approval tier thresholds)
 SCOPED_TABLES = (
 	"company_settings",
 	"adjustment_types",
 	"diesel_price_schedule",
 	"diesel_variance_thresholds",
+	"approval_tier_thresholds",
 )
 SCOPED_CHILD_DOCTYPES = (
 	"Card Company Settings",
 	"Card Adjustment Type",
 	"Card Diesel Price",
 	"Card Diesel Variance Threshold",
+	"Card Approval Tier Threshold",
 )
 LAYOUT_FIELDTYPES = ("Section Break", "Column Break", "Tab Break", "HTML", "Button", "Heading", "Fold")
 

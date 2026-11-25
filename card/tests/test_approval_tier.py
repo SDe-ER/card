@@ -213,11 +213,35 @@ class TestApprovalTierSchema(_TierBase):
 			if options:
 				self.assertEqual(df.options, options, fieldname)
 
-	def test_company_settings_table_field_installed(self):
-		df = frappe.get_meta("Card Company Settings").get_field(governance.TIER_TABLE_FIELD)
+	def test_settings_table_field_installed(self):
+		"""#320: the table is on Card Settings, where the tier query reads its rows. The Desk row
+		editor cannot render a table inside a Card Company Settings row."""
+		df = frappe.get_meta("Card Settings").get_field(governance.TIER_TABLE_FIELD)
 		self.assertIsNotNone(df)
-		self.assertEqual(df.fieldtype, "Table")
-		self.assertEqual(df.options, governance.TIER_CHILD_DOCTYPE)
+		self.assertEqual(
+			(df.fieldtype, df.options, df.permlevel), ("Table", governance.TIER_CHILD_DOCTYPE, 1)
+		)
+		self.assertIsNone(frappe.get_meta("Card Company Settings").get_field(governance.TIER_TABLE_FIELD))
+
+	def test_settings_save_keeps_and_adds_threshold_rows(self):
+		"""#320: a save of Card Settings keeps the stored threshold rows and stores a row added in
+		the form; the tier query reads both."""
+		kept = self._add_tier(self.company, "Tier 1", 10_000, self.tier_role)
+		settings = frappe.get_doc("Card Settings")
+		self.assertIn(kept, [r.name for r in settings.get(governance.TIER_TABLE_FIELD)])
+		settings.append(
+			governance.TIER_TABLE_FIELD,
+			{
+				"company": self.company,
+				"tier_name": "Tier 2",
+				"amount_threshold": 50_000,
+				"role_required": self.senior_role,
+			},
+		)
+		settings.save()
+		rows = governance._company_tier_rows(self.company)
+		self.assertEqual([r.tier_name for r in rows], ["Tier 2", "Tier 1"])
+		self.assertTrue(frappe.db.exists(governance.TIER_CHILD_DOCTYPE, kept))
 
 
 class TestApprovalTierResolution(_TierBase):

@@ -11,6 +11,8 @@
   "enable_card_equipment_dimension",
   "company_config_section",
   "company_settings",
+  "approval_tiers_section",
+  "approval_tier_thresholds",
   "adjustment_types_section",
   "adjustment_types",
   "operations_tab",
@@ -118,6 +120,20 @@
    "fieldtype": "Table",
    "label": "Company settings",
    "options": "Card Company Settings"
+  },
+  {
+   "fieldname": "approval_tiers_section",
+   "fieldtype": "Section Break",
+   "label": "Monthly card approval tiers",
+   "permlevel": 1
+  },
+  {
+   "description": "Optional net-amount thresholds that gate a monthly card's submit by role (FR-159). Empty: every card is tier 0 and any user with Card Monthly Card write may submit, current behaviour. With rows: a card whose net amount reaches a threshold needs the matching Role on submit; the highest matching threshold wins. The role_required is only enforced — this table grants no role or DocPerm of its own.",
+   "fieldname": "approval_tier_thresholds",
+   "fieldtype": "Table",
+   "label": "Approval tier thresholds",
+   "options": "Card Approval Tier Threshold",
+   "permlevel": 1
   },
   {
    "fieldname": "operations_tab",
@@ -494,7 +510,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-11-24 21:30:00.000000",
+ "modified": "2026-11-25 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Settings",

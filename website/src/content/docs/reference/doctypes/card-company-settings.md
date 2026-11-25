@@ -117,13 +117,6 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Tank diesel estimate weighting | `tank_estimate_weighting` | Select | Hours (tank estimate) · Hours × Rate (tank estimate) |  |
 
 
-**Monthly card approval tiers**
-
-| Label | Field name | Type | Options / link | Required |
-|---|---|---|---|---|
-| Approval tier thresholds | `approval_tier_thresholds` | Table | [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/) |  |
-
-
 **Party portal (preview)**
 
 | Label | Field name | Type | Options / link | Required |
@@ -150,11 +143,6 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Label | Field name | Type | Options / link | Required |
 |---|---|---|---|---|
 | Loads on daily logs | `daily_log_loads` | Check |  |  |
-
-
-## Child tables
-
-- [Card Approval Tier Threshold](/card/reference/doctypes/card-approval-tier-threshold/)
 
 
 ## Permissions
