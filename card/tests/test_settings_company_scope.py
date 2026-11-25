@@ -597,6 +597,28 @@ class TestSettingsCompanyScope(IntegrationTestCase):
 		values = self._tier_values(own)
 		self.assertEqual((values.company, flt(values.amount_threshold)), (self.a, 30_000))
 
+	def test_tier_row_saved_on_its_own_cannot_move_to_another_company(self):
+		"""The row check of ``CardApprovalTierThreshold.has_permission`` on its own: the user is
+		permitted for every company that has a stored Card Settings row, so the check on the stored
+		Single (``has_settings_permission``) passes. Without the row check, this save would move the
+		threshold to a company he is not permitted for."""
+		own = self._tier_row(self.a)
+		d = self._company("D")  # no Card Settings row
+		with_rows = {self.a}
+		for doctype in scope.SCOPED_CHILD_DOCTYPES:
+			with_rows.update(frappe.get_all(doctype, filters=SETTINGS, pluck="company"))
+		user = self._user(*sorted(c for c in with_rows if c))
+		frappe.set_user(user)
+		self.assertTrue(scope.has_settings_permission(frappe.get_doc("Card Settings"), user=user))
+		doc = frappe.get_doc(TIER, own)
+		self.assertTrue(doc.has_permission("read"))
+		self.assertTrue(doc.has_permission("write"))
+		doc.company = d
+		with self.assertRaises(frappe.PermissionError):
+			doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(self._tier_values(own).company, self.a)
+
 	def test_hidden_rows_are_not_validated_or_named(self):
 		"""An unchanged hidden row that would fail a rule (wrong currency) does not block, and is not
 		named to, the restricted user; his own company's FR-125 duplicate date is still refused."""
