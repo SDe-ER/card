@@ -30,7 +30,8 @@ const DEFECT =
   /Get Started|Let's give your business a home|not set up to ask for equipment needs|غير مهيأ لطلب/;
 // A number card is captured alone. It is found first by its record name, which Frappe writes to the widget as
 // data-widget-name and which does not change with the language. The translated label from the app's own locale
-// file (read at run time, never hard-coded) is the fallback. The shot waits until the value renders (a digit).
+// file (read at run time, never hard-coded) is the fallback. The shot waits until the card body shows a value
+// that is not zero: the title is not read, and a card that stays at 0 has no data behind it.
 // No match or no value is a failed shot, never a page-sized image.
 const LOCALE_DIR = join(here, "..", "..", "..", "card", "locale");
 function translatedLabel(lang, msgid) {
@@ -57,7 +58,10 @@ async function elementShot(page, lang, name) {
     if ((await loc.count()) === 0) continue;
     await loc.scrollIntoViewIfNeeded();
     await page.waitForFunction(
-      (el) => /\d/.test(el.innerText || ""),
+      (el) =>
+        /[1-9\u0661-\u0669]/.test(
+          (el.querySelector(".widget-body") || el).innerText || "",
+        ),
       await loc.elementHandle(),
       {
         timeout: 30000,
@@ -335,11 +339,27 @@ async function run() {
           }, s.setSelect);
           await page.waitForTimeout(2500);
         }
-        if (s.scrollSel)
-          await page.evaluate((sel) => {
+        // setSelect redraws the page body, so a click on what it draws comes after it
+        if (s.clickTextAfter && !(await clickText(page, s.clickTextAfter)))
+          throw new Error(
+            `no visible element for click: ${s.clickTextAfter.join(" / ")}`,
+          );
+        // what the shot is about must be on screen: a panel that did not open or a report with no rows is a failed shot
+        if (s.waitSel)
+          await page
+            .locator(s.waitSel)
+            .first()
+            .waitFor({ state: "visible", timeout: 15000 });
+        if (s.scrollSel) {
+          const found = await page.evaluate((sel) => {
             const el = document.querySelector(sel);
-            if (el) el.scrollIntoView({ block: "start" });
+            if (!el || !el.offsetParent) return false;
+            el.scrollIntoView({ block: "start" });
+            return true;
           }, s.scrollSel);
+          if (!found)
+            throw new Error(`no element to scroll to: ${s.scrollSel}`);
+        }
         if (s.scrollText && !(await scrollToText(page, s.scrollText)))
           throw new Error(
             `no section to scroll to: ${s.scrollText.join(" / ")}`,
