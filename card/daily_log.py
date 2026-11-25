@@ -38,7 +38,9 @@ fields (CARD Mobile) sends rows without them, and Frappe would store 0. An unsen
 when ``validate`` runs (``frappe.model.document.Document.init_valid_columns`` sets every column that is not in the
 data to ``None``; the numeric cast to 0 runs after ``validate``), a sent 0 is 0. An unsent field of a stored row
 (matched by its row name inside this log) takes the stored value; on a new log that amends another one (the
-corrected draft) it takes the value of the amended log's row of the same equipment. Only loads that are new or
+corrected draft) it takes the value of the amended log's row of the same equipment, and only when the amended log
+has the new log's company, project and date (any other ``amended_from`` gives nothing). The Desk form sends 0 for
+an emptied load field (``card_daily_log.js``, ``validate``), so emptying a field there clears it. Only loads that are new or
 changed are checked against the switch and the per-m³ rule, so a log that holds loads is still saved after the
 switch was turned off."""
 
@@ -236,10 +238,19 @@ def validate_log(doc):
 def _load_baselines(doc):
 	"""The stored loads each row of ``doc`` starts from, one ``(day_loads, night_loads)`` per row in row order:
 	the stored row of this log with the same row name; on a new log that amends another one, the amended log's row
-	of the same equipment (a log lists an equipment once); otherwise no loads. A row name of another log matches
-	nothing."""
+	of the same equipment (a log lists an equipment once), and only when the amended log has the new log's company,
+	project and date: a corrected draft keeps them, so another ``amended_from`` is not a correction and gives no
+	loads; otherwise no loads. A row name of another log matches nothing."""
 	if doc.is_new():
 		parent, key = doc.get("amended_from"), "equipment"
+		amended = parent and frappe.db.get_value(
+			DOCTYPE, parent, ["company", "project", "log_date"], as_dict=True
+		)
+		if not amended or (
+			(amended.company, amended.project, getdate(amended.log_date))
+			!= (doc.company, doc.project, getdate(doc.log_date))
+		):
+			parent = None
 	else:
 		parent, key = doc.name, "name"
 	stored = {}

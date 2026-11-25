@@ -33,10 +33,12 @@ A machine moved between two projects in the month gets one card per project: eac
 only that project's logs.
 
 Loads (FR-188, opt-in per company: Card Company Settings ``daily_log_loads``, default off = the run copies no
-loads to a card, the behaviour before FR-188; the one exception is a day cleared because its log is no longer
-Approved: when that log's row holds loads and the day's load count equals them, the count came from the log and is
-cleared with the day, so a switch turned off later leaves no loads without a log; a different count is a hand entry
-and is kept). On, the day shift loads of a log row go to
+loads to a card, the behaviour before FR-188. With the switch off the run still removes loads that an earlier
+run copied from a log that no longer backs the day, so a switch turned off later leaves no loads without a log:
+a day cleared because its log is no longer Approved, and a day now set from another log (the corrected log), lose
+their load count when it equals the loads of the earlier log's row for the card's equipment and shift. A different
+count is a hand entry and is kept; a log without loads, as every log of a company that never used the switch,
+removes nothing). On, the day shift loads of a log row go to
 ``loads_count`` of the day shift card's day and the night shift loads to the night shift card's day, and a shift
 with loads and no hours gets its card. The card's own rules decide (FR-166: loads only on a card whose customer
 rate type is per m³, never on a future day); a card that refuses them is rolled back alone and reported. A log
@@ -314,6 +316,8 @@ def _apply_days(card, rows, shift, overwritten, loads_on=False):
 		current = by_date.get(day)
 		if loads_on and current is not None and _keeps_card_loads(current, values):
 			del values[LOADS_FIELD]
+		if not loads_on and current is not None and _loads_of_earlier_log(card, shift, current, values):
+			values[LOADS_FIELD] = 0
 		if current is None:
 			card.append("days", {"operation_date": day, "day_name": day_name(day), **values})
 			changed = True
@@ -382,6 +386,16 @@ def _log_loads(logs, equipment, shift):
 			fields=["parent", field],
 		)
 	}
+
+
+def _loads_of_earlier_log(card, shift, current, values):
+	"""FR-188, switch off: True when the card day is now set from another daily log than the one its notes name
+	and its load count equals the loads of that earlier log's row: an earlier run copied them and the log that
+	backed them no longer covers the day."""
+	loads, earlier = cint(current.get(LOADS_FIELD)), current.get("notes")
+	if not loads or not earlier or earlier == values.get("notes"):
+		return False
+	return _log_loads({earlier}, card.equipment, shift).get(earlier) == loads
 
 
 def _clear_stale(card, rows, shift, cleared, loads_on=False):
