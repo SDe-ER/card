@@ -8058,6 +8058,22 @@ msgstr "دورة فترة يعتمدها مستخدم أنشأها أو عدّل
 msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
 msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ ويُحتفظ به."
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport from evidence needs a second person"
+msgstr "النقل المُدخل من مستند مصدر يحتاج مستخدمًا ثانيًا"
+
+#: card/intake.py
+msgid "You entered or edited this transport from a paper sheet or a message; another user must submit it (company rule: second person)."
+msgstr "أدخلت هذا النقل أو عدّلته من ورقة أو رسالة؛ يجب أن يعتمده (Submit) مستخدم آخر (قاعدة الشركة: مستخدم ثانٍ)."
+
+#: card/intake.py
+msgid "Transport second person"
+msgstr "المستخدم الثاني لاعتماد النقل"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake declared"
+msgstr "مُدخل من مستند مصدر"
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
 msgstr "هذا الملف هو مستند مصدر نقل معتمد أو ملغى؛ يبقى خاصًا ومرفقًا بنقله."
@@ -9322,3 +9338,45 @@ msgstr "ضريبة سطور فواتير CARD التي لا تحمل المعد�
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
 msgstr "البُعد المحاسبي Card Equipment غير موجود على هذا الموقع: المدفوعات والضريبة والأرصدة الدائنة الأخرى لا تُوزَّع حسب المعدة."
+
+#. Label of the partner_reports_section (Section Break) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Partner-owned equipment"
+msgstr "معدات مملوكة لشركاء"
+
+#. Label of the partner_equipment_split (Check) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Show partner-owned equipment in the suppliers summary"
+msgstr "إظهار المعدات المملوكة لشركاء في ملخص الموردين"
+
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Net cards (partner-owned)"
+msgstr "صافي الكروت (معدات الشركاء)"
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift loads"
+msgstr "ردود الوردية النهارية"
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift loads"
+msgstr "ردود الوردية الليلية"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Daily log loads"
+msgstr "ردود اليومية"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Loads on daily logs"
+msgstr "الردود في اليوميات"
+
+#: card/daily_log.py
+msgid "Row {0}: loads cannot be negative."
+msgstr "السطر {0}: لا يمكن أن يكون عدد الردود سالبًا."
+
+#: card/daily_log.py
+msgid "Row {0}: loads on daily logs are not enabled for company {1}. Enter the loads on the monthly card, or enable Loads on daily logs for the company in Card Settings."
+msgstr "السطر {0}: تسجيل الردود في اليوميات غير مفعّل للشركة {1}. سجّل الردود في الكارت الشهري، أو فعّل «الردود في اليوميات» للشركة من إعدادات CARD."
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
+msgstr "السطر {0} ({1}): لا تُسجَّل الردود إلا لمعدة نوع سعر العميل لها بالمتر المكعب."

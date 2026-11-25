@@ -76,6 +76,7 @@ is `settings.py` `_DEFAULTS`.
 | `default_store_warehouse` | Link Warehouse | — | "" | `materials.py:234`; `tool_custody.py:69,420` | Used |
 | `tool_custody_warehouse` | Link Warehouse | — | "" | `employee_tool_custody.py:57,237,277`; `materials.py:314` | Used |
 | `repeat_request_days` | Int | 30 | 30 | `materials.py:120` (inline `or 30`) | Used |
+| `partner_equipment_split` | Check (default 0) | `card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py` `execute` (through `card.settings.company_setting`) | Used (FR-190, In review). 0, empty or no row = the Equipment Suppliers Summary of before. 1 = per supplier the count of partner machines (cards whose stored `ownership` is `طرف ثالث`) and the net of their cards; the net follows the card money level |
 
 `default_store_warehouse`, `tool_custody_warehouse` and `repeat_request_days` are the site-wide fallback. FR-135 (in
 review) adds the per-company values on Card Company Settings (`store_warehouse`, `custody_warehouse`,
@@ -99,7 +100,9 @@ is read by `gl/preflight.py:36-41` `company_settings_row` (posting) and `account
 | `diesel_unit_price` | Currency | `project_diesel_fill.py:177-186` `diesel_price`; `card_settings.js` | Used (FR-002). One value, no dates (FR-035 planned) |
 | `diesel_price_vat_basis` | Select (empty / Exclusive / Inclusive) | `gl/posting.py:925`; `gl/integrity.py:440` | Used (FR-090). Empty = posting refused for review |
 | `equipment_status_rule` | Select ("Warn only (equipment status)" / "Refuse (equipment status)"; empty = Warn only) | `card/equipment_status.py` `status_rule`, `check_equipment_status` (Card Equipment Assignment, Equipment Transport, Card Monthly Card) | Used (FR-122, In review). Default Warn only |
+| `require_intake_second_person` | Check (default 0) | `card/intake.py` `check_second_person` (Equipment Transport `before_submit`) | Used (FR-189, In review). 0 or no row = no check. 1 = a transport with intake provenance is not submitted by a user who entered it |
 | `store_warehouse`, `custody_warehouse` | Link Warehouse | `card/settings.py` `store_warehouse`, `custody_warehouse` (materials, Employee Tool Custody, Tool Custody screen) | Used (FR-135, In review). Empty = the Card Settings value; must belong to the row's company (save and read time) |
+| `daily_log_loads` | Check (default 0) | `card/daily_log.py` `loads_enabled` (`validate_log`, `CardDailyLog.onload`); `card/daily_log_generation.py` `generate_monthly_cards` | Used (FR-188, In review). 0 or no row = a daily log row with loads is refused and the generation does not touch `loads_count`; 1 = loads on daily log rows are copied to the monthly card days |
 | `repeat_request_days` | Int | `card/settings.py` `repeat_request_days` (`materials.repeat_days`) | Used (FR-135, In review). Empty or 0 = the Card Settings value (30 by default) |
 | `bank_cash_account` | Link Account | none (only the generic account-company check in `card_settings.py` `validate`, which covers every Account link of a row) | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |
 | `mode_of_payment` | Link Mode of Payment | none | **Deprecated** (FR-124, in review): hidden, read only, "Deprecated – not used"; column and value kept |

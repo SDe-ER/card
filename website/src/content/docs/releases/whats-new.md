@@ -18,7 +18,9 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-25 — Loads can be entered on the daily log (off until you switch it on).** **Card Settings** has a new switch per company, **Loads on daily logs**, and it is off by default. While it is off, nothing changes: loads are entered on the **Monthly Card** as before. When it is on, a **Daily Log** row has **Day shift loads** and **Night shift loads** for a machine billed to its customer per m³, and **Generate monthly cards** copies them to the day and night cards. A daily log without loads does not erase loads typed on a card. Submitted cards are never changed. On a new daily log the two fields show after the first save. CARD Mobile has no load fields yet.
+- **2026-11-25 — A second person can be required for transports entered from a paper sheet or a message.** **Card Settings > Company settings** has a new switch, **Transport from evidence needs a second person**, and it is off by default. While it is off, nothing changes. When a company turns it on, an **Equipment Transport** that names its source (a source key, a received time, an evidence file, or a channel such as Paper or WhatsApp) cannot be submitted by a user who created or edited it. Another user who may submit transports submits it. Transports without a source are not affected. No role or permission changes.
+- **2026-11-25 — The suppliers summary can show partner-owned equipment apart.** **Card Settings → Company settings** has a new switch, **Show partner-owned equipment in the suppliers summary**, and it is off by default. While it is off, **Equipment Suppliers Summary** is unchanged. When you switch it on for a company, each supplier row also shows how many of its machines have the ownership **طرف ثالث** (a machine that belongs to a partner) and the net of the cards of those machines. The net is a card amount, so only users whose roles may read the amounts of a **Monthly Card** see it. The switch changes no permission and no accounting entry, and it does not calculate what a partner is owed after deductions.
 
 ## v4.11.1 — 2026-11-25
 

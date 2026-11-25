@@ -15,6 +15,111 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **FR-188 — Loads on the daily log, opt-in per company (issue 44; owner instruction 2026-11-25: implement the
+  concrete part behind a setting that defaults to off).** A machine billed to its customer per m³ (FR-166) needs
+  loads on each working day. The daily log had no load field, so a card made from daily logs had zero loads until
+  a person typed them on the card.
+  - New per-company switch `Card Company Settings.daily_log_loads` (Check, default 0, permlevel 1). Off, also with
+    no settings row: a daily log row with new or changed loads is refused, and the generation copies no loads to a
+    card. This is the behaviour before this change.
+  - On: `Card Daily Log Row.day_loads` and `night_loads` (Int, non-negative, permlevel 0, counts and not money)
+    are accepted only for equipment whose customer rate type is per m³, and never on a future day
+    (`card.daily_log._check_loads`). A day with loads is checked against the assignments like a day with hours
+    (`_check_assignment`).
+  - On: `card.daily_log_generation.generate_monthly_cards` copies the day shift loads to `loads_count` of the day
+    shift card's day and the night shift loads to the night shift card's day (`_day_values`). A shift with loads
+    and no hours gets its card (`_shift_has_hours`). Every card is saved through its own validation, so the FR-166
+    rules decide. A log row without loads keeps a hand-entered load count of a day; an amended log replaces the
+    loads of the log it amends (`_keeps_card_loads`). A cancelled log clears the loads of its day on a draft card
+    (`_clear_stale`). A submitted card is never changed. `overwritten_days` entries get `old_loads` / `new_loads`
+    and `cleared_days` entries get `loads` only when the switch is on.
+  - A client that does not send the two load fields cannot erase them (`card.daily_log.keep_unsent_loads`). CARD
+    Mobile sends rows without them, and a REST update would store 0. Rule: a load field that is `None` on the row
+    when `validate` runs was not sent (Frappe sets every column that is not in the data to `None`, and casts
+    numbers after `validate`); a sent 0 is 0. An unsent field of a stored row, matched by its row name inside
+    this log, keeps the stored value. On a new log that amends another one (the corrected draft of CARD Mobile)
+    it takes the value of the amended log's row of the same equipment, and only when the amended log has the
+    new log's company, project and date (`_load_baselines`): another `amended_from` gives no loads, so the
+    switch and the per-m³ rule are checked as for any new loads. The Desk form always sends the two fields: its
+    `validate` event (`card_daily_log.js`) sets an emptied load field to 0, so emptying a field on the form
+    clears it.
+  - After the switch is turned off, a log that holds loads is still saved while its loads are unchanged or
+    cleared; only new or changed loads are refused (`_check_loads`). The form then shows the two fields read
+    only on a log that holds loads.
+  - A day cleared because its log is no longer Approved: with the switch on its loads are cleared. With the
+    switch off (turned off after loads were copied) the load count is cleared only when it equals the loads of
+    that log's row (`_clear_stale`, `_log_loads`): it came from the log. Another count is a hand entry and is
+    kept. The same rule applies, with the switch off, to a day now set from another log (the corrected log):
+    a load count equal to the loads of the earlier log named in the day's notes is set to 0 and reported in
+    `overwritten_days` (`_apply_days`, `_loads_of_earlier_log`). A company that never used the switch has no
+    loads on its logs, so nothing changes for it.
+  - The form shows the two fields from an onload flag (`CardDailyLog.onload`); a new log shows them after its
+    first save. CARD Mobile has no load fields yet and no `frontend/` file changed.
+  - Permissions: no new role, DocPerm or whitelisted method. Accounting: none (draft cards only; no invoice or GL
+    code changed). Data: three new columns that default to 0, no patch, existing logs and cards unchanged. API:
+    the result of `generate_monthly_cards` gains the keys above only when the switch is on.
+  - Tests: `card/tests/test_daily_log_loads.py`. Not yet run on a site (written without a bench).
+  - Rollback: set the switch to 0 (loads already copied to draft cards stay and can be edited by hand), or revert
+    the commits; the three columns then stay in the database unused. Design:
+    `docs/design/issue-44-daily-input-and-cards.md`.
+- **FR-189 — Optional second person for transports entered from evidence (issue 52; owner instruction
+  2026-11-25: implement what is concrete behind a setting that defaults to off).** Reason: a transport typed from a
+  paper sheet or a WhatsApp message had no check by a different person. Design:
+  `docs/design/issue-52-intake-from-paper-and-whatsapp.md` section 4.
+  - New field `Card Company Settings.require_intake_second_person` (Check, default 0, permlevel 1), label
+    "Transport from evidence needs a second person". Off, and for a company without a settings row: nothing changes.
+  - On for the transport's company: an Equipment Transport that carries intake provenance (FR-146: a source key, a
+    received time, an evidence file or a channel other than Manual) is not submitted by a user who entered it. The
+    submit is refused with a translated message; another user who may submit transports submits it. A transport
+    without provenance is not affected. No user is exempt.
+  - New field `Equipment Transport.intake_declared` (Check, default 0, hidden, read only, `no_copy`): the server's
+    record that a transport was entered from evidence. `card.intake._set_intake_declared` writes it in `validate`:
+    1 from the first save that carries intake provenance, kept from the stored row, taken from the transport a new
+    amendment amends, never taken from the request and never back to 0. So an enterer who empties the intake
+    fields in a draft save stays under the rule (security review finding). The flag is frozen after submit with
+    the other intake fields (`freeze_submitted_intake`).
+  - Functions: `card.intake.check_second_person` and `has_intake_provenance` (new), `IntakeSecondPersonError`
+    (new, a `frappe.PermissionError`); `EquipmentTransport.before_submit` calls the check first, so form submit,
+    REST with `docstatus` 1, `frappe.client.submit`, bulk submit and a workflow action all pass through it.
+  - The enterers are the stored `owner` and the stored `edited_by` list (kept by the server on every save). The
+    stored company and intake fields count with the ones sent, so a request that names another owner, editor or
+    company, or removes the provenance, is refused too.
+  - Impact: permissions — no role, DocPerm or endpoint added or widened; with the setting on, one user loses the
+    submit of his own intake transport. Accounting — none. Data — one new column on `tabCard Company Settings`
+    (default 0) and one new column on `tabEquipment Transport` (`intake_declared`, default 0); no patch, no
+    backfill. The flag is written on the next save of a draft transport that carries intake provenance, also
+    where the company setting is off (it has no effect there); submitted and cancelled transports do not change. API — no new endpoint; a refused submit
+    returns a permission error (HTTP 403 on REST).
+  - Tests: `card/tests/test_transport_intake.py` `TestTransportIntakeSecondPerson` (17). Not run on a bench in the
+    build session; CI must pass before a merge.
+  - Known limits: the rule covers transports that carried intake provenance on a save (a transport never marked
+    as intake is a hand entry); a reviewer who changes values in the submit request itself may submit; an approval
+    delegate (FR-163) of the enterer is a different user and may submit.
+  - Rollback: revert the commits. The two columns and their values stay in the database and have no effect
+    without the code. Turning the setting off restores the earlier behaviour at once.
+- **FR-190 — Partner split in the Equipment Suppliers Summary, behind a company setting that is off (issue 300;
+  owner instruction 2026-11-25: implement what is concrete behind a setting that defaults to off).** Reason: the
+  owner wants to see which supplier machines belong to a partner and what their cards say the company owes.
+  Design: `docs/design/issue-300-partner-owned-equipment.md` (section 4).
+  - New field `Card Company Settings.partner_equipment_split` (Check, default 0, permlevel 1, section
+    "Partner-owned equipment").
+  - Off, or no row for the company: `equipment_suppliers_summary.execute` returns the same columns, rows, summary
+    and order as before.
+  - On for the report's company: each supplier row and the total row get `partner_equipment_count` and
+    `partner_net`, and the summary gets the tile "Net cards (partner-owned)". A partner machine is a machine whose
+    submitted card stores `ownership` = `طرف ثالث` (`card.constants.THIRD_PARTY`, fetched from
+    `Card Equipment.ownership`).
+  - Permissions: no role, DocPerm or report role changes. `partner_net` is card money: `strip_money` removes it
+    from the columns, rows and summary for a user without read on permlevel 1 of Card Monthly Card
+    (`role_reads_money`). The count stays, as the equipment count does.
+  - Accounting: none. No ledger or salary read is added. Data: one new column in the company settings table,
+    default 0, no patch. API: no new or changed whitelisted method. Company scope: `resolve_company`, unchanged.
+  - Tests: `card/tests/test_partner_equipment_split.py`. Not run on a site before this commit.
+  - Rollback: turn the setting off, or revert the commits. The column can stay. No data to restore.
+  - Not included: the entitlement after deductions, the partner statement and a filter for partner machines
+    only. They need the owner decisions listed in the design document.
+
 ### Documentation
 - **Documentation screenshots: the demo seed dates its addition row (issue 266).** The capture run of 2026-11-25
   stopped in the seed: the demo addition had no `adjustment_date`, which is required since v4.10.0. Tooling only
@@ -63,6 +168,49 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 > (FR-185); the Monthly Card print says "before VAT" (FR-174 follow-up); a period run notices a change of loads
 > (FR-177); two party-portal hardening changes (FR-182, FR-183; the portal stays off). Three patches, none of
 > which creates a document; no role, DocPerm or accounting change; one new read-only GET method.
+### Added
+### Added
+
+### Changed
+- **FR-184 — The hour settings have no number in the code (issue 50; owner decision 2026-11-24: a zero value means
+  "must be configured").** `standard_month_hours`, `max_day_shift_hours` and `max_night_shift_hours` no longer fall
+  back to 260 and 12 when Card Settings has no value or 0.
+  - Standard month hours not configured: a per-month rate is refused with a message that names the setting, when
+    an equipment's rate is set or changed (`approved_hourly_rate`; a save that does not touch the rate keeps the
+    stored hourly rate), on either side of a Monthly Card (`_hourly_for`), and in the supplier statement's pricing
+    of draft days (`card_value.exact_hourly_rate`). Never an amount of zero. The form shows 0 and the server
+    refuses the save; `get_standard_month_hours` returns 0 then.
+  - Shift limit not configured: the Monthly Card says so in a message (form saves only) and checks no limit; the
+    daily log checks no limit. Every hour is still recorded and billed (the limit only ever warned).
+  - So that no site changes behaviour, `after_install` and the test bootstrap store the DocType default (260, 12,
+    12) of each hour setting that has no stored value (`card.settings.store_hour_settings_defaults`), and the
+    one-time patch `v4_12_0.store_hour_settings_defaults` does the same and also replaces a stored 0 (the old code
+    read 0 as the built-in number). From then on a 0 means "not configured".
+  - Impact: permissions none; accounting none (a site with stored values prices as before; a site with none gets
+    the same numbers stored); data: at most three Card Settings values; API: `get_standard_month_hours` can return
+    0. Rollback: code only; the stored values stay and older code reads them.
+- **FR-180 — The Card Equipment accounting dimension is created only when Card Settings switches it on** (Owner
+  decision 2026-11-24; changes the automatic creation of FR-176 before any deployment of v4.11.0).
+  - New Card Settings field `enable_card_equipment_dimension` ("Enable Card Equipment accounting dimension", Check,
+    default 0, permlevel 2: System Manager writes). While it is off, `card.dimension.ensure_card_equipment_dimension`
+    returns `"switched off"` and creates or enables nothing. This covers the patch
+    `v4_11_0.ensure_card_equipment_dimension`, `after_install` and the manual bench command. An upgrade therefore adds
+    no Accounting Dimension and no `card_equipment` field to the accounting doctypes.
+  - To create the dimension later: back up, turn the switch on, then run
+    `bench --site <site> execute card.dimension.ensure_card_equipment_dimension`. Turning the switch off afterwards
+    removes nothing.
+  - Patch `v4_11_1.record_card_equipment_dimension_switch` turns the switch on for a site that already has the
+    dimension enabled, and writes nothing else.
+  - Without the dimension, Equipment Supplier Statement with an Equipment filter shows its existing note (payments,
+    VAT and other credits are not split by equipment); posting stays fail-closed (and off). The posting preflight
+    message now names the switch. Saving Card Settings with the switch turned on while the dimension does not exist
+    shows a message with the command (`CardSettings._explain_dimension_switch`).
+  - A fresh install and a reinstall start with the switch off: a dimension that an uninstall disabled stays
+    disabled until the switch is on and the command runs again.
+  - Functions: `card/dimension.py` (`dimension_switched_on`, `ensure_card_equipment_dimension`, `_create_dimension`),
+    `card/install.py` (`before_tests` turns the switch on for the test site), the two patches, `card_settings.json`.
+  - Impact: permissions none; accounting none (no dimension, field or entry is created while off); data: one Card
+    Settings value; API none. Rollback: code only; a dimension that was created is never deleted by CARD.
 
 ### Security
 - **Party portal: explicit read check on the card reads (FR-182, issue 257, security review 2026-11-13 finding 7).**
@@ -220,6 +368,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   accounting, data and API (whitelisted methods) none; a custom caller outside CARD that relied on the defaults
   now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
   change and waits for the owner's approval.
+### Documentation
+- **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
+  sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
+  change.
+- **One expense for several machines is split by hand (issue 48, owner decision 2026-11-24).** The maintenance page
+  of the documentation site (English and Arabic) says how: one Purchase Invoice line per machine with the Card
+  Equipment dimension. No code: standard ERPNext already does it.
+- **Registry sync:** FR-137, FR-143, FR-152, FR-155, FR-157, FR-159 and FR-163 were still listed as not merged; their
+  code is in v4.8.0. Statuses corrected to Implemented. The approval workflows stay inactive until the owner
+  activates them per site (issue 35).
 
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report

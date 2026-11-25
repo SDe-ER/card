@@ -6820,6 +6820,22 @@ msgstr ""
 msgid "This file is the intake evidence of a submitted or cancelled transport; it is kept."
 msgstr ""
 
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Transport from evidence needs a second person"
+msgstr ""
+
+#: card/intake.py
+msgid "You entered or edited this transport from a paper sheet or a message; another user must submit it (company rule: second person)."
+msgstr ""
+
+#: card/intake.py
+msgid "Transport second person"
+msgstr ""
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgid "Intake declared"
+msgstr ""
+
 #: card/intake.py
 msgid "This file is the intake evidence of a submitted or cancelled transport; it stays private and on its transport."
 msgstr ""
@@ -8092,4 +8108,45 @@ msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+msgstr ""
+
+#. Label of the partner_reports_section (Section Break) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Partner-owned equipment"
+msgstr ""
+
+#. Label of the partner_equipment_split (Check) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Show partner-owned equipment in the suppliers summary"
+msgstr ""
+
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Net cards (partner-owned)"
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Day shift loads"
+msgstr ""
+
+#: card/card/doctype/card_daily_log_row/card_daily_log_row.json
+msgid "Night shift loads"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Daily log loads"
+msgstr ""
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Loads on daily logs"
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0}: loads cannot be negative."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0}: loads on daily logs are not enabled for company {1}. Enter the loads on the monthly card, or enable Loads on daily logs for the company in Card Settings."
+msgstr ""
+
+#: card/daily_log.py
+msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
 msgstr ""

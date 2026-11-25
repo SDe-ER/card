@@ -26,6 +26,8 @@ sidebar:
 | اسم المعدة <small>(للقراءة فقط)</small> | `equipment_name` | Data |  |  |
 | ساعات الوردية النهارية | `day_hours` | Float |  |  |
 | ساعات الوردية الليلية | `night_hours` | Float |  |  |
+| ردود الوردية النهارية | `day_loads` | Int |  |  |
+| ردود الوردية الليلية | `night_loads` | Int |  |  |
 | سبب التوقف | `stop_reason` | Link | [سبب توقف المعدة](/card/ar/reference/doctypes/card-stop-reason/) |  |
 | ساعات التوقف | `stopped_hours` | Float |  |  |
 | الجهة المسؤولة | `responsible_party_type` | Select | الشركة · المورد · العميل · Other |  |

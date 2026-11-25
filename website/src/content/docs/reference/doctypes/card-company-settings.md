@@ -81,6 +81,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Move-day rule | `move_day_rule` | Select | New assignment starts the day after the move · New assignment starts on the move day |  |
 | Equipment status rule | `equipment_status_rule` | Select | Warn only (equipment status) · Refuse (equipment status) |  |
 | Monthly card approval rule | `card_approval_rule` | Select | Warn only (card approval) · Refuse (card approval) |  |
+| Transport from evidence needs a second person | `require_intake_second_person` | Check |  |  |
 
 
 **Materials**
@@ -135,6 +136,20 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Label | Field name | Type | Options / link | Required |
 |---|---|---|---|---|
 | Enable diesel tanks | `enable_diesel_tanks` | Check |  |  |
+
+
+**Partner-owned equipment**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Show partner-owned equipment in the suppliers summary | `partner_equipment_split` | Check |  |  |
+
+
+**Daily log loads**
+
+| Label | Field name | Type | Options / link | Required |
+|---|---|---|---|---|
+| Loads on daily logs | `daily_log_loads` | Check |  |  |
 
 
 ## Child tables

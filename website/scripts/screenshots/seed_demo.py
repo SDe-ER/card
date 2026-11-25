@@ -560,8 +560,9 @@ def seed():
 					log(f"! loads {c.name}: {type(e).__name__}: {str(e)[:300]}")
 				frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone seeding script run outside a request
 
-	# submit two cards so the submitted view, statements and posting have data
-	for code in ("WL-02", "EX-06"):
+	# submit three cards so the submitted view, statements and posting have data; the per-m3 card (WL-05) is one of
+	# them because the customer statement and the loads number card count submitted cards only
+	for code in ("WL-02", "EX-06", "WL-05"):
 		n = CARDS.get(code)
 		if n and frappe.db.get_value("Card Monthly Card", n, "docstatus") == 0:
 			try:
