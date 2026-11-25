@@ -38,7 +38,7 @@ import re
 
 import frappe
 from frappe import _
-from frappe.utils import cstr, get_datetime, now_datetime
+from frappe.utils import cint, cstr, get_datetime, now_datetime
 
 from card.attachment_validator import (
 	check_attachment_content,
@@ -47,17 +47,29 @@ from card.attachment_validator import (
 	require_record_file,
 )
 from card.cancel_reason import _differs
+from card.settings import company_setting
 
 TRANSPORT = "Equipment Transport"
 DEFAULT_CHANNEL = "Manual"
 CHANNELS = (DEFAULT_CHANNEL, "Paper", "WhatsApp", "Email", "Other")
 EVIDENCE_FIELD = "intake_evidence"
 HASH_FIELD = "intake_evidence_hash"
+# FR-189: the server's record that the transport was entered from evidence (hidden, read only); see
+# `_set_intake_declared`
+DECLARED_FIELD = "intake_declared"
 # the fields that make a transport an intake record; the hash is derived, never an input
 INPUT_FIELDS = ("intake_source_key", "intake_channel", "intake_received_on", EVIDENCE_FIELD)
 
 
+# FR-189 (#52): Card Company Settings check, off by default
+SECOND_PERSON_SETTING = "require_intake_second_person"
+
+
 class DuplicateIntakeError(frappe.ValidationError):
+	pass
+
+
+class IntakeSecondPersonError(frappe.PermissionError):
 	pass
 
 
@@ -65,6 +77,7 @@ def apply_transport_intake(doc):
 	"""Normalise and check the intake fields of a transport in `validate` (draft save and submit)."""
 	doc.intake_source_key = cstr(doc.get("intake_source_key")).strip() or None
 	_set_evidence_hash(doc)
+	_set_intake_declared(doc)
 	if not any(doc.get(field) for field in INPUT_FIELDS):
 		doc.intake_channel = None
 		return
@@ -173,7 +186,7 @@ def freeze_submitted_intake(doc):
 	before = doc.get_doc_before_save()
 	if not before:
 		return
-	for fieldname in (*INPUT_FIELDS, HASH_FIELD):
+	for fieldname in (*INPUT_FIELDS, HASH_FIELD, DECLARED_FIELD):
 		df = doc.meta.get_field(fieldname)
 		if df and _differs(df, doc.get(fieldname), before.get(fieldname)):
 			frappe.throw(
@@ -182,6 +195,85 @@ def freeze_submitted_intake(doc):
 				),
 				frappe.UpdateAfterSubmitError,
 			)
+
+
+def has_intake_provenance(values) -> bool:
+	"""A transport entered from evidence: it names a source key, a received time, an evidence file or a channel
+	other than "Manual". The channel "Manual" alone is a hand entry without a source."""
+	return bool(
+		values.get("intake_source_key")
+		or values.get("intake_received_on")
+		or values.get(EVIDENCE_FIELD)
+		or (values.get("intake_channel") or DEFAULT_CHANNEL) != DEFAULT_CHANNEL
+	)
+
+
+def _set_intake_declared(doc):
+	"""`intake_declared` is always the server's (FR-189): 1 from the first save that carries intake provenance, and
+	it never goes back to 0, so emptying the intake fields in a later draft save does not hide that the transport
+	was entered from evidence. A value sent by the client is never kept: the flag is computed from the stored row
+	(its flag, or its intake fields for a transport saved before the flag existed), from the transport a new
+	amendment amends, and from the intake fields of this save."""
+	source = doc.get("amended_from") if doc.is_new() else doc.name
+	before = (
+		frappe.db.get_value(doc.doctype, source, [DECLARED_FIELD, *INPUT_FIELDS], as_dict=True)
+		if source
+		else None
+	)
+	declared = has_intake_provenance(doc) or bool(
+		before and (cint(before.get(DECLARED_FIELD)) or has_intake_provenance(before))
+	)
+	doc.set(DECLARED_FIELD, 1 if declared else 0)
+
+
+def check_second_person(doc):
+	"""`before_submit` (FR-189, #52): where the transport's company turns `require_intake_second_person` on, a
+	transport entered from evidence is not submitted by a user who entered it. Off (the default, also for a company
+	without a settings row) nothing is checked. The check is in the controller's submit path, which every submit
+	goes through (`Document.submit`, a save with docstatus 1, an insert as submitted). No user is exempt.
+
+	Entered from evidence: the server-kept `intake_declared` flag (`_set_intake_declared`, written by `validate`
+	in this request and on every earlier save) or intake provenance now, in the request or in the stored row. The
+	flag stays set when a draft save empties the intake fields, and an amendment takes it from the transport it
+	amends.
+
+	Who entered it is read from the stored row, never from the request: `validate` has already added the submitter
+	to `edited_by` in memory, and a request may send any `owner`. The stored `edited_by` is the list the server
+	keeps on every save (`EquipmentTransport._record_editor` starts from the stored value and adds the session
+	user), so every user who saved the draft is on it whatever the request named; the stored `owner` is checked
+	as well. The stored company counts with the one sent. A transport inserted as submitted in one call has no
+	stored row: its submitter is the user who entered it.
+
+	Not covered: a user who changes values in the submit request of another user's draft may submit it, and an
+	approval delegate of the enterer is a different user."""
+	stored = None
+	if not doc.is_new():
+		stored = frappe.db.get_value(
+			doc.doctype,
+			doc.name,
+			["owner", "edited_by", "company", DECLARED_FIELD, *INPUT_FIELDS],
+			as_dict=True,
+		)
+	companies = {doc.get("company"), stored.company if stored else None} - {None, ""}
+	if not any(cint(company_setting(company, SECOND_PERSON_SETTING)) for company in companies):
+		return
+	declared = (
+		cint(doc.get(DECLARED_FIELD))
+		or has_intake_provenance(doc)
+		or bool(stored and (cint(stored.get(DECLARED_FIELD)) or has_intake_provenance(stored)))
+	)
+	if not declared:
+		return
+	user = frappe.session.user
+	enterers = {stored.owner, *cstr(stored.edited_by).splitlines()} if stored else {user}
+	if user in enterers:
+		frappe.throw(
+			_(
+				"You entered or edited this transport from a paper sheet or a message; another user must submit it (company rule: second person)."
+			),
+			IntakeSecondPersonError,
+			title=_("Transport second person"),
+		)
 
 
 def check_source_key(doc):

@@ -50,6 +50,7 @@
   "column_break_intake",
   "intake_evidence",
   "intake_evidence_hash",
+  "intake_declared",
   "section_break_financial",
   "financial_status",
   "financial_decision",
@@ -641,6 +642,15 @@
    "length": 64
   },
   {
+   "default": "0",
+   "fieldname": "intake_declared",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Intake declared",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
    "fieldname": "workflow_section",
    "fieldtype": "Section Break",
    "label": "Approval workflow",
@@ -666,7 +676,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-11 14:52:20.000000",
+ "modified": "2026-11-25 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Equipment Transport",

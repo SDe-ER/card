@@ -41,6 +41,7 @@
   "move_day_rule",
   "equipment_status_rule",
   "card_approval_rule",
+  "require_intake_second_person",
   "materials_section",
   "store_warehouse",
   "custody_warehouse",
@@ -63,6 +64,8 @@
   "enable_party_portal",
   "diesel_tanks_section",
   "enable_diesel_tanks",
+  "partner_reports_section",
+  "partner_equipment_split",
   "daily_log_loads_section",
   "daily_log_loads"
  ],
@@ -322,6 +325,13 @@
    "permlevel": 1
   },
   {
+   "default": "0",
+   "fieldname": "require_intake_second_person",
+   "fieldtype": "Check",
+   "label": "Transport from evidence needs a second person",
+   "permlevel": 1
+  },
+  {
    "fieldname": "materials_section",
    "fieldtype": "Section Break",
    "label": "Materials",
@@ -483,6 +493,20 @@
   },
   {
    "collapsible": 1,
+   "fieldname": "partner_reports_section",
+   "fieldtype": "Section Break",
+   "label": "Partner-owned equipment",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "partner_equipment_split",
+   "fieldtype": "Check",
+   "label": "Show partner-owned equipment in the suppliers summary",
+   "permlevel": 1
+  },
+  {
+   "collapsible": 1,
    "fieldname": "daily_log_loads_section",
    "fieldtype": "Section Break",
    "label": "Daily log loads",
@@ -500,7 +524,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-25 03:00:00.000000",
+ "modified": "2026-11-25 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Company Settings",
