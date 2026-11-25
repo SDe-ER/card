@@ -79,6 +79,11 @@ Card, opened to the first level. Project and equipment rows are bold totals of t
   (`card.card.report.equipment_supplier_statement.statement_pdf.download_pdf`), which runs the report with the user's
   permissions, builds the A4 statement and renders it with the Chrome PDF generator so Arabic text is shaped
   correctly. It requires the **print** right on Card Monthly Card and writes an Access Log entry.
+- The **Equipment Customer Statement** works the same way with the **Equipment Customer Statement A4** print format:
+  its **PDF** action sends only the filters to
+  `card.card.report.equipment_customer_statement.statement_pdf.download_pdf`, and the server builds the fixed A4
+  statement with the Chrome PDF generator. The choices of the PDF dialog (letter head, orientation, columns) do not
+  apply to these two statements.
 
 ### Who can see money
 

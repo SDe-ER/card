@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-25 — The PDF of the Equipment Customer Statement shows Arabic correctly.** The **PDF** action of the report **Equipment Customer Statement** drew the letter alef apart from the letter before it in some Arabic words. The PDF is now made on the server with the same generator as the **Equipment Supplier Statement**, so Arabic words are joined correctly. The layout, the figures and the **Print** action are the same as before. No role, permission or accounting rule changes.
 
 ## v4.12.1 — 2026-11-25
 

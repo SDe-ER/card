@@ -15,6 +15,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Fixed
+- **Equipment Customer Statement: the PDF action shapes Arabic correctly (issue 324, PR #328; FR-187 follow-up).** The PDF
+  action of the report used the standard report route (frappe `report_to_pdf`, wkhtmltopdf), which drew the letter
+  alef apart from the letter before it in some words. The report now sends its PDF action to a server route of its
+  own, as the Equipment Supplier Statement does since v4.4.3: the browser posts the filters only, the server runs
+  the report with the user's permissions, builds the page itself and renders it with the Frappe Chrome PDF
+  generator. The layout is the one of the print format "Equipment Customer Statement A4"; the CSS is read from the
+  report's print template. The Print action and the print format are not changed.
+  - Functions: new `card/card/report/equipment_customer_statement/statement_pdf.py` (`download_pdf`,
+    `methods=["POST"]`; `build_html`; it reuses the page margins and the number, period and meta-row helpers of the
+    supplier module); `equipment_customer_statement.js` (`onload` replaces `pdf_report` for this report only).
+  - Tests: `card/tests/test_customer_statement_pdf.py` (new: POST only, server-built HTML given to Chrome, report
+    permission, company outside the User Permission refused, Link filter values checked, plain filter values only,
+    empty PDF is an error, columns as the print format, escaping); `card/tests/test_bola_matrix.py` (new row).
+  - Impact: one new whitelisted method, POST only. Its gate is the one of the supplier route: the report's roles,
+    print on Card Monthly Card, the standard report run with its filter-value checks, and `resolve_company`. It
+    never accepts HTML. It writes one Access Log row per PDF, as the standard report PDF does. No role or DocPerm
+    change; no accounting change; no patch; no database change. The site needs the Chrome PDF generator that the
+    CARD print formats already use.
+  - Rollback: restore the previous code; the PDF action uses the standard route again.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
