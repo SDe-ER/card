@@ -15,6 +15,51 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Added
+- **FR-192 — Who pays the maintenance, on the equipment (issue 48; owner decision 2026-11-25, option 1).**
+  The equipment recorded who pays the fuel and the operator, but not who pays the maintenance.
+  - New field `Card Equipment.maintenance_on` (Select: empty, «المؤجر», «الشركة»; label "Maintenance charged
+    to", Arabic «الصيانة على»; permlevel 1), next to "Operator charged to" in Operation standards. It is the
+    same kind of field as "Fuel charged to". It is empty on existing and on new equipment until a user sets it.
+  - The field is a commercial term (`COMMERCIAL_FIELDS` in `card_equipment.py`): a change of a value already
+    set, also back to empty, needs a new reason, as for the fuel field. The first value on a saved equipment
+    needs no reason (`FIRST_FILL_WITHOUT_REASON`), because every existing equipment starts empty. CARD never
+    fills the field automatically.
+  - Master data only. No code reads the field for a card, an invoice, a posting or a report. Maintenance
+    expenses stay manual.
+  - Impact: permissions none (the existing level 1 rules apply; no new role or DocPerm); accounting none; API
+    none; data: one new empty column `maintenance_on` on `tabCard Equipment`, added by `bench migrate`, no
+    patch. Rollback: the earlier code ignores the column; stored values stay in the database.
+  - Tests: `card/tests/test_equipment_maintenance_payer.py`. PR #326.
+
+## [4.12.2] — 2026-11-25
+
+> **Published 2026-11-25** (tag `v4.12.2`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).
+> Patch release on top of v4.12.1, backward compatible. One fix: the PDF of the Equipment Customer Statement shapes
+> Arabic correctly (issue 324). One new whitelisted method, POST only. No patch; no database change; no role, DocPerm
+> or accounting change.
+
+### Fixed
+- **Equipment Customer Statement: the PDF action shapes Arabic correctly (issue 324, PR #328; FR-187 follow-up).** The PDF
+  action of the report used the standard report route (frappe `report_to_pdf`, wkhtmltopdf), which drew the letter
+  alef apart from the letter before it in some words. The report now sends its PDF action to a server route of its
+  own, as the Equipment Supplier Statement does since v4.4.3: the browser posts the filters only, the server runs
+  the report with the user's permissions, builds the page itself and renders it with the Frappe Chrome PDF
+  generator. The layout is the one of the print format "Equipment Customer Statement A4"; the CSS is read from the
+  report's print template. The Print action and the print format are not changed.
+  - Functions: new `card/card/report/equipment_customer_statement/statement_pdf.py` (`download_pdf`,
+    `methods=["POST"]`; `build_html`; it reuses the page margins and the number, period and meta-row helpers of the
+    supplier module); `equipment_customer_statement.js` (`onload` replaces `pdf_report` for this report only).
+  - Tests: `card/tests/test_customer_statement_pdf.py` (new: POST only, server-built HTML given to Chrome, report
+    permission, company outside the User Permission refused, Link filter values checked, plain filter values only,
+    empty PDF is an error, columns as the print format, escaping); `card/tests/test_bola_matrix.py` (new row).
+  - Impact: one new whitelisted method, POST only. Its gate is the one of the supplier route: the report's roles,
+    print on Card Monthly Card, the standard report run with its filter-value checks, and `resolve_company`. It
+    never accepts HTML. It writes one Access Log row per PDF, as the standard report PDF does. No role or DocPerm
+    change; no accounting change; no patch; no database change. The site needs the Chrome PDF generator that the
+    CARD print formats already use.
+  - Rollback: restore the previous code; the PDF action uses the standard route again.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -37,23 +82,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   equipment is allowed as a labelled display figure, and a measured quantity always wins (FR-185). Posting and
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
-
-### Added
-- **FR-192 — Who pays the maintenance, on the equipment (issue 48; owner decision 2026-11-25, option 1).**
-  The equipment recorded who pays the fuel and the operator, but not who pays the maintenance.
-  - New field `Card Equipment.maintenance_on` (Select: empty, «المؤجر», «الشركة»; label "Maintenance charged
-    to", Arabic «الصيانة على»; permlevel 1), next to "Operator charged to" in Operation standards. It is the
-    same kind of field as "Fuel charged to". It is empty on existing and on new equipment until a user sets it.
-  - The field is a commercial term (`COMMERCIAL_FIELDS` in `card_equipment.py`): a change of a value already
-    set, also back to empty, needs a new reason, as for the fuel field. The first value on a saved equipment
-    needs no reason (`FIRST_FILL_WITHOUT_REASON`), because every existing equipment starts empty. CARD never
-    fills the field automatically.
-  - Master data only. No code reads the field for a card, an invoice, a posting or a report. Maintenance
-    expenses stay manual.
-  - Impact: permissions none (the existing level 1 rules apply; no new role or DocPerm); accounting none; API
-    none; data: one new empty column `maintenance_on` on `tabCard Equipment`, added by `bench migrate`, no
-    patch. Rollback: the earlier code ignores the column; stored values stay in the database.
-  - Tests: `card/tests/test_equipment_maintenance_payer.py`. PR #326.
 
 ## [4.12.1] — 2026-11-25
 

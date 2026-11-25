@@ -20,6 +20,12 @@ per site.
 
 - **2026-11-25 — The equipment records who pays the maintenance.** **Equipment** has a new field, **Maintenance charged to**, next to **Operator charged to** on the **Cost and rental** tab. You select «المؤجر» (Lessor) or «الشركة» (Company), as for **Fuel charged to**. The field is empty until you set it. It is information only: it changes no card, invoice or accounting entry, and maintenance expenses are recorded by hand as before. It is a commercial term, so the users who can change the rate can change it, and a change of a value already set needs a reason; the first value needs none. No role or permission changes.
 
+## v4.12.2 — 2026-11-25
+
+Patch release on top of v4.12.1. One fix. It changes no role, permission, accounting entry or stored value.
+
+- **2026-11-25 — The PDF of the Equipment Customer Statement shows Arabic correctly.** The **PDF** action of the report **Equipment Customer Statement** drew the letter alef apart from the letter before it in some Arabic words. The PDF is now made on the server with the same generator as the **Equipment Supplier Statement**, so Arabic words are joined correctly. The layout, the figures and the **Print** action are the same as before. No role, permission or accounting rule changes.
+
 ## v4.12.1 — 2026-11-25
 
 Patch release on top of v4.12.0. One fix. It changes no role, permission, accounting entry or stored value.
