@@ -91,8 +91,8 @@ class TestApprovalPeriodRule(_CustomerCardsBase):
 
 		with _today(OPEN):
 			card = self._draft()
-			# the bulk helper commits per document; the test keeps its rollback
-			with patch.object(frappe.db, "commit"):
+			# the bulk helper commits per document and rolls back a failed one; the test keeps its own transaction
+			with patch.object(frappe.db, "commit"), patch.object(frappe.db, "rollback"):
 				submit_cancel_or_update_docs(CARD, [card.name], action="submit")
 		self.assertEqual(frappe.db.get_value(CARD, card.name, "docstatus"), 0)
 

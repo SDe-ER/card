@@ -186,18 +186,17 @@ class TestNativeWorkflows(IntegrationTestCase):
 				self.assertFalse(frappe.get_meta(doctype).get_workflow())
 				self.assertEqual(wf.states[0].state, STATE_DRAFT)
 				docstatus = {s.state: int(s.doc_status) for s in wf.states}
-				self.assertEqual(
-					docstatus,
-					{
-						STATE_DRAFT: 0,
-						STATE_PENDING: 0,
-						STATE_BEFORE_GOVERNANCE: 1,
-						STATE_APPROVED: 1,
-						STATE_CANCELLED: 2,
-						# FR-191: the open-month state (no transition leads to it)
-						"Open – month not ended": 1,
-					},
-				)
+				expected = {
+					STATE_DRAFT: 0,
+					STATE_PENDING: 0,
+					STATE_BEFORE_GOVERNANCE: 1,
+					STATE_APPROVED: 1,
+					STATE_CANCELLED: 2,
+				}
+				if doctype == "Card Monthly Card":
+					# FR-191: the open-month state of the monthly card (no transition leads to it)
+					expected["Open – month not ended"] = 1
+				self.assertEqual(docstatus, expected)
 				# Frappe's default for an empty submitted record is the first submitted state
 				self.assertEqual(
 					next(s.state for s in wf.states if s.doc_status == "1"), STATE_BEFORE_GOVERNANCE
