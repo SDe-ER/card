@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-25 — A monthly card is approved only after its month ends.** You save a **Monthly Card** as often as you like during the month: add days, hours, additions and deductions, and save. Approval (Submit) is possible only from the first day of the next month (Riyadh time); before that the form shows the earliest approval date and the server refuses the approval on every route, also for Administrator. A card of an unfinished month that was already approved can be reopened by a System Manager with **Reopen for open month**: it keeps its number, its rows, attachments and comments, shows as **Provisional – month open, not approved**, and its days and additions/deductions can be changed and saved again. After the month ends, **Approve** freezes it. An open card is never posted to an invoice. No card is cancelled, amended or created by this.
 
 ## v4.12.0 — 2026-11-25
 

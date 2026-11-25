@@ -30,6 +30,7 @@ from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTI
 from card.gl import integrity, preflight
 from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
+from card.open_month import STATE_OPEN_MONTH
 from card.report_access import permitted_companies
 from card.settings import setting
 from card.transfer import is_billed_day
@@ -580,6 +581,8 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 		filters={
 			"docstatus": 1,
 			"company": company,
+			# FR-191: a card of an open month is not finally approved and is never posted
+			"workflow_state": ["!=", STATE_OPEN_MONTH],
 			**_party_filter("supplier", party),
 			"month": "%02d" % int(month),
 			"year": int(year),
@@ -672,6 +675,8 @@ def _customer_cards(company, party, month, year):
 		filters={
 			"docstatus": 1,
 			"company": company,
+			# FR-191: a card of an open month is not finally approved and is never posted
+			"workflow_state": ["!=", STATE_OPEN_MONTH],
 			**_party_filter("customer", party),
 			"month": "%02d" % int(month),
 			"year": int(year),

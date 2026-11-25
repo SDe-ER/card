@@ -5,6 +5,7 @@ from card.adjustments import sided_adjustments
 from card.card.doctype.card_stop_reason.card_stop_reason import side_stopped_hours
 from card.card_value import DAY_BASIS_FULL_DAY, PER_DAY, PER_VOLUME_M3, day_billing_basis
 from card.constants import CUSTOMER_BILLING_DIRECTIONS
+from card.open_month import provisional_suffix
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import (
 	can_view_ledger,
@@ -100,6 +101,7 @@ def execute(filters=None):
 				"supplier_billable_stopped_hours",
 				"customer_billable_stopped_hours",
 				"docstatus",
+				"workflow_state",
 				"from_date",
 			],
 			order_by="project asc, equipment asc, from_date asc, shift asc",
@@ -248,7 +250,9 @@ def execute(filters=None):
 						"row_id": e_id + "|C|" + c.name,
 						"parent_row": e_id,
 						"indent": 2,
-						"label": c.name + (" " + _("(Draft)") if c.docstatus == 0 else ""),
+						"label": c.name
+						+ (" " + _("(Draft)") if c.docstatus == 0 else "")
+						+ provisional_suffix(c),
 						"card": c.name,
 						"equipment": c.equipment,
 						"project": c.project,

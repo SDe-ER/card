@@ -38,6 +38,48 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Changed
+- **FR-191 — A monthly card is approved only after the end of its month; saving is separate from approval;
+  open-month cards can be reopened on their original number (owner instruction 2026-11-25).** Users submitted
+  cards early in the month to see them in the supplier statement (`include_draft_in_reports` is 0, so the statement
+  counts submitted cards only). A submitted card could then not take more days or payments without Cancel + Amend.
+  - Rule (`card/approval_period.py`): the first permitted approval day is the first day of the month after the
+    card's `month`/`year` (December -> 1 January). "Today" is the current UTC time converted to Asia/Riyadh with
+    `zoneinfo`; the System Settings time zone is not read; creation and modified dates are not read. Checked first
+    in `before_submit` (every submit route: form, `frappe.client.submit`, REST, bulk submit, `apply_workflow`) and
+    in the final approval of an open-month card. No role is exempt, Administrator included. The end of a month
+    never approves a card by itself.
+  - Open-month state (`card/open_month.py`): new Workflow State "Open – month not ended" (docstatus 1). Reopen
+    (`reopen_card`, `reopen_open_month_cards`; System Manager; only while the month has not ended; refused for a
+    posted card or a card referenced by a Journal Entry, Payment Entry, GL Posting Log, Card Period Run or Card
+    Cash Disbursement) keeps the card's name, rows, attachments and comments, withdraws the approval fields and
+    writes an Info comment with the reason. No card is created, cancelled or amended.
+  - On an open card, the day rows, additions/deductions and site location can be changed with Update After Submit
+    (`allow_on_submit` on these fields, the computed totals and the server-written approval fields in the DocType
+    JSON). Each such save runs the card's calculation again (hours, days, amounts, additions, deductions, nets,
+    approval tier) and records the editor for the separation-of-duties check. Rates, equipment, project, parties,
+    company, direction and period stay frozen (Frappe refuses a change). On an approved card nothing of this can
+    change: `card.open_month.before_update_after_submit` refuses the change on every route (form, REST PUT,
+    `frappe.client.set_value`, bulk update); a `workflow_state` sent by a client is refused.
+  - Final approval (`approve_open_month_card`, submit permission): refused before the month ends; runs the same
+    separation-of-duties and approval-tier checks as a submit (`governance.before_submit`).
+  - Posting: `gl/posting.py` (`_supplier_sources`, `_customer_cards`) and `gl/period_run.py` (`_selection`) skip
+    open-month cards, so a card that is not finally approved is never put on an invoice.
+  - Statements: Equipment Supplier Statement and Equipment Customer Statement label an open-month card
+    "(Provisional – month open, not approved)"; drafts keep "(Draft)". Draft visibility still follows the existing
+    `include_draft_in_reports` setting.
+  - Form: before the month ends the form shows the rule and the earliest approval date and keeps Save as its main
+    action; an open card shows a "Provisional" indicator and, after the month ends, an Approve button; a System
+    Manager sees "Reopen for open month" on an approved card of an unfinished month. The form reads the rule from
+    `card.approval_period.get_approval_eligibility` (GET, read permission).
+  - Patch `v4_13_0.open_month_workflow_state` (idempotent): creates the Workflow State and the Workflow Action
+    Master "Reopen for Open Month" when missing and adds the state and its transitions to the "CARD Monthly Card
+    Approval" Workflow when missing. It changes no card and never activates the Workflow.
+  - Impact: permissions — no new role or DocPerm; the reopen needs System Manager. Accounting — none; CARD posts no
+    GL. Data — none until a System Manager reopens a card. API — four new whitelisted methods (one GET, three
+    POST). Rollback — revert the code; a reopened card is returned to "Approved" with `approve_open_month_card`
+    after its month ends (or kept open); the Workflow State row stays (harmless).
+
 ## [4.12.0] — 2026-11-25
 
 > **Published 2026-11-25** (tag `v4.12.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).

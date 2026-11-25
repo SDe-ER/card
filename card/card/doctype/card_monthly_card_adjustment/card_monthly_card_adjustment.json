@@ -28,6 +28,7 @@
  ],
  "fields": [
   {
+   "allow_on_submit": 1,
    "default": "0",
    "fieldname": "is_cash_disbursement",
    "fieldtype": "Check",
@@ -37,6 +38,7 @@
    "width": "80px"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "cash_status",
    "fieldtype": "Data",
    "label": "Cash payment status",
@@ -47,6 +49,7 @@
    "width": "147px"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "cash_payment",
    "fieldtype": "Link",
    "label": "Cash payment",
@@ -56,6 +59,7 @@
    "print_hide": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "cash_journal_entry",
    "fieldtype": "Link",
    "label": "Journal Entry",
@@ -67,6 +71,7 @@
    "width": "140px"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.is_cash_disbursement",
    "fieldname": "cash_account",
    "fieldtype": "Link",
@@ -75,6 +80,7 @@
    "mandatory_depends_on": "eval:doc.is_cash_disbursement"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "adjustment_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -83,6 +89,7 @@
    "width": "128px"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "adjustment_type",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -92,6 +99,7 @@
    "width": "84px"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "description",
    "fieldtype": "Data",
    "label": "Description",
@@ -100,6 +108,7 @@
    "width": "158px"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -110,12 +119,14 @@
    "width": "90px"
   },
   {
+   "allow_on_submit": 1,
    "description": "Configured type from Card Settings (Addition/Deduction Types) for the card's company. Legacy rows may leave it empty.",
    "fieldname": "adjustment_type_ref",
    "fieldtype": "Data",
    "label": "Adjustment type"
   },
   {
+   "allow_on_submit": 1,
    "description": "Which party's monthly invoice this row belongs to. Defaults to the card's billed side; sub-rental cards need an explicit choice.",
    "fieldname": "side",
    "fieldtype": "Select",
@@ -133,12 +144,14 @@
    "label": "Downtime charge"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "stop_reason",
    "fieldtype": "Link",
    "label": "Stop reason",
    "options": "Card Stop Reason"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "agreement_reference",
    "fieldtype": "Data",
    "label": "Agreement reference"
@@ -148,12 +161,14 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "responsible_party_type",
    "fieldtype": "Select",
    "label": "Responsible party",
    "options": "\nCompany\nSupplier\nCustomer\nOther"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:[\"Company\",\"Supplier\",\"Customer\"].includes(doc.responsible_party_type)",
    "fieldname": "responsible_party",
    "fieldtype": "Dynamic Link",
@@ -161,6 +176,7 @@
    "options": "responsible_party_type"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.responsible_party_type==\"Other\"",
    "fieldname": "responsible_party_name",
    "fieldtype": "Data",
@@ -171,7 +187,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-11-19 15:00:00.000000",
+ "modified": "2026-11-25 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Card",
  "name": "Card Monthly Card Adjustment",

@@ -94,6 +94,7 @@ from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTI
 from card.daily_log import _add_preparers, _has_any_role
 from card.gl import preflight
 from card.gl.posting import _TRANSPORT_SOURCE_FIELDS, _customer_transports, _rows, _unheld_batch
+from card.open_month import STATE_OPEN_MONTH
 from card.report_access import permitted_companies
 from card.settings import company_setting
 
@@ -369,6 +370,8 @@ def _selection(company: str, month: str, year: int, for_update: bool = False) ->
 		filters={
 			"docstatus": 1,
 			"company": company,
+			# FR-191: a card of an open month is not finally approved and is never posted
+			"workflow_state": ["!=", STATE_OPEN_MONTH],
 			"month": month,
 			"year": year,
 			"card_direction": [

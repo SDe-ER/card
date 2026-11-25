@@ -13,6 +13,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Module | API endpoints |
 |---|---|
 | [`card.api`](#card-api) | 12 |
+| [`card.approval_period`](#card-approval-period) | 1 |
 | [`card.cancel_reason`](#card-cancel-reason) | 1 |
 | [`card.card.dashboard_chart_source.card_monthly_values.card_monthly_values`](#card-card-dashboard-chart-source-card-monthly-values-card-monthly-values) | 1 |
 | [`card.card.doctype.card_equipment.card_equipment`](#card-card-doctype-card-equipment-card-equipment) | 5 |
@@ -35,6 +36,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.governance_workflows`](#card-governance-workflows) | 1 |
 | [`card.materials`](#card-materials) | 8 |
 | [`card.mobile`](#card-mobile) | 1 |
+| [`card.open_month`](#card-open-month) | 3 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
 
 
@@ -67,6 +69,15 @@ This page is generated from the CARD source code on every build. Edit the code, 
 - `get_asset_prefill` — Values the equipment form fills from the chosen Asset (read only).
 - `create_equipment_from_asset` — A Card Equipment prefilled from a submitted ERPNext Asset (maintenance plan M1: minimum input).
 - `available_assets_query` — Link-filter query for Card Equipment.الأصل_في_erpnext: submitted Assets of the given company that are not Scrapped/Sold and not already linked to a Card Equipment. Only for users who may create or edit Card Equipment and may read Assets (linking needs Asset read, see CardEquipment.validate_asset_link), within the companies they may see for Card Equipment. frappe.get_list applies the Asset permissions and User Permissions.
+
+
+<h2 id="card-approval-period"><code>card.approval_period</code></h2>
+
+| Method path | HTTP methods | Arguments |
+|---|---|---|
+| `card.approval_period.get_approval_eligibility` | GET | `name: str` |
+
+- `get_approval_eligibility` — Read-only: whether the card may be approved now and its earliest approval date (the form shows this; the rule itself is always enforced on the server).
 
 
 <h2 id="card-cancel-reason"><code>card.cancel_reason</code></h2>
@@ -337,6 +348,19 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | `card.mobile.get_session_context` | GET | none |
 
 - `get_session_context` — The signed-in user's CARD Mobile context. Reads only.
+
+
+<h2 id="card-open-month"><code>card.open_month</code></h2>
+
+| Method path | HTTP methods | Arguments |
+|---|---|---|
+| `card.open_month.reopen_card` | POST | `name: str`<br/>`reason: str` |
+| `card.open_month.approve_open_month_card` | POST | `name: str` |
+| `card.open_month.reopen_open_month_cards` | POST | `year: int`<br/>`month: str`<br/>`dry_run: int = 1`<br/>`reason: str \| None = None` |
+
+- `reopen_card` — Reopen one approved card of an unfinished month on its own name (System Manager).
+- `approve_open_month_card` — Final approval of an open-month card (manual only; refused before the card's month ends).
+- `reopen_open_month_cards` — Recovery (System Manager): reopen every submitted card of (year, month) on its ORIGINAL name. Never creates, cancels or amends a card. A card with a posting or a linked financial document is refused and reported; a card already open is a no-op. Each card is reopened in its own savepoint (an error rolls that card back only). ``dry_run`` (default) returns the plan and changes nothing.
 
 
 <h2 id="card-tool-custody"><code>card.tool_custody</code></h2>

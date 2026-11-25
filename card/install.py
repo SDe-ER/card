@@ -126,6 +126,10 @@ def after_install():  # pragma: no cover (runs before coverage measurement start
 	from card.governance_workflows import ensure_workflows
 
 	ensure_workflows()
+	# FR-191: the open-month state of the monthly card (same idempotent step as the v4.13.0 patch)
+	from card.open_month import ensure_open_month_state
+
+	ensure_open_month_state()
 	# #50: the hour settings (standard month hours, shift limits) start with their DocType defaults stored,
 	# because the code has no fallback number for them
 	from card.settings import store_hour_settings_defaults
