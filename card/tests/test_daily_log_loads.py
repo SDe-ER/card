@@ -17,7 +17,10 @@ the keys keeps the stored loads, a corrected draft (a new log that amends a canc
 the loads of the log it amends, and an explicit 0 clears them. After the switch is turned off, a log that holds
 loads is still saved while its loads are unchanged (or cleared); only new or changed loads are refused. A day
 cleared because its log was cancelled loses the loads the generation copied from that log, also with the switch
-off; loads typed by hand on a card are kept. Everything is rolled back; no role is widened."""
+off; loads typed by hand on a card are kept. With the switch off, a day now covered by another log (the corrected
+log) loses the loads the earlier log gave it. A new log takes the loads of the log it amends only when that log
+has its company, project and date. The Desk form sends 0 for an emptied load field (source check of the form
+script). Everything is rolled back; no role is widened."""
 
 import frappe
 from frappe.utils import add_days, add_months, flt, get_first_day, nowdate
@@ -571,3 +574,79 @@ class TestDailyLogLoads(_CustomerCardsBase):
 		self._cancel(log)
 		self._run()
 		self.assertEqual(self._card_day(card, 1).loads_count, 7)
+
+	# ---------- review 2 ----------
+	def test_the_form_sends_zero_for_an_emptied_load_field(self):
+		# an emptied Int cell is null on the client, and null reads as "not sent" on the server: the form's
+		# validate event sets both load fields of every row, so a Desk save always sends them
+		path = frappe.get_app_path("card", "card", "doctype", "card_daily_log", "card_daily_log.js")
+		with open(path, encoding="utf-8") as fh:
+			script = fh.read()
+		self.assertIn("validate(frm) {", script)
+		self.assertIn('for (const fieldname of ["day_loads", "night_loads"])', script)
+		self.assertIn("if (row[fieldname] == null) row[fieldname] = 0;", script)
+
+	def test_off_after_on_a_corrected_log_without_loads_clears_the_loads_of_the_earlier_log(self):
+		self._loads_setting(1)
+		log = self._log(1, [self._row(8, day_loads=5)])
+		(card,) = self._run()["created"]
+		self._loads_setting(0)
+		self._cancel(log)
+		amended = self._amend(log, day_loads=0)
+		result = self._run()
+		self.assertEqual(result["updated"], [card])
+		(day,) = result["overwritten_days"]
+		self.assertEqual((day["old_loads"], day["new_loads"], day["new_notes"]), (5, 0, amended.name))
+		self.assertEqual(self._card_day(card, 1).loads_count, 0)
+		self.assertEqual(frappe.db.get_value(CARD, card, "total_loads"), 0)
+
+	def test_off_after_on_a_corrected_log_keeps_other_loads_typed_on_the_card(self):
+		self._loads_setting(1)
+		log = self._log(1, [self._row(8, day_loads=5)])
+		(card,) = self._run()["created"]
+		self._loads_setting(0)
+		self._type_loads(card, 7)  # not the loads of the log: a hand entry
+		self._cancel(log)
+		self._amend(log, day_loads=0)
+		result = self._run()
+		self.assertEqual(result["updated"], [card])
+		self.assertNotIn("old_loads", result["overwritten_days"][0])
+		self.assertEqual(self._card_day(card, 1).loads_count, 7)
+
+	def test_off_a_later_log_keeps_loads_typed_on_the_card(self):
+		# the company never used loads on daily logs: the earlier log holds none
+		log = self._log(1, [self._row(8)])
+		(card,) = self._run()["created"]
+		self._type_loads(card, 5)
+		self._cancel(log)
+		self._amend(log, day_hours=6)
+		self._run()
+		day = self._card_day(card, 1)
+		self.assertEqual((flt(day.working_hours), day.loads_count), (6, 5))
+
+	def _unsent_loads_of_a_new_log(self, amended_from, n):
+		"""The loads ``keep_unsent_loads`` gives a new log of day ``n`` that names ``amended_from`` and sends none."""
+		doc = self._draft([{"equipment": self.eq.name, "day_hours": 8}], self._day(n))
+		doc.amended_from = amended_from
+		daily_log.keep_unsent_loads(doc)
+		return (doc.rows[0].day_loads or 0, doc.rows[0].night_loads or 0)
+
+	def test_a_new_log_takes_loads_only_from_a_log_of_its_company_project_and_date(self):
+		self._loads_setting(1)
+		log = self._log(2, [self._row(8, 6, day_loads=5, night_loads=2)])
+		self._cancel(log)
+		# the corrected draft of that log: same company, project and date
+		self.assertEqual(self._unsent_loads_of_a_new_log(log.name, 2), (5, 2))
+		# a forged amended_from: a log of another date gives nothing
+		self.assertEqual(self._unsent_loads_of_a_new_log(log.name, 1), (0, 0))
+		# and a log of another project gives nothing
+		other = frappe.new_doc("Project")
+		other.project_name = "TEST-DLL-PRJ-" + self.token
+		other.company = self.company
+		other.insert(ignore_permissions=True)
+		doc = self._draft([{"equipment": self.eq.name, "day_hours": 8}], self._day(2))
+		doc.project = other.name
+		doc.amended_from = log.name
+		daily_log.keep_unsent_loads(doc)
+		self.assertFalse(doc.rows[0].day_loads)
+		self.assertFalse(doc.rows[0].night_loads)
