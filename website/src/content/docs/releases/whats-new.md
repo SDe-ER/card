@@ -19,6 +19,7 @@ per site.
 ## Next release (merged, not yet released)
 
 - **2026-11-25 — A new report shows the revenue and the expenses of each project.** **Project Invoice Profitability** is in **Card Reports**. Choose a company and a period, and optionally one project. For each project the report shows the revenue from the submitted sales invoices, the expenses from the submitted purchase invoices, the margin and the margin percentage, and a total row. The amounts are net of VAT, in the company currency. Credit notes and debit notes reduce their side. Invoice lines without a project are on the row **No project**, so the totals equal the invoices. The report is read-only: it changes nothing and posts nothing. The margin is revenue minus purchase-invoice expenses. It is not the full net profit, because payroll, depreciation, overhead and costs booked by journal entry are not included. Only a System Manager or an Accounts Manager with General Ledger access to the company can run it. No role or permission changes.
+- **2026-11-25 — The PDF of the Equipment Customer Statement shows Arabic correctly.** The **PDF** action of the report **Equipment Customer Statement** drew the letter alef apart from the letter before it in some Arabic words. The PDF is now made on the server with the same generator as the **Equipment Supplier Statement**, so Arabic words are joined correctly. The layout, the figures and the **Print** action are the same as before. No role, permission or accounting rule changes.
 
 ## v4.12.1 — 2026-11-25
 
