@@ -72,7 +72,10 @@ LINK_FILTERS = [
 def download_pdf(filters: str | dict | None = None):
 	"""Send the statement as a PDF file (Chrome generator). Same permissions as
 	running and printing the report; the company is checked by the report."""
-	filters = frappe._dict(frappe.parse_json(filters) if isinstance(filters, str) else (filters or {}))
+	filters = frappe.parse_json(filters) if isinstance(filters, str) else (filters or {})
+	if not isinstance(filters, dict):
+		frappe.throw(_("Invalid filters"))
+	filters = frappe._dict(filters)
 	# filter values are plain values only: a list or object never reaches the page given to Chrome
 	if any(isinstance(value, list | dict) for value in filters.values()):
 		frappe.throw(_("Invalid filters"))

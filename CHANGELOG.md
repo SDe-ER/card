@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Fixed
-- **Equipment Customer Statement: the PDF action shapes Arabic correctly (issue 324; FR-187 follow-up).** The PDF
+- **Equipment Customer Statement: the PDF action shapes Arabic correctly (issue 324, PR #328; FR-187 follow-up).** The PDF
   action of the report used the standard report route (frappe `report_to_pdf`, wkhtmltopdf), which drew the letter
   alef apart from the letter before it in some words. The report now sends its PDF action to a server route of its
   own, as the Equipment Supplier Statement does since v4.4.3: the browser posts the filters only, the server runs

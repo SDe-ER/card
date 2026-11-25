@@ -71,6 +71,8 @@ class TestCustomerStatementPdf(IntegrationTestCase):
 		)
 
 	def test_pdf_uses_chrome_with_server_built_html(self):
+		log = {"report_name": statement_pdf.REPORT, "file_type": "PDF"}
+		logs_before = frappe.db.count("Access Log", log)
 		with patch(CHROME, return_value=b"%PDF-1.4 test") as chrome:
 			statement_pdf.download_pdf(self._filters())
 		self.assertEqual(frappe.local.response.type, "pdf")
@@ -86,9 +88,7 @@ class TestCustomerStatementPdf(IntegrationTestCase):
 		self.assertIn('<div class="ess-end">', html)
 		self.assertNotIn("<script", html)
 		# one Access Log row, as the standard report PDF writes
-		self.assertTrue(
-			frappe.db.exists("Access Log", {"report_name": statement_pdf.REPORT, "file_type": "PDF"})
-		)
+		self.assertEqual(frappe.db.count("Access Log", log), logs_before + 1)
 
 	def test_report_permission_is_required(self):
 		frappe.set_user(self._user([]))
@@ -132,6 +132,12 @@ class TestCustomerStatementPdf(IntegrationTestCase):
 		with patch(CHROME) as chrome, self.assertRaises(frappe.ValidationError):
 			statement_pdf.download_pdf(self._filters(customer={"name": "<img src=x>"}))
 		chrome.assert_not_called()
+
+	def test_filters_must_be_an_object(self):
+		for bad in ("5", "[1, 2]", '"x"'):
+			with patch(CHROME) as chrome, self.assertRaises(frappe.ValidationError):
+				statement_pdf.download_pdf(bad)
+			chrome.assert_not_called()
 
 	def test_empty_pdf_is_an_error(self):
 		with patch(CHROME, return_value=None), self.assertRaises(frappe.ValidationError):
