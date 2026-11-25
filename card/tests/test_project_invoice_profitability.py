@@ -224,8 +224,14 @@ class TestProjectProfitability(_AnalyticsBase):
 		target = (
 			"card.card.report.project_invoice_profitability.project_invoice_profitability.currency_precision"
 		)
+		real = frappe.get_list
+
+		def read(doctype, *args, **kwargs):
+			# frappe.get_all goes through frappe.get_list: only the invoice headers are replaced
+			return heads[doctype] if doctype in heads else real(doctype, *args, **kwargs)
+
 		with (
-			patch.object(analytics.frappe, "get_list", side_effect=lambda doctype, **kw: heads[doctype]),
+			patch.object(analytics.frappe, "get_list", side_effect=read),
 			patch.object(analytics, "_children", side_effect=lambda child, *args, **kw: lines[child]),
 			patch(target, return_value=3),
 		):
