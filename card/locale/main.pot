@@ -6668,6 +6668,14 @@ msgid "Duplicate company in the diesel variance anomaly thresholds: {0}"
 msgstr ""
 
 #: card/card/doctype/card_settings/card_settings.py
+msgid "Row {0}: company {1} already has an approval tier threshold of this amount."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
+msgid "Row {0}: company {1} already has an approval tier named {2}."
+msgstr ""
+
+#: card/card/doctype/card_settings/card_settings.py
 msgid "Row {0}: a diesel variance anomaly threshold cannot be negative."
 msgstr ""
 
@@ -7183,11 +7191,11 @@ msgstr ""
 msgid "Monthly card approval tier"
 msgstr ""
 
-#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/doctype/card_settings/card_settings.json
 msgid "Monthly card approval tiers"
 msgstr ""
 
-#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/doctype/card_settings/card_settings.json
 msgid "Approval tier thresholds"
 msgstr ""
 

@@ -41,6 +41,13 @@ sidebar:
 | إعدادات الشركة | `company_settings` | Table | [إعدادات كارت للشركة](/card/ar/reference/doctypes/card-company-settings/) |  |
 
 
+**مستويات اعتماد البطاقة الشهرية**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| حدود مستويات الاعتماد | `approval_tier_thresholds` | Table | [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/) |  |
+
+
 ### التشغيل
 
 
@@ -167,6 +174,7 @@ sidebar:
 ## الجداول الفرعية
 
 - [إعدادات كارت للشركة](/card/ar/reference/doctypes/card-company-settings/)
+- [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/)
 - [سعر الديزل](/card/ar/reference/doctypes/card-diesel-price/)
 - [حد فروقات الديزل](/card/ar/reference/doctypes/card-diesel-variance-threshold/)
 - [سعر النقل للمشروع](/card/ar/reference/doctypes/card-project-transport-price/)

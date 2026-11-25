@@ -11,6 +11,7 @@ import json
 import frappe
 import frappe.model.document
 from frappe.tests import IntegrationTestCase
+from frappe.utils import flt
 
 from card.card.doctype.card_settings import card_settings as scope
 from card.card.doctype.card_settings.card_settings import settings_company_scope
@@ -18,6 +19,7 @@ from card.tests.test_controllers import _ensure_masters
 
 SETTINGS = {"parent": "Card Settings", "parenttype": "Card Settings"}
 HERE = "card.tests.test_settings_company_scope"
+TIER = "Card Approval Tier Threshold"
 
 
 def _fake_filter():
@@ -207,6 +209,29 @@ class TestSettingsCompanyScope(IntegrationTestCase):
 			}
 		).db_insert()
 
+	def _tier_row(self, company, tier_name="Tier 1", amount=10_000):
+		"""One FR-159 approval tier threshold row of ``company``, written on its own (#320)."""
+		row = frappe.get_doc(
+			{
+				"doctype": TIER,
+				**SETTINGS,
+				"parentfield": "approval_tier_thresholds",
+				"idx": 100 + frappe.db.count(TIER, SETTINGS),
+				"company": company,
+				"tier_name": tier_name,
+				"amount_threshold": amount,
+				"role_required": "Accounts Manager",
+			}
+		)
+		row.db_insert()
+		frappe.clear_document_cache("Card Settings", "Card Settings")
+		return row.name
+
+	def _tier_values(self, name):
+		return frappe.db.get_value(
+			TIER, name, ["company", "tier_name", "amount_threshold", "role_required", "parent"], as_dict=True
+		)
+
 	def _other_names(self):
 		"""Every name and company of the rows of B and C (what must never reach an A user)."""
 		values = set()
@@ -250,8 +275,10 @@ class TestSettingsCompanyScope(IntegrationTestCase):
 		import frappe.api.v1
 		import frappe.client
 
+		for company in (self.a, self.b):
+			self._tier_row(company)
 		frappe.set_user(self._user(self.a))
-		for doctype in ("Card Company Settings", "Card Diesel Price"):
+		for doctype in ("Card Company Settings", "Card Diesel Price", TIER):
 			other = self._row_name(doctype, self.b)
 			with self.assertRaises(frappe.PermissionError):
 				frappe.client.get(doctype, other)
@@ -272,7 +299,7 @@ class TestSettingsCompanyScope(IntegrationTestCase):
 			}
 		).insert(ignore_permissions=True)
 		frappe.set_user(user)
-		for doctype in ("Card Company Settings", "Card Diesel Price"):
+		for doctype in ("Card Company Settings", "Card Diesel Price", TIER):
 			with self.assertRaises(frappe.PermissionError):
 				frappe.client.get(doctype, self._row_name(doctype, self.b))
 			# a row on its own is checked against the whole stored Single (has_settings_permission):
@@ -493,6 +520,104 @@ class TestSettingsCompanyScope(IntegrationTestCase):
 				"Card Adjustment Type",
 				frappe.db.get_value("Card Adjustment Type", {**SETTINGS, "company": self.b}),
 			)
+
+	# ---------- #320: the FR-159 approval tier thresholds follow the same scope ----------
+
+	def test_tier_rows_of_another_company_are_hidden_on_read(self):
+		import frappe.client
+
+		own, other = self._tier_row(self.a), self._tier_row(self.b)
+		frappe.set_user(self._user(self.a))
+		for doc in (self._getdoc().as_dict(), frappe.client.get("Card Settings")):
+			self.assertEqual([r["name"] for r in doc["approval_tier_thresholds"]], [own])
+			self.assertNotIn(other, json.dumps(doc, default=str))
+			frappe.clear_document_cache("Card Settings", "Card Settings")
+
+	def test_tier_rows_of_another_company_are_kept_on_save(self):
+		import frappe.client
+
+		own, other = self._tier_row(self.a), self._tier_row(self.b)
+		before = self._tier_values(other)
+		frappe.set_user(self._user(self.a))
+		doc = frappe.client.get("Card Settings")
+		doc["approval_tier_thresholds"][0]["amount_threshold"] = 20_000
+		reply = frappe.client.save(doc)
+		self.assertEqual(self._companies(reply, "approval_tier_thresholds"), {self.a})
+		# a removal of his own row is stored; the other company's row stays
+		doc = frappe.client.get("Card Settings")
+		doc["approval_tier_thresholds"] = []
+		frappe.client.save(doc)
+		frappe.set_user("Administrator")
+		self.assertFalse(frappe.db.exists(TIER, own))
+		self.assertEqual(self._tier_values(other), before)
+
+	def test_tier_row_changes_for_another_company_are_refused(self):
+		import frappe.client
+
+		own, other = self._tier_row(self.a), self._tier_row(self.b)
+		before, count = self._tier_values(other), frappe.db.count(TIER, SETTINGS)
+		frappe.set_user(self._user(self.a))
+		new_row = {"company": self.b, "tier_name": "Tier 9", "amount_threshold": 1, "role_required": "Guest"}
+		for row in (new_row, {**new_row, "name": other}):
+			doc = frappe.client.get("Card Settings")
+			doc["approval_tier_thresholds"].append(row)
+			with self.assertRaises(frappe.PermissionError):
+				frappe.client.save(doc)
+		# his own row moved to the other company
+		doc = frappe.client.get("Card Settings")
+		doc["approval_tier_thresholds"][0]["company"] = self.b
+		with self.assertRaises(frappe.PermissionError):
+			frappe.client.save(doc)
+		frappe.set_user("Administrator")
+		self.assertEqual(self._tier_values(other), before)
+		self.assertEqual(self._tier_values(own).company, self.a)
+		self.assertEqual(frappe.db.count(TIER, SETTINGS), count)
+
+	def test_tier_row_on_its_own_is_scoped(self):
+		import frappe.api.v1
+		import frappe.client
+
+		own, other = self._tier_row(self.a), self._tier_row(self.b)
+		before = self._tier_values(other)
+		frappe.set_user(self._user(self.a))
+		with self.assertRaises(frappe.PermissionError):
+			frappe.client.get(TIER, other)
+		with self.assertRaises(frappe.PermissionError):
+			frappe.api.v1.read_doc(TIER, other)
+		for field, value in (("role_required", "Guest"), ("company", self.a), ("amount_threshold", 1)):
+			with self.assertRaises(frappe.PermissionError):
+				frappe.client.set_value(TIER, other, field, value)
+		# his own row cannot be moved to the other company
+		with self.assertRaises(frappe.PermissionError):
+			frappe.client.set_value(TIER, own, "company", self.b)
+		reply = frappe.client.set_value(TIER, own, "amount_threshold", 30_000)
+		self.assertNotIn(other, json.dumps(reply, default=str))
+		frappe.set_user("Administrator")
+		self.assertEqual(self._tier_values(other), before)
+		values = self._tier_values(own)
+		self.assertEqual((values.company, flt(values.amount_threshold)), (self.a, 30_000))
+
+	def test_tier_row_saved_on_its_own_cannot_move_to_another_company(self):
+		"""The row check of ``CardApprovalTierThreshold.has_permission`` on its own: the user is
+		permitted for every company that has a stored Card Settings row, so the check on the stored
+		Single (``has_settings_permission``) passes. Without the row check, this save would move the
+		threshold to a company he is not permitted for."""
+		own = self._tier_row(self.a)
+		d = self._company("D")  # no Card Settings row
+		with_rows = {self.a}
+		for doctype in scope.SCOPED_CHILD_DOCTYPES:
+			with_rows.update(frappe.get_all(doctype, filters=SETTINGS, pluck="company"))
+		user = self._user(*sorted(c for c in with_rows if c))
+		frappe.set_user(user)
+		self.assertTrue(scope.has_settings_permission(frappe.get_doc("Card Settings"), user=user))
+		doc = frappe.get_doc(TIER, own)
+		self.assertTrue(doc.has_permission("read"))
+		self.assertTrue(doc.has_permission("write"))
+		doc.company = d
+		with self.assertRaises(frappe.PermissionError):
+			doc.save()
+		frappe.set_user("Administrator")
+		self.assertEqual(self._tier_values(own).company, self.a)
 
 	def test_hidden_rows_are_not_validated_or_named(self):
 		"""An unchanged hidden row that would fail a rule (wrong currency) does not block, and is not

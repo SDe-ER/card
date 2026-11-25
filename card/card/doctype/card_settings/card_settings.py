@@ -14,22 +14,25 @@ COMPANY_TABLES = (
 	"adjustment_types",
 	"diesel_price_schedule",
 	"diesel_variance_thresholds",
+	"approval_tier_thresholds",
 )
 
 # FR-133 (R-14, O-19): the per-company tables a company-restricted user reads only for the companies
 # he is permitted; the rows of other companies are hidden on every read and kept on every save
-# (FR-151: and the diesel variance anomaly thresholds)
+# (FR-151: and the diesel variance anomaly thresholds; #320: and the FR-159 approval tier thresholds)
 SCOPED_TABLES = (
 	"company_settings",
 	"adjustment_types",
 	"diesel_price_schedule",
 	"diesel_variance_thresholds",
+	"approval_tier_thresholds",
 )
 SCOPED_CHILD_DOCTYPES = (
 	"Card Company Settings",
 	"Card Adjustment Type",
 	"Card Diesel Price",
 	"Card Diesel Variance Threshold",
+	"Card Approval Tier Threshold",
 )
 LAYOUT_FIELDTYPES = ("Section Break", "Column Break", "Tab Break", "HTML", "Button", "Heading", "Fold")
 
@@ -497,6 +500,7 @@ class CardSettings(Document):
 		self._validate_adjustment_types()
 		self._validate_diesel_price_schedule()
 		self._validate_diesel_variance_thresholds()
+		self._validate_approval_tier_thresholds()
 		validate_company_warehouses(_ScopedRows(self))  # FR-135; FR-133: visible rows only
 
 	def _explain_dimension_switch(self):
@@ -529,6 +533,28 @@ class CardSettings(Document):
 				frappe.throw(
 					_("Row {0}: a diesel variance anomaly threshold cannot be negative.").format(row.idx)
 				)
+
+	def _validate_approval_tier_thresholds(self):
+		"""FR-159 (#320): a company has one row per threshold amount and one row per tier name, so the
+		tier a card reaches has one name and one required role."""
+		amounts, names = set(), set()
+		for row in self._rows("approval_tier_thresholds"):
+			amount = (row.company, flt(row.amount_threshold))
+			name = (row.company, (row.tier_name or "").strip())
+			if amount in amounts:
+				frappe.throw(
+					_("Row {0}: company {1} already has an approval tier threshold of this amount.").format(
+						row.idx, row.company
+					)
+				)
+			if name in names:
+				frappe.throw(
+					_("Row {0}: company {1} already has an approval tier named {2}.").format(
+						row.idx, row.company, name[1]
+					)
+				)
+			amounts.add(amount)
+			names.add(name)
 
 	def _validate_diesel_price_schedule(self):
 		"""FR-125: one price per company and date, above zero, in the company's currency (a fill
