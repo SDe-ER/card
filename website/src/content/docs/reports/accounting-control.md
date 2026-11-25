@@ -73,7 +73,9 @@ spent. The report is read-only.
   empty when the project has no revenue.
 
 A line without a project takes the project of its invoice. A line with no project at all is on the row **No
-project**, so the totals equal the net totals of the invoices. Amounts are net of VAT, in the company currency.
+project**, so the totals equal the net totals of the invoices. Amounts are net of VAT, in the company currency;
+each figure is rounded once, at the precision of that currency. Opening invoices are not read, because they carry
+balances of earlier periods.
 
 :::caution
 The margin is not the full net profit. The report reads invoices only. It does not read journal entries or the
@@ -89,7 +91,9 @@ included.
 row, **Total of all projects**, is the total of the rows.
 
 **Access.** System Manager, Accounts Manager — ledger readers only. The invoices are read with the user's own
-permissions. A side the user cannot read (Sales Invoice or Purchase Invoice) is left out and named in the message.
+permissions. A user who cannot read Sales Invoice or Purchase Invoice is refused: a margin built from one side only
+would mislead. **Project name** is shown for a project of the report company; a project of another company shows
+its ID only.
 
 ## Unbilled Card Work
 
