@@ -15,6 +15,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Documentation
+- **Documentation screenshots: the duplicate captures are made distinct (issue 266; owner decision 2026-11-24: one
+  capture run after the fix).** `website/scripts/screenshots/`: the workspace, monthly card, posting preview and
+  diesel shots scroll to or open what each image is about (`scrollSel`, `clickTextAfter`, `waitSel`); a missing
+  target fails the shot; the customer statement and the loads card must show real values; the demo seed submits
+  the per-m³ card. Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no
+  application, permission, accounting, data or API change.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -206,6 +214,16 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   accounting, data and API (whitelisted methods) none; a custom caller outside CARD that relied on the defaults
   now gets a `TypeError`. Rollback: code only. Part 2 of #264 (loads column on per-m³ cards only) is a Desk UI
   change and waits for the owner's approval.
+### Documentation
+- **Architecture pack: owner decisions of 2026-11-24, issue 54 merged into epic 40** (`docs/architecture/08-roadmap.md`
+  sections 4 and 5, `docs/architecture/README.md`). Documentation only: no code, data, permission or accounting
+  change.
+- **One expense for several machines is split by hand (issue 48, owner decision 2026-11-24).** The maintenance page
+  of the documentation site (English and Arabic) says how: one Purchase Invoice line per machine with the Card
+  Equipment dimension. No code: standard ERPNext already does it.
+- **Registry sync:** FR-137, FR-143, FR-152, FR-155, FR-157, FR-159 and FR-163 were still listed as not merged; their
+  code is in v4.8.0. Statuses corrected to Implemented. The approval workflows stay inactive until the owner
+  activates them per site (issue 35).
 
 ### Fixed
 - **FR-173 — The optional Adjustment type no longer blocks a plain addition or deduction** (PR #285; owner report
