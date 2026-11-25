@@ -346,3 +346,48 @@ class TestOpenMonthCard(_CustomerCardsBase):
 		entry = next(c for c in run["cards"] if c["name"] == a.name)
 		self.assertEqual(entry["action"], "error")
 		self.assertEqual(frappe.db.get_value(CARD, a.name, "workflow_state"), "Approved – before governance")
+
+	# ---------- review follow-ups ----------
+	def test_held_open_card_is_not_edited(self):
+		card = self._approved()
+		self._reopen(card.name)
+		frappe.db.set_value(CARD, card.name, "posted", 1)
+		with _today(OPEN), self.assertRaises(OpenMonthEditError):
+			doc = frappe.get_doc(CARD, card.name)
+			doc.append("days", {"operation_date": "2026-09-03", "day_status": "عمل", "working_hours": 4})
+			doc.save()
+
+	def test_snapshot_follows_open_card_recalculation(self):
+		card = self._approved()
+		self._reopen(card.name)
+		frappe.db.set_value("Card Equipment", card.equipment, "daily_hours", 8)
+		with _today(OPEN):
+			doc = frappe.get_doc(CARD, card.name)
+			doc.append("days", {"operation_date": "2026-09-03", "day_status": "عمل", "working_hours": 4})
+			doc.save()
+		stored = frappe.db.get_value(
+			CARD, card.name, ["daily_hours_used", "hourly_rate_used", "amount"], as_dict=True
+		)
+		self.assertEqual(flt(stored.daily_hours_used), 8)
+		self.assertEqual(flt(stored.hourly_rate_used), flt(750 / 8, 6))
+		self.assertEqual(flt(stored.amount), flt(20 * 750 / 8, 2))
+
+	def test_unchanged_update_of_approved_card_is_accepted(self):
+		card = self._approved()
+		doc = frappe.get_doc(CARD, card.name)
+		for row in doc.days:
+			row.working_hours = int(row.working_hours)  # 8.0 -> 8, as a Desk round trip sends it
+		doc.save()
+		self.assertEqual(
+			frappe.db.get_value(CARD, card.name, "workflow_state"), "Approved – before governance"
+		)
+
+	def test_no_native_transition_is_added(self):
+		from card.governance_workflows import WORKFLOWS
+
+		wf = frappe.get_doc("Workflow", WORKFLOWS[CARD])
+		self.assertIn(STATE_OPEN_MONTH, [s.state for s in wf.states])
+		self.assertNotIn(
+			STATE_OPEN_MONTH, [t.state for t in wf.transitions] + [t.next_state for t in wf.transitions]
+		)
+		self.assertFalse(wf.is_active)

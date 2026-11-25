@@ -23,6 +23,7 @@ from frappe.utils import cint, flt, getdate
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import SUPPLIER_BILLING_DIRECTIONS
 from card.gl.integrity import REVIEW_ROLES, lock_sources
+from card.open_month import STATE_OPEN_MONTH
 
 CARD = "Card Monthly Card"
 
@@ -85,6 +86,9 @@ def link_accrual_journal(
 		card.check_permission("read")
 		if card.docstatus != 1:
 			frappe.throw(_("Card {0} is not submitted.").format(name))
+		if card.get("workflow_state") == STATE_OPEN_MONTH:
+			# FR-191: a card of an open month is not finally approved; its amounts can still change
+			frappe.throw(_("Card {0} is open for its month and not finally approved.").format(name))
 		if card.company != je.company or card.supplier != supplier:
 			frappe.throw(
 				_("Card {0} belongs to another company or supplier than journal entry {1}.").format(

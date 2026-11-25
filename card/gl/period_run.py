@@ -370,8 +370,6 @@ def _selection(company: str, month: str, year: int, for_update: bool = False) ->
 		filters={
 			"docstatus": 1,
 			"company": company,
-			# FR-191: a card of an open month is not finally approved and is never posted
-			"workflow_state": ["!=", STATE_OPEN_MONTH],
 			"month": month,
 			"year": year,
 			"card_direction": [
@@ -379,8 +377,19 @@ def _selection(company: str, month: str, year: int, for_update: bool = False) ->
 				list(dict.fromkeys((*SUPPLIER_BILLING_DIRECTIONS, *CUSTOMER_BILLING_DIRECTIONS))),
 			],
 		},
-		fields=["name", "card_direction", "supplier", "customer", "net_amount", "customer_net_amount"],
+		fields=[
+			"name",
+			"card_direction",
+			"supplier",
+			"customer",
+			"net_amount",
+			"customer_net_amount",
+			"workflow_state",
+		],
 	):
+		if row.workflow_state == STATE_OPEN_MONTH:
+			# FR-191: a card of an open month is not finally approved and is never in a period run
+			continue
 		if row.card_direction in SUPPLIER_BILLING_DIRECTIONS:
 			add(CARD, row.name, "Supplier", row.supplier, row.net_amount)
 		if row.card_direction in CUSTOMER_BILLING_DIRECTIONS:

@@ -26,17 +26,17 @@ Administrator included, and no client flag bypasses it."""
 
 import frappe
 from frappe import _
+from frappe.model import no_value_fields, table_fields
 from frappe.utils import cint, cstr, escape_html, now_datetime
 
 from card.approval_period import check_card_approval_allowed, month_ended
+from card.cancel_reason import _differs
 
 DOCTYPE = "Card Monthly Card"
 STATE_OPEN_MONTH = "Open – month not ended"
 STATE_APPROVED = "Approved"
 STATE_BEFORE_GOVERNANCE = "Approved – before governance"
 REOPENABLE_STATES = (STATE_BEFORE_GOVERNANCE, STATE_APPROVED)
-ACTION_REOPEN = "Reopen for Open Month"
-ACTION_FINAL_APPROVE = "Approve"
 REOPEN_ROLE = "System Manager"
 
 # parent fields a user edits on an open card (the tables are compared row by row)
@@ -58,6 +58,17 @@ COMPUTED_FIELDS = (
 	"net_amount",
 	"customer_amount",
 	"customer_net_amount",
+)
+# server-written by the reopen / final approval (not allow-on-submit; Frappe's check is off for these two saves)
+TRANSITION_FIELDS = (
+	"workflow_state",
+	"approved_by",
+	"approved_on",
+	"submitted_by",
+	"self_approved",
+	"approval_tier",
+	"approval_tier_name",
+	"edited_by",
 )
 # child-row fields that are not business data (Frappe bookkeeping)
 _ROW_META = {
@@ -103,7 +114,12 @@ def _clear_token(name):
 
 
 def _row_fields(child_doctype):
-	return [df.fieldname for df in frappe.get_meta(child_doctype).fields if df.fieldname not in _ROW_META]
+	"""The value fields of a child row (layout fields have no value)."""
+	return [
+		df
+		for df in frappe.get_meta(child_doctype).fields
+		if df.fieldname not in _ROW_META and df.fieldtype not in no_value_fields
+	]
 
 
 def _same(a, b):
@@ -116,7 +132,7 @@ def open_fields_changed(doc, before) -> bool:
 	if not before:
 		return False
 	for field in EDIT_FIELDS:
-		if not _same(doc.get(field), before.get(field)):
+		if _differs(doc.meta.get_field(field), doc.get(field), before.get(field)):
 			return True
 	for table in TABLE_FIELDS:
 		rows = doc.get(table) or []
@@ -126,7 +142,8 @@ def open_fields_changed(doc, before) -> bool:
 		child = doc.meta.get_field(table).options
 		fields = _row_fields(child)
 		for row, old in zip(rows, stored, strict=True):
-			if any(not _same(row.get(f), old.get(f)) for f in fields):
+			# typed comparison (8 and 8.0 are equal), as the FR-123 cancel guard compares
+			if any(_differs(df, row.get(df.fieldname), old.get(df.fieldname)) for df in fields):
 				return True
 	return False
 
@@ -159,6 +176,33 @@ def financial_links(name) -> dict:
 	return {k: v for k, v in links.items() if v}
 
 
+def financial_holders(doc) -> list:
+	"""The posting or financial records that hold the card (empty list = none): an open card that is held is not
+	edited, so the card and its accounting never diverge."""
+	from card.gl.events import active_log_holding
+
+	reasons = []
+	if (
+		cint(doc.get("posted"))
+		or doc.get("gl_posting")
+		or doc.get("purchase_invoice")
+		or doc.get("sales_invoice")
+	):
+		reasons.append(_("it is posted or linked to an invoice"))
+	for side in ("Supplier", "Customer"):
+		holder = active_log_holding(DOCTYPE, doc.name, side)
+		if holder:
+			reasons.append(_("it is held by {0}").format(holder.posting_doc))
+	links = financial_links(doc.name)
+	if links:
+		reasons.append(
+			_("it is referenced by {0}").format(
+				", ".join(f"{dt} {', '.join(sorted(names))}" for dt, names in sorted(links.items()))
+			)
+		)
+	return reasons
+
+
 def reopen_blockers(doc, today=None) -> list:
 	"""Why ``doc`` cannot be reopened (empty list = it can)."""
 	reasons = []
@@ -168,21 +212,7 @@ def reopen_blockers(doc, today=None) -> list:
 		reasons.append(_("its state is {0}").format(_(doc.get("workflow_state") or "")))
 	if month_ended(doc.year, doc.month, today):
 		reasons.append(_("its month has ended"))
-	if (
-		cint(doc.get("posted"))
-		or doc.get("gl_posting")
-		or doc.get("purchase_invoice")
-		or doc.get("sales_invoice")
-	):
-		reasons.append(_("it is posted or linked to an invoice"))
-	links = financial_links(doc.name)
-	if links:
-		reasons.append(
-			_("it is referenced by {0}").format(
-				", ".join(f"{dt} {', '.join(sorted(names))}" for dt, names in sorted(links.items()))
-			)
-		)
-	return reasons
+	return reasons + financial_holders(doc)
 
 
 def _require_role(role):
@@ -201,6 +231,22 @@ def _locked(name):
 
 
 # ---------- doc_events: before_update_after_submit (last CARD handler, after governance._restore) ----------
+def _frozen_field_changed(doc, before):
+	"""During a reopen or final approval Frappe's own allow-on-submit check is off (the state and approval fields
+	are server-written there); this repeats it for every other parent field, so nothing else can change."""
+	for df in doc.meta.fields:
+		if (
+			df.allow_on_submit
+			or df.fieldtype in no_value_fields
+			or df.fieldtype in table_fields
+			or df.fieldname in TRANSITION_FIELDS
+		):
+			continue
+		if _differs(df, doc.get(df.fieldname), before.get(df.fieldname)):
+			return df
+	return None
+
+
 def before_update_after_submit(doc, method=None):
 	from card import governance, intake, period_lock
 
@@ -220,6 +266,9 @@ def before_update_after_submit(doc, method=None):
 		)
 	if target and requested != target:
 		frappe.throw(_("Invalid state change for monthly card {0}.").format(doc.name), OpenMonthStateError)
+	if doc.flags.get("ignore_validate_update_after_submit") and not target:
+		# only the two transitions below switch Frappe's check off
+		frappe.throw(_("Invalid state change for monthly card {0}.").format(doc.name), OpenMonthStateError)
 
 	changed = open_fields_changed(doc, before)
 	is_open = stored_state == STATE_OPEN_MONTH
@@ -232,24 +281,28 @@ def before_update_after_submit(doc, method=None):
 			title=_("Cannot Update After Submit"),
 		)
 
+	if is_open and changed:
+		held = financial_holders(doc)
+		if held:
+			frappe.throw(
+				_("Monthly card {0} cannot be changed: {1}.").format(doc.name, "; ".join(held)),
+				OpenMonthEditError,
+				title=_("Cannot Update After Submit"),
+			)
 	if is_open and (changed or target == STATE_APPROVED):
 		# the card's own calculation, as on a draft save; Frappe then refuses a change of any frozen field (rates,
 		# equipment, project, parties, direction, period) that the calculation would bring from the equipment
 		doc.before_validate()
 		period_lock.enforce(doc, "save", before)
 		intake.apply_card_day_intake(doc)
+		# the snapshot, the editor and the registries are written after the save (on_update_after_submit)
+		doc.flags.card_open_month_recomputed = True
 		if changed:
-			editors = [line for line in cstr(doc.get("edited_by")).splitlines() if line.strip()]
-			if frappe.session.user not in editors:
-				editors.append(frappe.session.user)
-			doc.edited_by = "\n".join(editors)
-		governance._apply_resolved_tier(doc)
+			doc.flags.card_open_month_editor = frappe.session.user
 	else:
 		# not recomputed: a computed value sent by a client is refused, as Frappe refused it before FR-191
 		for field in COMPUTED_FIELDS:
-			if not _same(doc.get(field), before.get(field)) and frappe.utils.flt(
-				doc.get(field)
-			) != frappe.utils.flt(before.get(field)):
+			if _differs(doc.meta.get_field(field), doc.get(field), before.get(field)):
 				frappe.throw(
 					_("{0} Not allowed to change {1} after submission from {2} to {3}").format(
 						"", _(doc.meta.get_label(field)), before.get(field), doc.get(field)
@@ -267,8 +320,49 @@ def before_update_after_submit(doc, method=None):
 				OpenMonthStateError,
 			)
 		check_card_approval_allowed(doc)
+		governance._apply_resolved_tier(doc)
 		# separation of duties (FR-143), approval tier (FR-159) and the approval fields, as on a submit
 		governance.before_submit(doc)
+	if target:
+		frozen = _frozen_field_changed(doc, before)
+		if frozen:
+			frappe.throw(
+				_("{0} Not allowed to change {1} after submission from {2} to {3}").format(
+					"",
+					_(frozen.label or frozen.fieldname),
+					before.get(frozen.fieldname),
+					doc.get(frozen.fieldname),
+				),
+				OpenMonthEditError,
+				title=_("Cannot Update After Submit"),
+			)
+
+
+def on_update_after_submit(doc, method=None):
+	"""After an open-month edit or the final approval: the submit-time snapshot of the rates and settings follows
+	the recalculation (as ``on_submit`` writes it), an edit records its editor (separation of duties at the final
+	approval) and the card's approval tier, and the party registries are refreshed. Server fields are written
+	without changing ``modified``."""
+	from card import governance
+
+	if not doc.flags.get("card_open_month_recomputed"):
+		return
+	doc.flags.card_open_month_recomputed = None
+	doc._snapshot_settings_used()
+	editor = doc.flags.get("card_open_month_editor")
+	if editor:
+		doc.flags.card_open_month_editor = None
+		editors = [line for line in cstr(doc.get("edited_by")).splitlines() if line.strip()]
+		if editor not in editors:
+			editors.append(editor)
+			doc.db_set("edited_by", chr(10).join(editors), update_modified=False)
+		tier = {f: doc.get(f) for f in governance.TIER_FIELDS}
+		governance._apply_resolved_tier(doc)
+		for field in governance.TIER_FIELDS:
+			if doc.get(field) != tier[field]:
+				doc.db_set(field, doc.get(field), update_modified=False)
+	doc._sync_supplier()
+	doc._sync_customer()
 
 
 # ---------- actions ----------
@@ -279,6 +373,8 @@ def _reopen(doc, reason):
 	try:
 		doc.workflow_state = STATE_OPEN_MONTH
 		doc.flags.ignore_version = False
+		# the state and approval fields are not allow-on-submit; the guard checks every other field itself
+		doc.flags.ignore_validate_update_after_submit = True
 		doc.save()
 	finally:
 		_clear_token(doc.name)
@@ -329,6 +425,8 @@ def reopen_card(name: str, reason: str):
 @frappe.whitelist(methods=["POST"])
 def approve_open_month_card(name: str):
 	"""Final approval of an open-month card (manual only; refused before the card's month ends)."""
+	from card import governance
+
 	_locked(name)
 	doc = frappe.get_doc(DOCTYPE, name)
 	doc.check_permission("submit")
@@ -342,9 +440,12 @@ def approve_open_month_card(name: str):
 	try:
 		doc.workflow_state = STATE_APPROVED
 		doc.flags.ignore_version = False
+		doc.flags.ignore_validate_update_after_submit = True
 		doc.save()
 	finally:
 		_clear_token(doc.name)
+	# FR-163: a delegate's approval is logged as on a submit (on_submit does not run for this save)
+	governance.log_delegation_use(doc)
 	doc.add_comment(
 		"Info",
 		_("Finally approved by {0} on {1} after the end of its month.").format(
@@ -389,8 +490,15 @@ def reopen_open_month_cards(year: int, month: str, dry_run: int = 1, reason: str
 				frappe.db.savepoint(savepoint)
 				try:
 					_locked(name)
-					_reopen(frappe.get_doc(DOCTYPE, name), text)
-					entry["action"] = "reopened"
+					locked_doc = frappe.get_doc(DOCTYPE, name)
+					# re-checked under the lock: a posting committed after the first read is seen here
+					late = reopen_blockers(locked_doc)
+					if late:
+						frappe.db.rollback(save_point=savepoint)
+						entry.update(action="refused", reasons=late)
+					else:
+						_reopen(locked_doc, text)
+						entry["action"] = "reopened"
 				except Exception as e:
 					frappe.db.rollback(save_point=savepoint)
 					entry.update(action="error", reasons=[cstr(e)])
@@ -407,17 +515,19 @@ OPEN_STATE_EDIT_ROLES = ("Card User", "Card Manager", "System Manager")
 
 
 def ensure_open_month_state():
-	"""Create the Workflow State "Open – month not ended" and add it, with its two transitions, to the CARD monthly
-	card Workflow when they are missing. Idempotent; nothing that exists is changed or removed, and the Workflow's
-	``is_active`` is never touched (an inactive Workflow stays inactive)."""
+	"""Create the Workflow State "Open – month not ended" and add it as a submitted state of the CARD monthly card
+	Workflow when it is missing. Idempotent; nothing that exists is changed or removed, and the Workflow's
+	``is_active`` is never touched (an inactive Workflow stays inactive). No Workflow transition is added: the
+	reopen and the final approval are CARD actions (``reopen_card``, ``approve_open_month_card``), because a native
+	transition between two submitted states would need ``workflow_state`` to be allow-on-submit, which CARD keeps
+	closed (FR-152/FR-155). With an active Workflow, Frappe refuses these two state changes (no transition), so
+	activating the Workflow needs a follow-up decision for the open-month path."""
 	from card.governance_workflows import WORKFLOWS
 
 	if not frappe.db.exists("Workflow State", STATE_OPEN_MONTH):
 		frappe.get_doc(
 			{"doctype": "Workflow State", "workflow_state_name": STATE_OPEN_MONTH, "style": "Warning"}
 		).insert()
-	if not frappe.db.exists("Workflow Action Master", ACTION_REOPEN):
-		frappe.get_doc({"doctype": "Workflow Action Master", "workflow_action_name": ACTION_REOPEN}).insert()
 	name = WORKFLOWS[DOCTYPE]
 	if not frappe.db.exists("Workflow", name):
 		return
@@ -427,22 +537,6 @@ def ensure_open_month_state():
 	for role in OPEN_STATE_EDIT_ROLES:
 		if (STATE_OPEN_MONTH, role) not in have_states:
 			wf.append("states", {"state": STATE_OPEN_MONTH, "doc_status": "1", "allow_edit": role})
-			changed = True
-	have = {(t.state, t.action, t.next_state, t.allowed) for t in wf.transitions}
-	wanted = [(state, ACTION_REOPEN, STATE_OPEN_MONTH, REOPEN_ROLE) for state in REOPENABLE_STATES]
-	wanted.append((STATE_OPEN_MONTH, ACTION_FINAL_APPROVE, STATE_APPROVED, "Card Manager"))
-	for state, action, next_state, role in wanted:
-		if (state, action, next_state, role) not in have:
-			wf.append(
-				"transitions",
-				{
-					"state": state,
-					"action": action,
-					"next_state": next_state,
-					"allowed": role,
-					"allow_self_approval": 1,
-				},
-			)
 			changed = True
 	if changed:
 		wf.save()

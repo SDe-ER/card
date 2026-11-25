@@ -993,7 +993,12 @@ const CARD_REOPENABLE_STATES = ["Approved – before governance", "Approved"];
 function card_open_month(frm) {
 	if (frm.is_new() || frm.doc.docstatus === 2) return;
 	const is_open = frm.doc.workflow_state === CARD_OPEN_MONTH_STATE;
-	if (frm.doc.docstatus === 1 && !is_open && !frappe.user_roles.includes("System Manager")) return;
+	// the days, additions/deductions and location are editable after submit only on an open card
+	["days", "adjustments", "site_location"].forEach((f) =>
+		frm.set_df_property(f, "read_only", frm.doc.docstatus === 1 && !is_open ? 1 : 0),
+	);
+	if (frm.doc.docstatus === 1 && !is_open && !frappe.user_roles.includes("System Manager"))
+		return;
 	frappe.call({
 		method: "card.approval_period.get_approval_eligibility",
 		type: "GET",
@@ -1008,20 +1013,25 @@ function card_open_month(frm) {
 						frm.page.set_primary_action(__("Save"), () => frm.save());
 					}
 				} else if (is_open) {
-					frm.set_intro(__("The month of this card has ended; it can now be approved."), "blue");
+					frm.set_intro(
+						__("The month of this card has ended; it can now be approved."),
+						"blue",
+					);
 				}
 				if (is_open) {
 					frm.page.set_indicator(__("Provisional – month open, not approved"), "orange");
 					if (info.eligible && !frm.is_dirty()) {
 						frm.add_custom_button(__("Approve"), () =>
-							frappe.confirm(__("Approve this card? Its days and amounts are then frozen."), () =>
-								frappe
-									.call({
-										method: "card.open_month.approve_open_month_card",
-										args: { name: frm.doc.name },
-										freeze: true,
-									})
-									.then(() => frm.reload_doc()),
+							frappe.confirm(
+								__("Approve this card? Its days and amounts are then frozen."),
+								() =>
+									frappe
+										.call({
+											method: "card.open_month.approve_open_month_card",
+											args: { name: frm.doc.name },
+											freeze: true,
+										})
+										.then(() => frm.reload_doc()),
 							),
 						);
 					}
@@ -1035,7 +1045,12 @@ function card_open_month(frm) {
 			) {
 				frm.add_custom_button(__("Reopen for open month"), () =>
 					frappe.prompt(
-						{ fieldname: "reason", fieldtype: "Small Text", label: __("Reason"), reqd: 1 },
+						{
+							fieldname: "reason",
+							fieldtype: "Small Text",
+							label: __("Reason"),
+							reqd: 1,
+						},
 						(values) =>
 							frappe
 								.call({

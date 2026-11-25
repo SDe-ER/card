@@ -272,6 +272,8 @@ _CARD_EVENTS["before_update_after_submit"] = [
 	"card.open_month.before_update_after_submit",
 ]
 _CARD_EVENTS["before_cancel"] = [*_SOURCE_EVENTS["before_cancel"], "card.governance.before_cancel"]
+# FR-191: an open-month edit records its editor and the approval tier after the save
+_CARD_EVENTS["on_update_after_submit"] = "card.open_month.on_update_after_submit"
 # FR-163 (WP-D5): log the delegation use on submit (Info Comment). The hook is a no-op when the
 # submitting user is not acting on behalf through an active Card Approval Delegation.
 _CARD_EVENTS["on_submit"] = "card.governance.log_delegation_use"
