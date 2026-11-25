@@ -465,7 +465,8 @@ def reopen_open_month_cards(year: int, month: str, dry_run: int = 1, reason: str
 	dry = cint(dry_run)
 	text = None if dry else _clean_reason(reason)
 	month = cstr(month).zfill(2)
-	names = frappe.get_all(
+	# the caller's permitted cards only (company User Permissions apply)
+	names = frappe.get_list(
 		DOCTYPE,
 		filters={"year": cint(year), "month": month, "docstatus": 1},
 		pluck="name",
@@ -549,3 +550,24 @@ def provisional_suffix(card) -> str:
 	if cint(card.get("docstatus")) == 1 and card.get("workflow_state") == STATE_OPEN_MONTH:
 		return " " + _("(Provisional – month open, not approved)")
 	return ""
+
+
+# ---------- child rows saved on their own ----------
+def refuse_direct_row_update(row, method=None):
+	"""``before_update_after_submit`` of Card Monthly Card Day / Adjustment: a row of a submitted card saved ON ITS
+	OWN (REST ``/api/resource/<child>``, ``frappe.client.save`` of a child, ``bulk_update``) never changes a value.
+	Frappe runs a child's own events only for such a save, never inside its parent's save, so every real edit goes
+	through the card, where the open-month guard, the financial-holder and period-lock checks, the recalculation and
+	the editor record apply (FR-191 security review)."""
+	if row.get("parenttype") != DOCTYPE or not row.name:
+		return
+	stored = frappe.db.get_value(row.doctype, row.name, "*", as_dict=True)
+	if not stored:
+		return
+	for df in _row_fields(row.doctype):
+		if _differs(df, row.get(df.fieldname), stored.get(df.fieldname)):
+			frappe.throw(
+				_("A row of monthly card {0} is changed only on the card itself.").format(row.parent),
+				OpenMonthEditError,
+				title=_("Cannot Update After Submit"),
+			)

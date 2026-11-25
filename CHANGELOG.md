@@ -62,7 +62,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     document is not edited. Rates, equipment, project, parties,
     company, direction and period stay frozen (Frappe refuses a change). On an approved card nothing of this can
     change: `card.open_month.before_update_after_submit` refuses the change on every route (form, REST PUT,
-    `frappe.client.set_value`, bulk update); a `workflow_state` sent by a client is refused.
+    `frappe.client.set_value`, bulk update); a `workflow_state` sent by a client is refused. A day or adjustment
+    row of a submitted card saved on its own (REST `/api/resource/<child>`, `frappe.client.save` of a child) changes
+    nothing (`card.open_month.refuse_direct_row_update`), so every edit goes through the card's checks.
   - Final approval (`approve_open_month_card`, submit permission): refused before the month ends; runs the same
     separation-of-duties and approval-tier checks as a submit (`governance.before_submit`) and logs a delegate's
     approval (FR-163).

@@ -279,6 +279,11 @@ _CARD_EVENTS["on_update_after_submit"] = "card.open_month.on_update_after_submit
 _CARD_EVENTS["on_submit"] = "card.governance.log_delegation_use"
 doc_events = {
 	"Card Monthly Card": _CARD_EVENTS,
+	# FR-191: a row of a submitted card saved on its own changes nothing (edits go through the card)
+	"Card Monthly Card Day": {"before_update_after_submit": "card.open_month.refuse_direct_row_update"},
+	"Card Monthly Card Adjustment": {
+		"before_update_after_submit": "card.open_month.refuse_direct_row_update"
+	},
 	# meter extraction (optional local worker): marker/crop after an applied pass, enqueue on a new photo
 	"Project Diesel Fill": {**_SOURCE_EVENTS, "on_update": "card.diesel_meter_extraction.after_fill_saved"},
 	"Equipment Transport": dict(_SOURCE_EVENTS),

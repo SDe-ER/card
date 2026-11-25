@@ -391,3 +391,27 @@ class TestOpenMonthCard(_CustomerCardsBase):
 			STATE_OPEN_MONTH, [t.state for t in wf.transitions] + [t.next_state for t in wf.transitions]
 		)
 		self.assertFalse(wf.is_active)
+
+	def test_direct_child_row_save_changes_nothing(self):
+		"""Security review: a row saved on its own (REST /api/resource/<child>) never changes a submitted card."""
+		card = self._approved(
+			adjustments=[{"adjustment_type": "خصم", "description": "Diesel", "amount": 100}]
+		)
+		for doctype, field, value in (
+			("Card Monthly Card Day", "working_hours", 24),
+			("Card Monthly Card Adjustment", "amount", 99999),
+		):
+			row = frappe.get_doc(doctype, frappe.db.get_value(doctype, {"parent": card.name}, "name"))
+			before = row.get(field)
+			row.set(field, value)
+			with self.assertRaises(OpenMonthEditError):
+				row.save()
+			self.assertEqual(flt(frappe.db.get_value(doctype, row.name, field)), flt(before))
+		self._reopen(card.name)
+		row = frappe.get_doc(
+			"Card Monthly Card Day",
+			frappe.db.get_value("Card Monthly Card Day", {"parent": card.name}, "name"),
+		)
+		row.working_hours = 1
+		with self.assertRaises(OpenMonthEditError):
+			row.save()
