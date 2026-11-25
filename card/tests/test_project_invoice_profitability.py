@@ -1,6 +1,6 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""Project Profitability (FR-193, #53). Read-only: revenue and expenses of each project from
+"""Project Invoice Profitability (FR-193, #53). Read-only: revenue and expenses of each project from
 submitted Sales Invoice and Purchase Invoice lines. The totals reconcile to the invoices, returns
 reduce their side, lines without a project sit on one "No project" row, the date window, company
 isolation, role access and nothing written. All data is synthetic and rolled back."""
@@ -11,7 +11,9 @@ import frappe
 from erpnext.controllers.sales_and_purchase_return import make_return_doc
 from frappe.utils import flt
 
-from card.card.report.project_profitability.project_profitability import execute as profitability
+from card.card.report.project_invoice_profitability.project_invoice_profitability import (
+	execute as profitability,
+)
 from card.gl.masters import ensure_posting_masters
 from card.tests.test_analytics_reports import PERIOD, _AnalyticsBase
 
@@ -219,11 +221,11 @@ class TestProjectProfitability(_AnalyticsBase):
 				profitability(self._period())
 			frappe.set_user("Administrator")
 		frappe.set_user(self._user(["Accounts Manager"]))
-		_columns, data, _message, _chart, _summary = profitability(self._period())
-		self.assertEqual(next(r for r in data if r["project"] == self.project)["revenue"], 1000.0)
+		_columns, data, _message, _chart, _summary = profitability(self._period(project=self.project))
+		self.assertEqual([r["revenue"] for r in data if not r.get("is_total")], [1000.0])
 
 	def test_report_roles_match_the_partial_margin(self):
-		roles = {r.role for r in frappe.get_doc("Report", "Project Profitability").roles}
+		roles = {r.role for r in frappe.get_doc("Report", "Project Invoice Profitability").roles}
 		self.assertEqual(roles, {r.role for r in frappe.get_doc("Report", "Equipment Partial Margin").roles})
 		self.assertEqual(roles, {"System Manager", "Accounts Manager"})
 

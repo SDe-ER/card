@@ -8158,3 +8158,48 @@ msgstr ""
 #: card/daily_log.py
 msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
 msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.js
+#: card/card/sidebar/card_reports/card_reports.json
+msgid "Project Invoice Profitability"
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "The project profitability shows financial figures; it needs General Ledger access."
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Select the period of the project profitability."
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Expenses are not shown: you cannot read Purchase Invoice."
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "No project"
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Total of all projects"
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project revenue"
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project expenses"
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project margin"
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project margin %"
+msgstr ""
