@@ -249,10 +249,13 @@ def _frozen_field_changed(doc, before):
 
 def before_update_after_submit(doc, method=None):
 	from card import governance, intake, period_lock
+	from card.child_integrity import check_rows
 
 	before = doc.get_doc_before_save()
 	if not before:
 		return
+	# FR-153 first: a row of another document is refused as such, before any open-month rule
+	check_rows(doc)
 	stored = _locked(doc.name) or frappe._dict()
 	stored_state = stored.get("workflow_state") or before.get("workflow_state")
 	target = _transition_token().get(doc.name)
