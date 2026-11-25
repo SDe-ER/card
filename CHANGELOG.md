@@ -15,12 +15,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
-### Documentation
-- **Diesel: the estimated split of a project tank is display only (issue 31, owner decision 2026-11-25).** The
-  diesel page (English and Arabic) says that invoices and the margin reports keep the diesel of a project tank at
-  the project level, and that totals with an estimate are labelled (FR-185). No code change; no impact on
-  permissions, accounting, data or the API.
-
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
@@ -43,6 +37,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   equipment is allowed as a labelled display figure, and a measured quantity always wins (FR-185). Posting and
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
+
+## [4.13.0] — 2026-11-26
+
+> **Published 2026-11-26** (tag `v4.13.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).
+> Minor release on top of v4.12.2. A Monthly Card is approved only after its month ends, and a card of an open
+> month can be reopened on its own number (FR-191); the equipment records who pays the maintenance (FR-192); a new
+> read-only report, Project Invoice Profitability (FR-193). One patch (a Workflow State and two transitions; the
+> Workflow is not activated), one new column (`tabCard Equipment`.`maintenance_on`). No role or DocPerm change; CARD
+> posts no accounting entry.
 
 ### Added
 - **FR-192 — Who pays the maintenance, on the equipment (issue 48; owner decision 2026-11-25, option 1).**
@@ -91,6 +94,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     new whitelisted method.
   - Rollback: revert the commit. A site that already migrated keeps the Report record and the sidebar link until
     they are deleted by hand; they hold no data.
+
 ### Changed
 - **FR-191 — A monthly card is approved only after the end of its month; saving is separate from approval;
   open-month cards can be reopened on their original number (owner instruction 2026-11-25).** Users submitted
@@ -141,6 +145,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     GL. Data — none until a System Manager reopens a card. API — four new whitelisted methods (one GET, three
     POST). Rollback — revert the code; a reopened card is returned to "Approved" with `approve_open_month_card`
     after its month ends (or kept open); the Workflow State row stays (harmless).
+
+### Documentation
+- **Diesel: the estimated split of a project tank is display only (issue 31, owner decision 2026-11-25).** The
+  diesel page (English and Arabic) says that invoices and the margin reports keep the diesel of a project tank at
+  the project level, and that totals with an estimate are labelled (FR-185). No code change; no impact on
+  permissions, accounting, data or the API.
 
 ## [4.12.2] — 2026-11-25
 
