@@ -15,6 +15,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Documentation
+- **Deployment record: the v4.11.1 upgrade of 2026-11-25 was rolled back in its window** (`docs/releases/DEPLOYMENTS.md`).
+  The release itself passed every data check; a print check stopped the run because its baseline came from a stale
+  cache. Production stays on v4.10.1. Documentation only.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by
