@@ -14,7 +14,7 @@ from frappe.utils import flt
 from card.card.report.project_invoice_profitability.project_invoice_profitability import (
 	execute as profitability,
 )
-from card.gl.masters import ensure_posting_masters
+from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
 from card.tests.test_analytics_reports import PERIOD, _AnalyticsBase
 
 
@@ -48,6 +48,7 @@ class TestProjectProfitability(_AnalyticsBase):
 				"doctype": "Sales Invoice",
 				"company": self.company,
 				"customer": self.customer,
+				"selling_price_list": ensure_selling_price_list(self.company),
 				"set_posting_time": 1,
 				"posting_date": posting_date,
 				"due_date": posting_date,
