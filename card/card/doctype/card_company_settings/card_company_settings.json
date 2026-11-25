@@ -63,7 +63,9 @@
   "party_portal_section",
   "enable_party_portal",
   "diesel_tanks_section",
-  "enable_diesel_tanks"
+  "enable_diesel_tanks",
+  "partner_reports_section",
+  "partner_equipment_split"
  ],
  "fields": [
   {
@@ -485,6 +487,20 @@
    "fieldname": "enable_diesel_tanks",
    "fieldtype": "Check",
    "label": "Enable diesel tanks",
+   "permlevel": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "partner_reports_section",
+   "fieldtype": "Section Break",
+   "label": "Partner-owned equipment",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "partner_equipment_split",
+   "fieldtype": "Check",
+   "label": "Show partner-owned equipment in the suppliers summary",
    "permlevel": 1
   }
  ],

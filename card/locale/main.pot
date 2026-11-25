@@ -352,6 +352,17 @@ msgstr ""
 msgid "Diesel cost"
 msgstr ""
 
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Diesel cost (incl. estimated)"
+msgstr ""
+
+#: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py
+#: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py
+#: card/card/doctype/card_monthly_card/card_monthly_card.js
+msgid "Allocated litres (recorded + estimated)"
+msgstr ""
+
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:278
 msgid "Display only — does not affect the rental amount."
 msgstr ""
@@ -2892,6 +2903,10 @@ msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Supplier signature"
+msgstr ""
+
+#: card/card/report/equipment_customer_statement/equipment_customer_statement.html
+msgid "Customer signature"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
@@ -8093,4 +8108,19 @@ msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
+msgstr ""
+
+#. Label of the partner_reports_section (Section Break) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Partner-owned equipment"
+msgstr ""
+
+#. Label of the partner_equipment_split (Check) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Show partner-owned equipment in the suppliers summary"
+msgstr ""
+
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Net cards (partner-owned)"
 msgstr ""

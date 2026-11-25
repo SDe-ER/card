@@ -1624,6 +1624,12 @@ msgstr "اللترات المتوقعة"
 msgid "Allocated litres"
 msgstr "اللترات الموزعة"
 
+msgid "Allocated litres (recorded + estimated)"
+msgstr "اللترات الموزعة (مسجّلة + تقديرية)"
+
+msgid "Diesel cost (incl. estimated)"
+msgstr "تكلفة الديزل (تشمل التقديري)"
+
 msgid "Recorded litres (direct fills)"
 msgstr "لترات مسجلة (تعبئة مباشرة)"
 
@@ -4115,6 +4121,10 @@ msgstr "توقيع المراجع"
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Supplier signature"
 msgstr "توقيع المورد"
+
+#: card/card/report/equipment_customer_statement/equipment_customer_statement.html
+msgid "Customer signature"
+msgstr "توقيع العميل"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html
 msgid "Includes draft cards"
@@ -9328,3 +9338,18 @@ msgstr "ضريبة سطور فواتير CARD التي لا تحمل المعد�
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
 msgstr "البُعد المحاسبي Card Equipment غير موجود على هذا الموقع: المدفوعات والضريبة والأرصدة الدائنة الأخرى لا تُوزَّع حسب المعدة."
+
+#. Label of the partner_reports_section (Section Break) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Partner-owned equipment"
+msgstr "معدات مملوكة لشركاء"
+
+#. Label of the partner_equipment_split (Check) field in DocType 'Card Company Settings'
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Show partner-owned equipment in the suppliers summary"
+msgstr "إظهار المعدات المملوكة لشركاء في ملخص الموردين"
+
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py
+msgid "Net cards (partner-owned)"
+msgstr "صافي الكروت (معدات الشركاء)"

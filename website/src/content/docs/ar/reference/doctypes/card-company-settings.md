@@ -140,6 +140,13 @@ sidebar:
 | تفعيل تانكات الديزل | `enable_diesel_tanks` | Check |  |  |
 
 
+**معدات مملوكة لشركاء**
+
+| التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
+|---|---|---|---|---|
+| إظهار المعدات المملوكة لشركاء في ملخص الموردين | `partner_equipment_split` | Check |  |  |
+
+
 ## الجداول الفرعية
 
 - [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/)

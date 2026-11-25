@@ -426,7 +426,16 @@ function card_render_diesel(frm) {
 				":</span> " +
 				value +
 				"</div>";
-			const parts = [line(__("Allocated litres"), format_number(flt(d.litres), null, 2))];
+			// #31: a total that includes an estimate says so; a card with direct fills only keeps the plain labels
+			const estimated = flt(d.litres_estimated);
+			const parts = [
+				line(
+					estimated
+						? __("Allocated litres (recorded + estimated)")
+						: __("Allocated litres"),
+					format_number(flt(d.litres), null, 2),
+				),
+			];
 			if (flt(d.litres_estimated)) {
 				parts.push(
 					line(
@@ -439,7 +448,12 @@ function card_render_diesel(frm) {
 					),
 				);
 			}
-			parts.push(line(__("Diesel cost"), format_currency(flt(d.amount))));
+			parts.push(
+				line(
+					estimated ? __("Diesel cost (incl. estimated)") : __("Diesel cost"),
+					format_currency(flt(d.amount)),
+				),
+			);
 			if (flt(d.litres_estimated)) {
 				parts.push(
 					'<div class="text-muted small">' +
@@ -523,6 +537,20 @@ function card_toggle_adjustment_classification(frm) {
 	grid.reset_grid();
 }
 
+// #264 part 2 (owner decision 2026-11-24): the Loads column of the days table shows only on a card billed per m³,
+// or on a card that already has loads (a stored value is never hidden). The server refuses loads on any other card.
+function card_toggle_loads_column(frm) {
+	const grid = frm.fields_dict.days && frm.fields_dict.days.grid;
+	const df = grid && (grid.docfields || []).find((d) => d.fieldname === "loads_count");
+	if (!df) return;
+	const used = (frm.doc.days || []).some((r) => cint(r.loads_count));
+	const hidden = frm.doc.customer_rate_type === "بالمتر المكعب" || used ? 0 : 1;
+	if (cint(df.hidden) === hidden) return;
+	grid.update_docfield_property("loads_count", "hidden", hidden);
+	// rebuild the columns: a column saved with "Configure columns" is dropped while its field is hidden
+	grid.reset_grid();
+}
+
 frappe.ui.form.on("Card Monthly Card", {
 	setup(frm) {
 		// FR-118: only the enabled stop reasons of the card's company
@@ -539,8 +567,10 @@ frappe.ui.form.on("Card Monthly Card", {
 		card_cash_actions(frm);
 		card_cash_status(frm);
 		card_toggle_adjustment_classification(frm);
+		card_toggle_loads_column(frm);
 	},
 	company: card_toggle_adjustment_classification,
+	customer_rate_type: card_toggle_loads_column,
 	equipment(frm) {
 		card_load_hourly(frm);
 		card_lock_project(frm).then(() => card_build(frm));
