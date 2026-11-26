@@ -44,7 +44,7 @@ sidebar:
 | ملاحظات | `remarks` | Small Text |  |  |
 | التسلسل <small>(للقراءة فقط)</small> | `sequence` | Int |  |  |
 | المصادر <small>(للقراءة فقط)</small> | `sources` | Table | [مصدر الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-source/) |  |
-| المصدر <small>(للقراءة فقط)</small> | `origin` | Select | Built · Linked · Credit Note |  |
+| المصدر <small>(للقراءة فقط)</small> | `origin` | Select | تم البناء · Linked · Credit Note |  |
 
 
 **السلامة**

@@ -33,7 +33,7 @@ sidebar:
 | تاريخ الدفع | `payment_date` | Date |  | نعم |
 | حساب النقدية | `cash_account` | Link | الحساب | نعم |
 | مستند الإثبات | `evidence` | Small Text |  | نعم |
-| الحالة <small>(للقراءة فقط)</small> | `status` | Select | Pending · Approved · قيد الترحيل · فشل الترحيل · مرحَّل · طُلب الإلغاء · Cancelled |  |
+| الحالة <small>(للقراءة فقط)</small> | `status` | Select | Pending · Approved · قيد الترحيل · فشل الترحيل · مُرحَّل · طُلب الإلغاء · Cancelled |  |
 | مفتاح المعاملة <small>(للقراءة فقط)</small> | `transaction_key` | Data |  |  |
 | Journal Entry <small>(للقراءة فقط)</small> | `journal_entry` | Link | Journal Entry |  |
 | اعتمده <small>(للقراءة فقط)</small> | `approved_by` | Link | المستخدم |  |
