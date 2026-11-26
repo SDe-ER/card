@@ -76,6 +76,28 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     data to restore.
   - Tests: `card/tests/test_project_invoice_profitability.py`. Not checked on a Desk.
 
+### Fixed
+- **Statements: the PDF button of the report print page uses the server PDF (issue 324, PR #337, follow-up of
+  PR #328; FR-089, FR-187).** On frappe 16.60 the report toolbar opens a print page, and its **PDF** button calls
+  `frappe.views.ReportPrintView.download_pdf`. For a tree report that function sends the browser's HTML to
+  `frappe.utils.print_format.report_to_pdf` (wkhtmltopdf) and never calls `report.pdf_report`, which the two
+  statements replace. So the button users see still produced the PDF with broken Arabic letter joins, for the
+  Equipment Customer Statement and for the Equipment Supplier Statement. Found by a browser check on Production
+  after v4.13.0. The two report scripts now also route that button to their server PDF routes
+  (`statement_pdf.download_pdf`, Chrome generator); the button of every other report is not changed.
+  - Functions: `equipment_customer_statement.js`, `equipment_supplier_statement.js`: new
+    `card_statement_print_page_pdf` (one click listener in the capture phase wraps
+    `ReportPrintView.prototype.download_pdf` once, because the class is loaded with the print page, after the
+    report script; the wrapper looks the report up in `frappe.card_statement_pdf_routes`).
+  - Tests: `test_customer_statement_pdf.py`, `test_supplier_statement_pdf.py` (the report scripts carry the route
+    for the print page). The click path itself is a browser behaviour: it was tried on a live Desk session with
+    the download call intercepted; it has no automated test.
+  - Impact: no server change; no new method; no role, DocPerm, accounting or data change. The PDF of the two
+    statements is the fixed A4 page of the server route: the letter head and the other choices of the print page
+    do not apply to it (the Print button still uses them).
+  - Rollback: restore the previous code; the button uses the standard route again.
+
+
 ## [4.13.0] — 2026-11-26
 
 > **Published 2026-11-26** (tag `v4.13.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).
