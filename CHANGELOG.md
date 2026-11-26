@@ -82,6 +82,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `volume-billing-loads-card` in English failed for a different reason: the English workspace drew no number card
   (see "Fixed" above). Files: `capture.mjs`, `shots.json`, `ci_bootstrap.py`. Tooling for the docs site only, run by the manual
   workflow `docs-screenshots.yml`: no application, permission, accounting, data or API change. Pull request: #336.
+- **Documentation screenshots: two reports were captured on their "Loading..." screen (issue 266).** Reason: in
+  the capture run 45859674403 of 2026-11-26 the images of `asset-mapping-review` and
+  `meter-readings-reconciliation` showed "Loading..." in both languages, so the docs kept their earlier images
+  (#342). The capture was not too early. Both reports need a role that reads Asset (`card/report_access.py`,
+  `_role_reads`), and ERPNext `version-16` gives that read to Accounts User and Quality Manager only. The demo
+  manager of the CI site had System Manager, Card Manager and Accounts Manager, so the server refused the two
+  runs. Desk continues only when the run succeeds (frappe `version-16`, `query_report.js`, `refresh`): after a
+  refused run the page keeps its loading screen, and the capture closed the error dialog. The run log has no
+  server answer, so the refusal is read from the source and from the images (the address of both pages kept its
+  first form, which Desk rewrites after each run that returns); the next run proves it. Fixes, in
+  `website/scripts/screenshots/`:
+  - `ci_bootstrap.py`: the demo manager also has the role Accounts User (CI site only).
+  - `capture.mjs`: every report shot (`/app/query-report/...`) records the answers of
+    `frappe.desk.query_report.run`. The shot is taken only when the last run succeeded, the loading screen is gone
+    and the page shows rows, a summary or the "nothing to show" message. A refused run fails the shot with the
+    HTTP status and the server message; a report that does not finish in 30 seconds fails the shot. No image is
+    written for a failed shot.
+  - `shots.json`: the two shots also wait for a report row (`waitSel`).
+  Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no application, permission,
+  accounting, data or API change. No image changes in this pull request; the images come from the next approved
+  run. Rollback: revert the commit. Pull request: #343.
 
 ## [4.14.0] — 2026-11-26
 
