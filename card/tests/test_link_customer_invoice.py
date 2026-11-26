@@ -757,19 +757,16 @@ class TestLinkReviewFixesInReports(_LinkBase):
 
 	def test_card_linked_to_a_much_later_invoice_counts_in_its_own_month(self):
 		from card.reconciliation import cards_invoiced
-		from card.tests.test_controllers import _days
 
-		eq = self._rented_out(customer_rate=1000)
-		card = frappe.new_doc(CARD)
-		card.update(
-			{"equipment": eq.name, "project": self.project, "shift": "نهاري", "month": "12", "year": 2024}
+		# a card of 12/2024: a new card of a past fiscal year is refused, so an existing one is simulated by
+		# moving a card of this year to that month directly in the database
+		card = self._out_card()
+		frappe.db.set_value(
+			CARD,
+			card.name,
+			{"month": "12", "year": 2024, "from_date": "2024-12-01", "to_date": "2024-12-31"},
+			update_modified=False,
 		)
-		for row in _days([8, 8], 2024, 12):
-			card.append("days", row)
-		card.insert(ignore_permissions=True)
-		card.submit()
-		card.reload()
-		self.assertEqual((card.month, int(card.year), flt(card.customer_net_amount, 2)), ("12", 2024, 1600.0))
 		si = self._si(1600)  # dated 2026-09-30
 		log = frappe.get_doc(LOG, self._link(si, card))
 		self.assertEqual((log.month, int(log.year)), ("09", 2026))
