@@ -55,9 +55,15 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     Review"), and the second copy of "Card {0}" is removed (the catalogue kept the first copy, so no shown text
     changes). Ten generic words that are field labels or Select options of CARD DocTypes (Approved, Posted,
     Taxable, Installation, Exclusive, Inclusive, Built, Integrity, Origin, Replaces) are translated under
-    `msgctxt "<DocType>"` only (13 new context entries), never as a plain entry: Frappe reads a label or an option
-    with the DocType as context first (`form/controls/base_input.js`, `form/controls/select.js`, `frappe._` in
-    `translate.js`), and a plain entry would replace the wording of Frappe, ERPNext or HRMS on the whole site.
+    `msgctxt "<DocType>"` (13 new context entries). Frappe uses the DocType as context for a field or section
+    label, a list header and an option of an editable dropdown (`form/controls/base_input.js`,
+    `form/controls/select.js`, `frappe._` in `translate.js`); it draws a read-only Select value and a list cell
+    with the plain text (`form/formatters.js`), and CARD's own scripts call the plain form too. So "Posted",
+    "Built" and "Installation" also have a plain entry: none of them is a msgid of the frappe, erpnext or hrms
+    `version-16` catalogues, so nothing is overridden. The other seven words have no plain entry, because a plain
+    entry would replace the wording of Frappe, ERPNext or HRMS on the whole site. "Approved" is an HRMS string:
+    its plain form (a read-only status value, a list cell) shows the HRMS wording «تمت الموافقة», which is
+    accepted.
   - `bn.po`, `hi.po`, `ur.po`: the 57 Arabic texts that showed in English (stored Select values such as «إيجار»,
     older workspace labels, one field description) are translated into Bengali, Hindi and Urdu. Stored values do
     not change; only the shown text does.
