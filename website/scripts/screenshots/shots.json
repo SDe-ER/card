@@ -1,5 +1,5 @@
 {
-  "_comment": "Screenshot list for the CARD docs. path is relative to the site; {company} is replaced. scroll is a CSS selector or text to bring into view; mobile uses a phone viewport. scrollSel and scrollText fail the shot when the target is missing. clickTextAfter clicks after setSelect. waitSel must become visible before the capture. allowDuplicateOf names the shot whose image this one may equal (check_images.py).",
+  "_comment": "Screenshot list for the CARD docs. path is relative to the site; {company} is replaced. scroll is a CSS selector or text to bring into view; mobile uses a phone viewport. scrollSel and scrollText fail the shot when the target is missing; scrollBlock sets where scrollSel puts its target (start by default, or center). click clicks a CSS selector, for example a form tab. expandSection opens a collapsible form section by its fieldname. clickTextAfter clicks after setSelect. waitSel must become visible before the capture. allowDuplicateOf names the shot whose image this one may equal (check_images.py).",
   "shots": [
     {
       "name": "introduction-workspace",
@@ -26,12 +26,7 @@
     },
     {
       "name": "reports-overview-sidebar",
-      "path": "/app/card",
-      "scrollText": [
-        "Reports",
-        "التقارير"
-      ],
-      "scroll": 330
+      "path": "/app/query-report/Unbilled Card Work?company={company}&from_date=2026-10-01&to_date=2026-10-31"
     },
     {
       "name": "configuration-card-settings",
@@ -227,10 +222,10 @@
     {
       "name": "volume-billing-equipment-commercial",
       "path": "/app/card-equipment/{eq:WL-05}",
-      "scrollText": [
-        "Customer rate type",
-        "نوع سعر العميل"
-      ]
+      "click": ".form-tabs .nav-link[data-fieldname='cost_tab']",
+      "waitSel": ".frappe-control[data-fieldname='load_volume_m3']",
+      "scrollSel": ".frappe-control[data-fieldname='customer_rate_type']",
+      "scrollBlock": "center"
     },
     {
       "name": "volume-billing-monthly-card-days",
@@ -240,10 +235,10 @@
     {
       "name": "volume-billing-card-totals",
       "path": "/app/card-monthly-card/{card:WL-05}",
-      "scrollText": [
-        "Total loads",
-        "إجمالي الردود"
-      ]
+      "expandSection": "accounting_section",
+      "waitSel": ".frappe-control[data-fieldname='total_loads']",
+      "scrollSel": ".frappe-control[data-fieldname='total_loads']",
+      "scrollBlock": "center"
     },
     {
       "name": "volume-billing-print",

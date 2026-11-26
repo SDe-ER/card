@@ -123,28 +123,52 @@ msgstr "Eszközszállítások (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Ügyfelek üzemi értéke - múlt hónap"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Ügyfelek üzemi értéke - múlt hónap"
+
 msgid "Supplier operating value - last month"
+msgstr "Beszállítói üzemi érték - múlt hónap"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Beszállítói üzemi érték - múlt hónap"
 
 msgid "Internal operating value - last month"
 msgstr "Belső üzemi érték - múlt hónap"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Belső üzemi érték - múlt hónap"
+
 msgid "Cards last month"
+msgstr "Kártyák múlt hónapban"
+
+msgid "كروت الشهر الماضي"
 msgstr "Kártyák múlt hónapban"
 
 msgid "Rented equipment (CARD)"
 msgstr "Bérelt eszközök (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Bérelt eszközök (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Rakományok múlt hónapban (CARD)"
+msgstr "Fuvarok az előző hónapban"
 
 msgid "Draft cards (CARD)"
+msgstr "Piszkozat kártyák (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Piszkozat kártyák (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Belső díj nélküli kártyák (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Belső díj nélküli kártyák (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Díj nélküli üzemóraszám (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Díj nélküli üzemóraszám (CARD)"
 
 msgid "Customer summary (CARD)"

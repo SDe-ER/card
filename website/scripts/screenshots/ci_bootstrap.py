@@ -85,7 +85,9 @@ def ensure_manager(password):
 				"language": "en",
 			}
 		)
-		for role in ("System Manager", "Card Manager"):
+		# Accounts Manager: the monthly posting screen lists only the suppliers and customers the user can read
+		# (card/gl/posting.py, month_parties), and System Manager and Card Manager read neither.
+		for role in ("System Manager", "Card Manager", "Accounts Manager"):
 			user.append("roles", {"role": role})
 		user.insert(ignore_permissions=True)
 	return frappe.get_doc("User", MANAGER)
@@ -108,10 +110,26 @@ def complete_setup():
 	frappe.db.set_default("desktop:home_page", "workspace")
 	frappe.db.set_single_value("System Settings", "enable_onboarding", 0)
 	frappe.db.set_single_value("System Settings", "setup_complete", 1)
+	use_classic_charts()
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone CI bootstrap run outside a request
 	frappe.clear_cache()
 	frappe.clear_cache(doctype="System Settings")
 	print("SETUP_COMPLETE", frappe.is_setup_complete())
+
+
+def use_classic_charts():
+	"""Draw charts and number cards the classic way, as a site updated from an earlier version does.
+
+	A new site draws them as frappe-ui islands (System Settings.use_classic_charts = 0, frappe version-16
+	frappe/public/js/frappe/ui/chart.js, is_classic). An island keeps its content in a shadow root, so capture.mjs
+	cannot read the value of a number card, and in run 45656288398 every Arabic page with a chart was a plain white
+	image. The field and its default are set the way frappe's own test does (test_system_settings.py,
+	TestClassicChartsOnUpgrade). A frappe version without the field is left as it is.
+	"""
+	if not frappe.get_meta("System Settings").has_field("use_classic_charts"):
+		return
+	frappe.db.set_single_value("System Settings", "use_classic_charts", 1)
+	frappe.db.set_default("use_classic_charts", 1)
 
 
 def prepare():

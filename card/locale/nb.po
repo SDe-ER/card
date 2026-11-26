@@ -123,28 +123,52 @@ msgstr "Utstyrstransporter (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Driftsverdi for kunder - forrige måned"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Driftsverdi for kunder - forrige måned"
+
 msgid "Supplier operating value - last month"
+msgstr "Leverandørens driftsverdi - forrige måned"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Leverandørens driftsverdi - forrige måned"
 
 msgid "Internal operating value - last month"
 msgstr "Intern driftsverdi - forrige måned"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Intern driftsverdi - forrige måned"
+
 msgid "Cards last month"
+msgstr "Kort forrige måned"
+
+msgid "كروت الشهر الماضي"
 msgstr "Kort forrige måned"
 
 msgid "Rented equipment (CARD)"
 msgstr "Leid utstyr (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Leid utstyr (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Lass forrige måned (CARD)"
+msgstr "Lass forrige måned"
 
 msgid "Draft cards (CARD)"
+msgstr "Kladdekort (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Kladdekort (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Kort uten intern sats (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Kort uten intern sats (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Driftstimer uten sats (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Driftstimer uten sats (CARD)"
 
 msgid "Customer summary (CARD)"

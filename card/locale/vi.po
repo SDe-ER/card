@@ -123,28 +123,52 @@ msgstr "Vận chuyển thiết bị (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Giá trị vận hành cho khách hàng - tháng trước"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Giá trị vận hành cho khách hàng - tháng trước"
+
 msgid "Supplier operating value - last month"
+msgstr "Giá trị vận hành nhà cung cấp - tháng trước"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Giá trị vận hành nhà cung cấp - tháng trước"
 
 msgid "Internal operating value - last month"
 msgstr "Giá trị vận hành nội bộ - tháng trước"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Giá trị vận hành nội bộ - tháng trước"
+
 msgid "Cards last month"
+msgstr "Thẻ tháng trước"
+
+msgid "كروت الشهر الماضي"
 msgstr "Thẻ tháng trước"
 
 msgid "Rented equipment (CARD)"
 msgstr "Thiết bị thuê (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Thiết bị thuê (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Chuyến hàng tháng trước (CARD)"
+msgstr "Số chuyến tháng trước"
 
 msgid "Draft cards (CARD)"
+msgstr "Thẻ nháp (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Thẻ nháp (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Thẻ chưa có đơn giá nội bộ (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Thẻ chưa có đơn giá nội bộ (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Giờ vận hành chưa có đơn giá (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Giờ vận hành chưa có đơn giá (CARD)"
 
 msgid "Customer summary (CARD)"

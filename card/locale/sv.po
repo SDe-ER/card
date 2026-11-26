@@ -123,28 +123,52 @@ msgstr "Maskintransporter (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Driftsvärde för kunder - senaste månaden"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Driftsvärde för kunder - senaste månaden"
+
 msgid "Supplier operating value - last month"
+msgstr "Leverantörens driftsvärde - senaste månaden"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Leverantörens driftsvärde - senaste månaden"
 
 msgid "Internal operating value - last month"
 msgstr "Internt driftsvärde - senaste månaden"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Internt driftsvärde - senaste månaden"
+
 msgid "Cards last month"
+msgstr "Kort senaste månaden"
+
+msgid "كروت الشهر الماضي"
 msgstr "Kort senaste månaden"
 
 msgid "Rented equipment (CARD)"
 msgstr "Hyrd utrustning (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Hyrd utrustning (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Lass senaste månaden (CARD)"
+msgstr "Lass förra månaden"
 
 msgid "Draft cards (CARD)"
+msgstr "Utkast till kort (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Utkast till kort (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Kort utan internt pris (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Kort utan internt pris (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Driftstimmar utan pris (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Driftstimmar utan pris (CARD)"
 
 msgid "Customer summary (CARD)"

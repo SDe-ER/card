@@ -44,17 +44,18 @@ the figures of those companies, and amounts a user may not read are not shown.
 ### Number cards
 
 The workspace shows eleven number cards. Labels are stored in Arabic and shown translated in other languages.
+The first column is the name the Card workspace shows in English.
 
 | Number card | Arabic label | What it shows |
 |---|---|---|
-| Rented Equipment | المعدات المؤجرة | Count of Card Equipment with ownership «إيجار» (Rented) |
-| Draft Cards | كروت مسودة | Count of monthly cards still in draft |
-| Supplier Rental Cost - Last Month | تكلفة إيجار من موردين - الشهر الماضي | Supplier net amount of last month's cards (rented-from-supplier and sub-rental) |
-| Customer Operating Value - Last Month | قيمة تشغيل لعملاء - الشهر الماضي | Customer net amount of last month's cards (rented-to-customer and sub-rental) |
-| Internal Operating Value - Last Month | قيمة تشغيل داخلي - الشهر الماضي | Hours (or working days) × internal operating rate of owned and third-party equipment |
-| Cards Without Internal Rate | كروت بدون سعر داخلي | Last month's cards with no supplier or customer side and no internal rate |
-| Hours Without Internal Rate - Last Month | ساعات تشغيل بدون سعر داخلي - الشهر الماضي | The operating hours of those cards |
-| Last Month's Cards | كروت الشهر الماضي | Count of submitted cards of last month |
+| Rented equipment (CARD) | المعدات المؤجرة | Count of Card Equipment with ownership «إيجار» (Rented) |
+| Draft cards (CARD) | كروت مسودة | Count of monthly cards still in draft |
+| Supplier operating value - last month | تكلفة إيجار من موردين - الشهر الماضي | Supplier net amount of last month's cards (rented-from-supplier and sub-rental) |
+| Operating value for customers - last month | قيمة تشغيل لعملاء - الشهر الماضي | Customer net amount of last month's cards (rented-to-customer and sub-rental) |
+| Internal operating value - last month | قيمة تشغيل داخلي - الشهر الماضي | Hours (or working days) × internal operating rate of owned and third-party equipment |
+| Cards without internal rate (CARD) | كروت بدون سعر داخلي | Last month's cards with no supplier or customer side and no internal rate |
+| Operating hours without rate (CARD) | ساعات تشغيل بدون سعر داخلي - الشهر الماضي | The operating hours of those cards |
+| Cards last month | كروت الشهر الماضي | Count of submitted cards of last month |
 | Total Diesel Litres | إجمالي لترات الديزل | Sum of litres of submitted diesel fills |
 | Total Diesel Cost | إجمالي تكلفة الديزل | Sum of the amount of submitted diesel fills |
 | Total Transport Cost | إجمالي تكلفة النقل | Sum of the amount of submitted transports |

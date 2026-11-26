@@ -8800,10 +8800,19 @@ msgstr "نقل المعدات"
 msgid "Operating value for customers - last month"
 msgstr "قيمة التشغيل للعملاء - الشهر الماضي"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "قيمة التشغيل للعملاء - الشهر الماضي"
+
 msgid "Supplier operating value - last month"
 msgstr "قيمة التشغيل للموردين - الشهر الماضي"
 
+msgid "مبالغ الشهر الماضي"
+msgstr "قيمة التشغيل للموردين - الشهر الماضي"
+
 msgid "Internal operating value - last month"
+msgstr "قيمة التشغيل الداخلي - الشهر الماضي"
+
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
 msgstr "قيمة التشغيل الداخلي - الشهر الماضي"
 
 msgid "Cards last month"
@@ -8822,6 +8831,9 @@ msgid "Cards without internal rate (CARD)"
 msgstr "كروت بدون سعر داخلي"
 
 msgid "Operating hours without rate (CARD)"
+msgstr "ساعات تشغيل بدون سعر"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "ساعات تشغيل بدون سعر"
 
 msgid "Customer summary (CARD)"

@@ -123,28 +123,52 @@ msgstr "Transportasi peralatan (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Nilai operasional pelanggan - bulan lalu"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Nilai operasional pelanggan - bulan lalu"
+
 msgid "Supplier operating value - last month"
+msgstr "Nilai operasional pemasok - bulan lalu"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Nilai operasional pemasok - bulan lalu"
 
 msgid "Internal operating value - last month"
 msgstr "Nilai operasional internal - bulan lalu"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Nilai operasional internal - bulan lalu"
+
 msgid "Cards last month"
+msgstr "Kartu bulan lalu"
+
+msgid "كروت الشهر الماضي"
 msgstr "Kartu bulan lalu"
 
 msgid "Rented equipment (CARD)"
 msgstr "Peralatan sewaan (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Peralatan sewaan (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Muatan bulan lalu (CARD)"
+msgstr "Muatan bulan lalu"
 
 msgid "Draft cards (CARD)"
+msgstr "Kartu draf (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Kartu draf (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Kartu tanpa tarif internal (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Kartu tanpa tarif internal (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Jam operasional tanpa tarif (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Jam operasional tanpa tarif (CARD)"
 
 msgid "Customer summary (CARD)"

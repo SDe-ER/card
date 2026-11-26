@@ -392,16 +392,16 @@ msgid "إجمالي لترات الديزل"
 msgstr "Total Diesel Litres"
 
 msgid "المعدات المؤجرة"
-msgstr "Rented Equipment"
+msgstr "ভাড়া করা যন্ত্রপাতি (CARD)"
 
 msgid "كروت الشهر الماضي"
-msgstr "Last Month's Cards"
+msgstr "গত মাসের কার্ড"
 
 msgid "كروت مسودة"
-msgstr "Draft Cards"
+msgstr "খসড়া কার্ড (CARD)"
 
 msgid "مبالغ الشهر الماضي"
-msgstr "Last Month's Amounts"
+msgstr "সরবরাহকারী পরিচালন মূল্য - গত মাস"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Monthly Diesel Cost"
@@ -413,16 +413,16 @@ msgid "تكلفة إيجار من موردين - الشهر الماضي"
 msgstr "Supplier Rental Cost - Last Month"
 
 msgid "قيمة تشغيل لعملاء - الشهر الماضي"
-msgstr "Customer Operating Value - Last Month"
+msgstr "গ্রাহকদের জন্য পরিচালন মূল্য - গত মাস"
 
 msgid "قيمة تشغيل داخلي - الشهر الماضي"
-msgstr "Internal Operating Value - Last Month"
+msgstr "অভ্যন্তরীণ পরিচালন মূল্য - গত মাস"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Cards Without Internal Rate"
+msgstr "অভ্যন্তরীণ হার ছাড়া কার্ড (CARD)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Hours Without Internal Rate - Last Month"
+msgstr "হার ছাড়া পরিচালন ঘণ্টা (CARD)"
 
 msgid "كارت تشغيل شهري"
 msgstr "Monthly Operation Card"
@@ -603,7 +603,7 @@ msgid "Rented equipment (CARD)"
 msgstr "ভাড়া করা যন্ত্রপাতি (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "গত মাসের লোড (CARD)"
+msgstr "গত মাসের লোড"
 
 msgid "Draft cards (CARD)"
 msgstr "খসড়া কার্ড (CARD)"

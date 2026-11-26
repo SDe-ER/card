@@ -123,28 +123,52 @@ msgstr "Ekipman taşımaları (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Müşteriler için operasyon değeri - geçen ay"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Müşteriler için operasyon değeri - geçen ay"
+
 msgid "Supplier operating value - last month"
+msgstr "Tedarikçi operasyon değeri - geçen ay"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Tedarikçi operasyon değeri - geçen ay"
 
 msgid "Internal operating value - last month"
 msgstr "İç operasyon değeri - geçen ay"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "İç operasyon değeri - geçen ay"
+
 msgid "Cards last month"
+msgstr "Geçen ayki kartlar"
+
+msgid "كروت الشهر الماضي"
 msgstr "Geçen ayki kartlar"
 
 msgid "Rented equipment (CARD)"
 msgstr "Kiralık ekipman (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Kiralık ekipman (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Geçen ayki yükler (CARD)"
+msgstr "Geçen ay seferleri"
 
 msgid "Draft cards (CARD)"
+msgstr "Taslak kartlar (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Taslak kartlar (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "İç oranı olmayan kartlar (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "İç oranı olmayan kartlar (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Oranı olmayan çalışma saatleri (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Oranı olmayan çalışma saatleri (CARD)"
 
 msgid "Customer summary (CARD)"

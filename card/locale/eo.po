@@ -123,28 +123,52 @@ msgstr "Transportoj de ekipaĵo (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Operacia valoro por klientoj - pasinta monato"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Operacia valoro por klientoj - pasinta monato"
+
 msgid "Supplier operating value - last month"
+msgstr "Operacia valoro de liveruloj - pasinta monato"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Operacia valoro de liveruloj - pasinta monato"
 
 msgid "Internal operating value - last month"
 msgstr "Interna operacia valoro - pasinta monato"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Interna operacia valoro - pasinta monato"
+
 msgid "Cards last month"
+msgstr "Kartoj pasinta monato"
+
+msgid "كروت الشهر الماضي"
 msgstr "Kartoj pasinta monato"
 
 msgid "Rented equipment (CARD)"
 msgstr "Lulita ekipaĵo (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Lulita ekipaĵo (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Ŝarĝoj pasinta monato (CARD)"
+msgstr "Ŝarĝoj lastmonate"
 
 msgid "Draft cards (CARD)"
+msgstr "Skizaj kartoj (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Skizaj kartoj (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Kartoj sen interna tarifo (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Kartoj sen interna tarifo (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Operaciaj horoj sen tarifo (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Operaciaj horoj sen tarifo (CARD)"
 
 msgid "Customer summary (CARD)"

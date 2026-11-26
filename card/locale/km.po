@@ -123,28 +123,52 @@ msgstr "ការដឹកជញ្ជូនឧបករណ៍ (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "តម្លៃប្រតិបត្តិការសម្រាប់អតិថិជន - ខែមុន"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "តម្លៃប្រតិបត្តិការសម្រាប់អតិថិជន - ខែមុន"
+
 msgid "Supplier operating value - last month"
+msgstr "តម្លៃប្រតិបត្តិការអ្នកផ្គត់ផ្គង់ - ខែមុន"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "តម្លៃប្រតិបត្តិការអ្នកផ្គត់ផ្គង់ - ខែមុន"
 
 msgid "Internal operating value - last month"
 msgstr "តម្លៃប្រតិបត្តិការផ្ទៃក្នុង - ខែមុន"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "តម្លៃប្រតិបត្តិការផ្ទៃក្នុង - ខែមុន"
+
 msgid "Cards last month"
+msgstr "កាតខែមុន"
+
+msgid "كروت الشهر الماضي"
 msgstr "កាតខែមុន"
 
 msgid "Rented equipment (CARD)"
 msgstr "ឧបករណ៍ជួល (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "ឧបករណ៍ជួល (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "ការផ្ទុកខែមុន (CARD)"
+msgstr "ចំនួនផ្ទុកខែមុន"
 
 msgid "Draft cards (CARD)"
+msgstr "កាតព្រាង (CARD)"
+
+msgid "كروت مسودة"
 msgstr "កាតព្រាង (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "កាតគ្មានអត្រាផ្ទៃក្នុង (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "កាតគ្មានអត្រាផ្ទៃក្នុង (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "ម៉ោងប្រតិបត្តិការគ្មានអត្រា (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "ម៉ោងប្រតិបត្តិការគ្មានអត្រា (CARD)"
 
 msgid "Customer summary (CARD)"

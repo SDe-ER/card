@@ -123,28 +123,52 @@ msgstr "Kaluston kuljetukset (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Asiakkaiden toiminta-arvo - viime kuukausi"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Asiakkaiden toiminta-arvo - viime kuukausi"
+
 msgid "Supplier operating value - last month"
+msgstr "Toimittajien toiminta-arvo - viime kuukausi"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Toimittajien toiminta-arvo - viime kuukausi"
 
 msgid "Internal operating value - last month"
 msgstr "Sisäinen toiminta-arvo - viime kuukausi"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Sisäinen toiminta-arvo - viime kuukausi"
+
 msgid "Cards last month"
+msgstr "Kortit viime kuukaudelta"
+
+msgid "كروت الشهر الماضي"
 msgstr "Kortit viime kuukaudelta"
 
 msgid "Rented equipment (CARD)"
 msgstr "Vuokrattu kalusto (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Vuokrattu kalusto (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Kuormat viime kuukaudelta (CARD)"
+msgstr "Kuormat viime kuussa"
 
 msgid "Draft cards (CARD)"
+msgstr "Luonnoskortit (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Luonnoskortit (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Kortit ilman sisäistä hintaa (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Kortit ilman sisäistä hintaa (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Käyttötunnit ilman hintaa (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Käyttötunnit ilman hintaa (CARD)"
 
 msgid "Customer summary (CARD)"

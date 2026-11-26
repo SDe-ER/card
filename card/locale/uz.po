@@ -123,28 +123,52 @@ msgstr "Texnika tashishlari (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Mijozlar uchun operatsion qiymat - o'tgan oy"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Mijozlar uchun operatsion qiymat - o'tgan oy"
+
 msgid "Supplier operating value - last month"
+msgstr "Yetkazib beruvchi operatsion qiymati - o'tgan oy"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Yetkazib beruvchi operatsion qiymati - o'tgan oy"
 
 msgid "Internal operating value - last month"
 msgstr "Ichki operatsion qiymat - o'tgan oy"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Ichki operatsion qiymat - o'tgan oy"
+
 msgid "Cards last month"
+msgstr "O'tgan oydagi kartalar"
+
+msgid "كروت الشهر الماضي"
 msgstr "O'tgan oydagi kartalar"
 
 msgid "Rented equipment (CARD)"
 msgstr "Ijaradagi texnika (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Ijaradagi texnika (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "O'tgan oydagi yuklar (CARD)"
+msgstr "O'tgan oy reyslari"
 
 msgid "Draft cards (CARD)"
+msgstr "Qoralama kartalar (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Qoralama kartalar (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Ichki tarifsiz kartalar (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Ichki tarifsiz kartalar (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Tarifsiz ish soatlari (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Tarifsiz ish soatlari (CARD)"
 
 msgid "Customer summary (CARD)"

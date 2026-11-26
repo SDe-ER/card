@@ -123,28 +123,52 @@ msgstr "Transporturi de echipamente (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Valoare operațională pentru clienți - luna trecută"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Valoare operațională pentru clienți - luna trecută"
+
 msgid "Supplier operating value - last month"
+msgstr "Valoare operațională furnizori - luna trecută"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Valoare operațională furnizori - luna trecută"
 
 msgid "Internal operating value - last month"
 msgstr "Valoare operațională internă - luna trecută"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Valoare operațională internă - luna trecută"
+
 msgid "Cards last month"
+msgstr "Carduri din luna trecută"
+
+msgid "كروت الشهر الماضي"
 msgstr "Carduri din luna trecută"
 
 msgid "Rented equipment (CARD)"
 msgstr "Echipamente închiriate (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Echipamente închiriate (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Încărcări din luna trecută (CARD)"
+msgstr "Încărcături luna trecută"
 
 msgid "Draft cards (CARD)"
+msgstr "Carduri ciornă (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Carduri ciornă (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Carduri fără tarif intern (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Carduri fără tarif intern (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Ore de funcționare fără tarif (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Ore de funcționare fără tarif (CARD)"
 
 msgid "Customer summary (CARD)"
