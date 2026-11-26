@@ -72,7 +72,7 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| إضافات وخصومات | `adjustments` | Table | [إضافة أو خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/) |  |
+| إضافات وخصومات | `adjustments` | Table | [إضافة/خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/) |  |
 
 
 **الملخص المالي**
@@ -102,7 +102,7 @@ sidebar:
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
 | الترحيل المحاسبي <small>(للقراءة فقط)</small> | `gl_posting` | Link | [سجل الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-log/) |  |
-| مرحَّل <small>(للقراءة فقط)</small> | `posted` | Check |  |  |
+| مُرحَّل <small>(للقراءة فقط)</small> | `posted` | Check |  |  |
 | فاتورة الشراء <small>(للقراءة فقط)</small> | `purchase_invoice` | Link | فاتورة الشراء |  |
 | الساعات اليومية (المستخدمة) <small>(للقراءة فقط)</small> | `daily_hours_used` | Float |  |  |
 | سعر الساعة (المستخدم) <small>(للقراءة فقط)</small> | `hourly_rate_used` | Currency |  |  |
@@ -144,7 +144,7 @@ sidebar:
 ## الجداول الفرعية
 
 - [يوم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-day/)
-- [إضافة أو خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/)
+- [إضافة/خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/)
 
 
 ## الصلاحيات

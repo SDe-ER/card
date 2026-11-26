@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "За м³"
 
 msgid "Loads last month"
-msgstr "Рейсы за прошлый месяц"
+msgstr "Рейсы за прошлый месяц (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Рейсы можно вносить только в карту, где тип тарифа клиента — за м³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Арендованная техника (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Рейсы за прошлый месяц"
+msgstr "Рейсы за прошлый месяц (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Черновики карт (CARD)"
@@ -385,3 +385,219 @@ msgstr "Документ (номер квитанции или ссылка)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Запрошено утверждение наличного платежа"
+
+msgid "Card Expenses"
+msgstr "Расходы"
+
+msgid "Card Fleet"
+msgstr "Техника"
+
+msgid "Card Materials"
+msgstr "Материалы и закупки"
+
+msgid "Card Movement"
+msgstr "Перемещение и транспорт"
+
+msgid "Card Operating Units"
+msgstr "Операционные единицы"
+
+msgid "Card Operation Cards"
+msgstr "Карты эксплуатации"
+
+msgid "Card Parties"
+msgstr "Поставщики и клиенты"
+
+msgid "Card Reports"
+msgstr "Отчёты"
+
+msgid "Card Setup"
+msgstr "Настройки"
+
+msgid "Project Diesel Fill"
+msgstr "Заправка дизелем по проекту"
+
+msgid "Equipment Transport"
+msgstr "Перевозка техники"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Расход дизеля"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Анализ дизеля по технике"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Расходы на технику без указания техники"
+
+msgid "Card Equipment"
+msgstr "Техника"
+
+msgid "Card Equipment Type"
+msgstr "Тип техники"
+
+msgid "Card Equipment Category"
+msgstr "Категория техники"
+
+msgid "Equipment Needs Request"
+msgstr "Заявка на потребности техники"
+
+msgid "Equipment Needs Review"
+msgstr "Проверка потребностей техники"
+
+msgid "Tool Custody"
+msgstr "Инструмент на ответственном хранении"
+
+msgid "Employee Tool Custody"
+msgstr "Инструмент, закреплённый за сотрудником"
+
+msgid "Equipment Makes"
+msgstr "Марки техники"
+
+msgid "Equipment Models"
+msgstr "Модели техники"
+
+msgid "Parts Fitment"
+msgstr "Совместимость запчастей"
+
+msgid "Equipment Make Model Values"
+msgstr "Текстовые значения марки и модели"
+
+msgid "Equipment Needs Summary"
+msgstr "Сводка потребностей техники"
+
+msgid "Equipment Consumption"
+msgstr "Расход по технике"
+
+msgid "Worker Custody"
+msgstr "Инструмент, закреплённый за рабочими"
+
+msgid "Repeat Equipment Requests"
+msgstr "Повторные заявки по технике"
+
+msgid "Card Equipment Assignment"
+msgstr "Назначение техники"
+
+msgid "Transport Cost by Project"
+msgstr "Транспортные затраты по проектам"
+
+msgid "Card Monthly Card"
+msgstr "Месячная карта эксплуатации"
+
+msgid "Operating Cost by Project"
+msgstr "Операционные затраты по проектам"
+
+msgid "Card Equipment Supplier"
+msgstr "Поставщик техники"
+
+msgid "Card Equipment Customer"
+msgstr "Клиент по технике"
+
+msgid "Equipment Supplier Statement"
+msgstr "Выписка по поставщику"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Сводка по поставщикам"
+
+msgid "Equipment Customer Statement"
+msgstr "Выписка по клиенту"
+
+msgid "Equipment Customers Summary"
+msgstr "Сводка по клиентам"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Отклонения и аномалии по дизелю"
+
+msgid "Diesel Group Analysis"
+msgstr "Анализ дизеля по группам"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Сверка счетов за дизель"
+
+msgid "Card Settlement Status"
+msgstr "Статус расчётов по картам"
+
+msgid "Equipment Partial Margin"
+msgstr "Частичная маржа по технике"
+
+msgid "Project Invoice Profitability"
+msgstr "Рентабельность проектов по счетам"
+
+msgid "Unbilled Card Work"
+msgstr "Невыставленные работы по картам"
+
+msgid "Posting Source Integrity"
+msgstr "Целостность источников проводок"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Затраты на обслуживание техники"
+
+msgid "Equipment Downtime"
+msgstr "Простои техники"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Сверка счётчиков"
+
+msgid "Asset Mapping Review"
+msgstr "Проверка привязки к основным средствам"
+
+msgid "Transport Accounting Review"
+msgstr "Проверка учёта транспорта"
+
+msgid "Equipment Location History"
+msgstr "История местоположений техники"
+
+msgid "Card Settings"
+msgstr "Настройки"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Стоимость аренды у поставщиков - прошлый месяц"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Всего литров дизеля"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Общая стоимость дизеля"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Общая стоимость транспорта"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Месячные суммы по картам"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Месячная стоимость дизеля"
+
+msgid "الصفحة الرئيسية"
+msgstr "Главная"
+
+msgid "التشغيل"
+msgstr "Операции"
+
+msgid "الموردين والتقارير"
+msgstr "Поставщики и отчёты"
+
+msgid "المعدات"
+msgstr "Техника"
+
+msgid "المعدة"
+msgstr "Техника"
+
+msgid "نوع المعدة"
+msgstr "Тип техники"
+
+msgid "فئة المعدة"
+msgstr "Категория техники"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Назначение техники"
+
+msgid "الكارت الشهري"
+msgstr "Месячная карта эксплуатации"
+
+msgid "موردي المعدات"
+msgstr "Поставщик техники"
+
+msgid "ملخص الموردين"
+msgstr "Сводка по поставщикам"
+
+msgid "كشف حساب مورد"
+msgstr "Выписка по поставщику"

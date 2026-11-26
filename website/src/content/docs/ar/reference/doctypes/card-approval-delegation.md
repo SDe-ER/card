@@ -1,14 +1,16 @@
 ---
-title: "Card Approval Delegation"
-description: "حقول نوع المستند Card Approval Delegation وتخطيطه وصلاحياته."
+title: "تفويض الاعتماد"
+description: "حقول نوع المستند تفويض الاعتماد وتخطيطه وصلاحياته."
 editUrl: false
 sidebar:
-  label: "Card Approval Delegation"
+  label: "تفويض الاعتماد"
 ---
 
 :::note
 تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة. وهي تتبع الفرع الرئيسي، فقد تصف تغييرات مدمجة لم تصدر بعد؛ راجع صفحة «ما الجديد».
 :::
+
+**Card Approval Delegation**
 
 | | |
 |---|---|
@@ -21,10 +23,10 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| Delegator (grantor) | `delegator_user` | Link | المستخدم | نعم |
-| Delegate (grantee) | `delegate_user` | Link | المستخدم | نعم |
+| المفوِّض | `delegator_user` | Link | المستخدم | نعم |
+| المفوَّض إليه | `delegate_user` | Link | المستخدم | نعم |
 | الشركة | `company` | Link | الشركة | نعم |
-| Approval scope | `approval_scope` | Select | All CARD approvals · Monthly Cards · عدد النقلات · Diesel Fills | نعم |
+| نطاق الاعتماد | `approval_scope` | Select | كل اعتمادات CARD · الكروت الشهرية · عدد النقلات · تعبئات الديزل | نعم |
 
 
 **نافذة التفويض**
@@ -33,7 +35,7 @@ sidebar:
 |---|---|---|---|---|
 | من تاريخ | `from_date` | Date |  | نعم |
 | إلى تاريخ | `to_date` | Date |  | نعم |
-| Delegation status <small>(للقراءة فقط)</small> | `status` | Select | نشط · Expired · Cancelled |  |
+| حالة التفويض <small>(للقراءة فقط)</small> | `status` | Select | نشط · Expired · Cancelled |  |
 
 
 **السبب**

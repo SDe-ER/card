@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "ក្នុងមួយ m³"
 
 msgid "Loads last month"
-msgstr "ចំនួនផ្ទុកខែមុន"
+msgstr "ចំនួនផ្ទុកខែមុន (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "អាចកត់ត្រាចំនួនផ្ទុកបានតែលើកាតដែលប្រភេទអត្រាអតិថិជនជាក្នុងមួយ m³ ប៉ុណ្ណោះ"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "ឧបករណ៍ជួល (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "ចំនួនផ្ទុកខែមុន"
+msgstr "ចំនួនផ្ទុកខែមុន (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "កាតព្រាង (CARD)"
@@ -385,3 +385,219 @@ msgstr "ភស្តុតាង (លេខបង្កាន់ដៃ ឬឯក
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "បានស្នើការអនុម័តការបង់ប្រាក់សាច់ប្រាក់"
+
+msgid "Card Expenses"
+msgstr "ចំណាយ"
+
+msgid "Card Fleet"
+msgstr "ឧបករណ៍"
+
+msgid "Card Materials"
+msgstr "សម្ភារៈ និងការទិញ"
+
+msgid "Card Movement"
+msgstr "ការផ្លាស់ទី និងការដឹកជញ្ជូន"
+
+msgid "Card Operating Units"
+msgstr "អង្គភាពប្រតិបត្តិការ"
+
+msgid "Card Operation Cards"
+msgstr "កាតប្រតិបត្តិការ"
+
+msgid "Card Parties"
+msgstr "អ្នកផ្គត់ផ្គង់ និងអតិថិជន"
+
+msgid "Card Reports"
+msgstr "របាយការណ៍"
+
+msgid "Card Setup"
+msgstr "ការកំណត់"
+
+msgid "Project Diesel Fill"
+msgstr "ការចាក់ប្រេងម៉ាស៊ូតសម្រាប់គម្រោង"
+
+msgid "Equipment Transport"
+msgstr "ការដឹកជញ្ជូនឧបករណ៍"
+
+msgid "Equipment Diesel Consumption"
+msgstr "ការប្រើប្រាស់ប្រេងម៉ាស៊ូត"
+
+msgid "Equipment Diesel Analysis"
+msgstr "ការវិភាគប្រេងម៉ាស៊ូតរបស់ឧបករណ៍"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "ចំណាយឧបករណ៍ដែលគ្មានឧបករណ៍"
+
+msgid "Card Equipment"
+msgstr "ឧបករណ៍"
+
+msgid "Card Equipment Type"
+msgstr "ប្រភេទឧបករណ៍"
+
+msgid "Card Equipment Category"
+msgstr "ប្រភេទក្រុមឧបករណ៍"
+
+msgid "Equipment Needs Request"
+msgstr "សំណើតម្រូវការឧបករណ៍"
+
+msgid "Equipment Needs Review"
+msgstr "ការពិនិត្យតម្រូវការឧបករណ៍"
+
+msgid "Tool Custody"
+msgstr "ការទទួលខុសត្រូវលើឧបករណ៍ដៃ"
+
+msgid "Employee Tool Custody"
+msgstr "ការទទួលខុសត្រូវលើឧបករណ៍ដៃរបស់បុគ្គលិក"
+
+msgid "Equipment Makes"
+msgstr "ម៉ាកឧបករណ៍"
+
+msgid "Equipment Models"
+msgstr "ម៉ូដែលឧបករណ៍"
+
+msgid "Parts Fitment"
+msgstr "ភាពត្រូវគ្នានៃគ្រឿងបន្លាស់"
+
+msgid "Equipment Make Model Values"
+msgstr "តម្លៃអក្សររបស់ម៉ាក និងម៉ូដែល"
+
+msgid "Equipment Needs Summary"
+msgstr "សង្ខេបតម្រូវការឧបករណ៍"
+
+msgid "Equipment Consumption"
+msgstr "ការប្រើប្រាស់របស់ឧបករណ៍"
+
+msgid "Worker Custody"
+msgstr "ការទទួលខុសត្រូវរបស់កម្មករ"
+
+msgid "Repeat Equipment Requests"
+msgstr "សំណើឧបករណ៍ដដែលៗ"
+
+msgid "Card Equipment Assignment"
+msgstr "ការចាត់តាំងឧបករណ៍"
+
+msgid "Transport Cost by Project"
+msgstr "ថ្លៃដឹកជញ្ជូនតាមគម្រោង"
+
+msgid "Card Monthly Card"
+msgstr "កាតប្រតិបត្តិការប្រចាំខែ"
+
+msgid "Operating Cost by Project"
+msgstr "ថ្លៃប្រតិបត្តិការតាមគម្រោង"
+
+msgid "Card Equipment Supplier"
+msgstr "អ្នកផ្គត់ផ្គង់ឧបករណ៍"
+
+msgid "Card Equipment Customer"
+msgstr "អតិថិជនឧបករណ៍"
+
+msgid "Equipment Supplier Statement"
+msgstr "សេចក្តីថ្លែងការណ៍អ្នកផ្គត់ផ្គង់"
+
+msgid "Equipment Suppliers Summary"
+msgstr "សង្ខេបអ្នកផ្គត់ផ្គង់"
+
+msgid "Equipment Customer Statement"
+msgstr "សេចក្តីថ្លែងការណ៍អតិថិជន"
+
+msgid "Equipment Customers Summary"
+msgstr "សង្ខេបអតិថិជន"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "គម្លាត និងភាពមិនប្រក្រតីនៃប្រេងម៉ាស៊ូត"
+
+msgid "Diesel Group Analysis"
+msgstr "ការវិភាគប្រេងម៉ាស៊ូតតាមក្រុម"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "ការផ្ទៀងផ្ទាត់វិក្កយបត្រប្រេងម៉ាស៊ូត"
+
+msgid "Card Settlement Status"
+msgstr "ស្ថានភាពទូទាត់កាត"
+
+msgid "Equipment Partial Margin"
+msgstr "ប្រាក់ចំណេញដោយផ្នែករបស់ឧបករណ៍"
+
+msgid "Project Invoice Profitability"
+msgstr "ប្រាក់ចំណេញគម្រោងតាមវិក្កយបត្រ"
+
+msgid "Unbilled Card Work"
+msgstr "ការងារកាតមិនទាន់ចេញវិក្កយបត្រ"
+
+msgid "Posting Source Integrity"
+msgstr "សុចរិតភាពនៃប្រភពកត់ត្រាគណនេយ្យ"
+
+msgid "Equipment Maintenance Cost"
+msgstr "ថ្លៃថែទាំឧបករណ៍"
+
+msgid "Equipment Downtime"
+msgstr "ពេលវេលាឈប់ដំណើរការរបស់ឧបករណ៍"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "ការផ្គូផ្គងម៉ែត្រ"
+
+msgid "Asset Mapping Review"
+msgstr "ការពិនិត្យការផ្គូផ្គងទ្រព្យសកម្ម"
+
+msgid "Transport Accounting Review"
+msgstr "ការពិនិត្យគណនេយ្យដឹកជញ្ជូន"
+
+msgid "Equipment Location History"
+msgstr "ប្រវត្តិទីតាំងឧបករណ៍"
+
+msgid "Card Settings"
+msgstr "ការកំណត់"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "ថ្លៃជួលពីអ្នកផ្គត់ផ្គង់ - ខែមុន"
+
+msgid "إجمالي لترات الديزل"
+msgstr "ចំនួនលីត្រប្រេងម៉ាស៊ូតសរុប"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "ថ្លៃប្រេងម៉ាស៊ូតសរុប"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "ថ្លៃដឹកជញ្ជូនសរុប"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "ចំនួនទឹកប្រាក់កាតប្រចាំខែ"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "ថ្លៃប្រេងម៉ាស៊ូតប្រចាំខែ"
+
+msgid "الصفحة الرئيسية"
+msgstr "ទំព័រដើម"
+
+msgid "التشغيل"
+msgstr "ប្រតិបត្តិការ"
+
+msgid "الموردين والتقارير"
+msgstr "អ្នកផ្គត់ផ្គង់ និងរបាយការណ៍"
+
+msgid "المعدات"
+msgstr "ឧបករណ៍"
+
+msgid "المعدة"
+msgstr "ឧបករណ៍"
+
+msgid "نوع المعدة"
+msgstr "ប្រភេទឧបករណ៍"
+
+msgid "فئة المعدة"
+msgstr "ប្រភេទក្រុមឧបករណ៍"
+
+msgid "تعيين معدة على مشروع"
+msgstr "ការចាត់តាំងឧបករណ៍"
+
+msgid "الكارت الشهري"
+msgstr "កាតប្រតិបត្តិការប្រចាំខែ"
+
+msgid "موردي المعدات"
+msgstr "អ្នកផ្គត់ផ្គង់ឧបករណ៍"
+
+msgid "ملخص الموردين"
+msgstr "សង្ខេបអ្នកផ្គត់ផ្គង់"
+
+msgid "كشف حساب مورد"
+msgstr "សេចក្តីថ្លែងការណ៍អ្នកផ្គត់ផ្គង់"

@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Po m³"
 
 msgid "Loads last month"
-msgstr "Ŝarĝoj lastmonate"
+msgstr "Ŝarĝoj lastmonate (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ŝarĝoj rajtas esti registrataj nur en karto kies kliento-prezspeco estas po m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Lulita ekipaĵo (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Ŝarĝoj lastmonate"
+msgstr "Ŝarĝoj lastmonate (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Skizaj kartoj (CARD)"
@@ -385,3 +385,219 @@ msgstr "Atesto (numero de kvitanco aŭ referenco)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Aprobo de mona pago petita"
+
+msgid "Card Expenses"
+msgstr "Elspezoj"
+
+msgid "Card Fleet"
+msgstr "Ekipaĵo"
+
+msgid "Card Materials"
+msgstr "Materialoj kaj aĉetoj"
+
+msgid "Card Movement"
+msgstr "Movado kaj transporto"
+
+msgid "Card Operating Units"
+msgstr "Operaciaj unuoj"
+
+msgid "Card Operation Cards"
+msgstr "Operaciaj kartoj"
+
+msgid "Card Parties"
+msgstr "Liveruloj kaj klientoj"
+
+msgid "Card Reports"
+msgstr "Raportoj"
+
+msgid "Card Setup"
+msgstr "Agordoj"
+
+msgid "Project Diesel Fill"
+msgstr "Dizelplenigo por projekto"
+
+msgid "Equipment Transport"
+msgstr "Transporto de ekipaĵo"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Dizela konsumo"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Dizelanalizo de ekipaĵo"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Ekipaĵaj elspezoj sen ekipaĵo"
+
+msgid "Card Equipment"
+msgstr "Ekipaĵo"
+
+msgid "Card Equipment Type"
+msgstr "Tipo de ekipaĵo"
+
+msgid "Card Equipment Category"
+msgstr "Kategorio de ekipaĵo"
+
+msgid "Equipment Needs Request"
+msgstr "Peto pri bezonoj de ekipaĵo"
+
+msgid "Equipment Needs Review"
+msgstr "Revizio de bezonoj de ekipaĵo"
+
+msgid "Tool Custody"
+msgstr "Gardado de iloj"
+
+msgid "Employee Tool Custody"
+msgstr "Gardado de iloj de dungito"
+
+msgid "Equipment Makes"
+msgstr "Markoj de ekipaĵo"
+
+msgid "Equipment Models"
+msgstr "Modeloj de ekipaĵo"
+
+msgid "Parts Fitment"
+msgstr "Kongruo de partoj"
+
+msgid "Equipment Make Model Values"
+msgstr "Tekstaj valoroj de marko kaj modelo"
+
+msgid "Equipment Needs Summary"
+msgstr "Resumo de bezonoj de ekipaĵo"
+
+msgid "Equipment Consumption"
+msgstr "Konsumo de ekipaĵo"
+
+msgid "Worker Custody"
+msgstr "Gardado de laboristoj"
+
+msgid "Repeat Equipment Requests"
+msgstr "Ripetaj petoj pri ekipaĵo"
+
+msgid "Card Equipment Assignment"
+msgstr "Asigno de ekipaĵo"
+
+msgid "Transport Cost by Project"
+msgstr "Transportaj kostoj laŭ projekto"
+
+msgid "Card Monthly Card"
+msgstr "Monata operacia karto"
+
+msgid "Operating Cost by Project"
+msgstr "Operaciaj kostoj laŭ projekto"
+
+msgid "Card Equipment Supplier"
+msgstr "Liverulo de ekipaĵo"
+
+msgid "Card Equipment Customer"
+msgstr "Kliento de ekipaĵo"
+
+msgid "Equipment Supplier Statement"
+msgstr "Konto de liveranto"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Resumo de liveruloj"
+
+msgid "Equipment Customer Statement"
+msgstr "Klienta konto"
+
+msgid "Equipment Customers Summary"
+msgstr "Resumo de klientoj"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dizelaj devioj kaj anomalioj"
+
+msgid "Diesel Group Analysis"
+msgstr "Dizelanalizo laŭ grupo"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Akordigo de dizelfakturoj"
+
+msgid "Card Settlement Status"
+msgstr "Stato de kartaj kvitigoj"
+
+msgid "Equipment Partial Margin"
+msgstr "Parta marĝeno de ekipaĵo"
+
+msgid "Project Invoice Profitability"
+msgstr "Profiteco de projektoj laŭ fakturoj"
+
+msgid "Unbilled Card Work"
+msgstr "Nefakturita karta laboro"
+
+msgid "Posting Source Integrity"
+msgstr "Integreco de registraj fontoj"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Bontenaj kostoj de ekipaĵo"
+
+msgid "Equipment Downtime"
+msgstr "Senfunkcia tempo de ekipaĵo"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Kongruigo de mezuriloj"
+
+msgid "Asset Mapping Review"
+msgstr "Revizio de mapado de aktivoj"
+
+msgid "Transport Accounting Review"
+msgstr "Revizio de transporta kontado"
+
+msgid "Equipment Location History"
+msgstr "Historio de lokoj de ekipaĵo"
+
+msgid "Card Settings"
+msgstr "Agordoj"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Lukosto de liveruloj - pasinta monato"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Sumo de dizellitroj"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Suma dizelkosto"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Suma transportkosto"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Monataj kartaj sumoj"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Monata dizelkosto"
+
+msgid "الصفحة الرئيسية"
+msgstr "Hejmo"
+
+msgid "التشغيل"
+msgstr "Operacioj"
+
+msgid "الموردين والتقارير"
+msgstr "Liveruloj kaj raportoj"
+
+msgid "المعدات"
+msgstr "Ekipaĵo"
+
+msgid "المعدة"
+msgstr "Ekipaĵo"
+
+msgid "نوع المعدة"
+msgstr "Tipo de ekipaĵo"
+
+msgid "فئة المعدة"
+msgstr "Kategorio de ekipaĵo"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Asigno de ekipaĵo"
+
+msgid "الكارت الشهري"
+msgstr "Monata operacia karto"
+
+msgid "موردي المعدات"
+msgstr "Liverulo de ekipaĵo"
+
+msgid "ملخص الموردين"
+msgstr "Resumo de liveruloj"
+
+msgid "كشف حساب مورد"
+msgstr "Konto de liveranto"

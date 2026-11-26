@@ -36,10 +36,10 @@ msgid "Cannot record loads for a future day: {0}"
 msgstr "Kuormia ei voi kirjata tulevalle päivälle: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "Kuutiometriltä"
 
 msgid "Loads last month"
-msgstr "Kuormat viime kuussa"
+msgstr "Kuormat viime kuussa (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Kuormia voi kirjata vain kortille, jonka asiakashinnoittelu on per m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Vuokrattu kalusto (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Kuormat viime kuussa"
+msgstr "Kuormat viime kuussa (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Luonnoskortit (CARD)"
@@ -385,3 +385,219 @@ msgstr "Tosite (kuittinumero tai viite)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Käteismaksun hyväksyntä pyydetty"
+
+msgid "Card Expenses"
+msgstr "Kulut"
+
+msgid "Card Fleet"
+msgstr "Kalusto"
+
+msgid "Card Materials"
+msgstr "Materiaalit ja hankinnat"
+
+msgid "Card Movement"
+msgstr "Siirrot ja kuljetus"
+
+msgid "Card Operating Units"
+msgstr "Toimintayksiköt"
+
+msgid "Card Operation Cards"
+msgstr "Käyttökortit"
+
+msgid "Card Parties"
+msgstr "Toimittajat ja asiakkaat"
+
+msgid "Card Reports"
+msgstr "Raportit"
+
+msgid "Card Setup"
+msgstr "Asetukset"
+
+msgid "Project Diesel Fill"
+msgstr "Projektin dieseltankkaus"
+
+msgid "Equipment Transport"
+msgstr "Kaluston kuljetus"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Dieselkulutus"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Kaluston dieselanalyysi"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Kalustokulut ilman kalustoa"
+
+msgid "Card Equipment"
+msgstr "Kalusto"
+
+msgid "Card Equipment Type"
+msgstr "Kalustotyyppi"
+
+msgid "Card Equipment Category"
+msgstr "Kalustoluokka"
+
+msgid "Equipment Needs Request"
+msgstr "Kaluston tarvepyyntö"
+
+msgid "Equipment Needs Review"
+msgstr "Kaluston tarpeiden tarkistus"
+
+msgid "Tool Custody"
+msgstr "Työkalujen hallussapito"
+
+msgid "Employee Tool Custody"
+msgstr "Työntekijän työkalujen hallussapito"
+
+msgid "Equipment Makes"
+msgstr "Kaluston merkit"
+
+msgid "Equipment Models"
+msgstr "Kaluston mallit"
+
+msgid "Parts Fitment"
+msgstr "Osien yhteensopivuus"
+
+msgid "Equipment Make Model Values"
+msgstr "Merkin ja mallin tekstiarvot"
+
+msgid "Equipment Needs Summary"
+msgstr "Kaluston tarpeiden yhteenveto"
+
+msgid "Equipment Consumption"
+msgstr "Kaluston kulutus"
+
+msgid "Worker Custody"
+msgstr "Työntekijöiden hallussapito"
+
+msgid "Repeat Equipment Requests"
+msgstr "Toistuvat kalustopyynnöt"
+
+msgid "Card Equipment Assignment"
+msgstr "Kaluston kohdistus"
+
+msgid "Transport Cost by Project"
+msgstr "Kuljetuskustannukset projektin mukaan"
+
+msgid "Card Monthly Card"
+msgstr "Kuukausittainen käyttökortti"
+
+msgid "Operating Cost by Project"
+msgstr "Toimintakustannukset projektin mukaan"
+
+msgid "Card Equipment Supplier"
+msgstr "Kaluston toimittaja"
+
+msgid "Card Equipment Customer"
+msgstr "Kaluston asiakas"
+
+msgid "Equipment Supplier Statement"
+msgstr "Toimittajan tiliote"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Toimittajayhteenveto"
+
+msgid "Equipment Customer Statement"
+msgstr "Asiakkaan tiliote"
+
+msgid "Equipment Customers Summary"
+msgstr "Asiakasyhteenveto"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dieselin poikkeamat ja poikkeavuudet"
+
+msgid "Diesel Group Analysis"
+msgstr "Dieselanalyysi ryhmittäin"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Diesellaskujen täsmäytys"
+
+msgid "Card Settlement Status"
+msgstr "Korttien selvityksen tila"
+
+msgid "Equipment Partial Margin"
+msgstr "Kaluston osittainen kate"
+
+msgid "Project Invoice Profitability"
+msgstr "Projektien kannattavuus laskujen mukaan"
+
+msgid "Unbilled Card Work"
+msgstr "Laskuttamaton korttityö"
+
+msgid "Posting Source Integrity"
+msgstr "Kirjauslähteiden eheys"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Kaluston huoltokustannukset"
+
+msgid "Equipment Downtime"
+msgstr "Kaluston seisokit"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Mittarien täsmäytys"
+
+msgid "Asset Mapping Review"
+msgstr "Omaisuuskohdistuksen tarkistus"
+
+msgid "Transport Accounting Review"
+msgstr "Kuljetusten kirjanpidon tarkistus"
+
+msgid "Equipment Location History"
+msgstr "Kaluston sijaintihistoria"
+
+msgid "Card Settings"
+msgstr "Asetukset"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Toimittajien vuokrakustannus - viime kuukausi"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Dieselin litrat yhteensä"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Dieselkustannukset yhteensä"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Kuljetuskustannukset yhteensä"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Korttien kuukausisummat"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Kuukauden dieselkustannukset"
+
+msgid "الصفحة الرئيسية"
+msgstr "Etusivu"
+
+msgid "التشغيل"
+msgstr "Toiminta"
+
+msgid "الموردين والتقارير"
+msgstr "Toimittajat ja raportit"
+
+msgid "المعدات"
+msgstr "Kalusto"
+
+msgid "المعدة"
+msgstr "Kalusto"
+
+msgid "نوع المعدة"
+msgstr "Kalustotyyppi"
+
+msgid "فئة المعدة"
+msgstr "Kalustoluokka"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Kaluston kohdistus"
+
+msgid "الكارت الشهري"
+msgstr "Kuukausittainen käyttökortti"
+
+msgid "موردي المعدات"
+msgstr "Kaluston toimittaja"
+
+msgid "ملخص الموردين"
+msgstr "Toimittajayhteenveto"
+
+msgid "كشف حساب مورد"
+msgstr "Toimittajan tiliote"

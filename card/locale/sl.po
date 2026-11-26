@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Na m³"
 
 msgid "Loads last month"
-msgstr "Tovori prejšnji mesec"
+msgstr "Tovori prejšnji mesec (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Tovore je mogoče vnesti samo na kartico, katere vrsta cene za stranko je na m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Najeta oprema (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Tovori prejšnji mesec"
+msgstr "Tovori prejšnji mesec (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Osnutki kartic (CARD)"
@@ -385,3 +385,219 @@ msgstr "Dokazilo (številka računa ali sklic)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Odobritev gotovinskega plačila zahtevana"
+
+msgid "Card Expenses"
+msgstr "Stroški"
+
+msgid "Card Fleet"
+msgstr "Oprema"
+
+msgid "Card Materials"
+msgstr "Materiali in nabava"
+
+msgid "Card Movement"
+msgstr "Premiki in prevoz"
+
+msgid "Card Operating Units"
+msgstr "Obratovalne enote"
+
+msgid "Card Operation Cards"
+msgstr "Obratovalne kartice"
+
+msgid "Card Parties"
+msgstr "Dobavitelji in stranke"
+
+msgid "Card Reports"
+msgstr "Poročila"
+
+msgid "Card Setup"
+msgstr "Nastavitve"
+
+msgid "Project Diesel Fill"
+msgstr "Polnjenje dizla za projekt"
+
+msgid "Equipment Transport"
+msgstr "Prevoz opreme"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Poraba dizla"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Analiza dizla opreme"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Stroški opreme brez navedene opreme"
+
+msgid "Card Equipment"
+msgstr "Oprema"
+
+msgid "Card Equipment Type"
+msgstr "Vrsta opreme"
+
+msgid "Card Equipment Category"
+msgstr "Kategorija opreme"
+
+msgid "Equipment Needs Request"
+msgstr "Zahtevek za potrebe opreme"
+
+msgid "Equipment Needs Review"
+msgstr "Pregled potreb opreme"
+
+msgid "Tool Custody"
+msgstr "Zadolžitev orodja"
+
+msgid "Employee Tool Custody"
+msgstr "Zadolžitev orodja zaposlenega"
+
+msgid "Equipment Makes"
+msgstr "Znamke opreme"
+
+msgid "Equipment Models"
+msgstr "Modeli opreme"
+
+msgid "Parts Fitment"
+msgstr "Združljivost delov"
+
+msgid "Equipment Make Model Values"
+msgstr "Besedilne vrednosti znamke in modela"
+
+msgid "Equipment Needs Summary"
+msgstr "Povzetek potreb opreme"
+
+msgid "Equipment Consumption"
+msgstr "Poraba opreme"
+
+msgid "Worker Custody"
+msgstr "Zadolžitve delavcev"
+
+msgid "Repeat Equipment Requests"
+msgstr "Ponovljeni zahtevki za opremo"
+
+msgid "Card Equipment Assignment"
+msgstr "Dodelitev opreme"
+
+msgid "Transport Cost by Project"
+msgstr "Stroški prevoza po projektih"
+
+msgid "Card Monthly Card"
+msgstr "Mesečna obratovalna kartica"
+
+msgid "Operating Cost by Project"
+msgstr "Obratovalni stroški po projektih"
+
+msgid "Card Equipment Supplier"
+msgstr "Dobavitelj opreme"
+
+msgid "Card Equipment Customer"
+msgstr "Stranka opreme"
+
+msgid "Equipment Supplier Statement"
+msgstr "Izpisek dobavitelja"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Povzetek dobaviteljev"
+
+msgid "Equipment Customer Statement"
+msgstr "Izpisek stranke"
+
+msgid "Equipment Customers Summary"
+msgstr "Povzetek strank"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Odstopanja in anomalije dizla"
+
+msgid "Diesel Group Analysis"
+msgstr "Analiza dizla po skupinah"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Uskladitev računov za dizel"
+
+msgid "Card Settlement Status"
+msgstr "Stanje poravnave kartic"
+
+msgid "Equipment Partial Margin"
+msgstr "Delna marža opreme"
+
+msgid "Project Invoice Profitability"
+msgstr "Dobičkonosnost projektov po računih"
+
+msgid "Unbilled Card Work"
+msgstr "Nezaračunano delo po karticah"
+
+msgid "Posting Source Integrity"
+msgstr "Celovitost virov knjiženja"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Strošek vzdrževanja opreme"
+
+msgid "Equipment Downtime"
+msgstr "Zastoji opreme"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Uskladitev števcev"
+
+msgid "Asset Mapping Review"
+msgstr "Pregled povezave z osnovnimi sredstvi"
+
+msgid "Transport Accounting Review"
+msgstr "Pregled knjiženja prevoza"
+
+msgid "Equipment Location History"
+msgstr "Zgodovina lokacij opreme"
+
+msgid "Card Settings"
+msgstr "Nastavitve"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Strošek najema od dobaviteljev - prejšnji mesec"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Skupaj litrov dizla"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Skupni strošek dizla"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Skupni strošek prevoza"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Mesečni zneski kartic"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Mesečni strošek dizla"
+
+msgid "الصفحة الرئيسية"
+msgstr "Domov"
+
+msgid "التشغيل"
+msgstr "Poslovanje"
+
+msgid "الموردين والتقارير"
+msgstr "Dobavitelji in poročila"
+
+msgid "المعدات"
+msgstr "Oprema"
+
+msgid "المعدة"
+msgstr "Oprema"
+
+msgid "نوع المعدة"
+msgstr "Vrsta opreme"
+
+msgid "فئة المعدة"
+msgstr "Kategorija opreme"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Dodelitev opreme"
+
+msgid "الكارت الشهري"
+msgstr "Mesečna obratovalna kartica"
+
+msgid "موردي المعدات"
+msgstr "Dobavitelj opreme"
+
+msgid "ملخص الموردين"
+msgstr "Povzetek dobaviteljev"
+
+msgid "كشف حساب مورد"
+msgstr "Izpisek dobavitelja"

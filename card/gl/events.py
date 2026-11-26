@@ -102,13 +102,15 @@ def _other_active_holder(doctype, name, log):
 
 def _other_side_still_posted(doctype, name, cleared_field):
 	other = "sales_invoice" if cleared_field == "purchase_invoice" else "purchase_invoice"
-	if not frappe.get_meta(doctype).has_field(other):
-		# FR-139: a source without a link field for the other side (Equipment Transport has no
-		# sales_invoice) is still posted on that side while a SUBMITTED log of that side holds it
-		other_side = "Customer" if cleared_field == "purchase_invoice" else "Supplier"
-		holder = active_log_holding(doctype, name, other_side)
-		return bool(holder and holder.status == "Submitted")
-	return bool(frappe.db.get_value(doctype, name, other))
+	if frappe.get_meta(doctype).has_field(other) and frappe.db.get_value(doctype, name, other):
+		return True
+	# FR-139: a source without a link field for the other side (Equipment Transport has no
+	# sales_invoice) is still posted on that side while a SUBMITTED log of that side holds it.
+	# FR-195: so is a card whose supplier side is a linked accrual Journal Entry
+	# (card.gl.journal_link sets `posted` without a purchase invoice link)
+	other_side = "Customer" if cleared_field == "purchase_invoice" else "Supplier"
+	holder = active_log_holding(doctype, name, other_side)
+	return bool(holder and holder.status == "Submitted")
 
 
 def _is_built(log):

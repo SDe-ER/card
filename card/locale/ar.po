@@ -98,7 +98,7 @@ msgstr "فئة المعدات"
 #. Name of a DocType
 #: card/card/doctype/card_equipment_component/card_equipment_component.json
 msgid "Card Equipment Component"
-msgstr ""
+msgstr "مكوّن المعدة"
 
 #. Name of a DocType
 #: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json
@@ -118,12 +118,12 @@ msgstr "كارت التشغيل الشهري"
 #. Name of a DocType
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
 msgid "Card Monthly Card Adjustment"
-msgstr ""
+msgstr "إضافة/خصم الكارت الشهري"
 
 #. Name of a DocType
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "Card Monthly Card Day"
-msgstr ""
+msgstr "يوم الكارت الشهري"
 
 #. Label of the header_section (Section Break) field in DocType 'Card Monthly
 #. Card'
@@ -792,7 +792,7 @@ msgstr "يُملأ تلقائيًا عند ترحيل التعبئة للحسا�
 #. Transport'
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Set automatically when the transport is posted to accounting (added later)."
-msgstr ""
+msgstr "يُحدَّد تلقائيًا عند ترحيل النقل إلى الحسابات (يُضاف لاحقًا)."
 
 #: card/card/doctype/card_equipment/card_equipment.py:18
 msgid "Set the daily working hours (shift) to calculate the hourly rate"
@@ -902,7 +902,7 @@ msgstr "المعدة ليس لها تاريخ بداية إيجار. راجع ب
 #. Description of the 'Equipment' (Link) field in DocType 'Equipment Transport'
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "The equipment or unit being moved (optional)."
-msgstr ""
+msgstr "المعدة أو الوحدة المنقولة (اختياري)."
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:53
 msgid "There is a day row without a date"
@@ -1040,176 +1040,176 @@ msgstr "ساعة"
 #. Day'
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "إجازة"
-msgstr ""
+msgstr "إجازة"
 
 #. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "إرجاع للمؤجر"
-msgstr ""
+msgstr "إرجاع للمؤجر"
 
 #. Option for the 'Type' (Select) field in DocType 'Card Monthly Card
 #. Adjustment'
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
 msgid "إضافة"
-msgstr ""
+msgstr "إضافة"
 
 #. Option for the 'Ownership' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "إيجار"
-msgstr ""
+msgstr "إيجار"
 
 #. Option for the 'Operator charged to' (Select) field in DocType 'Card
 #. Equipment'
 #. Option for the 'Fuel charged to' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "الشركة"
-msgstr ""
+msgstr "الشركة"
 
 #. Option for the 'Operator charged to' (Select) field in DocType 'Card
 #. Equipment'
 #. Option for the 'Fuel charged to' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "المؤجر"
-msgstr ""
+msgstr "المؤجر"
 
 #. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "انتهاء الإيجار"
-msgstr ""
+msgstr "انتهاء الإيجار"
 
 #. Option for the 'Rate type' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "بالساعة"
-msgstr ""
+msgstr "بالساعة"
 
 #. Option for the 'Rate type' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "باليوم"
-msgstr ""
+msgstr "باليوم"
 
 #. Option for the 'Meter type' (Select) field in DocType 'Card Equipment'
 #. Option for the 'Meter type' (Select) field in DocType 'Card Equipment Type'
 #: card/card/doctype/card_equipment/card_equipment.json
 #: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "بدون عداد"
-msgstr ""
+msgstr "بدون عداد"
 
 #. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "بيع"
-msgstr ""
+msgstr "بيع"
 
 #. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "تكهين"
-msgstr ""
+msgstr "تكهين"
 
 #. Option for the 'Settlement status' (Select) field in DocType 'Card
 #. Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "تمت"
-msgstr ""
+msgstr "تمت"
 
 #. Option for the 'Day status' (Select) field in DocType 'Card Monthly Card
 #. Day'
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "توقف من العميل"
-msgstr ""
+msgstr "توقف من العميل"
 
 #. Option for the 'Type' (Select) field in DocType 'Card Monthly Card
 #. Adjustment'
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
 msgid "خصم"
-msgstr ""
+msgstr "خصم"
 
 #. Option for the 'Meter type' (Select) field in DocType 'Card Equipment'
 #. Option for the 'Meter type' (Select) field in DocType 'Card Equipment Type'
 #: card/card/doctype/card_equipment/card_equipment.json
 #: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "ساعات"
-msgstr ""
+msgstr "ساعات"
 
 #. Option for the 'Ownership' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "طرف ثالث"
-msgstr ""
+msgstr "طرف ثالث"
 
 #. Option for the 'Day status' (Select) field in DocType 'Card Monthly Card
 #. Day'
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "عطل"
-msgstr ""
+msgstr "عطل"
 
 #. Option for the 'Day status' (Select) field in DocType 'Card Monthly Card
 #. Day'
 #: card/card/doctype/card_monthly_card_day/card_monthly_card_day.json
 msgid "عمل"
-msgstr ""
+msgstr "عمل"
 
 #. Option for the 'Status' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "في الصيانة"
-msgstr ""
+msgstr "في الصيانة"
 
 #. Option for the 'Meter type' (Select) field in DocType 'Card Equipment'
 #. Option for the 'Meter type' (Select) field in DocType 'Card Equipment Type'
 #: card/card/doctype/card_equipment/card_equipment.json
 #: card/card/doctype/card_equipment_type/card_equipment_type.json
 msgid "كيلومترات"
-msgstr ""
+msgstr "كيلومترات"
 
 #. Option for the 'Settlement status' (Select) field in DocType 'Card
 #. Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "لم تتم"
-msgstr ""
+msgstr "لم تتم"
 
 #. Option for the 'Shift' (Select) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "ليلي"
-msgstr ""
+msgstr "ليلي"
 
 #. Option for the 'Status' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "متوقفة"
-msgstr ""
+msgstr "متوقفة"
 
 #. Option for the 'Ownership' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "ملك"
-msgstr ""
+msgstr "ملك"
 
 #. Option for the 'Status' (Select) field in DocType 'Card Equipment
 #. Assignment'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 msgid "منتهي"
-msgstr ""
+msgstr "منتهي"
 
 #. Option for the 'Status' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "منتهية"
-msgstr ""
+msgstr "منتهية"
 
 #. Option for the 'Status' (Select) field in DocType 'Card Equipment
 #. Assignment'
 #: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json
 msgid "نشط"
-msgstr ""
+msgstr "نشط"
 
 #. Option for the 'Status' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "نشطة"
-msgstr ""
+msgstr "نشطة"
 
 #. Option for the 'Exit reason' (Select) field in DocType 'Card Equipment'
 #: card/card/doctype/card_equipment/card_equipment.json
 msgid "نقل لفرع آخر"
-msgstr ""
+msgstr "نقل لفرع آخر"
 
 #. Option for the 'Shift' (Select) field in DocType 'Card Monthly Card'
 #: card/card/doctype/card_monthly_card/card_monthly_card.json
 msgid "نهاري"
-msgstr ""
+msgstr "نهاري"
 
 msgid "Suppliers"
 msgstr "الموردين"
@@ -8464,10 +8464,6 @@ msgstr "بطاقاتي"
 msgid "My card"
 msgstr "بطاقتي"
 
-#: card/www/card-portal/view/index.py
-msgid "Card {0}"
-msgstr "البطاقة {0}"
-
 #: card/www/card-portal/index.html
 msgid "Your account is not linked to a supplier or a customer. Ask your contact at the company."
 msgstr "حسابك مش مربوط بمورد أو عميل. كلم جهة تواصلك في الشركة."
@@ -9666,3 +9662,456 @@ msgstr "مجموع كل الكروت غير المربوطة في مشاريع �
 #. FR-194
 msgid "No tested set of cards totals the invoice net for each project: all unlinked cards of the projects total {0}."
 msgstr "لا تساوي أي مجموعة مختبرة من الكروت صافي الفاتورة لكل مشروع: مجموع كل الكروت غير المربوطة في المشاريع {0}."
+
+#. FR-195
+msgid "Only a System Manager may unlink a customer invoice from CARD cards."
+msgstr "لا يفك ربط فاتورة عميل بكروت CARD إلا مدير النظام."
+
+#. FR-195
+msgid "Give the reason for unlinking this invoice from the cards."
+msgstr "اكتب سبب فك ربط هذه الفاتورة بالكروت."
+
+#. FR-195
+msgid "{0} is not submitted; only the link of a submitted Sales Invoice can be removed."
+msgstr "{0} غير معتمدة؛ لا يُفك إلا ربط فاتورة مبيعات معتمدة."
+
+#. FR-195
+msgid "{0} is not linked to CARD cards."
+msgstr "{0} غير مربوطة بكروت CARD."
+
+#. FR-195
+msgid "{0} is a CARD posting ({1}), not a linked invoice; its link cannot be removed. Correct it with a credit note or cancel it."
+msgstr "{0} ترحيل أنشأه CARD ({1}) وليست فاتورة مربوطة؛ لا يمكن فك ربطها. صحّحها بإشعار دائن أو ألغها."
+
+#. FR-195
+msgid "Cannot unlink {0}: the posting log {1} names {2}, not this invoice."
+msgstr "لا يمكن فك ربط {0}: سجل الترحيل {1} يخص {2} وليس هذه الفاتورة."
+
+#. FR-195
+msgid "Cannot unlink {0}: cancelled-and-amended chain mismatch: {1} amends it."
+msgstr "لا يمكن فك ربط {0}: عدم تطابق في سلسلة الإلغاء والتعديل: {1} تعديل لها."
+
+#. FR-195
+msgid "Cannot unlink {0}: cancelled-and-amended chain mismatch: {1}, which it amends, still has the active posting log {2}."
+msgstr "لا يمكن فك ربط {0}: عدم تطابق في سلسلة الإلغاء والتعديل: {1} التي تعدّلها ما زال لها سجل الترحيل الفعّال {2}."
+
+#. FR-195
+msgid "Cannot unlink {0}: the posting log {1} holds {2} {3}, which is not a monthly card."
+msgstr "لا يمكن فك ربط {0}: سجل الترحيل {1} يحتوي على {2} {3} وهو ليس كارتًا شهريًا."
+
+#. FR-195
+msgid "Cannot unlink {0}: card {1} is no longer submitted. Nothing was unlinked."
+msgstr "لا يمكن فك ربط {0}: الكارت {1} لم يعد معتمدًا. لم يُفك أي ربط."
+
+#. FR-195
+msgid "Cannot unlink {0}: card {1} changed since the link (its customer invoice is {2}, its posting log is {3}). Nothing was unlinked."
+msgstr "لا يمكن فك ربط {0}: الكارت {1} تغيّر بعد الربط (فاتورة العميل فيه {2} وسجل الترحيل فيه {3}). لم يُفك أي ربط."
+
+#. FR-195
+msgid "Cannot unlink {0}: card {1} is not marked as posted. Nothing was unlinked."
+msgstr "لا يمكن فك ربط {0}: الكارت {1} غير معلَّم كمرحَّل. لم يُفك أي ربط."
+
+#. FR-195
+msgid "Unlinked by {0} on {1}: sales invoice {2}, posting log {3}, cards {4}. Reason: {5}"
+msgstr "فك الربط {0} في {1}: فاتورة المبيعات {2}، سجل الترحيل {3}، الكروت {4}. السبب: {5}"
+
+#. FR-195
+msgid "Unlinked from CARD monthly cards {0} by {1} on {2} (posting log {3}). Reason: {4}"
+msgstr "فُك ربطها بكروت CARD الشهرية {0} بواسطة {1} في {2} (سجل الترحيل {3}). السبب: {4}"
+
+#. FR-195
+msgid "Unlinked from Sales Invoice {0} by {1} on {2} (posting log {3}). Reason: {4}"
+msgstr "فُك ربطه بفاتورة المبيعات {0} بواسطة {1} في {2} (سجل الترحيل {3}). السبب: {4}"
+
+#. FR-195
+msgid "You are not permitted to unlink invoices for company {0}."
+msgstr "ليست لديك صلاحية فك ربط فواتير الشركة {0}."
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "How a tank diesel fill's litres are split per equipment for reports and the card (display only; the posting is unchanged — FR-100). Hours: share = hours / Σ hours (matches the FR-033 read-time estimate, the default). Hours × Rate: share = (hours × litres per hour) / Σ (hours × rate), with the FR-144 dated rate on the fill date. Empty: Hours."
+msgstr "طريقة توزيع لترات تعبئة ديزل الخزان على المعدات في التقارير وفي الكارت (للعرض فقط؛ الترحيل لا يتغير — FR-100). الساعات: الحصة = الساعات / Σ الساعات (تطابق تقدير FR-033 وقت القراءة، وهي الافتراضية). الساعات × المعدل: الحصة = (الساعات × اللترات في الساعة) / Σ (الساعات × المعدل)، بمعدل FR-144 الساري في تاريخ التعبئة. فارغ: الساعات."
+
+#: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgid "Optional start date of the equipment's membership in the group. Empty means from the group's creation."
+msgstr "تاريخ بداية عضوية المعدة في المجموعة (اختياري). فارغ يعني من تاريخ إنشاء المجموعة."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Resolved tier for the card's net amount against the company's Approval tier thresholds (FR-159). Server-written on validate; a client value is dropped. 0 means no threshold matched (current behaviour: any user with Card Monthly Card write may submit)."
+msgstr "المستوى المحدد لصافي مبلغ الكارت مقارنةً بحدود مستويات الاعتماد للشركة (FR-159). يكتبه الخادم عند التحقق؛ أي قيمة من العميل تُهمل. 0 يعني عدم انطباق أي حد (الوضع الحالي: أي مستخدم له صلاحية الكتابة على كارت التشغيل الشهري يمكنه الاعتماد)."
+
+#: card/card/doctype/card_approval_tier_threshold/card_approval_tier_threshold.json
+msgid "Short label for the tier (e.g. Tier 1, Director). Shown on the card's approval tier field."
+msgstr "اسم مختصر للمستوى (مثل: المستوى 1، المدير). يظهر في حقل مستوى الاعتماد في الكارت."
+
+#: card/card/doctype/card_approval_tier_threshold/card_approval_tier_threshold.json
+msgid "A card whose net amount reaches this threshold needs the role below to submit. The highest matching threshold wins; a card under every threshold is tier 0 (no role required, current behaviour)."
+msgstr "الكارت الذي يبلغ صافي مبلغه هذا الحد يحتاج إلى الدور المذكور أدناه لاعتماده. يُطبَّق أعلى حد منطبق؛ والكارت الأقل من كل الحدود مستواه 0 (لا يلزم دور، الوضع الحالي)."
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Accepted correction signature"
+msgstr "توقيع التصحيح المقبول"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "All CARD approvals"
+msgstr "كل اعتمادات CARD"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Approval scope"
+msgstr "نطاق الاعتماد"
+
+#: card/card/report/asset_mapping_review/asset_mapping_review.json
+msgid "Asset Mapping Review"
+msgstr "مراجعة ربط الأصول"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Built signature"
+msgstr "توقيع البناء"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Built snapshot"
+msgstr "لقطة البناء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Cancellation Reason"
+msgstr "سبب الإلغاء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Cancellation Requested By"
+msgstr "طلب الإلغاء بواسطة"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Cancellation Requested On"
+msgstr "تاريخ طلب الإلغاء"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Cancelled By"
+msgstr "ألغاه"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Cancelled On"
+msgstr "تاريخ الإلغاء"
+
+#: card/card/doctype/card_adjustment_type/card_adjustment_type.json
+msgid "Card Adjustment Type"
+msgstr "نوع الإضافة/الخصم"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Card Approval Delegation"
+msgstr "تفويض الاعتماد"
+
+#: card/card/doctype/card_approval_tier_threshold/card_approval_tier_threshold.json
+msgid "Card Approval Tier Threshold"
+msgstr "حد مستوى الاعتماد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Card Cash Disbursement"
+msgstr "الصرف النقدي"
+
+#: card/card/doctype/card_consumption_rate/card_consumption_rate.json
+msgid "Card Consumption Rate"
+msgstr "معدل الاستهلاك"
+
+#: card/card/doctype/card_diesel_price/card_diesel_price.json
+msgid "Card Diesel Price"
+msgstr "سعر الديزل"
+
+#: card/card/doctype/card_project_transport_price/card_project_transport_price.json
+msgid "Card Project Transport Price"
+msgstr "سعر النقل للمشروع"
+
+#: card/card/doctype/card_type_consumption_rate/card_type_consumption_rate.json
+msgid "Card Type Consumption Rate"
+msgstr "معدل استهلاك نوع المعدة"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Cash account"
+msgstr "حساب النقدية"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Claimed for posting by"
+msgstr "حجزه للترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Claimed on"
+msgstr "تاريخ الحجز"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Correction accepted by"
+msgstr "قبل التصحيح"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Correction reason"
+msgstr "سبب التصحيح"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Delegate (grantee)"
+msgstr "المفوَّض إليه"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Delegation status"
+msgstr "حالة التفويض"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Delegator (grantor)"
+msgstr "المفوِّض"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Diesel Fills"
+msgstr "تعبئات الديزل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Diesel price VAT basis"
+msgstr "أساس ضريبة القيمة المضافة لسعر الديزل"
+
+#: card/card/report/equipment_meter_reconciliation/equipment_meter_reconciliation.json
+msgid "Equipment Meter Reconciliation"
+msgstr "مطابقة عدادات المعدات"
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Equipment that belongs to this operating group. One equipment may belong to at most one active group of its company at a time (date ranges may not overlap)."
+msgstr "المعدات التابعة لمجموعة التشغيل هذه. المعدة الواحدة تتبع مجموعة نشطة واحدة على الأكثر في شركتها في الوقت نفسه (لا يجوز تداخل الفترات)."
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "FR-090 idempotency guard: unique while the Dispense is active (Draft/Submitted). Cleared on cancel so a corrected dispense can be entered."
+msgstr "حماية من التكرار (FR-090): قيمة فريدة ما دام الصرف نشطًا (مسودة/معتمد). تُمسح عند الإلغاء ليمكن إدخال صرف مصحَّح."
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Free-text notes on what the group covers (optional)."
+msgstr "ملاحظات حرة عن ما تشمله المجموعة (اختياري)."
+
+#: card/card/doctype/diesel_fill_allocation/diesel_fill_allocation.json
+msgid "Frozen on"
+msgstr "تاريخ التثبيت"
+
+#: card/card/doctype/gl_posting_source/gl_posting_source.json
+msgid "GL Posting Source"
+msgstr "مصدر الترحيل المحاسبي"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Hours (tank estimate)"
+msgstr "الساعات (تقدير الخزان)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Hours × Rate (tank estimate)"
+msgstr "الساعات × المعدل (تقدير الخزان)"
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json
+msgid "Human name of the operating group (unique within the company). Example: Crusher plant #2."
+msgstr "اسم مجموعة التشغيل (فريد داخل الشركة). مثال: محطة الكسارة رقم 2."
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Lines signature"
+msgstr "توقيع البنود"
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "Litres dispensed from the tank. Must be greater than zero."
+msgstr "اللترات المصروفة من الخزان. يجب أن تكون أكبر من صفر."
+
+#: card/card/doctype/diesel_fill_allocation/diesel_fill_allocation.json
+msgid "Litres per operating hour used to weight this row (Hours × Rate weighting only)."
+msgstr "اللترات في ساعة التشغيل المستخدمة لترجيح هذا السطر (في ترجيح الساعات × المعدل فقط)."
+
+#: card/card/doctype/equipment_transport_item/equipment_transport_item.json
+msgid "Manual share"
+msgstr "حصة يدوية"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Monthly Cards"
+msgstr "الكروت الشهرية"
+
+#: card/card/doctype/card_equipment_customer/card_equipment_customer.json
+msgid "Not stored since v1.2.2 (per-party totals mixed companies, #23); see the per-company figures on the form."
+msgstr "لا يُخزَّن منذ الإصدار v1.2.2 (إجماليات الطرف كانت تخلط الشركات، #23)؛ راجع أرقام كل شركة في النموذج."
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Open difference (linked invoice)"
+msgstr "فرق مفتوح (فاتورة مربوطة)"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Opt-in switch for the tank-based diesel flow (FR-164, WP-I1). 0 (default): the Diesel Dispense DocType is refused for this company — the existing direct-fill flow (Project Diesel Fill) is unchanged. 1: the Diesel Dispense DocType can be inserted and submitted for this company; each submit creates a DRAFT Stock Entry of purpose Material Issue that consumes the litres from the tank Warehouse (Warehouse Type \"Fuel Tank\") to the project. The Stock Entry is NEVER auto-submitted; an accountant reviews and submits it. FR-100 is preserved: tank dispense never splits per equipment at GL."
+msgstr "مفتاح اختياري لتفعيل مسار الديزل عبر الخزانات (FR-164، WP-I1). 0 (الافتراضي): يُرفض مستند صرف الديزل لهذه الشركة — ومسار التعبئة المباشرة الحالي (تعبئة ديزل للمشروع) لا يتغير. 1: يمكن إدخال مستند صرف الديزل واعتماده لهذه الشركة؛ وكل اعتماد ينشئ قيد مخزون مسودة بغرض «صرف مواد» يصرف اللترات من مخزن الخزان (نوع المخزن \"Fuel Tank\") إلى المشروع. قيد المخزون لا يُعتمد تلقائيًا أبدًا؛ يراجعه المحاسب ويعتمده. قاعدة FR-100 باقية: صرف الخزان لا يُقسَّم على المعدات في القيود المحاسبية أبدًا."
+
+#: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgid "Optional end date (inclusive). Empty means the membership stays open."
+msgstr "تاريخ نهاية اختياري (شامل اليوم نفسه). فارغ يعني أن العضوية مستمرة."
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "Optional: the equipment the dispense is attributable to (for reports). Does NOT add a GL line for this equipment (FR-100)."
+msgstr "اختياري: المعدة التي يُنسب إليها الصرف (للتقارير). لا يضيف سطر قيد محاسبي لهذه المعدة (FR-100)."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Per-equipment estimated split of a tank fill, frozen at submit. Report and card display only; the fill still posts one project-level line (FR-100)."
+msgstr "توزيع تقديري لتعبئة الخزان على المعدات، يُثبَّت عند الاعتماد. للعرض في التقارير والكارت فقط؛ والتعبئة تُرحَّل بسطر واحد على مستوى المشروع (FR-100)."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Posted By"
+msgstr "رحّله"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Posted on"
+msgstr "تاريخ الترحيل"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Posting Error"
+msgstr "خطأ الترحيل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgid "Preview switch for the supplier / customer portal under /card-portal (FR-161, WP-O1 scaffold). 0 (default): the portal returns 404 for every viewer, hiding its existence. 1: enables the portal views on this company; WP-O2 (wave 10) wires the website routes and the own-party permission hooks, and the owner grants read to the Supplier and Customer roles on his explicit approval (O-16). Flipping this to 1 before WP-O2 is deployed has no effect on the live site: the routes are not wired yet, and the portal roles still have no read DocPerm on Card Monthly Card."
+msgstr "مفتاح معاينة لبوابة الموردين / العملاء على /card-portal (FR-161، هيكل WP-O1). 0 (الافتراضي): البوابة ترد بـ 404 لكل زائر فلا يظهر وجودها. 1: يفعّل صفحات البوابة لهذه الشركة؛ WP-O2 (الموجة 10) يربط مسارات الموقع وقواعد صلاحية الطرف نفسه، والمالك يمنح القراءة لدوري المورد والعميل بموافقته الصريحة (O-16). التحويل إلى 1 قبل نشر WP-O2 لا يؤثر على الموقع الحي: المسارات غير مربوطة بعد، وأدوار البوابة ما زالت بلا صلاحية قراءة على كارت التشغيل الشهري."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Receipt or voucher reference of the actual cash payment."
+msgstr "مرجع الإيصال أو السند للدفع النقدي الفعلي."
+
+#: card/card/doctype/diesel_fill_allocation/diesel_fill_allocation.json
+msgid "Remainder row"
+msgstr "سطر الباقي"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Server-written: Active within the window, Expired after to_date, Cancelled on docstatus = 2."
+msgstr "يكتبه الخادم: نشط داخل الفترة، منتهٍ بعد تاريخ النهاية، ملغى عند docstatus = 2."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "Short label of the resolved tier (FR-159)."
+msgstr "الاسم المختصر للمستوى المحدد (FR-159)."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Source row"
+msgstr "السطر المصدر"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Supplier invoices reviewed as unrelated"
+msgstr "فواتير موردين روجعت كغير مرتبطة"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Supporting evidence"
+msgstr "مستند الإثبات"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "The approver whose queue is delegated. Must already hold a CARD approver role (Card Manager, Card Reviewer or Accounts Manager)."
+msgstr "المعتمِد الذي تُفوَّض قائمة اعتماداته. يجب أن يكون له دور اعتماد في CARD بالفعل (Card Manager أو Card Reviewer أو Accounts Manager)."
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "The draft Stock Entry created by the server on submit. Not auto-submitted (FR-004)."
+msgstr "قيد المخزون المسودة الذي ينشئه الخادم عند الاعتماد. لا يُعتمد تلقائيًا (FR-004)."
+
+#: card/card/doctype/diesel_fill_allocation/diesel_fill_allocation.json
+msgid "The equipment has no operating hours or no consumption rate for the fill month; the row carries no litres and needs a manual review."
+msgstr "المعدة ليس لها ساعات تشغيل أو معدل استهلاك في شهر التعبئة؛ السطر بلا لترات ويحتاج مراجعة يدوية."
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "The fuel tank the diesel is dispensed FROM. Must be a Warehouse of warehouse type \"Fuel Tank\" in the same company."
+msgstr "خزان الوقود الذي يُصرف منه الديزل. يجب أن يكون مخزنًا من نوع \"Fuel Tank\" في الشركة نفسها."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "The historical Supplier of the card (the verified beneficiary)."
+msgstr "المورد التاريخي للكارت (المستفيد الموثَّق)."
+
+#: card/card/doctype/diesel_dispense/diesel_dispense.json
+msgid "The project that consumes the dispensed litres. FR-100: the resulting Stock Entry stays at project level and never splits per equipment at GL."
+msgstr "المشروع الذي يستهلك اللترات المصروفة. FR-100: قيد المخزون الناتج يبقى على مستوى المشروع ولا يُقسَّم على المعدات في القيود المحاسبية أبدًا."
+
+#: card/card/doctype/card_approval_tier_threshold/card_approval_tier_threshold.json
+msgid "The role the user submitting the card must already hold. Must be an existing role (managed through Role Permission Manager by the owner). This row grants no permission of its own; it only names a required role."
+msgstr "الدور الذي يجب أن يملكه بالفعل المستخدم الذي يعتمد الكارت. يجب أن يكون دورًا موجودًا (يديره المالك من مدير صلاحيات الأدوار). هذا السطر لا يمنح أي صلاحية؛ هو فقط يسمّي الدور المطلوب."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "The user acting on behalf of the delegator. Must already hold the same CARD approver role as the delegator (this delegation grants no role)."
+msgstr "المستخدم الذي ينوب عن المفوِّض. يجب أن يكون له بالفعل نفس دور الاعتماد في CARD الذي للمفوِّض (هذا التفويض لا يمنح أي دور)."
+
+#: card/card/doctype/diesel_fill_allocation/diesel_fill_allocation.json
+msgid "This row absorbs the rounding remainder so the row litres sum to the fill litres exactly."
+msgstr "هذا السطر يأخذ فرق التقريب ليساوي مجموع لترات الأسطر لترات التعبئة تمامًا."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgid "Transaction key"
+msgstr "مفتاح المعاملة"
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Which CARD approvals the delegation covers."
+msgstr "اعتمادات CARD التي يشملها التفويض."
+
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json
+msgid "Why no allocation row was written (e.g. no operating hours)."
+msgstr "سبب عدم كتابة أي سطر توزيع (مثل: لا توجد ساعات تشغيل)."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json
+msgid "Why the delegation is granted (leave, travel, hand-over)."
+msgstr "سبب منح التفويض (إجازة، سفر، تسليم عمل)."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgctxt "Card Cash Disbursement"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgctxt "Card Daily Log"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgctxt "Card Period Run"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.json
+msgctxt "Equipment Needs Request"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json
+msgctxt "Equipment Needs Review"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgctxt "Equipment Transport"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgctxt "Card Cash Disbursement"
+msgid "Posted"
+msgstr "مُرحَّل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgctxt "Card Company Settings"
+msgid "Exclusive"
+msgstr "غير شامل الضريبة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgctxt "Card Company Settings"
+msgid "Inclusive"
+msgstr "شامل الضريبة"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgctxt "GL Posting Log"
+msgid "Built"
+msgstr "تم البناء"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgctxt "GL Posting Log"
+msgid "Origin"
+msgstr "المنشأ"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgctxt "GL Posting Log"
+msgid "Integrity"
+msgstr "السلامة"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgctxt "Card Cash Disbursement"
+msgid "Replaces"
+msgstr "بديل عن"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posted"
+msgstr "مُرحَّل"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Built"
+msgstr "تم البناء"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Installation"
+msgstr "التركيب"

@@ -260,136 +260,136 @@ msgstr "समीक्षा बाकी"
 # The stored values do not change (display translation only); languages without their own
 # translation fall back to English here, never to Arabic.
 msgid "ملك"
-msgstr "Owned"
+msgstr "स्वामित्व"
 
 msgid "إيجار"
-msgstr "Rented"
+msgstr "किराये पर"
 
 msgid "طرف ثالث"
-msgstr "Third Party"
+msgstr "तृतीय पक्ष"
 
 msgid "معدات ملك"
-msgstr "Owned Equipment"
+msgstr "स्वामित्व वाले उपकरण"
 
 msgid "مورد"
-msgstr "Supplier"
+msgstr "आपूर्तिकर्ता"
 
 msgid "إيجار من الباطن"
-msgstr "Sub-rental"
+msgstr "उप-किराया"
 
 msgid "تشغيل داخلي"
-msgstr "Internal Operation"
+msgstr "आंतरिक संचालन"
 
 msgid "مستأجَرة من مورد"
-msgstr "Rented from Supplier"
+msgstr "आपूर्तिकर्ता से किराये पर लिया"
 
 msgid "مؤجَّرة لعميل"
-msgstr "Rented to Customer"
+msgstr "ग्राहक को किराये पर दिया"
 
 msgid "الشركة"
-msgstr "Company"
+msgstr "कंपनी"
 
 msgid "المؤجر"
-msgstr "Lessor"
+msgstr "किराये पर देने वाला"
 
 msgid "باليوم"
-msgstr "Per Day"
+msgstr "प्रति दिन"
 
 msgid "بالشهر"
-msgstr "Per Month"
+msgstr "प्रति माह"
 
 msgid "بالساعة"
-msgstr "Per Hour"
+msgstr "प्रति घंटा"
 
 msgid "متعدد"
-msgstr "Multiple"
+msgstr "एकाधिक"
 
 msgid "ساعات"
-msgstr "Hours"
+msgstr "घंटे"
 
 msgid "كيلومترات"
-msgstr "Kilometres"
+msgstr "किलोमीटर"
 
 msgid "بدون عداد"
-msgstr "No Meter"
+msgstr "बिना मीटर"
 
 msgid "نشطة"
-msgstr "Active"
+msgstr "सक्रिय"
 
 msgid "متوقفة"
-msgstr "Stopped"
+msgstr "रुका हुआ"
 
 msgid "في الصيانة"
-msgstr "Under Maintenance"
+msgstr "रखरखाव में"
 
 msgid "منتهية"
-msgstr "Ended"
+msgstr "समाप्त"
 
 msgid "نشط"
-msgstr "Active"
+msgstr "सक्रिय"
 
 msgid "منتهي"
-msgstr "Ended"
+msgstr "समाप्त"
 
 msgid "إرجاع للمؤجر"
-msgstr "Returned to Lessor"
+msgstr "किराये पर देने वाले को वापस"
 
 msgid "انتهاء الإيجار"
-msgstr "Rental Ended"
+msgstr "किराया समाप्त"
 
 msgid "بيع"
-msgstr "Sold"
+msgstr "बेचा गया"
 
 msgid "تكهين"
-msgstr "Scrapped"
+msgstr "कबाड़ घोषित"
 
 msgid "نقل لفرع آخر"
-msgstr "Transferred to Another Branch"
+msgstr "दूसरी शाखा में स्थानांतरित"
 
 msgid "تمت"
-msgstr "Settled"
+msgstr "निपटान हो गया"
 
 msgid "لم تتم"
-msgstr "Not Settled"
+msgstr "निपटान नहीं हुआ"
 
 msgid "نهاري"
-msgstr "Day"
+msgstr "दिन की पाली"
 
 msgid "ليلي"
-msgstr "Night"
+msgstr "रात की पाली"
 
 msgid "عمل"
-msgstr "Working"
+msgstr "कार्य"
 
 msgid "إجازة"
-msgstr "Day Off"
+msgstr "अवकाश"
 
 msgid "عطل"
-msgstr "Breakdown"
+msgstr "खराबी"
 
 msgid "توقف من العميل"
-msgstr "Stopped by Customer"
+msgstr "ग्राहक द्वारा रोका गया"
 
 msgid "إضافة"
-msgstr "Addition"
+msgstr "जोड़"
 
 msgid "خصم"
-msgstr "Deduction"
+msgstr "कटौती"
 
 msgid "ثابت"
-msgstr "Fixed"
+msgstr "स्थिर"
 
 msgid "متغير"
-msgstr "Variable"
+msgstr "परिवर्तनशील"
 
 msgid "إجمالي تكلفة الديزل"
-msgstr "Total Diesel Cost"
+msgstr "कुल डीज़ल लागत"
 
 msgid "إجمالي تكلفة النقل"
-msgstr "Total Transport Cost"
+msgstr "कुल परिवहन लागत"
 
 msgid "إجمالي لترات الديزل"
-msgstr "Total Diesel Litres"
+msgstr "कुल डीज़ल लीटर"
 
 msgid "المعدات المؤجرة"
 msgstr "किराये के उपकरण (CARD)"
@@ -404,13 +404,13 @@ msgid "مبالغ الشهر الماضي"
 msgstr "आपूर्तिकर्ता संचालन मूल्य - पिछला महीना"
 
 msgid "تكلفة الديزل الشهرية"
-msgstr "Monthly Diesel Cost"
+msgstr "मासिक डीज़ल लागत"
 
 msgid "مبالغ الكروت الشهرية"
-msgstr "Monthly Card Amounts"
+msgstr "मासिक कार्ड राशियाँ"
 
 msgid "تكلفة إيجار من موردين - الشهر الماضي"
-msgstr "Supplier Rental Cost - Last Month"
+msgstr "आपूर्तिकर्ता किराया लागत - पिछला महीना"
 
 msgid "قيمة تشغيل لعملاء - الشهر الماضي"
 msgstr "ग्राहकों के लिए संचालन मूल्य - पिछला महीना"
@@ -425,53 +425,53 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "बिना दर के संचालन घंटे (CARD)"
 
 msgid "كارت تشغيل شهري"
-msgstr "Monthly Operation Card"
+msgstr "मासिक संचालन कार्ड"
 
 msgid "Hours a monthly (بالشهر) rate is spread over. Default 260 = 26 days x 10 hours."
-msgstr "Hours a monthly (Per Month) rate is spread over. Default 260 = 26 days x 10 hours."
+msgstr "मासिक (प्रति माह) दर जितने घंटों में बाँटी जाती है। डिफ़ॉल्ट 260 = 26 दिन x 10 घंटे।"
 
 # v4.1.2: Card workspace shortcuts and section headers (stored Arabic names)
 msgid "الكروت الشهرية"
-msgstr "Monthly Cards"
+msgstr "मासिक कार्ड"
 
 msgid "التعيينات"
-msgstr "Assignments"
+msgstr "असाइनमेंट"
 
 msgid "المعدات"
-msgstr "Equipment"
+msgstr "उपकरण"
 
 msgid "كارت جديد"
-msgstr "New Card"
+msgstr "नया कार्ड"
 
 msgid "ملخص الموردين"
-msgstr "Suppliers Summary"
+msgstr "आपूर्तिकर्ता सारांश"
 
 msgid "كشف حساب مورد"
-msgstr "Supplier Statement"
+msgstr "आपूर्तिकर्ता विवरण"
 
 msgid "عملاء المعدات"
-msgstr "Equipment Customers"
+msgstr "उपकरण ग्राहक"
 
 msgid "ملخص العملاء"
-msgstr "Customers Summary"
+msgstr "ग्राहक सारांश"
 
 msgid "كشف حساب عميل"
-msgstr "Customer Statement"
+msgstr "ग्राहक विवरण"
 
 msgid "استهلاك ديزل المعدات"
-msgstr "Equipment Diesel Consumption"
+msgstr "उपकरण डीज़ल खपत"
 
 msgid "تكلفة النقل بالمشروع"
-msgstr "Transport Cost by Project"
+msgstr "प्रोजेक्ट के अनुसार परिवहन लागत"
 
 msgid "تكلفة التشغيل بالمشروع"
-msgstr "Operating Cost by Project"
+msgstr "प्रोजेक्ट के अनुसार संचालन लागत"
 
 msgid "الديزل والتشغيل"
-msgstr "Diesel and Operations"
+msgstr "डीज़ल और संचालन"
 
 msgid "المحاسبة"
-msgstr "Accounting"
+msgstr "लेखांकन"
 
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
@@ -506,7 +506,7 @@ msgid "بالمتر المكعب"
 msgstr "प्रति घन मीटर"
 
 msgid "Loads last month"
-msgstr "पिछले महीने के लोड"
+msgstr "पिछले महीने के लोड (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "लोड केवल उस कार्ड पर दर्ज किए जा सकते हैं जिसका ग्राहक दर प्रकार प्रति घन मीटर है"
@@ -603,7 +603,7 @@ msgid "Rented equipment (CARD)"
 msgstr "किराये के उपकरण (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "पिछले महीने के लोड"
+msgstr "पिछले महीने के लोड (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "ड्राफ़्ट कार्ड (CARD)"
@@ -828,3 +828,189 @@ msgstr "प्रमाण (रसीद संख्या या संदर�
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "नकद भुगतान अनुमोदन का अनुरोध किया गया"
+
+msgid "Card Expenses"
+msgstr "खर्च"
+
+msgid "Card Fleet"
+msgstr "उपकरण"
+
+msgid "Card Materials"
+msgstr "सामग्री और खरीद"
+
+msgid "Card Movement"
+msgstr "आवाजाही और परिवहन"
+
+msgid "Card Operating Units"
+msgstr "संचालन इकाइयाँ"
+
+msgid "Card Operation Cards"
+msgstr "संचालन कार्ड"
+
+msgid "Card Parties"
+msgstr "आपूर्तिकर्ता और ग्राहक"
+
+msgid "Card Reports"
+msgstr "रिपोर्ट"
+
+msgid "Card Setup"
+msgstr "सेटिंग्स"
+
+msgid "Project Diesel Fill"
+msgstr "प्रोजेक्ट डीज़ल भराई"
+
+msgid "Equipment Transport"
+msgstr "उपकरण परिवहन"
+
+msgid "Equipment Diesel Consumption"
+msgstr "डीज़ल खपत"
+
+msgid "Equipment Diesel Analysis"
+msgstr "उपकरण डीज़ल विश्लेषण"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "बिना उपकरण के उपकरण खर्च"
+
+msgid "Card Equipment"
+msgstr "उपकरण"
+
+msgid "Card Equipment Type"
+msgstr "उपकरण का प्रकार"
+
+msgid "Card Equipment Category"
+msgstr "उपकरण श्रेणी"
+
+msgid "Equipment Needs Request"
+msgstr "उपकरण आवश्यकता अनुरोध"
+
+msgid "Tool Custody"
+msgstr "औज़ार की ज़िम्मेदारी"
+
+msgid "Employee Tool Custody"
+msgstr "कर्मचारी के औज़ार की ज़िम्मेदारी"
+
+msgid "Equipment Makes"
+msgstr "उपकरण के ब्रांड"
+
+msgid "Equipment Models"
+msgstr "उपकरण के मॉडल"
+
+msgid "Parts Fitment"
+msgstr "पुर्ज़ों की अनुकूलता"
+
+msgid "Equipment Make Model Values"
+msgstr "ब्रांड और मॉडल के लिखित मान"
+
+msgid "Equipment Needs Summary"
+msgstr "उपकरण आवश्यकताओं का सारांश"
+
+msgid "Equipment Consumption"
+msgstr "उपकरण की खपत"
+
+msgid "Worker Custody"
+msgstr "श्रमिकों की ज़िम्मेदारी"
+
+msgid "Repeat Equipment Requests"
+msgstr "उपकरण के दोहराए गए अनुरोध"
+
+msgid "Card Equipment Assignment"
+msgstr "उपकरण असाइनमेंट"
+
+msgid "Transport Cost by Project"
+msgstr "परियोजना के अनुसार परिवहन लागत"
+
+msgid "Card Monthly Card"
+msgstr "मासिक संचालन कार्ड"
+
+msgid "Operating Cost by Project"
+msgstr "परियोजना के अनुसार संचालन लागत"
+
+msgid "Card Equipment Supplier"
+msgstr "उपकरण आपूर्तिकर्ता"
+
+msgid "Card Equipment Customer"
+msgstr "उपकरण ग्राहक"
+
+msgid "Equipment Supplier Statement"
+msgstr "आपूर्तिकर्ता विवरण"
+
+msgid "Equipment Suppliers Summary"
+msgstr "आपूर्तिकर्ता सारांश"
+
+msgid "Equipment Customer Statement"
+msgstr "ग्राहक विवरण"
+
+msgid "Equipment Customers Summary"
+msgstr "ग्राहक सारांश"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "डीज़ल अंतर और असामान्यताएँ"
+
+msgid "Diesel Group Analysis"
+msgstr "डीज़ल समूह विश्लेषण"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "डीज़ल बिल मिलान"
+
+msgid "Card Settlement Status"
+msgstr "कार्ड निपटान की स्थिति"
+
+msgid "Equipment Partial Margin"
+msgstr "उपकरण का आंशिक मार्जिन"
+
+msgid "Project Invoice Profitability"
+msgstr "बिलों के अनुसार प्रोजेक्ट लाभप्रदता"
+
+msgid "Unbilled Card Work"
+msgstr "बिना बिल का कार्ड कार्य"
+
+msgid "Posting Source Integrity"
+msgstr "पोस्टिंग स्रोतों की शुद्धता"
+
+msgid "Equipment Maintenance Cost"
+msgstr "उपकरण रखरखाव लागत"
+
+msgid "Equipment Downtime"
+msgstr "उपकरण का बंद समय"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "मीटर मिलान"
+
+msgid "Asset Mapping Review"
+msgstr "संपत्ति मैपिंग समीक्षा"
+
+msgid "Transport Accounting Review"
+msgstr "परिवहन लेखा समीक्षा"
+
+msgid "Equipment Location History"
+msgstr "उपकरण स्थान इतिहास"
+
+msgid "Card Settings"
+msgstr "सेटिंग्स"
+
+msgid "الصفحة الرئيسية"
+msgstr "होम"
+
+msgid "التشغيل"
+msgstr "संचालन"
+
+msgid "الموردين والتقارير"
+msgstr "आपूर्तिकर्ता और रिपोर्ट"
+
+msgid "المعدة"
+msgstr "उपकरण"
+
+msgid "نوع المعدة"
+msgstr "उपकरण का प्रकार"
+
+msgid "فئة المعدة"
+msgstr "उपकरण श्रेणी"
+
+msgid "تعيين معدة على مشروع"
+msgstr "उपकरण असाइनमेंट"
+
+msgid "الكارت الشهري"
+msgstr "मासिक संचालन कार्ड"
+
+msgid "موردي المعدات"
+msgstr "उपकरण आपूर्तिकर्ता"

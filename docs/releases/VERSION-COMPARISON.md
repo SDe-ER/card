@@ -108,6 +108,9 @@ the tag (`git show <tag>:<path>`).
 | Link an existing customer Sales Invoice to its monthly cards (FR-194) | v4.14.0 | — | — | — | — | — | — | — | — | v4.14.0: two whitelisted methods (link, POST; candidates list, GET), Accounts Manager or System Manager; no GL entry, the invoice is not changed; no Desk button; no unlink method | v4.14.0 page; PR #338 |
 | Project Invoice Profitability: expenses are Expense-account lines only; column Purchases not in expenses (FR-193) | v4.14.0 | — | — | — | — | — | — | — | — | v4.14.0: stock and fixed-asset purchase lines are outside expenses and margin, shown for information | v4.14.0 page; PR #335 |
 | Statements: the PDF button of the report print page uses the server PDF (FR-089, FR-187) | v4.14.0 | — | — | — | — | — | — | — | — | v4.14.0: frappe 16.60 print page; the fixed A4 server PDF, print-page choices do not apply | v4.14.0 page; PR #337 |
+| Unlink a wrong customer invoice link (FR-195) | v4.14.1 | — | — | — | — | — | — | — | — | v4.14.1: one whitelisted method (POST), System Manager only, with read on the Sales Invoice; the posting log goes to Cancelled and is kept; no GL entry, the invoice is not changed; the invoice can be linked again; no Desk button | v4.14.1 page; PR #344 |
+| Card workspace: all nine number cards are drawn in every locale (FR-168) | v4.14.1 | — | — | — | — | — | — | — | — | v4.10.0 to v4.14.0: the Desk did not draw some number cards (4 of 9 in Arabic, all 9 in English); v4.14.1: all nine are drawn; locale files only | v4.14.1 page; PR #336 |
+| Navigation layer translated in every locale: module sidebars, Number Card and Dashboard Chart names (FR-168 follow-up) | v4.14.1 | — | — | — | — | — | — | — | — | v4.14.1: 41 locales get the navigation layer; the forms and messages stay English and Arabic | v4.14.1 page; PR #345 |
 
 ## Reading the matrix
 

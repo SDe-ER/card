@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Za m³"
 
 msgid "Loads last month"
-msgstr "Kursy w poprzednim miesiącu"
+msgstr "Kursy w poprzednim miesiącu (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Kursy można rejestrować tylko na karcie, której typ stawki klienta to za m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Wynajęty sprzęt (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Kursy w poprzednim miesiącu"
+msgstr "Kursy w poprzednim miesiącu (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Karty robocze (CARD)"
@@ -385,3 +385,219 @@ msgstr "Dowód (numer paragonu lub odniesienie)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Zgłoszono zatwierdzenie płatności gotówkowej"
+
+msgid "Card Expenses"
+msgstr "Wydatki"
+
+msgid "Card Fleet"
+msgstr "Sprzęt"
+
+msgid "Card Materials"
+msgstr "Materiały i zakupy"
+
+msgid "Card Movement"
+msgstr "Przemieszczenia i transport"
+
+msgid "Card Operating Units"
+msgstr "Jednostki operacyjne"
+
+msgid "Card Operation Cards"
+msgstr "Karty eksploatacji"
+
+msgid "Card Parties"
+msgstr "Dostawcy i klienci"
+
+msgid "Card Reports"
+msgstr "Raporty"
+
+msgid "Card Setup"
+msgstr "Ustawienia"
+
+msgid "Project Diesel Fill"
+msgstr "Tankowanie diesla dla projektu"
+
+msgid "Equipment Transport"
+msgstr "Transport sprzętu"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Zużycie diesla"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Analiza diesla sprzętu"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Wydatki na sprzęt bez wskazanego sprzętu"
+
+msgid "Card Equipment"
+msgstr "Sprzęt"
+
+msgid "Card Equipment Type"
+msgstr "Typ sprzętu"
+
+msgid "Card Equipment Category"
+msgstr "Kategoria sprzętu"
+
+msgid "Equipment Needs Request"
+msgstr "Zgłoszenie potrzeb sprzętu"
+
+msgid "Equipment Needs Review"
+msgstr "Przegląd potrzeb sprzętu"
+
+msgid "Tool Custody"
+msgstr "Powierzone narzędzia"
+
+msgid "Employee Tool Custody"
+msgstr "Narzędzia powierzone pracownikowi"
+
+msgid "Equipment Makes"
+msgstr "Marki sprzętu"
+
+msgid "Equipment Models"
+msgstr "Modele sprzętu"
+
+msgid "Parts Fitment"
+msgstr "Zgodność części"
+
+msgid "Equipment Make Model Values"
+msgstr "Wartości tekstowe marki i modelu"
+
+msgid "Equipment Needs Summary"
+msgstr "Podsumowanie potrzeb sprzętu"
+
+msgid "Equipment Consumption"
+msgstr "Zużycie sprzętu"
+
+msgid "Worker Custody"
+msgstr "Narzędzia powierzone robotnikom"
+
+msgid "Repeat Equipment Requests"
+msgstr "Powtarzające się zgłoszenia sprzętu"
+
+msgid "Card Equipment Assignment"
+msgstr "Przydział sprzętu"
+
+msgid "Transport Cost by Project"
+msgstr "Koszt transportu wg projektu"
+
+msgid "Card Monthly Card"
+msgstr "Miesięczna karta eksploatacji"
+
+msgid "Operating Cost by Project"
+msgstr "Koszt eksploatacji wg projektu"
+
+msgid "Card Equipment Supplier"
+msgstr "Dostawca sprzętu"
+
+msgid "Card Equipment Customer"
+msgstr "Klient sprzętu"
+
+msgid "Equipment Supplier Statement"
+msgstr "Wyciąg dostawcy"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Podsumowanie dostawców"
+
+msgid "Equipment Customer Statement"
+msgstr "Wyciąg klienta"
+
+msgid "Equipment Customers Summary"
+msgstr "Podsumowanie klientów"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Odchylenia i anomalie diesla"
+
+msgid "Diesel Group Analysis"
+msgstr "Analiza diesla według grup"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Uzgodnienie faktur za diesel"
+
+msgid "Card Settlement Status"
+msgstr "Status rozliczenia kart"
+
+msgid "Equipment Partial Margin"
+msgstr "Częściowa marża sprzętu"
+
+msgid "Project Invoice Profitability"
+msgstr "Rentowność projektów według faktur"
+
+msgid "Unbilled Card Work"
+msgstr "Niezafakturowana praca z kart"
+
+msgid "Posting Source Integrity"
+msgstr "Integralność źródeł księgowania"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Koszt utrzymania sprzętu"
+
+msgid "Equipment Downtime"
+msgstr "Przestoje sprzętu"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Uzgodnienie liczników"
+
+msgid "Asset Mapping Review"
+msgstr "Przegląd powiązań ze środkami trwałymi"
+
+msgid "Transport Accounting Review"
+msgstr "Przegląd księgowania transportu"
+
+msgid "Equipment Location History"
+msgstr "Historia lokalizacji sprzętu"
+
+msgid "Card Settings"
+msgstr "Ustawienia"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Koszt wynajmu od dostawców - poprzedni miesiąc"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Łącznie litrów diesla"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Łączny koszt diesla"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Łączny koszt transportu"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Miesięczne kwoty kart"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Miesięczny koszt diesla"
+
+msgid "الصفحة الرئيسية"
+msgstr "Strona główna"
+
+msgid "التشغيل"
+msgstr "Eksploatacja"
+
+msgid "الموردين والتقارير"
+msgstr "Dostawcy i raporty"
+
+msgid "المعدات"
+msgstr "Sprzęt"
+
+msgid "المعدة"
+msgstr "Sprzęt"
+
+msgid "نوع المعدة"
+msgstr "Typ sprzętu"
+
+msgid "فئة المعدة"
+msgstr "Kategoria sprzętu"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Przydział sprzętu"
+
+msgid "الكارت الشهري"
+msgstr "Miesięczna karta eksploatacji"
+
+msgid "موردي المعدات"
+msgstr "Dostawca sprzętu"
+
+msgid "ملخص الموردين"
+msgstr "Podsumowanie dostawców"
+
+msgid "كشف حساب مورد"
+msgstr "Wyciąg dostawcy"

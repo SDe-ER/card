@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Al m³"
 
 msgid "Loads last month"
-msgstr "Carichi del mese scorso"
+msgstr "Carichi del mese scorso (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "I carichi si possono registrare solo su una scheda con tipo di tariffa cliente al m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Attrezzature a noleggio (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Carichi del mese scorso"
+msgstr "Carichi del mese scorso (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Schede in bozza (CARD)"
@@ -385,3 +385,219 @@ msgstr "Giustificativo (numero di ricevuta o riferimento)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Approvazione del pagamento in contanti richiesta"
+
+msgid "Card Expenses"
+msgstr "Spese"
+
+msgid "Card Fleet"
+msgstr "Attrezzature"
+
+msgid "Card Materials"
+msgstr "Materiali e acquisti"
+
+msgid "Card Movement"
+msgstr "Movimentazione e trasporto"
+
+msgid "Card Operating Units"
+msgstr "Unità operative"
+
+msgid "Card Operation Cards"
+msgstr "Schede operative"
+
+msgid "Card Parties"
+msgstr "Fornitori e clienti"
+
+msgid "Card Reports"
+msgstr "Report"
+
+msgid "Card Setup"
+msgstr "Impostazioni"
+
+msgid "Project Diesel Fill"
+msgstr "Rifornimento gasolio del progetto"
+
+msgid "Equipment Transport"
+msgstr "Trasporto attrezzature"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Consumo gasolio"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Analisi del gasolio delle attrezzature"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Spese per attrezzature senza attrezzatura"
+
+msgid "Card Equipment"
+msgstr "Attrezzature"
+
+msgid "Card Equipment Type"
+msgstr "Tipo di attrezzatura"
+
+msgid "Card Equipment Category"
+msgstr "Categoria di attrezzatura"
+
+msgid "Equipment Needs Request"
+msgstr "Richiesta di fabbisogni delle attrezzature"
+
+msgid "Equipment Needs Review"
+msgstr "Revisione dei fabbisogni delle attrezzature"
+
+msgid "Tool Custody"
+msgstr "Custodia degli utensili"
+
+msgid "Employee Tool Custody"
+msgstr "Custodia degli utensili del dipendente"
+
+msgid "Equipment Makes"
+msgstr "Marche delle attrezzature"
+
+msgid "Equipment Models"
+msgstr "Modelli delle attrezzature"
+
+msgid "Parts Fitment"
+msgstr "Compatibilità dei ricambi"
+
+msgid "Equipment Make Model Values"
+msgstr "Valori di testo di marca e modello"
+
+msgid "Equipment Needs Summary"
+msgstr "Riepilogo dei fabbisogni delle attrezzature"
+
+msgid "Equipment Consumption"
+msgstr "Consumo delle attrezzature"
+
+msgid "Worker Custody"
+msgstr "Utensili affidati agli operai"
+
+msgid "Repeat Equipment Requests"
+msgstr "Richieste di attrezzature ripetute"
+
+msgid "Card Equipment Assignment"
+msgstr "Assegnazione dell'attrezzatura"
+
+msgid "Transport Cost by Project"
+msgstr "Costo di trasporto per progetto"
+
+msgid "Card Monthly Card"
+msgstr "Scheda operativa mensile"
+
+msgid "Operating Cost by Project"
+msgstr "Costo operativo per progetto"
+
+msgid "Card Equipment Supplier"
+msgstr "Fornitore di attrezzature"
+
+msgid "Card Equipment Customer"
+msgstr "Cliente di attrezzature"
+
+msgid "Equipment Supplier Statement"
+msgstr "Estratto conto fornitore"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Riepilogo fornitori"
+
+msgid "Equipment Customer Statement"
+msgstr "Estratto conto cliente"
+
+msgid "Equipment Customers Summary"
+msgstr "Riepilogo clienti"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Scostamenti e anomalie del gasolio"
+
+msgid "Diesel Group Analysis"
+msgstr "Analisi del gasolio per gruppo"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Riconciliazione delle fatture del gasolio"
+
+msgid "Card Settlement Status"
+msgstr "Stato di regolamento delle schede"
+
+msgid "Equipment Partial Margin"
+msgstr "Margine parziale delle attrezzature"
+
+msgid "Project Invoice Profitability"
+msgstr "Redditività dei progetti in base alle fatture"
+
+msgid "Unbilled Card Work"
+msgstr "Lavoro delle schede non fatturato"
+
+msgid "Posting Source Integrity"
+msgstr "Integrità delle fonti di registrazione"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Costo di manutenzione delle attrezzature"
+
+msgid "Equipment Downtime"
+msgstr "Fermi delle attrezzature"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Riconciliazione contatori"
+
+msgid "Asset Mapping Review"
+msgstr "Revisione dell'abbinamento ai cespiti"
+
+msgid "Transport Accounting Review"
+msgstr "Revisione contabile del trasporto"
+
+msgid "Equipment Location History"
+msgstr "Cronologia delle posizioni delle attrezzature"
+
+msgid "Card Settings"
+msgstr "Impostazioni"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Costo di noleggio dai fornitori - mese scorso"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Totale litri di gasolio"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Costo totale del gasolio"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Costo totale del trasporto"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Importi mensili delle schede"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Costo mensile del gasolio"
+
+msgid "الصفحة الرئيسية"
+msgstr "Pagina iniziale"
+
+msgid "التشغيل"
+msgstr "Operatività"
+
+msgid "الموردين والتقارير"
+msgstr "Fornitori e report"
+
+msgid "المعدات"
+msgstr "Attrezzature"
+
+msgid "المعدة"
+msgstr "Attrezzature"
+
+msgid "نوع المعدة"
+msgstr "Tipo di attrezzatura"
+
+msgid "فئة المعدة"
+msgstr "Categoria di attrezzatura"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Assegnazione dell'attrezzatura"
+
+msgid "الكارت الشهري"
+msgstr "Scheda operativa mensile"
+
+msgid "موردي المعدات"
+msgstr "Fornitore di attrezzature"
+
+msgid "ملخص الموردين"
+msgstr "Riepilogo fornitori"
+
+msgid "كشف حساب مورد"
+msgstr "Estratto conto fornitore"

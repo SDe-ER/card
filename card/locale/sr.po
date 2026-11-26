@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "По m³"
 
 msgid "Loads last month"
-msgstr "Вожње прошлог месеца"
+msgstr "Вожње прошлог месеца (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Вожње се могу уносити само на картицу чија је врста цене за купца по m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Изнајмљена опрема (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Вожње прошлог месеца"
+msgstr "Вожње прошлог месеца (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Нацрти картица (CARD)"
@@ -385,3 +385,219 @@ msgstr "Доказ (број рачуна или референца)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Затражено одобрење готовинског плаћања"
+
+msgid "Card Expenses"
+msgstr "Трошкови"
+
+msgid "Card Fleet"
+msgstr "Опрема"
+
+msgid "Card Materials"
+msgstr "Материјали и набавка"
+
+msgid "Card Movement"
+msgstr "Кретање и транспорт"
+
+msgid "Card Operating Units"
+msgstr "Оперативне јединице"
+
+msgid "Card Operation Cards"
+msgstr "Оперативне картице"
+
+msgid "Card Parties"
+msgstr "Добављачи и купци"
+
+msgid "Card Reports"
+msgstr "Извештаји"
+
+msgid "Card Setup"
+msgstr "Подешавања"
+
+msgid "Project Diesel Fill"
+msgstr "Пуњење дизела за пројекат"
+
+msgid "Equipment Transport"
+msgstr "Превоз опреме"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Потрошња дизела"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Анализа дизела опреме"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Трошкови опреме без наведене опреме"
+
+msgid "Card Equipment"
+msgstr "Опрема"
+
+msgid "Card Equipment Type"
+msgstr "Врста опреме"
+
+msgid "Card Equipment Category"
+msgstr "Категорија опреме"
+
+msgid "Equipment Needs Request"
+msgstr "Захтев за потребе опреме"
+
+msgid "Equipment Needs Review"
+msgstr "Преглед потреба опреме"
+
+msgid "Tool Custody"
+msgstr "Задужење алата"
+
+msgid "Employee Tool Custody"
+msgstr "Задужење алата запосленог"
+
+msgid "Equipment Makes"
+msgstr "Марке опреме"
+
+msgid "Equipment Models"
+msgstr "Модели опреме"
+
+msgid "Parts Fitment"
+msgstr "Компатибилност делова"
+
+msgid "Equipment Make Model Values"
+msgstr "Текстуалне вредности марке и модела"
+
+msgid "Equipment Needs Summary"
+msgstr "Сажетак потреба опреме"
+
+msgid "Equipment Consumption"
+msgstr "Потрошња опреме"
+
+msgid "Worker Custody"
+msgstr "Задужења радника"
+
+msgid "Repeat Equipment Requests"
+msgstr "Поновљени захтеви за опрему"
+
+msgid "Card Equipment Assignment"
+msgstr "Додељивање опреме"
+
+msgid "Transport Cost by Project"
+msgstr "Трошак превоза по пројекту"
+
+msgid "Card Monthly Card"
+msgstr "Месечна оперативна картица"
+
+msgid "Operating Cost by Project"
+msgstr "Оперативни трошак по пројекту"
+
+msgid "Card Equipment Supplier"
+msgstr "Добављач опреме"
+
+msgid "Card Equipment Customer"
+msgstr "Купац опреме"
+
+msgid "Equipment Supplier Statement"
+msgstr "Извод добављача"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Резиме добављача"
+
+msgid "Equipment Customer Statement"
+msgstr "Извод купца"
+
+msgid "Equipment Customers Summary"
+msgstr "Резиме купаца"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Одступања и аномалије дизела"
+
+msgid "Diesel Group Analysis"
+msgstr "Анализа дизела по групама"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Усаглашавање фактура за дизел"
+
+msgid "Card Settlement Status"
+msgstr "Статус измирења картица"
+
+msgid "Equipment Partial Margin"
+msgstr "Делимична маржа опреме"
+
+msgid "Project Invoice Profitability"
+msgstr "Профитабилност пројеката по фактурама"
+
+msgid "Unbilled Card Work"
+msgstr "Нефактурисани рад по картицама"
+
+msgid "Posting Source Integrity"
+msgstr "Интегритет извора књижења"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Трошак одржавања опреме"
+
+msgid "Equipment Downtime"
+msgstr "Застоји опреме"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Усклађивање бројила"
+
+msgid "Asset Mapping Review"
+msgstr "Преглед мапирања основних средстава"
+
+msgid "Transport Accounting Review"
+msgstr "Преглед књижења транспорта"
+
+msgid "Equipment Location History"
+msgstr "Историја локација опреме"
+
+msgid "Card Settings"
+msgstr "Подешавања"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Трошак закупа од добављача - прошли месец"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Укупно литара дизела"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Укупан трошак дизела"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Укупан трошак транспорта"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Месечни износи картица"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Месечни трошак дизела"
+
+msgid "الصفحة الرئيسية"
+msgstr "Почетна"
+
+msgid "التشغيل"
+msgstr "Операције"
+
+msgid "الموردين والتقارير"
+msgstr "Добављачи и извештаји"
+
+msgid "المعدات"
+msgstr "Опрема"
+
+msgid "المعدة"
+msgstr "Опрема"
+
+msgid "نوع المعدة"
+msgstr "Врста опреме"
+
+msgid "فئة المعدة"
+msgstr "Категорија опреме"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Додељивање опреме"
+
+msgid "الكارت الشهري"
+msgstr "Месечна оперативна картица"
+
+msgid "موردي المعدات"
+msgstr "Добављач опреме"
+
+msgid "ملخص الموردين"
+msgstr "Резиме добављача"
+
+msgid "كشف حساب مورد"
+msgstr "Извод добављача"

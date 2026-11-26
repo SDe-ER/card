@@ -29,9 +29,9 @@ sidebar:
 | ساعات التشغيل <small>(للقراءة فقط)</small> | `hours` | Float |  |  |
 | المعدل المستخدم (لتر/ساعة) <small>(للقراءة فقط)</small> | `rate_used` | Float |  |  |
 | اللترات الموزعة <small>(للقراءة فقط)</small> | `allocated_litres` | Float |  |  |
-| Remainder row <small>(للقراءة فقط)</small> | `remainder` | Check |  |  |
+| سطر الباقي <small>(للقراءة فقط)</small> | `remainder` | Check |  |  |
 | تحتاج مراجعة <small>(للقراءة فقط)</small> | `review_flag` | Check |  |  |
-| Frozen on <small>(للقراءة فقط)</small> | `frozen_on` | Datetime |  |  |
+| تاريخ التثبيت <small>(للقراءة فقط)</small> | `frozen_on` | Datetime |  |  |
 
 
 ## الصلاحيات

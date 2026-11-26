@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "به ازای هر متر مکعب"
 
 msgid "Loads last month"
-msgstr "بارهای ماه گذشته"
+msgstr "بارهای ماه گذشته (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "ثبت بار فقط در کارتی امکان‌پذیر است که نوع نرخ مشتری آن به ازای هر متر مکعب باشد"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "تجهیزات اجاره‌ای (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "بارهای ماه گذشته"
+msgstr "بارهای ماه گذشته (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "کارت‌های پیش‌نویس (CARD)"
@@ -385,3 +385,219 @@ msgstr "سند (شماره رسید یا مرجع)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "درخواست تأیید پرداخت نقدی ثبت شد"
+
+msgid "Card Expenses"
+msgstr "هزینه‌ها"
+
+msgid "Card Fleet"
+msgstr "تجهیزات"
+
+msgid "Card Materials"
+msgstr "مواد و خرید"
+
+msgid "Card Movement"
+msgstr "جابه‌جایی و حمل"
+
+msgid "Card Operating Units"
+msgstr "واحدهای عملیاتی"
+
+msgid "Card Operation Cards"
+msgstr "کارت‌های عملیات"
+
+msgid "Card Parties"
+msgstr "تأمین‌کنندگان و مشتریان"
+
+msgid "Card Reports"
+msgstr "گزارش‌ها"
+
+msgid "Card Setup"
+msgstr "تنظیمات"
+
+msgid "Project Diesel Fill"
+msgstr "سوخت‌گیری گازوئیل پروژه"
+
+msgid "Equipment Transport"
+msgstr "حمل تجهیزات"
+
+msgid "Equipment Diesel Consumption"
+msgstr "مصرف گازوئیل"
+
+msgid "Equipment Diesel Analysis"
+msgstr "تحلیل گازوئیل تجهیزات"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "هزینه‌های تجهیزات بدون تجهیز"
+
+msgid "Card Equipment"
+msgstr "تجهیزات"
+
+msgid "Card Equipment Type"
+msgstr "نوع تجهیزات"
+
+msgid "Card Equipment Category"
+msgstr "دستهٔ تجهیزات"
+
+msgid "Equipment Needs Request"
+msgstr "درخواست نیازهای تجهیزات"
+
+msgid "Equipment Needs Review"
+msgstr "بازبینی نیازهای تجهیزات"
+
+msgid "Tool Custody"
+msgstr "امانت ابزار"
+
+msgid "Employee Tool Custody"
+msgstr "امانت ابزار کارمند"
+
+msgid "Equipment Makes"
+msgstr "برندهای تجهیزات"
+
+msgid "Equipment Models"
+msgstr "مدل‌های تجهیزات"
+
+msgid "Parts Fitment"
+msgstr "سازگاری قطعات"
+
+msgid "Equipment Make Model Values"
+msgstr "مقادیر متنی برند و مدل"
+
+msgid "Equipment Needs Summary"
+msgstr "خلاصهٔ نیازهای تجهیزات"
+
+msgid "Equipment Consumption"
+msgstr "مصرف تجهیزات"
+
+msgid "Worker Custody"
+msgstr "امانت‌های کارگران"
+
+msgid "Repeat Equipment Requests"
+msgstr "درخواست‌های تکراری تجهیزات"
+
+msgid "Card Equipment Assignment"
+msgstr "واگذاری تجهیزات"
+
+msgid "Transport Cost by Project"
+msgstr "هزینه حمل بر اساس پروژه"
+
+msgid "Card Monthly Card"
+msgstr "کارت عملیات ماهانه"
+
+msgid "Operating Cost by Project"
+msgstr "هزینه عملیاتی بر اساس پروژه"
+
+msgid "Card Equipment Supplier"
+msgstr "تأمین‌کنندهٔ تجهیزات"
+
+msgid "Card Equipment Customer"
+msgstr "مشتری تجهیزات"
+
+msgid "Equipment Supplier Statement"
+msgstr "صورت‌حساب تأمین‌کننده"
+
+msgid "Equipment Suppliers Summary"
+msgstr "خلاصه تأمین‌کنندگان"
+
+msgid "Equipment Customer Statement"
+msgstr "صورت‌حساب مشتری"
+
+msgid "Equipment Customers Summary"
+msgstr "خلاصه مشتریان"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "مغایرت و ناهنجاری گازوئیل"
+
+msgid "Diesel Group Analysis"
+msgstr "تحلیل گازوئیل گروه"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "تطبیق فاکتورهای گازوئیل"
+
+msgid "Card Settlement Status"
+msgstr "وضعیت تسویهٔ کارت‌ها"
+
+msgid "Equipment Partial Margin"
+msgstr "حاشیهٔ سود جزئی تجهیزات"
+
+msgid "Project Invoice Profitability"
+msgstr "سودآوری پروژه بر پایهٔ فاکتورها"
+
+msgid "Unbilled Card Work"
+msgstr "کار کارت‌های فاکتورنشده"
+
+msgid "Posting Source Integrity"
+msgstr "صحت منابع ثبت حسابداری"
+
+msgid "Equipment Maintenance Cost"
+msgstr "هزینهٔ نگهداری تجهیزات"
+
+msgid "Equipment Downtime"
+msgstr "توقف‌های تجهیزات"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "تطبیق کنتور"
+
+msgid "Asset Mapping Review"
+msgstr "بازبینی نگاشت دارایی‌ها"
+
+msgid "Transport Accounting Review"
+msgstr "بازبینی حسابداری حمل"
+
+msgid "Equipment Location History"
+msgstr "تاریخچهٔ مکان تجهیزات"
+
+msgid "Card Settings"
+msgstr "تنظیمات"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "هزینهٔ اجاره از تأمین‌کنندگان - ماه گذشته"
+
+msgid "إجمالي لترات الديزل"
+msgstr "مجموع لیتر گازوئیل"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "مجموع هزینهٔ گازوئیل"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "مجموع هزینهٔ حمل"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "مبالغ ماهانهٔ کارت‌ها"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "هزینهٔ ماهانهٔ گازوئیل"
+
+msgid "الصفحة الرئيسية"
+msgstr "خانه"
+
+msgid "التشغيل"
+msgstr "عملیات"
+
+msgid "الموردين والتقارير"
+msgstr "تأمین‌کنندگان و گزارش‌ها"
+
+msgid "المعدات"
+msgstr "تجهیزات"
+
+msgid "المعدة"
+msgstr "تجهیزات"
+
+msgid "نوع المعدة"
+msgstr "نوع تجهیزات"
+
+msgid "فئة المعدة"
+msgstr "دستهٔ تجهیزات"
+
+msgid "تعيين معدة على مشروع"
+msgstr "واگذاری تجهیزات"
+
+msgid "الكارت الشهري"
+msgstr "کارت عملیات ماهانه"
+
+msgid "موردي المعدات"
+msgstr "تأمین‌کنندهٔ تجهیزات"
+
+msgid "ملخص الموردين"
+msgstr "خلاصه تأمین‌کنندگان"
+
+msgid "كشف حساب مورد"
+msgstr "صورت‌حساب تأمین‌کننده"

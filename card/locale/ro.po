@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Pe m³"
 
 msgid "Loads last month"
-msgstr "Încărcături luna trecută"
+msgstr "Încărcături luna trecută (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Încărcăturile pot fi înregistrate doar pe un card al cărui tip de tarif pentru client este pe m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Echipamente închiriate (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Încărcături luna trecută"
+msgstr "Încărcături luna trecută (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Carduri ciornă (CARD)"
@@ -385,3 +385,219 @@ msgstr "Justificativ (numărul chitanței sau referința)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Aprobarea plății în numerar a fost solicitată"
+
+msgid "Card Expenses"
+msgstr "Cheltuieli"
+
+msgid "Card Fleet"
+msgstr "Echipamente"
+
+msgid "Card Materials"
+msgstr "Materiale și achiziții"
+
+msgid "Card Movement"
+msgstr "Deplasare și transport"
+
+msgid "Card Operating Units"
+msgstr "Unități operaționale"
+
+msgid "Card Operation Cards"
+msgstr "Carduri de operare"
+
+msgid "Card Parties"
+msgstr "Furnizori și clienți"
+
+msgid "Card Reports"
+msgstr "Rapoarte"
+
+msgid "Card Setup"
+msgstr "Setări"
+
+msgid "Project Diesel Fill"
+msgstr "Alimentare cu motorină pentru proiect"
+
+msgid "Equipment Transport"
+msgstr "Transport echipament"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Consum de motorină"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Analiza motorinei echipamentelor"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Cheltuieli de echipamente fără echipament"
+
+msgid "Card Equipment"
+msgstr "Echipamente"
+
+msgid "Card Equipment Type"
+msgstr "Tip de echipament"
+
+msgid "Card Equipment Category"
+msgstr "Categorie de echipament"
+
+msgid "Equipment Needs Request"
+msgstr "Cerere de necesar pentru echipament"
+
+msgid "Equipment Needs Review"
+msgstr "Verificarea necesarului de echipamente"
+
+msgid "Tool Custody"
+msgstr "Scule în custodie"
+
+msgid "Employee Tool Custody"
+msgstr "Scule în custodia angajatului"
+
+msgid "Equipment Makes"
+msgstr "Mărci de echipamente"
+
+msgid "Equipment Models"
+msgstr "Modele de echipamente"
+
+msgid "Parts Fitment"
+msgstr "Compatibilitatea pieselor"
+
+msgid "Equipment Make Model Values"
+msgstr "Valori text pentru marcă și model"
+
+msgid "Equipment Needs Summary"
+msgstr "Sumar al necesarului de echipamente"
+
+msgid "Equipment Consumption"
+msgstr "Consumul echipamentelor"
+
+msgid "Worker Custody"
+msgstr "Scule în custodia muncitorilor"
+
+msgid "Repeat Equipment Requests"
+msgstr "Cereri repetate pentru echipamente"
+
+msgid "Card Equipment Assignment"
+msgstr "Alocare de echipament"
+
+msgid "Transport Cost by Project"
+msgstr "Cost de transport pe proiect"
+
+msgid "Card Monthly Card"
+msgstr "Card lunar de operare"
+
+msgid "Operating Cost by Project"
+msgstr "Cost operațional pe proiect"
+
+msgid "Card Equipment Supplier"
+msgstr "Furnizor de echipamente"
+
+msgid "Card Equipment Customer"
+msgstr "Client pentru echipamente"
+
+msgid "Equipment Supplier Statement"
+msgstr "Extras furnizor"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Sumar furnizori"
+
+msgid "Equipment Customer Statement"
+msgstr "Extras de cont client"
+
+msgid "Equipment Customers Summary"
+msgstr "Sumar clienți"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Abateri și anomalii la motorină"
+
+msgid "Diesel Group Analysis"
+msgstr "Analiza motorinei pe grupuri"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Reconcilierea facturilor de motorină"
+
+msgid "Card Settlement Status"
+msgstr "Starea decontării cardurilor"
+
+msgid "Equipment Partial Margin"
+msgstr "Marja parțială a echipamentelor"
+
+msgid "Project Invoice Profitability"
+msgstr "Profitabilitatea proiectelor după facturi"
+
+msgid "Unbilled Card Work"
+msgstr "Lucrări din carduri nefacturate"
+
+msgid "Posting Source Integrity"
+msgstr "Integritatea surselor de înregistrare contabilă"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Costul de întreținere a echipamentelor"
+
+msgid "Equipment Downtime"
+msgstr "Opriri ale echipamentelor"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Reconciliere contoare"
+
+msgid "Asset Mapping Review"
+msgstr "Verificarea asocierii cu mijloacele fixe"
+
+msgid "Transport Accounting Review"
+msgstr "Verificarea contabilă a transportului"
+
+msgid "Equipment Location History"
+msgstr "Istoricul locațiilor echipamentelor"
+
+msgid "Card Settings"
+msgstr "Setări"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Cost de închiriere de la furnizori - luna trecută"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Total litri de motorină"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Cost total motorină"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Cost total transport"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Sume lunare ale cardurilor"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Cost lunar motorină"
+
+msgid "الصفحة الرئيسية"
+msgstr "Acasă"
+
+msgid "التشغيل"
+msgstr "Operațiuni"
+
+msgid "الموردين والتقارير"
+msgstr "Furnizori și rapoarte"
+
+msgid "المعدات"
+msgstr "Echipamente"
+
+msgid "المعدة"
+msgstr "Echipamente"
+
+msgid "نوع المعدة"
+msgstr "Tip de echipament"
+
+msgid "فئة المعدة"
+msgstr "Categorie de echipament"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Alocare de echipament"
+
+msgid "الكارت الشهري"
+msgstr "Card lunar de operare"
+
+msgid "موردي المعدات"
+msgstr "Furnizor de echipamente"
+
+msgid "ملخص الموردين"
+msgstr "Sumar furnizori"
+
+msgid "كشف حساب مورد"
+msgstr "Extras furnizor"

@@ -1,9 +1,9 @@
 ---
-title: "إضافة أو خصم الكارت الشهري"
-description: "حقول نوع المستند إضافة أو خصم الكارت الشهري وتخطيطه وصلاحياته."
+title: "إضافة/خصم الكارت الشهري"
+description: "حقول نوع المستند إضافة/خصم الكارت الشهري وتخطيطه وصلاحياته."
 editUrl: false
 sidebar:
-  label: "إضافة أو خصم الكارت الشهري"
+  label: "إضافة/خصم الكارت الشهري"
 ---
 
 :::note
@@ -24,7 +24,7 @@ sidebar:
 |---|---|---|---|---|
 | دفع نقدي | `is_cash_disbursement` | Check |  |  |
 | حالة الدفعة النقدية <small>(للقراءة فقط)</small> | `cash_status` | Data |  |  |
-| الدفعة النقدية <small>(للقراءة فقط)</small> | `cash_payment` | Link | [Card Cash Disbursement](/card/ar/reference/doctypes/card-cash-disbursement/) |  |
+| الدفعة النقدية <small>(للقراءة فقط)</small> | `cash_payment` | Link | [الصرف النقدي](/card/ar/reference/doctypes/card-cash-disbursement/) |  |
 | Journal Entry <small>(للقراءة فقط)</small> | `cash_journal_entry` | Link | Journal Entry |  |
 | حساب النقدية للمصروف المدفوع نيابةً عن المالك | `cash_account` | Link | الحساب |  |
 | التاريخ | `adjustment_date` | Date |  | نعم |

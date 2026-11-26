@@ -30,7 +30,7 @@ sidebar:
 | [`card.diesel`](#card-diesel) | 1 |
 | [`card.diesel_reconciliation`](#card-diesel-reconciliation) | 1 |
 | [`card.fitment`](#card-fitment) | 2 |
-| [`card.gl.integrity`](#card-gl-integrity) | 4 |
+| [`card.gl.integrity`](#card-gl-integrity) | 5 |
 | [`card.gl.journal_link`](#card-gl-journal-link) | 1 |
 | [`card.gl.period_run`](#card-gl-period-run) | 2 |
 | [`card.gl.posting`](#card-gl-posting) | 5 |
@@ -212,6 +212,7 @@ sidebar:
 | `card.gl.integrity.accept_correction` | POST | `invoice_doctype: str`<br/>`invoice: str`<br/>`reason: str` |
 | `card.gl.integrity.link_supplier_invoice` | POST | `invoice: str`<br/>`sources: str \| list`<br/>`reason: str \| None = None`<br/>`accept_difference: int \| str = 0` |
 | `card.gl.integrity.link_customer_invoice` | POST | `invoice: str`<br/>`cards: str \| list`<br/>`reason: str \| None = None` |
+| `card.gl.integrity.unlink_customer_invoice` | POST | `invoice: str`<br/>`reason: str \| None = None` |
 | `card.gl.integrity.unlinked_customer_invoice_candidates` | GET | `company: str`<br/>`limit_start: int \| str = 0`<br/>`limit_page_length: int \| str = 50` |
 
 

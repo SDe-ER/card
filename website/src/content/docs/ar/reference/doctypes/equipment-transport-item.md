@@ -25,7 +25,7 @@ sidebar:
 | المعدات | `card_equipment` | Link | [المعدات](/card/ar/reference/doctypes/card-equipment/) | نعم |
 | اسم المعدة <small>(للقراءة فقط)</small> | `equipment_name` | Data |  |  |
 | حصة التكلفة | `amount` | Currency |  |  |
-| Manual share <small>(مخفي)</small> | `manual_share` | Check |  |  |
+| حصة يدوية <small>(مخفي)</small> | `manual_share` | Check |  |  |
 | التعيين السابق <small>(للقراءة فقط)</small> | `previous_assignment` | Link | [تعيين معدة على مشروع](/card/ar/reference/doctypes/card-equipment-assignment/) |  |
 | التعيين المُنشأ <small>(للقراءة فقط)</small> | `created_assignment` | Link | [تعيين معدة على مشروع](/card/ar/reference/doctypes/card-equipment-assignment/) |  |
 | الحركة <small>(للقراءة فقط)</small> | `movement` | Select | أول دخول · Transfer · للورشة · للمستودع · رجوع للمورد |  |

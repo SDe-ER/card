@@ -59,7 +59,7 @@ sidebar:
 | أوقفه <small>(للقراءة فقط)</small> | `retired_by` | Link | المستخدم |  |
 | تاريخ الإيقاف <small>(للقراءة فقط)</small> | `retired_on` | Datetime |  |  |
 | سبب الإيقاف | `retire_reason` | Small Text |  |  |
-| المصدر <small>(للقراءة فقط)</small> | `source` | Select | Manual · اقتراح المشرف · طلب معتمد · Installation |  |
+| المصدر <small>(للقراءة فقط)</small> | `source` | Select | Manual · اقتراح المشرف · طلب معتمد · التركيب |  |
 | الطلب المصدر <small>(للقراءة فقط)</small> | `source_request` | Link | [طلب احتياجات معدة](/card/ar/reference/doctypes/equipment-needs-request/) |  |
 | الشركة <small>(للقراءة فقط)</small> | `company` | Link | الشركة |  |
 | مفتاح التوافق <small>(مخفي, للقراءة فقط)</small> | `compat_key` | Data |  |  |

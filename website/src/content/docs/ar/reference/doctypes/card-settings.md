@@ -45,7 +45,7 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| حدود مستويات الاعتماد | `approval_tier_thresholds` | Table | [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/) |  |
+| حدود مستويات الاعتماد | `approval_tier_thresholds` | Table | [حد مستوى الاعتماد](/card/ar/reference/doctypes/card-approval-tier-threshold/) |  |
 
 
 ### التشغيل
@@ -152,7 +152,7 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| أنواع الإضافات والخصومات | `adjustment_types` | Table | [نوع الإضافة والخصم](/card/ar/reference/doctypes/card-adjustment-type/) |  |
+| أنواع الإضافات والخصومات | `adjustment_types` | Table | [نوع الإضافة/الخصم](/card/ar/reference/doctypes/card-adjustment-type/) |  |
 | مركز التكلفة لكل ورشة / مستودع | `location_cost_centers` | Table | [مركز تكلفة المكان](/card/ar/reference/doctypes/card-location-cost-center/) |  |
 
 
@@ -174,11 +174,11 @@ sidebar:
 ## الجداول الفرعية
 
 - [إعدادات كارت للشركة](/card/ar/reference/doctypes/card-company-settings/)
-- [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/)
+- [حد مستوى الاعتماد](/card/ar/reference/doctypes/card-approval-tier-threshold/)
 - [سعر الديزل](/card/ar/reference/doctypes/card-diesel-price/)
 - [حد فروقات الديزل](/card/ar/reference/doctypes/card-diesel-variance-threshold/)
 - [سعر النقل للمشروع](/card/ar/reference/doctypes/card-project-transport-price/)
-- [نوع الإضافة والخصم](/card/ar/reference/doctypes/card-adjustment-type/)
+- [نوع الإضافة/الخصم](/card/ar/reference/doctypes/card-adjustment-type/)
 - [مركز تكلفة المكان](/card/ar/reference/doctypes/card-location-cost-center/)
 
 

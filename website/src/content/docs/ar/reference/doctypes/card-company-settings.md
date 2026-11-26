@@ -71,7 +71,7 @@ sidebar:
 | طريقة الدفع <small>(مخفي, للقراءة فقط)</small> | `mode_of_payment` | Link | طريقة الدفع |  |
 | قالب ضريبة الصنف (نسبة الشركة) | `vat_item_tax_template` | Link | قالب ضريبة الصنف |  |
 | قالب ضريبة الصنف 0% | `vat_zero_item_tax_template` | Link | قالب ضريبة الصنف |  |
-| Diesel price VAT basis | `diesel_price_vat_basis` | Select | Exclusive · Inclusive |  |
+| أساس ضريبة القيمة المضافة لسعر الديزل | `diesel_price_vat_basis` | Select | Exclusive · Inclusive |  |
 | فحص مشروع تعبئة الديزل | `diesel_fill_project_check` | Select | إيقاف (فحص مشروع الديزل) · تنبيه فقط (فحص مشروع الديزل) · رفض (فحص مشروع الديزل) |  |
 
 
@@ -116,7 +116,7 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| طريقة توزيع ديزل الخزان | `tank_estimate_weighting` | Select | Hours (tank estimate) · Hours × Rate (tank estimate) |  |
+| طريقة توزيع ديزل الخزان | `tank_estimate_weighting` | Select | الساعات (تقدير الخزان) · الساعات × المعدل (تقدير الخزان) |  |
 
 
 **بوابة الأطراف (معاينة)**

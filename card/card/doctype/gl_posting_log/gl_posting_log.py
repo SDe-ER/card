@@ -100,18 +100,32 @@ class GLPostingLog(Document):
 				and self.origin == "Linked"
 				and (self.party_type != "Supplier" or doc.docstatus != 1)
 			)
-			or frappe.db.exists(
-				"GL Posting Log",
-				{
-					"posting_doctype": self.posting_doctype,
-					"posting_doc": self.posting_doc,
-					"creation": [">=", doc.creation],
-				},
-			)
+			or self.has_another_log(doc.creation)
 		):
 			frappe.throw(
 				_("Posting logs are created only by CARD's monthly posting."), frappe.PermissionError
 			)
+
+	def has_another_log(self, since):
+		"""Another log of the same posting document, written at or after the document. FR-195: a link that a
+		System Manager removed (``card.gl.integrity.unlink_customer_invoice``) stays as a Cancelled Linked log
+		of a Sales Invoice that is still submitted; it does not stop a new link of that invoice. Every other
+		log does, whatever its status."""
+		for other in frappe.get_all(
+			"GL Posting Log",
+			filters={
+				"posting_doctype": self.posting_doctype,
+				"posting_doc": self.posting_doc,
+				"creation": [">=", since],
+			},
+			fields=["origin", "status", "party_type"],
+		):
+			removed_link = (
+				other.origin == "Linked" and other.status == "Cancelled" and other.party_type == "Customer"
+			)
+			if not (removed_link and self.origin == "Linked" and self.posting_doctype == "Sales Invoice"):
+				return True
+		return False
 
 	def on_trash(self):
 		"""#57: never deleted — not active, cancelled or stale logs either: the

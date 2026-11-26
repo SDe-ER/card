@@ -38,7 +38,123 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+## [4.14.1] — 2026-11-26
+
+> **Published 2026-11-26** (tag `v4.14.1`, owner approval 2026-11-26). Published ≠ deployed (see DEPLOYMENTS.md).
+> Patch release on top of v4.14.0. Fixes: the Card workspace draws all its number cards again (FR-168, PR #336), and
+> every locale translates the navigation layer (PR #345). One addition: a System Manager can remove a wrong customer
+> invoice link (FR-195, PR #344). The release has this one new method, and it is numbered as a patch release by owner
+> decision 2026-11-26; under Semantic Versioning a new method is a minor change. One changed rule: the `posted` flag of a
+> card stays 1 when a submitted posting log holds the other side without an invoice link on the card (a linked
+> accrual Journal Entry), in the unlink and on the cancel paths. Documentation tooling: the screenshot capture
+> (PR #336, PR #343). Records with no application change: the Production record of v4.14.0 (PR #341) and the captured
+> documentation screenshots (PR #342). No patch, no schema change, no fixture change, no role or DocPerm change; CARD
+> posts no accounting entry.
+
+
+### Added
+- **Unlink a wrong customer invoice link (FR-195, owner decision 2026-11-26).** Reason: a link made with
+  `link_customer_invoice` (FR-194) could be removed only by cancelling the Sales Invoice, and a company under ZATCA
+  cannot cancel a submitted Sales Invoice; the only way left was a data correction on the database, after which the
+  invoice could not be linked again.
+  - New method `card.gl.integrity.unlink_customer_invoice(invoice, reason)` (POST). It works only on a submitted
+    Sales Invoice that is the posting document of an active GL Posting Log with origin Linked (customer side). A
+    posting that CARD built (origin Built or empty) or a CARD credit note is always refused.
+  - Authorization: System Manager only (Accounts Manager is refused) and read on the Sales Invoice (the System
+    Manager role alone gives no read on it, so the caller also needs an accounts role); the company scope of the
+    link (`permitted_companies` of the posting sources, Sales Invoice and GL Posting Log); read on every card of
+    the link; a mandatory reason (HTML stripped).
+  - Refusals, all before the first write (nothing is partly undone): the invoice is not submitted; no active link;
+    the log names another document; cancelled-and-amended chain mismatch (another Sales Invoice has `amended_from`
+    = this invoice, or an invoice up the `amended_from` chain of this one still has an active posting log; new
+    helper `_check_unlink_chain`); a source of the log is not a monthly card; a card that is not submitted, is not
+    marked posted, whose `sales_invoice` is not this invoice, or whose `gl_posting` is neither this log nor the
+    active supplier-side log that holds the card (sub-rental). The message names the card.
+  - Effect: on each card `sales_invoice` is cleared, `posted` is set to 0 (1 stays when the supplier side is still
+    posted) and `gl_posting` is cleared when it points at this log, with `frappe.db.set_value(...,
+    update_modified=False)` as `card.gl.events.before_cancel` does; `modified` and the amounts of the card do not
+    change. The log is set to Cancelled and its `posting_key` is cleared; the log is never deleted. Its `remarks`
+    keep the link text and get who, when, the reason, the invoice, the log and the cards with their amounts. One
+    Info comment is added on the invoice and on each card (escaped). The invoice row, the log row (found with a
+    plain read, locked by its name and checked again) and the card rows are locked in the order of the link; the
+    invoice status, the log and the link fields of the cards are read under the locks. The amendment chain and
+    the supplier-side log of a sub-rental card are plain reads.
+  - `card.gl.events._other_side_still_posted` (changed): a card is still posted on the other side when a
+    submitted posting log of that side holds it, also when the card has the link field of that side and it is
+    empty. This is the case of a supplier side recognised by a linked accrual Journal Entry
+    (`link_accrual_journal` sets `posted` without a purchase invoice). Without it, the unlink would clear
+    `posted` on such a sub-rental card. The same function serves `card.gl.events.before_cancel` and
+    `card.gl.journal_link.before_cancel`, so this also corrects the cancel of a linked or CARD-built invoice:
+    `posted` now stays 1 on a card whose other side is held by a submitted posting log without an invoice
+    link on the card.
+  - `GLPostingLog.validate_builder_insert` (new helper `has_another_log`): a Cancelled Linked customer log of a
+    Sales Invoice no longer stops a new Linked log of the same invoice. Every other existing log still does. This
+    is what lets `link_customer_invoice` link the invoice again after an unlink (and after the manual data
+    correction that the v4.14.0 documentation described).
+  - Tests: `card/tests/test_unlink_customer_invoice.py`; the row of the method in `card/tests/test_bola_matrix.py`
+    (cross-company call and refused roles). Docs: `docs/governance/ROLE-ACTION-MATRIX.md`, FEATURE-REGISTRY
+    FR-195, the customer link pages of the site (English and Arabic), "What's new", the regenerated Reference
+    pages. New strings in `card/locale/main.pot` with Arabic in `card/locale/ar.po`.
+  - Impact: permissions — one new POST method for System Manager only; no DocType permission or role changes.
+    Accounting — none: no GL Entry, no Payment Ledger Entry, no tax row; the Sales Invoice is not saved, cancelled
+    or amended, and no ZATCA record is touched. Data — writes only the three link columns of the cards of the log,
+    `status`, `posting_key` and `remarks` of the log, and Comment rows; no schema change, no patch, nothing for
+    `migrate` to write. API — one new method; `link_customer_invoice` now accepts an invoice whose earlier link
+    was removed. After an unlink the customer reports show the cards as not invoiced and the invoice as outside
+    CARD again.
+  - Rollback: reverting the code removes the method; it does not undo an unlink that was made. An unlink is undone
+    with `link_customer_invoice` for the same invoice and cards (the first log stays Cancelled, a new log is
+    written). With the older code, an invoice whose link was removed cannot be linked again by the method.
+    Tested in CI without ksa_compliance; not checked on a Desk. Pull request: #344.
+
 ### Fixed
+- **Locales: the navigation layer is translated in every language (follow-up of FR-168; owner decision
+  2026-11-26).** Reason: the review of #336 found number card titles in English in Urdu, one label without its
+  "(CARD)" suffix, and navigation text that most locales did not translate. Changes, locale files only:
+  - `ur.po`: the 8 number card labels that were English are Urdu (row label and record name carry the same
+    text, so the cards still show); the 6 other Number Card and Dashboard Chart names are Urdu too.
+  - 42 locales (English included): the label "Loads last month (CARD)" keeps "(CARD)", as the English source
+    label and the other number cards of the same locale do. Arabic labels carry no "(CARD)" and do not change.
+  - 41 locales: 60 new entries each (53 in `bn`, `hi`, `ur`) for the titles of the 9 module sidebars, their links
+    (CARD DocTypes, reports, pages) and the Number Card and Dashboard Chart names. Before, the sidebars showed in
+    English and the workspace chart title in Arabic. `bn.po` and `hi.po` translate the 6 record names that were
+    English. `en.po` gets a display name for the sidebar "Card Materials".
+  - `ar.po`: the 36 empty entries are filled, 78 source strings without an entry are added (field labels and
+    descriptions of the newer DocTypes, the report names "Equipment Meter Reconciliation" and "Asset Mapping
+    Review"), and the second copy of "Card {0}" is removed (the catalogue kept the first copy, so no shown text
+    changes). Ten generic words that are field labels or Select options of CARD DocTypes (Approved, Posted,
+    Taxable, Installation, Exclusive, Inclusive, Built, Integrity, Origin, Replaces) are translated under
+    `msgctxt "<DocType>"` (13 new context entries). Frappe uses the DocType as context for a field or section
+    label, a list header and an option of an editable dropdown (`form/controls/base_input.js`,
+    `form/controls/select.js`, `frappe._` in `translate.js`); it draws a read-only Select value and a list cell
+    with the plain text (`form/formatters.js`), and CARD's own scripts call the plain form too. So "Posted",
+    "Built" and "Installation" also have a plain entry: none of them is a msgid of the frappe, erpnext or hrms
+    `version-16` catalogues, so nothing is overridden. The other seven words have no plain entry, because a plain
+    entry would replace the wording of Frappe, ERPNext or HRMS on the whole site. "Approved" is an HRMS string:
+    its plain form (a read-only status value, a list cell) shows the HRMS wording «تمت الموافقة», which is
+    accepted.
+  - `bn.po`, `hi.po`, `ur.po`: the 57 Arabic texts that showed in English (stored Select values such as «إيجار»,
+    older workspace labels, one field description) are translated into Bengali, Hindi and Urdu. Stored values do
+    not change; only the shown text does.
+  - «بالمتر المكعب» was the English "Per m³" in `af`, `fi`, `id`, `nb`, `nl`, `sv` and `ur`; it is translated.
+  - Every locale except Arabic gets the 12 Arabic labels of the older sidebar fixture
+    (`card/fixtures/workspace_sidebar.json`; 9 new entries in `bn`, `hi`, `ur` and `en`).
+  - Wording: Urdu uses one word for equipment («مشینری»), for last month («گزشتہ ماہ») and for reconciliation
+    («مطابقت») in all its entries; "Worker Custody" in `es`, `it`, `pt`, `pt_BR`, `id` names tools entrusted to
+    workers; German "Karten ohne internen Satz"; Serbian "Equipment Needs Summary" differs from "Equipment Needs
+    Review".
+  - Language coverage: `frappe` and `erpnext` (`version-16`) ship 40 `.po` files and `main.pot`, `hrms` a subset of
+    them; CARD has all 40 plus `bn`, `en`, `ur`. No language was missing.
+  Not changed: the full catalogue of forms and messages stays English and Arabic; ERPNext names in the sidebars
+  and the generic word "Catalog" are left to Frappe and ERPNext; `main.pot` (it is older than the source and needs
+  the bench i18n flow). Tests: new `card/tests/test_locale_navigation_layer.py` (fixtures, sidebars and locale
+  files; no site needed): no entry twice, placeholders kept, navigation layer and number card labels translated,
+  "(CARD)" kept, no Arabic text left in English, generic words under a context only, different names read
+  differently, and no empty entry in the hand-written locales (`ar.po` and `en.po` are the full catalogues, where
+  `bench update-po-files` writes empty entries). `TestNoArabicFallback` requires an Urdu-only letter in each
+  `ur.po` translation, because Urdu is written in the Arabic script. Impact: display only. No fixture, DocType, role, permission, accounting, data or API change; no patch. A
+  DocType or report of the sidebars now shows its translated name in these languages wherever Frappe shows the
+  name. Rollback: revert the commits and compile the locale files again. Pull request: #345.
 - **Card workspace: the hidden number cards show again (FR-168; found in issue 266).** Reason: Frappe draws a
   number card block of a workspace only when the label of its row equals the translated record name
   (`row.label == __(number_card_name)`; frappe `desk/desktop.py` `get_number_cards`, `views/workspace/blocks/block.js`
@@ -82,6 +198,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `volume-billing-loads-card` in English failed for a different reason: the English workspace drew no number card
   (see "Fixed" above). Files: `capture.mjs`, `shots.json`, `ci_bootstrap.py`. Tooling for the docs site only, run by the manual
   workflow `docs-screenshots.yml`: no application, permission, accounting, data or API change. Pull request: #336.
+- **Documentation screenshots: two reports were captured on their "Loading..." screen (issue 266).** Reason: in
+  the capture run 45859674403 of 2026-11-26 the images of `asset-mapping-review` and
+  `meter-readings-reconciliation` showed "Loading..." in both languages, so the docs kept their earlier images
+  (#342). The capture was not too early. Both reports need a role that reads Asset (`card/report_access.py`,
+  `_role_reads`), and ERPNext `version-16` gives that read to Accounts User and Quality Manager only. The demo
+  manager of the CI site had System Manager, Card Manager and Accounts Manager, so the server refused the two
+  runs. Desk continues only when the run succeeds (frappe `version-16`, `query_report.js`, `refresh`): after a
+  refused run the page keeps its loading screen, and the capture closed the error dialog. The run log has no
+  server answer, so the refusal is read from the source and from the images (the address of both pages kept its
+  first form, which Desk rewrites after each run that returns); the next run proves it. Fixes, in
+  `website/scripts/screenshots/`:
+  - `ci_bootstrap.py`: the demo manager also has the role Accounts User (CI site only).
+  - `capture.mjs`: every report shot (`/app/query-report/...`) records the answers of
+    `frappe.desk.query_report.run`. The shot is taken only when the last run succeeded, the loading screen is gone
+    and the page shows rows, a summary or the "nothing to show" message. A refused run fails the shot with the
+    HTTP status and the server message; a report that does not finish in 30 seconds fails the shot. No image is
+    written for a failed shot.
+  - `shots.json`: the two shots also wait for a report row (`waitSel`).
+  Tooling for the docs site only, run by the manual workflow `docs-screenshots.yml`: no application, permission,
+  accounting, data or API change. No image changes in this pull request; the images come from the next approved
+  run. Rollback: revert the commit. Pull request: #343.
 
 ## [4.14.0] — 2026-11-26
 

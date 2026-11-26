@@ -36,10 +36,10 @@ msgid "Cannot record loads for a future day: {0}"
 msgstr "Ladings kan nie vir 'n toekomstige dag aangeteken word nie: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "Per kubieke meter"
 
 msgid "Loads last month"
-msgstr "Ladings verlede maand"
+msgstr "Ladings verlede maand (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ladings kan net op 'n kaart met kliënttarief-tipe per m³ aangeteken word"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Gehuurde toerusting (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Ladings verlede maand"
+msgstr "Ladings verlede maand (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Konsep-kaarte (CARD)"
@@ -385,3 +385,219 @@ msgstr "Bewys (kwitansienommer of verwysing)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Kontantgoedkeuring versoek"
+
+msgid "Card Expenses"
+msgstr "Uitgawes"
+
+msgid "Card Fleet"
+msgstr "Toerusting"
+
+msgid "Card Materials"
+msgstr "Materiaal en aankope"
+
+msgid "Card Movement"
+msgstr "Beweging en vervoer"
+
+msgid "Card Operating Units"
+msgstr "Bedryfseenhede"
+
+msgid "Card Operation Cards"
+msgstr "Bedryfskaarte"
+
+msgid "Card Parties"
+msgstr "Verskaffers en kliënte"
+
+msgid "Card Reports"
+msgstr "Verslae"
+
+msgid "Card Setup"
+msgstr "Instellings"
+
+msgid "Project Diesel Fill"
+msgstr "Projek-dieselvulling"
+
+msgid "Equipment Transport"
+msgstr "Toerusting-vervoer"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Diesel-verbruik"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Toerusting-dieselontleding"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Toerustinguitgawes sonder toerusting"
+
+msgid "Card Equipment"
+msgstr "Toerusting"
+
+msgid "Card Equipment Type"
+msgstr "Toerustingtipe"
+
+msgid "Card Equipment Category"
+msgstr "Toerustingkategorie"
+
+msgid "Equipment Needs Request"
+msgstr "Versoek vir toerustingbehoeftes"
+
+msgid "Equipment Needs Review"
+msgstr "Hersiening van toerustingbehoeftes"
+
+msgid "Tool Custody"
+msgstr "Gereedskapbewaring"
+
+msgid "Employee Tool Custody"
+msgstr "Werknemer-gereedskapbewaring"
+
+msgid "Equipment Makes"
+msgstr "Toerustingmerke"
+
+msgid "Equipment Models"
+msgstr "Toerustingmodelle"
+
+msgid "Parts Fitment"
+msgstr "Onderdeelpassing"
+
+msgid "Equipment Make Model Values"
+msgstr "Tekswaardes van merk en model"
+
+msgid "Equipment Needs Summary"
+msgstr "Opsomming van toerustingbehoeftes"
+
+msgid "Equipment Consumption"
+msgstr "Toerustingverbruik"
+
+msgid "Worker Custody"
+msgstr "Werkerbewaring"
+
+msgid "Repeat Equipment Requests"
+msgstr "Herhaalde toerustingversoeke"
+
+msgid "Card Equipment Assignment"
+msgstr "Toerustingopdrag"
+
+msgid "Transport Cost by Project"
+msgstr "Vervoerkoste per projek"
+
+msgid "Card Monthly Card"
+msgstr "Maandelikse bedryfskaart"
+
+msgid "Operating Cost by Project"
+msgstr "Bedryfskoste per projek"
+
+msgid "Card Equipment Supplier"
+msgstr "Toerustingverskaffer"
+
+msgid "Card Equipment Customer"
+msgstr "Toerustingkliënt"
+
+msgid "Equipment Supplier Statement"
+msgstr "Verskafferstaat"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Verskaffers-opsomming"
+
+msgid "Equipment Customer Statement"
+msgstr "Kliëntestaat"
+
+msgid "Equipment Customers Summary"
+msgstr "Kliënteopsomming"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dieselafwyking en anomalieë"
+
+msgid "Diesel Group Analysis"
+msgstr "Dieselgroepontleding"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Dieselfaktuur-rekonsiliasie"
+
+msgid "Card Settlement Status"
+msgstr "Kaartvereffeningstatus"
+
+msgid "Equipment Partial Margin"
+msgstr "Gedeeltelike toerustingmarge"
+
+msgid "Project Invoice Profitability"
+msgstr "Projekwinsgewendheid volgens fakture"
+
+msgid "Unbilled Card Work"
+msgstr "Ongefaktureerde kaartwerk"
+
+msgid "Posting Source Integrity"
+msgstr "Integriteit van boekingsbronne"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Toerusting-instandhoudingskoste"
+
+msgid "Equipment Downtime"
+msgstr "Toerustingstilstand"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Meterversoening"
+
+msgid "Asset Mapping Review"
+msgstr "Hersiening van batekoppeling"
+
+msgid "Transport Accounting Review"
+msgstr "Hersiening van vervoerrekeningkunde"
+
+msgid "Equipment Location History"
+msgstr "Toerusting-liggingsgeskiedenis"
+
+msgid "Card Settings"
+msgstr "Instellings"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Verskaffer-huurkoste - laaste maand"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Totale dieselliters"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Totale dieselkoste"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Totale vervoerkoste"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Maandelikse kaartbedrae"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Maandelikse dieselkoste"
+
+msgid "الصفحة الرئيسية"
+msgstr "Tuis"
+
+msgid "التشغيل"
+msgstr "Bedrywe"
+
+msgid "الموردين والتقارير"
+msgstr "Verskaffers en verslae"
+
+msgid "المعدات"
+msgstr "Toerusting"
+
+msgid "المعدة"
+msgstr "Toerusting"
+
+msgid "نوع المعدة"
+msgstr "Toerustingtipe"
+
+msgid "فئة المعدة"
+msgstr "Toerustingkategorie"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Toerustingopdrag"
+
+msgid "الكارت الشهري"
+msgstr "Maandelikse bedryfskaart"
+
+msgid "موردي المعدات"
+msgstr "Toerustingverskaffer"
+
+msgid "ملخص الموردين"
+msgstr "Verskaffers-opsomming"
+
+msgid "كشف حساب مورد"
+msgstr "Verskafferstaat"

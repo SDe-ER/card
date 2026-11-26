@@ -126,7 +126,7 @@ sidebar:
 | مركز التكلفة | `cost_center` | Link | مركز التكلفة |  |
 | فاتورة الشراء <small>(للقراءة فقط)</small> | `purchase_invoice` | Link | فاتورة الشراء |  |
 | الترحيل المحاسبي <small>(للقراءة فقط)</small> | `gl_posting` | Link | [سجل الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-log/) |  |
-| مرحَّل <small>(للقراءة فقط)</small> | `posted` | Check |  |  |
+| مُرحَّل <small>(للقراءة فقط)</small> | `posted` | Check |  |  |
 | معدّل من <small>(للقراءة فقط)</small> | `amended_from` | Link | [تعبئة ديزل للمشروع](/card/ar/reference/doctypes/project-diesel-fill/) |  |
 | سبب الإلغاء <small>(للقراءة فقط)</small> | `cancel_reason` | Small Text |  |  |
 

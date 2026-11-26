@@ -87,7 +87,10 @@ def ensure_manager(password):
 		)
 		# Accounts Manager: the monthly posting screen lists only the suppliers and customers the user can read
 		# (card/gl/posting.py, month_parties), and System Manager and Card Manager read neither.
-		for role in ("System Manager", "Card Manager", "Accounts Manager"):
+		# Accounts User: Asset Mapping Review and Equipment Meter Reconciliation need a role that reads Asset
+		# (card/report_access.py, _role_reads), and ERPNext version-16 gives that read to Accounts User and
+		# Quality Manager only (erpnext/assets/doctype/asset/asset.json), not to the three roles above.
+		for role in ("System Manager", "Card Manager", "Accounts Manager", "Accounts User"):
 			user.append("roles", {"role": role})
 		user.insert(ignore_permissions=True)
 	return frappe.get_doc("User", MANAGER)

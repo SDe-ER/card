@@ -47,7 +47,7 @@ sidebar:
 | معدّل من <small>(للقراءة فقط)</small> | `amended_from` | Link | [نقل المعدات](/card/ar/reference/doctypes/equipment-transport/) |  |
 | سبب الإلغاء <small>(للقراءة فقط)</small> | `cancel_reason` | Small Text |  |  |
 | الترحيل المحاسبي <small>(للقراءة فقط)</small> | `gl_posting` | Link | [سجل الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-log/) |  |
-| مرحَّل <small>(للقراءة فقط)</small> | `posted` | Check |  |  |
+| مُرحَّل <small>(للقراءة فقط)</small> | `posted` | Check |  |  |
 | طريقة النقل | `transport_method` | Select | رأس تريلا · ونش · لوبد · سير ذاتي · Other |  |
 | التعيين السابق <small>(للقراءة فقط)</small> | `previous_assignment` | Link | [تعيين معدة على مشروع](/card/ar/reference/doctypes/card-equipment-assignment/) |  |
 | التعيين المُنشأ <small>(للقراءة فقط)</small> | `created_assignment` | Link | [تعيين معدة على مشروع](/card/ar/reference/doctypes/card-equipment-assignment/) |  |
