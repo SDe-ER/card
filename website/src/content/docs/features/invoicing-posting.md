@@ -269,22 +269,40 @@ After the link:
 - **Unbilled Card Work** no longer lists the cards, and **Posting Source Integrity** shows them as consistent.
 - CARD never builds a Sales Invoice for these cards, and a linked card cannot be cancelled or reopened while the link
   is active.
-- A second call for the same invoice is refused.
+- A second call for the same invoice is refused while the link is active.
 
 #### Undo a wrong customer link
 
-CARD has no method that removes a link.
+There are two ways to remove a link. Neither one posts an entry or changes a card amount.
 
 - If the Sales Invoice can be cancelled in ERPNext, cancel it. CARD then clears the invoice link, the **Posted** flag
   and the log link on each card and sets the log to Cancelled. The cards are free again.
-- A company under ZATCA Phase 2 cannot cancel a submitted Sales Invoice. A credit note corrects the invoice, but it
-  does not remove the link. In this case only a data correction removes the link. An administrator makes it on the
-  database after the owner approves it and after a backup. The correction makes the same writes as the cancel: on the
-  GL Posting Log, set `status` to `Cancelled` and clear `posting_key`; on each card of the log, clear `sales_invoice`
-  and `gl_posting` and set `posted` to 0 (keep 1 on a sub-rental card whose supplier side is still posted). The log
-  row stays as the audit record. Record the correction as a comment on the invoice and on each card.
-- After this correction, the same invoice cannot be linked again with the method, because CARD accepts only one
-  posting log for one invoice. Check the cards before you link.
+- A company under ZATCA Phase 2 cannot cancel a submitted Sales Invoice, and a credit note corrects the invoice but
+  does not remove the link. For this case a System Manager calls the server method `unlink_customer_invoice` with the
+  invoice and a reason (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)).
+  There is no button in Desk for this action, and an Accounts Manager cannot do it. The caller needs the System
+  Manager role and also read permission on the Sales Invoice and on the cards. The System Manager role alone does
+  not give read permission on a Sales Invoice, so the user also needs an accounts role.
+
+`unlink_customer_invoice` removes only a link that `link_customer_invoice` made. It refuses a Sales Invoice that CARD
+built. It also refuses when the link is no longer in the state the link left it, and then it changes nothing:
+
+- the invoice is not submitted;
+- the caller cannot read a card of the link;
+- another Sales Invoice amends the invoice, or an invoice that this one amends still has an active posting log
+  (cancelled-and-amended chain mismatch);
+- a card of the link is no longer submitted, is not marked **Posted**, shows another Sales Invoice, or shows another
+  posting log. The message names the card.
+
+| The unlink writes | It does not change |
+|---|---|
+| On the GL Posting Log of the link: status Cancelled. The log is kept, and its remarks get who removed the link, when, the reason, the invoice, the log and the cards with their amounts | The Sales Invoice (it is not saved, cancelled or amended; no ZATCA step runs) |
+| On each card: the Sales Invoice link and the log link are cleared, and the **Posted** flag is cleared (it stays on a sub-rental card whose supplier side is still posted by a purchase invoice or by a linked accrual Journal Entry) | Card amounts, rates, days, additions, deductions, the workflow state and the last-modified time |
+| One information comment on the invoice and on each card: who removed the link, when, the log and the reason | The ledger: no GL Entry, no payment entry, no tax row |
+
+After the unlink, the customer reports show the cards as not invoiced again and the invoice as an invoice outside
+CARD. `unlinked_customer_invoice_candidates` lists the invoice again, and `link_customer_invoice` accepts the invoice
+and the cards again. Link the correct cards after you remove a wrong link.
 
 ### Settlement status
 

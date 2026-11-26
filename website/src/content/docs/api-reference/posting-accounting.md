@@ -24,6 +24,7 @@ accrual journal entry, an accountant links it instead, so CARD never builds it t
 | POST | `card.gl.integrity.accept_correction` | Accept a cost center / account correction on a CARD draft. |
 | POST | `card.gl.integrity.link_supplier_invoice` | Link a hand-booked Purchase Invoice to CARD sources. |
 | POST | `card.gl.integrity.link_customer_invoice` | Link a hand-booked, submitted Sales Invoice to customer monthly cards. |
+| POST | `card.gl.integrity.unlink_customer_invoice` | Remove a wrong link between a Sales Invoice and its monthly cards (System Manager). |
 | GET | `card.gl.integrity.unlinked_customer_invoice_candidates` | List the hand-booked Sales Invoices that are not linked, with the cards that can match. |
 | POST | `card.gl.journal_link.link_accrual_journal` | Link a supplier accrual Journal Entry to CARD cards. |
 
@@ -208,13 +209,57 @@ read again under the locks before the log is inserted.
 **Returns:** the GL Posting Log name. **Side effects:** inserts one Linked GL Posting Log of type Sales Invoice with one
 source row per card; sets `sales_invoice`, `posted` and `gl_posting` on each card; adds one Info comment on the invoice
 and on each card. It writes no GL Entry and does not save the Sales Invoice. A second call for the same invoice is
-refused. To undo a wrong link, see
-[Invoicing and posting](/card/features/invoicing-posting/#undo-a-wrong-customer-link).
+refused while the link is active. To undo a wrong link, see [unlink_customer_invoice](#unlink_customer_invoice).
 
 ```bash
 curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.link_customer_invoice" \
   -H "Authorization: token <api_key>:<api_secret>" -H "Content-Type: application/json" \
   -d '{"invoice": "<invoice-name>", "cards": ["<card-name>"], "reason": "Invoice entered in ERPNext before the cards"}'
+```
+
+## unlink_customer_invoice
+
+`POST /api/method/card.gl.integrity.unlink_customer_invoice`
+
+Removes a wrong link that `link_customer_invoice` made. It is for a company that cannot cancel a submitted Sales
+Invoice (ZATCA). Nothing is posted, cancelled, amended or deleted: the Sales Invoice, the card amounts and the ledger
+are not changed. There is no Desk button for this method.
+
+**Permission:** System Manager (Accounts Manager is not enough) and read on the Sales Invoice. The System Manager role
+alone does not give read on a Sales Invoice, so the user also needs an accounts role. Also: the company within the
+user's CARD and accounting scope, and read on every card of the link.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `invoice` | string | Yes | Submitted Sales Invoice that is the posting document of an active GL Posting Log with origin **Linked**. |
+| `reason` | string | Yes | Why the link is removed. It is stored on the log and in the comments. |
+
+**Refusals:** every check runs before the first write, so a refused call changes nothing.
+
+- The invoice is not submitted, or it has no active link.
+- The invoice is a posting that CARD built (origin Built or empty) or a CARD credit note.
+- Cancelled-and-amended chain mismatch: another Sales Invoice amends this invoice, or an invoice that this one amends
+  (up the chain) still has an active posting log. An amendment that has its own link is unlinked as any other invoice.
+- A source of the log is not a monthly card, or the user cannot read a card of the link.
+- A card changed after the link: it is not submitted, it is not marked posted, its `sales_invoice` is not this invoice,
+  or its `gl_posting` is neither this log nor the active supplier-side log that holds the card (sub-rental). The
+  message names the card.
+
+**Concurrency:** the invoice row, the log row and the card rows are locked in the order of the link. The invoice
+status, the log and the link fields of the cards are read under the locks. The amendment chain and the supplier-side
+log of a sub-rental card are plain reads.
+
+**Returns:** the GL Posting Log name. **Side effects:** sets the Linked GL Posting Log to `Cancelled` and clears its
+`posting_key`; the log is kept, and its `remarks` get who, when, the reason, the invoice, the log and the cards with
+their amounts. On each card it clears `sales_invoice`, sets `posted` to 0 (1 stays on a sub-rental card whose supplier
+side is still posted by a purchase invoice or a linked accrual Journal Entry) and clears `gl_posting` when it points at this log; the card's `modified` is not changed. It adds
+one Info comment on the invoice and on each card. It writes no GL Entry and does not save the Sales Invoice. After the
+call, `link_customer_invoice` accepts the invoice and the cards again.
+
+```bash
+curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.unlink_customer_invoice" \
+  -H "Authorization: token <api_key>:<api_secret>" -H "Content-Type: application/json" \
+  -d '{"invoice": "<invoice-name>", "reason": "The invoice was linked to the cards of another month"}'
 ```
 
 ## unlinked_customer_invoice_candidates
