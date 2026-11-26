@@ -36,7 +36,7 @@ msgid "Cannot record loads for a future day: {0}"
 msgstr "Ladings kan nie vir 'n toekomstige dag aangeteken word nie: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "Per kubieke meter"
 
 msgid "Loads last month"
 msgstr "Ladings verlede maand (CARD)"
@@ -565,3 +565,39 @@ msgstr "Maandelikse kaartbedrae"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Maandelikse dieselkoste"
+
+msgid "الصفحة الرئيسية"
+msgstr "Tuis"
+
+msgid "التشغيل"
+msgstr "Bedrywe"
+
+msgid "الموردين والتقارير"
+msgstr "Verskaffers en verslae"
+
+msgid "المعدات"
+msgstr "Toerusting"
+
+msgid "المعدة"
+msgstr "Toerusting"
+
+msgid "نوع المعدة"
+msgstr "Toerustingtipe"
+
+msgid "فئة المعدة"
+msgstr "Toerustingkategorie"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Toerustingopdrag"
+
+msgid "الكارت الشهري"
+msgstr "Maandelikse bedryfskaart"
+
+msgid "موردي المعدات"
+msgstr "Toerustingverskaffer"
+
+msgid "ملخص الموردين"
+msgstr "Verskaffers-opsomming"
+
+msgid "كشف حساب مورد"
+msgstr "Verskafferstaat"

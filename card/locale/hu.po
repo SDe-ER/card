@@ -565,3 +565,39 @@ msgstr "Havi kártyaösszegek"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Havi dízelköltség"
+
+msgid "الصفحة الرئيسية"
+msgstr "Kezdőlap"
+
+msgid "التشغيل"
+msgstr "Üzemeltetés"
+
+msgid "الموردين والتقارير"
+msgstr "Beszállítók és jelentések"
+
+msgid "المعدات"
+msgstr "Eszközök"
+
+msgid "المعدة"
+msgstr "Eszközök"
+
+msgid "نوع المعدة"
+msgstr "Eszköztípus"
+
+msgid "فئة المعدة"
+msgstr "Eszközkategória"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Eszköz-hozzárendelés"
+
+msgid "الكارت الشهري"
+msgstr "Havi üzemeltetési kártya"
+
+msgid "موردي المعدات"
+msgstr "Eszközbeszállító"
+
+msgid "ملخص الموردين"
+msgstr "Beszállítói összesítő"
+
+msgid "كشف حساب مورد"
+msgstr "Beszállítói kivonat"

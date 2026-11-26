@@ -126,18 +126,20 @@ class TestCardSettingsDisplayName(IntegrationTestCase):
 class TestNoArabicFallback(IntegrationTestCase):
 	"""v4.1.2 (Owner): an English user sees no Arabic. Stored Select values and the names of
 	the workspace widgets are Arabic and stay so (data), so each one shown on screen needs an
-	English translation in en.po; the other non-Arabic CARD locales carry one too, so they fall
-	back to English, never to Arabic. Urdu is written in the Arabic script, so a script check
-	cannot tell an Urdu translation from the Arabic source: for Urdu the translation must differ
-	from the Arabic text (owner decision 2026-11-26: Urdu labels are in Urdu, not in English)."""
+	English translation in en.po; the other non-Arabic CARD locales carry a translation too,
+	never the Arabic text. Urdu is written in the Arabic script, so the script alone cannot tell
+	an Urdu translation from the Arabic source: an Urdu translation must hold at least one letter
+	that Urdu has and Arabic has not (owner decision 2026-11-26: Urdu labels are in Urdu)."""
 
 	ARABIC = re.compile(r"[؀-ۿ]")
+	# letters of the Urdu alphabet that Arabic does not use (Urdu yeh, kaf and heh have their own codes)
+	URDU_ONLY = re.compile(r"[ٹڈڑںھہےیکگپچژ]")
 	FALLBACK_LOCALES = ("en.po", "bn.po", "hi.po", "ur.po")
 	ARABIC_SCRIPT_LOCALES = ("ur.po",)
 
 	def _is_arabic_fallback(self, po, source, translation):
 		if po in self.ARABIC_SCRIPT_LOCALES:
-			return translation == source
+			return translation == source or not self.URDU_ONLY.search(translation)
 		return bool(self.ARABIC.search(translation))
 
 	def _shown_arabic(self):

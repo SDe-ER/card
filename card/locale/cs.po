@@ -565,3 +565,39 @@ msgstr "Měsíční částky karet"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Měsíční náklady na naftu"
+
+msgid "الصفحة الرئيسية"
+msgstr "Domů"
+
+msgid "التشغيل"
+msgstr "Provoz"
+
+msgid "الموردين والتقارير"
+msgstr "Dodavatelé a sestavy"
+
+msgid "المعدات"
+msgstr "Technika"
+
+msgid "المعدة"
+msgstr "Technika"
+
+msgid "نوع المعدة"
+msgstr "Typ techniky"
+
+msgid "فئة المعدة"
+msgstr "Kategorie techniky"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Přiřazení techniky"
+
+msgid "الكارت الشهري"
+msgstr "Měsíční provozní karta"
+
+msgid "موردي المعدات"
+msgstr "Dodavatel techniky"
+
+msgid "ملخص الموردين"
+msgstr "Souhrn dodavatelů"
+
+msgid "كشف حساب مورد"
+msgstr "Výpis dodavatele"

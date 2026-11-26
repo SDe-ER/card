@@ -565,3 +565,39 @@ msgstr "Oylik karta summalari"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Oylik dizel xarajati"
+
+msgid "الصفحة الرئيسية"
+msgstr "Bosh sahifa"
+
+msgid "التشغيل"
+msgstr "Operatsiyalar"
+
+msgid "الموردين والتقارير"
+msgstr "Yetkazib beruvchilar va hisobotlar"
+
+msgid "المعدات"
+msgstr "Texnika"
+
+msgid "المعدة"
+msgstr "Texnika"
+
+msgid "نوع المعدة"
+msgstr "Texnika turi"
+
+msgid "فئة المعدة"
+msgstr "Texnika toifasi"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Texnikani biriktirish"
+
+msgid "الكارت الشهري"
+msgstr "Oylik ish kartasi"
+
+msgid "موردي المعدات"
+msgstr "Texnika yetkazib beruvchisi"
+
+msgid "ملخص الموردين"
+msgstr "Yetkazib beruvchilar xulosasi"
+
+msgid "كشف حساب مورد"
+msgstr "Yetkazib beruvchi hisoboti"

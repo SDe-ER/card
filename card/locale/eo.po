@@ -565,3 +565,39 @@ msgstr "Monataj kartaj sumoj"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Monata dizelkosto"
+
+msgid "الصفحة الرئيسية"
+msgstr "Hejmo"
+
+msgid "التشغيل"
+msgstr "Operacioj"
+
+msgid "الموردين والتقارير"
+msgstr "Liveruloj kaj raportoj"
+
+msgid "المعدات"
+msgstr "Ekipaĵo"
+
+msgid "المعدة"
+msgstr "Ekipaĵo"
+
+msgid "نوع المعدة"
+msgstr "Tipo de ekipaĵo"
+
+msgid "فئة المعدة"
+msgstr "Kategorio de ekipaĵo"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Asigno de ekipaĵo"
+
+msgid "الكارت الشهري"
+msgstr "Monata operacia karto"
+
+msgid "موردي المعدات"
+msgstr "Liverulo de ekipaĵo"
+
+msgid "ملخص الموردين"
+msgstr "Resumo de liveruloj"
+
+msgid "كشف حساب مورد"
+msgstr "Konto de liveranto"

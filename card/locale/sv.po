@@ -36,7 +36,7 @@ msgid "Cannot record loads for a future day: {0}"
 msgstr "Lass kan inte registreras för en framtida dag: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "Per kubikmeter"
 
 msgid "Loads last month"
 msgstr "Lass förra månaden (CARD)"
@@ -565,3 +565,39 @@ msgstr "Månatliga kortbelopp"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Månatlig dieselkostnad"
+
+msgid "الصفحة الرئيسية"
+msgstr "Hem"
+
+msgid "التشغيل"
+msgstr "Drift"
+
+msgid "الموردين والتقارير"
+msgstr "Leverantörer och rapporter"
+
+msgid "المعدات"
+msgstr "Utrustning"
+
+msgid "المعدة"
+msgstr "Utrustning"
+
+msgid "نوع المعدة"
+msgstr "Utrustningstyp"
+
+msgid "فئة المعدة"
+msgstr "Utrustningskategori"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Utrustningstilldelning"
+
+msgid "الكارت الشهري"
+msgstr "Månatligt driftkort"
+
+msgid "موردي المعدات"
+msgstr "Utrustningsleverantör"
+
+msgid "ملخص الموردين"
+msgstr "Leverantörssammanställning"
+
+msgid "كشف حساب مورد"
+msgstr "Leverantörsutdrag"

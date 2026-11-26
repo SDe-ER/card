@@ -565,3 +565,39 @@ msgstr "每月卡金額"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "每月柴油成本"
+
+msgid "الصفحة الرئيسية"
+msgstr "首頁"
+
+msgid "التشغيل"
+msgstr "營運"
+
+msgid "الموردين والتقارير"
+msgstr "供應商與報表"
+
+msgid "المعدات"
+msgstr "設備"
+
+msgid "المعدة"
+msgstr "設備"
+
+msgid "نوع المعدة"
+msgstr "設備類型"
+
+msgid "فئة المعدة"
+msgstr "設備類別"
+
+msgid "تعيين معدة على مشروع"
+msgstr "設備指派"
+
+msgid "الكارت الشهري"
+msgstr "每月作業卡"
+
+msgid "موردي المعدات"
+msgstr "設備供應商"
+
+msgid "ملخص الموردين"
+msgstr "供應商摘要"
+
+msgid "كشف حساب مورد"
+msgstr "供應商對帳單"

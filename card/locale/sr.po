@@ -462,7 +462,7 @@ msgid "Equipment Make Model Values"
 msgstr "Текстуалне вредности марке и модела"
 
 msgid "Equipment Needs Summary"
-msgstr "Преглед потреба опреме"
+msgstr "Сажетак потреба опреме"
 
 msgid "Equipment Consumption"
 msgstr "Потрошња опреме"
@@ -565,3 +565,39 @@ msgstr "Месечни износи картица"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Месечни трошак дизела"
+
+msgid "الصفحة الرئيسية"
+msgstr "Почетна"
+
+msgid "التشغيل"
+msgstr "Операције"
+
+msgid "الموردين والتقارير"
+msgstr "Добављачи и извештаји"
+
+msgid "المعدات"
+msgstr "Опрема"
+
+msgid "المعدة"
+msgstr "Опрема"
+
+msgid "نوع المعدة"
+msgstr "Врста опреме"
+
+msgid "فئة المعدة"
+msgstr "Категорија опреме"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Додељивање опреме"
+
+msgid "الكارت الشهري"
+msgstr "Месечна оперативна картица"
+
+msgid "موردي المعدات"
+msgstr "Добављач опреме"
+
+msgid "ملخص الموردين"
+msgstr "Резиме добављача"
+
+msgid "كشف حساب مورد"
+msgstr "Извод добављача"

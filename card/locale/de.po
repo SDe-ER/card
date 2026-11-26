@@ -160,10 +160,10 @@ msgid "كروت مسودة"
 msgstr "Entwurfskarten (CARD)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Karten ohne interne Rate (CARD)"
+msgstr "Karten ohne internen Satz (CARD)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Karten ohne interne Rate (CARD)"
+msgstr "Karten ohne internen Satz (CARD)"
 
 msgid "Operating hours without rate (CARD)"
 msgstr "Betriebsstunden ohne Rate (CARD)"
@@ -565,3 +565,39 @@ msgstr "Monatliche Kartenbeträge"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Monatliche Dieselkosten"
+
+msgid "الصفحة الرئيسية"
+msgstr "Startseite"
+
+msgid "التشغيل"
+msgstr "Betrieb"
+
+msgid "الموردين والتقارير"
+msgstr "Lieferanten und Berichte"
+
+msgid "المعدات"
+msgstr "Geräte"
+
+msgid "المعدة"
+msgstr "Geräte"
+
+msgid "نوع المعدة"
+msgstr "Gerätetyp"
+
+msgid "فئة المعدة"
+msgstr "Gerätekategorie"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Gerätezuweisung"
+
+msgid "الكارت الشهري"
+msgstr "Monatliche Betriebskarte"
+
+msgid "موردي المعدات"
+msgstr "Gerätelieferant"
+
+msgid "ملخص الموردين"
+msgstr "Lieferantenübersicht"
+
+msgid "كشف حساب مورد"
+msgstr "Lieferantenauszug"

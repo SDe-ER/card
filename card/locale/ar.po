@@ -9695,10 +9695,6 @@ msgstr "كل اعتمادات CARD"
 msgid "Approval scope"
 msgstr "نطاق الاعتماد"
 
-#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
-msgid "Approved"
-msgstr "معتمد"
-
 #: card/card/report/asset_mapping_review/asset_mapping_review.json
 msgid "Asset Mapping Review"
 msgstr "مراجعة ربط الأصول"
@@ -9710,10 +9706,6 @@ msgstr "توقيع البناء"
 #: card/card/doctype/gl_posting_log/gl_posting_log.json
 msgid "Built snapshot"
 msgstr "لقطة البناء"
-
-#: card/card/doctype/gl_posting_log/gl_posting_log.json
-msgid "Built"
-msgstr "تم البناء"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
 msgid "Cancellation Reason"
@@ -9779,10 +9771,6 @@ msgstr "حجزه للترحيل"
 msgid "Claimed on"
 msgstr "تاريخ الحجز"
 
-#: card/card/page/tool_custody/tool_custody.js
-msgid "Confirm {0}"
-msgstr "تأكيد {0}"
-
 #: card/card/doctype/gl_posting_log/gl_posting_log.json
 msgid "Correction accepted by"
 msgstr "قبل التصحيح"
@@ -9819,10 +9807,6 @@ msgstr "مطابقة عدادات المعدات"
 msgid "Equipment that belongs to this operating group. One equipment may belong to at most one active group of its company at a time (date ranges may not overlap)."
 msgstr "المعدات التابعة لمجموعة التشغيل هذه. المعدة الواحدة تتبع مجموعة نشطة واحدة على الأكثر في شركتها في الوقت نفسه (لا يجوز تداخل الفترات)."
 
-#: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "Exclusive"
-msgstr "غير شامل الضريبة"
-
 #: card/card/doctype/diesel_dispense/diesel_dispense.json
 msgid "FR-090 idempotency guard: unique while the Dispense is active (Draft/Submitted). Cleared on cancel so a corrected dispense can be entered."
 msgstr "حماية من التكرار (FR-090): قيمة فريدة ما دام الصرف نشطًا (مسودة/معتمد). تُمسح عند الإلغاء ليمكن إدخال صرف مصحَّح."
@@ -9850,18 +9834,6 @@ msgstr "الساعات × المعدل (تقدير الخزان)"
 #: card/card/doctype/equipment_operating_group/equipment_operating_group.json
 msgid "Human name of the operating group (unique within the company). Example: Crusher plant #2."
 msgstr "اسم مجموعة التشغيل (فريد داخل الشركة). مثال: محطة الكسارة رقم 2."
-
-#: card/card/doctype/card_company_settings/card_company_settings.json
-msgid "Inclusive"
-msgstr "شامل الضريبة"
-
-#: card/card/doctype/card_equipment_part/card_equipment_part.json
-msgid "Installation"
-msgstr "التركيب"
-
-#: card/card/doctype/gl_posting_log/gl_posting_log.json
-msgid "Integrity"
-msgstr "السلامة"
 
 #: card/card/doctype/gl_posting_log/gl_posting_log.json
 msgid "Lines signature"
@@ -9903,10 +9875,6 @@ msgstr "تاريخ نهاية اختياري (شامل اليوم نفسه). ف�
 msgid "Optional: the equipment the dispense is attributable to (for reports). Does NOT add a GL line for this equipment (FR-100)."
 msgstr "اختياري: المعدة التي يُنسب إليها الصرف (للتقارير). لا يضيف سطر قيد محاسبي لهذه المعدة (FR-100)."
 
-#: card/card/doctype/gl_posting_log/gl_posting_log.json
-msgid "Origin"
-msgstr "المنشأ"
-
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Per-equipment estimated split of a tank fill, frozen at submit. Report and card display only; the fill still posts one project-level line (FR-100)."
 msgstr "توزيع تقديري لتعبئة الخزان على المعدات، يُثبَّت عند الاعتماد. للعرض في التقارير والكارت فقط؛ والتعبئة تُرحَّل بسطر واحد على مستوى المشروع (FR-100)."
@@ -9918,10 +9886,6 @@ msgstr "رحّله"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
 msgid "Posted on"
 msgstr "تاريخ الترحيل"
-
-#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
-msgid "Posted"
-msgstr "مُرحَّل"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
 msgid "Posting Error"
@@ -9938,10 +9902,6 @@ msgstr "مرجع الإيصال أو السند للدفع النقدي الفع
 #: card/card/doctype/diesel_fill_allocation/diesel_fill_allocation.json
 msgid "Remainder row"
 msgstr "سطر الباقي"
-
-#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
-msgid "Replaces"
-msgstr "بديل عن"
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.json
 msgid "Server-written: Active within the window, Expired after to_date, Cancelled on docstatus = 2."
@@ -9962,10 +9922,6 @@ msgstr "فواتير موردين روجعت كغير مرتبطة"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
 msgid "Supporting evidence"
 msgstr "مستند الإثبات"
-
-#: card/card/doctype/card_adjustment_type/card_adjustment_type.json
-msgid "Taxable"
-msgstr "خاضع للضريبة"
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.json
 msgid "The approver whose queue is delegated. Must already hold a CARD approver role (Card Manager, Card Reviewer or Accounts Manager)."
@@ -10018,3 +9974,68 @@ msgstr "سبب عدم كتابة أي سطر توزيع (مثل: لا توجد �
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.json
 msgid "Why the delegation is granted (leave, travel, hand-over)."
 msgstr "سبب منح التفويض (إجازة، سفر، تسليم عمل)."
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgctxt "Card Cash Disbursement"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json
+msgctxt "Card Daily Log"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/card_period_run/card_period_run.json
+msgctxt "Card Period Run"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.json
+msgctxt "Equipment Needs Request"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json
+msgctxt "Equipment Needs Review"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgctxt "Equipment Transport"
+msgid "Approved"
+msgstr "معتمد"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgctxt "Card Cash Disbursement"
+msgid "Posted"
+msgstr "مُرحَّل"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgctxt "Card Company Settings"
+msgid "Exclusive"
+msgstr "غير شامل الضريبة"
+
+#: card/card/doctype/card_company_settings/card_company_settings.json
+msgctxt "Card Company Settings"
+msgid "Inclusive"
+msgstr "شامل الضريبة"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgctxt "GL Posting Log"
+msgid "Built"
+msgstr "تم البناء"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgctxt "GL Posting Log"
+msgid "Origin"
+msgstr "المنشأ"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgctxt "GL Posting Log"
+msgid "Integrity"
+msgstr "السلامة"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json
+msgctxt "Card Cash Disbursement"
+msgid "Replaces"
+msgstr "بديل عن"

@@ -36,7 +36,7 @@ msgid "Cannot record loads for a future day: {0}"
 msgstr "Muatan tidak dapat dicatat untuk hari mendatang: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "Per meter kubik"
 
 msgid "Loads last month"
 msgstr "Muatan bulan lalu (CARD)"
@@ -468,7 +468,7 @@ msgid "Equipment Consumption"
 msgstr "Konsumsi peralatan"
 
 msgid "Worker Custody"
-msgstr "Penitipan pekerja"
+msgstr "Perkakas yang dititipkan kepada pekerja"
 
 msgid "Repeat Equipment Requests"
 msgstr "Permintaan peralatan berulang"
@@ -565,3 +565,39 @@ msgstr "Jumlah kartu bulanan"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Biaya solar bulanan"
+
+msgid "الصفحة الرئيسية"
+msgstr "Beranda"
+
+msgid "التشغيل"
+msgstr "Operasional"
+
+msgid "الموردين والتقارير"
+msgstr "Pemasok dan laporan"
+
+msgid "المعدات"
+msgstr "Peralatan"
+
+msgid "المعدة"
+msgstr "Peralatan"
+
+msgid "نوع المعدة"
+msgstr "Jenis peralatan"
+
+msgid "فئة المعدة"
+msgstr "Kategori peralatan"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Penugasan peralatan"
+
+msgid "الكارت الشهري"
+msgstr "Kartu operasi bulanan"
+
+msgid "موردي المعدات"
+msgstr "Pemasok peralatan"
+
+msgid "ملخص الموردين"
+msgstr "Ringkasan pemasok"
+
+msgid "كشف حساب مورد"
+msgstr "Laporan pemasok"

@@ -36,7 +36,7 @@ msgid "Cannot record loads for a future day: {0}"
 msgstr "Kuormia ei voi kirjata tulevalle päivälle: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "Kuutiometriltä"
 
 msgid "Loads last month"
 msgstr "Kuormat viime kuussa (CARD)"
@@ -565,3 +565,39 @@ msgstr "Korttien kuukausisummat"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Kuukauden dieselkustannukset"
+
+msgid "الصفحة الرئيسية"
+msgstr "Etusivu"
+
+msgid "التشغيل"
+msgstr "Toiminta"
+
+msgid "الموردين والتقارير"
+msgstr "Toimittajat ja raportit"
+
+msgid "المعدات"
+msgstr "Kalusto"
+
+msgid "المعدة"
+msgstr "Kalusto"
+
+msgid "نوع المعدة"
+msgstr "Kalustotyyppi"
+
+msgid "فئة المعدة"
+msgstr "Kalustoluokka"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Kaluston kohdistus"
+
+msgid "الكارت الشهري"
+msgstr "Kuukausittainen käyttökortti"
+
+msgid "موردي المعدات"
+msgstr "Kaluston toimittaja"
+
+msgid "ملخص الموردين"
+msgstr "Toimittajayhteenveto"
+
+msgid "كشف حساب مورد"
+msgstr "Toimittajan tiliote"

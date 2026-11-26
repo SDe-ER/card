@@ -565,3 +565,39 @@ msgstr "Miesięczne kwoty kart"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Miesięczny koszt diesla"
+
+msgid "الصفحة الرئيسية"
+msgstr "Strona główna"
+
+msgid "التشغيل"
+msgstr "Eksploatacja"
+
+msgid "الموردين والتقارير"
+msgstr "Dostawcy i raporty"
+
+msgid "المعدات"
+msgstr "Sprzęt"
+
+msgid "المعدة"
+msgstr "Sprzęt"
+
+msgid "نوع المعدة"
+msgstr "Typ sprzętu"
+
+msgid "فئة المعدة"
+msgstr "Kategoria sprzętu"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Przydział sprzętu"
+
+msgid "الكارت الشهري"
+msgstr "Miesięczna karta eksploatacji"
+
+msgid "موردي المعدات"
+msgstr "Dostawca sprzętu"
+
+msgid "ملخص الموردين"
+msgstr "Podsumowanie dostawców"
+
+msgid "كشف حساب مورد"
+msgstr "Wyciąg dostawcy"

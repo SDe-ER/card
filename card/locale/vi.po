@@ -565,3 +565,39 @@ msgstr "Số tiền thẻ hàng tháng"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Chi phí dầu diesel hàng tháng"
+
+msgid "الصفحة الرئيسية"
+msgstr "Trang chủ"
+
+msgid "التشغيل"
+msgstr "Vận hành"
+
+msgid "الموردين والتقارير"
+msgstr "Nhà cung cấp và báo cáo"
+
+msgid "المعدات"
+msgstr "Thiết bị"
+
+msgid "المعدة"
+msgstr "Thiết bị"
+
+msgid "نوع المعدة"
+msgstr "Loại thiết bị"
+
+msgid "فئة المعدة"
+msgstr "Nhóm thiết bị"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Phân công thiết bị"
+
+msgid "الكارت الشهري"
+msgstr "Thẻ vận hành hàng tháng"
+
+msgid "موردي المعدات"
+msgstr "Nhà cung cấp thiết bị"
+
+msgid "ملخص الموردين"
+msgstr "Tóm tắt nhà cung cấp"
+
+msgid "كشف حساب مورد"
+msgstr "Sao kê nhà cung cấp"

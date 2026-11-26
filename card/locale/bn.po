@@ -260,127 +260,127 @@ msgstr "পর্যালোচনার অপেক্ষায়"
 # The stored values do not change (display translation only); languages without their own
 # translation fall back to English here, never to Arabic.
 msgid "ملك"
-msgstr "Owned"
+msgstr "নিজস্ব"
 
 msgid "إيجار"
-msgstr "Rented"
+msgstr "ভাড়া করা"
 
 msgid "طرف ثالث"
-msgstr "Third Party"
+msgstr "তৃতীয় পক্ষ"
 
 msgid "معدات ملك"
-msgstr "Owned Equipment"
+msgstr "নিজস্ব যন্ত্রপাতি"
 
 msgid "مورد"
-msgstr "Supplier"
+msgstr "সরবরাহকারী"
 
 msgid "إيجار من الباطن"
-msgstr "Sub-rental"
+msgstr "উপ-ভাড়া"
 
 msgid "تشغيل داخلي"
-msgstr "Internal Operation"
+msgstr "অভ্যন্তরীণ পরিচালনা"
 
 msgid "مستأجَرة من مورد"
-msgstr "Rented from Supplier"
+msgstr "সরবরাহকারীর কাছ থেকে ভাড়া নেওয়া"
 
 msgid "مؤجَّرة لعميل"
-msgstr "Rented to Customer"
+msgstr "গ্রাহককে ভাড়া দেওয়া"
 
 msgid "الشركة"
-msgstr "Company"
+msgstr "কোম্পানি"
 
 msgid "المؤجر"
-msgstr "Lessor"
+msgstr "ভাড়াদাতা"
 
 msgid "باليوم"
-msgstr "Per Day"
+msgstr "প্রতি দিন"
 
 msgid "بالشهر"
-msgstr "Per Month"
+msgstr "প্রতি মাস"
 
 msgid "بالساعة"
-msgstr "Per Hour"
+msgstr "প্রতি ঘণ্টা"
 
 msgid "متعدد"
-msgstr "Multiple"
+msgstr "একাধিক"
 
 msgid "ساعات"
-msgstr "Hours"
+msgstr "ঘণ্টা"
 
 msgid "كيلومترات"
-msgstr "Kilometres"
+msgstr "কিলোমিটার"
 
 msgid "بدون عداد"
-msgstr "No Meter"
+msgstr "মিটার ছাড়া"
 
 msgid "نشطة"
-msgstr "Active"
+msgstr "সক্রিয়"
 
 msgid "متوقفة"
-msgstr "Stopped"
+msgstr "বন্ধ"
 
 msgid "في الصيانة"
-msgstr "Under Maintenance"
+msgstr "রক্ষণাবেক্ষণে"
 
 msgid "منتهية"
-msgstr "Ended"
+msgstr "সমাপ্ত"
 
 msgid "نشط"
-msgstr "Active"
+msgstr "সক্রিয়"
 
 msgid "منتهي"
-msgstr "Ended"
+msgstr "সমাপ্ত"
 
 msgid "إرجاع للمؤجر"
-msgstr "Returned to Lessor"
+msgstr "ভাড়াদাতাকে ফেরত"
 
 msgid "انتهاء الإيجار"
-msgstr "Rental Ended"
+msgstr "ভাড়া শেষ"
 
 msgid "بيع"
-msgstr "Sold"
+msgstr "বিক্রীত"
 
 msgid "تكهين"
-msgstr "Scrapped"
+msgstr "বাতিল ঘোষিত"
 
 msgid "نقل لفرع آخر"
-msgstr "Transferred to Another Branch"
+msgstr "অন্য শাখায় স্থানান্তরিত"
 
 msgid "تمت"
-msgstr "Settled"
+msgstr "নিষ্পত্তি হয়েছে"
 
 msgid "لم تتم"
-msgstr "Not Settled"
+msgstr "নিষ্পত্তি হয়নি"
 
 msgid "نهاري"
-msgstr "Day"
+msgstr "দিনের শিফট"
 
 msgid "ليلي"
-msgstr "Night"
+msgstr "রাতের শিফট"
 
 msgid "عمل"
-msgstr "Working"
+msgstr "কাজ"
 
 msgid "إجازة"
-msgstr "Day Off"
+msgstr "ছুটি"
 
 msgid "عطل"
-msgstr "Breakdown"
+msgstr "বিকল"
 
 msgid "توقف من العميل"
-msgstr "Stopped by Customer"
+msgstr "গ্রাহকের কারণে বন্ধ"
 
 msgid "إضافة"
-msgstr "Addition"
+msgstr "সংযোজন"
 
 msgid "خصم"
-msgstr "Deduction"
+msgstr "কর্তন"
 
 msgid "ثابت"
-msgstr "Fixed"
+msgstr "স্থির"
 
 msgid "متغير"
-msgstr "Variable"
+msgstr "পরিবর্তনশীল"
 
 msgid "إجمالي تكلفة الديزل"
 msgstr "মোট ডিজেল ব্যয়"
@@ -425,53 +425,53 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "হার ছাড়া পরিচালন ঘণ্টা (CARD)"
 
 msgid "كارت تشغيل شهري"
-msgstr "Monthly Operation Card"
+msgstr "মাসিক অপারেশন কার্ড"
 
 msgid "Hours a monthly (بالشهر) rate is spread over. Default 260 = 26 days x 10 hours."
-msgstr "Hours a monthly (Per Month) rate is spread over. Default 260 = 26 days x 10 hours."
+msgstr "মাসিক (প্রতি মাস) হার যত ঘণ্টায় ভাগ করা হয়। ডিফল্ট 260 = 26 দিন x 10 ঘণ্টা।"
 
 # v4.1.2: Card workspace shortcuts and section headers (stored Arabic names)
 msgid "الكروت الشهرية"
-msgstr "Monthly Cards"
+msgstr "মাসিক কার্ড"
 
 msgid "التعيينات"
-msgstr "Assignments"
+msgstr "অ্যাসাইনমেন্ট"
 
 msgid "المعدات"
-msgstr "Equipment"
+msgstr "যন্ত্রপাতি"
 
 msgid "كارت جديد"
-msgstr "New Card"
+msgstr "নতুন কার্ড"
 
 msgid "ملخص الموردين"
-msgstr "Suppliers Summary"
+msgstr "সরবরাহকারী সারসংক্ষেপ"
 
 msgid "كشف حساب مورد"
-msgstr "Supplier Statement"
+msgstr "সরবরাহকারী বিবরণী"
 
 msgid "عملاء المعدات"
-msgstr "Equipment Customers"
+msgstr "যন্ত্রপাতির গ্রাহক"
 
 msgid "ملخص العملاء"
-msgstr "Customers Summary"
+msgstr "গ্রাহকদের সারসংক্ষেপ"
 
 msgid "كشف حساب عميل"
-msgstr "Customer Statement"
+msgstr "গ্রাহকের বিবরণী"
 
 msgid "استهلاك ديزل المعدات"
-msgstr "Equipment Diesel Consumption"
+msgstr "যন্ত্রপাতির ডিজেল ব্যবহার"
 
 msgid "تكلفة النقل بالمشروع"
-msgstr "Transport Cost by Project"
+msgstr "প্রকল্প অনুযায়ী পরিবহন ব্যয়"
 
 msgid "تكلفة التشغيل بالمشروع"
-msgstr "Operating Cost by Project"
+msgstr "প্রকল্প অনুযায়ী পরিচালন ব্যয়"
 
 msgid "الديزل والتشغيل"
-msgstr "Diesel and Operations"
+msgstr "ডিজেল ও অপারেশন"
 
 msgid "المحاسبة"
-msgstr "Accounting"
+msgstr "হিসাবরক্ষণ"
 
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
@@ -987,3 +987,30 @@ msgstr "যন্ত্রপাতির অবস্থানের ইতি�
 
 msgid "Card Settings"
 msgstr "সেটিংস"
+
+msgid "الصفحة الرئيسية"
+msgstr "হোম"
+
+msgid "التشغيل"
+msgstr "অপারেশন"
+
+msgid "الموردين والتقارير"
+msgstr "সরবরাহকারী ও প্রতিবেদন"
+
+msgid "المعدة"
+msgstr "যন্ত্রপাতি"
+
+msgid "نوع المعدة"
+msgstr "যন্ত্রপাতির ধরন"
+
+msgid "فئة المعدة"
+msgstr "যন্ত্রপাতির শ্রেণি"
+
+msgid "تعيين معدة على مشروع"
+msgstr "যন্ত্রপাতির অ্যাসাইনমেন্ট"
+
+msgid "الكارت الشهري"
+msgstr "মাসিক অপারেশন কার্ড"
+
+msgid "موردي المعدات"
+msgstr "যন্ত্রপাতির সরবরাহকারী"

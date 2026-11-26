@@ -468,7 +468,7 @@ msgid "Equipment Consumption"
 msgstr "Consumo do equipamento"
 
 msgid "Worker Custody"
-msgstr "Custódia dos trabalhadores"
+msgstr "Ferramentas confiadas aos trabalhadores"
 
 msgid "Repeat Equipment Requests"
 msgstr "Pedidos de equipamento repetidos"
@@ -565,3 +565,39 @@ msgstr "Montantes mensais dos cartões"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Custo mensal de gasóleo"
+
+msgid "الصفحة الرئيسية"
+msgstr "Início"
+
+msgid "التشغيل"
+msgstr "Operações"
+
+msgid "الموردين والتقارير"
+msgstr "Fornecedores e relatórios"
+
+msgid "المعدات"
+msgstr "Equipamento"
+
+msgid "المعدة"
+msgstr "Equipamento"
+
+msgid "نوع المعدة"
+msgstr "Tipo de equipamento"
+
+msgid "فئة المعدة"
+msgstr "Categoria de equipamento"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Atribuição de equipamento"
+
+msgid "الكارت الشهري"
+msgstr "Cartão mensal de operação"
+
+msgid "موردي المعدات"
+msgstr "Fornecedor de equipamento"
+
+msgid "ملخص الموردين"
+msgstr "Resumo de fornecedores"
+
+msgid "كشف حساب مورد"
+msgstr "Extrato de fornecedor"

@@ -36,7 +36,7 @@ msgid "Cannot record loads for a future day: {0}"
 msgstr "Ritten kunnen niet voor een toekomstige dag worden vastgelegd: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "Per kubieke meter"
 
 msgid "Loads last month"
 msgstr "Ritten vorige maand (CARD)"
@@ -565,3 +565,39 @@ msgstr "Maandelijkse kaartbedragen"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Maandelijkse dieselkosten"
+
+msgid "الصفحة الرئيسية"
+msgstr "Startpagina"
+
+msgid "التشغيل"
+msgstr "Bedrijfsvoering"
+
+msgid "الموردين والتقارير"
+msgstr "Leveranciers en rapporten"
+
+msgid "المعدات"
+msgstr "Materieel"
+
+msgid "المعدة"
+msgstr "Materieel"
+
+msgid "نوع المعدة"
+msgstr "Materieeltype"
+
+msgid "فئة المعدة"
+msgstr "Materieelcategorie"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Materieeltoewijzing"
+
+msgid "الكارت الشهري"
+msgstr "Maandelijkse bedrijfskaart"
+
+msgid "موردي المعدات"
+msgstr "Materieelleverancier"
+
+msgid "ملخص الموردين"
+msgstr "Leveranciersamenvatting"
+
+msgid "كشف حساب مورد"
+msgstr "Leverancierafschrift"

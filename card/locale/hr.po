@@ -565,3 +565,39 @@ msgstr "Mjesečni iznosi kartica"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Mjesečni trošak dizela"
+
+msgid "الصفحة الرئيسية"
+msgstr "Početna"
+
+msgid "التشغيل"
+msgstr "Poslovanje"
+
+msgid "الموردين والتقارير"
+msgstr "Dobavljači i izvješća"
+
+msgid "المعدات"
+msgstr "Oprema"
+
+msgid "المعدة"
+msgstr "Oprema"
+
+msgid "نوع المعدة"
+msgstr "Vrsta opreme"
+
+msgid "فئة المعدة"
+msgstr "Kategorija opreme"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Dodjela opreme"
+
+msgid "الكارت الشهري"
+msgstr "Mjesečna operativna kartica"
+
+msgid "موردي المعدات"
+msgstr "Dobavljač opreme"
+
+msgid "ملخص الموردين"
+msgstr "Sažetak dobavljača"
+
+msgid "كشف حساب مورد"
+msgstr "Izvod dobavljača"

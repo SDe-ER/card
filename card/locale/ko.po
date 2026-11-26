@@ -565,3 +565,39 @@ msgstr "월별 카드 금액"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "월별 경유 비용"
+
+msgid "الصفحة الرئيسية"
+msgstr "홈"
+
+msgid "التشغيل"
+msgstr "운영"
+
+msgid "الموردين والتقارير"
+msgstr "공급업체 및 보고서"
+
+msgid "المعدات"
+msgstr "장비"
+
+msgid "المعدة"
+msgstr "장비"
+
+msgid "نوع المعدة"
+msgstr "장비 유형"
+
+msgid "فئة المعدة"
+msgstr "장비 분류"
+
+msgid "تعيين معدة على مشروع"
+msgstr "장비 배정"
+
+msgid "الكارت الشهري"
+msgstr "월간 운영 카드"
+
+msgid "موردي المعدات"
+msgstr "장비 공급업체"
+
+msgid "ملخص الموردين"
+msgstr "공급업체 요약"
+
+msgid "كشف حساب مورد"
+msgstr "공급업체 명세서"

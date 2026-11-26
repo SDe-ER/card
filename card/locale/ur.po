@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "My equipment needs"
-msgstr "میرے آلات کی ضروریات"
+msgstr "میری مشینری کی ضروریات"
 
 msgid "My recent requests"
 msgstr "میری حالیہ درخواستیں"
@@ -37,25 +37,25 @@ msgid "Your request was sent to the supervisor."
 msgstr "آپ کی درخواست سپروائزر کو بھیج دی گئی ہے۔"
 
 msgid "Your account is not set up to ask for equipment needs. Ask your supervisor."
-msgstr "آپ کا اکاؤنٹ آلات کی ضروریات مانگنے کے لیے تیار نہیں ہے۔ اپنے سپروائزر سے پوچھیں۔"
+msgstr "آپ کا اکاؤنٹ مشینری کی ضروریات مانگنے کے لیے تیار نہیں ہے۔ اپنے سپروائزر سے پوچھیں۔"
 
 msgid "No equipment is assigned to you this month."
-msgstr "اس مہینے آپ کے نام کوئی آلہ نہیں ہے۔"
+msgstr "اس مہینے آپ کے نام کوئی مشینری نہیں ہے۔"
 
 msgid "In review"
 msgstr "جائزے میں"
 
 msgid "You can only ask for the equipment you operate."
-msgstr "آپ صرف اپنے چلائے جانے والے آلات کے لیے مانگ سکتے ہیں۔"
+msgstr "آپ صرف اپنی چلائی جانے والی مشینری کے لیے مانگ سکتے ہیں۔"
 
 msgid "Your account is not linked to an employee."
 msgstr "آپ کا اکاؤنٹ کسی ملازم سے منسلک نہیں ہے۔"
 
 msgid "{0} is not the operator of equipment {1}."
-msgstr "{0} آلہ {1} کا آپریٹر نہیں ہے۔"
+msgstr "{0} مشینری {1} کا آپریٹر نہیں ہے۔"
 
 msgid "Equipment {0} is not on a project; record its transport first."
-msgstr "آلہ {0} کسی پروجیکٹ پر نہیں ہے؛ پہلے اس کی نقل و حمل درج کریں۔"
+msgstr "مشینری {0} کسی پروجیکٹ پر نہیں ہے؛ پہلے اس کی ترسیل درج کریں۔"
 
 msgid "Row {0}: choose an item or describe it."
 msgstr "لائن {0}: آئٹم منتخب کریں یا اس کی تفصیل لکھیں۔"
@@ -70,7 +70,7 @@ msgid "Part"
 msgstr "پرزہ"
 
 msgid "Equipment needs"
-msgstr "آلات کی ضروریات"
+msgstr "مشینری کی ضروریات"
 
 msgid "Tool"
 msgstr "اوزار"
@@ -94,7 +94,7 @@ msgid "On iPhone, tap Share, then Add to Home Screen."
 msgstr "iPhone پر Share دبائیں، پھر Add to Home Screen۔"
 
 msgid "Equipment Needs Review"
-msgstr "آلات کی ضروریات کا جائزہ"
+msgstr "مشینری کی ضروریات کا جائزہ"
 
 msgctxt "Card Mobile"
 msgid "Approved"
@@ -166,7 +166,7 @@ msgstr "صارف"
 
 msgctxt "Card Mobile"
 msgid "Equipment"
-msgstr "آلہ"
+msgstr "مشینری"
 
 msgctxt "Card Mobile"
 msgid "Notes"
@@ -260,127 +260,127 @@ msgstr "جائزہ باقی"
 # The stored values do not change (display translation only); languages without their own
 # translation fall back to English here, never to Arabic.
 msgid "ملك"
-msgstr "Owned"
+msgstr "ملکیتی"
 
 msgid "إيجار"
-msgstr "Rented"
+msgstr "کرائے پر"
 
 msgid "طرف ثالث"
-msgstr "Third Party"
+msgstr "فریقِ ثالث"
 
 msgid "معدات ملك"
-msgstr "Owned Equipment"
+msgstr "ملکیتی مشینری"
 
 msgid "مورد"
-msgstr "Supplier"
+msgstr "سپلائر"
 
 msgid "إيجار من الباطن"
-msgstr "Sub-rental"
+msgstr "ذیلی کرایہ"
 
 msgid "تشغيل داخلي"
-msgstr "Internal Operation"
+msgstr "اندرونی آپریشن"
 
 msgid "مستأجَرة من مورد"
-msgstr "Rented from Supplier"
+msgstr "سپلائر سے کرائے پر لی گئی"
 
 msgid "مؤجَّرة لعميل"
-msgstr "Rented to Customer"
+msgstr "کسٹمر کو کرائے پر دی گئی"
 
 msgid "الشركة"
-msgstr "Company"
+msgstr "کمپنی"
 
 msgid "المؤجر"
-msgstr "Lessor"
+msgstr "کرائے پر دینے والا"
 
 msgid "باليوم"
-msgstr "Per Day"
+msgstr "فی دن"
 
 msgid "بالشهر"
-msgstr "Per Month"
+msgstr "فی مہینہ"
 
 msgid "بالساعة"
-msgstr "Per Hour"
+msgstr "فی گھنٹہ"
 
 msgid "متعدد"
-msgstr "Multiple"
+msgstr "ایک سے زیادہ"
 
 msgid "ساعات"
-msgstr "Hours"
+msgstr "گھنٹے"
 
 msgid "كيلومترات"
-msgstr "Kilometres"
+msgstr "کلومیٹر"
 
 msgid "بدون عداد"
-msgstr "No Meter"
+msgstr "میٹر کے بغیر"
 
 msgid "نشطة"
-msgstr "Active"
+msgstr "چالو"
 
 msgid "متوقفة"
-msgstr "Stopped"
+msgstr "رکی ہوئی"
 
 msgid "في الصيانة"
-msgstr "Under Maintenance"
+msgstr "دیکھ بھال میں"
 
 msgid "منتهية"
-msgstr "Ended"
+msgstr "ختم شدہ"
 
 msgid "نشط"
-msgstr "Active"
+msgstr "جاری"
 
 msgid "منتهي"
-msgstr "Ended"
+msgstr "ختم شدہ"
 
 msgid "إرجاع للمؤجر"
-msgstr "Returned to Lessor"
+msgstr "مالک کو واپس"
 
 msgid "انتهاء الإيجار"
-msgstr "Rental Ended"
+msgstr "کرایہ ختم"
 
 msgid "بيع"
-msgstr "Sold"
+msgstr "فروخت شدہ"
 
 msgid "تكهين"
-msgstr "Scrapped"
+msgstr "ناکارہ قرار دی گئی"
 
 msgid "نقل لفرع آخر"
-msgstr "Transferred to Another Branch"
+msgstr "دوسری برانچ کو منتقل"
 
 msgid "تمت"
-msgstr "Settled"
+msgstr "تصفیہ ہو گیا"
 
 msgid "لم تتم"
-msgstr "Not Settled"
+msgstr "تصفیہ نہیں ہوا"
 
 msgid "نهاري"
-msgstr "Day"
+msgstr "دن کی شفٹ"
 
 msgid "ليلي"
-msgstr "Night"
+msgstr "رات کی شفٹ"
 
 msgid "عمل"
-msgstr "Working"
+msgstr "کام"
 
 msgid "إجازة"
-msgstr "Day Off"
+msgstr "چھٹی"
 
 msgid "عطل"
-msgstr "Breakdown"
+msgstr "خرابی"
 
 msgid "توقف من العميل"
-msgstr "Stopped by Customer"
+msgstr "کسٹمر کی طرف سے بندش"
 
 msgid "إضافة"
-msgstr "Addition"
+msgstr "اضافہ"
 
 msgid "خصم"
-msgstr "Deduction"
+msgstr "کٹوتی"
 
 msgid "ثابت"
-msgstr "Fixed"
+msgstr "مقررہ"
 
 msgid "متغير"
-msgstr "Variable"
+msgstr "متغیر"
 
 msgid "إجمالي تكلفة الديزل"
 msgstr "ڈیزل کی کل لاگت"
@@ -425,53 +425,53 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (CARD)"
 
 msgid "كارت تشغيل شهري"
-msgstr "Monthly Operation Card"
+msgstr "ماہانہ آپریشن کارڈ"
 
 msgid "Hours a monthly (بالشهر) rate is spread over. Default 260 = 26 days x 10 hours."
-msgstr "Hours a monthly (Per Month) rate is spread over. Default 260 = 26 days x 10 hours."
+msgstr "ماہانہ (فی مہینہ) ریٹ جتنے گھنٹوں پر تقسیم ہوتا ہے۔ ڈیفالٹ 260 = 26 دن x 10 گھنٹے۔"
 
 # v4.1.2: Card workspace shortcuts and section headers (stored Arabic names)
 msgid "الكروت الشهرية"
-msgstr "Monthly Cards"
+msgstr "ماہانہ کارڈز"
 
 msgid "التعيينات"
-msgstr "Assignments"
+msgstr "اسائنمنٹس"
 
 msgid "المعدات"
-msgstr "Equipment"
+msgstr "مشینری"
 
 msgid "كارت جديد"
-msgstr "New Card"
+msgstr "نیا کارڈ"
 
 msgid "ملخص الموردين"
-msgstr "Suppliers Summary"
+msgstr "سپلائرز کا خلاصہ"
 
 msgid "كشف حساب مورد"
-msgstr "Supplier Statement"
+msgstr "سپلائر اسٹیٹمنٹ"
 
 msgid "عملاء المعدات"
-msgstr "Equipment Customers"
+msgstr "مشینری کے کسٹمرز"
 
 msgid "ملخص العملاء"
-msgstr "Customers Summary"
+msgstr "کسٹمرز کا خلاصہ"
 
 msgid "كشف حساب عميل"
-msgstr "Customer Statement"
+msgstr "کسٹمر اسٹیٹمنٹ"
 
 msgid "استهلاك ديزل المعدات"
-msgstr "Equipment Diesel Consumption"
+msgstr "مشینری کے ڈیزل کی کھپت"
 
 msgid "تكلفة النقل بالمشروع"
-msgstr "Transport Cost by Project"
+msgstr "پروجیکٹ کے لحاظ سے ترسیل کی لاگت"
 
 msgid "تكلفة التشغيل بالمشروع"
-msgstr "Operating Cost by Project"
+msgstr "پروجیکٹ کے لحاظ سے آپریٹنگ لاگت"
 
 msgid "الديزل والتشغيل"
-msgstr "Diesel and Operations"
+msgstr "ڈیزل اور آپریشنز"
 
 msgid "المحاسبة"
-msgstr "Accounting"
+msgstr "اکاؤنٹنگ"
 
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
@@ -503,10 +503,10 @@ msgid "Cannot record loads for a future day: {0}"
 msgstr "مستقبل کے دن کے لیے لوڈ درج نہیں کیے جا سکتے: {0}"
 
 msgid "بالمتر المكعب"
-msgstr "Per m³"
+msgstr "فی مکعب میٹر"
 
 msgid "Loads last month"
-msgstr "پچھلے مہینے کے لوڈ (CARD)"
+msgstr "گزشتہ ماہ کے لوڈ (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "لوڈ صرف اس کارڈ پر درج کیے جا سکتے ہیں جس کی کسٹمر ریٹ کی قسم فی m³ ہو"
@@ -603,7 +603,7 @@ msgid "Rented equipment (CARD)"
 msgstr "کرائے کی مشینری (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "پچھلے مہینے کے لوڈ (CARD)"
+msgstr "گزشتہ ماہ کے لوڈ (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "مسودہ کارڈز (CARD)"
@@ -636,7 +636,7 @@ msgid "Transport cost by project (CARD)"
 msgstr "پروجیکٹ کے لحاظ سے ترسیل کی لاگت (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "میٹر مفاہمت (CARD)"
+msgstr "میٹر کی مطابقت (CARD)"
 
 msgid "Equipment transport (CARD)"
 msgstr "مشینری کی ترسیل (CARD)"
@@ -719,7 +719,7 @@ msgstr "نقد ادائیگی {0} منظور ہو چکی ہے؛ {1} تبدیل �
 
 #: card/cash_disbursement.py
 msgid "Journal entry {0} still has active allocations. Resolve them in ERPNext (unreconcile or unlink) before cancelling it."
-msgstr "جرنل اندراج {0} میں ابھی بھی فعال مختص شدہ رقمیں ہیں۔ منسوخ کرنے سے پہلے انہیں ERPNext میں نمٹائیں (مفاہمت واپس لیں یا لنک ہٹائیں)۔"
+msgstr "جرنل اندراج {0} میں ابھی بھی فعال مختص شدہ رقمیں ہیں۔ منسوخ کرنے سے پہلے انہیں ERPNext میں نمٹائیں (مطابقت واپس لیں یا لنک ہٹائیں)۔"
 
 #: card/cash_disbursement.py
 msgid "Journal entry {0} pays cash payment {1}. Request its cancellation with a reason first; the payment is then marked Cancelled."
@@ -743,15 +743,15 @@ msgstr "منسوخی کی درخواست کی گئی"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Not reconciled"
-msgstr "مفاہمت نہیں ہوئی"
+msgstr "مطابقت نہیں ہوئی"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Partially reconciled"
-msgstr "جزوی مفاہمت"
+msgstr "جزوی مطابقت"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Fully reconciled"
-msgstr "مکمل مفاہمت"
+msgstr "مکمل مطابقت"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Approve this cash payment? The approver must not be the requester."
@@ -799,15 +799,15 @@ msgstr "نقد: منسوخ شدہ"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash: not reconciled"
-msgstr "نقد: مفاہمت نہیں ہوئی"
+msgstr "نقد: مطابقت نہیں ہوئی"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash: partially reconciled"
-msgstr "نقد: جزوی مفاہمت"
+msgstr "نقد: جزوی مطابقت"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash: fully reconciled"
-msgstr "نقد: مکمل مفاہمت"
+msgstr "نقد: مکمل مطابقت"
 
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash: replacement pending"
@@ -881,7 +881,7 @@ msgid "Card Equipment Category"
 msgstr "مشینری کا زمرہ"
 
 msgid "Equipment Needs Request"
-msgstr "آلات کی ضروریات کی درخواست"
+msgstr "مشینری کی ضروریات کی درخواست"
 
 msgid "Tool Custody"
 msgstr "اوزاروں کی تحویل"
@@ -902,7 +902,7 @@ msgid "Equipment Make Model Values"
 msgstr "برانڈ اور ماڈل کی تحریری قدریں"
 
 msgid "Equipment Needs Summary"
-msgstr "آلات کی ضروریات کا خلاصہ"
+msgstr "مشینری کی ضروریات کا خلاصہ"
 
 msgid "Equipment Consumption"
 msgstr "مشینری کی کھپت"
@@ -950,7 +950,7 @@ msgid "Diesel Group Analysis"
 msgstr "گروپ کے ڈیزل کا تجزیہ"
 
 msgid "Diesel Invoice Reconciliation"
-msgstr "ڈیزل انوائس کی مفاہمت"
+msgstr "ڈیزل انوائس کی مطابقت"
 
 msgid "Card Settlement Status"
 msgstr "کارڈز کے تصفیے کی حالت"
@@ -974,7 +974,7 @@ msgid "Equipment Downtime"
 msgstr "مشینری کی بندش"
 
 msgid "Equipment Meter Reconciliation"
-msgstr "میٹر مفاہمت"
+msgstr "میٹر کی مطابقت"
 
 msgid "Asset Mapping Review"
 msgstr "اثاثوں کی میپنگ کا جائزہ"
@@ -987,3 +987,30 @@ msgstr "مشینری کے مقامات کی تاریخ"
 
 msgid "Card Settings"
 msgstr "ترتیبات"
+
+msgid "الصفحة الرئيسية"
+msgstr "ہوم"
+
+msgid "التشغيل"
+msgstr "آپریشنز"
+
+msgid "الموردين والتقارير"
+msgstr "سپلائرز اور رپورٹس"
+
+msgid "المعدة"
+msgstr "مشینری"
+
+msgid "نوع المعدة"
+msgstr "مشینری کی قسم"
+
+msgid "فئة المعدة"
+msgstr "مشینری کا زمرہ"
+
+msgid "تعيين معدة على مشروع"
+msgstr "مشینری کی اسائنمنٹ"
+
+msgid "الكارت الشهري"
+msgstr "ماہانہ آپریشن کارڈ"
+
+msgid "موردي المعدات"
+msgstr "مشینری کا سپلائر"

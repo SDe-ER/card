@@ -565,3 +565,39 @@ msgstr "Månedlige kortbeløb"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Månedlige dieselomkostninger"
+
+msgid "الصفحة الرئيسية"
+msgstr "Hjem"
+
+msgid "التشغيل"
+msgstr "Drift"
+
+msgid "الموردين والتقارير"
+msgstr "Leverandører og rapporter"
+
+msgid "المعدات"
+msgstr "Udstyr"
+
+msgid "المعدة"
+msgstr "Udstyr"
+
+msgid "نوع المعدة"
+msgstr "Udstyrstype"
+
+msgid "فئة المعدة"
+msgstr "Udstyrskategori"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Udstyrstildeling"
+
+msgid "الكارت الشهري"
+msgstr "Månedligt driftskort"
+
+msgid "موردي المعدات"
+msgstr "Udstyrsleverandør"
+
+msgid "ملخص الموردين"
+msgstr "Leverandøroversigt"
+
+msgid "كشف حساب مورد"
+msgstr "Leverandørudskrift"

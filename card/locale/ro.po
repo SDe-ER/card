@@ -565,3 +565,39 @@ msgstr "Sume lunare ale cardurilor"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Cost lunar motorină"
+
+msgid "الصفحة الرئيسية"
+msgstr "Acasă"
+
+msgid "التشغيل"
+msgstr "Operațiuni"
+
+msgid "الموردين والتقارير"
+msgstr "Furnizori și rapoarte"
+
+msgid "المعدات"
+msgstr "Echipamente"
+
+msgid "المعدة"
+msgstr "Echipamente"
+
+msgid "نوع المعدة"
+msgstr "Tip de echipament"
+
+msgid "فئة المعدة"
+msgstr "Categorie de echipament"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Alocare de echipament"
+
+msgid "الكارت الشهري"
+msgstr "Card lunar de operare"
+
+msgid "موردي المعدات"
+msgstr "Furnizor de echipamente"
+
+msgid "ملخص الموردين"
+msgstr "Sumar furnizori"
+
+msgid "كشف حساب مورد"
+msgstr "Extras furnizor"

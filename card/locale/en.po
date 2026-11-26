@@ -633,3 +633,30 @@ msgstr "Cash approval requested"
 
 msgid "Card Materials"
 msgstr "Materials & Purchasing"
+
+msgid "الصفحة الرئيسية"
+msgstr "Home"
+
+msgid "المعدة"
+msgstr "Equipment"
+
+msgid "نوع المعدة"
+msgstr "Equipment Type"
+
+msgid "فئة المعدة"
+msgstr "Equipment Category"
+
+msgid "التشغيل"
+msgstr "Operations"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Equipment Assignment"
+
+msgid "الكارت الشهري"
+msgstr "Monthly Operation Card"
+
+msgid "الموردين والتقارير"
+msgstr "Suppliers & Reports"
+
+msgid "موردي المعدات"
+msgstr "Equipment Suppliers"

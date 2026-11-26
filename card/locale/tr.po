@@ -565,3 +565,39 @@ msgstr "Aylık kart tutarları"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Aylık dizel maliyeti"
+
+msgid "الصفحة الرئيسية"
+msgstr "Ana sayfa"
+
+msgid "التشغيل"
+msgstr "Operasyonlar"
+
+msgid "الموردين والتقارير"
+msgstr "Tedarikçiler ve raporlar"
+
+msgid "المعدات"
+msgstr "Ekipman"
+
+msgid "المعدة"
+msgstr "Ekipman"
+
+msgid "نوع المعدة"
+msgstr "Ekipman türü"
+
+msgid "فئة المعدة"
+msgstr "Ekipman kategorisi"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Ekipman ataması"
+
+msgid "الكارت الشهري"
+msgstr "Aylık operasyon kartı"
+
+msgid "موردي المعدات"
+msgstr "Ekipman tedarikçisi"
+
+msgid "ملخص الموردين"
+msgstr "Tedarikçi özeti"
+
+msgid "كشف حساب مورد"
+msgstr "Tedarikçi ekstresi"

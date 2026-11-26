@@ -565,3 +565,39 @@ msgstr "Montants mensuels des cartes"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Coût mensuel du gasoil"
+
+msgid "الصفحة الرئيسية"
+msgstr "Accueil"
+
+msgid "التشغيل"
+msgstr "Exploitation"
+
+msgid "الموردين والتقارير"
+msgstr "Fournisseurs et rapports"
+
+msgid "المعدات"
+msgstr "Équipements"
+
+msgid "المعدة"
+msgstr "Équipements"
+
+msgid "نوع المعدة"
+msgstr "Type d'équipement"
+
+msgid "فئة المعدة"
+msgstr "Catégorie d'équipement"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Affectation d'équipement"
+
+msgid "الكارت الشهري"
+msgstr "Carte mensuelle d'exploitation"
+
+msgid "موردي المعدات"
+msgstr "Fournisseur d'équipements"
+
+msgid "ملخص الموردين"
+msgstr "Récapitulatif fournisseurs"
+
+msgid "كشف حساب مورد"
+msgstr "Relevé fournisseur"
