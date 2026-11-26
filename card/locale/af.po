@@ -123,28 +123,52 @@ msgstr "Toerusting-vervoere (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Bedryfswaarde vir kliënte - laaste maand"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Bedryfswaarde vir kliënte - laaste maand"
+
 msgid "Supplier operating value - last month"
+msgstr "Verskaffer-bedryfswaarde - laaste maand"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Verskaffer-bedryfswaarde - laaste maand"
 
 msgid "Internal operating value - last month"
 msgstr "Interne bedryfswaarde - laaste maand"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Interne bedryfswaarde - laaste maand"
+
 msgid "Cards last month"
+msgstr "Kaarte laaste maand"
+
+msgid "كروت الشهر الماضي"
 msgstr "Kaarte laaste maand"
 
 msgid "Rented equipment (CARD)"
 msgstr "Gehuurde toerusting (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Gehuurde toerusting (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Ladings laaste maand (CARD)"
+msgstr "Ladings verlede maand"
 
 msgid "Draft cards (CARD)"
+msgstr "Konsep-kaarte (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Konsep-kaarte (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Kaarte sonder interne tarief (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Kaarte sonder interne tarief (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Bedryfsure sonder tarief (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Bedryfsure sonder tarief (CARD)"
 
 msgid "Customer summary (CARD)"

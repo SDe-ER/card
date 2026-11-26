@@ -123,28 +123,52 @@ msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်
 msgid "Operating value for customers - last month"
 msgstr "ဖောက်သည်များအတွက် လည်ပတ်တန်ဖိုး - ပြီးခဲ့သောလ"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "ဖောက်သည်များအတွက် လည်ပတ်တန်ဖိုး - ပြီးခဲ့သောလ"
+
 msgid "Supplier operating value - last month"
+msgstr "ပေးသွင်းသူ လည်ပတ်တန်ဖိုး - ပြီးခဲ့သောလ"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "ပေးသွင်းသူ လည်ပတ်တန်ဖိုး - ပြီးခဲ့သောလ"
 
 msgid "Internal operating value - last month"
 msgstr "အတွင်းပိုင်း လည်ပတ်တန်ဖိုး - ပြီးခဲ့သောလ"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "အတွင်းပိုင်း လည်ပတ်တန်ဖိုး - ပြီးခဲ့သောလ"
+
 msgid "Cards last month"
+msgstr "ပြီးခဲ့သောလက ကတ်များ"
+
+msgid "كروت الشهر الماضي"
 msgstr "ပြီးခဲ့သောလက ကတ်များ"
 
 msgid "Rented equipment (CARD)"
 msgstr "ငှားရမ်းထားသော စက်ပစ္စည်းများ (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "ငှားရမ်းထားသော စက်ပစ္စည်းများ (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "ပြီးခဲ့သောလ ဝန်တင်မှုများ (CARD)"
+msgstr "ပြီးခဲ့သောလ ခရီးစဉ်"
 
 msgid "Draft cards (CARD)"
+msgstr "မူကြမ်းကတ်များ (CARD)"
+
+msgid "كروت مسودة"
 msgstr "မူကြမ်းကတ်များ (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "အတွင်းနှုန်းမရှိသော ကတ်များ (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "အတွင်းနှုန်းမရှိသော ကတ်များ (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "နှုန်းမရှိသော လည်ပတ်နာရီများ (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "နှုန်းမရှိသော လည်ပတ်နာရီများ (CARD)"
 
 msgid "Customer summary (CARD)"

@@ -123,28 +123,52 @@ msgstr "Prevozi opreme (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Poslovna vrednost za stranke - prejšnji mesec"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Poslovna vrednost za stranke - prejšnji mesec"
+
 msgid "Supplier operating value - last month"
+msgstr "Poslovna vrednost dobaviteljev - prejšnji mesec"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Poslovna vrednost dobaviteljev - prejšnji mesec"
 
 msgid "Internal operating value - last month"
 msgstr "Interna poslovna vrednost - prejšnji mesec"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Interna poslovna vrednost - prejšnji mesec"
+
 msgid "Cards last month"
+msgstr "Kartice prejšnji mesec"
+
+msgid "كروت الشهر الماضي"
 msgstr "Kartice prejšnji mesec"
 
 msgid "Rented equipment (CARD)"
 msgstr "Najeta oprema (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Najeta oprema (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Natovori prejšnji mesec (CARD)"
+msgstr "Tovori prejšnji mesec"
 
 msgid "Draft cards (CARD)"
+msgstr "Osnutki kartic (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Osnutki kartic (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Kartice brez interne cene (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Kartice brez interne cene (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Delovne ure brez cene (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Delovne ure brez cene (CARD)"
 
 msgid "Customer summary (CARD)"

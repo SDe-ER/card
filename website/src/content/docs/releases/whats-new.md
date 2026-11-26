@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-26 — The CARD workspace shows all its number cards again.** Since v4.10.0 the **Card** workspace hid some of its nine number cards: in Arabic the three value cards of last month (customers, suppliers, internal) and the card of operating hours without a rate, and in English all nine. The cards and their figures were not changed or lost; the Desk only did not draw them, because the name of each card was translated in a different way from its title on the workspace. The translations now agree in every language CARD ships, so all nine cards show. No role or permission changes: a user who may not see amounts still gets no figure in the value cards. After the upgrade, reload the Desk once.
 
 ## v4.13.0 — 2026-11-26
 

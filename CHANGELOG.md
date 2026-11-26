@@ -38,6 +38,27 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Fixed
+- **Card workspace: the hidden number cards show again (FR-168; found in issue 266).** Reason: Frappe draws a
+  number card block of a workspace only when the label of its row equals the translated record name
+  (`row.label == __(number_card_name)`; frappe `desk/desktop.py` `get_number_cards`, `views/workspace/blocks/block.js`
+  `make`). Since v4.10.0 the row labels are English source text with their own translations, and the record names
+  were translated in a different way or not at all. Result: in Arabic 4 of the 9 number cards were not drawn
+  (customer value, supplier value, internal value, operating hours without rate), in English all 9, and no other
+  locale matched all rows. Fix, locale files only: every `card/locale/*.po` now translates each number card
+  record name as the label of its row (38 locales get 8 new entries, `ar.po` 4; `en.po`, `bn.po` and `hi.po`
+  change their 8 existing ones; `ur.po` uses the English label text for both, because its names must stay free of
+  Arabic script, `TestNoArabicFallback`), and the row label "Loads last month (CARD)" is translated as the record
+  name "Loads last month". The 5 cards that Arabic users see today keep their text; the 4 hidden ones show with the
+  labels FR-168 gave them. `card/fixtures/workspace.json` and the Number Card records are not changed, and no
+  patch is needed: the new translations reach a site when the app's locale files are compiled (build or migrate),
+  and no Workspace record is written, so a workspace customised on a site is not touched. Test:
+  `card/tests/test_workspace_number_card_labels.py` (reads the fixture and every locale file; no site needed).
+  Docs: the number card names in `website/src/content/docs/features/workspace-dashboard.md` (English and Arabic),
+  "What's new", FEATURE-REGISTRY FR-168. Impact: display only. No role, permission, accounting, data or API
+  change; each card still gets its value from its own permission-checked method, so a user without money read
+  still gets no figure. Rollback: revert the commit and compile the locale files again. Pull request: #336.
+
 ### Documentation
 - **Documentation screenshots: the failed per-m³ captures and the blank Arabic images (issue 266).** Reason: the
   capture run 45656288398 of 2026-11-25 failed the image gate. Three images per language were missing and seven
@@ -58,9 +79,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     manager could read no supplier and no customer. The demo manager now also has the role Accounts Manager
     (`ci_bootstrap.py`, CI site only).
   - `scrollBlock` (new) sets where `scrollSel` puts its target.
-  Not fixed here: `volume-billing-loads-card` in English. The English workspace shows no number card, because the
-  workspace fixture labels differ from the translated number card names (a product defect, reported to the
-  maintainer). Files: `capture.mjs`, `shots.json`, `ci_bootstrap.py`. Tooling for the docs site only, run by the manual
+  `volume-billing-loads-card` in English failed for a different reason: the English workspace drew no number card
+  (see "Fixed" above). Files: `capture.mjs`, `shots.json`, `ci_bootstrap.py`. Tooling for the docs site only, run by the manual
   workflow `docs-screenshots.yml`: no application, permission, accounting, data or API change. Pull request: #336.
 
 ## [4.13.0] — 2026-11-26

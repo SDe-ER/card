@@ -123,28 +123,52 @@ msgstr "การขนส่งอุปกรณ์ (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "มูลค่าการดำเนินงานสำหรับลูกค้า - เดือนที่แล้ว"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "มูลค่าการดำเนินงานสำหรับลูกค้า - เดือนที่แล้ว"
+
 msgid "Supplier operating value - last month"
+msgstr "มูลค่าการดำเนินงานของซัพพลายเออร์ - เดือนที่แล้ว"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "มูลค่าการดำเนินงานของซัพพลายเออร์ - เดือนที่แล้ว"
 
 msgid "Internal operating value - last month"
 msgstr "มูลค่าการดำเนินงานภายใน - เดือนที่แล้ว"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "มูลค่าการดำเนินงานภายใน - เดือนที่แล้ว"
+
 msgid "Cards last month"
+msgstr "การ์ดเดือนที่แล้ว"
+
+msgid "كروت الشهر الماضي"
 msgstr "การ์ดเดือนที่แล้ว"
 
 msgid "Rented equipment (CARD)"
 msgstr "อุปกรณ์เช่า (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "อุปกรณ์เช่า (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "งานขนส่งเดือนที่แล้ว (CARD)"
+msgstr "เที่ยวเดือนที่แล้ว"
 
 msgid "Draft cards (CARD)"
+msgstr "การ์ดฉบับร่าง (CARD)"
+
+msgid "كروت مسودة"
 msgstr "การ์ดฉบับร่าง (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "การ์ดที่ไม่มีอัตราภายใน (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "การ์ดที่ไม่มีอัตราภายใน (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "ชั่วโมงทำงานที่ไม่มีอัตรา (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "ชั่วโมงทำงานที่ไม่มีอัตรา (CARD)"
 
 msgid "Customer summary (CARD)"

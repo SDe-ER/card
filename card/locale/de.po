@@ -123,28 +123,52 @@ msgstr "Gerätetransporte (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Betriebswert für Kunden - letzter Monat"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Betriebswert für Kunden - letzter Monat"
+
 msgid "Supplier operating value - last month"
+msgstr "Betriebswert Lieferanten - letzter Monat"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Betriebswert Lieferanten - letzter Monat"
 
 msgid "Internal operating value - last month"
 msgstr "Interner Betriebswert - letzter Monat"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Interner Betriebswert - letzter Monat"
+
 msgid "Cards last month"
+msgstr "Karten letzter Monat"
+
+msgid "كروت الشهر الماضي"
 msgstr "Karten letzter Monat"
 
 msgid "Rented equipment (CARD)"
 msgstr "Gemietete Geräte (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Gemietete Geräte (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Ladungen letzter Monat (CARD)"
+msgstr "Fuhren letzter Monat"
 
 msgid "Draft cards (CARD)"
+msgstr "Entwurfskarten (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Entwurfskarten (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Karten ohne interne Rate (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Karten ohne interne Rate (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Betriebsstunden ohne Rate (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Betriebsstunden ohne Rate (CARD)"
 
 msgid "Customer summary (CARD)"

@@ -123,28 +123,52 @@ msgstr "Přepravy techniky (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Provozní hodnota pro zákazníky - minulý měsíc"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Provozní hodnota pro zákazníky - minulý měsíc"
+
 msgid "Supplier operating value - last month"
+msgstr "Provozní hodnota dodavatelů - minulý měsíc"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Provozní hodnota dodavatelů - minulý měsíc"
 
 msgid "Internal operating value - last month"
 msgstr "Interní provozní hodnota - minulý měsíc"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Interní provozní hodnota - minulý měsíc"
+
 msgid "Cards last month"
+msgstr "Karty za minulý měsíc"
+
+msgid "كروت الشهر الماضي"
 msgstr "Karty za minulý měsíc"
 
 msgid "Rented equipment (CARD)"
 msgstr "Pronajatá technika (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Pronajatá technika (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Naložení minulý měsíc (CARD)"
+msgstr "Náklady za minulý měsíc"
 
 msgid "Draft cards (CARD)"
+msgstr "Koncepty karet (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Koncepty karet (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Karty bez interní sazby (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Karty bez interní sazby (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Provozní hodiny bez sazby (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Provozní hodiny bez sazby (CARD)"
 
 msgid "Customer summary (CARD)"

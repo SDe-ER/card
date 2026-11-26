@@ -392,16 +392,16 @@ msgid "إجمالي لترات الديزل"
 msgstr "Total Diesel Litres"
 
 msgid "المعدات المؤجرة"
-msgstr "Rented Equipment"
+msgstr "Rented equipment (CARD)"
 
 msgid "كروت الشهر الماضي"
-msgstr "Last Month's Cards"
+msgstr "Cards last month"
 
 msgid "كروت مسودة"
-msgstr "Draft Cards"
+msgstr "Draft cards (CARD)"
 
 msgid "مبالغ الشهر الماضي"
-msgstr "Last Month's Amounts"
+msgstr "Supplier operating value - last month"
 
 msgid "تكلفة الديزل الشهرية"
 msgstr "Monthly Diesel Cost"
@@ -413,16 +413,16 @@ msgid "تكلفة إيجار من موردين - الشهر الماضي"
 msgstr "Supplier Rental Cost - Last Month"
 
 msgid "قيمة تشغيل لعملاء - الشهر الماضي"
-msgstr "Customer Operating Value - Last Month"
+msgstr "Operating value for customers - last month"
 
 msgid "قيمة تشغيل داخلي - الشهر الماضي"
-msgstr "Internal Operating Value - Last Month"
+msgstr "Internal operating value - last month"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Cards Without Internal Rate"
+msgstr "Cards without internal rate (CARD)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Hours Without Internal Rate - Last Month"
+msgstr "Operating hours without rate (CARD)"
 
 msgid "كارت تشغيل شهري"
 msgstr "Monthly Operation Card"
@@ -588,31 +588,31 @@ msgid "Equipment transports (CARD)"
 msgstr "مشینری کی ترسیلات (CARD)"
 
 msgid "Operating value for customers - last month"
-msgstr "کسٹمرز کے لیے آپریٹنگ ویلیو - گزشتہ ماہ"
+msgstr "Operating value for customers - last month"
 
 msgid "Supplier operating value - last month"
-msgstr "سپلائر کی آپریٹنگ ویلیو - گزشتہ ماہ"
+msgstr "Supplier operating value - last month"
 
 msgid "Internal operating value - last month"
-msgstr "اندرونی آپریٹنگ ویلیو - گزشتہ ماہ"
+msgstr "Internal operating value - last month"
 
 msgid "Cards last month"
-msgstr "گزشتہ ماہ کے کارڈز"
+msgstr "Cards last month"
 
 msgid "Rented equipment (CARD)"
-msgstr "کرائے کی مشینری (CARD)"
+msgstr "Rented equipment (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "گزشتہ ماہ کی لوڈز (CARD)"
+msgstr "پچھلے مہینے کے لوڈ"
 
 msgid "Draft cards (CARD)"
-msgstr "مسودہ کارڈز (CARD)"
+msgstr "Draft cards (CARD)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "اندرونی ریٹ کے بغیر کارڈز (CARD)"
+msgstr "Cards without internal rate (CARD)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (CARD)"
+msgstr "Operating hours without rate (CARD)"
 
 msgid "Customer summary (CARD)"
 msgstr "کسٹمر خلاصہ (CARD)"

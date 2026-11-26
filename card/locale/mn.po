@@ -123,28 +123,52 @@ msgstr "Техникийн тээвэр (CARD)"
 msgid "Operating value for customers - last month"
 msgstr "Харилцагчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
 
+msgid "قيمة تشغيل لعملاء - الشهر الماضي"
+msgstr "Харилцагчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
 msgid "Supplier operating value - last month"
+msgstr "Нийлүүлэгчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
+msgid "مبالغ الشهر الماضي"
 msgstr "Нийлүүлэгчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
 
 msgid "Internal operating value - last month"
 msgstr "Дотоод үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
 
+msgid "قيمة تشغيل داخلي - الشهر الماضي"
+msgstr "Дотоод үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
+
 msgid "Cards last month"
+msgstr "Өнгөрсөн сарын карт"
+
+msgid "كروت الشهر الماضي"
 msgstr "Өнгөрсөн сарын карт"
 
 msgid "Rented equipment (CARD)"
 msgstr "Түрээсийн техник (CARD)"
 
+msgid "المعدات المؤجرة"
+msgstr "Түрээсийн техник (CARD)"
+
 msgid "Loads last month (CARD)"
-msgstr "Өнгөрсөн сарын ачаа (CARD)"
+msgstr "Өмнөх сарын ачаа"
 
 msgid "Draft cards (CARD)"
+msgstr "Ноорог карт (CARD)"
+
+msgid "كروت مسودة"
 msgstr "Ноорог карт (CARD)"
 
 msgid "Cards without internal rate (CARD)"
 msgstr "Дотоод ханш байхгүй карт (CARD)"
 
+msgid "كروت بدون سعر داخلي"
+msgstr "Дотоод ханш байхгүй карт (CARD)"
+
 msgid "Operating hours without rate (CARD)"
+msgstr "Ханшгүй үйл ажиллагааны цаг (CARD)"
+
+msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
 msgstr "Ханшгүй үйл ажиллагааны цаг (CARD)"
 
 msgid "Customer summary (CARD)"
