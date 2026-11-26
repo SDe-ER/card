@@ -50,19 +50,34 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     (CARD DocTypes, reports, pages) and the Number Card and Dashboard Chart names. Before, the sidebars showed in
     English and the workspace chart title in Arabic. `bn.po` and `hi.po` translate the 6 record names that were
     English. `en.po` gets a display name for the sidebar "Card Materials".
-  - `ar.po`: the 36 empty entries are filled, 89 source strings without an entry are added (field labels and
+  - `ar.po`: the 36 empty entries are filled, 78 source strings without an entry are added (field labels and
     descriptions of the newer DocTypes, the report names "Equipment Meter Reconciliation" and "Asset Mapping
     Review"), and the second copy of "Card {0}" is removed (the catalogue kept the first copy, so no shown text
-    changes).
-  - Language coverage: `frappe`, `erpnext` and `hrms` (`version-16`) ship 41 locale files; CARD has all of them
-    plus `bn`, `en`, `ur`. No language was missing.
-  Not changed: the full catalogue stays English and Arabic; stored Arabic Select values keep their English text in
-  `bn`, `hi`, `ur`; ERPNext names in the sidebars and the generic word "Catalog" are left to Frappe and ERPNext;
-  `main.pot` (it is older than the source and needs the bench i18n flow). Tests: new
-  `card/tests/test_locale_navigation_layer.py` (fixtures, sidebars and locale files; no site needed; no empty
-  entry, no entry twice, placeholders kept, navigation layer and number card labels translated, "(CARD)" kept);
-  `TestNoArabicFallback` checks `ur.po` as "differs from the Arabic source", because Urdu is written in the Arabic
-  script. Impact: display only. No fixture, DocType, role, permission, accounting, data or API change; no patch. A
+    changes). Ten generic words that are field labels or Select options of CARD DocTypes (Approved, Posted,
+    Taxable, Installation, Exclusive, Inclusive, Built, Integrity, Origin, Replaces) are translated under
+    `msgctxt "<DocType>"` only (13 new context entries), never as a plain entry: Frappe reads a label or an option
+    with the DocType as context first (`form/controls/base_input.js`, `form/controls/select.js`, `frappe._` in
+    `translate.js`), and a plain entry would replace the wording of Frappe, ERPNext or HRMS on the whole site.
+  - `bn.po`, `hi.po`, `ur.po`: the 57 Arabic texts that showed in English (stored Select values such as «إيجار»,
+    older workspace labels, one field description) are translated into Bengali, Hindi and Urdu. Stored values do
+    not change; only the shown text does.
+  - «بالمتر المكعب» was the English "Per m³" in `af`, `fi`, `id`, `nb`, `nl`, `sv` and `ur`; it is translated.
+  - Every locale except Arabic gets the 12 Arabic labels of the older sidebar fixture
+    (`card/fixtures/workspace_sidebar.json`; 9 new entries in `bn`, `hi`, `ur` and `en`).
+  - Wording: Urdu uses one word for equipment («مشینری»), for last month («گزشتہ ماہ») and for reconciliation
+    («مطابقت») in all its entries; "Worker Custody" in `es`, `it`, `pt`, `pt_BR`, `id` names tools entrusted to
+    workers; German "Karten ohne internen Satz"; Serbian "Equipment Needs Summary" differs from "Equipment Needs
+    Review".
+  - Language coverage: `frappe` and `erpnext` (`version-16`) ship 40 `.po` files and `main.pot`, `hrms` a subset of
+    them; CARD has all 40 plus `bn`, `en`, `ur`. No language was missing.
+  Not changed: the full catalogue of forms and messages stays English and Arabic; ERPNext names in the sidebars
+  and the generic word "Catalog" are left to Frappe and ERPNext; `main.pot` (it is older than the source and needs
+  the bench i18n flow). Tests: new `card/tests/test_locale_navigation_layer.py` (fixtures, sidebars and locale
+  files; no site needed): no entry twice, placeholders kept, navigation layer and number card labels translated,
+  "(CARD)" kept, no Arabic text left in English, generic words under a context only, different names read
+  differently, and no empty entry in the hand-written locales (`ar.po` and `en.po` are the full catalogues, where
+  `bench update-po-files` writes empty entries). `TestNoArabicFallback` requires an Urdu-only letter in each
+  `ur.po` translation, because Urdu is written in the Arabic script. Impact: display only. No fixture, DocType, role, permission, accounting, data or API change; no patch. A
   DocType or report of the sidebars now shows its translated name in these languages wherever Frappe shows the
   name. Rollback: revert the commits and compile the locale files again. Pull request: #345.
 - **Card workspace: the hidden number cards show again (FR-168; found in issue 266).** Reason: Frappe draws a
