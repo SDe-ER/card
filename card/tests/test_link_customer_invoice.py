@@ -338,6 +338,15 @@ class TestLinkRefusals(_LinkBase):
 		self._refused("Choose the monthly cards", si)
 		self._refused("listed twice", si, card, card)
 
+	def test_one_card_under_two_spellings_is_listed_twice(self):
+		# the database compares names without case and without trailing spaces: one row, two request entries
+		card = self._out_card()
+		si = self._si(3200)
+		for other in (card.name.lower(), card.name + " "):
+			with self.assertRaisesRegex(frappe.ValidationError, "listed twice"):
+				link_customer_invoice(si.name, [card.name, other], REASON)
+		self.assertFalse(frappe.db.exists(LOG, {"posting_doc": si.name}))
+
 	def test_card_must_be_submitted_and_approved(self):
 		si = self._si(1600)
 		self._refused("not submitted", si, self._out_card(submit=False))
