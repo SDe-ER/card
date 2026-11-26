@@ -1,10 +1,13 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
 """Project Invoice Profitability (FR-193, #53). Read-only: revenue and expenses of each project from
-submitted Sales Invoice and Purchase Invoice lines. The totals reconcile to the invoices, returns
+submitted Sales Invoice and Purchase Invoice lines. Only the purchase lines booked to an Expense
+account that are neither a stock item nor a fixed asset are expenses; the other purchase lines are
+in one informational column outside the margin. The totals reconcile to the invoices, returns
 reduce their side, lines without a project sit on one "No project" row, the date window, company
 isolation, role access and nothing written. All data is synthetic and rolled back."""
 
+from contextlib import contextmanager
 from unittest.mock import patch
 
 import frappe
@@ -86,6 +89,89 @@ class TestProjectProfitability(_AnalyticsBase):
 		total = next(r for r in data if r.get("is_total"))
 		return rows, total, message, {s["label"]: s["value"] for s in summary}, columns
 
+	def _stock_item(self):
+		service = ensure_posting_masters(self.company).rental_item
+		return (
+			frappe.get_doc(
+				{
+					"doctype": "Item",
+					"item_code": "TEST-PROFIT-SPARE-" + self.token,
+					"item_name": "Spare part",
+					"item_group": frappe.db.get_value("Item", service, "item_group"),
+					"stock_uom": frappe.db.get_value("Item", service, "stock_uom"),
+					"is_stock_item": 1,
+				}
+			)
+			.insert(ignore_permissions=True)
+			.name
+		)
+
+	@contextmanager
+	def _mocked_reads(self, sales, purchases, accounts=(), items=(), precision=2):
+		"""Replace the invoice reads by synthetic lines, and the Account and Item reads by the
+		given records. ``frappe.get_all`` goes through ``frappe.get_list``, so one patch covers
+		both; every other doctype is read from the site."""
+		heads = {
+			"Sales Invoice": [frappe._dict(name="SI-1", project=None)],
+			"Purchase Invoice": [frappe._dict(name="PI-1", project=None)],
+		}
+		lines = {
+			"Sales Invoice Item": [frappe._dict(parent="SI-1", **line) for line in sales],
+			"Purchase Invoice Item": [frappe._dict(parent="PI-1", **line) for line in purchases],
+		}
+		records = {"Account": list(accounts), "Item": list(items)}
+		real = frappe.get_list
+
+		def matches(record, filters):
+			for field, wanted in filters.items():
+				value = record.get(field)
+				if isinstance(wanted, list | tuple):
+					operator, operand = wanted
+					if operator != "in":
+						raise AssertionError(f"unexpected filter {field} {operator}")
+					if value not in operand:
+						return False
+				elif value != wanted:
+					return False
+			return True
+
+		def read(doctype, *args, **kwargs):
+			if doctype in heads:
+				return heads[doctype]
+			if doctype in records:
+				found = [frappe._dict(r) for r in records[doctype] if matches(r, kwargs["filters"])]
+				return [r[kwargs["pluck"]] for r in found] if kwargs.get("pluck") else found
+			return real(doctype, *args, **kwargs)
+
+		target = (
+			"card.card.report.project_invoice_profitability.project_invoice_profitability.currency_precision"
+		)
+		with (
+			patch.object(analytics.frappe, "get_list", side_effect=read),
+			patch.object(analytics, "_children", side_effect=lambda child, *args, **kw: lines[child]),
+			patch(target, return_value=precision),
+		):
+			yield
+
+	def _accounts(self):
+		"""Synthetic accounts: classification facts only (company and root type)."""
+		return [
+			{"name": "EXP", "company": self.company, "root_type": "Expense"},
+			{"name": "STOCK", "company": self.company, "root_type": "Asset"},
+			{"name": "CWIP", "company": self.company, "root_type": "Asset"},
+			{"name": "SRBNB", "company": self.company, "root_type": "Liability"},
+			{"name": "EXP-OTHER", "company": "Another company", "root_type": "Expense"},
+		]
+
+	def _purchase(self, amount, project="P1", item_code="SERVICE", expense_account="EXP", is_fixed_asset=0):
+		return {
+			"project": project,
+			"base_net_amount": amount,
+			"item_code": item_code,
+			"expense_account": expense_account,
+			"is_fixed_asset": is_fixed_asset,
+		}
+
 	def _invoice_net(self, doctype):
 		"""The net total of the submitted invoices of the period, straight from the invoice headers."""
 		return flt(
@@ -111,17 +197,123 @@ class TestProjectProfitability(_AnalyticsBase):
 		rows, _total, message, _summary, columns = self._run()
 		self.assertEqual(
 			[c["fieldname"] for c in columns],
-			["project", "project_name", "revenue", "expenses", "margin", "margin_percent"],
+			["project", "project_name", "revenue", "expenses", "not_in_expenses", "margin", "margin_percent"],
 		)
+		extra = columns[4]
+		self.assertEqual(extra["label"], "Purchases not in expenses")
+		self.assertEqual(extra["fieldtype"], "Currency")
 		row = rows[self.project]
 		self.assertEqual(row["project_name"], frappe.db.get_value("Project", self.project, "project_name"))
 		self.assertEqual(row["revenue"], 1000.0)
 		self.assertEqual(row["expenses"], 400.0)
+		self.assertEqual(row["not_in_expenses"], 0)
 		self.assertEqual(row["margin"], 600.0)
 		self.assertEqual(row["margin_percent"], 60.0)
 		self.assertIn("not the full net profit", message)
 		self.assertIn("Journal entries and the general ledger are not read", message)
-		self.assertIn("stock and asset purchases", message)
+		self.assertIn("booked to an Expense account", message)
+		self.assertIn('"Purchases not in expenses"', message)
+		self.assertNotIn("Expenses include every Purchase Invoice line", message)
+		# consumed stock is not in the expenses: the message says so
+		self.assertIn("lines booked to an account that is not an Expense account", message)
+		self.assertIn("diesel or spare parts bought as stock items", message)
+		self.assertIn("the margin can be higher than the real one", message)
+
+	def test_expense_line_classification(self):
+		"""A purchase line is an expense only when it is booked to an Expense account of the
+		report company and is neither a stock item nor a fixed asset."""
+		purchases = [
+			self._purchase(100),  # a service on an Expense account
+			self._purchase(40, item_code=None),  # no item, Expense account
+			self._purchase(25, item_code="SPARE"),  # a stock item, whatever the account
+			self._purchase(300, item_code="MACHINE", expense_account="CWIP", is_fixed_asset=1),
+			self._purchase(7, is_fixed_asset=1),  # a fixed-asset line, whatever the account
+			self._purchase(60, expense_account="STOCK"),  # not an Expense account
+			self._purchase(9, expense_account="SRBNB"),
+			self._purchase(5, expense_account=None),  # no account
+			self._purchase(3, expense_account="EXP-OTHER"),  # an account of another company
+			self._purchase(-5, item_code="SPARE"),  # a debit note reduces its own column
+			self._purchase(11, project=None),
+			self._purchase(13, project=None, item_code="SPARE"),
+		]
+		sales = [{"project": "P1", "base_net_amount": 1000}]
+		items = [
+			{"name": "SERVICE", "is_stock_item": 0},
+			{"name": "SPARE", "is_stock_item": 1},
+			{"name": "MACHINE", "is_stock_item": 0},
+		]
+		with self._mocked_reads(sales, purchases, self._accounts(), items):
+			rows, total, _message, summary, _columns = self._run()
+		row = rows["P1"]
+		self.assertEqual(row["revenue"], 1000.0)
+		self.assertEqual(row["expenses"], 140.0)
+		self.assertEqual(row["not_in_expenses"], 404.0)
+		self.assertEqual(row["margin"], 860.0)  # revenue minus expenses only
+		self.assertEqual(row["margin_percent"], 86.0)
+		none = rows[None]
+		self.assertEqual(none["project_name"], "No project")
+		self.assertEqual(none["expenses"], 11.0)
+		self.assertEqual(none["not_in_expenses"], 13.0)
+		self.assertEqual(none["margin"], -11.0)
+		self.assertEqual(total["revenue"], 1000.0)
+		self.assertEqual(total["expenses"], 151.0)
+		self.assertEqual(total["not_in_expenses"], 417.0)
+		self.assertEqual(total["margin"], 849.0)
+		# the two purchase columns together are the net total of the purchase invoice lines
+		self.assertEqual(
+			total["expenses"] + total["not_in_expenses"], sum(line["base_net_amount"] for line in purchases)
+		)
+		self.assertEqual(summary["Project revenue"], 1000.0)
+		self.assertEqual(summary["Project expenses"], 151.0)
+		self.assertEqual(summary["Project margin"], 849.0)
+		self.assertEqual(summary["Purchases not in expenses"], 417.0)
+
+	def test_purchase_columns_add_up_to_the_rounded_net_total(self):
+		"""The expenses and the net total of the purchase lines are rounded once each; the
+		informational column is the difference, so the two columns always add up to the
+		rounded net total (rounding each column alone can lose or add a unit)."""
+		purchases = [
+			self._purchase(100.005),
+			self._purchase(50.005, item_code="SPARE"),
+			self._purchase(100.005, project=None),
+			self._purchase(50.005, project=None, expense_account="STOCK"),
+		]
+		items = [{"name": "SPARE", "is_stock_item": 1}]
+		with self._mocked_reads([], purchases, self._accounts(), items):
+			rows, total, _message, summary, _columns = self._run()
+		for row in (rows["P1"], rows[None]):
+			self.assertEqual(row["expenses"], flt(100.005, 2))
+			self.assertEqual(row["expenses"] + row["not_in_expenses"], 150.01)
+		self.assertEqual(total["expenses"], 200.01)
+		self.assertEqual(total["not_in_expenses"], 100.01)
+		self.assertEqual(total["expenses"] + total["not_in_expenses"], 300.02)
+		self.assertEqual(summary["Purchases not in expenses"], 100.01)
+
+	def test_project_with_only_non_expense_purchases_has_a_row(self):
+		purchases = [self._purchase(250, item_code="SPARE", expense_account="STOCK")]
+		items = [{"name": "SPARE", "is_stock_item": 1}]
+		with self._mocked_reads([], purchases, self._accounts(), items):
+			rows, total, _message, _summary, _columns = self._run()
+		self.assertEqual(rows["P1"]["expenses"], 0)
+		self.assertEqual(rows["P1"]["not_in_expenses"], 250.0)
+		self.assertEqual(rows["P1"]["margin"], 0)
+		self.assertIsNone(rows["P1"]["margin_percent"])
+		self.assertEqual(total["margin"], 0)
+
+	def test_stock_item_purchase_is_not_an_expense(self):
+		"""Real documents: a submitted Purchase Invoice of a stock item."""
+		self._si(1000, project=self.project)
+		self._pi(400, project=self.project)
+		stock = self._manual_pi(90, posting_date="2026-10-07", item=self._stock_item(), submit=False)
+		stock.items[0].project = self.project
+		stock.save()
+		stock.submit()
+		rows, total, _message, _summary, _columns = self._run()
+		row = rows[self.project]
+		self.assertEqual(row["expenses"], 400.0)
+		self.assertEqual(row["not_in_expenses"], 90.0)
+		self.assertEqual(row["margin"], 600.0)
+		self.assertEqual(total["expenses"] + total["not_in_expenses"], self._invoice_net("Purchase Invoice"))
 
 	def test_totals_reconcile_to_the_invoices(self):
 		other = self._second_project()
@@ -135,7 +327,9 @@ class TestProjectProfitability(_AnalyticsBase):
 		self.assertEqual(rows[other]["revenue"], 250.55)
 		self.assertEqual(rows[other]["expenses"], 120.45)
 		self.assertEqual(total["revenue"], self._invoice_net("Sales Invoice"))
+		# these purchases are services on an Expense account: all of them are expenses
 		self.assertEqual(total["expenses"], self._invoice_net("Purchase Invoice"))
+		self.assertEqual(total["not_in_expenses"], 0)
 		self.assertEqual(total["revenue"], flt(sum(r["revenue"] for r in rows.values()), 2))
 		self.assertEqual(total["expenses"], flt(sum(r["expenses"] for r in rows.values()), 2))
 		self.assertEqual(total["margin"], flt(total["revenue"] - total["expenses"], 2))
@@ -213,31 +407,14 @@ class TestProjectProfitability(_AnalyticsBase):
 					profitability(self._period())
 
 	def test_amounts_are_summed_unrounded_and_rounded_once(self):
-		heads = {
-			"Sales Invoice": [frappe._dict(name="SI-1", project=None)],
-			"Purchase Invoice": [frappe._dict(name="PI-1", project=None)],
-		}
-		lines = {
-			"Sales Invoice Item": [frappe._dict(parent="SI-1", project="P1", base_net_amount=0.125)] * 3,
-			"Purchase Invoice Item": [frappe._dict(parent="PI-1", project="P1", base_net_amount=0.1)],
-		}
-		target = (
-			"card.card.report.project_invoice_profitability.project_invoice_profitability.currency_precision"
-		)
-		real = frappe.get_list
-
-		def read(doctype, *args, **kwargs):
-			# frappe.get_all goes through frappe.get_list: only the invoice headers are replaced
-			return heads[doctype] if doctype in heads else real(doctype, *args, **kwargs)
-
-		with (
-			patch.object(analytics.frappe, "get_list", side_effect=read),
-			patch.object(analytics, "_children", side_effect=lambda child, *args, **kw: lines[child]),
-			patch(target, return_value=3),
-		):
+		sales = [{"project": "P1", "base_net_amount": 0.125}] * 3
+		purchases = [self._purchase(0.0333)] * 3 + [self._purchase(0.0004, item_code="SPARE")] * 3
+		items = [{"name": "SPARE", "is_stock_item": 1}]
+		with self._mocked_reads(sales, purchases, self._accounts(), items, precision=3):
 			rows, total, _message, summary, _columns = self._run()
 		self.assertEqual(rows["P1"]["revenue"], 0.375)
 		self.assertEqual(rows["P1"]["expenses"], 0.1)
+		self.assertEqual(rows["P1"]["not_in_expenses"], 0.001)
 		self.assertEqual(rows["P1"]["margin"], 0.275)
 		self.assertEqual(total["revenue"], 0.375)
 		self.assertEqual(summary["Project margin"], 0.275)

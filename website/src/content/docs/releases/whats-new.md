@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-26 — Project Invoice Profitability counts only real expenses.** Until now the report counted every purchase invoice line as a project expense, also a purchase of stock or of a fixed asset. Now **Project expenses** holds only the purchase invoice lines that are booked to an Expense account and are neither a stock item nor a fixed asset. The other purchase lines (stock items, fixed-asset items, and lines booked to an account that is not an Expense account) are in a new column, **Purchases not in expenses**. This column is information only: the margin is revenue minus expenses, and the new column is not part of it. **Project expenses** plus the new column equal the net total of the purchase invoices, so the report still agrees with the invoices. For a project that bought stock or assets, the expenses are lower and the margin is higher than before. Note that stock which was consumed on the project, for example diesel or spare parts bought as stock items, is not in the project expenses of this report. The margin can therefore be higher than the real one; the new column shows the amount that was left out. The report stays read-only. No role or permission changes.
 
 ## v4.13.0 — 2026-11-26
 
