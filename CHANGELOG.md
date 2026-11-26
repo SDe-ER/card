@@ -51,22 +51,36 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     `card.gl.events.link_sources_on_submit` (the function the submit of a CARD invoice uses), and adds one
     Info comment on the invoice and on each card (who, when, reason).
   - Refused: an invoice that is not submitted, a return (credit note), a debit note, an opening invoice, an
+    invoice in another currency than the company currency, an invoice that has a submitted credit note, an
     invoice that is already a CARD posting or linked; a card that is not submitted, of an open month, not
-    billed to a customer, of another company, customer or project (the header project of the invoice or the
-    project of a line), already invoiced, already held by an active customer posting, or listed twice; a
-    missing reason; a difference between the invoice net total (company currency, before VAT) and the sum of
-    the cards' customer net amounts above Card Settings `reconciliation_tolerance`. There is no option to
-    accept a difference on the customer side.
+    billed to a customer, of another company, customer or project, already invoiced, already held by an
+    active customer posting, or listed twice; card names that cannot be read; a missing reason.
+  - Amounts. The invoice net total (company currency, before VAT) must equal the sum of the cards' customer
+    net amounts within Card Settings `reconciliation_tolerance`, in total and for each project: the net of
+    the invoice lines of a project (a line without a project takes the header project of the invoice) equals
+    the customer net of the listed cards of that project, and no project of the invoice (and no line without
+    a project) is left without cards. There is no option to accept a difference on the customer side.
+  - Concurrency. The method locks the Sales Invoice row and the card rows. It reads the document status of
+    the invoice, its active posting log, and each card's status, workflow state, invoice link and active
+    customer posting again with locking reads, so a link, a cancel or a reopen that another transaction
+    committed in the meantime is seen. `link_supplier_invoice` is not changed (the same re-reads on the
+    supplier side are a follow-up).
   - New method `card.gl.integrity.unlinked_customer_invoice_candidates(company, limit_start,
     limit_page_length)` (GET, read only): for every customer that has customer-billing cards, the submitted
     Sales Invoices that CARD did not build and that have no link, the customer's unlinked cards on the
-    projects of each invoice, and whether a tested set of cards totals the invoice net (`match` = `exact` or
-    `none`). It writes nothing.
-  - Reports: no code change. `card.reconciliation.cards_invoiced` and `invoices_outside_card` already read a
-    Linked log as a submitted posting, so the Equipment Customer Statement and the Equipment Customers
-    Summary count the linked cards as invoiced through Card and no longer count the invoice outside Card;
-    Unbilled Card Work no longer lists the cards; Posting Source Integrity reports them as consistent. The
-    customer closing balance comes from the ledger and does not change.
+    projects of each invoice (at most 100 per invoice; `more_cards` says that there are more), and whether a
+    tested set of cards covers the invoice by the rule of the link (`match` = `exact` or `none`). Returns,
+    debit notes, opening invoices and invoices with a submitted credit note are left out. It writes nothing.
+  - Reports: two small changes in `card/reconciliation.py`, no change in a report file.
+    `cards_invoiced` reads the Linked Sales Invoice logs without its year window, so a card linked to an
+    invoice dated much later still counts as invoiced in its own month. `invoices_outside_card` does not
+    show the residual of a linked invoice when it is inside `reconciliation_tolerance` (a link accepted
+    with a difference of 0.01 no longer leaves 0.01 under "ERPNext invoices outside Card"; this applies
+    to supplier links too, and an accepted open difference above the tolerance still shows). With these, the
+    Equipment Customer Statement and the Equipment Customers Summary count the linked cards as invoiced
+    through Card and no longer count the invoice outside Card; Unbilled Card Work no longer lists the cards;
+    Posting Source Integrity reports them as consistent. The customer closing balance comes from the ledger
+    and does not change.
   - Impact. **Permissions:** both methods need the role Accounts Manager or System Manager (Accounts User is
     not enough), the company within the user's CARD and accounting scope, read on the invoice, the customer
     and every card, and the submit right on Sales Invoice. No role, DocPerm or DocType change. The log is

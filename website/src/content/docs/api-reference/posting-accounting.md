@@ -191,14 +191,19 @@ invoice; read on the customer and on every card; the company within the user's C
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `invoice` | string | Yes | Submitted Sales Invoice: not cancelled, not a return (credit note), not a debit note, not an opening invoice, and not already a CARD posting or link. |
+| `invoice` | string | Yes | Submitted Sales Invoice in the company currency: not cancelled, not a return (credit note), not a debit note, not an opening invoice, without a submitted credit note, and not already a CARD posting or link. |
 | `cards` | list | Yes | Card Monthly Card names, for example `["<card-name>"]`. Each card is submitted, not of an open month, billed to a customer, of the invoice's company, customer and project, without a Sales Invoice, and not held by another customer posting. No card twice. |
 | `reason` | string | Yes | Why the invoice is linked. It is stored on the log and in the comments. |
 
-**Evidence rule:** the invoice net total (company currency, before VAT) must equal the sum of the cards' customer net
-amounts within the reconciliation tolerance (Card Settings, at least 0.01). A difference is always refused; this method
-has no `accept_difference`. The project of each card must be the header project of the invoice or the project of one of
-its lines; an invoice without a project is refused.
+**Evidence rule:** the invoice net total (before VAT) must equal the sum of the cards' customer net amounts within the
+reconciliation tolerance (Card Settings, at least 0.01), in total and for each project. The project of an invoice line
+is the project on the line; a line without a project takes the header project of the invoice. For each project, the
+net of its lines must equal the customer net of the listed cards of that project, and no project of the invoice may be
+left without cards; an invoice without a project is refused. A difference is always refused; this method has no
+`accept_difference`.
+
+**Concurrency:** the invoice row and the card rows are locked, and their status, links and active posting logs are
+read again under the locks before the log is inserted.
 
 **Returns:** the GL Posting Log name. **Side effects:** inserts one Linked GL Posting Log of type Sales Invoice with one
 source row per card; sets `sales_invoice`, `posted` and `gl_posting` on each card; adds one Info comment on the invoice
@@ -217,9 +222,10 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.link_customer_
 `GET /api/method/card.gl.integrity.unlinked_customer_invoice_candidates`
 
 Read only. For every customer that has customer-billing cards in the company, lists the submitted Sales Invoices that
-CARD did not build and that have no link (no active GL Posting Log), newest first. Returns, debit notes and opening
-invoices are left out. With each invoice it gives the customer's cards that can still be linked and that are on a
-project of the invoice.
+CARD did not build and that have no link (no active GL Posting Log), newest first. Returns, debit notes, opening
+invoices and invoices with a submitted credit note are left out. With each invoice it gives the customer's cards that
+can still be linked and that are on a project of the invoice (at most 100 cards; `more_cards` is true when there are
+more).
 
 **Permission:** Accounts Manager or System Manager; read on Sales Invoice and on Card Monthly Card; the company within
 the user's CARD and accounting scope. Invoices and cards the user cannot read are left out.
@@ -230,13 +236,14 @@ the user's CARD and accounting scope. Invoices and cards the user cannot read ar
 | `limit_start` | int | No | First invoice of the page (default 0). |
 | `limit_page_length` | int | No | Invoices per call (default 50, at most 200). |
 
-**Match rule:** two sets of cards are tested against the invoice net total, within the reconciliation tolerance: the
-cards of the invoice month and the month before, then all cards that can still be linked on the projects of the
-invoice. `match` is `exact` when one set totals the invoice net, and `cards` is then that set. No other combination is
-tested: `none` does not prove that no combination matches.
+**Match rule:** two sets of cards are tested with the evidence rule of `link_customer_invoice` (the invoice net, in
+total and for each project, within the reconciliation tolerance): the cards of the invoice month and the month before,
+then all cards that can still be linked on the projects of the invoice. `match` is `exact` when one set covers the
+invoice, and `cards` is then that set. No other combination is tested: `none` does not prove that no combination
+matches.
 
 **Returns:** `{"invoices": [{"invoice", "posting_date", "customer", "projects": [...], "net_total", "cards": [{"name",
-"month", "year", "project", "customer_net_amount"}], "match": "exact"|"none", "note"}], "limit_start",
+"month", "year", "project", "customer_net_amount"}], "more_cards", "match": "exact"|"none", "note"}], "limit_start",
 "limit_page_length", "has_more"}`. **Side effects:** none.
 
 ```bash

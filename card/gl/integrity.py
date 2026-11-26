@@ -759,6 +759,7 @@ def check_linked_invoice(doc, log):
 
 CARD_DOCTYPE = "Card Monthly Card"
 CANDIDATE_PAGE_MAX = 200
+CANDIDATE_CARDS_MAX = 100
 
 
 def _require_customer_link_role():
@@ -780,9 +781,15 @@ def _card_names(cards):
 	"""The card names of a request: a list, a JSON list, or one name."""
 	if isinstance(cards, str):
 		text = cards.strip()
-		cards = json.loads(text) if text.startswith("[") else ([text] if text else [])
+		if text.startswith("["):
+			try:
+				cards = json.loads(text)
+			except ValueError:
+				frappe.throw(_("Choose the monthly cards this invoice bills."))
+		else:
+			cards = [text] if text else []
 	names = []
-	for entry in cards or []:
+	for entry in cards if isinstance(cards, list) else []:
 		name = entry.get("name") if isinstance(entry, dict) else entry
 		if not name or not isinstance(name, str):
 			frappe.throw(_("Choose the monthly cards this invoice bills."))
@@ -794,10 +801,55 @@ def _card_names(cards):
 	return names
 
 
-def _invoice_projects(inv):
-	"""The projects of a Sales Invoice: its header project and the projects of its lines (CARD's own customer
-	posting writes the card's project on every line and none on the header)."""
-	return {p for p in [inv.get("project"), *(i.get("project") for i in inv.get("items") or [])] if p}
+def _net_by_project(lines, header_project):
+	"""{project: net before VAT in company currency} of the lines of a Sales Invoice. A line without a project
+	takes the header project of the invoice; without that too it is under "" (CARD's own customer posting
+	writes the card's project on every line and none on the header)."""
+	out = {}
+	for line in lines or []:
+		project = line.get("project") or header_project or ""
+		out[project] = flt(out.get(project, 0) + flt(line.get("base_net_amount")), 2)
+	return out
+
+
+def _cards_by_project(cards):
+	out = {}
+	for card in cards:
+		out[card.project] = flt(out.get(card.project, 0) + flt(card.customer_net_amount, 2), 2)
+	return out
+
+
+def _project_gaps(invoice_by_project, cards_by_project, tolerance):
+	"""[(project, invoice net, cards net)] of every project whose invoice lines and cards differ: a project of
+	the cards the invoice bills differently, and a project (or lines without one) of the invoice that no card
+	covers."""
+	return [
+		(project, flt(invoice_by_project.get(project), 2), flt(cards_by_project.get(project), 2))
+		for project in sorted(set(invoice_by_project) | set(cards_by_project))
+		if abs(flt(flt(invoice_by_project.get(project)) - flt(cards_by_project.get(project)), 2)) > tolerance
+	]
+
+
+def _active_customer_holder(card):
+	"""The active customer-side posting log that lists the card, read with a locking read: it sees what other
+	transactions committed, not the snapshot of this one."""
+	source, log = frappe.qb.DocType("GL Posting Source"), frappe.qb.DocType("GL Posting Log")
+	rows = (
+		frappe.qb.from_(source)
+		.join(log)
+		.on(log.name == source.parent)
+		.select(log.name, log.posting_doc)
+		.where(
+			(source.parenttype == "GL Posting Log")
+			& (source.source_doctype == CARD_DOCTYPE)
+			& (source.source_name == card)
+			& (log.party_type == "Customer")
+			& (log.status.isin(list(ACTIVE_STATES)))
+		)
+		.for_update()
+		.run(as_dict=True)
+	)
+	return rows[0] if rows else None
 
 
 @frappe.whitelist(methods=["POST"])
@@ -810,13 +862,17 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	Authorization: Accounts Manager or System Manager; the company within the caller's CARD and accounting
 	scope; read on the invoice, the customer and every card; the submit right on Sales Invoice.
 
-	Evidence: every card is a submitted, approved customer-billing card of the invoice's company, customer and
-	project, without a customer invoice; the invoice net total (company currency, before VAT) equals the sum
-	of the cards' customer net amounts within the reconciliation tolerance. A difference is always refused."""
-	from frappe.utils import cstr, escape_html, now_datetime, strip_html_tags
+	Evidence: the invoice is in the company currency and has no submitted credit note; every card is a
+	submitted, approved customer-billing card of the invoice's company, customer and project, without a
+	customer invoice; the invoice net total (before VAT) equals the sum of the cards' customer net amounts
+	within the reconciliation tolerance, in total and for each project. A difference is always refused.
+
+	Concurrency: the invoice row and the card rows are locked, and the state that another transaction can
+	change (document status, links, active logs) is read again under those locks."""
+	from frappe.utils import cint, cstr, escape_html, now_datetime, strip_html_tags
 
 	from card.constants import CUSTOMER_BILLING_DIRECTIONS, DIR_RENTED_OUT
-	from card.gl.events import active_log_holding, link_sources_on_submit
+	from card.gl.events import link_sources_on_submit
 	from card.open_month import STATE_OPEN_MONTH
 	from card.settings import setting
 
@@ -834,31 +890,61 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 		)
 	frappe.has_permission("Sales Invoice", "submit", inv, throw=True)
 	frappe.has_permission("Customer", "read", inv.customer, throw=True)
-	if inv.docstatus != 1:
+	# lock the invoice row; its state is the committed one, not this transaction's snapshot
+	state = frappe.db.get_value(
+		"Sales Invoice",
+		invoice,
+		["docstatus", "is_return", "is_debit_note", "is_opening", "currency"],
+		as_dict=True,
+		for_update=True,
+	)
+	if not state or state.docstatus != 1:
 		frappe.throw(_("{0} is not submitted; link a submitted Sales Invoice.").format(invoice))
-	if inv.get("is_return"):
+	if state.is_return:
 		frappe.throw(_("{0} is a return (credit note); link the Sales Invoice itself.").format(invoice))
-	if inv.get("is_debit_note"):
+	if state.is_debit_note:
 		frappe.throw(_("{0} is a debit note; link the Sales Invoice itself.").format(invoice))
-	if inv.get("is_opening") == "Yes":
+	if state.is_opening == "Yes":
 		frappe.throw(_("{0} is an opening invoice; it does not bill monthly cards.").format(invoice))
+	if state.currency != frappe.get_cached_value("Company", inv.company, "default_currency"):
+		frappe.throw(
+			_("{0} is in {1}; only invoices in the company currency can be linked.").format(
+				invoice, state.currency
+			)
+		)
 	existing = frappe.db.get_value(
 		"GL Posting Log",
 		{"posting_doctype": "Sales Invoice", "posting_doc": invoice, "status": ["in", list(ACTIVE_STATES)]},
 		"name",
+		for_update=True,
 	)
 	if existing:
 		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, existing))
+	credit_note = frappe.db.get_value(
+		"Sales Invoice", {"is_return": 1, "return_against": invoice, "docstatus": 1}, "name"
+	)
+	if credit_note:
+		frappe.throw(
+			_("{0} has a credit note ({1}); link the valid Sales Invoice.").format(invoice, credit_note)
+		)
 	rows = {CARD_DOCTYPE: [(name, 0) for name in names]}
 	lock_sources(rows)
-	projects = _invoice_projects(inv)
+	invoice_by_project = _net_by_project(inv.get("items"), inv.get("project"))
 	docs = []
 	for i, name in enumerate(names):
 		card = frappe.get_doc(CARD_DOCTYPE, name)
 		card.check_permission("read")
-		if card.docstatus != 1:
+		# the fields a posting, a cancel or a reopen of another transaction changes, under the row lock
+		current = frappe.db.get_value(
+			CARD_DOCTYPE,
+			name,
+			["docstatus", "workflow_state", "sales_invoice", "posted", "gl_posting"],
+			as_dict=True,
+			for_update=True,
+		)
+		if not current or current.docstatus != 1:
 			frappe.throw(_("{0} {1} is not submitted.").format(_(CARD_DOCTYPE), name))
-		if card.get("workflow_state") == STATE_OPEN_MONTH:
+		if current.workflow_state == STATE_OPEN_MONTH:
 			frappe.throw(_("Card {0} is not approved: its month has not ended.").format(name))
 		if card.card_direction not in CUSTOMER_BILLING_DIRECTIONS:
 			frappe.throw(_("Card {0} is not billed to a customer.").format(name))
@@ -866,18 +952,18 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 			frappe.throw(_("Card {0} belongs to another company than {1}.").format(name, invoice))
 		if not card.customer or card.customer != inv.customer:
 			frappe.throw(_("Card {0} belongs to another customer than {1}.").format(name, invoice))
-		if not card.project or card.project not in projects:
+		if not card.project or card.project not in invoice_by_project:
 			frappe.throw(
 				_(
-					"Card {0} is of project {1}, which is not a project of {2} (its header or its lines)."
+					"Card {0} is of project {1}, which is not a project of {2} (its lines, or its header for a line without a project)."
 				).format(name, card.project or "-", invoice)
 			)
-		if card.get("sales_invoice"):
-			frappe.throw(_("Card {0} is already invoiced by {1}.").format(name, card.sales_invoice))
-		holder = active_log_holding(CARD_DOCTYPE, name, "Customer")
+		if current.sales_invoice:
+			frappe.throw(_("Card {0} is already invoiced by {1}.").format(name, current.sales_invoice))
+		holder = _active_customer_holder(name)
 		if holder:
 			frappe.throw(_("Card {0} is already held by {1}.").format(name, holder.posting_doc))
-		if card.card_direction == DIR_RENTED_OUT and frappe.utils.cint(card.get("posted")):
+		if card.card_direction == DIR_RENTED_OUT and cint(current.posted):
 			# a rented-out card has the customer side only: the flag says that side is posted
 			frappe.throw(
 				_("Card {0} is marked posted without an invoice link; review it before linking.").format(name)
@@ -892,6 +978,20 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 			_(
 				"Cannot link: the cards total {0} net, {1} is net {2} (before VAT). Link exactly the cards this invoice bills."
 			).format(cards_net, invoice, invoice_net),
+			title=_("Linked amounts differ"),
+		)
+	for project, billed, listed in _project_gaps(invoice_by_project, _cards_by_project(docs), tolerance):
+		if not project:
+			frappe.throw(
+				_(
+					"Cannot link: {0} bills {1} net on lines without a project, and every card has a project."
+				).format(invoice, billed),
+				title=_("Linked amounts differ"),
+			)
+		frappe.throw(
+			_(
+				"Cannot link: for project {0}, {1} bills {2} net and the listed cards total {3}. Link exactly the cards this invoice bills."
+			).format(project, invoice, billed, listed),
 			title=_("Linked amounts differ"),
 		)
 	posting_day = getdate(inv.posting_date)
@@ -938,21 +1038,27 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	return log.name
 
 
-def _unlinked_customer_cards(company):
-	"""(customers that have customer-billing cards, their submitted approved cards without a customer invoice
-	link and outside every active customer posting), as the caller may read them."""
-	from card.constants import CUSTOMER_BILLING_DIRECTIONS, DIR_RENTED_OUT
-	from card.gl.posting import _held_by_active_log
+def _customer_billing_filters(company):
+	from card.constants import CUSTOMER_BILLING_DIRECTIONS
+
+	return {
+		"company": company,
+		"docstatus": 1,
+		"card_direction": ["in", list(CUSTOMER_BILLING_DIRECTIONS)],
+		"customer": ["is", "set"],
+	}
+
+
+def _unlinked_customer_cards(company, customers):
+	"""The submitted approved cards of ``customers`` without a customer invoice link and outside every active
+	customer posting, as the caller may read them. The held cards are found with two queries for the whole list."""
+	from card.constants import DIR_RENTED_OUT
+	from card.gl.posting import _unheld_batch
 	from card.open_month import STATE_OPEN_MONTH
 
 	cards = frappe.get_list(
 		CARD_DOCTYPE,
-		filters={
-			"company": company,
-			"docstatus": 1,
-			"card_direction": ["in", list(CUSTOMER_BILLING_DIRECTIONS)],
-			"customer": ["is", "set"],
-		},
+		filters={**_customer_billing_filters(company), "customer": ["in", customers]},
 		fields=[
 			"name",
 			"customer",
@@ -968,7 +1074,6 @@ def _unlinked_customer_cards(company):
 		order_by="year asc, month asc, name asc",
 		limit_page_length=0,
 	)
-	customers = sorted({c.customer for c in cards})
 	free = [
 		c
 		for c in cards
@@ -976,14 +1081,21 @@ def _unlinked_customer_cards(company):
 		and c.workflow_state != STATE_OPEN_MONTH
 		and not (c.card_direction == DIR_RENTED_OUT and c.posted)
 	]
-	held = _held_by_active_log(CARD_DOCTYPE, [c.name for c in free], "Customer")
-	return customers, [c for c in free if c.name not in held]
+	return _unheld_batch(free, CARD_DOCTYPE, "Customer")
 
 
-def _candidate_match(inv, projects, cards, tolerance):
+def _cards_cover(inv, invoice_by_project, cards, tolerance):
+	"""The rule of the link: the cards total the invoice net, in total and for each project."""
+	total = sum(flt(c.customer_net_amount, 2) for c in cards)
+	return abs(flt(flt(inv.base_net_total, 2) - total, 2)) <= tolerance and not _project_gaps(
+		invoice_by_project, _cards_by_project(cards), tolerance
+	)
+
+
+def _candidate_match(inv, invoice_by_project, cards, tolerance):
 	"""(match, cards to show, note) of one invoice. Two sets are tested, never every subset: the unlinked cards
 	of the invoice's projects in the invoice month and the month before, then all of them."""
-	if not projects:
+	if not any(invoice_by_project):
 		return "none", [], _("The invoice has no project; it cannot be linked to cards.")
 	if not cards:
 		return "none", [], _("No unlinked card of this customer on the projects of the invoice.")
@@ -992,18 +1104,23 @@ def _candidate_match(inv, projects, cards, tolerance):
 	recent = [
 		c for c in cards if this_month - 1 <= frappe.utils.cint(c.year) * 12 + int(c.month) <= this_month
 	]
-	net = flt(inv.base_net_total, 2)
 	for subset, note in (
-		(recent, _("The cards of the invoice month and the month before total the invoice net.")),
-		(cards, _("All unlinked cards of the projects of the invoice total the invoice net.")),
+		(
+			recent,
+			_("The cards of the invoice month and the month before total the invoice net, for each project."),
+		),
+		(
+			cards,
+			_("All unlinked cards of the projects of the invoice total the invoice net, for each project."),
+		),
 	):
-		if subset and abs(flt(net - sum(flt(c.customer_net_amount, 2) for c in subset), 2)) <= tolerance:
+		if subset and _cards_cover(inv, invoice_by_project, subset, tolerance):
 			return "exact", subset, note
 	return (
 		"none",
 		cards,
 		_(
-			"No tested set of cards totals the invoice net: all unlinked cards of the projects total {0}."
+			"No tested set of cards totals the invoice net for each project: all unlinked cards of the projects total {0}."
 		).format(flt(sum(flt(c.customer_net_amount, 2) for c in cards), 2)),
 	)
 
@@ -1015,8 +1132,10 @@ def unlinked_customer_invoice_candidates(
 	"""FR-194, read only: the submitted Sales Invoices of ``company`` that CARD did not build and that are not
 	linked (no active GL Posting Log), for every customer that has customer-billing cards; with each one, the
 	customer's unlinked approved cards on the invoice's projects, and whether a tested set of them totals the
-	invoice net (``match`` = "exact" or "none"). Returns and opening invoices are left out. Newest first,
-	``limit_page_length`` invoices per call (at most 200). It writes nothing and links nothing."""
+	invoice net for each project (``match`` = "exact" or "none"). Returns, debit notes, opening invoices and
+	invoices with a submitted credit note are left out. Newest first, ``limit_page_length`` invoices per call
+	(at most 200), at most 100 cards per invoice (``more_cards`` says that there are more). It writes nothing
+	and links nothing."""
 	from frappe.utils import cint
 
 	from card.settings import setting
@@ -1032,19 +1151,49 @@ def unlinked_customer_invoice_candidates(
 	start = max(cint(limit_start), 0)
 	page = min(max(cint(limit_page_length), 1), CANDIDATE_PAGE_MAX)
 	result = {"invoices": [], "limit_start": start, "limit_page_length": page, "has_more": False}
-	customers, cards = _unlinked_customer_cards(company)
+	customers = sorted(
+		{
+			c.customer
+			for c in frappe.get_list(
+				CARD_DOCTYPE,
+				filters=_customer_billing_filters(company),
+				fields=["customer"],
+				distinct=True,
+				limit_page_length=0,
+			)
+		}
+	)
 	if not customers:
 		return result
-	logged = frappe.get_all(
-		"GL Posting Log",
-		filters={
-			"company": company,
-			"posting_doctype": "Sales Invoice",
-			"status": ["in", list(ACTIVE_STATES)],
-			"posting_doc": ["is", "set"],
-		},
-		pluck="posting_doc",
-		limit_page_length=0,
+	# invoices that are never candidates, by name: an invoice with an active log, an invoice with a submitted
+	# credit note, an opening invoice. Named here (not filtered by value), so a row whose opening flag is
+	# empty (NULL) stays in the list.
+	submitted = {"company": company, "docstatus": 1}
+	excluded = set(
+		frappe.get_all(
+			"GL Posting Log",
+			filters={
+				"company": company,
+				"posting_doctype": "Sales Invoice",
+				"status": ["in", list(ACTIVE_STATES)],
+				"posting_doc": ["is", "set"],
+			},
+			pluck="posting_doc",
+			limit_page_length=0,
+		)
+	)
+	excluded.update(
+		frappe.get_all(
+			"Sales Invoice",
+			filters={**submitted, "is_return": 1, "return_against": ["is", "set"]},
+			pluck="return_against",
+			limit_page_length=0,
+		)
+	)
+	excluded.update(
+		frappe.get_all(
+			"Sales Invoice", filters={**submitted, "is_opening": "Yes"}, pluck="name", limit_page_length=0
+		)
 	)
 	filters = [
 		["company", "=", company],
@@ -1052,10 +1201,9 @@ def unlinked_customer_invoice_candidates(
 		["docstatus", "=", 1],
 		["is_return", "=", 0],
 		["is_debit_note", "=", 0],
-		["is_opening", "in", ["No", "", None]],
 	]
-	if logged:
-		filters.append(["name", "not in", logged])
+	if excluded:
+		filters.append(["name", "not in", sorted(excluded)])
 	invoices = frappe.get_list(
 		"Sales Invoice",
 		filters=filters,
@@ -1068,24 +1216,26 @@ def unlinked_customer_invoice_candidates(
 	invoices = invoices[:page]
 	if not invoices:
 		return result
-	projects = {inv.name: {inv.project} if inv.project else set() for inv in invoices}
+	lines = {inv.name: [] for inv in invoices}
 	for line in frappe.get_all(
 		"Sales Invoice Item",
-		filters={"parenttype": "Sales Invoice", "parent": ["in", list(projects)], "project": ["is", "set"]},
-		fields=["parent", "project"],
+		filters={"parenttype": "Sales Invoice", "parent": ["in", list(lines)]},
+		fields=["parent", "project", "base_net_amount"],
 		limit_page_length=0,
 	):
-		projects[line.parent].add(line.project)
+		lines[line.parent].append(line)
+	cards = _unlinked_customer_cards(company, sorted({inv.customer for inv in invoices}))
 	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
 	for inv in invoices:
-		own = [c for c in cards if c.customer == inv.customer and c.project in projects[inv.name]]
-		match, shown, note = _candidate_match(inv, projects[inv.name], own, tolerance)
+		invoice_by_project = _net_by_project(lines[inv.name], inv.project)
+		own = [c for c in cards if c.customer == inv.customer and c.project in invoice_by_project]
+		match, shown, note = _candidate_match(inv, invoice_by_project, own, tolerance)
 		result["invoices"].append(
 			{
 				"invoice": inv.name,
 				"posting_date": inv.posting_date,
 				"customer": inv.customer,
-				"projects": sorted(projects[inv.name]),
+				"projects": sorted(p for p in invoice_by_project if p),
 				"net_total": flt(inv.base_net_total, 2),
 				"cards": [
 					{
@@ -1095,8 +1245,9 @@ def unlinked_customer_invoice_candidates(
 						"project": c.project,
 						"customer_net_amount": flt(c.customer_net_amount, 2),
 					}
-					for c in shown
+					for c in shown[:CANDIDATE_CARDS_MAX]
 				],
+				"more_cards": len(shown) > CANDIDATE_CARDS_MAX,
 				"match": match,
 				"note": note,
 			}

@@ -227,7 +227,7 @@ Each needs an accounting role (see *Permissions*) and none is exposed as a Desk 
 |---|---|---|
 | Supplier invoice link | A Purchase Invoice booked by hand for cards, fills or transports | Sources compared with the invoice net total on one VAT basis; a gap needs an accountant's reason and is stored as an open difference |
 | Accrual Journal Entry link | A submitted Journal Entry that recognised supplier cards (expense debit, supplier credit) | The entry credits exactly one supplier, and the credit net of tax rows equals the cards' net within tolerance, or an accepted difference with a reason |
-| Customer invoice link | A submitted Sales Invoice booked by hand for customer monthly cards | Same company, customer and project; the invoice net total equals the cards' customer net within tolerance; a difference is always refused |
+| Customer invoice link | A submitted Sales Invoice booked by hand for customer monthly cards | Same company, customer and project; the invoice net equals the cards' customer net within tolerance, in total and for each project; a difference is always refused |
 
 Cancelling the linked invoice or Journal Entry frees the sources again.
 
@@ -241,14 +241,19 @@ CARD. There is no button in Desk for this action; an Accounts Manager or a Syste
 1. Find the invoices to link. Call `unlinked_customer_invoice_candidates` for the company. It lists each submitted
    Sales Invoice that CARD did not build and that has no link, with the customer's cards that have no invoice, and it
    says if a set of cards totals the invoice net (`match` is `exact` or `none`). This method only reads.
-2. Check the cards against the invoice. The link needs the same company, the same customer and the same project (the
-   project in the invoice header or on an invoice line). An invoice without a project cannot be linked, because every
-   card has a project.
+2. Check the cards against the invoice. The link needs the same company, the same customer and the same project.
+   The project of an invoice line is the project on the line; a line without a project takes the project in the
+   invoice header. An invoice without a project cannot be linked, because every card has a project.
 3. Call `link_customer_invoice` with the invoice, the card names and a reason.
 
-CARD accepts the link only when the invoice net total (company currency, before VAT) equals the sum of the cards'
-customer net amounts, within the reconciliation tolerance of Card Settings. A difference is always refused; there is
-no option to accept it. Link exactly the cards that the invoice bills.
+CARD accepts the link only when the invoice net total (before VAT) equals the sum of the cards' customer net
+amounts, within the reconciliation tolerance of Card Settings. The same must be true for each project: the net of
+the invoice lines of a project equals the customer net of the listed cards of that project, and no part of the
+invoice is left without cards. A difference is always refused; there is no option to accept it. Link exactly the
+cards that the invoice bills.
+
+CARD also refuses the link when the invoice is not in the company currency, or when the invoice has a submitted
+credit note.
 
 | The link writes | It does not change |
 |---|---|

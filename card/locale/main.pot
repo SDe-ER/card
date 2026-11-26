@@ -8262,10 +8262,6 @@ msgid "Card {0} belongs to another customer than {1}."
 msgstr ""
 
 #: card/gl/integrity.py
-msgid "Card {0} is of project {1}, which is not a project of {2} (its header or its lines)."
-msgstr ""
-
-#: card/gl/integrity.py
 msgid "Card {0} is marked posted without an invoice link; review it before linking."
 msgstr ""
 
@@ -8294,13 +8290,33 @@ msgid "No unlinked card of this customer on the projects of the invoice."
 msgstr ""
 
 #: card/gl/integrity.py
-msgid "The cards of the invoice month and the month before total the invoice net."
+msgid "Card {0} is of project {1}, which is not a project of {2} (its lines, or its header for a line without a project)."
 msgstr ""
 
 #: card/gl/integrity.py
-msgid "All unlinked cards of the projects of the invoice total the invoice net."
+msgid "{0} is in {1}; only invoices in the company currency can be linked."
 msgstr ""
 
 #: card/gl/integrity.py
-msgid "No tested set of cards totals the invoice net: all unlinked cards of the projects total {0}."
+msgid "{0} has a credit note ({1}); link the valid Sales Invoice."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot link: {0} bills {1} net on lines without a project, and every card has a project."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot link: for project {0}, {1} bills {2} net and the listed cards total {3}. Link exactly the cards this invoice bills."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "The cards of the invoice month and the month before total the invoice net, for each project."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "All unlinked cards of the projects of the invoice total the invoice net, for each project."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "No tested set of cards totals the invoice net for each project: all unlinked cards of the projects total {0}."
 msgstr ""
