@@ -225,8 +225,9 @@ Removes a wrong link that `link_customer_invoice` made. It is for a company that
 Invoice (ZATCA). Nothing is posted, cancelled, amended or deleted: the Sales Invoice, the card amounts and the ledger
 are not changed. There is no Desk button for this method.
 
-**Permission:** System Manager only (Accounts Manager is not enough); read on the invoice; the company within the
-user's CARD and accounting scope.
+**Permission:** System Manager (Accounts Manager is not enough) and read on the Sales Invoice. The System Manager role
+alone does not give read on a Sales Invoice, so the user also needs an accounts role. Also: the company within the
+user's CARD and accounting scope, and read on every card of the link.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -239,18 +240,19 @@ user's CARD and accounting scope.
 - The invoice is a posting that CARD built (origin Built or empty) or a CARD credit note.
 - Cancelled-and-amended chain mismatch: another Sales Invoice amends this invoice, or an invoice that this one amends
   (up the chain) still has an active posting log. An amendment that has its own link is unlinked as any other invoice.
-- A source of the log is not a monthly card.
+- A source of the log is not a monthly card, or the user cannot read a card of the link.
 - A card changed after the link: it is not submitted, it is not marked posted, its `sales_invoice` is not this invoice,
   or its `gl_posting` is neither this log nor the active supplier-side log that holds the card (sub-rental). The
   message names the card.
 
-**Concurrency:** the invoice row, the log row and the card rows are locked in the order of the link, and their state
-is read under the locks.
+**Concurrency:** the invoice row, the log row and the card rows are locked in the order of the link. The invoice
+status, the log and the link fields of the cards are read under the locks. The amendment chain and the supplier-side
+log of a sub-rental card are plain reads.
 
 **Returns:** the GL Posting Log name. **Side effects:** sets the Linked GL Posting Log to `Cancelled` and clears its
 `posting_key`; the log is kept, and its `remarks` get who, when, the reason, the invoice, the log and the cards with
 their amounts. On each card it clears `sales_invoice`, sets `posted` to 0 (1 stays on a sub-rental card whose supplier
-side is still posted) and clears `gl_posting` when it points at this log; the card's `modified` is not changed. It adds
+side is still posted by a purchase invoice or a linked accrual Journal Entry) and clears `gl_posting` when it points at this log; the card's `modified` is not changed. It adds
 one Info comment on the invoice and on each card. It writes no GL Entry and does not save the Sales Invoice. After the
 call, `link_customer_invoice` accepts the invoice and the cards again.
 

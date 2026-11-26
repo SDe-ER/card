@@ -280,12 +280,15 @@ There are two ways to remove a link. Neither one posts an entry or changes a car
 - A company under ZATCA Phase 2 cannot cancel a submitted Sales Invoice, and a credit note corrects the invoice but
   does not remove the link. For this case a System Manager calls the server method `unlink_customer_invoice` with the
   invoice and a reason (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)).
-  There is no button in Desk for this action, and an Accounts Manager cannot do it.
+  There is no button in Desk for this action, and an Accounts Manager cannot do it. The caller needs the System
+  Manager role and also read permission on the Sales Invoice and on the cards. The System Manager role alone does
+  not give read permission on a Sales Invoice, so the user also needs an accounts role.
 
 `unlink_customer_invoice` removes only a link that `link_customer_invoice` made. It refuses a Sales Invoice that CARD
 built. It also refuses when the link is no longer in the state the link left it, and then it changes nothing:
 
 - the invoice is not submitted;
+- the caller cannot read a card of the link;
 - another Sales Invoice amends the invoice, or an invoice that this one amends still has an active posting log
   (cancelled-and-amended chain mismatch);
 - a card of the link is no longer submitted, is not marked **Posted**, shows another Sales Invoice, or shows another
@@ -294,7 +297,7 @@ built. It also refuses when the link is no longer in the state the link left it,
 | The unlink writes | It does not change |
 |---|---|
 | On the GL Posting Log of the link: status Cancelled. The log is kept, and its remarks get who removed the link, when, the reason, the invoice, the log and the cards with their amounts | The Sales Invoice (it is not saved, cancelled or amended; no ZATCA step runs) |
-| On each card: the Sales Invoice link and the log link are cleared, and the **Posted** flag is cleared (it stays on a sub-rental card whose supplier side is still posted) | Card amounts, rates, days, additions, deductions, the workflow state and the last-modified time |
+| On each card: the Sales Invoice link and the log link are cleared, and the **Posted** flag is cleared (it stays on a sub-rental card whose supplier side is still posted by a purchase invoice or by a linked accrual Journal Entry) | Card amounts, rates, days, additions, deductions, the workflow state and the last-modified time |
 | One information comment on the invoice and on each card: who removed the link, when, the log and the reason | The ledger: no GL Entry, no payment entry, no tax row |
 
 After the unlink, the customer reports show the cards as not invoiced again and the invoice as an invoice outside

@@ -46,9 +46,10 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   - New method `card.gl.integrity.unlink_customer_invoice(invoice, reason)` (POST). It works only on a submitted
     Sales Invoice that is the posting document of an active GL Posting Log with origin Linked (customer side). A
     posting that CARD built (origin Built or empty) or a CARD credit note is always refused.
-  - Authorization: System Manager only (Accounts Manager is refused); the company scope of the link
-    (`permitted_companies` of the posting sources, Sales Invoice and GL Posting Log); read on the invoice; a
-    mandatory reason (HTML stripped).
+  - Authorization: System Manager only (Accounts Manager is refused) and read on the Sales Invoice (the System
+    Manager role alone gives no read on it, so the caller also needs an accounts role); the company scope of the
+    link (`permitted_companies` of the posting sources, Sales Invoice and GL Posting Log); read on every card of
+    the link; a mandatory reason (HTML stripped).
   - Refusals, all before the first write (nothing is partly undone): the invoice is not submitted; no active link;
     the log names another document; cancelled-and-amended chain mismatch (another Sales Invoice has `amended_from`
     = this invoice, or an invoice up the `amended_from` chain of this one still has an active posting log; new
@@ -60,8 +61,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     update_modified=False)` as `card.gl.events.before_cancel` does; `modified` and the amounts of the card do not
     change. The log is set to Cancelled and its `posting_key` is cleared; the log is never deleted. Its `remarks`
     keep the link text and get who, when, the reason, the invoice, the log and the cards with their amounts. One
-    Info comment is added on the invoice and on each card (escaped). The invoice row, the log row and the card rows
-    are locked in the order of the link, and the state is read under the locks.
+    Info comment is added on the invoice and on each card (escaped). The invoice row, the log row (found with a
+    plain read, locked by its name and checked again) and the card rows are locked in the order of the link; the
+    invoice status, the log and the link fields of the cards are read under the locks. The amendment chain and
+    the supplier-side log of a sub-rental card are plain reads.
+  - `card.gl.events._other_side_still_posted` (changed): a card is still posted on the other side when a
+    submitted posting log of that side holds it, also when the card has the link field of that side and it is
+    empty. This is the case of a supplier side recognised by a linked accrual Journal Entry
+    (`link_accrual_journal` sets `posted` without a purchase invoice). Without it, the unlink would clear
+    `posted` on such a sub-rental card. The same function serves `card.gl.events.before_cancel` and
+    `card.gl.journal_link.before_cancel`, so this also corrects the cancel of a linked or CARD-built invoice:
+    `posted` now stays 1 on a card whose other side is held by a submitted posting log without an invoice
+    link on the card.
   - `GLPostingLog.validate_builder_insert` (new helper `has_another_log`): a Cancelled Linked customer log of a
     Sales Invoice no longer stops a new Linked log of the same invoice. Every other existing log still does. This
     is what lets `link_customer_invoice` link the invoice again after an unlink (and after the manual data
