@@ -9,6 +9,7 @@ and the customer invoice link on each card. It posts nothing and changes neither
 All data is synthetic and rolled back."""
 
 import inspect
+from unittest.mock import patch
 
 import frappe
 from frappe.utils import flt
@@ -52,15 +53,25 @@ class _LinkBase(_AuthBase):
 		header_project=None,
 		vat=False,
 		submit=True,
+		lines=None,
 	):
-		"""A Sales Invoice booked by hand (not built by CARD), one line, net = ``rate``."""
+		"""A Sales Invoice booked by hand (not built by CARD), one line, net = ``rate``; or one line per
+		(rate, project) of ``lines``."""
 		from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
 
 		row = ensure_posting_masters(self.company)
-		item = {"item_code": row.rental_item, "qty": 1, "rate": rate, "income_account": self.inc_rental}
 		project = self.project if line_project == "default" else line_project
-		if project:
-			item["project"] = project
+		items = []
+		for line_rate, line_proj in lines or [(rate, project)]:
+			item = {
+				"item_code": row.rental_item,
+				"qty": 1,
+				"rate": line_rate,
+				"income_account": self.inc_rental,
+			}
+			if line_proj:
+				item["project"] = line_proj
+			items.append(item)
 		doc = frappe.get_doc(
 			{
 				"doctype": SI,
@@ -71,7 +82,7 @@ class _LinkBase(_AuthBase):
 				"due_date": posting_date,
 				"currency": frappe.db.get_value("Company", self.company, "default_currency"),
 				"selling_price_list": ensure_selling_price_list(self.company),
-				"items": [item],
+				"items": items,
 			}
 		)
 		if header_project:
@@ -590,3 +601,246 @@ class TestUnlinkedCustomerInvoiceCandidates(_LinkBase):
 			(frappe.db.count(LOG), frappe.db.count("Comment"), frappe.db.count("Version")), counts
 		)
 		self.assertEqual(frappe.db.get_value(CARD, card.name, "modified"), modified)
+
+
+class TestLinkReviewFixes(_LinkBase):
+	"""Code review of the pull request: credit notes, currency, malformed input, the per-project comparison and
+	the locking re-reads."""
+
+	def _credit_note(self, invoice):
+		from erpnext.controllers.sales_and_purchase_return import make_return_doc
+
+		ret = make_return_doc(SI, invoice.name)
+		ret.insert(ignore_permissions=True)
+		ret.submit()
+		return ret
+
+	def test_invoice_with_a_submitted_credit_note_is_refused(self):
+		card = self._out_card()
+		si = self._si(1600)
+		credit_note = self._credit_note(si)
+		self._refused("has a credit note \\(" + credit_note.name + "\\)", si, card)
+
+	def test_invoice_in_another_currency_is_refused(self):
+		card = self._out_card()
+		si = self._si(1600)
+		company_currency = frappe.db.get_value("Company", self.company, "default_currency")
+		other = "USD" if company_currency != "USD" else "EUR"
+		frappe.db.set_value(SI, si.name, "currency", other, update_modified=False)
+		self._refused("is in " + other + "; only invoices in the company currency", si, card)
+
+	def test_malformed_cards_json_is_a_validation_message(self):
+		self._out_card()
+		si = self._si(1600)
+		for cards in ("[not json", '["a",', "[1, 2]"):
+			with (
+				self.subTest(cards=cards),
+				self.assertRaisesRegex(frappe.ValidationError, "Choose the monthly cards"),
+			):
+				link_customer_invoice(si.name, cards, REASON)
+
+	def test_amounts_are_compared_per_project(self):
+		project_b = self._second_project()
+		wrong = self._out_card()  # 1,600 on the first project
+		si = self._si(0, lines=[(1000, self.project), (600, project_b)])
+		self.assertEqual(flt(si.net_total, 2), 1600.0)
+		# the totals are equal, the projects are not
+		self._refused("project", si, wrong)
+		card_a = self._out_card(hours=(10,))  # 10 h x 100 = 1,000
+		card_b = self._out_card(hours=(6,), project=project_b)  # 600
+		# a card of one project does not cover the invoice
+		self._refused("net", si, card_a)
+		log = frappe.get_doc(LOG, self._link(si, card_a, card_b))
+		self.assertEqual(
+			sorted((r.source_name, flt(r.amount, 2)) for r in log.sources),
+			sorted([(card_a.name, 1000.0), (card_b.name, 600.0)]),
+		)
+
+	def test_line_without_a_project_takes_the_header_project(self):
+		project_b = self._second_project()
+		card_a = self._out_card(hours=(10,))
+		card_b = self._out_card(hours=(6,), project=project_b)
+		si = self._si(0, lines=[(1000, None), (600, project_b)], header_project=self.project)
+		self._link(si, card_a, card_b)
+		self.assertEqual(frappe.db.get_value(CARD, card_a.name, "sales_invoice"), si.name)
+
+	def test_invoice_amount_without_a_project_is_refused(self):
+		card = self._out_card()
+		self._refused("project", self._si(0, lines=[(1000, None), (600, self.project)]), card)
+
+	# ---- locking re-reads: the values checked are read again under the row locks ----
+
+	def _stale(self, doctype, **values):
+		"""frappe.get_doc that answers ``doctype`` with stale values, as a snapshot taken before another
+		transaction committed would."""
+		real = frappe.get_doc
+
+		def get_doc(*args, **kwargs):
+			doc = real(*args, **kwargs)
+			if args and args[0] == doctype and len(args) > 1:
+				doc.update(values)
+			return doc
+
+		return patch.object(frappe, "get_doc", side_effect=get_doc)
+
+	def test_card_invoiced_meanwhile_is_refused_by_the_locking_read(self):
+		card = self._out_card()
+		other = self._si(1600)
+		si = self._si(1600)
+		# another transaction linked the card after this one took its snapshot
+		frappe.db.set_value(
+			CARD, card.name, {"sales_invoice": other.name, "posted": 1}, update_modified=False
+		)
+		with self._stale(CARD, sales_invoice=None, posted=0):
+			self._refused("already invoiced by " + other.name, si, card)
+
+	def test_card_reopened_or_cancelled_meanwhile_is_refused_by_the_locking_read(self):
+		si = self._si(1600)
+		opened = self._out_card()
+		frappe.db.set_value(CARD, opened.name, "workflow_state", STATE_OPEN_MONTH, update_modified=False)
+		with self._stale(CARD, workflow_state="Approved"):
+			self._refused("month has not ended|not approved", si, opened)
+		cancelled = self._out_card()
+		frappe.db.set_value(CARD, cancelled.name, "docstatus", 2, update_modified=False)
+		with self._stale(CARD, docstatus=1):
+			self._refused("not submitted", si, cancelled)
+
+	def test_card_held_meanwhile_is_refused_without_the_snapshot_holder_check(self):
+		customer_b = self._customer("-B")
+		held = self._out_card(customer=customer_b)
+		draft = build_monthly_posting(self.company, "Customer", customer_b, 9, 2026)
+		si = self._si(1600, customer=customer_b)
+		with patch("card.gl.events.active_log_holding", return_value=None):
+			self._refused("already held by " + draft, si, held)
+
+	def test_invoice_cancelled_or_linked_meanwhile_is_refused_by_the_locking_read(self):
+		card = self._out_card()
+		si = self._si(1600)
+		frappe.db.set_value(SI, si.name, "docstatus", 2, update_modified=False)
+		with self._stale(SI, docstatus=1):
+			self._refused("not submitted", si, card)
+		frappe.db.set_value(SI, si.name, "docstatus", 1, update_modified=False)
+		other = self._out_card(hours=(8,), customer_rate=500)
+		linked = self._si(400)
+		self._link(linked, other)
+		real = frappe.db.get_value
+
+		def snapshot(doctype, *args, **kwargs):
+			# the plain read still sees no log; only the locking read sees the committed one
+			if doctype == LOG and not kwargs.get("for_update"):
+				return None
+			return real(doctype, *args, **kwargs)
+
+		with patch.object(frappe.db, "get_value", side_effect=snapshot):
+			with self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting or linked"):
+				self._link(linked, card)
+		self.assertEqual(frappe.db.count(LOG, {"posting_doc": linked.name}), 1)
+
+
+class TestLinkReviewFixesInReports(_LinkBase):
+	def _statement(self, **period):
+		from card.card.report.equipment_customer_statement.equipment_customer_statement import execute
+
+		summary = execute(frappe._dict(company=self.company, customer=self.customer, **period))[4]
+		return {s["key"]: flt(s["value"], 2) for s in summary if s.get("key")}
+
+	def test_difference_inside_the_tolerance_is_not_shown_outside_card(self):
+		from card.reconciliation import invoices_outside_card
+
+		card = self._out_card()
+		si = self._si(1600.01)
+		self._link(si, card)
+		outside = invoices_outside_card("Customer", [self.customer], self.company, "2026-09-01", "2026-09-30")
+		self.assertFalse(outside.get(self.customer))
+		after = self._statement(**SEPTEMBER)
+		self.assertEqual((after["invoiced"], after["not_invoiced"], after["outside"]), (1600.0, 0.0, 0.0))
+
+	def test_card_linked_to_a_much_later_invoice_counts_in_its_own_month(self):
+		from card.reconciliation import cards_invoiced
+		from card.tests.test_controllers import _days
+
+		eq = self._rented_out(customer_rate=1000)
+		card = frappe.new_doc(CARD)
+		card.update(
+			{"equipment": eq.name, "project": self.project, "shift": "نهاري", "month": "12", "year": 2024}
+		)
+		for row in _days([8, 8], 2024, 12):
+			card.append("days", row)
+		card.insert(ignore_permissions=True)
+		card.submit()
+		card.reload()
+		self.assertEqual((card.month, int(card.year), flt(card.customer_net_amount, 2)), ("12", 2024, 1600.0))
+		si = self._si(1600)  # dated 2026-09-30
+		log = frappe.get_doc(LOG, self._link(si, card))
+		self.assertEqual((log.month, int(log.year)), ("09", 2026))
+
+		december = cards_invoiced("Customer", [self.customer], self.company, "2024-12-01", "2024-12-31")
+		self.assertEqual(flt(december.get(self.customer), 2), 1600.0)
+		september = cards_invoiced("Customer", [self.customer], self.company, "2026-09-01", "2026-09-30")
+		self.assertFalse(september.get(self.customer))
+		tiles = self._statement(from_month=12, from_year=2024, to_month=12, to_year=2024)
+		self.assertEqual(
+			(tiles["net_cards"], tiles["invoiced"], tiles["not_invoiced"]), (1600.0, 1600.0, 0.0)
+		)
+		from card.reconciliation import invoices_outside_card
+
+		outside = invoices_outside_card("Customer", [self.customer], self.company, "2026-09-01", "2026-09-30")
+		self.assertFalse(outside.get(self.customer))
+
+
+class TestCandidateReviewFixes(_LinkBase):
+	def _rows(self, **kw):
+		result = unlinked_customer_invoice_candidates(self.company, **kw)
+		return {r["invoice"]: r for r in result["invoices"]}
+
+	def test_invoice_with_a_submitted_credit_note_is_not_listed(self):
+		from erpnext.controllers.sales_and_purchase_return import make_return_doc
+
+		self._out_card()
+		si = self._si(1600)
+		self.assertIn(si.name, self._rows())
+		ret = make_return_doc(SI, si.name)
+		ret.insert(ignore_permissions=True)
+		self.assertIn(si.name, self._rows(), "a draft credit note hides the invoice")
+		ret.submit()
+		rows = self._rows()
+		self.assertNotIn(si.name, rows)
+		self.assertNotIn(ret.name, rows)
+
+	def test_invoice_with_an_empty_opening_flag_is_listed(self):
+		self._out_card()
+		si = self._si(1600)
+		frappe.db.set_value(SI, si.name, "is_opening", None, update_modified=False)
+		self.assertIsNone(frappe.db.get_value(SI, si.name, "is_opening"))
+		self.assertEqual(self._rows()[si.name]["match"], "exact")
+
+	def test_match_is_per_project(self):
+		project_b = self._second_project()
+		wrong = self._out_card()  # 1,600 on the first project
+		si = self._si(0, lines=[(1000, self.project), (600, project_b)])
+		row = self._rows()[si.name]
+		self.assertEqual((row["match"], row["projects"]), ("none", sorted([self.project, project_b])))
+		frappe.db.set_value(CARD, wrong.name, "sales_invoice", "ELSEWHERE", update_modified=False)
+		card_a = self._out_card(hours=(10,))
+		card_b = self._out_card(hours=(6,), project=project_b)
+		row = self._rows()[si.name]
+		self.assertEqual(row["match"], "exact")
+		self.assertEqual(sorted(c["name"] for c in row["cards"]), sorted([card_a.name, card_b.name]))
+		self.assertFalse(row["more_cards"])
+
+	def test_cards_of_a_row_are_capped(self):
+		first = self._out_card()
+		second = self._out_card(hours=(8,), customer_rate=500)
+		si = self._si(999)
+		with patch("card.gl.integrity.CANDIDATE_CARDS_MAX", 1):
+			row = self._rows()[si.name]
+		self.assertEqual((len(row["cards"]), row["more_cards"]), (1, True))
+		self.assertIn(row["cards"][0]["name"], (first.name, second.name))
+
+	def test_card_held_by_a_draft_posting_is_not_a_candidate(self):
+		customer_b = self._customer("-B")
+		self._out_card(customer=customer_b)
+		build_monthly_posting(self.company, "Customer", customer_b, 9, 2026)
+		si = self._si(1600, customer=customer_b)
+		row = self._rows()[si.name]
+		self.assertEqual((row["match"], row["cards"]), ("none", []))
