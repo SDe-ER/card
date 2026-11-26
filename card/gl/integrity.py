@@ -1043,6 +1043,221 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	return log.name
 
 
+def _check_unlink_chain(invoice, log):
+	"""FR-195: refuse a cancelled-and-amended chain that the link does not match. ``card.gl.events`` keeps one
+	rule for a linked invoice: its cancel frees the cards and closes the log, and an amendment is a new
+	invoice that is linked afresh with a log of its own. So the invoice of an active link is never amended by
+	another invoice, and no invoice it amends (up the whole chain) still has an active posting log."""
+	if log.posting_doctype != "Sales Invoice" or log.posting_doc != invoice:
+		frappe.throw(
+			_("Cannot unlink {0}: the posting log {1} names {2}, not this invoice.").format(
+				invoice, log.name, log.posting_doc
+			)
+		)
+	amendment = frappe.db.get_value("Sales Invoice", {"amended_from": invoice}, "name")
+	if amendment:
+		frappe.throw(
+			_("Cannot unlink {0}: cancelled-and-amended chain mismatch: {1} amends it.").format(
+				invoice, amendment
+			)
+		)
+	earlier, seen = frappe.db.get_value("Sales Invoice", invoice, "amended_from"), {invoice}
+	while earlier and earlier not in seen:
+		seen.add(earlier)
+		held = frappe.db.get_value(
+			"GL Posting Log",
+			{
+				"posting_doctype": "Sales Invoice",
+				"posting_doc": earlier,
+				"status": ["in", list(ACTIVE_STATES)],
+			},
+			"name",
+		)
+		if held:
+			frappe.throw(
+				_(
+					"Cannot unlink {0}: cancelled-and-amended chain mismatch: {1}, which it amends, still has the active posting log {2}."
+				).format(invoice, earlier, held)
+			)
+		earlier = frappe.db.get_value("Sales Invoice", earlier, "amended_from")
+
+
+@frappe.whitelist(methods=["POST"])
+def unlink_customer_invoice(invoice: str, reason: str | None = None):
+	"""FR-195: remove a wrong customer invoice link of FR-194. The undo for a company that cannot cancel a
+	submitted Sales Invoice (ZATCA). Nothing is posted, cancelled, amended or deleted; the Sales Invoice, the
+	card amounts and the ledger are not changed.
+
+	Authorization: System Manager only; the company within the caller's CARD and accounting scope; read on the
+	invoice. A reason is mandatory.
+
+	Works only on a submitted Sales Invoice that is the posting document of an ACTIVE GL Posting Log with origin
+	Linked. A posting CARD built (origin Built or empty) or its credit note is always refused: its undo is the
+	standard cancel or credit note.
+
+	Refusals (nothing is partly undone; every check runs before the first write):
+	- the log names another document than this exact invoice;
+	- cancelled-and-amended chain mismatch: another Sales Invoice amends this one, or an invoice this one amends
+	  (up the chain) still has an active posting log. A linked invoice that is cancelled frees its cards itself
+	  (``card.gl.events.before_cancel``), and its amendment is linked afresh; an amendment with its own exact
+	  link is unlinked as any other invoice;
+	- a source of the log is not a monthly card;
+	- a card changed since the link: it is not submitted, it is not marked posted, its customer invoice is not
+	  this invoice, or its display link is neither this log nor the active supplier-side log that holds the card
+	  (sub-rental: ``_point_display`` leaves the display link on the other side's active posting).
+
+	Effect, with the mechanism of the cancel path of ``card.gl.events``: on each card ``sales_invoice`` is
+	cleared, ``posted`` goes to 0 unless the supplier side is still posted, ``gl_posting`` is cleared when it
+	points at this log (and pointed back at the other side's active log, if any); ``modified`` is not changed.
+	The log goes to Cancelled and its posting key is cleared, so the invoice and the cards can be linked again.
+	The log is never deleted: its remarks keep the link text and get who, when, why and the previous links
+	(cards and amounts). One Info comment is added on the invoice and on each card.
+
+	Concurrency: the invoice row, the log row and the card rows are locked in the order of the link, and the
+	state is read under those locks."""
+	from frappe.utils import cint, cstr, escape_html, now_datetime, strip_html_tags
+
+	from card.gl.events import _other_side_still_posted, _repoint_freed_sources
+
+	if "System Manager" not in frappe.get_roles():
+		frappe.throw(
+			_("Only a System Manager may unlink a customer invoice from CARD cards."), frappe.PermissionError
+		)
+	reason = strip_html_tags(cstr(reason)).strip()
+	if not reason:
+		frappe.throw(_("Give the reason for unlinking this invoice from the cards."))
+	inv = frappe.get_doc("Sales Invoice", invoice)
+	inv.check_permission("read")
+	if inv.company not in _customer_link_companies():
+		frappe.throw(
+			_("You are not permitted to link invoices for company {0}.").format(inv.company),
+			frappe.PermissionError,
+		)
+	invoice = inv.name
+	# lock the invoice row, then the log, then the cards (the order of the link); read the state under the locks
+	docstatus = frappe.db.get_value("Sales Invoice", invoice, "docstatus", for_update=True)
+	if docstatus != 1:
+		frappe.throw(
+			_("{0} is not submitted; only the link of a submitted Sales Invoice can be removed.").format(
+				invoice
+			)
+		)
+	held = frappe.db.get_value(
+		"GL Posting Log",
+		{"posting_doctype": "Sales Invoice", "posting_doc": invoice, "status": ["in", list(ACTIVE_STATES)]},
+		"name",
+		for_update=True,
+	)
+	if not held:
+		frappe.throw(_("{0} is not linked to CARD cards.").format(invoice))
+	log = frappe.get_doc("GL Posting Log", held)
+	if log.origin != "Linked" or log.party_type != "Customer":
+		frappe.throw(
+			_(
+				"{0} is a CARD posting ({1}), not a linked invoice; its link cannot be removed. Correct it with a credit note or cancel it."
+			).format(invoice, log.name)
+		)
+	_check_unlink_chain(invoice, log)
+	sources = [(row.source_doctype, row.source_name, flt(row.amount, 2)) for row in log.get("sources") or []]
+	for doctype, name, _amount in sources:
+		if doctype != CARD_DOCTYPE:
+			frappe.throw(
+				_(
+					"Cannot unlink {0}: the posting log {1} holds {2} {3}, which is not a monthly card."
+				).format(invoice, log.name, _(doctype), name)
+			)
+	lock_sources({CARD_DOCTYPE: [(name, amount) for _doctype, name, amount in sources]})
+	clear_display = {}
+	for _doctype, name, _amount in sources:
+		current = frappe.db.get_value(
+			CARD_DOCTYPE,
+			name,
+			["docstatus", "sales_invoice", "posted", "gl_posting"],
+			as_dict=True,
+			for_update=True,
+		)
+		if not current or current.docstatus != 1:
+			frappe.throw(
+				_("Cannot unlink {0}: card {1} is no longer submitted. Nothing was unlinked.").format(
+					invoice, name
+				)
+			)
+		clear_display[name] = current.gl_posting == log.name
+		display_ok = clear_display[name]
+		if not display_ok and current.gl_posting:
+			# sub-rental: the display link may sit on the supplier side's active posting that holds the card
+			other = frappe.db.get_value(
+				"GL Posting Log", current.gl_posting, ["status", "party_type"], as_dict=True
+			)
+			display_ok = bool(
+				other
+				and other.status in ACTIVE_STATES
+				and other.party_type == "Supplier"
+				and frappe.db.exists(
+					"GL Posting Source",
+					{
+						"parenttype": "GL Posting Log",
+						"parent": current.gl_posting,
+						"source_doctype": CARD_DOCTYPE,
+						"source_name": name,
+					},
+				)
+			)
+		if current.sales_invoice != invoice or not display_ok:
+			frappe.throw(
+				_(
+					"Cannot unlink {0}: card {1} changed since the link (its customer invoice is {2}, its posting log is {3}). Nothing was unlinked."
+				).format(invoice, name, current.sales_invoice or "-", current.gl_posting or "-")
+			)
+		if not cint(current.posted):
+			frappe.throw(
+				_("Cannot unlink {0}: card {1} is not marked as posted. Nothing was unlinked.").format(
+					invoice, name
+				)
+			)
+	# every check passed: release the cards as the cancel of a linked invoice does (card.gl.events.before_cancel)
+	for _doctype, name, _amount in sources:
+		frappe.db.set_value(CARD_DOCTYPE, name, "sales_invoice", "", update_modified=False)
+		frappe.db.set_value(
+			CARD_DOCTYPE,
+			name,
+			"posted",
+			1 if _other_side_still_posted(CARD_DOCTYPE, name, "sales_invoice") else 0,
+			update_modified=False,
+		)
+		if clear_display[name]:
+			frappe.db.set_value(CARD_DOCTYPE, name, "gl_posting", "", update_modified=False)
+	user, when = frappe.session.user, cstr(now_datetime().replace(microsecond=0))
+	previous = ", ".join("{0} ({1})".format(name, amount) for _doctype, name, amount in sources)
+	log.db_set("status", "Cancelled")
+	log.db_set("posting_key", None)
+	log.db_set(
+		"remarks",
+		"{0}\n{1}".format(
+			log.remarks or "",
+			_("Unlinked by {0} on {1}: sales invoice {2}, posting log {3}, cards {4}. Reason: {5}").format(
+				user, when, invoice, log.name, previous or "-", reason
+			),
+		).strip(),
+	)
+	_repoint_freed_sources(log)
+	who = escape_html(user)
+	inv.add_comment(
+		"Info",
+		_("Unlinked from CARD monthly cards {0} by {1} on {2} (posting log {3}). Reason: {4}").format(
+			escape_html(previous or "-"), who, when, escape_html(log.name), escape_html(reason)
+		),
+	)
+	for _doctype, name, _amount in sources:
+		frappe.get_doc(CARD_DOCTYPE, name).add_comment(
+			"Info",
+			_("Unlinked from Sales Invoice {0} by {1} on {2} (posting log {3}). Reason: {4}").format(
+				escape_html(invoice), who, when, escape_html(log.name), escape_html(reason)
+			),
+		)
+	return log.name
+
+
 def _customer_billing_filters(company):
 	from card.constants import CUSTOMER_BILLING_DIRECTIONS
 

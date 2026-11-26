@@ -9666,3 +9666,63 @@ msgstr "مجموع كل الكروت غير المربوطة في مشاريع �
 #. FR-194
 msgid "No tested set of cards totals the invoice net for each project: all unlinked cards of the projects total {0}."
 msgstr "لا تساوي أي مجموعة مختبرة من الكروت صافي الفاتورة لكل مشروع: مجموع كل الكروت غير المربوطة في المشاريع {0}."
+
+#. FR-195
+msgid "Only a System Manager may unlink a customer invoice from CARD cards."
+msgstr "لا يفك ربط فاتورة عميل بكروت CARD إلا مدير النظام."
+
+#. FR-195
+msgid "Give the reason for unlinking this invoice from the cards."
+msgstr "اكتب سبب فك ربط هذه الفاتورة بالكروت."
+
+#. FR-195
+msgid "{0} is not submitted; only the link of a submitted Sales Invoice can be removed."
+msgstr "{0} غير معتمدة؛ لا يُفك إلا ربط فاتورة مبيعات معتمدة."
+
+#. FR-195
+msgid "{0} is not linked to CARD cards."
+msgstr "{0} غير مربوطة بكروت CARD."
+
+#. FR-195
+msgid "{0} is a CARD posting ({1}), not a linked invoice; its link cannot be removed. Correct it with a credit note or cancel it."
+msgstr "{0} ترحيل أنشأه CARD ({1}) وليست فاتورة مربوطة؛ لا يمكن فك ربطها. صحّحها بإشعار دائن أو ألغها."
+
+#. FR-195
+msgid "Cannot unlink {0}: the posting log {1} names {2}, not this invoice."
+msgstr "لا يمكن فك ربط {0}: سجل الترحيل {1} يخص {2} وليس هذه الفاتورة."
+
+#. FR-195
+msgid "Cannot unlink {0}: cancelled-and-amended chain mismatch: {1} amends it."
+msgstr "لا يمكن فك ربط {0}: عدم تطابق في سلسلة الإلغاء والتعديل: {1} تعديل لها."
+
+#. FR-195
+msgid "Cannot unlink {0}: cancelled-and-amended chain mismatch: {1}, which it amends, still has the active posting log {2}."
+msgstr "لا يمكن فك ربط {0}: عدم تطابق في سلسلة الإلغاء والتعديل: {1} التي تعدّلها ما زال لها سجل الترحيل الفعّال {2}."
+
+#. FR-195
+msgid "Cannot unlink {0}: the posting log {1} holds {2} {3}, which is not a monthly card."
+msgstr "لا يمكن فك ربط {0}: سجل الترحيل {1} يحتوي على {2} {3} وهو ليس كارتًا شهريًا."
+
+#. FR-195
+msgid "Cannot unlink {0}: card {1} is no longer submitted. Nothing was unlinked."
+msgstr "لا يمكن فك ربط {0}: الكارت {1} لم يعد معتمدًا. لم يُفك أي ربط."
+
+#. FR-195
+msgid "Cannot unlink {0}: card {1} changed since the link (its customer invoice is {2}, its posting log is {3}). Nothing was unlinked."
+msgstr "لا يمكن فك ربط {0}: الكارت {1} تغيّر بعد الربط (فاتورة العميل فيه {2} وسجل الترحيل فيه {3}). لم يُفك أي ربط."
+
+#. FR-195
+msgid "Cannot unlink {0}: card {1} is not marked as posted. Nothing was unlinked."
+msgstr "لا يمكن فك ربط {0}: الكارت {1} غير معلَّم كمرحَّل. لم يُفك أي ربط."
+
+#. FR-195
+msgid "Unlinked by {0} on {1}: sales invoice {2}, posting log {3}, cards {4}. Reason: {5}"
+msgstr "فك الربط {0} في {1}: فاتورة المبيعات {2}، سجل الترحيل {3}، الكروت {4}. السبب: {5}"
+
+#. FR-195
+msgid "Unlinked from CARD monthly cards {0} by {1} on {2} (posting log {3}). Reason: {4}"
+msgstr "فُك ربطها بكروت CARD الشهرية {0} بواسطة {1} في {2} (سجل الترحيل {3}). السبب: {4}"
+
+#. FR-195
+msgid "Unlinked from Sales Invoice {0} by {1} on {2} (posting log {3}). Reason: {4}"
+msgstr "فُك ربطه بفاتورة المبيعات {0} بواسطة {1} في {2} (سجل الترحيل {3}). السبب: {4}"

@@ -8324,3 +8324,63 @@ msgstr ""
 #: card/gl/integrity.py
 msgid "No tested set of cards totals the invoice net for each project: all unlinked cards of the projects total {0}."
 msgstr ""
+
+#: card/gl/integrity.py
+msgid "Only a System Manager may unlink a customer invoice from CARD cards."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Give the reason for unlinking this invoice from the cards."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0} is not submitted; only the link of a submitted Sales Invoice can be removed."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0} is not linked to CARD cards."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0} is a CARD posting ({1}), not a linked invoice; its link cannot be removed. Correct it with a credit note or cancel it."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot unlink {0}: the posting log {1} names {2}, not this invoice."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot unlink {0}: cancelled-and-amended chain mismatch: {1} amends it."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot unlink {0}: cancelled-and-amended chain mismatch: {1}, which it amends, still has the active posting log {2}."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot unlink {0}: the posting log {1} holds {2} {3}, which is not a monthly card."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot unlink {0}: card {1} is no longer submitted. Nothing was unlinked."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot unlink {0}: card {1} changed since the link (its customer invoice is {2}, its posting log is {3}). Nothing was unlinked."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot unlink {0}: card {1} is not marked as posted. Nothing was unlinked."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Unlinked by {0} on {1}: sales invoice {2}, posting log {3}, cards {4}. Reason: {5}"
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Unlinked from CARD monthly cards {0} by {1} on {2} (posting log {3}). Reason: {4}"
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Unlinked from Sales Invoice {0} by {1} on {2} (posting log {3}). Reason: {4}"
+msgstr ""
