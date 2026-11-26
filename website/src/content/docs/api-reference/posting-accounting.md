@@ -23,6 +23,8 @@ accrual journal entry, an accountant links it instead, so CARD never builds it t
 | POST | `card.gl.posting.rebuild_month` | Delete the CARD draft and build the month again. |
 | POST | `card.gl.integrity.accept_correction` | Accept a cost center / account correction on a CARD draft. |
 | POST | `card.gl.integrity.link_supplier_invoice` | Link a hand-booked Purchase Invoice to CARD sources. |
+| POST | `card.gl.integrity.link_customer_invoice` | Link a hand-booked, submitted Sales Invoice to customer monthly cards. |
+| GET | `card.gl.integrity.unlinked_customer_invoice_candidates` | List the hand-booked Sales Invoices that are not linked, with the cards that can match. |
 | POST | `card.gl.journal_link.link_accrual_journal` | Link a supplier accrual Journal Entry to CARD cards. |
 
 ## Common rules for the posting endpoints
@@ -174,6 +176,80 @@ supplier invoice number links only to the invoice with that bill number.
 curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.link_supplier_invoice" \
   -H "Authorization: token <api_key>:<api_secret>" -H "Content-Type: application/json" \
   -d '{"invoice": "<invoice-name>", "sources": [{"doctype": "Card Monthly Card", "name": "<card-name>"}]}'
+```
+
+## link_customer_invoice
+
+`POST /api/method/card.gl.integrity.link_customer_invoice`
+
+Records that a submitted Sales Invoice, booked by hand in ERPNext, already bills these customer monthly cards. Nothing
+is posted and the invoice is not changed: a **Linked** GL Posting Log holds the cards so CARD never builds them again,
+and each card shows the invoice. There is no Desk button for this method.
+
+**Permission:** Accounts Manager or System Manager (Accounts User is not enough); read and **submit** right on the
+invoice; read on the customer and on every card; the company within the user's CARD and accounting scope.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `invoice` | string | Yes | Submitted Sales Invoice in the company currency: not cancelled, not a return (credit note), not a debit note, not an opening invoice, without a submitted credit note, and not already a CARD posting or link. |
+| `cards` | list | Yes | Card Monthly Card names, for example `["<card-name>"]`. Each card is submitted, not of an open month, billed to a customer, of the invoice's company, customer and project, without a Sales Invoice, and not held by another customer posting. No card twice. |
+| `reason` | string | Yes | Why the invoice is linked. It is stored on the log and in the comments. |
+
+**Evidence rule:** the invoice net total (before VAT) must equal the sum of the cards' customer net amounts within the
+reconciliation tolerance (Card Settings, at least 0.01), in total and for each project. The project of an invoice line
+is the project on the line; a line without a project takes the header project of the invoice. For each project, the
+net of its lines must equal the customer net of the listed cards of that project, and no project of the invoice may be
+left without cards; an invoice without a project is refused. A difference is always refused; this method has no
+`accept_difference`.
+
+**Concurrency:** the invoice row and the card rows are locked, and their status, links and active posting logs are
+read again under the locks before the log is inserted.
+
+**Returns:** the GL Posting Log name. **Side effects:** inserts one Linked GL Posting Log of type Sales Invoice with one
+source row per card; sets `sales_invoice`, `posted` and `gl_posting` on each card; adds one Info comment on the invoice
+and on each card. It writes no GL Entry and does not save the Sales Invoice. A second call for the same invoice is
+refused. To undo a wrong link, see
+[Invoicing and posting](/card/features/invoicing-posting/#undo-a-wrong-customer-link).
+
+```bash
+curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.link_customer_invoice" \
+  -H "Authorization: token <api_key>:<api_secret>" -H "Content-Type: application/json" \
+  -d '{"invoice": "<invoice-name>", "cards": ["<card-name>"], "reason": "Invoice entered in ERPNext before the cards"}'
+```
+
+## unlinked_customer_invoice_candidates
+
+`GET /api/method/card.gl.integrity.unlinked_customer_invoice_candidates`
+
+Read only. For every customer that has customer-billing cards in the company, lists the submitted Sales Invoices that
+CARD did not build and that have no link (no active GL Posting Log), newest first. Returns, debit notes, opening
+invoices and invoices with a submitted credit note are left out. With each invoice it gives the customer's cards that
+can still be linked and that are on a project of the invoice (at most 100 cards; `more_cards` is true when there are
+more).
+
+**Permission:** Accounts Manager or System Manager; read on Sales Invoice and on Card Monthly Card; the company within
+the user's CARD and accounting scope. Invoices and cards the user cannot read are left out.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `company` | string | Yes | Company. |
+| `limit_start` | int | No | First invoice of the page (default 0). |
+| `limit_page_length` | int | No | Invoices per call (default 50, at most 200). |
+
+**Match rule:** two sets of cards are tested with the evidence rule of `link_customer_invoice` (the invoice net, in
+total and for each project, within the reconciliation tolerance): the cards of the invoice month and the month before,
+then all cards that can still be linked on the projects of the invoice. `match` is `exact` when one set covers the
+invoice, and `cards` is then that set. No other combination is tested: `none` does not prove that no combination
+matches.
+
+**Returns:** `{"invoices": [{"invoice", "posting_date", "customer", "projects": [...], "net_total", "cards": [{"name",
+"month", "year", "project", "customer_net_amount"}], "more_cards", "match": "exact"|"none", "note"}], "limit_start",
+"limit_page_length", "has_more"}`. **Side effects:** none.
+
+```bash
+curl -s -G "https://<your-site>/api/method/card.gl.integrity.unlinked_customer_invoice_candidates" \
+  -H "Authorization: token <api_key>:<api_secret>" \
+  --data-urlencode "company=Example Contracting Co."
 ```
 
 ## link_accrual_journal

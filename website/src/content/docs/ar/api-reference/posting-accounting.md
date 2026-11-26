@@ -22,6 +22,8 @@ sidebar:
 | POST | `card.gl.posting.rebuild_month` | حذف مسودة CARD وبناء الشهر من جديد. |
 | POST | `card.gl.integrity.accept_correction` | قبول تصحيح مركز التكلفة / الحساب في مسودة CARD. |
 | POST | `card.gl.integrity.link_supplier_invoice` | ربط فاتورة شراء يدوية بمصادر CARD. |
+| POST | `card.gl.integrity.link_customer_invoice` | ربط فاتورة مبيعات يدوية معتمدة بالكروت الشهرية للعميل. |
+| GET | `card.gl.integrity.unlinked_customer_invoice_candidates` | عرض فواتير المبيعات اليدوية غير المربوطة مع الكروت التي قد تطابقها. |
 | POST | `card.gl.journal_link.link_accrual_journal` | ربط قيد يومية استحقاق لمورد بكروت CARD. |
 
 ## قواعد مشتركة لنقاط الترحيل
@@ -169,6 +171,75 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.accept_correct
 curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.link_supplier_invoice" \
   -H "Authorization: token <api_key>:<api_secret>" -H "Content-Type: application/json" \
   -d '{"invoice": "<invoice-name>", "sources": [{"doctype": "Card Monthly Card", "name": "<card-name>"}]}'
+```
+
+## link_customer_invoice
+
+`POST /api/method/card.gl.integrity.link_customer_invoice`
+
+يسجّل أن فاتورة مبيعات معتمدة، أُدخلت يدويًا في ERPNext، تفوتر بالفعل هذه الكروت الشهرية للعميل. ولا يُرحَّل شيء ولا تتغير
+الفاتورة: فسجل ترحيل **مربوط** يحجز الكروت حتى لا يبنيها CARD مرة أخرى أبدًا، ويُظهر كل كرت الفاتورة. ولا يوجد زر في Desk
+لهذه الطريقة.
+
+**الصلاحية:** Accounts Manager أو System Manager (ولا يكفي Accounts User)؛ وقراءة الفاتورة وصلاحية **اعتمادها**؛ وقراءة
+العميل وكل كرت؛ وأن تكون الشركة ضمن نطاق المستخدم في CARD والمحاسبة.
+
+| المعامل | النوع | إلزامي | الوصف |
+|---|---|---|---|
+| `invoice` | string | نعم | فاتورة مبيعات معتمدة بعملة الشركة: غير ملغاة، وليست مرتجعًا (إشعارًا دائنًا)، وليست إشعارًا مدينًا، وليست فاتورة افتتاحية، وليس لها إشعار دائن معتمد، وليست ترحيلًا أو ربطًا من CARD من قبل. |
+| `cards` | list | نعم | أسماء كروت التشغيل الشهرية، مثل `["<card-name>"]`. كل كرت معتمد، وليس من شهر مفتوح، ويُفوتر لعميل، ومن شركة الفاتورة وعميلها ومشروعها، وليس له فاتورة مبيعات، ولا يحجزه ترحيل آخر لجانب العميل. ولا يتكرر كرت. |
+| `reason` | string | نعم | سبب ربط الفاتورة. يُحفظ في السجل وفي التعليقات. |
+
+**قاعدة الإثبات:** يجب أن يساوي صافي الفاتورة (قبل الضريبة) مجموع صافي العميل في الكروت ضمن سماحية المطابقة (إعدادات Card،
+0.01 على الأقل)، في الإجمالي ولكل مشروع. ومشروع بند الفاتورة هو المشروع المكتوب في البند؛ والبند الذي ليس فيه مشروع يأخذ
+مشروع رأس الفاتورة. ولكل مشروع يجب أن يساوي صافي بنوده صافي العميل في كروت ذلك المشروع المذكورة، ولا يجوز أن يبقى مشروع
+في الفاتورة بلا كروت؛ وتُرفض الفاتورة التي ليس فيها مشروع. ويُرفض أي فرق دائمًا؛ وليس في هذه الطريقة `accept_difference`.
+
+**التزامن:** يُقفل صف الفاتورة وصفوف الكروت، وتُقرأ حالتها وروابطها وسجلات الترحيل النشطة مرة أخرى تحت الأقفال قبل إدراج
+السجل.
+
+**القيمة المعادة:** اسم سجل الترحيل المحاسبي. **الآثار الجانبية:** إدراج سجل ترحيل واحد مربوط من نوع فاتورة مبيعات فيه صف
+مصدر لكل كرت؛ وضبط `sales_invoice` و`posted` و`gl_posting` في كل كرت؛ وإضافة تعليق معلومات واحد على الفاتورة وعلى كل كرت.
+ولا تكتب الطريقة أي قيد في الأستاذ العام ولا تحفظ فاتورة المبيعات. ويُرفض الاستدعاء الثاني للفاتورة نفسها. وللتراجع عن ربط
+خاطئ انظر [الفوترة والترحيل](/card/ar/features/invoicing-posting/#التراجع-عن-ربط-خاطئ-لفاتورة-عميل).
+
+```bash
+curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.link_customer_invoice" \
+  -H "Authorization: token <api_key>:<api_secret>" -H "Content-Type: application/json" \
+  -d '{"invoice": "<invoice-name>", "cards": ["<card-name>"], "reason": "Invoice entered in ERPNext before the cards"}'
+```
+
+## unlinked_customer_invoice_candidates
+
+`GET /api/method/card.gl.integrity.unlinked_customer_invoice_candidates`
+
+للقراءة فقط. لكل عميل له كروت تُفوتر لعميل في الشركة، تعرض الطريقة فواتير المبيعات المعتمدة التي لم يبنها CARD وليس لها ربط
+(لا يوجد لها سجل ترحيل نشط)، الأحدث أولًا. وتُستبعد المرتجعات والإشعارات المدينة والفواتير الافتتاحية والفواتير التي لها إشعار
+دائن معتمد. وتعرض مع كل فاتورة كروت العميل التي ما زال ربطها ممكنًا والتي تخص مشروعًا من مشاريع الفاتورة (100 كرت على
+الأكثر؛ وتكون `more_cards` صحيحة إذا وُجد أكثر).
+
+**الصلاحية:** Accounts Manager أو System Manager؛ وقراءة فواتير المبيعات وكروت التشغيل الشهرية؛ وأن تكون الشركة ضمن نطاق
+المستخدم في CARD والمحاسبة. وتُستبعد الفواتير والكروت التي لا يستطيع المستخدم قراءتها.
+
+| المعامل | النوع | إلزامي | الوصف |
+|---|---|---|---|
+| `company` | string | نعم | الشركة. |
+| `limit_start` | int | لا | أول فاتورة في الصفحة (الافتراضي 0). |
+| `limit_page_length` | int | لا | عدد الفواتير في الاستدعاء (الافتراضي 50، والحد الأقصى 200). |
+
+**قاعدة المطابقة:** تُختبر مجموعتان من الكروت بقاعدة الإثبات في `link_customer_invoice` (صافي الفاتورة، في الإجمالي ولكل
+مشروع، ضمن سماحية المطابقة): كروت شهر الفاتورة والشهر الذي قبله، ثم كل الكروت التي ما زال ربطها ممكنًا في مشاريع الفاتورة.
+وتكون `match` هي `exact` إذا غطّت إحدى المجموعتين الفاتورة، وتكون `cards` عندئذ هي تلك المجموعة. ولا يُختبر أي تركيب آخر:
+فالقيمة `none` لا تثبت أنه لا يوجد تركيب مطابق.
+
+**القيمة المعادة:** `{"invoices": [{"invoice", "posting_date", "customer", "projects": [...], "net_total", "cards": [{"name",
+"month", "year", "project", "customer_net_amount"}], "more_cards", "match": "exact"|"none", "note"}], "limit_start",
+"limit_page_length", "has_more"}`. **الآثار الجانبية:** لا شيء.
+
+```bash
+curl -s -G "https://<your-site>/api/method/card.gl.integrity.unlinked_customer_invoice_candidates" \
+  -H "Authorization: token <api_key>:<api_secret>" \
+  --data-urlencode "company=Example Contracting Co."
 ```
 
 ## link_accrual_journal

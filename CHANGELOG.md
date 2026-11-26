@@ -38,6 +38,67 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Added
+- **FR-194 — Link an existing customer Sales Invoice to its monthly cards (owner task 2026-11-26; PR #338).**
+  A Sales Invoice that an accountant booked by hand in ERPNext can already bill CARD monthly cards. CARD had
+  an official link for supplier Purchase Invoices (`link_supplier_invoice`, FR-090) and none for customer
+  Sales Invoices: the Equipment Customer Statement showed such cards as "Not invoiced through Card" and the
+  invoice as "ERPNext invoices outside Card".
+  - New method `card.gl.integrity.link_customer_invoice(invoice, cards, reason)` (POST). It records that a
+    submitted Sales Invoice bills the listed customer monthly cards. It writes one GL Posting Log (origin
+    `Linked`, party type Customer, status Submitted) with one GL Posting Source row per card (`amount` = the
+    card's customer net), sets `sales_invoice`, `posted` and `gl_posting` on each card through
+    `card.gl.events.link_sources_on_submit` (the function the submit of a CARD invoice uses), and adds one
+    Info comment on the invoice and on each card (who, when, reason).
+  - Refused: an invoice that is not submitted, a return (credit note), a debit note, an opening invoice, an
+    invoice in another currency than the company currency, an invoice that has a submitted credit note, an
+    invoice that is already a CARD posting or linked; a card that is not submitted, of an open month, not
+    billed to a customer, of another company, customer or project, already invoiced, already held by an
+    active customer posting, or listed twice; card names that cannot be read; a missing reason.
+  - Amounts. The invoice net total (company currency, before VAT) must equal the sum of the cards' customer
+    net amounts within Card Settings `reconciliation_tolerance`, in total and for each project: the net of
+    the invoice lines of a project (a line without a project takes the header project of the invoice) equals
+    the customer net of the listed cards of that project, and no project of the invoice (and no line without
+    a project) is left without cards. There is no option to accept a difference on the customer side.
+  - Concurrency. The method locks the Sales Invoice row and the card rows. It reads the document status of
+    the invoice, its active posting log, and each card's status, workflow state, invoice link and active
+    customer posting again with locking reads, so a link, a cancel or a reopen that another transaction
+    committed in the meantime is seen. `link_supplier_invoice` is not changed (the same re-reads on the
+    supplier side are a follow-up).
+  - New method `card.gl.integrity.unlinked_customer_invoice_candidates(company, limit_start,
+    limit_page_length)` (GET, read only): for every customer that has customer-billing cards, the submitted
+    Sales Invoices that CARD did not build and that have no link, the customer's unlinked cards on the
+    projects of each invoice (at most 100 per invoice; `more_cards` says that there are more), and whether a
+    tested set of cards covers the invoice by the rule of the link (`match` = `exact` or `none`). Returns,
+    debit notes, opening invoices and invoices with a submitted credit note are left out. It writes nothing.
+  - Reports: two small changes in `card/reconciliation.py`, no change in a report file.
+    `cards_invoiced` reads the Linked Sales Invoice logs without its year window, so a card linked to an
+    invoice dated much later still counts as invoiced in its own month. `invoices_outside_card` does not
+    show the residual of a linked invoice when it is inside `reconciliation_tolerance` (a link accepted
+    with a difference of 0.01 no longer leaves 0.01 under "ERPNext invoices outside Card"; this applies
+    to supplier links too, and an accepted open difference above the tolerance still shows). With these, the
+    Equipment Customer Statement and the Equipment Customers Summary count the linked cards as invoiced
+    through Card and no longer count the invoice outside Card; Unbilled Card Work no longer lists the cards;
+    Posting Source Integrity reports them as consistent. The customer closing balance comes from the ledger
+    and does not change.
+  - Impact. **Permissions:** both methods need the role Accounts Manager or System Manager (Accounts User is
+    not enough), the company within the user's CARD and accounting scope, read on the invoice, the customer
+    and every card, and the submit right on Sales Invoice. No role, DocPerm or DocType change. The log is
+    inserted with `ignore_permissions` after this gate, as on the supplier side (no role can create a GL
+    Posting Log). **Accounting:** none. No GL Entry, Payment Ledger Entry or tax row is written; the Sales
+    Invoice is not saved or changed (a Comment row is the only new record that names it), so no ZATCA step
+    runs. **Data:** one GL Posting Log, its GL Posting Source rows, three columns on each card
+    (`sales_invoice`, `posted`, `gl_posting`) and the Comment rows. No card amount, rate, day, adjustment or
+    workflow state changes. No patch, no schema change. **API:** two new whitelisted methods; no Desk button
+    in this change.
+  - Rollback. Reverting the code removes the two methods and keeps the links already made (they are read
+    like every posting log). CARD has no method that removes a link. Cancelling the linked Sales Invoice
+    frees the cards, as for every posting (`card.gl.events.before_cancel`); a company under ZATCA cannot
+    cancel a submitted Sales Invoice, so a wrong link there needs a reviewed data correction by an
+    administrator (see the invoicing page of the documentation site, "Undo a wrong customer link").
+  - Tests: `card/tests/test_link_customer_invoice.py`; rows of the two methods in
+    `card/tests/test_bola_matrix.py`.
+
 ### Changed
 - **FR-193 — Project Invoice Profitability counts expense-account lines only (issue 53, PR #335; owner decision
   2026-11-26).** The report counted every submitted Purchase Invoice line as a project expense, also a purchase of
@@ -96,7 +157,6 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     statements is the fixed A4 page of the server route: the letter head and the other choices of the print page
     do not apply to it (the Print button still uses them).
   - Rollback: restore the previous code; the button uses the standard route again.
-
 
 ## [4.13.0] — 2026-11-26
 
