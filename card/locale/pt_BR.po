@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Por m³"
 
 msgid "Loads last month"
-msgstr "Viagens do mês passado"
+msgstr "Viagens do mês passado (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "As viagens só podem ser registradas em um cartão cujo tipo de tarifa do cliente é por m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Equipamentos alugados (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Viagens do mês passado"
+msgstr "Viagens do mês passado (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Cartões em rascunho (CARD)"
@@ -385,3 +385,183 @@ msgstr "Comprovante (número do recibo ou referência)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Aprovação do pagamento em dinheiro solicitada"
+
+msgid "Card Expenses"
+msgstr "Despesas"
+
+msgid "Card Fleet"
+msgstr "Equipamentos"
+
+msgid "Card Materials"
+msgstr "Materiais e compras"
+
+msgid "Card Movement"
+msgstr "Movimentação e transporte"
+
+msgid "Card Operating Units"
+msgstr "Unidades operacionais"
+
+msgid "Card Operation Cards"
+msgstr "Cartões de operação"
+
+msgid "Card Parties"
+msgstr "Fornecedores e clientes"
+
+msgid "Card Reports"
+msgstr "Relatórios"
+
+msgid "Card Setup"
+msgstr "Configurações"
+
+msgid "Project Diesel Fill"
+msgstr "Abastecimento de diesel do projeto"
+
+msgid "Equipment Transport"
+msgstr "Transporte de equipamento"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Consumo de diesel"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Análise de diesel dos equipamentos"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Despesas de equipamentos sem equipamento"
+
+msgid "Card Equipment"
+msgstr "Equipamentos"
+
+msgid "Card Equipment Type"
+msgstr "Tipo de equipamento"
+
+msgid "Card Equipment Category"
+msgstr "Categoria de equipamento"
+
+msgid "Equipment Needs Request"
+msgstr "Solicitação de necessidades de equipamento"
+
+msgid "Equipment Needs Review"
+msgstr "Revisão de necessidades de equipamentos"
+
+msgid "Tool Custody"
+msgstr "Custódia de ferramentas"
+
+msgid "Employee Tool Custody"
+msgstr "Custódia de ferramentas do funcionário"
+
+msgid "Equipment Makes"
+msgstr "Marcas de equipamentos"
+
+msgid "Equipment Models"
+msgstr "Modelos de equipamentos"
+
+msgid "Parts Fitment"
+msgstr "Compatibilidade de peças"
+
+msgid "Equipment Make Model Values"
+msgstr "Valores de texto de marca e modelo"
+
+msgid "Equipment Needs Summary"
+msgstr "Resumo de necessidades de equipamentos"
+
+msgid "Equipment Consumption"
+msgstr "Consumo dos equipamentos"
+
+msgid "Worker Custody"
+msgstr "Custódia dos trabalhadores"
+
+msgid "Repeat Equipment Requests"
+msgstr "Solicitações de equipamento repetidas"
+
+msgid "Card Equipment Assignment"
+msgstr "Atribuição de equipamento"
+
+msgid "Transport Cost by Project"
+msgstr "Custo de transporte por projeto"
+
+msgid "Card Monthly Card"
+msgstr "Cartão mensal de operação"
+
+msgid "Operating Cost by Project"
+msgstr "Custo operacional por projeto"
+
+msgid "Card Equipment Supplier"
+msgstr "Fornecedor de equipamentos"
+
+msgid "Card Equipment Customer"
+msgstr "Cliente de equipamentos"
+
+msgid "Equipment Supplier Statement"
+msgstr "Extrato do fornecedor"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Resumo de fornecedores"
+
+msgid "Equipment Customer Statement"
+msgstr "Extrato do cliente"
+
+msgid "Equipment Customers Summary"
+msgstr "Resumo de clientes"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Variações e anomalias de diesel"
+
+msgid "Diesel Group Analysis"
+msgstr "Análise de diesel por grupo"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Conciliação de faturas de diesel"
+
+msgid "Card Settlement Status"
+msgstr "Status de liquidação dos cartões"
+
+msgid "Equipment Partial Margin"
+msgstr "Margem parcial dos equipamentos"
+
+msgid "Project Invoice Profitability"
+msgstr "Rentabilidade dos projetos por faturas"
+
+msgid "Unbilled Card Work"
+msgstr "Trabalho de cartões não faturado"
+
+msgid "Posting Source Integrity"
+msgstr "Integridade das fontes de lançamento"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Custo de manutenção dos equipamentos"
+
+msgid "Equipment Downtime"
+msgstr "Paradas dos equipamentos"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Conciliação de medidores"
+
+msgid "Asset Mapping Review"
+msgstr "Revisão do mapeamento de ativos"
+
+msgid "Transport Accounting Review"
+msgstr "Revisão contábil do transporte"
+
+msgid "Equipment Location History"
+msgstr "Histórico de localizações dos equipamentos"
+
+msgid "Card Settings"
+msgstr "Configurações"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Custo de aluguel de fornecedores - mês passado"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Total de litros de diesel"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Custo total de diesel"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Custo total de transporte"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Valores mensais dos cartões"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Custo mensal de diesel"

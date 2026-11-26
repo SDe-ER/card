@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³당"
 
 msgid "Loads last month"
-msgstr "지난달 운반 횟수"
+msgstr "지난달 운반 횟수 (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "고객 요율 유형이 m³당인 카드에만 운반 횟수를 기록할 수 있습니다"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "임대 장비 (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "지난달 운반 횟수"
+msgstr "지난달 운반 횟수 (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "임시 카드 (CARD)"
@@ -385,3 +385,183 @@ msgstr "증빙 (영수증 번호 또는 참조)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "현금 지급 승인이 요청됨"
+
+msgid "Card Expenses"
+msgstr "비용"
+
+msgid "Card Fleet"
+msgstr "장비"
+
+msgid "Card Materials"
+msgstr "자재 및 구매"
+
+msgid "Card Movement"
+msgstr "이동 및 운송"
+
+msgid "Card Operating Units"
+msgstr "운영 단위"
+
+msgid "Card Operation Cards"
+msgstr "운영 카드"
+
+msgid "Card Parties"
+msgstr "공급업체 및 고객"
+
+msgid "Card Reports"
+msgstr "보고서"
+
+msgid "Card Setup"
+msgstr "설정"
+
+msgid "Project Diesel Fill"
+msgstr "프로젝트 경유 주유"
+
+msgid "Equipment Transport"
+msgstr "장비 운송"
+
+msgid "Equipment Diesel Consumption"
+msgstr "경유 사용량"
+
+msgid "Equipment Diesel Analysis"
+msgstr "장비 경유 분석"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "장비 미지정 장비 비용"
+
+msgid "Card Equipment"
+msgstr "장비"
+
+msgid "Card Equipment Type"
+msgstr "장비 유형"
+
+msgid "Card Equipment Category"
+msgstr "장비 분류"
+
+msgid "Equipment Needs Request"
+msgstr "장비 필요 요청"
+
+msgid "Equipment Needs Review"
+msgstr "장비 필요 검토"
+
+msgid "Tool Custody"
+msgstr "공구 보관"
+
+msgid "Employee Tool Custody"
+msgstr "직원 공구 보관"
+
+msgid "Equipment Makes"
+msgstr "장비 제조사"
+
+msgid "Equipment Models"
+msgstr "장비 모델"
+
+msgid "Parts Fitment"
+msgstr "부품 적합성"
+
+msgid "Equipment Make Model Values"
+msgstr "제조사 및 모델 텍스트 값"
+
+msgid "Equipment Needs Summary"
+msgstr "장비 필요 요약"
+
+msgid "Equipment Consumption"
+msgstr "장비 소비량"
+
+msgid "Worker Custody"
+msgstr "작업자 보관 현황"
+
+msgid "Repeat Equipment Requests"
+msgstr "반복 장비 요청"
+
+msgid "Card Equipment Assignment"
+msgstr "장비 배정"
+
+msgid "Transport Cost by Project"
+msgstr "프로젝트별 운송 비용"
+
+msgid "Card Monthly Card"
+msgstr "월간 운영 카드"
+
+msgid "Operating Cost by Project"
+msgstr "프로젝트별 운영 비용"
+
+msgid "Card Equipment Supplier"
+msgstr "장비 공급업체"
+
+msgid "Card Equipment Customer"
+msgstr "장비 고객"
+
+msgid "Equipment Supplier Statement"
+msgstr "공급업체 명세서"
+
+msgid "Equipment Suppliers Summary"
+msgstr "공급업체 요약"
+
+msgid "Equipment Customer Statement"
+msgstr "고객 명세서"
+
+msgid "Equipment Customers Summary"
+msgstr "고객 요약"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "경유 차이 및 이상"
+
+msgid "Diesel Group Analysis"
+msgstr "경유 그룹 분석"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "경유 송장 대사"
+
+msgid "Card Settlement Status"
+msgstr "카드 정산 상태"
+
+msgid "Equipment Partial Margin"
+msgstr "장비 부분 마진"
+
+msgid "Project Invoice Profitability"
+msgstr "송장 기준 프로젝트 수익성"
+
+msgid "Unbilled Card Work"
+msgstr "미청구 카드 작업"
+
+msgid "Posting Source Integrity"
+msgstr "전기 원천 무결성"
+
+msgid "Equipment Maintenance Cost"
+msgstr "장비 유지보수 비용"
+
+msgid "Equipment Downtime"
+msgstr "장비 가동 중단"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "계량기 대사"
+
+msgid "Asset Mapping Review"
+msgstr "자산 매핑 검토"
+
+msgid "Transport Accounting Review"
+msgstr "운송 회계 검토"
+
+msgid "Equipment Location History"
+msgstr "장비 위치 이력"
+
+msgid "Card Settings"
+msgstr "설정"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "공급업체 임차 비용 - 지난달"
+
+msgid "إجمالي لترات الديزل"
+msgstr "총 경유 리터"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "총 경유 비용"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "총 운송 비용"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "월별 카드 금액"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "월별 경유 비용"

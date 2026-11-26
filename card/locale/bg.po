@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "На m³"
 
 msgid "Loads last month"
-msgstr "Курсове миналия месец"
+msgstr "Курсове миналия месец (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Курсове може да се записват само в карта с тип на тарифата за клиента по m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Наета техника (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Курсове миналия месец"
+msgstr "Курсове миналия месец (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Чернови карти (CARD)"
@@ -385,3 +385,183 @@ msgstr "Доказателство (номер на разписка или ре
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Заявено е одобрение на плащане в брой"
+
+msgid "Card Expenses"
+msgstr "Разходи"
+
+msgid "Card Fleet"
+msgstr "Техника"
+
+msgid "Card Materials"
+msgstr "Материали и покупки"
+
+msgid "Card Movement"
+msgstr "Движение и транспорт"
+
+msgid "Card Operating Units"
+msgstr "Оперативни единици"
+
+msgid "Card Operation Cards"
+msgstr "Оперативни карти"
+
+msgid "Card Parties"
+msgstr "Доставчици и клиенти"
+
+msgid "Card Reports"
+msgstr "Справки"
+
+msgid "Card Setup"
+msgstr "Настройки"
+
+msgid "Project Diesel Fill"
+msgstr "Зареждане с дизел за проект"
+
+msgid "Equipment Transport"
+msgstr "Транспорт на техника"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Разход на дизел"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Анализ на дизела на техниката"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Разходи за техника без посочена техника"
+
+msgid "Card Equipment"
+msgstr "Техника"
+
+msgid "Card Equipment Type"
+msgstr "Тип техника"
+
+msgid "Card Equipment Category"
+msgstr "Категория техника"
+
+msgid "Equipment Needs Request"
+msgstr "Заявка за нужди на техниката"
+
+msgid "Equipment Needs Review"
+msgstr "Преглед на нуждите на техниката"
+
+msgid "Tool Custody"
+msgstr "Отговорно пазене на инструменти"
+
+msgid "Employee Tool Custody"
+msgstr "Инструменти, поверени на служител"
+
+msgid "Equipment Makes"
+msgstr "Марки техника"
+
+msgid "Equipment Models"
+msgstr "Модели техника"
+
+msgid "Parts Fitment"
+msgstr "Съвместимост на части"
+
+msgid "Equipment Make Model Values"
+msgstr "Текстови стойности на марка и модел"
+
+msgid "Equipment Needs Summary"
+msgstr "Обобщение на нуждите на техниката"
+
+msgid "Equipment Consumption"
+msgstr "Консумация на техниката"
+
+msgid "Worker Custody"
+msgstr "Инструменти, поверени на работници"
+
+msgid "Repeat Equipment Requests"
+msgstr "Повтарящи се заявки за техника"
+
+msgid "Card Equipment Assignment"
+msgstr "Задание на техника"
+
+msgid "Transport Cost by Project"
+msgstr "Разходи за транспорт по проект"
+
+msgid "Card Monthly Card"
+msgstr "Месечна оперативна карта"
+
+msgid "Operating Cost by Project"
+msgstr "Оперативни разходи по проект"
+
+msgid "Card Equipment Supplier"
+msgstr "Доставчик на техника"
+
+msgid "Card Equipment Customer"
+msgstr "Клиент за техника"
+
+msgid "Equipment Supplier Statement"
+msgstr "Извлечение на доставчик"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Обобщение по доставчици"
+
+msgid "Equipment Customer Statement"
+msgstr "Извлечение на клиент"
+
+msgid "Equipment Customers Summary"
+msgstr "Обобщение по клиенти"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Отклонения и аномалии при дизела"
+
+msgid "Diesel Group Analysis"
+msgstr "Анализ на дизела по групи"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Равнение на фактури за дизел"
+
+msgid "Card Settlement Status"
+msgstr "Статус на уреждане на картите"
+
+msgid "Equipment Partial Margin"
+msgstr "Частичен марж на техниката"
+
+msgid "Project Invoice Profitability"
+msgstr "Рентабилност на проектите по фактури"
+
+msgid "Unbilled Card Work"
+msgstr "Нефактурирана работа по карти"
+
+msgid "Posting Source Integrity"
+msgstr "Цялост на източниците на осчетоводяване"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Разходи за поддръжка на техниката"
+
+msgid "Equipment Downtime"
+msgstr "Престои на техниката"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Съгласуване на показанията"
+
+msgid "Asset Mapping Review"
+msgstr "Преглед на съответствието с активи"
+
+msgid "Transport Accounting Review"
+msgstr "Преглед на осчетоводяването на транспорта"
+
+msgid "Equipment Location History"
+msgstr "История на местоположенията на техниката"
+
+msgid "Card Settings"
+msgstr "Настройки"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Разходи за наем от доставчици - миналия месец"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Общо литри дизел"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Общ разход за дизел"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Общ разход за транспорт"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Месечни суми по карти"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Месечен разход за дизел"

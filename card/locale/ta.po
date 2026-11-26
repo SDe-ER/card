@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³ க்கு"
 
 msgid "Loads last month"
-msgstr "கடந்த மாத பயணங்கள்"
+msgstr "கடந்த மாத பயணங்கள் (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "வாடிக்கையாளர் கட்டண வகை m³ க்கு என உள்ள அட்டையில் மட்டுமே பயணங்களைப் பதிவு செய்ய முடியும்"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "வாடகை உபகரணங்கள் (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "கடந்த மாத பயணங்கள்"
+msgstr "கடந்த மாத பயணங்கள் (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "வரைவு அட்டைகள் (CARD)"
@@ -385,3 +385,183 @@ msgstr "ஆதாரம் (ரசீது எண் அல்லது கு�
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "ரொக்கக் கட்டண ஒப்புதல் கோரப்பட்டது"
+
+msgid "Card Expenses"
+msgstr "செலவுகள்"
+
+msgid "Card Fleet"
+msgstr "உபகரணங்கள்"
+
+msgid "Card Materials"
+msgstr "பொருட்கள் மற்றும் கொள்முதல்"
+
+msgid "Card Movement"
+msgstr "இடமாற்றம் மற்றும் போக்குவரத்து"
+
+msgid "Card Operating Units"
+msgstr "இயக்க அலகுகள்"
+
+msgid "Card Operation Cards"
+msgstr "இயக்க அட்டைகள்"
+
+msgid "Card Parties"
+msgstr "சப்ளையர்கள் மற்றும் வாடிக்கையாளர்கள்"
+
+msgid "Card Reports"
+msgstr "அறிக்கைகள்"
+
+msgid "Card Setup"
+msgstr "அமைப்புகள்"
+
+msgid "Project Diesel Fill"
+msgstr "திட்ட டீசல் நிரப்புதல்"
+
+msgid "Equipment Transport"
+msgstr "உபகரண போக்குவரத்து"
+
+msgid "Equipment Diesel Consumption"
+msgstr "டீசல் நுகர்வு"
+
+msgid "Equipment Diesel Analysis"
+msgstr "உபகரண டீசல் பகுப்பாய்வு"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "உபகரணம் குறிப்பிடப்படாத உபகரணச் செலவுகள்"
+
+msgid "Card Equipment"
+msgstr "உபகரணங்கள்"
+
+msgid "Card Equipment Type"
+msgstr "உபகரண வகை"
+
+msgid "Card Equipment Category"
+msgstr "உபகரணப் பிரிவு"
+
+msgid "Equipment Needs Request"
+msgstr "உபகரணத் தேவை கோரிக்கை"
+
+msgid "Equipment Needs Review"
+msgstr "உபகரணத் தேவை மதிப்பாய்வு"
+
+msgid "Tool Custody"
+msgstr "கருவிப் பொறுப்பு"
+
+msgid "Employee Tool Custody"
+msgstr "பணியாளரின் கருவிப் பொறுப்பு"
+
+msgid "Equipment Makes"
+msgstr "உபகரண பிராண்டுகள்"
+
+msgid "Equipment Models"
+msgstr "உபகரண மாடல்கள்"
+
+msgid "Parts Fitment"
+msgstr "உதிரிபாகப் பொருத்தம்"
+
+msgid "Equipment Make Model Values"
+msgstr "பிராண்டு மற்றும் மாடல் உரை மதிப்புகள்"
+
+msgid "Equipment Needs Summary"
+msgstr "உபகரணத் தேவைகளின் சுருக்கம்"
+
+msgid "Equipment Consumption"
+msgstr "உபகரண நுகர்வு"
+
+msgid "Worker Custody"
+msgstr "தொழிலாளர்களின் கருவிப் பொறுப்பு"
+
+msgid "Repeat Equipment Requests"
+msgstr "மீண்டும் வரும் உபகரணக் கோரிக்கைகள்"
+
+msgid "Card Equipment Assignment"
+msgstr "உபகரண ஒதுக்கீடு"
+
+msgid "Transport Cost by Project"
+msgstr "திட்டவாரி போக்குவரத்து செலவு"
+
+msgid "Card Monthly Card"
+msgstr "மாதாந்திர இயக்க அட்டை"
+
+msgid "Operating Cost by Project"
+msgstr "திட்டவாரி செயல்பாட்டு செலவு"
+
+msgid "Card Equipment Supplier"
+msgstr "உபகரண சப்ளையர்"
+
+msgid "Card Equipment Customer"
+msgstr "உபகரண வாடிக்கையாளர்"
+
+msgid "Equipment Supplier Statement"
+msgstr "சப்ளையர் அறிக்கை"
+
+msgid "Equipment Suppliers Summary"
+msgstr "சப்ளையர் சுருக்கம்"
+
+msgid "Equipment Customer Statement"
+msgstr "வாடிக்கையாளர் அறிக்கை"
+
+msgid "Equipment Customers Summary"
+msgstr "வாடிக்கையாளர் சுருக்கம்"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "டீசல் வேறுபாடுகள் மற்றும் முரண்பாடுகள்"
+
+msgid "Diesel Group Analysis"
+msgstr "குழு வாரியான டீசல் பகுப்பாய்வு"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "டீசல் விலைப்பட்டியல் ஒப்பீடு"
+
+msgid "Card Settlement Status"
+msgstr "அட்டை தீர்வு நிலை"
+
+msgid "Equipment Partial Margin"
+msgstr "உபகரணப் பகுதி இலாப வரம்பு"
+
+msgid "Project Invoice Profitability"
+msgstr "விலைப்பட்டியல் அடிப்படையில் திட்ட இலாபம்"
+
+msgid "Unbilled Card Work"
+msgstr "விலைப்பட்டியல் இடப்படாத அட்டைப் பணி"
+
+msgid "Posting Source Integrity"
+msgstr "பதிவு மூலங்களின் ஒருமைப்பாடு"
+
+msgid "Equipment Maintenance Cost"
+msgstr "உபகரணப் பராமரிப்புச் செலவு"
+
+msgid "Equipment Downtime"
+msgstr "உபகரண செயலிழப்பு நேரம்"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "மீட்டர் சரிபார்ப்பு"
+
+msgid "Asset Mapping Review"
+msgstr "சொத்து இணைப்பு மதிப்பாய்வு"
+
+msgid "Transport Accounting Review"
+msgstr "போக்குவரத்துக் கணக்கியல் மதிப்பாய்வு"
+
+msgid "Equipment Location History"
+msgstr "உபகரண இருப்பிட வரலாறு"
+
+msgid "Card Settings"
+msgstr "அமைப்புகள்"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "சப்ளையர் வாடகைச் செலவு - கடந்த மாதம்"
+
+msgid "إجمالي لترات الديزل"
+msgstr "மொத்த டீசல் லிட்டர்கள்"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "மொத்த டீசல் செலவு"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "மொத்த போக்குவரத்துச் செலவு"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "மாதாந்திர அட்டைத் தொகைகள்"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "மாதாந்திர டீசல் செலவு"

@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Per m³"
 
 msgid "Loads last month"
-msgstr "Muatan bulan lalu"
+msgstr "Muatan bulan lalu (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Muatan hanya dapat dicatat pada kartu dengan tipe tarif pelanggan per m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Peralatan sewaan (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Muatan bulan lalu"
+msgstr "Muatan bulan lalu (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Kartu draf (CARD)"
@@ -385,3 +385,183 @@ msgstr "Bukti (nomor kwitansi atau referensi)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Persetujuan pembayaran tunai diminta"
+
+msgid "Card Expenses"
+msgstr "Biaya"
+
+msgid "Card Fleet"
+msgstr "Peralatan"
+
+msgid "Card Materials"
+msgstr "Material dan pembelian"
+
+msgid "Card Movement"
+msgstr "Pergerakan dan pengangkutan"
+
+msgid "Card Operating Units"
+msgstr "Unit operasi"
+
+msgid "Card Operation Cards"
+msgstr "Kartu operasi"
+
+msgid "Card Parties"
+msgstr "Pemasok dan pelanggan"
+
+msgid "Card Reports"
+msgstr "Laporan"
+
+msgid "Card Setup"
+msgstr "Pengaturan"
+
+msgid "Project Diesel Fill"
+msgstr "Pengisian solar proyek"
+
+msgid "Equipment Transport"
+msgstr "Transportasi peralatan"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Konsumsi solar"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Analisis solar peralatan"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Biaya peralatan tanpa peralatan"
+
+msgid "Card Equipment"
+msgstr "Peralatan"
+
+msgid "Card Equipment Type"
+msgstr "Jenis peralatan"
+
+msgid "Card Equipment Category"
+msgstr "Kategori peralatan"
+
+msgid "Equipment Needs Request"
+msgstr "Permintaan kebutuhan peralatan"
+
+msgid "Equipment Needs Review"
+msgstr "Tinjauan kebutuhan peralatan"
+
+msgid "Tool Custody"
+msgstr "Penitipan perkakas"
+
+msgid "Employee Tool Custody"
+msgstr "Penitipan perkakas karyawan"
+
+msgid "Equipment Makes"
+msgstr "Merek peralatan"
+
+msgid "Equipment Models"
+msgstr "Model peralatan"
+
+msgid "Parts Fitment"
+msgstr "Kecocokan suku cadang"
+
+msgid "Equipment Make Model Values"
+msgstr "Nilai teks merek dan model"
+
+msgid "Equipment Needs Summary"
+msgstr "Ringkasan kebutuhan peralatan"
+
+msgid "Equipment Consumption"
+msgstr "Konsumsi peralatan"
+
+msgid "Worker Custody"
+msgstr "Penitipan pekerja"
+
+msgid "Repeat Equipment Requests"
+msgstr "Permintaan peralatan berulang"
+
+msgid "Card Equipment Assignment"
+msgstr "Penugasan peralatan"
+
+msgid "Transport Cost by Project"
+msgstr "Biaya transportasi per proyek"
+
+msgid "Card Monthly Card"
+msgstr "Kartu operasi bulanan"
+
+msgid "Operating Cost by Project"
+msgstr "Biaya operasional per proyek"
+
+msgid "Card Equipment Supplier"
+msgstr "Pemasok peralatan"
+
+msgid "Card Equipment Customer"
+msgstr "Pelanggan peralatan"
+
+msgid "Equipment Supplier Statement"
+msgstr "Laporan pemasok"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Ringkasan pemasok"
+
+msgid "Equipment Customer Statement"
+msgstr "Laporan pelanggan"
+
+msgid "Equipment Customers Summary"
+msgstr "Ringkasan pelanggan"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Selisih dan anomali solar"
+
+msgid "Diesel Group Analysis"
+msgstr "Analisis solar per grup"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Rekonsiliasi faktur solar"
+
+msgid "Card Settlement Status"
+msgstr "Status penyelesaian kartu"
+
+msgid "Equipment Partial Margin"
+msgstr "Margin parsial peralatan"
+
+msgid "Project Invoice Profitability"
+msgstr "Profitabilitas proyek menurut faktur"
+
+msgid "Unbilled Card Work"
+msgstr "Pekerjaan kartu belum ditagih"
+
+msgid "Posting Source Integrity"
+msgstr "Integritas sumber posting"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Biaya pemeliharaan peralatan"
+
+msgid "Equipment Downtime"
+msgstr "Waktu henti peralatan"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Rekonsiliasi meter"
+
+msgid "Asset Mapping Review"
+msgstr "Tinjauan pemetaan aset"
+
+msgid "Transport Accounting Review"
+msgstr "Tinjauan akuntansi pengangkutan"
+
+msgid "Equipment Location History"
+msgstr "Riwayat lokasi peralatan"
+
+msgid "Card Settings"
+msgstr "Pengaturan"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Biaya sewa dari pemasok - bulan lalu"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Total liter solar"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Total biaya solar"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Total biaya pengangkutan"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Jumlah kartu bulanan"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Biaya solar bulanan"

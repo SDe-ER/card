@@ -127,10 +127,18 @@ class TestNoArabicFallback(IntegrationTestCase):
 	"""v4.1.2 (Owner): an English user sees no Arabic. Stored Select values and the names of
 	the workspace widgets are Arabic and stay so (data), so each one shown on screen needs an
 	English translation in en.po; the other non-Arabic CARD locales carry one too, so they fall
-	back to English, never to Arabic."""
+	back to English, never to Arabic. Urdu is written in the Arabic script, so a script check
+	cannot tell an Urdu translation from the Arabic source: for Urdu the translation must differ
+	from the Arabic text (owner decision 2026-11-26: Urdu labels are in Urdu, not in English)."""
 
 	ARABIC = re.compile(r"[؀-ۿ]")
 	FALLBACK_LOCALES = ("en.po", "bn.po", "hi.po", "ur.po")
+	ARABIC_SCRIPT_LOCALES = ("ur.po",)
+
+	def _is_arabic_fallback(self, po, source, translation):
+		if po in self.ARABIC_SCRIPT_LOCALES:
+			return translation == source
+		return bool(self.ARABIC.search(translation))
 
 	def _shown_arabic(self):
 		import glob
@@ -174,7 +182,9 @@ class TestNoArabicFallback(IntegrationTestCase):
 		locale_dir = os.path.join(frappe.get_app_path("card"), "locale")
 		for po in self.FALLBACK_LOCALES:
 			entries = TestCardLocaleCardStringsOnly._parse_po(None, os.path.join(locale_dir, po))
-			missing = sorted(v for v in shown if not entries.get(v) or self.ARABIC.search(entries[v]))
+			missing = sorted(
+				v for v in shown if not entries.get(v) or self._is_arabic_fallback(po, v, entries[v])
+			)
 			self.assertFalse(
 				missing, f"{po}: Arabic values shown without a non-Arabic translation: {missing}"
 			)

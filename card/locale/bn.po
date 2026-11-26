@@ -383,13 +383,13 @@ msgid "متغير"
 msgstr "Variable"
 
 msgid "إجمالي تكلفة الديزل"
-msgstr "Total Diesel Cost"
+msgstr "মোট ডিজেল ব্যয়"
 
 msgid "إجمالي تكلفة النقل"
-msgstr "Total Transport Cost"
+msgstr "মোট পরিবহন ব্যয়"
 
 msgid "إجمالي لترات الديزل"
-msgstr "Total Diesel Litres"
+msgstr "মোট ডিজেল লিটার"
 
 msgid "المعدات المؤجرة"
 msgstr "ভাড়া করা যন্ত্রপাতি (CARD)"
@@ -404,13 +404,13 @@ msgid "مبالغ الشهر الماضي"
 msgstr "সরবরাহকারী পরিচালন মূল্য - গত মাস"
 
 msgid "تكلفة الديزل الشهرية"
-msgstr "Monthly Diesel Cost"
+msgstr "মাসিক ডিজেল ব্যয়"
 
 msgid "مبالغ الكروت الشهرية"
-msgstr "Monthly Card Amounts"
+msgstr "মাসিক কার্ডের পরিমাণ"
 
 msgid "تكلفة إيجار من موردين - الشهر الماضي"
-msgstr "Supplier Rental Cost - Last Month"
+msgstr "সরবরাহকারীর ভাড়া ব্যয় - গত মাস"
 
 msgid "قيمة تشغيل لعملاء - الشهر الماضي"
 msgstr "গ্রাহকদের জন্য পরিচালন মূল্য - গত মাস"
@@ -506,7 +506,7 @@ msgid "بالمتر المكعب"
 msgstr "প্রতি ঘন মিটার"
 
 msgid "Loads last month"
-msgstr "গত মাসের লোড"
+msgstr "গত মাসের লোড (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "শুধু গ্রাহক হারের ধরন প্রতি ঘন মিটার হলে কার্ডে লোড নথিভুক্ত করা যায়"
@@ -603,7 +603,7 @@ msgid "Rented equipment (CARD)"
 msgstr "ভাড়া করা যন্ত্রপাতি (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "গত মাসের লোড"
+msgstr "গত মাসের লোড (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "খসড়া কার্ড (CARD)"
@@ -828,3 +828,162 @@ msgstr "প্রমাণ (রসিদ নম্বর বা উল্লে�
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "নগদ অনুমোদনের অনুরোধ করা হয়েছে"
+
+msgid "Card Expenses"
+msgstr "ব্যয়"
+
+msgid "Card Fleet"
+msgstr "যন্ত্রপাতি"
+
+msgid "Card Materials"
+msgstr "উপকরণ ও ক্রয়"
+
+msgid "Card Movement"
+msgstr "চলাচল ও পরিবহন"
+
+msgid "Card Operating Units"
+msgstr "পরিচালন ইউনিট"
+
+msgid "Card Operation Cards"
+msgstr "অপারেশন কার্ড"
+
+msgid "Card Parties"
+msgstr "সরবরাহকারী ও গ্রাহক"
+
+msgid "Card Reports"
+msgstr "প্রতিবেদন"
+
+msgid "Card Setup"
+msgstr "সেটিংস"
+
+msgid "Project Diesel Fill"
+msgstr "প্রকল্পের ডিজেল ভরাট"
+
+msgid "Equipment Transport"
+msgstr "যন্ত্রপাতি পরিবহন"
+
+msgid "Equipment Diesel Consumption"
+msgstr "ডিজেল খরচ"
+
+msgid "Equipment Diesel Analysis"
+msgstr "যন্ত্রপাতির ডিজেল বিশ্লেষণ"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "যন্ত্রপাতি ছাড়া যন্ত্রপাতির ব্যয়"
+
+msgid "Card Equipment"
+msgstr "যন্ত্রপাতি"
+
+msgid "Card Equipment Type"
+msgstr "যন্ত্রপাতির ধরন"
+
+msgid "Card Equipment Category"
+msgstr "যন্ত্রপাতির শ্রেণি"
+
+msgid "Equipment Needs Request"
+msgstr "যন্ত্রপাতির চাহিদার অনুরোধ"
+
+msgid "Tool Custody"
+msgstr "সরঞ্জামের জিম্মা"
+
+msgid "Employee Tool Custody"
+msgstr "কর্মচারীর সরঞ্জামের জিম্মা"
+
+msgid "Equipment Makes"
+msgstr "যন্ত্রপাতির ব্র্যান্ড"
+
+msgid "Equipment Models"
+msgstr "যন্ত্রপাতির মডেল"
+
+msgid "Parts Fitment"
+msgstr "যন্ত্রাংশের সামঞ্জস্য"
+
+msgid "Equipment Make Model Values"
+msgstr "ব্র্যান্ড ও মডেলের লিখিত মান"
+
+msgid "Equipment Needs Summary"
+msgstr "যন্ত্রপাতির চাহিদার সারসংক্ষেপ"
+
+msgid "Equipment Consumption"
+msgstr "যন্ত্রপাতির ব্যবহার"
+
+msgid "Worker Custody"
+msgstr "শ্রমিকের জিম্মা"
+
+msgid "Repeat Equipment Requests"
+msgstr "যন্ত্রপাতির পুনরাবৃত্ত অনুরোধ"
+
+msgid "Card Equipment Assignment"
+msgstr "যন্ত্রপাতির অ্যাসাইনমেন্ট"
+
+msgid "Transport Cost by Project"
+msgstr "প্রকল্প অনুযায়ী পরিবহন ব্যয়"
+
+msgid "Card Monthly Card"
+msgstr "মাসিক অপারেশন কার্ড"
+
+msgid "Operating Cost by Project"
+msgstr "প্রকল্প অনুযায়ী পরিচালন ব্যয়"
+
+msgid "Card Equipment Supplier"
+msgstr "যন্ত্রপাতির সরবরাহকারী"
+
+msgid "Card Equipment Customer"
+msgstr "যন্ত্রপাতির গ্রাহক"
+
+msgid "Equipment Supplier Statement"
+msgstr "সরবরাহকারী বিবরণী"
+
+msgid "Equipment Suppliers Summary"
+msgstr "সরবরাহকারী সারসংক্ষেপ"
+
+msgid "Equipment Customer Statement"
+msgstr "গ্রাহক বিবরণী"
+
+msgid "Equipment Customers Summary"
+msgstr "গ্রাহক সারসংক্ষেপ"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "ডিজেলের তারতম্য ও অস্বাভাবিকতা"
+
+msgid "Diesel Group Analysis"
+msgstr "ডিজেল গ্রুপ বিশ্লেষণ"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "ডিজেল চালান মিলকরণ"
+
+msgid "Card Settlement Status"
+msgstr "কার্ড নিষ্পত্তির অবস্থা"
+
+msgid "Equipment Partial Margin"
+msgstr "যন্ত্রপাতির আংশিক মার্জিন"
+
+msgid "Project Invoice Profitability"
+msgstr "চালান অনুযায়ী প্রকল্পের লাভজনকতা"
+
+msgid "Unbilled Card Work"
+msgstr "বিল না করা কার্ডের কাজ"
+
+msgid "Posting Source Integrity"
+msgstr "পোস্টিং উৎসের অখণ্ডতা"
+
+msgid "Equipment Maintenance Cost"
+msgstr "যন্ত্রপাতির রক্ষণাবেক্ষণ ব্যয়"
+
+msgid "Equipment Downtime"
+msgstr "যন্ত্রপাতির অচল সময়"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "মিটার মিলকরণ"
+
+msgid "Asset Mapping Review"
+msgstr "সম্পদ ম্যাপিং পর্যালোচনা"
+
+msgid "Transport Accounting Review"
+msgstr "পরিবহন হিসাব পর্যালোচনা"
+
+msgid "Equipment Location History"
+msgstr "যন্ত্রপাতির অবস্থানের ইতিহাস"
+
+msgid "Card Settings"
+msgstr "সেটিংস"

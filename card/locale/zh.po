@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "按每立方米"
 
 msgid "Loads last month"
-msgstr "上月车次"
+msgstr "上月车次 (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "只能在客户计价类型为按 m³ 的卡片上登记车次"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "租赁设备 (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "上月车次"
+msgstr "上月车次 (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "草稿卡 (CARD)"
@@ -385,3 +385,183 @@ msgstr "凭证（收据号或参考编号）"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "已申请现金支付审批"
+
+msgid "Card Expenses"
+msgstr "费用"
+
+msgid "Card Fleet"
+msgstr "设备"
+
+msgid "Card Materials"
+msgstr "物料与采购"
+
+msgid "Card Movement"
+msgstr "调动与运输"
+
+msgid "Card Operating Units"
+msgstr "作业单元"
+
+msgid "Card Operation Cards"
+msgstr "作业卡"
+
+msgid "Card Parties"
+msgstr "供应商与客户"
+
+msgid "Card Reports"
+msgstr "报表"
+
+msgid "Card Setup"
+msgstr "设置"
+
+msgid "Project Diesel Fill"
+msgstr "项目柴油加注"
+
+msgid "Equipment Transport"
+msgstr "设备运输"
+
+msgid "Equipment Diesel Consumption"
+msgstr "柴油消耗"
+
+msgid "Equipment Diesel Analysis"
+msgstr "设备柴油分析"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "未指定设备的设备费用"
+
+msgid "Card Equipment"
+msgstr "设备"
+
+msgid "Card Equipment Type"
+msgstr "设备类型"
+
+msgid "Card Equipment Category"
+msgstr "设备类别"
+
+msgid "Equipment Needs Request"
+msgstr "设备需求申请"
+
+msgid "Equipment Needs Review"
+msgstr "设备需求审核"
+
+msgid "Tool Custody"
+msgstr "工具保管"
+
+msgid "Employee Tool Custody"
+msgstr "员工工具保管"
+
+msgid "Equipment Makes"
+msgstr "设备品牌"
+
+msgid "Equipment Models"
+msgstr "设备型号"
+
+msgid "Parts Fitment"
+msgstr "配件适配"
+
+msgid "Equipment Make Model Values"
+msgstr "品牌和型号文本值"
+
+msgid "Equipment Needs Summary"
+msgstr "设备需求汇总"
+
+msgid "Equipment Consumption"
+msgstr "设备消耗"
+
+msgid "Worker Custody"
+msgstr "工人保管情况"
+
+msgid "Repeat Equipment Requests"
+msgstr "重复的设备申请"
+
+msgid "Card Equipment Assignment"
+msgstr "设备分配"
+
+msgid "Transport Cost by Project"
+msgstr "按项目统计的运输成本"
+
+msgid "Card Monthly Card"
+msgstr "月度作业卡"
+
+msgid "Operating Cost by Project"
+msgstr "按项目统计的运营成本"
+
+msgid "Card Equipment Supplier"
+msgstr "设备供应商"
+
+msgid "Card Equipment Customer"
+msgstr "设备客户"
+
+msgid "Equipment Supplier Statement"
+msgstr "供应商对账单"
+
+msgid "Equipment Suppliers Summary"
+msgstr "供应商汇总"
+
+msgid "Equipment Customer Statement"
+msgstr "客户对账单"
+
+msgid "Equipment Customers Summary"
+msgstr "客户汇总"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "柴油差异与异常"
+
+msgid "Diesel Group Analysis"
+msgstr "柴油分组分析"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "柴油发票对账"
+
+msgid "Card Settlement Status"
+msgstr "卡结算状态"
+
+msgid "Equipment Partial Margin"
+msgstr "设备部分毛利"
+
+msgid "Project Invoice Profitability"
+msgstr "按发票计算的项目盈利"
+
+msgid "Unbilled Card Work"
+msgstr "未开票的卡工作量"
+
+msgid "Posting Source Integrity"
+msgstr "过账来源完整性"
+
+msgid "Equipment Maintenance Cost"
+msgstr "设备维护成本"
+
+msgid "Equipment Downtime"
+msgstr "设备停机"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "计量表核对"
+
+msgid "Asset Mapping Review"
+msgstr "资产对应关系审核"
+
+msgid "Transport Accounting Review"
+msgstr "运输会计审核"
+
+msgid "Equipment Location History"
+msgstr "设备位置历史"
+
+msgid "Card Settings"
+msgstr "设置"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "供应商租赁成本 - 上月"
+
+msgid "إجمالي لترات الديزل"
+msgstr "柴油总升数"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "柴油总成本"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "运输总成本"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "月度卡金额"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "月度柴油成本"

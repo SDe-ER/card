@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "ต่อ m³"
 
 msgid "Loads last month"
-msgstr "เที่ยวเดือนที่แล้ว"
+msgstr "เที่ยวเดือนที่แล้ว (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "บันทึกเที่ยวได้เฉพาะการ์ดที่ประเภทอัตราลูกค้าเป็นต่อ m³ เท่านั้น"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "อุปกรณ์เช่า (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "เที่ยวเดือนที่แล้ว"
+msgstr "เที่ยวเดือนที่แล้ว (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "การ์ดฉบับร่าง (CARD)"
@@ -385,3 +385,183 @@ msgstr "หลักฐาน (เลขที่ใบเสร็จหรื�
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "ขออนุมัติรายการรับเงินสดแล้ว"
+
+msgid "Card Expenses"
+msgstr "ค่าใช้จ่าย"
+
+msgid "Card Fleet"
+msgstr "อุปกรณ์"
+
+msgid "Card Materials"
+msgstr "วัสดุและการจัดซื้อ"
+
+msgid "Card Movement"
+msgstr "การเคลื่อนย้ายและการขนส่ง"
+
+msgid "Card Operating Units"
+msgstr "หน่วยปฏิบัติงาน"
+
+msgid "Card Operation Cards"
+msgstr "การ์ดปฏิบัติงาน"
+
+msgid "Card Parties"
+msgstr "ซัพพลายเออร์และลูกค้า"
+
+msgid "Card Reports"
+msgstr "รายงาน"
+
+msgid "Card Setup"
+msgstr "การตั้งค่า"
+
+msgid "Project Diesel Fill"
+msgstr "การเติมดีเซลของโครงการ"
+
+msgid "Equipment Transport"
+msgstr "การขนส่งอุปกรณ์"
+
+msgid "Equipment Diesel Consumption"
+msgstr "การใช้ดีเซล"
+
+msgid "Equipment Diesel Analysis"
+msgstr "การวิเคราะห์ดีเซลของอุปกรณ์"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "ค่าใช้จ่ายอุปกรณ์ที่ไม่ระบุอุปกรณ์"
+
+msgid "Card Equipment"
+msgstr "อุปกรณ์"
+
+msgid "Card Equipment Type"
+msgstr "ประเภทอุปกรณ์"
+
+msgid "Card Equipment Category"
+msgstr "หมวดหมู่อุปกรณ์"
+
+msgid "Equipment Needs Request"
+msgstr "คำขอความต้องการของอุปกรณ์"
+
+msgid "Equipment Needs Review"
+msgstr "การตรวจสอบความต้องการของอุปกรณ์"
+
+msgid "Tool Custody"
+msgstr "การถือครองเครื่องมือ"
+
+msgid "Employee Tool Custody"
+msgstr "การถือครองเครื่องมือของพนักงาน"
+
+msgid "Equipment Makes"
+msgstr "ยี่ห้ออุปกรณ์"
+
+msgid "Equipment Models"
+msgstr "รุ่นอุปกรณ์"
+
+msgid "Parts Fitment"
+msgstr "ความเข้ากันได้ของอะไหล่"
+
+msgid "Equipment Make Model Values"
+msgstr "ค่าข้อความของยี่ห้อและรุ่น"
+
+msgid "Equipment Needs Summary"
+msgstr "สรุปความต้องการของอุปกรณ์"
+
+msgid "Equipment Consumption"
+msgstr "การใช้สิ้นเปลืองของอุปกรณ์"
+
+msgid "Worker Custody"
+msgstr "การถือครองของคนงาน"
+
+msgid "Repeat Equipment Requests"
+msgstr "คำขออุปกรณ์ที่ซ้ำกัน"
+
+msgid "Card Equipment Assignment"
+msgstr "การมอบหมายอุปกรณ์"
+
+msgid "Transport Cost by Project"
+msgstr "ต้นทุนการขนส่งตามโครงการ"
+
+msgid "Card Monthly Card"
+msgstr "การ์ดปฏิบัติงานรายเดือน"
+
+msgid "Operating Cost by Project"
+msgstr "ต้นทุนการดำเนินงานตามโครงการ"
+
+msgid "Card Equipment Supplier"
+msgstr "ซัพพลายเออร์อุปกรณ์"
+
+msgid "Card Equipment Customer"
+msgstr "ลูกค้าอุปกรณ์"
+
+msgid "Equipment Supplier Statement"
+msgstr "รายการซัพพลายเออร์"
+
+msgid "Equipment Suppliers Summary"
+msgstr "สรุปซัพพลายเออร์"
+
+msgid "Equipment Customer Statement"
+msgstr "รายการลูกค้า"
+
+msgid "Equipment Customers Summary"
+msgstr "สรุปลูกค้า"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "ผลต่างและความผิดปกติของดีเซล"
+
+msgid "Diesel Group Analysis"
+msgstr "การวิเคราะห์ดีเซลตามกลุ่ม"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "การกระทบยอดใบแจ้งหนี้ดีเซล"
+
+msgid "Card Settlement Status"
+msgstr "สถานะการชำระบัญชีของการ์ด"
+
+msgid "Equipment Partial Margin"
+msgstr "กำไรขั้นต้นบางส่วนของอุปกรณ์"
+
+msgid "Project Invoice Profitability"
+msgstr "ความสามารถทำกำไรของโครงการตามใบแจ้งหนี้"
+
+msgid "Unbilled Card Work"
+msgstr "งานตามการ์ดที่ยังไม่ออกใบแจ้งหนี้"
+
+msgid "Posting Source Integrity"
+msgstr "ความถูกต้องของแหล่งที่มาการลงบัญชี"
+
+msgid "Equipment Maintenance Cost"
+msgstr "ต้นทุนการบำรุงรักษาอุปกรณ์"
+
+msgid "Equipment Downtime"
+msgstr "เวลาหยุดทำงานของอุปกรณ์"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "การกระทบยอดมิเตอร์"
+
+msgid "Asset Mapping Review"
+msgstr "การตรวจสอบการจับคู่สินทรัพย์"
+
+msgid "Transport Accounting Review"
+msgstr "การตรวจสอบการบัญชีขนส่ง"
+
+msgid "Equipment Location History"
+msgstr "ประวัติตำแหน่งของอุปกรณ์"
+
+msgid "Card Settings"
+msgstr "การตั้งค่า"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "ต้นทุนค่าเช่าจากซัพพลายเออร์ - เดือนที่แล้ว"
+
+msgid "إجمالي لترات الديزل"
+msgstr "ดีเซลรวม (ลิตร)"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "ต้นทุนดีเซลรวม"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "ต้นทุนการขนส่งรวม"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "ยอดเงินการ์ดรายเดือน"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "ต้นทุนดีเซลรายเดือน"

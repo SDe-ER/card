@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Za m³"
 
 msgid "Loads last month"
-msgstr "Náklady za minulý měsíc"
+msgstr "Náklady za minulý měsíc (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Náklady lze zapsat pouze na kartu, jejíž typ sazby zákazníka je za m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Pronajatá technika (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Náklady za minulý měsíc"
+msgstr "Náklady za minulý měsíc (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Koncepty karet (CARD)"
@@ -385,3 +385,183 @@ msgstr "Doklad (číslo účtenky nebo odkaz)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Schválení hotové platby vyžádáno"
+
+msgid "Card Expenses"
+msgstr "Výdaje"
+
+msgid "Card Fleet"
+msgstr "Technika"
+
+msgid "Card Materials"
+msgstr "Materiál a nákup"
+
+msgid "Card Movement"
+msgstr "Pohyb a přeprava"
+
+msgid "Card Operating Units"
+msgstr "Provozní jednotky"
+
+msgid "Card Operation Cards"
+msgstr "Provozní karty"
+
+msgid "Card Parties"
+msgstr "Dodavatelé a zákazníci"
+
+msgid "Card Reports"
+msgstr "Sestavy"
+
+msgid "Card Setup"
+msgstr "Nastavení"
+
+msgid "Project Diesel Fill"
+msgstr "Tankování nafty pro projekt"
+
+msgid "Equipment Transport"
+msgstr "Přeprava techniky"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Spotřeba nafty"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Analýza nafty techniky"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Výdaje na techniku bez uvedené techniky"
+
+msgid "Card Equipment"
+msgstr "Technika"
+
+msgid "Card Equipment Type"
+msgstr "Typ techniky"
+
+msgid "Card Equipment Category"
+msgstr "Kategorie techniky"
+
+msgid "Equipment Needs Request"
+msgstr "Požadavek na potřeby techniky"
+
+msgid "Equipment Needs Review"
+msgstr "Kontrola potřeb techniky"
+
+msgid "Tool Custody"
+msgstr "Svěřené nářadí"
+
+msgid "Employee Tool Custody"
+msgstr "Nářadí svěřené zaměstnanci"
+
+msgid "Equipment Makes"
+msgstr "Značky techniky"
+
+msgid "Equipment Models"
+msgstr "Modely techniky"
+
+msgid "Parts Fitment"
+msgstr "Kompatibilita dílů"
+
+msgid "Equipment Make Model Values"
+msgstr "Textové hodnoty značky a modelu"
+
+msgid "Equipment Needs Summary"
+msgstr "Souhrn potřeb techniky"
+
+msgid "Equipment Consumption"
+msgstr "Spotřeba techniky"
+
+msgid "Worker Custody"
+msgstr "Nářadí svěřené pracovníkům"
+
+msgid "Repeat Equipment Requests"
+msgstr "Opakované požadavky na techniku"
+
+msgid "Card Equipment Assignment"
+msgstr "Přiřazení techniky"
+
+msgid "Transport Cost by Project"
+msgstr "Náklady na přepravu podle projektu"
+
+msgid "Card Monthly Card"
+msgstr "Měsíční provozní karta"
+
+msgid "Operating Cost by Project"
+msgstr "Provozní náklady podle projektu"
+
+msgid "Card Equipment Supplier"
+msgstr "Dodavatel techniky"
+
+msgid "Card Equipment Customer"
+msgstr "Zákazník techniky"
+
+msgid "Equipment Supplier Statement"
+msgstr "Výpis dodavatele"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Souhrn dodavatelů"
+
+msgid "Equipment Customer Statement"
+msgstr "Výpis zákazníka"
+
+msgid "Equipment Customers Summary"
+msgstr "Souhrn zákazníků"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Odchylky a anomálie nafty"
+
+msgid "Diesel Group Analysis"
+msgstr "Analýza nafty podle skupin"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Odsouhlasení faktur za naftu"
+
+msgid "Card Settlement Status"
+msgstr "Stav vyrovnání karet"
+
+msgid "Equipment Partial Margin"
+msgstr "Dílčí marže techniky"
+
+msgid "Project Invoice Profitability"
+msgstr "Ziskovost projektů podle faktur"
+
+msgid "Unbilled Card Work"
+msgstr "Nevyfakturovaná práce z karet"
+
+msgid "Posting Source Integrity"
+msgstr "Integrita zdrojů zaúčtování"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Náklady na údržbu techniky"
+
+msgid "Equipment Downtime"
+msgstr "Prostoje techniky"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Vyúčtování měřidel"
+
+msgid "Asset Mapping Review"
+msgstr "Kontrola mapování majetku"
+
+msgid "Transport Accounting Review"
+msgstr "Kontrola účtování přepravy"
+
+msgid "Equipment Location History"
+msgstr "Historie umístění techniky"
+
+msgid "Card Settings"
+msgstr "Nastavení"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Náklady na pronájem od dodavatelů - minulý měsíc"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Celkem litrů nafty"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Celkové náklady na naftu"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Celkové náklady na přepravu"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Měsíční částky karet"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Měsíční náklady na naftu"

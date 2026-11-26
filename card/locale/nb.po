@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Per m³"
 
 msgid "Loads last month"
-msgstr "Lass forrige måned"
+msgstr "Lass forrige måned (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Lass kan bare registreres på et kort der kundens prisype er per m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Leid utstyr (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Lass forrige måned"
+msgstr "Lass forrige måned (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Kladdekort (CARD)"
@@ -385,3 +385,183 @@ msgstr "Bilag (kvitteringsnummer eller referanse)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Godkjenning av kontantbetaling bedt om"
+
+msgid "Card Expenses"
+msgstr "Utgifter"
+
+msgid "Card Fleet"
+msgstr "Utstyr"
+
+msgid "Card Materials"
+msgstr "Materialer og innkjøp"
+
+msgid "Card Movement"
+msgstr "Flytting og transport"
+
+msgid "Card Operating Units"
+msgstr "Driftsenheter"
+
+msgid "Card Operation Cards"
+msgstr "Driftskort"
+
+msgid "Card Parties"
+msgstr "Leverandører og kunder"
+
+msgid "Card Reports"
+msgstr "Rapporter"
+
+msgid "Card Setup"
+msgstr "Innstillinger"
+
+msgid "Project Diesel Fill"
+msgstr "Dieselfylling for prosjekt"
+
+msgid "Equipment Transport"
+msgstr "Utstyrstransport"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Dieselforbruk"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Dieselanalyse for utstyr"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Utstyrsutgifter uten utstyr"
+
+msgid "Card Equipment"
+msgstr "Utstyr"
+
+msgid "Card Equipment Type"
+msgstr "Utstyrstype"
+
+msgid "Card Equipment Category"
+msgstr "Utstyrskategori"
+
+msgid "Equipment Needs Request"
+msgstr "Forespørsel om utstyrsbehov"
+
+msgid "Equipment Needs Review"
+msgstr "Gjennomgang av utstyrsbehov"
+
+msgid "Tool Custody"
+msgstr "Verktøyansvar"
+
+msgid "Employee Tool Custody"
+msgstr "Ansattes verktøyansvar"
+
+msgid "Equipment Makes"
+msgstr "Utstyrsmerker"
+
+msgid "Equipment Models"
+msgstr "Utstyrsmodeller"
+
+msgid "Parts Fitment"
+msgstr "Delekompatibilitet"
+
+msgid "Equipment Make Model Values"
+msgstr "Tekstverdier for merke og modell"
+
+msgid "Equipment Needs Summary"
+msgstr "Oversikt over utstyrsbehov"
+
+msgid "Equipment Consumption"
+msgstr "Utstyrsforbruk"
+
+msgid "Worker Custody"
+msgstr "Arbeidernes verktøyansvar"
+
+msgid "Repeat Equipment Requests"
+msgstr "Gjentatte utstyrsforespørsler"
+
+msgid "Card Equipment Assignment"
+msgstr "Utstyrstildeling"
+
+msgid "Transport Cost by Project"
+msgstr "Transportkostnad per prosjekt"
+
+msgid "Card Monthly Card"
+msgstr "Månedlig driftskort"
+
+msgid "Operating Cost by Project"
+msgstr "Driftskostnad per prosjekt"
+
+msgid "Card Equipment Supplier"
+msgstr "Utstyrsleverandør"
+
+msgid "Card Equipment Customer"
+msgstr "Utstyrskunde"
+
+msgid "Equipment Supplier Statement"
+msgstr "Leverandøroversikt"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Leverandørsammendrag"
+
+msgid "Equipment Customer Statement"
+msgstr "Kundeoversikt"
+
+msgid "Equipment Customers Summary"
+msgstr "Kundesammendrag"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dieselavvik og uregelmessigheter"
+
+msgid "Diesel Group Analysis"
+msgstr "Dieselanalyse per gruppe"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Avstemming av dieselfakturaer"
+
+msgid "Card Settlement Status"
+msgstr "Status for kortoppgjør"
+
+msgid "Equipment Partial Margin"
+msgstr "Delvis utstyrsmargin"
+
+msgid "Project Invoice Profitability"
+msgstr "Prosjektlønnsomhet etter fakturaer"
+
+msgid "Unbilled Card Work"
+msgstr "Ufakturert kortarbeid"
+
+msgid "Posting Source Integrity"
+msgstr "Integritet for bokføringskilder"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Vedlikeholdskostnad for utstyr"
+
+msgid "Equipment Downtime"
+msgstr "Nedetid for utstyr"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Måleravstemming"
+
+msgid "Asset Mapping Review"
+msgstr "Gjennomgang av eiendelstilknytning"
+
+msgid "Transport Accounting Review"
+msgstr "Gjennomgang av transportbokføring"
+
+msgid "Equipment Location History"
+msgstr "Historikk over utstyrets plassering"
+
+msgid "Card Settings"
+msgstr "Innstillinger"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Leiekostnad fra leverandører - forrige måned"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Totalt antall liter diesel"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Total dieselkostnad"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Total transportkostnad"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Månedlige kortbeløp"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Månedlig dieselkostnad"

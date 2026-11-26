@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³ uchun"
 
 msgid "Loads last month"
-msgstr "O'tgan oy reyslari"
+msgstr "O'tgan oy reyslari (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Reyslar faqat mijoz narx turi m³ uchun bo'lgan kartada qayd etiladi"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Ijaradagi texnika (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "O'tgan oy reyslari"
+msgstr "O'tgan oy reyslari (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Qoralama kartalar (CARD)"
@@ -385,3 +385,183 @@ msgstr "Hujjat (kvitansiya raqami yoki havola)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Naqd to'lov tasdig'i so'ralgan"
+
+msgid "Card Expenses"
+msgstr "Xarajatlar"
+
+msgid "Card Fleet"
+msgstr "Texnika"
+
+msgid "Card Materials"
+msgstr "Materiallar va xaridlar"
+
+msgid "Card Movement"
+msgstr "Harakat va tashish"
+
+msgid "Card Operating Units"
+msgstr "Operatsion birliklar"
+
+msgid "Card Operation Cards"
+msgstr "Ish kartalari"
+
+msgid "Card Parties"
+msgstr "Yetkazib beruvchilar va mijozlar"
+
+msgid "Card Reports"
+msgstr "Hisobotlar"
+
+msgid "Card Setup"
+msgstr "Sozlamalar"
+
+msgid "Project Diesel Fill"
+msgstr "Loyiha uchun dizel quyish"
+
+msgid "Equipment Transport"
+msgstr "Texnika tashish"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Dizel sarfi"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Texnika dizeli tahlili"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Texnikasi ko'rsatilmagan texnika xarajatlari"
+
+msgid "Card Equipment"
+msgstr "Texnika"
+
+msgid "Card Equipment Type"
+msgstr "Texnika turi"
+
+msgid "Card Equipment Category"
+msgstr "Texnika toifasi"
+
+msgid "Equipment Needs Request"
+msgstr "Texnika ehtiyojlari so'rovi"
+
+msgid "Equipment Needs Review"
+msgstr "Texnika ehtiyojlarini ko'rib chiqish"
+
+msgid "Tool Custody"
+msgstr "Asboblar javobgarligi"
+
+msgid "Employee Tool Custody"
+msgstr "Xodimning asboblar javobgarligi"
+
+msgid "Equipment Makes"
+msgstr "Texnika markalari"
+
+msgid "Equipment Models"
+msgstr "Texnika modellari"
+
+msgid "Parts Fitment"
+msgstr "Ehtiyot qismlar mosligi"
+
+msgid "Equipment Make Model Values"
+msgstr "Marka va modelning matnli qiymatlari"
+
+msgid "Equipment Needs Summary"
+msgstr "Texnika ehtiyojlari xulosasi"
+
+msgid "Equipment Consumption"
+msgstr "Texnika sarfi"
+
+msgid "Worker Custody"
+msgstr "Ishchilar javobgarligi"
+
+msgid "Repeat Equipment Requests"
+msgstr "Takroriy texnika so'rovlari"
+
+msgid "Card Equipment Assignment"
+msgstr "Texnikani biriktirish"
+
+msgid "Transport Cost by Project"
+msgstr "Loyihalar bo'yicha tashish xarajati"
+
+msgid "Card Monthly Card"
+msgstr "Oylik ish kartasi"
+
+msgid "Operating Cost by Project"
+msgstr "Loyihalar bo'yicha operatsion xarajat"
+
+msgid "Card Equipment Supplier"
+msgstr "Texnika yetkazib beruvchisi"
+
+msgid "Card Equipment Customer"
+msgstr "Texnika mijozi"
+
+msgid "Equipment Supplier Statement"
+msgstr "Yetkazib beruvchi hisoboti"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Yetkazib beruvchilar xulosasi"
+
+msgid "Equipment Customer Statement"
+msgstr "Mijoz hisoboti"
+
+msgid "Equipment Customers Summary"
+msgstr "Mijozlar xulosasi"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dizel farqlari va anomaliyalar"
+
+msgid "Diesel Group Analysis"
+msgstr "Guruh bo'yicha dizel tahlili"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Dizel hisob-fakturalarini solishtirish"
+
+msgid "Card Settlement Status"
+msgstr "Kartalar bo'yicha hisob-kitob holati"
+
+msgid "Equipment Partial Margin"
+msgstr "Texnikaning qisman marjasi"
+
+msgid "Project Invoice Profitability"
+msgstr "Hisob-fakturalar bo'yicha loyiha rentabelligi"
+
+msgid "Unbilled Card Work"
+msgstr "Hisob-faktura qilinmagan karta ishlari"
+
+msgid "Posting Source Integrity"
+msgstr "Buxgalteriya yozuvlari manbalarining yaxlitligi"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Texnikaga xizmat ko'rsatish xarajati"
+
+msgid "Equipment Downtime"
+msgstr "Texnikaning bekor turishi"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Hisoblagich solishtiruvi"
+
+msgid "Asset Mapping Review"
+msgstr "Aktivlarga bog'lashni tekshirish"
+
+msgid "Transport Accounting Review"
+msgstr "Tashish hisobini tekshirish"
+
+msgid "Equipment Location History"
+msgstr "Texnika joylashuvi tarixi"
+
+msgid "Card Settings"
+msgstr "Sozlamalar"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Yetkazib beruvchilardan ijara xarajati - o'tgan oy"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Jami dizel litri"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Jami dizel xarajati"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Jami tashish xarajati"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Oylik karta summalari"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Oylik dizel xarajati"

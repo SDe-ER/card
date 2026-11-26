@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Per m³"
 
 msgid "Loads last month"
-msgstr "Ritten vorige maand"
+msgstr "Ritten vorige maand (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ritten kunnen alleen worden vastgelegd op een kaart met een klanttarief per m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Gehuurd materieel (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Ritten vorige maand"
+msgstr "Ritten vorige maand (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Conceptkaarten (CARD)"
@@ -385,3 +385,183 @@ msgstr "Bewijs (kwitantienummer of referentie)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Goedkeuring van contante betaling aangevraagd"
+
+msgid "Card Expenses"
+msgstr "Uitgaven"
+
+msgid "Card Fleet"
+msgstr "Materieel"
+
+msgid "Card Materials"
+msgstr "Materialen en inkoop"
+
+msgid "Card Movement"
+msgstr "Verplaatsing en transport"
+
+msgid "Card Operating Units"
+msgstr "Bedrijfseenheden"
+
+msgid "Card Operation Cards"
+msgstr "Bedrijfskaarten"
+
+msgid "Card Parties"
+msgstr "Leveranciers en klanten"
+
+msgid "Card Reports"
+msgstr "Rapporten"
+
+msgid "Card Setup"
+msgstr "Instellingen"
+
+msgid "Project Diesel Fill"
+msgstr "Dieseltankbeurt voor project"
+
+msgid "Equipment Transport"
+msgstr "Materieeltransport"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Dieselverbruik"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Dieselanalyse materieel"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Materieelkosten zonder materieel"
+
+msgid "Card Equipment"
+msgstr "Materieel"
+
+msgid "Card Equipment Type"
+msgstr "Materieeltype"
+
+msgid "Card Equipment Category"
+msgstr "Materieelcategorie"
+
+msgid "Equipment Needs Request"
+msgstr "Aanvraag materieelbehoeften"
+
+msgid "Equipment Needs Review"
+msgstr "Beoordeling materieelbehoeften"
+
+msgid "Tool Custody"
+msgstr "Gereedschap in bewaring"
+
+msgid "Employee Tool Custody"
+msgstr "Gereedschap in bewaring bij medewerker"
+
+msgid "Equipment Makes"
+msgstr "Materieelmerken"
+
+msgid "Equipment Models"
+msgstr "Materieelmodellen"
+
+msgid "Parts Fitment"
+msgstr "Compatibiliteit van onderdelen"
+
+msgid "Equipment Make Model Values"
+msgstr "Tekstwaarden van merk en model"
+
+msgid "Equipment Needs Summary"
+msgstr "Overzicht materieelbehoeften"
+
+msgid "Equipment Consumption"
+msgstr "Materieelverbruik"
+
+msgid "Worker Custody"
+msgstr "Gereedschap in bewaring bij arbeiders"
+
+msgid "Repeat Equipment Requests"
+msgstr "Herhaalde materieelaanvragen"
+
+msgid "Card Equipment Assignment"
+msgstr "Materieeltoewijzing"
+
+msgid "Transport Cost by Project"
+msgstr "Transportkosten per project"
+
+msgid "Card Monthly Card"
+msgstr "Maandelijkse bedrijfskaart"
+
+msgid "Operating Cost by Project"
+msgstr "Bedrijfskosten per project"
+
+msgid "Card Equipment Supplier"
+msgstr "Materieelleverancier"
+
+msgid "Card Equipment Customer"
+msgstr "Materieelklant"
+
+msgid "Equipment Supplier Statement"
+msgstr "Leverancierafschrift"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Leveranciersamenvatting"
+
+msgid "Equipment Customer Statement"
+msgstr "Klantafschrift"
+
+msgid "Equipment Customers Summary"
+msgstr "Klantsamenvatting"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dieselafwijkingen en anomalieën"
+
+msgid "Diesel Group Analysis"
+msgstr "Dieselanalyse per groep"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Afstemming dieselfacturen"
+
+msgid "Card Settlement Status"
+msgstr "Afrekeningsstatus van kaarten"
+
+msgid "Equipment Partial Margin"
+msgstr "Gedeeltelijke marge materieel"
+
+msgid "Project Invoice Profitability"
+msgstr "Projectwinstgevendheid volgens facturen"
+
+msgid "Unbilled Card Work"
+msgstr "Niet-gefactureerd kaartwerk"
+
+msgid "Posting Source Integrity"
+msgstr "Integriteit van boekingsbronnen"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Onderhoudskosten materieel"
+
+msgid "Equipment Downtime"
+msgstr "Stilstand materieel"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Meterafstemming"
+
+msgid "Asset Mapping Review"
+msgstr "Beoordeling koppeling met activa"
+
+msgid "Transport Accounting Review"
+msgstr "Beoordeling transportboekhouding"
+
+msgid "Equipment Location History"
+msgstr "Locatiegeschiedenis materieel"
+
+msgid "Card Settings"
+msgstr "Instellingen"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Huurkosten leveranciers - vorige maand"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Totaal liters diesel"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Totale dieselkosten"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Totale transportkosten"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Maandelijkse kaartbedragen"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Maandelijkse dieselkosten"

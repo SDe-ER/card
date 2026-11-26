@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³ başına"
 
 msgid "Loads last month"
-msgstr "Geçen ay seferleri"
+msgstr "Geçen ay seferleri (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Sefer yalnızca müşteri fiyat türü m³ başına olan karta kaydedilebilir"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Kiralık ekipman (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Geçen ay seferleri"
+msgstr "Geçen ay seferleri (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Taslak kartlar (CARD)"
@@ -385,3 +385,183 @@ msgstr "Belge (fiş numarası veya referans)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Nakit ödeme onayı talep edildi"
+
+msgid "Card Expenses"
+msgstr "Giderler"
+
+msgid "Card Fleet"
+msgstr "Ekipman"
+
+msgid "Card Materials"
+msgstr "Malzeme ve satın alma"
+
+msgid "Card Movement"
+msgstr "Hareket ve nakliye"
+
+msgid "Card Operating Units"
+msgstr "Operasyon birimleri"
+
+msgid "Card Operation Cards"
+msgstr "Operasyon kartları"
+
+msgid "Card Parties"
+msgstr "Tedarikçiler ve müşteriler"
+
+msgid "Card Reports"
+msgstr "Raporlar"
+
+msgid "Card Setup"
+msgstr "Ayarlar"
+
+msgid "Project Diesel Fill"
+msgstr "Proje dizel dolumu"
+
+msgid "Equipment Transport"
+msgstr "Ekipman taşıma"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Dizel tüketimi"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Ekipman dizel analizi"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Ekipmanı belirtilmemiş ekipman giderleri"
+
+msgid "Card Equipment"
+msgstr "Ekipman"
+
+msgid "Card Equipment Type"
+msgstr "Ekipman türü"
+
+msgid "Card Equipment Category"
+msgstr "Ekipman kategorisi"
+
+msgid "Equipment Needs Request"
+msgstr "Ekipman ihtiyaç talebi"
+
+msgid "Equipment Needs Review"
+msgstr "Ekipman ihtiyaçları incelemesi"
+
+msgid "Tool Custody"
+msgstr "Alet zimmeti"
+
+msgid "Employee Tool Custody"
+msgstr "Çalışan alet zimmeti"
+
+msgid "Equipment Makes"
+msgstr "Ekipman markaları"
+
+msgid "Equipment Models"
+msgstr "Ekipman modelleri"
+
+msgid "Parts Fitment"
+msgstr "Parça uyumluluğu"
+
+msgid "Equipment Make Model Values"
+msgstr "Marka ve model metin değerleri"
+
+msgid "Equipment Needs Summary"
+msgstr "Ekipman ihtiyaçları özeti"
+
+msgid "Equipment Consumption"
+msgstr "Ekipman tüketimi"
+
+msgid "Worker Custody"
+msgstr "İşçi zimmetleri"
+
+msgid "Repeat Equipment Requests"
+msgstr "Tekrarlanan ekipman talepleri"
+
+msgid "Card Equipment Assignment"
+msgstr "Ekipman ataması"
+
+msgid "Transport Cost by Project"
+msgstr "Projeye göre taşıma maliyeti"
+
+msgid "Card Monthly Card"
+msgstr "Aylık operasyon kartı"
+
+msgid "Operating Cost by Project"
+msgstr "Projeye göre operasyon maliyeti"
+
+msgid "Card Equipment Supplier"
+msgstr "Ekipman tedarikçisi"
+
+msgid "Card Equipment Customer"
+msgstr "Ekipman müşterisi"
+
+msgid "Equipment Supplier Statement"
+msgstr "Tedarikçi ekstresi"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Tedarikçi özeti"
+
+msgid "Equipment Customer Statement"
+msgstr "Müşteri ekstresi"
+
+msgid "Equipment Customers Summary"
+msgstr "Müşteri özeti"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dizel sapmaları ve anormallikler"
+
+msgid "Diesel Group Analysis"
+msgstr "Grup dizel analizi"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Dizel fatura mutabakatı"
+
+msgid "Card Settlement Status"
+msgstr "Kart mahsup durumu"
+
+msgid "Equipment Partial Margin"
+msgstr "Ekipman kısmi marjı"
+
+msgid "Project Invoice Profitability"
+msgstr "Faturalara göre proje kârlılığı"
+
+msgid "Unbilled Card Work"
+msgstr "Faturalanmamış kart işleri"
+
+msgid "Posting Source Integrity"
+msgstr "Kayıt kaynaklarının bütünlüğü"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Ekipman bakım maliyeti"
+
+msgid "Equipment Downtime"
+msgstr "Ekipman duruşları"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Sayaç mutabakatı"
+
+msgid "Asset Mapping Review"
+msgstr "Varlık eşleme incelemesi"
+
+msgid "Transport Accounting Review"
+msgstr "Nakliye muhasebesi incelemesi"
+
+msgid "Equipment Location History"
+msgstr "Ekipman konum geçmişi"
+
+msgid "Card Settings"
+msgstr "Ayarlar"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Tedarikçi kira maliyeti - geçen ay"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Toplam dizel litresi"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Toplam dizel maliyeti"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Toplam nakliye maliyeti"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Aylık kart tutarları"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Aylık dizel maliyeti"

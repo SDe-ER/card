@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Theo m³"
 
 msgid "Loads last month"
-msgstr "Số chuyến tháng trước"
+msgstr "Số chuyến tháng trước (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Chỉ có thể ghi chuyến vào thẻ có loại đơn giá khách hàng là theo m³"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Thiết bị thuê (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Số chuyến tháng trước"
+msgstr "Số chuyến tháng trước (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Thẻ nháp (CARD)"
@@ -385,3 +385,183 @@ msgstr "Chứng từ (số biên lai hoặc tham chiếu)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Đã yêu cầu phê duyệt thanh toán tiền mặt"
+
+msgid "Card Expenses"
+msgstr "Chi phí"
+
+msgid "Card Fleet"
+msgstr "Thiết bị"
+
+msgid "Card Materials"
+msgstr "Vật tư và mua hàng"
+
+msgid "Card Movement"
+msgstr "Di chuyển và vận chuyển"
+
+msgid "Card Operating Units"
+msgstr "Đơn vị vận hành"
+
+msgid "Card Operation Cards"
+msgstr "Thẻ vận hành"
+
+msgid "Card Parties"
+msgstr "Nhà cung cấp và khách hàng"
+
+msgid "Card Reports"
+msgstr "Báo cáo"
+
+msgid "Card Setup"
+msgstr "Cài đặt"
+
+msgid "Project Diesel Fill"
+msgstr "Nạp dầu diesel cho dự án"
+
+msgid "Equipment Transport"
+msgstr "Vận chuyển thiết bị"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Mức tiêu thụ diesel"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Phân tích dầu diesel của thiết bị"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Chi phí thiết bị chưa gắn thiết bị"
+
+msgid "Card Equipment"
+msgstr "Thiết bị"
+
+msgid "Card Equipment Type"
+msgstr "Loại thiết bị"
+
+msgid "Card Equipment Category"
+msgstr "Nhóm thiết bị"
+
+msgid "Equipment Needs Request"
+msgstr "Yêu cầu nhu cầu thiết bị"
+
+msgid "Equipment Needs Review"
+msgstr "Xem xét nhu cầu thiết bị"
+
+msgid "Tool Custody"
+msgstr "Bàn giao dụng cụ"
+
+msgid "Employee Tool Custody"
+msgstr "Dụng cụ bàn giao cho nhân viên"
+
+msgid "Equipment Makes"
+msgstr "Hãng thiết bị"
+
+msgid "Equipment Models"
+msgstr "Mẫu thiết bị"
+
+msgid "Parts Fitment"
+msgstr "Tương thích phụ tùng"
+
+msgid "Equipment Make Model Values"
+msgstr "Giá trị văn bản của hãng và mẫu"
+
+msgid "Equipment Needs Summary"
+msgstr "Tổng hợp nhu cầu thiết bị"
+
+msgid "Equipment Consumption"
+msgstr "Tiêu hao của thiết bị"
+
+msgid "Worker Custody"
+msgstr "Dụng cụ bàn giao cho công nhân"
+
+msgid "Repeat Equipment Requests"
+msgstr "Yêu cầu thiết bị lặp lại"
+
+msgid "Card Equipment Assignment"
+msgstr "Phân công thiết bị"
+
+msgid "Transport Cost by Project"
+msgstr "Chi phí vận chuyển theo dự án"
+
+msgid "Card Monthly Card"
+msgstr "Thẻ vận hành hàng tháng"
+
+msgid "Operating Cost by Project"
+msgstr "Chi phí vận hành theo dự án"
+
+msgid "Card Equipment Supplier"
+msgstr "Nhà cung cấp thiết bị"
+
+msgid "Card Equipment Customer"
+msgstr "Khách hàng thiết bị"
+
+msgid "Equipment Supplier Statement"
+msgstr "Sao kê nhà cung cấp"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Tóm tắt nhà cung cấp"
+
+msgid "Equipment Customer Statement"
+msgstr "Sao kê khách hàng"
+
+msgid "Equipment Customers Summary"
+msgstr "Tóm tắt khách hàng"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Chênh lệch và bất thường dầu diesel"
+
+msgid "Diesel Group Analysis"
+msgstr "Phân tích dầu diesel theo nhóm"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Đối chiếu hóa đơn dầu diesel"
+
+msgid "Card Settlement Status"
+msgstr "Trạng thái quyết toán thẻ"
+
+msgid "Equipment Partial Margin"
+msgstr "Biên lợi nhuận một phần của thiết bị"
+
+msgid "Project Invoice Profitability"
+msgstr "Khả năng sinh lời của dự án theo hóa đơn"
+
+msgid "Unbilled Card Work"
+msgstr "Công việc theo thẻ chưa xuất hóa đơn"
+
+msgid "Posting Source Integrity"
+msgstr "Tính toàn vẹn của nguồn hạch toán"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Chi phí bảo trì thiết bị"
+
+msgid "Equipment Downtime"
+msgstr "Thời gian ngừng máy của thiết bị"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Đối chiếu đồng hồ"
+
+msgid "Asset Mapping Review"
+msgstr "Xem xét ánh xạ tài sản"
+
+msgid "Transport Accounting Review"
+msgstr "Xem xét hạch toán vận chuyển"
+
+msgid "Equipment Location History"
+msgstr "Lịch sử vị trí thiết bị"
+
+msgid "Card Settings"
+msgstr "Cài đặt"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Chi phí thuê từ nhà cung cấp - tháng trước"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Tổng số lít dầu diesel"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Tổng chi phí dầu diesel"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Tổng chi phí vận chuyển"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Số tiền thẻ hàng tháng"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Chi phí dầu diesel hàng tháng"
