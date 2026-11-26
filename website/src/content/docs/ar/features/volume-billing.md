@@ -41,6 +41,8 @@ sidebar:
 ## إعداد المعدة
 
 <!-- screenshot: volume-billing-equipment-commercial -->
+![سعر العميل بالمتر المكعب على المعدة](../../../../assets/screenshots/ar/volume-billing-equipment-commercial.webp)
+*سعر العميل بالمتر المكعب على المعدة*
 
 في المعدة، في قسم **العميل**:
 
@@ -119,8 +121,12 @@ sidebar:
 *طباعة الكارت الشهري مع الحمولات*
 
 <!-- screenshot: volume-billing-customer-statement -->
+![كشف العميل لصف بالمتر المكعب](../../../../assets/screenshots/ar/volume-billing-customer-statement.webp)
+*كشف العميل لصف بالمتر المكعب*
 
 <!-- screenshot: volume-billing-loads-card -->
+![بطاقة الحمولات في مساحة عمل CARD](../../../../assets/screenshots/ar/volume-billing-loads-card.webp)
+*بطاقة الحمولات في مساحة عمل CARD*
 
 - **طباعة الكارت الشهري**: تُظهر الطباعة إجمالي الردود للكروت بالمتر المكعب لكل من يستطيع قراءة الكارت. إجمالي الحجم (م³)
   والسعر والمبلغ من بيانات المال: تظهر فقط لمن يقرأ المال (مستخدم الكارت ومدير الكارت)، ولا يحصل مشغّل الكارت على أيٍّ منها.

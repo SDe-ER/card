@@ -41,6 +41,8 @@ invoice, as it is for any sale; the card works with amounts before VAT.
 ## Equipment setup
 
 <!-- screenshot: volume-billing-equipment-commercial -->
+![A per-m³ customer rate on the equipment](../../../assets/screenshots/en/volume-billing-equipment-commercial.webp)
+*A per-m³ customer rate on the equipment*
 
 On the equipment, in the **Customer** section:
 
@@ -120,8 +122,12 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
 *Monthly card print with loads*
 
 <!-- screenshot: volume-billing-customer-statement -->
+![Customer statement on a per-m³ row](../../../assets/screenshots/en/volume-billing-customer-statement.webp)
+*Customer statement on a per-m³ row*
 
 <!-- screenshot: volume-billing-loads-card -->
+![Loads number card on the CARD workspace](../../../assets/screenshots/en/volume-billing-loads-card.webp)
+*Loads number card on the CARD workspace*
 
 - **Monthly card print**: the print shows Total loads for per-m³ cards to everyone who can read the card. Total volume (m³),
   the rate and the amount are money-level: they appear only for users with money read (Card User and Card Manager). Card Operator
