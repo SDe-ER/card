@@ -279,9 +279,14 @@ class TestVolumeBilling(_StopBase):
 			meta.get_field("total_volume_m3").permlevel, 1
 		)  # owner D2: volume is restricted like money
 		self.assertEqual(frappe.get_meta("Card Monthly Card Day").get_field("loads_count").permlevel, 0)
+		from card.open_month import COMPUTED_FIELDS
+
+		self.assertFalse(meta.get_field("load_volume_used").allow_on_submit)
 		for name in ("load_volume_used", "total_loads", "total_volume_m3"):
-			self.assertFalse(meta.get_field(name).allow_on_submit, name)
 			self.assertNotIn(name, CARD_MONEY_FIELDS)
+		# FR-191: the two totals are recalculated on an open-month card and refused on any other submitted card
+		for name in ("total_loads", "total_volume_m3"):
+			self.assertIn(name, COMPUTED_FIELDS)
 
 	# ---- owner D1 and D2 (review of 2026-11-14) ----
 	def test_loads_are_refused_on_a_card_not_billed_per_m3(self):

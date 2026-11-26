@@ -38,6 +38,120 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+## [4.13.0] — 2026-11-26
+
+> **Published 2026-11-26** (tag `v4.13.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).
+> Minor release on top of v4.12.2. A Monthly Card is approved only after its month ends, and a card of an open
+> month can be reopened on its own number (FR-191); the equipment records who pays the maintenance (FR-192); a new
+> read-only report, Project Invoice Profitability (FR-193). One patch (a Workflow State and two transitions; the
+> Workflow is not activated), one new column (`tabCard Equipment`.`maintenance_on`). No role or DocPerm change; CARD
+> posts no accounting entry.
+
+### Added
+- **FR-192 — Who pays the maintenance, on the equipment (issue 48; owner decision 2026-11-25, option 1).**
+  The equipment recorded who pays the fuel and the operator, but not who pays the maintenance.
+  - New field `Card Equipment.maintenance_on` (Select: empty, «المؤجر», «الشركة»; label "Maintenance charged
+    to", Arabic «الصيانة على»; permlevel 1), next to "Operator charged to" in Operation standards. It is the
+    same kind of field as "Fuel charged to". It is empty on existing and on new equipment until a user sets it.
+  - The field is a commercial term (`COMMERCIAL_FIELDS` in `card_equipment.py`): a change of a value already
+    set, also back to empty, needs a new reason, as for the fuel field. The first value on a saved equipment
+    needs no reason (`FIRST_FILL_WITHOUT_REASON`), because every existing equipment starts empty. CARD never
+    fills the field automatically.
+  - Master data only. No code reads the field for a card, an invoice, a posting or a report. Maintenance
+    expenses stay manual.
+  - Impact: permissions none (the existing level 1 rules apply; no new role or DocPerm); accounting none; API
+    none; data: one new empty column `maintenance_on` on `tabCard Equipment`, added by `bench migrate`, no
+    patch. Rollback: the earlier code ignores the column; stored values stay in the database.
+  - Tests: `card/tests/test_equipment_maintenance_payer.py`. PR #326.
+- **FR-193 — Project Invoice Profitability report (issue 53, PR #327; owner decision 2026-11-25, option 1).** The owner asked
+  for the revenue and the expenses of each project, read from the ERPNext invoices. CARD had the margin per
+  equipment (Equipment Partial Margin) but no figure per project from all invoices.
+  - New Script Report **Project Invoice Profitability**, read-only, for one company and one period (posting date),
+    with an optional project. Revenue is the net amount (`base_net_amount`, company currency) of the lines of
+    submitted Sales Invoices; expenses are the net amount of the lines of submitted Purchase Invoices. Credit notes
+    and debit notes are negative lines, so they reduce their side. A line without a project takes the project of
+    its invoice (the rule of `card.analytics.revenue_lines`); a line with no project at all is on the row
+    **No project**, so the totals equal the net totals of the invoices. Opening invoices (`is_opening` = Yes)
+    are not read: they carry balances of earlier periods. The sums are not rounded line by line; each figure is
+    rounded once, at the precision of the company currency (`card.report_currency.currency_precision`). Columns: Project, Project name, Project
+    revenue, Project expenses, Project margin, Project margin %; the last row is the total of all projects.
+  - The report reads no Journal Entry and no GL Entry and estimates nothing. The margin is revenue minus
+    purchase-invoice expenses. It is not the full net profit: payroll, depreciation, overhead and journal-entry
+    costs are not included. Every Purchase Invoice line counts, also a stock or fixed-asset purchase. The report
+    message says so.
+  - The name is not "Project Profitability" because ERPNext ships a standard report with that name (based on
+    timesheets and salary slips); a second report record with the same name is not possible.
+  - Functions: `card/card/report/project_invoice_profitability/` (new), `card/analytics.py`
+    (`invoice_project_totals`, `project_names`, new), `card/report_currency.py` (`currency_precision`, new),
+    `card/card/sidebar/card_reports/card_reports.json` (one link), `card/locale/ar.po`, `card/locale/main.pot`. Tests: `card/tests/test_project_invoice_profitability.py`.
+  - Permissions: no new role and no DocPerm. Report roles System Manager and Accounts Manager, the roles of
+    Equipment Partial Margin. The server refuses a company the user may not see (`resolve_company`) and a user
+    without General Ledger read on that company (`can_view_ledger`). A user who cannot read Sales Invoice or
+    Purchase Invoice is refused too: a margin built from one side only would mislead. Invoices are read with
+    `frappe.get_list`, so the user's own permissions and User Permissions apply. The name of a project is shown
+    only for a project of the report company (`project_names`); a project of another company shows its ID only.
+  - Accounting: none. Read only; nothing is posted or changed. Data: none; no new DocType, field or patch. API: no
+    new whitelisted method.
+  - Rollback: revert the commit. A site that already migrated keeps the Report record and the sidebar link until
+    they are deleted by hand; they hold no data.
+
+### Changed
+- **FR-191 — A monthly card is approved only after the end of its month; saving is separate from approval;
+  open-month cards can be reopened on their original number (owner instruction 2026-11-25).** Users submitted
+  cards early in the month to see them in the supplier statement (`include_draft_in_reports` is 0, so the statement
+  counts submitted cards only). A submitted card could then not take more days or payments without Cancel + Amend.
+  - Rule (`card/approval_period.py`): the first permitted approval day is the first day of the month after the
+    card's `month`/`year` (December -> 1 January). "Today" is the current UTC time converted to Asia/Riyadh with
+    `zoneinfo`; the System Settings time zone is not read; creation and modified dates are not read. Checked first
+    in `before_submit` (every submit route: form, `frappe.client.submit`, REST, bulk submit, `apply_workflow`) and
+    in the final approval of an open-month card. No role is exempt, Administrator included. The end of a month
+    never approves a card by itself.
+  - Open-month state (`card/open_month.py`): new Workflow State "Open – month not ended" (docstatus 1). Reopen
+    (`reopen_card`, `reopen_open_month_cards`; System Manager; only while the month has not ended; refused for a
+    posted card or a card referenced by a Journal Entry, Payment Entry, GL Posting Log, Card Period Run or Card
+    Cash Disbursement) keeps the card's name, rows, attachments and comments, withdraws the approval fields and
+    writes an Info comment with the reason. No card is created, cancelled or amended.
+  - On an open card, the day rows, additions/deductions and site location can be changed with Update After Submit
+    (`allow_on_submit` on these fields and the computed totals in the DocType JSON; the state, approval, tier and
+    editor fields stay closed and are written only by the two CARD actions). Each such save runs the card's calculation again (hours, days, amounts, additions, deductions, nets,
+    approval tier, the submit-time snapshot `*_used`), records the editor for the separation-of-duties check and
+    refreshes the party registries. An open card that is posted, held by a posting log or referenced by a financial
+    document is not edited. Rates, equipment, project, parties,
+    company, direction and period stay frozen (Frappe refuses a change). On an approved card nothing of this can
+    change: `card.open_month.before_update_after_submit` refuses the change on every route (form, REST PUT,
+    `frappe.client.set_value`, bulk update); a `workflow_state` sent by a client is refused. A day or adjustment
+    row of a submitted card saved on its own (REST `/api/resource/<child>`, `frappe.client.save` of a child) changes
+    nothing (`card.open_month.refuse_direct_row_update`), so every edit goes through the card's checks.
+  - Final approval (`approve_open_month_card`, submit permission): refused before the month ends; runs the same
+    separation-of-duties and approval-tier checks as a submit (`governance.before_submit`) and logs a delegate's
+    approval (FR-163).
+  - Fiscal-year window: last month's card is judged in its own fiscal year, so a December card of a calendar
+    fiscal year can still be approved on 1 January.
+  - Posting: `gl/posting.py` (`_supplier_sources`, `_customer_cards`) and `gl/period_run.py` (`_selection`) skip
+    open-month cards (filtered in Python, so a card without a state is kept on every read path), and
+    `gl/journal_link.py` refuses to link a supplier accrual Journal Entry to an open card.
+  - Statements: Equipment Supplier Statement and Equipment Customer Statement label an open-month card
+    "(Provisional – month open, not approved)"; drafts keep "(Draft)". Draft visibility still follows the existing
+    `include_draft_in_reports` setting.
+  - Form: before the month ends the form shows the rule and the earliest approval date and keeps Save as its main
+    action; an open card shows a "Provisional" indicator and, after the month ends, an Approve button; a System
+    Manager sees "Reopen for open month" on an approved card of an unfinished month. The form reads the rule from
+    `card.approval_period.get_approval_eligibility` (GET, read permission).
+  - Patch `v4_13_0.open_month_workflow_state` (idempotent): creates the Workflow State when missing and adds it as a
+    submitted state of the "CARD Monthly Card Approval" Workflow. No Workflow transition is added. It changes no
+    card and never activates the Workflow. Limitation: with an active Workflow, Frappe refuses the two state
+    changes; activating the Workflow needs a follow-up decision for the open-month path.
+  - Impact: permissions — no new role or DocPerm; the reopen needs System Manager. Accounting — none; CARD posts no
+    GL. Data — none until a System Manager reopens a card. API — four new whitelisted methods (one GET, three
+    POST). Rollback — revert the code; a reopened card is returned to "Approved" with `approve_open_month_card`
+    after its month ends (or kept open); the Workflow State row stays (harmless).
+
+### Documentation
+- **Diesel: the estimated split of a project tank is display only (issue 31, owner decision 2026-11-25).** The
+  diesel page (English and Arabic) says that invoices and the margin reports keep the diesel of a project tank at
+  the project level, and that totals with an estimate are labelled (FR-185). No code change; no impact on
+  permissions, accounting, data or the API.
+
 ## [4.12.2] — 2026-11-25
 
 > **Published 2026-11-25** (tag `v4.12.2`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).

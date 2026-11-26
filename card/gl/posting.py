@@ -30,6 +30,7 @@ from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTI
 from card.gl import integrity, preflight
 from card.gl.events import _point_display
 from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
+from card.open_month import STATE_OPEN_MONTH
 from card.report_access import permitted_companies
 from card.settings import setting
 from card.transfer import is_billed_day
@@ -586,8 +587,11 @@ def _supplier_sources(company, party, first_day, last_day, month, year):
 			"purchase_invoice": ["in", ["", None]],
 			"card_direction": ["in", list(SUPPLIER_BILLING_DIRECTIONS)],
 		},
-		fields=["name", "supplier"],
+		fields=["name", "supplier", "workflow_state"],
 	)
+	# FR-191: a card of an open month is not finally approved and is never posted (filtered here, so a card with
+	# no state is kept on every read path)
+	cards = [c for c in cards if c.workflow_state != STATE_OPEN_MONTH]
 	fills = frappe.get_all(
 		"Project Diesel Fill",
 		filters={
@@ -667,7 +671,7 @@ def _transport_shares(transports):
 
 
 def _customer_cards(company, party, month, year):
-	return frappe.get_all(
+	cards = frappe.get_all(
 		"Card Monthly Card",
 		filters={
 			"docstatus": 1,
@@ -678,8 +682,10 @@ def _customer_cards(company, party, month, year):
 			"sales_invoice": ["in", ["", None]],
 			"card_direction": ["in", list(CUSTOMER_BILLING_DIRECTIONS)],
 		},
-		fields=["name", "customer"],
+		fields=["name", "customer", "workflow_state"],
 	)
+	# FR-191: a card of an open month is never posted
+	return [c for c in cards if c.workflow_state != STATE_OPEN_MONTH]
 
 
 def _card_lines(card_name, side, row, types, credit_note_items=None):

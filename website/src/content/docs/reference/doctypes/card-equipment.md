@@ -83,6 +83,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Daily working hours | `daily_hours` | Float |  | Yes |
 | Deprecated – not used <small>(hidden, read only)</small> | `min_hours` | Float |  |  |
 | Operator charged to | `operator_on` | Select | المؤجر · الشركة |  |
+| Maintenance charged to | `maintenance_on` | Select | المؤجر · الشركة |  |
 | Contract number | `contract_no` | Data |  |  |
 | Rental end | `rental_end_date` | Date |  |  |
 | Rate | `rate` | Currency |  |  |

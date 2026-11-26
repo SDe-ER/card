@@ -11,6 +11,7 @@ from card.card.report.equipment_supplier_statement.statement_period import (
 	supplier_ledger,
 )
 from card.card_value import PER_DAY, day_billing_basis
+from card.open_month import provisional_suffix
 from card.reconciliation import cards_invoiced, invoices_outside_card, reconciliation_notice
 from card.report_access import (
 	can_view_ledger,
@@ -121,6 +122,7 @@ def execute(filters=None):
 				"customer_billable_stopped_hours",
 				"amount",
 				"docstatus",
+				"workflow_state",
 				"from_date",
 			],
 			order_by="project asc, equipment asc, from_date asc, shift asc",
@@ -265,7 +267,9 @@ def execute(filters=None):
 						"row_id": e_id + "|C|" + c.name,
 						"parent_row": e_id,
 						"indent": 2,
-						"label": c.name + (" " + _("(Draft)") if c.docstatus == 0 else ""),
+						"label": c.name
+						+ (" " + _("(Draft)") if c.docstatus == 0 else "")
+						+ provisional_suffix(c),
 						"card": c.name,
 						"equipment": c.equipment,
 						"project": c.project,
@@ -689,6 +693,7 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 			"card_direction",
 			"amount",
 			"docstatus",
+			"workflow_state",
 			"from_date",
 			"to_date",
 		],

@@ -102,6 +102,9 @@ the tag (`git show <tag>:<path>`).
 | Partner-owned equipment in Equipment Suppliers Summary, behind a company setting (FR-190) | v4.12.0 | — | — | — | — | — | — | — | — | v4.12.0: `partner_equipment_split` (default off); partner net behind the card money level | v4.12.0 page; PR #317 |
 | Company settings row editor opens; approval tier table on Card Settings (FR-159 fix, issue 320) | v4.12.1 | — | — | — | — | — | — | — | — | v4.12.1: the table moved from the company row to Card Settings; company scope and a duplicate check; no database change | v4.12.1 page; PR #321 |
 | Customer statement PDF shapes Arabic correctly (FR-187 fix, issue 324) | v4.12.2 | — | — | — | — | — | — | — | — | v4.12.2: the PDF action uses a server route with the Chrome PDF generator, as the supplier statement does; POST only, filters only | v4.12.2 page; PR #328 |
+| Monthly Card approved only after its month ends; open-month reopen on the same card (FR-191) | v4.13.0 | — | — | — | — | — | — | — | — | v4.13.0: rule in `before_submit` on every route, no role exempt; reopen by System Manager only, dry run by default; open cards are not posted | v4.13.0 page; PR #322 |
+| Maintenance payer on the equipment (FR-192) | v4.13.0 | — | — | — | — | — | — | — | — | v4.13.0: Select field at permission level 1; master data only | v4.13.0 page; PR #326 |
+| Project Invoice Profitability report (FR-193) | v4.13.0 | — | — | — | — | — | — | — | — | v4.13.0: revenue and purchase-invoice expenses per project, read-only | v4.13.0 page; PR #327 |
 
 ## Reading the matrix
 

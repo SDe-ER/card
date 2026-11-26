@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_days, cint, flt, get_last_day, getdate, nowdate
+from frappe.utils import add_days, add_months, cint, flt, get_last_day, getdate, nowdate
 
 from card.adjustments import (
 	check_adjustment_date,
@@ -867,6 +867,10 @@ class CardMonthlyCard(Document):
 	def _validate_fiscal_year_window(self, first_day, last_day, today):
 		"""Owner rule (2026-10-14): cards may be back-entered for past months, but
 		only within the CURRENT fiscal year. Skipped when no fiscal year exists."""
+		# FR-191: a card is approved only after its month ends, so last month's card is judged in its own fiscal
+		# year (the December card of a calendar fiscal year stays approvable on 1 January)
+		if getdate(today).replace(day=1) == add_months(first_day, 1):
+			today = last_day
 		try:
 			from erpnext.accounts.utils import get_fiscal_year
 

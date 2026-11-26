@@ -9388,3 +9388,153 @@ msgstr "السطر {0}: تسجيل الردود في اليوميات غير م�
 #: card/daily_log.py
 msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
 msgstr "السطر {0} ({1}): لا تُسجَّل الردود إلا لمعدة نوع سعر العميل لها بالمتر المكعب."
+
+#. Label of the maintenance_on (Select) field in DocType 'Card Equipment'
+#: card/card/doctype/card_equipment/card_equipment.json
+msgid "Maintenance charged to"
+msgstr "الصيانة على"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.js
+#: card/card/sidebar/card_reports/card_reports.json
+msgid "Project Invoice Profitability"
+msgstr "ربحية المشاريع من الفواتير"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "The project profitability shows financial figures; it needs General Ledger access."
+msgstr "ربحية المشاريع تعرض أرقاماً مالية؛ وتتطلب صلاحية الاطلاع على دفتر الأستاذ العام."
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Select the period of the project profitability."
+msgstr "اختر فترة ربحية المشاريع."
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. Expenses include every Purchase Invoice line, stock and asset purchases too. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
+msgstr "للقراءة فقط. الإيرادات هي صافي بنود فواتير المبيعات المعتمدة، والمصروفات هي صافي بنود فواتير المشتريات المعتمدة، حسب تاريخ الترحيل وبعملة الشركة. المصروفات تشمل كل بنود فواتير المشتريات، ومنها مشتريات المخزون والأصول. الفواتير الافتتاحية لا تُقرأ. البند الذي ليس عليه مشروع يأخذ مشروع فاتورته؛ والبنود التي ليس لها مشروع إطلاقاً تظهر في سطر «بدون مشروع». لا تُقرأ قيود اليومية ولا دفتر الأستاذ العام، ولا يوجد أي تقدير. الهامش هو الإيرادات ناقص مصروفات فواتير المشتريات، وليس صافي الربح الكامل: لا يشمل الرواتب ولا الإهلاك ولا المصروفات العمومية ولا تكاليف قيود اليومية."
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "The project profitability needs read access to {0}."
+msgstr "ربحية المشاريع تحتاج صلاحية قراءة {0}."
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "No project"
+msgstr "بدون مشروع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Total of all projects"
+msgstr "إجمالي كل المشاريع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project revenue"
+msgstr "إيرادات المشروع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project expenses"
+msgstr "مصروفات المشروع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project margin"
+msgstr "هامش المشروع"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Project margin %"
+msgstr "نسبة هامش المشروع %"
+
+#. FR-191
+msgid "Equipment operation cards cannot be approved before the end of their accounting month. You may continue recording operations and payments and saving the card until the month ends."
+msgstr "لا يمكن اعتماد كارت تشغيل المعدات قبل انتهاء الشهر المحاسبي الخاص بالكارت. يمكنك الاستمرار في تسجيل التشغيل والدفعات وحفظ الكارت حتى نهاية الشهر."
+
+#. FR-191
+msgid "Earliest permitted approval date: {0}"
+msgstr "أقرب تاريخ مسموح فيه بالاعتماد: {0}"
+
+#. FR-191
+msgid "Approval before month end"
+msgstr "اعتماد قبل نهاية الشهر"
+
+#. FR-191
+msgid "Open – month not ended"
+msgstr "مفتوح – الشهر لم ينتهِ"
+
+#. FR-191
+msgid "Reopen for Open Month"
+msgstr "إعادة فتح للشهر الجاري"
+
+#. FR-191
+msgid "Reopen for open month"
+msgstr "إعادة فتح للشهر الجاري"
+
+#. FR-191
+msgid "(Provisional – month open, not approved)"
+msgstr "(مؤقت – الشهر مفتوح، غير معتمد)"
+
+#. FR-191
+msgid "Provisional – month open, not approved"
+msgstr "مؤقت – الشهر مفتوح، غير معتمد"
+
+#. FR-191
+msgid "The month of this card has ended; it can now be approved."
+msgstr "انتهى شهر هذا الكارت؛ يمكن اعتماده الآن."
+
+#. FR-191
+msgid "Approve this card? Its days and amounts are then frozen."
+msgstr "اعتماد هذا الكارت؟ بعد الاعتماد تُجمَّد أيامه ومبالغه."
+
+#. FR-191
+msgid "The state of monthly card {0} changes only through its Reopen or Approve action."
+msgstr "حالة الكارت الشهري {0} تتغير فقط من خلال إجراء إعادة الفتح أو الاعتماد."
+
+#. FR-191
+msgid "Invalid state change for monthly card {0}."
+msgstr "تغيير حالة غير صالح للكارت الشهري {0}."
+
+#. FR-191
+msgid "Monthly card {0} is approved; its days, additions/deductions and location cannot be changed. Only a card in the state {1} can be edited after submit."
+msgstr "الكارت الشهري {0} معتمد؛ لا يمكن تغيير أيامه أو إضافاته وخصوماته أو موقعه. يمكن تعديل الكارت بعد الترحيل فقط إذا كان في حالة {1}."
+
+#. FR-191
+msgid "Only a card in the state {0} is approved this way."
+msgstr "يُعتمد بهذه الطريقة فقط الكارت الذي في حالة {0}."
+
+#. FR-191
+msgid "Only a {0} can reopen a monthly card for its open month."
+msgstr "فقط {0} يمكنه إعادة فتح كارت شهري لشهره الجاري."
+
+#. FR-191
+msgid "A reason is required to reopen a monthly card."
+msgstr "يجب كتابة سبب لإعادة فتح الكارت الشهري."
+
+#. FR-191
+msgid "Monthly card {0} cannot be reopened: {1}."
+msgstr "لا يمكن إعادة فتح الكارت الشهري {0}: {1}."
+
+#. FR-191
+msgid "the card is not submitted"
+msgstr "الكارت غير مرحَّل"
+
+#. FR-191
+msgid "its state is {0}"
+msgstr "حالته {0}"
+
+#. FR-191
+msgid "its month has ended"
+msgstr "انتهى شهره"
+
+#. FR-191
+msgid "it is posted or linked to an invoice"
+msgstr "مُرحَّل محاسبياً أو مرتبط بفاتورة"
+
+#. FR-191
+msgid "it is referenced by {0}"
+msgstr "مرتبط بـ {0}"
+
+#. FR-191
+msgid "no write permission"
+msgstr "لا توجد صلاحية تعديل"
+
+#. FR-191
+msgid "Reopened for its open month by {0} on {1}: state {2} -> {3} (approval by {4} on {5} withdrawn). Reason: {6}"
+msgstr "أُعيد فتحه لشهره الجاري بواسطة {0} في {1}: الحالة {2} -> {3} (سُحب اعتماد {4} بتاريخ {5}). السبب: {6}"
+
+#. FR-191
+msgid "Finally approved by {0} on {1} after the end of its month."
+msgstr "اعتُمد نهائياً بواسطة {0} في {1} بعد انتهاء شهره."

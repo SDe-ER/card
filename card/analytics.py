@@ -1,7 +1,7 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
 """Read-only helpers of the analytics reports (#53, #127 P8): Equipment Partial Margin,
-Unbilled Card Work and Equipment Maintenance Cost.
+Unbilled Card Work, Equipment Maintenance Cost and Project Invoice Profitability.
 
 Nothing here writes. Every business document is read with ``frappe.get_list`` (the
 user's own permissions and User Permissions apply); child rows are read only for the
@@ -373,6 +373,53 @@ def revenue_lines(company, start, end, project=None, equipment=None):
 			continue
 		result.append((row.get(DIMENSION_FIELD), line_project, flt(row.base_net_amount, 2)))
 	return result
+
+
+def invoice_project_totals(doctype, company, start, end, project=None):
+	"""{project or "": net amount} of the submitted ``doctype`` (Sales Invoice or Purchase
+	Invoice) lines posted in [start, end], returns included (negative lines), company currency,
+	net of VAT. Opening invoices are not read: they carry balances of earlier periods. A line
+	without a project takes the project of its invoice; "" collects the lines with no project at
+	all, so the amounts add up to the net totals of the invoices read. The sums are NOT rounded:
+	the caller rounds once, at the precision of the company currency. The invoices are read with
+	``frappe.get_list`` (the user's own permissions apply)."""
+	invoices = {
+		r.name: r.project
+		for r in frappe.get_list(
+			doctype,
+			filters=[
+				["company", "=", company],
+				["docstatus", "=", 1],
+				["posting_date", "between", [start, end]],
+				["is_opening", "!=", "Yes"],
+			],
+			fields=["name", "project"],
+			limit_page_length=0,
+		)
+	}
+	totals = {}
+	for row in _children(doctype + " Item", doctype, invoices, ["project", "base_net_amount"]):
+		line_project = row.project or invoices[row.parent] or ""
+		if project and line_project != project:
+			continue
+		totals[line_project] = totals.get(line_project, 0.0) + flt(row.base_net_amount)
+	return totals
+
+
+def project_names(projects, company):
+	"""{project: project name} of the projects of ``company`` among ``projects`` (named by rows
+	the user already read). A project of another company gets no name: only its ID is shown."""
+	names = {}
+	for chunk in _chunks(projects):
+		names.update(
+			frappe.get_all(
+				"Project",
+				filters={"name": ["in", chunk], "company": company},
+				fields=["name", "project_name"],
+				as_list=True,
+			)
+		)
+	return names
 
 
 def _card_recognised_invoices(company, invoices):

@@ -13,6 +13,7 @@ sidebar:
 | الوحدة | نقاط الـ API |
 |---|---|
 | [`card.api`](#card-api) | 12 |
+| [`card.approval_period`](#card-approval-period) | 1 |
 | [`card.cancel_reason`](#card-cancel-reason) | 1 |
 | [`card.card.dashboard_chart_source.card_monthly_values.card_monthly_values`](#card-card-dashboard-chart-source-card-monthly-values-card-monthly-values) | 1 |
 | [`card.card.doctype.card_equipment.card_equipment`](#card-card-doctype-card-equipment-card-equipment) | 5 |
@@ -36,6 +37,7 @@ sidebar:
 | [`card.governance_workflows`](#card-governance-workflows) | 1 |
 | [`card.materials`](#card-materials) | 8 |
 | [`card.mobile`](#card-mobile) | 1 |
+| [`card.open_month`](#card-open-month) | 3 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
 
 
@@ -55,6 +57,13 @@ sidebar:
 | `card.api.get_asset_prefill` | GET | `asset: str` |
 | `card.api.create_equipment_from_asset` | POST | `asset: str`<br/>`ownership: str = 'ملك'`<br/>`save: int \| str = 0` |
 | `card.api.available_assets_query` | GET | `doctype: str`<br/>`txt: str`<br/>`searchfield: str`<br/>`start: int`<br/>`page_len: int`<br/>`filters: dict` |
+
+
+<h2 id="card-approval-period"><code>card.approval_period</code></h2>
+
+| مسار الدالة | طرق HTTP | المعاملات |
+|---|---|---|
+| `card.approval_period.get_approval_eligibility` | GET | `name: str` |
 
 
 <h2 id="card-cancel-reason"><code>card.cancel_reason</code></h2>
@@ -256,6 +265,15 @@ sidebar:
 | مسار الدالة | طرق HTTP | المعاملات |
 |---|---|---|
 | `card.mobile.get_session_context` | GET | لا يوجد |
+
+
+<h2 id="card-open-month"><code>card.open_month</code></h2>
+
+| مسار الدالة | طرق HTTP | المعاملات |
+|---|---|---|
+| `card.open_month.reopen_card` | POST | `name: str`<br/>`reason: str` |
+| `card.open_month.approve_open_month_card` | POST | `name: str` |
+| `card.open_month.reopen_open_month_cards` | POST | `year: int`<br/>`month: str`<br/>`dry_run: int = 1`<br/>`reason: str \| None = None` |
 
 
 <h2 id="card-tool-custody"><code>card.tool_custody</code></h2>

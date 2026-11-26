@@ -34,6 +34,7 @@ sidebar:
 | [ملخص الموردين](#equipment-suppliers-summary) | [كارت التشغيل الشهري](/card/ar/reference/doctypes/card-monthly-card/) | مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات |
 | [تكلفة التشغيل بالمشروع](#operating-cost-by-project) | [تعبئة ديزل للمشروع](/card/ar/reference/doctypes/project-diesel-fill/) | مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات |
 | [سلامة مصادر الترحيل](#posting-source-integrity) | [سجل الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-log/) | مدير النظام, مدير الحسابات |
+| [ربحية المشاريع من الفواتير](#project-invoice-profitability) | [كارت التشغيل الشهري](/card/ar/reference/doctypes/card-monthly-card/) | مدير النظام, مدير الحسابات |
 | [الطلبات المتكررة للمعدات](#repeat-equipment-requests) | [طلب احتياجات معدة](/card/ar/reference/doctypes/equipment-needs-request/) | مدير النظام, مدير الكروت, مشرف الكروت, مستخدم الكروت, مدير المخزون, مدير الحسابات |
 | [مراجعة محاسبة النقل](#transport-accounting-review) | [نقل المعدات](/card/ar/reference/doctypes/equipment-transport/) | مدير النظام, مدير الحسابات |
 | [تكلفة النقل بالمشروع](#transport-cost-by-project) | [نقل المعدات](/card/ar/reference/doctypes/equipment-transport/) | مدير النظام, مدير الكروت, مستخدم الكروت, مدير الحسابات |
@@ -420,6 +421,22 @@ sidebar:
 | من تاريخ | `from_date` | Date | نعم |
 | إلى تاريخ | `to_date` | Date | نعم |
 | عرض | `show` | Select |  |
+
+
+<h2 id="project-invoice-profitability">ربحية المشاريع من الفواتير</h2>
+
+**Project Invoice Profitability**
+
+- النوع: Script Report
+- مبني على: كارت التشغيل الشهري
+- الأدوار: مدير النظام, مدير الحسابات
+
+| التسمية | اسم الحقل | النوع | إلزامي |
+|---|---|---|---|
+| الشركة | `company` | Autocomplete | نعم |
+| من تاريخ | `from_date` | Date | نعم |
+| إلى تاريخ | `to_date` | Date | نعم |
+| المشروع | `project` | Autocomplete |  |
 
 
 <h2 id="repeat-equipment-requests">الطلبات المتكررة للمعدات</h2>

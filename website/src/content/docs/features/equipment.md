@@ -47,7 +47,7 @@ The form is organised in tabs:
 | **Basic details** | Company, Ownership, Rental direction, Asset in ERPNext, Reason for commercial change, Brand, Model, Equipment make, Equipment model, Manufacture year, Chassis number, Plate number, Equipment category, Equipment name, Equipment type, Status, Unit (two machines bundled), Unit components |
 | **Documents** | Registration number, expiry and image; periodic inspection expiry and certificate; insurance company, policy number, expiry and file; TUV number, expiry and image |
 | **Operation and assignment** | Current project, Assignment date, Cost center, Operator (or external operator name and mobile), Location |
-| **Cost and rental** | Operation standards (Daily working hours, Fuel charged to, Operator charged to), Rental details (supplier side), Customer side, Internal cost |
+| **Cost and rental** | Operation standards (Daily working hours, Fuel charged to, Operator charged to, Maintenance charged to), Rental details (supplier side), Customer side, Internal cost |
 | **Meter and maintenance** | Meter type, Meter reading at receipt, Last reading, Tank capacity, Expected consumption, Daily diesel consumption; Maintenance intervals |
 | **Exit** | Exit date, Exit reason, Meter reading at exit, Settlement status, Notes |
 | **Connections** | Linked documents and related records (see [Connections](#connections)) |
@@ -123,8 +123,8 @@ Monthly cards mirror the direction read-only from the equipment. Customer billin
 
 The commercial terms are: Ownership, Lessor / Owner, Rental start, Rental end, Contract number, Rate type, Rate,
 Daily working hours, Day billing basis, Fuel charged to, Internal hourly rate, Internal operating rate basis,
-Internal operating rate, Customer rate type, Customer rate, Customer rate (night shift), Customer, Rental direction
-and Operator charged to.
+Internal operating rate, Customer rate type, Customer rate, Customer rate (night shift), Customer, Rental direction,
+Operator charged to and Maintenance charged to.
 
 - They sit at permission level 1: Card Manager and System Manager write them; Card User and Accounts Manager read
   them.
@@ -181,6 +181,11 @@ rates are used.
 
 - **Fuel charged to** (الوقود على) and **Operator charged to** (المشغّل على): «المؤجر» (Lessor) or «الشركة»
   (Company).
+- **Maintenance charged to** (الصيانة على) records who pays the maintenance of the machine: «المؤجر» or
+  «الشركة». It is information only. It changes no card, invoice or accounting entry, and maintenance expenses
+  are recorded by hand. CARD never fills this field automatically, also for an owned machine: it stays empty
+  until a user selects a value. The first value needs no **Reason for commercial change**; a later change
+  needs one.
 - For an owned machine, or when the operator is on the company, the **Operator** is an ERPNext Employee and the
   **Operator name** is fetched from it.
 - For a rented machine whose operator is on the lessor, the form asks instead for the external **Operator name** and

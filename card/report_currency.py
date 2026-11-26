@@ -13,6 +13,7 @@ summary tile carries the company currency. Values, columns order and labels are 
 import functools
 
 import frappe
+from frappe.utils import cint, get_number_format_info
 
 from card.report_access import resolve_company
 
@@ -22,6 +23,21 @@ CURRENCY_FIELD = "currency"
 def company_currency(company):
 	"""The default currency of ``company`` (empty when unknown)."""
 	return (frappe.get_cached_value("Company", company, "default_currency") or "") if company else ""
+
+
+def currency_precision(currency):
+	"""Decimals of a money figure in ``currency``, by the rule Frappe uses for Currency fields
+	(frappe.model.meta.get_field_precision): the site's Currency Precision when set, else the
+	number format of the currency, else the number format of the site."""
+	precision = cint(frappe.db.get_default("currency_precision"))
+	if precision:
+		return precision
+	number_format = (
+		(frappe.get_cached_value("Currency", currency, "number_format") if currency else None)
+		or frappe.db.get_default("number_format")
+		or "#,###.##"
+	)
+	return get_number_format_info(number_format)[2]
 
 
 def label_currency(result, currency):

@@ -85,6 +85,7 @@ sidebar:
 | ساعات العمل اليومية | `daily_hours` | Float |  | نعم |
 | مُهمَل – غير مستخدم <small>(مخفي, للقراءة فقط)</small> | `min_hours` | Float |  |  |
 | المشغّل على | `operator_on` | Select | المؤجر · الشركة |  |
+| الصيانة على | `maintenance_on` | Select | المؤجر · الشركة |  |
 | رقم العقد | `contract_no` | Data |  |  |
 | نهاية الإيجار | `rental_end_date` | Date |  |  |
 | السعر | `rate` | Currency |  |  |

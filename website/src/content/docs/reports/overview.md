@@ -92,7 +92,8 @@ Card, opened to the first level. Project and equipment rows are bold totals of t
   users the figures are **removed on the server** — the columns, the row values and the summary tiles never reach the
   browser — and the report message says "Ledger balances are shown only to users with General Ledger access."
 - Some reports are purely financial and **refuse** a non-ledger reader: **Card Settlement Status**, **Equipment
-  Maintenance Cost**, **Equipment Partial Margin** and **Equipment Expenses Without Equipment**.
+  Maintenance Cost**, **Equipment Partial Margin**, **Project Invoice Profitability** and **Equipment Expenses
+  Without Equipment**.
 - Card amounts (rates, operating amount, additions, deductions, net) on the statements come from the monthly cards
   and are shown to every user who may run the report.
 - **Stock quantities** on the Equipment Needs Summary are shown only to users who may read stock; otherwise the
@@ -145,6 +146,7 @@ curl -s -G "https://<your-site>/api/method/frappe.desk.query_report.run" \
 | Asset Mapping Review | Every submitted Asset classified against CARD equipment for a decision. | [Maintenance and assets](/card/reports/maintenance-assets/) |
 | Equipment Make Model Values | Free-text brand and model values grouped, to create make and model records. | [Maintenance and assets](/card/reports/maintenance-assets/) |
 | Equipment Partial Margin | Revenue minus partial costs per equipment and project. | [Accounting control](/card/reports/accounting-control/) |
+| Project Invoice Profitability | Revenue and purchase-invoice expenses per project, from submitted invoices. | [Accounting control](/card/reports/accounting-control/) |
 | Unbilled Card Work | Submitted cards that no invoice or linked journal entry recognises yet. | [Accounting control](/card/reports/accounting-control/) |
 | Equipment Expenses Without Equipment | Ledger lines on the CARD expense accounts without the Card Equipment dimension. | [Accounting control](/card/reports/accounting-control/) |
 | Posting Source Integrity | Sources whose invoice link, posted flag and posting log disagree. | [Accounting control](/card/reports/accounting-control/) |
@@ -158,7 +160,7 @@ curl -s -G "https://<your-site>/api/method/frappe.desk.query_report.run" \
 | Equipment Meter Reconciliation, Asset Mapping Review | System Manager, Card Manager, Accounts Manager |
 | Unbilled Card Work | System Manager, Accounts Manager, Card Manager |
 | Equipment Make Model Values | System Manager, Card Manager |
-| Card Settlement Status, Diesel Invoice Reconciliation, Equipment Maintenance Cost, Equipment Partial Margin, Equipment Expenses Without Equipment, Transport Accounting Review, Posting Source Integrity | System Manager, Accounts Manager |
+| Card Settlement Status, Diesel Invoice Reconciliation, Equipment Maintenance Cost, Equipment Partial Margin, Project Invoice Profitability, Equipment Expenses Without Equipment, Transport Accounting Review, Posting Source Integrity | System Manager, Accounts Manager |
 
 :::note
 Holding a report role is necessary but not always sufficient. Several reports also require that the user's roles
