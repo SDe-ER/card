@@ -518,7 +518,7 @@ class TestUnlinkedCustomerInvoiceCandidates(_LinkBase):
 
 	def test_exact_match_on_all_unlinked_cards_of_the_project(self):
 		card = self._out_card()
-		si = self._si(1600, posting_date="2026-12-31")  # the card month is outside December and November
+		si = self._si(1600, posting_date="2026-11-20")  # the card month is outside November and October
 		row = self._rows()[0][si.name]
 		self.assertEqual(row["match"], "exact")
 		self.assertEqual([c["name"] for c in row["cards"]], [card.name])

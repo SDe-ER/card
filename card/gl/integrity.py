@@ -44,6 +44,8 @@ SUPPLIER_FIELD = {
 CORRECTABLE_LINE_FIELDS = ("cost_center", "account")
 ACCEPT_ROLES = {"Accounts Manager", "System Manager"}
 REVIEW_ROLES = {"Accounts Manager", "Accounts User", "System Manager"}
+# FR-194: the customer link is narrower than the supplier review roles (owner rule)
+CUSTOMER_LINK_ROLES = {"Accounts Manager", "System Manager"}
 # The posting builder's version, stored as "builder" in the log's built_snapshot JSON (never in the signature hash).
 # 1 (absent) = before D1: a project-tank diesel fill was split per equipment by operating hours.
 # 2 = D1 (PR #163): a project-tank diesel fill posts as ONE project-level line.
@@ -751,6 +753,356 @@ def check_linked_invoice(doc, log):
 			).format(doc.name, flt(doc.net_total, 2), expected),
 			title=_("Linked invoice changed"),
 		)
+
+
+# ---------- customer side: a hand-booked Sales Invoice and its monthly cards (FR-194) ----------
+
+CARD_DOCTYPE = "Card Monthly Card"
+CANDIDATE_PAGE_LENGTH = 50
+CANDIDATE_PAGE_MAX = 200
+
+
+def _require_customer_link_role():
+	if not CUSTOMER_LINK_ROLES & set(frappe.get_roles()):
+		frappe.throw(
+			_("Only an Accounts Manager or a System Manager may link customer invoices to CARD cards."),
+			frappe.PermissionError,
+		)
+
+
+def _customer_link_companies():
+	from card.gl.posting import POSTING_SOURCE_DOCTYPES
+	from card.report_access import permitted_companies
+
+	return permitted_companies(*POSTING_SOURCE_DOCTYPES, "Sales Invoice", "GL Posting Log")
+
+
+def _card_names(cards):
+	"""The card names of a request: a list, a JSON list, or one name."""
+	if isinstance(cards, str):
+		text = cards.strip()
+		cards = json.loads(text) if text.startswith("[") else ([text] if text else [])
+	names = []
+	for entry in cards or []:
+		name = entry.get("name") if isinstance(entry, dict) else entry
+		if not name or not isinstance(name, str):
+			frappe.throw(_("Choose the monthly cards this invoice bills."))
+		if name in names:
+			frappe.throw(_("{0} {1} is listed twice.").format(_(CARD_DOCTYPE), name))
+		names.append(name)
+	if not names:
+		frappe.throw(_("Choose the monthly cards this invoice bills."))
+	return names
+
+
+def _invoice_projects(inv):
+	"""The projects of a Sales Invoice: its header project and the projects of its lines (CARD's own customer
+	posting writes the card's project on every line and none on the header)."""
+	return {p for p in [inv.get("project"), *(i.get("project") for i in inv.get("items") or [])] if p}
+
+
+@frappe.whitelist(methods=["POST"])
+def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = None):
+	"""FR-194: record that a submitted Sales Invoice, booked by hand in ERPNext, already bills these customer
+	monthly cards. The customer mirror of ``link_supplier_invoice``: a Linked GL Posting Log holds the cards, so
+	CARD never builds them again, and each card gets its customer invoice link. Nothing is posted; the invoice,
+	the card amounts and the ledger are not changed.
+
+	Authorization: Accounts Manager or System Manager; the company within the caller's CARD and accounting
+	scope; read on the invoice, the customer and every card; the submit right on Sales Invoice.
+
+	Evidence: every card is a submitted, approved customer-billing card of the invoice's company, customer and
+	project, without a customer invoice; the invoice net total (company currency, before VAT) equals the sum
+	of the cards' customer net amounts within the reconciliation tolerance. A difference is always refused."""
+	from frappe.utils import cstr, escape_html, now_datetime, strip_html_tags
+
+	from card.constants import CUSTOMER_BILLING_DIRECTIONS, DIR_RENTED_OUT
+	from card.gl.events import active_log_holding, link_sources_on_submit
+	from card.open_month import STATE_OPEN_MONTH
+	from card.settings import setting
+
+	_require_customer_link_role()
+	reason = strip_html_tags(cstr(reason)).strip()
+	if not reason:
+		frappe.throw(_("Give the reason for linking this invoice to the cards."))
+	names = _card_names(cards)
+	inv = frappe.get_doc("Sales Invoice", invoice)
+	inv.check_permission("read")
+	if inv.company not in _customer_link_companies():
+		frappe.throw(
+			_("You are not permitted to link invoices for company {0}.").format(inv.company),
+			frappe.PermissionError,
+		)
+	frappe.has_permission("Sales Invoice", "submit", inv, throw=True)
+	frappe.has_permission("Customer", "read", inv.customer, throw=True)
+	if inv.docstatus != 1:
+		frappe.throw(_("{0} is not submitted; link a submitted Sales Invoice.").format(invoice))
+	if inv.get("is_return"):
+		frappe.throw(_("{0} is a return (credit note); link the Sales Invoice itself.").format(invoice))
+	if inv.get("is_debit_note"):
+		frappe.throw(_("{0} is a debit note; link the Sales Invoice itself.").format(invoice))
+	if inv.get("is_opening") == "Yes":
+		frappe.throw(_("{0} is an opening invoice; it does not bill monthly cards.").format(invoice))
+	existing = frappe.db.get_value(
+		"GL Posting Log",
+		{"posting_doctype": "Sales Invoice", "posting_doc": invoice, "status": ["in", list(ACTIVE_STATES)]},
+		"name",
+	)
+	if existing:
+		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, existing))
+	rows = {CARD_DOCTYPE: [(name, 0) for name in names]}
+	lock_sources(rows)
+	projects = _invoice_projects(inv)
+	docs = []
+	for i, name in enumerate(names):
+		card = frappe.get_doc(CARD_DOCTYPE, name)
+		card.check_permission("read")
+		if card.docstatus != 1:
+			frappe.throw(_("{0} {1} is not submitted.").format(_(CARD_DOCTYPE), name))
+		if card.get("workflow_state") == STATE_OPEN_MONTH:
+			frappe.throw(_("Card {0} is not approved: its month has not ended.").format(name))
+		if card.card_direction not in CUSTOMER_BILLING_DIRECTIONS:
+			frappe.throw(_("Card {0} is not billed to a customer.").format(name))
+		if card.company != inv.company:
+			frappe.throw(_("Card {0} belongs to another company than {1}.").format(name, invoice))
+		if not card.customer or card.customer != inv.customer:
+			frappe.throw(_("Card {0} belongs to another customer than {1}.").format(name, invoice))
+		if not card.project or card.project not in projects:
+			frappe.throw(
+				_(
+					"Card {0} is of project {1}, which is not a project of {2} (its header or its lines)."
+				).format(name, card.project or "-", invoice)
+			)
+		if card.get("sales_invoice"):
+			frappe.throw(_("Card {0} is already invoiced by {1}.").format(name, card.sales_invoice))
+		holder = active_log_holding(CARD_DOCTYPE, name, "Customer")
+		if holder:
+			frappe.throw(_("Card {0} is already held by {1}.").format(name, holder.posting_doc))
+		if card.card_direction == DIR_RENTED_OUT and frappe.utils.cint(card.get("posted")):
+			# a rented-out card has the customer side only: the flag says that side is posted
+			frappe.throw(
+				_("Card {0} is marked posted without an invoice link; review it before linking.").format(name)
+			)
+		rows[CARD_DOCTYPE][i] = (name, flt(card.customer_net_amount, 2))
+		docs.append(card)
+	cards_net = flt(sum(amount for _name, amount in rows[CARD_DOCTYPE]), 2)
+	invoice_net = flt(inv.base_net_total, 2)
+	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
+	if abs(flt(invoice_net - cards_net, 2)) > tolerance:
+		frappe.throw(
+			_(
+				"Cannot link: the cards total {0} net, {1} is net {2} (before VAT). Link exactly the cards this invoice bills."
+			).format(cards_net, invoice, invoice_net),
+			title=_("Linked amounts differ"),
+		)
+	posting_day = getdate(inv.posting_date)
+	log = frappe.get_doc(
+		{
+			"doctype": "GL Posting Log",
+			"origin": "Linked",
+			"company": inv.company,
+			"party_type": "Customer",
+			"party": inv.customer,
+			"month": "%02d" % posting_day.month,
+			"year": posting_day.year,
+			"posting_type": "Sales Invoice",
+			"sequence": 1,
+			"status": "Submitted",
+			"posting_doctype": "Sales Invoice",
+			"posting_doc": inv.name,
+			"amount": flt(inv.grand_total, 2),
+			"link_difference": 0,
+			"remarks": _(
+				"Linked by {0}: sales invoice {1} net {2} / total {3}, CARD cards net {4}, matched. {5}"
+			).format(frappe.session.user, inv.name, invoice_net, flt(inv.grand_total, 2), cards_net, reason),
+		}
+	)
+	for name, amount in rows[CARD_DOCTYPE]:
+		log.append("sources", {"source_doctype": CARD_DOCTYPE, "source_name": name, "amount": amount})
+	log.flags.card_gl_build = True
+	log.insert(ignore_permissions=True)  # the audit record; the gate above is the authorization
+	link_sources_on_submit(inv, log)
+	who, when = escape_html(frappe.session.user), cstr(now_datetime().replace(microsecond=0))
+	inv.add_comment(
+		"Info",
+		_("Linked to CARD monthly cards {0} by {1} on {2}. Reason: {3}").format(
+			escape_html(", ".join(names)), who, when, escape_html(reason)
+		),
+	)
+	for card in docs:
+		card.add_comment(
+			"Info",
+			_("Linked to Sales Invoice {0} by {1} on {2}. Reason: {3}").format(
+				escape_html(inv.name), who, when, escape_html(reason)
+			),
+		)
+	return log.name
+
+
+def _unlinked_customer_cards(company):
+	"""(customers that have customer-billing cards, their submitted approved cards without a customer invoice
+	link and outside every active customer posting), as the caller may read them."""
+	from card.constants import CUSTOMER_BILLING_DIRECTIONS, DIR_RENTED_OUT
+	from card.gl.posting import _held_by_active_log
+	from card.open_month import STATE_OPEN_MONTH
+
+	cards = frappe.get_list(
+		CARD_DOCTYPE,
+		filters={
+			"company": company,
+			"docstatus": 1,
+			"card_direction": ["in", list(CUSTOMER_BILLING_DIRECTIONS)],
+			"customer": ["is", "set"],
+		},
+		fields=[
+			"name",
+			"customer",
+			"project",
+			"month",
+			"year",
+			"customer_net_amount",
+			"sales_invoice",
+			"posted",
+			"card_direction",
+			"workflow_state",
+		],
+		order_by="year asc, month asc, name asc",
+		limit_page_length=0,
+	)
+	customers = sorted({c.customer for c in cards})
+	free = [
+		c
+		for c in cards
+		if not c.sales_invoice
+		and c.workflow_state != STATE_OPEN_MONTH
+		and not (c.card_direction == DIR_RENTED_OUT and c.posted)
+	]
+	held = _held_by_active_log(CARD_DOCTYPE, [c.name for c in free], "Customer")
+	return customers, [c for c in free if c.name not in held]
+
+
+def _candidate_match(inv, projects, cards, tolerance):
+	"""(match, cards to show, note) of one invoice. Two sets are tested, never every subset: the unlinked cards
+	of the invoice's projects in the invoice month and the month before, then all of them."""
+	if not projects:
+		return "none", [], _("The invoice has no project; it cannot be linked to cards.")
+	if not cards:
+		return "none", [], _("No unlinked card of this customer on the projects of the invoice.")
+	day = getdate(inv.posting_date)
+	this_month = day.year * 12 + day.month
+	recent = [
+		c for c in cards if this_month - 1 <= frappe.utils.cint(c.year) * 12 + int(c.month) <= this_month
+	]
+	net = flt(inv.base_net_total, 2)
+	for subset, note in (
+		(recent, _("The cards of the invoice month and the month before total the invoice net.")),
+		(cards, _("All unlinked cards of the projects of the invoice total the invoice net.")),
+	):
+		if subset and abs(flt(net - sum(flt(c.customer_net_amount, 2) for c in subset), 2)) <= tolerance:
+			return "exact", subset, note
+	return (
+		"none",
+		cards,
+		_(
+			"No tested set of cards totals the invoice net: all unlinked cards of the projects total {0}."
+		).format(flt(sum(flt(c.customer_net_amount, 2) for c in cards), 2)),
+	)
+
+
+@frappe.whitelist(methods=["GET"])
+def unlinked_customer_invoice_candidates(
+	company: str, limit_start: int | str = 0, limit_page_length: int | str = CANDIDATE_PAGE_LENGTH
+):
+	"""FR-194, read only: the submitted Sales Invoices of ``company`` that CARD did not build and that are not
+	linked (no active GL Posting Log), for every customer that has customer-billing cards; with each one, the
+	customer's unlinked approved cards on the invoice's projects, and whether a tested set of them totals the
+	invoice net (``match`` = "exact" or "none"). Returns and opening invoices are left out. Newest first,
+	``limit_page_length`` invoices per call (at most 200). It writes nothing and links nothing."""
+	from frappe.utils import cint
+
+	from card.settings import setting
+
+	_require_customer_link_role()
+	if company not in _customer_link_companies():
+		frappe.throw(
+			_("You are not permitted to link invoices for company {0}.").format(company),
+			frappe.PermissionError,
+		)
+	frappe.has_permission("Sales Invoice", "read", throw=True)
+	frappe.has_permission(CARD_DOCTYPE, "read", throw=True)
+	start = max(cint(limit_start), 0)
+	page = min(max(cint(limit_page_length), 1), CANDIDATE_PAGE_MAX)
+	result = {"invoices": [], "limit_start": start, "limit_page_length": page, "has_more": False}
+	customers, cards = _unlinked_customer_cards(company)
+	if not customers:
+		return result
+	logged = frappe.get_all(
+		"GL Posting Log",
+		filters={
+			"company": company,
+			"posting_doctype": "Sales Invoice",
+			"status": ["in", list(ACTIVE_STATES)],
+			"posting_doc": ["is", "set"],
+		},
+		pluck="posting_doc",
+		limit_page_length=0,
+	)
+	filters = [
+		["company", "=", company],
+		["customer", "in", customers],
+		["docstatus", "=", 1],
+		["is_return", "=", 0],
+		["is_debit_note", "=", 0],
+		["is_opening", "in", ["No", "", None]],
+	]
+	if logged:
+		filters.append(["name", "not in", logged])
+	invoices = frappe.get_list(
+		"Sales Invoice",
+		filters=filters,
+		fields=["name", "posting_date", "customer", "project", "base_net_total"],
+		order_by="posting_date desc, name desc",
+		limit_start=start,
+		limit_page_length=page + 1,
+	)
+	result["has_more"] = len(invoices) > page
+	invoices = invoices[:page]
+	if not invoices:
+		return result
+	projects = {inv.name: {inv.project} if inv.project else set() for inv in invoices}
+	for line in frappe.get_all(
+		"Sales Invoice Item",
+		filters={"parenttype": "Sales Invoice", "parent": ["in", list(projects)], "project": ["is", "set"]},
+		fields=["parent", "project"],
+		limit_page_length=0,
+	):
+		projects[line.parent].add(line.project)
+	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
+	for inv in invoices:
+		own = [c for c in cards if c.customer == inv.customer and c.project in projects[inv.name]]
+		match, shown, note = _candidate_match(inv, projects[inv.name], own, tolerance)
+		result["invoices"].append(
+			{
+				"invoice": inv.name,
+				"posting_date": inv.posting_date,
+				"customer": inv.customer,
+				"projects": sorted(projects[inv.name]),
+				"net_total": flt(inv.base_net_total, 2),
+				"cards": [
+					{
+						"name": c.name,
+						"month": c.month,
+						"year": c.year,
+						"project": c.project,
+						"customer_net_amount": flt(c.customer_net_amount, 2),
+					}
+					for c in shown
+				],
+				"match": match,
+				"note": note,
+			}
+		)
+	return result
 
 
 def warn_card_postings_nearby(doc):
