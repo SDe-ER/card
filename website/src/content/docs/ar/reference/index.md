@@ -24,11 +24,11 @@ sidebar:
 
 | أنواع المستندات | النوع |
 |---|---|
-| [نوع الإضافة والخصم](/card/ar/reference/doctypes/card-adjustment-type/) | جدول فرعي (صفوف داخل مستند آخر) |
+| [نوع الإضافة/الخصم](/card/ar/reference/doctypes/card-adjustment-type/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [مسؤولية تكلفة في الاتفاقية](/card/ar/reference/doctypes/card-agreement-responsibility/) | جدول فرعي (صفوف داخل مستند آخر) |
-| [Card Approval Delegation](/card/ar/reference/doctypes/card-approval-delegation/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
-| [Card Approval Tier Threshold](/card/ar/reference/doctypes/card-approval-tier-threshold/) | جدول فرعي (صفوف داخل مستند آخر) |
-| [Card Cash Disbursement](/card/ar/reference/doctypes/card-cash-disbursement/) | مستند |
+| [تفويض الاعتماد](/card/ar/reference/doctypes/card-approval-delegation/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
+| [حد مستوى الاعتماد](/card/ar/reference/doctypes/card-approval-tier-threshold/) | جدول فرعي (صفوف داخل مستند آخر) |
+| [الصرف النقدي](/card/ar/reference/doctypes/card-cash-disbursement/) | مستند |
 | [إعدادات كارت للشركة](/card/ar/reference/doctypes/card-company-settings/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [معدل الاستهلاك](/card/ar/reference/doctypes/card-consumption-rate/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [اليومية](/card/ar/reference/doctypes/card-daily-log/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
@@ -48,7 +48,7 @@ sidebar:
 | [نوع المعدة](/card/ar/reference/doctypes/card-equipment-type/) | مستند |
 | [مركز تكلفة المكان](/card/ar/reference/doctypes/card-location-cost-center/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [كارت التشغيل الشهري](/card/ar/reference/doctypes/card-monthly-card/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
-| [إضافة أو خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/) | جدول فرعي (صفوف داخل مستند آخر) |
+| [إضافة/خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [يوم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-day/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [دورة الفترة](/card/ar/reference/doctypes/card-period-run/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
 | [مستند مصدري لدورة الفترة](/card/ar/reference/doctypes/card-period-run-source/) | جدول فرعي (صفوف داخل مستند آخر) |
@@ -56,7 +56,7 @@ sidebar:
 | [اتفاقية أسعار المعدة](/card/ar/reference/doctypes/card-rate-agreement/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
 | [الإعدادات](/card/ar/reference/doctypes/card-settings/) | مفرد (سجل إعدادات واحد) |
 | [سبب توقف المعدة](/card/ar/reference/doctypes/card-stop-reason/) | مستند |
-| [معدل استهلاك النوع](/card/ar/reference/doctypes/card-type-consumption-rate/) | جدول فرعي (صفوف داخل مستند آخر) |
+| [معدل استهلاك نوع المعدة](/card/ar/reference/doctypes/card-type-consumption-rate/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [صرف ديزل](/card/ar/reference/doctypes/diesel-dispense/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
 | [توزيع تعبئة الديزل](/card/ar/reference/doctypes/diesel-fill-allocation/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [معدات تعبئة الديزل](/card/ar/reference/doctypes/diesel-fill-equipment/) | جدول فرعي (صفوف داخل مستند آخر) |
@@ -71,5 +71,5 @@ sidebar:
 | [نقل المعدات](/card/ar/reference/doctypes/equipment-transport/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |
 | [معدة رحلة النقل](/card/ar/reference/doctypes/equipment-transport-item/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [سجل الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-log/) | مستند |
-| [مصدر الترحيل](/card/ar/reference/doctypes/gl-posting-source/) | جدول فرعي (صفوف داخل مستند آخر) |
+| [مصدر الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-source/) | جدول فرعي (صفوف داخل مستند آخر) |
 | [تعبئة ديزل للمشروع](/card/ar/reference/doctypes/project-diesel-fill/) | قابل للتقديم (مسودة ← مقدَّم ← ملغى) |

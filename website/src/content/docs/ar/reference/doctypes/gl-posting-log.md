@@ -43,7 +43,7 @@ sidebar:
 | سبب الفشل | `failure_reason` | Small Text |  |  |
 | ملاحظات | `remarks` | Small Text |  |  |
 | التسلسل <small>(للقراءة فقط)</small> | `sequence` | Int |  |  |
-| المصادر <small>(للقراءة فقط)</small> | `sources` | Table | [مصدر الترحيل](/card/ar/reference/doctypes/gl-posting-source/) |  |
+| المصادر <small>(للقراءة فقط)</small> | `sources` | Table | [مصدر الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-source/) |  |
 | المصدر <small>(للقراءة فقط)</small> | `origin` | Select | Built · Linked · Credit Note |  |
 
 
@@ -51,19 +51,19 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| Built signature <small>(للقراءة فقط)</small> | `built_signature` | Data |  |  |
-| Lines signature <small>(للقراءة فقط)</small> | `lines_signature` | Data |  |  |
-| Built snapshot <small>(مخفي, للقراءة فقط)</small> | `built_snapshot` | Long Text |  |  |
-| Accepted correction signature <small>(للقراءة فقط)</small> | `accepted_signature` | Data |  |  |
-| Correction accepted by <small>(للقراءة فقط)</small> | `accepted_by` | Link | المستخدم |  |
-| Correction reason <small>(للقراءة فقط)</small> | `correction_reason` | Small Text |  |  |
-| Supplier invoices reviewed as unrelated <small>(للقراءة فقط)</small> | `reviewed_invoices` | Small Text |  |  |
-| Open difference (linked invoice) <small>(للقراءة فقط)</small> | `link_difference` | Currency |  |  |
+| توقيع البناء <small>(للقراءة فقط)</small> | `built_signature` | Data |  |  |
+| توقيع البنود <small>(للقراءة فقط)</small> | `lines_signature` | Data |  |  |
+| لقطة البناء <small>(مخفي, للقراءة فقط)</small> | `built_snapshot` | Long Text |  |  |
+| توقيع التصحيح المقبول <small>(للقراءة فقط)</small> | `accepted_signature` | Data |  |  |
+| قبل التصحيح <small>(للقراءة فقط)</small> | `accepted_by` | Link | المستخدم |  |
+| سبب التصحيح <small>(للقراءة فقط)</small> | `correction_reason` | Small Text |  |  |
+| فواتير موردين روجعت كغير مرتبطة <small>(للقراءة فقط)</small> | `reviewed_invoices` | Small Text |  |  |
+| فرق مفتوح (فاتورة مربوطة) <small>(للقراءة فقط)</small> | `link_difference` | Currency |  |  |
 
 
 ## الجداول الفرعية
 
-- [مصدر الترحيل](/card/ar/reference/doctypes/gl-posting-source/)
+- [مصدر الترحيل المحاسبي](/card/ar/reference/doctypes/gl-posting-source/)
 
 
 ## الصلاحيات

@@ -34,12 +34,12 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| معدلات الاستهلاك الافتراضية للنوع (لتر في الساعة) | `default_consumption_rates` | Table | [معدل استهلاك النوع](/card/ar/reference/doctypes/card-type-consumption-rate/) |  |
+| معدلات الاستهلاك الافتراضية للنوع (لتر في الساعة) | `default_consumption_rates` | Table | [معدل استهلاك نوع المعدة](/card/ar/reference/doctypes/card-type-consumption-rate/) |  |
 
 
 ## الجداول الفرعية
 
-- [معدل استهلاك النوع](/card/ar/reference/doctypes/card-type-consumption-rate/)
+- [معدل استهلاك نوع المعدة](/card/ar/reference/doctypes/card-type-consumption-rate/)
 
 
 ## الصلاحيات

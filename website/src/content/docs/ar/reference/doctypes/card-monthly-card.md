@@ -72,7 +72,7 @@ sidebar:
 
 | التسمية | اسم الحقل | النوع | الخيارات / الربط | إلزامي |
 |---|---|---|---|---|
-| إضافات وخصومات | `adjustments` | Table | [إضافة أو خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/) |  |
+| إضافات وخصومات | `adjustments` | Table | [إضافة/خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/) |  |
 
 
 **الملخص المالي**
@@ -144,7 +144,7 @@ sidebar:
 ## الجداول الفرعية
 
 - [يوم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-day/)
-- [إضافة أو خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/)
+- [إضافة/خصم الكارت الشهري](/card/ar/reference/doctypes/card-monthly-card-adjustment/)
 
 
 ## الصلاحيات

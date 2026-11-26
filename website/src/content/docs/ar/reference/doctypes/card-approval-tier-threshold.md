@@ -1,14 +1,16 @@
 ---
-title: "Card Approval Tier Threshold"
-description: "حقول نوع المستند Card Approval Tier Threshold وتخطيطه وصلاحياته."
+title: "حد مستوى الاعتماد"
+description: "حقول نوع المستند حد مستوى الاعتماد وتخطيطه وصلاحياته."
 editUrl: false
 sidebar:
-  label: "Card Approval Tier Threshold"
+  label: "حد مستوى الاعتماد"
 ---
 
 :::note
 تُولَّد هذه الصفحة من الشيفرة المصدرية لـ CARD في كل عملية بناء. عدّل الشيفرة لا هذه الصفحة. وهي تتبع الفرع الرئيسي، فقد تصف تغييرات مدمجة لم تصدر بعد؛ راجع صفحة «ما الجديد».
 :::
+
+**Card Approval Tier Threshold**
 
 | | |
 |---|---|

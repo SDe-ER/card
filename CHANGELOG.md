@@ -38,6 +38,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+## [4.14.1] — 2026-11-26
+
+> **Published 2026-11-26** (tag `v4.14.1`, owner approval 2026-11-26). Published ≠ deployed (see DEPLOYMENTS.md).
+> Patch release on top of v4.14.0. Fixes: the Card workspace draws all its number cards again (FR-168, PR #336), and
+> every locale translates the navigation layer (PR #345). One addition: a System Manager can remove a wrong customer
+> invoice link (FR-195, PR #344). The release has this one new method, and it is numbered as a patch release by owner
+> decision 2026-11-26; under Semantic Versioning a new method is a minor change. One changed rule: the `posted` flag of a
+> card stays 1 when a submitted posting log holds the other side without an invoice link on the card (a linked
+> accrual Journal Entry), in the unlink and on the cancel paths. Documentation tooling: the screenshot capture
+> (PR #336, PR #343). Records with no application change: the Production record of v4.14.0 (PR #341) and the captured
+> documentation screenshots (PR #342). No patch, no schema change, no fixture change, no role or DocPerm change; CARD
+> posts no accounting entry.
+
+
 ### Added
 - **Unlink a wrong customer invoice link (FR-195, owner decision 2026-11-26).** Reason: a link made with
   `link_customer_invoice` (FR-194) could be removed only by cancelling the Sales Invoice, and a company under ZATCA
