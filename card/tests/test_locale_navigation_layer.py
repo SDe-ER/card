@@ -37,24 +37,30 @@ FULL_CATALOGUES = {"ar", "en"}
 # the whole site (`test_no_generic_msgid_overrides`).
 NOT_CARD_LABELS = {"Catalog"}
 
-# Generic words that are field labels or Select options of CARD DocTypes. Frappe looks a label or an option
-# up with the DocType name as context first (`__(df.label, null, df.parent)` in form/controls/base_input.js,
-# `__(v, null, doctype)` in form/controls/select.js; `frappe._` reads "<text>:<context>" before the plain
-# text). A CARD locale translates them under `msgctxt "<DocType>"` only. A plain entry would replace the
-# wording of Frappe, ERPNext or HRMS on the whole site ("Approved" is an HRMS string).
+# Generic words that are field labels or Select options of CARD DocTypes. Frappe reads a field or section
+# label, a list header and an option of an editable dropdown with the DocType name as context first
+# (`__(df.label, null, df.parent)` in form/controls/base_input.js, `__(v, null, doctype)` in
+# form/controls/select.js; `frappe._` reads "<text>:<context>" before the plain text). A CARD locale
+# translates these words under `msgctxt "<DocType>"` only. A plain entry would replace the wording of Frappe,
+# ERPNext or HRMS on the whole site ("Approved" is an HRMS string, and its HRMS wording is accepted for the
+# plain form).
 GENERIC_WORDS = {
 	"Approved",
-	"Posted",
 	"Taxable",
-	"Installation",
 	"Exclusive",
 	"Inclusive",
-	"Built",
 	"Integrity",
 	"Origin",
 	"Replaces",
 	"Confirm {0}",
 }
+
+# Status words that Frappe draws with the plain text: a read-only Select value and a list cell go through
+# `__(value)` without a context (form/formatters.js), and a context entry of a catalogue is stored as
+# "<text>:<context>" only. CARD's own scripts call the plain form too. None of these words is a msgid of the
+# frappe, erpnext or hrms version-16 catalogues, so a plain entry overrides nothing; the Arabic catalogue
+# carries both the plain entry and the context entries.
+PLAIN_STATUS_WORDS = {"Posted", "Built", "Installation"}
 
 # (locale, msgid) pairs whose correct translation is the English text itself.
 SAME_AS_SOURCE = set()
@@ -215,6 +221,11 @@ class TestLocaleNavigationLayer(UnitTestCase):
 		for path in locales():
 			with self.subTest(locale=lang(path)):
 				self.assertEqual(sorted(GENERIC_WORDS & set(plain(path))), [])
+
+	def test_arabic_translates_the_plain_status_words(self):
+		arabic = plain(os.path.join(LOCALE, "ar.po"))
+		self.assertEqual(sorted(word for word in PLAIN_STATUS_WORDS if not arabic.get(word)), [])
+		self.assertFalse(PLAIN_STATUS_WORDS & GENERIC_WORDS)
 
 	def test_navigation_layer_is_translated_in_every_locale(self):
 		layer = navigation_layer()
