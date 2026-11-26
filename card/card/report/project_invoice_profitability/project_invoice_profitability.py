@@ -11,8 +11,10 @@ One row per project for one company and period:
   reduce expenses);
 - not_in_expenses: the net amount of the other Purchase Invoice lines (stock items, fixed
   assets, lines on an account that is not an Expense account). Information only: it is not in
-  the margin. Expenses plus this column are the net total of the purchase invoice lines
-  (owner decision 2026-11-26);
+  the margin. It is the rounded net total of the purchase invoice lines minus the rounded
+  expenses, so expenses plus this column are exactly that net total (owner decision
+  2026-11-26). A stock item is never an expense here, also when the stock was consumed: the
+  margin can be higher than the real one, and this column shows what was left out;
 - a line without a project takes the project of its invoice; a line with no project at all
   sits on the row "No project", so the totals reconcile to the invoices;
 - opening invoices are not read.
@@ -62,7 +64,7 @@ def execute(filters=None):
 		frappe.throw(_("Invalid period: end is before start"))
 
 	message = _(
-		'Read only. Revenue is the net amount of submitted Sales Invoice lines, by posting date, in the company currency. Expenses are the net amount of the submitted Purchase Invoice lines that are booked to an Expense account and are neither a stock item nor a fixed asset. The other Purchase Invoice lines are in the column "Purchases not in expenses (stock, assets)": it is information only and is not in the margin. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row "No project". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included.'
+		'Read only. Revenue is the net amount of submitted Sales Invoice lines, by posting date, in the company currency. Expenses are the net amount of the submitted Purchase Invoice lines that are booked to an Expense account and are neither a stock item nor a fixed asset. The other Purchase Invoice lines (stock items, fixed-asset items, lines booked to an account that is not an Expense account) are in the column "Purchases not in expenses": it is information only and is not in the margin. Stock that was bought and consumed, for example diesel or spare parts bought as stock items, is therefore not in the project expenses of this report, so the margin can be higher than the real one. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row "No project". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included.'
 	)
 	period = (company, start, end, filters.get("project"))
 	sums = {}
@@ -74,9 +76,13 @@ def execute(filters=None):
 	precision = currency_precision(company_currency(company))
 
 	def amounts(side):
-		"""Unrounded sums rounded once, at the precision of the company currency. The margin is
+		"""Unrounded sums rounded once, at the precision of the company currency. The purchases
+		not in expenses are the rounded net total of the purchase lines minus the rounded
+		expenses, so the two purchase columns add up to that net total exactly. The margin is
 		revenue minus expenses: the purchases not in expenses are not part of it."""
-		row = {key: flt(side[key], precision) for key in AMOUNTS}
+		row = {"revenue": flt(side["revenue"], precision), "expenses": flt(side["expenses"], precision)}
+		purchases = flt(side["expenses"] + side["not_in_expenses"], precision)
+		row["not_in_expenses"] = flt(purchases - row["expenses"], precision)
 		row["margin"] = flt(row["revenue"] - row["expenses"], precision)
 		row["margin_percent"] = flt(row["margin"] / row["revenue"] * 100, 2) if row["revenue"] else None
 		return row
@@ -116,7 +122,7 @@ def execute(filters=None):
 			"indicator": "Green" if total["margin"] >= 0 else "Red",
 		},
 		{  # information only: not part of the three tiles above
-			"label": _("Purchases not in expenses (stock, assets)"),
+			"label": _("Purchases not in expenses"),
 			"value": total["not_in_expenses"],
 			"datatype": "Currency",
 			"indicator": "Grey",
@@ -141,7 +147,7 @@ def get_columns():
 		{"fieldname": "project_name", "label": _("Project name"), "fieldtype": "Data", "width": 220},
 		money("revenue", _("Project revenue")),
 		money("expenses", _("Project expenses")),
-		{**money("not_in_expenses", _("Purchases not in expenses (stock, assets)")), "width": 220},
+		{**money("not_in_expenses", _("Purchases not in expenses")), "width": 220},
 		money("margin", _("Project margin")),
 		{"fieldname": "margin_percent", "label": _("Project margin %"), "fieldtype": "Percent", "width": 130},
 	]

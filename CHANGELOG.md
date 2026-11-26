@@ -48,12 +48,19 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     is set on the line; its item is a stock item (`Item.is_stock_item`; a line without an item is not a stock
     item); its `expense_account` is empty or is not an account of the report company with `root_type` =
     "Expense" (this covers stock, asset, capital-work-in-progress and liability accounts).
-  - New column **Purchases not in expenses (stock, assets)** (`not_in_expenses`, Arabic «مشتريات خارج المصروفات
-    (مخزون وأصول)»), after Project expenses: the net amount of the other purchase lines, per project, on the row
+  - New column **Purchases not in expenses** (`not_in_expenses`, Arabic «مشتريات خارج المصروفات»), after Project expenses: the net amount of the other purchase lines, per project, on the row
     **No project** and in the total row. It is information only. Project margin = revenue − expenses, as before;
     the new column is not part of the margin or of the margin %. Project expenses + the new column = the net total
-    of the purchase invoice lines, so the report still reconciles to the invoices. A fourth, grey summary tile shows
-    its total; the tiles Project revenue, Project expenses and Project margin do not include it.
+    of the purchase invoice lines, so the report still reconciles to the invoices: the column is the rounded net
+    total of the purchase lines minus the rounded expenses, so the two columns add up exactly. A fourth, grey
+    summary tile shows its total; the tiles Project revenue, Project expenses and Project margin do not include it.
+    The column also holds lines that are neither stock nor asset (no account, or an account that is not an Expense
+    account), so its label names no kind of purchase.
+  - **Consumed stock is not in the expenses.** A stock item stays out of Project expenses and of the margin, also
+    when it is booked to an Expense account and also when the stock was consumed on the project (for example
+    diesel or spare parts bought as stock items). The report reads no stock issue. The margin can therefore be
+    higher than the real one; the column shows the amount that was left out. The on-screen message and the
+    documentation say this.
   - The on-screen message states the new rule and names the column. Unchanged: revenue, the project of a line,
     opening invoices not read, the rounding (unrounded sums, rounded once at the company currency precision), the
     roles and the server checks.
