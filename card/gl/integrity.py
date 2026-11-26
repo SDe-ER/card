@@ -1084,9 +1084,9 @@ def _check_unlink_chain(invoice, log):
 
 @frappe.whitelist(methods=["POST"])
 def unlink_customer_invoice(invoice: str, reason: str | None = None):
-	"""FR-195: remove a wrong customer invoice link of FR-194. The undo for a company that cannot cancel a
-	submitted Sales Invoice (ZATCA). Nothing is posted, cancelled, amended or deleted; the Sales Invoice, the
-	card amounts and the ledger are not changed.
+	"""FR-195: remove a wrong link between a customer Sales Invoice and its monthly cards (the undo of
+	``link_customer_invoice``), for a company that cannot cancel a submitted Sales Invoice (ZATCA). Nothing is
+	posted, cancelled, amended or deleted; the Sales Invoice, the card amounts and the ledger are not changed.
 
 	Authorization: System Manager only; the company within the caller's CARD and accounting scope; read on the
 	invoice. A reason is mandatory.

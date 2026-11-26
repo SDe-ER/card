@@ -38,6 +38,50 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Added
+- **Unlink a wrong customer invoice link (FR-195, owner decision 2026-11-26).** Reason: a link made with
+  `link_customer_invoice` (FR-194) could be removed only by cancelling the Sales Invoice, and a company under ZATCA
+  cannot cancel a submitted Sales Invoice; the only way left was a data correction on the database, after which the
+  invoice could not be linked again.
+  - New method `card.gl.integrity.unlink_customer_invoice(invoice, reason)` (POST). It works only on a submitted
+    Sales Invoice that is the posting document of an active GL Posting Log with origin Linked (customer side). A
+    posting that CARD built (origin Built or empty) or a CARD credit note is always refused.
+  - Authorization: System Manager only (Accounts Manager is refused); the company scope of the link
+    (`permitted_companies` of the posting sources, Sales Invoice and GL Posting Log); read on the invoice; a
+    mandatory reason (HTML stripped).
+  - Refusals, all before the first write (nothing is partly undone): the invoice is not submitted; no active link;
+    the log names another document; cancelled-and-amended chain mismatch (another Sales Invoice has `amended_from`
+    = this invoice, or an invoice up the `amended_from` chain of this one still has an active posting log; new
+    helper `_check_unlink_chain`); a source of the log is not a monthly card; a card that is not submitted, is not
+    marked posted, whose `sales_invoice` is not this invoice, or whose `gl_posting` is neither this log nor the
+    active supplier-side log that holds the card (sub-rental). The message names the card.
+  - Effect: on each card `sales_invoice` is cleared, `posted` is set to 0 (1 stays when the supplier side is still
+    posted) and `gl_posting` is cleared when it points at this log, with `frappe.db.set_value(...,
+    update_modified=False)` as `card.gl.events.before_cancel` does; `modified` and the amounts of the card do not
+    change. The log is set to Cancelled and its `posting_key` is cleared; the log is never deleted. Its `remarks`
+    keep the link text and get who, when, the reason, the invoice, the log and the cards with their amounts. One
+    Info comment is added on the invoice and on each card (escaped). The invoice row, the log row and the card rows
+    are locked in the order of the link, and the state is read under the locks.
+  - `GLPostingLog.validate_builder_insert` (new helper `has_another_log`): a Cancelled Linked customer log of a
+    Sales Invoice no longer stops a new Linked log of the same invoice. Every other existing log still does. This
+    is what lets `link_customer_invoice` link the invoice again after an unlink (and after the manual data
+    correction that the v4.14.0 documentation described).
+  - Tests: `card/tests/test_unlink_customer_invoice.py`; the row of the method in `card/tests/test_bola_matrix.py`
+    (cross-company call and refused roles). Docs: `docs/governance/ROLE-ACTION-MATRIX.md`, FEATURE-REGISTRY
+    FR-195, the customer link pages of the site (English and Arabic), "What's new", the regenerated Reference
+    pages. New strings in `card/locale/main.pot` with Arabic in `card/locale/ar.po`.
+  - Impact: permissions — one new POST method for System Manager only; no DocType permission or role changes.
+    Accounting — none: no GL Entry, no Payment Ledger Entry, no tax row; the Sales Invoice is not saved, cancelled
+    or amended, and no ZATCA record is touched. Data — writes only the three link columns of the cards of the log,
+    `status`, `posting_key` and `remarks` of the log, and Comment rows; no schema change, no patch, nothing for
+    `migrate` to write. API — one new method; `link_customer_invoice` now accepts an invoice whose earlier link
+    was removed. After an unlink the customer reports show the cards as not invoiced and the invoice as outside
+    CARD again.
+  - Rollback: reverting the code removes the method; it does not undo an unlink that was made. An unlink is undone
+    with `link_customer_invoice` for the same invoice and cards (the first log stays Cancelled, a new log is
+    written). With the older code, an invoice whose link was removed cannot be linked again by the method.
+    Tested in CI without ksa_compliance; not checked on a Desk. Pull request: #344.
+
 ### Fixed
 - **Card workspace: the hidden number cards show again (FR-168; found in issue 266).** Reason: Frappe draws a
   number card block of a workspace only when the label of its row equals the translated record name
