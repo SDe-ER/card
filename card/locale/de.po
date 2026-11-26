@@ -166,10 +166,10 @@ msgid "كروت بدون سعر داخلي"
 msgstr "Karten ohne internen Satz (CARD)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Betriebsstunden ohne Rate (CARD)"
+msgstr "Betriebsstunden ohne Satz (CARD)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Betriebsstunden ohne Rate (CARD)"
+msgstr "Betriebsstunden ohne Satz (CARD)"
 
 msgid "Customer summary (CARD)"
 msgstr "Kundenübersicht (CARD)"

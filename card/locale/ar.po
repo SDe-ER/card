@@ -10103,3 +10103,15 @@ msgstr "السلامة"
 msgctxt "Card Cash Disbursement"
 msgid "Replaces"
 msgstr "بديل عن"
+
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
+msgid "Posted"
+msgstr "مُرحَّل"
+
+#: card/card/doctype/gl_posting_log/gl_posting_log.json
+msgid "Built"
+msgstr "تم البناء"
+
+#: card/card/doctype/card_equipment_part/card_equipment_part.json
+msgid "Installation"
+msgstr "التركيب"
