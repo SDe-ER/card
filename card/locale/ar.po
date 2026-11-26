@@ -9538,3 +9538,99 @@ msgstr "أُعيد فتحه لشهره الجاري بواسطة {0} في {1}: �
 #. FR-191
 msgid "Finally approved by {0} on {1} after the end of its month."
 msgstr "اعتُمد نهائياً بواسطة {0} في {1} بعد انتهاء شهره."
+
+#. FR-194
+msgid "Only an Accounts Manager or a System Manager may link customer invoices to CARD cards."
+msgstr "ربط فواتير العملاء بكروت CARD مسموح فقط لدور Accounts Manager أو System Manager."
+
+#. FR-194
+msgid "Choose the monthly cards this invoice bills."
+msgstr "اختر الكروت الشهرية التي تفوترها هذه الفاتورة."
+
+#. FR-194
+msgid "Give the reason for linking this invoice to the cards."
+msgstr "اكتب سبب ربط هذه الفاتورة بالكروت."
+
+#. FR-194
+msgid "You are not permitted to link invoices for company {0}."
+msgstr "ليست لديك صلاحية ربط فواتير الشركة {0}."
+
+#. FR-194
+msgid "{0} is not submitted; link a submitted Sales Invoice."
+msgstr "{0} غير معتمدة؛ اربط فاتورة مبيعات معتمدة."
+
+#. FR-194
+msgid "{0} is a return (credit note); link the Sales Invoice itself."
+msgstr "{0} مرتجع (إشعار دائن)؛ اربط فاتورة المبيعات نفسها."
+
+#. FR-194
+msgid "{0} is a debit note; link the Sales Invoice itself."
+msgstr "{0} إشعار مدين؛ اربط فاتورة المبيعات نفسها."
+
+#. FR-194
+msgid "{0} is an opening invoice; it does not bill monthly cards."
+msgstr "{0} فاتورة افتتاحية؛ لا تفوتر كروتًا شهرية."
+
+#. FR-194
+msgid "{0} is already a CARD posting or linked ({1})."
+msgstr "{0} ترحيل من CARD أو مربوطة من قبل ({1})."
+
+#. FR-194
+msgid "Card {0} is not approved: its month has not ended."
+msgstr "الكارت {0} غير معتمد نهائيًا: شهره لم ينتهِ."
+
+#. FR-194
+msgid "Card {0} is not billed to a customer."
+msgstr "الكارت {0} لا يُفوتر لعميل."
+
+#. FR-194
+msgid "Card {0} belongs to another company than {1}."
+msgstr "الكارت {0} يخص شركة غير شركة {1}."
+
+#. FR-194
+msgid "Card {0} belongs to another customer than {1}."
+msgstr "الكارت {0} يخص عميلًا غير عميل {1}."
+
+#. FR-194
+msgid "Card {0} is of project {1}, which is not a project of {2} (its header or its lines)."
+msgstr "الكارت {0} يخص المشروع {1}، وهو ليس من مشاريع {2} (رأس الفاتورة أو بنودها)."
+
+#. FR-194
+msgid "Card {0} is marked posted without an invoice link; review it before linking."
+msgstr "الكارت {0} معلَّم بأنه مُرحَّل وليس عليه رابط فاتورة؛ راجعه قبل الربط."
+
+#. FR-194
+msgid "Cannot link: the cards total {0} net, {1} is net {2} (before VAT). Link exactly the cards this invoice bills."
+msgstr "لا يمكن الربط: صافي الكروت {0}، وصافي {1} هو {2} (قبل الضريبة). اربط الكروت التي تفوترها هذه الفاتورة فقط."
+
+#. FR-194
+msgid "Linked by {0}: sales invoice {1} net {2} / total {3}, CARD cards net {4}, matched. {5}"
+msgstr "ربطها {0}: فاتورة المبيعات {1} صافيها {2} / إجماليها {3}، صافي كروت CARD {4}، مطابق. {5}"
+
+#. FR-194
+msgid "Linked to CARD monthly cards {0} by {1} on {2}. Reason: {3}"
+msgstr "رُبطت بكروت CARD الشهرية {0} بواسطة {1} في {2}. السبب: {3}"
+
+#. FR-194
+msgid "Linked to Sales Invoice {0} by {1} on {2}. Reason: {3}"
+msgstr "رُبط بفاتورة المبيعات {0} بواسطة {1} في {2}. السبب: {3}"
+
+#. FR-194
+msgid "The invoice has no project; it cannot be linked to cards."
+msgstr "الفاتورة ليس فيها مشروع؛ لا يمكن ربطها بكروت."
+
+#. FR-194
+msgid "No unlinked card of this customer on the projects of the invoice."
+msgstr "لا يوجد كارت غير مربوط لهذا العميل في مشاريع الفاتورة."
+
+#. FR-194
+msgid "The cards of the invoice month and the month before total the invoice net."
+msgstr "مجموع كروت شهر الفاتورة والشهر الذي قبله يساوي صافي الفاتورة."
+
+#. FR-194
+msgid "All unlinked cards of the projects of the invoice total the invoice net."
+msgstr "مجموع كل الكروت غير المربوطة في مشاريع الفاتورة يساوي صافي الفاتورة."
+
+#. FR-194
+msgid "No tested set of cards totals the invoice net: all unlinked cards of the projects total {0}."
+msgstr "لا تساوي أي مجموعة مختبرة من الكروت صافي الفاتورة: مجموع كل الكروت غير المربوطة في المشاريع {0}."

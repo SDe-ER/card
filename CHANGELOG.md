@@ -38,6 +38,53 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Added
+- **FR-194 — Link an existing customer Sales Invoice to its monthly cards (owner task 2026-11-26; PR #338).**
+  A Sales Invoice that an accountant booked by hand in ERPNext can already bill CARD monthly cards. CARD had
+  an official link for supplier Purchase Invoices (`link_supplier_invoice`, FR-090) and none for customer
+  Sales Invoices: the Equipment Customer Statement showed such cards as "Not invoiced through Card" and the
+  invoice as "ERPNext invoices outside Card".
+  - New method `card.gl.integrity.link_customer_invoice(invoice, cards, reason)` (POST). It records that a
+    submitted Sales Invoice bills the listed customer monthly cards. It writes one GL Posting Log (origin
+    `Linked`, party type Customer, status Submitted) with one GL Posting Source row per card (`amount` = the
+    card's customer net), sets `sales_invoice`, `posted` and `gl_posting` on each card through
+    `card.gl.events.link_sources_on_submit` (the function the submit of a CARD invoice uses), and adds one
+    Info comment on the invoice and on each card (who, when, reason).
+  - Refused: an invoice that is not submitted, a return (credit note), a debit note, an opening invoice, an
+    invoice that is already a CARD posting or linked; a card that is not submitted, of an open month, not
+    billed to a customer, of another company, customer or project (the header project of the invoice or the
+    project of a line), already invoiced, already held by an active customer posting, or listed twice; a
+    missing reason; a difference between the invoice net total (company currency, before VAT) and the sum of
+    the cards' customer net amounts above Card Settings `reconciliation_tolerance`. There is no option to
+    accept a difference on the customer side.
+  - New method `card.gl.integrity.unlinked_customer_invoice_candidates(company, limit_start,
+    limit_page_length)` (GET, read only): for every customer that has customer-billing cards, the submitted
+    Sales Invoices that CARD did not build and that have no link, the customer's unlinked cards on the
+    projects of each invoice, and whether a tested set of cards totals the invoice net (`match` = `exact` or
+    `none`). It writes nothing.
+  - Reports: no code change. `card.reconciliation.cards_invoiced` and `invoices_outside_card` already read a
+    Linked log as a submitted posting, so the Equipment Customer Statement and the Equipment Customers
+    Summary count the linked cards as invoiced through Card and no longer count the invoice outside Card;
+    Unbilled Card Work no longer lists the cards; Posting Source Integrity reports them as consistent. The
+    customer closing balance comes from the ledger and does not change.
+  - Impact. **Permissions:** both methods need the role Accounts Manager or System Manager (Accounts User is
+    not enough), the company within the user's CARD and accounting scope, read on the invoice, the customer
+    and every card, and the submit right on Sales Invoice. No role, DocPerm or DocType change. The log is
+    inserted with `ignore_permissions` after this gate, as on the supplier side (no role can create a GL
+    Posting Log). **Accounting:** none. No GL Entry, Payment Ledger Entry or tax row is written; the Sales
+    Invoice is not saved or changed (a Comment row is the only new record that names it), so no ZATCA step
+    runs. **Data:** one GL Posting Log, its GL Posting Source rows, three columns on each card
+    (`sales_invoice`, `posted`, `gl_posting`) and the Comment rows. No card amount, rate, day, adjustment or
+    workflow state changes. No patch, no schema change. **API:** two new whitelisted methods; no Desk button
+    in this change.
+  - Rollback. Reverting the code removes the two methods and keeps the links already made (they are read
+    like every posting log). CARD has no method that removes a link. Cancelling the linked Sales Invoice
+    frees the cards, as for every posting (`card.gl.events.before_cancel`); a company under ZATCA cannot
+    cancel a submitted Sales Invoice, so a wrong link there needs a reviewed data correction by an
+    administrator (see the invoicing page of the documentation site, "Undo a wrong customer link").
+  - Tests: `card/tests/test_link_customer_invoice.py`; rows of the two methods in
+    `card/tests/test_bola_matrix.py`.
+
 ## [4.13.0] — 2026-11-26
 
 > **Published 2026-11-26** (tag `v4.13.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).

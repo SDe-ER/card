@@ -8208,3 +8208,99 @@ msgstr ""
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
 msgid "Project margin %"
 msgstr ""
+
+#: card/gl/integrity.py
+msgid "Only an Accounts Manager or a System Manager may link customer invoices to CARD cards."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Choose the monthly cards this invoice bills."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Give the reason for linking this invoice to the cards."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "You are not permitted to link invoices for company {0}."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0} is not submitted; link a submitted Sales Invoice."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0} is a return (credit note); link the Sales Invoice itself."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0} is a debit note; link the Sales Invoice itself."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0} is an opening invoice; it does not bill monthly cards."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "{0} is already a CARD posting or linked ({1})."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Card {0} is not approved: its month has not ended."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Card {0} is not billed to a customer."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Card {0} belongs to another company than {1}."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Card {0} belongs to another customer than {1}."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Card {0} is of project {1}, which is not a project of {2} (its header or its lines)."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Card {0} is marked posted without an invoice link; review it before linking."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Cannot link: the cards total {0} net, {1} is net {2} (before VAT). Link exactly the cards this invoice bills."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Linked by {0}: sales invoice {1} net {2} / total {3}, CARD cards net {4}, matched. {5}"
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Linked to CARD monthly cards {0} by {1} on {2}. Reason: {3}"
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "Linked to Sales Invoice {0} by {1} on {2}. Reason: {3}"
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "The invoice has no project; it cannot be linked to cards."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "No unlinked card of this customer on the projects of the invoice."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "The cards of the invoice month and the month before total the invoice net."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "All unlinked cards of the projects of the invoice total the invoice net."
+msgstr ""
+
+#: card/gl/integrity.py
+msgid "No tested set of cards totals the invoice net: all unlinked cards of the projects total {0}."
+msgstr ""

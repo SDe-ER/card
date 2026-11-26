@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-26 — An accountant can link an existing sales invoice to its monthly cards.** When a Sales Invoice was entered by hand in ERPNext for work that is on CARD monthly cards, an Accounts Manager or a System Manager can now record that link with the server method `link_customer_invoice`. After the link, the **Equipment Customer Statement** shows the cards under **Invoiced through Card**, and the invoice is no longer counted under **ERPNext invoices outside Card**. CARD refuses the link if the invoice net total (before VAT) is not equal to the total of the cards, or if a card belongs to another company, customer or project. The link posts nothing: the invoice, the card amounts and the customer balance do not change. There is no button in Desk yet; the method is called through the API. A second, read-only method lists the sales invoices that are not linked and the cards that can match them. See [Invoicing and posting](/card/features/invoicing-posting/#link-an-existing-customer-sales-invoice).
 
 ## v4.13.0 — 2026-11-26
 

@@ -758,7 +758,6 @@ def check_linked_invoice(doc, log):
 # ---------- customer side: a hand-booked Sales Invoice and its monthly cards (FR-194) ----------
 
 CARD_DOCTYPE = "Card Monthly Card"
-CANDIDATE_PAGE_LENGTH = 50
 CANDIDATE_PAGE_MAX = 200
 
 
@@ -1011,7 +1010,7 @@ def _candidate_match(inv, projects, cards, tolerance):
 
 @frappe.whitelist(methods=["GET"])
 def unlinked_customer_invoice_candidates(
-	company: str, limit_start: int | str = 0, limit_page_length: int | str = CANDIDATE_PAGE_LENGTH
+	company: str, limit_start: int | str = 0, limit_page_length: int | str = 50
 ):
 	"""FR-194, read only: the submitted Sales Invoices of ``company`` that CARD did not build and that are not
 	linked (no active GL Posting Log), for every customer that has customer-billing cards; with each one, the

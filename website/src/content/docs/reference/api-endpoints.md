@@ -30,7 +30,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.diesel`](#card-diesel) | 1 |
 | [`card.diesel_reconciliation`](#card-diesel-reconciliation) | 1 |
 | [`card.fitment`](#card-fitment) | 2 |
-| [`card.gl.integrity`](#card-gl-integrity) | 2 |
+| [`card.gl.integrity`](#card-gl-integrity) | 4 |
 | [`card.gl.journal_link`](#card-gl-journal-link) | 1 |
 | [`card.gl.period_run`](#card-gl-period-run) | 2 |
 | [`card.gl.posting`](#card-gl-posting) | 5 |
@@ -278,9 +278,13 @@ This page is generated from the CARD source code on every build. Edit the code, 
 |---|---|---|
 | `card.gl.integrity.accept_correction` | POST | `invoice_doctype: str`<br/>`invoice: str`<br/>`reason: str` |
 | `card.gl.integrity.link_supplier_invoice` | POST | `invoice: str`<br/>`sources: str \| list`<br/>`reason: str \| None = None`<br/>`accept_difference: int \| str = 0` |
+| `card.gl.integrity.link_customer_invoice` | POST | `invoice: str`<br/>`cards: str \| list`<br/>`reason: str \| None = None` |
+| `card.gl.integrity.unlinked_customer_invoice_candidates` | GET | `company: str`<br/>`limit_start: int \| str = 0`<br/>`limit_page_length: int \| str = 50` |
 
 - `accept_correction` — An Accounts Manager accepts a corrected cost center / account on a CARD draft. Only those fields may differ; the acceptance is tied to the exact invoice content (any later edit needs a new acceptance).
 - `link_supplier_invoice` — Record that an existing supplier Purchase Invoice (booked by hand) already pays for these CARD sources. Nothing is reposted and the invoice is not changed: a Linked GL Posting Log reserves the sources so CARD never builds them again, and the sources show the invoice once it is submitted.
+- `link_customer_invoice` — Record that a submitted Sales Invoice, booked by hand in ERPNext, already bills these customer monthly cards. The customer mirror of ``link_supplier_invoice``: a Linked GL Posting Log holds the cards, so CARD never builds them again, and each card gets its customer invoice link. Nothing is posted; the invoice, the card amounts and the ledger are not changed.
+- `unlinked_customer_invoice_candidates` — Read only: the submitted Sales Invoices of ``company`` that CARD did not build and that are not linked (no active GL Posting Log), for every customer that has customer-billing cards; with each one, the customer's unlinked approved cards on the invoice's projects, and whether a tested set of them totals the invoice net (``match`` = "exact" or "none"). Returns and opening invoices are left out. Newest first, ``limit_page_length`` invoices per call (at most 200). It writes nothing and links nothing.
 
 
 <h2 id="card-gl-journal-link"><code>card.gl.journal_link</code></h2>
