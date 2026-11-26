@@ -3,9 +3,9 @@
 """Every CARD locale translates the navigation layer (owner decision 2026-11-26).
 
 The navigation layer is the text a user reads before a form opens: the Card workspace (headers, shortcuts,
-links, quick list, number cards, chart), the module sidebars under `card/card/sidebar/` and the Number Card and
-Dashboard Chart records. English and Arabic carry the full catalogue; every other locale carries at least this
-layer, in its own language.
+links, quick list, number cards, chart), the sidebars (`card/card/sidebar/`, `fixtures/sidebar.json` and the
+older `fixtures/workspace_sidebar.json`) and the Number Card and Dashboard Chart records. English and Arabic
+carry the full catalogue; every other locale carries at least this layer, in its own language.
 
 These checks read the fixtures and the locale files only: they need no site."""
 
@@ -26,13 +26,51 @@ ENTRY = re.compile(
 PLACEHOLDER = re.compile(r"\{\d+\}")
 ARABIC = re.compile(r"[؀-ۿ]")
 
-# Sidebar labels CARD does not own. An ERPNext DocType keeps the name ERPNext gives it, and "Catalog" is a
-# generic word: a plain translation in a CARD locale would override Frappe and ERPNext on the whole site
-# (`test_no_generic_msgid_overrides`).
+# The full catalogues. `bench update-po-files` writes every new source string into them with an empty msgstr,
+# and an empty msgstr only means "show the source text". The check for an empty msgstr therefore covers the
+# other locales only: each of their entries is written by hand and exists to give a translation. The
+# navigation layer itself is checked in every locale, the full catalogues included.
+FULL_CATALOGUES = {"ar", "en"}
+
+# Sidebar labels CARD does not own. A DocType or report of another app keeps the name that app gives it, and
+# "Catalog" is a generic word: a plain translation in a CARD locale would override Frappe, ERPNext or HRMS on
+# the whole site (`test_no_generic_msgid_overrides`).
 NOT_CARD_LABELS = {"Catalog"}
+
+# Generic words that are field labels or Select options of CARD DocTypes. Frappe looks a label or an option
+# up with the DocType name as context first (`__(df.label, null, df.parent)` in form/controls/base_input.js,
+# `__(v, null, doctype)` in form/controls/select.js; `frappe._` reads "<text>:<context>" before the plain
+# text). A CARD locale translates them under `msgctxt "<DocType>"` only. A plain entry would replace the
+# wording of Frappe, ERPNext or HRMS on the whole site ("Approved" is an HRMS string).
+GENERIC_WORDS = {
+	"Approved",
+	"Posted",
+	"Taxable",
+	"Installation",
+	"Exclusive",
+	"Inclusive",
+	"Built",
+	"Integrity",
+	"Origin",
+	"Replaces",
+	"Confirm {0}",
+}
 
 # (locale, msgid) pairs whose correct translation is the English text itself.
 SAME_AS_SOURCE = set()
+
+# (locale, Arabic msgid) pairs whose correct translation is the text English uses.
+SAME_AS_ENGLISH = set()
+
+# Navigation names that are different things and must not read the same in any locale.
+DISTINCT_NAMES = [
+	("Equipment Needs Summary", "Equipment Needs Review"),
+	("Equipment Needs Summary", "Equipment Needs Request"),
+	("Equipment Supplier Statement", "Equipment Suppliers Summary"),
+	("Equipment Customer Statement", "Equipment Customers Summary"),
+	("Equipment Diesel Consumption", "Equipment Diesel Analysis"),
+	("Card Equipment Type", "Card Equipment Category"),
+]
 
 
 def _text(quoted):
@@ -69,6 +107,16 @@ def _json(*parts):
 		return json.load(fh)
 
 
+def _records(kind):
+	"""The record files of `card/card/<kind>/<name>/<name>.json`."""
+	root = os.path.join(APP, "card", kind)
+	return [
+		_json("card", kind, folder, f"{folder}.json")
+		for folder in sorted(os.listdir(root))
+		if os.path.isfile(os.path.join(root, folder, f"{folder}.json"))
+	]
+
+
 def card_workspace():
 	return next(doc for doc in _json("fixtures", "workspace.json") if doc.get("name") == "Card")
 
@@ -87,29 +135,30 @@ def workspace_labels():
 	return labels
 
 
+def sidebars():
+	"""The module sidebars and the two sidebar fixtures."""
+	return (
+		_records("sidebar") + _json("fixtures", "sidebar.json") + _json("fixtures", "workspace_sidebar.json")
+	)
+
+
 def sidebar_titles():
-	return {
-		_json("card", "sidebar", folder, f"{folder}.json")["title"]
-		for folder in os.listdir(os.path.join(APP, "card", "sidebar"))
-	}
+	return {doc["title"] for doc in sidebars()}
 
 
 def sidebar_labels():
-	"""The item labels CARD owns: its own DocTypes, reports and pages, and its own wording for a link."""
-	own_doctypes = {
-		_json("card", "doctype", folder, f"{folder}.json")["name"]
-		for folder in os.listdir(os.path.join(APP, "card", "doctype"))
-		if os.path.isfile(os.path.join(APP, "card", "doctype", folder, f"{folder}.json"))
+	"""The item labels CARD owns: its own DocTypes, reports and pages, and its own wording for a link. The
+	name of a DocType or a report of another app is not CARD's to translate."""
+	own = {
+		"DocType": {doc["name"] for doc in _records("doctype")},
+		"Report": {doc["name"] for doc in _records("report")},
 	}
 	labels = set()
-	for folder in os.listdir(os.path.join(APP, "card", "sidebar")):
-		for item in _json("card", "sidebar", folder, f"{folder}.json")["items"]:
+	for doc in sidebars():
+		for item in doc.get("items") or []:
 			label = item.get("label")
-			foreign_name = (
-				item.get("link_type") == "DocType"
-				and item.get("link_to") == label
-				and label not in own_doctypes
-			)
+			link_type = item.get("link_type")
+			foreign_name = link_type in own and item.get("link_to") == label and label not in own[link_type]
 			if label and not foreign_name and label not in NOT_CARD_LABELS:
 				labels.add(label)
 	return labels
@@ -136,9 +185,13 @@ class TestLocaleNavigationLayer(UnitTestCase):
 		self.assertGreater(len(sidebar_labels()), 40)
 		self.assertEqual(len(number_card_row_labels()), 9)
 		self.assertNotIn("Purchase Invoice", sidebar_labels())
+		self.assertIn("الصفحة الرئيسية", sidebar_labels())
+		self.assertIn("Card Monthly Card", sidebar_labels())
 
 	def test_no_entry_has_an_empty_translation(self):
 		for path in locales():
+			if lang(path) in FULL_CATALOGUES:
+				continue
 			with self.subTest(locale=lang(path)):
 				self.assertEqual([msgid for _context, msgid, msgstr in entries(path) if not msgstr], [])
 
@@ -158,17 +211,25 @@ class TestLocaleNavigationLayer(UnitTestCase):
 				]
 				self.assertEqual(lost, [])
 
+	def test_generic_words_are_translated_under_a_context_only(self):
+		for path in locales():
+			with self.subTest(locale=lang(path)):
+				self.assertEqual(sorted(GENERIC_WORDS & set(plain(path))), [])
+
 	def test_navigation_layer_is_translated_in_every_locale(self):
 		layer = navigation_layer()
 		for path in locales():
-			if lang(path) == "en":
-				continue  # English reads the source text; its Arabic-named records: TestNoArabicFallback
 			translated = plain(path)
-			# an Arabic record name is its own Arabic text: the Arabic locale needs no entry for it
-			needed = {m for m in layer if not ARABIC.search(m)} if lang(path) == "ar" else layer
+			needed = layer
+			if lang(path) == "ar":
+				# an Arabic record name is its own Arabic text: the Arabic locale needs no entry for it
+				needed = {msgid for msgid in layer if not ARABIC.search(msgid)}
+			elif lang(path) == "en":
+				# English reads the English source text; only the Arabic names need an English entry
+				needed = {msgid for msgid in layer if ARABIC.search(msgid)}
 			with self.subTest(locale=lang(path)):
 				self.assertEqual(sorted(msgid for msgid in needed if not translated.get(msgid)), [])
-				if lang(path) != "ar":
+				if lang(path) not in FULL_CATALOGUES:
 					self.assertEqual(
 						sorted(
 							msgid
@@ -181,6 +242,38 @@ class TestLocaleNavigationLayer(UnitTestCase):
 	def test_english_names_every_sidebar(self):
 		english = plain(os.path.join(LOCALE, "en.po"))
 		self.assertEqual(sorted(title for title in sidebar_titles() if not english.get(title)), [])
+
+	def test_arabic_text_is_not_left_in_english(self):
+		"""An Arabic msgid (a stored Select value, a record name, an Arabic label) is translated into the
+		language of the locale: its text is not the text of `en.po`."""
+		english = plain(os.path.join(LOCALE, "en.po"))
+		for path in locales():
+			if lang(path) in FULL_CATALOGUES:
+				continue
+			with self.subTest(locale=lang(path)):
+				self.assertEqual(
+					sorted(
+						msgid
+						for msgid, msgstr in plain(path).items()
+						if ARABIC.search(msgid)
+						and msgstr == english.get(msgid)
+						and (lang(path), msgid) not in SAME_AS_ENGLISH
+					),
+					[],
+				)
+
+	def test_different_names_read_differently(self):
+		for path in locales():
+			translated = plain(path)
+			with self.subTest(locale=lang(path)):
+				self.assertEqual(
+					[
+						pair
+						for pair in DISTINCT_NAMES
+						if translated.get(pair[0], pair[0]) == translated.get(pair[1], pair[1])
+					],
+					[],
+				)
 
 	def test_number_card_labels_are_translated_in_every_locale(self):
 		for path in locales():
