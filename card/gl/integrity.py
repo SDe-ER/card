@@ -1088,14 +1088,16 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 	``link_customer_invoice``), for a company that cannot cancel a submitted Sales Invoice (ZATCA). Nothing is
 	posted, cancelled, amended or deleted; the Sales Invoice, the card amounts and the ledger are not changed.
 
-	Authorization: System Manager only; the company within the caller's CARD and accounting scope; read on the
-	invoice. A reason is mandatory.
+	Authorization: System Manager only; read on the invoice (System Manager alone gives no read on Sales Invoice:
+	the caller also needs an accounts role); the company within the caller's CARD and accounting scope; read on
+	every card of the link. A reason is mandatory.
 
 	Works only on a submitted Sales Invoice that is the posting document of an ACTIVE GL Posting Log with origin
 	Linked. A posting CARD built (origin Built or empty) or its credit note is always refused: its undo is the
 	standard cancel or credit note.
 
 	Refusals (nothing is partly undone; every check runs before the first write):
+	- the caller cannot read a card of the link;
 	- the log names another document than this exact invoice;
 	- cancelled-and-amended chain mismatch: another Sales Invoice amends this one, or an invoice this one amends
 	  (up the chain) still has an active posting log. A linked invoice that is cancelled frees its cards itself
@@ -1107,14 +1109,17 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 	  (sub-rental: ``_point_display`` leaves the display link on the other side's active posting).
 
 	Effect, with the mechanism of the cancel path of ``card.gl.events``: on each card ``sales_invoice`` is
-	cleared, ``posted`` goes to 0 unless the supplier side is still posted, ``gl_posting`` is cleared when it
+	cleared, ``posted`` goes to 0 unless the supplier side is still posted (a purchase invoice link, or a
+	submitted supplier-side log such as a linked accrual Journal Entry), ``gl_posting`` is cleared when it
 	points at this log (and pointed back at the other side's active log, if any); ``modified`` is not changed.
 	The log goes to Cancelled and its posting key is cleared, so the invoice and the cards can be linked again.
 	The log is never deleted: its remarks keep the link text and get who, when, why and the previous links
 	(cards and amounts). One Info comment is added on the invoice and on each card.
 
-	Concurrency: the invoice row, the log row and the card rows are locked in the order of the link, and the
-	state is read under those locks."""
+	Concurrency: the invoice row, the log row (by its name) and the card rows are locked in the order of the
+	link. The invoice status, the log and the link fields of the cards are read under those locks. The
+	amendment chain and the supplier-side log of a sub-rental card are plain reads: this method does not lock
+	rows of the supplier side."""
 	from frappe.utils import cint, cstr, escape_html, now_datetime, strip_html_tags
 
 	from card.gl.events import _other_side_still_posted, _repoint_freed_sources
@@ -1130,7 +1135,7 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 	inv.check_permission("read")
 	if inv.company not in _customer_link_companies():
 		frappe.throw(
-			_("You are not permitted to link invoices for company {0}.").format(inv.company),
+			_("You are not permitted to unlink invoices for company {0}.").format(inv.company),
 			frappe.PermissionError,
 		)
 	invoice = inv.name
@@ -1142,15 +1147,21 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 				invoice
 			)
 		)
+	# the log is found with a plain read and locked by its name: a locking read on posting_doc (no index)
+	# would lock rows of other postings. Its state is checked again on the locked row.
 	held = frappe.db.get_value(
 		"GL Posting Log",
 		{"posting_doctype": "Sales Invoice", "posting_doc": invoice, "status": ["in", list(ACTIVE_STATES)]},
 		"name",
-		for_update=True,
 	)
-	if not held:
+	log = frappe.get_doc("GL Posting Log", held, for_update=True) if held else None
+	if (
+		not log
+		or log.status not in ACTIVE_STATES
+		or log.posting_doctype != "Sales Invoice"
+		or log.posting_doc != invoice
+	):
 		frappe.throw(_("{0} is not linked to CARD cards.").format(invoice))
-	log = frappe.get_doc("GL Posting Log", held)
 	if log.origin != "Linked" or log.party_type != "Customer":
 		frappe.throw(
 			_(
@@ -1167,8 +1178,11 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 				).format(invoice, log.name, _(doctype), name)
 			)
 	lock_sources({CARD_DOCTYPE: [(name, amount) for _doctype, name, amount in sources]})
-	clear_display = {}
+	clear_display, cards = {}, {}
 	for _doctype, name, _amount in sources:
+		# the caller must be able to read every card whose link is removed (as for the link)
+		cards[name] = frappe.get_doc(CARD_DOCTYPE, name)
+		cards[name].check_permission("read")
 		current = frappe.db.get_value(
 			CARD_DOCTYPE,
 			name,
@@ -1249,7 +1263,7 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 		),
 	)
 	for _doctype, name, _amount in sources:
-		frappe.get_doc(CARD_DOCTYPE, name).add_comment(
+		cards[name].add_comment(
 			"Info",
 			_("Unlinked from Sales Invoice {0} by {1} on {2} (posting log {3}). Reason: {4}").format(
 				escape_html(invoice), who, when, escape_html(log.name), escape_html(reason)

@@ -9726,3 +9726,7 @@ msgstr "فُك ربطها بكروت CARD الشهرية {0} بواسطة {1} ف
 #. FR-195
 msgid "Unlinked from Sales Invoice {0} by {1} on {2} (posting log {3}). Reason: {4}"
 msgstr "فُك ربطه بفاتورة المبيعات {0} بواسطة {1} في {2} (سجل الترحيل {3}). السبب: {4}"
+
+#. FR-195
+msgid "You are not permitted to unlink invoices for company {0}."
+msgstr "ليست لديك صلاحية فك ربط فواتير الشركة {0}."

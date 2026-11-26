@@ -758,7 +758,7 @@ CASES = {
 	"card.gl.integrity.unlink_customer_invoice": Case(
 		method=POST,
 		roles=("System Manager",),
-		gate="System Manager; read on the invoice; a reason",
+		gate="System Manager and read on the Sales Invoice (an accounts role: System Manager alone has no read on it); read on every card of the link; a reason",
 		isolation="permitted_companies(sources, Sales Invoice, GL Posting Log) on the invoice's company; only the cards of the invoice's own active Linked log",
 		effects="Sets the Linked GL Posting Log to Cancelled (kept, audit text in remarks); clears sales_invoice, posted and gl_posting on each card; one Info comment on the invoice and on each card",
 		writes=True,

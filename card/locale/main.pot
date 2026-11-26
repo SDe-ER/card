@@ -8384,3 +8384,7 @@ msgstr ""
 #: card/gl/integrity.py
 msgid "Unlinked from Sales Invoice {0} by {1} on {2} (posting log {3}). Reason: {4}"
 msgstr ""
+
+#: card/gl/integrity.py
+msgid "You are not permitted to unlink invoices for company {0}."
+msgstr ""
