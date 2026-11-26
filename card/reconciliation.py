@@ -32,6 +32,8 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate
 
+from card.settings import setting
+
 POSTING_TYPE = {"Supplier": "Purchase Invoice", "Customer": "Sales Invoice"}
 PARTY_FIELD = {"Supplier": "supplier", "Customer": "customer"}
 
@@ -82,6 +84,15 @@ def cards_invoiced(party_type, parties, company, start, end, cards=None):
 		logs += frappe.get_all(
 			"GL Posting Log",
 			filters=dict(base, posting_type="Journal Entry"),
+			fields=["name", "party", "month", "year"],
+			limit_page_length=0,
+		)
+	else:
+		# FR-194: a hand-booked sales invoice may be linked to cards long after their month (the log carries
+		# the invoice date): no year window on a Linked log, each card still counts in its own month
+		logs += frappe.get_all(
+			"GL Posting Log",
+			filters=dict(base, posting_type=POSTING_TYPE[party_type], origin="Linked"),
 			fields=["name", "party", "month", "year"],
 			limit_page_length=0,
 		)
@@ -172,13 +183,16 @@ def invoices_outside_card(party_type, parties, company, start, end):
 		):
 			invoice = linked[row.parent]
 			linked_cards[invoice] = flt(linked_cards.get(invoice, 0) + flt(row.amount), 2)
+	# FR-194: a link is accepted with a difference inside the reconciliation tolerance; that residual is not
+	# an amount outside Card (an accepted open difference of a supplier link is larger and still shows)
+	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
 	result = {}
 	for inv in invoices:
 		if inv.name in card_made:
 			continue
 		party = inv.get(party_field)
 		outside = flt(flt(inv.base_net_total) - linked_cards.get(inv.name, 0), 2)
-		if inv.name in linked_cards and not outside:
+		if inv.name in linked_cards and abs(outside) <= tolerance:
 			continue
 		result[party] = flt(result.get(party, 0) + outside, 2)
 	return result

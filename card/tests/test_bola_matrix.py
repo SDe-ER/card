@@ -744,6 +744,26 @@ CASES = {
 		own=lambda c: {"invoice": c.pi_a, "sources": json.dumps([{"doctype": CARD, "name": c.card_a}])},
 		denied=((), ("Card Manager",)),
 	),
+	"card.gl.integrity.link_customer_invoice": Case(
+		method=POST,
+		roles=("Accounts Manager",),
+		gate="Accounts Manager or System Manager; read and submit on the invoice; read on customer and every card; a reason",
+		isolation="permitted_companies(sources, Sales Invoice, GL Posting Log); each card of the invoice's company, customer and project",
+		effects="Inserts one Linked GL Posting Log; sets sales_invoice, posted and gl_posting on each card; one Info comment on the invoice and on each card",
+		writes=True,
+		cross=lambda c: {"invoice": c.si_b, "cards": json.dumps([c.card_b]), "reason": "x"},
+		own=lambda c: {"invoice": c.si_a, "cards": json.dumps([c.card_a]), "reason": "x"},
+		denied=((), ("Card Manager",), ("Accounts User",)),
+	),
+	"card.gl.integrity.unlinked_customer_invoice_candidates": Case(
+		method=GET,
+		roles=("Accounts Manager",),
+		gate="Accounts Manager or System Manager; read on Sales Invoice and Card Monthly Card",
+		isolation="permitted_companies(sources, Sales Invoice, GL Posting Log); invoices and cards through get_list",
+		cross=lambda c: {"company": c.B},
+		own=lambda c: {"company": c.A},
+		denied=((), ("Card Manager",), ("Accounts User",)),
+	),
 	"card.gl.journal_link.link_accrual_journal": Case(
 		method=POST,
 		roles=("Accounts Manager",),
@@ -1161,6 +1181,7 @@ IGNORE_PERMISSIONS_ALLOWED = {
 		"`build_monthly_posting` which also inserts a draft invoice + its log under the posting gate",
 	),
 	("card/gl/integrity.py", "link_supplier_invoice"): (1, "Linked GL Posting Log after the endpoint's gate"),
+	("card/gl/integrity.py", "link_customer_invoice"): (1, "Linked GL Posting Log after the endpoint's gate"),
 	("card/gl/journal_link.py", "link_accrual_journal"): (
 		1,
 		"Linked GL Posting Log after the endpoint's gate",
@@ -1589,6 +1610,14 @@ class TestBolaMatrix(IntegrationTestCase):
 			)
 			c[f"pi_{side}"] = self._raw(
 				"Purchase Invoice", f"PI-{tag}", company=company, supplier=supplier, posting_date=first
+			)
+			c[f"si_{side}"] = self._raw(
+				"Sales Invoice",
+				f"SI-{tag}",
+				company=company,
+				customer=customer,
+				posting_date=first,
+				docstatus=1,
 			)
 			c[f"je_{side}"] = self._raw(
 				"Journal Entry",

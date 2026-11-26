@@ -38,6 +38,137 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+## [4.14.0] — 2026-11-26
+
+> **Published 2026-11-26** (tag `v4.14.0`, owner approval 2026-11-26). Published ≠ deployed (see DEPLOYMENTS.md).
+> Minor release on top of v4.13.0. An Accounts Manager or a System Manager can link an existing customer Sales
+> Invoice to the monthly cards it bills (FR-194; two new whitelisted methods, no Desk button). Project Invoice
+> Profitability counts only purchase lines on Expense accounts that are neither stock nor fixed asset, and shows the
+> other purchase lines in an information column (FR-193). The PDF button of the report print page of the two
+> statements uses the server PDF (issue 324). No patch, no schema change, no role or DocPerm change; CARD posts no
+> accounting entry.
+
+
+### Added
+- **FR-194 — Link an existing customer Sales Invoice to its monthly cards (owner task 2026-11-26; PR #338).**
+  A Sales Invoice that an accountant booked by hand in ERPNext can already bill CARD monthly cards. CARD had
+  an official link for supplier Purchase Invoices (`link_supplier_invoice`, FR-090) and none for customer
+  Sales Invoices: the Equipment Customer Statement showed such cards as "Not invoiced through Card" and the
+  invoice as "ERPNext invoices outside Card".
+  - New method `card.gl.integrity.link_customer_invoice(invoice, cards, reason)` (POST). It records that a
+    submitted Sales Invoice bills the listed customer monthly cards. It writes one GL Posting Log (origin
+    `Linked`, party type Customer, status Submitted) with one GL Posting Source row per card (`amount` = the
+    card's customer net), sets `sales_invoice`, `posted` and `gl_posting` on each card through
+    `card.gl.events.link_sources_on_submit` (the function the submit of a CARD invoice uses), and adds one
+    Info comment on the invoice and on each card (who, when, reason).
+  - Refused: an invoice that is not submitted, a return (credit note), a debit note, an opening invoice, an
+    invoice in another currency than the company currency, an invoice that has a submitted credit note, an
+    invoice that is already a CARD posting or linked; a card that is not submitted, of an open month, not
+    billed to a customer, of another company, customer or project, already invoiced, already held by an
+    active customer posting, or listed twice (also under another spelling of its name); card names that cannot be read; a missing reason.
+  - Amounts. The invoice net total (company currency, before VAT) must equal the sum of the cards' customer
+    net amounts within Card Settings `reconciliation_tolerance`, in total and for each project: the net of
+    the invoice lines of a project (a line without a project takes the header project of the invoice) equals
+    the customer net of the listed cards of that project, and no project of the invoice (and no line without
+    a project) is left without cards. There is no option to accept a difference on the customer side.
+  - Concurrency. The method locks the Sales Invoice row and the card rows. It reads the document status of
+    the invoice, its active posting log, and each card's status, workflow state, invoice link and active
+    customer posting again with locking reads, so a link, a cancel or a reopen that another transaction
+    committed in the meantime is seen. `link_supplier_invoice` is not changed (the same re-reads on the
+    supplier side are a follow-up).
+  - New method `card.gl.integrity.unlinked_customer_invoice_candidates(company, limit_start,
+    limit_page_length)` (GET, read only): for every customer that has customer-billing cards, the submitted
+    Sales Invoices that CARD did not build and that have no link, the customer's unlinked cards on the
+    projects of each invoice (at most 100 per invoice; `more_cards` says that there are more), and whether a
+    tested set of cards covers the invoice by the rule of the link (`match` = `exact` or `none`). Returns,
+    debit notes, opening invoices and invoices with a submitted credit note are left out. It writes nothing.
+  - Reports: two small changes in `card/reconciliation.py`, no change in a report file.
+    `cards_invoiced` reads the Linked Sales Invoice logs without its year window, so a card linked to an
+    invoice dated much later still counts as invoiced in its own month. `invoices_outside_card` does not
+    show the residual of a linked invoice when it is inside `reconciliation_tolerance` (a link accepted
+    with a difference of 0.01 no longer leaves 0.01 under "ERPNext invoices outside Card"; this applies
+    to supplier links too, and an accepted open difference above the tolerance still shows). With these, the
+    Equipment Customer Statement and the Equipment Customers Summary count the linked cards as invoiced
+    through Card and no longer count the invoice outside Card; Unbilled Card Work no longer lists the cards;
+    Posting Source Integrity reports them as consistent. The customer closing balance comes from the ledger
+    and does not change.
+  - Impact. **Permissions:** both methods need the role Accounts Manager or System Manager (Accounts User is
+    not enough), the company within the user's CARD and accounting scope, read on the invoice, the customer
+    and every card, and the submit right on Sales Invoice. No role, DocPerm or DocType change. The log is
+    inserted with `ignore_permissions` after this gate, as on the supplier side (no role can create a GL
+    Posting Log). **Accounting:** none. No GL Entry, Payment Ledger Entry or tax row is written; the Sales
+    Invoice is not saved or changed (a Comment row is the only new record that names it), so no ZATCA step
+    runs. **Data:** one GL Posting Log, its GL Posting Source rows, three columns on each card
+    (`sales_invoice`, `posted`, `gl_posting`) and the Comment rows. No card amount, rate, day, adjustment or
+    workflow state changes. No patch, no schema change. **API:** two new whitelisted methods; no Desk button
+    in this change.
+  - Rollback. Reverting the code removes the two methods and keeps the links already made (they are read
+    like every posting log). CARD has no method that removes a link. Cancelling the linked Sales Invoice
+    frees the cards, as for every posting (`card.gl.events.before_cancel`); a company under ZATCA cannot
+    cancel a submitted Sales Invoice, so a wrong link there needs a reviewed data correction by an
+    administrator (see the invoicing page of the documentation site, "Undo a wrong customer link").
+  - Tests: `card/tests/test_link_customer_invoice.py`; rows of the two methods in
+    `card/tests/test_bola_matrix.py`.
+
+### Changed
+- **FR-193 — Project Invoice Profitability counts expense-account lines only (issue 53, PR #335; owner decision
+  2026-11-26).** The report counted every submitted Purchase Invoice line as a project expense, also a purchase of
+  stock or of a fixed asset. Such a purchase is not a cost of the period, so the expenses were too high and the
+  margin too low.
+  - **Project expenses** now holds only the Purchase Invoice lines that are booked to an Expense account and are
+    neither a stock item nor a fixed asset. A line is not an expense when any of these is true: `is_fixed_asset`
+    is set on the line; its item is a stock item (`Item.is_stock_item`; a line without an item is not a stock
+    item); its `expense_account` is empty or is not an account of the report company with `root_type` =
+    "Expense" (this covers stock, asset, capital-work-in-progress and liability accounts).
+  - New column **Purchases not in expenses** (`not_in_expenses`, Arabic «مشتريات خارج المصروفات»), after Project expenses: the net amount of the other purchase lines, per project, on the row
+    **No project** and in the total row. It is information only. Project margin = revenue − expenses, as before;
+    the new column is not part of the margin or of the margin %. Project expenses + the new column = the net total
+    of the purchase invoice lines, so the report still reconciles to the invoices: the column is the rounded net
+    total of the purchase lines minus the rounded expenses, so the two columns add up exactly. A fourth, grey
+    summary tile shows its total; the tiles Project revenue, Project expenses and Project margin do not include it.
+    The column also holds lines that are neither stock nor asset (no account, or an account that is not an Expense
+    account), so its label names no kind of purchase.
+  - **Consumed stock is not in the expenses.** A stock item stays out of Project expenses and of the margin, also
+    when it is booked to an Expense account and also when the stock was consumed on the project (for example
+    diesel or spare parts bought as stock items). The report reads no stock issue. The margin can therefore be
+    higher than the real one; the column shows the amount that was left out. The on-screen message and the
+    documentation say this.
+  - The on-screen message states the new rule and names the column. Unchanged: revenue, the project of a line,
+    opening invoices not read, the rounding (unrounded sums, rounded once at the company currency precision), the
+    roles and the server checks.
+  - Functions: `card.analytics.purchase_project_totals` (new), `card.analytics._expense_accounts` (new),
+    `card.analytics._invoice_project_lines` (the invoice read of `invoice_project_totals`, moved without change),
+    `execute` and `get_columns` of `card/card/report/project_invoice_profitability/project_invoice_profitability.py`.
+    The root type of the accounts and the stock flag of the items are read with `frappe.get_all` for the accounts
+    and items of the invoice lines the user already read; they are classification facts, not user data.
+  - Impact: permissions none (same roles, `resolve_company`, `can_view_ledger`, read on both invoice types);
+    accounting none (read-only, nothing posted); data none (no DocType, field or patch); API none (the report
+    result has one more column and one more summary tile). Figures: Project expenses and Project margin change for
+    a project with stock, fixed-asset or non-expense-account purchase lines. Rollback: revert the pull request; no
+    data to restore.
+  - Tests: `card/tests/test_project_invoice_profitability.py`. Not checked on a Desk.
+
+### Fixed
+- **Statements: the PDF button of the report print page uses the server PDF (issue 324, PR #337, follow-up of
+  PR #328; FR-089, FR-187).** On frappe 16.60 the report toolbar opens a print page, and its **PDF** button calls
+  `frappe.views.ReportPrintView.download_pdf`. For a tree report that function sends the browser's HTML to
+  `frappe.utils.print_format.report_to_pdf` (wkhtmltopdf) and never calls `report.pdf_report`, which the two
+  statements replace. So the button users see still produced the PDF with broken Arabic letter joins, for the
+  Equipment Customer Statement and for the Equipment Supplier Statement. Found by a browser check on Production
+  after v4.13.0. The two report scripts now also route that button to their server PDF routes
+  (`statement_pdf.download_pdf`, Chrome generator); the button of every other report is not changed.
+  - Functions: `equipment_customer_statement.js`, `equipment_supplier_statement.js`: new
+    `card_statement_print_page_pdf` (one click listener in the capture phase wraps
+    `ReportPrintView.prototype.download_pdf` once, because the class is loaded with the print page, after the
+    report script; the wrapper looks the report up in `frappe.card_statement_pdf_routes`).
+  - Tests: `test_customer_statement_pdf.py`, `test_supplier_statement_pdf.py` (the report scripts carry the route
+    for the print page). The click path itself is a browser behaviour: it was tried on a live Desk session with
+    the download call intercepted; it has no automated test.
+  - Impact: no server change; no new method; no role, DocPerm, accounting or data change. The PDF of the two
+    statements is the fixed A4 page of the server route: the letter head and the other choices of the print page
+    do not apply to it (the Print button still uses them).
+  - Rollback: restore the previous code; the button uses the standard route again.
+
 ## [4.13.0] — 2026-11-26
 
 > **Published 2026-11-26** (tag `v4.13.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).

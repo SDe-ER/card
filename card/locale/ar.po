@@ -9408,8 +9408,8 @@ msgid "Select the period of the project profitability."
 msgstr "اختر فترة ربحية المشاريع."
 
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
-msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. Expenses include every Purchase Invoice line, stock and asset purchases too. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
-msgstr "للقراءة فقط. الإيرادات هي صافي بنود فواتير المبيعات المعتمدة، والمصروفات هي صافي بنود فواتير المشتريات المعتمدة، حسب تاريخ الترحيل وبعملة الشركة. المصروفات تشمل كل بنود فواتير المشتريات، ومنها مشتريات المخزون والأصول. الفواتير الافتتاحية لا تُقرأ. البند الذي ليس عليه مشروع يأخذ مشروع فاتورته؛ والبنود التي ليس لها مشروع إطلاقاً تظهر في سطر «بدون مشروع». لا تُقرأ قيود اليومية ولا دفتر الأستاذ العام، ولا يوجد أي تقدير. الهامش هو الإيرادات ناقص مصروفات فواتير المشتريات، وليس صافي الربح الكامل: لا يشمل الرواتب ولا الإهلاك ولا المصروفات العمومية ولا تكاليف قيود اليومية."
+msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines, by posting date, in the company currency. Expenses are the net amount of the submitted Purchase Invoice lines that are booked to an Expense account and are neither a stock item nor a fixed asset. The other Purchase Invoice lines (stock items, fixed-asset items, lines booked to an account that is not an Expense account) are in the column \"Purchases not in expenses\": it is information only and is not in the margin. Stock that was bought and consumed, for example diesel or spare parts bought as stock items, is therefore not in the project expenses of this report, so the margin can be higher than the real one. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
+msgstr "للقراءة فقط. الإيرادات هي صافي بنود فواتير المبيعات المعتمدة، حسب تاريخ الترحيل وبعملة الشركة. المصروفات هي صافي بنود فواتير المشتريات المعتمدة المسجّلة على حساب مصروفات وليست صنف مخزون ولا أصلاً ثابتاً. باقي بنود فواتير المشتريات (أصناف المخزون، وبنود الأصول الثابتة، والبنود المسجّلة على حساب ليس حساب مصروفات) تظهر في عمود «مشتريات خارج المصروفات»: هو للمعلومة فقط ولا يدخل في الهامش. لذلك المخزون الذي تم شراؤه واستهلاكه، مثل الديزل أو قطع الغيار المشتراة كأصناف مخزون، لا يدخل في مصروفات المشروع في هذا التقرير، وقد يكون الهامش أعلى من الحقيقي. الفواتير الافتتاحية لا تُقرأ. البند الذي ليس عليه مشروع يأخذ مشروع فاتورته؛ والبنود التي ليس لها مشروع إطلاقاً تظهر في سطر «بدون مشروع». لا تُقرأ قيود اليومية ولا دفتر الأستاذ العام، ولا يوجد أي تقدير. الهامش هو الإيرادات ناقص مصروفات فواتير المشتريات، وليس صافي الربح الكامل: لا يشمل الرواتب ولا الإهلاك ولا المصروفات العمومية ولا تكاليف قيود اليومية."
 
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
 msgid "The project profitability needs read access to {0}."
@@ -9438,6 +9438,10 @@ msgstr "هامش المشروع"
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
 msgid "Project margin %"
 msgstr "نسبة هامش المشروع %"
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Purchases not in expenses"
+msgstr "مشتريات خارج المصروفات"
 
 #. FR-191
 msgid "Equipment operation cards cannot be approved before the end of their accounting month. You may continue recording operations and payments and saving the card until the month ends."
@@ -9538,3 +9542,115 @@ msgstr "أُعيد فتحه لشهره الجاري بواسطة {0} في {1}: �
 #. FR-191
 msgid "Finally approved by {0} on {1} after the end of its month."
 msgstr "اعتُمد نهائياً بواسطة {0} في {1} بعد انتهاء شهره."
+
+#. FR-194
+msgid "Only an Accounts Manager or a System Manager may link customer invoices to CARD cards."
+msgstr "ربط فواتير العملاء بكروت CARD مسموح فقط لدور Accounts Manager أو System Manager."
+
+#. FR-194
+msgid "Choose the monthly cards this invoice bills."
+msgstr "اختر الكروت الشهرية التي تفوترها هذه الفاتورة."
+
+#. FR-194
+msgid "Give the reason for linking this invoice to the cards."
+msgstr "اكتب سبب ربط هذه الفاتورة بالكروت."
+
+#. FR-194
+msgid "You are not permitted to link invoices for company {0}."
+msgstr "ليست لديك صلاحية ربط فواتير الشركة {0}."
+
+#. FR-194
+msgid "{0} is not submitted; link a submitted Sales Invoice."
+msgstr "{0} غير معتمدة؛ اربط فاتورة مبيعات معتمدة."
+
+#. FR-194
+msgid "{0} is a return (credit note); link the Sales Invoice itself."
+msgstr "{0} مرتجع (إشعار دائن)؛ اربط فاتورة المبيعات نفسها."
+
+#. FR-194
+msgid "{0} is a debit note; link the Sales Invoice itself."
+msgstr "{0} إشعار مدين؛ اربط فاتورة المبيعات نفسها."
+
+#. FR-194
+msgid "{0} is an opening invoice; it does not bill monthly cards."
+msgstr "{0} فاتورة افتتاحية؛ لا تفوتر كروتًا شهرية."
+
+#. FR-194
+msgid "{0} is already a CARD posting or linked ({1})."
+msgstr "{0} ترحيل من CARD أو مربوطة من قبل ({1})."
+
+#. FR-194
+msgid "Card {0} is not approved: its month has not ended."
+msgstr "الكارت {0} غير معتمد نهائيًا: شهره لم ينتهِ."
+
+#. FR-194
+msgid "Card {0} is not billed to a customer."
+msgstr "الكارت {0} لا يُفوتر لعميل."
+
+#. FR-194
+msgid "Card {0} belongs to another company than {1}."
+msgstr "الكارت {0} يخص شركة غير شركة {1}."
+
+#. FR-194
+msgid "Card {0} belongs to another customer than {1}."
+msgstr "الكارت {0} يخص عميلًا غير عميل {1}."
+
+#. FR-194
+msgid "Card {0} is marked posted without an invoice link; review it before linking."
+msgstr "الكارت {0} معلَّم بأنه مُرحَّل وليس عليه رابط فاتورة؛ راجعه قبل الربط."
+
+#. FR-194
+msgid "Cannot link: the cards total {0} net, {1} is net {2} (before VAT). Link exactly the cards this invoice bills."
+msgstr "لا يمكن الربط: صافي الكروت {0}، وصافي {1} هو {2} (قبل الضريبة). اربط الكروت التي تفوترها هذه الفاتورة فقط."
+
+#. FR-194
+msgid "Linked by {0}: sales invoice {1} net {2} / total {3}, CARD cards net {4}, matched. {5}"
+msgstr "ربطها {0}: فاتورة المبيعات {1} صافيها {2} / إجماليها {3}، صافي كروت CARD {4}، مطابق. {5}"
+
+#. FR-194
+msgid "Linked to CARD monthly cards {0} by {1} on {2}. Reason: {3}"
+msgstr "رُبطت بكروت CARD الشهرية {0} بواسطة {1} في {2}. السبب: {3}"
+
+#. FR-194
+msgid "Linked to Sales Invoice {0} by {1} on {2}. Reason: {3}"
+msgstr "رُبط بفاتورة المبيعات {0} بواسطة {1} في {2}. السبب: {3}"
+
+#. FR-194
+msgid "The invoice has no project; it cannot be linked to cards."
+msgstr "الفاتورة ليس فيها مشروع؛ لا يمكن ربطها بكروت."
+
+#. FR-194
+msgid "No unlinked card of this customer on the projects of the invoice."
+msgstr "لا يوجد كارت غير مربوط لهذا العميل في مشاريع الفاتورة."
+
+#. FR-194
+msgid "Card {0} is of project {1}, which is not a project of {2} (its lines, or its header for a line without a project)."
+msgstr "الكارت {0} يخص المشروع {1}، وهو ليس من مشاريع {2} (بنودها، أو رأسها للبند الذي ليس فيه مشروع)."
+
+#. FR-194
+msgid "{0} is in {1}; only invoices in the company currency can be linked."
+msgstr "{0} بعملة {1}؛ لا تُربط إلا الفواتير التي بعملة الشركة."
+
+#. FR-194
+msgid "{0} has a credit note ({1}); link the valid Sales Invoice."
+msgstr "{0} لها إشعار دائن ({1})؛ اربط فاتورة المبيعات الصحيحة."
+
+#. FR-194
+msgid "Cannot link: {0} bills {1} net on lines without a project, and every card has a project."
+msgstr "لا يمكن الربط: {0} تفوتر صافي {1} في بنود ليس فيها مشروع، ولكل كارت مشروع."
+
+#. FR-194
+msgid "Cannot link: for project {0}, {1} bills {2} net and the listed cards total {3}. Link exactly the cards this invoice bills."
+msgstr "لا يمكن الربط: في المشروع {0} تفوتر {1} صافي {2} ومجموع الكروت المذكورة {3}. اربط الكروت التي تفوترها هذه الفاتورة فقط."
+
+#. FR-194
+msgid "The cards of the invoice month and the month before total the invoice net, for each project."
+msgstr "مجموع كروت شهر الفاتورة والشهر الذي قبله يساوي صافي الفاتورة، لكل مشروع."
+
+#. FR-194
+msgid "All unlinked cards of the projects of the invoice total the invoice net, for each project."
+msgstr "مجموع كل الكروت غير المربوطة في مشاريع الفاتورة يساوي صافي الفاتورة، لكل مشروع."
+
+#. FR-194
+msgid "No tested set of cards totals the invoice net for each project: all unlinked cards of the projects total {0}."
+msgstr "لا تساوي أي مجموعة مختبرة من الكروت صافي الفاتورة لكل مشروع: مجموع كل الكروت غير المربوطة في المشاريع {0}."
