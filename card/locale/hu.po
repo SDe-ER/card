@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³-enként"
 
 msgid "Loads last month"
-msgstr "Fuvarok az előző hónapban"
+msgstr "Fuvarok az előző hónapban (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Fuvar csak olyan kártyán rögzíthető, amelynek vevői díjtípusa m³-enként"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Bérelt eszközök (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Fuvarok az előző hónapban"
+msgstr "Fuvarok az előző hónapban (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Piszkozat kártyák (CARD)"
@@ -385,3 +385,219 @@ msgstr "Bizonylat (nyugtaszám vagy hivatkozás)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Készpénzes kifizetés jóváhagyása kérve"
+
+msgid "Card Expenses"
+msgstr "Kiadások"
+
+msgid "Card Fleet"
+msgstr "Eszközök"
+
+msgid "Card Materials"
+msgstr "Anyagok és beszerzés"
+
+msgid "Card Movement"
+msgstr "Mozgatás és szállítás"
+
+msgid "Card Operating Units"
+msgstr "Üzemeltetési egységek"
+
+msgid "Card Operation Cards"
+msgstr "Üzemeltetési kártyák"
+
+msgid "Card Parties"
+msgstr "Beszállítók és ügyfelek"
+
+msgid "Card Reports"
+msgstr "Jelentések"
+
+msgid "Card Setup"
+msgstr "Beállítások"
+
+msgid "Project Diesel Fill"
+msgstr "Projekt dízeltankolás"
+
+msgid "Equipment Transport"
+msgstr "Eszközszállítás"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Dízelfogyasztás"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Eszközök dízelelemzése"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Eszközkiadások eszköz nélkül"
+
+msgid "Card Equipment"
+msgstr "Eszközök"
+
+msgid "Card Equipment Type"
+msgstr "Eszköztípus"
+
+msgid "Card Equipment Category"
+msgstr "Eszközkategória"
+
+msgid "Equipment Needs Request"
+msgstr "Eszközigény-kérelem"
+
+msgid "Equipment Needs Review"
+msgstr "Eszközigények felülvizsgálata"
+
+msgid "Tool Custody"
+msgstr "Szerszámfelelősség"
+
+msgid "Employee Tool Custody"
+msgstr "Munkavállalói szerszámfelelősség"
+
+msgid "Equipment Makes"
+msgstr "Eszközmárkák"
+
+msgid "Equipment Models"
+msgstr "Eszközmodellek"
+
+msgid "Parts Fitment"
+msgstr "Alkatrész-kompatibilitás"
+
+msgid "Equipment Make Model Values"
+msgstr "Márka és modell szöveges értékei"
+
+msgid "Equipment Needs Summary"
+msgstr "Eszközigények összesítése"
+
+msgid "Equipment Consumption"
+msgstr "Eszközfogyasztás"
+
+msgid "Worker Custody"
+msgstr "Dolgozói szerszámfelelősség"
+
+msgid "Repeat Equipment Requests"
+msgstr "Ismétlődő eszközkérelmek"
+
+msgid "Card Equipment Assignment"
+msgstr "Eszköz-hozzárendelés"
+
+msgid "Transport Cost by Project"
+msgstr "Projektenkénti szállítási költség"
+
+msgid "Card Monthly Card"
+msgstr "Havi üzemeltetési kártya"
+
+msgid "Operating Cost by Project"
+msgstr "Projektenkénti üzemi költség"
+
+msgid "Card Equipment Supplier"
+msgstr "Eszközbeszállító"
+
+msgid "Card Equipment Customer"
+msgstr "Eszközös ügyfél"
+
+msgid "Equipment Supplier Statement"
+msgstr "Beszállítói kivonat"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Beszállítói összesítő"
+
+msgid "Equipment Customer Statement"
+msgstr "Ügyfél-kivonat"
+
+msgid "Equipment Customers Summary"
+msgstr "Ügyféláttekintés"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dízeleltérések és rendellenességek"
+
+msgid "Diesel Group Analysis"
+msgstr "Dízelelemzés csoportonként"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Dízelszámlák egyeztetése"
+
+msgid "Card Settlement Status"
+msgstr "Kártyák elszámolási állapota"
+
+msgid "Equipment Partial Margin"
+msgstr "Eszközök részleges árrése"
+
+msgid "Project Invoice Profitability"
+msgstr "Projektek jövedelmezősége számlák alapján"
+
+msgid "Unbilled Card Work"
+msgstr "Ki nem számlázott kártyamunka"
+
+msgid "Posting Source Integrity"
+msgstr "Könyvelési források sértetlensége"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Eszközök karbantartási költsége"
+
+msgid "Equipment Downtime"
+msgstr "Eszközök állásideje"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Órajel-egyeztetés"
+
+msgid "Asset Mapping Review"
+msgstr "Eszközleképezés felülvizsgálata"
+
+msgid "Transport Accounting Review"
+msgstr "Szállítási könyvelés felülvizsgálata"
+
+msgid "Equipment Location History"
+msgstr "Eszközök helyelőzményei"
+
+msgid "Card Settings"
+msgstr "Beállítások"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Beszállítói bérleti költség - múlt hónap"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Összes dízelliter"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Teljes dízelköltség"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Teljes szállítási költség"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Havi kártyaösszegek"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Havi dízelköltség"
+
+msgid "الصفحة الرئيسية"
+msgstr "Kezdőlap"
+
+msgid "التشغيل"
+msgstr "Üzemeltetés"
+
+msgid "الموردين والتقارير"
+msgstr "Beszállítók és jelentések"
+
+msgid "المعدات"
+msgstr "Eszközök"
+
+msgid "المعدة"
+msgstr "Eszközök"
+
+msgid "نوع المعدة"
+msgstr "Eszköztípus"
+
+msgid "فئة المعدة"
+msgstr "Eszközkategória"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Eszköz-hozzárendelés"
+
+msgid "الكارت الشهري"
+msgstr "Havi üzemeltetési kártya"
+
+msgid "موردي المعدات"
+msgstr "Eszközbeszállító"
+
+msgid "ملخص الموردين"
+msgstr "Beszállítói összesítő"
+
+msgid "كشف حساب مورد"
+msgstr "Beszállítói kivonat"

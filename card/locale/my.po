@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³ လျှင်"
 
 msgid "Loads last month"
-msgstr "ပြီးခဲ့သောလ ခရီးစဉ်"
+msgstr "ပြီးခဲ့သောလ ခရီးစဉ် (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "ဖောက်သည်နှုန်းအမျိုးအစား m³ လျှင် ဖြစ်သော ကတ်တွင်သာ ခရီးစဉ် မှတ်တမ်းတင်နိုင်သည်"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "ငှားရမ်းထားသော စက်ပစ္စည်းများ (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "ပြီးခဲ့သောလ ခရီးစဉ်"
+msgstr "ပြီးခဲ့သောလ ခရီးစဉ် (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "မူကြမ်းကတ်များ (CARD)"
@@ -385,3 +385,219 @@ msgstr "အထောက်အထား (ငွေလက်ခံစာအမှ�
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "ငွေသား ပေးချေမှု အတည်ပြုချက် တောင်းဆိုပြီး"
+
+msgid "Card Expenses"
+msgstr "ကုန်ကျစရိတ်များ"
+
+msgid "Card Fleet"
+msgstr "စက်ပစ္စည်းများ"
+
+msgid "Card Materials"
+msgstr "ပစ္စည်းများနှင့် ဝယ်ယူမှု"
+
+msgid "Card Movement"
+msgstr "ရွှေ့ပြောင်းမှုနှင့် သယ်ယူပို့ဆောင်ရေး"
+
+msgid "Card Operating Units"
+msgstr "လည်ပတ်ရေးယူနစ်များ"
+
+msgid "Card Operation Cards"
+msgstr "လည်ပတ်မှုကတ်များ"
+
+msgid "Card Parties"
+msgstr "ပေးသွင်းသူများနှင့် ဖောက်သည်များ"
+
+msgid "Card Reports"
+msgstr "အစီရင်ခံစာများ"
+
+msgid "Card Setup"
+msgstr "ဆက်တင်များ"
+
+msgid "Project Diesel Fill"
+msgstr "ပရောဂျက် ဒီဇယ်ဖြည့်ခြင်း"
+
+msgid "Equipment Transport"
+msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်မှု"
+
+msgid "Equipment Diesel Consumption"
+msgstr "ဒီဇယ်သုံးစွဲမှု"
+
+msgid "Equipment Diesel Analysis"
+msgstr "စက်ပစ္စည်း ဒီဇယ်ခွဲခြမ်းစိတ်ဖြာမှု"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "စက်ပစ္စည်းမပါသော စက်ပစ္စည်းကုန်ကျစရိတ်များ"
+
+msgid "Card Equipment"
+msgstr "စက်ပစ္စည်းများ"
+
+msgid "Card Equipment Type"
+msgstr "စက်ပစ္စည်းအမျိုးအစား"
+
+msgid "Card Equipment Category"
+msgstr "စက်ပစ္စည်းအုပ်စု"
+
+msgid "Equipment Needs Request"
+msgstr "စက်ပစ္စည်းလိုအပ်ချက် တောင်းဆိုမှု"
+
+msgid "Equipment Needs Review"
+msgstr "စက်ပစ္စည်းလိုအပ်ချက် သုံးသပ်မှု"
+
+msgid "Tool Custody"
+msgstr "ကိရိယာ ထိန်းသိမ်းတာဝန်"
+
+msgid "Employee Tool Custody"
+msgstr "ဝန်ထမ်း၏ ကိရိယာ ထိန်းသိမ်းတာဝန်"
+
+msgid "Equipment Makes"
+msgstr "စက်ပစ္စည်းအမှတ်တံဆိပ်များ"
+
+msgid "Equipment Models"
+msgstr "စက်ပစ္စည်းမော်ဒယ်များ"
+
+msgid "Parts Fitment"
+msgstr "အပိုပစ္စည်း ကိုက်ညီမှု"
+
+msgid "Equipment Make Model Values"
+msgstr "အမှတ်တံဆိပ်နှင့် မော်ဒယ် စာသားတန်ဖိုးများ"
+
+msgid "Equipment Needs Summary"
+msgstr "စက်ပစ္စည်းလိုအပ်ချက် အကျဉ်းချုပ်"
+
+msgid "Equipment Consumption"
+msgstr "စက်ပစ္စည်း သုံးစွဲမှု"
+
+msgid "Worker Custody"
+msgstr "အလုပ်သမားများ၏ ထိန်းသိမ်းတာဝန်"
+
+msgid "Repeat Equipment Requests"
+msgstr "ထပ်ခါတလဲလဲ စက်ပစ္စည်းတောင်းဆိုမှုများ"
+
+msgid "Card Equipment Assignment"
+msgstr "စက်ပစ္စည်း တာဝန်ပေးအပ်မှု"
+
+msgid "Transport Cost by Project"
+msgstr "စီမံကိန်းအလိုက် သယ်ယူကုန်ကျစရိတ်"
+
+msgid "Card Monthly Card"
+msgstr "လစဉ် လည်ပတ်မှုကတ်"
+
+msgid "Operating Cost by Project"
+msgstr "စီမံကိန်းအလိုက် လည်ပတ်ကုန်ကျစရိတ်"
+
+msgid "Card Equipment Supplier"
+msgstr "စက်ပစ္စည်းပေးသွင်းသူ"
+
+msgid "Card Equipment Customer"
+msgstr "စက်ပစ္စည်းဖောက်သည်"
+
+msgid "Equipment Supplier Statement"
+msgstr "ပေးသွင်းသူ မှတ်တမ်း"
+
+msgid "Equipment Suppliers Summary"
+msgstr "ပေးသွင်းသူအကျဉ်းချုပ်"
+
+msgid "Equipment Customer Statement"
+msgstr "ဖောက်သည်အကောင့်မှတ်တမ်း"
+
+msgid "Equipment Customers Summary"
+msgstr "ဖောက်သည်အကျဉ်းချုပ်"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "ဒီဇယ် ကွာဟချက်နှင့် ပုံမှန်မဟုတ်မှုများ"
+
+msgid "Diesel Group Analysis"
+msgstr "ဒီဇယ် အုပ်စုလိုက် ခွဲခြမ်းစိတ်ဖြာမှု"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "ဒီဇယ် ငွေတောင်းခံလွှာ တိုက်ဆိုင်စစ်ဆေးမှု"
+
+msgid "Card Settlement Status"
+msgstr "ကတ်စာရင်းရှင်းလင်းမှု အခြေအနေ"
+
+msgid "Equipment Partial Margin"
+msgstr "စက်ပစ္စည်း တစ်စိတ်တစ်ပိုင်း အမြတ်"
+
+msgid "Project Invoice Profitability"
+msgstr "ငွေတောင်းခံလွှာအလိုက် ပရောဂျက်အမြတ်အစွန်း"
+
+msgid "Unbilled Card Work"
+msgstr "ငွေမတောင်းခံရသေးသော ကတ်အလုပ်"
+
+msgid "Posting Source Integrity"
+msgstr "စာရင်းသွင်းရင်းမြစ်များ၏ မှန်ကန်ပြည့်စုံမှု"
+
+msgid "Equipment Maintenance Cost"
+msgstr "စက်ပစ္စည်း ပြုပြင်ထိန်းသိမ်းစရိတ်"
+
+msgid "Equipment Downtime"
+msgstr "စက်ပစ္စည်း ရပ်နားချိန်"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "မီတာ ပြန်လည်တိုက်ဆိုင်ခြင်း"
+
+msgid "Asset Mapping Review"
+msgstr "ပိုင်ဆိုင်ပစ္စည်း ချိတ်ဆက်မှု သုံးသပ်ချက်"
+
+msgid "Transport Accounting Review"
+msgstr "သယ်ယူပို့ဆောင်ရေး စာရင်းကိုင် သုံးသပ်ချက်"
+
+msgid "Equipment Location History"
+msgstr "စက်ပစ္စည်းတည်နေရာ မှတ်တမ်း"
+
+msgid "Card Settings"
+msgstr "ဆက်တင်များ"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "ပေးသွင်းသူ ငှားရမ်းခ - ပြီးခဲ့သောလ"
+
+msgid "إجمالي لترات الديزل"
+msgstr "စုစုပေါင်း ဒီဇယ်လီတာ"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "စုစုပေါင်း ဒီဇယ်ကုန်ကျစရိတ်"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "စုစုပေါင်း သယ်ယူပို့ဆောင်ရေးစရိတ်"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "လစဉ် ကတ်ပမာဏများ"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "လစဉ် ဒီဇယ်ကုန်ကျစရိတ်"
+
+msgid "الصفحة الرئيسية"
+msgstr "ပင်မစာမျက်နှာ"
+
+msgid "التشغيل"
+msgstr "လည်ပတ်မှု"
+
+msgid "الموردين والتقارير"
+msgstr "ပေးသွင်းသူများနှင့် အစီရင်ခံစာများ"
+
+msgid "المعدات"
+msgstr "စက်ပစ္စည်းများ"
+
+msgid "المعدة"
+msgstr "စက်ပစ္စည်းများ"
+
+msgid "نوع المعدة"
+msgstr "စက်ပစ္စည်းအမျိုးအစား"
+
+msgid "فئة المعدة"
+msgstr "စက်ပစ္စည်းအုပ်စု"
+
+msgid "تعيين معدة على مشروع"
+msgstr "စက်ပစ္စည်း တာဝန်ပေးအပ်မှု"
+
+msgid "الكارت الشهري"
+msgstr "လစဉ် လည်ပတ်မှုကတ်"
+
+msgid "موردي المعدات"
+msgstr "စက်ပစ္စည်းပေးသွင်းသူ"
+
+msgid "ملخص الموردين"
+msgstr "ပေးသွင်းသူအကျဉ်းချုပ်"
+
+msgid "كشف حساب مورد"
+msgstr "ပေးသွင်းသူ မှတ်တမ်း"

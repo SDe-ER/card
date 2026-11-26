@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³-ын үнэ"
 
 msgid "Loads last month"
-msgstr "Өмнөх сарын ачаа"
+msgstr "Өмнөх сарын ачаа (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ачааг зөвхөн үйлчлүүлэгчийн тариф м³-ын үнээр тохируулсан картад бүртгэнэ"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Түрээсийн техник (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Өмнөх сарын ачаа"
+msgstr "Өмнөх сарын ачаа (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Ноорог карт (CARD)"
@@ -385,3 +385,219 @@ msgstr "Баримт (кассын баримтын дугаар эсвэл ла
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Бэлэн мөнгөний төлбөрийн батламж хүсэгдсэн"
+
+msgid "Card Expenses"
+msgstr "Зардал"
+
+msgid "Card Fleet"
+msgstr "Техник"
+
+msgid "Card Materials"
+msgstr "Материал ба худалдан авалт"
+
+msgid "Card Movement"
+msgstr "Хөдөлгөөн ба тээвэр"
+
+msgid "Card Operating Units"
+msgstr "Үйл ажиллагааны нэгжүүд"
+
+msgid "Card Operation Cards"
+msgstr "Үйл ажиллагааны карт"
+
+msgid "Card Parties"
+msgstr "Нийлүүлэгчид ба харилцагчид"
+
+msgid "Card Reports"
+msgstr "Тайлан"
+
+msgid "Card Setup"
+msgstr "Тохиргоо"
+
+msgid "Project Diesel Fill"
+msgstr "Төслийн дизель цэнэглэлт"
+
+msgid "Equipment Transport"
+msgstr "Техникийн тээвэр"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Дизелийн зарцуулалт"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Техникийн дизелийн шинжилгээ"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Техникгүй техникийн зардал"
+
+msgid "Card Equipment"
+msgstr "Техник"
+
+msgid "Card Equipment Type"
+msgstr "Техникийн төрөл"
+
+msgid "Card Equipment Category"
+msgstr "Техникийн ангилал"
+
+msgid "Equipment Needs Request"
+msgstr "Техникийн хэрэгцээний хүсэлт"
+
+msgid "Equipment Needs Review"
+msgstr "Техникийн хэрэгцээний хяналт"
+
+msgid "Tool Custody"
+msgstr "Багаж хариуцалт"
+
+msgid "Employee Tool Custody"
+msgstr "Ажилтны багаж хариуцалт"
+
+msgid "Equipment Makes"
+msgstr "Техникийн марк"
+
+msgid "Equipment Models"
+msgstr "Техникийн загвар"
+
+msgid "Parts Fitment"
+msgstr "Сэлбэгийн тохирол"
+
+msgid "Equipment Make Model Values"
+msgstr "Марк, загварын бичвэр утгууд"
+
+msgid "Equipment Needs Summary"
+msgstr "Техникийн хэрэгцээний нэгтгэл"
+
+msgid "Equipment Consumption"
+msgstr "Техникийн хэрэглээ"
+
+msgid "Worker Custody"
+msgstr "Ажилчдын хариуцалт"
+
+msgid "Repeat Equipment Requests"
+msgstr "Техникийн давтагдсан хүсэлтүүд"
+
+msgid "Card Equipment Assignment"
+msgstr "Техникийн хуваарилалт"
+
+msgid "Transport Cost by Project"
+msgstr "Төслөөр тээврийн зардал"
+
+msgid "Card Monthly Card"
+msgstr "Сарын үйл ажиллагааны карт"
+
+msgid "Operating Cost by Project"
+msgstr "Төслөөр үйл ажиллагааны зардал"
+
+msgid "Card Equipment Supplier"
+msgstr "Техникийн нийлүүлэгч"
+
+msgid "Card Equipment Customer"
+msgstr "Техникийн харилцагч"
+
+msgid "Equipment Supplier Statement"
+msgstr "Нийлүүлэгчийн тооцоо"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Нийлүүлэгчдийн хураангуй"
+
+msgid "Equipment Customer Statement"
+msgstr "Харилцагчийн тооцоо"
+
+msgid "Equipment Customers Summary"
+msgstr "Харилцагчийн хураангуй"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Дизелийн зөрүү ба хэвийн бус байдал"
+
+msgid "Diesel Group Analysis"
+msgstr "Бүлгийн дизелийн шинжилгээ"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Дизелийн нэхэмжлэхийн тулгалт"
+
+msgid "Card Settlement Status"
+msgstr "Картын тооцоо хаалтын төлөв"
+
+msgid "Equipment Partial Margin"
+msgstr "Техникийн хэсэгчилсэн ашиг"
+
+msgid "Project Invoice Profitability"
+msgstr "Нэхэмжлэхээрх төслийн ашигт ажиллагаа"
+
+msgid "Unbilled Card Work"
+msgstr "Нэхэмжлээгүй картын ажил"
+
+msgid "Posting Source Integrity"
+msgstr "Бүртгэлийн эх сурвалжийн бүрэн бүтэн байдал"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Техникийн засвар үйлчилгээний зардал"
+
+msgid "Equipment Downtime"
+msgstr "Техникийн сул зогсолт"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Тоолуурын тохиргоо"
+
+msgid "Asset Mapping Review"
+msgstr "Хөрөнгийн холболтын хяналт"
+
+msgid "Transport Accounting Review"
+msgstr "Тээврийн бүртгэлийн хяналт"
+
+msgid "Equipment Location History"
+msgstr "Техникийн байршлын түүх"
+
+msgid "Card Settings"
+msgstr "Тохиргоо"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Нийлүүлэгчийн түрээсийн зардал - өнгөрсөн сар"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Нийт дизель литр"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Нийт дизелийн зардал"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Нийт тээврийн зардал"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Сарын картын дүн"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Сарын дизелийн зардал"
+
+msgid "الصفحة الرئيسية"
+msgstr "Нүүр"
+
+msgid "التشغيل"
+msgstr "Үйл ажиллагаа"
+
+msgid "الموردين والتقارير"
+msgstr "Нийлүүлэгчид ба тайлан"
+
+msgid "المعدات"
+msgstr "Техник"
+
+msgid "المعدة"
+msgstr "Техник"
+
+msgid "نوع المعدة"
+msgstr "Техникийн төрөл"
+
+msgid "فئة المعدة"
+msgstr "Техникийн ангилал"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Техникийн хуваарилалт"
+
+msgid "الكارت الشهري"
+msgstr "Сарын үйл ажиллагааны карт"
+
+msgid "موردي المعدات"
+msgstr "Техникийн нийлүүлэгч"
+
+msgid "ملخص الموردين"
+msgstr "Нийлүүлэгчдийн хураангуй"
+
+msgid "كشف حساب مورد"
+msgstr "Нийлүүлэгчийн тооцоо"

@@ -416,3 +416,4 @@ Checked against `main` @ `31fe7ce` (2026-10-20); FR-002 and FR-003 re-checked at
 | 2026-11-26 | Release v4.14.0: FR-194 released and set to Implemented; the FR-193 expense rule and the print-page PDF button of FR-089 / FR-187 released. No row deleted |
 | 2026-11-26 | FR-168 fixed: the workspace number cards hidden by a label and translation mismatch show again (locale files only, PR #336; not released). No row deleted |
 | 2026-11-26 | FR-195 added (unlink a wrong customer invoice link, System Manager only; In review); the open point of FR-194 about a missing unlink method closed. No row deleted |
+| 2026-11-26 | FR-168 follow-up: every locale translates the navigation layer (number card labels in Urdu, "(CARD)" kept on the loads card, module sidebars and Number Card / Dashboard Chart names in 41 locales, `ar.po` gaps filled); locale files and tests only (PR #345; not released). No row deleted |

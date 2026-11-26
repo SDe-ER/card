@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Pro m³"
 
 msgid "Loads last month"
-msgstr "Fuhren letzter Monat"
+msgstr "Fuhren letzter Monat (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Fuhren können nur auf einer Karte erfasst werden, deren Kundentarif pro m³ ist"
@@ -151,7 +151,7 @@ msgid "المعدات المؤجرة"
 msgstr "Gemietete Geräte (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Fuhren letzter Monat"
+msgstr "Fuhren letzter Monat (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Entwurfskarten (CARD)"
@@ -160,10 +160,10 @@ msgid "كروت مسودة"
 msgstr "Entwurfskarten (CARD)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Karten ohne interne Rate (CARD)"
+msgstr "Karten ohne internen Satz (CARD)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Karten ohne interne Rate (CARD)"
+msgstr "Karten ohne internen Satz (CARD)"
 
 msgid "Operating hours without rate (CARD)"
 msgstr "Betriebsstunden ohne Rate (CARD)"
@@ -385,3 +385,219 @@ msgstr "Beleg (Quittungsnummer oder Referenz)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Barzahlungsgenehmigung angefordert"
+
+msgid "Card Expenses"
+msgstr "Ausgaben"
+
+msgid "Card Fleet"
+msgstr "Geräte"
+
+msgid "Card Materials"
+msgstr "Material und Einkauf"
+
+msgid "Card Movement"
+msgstr "Bewegung und Transport"
+
+msgid "Card Operating Units"
+msgstr "Betriebseinheiten"
+
+msgid "Card Operation Cards"
+msgstr "Betriebskarten"
+
+msgid "Card Parties"
+msgstr "Lieferanten und Kunden"
+
+msgid "Card Reports"
+msgstr "Berichte"
+
+msgid "Card Setup"
+msgstr "Einstellungen"
+
+msgid "Project Diesel Fill"
+msgstr "Projekt-Dieselbetankung"
+
+msgid "Equipment Transport"
+msgstr "Gerätetransport"
+
+msgid "Equipment Diesel Consumption"
+msgstr "Dieselverbrauch"
+
+msgid "Equipment Diesel Analysis"
+msgstr "Dieselanalyse der Geräte"
+
+msgid "Equipment Expenses Without Equipment"
+msgstr "Geräteausgaben ohne Gerät"
+
+msgid "Card Equipment"
+msgstr "Geräte"
+
+msgid "Card Equipment Type"
+msgstr "Gerätetyp"
+
+msgid "Card Equipment Category"
+msgstr "Gerätekategorie"
+
+msgid "Equipment Needs Request"
+msgstr "Gerätebedarfsanforderung"
+
+msgid "Equipment Needs Review"
+msgstr "Prüfung des Gerätebedarfs"
+
+msgid "Tool Custody"
+msgstr "Werkzeugobhut"
+
+msgid "Employee Tool Custody"
+msgstr "Werkzeugobhut des Mitarbeiters"
+
+msgid "Equipment Makes"
+msgstr "Gerätemarken"
+
+msgid "Equipment Models"
+msgstr "Gerätemodelle"
+
+msgid "Parts Fitment"
+msgstr "Teilekompatibilität"
+
+msgid "Equipment Make Model Values"
+msgstr "Textwerte für Marke und Modell"
+
+msgid "Equipment Needs Summary"
+msgstr "Übersicht Gerätebedarf"
+
+msgid "Equipment Consumption"
+msgstr "Geräteverbrauch"
+
+msgid "Worker Custody"
+msgstr "Werkzeugobhut der Arbeiter"
+
+msgid "Repeat Equipment Requests"
+msgstr "Wiederholte Geräteanforderungen"
+
+msgid "Card Equipment Assignment"
+msgstr "Gerätezuweisung"
+
+msgid "Transport Cost by Project"
+msgstr "Transportkosten nach Projekt"
+
+msgid "Card Monthly Card"
+msgstr "Monatliche Betriebskarte"
+
+msgid "Operating Cost by Project"
+msgstr "Betriebskosten nach Projekt"
+
+msgid "Card Equipment Supplier"
+msgstr "Gerätelieferant"
+
+msgid "Card Equipment Customer"
+msgstr "Gerätekunde"
+
+msgid "Equipment Supplier Statement"
+msgstr "Lieferantenauszug"
+
+msgid "Equipment Suppliers Summary"
+msgstr "Lieferantenübersicht"
+
+msgid "Equipment Customer Statement"
+msgstr "Kundenauszug"
+
+msgid "Equipment Customers Summary"
+msgstr "Kundenübersicht"
+
+msgid "Diesel Variance & Anomaly"
+msgstr "Dieselabweichungen und Auffälligkeiten"
+
+msgid "Diesel Group Analysis"
+msgstr "Dieselanalyse nach Gruppe"
+
+msgid "Diesel Invoice Reconciliation"
+msgstr "Abgleich der Dieselrechnungen"
+
+msgid "Card Settlement Status"
+msgstr "Abrechnungsstatus der Karten"
+
+msgid "Equipment Partial Margin"
+msgstr "Teilmarge der Geräte"
+
+msgid "Project Invoice Profitability"
+msgstr "Projektrentabilität nach Rechnungen"
+
+msgid "Unbilled Card Work"
+msgstr "Nicht abgerechnete Kartenarbeit"
+
+msgid "Posting Source Integrity"
+msgstr "Integrität der Buchungsquellen"
+
+msgid "Equipment Maintenance Cost"
+msgstr "Wartungskosten der Geräte"
+
+msgid "Equipment Downtime"
+msgstr "Geräteausfallzeiten"
+
+msgid "Equipment Meter Reconciliation"
+msgstr "Zählerabgleich"
+
+msgid "Asset Mapping Review"
+msgstr "Prüfung der Anlagenzuordnung"
+
+msgid "Transport Accounting Review"
+msgstr "Prüfung der Transportbuchhaltung"
+
+msgid "Equipment Location History"
+msgstr "Standortverlauf der Geräte"
+
+msgid "Card Settings"
+msgstr "Einstellungen"
+
+msgid "تكلفة إيجار من موردين - الشهر الماضي"
+msgstr "Mietkosten Lieferanten - letzter Monat"
+
+msgid "إجمالي لترات الديزل"
+msgstr "Diesel-Liter gesamt"
+
+msgid "إجمالي تكلفة الديزل"
+msgstr "Dieselkosten gesamt"
+
+msgid "إجمالي تكلفة النقل"
+msgstr "Transportkosten gesamt"
+
+msgid "مبالغ الكروت الشهرية"
+msgstr "Monatliche Kartenbeträge"
+
+msgid "تكلفة الديزل الشهرية"
+msgstr "Monatliche Dieselkosten"
+
+msgid "الصفحة الرئيسية"
+msgstr "Startseite"
+
+msgid "التشغيل"
+msgstr "Betrieb"
+
+msgid "الموردين والتقارير"
+msgstr "Lieferanten und Berichte"
+
+msgid "المعدات"
+msgstr "Geräte"
+
+msgid "المعدة"
+msgstr "Geräte"
+
+msgid "نوع المعدة"
+msgstr "Gerätetyp"
+
+msgid "فئة المعدة"
+msgstr "Gerätekategorie"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Gerätezuweisung"
+
+msgid "الكارت الشهري"
+msgstr "Monatliche Betriebskarte"
+
+msgid "موردي المعدات"
+msgstr "Gerätelieferant"
+
+msgid "ملخص الموردين"
+msgstr "Lieferantenübersicht"
+
+msgid "كشف حساب مورد"
+msgstr "Lieferantenauszug"

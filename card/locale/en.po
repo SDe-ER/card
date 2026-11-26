@@ -308,7 +308,7 @@ msgid "بالمتر المكعب"
 msgstr "Per m³"
 
 msgid "Loads last month"
-msgstr "Loads last month"
+msgstr "Loads last month (CARD)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Loads can be recorded only on a card whose customer rate type is per m³"
@@ -405,7 +405,7 @@ msgid "Rented equipment (CARD)"
 msgstr "Rented equipment (CARD)"
 
 msgid "Loads last month (CARD)"
-msgstr "Loads last month"
+msgstr "Loads last month (CARD)"
 
 msgid "Draft cards (CARD)"
 msgstr "Draft cards (CARD)"
@@ -630,3 +630,33 @@ msgstr "Evidence (receipt number or reference)"
 #: card/card/doctype/card_cash_disbursement/card_cash_disbursement.js
 msgid "Cash approval requested"
 msgstr "Cash approval requested"
+
+msgid "Card Materials"
+msgstr "Materials & Purchasing"
+
+msgid "الصفحة الرئيسية"
+msgstr "Home"
+
+msgid "المعدة"
+msgstr "Equipment"
+
+msgid "نوع المعدة"
+msgstr "Equipment Type"
+
+msgid "فئة المعدة"
+msgstr "Equipment Category"
+
+msgid "التشغيل"
+msgstr "Operations"
+
+msgid "تعيين معدة على مشروع"
+msgstr "Equipment Assignment"
+
+msgid "الكارت الشهري"
+msgstr "Monthly Operation Card"
+
+msgid "الموردين والتقارير"
+msgstr "Suppliers & Reports"
+
+msgid "موردي المعدات"
+msgstr "Equipment Suppliers"
