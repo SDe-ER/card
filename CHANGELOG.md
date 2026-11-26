@@ -65,7 +65,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     invoice in another currency than the company currency, an invoice that has a submitted credit note, an
     invoice that is already a CARD posting or linked; a card that is not submitted, of an open month, not
     billed to a customer, of another company, customer or project, already invoiced, already held by an
-    active customer posting, or listed twice; card names that cannot be read; a missing reason.
+    active customer posting, or listed twice (also under another spelling of its name); card names that cannot be read; a missing reason.
   - Amounts. The invoice net total (company currency, before VAT) must equal the sum of the cards' customer
     net amounts within Card Settings `reconciliation_tolerance`, in total and for each project: the net of
     the invoice lines of a project (a line without a project takes the header project of the invoice) equals

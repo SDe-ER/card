@@ -791,6 +791,7 @@ def _card_names(cards):
 	names = []
 	for entry in cards if isinstance(cards, list) else []:
 		name = entry.get("name") if isinstance(entry, dict) else entry
+		name = name.strip() if isinstance(name, str) else name
 		if not name or not isinstance(name, str):
 			frappe.throw(_("Choose the monthly cards this invoice bills."))
 		if name in names:
@@ -934,6 +935,10 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	for i, name in enumerate(names):
 		card = frappe.get_doc(CARD_DOCTYPE, name)
 		card.check_permission("read")
+		# the database matches names without case: two spellings of one card are one row
+		if any(card.name == listed.name for listed in docs):
+			frappe.throw(_("{0} {1} is listed twice.").format(_(CARD_DOCTYPE), card.name))
+		name = card.name
 		# the fields a posting, a cancel or a reopen of another transaction changes, under the row lock
 		current = frappe.db.get_value(
 			CARD_DOCTYPE,
@@ -1025,7 +1030,7 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	inv.add_comment(
 		"Info",
 		_("Linked to CARD monthly cards {0} by {1} on {2}. Reason: {3}").format(
-			escape_html(", ".join(names)), who, when, escape_html(reason)
+			escape_html(", ".join(card.name for card in docs)), who, when, escape_html(reason)
 		),
 	)
 	for card in docs:
