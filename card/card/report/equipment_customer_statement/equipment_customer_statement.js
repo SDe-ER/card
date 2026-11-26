@@ -55,7 +55,8 @@
 			if (!View || !View.prototype.download_pdf || View.prototype.card_statement_pdf) return;
 			const standard = View.prototype.download_pdf;
 			View.prototype.download_pdf = function () {
-				const route = frappe.card_statement_pdf_routes[this.report && this.report.report_name];
+				const route =
+					frappe.card_statement_pdf_routes[this.report && this.report.report_name];
 				if (!route) return standard.call(this);
 				// as the standard button: nothing to download before the preview is rendered
 				if (!this.html) return;
