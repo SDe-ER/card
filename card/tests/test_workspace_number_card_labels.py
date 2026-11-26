@@ -40,7 +40,10 @@ def translations(path):
 def number_card_rows():
 	with open(os.path.join(APP, "fixtures", "workspace.json"), encoding="utf-8") as fh:
 		workspace = next(doc for doc in json.load(fh) if doc.get("name") == "Card")
-	return [(row["number_card_name"], row.get("label") or row["number_card_name"]) for row in workspace["number_cards"]]
+	return [
+		(row["number_card_name"], row.get("label") or row["number_card_name"])
+		for row in workspace["number_cards"]
+	]
 
 
 def unmatched_rows(po_path):
