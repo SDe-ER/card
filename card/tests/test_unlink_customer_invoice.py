@@ -37,9 +37,11 @@ class _UnlinkBase(_LinkBase):
 		return si, card, self._link(si, card)
 
 	def _state(self, *cards):
+		"""(sales_invoice, posted, gl_posting, name) of each card; an empty link is "", the flag is 0 or 1."""
+		rows = [frappe.db.get_value(CARD, card.name, LINK_FIELDS) for card in cards]
 		return [
-			(*(v or "" for v in frappe.db.get_value(CARD, card.name, LINK_FIELDS)), card.name)
-			for card in cards
+			(invoice or "", int(posted or 0), log or "", card.name)
+			for (invoice, posted, log), card in zip(rows, cards, strict=True)
 		]
 
 	def _accrued_sub_rental_card(self):
