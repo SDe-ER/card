@@ -177,7 +177,8 @@
     },
     {
       "name": "meter-readings-reconciliation",
-      "path": "/app/query-report/Equipment Meter Reconciliation?company={company}"
+      "path": "/app/query-report/Equipment Meter Reconciliation?company={company}",
+      "waitSel": ".dt-scrollable .dt-row"
     },
     {
       "name": "operations-equipment-downtime",
@@ -193,7 +194,8 @@
     },
     {
       "name": "asset-mapping-review",
-      "path": "/app/query-report/Asset Mapping Review?company={company}"
+      "path": "/app/query-report/Asset Mapping Review?company={company}",
+      "waitSel": ".dt-scrollable .dt-row"
     },
     {
       "name": "equipment-needs-review",

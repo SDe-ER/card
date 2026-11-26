@@ -176,6 +176,74 @@ async function settle(page) {
   await page.waitForTimeout(300);
 }
 
+// A report shot shows the result of the Desk call frappe.desk.query_report.run. Desk continues only when that call
+// succeeds (frappe version-16 query_report.js, refresh: "callback: resolve"). When the server refuses the run, the
+// page keeps its "Loading..." screen and the error is in a dialog, which settle() closes. Run 45859674403 saved
+// that screen as the image of two reports. The answers of the call are recorded per page, and a report shot is
+// taken only when the last run succeeded, the loading screen is gone and the page shows rows, a summary or the
+// "nothing to show" message. Anything else is a failed shot that names the HTTP status and the server message.
+const REPORT_RUN = "/api/method/frappe.desk.query_report.run";
+const REPORT_TIMEOUT = 30000;
+const isReport = (path) => path.startsWith("/app/query-report/");
+
+function serverMessage(body) {
+  try {
+    const r = JSON.parse(body);
+    const messages = JSON.parse(r._server_messages || "[]").map(
+      (m) => JSON.parse(m).message,
+    );
+    return [r.exc_type, ...messages]
+      .filter(Boolean)
+      .join(": ")
+      .replace(/<[^>]*>/g, " ")
+      .slice(0, 140);
+  } catch {
+    return "";
+  }
+}
+
+function watchReportRuns(page) {
+  const runs = [];
+  page.on("response", (r) => {
+    if (!r.url().includes(REPORT_RUN)) return;
+    runs.push({
+      status: r.status(),
+      message: r.ok()
+        ? ""
+        : r
+            .text()
+            .then(serverMessage)
+            .catch(() => ""),
+    });
+  });
+  return runs;
+}
+
+function reportDrawn() {
+  const report = window.frappe?.query_report;
+  if (!report || report.$loading?.is(":visible")) return false;
+  return (
+    report.$report.find(".dt-row:visible").length > 0 ||
+    report.$summary.is(":visible") ||
+    report.$message.is(":visible")
+  );
+}
+
+async function reportReady(page, runs) {
+  const deadline = Date.now() + REPORT_TIMEOUT;
+  for (;;) {
+    const last = runs.at(-1);
+    if (last && last.status >= 400)
+      throw new Error(
+        `report run failed: HTTP ${last.status} ${await last.message}`,
+      );
+    if (last && (await page.evaluate(reportDrawn))) return;
+    if (Date.now() > deadline)
+      throw new Error(last ? "report still loading" : "report did not run");
+    await page.waitForTimeout(250);
+  }
+}
+
 // A screenshot of one flat colour shows no screen at all (run 45656288398 wrote plain white Arabic pages).
 async function isBlank(png) {
   const { channels } = await sharp(png).stats();
@@ -286,6 +354,7 @@ async function run() {
           ? octx
           : ctx
       ).newPage();
+      const reportRuns = isReport(s.path) ? watchReportRuns(page) : null;
       try {
         if (s.lang && s.lang !== lang)
           await api(ctx, "frappe.client.set_value", {
@@ -360,6 +429,7 @@ async function run() {
           throw new Error(
             `no visible element for click: ${s.clickTextAfter.join(" / ")}`,
           );
+        if (reportRuns) await reportReady(page, reportRuns);
         // what the shot is about must be on screen: a panel that did not open or a report with no rows is a failed shot
         if (s.waitSel)
           await page
