@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-26 — The PDF button of the two statements gives a correct Arabic PDF.** In **Equipment Customer Statement** and **Equipment Supplier Statement**, the **PDF** button of the print page still made the file with the old generator, so some Arabic letters were drawn apart. The button now makes the PDF on the server, as intended since v4.12.2. The PDF is the fixed A4 statement: the letter head and the other choices of the print page apply to **Print**, not to this PDF. No role, permission or accounting rule changes.
 
 ## v4.13.0 — 2026-11-26
 
