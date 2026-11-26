@@ -20,6 +20,7 @@ from card.gl.integrity import (
 	unlink_customer_invoice,
 	unlinked_customer_invoice_candidates,
 )
+from card.gl.journal_link import link_accrual_journal
 from card.gl.posting import build_monthly_posting
 from card.tests.test_link_customer_invoice import CARD, LOG, REASON, SI, _LinkBase
 from card.tests.test_p0_posting_integrity import _user
@@ -40,6 +41,55 @@ class _UnlinkBase(_LinkBase):
 			(*(v or "" for v in frappe.db.get_value(CARD, card.name, LINK_FIELDS)), card.name)
 			for card in cards
 		]
+
+	def _accrued_sub_rental_card(self):
+		"""A sub-rental card whose supplier side is recognised by a linked accrual Journal Entry: the card is
+		posted on that side without a purchase invoice link."""
+		card = self._card(self._sub_rental(), [8, 8], submit=True)
+		row = next(r for r in frappe.get_doc("Card Settings").company_settings if r.company == self.company)
+		amount = flt(card.net_amount, 2)
+		je = frappe.get_doc(
+			{
+				"doctype": "Journal Entry",
+				"company": self.company,
+				"posting_date": "2026-09-30",
+				"voucher_type": "Journal Entry",
+				"accounts": [
+					{
+						"account": self.exp_rental,
+						"cost_center": row.cost_center,
+						"debit_in_account_currency": amount,
+					},
+					{
+						"account": row.payable_account,
+						"party_type": "Supplier",
+						"party": self.supplier,
+						"cost_center": row.cost_center,
+						"credit_in_account_currency": amount,
+					},
+				],
+			}
+		).insert(ignore_permissions=True)
+		je.submit()
+		accrual_log = link_accrual_journal(je.name, [card.name])
+		self.assertEqual(self._state(card), [("", 1, accrual_log, card.name)])
+		return card, accrual_log
+
+	def _restricted(self, roles, allow, value):
+		"""A user whose Card Monthly Card access is limited to one ``allow`` record (User Permission)."""
+		user = _user(roles)
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": user,
+				"allow": allow,
+				"for_value": value,
+				"apply_to_all_doctypes": 0,
+				"applicable_for": CARD,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=user)
+		return user
 
 	def _comments(self, doctype, name):
 		return frappe.get_all(
@@ -157,9 +207,9 @@ class TestUnlinkCustomerInvoice(_UnlinkBase):
 			)
 
 		def children(doctype, parent):
-			return frappe.db.sql(
-				f"select count(*), max(modified) from `tab{doctype}` where parent=%s", parent
-			)[0]
+			return frappe.get_all(
+				doctype, filters={"parent": parent}, fields=["name", "modified"], order_by="idx asc"
+			)
 
 		def invoice_rows():
 			return (
@@ -262,6 +312,31 @@ class TestUnlinkCustomerInvoice(_UnlinkBase):
 		unlink_customer_invoice(si.name, UNLINK_REASON)
 		stored = frappe.db.get_value(CARD, card.name, ["sales_invoice", "posted", "purchase_invoice"])
 		self.assertEqual((stored[0] or "", stored[1], stored[2]), ("", 1, "PINV-ELSEWHERE"))
+
+
+class TestUnlinkKeepsTheSupplierSide(_UnlinkBase):
+	"""Review of the pull request: a linked accrual Journal Entry posts the supplier side of a card without a
+	purchase invoice link (``card.gl.journal_link.link_accrual_journal``)."""
+
+	def test_card_accrued_by_a_journal_entry_stays_posted_after_the_unlink(self):
+		card, accrual_log = self._accrued_sub_rental_card()
+		si = self._si(flt(card.customer_net_amount, 2))
+		self._link(si, card)
+		self.assertEqual(self._state(card), [(si.name, 1, accrual_log, card.name)])
+
+		unlink_customer_invoice(si.name, UNLINK_REASON)
+
+		self.assertEqual(self._state(card), [("", 1, accrual_log, card.name)])
+		self.assertEqual(frappe.db.get_value(LOG, accrual_log, "status"), "Submitted")
+
+	def test_card_accrued_by_a_journal_entry_stays_posted_after_the_invoice_is_cancelled(self):
+		# the same rule on the cancel path of a linked invoice (card.gl.events.before_cancel)
+		card, accrual_log = self._accrued_sub_rental_card()
+		si = self._si(flt(card.customer_net_amount, 2))
+		self._link(si, card)
+		si.reload()
+		si.cancel()
+		self.assertEqual(self._state(card), [("", 1, accrual_log, card.name)])
 
 
 class TestUnlinkRefusals(_UnlinkBase):
@@ -391,6 +466,35 @@ class TestUnlinkCustomerAuthorization(_UnlinkBase):
 			self._as(user, unlink_customer_invoice, si.name, UNLINK_REASON)
 		self.assertEqual(frappe.db.get_value(LOG, log, "status"), "Submitted")
 		self.assertEqual(frappe.db.get_value(CARD, card.name, "sales_invoice"), si.name)
+
+	def test_company_outside_the_card_scope_of_the_caller_is_refused(self):
+		# the invoice is readable (no Company restriction on Sales Invoice); the CARD scope is another company
+		si, card, log = self._linked()
+		user = self._restricted(["System Manager", "Accounts User"], "Company", self._other_company())
+		frappe.set_user(user)
+		self.assertTrue(frappe.get_doc(SI, si.name).has_permission("read"))
+		frappe.set_user("Administrator")
+		before = (self._state(card), frappe.db.get_value(LOG, log, ["status", "remarks"]))
+		with self.assertRaisesRegex(frappe.PermissionError, "not permitted to unlink invoices for company"):
+			self._as(user, unlink_customer_invoice, si.name, UNLINK_REASON)
+		self.assertEqual((self._state(card), frappe.db.get_value(LOG, log, ["status", "remarks"])), before)
+		self.assertFalse(self._comments(SI, si.name))
+
+	def test_card_the_caller_cannot_read_is_refused(self):
+		card_a = self._out_card()
+		card_b = self._out_card(hours=(8,), customer_rate=500, project=self._second_project())
+		si = self._si(0, lines=[(1600, self.project), (400, card_b.project)])
+		log = self._link(si, card_a, card_b)
+		# the caller reads the cards of the first project only
+		user = self._restricted(["System Manager", "Accounts User"], "Project", self.project)
+		before = (self._state(card_a, card_b), frappe.db.get_value(LOG, log, ["status", "remarks"]))
+		with self.assertRaises(frappe.PermissionError):
+			self._as(user, unlink_customer_invoice, si.name, UNLINK_REASON)
+		self.assertEqual(
+			(self._state(card_a, card_b), frappe.db.get_value(LOG, log, ["status", "remarks"])), before
+		)
+		self.assertFalse(self._comments(SI, si.name))
+		self.assertFalse(self._comments(CARD, card_a.name))
 
 	def test_relink_after_an_unlink_by_an_accounts_manager(self):
 		si, card, _log = self._linked()
