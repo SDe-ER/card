@@ -200,7 +200,7 @@ class TestProjectProfitability(_AnalyticsBase):
 			["project", "project_name", "revenue", "expenses", "not_in_expenses", "margin", "margin_percent"],
 		)
 		extra = columns[4]
-		self.assertEqual(extra["label"], "Purchases not in expenses (stock, assets)")
+		self.assertEqual(extra["label"], "Purchases not in expenses")
 		self.assertEqual(extra["fieldtype"], "Currency")
 		row = rows[self.project]
 		self.assertEqual(row["project_name"], frappe.db.get_value("Project", self.project, "project_name"))
@@ -212,8 +212,12 @@ class TestProjectProfitability(_AnalyticsBase):
 		self.assertIn("not the full net profit", message)
 		self.assertIn("Journal entries and the general ledger are not read", message)
 		self.assertIn("booked to an Expense account", message)
-		self.assertIn('"Purchases not in expenses (stock, assets)"', message)
+		self.assertIn('"Purchases not in expenses"', message)
 		self.assertNotIn("Expenses include every Purchase Invoice line", message)
+		# consumed stock is not in the expenses: the message says so
+		self.assertIn("lines booked to an account that is not an Expense account", message)
+		self.assertIn("diesel or spare parts bought as stock items", message)
+		self.assertIn("the margin can be higher than the real one", message)
 
 	def test_expense_line_classification(self):
 		"""A purchase line is an expense only when it is booked to an Expense account of the
@@ -262,7 +266,28 @@ class TestProjectProfitability(_AnalyticsBase):
 		self.assertEqual(summary["Project revenue"], 1000.0)
 		self.assertEqual(summary["Project expenses"], 151.0)
 		self.assertEqual(summary["Project margin"], 849.0)
-		self.assertEqual(summary["Purchases not in expenses (stock, assets)"], 417.0)
+		self.assertEqual(summary["Purchases not in expenses"], 417.0)
+
+	def test_purchase_columns_add_up_to_the_rounded_net_total(self):
+		"""The expenses and the net total of the purchase lines are rounded once each; the
+		informational column is the difference, so the two columns always add up to the
+		rounded net total (rounding each column alone can lose or add a unit)."""
+		purchases = [
+			self._purchase(100.005),
+			self._purchase(50.005, item_code="SPARE"),
+			self._purchase(100.005, project=None),
+			self._purchase(50.005, project=None, expense_account="STOCK"),
+		]
+		items = [{"name": "SPARE", "is_stock_item": 1}]
+		with self._mocked_reads([], purchases, self._accounts(), items):
+			rows, total, _message, summary, _columns = self._run()
+		for row in (rows["P1"], rows[None]):
+			self.assertEqual(row["expenses"], flt(100.005, 2))
+			self.assertEqual(row["expenses"] + row["not_in_expenses"], 150.01)
+		self.assertEqual(total["expenses"], 200.01)
+		self.assertEqual(total["not_in_expenses"], 100.01)
+		self.assertEqual(total["expenses"] + total["not_in_expenses"], 300.02)
+		self.assertEqual(summary["Purchases not in expenses"], 100.01)
 
 	def test_project_with_only_non_expense_purchases_has_a_row(self):
 		purchases = [self._purchase(250, item_code="SPARE", expense_account="STOCK")]
@@ -288,9 +313,7 @@ class TestProjectProfitability(_AnalyticsBase):
 		self.assertEqual(row["expenses"], 400.0)
 		self.assertEqual(row["not_in_expenses"], 90.0)
 		self.assertEqual(row["margin"], 600.0)
-		self.assertEqual(
-			flt(total["expenses"] + total["not_in_expenses"], 2), self._invoice_net("Purchase Invoice")
-		)
+		self.assertEqual(total["expenses"] + total["not_in_expenses"], self._invoice_net("Purchase Invoice"))
 
 	def test_totals_reconcile_to_the_invoices(self):
 		other = self._second_project()
