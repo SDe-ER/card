@@ -105,6 +105,9 @@ the tag (`git show <tag>:<path>`).
 | Monthly Card approved only after its month ends; open-month reopen on the same card (FR-191) | v4.13.0 | — | — | — | — | — | — | — | — | v4.13.0: rule in `before_submit` on every route, no role exempt; reopen by System Manager only, dry run by default; open cards are not posted | v4.13.0 page; PR #322 |
 | Maintenance payer on the equipment (FR-192) | v4.13.0 | — | — | — | — | — | — | — | — | v4.13.0: Select field at permission level 1; master data only | v4.13.0 page; PR #326 |
 | Project Invoice Profitability report (FR-193) | v4.13.0 | — | — | — | — | — | — | — | — | v4.13.0: revenue and purchase-invoice expenses per project, read-only | v4.13.0 page; PR #327 |
+| Link an existing customer Sales Invoice to its monthly cards (FR-194) | v4.14.0 | — | — | — | — | — | — | — | — | v4.14.0: two whitelisted methods (link, POST; candidates list, GET), Accounts Manager or System Manager; no GL entry, the invoice is not changed; no Desk button; no unlink method | v4.14.0 page; PR #338 |
+| Project Invoice Profitability: expenses are Expense-account lines only; column Purchases not in expenses (FR-193) | v4.14.0 | — | — | — | — | — | — | — | — | v4.14.0: stock and fixed-asset purchase lines are outside expenses and margin, shown for information | v4.14.0 page; PR #335 |
+| Statements: the PDF button of the report print page uses the server PDF (FR-089, FR-187) | v4.14.0 | — | — | — | — | — | — | — | — | v4.14.0: frappe 16.60 print page; the fixed A4 server PDF, print-page choices do not apply | v4.14.0 page; PR #337 |
 
 ## Reading the matrix
 

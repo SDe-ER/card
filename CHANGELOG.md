@@ -38,6 +38,17 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+## [4.14.0] — 2026-11-26
+
+> **Published 2026-11-26** (tag `v4.14.0`, owner approval 2026-11-26). Published ≠ deployed (see DEPLOYMENTS.md).
+> Minor release on top of v4.13.0. An Accounts Manager or a System Manager can link an existing customer Sales
+> Invoice to the monthly cards it bills (FR-194; two new whitelisted methods, no Desk button). Project Invoice
+> Profitability counts only purchase lines on Expense accounts that are neither stock nor fixed asset, and shows the
+> other purchase lines in an information column (FR-193). The PDF button of the report print page of the two
+> statements uses the server PDF (issue 324). No patch, no schema change, no role or DocPerm change; CARD posts no
+> accounting entry.
+
+
 ### Added
 - **FR-194 — Link an existing customer Sales Invoice to its monthly cards (owner task 2026-11-26; PR #338).**
   A Sales Invoice that an accountant booked by hand in ERPNext can already bill CARD monthly cards. CARD had
