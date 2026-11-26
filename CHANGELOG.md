@@ -38,6 +38,31 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Documentation
+- **Documentation screenshots: the failed per-m³ captures and the blank Arabic images (issue 266).** Reason: the
+  capture run 45656288398 of 2026-11-25 failed the image gate. Three images per language were missing and seven
+  Arabic images were the same plain white picture. Causes and fixes, in `website/scripts/screenshots/`:
+  - `volume-billing-equipment-commercial`: the customer rate fields are on the tab "Cost and rental", and the
+    capture stayed on the first tab. The shot now clicks the tab (`click`) and waits for the load volume field.
+  - `volume-billing-card-totals`: "Total loads" is in the collapsible section "Accounting", which is closed when
+    the form opens. The shot now opens the section (`expandSection`, new) and waits for the field.
+  - `volume-billing-loads-card` (Arabic) and the white Arabic images: a new site draws charts and number cards as
+    frappe-ui islands (frappe `version-16`, System Settings "Use Classic Charts" = 0). The value of an island is
+    in a shadow root, which the capture cannot read, and every Arabic page with a chart was white. The CI site now
+    uses the classic charts, as a site updated from an earlier version does (`ci_bootstrap.py`). The link between
+    the islands and the white images is not proven without a run. `capture.mjs` now fails a shot whose image is
+    one flat colour, so a blank page is never written as an image.
+  - `reports-overview-sidebar`: the CARD workspace has no "Reports" heading. The shot now opens a report of the
+    Reports sidebar (Unbilled Card Work).
+  - `invoicing-posting-preview`: the posting screen lists only the parties the user can read, and the demo
+    manager could read no supplier and no customer. The demo manager now also has the role Accounts Manager
+    (`ci_bootstrap.py`, CI site only).
+  - `scrollBlock` (new) sets where `scrollSel` puts its target.
+  Not fixed here: `volume-billing-loads-card` in English. The English workspace shows no number card, because the
+  workspace fixture labels differ from the translated number card names (a product defect, reported to the
+  maintainer). Files: `capture.mjs`, `shots.json`, `ci_bootstrap.py`. Tooling for the docs site only, run by the manual
+  workflow `docs-screenshots.yml`: no application, permission, accounting, data or API change. Pull request: #336.
+
 ## [4.13.0] — 2026-11-26
 
 > **Published 2026-11-26** (tag `v4.13.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).
