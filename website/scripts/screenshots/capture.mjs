@@ -176,6 +176,12 @@ async function settle(page) {
   await page.waitForTimeout(300);
 }
 
+// A screenshot of one flat colour shows no screen at all (run 45656288398 wrote plain white Arabic pages).
+async function isBlank(png) {
+  const { channels } = await sharp(png).stats();
+  return channels.every((c) => c.min === c.max);
+}
+
 async function scrollToText(page, texts) {
   for (const t of texts) {
     const ok = await page.evaluate((t) => {
@@ -305,6 +311,16 @@ async function run() {
           await page.locator(s.click).first().click({ timeout: 3000 });
           await page.waitForTimeout(900);
         }
+        // a collapsible form section is opened by its fieldname; one that is already open is left alone
+        if (s.expandSection) {
+          const sel = `.form-section[data-fieldname="${s.expandSection}"] .section-head`;
+          await page.locator(sel).first().waitFor({ timeout: 15000 });
+          const closed = page.locator(`${sel}.collapsed`).first();
+          if (await closed.count()) {
+            await closed.click({ timeout: 3000 });
+            await page.waitForTimeout(900);
+          }
+        }
         if (s.clickText && !(await clickText(page, s.clickText)))
           throw new Error(
             `no visible element for click: ${s.clickText.join(" / ")}`,
@@ -351,12 +367,15 @@ async function run() {
             .first()
             .waitFor({ state: "visible", timeout: 15000 });
         if (s.scrollSel) {
-          const found = await page.evaluate((sel) => {
-            const el = document.querySelector(sel);
-            if (!el || !el.offsetParent) return false;
-            el.scrollIntoView({ block: "start" });
-            return true;
-          }, s.scrollSel);
+          const found = await page.evaluate(
+            ({ sel, block }) => {
+              const el = document.querySelector(sel);
+              if (!el || !el.offsetParent) return false;
+              el.scrollIntoView({ block });
+              return true;
+            },
+            { sel: s.scrollSel, block: s.scrollBlock || "start" },
+          );
           if (!found)
             throw new Error(`no element to scroll to: ${s.scrollSel}`);
         }
@@ -387,6 +406,7 @@ async function run() {
         const png = s.elementName
           ? await elementShot(page, lang, s.elementName)
           : await page.screenshot({ type: "png" });
+        if (await isBlank(png)) throw new Error(`blank image at ${landed}`);
         const file = join(OUT, lang, `${s.name}.webp`);
         await sharp(png).webp({ quality: 82 }).toFile(file);
         results.push(`ok   ${lang}/${s.name}`);
