@@ -57,6 +57,8 @@
 			View.prototype.download_pdf = function () {
 				const route = frappe.card_statement_pdf_routes[this.report && this.report.report_name];
 				if (!route) return standard.call(this);
+				// as the standard button: nothing to download before the preview is rendered
+				if (!this.html) return;
 				// required filters are checked here, like the report run; the page is a fixed A4 statement
 				const filters = this.report.get_filter_values(true);
 				if (!filters) return;

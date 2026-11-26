@@ -277,3 +277,16 @@ class TestCustomerStatementPdf(IntegrationTestCase):
 		# the class is loaded with the print page, after the report script: the patch is applied before any click
 		self.assertIn('document.addEventListener("click", patch, true);', js)
 		self.assertIn("open_url_post(`/api/method/${route}`, { filters }, true);", js)
+
+	def test_print_page_pdf_function_is_the_same_in_both_statement_scripts(self):
+		# the copy of the report opened first in a session is the one installed: the two must not drift
+		def body(folder):
+			with open(
+				frappe.get_app_path("card", "card", "report", folder, folder + ".js"), encoding="utf-8"
+			) as f:
+				js = f.read()
+			start = js.index("function card_statement_print_page_pdf(")
+			return js[start : js.index("\n\t}\n", start)]
+
+		self.assertEqual(body("equipment_customer_statement"), body("equipment_supplier_statement"))
+		self.assertIn("if (!this.html) return;", body("equipment_customer_statement"))

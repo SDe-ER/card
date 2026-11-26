@@ -39,8 +39,8 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   7); whether an estimate may ever reach them is not decided.
 
 ### Fixed
-- **Statements: the PDF button of the report print page uses the server PDF (issue 324, follow-up of PR #328;
-  FR-089, FR-187).** On frappe 16.60 the report toolbar opens a print page, and its **PDF** button calls
+- **Statements: the PDF button of the report print page uses the server PDF (issue 324, PR #337, follow-up of
+  PR #328; FR-089, FR-187).** On frappe 16.60 the report toolbar opens a print page, and its **PDF** button calls
   `frappe.views.ReportPrintView.download_pdf`. For a tree report that function sends the browser's HTML to
   `frappe.utils.print_format.report_to_pdf` (wkhtmltopdf) and never calls `report.pdf_report`, which the two
   statements replace. So the button users see still produced the PDF with broken Arabic letter joins, for the
