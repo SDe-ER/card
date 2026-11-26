@@ -39,6 +39,32 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   7); whether an estimate may ever reach them is not decided.
 
 ### Fixed
+- **Locales: the navigation layer is translated in every language (follow-up of FR-168; owner decision
+  2026-11-26).** Reason: the review of #336 found number card titles in English in Urdu, one label without its
+  "(CARD)" suffix, and navigation text that most locales did not translate. Changes, locale files only:
+  - `ur.po`: the 8 number card labels that were English are Urdu (row label and record name carry the same
+    text, so the cards still show); the 6 other Number Card and Dashboard Chart names are Urdu too.
+  - 42 locales (English included): the label "Loads last month (CARD)" keeps "(CARD)", as the English source
+    label and the other number cards of the same locale do. Arabic labels carry no "(CARD)" and do not change.
+  - 41 locales: 60 new entries each (53 in `bn`, `hi`, `ur`) for the titles of the 9 module sidebars, their links
+    (CARD DocTypes, reports, pages) and the Number Card and Dashboard Chart names. Before, the sidebars showed in
+    English and the workspace chart title in Arabic. `bn.po` and `hi.po` translate the 6 record names that were
+    English. `en.po` gets a display name for the sidebar "Card Materials".
+  - `ar.po`: the 36 empty entries are filled, 89 source strings without an entry are added (field labels and
+    descriptions of the newer DocTypes, the report names "Equipment Meter Reconciliation" and "Asset Mapping
+    Review"), and the second copy of "Card {0}" is removed (the catalogue kept the first copy, so no shown text
+    changes).
+  - Language coverage: `frappe`, `erpnext` and `hrms` (`version-16`) ship 41 locale files; CARD has all of them
+    plus `bn`, `en`, `ur`. No language was missing.
+  Not changed: the full catalogue stays English and Arabic; stored Arabic Select values keep their English text in
+  `bn`, `hi`, `ur`; ERPNext names in the sidebars and the generic word "Catalog" are left to Frappe and ERPNext;
+  `main.pot` (it is older than the source and needs the bench i18n flow). Tests: new
+  `card/tests/test_locale_navigation_layer.py` (fixtures, sidebars and locale files; no site needed; no empty
+  entry, no entry twice, placeholders kept, navigation layer and number card labels translated, "(CARD)" kept);
+  `TestNoArabicFallback` checks `ur.po` as "differs from the Arabic source", because Urdu is written in the Arabic
+  script. Impact: display only. No fixture, DocType, role, permission, accounting, data or API change; no patch. A
+  DocType or report of the sidebars now shows its translated name in these languages wherever Frappe shows the
+  name. Rollback: revert the commits and compile the locale files again. Pull request: #345.
 - **Card workspace: the hidden number cards show again (FR-168; found in issue 266).** Reason: Frappe draws a
   number card block of a workspace only when the label of its row equals the translated record name
   (`row.label == __(number_card_name)`; frappe `desk/desktop.py` `get_number_cards`, `views/workspace/blocks/block.js`
