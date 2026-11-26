@@ -258,3 +258,23 @@ class TestSupplierStatementPdf(IntegrationTestCase):
 		self.assertIn('this.report_name !== "Equipment Supplier Statement"', js)
 		self.assertIn("return standard_pdf.call(this, print_settings);", js)
 		self.assertNotIn("outerHTML", js)
+
+	def test_report_js_routes_the_pdf_button_of_the_print_page_to_the_server_pdf(self):
+		# frappe 16.60: the PDF button of the report print page (frappe.views.ReportPrintView.download_pdf) does not
+		# call report.pdf_report; for a tree report it sends the browser HTML to wkhtmltopdf (issue 324)
+		with open(
+			frappe.get_app_path(
+				"card", "card", "report", "equipment_supplier_statement", "equipment_supplier_statement.js"
+			),
+			encoding="utf-8",
+		) as f:
+			js = f.read()
+		self.assertIn("frappe.views.ReportPrintView", js)
+		self.assertIn("View.prototype.download_pdf = function ()", js)
+		self.assertIn("frappe.card_statement_pdf_routes[report_name] = method;", js)
+		self.assertEqual(js.count("card_statement_print_page_pdf("), 2)  # the function and its one call
+		# every other report keeps the standard button
+		self.assertIn("if (!route) return standard.call(this);", js)
+		# the class is loaded with the print page, after the report script: the patch is applied before any click
+		self.assertIn('document.addEventListener("click", patch, true);', js)
+		self.assertIn("open_url_post(`/api/method/${route}`, { filters }, true);", js)

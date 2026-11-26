@@ -41,6 +41,36 @@
 		sync();
 	}
 
+	// frappe 16.60: the PDF button of the report print page (frappe.views.ReportPrintView.download_pdf) does not call
+	// report.pdf_report. For a tree report it sends the browser's HTML to wkhtmltopdf, which breaks Arabic letter
+	// joins (issue 324). The button of this statement goes to the same server route as report.pdf_report; every
+	// other report keeps the standard button. The class is loaded with the print page, after this script, so the
+	// patch is applied in the capture phase of a click: before the handler of the button runs.
+	function card_statement_print_page_pdf(report_name, method) {
+		frappe.card_statement_pdf_routes = frappe.card_statement_pdf_routes || {};
+		frappe.card_statement_pdf_routes[report_name] = method;
+		if (frappe.card_statement_pdf_listener) return;
+		const patch = () => {
+			const View = frappe.views.ReportPrintView;
+			if (!View || !View.prototype.download_pdf || View.prototype.card_statement_pdf) return;
+			const standard = View.prototype.download_pdf;
+			View.prototype.download_pdf = function () {
+				const route =
+					frappe.card_statement_pdf_routes[this.report && this.report.report_name];
+				if (!route) return standard.call(this);
+				// as the standard button: nothing to download before the preview is rendered
+				if (!this.html) return;
+				// required filters are checked here, like the report run; the page is a fixed A4 statement
+				const filters = this.report.get_filter_values(true);
+				if (!filters) return;
+				open_url_post(`/api/method/${route}`, { filters }, true);
+			};
+			View.prototype.card_statement_pdf = true;
+		};
+		document.addEventListener("click", patch, true);
+		frappe.card_statement_pdf_listener = true;
+	}
+
 	frappe.query_reports["Equipment Supplier Statement"] = {
 		filters: [
 			{
@@ -141,6 +171,11 @@
 				};
 				report.card_statement_pdf = true;
 			}
+			// the PDF button of the report print page (frappe 16.60) goes to the same server route
+			card_statement_print_page_pdf(
+				"Equipment Supplier Statement",
+				"card.card.report.equipment_supplier_statement.statement_pdf.download_pdf",
+			);
 			// Seed the UI defaults from Card Settings (server also falls back to the
 			// same settings for API callers). The user can still override.
 			frappe.call({ method: "card.api.report_defaults", type: "GET" }).then((r) => {

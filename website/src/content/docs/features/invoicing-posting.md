@@ -219,16 +219,72 @@ CARD already posted for a nearby month, ERPNext shows the CARD postings as a war
 
 ### Linking hand-booked documents
 
-Two server methods record that an existing document already covers CARD sources. Nothing is reposted and the
+Three server methods record that an existing document already covers CARD sources. Nothing is reposted and the
 document is not changed; a GL Posting Log with origin *Linked* reserves the sources so CARD never invoices them again.
-Both need an accountant role and are not yet exposed as Desk buttons.
+Each needs an accounting role (see *Permissions*) and none is exposed as a Desk button yet.
 
 | Link | Use | Evidence required |
 |---|---|---|
 | Supplier invoice link | A Purchase Invoice booked by hand for cards, fills or transports | Sources compared with the invoice net total on one VAT basis; a gap needs an accountant's reason and is stored as an open difference |
 | Accrual Journal Entry link | A submitted Journal Entry that recognised supplier cards (expense debit, supplier credit) | The entry credits exactly one supplier, and the credit net of tax rows equals the cards' net within tolerance, or an accepted difference with a reason |
+| Customer invoice link | A submitted Sales Invoice booked by hand for customer monthly cards | Same company, customer and project; the invoice net equals the cards' customer net within tolerance, in total and for each project; a difference is always refused |
 
 Cancelling the linked invoice or Journal Entry frees the sources again.
+
+### Link an existing customer Sales Invoice
+
+Use this when a Sales Invoice was entered by hand in ERPNext and submitted, and it bills work that is on CARD monthly
+cards. Without the link, the customer reports show the cards as not invoiced and the invoice as an invoice outside
+CARD. There is no button in Desk for this action; an Accounts Manager or a System Manager calls the server method
+(see [Posting and accounting](/card/api-reference/posting-accounting/#link_customer_invoice)).
+
+1. Find the invoices to link. Call `unlinked_customer_invoice_candidates` for the company. It lists each submitted
+   Sales Invoice that CARD did not build and that has no link, with the customer's cards that have no invoice, and it
+   says if a set of cards totals the invoice net (`match` is `exact` or `none`). This method only reads.
+2. Check the cards against the invoice. The link needs the same company, the same customer and the same project.
+   The project of an invoice line is the project on the line; a line without a project takes the project in the
+   invoice header. An invoice without a project cannot be linked, because every card has a project.
+3. Call `link_customer_invoice` with the invoice, the card names and a reason.
+
+CARD accepts the link only when the invoice net total (before VAT) equals the sum of the cards' customer net
+amounts, within the reconciliation tolerance of Card Settings. The same must be true for each project: the net of
+the invoice lines of a project equals the customer net of the listed cards of that project, and no part of the
+invoice is left without cards. A difference is always refused; there is no option to accept it. Link exactly the
+cards that the invoice bills.
+
+CARD also refuses the link when the invoice is not in the company currency, or when the invoice has a submitted
+credit note.
+
+| The link writes | It does not change |
+|---|---|
+| One GL Posting Log with origin *Linked* (customer side, status Submitted), with one source row per card and its customer net | The Sales Invoice (it is not saved; no ZATCA step runs) |
+| On each card: the Sales Invoice link, the **Posted** flag and the link to the log | Card amounts, rates, days, additions, deductions and the workflow state |
+| One information comment on the invoice and on each card: who linked, when, and the reason | The ledger: no GL Entry, no payment entry, no tax row |
+
+After the link:
+
+- **Equipment Customer Statement** and **Equipment Customers Summary** count the cards under *Invoiced through Card*
+  and no longer count the invoice under *ERPNext invoices outside Card*. The customer closing balance does not change,
+  because it comes from the ledger.
+- **Unbilled Card Work** no longer lists the cards, and **Posting Source Integrity** shows them as consistent.
+- CARD never builds a Sales Invoice for these cards, and a linked card cannot be cancelled or reopened while the link
+  is active.
+- A second call for the same invoice is refused.
+
+#### Undo a wrong customer link
+
+CARD has no method that removes a link.
+
+- If the Sales Invoice can be cancelled in ERPNext, cancel it. CARD then clears the invoice link, the **Posted** flag
+  and the log link on each card and sets the log to Cancelled. The cards are free again.
+- A company under ZATCA Phase 2 cannot cancel a submitted Sales Invoice. A credit note corrects the invoice, but it
+  does not remove the link. In this case only a data correction removes the link. An administrator makes it on the
+  database after the owner approves it and after a backup. The correction makes the same writes as the cancel: on the
+  GL Posting Log, set `status` to `Cancelled` and clear `posting_key`; on each card of the log, clear `sales_invoice`
+  and `gl_posting` and set `posted` to 0 (keep 1 on a sub-rental card whose supplier side is still posted). The log
+  row stays as the audit record. Record the correction as a comment on the invoice and on each card.
+- After this correction, the same invoice cannot be linked again with the method, because CARD accepts only one
+  posting log for one invoice. Check the cards before you link.
 
 ### Settlement status
 
@@ -321,6 +377,7 @@ prices; the Accounts Settings options that copy taxes from templates are off.
 | Declare a supplier invoice unrelated | Accounts Manager, Accounts User, System Manager |
 | Accept a cost center or account correction | Accounts Manager, System Manager |
 | Link a supplier invoice or an accrual Journal Entry | Accounts Manager, Accounts User, System Manager |
+| Link a customer Sales Invoice, or list the invoices that are not linked | Accounts Manager, System Manager (with the submit right on Sales Invoice) |
 | Read GL Posting Logs | System Manager, Accounts Manager, Card Manager (no one may edit or delete a log) |
 | Turn on accounting posting | System Manager |
 | Edit company accounting rows | System Manager, Accounts Manager |
