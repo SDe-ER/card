@@ -67,13 +67,17 @@ spent. The report is read-only.
 
 - **Project revenue** – the net amount of the lines of submitted Sales Invoices posted in the period. A credit note
   has negative lines, so it reduces revenue.
-- **Project expenses** – the net amount of the lines of submitted Purchase Invoices posted in the period. A debit
-  note reduces expenses. Every line counts, also a stock or fixed-asset purchase.
+- **Project expenses** – the net amount of the lines of submitted Purchase Invoices posted in the period that are
+  booked to an Expense account and are neither a stock item nor a fixed asset. A debit note reduces expenses.
+- **Purchases not in expenses (stock, assets)** – the net amount of the other purchase invoice lines: a line of a
+  stock item, a fixed-asset line, or a line booked to an account that is not an Expense account (also a line
+  without an account). This column is information only. It is not part of the margin.
 - **Project margin** – revenue minus expenses. **Project margin %** is the margin as a percentage of revenue; it is
   empty when the project has no revenue.
 
 A line without a project takes the project of its invoice. A line with no project at all is on the row **No
-project**, so the totals equal the net totals of the invoices. Amounts are net of VAT, in the company currency;
+project**, so the totals equal the net totals of the invoices: **Project expenses** plus **Purchases not in
+expenses (stock, assets)** equal the net total of the purchase invoices. Amounts are net of VAT, in the company currency;
 each figure is rounded once, at the precision of that currency. Opening invoices are not read, because they carry
 balances of earlier periods.
 
@@ -85,9 +89,11 @@ included.
 
 **Filters:** **Company** (required), **From date** / **To date** (required, current month by default), **Project**.
 
-**Columns:** Project, Project name, Project revenue, Project expenses, Project margin, Project margin %.
+**Columns:** Project, Project name, Project revenue, Project expenses, Purchases not in expenses (stock, assets),
+Project margin, Project margin %.
 
-**Totals.** Tiles **Project revenue**, **Project expenses** and **Project margin** (green when not negative). The last
+**Totals.** Tiles **Project revenue**, **Project expenses** and **Project margin** (green when not negative), and a
+grey tile **Purchases not in expenses (stock, assets)** that is not part of the other three. The last
 row, **Total of all projects**, is the total of the rows.
 
 **Access.** System Manager, Accounts Manager — ledger readers only. The invoices are read with the user's own

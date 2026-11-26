@@ -6,15 +6,20 @@ One row per project for one company and period:
 
 - revenue: the net amount of submitted Sales Invoice lines posted in the period (credit notes
   are negative lines, so they reduce revenue);
-- expenses: the net amount of submitted Purchase Invoice lines posted in the period (debit
-  notes reduce expenses);
+- expenses: the net amount of the submitted Purchase Invoice lines posted in the period that
+  are booked to an Expense account and are neither a stock item nor a fixed asset (debit notes
+  reduce expenses);
+- not_in_expenses: the net amount of the other Purchase Invoice lines (stock items, fixed
+  assets, lines on an account that is not an Expense account). Information only: it is not in
+  the margin. Expenses plus this column are the net total of the purchase invoice lines
+  (owner decision 2026-11-26);
 - a line without a project takes the project of its invoice; a line with no project at all
   sits on the row "No project", so the totals reconcile to the invoices;
-- opening invoices are not read; every Purchase Invoice line counts, also a stock or
-  fixed-asset purchase.
+- opening invoices are not read.
 
-Amounts are in the company currency, net of VAT (card.analytics.invoice_project_totals), summed
-unrounded and rounded once at the precision of the company currency.
+Amounts are in the company currency, net of VAT (card.analytics.invoice_project_totals and
+card.analytics.purchase_project_totals), summed unrounded and rounded once at the precision of
+the company currency.
 Journal Entries and GL Entries are not read and nothing is estimated. The margin is revenue
 minus purchase-invoice expenses, NOT the full net profit: payroll, depreciation, overhead and
 journal-entry costs are not included. Ledger readers only
@@ -30,7 +35,7 @@ from card.report_access import can_view_ledger, readable_links, resolve_company
 from card.report_currency import company_currency, company_currency_report, currency_precision
 
 DOCTYPES = ("Sales Invoice", "Purchase Invoice")
-SIDES = (("revenue", "Sales Invoice"), ("expenses", "Purchase Invoice"))
+AMOUNTS = ("revenue", "expenses", "not_in_expenses")
 
 
 @company_currency_report(*DOCTYPES)
@@ -57,19 +62,21 @@ def execute(filters=None):
 		frappe.throw(_("Invalid period: end is before start"))
 
 	message = _(
-		'Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. Expenses include every Purchase Invoice line, stock and asset purchases too. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row "No project". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included.'
+		'Read only. Revenue is the net amount of submitted Sales Invoice lines, by posting date, in the company currency. Expenses are the net amount of the submitted Purchase Invoice lines that are booked to an Expense account and are neither a stock item nor a fixed asset. The other Purchase Invoice lines are in the column "Purchases not in expenses (stock, assets)": it is information only and is not in the margin. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row "No project". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included.'
 	)
+	period = (company, start, end, filters.get("project"))
 	sums = {}
-	for key, doctype in SIDES:
-		totals = analytics.invoice_project_totals(doctype, company, start, end, filters.get("project"))
-		for project, amount in totals.items():
-			sums.setdefault(project, dict.fromkeys(("revenue", "expenses"), 0.0))[key] = amount
+	for project, amount in analytics.invoice_project_totals("Sales Invoice", *period).items():
+		sums.setdefault(project, dict.fromkeys(AMOUNTS, 0.0))["revenue"] = amount
+	for project, split in analytics.purchase_project_totals(*period).items():
+		sums.setdefault(project, dict.fromkeys(AMOUNTS, 0.0)).update(split)
 
 	precision = currency_precision(company_currency(company))
 
-	def amounts(revenue, expenses):
-		"""Unrounded sums rounded once, at the precision of the company currency."""
-		row = {"revenue": flt(revenue, precision), "expenses": flt(expenses, precision)}
+	def amounts(side):
+		"""Unrounded sums rounded once, at the precision of the company currency. The margin is
+		revenue minus expenses: the purchases not in expenses are not part of it."""
+		row = {key: flt(side[key], precision) for key in AMOUNTS}
 		row["margin"] = flt(row["revenue"] - row["expenses"], precision)
 		row["margin_percent"] = flt(row["margin"] / row["revenue"] * 100, 2) if row["revenue"] else None
 		return row
@@ -77,7 +84,7 @@ def execute(filters=None):
 	names = analytics.project_names([project for project in sums if project], company)
 	data = []
 	for project, side in sorted(sums.items(), key=lambda item: (not item[0], item[0])):
-		row = amounts(side["revenue"], side["expenses"])
+		row = amounts(side)
 		row.update(
 			{
 				"project": project or None,
@@ -85,9 +92,7 @@ def execute(filters=None):
 			}
 		)
 		data.append(row)
-	total = amounts(
-		sum(side["revenue"] for side in sums.values()), sum(side["expenses"] for side in sums.values())
-	)
+	total = amounts({key: sum(side[key] for side in sums.values()) for key in AMOUNTS})
 	total.update({"project": None, "project_name": _("Total of all projects"), "is_total": 1, "bold": 1})
 	data.append(total)
 
@@ -110,6 +115,12 @@ def execute(filters=None):
 			"datatype": "Currency",
 			"indicator": "Green" if total["margin"] >= 0 else "Red",
 		},
+		{  # information only: not part of the three tiles above
+			"label": _("Purchases not in expenses (stock, assets)"),
+			"value": total["not_in_expenses"],
+			"datatype": "Currency",
+			"indicator": "Grey",
+		},
 	]
 	# no rows passed: the Project column keeps the record name, the name has its own column
 	return readable_links(get_columns()), data, message, None, summary
@@ -130,6 +141,7 @@ def get_columns():
 		{"fieldname": "project_name", "label": _("Project name"), "fieldtype": "Data", "width": 220},
 		money("revenue", _("Project revenue")),
 		money("expenses", _("Project expenses")),
+		{**money("not_in_expenses", _("Purchases not in expenses (stock, assets)")), "width": 220},
 		money("margin", _("Project margin")),
 		{"fieldname": "margin_percent", "label": _("Project margin %"), "fieldtype": "Percent", "width": 130},
 	]

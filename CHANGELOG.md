@@ -38,6 +38,37 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Changed
+- **FR-193 — Project Invoice Profitability counts expense-account lines only (issue 53, PR #335; owner decision
+  2026-11-26).** The report counted every submitted Purchase Invoice line as a project expense, also a purchase of
+  stock or of a fixed asset. Such a purchase is not a cost of the period, so the expenses were too high and the
+  margin too low.
+  - **Project expenses** now holds only the Purchase Invoice lines that are booked to an Expense account and are
+    neither a stock item nor a fixed asset. A line is not an expense when any of these is true: `is_fixed_asset`
+    is set on the line; its item is a stock item (`Item.is_stock_item`; a line without an item is not a stock
+    item); its `expense_account` is empty or is not an account of the report company with `root_type` =
+    "Expense" (this covers stock, asset, capital-work-in-progress and liability accounts).
+  - New column **Purchases not in expenses (stock, assets)** (`not_in_expenses`, Arabic «مشتريات خارج المصروفات
+    (مخزون وأصول)»), after Project expenses: the net amount of the other purchase lines, per project, on the row
+    **No project** and in the total row. It is information only. Project margin = revenue − expenses, as before;
+    the new column is not part of the margin or of the margin %. Project expenses + the new column = the net total
+    of the purchase invoice lines, so the report still reconciles to the invoices. A fourth, grey summary tile shows
+    its total; the tiles Project revenue, Project expenses and Project margin do not include it.
+  - The on-screen message states the new rule and names the column. Unchanged: revenue, the project of a line,
+    opening invoices not read, the rounding (unrounded sums, rounded once at the company currency precision), the
+    roles and the server checks.
+  - Functions: `card.analytics.purchase_project_totals` (new), `card.analytics._expense_accounts` (new),
+    `card.analytics._invoice_project_lines` (the invoice read of `invoice_project_totals`, moved without change),
+    `execute` and `get_columns` of `card/card/report/project_invoice_profitability/project_invoice_profitability.py`.
+    The root type of the accounts and the stock flag of the items are read with `frappe.get_all` for the accounts
+    and items of the invoice lines the user already read; they are classification facts, not user data.
+  - Impact: permissions none (same roles, `resolve_company`, `can_view_ledger`, read on both invoice types);
+    accounting none (read-only, nothing posted); data none (no DocType, field or patch); API none (the report
+    result has one more column and one more summary tile). Figures: Project expenses and Project margin change for
+    a project with stock, fixed-asset or non-expense-account purchase lines. Rollback: revert the pull request; no
+    data to restore.
+  - Tests: `card/tests/test_project_invoice_profitability.py`. Not checked on a Desk.
+
 ## [4.13.0] — 2026-11-26
 
 > **Published 2026-11-26** (tag `v4.13.0`, owner approval 2026-11-25). Published ≠ deployed (see DEPLOYMENTS.md).

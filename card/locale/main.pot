@@ -8178,7 +8178,7 @@ msgid "Select the period of the project profitability."
 msgstr ""
 
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
-msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines and expenses are the net amount of submitted Purchase Invoice lines, by posting date, in the company currency. Expenses include every Purchase Invoice line, stock and asset purchases too. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
+msgid "Read only. Revenue is the net amount of submitted Sales Invoice lines, by posting date, in the company currency. Expenses are the net amount of the submitted Purchase Invoice lines that are booked to an Expense account and are neither a stock item nor a fixed asset. The other Purchase Invoice lines are in the column \"Purchases not in expenses (stock, assets)\": it is information only and is not in the margin. Opening invoices are not read. A line without a project takes the project of its invoice; lines with no project at all are on the row \"No project\". Journal entries and the general ledger are not read, and nothing is estimated. The margin is revenue minus purchase-invoice expenses, not the full net profit: payroll, depreciation, overhead and journal-entry costs are not included."
 msgstr ""
 
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
@@ -8207,4 +8207,8 @@ msgstr ""
 
 #: card/card/report/project_invoice_profitability/project_invoice_profitability.py
 msgid "Project margin %"
+msgstr ""
+
+#: card/card/report/project_invoice_profitability/project_invoice_profitability.py
+msgid "Purchases not in expenses (stock, assets)"
 msgstr ""

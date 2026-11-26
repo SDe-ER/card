@@ -383,6 +383,64 @@ def invoice_project_totals(doctype, company, start, end, project=None):
 	all, so the amounts add up to the net totals of the invoices read. The sums are NOT rounded:
 	the caller rounds once, at the precision of the company currency. The invoices are read with
 	``frappe.get_list`` (the user's own permissions apply)."""
+	totals = {}
+	for line_project, row in _invoice_project_lines(doctype, company, start, end, project):
+		totals[line_project] = totals.get(line_project, 0.0) + flt(row.base_net_amount)
+	return totals
+
+
+def purchase_project_totals(company, start, end, project=None):
+	"""{project or "": {"expenses": amount, "not_in_expenses": amount}} of the submitted Purchase
+	Invoice lines posted in [start, end], by the rules of ``invoice_project_totals`` (same
+	invoices, same project of a line, unrounded sums). A line is an expense only when it is
+	booked to an Expense account of ``company`` and is neither a fixed-asset line nor a line of
+	a stock item. Every other line (stock, fixed asset, capital work in progress, a line without
+	an account) is "not_in_expenses": a purchase that is not a cost of the period. The two
+	amounts of a project add up to the net amount of its lines."""
+	lines = list(
+		_invoice_project_lines(
+			"Purchase Invoice",
+			company,
+			start,
+			end,
+			project,
+			("item_code", "expense_account", "is_fixed_asset"),
+		)
+	)
+	stock_items = _stock_items(row.item_code for _project, row in lines)
+	expense_accounts = _expense_accounts((row.expense_account for _project, row in lines), company)
+	totals = {}
+	for line_project, row in lines:
+		is_expense = (
+			not row.is_fixed_asset
+			and row.item_code not in stock_items
+			and row.expense_account in expense_accounts
+		)
+		split = totals.setdefault(line_project, {"expenses": 0.0, "not_in_expenses": 0.0})
+		split["expenses" if is_expense else "not_in_expenses"] += flt(row.base_net_amount)
+	return totals
+
+
+def _expense_accounts(accounts, company):
+	"""The accounts of ``company`` with the root type Expense among ``accounts`` (one batched
+	read per chunk). Called with the accounts named by invoice lines the user already read; the
+	root type of an account is a classification fact, not user data, so it is read with
+	``frappe.get_all``."""
+	result = set()
+	for chunk in _chunks({account for account in accounts if account}):
+		result.update(
+			frappe.get_all(
+				"Account",
+				filters={"name": ["in", chunk], "company": company, "root_type": "Expense"},
+				pluck="name",
+			)
+		)
+	return result
+
+
+def _invoice_project_lines(doctype, company, start, end, project=None, fields=()):
+	"""(project or "", line) of the submitted ``doctype`` lines of ``invoice_project_totals``.
+	Each line carries ``base_net_amount`` and the extra ``fields``."""
 	invoices = {
 		r.name: r.project
 		for r in frappe.get_list(
@@ -397,13 +455,11 @@ def invoice_project_totals(doctype, company, start, end, project=None):
 			limit_page_length=0,
 		)
 	}
-	totals = {}
-	for row in _children(doctype + " Item", doctype, invoices, ["project", "base_net_amount"]):
+	for row in _children(doctype + " Item", doctype, invoices, ["project", "base_net_amount", *fields]):
 		line_project = row.project or invoices[row.parent] or ""
 		if project and line_project != project:
 			continue
-		totals[line_project] = totals.get(line_project, 0.0) + flt(row.base_net_amount)
-	return totals
+		yield line_project, row
 
 
 def project_names(projects, company):
@@ -455,7 +511,9 @@ def _card_recognised_invoices(company, invoices):
 
 
 def _stock_items(item_codes):
-	"""The stock items among ``item_codes`` (one batched read per chunk)."""
+	"""The stock items among ``item_codes`` (one batched read per chunk). Called with the items
+	named by invoice lines the user already read; "is a stock item" is a classification fact,
+	not user data, so it is read with ``frappe.get_all``."""
 	result = set()
 	for chunk in _chunks({code for code in item_codes if code}):
 		result.update(
