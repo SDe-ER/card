@@ -266,14 +266,14 @@
       "clickSelAfter": [
         ".inner-group-button[data-label=\"CARD\"] button"
       ],
-      "waitSel": ".inner-group-button[data-label=\"CARD\"] .dropdown-item"
+      "waitSel": "[role=\"menuitem\"]"
     },
     {
       "name": "invoice-link-dialog",
       "path": "/app/sales-invoice/{si:unlinked}",
       "clickSelAfter": [
         ".inner-group-button[data-label=\"CARD\"] button",
-        ".inner-group-button[data-label=\"CARD\"] .dropdown-item",
+        "[role=\"menuitem\"]",
         ".modal.show .frappe-control[data-fieldname=\"card_0\"] input",
         ".modal.show .frappe-control[data-fieldname=\"card_1\"] input"
       ],
@@ -289,7 +289,7 @@
       "waitSel": ".modal.show .frappe-control[data-fieldname=\"reason\"]",
       "clickSelAfter": [
         ".inner-group-button[data-label=\"CARD\"] button",
-        ".inner-group-button[data-label=\"CARD\"] .dropdown-item"
+        "[role=\"menuitem\"]"
       ]
     }
   ]
