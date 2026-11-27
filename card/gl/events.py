@@ -73,6 +73,46 @@ def active_log_holding(doctype, name, party_type=None):
 	return None
 
 
+def locked_active_holders(doctype, names, party_type):
+	"""{source name: active log} of the sources that an active (Draft/Submitted) log of ``party_type`` lists,
+	read with a locking read: it sees what other transactions committed (a link or a build this transaction
+	waited for on the source rows), not the snapshot of this one. Call it after the source rows are locked
+	(order: invoice, sources, logs).
+
+	Issue 340: `source_name` of GL Posting Source and the status of GL Posting Log have no index, so this read
+	locks the rows it scans, not only the rows it returns; other links and builds wait until this transaction
+	ends. This lock scope is accepted for now (review of pull request 349): the two tables are small, and a
+	narrow lock needs an index on GL Posting Source, which is a schema change. Every caller uses this one
+	query, so two callers take the row locks in the same order; a caller with several sources of one type
+	passes them in one call."""
+	names = list(names)
+	if not names:
+		return {}
+	source, log = frappe.qb.DocType("GL Posting Source"), frappe.qb.DocType("GL Posting Log")
+	rows = (
+		frappe.qb.from_(source)
+		.join(log)
+		.on(log.name == source.parent)
+		.select(source.source_name, log.name, log.posting_doc)
+		.where(
+			(source.parenttype == "GL Posting Log")
+			& (source.source_doctype == doctype)
+			& (source.source_name.isin(names))
+			& (log.party_type == party_type)
+			& (log.status.isin(list(ACTIVE_STATES)))
+		)
+		.for_update()
+		.run(as_dict=True)
+	)
+	return {row.source_name: row for row in rows}
+
+
+def locked_active_holder(doctype, name, party_type):
+	"""``locked_active_holders`` for one source: its active log of that side, or None. The database matches
+	the name without case, so a log that stored another spelling of the name is found too."""
+	return next(iter(locked_active_holders(doctype, [name], party_type).values()), None)
+
+
 def _point_display(doctype, name, log_name):
 	"""Keep the source's informational gl_posting link on an ACTIVE log without
 	stealing the pointer from the other side's active posting (sub-rental)."""

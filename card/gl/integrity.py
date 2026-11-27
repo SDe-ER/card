@@ -515,6 +515,43 @@ def require_reviewed(candidates, reviewed):
 			frappe.has_permission("Purchase Invoice", "read", name, throw=True)
 
 
+def _locked_invoice_log(doctype, invoice):
+	"""The active GL Posting Log of an invoice, or None. The name comes from a plain read and that one row is
+	locked by its name; its state is checked again on the locked row. A locking read filtered on `posting_doc`
+	(no index) would lock rows of other postings (issue 340)."""
+	held = frappe.db.get_value(
+		"GL Posting Log",
+		{"posting_doctype": doctype, "posting_doc": invoice, "status": ["in", list(ACTIVE_STATES)]},
+		"name",
+	)
+	if not held:
+		return None
+	current = frappe.db.get_value(
+		"GL Posting Log", held, ["status", "posting_doctype", "posting_doc"], as_dict=True, for_update=True
+	)
+	if (
+		current
+		and current.status in ACTIVE_STATES
+		and current.posting_doctype == doctype
+		and current.posting_doc == invoice
+	):
+		return held
+	return None
+
+
+def _link_committed_meanwhile(company, party_type, party, posting_day, invoice):
+	"""The active Linked log of ``invoice`` that another transaction committed after the snapshot of this one
+	(the plain read of ``_locked_invoice_log`` does not see it): a locking read on the unique posting key of
+	the log this link is about to insert. It reads one index entry and locks no row of another posting. Call
+	it after the sources are locked: a build that holds a source waits on this key when it inserts its log."""
+	from card.card.doctype.gl_posting_log.gl_posting_log import linked_posting_key
+
+	key = linked_posting_key(
+		company, party_type, party, "%02d" % posting_day.month, posting_day.year, invoice
+	)
+	return frappe.db.get_value("GL Posting Log", {"posting_key": key}, "name", for_update=True)
+
+
 def lock_sources(sources):
 	"""Row-lock every source in a stable order, so a concurrent build or link of
 	the same documents waits and then sees the first one's reservation."""
@@ -559,8 +596,17 @@ def link_supplier_invoice(
 	reason, and it is then stored on the log as an open difference, never shown as
 	matched. An imported diesel session that carries its supplier invoice no. links
 	only to the invoice with that bill no. Sources may span several months (an
-	invoice covering 24/09–06/10)."""
-	from card.gl.events import active_log_holding, link_sources_on_submit
+	invoice covering 24/09–06/10).
+
+	Concurrency (issue 340, as ``link_customer_invoice``): the invoice row, then the
+	source rows, are locked, and the values that are checked or stored (status, company,
+	supplier, bill no., totals, the purchase invoice link and the amount of each source)
+	are read from the locked rows. The active log of the invoice is found by a plain read
+	and locked by its name; a link or a build that another transaction committed is seen
+	by locking reads (``_link_committed_meanwhile``, ``locked_active_holders``). The holder
+	read runs once for each source type; it locks the posting log and source rows it scans
+	(no index on the source name), which is accepted while these tables are small."""
+	from card.gl.events import link_sources_on_submit, locked_active_holders
 	from card.gl.posting import POSTING_SOURCE_DOCTYPES
 	from card.report_access import permitted_companies
 	from card.settings import setting
@@ -571,7 +617,8 @@ def link_supplier_invoice(
 		)
 	if isinstance(sources, str):
 		sources = json.loads(sources)
-	inv = frappe.get_doc("Purchase Invoice", invoice)
+	# the invoice row is locked: its fields are the committed ones, not this transaction's snapshot
+	inv = frappe.get_doc("Purchase Invoice", invoice, for_update=True)
 	inv.check_permission("read")
 	if inv.company not in permitted_companies(*POSTING_SOURCE_DOCTYPES, "Purchase Invoice", "GL Posting Log"):
 		frappe.throw(
@@ -582,23 +629,16 @@ def link_supplier_invoice(
 	frappe.has_permission("Supplier", "read", inv.supplier, throw=True)
 	if inv.docstatus == 2 or inv.is_return:
 		frappe.throw(_("{0} is cancelled or a return; link the valid supplier invoice.").format(invoice))
-	built = frappe.db.get_value(
-		"GL Posting Log",
-		{
-			"posting_doctype": "Purchase Invoice",
-			"posting_doc": invoice,
-			"status": ["in", list(ACTIVE_STATES)],
-		},
-		["name", "origin"],
-		as_dict=True,
-	)
+	built = _locked_invoice_log("Purchase Invoice", inv.name)
 	if built:
-		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, built.name))
+		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, built))
 	if not sources:
 		frappe.throw(_("Choose the CARD sources this invoice pays for."))
 	rows = {"Card Monthly Card": [], "Project Diesel Fill": [], "Equipment Transport": []}
 	for src in sources:
-		doctype, name = src.get("doctype"), src.get("name")
+		doctype, name = (src.get("doctype"), src.get("name")) if isinstance(src, dict) else (None, None)
+		if not isinstance(name, str) or not name.strip():
+			frappe.throw(_("Choose the CARD sources this invoice pays for."))
 		if doctype not in rows:
 			frappe.throw(_("{0} is not a CARD source type.").format(doctype))
 		if any(n == name for n, _a in rows[doctype]):
@@ -622,8 +662,13 @@ def link_supplier_invoice(
 	unverified = []
 	for doctype, items in rows.items():
 		for i, (name, _amount) in enumerate(items):
-			src = frappe.get_doc(doctype, name)
+			# the row is locked (lock_sources): the fields checked and the amount are the committed ones
+			src = frappe.get_doc(doctype, name, for_update=True)
 			src.check_permission("read")
+			# the database matches names without case: two spellings of one source are one row
+			if any(src.name == listed for listed, _net in items[:i]):
+				frappe.throw(_("{0} {1} is listed twice.").format(_(doctype), src.name))
+			name = src.name
 			if src.docstatus != 1:
 				frappe.throw(_("{0} {1} is not submitted.").format(_(doctype), name))
 			if src.company != inv.company or src.get(SUPPLIER_FIELD[doctype]) != inv.supplier:
@@ -644,11 +689,6 @@ def link_supplier_invoice(
 						"Transport {0} records who pays and who bears its cost; linking it to a supplier invoice is not enabled yet."
 					).format(name)
 				)
-			holder = active_log_holding(doctype, name, "Supplier")
-			if holder:
-				frappe.throw(
-					_("{0} {1} is already held by {2}.").format(_(doctype), name, holder.posting_doc)
-				)
 			invoice_no = src.get("supplier_invoice_no") if doctype == "Project Diesel Fill" else None
 			if invoice_no and (invoice_no or "").strip() != (inv.bill_no or "").strip():
 				frappe.throw(
@@ -661,7 +701,15 @@ def link_supplier_invoice(
 				unverified.append(name)
 				net = flt(src.amount, 2)
 			items[i] = (name, net)
+		# one locking read for the sources of this type (the names are the stored ones)
+		for held_name, holder in locked_active_holders(doctype, [n for n, _net in items], "Supplier").items():
+			frappe.throw(
+				_("{0} {1} is already held by {2}.").format(_(doctype), held_name, holder.posting_doc)
+			)
 	posting_day = getdate(inv.bill_date or inv.posting_date)
+	linked = _link_committed_meanwhile(inv.company, "Supplier", inv.supplier, posting_day, inv.name)
+	if linked:
+		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, linked))
 	sources_net = flt(sum(a for items in rows.values() for _n, a in items), 2)
 	# per-line rounding of VAT-inclusive fills: up to one halala per fill
 	tolerance = (flt(setting("reconciliation_tolerance")) or 0.01) + 0.01 * len(rows["Project Diesel Fill"])
@@ -834,23 +882,9 @@ def _project_gaps(invoice_by_project, cards_by_project, tolerance):
 def _active_customer_holder(card):
 	"""The active customer-side posting log that lists the card, read with a locking read: it sees what other
 	transactions committed, not the snapshot of this one."""
-	source, log = frappe.qb.DocType("GL Posting Source"), frappe.qb.DocType("GL Posting Log")
-	rows = (
-		frappe.qb.from_(source)
-		.join(log)
-		.on(log.name == source.parent)
-		.select(log.name, log.posting_doc)
-		.where(
-			(source.parenttype == "GL Posting Log")
-			& (source.source_doctype == CARD_DOCTYPE)
-			& (source.source_name == card)
-			& (log.party_type == "Customer")
-			& (log.status.isin(list(ACTIVE_STATES)))
-		)
-		.for_update()
-		.run(as_dict=True)
-	)
-	return rows[0] if rows else None
+	from card.gl.events import locked_active_holder
+
+	return locked_active_holder(CARD_DOCTYPE, card, "Customer")
 
 
 @frappe.whitelist(methods=["POST"])
@@ -869,7 +903,21 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	within the reconciliation tolerance, in total and for each project. A difference is always refused.
 
 	Concurrency: the invoice row and the card rows are locked, and the state that another transaction can
-	change (document status, links, active logs) is read again under those locks."""
+	change (document status, links, active logs) is read again under those locks. So are the amounts that are
+	compared: the net total, the header project and the lines of the invoice, and the customer net amount and
+	the project of each card (issue 340). The invoice and each card are loaded from their locked rows, so the
+	company, the customer, the posting date and the total of the invoice, and the company, the customer and the
+	direction of a card, are the committed values too; the credit note check is a locking read. The read that
+	finds the holder of a card locks the posting log and source rows it scans (no index on the source name);
+	that lock scope is accepted while these tables are small.
+
+	Lock order (issue 340): the invoice row, then the card rows in name order, then posting logs. The submit
+	and the cancel of an invoice (``card.gl.events``), the monthly build (cards, then logs) and the unlink take
+	the same order. The active log of the invoice is found by a plain read and locked by its name before the
+	cards: that row belongs to this invoice only, every path that writes it holds the invoice row first, and
+	the link stops there. Moving that check after the cards would change which refusal a caller gets, so it
+	stays. A link of the same invoice that another transaction committed is read after the cards, by its
+	unique posting key (``_link_committed_meanwhile``)."""
 	from frappe.utils import cint, cstr, escape_html, now_datetime, strip_html_tags
 
 	from card.constants import CUSTOMER_BILLING_DIRECTIONS, DIR_RENTED_OUT
@@ -882,7 +930,8 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	if not reason:
 		frappe.throw(_("Give the reason for linking this invoice to the cards."))
 	names = _card_names(cards)
-	inv = frappe.get_doc("Sales Invoice", invoice)
+	# the invoice row is locked: the company, the customer, the date and the total are the committed ones
+	inv = frappe.get_doc("Sales Invoice", invoice, for_update=True)
 	inv.check_permission("read")
 	if inv.company not in _customer_link_companies():
 		frappe.throw(
@@ -891,11 +940,11 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 		)
 	frappe.has_permission("Sales Invoice", "submit", inv, throw=True)
 	frappe.has_permission("Customer", "read", inv.customer, throw=True)
-	# lock the invoice row; its state is the committed one, not this transaction's snapshot
+	# its state is the committed one, not this transaction's snapshot
 	state = frappe.db.get_value(
 		"Sales Invoice",
 		invoice,
-		["docstatus", "is_return", "is_debit_note", "is_opening", "currency"],
+		["docstatus", "is_return", "is_debit_note", "is_opening", "currency", "base_net_total", "project"],
 		as_dict=True,
 		for_update=True,
 	)
@@ -913,16 +962,15 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 				invoice, state.currency
 			)
 		)
-	existing = frappe.db.get_value(
-		"GL Posting Log",
-		{"posting_doctype": "Sales Invoice", "posting_doc": invoice, "status": ["in", list(ACTIVE_STATES)]},
-		"name",
-		for_update=True,
-	)
+	existing = _locked_invoice_log("Sales Invoice", inv.name)
 	if existing:
 		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, existing))
+	# a locking read: a credit note that another transaction submitted after this one's snapshot is seen
 	credit_note = frappe.db.get_value(
-		"Sales Invoice", {"is_return": 1, "return_against": invoice, "docstatus": 1}, "name"
+		"Sales Invoice",
+		{"is_return": 1, "return_against": invoice, "docstatus": 1},
+		"name",
+		for_update=True,
 	)
 	if credit_note:
 		frappe.throw(
@@ -930,10 +978,19 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 		)
 	rows = {CARD_DOCTYPE: [(name, 0) for name in names]}
 	lock_sources(rows)
-	invoice_by_project = _net_by_project(inv.get("items"), inv.get("project"))
-	docs = []
+	# the lines of the locked invoice, read again with a locking read (through their parent index)
+	lines = frappe.db.get_values(
+		"Sales Invoice Item",
+		{"parenttype": "Sales Invoice", "parent": inv.name},
+		["project", "base_net_amount"],
+		as_dict=True,
+		for_update=True,
+	)
+	invoice_by_project = _net_by_project(lines, state.project)
+	docs, locked = [], []
 	for i, name in enumerate(names):
-		card = frappe.get_doc(CARD_DOCTYPE, name)
+		# the row is locked (lock_sources): the company, the customer and the direction are the committed ones
+		card = frappe.get_doc(CARD_DOCTYPE, name, for_update=True)
 		card.check_permission("read")
 		# the database matches names without case: two spellings of one card are one row
 		if any(card.name == listed.name for listed in docs):
@@ -943,7 +1000,15 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 		current = frappe.db.get_value(
 			CARD_DOCTYPE,
 			name,
-			["docstatus", "workflow_state", "sales_invoice", "posted", "gl_posting"],
+			[
+				"docstatus",
+				"workflow_state",
+				"sales_invoice",
+				"posted",
+				"gl_posting",
+				"project",
+				"customer_net_amount",
+			],
 			as_dict=True,
 			for_update=True,
 		)
@@ -957,11 +1022,11 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 			frappe.throw(_("Card {0} belongs to another company than {1}.").format(name, invoice))
 		if not card.customer or card.customer != inv.customer:
 			frappe.throw(_("Card {0} belongs to another customer than {1}.").format(name, invoice))
-		if not card.project or card.project not in invoice_by_project:
+		if not current.project or current.project not in invoice_by_project:
 			frappe.throw(
 				_(
 					"Card {0} is of project {1}, which is not a project of {2} (its lines, or its header for a line without a project)."
-				).format(name, card.project or "-", invoice)
+				).format(name, current.project or "-", invoice)
 			)
 		if current.sales_invoice:
 			frappe.throw(_("Card {0} is already invoiced by {1}.").format(name, current.sales_invoice))
@@ -973,10 +1038,15 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 			frappe.throw(
 				_("Card {0} is marked posted without an invoice link; review it before linking.").format(name)
 			)
-		rows[CARD_DOCTYPE][i] = (name, flt(card.customer_net_amount, 2))
+		rows[CARD_DOCTYPE][i] = (name, flt(current.customer_net_amount, 2))
 		docs.append(card)
+		locked.append(current)
+	posting_day = getdate(inv.posting_date)
+	linked = _link_committed_meanwhile(inv.company, "Customer", inv.customer, posting_day, inv.name)
+	if linked:
+		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, linked))
 	cards_net = flt(sum(amount for _name, amount in rows[CARD_DOCTYPE]), 2)
-	invoice_net = flt(inv.base_net_total, 2)
+	invoice_net = flt(state.base_net_total, 2)
 	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
 	if abs(flt(invoice_net - cards_net, 2)) > tolerance:
 		frappe.throw(
@@ -985,7 +1055,7 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 			).format(cards_net, invoice, invoice_net),
 			title=_("Linked amounts differ"),
 		)
-	for project, billed, listed in _project_gaps(invoice_by_project, _cards_by_project(docs), tolerance):
+	for project, billed, listed in _project_gaps(invoice_by_project, _cards_by_project(locked), tolerance):
 		if not project:
 			frappe.throw(
 				_(
@@ -999,7 +1069,6 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 			).format(project, invoice, billed, listed),
 			title=_("Linked amounts differ"),
 		)
-	posting_day = getdate(inv.posting_date)
 	log = frappe.get_doc(
 		{
 			"doctype": "GL Posting Log",
@@ -1116,8 +1185,10 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 	The log is never deleted: its remarks keep the link text and get who, when, why and the previous links
 	(cards and amounts). One Info comment is added on the invoice and on each card.
 
-	Concurrency: the invoice row, the log row (by its name) and the card rows are locked in the order of the
-	link. The invoice status, the log and the link fields of the cards are read under those locks. The
+	Concurrency: the invoice row, the card rows and the log row (by its name) are locked in the order of the
+	link, the submit and the build (invoice, cards, logs; issue 340). The card names come from a plain read of
+	the source rows of the log, which never change. The invoice status, the log and the link fields of the
+	cards are read under those locks. The
 	amendment chain and the supplier-side log of a sub-rental card are plain reads: this method does not lock
 	rows of the supplier side."""
 	from frappe.utils import cint, cstr, escape_html, now_datetime, strip_html_tags
@@ -1139,7 +1210,8 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 			frappe.PermissionError,
 		)
 	invoice = inv.name
-	# lock the invoice row, then the log, then the cards (the order of the link); read the state under the locks
+	# lock the invoice row, then the cards, then the log (the order of the link, the submit and the build);
+	# read the state under the locks
 	docstatus = frappe.db.get_value("Sales Invoice", invoice, "docstatus", for_update=True)
 	if docstatus != 1:
 		frappe.throw(
@@ -1154,6 +1226,15 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 		{"posting_doctype": "Sales Invoice", "posting_doc": invoice, "status": ["in", list(ACTIVE_STATES)]},
 		"name",
 	)
+	if held:
+		# cards before the log (issue 340): their names come from a plain read of the source rows, which
+		# never change after the log is written; the sources of the locked log are locked again below
+		listed = frappe.get_all(
+			"GL Posting Source",
+			filters={"parenttype": "GL Posting Log", "parent": held, "source_doctype": CARD_DOCTYPE},
+			pluck="source_name",
+		)
+		lock_sources({CARD_DOCTYPE: [(name, 0) for name in listed]})
 	log = frappe.get_doc("GL Posting Log", held, for_update=True) if held else None
 	if (
 		not log
@@ -1369,8 +1450,13 @@ def unlinked_customer_invoice_candidates(
 	invoice net for each project (``match`` = "exact" or "none"). Returns, debit notes, opening invoices and
 	invoices with a submitted credit note are left out. Newest first, ``limit_page_length`` invoices per call
 	(at most 200), at most 100 cards per invoice (``more_cards`` says that there are more). It writes nothing
-	and links nothing."""
+	and links nothing.
+
+	Issue 340: an invoice in another currency than the company currency is left out too (the link refuses
+	it). The invoices that are never candidates are excluded inside the one query (NOT EXISTS), with the
+	permissions of ``frappe.get_list``; the query does not carry a list of names that grows with every posting."""
 	from frappe.utils import cint
+	from pypika.terms import ExistsCriterion
 
 	from card.settings import setting
 
@@ -1399,52 +1485,53 @@ def unlinked_customer_invoice_candidates(
 	)
 	if not customers:
 		return result
-	# invoices that are never candidates, by name: an invoice with an active log, an invoice with a submitted
-	# credit note, an opening invoice. Named here (not filtered by value), so a row whose opening flag is
-	# empty (NULL) stays in the list.
-	submitted = {"company": company, "docstatus": 1}
-	excluded = set(
-		frappe.get_all(
-			"GL Posting Log",
-			filters={
-				"company": company,
-				"posting_doctype": "Sales Invoice",
-				"status": ["in", list(ACTIVE_STATES)],
-				"posting_doc": ["is", "set"],
-			},
-			pluck="posting_doc",
-			limit_page_length=0,
-		)
-	)
-	excluded.update(
-		frappe.get_all(
-			"Sales Invoice",
-			filters={**submitted, "is_return": 1, "return_against": ["is", "set"]},
-			pluck="return_against",
-			limit_page_length=0,
-		)
-	)
-	excluded.update(
-		frappe.get_all(
-			"Sales Invoice", filters={**submitted, "is_opening": "Yes"}, pluck="name", limit_page_length=0
-		)
-	)
-	filters = [
-		["company", "=", company],
-		["customer", "in", customers],
-		["docstatus", "=", 1],
-		["is_return", "=", 0],
-		["is_debit_note", "=", 0],
-	]
-	if excluded:
-		filters.append(["name", "not in", sorted(excluded)])
-	invoices = frappe.get_list(
+	# the permitted invoices, as frappe.get_list reads them; the query is returned, not run
+	query = frappe.get_list(
 		"Sales Invoice",
-		filters=filters,
+		filters=[
+			["company", "=", company],
+			["customer", "in", customers],
+			["docstatus", "=", 1],
+			["is_return", "=", 0],
+			["is_debit_note", "=", 0],
+			# the link refuses an invoice in another currency
+			["currency", "=", frappe.get_cached_value("Company", company, "default_currency")],
+		],
 		fields=["name", "posting_date", "customer", "project", "base_net_total"],
 		order_by="posting_date desc, name desc",
 		limit_start=start,
 		limit_page_length=page + 1,
+		run=False,
+	)
+	# invoices that are never candidates: an invoice with an active log, an invoice with a submitted credit
+	# note, an opening invoice. The opening flag is compared so that an empty (NULL) flag stays in the list.
+	invoice, log = frappe.qb.DocType("Sales Invoice"), frappe.qb.DocType("GL Posting Log")
+	credit_note = frappe.qb.DocType("Sales Invoice").as_("credit_note")
+	active_log = (
+		frappe.qb.from_(log)
+		.select(log.name)
+		.where(
+			(log.company == company)
+			& (log.posting_doctype == "Sales Invoice")
+			& (log.status.isin(list(ACTIVE_STATES)))
+			& (log.posting_doc == invoice.name)
+		)
+	)
+	submitted_credit_note = (
+		frappe.qb.from_(credit_note)
+		.select(credit_note.name)
+		.where(
+			(credit_note.company == company)
+			& (credit_note.docstatus == 1)
+			& (credit_note.is_return == 1)
+			& (credit_note.return_against == invoice.name)
+		)
+	)
+	invoices = (
+		query.where(ExistsCriterion(active_log).negate())
+		.where(ExistsCriterion(submitted_credit_note).negate())
+		.where(invoice.is_opening.isnull() | (invoice.is_opening != "Yes"))
+		.run(as_dict=True)
 	)
 	result["has_more"] = len(invoices) > page
 	invoices = invoices[:page]

@@ -240,7 +240,8 @@ CARD. There is no button in Desk for this action; an Accounts Manager or a Syste
 
 1. Find the invoices to link. Call `unlinked_customer_invoice_candidates` for the company. It lists each submitted
    Sales Invoice that CARD did not build and that has no link, with the customer's cards that have no invoice, and it
-   says if a set of cards totals the invoice net (`match` is `exact` or `none`). This method only reads.
+   says if a set of cards totals the invoice net (`match` is `exact` or `none`). An invoice in another
+   currency than the company currency is not listed. This method only reads.
 2. Check the cards against the invoice. The link needs the same company, the same customer and the same project.
    The project of an invoice line is the project on the line; a line without a project takes the project in the
    invoice header. An invoice without a project cannot be linked, because every card has a project.

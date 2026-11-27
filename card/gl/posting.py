@@ -28,7 +28,7 @@ from card import transport_costs as tc
 from card.card.doctype.gl_posting_log.gl_posting_log import ACTIVE_STATES
 from card.constants import CUSTOMER_BILLING_DIRECTIONS, SUPPLIER_BILLING_DIRECTIONS
 from card.gl import integrity, preflight
-from card.gl.events import _point_display
+from card.gl.events import _point_display, locked_active_holders
 from card.gl.masters import ensure_posting_masters, ensure_selling_price_list
 from card.open_month import STATE_OPEN_MONTH
 from card.report_access import permitted_companies
@@ -1076,10 +1076,12 @@ def _plan_monthly_posting(
 		company, party_type, party, month, year, sources, row, vat_registered, lock=not dry_run
 	)
 	if not dry_run:
-		# P0: serialize concurrent builds/links of the same sources, then re-check membership
+		# P0: serialize concurrent builds/links of the same sources, then re-check membership. Issue 340: with
+		# a locking read, so a build that waited here for a link sees the log that link committed (a plain
+		# read answers from the snapshot this transaction took before it waited)
 		integrity.lock_sources(sources)
 		for doctype, rows in sources.items():
-			held = _held_by_active_log(doctype, [name for name, _amount in rows], party_type)
+			held = locked_active_holders(doctype, [name for name, _amount in rows], party_type)
 			if held:
 				frappe.throw(
 					_("{0} {1} was just reserved by another posting; build again.").format(

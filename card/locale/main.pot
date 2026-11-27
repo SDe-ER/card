@@ -14663,3 +14663,6 @@ msgstr ""
 msgid "نهاري"
 msgstr ""
 
+#: card/card/doctype/gl_posting_log/gl_posting_log.py
+msgid "{0} changed while it was being linked; try again."
+msgstr ""
