@@ -16,7 +16,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Fixed
-- **Locales: 102 CARD messages that had no Arabic entry now show in Arabic (refs #340).** `ar.po` gains the
+- **Locales: About eighty CARD messages that had no Arabic entry now show in Arabic (refs #340).** `ar.po` gains the
   CARD-only messages of the GL integrity, cash payment, monthly card and supplier statement code. Generic words
   that frappe, erpnext or hrms already translate stay out of `ar.po`, so they keep their own wording site-wide.
 - **Locales: three Arabic words and the cash payment status no longer replace HRMS wording; the override guard

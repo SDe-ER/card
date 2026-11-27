@@ -10134,39 +10134,9 @@ msgstr "تم البناء"
 msgid "Installation"
 msgstr "التركيب"
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:183
-msgid " (Draft)"
-msgstr " (مسودة)"
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:372
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:383
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:231
-msgid " to "
-msgstr " إلى "
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:385
-msgid " — Hours only until internal rates are defined."
-msgstr " — ساعات فقط إلى أن تُحدَّد الأسعار الداخلية."
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:374
-msgid " — Issue date "
-msgstr " — تاريخ الإصدار "
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:370
-msgid " — Period from "
-msgstr " — الفترة من "
-
 #: card/gl/integrity.py:487
 msgid ", draft"
 msgstr "، مسودة"
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:376
-msgid ". Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
-msgstr ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
-
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:233
-msgid ". Click on the supplier name to open their statement."
-msgstr ". اضغط على اسم المورد لفتح كشف حسابه."
 
 #: card/open_month.py:573
 msgid "A row of monthly card {0} is changed only on the card itself."
@@ -10298,21 +10268,9 @@ msgstr "ترحيل CARD مكرر"
 msgid "Enter the evidence of the cash payment (receipt number or reference)."
 msgstr "أدخل إثبات الدفعة النقدية (رقم الإيصال أو المرجع)."
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:368
-msgid "Equipment supplier statement: "
-msgstr "كشف حساب مورد المعدات: "
-
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:229
-msgid "Equipment suppliers summary — Period from "
-msgstr "ملخص موردي المعدات — الفترة من "
-
 #: card/gl/integrity.py:311
 msgid "Give the reason for the correction."
 msgstr "اكتب سبب التصحيح."
-
-#: frontend/src/pages/NewRequest.vue:48
-msgid "Line {0} needs an item and a quantity."
-msgstr "السطر {0} يحتاج صنفًا وكمية."
 
 #: card/gl/integrity.py:706
 msgid "Linked by {0}: supplier invoice {1} (bill no. {2}) net {3} / total {4}, CARD sources net {5}, {6}. {7}"
@@ -10367,10 +10325,6 @@ msgstr "هوية خدمة المحاسبة فقط يمكنها ترحيل دفع
 msgid "Only the accounting service identity can run the posting queue."
 msgstr "هوية خدمة المحاسبة فقط يمكنها تشغيل طابور الترحيل."
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:381
-msgid "Operating owned equipment by project — Period from "
-msgstr "تشغيل المعدات المملوكة حسب المشروع — الفترة من "
-
 #: card/gl/events.py:279
 #: card/gl/events.py:310
 #: card/gl/integrity.py:500
@@ -10380,12 +10334,6 @@ msgstr "مصروف مكرر محتمل"
 #: card/gl/integrity.py:291
 msgid "Rebuild the posting from CARD (fix the source documents first)."
 msgstr "أعد بناء الترحيل من CARD (صحّح المستندات المصدر أولًا)."
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:347
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:203
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:213
-msgid "Reconciliation difference"
-msgstr "فرق المطابقة"
 
 #: card/gl/posting.py:1341
 msgid "Reviewed as unrelated by {0}: {1}."
@@ -10574,45 +10522,3 @@ msgstr "{0} {1} سُجّل على فاتورة المورد رقم {2}، ولي�
 #: card/gl/integrity.py:207
 msgid "{0}: {1} → {2}"
 msgstr "{0}: {1} ← {2}"
-
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "إيجار من الباطن"
-msgstr "إيجار من الباطن"
-
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-#: card/card/doctype/card_settings/card_settings.json
-msgid "بالشهر"
-msgstr "بالشهر"
-
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "تشغيل داخلي"
-msgstr "تشغيل داخلي"
-
-#: card/card/doctype/card_settings/card_settings.json
-msgid "ثابت"
-msgstr "ثابت"
-
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "مؤجَّرة لعميل"
-msgstr "مؤجَّرة لعميل"
-
-#: card/card/doctype/card_settings/card_settings.json
-msgid "متغير"
-msgstr "متغير"
-
-#: card/card/doctype/card_equipment/card_equipment.json
-#: card/card/doctype/card_monthly_card/card_monthly_card.json
-msgid "مستأجَرة من مورد"
-msgstr "مستأجَرة من مورد"
-
-#: card/card/doctype/card_settings/card_settings.json
-msgid "معدات ملك"
-msgstr "معدات ملك"
-
-#: card/card/doctype/card_settings/card_settings.json
-msgid "مورد"
-msgstr "مورد"

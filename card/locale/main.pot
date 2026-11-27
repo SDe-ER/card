@@ -16,28 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:183
-msgid " (Draft)"
-msgstr ""
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:372
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:383
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:231
-msgid " to "
-msgstr ""
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:385
-msgid " — Hours only until internal rates are defined."
-msgstr ""
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:374
-msgid " — Issue date "
-msgstr ""
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:370
-msgid " — Period from "
-msgstr ""
-
 #: card/card/print_format/card_monthly_card_print/card_monthly_card_print.json
 #: card/card/print_format/equipment_transport_print/equipment_transport_print.json
 #: card/card/print_format/project_diesel_fill_print/project_diesel_fill_print.json
@@ -83,14 +61,6 @@ msgstr ""
 
 #: card/gl/integrity.py:487
 msgid ", draft"
-msgstr ""
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:376
-msgid ". Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
-msgstr ""
-
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:233
-msgid ". Click on the supplier name to open their statement."
 msgstr ""
 
 #. Description of the 'Default daily hours (new equipment only)' (Float) field
@@ -5170,10 +5140,6 @@ msgstr ""
 msgid "Equipment supplier bears the cost"
 msgstr ""
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:368
-msgid "Equipment supplier statement: "
-msgstr ""
-
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:456
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:680
 msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}."
@@ -5181,10 +5147,6 @@ msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:603
 msgid "Equipment supplier statement: {0} — Period from {1} to {2} — Issue date {3}. Balance from accounting entries only (VAT included)."
-msgstr ""
-
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:229
-msgid "Equipment suppliers summary — Period from "
 msgstr ""
 
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:342
@@ -8383,10 +8345,6 @@ msgstr ""
 msgid "Operating month"
 msgstr ""
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:381
-msgid "Operating owned equipment by project — Period from "
-msgstr ""
-
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:611
 msgid "Operating owned equipment by project — Period from {0} to {1} — Hours only until internal rates are defined."
 msgstr ""
@@ -9892,12 +9850,6 @@ msgstr ""
 
 #: card/card/report/card_settlement_status/card_settlement_status.py:124
 msgid "Recognising document is a draft"
-msgstr ""
-
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:347
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:203
-#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:213
-msgid "Reconciliation difference"
 msgstr ""
 
 #: card/gl/posting.py:95
