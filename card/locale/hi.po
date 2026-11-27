@@ -76,7 +76,7 @@ msgid "Tool"
 msgstr "औज़ार"
 
 msgid "CARD Mobile"
-msgstr "CARD मोबाइल"
+msgstr "Card मोबाइल"
 
 msgid "New request"
 msgstr "नया अनुरोध"
@@ -392,13 +392,13 @@ msgid "إجمالي لترات الديزل"
 msgstr "कुल डीज़ल लीटर"
 
 msgid "المعدات المؤجرة"
-msgstr "किराये के उपकरण (CARD)"
+msgstr "किराये के उपकरण (Card)"
 
 msgid "كروت الشهر الماضي"
 msgstr "पिछले महीने के कार्ड"
 
 msgid "كروت مسودة"
-msgstr "ड्राफ़्ट कार्ड (CARD)"
+msgstr "ड्राफ़्ट कार्ड (Card)"
 
 msgid "مبالغ الشهر الماضي"
 msgstr "आपूर्तिकर्ता संचालन मूल्य - पिछला महीना"
@@ -419,10 +419,10 @@ msgid "قيمة تشغيل داخلي - الشهر الماضي"
 msgstr "आंतरिक संचालन मूल्य - पिछला महीना"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "आंतरिक दर के बिना कार्ड (CARD)"
+msgstr "आंतरिक दर के बिना कार्ड (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "बिना दर के संचालन घंटे (CARD)"
+msgstr "बिना दर के संचालन घंटे (Card)"
 
 msgid "كارت تشغيل شهري"
 msgstr "मासिक संचालन कार्ड"
@@ -506,7 +506,7 @@ msgid "بالمتر المكعب"
 msgstr "प्रति घन मीटर"
 
 msgid "Loads last month"
-msgstr "पिछले महीने के लोड (CARD)"
+msgstr "पिछले महीने के लोड (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "लोड केवल उस कार्ड पर दर्ज किए जा सकते हैं जिसका ग्राहक दर प्रकार प्रति घन मीटर है"
@@ -543,25 +543,25 @@ msgid "Printed at"
 msgstr "मुद्रण समय"
 
 msgid "CARD operations dashboard"
-msgstr "CARD संचालन डैशबोर्ड"
+msgstr "Card संचालन डैशबोर्ड"
 
 msgid "Financial performance — last month"
 msgstr "वित्तीय प्रदर्शन — पिछला महीना"
 
 msgid "Needs review (CARD)"
-msgstr "समीक्षा आवश्यक (CARD)"
+msgstr "समीक्षा आवश्यक (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "नवीनतम मासिक कार्ड (CARD)"
+msgstr "नवीनतम मासिक कार्ड (Card)"
 
 msgid "CARD customers"
-msgstr "CARD ग्राहक"
+msgstr "Card ग्राहक"
 
 msgid "CARD suppliers"
-msgstr "CARD आपूर्तिकर्ता"
+msgstr "Card आपूर्तिकर्ता"
 
 msgid "Diesel and operations (CARD)"
-msgstr "डीज़ल और संचालन (CARD)"
+msgstr "डीज़ल और संचालन (Card)"
 
 msgid "New monthly card"
 msgstr "नया मासिक कार्ड"
@@ -570,22 +570,22 @@ msgid "New equipment transport"
 msgstr "नया उपकरण परिवहन"
 
 msgid "Customer statement (CARD)"
-msgstr "ग्राहक विवरण (CARD)"
+msgstr "ग्राहक विवरण (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "मासिक कार्ड (CARD)"
+msgstr "मासिक कार्ड (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "उपकरण (CARD)"
+msgstr "उपकरण (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "असाइनमेंट (CARD)"
+msgstr "असाइनमेंट (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "उपकरण ग्राहक (CARD)"
+msgstr "उपकरण ग्राहक (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "उपकरण परिवहन (CARD)"
+msgstr "उपकरण परिवहन (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "ग्राहकों के लिए संचालन मूल्य - पिछला महीना"
@@ -600,46 +600,46 @@ msgid "Cards last month"
 msgstr "पिछले महीने के कार्ड"
 
 msgid "Rented equipment (CARD)"
-msgstr "किराये के उपकरण (CARD)"
+msgstr "किराये के उपकरण (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "पिछले महीने के लोड (CARD)"
+msgstr "पिछले महीने के लोड (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "ड्राफ़्ट कार्ड (CARD)"
+msgstr "ड्राफ़्ट कार्ड (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "आंतरिक दर के बिना कार्ड (CARD)"
+msgstr "आंतरिक दर के बिना कार्ड (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "बिना दर के संचालन घंटे (CARD)"
+msgstr "बिना दर के संचालन घंटे (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "ग्राहक सारांश (CARD)"
+msgstr "ग्राहक सारांश (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "आपूर्तिकर्ता विवरण (CARD)"
+msgstr "आपूर्तिकर्ता विवरण (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "आपूर्तिकर्ता सारांश (CARD)"
+msgstr "आपूर्तिकर्ता सारांश (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "आपूर्तिकर्ता विवरण A4 (CARD)"
+msgstr "आपूर्तिकर्ता विवरण A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "डीज़ल खपत (CARD)"
+msgstr "डीज़ल खपत (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "परियोजना के अनुसार संचालन लागत (CARD)"
+msgstr "परियोजना के अनुसार संचालन लागत (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "परियोजना के अनुसार परिवहन लागत (CARD)"
+msgstr "परियोजना के अनुसार परिवहन लागत (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "मीटर मिलान (CARD)"
+msgstr "मीटर मिलान (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "उपकरण परिवहन (CARD)"
+msgstr "उपकरण परिवहन (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

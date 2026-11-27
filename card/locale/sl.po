@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Na m³"
 
 msgid "Loads last month"
-msgstr "Tovori prejšnji mesec (CARD)"
+msgstr "Tovori prejšnji mesec (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Tovore je mogoče vnesti samo na kartico, katere vrsta cene za stranko je na m³"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Natisnjeno"
 
 msgid "CARD operations dashboard"
-msgstr "Nadzorna plošča poslovanja CARD"
+msgstr "Nadzorna plošča poslovanja Card"
 
 msgid "Financial performance — last month"
 msgstr "Finančna uspešnost — prejšnji mesec"
 
 msgid "Needs review (CARD)"
-msgstr "Potrebuje pregled (CARD)"
+msgstr "Potrebuje pregled (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Najnovejše mesečne kartice (CARD)"
+msgstr "Najnovejše mesečne kartice (Card)"
 
 msgid "CARD customers"
-msgstr "Stranke CARD"
+msgstr "Stranke Card"
 
 msgid "CARD suppliers"
-msgstr "Dobavitelji CARD"
+msgstr "Dobavitelji Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dizel in poslovanje (CARD)"
+msgstr "Dizel in poslovanje (Card)"
 
 msgid "New monthly card"
 msgstr "Nova mesečna kartica"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Nov prevoz opreme"
 
 msgid "Customer statement (CARD)"
-msgstr "Izpisek stranke (CARD)"
+msgstr "Izpisek stranke (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Mesečne kartice (CARD)"
+msgstr "Mesečne kartice (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Oprema (CARD)"
+msgstr "Oprema (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Dodelitve (CARD)"
+msgstr "Dodelitve (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Stranke opreme (CARD)"
+msgstr "Stranke opreme (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Prevozi opreme (CARD)"
+msgstr "Prevozi opreme (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Poslovna vrednost za stranke - prejšnji mesec"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "Kartice prejšnji mesec"
 
 msgid "Rented equipment (CARD)"
-msgstr "Najeta oprema (CARD)"
+msgstr "Najeta oprema (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Najeta oprema (CARD)"
+msgstr "Najeta oprema (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Tovori prejšnji mesec (CARD)"
+msgstr "Tovori prejšnji mesec (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Osnutki kartic (CARD)"
+msgstr "Osnutki kartic (Card)"
 
 msgid "كروت مسودة"
-msgstr "Osnutki kartic (CARD)"
+msgstr "Osnutki kartic (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Kartice brez interne cene (CARD)"
+msgstr "Kartice brez interne cene (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Kartice brez interne cene (CARD)"
+msgstr "Kartice brez interne cene (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Delovne ure brez cene (CARD)"
+msgstr "Delovne ure brez cene (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Delovne ure brez cene (CARD)"
+msgstr "Delovne ure brez cene (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Povzetek strank (CARD)"
+msgstr "Povzetek strank (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Izpisek dobavitelja (CARD)"
+msgstr "Izpisek dobavitelja (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Povzetek dobaviteljev (CARD)"
+msgstr "Povzetek dobaviteljev (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Izpisek dobavitelja A4 (CARD)"
+msgstr "Izpisek dobavitelja A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Poraba dizla (CARD)"
+msgstr "Poraba dizla (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Obratovalni stroški po projektih (CARD)"
+msgstr "Obratovalni stroški po projektih (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Stroški prevoza po projektih (CARD)"
+msgstr "Stroški prevoza po projektih (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Uskladitev števcev (CARD)"
+msgstr "Uskladitev števcev (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Prevoz opreme (CARD)"
+msgstr "Prevoz opreme (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

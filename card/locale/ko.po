@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³당"
 
 msgid "Loads last month"
-msgstr "지난달 운반 횟수 (CARD)"
+msgstr "지난달 운반 횟수 (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "고객 요율 유형이 m³당인 카드에만 운반 횟수를 기록할 수 있습니다"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "출력 일시"
 
 msgid "CARD operations dashboard"
-msgstr "CARD 운영 대시보드"
+msgstr "Card 운영 대시보드"
 
 msgid "Financial performance — last month"
 msgstr "재무 성과 — 지난달"
 
 msgid "Needs review (CARD)"
-msgstr "검토 필요 (CARD)"
+msgstr "검토 필요 (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "최근 월간 카드 (CARD)"
+msgstr "최근 월간 카드 (Card)"
 
 msgid "CARD customers"
-msgstr "CARD 고객"
+msgstr "Card 고객"
 
 msgid "CARD suppliers"
-msgstr "CARD 공급업체"
+msgstr "Card 공급업체"
 
 msgid "Diesel and operations (CARD)"
-msgstr "경유 및 운영 (CARD)"
+msgstr "경유 및 운영 (Card)"
 
 msgid "New monthly card"
 msgstr "새 월간 카드"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "새 장비 운송"
 
 msgid "Customer statement (CARD)"
-msgstr "고객 명세서 (CARD)"
+msgstr "고객 명세서 (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "월간 카드 (CARD)"
+msgstr "월간 카드 (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "장비 (CARD)"
+msgstr "장비 (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "배정 (CARD)"
+msgstr "배정 (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "장비 고객 (CARD)"
+msgstr "장비 고객 (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "장비 운송 (CARD)"
+msgstr "장비 운송 (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "고객 운영 가치 - 지난달"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "지난달 카드"
 
 msgid "Rented equipment (CARD)"
-msgstr "임대 장비 (CARD)"
+msgstr "임대 장비 (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "임대 장비 (CARD)"
+msgstr "임대 장비 (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "지난달 운반 횟수 (CARD)"
+msgstr "지난달 운반 횟수 (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "임시 카드 (CARD)"
+msgstr "임시 카드 (Card)"
 
 msgid "كروت مسودة"
-msgstr "임시 카드 (CARD)"
+msgstr "임시 카드 (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "내부 단가 없는 카드 (CARD)"
+msgstr "내부 단가 없는 카드 (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "내부 단가 없는 카드 (CARD)"
+msgstr "내부 단가 없는 카드 (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "단가 없는 운영 시간 (CARD)"
+msgstr "단가 없는 운영 시간 (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "단가 없는 운영 시간 (CARD)"
+msgstr "단가 없는 운영 시간 (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "고객 요약 (CARD)"
+msgstr "고객 요약 (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "공급업체 명세서 (CARD)"
+msgstr "공급업체 명세서 (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "공급업체 요약 (CARD)"
+msgstr "공급업체 요약 (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "공급업체 명세서 A4 (CARD)"
+msgstr "공급업체 명세서 A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "경유 사용량 (CARD)"
+msgstr "경유 사용량 (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "프로젝트별 운영 비용 (CARD)"
+msgstr "프로젝트별 운영 비용 (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "프로젝트별 운송 비용 (CARD)"
+msgstr "프로젝트별 운송 비용 (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "계량기 대사 (CARD)"
+msgstr "계량기 대사 (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "장비 운송 (CARD)"
+msgstr "장비 운송 (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

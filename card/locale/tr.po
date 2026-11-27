@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³ başına"
 
 msgid "Loads last month"
-msgstr "Geçen ay seferleri (CARD)"
+msgstr "Geçen ay seferleri (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Sefer yalnızca müşteri fiyat türü m³ başına olan karta kaydedilebilir"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Yazdırılma zamanı"
 
 msgid "CARD operations dashboard"
-msgstr "CARD operasyon paneli"
+msgstr "Card operasyon paneli"
 
 msgid "Financial performance — last month"
 msgstr "Finansal performans — geçen ay"
 
 msgid "Needs review (CARD)"
-msgstr "İnceleme gerekiyor (CARD)"
+msgstr "İnceleme gerekiyor (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Son aylık kartlar (CARD)"
+msgstr "Son aylık kartlar (Card)"
 
 msgid "CARD customers"
-msgstr "CARD müşterileri"
+msgstr "Card müşterileri"
 
 msgid "CARD suppliers"
-msgstr "CARD tedarikçileri"
+msgstr "Card tedarikçileri"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dizel ve operasyonlar (CARD)"
+msgstr "Dizel ve operasyonlar (Card)"
 
 msgid "New monthly card"
 msgstr "Yeni aylık kart"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Yeni ekipman taşıma"
 
 msgid "Customer statement (CARD)"
-msgstr "Müşteri ekstresi (CARD)"
+msgstr "Müşteri ekstresi (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Aylık kartlar (CARD)"
+msgstr "Aylık kartlar (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Ekipman (CARD)"
+msgstr "Ekipman (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Atamalar (CARD)"
+msgstr "Atamalar (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Ekipman müşterileri (CARD)"
+msgstr "Ekipman müşterileri (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Ekipman taşımaları (CARD)"
+msgstr "Ekipman taşımaları (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Müşteriler için operasyon değeri - geçen ay"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "Geçen ayki kartlar"
 
 msgid "Rented equipment (CARD)"
-msgstr "Kiralık ekipman (CARD)"
+msgstr "Kiralık ekipman (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Kiralık ekipman (CARD)"
+msgstr "Kiralık ekipman (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Geçen ay seferleri (CARD)"
+msgstr "Geçen ay seferleri (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Taslak kartlar (CARD)"
+msgstr "Taslak kartlar (Card)"
 
 msgid "كروت مسودة"
-msgstr "Taslak kartlar (CARD)"
+msgstr "Taslak kartlar (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "İç oranı olmayan kartlar (CARD)"
+msgstr "İç oranı olmayan kartlar (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "İç oranı olmayan kartlar (CARD)"
+msgstr "İç oranı olmayan kartlar (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Oranı olmayan çalışma saatleri (CARD)"
+msgstr "Oranı olmayan çalışma saatleri (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Oranı olmayan çalışma saatleri (CARD)"
+msgstr "Oranı olmayan çalışma saatleri (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Müşteri özeti (CARD)"
+msgstr "Müşteri özeti (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Tedarikçi ekstresi (CARD)"
+msgstr "Tedarikçi ekstresi (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Tedarikçi özeti (CARD)"
+msgstr "Tedarikçi özeti (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Tedarikçi ekstresi A4 (CARD)"
+msgstr "Tedarikçi ekstresi A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dizel tüketimi (CARD)"
+msgstr "Dizel tüketimi (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Projeye göre operasyon maliyeti (CARD)"
+msgstr "Projeye göre operasyon maliyeti (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Projeye göre taşıma maliyeti (CARD)"
+msgstr "Projeye göre taşıma maliyeti (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Sayaç mutabakatı (CARD)"
+msgstr "Sayaç mutabakatı (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Ekipman taşıma (CARD)"
+msgstr "Ekipman taşıma (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

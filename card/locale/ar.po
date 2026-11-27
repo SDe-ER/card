@@ -1952,13 +1952,13 @@ msgid "Source {0} {1} is now included in another active posting unit ({2}); rebu
 msgstr "المستند المصدر {0} {1} أصبح مُدرجاً في وحدة ترحيل نشطة أخرى ({2})؛ أعد البناء قبل اعتماد {3}."
 
 msgid "Posting log {0} is the audit record of a CARD posting and cannot be deleted."
-msgstr "سجل الترحيل {0} هو سجل التدقيق لترحيل من CARD ولا يمكن حذفه."
+msgstr "سجل الترحيل {0} هو سجل التدقيق لترحيل من Card ولا يمكن حذفه."
 
 msgid "Posting log {0} is an audit record and cannot be edited."
 msgstr "سجل الترحيل {0} سجل تدقيق ولا يمكن تعديله."
 
 msgid "Posting logs are created only by CARD's monthly posting."
-msgstr "سجلات الترحيل تُنشأ فقط من خلال الترحيل الشهري في CARD."
+msgstr "سجلات الترحيل تُنشأ فقط من خلال الترحيل الشهري في Card."
 
 msgid "The sources of a posting log cannot be changed."
 msgstr "لا يمكن تغيير مصادر سجل الترحيل."
@@ -1985,7 +1985,7 @@ msgid "This equipment is a unit component; the monthly card is kept on the unit,
 msgstr "هذه المعدة مكوّن ضمن وحدة؛ الكارت الشهري يُسجّل على الوحدة لا على المكوّن."
 
 msgid "The Card Equipment accounting dimension is missing or disabled on this site; an administrator must turn on \"Enable Card Equipment accounting dimension\" in Card Settings and run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
-msgstr "البُعد المحاسبي «معدة كارت» غير موجود أو معطّل على هذا الموقع؛ يجب أن يفعّل مدير النظام «تفعيل البعد المحاسبي للمعدة (Card Equipment)» في إعدادات CARD ثم ينفّذ: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
+msgstr "البُعد المحاسبي «معدة كارت» غير موجود أو معطّل على هذا الموقع؛ يجب أن يفعّل مدير النظام «تفعيل البعد المحاسبي للمعدة (Card Equipment)» في إعدادات Card ثم ينفّذ: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
 
 msgid "The Card Equipment accounting dimension is switched on but does not exist on this site yet. Take a backup, then run: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
 msgstr "البُعد المحاسبي للمعدة مفعّل في الإعدادات لكنه غير موجود على هذا الموقع بعد. خذ نسخة احتياطية ثم نفّذ: bench --site <site> execute card.dimension.ensure_card_equipment_dimension"
@@ -2064,11 +2064,11 @@ msgstr "تعبئة ديزل {0} — {1} لتر (خزان المشروع، غير
 
 #: card/gl/integrity.py
 msgid "{0} was built before project-tank diesel fills post as one project-level line: it splits {1} per equipment by operating hours, an estimate. Rebuild the posting from CARD before submitting it."
-msgstr "تم إنشاء {0} قبل أن تُرحَّل تعبئات ديزل خزان المشروع كسطر واحد على مستوى المشروع: فهو يوزّع {1} على المعدات حسب ساعات التشغيل، وهذا تقدير. أعد بناء القيد من CARD قبل اعتماده."
+msgstr "تم إنشاء {0} قبل أن تُرحَّل تعبئات ديزل خزان المشروع كسطر واحد على مستوى المشروع: فهو يوزّع {1} على المعدات حسب ساعات التشغيل، وهذا تقدير. أعد بناء القيد من Card قبل اعتماده."
 
 #: card/gl/integrity.py
 msgid "CARD posting must be rebuilt"
-msgstr "يجب إعادة بناء قيد CARD"
+msgstr "يجب إعادة بناء قيد Card"
 
 msgid "Invoiced through Card (net before VAT)"
 msgstr "مفوتر عبر Card (الصافي قبل الضريبة)"
@@ -2146,10 +2146,10 @@ msgid "Enable Card Equipment accounting dimension"
 msgstr "تفعيل البعد المحاسبي للمعدة (Card Equipment)"
 
 msgid "Set {0} in Card Settings: a per-month rate cannot be priced without it."
-msgstr "حدِّد {0} في إعدادات CARD: لا يمكن تسعير سعر شهري بدونه."
+msgstr "حدِّد {0} في إعدادات Card: لا يمكن تسعير سعر شهري بدونه."
 
 msgid "{0} is not set in Card Settings, so no shift limit was checked on this card."
-msgstr "{0} غير محدَّد في إعدادات CARD، لذلك لم يُفحص حد الوردية في هذا الكارت."
+msgstr "{0} غير محدَّد في إعدادات Card، لذلك لم يُفحص حد الوردية في هذا الكارت."
 
 msgid "Shift limit not configured"
 msgstr "حد الوردية غير محدَّد"
@@ -2167,10 +2167,10 @@ msgid "Overlapping assignments in force on {0}: {1}. The current project and ass
 msgstr "تعيينات متداخلة سارية في {0}: {1}. يبقى المشروع الحالي وتاريخ التعيين فارغين حتى يُصحَّح التداخل."
 
 msgid "CARD equipment location overlap"
-msgstr "تداخل تعيينات موقع معدة في CARD"
+msgstr "تداخل تعيينات موقع معدة في Card"
 
 msgid "CARD daily location sync"
-msgstr "المزامنة اليومية لموقع المعدات في CARD"
+msgstr "المزامنة اليومية لموقع المعدات في Card"
 
 msgid "The location of these equipment could not be synced: {0}"
 msgstr "تعذّرت مزامنة موقع هذه المعدات: {0}"
@@ -2377,10 +2377,10 @@ msgid "A move to a workshop or storage place is charged to that place's cost cen
 msgstr "نقل المعدة لورشة أو مستودع بيتحمل على مركز تكلفة المكان ده."
 
 msgid "Set from where the equipment goes: the destination project's cost center, or the workshop/storage place's cost center in Card Settings. A return to the supplier stays on the project left."
-msgstr "بيتحدد من المكان اللي المعدة رايحة له: مركز تكلفة المشروع الجديد، أو مركز تكلفة الورشة/المستودع من إعدادات CARD. الرجوع للمورد بيفضل على المشروع اللي خرجت منه."
+msgstr "بيتحدد من المكان اللي المعدة رايحة له: مركز تكلفة المشروع الجديد، أو مركز تكلفة الورشة/المستودع من إعدادات Card. الرجوع للمورد بيفضل على المشروع اللي خرجت منه."
 
 msgid "Set the cost center of {0} for company {1} in Card Settings (Transport) before charging a move there."
-msgstr "حدد مركز تكلفة {0} للشركة {1} في إعدادات CARD (النقل) قبل ما تحمّل نقل عليه."
+msgstr "حدد مركز تكلفة {0} للشركة {1} في إعدادات Card (النقل) قبل ما تحمّل نقل عليه."
 
 # v3.0.0: From is automatic, To is an ERPNext project or place
 msgid "Where the equipment is now, read from its last approved move. Never typed."
@@ -2939,7 +2939,7 @@ msgid "Row {0}: add lines with Get requests only."
 msgstr "سطر {0}: أضف البنود عن طريق «جلب الطلبات» فقط."
 
 msgid "CARD Mobile"
-msgstr "CARD للجوال"
+msgstr "Card للجوال"
 
 msgid "New request"
 msgstr "طلب جديد"
@@ -3747,7 +3747,7 @@ msgid "Previous assignment"
 msgstr "التعيين السابق"
 
 msgid "Expense lines on the CARD expense accounts with no Card Equipment dimension."
-msgstr "بنود مصروفات على حسابات مصروفات CARD بدون بُعد المعدة."
+msgstr "بنود مصروفات على حسابات مصروفات Card بدون بُعد المعدة."
 
 msgid "Posting date"
 msgstr "تاريخ الترحيل"
@@ -3763,10 +3763,10 @@ msgid "Diesel unit price (per litre)"
 msgstr "سعر لتر الديزل"
 
 msgid "Per-line 0% VAT override template for non-taxable adjustment lines (auto-provisioned: CARD VAT 0% - <abbr>)."
-msgstr "قالب ضريبة 0% لكل بند لبنود التعديل غير الخاضعة للضريبة (يُنشأ تلقائيًا: CARD VAT 0% - <abbr>)."
+msgstr "قالب ضريبة 0% لكل بند لبنود التعديل غير الخاضعة للضريبة (يُنشأ تلقائيًا: Card VAT 0% - <abbr>)."
 
 msgid "Per-line 15% VAT override template (auto-provisioned: CARD VAT 15% - <abbr>)."
-msgstr "قالب ضريبة 15% لكل بند (يُنشأ تلقائيًا: CARD VAT 15% - <abbr>)."
+msgstr "قالب ضريبة 15% لكل بند (يُنشأ تلقائيًا: Card VAT 15% - <abbr>)."
 
 msgctxt "Card"
 msgid "Cost"
@@ -3788,7 +3788,7 @@ msgid "Manual"
 msgstr "يدوي"
 
 msgid "Configured type from Card Settings (Addition/Deduction Types) for the card's company. Legacy rows may leave it empty."
-msgstr "النوع المعرّف في إعدادات CARD (أنواع الإضافات والخصومات) لشركة الكارت. الصفوف القديمة قد تتركه فارغًا."
+msgstr "النوع المعرّف في إعدادات Card (أنواع الإضافات والخصومات) لشركة الكارت. الصفوف القديمة قد تتركه فارغًا."
 
 msgid "Which party's monthly invoice this row belongs to. Defaults to the card's billed side; sub-rental cards need an explicit choice."
 msgstr "فاتورة أي طرف الشهرية يتبعها هذا الصف. الافتراضي هو الجانب المفوتر في الكارت؛ وكروت الإيجار من الباطن تحتاج اختيارًا صريحًا."
@@ -4033,7 +4033,7 @@ msgstr "تعليق المصدر"
 
 #: card/diesel_import.py
 msgid "Only a Card Manager or System Manager can import diesel sessions."
-msgstr "استيراد جلسات الديزل مسموح فقط لمدير CARD أو مدير النظام."
+msgstr "استيراد جلسات الديزل مسموح فقط لمدير Card أو مدير النظام."
 
 #: card/diesel_import.py
 msgid "The session has no source key."
@@ -4529,11 +4529,11 @@ msgstr "الأصول والمعدات المراجَعة"
 
 #: card/meter_reconciliation.py
 msgid "CARD hours (submitted cards, same period)"
-msgstr "ساعات CARD (كروت معتمدة، نفس الفترة)"
+msgstr "ساعات Card (كروت معتمدة، نفس الفترة)"
 
 #: card/meter_reconciliation.py
 msgid "CARD hours differ from the meter hours by more than {0}%"
-msgstr "ساعات CARD تختلف عن ساعات العداد بأكثر من {0}%"
+msgstr "ساعات Card تختلف عن ساعات العداد بأكثر من {0}%"
 
 #: card/meter_reconciliation.py
 msgid "Difference %"
@@ -4617,11 +4617,11 @@ msgstr "لا توجد قراءات عداد"
 
 #: card/meter_reconciliation.py
 msgid "Not in CARD: decide whether it is operated equipment (type available)"
-msgstr "غير موجود في CARD: قرر هل هو معدة تشغيل (النوع متاح)"
+msgstr "غير موجود في Card: قرر هل هو معدة تشغيل (النوع متاح)"
 
 #: card/meter_reconciliation.py
 msgid "Not in CARD: no equipment type for this Asset category yet"
-msgstr "غير موجود في CARD: لا يوجد نوع معدة لفئة هذا الأصل بعد"
+msgstr "غير موجود في Card: لا يوجد نوع معدة لفئة هذا الأصل بعد"
 
 #: card/meter_reconciliation.py
 msgid "Not set: needs a verified meter reading and the completed maintenance of {0} confirmed"
@@ -4661,7 +4661,7 @@ msgstr "وقت القراءة"
 
 #: card/meter_reconciliation.py
 msgid "Sold or scrapped: no CARD equipment needed"
-msgstr "مباع أو مُكهّن: لا يحتاج معدة في CARD"
+msgstr "مباع أو مُكهّن: لا يحتاج معدة في Card"
 
 #: card/meter_reconciliation.py
 msgid "Source record"
@@ -5093,7 +5093,7 @@ msgstr "افتح الصورة كاملة"
 
 #: card/diesel_meter_extraction.py
 msgid "CARD meter extraction: worker address refused"
-msgstr "استخراج قراءة العداد في CARD: عنوان الخدمة مرفوض"
+msgstr "استخراج قراءة العداد في Card: عنوان الخدمة مرفوض"
 
 #: card/diesel_meter_extraction.py
 msgid "card_meter_worker_url is refused ({0}). Use an IP address, not a host name: http only to a loopback address (127.0.0.1 or [::1]), https only to a loopback or private address. Meter extraction stays off until it is corrected."
@@ -5214,11 +5214,11 @@ msgstr "تم الإصدار من نظام {0} الإلكتروني"
 
 #: card/gl/journal_link.py
 msgid "Only an accountant may link accrual journal entries to CARD cards."
-msgstr "لا يربط قيود الاستحقاق بكروت CARD إلا محاسب."
+msgstr "لا يربط قيود الاستحقاق بكروت Card إلا محاسب."
 
 #: card/gl/journal_link.py
 msgid "Choose the CARD monthly cards this journal entry recognised."
-msgstr "اختر كروت CARD الشهرية التي أثبت هذا القيد استحقاقها."
+msgstr "اختر كروت Card الشهرية التي أثبت هذا القيد استحقاقها."
 
 #: card/gl/journal_link.py
 msgid "A card is listed twice."
@@ -5234,7 +5234,7 @@ msgstr "القيد {0} غير معتمد."
 
 #: card/gl/journal_link.py
 msgid "Journal entry {0} is already linked to CARD cards ({1})."
-msgstr "القيد {0} مربوط بالفعل بكروت CARD ({1})."
+msgstr "القيد {0} مربوط بالفعل بكروت Card ({1})."
 
 #: card/gl/journal_link.py
 msgid "Card {0} is not submitted."
@@ -5266,7 +5266,7 @@ msgstr "المبالغ المربوطة غير متطابقة"
 
 #: card/gl/journal_link.py
 msgid "Linked by {0}: accrual journal entry {1} credits the supplier {2}, CARD cards net {3}, {4}. {5}"
-msgstr "ربطه {0}: قيد الاستحقاق {1} يُقيّد للمورد دائناً {2}، وصافي كروت CARD {3}، {4}. {5}"
+msgstr "ربطه {0}: قيد الاستحقاق {1} يُقيّد للمورد دائناً {2}، وصافي كروت Card {3}، {4}. {5}"
 
 #: card/gl/journal_link.py
 msgid "open difference {0} accepted"
@@ -5523,7 +5523,7 @@ msgstr "قاعدة حالة المعدة للشركة {0} ترفض ذلك."
 
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Taken from the company's Card Settings when the transport is saved and kept as approved."
-msgstr "تؤخذ من إعدادات الشركة في CARD عند حفظ النقل وتبقى كما اعتُمدت."
+msgstr "تؤخذ من إعدادات الشركة في Card عند حفظ النقل وتبقى كما اعتُمدت."
 
 #. Name of a report
 #: card/card/report/equipment_partial_margin/equipment_partial_margin.json
@@ -5566,7 +5566,7 @@ msgstr "النقل غير معروض: لا تملك صلاحية قراءة نق
 
 #: card/card/report/equipment_partial_margin/equipment_partial_margin.py
 msgid "The Card Equipment accounting dimension is not set up on this site, so revenue and maintenance cannot be attributed to equipment and are not shown. Ask the system manager to create the dimension."
-msgstr "البُعد المحاسبي «معدة CARD» غير مُعد على هذا الموقع، لذلك لا يمكن نسبة الإيرادات والصيانة إلى المعدات ولا تُعرض. اطلب من مدير النظام إنشاء البُعد."
+msgstr "البُعد المحاسبي «معدة Card» غير مُعد على هذا الموقع، لذلك لا يمكن نسبة الإيرادات والصيانة إلى المعدات ولا تُعرض. اطلب من مدير النظام إنشاء البُعد."
 
 #: card/card/report/equipment_partial_margin/equipment_partial_margin.py
 msgid "Revenue is not shown: you cannot read Sales Invoice."
@@ -5706,7 +5706,7 @@ msgstr "حدد فترة تكلفة الصيانة."
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
 msgid "The Card Equipment accounting dimension is not set up on this site, so no cost can be attributed to equipment. Ask the system manager to create the dimension."
-msgstr "البُعد المحاسبي «معدة CARD» غير مُعد على هذا الموقع، لذلك لا يمكن نسبة أي تكلفة إلى المعدات. اطلب من مدير النظام إنشاء البُعد."
+msgstr "البُعد المحاسبي «معدة Card» غير مُعد على هذا الموقع، لذلك لا يمكن نسبة أي تكلفة إلى المعدات. اطلب من مدير النظام إنشاء البُعد."
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
 msgid "Equipment with tagged costs"
@@ -5714,7 +5714,7 @@ msgstr "معدات عليها تكاليف منسوبة"
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
 msgid "Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock items (counted when they are issued) are not counted here; depreciation, labour and insurance are not included."
-msgstr "سطور فواتير الشراء وصرف المواد المنسوبة إلى بُعد «معدة CARD»، صافية من ضريبة القيمة المضافة وبعملة الشركة. لا تُحتسب هنا الفواتير التي تثبت كروت CARD أو تعبئات الديزل أو النقل، ولا سطور الأصول الثابتة، ولا أصناف المخزون (تُحتسب عند صرفها)؛ ولا تشمل الإهلاك والعمالة والتأمين."
+msgstr "سطور فواتير الشراء وصرف المواد المنسوبة إلى بُعد «معدة Card»، صافية من ضريبة القيمة المضافة وبعملة الشركة. لا تُحتسب هنا الفواتير التي تثبت كروت Card أو تعبئات الديزل أو النقل، ولا سطور الأصول الثابتة، ولا أصناف المخزون (تُحتسب عند صرفها)؛ ولا تشمل الإهلاك والعمالة والتأمين."
 
 #: card/card/report/equipment_maintenance_cost/equipment_maintenance_cost.py
 msgid "Cost document"
@@ -5742,7 +5742,7 @@ msgstr "التوقيت: الإيرادات والصيانة تتبع تاريخ 
 
 #: card/analytics.py
 msgid "Diesel not posted yet is shown at the fill amount: Card Settings has no row for this company."
-msgstr "الديزل غير المرحّل بعد معروض بمبلغ التعبئة: لا يوجد صف لهذه الشركة في إعدادات CARD."
+msgstr "الديزل غير المرحّل بعد معروض بمبلغ التعبئة: لا يوجد صف لهذه الشركة في إعدادات Card."
 
 #: card/analytics.py
 msgid "The diesel price VAT basis is not verified for these suppliers, so their fills not posted yet are shown at the fill amount: {0}."
@@ -5964,7 +5964,7 @@ msgstr "الجهة المسؤولة عن أيام التوقف هذه ليست �
 
 #: card/cancel_reason.py
 msgid "{0} is not a CARD transaction."
-msgstr "{0} ليس من معاملات CARD."
+msgstr "{0} ليس من معاملات Card."
 
 #: card/cancel_reason.py
 msgid "The cancel reason is recorded only when the document is cancelled."
@@ -6070,11 +6070,11 @@ msgstr "ساري من {0} (جدول أسعار الديزل)"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "CARD Monthly Posting"
-msgstr "الترحيل الشهري CARD"
+msgstr "الترحيل الشهري Card"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "No CARD posting yet"
-msgstr "لا يوجد ترحيل CARD بعد"
+msgstr "لا يوجد ترحيل Card بعد"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Draft posting"
@@ -6082,7 +6082,7 @@ msgstr "ترحيل مسودة"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "No CARD documents or postings for this company and month."
-msgstr "لا توجد مستندات أو ترحيلات CARD لهذه الشركة في هذا الشهر."
+msgstr "لا توجد مستندات أو ترحيلات Card لهذه الشركة في هذا الشهر."
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Documents not yet in a posting"
@@ -6090,7 +6090,7 @@ msgstr "مستندات لم تدخل في ترحيل بعد"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "CARD postings"
-msgstr "ترحيلات CARD"
+msgstr "ترحيلات Card"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "linked supplier invoice"
@@ -6162,7 +6162,7 @@ msgstr "بدون ضريبة قيمة مضافة: لا يوجد رقم ضريبي
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "CARD source documents"
-msgstr "مستندات CARD المصدر"
+msgstr "مستندات Card المصدر"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Supplier invoices to review"
@@ -6170,7 +6170,7 @@ msgstr "فواتير موردين تحتاج مراجعة"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "These supplier invoices around this month may cover the same operations. Link each one to the CARD documents it pays for, or tick it when an accountant confirms it is unrelated."
-msgstr "قد تغطي فواتير الموردين هذه، المسجلة حول هذا الشهر، العمليات نفسها. اربط كل فاتورة بمستندات CARD التي تسددها، أو حدّدها عندما يؤكد المحاسب أنها غير مرتبطة."
+msgstr "قد تغطي فواتير الموردين هذه، المسجلة حول هذا الشهر، العمليات نفسها. اربط كل فاتورة بمستندات Card التي تسددها، أو حدّدها عندما يؤكد المحاسب أنها غير مرتبطة."
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "no bill no."
@@ -6198,11 +6198,11 @@ msgstr "إنشاء ترحيل مسودة"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Delete draft {0} and build it again from the current CARD documents? The new draft may differ from this preview if documents changed since it was shown."
-msgstr "حذف المسودة {0} وبناؤها من جديد من مستندات CARD الحالية؟ قد تختلف المسودة الجديدة عن هذه المعاينة إذا تغيّرت المستندات بعد عرضها."
+msgstr "حذف المسودة {0} وبناؤها من جديد من مستندات Card الحالية؟ قد تختلف المسودة الجديدة عن هذه المعاينة إذا تغيّرت المستندات بعد عرضها."
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Create a draft {0} from the current CARD documents? It may differ from this preview if documents changed since it was shown."
-msgstr "إنشاء مسودة {0} من مستندات CARD الحالية؟ قد تختلف عن هذه المعاينة إذا تغيّرت المستندات بعد عرضها."
+msgstr "إنشاء مسودة {0} من مستندات Card الحالية؟ قد تختلف عن هذه المعاينة إذا تغيّرت المستندات بعد عرضها."
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Draft posting {0} created."
@@ -6210,7 +6210,7 @@ msgstr "تم إنشاء ترحيل المسودة {0}."
 
 #: card/gl/posting.py
 msgid "CARD posting items or VAT item tax templates are not set up yet for company {0}; the first posting creates them, so some item columns of this preview are empty."
-msgstr "لم تُجهَّز بعد أصناف ترحيل CARD أو قوالب ضريبة الأصناف للشركة {0}؛ ينشئها أول ترحيل، لذلك قد تظهر بعض أعمدة الأصناف في هذه المعاينة فارغة."
+msgstr "لم تُجهَّز بعد أصناف ترحيل Card أو قوالب ضريبة الأصناف للشركة {0}؛ ينشئها أول ترحيل، لذلك قد تظهر بعض أعمدة الأصناف في هذه المعاينة فارغة."
 
 #: card/card/doctype/equipment_transport/equipment_transport.json
 msgid "Other party bears the cost"
@@ -6315,15 +6315,15 @@ msgstr "بعض المعدات على مشروعين في نفس الأيام (ت
 
 #: card/gl/masters.py
 msgid "The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
-msgstr "قالبا ضريبة المشتريات والمبيعات للشركة {0} يحملان نسبتي ضريبة قيمة مضافة مختلفتين ({1})؛ يرحّل CARD نسبة ضريبة قياسية واحدة لكل شركة. وحّد القالبين قبل الترحيل."
+msgstr "قالبا ضريبة المشتريات والمبيعات للشركة {0} يحملان نسبتي ضريبة قيمة مضافة مختلفتين ({1})؛ يرحّل Card نسبة ضريبة قياسية واحدة لكل شركة. وحّد القالبين قبل الترحيل."
 
 #: card/gl/masters.py
 msgid "Item tax template {0} does not carry the rate {1}%; CARD never changes the rate of an existing template."
-msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ لا يغيّر CARD نسبة قالب موجود أبدًا."
+msgstr "قالب ضريبة الصنف {0} لا يحمل النسبة {1}%؛ لا يغيّر Card نسبة قالب موجود أبدًا."
 
 #: card/gl/integrity.py
 msgid "{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
-msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه CARD (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من CARD."
+msgstr "{0}: تغيّرت ضريبة القيمة المضافة منذ أن أنشأه Card (إجمالي الضرائب {1} ← {2}). أعد إنشاء الترحيل من Card."
 
 #: card/card/report/posting_source_integrity/posting_source_integrity.js
 #: card/card/sidebar/card_reports/card_reports.json
@@ -6428,19 +6428,19 @@ msgstr "كل المصادر المُرحَّلة"
 
 #: card/company_scope.py
 msgid "A CARD record of type {0} cannot be shared with everyone."
-msgstr "لا يمكن مشاركة سجل CARD من نوع {0} مع الجميع."
+msgstr "لا يمكن مشاركة سجل Card من نوع {0} مع الجميع."
 
 #: card/company_scope.py
 msgid "This CARD record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
-msgstr "سجل CARD هذا من نوع {0} يتبع الشركة {1} ولا يمكن مشاركته مع مستخدم من خارج هذه الشركة."
+msgstr "سجل Card هذا من نوع {0} يتبع الشركة {1} ولا يمكن مشاركته مع مستخدم من خارج هذه الشركة."
 
 #: card/company_scope.py
 msgid "CARD company check: {0} is not a link to a company-owned record."
-msgstr "فحص الشركة في CARD: الحقل {0} ليس رابطًا لسجل تابع لشركة."
+msgstr "فحص الشركة في Card: الحقل {0} ليس رابطًا لسجل تابع لشركة."
 
 #: card/company_scope.py
 msgid "CARD company check: rows {0} belong to a company other than {1}."
-msgstr "فحص الشركة في CARD: الصفوف {0} تتبع شركة غير {1}."
+msgstr "فحص الشركة في Card: الصفوف {0} تتبع شركة غير {1}."
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "VAT item tax template (company rate)"
@@ -6448,19 +6448,19 @@ msgstr "قالب ضريبة الصنف (نسبة الشركة)"
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Per-line VAT override template at the single rate of the company's purchase and sales tax templates (auto-provisioned: CARD VAT <rate>% - <abbr>)."
-msgstr "قالب ضريبة لكل بند بالنسبة الواحدة لقالبي ضريبة المشتريات والمبيعات للشركة (يُنشأ تلقائيًا: CARD VAT <rate>% - <abbr>)."
+msgstr "قالب ضريبة لكل بند بالنسبة الواحدة لقالبي ضريبة المشتريات والمبيعات للشركة (يُنشأ تلقائيًا: Card VAT <rate>% - <abbr>)."
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Empty: the main store in Card Settings (Materials). Must belong to this company."
-msgstr "فارغ: المخزن الرئيسي في إعدادات CARD (المواد). يجب أن يتبع هذه الشركة."
+msgstr "فارغ: المخزن الرئيسي في إعدادات Card (المواد). يجب أن يتبع هذه الشركة."
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Empty: the tool custody store in Card Settings (Materials). Must belong to this company. Change it only when no tool of this company is held in custody."
-msgstr "فارغ: مخزن عهدة الأدوات في إعدادات CARD (المواد). يجب أن يتبع هذه الشركة. لا تغيّره إلا إذا لم تكن أي أداة لهذه الشركة في العهدة."
+msgstr "فارغ: مخزن عهدة الأدوات في إعدادات Card (المواد). يجب أن يتبع هذه الشركة. لا تغيّره إلا إذا لم تكن أي أداة لهذه الشركة في العهدة."
 
 #: card/card/doctype/card_company_settings/card_company_settings.json
 msgid "Empty or 0: the value in Card Settings (Materials)."
-msgstr "فارغ أو 0: القيمة في إعدادات CARD (المواد)."
+msgstr "فارغ أو 0: القيمة في إعدادات Card (المواد)."
 
 #: card/card/doctype/card_settings/card_settings.json
 msgid "Configured addition/deduction types per company. Each type posts to its own account as an invoice line; taxable types carry the VAT rate of the company's tax templates, non-taxable 0%."
@@ -6468,7 +6468,7 @@ msgstr "أنواع الإضافات والخصومات المعرّفة لكل �
 
 #: card/settings.py
 msgid "Card Settings: warehouse {0} belongs to company {1}, not {2}."
-msgstr "إعدادات CARD: المخزن {0} يتبع الشركة {1} وليس {2}."
+msgstr "إعدادات Card: المخزن {0} يتبع الشركة {1} وليس {2}."
 
 #: card/card/doctype/card_adjustment_type/card_adjustment_type.json
 msgid "Taxable lines carry the VAT item tax template at the company rate (from its tax templates); non-taxable lines carry the 0% template."
@@ -6476,19 +6476,19 @@ msgstr "البنود الخاضعة للضريبة تحمل قالب ضريبة 
 
 #: card/settings.py
 msgid "The store set for {0} in Card Settings is not in that company. Ask a CARD manager."
-msgstr "المخزن المحدد للشركة {0} في إعدادات CARD لا يتبع هذه الشركة. راجع مدير CARD."
+msgstr "المخزن المحدد للشركة {0} في إعدادات Card لا يتبع هذه الشركة. راجع مدير Card."
 
 #: card/settings.py
 msgid "Card Settings: warehouse {0} is a group; choose a stock warehouse."
-msgstr "إعدادات CARD: المخزن {0} مجموعة؛ اختر مخزنًا فعليًا."
+msgstr "إعدادات Card: المخزن {0} مجموعة؛ اختر مخزنًا فعليًا."
 
 #: card/settings.py
 msgid "Card Settings: warehouse {0} is disabled."
-msgstr "إعدادات CARD: المخزن {0} معطّل."
+msgstr "إعدادات Card: المخزن {0} معطّل."
 
 #: card/settings.py
 msgid "Card Settings: tools of {0} are held in custody; return them before changing its tool custody store."
-msgstr "إعدادات CARD: توجد أدوات للشركة {0} في العهدة؛ أرجعها قبل تغيير مخزن عهدة الأدوات الخاص بها."
+msgstr "إعدادات Card: توجد أدوات للشركة {0} في العهدة؛ أرجعها قبل تغيير مخزن عهدة الأدوات الخاص بها."
 
 #: card/card/doctype/card_stop_reason/card_stop_reason.json
 #: card/card/doctype/card_monthly_card/card_monthly_card.py
@@ -6527,7 +6527,7 @@ msgstr "مفعّل: سطر الكرت من هذا النوع يحتسب رسوم
 
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
 msgid "Required when the adjustment type is a downtime charge (Card Settings)."
-msgstr "مطلوب عندما يكون نوع الإضافة/الخصم رسوم توقف (إعدادات CARD)."
+msgstr "مطلوب عندما يكون نوع الإضافة/الخصم رسوم توقف (إعدادات Card)."
 
 #: card/card/doctype/card_monthly_card_adjustment/card_monthly_card_adjustment.json
 #: card/adjustments.py
@@ -6880,7 +6880,7 @@ msgstr "النقل {0}: المبلغ المسترد من مورد المعدة (
 
 #: card/gl/preflight.py
 msgid "Configure Card Settings for company {0}: the transport recharge income account {1} must be an income account."
-msgstr "اضبط إعدادات CARD للشركة {0}: حساب إيراد إعادة تحميل النقل {1} يجب أن يكون حساب إيرادات."
+msgstr "اضبط إعدادات Card للشركة {0}: حساب إيراد إعادة تحميل النقل {1} يجب أن يكون حساب إيرادات."
 
 #: card/gl/posting.py
 msgid "{0}: the amount {1} cannot be split over its machines without a negative part."
@@ -7168,11 +7168,11 @@ msgstr "اتفاقية الأسعار: التعديل يحتفظ بشركة ال
 
 #: card/card/doctype/card_settings/card_settings.js
 msgid "Card Settings rows of companies you are not permitted to see are hidden and stay unchanged when you save."
-msgstr "صفوف إعدادات CARD الخاصة بالشركات غير المسموح لك برؤيتها مخفية، وتبقى كما هي عند الحفظ."
+msgstr "صفوف إعدادات Card الخاصة بالشركات غير المسموح لك برؤيتها مخفية، وتبقى كما هي عند الحفظ."
 
 #: card/card/doctype/card_settings/card_settings.py
 msgid "Your Card Settings access is limited to your companies' rows; you cannot change the site-wide fields: {0}."
-msgstr "صلاحيتك على إعدادات CARD تقتصر على صفوف شركاتك؛ لا يمكنك تعديل الحقول العامة للموقع: {0}."
+msgstr "صلاحيتك على إعدادات Card تقتصر على صفوف شركاتك؛ لا يمكنك تعديل الحقول العامة للموقع: {0}."
 
 
 #: card/card/doctype/card_equipment/card_equipment.json
@@ -7431,7 +7431,7 @@ msgstr "غير مسموح لك باستخدام دورات الفترة."
 
 #: card/gl/period_run.py
 msgid "Only Card Manager may build a period run."
-msgstr "لا يبني دورة الفترة إلا مدير CARD."
+msgstr "لا يبني دورة الفترة إلا مدير Card."
 
 #: card/gl/period_run.py
 msgid "Period run {0} is already submitted. Cancel it and amend it to build a new version."
@@ -7876,7 +7876,7 @@ msgstr "لترات تعبئات خزان المشروع (غير منسوبة ل�
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
 msgid "No anomaly thresholds are set for this company in Card Settings: nothing is flagged."
-msgstr "لا توجد حدود للحالات الشاذة لهذه الشركة في إعدادات CARD: لا يتم تعليم أي صف."
+msgstr "لا توجد حدود للحالات الشاذة لهذه الشركة في إعدادات Card: لا يتم تعليم أي صف."
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py
 msgid "Consumption rates and the figures derived from them are hidden for your role."
@@ -7993,7 +7993,7 @@ msgstr "اعتمد دورة الفترة {0} أحدُ معدّيها، وقاع�
 
 #: card/gl/period_gate.py
 msgid "The CARD documents of {0}/{1} changed after period run {2} was approved (added: {3}; removed: {4}; changed: {5}). Cancel and amend the run and have the new version approved before posting."
-msgstr "تغيّرت مستندات CARD لـ {0}/{1} بعد اعتماد دورة الفترة {2} (أُضيف: {3}؛ أُزيل: {4}؛ تغيّر: {5}). ألغِ الدورة وعدّلها (Amend) واطلب اعتماد الإصدار الجديد قبل الترحيل."
+msgstr "تغيّرت مستندات Card لـ {0}/{1} بعد اعتماد دورة الفترة {2} (أُضيف: {3}؛ أُزيل: {4}؛ تغيّر: {5}). ألغِ الدورة وعدّلها (Amend) واطلب اعتماد الإصدار الجديد قبل الترحيل."
 
 #: card/gl/period_gate.py
 msgid "{0} (not in the run on this side)"
@@ -8049,7 +8049,7 @@ msgstr "دورة الفترة"
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "This company does not require an approved period run before posting (Card Company Settings)."
-msgstr "لا تشترط هذه الشركة دورة فترة معتمدة قبل الترحيل (إعدادات الشركة في CARD)."
+msgstr "لا تشترط هذه الشركة دورة فترة معتمدة قبل الترحيل (إعدادات الشركة في Card)."
 
 #: card/card/page/card_monthly_posting/card_monthly_posting.js
 msgid "Posting is refused for this month:"
@@ -8234,7 +8234,7 @@ msgid "Not sent yet. You can still change it."
 msgstr "لم تُرسل بعد. ما زال بإمكانك تعديلها."
 
 msgid "Open in CARD Desk"
-msgstr "فتح في CARD Desk"
+msgstr "فتح في Card Desk"
 
 msgctxt "Card Mobile"
 msgid "Project"
@@ -8664,7 +8664,7 @@ msgstr "نافذة التفويض"
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.py
 msgid "Delegator {0} does not hold any CARD approver role ({1}); a delegation can only be granted by an approver."
-msgstr "المفوِّض {0} لا يحمل أي دور اعتماد في CARD ({1})؛ التفويض لا يُمنح إلا من معتمد."
+msgstr "المفوِّض {0} لا يحمل أي دور اعتماد في Card ({1})؛ التفويض لا يُمنح إلا من معتمد."
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.py
 msgid "Delegation delegator role"
@@ -8680,7 +8680,7 @@ msgstr "مستخدمو التفويض"
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.py
 msgid "Delegate {0} must already hold the delegator's CARD approver roles; missing: {1}. Delegation grants no role."
-msgstr "المفوَّض إليه {0} يجب أن يحمل بالفعل أدوار الاعتماد في CARD التي يحملها المفوِّض؛ المفقود: {1}. التفويض لا يمنح أي دور."
+msgstr "المفوَّض إليه {0} يجب أن يحمل بالفعل أدوار الاعتماد في Card التي يحملها المفوِّض؛ المفقود: {1}. التفويض لا يمنح أي دور."
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.py
 msgid "Delegation delegate role"
@@ -9307,11 +9307,11 @@ msgstr "الرصيد المرحَّل من قبل الفترة"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "VAT on CARD purchase invoices"
-msgstr "ضريبة القيمة المضافة على فواتير مشتريات CARD"
+msgstr "ضريبة القيمة المضافة على فواتير مشتريات Card"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "Other supplier credits (outside CARD)"
-msgstr "أرصدة دائنة أخرى للمورد (خارج CARD)"
+msgstr "أرصدة دائنة أخرى للمورد (خارج Card)"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "Payments in the period (submitted entries only)"
@@ -9363,7 +9363,7 @@ msgstr "مدفوعات لا تحمل المعدة والمشروع المختا�
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "VAT of CARD invoice lines without the equipment or project (not added)"
-msgstr "ضريبة سطور فواتير CARD التي لا تحمل المعدة أو المشروع (لم تُضف)"
+msgstr "ضريبة سطور فواتير Card التي لا تحمل المعدة أو المشروع (لم تُضف)"
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
 msgid "The Card Equipment accounting dimension is missing on this site: payments, VAT and other credits are not split by equipment."
@@ -9405,7 +9405,7 @@ msgstr "السطر {0}: لا يمكن أن يكون عدد الردود سالب
 
 #: card/daily_log.py
 msgid "Row {0}: loads on daily logs are not enabled for company {1}. Enter the loads on the monthly card, or enable Loads on daily logs for the company in Card Settings."
-msgstr "السطر {0}: تسجيل الردود في اليوميات غير مفعّل للشركة {1}. سجّل الردود في الكارت الشهري، أو فعّل «الردود في اليوميات» للشركة من إعدادات CARD."
+msgstr "السطر {0}: تسجيل الردود في اليوميات غير مفعّل للشركة {1}. سجّل الردود في الكارت الشهري، أو فعّل «الردود في اليوميات» للشركة من إعدادات Card."
 
 #: card/daily_log.py
 msgid "Row {0} ({1}): loads can be recorded only for equipment whose customer rate type is per m³."
@@ -9567,7 +9567,7 @@ msgstr "اعتُمد نهائياً بواسطة {0} في {1} بعد انتها�
 
 #. FR-194
 msgid "Only an Accounts Manager or a System Manager may link customer invoices to CARD cards."
-msgstr "ربط فواتير العملاء بكروت CARD مسموح فقط لدور Accounts Manager أو System Manager."
+msgstr "ربط فواتير العملاء بكروت Card مسموح فقط لدور Accounts Manager أو System Manager."
 
 #. FR-194
 msgid "Choose the monthly cards this invoice bills."
@@ -9603,7 +9603,7 @@ msgstr "تغيّرت {0} أثناء ربطها؛ أعد المحاولة."
 
 #. FR-194
 msgid "{0} is already a CARD posting or linked ({1})."
-msgstr "{0} ترحيل من CARD أو مربوطة من قبل ({1})."
+msgstr "{0} ترحيل من Card أو مربوطة من قبل ({1})."
 
 #. FR-194
 msgid "Card {0} is not approved: its month has not ended."
@@ -9631,11 +9631,11 @@ msgstr "لا يمكن الربط: صافي الكروت {0}، وصافي {1} ه�
 
 #. FR-194
 msgid "Linked by {0}: sales invoice {1} net {2} / total {3}, CARD cards net {4}, matched. {5}"
-msgstr "ربطها {0}: فاتورة المبيعات {1} صافيها {2} / إجماليها {3}، صافي كروت CARD {4}، مطابق. {5}"
+msgstr "ربطها {0}: فاتورة المبيعات {1} صافيها {2} / إجماليها {3}، صافي كروت Card {4}، مطابق. {5}"
 
 #. FR-194
 msgid "Linked to CARD monthly cards {0} by {1} on {2}. Reason: {3}"
-msgstr "رُبطت بكروت CARD الشهرية {0} بواسطة {1} في {2}. السبب: {3}"
+msgstr "رُبطت بكروت Card الشهرية {0} بواسطة {1} في {2}. السبب: {3}"
 
 #. FR-194
 msgid "Linked to Sales Invoice {0} by {1} on {2}. Reason: {3}"
@@ -9683,7 +9683,7 @@ msgstr "لا تساوي أي مجموعة مختبرة من الكروت صاف�
 
 #. FR-195
 msgid "Only a System Manager may unlink a customer invoice from CARD cards."
-msgstr "لا يفك ربط فاتورة عميل بكروت CARD إلا مدير النظام."
+msgstr "لا يفك ربط فاتورة عميل بكروت Card إلا مدير النظام."
 
 #. FR-195
 msgid "Give the reason for unlinking this invoice from the cards."
@@ -9695,11 +9695,11 @@ msgstr "{0} غير معتمدة؛ لا يُفك إلا ربط فاتورة مب�
 
 #. FR-195
 msgid "{0} is not linked to CARD cards."
-msgstr "{0} غير مربوطة بكروت CARD."
+msgstr "{0} غير مربوطة بكروت Card."
 
 #. FR-195
 msgid "{0} is a CARD posting ({1}), not a linked invoice; its link cannot be removed. Correct it with a credit note or cancel it."
-msgstr "{0} ترحيل أنشأه CARD ({1}) وليست فاتورة مربوطة؛ لا يمكن فك ربطها. صحّحها بإشعار دائن أو ألغها."
+msgstr "{0} ترحيل أنشأه Card ({1}) وليست فاتورة مربوطة؛ لا يمكن فك ربطها. صحّحها بإشعار دائن أو ألغها."
 
 #. FR-195
 msgid "Cannot unlink {0}: the posting log {1} names {2}, not this invoice."
@@ -9735,7 +9735,7 @@ msgstr "فك الربط {0} في {1}: فاتورة المبيعات {2}، سجل
 
 #. FR-195
 msgid "Unlinked from CARD monthly cards {0} by {1} on {2} (posting log {3}). Reason: {4}"
-msgstr "فُك ربطها بكروت CARD الشهرية {0} بواسطة {1} في {2} (سجل الترحيل {3}). السبب: {4}"
+msgstr "فُك ربطها بكروت Card الشهرية {0} بواسطة {1} في {2} (سجل الترحيل {3}). السبب: {4}"
 
 #. FR-195
 msgid "Unlinked from Sales Invoice {0} by {1} on {2} (posting log {3}). Reason: {4}"
@@ -9771,7 +9771,7 @@ msgstr "توقيع التصحيح المقبول"
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.json
 msgid "All CARD approvals"
-msgstr "كل اعتمادات CARD"
+msgstr "كل اعتمادات Card"
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.json
 msgid "Approval scope"
@@ -10007,7 +10007,7 @@ msgstr "مستند الإثبات"
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.json
 msgid "The approver whose queue is delegated. Must already hold a CARD approver role (Card Manager, Card Reviewer or Accounts Manager)."
-msgstr "المعتمِد الذي تُفوَّض قائمة اعتماداته. يجب أن يكون له دور اعتماد في CARD بالفعل (Card Manager أو Card Reviewer أو Accounts Manager)."
+msgstr "المعتمِد الذي تُفوَّض قائمة اعتماداته. يجب أن يكون له دور اعتماد في Card بالفعل (Card Manager أو Card Reviewer أو Accounts Manager)."
 
 #: card/card/doctype/diesel_dispense/diesel_dispense.json
 msgid "The draft Stock Entry created by the server on submit. Not auto-submitted (FR-004)."
@@ -10035,7 +10035,7 @@ msgstr "الدور الذي يجب أن يملكه بالفعل المستخدم
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.json
 msgid "The user acting on behalf of the delegator. Must already hold the same CARD approver role as the delegator (this delegation grants no role)."
-msgstr "المستخدم الذي ينوب عن المفوِّض. يجب أن يكون له بالفعل نفس دور الاعتماد في CARD الذي للمفوِّض (هذا التفويض لا يمنح أي دور)."
+msgstr "المستخدم الذي ينوب عن المفوِّض. يجب أن يكون له بالفعل نفس دور الاعتماد في Card الذي للمفوِّض (هذا التفويض لا يمنح أي دور)."
 
 #: card/card/doctype/diesel_fill_allocation/diesel_fill_allocation.json
 msgid "This row absorbs the rounding remainder so the row litres sum to the fill litres exactly."
@@ -10047,7 +10047,7 @@ msgstr "مفتاح المعاملة"
 
 #: card/card/doctype/card_approval_delegation/card_approval_delegation.json
 msgid "Which CARD approvals the delegation covers."
-msgstr "اعتمادات CARD التي يشملها التفويض."
+msgstr "اعتمادات Card التي يشملها التفويض."
 
 #: card/card/doctype/project_diesel_fill/project_diesel_fill.json
 msgid "Why no allocation row was written (e.g. no operating hours)."
@@ -10152,12 +10152,12 @@ msgstr "يستطيع مدير الحسابات قبول تصحيح مركز ال
 
 #: card/gl/integrity.py:1521
 msgid "CARD already booked postings for this supplier: {0}. Check that this invoice is not for the same operations."
-msgstr "سبق أن رحّلت CARD قيودًا لهذا المورد: {0}. تأكد أن هذه الفاتورة ليست عن نفس العمليات."
+msgstr "سبق أن رحّلت Card قيودًا لهذا المورد: {0}. تأكد أن هذه الفاتورة ليست عن نفس العمليات."
 
 #: card/gl/integrity.py:160
 #: card/gl/integrity.py:295
 msgid "CARD posting changed"
-msgstr "تغيّر ترحيل CARD"
+msgstr "تغيّر ترحيل Card"
 
 #: card/gl/integrity.py:683
 msgid "Cannot confirm the link: {0}. Link only the sources this invoice pays for, or accept the difference {1} with a reason."
@@ -10245,7 +10245,7 @@ msgstr "تحقق من وجود مصروف مكرر"
 
 #: card/gl/integrity.py:598
 msgid "Choose the CARD sources this invoice pays for."
-msgstr "اختر مصادر CARD التي تسددها هذه الفاتورة."
+msgstr "اختر مصادر Card التي تسددها هذه الفاتورة."
 
 #: card/gl/integrity.py:243
 msgid "Cost center {0} is not an enabled leaf cost center of {1}."
@@ -10262,7 +10262,7 @@ msgstr "سعر الديزل شامل الضريبة: إجمالي التعبئا
 #: card/gl/integrity.py:380
 #: card/gl/integrity.py:394
 msgid "Duplicate CARD posting"
-msgstr "ترحيل CARD مكرر"
+msgstr "ترحيل Card مكرر"
 
 #: card/cash_disbursement.py:67
 msgid "Enter the evidence of the cash payment (receipt number or reference)."
@@ -10274,7 +10274,7 @@ msgstr "اكتب سبب التصحيح."
 
 #: card/gl/integrity.py:706
 msgid "Linked by {0}: supplier invoice {1} (bill no. {2}) net {3} / total {4}, CARD sources net {5}, {6}. {7}"
-msgstr "ربطها {0}: فاتورة المورد {1} (رقم الفاتورة {2}) صافي {3} / إجمالي {4}، صافي مصادر CARD {5}، {6}. {7}"
+msgstr "ربطها {0}: فاتورة المورد {1} (رقم الفاتورة {2}) صافي {3} / إجمالي {4}، صافي مصادر Card {5}، {6}. {7}"
 
 #: card/gl/integrity.py:743
 #: card/gl/integrity.py:754
@@ -10291,7 +10291,7 @@ msgstr "ليست فاتورة مرشّحة لهذا المورد وهذا الش
 
 #: card/gl/integrity.py:305
 msgid "Only CARD Purchase or Sales Invoices can be corrected."
-msgstr "لا يُصحَّح إلا فواتير الشراء أو المبيعات المرحَّلة من CARD."
+msgstr "لا يُصحَّح إلا فواتير الشراء أو المبيعات المرحَّلة من Card."
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.py:239
 msgid "Only a Card Manager can set or change the supplier of this card; it is {0}, the equipment's owner is {1}."
@@ -10303,11 +10303,11 @@ msgstr "لا يُصحَّح إلا المستند في حالة مسودة."
 
 #: card/gl/integrity.py:308
 msgid "Only an Accounts Manager may accept a CARD posting correction."
-msgstr "مدير الحسابات فقط يمكنه قبول تصحيح ترحيل CARD."
+msgstr "مدير الحسابات فقط يمكنه قبول تصحيح ترحيل Card."
 
 #: card/gl/integrity.py:570
 msgid "Only an accountant may link supplier invoices to CARD sources."
-msgstr "المحاسب فقط يمكنه ربط فواتير الموردين بمصادر CARD."
+msgstr "المحاسب فقط يمكنه ربط فواتير الموردين بمصادر Card."
 
 #: card/cash_disbursement.py:193
 msgid "Only an approved or failed cash payment can be queued for posting; {0} is {1}."
@@ -10333,7 +10333,7 @@ msgstr "مصروف مكرر محتمل"
 
 #: card/gl/integrity.py:291
 msgid "Rebuild the posting from CARD (fix the source documents first)."
-msgstr "أعد بناء الترحيل من CARD (صحّح المستندات المصدر أولًا)."
+msgstr "أعد بناء الترحيل من Card (صحّح المستندات المصدر أولًا)."
 
 #: card/gl/posting.py:1341
 msgid "Reviewed as unrelated by {0}: {1}."
@@ -10345,7 +10345,7 @@ msgstr "اختر الشركة."
 
 #: card/gl/events.py:307
 msgid "Supplier invoice no. {0} is already booked by CARD posting {1}; correct or cancel that posting instead of booking it again."
-msgstr "رقم فاتورة المورد {0} مرحَّل بالفعل في ترحيل CARD {1}؛ صحّح ذلك الترحيل أو ألغه بدل ترحيله مرة أخرى."
+msgstr "رقم فاتورة المورد {0} مرحَّل بالفعل في ترحيل Card {1}؛ صحّح ذلك الترحيل أو ألغه بدل ترحيله مرة أخرى."
 
 #: card/gl/events.py:276
 msgid "Supplier invoice no. {0} is already booked on {1}; link that invoice instead of booking it again."
@@ -10353,7 +10353,7 @@ msgstr "رقم فاتورة المورد {0} مرحَّل بالفعل في {1}�
 
 #: card/gl/integrity.py:497
 msgid "Supplier invoices booked around this month may cover the same operations: {0}. Link each one to the CARD sources it pays for (card.gl.integrity.link_supplier_invoice), or have an accountant confirm it is unrelated, then build again."
-msgstr "قد تغطي فواتير موردين مرحَّلة حول هذا الشهر نفس العمليات: {0}. اربط كل فاتورة بمصادر CARD التي تسددها (card.gl.integrity.link_supplier_invoice)، أو اطلب من المحاسب تأكيد أنها غير مرتبطة، ثم أعد البناء."
+msgstr "قد تغطي فواتير موردين مرحَّلة حول هذا الشهر نفس العمليات: {0}. اربط كل فاتورة بمصادر Card التي تسددها (card.gl.integrity.link_supplier_invoice)، أو اطلب من المحاسب تأكيد أنها غير مرتبطة، ثم أعد البناء."
 
 #: card/gl/posting.py:1355
 msgid "Tax template {0} must have exactly one VAT rate to post diesel."
@@ -10382,7 +10382,7 @@ msgstr "تغيّر مصدر الدفعة النقدية {0} بعد اعتماد�
 
 #: card/gl/integrity.py:319
 msgid "You are not permitted to correct CARD postings of company {0}."
-msgstr "لا تملك صلاحية تصحيح ترحيلات CARD للشركة {0}."
+msgstr "لا تملك صلاحية تصحيح ترحيلات Card للشركة {0}."
 
 #: card/cash_disbursement.py:310
 msgid "another company"
@@ -10426,7 +10426,7 @@ msgstr "تغيّرت صفوف الضريبة"
 
 #: card/gl/integrity.py:678
 msgid "the CARD sources total {0} net, {1} is net {2}"
-msgstr "صافي مصادر CARD {0}، وصافي {1} هو {2}"
+msgstr "صافي مصادر Card {0}، وصافي {1} هو {2}"
 
 #: card/cash_disbursement.py:327
 msgid "the Cash account or amount differs from the approved payment"
@@ -10450,11 +10450,11 @@ msgstr "الطرف ليس مورد الدفعة"
 
 #: card/gl/integrity.py:740
 msgid "{0} changed company or supplier after it was linked to CARD sources; delete the link by deleting or cancelling the invoice and link again."
-msgstr "{0} تغيّرت شركته أو مورده بعد ربطه بمصادر CARD؛ احذف الربط بحذف الفاتورة أو إلغائها ثم اربطها من جديد."
+msgstr "{0} تغيّرت شركته أو مورده بعد ربطه بمصادر Card؛ احذف الربط بحذف الفاتورة أو إلغائها ثم اربطها من جديد."
 
 #: card/gl/integrity.py:294
 msgid "{0} differs from what CARD built: {1}. {2}"
-msgstr "{0} يختلف عما بنته CARD: {1}. {2}"
+msgstr "{0} يختلف عما بنته Card: {1}. {2}"
 
 #: card/gl/integrity.py:494
 msgid "{0} invoice(s) you cannot open"
@@ -10466,15 +10466,15 @@ msgstr "{0} ملغاة أو مرتجع؛ اربط فاتورة المورد ال
 
 #: card/gl/integrity.py:751
 msgid "{0} is net {1}, but it was linked to CARD sources for net {2}; delete or cancel it and link again."
-msgstr "صافي {0} هو {1}، لكنه رُبط بمصادر CARD بصافي {2}؛ احذفه أو ألغه ثم اربطه من جديد."
+msgstr "صافي {0} هو {1}، لكنه رُبط بمصادر Card بصافي {2}؛ احذفه أو ألغه ثم اربطه من جديد."
 
 #: card/gl/integrity.py:603
 msgid "{0} is not a CARD source type."
-msgstr "{0} ليس نوع مصدر في CARD."
+msgstr "{0} ليس نوع مصدر في Card."
 
 #: card/gl/integrity.py:328
 msgid "{0} is not a CARD-built posting."
-msgstr "{0} ليس ترحيلًا مبنيًا من CARD."
+msgstr "{0} ليس ترحيلًا مبنيًا من Card."
 
 #: card/gl/integrity.py:391
 msgid "{0} names {1} {2}, already booked by {3}; the same operation would be booked twice."
@@ -10482,11 +10482,11 @@ msgstr "{0} يذكر {1} {2} المرحَّل بالفعل في {3}؛ ستُرح
 
 #: card/gl/integrity.py:377
 msgid "{0} repeats the lines of CARD posting {1}; the same sources would be booked twice."
-msgstr "{0} يكرر بنود ترحيل CARD {1}؛ ستُرحَّل نفس المصادر مرتين."
+msgstr "{0} يكرر بنود ترحيل Card {1}؛ ستُرحَّل نفس المصادر مرتين."
 
 #: card/gl/integrity.py:271
 msgid "{0} was built before CARD recorded invoice signatures; rebuild the posting from CARD before submitting it."
-msgstr "{0} بُني قبل أن تسجّل CARD توقيعات الفواتير؛ أعد بناء الترحيل من CARD قبل اعتماده."
+msgstr "{0} بُني قبل أن تسجّل Card توقيعات الفواتير؛ أعد بناء الترحيل من Card قبل اعتماده."
 
 #: card/gl/integrity.py:631
 msgid "{0} {1} belongs to another company or supplier than {2}."

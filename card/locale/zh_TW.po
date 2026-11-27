@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "按每立方公尺"
 
 msgid "Loads last month"
-msgstr "上月車次 (CARD)"
+msgstr "上月車次 (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "只能在客戶計價類型為按 m³ 的卡片上登錄車次"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "列印時間"
 
 msgid "CARD operations dashboard"
-msgstr "CARD 營運儀表板"
+msgstr "Card 營運儀表板"
 
 msgid "Financial performance — last month"
 msgstr "財務表現 — 上月"
 
 msgid "Needs review (CARD)"
-msgstr "待審核 (CARD)"
+msgstr "待審核 (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "最新月卡 (CARD)"
+msgstr "最新月卡 (Card)"
 
 msgid "CARD customers"
-msgstr "CARD 客戶"
+msgstr "Card 客戶"
 
 msgid "CARD suppliers"
-msgstr "CARD 供應商"
+msgstr "Card 供應商"
 
 msgid "Diesel and operations (CARD)"
-msgstr "柴油與營運 (CARD)"
+msgstr "柴油與營運 (Card)"
 
 msgid "New monthly card"
 msgstr "新增月卡"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "新增設備運輸"
 
 msgid "Customer statement (CARD)"
-msgstr "客戶對帳單 (CARD)"
+msgstr "客戶對帳單 (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "月卡 (CARD)"
+msgstr "月卡 (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "設備 (CARD)"
+msgstr "設備 (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "任務指派 (CARD)"
+msgstr "任務指派 (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "設備客戶 (CARD)"
+msgstr "設備客戶 (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "設備運輸 (CARD)"
+msgstr "設備運輸 (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "客戶營運價值 - 上月"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "上月卡片"
 
 msgid "Rented equipment (CARD)"
-msgstr "租賃設備 (CARD)"
+msgstr "租賃設備 (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "租賃設備 (CARD)"
+msgstr "租賃設備 (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "上月車次 (CARD)"
+msgstr "上月車次 (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "草稿卡 (CARD)"
+msgstr "草稿卡 (Card)"
 
 msgid "كروت مسودة"
-msgstr "草稿卡 (CARD)"
+msgstr "草稿卡 (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "無內部費率的卡 (CARD)"
+msgstr "無內部費率的卡 (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "無內部費率的卡 (CARD)"
+msgstr "無內部費率的卡 (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "無費率的營運時數 (CARD)"
+msgstr "無費率的營運時數 (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "無費率的營運時數 (CARD)"
+msgstr "無費率的營運時數 (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "客戶摘要 (CARD)"
+msgstr "客戶摘要 (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "供應商對帳單 (CARD)"
+msgstr "供應商對帳單 (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "供應商摘要 (CARD)"
+msgstr "供應商摘要 (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "供應商對帳單 A4 (CARD)"
+msgstr "供應商對帳單 A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "柴油用量 (CARD)"
+msgstr "柴油用量 (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "依專案統計的營運成本 (CARD)"
+msgstr "依專案統計的營運成本 (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "依專案統計的運輸成本 (CARD)"
+msgstr "依專案統計的運輸成本 (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "計量表核對 (CARD)"
+msgstr "計量表核對 (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "設備運輸 (CARD)"
+msgstr "設備運輸 (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

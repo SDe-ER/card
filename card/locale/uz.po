@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³ uchun"
 
 msgid "Loads last month"
-msgstr "O'tgan oy reyslari (CARD)"
+msgstr "O'tgan oy reyslari (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Reyslar faqat mijoz narx turi m³ uchun bo'lgan kartada qayd etiladi"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Chop etilgan"
 
 msgid "CARD operations dashboard"
-msgstr "CARD operatsiyalar paneli"
+msgstr "Card operatsiyalar paneli"
 
 msgid "Financial performance — last month"
 msgstr "Moliyaviy ko'rsatkichlar — o'tgan oy"
 
 msgid "Needs review (CARD)"
-msgstr "Tekshiruv talab qilinadi (CARD)"
+msgstr "Tekshiruv talab qilinadi (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "So'nggi oylik kartalar (CARD)"
+msgstr "So'nggi oylik kartalar (Card)"
 
 msgid "CARD customers"
-msgstr "CARD mijozlari"
+msgstr "Card mijozlari"
 
 msgid "CARD suppliers"
-msgstr "CARD yetkazib beruvchilari"
+msgstr "Card yetkazib beruvchilari"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dizel va operatsiyalar (CARD)"
+msgstr "Dizel va operatsiyalar (Card)"
 
 msgid "New monthly card"
 msgstr "Yangi oylik karta"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Yangi texnika tashish"
 
 msgid "Customer statement (CARD)"
-msgstr "Mijoz hisoboti (CARD)"
+msgstr "Mijoz hisoboti (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Oylik kartalar (CARD)"
+msgstr "Oylik kartalar (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Texnika (CARD)"
+msgstr "Texnika (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Topshiriqlar (CARD)"
+msgstr "Topshiriqlar (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Texnika mijozlari (CARD)"
+msgstr "Texnika mijozlari (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Texnika tashishlari (CARD)"
+msgstr "Texnika tashishlari (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Mijozlar uchun operatsion qiymat - o'tgan oy"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "O'tgan oydagi kartalar"
 
 msgid "Rented equipment (CARD)"
-msgstr "Ijaradagi texnika (CARD)"
+msgstr "Ijaradagi texnika (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Ijaradagi texnika (CARD)"
+msgstr "Ijaradagi texnika (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "O'tgan oy reyslari (CARD)"
+msgstr "O'tgan oy reyslari (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Qoralama kartalar (CARD)"
+msgstr "Qoralama kartalar (Card)"
 
 msgid "كروت مسودة"
-msgstr "Qoralama kartalar (CARD)"
+msgstr "Qoralama kartalar (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Ichki tarifsiz kartalar (CARD)"
+msgstr "Ichki tarifsiz kartalar (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Ichki tarifsiz kartalar (CARD)"
+msgstr "Ichki tarifsiz kartalar (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Tarifsiz ish soatlari (CARD)"
+msgstr "Tarifsiz ish soatlari (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Tarifsiz ish soatlari (CARD)"
+msgstr "Tarifsiz ish soatlari (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Mijozlar xulosasi (CARD)"
+msgstr "Mijozlar xulosasi (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Yetkazib beruvchi hisoboti (CARD)"
+msgstr "Yetkazib beruvchi hisoboti (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Yetkazib beruvchilar xulosasi (CARD)"
+msgstr "Yetkazib beruvchilar xulosasi (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Yetkazib beruvchi hisoboti A4 (CARD)"
+msgstr "Yetkazib beruvchi hisoboti A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dizel sarfi (CARD)"
+msgstr "Dizel sarfi (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Loyihalar bo'yicha operatsion xarajat (CARD)"
+msgstr "Loyihalar bo'yicha operatsion xarajat (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Loyihalar bo'yicha tashish xarajati (CARD)"
+msgstr "Loyihalar bo'yicha tashish xarajati (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Hisoblagich solishtiruvi (CARD)"
+msgstr "Hisoblagich solishtiruvi (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Texnika tashish (CARD)"
+msgstr "Texnika tashish (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

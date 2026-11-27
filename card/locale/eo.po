@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Po m³"
 
 msgid "Loads last month"
-msgstr "Ŝarĝoj lastmonate (CARD)"
+msgstr "Ŝarĝoj lastmonate (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ŝarĝoj rajtas esti registrataj nur en karto kies kliento-prezspeco estas po m³"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Presita je"
 
 msgid "CARD operations dashboard"
-msgstr "CARD-operacia panelo"
+msgstr "Card-operacia panelo"
 
 msgid "Financial performance — last month"
 msgstr "Financa rezulto — pasinta monato"
 
 msgid "Needs review (CARD)"
-msgstr "Bezonas revizion (CARD)"
+msgstr "Bezonas revizion (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Lastaj monataj kartoj (CARD)"
+msgstr "Lastaj monataj kartoj (Card)"
 
 msgid "CARD customers"
-msgstr "CARD-klientoj"
+msgstr "Card-klientoj"
 
 msgid "CARD suppliers"
-msgstr "CARD-liveruloj"
+msgstr "Card-liveruloj"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dizelo kaj operacioj (CARD)"
+msgstr "Dizelo kaj operacioj (Card)"
 
 msgid "New monthly card"
 msgstr "Nova monata karto"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Nova transporto de ekipaĵo"
 
 msgid "Customer statement (CARD)"
-msgstr "Klienta konto (CARD)"
+msgstr "Klienta konto (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Monataj kartoj (CARD)"
+msgstr "Monataj kartoj (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Ekipaĵo (CARD)"
+msgstr "Ekipaĵo (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Asignoj (CARD)"
+msgstr "Asignoj (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Klientoj de ekipaĵo (CARD)"
+msgstr "Klientoj de ekipaĵo (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Transportoj de ekipaĵo (CARD)"
+msgstr "Transportoj de ekipaĵo (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Operacia valoro por klientoj - pasinta monato"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "Kartoj pasinta monato"
 
 msgid "Rented equipment (CARD)"
-msgstr "Lulita ekipaĵo (CARD)"
+msgstr "Lulita ekipaĵo (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Lulita ekipaĵo (CARD)"
+msgstr "Lulita ekipaĵo (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Ŝarĝoj lastmonate (CARD)"
+msgstr "Ŝarĝoj lastmonate (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Skizaj kartoj (CARD)"
+msgstr "Skizaj kartoj (Card)"
 
 msgid "كروت مسودة"
-msgstr "Skizaj kartoj (CARD)"
+msgstr "Skizaj kartoj (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Kartoj sen interna tarifo (CARD)"
+msgstr "Kartoj sen interna tarifo (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Kartoj sen interna tarifo (CARD)"
+msgstr "Kartoj sen interna tarifo (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Operaciaj horoj sen tarifo (CARD)"
+msgstr "Operaciaj horoj sen tarifo (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Operaciaj horoj sen tarifo (CARD)"
+msgstr "Operaciaj horoj sen tarifo (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Resumo de klientoj (CARD)"
+msgstr "Resumo de klientoj (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Konto de liveranto (CARD)"
+msgstr "Konto de liveranto (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Resumo de liveruloj (CARD)"
+msgstr "Resumo de liveruloj (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Konto de liveranto A4 (CARD)"
+msgstr "Konto de liveranto A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dizela konsumo (CARD)"
+msgstr "Dizela konsumo (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Operaciaj kostoj laŭ projekto (CARD)"
+msgstr "Operaciaj kostoj laŭ projekto (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Transportaj kostoj laŭ projekto (CARD)"
+msgstr "Transportaj kostoj laŭ projekto (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Kongruigo de mezuriloj (CARD)"
+msgstr "Kongruigo de mezuriloj (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Transporto de ekipaĵo (CARD)"
+msgstr "Transporto de ekipaĵo (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

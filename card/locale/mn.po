@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³-ын үнэ"
 
 msgid "Loads last month"
-msgstr "Өмнөх сарын ачаа (CARD)"
+msgstr "Өмнөх сарын ачаа (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ачааг зөвхөн үйлчлүүлэгчийн тариф м³-ын үнээр тохируулсан картад бүртгэнэ"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Хэвлэсэн огноо"
 
 msgid "CARD operations dashboard"
-msgstr "CARD үйл ажиллагааны самбар"
+msgstr "Card үйл ажиллагааны самбар"
 
 msgid "Financial performance — last month"
 msgstr "Санхүүгийн гүйцэтгэл — өнгөрсөн сар"
 
 msgid "Needs review (CARD)"
-msgstr "Шалгах шаардлагатай (CARD)"
+msgstr "Шалгах шаардлагатай (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Сүүлийн сарын карт (CARD)"
+msgstr "Сүүлийн сарын карт (Card)"
 
 msgid "CARD customers"
-msgstr "CARD харилцагчид"
+msgstr "Card харилцагчид"
 
 msgid "CARD suppliers"
-msgstr "CARD нийлүүлэгчид"
+msgstr "Card нийлүүлэгчид"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Дизель ба үйл ажиллагаа (CARD)"
+msgstr "Дизель ба үйл ажиллагаа (Card)"
 
 msgid "New monthly card"
 msgstr "Шинэ сарын карт"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Шинэ техник тээвэр"
 
 msgid "Customer statement (CARD)"
-msgstr "Харилцагчийн тооцоо (CARD)"
+msgstr "Харилцагчийн тооцоо (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Сарын карт (CARD)"
+msgstr "Сарын карт (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Техник (CARD)"
+msgstr "Техник (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Хуваарилалт (CARD)"
+msgstr "Хуваарилалт (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Техникийн харилцагчид (CARD)"
+msgstr "Техникийн харилцагчид (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Техникийн тээвэр (CARD)"
+msgstr "Техникийн тээвэр (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Харилцагчийн үйл ажиллагааны үнэ цэнэ - өнгөрсөн сар"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "Өнгөрсөн сарын карт"
 
 msgid "Rented equipment (CARD)"
-msgstr "Түрээсийн техник (CARD)"
+msgstr "Түрээсийн техник (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Түрээсийн техник (CARD)"
+msgstr "Түрээсийн техник (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Өмнөх сарын ачаа (CARD)"
+msgstr "Өмнөх сарын ачаа (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Ноорог карт (CARD)"
+msgstr "Ноорог карт (Card)"
 
 msgid "كروت مسودة"
-msgstr "Ноорог карт (CARD)"
+msgstr "Ноорог карт (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Дотоод ханш байхгүй карт (CARD)"
+msgstr "Дотоод ханш байхгүй карт (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Дотоод ханш байхгүй карт (CARD)"
+msgstr "Дотоод ханш байхгүй карт (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Ханшгүй үйл ажиллагааны цаг (CARD)"
+msgstr "Ханшгүй үйл ажиллагааны цаг (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Ханшгүй үйл ажиллагааны цаг (CARD)"
+msgstr "Ханшгүй үйл ажиллагааны цаг (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Харилцагчийн хураангуй (CARD)"
+msgstr "Харилцагчийн хураангуй (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Нийлүүлэгчийн тооцоо (CARD)"
+msgstr "Нийлүүлэгчийн тооцоо (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Нийлүүлэгчдийн хураангуй (CARD)"
+msgstr "Нийлүүлэгчдийн хураангуй (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Нийлүүлэгчийн тооцоо A4 (CARD)"
+msgstr "Нийлүүлэгчийн тооцоо A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Дизелийн зарцуулалт (CARD)"
+msgstr "Дизелийн зарцуулалт (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Төслөөр үйл ажиллагааны зардал (CARD)"
+msgstr "Төслөөр үйл ажиллагааны зардал (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Төслөөр тээврийн зардал (CARD)"
+msgstr "Төслөөр тээврийн зардал (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Тоолуурын тохиргоо (CARD)"
+msgstr "Тоолуурын тохиргоо (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Техникийн тээвэр (CARD)"
+msgstr "Техникийн тээвэр (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

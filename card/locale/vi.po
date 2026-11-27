@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Theo m³"
 
 msgid "Loads last month"
-msgstr "Số chuyến tháng trước (CARD)"
+msgstr "Số chuyến tháng trước (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Chỉ có thể ghi chuyến vào thẻ có loại đơn giá khách hàng là theo m³"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "In lúc"
 
 msgid "CARD operations dashboard"
-msgstr "Bảng điều khiển vận hành CARD"
+msgstr "Bảng điều khiển vận hành Card"
 
 msgid "Financial performance — last month"
 msgstr "Hiệu quả tài chính — tháng trước"
 
 msgid "Needs review (CARD)"
-msgstr "Cần xem xét (CARD)"
+msgstr "Cần xem xét (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Thẻ hàng tháng mới nhất (CARD)"
+msgstr "Thẻ hàng tháng mới nhất (Card)"
 
 msgid "CARD customers"
-msgstr "Khách hàng CARD"
+msgstr "Khách hàng Card"
 
 msgid "CARD suppliers"
-msgstr "Nhà cung cấp CARD"
+msgstr "Nhà cung cấp Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dầu diesel và vận hành (CARD)"
+msgstr "Dầu diesel và vận hành (Card)"
 
 msgid "New monthly card"
 msgstr "Thẻ hàng tháng mới"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Vận chuyển thiết bị mới"
 
 msgid "Customer statement (CARD)"
-msgstr "Sao kê khách hàng (CARD)"
+msgstr "Sao kê khách hàng (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Thẻ hàng tháng (CARD)"
+msgstr "Thẻ hàng tháng (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Thiết bị (CARD)"
+msgstr "Thiết bị (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Phân công (CARD)"
+msgstr "Phân công (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Khách hàng thiết bị (CARD)"
+msgstr "Khách hàng thiết bị (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Vận chuyển thiết bị (CARD)"
+msgstr "Vận chuyển thiết bị (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Giá trị vận hành cho khách hàng - tháng trước"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "Thẻ tháng trước"
 
 msgid "Rented equipment (CARD)"
-msgstr "Thiết bị thuê (CARD)"
+msgstr "Thiết bị thuê (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Thiết bị thuê (CARD)"
+msgstr "Thiết bị thuê (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Số chuyến tháng trước (CARD)"
+msgstr "Số chuyến tháng trước (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Thẻ nháp (CARD)"
+msgstr "Thẻ nháp (Card)"
 
 msgid "كروت مسودة"
-msgstr "Thẻ nháp (CARD)"
+msgstr "Thẻ nháp (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Thẻ chưa có đơn giá nội bộ (CARD)"
+msgstr "Thẻ chưa có đơn giá nội bộ (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Thẻ chưa có đơn giá nội bộ (CARD)"
+msgstr "Thẻ chưa có đơn giá nội bộ (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Giờ vận hành chưa có đơn giá (CARD)"
+msgstr "Giờ vận hành chưa có đơn giá (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Giờ vận hành chưa có đơn giá (CARD)"
+msgstr "Giờ vận hành chưa có đơn giá (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Tóm tắt khách hàng (CARD)"
+msgstr "Tóm tắt khách hàng (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Sao kê nhà cung cấp (CARD)"
+msgstr "Sao kê nhà cung cấp (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Tóm tắt nhà cung cấp (CARD)"
+msgstr "Tóm tắt nhà cung cấp (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Sao kê nhà cung cấp A4 (CARD)"
+msgstr "Sao kê nhà cung cấp A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Mức tiêu thụ diesel (CARD)"
+msgstr "Mức tiêu thụ diesel (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Chi phí vận hành theo dự án (CARD)"
+msgstr "Chi phí vận hành theo dự án (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Chi phí vận chuyển theo dự án (CARD)"
+msgstr "Chi phí vận chuyển theo dự án (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Đối chiếu đồng hồ (CARD)"
+msgstr "Đối chiếu đồng hồ (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Vận chuyển thiết bị (CARD)"
+msgstr "Vận chuyển thiết bị (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

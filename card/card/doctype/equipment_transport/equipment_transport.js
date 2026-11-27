@@ -5,8 +5,28 @@
 // equipment -> project; the server reads the kind of move from each machine's history.
 // The equipment link keeps frappe's own "Create a new Card Equipment" entry for a
 // machine that is not registered yet.
+// Frappe draws a read-only Select value and a grid cell with the plain __(value)
+// (form/formatters.js: Select), so the word "Workshop" would read in Arabic without the DocType context
+// its CARD translation sits under. frappe.meta.set_formatter() is the official hook for a per-field
+// formatter (frappe.format() calls it first: form/formatters.js `frappe.format`).
+const WORKSHOP_FIELDS = {
+	"Equipment Transport": ["destination_type", "source_type"],
+	"Equipment Transport Item": ["from_type"],
+};
+
+function set_workshop_formatters() {
+	for (const [doctype, fieldnames] of Object.entries(WORKSHOP_FIELDS)) {
+		for (const fieldname of fieldnames) {
+			frappe.meta.set_formatter(doctype, fieldname, null, (value) =>
+				value ? __(value, null, doctype) : "",
+			);
+		}
+	}
+}
+
 frappe.ui.form.on("Equipment Transport", {
 	setup(frm) {
+		set_workshop_formatters();
 		frm.set_query("card_equipment", "items", () => {
 			const filters = { company: frm.doc.company || undefined };
 			if (frm.doc.ownership) filters.ownership = frm.doc.ownership;

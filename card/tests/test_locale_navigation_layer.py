@@ -300,8 +300,9 @@ class TestLocaleNavigationLayer(UnitTestCase):
 				)
 
 	def test_card_suffix_of_a_number_card_label_is_kept(self):
-		"""A row label that ends with "(CARD)" keeps it in every locale. Arabic is the exception: its labels
-		carry no "(CARD)" at all (the text Arabic users know since v4.10.0)."""
+		"""A row label that ends with "(CARD)" ends with "(Card)" in every translation (owner decision
+		2026-11-27: no global CARD wording; the source label keeps "(CARD)"). Arabic is the exception: its
+		labels carry no "(Card)" at all (the text Arabic users know since v4.10.0)."""
 		marked = [label for label in number_card_row_labels() if label.endswith("(CARD)")]
 		self.assertTrue(marked)
 		for path in locales():
@@ -310,5 +311,5 @@ class TestLocaleNavigationLayer(UnitTestCase):
 			translated = plain(path)
 			with self.subTest(locale=lang(path)):
 				self.assertEqual(
-					[label for label in marked if not translated.get(label, "").endswith("(CARD)")], []
+					[label for label in marked if not translated.get(label, "").endswith("(Card)")], []
 				)

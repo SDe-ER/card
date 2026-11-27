@@ -76,7 +76,7 @@ msgid "Tool"
 msgstr "اوزار"
 
 msgid "CARD Mobile"
-msgstr "CARD موبائل"
+msgstr "Card موبائل"
 
 msgid "New request"
 msgstr "نئی درخواست"
@@ -392,13 +392,13 @@ msgid "إجمالي لترات الديزل"
 msgstr "ڈیزل کے کل لیٹر"
 
 msgid "المعدات المؤجرة"
-msgstr "کرائے کی مشینری (CARD)"
+msgstr "کرائے کی مشینری (Card)"
 
 msgid "كروت الشهر الماضي"
 msgstr "گزشتہ ماہ کے کارڈز"
 
 msgid "كروت مسودة"
-msgstr "مسودہ کارڈز (CARD)"
+msgstr "مسودہ کارڈز (Card)"
 
 msgid "مبالغ الشهر الماضي"
 msgstr "سپلائرز کی آپریٹنگ مالیت - گزشتہ ماہ"
@@ -419,10 +419,10 @@ msgid "قيمة تشغيل داخلي - الشهر الماضي"
 msgstr "اندرونی آپریٹنگ مالیت - گزشتہ ماہ"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "اندرونی ریٹ کے بغیر کارڈز (CARD)"
+msgstr "اندرونی ریٹ کے بغیر کارڈز (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (CARD)"
+msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (Card)"
 
 msgid "كارت تشغيل شهري"
 msgstr "ماہانہ آپریشن کارڈ"
@@ -506,7 +506,7 @@ msgid "بالمتر المكعب"
 msgstr "فی مکعب میٹر"
 
 msgid "Loads last month"
-msgstr "گزشتہ ماہ کے لوڈ (CARD)"
+msgstr "گزشتہ ماہ کے لوڈ (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "لوڈ صرف اس کارڈ پر درج کیے جا سکتے ہیں جس کی کسٹمر ریٹ کی قسم فی m³ ہو"
@@ -543,25 +543,25 @@ msgid "Printed at"
 msgstr "پرنٹ کا وقت"
 
 msgid "CARD operations dashboard"
-msgstr "CARD آپریشنز ڈیش بورڈ"
+msgstr "Card آپریشنز ڈیش بورڈ"
 
 msgid "Financial performance — last month"
 msgstr "مالی کارکردگی — گزشتہ ماہ"
 
 msgid "Needs review (CARD)"
-msgstr "جائزہ درکار ہے (CARD)"
+msgstr "جائزہ درکار ہے (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "تازہ ترین ماہانہ کارڈز (CARD)"
+msgstr "تازہ ترین ماہانہ کارڈز (Card)"
 
 msgid "CARD customers"
-msgstr "CARD کسٹمرز"
+msgstr "Card کسٹمرز"
 
 msgid "CARD suppliers"
-msgstr "CARD سپلائرز"
+msgstr "Card سپلائرز"
 
 msgid "Diesel and operations (CARD)"
-msgstr "ڈیزل اور آپریشنز (CARD)"
+msgstr "ڈیزل اور آپریشنز (Card)"
 
 msgid "New monthly card"
 msgstr "نیا ماہانہ کارڈ"
@@ -570,22 +570,22 @@ msgid "New equipment transport"
 msgstr "نئی مشینری کی ترسیل"
 
 msgid "Customer statement (CARD)"
-msgstr "کسٹمر اسٹیٹمنٹ (CARD)"
+msgstr "کسٹمر اسٹیٹمنٹ (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "ماہانہ کارڈز (CARD)"
+msgstr "ماہانہ کارڈز (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "مشینری (CARD)"
+msgstr "مشینری (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "اسائنمنٹس (CARD)"
+msgstr "اسائنمنٹس (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "مشینری کے کسٹمرز (CARD)"
+msgstr "مشینری کے کسٹمرز (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "مشینری کی ترسیلات (CARD)"
+msgstr "مشینری کی ترسیلات (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "کسٹمرز کی آپریٹنگ مالیت - گزشتہ ماہ"
@@ -600,46 +600,46 @@ msgid "Cards last month"
 msgstr "گزشتہ ماہ کے کارڈز"
 
 msgid "Rented equipment (CARD)"
-msgstr "کرائے کی مشینری (CARD)"
+msgstr "کرائے کی مشینری (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "گزشتہ ماہ کے لوڈ (CARD)"
+msgstr "گزشتہ ماہ کے لوڈ (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "مسودہ کارڈز (CARD)"
+msgstr "مسودہ کارڈز (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "اندرونی ریٹ کے بغیر کارڈز (CARD)"
+msgstr "اندرونی ریٹ کے بغیر کارڈز (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (CARD)"
+msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "کسٹمر خلاصہ (CARD)"
+msgstr "کسٹمر خلاصہ (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "سپلائر اسٹیٹمنٹ (CARD)"
+msgstr "سپلائر اسٹیٹمنٹ (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "سپلائرز کا خلاصہ (CARD)"
+msgstr "سپلائرز کا خلاصہ (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "سپلائر اسٹیٹمنٹ A4 (CARD)"
+msgstr "سپلائر اسٹیٹمنٹ A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "ڈیزل کی کھپت (CARD)"
+msgstr "ڈیزل کی کھپت (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "پروجیکٹ کے لحاظ سے آپریٹنگ لاگت (CARD)"
+msgstr "پروجیکٹ کے لحاظ سے آپریٹنگ لاگت (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "پروجیکٹ کے لحاظ سے ترسیل کی لاگت (CARD)"
+msgstr "پروجیکٹ کے لحاظ سے ترسیل کی لاگت (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "میٹر کی مطابقت (CARD)"
+msgstr "میٹر کی مطابقت (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "مشینری کی ترسیل (CARD)"
+msgstr "مشینری کی ترسیل (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Za m³"
 
 msgid "Loads last month"
-msgstr "Kursy w poprzednim miesiącu (CARD)"
+msgstr "Kursy w poprzednim miesiącu (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Kursy można rejestrować tylko na karcie, której typ stawki klienta to za m³"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Wydrukowano"
 
 msgid "CARD operations dashboard"
-msgstr "Panel operacyjny CARD"
+msgstr "Panel operacyjny Card"
 
 msgid "Financial performance — last month"
 msgstr "Wyniki finansowe — poprzedni miesiąc"
 
 msgid "Needs review (CARD)"
-msgstr "Wymaga weryfikacji (CARD)"
+msgstr "Wymaga weryfikacji (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Najnowsze karty miesięczne (CARD)"
+msgstr "Najnowsze karty miesięczne (Card)"
 
 msgid "CARD customers"
-msgstr "Klienci CARD"
+msgstr "Klienci Card"
 
 msgid "CARD suppliers"
-msgstr "Dostawcy CARD"
+msgstr "Dostawcy Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Diesel i eksploatacja (CARD)"
+msgstr "Diesel i eksploatacja (Card)"
 
 msgid "New monthly card"
 msgstr "Nowa karta miesięczna"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Nowy transport sprzętu"
 
 msgid "Customer statement (CARD)"
-msgstr "Wyciąg klienta (CARD)"
+msgstr "Wyciąg klienta (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Karty miesięczne (CARD)"
+msgstr "Karty miesięczne (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Sprzęt (CARD)"
+msgstr "Sprzęt (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Przydziały (CARD)"
+msgstr "Przydziały (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Klienci sprzętu (CARD)"
+msgstr "Klienci sprzętu (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Transporty sprzętu (CARD)"
+msgstr "Transporty sprzętu (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Wartość operacyjna dla klientów - poprzedni miesiąc"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "Karty z poprzedniego miesiąca"
 
 msgid "Rented equipment (CARD)"
-msgstr "Wynajęty sprzęt (CARD)"
+msgstr "Wynajęty sprzęt (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Wynajęty sprzęt (CARD)"
+msgstr "Wynajęty sprzęt (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Kursy w poprzednim miesiącu (CARD)"
+msgstr "Kursy w poprzednim miesiącu (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Karty robocze (CARD)"
+msgstr "Karty robocze (Card)"
 
 msgid "كروت مسودة"
-msgstr "Karty robocze (CARD)"
+msgstr "Karty robocze (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Karty bez stawki wewnętrznej (CARD)"
+msgstr "Karty bez stawki wewnętrznej (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Karty bez stawki wewnętrznej (CARD)"
+msgstr "Karty bez stawki wewnętrznej (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Godziny eksploatacji bez stawki (CARD)"
+msgstr "Godziny eksploatacji bez stawki (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Godziny eksploatacji bez stawki (CARD)"
+msgstr "Godziny eksploatacji bez stawki (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Podsumowanie klientów (CARD)"
+msgstr "Podsumowanie klientów (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Wyciąg dostawcy (CARD)"
+msgstr "Wyciąg dostawcy (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Podsumowanie dostawców (CARD)"
+msgstr "Podsumowanie dostawców (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Wyciąg dostawcy A4 (CARD)"
+msgstr "Wyciąg dostawcy A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Zużycie diesla (CARD)"
+msgstr "Zużycie diesla (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Koszt eksploatacji wg projektu (CARD)"
+msgstr "Koszt eksploatacji wg projektu (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Koszt transportu wg projektu (CARD)"
+msgstr "Koszt transportu wg projektu (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Uzgodnienie liczników (CARD)"
+msgstr "Uzgodnienie liczników (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Transport sprzętu (CARD)"
+msgstr "Transport sprzętu (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

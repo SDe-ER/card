@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Pe m³"
 
 msgid "Loads last month"
-msgstr "Încărcături luna trecută (CARD)"
+msgstr "Încărcături luna trecută (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Încărcăturile pot fi înregistrate doar pe un card al cărui tip de tarif pentru client este pe m³"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Tipărit la"
 
 msgid "CARD operations dashboard"
-msgstr "Tablou de bord operațional CARD"
+msgstr "Tablou de bord operațional Card"
 
 msgid "Financial performance — last month"
 msgstr "Performanță financiară — luna trecută"
 
 msgid "Needs review (CARD)"
-msgstr "Necesită verificare (CARD)"
+msgstr "Necesită verificare (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Cele mai recente carduri lunare (CARD)"
+msgstr "Cele mai recente carduri lunare (Card)"
 
 msgid "CARD customers"
-msgstr "Clienți CARD"
+msgstr "Clienți Card"
 
 msgid "CARD suppliers"
-msgstr "Furnizori CARD"
+msgstr "Furnizori Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Motorină și operațiuni (CARD)"
+msgstr "Motorină și operațiuni (Card)"
 
 msgid "New monthly card"
 msgstr "Card lunar nou"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Transport nou de echipament"
 
 msgid "Customer statement (CARD)"
-msgstr "Extras de cont client (CARD)"
+msgstr "Extras de cont client (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Carduri lunare (CARD)"
+msgstr "Carduri lunare (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Echipamente (CARD)"
+msgstr "Echipamente (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Alocări (CARD)"
+msgstr "Alocări (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Clienți pentru echipamente (CARD)"
+msgstr "Clienți pentru echipamente (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Transporturi de echipamente (CARD)"
+msgstr "Transporturi de echipamente (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Valoare operațională pentru clienți - luna trecută"
@@ -145,58 +145,58 @@ msgid "كروت الشهر الماضي"
 msgstr "Carduri din luna trecută"
 
 msgid "Rented equipment (CARD)"
-msgstr "Echipamente închiriate (CARD)"
+msgstr "Echipamente închiriate (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Echipamente închiriate (CARD)"
+msgstr "Echipamente închiriate (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Încărcături luna trecută (CARD)"
+msgstr "Încărcături luna trecută (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Carduri ciornă (CARD)"
+msgstr "Carduri ciornă (Card)"
 
 msgid "كروت مسودة"
-msgstr "Carduri ciornă (CARD)"
+msgstr "Carduri ciornă (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Carduri fără tarif intern (CARD)"
+msgstr "Carduri fără tarif intern (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Carduri fără tarif intern (CARD)"
+msgstr "Carduri fără tarif intern (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Ore de funcționare fără tarif (CARD)"
+msgstr "Ore de funcționare fără tarif (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Ore de funcționare fără tarif (CARD)"
+msgstr "Ore de funcționare fără tarif (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Sumar clienți (CARD)"
+msgstr "Sumar clienți (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Extras furnizor (CARD)"
+msgstr "Extras furnizor (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Sumar furnizori (CARD)"
+msgstr "Sumar furnizori (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Extras furnizor A4 (CARD)"
+msgstr "Extras furnizor A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Consum de motorină (CARD)"
+msgstr "Consum de motorină (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Cost operațional pe proiect (CARD)"
+msgstr "Cost operațional pe proiect (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Cost de transport pe proiect (CARD)"
+msgstr "Cost de transport pe proiect (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Reconciliere contoare (CARD)"
+msgstr "Reconciliere contoare (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Transport echipament (CARD)"
+msgstr "Transport echipament (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."
