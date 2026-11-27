@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-27 — Linking an invoice to its cards is safer when two people work at the same time.** When an accountant links an existing invoice to CARD cards while another person builds the monthly posting, links the same cards or changes them, CARD now checks the amounts and the state of the invoice and of the cards at the moment of the link, not a moment before. A link or a build that would use an old value is refused, and the user repeats it. Two visible changes: the list of sales invoices that can be linked (`unlinked_customer_invoice_candidates`) no longer shows an invoice in another currency, because such an invoice cannot be linked; and in the **Equipment Supplier Statement**, a card that was linked to a purchase invoice dated more than one year from the month of the card now counts under **Invoiced through Card**. No role or permission changes, and CARD posts no accounting entry.
 
 ## v4.14.1 — 2026-11-26
 
