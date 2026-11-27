@@ -505,6 +505,21 @@ async function run() {
         await sharp(png).webp({ quality: 82 }).toFile(file);
         results.push(`ok   ${lang}/${s.name}`);
       } catch (e) {
+        if (s.clickSelAfter) {
+          // DEBUG-LINKBTN: what the button group looks like when a click fails
+          const html = await page
+            .evaluate(
+              () =>
+                [...document.querySelectorAll(".page-actions .inner-group-button, .modal.show")]
+                  .map((n) => n.outerHTML.slice(0, 1200))
+                  .join(" --- "),
+            )
+            .catch(() => "n/a");
+          console.log(`[debug] ${lang}/${s.name} ${html}`);
+          await page
+            .screenshot({ path: join(OUT, lang, `FAILED-${s.name}.png`) })
+            .catch(() => {});
+        }
         results.push(
           `FAIL ${lang}/${s.name}: ${String(e.message).slice(0, 200)}`,
         );
