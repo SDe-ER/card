@@ -306,8 +306,9 @@ curl -s -G "https://<your-site>/api/method/card.gl.integrity.unlinked_customer_i
 Read only. The data of the Desk buttons **Link to monthly cards** and **Remove link to monthly cards** on the Sales
 Invoice form. For one invoice it says whether an active GL Posting Log holds it. If it does, it returns the log, its
 origin (`Linked` or `Built`) and its cards. If it does not and the link accepts the invoice (submitted, not a return,
-a debit note or an opening invoice, in the company currency, no submitted credit note), it returns the unlinked
-approved cards of the customer on the projects of the invoice (at most 100; `more_cards` is true when there are more).
+a debit note or an opening invoice, in the company currency, no submitted credit note), it returns `card_count`, the
+number of unlinked approved cards of the customer on the projects of the invoice. With `with_cards` set it also lists
+them, newest month first, at most 100 (`more_cards` is true when `card_count` is larger).
 
 **Permission:** Accounts Manager or System Manager; read on the Sales Invoice and on Card Monthly Card; the company
 of the invoice within the user's CARD and accounting scope. The same gates as the candidates list.
@@ -315,8 +316,9 @@ of the invoice within the user's CARD and accounting scope. The same gates as th
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `invoice` | string | Yes | Sales Invoice name. |
+| `with_cards` | int | No | 1 to list the candidate cards (default 0: only `card_count`). |
 
-**Returns:** `{"invoice", "eligible", "linked", "log", "origin", "net_total", "cards": [{"name", "month", "year",
+**Returns:** `{"invoice", "eligible", "linked", "log", "origin", "net_total", "card_count", "cards": [{"name", "month", "year",
 "project", "customer_net_amount"}], "more_cards", "linked_cards": [...]}`. **Side effects:** none.
 
 ```bash

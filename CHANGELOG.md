@@ -25,7 +25,9 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   `card.gl.integrity.customer_invoice_link_info` (GET) with the gates of the candidates list; it writes nothing.
   New form script `card/public/js/customer_invoice_link.js` for `Sales Invoice` (`doctype_js`). No patch, no schema
   change, no role or permission change; CARD posts no accounting entry. Owner approval of the UI is required before
-  merge. Arabic wording in `ar.po`.
+  merge. Arabic wording in `ar.po`. PR #355. Rollback: code only; remove the release that adds it. The buttons write
+  nothing themselves: only the link or the unlink that a user confirms in the dialog writes, and the existing
+  methods keep their own checks and audit comments.
 
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real

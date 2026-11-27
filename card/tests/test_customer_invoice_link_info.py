@@ -26,7 +26,7 @@ class TestCustomerInvoiceLinkInfo(_LinkBase):
 		other_project = self._out_card(project=self._second_project())  # not a project of the invoice
 		si = self._si(1600, vat=True)
 
-		info = customer_invoice_link_info(si.name)
+		info = customer_invoice_link_info(si.name, 1)
 
 		self.assertEqual((info["eligible"], info["linked"], info["log"]), (True, False, None))
 		self.assertEqual(flt(info["net_total"], 2), 1600.0)
@@ -40,13 +40,37 @@ class TestCustomerInvoiceLinkInfo(_LinkBase):
 		)
 		self.assertNotIn(other_project.name, [c["name"] for c in info["cards"]])
 
+	def test_the_card_list_is_read_only_when_asked_for(self):
+		self._out_card()
+		self._out_card(hours=(8,), customer_rate=500)
+		si = self._si(2000)
+		cheap = customer_invoice_link_info(si.name)
+		self.assertEqual((cheap["eligible"], cheap["card_count"], cheap["cards"]), (True, 2, []))
+		for flag in (1, "1"):
+			self.assertEqual(len(customer_invoice_link_info(si.name, flag)["cards"]), 2)
+		self.assertEqual(customer_invoice_link_info(si.name, 0)["cards"], [])
+
+	def test_the_list_is_newest_first_and_capped_with_the_total(self):
+		old = self._out_card()
+		new = self._out_card(hours=(8,), customer_rate=500)
+		frappe.db.set_value(CARD, new.name, "month", "10", update_modified=False)
+		si = self._si(2000)
+		with patch("card.gl.integrity.CANDIDATE_CARDS_MAX", 1):
+			info = customer_invoice_link_info(si.name, 1)
+		self.assertEqual([c["name"] for c in info["cards"]], [new.name])
+		self.assertEqual((info["card_count"], info["more_cards"]), (2, True))
+		info = customer_invoice_link_info(si.name, 1)
+		self.assertEqual([c["name"] for c in info["cards"]], [new.name, old.name])
+		self.assertFalse(info["more_cards"])
+
 	def test_cards_already_held_or_open_are_not_offered(self):
 		held = self._out_card()
 		self._link(self._si(1600), held)
 		open_card = self._out_card()
 		frappe.db.set_value(CARD, open_card.name, "workflow_state", STATE_OPEN_MONTH, update_modified=False)
 		si = self._si(500)
-		self.assertEqual(customer_invoice_link_info(si.name)["cards"], [])
+		info = customer_invoice_link_info(si.name, 1)
+		self.assertEqual((info["cards"], info["card_count"]), ([], 0))
 
 	def test_linked_invoice_returns_the_log_and_its_cards(self):
 		card = self._out_card()
@@ -121,8 +145,8 @@ class TestCustomerInvoiceLinkInfo(_LinkBase):
 		writes = frappe.db.transaction_writes
 		counts = (frappe.db.count(LOG), frappe.db.count("Comment"), frappe.db.count("Version"))
 		modified = frappe.db.get_value(CARD, card.name, "modified")
-		customer_invoice_link_info(si.name)
-		customer_invoice_link_info(linked.name)
+		customer_invoice_link_info(si.name, 1)
+		customer_invoice_link_info(linked.name, 1)
 		self.assertEqual(frappe.db.transaction_writes, writes)
 		self.assertEqual(
 			(frappe.db.count(LOG), frappe.db.count("Comment"), frappe.db.count("Version")), counts

@@ -10570,3 +10570,7 @@ msgstr "تم إلغاء الربط بالكروت الشهرية."
 #: card/public/js/customer_invoice_link.js
 msgid "Linked to monthly cards: {0}"
 msgstr "مربوطة بالكروت الشهرية: {0}"
+
+#: card/public/js/customer_invoice_link.js
+msgid "Showing the newest {0} of {1} monthly cards"
+msgstr "تظهر أحدث {0} كروت من {1} كارت شهري."

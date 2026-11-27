@@ -1596,17 +1596,21 @@ def _invoice_can_be_linked(inv):
 
 
 @frappe.whitelist(methods=["GET"])
-def customer_invoice_link_info(invoice: str):
+def customer_invoice_link_info(invoice: str, with_cards: int | str = 0):
 	"""Read only: what the Desk buttons "Link to monthly cards" and "Remove link to monthly cards" (FR-194,
 	FR-195) of a submitted Sales Invoice show. ``linked`` says whether an active GL Posting Log holds the invoice
 	(``log``, ``origin`` Linked or Built, and its cards in ``linked_cards``). An invoice that is not linked and
-	that the link accepts (``eligible``) gets the cards it could bill in ``cards``: the unlinked approved cards
-	of its customer on its projects, as the candidates list reads them (at most 100; ``more_cards``).
-	``net_total`` is the invoice net before VAT in the company currency.
+	that the link accepts (``eligible``) gets ``card_count``: how many unlinked approved cards of its customer
+	are on its projects, as the candidates list reads them. With ``with_cards`` set, ``cards`` lists them,
+	newest month first, at most 100 (``more_cards`` is true when ``card_count`` is larger); without it
+	``cards`` is empty, so the form can ask cheaply on every refresh and read the list only when the dialog
+	opens. ``net_total`` is the invoice net before VAT in the company currency.
 
 	Authorization, as the candidates list: Accounts Manager or System Manager; read on the invoice; the invoice
 	company within the caller's CARD and accounting scope; read on Card Monthly Card (the cards are read
 	through ``frappe.get_list``). It writes nothing."""
+	from frappe.utils import cint
+
 	_require_customer_link_role()
 	inv = frappe.get_doc("Sales Invoice", invoice)
 	inv.check_permission("read")
@@ -1623,6 +1627,7 @@ def customer_invoice_link_info(invoice: str):
 		"log": None,
 		"origin": None,
 		"net_total": flt(inv.base_net_total, 2),
+		"card_count": 0,
 		"cards": [],
 		"more_cards": False,
 		"linked_cards": [],
@@ -1670,8 +1675,11 @@ def customer_invoice_link_info(invoice: str):
 		for c in _unlinked_customer_cards(inv.company, [inv.customer])
 		if c.customer == inv.customer and c.project in invoice_by_project
 	]
-	result["more_cards"] = len(cards) > CANDIDATE_CARDS_MAX
-	result["cards"] = [_link_info_card(c) for c in cards[:CANDIDATE_CARDS_MAX]]
+	result["card_count"] = len(cards)
+	if cint(with_cards):
+		cards.sort(key=lambda c: (cint(c.year), cint(c.month), c.name), reverse=True)
+		result["more_cards"] = len(cards) > CANDIDATE_CARDS_MAX
+		result["cards"] = [_link_info_card(c) for c in cards[:CANDIDATE_CARDS_MAX]]
 	return result
 
 
