@@ -243,10 +243,10 @@ async function reportReady(page, runs) {
   const deadline = Date.now() + REPORT_TIMEOUT;
   for (;;) {
     const last = runs.at(-1);
-    if (last && (last.status >= 400 || last.status === 0))
-      throw new Error(
-        `report run failed: ${last.status ? `HTTP ${last.status}` : "request failed"} ${await last.message}`,
-      );
+    if (last && (last.status >= 400 || last.status === 0)) {
+      const cause = last.status ? `HTTP ${last.status}` : "request failed";
+      throw new Error(`report run failed: ${cause} ${await last.message}`);
+    }
     if (last && (await page.evaluate(reportDrawn))) return;
     if (Date.now() > deadline)
       throw new Error(last ? "report still loading" : "report did not run");
