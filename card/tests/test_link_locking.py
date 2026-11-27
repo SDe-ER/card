@@ -20,7 +20,9 @@ from card.gl.integrity import (
 	unlink_customer_invoice,
 	unlinked_customer_invoice_candidates,
 )
+from card.gl.journal_link import link_accrual_journal
 from card.gl.posting import build_monthly_posting
+from card.tests import test_settlement_phase1
 from card.tests.test_link_customer_invoice import CARD, LOG, SI, _LinkBase
 from card.tests.test_p0_posting_integrity import _P0Base
 
@@ -364,3 +366,180 @@ class TestReportAccessImport(UnitTestCase):
 		tree = ast.parse(inspect.getsource(card.report_access))
 		imported = {alias.name for node in tree.body if isinstance(node, ast.Import) for alias in node.names}
 		self.assertIn("frappe.permissions", imported)
+
+
+class TestCustomerLinkLockedIdentity(_LinkBase):
+	"""Review of the pull request (M1, M2): the company, the customer, the date and the total of the invoice, and
+	the company, the customer and the direction of each card, are read from the locked rows; the credit note
+	check is a locking read."""
+
+	def test_invoice_customer_changed_meanwhile_is_read_under_the_lock(self):
+		card = self._out_card()
+		si = self._si(1600)
+		frappe.db.set_value(SI, si.name, "customer", self._customer("-B"), update_modified=False)
+		with _snapshot(SI, customer=self.customer):
+			self._refused("belongs to another customer", si, card)
+
+	def test_invoice_total_and_date_of_the_log_are_read_under_the_lock(self):
+		card = self._out_card()
+		si = self._si(1600)
+		frappe.db.set_value(
+			SI, si.name, {"grand_total": 1840, "posting_date": "2026-10-02"}, update_modified=False
+		)
+		with _snapshot(SI, grand_total=1600, posting_date="2026-09-30"):
+			log = frappe.get_doc(LOG, self._link(si, card))
+		self.assertEqual((log.month, int(log.year), flt(log.amount, 2)), ("10", 2026, 1840.0))
+
+	def test_card_customer_changed_meanwhile_is_read_under_the_lock(self):
+		card = self._out_card()
+		si = self._si(1600)
+		frappe.db.set_value(CARD, card.name, "customer", self._customer("-B"), update_modified=False)
+		with _snapshot(CARD, customer=self.customer):
+			self._refused("belongs to another customer", si, card)
+
+	def test_card_direction_changed_meanwhile_is_read_under_the_lock(self):
+		from card.constants import DIR_INTERNAL, DIR_RENTED_OUT
+
+		card = self._out_card()
+		si = self._si(1600)
+		frappe.db.set_value(CARD, card.name, "card_direction", DIR_INTERNAL, update_modified=False)
+		with _snapshot(CARD, card_direction=DIR_RENTED_OUT):
+			self._refused("is not billed to a customer", si, card)
+
+	def test_credit_note_committed_after_the_snapshot_is_seen_by_a_locking_read(self):
+		from erpnext.controllers.sales_and_purchase_return import make_return_doc
+
+		card = self._out_card()
+		si = self._si(1600)
+		credit_note = make_return_doc(SI, si.name)
+		credit_note.insert(ignore_permissions=True)
+		credit_note.submit()
+		real = frappe.db.get_value
+
+		def get_value(doctype, filters=None, *args, **kwargs):
+			if (
+				doctype == SI
+				and isinstance(filters, dict)
+				and "return_against" in filters
+				and not kwargs.get("for_update")
+			):
+				return None
+			return real(doctype, filters, *args, **kwargs)
+
+		with patch.object(frappe.db, "get_value", side_effect=get_value):
+			self._refused("has a credit note", si, card)
+
+
+class TestSupplierLinkReviewFixes(_P0Base):
+	"""Review of the pull request (M4, Low)."""
+
+	def test_holder_read_runs_once_for_each_source_doctype(self):
+		from card.gl import events
+
+		first = self._rental_card()
+		second = self._rental_card()
+		fill = self._fill()  # 200
+		manual = self._manual_pi(1400)
+		with patch.object(events, "locked_active_holders", wraps=events.locked_active_holders) as holders:
+			link_supplier_invoice(
+				manual.name,
+				[
+					{"doctype": CARD, "name": first.name},
+					{"doctype": CARD, "name": second.name},
+					{"doctype": "Project Diesel Fill", "name": fill.name},
+				],
+			)
+		self.assertEqual(
+			sorted((call.args[0], len(call.args[1])) for call in holders.call_args_list),
+			[(CARD, 2), ("Project Diesel Fill", 1)],
+		)
+
+	def test_source_name_that_is_not_text_is_a_validation_message(self):
+		self._rental_card()
+		manual = self._manual_pi(600)
+		for entry in ({"doctype": CARD, "name": 5}, {"doctype": CARD, "name": None}, {"doctype": CARD}, "x"):
+			with (
+				self.subTest(entry=entry),
+				self.assertRaisesRegex(frappe.ValidationError, "Choose the CARD sources"),
+			):
+				link_supplier_invoice(manual.name, [entry])
+
+	def test_invoice_changed_while_linking_gets_a_clear_message(self):
+		card = self._rental_card()
+		manual = self._manual_pi(600, submit=False)
+		real = frappe.db.get_value
+
+		def get_value(doctype, filters=None, fieldname="name", *args, **kwargs):
+			out = real(doctype, filters, fieldname, *args, **kwargs)
+			# the plain read of the log controller answers from the snapshot: the supplier before the change
+			if doctype == PI and isinstance(fieldname, list) and "creation" in fieldname and out:
+				out.supplier = "TEST-SUPPLIER-BEFORE-THE-CHANGE"
+			return out
+
+		with (
+			patch.object(frappe.db, "get_value", side_effect=get_value),
+			self.assertRaisesRegex(frappe.ValidationError, "changed while it was being linked; try again"),
+		):
+			link_supplier_invoice(manual.name, [{"doctype": CARD, "name": card.name}])
+		self.assertFalse(frappe.db.exists(LOG, {"posting_doc": manual.name}))
+
+	def test_log_controller_writes_the_key_of_linked_posting_key(self):
+		from card.card.doctype.gl_posting_log.gl_posting_log import linked_posting_key
+
+		card = self._rental_card()
+		manual = self._manual_pi(600)
+		log = frappe.get_doc(LOG, link_supplier_invoice(manual.name, [{"doctype": CARD, "name": card.name}]))
+		self.assertEqual(
+			log.posting_key,
+			linked_posting_key(log.company, log.party_type, log.party, log.month, log.year, log.posting_doc),
+		)
+
+
+class TestAccrualJournalLinkLocking(_P0Base):
+	"""Review of the pull request (M3): the accrual Journal Entry link reads each card from its locked row and
+	finds its holder with the locking read."""
+
+	_accrual = test_settlement_phase1.TestAccrualJournalLink._accrual
+
+	def setUp(self):
+		super().setUp()
+		row = next(r for r in frappe.get_doc("Card Settings").company_settings if r.company == self.company)
+		self.payable = row.payable_account
+		self.cost_center = row.cost_center
+
+	def test_card_invoiced_meanwhile_is_refused_by_the_locked_read(self):
+		card = self._rental_card()
+		other = self._manual_pi(50)
+		je = self._accrual(flt(card.net_amount, 2))
+		frappe.db.set_value(
+			CARD, card.name, {"purchase_invoice": other.name, "posted": 1}, update_modified=False
+		)
+		with (
+			_snapshot(CARD, purchase_invoice=None, posted=0),
+			self.assertRaisesRegex(frappe.ValidationError, "already invoiced by " + other.name),
+		):
+			link_accrual_journal(je.name, [card.name])
+		self.assertFalse(frappe.db.exists(LOG, {"posting_doc": je.name}))
+
+	def test_card_amount_changed_meanwhile_is_compared_under_the_lock(self):
+		card = self._rental_card()
+		net = flt(card.net_amount, 2)
+		je = self._accrual(net)
+		frappe.db.set_value(CARD, card.name, "net_amount", net - 100, update_modified=False)
+		with (
+			_snapshot(CARD, net_amount=net),
+			self.assertRaisesRegex(frappe.ValidationError, "Cannot confirm the link"),
+		):
+			link_accrual_journal(je.name, [card.name])
+		self.assertFalse(frappe.db.exists(LOG, {"posting_doc": je.name}))
+
+	def test_card_held_meanwhile_is_refused_without_the_snapshot_holder_check(self):
+		card = self._rental_card()
+		draft = self._build()
+		je = self._accrual(flt(card.net_amount, 2))
+		with (
+			patch("card.gl.events.active_log_holding", return_value=None),
+			self.assertRaisesRegex(frappe.ValidationError, "already held by " + draft.name),
+		):
+			link_accrual_journal(je.name, [card.name])
+		self.assertFalse(frappe.db.exists(LOG, {"posting_doc": je.name}))
