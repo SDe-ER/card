@@ -18,7 +18,10 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-27 — Arabic wording of CARD screens no longer clashes with HRMS.** On a site that also runs HRMS,
+  three CARD words (**Deductions** in the two statements, **Workshop** in a transport, **Effective from** in an
+  operating group member) and the **Approved** status of a cash payment keep the CARD Arabic on CARD screens.
+  HRMS screens keep their own wording. This changes no role, permission or data.
 
 ## v4.14.1 — 2026-11-26
 
