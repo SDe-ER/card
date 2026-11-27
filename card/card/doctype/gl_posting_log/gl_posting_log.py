@@ -25,6 +25,14 @@ def build_posting_key(company, party_type, party, month, year):
 	)
 
 
+def linked_posting_key(company, party_type, party, month, year, posting_doc):
+	"""The posting key ``GLPostingLog.validate`` gives the active Linked log (sequence 1) of ``posting_doc``.
+	The link reads it with a locking read on the unique index of the key, to see a link of the same invoice
+	that another transaction committed (issue 340)."""
+	digest = hashlib.sha1((posting_doc or "").encode()).hexdigest()[:12]
+	return "{0}|L|{1}".format(build_posting_key(company, party_type, party, month, year), digest)
+
+
 # the party field of each posting document the builder creates
 POSTING_PARTY = {"Purchase Invoice": ("Supplier", "supplier"), "Sales Invoice": ("Customer", "customer")}
 
