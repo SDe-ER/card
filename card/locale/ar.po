@@ -10133,3 +10133,486 @@ msgstr "تم البناء"
 #: card/card/doctype/card_equipment_part/card_equipment_part.json
 msgid "Installation"
 msgstr "التركيب"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:183
+msgid " (Draft)"
+msgstr " (مسودة)"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:372
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:383
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:231
+msgid " to "
+msgstr " إلى "
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:385
+msgid " — Hours only until internal rates are defined."
+msgstr " — ساعات فقط إلى أن تُحدَّد الأسعار الداخلية."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:374
+msgid " — Issue date "
+msgstr " — تاريخ الإصدار "
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:370
+msgid " — Period from "
+msgstr " — الفترة من "
+
+#: card/gl/integrity.py:487
+msgid ", draft"
+msgstr "، مسودة"
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:376
+msgid ". Balance from accounting entries only; reconciliation difference = net cards − accrual entries."
+msgstr ". الرصيد من القيود المحاسبية فقط؛ فرق المطابقة = صافي الكروت − قيود الاستحقاق."
+
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:233
+msgid ". Click on the supplier name to open their statement."
+msgstr ". اضغط على اسم المورد لفتح كشف حسابه."
+
+#: card/open_month.py:573
+msgid "A row of monthly card {0} is changed only on the card itself."
+msgstr "بند الكارت الشهري {0} لا يُعدَّل إلا من الكارت نفسه."
+
+#: card/gl/integrity.py:260
+msgid "Account {0} must be an enabled leaf {1} account of {2}."
+msgstr "الحساب {0} يجب أن يكون حساب {1} فرعيًا ومفعّلًا تابعًا لـ{2}."
+
+#: card/gl/integrity.py:287
+msgid "An Accounts Manager can accept this cost center/account correction from the invoice (card.gl.integrity.accept_correction)."
+msgstr "يستطيع مدير الحسابات قبول تصحيح مركز التكلفة/الحساب هذا من الفاتورة (card.gl.integrity.accept_correction)."
+
+#: card/gl/integrity.py:1521
+msgid "CARD already booked postings for this supplier: {0}. Check that this invoice is not for the same operations."
+msgstr "سبق أن رحّلت CARD قيودًا لهذا المورد: {0}. تأكد أن هذه الفاتورة ليست عن نفس العمليات."
+
+#: card/gl/integrity.py:160
+#: card/gl/integrity.py:295
+msgid "CARD posting changed"
+msgstr "تغيّر ترحيل CARD"
+
+#: card/gl/integrity.py:683
+msgid "Cannot confirm the link: {0}. Link only the sources this invoice pays for, or accept the difference {1} with a reason."
+msgstr "تعذّر تأكيد الربط: {0}. اربط فقط المصادر التي تسددها هذه الفاتورة، أو اقبل الفرق {1} مع ذكر السبب."
+
+#: card/card/doctype/card_approval_delegation/card_approval_delegation.json:147
+#: card/card/doctype/card_cash_disbursement/card_cash_disbursement.json:241
+#: card/card/doctype/card_daily_log/card_daily_log.json:39
+#: card/card/doctype/card_daily_log_settings/card_daily_log_settings.json:30
+#: card/card/doctype/card_equipment/card_equipment.json:902
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json:117
+#: card/card/doctype/card_equipment_category/card_equipment_category.json:57
+#: card/card/doctype/card_equipment_customer/card_equipment_customer.json:143
+#: card/card/doctype/card_equipment_make/card_equipment_make.json:64
+#: card/card/doctype/card_equipment_model/card_equipment_model.json:96
+#: card/card/doctype/card_equipment_part/card_equipment_part.json:311
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json:143
+#: card/card/doctype/card_equipment_type/card_equipment_type.json:97
+#: card/card/doctype/card_monthly_card/card_monthly_card.json:714
+#: card/card/doctype/card_period_run/card_period_run.json:39
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json:236
+#: card/card/doctype/card_settings/card_settings.json:557
+#: card/card/doctype/card_stop_reason/card_stop_reason.json:126
+#: card/card/doctype/diesel_dispense/diesel_dispense.json:187
+#: card/card/doctype/employee_tool_custody/employee_tool_custody.json:278
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json:141
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.json:168
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json:161
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json:95
+#: card/card/doctype/equipment_transport/equipment_transport.json:709
+#: card/card/doctype/gl_posting_log/gl_posting_log.json:267
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json:591
+msgid "Card Manager"
+msgstr "مدير Card"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json:66
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.json:196
+msgid "Card Operator"
+msgstr "مشغّل Card"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json:54
+#: card/card/doctype/card_equipment/card_equipment.json:925
+#: card/card/doctype/card_equipment_make/card_equipment_make.json:71
+#: card/card/doctype/card_equipment_model/card_equipment_model.json:103
+#: card/card/doctype/card_equipment_part/card_equipment_part.json:319
+#: card/card/doctype/card_stop_reason/card_stop_reason.json:132
+#: card/card/doctype/employee_tool_custody/employee_tool_custody.json:306
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json:157
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.json:184
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json:177
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json:102
+msgid "Card Supervisor"
+msgstr "مشرف Card"
+
+#: card/card/doctype/card_daily_log/card_daily_log.json:78
+#: card/card/doctype/card_equipment/card_equipment.json:912
+#: card/card/doctype/card_equipment_assignment/card_equipment_assignment.json:127
+#: card/card/doctype/card_equipment_category/card_equipment_category.json:67
+#: card/card/doctype/card_equipment_customer/card_equipment_customer.json:153
+#: card/card/doctype/card_equipment_make/card_equipment_make.json:77
+#: card/card/doctype/card_equipment_model/card_equipment_model.json:109
+#: card/card/doctype/card_equipment_supplier/card_equipment_supplier.json:153
+#: card/card/doctype/card_equipment_type/card_equipment_type.json:107
+#: card/card/doctype/card_monthly_card/card_monthly_card.json:725
+#: card/card/doctype/card_rate_agreement/card_rate_agreement.json:252
+#: card/card/doctype/card_stop_reason/card_stop_reason.json:137
+#: card/card/doctype/diesel_dispense/diesel_dispense.json:198
+#: card/card/doctype/employee_tool_custody/employee_tool_custody.json:316
+#: card/card/doctype/equipment_meter_reading/equipment_meter_reading.json:169
+#: card/card/doctype/equipment_needs_request/equipment_needs_request.json:205
+#: card/card/doctype/equipment_needs_review/equipment_needs_review.json:189
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.json:107
+#: card/card/doctype/equipment_transport/equipment_transport.json:720
+#: card/card/doctype/project_diesel_fill/project_diesel_fill.json:602
+msgid "Card User"
+msgstr "مستخدم Card"
+
+#: card/gl/journal_link.py:91
+msgid "Card {0} is open for its month and not finally approved."
+msgstr "الكارت {0} مفتوح لشهره ولم يُعتمد نهائيًا."
+
+#: card/gl/integrity.py:1529
+msgid "Check for a duplicate expense"
+msgstr "تحقق من وجود مصروف مكرر"
+
+#: card/gl/integrity.py:598
+msgid "Choose the CARD sources this invoice pays for."
+msgstr "اختر مصادر CARD التي تسددها هذه الفاتورة."
+
+#: card/gl/integrity.py:243
+msgid "Cost center {0} is not an enabled leaf cost center of {1}."
+msgstr "مركز التكلفة {0} ليس مركز تكلفة فرعيًا ومفعّلًا تابعًا لـ{1}."
+
+#: card/gl/posting.py:1374
+msgid "Diesel VAT basis needs review"
+msgstr "أساس ضريبة الديزل يحتاج مراجعة"
+
+#: card/gl/posting.py:1390
+msgid "Diesel price includes VAT: fills gross {0}, net booked {1}, VAT {2} (rounding {3})."
+msgstr "سعر الديزل شامل الضريبة: إجمالي التعبئات {0}، الصافي المرحَّل {1}، الضريبة {2} (فرق التقريب {3})."
+
+#: card/gl/integrity.py:380
+#: card/gl/integrity.py:394
+msgid "Duplicate CARD posting"
+msgstr "ترحيل CARD مكرر"
+
+#: card/cash_disbursement.py:67
+msgid "Enter the evidence of the cash payment (receipt number or reference)."
+msgstr "أدخل إثبات الدفعة النقدية (رقم الإيصال أو المرجع)."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:368
+msgid "Equipment supplier statement: "
+msgstr "كشف حساب مورد المعدات: "
+
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:229
+msgid "Equipment suppliers summary — Period from "
+msgstr "ملخص موردي المعدات — الفترة من "
+
+#: card/gl/integrity.py:311
+msgid "Give the reason for the correction."
+msgstr "اكتب سبب التصحيح."
+
+#: frontend/src/pages/NewRequest.vue:48
+msgid "Line {0} needs an item and a quantity."
+msgstr "السطر {0} يحتاج صنفًا وكمية."
+
+#: card/gl/integrity.py:706
+msgid "Linked by {0}: supplier invoice {1} (bill no. {2}) net {3} / total {4}, CARD sources net {5}, {6}. {7}"
+msgstr "ربطها {0}: فاتورة المورد {1} (رقم الفاتورة {2}) صافي {3} / إجمالي {4}، صافي مصادر CARD {5}، {6}. {7}"
+
+#: card/gl/integrity.py:743
+#: card/gl/integrity.py:754
+msgid "Linked invoice changed"
+msgstr "تغيّرت الفاتورة المرتبطة"
+
+#: card/open_month.py:291
+msgid "Monthly card {0} cannot be changed: {1}."
+msgstr "لا يمكن تعديل الكارت الشهري {0}: {1}."
+
+#: card/gl/integrity.py:510
+msgid "Not a candidate invoice for this supplier and month: {0}"
+msgstr "ليست فاتورة مرشّحة لهذا المورد وهذا الشهر: {0}"
+
+#: card/gl/integrity.py:305
+msgid "Only CARD Purchase or Sales Invoices can be corrected."
+msgstr "لا يُصحَّح إلا فواتير الشراء أو المبيعات المرحَّلة من CARD."
+
+#: card/card/doctype/card_monthly_card/card_monthly_card.py:239
+msgid "Only a Card Manager can set or change the supplier of this card; it is {0}, the equipment's owner is {1}."
+msgstr "مدير Card فقط يمكنه تعيين مورد هذا الكارت أو تغييره؛ المورد الحالي {0} ومالك المعدة {1}."
+
+#: card/gl/integrity.py:323
+msgid "Only a draft can be corrected."
+msgstr "لا يُصحَّح إلا المستند في حالة مسودة."
+
+#: card/gl/integrity.py:308
+msgid "Only an Accounts Manager may accept a CARD posting correction."
+msgstr "مدير الحسابات فقط يمكنه قبول تصحيح ترحيل CARD."
+
+#: card/gl/integrity.py:570
+msgid "Only an accountant may link supplier invoices to CARD sources."
+msgstr "المحاسب فقط يمكنه ربط فواتير الموردين بمصادر CARD."
+
+#: card/cash_disbursement.py:193
+msgid "Only an approved or failed cash payment can be queued for posting; {0} is {1}."
+msgstr "لا يمكن وضع دفعة نقدية في طابور الترحيل إلا إذا كانت معتمدة أو فاشلة؛ {0} حالتها {1}."
+
+#: card/gl/integrity.py:333
+msgid "Only cost center and account changes can be accepted; {0}."
+msgstr "لا يُقبل إلا تغيير مركز التكلفة والحساب؛ {0}."
+
+#: card/cash_disbursement.py:344
+msgid "Only the accounting service identity can post a cash payment."
+msgstr "هوية خدمة المحاسبة فقط يمكنها ترحيل دفعة نقدية."
+
+#: card/cash_disbursement.py:614
+msgid "Only the accounting service identity can run the posting queue."
+msgstr "هوية خدمة المحاسبة فقط يمكنها تشغيل طابور الترحيل."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:381
+msgid "Operating owned equipment by project — Period from "
+msgstr "تشغيل المعدات المملوكة حسب المشروع — الفترة من "
+
+#: card/gl/events.py:279
+#: card/gl/events.py:310
+#: card/gl/integrity.py:500
+msgid "Possible duplicate expense"
+msgstr "مصروف مكرر محتمل"
+
+#: card/gl/integrity.py:291
+msgid "Rebuild the posting from CARD (fix the source documents first)."
+msgstr "أعد بناء الترحيل من CARD (صحّح المستندات المصدر أولًا)."
+
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:347
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:203
+#: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:213
+msgid "Reconciliation difference"
+msgstr "فرق المطابقة"
+
+#: card/gl/posting.py:1341
+msgid "Reviewed as unrelated by {0}: {1}."
+msgstr "راجعه {0} وقرر أنه غير مرتبط: {1}."
+
+#: card/card/doctype/equipment_operating_group/equipment_operating_group.py:64
+msgid "Select the company."
+msgstr "اختر الشركة."
+
+#: card/gl/events.py:307
+msgid "Supplier invoice no. {0} is already booked by CARD posting {1}; correct or cancel that posting instead of booking it again."
+msgstr "رقم فاتورة المورد {0} مرحَّل بالفعل في ترحيل CARD {1}؛ صحّح ذلك الترحيل أو ألغه بدل ترحيله مرة أخرى."
+
+#: card/gl/events.py:276
+msgid "Supplier invoice no. {0} is already booked on {1}; link that invoice instead of booking it again."
+msgstr "رقم فاتورة المورد {0} مرحَّل بالفعل في {1}؛ اربط تلك الفاتورة بدل ترحيلها مرة أخرى."
+
+#: card/gl/integrity.py:497
+msgid "Supplier invoices booked around this month may cover the same operations: {0}. Link each one to the CARD sources it pays for (card.gl.integrity.link_supplier_invoice), or have an accountant confirm it is unrelated, then build again."
+msgstr "قد تغطي فواتير موردين مرحَّلة حول هذا الشهر نفس العمليات: {0}. اربط كل فاتورة بمصادر CARD التي تسددها (card.gl.integrity.link_supplier_invoice)، أو اطلب من المحاسب تأكيد أنها غير مرتبطة، ثم أعد البناء."
+
+#: card/gl/posting.py:1355
+msgid "Tax template {0} must have exactly one VAT rate to post diesel."
+msgstr "قالب الضريبة {0} يجب أن يحتوي على نسبة ضريبة قيمة مضافة واحدة بالضبط لترحيل الديزل."
+
+#: card/gl/posting.py:1371
+msgid "The VAT basis of the diesel price is not verified for company {0} (Card Settings: Diesel price VAT basis); supplier {1} is VAT-registered, so fills {2} need review before posting."
+msgstr "أساس ضريبة سعر الديزل غير موثّق للشركة {0} (إعدادات Card: أساس ضريبة سعر الديزل)؛ المورد {1} مسجّل في ضريبة القيمة المضافة، لذلك تحتاج التعبئات {2} مراجعة قبل الترحيل."
+
+#: card/cash_disbursement.py:255
+msgid "The accounting identity is not granted the company of this cash payment."
+msgstr "هوية المحاسبة غير مخوّلة بشركة هذه الدفعة النقدية."
+
+#: card/cash_disbursement.py:65
+#: card/cash_disbursement.py:527
+msgid "The cash payment on row {0} must be an amount above zero."
+msgstr "مبلغ الدفعة النقدية في السطر {0} يجب أن يكون أكبر من صفر."
+
+#: card/cash_disbursement.py:301
+msgid "The linked journal entry {0} does not match cash payment {1}: {2}."
+msgstr "قيد اليومية المرتبط {0} لا يطابق الدفعة النقدية {1}: {2}."
+
+#: card/cash_disbursement.py:231
+msgid "The source of cash payment {0} changed after approval (row, amount, Cash account or Supplier); it is not posted."
+msgstr "تغيّر مصدر الدفعة النقدية {0} بعد اعتمادها (السطر أو المبلغ أو حساب النقدية أو المورد)؛ لن تُرحَّل."
+
+#: card/gl/integrity.py:319
+msgid "You are not permitted to correct CARD postings of company {0}."
+msgstr "لا تملك صلاحية تصحيح ترحيلات CARD للشركة {0}."
+
+#: card/cash_disbursement.py:310
+msgid "another company"
+msgstr "شركة أخرى"
+
+#: card/cash_disbursement.py:314
+msgid "it does not have the two accounts of a payment"
+msgstr "ليس فيه حسابا الدفعة"
+
+#: card/cash_disbursement.py:308
+msgid "it is cancelled"
+msgstr "ملغى"
+
+#: card/open_month.py:195
+msgid "it is held by {0}"
+msgstr "محجوز بواسطة {0}"
+
+#: card/cash_disbursement.py:318
+msgid "its debit and credit do not form one payment"
+msgstr "المدين والدائن فيه لا يكوّنان دفعة واحدة"
+
+#: card/gl/integrity.py:209
+msgid "line count: {0} → {1}"
+msgstr "عدد البنود: {0} ← {1}"
+
+#: card/gl/integrity.py:214
+msgid "line {0} {1}: {2} → {3}"
+msgstr "البند {0} {1}: {2} ← {3}"
+
+#: card/cash_disbursement.py:312
+msgid "not created by this accounting identity"
+msgstr "لم تنشئه هوية المحاسبة هذه"
+
+#: card/gl/posting.py:1383
+msgid "price incl. VAT, net booked"
+msgstr "السعر شامل الضريبة، الصافي المرحَّل"
+
+#: card/gl/integrity.py:216
+msgid "tax rows changed"
+msgstr "تغيّرت صفوف الضريبة"
+
+#: card/gl/integrity.py:678
+msgid "the CARD sources total {0} net, {1} is net {2}"
+msgstr "صافي مصادر CARD {0}، وصافي {1} هو {2}"
+
+#: card/cash_disbursement.py:327
+msgid "the Cash account or amount differs from the approved payment"
+msgstr "حساب النقدية أو المبلغ يختلف عن الدفعة المعتمدة"
+
+#: card/gl/integrity.py:674
+msgid "the VAT basis of fills {0} is not verified (Card Settings: Diesel price VAT basis)"
+msgstr "أساس ضريبة التعبئات {0} غير موثّق (إعدادات Card: أساس ضريبة سعر الديزل)"
+
+#: card/cash_disbursement.py:325
+msgid "the amount differs from the approved amount"
+msgstr "المبلغ يختلف عن المبلغ المعتمد"
+
+#: card/cash_disbursement.py:323
+msgid "the debit is not on the Supplier's payable account"
+msgstr "المدين ليس على حساب الدائنين للمورد"
+
+#: card/cash_disbursement.py:321
+msgid "the party is not the Supplier of the payment"
+msgstr "الطرف ليس مورد الدفعة"
+
+#: card/gl/integrity.py:740
+msgid "{0} changed company or supplier after it was linked to CARD sources; delete the link by deleting or cancelling the invoice and link again."
+msgstr "{0} تغيّرت شركته أو مورده بعد ربطه بمصادر CARD؛ احذف الربط بحذف الفاتورة أو إلغائها ثم اربطها من جديد."
+
+#: card/gl/integrity.py:294
+msgid "{0} differs from what CARD built: {1}. {2}"
+msgstr "{0} يختلف عما بنته CARD: {1}. {2}"
+
+#: card/gl/integrity.py:494
+msgid "{0} invoice(s) you cannot open"
+msgstr "{0} فاتورة لا يمكنك فتحها"
+
+#: card/gl/integrity.py:584
+msgid "{0} is cancelled or a return; link the valid supplier invoice."
+msgstr "{0} ملغاة أو مرتجع؛ اربط فاتورة المورد السارية."
+
+#: card/gl/integrity.py:751
+msgid "{0} is net {1}, but it was linked to CARD sources for net {2}; delete or cancel it and link again."
+msgstr "صافي {0} هو {1}، لكنه رُبط بمصادر CARD بصافي {2}؛ احذفه أو ألغه ثم اربطه من جديد."
+
+#: card/gl/integrity.py:603
+msgid "{0} is not a CARD source type."
+msgstr "{0} ليس نوع مصدر في CARD."
+
+#: card/gl/integrity.py:328
+msgid "{0} is not a CARD-built posting."
+msgstr "{0} ليس ترحيلًا مبنيًا من CARD."
+
+#: card/gl/integrity.py:391
+msgid "{0} names {1} {2}, already booked by {3}; the same operation would be booked twice."
+msgstr "{0} يذكر {1} {2} المرحَّل بالفعل في {3}؛ ستُرحَّل نفس العملية مرتين."
+
+#: card/gl/integrity.py:377
+msgid "{0} repeats the lines of CARD posting {1}; the same sources would be booked twice."
+msgstr "{0} يكرر بنود ترحيل CARD {1}؛ ستُرحَّل نفس المصادر مرتين."
+
+#: card/gl/integrity.py:271
+msgid "{0} was built before CARD recorded invoice signatures; rebuild the posting from CARD before submitting it."
+msgstr "{0} بُني قبل أن تسجّل CARD توقيعات الفواتير؛ أعد بناء الترحيل من CARD قبل اعتماده."
+
+#: card/gl/integrity.py:631
+msgid "{0} {1} belongs to another company or supplier than {2}."
+msgstr "{0} {1} يخص شركة أو موردًا غير {2}."
+
+#: card/gl/integrity.py:650
+msgid "{0} {1} is already held by {2}."
+msgstr "{0} {1} محجوز بالفعل بواسطة {2}."
+
+#: card/gl/integrity.py:637
+msgid "{0} {1} is already invoiced by {2}."
+msgstr "{0} {1} مفوتر بالفعل في {2}."
+
+#: card/gl/integrity.py:605
+#: card/gl/integrity.py:798
+#: card/gl/integrity.py:940
+msgid "{0} {1} is listed twice."
+msgstr "{0} {1} مذكور مرتين."
+
+#: card/gl/integrity.py:628
+#: card/gl/integrity.py:951
+msgid "{0} {1} is not submitted."
+msgstr "{0} {1} غير معتمد."
+
+#: card/gl/posting.py:1085
+msgid "{0} {1} was just reserved by another posting; build again."
+msgstr "{0} {1} حجزه ترحيل آخر للتو؛ أعد البناء."
+
+#: card/gl/integrity.py:655
+msgid "{0} {1} was recorded on supplier invoice no. {2}, not on {3} (bill no. {4})."
+msgstr "{0} {1} سُجّل على فاتورة المورد رقم {2}، وليس على {3} (رقم الفاتورة {4})."
+
+#: card/gl/integrity.py:207
+msgid "{0}: {1} → {2}"
+msgstr "{0}: {1} ← {2}"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "إيجار من الباطن"
+msgstr "إيجار من الباطن"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+#: card/card/doctype/card_settings/card_settings.json
+msgid "بالشهر"
+msgstr "بالشهر"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "تشغيل داخلي"
+msgstr "تشغيل داخلي"
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "ثابت"
+msgstr "ثابت"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "مؤجَّرة لعميل"
+msgstr "مؤجَّرة لعميل"
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "متغير"
+msgstr "متغير"
+
+#: card/card/doctype/card_equipment/card_equipment.json
+#: card/card/doctype/card_monthly_card/card_monthly_card.json
+msgid "مستأجَرة من مورد"
+msgstr "مستأجَرة من مورد"
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "معدات ملك"
+msgstr "معدات ملك"
+
+#: card/card/doctype/card_settings/card_settings.json
+msgid "مورد"
+msgstr "مورد"
