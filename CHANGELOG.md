@@ -28,6 +28,11 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
     status of a cash payment shows the CARD Arabic `معتمد`.
   - Tests: `test_no_generic_msgid_overrides` compares with every installed app that ships a `locale` folder
     (new helper `other_apps_with_locale`, with its own test); `GENERIC_WORDS` lists the three words.
+  - `card/locale/main.pot` is regenerated with Frappe's own extractors (`frappe/gettext`, `version-16`, Babel
+    2.16.0, run without a bench) and merged with the old file. 146 old entries stay by hand because no extractor
+    reads their source (workspace, number card and print format fixtures, and strings that left the code), and
+    the 14 hand-set msgstr values stay because `test_every_new_msgid_is_translated_in_every_locale` reads them.
+    A later `bench generate-pot-file` run drops these entries, so merge the old file again before a commit.
   - Docs screenshot tooling (`website/scripts/screenshots/`): `ci_bootstrap.py` adds the roles also to an
     existing demo user; `capture.mjs` also guards `/desk/query-report/` routes and records `requestfailed`
     events of the report run with their error text.
