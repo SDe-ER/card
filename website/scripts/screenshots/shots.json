@@ -274,10 +274,7 @@
       "waitSel": ".modal.show .frappe-control[data-fieldname=\"reason\"]",
       "clickSteps": [
         ".inner-group-button[data-label=\"CARD\"] button",
-        [
-          "Link to monthly cards",
-          "ربط بالكروت الشهرية"
-        ],
+        "[role=\"menuitem\"]",
         ".modal.show .frappe-control[data-fieldname=\"card_0\"] input",
         ".modal.show .frappe-control[data-fieldname=\"card_1\"] input"
       ]
@@ -292,10 +289,7 @@
       "waitSel": ".modal.show .frappe-control[data-fieldname=\"reason\"]",
       "clickSteps": [
         ".inner-group-button[data-label=\"CARD\"] button",
-        [
-          "Remove link to monthly cards",
-          "إلغاء الربط بالكروت الشهرية"
-        ]
+        "[role=\"menuitem\"]"
       ]
     }
   ]
