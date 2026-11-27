@@ -20,6 +20,16 @@ per site.
 
 - **2026-11-27 — Buttons on the Sales Invoice to link it to its monthly cards and to remove the link.** On a submitted sales invoice, the group **CARD** now shows **Link to monthly cards** to an Accounts Manager or a System Manager. A dialog lists the unlinked approved cards of the customer on the projects of the invoice, shows the invoice net and the total of the ticked cards, and asks for a reason. A System Manager also sees **Remove link to monthly cards** on an invoice that a person linked. The buttons use the existing link and unlink methods, so every check stays the same, and a new read-only method gives the dialog its data. This changes no role or permission, and CARD posts no accounting entry.
 
+## v4.14.3 — 2026-11-27
+
+Patch release on top of v4.14.2. It corrects the spelling of the word Card in translations and shows one more word in Arabic. It changes no role, permission or data, and CARD posts no accounting entry.
+
+- **2026-11-27 — The spelling "Card" is back in translated number-card labels.** The word "CARD" that v4.14.1 and v4.14.2 added to
+  translations (274 texts) reads "Card" again. Older texts keep "CARD". This changes no role, permission or data.
+- **2026-11-27 — "Workshop" reads "ورشة صيانة" in Arabic when a transport is only shown.** The transport form, its
+  list and the transport items now show the Arabic word of CARD for the places of a move. This changes no role,
+  permission or data.
+
 ## v4.14.2 — 2026-11-27
 
 Patch release on top of v4.14.1. It makes the link of an invoice to its monthly cards safer when two people work at the same time, and it improves the Arabic wording of CARD screens. It changes no role or permission, and CARD posts no accounting entry.

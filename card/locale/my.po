@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³ လျှင်"
 
 msgid "Loads last month"
-msgstr "ပြီးခဲ့သောလ ခရီးစဉ် (CARD)"
+msgstr "ပြီးခဲ့သောလ ခရီးစဉ် (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "ဖောက်သည်နှုန်းအမျိုးအစား m³ လျှင် ဖြစ်သော ကတ်တွင်သာ ခရီးစဉ် မှတ်တမ်းတင်နိုင်သည်"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "ပြီးခဲ့သောလက ကတ်များ"
 
 msgid "Rented equipment (CARD)"
-msgstr "ငှားရမ်းထားသော စက်ပစ္စည်းများ (CARD)"
+msgstr "ငှားရမ်းထားသော စက်ပစ္စည်းများ (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "ငှားရမ်းထားသော စက်ပစ္စည်းများ (CARD)"
+msgstr "ငှားရမ်းထားသော စက်ပစ္စည်းများ (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "ပြီးခဲ့သောလ ခရီးစဉ် (CARD)"
+msgstr "ပြီးခဲ့သောလ ခရီးစဉ် (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "မူကြမ်းကတ်များ (CARD)"
+msgstr "မူကြမ်းကတ်များ (Card)"
 
 msgid "كروت مسودة"
-msgstr "မူကြမ်းကတ်များ (CARD)"
+msgstr "မူကြမ်းကတ်များ (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "အတွင်းနှုန်းမရှိသော ကတ်များ (CARD)"
+msgstr "အတွင်းနှုန်းမရှိသော ကတ်များ (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "အတွင်းနှုန်းမရှိသော ကတ်များ (CARD)"
+msgstr "အတွင်းနှုန်းမရှိသော ကတ်များ (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "နှုန်းမရှိသော လည်ပတ်နာရီများ (CARD)"
+msgstr "နှုန်းမရှိသော လည်ပတ်နာရီများ (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "နှုန်းမရှိသော လည်ပတ်နာရီများ (CARD)"
+msgstr "နှုန်းမရှိသော လည်ပတ်နာရီများ (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "ဖောက်သည်အကျဉ်းချုပ် (CARD)"

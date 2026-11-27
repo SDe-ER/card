@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Per meter kubik"
 
 msgid "Loads last month"
-msgstr "Muatan bulan lalu (CARD)"
+msgstr "Muatan bulan lalu (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Muatan hanya dapat dicatat pada kartu dengan tipe tarif pelanggan per m³"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Kartu bulan lalu"
 
 msgid "Rented equipment (CARD)"
-msgstr "Peralatan sewaan (CARD)"
+msgstr "Peralatan sewaan (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Peralatan sewaan (CARD)"
+msgstr "Peralatan sewaan (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Muatan bulan lalu (CARD)"
+msgstr "Muatan bulan lalu (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Kartu draf (CARD)"
+msgstr "Kartu draf (Card)"
 
 msgid "كروت مسودة"
-msgstr "Kartu draf (CARD)"
+msgstr "Kartu draf (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Kartu tanpa tarif internal (CARD)"
+msgstr "Kartu tanpa tarif internal (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Kartu tanpa tarif internal (CARD)"
+msgstr "Kartu tanpa tarif internal (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Jam operasional tanpa tarif (CARD)"
+msgstr "Jam operasional tanpa tarif (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Jam operasional tanpa tarif (CARD)"
+msgstr "Jam operasional tanpa tarif (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Ringkasan pelanggan (CARD)"

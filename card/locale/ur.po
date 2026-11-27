@@ -392,13 +392,13 @@ msgid "إجمالي لترات الديزل"
 msgstr "ڈیزل کے کل لیٹر"
 
 msgid "المعدات المؤجرة"
-msgstr "کرائے کی مشینری (CARD)"
+msgstr "کرائے کی مشینری (Card)"
 
 msgid "كروت الشهر الماضي"
 msgstr "گزشتہ ماہ کے کارڈز"
 
 msgid "كروت مسودة"
-msgstr "مسودہ کارڈز (CARD)"
+msgstr "مسودہ کارڈز (Card)"
 
 msgid "مبالغ الشهر الماضي"
 msgstr "سپلائرز کی آپریٹنگ مالیت - گزشتہ ماہ"
@@ -419,10 +419,10 @@ msgid "قيمة تشغيل داخلي - الشهر الماضي"
 msgstr "اندرونی آپریٹنگ مالیت - گزشتہ ماہ"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "اندرونی ریٹ کے بغیر کارڈز (CARD)"
+msgstr "اندرونی ریٹ کے بغیر کارڈز (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (CARD)"
+msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (Card)"
 
 msgid "كارت تشغيل شهري"
 msgstr "ماہانہ آپریشن کارڈ"
@@ -506,7 +506,7 @@ msgid "بالمتر المكعب"
 msgstr "فی مکعب میٹر"
 
 msgid "Loads last month"
-msgstr "گزشتہ ماہ کے لوڈ (CARD)"
+msgstr "گزشتہ ماہ کے لوڈ (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "لوڈ صرف اس کارڈ پر درج کیے جا سکتے ہیں جس کی کسٹمر ریٹ کی قسم فی m³ ہو"
@@ -600,19 +600,19 @@ msgid "Cards last month"
 msgstr "گزشتہ ماہ کے کارڈز"
 
 msgid "Rented equipment (CARD)"
-msgstr "کرائے کی مشینری (CARD)"
+msgstr "کرائے کی مشینری (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "گزشتہ ماہ کے لوڈ (CARD)"
+msgstr "گزشتہ ماہ کے لوڈ (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "مسودہ کارڈز (CARD)"
+msgstr "مسودہ کارڈز (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "اندرونی ریٹ کے بغیر کارڈز (CARD)"
+msgstr "اندرونی ریٹ کے بغیر کارڈز (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (CARD)"
+msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "کسٹمر خلاصہ (CARD)"
@@ -636,7 +636,7 @@ msgid "Transport cost by project (CARD)"
 msgstr "پروجیکٹ کے لحاظ سے ترسیل کی لاگت (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "میٹر کی مطابقت (CARD)"
+msgstr "میٹر کی مطابقت (Card)"
 
 msgid "Equipment transport (CARD)"
 msgstr "مشینری کی ترسیل (CARD)"

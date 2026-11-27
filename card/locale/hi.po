@@ -392,13 +392,13 @@ msgid "إجمالي لترات الديزل"
 msgstr "कुल डीज़ल लीटर"
 
 msgid "المعدات المؤجرة"
-msgstr "किराये के उपकरण (CARD)"
+msgstr "किराये के उपकरण (Card)"
 
 msgid "كروت الشهر الماضي"
 msgstr "पिछले महीने के कार्ड"
 
 msgid "كروت مسودة"
-msgstr "ड्राफ़्ट कार्ड (CARD)"
+msgstr "ड्राफ़्ट कार्ड (Card)"
 
 msgid "مبالغ الشهر الماضي"
 msgstr "आपूर्तिकर्ता संचालन मूल्य - पिछला महीना"
@@ -419,10 +419,10 @@ msgid "قيمة تشغيل داخلي - الشهر الماضي"
 msgstr "आंतरिक संचालन मूल्य - पिछला महीना"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "आंतरिक दर के बिना कार्ड (CARD)"
+msgstr "आंतरिक दर के बिना कार्ड (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "बिना दर के संचालन घंटे (CARD)"
+msgstr "बिना दर के संचालन घंटे (Card)"
 
 msgid "كارت تشغيل شهري"
 msgstr "मासिक संचालन कार्ड"
@@ -506,7 +506,7 @@ msgid "بالمتر المكعب"
 msgstr "प्रति घन मीटर"
 
 msgid "Loads last month"
-msgstr "पिछले महीने के लोड (CARD)"
+msgstr "पिछले महीने के लोड (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "लोड केवल उस कार्ड पर दर्ज किए जा सकते हैं जिसका ग्राहक दर प्रकार प्रति घन मीटर है"
@@ -600,19 +600,19 @@ msgid "Cards last month"
 msgstr "पिछले महीने के कार्ड"
 
 msgid "Rented equipment (CARD)"
-msgstr "किराये के उपकरण (CARD)"
+msgstr "किराये के उपकरण (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "पिछले महीने के लोड (CARD)"
+msgstr "पिछले महीने के लोड (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "ड्राफ़्ट कार्ड (CARD)"
+msgstr "ड्राफ़्ट कार्ड (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "आंतरिक दर के बिना कार्ड (CARD)"
+msgstr "आंतरिक दर के बिना कार्ड (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "बिना दर के संचालन घंटे (CARD)"
+msgstr "बिना दर के संचालन घंटे (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "ग्राहक सारांश (CARD)"

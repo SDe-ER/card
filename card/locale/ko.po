@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³당"
 
 msgid "Loads last month"
-msgstr "지난달 운반 횟수 (CARD)"
+msgstr "지난달 운반 횟수 (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "고객 요율 유형이 m³당인 카드에만 운반 횟수를 기록할 수 있습니다"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "지난달 카드"
 
 msgid "Rented equipment (CARD)"
-msgstr "임대 장비 (CARD)"
+msgstr "임대 장비 (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "임대 장비 (CARD)"
+msgstr "임대 장비 (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "지난달 운반 횟수 (CARD)"
+msgstr "지난달 운반 횟수 (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "임시 카드 (CARD)"
+msgstr "임시 카드 (Card)"
 
 msgid "كروت مسودة"
-msgstr "임시 카드 (CARD)"
+msgstr "임시 카드 (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "내부 단가 없는 카드 (CARD)"
+msgstr "내부 단가 없는 카드 (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "내부 단가 없는 카드 (CARD)"
+msgstr "내부 단가 없는 카드 (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "단가 없는 운영 시간 (CARD)"
+msgstr "단가 없는 운영 시간 (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "단가 없는 운영 시간 (CARD)"
+msgstr "단가 없는 운영 시간 (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "고객 요약 (CARD)"

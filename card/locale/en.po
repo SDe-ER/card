@@ -194,13 +194,13 @@ msgid "إجمالي لترات الديزل"
 msgstr "Total Diesel Litres"
 
 msgid "المعدات المؤجرة"
-msgstr "Rented equipment (CARD)"
+msgstr "Rented equipment (Card)"
 
 msgid "كروت الشهر الماضي"
 msgstr "Cards last month"
 
 msgid "كروت مسودة"
-msgstr "Draft cards (CARD)"
+msgstr "Draft cards (Card)"
 
 msgid "مبالغ الشهر الماضي"
 msgstr "Supplier operating value - last month"
@@ -221,10 +221,10 @@ msgid "قيمة تشغيل داخلي - الشهر الماضي"
 msgstr "Internal operating value - last month"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Cards without internal rate (CARD)"
+msgstr "Cards without internal rate (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Operating hours without rate (CARD)"
+msgstr "Operating hours without rate (Card)"
 
 msgid "كارت تشغيل شهري"
 msgstr "Monthly Operation Card"
@@ -308,7 +308,7 @@ msgid "بالمتر المكعب"
 msgstr "Per m³"
 
 msgid "Loads last month"
-msgstr "Loads last month (CARD)"
+msgstr "Loads last month (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Loads can be recorded only on a card whose customer rate type is per m³"
@@ -402,19 +402,19 @@ msgid "Cards last month"
 msgstr "Cards last month"
 
 msgid "Rented equipment (CARD)"
-msgstr "Rented equipment (CARD)"
+msgstr "Rented equipment (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Loads last month (CARD)"
+msgstr "Loads last month (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Draft cards (CARD)"
+msgstr "Draft cards (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Cards without internal rate (CARD)"
+msgstr "Cards without internal rate (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Operating hours without rate (CARD)"
+msgstr "Operating hours without rate (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Customer summary (CARD)"

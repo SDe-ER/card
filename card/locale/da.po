@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Pr. m³"
 
 msgid "Loads last month"
-msgstr "Læs forrige måned (CARD)"
+msgstr "Læs forrige måned (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Læs kan kun registreres på et kort, hvor kundens pristype er pr. m³"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Kort sidste måned"
 
 msgid "Rented equipment (CARD)"
-msgstr "Lejet udstyr (CARD)"
+msgstr "Lejet udstyr (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Lejet udstyr (CARD)"
+msgstr "Lejet udstyr (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Læs forrige måned (CARD)"
+msgstr "Læs forrige måned (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Kladdekort (CARD)"
+msgstr "Kladdekort (Card)"
 
 msgid "كروت مسودة"
-msgstr "Kladdekort (CARD)"
+msgstr "Kladdekort (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Kort uden intern sats (CARD)"
+msgstr "Kort uden intern sats (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Kort uden intern sats (CARD)"
+msgstr "Kort uden intern sats (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Driftstimer uden sats (CARD)"
+msgstr "Driftstimer uden sats (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Driftstimer uden sats (CARD)"
+msgstr "Driftstimer uden sats (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Kundeoversigt (CARD)"

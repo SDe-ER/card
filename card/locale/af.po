@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Per kubieke meter"
 
 msgid "Loads last month"
-msgstr "Ladings verlede maand (CARD)"
+msgstr "Ladings verlede maand (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Ladings kan net op 'n kaart met kliënttarief-tipe per m³ aangeteken word"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Kaarte laaste maand"
 
 msgid "Rented equipment (CARD)"
-msgstr "Gehuurde toerusting (CARD)"
+msgstr "Gehuurde toerusting (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Gehuurde toerusting (CARD)"
+msgstr "Gehuurde toerusting (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Ladings verlede maand (CARD)"
+msgstr "Ladings verlede maand (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Konsep-kaarte (CARD)"
+msgstr "Konsep-kaarte (Card)"
 
 msgid "كروت مسودة"
-msgstr "Konsep-kaarte (CARD)"
+msgstr "Konsep-kaarte (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Kaarte sonder interne tarief (CARD)"
+msgstr "Kaarte sonder interne tarief (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Kaarte sonder interne tarief (CARD)"
+msgstr "Kaarte sonder interne tarief (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Bedryfsure sonder tarief (CARD)"
+msgstr "Bedryfsure sonder tarief (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Bedryfsure sonder tarief (CARD)"
+msgstr "Bedryfsure sonder tarief (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Kliënteopsomming (CARD)"
