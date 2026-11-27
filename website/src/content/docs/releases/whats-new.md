@@ -18,6 +18,12 @@ per site.
 
 ## Next release (merged, not yet released)
 
+_Nothing yet._
+
+## v4.14.3 — 2026-11-27
+
+Patch release on top of v4.14.2. It corrects the spelling of the word Card in translations and shows one more word in Arabic. It changes no role, permission or data, and CARD posts no accounting entry.
+
 - **2026-11-27 — The spelling "Card" is back in translated number-card labels.** The word "CARD" that v4.14.1 and v4.14.2 added to
   translations (274 texts) reads "Card" again. Older texts keep "CARD". This changes no role, permission or data.
 - **2026-11-27 — "Workshop" reads "ورشة صيانة" in Arabic when a transport is only shown.** The transport form, its
