@@ -76,7 +76,7 @@ msgid "Tool"
 msgstr "সরঞ্জাম"
 
 msgid "CARD Mobile"
-msgstr "Card মোবাইল"
+msgstr "CARD মোবাইল"
 
 msgid "New request"
 msgstr "নতুন অনুরোধ"
@@ -543,25 +543,25 @@ msgid "Printed at"
 msgstr "মুদ্রণের সময়"
 
 msgid "CARD operations dashboard"
-msgstr "Card অপারেশন ড্যাশবোর্ড"
+msgstr "CARD অপারেশন ড্যাশবোর্ড"
 
 msgid "Financial performance — last month"
 msgstr "আর্থিক কর্মক্ষমতা — গত মাস"
 
 msgid "Needs review (CARD)"
-msgstr "পর্যালোচনা প্রয়োজন (Card)"
+msgstr "পর্যালোচনা প্রয়োজন (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "সাম্প্রতিক মাসিক কার্ড (Card)"
+msgstr "সাম্প্রতিক মাসিক কার্ড (CARD)"
 
 msgid "CARD customers"
-msgstr "Card গ্রাহক"
+msgstr "CARD গ্রাহক"
 
 msgid "CARD suppliers"
-msgstr "Card সরবরাহকারী"
+msgstr "CARD সরবরাহকারী"
 
 msgid "Diesel and operations (CARD)"
-msgstr "ডিজেল ও অপারেশন (Card)"
+msgstr "ডিজেল ও অপারেশন (CARD)"
 
 msgid "New monthly card"
 msgstr "নতুন মাসিক কার্ড"
@@ -570,22 +570,22 @@ msgid "New equipment transport"
 msgstr "নতুন যন্ত্রপাতি পরিবহন"
 
 msgid "Customer statement (CARD)"
-msgstr "গ্রাহক বিবরণী (Card)"
+msgstr "গ্রাহক বিবরণী (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "মাসিক কার্ড (Card)"
+msgstr "মাসিক কার্ড (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "যন্ত্রপাতি (Card)"
+msgstr "যন্ত্রপাতি (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "অ্যাসাইনমেন্ট (Card)"
+msgstr "অ্যাসাইনমেন্ট (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "যন্ত্রপাতির গ্রাহক (Card)"
+msgstr "যন্ত্রপাতির গ্রাহক (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "যন্ত্রপাতি পরিবহন (Card)"
+msgstr "যন্ত্রপাতি পরিবহন (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "গ্রাহকদের জন্য পরিচালন মূল্য - গত মাস"
@@ -615,31 +615,31 @@ msgid "Operating hours without rate (CARD)"
 msgstr "হার ছাড়া পরিচালন ঘণ্টা (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "গ্রাহক সারসংক্ষেপ (Card)"
+msgstr "গ্রাহক সারসংক্ষেপ (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "সরবরাহকারী বিবরণী (Card)"
+msgstr "সরবরাহকারী বিবরণী (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "সরবরাহকারী সারসংক্ষেপ (Card)"
+msgstr "সরবরাহকারী সারসংক্ষেপ (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "সরবরাহকারী বিবরণী A4 (Card)"
+msgstr "সরবরাহকারী বিবরণী A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "ডিজেল খরচ (Card)"
+msgstr "ডিজেল খরচ (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "প্রকল্প অনুযায়ী পরিচালন ব্যয় (Card)"
+msgstr "প্রকল্প অনুযায়ী পরিচালন ব্যয় (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "প্রকল্প অনুযায়ী পরিবহন ব্যয় (Card)"
+msgstr "প্রকল্প অনুযায়ী পরিবহন ব্যয় (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "মিটার মিলকরণ (Card)"
+msgstr "মিটার মিলকরণ (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "যন্ত্রপাতি পরিবহন (Card)"
+msgstr "যন্ত্রপাতি পরিবহন (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

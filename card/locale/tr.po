@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Yazdırılma zamanı"
 
 msgid "CARD operations dashboard"
-msgstr "Card operasyon paneli"
+msgstr "CARD operasyon paneli"
 
 msgid "Financial performance — last month"
 msgstr "Finansal performans — geçen ay"
 
 msgid "Needs review (CARD)"
-msgstr "İnceleme gerekiyor (Card)"
+msgstr "İnceleme gerekiyor (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Son aylık kartlar (Card)"
+msgstr "Son aylık kartlar (CARD)"
 
 msgid "CARD customers"
-msgstr "Card müşterileri"
+msgstr "CARD müşterileri"
 
 msgid "CARD suppliers"
-msgstr "Card tedarikçileri"
+msgstr "CARD tedarikçileri"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dizel ve operasyonlar (Card)"
+msgstr "Dizel ve operasyonlar (CARD)"
 
 msgid "New monthly card"
 msgstr "Yeni aylık kart"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Yeni ekipman taşıma"
 
 msgid "Customer statement (CARD)"
-msgstr "Müşteri ekstresi (Card)"
+msgstr "Müşteri ekstresi (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Aylık kartlar (Card)"
+msgstr "Aylık kartlar (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Ekipman (Card)"
+msgstr "Ekipman (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Atamalar (Card)"
+msgstr "Atamalar (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Ekipman müşterileri (Card)"
+msgstr "Ekipman müşterileri (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Ekipman taşımaları (Card)"
+msgstr "Ekipman taşımaları (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Müşteriler için operasyon değeri - geçen ay"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Oranı olmayan çalışma saatleri (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Müşteri özeti (Card)"
+msgstr "Müşteri özeti (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Tedarikçi ekstresi (Card)"
+msgstr "Tedarikçi ekstresi (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Tedarikçi özeti (Card)"
+msgstr "Tedarikçi özeti (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Tedarikçi ekstresi A4 (Card)"
+msgstr "Tedarikçi ekstresi A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dizel tüketimi (Card)"
+msgstr "Dizel tüketimi (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Projeye göre operasyon maliyeti (Card)"
+msgstr "Projeye göre operasyon maliyeti (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Projeye göre taşıma maliyeti (Card)"
+msgstr "Projeye göre taşıma maliyeti (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Sayaç mutabakatı (Card)"
+msgstr "Sayaç mutabakatı (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Ekipman taşıma (Card)"
+msgstr "Ekipman taşıma (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

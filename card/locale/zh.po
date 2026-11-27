@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "打印时间"
 
 msgid "CARD operations dashboard"
-msgstr "Card 运营仪表板"
+msgstr "CARD 运营仪表板"
 
 msgid "Financial performance — last month"
 msgstr "财务表现 — 上月"
 
 msgid "Needs review (CARD)"
-msgstr "待审核 (Card)"
+msgstr "待审核 (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "最新月度卡 (Card)"
+msgstr "最新月度卡 (CARD)"
 
 msgid "CARD customers"
-msgstr "Card 客户"
+msgstr "CARD 客户"
 
 msgid "CARD suppliers"
-msgstr "Card 供应商"
+msgstr "CARD 供应商"
 
 msgid "Diesel and operations (CARD)"
-msgstr "柴油与运营 (Card)"
+msgstr "柴油与运营 (CARD)"
 
 msgid "New monthly card"
 msgstr "新建月度卡"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "新建设备运输"
 
 msgid "Customer statement (CARD)"
-msgstr "客户对账单 (Card)"
+msgstr "客户对账单 (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "月度卡 (Card)"
+msgstr "月度卡 (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "设备 (Card)"
+msgstr "设备 (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "任务分配 (Card)"
+msgstr "任务分配 (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "设备客户 (Card)"
+msgstr "设备客户 (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "设备运输 (Card)"
+msgstr "设备运输 (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "客户运营价值 - 上月"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "无费率的运营小时 (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "客户汇总 (Card)"
+msgstr "客户汇总 (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "供应商对账单 (Card)"
+msgstr "供应商对账单 (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "供应商汇总 (Card)"
+msgstr "供应商汇总 (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "供应商对账单 A4 (Card)"
+msgstr "供应商对账单 A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "柴油消耗 (Card)"
+msgstr "柴油消耗 (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "按项目统计的运营成本 (Card)"
+msgstr "按项目统计的运营成本 (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "按项目统计的运输成本 (Card)"
+msgstr "按项目统计的运输成本 (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "计量表核对 (Card)"
+msgstr "计量表核对 (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "设备运输 (Card)"
+msgstr "设备运输 (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

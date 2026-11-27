@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Afgedrukt op"
 
 msgid "CARD operations dashboard"
-msgstr "Card-bedieningsdashboard"
+msgstr "CARD-bedieningsdashboard"
 
 msgid "Financial performance — last month"
 msgstr "Financiële prestaties — vorige maand"
 
 msgid "Needs review (CARD)"
-msgstr "Controle nodig (Card)"
+msgstr "Controle nodig (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Recentste maandkaarten (Card)"
+msgstr "Recentste maandkaarten (CARD)"
 
 msgid "CARD customers"
-msgstr "Card-klanten"
+msgstr "CARD-klanten"
 
 msgid "CARD suppliers"
-msgstr "Card-leveranciers"
+msgstr "CARD-leveranciers"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Diesel en bedrijfsvoering (Card)"
+msgstr "Diesel en bedrijfsvoering (CARD)"
 
 msgid "New monthly card"
 msgstr "Nieuwe maandkaart"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Nieuw materieeltransport"
 
 msgid "Customer statement (CARD)"
-msgstr "Klantafschrift (Card)"
+msgstr "Klantafschrift (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Maandkaarten (Card)"
+msgstr "Maandkaarten (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Materieel (Card)"
+msgstr "Materieel (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Toewijzingen (Card)"
+msgstr "Toewijzingen (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Materieelklanten (Card)"
+msgstr "Materieelklanten (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Materieeltransporten (Card)"
+msgstr "Materieeltransporten (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Bedrijfswaarde voor klanten - vorige maand"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Bedrijfsuren zonder tarief (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Klantsamenvatting (Card)"
+msgstr "Klantsamenvatting (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Leverancierafschrift (Card)"
+msgstr "Leverancierafschrift (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Leveranciersamenvatting (Card)"
+msgstr "Leveranciersamenvatting (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Leverancierafschrift A4 (Card)"
+msgstr "Leverancierafschrift A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dieselverbruik (Card)"
+msgstr "Dieselverbruik (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Bedrijfskosten per project (Card)"
+msgstr "Bedrijfskosten per project (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Transportkosten per project (Card)"
+msgstr "Transportkosten per project (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Meterafstemming (Card)"
+msgstr "Meterafstemming (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Materieeltransport (Card)"
+msgstr "Materieeltransport (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

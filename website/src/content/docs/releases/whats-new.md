@@ -18,8 +18,8 @@ per site.
 
 ## Next release (merged, not yet released)
 
-- **2026-11-27 — The spelling "Card" is back in translated number-card labels.** The text "(CARD)" that was added to
-  translations in this release cycle reads "(Card)" again. This changes no role, permission or data.
+- **2026-11-27 — The spelling "Card" is back in translated number-card labels.** The word "CARD" that v4.14.1 and v4.14.2 added to
+  translations (274 texts) reads "Card" again. Older texts keep "CARD". This changes no role, permission or data.
 - **2026-11-27 — "Workshop" reads "ورشة صيانة" in Arabic when a transport is only shown.** The transport form, its
   list and the transport items now show the Arabic word of CARD for the places of a move. This changes no role,
   permission or data.

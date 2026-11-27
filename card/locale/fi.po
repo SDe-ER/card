@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Tulostettu"
 
 msgid "CARD operations dashboard"
-msgstr "Card-toimintanäkymä"
+msgstr "CARD-toimintanäkymä"
 
 msgid "Financial performance — last month"
 msgstr "Taloudellinen tulos — viime kuukausi"
 
 msgid "Needs review (CARD)"
-msgstr "Vaatii tarkistusta (Card)"
+msgstr "Vaatii tarkistusta (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Uusimmat kuukausikortit (Card)"
+msgstr "Uusimmat kuukausikortit (CARD)"
 
 msgid "CARD customers"
-msgstr "Card-asiakkaat"
+msgstr "CARD-asiakkaat"
 
 msgid "CARD suppliers"
-msgstr "Card-toimittajat"
+msgstr "CARD-toimittajat"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Diesel ja toiminta (Card)"
+msgstr "Diesel ja toiminta (CARD)"
 
 msgid "New monthly card"
 msgstr "Uusi kuukausikortti"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Uusi kaluston kuljetus"
 
 msgid "Customer statement (CARD)"
-msgstr "Asiakkaan tiliote (Card)"
+msgstr "Asiakkaan tiliote (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Kuukausikortit (Card)"
+msgstr "Kuukausikortit (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Kalusto (Card)"
+msgstr "Kalusto (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Kohdistukset (Card)"
+msgstr "Kohdistukset (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Kaluston asiakkaat (Card)"
+msgstr "Kaluston asiakkaat (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Kaluston kuljetukset (Card)"
+msgstr "Kaluston kuljetukset (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Asiakkaiden toiminta-arvo - viime kuukausi"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Käyttötunnit ilman hintaa (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Asiakasyhteenveto (Card)"
+msgstr "Asiakasyhteenveto (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Toimittajan tiliote (Card)"
+msgstr "Toimittajan tiliote (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Toimittajayhteenveto (Card)"
+msgstr "Toimittajayhteenveto (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Toimittajan tiliote A4 (Card)"
+msgstr "Toimittajan tiliote A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dieselkulutus (Card)"
+msgstr "Dieselkulutus (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Toimintakustannukset projektin mukaan (Card)"
+msgstr "Toimintakustannukset projektin mukaan (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Kuljetuskustannukset projektin mukaan (Card)"
+msgstr "Kuljetuskustannukset projektin mukaan (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Mittarien täsmäytys (Card)"
+msgstr "Mittarien täsmäytys (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Kaluston kuljetus (Card)"
+msgstr "Kaluston kuljetus (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

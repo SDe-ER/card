@@ -17,6 +17,7 @@ const WORKSHOP_FIELDS = {
 function set_workshop_formatters() {
 	for (const [doctype, fieldnames] of Object.entries(WORKSHOP_FIELDS)) {
 		for (const fieldname of fieldnames) {
+			if (!frappe.meta.get_docfield(doctype, fieldname)) continue;
 			frappe.meta.set_formatter(doctype, fieldname, null, (value) =>
 				value ? __(value, null, doctype) : "",
 			);

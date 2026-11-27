@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "زمان چاپ"
 
 msgid "CARD operations dashboard"
-msgstr "داشبورد عملیات Card"
+msgstr "داشبورد عملیات CARD"
 
 msgid "Financial performance — last month"
 msgstr "عملکرد مالی — ماه گذشته"
 
 msgid "Needs review (CARD)"
-msgstr "نیازمند بازبینی (Card)"
+msgstr "نیازمند بازبینی (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "آخرین کارت‌های ماهانه (Card)"
+msgstr "آخرین کارت‌های ماهانه (CARD)"
 
 msgid "CARD customers"
-msgstr "مشتریان Card"
+msgstr "مشتریان CARD"
 
 msgid "CARD suppliers"
-msgstr "تأمین‌کنندگان Card"
+msgstr "تأمین‌کنندگان CARD"
 
 msgid "Diesel and operations (CARD)"
-msgstr "گازوئیل و عملیات (Card)"
+msgstr "گازوئیل و عملیات (CARD)"
 
 msgid "New monthly card"
 msgstr "کارت ماهانه جدید"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "حمل تجهیزات جدید"
 
 msgid "Customer statement (CARD)"
-msgstr "صورت‌حساب مشتری (Card)"
+msgstr "صورت‌حساب مشتری (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "کارت‌های ماهانه (Card)"
+msgstr "کارت‌های ماهانه (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "تجهیزات (Card)"
+msgstr "تجهیزات (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "واگذاری‌ها (Card)"
+msgstr "واگذاری‌ها (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "مشتریان تجهیزات (Card)"
+msgstr "مشتریان تجهیزات (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "حمل‌های تجهیزات (Card)"
+msgstr "حمل‌های تجهیزات (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "ارزش عملیاتی برای مشتریان - ماه گذشته"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "ساعات عملیاتی بدون نرخ (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "خلاصه مشتریان (Card)"
+msgstr "خلاصه مشتریان (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "صورت‌حساب تأمین‌کننده (Card)"
+msgstr "صورت‌حساب تأمین‌کننده (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "خلاصه تأمین‌کنندگان (Card)"
+msgstr "خلاصه تأمین‌کنندگان (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "صورت‌حساب تأمین‌کننده A4 (Card)"
+msgstr "صورت‌حساب تأمین‌کننده A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "مصرف گازوئیل (Card)"
+msgstr "مصرف گازوئیل (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "هزینه عملیاتی بر اساس پروژه (Card)"
+msgstr "هزینه عملیاتی بر اساس پروژه (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "هزینه حمل بر اساس پروژه (Card)"
+msgstr "هزینه حمل بر اساس پروژه (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "تطبیق کنتور (Card)"
+msgstr "تطبیق کنتور (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "حمل تجهیزات (Card)"
+msgstr "حمل تجهیزات (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

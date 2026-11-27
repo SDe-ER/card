@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "அச்சிட்ட நேரம்"
 
 msgid "CARD operations dashboard"
-msgstr "Card செயல்பாட்டு டாஷ்போர்டு"
+msgstr "CARD செயல்பாட்டு டாஷ்போர்டு"
 
 msgid "Financial performance — last month"
 msgstr "நிதி செயல்திறன் — கடந்த மாதம்"
 
 msgid "Needs review (CARD)"
-msgstr "மதிப்பாய்வு தேவை (Card)"
+msgstr "மதிப்பாய்வு தேவை (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "சமீபத்திய மாதாந்திர அட்டைகள் (Card)"
+msgstr "சமீபத்திய மாதாந்திர அட்டைகள் (CARD)"
 
 msgid "CARD customers"
-msgstr "Card வாடிக்கையாளர்கள்"
+msgstr "CARD வாடிக்கையாளர்கள்"
 
 msgid "CARD suppliers"
-msgstr "Card சப்ளையர்கள்"
+msgstr "CARD சப்ளையர்கள்"
 
 msgid "Diesel and operations (CARD)"
-msgstr "டீசல் மற்றும் செயல்பாடுகள் (Card)"
+msgstr "டீசல் மற்றும் செயல்பாடுகள் (CARD)"
 
 msgid "New monthly card"
 msgstr "புதிய மாதாந்திர அட்டை"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "புதிய உபகரண போக்குவரத்து"
 
 msgid "Customer statement (CARD)"
-msgstr "வாடிக்கையாளர் அறிக்கை (Card)"
+msgstr "வாடிக்கையாளர் அறிக்கை (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "மாதாந்திர அட்டைகள் (Card)"
+msgstr "மாதாந்திர அட்டைகள் (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "உபகரணங்கள் (Card)"
+msgstr "உபகரணங்கள் (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "ஒதுக்கீடுகள் (Card)"
+msgstr "ஒதுக்கீடுகள் (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "உபகரண வாடிக்கையாளர்கள் (Card)"
+msgstr "உபகரண வாடிக்கையாளர்கள் (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "உபகரண போக்குவரத்துகள் (Card)"
+msgstr "உபகரண போக்குவரத்துகள் (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "வாடிக்கையாளர்களுக்கான செயல்பாட்டு மதிப்பு - கடந்த மாதம்"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "கட்டணம் இல்லாத இயக்க நேரம் (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "வாடிக்கையாளர் சுருக்கம் (Card)"
+msgstr "வாடிக்கையாளர் சுருக்கம் (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "சப்ளையர் அறிக்கை (Card)"
+msgstr "சப்ளையர் அறிக்கை (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "சப்ளையர் சுருக்கம் (Card)"
+msgstr "சப்ளையர் சுருக்கம் (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "சப்ளையர் அறிக்கை A4 (Card)"
+msgstr "சப்ளையர் அறிக்கை A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "டீசல் நுகர்வு (Card)"
+msgstr "டீசல் நுகர்வு (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "திட்டவாரி செயல்பாட்டு செலவு (Card)"
+msgstr "திட்டவாரி செயல்பாட்டு செலவு (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "திட்டவாரி போக்குவரத்து செலவு (Card)"
+msgstr "திட்டவாரி போக்குவரத்து செலவு (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "மீட்டர் சரிபார்ப்பு (Card)"
+msgstr "மீட்டர் சரிபார்ப்பு (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "உபகரண போக்குவரத்து (Card)"
+msgstr "உபகரண போக்குவரத்து (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

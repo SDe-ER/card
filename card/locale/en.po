@@ -345,25 +345,25 @@ msgid "Printed at"
 msgstr "Printed at"
 
 msgid "CARD operations dashboard"
-msgstr "Card operations dashboard"
+msgstr "CARD operations dashboard"
 
 msgid "Financial performance — last month"
 msgstr "Financial performance — last month"
 
 msgid "Needs review (CARD)"
-msgstr "Needs review (Card)"
+msgstr "Needs review (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Latest monthly cards (Card)"
+msgstr "Latest monthly cards (CARD)"
 
 msgid "CARD customers"
-msgstr "Card customers"
+msgstr "CARD customers"
 
 msgid "CARD suppliers"
-msgstr "Card suppliers"
+msgstr "CARD suppliers"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Diesel and operations (Card)"
+msgstr "Diesel and operations (CARD)"
 
 msgid "New monthly card"
 msgstr "New monthly card"
@@ -372,22 +372,22 @@ msgid "New equipment transport"
 msgstr "New equipment transport"
 
 msgid "Customer statement (CARD)"
-msgstr "Customer statement (Card)"
+msgstr "Customer statement (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Monthly cards (Card)"
+msgstr "Monthly cards (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Equipment (Card)"
+msgstr "Equipment (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Assignments (Card)"
+msgstr "Assignments (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Equipment customers (Card)"
+msgstr "Equipment customers (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Equipment transports (Card)"
+msgstr "Equipment transports (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Operating value for customers - last month"
@@ -417,31 +417,31 @@ msgid "Operating hours without rate (CARD)"
 msgstr "Operating hours without rate (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Customer summary (Card)"
+msgstr "Customer summary (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Supplier statement (Card)"
+msgstr "Supplier statement (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Suppliers summary (Card)"
+msgstr "Suppliers summary (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Supplier statement A4 (Card)"
+msgstr "Supplier statement A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Diesel consumption (Card)"
+msgstr "Diesel consumption (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Operating cost by project (Card)"
+msgstr "Operating cost by project (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Transport cost by project (Card)"
+msgstr "Transport cost by project (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Meter reconciliation (Card)"
+msgstr "Meter reconciliation (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Equipment transport (Card)"
+msgstr "Equipment transport (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

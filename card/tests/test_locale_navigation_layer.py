@@ -23,6 +23,8 @@ ENTRY = re.compile(
 	r"(?s)(?:msgctxt\s+((?:" + QUOTED + r"\s*)+?))?"
 	r"msgid\s+((?:" + QUOTED + r"\s*)+?)msgstr\s+((?:" + QUOTED + r"\s*)+)"
 )
+# Literal record names the code writes (case-sensitive); a translation repeating one keeps it unchanged.
+IDENTIFIERS = ("CARD VAT",)
 PLACEHOLDER = re.compile(r"\{\d+\}")
 ARABIC = re.compile(r"[؀-ۿ]")
 
@@ -300,9 +302,14 @@ class TestLocaleNavigationLayer(UnitTestCase):
 				)
 
 	def test_card_suffix_of_a_number_card_label_is_kept(self):
-		"""A row label that ends with "(CARD)" ends with "(Card)" in every translation (owner decision
-		2026-11-27: no global CARD wording; the source label keeps "(CARD)"). Arabic is the exception: its
-		labels carry no "(Card)" at all (the text Arabic users know since v4.10.0)."""
+		"""A row label that ends with "(CARD)" ends with "(Card)" in every translation of the five number
+		cards added in v4.14.1/v4.14.2 (owner decision 2026-11-27: no global change of the spelling, the
+		wording of this cycle is "Card"). The source label keeps "(CARD)". Arabic is the exception: its labels
+		carry no "(Card)" at all (the text Arabic users know since v4.10.0).
+
+		Scope: only entries added or changed since v4.14.0 were changed. Every older msgstr keeps "CARD" by
+		Owner scope (for example the msgid "Card" -> "CARD" rule and "CARD VAT" in the tax template notes);
+		this test must not be widened to them."""
 		marked = [label for label in number_card_row_labels() if label.endswith("(CARD)")]
 		self.assertTrue(marked)
 		for path in locales():
@@ -312,4 +319,36 @@ class TestLocaleNavigationLayer(UnitTestCase):
 			with self.subTest(locale=lang(path)):
 				self.assertEqual(
 					[label for label in marked if not translated.get(label, "").endswith("(Card)")], []
+				)
+
+	def test_number_card_label_and_record_name_read_the_same(self):
+		"""FR-168: a workspace number card shows only when the translation of its row label equals the
+		translation of its record name, so the two must stay equal in every locale."""
+		for path in locales():
+			translated = plain(path)
+			with self.subTest(locale=lang(path)):
+				self.assertEqual(
+					[
+						row["label"]
+						for row in card_workspace()["number_cards"]
+						if translated.get(row["label"], row["label"])
+						!= translated.get(row["number_card_name"], row["number_card_name"])
+					],
+					[],
+				)
+
+	def test_literal_identifiers_are_kept_in_translations(self):
+		"""A translation that repeats a literal record name of the source text keeps it as the code writes
+		it: `card/gl/masters.py` creates "CARD VAT {rate}% - {abbr}", so a note that names it never changes
+		its spelling."""
+		for path in locales():
+			with self.subTest(locale=lang(path)):
+				self.assertEqual(
+					[
+						msgid
+						for _context, msgid, msgstr in entries(path)
+						for identifier in IDENTIFIERS
+						if identifier in msgid and msgstr and identifier not in msgstr
+					],
+					[],
 				)

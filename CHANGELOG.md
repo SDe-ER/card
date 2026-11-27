@@ -16,11 +16,12 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ## [Unreleased]
 
 ### Changed
-- **The word `CARD` added to translations in this release cycle is back to `Card`** (Owner decision
+- **The word `CARD` added to translations in v4.14.1 and v4.14.2 is back to `Card`** (Owner decision
   2026-11-27: no global change of the spelling). In every `card/locale/*.po`, each msgstr added or changed since
-  v4.14.0 that contained `CARD` now reads `Card` (1410 entries in 43 locales, e.g. the number-card labels
-  "(Card)"). The msgid `Card` -> msgstr `CARD` rule, `app_title`, fixtures and msgids are unchanged. A workspace
-  number card still shows, because the translation of its row label and of its record name stay equal.
+  v4.14.0 that contained `CARD` now reads `Card`: 274 entries in 43 locales (ar 28, de 8, ur 7, five locales
+  5 each, the rest 6 each). Older entries keep `CARD`, as do the msgid `Card` -> msgstr `CARD` rule, `CARD VAT`
+  record names, `app_title`, fixtures and msgids. To keep every number card visible (FR-168), 175 older row-label
+  translations ending "(CARD)" were set to "(Card)" so that they equal the new record-name translations.
 
 ### Fixed
 - **A read-only `Workshop` value reads "ورشة صيانة" in Arabic** in the Equipment Transport form (destination and

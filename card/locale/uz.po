@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Chop etilgan"
 
 msgid "CARD operations dashboard"
-msgstr "Card operatsiyalar paneli"
+msgstr "CARD operatsiyalar paneli"
 
 msgid "Financial performance — last month"
 msgstr "Moliyaviy ko'rsatkichlar — o'tgan oy"
 
 msgid "Needs review (CARD)"
-msgstr "Tekshiruv talab qilinadi (Card)"
+msgstr "Tekshiruv talab qilinadi (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "So'nggi oylik kartalar (Card)"
+msgstr "So'nggi oylik kartalar (CARD)"
 
 msgid "CARD customers"
-msgstr "Card mijozlari"
+msgstr "CARD mijozlari"
 
 msgid "CARD suppliers"
-msgstr "Card yetkazib beruvchilari"
+msgstr "CARD yetkazib beruvchilari"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dizel va operatsiyalar (Card)"
+msgstr "Dizel va operatsiyalar (CARD)"
 
 msgid "New monthly card"
 msgstr "Yangi oylik karta"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Yangi texnika tashish"
 
 msgid "Customer statement (CARD)"
-msgstr "Mijoz hisoboti (Card)"
+msgstr "Mijoz hisoboti (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Oylik kartalar (Card)"
+msgstr "Oylik kartalar (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Texnika (Card)"
+msgstr "Texnika (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Topshiriqlar (Card)"
+msgstr "Topshiriqlar (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Texnika mijozlari (Card)"
+msgstr "Texnika mijozlari (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Texnika tashishlari (Card)"
+msgstr "Texnika tashishlari (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Mijozlar uchun operatsion qiymat - o'tgan oy"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Tarifsiz ish soatlari (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Mijozlar xulosasi (Card)"
+msgstr "Mijozlar xulosasi (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Yetkazib beruvchi hisoboti (Card)"
+msgstr "Yetkazib beruvchi hisoboti (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Yetkazib beruvchilar xulosasi (Card)"
+msgstr "Yetkazib beruvchilar xulosasi (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Yetkazib beruvchi hisoboti A4 (Card)"
+msgstr "Yetkazib beruvchi hisoboti A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dizel sarfi (Card)"
+msgstr "Dizel sarfi (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Loyihalar bo'yicha operatsion xarajat (Card)"
+msgstr "Loyihalar bo'yicha operatsion xarajat (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Loyihalar bo'yicha tashish xarajati (Card)"
+msgstr "Loyihalar bo'yicha tashish xarajati (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Hisoblagich solishtiruvi (Card)"
+msgstr "Hisoblagich solishtiruvi (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Texnika tashish (Card)"
+msgstr "Texnika tashish (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

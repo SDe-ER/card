@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Dicetak pada"
 
 msgid "CARD operations dashboard"
-msgstr "Dasbor operasional Card"
+msgstr "Dasbor operasional CARD"
 
 msgid "Financial performance — last month"
 msgstr "Kinerja keuangan — bulan lalu"
 
 msgid "Needs review (CARD)"
-msgstr "Perlu ditinjau (Card)"
+msgstr "Perlu ditinjau (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Kartu bulanan terbaru (Card)"
+msgstr "Kartu bulanan terbaru (CARD)"
 
 msgid "CARD customers"
-msgstr "Pelanggan Card"
+msgstr "Pelanggan CARD"
 
 msgid "CARD suppliers"
-msgstr "Pemasok Card"
+msgstr "Pemasok CARD"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Solar dan operasional (Card)"
+msgstr "Solar dan operasional (CARD)"
 
 msgid "New monthly card"
 msgstr "Kartu bulanan baru"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Transportasi peralatan baru"
 
 msgid "Customer statement (CARD)"
-msgstr "Laporan pelanggan (Card)"
+msgstr "Laporan pelanggan (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Kartu bulanan (Card)"
+msgstr "Kartu bulanan (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Peralatan (Card)"
+msgstr "Peralatan (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Penugasan (Card)"
+msgstr "Penugasan (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Pelanggan peralatan (Card)"
+msgstr "Pelanggan peralatan (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Transportasi peralatan (Card)"
+msgstr "Transportasi peralatan (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Nilai operasional pelanggan - bulan lalu"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Jam operasional tanpa tarif (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Ringkasan pelanggan (Card)"
+msgstr "Ringkasan pelanggan (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Laporan pemasok (Card)"
+msgstr "Laporan pemasok (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Ringkasan pemasok (Card)"
+msgstr "Ringkasan pemasok (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Laporan pemasok A4 (Card)"
+msgstr "Laporan pemasok A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Konsumsi solar (Card)"
+msgstr "Konsumsi solar (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Biaya operasional per proyek (Card)"
+msgstr "Biaya operasional per proyek (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Biaya transportasi per proyek (Card)"
+msgstr "Biaya transportasi per proyek (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Rekonsiliasi meter (Card)"
+msgstr "Rekonsiliasi meter (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Transportasi peralatan (Card)"
+msgstr "Transportasi peralatan (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

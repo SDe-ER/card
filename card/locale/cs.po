@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Vytištěno"
 
 msgid "CARD operations dashboard"
-msgstr "Provozní přehled Card"
+msgstr "Provozní přehled CARD"
 
 msgid "Financial performance — last month"
 msgstr "Finanční výkonnost — minulý měsíc"
 
 msgid "Needs review (CARD)"
-msgstr "Vyžaduje kontrolu (Card)"
+msgstr "Vyžaduje kontrolu (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Poslední měsíční karty (Card)"
+msgstr "Poslední měsíční karty (CARD)"
 
 msgid "CARD customers"
-msgstr "Zákazníci Card"
+msgstr "Zákazníci CARD"
 
 msgid "CARD suppliers"
-msgstr "Dodavatelé Card"
+msgstr "Dodavatelé CARD"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Nafta a provoz (Card)"
+msgstr "Nafta a provoz (CARD)"
 
 msgid "New monthly card"
 msgstr "Nová měsíční karta"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Nová přeprava techniky"
 
 msgid "Customer statement (CARD)"
-msgstr "Výpis zákazníka (Card)"
+msgstr "Výpis zákazníka (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Měsíční karty (Card)"
+msgstr "Měsíční karty (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Technika (Card)"
+msgstr "Technika (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Přiřazení (Card)"
+msgstr "Přiřazení (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Zákazníci techniky (Card)"
+msgstr "Zákazníci techniky (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Přepravy techniky (Card)"
+msgstr "Přepravy techniky (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Provozní hodnota pro zákazníky - minulý měsíc"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Provozní hodiny bez sazby (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Souhrn zákazníků (Card)"
+msgstr "Souhrn zákazníků (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Výpis dodavatele (Card)"
+msgstr "Výpis dodavatele (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Souhrn dodavatelů (Card)"
+msgstr "Souhrn dodavatelů (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Výpis dodavatele A4 (Card)"
+msgstr "Výpis dodavatele A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Spotřeba nafty (Card)"
+msgstr "Spotřeba nafty (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Provozní náklady podle projektu (Card)"
+msgstr "Provozní náklady podle projektu (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Náklady na přepravu podle projektu (Card)"
+msgstr "Náklady na přepravu podle projektu (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Vyúčtování měřidel (Card)"
+msgstr "Vyúčtování měřidel (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Přeprava techniky (Card)"
+msgstr "Přeprava techniky (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

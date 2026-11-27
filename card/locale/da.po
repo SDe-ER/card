@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Udskrevet"
 
 msgid "CARD operations dashboard"
-msgstr "Card driftsoverblik"
+msgstr "CARD driftsoverblik"
 
 msgid "Financial performance — last month"
 msgstr "Økonomisk resultat — sidste måned"
 
 msgid "Needs review (CARD)"
-msgstr "Kræver gennemgang (Card)"
+msgstr "Kræver gennemgang (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Seneste månedskort (Card)"
+msgstr "Seneste månedskort (CARD)"
 
 msgid "CARD customers"
-msgstr "Card-kunder"
+msgstr "CARD-kunder"
 
 msgid "CARD suppliers"
-msgstr "Card-leverandører"
+msgstr "CARD-leverandører"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Diesel og drift (Card)"
+msgstr "Diesel og drift (CARD)"
 
 msgid "New monthly card"
 msgstr "Nyt månedskort"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Ny transport af udstyr"
 
 msgid "Customer statement (CARD)"
-msgstr "Kundeudskrift (Card)"
+msgstr "Kundeudskrift (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Månedskort (Card)"
+msgstr "Månedskort (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Udstyr (Card)"
+msgstr "Udstyr (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Tildelinger (Card)"
+msgstr "Tildelinger (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Udstyrskunder (Card)"
+msgstr "Udstyrskunder (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Udstyrstransporter (Card)"
+msgstr "Udstyrstransporter (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Driftsværdi for kunder - sidste måned"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Driftstimer uden sats (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Kundeoversigt (Card)"
+msgstr "Kundeoversigt (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Leverandørudskrift (Card)"
+msgstr "Leverandørudskrift (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Leverandøroversigt (Card)"
+msgstr "Leverandøroversigt (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Leverandørudskrift A4 (Card)"
+msgstr "Leverandørudskrift A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dieselforbrug (Card)"
+msgstr "Dieselforbrug (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Driftsomkostninger pr. projekt (Card)"
+msgstr "Driftsomkostninger pr. projekt (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Transportomkostninger pr. projekt (Card)"
+msgstr "Transportomkostninger pr. projekt (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Målerafstemning (Card)"
+msgstr "Målerafstemning (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Udstyrstransport (Card)"
+msgstr "Udstyrstransport (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

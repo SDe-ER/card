@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Ispisano"
 
 msgid "CARD operations dashboard"
-msgstr "Card operativna ploča"
+msgstr "CARD operativna ploča"
 
 msgid "Financial performance — last month"
 msgstr "Financijski rezultati — prošli mjesec"
 
 msgid "Needs review (CARD)"
-msgstr "Potrebna provjera (Card)"
+msgstr "Potrebna provjera (CARD)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Najnovije mjesečne kartice (Card)"
+msgstr "Najnovije mjesečne kartice (CARD)"
 
 msgid "CARD customers"
-msgstr "Card kupci"
+msgstr "CARD kupci"
 
 msgid "CARD suppliers"
-msgstr "Card dobavljači"
+msgstr "CARD dobavljači"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dizel i poslovanje (Card)"
+msgstr "Dizel i poslovanje (CARD)"
 
 msgid "New monthly card"
 msgstr "Nova mjesečna kartica"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Novi prijevoz opreme"
 
 msgid "Customer statement (CARD)"
-msgstr "Izvod kupca (Card)"
+msgstr "Izvod kupca (CARD)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Mjesečne kartice (Card)"
+msgstr "Mjesečne kartice (CARD)"
 
 msgid "Equipment (CARD)"
-msgstr "Oprema (Card)"
+msgstr "Oprema (CARD)"
 
 msgid "Assignments (CARD)"
-msgstr "Dodjele (Card)"
+msgstr "Dodjele (CARD)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Kupci opreme (Card)"
+msgstr "Kupci opreme (CARD)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Prijevozi opreme (Card)"
+msgstr "Prijevozi opreme (CARD)"
 
 msgid "Operating value for customers - last month"
 msgstr "Operativna vrijednost za kupce - prošli mjesec"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Radni sati bez cijene (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Sažetak kupaca (Card)"
+msgstr "Sažetak kupaca (CARD)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Izvod dobavljača (Card)"
+msgstr "Izvod dobavljača (CARD)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Sažetak dobavljača (Card)"
+msgstr "Sažetak dobavljača (CARD)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Izvod dobavljača A4 (Card)"
+msgstr "Izvod dobavljača A4 (CARD)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Potrošnja dizela (Card)"
+msgstr "Potrošnja dizela (CARD)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Operativni trošak po projektu (Card)"
+msgstr "Operativni trošak po projektu (CARD)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Trošak prijevoza po projektu (Card)"
+msgstr "Trošak prijevoza po projektu (CARD)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Usklađivanje brojila (Card)"
+msgstr "Usklađivanje brojila (CARD)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Prijevoz opreme (Card)"
+msgstr "Prijevoz opreme (CARD)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."
