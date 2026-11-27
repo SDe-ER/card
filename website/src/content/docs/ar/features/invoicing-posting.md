@@ -230,8 +230,12 @@ ERPNext ترحيلات CARD تحذيرًا.
 [الترحيل والمحاسبة](/card/ar/api-reference/posting-accounting/#link_customer_invoice)).
 
 <!-- screenshot: invoice-link-menu -->
+![مجموعة أزرار CARD في فاتورة المبيعات](../../../../assets/screenshots/ar/invoice-link-menu.webp)
+*مجموعة أزرار CARD في فاتورة المبيعات*
 
 <!-- screenshot: invoice-link-dialog -->
+![ربط فاتورة مبيعات بالكروت الشهرية](../../../../assets/screenshots/ar/invoice-link-dialog.webp)
+*ربط فاتورة مبيعات بالكروت الشهرية*
 
 1. حدّد الفواتير المطلوب ربطها. استدعِ `unlinked_customer_invoice_candidates` للشركة. تعرض الطريقة كل فاتورة مبيعات معتمدة لم
    يبنها CARD وليس لها ربط، ومعها كروت العميل التي ليس لها فاتورة، وتبيّن هل يساوي مجموع مجموعة من الكروت صافي الفاتورة
@@ -274,6 +278,8 @@ Card. ويجب أن يتحقق ذلك لكل مشروع أيضًا: صافي ب�
   فاتورة ربطها شخص، ولا يستطيع صاحب دور Accounts Manager استخدامه.
 
 <!-- screenshot: invoice-linked-form -->
+![فاتورة مبيعات مربوطة بكارت شهري](../../../../assets/screenshots/ar/invoice-linked-form.webp)
+*فاتورة مبيعات مربوطة بكارت شهري*
 
 <!-- screenshot: invoice-unlink-dialog --> ويحتاج المستخدم إلى دور System Manager وإلى صلاحية قراءة
   فاتورة المبيعات والكروت أيضًا. ودور System Manager وحده لا يعطي صلاحية قراءة فاتورة المبيعات، فيحتاج المستخدم إلى دور

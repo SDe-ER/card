@@ -244,8 +244,12 @@ which keeps every check below. You can also call the server method yourself (see
 [Posting and accounting](/card/api-reference/posting-accounting/#link_customer_invoice)).
 
 <!-- screenshot: invoice-link-menu -->
+![The CARD button group on a Sales Invoice](../../../assets/screenshots/en/invoice-link-menu.webp)
+*The CARD button group on a Sales Invoice*
 
 <!-- screenshot: invoice-link-dialog -->
+![Link a Sales Invoice to monthly cards](../../../assets/screenshots/en/invoice-link-dialog.webp)
+*Link a Sales Invoice to monthly cards*
 
 1. Find the invoices to link. Call `unlinked_customer_invoice_candidates` for the company. It lists each submitted
    Sales Invoice that CARD did not build and that has no link, with the customer's cards that have no invoice, and it
@@ -294,8 +298,12 @@ There are two ways to remove a link. Neither one posts an entry or changes a car
   only on an invoice that a person linked, and an Accounts Manager cannot use it.
 
 <!-- screenshot: invoice-linked-form -->
+![A Sales Invoice linked to a monthly card](../../../assets/screenshots/en/invoice-linked-form.webp)
+*A Sales Invoice linked to a monthly card*
 
 <!-- screenshot: invoice-unlink-dialog -->
+![Remove the link to monthly cards](../../../assets/screenshots/en/invoice-unlink-dialog.webp)
+*Remove the link to monthly cards*
  The caller needs the System
   Manager role and also read permission on the Sales Invoice and on the cards. The System Manager role alone does
   not give read permission on a Sales Invoice, so the user also needs an accounts role.
