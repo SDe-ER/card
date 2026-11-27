@@ -24,7 +24,7 @@ sidebar:
 |---|---|---|---|---|
 | المعدات | `equipment` | Link | [المعدات](/card/ar/reference/doctypes/card-equipment/) | نعم |
 | اسم المعدة <small>(للقراءة فقط)</small> | `equipment_name` | Data |  |  |
-| ساري من | `effective_from` | Date |  |  |
+| Effective from | `effective_from` | Date |  |  |
 | ساري حتى | `effective_to` | Date |  |  |
 
 

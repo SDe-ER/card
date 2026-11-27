@@ -30,7 +30,7 @@ sidebar:
 | التعيين المُنشأ <small>(للقراءة فقط)</small> | `created_assignment` | Link | [تعيين معدة على مشروع](/card/ar/reference/doctypes/card-equipment-assignment/) |  |
 | الحركة <small>(للقراءة فقط)</small> | `movement` | Select | أول دخول · Transfer · للورشة · للمستودع · رجوع للمورد |  |
 | من مشروع <small>(للقراءة فقط)</small> | `from_project` | Link | المشروع |  |
-| مكانها الحالي <small>(للقراءة فقط)</small> | `from_type` | Select | المشروع · ورشة صيانة · مستودع · المورد |  |
+| مكانها الحالي <small>(للقراءة فقط)</small> | `from_type` | Select | المشروع · Workshop · مستودع · المورد |  |
 | من مكان <small>(للقراءة فقط)</small> | `from_location` | Link | الموقع |  |
 
 
