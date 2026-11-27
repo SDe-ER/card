@@ -81,8 +81,10 @@ def locked_active_holders(doctype, names, party_type):
 
 	Issue 340: `source_name` of GL Posting Source and the status of GL Posting Log have no index, so this read
 	locks the rows it scans, not only the rows it returns; other links and builds wait until this transaction
-	ends. A narrow lock needs an index on GL Posting Source (a schema change, not made here). Every caller
-	uses this one query, so two callers take the row locks in the same order."""
+	ends. This lock scope is accepted for now (review of pull request 349): the two tables are small, and a
+	narrow lock needs an index on GL Posting Source, which is a schema change. Every caller uses this one
+	query, so two callers take the row locks in the same order; a caller with several sources of one type
+	passes them in one call."""
 	names = list(names)
 	if not names:
 		return {}

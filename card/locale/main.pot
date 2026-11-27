@@ -8245,6 +8245,10 @@ msgstr ""
 msgid "{0} is an opening invoice; it does not bill monthly cards."
 msgstr ""
 
+#: card/card/doctype/gl_posting_log/gl_posting_log.py
+msgid "{0} changed while it was being linked; try again."
+msgstr ""
+
 #: card/gl/integrity.py
 msgid "{0} is already a CARD posting or linked ({1})."
 msgstr ""

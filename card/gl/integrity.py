@@ -603,8 +603,10 @@ def link_supplier_invoice(
 	supplier, bill no., totals, the purchase invoice link and the amount of each source)
 	are read from the locked rows. The active log of the invoice is found by a plain read
 	and locked by its name; a link or a build that another transaction committed is seen
-	by locking reads (``_link_committed_meanwhile``, ``locked_active_holder``)."""
-	from card.gl.events import link_sources_on_submit, locked_active_holder
+	by locking reads (``_link_committed_meanwhile``, ``locked_active_holders``). The holder
+	read runs once for each source type; it locks the posting log and source rows it scans
+	(no index on the source name), which is accepted while these tables are small."""
+	from card.gl.events import link_sources_on_submit, locked_active_holders
 	from card.gl.posting import POSTING_SOURCE_DOCTYPES
 	from card.report_access import permitted_companies
 	from card.settings import setting
@@ -634,7 +636,9 @@ def link_supplier_invoice(
 		frappe.throw(_("Choose the CARD sources this invoice pays for."))
 	rows = {"Card Monthly Card": [], "Project Diesel Fill": [], "Equipment Transport": []}
 	for src in sources:
-		doctype, name = src.get("doctype"), src.get("name")
+		doctype, name = (src.get("doctype"), src.get("name")) if isinstance(src, dict) else (None, None)
+		if not isinstance(name, str) or not name.strip():
+			frappe.throw(_("Choose the CARD sources this invoice pays for."))
 		if doctype not in rows:
 			frappe.throw(_("{0} is not a CARD source type.").format(doctype))
 		if any(n == name for n, _a in rows[doctype]):
@@ -685,11 +689,6 @@ def link_supplier_invoice(
 						"Transport {0} records who pays and who bears its cost; linking it to a supplier invoice is not enabled yet."
 					).format(name)
 				)
-			holder = locked_active_holder(doctype, name, "Supplier")
-			if holder:
-				frappe.throw(
-					_("{0} {1} is already held by {2}.").format(_(doctype), name, holder.posting_doc)
-				)
 			invoice_no = src.get("supplier_invoice_no") if doctype == "Project Diesel Fill" else None
 			if invoice_no and (invoice_no or "").strip() != (inv.bill_no or "").strip():
 				frappe.throw(
@@ -702,6 +701,11 @@ def link_supplier_invoice(
 				unverified.append(name)
 				net = flt(src.amount, 2)
 			items[i] = (name, net)
+		# one locking read for the sources of this type (the names are the stored ones)
+		for held_name, holder in locked_active_holders(doctype, [n for n, _net in items], "Supplier").items():
+			frappe.throw(
+				_("{0} {1} is already held by {2}.").format(_(doctype), held_name, holder.posting_doc)
+			)
 	posting_day = getdate(inv.bill_date or inv.posting_date)
 	linked = _link_committed_meanwhile(inv.company, "Supplier", inv.supplier, posting_day, inv.name)
 	if linked:
@@ -901,7 +905,11 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	Concurrency: the invoice row and the card rows are locked, and the state that another transaction can
 	change (document status, links, active logs) is read again under those locks. So are the amounts that are
 	compared: the net total, the header project and the lines of the invoice, and the customer net amount and
-	the project of each card (issue 340).
+	the project of each card (issue 340). The invoice and each card are loaded from their locked rows, so the
+	company, the customer, the posting date and the total of the invoice, and the company, the customer and the
+	direction of a card, are the committed values too; the credit note check is a locking read. The read that
+	finds the holder of a card locks the posting log and source rows it scans (no index on the source name);
+	that lock scope is accepted while these tables are small.
 
 	Lock order (issue 340): the invoice row, then the card rows in name order, then posting logs. The submit
 	and the cancel of an invoice (``card.gl.events``), the monthly build (cards, then logs) and the unlink take
@@ -922,7 +930,8 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	if not reason:
 		frappe.throw(_("Give the reason for linking this invoice to the cards."))
 	names = _card_names(cards)
-	inv = frappe.get_doc("Sales Invoice", invoice)
+	# the invoice row is locked: the company, the customer, the date and the total are the committed ones
+	inv = frappe.get_doc("Sales Invoice", invoice, for_update=True)
 	inv.check_permission("read")
 	if inv.company not in _customer_link_companies():
 		frappe.throw(
@@ -931,7 +940,7 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 		)
 	frappe.has_permission("Sales Invoice", "submit", inv, throw=True)
 	frappe.has_permission("Customer", "read", inv.customer, throw=True)
-	# lock the invoice row; its state is the committed one, not this transaction's snapshot
+	# its state is the committed one, not this transaction's snapshot
 	state = frappe.db.get_value(
 		"Sales Invoice",
 		invoice,
@@ -956,8 +965,12 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	existing = _locked_invoice_log("Sales Invoice", inv.name)
 	if existing:
 		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, existing))
+	# a locking read: a credit note that another transaction submitted after this one's snapshot is seen
 	credit_note = frappe.db.get_value(
-		"Sales Invoice", {"is_return": 1, "return_against": invoice, "docstatus": 1}, "name"
+		"Sales Invoice",
+		{"is_return": 1, "return_against": invoice, "docstatus": 1},
+		"name",
+		for_update=True,
 	)
 	if credit_note:
 		frappe.throw(
@@ -976,7 +989,8 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	invoice_by_project = _net_by_project(lines, state.project)
 	docs, locked = [], []
 	for i, name in enumerate(names):
-		card = frappe.get_doc(CARD_DOCTYPE, name)
+		# the row is locked (lock_sources): the company, the customer and the direction are the committed ones
+		card = frappe.get_doc(CARD_DOCTYPE, name, for_update=True)
 		card.check_permission("read")
 		# the database matches names without case: two spellings of one card are one row
 		if any(card.name == listed.name for listed in docs):
