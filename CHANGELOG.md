@@ -38,6 +38,71 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Fixed
+- **Locking follow-ups of the invoice links and of the monthly build (issue #340, PR #349).** Reason: the review
+  of FR-194 and FR-195 left six points open. No schema change, no patch, no new method, one new message, no role
+  or DocPerm change.
+  - **Lock order and wide locks.** `card.gl.integrity.link_customer_invoice` found the active log of the invoice
+    with a locking read filtered on `posting_doc`, which has no index: the read locked rows of other postings. New
+    helper `_locked_invoice_log` reads the name plainly, locks that one row by its name and checks its state on the
+    locked row (the sequence of `unlink_customer_invoice`). A link of the same invoice that another transaction
+    committed after the snapshot is not visible to the plain read; new helper `_link_committed_meanwhile` reads it
+    with a locking read on the unique `posting_key` of the Linked log (one index entry; key from the new
+    `linked_posting_key` in `gl_posting_log.py`). The order is now the same on every path: the invoice row, the
+    source rows in name order, then posting logs. `unlink_customer_invoice` locked the log before the cards; it now
+    locks the cards first (their names come from a plain read of the source rows of the log, which never change).
+    Not reordered: the link still locks the existing log of its own invoice before the cards and stops there,
+    because the other order changes which refusal a caller gets. Accepted lock scope: the read that finds the
+    active holder of a source (`card.gl.events.locked_active_holders`) filters on `source_name` and on the log
+    status, which have no index, so it locks the GL Posting Source and GL Posting Log rows it scans until the
+    transaction ends; other links and builds wait for it. This is accepted for this release (review of PR #349):
+    the two tables are small, and a narrow lock needs an index on GL Posting Source, which is a schema change.
+    `link_supplier_invoice` runs this read once for each source type, not once for each source.
+  - **Amounts under the locks.** `link_customer_invoice` compared the invoice net and the card amounts from the
+    snapshot it took before the locks. It now reads `base_net_total`, the header `project` and the lines of the
+    Sales Invoice, and `customer_net_amount` and `project` of each card, with locking reads, and compares and
+    stores those values. The invoice and each card are loaded from their locked rows
+    (`frappe.get_doc(..., for_update=True)`), so the company, the customer, the posting date and the total of
+    the invoice, and the company, the customer and the direction of a card, are the committed values in the
+    checks and in the log. The credit note check is a locking read. If a credit note of the invoice is being
+    submitted at that moment, the database can end one of the two transactions as a deadlock; that user
+    repeats the action.
+  - **Build path.** After `lock_sources`, `card.gl.posting._plan_monthly_posting` checked the holder of each source
+    with a plain read (`_held_by_active_log`), which answers from the snapshot taken before the wait. It now uses
+    the locking read `locked_active_holders`, so a build that waited for a link is refused and creates no draft
+    invoice with a linked source.
+  - **Candidates list.** `unlinked_customer_invoice_candidates` leaves out an invoice in another currency than the
+    company currency (the link refuses it). The excluded invoices (active log, submitted credit note, opening
+    invoice) are no longer passed as a `not in` list of names that grows with every logged invoice: the query of
+    `frappe.get_list` (same permissions) gets three conditions (two NOT EXISTS, one on the opening flag). Same
+    rows, same order, same paging.
+  - **Supplier link parity.** `link_supplier_invoice` reads the Purchase Invoice and each source from the locked
+    rows (`frappe.get_doc(..., for_update=True)`), uses the same two log checks and the locking holder read, refuses
+    one source listed under two spellings and stores the name of the record in the log. One-year window:
+    `card.reconciliation.cards_invoiced` read supplier posting logs only for the years around the period. That
+    window is right for a built posting (its log carries the month of its cards). It is wrong for a Linked
+    Purchase Invoice log: the log carries the date of the invoice, the link sets no limit between that date and
+    the month of a card, and the customer side already reads Linked logs without the window (FR-194). Linked logs
+    of both sides are now read without the window; each card still counts in its own month. A source entry
+    without a text name is refused with the message of an empty list.
+  - **Accrual Journal Entry link.** `card.gl.journal_link.link_accrual_journal` reads each card from its locked
+    row and finds its holder with the locking read, as the two invoice links.
+  - **Message.** `GLPostingLog.validate_builder_insert` compares the log with a plain read of the invoice. When
+    that read and the locked invoice of a link differ (company, party, or a cancelled invoice), the user now
+    gets "{0} changed while it was being linked; try again." (new message, `ar.po` and `main.pot`), not the
+    text for a log created outside CARD. `GLPostingLog.validate` takes the key of a Linked log from
+    `linked_posting_key`.
+  - **`card/report_access.py`** imports `frappe.permissions`. `import frappe` alone does not load it, so
+    `permitted_companies` failed with AttributeError in a console run without a request.
+  - Tests: `card/tests/test_link_locking.py` (33 tests; a value committed by another transaction is simulated by
+    patching the plain reads, one test connection cannot run two transactions).
+  - Impact. Permissions: none. Accounting: none, CARD posts nothing; a link or a build that used a stale value is
+    now refused. Data: no existing record changes; a new supplier link stores the record name of each source.
+    API: no signature changes; `unlinked_customer_invoice_candidates` no longer lists invoices in another
+    currency; the Equipment Supplier Statement and the supplier summary count a card that was linked to a
+    Purchase Invoice dated more than one year from the card month as invoiced through Card.
+  - Rollback: revert the commits; no data step. Links made meanwhile stay valid.
+
 ## [4.14.1] — 2026-11-26
 
 > **Published 2026-11-26** (tag `v4.14.1`, owner approval 2026-11-26). Published ≠ deployed (see DEPLOYMENTS.md).

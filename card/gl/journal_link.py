@@ -42,8 +42,11 @@ def link_accrual_journal(
 	Evidence: the Journal Entry nets a credit to exactly one supplier (its accrual),
 	and that credit equals the cards' net within the reconciliation tolerance; a gap
 	is refused unless an accountant accepts it with a reason, and is then stored on
-	the log as an open difference."""
-	from card.gl.events import _point_display, active_log_holding
+	the log as an open difference.
+
+	Concurrency (issue 340, as the invoice links): the card rows are locked, each card is
+	read from its locked row, and its holder is found with a locking read."""
+	from card.gl.events import _point_display, locked_active_holder
 	from card.gl.posting import POSTING_SOURCE_DOCTYPES
 	from card.report_access import permitted_companies
 	from card.settings import setting
@@ -82,7 +85,8 @@ def link_accrual_journal(
 	lock_sources({CARD: [(name, 0) for name in cards]})
 	amounts = []
 	for name in cards:
-		card = frappe.get_doc(CARD, name)
+		# the row is locked (lock_sources): its fields are the committed ones, not this transaction's snapshot
+		card = frappe.get_doc(CARD, name, for_update=True)
 		card.check_permission("read")
 		if card.docstatus != 1:
 			frappe.throw(_("Card {0} is not submitted.").format(name))
@@ -99,7 +103,7 @@ def link_accrual_journal(
 			frappe.throw(_("Card {0} is not billed by a supplier.").format(name))
 		if card.purchase_invoice:
 			frappe.throw(_("Card {0} is already invoiced by {1}.").format(name, card.purchase_invoice))
-		holder = active_log_holding(CARD, name, "Supplier")
+		holder = locked_active_holder(CARD, name, "Supplier")
 		if holder:
 			frappe.throw(_("Card {0} is already held by {1}.").format(name, holder.posting_doc))
 		amounts.append((name, flt(card.net_amount, 2)))

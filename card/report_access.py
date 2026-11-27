@@ -19,6 +19,7 @@ instead of checking the target doctype), each of which calls
 ``assert_report_role`` and stays inside ``permitted_companies``."""
 
 import frappe
+import frappe.permissions  # not loaded by `import frappe` alone (a console run without a request)
 from frappe import _
 
 CARD_DOCTYPE = "Card Monthly Card"

@@ -25,6 +25,18 @@ def build_posting_key(company, party_type, party, month, year):
 	)
 
 
+def linked_posting_key(company, party_type, party, month, year, posting_doc, sequence=1):
+	"""The posting key of the active Linked log of ``posting_doc`` (``GLPostingLog.validate`` writes it). The
+	link reads it with a locking read on the unique index of the key, to see a link of the same invoice that
+	another transaction committed (issue 340)."""
+	key = build_posting_key(company, party_type, party, month, year)
+	if (sequence or 1) > 1:
+		key = "{0}|{1}".format(key, sequence)
+	# a short digest of the invoice name keeps long party names inside the key's length
+	digest = hashlib.sha1((posting_doc or "").encode()).hexdigest()[:12]
+	return "{0}|L|{1}".format(key, digest)
+
+
 # the party field of each posting document the builder creates
 POSTING_PARTY = {"Purchase Invoice": ("Supplier", "supplier"), "Sales Invoice": ("Customer", "customer")}
 
@@ -55,9 +67,15 @@ class GLPostingLog(Document):
 			# sources it pays for is its own unit (one link per invoice); the
 			# sources' membership is what keeps them from being built again
 			if self.origin == "Linked":
-				# a short digest of the invoice name keeps long party names inside the key's length
-				digest = hashlib.sha1((self.posting_doc or "").encode()).hexdigest()[:12]
-				self.posting_key = "{0}|L|{1}".format(self.posting_key, digest)
+				self.posting_key = linked_posting_key(
+					self.company,
+					self.party_type,
+					self.party,
+					self.month,
+					self.year,
+					self.posting_doc,
+					self.sequence,
+				)
 			# FR-156 (#49, #126; C-10, O-15): a credit note draft issued after the
 			# monthly Sales Invoice is submitted, to carry the non-taxable
 			# customer-side deductions the SI could not (ZATCA: no negative SI
@@ -85,6 +103,16 @@ class GLPostingLog(Document):
 			and self.posting_doctype == self.posting_type
 			and frappe.db.get_value(self.posting_doctype, self.posting_doc, fields, as_dict=True)
 		)
+		if (
+			doc
+			and party_field
+			and self.origin == "Linked"
+			and self.party_type == party_type
+			and (doc.company != self.company or doc.get(party_field) != self.party or doc.docstatus == 2)
+		):
+			# issue 340: the link read the invoice from its locked row, and this plain read answers from the
+			# snapshot of the transaction. They differ when the invoice was changed in between.
+			frappe.throw(_("{0} changed while it was being linked; try again.").format(self.posting_doc))
 		if (
 			not doc
 			or not doc.creation

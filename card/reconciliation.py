@@ -87,15 +87,15 @@ def cards_invoiced(party_type, parties, company, start, end, cards=None):
 			fields=["name", "party", "month", "year"],
 			limit_page_length=0,
 		)
-	else:
-		# FR-194: a hand-booked sales invoice may be linked to cards long after their month (the log carries
-		# the invoice date): no year window on a Linked log, each card still counts in its own month
-		logs += frappe.get_all(
-			"GL Posting Log",
-			filters=dict(base, posting_type=POSTING_TYPE[party_type], origin="Linked"),
-			fields=["name", "party", "month", "year"],
-			limit_page_length=0,
-		)
+	# FR-194, issue 340: a hand-booked invoice (sales or purchase) may be linked to cards long after their
+	# month. The log of a link carries the date of the invoice, not the month of a card, and the link sets no
+	# limit between the two: no year window on a Linked log, each card still counts in its own month
+	logs += frappe.get_all(
+		"GL Posting Log",
+		filters=dict(base, posting_type=POSTING_TYPE[party_type], origin="Linked"),
+		fields=["name", "party", "month", "year"],
+		limit_page_length=0,
+	)
 	party_of = {log.name: log.party for log in logs}
 	if not party_of:
 		return {}
