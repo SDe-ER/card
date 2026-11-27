@@ -18,6 +18,12 @@ per site.
 
 ## Next release (merged, not yet released)
 
+_Nothing yet._
+
+## v4.14.2 — 2026-11-27
+
+Patch release on top of v4.14.1. It makes the link of an invoice to its monthly cards safer when two people work at the same time, and it improves the Arabic wording of CARD screens. It changes no role or permission, and CARD posts no accounting entry.
+
 - **2026-11-27 — More CARD messages show in Arabic.** About eighty CARD messages (accounting posting checks, cash
   payments, monthly cards, supplier statements) that appeared in English now appear in Arabic. This changes no role,
   permission or data.
