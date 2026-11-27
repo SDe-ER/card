@@ -10522,3 +10522,51 @@ msgstr "{0} {1} سُجّل على فاتورة المورد رقم {2}، ولي�
 #: card/gl/integrity.py:207
 msgid "{0}: {1} → {2}"
 msgstr "{0}: {1} ← {2}"
+
+#: card/public/js/customer_invoice_link.js
+msgid "Link to monthly cards"
+msgstr "ربط بالكروت الشهرية"
+
+#: card/public/js/customer_invoice_link.js
+msgid "Remove link to monthly cards"
+msgstr "إلغاء الربط بالكروت الشهرية"
+
+#: card/public/js/customer_invoice_link.js
+msgid "This customer has no unlinked approved monthly card on the projects of this invoice."
+msgstr "لا يوجد لهذا العميل كارت شهري معتمد غير مربوط على مشاريع هذه الفاتورة."
+
+#: card/public/js/customer_invoice_link.js
+msgid "Reason for linking this invoice"
+msgstr "سبب ربط هذه الفاتورة"
+
+#: card/public/js/customer_invoice_link.js
+msgid "Link the invoice"
+msgstr "اربط الفاتورة"
+
+#: card/public/js/customer_invoice_link.js
+msgid "The invoice is linked to the monthly cards."
+msgstr "تم ربط الفاتورة بالكروت الشهرية."
+
+#: card/public/js/customer_invoice_link.js
+msgid "Invoice net total"
+msgstr "صافي الفاتورة"
+
+#: card/public/js/customer_invoice_link.js
+msgid "Selected cards total"
+msgstr "إجمالي الكروت المختارة"
+
+#: card/public/js/customer_invoice_link.js
+msgid "Reason for removing the link"
+msgstr "سبب إلغاء الربط"
+
+#: card/public/js/customer_invoice_link.js
+msgid "Remove the link"
+msgstr "ألغِ الربط"
+
+#: card/public/js/customer_invoice_link.js
+msgid "The link to the monthly cards is removed."
+msgstr "تم إلغاء الربط بالكروت الشهرية."
+
+#: card/public/js/customer_invoice_link.js
+msgid "Linked to monthly cards: {0}"
+msgstr "مربوطة بالكروت الشهرية: {0}"

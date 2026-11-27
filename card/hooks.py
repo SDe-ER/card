@@ -49,6 +49,8 @@ doctype_js = {
 	"Card Monthly Card": "public/js/cancel_reason.js",
 	"Equipment Transport": "public/js/cancel_reason.js",
 	"Project Diesel Fill": "public/js/cancel_reason.js",
+	# FR-194 / FR-195: Desk buttons to link a customer Sales Invoice to its monthly cards and to remove the link
+	"Sales Invoice": "public/js/customer_invoice_link.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

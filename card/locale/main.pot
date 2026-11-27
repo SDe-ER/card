@@ -14618,3 +14618,51 @@ msgstr ""
 #: card/card/doctype/gl_posting_log/gl_posting_log.py
 msgid "{0} changed while it was being linked; try again."
 msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Link to monthly cards"
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Remove link to monthly cards"
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "This customer has no unlinked approved monthly card on the projects of this invoice."
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Reason for linking this invoice"
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Link the invoice"
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "The invoice is linked to the monthly cards."
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Invoice net total"
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Selected cards total"
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Reason for removing the link"
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Remove the link"
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "The link to the monthly cards is removed."
+msgstr ""
+
+#: card/public/js/customer_invoice_link.js
+msgid "Linked to monthly cards: {0}"
+msgstr ""
