@@ -263,18 +263,17 @@
     {
       "name": "invoice-link-menu",
       "path": "/app/sales-invoice/{si:unlinked}",
-      "click": ".inner-group-button[data-label=\"CARD\"] button",
-      "waitSel": ".inner-group-button[data-label=\"CARD\"] .dropdown-menu"
+      "clickSelAfter": [
+        ".inner-group-button[data-label=\"CARD\"] button"
+      ],
+      "waitSel": ".inner-group-button[data-label=\"CARD\"] .dropdown-item"
     },
     {
       "name": "invoice-link-dialog",
       "path": "/app/sales-invoice/{si:unlinked}",
-      "click": ".inner-group-button[data-label=\"CARD\"] button",
-      "clickTextAfter": [
-        "Link to monthly cards",
-        "ربط بالكروت الشهرية"
-      ],
       "clickSelAfter": [
+        ".inner-group-button[data-label=\"CARD\"] button",
+        ".inner-group-button[data-label=\"CARD\"] .dropdown-item",
         ".modal.show .frappe-control[data-fieldname=\"card_0\"] input",
         ".modal.show .frappe-control[data-fieldname=\"card_1\"] input"
       ],
@@ -287,12 +286,11 @@
     {
       "name": "invoice-unlink-dialog",
       "path": "/app/sales-invoice/{si:linked}",
-      "click": ".inner-group-button[data-label=\"CARD\"] button",
-      "clickTextAfter": [
-        "Remove link to monthly cards",
-        "إلغاء الربط بالكروت الشهرية"
-      ],
-      "waitSel": ".modal.show .frappe-control[data-fieldname=\"reason\"]"
+      "waitSel": ".modal.show .frappe-control[data-fieldname=\"reason\"]",
+      "clickSelAfter": [
+        ".inner-group-button[data-label=\"CARD\"] button",
+        ".inner-group-button[data-label=\"CARD\"] .dropdown-item"
+      ]
     }
   ]
 }
