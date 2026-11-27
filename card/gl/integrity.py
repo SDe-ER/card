@@ -1597,8 +1597,8 @@ def _invoice_can_be_linked(inv):
 
 @frappe.whitelist(methods=["GET"])
 def customer_invoice_link_info(invoice: str):
-	"""FR-194 / FR-195, read only: what the Desk buttons "Link to monthly cards" and "Remove link to monthly
-	cards" of a submitted Sales Invoice show. ``linked`` says whether an active GL Posting Log holds the invoice
+	"""Read only: what the Desk buttons "Link to monthly cards" and "Remove link to monthly cards" (FR-194,
+	FR-195) of a submitted Sales Invoice show. ``linked`` says whether an active GL Posting Log holds the invoice
 	(``log``, ``origin`` Linked or Built, and its cards in ``linked_cards``). An invoice that is not linked and
 	that the link accepts (``eligible``) gets the cards it could bill in ``cards``: the unlinked approved cards
 	of its customer on its projects, as the candidates list reads them (at most 100; ``more_cards``).
