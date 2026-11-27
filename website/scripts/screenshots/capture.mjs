@@ -221,6 +221,8 @@ function watchReportRuns(page) {
   // a call that never gets an answer (network error, abort) has no status; its error text names the cause
   page.on("requestfailed", (r) => {
     if (!r.url().includes(REPORT_RUN)) return;
+    // an aborted call (a late request cut by the page) must not fail a report that drew
+    if (r.failure()?.errorText === "net::ERR_ABORTED") return;
     runs.push({
       status: 0,
       message: Promise.resolve(r.failure()?.errorText ?? ""),

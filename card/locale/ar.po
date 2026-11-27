@@ -2320,10 +2320,12 @@ msgstr "المعدة رايحة فين. الورشة والمستودع بينه
 msgid "Destination place"
 msgstr "مكان الوجهة"
 
+#: card/card/doctype/equipment_transport/equipment_transport.json
 msgctxt "Equipment Transport"
 msgid "Workshop"
 msgstr "ورشة صيانة"
 
+#: card/card/doctype/equipment_transport_item/equipment_transport_item.json
 msgctxt "Equipment Transport Item"
 msgid "Workshop"
 msgstr "ورشة صيانة"

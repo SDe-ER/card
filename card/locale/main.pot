@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CARD VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
-"POT-Creation-Date: 2026-11-27 12:09+0300\n"
-"PO-Revision-Date: 2026-11-27 12:09+0300\n"
+"POT-Creation-Date: 2026-11-27 14:02+0300\n"
+"PO-Revision-Date: 2026-11-27 14:02+0300\n"
 "Last-Translator: info@sdce.sa\n"
 "Language-Team: info@sdce.sa\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: card/tests/test_customer_reports.py:248
-#: card/tests/test_customer_reports.py:249
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:183
 msgid " (Draft)"
 msgstr ""
 
@@ -50,7 +49,6 @@ msgstr ""
 #: card/card/report/equipment_customer_statement/equipment_customer_statement.py:254
 #: card/card/report/equipment_customer_statement/statement_pdf.py:127
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:271
-#: card/tests/test_customer_statement_pdf.py:238
 msgid "(Draft)"
 msgstr ""
 
@@ -420,8 +418,6 @@ msgid "Accrual entries"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:530
-#: card/tests/test_posting_lines.py:292 card/tests/test_report_access.py:301
-#: card/tests/test_report_access.py:337
 msgid "Accrual entries (Credit)"
 msgstr ""
 
@@ -625,8 +621,6 @@ msgstr ""
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:171
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:215
 #: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:29
-#: card/tests/test_diesel_allocation.py:390
-#: card/tests/test_diesel_analysis.py:220
 msgid "Allocated litres (recorded + estimated)"
 msgstr ""
 
@@ -1331,7 +1325,6 @@ msgid "CARD hours differ from the meter hours by more than {0}%"
 msgstr ""
 
 #: card/diesel_meter_extraction.py:145
-#: card/tests/test_diesel_meter_extraction.py:261
 msgid "CARD meter extraction: worker address refused"
 msgstr ""
 
@@ -1654,8 +1647,6 @@ msgstr ""
 #: card/card/report/equipment_downtime/equipment_downtime.py:260
 #: card/card/report/unbilled_card_work/unbilled_card_work.py:104
 #: card/dashboards.py:31 card/desktop_icon/card.json:10
-#: card/tests/test_dashboards_chaining.py:108
-#: card/tests/test_dashboards_chaining.py:109
 #: card/www/card-portal/index.html:30
 msgid "Card"
 msgstr ""
@@ -3207,7 +3198,6 @@ msgid "Customer cards not invoiced yet (not in revenue)"
 msgstr ""
 
 #: card/card/report/equipment_customer_statement/equipment_customer_statement.py:559
-#: card/tests/test_customer_reports.py:391
 msgid "Customer closing balance"
 msgstr ""
 
@@ -3308,7 +3298,6 @@ msgstr ""
 
 #: card/card/report/equipment_customer_statement/equipment_customer_statement.html:254
 #: card/card/report/equipment_customer_statement/statement_pdf.py:186
-#: card/tests/test_customer_statement_pdf.py:209
 msgid "Customer signature"
 msgstr ""
 
@@ -3653,10 +3642,6 @@ msgstr ""
 msgid "Deduct from monthly dues"
 msgstr ""
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:284
-msgid "Deductions"
-msgstr ""
-
 #: card/card/report/equipment_customer_statement/equipment_customer_statement.py:408
 msgctxt "Equipment Customer Statement"
 msgid "Deductions"
@@ -3942,7 +3927,6 @@ msgstr ""
 
 #: card/card/doctype/card_monthly_card/card_monthly_card.js:453
 #: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:50
-#: card/tests/test_diesel_allocation.py:393
 msgid "Diesel cost (incl. estimated)"
 msgstr ""
 
@@ -3973,7 +3957,6 @@ msgid "Diesel fill project check"
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:666
-#: card/tests/test_diesel_variance.py:470
 msgid "Diesel fill without operating hours"
 msgstr ""
 
@@ -4381,7 +4364,7 @@ msgstr ""
 msgid "ERPNext invoices outside Card are per party for the whole period, whatever the project or equipment filter."
 msgstr ""
 
-#: card/reconciliation.py:47 card/tests/test_posting_lines.py:410
+#: card/reconciliation.py:47
 msgid "ERPNext invoices outside Card are shown for manual reconciliation and are not matched to cards automatically."
 msgstr ""
 
@@ -4394,9 +4377,6 @@ msgstr ""
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:279
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:298
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:355
-#: card/tests/test_posting_lines.py:290 card/tests/test_posting_lines.py:407
-#: card/tests/test_posting_lines.py:444 card/tests/test_posting_lines.py:475
-#: card/tests/test_report_access.py:354
 msgid "ERPNext invoices outside Card — to reconcile (net before VAT)"
 msgstr ""
 
@@ -4542,13 +4522,10 @@ msgid "Engine hours cannot be negative."
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:612
-#: card/tests/test_diesel_variance.py:707
 msgid "Engine hours prorated by time between meter readings"
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:572
-#: card/tests/test_diesel_variance.py:643
-#: card/tests/test_diesel_variance.py:662
 msgid "Engine hours unavailable for this user; falling back to the billable-hours proxy."
 msgstr ""
 
@@ -5360,8 +5337,6 @@ msgstr ""
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:185
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:227
 #: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:43
-#: card/tests/test_diesel_allocation.py:392
-#: card/tests/test_diesel_analysis.py:222
 msgid "Estimated litres (hours split)"
 msgstr ""
 
@@ -5482,7 +5457,6 @@ msgid "Exit reason"
 msgstr ""
 
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:239
-#: card/tests/test_diesel_analysis.py:228
 msgid "Expected = operating hours x the per-hour expected consumption when it is set, otherwise operating hours x (daily diesel consumption / daily standard hours). Allocated = litres allocated from submitted diesel fills: recorded (direct fills to the equipment) plus estimated (project-tank fills split by card hours, not measured). The variance compares expected vs allocated, not measured consumption. Display only — no accounting."
 msgstr ""
 
@@ -6174,7 +6148,6 @@ msgstr ""
 #: card/card/report/equipment_customer_statement/statement_pdf.py:142
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.html:222
 #: card/card/report/equipment_supplier_statement/statement_pdf.py:160
-#: card/tests/test_customer_statement_pdf.py:245
 msgid "Includes draft cards"
 msgstr ""
 
@@ -6505,7 +6478,6 @@ msgid "Invoiced entries"
 msgstr ""
 
 #: card/card/report/equipment_customer_statement/equipment_customer_statement.py:517
-#: card/tests/test_customer_reports.py:390 card/tests/test_report_access.py:368
 msgid "Invoiced entries (Debit)"
 msgstr ""
 
@@ -6526,10 +6498,6 @@ msgstr ""
 #: card/card/report/equipment_customers_summary/equipment_customers_summary.py:252
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:537
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:272
-#: card/tests/test_posting_lines.py:287 card/tests/test_posting_lines.py:404
-#: card/tests/test_posting_lines.py:441 card/tests/test_posting_lines.py:472
-#: card/tests/test_posting_lines.py:593 card/tests/test_posting_lines.py:618
-#: card/tests/test_posting_lines.py:631 card/tests/test_posting_lines.py:752
 msgid "Invoiced through Card (net before VAT)"
 msgstr ""
 
@@ -6780,7 +6748,6 @@ msgid "Lines signature"
 msgstr ""
 
 #: card/card/report/equipment_expenses_without_equipment/equipment_expenses_without_equipment.py:167
-#: card/tests/test_o3_dimension.py:295
 msgid "Lines without equipment"
 msgstr ""
 
@@ -6883,7 +6850,6 @@ msgstr ""
 
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:192
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:233
-#: card/tests/test_diesel_analysis.py:223
 msgid "Litres variance (expected vs allocated)"
 msgstr ""
 
@@ -7233,7 +7199,6 @@ msgid "Meter readings are cumulative: only differences between consecutive plaus
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:575
-#: card/tests/test_diesel_variance.py:260
 msgid "Meter readings do not cover the month: the billable-hours proxy is used"
 msgstr ""
 
@@ -7557,7 +7522,6 @@ msgstr ""
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:268
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:290
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:373
-#: card/tests/test_posting_lines.py:286 card/tests/test_posting_lines.py:751
 msgid "Net cards"
 msgstr ""
 
@@ -7667,7 +7631,6 @@ msgid "No VAT: the supplier has no tax ID."
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:796
-#: card/tests/test_diesel_variance.py:441
 msgid "No anomaly thresholds are set for this company in Card Settings: nothing is flagged."
 msgstr ""
 
@@ -7686,7 +7649,6 @@ msgid "No charge"
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:101
-#: card/tests/test_diesel_variance.py:321
 msgid "No consumption rate on some operating days: expected litres not computed"
 msgstr ""
 
@@ -7863,10 +7825,6 @@ msgstr ""
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:292
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:354
 #: card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py:373
-#: card/tests/test_posting_lines.py:288 card/tests/test_posting_lines.py:405
-#: card/tests/test_posting_lines.py:442 card/tests/test_posting_lines.py:473
-#: card/tests/test_posting_lines.py:594 card/tests/test_posting_lines.py:619
-#: card/tests/test_posting_lines.py:753 card/tests/test_report_access.py:352
 msgid "Not invoiced through Card"
 msgstr ""
 
@@ -8414,7 +8372,6 @@ msgid "Operating hours"
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:668
-#: card/tests/test_diesel_variance.py:471
 msgid "Operating hours without a diesel fill"
 msgstr ""
 
@@ -9581,7 +9538,6 @@ msgid "Project revenue"
 msgstr ""
 
 #: card/card/report/equipment_expenses_without_equipment/equipment_expenses_without_equipment.py:175
-#: card/tests/test_s3_posting.py:544
 msgid "Project tank diesel lines (intended, not listed)"
 msgstr ""
 
@@ -9664,7 +9620,6 @@ msgstr ""
 #: card/card/report/diesel_invoice_reconciliation/diesel_invoice_reconciliation.py:33
 #: card/card/report/transport_accounting_review/transport_accounting_review.py:61
 #: card/card/sidebar/card_expenses/card_expenses.json:50
-#: card/tests/test_posting_source_integrity.py:66
 msgid "Purchase Invoice"
 msgstr ""
 
@@ -9988,8 +9943,6 @@ msgstr ""
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:178
 #: card/card/report/equipment_diesel_analysis/equipment_diesel_analysis.py:221
 #: card/card/report/equipment_diesel_consumption/equipment_diesel_consumption.py:36
-#: card/tests/test_diesel_allocation.py:391
-#: card/tests/test_diesel_analysis.py:221
 msgid "Recorded litres (direct fills)"
 msgstr ""
 
@@ -10771,8 +10724,6 @@ msgstr ""
 #: card/card/report/equipment_customer_statement/equipment_customer_statement.html:215
 #: card/card/report/equipment_customer_statement/equipment_customer_statement.py:441
 #: card/card/report/equipment_customer_statement/statement_pdf.py:144
-#: card/tests/test_customer_reports.py:388
-#: card/tests/test_customer_statement_pdf.py:246
 msgid "Select a customer to display the statement."
 msgstr ""
 
@@ -11421,7 +11372,6 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'GL Posting Log'
 #: card/card/doctype/gl_posting_log/gl_posting_log.json:100
 #: card/card/report/posting_source_integrity/posting_source_integrity.py:232
-#: card/tests/test_posting_source_integrity.py:55
 msgid "Submitted"
 msgstr ""
 
@@ -11540,7 +11490,6 @@ msgid "Supplier cards not invoiced yet (not in costs)"
 msgstr ""
 
 #: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:572
-#: card/tests/test_report_access.py:302
 msgid "Supplier closing balance"
 msgstr ""
 
@@ -12001,7 +11950,6 @@ msgid "The company {0} has no Diesel item configured in Card Company Settings. S
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:105
-#: card/tests/test_diesel_variance.py:307
 msgid "The consumption rate changes between two meter readings: hours split by time"
 msgstr ""
 
@@ -13352,8 +13300,6 @@ msgid "Variance = filled litres (direct fills recorded for the equipment) minus 
 msgstr ""
 
 #: card/card/report/diesel_variance_anomaly/diesel_variance_anomaly.py:664
-#: card/tests/test_diesel_variance.py:467
-#: card/tests/test_diesel_variance.py:485
 msgid "Variance above the company threshold"
 msgstr ""
 
