@@ -121,6 +121,13 @@ async function resolve(ctx) {
       equipment: e.name,
     });
   }
+  // the two fictitious invoices of ci_link_invoices.py (the Desk-button shots)
+  map["si:unlinked"] = await latest(ctx, "Sales Invoice", {
+    remarks: "CARD demo - unlinked invoice",
+  });
+  map["si:linked"] = await latest(ctx, "Sales Invoice", {
+    remarks: "CARD demo - linked invoice",
+  });
   for (const [k, dt] of Object.entries({
     trn: "Equipment Transport",
     etc: "Employee Tool Custody",
@@ -441,6 +448,11 @@ async function run() {
           throw new Error(
             `no visible element for click: ${s.clickTextAfter.join(" / ")}`,
           );
+        // a click on each selector in turn, after the text clicks (for example the check boxes of a dialog)
+        for (const sel of s.clickSelAfter || []) {
+          await page.locator(sel).first().click({ timeout: 3000 });
+          await page.waitForTimeout(500);
+        }
         if (reportRuns) await reportReady(page, reportRuns);
         // what the shot is about must be on screen: a panel that did not open or a report with no rows is a failed shot
         if (s.waitSel)
