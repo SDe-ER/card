@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³ uchun"
 
 msgid "Loads last month"
-msgstr "O'tgan oy reyslari (CARD)"
+msgstr "O'tgan oy reyslari (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Reyslar faqat mijoz narx turi m³ uchun bo'lgan kartada qayd etiladi"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "O'tgan oydagi kartalar"
 
 msgid "Rented equipment (CARD)"
-msgstr "Ijaradagi texnika (CARD)"
+msgstr "Ijaradagi texnika (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Ijaradagi texnika (CARD)"
+msgstr "Ijaradagi texnika (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "O'tgan oy reyslari (CARD)"
+msgstr "O'tgan oy reyslari (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Qoralama kartalar (CARD)"
+msgstr "Qoralama kartalar (Card)"
 
 msgid "كروت مسودة"
-msgstr "Qoralama kartalar (CARD)"
+msgstr "Qoralama kartalar (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Ichki tarifsiz kartalar (CARD)"
+msgstr "Ichki tarifsiz kartalar (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Ichki tarifsiz kartalar (CARD)"
+msgstr "Ichki tarifsiz kartalar (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Tarifsiz ish soatlari (CARD)"
+msgstr "Tarifsiz ish soatlari (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Tarifsiz ish soatlari (CARD)"
+msgstr "Tarifsiz ish soatlari (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Mijozlar xulosasi (CARD)"

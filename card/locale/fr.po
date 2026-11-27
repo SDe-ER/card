@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Par m³"
 
 msgid "Loads last month"
-msgstr "Rotations du mois dernier (CARD)"
+msgstr "Rotations du mois dernier (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Les rotations ne peuvent être saisies que sur une carte dont le type de tarif client est au m³"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Cartes du mois dernier"
 
 msgid "Rented equipment (CARD)"
-msgstr "Équipements loués (CARD)"
+msgstr "Équipements loués (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Équipements loués (CARD)"
+msgstr "Équipements loués (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Rotations du mois dernier (CARD)"
+msgstr "Rotations du mois dernier (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Cartes brouillon (CARD)"
+msgstr "Cartes brouillon (Card)"
 
 msgid "كروت مسودة"
-msgstr "Cartes brouillon (CARD)"
+msgstr "Cartes brouillon (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Cartes sans tarif interne (CARD)"
+msgstr "Cartes sans tarif interne (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Cartes sans tarif interne (CARD)"
+msgstr "Cartes sans tarif interne (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Heures d'exploitation sans tarif (CARD)"
+msgstr "Heures d'exploitation sans tarif (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Heures d'exploitation sans tarif (CARD)"
+msgstr "Heures d'exploitation sans tarif (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Récapitulatif clients (CARD)"

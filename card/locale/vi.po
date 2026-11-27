@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Theo m³"
 
 msgid "Loads last month"
-msgstr "Số chuyến tháng trước (CARD)"
+msgstr "Số chuyến tháng trước (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Chỉ có thể ghi chuyến vào thẻ có loại đơn giá khách hàng là theo m³"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Thẻ tháng trước"
 
 msgid "Rented equipment (CARD)"
-msgstr "Thiết bị thuê (CARD)"
+msgstr "Thiết bị thuê (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Thiết bị thuê (CARD)"
+msgstr "Thiết bị thuê (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Số chuyến tháng trước (CARD)"
+msgstr "Số chuyến tháng trước (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Thẻ nháp (CARD)"
+msgstr "Thẻ nháp (Card)"
 
 msgid "كروت مسودة"
-msgstr "Thẻ nháp (CARD)"
+msgstr "Thẻ nháp (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Thẻ chưa có đơn giá nội bộ (CARD)"
+msgstr "Thẻ chưa có đơn giá nội bộ (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Thẻ chưa có đơn giá nội bộ (CARD)"
+msgstr "Thẻ chưa có đơn giá nội bộ (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Giờ vận hành chưa có đơn giá (CARD)"
+msgstr "Giờ vận hành chưa có đơn giá (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Giờ vận hành chưa có đơn giá (CARD)"
+msgstr "Giờ vận hành chưa có đơn giá (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Tóm tắt khách hàng (CARD)"

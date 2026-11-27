@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "ក្នុងមួយ m³"
 
 msgid "Loads last month"
-msgstr "ចំនួនផ្ទុកខែមុន (CARD)"
+msgstr "ចំនួនផ្ទុកខែមុន (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "អាចកត់ត្រាចំនួនផ្ទុកបានតែលើកាតដែលប្រភេទអត្រាអតិថិជនជាក្នុងមួយ m³ ប៉ុណ្ណោះ"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "កាតខែមុន"
 
 msgid "Rented equipment (CARD)"
-msgstr "ឧបករណ៍ជួល (CARD)"
+msgstr "ឧបករណ៍ជួល (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "ឧបករណ៍ជួល (CARD)"
+msgstr "ឧបករណ៍ជួល (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "ចំនួនផ្ទុកខែមុន (CARD)"
+msgstr "ចំនួនផ្ទុកខែមុន (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "កាតព្រាង (CARD)"
+msgstr "កាតព្រាង (Card)"
 
 msgid "كروت مسودة"
-msgstr "កាតព្រាង (CARD)"
+msgstr "កាតព្រាង (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "កាតគ្មានអត្រាផ្ទៃក្នុង (CARD)"
+msgstr "កាតគ្មានអត្រាផ្ទៃក្នុង (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "កាតគ្មានអត្រាផ្ទៃក្នុង (CARD)"
+msgstr "កាតគ្មានអត្រាផ្ទៃក្នុង (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "ម៉ោងប្រតិបត្តិការគ្មានអត្រា (CARD)"
+msgstr "ម៉ោងប្រតិបត្តិការគ្មានអត្រា (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "ម៉ោងប្រតិបត្តិការគ្មានអត្រា (CARD)"
+msgstr "ម៉ោងប្រតិបត្តិការគ្មានអត្រា (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "សង្ខេបអតិថិជន (CARD)"

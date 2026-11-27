@@ -15,6 +15,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ## [Unreleased]
 
+### Changed
+- **The word `CARD` added to translations in v4.14.1 and v4.14.2 is back to `Card`** (Owner decision
+  2026-11-27: no global change of the spelling). In every `card/locale/*.po`, each msgstr added or changed since
+  v4.14.0 that contained `CARD` now reads `Card`: 274 entries in 43 locales (ar 28, de 8, ur 7, five locales
+  5 each, the rest 6 each). Older entries keep `CARD`, as do the msgid `Card` -> msgstr `CARD` rule, `CARD VAT`
+  record names, `app_title`, fixtures and msgids. To keep every number card visible (FR-168), 175 older row-label
+  translations ending "(CARD)" were set to "(Card)" so that they equal the new record-name translations.
+
+### Fixed
+- **A read-only `Workshop` value reads "ورشة صيانة" in Arabic** in the Equipment Transport form (destination and
+  source place), its list view and the transport item grid (from place). The Select value is now translated with
+  the DocType context (`frappe.meta.set_formatter` and a list-view formatter in `equipment_transport_list.js`).
+  Report view, group-by sidebar and Kanban are not covered.
+
 ### Planned
 - **Full CARD Mobile** (a later release; design approved 2026-10-19): role-based navigation on real
   permissions; daily operating hours entered by operators, reviewed by supervisors and approved by

@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "Po m³"
 
 msgid "Loads last month"
-msgstr "Tereti prošlog mjeseca (CARD)"
+msgstr "Tereti prošlog mjeseca (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Tereti se mogu evidentirati samo na kartici čija je vrsta cijene za kupca po m³"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Kartice prošli mjesec"
 
 msgid "Rented equipment (CARD)"
-msgstr "Iznajmljena oprema (CARD)"
+msgstr "Iznajmljena oprema (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Iznajmljena oprema (CARD)"
+msgstr "Iznajmljena oprema (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Tereti prošlog mjeseca (CARD)"
+msgstr "Tereti prošlog mjeseca (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Kartice u nacrtu (CARD)"
+msgstr "Kartice u nacrtu (Card)"
 
 msgid "كروت مسودة"
-msgstr "Kartice u nacrtu (CARD)"
+msgstr "Kartice u nacrtu (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Kartice bez interne cijene (CARD)"
+msgstr "Kartice bez interne cijene (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Kartice bez interne cijene (CARD)"
+msgstr "Kartice bez interne cijene (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Radni sati bez cijene (CARD)"
+msgstr "Radni sati bez cijene (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Radni sati bez cijene (CARD)"
+msgstr "Radni sati bez cijene (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Sažetak kupaca (CARD)"

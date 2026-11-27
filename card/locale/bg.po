@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "На m³"
 
 msgid "Loads last month"
-msgstr "Курсове миналия месец (CARD)"
+msgstr "Курсове миналия месец (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Курсове може да се записват само в карта с тип на тарифата за клиента по m³"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Карти за миналия месец"
 
 msgid "Rented equipment (CARD)"
-msgstr "Наета техника (CARD)"
+msgstr "Наета техника (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Наета техника (CARD)"
+msgstr "Наета техника (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Курсове миналия месец (CARD)"
+msgstr "Курсове миналия месец (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Чернови карти (CARD)"
+msgstr "Чернови карти (Card)"
 
 msgid "كروت مسودة"
-msgstr "Чернови карти (CARD)"
+msgstr "Чернови карти (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Карти без вътрешна ставка (CARD)"
+msgstr "Карти без вътрешна ставка (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Карти без вътрешна ставка (CARD)"
+msgstr "Карти без вътрешна ставка (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Оперативни часове без ставка (CARD)"
+msgstr "Оперативни часове без ставка (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Оперативни часове без ставка (CARD)"
+msgstr "Оперативни часове без ставка (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Обобщение по клиенти (CARD)"

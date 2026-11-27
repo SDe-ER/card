@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "За м³"
 
 msgid "Loads last month"
-msgstr "Рейсы за прошлый месяц (CARD)"
+msgstr "Рейсы за прошлый месяц (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Рейсы можно вносить только в карту, где тип тарифа клиента — за м³"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Карты за прошлый месяц"
 
 msgid "Rented equipment (CARD)"
-msgstr "Арендованная техника (CARD)"
+msgstr "Арендованная техника (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Арендованная техника (CARD)"
+msgstr "Арендованная техника (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Рейсы за прошлый месяц (CARD)"
+msgstr "Рейсы за прошлый месяц (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Черновики карт (CARD)"
+msgstr "Черновики карт (Card)"
 
 msgid "كروت مسودة"
-msgstr "Черновики карт (CARD)"
+msgstr "Черновики карт (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Карты без внутренней ставки (CARD)"
+msgstr "Карты без внутренней ставки (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Карты без внутренней ставки (CARD)"
+msgstr "Карты без внутренней ставки (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Моточасы без ставки (CARD)"
+msgstr "Моточасы без ставки (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Моточасы без ставки (CARD)"
+msgstr "Моточасы без ставки (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Сводка по клиентам (CARD)"

@@ -39,7 +39,7 @@ msgid "بالمتر المكعب"
 msgstr "m³-enként"
 
 msgid "Loads last month"
-msgstr "Fuvarok az előző hónapban (CARD)"
+msgstr "Fuvarok az előző hónapban (Card)"
 
 msgid "Loads can be recorded only on a card whose customer rate type is per m³"
 msgstr "Fuvar csak olyan kártyán rögzíthető, amelynek vevői díjtípusa m³-enként"
@@ -145,31 +145,31 @@ msgid "كروت الشهر الماضي"
 msgstr "Kártyák múlt hónapban"
 
 msgid "Rented equipment (CARD)"
-msgstr "Bérelt eszközök (CARD)"
+msgstr "Bérelt eszközök (Card)"
 
 msgid "المعدات المؤجرة"
-msgstr "Bérelt eszközök (CARD)"
+msgstr "Bérelt eszközök (Card)"
 
 msgid "Loads last month (CARD)"
-msgstr "Fuvarok az előző hónapban (CARD)"
+msgstr "Fuvarok az előző hónapban (Card)"
 
 msgid "Draft cards (CARD)"
-msgstr "Piszkozat kártyák (CARD)"
+msgstr "Piszkozat kártyák (Card)"
 
 msgid "كروت مسودة"
-msgstr "Piszkozat kártyák (CARD)"
+msgstr "Piszkozat kártyák (Card)"
 
 msgid "Cards without internal rate (CARD)"
-msgstr "Belső díj nélküli kártyák (CARD)"
+msgstr "Belső díj nélküli kártyák (Card)"
 
 msgid "كروت بدون سعر داخلي"
-msgstr "Belső díj nélküli kártyák (CARD)"
+msgstr "Belső díj nélküli kártyák (Card)"
 
 msgid "Operating hours without rate (CARD)"
-msgstr "Díj nélküli üzemóraszám (CARD)"
+msgstr "Díj nélküli üzemóraszám (Card)"
 
 msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماضي"
-msgstr "Díj nélküli üzemóraszám (CARD)"
+msgstr "Díj nélküli üzemóraszám (Card)"
 
 msgid "Customer summary (CARD)"
 msgstr "Ügyféláttekintés (CARD)"
