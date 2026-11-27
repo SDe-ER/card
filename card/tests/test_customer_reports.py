@@ -245,8 +245,8 @@ class TestCustomerReports(IntegrationTestCase):
 		by_card = card_rows(include_draft=1)
 		self.assertIn(submitted.name, by_card)
 		self.assertIn(draft.name, by_card)
-		self.assertTrue(by_card[draft.name]["label"].endswith(frappe._(" (Draft)")))
-		self.assertFalse(by_card[submitted.name]["label"].endswith(frappe._(" (Draft)")))
+		self.assertTrue(by_card[draft.name]["label"].endswith(frappe._("(Draft)")))
+		self.assertFalse(by_card[submitted.name]["label"].endswith(frappe._("(Draft)")))
 		self.assertEqual(flt(by_card[draft.name]["customer_amount"]), 1000.0)
 		self.assertEqual(flt(by_card[draft.name]["hourly_rate"]), 100.0)
 

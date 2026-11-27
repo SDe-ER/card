@@ -18,6 +18,9 @@ per site.
 
 ## Next release (merged, not yet released)
 
+- **2026-11-27 — More CARD messages show in Arabic.** About eighty CARD messages (accounting posting checks, cash
+  payments, monthly cards, supplier statements) that appeared in English now appear in Arabic. This changes no role,
+  permission or data.
 - **2026-11-27 — Arabic wording of CARD screens no longer clashes with HRMS.** On a site that also runs HRMS,
   three CARD words (**Deductions** in the two statements, **Workshop** in a transport, **Effective from** in an
   operating group member) and the **Approved** status of a cash payment keep the CARD Arabic on CARD screens.
