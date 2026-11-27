@@ -403,7 +403,12 @@ def execute(filters=None):
 			"width": 120,
 		},
 		{"fieldname": "additions", "label": _("Additions"), "fieldtype": "Currency", "width": 100},
-		{"fieldname": "deductions", "label": _("Deductions"), "fieldtype": "Currency", "width": 100},
+		{
+			"fieldname": "deductions",
+			"label": _("Deductions", context="Equipment Customer Statement"),
+			"fieldtype": "Currency",
+			"width": 100,
+		},
 		{"fieldname": "net", "label": _("Net"), "fieldtype": "Currency", "width": 120},
 	]
 

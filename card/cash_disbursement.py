@@ -684,7 +684,7 @@ def cash_row_status(card, row):
 	# literal translatable strings (a dynamic _(status) could not be extracted into the message catalogue)
 	status_labels = {
 		"Pending": _("Pending"),
-		"Approved": _("Approved"),
+		"Approved": _("Approved", context="Card Cash Disbursement"),
 		"Posting": _("Posting"),
 		"Posting Failed": _("Posting Failed"),
 		"Posted": _("Posted"),

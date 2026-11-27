@@ -53,6 +53,9 @@ GENERIC_WORDS = {
 	"Origin",
 	"Replaces",
 	"Confirm {0}",
+	"Deductions",
+	"Workshop",
+	"Effective from",
 }
 
 # Status words that Frappe draws with the plain text: a read-only Select value and a list cell go through
