@@ -450,7 +450,8 @@ class TestSupplierLinkReviewFixes(_P0Base):
 				],
 			)
 		self.assertEqual(
-			sorted((call.args[0], len(call.args[1])) for call in holders.call_args_list),
+			# a call without names returns at once and reads nothing
+			sorted((call.args[0], len(call.args[1])) for call in holders.call_args_list if call.args[1]),
 			[(CARD, 2), ("Project Diesel Fill", 1)],
 		)
 
