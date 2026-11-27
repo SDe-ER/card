@@ -245,8 +245,8 @@ user's CARD and accounting scope, and read on every card of the link.
   or its `gl_posting` is neither this log nor the active supplier-side log that holds the card (sub-rental). The
   message names the card.
 
-**Concurrency:** the invoice row, the log row and the card rows are locked in the order of the link. The invoice
-status, the log and the link fields of the cards are read under the locks. The amendment chain and the supplier-side
+**Concurrency:** the invoice row, the card rows and the log row are locked, in the order of the link (invoice,
+cards, posting logs). The invoice status, the log and the link fields of the cards are read under the locks. The amendment chain and the supplier-side
 log of a sub-rental card are plain reads.
 
 **Returns:** the GL Posting Log name. **Side effects:** sets the Linked GL Posting Log to `Cancelled` and clears its
@@ -268,7 +268,8 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.unlink_custome
 
 Read only. For every customer that has customer-billing cards in the company, lists the submitted Sales Invoices that
 CARD did not build and that have no link (no active GL Posting Log), newest first. Returns, debit notes, opening
-invoices and invoices with a submitted credit note are left out. With each invoice it gives the customer's cards that
+invoices, invoices with a submitted credit note and invoices in another currency than the company currency are
+left out. With each invoice it gives the customer's cards that
 can still be linked and that are on a project of the invoice (at most 100 cards; `more_cards` is true when there are
 more).
 
