@@ -454,6 +454,19 @@ async function run() {
           throw new Error(
             `no visible element for click: ${s.clickTextAfter.join(" / ")}`,
           );
+        // ordered clicks after the text clicks: a string is a CSS selector, an array is a list of texts (the first
+        // one that is visible is clicked); a step that finds nothing fails the shot (a menu item, a dialog check box)
+        for (const step of s.clickSteps || []) {
+          if (Array.isArray(step)) {
+            if (!(await clickText(page, step)))
+              throw new Error(
+                `no visible element for click: ${step.join(" / ")}`,
+              );
+          } else {
+            await page.locator(step).first().click({ timeout: 3000 });
+            await page.waitForTimeout(500);
+          }
+        }
         // a click on each selector in turn, after the text clicks (for example the check boxes of a dialog)
         for (const sel of s.clickSelAfter || []) {
           await page.locator(sel).first().click({ timeout: 3000 });
