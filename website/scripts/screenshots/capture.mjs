@@ -21,6 +21,10 @@ const USER = process.env.USER_NAME || "Administrator";
 const PASS = process.env.PASS || "admin";
 const COMPANY = process.env.COMPANY || "Example Contracting Co.";
 const only = process.argv.slice(2);
+// SKIP_PREFIX leaves out the shots whose name starts with it; ONLY_PREFIX keeps only those. The workflow takes the
+// invoice shots in a second pass, after it has seeded the invoices that the first pass must not see.
+const skipPrefix = process.env.SKIP_PREFIX;
+const onlyPrefix = process.env.ONLY_PREFIX;
 const { shots } = JSON.parse(readFileSync(join(here, "shots.json"), "utf8"));
 
 // API calls go through the demo user's logged-in session (set after login in run()).
@@ -364,6 +368,8 @@ async function run() {
     mkdirSync(join(OUT, lang), { recursive: true });
     for (const s of shots) {
       if (only.length && !only.includes(s.name)) continue;
+      if (skipPrefix && s.name.startsWith(skipPrefix)) continue;
+      if (onlyPrefix && !s.name.startsWith(onlyPrefix)) continue;
       const op = s.as === "operator";
       const page = await (s.mobile
         ? op

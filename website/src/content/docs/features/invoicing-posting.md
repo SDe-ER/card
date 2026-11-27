@@ -243,6 +243,10 @@ submitted invoice that is not a return or a debit note and that is not linked ye
 which keeps every check below. You can also call the server method yourself (see
 [Posting and accounting](/card/api-reference/posting-accounting/#link_customer_invoice)).
 
+<!-- screenshot: invoice-link-menu -->
+
+<!-- screenshot: invoice-link-dialog -->
+
 1. Find the invoices to link. Call `unlinked_customer_invoice_candidates` for the company. It lists each submitted
    Sales Invoice that CARD did not build and that has no link, with the customer's cards that have no invoice, and it
    says if a set of cards totals the invoice net (`match` is `exact` or `none`). An invoice in another
@@ -287,7 +291,12 @@ There are two ways to remove a link. Neither one posts an entry or changes a car
   does not remove the link. For this case a System Manager chooses **Remove link to monthly cards** in the group **CARD**
   of the invoice and gives a reason, or calls the server method `unlink_customer_invoice` with the invoice and a reason
   (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)). The button shows
-  only on an invoice that a person linked, and an Accounts Manager cannot use it. The caller needs the System
+  only on an invoice that a person linked, and an Accounts Manager cannot use it.
+
+<!-- screenshot: invoice-linked-form -->
+
+<!-- screenshot: invoice-unlink-dialog -->
+ The caller needs the System
   Manager role and also read permission on the Sales Invoice and on the cards. The System Manager role alone does
   not give read permission on a Sales Invoice, so the user also needs an accounts role.
 

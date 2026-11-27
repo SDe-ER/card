@@ -266,14 +266,14 @@
       "clickSelAfter": [
         ".inner-group-button[data-label=\"CARD\"] button"
       ],
-      "waitSel": "[role=\"menuitem\"]"
+      "waitSel": "[role=\"menuitem\"]:text-matches(\"Link to monthly cards|ربط بالكروت الشهرية\")"
     },
     {
       "name": "invoice-link-dialog",
       "path": "/app/sales-invoice/{si:unlinked}",
       "clickSelAfter": [
         ".inner-group-button[data-label=\"CARD\"] button",
-        "[role=\"menuitem\"]",
+        "[role=\"menuitem\"]:text-matches(\"Link to monthly cards|ربط بالكروت الشهرية\")",
         ".modal.show .frappe-control[data-fieldname=\"card_0\"] input",
         ".modal.show .frappe-control[data-fieldname=\"card_1\"] input"
       ],
@@ -289,7 +289,7 @@
       "waitSel": ".modal.show .frappe-control[data-fieldname=\"reason\"]",
       "clickSelAfter": [
         ".inner-group-button[data-label=\"CARD\"] button",
-        "[role=\"menuitem\"]"
+        "[role=\"menuitem\"]:text-matches(\"Remove link to monthly cards|إلغاء الربط بالكروت الشهرية\")"
       ]
     }
   ]

@@ -229,6 +229,10 @@ ERPNext ترحيلات CARD تحذيرًا.
 أدناه. ويمكنك أيضًا استدعاء طريقة الخادم بنفسك (انظر
 [الترحيل والمحاسبة](/card/ar/api-reference/posting-accounting/#link_customer_invoice)).
 
+<!-- screenshot: invoice-link-menu -->
+
+<!-- screenshot: invoice-link-dialog -->
+
 1. حدّد الفواتير المطلوب ربطها. استدعِ `unlinked_customer_invoice_candidates` للشركة. تعرض الطريقة كل فاتورة مبيعات معتمدة لم
    يبنها CARD وليس لها ربط، ومعها كروت العميل التي ليس لها فاتورة، وتبيّن هل يساوي مجموع مجموعة من الكروت صافي الفاتورة
    (`match` قيمته `exact` أو `none`). ولا تُعرض الفاتورة التي بعملة غير عملة الشركة. هذه الطريقة للقراءة فقط.
@@ -267,7 +271,11 @@ Card. ويجب أن يتحقق ذلك لكل مشروع أيضًا: صافي ب�
   يزيل الربط. في هذه الحالة يختار صاحب دور System Manager **إلغاء الربط بالكروت الشهرية** من مجموعة الأزرار **CARD** في الفاتورة
   ويكتب سببًا، أو يستدعي طريقة الخادم `unlink_customer_invoice` مع الفاتورة وسبب
   (انظر [الترحيل والمحاسبة](/card/ar/api-reference/posting-accounting/#unlink_customer_invoice)). ويظهر الزر فقط على
-  فاتورة ربطها شخص، ولا يستطيع صاحب دور Accounts Manager استخدامه. ويحتاج المستخدم إلى دور System Manager وإلى صلاحية قراءة
+  فاتورة ربطها شخص، ولا يستطيع صاحب دور Accounts Manager استخدامه.
+
+<!-- screenshot: invoice-linked-form -->
+
+<!-- screenshot: invoice-unlink-dialog --> ويحتاج المستخدم إلى دور System Manager وإلى صلاحية قراءة
   فاتورة المبيعات والكروت أيضًا. ودور System Manager وحده لا يعطي صلاحية قراءة فاتورة المبيعات، فيحتاج المستخدم إلى دور
   محاسبي كذلك.
 

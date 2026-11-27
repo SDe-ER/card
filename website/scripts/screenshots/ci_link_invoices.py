@@ -1,6 +1,7 @@
 """Seed two fictitious customer Sales Invoices for the Desk-button screenshots (FR-194, FR-195).
 
-Run by .github/workflows/docs-screenshots.yml after seed_demo.py, on the disposable CI bench only. It submits the
+Run by .github/workflows/docs-screenshots.yml after every other shot (it submits the cards below, which the
+other shots must not see), on the disposable CI bench only. It submits the
 October 2026 cards of the three customer-billing demo machines (CR-03, WL-05, MC-05) and books, by hand and with
 fictitious data:
 

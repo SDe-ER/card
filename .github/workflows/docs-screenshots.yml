@@ -92,12 +92,6 @@ jobs:
         run: |
           ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_verify.py').read())"
 
-      - name: Seed two fictitious customer invoices for the Desk-button shots
-        working-directory: /home/runner/frappe-bench/sites
-        run: |
-          ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_link_invoices.py').read())" | tee "${RUNNER_TEMP}/link_seed.log"
-          grep -q LINK_SEED_DONE "${RUNNER_TEMP}/link_seed.log"
-
       - name: Install Playwright (pinned, not a site dependency)
         working-directory: website
         run: |
@@ -109,15 +103,33 @@ jobs:
         working-directory: website
         run: rm -rf src/assets/screenshots/en src/assets/screenshots/ar
 
-      - name: Capture screenshots
+      - name: Capture screenshots (all but the invoice link shots)
         working-directory: website
         env:
           SITE: http://test_site:8000
           USER_NAME: demo.manager@example.com
           COMPANY: Example Contracting Co.
+          SKIP_PREFIX: invoice-
         run: |
           set -o pipefail
           node scripts/screenshots/capture.mjs 2>&1 | tee "$RUNNER_TEMP/capture.log"
+
+      - name: Seed two fictitious customer invoices for the Desk-button shots (after the other shots: it submits cards)
+        working-directory: /home/runner/frappe-bench/sites
+        run: |
+          ../env/bin/python -c "import frappe; frappe.init(site='test_site', sites_path='.'); frappe.connect(); frappe.set_user('Administrator'); exec(open('${GITHUB_WORKSPACE}/website/scripts/screenshots/ci_link_invoices.py').read())" | tee "${RUNNER_TEMP}/link_seed.log"
+          grep -q LINK_SEED_DONE "${RUNNER_TEMP}/link_seed.log"
+
+      - name: Capture the invoice link screenshots (after their invoices are seeded)
+        working-directory: website
+        env:
+          SITE: http://test_site:8000
+          USER_NAME: demo.manager@example.com
+          COMPANY: Example Contracting Co.
+          ONLY_PREFIX: invoice-
+        run: |
+          set -o pipefail
+          node scripts/screenshots/capture.mjs 2>&1 | tee -a "$RUNNER_TEMP/capture.log"
 
       - name: Verify the captured images (required set; duplicates only when declared in shots.json)
         if: always()
