@@ -184,7 +184,9 @@ async function settle(page) {
 // "nothing to show" message. Anything else is a failed shot that names the HTTP status and the server message.
 const REPORT_RUN = "/api/method/frappe.desk.query_report.run";
 const REPORT_TIMEOUT = 30000;
-const isReport = (path) => path.startsWith("/app/query-report/");
+const isReport = (path) =>
+  path.startsWith("/app/query-report/") ||
+  path.startsWith("/desk/query-report/");
 
 function serverMessage(body) {
   try {
@@ -216,6 +218,16 @@ function watchReportRuns(page) {
             .catch(() => ""),
     });
   });
+  // a call that never gets an answer (network error, abort) has no status; its error text names the cause
+  page.on("requestfailed", (r) => {
+    if (!r.url().includes(REPORT_RUN)) return;
+    // an aborted call (a late request cut by the page) must not fail a report that drew
+    if (r.failure()?.errorText === "net::ERR_ABORTED") return;
+    runs.push({
+      status: 0,
+      message: Promise.resolve(r.failure()?.errorText ?? ""),
+    });
+  });
   return runs;
 }
 
@@ -233,10 +245,10 @@ async function reportReady(page, runs) {
   const deadline = Date.now() + REPORT_TIMEOUT;
   for (;;) {
     const last = runs.at(-1);
-    if (last && last.status >= 400)
-      throw new Error(
-        `report run failed: HTTP ${last.status} ${await last.message}`,
-      );
+    if (last && (last.status >= 400 || last.status === 0)) {
+      const cause = last.status ? `HTTP ${last.status}` : "request failed";
+      throw new Error(`report run failed: ${cause} ${await last.message}`);
+    }
     if (last && (await page.evaluate(reportDrawn))) return;
     if (Date.now() > deadline)
       throw new Error(last ? "report still loading" : "report did not run");

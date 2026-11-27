@@ -52,12 +52,22 @@ class TestCardNameNotTranslated(IntegrationTestCase):
 		self.assertEqual([e["title"] for e in entries], ["CARD", "CARD Mobile"])
 
 
+def other_apps_with_locale(installed_apps, app_path):
+	"""The installed apps, card excluded, that ship a locale folder. card loads last, so a plain card
+	msgid overrides the same msgid of each of them (frappe, erpnext, hrms, ...)."""
+	return [
+		app
+		for app in installed_apps
+		if app != "card" and os.path.isdir(os.path.join(app_path(app), "locale"))
+	]
+
+
 class TestCardLocaleCardStringsOnly(IntegrationTestCase):
 	"""Owner standing rule (2026-10-14): card/locale/*.po may contain CARD strings
 	only. card loads last in apps.txt, so a generic msgid (Customer, Company,
 	Amount, ...) translated here overrides frappe/erpnext SITE-WIDE. This guard
-	fails when a card msgid also exists in a frappe/erpnext po file for the same
-	language with a DIFFERENT msgstr — except the explicit allowlist ("Card" and
+	fails when a card msgid also exists in the po file of another installed app (frappe, erpnext,
+	hrms, ...) for the same language with a DIFFERENT msgstr — except the explicit allowlist ("Card" and
 	CARD doctype/report display-name overrides)."""
 
 	def _parse_po(self, path):
@@ -98,7 +108,7 @@ class TestCardLocaleCardStringsOnly(IntegrationTestCase):
 		violations = []
 		for po in [f for f in os.listdir(card_locale) if f.endswith(".po")]:
 			card_entries = self._parse_po(os.path.join(card_locale, po))
-			for app in ("frappe", "erpnext"):
+			for app in other_apps_with_locale(frappe.get_installed_apps(), frappe.get_app_path):
 				other = self._parse_po(os.path.join(frappe.get_app_path(app), "locale", po))
 				for msgid, msgstr in card_entries.items():
 					if msgid in allow or msgid not in other:
@@ -109,8 +119,22 @@ class TestCardLocaleCardStringsOnly(IntegrationTestCase):
 						violations.append(f"{po}: {msgid!r} (card={msgstr!r} vs {app}={other[msgid]!r})")
 		self.assertFalse(
 			violations,
-			"card locale overrides generic frappe/erpnext strings site-wide:\n" + "\n".join(violations),
+			"card locale overrides generic strings of other apps site-wide:\n" + "\n".join(violations),
 		)
+
+
+class TestOtherAppsWithLocale(IntegrationTestCase):
+	def test_collects_every_installed_app_with_a_locale_folder_except_card(self):
+		import tempfile
+
+		with tempfile.TemporaryDirectory() as root:
+			for app, has_locale in {"frappe": True, "hrms": True, "card": True, "sijill": False}.items():
+				os.makedirs(os.path.join(root, app, "locale" if has_locale else "other"))
+			apps = ["frappe", "erpnext", "hrms", "card", "sijill"]  # erpnext has no folder on disk here
+			self.assertEqual(
+				other_apps_with_locale(apps, lambda app: os.path.join(root, app)),
+				["frappe", "hrms"],
+			)
 
 
 class TestCardSettingsDisplayName(IntegrationTestCase):

@@ -224,7 +224,13 @@ msgstr "أيام الشهر"
 msgid "Days with operation outside the rental period (calculated, needs review): {0}"
 msgstr "أيام فيها تشغيل خارج فترة الإيجار (محسوبة، تحتاج مراجعة): {0}"
 
-#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py:284
+#: card/card/report/equipment_supplier_statement/equipment_supplier_statement.py
+msgctxt "Equipment Supplier Statement"
+msgid "Deductions"
+msgstr "الخصومات"
+
+#: card/card/report/equipment_customer_statement/equipment_customer_statement.py
+msgctxt "Equipment Customer Statement"
 msgid "Deductions"
 msgstr "الخصومات"
 
@@ -2314,6 +2320,13 @@ msgstr "المعدة رايحة فين. الورشة والمستودع بينه
 msgid "Destination place"
 msgstr "مكان الوجهة"
 
+#: card/card/doctype/equipment_transport/equipment_transport.json
+msgctxt "Equipment Transport"
+msgid "Workshop"
+msgstr "ورشة صيانة"
+
+#: card/card/doctype/equipment_transport_item/equipment_transport_item.json
+msgctxt "Equipment Transport Item"
 msgid "Workshop"
 msgstr "ورشة صيانة"
 
@@ -8497,6 +8510,7 @@ msgid "Members"
 msgstr "أعضاء"
 
 #: card/card/doctype/equipment_operating_group_member/equipment_operating_group_member.json
+msgctxt "Equipment Operating Group Member"
 msgid "Effective from"
 msgstr "ساري من"
 

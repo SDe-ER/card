@@ -389,7 +389,12 @@ def execute(filters=None):
 			{"fieldname": "hourly_rate", "label": _("Hourly rate"), "fieldtype": "Currency", "width": 100},
 			{"fieldname": "amount", "label": _("Operating amount"), "fieldtype": "Currency", "width": 120},
 			{"fieldname": "additions", "label": _("Additions"), "fieldtype": "Currency", "width": 100},
-			{"fieldname": "deductions", "label": _("Deductions"), "fieldtype": "Currency", "width": 100},
+			{
+				"fieldname": "deductions",
+				"label": _("Deductions", context="Equipment Supplier Statement"),
+				"fieldtype": "Currency",
+				"width": 100,
+			},
 			{"fieldname": "net", "label": _("Net"), "fieldtype": "Currency", "width": 120},
 		]
 

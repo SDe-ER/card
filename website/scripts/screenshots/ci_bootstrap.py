@@ -72,6 +72,9 @@ def ensure_fiscal_year():
 	).insert(ignore_permissions=True)
 
 
+MANAGER_ROLES = ("System Manager", "Card Manager", "Accounts Manager", "Accounts User")
+
+
 def ensure_manager(password):
 	if not frappe.db.exists("User", MANAGER):
 		user = frappe.get_doc(
@@ -85,15 +88,21 @@ def ensure_manager(password):
 				"language": "en",
 			}
 		)
-		# Accounts Manager: the monthly posting screen lists only the suppliers and customers the user can read
-		# (card/gl/posting.py, month_parties), and System Manager and Card Manager read neither.
-		# Accounts User: Asset Mapping Review and Equipment Meter Reconciliation need a role that reads Asset
-		# (card/report_access.py, _role_reads), and ERPNext version-16 gives that read to Accounts User and
-		# Quality Manager only (erpnext/assets/doctype/asset/asset.json), not to the three roles above.
-		for role in ("System Manager", "Card Manager", "Accounts Manager", "Accounts User"):
-			user.append("roles", {"role": role})
 		user.insert(ignore_permissions=True)
-	return frappe.get_doc("User", MANAGER)
+	user = frappe.get_doc("User", MANAGER)
+	# The roles are added also to a user that already exists, so a rerun on a kept site gets a new role.
+	# Accounts Manager: the monthly posting screen lists only the suppliers and customers the user can read
+	# (card/gl/posting.py, month_parties), and System Manager and Card Manager read neither.
+	# Accounts User: Asset Mapping Review and Equipment Meter Reconciliation need a role that reads Asset
+	# (card/report_access.py, _role_reads), and ERPNext version-16 gives that read to Accounts User and
+	# Quality Manager only (erpnext/assets/doctype/asset/asset.json), not to the three roles above.
+	have = {row.role for row in user.roles}
+	missing = [role for role in MANAGER_ROLES if role not in have]
+	for role in missing:
+		user.append("roles", {"role": role})
+	if missing:
+		user.save(ignore_permissions=True)
+	return user
 
 
 def complete_setup():

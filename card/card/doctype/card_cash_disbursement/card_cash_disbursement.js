@@ -4,7 +4,7 @@
 
 const CCD_POSTING_INDICATORS = {
 	Pending: [__("Pending approval"), "orange"],
-	Approved: [__("Approved"), "blue"],
+	Approved: [__("Approved", null, "Card Cash Disbursement"), "blue"],
 	Posting: [__("Queued for posting"), "blue"],
 	"Posting Failed": [__("Posting failed"), "red"],
 	Posted: [__("Posted"), "green"],
@@ -56,7 +56,7 @@ frappe.ui.form.on("Card Cash Disbursement", {
 						act(
 							"card.cash_disbursement.approve_cash_disbursement",
 							{ name: frm.doc.name },
-							__("Approved"),
+							__("Approved", null, "Card Cash Disbursement"),
 						),
 				),
 			);
