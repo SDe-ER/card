@@ -70,12 +70,23 @@ class TestMobileHome(IntegrationTestCase):
 		finally:
 			frappe.set_user("Administrator")
 
+	def _supplier(self):
+		sup = frappe.new_doc("Supplier")
+		sup.supplier_name = "HOME-SUP-" + self.token
+		sup.supplier_group = self._m["supplier_group"]
+		sup.insert(ignore_permissions=True)
+		return sup.name
+
 	def _equipment(self):
 		d = frappe.new_doc("Card Equipment")
 		d.company = self.company
 		d.equipment_type = self._m["etype"]
-		d.ownership = "تشغيل داخلي"
+		d.ownership = "إيجار"
 		d.equipment_name = "HOME-EQ-" + self.token
+		d.rate_type = "باليوم"
+		d.rate = 750
+		d.daily_hours = 10
+		d.supplier = self._supplier()
 		d.insert(ignore_permissions=True)
 		return d
 
@@ -97,9 +108,9 @@ class TestMobileHome(IntegrationTestCase):
 
 	# ---------- endpoints are GET for reads and POST for the one write ----------
 	def test_endpoint_methods(self):
-		self.assertEqual(mobile.get_profile.__dict__.get("allowed_http_methods"), ["GET"])
-		self.assertEqual(mobile.get_home_context.__dict__.get("allowed_http_methods"), ["GET"])
-		self.assertEqual(mobile.set_language.__dict__.get("allowed_http_methods"), ["POST"])
+		self.assertEqual(frappe.allowed_http_methods_for_whitelisted_func[mobile.get_profile], ["GET"])
+		self.assertEqual(frappe.allowed_http_methods_for_whitelisted_func[mobile.get_home_context], ["GET"])
+		self.assertEqual(frappe.allowed_http_methods_for_whitelisted_func[mobile.set_language], ["POST"])
 
 	# ---------- operator ----------
 	def test_operator_gets_no_kpis_and_no_financial_values(self):

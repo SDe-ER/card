@@ -7,6 +7,8 @@ hrms.hr.utils.check_app_permission): Frappe login, session and CSRF; an Active E
 user; every CARD endpoint keeps its own permission checks.
 """
 
+from collections import Counter
+
 import frappe
 from frappe import _
 from frappe.utils import add_days, cint, flt, getdate, nowdate
@@ -178,25 +180,17 @@ def operational_kpis():
 	"""Fleet, review queue and alert counts for a review role. Permission-scoped reads: a user sees
 	only the records (and companies) the DocPerm and User Permission rules already give him."""
 	today = getdate(nowdate())
-	status_rows = frappe.get_list(
+	# plain fields, summed here: a fleet is hundreds of rows and the read stays under the user's rights
+	rows = frappe.get_list(
 		"Card Equipment",
 		filters={"status": ["!=", ENDED_STATUS]},
-		fields=["status", "count(name) as n"],
-		group_by="status",
-		order_by="status",
+		fields=["status", "current_project"],
 		limit_page_length=0,
 	)
-	by_status = {row.status: cint(row.n) for row in status_rows}
-	site_rows = frappe.get_list(
-		"Card Equipment",
-		filters={"status": ["!=", ENDED_STATUS]},
-		fields=["current_project", "count(name) as n"],
-		group_by="current_project",
-		order_by="current_project",
-		limit_page_length=0,
-	)
+	by_status = Counter(row.status for row in rows)
+	by_project = Counter(row.current_project for row in rows)
 	fleet_by_project = sorted(
-		({"project": row.current_project, "count": cint(row.n)} for row in site_rows),
+		({"project": project, "count": count} for project, count in by_project.items()),
 		key=lambda row: (-row["count"], row["project"] or ""),
 	)[:6]
 	soon = add_days(today, EXPIRY_WARNING_DAYS)
@@ -227,25 +221,28 @@ def financial_kpis():
 	"""Current-month revenue and supplier cost of submitted monthly cards, per company. Managers
 	only (Owner 2026-11-28): the caller checks the role, and the money permlevel must also read."""
 	today = getdate(nowdate())
-	rows = frappe.get_list(
+	cards = frappe.get_list(
 		"Card Monthly Card",
 		filters={"docstatus": 1, "year": today.year, "month": f"{today.month:02d}"},
-		fields=["company", "sum(customer_net_amount) as revenue", "sum(net_amount) as cost"],
-		group_by="company",
-		order_by="company",
+		fields=["company", "customer_net_amount", "net_amount"],
 		limit_page_length=0,
 	)
+	totals = {}
+	for row in cards:
+		total = totals.setdefault(row.company, {"revenue": 0.0, "cost": 0.0})
+		total["revenue"] += flt(row.customer_net_amount)
+		total["cost"] += flt(row.net_amount)
 	return {
 		"month": today.month,
 		"year": today.year,
 		"by_company": [
 			{
-				"company": row.company,
-				"currency": frappe.get_cached_value("Company", row.company, "default_currency"),
-				"revenue": flt(row.revenue),
-				"cost": flt(row.cost),
+				"company": company,
+				"currency": frappe.get_cached_value("Company", company, "default_currency"),
+				"revenue": flt(total["revenue"]),
+				"cost": flt(total["cost"]),
 			}
-			for row in rows
+			for company, total in sorted(totals.items())
 		],
 	}
 
