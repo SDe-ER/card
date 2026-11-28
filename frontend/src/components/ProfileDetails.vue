@@ -16,6 +16,9 @@ const summaries: Record<string, string> = {
   'Card Reviewer': __('Review records', [], 'Card Mobile'),
 }
 
+// codes and numbers keep their left-to-right order inside a right-to-left page
+const ltrKeys = ['employee-id', 'email', 'phone', 'currency', 'number-format']
+
 const initial = computed(() => (props.profile.full_name || props.profile.user).charAt(0))
 
 const rows = computed(
@@ -60,7 +63,13 @@ const rows = computed(
       <template v-for="[label, value, key] in rows" :key="key">
         <div v-if="value" class="flex min-h-11 items-center justify-between gap-4 p-3">
           <dt class="shrink-0 text-sm text-ink-gray-5">{{ label }}</dt>
-          <dd class="min-w-0 break-words text-end" :data-testid="key">{{ value }}</dd>
+          <dd
+            class="min-w-0 break-words text-end"
+            :dir="ltrKeys.includes(key) ? 'ltr' : 'auto'"
+            :data-testid="key"
+          >
+            {{ value }}
+          </dd>
         </div>
       </template>
     </dl>
