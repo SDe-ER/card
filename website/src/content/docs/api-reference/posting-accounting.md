@@ -7,11 +7,11 @@ sidebar:
 
 ## Overview
 
-CARD never writes ledger entries. Its monthly posting builds **one draft ERPNext invoice per party and month** — a
+Card never writes ledger entries. Its monthly posting builds **one draft ERPNext invoice per party and month** — a
 Purchase Invoice for a supplier, a Sales Invoice for a customer — from the party's unposted submitted sources (monthly
 cards, diesel fills, transports), and records the link in a **GL Posting Log**. The ledger rows appear only when a
 person submits the invoice in ERPNext. When a source was already paid by a hand-booked invoice or recognised by an
-accrual journal entry, an accountant links it instead, so CARD never builds it twice.
+accrual journal entry, an accountant links it instead, so Card never builds it twice.
 
 ## Endpoints
 
@@ -20,14 +20,14 @@ accrual journal entry, an accountant links it instead, so CARD never builds it t
 | GET | `card.gl.posting.posting_month_parties` | Parties of a company-month with their posting status. |
 | GET | `card.gl.posting.preview_month` | Dry run of the next build of a party-month. |
 | POST | `card.gl.posting.post_month` | Build the draft posting of a party-month. |
-| POST | `card.gl.posting.rebuild_month` | Delete the CARD draft and build the month again. |
-| POST | `card.gl.integrity.accept_correction` | Accept a cost center / account correction on a CARD draft. |
-| POST | `card.gl.integrity.link_supplier_invoice` | Link a hand-booked Purchase Invoice to CARD sources. |
+| POST | `card.gl.posting.rebuild_month` | Delete the Card draft and build the month again. |
+| POST | `card.gl.integrity.accept_correction` | Accept a cost center / account correction on a Card draft. |
+| POST | `card.gl.integrity.link_supplier_invoice` | Link a hand-booked Purchase Invoice to Card sources. |
 | POST | `card.gl.integrity.link_customer_invoice` | Link a hand-booked, submitted Sales Invoice to customer monthly cards. |
 | POST | `card.gl.integrity.unlink_customer_invoice` | Remove a wrong link between a Sales Invoice and its monthly cards (System Manager). |
 | GET | `card.gl.integrity.unlinked_customer_invoice_candidates` | List the hand-booked Sales Invoices that are not linked, with the cards that can match. |
 | GET | `card.gl.integrity.customer_invoice_link_info` | The link state of one Sales Invoice and the cards it could bill (data of the Desk buttons). |
-| POST | `card.gl.journal_link.link_accrual_journal` | Link a supplier accrual Journal Entry to CARD cards. |
+| POST | `card.gl.journal_link.link_accrual_journal` | Link a supplier accrual Journal Entry to Card cards. |
 
 ## Common rules for the posting endpoints
 
@@ -43,7 +43,7 @@ accrual journal entry, an accountant links it instead, so CARD never builds it t
 
 `GET /api/method/card.gl.posting.posting_month_parties`
 
-The parties of a company-month: every party with unposted submitted sources or an active CARD posting log. Each side
+The parties of a company-month: every party with unposted submitted sources or an active Card posting log. Each side
 is listed only when the caller may build that side's postings; parties the caller cannot read are left out.
 
 | Parameter | Type | Required | Description |
@@ -65,7 +65,7 @@ curl -s -G "https://<your-site>/api/method/card.gl.posting.posting_month_parties
 
 `GET /api/method/card.gl.posting.preview_month`
 
-The invoice lines the next post (or rebuild, when a CARD draft exists) would create. Nothing is inserted, saved,
+The invoice lines the next post (or rebuild, when a Card draft exists) would create. Nothing is inserted, saved,
 reserved or logged.
 
 | Parameter | Type | Required | Description |
@@ -115,7 +115,7 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.posting.post_month" \
 
 `POST /api/method/card.gl.posting.rebuild_month`
 
-Late sources against a **draft** posting: deletes the CARD draft (freeing its reservations) and builds the month again,
+Late sources against a **draft** posting: deletes the Card draft (freeing its reservations) and builds the month again,
 so the new draft includes every unposted submitted document. Parameters and return value as `post_month`.
 
 ```bash
@@ -128,16 +128,16 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.posting.rebuild_month" \
 
 `POST /api/method/card.gl.integrity.accept_correction`
 
-An Accounts Manager accepts a corrected cost center or account on a CARD draft invoice. Only those fields may differ
-from what CARD built; the acceptance is tied to the exact invoice content, so any later edit needs a new acceptance.
+An Accounts Manager accepts a corrected cost center or account on a Card draft invoice. Only those fields may differ
+from what Card built; the acceptance is tied to the exact invoice content, so any later edit needs a new acceptance.
 
-**Permission:** Accounts Manager or System Manager; write on the invoice; the company within the user's CARD and
+**Permission:** Accounts Manager or System Manager; write on the invoice; the company within the user's Card and
 accounting scope.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `invoice_doctype` | string | Yes | `Purchase Invoice` or `Sales Invoice`. |
-| `invoice` | string | Yes | A CARD-built draft invoice. |
+| `invoice` | string | Yes | A Card-built draft invoice. |
 | `reason` | string | Yes | Reason for the correction. |
 
 **Returns:** the GL Posting Log name. **Side effects:** stores the accepted content signature, the accepting user and
@@ -153,16 +153,16 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.accept_correct
 
 `POST /api/method/card.gl.integrity.link_supplier_invoice`
 
-Records that an existing supplier Purchase Invoice, booked by hand, already pays for these CARD sources. Nothing is
-reposted and the invoice is not changed: a **Linked** GL Posting Log reserves the sources so CARD never builds them
+Records that an existing supplier Purchase Invoice, booked by hand, already pays for these Card sources. Nothing is
+reposted and the invoice is not changed: a **Linked** GL Posting Log reserves the sources so Card never builds them
 again, and the sources show the invoice once it is submitted. Sources may span several months.
 
 **Permission:** Accounts Manager, Accounts User or System Manager; read and **submit** right on the invoice; read on the
-supplier and on every source; the company within the user's CARD and accounting scope.
+supplier and on every source; the company within the user's Card and accounting scope.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `invoice` | string | Yes | Purchase Invoice (not cancelled, not a return, not already a CARD posting or link). |
+| `invoice` | string | Yes | Purchase Invoice (not cancelled, not a return, not already a Card posting or link). |
 | `sources` | list | Yes | `[{"doctype": "Card Monthly Card", "name": "..."}]`, where `doctype` is `Card Monthly Card`, `Project Diesel Fill` or `Equipment Transport`; submitted, of the invoice's company and supplier. |
 | `reason` | string | With a difference | Why a difference is accepted. |
 | `accept_difference` | int | No | `1` to accept a gap between the sources and the invoice net. |
@@ -185,15 +185,15 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.link_supplier_
 `POST /api/method/card.gl.integrity.link_customer_invoice`
 
 Records that a submitted Sales Invoice, booked by hand in ERPNext, already bills these customer monthly cards. Nothing
-is posted and the invoice is not changed: a **Linked** GL Posting Log holds the cards so CARD never builds them again,
+is posted and the invoice is not changed: a **Linked** GL Posting Log holds the cards so Card never builds them again,
 and each card shows the invoice. There is no Desk button for this method.
 
 **Permission:** Accounts Manager or System Manager (Accounts User is not enough); read and **submit** right on the
-invoice; read on the customer and on every card; the company within the user's CARD and accounting scope.
+invoice; read on the customer and on every card; the company within the user's Card and accounting scope.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `invoice` | string | Yes | Submitted Sales Invoice in the company currency: not cancelled, not a return (credit note), not a debit note, not an opening invoice, without a submitted credit note, and not already a CARD posting or link. |
+| `invoice` | string | Yes | Submitted Sales Invoice in the company currency: not cancelled, not a return (credit note), not a debit note, not an opening invoice, without a submitted credit note, and not already a Card posting or link. |
 | `cards` | list | Yes | Card Monthly Card names, for example `["<card-name>"]`. Each card is submitted, not of an open month, billed to a customer, of the invoice's company, customer and project, without a Sales Invoice, and not held by another customer posting. No card twice. |
 | `reason` | string | Yes | Why the invoice is linked. It is stored on the log and in the comments. |
 
@@ -228,7 +228,7 @@ are not changed. There is no Desk button for this method.
 
 **Permission:** System Manager (Accounts Manager is not enough) and read on the Sales Invoice. The System Manager role
 alone does not give read on a Sales Invoice, so the user also needs an accounts role. Also: the company within the
-user's CARD and accounting scope, and read on every card of the link.
+user's Card and accounting scope, and read on every card of the link.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -238,7 +238,7 @@ user's CARD and accounting scope, and read on every card of the link.
 **Refusals:** every check runs before the first write, so a refused call changes nothing.
 
 - The invoice is not submitted, or it has no active link.
-- The invoice is a posting that CARD built (origin Built or empty) or a CARD credit note.
+- The invoice is a posting that Card built (origin Built or empty) or a Card credit note.
 - Cancelled-and-amended chain mismatch: another Sales Invoice amends this invoice, or an invoice that this one amends
   (up the chain) still has an active posting log. An amendment that has its own link is unlinked as any other invoice.
 - A source of the log is not a monthly card, or the user cannot read a card of the link.
@@ -268,14 +268,14 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.unlink_custome
 `GET /api/method/card.gl.integrity.unlinked_customer_invoice_candidates`
 
 Read only. For every customer that has customer-billing cards in the company, lists the submitted Sales Invoices that
-CARD did not build and that have no link (no active GL Posting Log), newest first. Returns, debit notes, opening
+Card did not build and that have no link (no active GL Posting Log), newest first. Returns, debit notes, opening
 invoices, invoices with a submitted credit note and invoices in another currency than the company currency are
 left out. With each invoice it gives the customer's cards that
 can still be linked and that are on a project of the invoice (at most 100 cards; `more_cards` is true when there are
 more).
 
 **Permission:** Accounts Manager or System Manager; read on Sales Invoice and on Card Monthly Card; the company within
-the user's CARD and accounting scope. Invoices and cards the user cannot read are left out.
+the user's Card and accounting scope. Invoices and cards the user cannot read are left out.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -333,7 +333,7 @@ Records that a submitted supplier accrual Journal Entry already recognised these
 Nothing is posted, created or changed in ERPNext. Cancelling the Journal Entry later frees the cards again.
 
 **Permission:** Accounts Manager, Accounts User or System Manager; read and submit right on the Journal Entry; read on
-the supplier and every card; the company within the user's CARD and accounting scope.
+the supplier and every card; the company within the user's Card and accounting scope.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

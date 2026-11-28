@@ -153,11 +153,11 @@ def check_built_vat(doc, built):
 	if current != built["vat"]:
 		frappe.throw(
 			_(
-				"{0}: its VAT changed since CARD built it (total taxes {1} → {2}). Rebuild the posting from CARD."
+				"{0}: its VAT changed since Card built it (total taxes {1} → {2}). Rebuild the posting from Card."
 			).format(
 				doc.name, built["vat"].get("total_taxes_and_charges"), current["total_taxes_and_charges"]
 			),
-			title=_("CARD posting changed"),
+			title=_("Card posting changed"),
 		)
 
 
@@ -193,9 +193,9 @@ def check_builder_version(doc, log, built):
 	if tank:
 		frappe.throw(
 			_(
-				"{0} was built before project-tank diesel fills post as one project-level line: it splits {1} per equipment by operating hours, an estimate. Rebuild the posting from CARD before submitting it."
+				"{0} was built before project-tank diesel fills post as one project-level line: it splits {1} per equipment by operating hours, an estimate. Rebuild the posting from Card before submitting it."
 			).format(doc.name, ", ".join(tank)),
-			title=_("CARD posting must be rebuilt"),
+			title=_("Card posting must be rebuilt"),
 		)
 
 
@@ -269,7 +269,7 @@ def check_built_signature(doc, log):
 	if not log.get("built_signature"):
 		frappe.throw(
 			_(
-				"{0} was built before CARD recorded invoice signatures; rebuild the posting from CARD before submitting it."
+				"{0} was built before Card recorded invoice signatures; rebuild the posting from Card before submitting it."
 			).format(doc.name)
 		)
 	built = json.loads(log.built_snapshot)
@@ -288,11 +288,11 @@ def check_built_signature(doc, log):
 			"An Accounts Manager can accept this cost center/account correction from the invoice (card.gl.integrity.accept_correction)."
 		)
 		if correctable_only(built, current)
-		else _("Rebuild the posting from CARD (fix the source documents first).")
+		else _("Rebuild the posting from Card (fix the source documents first).")
 	)
 	frappe.throw(
-		_("{0} differs from what CARD built: {1}. {2}").format(doc.name, "; ".join(diffs[:12]), hint),
-		title=_("CARD posting changed"),
+		_("{0} differs from what Card built: {1}. {2}").format(doc.name, "; ".join(diffs[:12]), hint),
+		title=_("Card posting changed"),
 	)
 
 
@@ -302,10 +302,10 @@ def accept_correction(invoice_doctype: str, invoice: str, reason: str):
 	draft. Only those fields may differ; the acceptance is tied to the exact
 	invoice content (any later edit needs a new acceptance)."""
 	if invoice_doctype not in ("Purchase Invoice", "Sales Invoice"):
-		frappe.throw(_("Only CARD Purchase or Sales Invoices can be corrected."))
+		frappe.throw(_("Only Card Purchase or Sales Invoices can be corrected."))
 	if not ACCEPT_ROLES & set(frappe.get_roles()):
 		frappe.throw(
-			_("Only an Accounts Manager may accept a CARD posting correction."), frappe.PermissionError
+			_("Only an Accounts Manager may accept a Card posting correction."), frappe.PermissionError
 		)
 	if not (reason or "").strip():
 		frappe.throw(_("Give the reason for the correction."))
@@ -316,7 +316,7 @@ def accept_correction(invoice_doctype: str, invoice: str, reason: str):
 
 	if doc.company not in permitted_companies(*POSTING_SOURCE_DOCTYPES, invoice_doctype, "GL Posting Log"):
 		frappe.throw(
-			_("You are not permitted to correct CARD postings of company {0}.").format(doc.company),
+			_("You are not permitted to correct Card postings of company {0}.").format(doc.company),
 			frappe.PermissionError,
 		)
 	if doc.docstatus != 0:
@@ -325,7 +325,7 @@ def accept_correction(invoice_doctype: str, invoice: str, reason: str):
 
 	log = _log_for(doc)
 	if not log or log.get("origin") == "Linked" or not log.get("built_snapshot"):
-		frappe.throw(_("{0} is not a CARD-built posting.").format(invoice))
+		frappe.throw(_("{0} is not a Card-built posting.").format(invoice))
 	built = json.loads(log.built_snapshot)
 	current = snapshot(doc)
 	if not correctable_only(built, current):
@@ -374,10 +374,10 @@ def check_not_a_copy(doc, side):
 	)
 	if twin:
 		frappe.throw(
-			_("{0} repeats the lines of CARD posting {1}; the same sources would be booked twice.").format(
+			_("{0} repeats the lines of Card posting {1}; the same sources would be booked twice.").format(
 				doc.name or _("This invoice"), twin
 			),
-			title=_("Duplicate CARD posting"),
+			title=_("Duplicate Card posting"),
 		)
 	from card.gl.events import active_log_holding
 
@@ -391,7 +391,7 @@ def check_not_a_copy(doc, side):
 				_(
 					"{0} names {1} {2}, already booked by {3}; the same operation would be booked twice."
 				).format(doc.name or _("This invoice"), _(doctype), name, holder.posting_doc),
-				title=_("Duplicate CARD posting"),
+				title=_("Duplicate Card posting"),
 			)
 
 
@@ -495,7 +495,7 @@ def require_reviewed(candidates, reviewed):
 			listed = ", ".join(parts)
 		frappe.throw(
 			_(
-				"Supplier invoices booked around this month may cover the same operations: {0}. Link each one to the CARD sources it pays for (card.gl.integrity.link_supplier_invoice), or have an accountant confirm it is unrelated, then build again."
+				"Supplier invoices booked around this month may cover the same operations: {0}. Link each one to the Card sources it pays for (card.gl.integrity.link_supplier_invoice), or have an accountant confirm it is unrelated, then build again."
 			).format(listed),
 			title=_("Possible duplicate expense"),
 		)
@@ -613,7 +613,7 @@ def link_supplier_invoice(
 
 	if not REVIEW_ROLES & set(frappe.get_roles()):
 		frappe.throw(
-			_("Only an accountant may link supplier invoices to CARD sources."), frappe.PermissionError
+			_("Only an accountant may link supplier invoices to Card sources."), frappe.PermissionError
 		)
 	if isinstance(sources, str):
 		sources = json.loads(sources)
@@ -631,16 +631,16 @@ def link_supplier_invoice(
 		frappe.throw(_("{0} is cancelled or a return; link the valid supplier invoice.").format(invoice))
 	built = _locked_invoice_log("Purchase Invoice", inv.name)
 	if built:
-		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, built))
+		frappe.throw(_("{0} is already a Card posting or linked ({1}).").format(invoice, built))
 	if not sources:
-		frappe.throw(_("Choose the CARD sources this invoice pays for."))
+		frappe.throw(_("Choose the Card sources this invoice pays for."))
 	rows = {"Card Monthly Card": [], "Project Diesel Fill": [], "Equipment Transport": []}
 	for src in sources:
 		doctype, name = (src.get("doctype"), src.get("name")) if isinstance(src, dict) else (None, None)
 		if not isinstance(name, str) or not name.strip():
-			frappe.throw(_("Choose the CARD sources this invoice pays for."))
+			frappe.throw(_("Choose the Card sources this invoice pays for."))
 		if doctype not in rows:
-			frappe.throw(_("{0} is not a CARD source type.").format(doctype))
+			frappe.throw(_("{0} is not a Card source type.").format(doctype))
 		if any(n == name for n, _a in rows[doctype]):
 			frappe.throw(_("{0} {1} is listed twice.").format(_(doctype), name))
 		rows[doctype].append((name, 0))
@@ -709,7 +709,7 @@ def link_supplier_invoice(
 	posting_day = getdate(inv.bill_date or inv.posting_date)
 	linked = _link_committed_meanwhile(inv.company, "Supplier", inv.supplier, posting_day, inv.name)
 	if linked:
-		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, linked))
+		frappe.throw(_("{0} is already a Card posting or linked ({1}).").format(invoice, linked))
 	sources_net = flt(sum(a for items in rows.values() for _n, a in items), 2)
 	# per-line rounding of VAT-inclusive fills: up to one halala per fill
 	tolerance = (flt(setting("reconciliation_tolerance")) or 0.01) + 0.01 * len(rows["Project Diesel Fill"])
@@ -723,7 +723,7 @@ def link_supplier_invoice(
 				", ".join(unverified)
 			)
 			if unverified
-			else _("the CARD sources total {0} net, {1} is net {2}").format(
+			else _("the Card sources total {0} net, {1} is net {2}").format(
 				sources_net, invoice, flt(inv.net_total, 2)
 			)
 		)
@@ -752,7 +752,7 @@ def link_supplier_invoice(
 			if (difference or unverified)
 			else 0,
 			"remarks": _(
-				"Linked by {0}: supplier invoice {1} (bill no. {2}) net {3} / total {4}, CARD sources net {5}, {6}. {7}"
+				"Linked by {0}: supplier invoice {1} (bill no. {2}) net {3} / total {4}, Card sources net {5}, {6}. {7}"
 			).format(
 				frappe.session.user,
 				inv.name,
@@ -786,7 +786,7 @@ def check_linked_invoice(doc, log):
 	if doc.company != log.company or doc.get("supplier") != log.party or doc.get("is_return"):
 		frappe.throw(
 			_(
-				"{0} changed company or supplier after it was linked to CARD sources; delete the link by deleting or cancelling the invoice and link again."
+				"{0} changed company or supplier after it was linked to Card sources; delete the link by deleting or cancelling the invoice and link again."
 			).format(doc.name),
 			title=_("Linked invoice changed"),
 		)
@@ -797,7 +797,7 @@ def check_linked_invoice(doc, log):
 	if abs(flt(doc.net_total, 2) - expected) > tolerance:
 		frappe.throw(
 			_(
-				"{0} is net {1}, but it was linked to CARD sources for net {2}; delete or cancel it and link again."
+				"{0} is net {1}, but it was linked to Card sources for net {2}; delete or cancel it and link again."
 			).format(doc.name, flt(doc.net_total, 2), expected),
 			title=_("Linked invoice changed"),
 		)
@@ -813,7 +813,7 @@ CANDIDATE_CARDS_MAX = 100
 def _require_customer_link_role():
 	if not CUSTOMER_LINK_ROLES & set(frappe.get_roles()):
 		frappe.throw(
-			_("Only an Accounts Manager or a System Manager may link customer invoices to CARD cards."),
+			_("Only an Accounts Manager or a System Manager may link customer invoices to Card cards."),
 			frappe.PermissionError,
 		)
 
@@ -964,7 +964,7 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 		)
 	existing = _locked_invoice_log("Sales Invoice", inv.name)
 	if existing:
-		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, existing))
+		frappe.throw(_("{0} is already a Card posting or linked ({1}).").format(invoice, existing))
 	# a locking read: a credit note that another transaction submitted after this one's snapshot is seen
 	credit_note = frappe.db.get_value(
 		"Sales Invoice",
@@ -1044,7 +1044,7 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	posting_day = getdate(inv.posting_date)
 	linked = _link_committed_meanwhile(inv.company, "Customer", inv.customer, posting_day, inv.name)
 	if linked:
-		frappe.throw(_("{0} is already a CARD posting or linked ({1}).").format(invoice, linked))
+		frappe.throw(_("{0} is already a Card posting or linked ({1}).").format(invoice, linked))
 	cards_net = flt(sum(amount for _name, amount in rows[CARD_DOCTYPE]), 2)
 	invoice_net = flt(state.base_net_total, 2)
 	tolerance = flt(setting("reconciliation_tolerance")) or 0.01
@@ -1086,7 +1086,7 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 			"amount": flt(inv.grand_total, 2),
 			"link_difference": 0,
 			"remarks": _(
-				"Linked by {0}: sales invoice {1} net {2} / total {3}, CARD cards net {4}, matched. {5}"
+				"Linked by {0}: sales invoice {1} net {2} / total {3}, Card cards net {4}, matched. {5}"
 			).format(frappe.session.user, inv.name, invoice_net, flt(inv.grand_total, 2), cards_net, reason),
 		}
 	)
@@ -1098,7 +1098,7 @@ def link_customer_invoice(invoice: str, cards: str | list, reason: str | None = 
 	who, when = escape_html(frappe.session.user), cstr(now_datetime().replace(microsecond=0))
 	inv.add_comment(
 		"Info",
-		_("Linked to CARD monthly cards {0} by {1} on {2}. Reason: {3}").format(
+		_("Linked to Card monthly cards {0} by {1} on {2}. Reason: {3}").format(
 			escape_html(", ".join(card.name for card in docs)), who, when, escape_html(reason)
 		),
 	)
@@ -1197,7 +1197,7 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 
 	if "System Manager" not in frappe.get_roles():
 		frappe.throw(
-			_("Only a System Manager may unlink a customer invoice from CARD cards."), frappe.PermissionError
+			_("Only a System Manager may unlink a customer invoice from Card cards."), frappe.PermissionError
 		)
 	reason = strip_html_tags(cstr(reason)).strip()
 	if not reason:
@@ -1242,11 +1242,11 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 		or log.posting_doctype != "Sales Invoice"
 		or log.posting_doc != invoice
 	):
-		frappe.throw(_("{0} is not linked to CARD cards.").format(invoice))
+		frappe.throw(_("{0} is not linked to Card cards.").format(invoice))
 	if log.origin != "Linked" or log.party_type != "Customer":
 		frappe.throw(
 			_(
-				"{0} is a CARD posting ({1}), not a linked invoice; its link cannot be removed. Correct it with a credit note or cancel it."
+				"{0} is a Card posting ({1}), not a linked invoice; its link cannot be removed. Correct it with a credit note or cancel it."
 			).format(invoice, log.name)
 		)
 	_check_unlink_chain(invoice, log)
@@ -1339,7 +1339,7 @@ def unlink_customer_invoice(invoice: str, reason: str | None = None):
 	who = escape_html(user)
 	inv.add_comment(
 		"Info",
-		_("Unlinked from CARD monthly cards {0} by {1} on {2} (posting log {3}). Reason: {4}").format(
+		_("Unlinked from Card monthly cards {0} by {1} on {2} (posting log {3}). Reason: {4}").format(
 			escape_html(previous or "-"), who, when, escape_html(log.name), escape_html(reason)
 		),
 	)
@@ -1685,7 +1685,7 @@ def customer_invoice_link_info(invoice: str, with_cards: int | str = 0):
 
 def warn_card_postings_nearby(doc):
 	"""R1 operational control: a hand-booked supplier invoice of a supplier that CARD
-	already posted for a nearby month is shown the CARD postings, so the accountant
+	already posted for a nearby month is shown the Card postings, so the accountant
 	checks it is not the same operation before it reaches the ledger (not blocking:
 	the supplier may send several legitimate invoices)."""
 	if doc.doctype != "Purchase Invoice" or not doc.get("supplier"):
@@ -1713,7 +1713,7 @@ def warn_card_postings_nearby(doc):
 	if nearby:
 		frappe.msgprint(
 			_(
-				"CARD already booked postings for this supplier: {0}. Check that this invoice is not for the same operations."
+				"Card already booked postings for this supplier: {0}. Check that this invoice is not for the same operations."
 			).format(
 				", ".join(
 					"{0} ({1}/{2}, {3})".format(n.posting_doc, n.month, n.year, flt(n.amount, 2))

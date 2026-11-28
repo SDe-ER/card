@@ -25,7 +25,7 @@ sidebar:
 |---|---|---|---|---|
 | الشركة <small>(للقراءة فقط)</small> | `company` | Link | الشركة | نعم |
 | المورد <small>(للقراءة فقط)</small> | `supplier` | Link | المورد | نعم |
-| CARD <small>(للقراءة فقط)</small> | `card` | Link | [كارت التشغيل الشهري](/card/ar/reference/doctypes/card-monthly-card/) | نعم |
+| Card <small>(للقراءة فقط)</small> | `card` | Link | [كارت التشغيل الشهري](/card/ar/reference/doctypes/card-monthly-card/) | نعم |
 | السطر المصدر <small>(للقراءة فقط)</small> | `adjustment_row` | Data |  | نعم |
 | المعدات <small>(للقراءة فقط)</small> | `equipment` | Link | [المعدات](/card/ar/reference/doctypes/card-equipment/) |  |
 | المشروع <small>(للقراءة فقط)</small> | `project` | Link | المشروع |  |

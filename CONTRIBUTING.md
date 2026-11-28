@@ -1,6 +1,6 @@
-# Contributing to CARD
+# Contributing to Card
 
-Thanks for your interest in improving CARD. CARD is a standalone app built on the Frappe Framework and maintained by SDCE.
+Thanks for your interest in improving Card. Card is a standalone app built on the Frappe Framework and maintained by SDCE.
 
 ## Ground rules
 

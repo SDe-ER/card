@@ -1,13 +1,13 @@
 ---
 title: Development and contributing
-description: How to run CARD's tests, the checks every pull request runs, how releases are made, and how to keep this documentation up to date.
+description: How to run Card's tests, the checks every pull request runs, how releases are made, and how to keep this documentation up to date.
 sidebar:
   order: 4
 ---
 
 ## Overview
 
-CARD is developed in the open on [GitHub](https://github.com/SDe-ER/card). Every change goes through a pull
+Card is developed in the open on [GitHub](https://github.com/SDe-ER/card). Every change goes through a pull
 request with automated checks and review. This page explains how to run the tests locally, which checks a pull
 request runs, how versions are released, and how each change reaches this documentation.
 
@@ -32,7 +32,7 @@ cd frontend && yarn install --frozen-lockfile && yarn type-check && yarn test &&
 
 | Workflow | What it checks |
 |---|---|
-| CI | CARD unit tests on Frappe and ERPNext v16 with coverage; CARD Mobile type check, unit tests and build |
+| CI | Card unit tests on Frappe and ERPNext v16 with coverage; Card Mobile type check, unit tests and build |
 | Linters | `pre-commit` (ruff, prettier) and Semgrep with the Frappe rules |
 | CodeQL | Code scanning for JavaScript and Python, also weekly |
 | PR Title | The pull request title follows Conventional Commits |
@@ -57,7 +57,7 @@ the [code of conduct](https://github.com/SDe-ER/card/blob/main/CODE_OF_CONDUCT.m
 ## Keep this documentation up to date
 
 The site lives in the `website/` folder of the repository and is rebuilt and published automatically from
-`main` whenever the CARD code or the documentation changes.
+`main` whenever the Card code or the documentation changes.
 
 | When you change… | Update |
 |---|---|
@@ -78,7 +78,7 @@ npm run dev
 
 ## Releases
 
-CARD follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Every release has its own release
+Card follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Every release has its own release
 notes, and every version is listed on [What's new](/card/releases/whats-new/).
 
 ## Security

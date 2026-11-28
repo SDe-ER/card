@@ -373,7 +373,7 @@ class TestCardMoneyPrivacy(IntegrationTestCase):
 
 		doc = field_privacy.__doc__ or ""
 		self.assertIn("Card Operator", doc)
-		self.assertIn("CARD Mobile", doc)
+		self.assertIn("Card Mobile", doc)
 		# the four current level-0 readers remain named as the level-1 readers in the module docstring
 		for role in LEVEL1_READERS:
 			self.assertIn(role, doc)

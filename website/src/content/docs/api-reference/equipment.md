@@ -19,7 +19,7 @@ authentication and errors.
 | GET | `card.api.get_asset_prefill` | Values the equipment form takes from a submitted Asset. |
 | POST | `card.api.create_equipment_from_asset` | Create (or prefill) a Card Equipment from a submitted Asset. |
 | GET | `card.api.available_assets_query` | Link query: submitted Assets not yet linked to equipment. |
-| GET | `card.api.get_only_company` | The company a new CARD form takes when the user sees exactly one. |
+| GET | `card.api.get_only_company` | The company a new Card form takes when the user sees exactly one. |
 | GET | `card.card.doctype.card_equipment.card_equipment.get_shift_heatmap` | Daily operating hours per shift. |
 | GET | `card.card.doctype.card_equipment.card_equipment.get_unit_integrity_issues` | Records that break the unit rules. |
 | POST | `card.card.doctype.card_equipment.card_equipment.resync_unit_component_flag` | Reset one piece's unit-component flag. |
@@ -112,7 +112,7 @@ curl -s -G "https://<your-site>/api/method/card.api.available_assets_query" \
 
 `GET /api/method/card.api.get_only_company`
 
-The company a new CARD form fills in when the user may list exactly one company; otherwise `null`. The field stays
+The company a new Card form fills in when the user may list exactly one company; otherwise `null`. The field stays
 editable.
 
 **Permission:** any logged-in user; returns `null` without read or select on Company.

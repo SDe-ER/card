@@ -17,7 +17,7 @@ documents:
    and draft tool handovers for tools; buying and stock then work in ERPNext as usual.
 
 Parts and consumables belong to the machine; tools are the operator's custody (see
-[Tool Custody](/card/features/tool-custody/)). CARD never posts to the ledger and never creates salary deductions or
+[Tool Custody](/card/features/tool-custody/)). Card never posts to the ledger and never creates salary deductions or
 penalties: a repeated request is only flagged for review.
 
 <!-- screenshot: equipment-needs-review -->
@@ -84,8 +84,8 @@ machine's needs with his own account, without Desk:
 - **My recent requests** shows the operator's last 20 requests with their status.
 
 The page requires the user to be linked to an active Employee and to hold Card Operator, Card Supervisor, Card Manager
-or System Manager. CARD Mobile (`/cdms`) offers the same request flow in its **New request** screen (see
-[CARD Mobile](/card/features/card-mobile/)).
+or System Manager. Card Mobile (`/cdms`) offers the same request flow in its **New request** screen (see
+[Card Mobile](/card/features/card-mobile/)).
 
 *The equipment needs page*
 
@@ -149,7 +149,7 @@ button is hidden from them and the server refuses the approval.
 
 ### Repeat requests
 
-When a request line names an Item, CARD checks whether the same item was asked for the same machine (another submitted
+When a request line names an Item, Card checks whether the same item was asked for the same machine (another submitted
 request) or issued to it (a submitted Material Issue Stock Entry carrying the machine) within the repeat window. If so,
 the line gets **Asked recently** and **Last asked on**.
 
@@ -172,8 +172,8 @@ stock column for any other reader.
 ### Purchase Order, Receipt and Invoice buttons
 
 :::caution[Planned]
-Buttons to create a Purchase Order, Purchase Receipt or Purchase Invoice from a CARD Material Request are not built.
-CARD creates draft Material Requests only; the buying and stock team continues in ERPNext with its standard actions.
+Buttons to create a Purchase Order, Purchase Receipt or Purchase Invoice from a Card Material Request are not built.
+Card creates draft Material Requests only; the buying and stock team continues in ERPNext with its standard actions.
 :::
 
 ### Settings
@@ -184,7 +184,7 @@ CARD creates draft Material Requests only; the buying and stock team continues i
 
 ## Workflow
 
-1. The operator opens `/equipment-needs` (or CARD Mobile), picks his machine, adds lines and presses **Send to
+1. The operator opens `/equipment-needs` (or Card Mobile), picks his machine, adds lines and presses **Send to
    supervisor**.
 2. The supervisor creates an **Equipment Needs Review** for the project, saves it and presses **Get requests**.
 3. He records what was found on site, inspects, sets the approved quantities, supply routes and warehouses, and submits.
@@ -210,6 +210,6 @@ A user limited to some companies cannot create, read or change requests or revie
 
 - [Maintenance & Parts](/card/features/maintenance-parts/)
 - [Tool Custody](/card/features/tool-custody/)
-- [CARD Mobile](/card/features/card-mobile/)
+- [Card Mobile](/card/features/card-mobile/)
 - [Roles & Permissions](/card/features/roles-permissions/)
 - [Materials & needs API](/card/api-reference/materials-needs/)

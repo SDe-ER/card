@@ -141,7 +141,7 @@ def standard_vat_rate(row):
 	if len(set(rates.values())) > 1:
 		frappe.throw(
 			_(
-				"The purchase and sales tax templates of company {0} carry different VAT rates ({1}); CARD posts one standard VAT rate per company. Align the templates before posting."
+				"The purchase and sales tax templates of company {0} carry different VAT rates ({1}); Card posts one standard VAT rate per company. Align the templates before posting."
 			).format(row.company, ", ".join(f"{t}: {r:g}%" for t, r in sorted(rates.items())))
 		)
 	return next(iter(rates.values())) if rates else None
@@ -170,7 +170,7 @@ def _reconcile_item_tax_template(name, heads, rate):
 	if not _carries_rate(name, rate):
 		frappe.throw(
 			_(
-				"Item tax template {0} does not carry the rate {1}%; CARD never changes the rate of an existing template."
+				"Item tax template {0} does not carry the rate {1}%; Card never changes the rate of an existing template."
 			).format(name, f"{flt(rate):g}")
 		)
 	if _item_tax_rows(name) == {head: flt(rate) for head in heads}:

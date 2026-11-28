@@ -1,4 +1,4 @@
-# CARD document template library
+# Card document template library
 
 This library is the required repository home for all new or revised **printable designs**:
 operation cards, invoices, receipts, account statements, diesel reports and other documents.
@@ -33,7 +33,7 @@ session and are not represented as uploaded revisions.
 2. Deliver editable HTML/CSS or the native editable source, required font notices, a README
    and validation notes; register the design in the catalog table above.
 3. Document intended paper size, orientation, print scale, required assets and field
-   mapping/gaps. Do not invent CARD fields, approvals, calculations or posting behavior.
+   mapping/gaps. Do not invent Card fields, approvals, calculations or posting behavior.
 4. **Company-specific branding (logos, branded renders) is separated from the public,
    distributable files**: reference a placeholder asset (e.g. `company-logo.png`) from the
    sources and keep proprietary assets out of the distributed tree. Never spread branding
@@ -42,5 +42,5 @@ session and are not represented as uploaded revisions.
    financial records.
 6. Upload the complete design package through the repository's normal branch/PR process when
    authorized. Never bypass protected branches or silently deploy a template.
-7. A template's review status is separate from CARD's electronic document status. Removing a
+7. A template's review status is separate from Card's electronic document status. Removing a
    printed draft label does not grant operational approval.

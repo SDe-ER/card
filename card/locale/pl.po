@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "Objętość ładunku (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Wydrukowano"
 
 msgid "CARD operations dashboard"
-msgstr "Panel operacyjny CARD"
+msgstr "Panel operacyjny Card"
 
 msgid "Financial performance — last month"
 msgstr "Wyniki finansowe — poprzedni miesiąc"
 
 msgid "Needs review (CARD)"
-msgstr "Wymaga weryfikacji (CARD)"
+msgstr "Wymaga weryfikacji (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Najnowsze karty miesięczne (CARD)"
+msgstr "Najnowsze karty miesięczne (Card)"
 
 msgid "CARD customers"
-msgstr "Klienci CARD"
+msgstr "Klienci Card"
 
 msgid "CARD suppliers"
-msgstr "Dostawcy CARD"
+msgstr "Dostawcy Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Diesel i eksploatacja (CARD)"
+msgstr "Diesel i eksploatacja (Card)"
 
 msgid "New monthly card"
 msgstr "Nowa karta miesięczna"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Nowy transport sprzętu"
 
 msgid "Customer statement (CARD)"
-msgstr "Wyciąg klienta (CARD)"
+msgstr "Wyciąg klienta (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Karty miesięczne (CARD)"
+msgstr "Karty miesięczne (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Sprzęt (CARD)"
+msgstr "Sprzęt (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Przydziały (CARD)"
+msgstr "Przydziały (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Klienci sprzętu (CARD)"
+msgstr "Klienci sprzętu (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Transporty sprzętu (CARD)"
+msgstr "Transporty sprzętu (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Wartość operacyjna dla klientów - poprzedni miesiąc"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Godziny eksploatacji bez stawki (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Podsumowanie klientów (CARD)"
+msgstr "Podsumowanie klientów (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Wyciąg dostawcy (CARD)"
+msgstr "Wyciąg dostawcy (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Podsumowanie dostawców (CARD)"
+msgstr "Podsumowanie dostawców (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Wyciąg dostawcy A4 (CARD)"
+msgstr "Wyciąg dostawcy A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Zużycie diesla (CARD)"
+msgstr "Zużycie diesla (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Koszt eksploatacji wg projektu (CARD)"
+msgstr "Koszt eksploatacji wg projektu (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Koszt transportu wg projektu (CARD)"
+msgstr "Koszt transportu wg projektu (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Uzgodnienie liczników (CARD)"
+msgstr "Uzgodnienie liczników (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Transport sprzętu (CARD)"
+msgstr "Transport sprzętu (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

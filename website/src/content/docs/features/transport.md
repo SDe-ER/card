@@ -10,7 +10,7 @@ sidebar:
 An **Equipment Transport** records a move of one or more machines. It does two jobs at once:
 
 1. **Location transfer** — when it is submitted, each machine's project assignment is closed and, for a move to a
-   project, a new one is opened. This is how CARD knows where every machine is and which project its monthly cards
+   project, a new one is opened. This is how Card knows where every machine is and which project its monthly cards
    belong to.
 2. **Transport cost** — it records who pays the transporter and who finally bears the cost, the amount, its split
    over the machines and the cost center it is charged to, so the move can reach the transporter's monthly invoice and
@@ -190,7 +190,7 @@ On **submit**, each machine is moved (see
 assignment is closed and, for a move to a project, a new one is opened according to the **Move-day rule** recorded on
 the transport. Each row stores the assignments it closed and opened.
 
-On **cancel** (a cancel reason is mandatory), CARD first checks that:
+On **cancel** (a cancel reason is mandatory), Card first checks that:
 
 - no later transport of the same machine exists (also on the same day, after this one);
 - no card day of the machine is recorded on the new project from the day its assignment started;
@@ -213,7 +213,7 @@ follows the print language. See [Print Formats](/card/features/print-formats/).
 
 ### Posting
 
-CARD never writes ledger entries; the monthly posting creates **draft** ERPNext invoices (see
+Card never writes ledger entries; the monthly posting creates **draft** ERPNext invoices (see
 [Invoicing & Posting](/card/features/invoicing-posting/)).
 
 - Transports recorded before responsibility scenarios: a move the company paid becomes a line on the transport

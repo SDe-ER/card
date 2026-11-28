@@ -61,7 +61,7 @@ def cancel_with_reason(doctype: str, name: str, reason: str | None = None):
 	cancel rolls the reason back with it). Frappe's own cancel permission and the doctype's
 	has_permission hook (company isolation) decide who may cancel."""
 	if doctype not in DOCTYPES:
-		frappe.throw(_("{0} is not a CARD transaction.").format(doctype), frappe.PermissionError)
+		frappe.throw(_("{0} is not a Card transaction.").format(doctype), frappe.PermissionError)
 	doc = frappe.get_doc(doctype, name)
 	doc.check_permission("cancel")
 	doc.set(FIELD, cstr(reason).strip())

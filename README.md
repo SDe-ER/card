@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="card/public/images/card-logo-512.png" alt="CARD logo" height="96">
+<img src="card/public/images/card-logo-512.png" alt="Card logo" height="96">
 
-<h1>CARD</h1>
+<h1>Card</h1>
 
 **Equipment operations management for Frappe and ERPNext**
 
@@ -29,12 +29,12 @@
 
 <br>
 
-CARD is a Frappe application for contractors that own, rent and operate heavy equipment. It records every
+Card is a Frappe application for contractors that own, rent and operate heavy equipment. It records every
 machine, where it works and what it did each day, prices that work by its rental terms, and turns it into
 standard ERPNext invoices and statements — for owned, rented-in, rented-out and sub-let equipment.
 
 <div align="center">
-<img src="website/src/assets/screenshots/en/introduction-workspace.webp" alt="The CARD workspace" width="90%">
+<img src="website/src/assets/screenshots/en/introduction-workspace.webp" alt="The Card workspace" width="90%">
 </div>
 
 ## Highlights
@@ -44,10 +44,10 @@ standard ERPNext invoices and statements — for owned, rented-in, rented-out an
 - **Every rental direction** — owned, rented-in, rented-out and sub-let equipment, priced by day, hour or month.
 - **Diesel, transport, meters and materials** — metered diesel sessions, equipment transport, engine-hour
   readings, parts requests and tool custody.
-- **Standard ERPNext accounting** — CARD prepares draft Purchase and Sales Invoices; it never writes ledger
+- **Standard ERPNext accounting** — Card prepares draft Purchase and Sales Invoices; it never writes ledger
   entries itself.
 - **25 reports** — statements, settlement status, downtime, diesel analysis, partial margin and more.
-- **Arabic and English** (with Urdu, Bengali and Hindi for operator screens) and **CARD Mobile** for site staff.
+- **Arabic and English** (with Urdu, Bengali and Hindi for operator screens) and **Card Mobile** for site staff.
 
 ## Quick start
 
@@ -58,7 +58,7 @@ bench --site <your-site> migrate
 ```
 
 Requires Frappe and ERPNext v16. See the [installation guide](https://sde-er.github.io/card/getting-started/installation/)
-for requirements, Docker, upgrades and CARD Mobile.
+for requirements, Docker, upgrades and Card Mobile.
 
 ## Documentation
 
@@ -87,6 +87,6 @@ Please report vulnerabilities privately as described in [SECURITY.md](SECURITY.m
 
 [MIT](LICENSE) © 2026 Shams Dubai Contracting Est. (SDCE).
 
-The CARD name and logo belong to SDCE. "Frappe", "ERPNext" and "Frappe HR" are trademarks of Frappe
+The Card name and logo belong to SDCE. "Frappe", "ERPNext" and "Frappe HR" are trademarks of Frappe
 Technologies Pvt. Ltd., used here only to describe compatibility, in line with the
 [ERPNext trademark policy](https://github.com/frappe/erpnext/blob/develop/TRADEMARK_POLICY.md).

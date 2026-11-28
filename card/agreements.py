@@ -80,15 +80,15 @@ def _normalise_party(party):
 		party_type, name = party.get("party_type"), party.get("party")
 	elif isinstance(party, list | tuple):
 		if len(party) != 2:
-			frappe.throw(_("CARD rate agreement: a party is given as (party type, party)."))
+			frappe.throw(_("Card rate agreement: a party is given as (party type, party)."))
 		party_type, name = party
 	else:
 		party_type, name = None, party
 	if party_type and party_type not in PARTY_TYPES:
-		frappe.throw(_("CARD rate agreement: party type {0} is not Supplier or Customer.").format(party_type))
+		frappe.throw(_("Card rate agreement: party type {0} is not Supplier or Customer.").format(party_type))
 	if not name:
 		frappe.throw(
-			_("CARD rate agreement: company, equipment, party and date are required to find an agreement.")
+			_("Card rate agreement: company, equipment, party and date are required to find an agreement.")
 		)
 	return party_type, name
 
@@ -119,7 +119,7 @@ def resolve(company, equipment, party, date, project=None, zone=None):
 	checks the permission of its own document (the card, the posting) before using the result."""
 	if not company or not equipment or not date:
 		frappe.throw(
-			_("CARD rate agreement: company, equipment, party and date are required to find an agreement.")
+			_("Card rate agreement: company, equipment, party and date are required to find an agreement.")
 		)
 	party_type, party_name = _normalise_party(party)
 	date = getdate(date)
@@ -127,10 +127,10 @@ def resolve(company, equipment, party, date, project=None, zone=None):
 		"Card Equipment", equipment, ["company", "equipment_type"], as_dict=True
 	)
 	if not equipment_row:
-		frappe.throw(_("CARD rate agreement: equipment {0} does not exist.").format(equipment))
+		frappe.throw(_("Card rate agreement: equipment {0} does not exist.").format(equipment))
 	if equipment_row.company != company:
 		frappe.throw(
-			_("CARD rate agreement: equipment {0} does not belong to company {1}.").format(equipment, company)
+			_("Card rate agreement: equipment {0} does not belong to company {1}.").format(equipment, company)
 		)
 	zone = normalise_zone(zone)
 	agreement = frappe.qb.DocType(DOCTYPE)
@@ -166,8 +166,8 @@ def resolve(company, equipment, party, date, project=None, zone=None):
 	if len(matches) > 1:
 		frappe.throw(
 			_(
-				"CARD rate agreement: {0} active agreements match equipment {1} on {2}: {3}. "
-				"End or cancel all but one; CARD does not choose between them."
+				"Card rate agreement: {0} active agreements match equipment {1} on {2}: {3}. "
+				"End or cancel all but one; Card does not choose between them."
 			).format(len(matches), equipment, frappe.format(date, "Date"), ", ".join(matches)),
 			AmbiguousAgreementError,
 		)
@@ -186,28 +186,28 @@ def validate_agreement(doc):
 
 def _check_dates(doc):
 	if doc.valid_to and getdate(doc.valid_to) < getdate(doc.valid_from):
-		frappe.throw(_("CARD rate agreement: the end date is before the start date."))
+		frappe.throw(_("Card rate agreement: the end date is before the start date."))
 
 
 def _check_scope(doc):
 	if not doc.equipment and not doc.equipment_type:
-		frappe.throw(_("CARD rate agreement: choose an equipment or an equipment type."))
+		frappe.throw(_("Card rate agreement: choose an equipment or an equipment type."))
 	if not doc.supplier and not doc.customer:
-		frappe.throw(_("CARD rate agreement: choose a supplier, a customer or both."))
+		frappe.throw(_("Card rate agreement: choose a supplier, a customer or both."))
 	if doc.equipment:
 		row = frappe.db.get_value(
 			"Card Equipment", doc.equipment, ["company", "equipment_type"], as_dict=True
 		)
 		if not row:
-			frappe.throw(_("CARD rate agreement: equipment {0} does not exist.").format(doc.equipment))
+			frappe.throw(_("Card rate agreement: equipment {0} does not exist.").format(doc.equipment))
 		if row.company != doc.company:
 			frappe.throw(
-				_("CARD rate agreement: equipment {0} belongs to another company.").format(doc.equipment),
+				_("Card rate agreement: equipment {0} belongs to another company.").format(doc.equipment),
 				frappe.ValidationError,
 			)
 		if doc.equipment_type and doc.equipment_type != row.equipment_type:
 			frappe.throw(
-				_("CARD rate agreement: equipment {0} is not of equipment type {1}.").format(
+				_("Card rate agreement: equipment {0} is not of equipment type {1}.").format(
 					doc.equipment, doc.equipment_type
 				)
 			)
@@ -216,14 +216,14 @@ def _check_scope(doc):
 		project_company = frappe.db.get_value("Project", doc.project, "company")
 		if project_company != doc.company:
 			frappe.throw(
-				_("CARD rate agreement: project {0} belongs to another company.").format(doc.project),
+				_("Card rate agreement: project {0} belongs to another company.").format(doc.project),
 				frappe.ValidationError,
 			)
 	if doc.get("amended_from"):
 		original_company = frappe.db.get_value(DOCTYPE, doc.amended_from, "company")
 		if original_company != doc.company:
 			frappe.throw(
-				_("CARD rate agreement: an amendment keeps the company of agreement {0}.").format(
+				_("Card rate agreement: an amendment keeps the company of agreement {0}.").format(
 					doc.amended_from
 				),
 				frappe.ValidationError,
@@ -237,11 +237,11 @@ def _check_rates(doc):
 	doc.currency = frappe.get_cached_value("Company", doc.company, "default_currency") or doc.currency
 	for field in RATE_FIELDS:
 		if flt(doc.get(field)) < 0:
-			frappe.throw(_("CARD rate agreement: a rate cannot be negative."))
+			frappe.throw(_("Card rate agreement: a rate cannot be negative."))
 	if flt(doc.quantity_rate) > 0 and not doc.quantity_uom:
-		frappe.throw(_("CARD rate agreement: a rate per quantity needs its unit."))
+		frappe.throw(_("Card rate agreement: a rate per quantity needs its unit."))
 	if not any(flt(doc.get(field)) > 0 for field in RATE_FIELDS) and not doc.get(RESPONSIBILITY_TABLE):
-		frappe.throw(_("CARD rate agreement: enter at least one rate or one cost responsibility row."))
+		frappe.throw(_("Card rate agreement: enter at least one rate or one cost responsibility row."))
 
 
 def _check_responsibilities(doc):
@@ -255,7 +255,7 @@ def _check_responsibilities(doc):
 	for row in rows:
 		if flt(row.split_percent) <= 0 or flt(row.split_percent) > 100:
 			frappe.throw(
-				_("CARD rate agreement: row {0}: the share must be more than 0% and at most 100%.").format(
+				_("Card rate agreement: row {0}: the share must be more than 0% and at most 100%.").format(
 					row.idx
 				)
 			)
@@ -265,7 +265,7 @@ def _check_responsibilities(doc):
 				row.set(field, None)  # only the party of the chosen payer is kept
 		if payer_field and not _value(row.get(payer_field)):
 			frappe.throw(
-				_("CARD rate agreement: row {0}: name the paying party ({1}).").format(
+				_("Card rate agreement: row {0}: name the paying party ({1}).").format(
 					row.idx, _(row.paid_by)
 				)
 			)
@@ -273,7 +273,7 @@ def _check_responsibilities(doc):
 			if doc.equipment:
 				frappe.throw(
 					_(
-						"CARD rate agreement: row {0}: leave the equipment empty; the agreement is already for equipment {1} only."
+						"Card rate agreement: row {0}: leave the equipment empty; the agreement is already for equipment {1} only."
 					).format(row.idx, doc.equipment)
 				)
 			if (
@@ -282,7 +282,7 @@ def _check_responsibilities(doc):
 				!= doc.equipment_type
 			):
 				frappe.throw(
-					_("CARD rate agreement: row {0}: equipment {1} is not of equipment type {2}.").format(
+					_("Card rate agreement: row {0}: equipment {1} is not of equipment type {2}.").format(
 						row.idx, row.equipment, doc.equipment_type
 					)
 				)
@@ -290,7 +290,7 @@ def _check_responsibilities(doc):
 		marker = (row.cost_category, row.equipment or "", payer)
 		if marker in seen:
 			frappe.throw(
-				_("CARD rate agreement: row {0}: the same payer is entered twice for {1}.").format(
+				_("Card rate agreement: row {0}: the same payer is entered twice for {1}.").format(
 					row.idx, _(row.cost_category)
 				)
 			)
@@ -300,7 +300,7 @@ def _check_responsibilities(doc):
 	for (category, equipment), total in totals.items():
 		if abs(total - 100) > 0.001:
 			frappe.throw(
-				_("CARD rate agreement: the shares for {0}{1} add up to {2}%, not 100%.").format(
+				_("Card rate agreement: the shares for {0}{1} add up to {2}%, not 100%.").format(
 					_(category), f" ({equipment})" if equipment else "", flt(total, 3)
 				)
 			)
@@ -338,7 +338,7 @@ def check_overlap(doc):
 		if _overlaps(doc.valid_from, doc.valid_to, row.valid_from, row.valid_to):
 			frappe.throw(
 				_(
-					"CARD rate agreement: agreement {0} has the same equipment, parties, project and zone and is in force "
+					"Card rate agreement: agreement {0} has the same equipment, parties, project and zone and is in force "
 					"in this period. A changed rate is a new agreement from a later date: end or cancel {0} first."
 				).format(row.name),
 				OverlappingAgreementError,

@@ -1,18 +1,18 @@
 ---
 title: API Overview
-description: How to call CARD's server methods and DocTypes over the standard Frappe REST API — authentication, HTTP methods, responses, errors and permission rules.
+description: How to call Card's server methods and DocTypes over the standard Frappe REST API — authentication, HTTP methods, responses, errors and permission rules.
 sidebar:
   order: 1
 ---
 
 ## Overview
 
-CARD has no separate API server. Every CARD endpoint is a Python function marked `@frappe.whitelist` and served by
-Frappe's standard REST API, and every CARD record is a DocType reachable through Frappe's standard resource API. The
-same permission rules apply as in the Desk and in CARD Mobile: an API caller can do exactly what the same user could do
+Card has no separate API server. Every Card endpoint is a Python function marked `@frappe.whitelist` and served by
+Frappe's standard REST API, and every Card record is a DocType reachable through Frappe's standard resource API. The
+same permission rules apply as in the Desk and in Card Mobile: an API caller can do exactly what the same user could do
 on screen, never more.
 
-This section lists every whitelisted CARD function, grouped by area. Private helpers that are not whitelisted are not
+This section lists every whitelisted Card function, grouped by area. Private helpers that are not whitelisted are not
 callable and are not listed.
 
 ## Key concepts
@@ -22,7 +22,7 @@ callable and are not listed.
 | Method endpoint | `POST` or `GET` `https://<your-site>/api/method/<dotted.path>` runs a whitelisted function. |
 | Resource endpoint | `https://<your-site>/api/resource/<DocType>` lists, reads, creates, updates and deletes records. |
 | API key and secret | Generated per user in ERPNext (**User → Settings → API Access → Generate Keys**). The caller acts as that user. |
-| Declared HTTP methods | Every CARD function declares `methods=`: `GET` for reads without side effects, `POST` for anything that writes. A few read-only functions accept `POST` because a Desk widget calls them that way. |
+| Declared HTTP methods | Every Card function declares `methods=`: `GET` for reads without side effects, `POST` for anything that writes. A few read-only functions accept `POST` because a Desk widget calls them that way. |
 | Company scope | The companies a user may see, from User Permissions on Company. Cross-company access is always refused on the server. |
 
 ## Features
@@ -100,12 +100,12 @@ Errors use Frappe's standard format: an HTTP status, the exception type, and use
 - **Company scope.** A company, project, equipment or party of a company the user may not see is refused, never read.
 - **Separation of duties.** Some writes refuse the user who prepared the record (for example approving an equipment
   needs review the user edited, or recording the financial decision of a transport the user created).
-- **No ledger writes.** No CARD endpoint writes a GL entry. Posting endpoints create draft ERPNext invoices; the
+- **No ledger writes.** No Card endpoint writes a GL entry. Posting endpoints create draft ERPNext invoices; the
   ledger rows appear only when a person submits them in ERPNext.
 
 ### Standard resource API for DocTypes
 
-CARD DocTypes use Frappe's resource API with the same permissions:
+Card DocTypes use Frappe's resource API with the same permissions:
 
 | Action | Request |
 |---|---|
@@ -116,13 +116,13 @@ CARD DocTypes use Frappe's resource API with the same permissions:
 | Delete | `DELETE /api/resource/<DocType>/<name>` |
 | Submit / cancel | `POST /api/method/frappe.client.submit` / `frappe.client.cancel` |
 
-Main CARD DocTypes: Card Equipment, Card Equipment Assignment, Card Monthly Card, Card Daily Log, Project Diesel Fill,
+Main Card DocTypes: Card Equipment, Card Equipment Assignment, Card Monthly Card, Card Daily Log, Project Diesel Fill,
 Equipment Transport, Equipment Needs Request, Equipment Needs Review, Employee Tool Custody, Equipment Meter Reading,
 Card Equipment Supplier, Card Equipment Customer, Card Stop Reason, Card Settings, Card Company Settings and GL Posting
 Log. Server-side validation runs on every route: REST, the Desk form and imports.
 
 :::caution
-Records CARD writes from the server only (approval fields, posting logs, settlement links) are refused or ignored when
+Records Card writes from the server only (approval fields, posting logs, settlement links) are refused or ignored when
 sent through the resource API. Use the documented methods instead.
 :::
 
@@ -137,10 +137,10 @@ sent through the resource API. Use the documented methods instead.
 | [Materials and needs](/card/api-reference/materials-needs/) | Operator requests, reviews, approval, tool handovers, the Tool Custody screen. |
 | [Parties and statements](/card/api-reference/parties-statements/) | Party registry, report filter options and defaults, statement PDF. |
 | [Posting and accounting](/card/api-reference/posting-accounting/) | Monthly posting, previews, corrections, invoice and journal links. |
-| [Mobile and settings](/card/api-reference/mobile-settings/) | CARD Mobile session, catalog and fitment, Card Settings timeline. |
+| [Mobile and settings](/card/api-reference/mobile-settings/) | Card Mobile session, catalog and fitment, Card Settings timeline. |
 
 ## Related
 
 - [Reports overview](/card/reports/overview/)
 - [Roles and permissions](/card/features/roles-permissions/)
-- [CARD Mobile](/card/features/card-mobile/)
+- [Card Mobile](/card/features/card-mobile/)

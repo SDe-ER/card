@@ -439,7 +439,7 @@ class TestTransportResponsibilityPosting(_P0Base):
 		pi.bill_no, pi.bill_date = "FR139-" + self.token, "2026-09-30"
 		pi.save()
 		with self.assertRaisesRegex(
-			frappe.ValidationError, "differs from what CARD built|no longer matches|accept_correction"
+			frappe.ValidationError, "differs from what Card built|no longer matches|accept_correction"
 		):
 			pi.submit()
 

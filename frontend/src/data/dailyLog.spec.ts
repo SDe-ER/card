@@ -25,7 +25,7 @@ import {
   type DraftLog,
 } from './dailyLog'
 
-// FR-150: the CARD Mobile daily log calls. The server decides every permission; these tests pin
+// FR-150: the Card Mobile daily log calls. The server decides every permission; these tests pin
 // that the screens offer no approval, and send no approval, editor, preparer or money field.
 
 const ROLES = {

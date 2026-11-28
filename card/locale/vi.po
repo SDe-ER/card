@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "Khối lượng chuyến hàng (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "In lúc"
 
 msgid "CARD operations dashboard"
-msgstr "Bảng điều khiển vận hành CARD"
+msgstr "Bảng điều khiển vận hành Card"
 
 msgid "Financial performance — last month"
 msgstr "Hiệu quả tài chính — tháng trước"
 
 msgid "Needs review (CARD)"
-msgstr "Cần xem xét (CARD)"
+msgstr "Cần xem xét (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Thẻ hàng tháng mới nhất (CARD)"
+msgstr "Thẻ hàng tháng mới nhất (Card)"
 
 msgid "CARD customers"
-msgstr "Khách hàng CARD"
+msgstr "Khách hàng Card"
 
 msgid "CARD suppliers"
-msgstr "Nhà cung cấp CARD"
+msgstr "Nhà cung cấp Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dầu diesel và vận hành (CARD)"
+msgstr "Dầu diesel và vận hành (Card)"
 
 msgid "New monthly card"
 msgstr "Thẻ hàng tháng mới"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Vận chuyển thiết bị mới"
 
 msgid "Customer statement (CARD)"
-msgstr "Sao kê khách hàng (CARD)"
+msgstr "Sao kê khách hàng (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Thẻ hàng tháng (CARD)"
+msgstr "Thẻ hàng tháng (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Thiết bị (CARD)"
+msgstr "Thiết bị (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Phân công (CARD)"
+msgstr "Phân công (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Khách hàng thiết bị (CARD)"
+msgstr "Khách hàng thiết bị (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Vận chuyển thiết bị (CARD)"
+msgstr "Vận chuyển thiết bị (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Giá trị vận hành cho khách hàng - tháng trước"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Giờ vận hành chưa có đơn giá (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Tóm tắt khách hàng (CARD)"
+msgstr "Tóm tắt khách hàng (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Sao kê nhà cung cấp (CARD)"
+msgstr "Sao kê nhà cung cấp (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Tóm tắt nhà cung cấp (CARD)"
+msgstr "Tóm tắt nhà cung cấp (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Sao kê nhà cung cấp A4 (CARD)"
+msgstr "Sao kê nhà cung cấp A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Mức tiêu thụ diesel (CARD)"
+msgstr "Mức tiêu thụ diesel (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Chi phí vận hành theo dự án (CARD)"
+msgstr "Chi phí vận hành theo dự án (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Chi phí vận chuyển theo dự án (CARD)"
+msgstr "Chi phí vận chuyển theo dự án (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Đối chiếu đồng hồ (CARD)"
+msgstr "Đối chiếu đồng hồ (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Vận chuyển thiết bị (CARD)"
+msgstr "Vận chuyển thiết bị (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

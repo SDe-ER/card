@@ -209,7 +209,7 @@ def check_child_companies(doc, table_field, link_field):
 	target = field.options if field and field.fieldtype == "Link" else None
 	if target not in COMPANY_SOURCES:
 		frappe.throw(
-			_("CARD company check: {0} is not a link to a company-owned record.").format(link_field),
+			_("Card company check: {0} is not a link to a company-owned record.").format(link_field),
 			frappe.ValidationError,
 		)
 	wrong = []
@@ -221,7 +221,7 @@ def check_child_companies(doc, table_field, link_field):
 				wrong.append(f"{row.idx} ({value}: {other})")
 	if wrong:
 		frappe.throw(
-			_("CARD company check: rows {0} belong to a company other than {1}.").format(
+			_("Card company check: rows {0} belong to a company other than {1}.").format(
 				", ".join(wrong), company
 			),
 			frappe.ValidationError,
@@ -237,7 +237,7 @@ def deny_cross_company_share(doc, method=None):
 		return
 	if doc.get("everyone") or not doc.user:
 		frappe.throw(
-			_("A CARD record of type {0} cannot be shared with everyone.").format(_(doc.share_doctype)),
+			_("A Card record of type {0} cannot be shared with everyone.").format(_(doc.share_doctype)),
 			frappe.PermissionError,
 		)
 	companies = _restricted(doc.user, doc.share_doctype)
@@ -247,7 +247,7 @@ def deny_cross_company_share(doc, method=None):
 	if outside:
 		frappe.throw(
 			_(
-				"This CARD record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
+				"This Card record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
 			).format(_(doc.share_doctype), ", ".join(outside)),
 			frappe.PermissionError,
 		)

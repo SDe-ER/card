@@ -7,7 +7,7 @@ sidebar:
 
 ## Overview
 
-The **Card Monthly Card** (كارت التشغيل الشهري) is the core document of CARD. It records, for one machine, one project,
+The **Card Monthly Card** (كارت التشغيل الشهري) is the core document of Card. It records, for one machine, one project,
 one month and one shift, what the machine did each day: operating hours, the day status, downtime with its stop
 reason and responsible party, and notes. From those days and the rates on the equipment, the card computes what is
 owed to the supplier of a rented machine, what is billed to the customer of a machine rented out, or both on a
@@ -276,7 +276,7 @@ Cards may also be back-entered only within the **current fiscal year**.
 ### Payments
 
 The card does not record payments and does not create Payment Entries. Payments are made in ERPNext against the
-invoices CARD prepares; the settlement status of each card is shown in the reports (see
+invoices Card prepares; the settlement status of each card is shown in the reports (see
 [Parties & Statements](/card/reports/parties-statements/)).
 
 ### Money visibility

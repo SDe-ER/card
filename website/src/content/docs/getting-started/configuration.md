@@ -7,12 +7,12 @@ sidebar:
 
 ## Overview
 
-All CARD configuration lives in one single DocType, **Card Settings**, opened from the launcher entry **Settings**
+All Card configuration lives in one single DocType, **Card Settings**, opened from the launcher entry **Settings**
 (Card Setup). It has site-wide values (shifts, warnings, diesel supplier policy, period lock, notifications) and a
 table of **Card Company Settings** with one row per company: the accounts, items, tax templates, diesel price,
 stores and equipment rules of that company.
 
-Every value has a built-in default. When a field has never been set, CARD behaves as it did before the field
+Every value has a built-in default. When a field has never been set, Card behaves as it did before the field
 existed, so a new site works with an empty Card Settings until accounting posting is switched on.
 
 <!-- screenshot: configuration-card-settings -->
@@ -32,7 +32,7 @@ existed, so a new site works with an empty Card Settings until accounting postin
 
 ### Accounting tab
 
-- **Enable accounting posting** — when off, all CARD accounting features are disabled. Default off.
+- **Enable accounting posting** — when off, all Card accounting features are disabled. Default off.
 - **Company settings** — the table of Card Company Settings rows (see [Card Company Settings](#card-company-settings)).
 - **Addition/Deduction Types** — the configured addition and deduction types per company. Each type has a
   **Type name**, a **Kind** («إضافة» Addition or «خصم» Deduction), an **Account** (expense on the purchase side,
@@ -57,7 +57,7 @@ The field **Auto-submit postings** is deprecated: it is hidden, read only and no
 | Default fuel charged to (new equipment) | empty | «المؤجر» (Lessor) or «الشركة» (Company) |
 | Default operator charged to (new equipment) | empty | «المؤجر» (Lessor) or «الشركة» (Company) |
 | Default rate basis | empty | Fills the supplier and customer rate basis on new equipment when left blank: «باليوم», «بالساعة», «بالشهر» |
-| Standard month hours | 260 | Hours a monthly rate is spread over (26 days × 10 hours). Empty or 0 means not configured: CARD then refuses a per-month rate and names this setting |
+| Standard month hours | 260 | Hours a monthly rate is spread over (26 days × 10 hours). Empty or 0 means not configured: Card then refuses a per-month rate and names this setting |
 | Daily equipment location sync | off | When on, a daily job sets each equipment's current project and assignment date from the assignment in force today; an overwritten value leaves a comment. Equipment without assignment history is never changed |
 
 **Warnings**
@@ -155,7 +155,7 @@ One row per company in **Company settings**. **Company** is required.
 
 **Items**
 
-- Rental item, Diesel item, Transport item, Rental-out item — the service items used on the invoice lines CARD
+- Rental item, Diesel item, Transport item, Rental-out item — the service items used on the invoice lines Card
   builds.
 
 **Pricing**
@@ -205,13 +205,13 @@ One row per company in **Company settings**. **Company** is required.
 
 :::caution[Planned]
 A "Check setup" action that validates the whole configuration in one step is planned and not available yet. Until
-then, CARD checks each value where it is used: posting refuses to build an invoice when an account, item, tax
+then, Card checks each value where it is used: posting refuses to build an invoice when an account, item, tax
 template or the accounting dimension is missing, and names what is missing.
 :::
 
 ## Workflow
 
-1. Open **Settings** from the CARD launcher.
+1. Open **Settings** from the Card launcher.
 2. On the **Accounting** tab add a **Company settings** row for each company and fill its accounts, tax templates
    and items.
 3. Add the addition and deduction types you use.

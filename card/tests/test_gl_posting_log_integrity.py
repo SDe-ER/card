@@ -27,7 +27,7 @@ from card.tests.test_posting_lines import _ReconciliationBase
 DELETE, EDIT, CREATE, SOURCES = (
 	"cannot be deleted",
 	"cannot be edited",
-	"created only by CARD",
+	"created only by Card",
 	"sources of a posting log",
 )
 IDENTITY = (

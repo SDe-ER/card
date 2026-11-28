@@ -268,7 +268,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | `card.fitment.fit_for` | GET | `equipment: str`<br/>`items: str \| list` |
 | `card.fitment.machines` | GET | `txt: str \| None = None`<br/>`start: int = 0` |
 
-- `fit_for` — The fit of up to 50 Items for one machine (the inline item picker of CARD Mobile).
+- `fit_for` — The fit of up to 50 Items for one machine (the inline item picker of Card Mobile).
 - `machines` — Machines the caller may look up in the catalog: a Desk reader's own list (his DocPerms and User Permissions apply), or an operator's own machines. Searched and paged on the server.
 
 
@@ -365,7 +365,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 |---|---|---|
 | `card.mobile.get_session_context` | GET | none |
 
-- `get_session_context` — The signed-in user's CARD Mobile context. Reads only.
+- `get_session_context` — The signed-in user's Card Mobile context. Reads only.
 
 
 <h2 id="card-open-month"><code>card.open_month</code></h2>

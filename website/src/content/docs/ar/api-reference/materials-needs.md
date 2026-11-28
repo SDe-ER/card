@@ -37,7 +37,7 @@ sidebar:
 
 | مجموعة الأدوار | الأدوار |
 |---|---|
-| أدوار البوابة (صفحة المشغّل وطلبات CARD Mobile) | Card Operator، Card Supervisor، Card Manager، System Manager |
+| أدوار البوابة (صفحة المشغّل وطلبات Card Mobile) | Card Operator، Card Supervisor، Card Manager، System Manager |
 | المعتمدون | Card Manager، System Manager |
 | شاشة عهدة الأدوات | Card Supervisor، Card Manager، Stock Manager، System Manager (مع قراءة عهدة أدوات الموظف) |
 | جانب المخزن | المستخدمون الذين يحق لهم اعتماد عهدة أدوات الموظف وقيود المخزون معًا |

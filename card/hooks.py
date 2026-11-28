@@ -1,5 +1,5 @@
 app_name = "card"
-app_title = "CARD"
+app_title = "Card"
 app_publisher = "SDCE"
 app_description = "Monthly equipment operation cards (standalone CARD app)"
 app_email = "info@sdce.sa"
@@ -516,20 +516,20 @@ add_to_apps_screen = [
 	{
 		"name": "card",
 		"logo": "/assets/card/images/card-logo.svg",
-		"title": "CARD",
+		"title": "Card",
 		"route": "/app/card",
 		"has_permission": "card.mobile.has_desk_app_permission",
 	},
 	{
 		"name": "card",
 		"logo": "/assets/card/frontend/icons/icon-192.png",
-		"title": "CARD Mobile",
+		"title": "Card Mobile",
 		"route": "/cdms",
 		"has_permission": "card.mobile.has_app_permission",
 	},
 ]
 
-# CARD Mobile (frontend/, built into card/public/frontend and card/www/cdms.html), as Frappe HR's
+# Card Mobile (frontend/, built into card/public/frontend and card/www/cdms.html), as Frappe HR's
 # /hrms. The service worker is served at /cdms/sw.js so that it controls /cdms (card/pwa.py).
 website_route_rules = [
 	{"from_route": "/cdms/sw.js", "to_route": "cdms-sw"},

@@ -1,7 +1,7 @@
 # State transitions per DocType
 
 Sources: the controllers under `card/card/doctype/<doctype>/`, `card/gl/events.py`, `card/gl/posting.py`,
-`card/transfer.py`, `card/materials.py`, `card/equipment_status.py`, `card/period_lock.py`. CARD defines **no Frappe
+`card/transfer.py`, `card/materials.py`, `card/equipment_status.py`, `card/period_lock.py`. Card defines **no Frappe
 Workflow** (`card/hooks.py` and `fixtures` ship none): every state below is a field or the standard `docstatus`
 (0 Draft, 1 Submitted, 2 Cancelled), moved by controller code. That is a design fact to keep in mind for #51
 (Planned: configurable roles and approvals).
@@ -102,14 +102,14 @@ Operations Approved --material edit by anyone--> Needs Review
 | Draft to Submitted | Refused unless `review_status` is Operations Approved and the price is decided (`before_submit`) |
 | Submitted to Cancelled | A cancel reason is required (section 1); blocked while a posting holds the fill; period lock | Reason stored and commented |
 | Amendment | The cancelled fill's review is not inherited; the amendment starts at Draft |
-| Posting | Imported WhatsApp sessions (`source_key` set) are never put into a CARD posting; their supplier's own invoice is entered separately (`gl/posting.py` `_supplier_sources`) |
+| Posting | Imported WhatsApp sessions (`source_key` set) are never put into a Card posting; their supplier's own invoice is entered separately (`gl/posting.py` `_supplier_sources`) |
 
 Price: the price comes from the company schedule or settings and is locked; a different price needs an exception by a
 role set in Card Settings, with a reason (`_check_exception`, FR-002).
 
 ## 7. GL Posting Log (`status`, no docstatus)
 
-Values: Draft, Submitted, Cancelled, Failed (`Failed` is an allowed value; no code path outside tests sets it at this commit). `origin`: Built (by CARD) or Linked (hand-booked invoice or accrual).
+Values: Draft, Submitted, Cancelled, Failed (`Failed` is an allowed value; no code path outside tests sets it at this commit). `origin`: Built (by Card) or Linked (hand-booked invoice or accrual).
 
 ```
 (builder) Draft --invoice submitted--> Submitted --invoice cancelled--> Cancelled
@@ -121,14 +121,14 @@ by `db_set` from `card/gl/events.py`. No user, role or share edits or deletes it
 unique `posting_key` (company, party type, party, month, year; plus sequence for late sources), so a second active
 posting for the same party-month-side cannot exist. Cancelled and Failed clear the key.
 
-## 8. Purchase Invoice and Sales Invoice built by CARD
+## 8. Purchase Invoice and Sales Invoice built by Card
 
-CARD does not own these states; ERPNext does. CARD hooks `card/gl/events.py` add:
+Card does not own these states; ERPNext does. Card hooks `card/gl/events.py` add:
 
-| ERPNext event | CARD behaviour |
+| ERPNext event | Card behaviour |
 |---|---|
-| `validate` | Discount edits on a CARD-built invoice are refused (use card adjustments) |
-| `before_submit` | Re-checks the build signature, company, month, period, sources total and supplier bill number; a VAT-registered supplier needs Bill No and Bill Date; an invoice CARD did not build may not repeat a CARD posting |
+| `validate` | Discount edits on a Card-built invoice are refused (use card adjustments) |
+| `before_submit` | Re-checks the build signature, company, month, period, sources total and supplier bill number; a VAT-registered supplier needs Bill No and Bill Date; an invoice Card did not build may not repeat a Card posting |
 | `on_submit` | Writes the invoice link and `posted` on every source; log to Submitted |
 | `before_cancel` | Frees the sources; log to Cancelled |
 | `on_trash` (draft) | Frees the sources; log to Cancelled |

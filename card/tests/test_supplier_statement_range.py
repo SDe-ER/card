@@ -521,7 +521,7 @@ class TestSupplierStatementRange(_PostingBase):
 		):
 			self.assertIn(label, html)
 		# zero VAT / other credits are hidden; the period prints its own dates; no ERPNext wording
-		self.assertNotIn("VAT on CARD purchase invoices", html)
+		self.assertNotIn("VAT on Card purchase invoices", html)
 		self.assertNotIn("Other supplier credits", html)
 		self.assertIn(frappe.utils.formatdate("2026-09-05"), html)
 		self.assertNotIn("ERPNext", html)

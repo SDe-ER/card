@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-If you discover a security vulnerability in CARD, please report it **privately** by email to:
+If you discover a security vulnerability in Card, please report it **privately** by email to:
 
 **info@sdce.sa**
 
@@ -18,4 +18,4 @@ We will acknowledge your report, investigate, and coordinate a fix and disclosur
 
 ## Supported versions
 
-Security fixes target the latest released version of CARD on the supported Frappe line (**≥ 16.50**). Please upgrade to the latest release before reporting.
+Security fixes target the latest released version of Card on the supported Frappe line (**≥ 16.50**). Please upgrade to the latest release before reporting.

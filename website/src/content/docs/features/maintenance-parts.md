@@ -7,7 +7,7 @@ sidebar:
 
 ## Overview
 
-CARD keeps **no item master of its own**. Parts, consumables and tools are standard ERPNext Items, and CARD adds three
+Card keeps **no item master of its own**. Parts, consumables and tools are standard ERPNext Items, and Card adds three
 things on top of them:
 
 - a **catalog search** that lets operators and supervisors find the right item by name, code, barcode or OEM part
@@ -35,7 +35,7 @@ things on top of them:
 ### Catalog search
 
 The catalog is one paged search over the standard ERPNext catalogue: Item, Item Group, Brand, Item Barcode, Item
-Manufacturer (OEM part numbers) and Item Alternative. It is used by the **Browse catalog** item picker of CARD Mobile and
+Manufacturer (OEM part numbers) and Item Alternative. It is used by the **Browse catalog** item picker of Card Mobile and
 by the item search of the `/equipment-needs` page; the **Catalog** entry of the *Card Materials* sidebar opens the
 ERPNext Item list.
 
@@ -56,7 +56,7 @@ Who sees what is decided on the server:
 |---|---|
 | Roles that read Item | Their normal ERPNext list, with their User Permissions, shares and permission rules |
 | Card Operator, Card Supervisor, Card Manager (portal roles) without Item read | The same catalogue on fixed safe fields, with their Item, Item Group and Brand User Permissions applied |
-| Card User | Read-only catalog viewer in CARD Mobile; no access to requests |
+| Card User | Read-only catalog viewer in Card Mobile; no access to requests |
 | Anyone else | Nothing |
 
 Permission rules registered by other apps (for example a company restriction on Item) are applied as ERPNext's own
@@ -141,7 +141,7 @@ The cost of a part reaches the machine only when stock is issued to it:
    Equipment** dimension on each row.
 2. The stock team issues the part with a standard ERPNext **Stock Entry** (*Material Issue*) whose rows keep the project,
    the cost center and the machine.
-3. The issue posts in ERPNext under the company's stock settings; CARD writes nothing.
+3. The issue posts in ERPNext under the company's stock settings; Card writes nothing.
 
 The read-only report **Equipment Consumption** lists what was issued to each machine (submitted Material Issue rows)
 plus non-stock items bought for it.
@@ -152,7 +152,7 @@ The read-only report **Equipment Maintenance Cost** (تكلفة صيانة ال�
 General Ledger access), lists one row per document line tagged to a machine through the Card Equipment dimension, for
 one company and period:
 
-- submitted **Purchase Invoice** lines, except invoices that recognise CARD cards, diesel fills or transports, fixed
+- submitted **Purchase Invoice** lines, except invoices that recognise Card cards, diesel fills or transports, fixed
   asset lines and lines of stock items (those count when issued);
 - submitted **Material Issue** Stock Entry lines at their valuation.
 
@@ -161,7 +161,7 @@ it and lists nothing. The same lines feed the maintenance part of the **Equipmen
 
 ### One expense for several machines
 
-One supplier invoice often covers several machines (for example one workshop invoice for three loaders). CARD does
+One supplier invoice often covers several machines (for example one workshop invoice for three loaders). Card does
 not split it by hours or equally. The accountant splits it by hand in ERPNext:
 
 1. Make sure the **Card Equipment** accounting dimension exists. It is off by default: a system manager turns on
@@ -169,7 +169,7 @@ not split it by hours or equally. The accountant splits it by hand in ERPNext:
    [Invoicing and posting](/card/features/invoicing-posting/).
 2. In the **Purchase Invoice**, enter one line for each machine, with the amount that belongs to that machine, and set
    **Card Equipment** on each line.
-3. Submit the invoice in ERPNext as usual. CARD writes nothing.
+3. Submit the invoice in ERPNext as usual. Card writes nothing.
 
 Each line then shows under its machine in **Equipment Maintenance Cost** and **Equipment Partial Margin**. A line
 without a machine is listed by **Equipment Expenses Without Equipment**. A split booked with a Journal Entry is not
@@ -204,7 +204,7 @@ those companies (model rows are shared technical data).
 - [Equipment](/card/features/equipment/)
 - [Equipment Needs](/card/features/equipment-needs/)
 - [Tool Custody](/card/features/tool-custody/)
-- [CARD Mobile](/card/features/card-mobile/)
+- [Card Mobile](/card/features/card-mobile/)
 - [Meter Readings](/card/features/meter-readings/)
 - [Maintenance & assets reports](/card/reports/maintenance-assets/)
 - [Materials & needs API](/card/api-reference/materials-needs/)

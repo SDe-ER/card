@@ -7,12 +7,12 @@ sidebar:
 
 ## Overview
 
-These reports show what CARD owes its equipment suppliers and what its customers owe for rented-out equipment. The
+These reports show what Card owes its equipment suppliers and what its customers owe for rented-out equipment. The
 **statements** list one party's monthly cards by project and equipment; the **summaries** give one row per party
 with a link to its statement; **Card Settlement Status** follows each card into the ledger to show what is paid and
 what remains.
 
-CARD stores no party balance. Card figures come from the monthly cards; every balance comes from ERPNext's ledger
+Card stores no party balance. Card figures come from the monthly cards; every balance comes from ERPNext's ledger
 (**GL Entry** or **Payment Ledger Entry**) and is shown only to ledger readers (see
 [Who can see money](/card/reports/overview/#who-can-see-money)).
 
@@ -23,10 +23,10 @@ CARD stores no party balance. Card figures come from the monthly cards; every ba
 | Supplier side | Cards of rented-in equipment and sub-rented equipment: «مستأجَرة من مورد» (Rented from a supplier) and «إيجار من الباطن» (Sub-rental). Their figure is the card **net**. |
 | Customer side | Cards of «مؤجَّرة لعميل» (Rented to a customer) and «إيجار من الباطن» (Sub-rental). Their figure is the **customer net**. |
 | Owned equipment statement | Statement type «معدات ملك» (Owned equipment): hours by project and equipment, without money. |
-| Invoiced through CARD | The card net billed by **submitted** CARD monthly invoices for the cards shown (net before VAT). |
-| Not invoiced through CARD | Card net minus invoiced through CARD. A card in a CARD draft invoice counts here until the invoice is submitted. |
-| ERPNext invoices outside CARD | Submitted invoices of the party in the period that no submitted CARD posting points to (net before VAT). Shown for manual reconciliation, never matched to cards automatically. |
-| Reconciliation tolerance | The Card Settings value below which a "Not invoiced through CARD" difference is shown green. |
+| Invoiced through Card | The card net billed by **submitted** Card monthly invoices for the cards shown (net before VAT). |
+| Not invoiced through Card | Card net minus invoiced through Card. A card in a Card draft invoice counts here until the invoice is submitted. |
+| ERPNext invoices outside Card | Submitted invoices of the party in the period that no submitted Card posting points to (net before VAT). Shown for manual reconciliation, never matched to cards automatically. |
+| Reconciliation tolerance | The Card Settings value below which a "Not invoiced through Card" difference is shown green. |
 
 ## Equipment Supplier Statement
 
@@ -76,18 +76,18 @@ partial range prices its billed hours with the card's exact hourly rate (rate ÷
 a per-day «Full day» card bills its days; a range that holds the whole card shows the card's own amount. Additions
 and deductions count by their own date. A ledger reader also sees a **Payments in the period** group (the submitted
 supplier debit entries of the range: date, voucher, remark, amount — draft journal entries never count) and these
-tiles: **Balance carried from before the period**, **Net work for the period**, **VAT on CARD purchase invoices**,
-**Other supplier credits (outside CARD)**, **Payments in the period (submitted entries only)** and **Current due to
+tiles: **Balance carried from before the period**, **Net work for the period**, **VAT on Card purchase invoices**,
+**Other supplier credits (outside Card)**, **Payments in the period (submitted entries only)** and **Current due to
 the supplier**.
 
-- Balance carried from before = card work before the range + VAT of CARD purchase invoices posted before it +
-  supplier credits that CARD did not post (opening balances, other invoices) − supplier debits before it.
+- Balance carried from before = card work before the range + VAT of Card purchase invoices posted before it +
+  supplier credits that Card did not post (opening balances, other invoices) − supplier debits before it.
 - Current due = balance carried from before + net work + VAT + other credits of the range − payments of the range.
-- An invoice or accrual entry made by CARD is not counted again: the card work already counts it; only its VAT is
+- An invoice or accrual entry made by Card is not counted again: the card work already counts it; only its VAT is
   added, as card work is before VAT.
 - Card work follows the project and equipment filters. With an **Equipment** filter, payments and other credits
   count only when their accounting entry carries that equipment (the **Card Equipment** accounting dimension), and
-  the VAT of a CARD purchase invoice is split by that equipment's share of the invoice lines. Supplier payments
+  the VAT of a Card purchase invoice is split by that equipment's share of the invoice lines. Supplier payments
   without an equipment are never deducted: the statement shows them as **Payments not allocated to an equipment
   (not deducted)**; other credits without one show as information only. A **Project** filter works the same with the
   entry's project. With an **Equipment type** filter only, or no filter, every supplier entry counts. The month
@@ -162,7 +162,7 @@ readers.
 
 ## Card Settlement Status
 
-**Purpose.** For every submitted card of one party in the period: the document that recognised it (a CARD invoice, a
+**Purpose.** For every submitted card of one party in the period: the document that recognised it (a Card invoice, a
 linked hand-booked invoice or a linked accrual journal entry), the card's share of that document, what is paid, what
 other documents settled (credit notes, adjustments) and what remains. Every amount comes from ERPNext's **Payment
 Ledger Entry** of the recognising document, so a cancelled or reconciled payment shows at once.
