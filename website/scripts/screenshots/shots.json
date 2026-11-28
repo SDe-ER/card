@@ -222,6 +222,26 @@
       "as": "operator"
     },
     {
+      "name": "card-mobile-home-operator",
+      "path": "/cdms",
+      "mobile": true,
+      "waitSel": "[data-testid='employee']",
+      "as": "operator"
+    },
+    {
+      "name": "card-mobile-home-manager",
+      "path": "/cdms",
+      "mobile": true,
+      "waitSel": "[data-testid='kpis']"
+    },
+    {
+      "name": "card-mobile-profile",
+      "path": "/cdms/profile",
+      "mobile": true,
+      "waitSel": "[data-testid='roles']",
+      "as": "operator"
+    },
+    {
       "name": "volume-billing-equipment-commercial",
       "path": "/app/card-equipment/{eq:WL-05}",
       "click": ".form-tabs .nav-link[data-fieldname='cost_tab']",

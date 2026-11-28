@@ -18,7 +18,12 @@ per site.
 
 ## Next release (merged, not yet released)
 
-_Nothing yet._
+- **2026-11-28 — Card Mobile has a profile page and a home that fits your role.** The profile shows your name,
+  employee number, company, roles (with what each allows), language, currency and app version, and lets you switch
+  between Arabic and English. Supervisors and managers also see how many machines are working, stopped or in
+  maintenance, what waits for review, and a warning for equipment documents that expire soon. Only a Card Manager or
+  System Manager sees the month's revenue and cost; operators never receive these numbers. No role or permission
+  changes.
 
 ## v4.14.3 — 2026-11-27
 

@@ -10522,3 +10522,127 @@ msgstr "{0} {1} سُجّل على فاتورة المورد رقم {2}، ولي�
 #: card/gl/integrity.py:207
 msgid "{0}: {1} → {2}"
 msgstr "{0}: {1} ← {2}"
+
+msgctxt "Card Mobile"
+msgid "Active"
+msgstr "نشطة"
+
+msgctxt "Card Mobile"
+msgid "Stopped"
+msgstr "متوقفة"
+
+msgctxt "Card Mobile"
+msgid "In maintenance"
+msgstr "في الصيانة"
+
+msgctxt "Card Mobile"
+msgid "To review"
+msgstr "للمراجعة"
+
+msgctxt "Card Mobile"
+msgid "Equipment requests"
+msgstr "طلبات المعدات"
+
+msgctxt "Card Mobile"
+msgid "Equipment documents expiring soon"
+msgstr "مستندات معدات تنتهي قريبًا"
+
+msgctxt "Card Mobile"
+msgid "Equipment by project"
+msgstr "المعدات حسب المشروع"
+
+msgctxt "Card Mobile"
+msgid "No project"
+msgstr "بدون مشروع"
+
+msgctxt "Card Mobile"
+msgid "This month"
+msgstr "هذا الشهر"
+
+msgctxt "Card Mobile"
+msgid "No submitted cards this month."
+msgstr "لا توجد كروت معتمدة هذا الشهر."
+
+msgctxt "Card Mobile"
+msgid "Revenue"
+msgstr "الإيراد"
+
+msgctxt "Card Mobile"
+msgid "Cost"
+msgstr "التكلفة"
+
+msgctxt "Card Mobile"
+msgid "Employee ID"
+msgstr "الرقم الوظيفي"
+
+msgctxt "Card Mobile"
+msgid "Designation"
+msgstr "المسمى الوظيفي"
+
+msgctxt "Card Mobile"
+msgid "Branch"
+msgstr "الفرع"
+
+msgctxt "Card Mobile"
+msgid "Phone"
+msgstr "الهاتف"
+
+msgctxt "Card Mobile"
+msgid "Currency"
+msgstr "العملة"
+
+msgctxt "Card Mobile"
+msgid "Number format"
+msgstr "تنسيق الأرقام"
+
+msgctxt "Card Mobile"
+msgid "Roles"
+msgstr "الأدوار"
+
+msgctxt "Card Mobile"
+msgid "Connection"
+msgstr "الاتصال"
+
+msgctxt "Card Mobile"
+msgid "Online"
+msgstr "متصل"
+
+msgctxt "Card Mobile"
+msgid "Offline"
+msgstr "غير متصل"
+
+msgctxt "Card Mobile"
+msgid "App version"
+msgstr "نسخة التطبيق"
+
+msgctxt "Card Mobile"
+msgid "English"
+msgstr "English"
+
+msgctxt "Card Mobile"
+msgid "Arabic"
+msgstr "العربية"
+
+msgctxt "Card Mobile"
+msgid "Enter daily logs and request needs for your machines"
+msgstr "سجّل اليوميات واطلب احتياجات معداتك"
+
+msgctxt "Card Mobile"
+msgid "Review daily logs and equipment requests"
+msgstr "راجع اليوميات وطلبات المعدات"
+
+msgctxt "Card Mobile"
+msgid "Approve, and see financial figures"
+msgstr "اعتماد، وعرض الأرقام المالية"
+
+msgctxt "Card Mobile"
+msgid "Full access"
+msgstr "صلاحية كاملة"
+
+msgctxt "Card Mobile"
+msgid "View the equipment catalog"
+msgstr "عرض كتالوج المعدات"
+
+msgctxt "Card Mobile"
+msgid "Review records"
+msgstr "مراجعة السجلات"

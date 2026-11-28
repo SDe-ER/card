@@ -10,6 +10,8 @@ import frappe
 
 OPERATOR = "operator@example.com"
 EMPLOYEE_NAME = ("Ali", "Example")
+MANAGER = "demo.manager@example.com"
+MANAGER_EMPLOYEE_NAME = ("Omar", "Sample")
 
 
 def _as_user(user):
@@ -30,6 +32,12 @@ def configure():
 	)
 	if employee:
 		frappe.db.set_value("Employee", employee, {"user_id": OPERATOR, "status": "Active"})
+	# the manager's CARD Mobile screens need an Active Employee linked to the account (card/mobile.py)
+	manager_employee = frappe.db.get_value(
+		"Employee", {"first_name": MANAGER_EMPLOYEE_NAME[0], "last_name": MANAGER_EMPLOYEE_NAME[1]}, "name"
+	)
+	if manager_employee and frappe.db.exists("User", MANAGER):
+		frappe.db.set_value("Employee", manager_employee, {"user_id": MANAGER, "status": "Active"})
 	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- standalone CI bootstrap run outside a request
 	frappe.clear_cache()
 
