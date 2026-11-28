@@ -157,7 +157,6 @@ class TestMobileHome(IntegrationTestCase):
 	def test_financial_figures_follow_the_company_scope_of_the_user(self):
 		self._submitted_card(self._equipment())
 		user = self._user("scoped", ["Card Manager"])
-		self._employee(user)
 		other = frappe.get_doc(
 			{
 				"doctype": "Company",
@@ -179,7 +178,14 @@ class TestMobileHome(IntegrationTestCase):
 		frappe.clear_cache(user=user)
 		with patch("card.mobile.nowdate", return_value="2026-09-15"):
 			home = self._home(user)
-		self.assertEqual([r for r in home["financial"]["by_company"] if r["company"] == self.company], [])
+		permissions = frappe.get_all(
+			"User Permission", filters={"user": user}, fields=["allow", "for_value", "applicable_for"]
+		)
+		self.assertEqual(
+			[r for r in home["financial"]["by_company"] if r["company"] == self.company],
+			[],
+			f"user permissions: {permissions}",
+		)
 		self.assertEqual(home["kpis"]["equipment"]["active"], 0)
 		self.assertEqual(home["kpis"]["fleet_by_project"], [])
 
