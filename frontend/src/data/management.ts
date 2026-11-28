@@ -11,6 +11,7 @@ export interface ManagementContext {
   ownership: string[]
   status: string[]
   money: boolean
+  cards: boolean
 }
 
 export interface FleetRow {

@@ -9,17 +9,24 @@ money permlevel (Owner decision 2026-11-28); everyone else receives operational 
 
 import frappe
 from frappe import _
-from frappe.utils import cint, flt, getdate, nowdate
+from frappe.utils import flt, getdate, nowdate
 
 from card.field_privacy import can_view_money
 from card.materials import APPROVER_ROLES, ENDED_STATUS, REVIEW_ROLES, has_any_role
 from card.mobile_scope import scoped_rows
 
-MAX_ROWS = 500
+# a fleet or a month of cards is hundreds of rows; the cap only protects the phone from a runaway list
+MAX_ROWS = 2000
 
 
 def _require_reviewer():
-	if frappe.session.user == "Guest" or not has_any_role(REVIEW_ROLES):
+	from card.mobile import has_app_permission
+
+	if (
+		frappe.session.user == "Guest"
+		or not has_any_role(REVIEW_ROLES)
+		or not has_app_permission(require_employee=False)
+	):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 
@@ -40,6 +47,8 @@ def get_management_context():
 		"ownership": _select_options("Card Equipment", "ownership"),
 		"status": _select_options("Card Equipment", "status"),
 		"money": sees_money(),
+		# a Card Supervisor has no read right on Card Monthly Card: the cards screen says so
+		"cards": bool(frappe.has_permission("Card Monthly Card", "read")),
 	}
 
 
@@ -52,9 +61,9 @@ def list_all_equipment(ownership: str | None = None, project: str | None = None,
 		if value:
 			filters[field] = value
 	if ownership and ownership not in _select_options("Card Equipment", "ownership"):
-		frappe.throw(_("Not permitted"), frappe.PermissionError)
+		frappe.throw(_("Invalid filter"), frappe.ValidationError)
 	if status and status not in _select_options("Card Equipment", "status"):
-		frappe.throw(_("Not permitted"), frappe.PermissionError)
+		frappe.throw(_("Invalid filter"), frappe.ValidationError)
 	if status:
 		filters["status"] = status
 	rows = scoped_rows(
@@ -69,10 +78,13 @@ def list_all_equipment(ownership: str | None = None, project: str | None = None,
 
 def _period(year, month):
 	today = getdate(nowdate())
-	year = cint(year) or today.year
-	month = cint(month) or today.month
+	try:
+		year = today.year if year in (None, "") else int(year)
+		month = today.month if month in (None, "") else int(month)
+	except (TypeError, ValueError):
+		frappe.throw(_("Invalid period"), frappe.ValidationError)
 	if not (1 <= month <= 12 and 2000 <= year <= 2100):
-		frappe.throw(_("Not permitted"), frappe.PermissionError)
+		frappe.throw(_("Invalid period"), frappe.ValidationError)
 	return year, f"{month:02d}"
 
 

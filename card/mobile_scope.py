@@ -12,7 +12,12 @@ would be too low. These helpers apply the two scopes that define a reviewer's vi
 - the permitted companies (``card.report_access.permitted_companies``, as the CARD reports do);
 - the Project User Permissions, with an empty project allowed as in Frappe's own list filter.
 
-They never widen access: a user without read on the DocType, or without a permitted company, gets nothing."""
+They use ``frappe.get_all`` after those three checks, so no other row rule applies: not the Employee permission (the point
+of this module), not other Link User Permissions (Cost Center and the like) and not DocType hooks. Checked for the five
+DocTypes the KPIs and the management view read (Card Equipment, Card Monthly Card, Card Daily Log, Equipment Needs
+Request): no review role has an ``if_owner`` DocPerm on them, and their hooks only limit operators or apply the same
+company scope. A DocType with a row rule for reviewers must not use these helpers. A user without read on the DocType,
+or without a permitted company, gets nothing."""
 
 import frappe
 

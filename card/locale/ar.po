@@ -10745,3 +10745,13 @@ msgstr "الساعات"
 msgctxt "Card Mobile"
 msgid "Result"
 msgstr "النتيجة"
+
+msgctxt "Card Mobile"
+msgid "Monthly cards are not available for your role."
+msgstr "الكروت الشهرية غير متاحة لدورك."
+
+msgid "Invalid period"
+msgstr "فترة غير صحيحة"
+
+msgid "Invalid filter"
+msgstr "عامل تصفية غير صحيح"

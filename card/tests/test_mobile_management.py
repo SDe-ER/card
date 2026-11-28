@@ -129,7 +129,7 @@ class TestMobileManagement(IntegrationTestCase):
 		self.assertIn(own.name, names)
 		rented = [r.name for r in self._as(user, mm.list_all_equipment, ownership="إيجار")]
 		self.assertNotIn(own.name, rented)
-		with self.assertRaises(frappe.PermissionError):
+		with self.assertRaises(frappe.ValidationError):
 			self._as(user, mm.list_all_equipment, ownership="x' or '1'='1")
 
 	def test_company_restricted_reviewer_sees_no_other_company(self):
@@ -157,6 +157,31 @@ class TestMobileManagement(IntegrationTestCase):
 		self.assertEqual(self._as(user, mm.list_all_equipment), [])
 		self.assertEqual(self._as(user, mm.list_monthly_cards, 2026, 9), [])
 
+	def test_fleet_follows_the_project_user_permission(self):
+		project = self._m["project"]
+		expected = sum(
+			1
+			for row in frappe.get_all(
+				"Card Equipment",
+				filters={"company": self.company, "status": ["!=", ENDED]},
+				fields=["current_project"],
+			)
+			if not row.current_project or row.current_project == project
+		)
+		self._equipment(current_project=project)
+		user = self._user("projperm", ["Card Supervisor"])
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": user,
+				"allow": "Project",
+				"for_value": project,
+				"apply_to_all_doctypes": 1,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=user)
+		self.assertEqual(len(self._as(user, mm.list_all_equipment)), expected + 1)
+
 	# ---------- cards ----------
 	def test_supervisor_cards_have_no_money_and_manager_cards_have_it(self):
 		card = self._card(self._equipment())
@@ -174,8 +199,8 @@ class TestMobileManagement(IntegrationTestCase):
 
 	def test_period_is_validated(self):
 		manager = self._user("period", ["Card Manager"])
-		for year, month in ((2026, 13), (2026, -1), (1999, 5)):
-			with self.subTest(year=year, month=month), self.assertRaises(frappe.PermissionError):
+		for year, month in ((2026, 13), (2026, -1), (1999, 5), (2026, 0), ("x", 5)):
+			with self.subTest(year=year, month=month), self.assertRaises(frappe.ValidationError):
 				self._as(manager, mm.list_monthly_cards, year, month)
 
 	# ---------- projects ----------
@@ -193,3 +218,5 @@ class TestMobileManagement(IntegrationTestCase):
 			self.assertFalse({"revenue", "cost", "result"} & set(r))
 		self.assertTrue(self._as(manager, mm.get_management_context)["money"])
 		self.assertFalse(self._as(sup, mm.get_management_context)["money"])
+		self.assertTrue(self._as(manager, mm.get_management_context)["cards"])
+		self.assertFalse(self._as(sup, mm.get_management_context)["cards"])
