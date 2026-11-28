@@ -191,6 +191,9 @@ class TestMobileHome(IntegrationTestCase):
 		self.assertEqual(home["kpis"]["fleet_by_project"], [])
 
 	def _permission(self, user, allow, value):
+		# ERPNext already creates the Employee permission with the Employee
+		if frappe.db.exists("User Permission", {"user": user, "allow": allow, "for_value": value}):
+			return
 		frappe.get_doc(
 			{
 				"doctype": "User Permission",
