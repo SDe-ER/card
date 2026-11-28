@@ -161,7 +161,7 @@ def set_language(language):
 	if user == "Administrator":
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	if language not in LANGUAGES:
-		frappe.throw(_("Not permitted"), frappe.PermissionError)
+		frappe.throw(_("Unsupported language"), frappe.ValidationError)
 	frappe.db.set_value("User", user, "language", language)
 	frappe.clear_cache(user=user)
 	return language
@@ -183,6 +183,7 @@ def operational_kpis():
 		filters={"status": ["!=", ENDED_STATUS]},
 		fields=["status", "count(name) as n"],
 		group_by="status",
+		order_by="status",
 		limit_page_length=0,
 	)
 	by_status = {row.status: cint(row.n) for row in status_rows}
@@ -191,6 +192,7 @@ def operational_kpis():
 		filters={"status": ["!=", ENDED_STATUS]},
 		fields=["current_project", "count(name) as n"],
 		group_by="current_project",
+		order_by="current_project",
 		limit_page_length=0,
 	)
 	fleet_by_project = sorted(
@@ -230,6 +232,7 @@ def financial_kpis():
 		filters={"docstatus": 1, "year": today.year, "month": f"{today.month:02d}"},
 		fields=["company", "sum(customer_net_amount) as revenue", "sum(net_amount) as cost"],
 		group_by="company",
+		order_by="company",
 		limit_page_length=0,
 	)
 	return {

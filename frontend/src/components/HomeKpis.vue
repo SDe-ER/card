@@ -48,7 +48,7 @@ defineProps<{ home: HomeContext }>()
       data-testid="alerts"
     >
       <span class="lucide-triangle-alert size-5 shrink-0 text-ink-red-4" aria-hidden="true" />
-      <span class="grow">{{ __('Equipment documents expiring soon', [], 'Card Mobile') }}</span>
+      <span class="grow">{{ __('Equipment documents expired or expiring soon', [], 'Card Mobile') }}</span>
       <span class="font-semibold tabular-nums">{{ home.kpis.alerts.documents_expiring }}</span>
     </section>
 

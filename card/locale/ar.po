@@ -10544,8 +10544,8 @@ msgid "Equipment requests"
 msgstr "طلبات المعدات"
 
 msgctxt "Card Mobile"
-msgid "Equipment documents expiring soon"
-msgstr "مستندات معدات تنتهي قريبًا"
+msgid "Equipment documents expired or expiring soon"
+msgstr "مستندات معدات منتهية أو تنتهي قريبًا"
 
 msgctxt "Card Mobile"
 msgid "Equipment by project"
@@ -10646,3 +10646,6 @@ msgstr "عرض كتالوج المعدات"
 msgctxt "Card Mobile"
 msgid "Review records"
 msgstr "مراجعة السجلات"
+
+msgid "Unsupported language"
+msgstr "لغة غير مدعومة"

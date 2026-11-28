@@ -143,6 +143,34 @@ class TestMobileHome(IntegrationTestCase):
 			row["cost"], frappe.db.get_value("Card Monthly Card", doc.name, "net_amount") or 0
 		)
 
+	def test_financial_figures_follow_the_company_scope_of_the_user(self):
+		self._submitted_card(self._equipment())
+		user = self._user("scoped", ["Card Manager"])
+		self._employee(user)
+		other = frappe.get_doc(
+			{
+				"doctype": "Company",
+				"company_name": f"Other {self.token}",
+				"abbr": f"O{self.token[:3]}".upper(),
+				"default_currency": "SAR",
+				"country": "Saudi Arabia",
+			}
+		).insert(ignore_permissions=True)
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": user,
+				"allow": "Company",
+				"for_value": other.name,
+				"apply_to_all_doctypes": 1,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=user)
+		with patch("card.mobile.nowdate", return_value="2026-09-15"):
+			home = self._home(user)
+		self.assertEqual([r for r in home["financial"]["by_company"] if r["company"] == self.company], [])
+		self.assertEqual(home["kpis"]["equipment"]["active"], 0)
+
 	def test_financial_figures_use_the_current_month_only(self):
 		self._submitted_card(self._equipment())
 		user = self._user("mgr2", ["Card Manager"])
@@ -202,7 +230,7 @@ class TestMobileHome(IntegrationTestCase):
 	def test_set_language_refuses_other_values_and_administrator(self):
 		user = self._user("lang3", ["Card Operator"], language="en")
 		self._employee(user)
-		with self.assertRaises(frappe.PermissionError):
+		with self.assertRaises(frappe.ValidationError):
 			self._as(user, mobile.set_language, "fr")
 		self.assertEqual(frappe.db.get_value("User", user, "language"), "en")
 		before = frappe.db.get_value("User", "Administrator", "language")

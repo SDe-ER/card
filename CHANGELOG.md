@@ -47,7 +47,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   supplier cost per company. New methods in `card/mobile.py`: `get_profile` (GET), `get_home_context` (GET) and
   `set_language` (POST, own account only, Arabic or English, never the Administrator account). Reads use the
   caller's own permissions (role matrix, User Permissions, company scope); the financial block also needs read on the
-  money permlevel. Operators and Card User receive no KPI values. Pull request: this one. Permissions: none
+  money permlevel. Operators and Card User receive no KPI values. Pull request #373. Permissions: none
   changed, no role created ("Card Project Manager" of the mockups maps to Card Manager, owner decision 2026-11-28).
   Accounting, data and schema: unchanged; no GL entry. Rollback: revert the pull request (code only; a changed user
   language stays as the user set it). Profit and dues are not shown yet (payments view: issue #364).
