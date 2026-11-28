@@ -24,15 +24,16 @@ helpers."""
 
 import frappe
 
-from card.report_access import permitted_companies
+from card.report_access import permitted_companies, role_reads
 
 # User Permissions this module applies itself (Company, Project) or bypasses on purpose (Employee)
 HANDLED_PERMISSIONS = {"Company", "Project", "Employee"}
 
 
 def can_read(doctype):
-	"""Role read right on ``doctype``; a document share never counts."""
-	return bool(frappe.has_permission(doctype, "read", ignore_share_permissions=True))
+	"""Role read right on ``doctype`` without an owner restriction; a document share never counts, and a role
+	that reads only its own documents (``if_owner``) does not pass (``card.report_access.role_reads``)."""
+	return role_reads(doctype)
 
 
 def permitted_projects(doctype, user=None):
@@ -46,24 +47,27 @@ def permitted_projects(doctype, user=None):
 	return allowed or None
 
 
-def has_unhandled_user_permission(doctype, user=None):
-	"""True when a User Permission applies to ``doctype`` or to one of its Link fields and this module does not apply it."""
+def has_unhandled_user_permission(doctype, user=None, project_applied=True):
+	"""True when a User Permission applies to ``doctype`` or to one of its Link fields and this module does not apply it.
+	Project counts as applied only when the caller names a project field (``project_applied``)."""
+	handled = HANDLED_PERMISSIONS if project_applied else HANDLED_PERMISSIONS - {"Project"}
 	meta = frappe.get_meta(doctype)
 	targets = {doctype} | {df.options for df in meta.get_link_fields() if not df.ignore_user_permissions}
 	for allow, entries in frappe.permissions.get_user_permissions(user or frappe.session.user).items():
-		if allow in HANDLED_PERMISSIONS or allow not in targets:
+		if allow in handled or allow not in targets:
 			continue
 		if any(not e.get("applicable_for") or e.get("applicable_for") == doctype for e in entries):
 			return True
 	return False
 
 
-def scoped_rows(doctype, fields, filters=None, project_field=None, order_by=None, limit=0):
+def scoped_rows(doctype, fields, filters=None, *, project_field, order_by=None, limit=0):
 	"""Rows of ``doctype`` in the user's permitted companies and projects (see the module docstring).
 
-	``project_field`` names the Project link used for the Project User Permission; it is returned with the rows. ``limit`` and ``order_by`` run in the
+	``project_field`` is required: the Project link used for the Project User Permission, returned with the rows. Pass
+	``None`` only for a DocType without a project; a Project User Permission then counts as not applied and the read fails closed. ``limit`` and ``order_by`` run in the
 	query; ``limit`` 0 means no limit."""
-	if not can_read(doctype) or has_unhandled_user_permission(doctype):
+	if not can_read(doctype) or has_unhandled_user_permission(doctype, project_applied=bool(project_field)):
 		return []
 	companies = permitted_companies(doctype)
 	if not companies:
