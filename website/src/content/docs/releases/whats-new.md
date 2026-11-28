@@ -18,7 +18,14 @@ per site.
 
 ## Next release (merged, not yet released)
 
+_Nothing yet._
+
+## v4.14.4 — 2026-11-28
+
+Patch release on top of v4.14.3. It adds Desk buttons to link a Sales Invoice to its monthly cards and to remove the link, and it writes the application name as Card in every language. It changes no role or permission, and Card posts no accounting entry.
+
 - **2026-11-27 — Buttons on the Sales Invoice to link it to its monthly cards and to remove the link.** On a submitted sales invoice, the group **Card** now shows **Link to monthly cards** to an Accounts Manager or a System Manager. A dialog lists the unlinked approved cards of the customer on the projects of the invoice, shows the invoice net and the total of the ticked cards, and asks for a reason. A System Manager also sees **Remove link to monthly cards** on an invoice that a person linked. The buttons use the existing link and unlink methods, so every check stays the same, and a new read-only method gives the dialog its data. This changes no role or permission, and Card posts no accounting entry.
+- **2026-11-28 — The application name is "Card" in every language.** The apps screen, the browser titles of Card Mobile, the Monthly Posting page title and the messages that name the application now read "Card", in English and in every translation. Record names and web addresses do not change. This changes no role, permission or data.
 
 ## v4.14.3 — 2026-11-27
 
