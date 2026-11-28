@@ -37,6 +37,7 @@ sidebar:
 | [`card.governance_workflows`](#card-governance-workflows) | 1 |
 | [`card.materials`](#card-materials) | 8 |
 | [`card.mobile`](#card-mobile) | 4 |
+| [`card.mobile_management`](#card-mobile-management) | 4 |
 | [`card.open_month`](#card-open-month) | 3 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
 
@@ -272,6 +273,16 @@ sidebar:
 | `card.mobile.get_profile` | GET | لا يوجد |
 | `card.mobile.set_language` | POST | `language: str` |
 | `card.mobile.get_home_context` | GET | لا يوجد |
+
+
+<h2 id="card-mobile-management"><code>card.mobile_management</code></h2>
+
+| مسار الدالة | طرق HTTP | المعاملات |
+|---|---|---|
+| `card.mobile_management.get_management_context` | GET | لا يوجد |
+| `card.mobile_management.list_all_equipment` | GET | `ownership: str \| None = None`<br/>`project: str \| None = None`<br/>`status: str \| None = None` |
+| `card.mobile_management.list_monthly_cards` | GET | `year: int \| None = None`<br/>`month: int \| None = None` |
+| `card.mobile_management.list_projects` | GET | `year: int \| None = None`<br/>`month: int \| None = None` |
 
 
 <h2 id="card-open-month"><code>card.open_month</code></h2>

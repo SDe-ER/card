@@ -52,6 +52,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Accounting, data and schema: unchanged; no GL entry. Rollback: revert the pull request (code only; a changed user
   language stays as the user set it). Profit and dues are not shown yet (payments view: issue #364).
 
+- **Card Mobile management view** (issue #358, FR-197; stacked on #357). Card Supervisor, Card Manager and System
+  Manager open Fleet (every active machine), Projects (machines, cards and hours of the month) and Monthly cards from the
+  Home screen; the routes are reviewer-only and the server refuses everyone else. New GET methods in
+  `card/mobile_management.py`: `get_management_context`, `list_all_equipment`, `list_monthly_cards`, `list_projects`.
+  Reads use `card/mobile_scope.py`: read right (a document share does not count), permitted companies and Project User
+  Permissions; a reviewer sees every machine whoever operates it (the Employee User Permission is bypassed on purpose,
+  Owner approval of issue #358); any other User Permission that applies empties the result. Revenue, cost and result go
+  to Card Manager and System Manager only, and the ownership field (permlevel 1) only to users who read that level.
+  A Card Supervisor has no read right on Card Monthly Card, so the supervisor sees no cards and no card counts (no right
+  was widened; owner question). No role, DocPerm or schema change; no GL entry. Rollback: revert the pull request. Not
+  yet built: equipment detail tabs, per-equipment production and the project financial detail.
+
 ## [4.14.4] — 2026-11-28
 
 > **Prepared 2026-11-28** (release pull request open; tag and deployment need the Owner). Published ≠ deployed (see DEPLOYMENTS.md).

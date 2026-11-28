@@ -19,6 +19,10 @@ READ_ONLY = (
 	"card.gl.posting.posting_month_parties",
 	"card.mobile.get_profile",
 	"card.mobile.get_home_context",
+	"card.mobile_management.get_management_context",
+	"card.mobile_management.list_all_equipment",
+	"card.mobile_management.list_monthly_cards",
+	"card.mobile_management.list_projects",
 )
 
 

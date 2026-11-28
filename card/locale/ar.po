@@ -10705,3 +10705,53 @@ msgstr "تظهر أحدث {0} كروت من {1} كارت شهري"
 #: card/public/js/customer_invoice_link.js
 msgid "Linked to monthly cards: {0} and {1} more"
 msgstr "مربوطة بالكروت الشهرية: {0} و{1} أخرى"
+
+msgctxt "Card Mobile"
+msgid "Fleet"
+msgstr "الأسطول"
+
+msgctxt "Card Mobile"
+msgid "Projects"
+msgstr "المشاريع"
+
+msgctxt "Card Mobile"
+msgid "Monthly cards"
+msgstr "الكروت الشهرية"
+
+msgctxt "Card Mobile"
+msgid "All"
+msgstr "الكل"
+
+msgctxt "Card Mobile"
+msgid "No equipment found."
+msgstr "لا توجد معدات."
+
+msgctxt "Card Mobile"
+msgid "No projects found."
+msgstr "لا توجد مشاريع."
+
+msgctxt "Card Mobile"
+msgid "No monthly cards this month."
+msgstr "لا توجد كروت شهرية هذا الشهر."
+
+msgctxt "Card Mobile"
+msgid "Cards"
+msgstr "الكروت"
+
+msgctxt "Card Mobile"
+msgid "Hours"
+msgstr "الساعات"
+
+msgctxt "Card Mobile"
+msgid "Result"
+msgstr "النتيجة"
+
+msgctxt "Card Mobile"
+msgid "Monthly cards are not available for your role."
+msgstr "الكروت الشهرية غير متاحة لدورك."
+
+msgid "Invalid period"
+msgstr "فترة غير صحيحة"
+
+msgid "Unsupported filter value"
+msgstr "قيمة تصفية غير مدعومة"
