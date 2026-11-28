@@ -758,7 +758,7 @@ class TestEvidenceCoverage(_P0Base):
 		frappe.local.message_log = []
 		inv = self._manual_pi(600, posting_date="2026-10-05", submit=False)
 		inv.submit()
-		self.assertTrue(any("CARD already booked" in str(m) for m in frappe.local.message_log))
+		self.assertTrue(any("Card already booked" in str(m) for m in frappe.local.message_log))
 
 
 class TestFinalReviewFixes(_P0Base):
