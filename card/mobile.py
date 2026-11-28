@@ -11,11 +11,11 @@ from collections import Counter
 
 import frappe
 from frappe import _
-from frappe.utils import add_days, cint, flt, getdate, nowdate
+from frappe.utils import add_days, flt, getdate, nowdate
 
 import card
 from card.materials import APPROVER_ROLES, ENDED_STATUS, PORTAL_ROLES, REVIEW_ROLES, has_any_role
-from card.report_access import permitted_companies
+from card.mobile_scope import scoped_rows
 
 
 def active_employee(user=None):
@@ -170,45 +170,38 @@ def set_language(language: str):
 	return language
 
 
-def _count(doctype, filters=None, or_filters=None):
-	"""Row count under the caller's own permissions (role matrix, User Permissions, company scope)."""
-	return len(
-		frappe.get_list(doctype, filters=filters, or_filters=or_filters, pluck="name", limit_page_length=0)
-	)
-
-
 def operational_kpis():
-	"""Fleet, review queue and alert counts for a review role. Permission-scoped reads: a user sees
-	only the records (and companies) the DocPerm and User Permission rules already give him."""
+	"""Fleet, review queue and alert counts for a review role, in the user's permitted companies and
+	projects (card.mobile_scope): the same scope for every reviewer, whatever other User Permissions
+	he holds, and never wider than his role's read right."""
 	today = getdate(nowdate())
-	# Company scope applied explicitly (the company field is permlevel 1, which a supervisor cannot
-	# read): only machines of the user's permitted companies. The read below still runs under his
-	# DocPerm and User Permissions.
-	names = frappe.get_all(
+	fleet = scoped_rows(
 		"Card Equipment",
-		filters={"company": ["in", permitted_companies("Card Equipment") or [""]]},
-		pluck="name",
-		limit_page_length=0,
+		["status", *EXPIRY_FIELDS],
+		{"status": ["!=", ENDED_STATUS]},
+		project_field="current_project",
 	)
-	fleet_filters = {"status": ["!=", ENDED_STATUS], "name": ["in", names or [""]]}
-	# plain fields, summed here: a fleet is hundreds of rows and the read stays under the user's rights
-	rows = frappe.get_list(
-		"Card Equipment",
-		filters=fleet_filters,
-		fields=["status", "current_project"],
-		limit_page_length=0,
-	)
-	by_status = Counter(row.status for row in rows)
-	by_project = Counter(row.current_project for row in rows)
+	by_status = Counter(row.status for row in fleet)
+	by_project = Counter(row.current_project for row in fleet)
 	fleet_by_project = sorted(
 		({"project": project, "count": count} for project, count in by_project.items()),
 		key=lambda row: (-row["count"], row["project"] or ""),
 	)[:6]
 	soon = add_days(today, EXPIRY_WARNING_DAYS)
-	expiring = _count(
-		"Card Equipment",
-		filters=fleet_filters,
-		or_filters=[[field, "<=", soon] for field in EXPIRY_FIELDS],
+	expiring = sum(
+		1 for row in fleet if any(row.get(f) and getdate(row.get(f)) <= soon for f in EXPIRY_FIELDS)
+	)
+	requests = scoped_rows(
+		"Equipment Needs Request",
+		["name"],
+		{"review_status": ["in", ["Pending", "In review"]]},
+		project_field="project",
+	)
+	logs = scoped_rows(
+		"Card Daily Log",
+		["name"],
+		{"docstatus": 1, "approval_status": ["in", ["Pending", "Verified by supervisor"]]},
+		project_field="project",
 	)
 	return {
 		"equipment": {
@@ -217,13 +210,8 @@ def operational_kpis():
 			"maintenance": by_status.get(MAINTENANCE_STATUS, 0),
 		},
 		"fleet_by_project": fleet_by_project,
-		"requests_to_review": _count(
-			"Equipment Needs Request", {"review_status": ["in", ["Pending", "In review"]]}
-		),
-		"logs_to_review": _count(
-			"Card Daily Log",
-			{"docstatus": 1, "approval_status": ["in", ["Pending", "Verified by supervisor"]]},
-		),
+		"requests_to_review": len(requests),
+		"logs_to_review": len(logs),
 		"alerts": {"documents_expiring": expiring},
 	}
 
@@ -232,17 +220,11 @@ def financial_kpis():
 	"""Current-month revenue and supplier cost of submitted monthly cards, per company. Managers
 	only (Owner 2026-11-28): the caller checks the role, and the money permlevel must also read."""
 	today = getdate(nowdate())
-	cards = frappe.get_list(
+	cards = scoped_rows(
 		"Card Monthly Card",
-		filters={
-			"docstatus": 1,
-			"year": today.year,
-			"month": f"{today.month:02d}",
-			# the company scope of CARD reports (User Permissions on Company), applied explicitly
-			"company": ["in", permitted_companies("Card Monthly Card") or [""]],
-		},
-		fields=["company", "customer_net_amount", "net_amount"],
-		limit_page_length=0,
+		["company", "customer_net_amount", "net_amount"],
+		{"docstatus": 1, "year": today.year, "month": f"{today.month:02d}"},
+		project_field="project",
 	)
 	totals = {}
 	for row in cards:

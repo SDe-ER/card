@@ -13,6 +13,7 @@ import card
 from card import mobile
 from card.tests.test_controllers import _days, _ensure_masters
 
+ENDED = "منتهية"
 FINANCIAL_KEYS = ("revenue", "cost", "financial")
 
 
@@ -72,7 +73,7 @@ class TestMobileHome(IntegrationTestCase):
 
 	def _supplier(self):
 		sup = frappe.new_doc("Supplier")
-		sup.supplier_name = "HOME-SUP-" + self.token
+		sup.supplier_name = f"HOME-SUP-{self.token}-{frappe.generate_hash(length=4)}"
 		sup.supplier_group = self._m["supplier_group"]
 		sup.insert(ignore_permissions=True)
 		return sup.name
@@ -82,7 +83,7 @@ class TestMobileHome(IntegrationTestCase):
 		d.company = self.company
 		d.equipment_type = self._m["etype"]
 		d.ownership = "إيجار"
-		d.equipment_name = "HOME-EQ-" + self.token
+		d.equipment_name = f"HOME-EQ-{self.token}-{frappe.generate_hash(length=4)}"
 		d.rate_type = "باليوم"
 		d.rate = 750
 		d.daily_hours = 10
@@ -188,6 +189,64 @@ class TestMobileHome(IntegrationTestCase):
 		)
 		self.assertEqual(home["kpis"]["equipment"]["active"], 0)
 		self.assertEqual(home["kpis"]["fleet_by_project"], [])
+
+	def _permission(self, user, allow, value):
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": user,
+				"allow": allow,
+				"for_value": value,
+				"apply_to_all_doctypes": 1,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=user)
+
+	def test_fleet_counts_ignore_the_employee_user_permission(self):
+		# N2: ERPNext gives a user a User Permission on his own Employee; through the `operator` link
+		# a plain list would hide every machine operated by someone else and undercount the fleet.
+		before = frappe.db.count("Card Equipment", {"company": self.company, "status": ["!=", ENDED]})
+		user = self._user("emp-perm", ["Card Supervisor"])
+		mine = self._employee(user)
+		other = frappe.get_doc(
+			{
+				"doctype": "Employee",
+				"first_name": f"Other {self.token}",
+				"gender": "Male",
+				"date_of_birth": "1990-01-01",
+				"date_of_joining": "2020-01-01",
+				"company": self.company,
+				"status": "Active",
+			}
+		).insert(ignore_permissions=True)
+		for operator in (other.name, other.name, mine.name, None):
+			doc = self._equipment()
+			doc.operator = operator
+			doc.save(ignore_permissions=True)
+		self._permission(user, "Employee", mine.name)
+		self._permission(user, "Company", self.company)
+		kpis = self._home(user)["kpis"]
+		self.assertEqual(kpis["equipment"]["active"], before + 4)
+
+	def test_fleet_counts_follow_the_project_user_permission(self):
+		project = self._m["project"]
+		in_scope = sum(
+			1
+			for row in frappe.get_all(
+				"Card Equipment",
+				filters={"company": self.company, "status": ["!=", ENDED]},
+				fields=["current_project"],
+			)
+			if not row.current_project or row.current_project == project
+		)
+		doc = self._equipment()
+		doc.current_project = project
+		doc.save(ignore_permissions=True)
+		user = self._user("proj-perm", ["Card Supervisor"])
+		self._permission(user, "Company", self.company)
+		self._permission(user, "Project", project)
+		kpis = self._home(user)["kpis"]
+		self.assertEqual(kpis["equipment"]["active"], in_scope + 1)
 
 	def test_financial_figures_use_the_current_month_only(self):
 		doc = self._submitted_card(self._equipment())  # a September card
