@@ -119,23 +119,63 @@ class TestMobileManagement(IntegrationTestCase):
 		user = self._user("sup", ["Card Supervisor"])
 		rows = self._as(user, mm.list_all_equipment)
 		self.assertEqual(len(rows), before + 1)
-		self.assertTrue(all(set(r) >= {"name", "equipment_name", "ownership", "status"} for r in rows))
+		self.assertTrue(all(set(r) >= {"name", "equipment_name", "status"} for r in rows))
+		# ownership is permlevel 1, which a Card Supervisor does not read
+		self.assertFalse(any("ownership" in r for r in rows))
 		self.assertFalse(any("rate" in r or "net_amount" in r for r in rows))
 
-	def test_fleet_filters(self):
+	def test_fleet_filters_for_a_user_who_reads_ownership(self):
 		rented = self._equipment()
-		user = self._user("filter", ["Card Supervisor"])
+		user = self._user("filter", ["Card Manager"])
 		options = self._as(user, mm.get_management_context)["ownership"]
 		self.assertIn(rented.ownership, options)
-		self.assertIn(
-			rented.name, [r.name for r in self._as(user, mm.list_all_equipment, ownership=rented.ownership)]
-		)
+		rows = self._as(user, mm.list_all_equipment, ownership=rented.ownership)
+		self.assertIn(rented.name, [r.name for r in rows])
+		self.assertTrue(all("ownership" in r for r in rows))
 		for other in (o for o in options if o != rented.ownership):
-			self.assertNotIn(
-				rented.name, [r.name for r in self._as(user, mm.list_all_equipment, ownership=other)]
-			)
+			rows = self._as(user, mm.list_all_equipment, ownership=other)
+			self.assertNotIn(rented.name, [r.name for r in rows])
 		with self.assertRaises(frappe.ValidationError):
 			self._as(user, mm.list_all_equipment, ownership="x' or '1'='1")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(user, mm.list_all_equipment, status=ENDED)
+
+	def test_supervisor_cannot_filter_by_or_be_offered_ownership(self):
+		# F1: ownership is permlevel 1; Card Supervisor reads level 0 only
+		rented = self._equipment()
+		user = self._user("noterms", ["Card Supervisor"])
+		self.assertEqual(self._as(user, mm.get_management_context)["ownership"], [])
+		with self.assertRaises(frappe.PermissionError):
+			self._as(user, mm.list_all_equipment, ownership=rented.ownership)
+
+	def test_a_shared_card_does_not_open_every_card_to_a_supervisor(self):
+		# F2: has_permission without a document is True when one document is shared with the user
+		card = self._card(self._equipment())
+		user = self._user("shared", ["Card Supervisor"])
+		frappe.share.add("Card Monthly Card", card.name, user, read=1)
+		self.assertEqual(self._as(user, mm.list_monthly_cards, 2026, 9), [])
+		self.assertFalse(self._as(user, mm.get_management_context)["cards"])
+		for row in self._as(user, mm.list_projects, 2026, 9):
+			self.assertEqual((row["cards"], row["hours"]), (0, 0.0))
+
+	def test_another_user_permission_fails_closed(self):
+		# F3: a Supplier User Permission is not applied by card.mobile_scope, so nothing is returned
+		card = self._card(self._equipment())
+		card.submit()
+		user = self._user("supplierperm", ["Card Manager"])
+		frappe.get_doc(
+			{
+				"doctype": "User Permission",
+				"user": user,
+				"allow": "Supplier",
+				"for_value": self._supplier(),
+				"apply_to_all_doctypes": 1,
+			}
+		).insert(ignore_permissions=True)
+		frappe.clear_cache(user=user)
+		self.assertEqual(self._as(user, mm.list_all_equipment), [])
+		self.assertEqual(self._as(user, mm.list_monthly_cards, 2026, 9), [])
+		self.assertEqual(self._as(user, mm.list_projects, 2026, 9), [])
 
 	def test_company_restricted_reviewer_sees_no_other_company(self):
 		self._equipment()

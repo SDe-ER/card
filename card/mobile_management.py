@@ -13,7 +13,7 @@ from frappe.utils import flt, getdate, nowdate
 
 from card.field_privacy import can_view_money
 from card.materials import APPROVER_ROLES, ENDED_STATUS, REVIEW_ROLES, has_any_role
-from card.mobile_scope import scoped_rows
+from card.mobile_scope import can_read, scoped_rows
 
 # a fleet or a month of cards is hundreds of rows; the cap only protects the phone from a runaway list
 MAX_ROWS = 2000
@@ -35,45 +35,58 @@ def sees_money():
 	return has_any_role(APPROVER_ROLES) and can_view_money()
 
 
+def sees_terms():
+	"""Read on permlevel 1 of Card Equipment: the level of the ownership field, which a Card Supervisor does not read."""
+	return can_view_money("Card Equipment", level=1)
+
+
 def _select_options(doctype, fieldname):
 	return [o for o in (frappe.get_meta(doctype).get_field(fieldname).options or "").split("\n") if o]
 
 
 @frappe.whitelist(methods=["GET"])
 def get_management_context():
-	"""The ownership and status choices of the fleet filters, and whether money figures are shown."""
+	"""The ownership and status choices of the fleet filters, and whether money figures are shown. The ownership
+	choices are empty for a user who does not read the permlevel 1 ownership field."""
 	_require_reviewer()
 	return {
-		"ownership": _select_options("Card Equipment", "ownership"),
+		"ownership": _select_options("Card Equipment", "ownership") if sees_terms() else [],
 		"status": _select_options("Card Equipment", "status"),
 		"money": sees_money(),
 		# a Card Supervisor has no read right on Card Monthly Card: the cards screen says so
-		"cards": bool(frappe.has_permission("Card Monthly Card", "read")),
+		"cards": can_read("Card Monthly Card"),
 	}
 
 
 @frappe.whitelist(methods=["GET"])
 def list_all_equipment(ownership: str | None = None, project: str | None = None, status: str | None = None):
-	"""Every machine in the user's permitted companies and projects, with its filters. No money."""
+	"""Every machine that is not ended (stopped and in-maintenance machines stay in the fleet) in the user's permitted
+	companies and projects, whoever operates it, with optional filters. No money. ``ownership`` (permlevel 1) is
+	returned, offered and accepted only for a user who reads that level."""
 	_require_reviewer()
+	terms = sees_terms()
 	filters = {"status": ["!=", ENDED_STATUS]}
-	for field, value in (("ownership", ownership), ("current_project", project), ("status", status)):
-		if value:
-			filters[field] = value
-	if ownership and ownership not in _select_options("Card Equipment", "ownership"):
-		frappe.throw(_("Unsupported filter value"), frappe.ValidationError)
-	if status and status not in _select_options("Card Equipment", "status"):
-		frappe.throw(_("Unsupported filter value"), frappe.ValidationError)
+	if ownership:
+		if not terms:
+			frappe.throw(_("Not permitted"), frappe.PermissionError)
+		if ownership not in _select_options("Card Equipment", "ownership"):
+			frappe.throw(_("Unsupported filter value"), frappe.ValidationError)
+		filters["ownership"] = ownership
 	if status:
+		if status == ENDED_STATUS or status not in _select_options("Card Equipment", "status"):
+			frappe.throw(_("Unsupported filter value"), frappe.ValidationError)
 		filters["status"] = status
-	rows = scoped_rows(
+	if project:
+		filters["current_project"] = project
+	fields = ["name", "equipment_name", "status", "operator_name", "plate_no"]
+	return scoped_rows(
 		"Card Equipment",
-		["name", "equipment_name", "ownership", "status", "operator_name", "plate_no"],
+		[*fields, *(["ownership"] if terms else [])],
 		filters,
 		project_field="current_project",
+		order_by="current_project asc, equipment_name asc, name asc",
+		limit=MAX_ROWS,
 	)
-	rows.sort(key=lambda row: (row.get("current_project") or "", row.get("equipment_name") or row.name))
-	return rows[:MAX_ROWS]
 
 
 def _period(year, month):
@@ -107,14 +120,14 @@ def list_monthly_cards(year: int | None = None, month: int | None = None):
 	Card Manager and System Manager."""
 	_require_reviewer()
 	year, month = _period(year, month)
-	rows = scoped_rows(
+	return scoped_rows(
 		"Card Monthly Card",
 		_card_fields(),
 		{"docstatus": ["<", 2], "year": year, "month": month},
 		project_field="project",
+		order_by="project asc, equipment_name asc, name asc",
+		limit=MAX_ROWS,
 	)
-	rows.sort(key=lambda row: (row.get("project") or "", row.get("equipment_name") or row.name))
-	return rows[:MAX_ROWS]
 
 
 @frappe.whitelist(methods=["GET"])

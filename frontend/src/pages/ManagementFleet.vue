@@ -34,7 +34,7 @@ watch(
   <TopBar :title="__('Fleet', [], 'Card Mobile')" back />
   <div class="space-y-4 p-4">
     <ErrorMessage :message="error" />
-    <div v-if="ctx" class="flex flex-wrap gap-2" data-testid="ownership-filter">
+    <div v-if="ctx?.ownership.length" class="flex flex-wrap gap-2" data-testid="ownership-filter">
       <button
         v-for="option in ['', ...ctx.ownership]"
         :key="option"

@@ -251,6 +251,18 @@ class TestMobileHome(IntegrationTestCase):
 		kpis = self._home(user)["kpis"]
 		self.assertEqual(kpis["equipment"]["active"], in_scope + 1)
 
+	def test_a_user_permission_this_scope_does_not_apply_empties_the_kpis(self):
+		# F3: a Supplier User Permission is not applied by card.mobile_scope, so the reads fail closed
+		self._submitted_card(self._equipment())
+		user = self._user("supplier-perm", ["Card Manager"])
+		self._permission(user, "Company", self.company)
+		self._permission(user, "Supplier", self._supplier())
+		with patch("card.mobile.nowdate", return_value="2026-09-15"):
+			home = self._home(user)
+		self.assertEqual(home["financial"]["by_company"], [])
+		self.assertEqual(home["kpis"]["equipment"], {"active": 0, "stopped": 0, "maintenance": 0})
+		self.assertEqual(home["kpis"]["fleet_by_project"], [])
+
 	def test_financial_figures_use_the_current_month_only(self):
 		doc = self._submitted_card(self._equipment())  # a September card
 		user = self._user("mgr2", ["Card Manager"])
