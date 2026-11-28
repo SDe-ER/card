@@ -145,7 +145,7 @@ def check_equipment_access(equipment):
 
 @frappe.whitelist(methods=["GET"])
 def fit_for(equipment: str, items: str | list):
-	"""The fit of up to 50 Items for one machine (the inline item picker of CARD Mobile)."""
+	"""The fit of up to 50 Items for one machine (the inline item picker of Card Mobile)."""
 	from card.catalog import _list_items, check_catalog_user
 
 	check_catalog_user()

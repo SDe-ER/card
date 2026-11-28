@@ -12,7 +12,7 @@ Card Monthly Card: the ten Currency fields (``rate``, ``amount``, ``total_additi
 ``customer_net_amount``) sit at permlevel 1; the child ``Card Monthly Card Adjustment.amount`` sits at permlevel 1
 too and inherits the parent's level-1 rights. Level-1 read is granted to the four current level-0 readers only
 (System Manager, Card Manager, Card User, Accounts Manager). The DocType has no DocPerm for Card Operator or for
-the CARD Mobile portal roles, so if any future change were to give them level-0 read they would still never see the
+the Card Mobile portal roles, so if any future change were to give them level-0 read they would still never see the
 money fields.
 
 Frappe applies these levels to the form, the REST API, list and report views and their exports. Two paths it does
@@ -37,7 +37,7 @@ MASKED = "•••"
 PRIVATE_DOCTYPES = ("Card Equipment",)
 
 # FR-162 (Owner decision O-20): the money fields of Card Monthly Card that permlevel 1 moves above Card Operator /
-# CARD Mobile. The adjustment child's own level-1 ``amount`` follows the parent's level-1 rights.
+# Card Mobile. The adjustment child's own level-1 ``amount`` follows the parent's level-1 rights.
 CARD_MONEY_FIELDS = (
 	"rate",
 	"amount",

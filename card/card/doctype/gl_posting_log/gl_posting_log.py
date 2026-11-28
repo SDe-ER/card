@@ -94,7 +94,7 @@ class GLPostingLog(Document):
 		and party, still a draft for an invoice, and the only log of that document."""
 		if not self.flags.get("card_gl_build"):
 			frappe.throw(
-				_("Posting logs are created only by CARD's monthly posting."), frappe.PermissionError
+				_("Posting logs are created only by Card's monthly posting."), frappe.PermissionError
 			)
 		party_type, party_field = POSTING_PARTY.get(self.posting_doctype, (None, None))
 		fields = ["company", "docstatus", "creation"] + ([party_field] if party_field else [])
@@ -131,7 +131,7 @@ class GLPostingLog(Document):
 			or self.has_another_log(doc.creation)
 		):
 			frappe.throw(
-				_("Posting logs are created only by CARD's monthly posting."), frappe.PermissionError
+				_("Posting logs are created only by Card's monthly posting."), frappe.PermissionError
 			)
 
 	def has_another_log(self, since):
@@ -162,7 +162,7 @@ class GLPostingLog(Document):
 		Delete Company Transactions deletes in bulk without on_trash, and app
 		uninstall passes ignore_on_trash."""
 		frappe.throw(
-			_("Posting log {0} is the audit record of a CARD posting and cannot be deleted.").format(
+			_("Posting log {0} is the audit record of a Card posting and cannot be deleted.").format(
 				self.name
 			)
 		)

@@ -215,7 +215,7 @@ class TestDelegationInsert(_DelegationBase):
 			self._delegation,
 			delegator=plain,
 			delegate=self.delegate,
-			message="does not hold any CARD approver role",
+			message="does not hold any Card approver role",
 		)
 
 	def test_delegator_equals_delegate_refused(self):

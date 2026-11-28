@@ -99,7 +99,7 @@ describe('linesWithoutFitReason', () => {
   })
 })
 
-// CARD Mobile offered no kind at all before (TabButtons got `buttons`, frappe-ui 1.0.2 reads
+// Card Mobile offered no kind at all before (TabButtons got `buttons`, frappe-ui 1.0.2 reads
 // `options`), so every line went out as a part and an operator could not ask for a tool.
 describe('line kind', () => {
   it('sends the chosen kind of every line to the server', async () => {

@@ -59,7 +59,7 @@ def execute(filters=None):
 		{"label": _("Equipment with tagged costs"), "value": len(equipment), "datatype": "Int"},
 	]
 	message = _(
-		"Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise CARD cards, diesel fills or transports, fixed-asset lines and stock items (counted when they are issued) are not counted here; depreciation, labour and insurance are not included."
+		"Purchase invoice lines and material issues tagged with the Card Equipment dimension, net of VAT, in company currency. Invoices that recognise Card cards, diesel fills or transports, fixed-asset lines and stock items (counted when they are issued) are not counted here; depreciation, labour and insurance are not included."
 	)
 	unread = analytics.unread_maintenance_note()
 	if unread:

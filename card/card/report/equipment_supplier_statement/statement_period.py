@@ -194,7 +194,7 @@ def _amount(card, w, start, end, daily_hours_of):
 
 
 def card_vouchers(company, supplier):
-	"""{(doctype, name)} of the submitted CARD postings for this supplier (accrual JE or Purchase Invoice)."""
+	"""{(doctype, name)} of the submitted Card postings for this supplier (accrual JE or Purchase Invoice)."""
 	return {
 		(log.posting_doctype, log.posting_doc)
 		for log in frappe.get_all(

@@ -109,7 +109,7 @@ class TestDraftIntegrity(_P0Base):
 		).insert(ignore_permissions=True)
 		pi.supplier = other.name
 		pi.save()
-		with self.assertRaisesRegex(frappe.ValidationError, "differs from what CARD built"):
+		with self.assertRaisesRegex(frappe.ValidationError, "differs from what Card built"):
 			pi.submit()
 
 	def test_changed_expense_account_is_refused_until_accepted(self):
@@ -134,7 +134,7 @@ class TestDraftIntegrity(_P0Base):
 		pi.reload()
 		pi.items[0].expense_account = self.exp_diesel
 		pi.save()
-		with self.assertRaisesRegex(frappe.ValidationError, "differs from what CARD built"):
+		with self.assertRaisesRegex(frappe.ValidationError, "differs from what Card built"):
 			pi.submit()
 
 	def test_acceptance_refuses_non_correctable_changes(self):
@@ -162,7 +162,7 @@ class TestDraftIntegrity(_P0Base):
 		pi.bill_no = "P0-VAT-" + self.token
 		pi.bill_date = pi.posting_date
 		pi.save()
-		with self.assertRaisesRegex(frappe.ValidationError, "differs from what CARD built"):
+		with self.assertRaisesRegex(frappe.ValidationError, "differs from what Card built"):
 			pi.submit()
 
 	def test_draft_without_signature_must_be_rebuilt(self):
@@ -185,7 +185,7 @@ class TestCopyGuard(_P0Base):
 		dup.docstatus = 0  # Desk "Duplicate" gives a new draft
 		dup.bill_no = "P0-DUP-" + self.token
 		dup.insert(ignore_permissions=True)
-		with self.assertRaisesRegex(frappe.ValidationError, "repeats the lines of CARD posting"):
+		with self.assertRaisesRegex(frappe.ValidationError, "repeats the lines of Card posting"):
 			dup.submit()
 
 	def test_manual_invoice_naming_a_held_source_is_refused(self):
@@ -297,7 +297,7 @@ class TestManualInvoiceEvidence(_P0Base):
 	def test_link_refuses_another_supplier_and_a_built_posting(self):
 		card = self._rental_card()
 		pi = self._build()
-		with self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting"):
+		with self.assertRaisesRegex(frappe.ValidationError, "already a Card posting"):
 			link_supplier_invoice(pi.name, [{"doctype": "Card Monthly Card", "name": card.name}])
 		frappe.delete_doc("Purchase Invoice", pi.name, ignore_permissions=True)
 		other = frappe.get_doc(
@@ -414,7 +414,7 @@ class TestSalesInvoiceSignature(_P0Base):
 		si = self._si()
 		si.items[0].income_account = self.acc_mob
 		si.save()
-		with self.assertRaisesRegex(frappe.ValidationError, "differs from what CARD built"):
+		with self.assertRaisesRegex(frappe.ValidationError, "differs from what Card built"):
 			si.submit()
 
 
@@ -785,7 +785,7 @@ class TestFinalReviewFixes(_P0Base):
 		manual.reload()
 		manual.items[0].rate = 1600
 		manual.save()
-		with self.assertRaisesRegex(frappe.ValidationError, "was linked to CARD sources for net"):
+		with self.assertRaisesRegex(frappe.ValidationError, "was linked to Card sources for net"):
 			manual.submit()
 
 	def test_linked_draft_with_an_accepted_difference_submits(self):
@@ -824,7 +824,7 @@ class TestFinalReviewFixes(_P0Base):
 		manual = self._manual_pi(100, posting_date="2026-12-20", submit=False)
 		manual.bill_no = pi.bill_no
 		manual.save()
-		with self.assertRaisesRegex(frappe.ValidationError, "already booked by CARD posting"):
+		with self.assertRaisesRegex(frappe.ValidationError, "already booked by Card posting"):
 			manual.submit()
 
 	def test_reconciliation_counts_a_linked_card_in_its_own_month_and_the_rest_outside(self):

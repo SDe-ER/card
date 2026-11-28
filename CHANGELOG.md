@@ -38,6 +38,18 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Changed
+- **The application name shows as `Card` in every language** (WS-013, FR-084; final Owner decision 2026-11-28,
+  which reverses the decision of 2026-10-26 and PR #135 that made it `CARD`). `app_title`, the two apps-screen
+  titles (`Card`, `Card Mobile`), the CARD Mobile page titles and manifest, the Monthly Posting page title and every
+  user-facing message that named the application now read `Card`. In every locale, msgid `Card` maps to
+  `Card`, and every translation that wrote the name as `CARD` writes `Card`. Record names, routes (`/app/card`,
+  `/cdms`), DocType, role and field names, the literal tax template name `CARD VAT <rate>% - <abbr>`, the workspace
+  and report names that end with `(CARD)` and the Select value `All CARD approvals` are stored data and do not
+  change. Patch `v4_1_3.remove_app_name_translations` now keeps site Translations of `Card` that read `Card` and
+  removes the others (a site that already ran it is not affected). No schema change, no permission change, no new
+  method, no accounting effect. Rollback: revert this change and release again.
+
 ## [4.14.3] — 2026-11-27
 
 > **Published 2026-11-27** (tag `v4.14.3`, owner approval 2026-11-27). Published ≠ deployed (see DEPLOYMENTS.md).

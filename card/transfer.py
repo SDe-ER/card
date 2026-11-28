@@ -209,7 +209,7 @@ def _record_overlap(equipment, assignments, day, source):
 		).insert(ignore_permissions=True)
 		if source == "daily":
 			frappe.log_error(
-				title=_("CARD equipment location overlap"),
+				title=_("Card equipment location overlap"),
 				message="%s: %s" % (equipment, message),
 				reference_doctype="Card Equipment",
 				reference_name=equipment,
@@ -236,7 +236,7 @@ def sync_equipment_locations_daily():
 			failed.append(equipment)
 	if failed:
 		frappe.log_error(
-			title=_("CARD daily location sync"),
+			title=_("Card daily location sync"),
 			message=_("The location of these equipment could not be synced: {0}").format(", ".join(failed)),
 		)
 

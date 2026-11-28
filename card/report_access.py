@@ -139,7 +139,7 @@ def role_reads_money(doctype=CARD_DOCTYPE):
 	"""True when the user's ROLES grant read on the money permlevel (FR-162) of ``doctype``.
 
 	Mirrors :func:`card.field_privacy.can_view_money` and is the gate CARD reports use to decide whether a Monthly
-	Card money column reaches the browser. Card Operator and the CARD Mobile portal roles are not level-1 readers,
+	Card money column reaches the browser. Card Operator and the Card Mobile portal roles are not level-1 readers,
 	so the column is dropped for them; the four current level-0 readers keep it."""
 	from card.field_privacy import can_view_money
 

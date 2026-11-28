@@ -123,7 +123,7 @@ class CardApprovalDelegation(Document):
 		if not roles:
 			frappe.throw(
 				_(
-					"Delegator {0} does not hold any CARD approver role ({1}); a delegation can only be granted by an approver."
+					"Delegator {0} does not hold any Card approver role ({1}); a delegation can only be granted by an approver."
 				).format(self.delegator_user, ", ".join(CARD_APPROVER_ROLES)),
 				title=_("Delegation delegator role"),
 			)
@@ -142,7 +142,7 @@ class CardApprovalDelegation(Document):
 		if missing:
 			frappe.throw(
 				_(
-					"Delegate {0} must already hold the delegator's CARD approver roles; missing: {1}. Delegation grants no role."
+					"Delegate {0} must already hold the delegator's Card approver roles; missing: {1}. Delegation grants no role."
 				).format(self.delegate_user, ", ".join(sorted(missing))),
 				title=_("Delegation delegate role"),
 			)

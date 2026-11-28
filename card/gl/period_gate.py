@@ -124,7 +124,7 @@ def stale_refusal(run, state) -> str | None:
 	if state.current:
 		return None
 	return _(
-		"The CARD documents of {0}/{1} changed after period run {2} was approved (added: {3}; removed: {4}; changed: {5}). Cancel and amend the run and have the new version approved before posting."
+		"The Card documents of {0}/{1} changed after period run {2} was approved (added: {3}; removed: {4}; changed: {5}). Cancel and amend the run and have the new version approved before posting."
 	).format(
 		run.month,
 		run.year,

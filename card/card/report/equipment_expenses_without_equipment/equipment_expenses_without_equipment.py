@@ -108,7 +108,7 @@ def execute(filters=None):
 		return [
 			columns,
 			[],
-			_("Set the CARD expense accounts in Card Settings for company {0} first.").format(company),
+			_("Set the Card expense accounts in Card Settings for company {0} first.").format(company),
 			None,
 			[],
 			True,
@@ -179,7 +179,7 @@ def execute(filters=None):
 		},
 	]
 	message = _(
-		"Expense lines on the CARD expense accounts with no Card Equipment dimension. "
+		"Expense lines on the Card expense accounts with no Card Equipment dimension. "
 		"Fix them at the source document so the per-equipment P&L stays complete."
 	)
 	return [readable_links(columns, rows), rows, message, None, summary, True]

@@ -360,7 +360,7 @@ def return_for_correction(doctype: str, name: str, reason: str | None = None):
 	from frappe.model.workflow import apply_workflow
 
 	if doctype not in WORKFLOWS:
-		frappe.throw(_("{0} is not a CARD transaction.").format(doctype), frappe.PermissionError)
+		frappe.throw(_("{0} is not a Card transaction.").format(doctype), frappe.PermissionError)
 	text = _clean(reason)
 	if not text:
 		frappe.throw(

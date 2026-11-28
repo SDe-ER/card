@@ -90,7 +90,7 @@ class TestCustomerLinkLockOrder(_LinkBase):
 		si = self._si(1600)
 		log = self._link(si, card)
 		spy, calls = _locking_reads()
-		with spy, self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting or linked"):
+		with spy, self.assertRaisesRegex(frappe.ValidationError, "already a Card posting or linked"):
 			self._link(si, other)
 		self.assertIn((LOG, log), calls, "the log found by the plain read is locked by its name")
 
@@ -111,7 +111,7 @@ class TestCustomerLinkLockOrder(_LinkBase):
 			log.posting_key,
 			linked_posting_key(log.company, log.party_type, log.party, log.month, log.year, log.posting_doc),
 		)
-		with _no_plain_log_read(), self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting"):
+		with _no_plain_log_read(), self.assertRaisesRegex(frappe.ValidationError, "already a Card posting"):
 			self._link(si, other)
 		self.assertEqual(frappe.db.count(LOG, {"posting_doc": si.name}), 1)
 
@@ -275,7 +275,7 @@ class TestSupplierLinkLocking(_P0Base):
 		frappe.db.set_value(CARD, card.name, "net_amount", 500, update_modified=False)
 		with (
 			_snapshot(CARD, net_amount=600),
-			self.assertRaisesRegex(frappe.ValidationError, "the CARD sources total 500"),
+			self.assertRaisesRegex(frappe.ValidationError, "the Card sources total 500"),
 		):
 			self._link(manual, card.name)
 		self.assertFalse(frappe.db.exists(LOG, {"posting_doc": manual.name}))
@@ -313,7 +313,7 @@ class TestSupplierLinkLocking(_P0Base):
 		second = self._rental_card()
 		manual = self._manual_pi(600)
 		self._link(manual, first.name)
-		with _no_plain_log_read(), self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting"):
+		with _no_plain_log_read(), self.assertRaisesRegex(frappe.ValidationError, "already a Card posting"):
 			self._link(manual, second.name)
 		self.assertEqual(frappe.db.count(LOG, {"posting_doc": manual.name}), 1)
 		self.assertFalse(frappe.db.get_value(CARD, second.name, "purchase_invoice"))
@@ -461,7 +461,7 @@ class TestSupplierLinkReviewFixes(_P0Base):
 		for entry in ({"doctype": CARD, "name": 5}, {"doctype": CARD, "name": None}, {"doctype": CARD}, "x"):
 			with (
 				self.subTest(entry=entry),
-				self.assertRaisesRegex(frappe.ValidationError, "Choose the CARD sources"),
+				self.assertRaisesRegex(frappe.ValidationError, "Choose the Card sources"),
 			):
 				link_supplier_invoice(manual.name, [entry])
 

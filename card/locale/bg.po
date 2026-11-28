@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "Обем на курса (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Отпечатано на"
 
 msgid "CARD operations dashboard"
-msgstr "Табло за операции CARD"
+msgstr "Табло за операции Card"
 
 msgid "Financial performance — last month"
 msgstr "Финансови резултати — миналия месец"
 
 msgid "Needs review (CARD)"
-msgstr "Изисква преглед (CARD)"
+msgstr "Изисква преглед (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Последни месечни карти (CARD)"
+msgstr "Последни месечни карти (Card)"
 
 msgid "CARD customers"
-msgstr "Клиенти CARD"
+msgstr "Клиенти Card"
 
 msgid "CARD suppliers"
-msgstr "Доставчици CARD"
+msgstr "Доставчици Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Дизел и операции (CARD)"
+msgstr "Дизел и операции (Card)"
 
 msgid "New monthly card"
 msgstr "Нова месечна карта"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Нов транспорт на техника"
 
 msgid "Customer statement (CARD)"
-msgstr "Извлечение на клиент (CARD)"
+msgstr "Извлечение на клиент (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Месечни карти (CARD)"
+msgstr "Месечни карти (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Техника (CARD)"
+msgstr "Техника (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Задания (CARD)"
+msgstr "Задания (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Клиенти за техника (CARD)"
+msgstr "Клиенти за техника (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Транспорти на техника (CARD)"
+msgstr "Транспорти на техника (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Оперативна стойност за клиенти - миналия месец"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Оперативни часове без ставка (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Обобщение по клиенти (CARD)"
+msgstr "Обобщение по клиенти (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Извлечение на доставчик (CARD)"
+msgstr "Извлечение на доставчик (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Обобщение по доставчици (CARD)"
+msgstr "Обобщение по доставчици (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Извлечение на доставчик A4 (CARD)"
+msgstr "Извлечение на доставчик A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Разход на дизел (CARD)"
+msgstr "Разход на дизел (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Оперативни разходи по проект (CARD)"
+msgstr "Оперативни разходи по проект (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Разходи за транспорт по проект (CARD)"
+msgstr "Разходи за транспорт по проект (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Съгласуване на показанията (CARD)"
+msgstr "Съгласуване на показанията (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Транспорт на техника (CARD)"
+msgstr "Транспорт на техника (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

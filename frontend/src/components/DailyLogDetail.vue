@@ -10,7 +10,7 @@ import {
   type DailyLog,
 } from '../data/dailyLog'
 
-// FR-150: what CARD Mobile shows of one daily log: its state as the server stored it, its rows
+// FR-150: what Card Mobile shows of one daily log: its state as the server stored it, its rows
 // (hours only: a daily log has no money field, O-20) and the actions offered for it (actionsFor).
 // Approving, verifying and returning are never offered here, for any role; reviewers get a link
 // to the log in CARD Desk, where the server checks the separation of duties.
@@ -211,7 +211,7 @@ function hours(value: number | null | undefined) {
         class="flex min-h-[3.5rem] items-center justify-between rounded-lg border border-outline-gray-1 p-4"
         data-action="desk"
       >
-        <span>{{ __('Open in CARD Desk') }}</span>
+        <span>{{ __('Open in Card Desk') }}</span>
         <span class="lucide-external-link size-4 text-ink-gray-5" aria-hidden="true" />
       </a>
     </div>

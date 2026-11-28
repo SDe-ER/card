@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 // For license information, please see LICENSE
 
-// CARD Monthly Posting (FR-119, #49 #126): pick a company and a month, see each party's
+// Card Monthly Posting (FR-119, #49 #126): pick a company and a month, see each party's
 // posting status, preview the lines the next draft would carry, then create or rebuild it.
 // The server decides everything: the reads are GET methods with no side effects
 // (card.gl.posting.posting_month_parties / preview_month); the buttons call the existing
@@ -12,14 +12,14 @@
 frappe.pages["card-monthly-posting"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
-		title: __("CARD Monthly Posting"),
+		title: __("Card Monthly Posting"),
 		single_column: true,
 	});
 	new CardMonthlyPosting(page);
 };
 
 const CMP_STATUS = {
-	"Not posted": ["orange", __("No CARD posting yet")],
+	"Not posted": ["orange", __("No Card posting yet")],
 	Draft: ["blue", __("Draft posting")],
 	Posted: ["green", __("Posted")],
 };
@@ -97,7 +97,7 @@ class CardMonthlyPosting {
 			if (!rows || !rows.length) {
 				$parties.append(
 					`<div class="cmp-empty text-muted">${__(
-						"No CARD documents or postings for this company and month.",
+						"No Card documents or postings for this company and month.",
 					)}</div>`,
 				);
 				return;
@@ -160,7 +160,7 @@ class CardMonthlyPosting {
 				<th>${__("Party")}</th>
 				<th>${__("Status")}</th>
 				<th class="text-right">${__("Documents not yet in a posting")}</th>
-				<th>${__("CARD postings")}</th>
+				<th>${__("Card postings")}</th>
 				<th></th>
 			</tr></thead><tbody></tbody></table>`);
 		const $tbody = $table.find("tbody");
@@ -331,7 +331,7 @@ class CardMonthlyPosting {
 			.join("<br>");
 		$view
 			.find(".cmp-sources")
-			.append(`<h5>${__("CARD source documents")}</h5><div>${sources}</div>`);
+			.append(`<h5>${__("Card source documents")}</h5><div>${sources}</div>`);
 
 		const reviewed = this.review_section(p, $view.find(".cmp-review"));
 		this.action_button(p, args, reviewed).appendTo($view.find(".cmp-actions"));
@@ -346,7 +346,7 @@ class CardMonthlyPosting {
 		if (!p.review_invoices.length && !p.hidden_review_invoices) return checked;
 		$box.append(`<h5>${__("Supplier invoices to review")}</h5>
 			<div class="text-muted">${__(
-				"These supplier invoices around this month may cover the same operations. Link each one to the CARD documents it pays for, or tick it when an accountant confirms it is unrelated.",
+				"These supplier invoices around this month may cover the same operations. Link each one to the Card documents it pays for, or tick it when an accountant confirms it is unrelated.",
 			)}</div>`);
 		for (const inv of p.review_invoices) {
 			const $row = $(`<div class="checkbox"><label>
@@ -386,11 +386,11 @@ class CardMonthlyPosting {
 		return $(`<button class="btn btn-primary btn-sm">${label}</button>`).on("click", () => {
 			const message = rebuild
 				? __(
-						"Delete draft {0} and build it again from the current CARD documents? The new draft may differ from this preview if documents changed since it was shown.",
+						"Delete draft {0} and build it again from the current Card documents? The new draft may differ from this preview if documents changed since it was shown.",
 						[p.replaces.map(frappe.utils.escape_html).join(", ")],
 				  )
 				: __(
-						"Create a draft {0} from the current CARD documents? It may differ from this preview if documents changed since it was shown.",
+						"Create a draft {0} from the current Card documents? It may differ from this preview if documents changed since it was shown.",
 						[__(p.posting_doctype)],
 				  );
 			frappe.confirm(message, () => {

@@ -291,7 +291,7 @@ class TestCostAllocation(_PostingBase):
 		other = self._cc("OTHER")
 		pi.items[0].cost_center = other
 		pi.save()
-		with self.assertRaisesRegex(frappe.ValidationError, "differs from what CARD built"):
+		with self.assertRaisesRegex(frappe.ValidationError, "differs from what Card built"):
 			pi.submit()
 		pi.reload()
 		pi.items[0].project = None

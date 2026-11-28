@@ -350,11 +350,11 @@ class TestUnlinkRefusals(_UnlinkBase):
 	def test_invoice_without_a_link_is_refused(self):
 		card = self._out_card()
 		si = self._si(1600)
-		self._refused("is not linked to CARD cards", si, None, card)
+		self._refused("is not linked to Card cards", si, None, card)
 		# a removed link is not removed twice
 		log = self._link(si, card)
 		unlink_customer_invoice(si.name, UNLINK_REASON)
-		self._refused("is not linked to CARD cards", si, log, card)
+		self._refused("is not linked to Card cards", si, log, card)
 
 	def test_card_built_posting_is_refused(self):
 		card = self._out_card()
@@ -362,12 +362,12 @@ class TestUnlinkRefusals(_UnlinkBase):
 		draft_log = active_log_holding(CARD, card.name, "Customer").name
 		self._refused("not submitted", built, draft_log, card)
 		built.submit()
-		self._refused("is a CARD posting", built, draft_log, card)
+		self._refused("is a Card posting", built, draft_log, card)
 		self.assertEqual(frappe.db.get_value(LOG, draft_log, "status"), "Submitted")
 		self.assertEqual(frappe.db.get_value(CARD, card.name, "sales_invoice"), built.name)
 		# a posting log without an origin is a built one
 		frappe.db.set_value(LOG, draft_log, "origin", "", update_modified=False)
-		self._refused("is a CARD posting", built, draft_log, card)
+		self._refused("is a Card posting", built, draft_log, card)
 
 	def test_cancelled_invoice_is_refused(self):
 		si, card, log = self._linked()

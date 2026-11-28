@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "Kuormatilavuus (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Tulostettu"
 
 msgid "CARD operations dashboard"
-msgstr "CARD-toimintanäkymä"
+msgstr "Card-toimintanäkymä"
 
 msgid "Financial performance — last month"
 msgstr "Taloudellinen tulos — viime kuukausi"
 
 msgid "Needs review (CARD)"
-msgstr "Vaatii tarkistusta (CARD)"
+msgstr "Vaatii tarkistusta (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Uusimmat kuukausikortit (CARD)"
+msgstr "Uusimmat kuukausikortit (Card)"
 
 msgid "CARD customers"
-msgstr "CARD-asiakkaat"
+msgstr "Card-asiakkaat"
 
 msgid "CARD suppliers"
-msgstr "CARD-toimittajat"
+msgstr "Card-toimittajat"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Diesel ja toiminta (CARD)"
+msgstr "Diesel ja toiminta (Card)"
 
 msgid "New monthly card"
 msgstr "Uusi kuukausikortti"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Uusi kaluston kuljetus"
 
 msgid "Customer statement (CARD)"
-msgstr "Asiakkaan tiliote (CARD)"
+msgstr "Asiakkaan tiliote (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Kuukausikortit (CARD)"
+msgstr "Kuukausikortit (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Kalusto (CARD)"
+msgstr "Kalusto (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Kohdistukset (CARD)"
+msgstr "Kohdistukset (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Kaluston asiakkaat (CARD)"
+msgstr "Kaluston asiakkaat (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Kaluston kuljetukset (CARD)"
+msgstr "Kaluston kuljetukset (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Asiakkaiden toiminta-arvo - viime kuukausi"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Käyttötunnit ilman hintaa (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Asiakasyhteenveto (CARD)"
+msgstr "Asiakasyhteenveto (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Toimittajan tiliote (CARD)"
+msgstr "Toimittajan tiliote (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Toimittajayhteenveto (CARD)"
+msgstr "Toimittajayhteenveto (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Toimittajan tiliote A4 (CARD)"
+msgstr "Toimittajan tiliote A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dieselkulutus (CARD)"
+msgstr "Dieselkulutus (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Toimintakustannukset projektin mukaan (CARD)"
+msgstr "Toimintakustannukset projektin mukaan (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Kuljetuskustannukset projektin mukaan (CARD)"
+msgstr "Kuljetuskustannukset projektin mukaan (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Mittarien täsmäytys (CARD)"
+msgstr "Mittarien täsmäytys (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Kaluston kuljetus (CARD)"
+msgstr "Kaluston kuljetus (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."
