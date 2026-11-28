@@ -25,6 +25,8 @@ per site.
   System Manager sees the month's revenue and cost; operators never receive these numbers. No role or permission
   changes.
 
+- **2026-11-28 — Card Mobile management view (fleet, projects, monthly cards).** Supervisors and managers can open the whole fleet with an ownership filter, the projects with their machines, cards and hours, and the monthly cards from the Home screen. Only a Card Manager or System Manager sees revenue, cost and result. Supervisors do not see cards yet, because that right does not exist today. No role or permission changes.
+
 ## v4.14.4 — 2026-11-28
 
 Patch release on top of v4.14.3. It adds Desk buttons to link a Sales Invoice to its monthly cards and to remove the link, and it writes the application name as Card in every language. It changes no role or permission, and Card posts no accounting entry.

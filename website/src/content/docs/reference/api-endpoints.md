@@ -37,6 +37,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.governance_workflows`](#card-governance-workflows) | 1 |
 | [`card.materials`](#card-materials) | 8 |
 | [`card.mobile`](#card-mobile) | 4 |
+| [`card.mobile_management`](#card-mobile-management) | 4 |
 | [`card.open_month`](#card-open-month) | 3 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
 
@@ -372,6 +373,21 @@ This page is generated from the CARD source code on every build. Edit the code, 
 - `get_profile` — The signed-in user's own profile: the Employee linked to the account, the CARD roles actually held, language, currency and number format. Reads only, and only the caller's own records: nothing here takes a name from the client. Personal data stops at what the profile shows.
 - `set_language` — Switch the signed-in user's own interface language between Arabic and English. Self only; the Administrator account's language is never changed.
 - `get_home_context` — What the home screen shows, by role. Operators get no KPI values at all; review roles get operational counts; only Card Manager and System Manager also get financial figures, and the server leaves them out for everyone else (the client is never the authority). Reads only.
+
+
+<h2 id="card-mobile-management"><code>card.mobile_management</code></h2>
+
+| Method path | HTTP methods | Arguments |
+|---|---|---|
+| `card.mobile_management.get_management_context` | GET | none |
+| `card.mobile_management.list_all_equipment` | GET | `ownership: str \| None = None`<br/>`project: str \| None = None`<br/>`status: str \| None = None` |
+| `card.mobile_management.list_monthly_cards` | GET | `year: int \| None = None`<br/>`month: int \| None = None` |
+| `card.mobile_management.list_projects` | GET | `year: int \| None = None`<br/>`month: int \| None = None` |
+
+- `get_management_context` — The ownership and status choices of the fleet filters, and whether money figures are shown.
+- `list_all_equipment` — Every machine in the user's permitted companies and projects, with its filters. No money.
+- `list_monthly_cards` — Monthly cards of a period (default: the current month), draft and submitted. Amounts only for Card Manager and System Manager.
+- `list_projects` — One row per project of the permitted scope: machines now on it and the period's working hours and cards. Revenue, cost and result (revenue minus supplier cost of the submitted cards) only for Card Manager and System Manager.
 
 
 <h2 id="card-open-month"><code>card.open_month</code></h2>

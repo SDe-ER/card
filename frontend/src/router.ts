@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getSessionContext, sessionUser } from './data/session'
+import { isReviewer } from './data/management'
 
 export const router = createRouter({
   // the same path as `frontendRoute` in vite.config.ts
@@ -30,6 +31,25 @@ export const router = createRouter({
       component: () => import('./pages/DailyLogForm.vue'),
     },
     { path: '/catalog', name: 'Catalog', component: () => import('./pages/Catalog.vue') },
+    // issue #358: management view, reviewers only (the server refuses everyone else too)
+    {
+      path: '/fleet',
+      name: 'ManagementFleet',
+      meta: { reviewer: true },
+      component: () => import('./pages/ManagementFleet.vue'),
+    },
+    {
+      path: '/projects',
+      name: 'ManagementProjects',
+      meta: { reviewer: true },
+      component: () => import('./pages/ManagementProjects.vue'),
+    },
+    {
+      path: '/cards',
+      name: 'ManagementCards',
+      meta: { reviewer: true },
+      component: () => import('./pages/ManagementCards.vue'),
+    },
     { path: '/profile', name: 'Profile', component: () => import('./pages/Profile.vue') },
     { path: '/login', name: 'Login', component: () => import('./pages/Login.vue') },
     { path: '/no-access', name: 'NoAccess', component: () => import('./pages/NoAccess.vue') },
@@ -57,5 +77,7 @@ router.beforeEach(async (to) => {
   if (ctx?.catalog_only) return CATALOG_ONLY_PAGES.includes(String(to.name)) || { name: 'Catalog' }
   if (!ctx || !ctx.employee) return { name: 'NoAccess' }
   if (to.name === 'Login') return { name: 'Home' }
+  // the management view is for reviewers only; the server refuses everyone else as well
+  if (to.meta.reviewer && !isReviewer(ctx.roles)) return { name: 'Home' }
   return true
 })
