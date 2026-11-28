@@ -181,10 +181,20 @@ def operational_kpis():
 	"""Fleet, review queue and alert counts for a review role. Permission-scoped reads: a user sees
 	only the records (and companies) the DocPerm and User Permission rules already give him."""
 	today = getdate(nowdate())
+	# Company scope applied explicitly (the company field is permlevel 1, which a supervisor cannot
+	# read): only machines of the user's permitted companies. The read below still runs under his
+	# DocPerm and User Permissions.
+	names = frappe.get_all(
+		"Card Equipment",
+		filters={"company": ["in", permitted_companies("Card Equipment") or [""]]},
+		pluck="name",
+		limit_page_length=0,
+	)
+	fleet_filters = {"status": ["!=", ENDED_STATUS], "name": ["in", names or [""]]}
 	# plain fields, summed here: a fleet is hundreds of rows and the read stays under the user's rights
 	rows = frappe.get_list(
 		"Card Equipment",
-		filters={"status": ["!=", ENDED_STATUS]},
+		filters=fleet_filters,
 		fields=["status", "current_project"],
 		limit_page_length=0,
 	)
@@ -197,7 +207,7 @@ def operational_kpis():
 	soon = add_days(today, EXPIRY_WARNING_DAYS)
 	expiring = _count(
 		"Card Equipment",
-		filters={"status": ["!=", ENDED_STATUS]},
+		filters=fleet_filters,
 		or_filters=[[field, "<=", soon] for field in EXPIRY_FIELDS],
 	)
 	return {
