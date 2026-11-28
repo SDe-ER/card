@@ -13,7 +13,7 @@ from card.gl import events
 from card.gl.posting import build_monthly_posting
 from card.tests.test_posting_lines import _ReconciliationBase
 
-REFUSED = "amends CARD posting"
+REFUSED = "amends Card posting"
 
 
 class TestAmendedCopyAfterNameReuse(_ReconciliationBase):

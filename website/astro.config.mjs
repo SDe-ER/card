@@ -1,4 +1,4 @@
-// CARD documentation site — Astro Starlight, published to GitHub Pages (https://sde-er.github.io/card/).
+// Card documentation site — Astro Starlight, published to GitHub Pages (https://sde-er.github.io/card/).
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
@@ -23,9 +23,9 @@ export default defineConfig({
   base: "/card",
   integrations: [
     starlight({
-      title: "CARD",
+      title: "Card",
       description: "Equipment management for Frappe / ERPNext — documentation",
-      logo: { src: "./src/assets/card-logo.svg", alt: "CARD" },
+      logo: { src: "./src/assets/card-logo.svg", alt: "Card" },
       favicon: "/favicon.svg",
       head: searchConsoleHead,
       defaultLocale: "root",

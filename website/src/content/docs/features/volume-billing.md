@@ -8,7 +8,7 @@ sidebar:
 ## Overview
 
 Some machines are paid by the **load** rather than by the hour or the day: a truck takes a load from the crusher and
-the customer pays for the volume it carried. CARD supports this as a **customer rate type** on the equipment. The
+the customer pays for the volume it carried. Card supports this as a **customer rate type** on the equipment. The
 billed amount is the number of loads, times the load volume in cubic metres, times the rate per cubic metre, before
 VAT. Hours are still recorded every day, for cost and productivity, but they are not billed on this basis.
 
@@ -110,7 +110,7 @@ and the customer net before VAT is the customer amount plus the customer additio
 
 ## Submitted cards keep their figures
 
-When a card is submitted, CARD stores the figures it was priced with: the load volume used, the rate per m³ used, and
+When a card is submitted, Card stores the figures it was priced with: the load volume used, the rate per m³ used, and
 the totals. A later change to the equipment does not reprice a submitted card. The rate per m³ used is kept in the
 field **Customer hourly rate used**, which for a per-m³ card holds the SAR per m³ rate, not an hourly rate. The field
 **Rate basis used** holds the supplier rate basis; the customer basis is the card's **Customer rate type**.
@@ -126,15 +126,15 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
 *Customer statement on a per-m³ row*
 
 <!-- screenshot: volume-billing-loads-card -->
-![Loads number card on the CARD workspace](../../../assets/screenshots/en/volume-billing-loads-card.webp)
-*Loads number card on the CARD workspace*
+![Loads number card on the Card workspace](../../../assets/screenshots/en/volume-billing-loads-card.webp)
+*Loads number card on the Card workspace*
 
 - **Monthly card print**: the print shows Total loads for per-m³ cards to everyone who can read the card. Total volume (m³),
   the rate and the amount are money-level: they appear only for users with money read (Card User and Card Manager). Card Operator
   gets the print without any of them.
 - **Customer statement**: a per-m³ row shows the basis, total loads, total volume, the rate per m³ and the amount. The
   row has no hourly rate and no hours-divided figure.
-- **Dashboard**: a number card on the CARD workspace shows the total loads of last month, from submitted per-m³ cards,
+- **Dashboard**: a number card on the Card workspace shows the total loads of last month, from submitted per-m³ cards,
   for the companies the user may read. The dashboard shows no volume and no amount; the volume is read on the monthly card,
   in the print and in the customer statement, where the existing permissions apply.
 
@@ -151,7 +151,7 @@ field **Customer hourly rate used**, which for a per-m³ card holds the SAR per 
 
 ## Limitations
 
-- **CARD Mobile** does not enter loads yet. Loads are entered on the Desk card.
+- **Card Mobile** does not enter loads yet. Loads are entered on the Desk card.
 - **Daily logs** do not carry loads yet. A draft card made from a daily log for a per-m³ equipment has no loads until
   they are entered on the card.
 - No data migration is needed. Existing cards have no loads and keep their amounts.

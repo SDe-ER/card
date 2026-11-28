@@ -85,7 +85,7 @@ def get_columns(detail):
 		},
 		{
 			"fieldname": "card_hours",
-			"label": _("CARD hours (submitted cards, same period)"),
+			"label": _("Card hours (submitted cards, same period)"),
 			"fieldtype": "Float",
 			"width": 150,
 		},
@@ -185,7 +185,7 @@ def _summary_row(eq, asset, readings, tolerance):
 	if summary["card_hours"] is not None and summary["meter_hours"]:
 		gap_pct = flt((summary["card_hours"] - summary["meter_hours"]) * 100 / summary["meter_hours"], 1)
 		if abs(gap_pct) > tolerance:
-			issues.append(_("CARD hours differ from the meter hours by more than {0}%").format(tolerance))
+			issues.append(_("Card hours differ from the meter hours by more than {0}%").format(tolerance))
 	if not readings:
 		status = _("No meter readings")
 	elif issues:

@@ -18,9 +18,9 @@ or updates the draft day-shift and night-shift cards of a project and month from
 submitting a card or touching a submitted one.
 
 :::note
-Daily logs are part of the current development line of CARD (after release v4.7.0). The DocType opens at
+Daily logs are part of the current development line of Card (after release v4.7.0). The DocType opens at
 `/app/card-daily-log`; there is no Desk sidebar link for it yet. Operators enter their logs on
-[CARD Mobile](/card/features/card-mobile/#daily-logs-on-the-phone).
+[Card Mobile](/card/features/card-mobile/#daily-logs-on-the-phone).
 :::
 
 <!-- screenshot: daily-logs-form -->
@@ -219,4 +219,4 @@ needs the right to create a monthly card of that company and project and to read
 - [Assignments & Locations](/card/features/assignments-locations/)
 - [Equipment](/card/features/equipment/)
 - [Roles & Permissions](/card/features/roles-permissions/)
-- [CARD Mobile](/card/features/card-mobile/)
+- [Card Mobile](/card/features/card-mobile/)

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "ဝန်ထုပ်ပမာဏ (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "ပရင့်ထုတ်ချိန်"
 
 msgid "CARD operations dashboard"
-msgstr "CARD စစ်ဆေးမှုအလုပ်ဌာန ဒက်ရှ်ဘုတ်"
+msgstr "Card စစ်ဆေးမှုအလုပ်ဌာန ဒက်ရှ်ဘုတ်"
 
 msgid "Financial performance — last month"
 msgstr "ဘဏ္ဍာရေးစွမ်းဆောင်ရည် — ပြီးခဲ့သောလ"
 
 msgid "Needs review (CARD)"
-msgstr "သုံးသပ်ရန်လိုအပ် (CARD)"
+msgstr "သုံးသပ်ရန်လိုအပ် (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "နောက်ဆုံးလစဉ်ကတ်များ (CARD)"
+msgstr "နောက်ဆုံးလစဉ်ကတ်များ (Card)"
 
 msgid "CARD customers"
-msgstr "CARD ဖောက်သည်များ"
+msgstr "Card ဖောက်သည်များ"
 
 msgid "CARD suppliers"
-msgstr "CARD ပေးသွင်းသူများ"
+msgstr "Card ပေးသွင်းသူများ"
 
 msgid "Diesel and operations (CARD)"
-msgstr "ဒီဇယ်နှင့် လည်ပတ်မှု (CARD)"
+msgstr "ဒီဇယ်နှင့် လည်ပတ်မှု (Card)"
 
 msgid "New monthly card"
 msgstr "လစဉ်ကတ်အသစ်"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်မှုအသစ်"
 
 msgid "Customer statement (CARD)"
-msgstr "ဖောက်သည်အကောင့်မှတ်တမ်း (CARD)"
+msgstr "ဖောက်သည်အကောင့်မှတ်တမ်း (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "လစဉ်ကတ်များ (CARD)"
+msgstr "လစဉ်ကတ်များ (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "စက်ပစ္စည်းများ (CARD)"
+msgstr "စက်ပစ္စည်းများ (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "တာဝန်ပေးအပ်မှုများ (CARD)"
+msgstr "တာဝန်ပေးအပ်မှုများ (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "စက်ပစ္စည်းဖောက်သည်များ (CARD)"
+msgstr "စက်ပစ္စည်းဖောက်သည်များ (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်မှုများ (CARD)"
+msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်မှုများ (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "ဖောက်သည်များအတွက် လည်ပတ်တန်ဖိုး - ပြီးခဲ့သောလ"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "နှုန်းမရှိသော လည်ပတ်နာရီများ (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "ဖောက်သည်အကျဉ်းချုပ် (CARD)"
+msgstr "ဖောက်သည်အကျဉ်းချုပ် (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "ပေးသွင်းသူ မှတ်တမ်း (CARD)"
+msgstr "ပေးသွင်းသူ မှတ်တမ်း (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "ပေးသွင်းသူအကျဉ်းချုပ် (CARD)"
+msgstr "ပေးသွင်းသူအကျဉ်းချုပ် (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "ပေးသွင်းသူ မှတ်တမ်း A4 (CARD)"
+msgstr "ပေးသွင်းသူ မှတ်တမ်း A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "ဒီဇယ်သုံးစွဲမှု (CARD)"
+msgstr "ဒီဇယ်သုံးစွဲမှု (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "စီမံကိန်းအလိုက် လည်ပတ်ကုန်ကျစရိတ် (CARD)"
+msgstr "စီမံကိန်းအလိုက် လည်ပတ်ကုန်ကျစရိတ် (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "စီမံကိန်းအလိုက် သယ်ယူကုန်ကျစရိတ် (CARD)"
+msgstr "စီမံကိန်းအလိုက် သယ်ယူကုန်ကျစရိတ် (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "မီတာ ပြန်လည်တိုက်ဆိုင်ခြင်း (CARD)"
+msgstr "မီတာ ပြန်လည်တိုက်ဆိုင်ခြင်း (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်မှု (CARD)"
+msgstr "စက်ပစ္စည်းသယ်ယူပို့ဆောင်မှု (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

@@ -30,7 +30,7 @@ const pending = computed(
     portal.value?.requests.filter((r) => !['Approved', 'Rejected'].includes(r.review_status)) ??
     [],
 )
-// Supervisors and managers review and approve in CARD Desk (CARD Mobile screens come later).
+// Supervisors and managers review and approve in CARD Desk (Card Mobile screens come later).
 const reviewer = computed(() => ctx.value?.roles.some((r) => r !== 'Card Operator') ?? false)
 </script>
 

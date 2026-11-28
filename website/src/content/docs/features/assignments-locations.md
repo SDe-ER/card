@@ -8,7 +8,7 @@ sidebar:
 ## Overview
 
 A **Card Equipment Assignment** records that a machine is on a project for a period. Assignments are the backbone of
-CARD's location logic: they decide which project a monthly card belongs to, which card days are valid, which cost
+Card's location logic: they decide which project a monthly card belongs to, which card days are valid, which cost
 center a posting line takes, and where the machine is shown to be today.
 
 Assignments are normally written by a submitted [Equipment Transport](/card/features/transport/): moving a machine to
@@ -156,7 +156,7 @@ where each machine was as date segments:
 | Overlapping projects | Ticked when two projects were in force on the same day (one segment each) |
 | Source type / Source document | The transport that opened the assignment, else the assignment; the transport for a workshop, storage or supplier place; empty for the initial place |
 
-The report uses the same rules as the rest of CARD (including the move-day rule recorded on each transport). A move to
+The report uses the same rules as the rest of Card (including the move-day rule recorded on each transport). A move to
 a workshop, storage or supplier on day T shows the project on T and the new place from T+1. A unit counts a
 component's history only on the days that component is in the unit. Each day is decided from the full history, so the
 rows never depend on the range asked for.

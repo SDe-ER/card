@@ -129,7 +129,7 @@ class TestAssetMapping(IntegrationTestCase):
 		_c, rows, *_ = self._review()
 		by_asset = {r["asset"]: r for r in rows if r["asset"]}
 		self.assertEqual(by_asset[linked_asset]["review"], "Linked")
-		self.assertTrue(by_asset[free_asset]["review"].startswith("Not in CARD"))
+		self.assertTrue(by_asset[free_asset]["review"].startswith("Not in Card"))
 		self.assertTrue(by_asset[free_asset]["suggested_type"])
 		self.assertIn(owned_without_asset.name, {r["equipment"] for r in rows if not r["asset"]})
 		self.assertEqual((frappe.db.count("Asset"), frappe.db.count("Card Equipment")), counts)

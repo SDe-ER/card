@@ -1,6 +1,6 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""Serve CARD Mobile's service worker at /cdms/sw.js so its scope is /cdms/ and no wider.
+"""Serve Card Mobile's service worker at /cdms/sw.js so its scope is /cdms/ and no wider.
 
 A service worker controls only the paths under its own URL. Frappe HR registers
 /assets/hrms/frontend/sw.js, whose scope is /assets/hrms/frontend/, so it never controls /hrms;

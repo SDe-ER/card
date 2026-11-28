@@ -1,5 +1,5 @@
 app_name = "card"
-app_title = "CARD"
+app_title = "Card"
 app_publisher = "SDCE"
 app_description = "Monthly equipment operation cards (standalone CARD app)"
 app_email = "info@sdce.sa"
@@ -49,6 +49,8 @@ doctype_js = {
 	"Card Monthly Card": "public/js/cancel_reason.js",
 	"Equipment Transport": "public/js/cancel_reason.js",
 	"Project Diesel Fill": "public/js/cancel_reason.js",
+	# FR-194 / FR-195: Desk buttons to link a customer Sales Invoice to its monthly cards and to remove the link
+	"Sales Invoice": "public/js/customer_invoice_link.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -514,20 +516,20 @@ add_to_apps_screen = [
 	{
 		"name": "card",
 		"logo": "/assets/card/images/card-logo.svg",
-		"title": "CARD",
+		"title": "Card",
 		"route": "/app/card",
 		"has_permission": "card.mobile.has_desk_app_permission",
 	},
 	{
 		"name": "card",
 		"logo": "/assets/card/frontend/icons/icon-192.png",
-		"title": "CARD Mobile",
+		"title": "Card Mobile",
 		"route": "/cdms",
 		"has_permission": "card.mobile.has_app_permission",
 	},
 ]
 
-# CARD Mobile (frontend/, built into card/public/frontend and card/www/cdms.html), as Frappe HR's
+# Card Mobile (frontend/, built into card/public/frontend and card/www/cdms.html), as Frappe HR's
 # /hrms. The service worker is served at /cdms/sw.js so that it controls /cdms (card/pwa.py).
 website_route_rules = [
 	{"from_route": "/cdms/sw.js", "to_route": "cdms-sw"},

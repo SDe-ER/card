@@ -34,7 +34,7 @@ billed to its customer per m³ (FR-166), on a day that is not in the future. A d
 the assignments like a day with hours. The loads reach the monthly card through the generation only.
 
 A load field that a save does not send is kept (``keep_unsent_loads``): a client that does not know the two
-fields (CARD Mobile) sends rows without them, and Frappe would store 0. An unsent field is ``None`` on the row
+fields (Card Mobile) sends rows without them, and Frappe would store 0. An unsent field is ``None`` on the row
 when ``validate`` runs (``frappe.model.document.Document.init_valid_columns`` sets every column that is not in the
 data to ``None``; the numeric cast to 0 runs after ``validate``), a sent 0 is 0. An unsent field of a stored row
 (matched by its row name inside this log) takes the stored value; on a new log that amends another one (the
@@ -529,7 +529,7 @@ def deny_cross_company_settings_share(doc, method=None):
 
 	if doc.get("everyone") or not doc.user:
 		frappe.throw(
-			_("A CARD record of type {0} cannot be shared with everyone.").format(_(doc.share_doctype)),
+			_("A Card record of type {0} cannot be shared with everyone.").format(_(doc.share_doctype)),
 			frappe.PermissionError,
 		)
 	companies = _restricted(doc.user, DOCTYPE)
@@ -539,7 +539,7 @@ def deny_cross_company_settings_share(doc, method=None):
 	if company and company not in companies:
 		frappe.throw(
 			_(
-				"This CARD record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
+				"This Card record of type {0} belongs to company {1} and cannot be shared with a user outside that company."
 			).format(_(doc.share_doctype), company),
 			frappe.PermissionError,
 		)

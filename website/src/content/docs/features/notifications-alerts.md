@@ -1,13 +1,13 @@
 ---
 title: Notifications & Alerts
-description: The notifications CARD sends, the warnings it shows on forms, the audit trail of overrides and the alerts that are still planned.
+description: The notifications Card sends, the warnings it shows on forms, the audit trail of overrides and the alerts that are still planned.
 sidebar:
   order: 19
 ---
 
 ## Overview
 
-CARD informs users in three ways: **notifications** in the ERPNext notification bell (Notification Log), **warnings**
+Card informs users in three ways: **notifications** in the ERPNext notification bell (Notification Log), **warnings**
 shown on a form when it is saved, and **comments** on a document's timeline for actions that must stay reviewable.
 Notifications are off by default and switched on in Card Settings; warnings are advisory and never block a save,
 unless a company rule is set to refuse.
@@ -31,21 +31,21 @@ unless a company rule is set to refuse.
 ### Notifications
 
 Both notifications are set on the **Notifications** tab of [Card Settings](/card/getting-started/configuration/)
-and are **off by default**. When a flag is off, CARD sends nothing.
+and are **off by default**. When a flag is off, Card sends nothing.
 
 | Setting | When | Who receives it | Content |
 |---|---|---|---|
 | **Notify on card submit** | A monthly card is submitted | The user who created the card | *Monthly operation card submitted: \<card\>* — card and equipment |
-| **Notify on period lock override** | A user with the period lock override role creates, changes, submits, cancels or deletes a card, diesel fill or transport dated on or before the period lock date | Every user with the System Manager role | *CARD period lock override* — user, action, document, document date and lock date |
+| **Notify on period lock override** | A user with the period lock override role creates, changes, submits, cancels or deletes a card, diesel fill or transport dated on or before the period lock date | Every user with the System Manager role | *Card period lock override* — user, action, document, document date and lock date |
 
-Administrator and Guest never receive CARD notifications. A failure to create one notification is logged and never
+Administrator and Guest never receive Card notifications. A failure to create one notification is logged and never
 stops the action.
 
 ### Period lock override trail
 
 Independently of the notification setting, every period lock override is:
 
-- written to the server log of CARD, with the user, action, document, document date and lock date;
+- written to the server log of Card, with the user, action, document, document date and lock date;
 - added as a timeline comment on the document (*Period lock overridden by \<user\> on \<date\>: \<action\> with lock
   date \<date\>*), when the document already exists.
 
@@ -88,7 +88,7 @@ billed.
 
 ### Scheduled jobs
 
-CARD registers one daily job: the equipment location sync. It does nothing unless **Daily equipment location sync**
+Card registers one daily job: the equipment location sync. It does nothing unless **Daily equipment location sync**
 is switched on in Card Settings.
 
 ### Planned alerts
@@ -96,7 +96,7 @@ is switched on in Card Settings.
 :::caution[Planned, not available yet]
 - Daily alerts for draft monthly cards and for missing cards.
 - Maintenance warnings by operating hours (service intervals per equipment type).
-- Notifications in CARD Mobile.
+- Notifications in Card Mobile.
 :::
 
 The deprecated setting **Notify on accounting posting** is hidden and has no effect.

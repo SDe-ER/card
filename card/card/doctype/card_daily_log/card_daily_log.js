@@ -13,7 +13,7 @@ const VERIFIED = "Verified by supervisor";
 frappe.ui.form.on("Card Daily Log", {
 	validate(frm) {
 		// FR-188: an emptied load field is null here, and the server keeps the stored loads of a field that
-		// was not sent (CARD Mobile does not send them). The form always sends both fields, so emptying one
+		// was not sent (Card Mobile does not send them). The form always sends both fields, so emptying one
 		// clears it.
 		for (const row of frm.doc.rows || []) {
 			for (const fieldname of ["day_loads", "night_loads"]) {

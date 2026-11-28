@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "បរិមាណផ្ទុក (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "បោះពុម្ពនៅ"
 
 msgid "CARD operations dashboard"
-msgstr "ផ្ទាំងប្រតិបត្តិការ CARD"
+msgstr "ផ្ទាំងប្រតិបត្តិការ Card"
 
 msgid "Financial performance — last month"
 msgstr "ដំណើរការហិរញ្ញវត្ថុ — ខែមុន"
 
 msgid "Needs review (CARD)"
-msgstr "ត្រូវពិនិត្យ (CARD)"
+msgstr "ត្រូវពិនិត្យ (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "កាតប្រចាំខែចុងក្រោយ (CARD)"
+msgstr "កាតប្រចាំខែចុងក្រោយ (Card)"
 
 msgid "CARD customers"
-msgstr "អតិថិជន CARD"
+msgstr "អតិថិជន Card"
 
 msgid "CARD suppliers"
-msgstr "អ្នកផ្គត់ផ្គង់ CARD"
+msgstr "អ្នកផ្គត់ផ្គង់ Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "ប្រេងម៉ាស៊ូត និងប្រតិបត្តិការ (CARD)"
+msgstr "ប្រេងម៉ាស៊ូត និងប្រតិបត្តិការ (Card)"
 
 msgid "New monthly card"
 msgstr "កាតប្រចាំខែថ្មី"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "ការដឹកជញ្ជូនឧបករណ៍ថ្មី"
 
 msgid "Customer statement (CARD)"
-msgstr "សេចក្តីថ្លែងការណ៍អតិថិជន (CARD)"
+msgstr "សេចក្តីថ្លែងការណ៍អតិថិជន (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "កាតប្រចាំខែ (CARD)"
+msgstr "កាតប្រចាំខែ (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "ឧបករណ៍ (CARD)"
+msgstr "ឧបករណ៍ (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "ការចាត់តាំង (CARD)"
+msgstr "ការចាត់តាំង (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "អតិថិជនឧបករណ៍ (CARD)"
+msgstr "អតិថិជនឧបករណ៍ (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "ការដឹកជញ្ជូនឧបករណ៍ (CARD)"
+msgstr "ការដឹកជញ្ជូនឧបករណ៍ (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "តម្លៃប្រតិបត្តិការសម្រាប់អតិថិជន - ខែមុន"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "ម៉ោងប្រតិបត្តិការគ្មានអត្រា (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "សង្ខេបអតិថិជន (CARD)"
+msgstr "សង្ខេបអតិថិជន (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "សេចក្តីថ្លែងការណ៍អ្នកផ្គត់ផ្គង់ (CARD)"
+msgstr "សេចក្តីថ្លែងការណ៍អ្នកផ្គត់ផ្គង់ (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "សង្ខេបអ្នកផ្គត់ផ្គង់ (CARD)"
+msgstr "សង្ខេបអ្នកផ្គត់ផ្គង់ (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "សេចក្តីថ្លែងការណ៍អ្នកផ្គត់ផ្គង់ A4 (CARD)"
+msgstr "សេចក្តីថ្លែងការណ៍អ្នកផ្គត់ផ្គង់ A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "ការប្រើប្រាស់ប្រេងម៉ាស៊ូត (CARD)"
+msgstr "ការប្រើប្រាស់ប្រេងម៉ាស៊ូត (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "ថ្លៃប្រតិបត្តិការតាមគម្រោង (CARD)"
+msgstr "ថ្លៃប្រតិបត្តិការតាមគម្រោង (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "ថ្លៃដឹកជញ្ជូនតាមគម្រោង (CARD)"
+msgstr "ថ្លៃដឹកជញ្ជូនតាមគម្រោង (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "ការផ្គូផ្គងម៉ែត្រ (CARD)"
+msgstr "ការផ្គូផ្គងម៉ែត្រ (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "ការដឹកជញ្ជូនឧបករណ៍ (CARD)"
+msgstr "ការដឹកជញ្ជូនឧបករណ៍ (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

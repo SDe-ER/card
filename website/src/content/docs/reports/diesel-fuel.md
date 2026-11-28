@@ -7,7 +7,7 @@ sidebar:
 
 ## Overview
 
-CARD records diesel as **Project Diesel Fill** sessions: a direct fill to one machine, or a fill of a project tank
+Card records diesel as **Project Diesel Fill** sessions: a direct fill to one machine, or a fill of a project tank
 shared by the machines working on the project. The diesel reports turn those sessions into litres and cost per
 machine, compare them with what the machine should have used, and check them against the suppliers' own invoices.
 They are display-only: they never post to the ledger and never change a card's net amount.
@@ -71,7 +71,7 @@ Allocation is always made for a whole calendar month. The date filters only choo
 
 ## Diesel Invoice Reconciliation
 
-**Purpose.** Compares CARD diesel sessions with the suppliers' own **Purchase Invoices** entered in the Desk. The litres,
+**Purpose.** Compares Card diesel sessions with the suppliers' own **Purchase Invoices** entered in the Desk. The litres,
 the delivery charge and the fuel kind are read from the invoice line text (item name and description); the VAT basis
 of each invoice is derived from its own figures. A difference is a point to review, never a confirmed over-billing,
 missing invoice or missing payment. Nothing is created, changed or linked.

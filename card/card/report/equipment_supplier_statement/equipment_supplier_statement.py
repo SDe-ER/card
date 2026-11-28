@@ -729,8 +729,8 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 
 	items = [
 		("previous_due", _("Balance carried from before the period"), previous_due, "Grey"),
-		("period_vat", _("VAT on CARD purchase invoices"), period["vat"], "Blue"),
-		("period_other", _("Other supplier credits (outside CARD)"), period["other"], "Orange"),
+		("period_vat", _("VAT on Card purchase invoices"), period["vat"], "Blue"),
+		("period_other", _("Other supplier credits (outside Card)"), period["other"], "Orange"),
 		("period_paid", _("Payments in the period (submitted entries only)"), period["paid"], "Orange"),
 		("current_due", _("Current due to the supplier"), current_due, "Red" if current_due > 0 else "Green"),
 	]
@@ -753,7 +753,7 @@ def range_balance(summary, grand, show_ledger, company, supplier, start, end, fi
 		items.append(
 			(
 				"unallocated_vat",
-				_("VAT of CARD invoice lines without the equipment or project (not added)"),
+				_("VAT of Card invoice lines without the equipment or project (not added)"),
 				ledger["unallocated_vat"],
 				"Grey",
 			)

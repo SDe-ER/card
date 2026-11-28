@@ -7,7 +7,7 @@ sidebar:
 
 ## Overview
 
-CARD never writes ledger entries itself: it builds standard ERPNext invoices from monthly cards, diesel fills and
+Card never writes ledger entries itself: it builds standard ERPNext invoices from monthly cards, diesel fills and
 transports, and records which document recognised which source in a **GL Posting Log**. The accounting control reports
 check that chain from the accountant's side: what is earned and spent per machine, which approved work is not invoiced
 yet, which expenses miss their machine tag, and whether the links between sources and postings still agree.
@@ -16,10 +16,10 @@ yet, which expenses miss their machine tag, and whether the links between source
 
 | Concept | Meaning |
 |---|---|
-| GL Posting Log | CARD's record of a posting: company, party, month, status (Draft, Submitted…), the invoice or journal entry, and its **sources** (the cards, fills and transports it covers). |
-| Recognised card | A card held by an active posting log of its side (a CARD invoice, a linked hand-booked invoice or a linked accrual journal entry), or by the side's own invoice link. |
-| Partial margin | Revenue minus the costs CARD can attribute; it excludes depreciation, labour, insurance and overhead. |
-| CARD expense accounts | The equipment rental, diesel and transport expense accounts set per company in Card Company Settings. |
+| GL Posting Log | Card's record of a posting: company, party, month, status (Draft, Submitted…), the invoice or journal entry, and its **sources** (the cards, fills and transports it covers). |
+| Recognised card | A card held by an active posting log of its side (a Card invoice, a linked hand-booked invoice or a linked accrual journal entry), or by the side's own invoice link. |
+| Partial margin | Revenue minus the costs Card can attribute; it excludes depreciation, labour, insurance and overhead. |
+| Card expense accounts | The equipment rental, diesel and transport expense accounts set per company in Card Company Settings. |
 
 ## Equipment Partial Margin
 
@@ -132,7 +132,7 @@ Card.
 
 ## Equipment Expenses Without Equipment
 
-**Purpose.** Ledger expense lines booked on the CARD expense accounts (equipment rental, diesel, transport) **without**
+**Purpose.** Ledger expense lines booked on the Card expense accounts (equipment rental, diesel, transport) **without**
 the Card Equipment dimension — costs the per-equipment profit and loss cannot see yet. Fix them at the source
 document.
 

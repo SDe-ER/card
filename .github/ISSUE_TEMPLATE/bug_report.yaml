@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a problem in the CARD app
+description: Report a problem in the Card app
 labels: ["bug"]
 body:
   - type: markdown

@@ -775,6 +775,15 @@ CASES = {
 		own=lambda c: {"company": c.A},
 		denied=((), ("Card Manager",), ("Accounts User",)),
 	),
+	"card.gl.integrity.customer_invoice_link_info": Case(
+		method=GET,
+		roles=("Accounts Manager",),
+		gate="Accounts Manager or System Manager; read on the Sales Invoice and on Card Monthly Card",
+		isolation="permitted_companies(sources, Sales Invoice, GL Posting Log) on the invoice's company; cards through get_list",
+		cross=lambda c: {"invoice": c.si_b},
+		own=lambda c: {"invoice": c.si_a},
+		denied=((), ("Card Manager",), ("Accounts User",)),
+	),
 	"card.gl.journal_link.link_accrual_journal": Case(
 		method=POST,
 		roles=("Accounts Manager",),

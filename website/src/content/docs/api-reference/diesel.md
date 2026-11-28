@@ -167,7 +167,7 @@ Options for the supplier filter of the [Diesel Invoice Reconciliation](/card/rep
 report: suppliers of the diesel sessions the user may read, in the companies the user may see for both Project Diesel
 Fill and Purchase Invoice.
 
-**Permission:** a CARD report role, the report's own roles, and role read on Project Diesel Fill and Purchase Invoice.
+**Permission:** a Card report role, the report's own roles, and role read on Project Diesel Fill and Purchase Invoice.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

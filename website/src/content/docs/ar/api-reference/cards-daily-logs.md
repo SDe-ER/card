@@ -18,7 +18,7 @@ sidebar:
 |---|---|---|
 | GET | `card.card.doctype.card_monthly_card.card_monthly_card.get_card_context` | مشاريع المعدة وأيامها في شهر. |
 | POST | `card.daily_log_generation.generate_monthly_cards` | إنشاء الكروت المسودة أو تحديثها من اليوميات المعتمدة. |
-| POST | `card.cancel_reason.cancel_with_reason` | إلغاء معاملة CARD وتخزين السبب. |
+| POST | `card.cancel_reason.cancel_with_reason` | إلغاء معاملة Card وتخزين السبب. |
 | POST | `card.card_value.supplier_cost_last_month` | بطاقة رقم: تكلفة إيجار الموردين للشهر الماضي. |
 | POST | `card.card_value.customer_value_last_month` | بطاقة رقم: قيمة التشغيل للعملاء للشهر الماضي. |
 | POST | `card.card_value.internal_value_last_month` | بطاقة رقم: قيمة التشغيل الداخلية للشهر الماضي. |

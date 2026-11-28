@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "Rakomány térfogata (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Nyomtatás ideje"
 
 msgid "CARD operations dashboard"
-msgstr "CARD üzemeltetési irányítópult"
+msgstr "Card üzemeltetési irányítópult"
 
 msgid "Financial performance — last month"
 msgstr "Pénzügyi teljesítmény — múlt hónap"
 
 msgid "Needs review (CARD)"
-msgstr "Felülvizsgálatot igényel (CARD)"
+msgstr "Felülvizsgálatot igényel (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Legutóbbi havi kártyák (CARD)"
+msgstr "Legutóbbi havi kártyák (Card)"
 
 msgid "CARD customers"
-msgstr "CARD ügyfelek"
+msgstr "Card ügyfelek"
 
 msgid "CARD suppliers"
-msgstr "CARD beszállítók"
+msgstr "Card beszállítók"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Dízel és üzemeltetés (CARD)"
+msgstr "Dízel és üzemeltetés (Card)"
 
 msgid "New monthly card"
 msgstr "Új havi kártya"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Új eszközszállítás"
 
 msgid "Customer statement (CARD)"
-msgstr "Ügyfél-kivonat (CARD)"
+msgstr "Ügyfél-kivonat (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Havi kártyák (CARD)"
+msgstr "Havi kártyák (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Eszközök (CARD)"
+msgstr "Eszközök (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Hozzárendelések (CARD)"
+msgstr "Hozzárendelések (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Eszközös ügyfelek (CARD)"
+msgstr "Eszközös ügyfelek (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Eszközszállítások (CARD)"
+msgstr "Eszközszállítások (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Ügyfelek üzemi értéke - múlt hónap"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Díj nélküli üzemóraszám (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Ügyféláttekintés (CARD)"
+msgstr "Ügyféláttekintés (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Beszállítói kivonat (CARD)"
+msgstr "Beszállítói kivonat (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Beszállítói összesítő (CARD)"
+msgstr "Beszállítói összesítő (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Beszállítói kivonat A4 (CARD)"
+msgstr "Beszállítói kivonat A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Dízelfogyasztás (CARD)"
+msgstr "Dízelfogyasztás (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Projektenkénti üzemi költség (CARD)"
+msgstr "Projektenkénti üzemi költség (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Projektenkénti szállítási költség (CARD)"
+msgstr "Projektenkénti szállítási költség (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Órajel-egyeztetés (CARD)"
+msgstr "Órajel-egyeztetés (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Eszközszállítás (CARD)"
+msgstr "Eszközszállítás (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

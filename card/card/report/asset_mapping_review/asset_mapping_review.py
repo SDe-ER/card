@@ -113,11 +113,11 @@ def _asset_row(asset, eq, types):
 		else:
 			review, attention = _("Linked"), bool(conflicts)
 	elif asset.status in INACTIVE:
-		review, attention = _("Sold or scrapped: no CARD equipment needed"), False
+		review, attention = _("Sold or scrapped: no Card equipment needed"), False
 	elif suggested:
-		review, attention = _("Not in CARD: decide whether it is operated equipment (type available)"), True
+		review, attention = _("Not in Card: decide whether it is operated equipment (type available)"), True
 	else:
-		review, attention = _("Not in CARD: no equipment type for this Asset category yet"), True
+		review, attention = _("Not in Card: no equipment type for this Asset category yet"), True
 	return {
 		"attention": int(attention),
 		"review": review,

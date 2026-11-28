@@ -72,7 +72,7 @@ def _log_override(doc, action, lock, override_role, doc_date):
 	notify(
 		"notify_on_period_lock_override",
 		recipients,
-		_("CARD period lock override"),
+		_("Card period lock override"),
 		json.dumps(payload, ensure_ascii=False),
 		doc if doc.get("name") else None,
 	)

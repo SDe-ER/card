@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "Volume muatan (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Dicetak pada"
 
 msgid "CARD operations dashboard"
-msgstr "Dasbor operasional CARD"
+msgstr "Dasbor operasional Card"
 
 msgid "Financial performance — last month"
 msgstr "Kinerja keuangan — bulan lalu"
 
 msgid "Needs review (CARD)"
-msgstr "Perlu ditinjau (CARD)"
+msgstr "Perlu ditinjau (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Kartu bulanan terbaru (CARD)"
+msgstr "Kartu bulanan terbaru (Card)"
 
 msgid "CARD customers"
-msgstr "Pelanggan CARD"
+msgstr "Pelanggan Card"
 
 msgid "CARD suppliers"
-msgstr "Pemasok CARD"
+msgstr "Pemasok Card"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Solar dan operasional (CARD)"
+msgstr "Solar dan operasional (Card)"
 
 msgid "New monthly card"
 msgstr "Kartu bulanan baru"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Transportasi peralatan baru"
 
 msgid "Customer statement (CARD)"
-msgstr "Laporan pelanggan (CARD)"
+msgstr "Laporan pelanggan (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Kartu bulanan (CARD)"
+msgstr "Kartu bulanan (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Peralatan (CARD)"
+msgstr "Peralatan (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Penugasan (CARD)"
+msgstr "Penugasan (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Pelanggan peralatan (CARD)"
+msgstr "Pelanggan peralatan (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Transportasi peralatan (CARD)"
+msgstr "Transportasi peralatan (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Nilai operasional pelanggan - bulan lalu"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Jam operasional tanpa tarif (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Ringkasan pelanggan (CARD)"
+msgstr "Ringkasan pelanggan (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Laporan pemasok (CARD)"
+msgstr "Laporan pemasok (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Ringkasan pemasok (CARD)"
+msgstr "Ringkasan pemasok (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Laporan pemasok A4 (CARD)"
+msgstr "Laporan pemasok A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Konsumsi solar (CARD)"
+msgstr "Konsumsi solar (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Biaya operasional per proyek (CARD)"
+msgstr "Biaya operasional per proyek (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Biaya transportasi per proyek (CARD)"
+msgstr "Biaya transportasi per proyek (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Rekonsiliasi meter (CARD)"
+msgstr "Rekonsiliasi meter (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Transportasi peralatan (CARD)"
+msgstr "Transportasi peralatan (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."
