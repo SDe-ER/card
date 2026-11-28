@@ -66,7 +66,7 @@ evidence, not a claim that current production or newer repository revisions matc
 Regular and overtime hours are mutually exclusive on paper. Office entry combines them once
 in `working_hours` (8 + 2 = 10). No overtime field or premium rate is implied. Daily
 signatures, maintenance parts and detailed project-transfer evidence are paper data, not
-newly created CARD fields. No transaction, settings or schema changes occur.
+newly created Card fields. No transaction, settings or schema changes occur.
 
 ## Scope
 

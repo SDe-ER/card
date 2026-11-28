@@ -31,8 +31,8 @@ class TestCardNameNotTranslated(IntegrationTestCase):
 		for po in po_files:
 			self.assertEqual(
 				self._app_name_msgstr(os.path.join(self._locale_dir("card"), po)),
-				["CARD"],
-				f"{po}: msgid 'Card' must map to 'CARD' exactly once",
+				["Card"],
+				f"{po}: msgid 'Card' must map to 'Card' exactly once",
 			)
 
 	def test_every_installed_language_has_a_card_locale(self):
@@ -43,13 +43,33 @@ class TestCardNameNotTranslated(IntegrationTestCase):
 				missing.update(f for f in os.listdir(self._locale_dir(app)) if f.endswith(".po"))
 		self.assertFalse(
 			sorted(missing - card_po),
-			'add card/locale/<lang>.po with msgid "Card" -> msgstr "CARD" for these languages '
+			'add card/locale/<lang>.po with msgid "Card" -> msgstr "Card" for these languages '
 			"(an installed app ships them, so they would show its own word for Card)",
 		)
 
+	def test_no_msgstr_writes_the_app_name_as_card_capitals(self):
+		"""The app name is never "CARD" in a translation. "CARD VAT" is the literal record name of a tax
+		template the code creates, so it is the one allowed use of the capitals."""
+		pattern = re.compile(r"\bCARD\b(?! VAT)")
+		offenders = []
+		for po in sorted(os.listdir(self._locale_dir("card"))):
+			if not po.endswith(".po"):
+				continue
+			state = None
+			with open(os.path.join(self._locale_dir("card"), po), encoding="utf-8") as handle:
+				lines = handle.read().splitlines()
+			for number, line in enumerate(lines, 1):
+				if line.startswith("msgstr "):
+					state = "str"
+				elif line.startswith(("msgid ", "msgctxt ", "#")):
+					state = None
+				if state == "str" and pattern.search(line):
+					offenders.append(f"{po}:{number}")
+		self.assertEqual(offenders, [])
+
 	def test_apps_screen_titles(self):
 		entries = frappe.get_hooks("add_to_apps_screen", app_name="card")
-		self.assertEqual([e["title"] for e in entries], ["CARD", "CARD Mobile"])
+		self.assertEqual([e["title"] for e in entries], ["Card", "Card Mobile"])
 
 
 def other_apps_with_locale(installed_apps, app_path):

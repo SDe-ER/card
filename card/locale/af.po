@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -9,7 +9,7 @@ msgstr ""
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "Laaivolume (m³)"
@@ -76,25 +76,25 @@ msgid "Printed at"
 msgstr "Gedruk op"
 
 msgid "CARD operations dashboard"
-msgstr "CARD-bedryfspaneel"
+msgstr "Card-bedryfspaneel"
 
 msgid "Financial performance — last month"
 msgstr "Finansiële prestasie — laaste maand"
 
 msgid "Needs review (CARD)"
-msgstr "Benodig hersiening (CARD)"
+msgstr "Benodig hersiening (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "Jongste maandelikse kaarte (CARD)"
+msgstr "Jongste maandelikse kaarte (Card)"
 
 msgid "CARD customers"
-msgstr "CARD-kliënte"
+msgstr "Card-kliënte"
 
 msgid "CARD suppliers"
-msgstr "CARD-verskaffers"
+msgstr "Card-verskaffers"
 
 msgid "Diesel and operations (CARD)"
-msgstr "Diesel en bedrywe (CARD)"
+msgstr "Diesel en bedrywe (Card)"
 
 msgid "New monthly card"
 msgstr "Nuwe maandelikse kaart"
@@ -103,22 +103,22 @@ msgid "New equipment transport"
 msgstr "Nuwe toerusting-vervoer"
 
 msgid "Customer statement (CARD)"
-msgstr "Kliëntestaat (CARD)"
+msgstr "Kliëntestaat (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "Maandelikse kaarte (CARD)"
+msgstr "Maandelikse kaarte (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "Toerusting (CARD)"
+msgstr "Toerusting (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "Opdragte (CARD)"
+msgstr "Opdragte (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "Toerusting-kliënte (CARD)"
+msgstr "Toerusting-kliënte (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "Toerusting-vervoere (CARD)"
+msgstr "Toerusting-vervoere (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "Bedryfswaarde vir kliënte - laaste maand"
@@ -172,31 +172,31 @@ msgid "ساعات تشغيل بدون سعر داخلي - الشهر الماض�
 msgstr "Bedryfsure sonder tarief (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "Kliënteopsomming (CARD)"
+msgstr "Kliënteopsomming (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "Verskafferstaat (CARD)"
+msgstr "Verskafferstaat (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "Verskaffers-opsomming (CARD)"
+msgstr "Verskaffers-opsomming (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "Verskafferstaat A4 (CARD)"
+msgstr "Verskafferstaat A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "Diesel-verbruik (CARD)"
+msgstr "Diesel-verbruik (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "Bedryfskoste per projek (CARD)"
+msgstr "Bedryfskoste per projek (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "Vervoerkoste per projek (CARD)"
+msgstr "Vervoerkoste per projek (Card)"
 
 msgid "Meter reconciliation (CARD)"
-msgstr "Meterversoening (CARD)"
+msgstr "Meterversoening (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "Toerusting-vervoer (CARD)"
+msgstr "Toerusting-vervoer (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

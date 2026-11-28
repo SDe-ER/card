@@ -7,13 +7,13 @@ sidebar:
 
 ## Overview
 
-An hour meter tells how long a machine really ran. CARD keeps engine-hour readings in their own document,
+An hour meter tells how long a machine really ran. Card keeps engine-hour readings in their own document,
 **Equipment Meter Reading** (قراءة عداد المعدة), entered by the site supervisor, typically once a week, at a handover or
 at a service visit. The server keeps each machine's readings in a rising sequence, so a mistyped or out-of-order
 reading is refused instead of corrupting the history.
 
 A second tool, the read-only **Equipment Meter Reconciliation** report, compares hour-meter readings recorded elsewhere
-on the site with the hours of CARD's submitted monthly cards, to show where the two disagree.
+on the site with the hours of Card's submitted monthly cards, to show where the two disagree.
 
 :::note
 Meter readings do not feed anything yet: monthly cards, billable hours, diesel figures and postings are unchanged by
@@ -81,7 +81,7 @@ code. Hours on cards are entered as working hours per day. Restoring them is an 
 The **Meter and maintenance** tab of a Card Equipment stores **Meter type** («ساعات» hours, «كيلومترات» kilometres or «بدون
 عداد» no meter), **Meter reading at receipt**, **Last reading**, **Tank capacity (liter)**, **Expected consumption
 (liter/hour)**, **Maintenance every (hour)**, **Maintenance every (liter of diesel)**, **Last maintenance date** and
-**Meter reading at last maintenance**. These values are stored for reference; no CARD logic reads them yet.
+**Meter reading at last maintenance**. These values are stored for reference; no Card logic reads them yet.
 
 ### Equipment Meter Reconciliation
 
@@ -95,7 +95,7 @@ Per machine it compares:
 
 - hour-meter readings from another app's fuelling log, when that DocType exists on the site and the user may read it;
 - hour-meter fields that an Asset may carry;
-- with the operating hours of CARD's **submitted** monthly cards for the same period.
+- with the operating hours of Card's **submitted** monthly cards for the same period.
 
 Each reading is classified:
 
@@ -110,7 +110,7 @@ Each reading is classified:
 | Cumulative | Recorded hours equal the whole meter; ignored |
 
 The summary also shows identity conflicts between an Asset's ID and its name or item, Asset meter fields that differ
-from the last plausible reading, and differences between meter hours and CARD hours above the allowed percentage.
+from the last plausible reading, and differences between meter hours and Card hours above the allowed percentage.
 Cumulative readings are never added up as hours. The report writes nothing and sets no maintenance baseline: a
 baseline needs a verified meter reading and a verified maintenance event.
 

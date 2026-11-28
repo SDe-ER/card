@@ -11,7 +11,7 @@ Workers on site hold returnable tools — grinders, jacks, measuring tools — t
 **Employee Tool Custody** records every movement of such a tool between the store and a worker, between two workers,
 and out of custody when it is lost or damaged.
 
-CARD uses a hybrid model: while a worker holds a tool it stays on the books in **one custody store** (an ERPNext
+Card uses a hybrid model: while a worker holds a tool it stays on the books in **one custody store** (an ERPNext
 Warehouse), so the stock value does not disappear; only a **loss** or **damage** is issued as a cost, to the project
 and the machine. Every movement that moves stock creates a standard ERPNext **Stock Entry**, and every change of
 holder needs a receipt signed by the people involved.
@@ -92,7 +92,7 @@ Confirming (submitting) a movement is the store side's job:
 
 ### Handovers from equipment needs
 
-When an equipment-needs review that includes tools is approved, CARD prepares a draft Handover for each tool line (see
+When an equipment-needs review that includes tools is approved, Card prepares a draft Handover for each tool line (see
 [Equipment Needs](/card/features/equipment-needs/)). On such a draft:
 
 - the employee, movement, tool, project and equipment decided by the approval cannot change; the store side may choose
@@ -147,8 +147,8 @@ filter:
 ### Mobile
 
 :::note[Planned]
-Tool custody on CARD Mobile ("My tools in custody" for operators, custody for supervisors) is planned and not
-available yet. Operators can already request tools from CARD Mobile through equipment needs.
+Tool custody on Card Mobile ("My tools in custody" for operators, custody for supervisors) is planned and not
+available yet. Operators can already request tools from Card Mobile through equipment needs.
 :::
 
 ## Workflow
@@ -180,5 +180,5 @@ Permissions work only with custody records of their companies' employees.
 - [Equipment Needs](/card/features/equipment-needs/)
 - [Roles & Permissions](/card/features/roles-permissions/)
 - [Print Formats](/card/features/print-formats/)
-- [CARD Mobile](/card/features/card-mobile/)
+- [Card Mobile](/card/features/card-mobile/)
 - [API: Materials & Needs](/card/api-reference/materials-needs/)

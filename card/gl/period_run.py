@@ -78,7 +78,7 @@ approval checks the company rule again (``effective_self_approval_rule``).
 
 Company isolation is the generic FR-131 scope (``card.company_scope``, registered for this DocType); the totals
 and row amounts sit at permlevel 1, read by the roles that read card amounts (O-20: never Card Operator or
-CARD Mobile)."""
+Card Mobile)."""
 
 import hashlib
 import json

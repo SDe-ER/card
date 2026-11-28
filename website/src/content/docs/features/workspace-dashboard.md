@@ -7,9 +7,9 @@ sidebar:
 
 ## Overview
 
-CARD Desk opens on the **Card** workspace: a dashboard with key figures of the last month, two monthly charts and
-shortcuts to the screens used every day. Around it, the CARD launcher (Dock) gives ten entries, each opening a
-sidebar with the DocTypes, pages and reports of one area. Users reach every CARD screen from these two places
+Card Desk opens on the **Card** workspace: a dashboard with key figures of the last month, two monthly charts and
+shortcuts to the screens used every day. Around it, the Card launcher (Dock) gives ten entries, each opening a
+sidebar with the DocTypes, pages and reports of one area. Users reach every Card screen from these two places
 without searching.
 
 All figures on the workspace are read with the user's own permissions: a user limited to some companies sees only
@@ -26,20 +26,20 @@ the figures of those companies, and amounts a user may not read are not shown.
 | **Workspace** | The **Card** Desk page at `/app/card`, shipped as a fixture. |
 | **Number card** | A tile with one figure (count or sum) on the workspace. |
 | **Dashboard chart** | A bar chart by month on the workspace. |
-| **Launcher (Dock)** | The CARD app rail with ten entries. Each entry opens a **sidebar**. |
+| **Launcher (Dock)** | The Card app rail with ten entries. Each entry opens a **sidebar**. |
 | **Sidebar** | The navigation list of one area (for example Movement & Transport). |
-| **Desk icon** | The **CARD** icon on the Desk and on the apps screen, with the CARD logo. |
+| **Desk icon** | The **Card** icon on the Desk and on the apps screen, with the Card logo. |
 
 ## Features
 
-### Opening CARD
+### Opening Card
 
-- **Desk icon** — the CARD icon on the Desk opens the Card workspace. On the apps screen (`/apps`) the entry
-  **CARD** opens the Desk and **CARD Mobile** opens the phone app at `/cdms`.
-- The **CARD** entry is shown to users who can read at least one CARD Desk document (Card Equipment, Card Monthly
+- **Desk icon** — the Card icon on the Desk opens the Card workspace. On the apps screen (`/apps`) the entry
+  **Card** opens the Desk and **Card Mobile** opens the phone app at `/cdms`.
+- The **Card** entry is shown to users who can read at least one Card Desk document (Card Equipment, Card Monthly
   Card, the supplier and customer registries, Equipment Transport, Project Diesel Fill, Equipment Needs Review or
   Employee Tool Custody). It is hidden from Website Users and from operators.
-- The **CARD Mobile** entry is shown to users who may open the phone app (see [CARD Mobile](/card/features/card-mobile/)).
+- The **Card Mobile** entry is shown to users who may open the phone app (see [Card Mobile](/card/features/card-mobile/)).
 
 ### Number cards
 
@@ -48,13 +48,13 @@ The first column is the name the Card workspace shows in English.
 
 | Number card | Arabic label | What it shows |
 |---|---|---|
-| Rented equipment (CARD) | المعدات المؤجرة | Count of Card Equipment with ownership «إيجار» (Rented) |
-| Draft cards (CARD) | كروت مسودة | Count of monthly cards still in draft |
+| Rented equipment (Card) | المعدات المؤجرة | Count of Card Equipment with ownership «إيجار» (Rented) |
+| Draft cards (Card) | كروت مسودة | Count of monthly cards still in draft |
 | Supplier operating value - last month | تكلفة إيجار من موردين - الشهر الماضي | Supplier net amount of last month's cards (rented-from-supplier and sub-rental) |
 | Operating value for customers - last month | قيمة تشغيل لعملاء - الشهر الماضي | Customer net amount of last month's cards (rented-to-customer and sub-rental) |
 | Internal operating value - last month | قيمة تشغيل داخلي - الشهر الماضي | Hours (or working days) × internal operating rate of owned and third-party equipment |
-| Cards without internal rate (CARD) | كروت بدون سعر داخلي | Last month's cards with no supplier or customer side and no internal rate |
-| Operating hours without rate (CARD) | ساعات تشغيل بدون سعر داخلي - الشهر الماضي | The operating hours of those cards |
+| Cards without internal rate (Card) | كروت بدون سعر داخلي | Last month's cards with no supplier or customer side and no internal rate |
+| Operating hours without rate (Card) | ساعات تشغيل بدون سعر داخلي - الشهر الماضي | The operating hours of those cards |
 | Cards last month | كروت الشهر الماضي | Count of submitted cards of last month |
 | Total Diesel Litres | إجمالي لترات الديزل | Sum of litres of submitted diesel fills |
 | Total Diesel Cost | إجمالي تكلفة الديزل | Sum of the amount of submitted diesel fills |
@@ -92,7 +92,7 @@ The workspace groups its shortcuts in four blocks:
 
 ### Dashboard layout (v4.10.0 — not released yet)
 
-The **CARD** workspace opens with the operations dashboard, top to bottom:
+The **Card** workspace opens with the operations dashboard, top to bottom:
 
 1. **Header:** the title and three shortcuts: a new monthly card, a new equipment transport and the customer statement.
 2. **Financial performance — last month:** customer operating value, supplier operating value (the supplier rental cost, the same figure as the monthly values chart) and internal operating value. Amounts are the full figures with thousands separators. A user without money read on monthly cards sees "N/A" in these cards and no amounts in the chart; no card is read for that user, and no error dialog is shown. The workspace is visible only to Card Manager, Card User and Accounts Manager, the roles that can read monthly cards. Card Operator and Card Supervisor cannot read monthly cards and do not see it.
@@ -102,11 +102,11 @@ The **CARD** workspace opens with the operations dashboard, top to bottom:
 6. **Links in three groups:** customers, suppliers, and diesel and operations.
 7. **Latest monthly cards:** a Quick List of the most recent cards.
 
-Every link on the dashboard is also in the **CARD** sidebar. The supplier statement A4 opens the supplier statement report, from which it can be printed in A4.
+Every link on the dashboard is also in the **Card** sidebar. The supplier statement A4 opens the supplier statement report, from which it can be printed in A4.
 
 ### Launcher (Dock)
 
-The CARD launcher has ten entries, in this order. Each opens a sidebar.
+The Card launcher has ten entries, in this order. Each opens a sidebar.
 
 | Entry | Arabic | Sidebar content |
 |---|---|---|
@@ -118,13 +118,13 @@ The CARD launcher has ten entries, in this order. Each opens a sidebar.
 | Expenses | المصروفات | Project Diesel Fill, Equipment Transport, Purchase Invoice, Asset Repair, diesel consumption and analysis reports, Equipment Expenses Without Equipment |
 | Materials | المواد والمشتريات | Equipment Needs Request and Review, the Tool Custody page, Employee Tool Custody, Material Request, Stock Entry, the catalog (Item), equipment makes and models, parts fitment, and the materials reports |
 | Suppliers & Customers | الموردون والعملاء | Card Equipment Supplier and Customer, supplier and customer statements and summaries |
-| Reports | التقارير | Every CARD report (statements, diesel, settlement, margin, unbilled work, integrity, maintenance, downtime, meters, asset mapping, transport, location history, operating cost) |
+| Reports | التقارير | Every Card report (statements, diesel, settlement, margin, unbilled work, integrity, maintenance, downtime, meters, asset mapping, transport, location history, operating cost) |
 | Settings | الإعدادات | Card Settings |
 
 Entries a user may not open are filtered out by Frappe when the launcher is built.
 
 :::tip[Launcher on upgraded sites]
-Frappe keeps a site's or a user's saved Dock layout as the whole rail. After every migrate CARD adds to such a
+Frappe keeps a site's or a user's saved Dock layout as the whole rail. After every migrate Card adds to such a
 layout any shipped entry it does not name yet, in the shipped order, without removing or reordering the user's own
 rows. A layout saved after the shipped one is left untouched.
 :::
@@ -133,15 +133,15 @@ rows. A layout saved after the shipped one is left untouched.
 
 | Page | Route | Roles | Purpose |
 |---|---|---|---|
-| CARD Monthly Posting | `/app/card-monthly-posting` | Card Manager, System Manager | Pick a company and a month and preview the monthly posting per party before building the draft invoices. See [Invoicing & posting](/card/features/invoicing-posting/) |
+| Card Monthly Posting | `/app/card-monthly-posting` | Card Manager, System Manager | Pick a company and a month and preview the monthly posting per party before building the draft invoices. See [Invoicing & posting](/card/features/invoicing-posting/) |
 | Tool Custody | `/app/tool-custody` | Card Supervisor, Card Manager, Stock Manager, System Manager | Hand over, return and track tools in employee custody. See [Tool custody](/card/features/tool-custody/) |
 
 ### Connections on ERPNext forms
 
-CARD adds a **Card** group to the Connections tab of four standard forms, without removing the connections of
+Card adds a **Card** group to the Connections tab of four standard forms, without removing the connections of
 ERPNext or other apps:
 
-| Form | CARD connections |
+| Form | Card connections |
 |---|---|
 | Supplier | Card Equipment, Card Monthly Card, Project Diesel Fill, Equipment Transport (as transporter) |
 | Customer | Card Equipment Customer, Card Monthly Card |
@@ -154,7 +154,7 @@ ERPNext or other apps:
 |---|---|
 | Workspace and shortcuts | Users with access to the Card module; each shortcut opens only if the user may read its target |
 | Number cards and charts | Computed with the user's DocType rights, Company User Permissions and field levels |
-| CARD Monthly Posting page | Card Manager, System Manager |
+| Card Monthly Posting page | Card Manager, System Manager |
 | Tool Custody page | Card Supervisor, Card Manager, Stock Manager, System Manager |
 
 ## Related

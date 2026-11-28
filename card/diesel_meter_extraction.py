@@ -142,7 +142,7 @@ def worker_url_refused(url):
 		logged = None
 	if not logged:
 		frappe.log_error(
-			title=_("CARD meter extraction: worker address refused"),
+			title=_("Card meter extraction: worker address refused"),
 			message=_(
 				"card_meter_worker_url is refused ({0}). Use an IP address, not a host name: http only to a loopback address (127.0.0.1 or [::1]), https only to a loopback or private address. Meter extraction stays off until it is corrected."
 			).format(reason),

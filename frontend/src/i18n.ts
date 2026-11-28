@@ -1,6 +1,6 @@
 // Frappe's own translations, sent in the page boot (card/www/cdms.py), with {0} placeholders.
 // As frappe's __(): a translation with context is keyed "text:context" and falls back to the
-// plain text. CARD Mobile gives generic words the context "Card Mobile", so its translations
+// plain text. Card Mobile gives generic words the context "Card Mobile", so its translations
 // never override Frappe's or ERPNext's anywhere else.
 export function translate(
   messages: Record<string, string> | undefined,

@@ -343,7 +343,7 @@ def check_template_mapping(row, provisioned=True):
 	if tainted:
 		frappe.throw(
 			_(
-				"Item {0} carries item-level tax templates; CARD items must have none (the line template must win)."
+				"Item {0} carries item-level tax templates; Card items must have none (the line template must win)."
 			).format(tainted[0])
 		)
 	group_taxes = frappe.get_all(

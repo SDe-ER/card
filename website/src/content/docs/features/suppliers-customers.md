@@ -7,13 +7,13 @@ sidebar:
 
 ## Overview
 
-CARD keeps a light registry of the parties it works with: **Card Equipment Supplier** (مورد المعدات) for the suppliers
+Card keeps a light registry of the parties it works with: **Card Equipment Supplier** (مورد المعدات) for the suppliers
 whose machines are rented in, and **Card Equipment Customer** (عميل المعدات) for the customers to whom machines are
 rented out. A registry row is only a pointer to the standard ERPNext Supplier or Customer. It stores **no totals**:
 every figure is computed when it is shown, per company and only for the companies the user may see.
 
-From these parties CARD produces **statements** (one party, one period) and **summaries** (all parties of a period),
-and reconciles the card figures with what was actually invoiced through CARD and with the party's official ledger.
+From these parties Card produces **statements** (one party, one period) and **summaries** (all parties of a period),
+and reconciles the card figures with what was actually invoiced through Card and with the party's official ledger.
 
 <!-- screenshot: suppliers-customers-registry -->
 ![The equipment supplier registry](../../../assets/screenshots/en/suppliers-customers-registry.webp)
@@ -27,9 +27,9 @@ and reconciles the card figures with what was actually invoiced through CARD and
 | Supplier card | A submitted card of rented-in equipment (ownership other than «ملك» (Owned)) that bills the supplier. |
 | Customer card | A submitted card whose direction bills a customer (rented out or sub-rental). |
 | Net cards | Card amount + additions − deductions, before VAT (supplier side); *Total accrued (cards)* on the customer side. |
-| Invoiced through Card | The card net billed by **submitted** CARD invoices, read from the posting trail, before VAT. |
-| Not invoiced through Card | Net cards − invoiced through Card. A card inside a CARD draft invoice stays here until the invoice is submitted. |
-| ERPNext invoices outside Card | The party's invoices that CARD did not build, shown for manual reconciliation; never matched to cards automatically. |
+| Invoiced through Card | The card net billed by **submitted** Card invoices, read from the posting trail, before VAT. |
+| Not invoiced through Card | Net cards − invoiced through Card. A card inside a Card draft invoice stays here until the invoice is submitted. |
+| ERPNext invoices outside Card | The party's invoices that Card did not build, shown for manual reconciliation; never matched to cards automatically. |
 
 ## Features
 
@@ -109,7 +109,7 @@ statement then says that ledger balances are shown only to users with that acces
 The **Equipment Customer Statement** (كشف حساب العميل) is the customer-side mirror: cards that bill the customer
 (rented out and sub-rental), grouped by project, equipment and card. Filters are the same without the statement type.
 Ledger figures come from the customer's GL entries: **Opening balance**, **Invoiced entries (Debit)**,
-**Received (Credit)**, **Customer closing balance**. CARD stores no customer balance, so these stay at zero until Sales
+**Received (Credit)**, **Customer closing balance**. Card stores no customer balance, so these stay at zero until Sales
 Invoices are posted.
 
 Rates, amounts, total volume, additions, deductions and net, and the **Total accrued (cards)** and **Not invoiced
@@ -161,7 +161,7 @@ adjustments**, **Remaining on the card** and the **Settlement status**:
 
 | Status | Meaning |
 |---|---|
-| Not recognised yet | No CARD invoice, linked invoice or linked Journal Entry holds the card |
+| Not recognised yet | No Card invoice, linked invoice or linked Journal Entry holds the card |
 | Recognising document is a draft | The recognising invoice is not submitted |
 | Ledger entry of the document not found | The document has no Payment Ledger row; it must be checked |
 | Recognised, not settled | Recognised, nothing paid or adjusted yet |
@@ -171,7 +171,7 @@ adjustments**, **Remaining on the card** and the **Settlement status**:
 All amounts come from the Payment Ledger of the recognising document (VAT included for invoices). A document that
 recognised several sources is shared by their amounts and its payments are allocated to the oldest source first.
 Payments of the party not allocated to any document are shown apart; they are settled in ERPNext with Payment
-Reconciliation, never in CARD.
+Reconciliation, never in Card.
 
 ## Workflow
 

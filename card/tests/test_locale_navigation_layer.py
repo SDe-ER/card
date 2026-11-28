@@ -67,6 +67,10 @@ GENERIC_WORDS = {
 # carries both the plain entry and the context entries.
 PLAIN_STATUS_WORDS = {"Posted", "Built", "Installation"}
 
+# The application name is "Card" in every language (owner decision 2026-11-28), so its translation is the
+# source text in every locale.
+APP_NAME = "Card"
+
 # (locale, msgid) pairs whose correct translation is the English text itself.
 SAME_AS_SOURCE = set()
 
@@ -250,7 +254,9 @@ class TestLocaleNavigationLayer(UnitTestCase):
 						sorted(
 							msgid
 							for msgid in layer
-							if translated.get(msgid) == msgid and (lang(path), msgid) not in SAME_AS_SOURCE
+							if translated.get(msgid) == msgid
+							and msgid != APP_NAME
+							and (lang(path), msgid) not in SAME_AS_SOURCE
 						),
 						[],
 					)
@@ -302,14 +308,10 @@ class TestLocaleNavigationLayer(UnitTestCase):
 				)
 
 	def test_card_suffix_of_a_number_card_label_is_kept(self):
-		"""A row label that ends with "(CARD)" ends with "(Card)" in every translation of the five number
-		cards added in v4.14.1/v4.14.2 (owner decision 2026-11-27: no global change of the spelling, the
-		wording of this cycle is "Card"). The source label keeps "(CARD)". Arabic is the exception: its labels
-		carry no "(Card)" at all (the text Arabic users know since v4.10.0).
-
-		Scope: only entries added or changed since v4.14.0 were changed. Every older msgstr keeps "CARD" by
-		Owner scope (for example the msgid "Card" -> "CARD" rule and "CARD VAT" in the tax template notes);
-		this test must not be widened to them."""
+		"""A row label that ends with "(CARD)" ends with "(Card)" in every translation (owner decisions
+		2026-11-27 and, final, 2026-11-28: the application name is "Card" in every language). The source
+		label keeps "(CARD)" because it is the literal name of a stored record. Arabic is the exception
+		here: its labels carry no "(Card)" at all (the text Arabic users know since v4.10.0)."""
 		marked = [label for label in number_card_row_labels() if label.endswith("(CARD)")]
 		self.assertTrue(marked)
 		for path in locales():

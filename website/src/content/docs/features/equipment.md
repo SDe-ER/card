@@ -7,8 +7,8 @@ sidebar:
 
 ## Overview
 
-**Card Equipment** is the master record of every machine CARD manages: owned machines, machines rented from a
-supplier, machines rented out to a customer, and machines managed for another owner. Every other CARD document —
+**Card Equipment** is the master record of every machine Card manages: owned machines, machines rented from a
+supplier, machines rented out to a customer, and machines managed for another owner. Every other Card document —
 assignments, transports, monthly cards, diesel fills, equipment needs and tool custody — points to a Card Equipment
 record, and the equipment's company decides the company of all of them.
 
@@ -71,7 +71,7 @@ Card User, Card Manager and System Manager may create categories and types; Acco
 
 ### Makes and models
 
-- **Card Equipment Make** (`CMK-0001`) — the maker of a machine, with a **Disabled** flag. CARD keeps its own list;
+- **Card Equipment Make** (`CMK-0001`) — the maker of a machine, with a **Disabled** flag. Card keeps its own list;
   the ERPNext Manufacturer list is for part makers and is not used for machines.
 - **Card Equipment Model** (`CEM-0001`) — a model of one make and one equipment type, with a description and a
   **Disabled** flag.
@@ -183,7 +183,7 @@ rates are used.
   (Company).
 - **Maintenance charged to** (الصيانة على) records who pays the maintenance of the machine: «المؤجر» or
   «الشركة». It is information only. It changes no card, invoice or accounting entry, and maintenance expenses
-  are recorded by hand. CARD never fills this field automatically, also for an owned machine: it stays empty
+  are recorded by hand. Card never fills this field automatically, also for an owned machine: it stays empty
   until a user selects a value. The first value needs no **Reason for commercial change**; a later change
   needs one.
 - For an owned machine, or when the operator is on the company, the **Operator** is an ERPNext Employee and the
@@ -276,7 +276,7 @@ record for the other company. With only one company on the site, a new form fill
 - For owned machines: **Maintenance every (hour)**, **Last maintenance date**, **Maintenance every (liter of diesel)**
   and **Meter reading at last maintenance**.
 
-These are reference values; CARD does not create maintenance tasks from them. Weekly engine-hour readings are recorded
+These are reference values; Card does not create maintenance tasks from them. Weekly engine-hour readings are recorded
 separately (see [Meter Readings](/card/features/meter-readings/)).
 
 ### Documents and expiry alerts

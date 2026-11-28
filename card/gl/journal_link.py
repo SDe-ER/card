@@ -53,12 +53,12 @@ def link_accrual_journal(
 
 	if not REVIEW_ROLES & set(frappe.get_roles()):
 		frappe.throw(
-			_("Only an accountant may link accrual journal entries to CARD cards."), frappe.PermissionError
+			_("Only an accountant may link accrual journal entries to Card cards."), frappe.PermissionError
 		)
 	if isinstance(cards, str):
 		cards = json.loads(cards)
 	if not isinstance(cards, list) or not cards or not all(isinstance(c, str) and c for c in cards):
-		frappe.throw(_("Choose the CARD monthly cards this journal entry recognised."))
+		frappe.throw(_("Choose the Card monthly cards this journal entry recognised."))
 	if len(set(cards)) != len(cards):
 		frappe.throw(_("A card is listed twice."))
 
@@ -80,7 +80,7 @@ def link_accrual_journal(
 		"name",
 	)
 	if held:
-		frappe.throw(_("Journal entry {0} is already linked to CARD cards ({1}).").format(je.name, held))
+		frappe.throw(_("Journal entry {0} is already linked to Card cards ({1}).").format(je.name, held))
 
 	lock_sources({CARD: [(name, 0) for name in cards]})
 	amounts = []
@@ -141,7 +141,7 @@ def link_accrual_journal(
 			"amount": accrued,
 			"link_difference": difference,
 			"remarks": _(
-				"Linked by {0}: accrual journal entry {1} credits the supplier {2}, CARD cards net {3}, {4}. {5}"
+				"Linked by {0}: accrual journal entry {1} credits the supplier {2}, Card cards net {3}, {4}. {5}"
 			).format(
 				frappe.session.user,
 				je.name,

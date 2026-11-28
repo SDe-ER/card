@@ -84,13 +84,13 @@ A decision is not an implementation. Status of each change is in the
 | Issue | Decision | Effect on this roadmap |
 |---|---|---|
 | #31 | Estimated diesel allocation is allowed. It is always labelled "Estimated", and a measured quantity always wins | Section 2, #47: provenance rule fixed |
-| #231 | A site tank is a standard ERPNext Warehouse. CARD makes no postings for it | Section 2, #47: tank model decided |
+| #231 | A site tank is a standard ERPNext Warehouse. Card makes no postings for it | Section 2, #47: tank model decided |
 | #35 | Approval workflows in stages G0 to G4. No workflow is activated on a live site without a separate owner GO | Section 2, #51 |
 | #42 | Finish the small open points (combined unit for owned pieces only, initial yard per company, part-of-unit link) | P1 |
 | #43 | Move-day rule: the move day counts for the new project (company setting, applied on the live site 2026-11-24). Third-party payer: deferred | P2 |
 | #45 | Rule O-03 approved (a stop is charged to the customer only when its reason is marked billable). Issue closed | P4 |
 | #48 | One expense for several machines is split manually | P7 |
-| #50 | A zero value means "must be configured": CARD warns and does not fall back to a hard-coded number | P0 |
+| #50 | A zero value means "must be configured": Card warns and does not fall back to a hard-coded number | P0 |
 | #53 | Three reports, in this order: equipment profitability, downtime, diesel cost per equipment | P8 |
 | #264 part 2 | Loads columns only on per-m³ cards, with before/after screenshots in the pull request | P4 |
 | #299 | A4 customer statement without the hourly rate, with before/after prints | P8 |

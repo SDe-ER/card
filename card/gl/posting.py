@@ -838,7 +838,7 @@ def _plan_monthly_posting(
 		if provision:
 			warnings.append(
 				_(
-					"CARD posting items or VAT item tax templates are not set up yet for company {0}; the first posting creates them, so some item columns of this preview are empty."
+					"Card posting items or VAT item tax templates are not set up yet for company {0}; the first posting creates them, so some item columns of this preview are empty."
 				).format(company)
 			)
 	else:

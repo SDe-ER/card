@@ -1,25 +1,25 @@
 ---
 title: Invoicing & Posting
-description: How CARD turns submitted cards, diesel fills and transports into draft ERPNext Purchase and Sales Invoices each month, and the checks that protect the ledger.
+description: How Card turns submitted cards, diesel fills and transports into draft ERPNext Purchase and Sales Invoices each month, and the checks that protect the ledger.
 sidebar:
   order: 9
 ---
 
 ## Overview
 
-CARD records operations: monthly cards, diesel fills and equipment transports. Once a month it gathers the submitted,
+Card records operations: monthly cards, diesel fills and equipment transports. Once a month it gathers the submitted,
 not-yet-invoiced documents of each party and builds **one draft Purchase Invoice per supplier** and **one draft Sales
 Invoice per customer**. Every invoice line carries the project, the cost center and the machine (through the
 **Card Equipment** accounting dimension), so the official ERPNext ledger, profit and loss and every per-equipment
 report see the same figures.
 
-CARD **never writes ledger entries**. It only creates standard ERPNext documents as drafts. An accountant reviews and
+Card **never writes ledger entries**. It only creates standard ERPNext documents as drafts. An accountant reviews and
 submits them in ERPNext, and ERPNext posts the General Ledger. A GL Posting Log records what each draft contains, and a
-set of integrity checks makes sure that what reaches the ledger is exactly what CARD built from its source documents.
+set of integrity checks makes sure that what reaches the ledger is exactly what Card built from its source documents.
 
 <!-- screenshot: invoicing-posting-page -->
-![The CARD Monthly Posting page](../../../assets/screenshots/en/invoicing-posting-page.webp)
-*The CARD Monthly Posting page*
+![The Card Monthly Posting page](../../../assets/screenshots/en/invoicing-posting-page.webp)
+*The Card Monthly Posting page*
 
 ## Key concepts
 
@@ -28,32 +28,32 @@ set of integrity checks makes sure that what reaches the ledger is exactly what 
 | Posting unit | One company, one party (supplier or customer), one month, one side. Only one active posting may exist per unit. |
 | Side | Supplier side (Purchase Invoice) or customer side (Sales Invoice). A sub-rental card is posted on both sides separately. |
 | Source document | A submitted Card Monthly Card, Project Diesel Fill or Equipment Transport that the posting includes. |
-| Draft posting | The draft invoice CARD built. It reserves its sources so no other posting can take them. |
-| Posted | The invoice was submitted in ERPNext. CARD then writes the invoice link and the `Posted` flag onto each source. |
+| Draft posting | The draft invoice Card built. It reserves its sources so no other posting can take them. |
+| Posted | The invoice was submitted in ERPNext. Card then writes the invoice link and the `Posted` flag onto each source. |
 | GL Posting Log | The audit record of one posting: party, month, status, invoice, sources, signatures. |
-| Origin | `Built` (CARD created the invoice) or `Linked` (an existing hand-booked document was linked to CARD sources). |
+| Origin | `Built` (Card created the invoice) or `Linked` (an existing hand-booked document was linked to Card sources). |
 | Sequence | 1 is the month's primary posting; 2 and higher are supplementary postings for documents submitted later. |
 
 ## Features
 
-### CARD Monthly Posting page
+### Card Monthly Posting page
 
-The Desk page **CARD Monthly Posting** (الترحيل الشهري CARD), at `/app/card-monthly-posting`, is the screen from which
+The Desk page **Card Monthly Posting** (الترحيل الشهري Card), at `/app/card-monthly-posting`, is the screen from which
 the monthly drafts are created. It is open to **Card Manager** and **System Manager**.
 
 1. Choose the **Company**, **Month** and **Year**.
 2. The page lists every party of that month on the sides you may post, with:
    - **Party Type** and **Party**;
-   - **Status**: *No CARD posting yet*, *Draft posting* or *Posted*;
+   - **Status**: *No Card posting yet*, *Draft posting* or *Posted*;
    - **Documents not yet in a posting** – how many submitted sources are still waiting;
-   - **CARD postings** – the active posting documents (a linked supplier invoice is marked as such).
+   - **Card postings** – the active posting documents (a linked supplier invoice is marked as such).
 3. **Preview lines** runs the builder as a dry run and shows, without writing anything, the lines the next draft
    would contain: description, item, account, project, cost center, equipment, VAT treatment of the line and amount,
    followed by the totals (line total, customer discount, net total, taxable and zero-rated net, VAT estimate) and the
-   list of **CARD source documents**.
+   list of **Card source documents**.
 4. If the build would be refused, the preview shows the reason under *This posting cannot be built yet* instead of
    the lines.
-5. **Create draft posting** (or **Rebuild draft posting** when a CARD draft already exists) builds the invoice and
+5. **Create draft posting** (or **Rebuild draft posting** when a Card draft already exists) builds the invoice and
    opens it.
 
 The VAT figure in the preview is an estimate: ERPNext computes the invoice taxes when the draft is built. The draft may
@@ -88,7 +88,7 @@ The invoice is dated the last day of the month, in the company currency, with ro
 to the smallest unit.
 
 :::note
-Diesel sessions imported from a reviewed message log are never posted by CARD. Their supplier's own invoice is the
+Diesel sessions imported from a reviewed message log are never posted by Card. Their supplier's own invoice is the
 Purchase Invoice; it is entered in ERPNext and can be linked to the fills (see *Linking hand-booked documents*).
 :::
 
@@ -114,12 +114,12 @@ no purchase tax template is refused, so VAT is never dropped silently.
 
 :::caution[Planned]
 A Journal Entry for non-VAT suppliers (and an agent or related-party model) is not built. Today such suppliers get a
-Purchase Invoice without taxes. CARD does not create Journal Entries; it only links existing ones (see below).
+Purchase Invoice without taxes. Card does not create Journal Entries; it only links existing ones (see below).
 :::
 
 ### VAT templates
 
-CARD sets VAT per line through two Item Tax Templates per company:
+Card sets VAT per line through two Item Tax Templates per company:
 
 - **VAT item tax template (company rate)** – carries the single rate of the company's purchase and sales tax
   templates; the first posting creates it as `CARD VAT <rate>% - <company abbreviation>` when it is missing.
@@ -127,8 +127,8 @@ CARD sets VAT per line through two Item Tax Templates per company:
 
 The rate is never hardcoded: it is the one positive rate of the configured tax templates. Templates with different
 rates, several VAT rows, or rows other than *On Net Total* are refused. An existing linked template is never renamed
-or changed; a new rate gets a new template. Items used on CARD lines must carry no item-level taxes. The built log
-stores the VAT CARD built, and submit refuses a draft whose VAT changed.
+or changed; a new rate gets a new template. Items used on Card lines must carry no item-level taxes. The built log
+stores the VAT Card built, and submit refuses a draft whose VAT changed.
 
 ### Diesel price VAT basis
 
@@ -149,7 +149,7 @@ Every line takes a cost center by a fixed rule, and any doubt stops the build fo
 | Card line | The cost center of the equipment assignment(s) to the card's project on its working days; else the project's cost center. Assignments that resolve to different cost centers are refused. |
 | Diesel fill | The fill's own cost center; else the assignment of its machine on the fill date; else the project's (project-tank fill). |
 | Transport to a workshop or storage | The cost center configured for that place in Card Settings (*Cost center per workshop / storage place*). |
-| Company-paid transport to or from a project | Refused for review: CARD records no cost-bearing project for such a move, so the accountant enters the supplier invoice manually. |
+| Company-paid transport to or from a project | Refused for review: Card records no cost-bearing project for such a move, so the accountant enters the supplier invoice manually. |
 
 A cost center must be an enabled, non-group cost center of the posting's company. The company default or the
 machine's asset cost center is never used for project work. A card covers one project; a machine that worked on two
@@ -159,7 +159,7 @@ projects in a month has one card per project.
 
 **Card Equipment** is a standard ERPNext Accounting Dimension. It adds a `card_equipment` field to the ledger-bearing
 documents, so invoice lines, Stock Entry and Material Request rows and GL entries carry the machine. When an equipment
-is linked to an ERPNext Asset, CARD keeps the Asset's dimension pointing at the equipment, so depreciation entries made
+is linked to an ERPNext Asset, Card keeps the Asset's dimension pointing at the equipment, so depreciation entries made
 by ERPNext also land on the machine.
 
 The dimension is created only when **Enable Card Equipment accounting dimension** is on in **Card Settings** (off by
@@ -190,13 +190,13 @@ The draft is checked when it is built and again when it is submitted:
 | Card identity | Invoice lines that do not add up to the card's stored net amount (within the *Reconciliation tolerance*) |
 | Built signature | Any edit of party, account, cost center, project, equipment, item, rate, quantity or tax rows after the build |
 | Sources total = invoice net total | Value edits that no longer match the source documents |
-| Discount lock | Discounts typed on a CARD invoice (additions and deductions belong on the cards) |
+| Discount lock | Discounts typed on a Card invoice (additions and deductions belong on the cards) |
 | Builder version | Old drafts that split a project-tank fill by hours must be rebuilt before submit |
 | Posting date and period | An invoice dated outside its month, or in a closed or frozen period |
 | Bill No and Bill Date | A VAT-registered supplier's invoice submitted without the supplier's own number and date |
 | Supplier invoice number used once | The same supplier bill number booked twice |
-| Copy guard | A duplicated CARD invoice, or a manual invoice that names a source a CARD posting already holds |
-| Amendment guard | Amending a cancelled CARD invoice (rebuild the month instead) |
+| Copy guard | A duplicated Card invoice, or a manual invoice that names a source a Card posting already holds |
+| Amendment guard | Amending a cancelled Card invoice (rebuild the month instead) |
 | Source cancel guard | Cancelling a card, fill or transport that a draft or submitted posting holds |
 
 When the only differences are a cost center or an expense/income account, an **Accounts Manager** may accept the
@@ -205,23 +205,23 @@ invoice content; any later edit needs a new acceptance. Every other change needs
 
 ### Hand-booked supplier invoices around the month
 
-Before a supplier draft is built, CARD looks for that supplier's Purchase Invoices that CARD did not build, dated from
-one month before to two months after the posting month, with a line on an expense account, a CARD account or a CARD
+Before a supplier draft is built, Card looks for that supplier's Purchase Invoices that Card did not build, dated from
+one month before to two months after the posting month, with a line on an expense account, a Card account or a Card
 item. Each one is possible evidence that the same operations were already booked. The build is refused until each is
 either:
 
-- **linked** to the CARD sources it pays for, or
+- **linked** to the Card sources it pays for, or
 - **declared unrelated** by an accountant (Accounts Manager, Accounts User or System Manager), by ticking it under
   **Supplier invoices to review** on the posting page.
 
 The reviewed invoices and the reviewer are stored on the log. When a hand-booked invoice is submitted for a supplier
-CARD already posted for a nearby month, ERPNext shows the CARD postings as a warning.
+Card already posted for a nearby month, ERPNext shows the Card postings as a warning.
 
 ### Linking hand-booked documents
 
-Three server methods record that an existing document already covers CARD sources. Nothing is reposted and the
-document is not changed; a GL Posting Log with origin *Linked* reserves the sources so CARD never invoices them again.
-Each needs an accounting role (see *Permissions*) and none is exposed as a Desk button yet.
+Three server methods record that an existing document already covers Card sources. Nothing is reposted and the
+document is not changed; a GL Posting Log with origin *Linked* reserves the sources so Card never invoices them again.
+Each needs an accounting role (see *Permissions*). Only the customer invoice link has Desk buttons, on the Sales Invoice form.
 
 | Link | Use | Evidence required |
 |---|---|---|
@@ -233,13 +233,26 @@ Cancelling the linked invoice or Journal Entry frees the sources again.
 
 ### Link an existing customer Sales Invoice
 
-Use this when a Sales Invoice was entered by hand in ERPNext and submitted, and it bills work that is on CARD monthly
+Use this when a Sales Invoice was entered by hand in ERPNext and submitted, and it bills work that is on Card monthly
 cards. Without the link, the customer reports show the cards as not invoiced and the invoice as an invoice outside
-CARD. There is no button in Desk for this action; an Accounts Manager or a System Manager calls the server method
-(see [Posting and accounting](/card/api-reference/posting-accounting/#link_customer_invoice)).
+Card. On the submitted Sales Invoice, an Accounts Manager or a System Manager opens the group **Card** and chooses
+**Link to monthly cards**. A dialog lists the unlinked approved cards of the customer on the projects of the invoice,
+shows the invoice net and the total of the cards you tick, and asks for a reason. The button appears only on a
+submitted invoice that is not a return or a debit note and that is not linked yet. The server method
+`customer_invoice_link_info` (read only) gives the dialog its data, and the button calls `link_customer_invoice`,
+which keeps every check below. You can also call the server method yourself (see
+[Posting and accounting](/card/api-reference/posting-accounting/#link_customer_invoice)).
+
+<!-- screenshot: invoice-link-menu -->
+![The Card button group on a Sales Invoice](../../../assets/screenshots/en/invoice-link-menu.webp)
+*The Card button group on a Sales Invoice*
+
+<!-- screenshot: invoice-link-dialog -->
+![Link a Sales Invoice to monthly cards](../../../assets/screenshots/en/invoice-link-dialog.webp)
+*Link a Sales Invoice to monthly cards*
 
 1. Find the invoices to link. Call `unlinked_customer_invoice_candidates` for the company. It lists each submitted
-   Sales Invoice that CARD did not build and that has no link, with the customer's cards that have no invoice, and it
+   Sales Invoice that Card did not build and that has no link, with the customer's cards that have no invoice, and it
    says if a set of cards totals the invoice net (`match` is `exact` or `none`). An invoice in another
    currency than the company currency is not listed. This method only reads.
 2. Check the cards against the invoice. The link needs the same company, the same customer and the same project.
@@ -247,13 +260,13 @@ CARD. There is no button in Desk for this action; an Accounts Manager or a Syste
    invoice header. An invoice without a project cannot be linked, because every card has a project.
 3. Call `link_customer_invoice` with the invoice, the card names and a reason.
 
-CARD accepts the link only when the invoice net total (before VAT) equals the sum of the cards' customer net
+Card accepts the link only when the invoice net total (before VAT) equals the sum of the cards' customer net
 amounts, within the reconciliation tolerance of Card Settings. The same must be true for each project: the net of
 the invoice lines of a project equals the customer net of the listed cards of that project, and no part of the
 invoice is left without cards. A difference is always refused; there is no option to accept it. Link exactly the
 cards that the invoice bills.
 
-CARD also refuses the link when the invoice is not in the company currency, or when the invoice has a submitted
+Card also refuses the link when the invoice is not in the company currency, or when the invoice has a submitted
 credit note.
 
 | The link writes | It does not change |
@@ -268,7 +281,7 @@ After the link:
   and no longer count the invoice under *ERPNext invoices outside Card*. The customer closing balance does not change,
   because it comes from the ledger.
 - **Unbilled Card Work** no longer lists the cards, and **Posting Source Integrity** shows them as consistent.
-- CARD never builds a Sales Invoice for these cards, and a linked card cannot be cancelled or reopened while the link
+- Card never builds a Sales Invoice for these cards, and a linked card cannot be cancelled or reopened while the link
   is active.
 - A second call for the same invoice is refused while the link is active.
 
@@ -276,16 +289,25 @@ After the link:
 
 There are two ways to remove a link. Neither one posts an entry or changes a card amount.
 
-- If the Sales Invoice can be cancelled in ERPNext, cancel it. CARD then clears the invoice link, the **Posted** flag
+- If the Sales Invoice can be cancelled in ERPNext, cancel it. Card then clears the invoice link, the **Posted** flag
   and the log link on each card and sets the log to Cancelled. The cards are free again.
 - A company under ZATCA Phase 2 cannot cancel a submitted Sales Invoice, and a credit note corrects the invoice but
-  does not remove the link. For this case a System Manager calls the server method `unlink_customer_invoice` with the
-  invoice and a reason (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)).
-  There is no button in Desk for this action, and an Accounts Manager cannot do it. The caller needs the System
+  does not remove the link. For this case a System Manager chooses **Remove link to monthly cards** in the group **Card**
+  of the invoice and gives a reason, or calls the server method `unlink_customer_invoice` with the invoice and a reason
+  (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)). The button shows
+  only on an invoice that a person linked, and an Accounts Manager cannot use it. The caller needs the System
   Manager role and also read permission on the Sales Invoice and on the cards. The System Manager role alone does
   not give read permission on a Sales Invoice, so the user also needs an accounts role.
 
-`unlink_customer_invoice` removes only a link that `link_customer_invoice` made. It refuses a Sales Invoice that CARD
+<!-- screenshot: invoice-linked-form -->
+![A Sales Invoice linked to a monthly card](../../../assets/screenshots/en/invoice-linked-form.webp)
+*A Sales Invoice linked to a monthly card*
+
+<!-- screenshot: invoice-unlink-dialog -->
+![Remove the link to monthly cards](../../../assets/screenshots/en/invoice-unlink-dialog.webp)
+*Remove the link to monthly cards*
+
+`unlink_customer_invoice` removes only a link that `link_customer_invoice` made. It refuses a Sales Invoice that Card
 built. It also refuses when the link is no longer in the state the link left it, and then it changes nothing:
 
 - the invoice is not submitted;
@@ -302,13 +324,13 @@ built. It also refuses when the link is no longer in the state the link left it,
 | One information comment on the invoice and on each card: who removed the link, when, the log and the reason | The ledger: no GL Entry, no payment entry, no tax row |
 
 After the unlink, the customer reports show the cards as not invoiced again and the invoice as an invoice outside
-CARD. `unlinked_customer_invoice_candidates` lists the invoice again, and `link_customer_invoice` accepts the invoice
+Card. `unlinked_customer_invoice_candidates` lists the invoice again, and `link_customer_invoice` accepts the invoice
 and the cards again. Link the correct cards after you remove a wrong link.
 
 ### Settlement status
 
 The read-only report **Card Settlement Status** shows, per submitted card of one party, the document that recognised
-it (CARD invoice, linked invoice or linked Journal Entry), the card's share, what is paid and what remains, from
+it (Card invoice, linked invoice or linked Journal Entry), the card's share, what is paid and what remains, from
 ERPNext's Payment Ledger. See [Suppliers & Customers](/card/features/suppliers-customers/).
 
 ### Period run before posting (opt-in)
@@ -349,14 +371,14 @@ fiscal year.
 | Action | Effect |
 |---|---|
 | Delete a draft invoice | Its sources are freed and the log is cancelled |
-| Cancel a submitted invoice | ERPNext reverses the ledger; CARD clears the invoice link and `Posted` on the sources and cancels the log |
-| Correct a submitted invoice | Use an ERPNext return, credit note or debit note; CARD does not create them |
+| Cancel a submitted invoice | ERPNext reverses the ledger; Card clears the invoice link and `Posted` on the sources and cancels the log |
+| Correct a submitted invoice | Use an ERPNext return, credit note or debit note; Card does not create them |
 
 ### Accounting settings
 
 Accounting is configured in **Card Settings**, tab **Accounting**:
 
-- **Enable accounting posting** – when off, every CARD accounting feature is disabled (default off).
+- **Enable accounting posting** – when off, every Card accounting feature is disabled (default off).
 - **Company settings** – one row per company (Card Company Settings):
   - **Accounts**: equipment rental expense, diesel expense, transport/mobilization expense, equipment rental income,
     payable (creditors), receivable (debtors), cost center;
@@ -380,13 +402,13 @@ prices; the Accounts Settings options that copy taxes from templates are off.
 ## Workflow
 
 1. Submit the month's cards, diesel fills and transports.
-2. Open **CARD Monthly Posting**, choose the company and month.
+2. Open **Card Monthly Posting**, choose the company and month.
 3. For each party, press **Preview lines** and check the lines, cost centers and VAT.
 4. Review any **Supplier invoices to review**: link them to their sources, or have an accountant tick them as unrelated.
 5. Press **Create draft posting**. The draft invoice opens.
 6. The accountant enters the supplier's Bill No and Bill Date (VAT-registered suppliers) and submits the invoice in
    ERPNext.
-7. On submit, CARD marks every source as posted and the log as Submitted.
+7. On submit, Card marks every source as posted and the log as Submitted.
 
 ## Permissions
 

@@ -38,7 +38,7 @@ review form and the Tool Custody screen; every write goes through the user's own
 
 | Role group | Roles |
 |---|---|
-| Portal roles (operator page, CARD Mobile requests) | Card Operator, Card Supervisor, Card Manager, System Manager |
+| Portal roles (operator page, Card Mobile requests) | Card Operator, Card Supervisor, Card Manager, System Manager |
 | Approvers | Card Manager, System Manager |
 | Tool Custody screen | Card Supervisor, Card Manager, Stock Manager, System Manager (with read on Employee Tool Custody) |
 | Store side | Users who may submit both Employee Tool Custody and Stock Entry |

@@ -1,15 +1,15 @@
 ---
 title: Mobile and Settings API
-description: Endpoints for the CARD Mobile session, the parts catalog and fitment, and the company-scoped Card Settings timeline.
+description: Endpoints for the Card Mobile session, the parts catalog and fitment, and the company-scoped Card Settings timeline.
 sidebar:
   order: 9
 ---
 
 ## Overview
 
-**CARD Mobile** (`/cdms`) uses the same Frappe login, session and CSRF protection as the Desk, and calls the same
+**Card Mobile** (`/cdms`) uses the same Frappe login, session and CSRF protection as the Desk, and calls the same
 endpoints as every other client; each endpoint keeps its own permission checks. This page lists the endpoints that only
-the mobile app and the catalog use, plus CARD's overrides of the Desk form loader that keep the **Card Settings**
+the mobile app and the catalog use, plus Card's overrides of the Desk form loader that keep the **Card Settings**
 timeline within the user's companies. The operator request endpoints are on the
 [Materials and needs](/card/api-reference/materials-needs/) page.
 
@@ -17,7 +17,7 @@ timeline within the user's companies. The operator request endpoints are on the
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `card.mobile.get_session_context` | The signed-in user's CARD Mobile context. |
+| GET | `card.mobile.get_session_context` | The signed-in user's Card Mobile context. |
 | GET | `card.catalog.search` | One page of the parts catalog, optionally with the fit for a machine. |
 | GET | `card.catalog.filter_options` | Values for the Item Group or Brand filter. |
 | GET | `card.fitment.fit_for` | The fit of up to 50 items for one machine. |
@@ -38,7 +38,7 @@ caller must also read that machine, or operate it as a Card Operator.
 **Permission:** a portal role, or a read-only catalog viewer (a Card User without a portal role). Reads only.
 **Parameters:** none.
 
-**Returns:** `{"user", "full_name", "roles" (the user's CARD portal roles), "employee" ({name, employee_name, company} of
+**Returns:** `{"user", "full_name", "roles" (the user's Card portal roles), "employee" ({name, employee_name, company} of
 the linked active Employee, or null), "catalog_only": bool, "card_version"}`.
 
 ```bash
@@ -98,7 +98,7 @@ curl -s -G "https://<your-site>/api/method/card.catalog.filter_options" \
 
 `GET /api/method/card.fitment.fit_for`
 
-The fit of up to 50 items for one machine, for the inline item picker of CARD Mobile. Only items the caller may list in
+The fit of up to 50 items for one machine, for the inline item picker of Card Mobile. Only items the caller may list in
 the catalog are answered.
 
 | Parameter | Type | Required | Description |
@@ -134,17 +134,17 @@ curl -s -G "https://<your-site>/api/method/card.fitment.machines" -H "Authorizat
 
 ## Other: Card Settings timeline overrides
 
-CARD registers two `override_whitelisted_methods` so that a company-restricted user never sees, in the **Card Settings**
+Card registers two `override_whitelisted_methods` so that a company-restricted user never sees, in the **Card Settings**
 form timeline, a change to a row of another company:
 
-| Overridden method | CARD function | Parameters |
+| Overridden method | Card function | Parameters |
 |---|---|---|
 | `frappe.desk.form.load.getdoc` | `card.card.doctype.card_settings.card_settings.getdoc` | `doctype`, `name` |
 | `frappe.desk.form.load.get_docinfo` | `card.card.doctype.card_settings.card_settings.get_docinfo` | `doc` or `doctype` + `name` |
 
-Each override first calls the override registered before CARD's by another app (or Frappe's own method), so the chain
+Each override first calls the override registered before Card's by another app (or Frappe's own method), so the chain
 is kept, then removes from `docinfo.versions` every change of a row of a company the user may not read. Responses for
-every other DocType are unchanged. Clients keep calling the standard Frappe paths; there is no reason to call the CARD
+every other DocType are unchanged. Clients keep calling the standard Frappe paths; there is no reason to call the Card
 functions directly.
 
 ```bash
@@ -155,6 +155,6 @@ curl -s -G "https://<your-site>/api/method/frappe.desk.form.load.getdoc" \
 
 ## Related
 
-- [CARD Mobile](/card/features/card-mobile/)
+- [Card Mobile](/card/features/card-mobile/)
 - [Maintenance and parts](/card/features/maintenance-parts/)
 - [Configuration](/card/getting-started/configuration/)

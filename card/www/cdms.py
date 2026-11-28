@@ -1,6 +1,6 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""CARD Mobile page (/cdms). The page itself is built from frontend/ into cdms.html.
+"""Card Mobile page (/cdms). The page itself is built from frontend/ into cdms.html.
 
 As hrms/www/hrms.py: Guests get the page too, for the in-app login view; the boot carries the
 session's CSRF token, the language and its direction, and Frappe's translations.

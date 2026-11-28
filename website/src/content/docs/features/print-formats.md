@@ -1,13 +1,13 @@
 ---
 title: Print Formats
-description: Every print format CARD ships — monthly card, transport, diesel fill, tool handover receipt and the A4 supplier statement — with their content, language, direction and letter head.
+description: Every print format Card ships — monthly card, transport, diesel fill, tool handover receipt and the A4 supplier statement — with their content, language, direction and letter head.
 sidebar:
   order: 20
 ---
 
 ## Overview
 
-CARD ships its own print formats for the documents people sign or send: the monthly operation card, the equipment
+Card ships its own print formats for the documents people sign or send: the monthly operation card, the equipment
 transport, the diesel fill, the tool handover receipt and the A4 supplier statement. All of them follow the standard
 Frappe print style — a white page with the Frappe print greys, the company name above the title, the details as a
 label and value grid, a rows table, a totals table at the end side of the page and signature lines at the bottom.
@@ -24,7 +24,7 @@ Arabic and other right-to-left languages, left to right otherwise.
 | Concept | Meaning |
 |---|---|
 | **Standard print format** | A print format shipped as a file of the app (module Card); updated by every migrate. |
-| **Default print format** | The format used by the Print button unless the user picks another. Set by the installer for the three CARD transactions. |
+| **Default print format** | The format used by the Print button unless the user picks another. Set by the installer for the three Card transactions. |
 | **Print language** | The language chosen in the print dialog (or the user's language). It decides the texts and the page direction. |
 | **Letter Head** | The standard ERPNext letter head with the company logo and details. |
 | **Report print format** | A print format attached to a report, used by the report's Print and PDF actions. |
@@ -60,7 +60,7 @@ The monthly operation card of one machine, shift and month.
   neither side prints *Internal operation — Not billed*.
 - **Settlement** — for each billed side, a *Supplier settlement (before VAT)* or *Customer settlement (before VAT)*
   table with four rows: *Total before additions and deductions*, *Total additions*, *Total deductions* and *Net after
-  additions and deductions*. The net is the amount saved on the card (before VAT) and the amount CARD puts on that side's invoice
+  additions and deductions*. The net is the amount saved on the card (before VAT) and the amount Card puts on that side's invoice
   line before VAT; it is the large bold line. Amounts show two decimals and the currency. Cash paid rows are not
   counted in these totals.
 - **Signatures** — driver / operator (with his name), site supervisor approval, project manager approval.
@@ -122,9 +122,9 @@ Access Log.
 ### Language and direction
 
 - Fixed texts are translated into the print language.
-- The page is right to left for Arabic, Hebrew, Persian and Pashto, and — in CARD — Urdu.
+- The page is right to left for Arabic, Hebrew, Persian and Pashto, and — in Card — Urdu.
 - Values stored in Arabic (ownership, shift, day status, rate basis, direction, adjustment type) print translated
-  through CARD's translation files; names in the data print as stored.
+  through Card's translation files; names in the data print as stored.
 - Numbers read left to right and are right-aligned; dates and counts are centred.
 - **Amount in words** uses the company currency. In Arabic, when the currency code has no Arabic translation, the
   currency symbol replaces the code.
@@ -133,12 +133,12 @@ See [Languages](/card/features/languages/).
 
 ### Letter head and fonts
 
-- At install, when the site has **no** Letter Head at all, CARD creates a Letter Head named **CARD** from the default
+- At install, when the site has **no** Letter Head at all, Card creates a Letter Head named **Card** from the default
   company (name, tax ID, phone, logo). An existing Letter Head is never changed.
 - The monthly card print places the selected Letter Head at the top; the transport, diesel fill and tool handover
   prints start with the company name.
 - The four document formats render their PDF with the Chrome PDF generator.
-- CARD bundles the Noto Sans and Noto Sans Arabic fonts and installs them for the bench user on every migrate, so the
+- Card bundles the Noto Sans and Noto Sans Arabic fonts and installs them for the bench user on every migrate, so the
   server PDF shapes Arabic correctly. If that fails, the PDF falls back to the system font.
 
 ## Permissions

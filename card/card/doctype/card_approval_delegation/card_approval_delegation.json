@@ -29,7 +29,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "search_index": 1,
-   "description": "The approver whose queue is delegated. Must already hold a CARD approver role (Card Manager, Card Reviewer or Accounts Manager)."
+   "description": "The approver whose queue is delegated. Must already hold a Card approver role (Card Manager, Card Reviewer or Accounts Manager)."
   },
   {
    "fieldname": "delegate_user",
@@ -40,7 +40,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "search_index": 1,
-   "description": "The user acting on behalf of the delegator. Must already hold the same CARD approver role as the delegator (this delegation grants no role)."
+   "description": "The user acting on behalf of the delegator. Must already hold the same Card approver role as the delegator (this delegation grants no role)."
   },
   {
    "fieldname": "column_break_header",
@@ -65,7 +65,7 @@
    "reqd": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "description": "Which CARD approvals the delegation covers."
+   "description": "Which Card approvals the delegation covers."
   },
   {
    "fieldname": "window_section",

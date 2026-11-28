@@ -15,7 +15,7 @@ design" below. It does not repeat the base design. Where the two differ, section
 Terms used here:
 
 - **Evidence**: the original paper sheet (scan or photo) or the WhatsApp message (screenshot or exported text).
-- **Intake record**: a CARD record that a person typed from evidence.
+- **Intake record**: a Card record that a person typed from evidence.
 - **Enterer**: the user who created or edited the draft.
 - **Reviewer**: the user who approves the record. For a transport, the approval is the submit.
 
@@ -42,7 +42,7 @@ Status words: **Implemented** (code on `main`), **Partly**, **Not implemented**.
 | A1 | Duplicate message or photo | Implemented per record type | Transport: `card.intake.check_source_key` refuses a second live transport with the same company and key. `warn_reused_evidence` warns for the same file. Card day: `_check_day_intake_dedupe`. Diesel: unique `source_key`, `ProjectDieselFill._check_photos`, `diesel_import._check_unused`. No check across record types |
 | A2 | Missing values | Partly | The record stays a draft and its own `validate` runs. A diesel fill with warnings gets `review_status` = `Needs Review` (`ProjectDieselFill._guard_review`). A transport has no "needs review" state for its intake |
 | A3 | Conflicting project or date | Partly | Diesel: `ProjectDieselFill._check_equipment_on_project` with the company setting `diesel_fill_project_check`. Transport: `EquipmentTransport._validate_project_company`. A received time in the future is refused (`apply_transport_intake`, `_normalise_day_intake`). No check compares the event date with the received time |
-| A4 | Unauthorized sender | Not implemented | CARD stores no sender. The only control is the CARD permission of the enterer |
+| A4 | Unauthorized sender | Not implemented | Card stores no sender. The only control is the Card permission of the enterer |
 | A5 | Partial import and retries | Implemented for diesel import only | `diesel_import._import_one`: one savepoint for each session, `_remove_files` on failure, a second run returns `Existing` |
 | A6 | Audit logs | Partly | `track_changes` = 1 on `equipment_transport.json` and `project_diesel_fill.json`. Submitted intake fields are frozen (`card.intake.freeze_submitted_intake`, `freeze_submitted_card_day_intake`). Evidence of a submitted or cancelled transport cannot be deleted, moved or made public (`keep_transport_evidence`, `keep_transport_evidence_file`, `keep_evidence_of_deleted_transport`). No hook in `card/hooks.py` `doc_events["File"]` protects the meter photos of a submitted diesel fill. Evidence that was received and then rejected leaves no record |
 
@@ -51,7 +51,7 @@ Status words: **Implemented** (code on `main`), **Partly**, **Not implemented**.
 | # | Item | Status | Evidence in the code |
 |---|---|---|---|
 | C1 | A different person reviews an intake record | Not implemented for transports and diesel fills | `EquipmentTransport.before_submit` writes `submitted_by` and does not compare it with the enterer. `ProjectDieselFill._guard_review` checks the role (`REVIEW_ROLES`) and does not compare the reviewer with `owner`. Monthly cards have this rule: `card.governance.before_submit` with the company setting `card_approval_rule` (FR-143) |
-| C2 | Upload of evidence from CARD Mobile | Not implemented | `card/mobile.py` has one whitelisted method, `get_session_context` (read only). A search of `frontend/src` for "upload" and "attach" found nothing |
+| C2 | Upload of evidence from Card Mobile | Not implemented | `card/mobile.py` has one whitelisted method, `get_session_context` (read only). A search of `frontend/src` for "upload" and "attach" found nothing |
 | C3 | Retention period of evidence | Not implemented | No retention rule in `card/`. Evidence of a submitted transport is kept without limit (A6) |
 | C4 | OCR or other automatic reading | Not implemented, except the local meter worker of R3 | See R3 |
 
@@ -73,13 +73,13 @@ The first four questions are section 10 of the base design. The others come from
 | Q2 | May the enterer also approve? | The company decides. Default: yes, as today. When the company turns the rule on, a different person must approve (section 4) | A small office with one manager must not be blocked. A larger office gets a real second check |
 | Q3 | Monthly card: one source for each day or for each sheet? | For each sheet. The sheet file is attached one time to the card. Each day row points to it with `intake_source_key` (the sheet number) | The site sends one sheet for many days. One file is easier to find and uses less storage |
 | Q4 | How long is evidence kept? | Keep it. No automatic deletion. A later deletion is a manual act with owner approval, and never for a submitted or cancelled record | Evidence is the proof behind supplier and customer amounts. An automatic delete can remove proof that is still necessary. The number of years is an owner decision (section 5) |
-| Q5 | Who uploads evidence? | The office users who can already create the record: Card User and Card Manager, on the Desk form. No upload from CARD Mobile now | No new permission. An operator upload needs a new grant and a new endpoint, which is a separate owner decision |
+| Q5 | Who uploads evidence? | The office users who can already create the record: Card User and Card Manager, on the Desk form. No upload from Card Mobile now | No new permission. An operator upload needs a new grant and a new endpoint, which is a separate owner decision |
 | Q6 | Who reviews? | The users who can already submit: Card Manager and System Manager (`equipment_transport.json` permissions). Diesel: the existing operations review roles (`REVIEW_ROLES`) | No new role. The review stays inside the existing approval step |
 | Q7 | Which record types? | Equipment Transport, Project Diesel Fill, Card Monthly Card day rows. Other types only on request | These three hold the supplier and customer amounts |
 | Q8 | What happens with a duplicate? | Same key in the same company: refused (today). Same file on a second record: warning only (today). Keep both | One sheet can list several moves, so a refusal of the same file is wrong in real use. The key is the control |
 | Q9 | What does "provenance" store? | Channel, a reference typed by the office (sheet number or message date and time), the time the office received it, the private file, the file fingerprint (SHA-256), the enterer, the reviewer. No phone number and no sender name | The office user is accountable for the entry. Sender phone numbers are personal data and add no control (answers A4) |
 | Q10 | Unauthorized sender? | Not a system check. The enterer decides if the source is valid before he types it. The reviewer sees the evidence | With manual entry, a person reads every message. A sender list is useful only with an automatic WhatsApp link, which is out of scope |
-| Q11 | Does CARD need the `Card Intake` register of the base design now? | No. Keep the fields on the records (as FR-146 and FR-158 did). Add the register only when an import adapter is approved | A register without an adapter adds a screen and a permission set that nobody uses |
+| Q11 | Does Card need the `Card Intake` register of the base design now? | No. Keep the fields on the records (as FR-146 and FR-158 did). Add the register only when an import adapter is approved | A register without an adapter adds a screen and a permission set that nobody uses |
 
 ## 3. Proposed design for the parts not implemented
 
@@ -212,7 +212,7 @@ Files to touch:
 2. `card/intake.py`: `check_second_person`, `has_intake_provenance`, `_set_intake_declared`.
 3. `card/card/doctype/equipment_transport/equipment_transport.py`: one call in `before_submit`.
 4. `card/tests/test_transport_intake.py`: new tests (below).
-5. `card/locale/`: the label and the message (CARD strings only).
+5. `card/locale/`: the label and the message (Card strings only).
 6. `CHANGELOG.md`, `docs/governance/FEATURE-REGISTRY.md` (new FR row), `docs/governance/SETTINGS-AND-CONSTANTS.md`,
    the two "What's new" pages and the generated Reference pages of the documentation site.
 
@@ -238,7 +238,7 @@ Known limit: a reviewer who changes values and submits in one request is not an 
 submit is allowed. The change history shows his changes. This is accepted for the slice.
 
 Effort estimate: about 2 working days. One day for code and tests, one day for the review gates, documentation and
-a check on the existing CARD QA site. No Production step is part of the slice.
+a check on the existing Card QA site. No Production step is part of the slice.
 
 No owner decision blocks the slice, because the setting is off for every company after a deploy. A merge, a
 release, a deploy and turning the setting on for a company each need their own owner approval.
@@ -260,10 +260,10 @@ release, a deploy and turning the setting on for a company each need their own o
 
 - OCR and every other automatic reading of a photo or a sheet. If the owner approves one later, it runs on the
   company server, it is off by default, and it only proposes values for a person to accept.
-- A link to the WhatsApp API or to any WhatsApp integration app. CARD depends on `frappe` and `erpnext` only.
+- A link to the WhatsApp API or to any WhatsApp integration app. Card depends on `frappe` and `erpnext` only.
 - Any external AI, OCR, storage or messaging service. No company data leaves the server without a separate owner
   approval.
 - The `Card Intake Record` register and the adapter endpoint (P7), until an adapter is approved.
-- Upload from CARD Mobile.
+- Upload from Card Mobile.
 - Changes to existing permissions, to accounting documents, or to data on a live site.
 - Correction of the registry rows listed in section 1.4.

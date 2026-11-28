@@ -30,7 +30,7 @@ sidebar:
 | [`card.diesel`](#card-diesel) | 1 |
 | [`card.diesel_reconciliation`](#card-diesel-reconciliation) | 1 |
 | [`card.fitment`](#card-fitment) | 2 |
-| [`card.gl.integrity`](#card-gl-integrity) | 5 |
+| [`card.gl.integrity`](#card-gl-integrity) | 6 |
 | [`card.gl.journal_link`](#card-gl-journal-link) | 1 |
 | [`card.gl.period_run`](#card-gl-period-run) | 2 |
 | [`card.gl.posting`](#card-gl-posting) | 5 |
@@ -214,6 +214,7 @@ sidebar:
 | `card.gl.integrity.link_customer_invoice` | POST | `invoice: str`<br/>`cards: str \| list`<br/>`reason: str \| None = None` |
 | `card.gl.integrity.unlink_customer_invoice` | POST | `invoice: str`<br/>`reason: str \| None = None` |
 | `card.gl.integrity.unlinked_customer_invoice_candidates` | GET | `company: str`<br/>`limit_start: int \| str = 0`<br/>`limit_page_length: int \| str = 50` |
+| `card.gl.integrity.customer_invoice_link_info` | GET | `invoice: str`<br/>`with_cards: int \| str = 0` |
 
 
 <h2 id="card-gl-journal-link"><code>card.gl.journal_link</code></h2>

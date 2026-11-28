@@ -1,4 +1,4 @@
-# CARD docs — writing guide (for every page)
+# Card docs — writing guide (for every page)
 
 Site: Astro Starlight (like https://shridarpatil.github.io/whatomate/features/dashboard/). English pages under
 `src/content/docs/<section>/<slug>.md`; Arabic pages mirror them under `src/content/docs/ar/<section>/<slug>.md`

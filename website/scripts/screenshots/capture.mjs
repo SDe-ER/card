@@ -21,6 +21,10 @@ const USER = process.env.USER_NAME || "Administrator";
 const PASS = process.env.PASS || "admin";
 const COMPANY = process.env.COMPANY || "Example Contracting Co.";
 const only = process.argv.slice(2);
+// SKIP_PREFIX leaves out the shots whose name starts with it; ONLY_PREFIX keeps only those. The workflow takes the
+// invoice shots in a second pass, after it has seeded the invoices that the first pass must not see.
+const skipPrefix = process.env.SKIP_PREFIX;
+const onlyPrefix = process.env.ONLY_PREFIX;
 const { shots } = JSON.parse(readFileSync(join(here, "shots.json"), "utf8"));
 
 // API calls go through the demo user's logged-in session (set after login in run()).
@@ -121,6 +125,13 @@ async function resolve(ctx) {
       equipment: e.name,
     });
   }
+  // the two fictitious invoices of ci_link_invoices.py (the Desk-button shots)
+  map["si:unlinked"] = await latest(ctx, "Sales Invoice", {
+    remarks: "Card demo - unlinked invoice",
+  });
+  map["si:linked"] = await latest(ctx, "Sales Invoice", {
+    remarks: "Card demo - linked invoice",
+  });
   for (const [k, dt] of Object.entries({
     trn: "Equipment Transport",
     etc: "Employee Tool Custody",
@@ -357,6 +368,8 @@ async function run() {
     mkdirSync(join(OUT, lang), { recursive: true });
     for (const s of shots) {
       if (only.length && !only.includes(s.name)) continue;
+      if (skipPrefix && s.name.startsWith(skipPrefix)) continue;
+      if (onlyPrefix && !s.name.startsWith(onlyPrefix)) continue;
       const op = s.as === "operator";
       const page = await (s.mobile
         ? op
@@ -441,6 +454,24 @@ async function run() {
           throw new Error(
             `no visible element for click: ${s.clickTextAfter.join(" / ")}`,
           );
+        // ordered clicks after the text clicks: a string is a CSS selector, an array is a list of texts (the first
+        // one that is visible is clicked); a step that finds nothing fails the shot (a menu item, a dialog check box)
+        for (const step of s.clickSteps || []) {
+          if (Array.isArray(step)) {
+            if (!(await clickText(page, step)))
+              throw new Error(
+                `no visible element for click: ${step.join(" / ")}`,
+              );
+          } else {
+            await page.locator(step).first().click({ timeout: 3000 });
+            await page.waitForTimeout(500);
+          }
+        }
+        // a click on each selector in turn, after the text clicks (for example the check boxes of a dialog)
+        for (const sel of s.clickSelAfter || []) {
+          await page.locator(sel).first().click({ timeout: 3000 });
+          await page.waitForTimeout(500);
+        }
         if (reportRuns) await reportReady(page, reportRuns);
         // what the shot is about must be on screen: a panel that did not open or a report with no rows is a failed shot
         if (s.waitSel)

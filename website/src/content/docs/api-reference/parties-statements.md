@@ -7,10 +7,10 @@ sidebar:
 
 ## Overview
 
-CARD keeps a registry row for every equipment supplier (**Card Equipment Supplier**) and customer (**Card Equipment
+Card keeps a registry row for every equipment supplier (**Card Equipment Supplier**) and customer (**Card Equipment
 Customer**) named after the ERPNext party. The registry stores no figures: a row is shared by every company, so any
 stored total would expose other companies' activity. Figures are computed on request for the companies the caller may
-see. The endpoints below serve the registry, the filters of the CARD reports and the supplier statement PDF.
+see. The endpoints below serve the registry, the filters of the Card reports and the supplier statement PDF.
 
 ## Endpoints
 
@@ -34,7 +34,7 @@ see. The endpoints below serve the registry, the filters of the CARD reports and
 Per-company figures of one registry party: the supplier net, or the customer accrued amount (customer net), from
 submitted cards, for the permitted companies only.
 
-**Permission:** a CARD report role and read on the registry row.
+**Permission:** a Card report role and read on the registry row.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -80,7 +80,7 @@ Link queries of the statement filters: registry rows with at least one draft or 
 may see. The filter links to the registry because every report role may read it, while operational roles cannot read
 Supplier or Customer.
 
-**Permission:** a CARD report role.
+**Permission:** a Card report role.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -107,7 +107,7 @@ curl -s -G "https://<your-site>/api/method/card.api.card_suppliers_query" \
 Options for the reports' Company filter: the companies the user may see. Read only (`POST` is accepted because the
 Autocomplete control posts).
 
-**Permission:** a CARD report role.
+**Permission:** a Card report role.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -125,7 +125,7 @@ curl -s -G "https://<your-site>/api/method/card.api.card_company_options" -H "Au
 
 Options for the reports' Project filter: projects of the companies the user may see. Read only.
 
-**Permission:** a CARD report role.
+**Permission:** a Card report role.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -145,7 +145,7 @@ curl -s -G "https://<your-site>/api/method/card.api.card_project_options" \
 
 Report filter defaults from Card Settings, for any report role (Card User cannot read Card Settings).
 
-**Permission:** a CARD report role. **Parameters:** none.
+**Permission:** a Card report role. **Parameters:** none.
 
 **Returns:** `{"default_statement_type": "<value>", "include_draft_in_reports": 0|1}`.
 

@@ -227,9 +227,9 @@ class TestLinkCustomerInvoice(_LinkBase):
 		other = self._out_card(hours=(8,), customer_rate=500)
 		si = self._si(1600)
 		self._link(si, card)
-		with self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting or linked"):
+		with self.assertRaisesRegex(frappe.ValidationError, "already a Card posting or linked"):
 			self._link(si, card)
-		with self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting or linked"):
+		with self.assertRaisesRegex(frappe.ValidationError, "already a Card posting or linked"):
 			self._link(si, other)
 		self.assertEqual(frappe.db.count(LOG, {"posting_doc": si.name}), 1)
 
@@ -329,7 +329,7 @@ class TestLinkRefusals(_LinkBase):
 		card = self._out_card()
 		built = frappe.get_doc(SI, build_monthly_posting(self.company, "Customer", self.customer, 9, 2026))
 		built.submit()
-		with self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting or linked"):
+		with self.assertRaisesRegex(frappe.ValidationError, "already a Card posting or linked"):
 			self._link(built, card)
 
 	def test_no_card_and_a_card_listed_twice(self):
@@ -741,7 +741,7 @@ class TestLinkReviewFixes(_LinkBase):
 			return real(doctype, *args, **kwargs)
 
 		with patch.object(frappe.db, "get_value", side_effect=snapshot):
-			with self.assertRaisesRegex(frappe.ValidationError, "already a CARD posting or linked"):
+			with self.assertRaisesRegex(frappe.ValidationError, "already a Card posting or linked"):
 				self._link(linked, card)
 		self.assertEqual(frappe.db.count(LOG, {"posting_doc": linked.name}), 1)
 

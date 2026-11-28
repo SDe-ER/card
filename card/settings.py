@@ -169,7 +169,7 @@ def _company_warehouse(company, fieldname, strict):
 			return None
 		# the reader may not see the other company: name neither it nor its warehouse
 		frappe.throw(
-			_("The store set for {0} in Card Settings is not in that company. Ask a CARD manager.").format(
+			_("The store set for {0} in Card Settings is not in that company. Ask a Card manager.").format(
 				company
 			)
 		)

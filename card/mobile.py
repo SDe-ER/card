@@ -1,6 +1,6 @@
 # Copyright (c) 2026, Shams Dubai Contracting Est. (SDCE) and contributors
 # For license information, please see LICENSE
-"""CARD Mobile (/cdms): who may open the phone app, and the signed-in user's context.
+"""Card Mobile (/cdms): who may open the phone app, and the signed-in user's context.
 
 Same model as the Frappe HR mobile app (hrms/www/hrms.py, hrms.api.get_current_employee_info,
 hrms.hr.utils.check_app_permission): Frappe login, session and CSRF; an Active Employee linked to the
@@ -25,7 +25,7 @@ def active_employee(user=None):
 
 
 def catalog_only(user=None):
-	"""A read-only catalog viewer of CARD Mobile (phase 2b, Owner decision A): a Card User
+	"""A read-only catalog viewer of Card Mobile (phase 2b, Owner decision A): a Card User
 	without a portal role. He opens only the catalog; request endpoints still refuse him."""
 	from card.catalog import CATALOG_VIEW_ROLES
 
@@ -33,7 +33,7 @@ def catalog_only(user=None):
 
 
 def has_app_permission(require_employee=True):
-	"""Apps screen entry and page gate for CARD Mobile: a CARD portal role and, unless told
+	"""Apps screen entry and page gate for Card Mobile: a Card portal role and, unless told
 	otherwise, an Active Employee; or a catalog viewer (no Employee needed)."""
 	if frappe.session.user == "Guest":
 		return False
@@ -70,7 +70,7 @@ def has_desk_app_permission():
 
 @frappe.whitelist(methods=["GET"])
 def get_session_context():
-	"""The signed-in user's CARD Mobile context. Reads only."""
+	"""The signed-in user's Card Mobile context. Reads only."""
 	if not has_app_permission(require_employee=False):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	user = frappe.session.user

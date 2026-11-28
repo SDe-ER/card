@@ -86,7 +86,7 @@
   },
   {
    "default": "0",
-   "description": "When off, all CARD accounting features are disabled.",
+   "description": "When off, all Card accounting features are disabled.",
    "fieldname": "enable_accounting",
    "fieldtype": "Check",
    "label": "Enable accounting posting",

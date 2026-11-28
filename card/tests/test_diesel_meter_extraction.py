@@ -258,7 +258,7 @@ class TestWorkerUrl(IntegrationTestCase):
 
 	def test_a_refused_address_stops_the_job_before_any_photo_and_is_logged_once(self):
 		dme._cache().delete_value("card_meter_worker_url_refused:host_not_ip")
-		title = frappe._("CARD meter extraction: worker address refused")
+		title = frappe._("Card meter extraction: worker address refused")
 		frappe.db.delete("Error Log", {"method": title})
 		with (
 			mock.patch.object(dme, "worker_config", return_value=("http://localhost:8099", "secret-token")),

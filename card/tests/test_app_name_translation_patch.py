@@ -27,13 +27,13 @@ class TestRemoveAppNameTranslations(IntegrationTestCase):
 		removed = [
 			self._translation("ar", "Card", "كارت"),
 			self._translation("fa", "Card", "کارت"),
-			self._translation("en", "Card", "Card"),
+			self._translation("de", "Card", "CARD"),
 		]
 		kept = [
 			self._translation("ar", "Card Equipment", "المعدات"),
 			self._translation("ar", "card", "بطاقة"),
 			self._translation("ar", "Card", "بطاقة", context="Number Card Link"),
-			self._translation("fr", "Card", "CARD"),
+			self._translation("fr", "Card", "Card"),
 		]
 
 		remove_app_name_translations.execute()

@@ -61,7 +61,7 @@ mean released or live. The registry owns release status.
 Rules for every design below:
 
 - Existing DocTypes first. No new DocType. No change to Frappe or ERPNext.
-- CARD writes no GL entry. The monthly posting (`card/gl/posting.py` `build_monthly_posting`) makes draft
+- Card writes no GL entry. The monthly posting (`card/gl/posting.py` `build_monthly_posting`) makes draft
   invoices from `net_amount` and `customer_net_amount`. A person submits each invoice in ERPNext.
 - No new role grant. Money fields are permlevel 1.
 - A new field has an empty or "off" default. A submitted card is never priced again.
@@ -239,9 +239,9 @@ Differences from the plan below:
 Added after the review of FR-188:
 
 - A save that does not send the two load fields keeps the stored loads (`card/daily_log.py`
-  `keep_unsent_loads`). CARD Mobile sends rows without them (`frontend/src/data/dailyLog.ts` `ROW_FIELDS`), and
+  `keep_unsent_loads`). Card Mobile sends rows without them (`frontend/src/data/dailyLog.ts` `ROW_FIELDS`), and
   a REST update would store 0. The rule: a load field that is `None` on the row when `validate` runs was not
-  sent. A sent 0 is 0. The corrected draft of CARD Mobile is a new log with `amended_from` and rows without
+  sent. A sent 0 is 0. The corrected draft of Card Mobile is a new log with `amended_from` and rows without
   names. Its unsent load fields take the value of the amended log's row of the same equipment.
 - OFF after ON: a log that holds loads is saved while its loads are unchanged or cleared. Only new or changed
   loads are refused. The form shows the two fields read only on such a log.
@@ -268,7 +268,7 @@ only moves the entry of loads from the card to the daily log.
 |---|---|
 | Setting | `Card Company Settings.daily_log_loads`, Check, default 0, permlevel 1. Label "Loads on daily logs" |
 | Read by | `card.settings.company_setting(company, "daily_log_loads")`, as `card/gl/period_gate.py` reads `require_period_approval` |
-| Scope | Desk form and the generation. CARD Mobile screens are a later change |
+| Scope | Desk form and the generation. Card Mobile screens are a later change |
 
 **Behaviour when OFF (default, and when the company has no settings row):**
 
@@ -315,9 +315,9 @@ Effort: about 140 lines of application code, about 220 lines of tests, about 60 
     unchanged.
 
 **Gates before code:** the owner reopens #44 for this slice. Then the normal gates apply: `/code-review`,
-`/security-review` (data handling is touched), CI, and validation on the CARD QA site only.
+`/security-review` (data handling is touched), CI, and validation on the Card QA site only.
 
-**Limit of the slice.** Operators on CARD Mobile cannot enter loads until the mobile form gets the two fields.
+**Limit of the slice.** Operators on Card Mobile cannot enter loads until the mobile form gets the two fields.
 The Desk form is enough for the office and for supervisors.
 
 ## 4. Open owner decisions
@@ -358,7 +358,7 @@ The Desk form is enough for the office and for supervisors.
 - A scheduled, unattended generation of cards. The generation stays a manual action that makes drafts.
 - Automatic submit of a card, and each invoice, payment or GL action. These stay human actions in ERPNext.
 - Period approval before billing (#49) and separation of duties on cards (#51).
-- CARD Mobile changes for loads.
+- Card Mobile changes for loads.
 - A user-defined day-status table (FR-061).
 - The correction of the registry rows FR-022 and FR-150. It is a separate documentation task.
 - Each change to permissions, roles, workflows or Production.

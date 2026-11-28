@@ -1,7 +1,7 @@
 
 msgid ""
 msgstr ""
-"Project-Id-Version: CARD VERSION\n"
+"Project-Id-Version: Card VERSION\n"
 "Report-Msgid-Bugs-To: info@sdce.sa\n"
 "POT-Creation-Date: 2026-10-19 15:00+0000\n"
 "PO-Revision-Date: 2026-10-19 15:00+0000\n"
@@ -75,8 +75,8 @@ msgstr "مشینری کی ضروریات"
 msgid "Tool"
 msgstr "اوزار"
 
-msgid "CARD Mobile"
-msgstr "CARD موبائل"
+msgid "Card Mobile"
+msgstr "Card موبائل"
 
 msgid "New request"
 msgstr "نئی درخواست"
@@ -476,7 +476,7 @@ msgstr "اکاؤنٹنگ"
 #. Label of a Desktop Icon
 #: card/desktop_icon/card.json
 msgid "Card"
-msgstr "CARD"
+msgstr "Card"
 
 msgid "Load volume (m³)"
 msgstr "لوڈ حجم (m³)"
@@ -543,25 +543,25 @@ msgid "Printed at"
 msgstr "پرنٹ کا وقت"
 
 msgid "CARD operations dashboard"
-msgstr "CARD آپریشنز ڈیش بورڈ"
+msgstr "Card آپریشنز ڈیش بورڈ"
 
 msgid "Financial performance — last month"
 msgstr "مالی کارکردگی — گزشتہ ماہ"
 
 msgid "Needs review (CARD)"
-msgstr "جائزہ درکار ہے (CARD)"
+msgstr "جائزہ درکار ہے (Card)"
 
 msgid "Latest monthly cards (CARD)"
-msgstr "تازہ ترین ماہانہ کارڈز (CARD)"
+msgstr "تازہ ترین ماہانہ کارڈز (Card)"
 
 msgid "CARD customers"
-msgstr "CARD کسٹمرز"
+msgstr "Card کسٹمرز"
 
 msgid "CARD suppliers"
-msgstr "CARD سپلائرز"
+msgstr "Card سپلائرز"
 
 msgid "Diesel and operations (CARD)"
-msgstr "ڈیزل اور آپریشنز (CARD)"
+msgstr "ڈیزل اور آپریشنز (Card)"
 
 msgid "New monthly card"
 msgstr "نیا ماہانہ کارڈ"
@@ -570,22 +570,22 @@ msgid "New equipment transport"
 msgstr "نئی مشینری کی ترسیل"
 
 msgid "Customer statement (CARD)"
-msgstr "کسٹمر اسٹیٹمنٹ (CARD)"
+msgstr "کسٹمر اسٹیٹمنٹ (Card)"
 
 msgid "Monthly cards (CARD)"
-msgstr "ماہانہ کارڈز (CARD)"
+msgstr "ماہانہ کارڈز (Card)"
 
 msgid "Equipment (CARD)"
-msgstr "مشینری (CARD)"
+msgstr "مشینری (Card)"
 
 msgid "Assignments (CARD)"
-msgstr "اسائنمنٹس (CARD)"
+msgstr "اسائنمنٹس (Card)"
 
 msgid "Equipment customers (CARD)"
-msgstr "مشینری کے کسٹمرز (CARD)"
+msgstr "مشینری کے کسٹمرز (Card)"
 
 msgid "Equipment transports (CARD)"
-msgstr "مشینری کی ترسیلات (CARD)"
+msgstr "مشینری کی ترسیلات (Card)"
 
 msgid "Operating value for customers - last month"
 msgstr "کسٹمرز کی آپریٹنگ مالیت - گزشتہ ماہ"
@@ -615,31 +615,31 @@ msgid "Operating hours without rate (CARD)"
 msgstr "بغیر ریٹ کے آپریٹنگ گھنٹے (Card)"
 
 msgid "Customer summary (CARD)"
-msgstr "کسٹمر خلاصہ (CARD)"
+msgstr "کسٹمر خلاصہ (Card)"
 
 msgid "Supplier statement (CARD)"
-msgstr "سپلائر اسٹیٹمنٹ (CARD)"
+msgstr "سپلائر اسٹیٹمنٹ (Card)"
 
 msgid "Suppliers summary (CARD)"
-msgstr "سپلائرز کا خلاصہ (CARD)"
+msgstr "سپلائرز کا خلاصہ (Card)"
 
 msgid "Supplier statement A4 (CARD)"
-msgstr "سپلائر اسٹیٹمنٹ A4 (CARD)"
+msgstr "سپلائر اسٹیٹمنٹ A4 (Card)"
 
 msgid "Diesel consumption (CARD)"
-msgstr "ڈیزل کی کھپت (CARD)"
+msgstr "ڈیزل کی کھپت (Card)"
 
 msgid "Operating cost by project (CARD)"
-msgstr "پروجیکٹ کے لحاظ سے آپریٹنگ لاگت (CARD)"
+msgstr "پروجیکٹ کے لحاظ سے آپریٹنگ لاگت (Card)"
 
 msgid "Transport cost by project (CARD)"
-msgstr "پروجیکٹ کے لحاظ سے ترسیل کی لاگت (CARD)"
+msgstr "پروجیکٹ کے لحاظ سے ترسیل کی لاگت (Card)"
 
 msgid "Meter reconciliation (CARD)"
 msgstr "میٹر کی مطابقت (Card)"
 
 msgid "Equipment transport (CARD)"
-msgstr "مشینری کی ترسیل (CARD)"
+msgstr "مشینری کی ترسیل (Card)"
 
 #: card/cash_disbursement.py
 msgid "A cash payment is already requested for row {0} of card {1}."

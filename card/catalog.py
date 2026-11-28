@@ -19,7 +19,7 @@ Who sees what is decided on the server (``_read``):
   nothing;
 - anyone else gets nothing.
 Card User reads the catalogue like a portal role (phase 2b, Owner decision A, 2026-10-23: the
-read-only catalog view of CARD Mobile); he still has no access to requests.
+read-only catalog view of Card Mobile); he still has no access to requests.
 Barcode and OEM matches, alternatives and ``has_more`` only ever come from items the user may
 list. No stock, price, supplier or account is returned (stock stays with the F2 hint)."""
 
@@ -37,7 +37,7 @@ MAX_TEXT = 140
 MIN_CODE_TEXT = 3
 FIELDS = ["item_code", "item_name", "stock_uom", "image", "item_group", "brand", "allow_alternative_item"]
 FILTER_KINDS = {"item_group": "Item Group", "brand": "Brand"}
-# read-only catalog viewers of CARD Mobile (phase 2b, decision A): not a portal role
+# read-only catalog viewers of Card Mobile (phase 2b, decision A): not a portal role
 CATALOG_VIEW_ROLES = ("Card User",)
 CATALOG_ROLES = (*PORTAL_ROLES, *CATALOG_VIEW_ROLES)
 

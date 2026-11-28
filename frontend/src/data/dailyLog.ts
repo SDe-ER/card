@@ -1,7 +1,7 @@
 import { ApiError, getResource, insertResource, listResource, updateResource } from './api'
 import { __ } from '../i18n'
 
-// FR-150: CARD Mobile screens for the Card Daily Log (FR-142, card/daily_log.py). Only Frappe's
+// FR-150: Card Mobile screens for the Card Daily Log (FR-142, card/daily_log.py). Only Frappe's
 // standard REST routes under the user's own permissions; no CARD endpoint was added. The server
 // decides who may do what: the operator (Card Operator, `if_owner`) reads and writes his own logs,
 // the company scope applies, and every approval field is written by the server only. This module
@@ -138,7 +138,7 @@ export function stateTheme(state: LogState): 'gray' | 'blue' | 'green' | 'amber'
   )
 }
 
-// The actions CARD Mobile offers. Approving, verifying and returning are not among them for any role:
+// The actions Card Mobile offers. Approving, verifying and returning are not among them for any role:
 // supervisors and managers do that in CARD Desk, where the server checks the separation of duties.
 // The server still checks every action offered here.
 export type LogAction = 'edit' | 'submit' | 'correct' | 'recreate' | 'desk'
