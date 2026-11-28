@@ -25,6 +25,7 @@ sidebar:
 | POST | `card.gl.integrity.link_customer_invoice` | ربط فاتورة مبيعات يدوية معتمدة بالكروت الشهرية للعميل. |
 | POST | `card.gl.integrity.unlink_customer_invoice` | إزالة ربط خاطئ بين فاتورة مبيعات وكروتها الشهرية (System Manager). |
 | GET | `card.gl.integrity.unlinked_customer_invoice_candidates` | عرض فواتير المبيعات اليدوية غير المربوطة مع الكروت التي قد تطابقها. |
+| GET | `card.gl.integrity.customer_invoice_link_info` | حالة ربط فاتورة مبيعات واحدة والكروت التي قد تفوترها (بيانات أزرار Desk). |
 | POST | `card.gl.journal_link.link_accrual_journal` | ربط قيد يومية استحقاق لمورد بكروت CARD. |
 
 ## قواعد مشتركة لنقاط الترحيل
@@ -284,6 +285,31 @@ curl -s -X POST "https://<your-site>/api/method/card.gl.integrity.unlink_custome
 curl -s -G "https://<your-site>/api/method/card.gl.integrity.unlinked_customer_invoice_candidates" \
   -H "Authorization: token <api_key>:<api_secret>" \
   --data-urlencode "company=Example Contracting Co."
+```
+
+## customer_invoice_link_info
+
+`GET /api/method/card.gl.integrity.customer_invoice_link_info`
+
+للقراءة فقط. بيانات زرَّي **ربط بالكروت الشهرية** و**إلغاء الربط بالكروت الشهرية** في نموذج فاتورة المبيعات. تقول لفاتورة
+واحدة إن كان سجل ترحيل نشط يحتجزها. وإن كان، تعيد السجل ومصدره (`Linked` أو `Built`) وكروته. وإن لم يكن، وقبل الربط الفاتورة
+(معتمدة، وليست مرتجعًا ولا إشعارًا مدينًا ولا فاتورة افتتاحية، وبعملة الشركة، وليس لها إشعار دائن معتمد)، تعيد `card_count`، وهو
+عدد الكروت المعتمدة غير المربوطة لعميل الفاتورة على مشاريعها. ومع `with_cards` تعرضها أيضًا، الأحدث شهرًا أولًا، 100 كرت
+على الأكثر (وتكون `more_cards` صحيحة إذا كان `card_count` أكبر).
+
+**الصلاحية:** Accounts Manager أو System Manager؛ وقراءة فاتورة المبيعات وكروت التشغيل الشهرية؛ وأن تكون شركة الفاتورة ضمن
+نطاق المستخدم في CARD والمحاسبة. وهي بوابات قائمة الفواتير المرشحة نفسها.
+
+| المعامل | النوع | إلزامي | الوصف |
+|---|---|---|---|
+| `invoice` | string | نعم | اسم فاتورة المبيعات. |
+| `with_cards` | int | لا | 1 لعرض الكروت المرشحة (الافتراضي 0: `card_count` فقط). |
+
+**القيمة المعادة:** `{"invoice", "eligible", "linked", "log", "origin", "net_total", "card_count", "cards": [{"name", "month", "year",
+"project", "customer_net_amount"}], "more_cards", "linked_cards": [...]}`. **الآثار الجانبية:** لا شيء.
+
+```bash
+curl -s -G "https://<your-site>/api/method/card.gl.integrity.customer_invoice_link_info"   -H "Authorization: token <api_key>:<api_secret>"   --data-urlencode "invoice=<invoice-name>"
 ```
 
 ## link_accrual_journal

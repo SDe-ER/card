@@ -30,7 +30,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.diesel`](#card-diesel) | 1 |
 | [`card.diesel_reconciliation`](#card-diesel-reconciliation) | 1 |
 | [`card.fitment`](#card-fitment) | 2 |
-| [`card.gl.integrity`](#card-gl-integrity) | 5 |
+| [`card.gl.integrity`](#card-gl-integrity) | 6 |
 | [`card.gl.journal_link`](#card-gl-journal-link) | 1 |
 | [`card.gl.period_run`](#card-gl-period-run) | 2 |
 | [`card.gl.posting`](#card-gl-posting) | 5 |
@@ -281,12 +281,14 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | `card.gl.integrity.link_customer_invoice` | POST | `invoice: str`<br/>`cards: str \| list`<br/>`reason: str \| None = None` |
 | `card.gl.integrity.unlink_customer_invoice` | POST | `invoice: str`<br/>`reason: str \| None = None` |
 | `card.gl.integrity.unlinked_customer_invoice_candidates` | GET | `company: str`<br/>`limit_start: int \| str = 0`<br/>`limit_page_length: int \| str = 50` |
+| `card.gl.integrity.customer_invoice_link_info` | GET | `invoice: str`<br/>`with_cards: int \| str = 0` |
 
 - `accept_correction` — An Accounts Manager accepts a corrected cost center / account on a CARD draft. Only those fields may differ; the acceptance is tied to the exact invoice content (any later edit needs a new acceptance).
 - `link_supplier_invoice` — Record that an existing supplier Purchase Invoice (booked by hand) already pays for these CARD sources. Nothing is reposted and the invoice is not changed: a Linked GL Posting Log reserves the sources so CARD never builds them again, and the sources show the invoice once it is submitted.
 - `link_customer_invoice` — Record that a submitted Sales Invoice, booked by hand in ERPNext, already bills these customer monthly cards. The customer mirror of ``link_supplier_invoice``: a Linked GL Posting Log holds the cards, so CARD never builds them again, and each card gets its customer invoice link. Nothing is posted; the invoice, the card amounts and the ledger are not changed.
 - `unlink_customer_invoice` — Remove a wrong link between a customer Sales Invoice and its monthly cards (the undo of ``link_customer_invoice``), for a company that cannot cancel a submitted Sales Invoice (ZATCA). Nothing is posted, cancelled, amended or deleted; the Sales Invoice, the card amounts and the ledger are not changed.
 - `unlinked_customer_invoice_candidates` — Read only: the submitted Sales Invoices of ``company`` that CARD did not build and that are not linked (no active GL Posting Log), for every customer that has customer-billing cards; with each one, the customer's unlinked approved cards on the invoice's projects, and whether a tested set of them totals the invoice net for each project (``match`` = "exact" or "none"). Returns, debit notes, opening invoices and invoices with a submitted credit note are left out. Newest first, ``limit_page_length`` invoices per call (at most 200), at most 100 cards per invoice (``more_cards`` says that there are more). It writes nothing and links nothing.
+- `customer_invoice_link_info` — Read only: what the Desk buttons "Link to monthly cards" and "Remove link to monthly cards" of a submitted Sales Invoice show. ``linked`` says whether an active GL Posting Log holds the invoice (``log``, ``origin`` Linked or Built, and its cards in ``linked_cards``). An invoice that is not linked and that the link accepts (``eligible``) gets ``card_count``: how many unlinked approved cards of its customer are on its projects, as the candidates list reads them. With ``with_cards`` set, ``cards`` lists them, newest month first, at most 100 (``more_cards`` is true when ``card_count`` is larger); without it ``cards`` is empty, so the form can ask cheaply on every refresh and read the list only when the dialog opens. ``net_total`` is the invoice net before VAT in the company currency.
 
 
 <h2 id="card-gl-journal-link"><code>card.gl.journal_link</code></h2>

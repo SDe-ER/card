@@ -221,7 +221,7 @@ CARD already posted for a nearby month, ERPNext shows the CARD postings as a war
 
 Three server methods record that an existing document already covers CARD sources. Nothing is reposted and the
 document is not changed; a GL Posting Log with origin *Linked* reserves the sources so CARD never invoices them again.
-Each needs an accounting role (see *Permissions*) and none is exposed as a Desk button yet.
+Each needs an accounting role (see *Permissions*). Only the customer invoice link has Desk buttons, on the Sales Invoice form.
 
 | Link | Use | Evidence required |
 |---|---|---|
@@ -235,8 +235,21 @@ Cancelling the linked invoice or Journal Entry frees the sources again.
 
 Use this when a Sales Invoice was entered by hand in ERPNext and submitted, and it bills work that is on CARD monthly
 cards. Without the link, the customer reports show the cards as not invoiced and the invoice as an invoice outside
-CARD. There is no button in Desk for this action; an Accounts Manager or a System Manager calls the server method
-(see [Posting and accounting](/card/api-reference/posting-accounting/#link_customer_invoice)).
+CARD. On the submitted Sales Invoice, an Accounts Manager or a System Manager opens the group **CARD** and chooses
+**Link to monthly cards**. A dialog lists the unlinked approved cards of the customer on the projects of the invoice,
+shows the invoice net and the total of the cards you tick, and asks for a reason. The button appears only on a
+submitted invoice that is not a return or a debit note and that is not linked yet. The server method
+`customer_invoice_link_info` (read only) gives the dialog its data, and the button calls `link_customer_invoice`,
+which keeps every check below. You can also call the server method yourself (see
+[Posting and accounting](/card/api-reference/posting-accounting/#link_customer_invoice)).
+
+<!-- screenshot: invoice-link-menu -->
+![The CARD button group on a Sales Invoice](../../../assets/screenshots/en/invoice-link-menu.webp)
+*The CARD button group on a Sales Invoice*
+
+<!-- screenshot: invoice-link-dialog -->
+![Link a Sales Invoice to monthly cards](../../../assets/screenshots/en/invoice-link-dialog.webp)
+*Link a Sales Invoice to monthly cards*
 
 1. Find the invoices to link. Call `unlinked_customer_invoice_candidates` for the company. It lists each submitted
    Sales Invoice that CARD did not build and that has no link, with the customer's cards that have no invoice, and it
@@ -279,11 +292,20 @@ There are two ways to remove a link. Neither one posts an entry or changes a car
 - If the Sales Invoice can be cancelled in ERPNext, cancel it. CARD then clears the invoice link, the **Posted** flag
   and the log link on each card and sets the log to Cancelled. The cards are free again.
 - A company under ZATCA Phase 2 cannot cancel a submitted Sales Invoice, and a credit note corrects the invoice but
-  does not remove the link. For this case a System Manager calls the server method `unlink_customer_invoice` with the
-  invoice and a reason (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)).
-  There is no button in Desk for this action, and an Accounts Manager cannot do it. The caller needs the System
+  does not remove the link. For this case a System Manager chooses **Remove link to monthly cards** in the group **CARD**
+  of the invoice and gives a reason, or calls the server method `unlink_customer_invoice` with the invoice and a reason
+  (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)). The button shows
+  only on an invoice that a person linked, and an Accounts Manager cannot use it. The caller needs the System
   Manager role and also read permission on the Sales Invoice and on the cards. The System Manager role alone does
   not give read permission on a Sales Invoice, so the user also needs an accounts role.
+
+<!-- screenshot: invoice-linked-form -->
+![A Sales Invoice linked to a monthly card](../../../assets/screenshots/en/invoice-linked-form.webp)
+*A Sales Invoice linked to a monthly card*
+
+<!-- screenshot: invoice-unlink-dialog -->
+![Remove the link to monthly cards](../../../assets/screenshots/en/invoice-unlink-dialog.webp)
+*Remove the link to monthly cards*
 
 `unlink_customer_invoice` removes only a link that `link_customer_invoice` made. It refuses a Sales Invoice that CARD
 built. It also refuses when the link is no longer in the state the link left it, and then it changes nothing:

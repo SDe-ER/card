@@ -1576,6 +1576,113 @@ def unlinked_customer_invoice_candidates(
 	return result
 
 
+def _link_info_card(card):
+	return {
+		"name": card.name,
+		"month": card.month,
+		"year": card.year,
+		"project": card.project,
+		"customer_net_amount": flt(card.customer_net_amount, 2),
+	}
+
+
+def _invoice_can_be_linked(inv):
+	"""Whether ``link_customer_invoice`` could accept this invoice at all (its own refusals, read only)."""
+	if inv.docstatus != 1 or inv.is_return or inv.is_debit_note or inv.is_opening == "Yes":
+		return False
+	if inv.currency != frappe.get_cached_value("Company", inv.company, "default_currency"):
+		return False
+	return not frappe.db.exists("Sales Invoice", {"is_return": 1, "return_against": inv.name, "docstatus": 1})
+
+
+@frappe.whitelist(methods=["GET"])
+def customer_invoice_link_info(invoice: str, with_cards: int | str = 0):
+	"""Read only: what the Desk buttons "Link to monthly cards" and "Remove link to monthly cards" (FR-194,
+	FR-195) of a submitted Sales Invoice show. ``linked`` says whether an active GL Posting Log holds the invoice
+	(``log``, ``origin`` Linked or Built, and its cards in ``linked_cards``). An invoice that is not linked and
+	that the link accepts (``eligible``) gets ``card_count``: how many unlinked approved cards of its customer
+	are on its projects, as the candidates list reads them. With ``with_cards`` set, ``cards`` lists them,
+	newest month first, at most 100 (``more_cards`` is true when ``card_count`` is larger); without it
+	``cards`` is empty, so the form asks for a smaller response on every refresh (the candidate query still runs, to count) and reads the list only when the dialog
+	opens. ``net_total`` is the invoice net before VAT in the company currency.
+
+	Authorization, as the candidates list: Accounts Manager or System Manager; read on the invoice; the invoice
+	company within the caller's CARD and accounting scope; read on Card Monthly Card (the cards are read
+	through ``frappe.get_list``). It writes nothing."""
+	from frappe.utils import cint
+
+	_require_customer_link_role()
+	inv = frappe.get_doc("Sales Invoice", invoice)
+	inv.check_permission("read")
+	if inv.company not in _customer_link_companies():
+		frappe.throw(
+			_("You are not permitted to link invoices for company {0}.").format(inv.company),
+			frappe.PermissionError,
+		)
+	frappe.has_permission(CARD_DOCTYPE, "read", throw=True)
+	result = {
+		"invoice": inv.name,
+		"eligible": False,
+		"linked": False,
+		"log": None,
+		"origin": None,
+		"net_total": flt(inv.base_net_total, 2),
+		"card_count": 0,
+		"cards": [],
+		"more_cards": False,
+		"linked_cards": [],
+	}
+	held = frappe.db.get_value(
+		"GL Posting Log",
+		{"posting_doctype": "Sales Invoice", "posting_doc": inv.name, "status": ["in", list(ACTIVE_STATES)]},
+		["name", "origin"],
+		as_dict=True,
+	)
+	if held:
+		names = frappe.get_all(
+			"GL Posting Source",
+			filters={"parenttype": "GL Posting Log", "parent": held.name, "source_doctype": CARD_DOCTYPE},
+			pluck="source_name",
+		)
+		cards = frappe.get_list(
+			CARD_DOCTYPE,
+			filters={"name": ["in", names]},
+			fields=["name", "month", "year", "project", "customer_net_amount"],
+			order_by="year asc, month asc, name asc",
+			limit_page_length=0,
+		)
+		result.update(
+			linked=True,
+			log=held.name,
+			origin=held.origin or "Built",
+			linked_cards=[_link_info_card(c) for c in cards],
+		)
+		return result
+	if not _invoice_can_be_linked(inv):
+		return result
+	result["eligible"] = True
+	invoice_by_project = _net_by_project(
+		frappe.get_all(
+			"Sales Invoice Item",
+			filters={"parenttype": "Sales Invoice", "parent": inv.name},
+			fields=["project", "base_net_amount"],
+			limit_page_length=0,
+		),
+		inv.project,
+	)
+	cards = [
+		c
+		for c in _unlinked_customer_cards(inv.company, [inv.customer])
+		if c.customer == inv.customer and c.project in invoice_by_project
+	]
+	result["card_count"] = len(cards)
+	if cint(with_cards):
+		cards.sort(key=lambda c: (cint(c.year), cint(c.month), c.name), reverse=True)
+		result["more_cards"] = len(cards) > CANDIDATE_CARDS_MAX
+		result["cards"] = [_link_info_card(c) for c in cards[:CANDIDATE_CARDS_MAX]]
+	return result
+
+
 def warn_card_postings_nearby(doc):
 	"""R1 operational control: a hand-booked supplier invoice of a supplier that CARD
 	already posted for a nearby month is shown the CARD postings, so the accountant
