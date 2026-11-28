@@ -295,7 +295,9 @@ There are two ways to remove a link. Neither one posts an entry or changes a car
   does not remove the link. For this case a System Manager chooses **Remove link to monthly cards** in the group **CARD**
   of the invoice and gives a reason, or calls the server method `unlink_customer_invoice` with the invoice and a reason
   (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)). The button shows
-  only on an invoice that a person linked, and an Accounts Manager cannot use it.
+  only on an invoice that a person linked, and an Accounts Manager cannot use it. The caller needs the System
+  Manager role and also read permission on the Sales Invoice and on the cards. The System Manager role alone does
+  not give read permission on a Sales Invoice, so the user also needs an accounts role.
 
 <!-- screenshot: invoice-linked-form -->
 ![A Sales Invoice linked to a monthly card](../../../assets/screenshots/en/invoice-linked-form.webp)
@@ -304,9 +306,6 @@ There are two ways to remove a link. Neither one posts an entry or changes a car
 <!-- screenshot: invoice-unlink-dialog -->
 ![Remove the link to monthly cards](../../../assets/screenshots/en/invoice-unlink-dialog.webp)
 *Remove the link to monthly cards*
- The caller needs the System
-  Manager role and also read permission on the Sales Invoice and on the cards. The System Manager role alone does
-  not give read permission on a Sales Invoice, so the user also needs an accounts role.
 
 `unlink_customer_invoice` removes only a link that `link_customer_invoice` made. It refuses a Sales Invoice that CARD
 built. It also refuses when the link is no longer in the state the link left it, and then it changes nothing:

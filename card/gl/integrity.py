@@ -1603,7 +1603,7 @@ def customer_invoice_link_info(invoice: str, with_cards: int | str = 0):
 	that the link accepts (``eligible``) gets ``card_count``: how many unlinked approved cards of its customer
 	are on its projects, as the candidates list reads them. With ``with_cards`` set, ``cards`` lists them,
 	newest month first, at most 100 (``more_cards`` is true when ``card_count`` is larger); without it
-	``cards`` is empty, so the form can ask cheaply on every refresh and read the list only when the dialog
+	``cards`` is empty, so the form asks for a smaller response on every refresh (the candidate query still runs, to count) and reads the list only when the dialog
 	opens. ``net_total`` is the invoice net before VAT in the company currency.
 
 	Authorization, as the candidates list: Accounts Manager or System Manager; read on the invoice; the invoice

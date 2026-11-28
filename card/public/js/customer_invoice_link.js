@@ -3,7 +3,7 @@
 
 // FR-194 / FR-195: Desk buttons on a submitted customer Sales Invoice to link it to the CARD monthly cards it
 // bills and to remove that link. The server decides everything: card.gl.integrity.customer_invoice_link_info
-// (GET) gives the state (on every refresh, without the card list) and the candidate cards (when the link dialog
+// (GET) gives the state (on every refresh, a smaller response without the card list) and the candidate cards (when the link dialog
 // opens); link_customer_invoice and unlink_customer_invoice (POST) do the work and refuse what is not allowed.
 // The buttons only follow the roles (Accounts Manager or System Manager to link; System Manager to remove) and
 // the state the server reports. A refused state call shows nothing: no dialog, no button.
@@ -198,6 +198,7 @@ if (!window.card_customer_invoice_link_registered) {
 			method: INFO,
 			type: "GET",
 			args: { invoice: frm.doc.name, with_cards: 1 },
+			freeze: true,
 			callback: (r) => r.message && callback(r.message),
 		});
 

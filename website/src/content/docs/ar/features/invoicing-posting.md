@@ -275,15 +275,17 @@ Card. ويجب أن يتحقق ذلك لكل مشروع أيضًا: صافي ب�
   يزيل الربط. في هذه الحالة يختار صاحب دور System Manager **إلغاء الربط بالكروت الشهرية** من مجموعة الأزرار **CARD** في الفاتورة
   ويكتب سببًا، أو يستدعي طريقة الخادم `unlink_customer_invoice` مع الفاتورة وسبب
   (انظر [الترحيل والمحاسبة](/card/ar/api-reference/posting-accounting/#unlink_customer_invoice)). ويظهر الزر فقط على
-  فاتورة ربطها شخص، ولا يستطيع صاحب دور Accounts Manager استخدامه.
+  فاتورة ربطها شخص، ولا يستطيع صاحب دور Accounts Manager استخدامه. ويحتاج المستخدم إلى دور System Manager وإلى صلاحية قراءة
+  فاتورة المبيعات والكروت أيضًا. ودور System Manager وحده لا يعطي صلاحية قراءة فاتورة المبيعات، فيحتاج المستخدم إلى دور
+  محاسبي كذلك.
 
 <!-- screenshot: invoice-linked-form -->
 ![فاتورة مبيعات مربوطة بكارت شهري](../../../../assets/screenshots/ar/invoice-linked-form.webp)
 *فاتورة مبيعات مربوطة بكارت شهري*
 
-<!-- screenshot: invoice-unlink-dialog --> ويحتاج المستخدم إلى دور System Manager وإلى صلاحية قراءة
-  فاتورة المبيعات والكروت أيضًا. ودور System Manager وحده لا يعطي صلاحية قراءة فاتورة المبيعات، فيحتاج المستخدم إلى دور
-  محاسبي كذلك.
+<!-- screenshot: invoice-unlink-dialog -->
+![إلغاء الربط بالكروت الشهرية](../../../../assets/screenshots/ar/invoice-unlink-dialog.webp)
+*إلغاء الربط بالكروت الشهرية*
 
 تزيل `unlink_customer_invoice` الربط الذي أنشأته `link_customer_invoice` فقط. وترفض فاتورة المبيعات التي بناها CARD. وترفض
 أيضًا إذا لم يعد الربط على الحالة التي تركه عليها الربط، وعندئذ لا تغيّر شيئًا:
