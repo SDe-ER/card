@@ -190,7 +190,7 @@ class TestMobileHome(IntegrationTestCase):
 		self.assertEqual(home["kpis"]["equipment"]["active"], 0)
 		self.assertEqual(home["kpis"]["fleet_by_project"], [])
 
-	def _permission(self, user, allow, value):
+	def _permission(self, user, allow, value, applicable_for=None):
 		# ERPNext already creates the Employee permission with the Employee
 		if frappe.db.exists("User Permission", {"user": user, "allow": allow, "for_value": value}):
 			return
@@ -200,7 +200,8 @@ class TestMobileHome(IntegrationTestCase):
 				"user": user,
 				"allow": allow,
 				"for_value": value,
-				"apply_to_all_doctypes": 1,
+				"apply_to_all_doctypes": 0 if applicable_for else 1,
+				"applicable_for": applicable_for,
 			}
 		).insert(ignore_permissions=True)
 		frappe.clear_cache(user=user)
@@ -262,6 +263,47 @@ class TestMobileHome(IntegrationTestCase):
 		self.assertEqual(home["financial"]["by_company"], [])
 		self.assertEqual(home["kpis"]["equipment"], {"active": 0, "stopped": 0, "maintenance": 0})
 		self.assertEqual(home["kpis"]["fleet_by_project"], [])
+
+	def _manager_with(self, prefix, allow, value, applicable_for=None):
+		self._submitted_card(self._equipment())
+		user = self._user(prefix, ["Card Manager"])
+		self._permission(user, "Company", self.company)
+		self._permission(user, allow, value, applicable_for)
+		with patch("card.mobile.nowdate", return_value="2026-09-15"):
+			return self._home(user)
+
+	def test_user_permission_applicable_for_the_doctype_empties_the_read(self):
+		home = self._manager_with("af-card", "Supplier", self._supplier(), "Card Monthly Card")
+		self.assertEqual(home["financial"]["by_company"], [])
+
+	def test_user_permission_applicable_for_another_doctype_does_not_empty_the_read(self):
+		home = self._manager_with("af-other", "Supplier", self._supplier(), "Sales Invoice")
+		self.assertTrue([r for r in home["financial"]["by_company"] if r["company"] == self.company])
+
+	def test_user_permission_on_the_doctype_itself_empties_the_read(self):
+		equipment = self._equipment()
+		home = self._manager_with("af-self", "Card Equipment", equipment.name)
+		self.assertEqual(home["kpis"]["equipment"], {"active": 0, "stopped": 0, "maintenance": 0})
+
+	def test_scoped_rows_needs_a_project_field(self):
+		import inspect
+
+		from card.mobile_scope import scoped_rows
+
+		parameter = inspect.signature(scoped_rows).parameters["project_field"]
+		self.assertIs(parameter.default, inspect.Parameter.empty)
+
+	def test_a_role_that_reads_only_its_own_documents_does_not_pass(self):
+		from unittest.mock import patch as mock_patch
+
+		from card import mobile_scope
+
+		with mock_patch.object(mobile_scope, "role_reads", return_value=False) as reads:
+			self.assertFalse(mobile_scope.can_read("Card Equipment"))
+			self.assertEqual(
+				mobile_scope.scoped_rows("Card Equipment", ["name"], project_field="current_project"), []
+			)
+		reads.assert_called_with("Card Equipment")
 
 	def test_financial_figures_use_the_current_month_only(self):
 		doc = self._submitted_card(self._equipment())  # a September card
