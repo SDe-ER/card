@@ -38,6 +38,20 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
   Equipment Partial Margin still keep a project-tank fill at project level (owner decision 2026-11-10, #118 rule
   7); whether an estimate may ever reach them is not decided.
 
+### Added
+- **Card Mobile profile page and role-based home** (issue #357, FR-196). The profile (`/cdms/profile`) shows the
+  signed-in user's live data: name, employee ID, designation, company, branch, email, phone, the CARD roles the
+  user actually holds with a one-line summary each, currency, number format, connection state, app version, a
+  language switch (Arabic or English) and sign-out. The home adds, for review roles, fleet counts, items waiting for
+  review and an expiring-documents alert; for Card Manager and System Manager only, the current month's revenue and
+  supplier cost per company. New methods in `card/mobile.py`: `get_profile` (GET), `get_home_context` (GET) and
+  `set_language` (POST, own account only, Arabic or English, never the Administrator account). Reads use the
+  caller's own permissions (role matrix, User Permissions, company scope); the financial block also needs read on the
+  money permlevel. Operators and Card User receive no KPI values. Pull request #373. Permissions: none
+  changed, no role created ("Card Project Manager" of the mockups maps to Card Manager, owner decision 2026-11-28).
+  Accounting, data and schema: unchanged; no GL entry. Rollback: revert the pull request (code only; a changed user
+  language stays as the user set it). Profit and dues are not shown yet (payments view: issue #364).
+
 ## [4.14.4] — 2026-11-28
 
 > **Prepared 2026-11-28** (release pull request open; tag and deployment need the Owner). Published ≠ deployed (see DEPLOYMENTS.md).

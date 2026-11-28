@@ -36,7 +36,7 @@ sidebar:
 | [`card.gl.posting`](#card-gl-posting) | 5 |
 | [`card.governance_workflows`](#card-governance-workflows) | 1 |
 | [`card.materials`](#card-materials) | 8 |
-| [`card.mobile`](#card-mobile) | 1 |
+| [`card.mobile`](#card-mobile) | 4 |
 | [`card.open_month`](#card-open-month) | 3 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
 
@@ -269,6 +269,9 @@ sidebar:
 | مسار الدالة | طرق HTTP | المعاملات |
 |---|---|---|
 | `card.mobile.get_session_context` | GET | لا يوجد |
+| `card.mobile.get_profile` | GET | لا يوجد |
+| `card.mobile.set_language` | POST | `language: str` |
+| `card.mobile.get_home_context` | GET | لا يوجد |
 
 
 <h2 id="card-open-month"><code>card.open_month</code></h2>

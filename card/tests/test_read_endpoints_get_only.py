@@ -17,6 +17,8 @@ READ_ONLY = (
 	"card.card.doctype.card_equipment.card_equipment.get_shift_heatmap",
 	"card.gl.posting.preview_month",
 	"card.gl.posting.posting_month_parties",
+	"card.mobile.get_profile",
+	"card.mobile.get_home_context",
 )
 
 

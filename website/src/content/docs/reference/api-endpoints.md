@@ -36,7 +36,7 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | [`card.gl.posting`](#card-gl-posting) | 5 |
 | [`card.governance_workflows`](#card-governance-workflows) | 1 |
 | [`card.materials`](#card-materials) | 8 |
-| [`card.mobile`](#card-mobile) | 1 |
+| [`card.mobile`](#card-mobile) | 4 |
 | [`card.open_month`](#card-open-month) | 3 |
 | [`card.tool_custody`](#card-tool-custody) | 8 |
 
@@ -364,8 +364,14 @@ This page is generated from the CARD source code on every build. Edit the code, 
 | Method path | HTTP methods | Arguments |
 |---|---|---|
 | `card.mobile.get_session_context` | GET | none |
+| `card.mobile.get_profile` | GET | none |
+| `card.mobile.set_language` | POST | `language: str` |
+| `card.mobile.get_home_context` | GET | none |
 
 - `get_session_context` — The signed-in user's Card Mobile context. Reads only.
+- `get_profile` — The signed-in user's own profile: the Employee linked to the account, the CARD roles actually held, language, currency and number format. Reads only, and only the caller's own records: nothing here takes a name from the client. Personal data stops at what the profile shows.
+- `set_language` — Switch the signed-in user's own interface language between Arabic and English. Self only; the Administrator account's language is never changed.
+- `get_home_context` — What the home screen shows, by role. Operators get no KPI values at all; review roles get operational counts; only Card Manager and System Manager also get financial figures, and the server leaves them out for everyone else (the client is never the authority). Reads only.
 
 
 <h2 id="card-open-month"><code>card.open_month</code></h2>

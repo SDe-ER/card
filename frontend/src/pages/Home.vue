@@ -4,16 +4,23 @@ import { Button, ErrorMessage, LoadingIndicator } from 'frappe-ui'
 import { List, ListCell, ListRow, ListRows } from 'frappe-ui/list'
 import TopBar from '../components/TopBar.vue'
 import StatusBadge from '../components/StatusBadge.vue'
+import HomeKpis from '../components/HomeKpis.vue'
+import { getHomeContext, type HomeContext } from '../data/home'
 import { getPortal, type PortalContext } from '../data/needs'
 import { getSessionContext, type SessionContext } from '../data/session'
 
 const ctx = ref<SessionContext | null>(null)
 const portal = ref<PortalContext | null>(null)
 const error = ref('')
+const home = ref<HomeContext | null>(null)
 
 getSessionContext()
   .then((c) => (ctx.value = c))
   .catch(() => null) // the router already sent a failed lookup to the retry screen
+// the server sends KPIs by role; a failure leaves the operator sections as they are
+getHomeContext()
+  .then((h) => (home.value = h))
+  .catch(() => null)
 getPortal(true)
   .then((p) => (portal.value = p))
   .catch((e: Error) => (error.value = e.message))
@@ -31,6 +38,8 @@ const reviewer = computed(() => ctx.value?.roles.some((r) => r !== 'Card Operato
   <TopBar title="Card" />
   <div class="space-y-5 p-4">
     <p class="text-lg font-medium" data-testid="employee">{{ ctx?.employee?.employee_name }}</p>
+
+    <HomeKpis v-if="home" :home="home" />
 
     <LoadingIndicator v-if="!portal && !error" class="mx-auto size-6" />
     <ErrorMessage :message="error" />
