@@ -5,9 +5,9 @@ other shots must not see), on the disposable CI bench only. It submits the
 October 2026 cards of the three customer-billing demo machines (CR-03, WL-05, MC-05) and books, by hand and with
 fictitious data:
 
-- "CARD demo - unlinked invoice": Example Roads Co., project Valley Road Upgrade, net = the CR-03 card + the WL-05
+- "Card demo - unlinked invoice": Example Roads Co., project Valley Road Upgrade, net = the CR-03 card + the WL-05
   card. It stays unlinked, so the form shows "Link to monthly cards".
-- "CARD demo - linked invoice": Sample Infrastructure Ltd., project Industrial Park Phase 2, net = the MC-05 card.
+- "Card demo - linked invoice": Sample Infrastructure Ltd., project Industrial Park Phase 2, net = the MC-05 card.
   It is linked to that card with card.gl.integrity.link_customer_invoice, so the form shows "Remove link to
   monthly cards".
 
@@ -17,8 +17,8 @@ Re-running is safe: existing records are reused. It fails the job when a card or
 import frappe
 
 COMPANY = "Example Contracting Co."
-UNLINKED = "CARD demo - unlinked invoice"
-LINKED = "CARD demo - linked invoice"
+UNLINKED = "Card demo - unlinked invoice"
+LINKED = "Card demo - linked invoice"
 REASON = "Demo: the invoice was booked in ERPNext before the cards"
 
 

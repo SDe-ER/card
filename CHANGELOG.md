@@ -17,14 +17,14 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 
 ### Added
 - **Desk buttons to link a customer Sales Invoice to its monthly cards and to remove the link (FR-194, FR-195;
-  owner decision 2026-11-27).** On a submitted Sales Invoice the group `CARD` shows `Link to monthly cards` for an
+  owner decision 2026-11-27).** On a submitted Sales Invoice the group `Card` shows `Link to monthly cards` for an
   Accounts Manager or a System Manager when the invoice is not linked, and `Remove link to monthly cards` for a
   System Manager when a person linked it. The link dialog lists the unlinked approved cards of the customer on the
   invoice projects, shows the invoice net and the selected total, and asks for a reason; the buttons call the
   existing `link_customer_invoice` and `unlink_customer_invoice`, which keep every check. New read-only method
   `card.gl.integrity.customer_invoice_link_info` (GET) with the gates of the candidates list; it writes nothing.
   New form script `card/public/js/customer_invoice_link.js` for `Sales Invoice` (`doctype_js`). No patch, no schema
-  change, no role or permission change; CARD posts no accounting entry. Owner approval of the UI is required before
+  change, no role or permission change; Card posts no accounting entry. Owner approval of the UI is required before
   merge. Arabic wording in `ar.po`. PR #355. Rollback: code only; remove the release that adds it. The buttons write
   nothing themselves: only the link or the unlink that a user confirms in the dialog writes, and the existing
   methods keep their own checks and audit comments.

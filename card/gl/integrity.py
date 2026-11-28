@@ -1607,7 +1607,7 @@ def customer_invoice_link_info(invoice: str, with_cards: int | str = 0):
 	opens. ``net_total`` is the invoice net before VAT in the company currency.
 
 	Authorization, as the candidates list: Accounts Manager or System Manager; read on the invoice; the invoice
-	company within the caller's CARD and accounting scope; read on Card Monthly Card (the cards are read
+	company within the caller's Card and accounting scope; read on Card Monthly Card (the cards are read
 	through ``frappe.get_list``). It writes nothing."""
 	from frappe.utils import cint
 

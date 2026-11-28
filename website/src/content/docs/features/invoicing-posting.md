@@ -292,7 +292,7 @@ There are two ways to remove a link. Neither one posts an entry or changes a car
 - If the Sales Invoice can be cancelled in ERPNext, cancel it. Card then clears the invoice link, the **Posted** flag
   and the log link on each card and sets the log to Cancelled. The cards are free again.
 - A company under ZATCA Phase 2 cannot cancel a submitted Sales Invoice, and a credit note corrects the invoice but
-  does not remove the link. For this case a System Manager chooses **Remove link to monthly cards** in the group **CARD**
+  does not remove the link. For this case a System Manager chooses **Remove link to monthly cards** in the group **Card**
   of the invoice and gives a reason, or calls the server method `unlink_customer_invoice` with the invoice and a reason
   (see [Posting and accounting](/card/api-reference/posting-accounting/#unlink_customer_invoice)). The button shows
   only on an invoice that a person linked, and an Accounts Manager cannot use it. The caller needs the System

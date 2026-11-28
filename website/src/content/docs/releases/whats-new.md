@@ -18,7 +18,7 @@ per site.
 
 ## Next release (merged, not yet released)
 
-- **2026-11-27 — Buttons on the Sales Invoice to link it to its monthly cards and to remove the link.** On a submitted sales invoice, the group **CARD** now shows **Link to monthly cards** to an Accounts Manager or a System Manager. A dialog lists the unlinked approved cards of the customer on the projects of the invoice, shows the invoice net and the total of the ticked cards, and asks for a reason. A System Manager also sees **Remove link to monthly cards** on an invoice that a person linked. The buttons use the existing link and unlink methods, so every check stays the same, and a new read-only method gives the dialog its data. This changes no role or permission, and CARD posts no accounting entry.
+- **2026-11-27 — Buttons on the Sales Invoice to link it to its monthly cards and to remove the link.** On a submitted sales invoice, the group **Card** now shows **Link to monthly cards** to an Accounts Manager or a System Manager. A dialog lists the unlinked approved cards of the customer on the projects of the invoice, shows the invoice net and the total of the ticked cards, and asks for a reason. A System Manager also sees **Remove link to monthly cards** on an invoice that a person linked. The buttons use the existing link and unlink methods, so every check stays the same, and a new read-only method gives the dialog its data. This changes no role or permission, and Card posts no accounting entry.
 
 ## v4.14.3 — 2026-11-27
 

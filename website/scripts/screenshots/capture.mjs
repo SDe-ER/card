@@ -127,10 +127,10 @@ async function resolve(ctx) {
   }
   // the two fictitious invoices of ci_link_invoices.py (the Desk-button shots)
   map["si:unlinked"] = await latest(ctx, "Sales Invoice", {
-    remarks: "CARD demo - unlinked invoice",
+    remarks: "Card demo - unlinked invoice",
   });
   map["si:linked"] = await latest(ctx, "Sales Invoice", {
-    remarks: "CARD demo - linked invoice",
+    remarks: "Card demo - linked invoice",
   });
   for (const [k, dt] of Object.entries({
     trn: "Equipment Transport",

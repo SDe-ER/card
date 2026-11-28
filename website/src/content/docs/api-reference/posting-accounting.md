@@ -311,7 +311,7 @@ number of unlinked approved cards of the customer on the projects of the invoice
 them, newest month first, at most 100 (`more_cards` is true when `card_count` is larger).
 
 **Permission:** Accounts Manager or System Manager; read on the Sales Invoice and on Card Monthly Card; the company
-of the invoice within the user's CARD and accounting scope. The same gates as the candidates list.
+of the invoice within the user's Card and accounting scope. The same gates as the candidates list.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

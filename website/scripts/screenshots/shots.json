@@ -265,7 +265,7 @@
       "path": "/app/sales-invoice/{si:unlinked}",
       "waitSel": "[role=\"menuitem\"]",
       "clickSteps": [
-        ".inner-group-button[data-label=\"CARD\"] button"
+        ".inner-group-button[data-label=\"Card\"] button"
       ]
     },
     {
@@ -273,7 +273,7 @@
       "path": "/app/sales-invoice/{si:unlinked}",
       "waitSel": ".modal.show .frappe-control[data-fieldname=\"reason\"]",
       "clickSteps": [
-        ".inner-group-button[data-label=\"CARD\"] button",
+        ".inner-group-button[data-label=\"Card\"] button",
         "[role=\"menuitem\"]",
         ".modal.show .frappe-control[data-fieldname=\"card_0\"] input",
         ".modal.show .frappe-control[data-fieldname=\"card_1\"] input"
@@ -288,7 +288,7 @@
       "path": "/app/sales-invoice/{si:linked}",
       "waitSel": ".modal.show .frappe-control[data-fieldname=\"reason\"]",
       "clickSteps": [
-        ".inner-group-button[data-label=\"CARD\"] button",
+        ".inner-group-button[data-label=\"Card\"] button",
         "[role=\"menuitem\"]"
       ]
     }

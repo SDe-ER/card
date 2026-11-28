@@ -71,7 +71,7 @@ CAPTIONS = {
 	"accounting-partial-margin": ("Equipment Partial Margin report", "تقرير الهامش الجزئي للمعدات"),
 	"accounting-posting-source-integrity": ("Posting Source Integrity report", "تقرير سلامة مصادر الترحيل"),
 	"card-mobile-new-request": ("CARD Mobile requests", "الطلبات في CARD Mobile"),
-	"invoice-link-menu": ("The CARD button group on a Sales Invoice", "مجموعة أزرار CARD في فاتورة المبيعات"),
+	"invoice-link-menu": ("The Card button group on a Sales Invoice", "مجموعة أزرار Card في فاتورة المبيعات"),
 	"invoice-link-dialog": ("Link a Sales Invoice to monthly cards", "ربط فاتورة مبيعات بالكروت الشهرية"),
 	"invoice-linked-form": ("A Sales Invoice linked to a monthly card", "فاتورة مبيعات مربوطة بكارت شهري"),
 	"invoice-unlink-dialog": ("Remove the link to monthly cards", "إلغاء الربط بالكروت الشهرية"),
