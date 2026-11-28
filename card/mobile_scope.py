@@ -3,20 +3,36 @@
 """Server-side scope of the CARD Mobile KPI and management reads (issues #357, #358).
 
 A reviewer (Card Supervisor, Card Manager, System Manager) sees the machines, requests and cards of his
-permitted companies, narrowed by his Project User Permissions. ``frappe.get_list`` would also apply every
-other Link User Permission, among them the Employee permission that ERPNext creates for the user's own
-Employee: through the ``operator`` link it would hide every machine operated by someone else and the counts
-would be too low. These helpers apply the two scopes that define a reviewer's view, explicitly:
+permitted companies, narrowed by his Project User Permissions, whoever operates them. This is the stated goal of
+the management view (Owner approval, issue #358) and it is a deliberate difference from Desk: ``frappe.get_list``
+also applies the Employee User Permission that ERPNext creates for a user's own Employee, and through the
+``operator`` link it would hide every machine operated by someone else. The helpers below therefore read with
+``frappe.get_all`` after these checks, in this order:
 
-- the read right of the role on the DocType (``frappe.has_permission``);
+- the read right of the role on the DocType, ignoring document shares (``frappe.has_permission`` with no document
+  returns True as soon as one document of the DocType is shared with the user);
+- fail closed: when the user holds a User Permission that applies to the DocType or to one of its Link fields and is
+  not one of Company, Project or Employee, the result is empty, because those rules are not applied here;
 - the permitted companies (``card.report_access.permitted_companies``, as the CARD reports do);
 - the Project User Permissions, with an empty project allowed as in Frappe's own list filter.
 
-They never widen access: a user without read on the DocType, or without a permitted company, gets nothing."""
+Not applied, by design: the Employee User Permission (above), DocType hooks and field levels. Checked for the DocTypes
+read here (Card Equipment, Card Monthly Card, Card Daily Log, Equipment Needs Request): no review role has an
+``if_owner`` DocPerm on them, and their hooks only limit operators or repeat the company scope. A caller must not
+return a field of a higher permlevel than the user reads. A DocType with a row rule for reviewers must not use these
+helpers."""
 
 import frappe
 
 from card.report_access import permitted_companies
+
+# User Permissions this module applies itself (Company, Project) or bypasses on purpose (Employee)
+HANDLED_PERMISSIONS = {"Company", "Project", "Employee"}
+
+
+def can_read(doctype):
+	"""Role read right on ``doctype``; a document share never counts."""
+	return bool(frappe.has_permission(doctype, "read", ignore_share_permissions=True))
 
 
 def permitted_projects(doctype, user=None):
@@ -30,19 +46,38 @@ def permitted_projects(doctype, user=None):
 	return allowed or None
 
 
-def scoped_rows(doctype, fields, filters=None, project_field=None):
+def has_unhandled_user_permission(doctype, user=None):
+	"""True when a User Permission applies to ``doctype`` or to one of its Link fields and this module does not apply it."""
+	meta = frappe.get_meta(doctype)
+	targets = {doctype} | {df.options for df in meta.get_link_fields() if not df.ignore_user_permissions}
+	for allow, entries in frappe.permissions.get_user_permissions(user or frappe.session.user).items():
+		if allow in HANDLED_PERMISSIONS or allow not in targets:
+			continue
+		if any(not e.get("applicable_for") or e.get("applicable_for") == doctype for e in entries):
+			return True
+	return False
+
+
+def scoped_rows(doctype, fields, filters=None, project_field=None, order_by=None, limit=0):
 	"""Rows of ``doctype`` in the user's permitted companies and projects (see the module docstring).
 
-	``project_field`` names the Project link used for the Project User Permission; it is read with the rows."""
-	if not frappe.has_permission(doctype, "read"):
+	``project_field`` names the Project link used for the Project User Permission; it is returned with the rows. ``limit`` and ``order_by`` run in the
+	query; ``limit`` 0 means no limit."""
+	if not can_read(doctype) or has_unhandled_user_permission(doctype):
 		return []
 	companies = permitted_companies(doctype)
 	if not companies:
 		return []
 	where = {**(filters or {}), "company": ["in", companies]}
-	read = list(dict.fromkeys([*fields, *([project_field] if project_field else [])]))
-	rows = frappe.get_all(doctype, filters=where, fields=read, limit_page_length=0)
+	or_filters = None
 	projects = permitted_projects(doctype) if project_field else None
-	if projects is None:
-		return rows
-	return [row for row in rows if not row.get(project_field) or row.get(project_field) in projects]
+	if projects is not None:
+		or_filters = [[project_field, "in", sorted(projects)], [project_field, "is", "not set"]]
+	return frappe.get_all(
+		doctype,
+		filters=where,
+		or_filters=or_filters,
+		fields=list(dict.fromkeys([*fields, *([project_field] if project_field else [])])),
+		order_by=order_by,
+		limit_page_length=limit,
+	)
