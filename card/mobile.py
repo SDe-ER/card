@@ -153,7 +153,7 @@ def get_profile():
 
 
 @frappe.whitelist(methods=["POST"])
-def set_language(language):
+def set_language(language: str):
 	"""Switch the signed-in user's own interface language between Arabic and English. Self only; the
 	Administrator account's language is never changed."""
 	_require_app_access()
