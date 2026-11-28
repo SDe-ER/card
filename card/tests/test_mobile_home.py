@@ -180,6 +180,8 @@ class TestMobileHome(IntegrationTestCase):
 		with patch("card.mobile.nowdate", return_value="2026-09-15"):
 			home = self._home(user)
 		self.assertEqual([r for r in home["financial"]["by_company"] if r["company"] == self.company], [])
+		self.assertEqual(home["kpis"]["equipment"]["active"], 0)
+		self.assertEqual(home["kpis"]["fleet_by_project"], [])
 
 	def test_financial_figures_use_the_current_month_only(self):
 		doc = self._submitted_card(self._equipment())  # a September card
